@@ -5,4 +5,6 @@ const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/
 const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
 export const siteOrigin = configuredOrigin || (vercelHost ? `https://${vercelHost}` : undefined);
 export const socialImage = siteOrigin ? `${siteOrigin}/og.jpg` : assetPath("/og.jpg");
-export const siteDescription = "Une identité visuelle verrouillée. Une bible, 10–20 stills de référence, une grille PASS / FAIL et des règles de prompt. Look-Lock Pack dès CHF 800.";
+export const siteTitle = "U*TTU Studio — On t’empêche de cramer une LoRA";
+export const siteDescription = "Checklist dataset qui bloque l’entraînement tant que ton corpus est sale, puis un seul run Comfy Cloud (Flux.1 dev) : dataset → LoRA → 1 image. Coût affiché avant le run.";
+export const testPhaseEnd = "8 octobre 2026";

@@ -66,7 +66,7 @@ describe("gate report", () => {
     const readme = buildReadme(800, 4);
     assert.ok(readme.includes(COMFY_APPS.train.url));
     assert.match(readme, /Test à blanc : « Étapes d’entraînement » = 20/);
-    assert.match(readme, /crédits \(≈ \d+\.\d{2}–\d+\.\d{2} \$\)/);
+    assert.match(readme, /crédits \(≈ \d+,\d{2}–\d+,\d{2} \$\), \d+–\d+ min/);
     assert.match(readme, /Estimations non mesurées/);
   });
 

@@ -13,10 +13,16 @@ const angleLabel = (id: string | null) => ANGLES.find(item => item.id === id)?.l
 const framingLabel = (id: string | null) => FRAMINGS.find(item => item.id === id)?.label ?? "—";
 const round = (value: number) => Math.round(value);
 
-export function formatEstimate(estimate: RunEstimate): string {
-  const minutes = `${Math.max(1, Math.round(estimate.seconds.low / 60))}–${Math.max(1, Math.round(estimate.seconds.high / 60))} min`;
-  return `${round(estimate.credits.low)}–${round(estimate.credits.high)} crédits (≈ ${estimate.usd.low.toFixed(2)}–${estimate.usd.high.toFixed(2)} $), ${minutes}`;
-}
+const money = (value: number) => value.toFixed(2).replace(".", ",");
+
+export const formatCredits = (estimate: RunEstimate) =>
+  `${round(estimate.credits.low)}–${round(estimate.credits.high)} crédits (≈ ${money(estimate.usd.low)}–${money(estimate.usd.high)} $)`;
+
+export const formatDuration = (estimate: RunEstimate) => estimate.seconds.high < 120
+  ? `${round(estimate.seconds.low)}–${round(estimate.seconds.high)} s`
+  : `${Math.max(1, Math.round(estimate.seconds.low / 60))}–${Math.round(estimate.seconds.high / 60)} min`;
+
+export const formatEstimate = (estimate: RunEstimate) => `${formatCredits(estimate)}, ${formatDuration(estimate)}`;
 
 export function buildReport(input: GateInput, result: GateResult, generatedAt: Date): string {
   const invariants = parseInvariants(input.invariants);
