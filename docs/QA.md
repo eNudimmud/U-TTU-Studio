@@ -1,71 +1,57 @@
-# Contrôles de livraison — V1 et correction de DA
+# Contrôles de livraison — C micro
 
-Vérification du 24 septembre 2026. Sources canoniques lues avant le code. Les captures sont des rendus du site dans Chrome, pas des maquettes.
+Vérification du 2026-09-24, sur la branche `cursor/c-micro-lora-guide-f6f7`. Aucun run Comfy Cloud n’a été lancé : **0 crédit dépensé**.
 
-## Correction de la revue visuelle
+## Automatisés, rejouables
 
-La première livraison a été rejetée par JD sur l’identité visuelle. Le chargement des images et le respect de la palette avaient été vérifiés, mais cela ne validait pas le personnage. Ce défaut est consigné dans DECISIONS.md.
-
-La correction remplace les quatre assets illustratifs rejetés par trois images issues directement des références fournies. Aucun personnage n’est régénéré. Les empreintes sources et les invariants figurent dans VISUAL-CANON.md.
-
-Contrôles rejoués après correction :
-
-| Contrôle | Résultat | Périmètre |
+| Contrôle | Résultat | Commande / périmètre |
 | --- | --- | --- |
-| Build et TypeScript | PASS | `npm run build` et `npm run typecheck`. |
-| Provenance du personnage | PASS | Portrait `1000034598.png`, macro `1000033588.png`, Sanctuaire `1000033487.png` ; conversion WebP sans retouche sémantique. |
-| Hero | PASS — rendu inspecté | Le visage fourni est visible et le texte reste lisible sur desktop et mobile. Captures actualisées. |
-| Sanctuaire | PASS — rendu inspecté | Cadrages desktop et mobile vérifiés ; visage entier conservé en alignant le haut de l’image sur desktop. |
-| Responsive | PASS | Cadres 320, 390, 600, 768 et 1024 px ; largeurs utiles 305, 375, 585, 753 et 1009 px après barre de défilement. Aucun débordement de page. Desktop 1348 px utiles. |
-| Grille de contrôle | PASS | Ouverture et fermeture, `aria-expanded`, critères réels d’U*TTU. Sur mobile, le tableau défile dans une région nommée et accessible au clavier, sans élargir la page. |
-| Anciens visuels | PASS | Aucun appel aux anciennes URL dans le site ; fichiers retirés de `public/images`. |
+| TypeScript strict | PASS | `npm run typecheck` |
+| Tests unitaires | PASS : 38/38 | `npm test` : chaque règle du gate en FAIL au moins une fois, linter de légendes, trigger, netteté, dHash et miroir, statistiques robustes, CRC-32, ZIP accepté par `unzip -t` puis extrait à l’identique, rapport, manifeste, cohérence des workflows Comfy, coûts et plafond de 30 min. |
+| Build de production | PASS | `npm run build` (Next.js 16.3.6, Webpack) : page statique. |
+| Export GitHub Pages | PASS | Build avec `GITHUB_PAGES=true` et `NEXT_PUBLIC_BASE_PATH=/U-TTU-Studio`, servi sous le sous-chemin : hydratation OK, `/U-TTU-Studio/comfy/c-micro-train-image.json` en 200 (40 nodes, App Mode actif), OG en URL absolue, aucune ressource en erreur. |
+| Workflows Comfy | PASS | `submit_workflow` en `dry_run` sur les 2 graphes : validation Cloud sans exécution. |
 
-La conformité technique et la provenance sont vérifiées ici. Ces contrôles ne prétendent pas remplacer l’appréciation artistique de JD.
+## E2E dans Chrome (puppeteer-core, serveur de production)
 
-## Contrôles fonctionnels de la V1
+Jeu de test : 20 images synthétiques générées par ffmpeg. 15 compositions distinctes à 1 600 × 2 000 px, plus 5 pièges : un recadrage à 97 % (doublon), un flou de boîte, un miroir, une version sombre en noir et blanc, un 640 × 480.
 
-| Contrôle | Résultat | Preuve / périmètre |
-| --- | --- | --- |
-| Build de production | PASS | `npm run build` → Next.js 16.3.6 / Webpack, compilation, TypeScript, génération statique et traces terminées sans erreur. |
-| TypeScript strict | PASS | `npm run typecheck` et vérification intégrée au build. |
-| Sources / cible | PASS | Les cinq fichiers imposés ont été lus ; seul U-TTU-Studio contient les ajouts. Références dans DECISIONS.md. |
-| Hero / tarifs | PASS | Captures dans `docs/screenshots/`, affichées dans le README. |
-| Responsive | PASS | Viewport desktop 1363 px et documents dans des cadres de largeur 320, 390, 600, 768, 1024 px. Aucun débordement horizontal après correction de la liste d’audiences à 320 px. |
-| Formulaire vide | PASS | Les champs nom, budget et brief empêchent une demande vide via la validation native. |
-| Formulaire rempli | PASS | Préparation du mailto vers HelveticVault@gmail.com. Accents, `&`, retours à la ligne et URL de référence encodés correctement. Aucun e-mail envoyé pendant la vérification. |
-| Copie | PASS | Bouton testé, statut « Brief copié. Collez-le dans votre e-mail. ». Un texte sélectionnable reste disponible si l’API presse-papiers échoue. |
-| Navigation clavier | PASS | Passage par Tab du nom au studio ; focus visible avec contour plein. Lien d’évitement, labels et contrôles natifs présents. |
-| Démonstration PASS / FAIL | PASS | Ouverture / fermeture testées ; `aria-expanded` et visibilité de la grille conformes. La comparaison explique les critères, sans évaluation automatique. |
-| Images | Corrigé | Le test initial de chargement ne suffisait pas à valider la DA. Voir les vérifications de la correction ci-dessus. |
-| Mouvement réduit | PASS — code inspecté | Animations / transitions / scroll fluide désactivés par `prefers-reduced-motion: reduce`. La transition native n’est pas appelée si cette préférence est active. |
-| Confidentialité | PASS — code inspecté | Analytics inertes. Pas d’envoi serveur, cookies ou stockage de brief. Repli sans JS par mailto. |
-| Promesses commerciales | PASS | Un pack + une direction mensuelle. Aucun résultat chiffré inventé, génération illimitée, produit crypto ou abonnement logiciel annoncé. |
+| Contrôle | Résultat |
+| --- | --- |
+| Hero : « On t’empêche de cramer une LoRA. » ; aucune trace de Look-Lock dans le HTML ; nav sans A, ZIP-juge, 3D ni voix | PASS |
+| Étape 2 verrouillée au chargement | PASS |
+| 640 × 480 refusée d’office (« Garder » désactivé) | PASS |
+| Flou → « Flou ? » ; miroir → « Miroir ? » ; noir et blanc sombre → « Hors norme » ; recadrage → décision humaine exigée | PASS |
+| 15 images gardées, étiquetées et décrites, 4 pièges rejetés, 5 confirmations → gate PASS, emplacements 01–15 | PASS |
+| Invariant « green eyes » réécrit dans une légende → FAIL G15, étape 2 refermée ; correction → PASS | PASS |
+| ZIP téléchargé : 34 fichiers (15 JPEG, 15 .txt, `captions_comfy.txt`, rapport, `gate.json`, `LISEZMOI.txt`), `unzip -t` sans erreur | PASS |
+| `captions_comfy.txt` : 15 lignes commençant par le trigger ; JPEG sans marqueur EXIF ; long côté ≤ 1 536 px ; rapport « Verdict : PASS » | PASS |
+| 1 150 étapes en plan Standard → « Réglage refusé » ; 800 → « Au pire 23 min sur 30 » | PASS |
+| Étape 3 : prompt = trigger + scène ; « green eyes » dans la scène → avertissement | PASS |
+| Pas de débordement horizontal à 320, 390, 768 et 1 024 px, cartes du parcours comprises | PASS |
+| Mobile 390 px : bandeau du gate collant visible pendant le tri | PASS |
+| Aucune erreur JavaScript ni console | PASS |
 
-## Contrastes
+## Défauts trouvés et corrigés pendant la QA
 
-Ratios calculés selon la luminance relative sRGB. Les couples de texte ci-dessous dépassent le seuil AA 4,5:1 ; les limites des champs et boutons dépassent 3:1.
+- Un doublon recadré à 3 % tombait entre 7 et 10 bits de distance et ne recevait qu’un badge informatif. De 6 à 12 bits, une décision humaine est maintenant exigée ; ≤ 5 bits reste une paire bloquante.
+- Juste après l’import, le gate affichait FAIL en rouge alors que rien n’était faux. L’information manquante apparaît maintenant « À faire » ; FAIL est réservé aux violations. Le PASS reste aussi strict.
+- Étape 3 : boutons radio collés à leur libellé, bouton « Nouveau seed » sur deux lignes, tableau de diagnostic trop serré. Corrigés, le diagnostic devient une liste.
 
-| Élément | Couleurs | Ratio |
-| --- | --- | --- |
-| Texte principal / fond | `#F1EDE6` / `#0A0A0B` | 16,96:1 |
-| Texte secondaire / panneau | `#A8A6A2` / `#131313` | 7,65:1 |
-| Or / noir | `#C4A574` / `#0A0A0B` | 8,46:1 |
-| Texte du CTA / fond or | `#11100F` / `#C4A574` | 8,13:1 |
-| Limite des champs / champ | `#776B5B` / `#141414` | 3,54:1 |
-| Limite du CTA secondaire / panneau | `#8A7554` / `#151515` | 4,13:1 |
+## Captures
 
-## Performance et limites
+| Écran | Fichier |
+| --- | --- |
+| Hero desktop | [hero-desktop.jpg](screenshots/hero-desktop.jpg) |
+| Gate PASS | [gate-pass-desktop.jpg](screenshots/gate-pass-desktop.jpg) |
+| Gate FAIL (G15) | [gate-fail-desktop.jpg](screenshots/gate-fail-desktop.jpg) |
+| Étape 2, coût | [train-step-desktop.jpg](screenshots/train-step-desktop.jpg) |
+| Étape 3 | [image-step-desktop.jpg](screenshots/image-step-desktop.jpg) |
+| Mobile | [hero-mobile.jpg](screenshots/hero-mobile.jpg), [guide-mobile.jpg](screenshots/guide-mobile.jpg) |
 
-Le contenu principal est rendu côté serveur puis pré-rendu statiquement. Seuls le formulaire et la comparaison sont des îlots clients. Le hero est préchargé avec des dimensions réservées. Les images suivantes sont différées et les polices sont auto-hébergées. Aucun moteur 3D, vidéo automatique ou bibliothèque d’animation externe.
+## Limites
 
-Les vérifications responsive utilisent Chrome et de vrais viewports de documents embarqués ; elles ne constituent pas une campagne sur appareils physiques ou Safari. Aucun score Lighthouse, temps LCP mesuré ou certification d’accessibilité n’est revendiqué. La vérification de la délivrabilité de la boîte e-mail ne fait pas partie du test d’interface.
-
-Les captures desktop et mobile sont des preuves de rendu. Le protocole de test temporaire n’est pas livré dans `public/`.
-
-## Publication
-
-Le code et les preuves sont livrés sur `main` de [eNudimmud/U-TTU-Studio](https://github.com/eNudimmud/U-TTU-Studio). Le commit final est indiqué dans le compte rendu de livraison et vérifiable dans l’historique GitHub.
-
-Un export pour GitHub Pages a ensuite été ajouté à la demande de JD. Son build local passe. Les 15 références d’assets du HTML exporté pointent vers des fichiers existants sous `/U-TTU-Studio/` ; l’URL canonique, l’OG et le sitemap contiennent également le sous-chemin. Le workflow ne publie que `out/`. L’activation de Pages et le résultat du job de publication doivent être vérifiés dans GitHub avant d’annoncer une URL en ligne.
-
-Les instructions GitHub Pages et Vercel figurent dans le README.
+- Aucun entraînement réel n’a été exécuté. Le comportement de `TrainLoraNode` sur Flux.1 [dev] dans Comfy Cloud, les durées et la qualité restent à mesurer par la calibration ([COMFY-STACK.md](COMFY-STACK.md#coût--modèle-et-calibration)).
+- Les seuils du gate sont validés sur des images synthétiques, pas sur des datasets clients.
+- Vérifié dans Chrome uniquement : ni Safari, ni Firefox, ni appareil physique.
+- L’ouverture du lien de partage en App Mode côté client n’a pas pu être vérifiée sans compte Comfy tiers.

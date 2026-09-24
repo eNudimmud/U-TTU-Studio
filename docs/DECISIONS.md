@@ -1,39 +1,44 @@
-# Registre de livraison — 24 septembre 2026
+# Registre — C micro
 
-## FAIT — Sources lues
+Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-09-24.
 
-| Source | Blob GitHub consulté |
-| --- | --- |
-| U-TTU / SOUL.md | `a349b410fa544260aaa52cb407faeb9bb1236bfc` |
-| U-TTU / knowledge/13-CANON-VISUEL.md | `8452ba9b47f1969cd30729f6e50f40437639663d` |
-| U-TTU / knowledge/14-SANCTUAIRE.md | `45a408b91ab8e8beb69f5f0f9587bff649be1eed` |
-| U-TTU / knowledge/02-PHILOSOPHIE.md | `57a901f999c33db54d898c349d6cca7d1b9b590c` |
-| U-TTU-Vault / 00_IDENTITY/IDENTITE.md | `74d091703c32cbbc36b8d737072b94e91143e241` |
+## Décisions
 
-## FAIT — Mise en œuvre
+| Décision | Par | Date |
+| --- | --- | --- |
+| Tuer A (Look-Lock, forfait DA et ZIP-juge) : retrait du site, de la nav, des métadonnées et de la carte OG, sans route d’archive. | JD (mission) | 2026-09-24 |
+| C micro est l’unique offre : dataset propre → LoRA → 1 image. | JD (mission) | 2026-09-24 |
+| Date de kill au 2026-10-08, ou 1 client payant avant. | JD (mission) | 2026-09-24 |
+| Une seule stack : Flux.1 [dev] sur Comfy Cloud, pas de SDXL en parallèle. | Livraison ([COMFY-STACK.md](COMFY-STACK.md)) | 2026-09-24 |
+| Entraînement et image dans le même run Comfy. | Livraison, imposé par l’absence de `SaveLoRA` sur Cloud | 2026-09-24 |
+| Dataset fixé à 15 images exactement. | Livraison, imposé par les emplacements fixes de l’App Mode | 2026-09-24 |
+| FAIL réservé aux violations ; information manquante en « À faire » ; PASS exige tout en PASS. | Livraison, après QA | 2026-09-24 |
+| Aucun crédit Comfy dépensé pendant la livraison. Premier run = calibration par JD. | Livraison | 2026-09-24 |
 
-Composition éditoriale : texte décisif à gauche, portrait à droite, puis comparaison, dossier, protocole, prix et contact. Le bronze structure les interactions. Le rouge ne sert qu’au refus. `iii` apparaît dans la signature, le dossier, le manifeste et le favicon.
+## Faits
 
-Le prix et les quatre livrables viennent du brief. Aucun délai, nombre de révisions, témoignage, économie de crédits ou résultat client chiffré n’a été inventé. Les modalités de direction mensuelle sont décrites comme un périmètre à convenir.
+- Le catalogue Comfy Cloud contient `TrainLoraNode`, `MakeTrainingDataset`, `LoraModelLoader`, `LossGraphNode`, `CreateList`, `ImageScaleToTotalPixels` et `Basic data handling: StringSplitlinesDataList`. Il ne contient ni `SaveLoRA` ni les loaders de dataset par dossier (vérifié par MCP le 2026-09-24).
+- Runs limités à 30 min en Standard et Creator, 60 min en Pro. GPU à ~0,39 crédit/s. 211 crédits ≈ 1 $. Import de LoRA réservé aux plans Creator et plus, depuis Hugging Face ou Civitai.
+- `estimate_credits` renvoie 0 crédit pour les deux workflows : il ignore le temps GPU.
+- Les deux workflows passent la validation `submit_workflow` en `dry_run`. Ils sont sauvegardés dans le workspace Comfy (records `e8d7c649…` et `d5746aa7…`, version 2 avec App Mode) et partagés en `?share=798eb224b972` et `?share=25954f3b0278`.
+- Les graphes versionnés dans `public/comfy/` correspondent au générateur, lien par lien et valeur par valeur (`tests/comfy.test.ts`).
+- QA E2E sur Chrome avec 20 images synthétiques : chaque piège est signalé, le PASS n’arrive qu’avec 15 images propres, le ZIP est valide ([QA.md](QA.md)).
 
-Le formulaire compose un e-mail ; il ne contacte aucun serveur d’envoi et ne stocke aucune donnée. Le bouton de copie offre une alternative au client mail. Sans JavaScript, l’action de formulaire est également un `mailto:` et un lien direct est présent.
+## Hypothèses — à mesurer
 
-Le développement reste en Next.js authentique pour Vercel, conformément au choix de stack. Aucun hébergement Sites ou Higgsfield n’a été créé.
+- Vitesse d’entraînement Flux dev à 0,25 MP sur les GPU Comfy : 0,7 à 1,4 s par étape. Frais fixes de 90 à 240 s. Image 1024² de 9 à 14 s.
+- 800 étapes, lr 4e-4 et rank 16 sur 15 images suffisent pour une identité reconnaissable (réglages proches des entraîneurs Flux « rapides » courants). Non vérifié sur Comfy.
+- Le `TrainLoraNode` du core entraîne correctement Flux.1 [dev] : implémentation générique, flow-matching géré par `model_sampling`. Node marqué expérimental.
+- Les seuils de netteté (100 absolu, 35 % de la médiane) et de couleur (3,5 MAD) détectent assez de problèmes sans trop de faux positifs sur des photos réelles. Calibrés uniquement sur des images synthétiques.
+- Un lien `?share=` ouvre l’App Mode. Comfy indique qu’il peut s’ouvrir sur le graphe tant que le partage App Mode complet n’est pas disponible.
 
-## FAIT — Adaptation GitHub Pages
+## Propositions — non vérifiées, décision JD
 
-JD a ensuite demandé une URL déployée sur GitHub. Le mode `GITHUB_PAGES=true` produit un export statique, avec le `basePath` du dépôt et des images WebP locales. Le mode Next.js habituel reste disponible pour Vercel. Le workflow utilise les actions officielles GitHub, sans secret ajouté, et publie uniquement le dossier `out/`. L’activation initiale de Pages doit être effectuée dans les réglages GitHub ; l’existence du workflow ne prouve pas un déploiement réussi.
+- **Prix** : CHF 49–149 pour un run guidé one-shot, ou crédits Comfy du client + frais de guidage. Affiché « prix pressenti, non confirmé ».
+- **Licence Flux.1 [dev]** : faire valider l’usage commercial des sorties, le client exécutant le modèle sur son compte Comfy.
+- **Calibration** avant toute vente : test à blanc et run réel sur un vrai dataset (≈ 300 à 650 crédits), puis `TIMING.measured = true`.
+- **Phase test** : affichée jusqu’au 8 octobre 2026, date de kill.
 
-## FAIT — Correction de l’identité visuelle
+## Archive — offre A (tuée)
 
-JD a rejeté l’identité représentée dans la première livraison. La palette correspondait au brief, mais le visage, la peau, la tenue et les membres s’écartaient de ses références. Le statut de prototype ne suffisait pas à corriger cette dérive. Le précédent contrôle visuel ne constituait pas une validation canonique.
-
-Le hero utilise désormais le portrait fourni `1000034598.png`. La comparaison emploie ce portrait et le détail `1000033588.png`. Le Sanctuaire utilise `1000033487.png`. Seuls l’encodage WebP et le cadrage CSS varient : aucune nouvelle génération, retouche du visage ou modification de la couleur des références. Les fichiers et invariants sont documentés dans [VISUAL-CANON.md](VISUAL-CANON.md).
-
-La comparaison oppose une instruction insuffisamment définie à des références explicites, puis révèle des critères PASS / FAIL. Elle ne présente pas un faux historique de résultats client ni deux personnages inventés. Les anciennes images ne sont plus livrées dans `public/`.
-
-La carte OG typographique ne représente pas le personnage ; elle est conservée. Son prompt reste dans [asset-prompts.txt](asset-prompts.txt).
-
-## PROPOSITION — Suite
-
-Un vrai cas client, autorisé à être montré, renforcerait la preuve davantage qu’une animation supplémentaire. Avant d’ajouter Stripe, fixer les délais, la politique de révision et les modalités contractuelles avec le créateur. Aucun de ces éléments n’est annoncé comme acquis.
+La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une direction légère mensuelle. JD l’a tuée le 2026-09-24. Tout son contenu a été retiré du site : comparaison, grille PASS / FAIL d’U*TTU, tarifs, Sanctuaire, formulaire de brief. Le code reste consultable dans l’historique git (`9fca7e5` et antérieurs). Le portrait canonique d’U*TTU fourni par JD reste utilisé dans le hero, légendé comme référence du studio ([VISUAL-CANON.md](VISUAL-CANON.md)).
