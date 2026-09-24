@@ -78,12 +78,13 @@ UNETLoader, encodeurs Flux, `CLIPTextEncode`, FluxGuidance, KSampler (seed parta
 
 ## Affichage dans le guide
 
-Après PASS, `ComfyRunPanel` affiche `COMFY_APPS.train.url` en bas de l’étape 2 et `COMFY_APPS.prompt.url` en bas de l’étape 3, dans un iframe de 640 à 900 px de haut. Le ZIP, les légendes et le coût restent au-dessus. Le client dépose toujours lui-même les 15 images et colle les légendes dans Comfy. « Ouvrir en plein onglet », même URL, est au-dessus de chaque cadre.
+Après PASS, `ComfyRunPanel` propose `COMFY_APPS.train.url` en bas de l’étape 2 et `COMFY_APPS.prompt.url` en bas de l’étape 3. Rien n’est chargé depuis `cloud.comfy.org` avant un clic sur « Charger l’app Comfy ici » : le panneau dit ce qui va se charger et que Comfy peut charger ses propres traceurs. Au clic, un iframe de 640 à 900 px de haut remplace ce panneau ; « Recharger l’app » le recrée. Chaque étape se charge séparément. Le ZIP, les légendes et le coût restent au-dessus. Le client dépose toujours lui-même les 15 images et colle les légendes dans Comfy. « Ouvrir en plein onglet », même URL, reste au-dessus de chaque panneau, chargé ou non.
 
 | Fait (2026-09-24) | Source | Conséquence |
 | --- | --- | --- |
-| `cloud.comfy.org` envoie `frame-ancestors 'self' https:`, sans `X-Frame-Options`. | En-têtes HTTP | Cadre accepté depuis GitHub Pages. Refusé depuis une page HTTP, dont `next dev` : le panneau affiche un avertissement à la place du cadre. |
-| Dans Chrome, les deux cadres chargent la page de connexion Comfy ; chaque `?share=` reste dans `previousFullPath`. | Smoke sur le build Pages ([QA.md](QA.md#cadre-comfy-dans-le-guide)) | L’embed fonctionne jusqu’à la connexion, et chaque cadre garde son workflow. |
+| La page de connexion Comfy appelle `www.googleadservices.com` et `px.ads.linkedin.com`. | Journal réseau Chrome | Chargement au clic seulement : sans action du visiteur, ni Comfy ni ses traceurs ne sont contactés (consentement, visiteurs CH/UE). |
+| `cloud.comfy.org` envoie `frame-ancestors 'self' https:`, sans `X-Frame-Options`. | En-têtes HTTP | Cadre accepté depuis GitHub Pages. Refusé depuis une page HTTP, dont `next dev` : le panneau affiche un avertissement à la place du bouton de chargement. |
+| Dans Chrome, après le clic, chaque cadre charge la page de connexion Comfy ; son `?share=` reste dans `previousFullPath`. | Smoke sur le build Pages ([QA.md](QA.md#cadre-comfy-dans-le-guide)) | L’embed fonctionne jusqu’à la connexion, et chaque cadre garde son workflow. |
 | Après connexion, un `?share=` ouvre la fenêtre « Open shared workflow », puis charge le graphe dans la vue donnée par `extra.linearMode`. | Frontend Comfy : `useSharedWorkflowUrlLoader.ts`, `workflowService.ts` | Les deux snapshots ont `linearMode: true` : App Mode attendu. Liens non régénérés. |
 | La session Comfy (Firebase) est gardée dans le localStorage et l’IndexedDB de `cloud.comfy.org`. | Frontend Comfy : `firebaseIdentity.ts` | Ce stockage est partitionné dans un cadre tiers : le client se connecte une fois dans le cadre, même s’il l’est déjà dans un autre onglet. |
 
