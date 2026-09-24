@@ -20,12 +20,14 @@ const rowDelta = (row: FramingRow) => row.drift === "over" ? `+${row.count - row
 const rowSummary = (row: FramingRow) => `${row.label} : ${row.count} image${row.count > 1 ? "s" : ""}, repère ${row.min} à ${row.max}${row.drift === "over" ? `, ${row.count - row.max} de trop` : row.drift === "under" ? `, il en manque ${row.min - row.count}` : ""}.`;
 
 function FramingMeter({ check, coverage, onShowImages }: { check: GateCheck; coverage: FramingCoverage; onShowImages: (ids: string[]) => void }) {
-  const drifts = coverage.rows.filter(row => row.drift);
+  // A shortfall can still be filled while some kept images have no framing yet; an excess cannot.
+  const rows = coverage.rows.map(row => row.drift === "under" && coverage.untagged > 0 ? { ...row, drift: null } : row);
+  const drifts = rows.filter(row => row.drift);
   return <li className={`gate-check framing-check status-${check.status}`}>
     <span className="gate-status">{STATUS_LABEL[check.status]}</span>
     <p className="gate-label"><span className="gate-id">{check.id}</span> {check.label}</p>
     <ul className="framing-rows" aria-label="Cadrages des images gardées">
-      {coverage.rows.map(row => <li key={row.framing} className={`framing-row${row.drift ? ` is-${row.drift}` : ""}`}>
+      {rows.map(row => <li key={row.framing} className={`framing-row${row.drift ? ` is-${row.drift}` : ""}`}>
         <span className="framing-name" aria-hidden="true">{row.label}</span>
         <span className="framing-track" aria-hidden="true">
           {Array.from({ length: DATASET_SIZE }, (_, i) => <i key={i} className={[i < row.count && "is-filled", i >= row.min - 1 && i < row.max && "is-target", i < row.count && i >= row.max && "is-excess"].filter(Boolean).join(" ")} />)}
