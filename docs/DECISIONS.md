@@ -20,6 +20,10 @@ Le formulaire compose un e-mail ; il ne contacte aucun serveur d’envoi et ne s
 
 Le développement reste en Next.js authentique pour Vercel, conformément au choix de stack. Aucun hébergement Sites ou Higgsfield n’a été créé.
 
+## FAIT — Adaptation GitHub Pages
+
+JD a ensuite demandé une URL déployée sur GitHub. Le mode `GITHUB_PAGES=true` produit un export statique, avec le `basePath` du dépôt et des images WebP locales. Le mode Next.js habituel reste disponible pour Vercel. Le workflow utilise les actions officielles GitHub, sans secret ajouté, et publie uniquement le dossier `out/`. L’activation initiale de Pages doit être effectuée dans les réglages GitHub ; l’existence du workflow ne prouve pas un déploiement réussi.
+
 ## FAIT — Correction de l’identité visuelle
 
 JD a rejeté l’identité représentée dans la première livraison. La palette correspondait au brief, mais le visage, la peau, la tenue et les membres s’écartaient de ses références. Le statut de prototype ne suffisait pas à corriger cette dérive. Le précédent contrôle visuel ne constituait pas une validation canonique.

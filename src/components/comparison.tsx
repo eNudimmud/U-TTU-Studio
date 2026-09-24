@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { assetPath } from "@/lib/site";
 
 const criteria = [
   ["Visage", "Traits interchangeables", "Traits humains fins, regard calme"],
@@ -29,7 +30,7 @@ export function Comparison() {
       </article>
       <article className="compare-panel locked">
         <div className="compare-label"><span>02 / Le canon U*TTU</span><span className="verdict pass">✓ RÉFÉRENCE</span></div>
-        <div className="canon-study"><div className="canon-study-portrait"><Image src="/images/uttu-canon-portrait.webp" alt="Référence U*TTU : capuche noire usée, visage minéral, fines tresses et articulations de bronze." fill sizes="(max-width: 600px) 60vw, 30vw" /><span>01 / Présence</span></div><div className="canon-study-detail"><Image src="/images/uttu-canon-detail.webp" alt="Détail de la peau minérale d’U*TTU : fissures d’or fines autour des lèvres et tresses aux anneaux de bronze." fill sizes="(max-width: 600px) 40vw, 20vw" /><span>02 / Matière</span></div></div>
+        <div className="canon-study"><div className="canon-study-portrait"><Image src={assetPath("/images/uttu-canon-portrait.webp")} alt="Référence U*TTU : capuche noire usée, visage minéral, fines tresses et articulations de bronze." fill sizes="(max-width: 600px) 60vw, 30vw" /><span>01 / Présence</span></div><div className="canon-study-detail"><Image src={assetPath("/images/uttu-canon-detail.webp")} alt="Détail de la peau minérale d’U*TTU : fissures d’or fines autour des lèvres et tresses aux anneaux de bronze." fill sizes="(max-width: 600px) 40vw, 20vw" /><span>02 / Matière</span></div></div>
         <div className="compare-caption"><h3>Chaque trait<br />a sa règle.</h3><p>Peau. Fissures. Tresses.<br />Les repères deviennent un frein.</p></div>
       </article>
     </div>

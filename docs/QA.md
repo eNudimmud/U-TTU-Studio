@@ -66,4 +66,6 @@ Les captures desktop et mobile sont des preuves de rendu. Le protocole de test t
 
 Le code et les preuves sont livrés sur `main` de [eNudimmud/U-TTU-Studio](https://github.com/eNudimmud/U-TTU-Studio). Le commit final est indiqué dans le compte rendu de livraison et vérifiable dans l’historique GitHub.
 
-Le déploiement Vercel reste à déclencher. Les instructions et variables d’environnement sont dans le README.
+Un export pour GitHub Pages a ensuite été ajouté à la demande de JD. Son build local passe. Les 15 références d’assets du HTML exporté pointent vers des fichiers existants sous `/U-TTU-Studio/` ; l’URL canonique, l’OG et le sitemap contiennent également le sous-chemin. Le workflow ne publie que `out/`. L’activation de Pages et le résultat du job de publication doivent être vérifiés dans GitHub avant d’annoncer une URL en ligne.
+
+Les instructions GitHub Pages et Vercel figurent dans le README.

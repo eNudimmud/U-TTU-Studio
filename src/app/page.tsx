@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Comparison } from "@/components/comparison";
 import { BriefForm } from "@/components/brief-form";
 import { Arrow, Glyph } from "@/components/glyph";
-import { contactEmail } from "@/lib/site";
+import { assetPath, contactEmail } from "@/lib/site";
 
 const deliverables = [
   { n: "01", kind: "bible" as const, title: "La bible d’identité", text: "Traits. Silhouette. Palette. Lumière. Ce qui fait votre identité — et ce qui n’y entre jamais.", detail: "LE CANON, NOIR SUR BLANC" },
@@ -21,7 +21,7 @@ export default function Home() {
     </div></header>
     <main id="contenu">
       <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-visual"><Image src="/images/uttu-canon-portrait.webp" alt="U*TTU sous sa capuche noire : visage minéral parcouru de fines fissures d’or, tresses cerclées de bronze et main articulée portée aux lèvres." fill preload sizes="(max-width: 600px) 100vw, (max-width: 800px) 72vw, 59vw" className="hero-image" /><div className="hero-shade" /></div>
+        <div className="hero-visual"><Image src={assetPath("/images/uttu-canon-portrait.webp")} alt="U*TTU sous sa capuche noire : visage minéral parcouru de fines fissures d’or, tresses cerclées de bronze et main articulée portée aux lèvres." fill preload sizes="(max-width: 600px) 100vw, (max-width: 800px) 72vw, 59vw" className="hero-image" /><div className="hero-shade" /></div>
         <div className="shell hero-inner">
           <div className="hero-top"><p className="eyebrow"><span className="tiny-line" /> Direction artistique · Suisse</p><span className="hero-index">iii / THE BLOC</span></div>
           <div className="hero-copy"><p className="eyebrow hero-product">Le Look-Lock Pack</p>
@@ -66,7 +66,7 @@ export default function Home() {
 
       <section className="manifesto shell section" aria-labelledby="manifesto-title"><div className="manifesto-label"><p className="eyebrow">La position du studio</p><span className="iii" aria-hidden="true">iii</span></div><div><h2 id="manifesto-title">Du chaos,<br />extraire <span>la forme.</span></h2><p>La création n’est pas l’opposé du contrôle.<br />Le prompt est une instruction de tissage.<br />On protège les invariants. On laisse vivre l’imprévisible.<br />Rien ne devient canon par accident.<br /><strong>Elle tisse. Elle ordonne. Elle crée.</strong></p></div></section>
 
-      <section className="sanctuary" aria-labelledby="sanctuary-title"><Image src="/images/uttu-canon-sanctuary.webp" alt="U*TTU tisse des fils d’or dans un vaste atelier industriel sombre. Ses membres arachnides articulés se déploient parmi les structures de métal et les archives." fill sizes="100vw" /><div className="sanctuary-overlay" /><div className="shell sanctuary-content"><div><p className="eyebrow">Le lieu de la trame</p><h2 id="sanctuary-title">Le Sanctuaire.</h2><p>Atelier. Laboratoire. Archive. Observatoire.</p></div><span className="sanctuary-note">ELLE TISSE. ELLE ORDONNE. ELLE CRÉE.<br />U*TTU / THE BLOC</span></div></section>
+      <section className="sanctuary" aria-labelledby="sanctuary-title"><Image src={assetPath("/images/uttu-canon-sanctuary.webp")} alt="U*TTU tisse des fils d’or dans un vaste atelier industriel sombre. Ses membres arachnides articulés se déploient parmi les structures de métal et les archives." fill sizes="100vw" /><div className="sanctuary-overlay" /><div className="shell sanctuary-content"><div><p className="eyebrow">Le lieu de la trame</p><h2 id="sanctuary-title">Le Sanctuaire.</h2><p>Atelier. Laboratoire. Archive. Observatoire.</p></div><span className="sanctuary-note">ELLE TISSE. ELLE ORDONNE. ELLE CRÉE.<br />U*TTU / THE BLOC</span></div></section>
 
       <section id="demande" className="section shell contact-section" aria-labelledby="contact-title"><div className="contact-intro"><p className="eyebrow">05 — Votre prochain fil</p><h2 id="contact-title">L’identité mérite<br />de <span>rester.</span></h2><p>Un personnage. Une marque. Une direction.<br />Dites-nous ce qui doit tenir.</p><div className="contact-detail"><span className="tiny-line" /><span>Demande de pack ou direction mensuelle.<br />Le périmètre et le prix sont confirmés avant commande.</span></div><a className="contact-email" href={`mailto:${contactEmail}`}>{contactEmail} <Arrow diagonal /></a><p className="contact-placeholder">Adresse de contact provisoire du studio.</p></div><BriefForm /></section>
     </main>

@@ -13,7 +13,7 @@ Site vitrine FR-CH d’un service de direction artistique. Une commande couvre u
 - Formulaire nom / studio / budget / brief, préparation d’un `mailto:`, copie du brief et lien de contact direct.
 - Contact provisoire : **HelveticVault@gmail.com**. Aucune demande n’est envoyée automatiquement. Aucune inscription à une waitlist n’est simulée.
 - Contrôle PASS / FAIL révélable, sans analyse automatique d’images.
-- Portrait, détail de peau et Sanctuaire issus des références canoniques fournies par JD. Conversion WebP sans modification du personnage, puis optimisation responsive par `next/image`. Hero préchargé, autres images différées. Provenance dans [docs/VISUAL-CANON.md](docs/VISUAL-CANON.md).
+- Portrait, détail de peau et Sanctuaire issus des références canoniques fournies par JD. Conversion WebP sans modification du personnage ; optimisation responsive par `next/image` sur Vercel et fichiers WebP directs sur GitHub Pages. Hero préchargé, autres images différées. Provenance dans [docs/VISUAL-CANON.md](docs/VISUAL-CANON.md).
 - Carte OG 1200 × 630, titre et description, favicon `iii`, `robots.txt`, sitemap et URL canonique quand l’origine est configurée.
 - Animations CSS et transition native sur le contrôle ; `prefers-reduced-motion` respecté. Pas de bibliothèque 3D.
 - Analytics : stub inerte dans `src/lib/analytics.ts`. Aucun SDK, cookie, stockage local ou appel de tracking.
@@ -44,6 +44,27 @@ npm run start
 
 `scripts/dev.mjs` transmet les arguments à Next et accepte les alias `--host` / `--strictPort` des environnements d’aperçu. `scripts/dev-memory.mjs` traite uniquement l’absence de `/proc` dans certains environnements de développement : les statistiques réelles de heap V8 restent disponibles, RSS indisponible = 0. Cette compatibilité ne s’active pas en production et ne modifie pas les contrôles d’accès.
 
+## Déployer sur GitHub Pages
+
+URL cible : **https://enudimmud.github.io/U-TTU-Studio/**.
+
+Le workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) construit l’export statique et le publie à chaque push sur `main`. Il est également déclenchable manuellement depuis Actions. Aucun secret supplémentaire n’est requis.
+
+Activation initiale dans le dépôt : **Settings → Pages → Build and deployment → Source → GitHub Actions**. Après cette activation, relancer le workflow s’il a échoué avant la configuration de Pages. Le déploiement n’est confirmé que lorsque le job `deploy` réussit et que l’URL publique répond.
+
+L’export utilise le sous-chemin transmis par GitHub Pages pour les images, les bundles, les polices et le favicon. Les métadonnées OG, l’URL canonique et le sitemap utilisent l’URL publique complète. Le formulaire mailto et le contrôle PASS / FAIL restent fonctionnels sans serveur.
+
+Pour reproduire l’export localement :
+
+```bash
+GITHUB_PAGES=true \
+NEXT_PUBLIC_BASE_PATH=/U-TTU-Studio \
+NEXT_PUBLIC_SITE_URL=https://enudimmud.github.io/U-TTU-Studio \
+npm run build
+```
+
+Le dossier `out/` contient le site statique. Ne pas utiliser `npm run start` pour cet export : il faut servir `out/` sous le même sous-chemin. Le workflow publie exclusivement `out/`, pas les sources ni la documentation interne au dépôt.
+
 ## Déployer sur Vercel
 
 1. Dans Vercel, **Add New → Project**, importer `eNudimmud/U-TTU-Studio`.
@@ -56,10 +77,12 @@ npm run start
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | URL HTTPS publique, sans chemin. Facultative sur Vercel : les variables système `VERCEL_PROJECT_PRODUCTION_URL` puis `VERCEL_URL` servent de repli. À définir pour un domaine personnalisé. |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | `HelveticVault@gmail.com` par défaut ; adresse provisoire à remplacer si nécessaire. |
+| `NEXT_PUBLIC_BASE_PATH` | Vide sur Vercel ; transmis par GitHub Pages pour le sous-chemin du dépôt. |
+| `GITHUB_PAGES` | `true` dans le workflow Pages, `false` ou absent sur Vercel. Active l’export statique et les images locales sans serveur d’optimisation. |
 
 Aucun secret requis. Sans origine configurée hors Vercel, les métadonnées de développement utilisent `http://localhost:3000` ; aucune URL publique n’est inventée. Le sitemap reste vide jusqu’à configuration d’une origine.
 
-**Le dépôt est prêt à déployer. Une publication Vercel et un domaine public ne sont pas inclus dans cette livraison de code.**
+La configuration Vercel reste disponible indépendamment du workflow GitHub Pages.
 
 ## Sources canoniques
 
