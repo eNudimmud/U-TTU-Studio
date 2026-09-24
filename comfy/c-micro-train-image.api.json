@@ -1,0 +1,559 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux1-dev.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "Flux.1 dev"
+    }
+  },
+  "2": {
+    "class_type": "DualCLIPLoader",
+    "inputs": {
+      "clip_name1": "clip_l.safetensors",
+      "clip_name2": "t5xxl_fp16.safetensors",
+      "type": "flux",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Encodeurs texte Flux"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "_meta": {
+      "title": "VAE Flux"
+    }
+  },
+  "20": {
+    "class_type": "CreateList",
+    "inputs": {
+      "inputs.input0": [
+        "101",
+        0
+      ],
+      "inputs.input1": [
+        "102",
+        0
+      ],
+      "inputs.input2": [
+        "103",
+        0
+      ],
+      "inputs.input3": [
+        "104",
+        0
+      ],
+      "inputs.input4": [
+        "105",
+        0
+      ],
+      "inputs.input5": [
+        "106",
+        0
+      ],
+      "inputs.input6": [
+        "107",
+        0
+      ],
+      "inputs.input7": [
+        "108",
+        0
+      ],
+      "inputs.input8": [
+        "109",
+        0
+      ],
+      "inputs.input9": [
+        "110",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Images 01–10"
+    }
+  },
+  "21": {
+    "class_type": "CreateList",
+    "inputs": {
+      "inputs.input0": [
+        "111",
+        0
+      ],
+      "inputs.input1": [
+        "112",
+        0
+      ],
+      "inputs.input2": [
+        "113",
+        0
+      ],
+      "inputs.input3": [
+        "114",
+        0
+      ],
+      "inputs.input4": [
+        "115",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Images 11–15"
+    }
+  },
+  "22": {
+    "class_type": "CreateList",
+    "inputs": {
+      "inputs.input0": [
+        "20",
+        0
+      ],
+      "inputs.input1": [
+        "21",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Dataset (15 images)"
+    }
+  },
+  "23": {
+    "class_type": "ImageScaleToTotalPixels",
+    "inputs": {
+      "image": [
+        "22",
+        0
+      ],
+      "upscale_method": "lanczos",
+      "megapixels": 0.25,
+      "resolution_steps": 16
+    },
+    "_meta": {
+      "title": "Résolution d’entraînement"
+    }
+  },
+  "30": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "COLLE ICI TES 15 LÉGENDES, UNE PAR LIGNE.\nElles sortent de la checklist U*TTU (fichier captions_comfy.txt)."
+    },
+    "_meta": {
+      "title": "Légendes (15 lignes, même ordre que les images)"
+    }
+  },
+  "31": {
+    "class_type": "Basic data handling: StringSplitlinesDataList",
+    "inputs": {
+      "string": [
+        "30",
+        0
+      ],
+      "keepends": false
+    },
+    "_meta": {
+      "title": "1 ligne = 1 légende"
+    }
+  },
+  "32": {
+    "class_type": "MakeTrainingDataset",
+    "inputs": {
+      "images": [
+        "23",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "clip": [
+        "2",
+        0
+      ],
+      "texts": [
+        "31",
+        0
+      ]
+    }
+  },
+  "33": {
+    "class_type": "TrainLoraNode",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "latents": [
+        "32",
+        0
+      ],
+      "positive": [
+        "32",
+        1
+      ],
+      "batch_size": 1,
+      "grad_accumulation_steps": 1,
+      "steps": 20,
+      "learning_rate": 0.0004,
+      "rank": 16,
+      "optimizer": "AdamW",
+      "loss_function": "MSE",
+      "seed": 42,
+      "training_dtype": "bf16",
+      "lora_dtype": "bf16",
+      "quantized_backward": false,
+      "algorithm": "LoRA",
+      "gradient_checkpointing": true,
+      "checkpoint_depth": 1,
+      "offloading": false,
+      "existing_lora": "[None]",
+      "bucket_mode": false,
+      "bypass_mode": false
+    },
+    "_meta": {
+      "title": "Étapes d’entraînement (test à blanc : 20)"
+    }
+  },
+  "34": {
+    "class_type": "LossGraphNode",
+    "inputs": {
+      "loss": [
+        "33",
+        1
+      ],
+      "filename_prefix": "c-micro/loss"
+    },
+    "_meta": {
+      "title": "Courbe de loss (ne juge pas le corpus)"
+    }
+  },
+  "40": {
+    "class_type": "PrimitiveInt",
+    "inputs": {
+      "value": 424242
+    },
+    "_meta": {
+      "title": "Seed"
+    }
+  },
+  "41": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "montrigger_v1, three-quarter view, upper body shot, standing in a sunlit concrete workshop, soft window light",
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Prompt (commence par ton trigger)"
+    }
+  },
+  "42": {
+    "class_type": "FluxGuidance",
+    "inputs": {
+      "conditioning": [
+        "41",
+        0
+      ],
+      "guidance": 3.5
+    }
+  },
+  "43": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "41",
+        0
+      ]
+    }
+  },
+  "44": {
+    "class_type": "LoraModelLoader",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "lora": [
+        "33",
+        0
+      ],
+      "strength_model": 1,
+      "bypass": false
+    },
+    "_meta": {
+      "title": "Force LoRA"
+    }
+  },
+  "45": {
+    "class_type": "EmptySD3LatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "Nombre d’images (1 à 4)"
+    }
+  },
+  "46": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "44",
+        0
+      ],
+      "seed": [
+        "40",
+        0
+      ],
+      "steps": 20,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "positive": [
+        "42",
+        0
+      ],
+      "negative": [
+        "43",
+        0
+      ],
+      "latent_image": [
+        "45",
+        0
+      ],
+      "denoise": 1
+    }
+  },
+  "47": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "46",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "48": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "47",
+        0
+      ],
+      "filename_prefix": "c-micro/avec-lora"
+    },
+    "_meta": {
+      "title": "Avec LoRA"
+    }
+  },
+  "50": {
+    "class_type": "EmptySD3LatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    }
+  },
+  "51": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "seed": [
+        "40",
+        0
+      ],
+      "steps": 20,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "positive": [
+        "42",
+        0
+      ],
+      "negative": [
+        "43",
+        0
+      ],
+      "latent_image": [
+        "50",
+        0
+      ],
+      "denoise": 1
+    }
+  },
+  "52": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "51",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "53": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "52",
+        0
+      ],
+      "filename_prefix": "c-micro/temoin-sans-lora"
+    },
+    "_meta": {
+      "title": "Témoin sans LoRA (même prompt, même seed)"
+    }
+  },
+  "101": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-01.png"
+    },
+    "_meta": {
+      "title": "Image 01"
+    }
+  },
+  "102": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-02.png"
+    },
+    "_meta": {
+      "title": "Image 02"
+    }
+  },
+  "103": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-03.png"
+    },
+    "_meta": {
+      "title": "Image 03"
+    }
+  },
+  "104": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-04.png"
+    },
+    "_meta": {
+      "title": "Image 04"
+    }
+  },
+  "105": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-05.png"
+    },
+    "_meta": {
+      "title": "Image 05"
+    }
+  },
+  "106": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-06.png"
+    },
+    "_meta": {
+      "title": "Image 06"
+    }
+  },
+  "107": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-07.png"
+    },
+    "_meta": {
+      "title": "Image 07"
+    }
+  },
+  "108": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-08.png"
+    },
+    "_meta": {
+      "title": "Image 08"
+    }
+  },
+  "109": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-09.png"
+    },
+    "_meta": {
+      "title": "Image 09"
+    }
+  },
+  "110": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-10.png"
+    },
+    "_meta": {
+      "title": "Image 10"
+    }
+  },
+  "111": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-11.png"
+    },
+    "_meta": {
+      "title": "Image 11"
+    }
+  },
+  "112": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-12.png"
+    },
+    "_meta": {
+      "title": "Image 12"
+    }
+  },
+  "113": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-13.png"
+    },
+    "_meta": {
+      "title": "Image 13"
+    }
+  },
+  "114": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-14.png"
+    },
+    "_meta": {
+      "title": "Image 14"
+    }
+  },
+  "115": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "DEPOSER-IMAGE-15.png"
+    },
+    "_meta": {
+      "title": "Image 15"
+    }
+  }
+}
