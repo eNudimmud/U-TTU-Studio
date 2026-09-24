@@ -40,23 +40,36 @@ Jeu de test : 20 images synthétiques générées par ffmpeg. 15 compositions di
 
 ## Cadre Comfy dans le guide
 
-Vérification du 2026-09-24, branche `cursor/comfy-app-embed-1a7e`. Build GitHub Pages (`GITHUB_PAGES=true`, `NEXT_PUBLIC_BASE_PATH=/U-TTU-Studio`) servi sous le sous-chemin, en HTTPS local (certificat autosigné) puis en HTTP. Chrome headless, 15 images synthétiques jusqu’au PASS. Sans compte Comfy tiers, rien n’est vérifié après la page de connexion Comfy.
+Vérification du 2026-09-24, branche `cursor/comfy-click-to-load-1a7e` : chargement au clic, ajouté après le cadre de #2. Build GitHub Pages (`GITHUB_PAGES=true`, `NEXT_PUBLIC_BASE_PATH=/U-TTU-Studio`) servi sous le sous-chemin, en HTTPS local (certificat autosigné) puis en HTTP. Chrome headless, 15 images synthétiques jusqu’au PASS, clics souris réels, journal réseau de la page. Sans compte Comfy tiers, rien n’est vérifié après la page de connexion Comfy. Aucun run Comfy : 0 crédit.
 
 | Contrôle | Résultat |
 | --- | --- |
 | `npm test` (39/39), `npm run typecheck`, `npm run build`, build Pages | PASS |
-| Avant PASS : étapes 2 et 3 fermées, aucun iframe | PASS |
-| Après PASS : cadre de l’étape 2 sur `?share=798eb224b972`, cadre de l’étape 3 sur `?share=25954f3b0278`, 900 px de haut à 1 440 × 1 100 | PASS |
-| « Ouvrir en plein onglet » au-dessus de chaque cadre : même URL, `target="_blank"`, `rel="noopener noreferrer"` | PASS |
-| ZIP, « Copier les 15 lignes » et coût au-dessus du cadre ; panneaux collants « Coût avant le run » et « Lire le résultat » jamais par-dessus le cadre | PASS |
-| Note sous le cadre : compte et crédits du client, test à blanc d’abord, images locales jusqu’au dépôt, repli plein onglet | PASS |
-| HTTPS : Chrome charge `cloud.comfy.org` dans les deux cadres (page de connexion), `previousFullPath` garde chaque `?share=` | PASS |
-| HTTP : avertissement à la place du cadre, plein onglet conservé | PASS |
-| 390 et 320 px : pas de débordement horizontal ; cadre de 290 × 796 px à 390 px | PASS |
+| Avant PASS : étapes 2 et 3 fermées | PASS |
+| Après PASS, avant clic : aucun iframe, aucune requête vers `*.comfy.org` (journal réseau et Resource Timing), même après avoir fait défiler les deux panneaux | PASS |
+| Panneau avant chargement : ce qui va se charger (Comfy Cloud en mode app, `cloud.comfy.org`), traceurs tiers de Comfy, bouton « Charger l’app Comfy ici » | PASS |
+| « Ouvrir en plein onglet » disponible sans rien charger : même URL, `target="_blank"`, `rel="noopener noreferrer"` | PASS |
+| Clic sur « Charger l’app Comfy ici » à l’étape 2 : iframe sur `?share=798eb224b972`, 900 px de haut à 1 440 × 1 100, focus dans le cadre ; la première requête Comfy est ce partage ; Chrome charge la page de connexion Comfy, `previousFullPath` garde le `?share=` | PASS |
+| Charger l’étape 2 ne charge pas l’étape 3 | PASS |
+| « Recharger l’app » : nouvel iframe, même URL, nouvelle requête | PASS |
+| Étape 3 : même comportement, iframe sur `?share=25954f3b0278` | PASS |
+| ZIP, « Copier les 15 lignes » et coût au-dessus du panneau ; « Coût avant le run » et « Lire le résultat » jamais par-dessus les cadres chargés | PASS |
+| Note sous le panneau : compte et crédits du client, test à blanc d’abord, images locales jusqu’au dépôt, repli plein onglet | PASS |
+| HTTP : avertissement inchangé à la place du bouton, aucune requête vers `*.comfy.org` | PASS |
+| 390 et 320 px : pas de débordement horizontal, avant et après chargement | PASS |
 | Aucune trace de Look-Lock dans le HTML ; nav : Le piège, Le parcours, Le coût, Accès anticipé | PASS |
 | Aucune erreur JavaScript sur la page du studio | PASS |
 
-Défaut trouvé et corrigé : les panneaux collants « Coût avant le run » et « Lire le résultat » passaient par-dessus le cadre pendant le défilement. Le panneau Comfy est sorti de leur grille.
+Défaut trouvé et corrigé pendant #2 : les panneaux collants « Coût avant le run » et « Lire le résultat » passaient par-dessus le cadre pendant le défilement. Le panneau Comfy est sorti de leur grille.
+
+### Smoke manuel sur Pages
+
+1. Ouvrir https://enudimmud.github.io/U-TTU-Studio/, puis les outils de développement, onglet Réseau, filtre `comfy.org`.
+2. Amener le gate au PASS (15 images gardées). Les étapes 2 et 3 s’ouvrent ; le filtre reste vide.
+3. Étape 2 : « Charger l’app Comfy ici ». Le cadre affiche la connexion Comfy et le filtre montre `cloud.comfy.org`.
+4. Se connecter dans le cadre, puis accepter « Open shared workflow ». Attendu : l’App Mode avec Image 01 à 15, Légendes, Étapes d’entraînement, Prompt, Force LoRA, Seed et Nombre d’images.
+5. Connexion impossible dans le cadre : « Ouvrir en plein onglet » ouvre la même app. Le ZIP, les légendes et le coût restent dans l’onglet du studio.
+6. Étape 3 : même chose pour le test de prompt.
 
 ## Captures
 
@@ -66,7 +79,8 @@ Défaut trouvé et corrigé : les panneaux collants « Coût avant le run » et 
 | Gate PASS | [gate-pass-desktop.jpg](screenshots/gate-pass-desktop.jpg) |
 | Gate FAIL (G15) | [gate-fail-desktop.jpg](screenshots/gate-fail-desktop.jpg) |
 | Étape 2, coût | [train-step-desktop.jpg](screenshots/train-step-desktop.jpg) |
-| Étape 2, app Comfy dans la page | [comfy-panel-desktop.jpg](screenshots/comfy-panel-desktop.jpg) |
+| Étape 2, app Comfy avant le clic | [comfy-consent-desktop.jpg](screenshots/comfy-consent-desktop.jpg) |
+| Étape 2, app Comfy chargée | [comfy-panel-desktop.jpg](screenshots/comfy-panel-desktop.jpg) |
 | Étape 3 | [image-step-desktop.jpg](screenshots/image-step-desktop.jpg) |
 | Mobile | [hero-mobile.jpg](screenshots/hero-mobile.jpg), [guide-mobile.jpg](screenshots/guide-mobile.jpg) |
 
