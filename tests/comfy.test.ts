@@ -90,7 +90,7 @@ describe("App Mode links", () => {
       const url = new URL(app.url);
       assert.equal(url.protocol, "https:");
       assert.equal(url.hostname, "cloud.comfy.org");
-      assert.match(url.searchParams.get("share") ?? "", /^[a-f0-9]{12}$/);
+      assert.match(url.searchParams.get("share") ?? "", /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/);
     }
   });
 });
