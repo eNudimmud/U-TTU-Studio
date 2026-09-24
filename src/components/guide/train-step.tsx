@@ -3,7 +3,6 @@
 import { APP_LABELS, COMFY_CLOUD, DATASET_SIZE, FLUX_STACK, TIMING, estimateTrainRun, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
 import { formatEstimate } from "@/lib/gate/report";
 import { Arrow } from "../glyph";
-import { ComfyRunPanel } from "./comfy-run-panel";
 import { CopyButton } from "./copy-button";
 
 export type ExportState = { state: "idle" } | { state: "building"; done: number; total: number } | { state: "done"; size: number; stale: boolean } | { state: "error"; message: string };
@@ -51,8 +50,13 @@ export function TrainStep(props: Props) {
         {props.exportState.state === "error" && <p className="inline-status fail" role="alert">{props.exportState.message}</p>}
       </li>
       <li>
+        <h4>Connecte-toi dans l’app Comfy</h4>
+        <p>En bas de cette étape, avec ton compte Comfy Cloud. Comfy propose ensuite d’ouvrir le workflow partagé : accepte.</p>
+        <p className="small-print">Connexion refusée dans le cadre : « Ouvrir en plein onglet » ouvre la même app. Si le lien s’ouvre sur le graphe plutôt que sur l’app, les champs portent les mêmes noms.</p>
+      </li>
+      <li>
         <h4>Dépose les images dans l’ordre</h4>
-        <p>Dans le cadre Comfy, sous le coût. 01.jpg dans « {APP_LABELS.image(1)} », 02.jpg dans « {APP_LABELS.image(2)} »… jusqu’à {String(DATASET_SIZE).padStart(2, "0")}.jpg. L’ordre des images doit suivre celui des légendes. Si le partage s’ouvre sur le graphe, les champs portent les mêmes noms.</p>
+        <p>01.jpg dans « {APP_LABELS.image(1)} », 02.jpg dans « {APP_LABELS.image(2)} »… jusqu’à {String(DATASET_SIZE).padStart(2, "0")}.jpg. L’ordre des images doit suivre celui des légendes.</p>
       </li>
       <li>
         <h4>Colle les {DATASET_SIZE} légendes</h4>
@@ -92,6 +96,5 @@ export function TrainStep(props: Props) {
         : `Au pire ${Math.round(real.seconds.high / 60)} min sur ${limitMinutes} autorisées.`}</p>
       <p className="small-print">{TIMING.measured ? "Durées mesurées sur un run de calibration." : `Estimation non mesurée : ${TIMING.secondsPerStep.low}–${TIMING.secondsPerStep.high} s par étape supposées sur les GPU Comfy. Le premier run sert de calibration.`} Tarif : {COMFY_CLOUD.gpuCreditsPerSecond} crédit/s de GPU, {COMFY_CLOUD.creditsPerUsd} crédits ≈ 1 $. L’estimateur de Comfy affiche 0 crédit pour ce workflow : il ignore le temps GPU.</p>
     </aside>
-    <ComfyRunPanel app="train" />
   </div>;
 }

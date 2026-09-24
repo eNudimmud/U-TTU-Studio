@@ -1,46 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { COMFY_APPS } from "@/lib/comfy-stack";
+import { useSyncExternalStore } from "react";
+import { APP_LABELS, COMFY_APPS, FLUX_STACK } from "@/lib/comfy-stack";
 import { assetPath } from "@/lib/site";
 import { trackEvent, type StudioEvent } from "@/lib/analytics";
 import { Arrow } from "../glyph";
 
-type AppKey = keyof typeof COMFY_APPS;
+type ComfyApp = keyof typeof COMFY_APPS;
 
-const COPY: Record<AppKey, { eyebrow: string; heading: string; note: string; event: StudioEvent }> = {
+const PANELS: Record<ComfyApp, { heading: string; note: string; event: StudioEvent }> = {
   train: {
-    eyebrow: "App Comfy",
     heading: "Dataset → LoRA → 1 image",
-    note: "Compte Comfy Cloud et crédits : à toi. Commence par le test à blanc (20 étapes, 1 image) avant le run réel. Tes images restent sur cet appareil jusqu’à ce que tu les déposes dans Comfy. Si la connexion échoue dans le cadre, ouvre la même app en plein onglet.",
+    note: `Ton compte Comfy Cloud, tes crédits : le studio n’en fournit pas. Test à blanc d’abord (${FLUX_STACK.training.testSteps} étapes, 1 image), run réel ensuite. Tes images restent sur ton appareil jusqu’à ce que tu les déposes dans Comfy.`,
     event: "comfy_app_opened",
   },
   prompt: {
-    eyebrow: "Test de prompt",
-    heading: "Sans LoRA, avant l’entraînement",
-    note: "Compte Comfy Cloud et crédits : à toi. Ce test ne charge pas la LoRA : règle la scène ici avant de payer l’entraînement. Tes images restent sur cet appareil jusqu’à ce que tu les déposes dans Comfy. Si la connexion échoue dans le cadre, ouvre la même app en plein onglet.",
+    heading: APP_LABELS.promptTest,
+    note: "Ton compte Comfy Cloud, tes crédits. Sans LoRA : ce test règle la scène. L’image avec ta LoRA sort de l’app de l’étape 2.",
     event: "prompt_app_opened",
   },
 };
 
-export function ComfyRunPanel({ app }: { app: AppKey }) {
-  const share = COMFY_APPS[app];
-  const copy = COPY[app];
-  const [httpsPage, setHttpsPage] = useState(true);
-  useEffect(() => setHttpsPage(window.location.protocol === "https:"), []);
+const LOGIN_NOTE = "Connexion à refaire dans le cadre, même si Comfy est ouvert dans un autre onglet. Si elle échoue, « Ouvrir en plein onglet » ouvre la même app.";
 
-  return <section className="comfy-run-panel" id={`comfy-${app}`} aria-labelledby={`comfy-${app}-title`}>
+const noSubscription = () => () => {};
+
+export function ComfyRunPanel({ app }: { app: ComfyApp }) {
+  const { url, title, file } = COMFY_APPS[app];
+  const { heading, note, event } = PANELS[app];
+  // Comfy answers with `frame-ancestors 'self' https:`: a page served over http cannot frame it.
+  const framable = useSyncExternalStore(noSubscription, () => window.location.protocol === "https:", () => true);
+
+  return <section className="comfy-run-panel" aria-labelledby={`comfy-${app}-title`}>
     <header className="comfy-run-head">
-      <p className="eyebrow">{copy.eyebrow}</p>
-      <h4 id={`comfy-${app}-title`}>{copy.heading}</h4>
+      <div>
+        <p className="eyebrow">App Comfy Cloud</p>
+        <h4 id={`comfy-${app}-title`}>{heading}</h4>
+      </div>
+      <a className="button button-outline" href={url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(event)}>Ouvrir en plein onglet <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
     </header>
-    {httpsPage
-      ? <iframe className="comfy-run-frame" src={share.url} title={share.title} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" />
-      : <p className="inline-status warn" role="status">Cette page n’est pas en HTTPS : Comfy refuse d’être affichée dans un cadre. Utilise le plein onglet.</p>}
-    <div className="comfy-run-actions">
-      <a className="button button-outline" href={share.url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(copy.event)}>Ouvrir en plein onglet <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
-      {"file" in share && <a className="quiet-link" href={assetPath(share.file)} download>Workflow .json</a>}
+    {framable
+      ? <iframe className="comfy-run-frame" src={url} title={title} loading="lazy" allow="clipboard-write; fullscreen" />
+      : <p className="inline-status warn">Page en HTTP : Comfy ne s’affiche dans un cadre que depuis une page HTTPS. Utilise « Ouvrir en plein onglet ».</p>}
+    <div className="comfy-run-foot">
+      <p className="small-print">{note} {LOGIN_NOTE}</p>
+      <a className="quiet-link" href={assetPath(file)} download>Workflow .json</a>
     </div>
-    <p className="small-print">{copy.note}</p>
   </section>;
 }

@@ -7,6 +7,7 @@ import { analyzeImage, buildDatasetZip } from "@/lib/gate/browser";
 import { captionsBlock } from "@/lib/gate/report";
 import { GATE, evaluateGate, type ConfirmationId, type DatasetImage } from "@/lib/gate/rules";
 import { DatasetStep } from "./dataset-step";
+import { ComfyRunPanel } from "./comfy-run-panel";
 import { GatePanel, gateSummary, gateTone } from "./gate-panel";
 import { ImageStep } from "./image-step";
 import { TrainStep, type ExportState } from "./train-step";
@@ -138,7 +139,7 @@ export function LoraGuide() {
   const exported = shownExport.state === "done" && !shownExport.stale;
   const step2: StepState = !passed ? "locked" : realLaunched ? "done" : exported ? "running" : "ready";
   const step3: StepState = !passed ? "locked" : received ? "done" : "ready";
-  const lockedText = `Fermé : ${result.failCount + result.todoCount} contrôle${result.failCount + result.todoCount > 1 ? "s" : ""} du gate ne ${result.failCount + result.todoCount > 1 ? "sont" : "est"} pas en PASS. Pas de ZIP, pas de cadre Comfy : un dataset sale brûle des crédits, on ne t’aide pas à le faire.`;
+  const lockedText = `Fermé : ${result.failCount + result.todoCount} contrôle${result.failCount + result.todoCount > 1 ? "s" : ""} du gate ne ${result.failCount + result.todoCount > 1 ? "sont" : "est"} pas en PASS. Pas de ZIP, pas d’app Comfy : un dataset sale brûle des crédits, on ne t’aide pas à le faire.`;
 
   return <div className="guide">
     <Step n="01" title="Dataset propre" lead={`${DATASET_SIZE} images, 3 angles minimum, légendes = trigger + variables. Chaque FAIL bloque la suite.`} state={step1}>
@@ -162,12 +163,14 @@ export function LoraGuide() {
         captions={captions} steps={steps} plan={plan} count={count} exportState={shownExport} testDone={testDone} realLaunched={realLaunched}
         onSteps={setSteps} onPlan={setPlan} onExport={exportZip} onTestDone={setTestDone} onRealLaunched={setRealLaunched}
       />
+      <ComfyRunPanel app="train" />
     </Step>
     <Step n="03" title="Utiliser une fois : 1 image" lead="Se règle dans le même formulaire Comfy que l’étape 2 et part dans le même run. Comfy Cloud n’exporte pas la LoRA : elle vit le temps du run." state={step3} locked={!passed} lockedText="Fermé tant que le dataset n’est pas en PASS.">
       <ImageStep
         trigger={trigger} invariants={invariants} scene={scene} strength={strength} seed={seed} count={count} steps={steps} received={received}
         onScene={setScene} onStrength={setStrength} onSeed={setSeed} onCount={setCount} onReceived={setReceived}
       />
+      <ComfyRunPanel app="prompt" />
     </Step>
   </div>;
 }
