@@ -25,6 +25,8 @@ describe("dataset gate", () => {
     const images = cleanDataset();
     images[0].decision = "rejeter";
     assert.equal(status(cleanInput(images), "G03"), "fail");
+    images[0].decision = "a-trier";
+    assert.equal(status(cleanInput(images), "G03"), "todo");
     const more = [...cleanDataset(), makeImage({ variables: "orange scarf, train station", angle: "profil", framing: "buste" })];
     assert.equal(status(cleanInput(more), "G03"), "fail");
   });
@@ -52,10 +54,12 @@ describe("dataset gate", () => {
 
   it("requires every imported image to be triaged and every confirmation ticked", () => {
     const images = [...cleanDataset(), makeImage({ decision: "a-trier" })];
-    assert.equal(status(cleanInput(images), "G04"), "fail");
+    assert.equal(status(cleanInput(images), "G04"), "todo");
+    assert.equal(evaluateGate(cleanInput(images)).verdict, "FAIL");
     const input = cleanInput();
-    assert.equal(status({ ...input, confirmations: { ...input.confirmations, droits: false } }, "G05"), "fail");
-    assert.equal(status({ ...input, confirmations: {} }, "G05"), "todo");
+    const oneMissing = { ...input, confirmations: { ...input.confirmations, droits: false } };
+    assert.equal(status(oneMissing, "G05"), "todo");
+    assert.equal(evaluateGate(oneMissing).verdict, "FAIL");
   });
 
   it("flags blur for review and passes once the image is checked by eye", () => {
@@ -107,7 +111,9 @@ describe("dataset gate", () => {
     assert.equal(status(cleanInput(portraitsOnly), "G13"), "fail");
     const untagged = cleanDataset();
     untagged[3].framing = null;
-    assert.equal(status(cleanInput(untagged), "G10"), "fail");
+    assert.equal(status(cleanInput(untagged), "G10"), "todo");
+    assert.equal(status(cleanInput(untagged), "G13"), "todo");
+    assert.equal(evaluateGate(cleanInput(untagged)).verdict, "FAIL");
   });
 
   it("blocks identical and novel-length captions, warns on bare captions", () => {
@@ -125,6 +131,21 @@ describe("dataset gate", () => {
   it("rejects weak triggers and requires at least two invariants", () => {
     for (const trigger of ["woman", "woman_1", "mira", "Mira_v1", "m_1", "sks_2"]) assert.equal(status({ ...cleanInput(), trigger }, "G01"), "fail", trigger);
     assert.equal(status({ ...cleanInput(), trigger: "mira_v1" }, "G01"), "pass");
-    assert.equal(status({ ...cleanInput(), invariants: "green eyes" }, "G02"), "fail");
+    assert.equal(status({ ...cleanInput(), invariants: "green eyes" }, "G02"), "todo");
+    assert.equal(evaluateGate({ ...cleanInput(), invariants: "green eyes" }).verdict, "FAIL");
+  });
+});
+
+describe("near duplicates", () => {
+  it("asks a human to confirm a very close pose instead of letting it pass silently", () => {
+    const images = cleanDataset();
+    const flipped = [...images[2].hash].map((char, i) => i < 2 ? (parseInt(char, 16) ^ 0xf).toString(16) : char).join("");
+    images[6].hash = flipped;
+    const input = cleanInput(images);
+    const flags = computeFlags(images);
+    assert.ok(flags[images[6].id].some(flag => flag.kind === "tres-proche" && flag.weight === "review"));
+    assert.equal(evaluateGate(input).checks.find(item => item.id === "G09")?.status, "fail");
+    images[2].reviewed = images[6].reviewed = true;
+    assert.equal(evaluateGate(cleanInput(images)).checks.find(item => item.id === "G09")?.status, "pass");
   });
 });

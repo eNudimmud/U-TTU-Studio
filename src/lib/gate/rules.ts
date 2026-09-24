@@ -9,8 +9,8 @@ export const GATE = {
   comfortShortSide: 1024,
   blurAbsolute: 100,
   blurRelative: 0.35,
-  duplicateDistance: 6,
-  nearDistance: 10,
+  duplicateDistance: 5,
+  nearDistance: 12,
   outlierMads: 3.5,
   lumaFloor: 40,
   saturationFloor: 0.12,
@@ -141,8 +141,8 @@ export function computeFlags(images: DatasetImage[]): Record<string, ImageFlag[]
         add(a.id, { kind: "miroir", weight: "review", label: "Miroir ?", detail: `Semble être ${b.name} retournée : un miroir inverse les asymétries du visage.`, relatedId: b.id });
         add(b.id, { kind: "miroir", weight: "review", label: "Miroir ?", detail: `Semble être ${a.name} retournée : un miroir inverse les asymétries du visage.`, relatedId: a.id });
       } else if (direct <= GATE.nearDistance) {
-        add(a.id, { kind: "tres-proche", weight: "info", label: "Très proche", detail: `Pose très proche de ${b.name}.`, relatedId: b.id });
-        add(b.id, { kind: "tres-proche", weight: "info", label: "Très proche", detail: `Pose très proche de ${a.name}.`, relatedId: a.id });
+        add(a.id, { kind: "tres-proche", weight: "review", label: "Très proche", detail: `Presque la même image que ${b.name} (recadrage, rafale ?). Même pose : garde la meilleure. Pose distincte : coche « Vérifié ».`, relatedId: b.id });
+        add(b.id, { kind: "tres-proche", weight: "review", label: "Très proche", detail: `Presque la même image que ${a.name} (recadrage, rafale ?). Même pose : garde la meilleure. Pose distincte : coche « Vérifié ».`, relatedId: a.id });
       }
     }
   }
@@ -169,22 +169,23 @@ export function evaluateGate(input: GateInput): GateResult {
   const triggerError = checkTrigger(trigger);
   check("G01", "reglages", "Trigger unique", !trigger ? "todo" : triggerError ? "fail" : "pass", triggerError ?? `« ${trigger} » porte l’identité à lui seul.`);
   check("G02", "reglages", `Identité déclarée (≥ ${GATE.minInvariants} invariants)`,
-    !invariants.length ? "todo" : invariants.length >= GATE.minInvariants ? "pass" : "fail",
+    invariants.length >= GATE.minInvariants ? "pass" : "todo",
     invariants.length >= GATE.minInvariants ? `${invariants.length} invariants : ${invariants.join(", ")}.`
       : "Liste ce qui ne change jamais (ex. green eyes, freckles, scar on left cheek). Ces traits seront interdits dans les légendes.");
 
   const untriaged = input.images.filter(image => image.decision === "a-trier");
   check("G03", "revue", `${GATE.datasetSize} images retenues, ni plus ni moins`,
-    pending ? "todo" : kept.length === GATE.datasetSize ? "pass" : "fail",
+    kept.length === GATE.datasetSize ? "pass" : kept.length > GATE.datasetSize ? "fail" : pending || untriaged.length ? "todo" : "fail",
     pending ? `0 / ${GATE.datasetSize}.`
       : kept.length === GATE.datasetSize ? `${GATE.datasetSize} / ${GATE.datasetSize}.`
+        : kept.length < GATE.datasetSize && untriaged.length ? `${kept.length} / ${GATE.datasetSize} : continue le tri.`
         : kept.length < GATE.datasetSize ? `${kept.length} / ${GATE.datasetSize} : trop peu pour séparer l’identité du décor. Ajoute des images, n’en duplique pas.`
           : `${kept.length} / ${GATE.datasetSize} : l’app Comfy a ${GATE.datasetSize} emplacements. Garde les meilleures.`);
-  check("G04", "revue", "Chaque image triée", !input.images.length ? "todo" : untriaged.length ? "fail" : "pass",
+  check("G04", "revue", "Chaque image triée", !input.images.length || untriaged.length ? "todo" : "pass",
     !input.images.length ? "Importe tes images." : untriaged.length ? `${plural(untriaged.length, "image attend", "images attendent")} « Garder » ou « Rejeter ».` : "Toutes les images ont une décision.",
     untriaged.map(image => image.id));
   const missing = CONFIRMATIONS.filter(item => !input.confirmations[item.id]);
-  check("G05", "revue", "Confirmations humaines", missing.length === CONFIRMATIONS.length ? "todo" : missing.length ? "fail" : "pass",
+  check("G05", "revue", "Confirmations humaines", missing.length ? "todo" : "pass",
     missing.length ? `${plural(missing.length, "case reste", "cases restent")} à cocher : ${missing.map(item => item.label.replace(/\.$/, "")).join(" · ")}.` : `Les ${CONFIRMATIONS.length} confirmations sont faites.`);
 
   const unreadable = kept.filter(image => !image.readable);
@@ -205,30 +206,32 @@ export function evaluateGate(input: GateInput): GateResult {
   check("G08", "technique", "Netteté vérifiée", pending ? "todo" : blurry.length ? "fail" : "pass",
     pending ? waiting : blurry.length ? `${plural(blurry.length, "image marquée floue n’est pas vérifiée", "images marquées floues ne sont pas vérifiées")} : zoome, puis coche « Vérifié » ou rejette.` : "Aucune image floue non vérifiée.",
     blurry.map(image => image.id));
-  const odd = unreviewed(["hors-norme", "miroir"]);
-  check("G09", "technique", "Dérives vérifiées (hors norme, miroir)", pending ? "todo" : odd.length ? "fail" : "pass",
-    pending ? waiting : odd.length ? `${plural(odd.length, "image signalée n’est pas vérifiée", "images signalées ne sont pas vérifiées")} : même identité ? Sinon, rejette.` : "Aucune dérive signalée sans vérification.",
+  const odd = unreviewed(["hors-norme", "miroir", "tres-proche"]);
+  check("G09", "technique", "Signalements vérifiés (hors norme, miroir, très proche)", pending ? "todo" : odd.length ? "fail" : "pass",
+    pending ? waiting : odd.length ? `${plural(odd.length, "image signalée n’est pas vérifiée", "images signalées ne sont pas vérifiées")} : même identité, pose distincte ? Sinon, rejette.` : "Aucun signalement en attente.",
     odd.map(image => image.id));
 
   const untagged = kept.filter(image => !image.angle || !image.framing);
-  check("G10", "couverture", "Angle et cadrage renseignés", pending ? "todo" : untagged.length ? "fail" : "pass",
+  check("G10", "couverture", "Angle et cadrage renseignés", pending || untagged.length ? "todo" : "pass",
     pending ? waiting : untagged.length ? `${plural(untagged.length, "image sans angle ou cadrage", "images sans angle ou cadrage")}.` : "Chaque image retenue a un angle et un cadrage.",
     untagged.map(image => image.id));
+  const coverageWaiting = pending || untagged.length > 0;
+  const tagWaiting = pending ? waiting : "Renseigne l’angle et le cadrage de toutes les images retenues.";
   const faceAngles = new Set(kept.map(image => image.angle).filter((angle): angle is Angle => !!angle && FACE_ANGLES.includes(angle)));
   check("G11", "couverture", `≥ ${GATE.minFaceAngles} angles de visage (face, 3/4, profil)`,
-    pending ? "todo" : faceAngles.size >= GATE.minFaceAngles ? "pass" : "fail",
-    pending ? waiting : faceAngles.size >= GATE.minFaceAngles ? "Face, 3/4 et profil sont couverts."
+    coverageWaiting ? "todo" : faceAngles.size >= GATE.minFaceAngles ? "pass" : "fail",
+    coverageWaiting ? tagWaiting : faceAngles.size >= GATE.minFaceAngles ? "Face, 3/4 et profil sont couverts."
       : `Couverts : ${[...faceAngles].map(angleLabel).join(", ") || "aucun"}. Sans profil ni 3/4, la LoRA ne sait refaire que ce qu’elle a vu.`);
   const angleCounts = new Map<Angle, number>();
   for (const image of kept) if (image.angle) angleCounts.set(image.angle, (angleCounts.get(image.angle) ?? 0) + 1);
   const dominant = [...angleCounts].find(([, count]) => count / kept.length > GATE.maxAngleShare);
-  check("G12", "couverture", `Aucun angle au-delà de ${Math.round(GATE.maxAngleShare * 100)} %`, pending ? "todo" : dominant ? "fail" : "pass",
-    pending ? waiting : dominant ? `${angleLabel(dominant[0])} : ${dominant[1]} / ${kept.length}. L’angle dominant finit figé dans la LoRA.` : "Pas d’angle dominant.");
+  check("G12", "couverture", `Aucun angle au-delà de ${Math.round(GATE.maxAngleShare * 100)} %`, coverageWaiting ? "todo" : dominant ? "fail" : "pass",
+    coverageWaiting ? tagWaiting : dominant ? `${angleLabel(dominant[0])} : ${dominant[1]} / ${kept.length}. L’angle dominant finit figé dans la LoRA.` : "Pas d’angle dominant.");
   const closeUps = kept.filter(image => image.framing === "gros-plan").length;
   const wide = kept.filter(image => !!image.framing && WIDE_FRAMINGS.includes(image.framing)).length;
   check("G13", "couverture", `≥ ${GATE.minCloseUps} gros plans et ≥ ${GATE.minWideShots} plans larges`,
-    pending ? "todo" : closeUps >= GATE.minCloseUps && wide >= GATE.minWideShots ? "pass" : "fail",
-    pending ? waiting : `${plural(closeUps, "gros plan", "gros plans")}, ${wide} en buste ou plein pied. Il faut les deux pour que l’identité tienne du visage à la silhouette.`);
+    coverageWaiting ? "todo" : closeUps >= GATE.minCloseUps && wide >= GATE.minWideShots ? "pass" : "fail",
+    coverageWaiting ? tagWaiting : `${plural(closeUps, "gros plan", "gros plans")}, ${wide} en buste ou plein pied. Il faut les deux pour que l’identité tienne du visage à la silhouette.`);
 
   const noTrigger = kept.filter((_, i) => !trigger || !captions[i].startsWith(`${trigger},`) && captions[i] !== trigger);
   check("G14", "legendes", "Trigger en tête de chaque légende", pending ? "todo" : noTrigger.length ? "fail" : "pass",

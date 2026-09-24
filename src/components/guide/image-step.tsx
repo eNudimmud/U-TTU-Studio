@@ -61,7 +61,7 @@ export function ImageStep(props: Props) {
             <button type="button" className="text-button" onClick={() => props.onSeed(Math.floor(Math.random() * 2 ** 31))}>Nouveau seed</button>
           </div>
         </div>
-        <fieldset className="field count-choice">
+        <fieldset className="count-choice">
           <legend>Nombre d’images</legend>
           {[1, FLUX_STACK.image.maxCount].map(value => <label key={value} className="check-inline"><input type="radio" name="count" checked={props.count === value} onChange={() => props.onCount(value)} /><span>{value === 1 ? "1 image" : `Grille de ${value}`}</span></label>)}
         </fieldset>
@@ -88,12 +88,13 @@ export function ImageStep(props: Props) {
         <li><strong>{APP_LABELS.control}</strong> : ce que Flux fait sans ta LoRA.</li>
         <li><strong>{APP_LABELS.loss}</strong>.</li>
       </ol>
-      <div className="table-scroll" role="region" aria-label="Diagnostic du résultat" tabIndex={0}>
-        <table className="diagnostic">
-          <thead><tr><th scope="col">Tu vois</th><th scope="col">Cause probable</th><th scope="col">Quoi faire</th></tr></thead>
-          <tbody>{DIAGNOSTICS.map(([symptom, cause, fix]) => <tr key={symptom}><th scope="row">{symptom}</th><td>{cause}</td><td>{fix}</td></tr>)}</tbody>
-        </table>
-      </div>
+      <ul className="diagnostics" aria-label="Diagnostic du résultat">
+        {DIAGNOSTICS.map(([symptom, cause, fix]) => <li key={symptom}>
+          <p className="diagnostic-symptom">{symptom}</p>
+          <p><span>Cause probable</span>{cause}</p>
+          <p><span>Quoi faire</span>{fix}</p>
+        </li>)}
+      </ul>
       <label className="check-inline"><input type="checkbox" checked={props.received} onChange={event => props.onReceived(event.target.checked)} /><span>Image reçue</span></label>
       {props.received && <p className="inline-status pass" role="status">Fait. Une autre image = un autre run ({formatCredits(rerun)}). Garde le ZIP : c’est ton dataset propre, réutilisable.</p>}
     </aside>

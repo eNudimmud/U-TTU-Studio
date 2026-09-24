@@ -99,7 +99,7 @@ export function DatasetStep(props: Props) {
             {!keepable && <p className="image-note">Refusée d’office (&lt; {GATE.minShortSide} px ou illisible).</p>}
             {needsReview && image.decision !== "rejeter" && <label className="check-inline">
               <input type="checkbox" checked={image.reviewed} onChange={event => props.onUpdate(image.id, { reviewed: event.target.checked })} />
-              <span>Vérifié à 100 % : même identité, visage net</span>
+              <span>Vérifié à 100 % : même identité, visage net, pose distincte</span>
             </label>}
             {image.decision === "garder" && <div className="image-tags">
               <div className="tag-row">

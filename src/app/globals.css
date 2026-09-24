@@ -141,7 +141,7 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.04
 .loss-curve { width: 100%; height: auto; background: #0f0f10; border: 1px solid var(--line); }
 .loss-axis { fill: none; stroke: #ffffff30; stroke-width: 1; }
 .loss-line { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; }
-.loss-curve text { fill: var(--muted); font-size: 10px; font-family: var(--font-body); }
+.loss-curve text { fill: var(--muted); font-size: 8px; font-family: var(--font-body); }
 .trap-run { font-size: 13px; color: var(--gold); }
 .illustration-note { font-size: 13px; color: var(--muted); margin-top: 16px; }
 .principle-line { display: flex; gap: 25px; align-items: center; border-block: 1px solid var(--line); padding: 26px 0; margin-top: 56px; }
@@ -281,8 +281,11 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.04
 .runtime-bar.is-over span { background: #b64b4b; }
 
 .image-settings .form-row { align-items: start; }
-.seed-row { display: flex; gap: 14px; align-items: center; }
-.count-choice { border: 0; padding: 0; display: grid; gap: 8px; }
+.seed-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.field .seed-row input { width: 170px; flex: 0 0 170px; }
+.seed-row .text-button { white-space: nowrap; }
+.count-choice { border: 0; padding: 0; margin: 0 0 20px; display: grid; gap: 10px; align-content: start; }
+.count-choice legend { font-size: 14px; color: #d8d1c6; padding: 0; margin-bottom: 8px; }
 .report-values { border: 1px solid var(--line); background: var(--panel); padding: 16px 18px; margin: 4px 0 20px; }
 .report-values dl { margin: 10px 0 0; }
 .report-values dl > div { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); align-items: baseline; }
@@ -294,12 +297,10 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.04
 .prompt-test strong { color: var(--text); font-weight: 500; }
 .outputs { margin: 0; padding-left: 20px; font-size: 14px; color: var(--muted); display: grid; gap: 4px; }
 .outputs strong { color: var(--text); font-weight: 500; }
-.table-scroll { max-width: 100%; overflow-x: auto; }
-.diagnostic { border-collapse: collapse; width: 100%; font-size: 13px; line-height: 1.5; }
-.diagnostic th, .diagnostic td { text-align: left; vertical-align: top; padding: 9px 8px 9px 0; border-top: 1px solid var(--line); }
-.diagnostic thead th { color: var(--muted); font-weight: 500; font-size: 12px; }
-.diagnostic tbody th { font-weight: 500; color: var(--text); }
-.diagnostic td { color: #c2bcb2; }
+.diagnostics { list-style: none; margin: 0; padding: 0; display: grid; }
+.diagnostics li { display: grid; gap: 4px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.55; color: #c2bcb2; }
+.diagnostic-symptom { font-size: 14px; color: var(--text); font-weight: 500; }
+.diagnostics span { display: inline-block; min-width: 108px; color: var(--muted); font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; margin-right: 6px; }
 
 .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .price-card { border: 1px solid var(--line); padding: 32px 34px 28px; background: #151515; display: flex; flex-direction: column; position: relative; }
