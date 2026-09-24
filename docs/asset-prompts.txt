@@ -1,0 +1,45 @@
+U*TTU STUDIO — PROTOTYPE IMAGE ASSETS
+Generation mode: built-in image_gen.imagegen; one independent request per asset.
+
+HERO
+Use case: stylized-concept.
+Asset type: portrait hero artwork for the luxury U*TTU Studio website. This image is an exploratory prototype, not a declaration of new canon.
+Create a 1024×1536 portrait cinematic ultra-real high-end editorial CG image. Scene: a deep black atelier × archive × observatory × laboratory sanctuary, faint dark metal and stone architecture, restrained warm light, no fantasy magic.
+Subject: one elegant adult feminine humanoid arachnid, with a clearly human angular refined face, calm analytical sovereign expression, dark bronze/mineral skin, fine dark braids with tiny bronze rings, black structured hood. She wears black tactile layered tactical tech-gothic clothing with fine antique-gold and bronze details. Her face and human hands are warmly lit and clearly readable.
+Composition: waist-up seated or standing, face centered roughly 60% from the left, with a large but restrained symmetric halo of additional ARCHITECTURAL ARTICULATED MECHANICAL-looking limbs, built from black and bronze precision segments. These are elegant constructed prosthetic architecture, never organic insect legs. Thin taut golden threads extend between her fingertips across her chest. Refined calm pose, deliberate negative space, striking luxury studio art direction, extreme photoreal polish.
+Palette: black #0A0A0B, anthracite #1A1B1E, metallic gray #8B909A, bronze #A67C52, antique gold #C4A574, warm brown #6B4E3D.
+Constraints: human face, adult, fine braids, hood, visible warm face and hands, controlled symmetric architectural appendages, no text or logos or watermark.
+Avoid: organic insect legs, monstrous face, horror, cartoon, cold blue dominance, cyan or magenta neon, fantasy sorcery, dark unreadability.
+
+DEMO
+Use case: photorealistic-natural.
+Asset type: original illustrative before/after identity-preservation service demonstration, not official UTTU identity.
+Create one 1536×1024 landscape contact sheet containing FOUR separate rectangular editorial portrait photographs in a precise 2×2 grid with thin black gutters. Every quadrant is one polished photoreal portrait with a neutral warm-black backdrop, equal camera distance and crop, same controlled warm studio lighting.
+TOP LEFT: a calm adult bronze-skinned woman with a black structured hood, clearly human angular sharp mature refined face, fine dark braids, and a fine narrow bronze collar.
+TOP RIGHT: a visibly DIFFERENT adult woman in similar black hood, with a rounder face, different copper-toned skin, visibly different facial proportions, and a BROAD GOLD COLLAR. This shows identity drift but the subject remains beautiful, refined and photoreal.
+BOTTOM LEFT and BOTTOM RIGHT: depict EXACTLY THE SAME woman as TOP LEFT. The same sharp mature angular face, exact facial identity, skin tone, same black hood, same fine dark braids, same fine NARROW bronze collar. Only a subtle head-angle difference between these two and the top-left original; lighting and palette stay constant.
+Keep the top-left and BOTH bottom portraits facially identical and keep the top-right visibly distinct. All subjects are adults. Luxury editorial portrait realism, fine textile and skin detail.
+Palette black #0A0A0B, anthracite #1A1B1E, bronze #A67C52, antique gold #C4A574 and warm brown #6B4E3D.
+No text, no labels, no UI, no logos, no watermark. No monstrous faces, horror, cartoon, cyan or magenta neon, or dominant cold blue.
+
+SANCTUARY
+Use case: photorealistic-natural.
+Asset type: landscape sanctuary architecture artwork for U*TTU Studio website, intended to crop to a wide strip. Exploratory prototype.
+Create a 1536×1024 landscape atmospheric cinematic architectural photograph of an abandoned monumental dark-bronze and anthracite atelier × archive × observatory × laboratory. Readable architectural depth, realistic physical construction, dark metal, black stone, a SINGLE worktable, old screens glowing dim amber, archival shelves, a few subtle hanging works and several fine taut gold fibers crossing the space. A warm shaft of light falls across black stone and lightly reveals the architecture. Restrained luxury atmosphere, quiet, precise, tangible materials; warm highlights and deep soft shadows while retaining interior detail.
+Palette #0A0A0B black, #1A1B1E anthracite, #8B909A metallic gray, #A67C52 bronze, #C4A574 antique gold, #6B4E3D warm brown.
+Composition: dramatic wide architectural perspective with the worktable and useful scene detail within the middle half of the frame, suitable for a very wide crop.
+No people, no creatures, no giant spiders, no fantasy candles, no temple or altar, no magic, no text, no logos, no watermark, no neon cyan/magenta, no dominant cold blue. This is a real atelier and technical archive, not a fantasy environment.
+
+OG
+Use case: ads-marketing.
+Asset type: Open Graph social sharing card for U*TTU Studio — Look-Lock. This is an exploratory website asset.
+Create a premium 1536×1024 landscape black-and-bronze graphic composition, intended for a centered 1200×630 crop with generous safe margins. Keep ALL typography and essential visual elements within the central 1200×630 area, with ample space around them.
+Scene and style: deep near-black background, subtle monochrome antique-gold architectural atmosphere, delicate ORDERED golden filaments converging on the RIGHT, restrained precise geometric layout, sophisticated typography with excellent clean legibility.
+Typography on the LEFT only, exact verbatim lines:
+"U*TTU STUDIO"
+"LOOK-LOCK"
+"Une identité. Un canon. Un frein."
+"iii"
+Use bold refined geometric typography. Brand line prominent but smaller than the large LOOK-LOCK heading; tagline smaller and readable; tiny iii as a subtle maker signature below. Preserve the literal asterisk in U*TTU, hyphen in LOOK-LOCK, accents and periods in the French line. No extra text at all.
+Palette #0A0A0B black, #1A1B1E anthracite, #A67C52 bronze, #C4A574 antique gold, muted metallic gray #8B909A. Spacious premium editorial composition. Avoid neon, cyan, magenta, cold blue dominance, fantasy magic, illegibility, logos or watermarks beyond the requested exact typography.
+
