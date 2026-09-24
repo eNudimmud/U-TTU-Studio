@@ -50,8 +50,8 @@ export function TrainStep(props: Props) {
         {props.exportState.state === "error" && <p className="inline-status fail" role="alert">{props.exportState.message}</p>}
       </li>
       <li>
-        <h4>Connecte-toi dans l’app Comfy</h4>
-        <p>En bas de cette étape, avec ton compte Comfy Cloud. Comfy propose ensuite d’ouvrir le workflow partagé : accepte.</p>
+        <h4>Charge l’app Comfy et connecte-toi</h4>
+        <p>En bas de cette étape : « Charger l’app Comfy ici », puis ton compte Comfy Cloud. Comfy propose ensuite d’ouvrir le workflow partagé : accepte.</p>
         <p className="small-print">Connexion refusée dans le cadre : « Ouvrir en plein onglet » ouvre la même app. Si le lien s’ouvre sur le graphe plutôt que sur l’app, les champs portent les mêmes noms.</p>
       </li>
       <li>
