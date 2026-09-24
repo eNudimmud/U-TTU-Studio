@@ -3,6 +3,7 @@
 import { APP_LABELS, FLUX_STACK, estimatePromptTest, estimateTrainRun } from "@/lib/comfy-stack";
 import { cleanVariables, findInvariantHits, parseInvariants } from "@/lib/gate/captions";
 import { formatCredits } from "@/lib/gate/report";
+import { STRENGTH_SLIDER, TEST_GRID, decimalFr, inUsageBand } from "@/lib/test-grid";
 import { CopyButton } from "./copy-button";
 
 interface Props {
@@ -35,7 +36,11 @@ export function ImageStep(props: Props) {
   const identityHits = findInvariantHits(scene, parseInvariants(props.invariants));
   const promptTest = estimatePromptTest();
   const rerun = estimateTrainRun(props.steps, props.count);
-  const strengthHint = props.strength < 0.8 ? "Identité diluée : utile si l’image fige la pose." : props.strength > 1.15 ? "Risque d’artefacts et de pose figée." : "Zone normale.";
+  const band = `${decimalFr(TEST_GRID.usageBand.low)}–${decimalFr(TEST_GRID.usageBand.high)}`;
+  const strengthHint = props.strength < TEST_GRID.usageBand.low ? `Sous la bande d’usage (${band}) : identité diluée. Sert à repérer un surentraînement.`
+    : inUsageBand(props.strength) ? `Bande d’usage (${band}).`
+      : props.strength <= 1.15 ? `Force haute : sert à vérifier que l’identité est apprise. Bande d’usage : ${band}.`
+        : "Risque d’artefacts et de pose figée.";
 
   return <div className="image-step">
     <div className="image-settings">
@@ -48,7 +53,7 @@ export function ImageStep(props: Props) {
       </div>
       <div className="field">
         <label htmlFor="strength">Force LoRA <strong>{props.strength.toFixed(2)}</strong></label>
-        <input id="strength" type="range" min={0.5} max={1.3} step={0.05} value={props.strength} onChange={event => props.onStrength(Number(event.target.value))} aria-describedby="strength-help" />
+        <input id="strength" type="range" min={STRENGTH_SLIDER.min} max={STRENGTH_SLIDER.max} step={STRENGTH_SLIDER.step} value={props.strength} onChange={event => props.onStrength(Number(event.target.value))} aria-describedby="strength-help" />
         <p className="field-help" id="strength-help">{strengthHint}</p>
       </div>
       <div className="form-row">
