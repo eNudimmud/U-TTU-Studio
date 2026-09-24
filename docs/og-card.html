@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: "Syne"; src: url("../node_modules/@fontsource-variable/syne/files/syne-latin-wght-normal.woff2") format("woff2"); font-weight: 400 800; }
+@font-face { font-family: "Manrope"; src: url("../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2") format("woff2"); font-weight: 200 800; }
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 1200px; height: 630px; }
+body { background: #0a0a0b; color: #f1ede6; font-family: "Manrope", sans-serif; position: relative; overflow: hidden; }
+.threads { position: absolute; inset: 0; }
+.frame { position: absolute; inset: 44px 56px; display: grid; grid-template-columns: 1fr 380px; gap: 56px; align-items: center; }
+.wordmark { position: absolute; top: 0; left: 0; font: 700 30px/1 "Syne"; letter-spacing: -.07em; }
+.wordmark b { color: #c4a574; margin: 0 2px; font-weight: 700; }
+.wordmark small { font: 500 11px/1 "Manrope"; letter-spacing: .19em; margin-left: 14px; }
+.eyebrow { font-size: 14px; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; color: #c4a574; margin-bottom: 26px; display: flex; gap: 12px; align-items: center; }
+.eyebrow i { width: 24px; height: 1px; background: #c4a574; display: inline-block; }
+h1 { font: 500 68px/1.02 "Syne"; letter-spacing: -.06em; }
+h2 { font: 500 34px/1.2 "Syne"; letter-spacing: -.03em; color: #c4a574; margin-top: 22px; }
+.meta { margin-top: 30px; font-size: 16px; color: #b5afa6; }
+.meta span { color: #a67c52; margin: 0 8px; }
+.card { border: 1px solid #c4a57499; background: #121111; padding: 26px 26px 20px; }
+.card p.label { font-size: 12px; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; color: #c4a574; }
+.card p.verdict { font: 500 30px/1.2 "Syne"; color: #c4a574; margin: 8px 0 16px; letter-spacing: -.02em; }
+.row { display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid #ffffff1c; font-size: 16px; }
+.chip { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-align: center; padding: 5px 0; color: #c4a574; background: #c4a57414; }
+.chip.fail { color: #df9390; background: #8b1e1e33; }
+.row.struck span:last-child { color: #a8a6a2; }
+.iii { position: absolute; right: 0; bottom: 0; font: 800 26px "Syne"; letter-spacing: .1em; color: #c4a574; }
+.bottom { position: absolute; left: 0; bottom: 4px; font-size: 13px; letter-spacing: .12em; color: #a69c8e; }
+</style>
+</head>
+<body>
+<svg class="threads" viewBox="0 0 1200 630" aria-hidden="true">
+  <g fill="none" stroke="#c4a574" stroke-opacity=".10" stroke-width="1">
+    <path d="M760 0 C 820 180, 700 420, 820 630" /><path d="M820 0 C 880 200, 760 430, 900 630" /><path d="M1200 90 C 980 140, 860 320, 640 630" />
+    <path d="M1200 250 C 1020 300, 900 420, 760 630" /><path d="M0 560 C 300 520, 520 610, 760 560" />
+  </g>
+</svg>
+<div class="frame">
+  <div class="wordmark">U<b>*</b>TTU<small>STUDIO</small></div>
+  <div>
+    <p class="eyebrow"><i></i>C micro · Flux.1 · Comfy Cloud</p>
+    <h1>On t’empêche de cramer une LoRA.</h1>
+    <h2>Dataset → train → 1 image.</h2>
+    <p class="meta">Checklist avant le train<span>·</span>coût affiché avant le run</p>
+  </div>
+  <div class="card">
+    <p class="label">Gate dataset</p>
+    <p class="verdict">Aucun run sans PASS</p>
+    <div class="row"><span class="chip">PASS</span><span>15 images, face · 3/4 · profil</span></div>
+    <div class="row"><span class="chip">PASS</span><span>Légendes : trigger + variables</span></div>
+    <div class="row"><span class="chip fail">FAIL</span><span>« green eyes » redit dans 3 légendes</span></div>
+    <div class="row"><span class="chip fail">FAIL</span><span>Doublon : IMG_2291 ≈ IMG_2290</span></div>
+  </div>
+  <p class="bottom">U*TTU STUDIO · THE BLOC · SUISSE</p>
+  <span class="iii">iii</span>
+</div>
+</body>
+</html>

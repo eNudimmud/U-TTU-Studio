@@ -1,39 +1,28 @@
-# U*TTU — Références du site
+# U*TTU — DA du site C micro
 
-## FAIT — Sources visuelles
+## Sources
 
-Références fournies directement par JD lors de la correction de DA du 24 septembre 2026. Elles complètent les sources écrites listées dans [DECISIONS.md](DECISIONS.md).
+- [U-TTU / SOUL.md](https://github.com/eNudimmud/U-TTU/blob/main/SOUL.md) : posture calme et précise, registre de vérité (fait, hypothèse, proposition, décision), symbole `iii`.
+- [U-TTU / knowledge/13-CANON-VISUEL.md](https://github.com/eNudimmud/U-TTU/blob/main/knowledge/13-CANON-VISUEL.md) : palette de base noir, anthracite, gris métallique ; accents bronze, or ancien, brun chaud ; rouge très rare.
 
-| Fichier fourni | Usage | Asset du site |
-| --- | --- | --- |
-| `1000034598.png` | Hero et référence de présence | `public/images/uttu-canon-portrait.webp` |
-| `1000033588.png` | Détail de peau et de tresses | `public/images/uttu-canon-detail.webp` |
-| `1000033487.png` | U*TTU au Sanctuaire, tissage | `public/images/uttu-canon-sanctuary.webp` |
+Seules la DA et le ton sont repris, pas l’ancien produit Look-Lock.
 
-Conversion des pixels sources en WebP, qualité 88, sans recadrage dans le fichier, recoloration ou génération. Le cadrage responsive est défini en CSS. Les noms distincts évitent de réutiliser les URL des anciens visuels en cache. Les originaux restent les références de provenance ; leur extension `.png` fournie contient en réalité un encodage JPEG.
+## Application
 
-Empreintes SHA-256 des fichiers fournis :
+| Élément | Règle |
+| --- | --- |
+| Fond, panneaux | `#0A0A0B`, `#111112`, `#141414`, `#1A1B1E` |
+| Interaction, PASS, accents | Bronze `#A67C52`, or ancien `#C4A574` |
+| Rouge | Uniquement FAIL et refus (`#8B1E1E`, texte `#DF9390`). Jamais en accent principal. |
+| Interdit | Bleu néon ou froid, dégradés « IA » cyan et magenta. |
+| Typographie | Syne (titres) et Manrope (texte), auto-hébergées, SIL OFL. |
+| Mouvement | Discret : entrée du hero, apparition des contrôles, pulsation dorée sur l’image ciblée. Tout est coupé avec `prefers-reduced-motion`. |
+| Ton | Vivant et clair, pas temple : tutoiement, phrases courtes, chiffres visibles. |
 
-```text
-1000034598.png  574c8a45b35caf876ad25b881e357137e613e5b87b11660e644b891882a0c8df
-1000033588.png  0b1832235e9130ed2f9fd5a013cdf388ff656c116e4fa57f2f56baa5e86767fe
-1000033487.png  cb4811fc378f8497b2560a6448441264b1f28bfc15ec7a3d30289d63119425c0
-```
+## Image
 
-Les autres références fournies (portrait sur fond clair, planche de personnage, scène « SOFT ERROR ») ont servi à lire le canon. Elles ne sont pas présentées comme de nouveaux livrables du service.
+Le hero garde le portrait canonique fourni par JD (`1000034598.png` → `public/images/uttu-canon-portrait.webp`, SHA-256 `574c8a45b35caf876ad25b881e357137e613e5b87b11660e644b891882a0c8df`). Il est converti en WebP sans retouche, cadré en CSS. Il est légendé « Référence du studio, pas une sortie du parcours » pour ne pas le faire passer pour un résultat de LoRA.
 
-## FAIT — Invariants visibles
+Le détail de peau et la scène du Sanctuaire servaient l’offre A. Ils ont été retirés de `public/` et restent dans l’historique git.
 
-- Visage humain féminin fin et anguleux, regard sombre et contrôlé.
-- Peau brun-gris / bronze sombre, texture minérale, très fines fissures et lignes métalliques dorées.
-- Longues tresses noires fines, bagues et segments bronze.
-- Capuche noire usée, vêtements utilitaires et tactiques, textiles patinés.
-- Membres arachnides élancés et articulés ; présence élégante, sans monstruosité.
-- Noir, bronze et or ancien. Matières et lumière tangibles dans un atelier industriel.
-- Affiliation The Bloc et symbole `iii`.
-
-Un noir et or correct ne suffit pas à reconnaître le personnage. Les anciennes interprétations avaient une peau trop humaine et lisse, une tenue d’apparat et des membres massifs. Elles ont été retirées après le retour de JD. Aucun asset de remplacement ne redessine le personnage.
-
-## PROPOSITION — Futures images
-
-Pour une nouvelle scène, partir des références visuelles, conserver le visage et les invariants, puis comparer le résultat à celles-ci avant intégration. Un prompt textuel seul ne vaut pas verrouillage d’identité.
+La carte OG (`public/og.jpg`, 1200 × 630) est typographique : aucun personnage, aucune génération. Source : [og-card.html](og-card.html), rendue par Chrome headless.
