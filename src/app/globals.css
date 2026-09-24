@@ -370,12 +370,12 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.04
 .test-grid td button:hover { border-color: var(--gold); }
 .test-grid td button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #11100f; font-weight: 700; }
 .test-grid-matrix .small-print { margin-top: 12px; }
-.test-grid-side { display: grid; gap: 18px; }
 .test-grid .report-values { margin: 0; }
 .test-grid .report-values dl > div { grid-template-columns: 150px minmax(0, 1fr); }
 .test-grid .report-values .small-print { margin-top: 8px; }
-.test-grid-reading { display: grid; gap: 8px; }
-.test-grid-reading dl { margin: 0; }
+.test-grid-reading { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 10px 32px; align-items: start; }
+.test-grid-reading-head { display: grid; gap: 10px; }
+.test-grid-reading dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; }
 .test-grid-reading dl > div { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.55; }
 .test-grid-reading dt { font: 600 12px/1.55 var(--font-mono); color: var(--gold); }
 .test-grid-reading dd { margin: 0; color: #c2bcb2; }
@@ -462,7 +462,7 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.04
   .header-cta { padding-left: 20px; font-size: 13px; gap: 10px; }
   .hero-copy { max-width: 560px; }
   .hero-art-caption { display: none; }
-  .step-grid, .train-step, .image-step, .test-grid-body { grid-template-columns: 1fr; }
+  .step-grid, .train-step, .image-step, .test-grid-body, .test-grid-reading { grid-template-columns: 1fr; }
   .gate-panel, .cost-panel, .read-panel { position: static; max-height: none; }
   .gate-mini { display: flex; justify-content: space-between; gap: 12px; position: sticky; bottom: 12px; z-index: 5; margin-top: 12px; padding: 13px 16px; font-size: 14px; font-weight: 650; background: #1b1916; border: 1px solid var(--line-gold); box-shadow: 0 10px 30px #000a; }
   .gate-mini.gate-fail { color: var(--fail); border-color: #8b1e1e99; }
@@ -529,6 +529,7 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.04
   .test-grid-prompt { display: none; }
   .test-grid td { width: 58px; padding-inline: 3px; }
   .test-grid .report-values dl > div { grid-template-columns: 1fr; }
+  .test-grid-reading dl { grid-template-columns: 1fr; }
   .test-grid-reading dl > div { grid-template-columns: 1fr; gap: 2px; }
   .coach-grid { grid-template-columns: 1fr; }
   .comfy-run-consent { padding: 16px; }

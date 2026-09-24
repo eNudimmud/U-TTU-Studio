@@ -60,29 +60,29 @@ export function TestGrid({ trigger, seed, steps }: { trigger: string; seed: numb
         <p className="small-print">Ordre conseillé : case 1 à 0,75 d’abord. Identité faible : 0,90. Pose figée : 0,60. Puis les lignes 2 et 3 à la force retenue.</p>
       </div>
 
-      <div className="test-grid-side">
-        <div className="report-values" aria-label={`Case ${pick.row + 1}, force ${strength} : valeurs à reporter dans l’app de l’étape 2`}>
-          <p className="eyebrow">Case {pick.row + 1} · {decimalFr(Number(strength))} — à reporter à l’étape 2</p>
-          <dl>
-            <div><dt>{APP_LABELS.prompt}</dt><dd><code lang="en">{prompt}</code><CopyButton text={prompt} /></dd></div>
-            <div><dt>{APP_LABELS.strength}</dt><dd><code>{strength}</code><CopyButton text={strength} /></dd></div>
-            <div><dt>{APP_LABELS.seed}</dt><dd><code>{seed}</code></dd></div>
-            <div><dt>{APP_LABELS.count}</dt><dd><code>{TEST_GRID.images}</code></dd></div>
-            <div><dt>Étapes d’entraînement</dt><dd><code>{steps}</code></dd></div>
-          </dl>
-          <p className="small-print">{row.note}</p>
-        </div>
-        <div className="test-grid-reading">
-          <p className="eyebrow">Lire la grille</p>
-          <StrengthScale />
-          <dl>
-            <div><dt>{band}</dt><dd>Identité nette, prompt suivi : c’est la bande d’usage.</dd></div>
-            <div><dt>0,60–0,75</dt><dd>Visage déjà verrouillé, mais la pose ou la lumière du prompt cassent : surentraîné. Au prochain run, moins d’étapes.</dd></div>
-            <div><dt>0,90–1,00</dt><dd>Identité toujours absente : ce n’est pas la force. Dataset ou trigger : reprends l’étape 1.</dd></div>
-            <div><dt>Témoin</dt><dd>Chaque « {APP_LABELS.withLora} » se lit à côté de son témoin : même prompt, même seed, seule la LoRA change.</dd></div>
-          </dl>
-        </div>
+      <div className="report-values" aria-label={`Case ${pick.row + 1}, force ${strength} : valeurs à reporter dans l’app de l’étape 2`}>
+        <p className="eyebrow">Case {pick.row + 1} · {decimalFr(Number(strength))} — à reporter à l’étape 2</p>
+        <dl>
+          <div><dt>{APP_LABELS.prompt}</dt><dd><code lang="en">{prompt}</code><CopyButton text={prompt} /></dd></div>
+          <div><dt>{APP_LABELS.strength}</dt><dd><code>{strength}</code><CopyButton text={strength} /></dd></div>
+          <div><dt>{APP_LABELS.seed}</dt><dd><code>{seed}</code></dd></div>
+          <div><dt>{APP_LABELS.count}</dt><dd><code>{TEST_GRID.images}</code></dd></div>
+          <div><dt>Étapes d’entraînement</dt><dd><code>{steps}</code></dd></div>
+        </dl>
+        <p className="small-print">{row.note}</p>
       </div>
+    </div>
+    <div className="test-grid-reading">
+      <div className="test-grid-reading-head">
+        <p className="eyebrow">Lire la grille</p>
+        <StrengthScale />
+      </div>
+      <dl>
+        <div><dt>{band}</dt><dd>Identité nette, prompt suivi : c’est la bande d’usage.</dd></div>
+        <div><dt>0,60–0,75</dt><dd>Visage déjà verrouillé, mais la pose ou la lumière du prompt cassent : surentraîné. Au prochain run, moins d’étapes.</dd></div>
+        <div><dt>0,90–1,00</dt><dd>Identité toujours absente : ce n’est pas la force. Dataset ou trigger : reprends l’étape 1.</dd></div>
+        <div><dt>Témoin</dt><dd>Chaque « {APP_LABELS.withLora} » se lit à côté de son témoin : même prompt, même seed, seule la LoRA change.</dd></div>
+      </dl>
     </div>
     <p className="small-print test-grid-cost">Pas de checkpoint intermédiaire : Comfy Cloud n’enregistre pas la LoRA (pas de SaveLoRA), on ne peut donc pas comparer l’étape 400 à l’étape 800. La grille remplace cette comparaison : avec ou sans LoRA, et trois forces. Une case = un run réel complet, entraînement compris : {formatCredits(estimateTrainRun(steps, TEST_GRID.images))}. Chaque prompt se vérifie d’abord sans LoRA dans l’app de test ci-dessous, pour {formatCredits(estimatePromptTest())}.</p>
   </section>;
