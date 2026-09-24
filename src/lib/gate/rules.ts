@@ -1,7 +1,7 @@
-import { DATASET_SIZE } from "../comfy-stack.ts";
+import { DATASET_SIZE, FLUX_STACK } from "../comfy-stack.ts";
 import { buildCaption, checkTrigger, cleanVariables, findInvariantHits, parseInvariants, repeatedTerms, wordCount } from "./captions.ts";
 import { hamming, median, medianAbsoluteDeviation } from "./pixels.ts";
-import { ANGLES, FACE_ANGLES, WIDE_FRAMINGS, type Angle, type Framing } from "./vocabulary.ts";
+import { ANGLES, FACE_ANGLES, FRAMINGS, WIDE_FRAMINGS, type Angle, type Framing } from "./vocabulary.ts";
 
 export const GATE = {
   datasetSize: DATASET_SIZE,
@@ -18,6 +18,7 @@ export const GATE = {
   maxAngleShare: 0.6,
   minCloseUps: 3,
   minWideShots: 3,
+  framingShares: { "gros-plan": [0.2, 0.3], buste: [0.4, 0.5], pied: [0.2, 0.3] },
   maxCaptionWords: 40,
   minInvariants: 2,
   freeVariablesShare: 0.5,
@@ -81,10 +82,55 @@ export interface GateResult {
   flags: Record<string, ImageFlag[]>;
   kept: DatasetImage[];
   captions: string[];
+  framing: FramingCoverage;
   failCount: number;
   todoCount: number;
   warnCount: number;
 }
+
+export const FRAMING_CHECK_ID = "G20";
+export type FramingDrift = "under" | "over";
+export interface FramingRow { framing: Framing; label: string; count: number; min: number; max: number; drift: FramingDrift | null; imageIds: string[] }
+export interface FramingCoverage { rows: FramingRow[]; untagged: number }
+
+// Shares widened outward to whole images: 20–30 % of 15 gives 3–5.
+export function framingTarget(framing: Framing, size: number = GATE.datasetSize): { min: number; max: number } {
+  const [low, high] = GATE.framingShares[framing];
+  return { min: Math.floor(low * size + 1e-9), max: Math.ceil(high * size - 1e-9) };
+}
+
+export function framingCoverage(kept: DatasetImage[]): FramingCoverage {
+  const rows = FRAMINGS.map(({ id, label }): FramingRow => {
+    const imageIds = kept.filter(image => image.framing === id).map(image => image.id);
+    const { min, max } = framingTarget(id);
+    const count = imageIds.length;
+    return { framing: id, label, count, min, max, drift: count < min ? "under" : count > max ? "over" : null, imageIds };
+  });
+  return { rows, untagged: kept.filter(image => !image.framing).length };
+}
+
+export const FRAMING_TARGETS_LABEL = FRAMINGS.map(({ id, label }) => {
+  const [low, high] = GATE.framingShares[id];
+  return `${Math.round(low * 100)}–${Math.round(high * 100)} % ${label.toLowerCase()}`;
+}).join(", ");
+
+const trainingMegapixels = String(FLUX_STACK.training.megapixels).replace(".", ",");
+const FRAMING_ADVICE: Record<Framing, Record<FramingDrift, string>> = {
+  "gros-plan": {
+    under: "Trop peu de gros plans : le détail du visage manque.",
+    over: "Trop de gros plans : la LoRA tire vers le portrait serré et tient mal la silhouette.",
+  },
+  buste: {
+    under: "Trop peu de plans buste : ce sont eux qui relient le visage à la silhouette.",
+    over: "Trop de plans buste : il reste peu de place pour les gros plans et le plein pied.",
+  },
+  pied: {
+    under: "Trop peu d’images en plein pied : proportions et silhouette resteront approximatives.",
+    over: `Trop d’images en plein pied : entraîné à ${trainingMegapixels} MP, un visage en plein pied ne fait que quelques dizaines de pixels.`,
+  },
+};
+
+export const framingAdvice = (row: FramingRow) => row.drift ? FRAMING_ADVICE[row.framing][row.drift] : "";
 
 const shortSide = (image: DatasetImage) => Math.min(image.width, image.height);
 const angleLabel = (angle: Angle) => ANGLES.find(item => item.id === angle)?.label ?? angle;
@@ -264,6 +310,17 @@ export function evaluateGate(input: GateInput): GateResult {
     pending ? waiting : bare.length ? `${plural(bare.length, "légende sans variable libre", "légendes sans variable libre")} : un décor non décrit risque d’être appris comme identité.` : "Les variables sont décrites.",
     bare.map(image => image.id));
 
+  const framing = framingCoverage(kept);
+  const drifts = framing.rows.filter(row => row.drift);
+  const framingCounts = framing.rows.map((row, i) => `${i ? row.label.toLowerCase() : row.label} ${row.count}`).join(", ");
+  const framingTargets = framing.rows.map(row => `${row.min}–${row.max}`).join(", ");
+  check(FRAMING_CHECK_ID, "couverture", "Répartition des cadrages (repère non bloquant)",
+    coverageWaiting ? "todo" : drifts.length ? "warn" : "pass",
+    coverageWaiting ? tagWaiting
+      : drifts.length ? `${framingCounts} pour un repère de ${framingTargets}. ${drifts.map(framingAdvice).join(" ")}`
+        : `${framingCounts} : dans le repère (${framingTargets}).`,
+    drifts.filter(row => row.drift === "over").flatMap(row => row.imageIds));
+
   const failCount = checks.filter(item => item.status === "fail").length;
   const todoCount = checks.filter(item => item.status === "todo").length;
   return {
@@ -272,6 +329,7 @@ export function evaluateGate(input: GateInput): GateResult {
     flags,
     kept,
     captions,
+    framing,
     failCount,
     todoCount,
     warnCount: checks.filter(item => item.status === "warn").length,
