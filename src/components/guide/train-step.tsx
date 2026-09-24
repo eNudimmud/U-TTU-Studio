@@ -1,9 +1,7 @@
 "use client";
 
-import { APP_LABELS, COMFY_APPS, COMFY_CLOUD, DATASET_SIZE, FLUX_STACK, TIMING, estimateTrainRun, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
+import { APP_LABELS, COMFY_CLOUD, DATASET_SIZE, FLUX_STACK, TIMING, estimateTrainRun, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
 import { formatEstimate } from "@/lib/gate/report";
-import { assetPath } from "@/lib/site";
-import { trackEvent } from "@/lib/analytics";
 import { Arrow } from "../glyph";
 import { CopyButton } from "./copy-button";
 
@@ -52,13 +50,9 @@ export function TrainStep(props: Props) {
         {props.exportState.state === "error" && <p className="inline-status fail" role="alert">{props.exportState.message}</p>}
       </li>
       <li>
-        <h4>Ouvre l’app Comfy</h4>
-        <p>Compte Comfy Cloud requis, crédits à ta charge. Tes images partent chez Comfy au moment où tu les déposes.</p>
-        <div className="link-row">
-          <a className="button button-outline" href={COMFY_APPS.train.url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("comfy_app_opened")}>Ouvrir « Dataset → LoRA → 1 image » <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
-          <a className="quiet-link" href={assetPath(COMFY_APPS.train.file)} download>Workflow .json</a>
-        </div>
-        <p className="small-print">Si le lien s’ouvre sur le graphe plutôt que sur l’app, les champs portent les mêmes noms.</p>
+        <h4>Connecte-toi dans l’app Comfy</h4>
+        <p>En bas de cette étape, avec ton compte Comfy Cloud. Comfy propose ensuite d’ouvrir le workflow partagé : accepte.</p>
+        <p className="small-print">Connexion refusée dans le cadre : « Ouvrir en plein onglet » ouvre la même app. Si le lien s’ouvre sur le graphe plutôt que sur l’app, les champs portent les mêmes noms.</p>
       </li>
       <li>
         <h4>Dépose les images dans l’ordre</h4>

@@ -1,10 +1,8 @@
 "use client";
 
-import { APP_LABELS, COMFY_APPS, FLUX_STACK, estimatePromptTest, estimateTrainRun } from "@/lib/comfy-stack";
+import { APP_LABELS, FLUX_STACK, estimatePromptTest, estimateTrainRun } from "@/lib/comfy-stack";
 import { cleanVariables, findInvariantHits, parseInvariants } from "@/lib/gate/captions";
 import { formatCredits } from "@/lib/gate/report";
-import { trackEvent } from "@/lib/analytics";
-import { Arrow } from "../glyph";
 import { CopyButton } from "./copy-button";
 
 interface Props {
@@ -66,8 +64,8 @@ export function ImageStep(props: Props) {
           {[1, FLUX_STACK.image.maxCount].map(value => <label key={value} className="check-inline"><input type="radio" name="count" checked={props.count === value} onChange={() => props.onCount(value)} /><span>{value === 1 ? "1 image" : `Grille de ${value}`}</span></label>)}
         </fieldset>
       </div>
-      <div className="report-values" aria-label="Valeurs à reporter dans l’app Comfy">
-        <p className="eyebrow">À reporter dans l’app</p>
+      <div className="report-values" aria-label="Valeurs à reporter dans l’app Comfy de l’étape 2">
+        <p className="eyebrow">À reporter dans l’app de l’étape 2</p>
         <dl>
           <div><dt>{APP_LABELS.prompt}</dt><dd><code>{prompt || "—"}</code><CopyButton text={prompt} /></dd></div>
           <div><dt>{APP_LABELS.strength}</dt><dd><code>{props.strength.toFixed(2)}</code></dd></div>
@@ -76,8 +74,7 @@ export function ImageStep(props: Props) {
         </dl>
       </div>
       <div className="prompt-test">
-        <p><strong>Règle la scène avant de payer l’entraînement.</strong> L’app de test tourne sans LoRA : même prompt, même seed, tu vois la composition, la lumière et le cadrage. Le trigger n’y a aucun effet. Compte {formatCredits(promptTest)} par image.</p>
-        <a className="quiet-link" href={COMFY_APPS.prompt.url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("prompt_app_opened")}>Ouvrir le test de prompt <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
+        <p><strong>Règle la scène avant de payer l’entraînement.</strong> L’app de test, en bas de cette étape, tourne sans LoRA : même prompt, même seed, tu vois la composition, la lumière et le cadrage. Le trigger n’y a aucun effet. Compte {formatCredits(promptTest)} par image.</p>
       </div>
     </div>
 

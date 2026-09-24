@@ -38,7 +38,7 @@ npm run dev          # http://localhost:3000
 
 | Commande | Rôle |
 | --- | --- |
-| `npm test` | 38 tests : règles du gate, légendes, mesures d’image, ZIP (vérifié par `unzip -t`), cohérence des workflows Comfy, coûts et plafond de durée. |
+| `npm test` | 39 tests : règles du gate, légendes, mesures d’image, ZIP (vérifié par `unzip -t`), cohérence des workflows Comfy, liens App Mode, coûts et plafond de durée. |
 | `npm run typecheck` | TypeScript strict. |
 | `npm run build` | Build de production (`next build --webpack`). |
 | `npm run comfy:build` | Régénère `comfy/*.api.json` à partir de `src/lib/comfy-stack.ts`. |
@@ -55,6 +55,8 @@ npm run dev          # http://localhost:3000
 | Test de prompt sans LoRA | Règle la scène, le cadrage et la seed pour quelques crédits, avant de payer l’entraînement. | [ouvrir](https://cloud.comfy.org/?share=25954f3b0278) | [`public/comfy/c-micro-prompt-test.json`](public/comfy/c-micro-prompt-test.json) |
 
 Le **test à blanc** n’est pas un troisième workflow. C’est le premier, lancé avec 20 étapes et 1 image, qui sont ses valeurs par défaut. Les images déposées restent en place pour le vrai run.
+
+Après un PASS du gate, le guide affiche ces deux apps dans la page. « Ouvrir en plein onglet » reste au-dessus de chaque cadre : la connexion Comfy dans un iframe n’est pas garantie, et une page HTTP, dont `next dev`, ne peut pas encadrer Comfy. Pour voir les cadres en local, servir le build en HTTPS.
 
 ### Créer les workflows dans Comfy Cloud
 

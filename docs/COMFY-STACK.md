@@ -76,6 +76,19 @@ UNETLoader, encodeurs Flux, `CLIPTextEncode`, FluxGuidance, KSampler (seed parta
 
 > Les liens `?share=` sont des instantanés publics du workflow, sans image ni clé. Selon Comfy, un lien de partage peut s’ouvrir sur le graphe tant que le partage App Mode complet n’est pas disponible. Les champs portent alors les mêmes titres. **À vérifier par JD au premier clic.**
 
+## Affichage dans le guide
+
+Après PASS, `ComfyRunPanel` affiche `COMFY_APPS.train.url` en bas de l’étape 2 et `COMFY_APPS.prompt.url` en bas de l’étape 3, dans un iframe de 640 à 900 px de haut. Le ZIP, les légendes et le coût restent au-dessus. Le client dépose toujours lui-même les 15 images et colle les légendes dans Comfy. « Ouvrir en plein onglet », même URL, est au-dessus de chaque cadre.
+
+| Fait (2026-09-24) | Source | Conséquence |
+| --- | --- | --- |
+| `cloud.comfy.org` envoie `frame-ancestors 'self' https:`, sans `X-Frame-Options`. | En-têtes HTTP | Cadre accepté depuis GitHub Pages. Refusé depuis une page HTTP, dont `next dev` : le panneau affiche un avertissement à la place du cadre. |
+| Dans Chrome, les deux cadres chargent la page de connexion Comfy ; chaque `?share=` reste dans `previousFullPath`. | Smoke sur le build Pages ([QA.md](QA.md#cadre-comfy-dans-le-guide)) | L’embed fonctionne jusqu’à la connexion, et chaque cadre garde son workflow. |
+| Après connexion, un `?share=` ouvre la fenêtre « Open shared workflow », puis charge le graphe dans la vue donnée par `extra.linearMode`. | Frontend Comfy : `useSharedWorkflowUrlLoader.ts`, `workflowService.ts` | Les deux snapshots ont `linearMode: true` : App Mode attendu. Liens non régénérés. |
+| La session Comfy (Firebase) est gardée dans le localStorage et l’IndexedDB de `cloud.comfy.org`. | Frontend Comfy : `firebaseIdentity.ts` | Ce stockage est partitionné dans un cadre tiers : le client se connecte une fois dans le cadre, même s’il l’est déjà dans un autre onglet. |
+
+Non vérifié sans compte Comfy tiers : la connexion (Google, GitHub ou e-mail) dans le cadre et l’écran App Mode connecté. Repli : « Ouvrir en plein onglet ».
+
 ## Coût : modèle et calibration
 
 ```text
