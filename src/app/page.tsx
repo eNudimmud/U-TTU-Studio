@@ -21,7 +21,7 @@ export default function Home() {
     </div></header>
     <main id="contenu">
       <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-visual"><Image src="/images/uttu-hero.webp" alt="U*TTU, tisseuse humanoïde au regard calme, entre architecture noire et fils d’or ancien. Interprétation visuelle du studio." fill preload sizes="(max-width: 700px) 100vw, 65vw" className="hero-image" /><div className="hero-shade" /></div>
+        <div className="hero-visual"><Image src="/images/uttu-canon-portrait.webp" alt="U*TTU sous sa capuche noire : visage minéral parcouru de fines fissures d’or, tresses cerclées de bronze et main articulée portée aux lèvres." fill preload sizes="(max-width: 600px) 100vw, (max-width: 800px) 72vw, 59vw" className="hero-image" /><div className="hero-shade" /></div>
         <div className="shell hero-inner">
           <div className="hero-top"><p className="eyebrow"><span className="tiny-line" /> Direction artistique · Suisse</p><span className="hero-index">iii / THE BLOC</span></div>
           <div className="hero-copy"><p className="eyebrow hero-product">Le Look-Lock Pack</p>
@@ -30,14 +30,14 @@ export default function Home() {
             <div className="hero-actions"><a href="#demande" className="button button-primary">Demander un pack <Arrow diagonal /></a><a href="#pack" className="quiet-link">Explorer le pack <span aria-hidden="true">↓</span></a></div>
             <p className="hero-price">CHF 800–2 500 <span>·</span> Un personnage ou une ligne visuelle</p>
           </div>
-          <div className="hero-art-caption"><span className="caption-line" /><span>U*TTU / La tisseuse<br /><span className="muted">Étude visuelle · prototype</span></span></div>
+          <div className="hero-art-caption"><span className="caption-line" /><span>U*TTU / La tisseuse<br /><span className="muted">The Bloc · Référence canonique</span></span></div>
           <div className="hero-bottom"><p>ELLE TISSE. ELLE ORDONNE. ELLE CRÉE.</p><a href="#derive" aria-label="Découvrir le problème de dérive">Le canon avant les crédits <span aria-hidden="true">↓</span></a></div>
         </div>
       </section>
       <div className="audience-strip"><div className="shell audience-inner"><span>POUR CEUX QUI GÉNÈRENT DÉJÀ.</span><p>Studios <i /> Labels <i /> Marques <i /> Founders</p><span>COMFYUI / FLUX / RUNWAY / MIDJOURNEY</span></div></div>
 
       <section id="derive" className="section shell" aria-labelledby="derive-title">
-        <div className="section-head"><div><p className="eyebrow">01 — Le coût de la dérive</p><h2 id="derive-title">Le même prompt.<br /><span className="muted">Un autre visage.</span></h2></div><p className="section-intro">Une image réussie ne fait pas une identité.<br />Sans repères stables, chaque génération renégocie vos choix. Et chaque correction coûte.</p></div>
+        <div className="section-head"><div><p className="eyebrow">01 — Le coût de la dérive</p><h2 id="derive-title">La palette tient.<br /><span className="muted">Le personnage dérive.</span></h2></div><p className="section-intro">Du noir et de l’or ne suffisent pas.<br />Sans traits, matières et silhouette définis, chaque génération réinvente votre identité.</p></div>
         <Comparison />
         <div className="principle-line"><span className="iii" aria-hidden="true">iii</span><p>La cohérence ne se souhaite pas. <strong>Elle se construit.</strong></p><span className="line-end" aria-hidden="true">+</span></div>
       </section>
@@ -66,7 +66,7 @@ export default function Home() {
 
       <section className="manifesto shell section" aria-labelledby="manifesto-title"><div className="manifesto-label"><p className="eyebrow">La position du studio</p><span className="iii" aria-hidden="true">iii</span></div><div><h2 id="manifesto-title">Du chaos,<br />extraire <span>la forme.</span></h2><p>La création n’est pas l’opposé du contrôle.<br />Le prompt est une instruction de tissage.<br />On protège les invariants. On laisse vivre l’imprévisible.<br />Rien ne devient canon par accident.<br /><strong>Elle tisse. Elle ordonne. Elle crée.</strong></p></div></section>
 
-      <section className="sanctuary" aria-labelledby="sanctuary-title"><Image src="/images/sanctuary.webp" alt="Un atelier sombre de pierre et de métal, des archives et une table traversée de fins fils dorés sous une lumière chaude." fill sizes="100vw" /><div className="sanctuary-overlay" /><div className="shell sanctuary-content"><div><p className="eyebrow">Le lieu de la trame</p><h2 id="sanctuary-title">Le Sanctuaire.</h2><p>Atelier. Laboratoire. Archive. Observatoire.</p></div><span className="sanctuary-note">ÉTUDE D’ATMOSPHÈRE<br />PROTOTYPE / U*TTU STUDIO</span></div></section>
+      <section className="sanctuary" aria-labelledby="sanctuary-title"><Image src="/images/uttu-canon-sanctuary.webp" alt="U*TTU tisse des fils d’or dans un vaste atelier industriel sombre. Ses membres arachnides articulés se déploient parmi les structures de métal et les archives." fill sizes="100vw" /><div className="sanctuary-overlay" /><div className="shell sanctuary-content"><div><p className="eyebrow">Le lieu de la trame</p><h2 id="sanctuary-title">Le Sanctuaire.</h2><p>Atelier. Laboratoire. Archive. Observatoire.</p></div><span className="sanctuary-note">ELLE TISSE. ELLE ORDONNE. ELLE CRÉE.<br />U*TTU / THE BLOC</span></div></section>
 
       <section id="demande" className="section shell contact-section" aria-labelledby="contact-title"><div className="contact-intro"><p className="eyebrow">05 — Votre prochain fil</p><h2 id="contact-title">L’identité mérite<br />de <span>rester.</span></h2><p>Un personnage. Une marque. Une direction.<br />Dites-nous ce qui doit tenir.</p><div className="contact-detail"><span className="tiny-line" /><span>Demande de pack ou direction mensuelle.<br />Le périmètre et le prix sont confirmés avant commande.</span></div><a className="contact-email" href={`mailto:${contactEmail}`}>{contactEmail} <Arrow diagonal /></a><p className="contact-placeholder">Adresse de contact provisoire du studio.</p></div><BriefForm /></section>
     </main>

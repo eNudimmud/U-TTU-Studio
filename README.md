@@ -13,7 +13,7 @@ Site vitrine FR-CH d’un service de direction artistique. Une commande couvre u
 - Formulaire nom / studio / budget / brief, préparation d’un `mailto:`, copie du brief et lien de contact direct.
 - Contact provisoire : **HelveticVault@gmail.com**. Aucune demande n’est envoyée automatiquement. Aucune inscription à une waitlist n’est simulée.
 - Contrôle PASS / FAIL révélable, sans analyse automatique d’images.
-- Images originales générées pour le site, optimisées en WebP puis servies par `next/image` en WebP/AVIF selon le navigateur. Hero préchargé, autres images différées.
+- Portrait, détail de peau et Sanctuaire issus des références canoniques fournies par JD. Conversion WebP sans modification du personnage, puis optimisation responsive par `next/image`. Hero préchargé, autres images différées. Provenance dans [docs/VISUAL-CANON.md](docs/VISUAL-CANON.md).
 - Carte OG 1200 × 630, titre et description, favicon `iii`, `robots.txt`, sitemap et URL canonique quand l’origine est configurée.
 - Animations CSS et transition native sur le contrôle ; `prefers-reduced-motion` respecté. Pas de bibliothèque 3D.
 - Analytics : stub inerte dans `src/lib/analytics.ts`. Aucun SDK, cookie, stockage local ou appel de tracking.
@@ -71,9 +71,11 @@ Lues avant l’implémentation, dans cet ordre :
 
 Les sources et le Vault n’ont pas été modifiés. Les choix et limites sont consignés dans [docs/DECISIONS.md](docs/DECISIONS.md).
 
+**Correction de DA :** les visuels générés de la première livraison ont été rejetés par JD. Ils ont été retirés. Les images affichées d’U*TTU proviennent maintenant directement de ses références ; la comparaison expose les invariants et les critères de refus du personnage.
+
 ## Description visuelle de la livraison
 
-Hero — présence U*TTU, promesse, CTA et prix dès le premier écran desktop :
+Hero — portrait canonique fourni par JD, promesse, CTA et prix :
 
 ![Hero ordinateur](docs/screenshots/hero-desktop.jpg)
 
@@ -91,7 +93,7 @@ Voir [docs/QA.md](docs/QA.md) : build, responsive, formulaire, clavier, contrast
 
 ## PROPOSITION — Après la V1
 
-- Remplacer les études visuelles par un cas client autorisé, avec écarts annotés et validation documentée.
+- Ajouter un cas client autorisé, avec écarts annotés et validation documentée, en complément des références U*TTU.
 - Brancher un envoi serveur ou une vraie waitlist avec consentement explicite si le flux e-mail devient insuffisant.
 - Ajouter EN ou une page `/gate` uniquement lorsque la demande le justifie.
 

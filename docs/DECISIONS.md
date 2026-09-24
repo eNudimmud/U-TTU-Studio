@@ -20,11 +20,15 @@ Le formulaire compose un e-mail ; il ne contacte aucun serveur d’envoi et ne s
 
 Le développement reste en Next.js authentique pour Vercel, conformément au choix de stack. Aucun hébergement Sites ou Higgsfield n’a été créé.
 
-## PROTOTYPE — Visuels
+## FAIT — Correction de l’identité visuelle
 
-Quatre images créées avec l’outil imagegen intégré : portrait, planche comparative, Sanctuaire et carte OG. Les deux paires de portraits de la comparaison sont des cadrages de la planche, sans retouche sémantique. Il s’agit d’une illustration de la méthode, pas d’un historique de générations client ni d’une preuve statistique d’efficacité.
+JD a rejeté l’identité représentée dans la première livraison. La palette correspondait au brief, mais le visage, la peau, la tenue et les membres s’écartaient de ses références. Le statut de prototype ne suffisait pas à corriger cette dérive. Le précédent contrôle visuel ne constituait pas une validation canonique.
 
-Ces interprétations ne modifient pas le canon du Vault. La présence U*TTU et le Sanctuaire sont marqués comme études / prototypes dans la page. Les prompts de création sont dans [asset-prompts.txt](asset-prompts.txt).
+Le hero utilise désormais le portrait fourni `1000034598.png`. La comparaison emploie ce portrait et le détail `1000033588.png`. Le Sanctuaire utilise `1000033487.png`. Seuls l’encodage WebP et le cadrage CSS varient : aucune nouvelle génération, retouche du visage ou modification de la couleur des références. Les fichiers et invariants sont documentés dans [VISUAL-CANON.md](VISUAL-CANON.md).
+
+La comparaison oppose une instruction insuffisamment définie à des références explicites, puis révèle des critères PASS / FAIL. Elle ne présente pas un faux historique de résultats client ni deux personnages inventés. Les anciennes images ne sont plus livrées dans `public/`.
+
+La carte OG typographique ne représente pas le personnage ; elle est conservée. Son prompt reste dans [asset-prompts.txt](asset-prompts.txt).
 
 ## PROPOSITION — Suite
 

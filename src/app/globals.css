@@ -76,9 +76,9 @@ svg { flex-shrink: 0; }
 .mobile-menu { display: none; }
 
 .hero { position: relative; min-height: 755px; isolation: isolate; overflow: hidden; }
-.hero-visual { position: absolute; inset: 0 0 0 33%; z-index: -2; }
-.hero-image { object-fit: cover; object-position: 52% 30%; }
-.hero-shade { position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg) 0%, #0a0a0bea 8%, #0a0a0b6b 30%, #0a0a0b00 57%), linear-gradient(0deg, var(--bg) 0%, transparent 28%, #0a0a0b26 88%, #0a0a0b66 100%); }
+.hero-visual { position: absolute; inset: 0 0 0 41%; z-index: -2; }
+.hero-image { object-fit: cover; object-position: 50% 12%; }
+.hero-shade { position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg) 0%, #0a0a0bba 12%, #0a0a0b00 43%), linear-gradient(0deg, var(--bg) 0%, transparent 30%, #0a0a0b26 88%, #0a0a0b66 100%); }
 .hero-inner { position: relative; min-height: 755px; display: flex; flex-direction: column; }
 .hero-top { display: flex; align-items: center; justify-content: space-between; padding-top: 27px; }
 .hero-top .eyebrow { display: flex; gap: 10px; align-items: center; color: #beb5a8; font-size: 11px; letter-spacing: .14em; }
@@ -110,7 +110,7 @@ h1 > span { display: block; font-size: .48em; line-height: 1.22; letter-spacing:
 h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.12; letter-spacing: -.045em; }
 .section-intro { max-width: 375px; font-size: 15px; line-height: 1.85; color: var(--muted); padding-bottom: 4px; }
 .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.compare-panel { border: 1px solid var(--line); background: var(--surface); }
+.compare-panel { border: 1px solid var(--line); background: var(--surface); min-width: 0; display: flex; flex-direction: column; }
 .compare-panel.locked { border-color: var(--line-gold); }
 .compare-label { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; gap: 12px; font-size: 12px; }
 .compare-label > span:first-child { color: #bbb8b1; }
@@ -119,9 +119,21 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.12; letter-spacing: -.0
 .pass { color: var(--gold); }
 .verdict.fail { background: #8b1e1e22; }
 .verdict.pass { background: #c4a57412; }
-.compare-image { position: relative; aspect-ratio: 1.9; background: #181716; overflow: hidden; }
-.compare-image img { object-fit: cover; transition: transform .8s ease; }
-.compare-panel:hover .compare-image img { transform: scale(1.025); }
+.undefined-canon { padding: 30px; min-height: 330px; flex: 1; background: linear-gradient(115deg, #26221c66, transparent), repeating-linear-gradient(90deg, transparent 0 79px, #c4a57409 79px 80px); }
+.undefined-canon .eyebrow { color: var(--muted); font-size: 10px; }
+.undefined-canon blockquote { font: 500 clamp(24px, 2.7vw, 38px)/1.25 var(--font-heading); letter-spacing: -.035em; color: #c8c0b3; margin: 22px 0 26px; }
+.undefined-canon dl { margin: 0; max-width: 380px; font-size: 12px; }
+.undefined-canon dl > div { display: flex; justify-content: space-between; gap: 20px; padding: 8px 0; border-top: 1px solid var(--line); }
+.undefined-canon dt { color: var(--muted); }
+.undefined-canon dd { margin: 0; color: var(--fail); }
+.canon-study { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2px; min-height: 330px; flex: 1; background: var(--line-gold); }
+.canon-study > div { position: relative; overflow: hidden; min-width: 0; }
+.canon-study img { object-fit: cover; transition: transform .8s ease; }
+.canon-study-portrait img { object-position: 50% 24%; }
+.canon-study-detail img { object-position: 49% 50%; }
+.canon-study > div:after { content: ""; position: absolute; inset: 65% 0 0; background: linear-gradient(transparent, #0a0a0bbb); }
+.canon-study span { position: absolute; z-index: 1; left: 15px; bottom: 14px; font-size: 10px; letter-spacing: .06em; color: #e0d6c6; text-transform: uppercase; }
+.compare-panel:hover .canon-study img { transform: scale(1.025); }
 .compare-caption { padding: 24px 25px; display: flex; align-items: start; justify-content: space-between; gap: 16px; }
 .compare-caption h3 { font-size: 21px; letter-spacing: -.03em; line-height: 1.3; }
 .compare-caption p { font-size: 12px; color: var(--muted); line-height: 1.8; }
@@ -131,6 +143,7 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.12; letter-spacing: -.0
 .comparison-gate table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 16px 0; text-align: left; }
 .comparison-gate th, .comparison-gate td { border-bottom: 1px solid var(--line); padding: 13px 10px; }
 .comparison-gate th { font-weight: 500; }
+.table-scroll { max-width: 100%; overflow-x: auto; }
 .comparison-gate thead th { color: var(--muted); font-size: 12px; }
 .comparison-gate > p:last-child { font-size: 13px; color: #b9b3a9; max-width: 780px; }
 .principle-line { display: flex; gap: 25px; align-items: center; border-block: 1px solid var(--line); padding: 27px 0; margin-top: 60px; }
@@ -200,8 +213,8 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.12; letter-spacing: -.0
 .manifesto h2 span { color: var(--gold); }
 .manifesto > div > p:not(.eyebrow) { color: var(--muted); font-size: 16px; line-height: 2; margin-top: 34px; }
 .manifesto strong { display: inline-block; color: var(--text); font-weight: 500; margin-top: 12px; }
-.sanctuary { height: 430px; position: relative; border-block: 1px solid var(--line); isolation: isolate; overflow: hidden; }
-.sanctuary > img { object-fit: cover; object-position: 50% 52%; z-index: -2; }
+.sanctuary { height: 510px; position: relative; border-block: 1px solid var(--line); isolation: isolate; overflow: hidden; }
+.sanctuary > img { object-fit: cover; object-position: 50% 0%; z-index: -2; }
 .sanctuary-overlay { position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, #0a0a0bdf, #0a0a0b0d 85%), linear-gradient(90deg, #0a0a0b88, transparent); }
 .sanctuary-content { height: 100%; display: flex; justify-content: space-between; align-items: end; padding-bottom: 42px; gap: 28px; }
 .sanctuary h2 { margin-top: 16px; font-size: 49px; }
@@ -346,8 +359,8 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.12; letter-spacing: -.0
   .mobile-menu nav a:last-child { border-bottom: 0; color: var(--gold); }
   .hero, .hero-inner { min-height: 830px; }
   .hero-visual { inset: 0 0 0 0; height: 560px; }
-  .hero-image { object-position: 57% 22%; opacity: .9; }
-  .hero-shade { background: linear-gradient(0deg, var(--bg) 0%, #0a0a0bdb 22%, #0a0a0b5c 63%, #0a0a0b26 100%), linear-gradient(90deg, #0a0a0b77, transparent 80%); }
+  .hero-image { object-position: 50% 12%; }
+  .hero-shade { background: linear-gradient(0deg, var(--bg) 0%, #0a0a0bee 24%, #0a0a0b44 59%, #0a0a0b0d 83%, #0a0a0b66 100%); }
   .hero-top { padding-top: 20px; }
   .hero-top .eyebrow { font-size: 9px; letter-spacing: .1em; }
   .hero-index { font-size: 9px; }
@@ -381,11 +394,15 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.12; letter-spacing: -.0
   .compare-caption { padding: 20px 18px; flex-direction: row; gap: 15px; }
   .compare-caption h3 { font-size: 19px; }
   .compare-caption p { font-size: 11px; max-width: 130px; }
+  .undefined-canon { min-height: 300px; padding: 24px; }
+  .undefined-canon blockquote { font-size: 30px; }
+  .canon-study { min-height: 330px; }
   .compare-toolbar { align-items: start; flex-direction: column; gap: 8px; }
   .compare-toolbar > p { font-size: 10px; }
   .comparison-gate { padding: 18px; }
   .comparison-gate th, .comparison-gate td { padding: 12px 6px; font-size: 12px; }
   .comparison-gate thead th { font-size: 10px; }
+  .comparison-gate table { min-width: 540px; }
   .comparison-gate > p:last-child { font-size: 12px; }
   .principle-line { margin-top: 35px; gap: 20px; padding-block: 22px; }
   .principle-line p { font-size: 14px; }
@@ -431,8 +448,8 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.12; letter-spacing: -.0
   .manifesto-label .iii { font-size: 32px; }
   .manifesto h2 { font-size: clamp(44px, 11.8vw, 66px); }
   .manifesto > div > p:not(.eyebrow) { font-size: 14px; line-height: 1.95; margin-top: 27px; }
-  .sanctuary { height: 390px; }
-  .sanctuary > img { object-position: 55% 50%; }
+  .sanctuary { height: 490px; }
+  .sanctuary > img { object-position: 68% 32%; }
   .sanctuary-content { flex-direction: column; align-items: start; justify-content: end; padding-bottom: 25px; gap: 24px; }
   .sanctuary-content .eyebrow { font-size: 10px; }
   .sanctuary h2 { font-size: 39px; }
