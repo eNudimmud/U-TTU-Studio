@@ -71,23 +71,57 @@ Défaut trouvé et corrigé pendant #2 : les panneaux collants « Coût avant le
 5. Connexion impossible dans le cadre : « Ouvrir en plein onglet » ouvre la même app. Le ZIP, les légendes et le coût restent dans l’onglet du studio.
 6. Étape 3 : même chose pour le test de prompt.
 
+## Doctrine : cadrages, légendes, grille de test
+
+Vérification du 2026-09-24, branche `cursor/doctrine-ui-bf83`. Build GitHub Pages servi sous le sous-chemin, en HTTPS local (certificat autosigné). Chrome headless piloté par puppeteer-core, avec de vrais clics, sélections et saisies. Jeu de test : 20 images synthétiques générées par ffmpeg, soit 15 compositions distinctes (au moins 17 bits de dHash entre elles) et les 5 pièges habituels. Aucun run Comfy : 0 crédit.
+
+| Contrôle | Résultat |
+| --- | --- |
+| `npm test` (47/47), `npm run typecheck`, `npm run build`, build Pages | PASS |
+| Avant import : « 20 contrôles à faire », G20 en À FAIRE, pas encore de bloc légendes | PASS |
+| 8 images sur 15 étiquetées : compteur à 3 / 3 / 2, « 7 images gardées sans cadrage », aucun manque affiché | PASS |
+| 15 images en 5 / 6 / 4 : G20 en PASS, verdict « PASS · 20 contrôles » | PASS |
+| Deux cartes passées en gros plan (7 / 5 / 3) : G20 en À NOTER, excédent de 2 hachuré, manque de 1, deux messages ; verdict « PASS · 20 contrôles · 1 à noter », étape 2 ouverte | PASS |
+| « Voir les 7 gros plans » surligne les 7 cartes | PASS |
+| ZIP : `RAPPORT_GATE.txt` annonce 20 contrôles et contient la ligne `WARN G20` avec les comptes ; `unzip -t` sans erreur | PASS |
+| Bloc légendes après import : principe, légende FAIL (6 traits soulignés), légende PASS, trigger du client | PASS |
+| Carte vide : « Pose, tenue, décor, lumière, expression. Pas le visage. » et `[ce qui change]` dans l’aperçu. Carte remplie : plus d’aide | PASS |
+| « green eyes » dans une carte : message sur la carte, champ en `aria-invalid`, G15 en FAIL | PASS |
+| Étape 3, force : « Force haute… » à 1,00, « Bande d’usage » à 0,75, « Sous la bande d’usage » à 0,60 | PASS |
+| Grille : colonnes 0.60, 0.75 (bande d’usage) et 0.90, 3 prompts commençant par le trigger, case 1 · 0,75 par défaut. Valeurs reportées : prompt, 0.75, seed, 1 image, 800 étapes | PASS |
+| Case 2 · 0,60 : prompt et force suivent. « Copier » met le prompt, puis « 0.60 », dans le presse-papiers | PASS |
+| Seed passée à 777 : la grille suit | PASS |
+| Note de coût : pas de `SaveLoRA`, pas de checkpoint, une case = un run complet, avec son estimation | PASS |
+| Aucun iframe et aucune requête vers `*.comfy.org` sans clic sur « Charger l’app Comfy ici » | PASS |
+| Pas de débordement horizontal à 320, 390, 768, 1 024 et 1 440 px | PASS |
+| Aucune erreur JavaScript ni console | PASS |
+
+Défauts trouvés et corrigés pendant la QA :
+
+- En cours d’étiquetage, le compteur affichait « −3 » ou « −6 » sur des cadrages encore incomplets. Un manque n’apparaît plus tant qu’une image gardée n’a pas de cadrage ; un excédent apparaît tout de suite.
+- À 1 440 × 900, la note de coût de la grille sortait de l’écran. La lecture de la grille passe sur toute la largeur, sous la case choisie.
+
 ## Captures
 
 | Écran | Fichier |
 | --- | --- |
 | Hero desktop | [hero-desktop.jpg](screenshots/hero-desktop.jpg) |
 | Gate PASS | [gate-pass-desktop.jpg](screenshots/gate-pass-desktop.jpg) |
-| Gate FAIL (G15) | [gate-fail-desktop.jpg](screenshots/gate-fail-desktop.jpg) |
+| Gate FAIL (G15), message sur la carte | [gate-fail-desktop.jpg](screenshots/gate-fail-desktop.jpg) |
+| Repère de cadrage en À NOTER (G20) | [framing-meter-desktop.jpg](screenshots/framing-meter-desktop.jpg) |
+| Légendes FAIL et PASS | [caption-coach-desktop.jpg](screenshots/caption-coach-desktop.jpg) |
 | Étape 2, coût | [train-step-desktop.jpg](screenshots/train-step-desktop.jpg) |
 | Étape 2, app Comfy avant le clic | [comfy-consent-desktop.jpg](screenshots/comfy-consent-desktop.jpg) |
 | Étape 2, app Comfy chargée | [comfy-panel-desktop.jpg](screenshots/comfy-panel-desktop.jpg) |
 | Étape 3 | [image-step-desktop.jpg](screenshots/image-step-desktop.jpg) |
+| Étape 3, grille de test | [test-grid-desktop.jpg](screenshots/test-grid-desktop.jpg) |
 | Mobile | [hero-mobile.jpg](screenshots/hero-mobile.jpg), [guide-mobile.jpg](screenshots/guide-mobile.jpg) |
 
 ## Limites
 
 - Aucun entraînement réel n’a été exécuté. Le comportement de `TrainLoraNode` sur Flux.1 [dev] dans Comfy Cloud, les durées et la qualité restent à mesurer par la calibration ([COMFY-STACK.md](COMFY-STACK.md#coût--modèle-et-calibration)).
 - Les seuils du gate sont validés sur des images synthétiques, pas sur des datasets clients.
+- Le repère de cadrage et la bande d’usage 0,70–0,85 viennent de la pratique, pas d’une calibration sur ce stack. Le coût d’une case de grille suppose un réentraînement à chaque run : non mesuré.
 - Vérifié dans Chrome uniquement : ni Safari, ni Firefox, ni appareil physique.
 - L’écran App Mode connecté n’a pas été vu sans compte Comfy tiers. Le frontend Comfy ouvre un partage dans la vue de `extra.linearMode`, qui vaut `true` pour les deux snapshots.
 - Connexion Comfy dans le cadre : non vérifiée. Repli : « Ouvrir en plein onglet », même URL.
