@@ -138,7 +138,7 @@ export function LoraGuide() {
   const exported = shownExport.state === "done" && !shownExport.stale;
   const step2: StepState = !passed ? "locked" : realLaunched ? "done" : exported ? "running" : "ready";
   const step3: StepState = !passed ? "locked" : received ? "done" : "ready";
-  const lockedText = `Fermé : ${result.failCount + result.todoCount} contrôle${result.failCount + result.todoCount > 1 ? "s" : ""} du gate ne ${result.failCount + result.todoCount > 1 ? "sont" : "est"} pas en PASS. Pas de ZIP, pas de lien Comfy : un dataset sale brûle des crédits, on ne t’aide pas à le faire.`;
+  const lockedText = `Fermé : ${result.failCount + result.todoCount} contrôle${result.failCount + result.todoCount > 1 ? "s" : ""} du gate ne ${result.failCount + result.todoCount > 1 ? "sont" : "est"} pas en PASS. Pas de ZIP, pas de cadre Comfy : un dataset sale brûle des crédits, on ne t’aide pas à le faire.`;
 
   return <div className="guide">
     <Step n="01" title="Dataset propre" lead={`${DATASET_SIZE} images, 3 angles minimum, légendes = trigger + variables. Chaque FAIL bloque la suite.`} state={step1}>

@@ -14,6 +14,7 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 | Dataset fixé à 15 images exactement. | Livraison, imposé par les emplacements fixes de l’App Mode | 2026-09-24 |
 | FAIL réservé aux violations ; information manquante en « À faire » ; PASS exige tout en PASS. | Livraison, après QA | 2026-09-24 |
 | Aucun crédit Comfy dépensé pendant la livraison. Premier run = calibration par JD. | Livraison | 2026-09-24 |
+| Après PASS, les apps Comfy s’affichent dans la page (iframe) avec repli « Ouvrir en plein onglet ». Pas de proxy, pas de crédits Studio, pas de préremplissage des 15 images. | Livraison | 2026-09-24 |
 
 ## Faits
 
@@ -30,7 +31,8 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 - 800 étapes, lr 4e-4 et rank 16 sur 15 images suffisent pour une identité reconnaissable (réglages proches des entraîneurs Flux « rapides » courants). Non vérifié sur Comfy.
 - Le `TrainLoraNode` du core entraîne correctement Flux.1 [dev] : implémentation générique, flow-matching géré par `model_sampling`. Node marqué expérimental.
 - Les seuils de netteté (100 absolu, 35 % de la médiane) et de couleur (3,5 MAD) détectent assez de problèmes sans trop de faux positifs sur des photos réelles. Calibrés uniquement sur des images synthétiques.
-- Un lien `?share=` ouvre l’App Mode. Comfy indique qu’il peut s’ouvrir sur le graphe tant que le partage App Mode complet n’est pas disponible.
+- Un lien `?share=` ouvre l’App Mode. Comfy indique qu’il peut s’ouvrir sur le graphe tant que le partage App Mode complet n’est pas disponible. Les snapshots `798eb224b972` et `25954f3b0278` ont `linearMode: true` (import du 2026-09-24). L’UI connectée n’a pas été revue : un visiteur anonyme tombe sur la page de connexion Comfy.
+- CSP de `cloud.comfy.org` le 2026-09-24 : `frame-ancestors 'self' https:'`, pas de `X-Frame-Options`. L’iframe ne charge donc que depuis une page HTTPS.
 
 ## Propositions — non vérifiées, décision JD
 

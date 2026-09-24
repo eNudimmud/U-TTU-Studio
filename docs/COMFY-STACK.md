@@ -76,6 +76,14 @@ UNETLoader, encodeurs Flux, `CLIPTextEncode`, FluxGuidance, KSampler (seed parta
 
 > Les liens `?share=` sont des instantanés publics du workflow, sans image ni clé. Selon Comfy, un lien de partage peut s’ouvrir sur le graphe tant que le partage App Mode complet n’est pas disponible. Les champs portent alors les mêmes titres. **À vérifier par JD au premier clic.**
 
+## Affichage dans le guide
+
+Après PASS, `ComfyRunPanel` embarque `COMFY_APPS.train.url` (étape 2) et `COMFY_APPS.prompt.url` (étape 3). Le ZIP, les légendes et le coût restent dans la page : le client dépose toujours les 15 images dans Comfy.
+
+CSP Comfy vérifiée le 2026-09-24 : `frame-ancestors 'self' https:'`, aucun `X-Frame-Options`. Une page HTTP (le `next dev` local) ne peut pas encadrer Comfy ; le panneau le dit et garde « Ouvrir en plein onglet ». Les cookies de session dans l’iframe ne sont pas garantis : si la connexion échoue dans le cadre, le même lien en plein onglet est le repli.
+
+Les deux snapshots ont `extra.linearMode: true` (import du 2026-09-24, entrées et sorties App Mode présentes). Pas de nouveau workflow pour cet affichage.
+
 ## Coût : modèle et calibration
 
 ```text

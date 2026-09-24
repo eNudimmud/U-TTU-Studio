@@ -56,6 +56,8 @@ npm run dev          # http://localhost:3000
 
 Le **test à blanc** n’est pas un troisième workflow. C’est le premier, lancé avec 20 étapes et 1 image, qui sont ses valeurs par défaut. Les images déposées restent en place pour le vrai run.
 
+Après un PASS du gate, le guide affiche ces deux apps dans la page. Le lien « Ouvrir en plein onglet » reste sous chaque cadre : la session Comfy dans un iframe n’est pas garantie, et une page HTTP ne peut pas encadrer Comfy.
+
 ### Créer les workflows dans Comfy Cloud
 
 1. Se connecter à [cloud.comfy.org](https://cloud.comfy.org) avec un compte qui a des crédits.

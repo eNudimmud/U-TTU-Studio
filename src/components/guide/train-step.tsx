@@ -1,10 +1,9 @@
 "use client";
 
-import { APP_LABELS, COMFY_APPS, COMFY_CLOUD, DATASET_SIZE, FLUX_STACK, TIMING, estimateTrainRun, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
+import { APP_LABELS, COMFY_CLOUD, DATASET_SIZE, FLUX_STACK, TIMING, estimateTrainRun, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
 import { formatEstimate } from "@/lib/gate/report";
-import { assetPath } from "@/lib/site";
-import { trackEvent } from "@/lib/analytics";
 import { Arrow } from "../glyph";
+import { ComfyRunPanel } from "./comfy-run-panel";
 import { CopyButton } from "./copy-button";
 
 export type ExportState = { state: "idle" } | { state: "building"; done: number; total: number } | { state: "done"; size: number; stale: boolean } | { state: "error"; message: string };
@@ -52,17 +51,8 @@ export function TrainStep(props: Props) {
         {props.exportState.state === "error" && <p className="inline-status fail" role="alert">{props.exportState.message}</p>}
       </li>
       <li>
-        <h4>Ouvre l’app Comfy</h4>
-        <p>Compte Comfy Cloud requis, crédits à ta charge. Tes images partent chez Comfy au moment où tu les déposes.</p>
-        <div className="link-row">
-          <a className="button button-outline" href={COMFY_APPS.train.url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("comfy_app_opened")}>Ouvrir « Dataset → LoRA → 1 image » <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
-          <a className="quiet-link" href={assetPath(COMFY_APPS.train.file)} download>Workflow .json</a>
-        </div>
-        <p className="small-print">Si le lien s’ouvre sur le graphe plutôt que sur l’app, les champs portent les mêmes noms.</p>
-      </li>
-      <li>
         <h4>Dépose les images dans l’ordre</h4>
-        <p>01.jpg dans « {APP_LABELS.image(1)} », 02.jpg dans « {APP_LABELS.image(2)} »… jusqu’à {String(DATASET_SIZE).padStart(2, "0")}.jpg. L’ordre des images doit suivre celui des légendes.</p>
+        <p>Dans le cadre Comfy, sous le coût. 01.jpg dans « {APP_LABELS.image(1)} », 02.jpg dans « {APP_LABELS.image(2)} »… jusqu’à {String(DATASET_SIZE).padStart(2, "0")}.jpg. L’ordre des images doit suivre celui des légendes. Si le partage s’ouvre sur le graphe, les champs portent les mêmes noms.</p>
       </li>
       <li>
         <h4>Colle les {DATASET_SIZE} légendes</h4>
@@ -102,5 +92,6 @@ export function TrainStep(props: Props) {
         : `Au pire ${Math.round(real.seconds.high / 60)} min sur ${limitMinutes} autorisées.`}</p>
       <p className="small-print">{TIMING.measured ? "Durées mesurées sur un run de calibration." : `Estimation non mesurée : ${TIMING.secondsPerStep.low}–${TIMING.secondsPerStep.high} s par étape supposées sur les GPU Comfy. Le premier run sert de calibration.`} Tarif : {COMFY_CLOUD.gpuCreditsPerSecond} crédit/s de GPU, {COMFY_CLOUD.creditsPerUsd} crédits ≈ 1 $. L’estimateur de Comfy affiche 0 crédit pour ce workflow : il ignore le temps GPU.</p>
     </aside>
+    <ComfyRunPanel app="train" />
   </div>;
 }

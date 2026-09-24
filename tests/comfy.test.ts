@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { COMFY_CLOUD, DATASET_SIZE, FLUX_STACK, estimatePromptTest, estimateTrainRun, maxSafeSteps } from "../src/lib/comfy-stack.ts";
+import { COMFY_APPS, COMFY_CLOUD, DATASET_SIZE, FLUX_STACK, estimatePromptTest, estimateTrainRun, maxSafeSteps } from "../src/lib/comfy-stack.ts";
 import {
   IDS, buildPromptTestWorkflow, buildTrainWorkflow, imageNodeId, promptAppInputs, promptAppOutputs, trainAppInputs, trainAppOutputs,
   type ApiWorkflow, type Link,
@@ -80,6 +80,17 @@ describe("Comfy workflows", () => {
     for (const graph of [savedTrain, savedPrompt]) {
       const seed = graph.nodes.find(node => node.id === Number(IDS.seed));
       assert.equal(seed?.widgets_values?.[1], "fixed", "a randomized seed would break the with/without comparison");
+    }
+  });
+});
+
+describe("App Mode links", () => {
+  it("keeps both embeds on https Comfy share URLs", () => {
+    for (const app of [COMFY_APPS.train, COMFY_APPS.prompt]) {
+      const url = new URL(app.url);
+      assert.equal(url.protocol, "https:");
+      assert.equal(url.hostname, "cloud.comfy.org");
+      assert.match(url.searchParams.get("share") ?? "", /^[a-f0-9]{12}$/);
     }
   });
 });

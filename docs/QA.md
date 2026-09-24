@@ -54,4 +54,5 @@ Jeu de test : 20 images synthétiques générées par ffmpeg. 15 compositions di
 - Aucun entraînement réel n’a été exécuté. Le comportement de `TrainLoraNode` sur Flux.1 [dev] dans Comfy Cloud, les durées et la qualité restent à mesurer par la calibration ([COMFY-STACK.md](COMFY-STACK.md#coût--modèle-et-calibration)).
 - Les seuils du gate sont validés sur des images synthétiques, pas sur des datasets clients.
 - Vérifié dans Chrome uniquement : ni Safari, ni Firefox, ni appareil physique.
-- L’ouverture du lien de partage en App Mode côté client n’a pas pu être vérifiée sans compte Comfy tiers.
+- L’ouverture du lien de partage en App Mode côté client n’a pas pu être vérifiée sans compte Comfy tiers. Les snapshots importés ont `linearMode: true`. Un navigateur non connecté est renvoyé vers la connexion Comfy, y compris dans l’iframe.
+- Connexion Comfy à l’intérieur de l’iframe : non vérifiée (cookies tiers). Repli prévu : « Ouvrir en plein onglet », même URL.
