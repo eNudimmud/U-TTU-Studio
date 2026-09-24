@@ -2,10 +2,11 @@
 
 import { useState, type DragEvent } from "react";
 import { DATASET_SIZE } from "@/lib/comfy-stack";
-import { checkTrigger } from "@/lib/gate/captions";
+import { checkTrigger, cleanVariables, findInvariantHits, parseInvariants } from "@/lib/gate/captions";
 import { slot } from "@/lib/gate/report";
 import { CONFIRMATIONS, GATE, canKeep, type ConfirmationId, type DatasetImage, type GateResult } from "@/lib/gate/rules";
 import { ANGLES, FRAMINGS, type Angle, type Framing } from "@/lib/gate/vocabulary";
+import { CaptionCoach } from "./caption-coach";
 
 interface Props {
   trigger: string;
@@ -33,6 +34,7 @@ export function DatasetStep(props: Props) {
   const rejected = images.filter(image => image.decision === "rejeter").length;
   const untriaged = images.filter(image => image.decision === "a-trier").length;
   const keptIndex = new Map(result.kept.map((image, i) => [image.id, i]));
+  const invariantList = parseInvariants(props.invariants);
 
   function drop(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
@@ -52,7 +54,7 @@ export function DatasetStep(props: Props) {
         <div className="field">
           <label htmlFor="invariants">Ce qui ne change jamais <span aria-hidden="true">*</span></label>
           <textarea id="invariants" value={props.invariants} onChange={event => props.onInvariants(event.target.value)} rows={3} placeholder="green eyes, freckles, scar on left cheek" aria-describedby="invariants-help" />
-          <p className="field-help" id="invariants-help">En anglais, séparés par des virgules. Ces traits seront interdits dans les légendes.</p>
+          <p className="field-help" id="invariants-help">Ce que le trigger doit tenir : visage, yeux, coiffure signature, oreilles ou queue si elles font l’identité. En anglais, séparés par des virgules ; interdits dans les légendes.</p>
         </div>
       </div>
     </fieldset>
@@ -73,12 +75,18 @@ export function DatasetStep(props: Props) {
       </div>}
     </div>
 
+    {images.length > 0 && <CaptionCoach trigger={props.trigger} />}
+
     {images.length > 0 && <ul className="image-grid" aria-label="Images importées">
       {images.map(image => {
         const flags = result.flags[image.id] ?? [];
         const keepable = canKeep(flags);
         const needsReview = flags.some(flag => flag.weight === "review");
         const index = keptIndex.get(image.id);
+        const hits = image.decision === "garder" ? findInvariantHits(image.variables, invariantList) : [];
+        const bare = !cleanVariables(image.variables);
+        const help = hits.length ? `« ${hits.join(" », « ")} » : ${hits.length > 1 ? "invariants, le trigger les porte. Retire-les." : "invariant, le trigger le porte. Retire-le."}`
+          : bare ? "Pose, tenue, décor, lumière, expression. Pas le visage." : "";
         return <li key={image.id} id={`image-${image.id}`} className={`image-card decision-${image.decision}${props.highlight.has(image.id) ? " is-highlight" : ""}`}>
           <div className="image-thumb">
             {props.previews[image.id] && <img src={props.previews[image.id]} alt={`Aperçu : ${image.name}`} loading="lazy" decoding="async" />}
@@ -116,10 +124,11 @@ export function DatasetStep(props: Props) {
                   </select>
                 </label>
               </div>
-              <label className="variables-field">Variables
-                <input value={image.variables} onChange={event => props.onUpdate(image.id, { variables: event.target.value })} placeholder="tenue, décor, lumière, expression" maxLength={220} spellCheck={false} />
+              <label className="variables-field">Ce qui change, en anglais
+                <input value={image.variables} onChange={event => props.onUpdate(image.id, { variables: event.target.value })} placeholder="laughing, red coat, snowy park" maxLength={220} spellCheck={false} aria-invalid={hits.length > 0} aria-describedby={help ? `variables-help-${image.id}` : undefined} />
               </label>
-              {index !== undefined && <p className="caption-preview"><span>Légende {slot(index)}</span>{result.captions[index]}</p>}
+              {help && <p className={`variables-help${hits.length ? " field-error" : ""}`} id={`variables-help-${image.id}`}>{help}</p>}
+              {index !== undefined && <p className="caption-preview"><span>Légende {slot(index)}</span>{result.captions[index]}{bare && <em className="caption-slot">, [ce qui change]</em>}</p>}
             </div>}
           </div>
         </li>;
