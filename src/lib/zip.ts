@@ -88,3 +88,47 @@ export function createZip(entries: ZipEntry[], date = new Date()): Uint8Array {
   }
   return archive;
 }
+
+export interface ReadZipOptions {
+  inflateRaw?: (data: Uint8Array) => Uint8Array;
+  // A JS CRC over ~10 MB of JPEG overruns the 10 ms CPU budget of a free Cloudflare Worker.
+  verifyCrc?: boolean;
+}
+
+// Reads what createZip writes (stored entries). Deflated entries need an inflater (zlib in Node). No ZIP64, no encryption.
+// Stored entries are views on `archive`, not copies.
+export function readZip(archive: Uint8Array, { inflateRaw, verifyCrc = true }: ReadZipOptions = {}): ZipEntry[] {
+  const view = new DataView(archive.buffer, archive.byteOffset, archive.byteLength);
+  let end = -1;
+  for (let i = archive.length - 22; i >= Math.max(0, archive.length - 22 - 0xffff); i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { end = i; break; }
+  }
+  if (end < 0) throw new Error("ZIP illisible : fin d’archive introuvable.");
+  const decoder = new TextDecoder();
+  const entries: ZipEntry[] = [];
+  let cursor = view.getUint32(end + 16, true);
+  for (let n = view.getUint16(end + 10, true); n > 0; n--) {
+    if (cursor + 46 > archive.length || view.getUint32(cursor, true) !== 0x02014b50) throw new Error("ZIP illisible : répertoire central abîmé.");
+    const flags = view.getUint16(cursor + 8, true);
+    const method = view.getUint16(cursor + 10, true);
+    const crc = view.getUint32(cursor + 16, true);
+    const packed = view.getUint32(cursor + 20, true);
+    const size = view.getUint32(cursor + 24, true);
+    const nameLength = view.getUint16(cursor + 28, true);
+    const local = view.getUint32(cursor + 42, true);
+    const name = decoder.decode(archive.subarray(cursor + 46, cursor + 46 + nameLength));
+    cursor += 46 + nameLength + view.getUint16(cursor + 30, true) + view.getUint16(cursor + 32, true);
+    if (flags & 1) throw new Error(`ZIP chiffré : ${name}.`);
+    if (local + 30 > archive.length || view.getUint32(local, true) !== 0x04034b50) throw new Error(`ZIP illisible : en-tête de ${name} introuvable.`);
+    const start = local + 30 + view.getUint16(local + 26, true) + view.getUint16(local + 28, true);
+    const raw = archive.subarray(start, start + packed);
+    if (raw.length !== packed) throw new Error(`ZIP tronqué : ${name}.`);
+    let data: Uint8Array;
+    if (method === 0) data = raw;
+    else if (method === 8 && inflateRaw) data = inflateRaw(raw);
+    else throw new Error(`${name} : compression non prise en charge (méthode ${method}).`);
+    if (data.length !== size || (verifyCrc && crc32(data) !== crc)) throw new Error(`${name} : contenu abîmé (CRC).`);
+    entries.push({ name, data });
+  }
+  return entries;
+}

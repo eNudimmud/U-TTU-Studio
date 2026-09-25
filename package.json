@@ -8,7 +8,8 @@
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --no-warnings --test \"tests/**/*.test.ts\"",
-    "comfy:build": "node --experimental-strip-types --no-warnings scripts/build-comfy-workflows.ts"
+    "comfy:build": "node --experimental-strip-types --no-warnings scripts/build-comfy-workflows.ts",
+    "fal:smoke": "node scripts/fal-smoke.mjs"
   },
   "dependencies": {
     "next": "16.3.6",

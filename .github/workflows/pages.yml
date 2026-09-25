@@ -41,6 +41,7 @@ jobs:
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
           NEXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}
+          NEXT_PUBLIC_FAL_PROXY_URL: ${{ vars.NEXT_PUBLIC_FAL_PROXY_URL }}
       - name: Disable Jekyll processing
         run: touch out/.nojekyll
       - name: Upload site

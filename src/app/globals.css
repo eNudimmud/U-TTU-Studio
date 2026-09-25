@@ -558,3 +558,30 @@ h2 { font-size: clamp(38px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.04
   .image-grid { grid-template-columns: 1fr; }
   .hero-actions .button { width: 100%; }
 }
+
+/* Rail fal (expérimental) */
+.guide-step.guide-rail { border-style: dashed; border-color: #a67c5266; }
+.guide-rail .guide-step-number { color: var(--bronze); }
+.fal-rail { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; padding: 28px; align-items: start; }
+.fal-rail code { font-family: var(--font-mono); font-size: 13px; color: #eadfc9; overflow-wrap: anywhere; }
+.fal-rail .small-print code { font-size: 12px; }
+.fal-token { max-width: 440px; margin: 4px 0 16px; }
+.fal-log { font-family: var(--font-mono); overflow-wrap: anywhere; }
+.fal-problems { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; line-height: 1.55; color: var(--fail); }
+.fal-links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 26px; margin-bottom: 4px; }
+.fal-grid { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.fal-cell { border: 1px solid var(--line); background: var(--panel); padding: 10px; display: grid; gap: 8px; align-content: start; }
+.fal-cell.is-done { border-color: var(--line-gold); }
+.fal-cell.is-error { border-color: #8b1e1e88; }
+.fal-cell-head { font-size: 13px; font-weight: 650; color: var(--gold); }
+.fal-cell-head span { color: var(--muted); font-weight: 500; margin-right: 4px; }
+.fal-cell img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; background: #0f0f10; }
+.fal-cell-empty { aspect-ratio: 1; display: grid; place-items: center; padding: 10px; text-align: center; font-size: 13px; line-height: 1.5; color: var(--muted); background: #0f0f10; border: 1px dashed var(--line); overflow-wrap: anywhere; }
+.fal-cell.is-error .fal-cell-empty { color: var(--fail); }
+@media (max-width: 1100px) {
+  .fal-rail { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .fal-rail { padding: 18px; gap: 20px; }
+  .fal-grid { grid-template-columns: 1fr; }
+}
