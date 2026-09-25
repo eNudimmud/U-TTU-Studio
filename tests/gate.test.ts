@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { canKeep, computeFlags, evaluateGate, type GateInput } from "../src/lib/gate/rules.ts";
+import { canKeep, computeFlags, evaluateGate, framingCoverage, framingTarget, type DatasetImage, type GateInput } from "../src/lib/gate/rules.ts";
+import type { Framing } from "../src/lib/gate/vocabulary.ts";
 import { cleanDataset, cleanInput, makeImage } from "./fixtures.ts";
 
 const status = (input: GateInput, id: string) => evaluateGate(input).checks.find(item => item.id === id)?.status;
@@ -133,6 +134,43 @@ describe("dataset gate", () => {
     assert.equal(status({ ...cleanInput(), trigger: "mira_v1" }, "G01"), "pass");
     assert.equal(status({ ...cleanInput(), invariants: "green eyes" }, "G02"), "todo");
     assert.equal(evaluateGate({ ...cleanInput(), invariants: "green eyes" }).verdict, "FAIL");
+  });
+});
+
+describe("framing coverage (soft target)", () => {
+  const reframe = (plan: (i: number) => Framing | null): DatasetImage[] => cleanDataset().map((image, i) => ({ ...image, framing: plan(i) }));
+
+  it("turns the 20–30 / 40–50 / 20–30 % shares into whole images out of 15", () => {
+    assert.deepEqual((["gros-plan", "buste", "pied"] as const).map(framing => framingTarget(framing)), [{ min: 3, max: 5 }, { min: 6, max: 8 }, { min: 3, max: 5 }]);
+  });
+
+  it("passes a balanced dataset and notes a drift without blocking", () => {
+    assert.equal(status(cleanInput(), "G20"), "pass");
+    const images = reframe(i => i < 7 ? "gros-plan" : i < 12 ? "buste" : "pied");
+    const result = evaluateGate(cleanInput(images));
+    const g20 = result.checks.find(item => item.id === "G20");
+    assert.equal(g20?.status, "warn");
+    assert.equal(result.verdict, "PASS");
+    assert.equal(result.checks.find(item => item.id === "G13")?.status, "pass");
+    assert.match(g20?.detail ?? "", /Trop de gros plans/);
+    assert.match(g20?.detail ?? "", /Trop peu de plans buste/);
+    assert.deepEqual(g20?.imageIds, images.slice(0, 7).map(image => image.id));
+    assert.deepEqual(result.framing.rows.map(row => [row.count, row.drift]), [[7, "over"], [5, "under"], [3, null]]);
+  });
+
+  it("leaves the blocking minimum to G13", () => {
+    const result = evaluateGate(cleanInput(reframe(i => i < 14 ? "gros-plan" : "pied")));
+    assert.equal(result.checks.find(item => item.id === "G13")?.status, "fail");
+    assert.equal(result.checks.find(item => item.id === "G20")?.status, "warn");
+    assert.equal(result.verdict, "FAIL");
+  });
+
+  it("counts live while tagging, and waits for every tag before judging", () => {
+    const images = reframe(i => i < 4 ? null : i < 8 ? "buste" : "gros-plan");
+    assert.equal(status(cleanInput(images), "G20"), "todo");
+    const coverage = framingCoverage(images);
+    assert.deepEqual(coverage.rows.map(row => row.count), [7, 4, 0]);
+    assert.equal(coverage.untagged, 4);
   });
 });
 

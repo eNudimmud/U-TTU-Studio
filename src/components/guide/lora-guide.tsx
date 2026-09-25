@@ -10,6 +10,7 @@ import { DatasetStep } from "./dataset-step";
 import { ComfyRunPanel } from "./comfy-run-panel";
 import { GatePanel, gateSummary, gateTone } from "./gate-panel";
 import { ImageStep } from "./image-step";
+import { TestGrid } from "./test-grid";
 import { TrainStep, type ExportState } from "./train-step";
 
 const MAX_IMPORT = 60;
@@ -170,6 +171,7 @@ export function LoraGuide() {
         trigger={trigger} invariants={invariants} scene={scene} strength={strength} seed={seed} count={count} steps={steps} received={received}
         onScene={setScene} onStrength={setStrength} onSeed={setSeed} onCount={setCount} onReceived={setReceived}
       />
+      <TestGrid trigger={trigger} seed={seed} steps={steps} />
       <ComfyRunPanel app="prompt" />
     </Step>
   </div>;

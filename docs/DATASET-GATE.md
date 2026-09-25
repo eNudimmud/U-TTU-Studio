@@ -13,17 +13,19 @@ Le code fait foi : [`src/lib/gate/rules.ts`](../src/lib/gate/rules.ts) (règles 
 | **À FAIRE** | Information manquante : tri, étiquettes, confirmations. | Bloque l’étape 2. |
 | **À NOTER** | Risque accepté, sans blocage. | Rien. |
 
-Verdict **PASS** si et seulement si aucun contrôle n’est en FAIL ni en À FAIRE. Tant que ce n’est pas le cas, l’étape 2 est verrouillée : pas de ZIP, pas de lien Comfy, pas de légendes à copier. L’export revérifie le verdict avant d’écrire le moindre fichier.
+Verdict **PASS** si et seulement si aucun contrôle n’est en FAIL ni en À FAIRE. Tant que ce n’est pas le cas, l’étape 2 est verrouillée : pas de ZIP, pas de lien Comfy, pas de légendes à copier. L’export revérifie le verdict avant d’écrire le moindre fichier. Un contrôle À NOTER (G06, G19, G20) ne ferme rien.
 
 ## Format imposé
 
 **Trigger.** 4 à 24 caractères, `a–z`, `0–9`, `_`. Il commence par une lettre et contient au moins un chiffre ou un `_` (ex. `mira_v1`). Une fois les chiffres et `_` retirés, il ne doit pas redonner un mot courant (`woman_1` → refusé).
 
-**Légende.** `trigger, angle, cadrage, variables`. L’angle et le cadrage viennent des étiquettes, en anglais contrôlé : `front view` / `three-quarter view` / `side profile view` / `back view` ; `close-up portrait` / `upper body shot` / `full body shot`. Les variables décrivent ce qui change d’une image à l’autre : tenue, décor, lumière, expression. Elles s’écrivent en anglais, recommandé pour l’encodeur T5 de Flux.
+**Légende.** `trigger, angle, cadrage, variables`. L’angle et le cadrage viennent des étiquettes, en anglais contrôlé : `front view` / `three-quarter view` / `side profile view` / `back view` ; `close-up portrait` / `upper body shot` / `full body shot`. Les variables décrivent ce qui change d’une image à l’autre : tenue, pose, décor, lumière, expression. Elles s’écrivent en anglais, recommandé pour l’encodeur T5 de Flux.
 
 **Invariants.** Au moins deux traits qui ne changent jamais (ex. `green eyes, freckles, scar on left cheek`). C’est le trigger qui doit les porter. Ils sont donc interdits dans les légendes.
 
-## Les 19 contrôles
+## Les 20 contrôles
+
+G01 à G19 sont les règles d’origine, inchangées. G20 est un repère : il ne passe jamais en FAIL.
 
 | ID | Règle | FAIL / À FAIRE quand | Pourquoi |
 | --- | --- | --- | --- |
@@ -46,6 +48,57 @@ Verdict **PASS** si et seulement si aucun contrôle n’est en FAIL ni en À FAI
 | G17 | ≤ 40 mots par légende | Légende-roman. | Décrire la personne au lieu de ce qui change. |
 | G18 | Légendes toutes différentes | Deux légendes identiques. | Les variables doivent dire ce qui diffère. |
 | G19 | Variables décrites | Plus de la moitié des légendes sans variable libre (À NOTER). | Un décor non décrit risque d’être appris comme identité. |
+| G20 | Répartition des cadrages (repère) | Jamais bloquant. À NOTER si les gros plans sortent de 3–5, les plans buste de 6–8 ou le plein pied de 3–5 ; À FAIRE tant qu’une image gardée n’est pas étiquetée. | Trop de gros plans : portrait serré, silhouette fragile. Trop de plein pied : visage minuscule à 0,25 MP. Le buste relie les deux. |
+
+## Repère de cadrage (G20)
+
+G13 garde le minimum bloquant : au moins 3 gros plans et 3 plans buste ou plein pied. G20 ajoute la répartition visée pour les 15 images gardées.
+
+| Cadrage | Légende | Part visée | Sur 15 images |
+| --- | --- | --- | --- |
+| Gros plan | `close-up portrait` | 20–30 % | 3 à 5 |
+| Buste | `upper body shot` | 40–50 % | 6 à 8 |
+| Plein pied | `full body shot` | 20–30 % | 3 à 5 |
+
+Les fourchettes sont arrondies vers l’extérieur, à l’image près : 30 % de 15 font 4,5, donc 5 (`framingTarget`, `rules.ts`).
+
+| Statut | Quand |
+| --- | --- |
+| À FAIRE | Une image gardée n’a pas encore d’angle ou de cadrage, comme pour G11 à G13. |
+| À NOTER | Un cadrage sort de sa fourchette. Le verdict peut rester PASS : l’étape 2 s’ouvre. |
+| PASS | Les trois cadrages sont dans leur fourchette. |
+
+Dans le panneau du gate, G20 est le compteur affiché en tête de la section « Couverture » : une case par image, la fourchette soulignée en bronze, l’excédent hachuré. Les comptes suivent chaque changement de cadrage. Un excédent est signalé tout de suite, avec « Voir les N … » pour surligner les images concernées. Un manque ne l’est qu’une fois toutes les images gardées étiquetées : avant, il peut encore se combler.
+
+| Écart | Message affiché |
+| --- | --- |
+| Trop de gros plans | La LoRA tire vers le portrait serré et tient mal la silhouette. |
+| Trop peu de gros plans | Le détail du visage manque (G13 bloque sous 3). |
+| Trop de plans buste | Il reste peu de place pour les gros plans et le plein pied. |
+| Trop peu de plans buste | Ce sont eux qui relient le visage à la silhouette. |
+| Trop d’images en plein pied | Entraîné à 0,25 MP, un visage en plein pied ne fait que quelques dizaines de pixels. |
+| Trop peu d’images en plein pied | Proportions et silhouette resteront approximatives. |
+
+Le rapport (`RAPPORT_GATE.txt`, `gate.json`) reprend G20 avec les comptes et le repère.
+
+## Légendes : ce qui change, pas ce qui tient
+
+Au-dessus des cartes, le guide affiche le principe en une ligne : écrire ce qui doit pouvoir **changer**, jamais ce que le trigger doit **tenir** (forme du visage, yeux, coiffure signature, oreilles ou queue si elles font l’identité). Suivent deux légendes côte à côte, en anglais, telles que Flux les lit :
+
+| | Légende | Ce qu’elle apprend à la LoRA |
+| --- | --- | --- |
+| FAIL | `mira_v1, front view, close-up portrait, young woman, oval face, green eyes, freckles, long wavy red hair, full lips` | Les traits s’attachent aux mots de la légende, plus au trigger : il faudra les réécrire dans chaque prompt. G15 bloque les invariants déclarés, G16 les traits recopiés. |
+| PASS | `mira_v1, three-quarter view, upper body shot, laughing, leaning on a pillar, grey hoodie, subway platform, cold fluorescent light` | Expression, pose, tenue, décor, lumière : ce qui varie d’une image à l’autre. Le visage reste au trigger. |
+
+Le trigger remplace `mira_v1` dès qu’il est valide. Le trigger, l’angle et le cadrage viennent des étiquettes : le client n’écrit que la fin, en anglais simple, sans tags du type « 1girl, masterpiece ». Les exemples sont construits avec `buildCaption` et vérifiés contre le gate par `tests/doctrine.test.ts`.
+
+Sur chaque carte gardée :
+
+- le champ s’appelle « Ce qui change, en anglais » ;
+- vide, il rappelle « Pose, tenue, décor, lumière, expression. Pas le visage. », et l’aperçu de la légende montre la place `[ce qui change]` ;
+- un invariant déclaré y est signalé sur la carte, avec la même correspondance que G15 (pluriel compris).
+
+Aucune règle nouvelle : G14 à G19 restent les seules règles de légende.
 
 ## Signalements automatiques par image
 
@@ -79,6 +132,6 @@ Le ZIP n’existe qu’en PASS. Il contient :
 | `01.jpg` … `15.jpg` | Images retenues dans l’ordre des emplacements Comfy, réencodées en JPEG q 0,92, 1 536 px max, sans EXIF ni GPS. |
 | `01.txt` … `15.txt` | Légende de chaque image (format standard image + .txt). |
 | `captions_comfy.txt` | Les 15 légendes, une par ligne, à coller dans l’app. |
-| `RAPPORT_GATE.txt` | Verdict, 19 contrôles, légendes, images écartées. |
+| `RAPPORT_GATE.txt` | Verdict, 20 contrôles, légendes, images écartées. |
 | `gate.json` | Même contenu, lisible par machine. |
 | `LISEZMOI.txt` | Étapes suivantes, lien App Mode, estimations de coût. |

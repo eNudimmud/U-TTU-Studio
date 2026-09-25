@@ -117,8 +117,17 @@ Plafond sûr = (limite du plan × 0,9 − frais fixes hauts − images × s/imag
 2. Lancer un run réel de 800 étapes, puis noter la durée totale.
 3. s/étape ≈ (durée réelle − durée du test) / 780. Frais fixes ≈ durée du test − 20 × s/étape − 2 × s/image.
 4. Reporter les valeurs dans `TIMING`, passer `measured: true`, puis `npm test && npm run build`. Le site affiche alors « Durées mesurées ».
+5. Facultatif : relancer le run réel en ne changeant que « Force LoRA ». ComfyUI réutilise en local la sortie d’un node dont les entrées n’ont pas changé ; si Comfy Cloud le fait aussi d’un run à l’autre, ce second run ne dure que le temps du rendu. Jusqu’à 541 crédits de plus. Noter le résultat dans [DECISIONS.md](DECISIONS.md) : il fixe le coût réel d’une case de la grille de test.
 
 Aucun run n’a été lancé pendant cette livraison : **0 crédit dépensé**. La validité des graphes repose sur la validation `dry_run` de Comfy et sur la lecture du code des nodes (`comfy_extras/nodes_train.py`, `nodes_dataset.py`, `nodes_toolkit.py`). Le premier run réel reste le vrai test.
+
+### Grille de test (étape 3)
+
+La grille compare 3 prompts fixes (trigger seul sur fond neutre, pose et lumière jamais vues, autre style en option) à 3 forces : 0,60, 0,75 et 0,90, autour de la bande d’usage 0,70–0,85. La seed de l’étape 3 sert partout, et chaque run rend aussi son témoin sans LoRA. Les réglages sont dans [`src/lib/test-grid.ts`](../src/lib/test-grid.ts).
+
+Le workflow ne rend qu’un prompt et une force par run, et la LoRA disparaît à la fin du run. **Une case = un run réel complet**, entraînement compris : 261–541 crédits à 800 étapes, estimation non mesurée. Le guide l’affiche à côté de la grille et propose un ordre : case 1 à 0,75, puis 0,90 ou 0,60 selon la lecture, puis les lignes 2 et 3. Chaque prompt peut d’abord passer dans le test sans LoRA, pour 7 à 29 crédits.
+
+Pas de checkpoint intermédiaire non plus : sans `SaveLoRA`, impossible de comparer l’étape 400 à l’étape 800. La grille remplace cette comparaison par la paire avec/sans LoRA et par la variation de force.
 
 ## Risques connus
 

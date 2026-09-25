@@ -18,9 +18,9 @@ L’offre A (« Look-Lock » : forfait de direction artistique et ZIP-juge) a é
 
 ## Ce que fait le site
 
-1. **Dataset propre.** Le client choisit un trigger, liste les traits qui ne changent jamais et importe ses images. Le site mesure localement la résolution, la netteté, les doublons, les copies en miroir et les couleurs hors norme. Le client trie chaque image, indique l’angle et le cadrage, décrit ce qui varie et coche 5 confirmations. Les 19 contrôles doivent être en PASS pour passer à la suite ([règles détaillées](docs/DATASET-GATE.md)).
+1. **Dataset propre.** Le client choisit un trigger, liste les traits qui ne changent jamais et importe ses images. Le site mesure localement la résolution, la netteté, les doublons, les copies en miroir et les couleurs hors norme. Le client trie chaque image, indique l’angle et le cadrage, décrit ce qui varie et coche 5 confirmations. Aucun des 20 contrôles ne doit rester en FAIL ou À FAIRE pour passer à la suite ([règles détaillées](docs/DATASET-GATE.md)). Pendant l’étiquetage, le gate compte les gros plans, plans buste et plein pied par rapport au repère 3–5 / 6–8 / 3–5 ; un écart est signalé sans bloquer. Au-dessus des cartes, une légende FAIL et une légende PASS montrent quoi écrire : ce qui change, jamais ce que le trigger doit tenir.
 2. **Entraîner la LoRA.** Le site fournit un ZIP (15 JPEG nettoyés, légendes, rapport), le lien de l’app Comfy et les légendes à coller. Il affiche le coût estimé et refuse un réglage qui dépasserait la durée maximale d’un run Comfy. Un test à blanc à 20 étapes passe avant le vrai run.
-3. **Utiliser une fois : 1 image.** Le client règle prompt, force de la LoRA, seed et nombre d’images (1 ou 4). Ces réglages vont dans le même formulaire Comfy que l’entraînement, car la LoRA n’existe que pendant le run (voir plus bas). Le run rend aussi une image témoin sans LoRA et la courbe de loss, et le site aide à lire le résultat.
+3. **Utiliser une fois : 1 image.** Le client règle prompt, force de la LoRA, seed et nombre d’images (1 ou 4). Ces réglages vont dans le même formulaire Comfy que l’entraînement, car la LoRA n’existe que pendant le run (voir plus bas). Le run rend aussi une image témoin sans LoRA et la courbe de loss, et le site aide à lire le résultat. Pour juger la LoRA, une grille de test fixe : 3 prompts × forces 0,60 / 0,75 / 0,90, même seed, avec sa lecture. Comfy Cloud ne garde aucun checkpoint : chaque case est un run complet, coût affiché.
 
 **Hors périmètre :** Look-Lock et ZIP-juge, vidéo (clips, storyboards, pubs), 3D, voix, avatars, plateforme d’identité, menu combinant plusieurs offres, autre moteur d’entraînement que Comfy Cloud.
 
@@ -38,7 +38,7 @@ npm run dev          # http://localhost:3000
 
 | Commande | Rôle |
 | --- | --- |
-| `npm test` | 39 tests : règles du gate, légendes, mesures d’image, ZIP (vérifié par `unzip -t`), cohérence des workflows Comfy, liens App Mode, coûts et plafond de durée. |
+| `npm test` | 47 tests : règles du gate, répartition des cadrages, légendes et exemples FAIL/PASS, grille de test, mesures d’image, ZIP (vérifié par `unzip -t`), cohérence des workflows Comfy, liens App Mode, coûts et plafond de durée. |
 | `npm run typecheck` | TypeScript strict. |
 | `npm run build` | Build de production (`next build --webpack`). |
 | `npm run comfy:build` | Régénère `comfy/*.api.json` à partir de `src/lib/comfy-stack.ts`. |
@@ -146,8 +146,8 @@ docs/                         documentation
 
 | Document | Contenu |
 | --- | --- |
-| [docs/DATASET-GATE.md](docs/DATASET-GATE.md) | Les 19 contrôles, leurs seuils et le contenu du ZIP. |
-| [docs/COMFY-STACK.md](docs/COMFY-STACK.md) | Choix de Flux, faits vérifiés sur Comfy Cloud, graphes, calcul du coût, calibration, risques. |
+| [docs/DATASET-GATE.md](docs/DATASET-GATE.md) | Les 20 contrôles, leurs seuils, le repère de cadrage, le coaching des légendes et le contenu du ZIP. |
+| [docs/COMFY-STACK.md](docs/COMFY-STACK.md) | Choix de Flux, faits vérifiés sur Comfy Cloud, graphes, calcul du coût, calibration, grille de test, risques. |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Registre des faits, hypothèses, propositions et décisions. |
 | [docs/QA.md](docs/QA.md) | Contrôles exécutés avant livraison, et leurs limites. |
 | [docs/VISUAL-CANON.md](docs/VISUAL-CANON.md) | Direction artistique U*TTU et provenance du portrait. |
@@ -156,13 +156,25 @@ docs/                         documentation
 
 ![Hero sur ordinateur](docs/screenshots/hero-desktop.jpg)
 
-Une légende réécrit un invariant (« green eyes ») : le gate passe en FAIL et l’étape 2 se referme.
+Le compteur de cadrages suit l’étiquetage. Ici, 7 gros plans pour un repère de 3 à 5 : À NOTER, le gate reste en PASS.
+
+![Repère de cadrage en À NOTER](docs/screenshots/framing-meter-desktop.jpg)
+
+Au-dessus des cartes : ce qu’une légende ne doit pas dire, et ce qu’elle doit dire.
+
+![Légendes FAIL et PASS](docs/screenshots/caption-coach-desktop.jpg)
+
+Une légende réécrit un invariant (« green eyes ») : la carte le signale, le gate passe en FAIL et l’étape 2 se referme.
 
 ![Gate en FAIL](docs/screenshots/gate-fail-desktop.jpg)
 
 Étape 2 : ZIP, lien vers l’app Comfy, coût estimé et plafond de durée.
 
 ![Étape 2](docs/screenshots/train-step-desktop.jpg)
+
+Étape 3 : la grille de test, la case choisie à reporter dans l’app, et sa lecture.
+
+![Grille de test](docs/screenshots/test-grid-desktop.jpg)
 
 Sur mobile, le verdict du gate reste visible en bas de l’écran pendant le tri.
 
