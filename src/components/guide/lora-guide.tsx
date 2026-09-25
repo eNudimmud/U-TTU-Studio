@@ -3,21 +3,24 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DATASET_SIZE, FLUX_STACK, type ComfyPlan } from "@/lib/comfy-stack";
 import { trackEvent } from "@/lib/analytics";
-import { analyzeImage, buildDatasetZip } from "@/lib/gate/browser";
+import { analyzeImage, buildDatasetZip, buildFalZip } from "@/lib/gate/browser";
 import { captionsBlock } from "@/lib/gate/report";
 import { GATE, evaluateGate, type ConfirmationId, type DatasetImage } from "@/lib/gate/rules";
+import { FAL_GEN, formatStrength } from "@/lib/fal-stack";
+import { falProxyUrl } from "@/lib/site";
 import { DatasetStep } from "./dataset-step";
 import { ComfyRunPanel } from "./comfy-run-panel";
+import { FalRail, type FalStage } from "./fal-rail";
 import { GatePanel, gateSummary, gateTone } from "./gate-panel";
 import { ImageStep } from "./image-step";
 import { TrainStep, type ExportState } from "./train-step";
 
 const MAX_IMPORT = 60;
-type StepState = "todo" | "fail" | "pass" | "locked" | "ready" | "running" | "done";
-const STATE_LABEL: Record<StepState, string> = { todo: "À faire", fail: "FAIL", pass: "PASS", locked: "Bloqué", ready: "Prêt", running: "En cours", done: "Fait" };
+type StepState = "todo" | "fail" | "pass" | "locked" | "ready" | "running" | "done" | "script";
+const STATE_LABEL: Record<StepState, string> = { todo: "À faire", fail: "FAIL", pass: "PASS", locked: "Bloqué", ready: "Prêt", running: "En cours", done: "Fait", script: "Script seul" };
 
-function Step({ n, title, lead, state, locked, lockedText, children }: { n: string; title: string; lead: string; state: StepState; locked?: boolean; lockedText?: string; children: ReactNode }) {
-  return <section className={`guide-step state-${state}`} aria-labelledby={`step-${n}-title`}>
+function Step({ n, title, lead, state, locked, lockedText, className, children }: { n: string; title: string; lead: string; state: StepState; locked?: boolean; lockedText?: string; className?: string; children: ReactNode }) {
+  return <section className={`guide-step state-${state}${className ? ` ${className}` : ""}`} aria-labelledby={`step-${n}-title`}>
     <header className="guide-step-head">
       <span className="guide-step-number" aria-hidden="true">{n}</span>
       <div>
@@ -50,6 +53,7 @@ export function LoraGuide() {
   const [testDone, setTestDone] = useState(false);
   const [realLaunched, setRealLaunched] = useState(false);
   const [received, setReceived] = useState(false);
+  const [falStage, setFalStage] = useState<FalStage>("ready");
   const files = useRef(new Map<string, File>());
   const urls = useRef(new Set<string>());
   const nextId = useRef(0);
@@ -171,6 +175,9 @@ export function LoraGuide() {
         onScene={setScene} onStrength={setStrength} onSeed={setSeed} onCount={setCount} onReceived={setReceived}
       />
       <ComfyRunPanel app="prompt" />
+    </Step>
+    <Step n="fal" className="guide-rail" title="Rail fal (expérimental)" lead={`Même dataset, même gate. fal entraîne, te rend le fichier de la LoRA, puis rend 3 images à ${FAL_GEN.strengths.map(formatStrength).join(" / ")}. Le rail Comfy des étapes 2 et 3 reste le repli.`} state={!passed ? "locked" : !falProxyUrl ? "script" : falStage}>
+      <FalRail passed={passed} trigger={trigger} scene={scene} seed={seed} signature={signature} onBuildZip={onProgress => buildFalZip(result, files.current, onProgress)} onStage={setFalStage} />
     </Step>
   </div>;
 }

@@ -59,10 +59,11 @@ async function toJpeg(file: File): Promise<Uint8Array> {
   return new Uint8Array(await blob.arrayBuffer());
 }
 
-export async function buildDatasetZip(input: GateInput, result: GateResult, files: Map<string, File>, steps: number, images: number, onProgress?: (done: number, total: number) => void): Promise<Blob> {
+type Progress = (done: number, total: number) => void;
+
+async function trainingEntries(result: GateResult, files: Map<string, File>, onProgress?: Progress): Promise<ZipEntry[]> {
   if (result.verdict !== "PASS") throw new Error("Le gate n’est pas en PASS : export bloqué.");
   const encoder = new TextEncoder();
-  const generatedAt = new Date();
   const entries: ZipEntry[] = [];
   for (let i = 0; i < result.kept.length; i++) {
     const file = files.get(result.kept[i].id);
@@ -71,12 +72,25 @@ export async function buildDatasetZip(input: GateInput, result: GateResult, file
     entries.push({ name: `${slot(i)}.txt`, data: encoder.encode(`${result.captions[i]}\n`) });
     onProgress?.(i + 1, result.kept.length);
   }
+  return entries;
+}
+
+const zipBlob = (entries: ZipEntry[], date?: Date) => new Blob([createZip(entries, date).buffer as ArrayBuffer], { type: "application/zip" });
+
+export async function buildDatasetZip(input: GateInput, result: GateResult, files: Map<string, File>, steps: number, images: number, onProgress?: Progress): Promise<Blob> {
+  const encoder = new TextEncoder();
+  const generatedAt = new Date();
+  const entries = await trainingEntries(result, files, onProgress);
   entries.push(
     { name: "captions_comfy.txt", data: encoder.encode(captionsBlock(result.captions)) },
     { name: "RAPPORT_GATE.txt", data: encoder.encode(buildReport(input, result, generatedAt)) },
     { name: "gate.json", data: encoder.encode(`${JSON.stringify(buildManifest(input, result, generatedAt), null, 2)}\n`) },
     { name: "LISEZMOI.txt", data: encoder.encode(buildReadme(steps, images)) },
   );
-  const archive = createZip(entries, generatedAt);
-  return new Blob([archive.buffer as ArrayBuffer], { type: "application/zip" });
+  return zipBlob(entries, generatedAt);
+}
+
+// Leaves the device for fal: the same images and captions as the gate ZIP, without the report, gate.json or source file names.
+export async function buildFalZip(result: GateResult, files: Map<string, File>, onProgress?: Progress): Promise<Blob> {
+  return zipBlob(await trainingEntries(result, files, onProgress));
 }

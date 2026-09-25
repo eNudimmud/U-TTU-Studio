@@ -45,7 +45,7 @@ export function ComfyRunPanel({ app }: { app: ComfyApp }) {
   return <section className="comfy-run-panel" aria-labelledby={`comfy-${app}-title`}>
     <header className="comfy-run-head">
       <div>
-        <p className="eyebrow">App Comfy Cloud</p>
+        <p className="eyebrow">App Comfy Cloud · rail de repli</p>
         <h4 id={`comfy-${app}-title`}>{heading}</h4>
       </div>
       <a className="button button-outline" href={url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(event)}>Ouvrir en plein onglet <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
