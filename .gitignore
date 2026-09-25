@@ -7,3 +7,5 @@ out/
 *.tsbuildinfo
 .DS_Store
 next-env.d.ts
+.dev.vars
+.wrangler/

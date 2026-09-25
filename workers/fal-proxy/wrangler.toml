@@ -1,0 +1,12 @@
+name = "uttu-fal-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+# comfy-stack.ts, bundled through fal-stack.ts, reads process.env at load time.
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ALLOWED_ORIGINS = "https://enudimmud.github.io"
+
+# Secrets, jamais dans ce fichier :
+#   npx wrangler secret put FAL_KEY
+#   npx wrangler secret put ACCESS_TOKEN
