@@ -32,7 +32,7 @@ export default function Home() {
             <h1 id="hero-title">On t’empêche de cramer une LoRA.<span>Dataset → train → 1 image.</span></h1>
             <p className="hero-description">Une checklist qui refuse l’entraînement tant que ton dataset est sale. Puis un seul run Comfy Cloud : ta LoRA, ta première image, et un témoin sans LoRA pour comparer.</p>
             <div className="hero-actions"><a href="#parcours" className="button button-primary">Vérifier mon dataset <Arrow /></a><a href="#acces" className="quiet-link">Accès anticipé <span aria-hidden="true">↓</span></a></div>
-            <p className="hero-meta">Analyse dans ton navigateur <span>·</span> aucune image envoyée au studio <span>·</span> coût affiché avant le run</p>
+            <p className="hero-meta">Analyse dans ton navigateur <span>·</span> envoi des images à ton initiative <span>·</span> coût affiché avant le run</p>
           </div>
           <div className="hero-art-caption"><span className="caption-line" /><span>U*TTU / La tisseuse<br /><span className="muted">Référence du studio, pas une sortie du parcours</span></span></div>
           <div className="hero-bottom"><p>UNE LORA. UNE IMAGE. PAS DE VIDÉO, PAS DE 3D, PAS DE VOIX.</p><a href="#probleme">Le piège du run « réussi » <span aria-hidden="true">↓</span></a></div>

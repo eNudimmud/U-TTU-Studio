@@ -164,7 +164,7 @@ export function FalRail(props: Props) {
       <li>
         <h4>Ce qui part chez fal</h4>
         <p>Au clic sur « Entraîner chez fal », tes images quittent ton appareil. Un ZIP réduit ({DATASET_SIZE} JPEG et leurs {DATASET_SIZE} légendes, sans rapport ni noms de fichiers d’origine) passe par le proxy du studio, qui le dépose sur le stockage de fal.</p>
-        <p className="small-print">Une URL fal.media est publique pour qui la connaît. Le proxy demande à fal d’effacer le ZIP après {FAL_PRIVACY.zipExpiresSeconds / 3600} h, la LoRA et les images après {FAL_PRIVACY.outputsExpiresSeconds / 86400} jours, et de ne pas garder l’historique des requêtes. Réglages tirés de la documentation de fal, pas encore vérifiés sur un vrai run.</p>
+        <p className="small-print">Une URL fal.media est publique pour qui la connaît. Le proxy demande à fal d’effacer le ZIP après {FAL_PRIVACY.zipExpiresSeconds / 3600} h, la LoRA et les images après {FAL_PRIVACY.outputsExpiresSeconds / 86400} jours, et de ne pas garder l’historique des requêtes. L’effacement effectif reste à vérifier.</p>
       </li>
       <li>
         <h4>Entraîner chez fal</h4>
@@ -179,7 +179,7 @@ export function FalRail(props: Props) {
         </button>
         {!proxy && <>
           <p className="inline-status warn" id="fal-offline">Proxy non branché : ce rail ne tourne qu’en script pour l’instant.</p>
-          <p className="small-print">Côté studio : <code>node scripts/fal-smoke.mjs &lt;ZIP du gate&gt; --live</code>, environ {formatUsd(estimateFalRun(FAL_TRAINING.steps, 1).usd)} pour {FAL_TRAINING.steps} étapes et 1 image. Le proxy <code>workers/fal-proxy/</code> n’est pas encore déployé.</p>
+          <p className="small-print">Le studio peut vérifier le ZIP par script sans appel réseau ni dépense. Un essai réel nécessite son accord et un budget : environ {formatUsd(estimateFalRun(FAL_TRAINING.steps, 1).usd)} pour {FAL_TRAINING.steps} étapes et 1 image.</p>
         </>}
         {status && <p className={`inline-status ${status.tone}`} role="status">{status.text}</p>}
         {training.state === "running" && training.log && <p className="small-print fal-log">{training.log}</p>}
@@ -193,7 +193,7 @@ export function FalRail(props: Props) {
             <a className="button button-outline" href={lora.lora} target="_blank" rel="noopener noreferrer">Télécharger la LoRA (.safetensors) <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
             {lora.config && <a className="quiet-link" href={lora.config} target="_blank" rel="noopener noreferrer">Config d’entraînement<span className="sr-only"> (nouvel onglet)</span></a>}
           </div>
-          <p className="small-print">fal efface ce fichier après {FAL_PRIVACY.outputsExpiresSeconds / 86400} jours (demandé) : garde-le chez toi.</p>
+          <p className="small-print">Effacement demandé à fal après {FAL_PRIVACY.outputsExpiresSeconds / 86400} jours : télécharge ce fichier pour le conserver.</p>
           {trainedSignature !== props.signature && <p className="inline-status warn">Le dataset a changé depuis cet entraînement : cette LoRA ne le reflète plus.</p>}
         </> : <p>Le fichier <code>diffusers_lora_file</code> : ta LoRA, réutilisable ailleurs. Comfy Cloud ne le rend pas ; fal, si.</p>}
       </li>
@@ -222,7 +222,7 @@ export function FalRail(props: Props) {
     </ol>
 
     <aside className="cost-panel" aria-labelledby="fal-cost-title">
-      <p className="eyebrow" id="fal-cost-title">Coût fal</p>
+      <p className="eyebrow" id="fal-cost-title">Coût fal estimé · USD / CHF</p>
       <label className="range-field" htmlFor="fal-steps">Étapes d’entraînement <strong>{steps}</strong></label>
       <input id="fal-steps" type="range" min={FAL_TRAINING.slider.min} max={FAL_TRAINING.slider.max} step={FAL_TRAINING.slider.step} value={steps} onChange={event => setSteps(Number(event.target.value))} disabled={trainBusy} aria-describedby="fal-steps-help" />
       <p className="field-help" id="fal-steps-help">Défaut de fal : {FAL_TRAINING.steps}. Le prix suit le nombre d’étapes.</p>
