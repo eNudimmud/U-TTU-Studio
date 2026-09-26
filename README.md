@@ -2,7 +2,9 @@
 
 > **On t’empêche de cramer une LoRA. Dataset → train → 1 image.**
 
-Site vitrine et outil guidé, en français (FR-CH), pour une seule offre : entraîner une LoRA de personnage sans la rater. Le site vérifie le dataset dans le navigateur et bloque l’entraînement tant qu’il reste un problème. Il prépare ensuite un seul run Comfy Cloud (Flux.1 [dev]) qui entraîne la LoRA et rend une image, avec le coût affiché avant.
+Site vitrine et outil guidé, en français (FR-CH), pour C micro : dataset gate → LoRA → image(s). Le site vérifie le dataset dans le navigateur et bloque l’entraînement tant qu’il reste un problème. La PR #5 ajoute un rail fal expérimental, avec LoRA téléchargeable et grille de 3 images ; Comfy Cloud reste le repli. **Vente HOLD.** L’identité produite n’est pas encore validée.
+
+**État fal :** code présent, Worker non déployé dans cette reprise, UI désactivée tant que `NEXT_PUBLIC_FAL_PROXY_URL` est vide (« Script seul » après PASS). [Contrat, preuves et checklist](docs/FAL-SPIKE.md) · [déploiement Worker en 8 commandes](workers/fal-proxy/README.md#déployer-jd--8-commandes).
 
 ## Date de kill : 8 octobre 2026
 
@@ -10,7 +12,7 @@ Site vitrine et outil guidé, en français (FR-CH), pour une seule offre : entra
 | --- | --- |
 | Démarrage | 24 septembre 2026 |
 | Date de kill | **8 octobre 2026** (J+14) |
-| Condition de survie | **1 client payant** avant cette date |
+| Condition de survie | **1 CHF payant** avant cette date (passation JD du 25 septembre) |
 | Sinon | C micro est arrêté, comme l’offre A |
 | Qui décide | JD, le 8 octobre, sans prolongation par défaut |
 
@@ -22,7 +24,9 @@ L’offre A (« Look-Lock » : forfait de direction artistique et ZIP-juge) a é
 2. **Entraîner la LoRA.** Le site fournit un ZIP (15 JPEG nettoyés, légendes, rapport), le lien de l’app Comfy et les légendes à coller. Il affiche le coût estimé et refuse un réglage qui dépasserait la durée maximale d’un run Comfy. Un test à blanc à 20 étapes passe avant le vrai run.
 3. **Utiliser une fois : 1 image.** Le client règle prompt, force de la LoRA, seed et nombre d’images (1 ou 4). Ces réglages vont dans le même formulaire Comfy que l’entraînement, car la LoRA n’existe que pendant le run (voir plus bas). Le run rend aussi une image témoin sans LoRA et la courbe de loss, et le site aide à lire le résultat. Pour juger la LoRA, une grille de test fixe : 3 prompts × forces 0,60 / 0,75 / 0,90, même seed, avec sa lecture. Comfy Cloud ne garde aucun checkpoint : chaque case est un run complet, coût affiché.
 
-**Hors périmètre :** Look-Lock et ZIP-juge, vidéo (clips, storyboards, pubs), 3D, voix, avatars, plateforme d’identité, menu combinant plusieurs offres, autre moteur d’entraînement que Comfy Cloud.
+Après PASS, le bloc **Rail fal (expérimental)** conserve le même gate de **15 images et légendes**. Il propose l’entraînement puis une grille 0,60 / 0,75 / 0,90 via le proxy du Studio, avec coûts estimés en USD et CHF. Il reste réservé aux essais du Studio et ne débloque pas la vente.
+
+**Hors périmètre :** Look-Lock et ZIP-juge, vidéo (clips, storyboards, pubs), 3D, voix, avatars, plateforme d’identité et menu combinant plusieurs offres. Le rail fal et le repli Comfy restent dans C micro.
 
 ## Démarrer
 
@@ -38,10 +42,11 @@ npm run dev          # http://localhost:3000
 
 | Commande | Rôle |
 | --- | --- |
-| `npm test` | 47 tests : règles du gate, répartition des cadrages, légendes et exemples FAIL/PASS, grille de test, mesures d’image, ZIP (vérifié par `unzip -t`), cohérence des workflows Comfy, liens App Mode, coûts et plafond de durée. |
+| `npm test` | Gate, cadrages, coaching des légendes, grille de test, mesures d’image, ZIP, workflows Comfy, coûts, proxy fal contre un faux serveur, protection des secrets et smoke sans réseau. |
 | `npm run typecheck` | TypeScript strict. |
 | `npm run build` | Build de production (`next build --webpack`). |
 | `npm run comfy:build` | Régénère `comfy/*.api.json` à partir de `src/lib/comfy-stack.ts`. |
+| `npm run fal:smoke -- /chemin/dataset.zip` | Vérifie le ZIP et affiche le plan fal ; dry par défaut, 0 réseau, 0 $. |
 
 ## Workflows Comfy Cloud
 
@@ -117,14 +122,16 @@ GITHUB_PAGES=true NEXT_PUBLIC_BASE_PATH=/U-TTU-Studio NEXT_PUBLIC_SITE_URL=https
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Adresse de contact. `HelveticVault@gmail.com` par défaut, provisoire. |
 | `NEXT_PUBLIC_COMFY_TRAIN_APP_URL`, `NEXT_PUBLIC_COMFY_PROMPT_APP_URL` | Facultatives : remplacent les liens App Mode. |
 | `NEXT_PUBLIC_BASE_PATH`, `GITHUB_PAGES` | Réservées à l’export GitHub Pages. |
+| `NEXT_PUBLIC_FAL_PROXY_URL` | URL publique du Worker, variable de dépôt GitHub Actions lue au build Pages. Vide = rail fal désactivé. |
 
-Aucun secret n’est nécessaire. Le site n’appelle pas l’API Comfy : il est statique, et cette API demande un plan Creator ou Pro avec une clé côté serveur. Le client lance le run lui-même, sur son compte Comfy.
+Aucun secret n’est nécessaire au site statique. Le rail fal utilise les secrets `FAL_KEY` et `ACCESS_TOKEN` uniquement dans le Worker ([configuration](workers/fal-proxy/README.md)). Ne pas les placer dans le build Pages. Le repli Comfy s’exécute sur le compte Comfy du client.
 
 ## Confidentialité
 
-- Les images sont analysées et converties dans le navigateur du client. Rien n’est envoyé au studio.
+- Les images sont analysées et converties dans le navigateur du client. Le gate seul ne les envoie pas.
 - Le ZIP est créé localement. Le réencodage en JPEG retire les métadonnées EXIF, localisation GPS comprise.
 - Les images n’arrivent chez Comfy que lorsque le client les dépose lui-même dans l’app.
+- Avec fal activé, un clic sur « Entraîner chez fal » envoie les 15 JPEG et légendes via le Worker vers le stockage fal ; rapport et noms d’origine restent locaux. L’effacement demandé et les limites sont détaillés dans [FAL-SPIKE.md](docs/FAL-SPIKE.md#secrets-et-vie-privée).
 - Le formulaire d’accès anticipé prépare un e-mail (`mailto:`), sans envoi automatique.
 - Aucun cookie, aucun stockage local, aucun outil de mesure d’audience (`src/lib/analytics.ts` est inerte).
 
@@ -148,6 +155,8 @@ docs/                         documentation
 | --- | --- |
 | [docs/DATASET-GATE.md](docs/DATASET-GATE.md) | Les 20 contrôles, leurs seuils, le repère de cadrage, le coaching des légendes et le contenu du ZIP. |
 | [docs/COMFY-STACK.md](docs/COMFY-STACK.md) | Choix de Flux, faits vérifiés sur Comfy Cloud, graphes, calcul du coût, calibration, grille de test, risques. |
+| [docs/FAL-SPIKE.md](docs/FAL-SPIKE.md) | Rail fal expérimental, coûts USD/CHF, preuves, limites et checklist de revue. |
+| [workers/fal-proxy/README.md](workers/fal-proxy/README.md) | Déploiement Cloudflare, secrets, CORS et variable Pages. |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Registre des faits, hypothèses, propositions et décisions. |
 | [docs/QA.md](docs/QA.md) | Contrôles exécutés avant livraison, et leurs limites. |
 | [docs/VISUAL-CANON.md](docs/VISUAL-CANON.md) | Direction artistique U*TTU et provenance du portrait. |

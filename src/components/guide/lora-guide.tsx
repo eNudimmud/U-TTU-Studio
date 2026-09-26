@@ -178,7 +178,7 @@ export function LoraGuide() {
       <TestGrid trigger={trigger} seed={seed} steps={steps} />
       <ComfyRunPanel app="prompt" />
     </Step>
-    <Step n="fal" className="guide-rail" title="Rail fal (expérimental)" lead={`Même dataset, même gate. fal entraîne, te rend le fichier de la LoRA, puis rend 3 images à ${FAL_GEN.strengths.map(formatStrength).join(" / ")}. Le rail Comfy des étapes 2 et 3 reste le repli.`} state={!passed ? "locked" : !falProxyUrl ? "script" : falStage}>
+    <Step n="fal" className="guide-rail" title="Rail fal (expérimental)" lead={`Essai réservé au studio · vente en attente (HOLD). Même gate : 15 images. fal entraîne, rend le fichier LoRA, puis 3 images à ${FAL_GEN.strengths.map(formatStrength).join(" / ")}. Comfy reste le repli.`} state={!passed ? "locked" : !falProxyUrl ? "script" : falStage}>
       <FalRail passed={passed} trigger={trigger} scene={scene} seed={seed} signature={signature} onBuildZip={onProgress => buildFalZip(result, files.current, onProgress)} onStage={setFalStage} />
     </Step>
   </div>;

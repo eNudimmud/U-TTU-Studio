@@ -137,6 +137,20 @@ describe("fal proxy worker", () => {
     assert.match(text, /\[FAL_KEY\]/);
   });
 
+  it("redacts the key from queue progress and unexpected statuses before returning them to the browser", async () => {
+    const progress = fakeFal({ trainStatuses: [{ status: "IN_PROGRESS", logs: [{ message: `Diagnostic: ${FAKE.key}` }] }] });
+    const response = await send(progress, statusPath);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { status: "IN_PROGRESS", log: "Diagnostic: [FAL_KEY]" });
+
+    const unexpected = fakeFal({ trainStatuses: [{ status: `Invalid: ${FAKE.key}` }] });
+    const error = await send(unexpected, statusPath);
+    assert.equal(error.status, 502);
+    const text = await error.text();
+    assert.ok(!text.includes(FAKE.key));
+    assert.match(text, /\[FAL_KEY\]/);
+  });
+
   it("serves the UI client end to end: train, follow the queue, then the three-strength grid", async () => {
     const fal = fakeFal();
     const proxy: FalProxy = {

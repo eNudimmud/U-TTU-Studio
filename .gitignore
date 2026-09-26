@@ -7,6 +7,6 @@ out/
 *.tsbuildinfo
 .DS_Store
 next-env.d.ts
-.dev.vars
+.dev.vars*
 .wrangler/
 fal-smoke-out/
