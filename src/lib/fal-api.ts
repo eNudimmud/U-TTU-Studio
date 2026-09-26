@@ -116,9 +116,9 @@ export async function jobStatus<J extends FalJob>(client: FalClient, job: J, id:
   if (raw.status === "IN_QUEUE") return { status: "IN_QUEUE", position: typeof raw.queue_position === "number" ? raw.queue_position : null };
   if (raw.status === "IN_PROGRESS") {
     const messages = (raw.logs ?? []).map(entry => entry?.message).filter((message): message is string => typeof message === "string" && !!message.trim());
-    return { status: "IN_PROGRESS", log: messages.length ? messages[messages.length - 1].slice(0, 200) : null };
+    return { status: "IN_PROGRESS", log: messages.length ? scrub(client, messages[messages.length - 1]).slice(0, 200) : null };
   }
-  if (raw.status !== "COMPLETED") throw new FalError(`fal : statut inconnu (${String(raw.status)}).`, 502);
+  if (raw.status !== "COMPLETED") throw new FalError(scrub(client, `fal : statut inconnu (${String(raw.status)}).`), 502);
   if (raw.error) return { status: "FAILED", error: scrub(client, String(raw.error)).slice(0, 300) };
   try {
     const output = await call<unknown>(client, queueUrl(job, `/requests/${id}`));
