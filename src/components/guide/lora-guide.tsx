@@ -75,6 +75,11 @@ export function LoraGuide() {
     passedOnce.current = passed;
   }, [passed]);
 
+  useEffect(() => {
+    setRealLaunched(false);
+    setReceived(false);
+  }, [signature, steps, scene, strength, seed, count]);
+
   function navigate(index: number) {
     if (index > 1 && !passed) return;
     moved.current = true;
@@ -101,19 +106,19 @@ export function LoraGuide() {
     importing.current = true;
     setProgress({ done: 0, total: incoming.length });
     try {
-    const { analyzeImage } = await import("@/lib/gate/browser");
-    for (let i = 0; i < incoming.length; i++) {
-      const file = incoming[i];
-      const metrics = await analyzeImage(file);
-      const id = `img-${++nextId.current}`;
-      const tooSmall = metrics.readable && Math.min(metrics.width, metrics.height) < GATE.minShortSide;
-      files.current.set(id, file);
-      const url = URL.createObjectURL(file);
-      urls.current.add(url);
-      setPreviews(previous => ({ ...previous, [id]: url }));
-      setImages(previous => [...previous, { id, name: file.name, ...metrics, angle: null, framing: null, variables: "", decision: !metrics.readable || tooSmall ? "rejeter" : "a-trier", reviewed: false }]);
-      setProgress({ done: i + 1, total: incoming.length });
-    }
+      const { analyzeImage } = await import("@/lib/gate/browser");
+      for (let i = 0; i < incoming.length; i++) {
+        const file = incoming[i];
+        const metrics = await analyzeImage(file);
+        const id = `img-${++nextId.current}`;
+        const tooSmall = metrics.readable && Math.min(metrics.width, metrics.height) < GATE.minShortSide;
+        files.current.set(id, file);
+        const url = URL.createObjectURL(file);
+        urls.current.add(url);
+        setPreviews(previous => ({ ...previous, [id]: url }));
+        setImages(previous => [...previous, { id, name: file.name, ...metrics, angle: null, framing: null, variables: "", decision: !metrics.readable || tooSmall ? "rejeter" : "a-trier", reviewed: false }]);
+        setProgress({ done: i + 1, total: incoming.length });
+      }
     } catch {
       setNotice("L’import a été interrompu. Les images déjà analysées sont conservées ; tu peux réessayer.");
     } finally {

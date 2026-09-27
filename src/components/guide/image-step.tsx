@@ -1,5 +1,7 @@
 "use client";
 
+import "./workspace.css";
+
 import { APP_LABELS, FLUX_STACK, estimateTrainRun } from "@/lib/comfy-stack";
 import { cleanVariables, findInvariantHits, parseInvariants } from "@/lib/gate/captions";
 import { formatCredits } from "@/lib/gate/report";

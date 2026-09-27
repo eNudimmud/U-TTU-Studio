@@ -1,5 +1,7 @@
 "use client";
 
+import "./workspace.css";
+
 import { useEffect, useState, type DragEvent } from "react";
 import { DATASET_SIZE } from "@/lib/comfy-stack";
 import { checkTrigger, cleanVariables, findInvariantHits, parseInvariants } from "@/lib/gate/captions";

@@ -1,6 +1,6 @@
 # U*TTU Studio — C micro
 
-> **On t’empêche de cramer une LoRA. Dataset → train → 1 image.**
+> **Ta première LoRA, pas à pas. Comprendre → Préparer → Entraîner → Créer.**
 
 Site vitrine et outil guidé, en français (FR-CH), pour C micro : dataset gate → LoRA → image(s). Le site vérifie le dataset dans le navigateur et bloque l’entraînement tant qu’il reste un problème. La PR #5 ajoute un rail fal expérimental, avec LoRA téléchargeable et grille de 3 images ; Comfy Cloud reste le repli. **Vente HOLD.** L’identité produite n’est pas encore validée.
 
@@ -20,11 +20,14 @@ L’offre A (« Look-Lock » : forfait de direction artistique et ZIP-juge) a é
 
 ## Ce que fait le site
 
-1. **Dataset propre.** Le client choisit un trigger, liste les traits qui ne changent jamais et importe ses images. Le site mesure localement la résolution, la netteté, les doublons, les copies en miroir et les couleurs hors norme. Le client trie chaque image, indique l’angle et le cadrage, décrit ce qui varie et coche 5 confirmations. Aucun des 20 contrôles ne doit rester en FAIL ou À FAIRE pour passer à la suite ([règles détaillées](docs/DATASET-GATE.md)). Pendant l’étiquetage, le gate compte les gros plans, plans buste et plein pied par rapport au repère 3–5 / 6–8 / 3–5 ; un écart est signalé sans bloquer. Au-dessus des cartes, une légende FAIL et une légende PASS montrent quoi écrire : ce qui change, jamais ce que le trigger doit tenir.
-2. **Entraîner la LoRA.** Le site fournit un ZIP (15 JPEG nettoyés, légendes, rapport), le lien de l’app Comfy et les légendes à coller. Il affiche le coût estimé et refuse un réglage qui dépasserait la durée maximale d’un run Comfy. Un test à blanc à 20 étapes passe avant le vrai run.
-3. **Utiliser une fois : 1 image.** Le client règle prompt, force de la LoRA, seed et nombre d’images (1 ou 4). Ces réglages vont dans le même formulaire Comfy que l’entraînement, car la LoRA n’existe que pendant le run (voir plus bas). Le run rend aussi une image témoin sans LoRA et la courbe de loss, et le site aide à lire le résultat. Pour juger la LoRA, une grille de test fixe : 3 prompts × forces 0,60 / 0,75 / 0,90, même seed, avec sa lecture. Comfy Cloud ne garde aucun checkpoint : chaque case est un run complet, coût affiché.
+1. **Comprendre.** Un tutoriel court explique le modèle de base, la LoRA, le prompt et le mot d’appel. La référence U*TTU est clairement distinguée d’un résultat d’entraînement.
+2. **Préparer.** Le client nomme son personnage, définit ses traits constants et importe ses images. Une planche de vignettes permet de choisir l’image à trier et décrire. Une seule fiche est éditable à la fois. Le résumé indique la prochaine action ; les 20 contrôles et le coaching des légendes se déplient à la demande. Le gate exige toujours exactement 15 images et les 5 confirmations ([règles détaillées](docs/DATASET-GATE.md)).
+3. **Entraîner.** Le client télécharge le ZIP, copie les légendes dans Comfy et confirme les trois sorties du test court payant à 20 étapes. Les coûts restent visibles ; le choix du plan et les réglages se déplient.
+4. **Créer.** Le client règle la scène, reporte les valeurs dans Comfy et lance l’entraînement final avec son image. Le budget et la limite de durée restent contrôlés. Les diagnostics, la grille de comparaison et le test de prompt sont repliés.
 
-Après PASS, le bloc **Rail fal (expérimental)** conserve le même gate de **15 images et légendes**. Il propose l’entraînement puis une grille 0,60 / 0,75 / 0,90 via le proxy du Studio, avec coûts estimés en USD et CHF. Il reste réservé aux essais du Studio et ne débloque pas la vente.
+Un écran est affiché à la fois. Les étapes visitées restent montées pour conserver la sélection, les réglages et les tâches en cours lors d’un aller-retour ; une fermeture ou un rechargement de page efface la session locale. Les composants et styles du travail sur les images sont chargés à la demande.
+
+L’option **fal**, dans les outils avancés de « Créer », conserve le gate de **15 images et légendes**, les coûts estimés et le statut expérimental **HOLD**. Aucun service distant n’est lancé par la navigation.
 
 **Hors périmètre :** Look-Lock et ZIP-juge, vidéo (clips, storyboards, pubs), 3D, voix, avatars, plateforme d’identité et menu combinant plusieurs offres. Le rail fal et le repli Comfy restent dans C micro.
 
@@ -132,14 +135,14 @@ Aucun secret n’est nécessaire au site statique. Le rail fal utilise les secre
 - Le ZIP est créé localement. Le réencodage en JPEG retire les métadonnées EXIF, localisation GPS comprise.
 - Les images n’arrivent chez Comfy que lorsque le client les dépose lui-même dans l’app.
 - Avec fal activé, un clic sur « Entraîner chez fal » envoie les 15 JPEG et légendes via le Worker vers le stockage fal ; rapport et noms d’origine restent locaux. L’effacement demandé et les limites sont détaillés dans [FAL-SPIKE.md](docs/FAL-SPIKE.md#secrets-et-vie-privée).
-- Le formulaire d’accès anticipé prépare un e-mail (`mailto:`), sans envoi automatique.
+- Le lien de contact ouvre la messagerie (`mailto:`), sans envoi automatique.
 - Aucun cookie, aucun stockage local, aucun outil de mesure d’audience (`src/lib/analytics.ts` est inerte).
 
 ## Organisation du code
 
 ```text
-src/app/page.tsx              page unique : hero, piège, parcours, coût, accès anticipé
-src/components/guide/         parcours en 3 étapes
+src/app/page.tsx              page unique : guide progressif, questions fréquentes, contact
+src/components/guide/         tutoriel et parcours en 4 étapes, styles chargés à la demande
 src/lib/gate/                 règles du gate, légendes, mesures d’image, rapport, export ZIP
 src/lib/comfy-stack.ts        réglages Flux.1 dev, coûts, durées, liens App Mode
 src/lib/comfy-workflows.ts    générateur des graphes Comfy
@@ -158,10 +161,13 @@ docs/                         documentation
 | [docs/FAL-SPIKE.md](docs/FAL-SPIKE.md) | Rail fal expérimental, coûts USD/CHF, preuves, limites et checklist de revue. |
 | [workers/fal-proxy/README.md](workers/fal-proxy/README.md) | Déploiement Cloudflare, secrets, CORS et variable Pages. |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Registre des faits, hypothèses, propositions et décisions. |
+| [docs/UX-GUIDE.md](docs/UX-GUIDE.md) | Refonte du guide, mesures de chargement et vérifications restantes. |
 | [docs/QA.md](docs/QA.md) | Contrôles exécutés avant livraison, et leurs limites. |
 | [docs/VISUAL-CANON.md](docs/VISUAL-CANON.md) | Direction artistique U*TTU et provenance du portrait. |
 
-## Captures
+## Captures de la version précédente
+
+Ces captures datent du 24 septembre 2026. Elles ne représentent pas la refonte du 27 septembre ; sa revue visuelle reste à effectuer. Voir [le rapport de refonte](docs/UX-GUIDE.md).
 
 ![Hero sur ordinateur](docs/screenshots/hero-desktop.jpg)
 

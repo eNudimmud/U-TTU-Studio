@@ -1,5 +1,7 @@
 "use client";
 
+import "./workspace.css";
+
 import { APP_LABELS, COMFY_CLOUD, DATASET_SIZE, FLUX_STACK, TIMING, estimateTrainRun, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
 import { formatEstimate } from "@/lib/gate/report";
 import { Arrow } from "../glyph";

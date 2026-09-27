@@ -1,5 +1,7 @@
 "use client";
 
+import "./workspace.css";
+
 import { useState } from "react";
 import { DATASET_SIZE } from "@/lib/comfy-stack";
 import { FRAMING_CHECK_ID, FRAMING_TARGETS_LABEL, SECTIONS, framingAdvice, type CheckStatus, type FramingCoverage, type FramingRow, type GateCheck, type GateResult } from "@/lib/gate/rules";
