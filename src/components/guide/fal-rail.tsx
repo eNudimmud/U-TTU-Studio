@@ -1,5 +1,7 @@
 "use client";
 
+import "./workspace.css";
+
 import { useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { DATASET_SIZE } from "@/lib/comfy-stack";
@@ -199,7 +201,7 @@ export function FalRail(props: Props) {
       </li>
       <li>
         <h4>Grille {strengths}</h4>
-        <p>Prompt et seed de l’étape 3 : <code>{prompt || "—"}</code>, seed {props.seed}. Une image par force, {FAL_GEN.width} × {FAL_GEN.height}, sans réentraîner : la LoRA reste chez fal.</p>
+        <p>Prompt et seed de l’étape Créer : <code>{prompt || "—"}</code>, seed {props.seed}. Une image par force, {FAL_GEN.width} × {FAL_GEN.height}, sans réentraîner : la LoRA reste chez fal.</p>
         <button type="button" className="button button-outline" onClick={generate} disabled={!proxy || !lora || !token.trim() || gridBusy || !prompt}>
           Générer la grille · ≈ {formatUsd(gridCost.usd)} <Arrow />
         </button>

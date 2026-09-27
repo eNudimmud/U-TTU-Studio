@@ -16,12 +16,12 @@ Seules la DA et le ton sont repris, pas l’ancien produit Look-Lock.
 | Rouge | Uniquement FAIL et refus (`#8B1E1E`, texte `#DF9390`). Jamais en accent principal. |
 | Interdit | Bleu néon ou froid, dégradés « IA » cyan et magenta. |
 | Typographie | Syne (titres) et Manrope (texte), auto-hébergées, SIL OFL. |
-| Mouvement | Discret : entrée du hero, apparition des contrôles, pulsation dorée sur l’image ciblée. Tout est coupé avec `prefers-reduced-motion`. |
+| Mouvement | Discret : transitions de boutons et mise en évidence de l’image ciblée. Tout est coupé avec `prefers-reduced-motion`. |
 | Ton | Vivant et clair, pas temple : tutoiement, phrases courtes, chiffres visibles. |
 
 ## Image
 
-Le hero garde le portrait canonique fourni par JD (`1000034598.png` → `public/images/uttu-canon-portrait.webp`, SHA-256 `574c8a45b35caf876ad25b881e357137e613e5b87b11660e644b891882a0c8df`). Il est converti en WebP sans retouche, cadré en CSS. Il est légendé « Référence du studio, pas une sortie du parcours » pour ne pas le faire passer pour un résultat de LoRA.
+L’introduction du tutoriel garde le portrait canonique fourni par JD (`1000034598.png` → `public/images/uttu-canon-portrait.webp`, SHA-256 `574c8a45b35caf876ad25b881e357137e613e5b87b11660e644b891882a0c8df`). Il est converti en WebP sans retouche, cadré en CSS. Il est légendé « Référence du studio. Pas un résultat d’entraînement. » pour ne pas le faire passer pour un résultat de LoRA.
 
 Le détail de peau et la scène du Sanctuaire servaient l’offre A. Ils ont été retirés de `public/` et restent dans l’historique git.
 

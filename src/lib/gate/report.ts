@@ -65,7 +65,7 @@ export function buildReadme(steps: number = FLUX_STACK.training.steps, images: n
     `3. Colle tout captions_comfy.txt dans « ${APP_LABELS.captions} ».`,
     `4. Test à blanc : « Étapes d’entraînement » = ${FLUX_STACK.training.testSteps}, « Nombre d’images » = 1, puis Run.`,
     `   Attendu : 3 sorties (Avec LoRA, Témoin sans LoRA, Courbe de loss). Estimation : ${formatEstimate(test)}.`,
-    `5. Run réel : « Étapes d’entraînement » = ${steps}, prompt, force et seed de l’étape 3, puis Run.`,
+    `5. Run réel : « Étapes d’entraînement » = ${steps}, prompt, force et seed de l’étape Créer, puis Run.`,
     `   Estimation : ${formatEstimate(real)}. Limite Comfy : ${COMFY_CLOUD.runtimeLimitMinutes.standard} min par run (Standard, Creator).`,
     "",
     "Estimations non mesurées : le premier run sert de calibration.",

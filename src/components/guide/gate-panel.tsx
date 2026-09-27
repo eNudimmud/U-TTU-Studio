@@ -1,11 +1,13 @@
 "use client";
 
+import "./workspace.css";
+
 import { useState } from "react";
 import { DATASET_SIZE } from "@/lib/comfy-stack";
 import { FRAMING_CHECK_ID, FRAMING_TARGETS_LABEL, SECTIONS, framingAdvice, type CheckStatus, type FramingCoverage, type FramingRow, type GateCheck, type GateResult } from "@/lib/gate/rules";
 import type { Framing } from "@/lib/gate/vocabulary";
 
-const STATUS_LABEL: Record<CheckStatus, string> = { pass: "PASS", fail: "FAIL", warn: "À NOTER", todo: "À FAIRE" };
+const STATUS_LABEL: Record<CheckStatus, string> = { pass: "OK", fail: "À REVOIR", warn: "CONSEIL", todo: "À FAIRE" };
 
 export function gateSummary(result: GateResult): string {
   if (result.verdict === "PASS") return `PASS · ${result.checks.length} contrôles${result.warnCount ? ` · ${result.warnCount} à noter` : ""}`;
@@ -42,20 +44,27 @@ function FramingMeter({ check, coverage, onShowImages }: { check: GateCheck; cov
       <p className="gate-detail">{framingAdvice(row)}</p>
       {row.drift === "over" && <button type="button" className="gate-show" onClick={() => onShowImages(row.imageIds)}>Voir les {row.count} {FRAMING_PLURAL[row.framing]}</button>}
     </div>)}
-    <p className="framing-note">Repère : {FRAMING_TARGETS_LABEL} des {DATASET_SIZE} images. Ne bloque rien ; le minimum bloquant reste G13.</p>
+    <p className="framing-note">Repère : {FRAMING_TARGETS_LABEL} des {DATASET_SIZE} images. Un conseil de répartition ; les minimums sont vérifiés séparément.</p>
   </li>;
 }
 
 export function GatePanel({ result, onShowImages }: { result: GateResult; onShowImages: (ids: string[]) => void }) {
   const [showPassed, setShowPassed] = useState(false);
   const passed = result.checks.filter(item => item.status === "pass" && item.id !== FRAMING_CHECK_ID).length;
+  const next = result.checks.find(item => item.status === "fail" || item.status === "todo");
+  const complete = result.checks.filter(item => item.status === "pass" || item.status === "warn").length;
   return <aside id="gate-panel" className={`gate-panel gate-${gateTone(result)}`} aria-labelledby="gate-title">
     <div className="gate-head">
-      <p className="eyebrow" id="gate-title">Gate dataset</p>
-      <p className="gate-verdict" role="status" aria-live="polite">{gateSummary(result)}</p>
-      <p className="gate-note">{result.verdict === "PASS" ? "L’étape 2 est ouverte." : "L’étape 2 reste fermée tant qu’un contrôle n’est pas en PASS."}</p>
-      {passed > 0 && <button type="button" className="gate-toggle" aria-expanded={showPassed} onClick={() => setShowPassed(value => !value)}>{showPassed ? "Masquer" : "Afficher"} les {passed} PASS</button>}
+      <p className="eyebrow" id="gate-title">Ton lot d’images</p>
+      <p className="gate-verdict" role="status" aria-live="polite">{result.verdict === "PASS" ? "Prêt à entraîner" : `${result.kept.length} / ${DATASET_SIZE} images gardées`}</p>
+      <progress className="gate-progress" max={result.checks.length} value={complete} aria-label="Contrôles validés" />
+      <p className="gate-note">{complete} / {result.checks.length} contrôles validés</p>
     </div>
+    {next && <div className="next-task"><p className="eyebrow">La prochaine action</p><p>{next.detail}</p>{next.imageIds?.length ? <button type="button" className="text-button" onClick={() => onShowImages(next.imageIds!)}>Voir l’image à corriger →</button> : null}</div>}
+    {result.verdict === "PASS" && <p className="inline-status pass">Ton lot est prêt. Tu peux passer à l’entraînement.</p>}
+    <div className="dataset-recipe"><strong>Le bon mélange</strong><p>Face · trois quarts · profil</p><p>Gros plans · bustes · plein pied</p><p>Même identité, scènes variées.</p></div>
+    <details className="gate-report"><summary>Voir les {result.checks.length} contrôles</summary>
+    {passed > 0 && <button type="button" className="gate-toggle" aria-expanded={showPassed} onClick={() => setShowPassed(value => !value)}>{showPassed ? "Masquer" : "Afficher"} les {passed} contrôles réussis</button>}
     {SECTIONS.map(section => {
       const meter = section.id === "couverture" ? result.checks.find(item => item.id === FRAMING_CHECK_ID) : undefined;
       const checks = result.checks.filter(item => item.section === section.id && item.id !== FRAMING_CHECK_ID && (showPassed || item.status !== "pass"));
@@ -75,5 +84,6 @@ export function GatePanel({ result, onShowImages }: { result: GateResult; onShow
         </ul>
       </section>;
     })}
+    </details>
   </aside>;
 }

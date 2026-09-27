@@ -28,7 +28,7 @@ export function TestGrid({ trigger, seed, steps }: { trigger: string; seed: numb
     <header className="test-grid-head">
       <p className="eyebrow">Grille de test</p>
       <h4 id="test-grid-title">Une grille fixe pour juger la LoRA</h4>
-      <p>3 prompts, 3 forces, la seed {seed} partout : chaque case se compare aux autres et à son témoin sans LoRA. Choisis une case, reporte-la dans l’app de l’étape 2.</p>
+      <p>3 prompts, 3 forces, la seed {seed} partout : chaque case se compare aux autres et à son témoin sans LoRA. Choisis une case, reporte-la dans l’app d’entraînement.</p>
     </header>
     <div className="test-grid-body">
       <div className="test-grid-matrix">
@@ -60,8 +60,8 @@ export function TestGrid({ trigger, seed, steps }: { trigger: string; seed: numb
         <p className="small-print">Ordre conseillé : case 1 à 0,75 d’abord. Identité faible : 0,90. Pose figée : 0,60. Puis les lignes 2 et 3 à la force retenue.</p>
       </div>
 
-      <div className="report-values" aria-label={`Case ${pick.row + 1}, force ${strength} : valeurs à reporter dans l’app de l’étape 2`}>
-        <p className="eyebrow">Case {pick.row + 1} · {decimalFr(Number(strength))} — à reporter à l’étape 2</p>
+      <div className="report-values" aria-label={`Case ${pick.row + 1}, force ${strength} : valeurs à reporter dans l’app d’entraînement`}>
+        <p className="eyebrow">Case {pick.row + 1} · {decimalFr(Number(strength))} — à reporter dans Comfy</p>
         <dl>
           <div><dt>{APP_LABELS.prompt}</dt><dd><code lang="en">{prompt}</code><CopyButton text={prompt} /></dd></div>
           <div><dt>{APP_LABELS.strength}</dt><dd><code>{strength}</code><CopyButton text={strength} /></dd></div>
@@ -80,7 +80,7 @@ export function TestGrid({ trigger, seed, steps }: { trigger: string; seed: numb
       <dl>
         <div><dt>{band}</dt><dd>Identité nette, prompt suivi : c’est la bande d’usage.</dd></div>
         <div><dt>0,60–0,75</dt><dd>Visage déjà verrouillé, mais la pose ou la lumière du prompt cassent : surentraîné. Au prochain run, moins d’étapes.</dd></div>
-        <div><dt>0,90–1,00</dt><dd>Identité toujours absente : ce n’est pas la force. Dataset ou trigger : reprends l’étape 1.</dd></div>
+        <div><dt>0,90–1,00</dt><dd>Identité toujours absente : ce n’est pas la force. Dataset ou trigger : reprends l’étape Préparer.</dd></div>
         <div><dt>Témoin</dt><dd>Chaque « {APP_LABELS.withLora} » se lit à côté de son témoin : même prompt, même seed, seule la LoRA change.</dd></div>
       </dl>
     </div>
