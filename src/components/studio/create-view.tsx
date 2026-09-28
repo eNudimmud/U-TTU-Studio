@@ -107,6 +107,7 @@ export function CreateView() {
         <details><summary>Où vont mes images ?</summary><p>Rien ne part tant que tu ne cliques pas. Au clic sur « Préparer les 15 images » ou « Entraîner chez fal », les photos passent par le proxy du studio, jamais avec une clé dans la page. Le ZIP du gate, lui, reste dans ton navigateur.</p></details>
         <details><summary>Est-ce que je récupère un fichier LoRA ?</summary><p>Oui, sur le rail fal : un fichier .safetensors à télécharger. Le repli Comfy entraîne et produit une image dans le même lancement, sans fichier à emporter.</p></details>
         <details><summary>Et si je connais déjà les LoRA ?</summary><p>Ouvre « J’ai déjà 15 images ». Sans proxy fal, c’est le bouton principal. Le tuto est dans « Comment ça marche ». Comfy est dans « Expert / repli ». Identité reprend le gate, les légendes et le ZIP.</p></details>
+        <details><summary>Où vit le studio, une fois la page fermée ?</summary><p>Dans un coffre Obsidian, sur ta machine. Le mode Studio donne le schéma et un ZIP de départ. Cette page n’écrit pas dans ce dossier.</p></details>
       </div>
     </section>
   </section>;

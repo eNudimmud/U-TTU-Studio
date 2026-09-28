@@ -21,7 +21,10 @@ export function IdentityPanel() {
       <p className="eyebrow">Identité</p>
       <h1 id="mode-title" tabIndex={-1}>Le personnage, <em>tenu.</em></h1>
       <p className="mode-lead">Gate, légendes, ZIP. Le rail fal s’allume seulement si le proxy est branché. Sans lui, tout reste dans cette page.</p>
-      <button type="button" className="text-button" onClick={() => go("creer")}>Déposer 2 ou 3 photos</button>
+      <div className="mode-links">
+        <button type="button" className="text-button" onClick={() => go("creer")}>Déposer 2 ou 3 photos</button>
+        <button type="button" className="text-button" onClick={() => go("studio")}>Ranger le canon dans le coffre</button>
+      </div>
     </header>
 
     {!session.falProxyOn && <aside className="offline-fal" role="status">

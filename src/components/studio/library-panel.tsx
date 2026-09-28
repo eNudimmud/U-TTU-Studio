@@ -16,6 +16,7 @@ export function LibraryPanel() {
       <p className="eyebrow">Bibliothèque</p>
       <h1 id="mode-title" tabIndex={-1}>Ce que cette page garde.</h1>
       <p className="mode-lead">Les images de la session, seulement. Fermer ou recharger les efface. Aucun envoi.</p>
+      <button type="button" className="text-button" onClick={() => go("studio")}>Pour les garder, le coffre.</button>
     </header>
     {!hasRefs && !hasLot ? <div className="library-empty">
       <span className="create-mark" aria-hidden="true">iii</span>

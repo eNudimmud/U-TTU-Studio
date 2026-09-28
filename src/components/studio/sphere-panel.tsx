@@ -1,13 +1,17 @@
 "use client";
 
 import { SPHERE_PRESETS } from "@/lib/studio-modes";
+import { useGoToMode } from "./mode-context";
 
 export function SpherePanel() {
+  const go = useGoToMode();
+
   return <section className="mode-panel" aria-labelledby="mode-title">
     <header className="mode-hero">
       <p className="eyebrow">Sphère</p>
       <h1 id="mode-title" tabIndex={-1}>Avant. Après. <em>Entre.</em></h1>
       <p className="mode-lead">Trois façons de tenir une scène. Le rendu vidéo n’est pas branché. Rien ne part.</p>
+      <button type="button" className="text-button" onClick={() => go("studio")}>Les scènes se rangent dans le coffre.</button>
     </header>
     <div className="soon-grid">
       {SPHERE_PRESETS.map(preset => <article key={preset.id} className="soon-card" aria-labelledby={`sphere-${preset.id}`}>
