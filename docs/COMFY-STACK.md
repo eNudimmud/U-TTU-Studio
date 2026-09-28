@@ -37,6 +37,8 @@ Source unique des réglages : [`src/lib/comfy-stack.ts`](../src/lib/comfy-stack.
 
 Le **test à blanc** n’est pas un troisième workflow : c’est le premier, lancé avec 20 étapes et 1 image, pour que les images restent déposées entre le test et le vrai run.
 
+Dans le studio, ces deux apps sont les processus live du catalogue (`src/lib/processes.ts`) : « Former mon look » et « Tester un prompt ». Sphère les ouvre dans le cadre déjà consenti. Pas de troisième app.
+
 ### 1. Dataset → LoRA → 1 image
 
 ```text

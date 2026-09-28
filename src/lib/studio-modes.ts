@@ -40,7 +40,7 @@ export const SPHERE_PRESETS = [
   },
   {
     id: "entre",
-    title: "Entre",
+    title: "Entre deux images",
     kicker: "Le passage",
     line: "Deux images. Le temps qui les relie.",
     detail: "De l’une vers l’autre. Aucun modèle vidéo, aucun compte, aucun envoi.",

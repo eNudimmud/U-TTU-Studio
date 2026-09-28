@@ -8,6 +8,7 @@ import { IdentityPanel } from "./identity-panel";
 import { MaisonPanel } from "./maison-panel";
 import { LibraryPanel } from "./library-panel";
 import { GoProvider } from "./mode-context";
+import { ProcessLaunchProvider } from "./process-launch";
 import { SpherePanel } from "./sphere-panel";
 import { StudioSessionProvider } from "./session";
 
@@ -38,7 +39,8 @@ export function StudioShell() {
   }
 
   return <GoProvider go={select}>
-    <StudioSessionProvider>
+    <ProcessLaunchProvider>
+      <StudioSessionProvider>
       <header className="studio-header">
         <div className="shell header-inner">
           <a href="#creer" className="wordmark" aria-label="U*TTU Studio — Créer">U<span className="wordmark-star">*</span>TTU<span className="wordmark-studio">STUDIO</span></a>
@@ -62,6 +64,7 @@ export function StudioShell() {
         <span>Session locale. Le coffre est à part.</span>
         <a href={`mailto:${contactEmail}`}>Contacter le studio ↗</a>
       </footer>
-    </StudioSessionProvider>
+      </StudioSessionProvider>
+    </ProcessLaunchProvider>
   </GoProvider>;
 }

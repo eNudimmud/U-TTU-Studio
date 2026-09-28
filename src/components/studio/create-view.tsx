@@ -4,9 +4,12 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { DATASET_SIZE, COMFY_APPS, estimateTrainRun } from "@/lib/comfy-stack";
 import { formatEstimate } from "@/lib/gate/report";
+import { processAction, processById } from "@/lib/processes";
 import { Arrow } from "../glyph";
 import { CreatePanel } from "./create-panel";
 import { LotReview } from "./lot-review";
+import { useGoToMode } from "./mode-context";
+import { useProcessLaunch } from "./process-launch";
 import { useStudioSession } from "./session";
 
 const loading = () => <p className="loading-panel" role="status">Ouverture…</p>;
@@ -20,6 +23,10 @@ const onFalStage = () => {};
 
 export function CreateView() {
   const session = useStudioSession();
+  const go = useGoToMode();
+  const launch = useProcessLaunch();
+  const former = processById("former");
+  const formerAction = former ? processAction(former, !session.passed) : null;
   const [tutorial, setTutorial] = useState(false);
   const [expertMounted, setExpertMounted] = useState(false);
   const [showTests, setShowTests] = useState(false);
@@ -44,6 +51,15 @@ export function CreateView() {
       onTrigger={session.setTrigger} onInvariants={session.setInvariants} onToken={session.setToken} onRefs={session.setRefs}
       onBootstrap={session.bootstrap} onManual={openManual}
     />
+
+    {former && formerAction && <section className="create-process" aria-labelledby="former-access">
+      <div>
+        <p className="eyebrow">Processus</p>
+        <h2 id="former-access">{former.title}</h2>
+        <p>{former.pitch} {session.passed ? "Le lot est tenu. Le cadre s’ouvre dans Sphère, après un second clic." : "Le bouton s’ouvre quand le lot est en PASS."}</p>
+      </div>
+      <button type="button" className={`button ${formerAction.enabled ? "button-primary" : "button-outline"}`} disabled={!formerAction.enabled} onClick={() => { launch.request(former.id); go("sphere"); }}>{formerAction.label}</button>
+    </section>}
 
     <details className="disclosure create-drawer" onToggle={event => { if (event.currentTarget.open) setTutorial(true); }}>
       <summary>Comment ça marche</summary>

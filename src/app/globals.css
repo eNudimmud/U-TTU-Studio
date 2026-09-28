@@ -325,6 +325,23 @@ h1:focus, h2:focus { outline: none; }
 .soon-card .eyebrow, .dash-card .eyebrow { color: var(--gold); }
 .soon-card .button { margin-top: auto; align-self: flex-start; }
 .soon-card .button:disabled { opacity: .7; }
+.process-card.is-live { border-color: var(--line-gold); }
+.process-hint { max-width: 36rem; }
+.create-process { margin-top: 22px; border: 1px solid var(--line-gold); background: var(--surface); padding: 28px 32px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; }
+.create-process h2 { font-size: 28px; letter-spacing: -.03em; margin-top: 6px; }
+.create-process p { color: var(--muted); font-size: 14px; max-width: 36rem; margin-top: 8px; }
+.create-process .button { flex: 0 0 auto; }
+.process-stage { margin-top: 16px; }
+.process-stage .comfy-run-panel { margin-inline: 0; }
+.vault-processes { margin-top: 16px; border: 1px solid var(--line); background: var(--surface); padding: 28px 24px 8px; }
+.vault-processes h2 { font-size: 28px; letter-spacing: -.03em; margin-top: 6px; }
+.vault-processes h2 code { font-size: .62em; }
+.vault-processes > p { color: var(--muted); font-size: 14px; max-width: 40rem; margin-top: 10px; }
+.vault-processes ul { list-style: none; margin: 18px 0 0; padding: 0; }
+.vault-processes li { display: grid; grid-template-columns: minmax(0, 1.1fr) 6.5rem minmax(0, 1.6fr); gap: 12px 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
+.vault-processes strong { font-family: var(--font-heading); font-weight: 500; font-size: 20px; letter-spacing: -.02em; }
+.vault-processes li span { color: var(--muted); font-size: 14px; }
+.vault-processes .process-state { color: var(--gold); letter-spacing: .14em; text-transform: uppercase; font-size: 11px; }
 .soon-mark { margin-top: auto; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
 .vault-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 16px; margin-top: 28px; }
 .vault-schema, .vault-steps, .vault-map, .vault-download { border: 1px solid var(--line); background: var(--surface); }
@@ -387,6 +404,10 @@ button.vault-row:hover strong { color: var(--gold-soft); }
   .vault-download .button { width: 100%; }
   .vault-map header { padding-inline: 20px; }
   .soon-card, .dash-card { min-height: 0; }
+  .create-process { padding: 22px 20px; }
+  .create-process .button { width: 100%; }
+  .vault-processes { padding: 22px 20px 8px; }
+  .vault-processes li { grid-template-columns: 1fr; gap: 4px; }
   .identity-captions { margin-inline: 20px; }
   .identity-zip { padding: 22px 20px; }
   .identity-fal .fal-rail, .identity-fal .guide-locked { padding-inline: 20px; }

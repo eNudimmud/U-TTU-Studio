@@ -28,7 +28,7 @@ describe("studio shell modes", () => {
 describe("sphère presets", () => {
   it("names Avant, Après and Entre, without a video backend", () => {
     assert.deepEqual(SPHERE_PRESETS.map(preset => preset.id), ["avant", "apres", "entre"]);
-    assert.deepEqual(SPHERE_PRESETS.map(preset => preset.title), ["Avant", "Après", "Entre"]);
+    assert.deepEqual(SPHERE_PRESETS.map(preset => preset.title), ["Avant", "Après", "Entre deux images"]);
     for (const preset of SPHERE_PRESETS) {
       const text = `${preset.line} ${preset.detail}`;
       assert.doesNotMatch(text, /https?:|fal\.ai|iframe|fetch\(/i);

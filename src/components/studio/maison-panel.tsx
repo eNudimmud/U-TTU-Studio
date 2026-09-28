@@ -1,5 +1,6 @@
 "use client";
 
+import { CREATION_PROCESSES } from "@/lib/processes";
 import { assetPath } from "@/lib/site";
 import { OBSIDIAN_STEPS, STARTER_VAULT_FILE, STARTER_VAULT_HREF, VAULT_DOCUMENTS, VAULT_FOLDERS, VAULT_MODE_MAP, VAULT_ROOT } from "@/lib/vault";
 import { Arrow } from "../glyph";
@@ -44,6 +45,19 @@ export function MaisonPanel() {
           {item.mode === "studio"
             ? <div className="vault-row" aria-current="page"><strong>{item.label}</strong><span>{item.line}</span><code>{item.places.join(" · ")}</code></div>
             : <button type="button" className="vault-row" onClick={() => go(item.mode)}><strong>{item.label}</strong><span>{item.line}</span><code>{item.places.join(" · ")}</code></button>}
+        </li>)}
+      </ul>
+    </article>
+
+    <article className="vault-processes" aria-labelledby="vault-processes-title">
+      <p className="eyebrow">Processus</p>
+      <h2 id="vault-processes-title">Dans le coffre, <code>processes/</code>.</h2>
+      <p>Le site liste les gestes. Il n’écrit pas dans le dossier. Chaque run se note à la main dans <code>jobs.md</code>.</p>
+      <ul>
+        {CREATION_PROCESSES.map(process => <li key={process.id}>
+          <strong>{process.title}</strong>
+          <span className="process-state">{process.state === "live" ? "Prêt" : "Bientôt"}</span>
+          <span>{process.pitch}</span>
         </li>)}
       </ul>
     </article>
