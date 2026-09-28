@@ -4,7 +4,7 @@
 
 Site en français (FR-CH) pour C micro : 2 ou 3 photos → lot de 15 images → LoRA → image(s). Le gate reste dans le navigateur et bloque l’entraînement tant qu’il reste un problème. Le chemin principal est le rail fal, dans la page, quand `NEXT_PUBLIC_FAL_PROXY_URL` est défini. Comfy Cloud est un repli replié, « Expert ». **Vente HOLD.** L’identité produite n’est pas encore validée.
 
-**État fal :** le code du proxy et du bootstrap est dans le dépôt. Le Worker n’a pas été déployé par cette livraison. Tant que `NEXT_PUBLIC_FAL_PROXY_URL` est vide, le bouton de lot est inactif (« proxy non branché »). [Contrat](docs/FAL-SPIKE.md) · [déploiement Worker](workers/fal-proxy/README.md#déployer-jd--8-commandes).
+**État fal :** le code du proxy et du bootstrap est dans le dépôt. Le Worker n’a pas été déployé par cette livraison. Tant que `NEXT_PUBLIC_FAL_PROXY_URL` est vide, le bouton de lot est inactif (« proxy non branché »). [Contrat](docs/FAL-SPIKE.md) · [déploiement Worker](workers/fal-proxy/README.md#déployer-via-github-actions).
 
 ## Date de kill : 8 octobre 2026
 
@@ -127,7 +127,7 @@ Un run Comfy est coupé au bout de 30 minutes en Standard et Creator, 60 minutes
 | `NEXT_PUBLIC_BASE_PATH` | Vide sur Vercel. L’ancien sous-chemin Pages n’est plus servi par ce build. |
 | `NEXT_PUBLIC_FAL_PROXY_URL` | URL publique du Worker. Vide = lot automatique et entraînement fal inactifs. Le Worker n’est pas déployé par cette livraison. |
 
-Le rail fal utilise les secrets `FAL_KEY` et `ACCESS_TOKEN` uniquement dans le Worker ([configuration](workers/fal-proxy/README.md)). Ne pas les placer dans Vercel ni dans `NEXT_PUBLIC_*`. Le repli Comfy s’exécute sur le compte Comfy du client. Les secrets OAuth Google et GitHub vivent dans le dashboard Clerk, pas dans git.
+Le rail fal utilise les secrets `FAL_KEY` et `ACCESS_TOKEN` uniquement dans le Worker ([configuration](workers/fal-proxy/README.md)). Le workflow Actions peut les y recopier. Ne pas les placer dans Vercel ni dans `NEXT_PUBLIC_*`. Le repli Comfy s’exécute sur le compte Comfy du client. Les secrets OAuth Google et GitHub vivent dans le dashboard Clerk, pas dans git.
 
 ## Confidentialité
 
@@ -176,11 +176,11 @@ docs/                         documentation
 
 Le code est prêt. Le déploiement Cloudflare n’a pas été fait ici. Aucun appel fal réel (0 $).
 
-1. Déployer le Worker depuis cette branche ou depuis `main` après fusion : [8 commandes](workers/fal-proxy/README.md#déployer-jd--8-commandes). Les routes nouvelles sont `POST /bootstrap` et `GET /file`.
-2. Poser les secrets `FAL_KEY` et `ACCESS_TOKEN` (24 caractères au moins). Ne pas les mettre dans GitHub Actions ni dans `NEXT_PUBLIC_*`.
-3. Vérifier le CORS : origine du site Vercel, une fois le domaine connu. L’ancienne origine `https://enudimmud.github.io` ne reçoit plus de nouveau build. Les deux `curl` du README Worker ne lancent pas de job.
-4. Créer la variable de dépôt `NEXT_PUBLIC_FAL_PROXY_URL` (URL HTTPS du Worker, sans `/bootstrap`).
-5. Poser `NEXT_PUBLIC_FAL_PROXY_URL` sur le projet Vercel, puis redéployer. Le workflow Pages ne publie plus.
+1. Après fusion sur `main`, déployer le Worker par [GitHub Actions](workers/fal-proxy/README.md#déployer-via-github-actions) — chemin sans Wrangler local. Les [8 commandes](workers/fal-proxy/README.md#déployer-jd--8-commandes) restent l’autre chemin. Les routes nouvelles sont `POST /bootstrap` et `GET /file`.
+2. Poser les secrets du dépôt `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `FAL_KEY` et `ACCESS_TOKEN` (24 caractères au moins, `openssl rand -hex 24`). Le workflow recopie les deux derniers sur le Worker. Ne pas les mettre dans Vercel ni dans `NEXT_PUBLIC_*`.
+3. Vérifier le CORS avec les deux `curl` du README Worker. Ils ne lancent pas de job. Origines déjà listées : `https://u-ttu-studio.vercel.app` et `https://enudimmud.github.io`.
+4. Copier l’URL `https://….workers.dev` du journal Actions.
+5. Poser `NEXT_PUBLIC_FAL_PROXY_URL` sur le projet Vercel (Production et Preview), puis redéployer. Le workflow Pages ne publie plus.
 6. Ouvrir le site : le bouton « Préparer les 15 images » est actif seulement avec l’URL et un code. Ne pas lancer de lot réel pour cette vérification, sauf budget annoncé (environ 0,60 $ le lot, puis environ 2,04 $ pour 1 000 étapes et 1 image).
 
 La vente reste HOLD. La fidélité du lot Kontext sur de vraies photos n’est pas mesurée.

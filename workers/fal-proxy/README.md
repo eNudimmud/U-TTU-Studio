@@ -26,9 +26,32 @@ Résultat d’un entraînement : `{ lora, config }`, les URL de `diffusers_lora_
 - **Vie privée.** Le code du Worker ne persiste pas les images et n’écrit pas de journaux applicatifs. Les réglages de journalisation Cloudflare du compte restent à vérifier. Il envoie `X-Fal-Store-IO: 0` et demande une expiration de 7 jours sur la LoRA et les images (`X-Fal-Object-Lifecycle-Preference`) ; l’effacement effectif n’a pas été mesuré.
 - **Limite connue.** Aucune limite de débit : qui a le code peut dépenser. Avant toute ouverture publique, il faut ajouter Turnstile ou Cloudflare Access, et une limite de débit.
 
+## Déployer via GitHub Actions
+
+Chemin recommandé sans ordinateur, et sur Termux : Android ne lance pas `workerd`, donc Wrangler en local n’est pas un chemin utilisable. Le workflow [`.github/workflows/deploy-fal-proxy.yml`](../../.github/workflows/deploy-fal-proxy.yml) déploie `uttu-fal-proxy` depuis GitHub. **Le Worker n’est pas en ligne** tant que ce workflow n’a pas réussi. Aucune valeur secrète ne va dans le fichier de workflow, ni dans le journal.
+
+Dans **eNudimmud/U-TTU-Studio** : **Settings → Secrets and variables → Actions → New repository secret**. Créer `CLOUDFLARE_API_TOKEN` et `CLOUDFLARE_ACCOUNT_ID` avant la fusion : sans eux, le premier passage sur `main` échoue à l’authentification Cloudflare. `FAL_KEY` et `ACCESS_TOKEN` peuvent suivre.
+
+| Secret | Valeur |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare : **My Profile → API Tokens → Create Token**, modèle **Edit Cloudflare Workers**. |
+| `CLOUDFLARE_ACCOUNT_ID` | Tableau de bord Cloudflare, identifiant du compte (page Workers). |
+| `FAL_KEY` | Clé du compte fal qui paie les appels. |
+| `ACCESS_TOKEN` | `openssl rand -hex 24`. Conserver ce code dans un gestionnaire de mots de passe. 24 caractères au moins : la commande en produit 48. |
+
+Puis :
+
+1. Fusionner sur `main`. Un push qui touche `workers/fal-proxy/**` lance le workflow. Sinon : **Actions → Déployer le proxy fal → Run workflow**, branche `main`.
+2. Dans le journal de l’étape « URL pour Vercel », copier l’URL `https://….workers.dev`.
+3. Projet Vercel : variable **`NEXT_PUBLIC_FAL_PROXY_URL`**, Production et Preview, cette URL sans `/train`, `/status`, `/gen` ou `/bootstrap`. Redéployer. Suite : [Brancher le studio Vercel](#brancher-le-studio-vercel-après-validation).
+
+Si `FAL_KEY` ou `ACCESS_TOKEN` manque, le déploiement du code reste vert et le journal avertit que les routes protégées répondront **503** jusqu’à ce que les deux secrets soient posés. Les ajouter, puis relancer le workflow : il refait `wrangler secret put` sans invite, par l’entrée standard, sans afficher la valeur. Un code de moins de 24 caractères laisse aussi les routes en 503. Ce passage n’envoie aucun entraînement ni génération fal.
+
+Les [8 commandes](#déployer-jd--8-commandes) restent l’autre chemin, sur une machine où Wrangler tourne.
+
 ## Déployer (JD) — 8 commandes
 
-À exécuter par JD avec son accès Cloudflare, depuis la racine du dépôt sur la branche qui contient `POST /bootstrap` (ou `main` après fusion autorisée). Prérequis : Node 22 ou plus récent, npm, OpenSSL, un compte Cloudflare avec Workers activé et la clé fal. La tenue du plan gratuit avec un ZIP réel, et avec 15 mises en file d’un coup, reste à mesurer.
+Autre chemin, avec Node et Wrangler sur la machine. Ce n’est pas le chemin Termux. Prérequis : Node 22 ou plus récent, npm, OpenSSL, un compte Cloudflare avec Workers activé et la clé fal. À lancer depuis la racine du dépôt, sur la branche qui contient `POST /bootstrap` (ou `main` après fusion). La tenue du plan gratuit avec un ZIP réel, et avec 15 mises en file d’un coup, reste à mesurer.
 
 Avant de commencer, contrôler `wrangler.toml` : `name = "uttu-fal-proxy"`, `ALLOWED_ORIGINS` avec `https://u-ttu-studio.vercel.app` et `https://enudimmud.github.io`. Aucune valeur secrète ne va dans ce fichier. Laisser `NEXT_PUBLIC_FAL_PROXY_URL` vide sur Vercel pendant la vérification.
 
