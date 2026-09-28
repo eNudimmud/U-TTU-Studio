@@ -369,6 +369,24 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 .vault-row strong { font-family: var(--font-heading); font-weight: 500; font-size: 20px; letter-spacing: -.02em; }
 .vault-row span { color: var(--muted); font-size: 14px; }
 .vault-row code { font-family: var(--font-mono); font-size: 12px; color: var(--gold); text-align: right; }
+.account-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.account-actions .button { flex: 0 1 auto; }
+.account-user { margin-top: 22px; border: 1px solid var(--line); background: var(--surface); padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.account-user h2 { font-size: 28px; letter-spacing: -.03em; }
+.account-user p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.account-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+.account-card { border: 1px solid var(--line); background: var(--surface); padding: 28px 24px; display: grid; gap: 10px; align-content: start; min-height: 180px; }
+.account-card h2 { font-size: 28px; letter-spacing: -.03em; }
+.account-card p { color: var(--muted); font-size: 14px; }
+.account-schema { margin-top: 16px; }
+.account-schema > p { color: var(--muted); font-size: 14px; max-width: 36rem; margin-top: 8px; }
+.account-schema .button { margin-top: 22px; }
+.vault-tree a:hover code { color: var(--gold); }
+.auth-page { min-height: 100vh; display: grid; align-content: center; justify-items: center; gap: 28px; padding: 48px 20px 72px; text-align: center; }
+.auth-copy { display: grid; gap: 8px; max-width: 28rem; }
+.auth-copy h1 { font-size: clamp(36px, 5vw, 56px); letter-spacing: -.045em; line-height: 1.02; }
+.auth-copy p:last-child { color: var(--muted); font-size: 16px; }
+.auth-hold { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
 .vault-download { margin-top: 16px; padding: 28px 32px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; }
 .vault-download p { color: var(--muted); font-size: 14px; max-width: 36rem; margin-top: 8px; }
 .vault-download .button { flex: 0 0 auto; }
@@ -397,7 +415,10 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 .create-questions { margin-top: 56px; max-width: 760px; }
 .create-questions h2 { font-size: 28px; margin: 8px 0 4px; letter-spacing: -.03em; }
 @media (max-width: 900px) {
-  .soon-grid, .dash-grid, .vault-layout { grid-template-columns: 1fr; }
+  .soon-grid, .dash-grid, .vault-layout, .account-grid { grid-template-columns: 1fr; }
+  .account-actions { flex-direction: column; align-items: stretch; }
+  .account-actions .button { width: 100%; }
+  .account-user { align-items: flex-start; padding: 22px 20px; }
   .vault-row { grid-template-columns: 1fr; gap: 4px; padding-inline: 20px; }
   .vault-tree li { grid-template-columns: 1fr; gap: 2px; }
   .vault-download { padding: 22px 20px; }

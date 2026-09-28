@@ -1,8 +1,8 @@
 # Coffre — studio personnel
 
-Chaque personne tient son studio dans un dossier Obsidian. Le site est la surface : Créer, Sphère, Identité, Bibliothèque. Le coffre est le système de fichiers. Aujourd’hui il vit sur la machine, hors ligne. Un compte pourra le synchroniser plus tard. Cette page ne le fait pas.
+Chaque personne tient son studio dans un dossier Obsidian. Le site est la surface : Créer, Sphère, Identité, Bibliothèque, et Compte. Le coffre est le système de fichiers. Il vit sur la machine, hors ligne. Le mode Compte ne le lit pas. Une sync pourra le rejoindre plus tard. Cette page ne le fait pas.
 
-La vente reste HOLD. Pas d’auth, pas de Stripe, pas de Worker fal, pas de plugin Obsidian à installer.
+La vente reste HOLD. Clerk tient la session, quand les clés sont posées. Pas de Stripe, pas de Worker fal, pas de plugin Obsidian à installer. Pas de sync.
 
 ## Schéma
 
@@ -28,6 +28,7 @@ Le ZIP de départ ajoute `README.md`, le mode d’emploi du coffre. Ce n’est p
 | Identité | `CANON.md`, `loras/` | Ce qui ne doit pas bouger, et le fichier |
 | Bibliothèque | `refs/`, `dataset/`, `loras/`, `scenes/` | Ce qui est déjà rangé |
 | Studio | `jobs.md`, `processes/` | Le journal, et les recettes |
+| Compte | — | La session. Aucun dossier. |
 
 La bibliothèque du site montre encore la session de la page. Fermer l’onglet l’efface. Le coffre, lui, reste.
 
@@ -40,8 +41,8 @@ Le panneau Studio liste les processus du catalogue : titre, état, une ligne. C�
 3. Obsidian → ouvrir un dossier comme coffre → ce dossier.
 4. Aucun plugin.
 
-Le fichier servi est `public/vault/U-TTU-Studio.zip`, produit par `src/lib/vault.ts`. `npm run vault:build` l’écrit. `npm run build` le régénère avant l’export Pages.
+Le fichier servi est `public/vault/U-TTU-Studio.zip`, produit par `src/lib/vault.ts`. `npm run vault:build` l’écrit. `npm run build` le régénère avant le build Next.
 
 ## Plus tard
 
-Sync optionnelle vers un stockage du compte (R2 ou Git privé), une fois l’auth en place. Le même schéma. L’app compagnon, plus tard, lira le même dossier. Rien de cela n’est branché.
+Sync optionnelle vers un stockage du compte (R2 ou Git privé). Le compte Clerk est en place comme squelette. Il ne synchronise pas. Le même schéma. L’app compagnon, plus tard, lira le même dossier. Rien de cela n’est branché.
