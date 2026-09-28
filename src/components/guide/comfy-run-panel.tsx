@@ -5,6 +5,7 @@ import { APP_LABELS, COMFY_APPS, FLUX_STACK } from "@/lib/comfy-stack";
 import { assetPath } from "@/lib/site";
 import { trackEvent, type StudioEvent } from "@/lib/analytics";
 import { Arrow } from "../glyph";
+import "./workspace.css";
 
 type ComfyApp = keyof typeof COMFY_APPS;
 
@@ -25,9 +26,12 @@ const LOGIN_NOTE = "Connexion à refaire dans le cadre, même si Comfy est ouver
 
 const noSubscription = () => () => {};
 
-export function ComfyRunPanel({ app }: { app: ComfyApp }) {
+export function ComfyRunPanel({ app, heading, note, showFile = true }: { app: ComfyApp; heading?: string; note?: string; showFile?: boolean }) {
   const { url, title, file } = COMFY_APPS[app];
-  const { heading, note, event } = PANELS[app];
+  const panel = PANELS[app];
+  const detail = note ?? panel.note;
+  const event = panel.event;
+  const label = heading ?? panel.heading;
   // Comfy answers with `frame-ancestors 'self' https:`: a page served over http cannot frame it.
   const framable = useSyncExternalStore(noSubscription, () => window.location.protocol === "https:", () => true);
   // Stays 0 until the visitor clicks: Comfy's pages load third-party ad and analytics tags.
@@ -46,7 +50,7 @@ export function ComfyRunPanel({ app }: { app: ComfyApp }) {
     <header className="comfy-run-head">
       <div>
         <p className="eyebrow">App Comfy Cloud · ton compte et tes crédits</p>
-        <h4 id={`comfy-${app}-title`}>{heading}</h4>
+        <h4 id={`comfy-${app}-title`}>{label}</h4>
       </div>
       <a className="button button-outline" href={url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(event)}>Ouvrir en plein onglet <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
     </header>
@@ -59,10 +63,10 @@ export function ComfyRunPanel({ app }: { app: ComfyApp }) {
           <button type="button" className="button button-primary" onClick={load} aria-describedby={`comfy-${app}-consent`}>Charger l’app Comfy ici <Arrow /></button>
         </div>}
     <div className="comfy-run-foot">
-      <p className="small-print">{note} {LOGIN_NOTE}</p>
+      <p className="small-print">{detail} {LOGIN_NOTE}</p>
       <div className="comfy-run-links">
         {loads > 0 && <button type="button" className="text-button" onClick={() => setLoads(count => count + 1)}>Recharger l’app</button>}
-        <a className="quiet-link" href={assetPath(file)} download>Workflow .json</a>
+        {showFile && <a className="quiet-link" href={assetPath(file)} download>Workflow .json</a>}
       </div>
     </div>
   </section>;
