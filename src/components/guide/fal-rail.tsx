@@ -36,9 +36,12 @@ interface Props {
   signature: string;
   onBuildZip: (onProgress: (done: number, total: number) => void) => Promise<Blob>;
   onStage: (stage: FalStage) => void;
+  token?: string;
+  onToken?: (value: string) => void;
+  hideTokenField?: boolean;
 }
 
-const POLL_MS: Record<FalJob, number> = { train: 5000, gen: 2000 };
+const POLL_MS: Record<FalJob, number> = { train: 5000, gen: 2000, vary: 2000 };
 const MAX_POLL_ERRORS = 3;
 const CELL_LABEL = { idle: "—", queued: "En file…", running: "Rendu en cours…" } as const;
 const idleCells = (): Cell[] => FAL_GEN.strengths.map((): Cell => ({ state: "idle" }));
@@ -61,7 +64,9 @@ function trainingStatus(training: Training): { tone: string; text: string } | nu
 
 export function FalRail(props: Props) {
   const [steps, setSteps] = useState<number>(FAL_TRAINING.steps);
-  const [token, setToken] = useState("");
+  const [ownToken, setOwnToken] = useState("");
+  const token = props.onToken ? (props.token ?? "") : ownToken;
+  const setToken = props.onToken ?? setOwnToken;
   const [training, setTraining] = useState<Training>({ state: "idle" });
   const [cells, setCells] = useState<Cell[]>(idleCells);
   const [trainedSignature, setTrainedSignature] = useState("");
@@ -171,7 +176,7 @@ export function FalRail(props: Props) {
       <li>
         <h4>Entraîner chez fal</h4>
         <p><code>{FAL_ENDPOINTS.train}</code> en mode sujet : masques de visage, tes {DATASET_SIZE} légendes du gate, {steps} étapes.</p>
-        {proxy && <div className="field fal-token">
+        {proxy && !props.hideTokenField && <div className="field fal-token">
           <label htmlFor="fal-token">Code d’accès du studio</label>
           <input id="fal-token" type="password" autoComplete="off" spellCheck={false} value={token} onChange={event => setToken(event.target.value)} aria-describedby="fal-token-help" />
           <p className="field-help" id="fal-token-help">Réservé au studio pendant l’essai : c’est la clé fal du studio qui paie. Le code reste dans cette page, rien n’est stocké.</p>

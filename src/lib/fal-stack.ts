@@ -3,6 +3,9 @@ import { FLUX_STACK } from "./comfy-stack.ts";
 export const FAL_ENDPOINTS = {
   train: "fal-ai/flux-lora-fast-training",
   gen: "fal-ai/flux-lora",
+  // Identity-preserving variations from a few refs. The multi endpoint is marked experimental by fal;
+  // the single-image fallback is fal-ai/flux-pro/kontext (image_url). See docs/DECISIONS.md.
+  vary: "fal-ai/flux-pro/kontext/multi",
 } as const;
 export type FalJob = keyof typeof FAL_ENDPOINTS;
 
@@ -54,11 +57,28 @@ export const FAL_PRIVACY = {
   storeRequestPayloads: false,
 } as const;
 
-export const FAL_PROXY_ROUTES = { train: "/train", status: "/status", gen: "/gen" } as const;
+// Published Flux Kontext Pro rate ($0.04/image, fal pricing page). A distinct tariff for the /multi id was not listed.
+export const FAL_VARY = {
+  guidanceScale: 3.5,
+  numImages: 1,
+  outputFormat: "jpeg",
+  aspectRatio: "1:1",
+  enhancePrompt: false,
+  safetyTolerance: "2",
+  usdPerImage: 0.04,
+  checkedOn: "2026-09-28",
+  minRefs: 2,
+  maxRefs: 3,
+  maxRefBytes: 8 * 1024 * 1024,
+  seedBase: 51000,
+} as const;
+
+export const FAL_ACCESS_MIN = 24;
+export const FAL_PROXY_ROUTES = { train: "/train", status: "/status", gen: "/gen", bootstrap: "/bootstrap", file: "/file" } as const;
 
 export interface FalTrainResult { lora: string; config: string | null }
 export interface FalGenResult { image: string; width: number; height: number; seed: number | null; nsfw: boolean }
-export interface FalJobResult { train: FalTrainResult; gen: FalGenResult }
+export interface FalJobResult { train: FalTrainResult; gen: FalGenResult; vary: FalGenResult }
 export type FalJobStatus<T> =
   | { status: "IN_QUEUE"; position: number | null }
   | { status: "IN_PROGRESS"; log: string | null }
@@ -129,6 +149,7 @@ const cost = (usd: number): FalCost => ({ usd, chf: usd * USD_CHF.rate });
 export const billedMegapixels = (width: number, height: number) => Math.ceil((width * height) / FAL_PRICING.megapixel);
 export const estimateFalTrain = (steps: number) => cost((steps / 1000) * FAL_PRICING.trainUsdPer1000Steps);
 export const estimateFalGen = (images: number) => cost(images * billedMegapixels(FAL_GEN.width, FAL_GEN.height) * FAL_PRICING.genUsdPerMegapixel);
+export const estimateFalVary = (images: number) => cost(images * FAL_VARY.usdPerImage);
 export const estimateFalRun = (steps: number, images: number) => cost(estimateFalTrain(steps).usd + estimateFalGen(images).usd);
 
 // Half up: 2.105 is stored as 2.10499…, and 2,00 $ + 0,11 $ must not add up to 2,10 $.

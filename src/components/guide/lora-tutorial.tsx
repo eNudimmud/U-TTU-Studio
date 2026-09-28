@@ -2,15 +2,16 @@ import Image from "next/image";
 import { assetPath } from "@/lib/site";
 import { Arrow } from "../glyph";
 
-export function LoraTutorial({ onStart }: { onStart: () => void }) {
+export function LoraTutorial({ onStart, embedded = false, startLabel = "Préparer mes 15 images" }: { onStart?: () => void; embedded?: boolean; startLabel?: string }) {
+  const Heading = embedded ? "h2" : "h1";
   return <div className="tutorial">
     <div className="tutorial-intro">
       <div className="tutorial-copy">
-        <p className="eyebrow">01 / Comprendre · 2 minutes</p>
-        <h1 id="guide-title-0" tabIndex={-1}>Ta première LoRA,<br /><span>pas à pas.</span></h1>
+        <p className="eyebrow">Comprendre · 2 minutes</p>
+        <Heading id={embedded ? undefined : "guide-title-0"} tabIndex={embedded ? undefined : -1}>Ta première LoRA,<br /><span>pas à pas.</span></Heading>
         <p className="tutorial-lead">Un personnage reconnaissable.<br />De nouvelles scènes. On te montre comment.</p>
         <div className="definition"><h2>Une LoRA, c’est quoi ?</h2><p>Un petit complément que tu entraînes avec tes images. Il aide un modèle d’IA existant à retrouver <strong>l’identité de ton personnage</strong>, sans réentraîner tout le modèle.</p></div>
-        <button className="button button-primary" type="button" onClick={onStart}>Préparer mes 15 images <Arrow /></button>
+        {onStart && <button className="button button-primary" type="button" onClick={onStart}>{startLabel} <Arrow /></button>}
         <p className="tutorial-footnote">Aucun compte pour préparer · aucun envoi automatique</p>
       </div>
       <figure className="tutorial-reference">

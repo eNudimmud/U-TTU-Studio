@@ -26,6 +26,7 @@ interface Props {
   onRejectUntriaged: () => void;
   onClear: () => void;
   onConfirm: (id: ConfirmationId, value: boolean) => void;
+  reviewOnly?: boolean;
 }
 
 export function DatasetStep(props: Props) {
@@ -60,7 +61,7 @@ export function DatasetStep(props: Props) {
   }
 
   return <div className="dataset-step">
-    <fieldset className="panel-block">
+    {!props.reviewOnly && <fieldset className="panel-block">
       <legend>1. Nomme ton personnage</legend>
       <div className="form-row">
         <div className="field">
@@ -74,10 +75,10 @@ export function DatasetStep(props: Props) {
           <p className="field-help" id="invariants-help">Au moins 2 traits en anglais, séparés par des virgules. Ex. : yeux verts, taches de rousseur → green eyes, freckles.</p>
         </div>
       </div>
-    </fieldset>
+    </fieldset>}
 
     <div className="panel-block">
-      <h3 className="task-title">2. Choisis tes images</h3>
+      <h3 className="task-title">{props.reviewOnly ? "Complète ou remplace une image" : "2. Choisis tes images"}</h3>
       <label className={`dropzone${dragging ? " is-dragging" : ""}`} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
         <input type="file" aria-label="Importer les images du personnage" accept="image/*" multiple disabled={!!props.progress} onChange={event => { props.onFiles([...(event.target.files ?? [])]); event.target.value = ""; }} />
         <span className="dropzone-title">Ajouter des images</span>
@@ -161,7 +162,7 @@ export function DatasetStep(props: Props) {
     </ul>}
 
     {kept === DATASET_SIZE && <fieldset className="panel-block confirmations">
-      <legend>4. Dernière vérification</legend>
+      <legend>{props.reviewOnly ? "Dernière vérification" : "4. Dernière vérification"}</legend>
       {CONFIRMATIONS.map(item => <label key={item.id} className="check-inline">
         <input type="checkbox" checked={!!props.confirmations[item.id]} onChange={event => props.onConfirm(item.id, event.target.checked)} />
         <span>{item.label}</span>
