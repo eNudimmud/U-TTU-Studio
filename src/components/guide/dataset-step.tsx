@@ -78,7 +78,7 @@ export function DatasetStep(props: Props) {
     </fieldset>}
 
     <div className="panel-block">
-      <h3 className="task-title">{props.reviewOnly ? "Complète ou remplace une image" : "2. Choisis tes images"}</h3>
+      <h3 className="task-title">{props.reviewOnly ? (images.length ? "Complète ou remplace une image" : "Importer tes images") : "2. Choisis tes images"}</h3>
       <label className={`dropzone${dragging ? " is-dragging" : ""}`} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
         <input type="file" aria-label="Importer les images du personnage" accept="image/*" multiple disabled={!!props.progress} onChange={event => { props.onFiles([...(event.target.files ?? [])]); event.target.value = ""; }} />
         <span className="dropzone-title">Ajouter des images</span>

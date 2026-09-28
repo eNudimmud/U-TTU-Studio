@@ -41,6 +41,7 @@ export function CreatePanel(props: CreatePanelProps) {
     && !props.busy;
   const angleLabel = (id: string) => ANGLES.find(item => item.id === id)?.label ?? id;
   const framingLabel = (id: string) => FRAMINGS.find(item => item.id === id)?.label ?? id;
+  const shortToken = props.proxyOn && !!props.trigger && !triggerError && props.refs.length >= FAL_VARY.minRefs && props.token.trim().length < FAL_ACCESS_MIN;
 
   function take(list: File[]) {
     props.onRefs(list);
@@ -53,16 +54,18 @@ export function CreatePanel(props: CreatePanelProps) {
   }
 
   return <div className="create-panel">
-    <label id="create-drop" className={`create-drop${dragging ? " is-dragging" : ""}`} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
+    <label id="create-drop" className={`create-drop${dragging ? " is-dragging" : ""}${props.busy ? " is-busy" : ""}`} aria-busy={props.busy} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
       <input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={props.busy} aria-label="Déposer 2 ou 3 photos de la même personne" onChange={event => { take([...(event.target.files ?? [])]); event.target.value = ""; }} />
       <span className="create-mark" aria-hidden="true">iii</span>
       {props.refs.length === 0 ? <>
         <span className="create-drop-title">Dépose 2 ou 3 photos</span>
         <span className="create-drop-hint">Même personne · JPEG, PNG ou WebP · 8 Mo chacune</span>
-      </> : <span className="ref-strip">
-        {props.refs.map(ref => <img key={ref.url} src={ref.url} alt="" />)}
+      </> : <>
+        <span className="ref-strip">{props.refs.map(ref => <img key={ref.url} src={ref.url} alt="" />)}</span>
+        <span className="create-drop-title">Photos prêtes</span>
         <span className="create-drop-hint">{props.refs.length} photo{props.refs.length > 1 ? "s" : ""} · reclique pour remplacer</span>
-      </span>}
+      </>}
+      {props.busy && <span className="create-drop-hint">Préparation du lot…</span>}
     </label>
 
     <div className="create-fields">
@@ -83,25 +86,35 @@ export function CreatePanel(props: CreatePanelProps) {
       </div>}
     </div>
 
-    <p className="create-plan">{FRAMING_LINE}. Face, trois-quarts et profil. {DATASET_SIZE} légendes au format du gate.</p>
+    <div className="plan-preview">
+      <p className="create-plan"><span>2–3</span> photos → <span>{DATASET_SIZE}</span> cadrages. {FRAMING_LINE}. Face, trois-quarts et profil.</p>
+      <ol className="slot-meter" aria-label={`Plan des ${DATASET_SIZE} cadrages`}>
+        {PLAN.map((slot, index) => <li key={slot.index} className={props.busy && props.arrived[index] ? "is-in" : ""}>
+          <span className="sr-only">{String(slot.index).padStart(2, "0")} · {angleLabel(slot.angle)} · {framingLabel(slot.framing)}{props.busy ? ` · ${props.arrived[index] ? "reçu" : "en attente"}` : ""}</span>
+        </li>)}
+      </ol>
+    </div>
 
     <div className="create-actions">
       <button type="button" className="button button-primary" disabled={!ready} aria-busy={props.busy} onClick={props.onBootstrap}>
         {props.busy ? "Préparation du lot…" : `Préparer les ${DATASET_SIZE} images · ≈ ${formatFalCost(COST)}`} <Arrow />
       </button>
-      <button type="button" className="text-button" disabled={props.busy} onClick={props.onManual}>J’ai déjà {DATASET_SIZE} images</button>
+      <button type="button" className="button button-outline" disabled={props.busy} onClick={props.onManual}>Importer mes {DATASET_SIZE} images</button>
     </div>
-    {!props.proxyOn && <p className="create-status is-warn" role="status">Rail fal non branché. Le lot automatique attend l’adresse du proxy. Tu peux déjà importer tes images et ouvrir le repli Comfy.</p>}
+    <p className="create-path">Le lot automatique attend le proxy fal. Tes propres {DATASET_SIZE} images s’importent ici, sans réseau, puis passent le gate.</p>
+    {!props.proxyOn && <aside className="offline-fal" role="status">
+      <p><strong>Hors ligne.</strong> Proxy fal absent. Le bouton de lot reste éteint. Aucune photo ne part.</p>
+    </aside>}
     {props.proxyOn && props.refs.length > 0 && props.refs.length < FAL_VARY.minRefs && <p className="create-status">Encore une photo : il en faut {FAL_VARY.minRefs} ou {FAL_VARY.maxRefs}.</p>}
+    {shortToken && !props.busy && <p className="create-status">Le code d’accès du studio débloque le lot. Rien n’est envoyé avant le clic.</p>}
     {props.status && <p className="create-status" role="status">{props.status}</p>}
-    {props.busy && <ol className="slot-meter" aria-label={`Avancement des ${DATASET_SIZE} cadrages`}>
-      {PLAN.map((slot, index) => <li key={slot.index} className={props.arrived[index] ? "is-in" : ""}><span className="sr-only">{props.arrived[index] ? "reçu" : "en attente"} · {angleLabel(slot.angle)} · {framingLabel(slot.framing)}</span></li>)}
-    </ol>}
 
     <details className="disclosure create-captions">
       <summary>Voir les {DATASET_SIZE} cadrages prévus</summary>
       <ol>{PLAN.map(slot => <li key={slot.index}><span>{String(slot.index).padStart(2, "0")}</span> {props.trigger && !triggerError ? bootstrapCaption(props.trigger, slot) : `${angleLabel(slot.angle)} · ${framingLabel(slot.framing)} · ${slot.variables}`}</li>)}</ol>
     </details>
-    <p className="create-fine">Au clic, les photos partent vers fal via le proxy du studio. Le trigger n’est pas dans le prompt de génération : il entre seulement dans les légendes du lot. Chaque lancement est facturé, même si tu fermes la page.</p>
+    <p className="create-fine">{props.proxyOn
+      ? "Au clic, les photos partent vers fal via le proxy du studio. Le trigger n’est pas dans le prompt de génération : il entre seulement dans les légendes du lot. Chaque lancement est facturé, même si tu fermes la page."
+      : "Sans proxy, préparer le lot ne contacte personne. L’import et le gate restent dans le navigateur."}</p>
   </div>;
 }

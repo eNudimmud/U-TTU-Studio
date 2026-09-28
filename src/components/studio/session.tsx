@@ -1,37 +1,87 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import { DATASET_SIZE, FLUX_STACK, COMFY_APPS, estimateTrainRun, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { DATASET_SIZE, FLUX_STACK, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
 import { bootstrapPlan } from "@/lib/fal-bootstrap";
 import { FAL_VARY } from "@/lib/fal-stack";
 import { trackEvent } from "@/lib/analytics";
-import { captionsBlock, formatEstimate } from "@/lib/gate/report";
-import { GATE, canKeep, evaluateGate, type ConfirmationId, type DatasetImage } from "@/lib/gate/rules";
+import { captionsBlock } from "@/lib/gate/report";
+import { GATE, canKeep, evaluateGate, type ConfirmationId, type DatasetImage, type GateResult } from "@/lib/gate/rules";
 import type { Angle, Framing } from "@/lib/gate/vocabulary";
 import { falProxyUrl } from "@/lib/site";
-import { CreatePanel } from "../studio/create-panel";
-import { LoraTutorial } from "./lora-tutorial";
-import type { ExportState } from "./train-step";
-
-const loading = () => <p className="loading-panel" role="status">Ouverture…</p>;
-const DatasetStep = dynamic(() => import("./dataset-step").then(m => m.DatasetStep), { loading });
-const GatePanel = dynamic(() => import("./gate-panel").then(m => m.GatePanel), { loading });
-const TrainStep = dynamic(() => import("./train-step").then(m => m.TrainStep), { loading });
-const ImageStep = dynamic(() => import("./image-step").then(m => m.ImageStep), { loading });
-const ComfyRunPanel = dynamic(() => import("./comfy-run-panel").then(m => m.ComfyRunPanel), { loading });
-const TestGrid = dynamic(() => import("./test-grid").then(m => m.TestGrid), { loading });
-const FalRail = dynamic(() => import("./fal-rail").then(m => m.FalRail), { loading });
+import type { ExportState } from "../guide/train-step";
 
 const PLAN = bootstrapPlan();
 const MAX_IMPORT = 60;
-const onFalStage = () => {};
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export function LoraGuide() {
+export interface StudioSession {
+  trigger: string;
+  setTrigger: (value: string) => void;
+  invariants: string;
+  setInvariants: (value: string) => void;
+  token: string;
+  setToken: (value: string) => void;
+  images: DatasetImage[];
+  previews: Record<string, string>;
+  confirmations: Partial<Record<ConfirmationId, boolean>>;
+  progress: { done: number; total: number } | null;
+  notice: string;
+  highlight: Set<string>;
+  result: GateResult;
+  passed: boolean;
+  captions: string;
+  signature: string;
+  refPreviews: { name: string; url: string }[];
+  arrived: boolean[];
+  boot: { phase: "idle" | "sending" | "running"; done: number; message: string };
+  bootStatus: string;
+  showReview: boolean;
+  setShowReview: (value: boolean) => void;
+  falProxyOn: boolean;
+  plan: ComfyPlan;
+  setPlan: (value: ComfyPlan) => void;
+  steps: number;
+  setSteps: (value: number) => void;
+  scene: string;
+  setScene: (value: string) => void;
+  strength: number;
+  setStrength: (value: number) => void;
+  seed: number;
+  setSeed: (value: number) => void;
+  count: number;
+  setCount: (value: number) => void;
+  shownExport: ExportState;
+  testDone: boolean;
+  setTestDone: (done: boolean) => void;
+  realLaunched: boolean;
+  setRealLaunched: (value: boolean) => void;
+  received: boolean;
+  setReceived: (value: boolean) => void;
+  canLaunch: boolean;
+  addFiles: (list: File[]) => Promise<void>;
+  updateImage: (id: string, patch: Partial<DatasetImage>) => void;
+  clearAll: () => void;
+  showImages: (ids: string[]) => void;
+  setRefs: (list: File[]) => void;
+  keepProposed: () => void;
+  rejectUntriaged: () => void;
+  setConfirm: (id: ConfirmationId, value: boolean) => void;
+  bootstrap: () => Promise<void>;
+  exportZip: () => Promise<void>;
+  buildFalZip: (onProgress: (done: number, total: number) => void) => Promise<Blob>;
+}
+
+const SessionContext = createContext<StudioSession | null>(null);
+
+export function useStudioSession() {
+  const value = useContext(SessionContext);
+  if (!value) throw new Error("Session studio absente.");
+  return value;
+}
+
+export function StudioSessionProvider({ children }: { children: ReactNode }) {
   const [showReview, setShowReview] = useState(false);
-  const [expertMounted, setExpertMounted] = useState(false);
-  const [showTests, setShowTests] = useState(false);
   const importing = useRef(false);
   const alive = useRef(true);
   const bootGeneration = useRef(0);
@@ -105,6 +155,7 @@ export function LoraGuide() {
     if (!incoming.length) return;
     importing.current = true;
     setProgress({ done: 0, total: incoming.length });
+    setShowReview(true);
     try {
       const { analyzeImage } = await import("@/lib/gate/browser");
       for (let i = 0; i < incoming.length; i++) {
@@ -152,10 +203,10 @@ export function LoraGuide() {
     refUrls.current.forEach(url => URL.revokeObjectURL(url));
     const imageFiles = list.filter(file => file.type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(file.name));
     const incoming = imageFiles.slice(0, FAL_VARY.maxRefs);
-    const previews = incoming.map(file => ({ name: file.name, url: URL.createObjectURL(file) }));
-    refUrls.current = previews.map(item => item.url);
+    const next = incoming.map(file => ({ name: file.name, url: URL.createObjectURL(file) }));
+    refUrls.current = next.map(item => item.url);
     setRefFiles(incoming);
-    setRefPreviews(previews);
+    setRefPreviews(next);
     const extra = list.length - incoming.length;
     setNotice(extra > 0 ? `Seules ${FAL_VARY.maxRefs} photos partent. Les autres sont ignorées.` : "");
   }
@@ -254,6 +305,11 @@ export function LoraGuide() {
     }
   }
 
+  async function buildFalZip(onProgress: (done: number, total: number) => void) {
+    const { buildFalZip: build } = await import("@/lib/gate/browser");
+    return build(result, files.current, onProgress);
+  }
+
   async function exportZip() {
     const kept = result.kept.length;
     setExportState({ state: "building", done: 0, total: kept });
@@ -276,88 +332,21 @@ export function LoraGuide() {
     }
   }
 
-  const exported = shownExport.state === "done" && !shownExport.stale;
   const safeRuntime = steps <= maxSafeSteps(plan, count);
-  const canLaunch = passed && exported && testDone && safeRuntime;
+  const canLaunch = passed && shownExport.state === "done" && !shownExport.stale && testDone && safeRuntime;
   const bootStatus = boot.phase === "sending" ? "Envoi des photos au proxy…" : boot.phase === "running" ? `${boot.message} ${boot.done} / ${DATASET_SIZE}.` : boot.message || notice;
-  const untriaged = images.some(image => image.decision === "a-trier");
 
-  return <section id="parcours" className="create-studio" aria-label="Créer une LoRA">
-    <header className="create-hero">
-      <p className="eyebrow">Créer · maintenant</p>
-      <h1 id="guide-title-0" tabIndex={-1}>Deux photos.<br /><em>Une identité.</em></h1>
-      <p className="create-lead">Dépose 2 ou 3 photos de la même personne. Le studio prépare 15 cadrages, tu vérifies, puis l’entraînement et l’image restent sur cette page.</p>
-      <p className="create-hold">Vente HOLD · essai jusqu’au 8 octobre 2026 · rien ne part sans un clic</p>
-    </header>
+  const value: StudioSession = {
+    trigger, setTrigger, invariants, setInvariants, token, setToken,
+    images, previews, confirmations, progress, notice, highlight, result, passed, captions, signature,
+    refPreviews, arrived, boot, bootStatus, showReview, setShowReview, falProxyOn: !!falProxyUrl,
+    plan, setPlan, steps, setSteps, scene, setScene, strength, setStrength, seed, setSeed, count, setCount,
+    shownExport, testDone, setTestDone, realLaunched, setRealLaunched, received, setReceived, canLaunch,
+    addFiles, updateImage, clearAll, showImages, setRefs, keepProposed,
+    rejectUntriaged: () => setImages(previous => previous.map(image => image.decision === "a-trier" ? { ...image, decision: "rejeter" } : image)),
+    setConfirm: (id, confirmed) => setConfirmations(previous => ({ ...previous, [id]: confirmed })),
+    bootstrap, exportZip, buildFalZip,
+  };
 
-    <CreatePanel
-      trigger={trigger} invariants={invariants} token={token} proxyOn={!!falProxyUrl}
-      busy={boot.phase !== "idle"} arrived={arrived} status={bootStatus} refs={refPreviews}
-      onTrigger={setTrigger} onInvariants={setInvariants} onToken={setToken} onRefs={setRefs}
-      onBootstrap={bootstrap} onManual={() => { setShowReview(true); document.getElementById("revue")?.scrollIntoView({ block: "start" }); }}
-    />
-
-    <details className="disclosure create-drawer">
-      <summary>Comment ça marche</summary>
-      <LoraTutorial embedded startLabel="Revenir aux photos" onStart={() => document.getElementById("create-drop")?.querySelector("input")?.focus()} />
-    </details>
-
-    {(showReview || images.length > 0) && <section id="revue" className="create-review" aria-labelledby="revue-title">
-      <header className="stage-heading">
-        <div>
-          <p className="eyebrow">Revue</p>
-          <h2 id="revue-title" tabIndex={-1}>Le lot, à l’œil.</h2>
-          <p>Le gate est le même : {DATASET_SIZE} images, angles, légendes. Garde ce qui est la même personne. Une fiche à la fois.</p>
-        </div>
-        <span className="stage-badge">{result.kept.length} / {DATASET_SIZE}</span>
-      </header>
-      {untriaged && <div className="review-keep"><button type="button" className="button button-outline" onClick={keepProposed}>Garder les images proposées</button><p>Celles qui sont illisibles ou trop petites restent de côté. Les 5 confirmations, en bas, restent à toi.</p></div>}
-      {notice && showReview && <p className="inline-status warn" role="status">{notice}</p>}
-      <div className="preparation-layout">
-        <DatasetStep reviewOnly trigger={trigger} invariants={invariants} images={images} previews={previews} result={result} highlight={highlight}
-          confirmations={confirmations} progress={progress} onTrigger={setTrigger} onInvariants={setInvariants} onFiles={addFiles} onUpdate={updateImage}
-          onRejectUntriaged={() => setImages(previous => previous.map(image => image.decision === "a-trier" ? { ...image, decision: "rejeter" } : image))}
-          onClear={clearAll} onConfirm={(id, value) => setConfirmations(previous => ({ ...previous, [id]: value }))} />
-        <GatePanel result={result} onShowImages={showImages} />
-      </div>
-    </section>}
-
-    <section id="entrainer" className="create-train" aria-labelledby="entrainer-title">
-      <header className="stage-heading">
-        <div>
-          <p className="eyebrow">Entraîner · ici</p>
-          <h2 id="entrainer-title">La LoRA, puis une image.</h2>
-          <p>Après un lot en PASS. <code>flux-lora-fast-training</code>, puis <code>flux-lora</code>. Le fichier <code>.safetensors</code> se télécharge sur cette page.</p>
-        </div>
-      </header>
-      {passed ? <>
-        <div className="create-scene">
-          <label htmlFor="create-scene">La scène de la première image, en anglais</label>
-          <input id="create-scene" value={scene} onChange={event => setScene(event.target.value)} placeholder="walking in a snowy park, soft daylight" maxLength={260} spellCheck={false} />
-          <p>La scène seulement. Le mot d’appel porte la personne.</p>
-        </div>
-        <FalRail hideTokenField token={token} onToken={setToken} onStage={onFalStage} passed={passed} trigger={trigger} scene={scene} seed={seed} signature={signature}
-          onBuildZip={async onProgress => { const { buildFalZip } = await import("@/lib/gate/browser"); return buildFalZip(result, files.current, onProgress); }} />
-      </> : <p className="loading-panel">L’entraînement s’ouvre quand les {DATASET_SIZE} images sont en PASS. Aucun envoi avant ce clic.</p>}
-    </section>
-
-    <details className="disclosure create-drawer expert-drawer" onToggle={event => { if (event.currentTarget.open) setExpertMounted(true); }}>
-      <summary>Expert / repli — Comfy</summary>
-      <p className="expert-note">Comfy ouvre un compte sur un autre site, avec ses propres traceurs au chargement du cadre. Ce n’est pas le chemin pour créer. Le cadre ne se charge qu’après un second clic.</p>
-      {expertMounted && passed && <>
-        <TrainStep captions={captions} steps={steps} plan={plan} count={count} exportState={shownExport} testDone={testDone}
-          onSteps={setSteps} onPlan={setPlan} onExport={exportZip} onTestDone={setTestDone} />
-        <ComfyRunPanel app="train" />
-        <ImageStep trigger={trigger} invariants={invariants} scene={scene} strength={strength} seed={seed} count={count} steps={steps} received={received}
-          onScene={setScene} onStrength={setStrength} onSeed={setSeed} onCount={setCount} onReceived={setReceived} />
-        <section className="launch-summary" aria-label="Lancement Comfy"><div><h3>Lancer dans Comfy ?</h3><p>{steps} étapes · {count} image{count > 1 ? "s" : ""} + témoin · <strong>{formatEstimate(estimateTrainRun(steps, count))}</strong></p><p className="small-print">Estimation non mesurée, crédits du compte Comfy. La LoRA reste limitée à ce run.</p></div>
-          {!canLaunch && <p className="inline-status warn">{!exported ? "Télécharge un ZIP à jour dans ce repli." : !testDone ? "Confirme d’abord les 3 sorties du test court." : "Réduis les étapes ou le nombre d’images pour respecter la durée du plan."}</p>}
-          <a className="button button-outline" href={COMFY_APPS.train.url} target="_blank" rel="noopener noreferrer">Ouvrir Comfy ↗</a>
-          <label className="check-inline"><input type="checkbox" checked={realLaunched && canLaunch} disabled={!canLaunch} onChange={event => setRealLaunched(event.target.checked)} /><span>J’ai lancé le run réel dans Comfy</span></label>
-        </section>
-        <details className="disclosure advanced-tools" onToggle={event => { if (event.currentTarget.open) setShowTests(true); }}><summary>Comparer les forces et tester la scène</summary>{showTests && <><TestGrid trigger={trigger} seed={seed} steps={steps} /><ComfyRunPanel app="prompt" /></>}</details>
-      </>}
-      {expertMounted && !passed && <p className="loading-panel">Le repli s’ouvre après un lot en PASS.</p>}
-    </details>
-  </section>;
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
