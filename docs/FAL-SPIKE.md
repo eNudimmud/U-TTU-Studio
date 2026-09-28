@@ -69,7 +69,7 @@ Le mode réel demande `--live` et `FAL_KEY` dans l’environnement du shell. `--
 | Bundle Worker | **PASS** — Wrangler 4.141.0, `deploy --dry-run` : 24,41 Kio (8,51 Kio gzip), sans déploiement. |
 | CI de branche | Aucun workflow de PR au checkpoint. `pages.yml` exécute les tests sur `main` et sur lancement manuel ; les tests locaux ne sont pas un statut CI GitHub. |
 | Secrets dans le client | Uniquement l’URL publique autorisée. `.env*`, `.dev.vars*`, `.wrangler/` et les sorties smoke sont ignorés. |
-| Worker | Non déployé dans cette reprise. JD doit suivre la [procédure en 8 commandes](../workers/fal-proxy/README.md#déployer-jd--8-commandes). |
+| Worker | Non déployé dans cette reprise. JD déploie par [GitHub Actions](../workers/fal-proxy/README.md#déployer-via-github-actions), ou par les [8 commandes](../workers/fal-proxy/README.md#déployer-jd--8-commandes) si Wrangler tourne en local. |
 | Secrets Cloudflare | `FAL_KEY` et `ACCESS_TOKEN` à configurer par JD ; leur présence distante n’est pas vérifiée ici. |
 | CORS | Origines exactes `https://u-ttu-studio.vercel.app` et `https://enudimmud.github.io` (sans `/U-TTU-Studio`). Vérifications HTTP sans appel fal dans le README Worker. |
 | Variable Vercel | `NEXT_PUBLIC_FAL_PROXY_URL` en Production et Preview, après validation du Worker. Le chemin live n’est plus la variable Actions de Pages. Valeur distante non vérifiée. Vide = fal reste désactivé. |

@@ -1,0 +1,111 @@
+name: Déployer le proxy fal
+
+# Termux ne lance pas workerd. Ce workflow déploie le Worker
+# uttu-fal-proxy (workers/fal-proxy) sans Wrangler sur la machine de JD.
+# Le code part d’abord. FAL_KEY et ACCESS_TOKEN suivent, s’ils existent
+# comme secrets du dépôt. Un secret absent n’échoue pas le job : les
+# routes protégées répondent alors 503. Aucune valeur secrète n’est
+# écrite dans le journal.
+#
+# Ne pas passer `secrets:` à wrangler-action. Cet envoi a lieu avant
+# `deploy` et fait échouer le job quand la variable est vide, y compris
+# au premier amorçage.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "workers/fal-proxy/**"
+      - ".github/workflows/deploy-fal-proxy.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fal-proxy-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Déployer uttu-fal-proxy
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/fal-proxy
+          command: deploy
+          wranglerVersion: "3.90.0"
+          packageManager: npm
+
+      - name: URL pour Vercel
+        env:
+          WORKER_URL: ${{ steps.deploy.outputs.deployment-url }}
+          DEPLOY_LOG: ${{ steps.deploy.outputs.command-output }}
+          DEPLOY_ERR: ${{ steps.deploy.outputs.command-stderr }}
+        run: |
+          set -euo pipefail
+          echo "URL Worker — coller dans Vercel, variable NEXT_PUBLIC_FAL_PROXY_URL (Production et Preview), sans chemin :"
+          if [ -n "$WORKER_URL" ]; then
+            printf '%s\n' "$WORKER_URL"
+          else
+            echo "::warning::L’action n’a pas renvoyé deployment-url. Copier l’URL https://….workers.dev dans la sortie Wrangler ci-dessous."
+            printf '%s\n' "$DEPLOY_LOG" | grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' | sort -u || true
+          fi
+          echo "Sortie Wrangler (stdout) :"
+          printf '%s\n' "$DEPLOY_LOG"
+          echo "Sortie Wrangler (stderr) :"
+          printf '%s\n' "$DEPLOY_ERR"
+          {
+            echo "### uttu-fal-proxy"
+            echo ""
+            echo "Coller l’URL dans Vercel, variable \`NEXT_PUBLIC_FAL_PROXY_URL\` (Production et Preview), sans \`/train\`, \`/status\`, \`/gen\` ni \`/bootstrap\`."
+            echo ""
+            if [ -n "$WORKER_URL" ]; then
+              echo "\`$WORKER_URL\`"
+            else
+              echo "URL absente de \`deployment-url\`. La prendre dans le journal de cette étape (hôte \`workers.dev\`)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Synchroniser FAL_KEY et ACCESS_TOKEN
+        working-directory: workers/fal-proxy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          missing=0
+          sync_secret() {
+            local name="$1"
+            local value="$2"
+            if [ -z "$value" ]; then
+              echo "::warning title=Secret Worker manquant::${name} est absent des secrets GitHub. Le code est déployé. Les routes protégées répondront 503 tant que FAL_KEY et ACCESS_TOKEN ne sont pas tous les deux posés."
+              missing=1
+              return 0
+            fi
+            printf '%s' "$value" | npx --yes wrangler@3.90.0 secret put "$name"
+            echo "Secret Worker ${name} synchronisé. Valeur non affichée."
+          }
+          sync_secret FAL_KEY "${FAL_KEY-}"
+          sync_secret ACCESS_TOKEN "${ACCESS_TOKEN-}"
+          if [ -n "${ACCESS_TOKEN-}" ] && [ "${#ACCESS_TOKEN}" -lt 24 ]; then
+            echo "::warning title=ACCESS_TOKEN trop court::ACCESS_TOKEN compte moins de 24 caractères. Les routes protégées répondront 503."
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            echo "Amorçage : le job reste vert. Ajouter les secrets manquants (Settings → Secrets and variables → Actions), puis relancer Déployer le proxy fal."
+          fi
