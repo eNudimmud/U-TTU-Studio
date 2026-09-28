@@ -353,19 +353,25 @@ h1:focus, h2:focus { outline: none; }
 .doctrine-note p { font-size: 14px; color: var(--muted); }
 .doctrine-note strong { color: var(--text); font-weight: 600; }
 .fiche-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
-.fiche-card { border: 1px solid var(--line); background: var(--surface); padding: 24px 22px 22px; display: grid; gap: 12px; align-content: start; }
+.fiche-card { border: 1px solid var(--line); background: var(--surface); padding: 24px 22px 22px; display: grid; gap: 12px; align-content: start; min-width: 0; }
 .fiche-card h2 { font-size: 28px; letter-spacing: -.03em; }
 .fiche-card p, .fiche-card .fiche-kicker { color: var(--muted); font-size: 14px; }
 .fiche-card .soon-mark { margin-top: 0; }
 .fiche-card .button { justify-self: start; }
 .fiche-card label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
 .fiche-card input { width: 100%; height: 44px; background: #101010; border: 1px solid #776b5b; color: var(--text); padding: 10px 12px; font-size: 16px; }
-.fiche-angles { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
-.fiche-angles li { font-size: 13px; color: var(--muted); }
-.fiche-angles li::before { content: "· "; color: var(--gold); }
+.fiche-angles { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fiche-angles li { min-width: 0; }
 .fiche-spatial { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .fiche-vault a { color: var(--gold); }
 .fiche-card .eyebrow a { color: inherit; }
+.fiche-card textarea { width: 100%; min-height: 112px; background: #101010; border: 1px solid #776b5b; color: var(--text); padding: 10px 12px; font-size: 16px; resize: vertical; }
+.fiche-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; }
+.fiche-import { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+.fiche-import summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--gold); font-size: 14px; }
+.fiche-file input { height: auto; padding: 8px 0; }
+.fiche-status { color: var(--text); }
+.vault-pointer { margin: 10px 0 0; color: var(--muted); font-size: 14px; max-width: 42rem; }
 .budget-journal { margin-top: 16px; border: 1px solid var(--line); background: var(--surface); padding: 28px 24px; display: grid; gap: 12px; }
 .budget-journal h2 { font-size: 28px; letter-spacing: -.03em; }
 .budget-journal p { color: var(--muted); font-size: 14px; max-width: 40rem; }
@@ -473,6 +479,7 @@ button.vault-row:hover strong { color: var(--gold-soft); }
   .vault-download { padding: 22px 20px; }
   .vault-download .button { width: 100%; }
   .vault-map header { padding-inline: 20px; }
+  .fiche-card .button { width: 100%; }
   .soon-card, .dash-card { min-height: 0; }
   .create-process { padding: 22px 20px; }
   .create-process .button, .create-process-actions .button, .burn-actions .button { width: 100%; }
@@ -490,6 +497,7 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 }
 @media (max-width: 700px) {
   .studio-nav-item { padding: 8px 10px; font-size: 13px; }
+  .fiche-angles { grid-template-columns: 1fr; }
   .create-questions { margin-top: 40px; }
   .library-empty { min-height: 280px; padding: 32px 18px; }
 }

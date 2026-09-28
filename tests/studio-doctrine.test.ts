@@ -118,11 +118,17 @@ describe("doctrine dans les panneaux", () => {
     assert.match(fiches, /fiche\.vault/);
     assert.match(fiches, /À gauche/);
     assert.match(fiches, /À droite/);
+    assert.match(fiches, /Quatre angles/);
     assert.match(fiches, /Bientôt/);
     assert.match(fiches, /onOpenEntre/);
     assert.match(fiches, /processAction/);
     assert.match(fiches, /state === "live"/);
-    assert.doesNotMatch(fiches, /share=|cloud\.comfy\.org|fetch\(/);
+    assert.match(fiches, /localStorage/);
+    assert.match(fiches, /sceneMarkdown/);
+    assert.match(fiches, /parseSceneMarkdown/);
+    assert.match(fiches, /type="file"/);
+    assert.match(fiches, /SCENE_EXPORT/);
+    assert.doesNotMatch(fiches, /share=|cloud\.comfy\.org|fetch\(|stripe/i);
     assert.match(account, /Budget/);
     assert.match(account, /Tes runs/);
     assert.match(account, /Ton studio cloud/);

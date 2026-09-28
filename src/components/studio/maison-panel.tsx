@@ -1,6 +1,7 @@
 "use client";
 
 import { CREATION_PROCESSES, processStateLabel } from "@/lib/processes";
+import { SCENE_VAULT_POINTER } from "@/lib/scenes";
 import { assetPath } from "@/lib/site";
 import { OBSIDIAN_STEPS, STARTER_VAULT_FILE, STARTER_VAULT_HREF, VAULT_DOCUMENTS, VAULT_FOLDERS, VAULT_MODE_MAP, VAULT_ROOT } from "@/lib/vault";
 import { Arrow } from "../glyph";
@@ -39,6 +40,7 @@ export function MaisonPanel() {
       <header>
         <p className="eyebrow">Modes</p>
         <h2 id="vault-map-title">Où chaque geste se range.</h2>
+        <p className="vault-pointer">{SCENE_VAULT_POINTER}</p>
       </header>
       <ul>
         {VAULT_MODE_MAP.map(item => <li key={item.mode}>
