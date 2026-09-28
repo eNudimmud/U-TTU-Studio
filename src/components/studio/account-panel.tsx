@@ -21,12 +21,13 @@ function AccountSession() {
   if (!isSignedIn || !user) return <AccountBody phase="signed-out" />;
   return <AccountBody
     phase="signed-in"
+    userId={user.id}
     name={user.fullName || user.username || "Compte ouvert"}
     email={user.primaryEmailAddress?.emailAddress ?? null}
   />;
 }
 
-function AccountBody({ phase, name, email }: { phase: "unconfigured" | "signed-out" | "signed-in"; name?: string; email?: string | null }) {
+function AccountBody({ phase, name, email, userId }: { phase: "unconfigured" | "signed-out" | "signed-in"; name?: string; email?: string | null; userId?: string }) {
   const go = useGoToMode();
   const signedIn = phase === "signed-in";
 
@@ -61,7 +62,7 @@ function AccountBody({ phase, name, email }: { phase: "unconfigured" | "signed-o
       <article className="account-card" aria-labelledby="account-runs">
         <p className="eyebrow">Journal</p>
         <h2 id="account-runs">Tes runs</h2>
-        <p>Aucun run. Le cloud n’est pas ouvert. Rien n’est inventé ici. Le journal reste dans le coffre.</p>
+        <p>Aucun run cloud. Rien n’est inventé. Ce que tu notes est plus bas, sur cet appareil.</p>
       </article>
       <article className="account-card" aria-labelledby="account-cloud">
         <p className="eyebrow">Nuage</p>
@@ -70,7 +71,7 @@ function AccountBody({ phase, name, email }: { phase: "unconfigured" | "signed-o
       </article>
     </div>}
 
-    {signedIn ? <BudgetJournal /> : <article className="account-card account-budget" aria-labelledby="account-budget">
+    {signedIn && userId ? <BudgetJournal userId={userId} /> : <article className="account-card account-budget" aria-labelledby="account-budget">
       <p className="eyebrow">Budget</p>
       <h2 id="account-budget">Le journal, une fois connecté.</h2>
       <p>{BUDGET_ANON}</p>
