@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
-import { CREATION_PROCESSES, processById } from "@/lib/processes";
+import { CREATION_PROCESSES, processById, sphereLead } from "@/lib/processes";
 import { ProcessCard } from "./process-card";
 import { SceneFiches } from "./scene-fiches";
 import { useProcessLaunch } from "./process-launch";
@@ -14,8 +14,9 @@ const ComfyRunPanel = dynamic(() => import("../guide/comfy-run-panel").then(m =>
 export function SpherePanel() {
   const go = useGoToMode();
   const launch = useProcessLaunch();
+  const entre = processById("entre");
   const opened = launch.id ? processById(launch.id) : undefined;
-  const shown = opened?.state === "live" && opened.app ? opened : undefined;
+  const shown = opened?.state === "live" && opened.app && opened.appUrl ? opened : undefined;
 
   useEffect(() => {
     if (!shown) return;
@@ -33,10 +34,10 @@ export function SpherePanel() {
     <header className="mode-hero">
       <p className="eyebrow">Sphère</p>
       <h1 id="mode-title" tabIndex={-1}>Avant. Après. <em>Entre.</em></h1>
-      <p className="mode-lead">Deux gestes sont prêts : former un look, tester un prompt. Les fiches tiennent le lieu. Avant, après, entre attendent. Rien ne part avant le clic.</p>
+      <p className="mode-lead">{sphereLead(entre)}</p>
       <button type="button" className="text-button" onClick={() => go("studio")}>Le coffre note les scènes et les processus.</button>
     </header>
-    <SceneFiches />
+    <SceneFiches onOpenEntre={entre?.state === "live" ? () => open(entre.id) : undefined} />
     <div className="soon-grid process-grid">
       {CREATION_PROCESSES.map(process => <ProcessCard key={process.id} process={process} onLaunch={process.state === "live" ? () => open(process.id) : undefined} />)}
     </div>

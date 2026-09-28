@@ -1,6 +1,6 @@
 "use client";
 
-import { CREATION_PROCESSES } from "@/lib/processes";
+import { CREATION_PROCESSES, processStateLabel } from "@/lib/processes";
 import { assetPath } from "@/lib/site";
 import { OBSIDIAN_STEPS, STARTER_VAULT_FILE, STARTER_VAULT_HREF, VAULT_DOCUMENTS, VAULT_FOLDERS, VAULT_MODE_MAP, VAULT_ROOT } from "@/lib/vault";
 import { Arrow } from "../glyph";
@@ -56,7 +56,7 @@ export function MaisonPanel() {
       <ul>
         {CREATION_PROCESSES.map(process => <li key={process.id}>
           <strong>{process.title}</strong>
-          <span className="process-state">{process.state === "live" ? "Prêt" : "Bientôt"}</span>
+          <span className="process-state">{processStateLabel(process.state)}</span>
           <span>{process.pitch}</span>
         </li>)}
       </ul>

@@ -1,8 +1,9 @@
-// Catalogue of creation processes. Live entries are the two Comfy App Mode
-// apps already shared. Scene entries stay soon: neither app holds a passage
-// between two images, and this delivery does not publish a third app.
+// Catalogue of creation processes. Former and Tester are the two published
+// Comfy App Mode shares. Entre becomes the same kind of card only when a
+// third share is configured, and never by reusing those two. Without one,
+// the card stays on « Partage manquant » and nothing is embedded.
 
-import { COMFY_APPS } from "./comfy-stack.ts";
+import { COMFY_APPS, entreShareUrl } from "./comfy-stack.ts";
 import { SPHERE_PRESETS, STUDIO_MODES, type StudioMode } from "./studio-modes.ts";
 
 export const VAULT_PROCESS_NOTE = {
@@ -10,8 +11,10 @@ export const VAULT_PROCESS_NOTE = {
   journal: "jobs.md",
 } as const;
 
-export type ProcessState = "live" | "soon";
+export type ProcessState = "live" | "soon" | "gap";
 export type ComfyAppKey = keyof typeof COMFY_APPS;
+
+export const ENTRE_GAP_NOTE = "Le passage est au catalogue. Le partage Comfy n’existe pas encore. Aucune adresse n’est posée à sa place.";
 
 export interface CreationProcess {
   id: string;
@@ -28,7 +31,7 @@ export interface CreationProcess {
 
 const CONSENT = "Compte Comfy, crédits à toi. Le cadre ne charge rien avant un second clic : Comfy peut alors appeler ses traceurs.";
 
-const scene = (id: "avant" | "apres" | "entre"): CreationProcess => {
+const scene = (id: "avant" | "apres"): CreationProcess => {
   const preset = SPHERE_PRESETS.find(item => item.id === id);
   if (!preset) throw new Error(`scène absente : ${id}`);
   return {
@@ -44,6 +47,25 @@ const scene = (id: "avant" | "apres" | "entre"): CreationProcess => {
     consent: null,
   };
 };
+
+export function entreEntry(raw: string | null): CreationProcess {
+  const preset = SPHERE_PRESETS.find(item => item.id === "entre");
+  if (!preset) throw new Error("scène absente : entre");
+  const appUrl = entreShareUrl(raw, [COMFY_APPS.train.url, COMFY_APPS.prompt.url]);
+  const live = appUrl !== null;
+  return {
+    id: "entre",
+    title: preset.title,
+    pitch: preset.line,
+    modes: ["sphere"],
+    state: live ? "live" : "gap",
+    app: live ? "entre" : null,
+    appUrl,
+    workflowId: null,
+    vault: VAULT_PROCESS_NOTE,
+    consent: live ? CONSENT : null,
+  };
+}
 
 export const CREATION_PROCESSES = [
   {
@@ -70,7 +92,7 @@ export const CREATION_PROCESSES = [
     vault: VAULT_PROCESS_NOTE,
     consent: CONSENT,
   },
-  scene("entre"),
+  entreEntry(COMFY_APPS.entre.url),
   scene("avant"),
   scene("apres"),
 ] as const satisfies readonly CreationProcess[];
@@ -94,7 +116,24 @@ export function processShareId(process: { appUrl: string | null }): string | nul
   return new URL(process.appUrl).searchParams.get("share");
 }
 
-export function processAction(process: { state: ProcessState }, hold = false): { label: "Lancer" | "Bientôt" | "Après le lot"; enabled: boolean } {
+export function processGap(process: { id: string; state: ProcessState }): string | null {
+  if (process.state !== "gap" || process.id !== "entre") return null;
+  return ENTRE_GAP_NOTE;
+}
+
+export function processStateLabel(state: ProcessState): "Prêt" | "Bientôt" | "Partage manquant" {
+  if (state === "live") return "Prêt";
+  if (state === "gap") return "Partage manquant";
+  return "Bientôt";
+}
+
+export function sphereLead(entre: { state: ProcessState } | undefined): string {
+  if (entre?.state === "live") return "Former, Tester et Entre deux images s’ouvrent ici. Avant et Après attendent. Rien ne part avant le clic.";
+  return "Former et Tester s’ouvrent ici. Entre deux images est au catalogue : le partage Comfy manque. Avant et Après attendent. Rien ne part avant le clic.";
+}
+
+export function processAction(process: { state: ProcessState }, hold = false): { label: "Lancer" | "Bientôt" | "Après le lot" | "Partage manquant"; enabled: boolean } {
+  if (process.state === "gap") return { label: "Partage manquant", enabled: false };
   if (process.state === "soon") return { label: "Bientôt", enabled: false };
   if (hold) return { label: "Après le lot", enabled: false };
   return { label: "Lancer", enabled: true };
