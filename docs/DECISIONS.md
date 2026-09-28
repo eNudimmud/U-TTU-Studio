@@ -8,6 +8,17 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 - **Décision :** le ZIP de départ ne change pas. `scenes/` reste un dossier vide. Le format du `.md` est celui que la personne y dépose.
 - **Décision :** Entre ne reçoit pas de partage inventé. Le catalogue ne gagne pas d’adresse Comfy. Cette entrée est le pont que le journal de budget laissait de côté. Le journal ne bouge pas.
 - **Décision inchangée :** vente HOLD. Pas de Stripe. Pas de Worker fal. Pas de domaine propre. Créer reste ouvert, sans mur.
+- **Fait :** le 28 septembre 2026, dans le navigateur, une fiche Avant se remplit, s’exporte en `avant.md`, refuse le markdown d’une autre fiche, relit un collage et un fichier, et garde le texte après rechargement. Le pointeur est dans Studio. Aucun appel réseau.
+
+![Fiche Avant remplie, écran large](screenshots/sphere-fiche-edit-desktop.png)
+
+![Export .md, écran large](screenshots/sphere-fiche-export-desktop.png)
+
+<img src="screenshots/sphere-fiche-edit-mobile.png" width="390" alt="Fiche Avant remplie, écran étroit" />
+
+<img src="screenshots/sphere-fiche-export-mobile.png" width="390" alt="Export .md, écran étroit" />
+
+![Pointeur scenes/ dans Studio](screenshots/sphere-vault-pointer-desktop.png)
 
 ## Journal de budget — compte ouvert — 28 septembre 2026
 
