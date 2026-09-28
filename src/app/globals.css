@@ -370,10 +370,13 @@ h1:focus, h2:focus { outline: none; }
 .budget-journal h2 { font-size: 28px; letter-spacing: -.03em; }
 .budget-journal p { color: var(--muted); font-size: 14px; max-width: 40rem; }
 .budget-lines { list-style: none; margin: 4px 0 0; padding: 0; }
-.budget-lines li { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.budget-lines li { display: grid; grid-template-columns: 7.5rem minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.budget-lines time, .budget-lines span { color: var(--muted); font-size: 14px; }
+.budget-lines time { font-variant-numeric: tabular-nums; }
 .budget-lines strong { font-family: var(--font-heading); font-weight: 500; font-size: 18px; }
-.budget-lines span { color: var(--muted); font-size: 14px; }
-.budget-form { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 12px; align-items: end; margin-top: 8px; }
+.budget-form { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 11rem auto; gap: 12px; align-items: end; margin-top: 8px; }
+.budget-actions { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: center; }
+.budget-actions p { flex: 1 0 100%; margin: 0; }
 .budget-form label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
 .budget-form input { width: 100%; height: 44px; background: #101010; border: 1px solid #776b5b; color: var(--text); padding: 10px 12px; font-size: 16px; }
 .account-budget { margin-top: 16px; }
@@ -476,6 +479,7 @@ button.vault-row:hover strong { color: var(--gold-soft); }
   .doctrine-burn, .budget-journal { padding: 22px 20px; }
   .canon-list li { grid-template-columns: 1fr; gap: 2px; }
   .fiche-spatial, .budget-form, .budget-lines li { grid-template-columns: 1fr; }
+  .budget-actions .text-button { min-height: 44px; }
   .budget-form .button { width: 100%; }
   .vault-processes { padding: 22px 20px 8px; }
   .vault-processes li { grid-template-columns: 1fr; gap: 4px; }

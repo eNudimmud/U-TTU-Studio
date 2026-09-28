@@ -22,7 +22,7 @@ Sans les deux clés, `npm test`, `npm run typecheck` et `npm run build` passent.
 - `src/proxy.ts` — `clerkMiddleware` seulement si les deux clés sont présentes. Aucune route n’est protégée. Créer reste anonyme.
 - `src/app/layout.tsx` — `ClerkProvider` seulement si la clé publique est posée. Localisation `frFR`. Apparence sombre.
 - `/sign-in` et `/sign-up` — flux OAuth Clerk standard. Google et GitHub apparaissent quand ils sont activés dans le dashboard Clerk. Le code ne parle pas à Google ni à GitHub directement.
-- `#compte` — anonyme : « Se connecter », « Créer un compte », rappel que Créer et le ZIP marchent sans compte. Connecté : profil, `UserButton`, « Tes runs » vide, « Ton studio cloud » vide, liens vers `refs/`, `dataset/`, `loras/`, `scenes/`, `processes/`, `jobs.md`, `CANON.md`, et le ZIP `public/vault/U-TTU-Studio.zip`.
+- `#compte` — anonyme : « Se connecter », « Créer un compte », rappel que Créer et le ZIP marchent sans compte, et le budget qui attend la session. Connecté : profil, `UserButton`, « Tes runs » sans run cloud, « Ton studio cloud » vide, journal local (libellé, estimation, date) dans `localStorage` sous l’identifiant Clerk, extrait `jobs-extrait.md` à copier ou télécharger, liens vers `refs/`, `dataset/`, `loras/`, `scenes/`, `processes/`, `jobs.md`, `CANON.md`, et le ZIP `public/vault/U-TTU-Studio.zip`. Le compte n’écrit pas dans le coffre.
 - Après connexion, retour vers `/#compte`. Après déconnexion, retour vers `/#creer`.
 
 Pas de Stripe. Pas de jobs cloud. Pas de sync du coffre.
@@ -99,13 +99,15 @@ Les noms vides sont dans [`.env.example`](../.env.example). Les valeurs ne vont 
 ## Vérifier
 
 - Anonyme : `#creer` s’ouvre, le dépôt n’exige pas de session, le ZIP du coffre se télécharge depuis Studio et depuis Compte.
-- Connecté : `#compte` montre le nom, le bouton de compte, deux listes vides, les sept liens du schéma.
+- Connecté : `#compte` montre le nom, le bouton de compte, deux listes vides (aucun run cloud, aucun fichier serveur), le journal local de ce compte, les sept liens du schéma. L’extrait markdown reste dans le navigateur.
 - Déconnexion : retour à Créer.
 - `npm test` et `npm run typecheck` sans aucune clé.
 
 ## Captures sans clés
 
 Le 28 septembre 2026, aucune clé Clerk n’est dans ce dépôt. La session connectée (profil, `UserButton`, listes vides) est dans le code. Elle ne s’affiche qu’avec une session. Ici : l’anonyme sur Compte, et la page `/sign-in` en placeholder.
+
+Le journal signé (vide, puis une ligne) est dans [DECISIONS.md](DECISIONS.md). Sans clés, ces cadres passent par un identifiant local qui n’est pas livré. Ici, l’anonyme.
 
 ![Compte, anonyme, clés absentes](screenshots/compte-anonyme-desktop.png)
 
