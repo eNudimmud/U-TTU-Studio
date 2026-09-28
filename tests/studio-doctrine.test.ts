@@ -60,7 +60,7 @@ describe("fiches de lieu", () => {
     assert.match(CONTINUITY_TIP, /[Pp]rolonger/);
     assert.match(VIDEO_BURN_NOTE, /Bientôt/);
     const entre = CREATION_PROCESSES.find(process => process.id === "entre");
-    assert.equal(entre?.state, "soon");
+    assert.equal(entre?.state, "gap");
     assert.equal(processShareId(entre!), null);
     assert.equal(CREATION_PROCESSES.filter(process => process.appUrl).length, 2);
     const copy = `${CONTINUITY_TIP} ${VIDEO_BURN_NOTE} ${SCENE_FICHES.map(fiche => fiche.spatial).join(" ")}`;
@@ -119,6 +119,9 @@ describe("doctrine dans les panneaux", () => {
     assert.match(fiches, /À gauche/);
     assert.match(fiches, /À droite/);
     assert.match(fiches, /Bientôt/);
+    assert.match(fiches, /onOpenEntre/);
+    assert.match(fiches, /processAction/);
+    assert.match(fiches, /state === "live"/);
     assert.doesNotMatch(fiches, /share=|cloud\.comfy\.org|fetch\(/);
     assert.match(account, /Budget/);
     assert.match(account, /Tes runs/);

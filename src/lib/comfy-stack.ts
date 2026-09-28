@@ -52,16 +52,56 @@ export const APP_LABELS = {
   promptTest: "Test de prompt sans LoRA",
 } as const;
 
+const SHARE_ID = /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/;
+
+/** A public App Mode link, or null. Anything else is dropped: no invented host, no bare id. */
+export function resolveComfyShare(raw: string | undefined | null): string | null {
+  const value = raw?.trim() ?? "";
+  if (!value) return null;
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== "https:" || url.hostname !== "cloud.comfy.org") return null;
+  const share = url.searchParams.get("share");
+  if (!share || !SHARE_ID.test(share)) return null;
+  return `https://cloud.comfy.org/?share=${share}`;
+}
+
+/** Entre may not reuse Former or Tester. Those apps do not hold a passage between two images. */
+export function entreShareUrl(raw: string | undefined | null, takenUrls: readonly string[]): string | null {
+  const url = resolveComfyShare(raw);
+  if (!url) return null;
+  const share = new URL(url).searchParams.get("share");
+  const taken = new Set(takenUrls.flatMap(item => {
+    const id = resolveComfyShare(item);
+    return id ? [new URL(id).searchParams.get("share")] : [];
+  }).filter((id): id is string => Boolean(id)));
+  if (!share || taken.has(share)) return null;
+  return url;
+}
+
+const TRAIN_APP = {
+  title: "C·micro — Dataset → LoRA → 1 image (Flux.1 dev)",
+  url: process.env.NEXT_PUBLIC_COMFY_TRAIN_APP_URL || "https://cloud.comfy.org/?share=798eb224b972",
+  file: "/comfy/c-micro-train-image.json",
+} as const;
+
+const PROMPT_APP = {
+  title: "C·micro — Test de prompt sans LoRA (Flux.1 dev)",
+  url: process.env.NEXT_PUBLIC_COMFY_PROMPT_APP_URL || "https://cloud.comfy.org/?share=25954f3b0278",
+  file: "/comfy/c-micro-prompt-test.json",
+} as const;
+
 export const COMFY_APPS = {
-  train: {
-    title: "C·micro — Dataset → LoRA → 1 image (Flux.1 dev)",
-    url: process.env.NEXT_PUBLIC_COMFY_TRAIN_APP_URL || "https://cloud.comfy.org/?share=798eb224b972",
-    file: "/comfy/c-micro-train-image.json",
-  },
-  prompt: {
-    title: "C·micro — Test de prompt sans LoRA (Flux.1 dev)",
-    url: process.env.NEXT_PUBLIC_COMFY_PROMPT_APP_URL || "https://cloud.comfy.org/?share=25954f3b0278",
-    file: "/comfy/c-micro-prompt-test.json",
+  train: TRAIN_APP,
+  prompt: PROMPT_APP,
+  entre: {
+    title: "C·micro — Entre deux images",
+    url: entreShareUrl(process.env.NEXT_PUBLIC_COMFY_ENTRE_APP_URL, [TRAIN_APP.url, PROMPT_APP.url]),
+    file: "",
   },
 } as const;
 

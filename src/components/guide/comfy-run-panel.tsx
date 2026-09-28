@@ -20,6 +20,11 @@ const PANELS: Record<ComfyApp, { heading: string; note: string; event: StudioEve
     note: "Ton compte Comfy Cloud, tes crédits. Sans LoRA : ce test règle la scène. L’image avec ta LoRA sort de l’app d’entraînement.",
     event: "prompt_app_opened",
   },
+  entre: {
+    heading: "Entre deux images",
+    note: "Deux images, le temps qui les relie. Ton compte Comfy, tes crédits. Rien n’est chargé avant le clic.",
+    event: "entre_app_opened",
+  },
 };
 
 const LOGIN_NOTE = "Connexion à refaire dans le cadre, même si Comfy est ouvert dans un autre onglet. Si elle échoue, « Ouvrir en plein onglet » ouvre la même app.";
@@ -52,9 +57,13 @@ export function ComfyRunPanel({ app, heading, note, showFile = true }: { app: Co
         <p className="eyebrow">App Comfy Cloud · ton compte et tes crédits</p>
         <h4 id={`comfy-${app}-title`}>{label}</h4>
       </div>
-      <a className="button button-outline" href={url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(event)}>Ouvrir en plein onglet <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
+      {url
+        ? <a className="button button-outline" href={url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(event)}>Ouvrir en plein onglet <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
+        : <p className="soon-mark">Partage manquant</p>}
     </header>
-    {!framable
+    {!url
+      ? <p className="inline-status warn">Aucun partage Comfy. Rien n’est chargé.</p>
+      : !framable
       ? <p className="inline-status warn">Page en HTTP : Comfy ne s’affiche dans un cadre que depuis une page HTTPS. Utilise « Ouvrir en plein onglet ».</p>
       : loads
         ? <iframe key={loads} ref={frame} className="comfy-run-frame" src={url} title={title} allow="clipboard-write; fullscreen" />
@@ -66,7 +75,7 @@ export function ComfyRunPanel({ app, heading, note, showFile = true }: { app: Co
       <p className="small-print">{detail} {LOGIN_NOTE}</p>
       <div className="comfy-run-links">
         {loads > 0 && <button type="button" className="text-button" onClick={() => setLoads(count => count + 1)}>Recharger l’app</button>}
-        {showFile && <a className="quiet-link" href={assetPath(file)} download>Workflow .json</a>}
+        {showFile && file && <a className="quiet-link" href={assetPath(file)} download>Workflow .json</a>}
       </div>
     </div>
   </section>;

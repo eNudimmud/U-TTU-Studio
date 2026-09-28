@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CONTINUITY_TIP, SCENE_FICHES } from "@/lib/doctrine";
+import { processAction, processById, processGap } from "@/lib/processes";
 
 interface SheetNote {
   lieu: string;
@@ -11,8 +12,10 @@ interface SheetNote {
 
 const EMPTY: SheetNote = { lieu: "", left: "", right: "" };
 
-export function SceneFiches() {
+export function SceneFiches({ onOpenEntre }: { onOpenEntre?: () => void }) {
   const [notes, setNotes] = useState<Record<string, SheetNote>>({});
+  const entre = processById("entre");
+  const entreGap = entre ? processGap(entre) : null;
 
   function patch(id: string, field: keyof SheetNote, value: string) {
     setNotes(previous => ({ ...previous, [id]: { ...EMPTY, ...previous[id], [field]: value } }));
@@ -31,7 +34,10 @@ export function SceneFiches() {
         return <article key={fiche.id} className="fiche-card" data-fiche={fiche.id} aria-labelledby={`fiche-${fiche.id}`}>
           <p className="eyebrow"><a href="#studio"><code>{fiche.vault}</code></a></p>
           <h2 id={`fiche-${fiche.id}`}>{fiche.title}</h2>
-          <p className="soon-mark">Bientôt</p>
+          {fiche.id === "entre" && entre?.state === "live" && onOpenEntre
+            ? <button type="button" className="button button-primary" onClick={onOpenEntre}>{processAction(entre).label}</button>
+            : <p className="soon-mark">{fiche.id === "entre" && entre ? processAction(entre).label : "Bientôt"}</p>}
+          {fiche.id === "entre" && entreGap && <p>{entreGap}</p>}
           <p>{fiche.video}</p>
           <label htmlFor={lieuId}>Lieu
             <input id={lieuId} value={note.lieu} onChange={event => patch(fiche.id, "lieu", event.target.value)} placeholder="Nom du lieu" maxLength={80} autoComplete="off" spellCheck={false} />
