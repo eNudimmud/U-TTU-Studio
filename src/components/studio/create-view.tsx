@@ -3,10 +3,12 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { DATASET_SIZE, COMFY_APPS, estimateTrainRun } from "@/lib/comfy-stack";
+import { BURN_CONFIRM_LABEL, BURN_HOLD_LABEL, BURN_WARN, admitBurn, lookHeld } from "@/lib/doctrine";
 import { formatEstimate } from "@/lib/gate/report";
 import { processAction, processById } from "@/lib/processes";
 import { Arrow } from "../glyph";
 import { CreatePanel } from "./create-panel";
+import { DoctrineBurn } from "./doctrine-burn";
 import { LotReview } from "./lot-review";
 import { useGoToMode } from "./mode-context";
 import { useProcessLaunch } from "./process-launch";
@@ -26,16 +28,42 @@ export function CreateView() {
   const go = useGoToMode();
   const launch = useProcessLaunch();
   const former = processById("former");
+  const tester = processById("tester");
   const formerAction = former ? processAction(former, !session.passed) : null;
+  const canon = { refCount: session.refPreviews.length, trigger: session.trigger, invariants: session.invariants, canonNoted: session.canonNoted };
+  const held = lookHeld(canon);
   const [tutorial, setTutorial] = useState(false);
   const [expertMounted, setExpertMounted] = useState(false);
   const [showTests, setShowTests] = useState(false);
+  const [burnOpen, setBurnOpen] = useState(false);
+  const [expertArmed, setExpertArmed] = useState(false);
   const reviewOpen = session.showReview || session.images.length > 0;
   const zipReady = session.shownExport.state === "done" && !session.shownExport.stale;
 
   function openManual() {
     session.setShowReview(true);
     requestAnimationFrame(() => document.getElementById("revue")?.scrollIntoView({ block: "start" }));
+  }
+
+  function launchFormer() {
+    if (!former) return;
+    launch.request(former.id);
+    go("sphere");
+  }
+
+  function onFormer() {
+    if (!formerAction?.enabled) return;
+    if (admitBurn("train", held, false)) {
+      launchFormer();
+      return;
+    }
+    setBurnOpen(true);
+  }
+
+  function confirmFormer() {
+    if (!admitBurn("train", held, true)) return;
+    setBurnOpen(false);
+    launchFormer();
   }
 
   return <section className="create-studio" aria-label="Créer une LoRA">
@@ -52,13 +80,25 @@ export function CreateView() {
       onBootstrap={session.bootstrap} onManual={openManual}
     />
 
-    {former && formerAction && <section className="create-process" aria-labelledby="former-access">
+    <DoctrineBurn input={canon} onCanonNoted={session.setCanonNoted} />
+
+    {former && formerAction && tester && <section className="create-process" aria-labelledby="former-access">
       <div>
         <p className="eyebrow">Processus</p>
         <h2 id="former-access">{former.title}</h2>
         <p>{former.pitch} {session.passed ? "Le lot est tenu. Le cadre s’ouvre dans Sphère, après un second clic." : "Le bouton s’ouvre quand le lot est en PASS."}</p>
       </div>
-      <button type="button" className={`button ${formerAction.enabled ? "button-primary" : "button-outline"}`} disabled={!formerAction.enabled} onClick={() => { launch.request(former.id); go("sphere"); }}>{formerAction.label}</button>
+      <div className="create-process-actions">
+        <button type="button" className="button button-outline" onClick={() => { launch.request(tester.id); go("sphere"); }}>{tester.title}</button>
+        <button type="button" className={`button ${formerAction.enabled ? "button-primary" : "button-outline"}`} disabled={!formerAction.enabled} onClick={onFormer}>{formerAction.label}</button>
+      </div>
+      {burnOpen && <div className="burn-confirm" role="region" aria-label="Confirmation du burn">
+        <p>{BURN_WARN}</p>
+        <div className="burn-actions">
+          <button type="button" className="button button-outline" onClick={() => setBurnOpen(false)}>{BURN_HOLD_LABEL}</button>
+          <button type="button" className="button button-primary" onClick={confirmFormer}>{BURN_CONFIRM_LABEL}</button>
+        </div>
+      </div>}
     </section>}
 
     <details className="disclosure create-drawer" onToggle={event => { if (event.currentTarget.open) setTutorial(true); }}>
@@ -91,7 +131,7 @@ export function CreateView() {
         <input id="create-scene" value={session.scene} onChange={event => session.setScene(event.target.value)} placeholder="walking in a snowy park, soft daylight" maxLength={260} spellCheck={false} />
         <p>La scène seulement. Le mot d’appel porte la personne.</p>
       </div>
-      <FalRail hideTokenField token={session.token} onToken={session.setToken} onStage={onFalStage} passed={session.passed} trigger={session.trigger} scene={session.scene} seed={session.seed} signature={session.signature}
+      <FalRail hideTokenField armTrain={!held} token={session.token} onToken={session.setToken} onStage={onFalStage} passed={session.passed} trigger={session.trigger} scene={session.scene} seed={session.seed} signature={session.signature}
         onBuildZip={session.buildFalZip} />
     </section> : <p className="create-next">L’entraînement s’ouvre après un lot en PASS. Sans proxy fal, le rail reste éteint. Le gate et le ZIP sont aussi dans Identité.</p>}
 
@@ -106,7 +146,9 @@ export function CreateView() {
           onScene={session.setScene} onStrength={session.setStrength} onSeed={session.setSeed} onCount={session.setCount} onReceived={session.setReceived} />
         <section className="launch-summary" aria-label="Lancement Comfy"><div><h3>Lancer dans Comfy ?</h3><p>{session.steps} étapes · {session.count} image{session.count > 1 ? "s" : ""} + témoin · <strong>{formatEstimate(estimateTrainRun(session.steps, session.count))}</strong></p><p className="small-print">Estimation non mesurée, crédits du compte Comfy. La LoRA reste limitée à ce run.</p></div>
           {!session.canLaunch && <p className="inline-status warn">{!zipReady ? "Télécharge un ZIP à jour dans ce repli." : !session.testDone ? "Confirme d’abord les 3 sorties du test court." : "Réduis les étapes ou le nombre d’images pour respecter la durée du plan."}</p>}
-          <a className="button button-outline" href={COMFY_APPS.train.url} target="_blank" rel="noopener noreferrer">Ouvrir Comfy ↗</a>
+          {admitBurn("train", held, expertArmed)
+            ? <a className="button button-outline" href={COMFY_APPS.train.url} target="_blank" rel="noopener noreferrer">Ouvrir Comfy ↗</a>
+            : <button type="button" className="button button-outline" onClick={() => setExpertArmed(true)}>{BURN_CONFIRM_LABEL}</button>}
           <label className="check-inline"><input type="checkbox" checked={session.realLaunched && session.canLaunch} disabled={!session.canLaunch} onChange={event => session.setRealLaunched(event.target.checked)} /><span>J’ai lancé le run réel dans Comfy</span></label>
         </section>
         <details className="disclosure advanced-tools" onToggle={event => { if (event.currentTarget.open) setShowTests(true); }}><summary>Comparer les forces et tester la scène</summary>{showTests && <><TestGrid trigger={session.trigger} seed={session.seed} steps={session.steps} /><ComfyRunPanel app="prompt" /></>}</details>

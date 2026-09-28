@@ -23,6 +23,8 @@ export interface StudioSession {
   setInvariants: (value: string) => void;
   token: string;
   setToken: (value: string) => void;
+  canonNoted: boolean;
+  setCanonNoted: (value: boolean) => void;
   images: DatasetImage[];
   previews: Record<string, string>;
   confirmations: Partial<Record<ConfirmationId, boolean>>;
@@ -90,6 +92,7 @@ export function StudioSessionProvider({ children }: { children: ReactNode }) {
   const [trigger, setTrigger] = useState("");
   const [invariants, setInvariants] = useState("");
   const [token, setToken] = useState("");
+  const [canonNoted, setCanonNoted] = useState(false);
   const [images, setImages] = useState<DatasetImage[]>([]);
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [confirmations, setConfirmations] = useState<Partial<Record<ConfirmationId, boolean>>>({});
@@ -355,7 +358,7 @@ export function StudioSessionProvider({ children }: { children: ReactNode }) {
   const bootStatus = boot.phase === "sending" ? "Envoi des photos au proxy…" : boot.phase === "running" ? `${boot.message} ${boot.done} / ${DATASET_SIZE}.` : boot.message || notice;
 
   const value: StudioSession = {
-    trigger, setTrigger, invariants, setInvariants, token, setToken,
+    trigger, setTrigger, invariants, setInvariants, token, setToken, canonNoted, setCanonNoted,
     images, previews, confirmations, progress, notice, highlight, result, passed, captions, signature,
     refPreviews, arrived, boot, bootStatus, showReview, setShowReview, falProxyOn: !!falProxyUrl,
     plan, setPlan, steps, setSteps, scene, setScene, strength, setStrength, seed, setSeed, count, setCount,

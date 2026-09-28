@@ -2,7 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { DATASET_SIZE } from "@/lib/comfy-stack";
+import { lookHeld } from "@/lib/doctrine";
 import { Arrow } from "../glyph";
+import { DoctrineBurn } from "./doctrine-burn";
 import { LotReview } from "./lot-review";
 import { useGoToMode } from "./mode-context";
 import { useStudioSession } from "./session";
@@ -15,6 +17,8 @@ export function IdentityPanel() {
   const session = useStudioSession();
   const go = useGoToMode();
   const building = session.shownExport.state === "building";
+  const canon = { refCount: session.refPreviews.length, trigger: session.trigger, invariants: session.invariants, canonNoted: session.canonNoted };
+  const held = lookHeld(canon);
 
   return <section className="mode-panel" aria-labelledby="mode-title">
     <header className="mode-hero">
@@ -30,6 +34,8 @@ export function IdentityPanel() {
     {!session.falProxyOn && <aside className="offline-fal" role="status">
       <p><strong>Hors ligne.</strong> Proxy fal absent. Tu peux trier, légender et préparer le ZIP. Aucune requête.</p>
     </aside>}
+
+    <DoctrineBurn input={canon} onCanonNoted={session.setCanonNoted} />
 
     <section className="identity-surface" aria-labelledby="identity-lot">
       <header className="stage-heading">
@@ -79,7 +85,7 @@ export function IdentityPanel() {
         <input id="identity-token" type="password" autoComplete="off" spellCheck={false} value={session.token} onChange={event => session.setToken(event.target.value)} />
         <p>La clé fal du studio paie. Le code reste dans cette page.</p>
       </div>}
-      <FalRail hideTokenField token={session.token} onToken={session.setToken} onStage={onFalStage} passed={session.passed} trigger={session.trigger} scene={session.scene} seed={session.seed} signature={session.signature}
+      <FalRail hideTokenField armTrain={!held} token={session.token} onToken={session.setToken} onStage={onFalStage} passed={session.passed} trigger={session.trigger} scene={session.scene} seed={session.seed} signature={session.signature}
         onBuildZip={session.buildFalZip} />
     </section>
   </section>;
