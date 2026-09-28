@@ -40,10 +40,10 @@ describe("shell sources stay offline", () => {
   const panels = [
     "src/components/studio/sphere-panel.tsx",
     "src/components/studio/library-panel.tsx",
-    "src/components/studio/dashboard-panel.tsx",
+    "src/components/studio/maison-panel.tsx",
   ];
 
-  it("does not call the network from the bientôt panels", () => {
+  it("does not call the network from Sphère, the library, or the vault home", () => {
     for (const file of panels) {
       const text = readFileSync(file, "utf8");
       assert.doesNotMatch(text, /fetch\(|XMLHttpRequest|new WebSocket|fal\.ai|cloud\.comfy\.org/, file);

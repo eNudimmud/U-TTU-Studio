@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { STUDIO_MODES, modeFromHash, type StudioMode } from "@/lib/studio-modes";
 import { contactEmail, testPhaseEnd } from "@/lib/site";
 import { CreateView } from "./create-view";
-import { DashboardPanel } from "./dashboard-panel";
 import { IdentityPanel } from "./identity-panel";
+import { MaisonPanel } from "./maison-panel";
 import { LibraryPanel } from "./library-panel";
 import { GoProvider } from "./mode-context";
 import { SpherePanel } from "./sphere-panel";
@@ -55,11 +55,11 @@ export function StudioShell() {
         {mode === "sphere" && <SpherePanel />}
         {mode === "identite" && <IdentityPanel />}
         {mode === "bibliotheque" && <LibraryPanel />}
-        {mode === "studio" && <DashboardPanel />}
+        {mode === "studio" && <MaisonPanel />}
       </main>
       <footer className="studio-footer shell">
         <span><span className="iii">iii</span> THE BLOC · SUISSE</span>
-        <span>Session locale. Rien n’est gardé.</span>
+        <span>Session locale. Le coffre est à part.</span>
         <a href={`mailto:${contactEmail}`}>Contacter le studio ↗</a>
       </footer>
     </StudioSessionProvider>

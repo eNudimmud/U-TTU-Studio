@@ -20,7 +20,7 @@ L’offre A (« Look-Lock » : forfait de direction artistique et ZIP-juge) a é
 
 ## Ce que fait le site
 
-La page s’ouvre sur **Créer**, dans un shell à cinq modes : Créer, Sphère, Identité, Bibliothèque, Studio. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans. Sphère, la bibliothèque et le tableau sont des panneaux de la page. Ils ne lancent ni vidéo, ni compte, ni paiement.
+La page s’ouvre sur **Créer**, dans un shell à cinq modes : Créer, Sphère, Identité, Bibliothèque, Studio. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans. Sphère et la bibliothèque sont des panneaux de la page. Ils ne lancent ni vidéo, ni compte, ni paiement. **Studio** est la maison du coffre Obsidian : schéma, guide, ZIP de départ ([VAULT.md](docs/VAULT.md)).
 
 1. **Déposer.** 2 ou 3 photos de la même personne, un mot d’appel, deux traits constants. « J’ai déjà 15 images » reste possible.
 2. **Préparer le lot.** Au clic, le proxy demande 15 variations à `fal-ai/flux-pro/kontext/multi` (cadrages et légendes du gate). Le coût estimé est sur le bouton. Il reste éteint sans trigger valide, sans 2 ou 3 photos, ou sans au moins 2 traits constants : le lot ne part pas. Sans URL de proxy, ce bouton reste inactif et « J’ai déjà 15 images » devient le bouton principal.
@@ -30,7 +30,7 @@ La page s’ouvre sur **Créer**, dans un shell à cinq modes : Créer, Sphère,
 
 Une fermeture ou un rechargement efface la session locale. Aucun service distant n’est lancé par la simple ouverture de la page.
 
-**Hors périmètre :** Look-Lock, rendu vidéo, auth, Stripe, déploiement du Worker, 3D, voix, avatars. Les panneaux Sphère et Studio existent, en « bientôt ». La vente reste HOLD.
+**Hors périmètre :** Look-Lock, rendu vidéo, auth, Stripe, sync du coffre, déploiement du Worker, 3D, voix, avatars. Sphère reste en aperçu. La vente reste HOLD.
 
 ## Démarrer
 
@@ -46,7 +46,8 @@ npm run dev          # http://localhost:3000
 
 | Commande | Rôle |
 | --- | --- |
-| `npm test` | Gate, plan 2–3 → 15, cadrages, coaching des légendes, grille de test, mesures d’image, ZIP, workflows Comfy, coûts, proxy fal contre un faux serveur, protection des secrets et smoke sans réseau. |
+| `npm test` | Gate, plan 2–3 → 15, cadrages, coaching des légendes, grille de test, mesures d’image, ZIP, coffre Obsidian, workflows Comfy, coûts, proxy fal contre un faux serveur, protection des secrets et smoke sans réseau. |
+| `npm run vault:build` | Régénère `public/vault/U-TTU-Studio.zip` à partir de `src/lib/vault.ts`. `npm run build` le fait déjà. |
 | `npm run typecheck` | TypeScript strict. |
 | `npm run build` | Build de production (`next build --webpack`). |
 | `npm run comfy:build` | Régénère `comfy/*.api.json` à partir de `src/lib/comfy-stack.ts`. |
