@@ -1,6 +1,11 @@
 // Clerk is optional at build time. Without both keys the studio stays open
 // and the account panel shows a placeholder. Keyless mode is disabled in
 // next.config so a missing key never provisions a temporary Clerk app.
+// The real app already exists. JD links it from a logged-in machine.
+// See docs/AUTH.md. Do not commit the keys.
+
+export const CLERK_APP_ID = "app_3JxoXh0l1EQ";
+export const CLERK_APP_DASHBOARD = `https://dashboard.clerk.com/apps/${CLERK_APP_ID}`;
 
 export function hasClerkKeys(publishable?: string, secret?: string): boolean {
   return Boolean(publishable?.trim() && secret?.trim());

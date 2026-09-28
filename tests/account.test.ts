@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import {
   ACCOUNT_CREER_HASH, ACCOUNT_HOME_HASH, ACCOUNT_SIGN_IN_PATH, ACCOUNT_SIGN_UP_PATH, ACCOUNT_VAULT_LINKS, CLERK_OAUTH_PROVIDERS,
 } from "../src/lib/account.ts";
-import { clerkClientEnabled, hasClerkKeys } from "../src/lib/clerk-config.ts";
+import { CLERK_APP_ID, clerkClientEnabled, hasClerkKeys } from "../src/lib/clerk-config.ts";
 import { processesForMode } from "../src/lib/processes.ts";
 import { VAULT_DOCUMENTS, VAULT_FOLDERS } from "../src/lib/vault.ts";
 
@@ -32,6 +32,24 @@ describe("compte et coffre", () => {
     assert.match(text, /UserButton/);
     assert.match(text, /sans compte/);
     assert.doesNotMatch(text, /fetch\(|XMLHttpRequest|stripe|fal\.ai/i);
+  });
+});
+
+describe("clerk app", () => {
+  it("points at the existing Development application, without keys in git", () => {
+    assert.equal(CLERK_APP_ID, "app_3JxoXh0l1EQ");
+    const auth = readFileSync("docs/AUTH.md", "utf8");
+    assert.match(auth, new RegExp(CLERK_APP_ID));
+    assert.match(auth, /Development/);
+    assert.match(auth, /Production/);
+    assert.match(auth, /Google/);
+    assert.match(auth, /GitHub/);
+    assert.match(auth, /env pull/);
+    const example = readFileSync(".env.example", "utf8");
+    assert.match(example, new RegExp(CLERK_APP_ID));
+    assert.match(example, /^NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$/m);
+    assert.match(example, /^CLERK_SECRET_KEY=$/m);
+    assert.doesNotMatch(example, /pk_test_[A-Za-z0-9]|sk_test_[A-Za-z0-9]/);
   });
 });
 

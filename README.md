@@ -112,7 +112,7 @@ Un run Comfy est coupé au bout de 30 minutes en Standard et Creator, 60 minutes
 
 ## Déployer
 
-**Vercel, cible officielle.** Importer le dépôt comme projet Next.js (`npm ci`, `npm run build`). Le compte Clerk a besoin de ce runtime. Les étapes, les domaines et les variables sont dans [docs/AUTH.md](docs/AUTH.md).
+**Vercel, cible officielle.** Importer le dépôt comme projet Next.js (`npm ci`, `npm run build`). Le compte Clerk a besoin de ce runtime. L’application existe déjà, instance Development, id `app_3JxoXh0l1EQ`. Sur une machine connectée au CLI : `npx clerk@latest link --app app_3JxoXh0l1EQ` puis `npx clerk@latest env pull`. Ne pas committer `.env.local`. Les étapes, Google, GitHub, Development / Production et Vercel sont dans [docs/AUTH.md](docs/AUTH.md).
 
 **GitHub Pages, arrêté.** `https://enudimmud.github.io/U-TTU-Studio/` reste la dernière publication (catalogue processus). Le workflow [pages.yml](.github/workflows/pages.yml) ne déploie plus : l’export statique est incompatible avec `src/proxy.ts`. `GITHUB_PAGES=true` est ignoré au build. Il n’y a plus de dossier `out/`.
 
