@@ -8,6 +8,15 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 - **Décision :** la persistance est `localStorage`, clé `u-ttu-budget:` plus l’identifiant Clerk. Sans session, le texte d’attente reste. Aucun seau anonyme n’enregistre de ligne. L’ancienne clé globale `u-ttu-budget` n’est pas relue : elle n’appartient pas à un compte.
 - **Décision :** l’extrait markdown se copie ou se télécharge (`jobs-extrait.md`). Il reprend le tableau de `jobs.md` (Date, Geste, Dossier, Note). Le dossier reste vide. Le site n’écrit pas dans le coffre.
 - **Décision inchangée :** vente HOLD. Pas de Stripe. Pas de sync fal. Entre et le lien Vault↔Sphère ne bougent pas. Créer reste ouvert sans compte.
+- **Fait :** sans clés Clerk, la session réelle ne s’ouvre pas. `npm test` couvre l’ajout, la clé par compte, l’extrait et le vide. Les captures signées ci-dessous montent ce panneau avec un identifiant local, le temps d’une vérification. Ce branchement n’est pas dans le code livré. L’anonyme est la page réelle : le texte d’attente, pas de formulaire.
+
+![Compte, anonyme, le budget attend](screenshots/compte-budget-anonyme-desktop.png)
+
+![Journal vide, compte ouvert](screenshots/compte-budget-vide-desktop.png)
+
+![Une ligne notée](screenshots/compte-budget-ligne-desktop.png)
+
+<img src="screenshots/compte-budget-ligne-mobile.png" width="390" alt="Une ligne notée, écran étroit" />
 
 ## Entre deux images — partage manquant — 28 septembre 2026
 

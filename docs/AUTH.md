@@ -107,6 +107,8 @@ Les noms vides sont dans [`.env.example`](../.env.example). Les valeurs ne vont 
 
 Le 28 septembre 2026, aucune clé Clerk n’est dans ce dépôt. La session connectée (profil, `UserButton`, listes vides) est dans le code. Elle ne s’affiche qu’avec une session. Ici : l’anonyme sur Compte, et la page `/sign-in` en placeholder.
 
+Le journal signé (vide, puis une ligne) est dans [DECISIONS.md](DECISIONS.md). Sans clés, ces cadres passent par un identifiant local qui n’est pas livré. Ici, l’anonyme.
+
 ![Compte, anonyme, clés absentes](screenshots/compte-anonyme-desktop.png)
 
 ![Se connecter, placeholder](screenshots/compte-signin-placeholder-desktop.png)
