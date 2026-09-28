@@ -1,6 +1,6 @@
 # Proxy fal — Cloudflare Worker (non déployé)
 
-Le site est un export statique sur GitHub Pages : la clé fal ne peut pas y vivre. Ce Worker la garde côté serveur. Le navigateur n’appelle que lui, jamais fal avec la clé. Contexte, coûts et vie privée : [docs/FAL-SPIKE.md](../../docs/FAL-SPIKE.md).
+Le studio live est sur Vercel (`https://u-ttu-studio.vercel.app`) : la clé fal ne peut pas y vivre. Ce Worker la garde côté serveur. Le navigateur n’appelle que lui, jamais fal avec la clé. Le catalogue GitHub Pages (`https://enudimmud.github.io/U-TTU-Studio/`) est figé. Contexte, coûts et vie privée : [docs/FAL-SPIKE.md](../../docs/FAL-SPIKE.md).
 
 **Statut : code du spike présent, Worker non déployé dans cette reprise, vente HOLD.** Les tests (`tests/fal-proxy.test.ts`) le font tourner contre un faux fal, dans Node. Astra n’a effectué aucun appel fal réel (0 $). Le smoke live rapporté sur la machine U*TTU est documenté séparément ; il n’a pas été rejoué.
 
@@ -21,7 +21,7 @@ Résultat d’un entraînement : `{ lora, config }`, les URL de `diffusers_lora_
 ## Garde-fous
 
 - **Code d’accès.** `ACCESS_TOKEN`, 24 caractères au moins, est exigé sur chaque route. Il n’est pas dans le site : le studio le tape dans le panneau « Rail fal », il reste en mémoire le temps de la page.
-- **CORS.** Pour les navigateurs, seules les origines de `ALLOWED_ORIGINS` sont acceptées (`https://enudimmud.github.io` par défaut, sans le chemin `/U-TTU-Studio`). Une autre origine reçoit un 403. Une requête sans `Origin` reste possible, mais exige toujours le code d’accès : CORS n’est pas une authentification.
+- **CORS.** Pour les navigateurs, seules les origines de `ALLOWED_ORIGINS` sont acceptées, séparées par des virgules. Liste : `https://u-ttu-studio.vercel.app` (studio live) et `https://enudimmud.github.io` (catalogue Pages figé, sans le chemin `/U-TTU-Studio`). Une autre origine, y compris une preview `*.vercel.app`, reçoit un 403. Une requête sans `Origin` reste possible, mais exige toujours le code d’accès : CORS n’est pas une authentification.
 - **Pas de relais ouvert.** Trois endpoints fal, et des entrées fixées côté serveur. `/train` : 20 à 2 000 étapes (environ 4 $ au maximum). `/gen` : une image (environ 0,035 $). `/bootstrap` : toujours 15 variations, prompts imposés (environ 0,60 $ si le tarif Kontext Pro de 0,04 $ s’applique au multi — hypothèse, voir [DECISIONS](../../docs/DECISIONS.md)). `/file` ne télécharge que depuis fal.
 - **Vie privée.** Le code du Worker ne persiste pas les images et n’écrit pas de journaux applicatifs. Les réglages de journalisation Cloudflare du compte restent à vérifier. Il envoie `X-Fal-Store-IO: 0` et demande une expiration de 7 jours sur la LoRA et les images (`X-Fal-Object-Lifecycle-Preference`) ; l’effacement effectif n’a pas été mesuré.
 - **Limite connue.** Aucune limite de débit : qui a le code peut dépenser. Avant toute ouverture publique, il faut ajouter Turnstile ou Cloudflare Access, et une limite de débit.
@@ -30,7 +30,7 @@ Résultat d’un entraînement : `{ lora, config }`, les URL de `diffusers_lora_
 
 À exécuter par JD avec son accès Cloudflare, depuis la racine du dépôt sur la branche qui contient `POST /bootstrap` (ou `main` après fusion autorisée). Prérequis : Node 22 ou plus récent, npm, OpenSSL, un compte Cloudflare avec Workers activé et la clé fal. La tenue du plan gratuit avec un ZIP réel, et avec 15 mises en file d’un coup, reste à mesurer.
 
-Avant de commencer, contrôler `wrangler.toml` : `name = "uttu-fal-proxy"`, origine `ALLOWED_ORIGINS = "https://enudimmud.github.io"`. Aucune valeur secrète ne va dans ce fichier. Conserver la variable Pages vide pendant la vérification.
+Avant de commencer, contrôler `wrangler.toml` : `name = "uttu-fal-proxy"`, `ALLOWED_ORIGINS` avec `https://u-ttu-studio.vercel.app` et `https://enudimmud.github.io`. Aucune valeur secrète ne va dans ce fichier. Laisser `NEXT_PUBLIC_FAL_PROXY_URL` vide sur Vercel pendant la vérification.
 
 ```bash
 cd workers/fal-proxy
@@ -39,7 +39,7 @@ npx wrangler deploy                   # noter l’URL ; routes protégées en 50
 npx wrangler secret put FAL_KEY        # coller la clé au prompt masqué
 openssl rand -hex 24                   # conserver ce code dans un gestionnaire de mots de passe
 npx wrangler secret put ACCESS_TOKEN   # coller le code généré ; Wrangler déploie cette nouvelle version
-curl -i -H 'Origin: https://enudimmud.github.io' 'https://uttu-fal-proxy.VOTRE-COMPTE.workers.dev/status'
+curl -i -H 'Origin: https://u-ttu-studio.vercel.app' 'https://uttu-fal-proxy.VOTRE-COMPTE.workers.dev/status'
 curl -i -H 'Origin: https://example.com' 'https://uttu-fal-proxy.VOTRE-COMPTE.workers.dev/status'
 ```
 
@@ -47,22 +47,26 @@ Remplacer `https://uttu-fal-proxy.VOTRE-COMPTE.workers.dev` par l’URL exacte r
 
 | Vérification | Résultat attendu |
 | --- | --- |
-| Premier `curl`, bonne origine sans code | **401**, avec `Access-Control-Allow-Origin: https://enudimmud.github.io`. Cela vérifie la présence des secrets et le refus sans code, pas la validité de la clé fal. |
+| Premier `curl`, origine Vercel sans code | **401**, avec `Access-Control-Allow-Origin: https://u-ttu-studio.vercel.app`. Cela vérifie la présence des secrets et le refus sans code, pas la validité de la clé fal. |
 | Second `curl`, autre origine | **403**, sans `Access-Control-Allow-Origin`. |
-| Réponse 503 | Secret manquant ou code de moins de 24 caractères : corriger avant de brancher Pages. |
+| Réponse 503 | Secret manquant ou code de moins de 24 caractères : corriger avant de brancher Vercel. |
+
+La même requête avec `Origin: https://enudimmud.github.io` doit aussi renvoyer **401** et `Access-Control-Allow-Origin: https://enudimmud.github.io`. Cette origine ne reçoit plus de nouveau build.
 
 Le premier déploiement refuse les routes protégées tant que les deux secrets ne sont pas configurés. `wrangler secret put` crée et déploie une nouvelle version ; un second `deploy` n’est donc pas nécessaire après ces deux ajouts. Référence : [secrets Cloudflare](https://developers.cloudflare.com/workers/configuration/secrets/).
 
-## Brancher GitHub Pages après validation
+## Brancher le studio Vercel après validation
 
-1. Dans le dépôt **eNudimmud/U-TTU-Studio** : **Settings → Secrets and variables → Actions → Variables → New repository variable**.
-2. Nom : **`NEXT_PUBLIC_FAL_PROXY_URL`**. Valeur : l’URL HTTPS exacte du Worker, sans `/train`, `/status` ou `/gen`. Ne mettre ici ni `FAL_KEY` ni `ACCESS_TOKEN`.
-3. Après accord de fusion JD, publier depuis **`main`** : le push de fusion déclenche le workflow, ou utiliser **Actions → Deploy U*TTU Studio to GitHub Pages → Run workflow → main**. Ne pas déployer la branche DRAFT via ce workflow.
-4. Après PASS du gate, vérifier le panneau : « Prêt » et champ de code d’accès. Cela indique que l’URL est présente, pas que fal a été testé. Sans code, le bouton reste désactivé ; ne pas lancer de run payant pour cette vérification.
+Le chemin live n’est plus une variable Actions de GitHub Pages. Poser `NEXT_PUBLIC_FAL_PROXY_URL` dans les variables d’environnement Vercel, pour **Production** et **Preview**.
 
-La variable est déjà reliée au build dans `.github/workflows/pages.yml`. Elle est publique et figée à la compilation : la changer exige un nouveau build. Le Worker peut rester non déployé et l’URL vide pour fusionner le spike désactivé. **PR DRAFT, vente HOLD et feu JD pour la fusion restent indépendants du déploiement.**
+1. Projet Vercel du studio : **Settings → Environment Variables**.
+2. Nom : **`NEXT_PUBLIC_FAL_PROXY_URL`**. Valeur : l’URL HTTPS exacte du Worker, sans `/train`, `/status` ou `/gen`. Cocher Production et Preview. Ne mettre ici ni `FAL_KEY` ni `ACCESS_TOKEN`.
+3. Redéployer Production, et les previews ouvertes, pour que le build prenne la variable. Elle est publique et figée à la compilation.
+4. Après PASS du gate, vérifier le panneau sur `https://u-ttu-studio.vercel.app` : « Prêt » et champ de code d’accès. Cela indique que l’URL est présente, pas que fal a été testé. Sans code, le bouton reste désactivé ; ne pas lancer de run payant pour cette vérification.
 
-Pour désactiver le panneau, vider/supprimer `NEXT_PUBLIC_FAL_PROXY_URL` et reconstruire `main`. Pour couper immédiatement l’accès aux dépenses, révoquer ou remplacer `ACCESS_TOKEN` côté Worker ; vider la variable seule ne désactive pas le Worker ni les pages déjà ouvertes.
+Le Worker peut rester non déployé et l’URL vide pour fusionner le spike désactivé. **PR DRAFT, vente HOLD et feu JD pour la fusion restent indépendants du déploiement.** Le catalogue Pages reste figé : ne pas y republier cette variable.
+
+Pour désactiver le panneau, vider ou supprimer `NEXT_PUBLIC_FAL_PROXY_URL` sur Vercel (Production et Preview) et redéployer. Pour couper immédiatement l’accès aux dépenses, révoquer ou remplacer `ACCESS_TOKEN` côté Worker ; vider la variable seule ne désactive pas le Worker ni les pages déjà ouvertes.
 
 ## En local
 

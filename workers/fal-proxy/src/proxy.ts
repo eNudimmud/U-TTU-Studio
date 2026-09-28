@@ -16,7 +16,7 @@ export interface Env {
   ALLOWED_ORIGINS?: string;
 }
 
-const DEFAULT_ORIGINS = "https://enudimmud.github.io";
+const DEFAULT_ORIGINS = "https://u-ttu-studio.vercel.app,https://enudimmud.github.io";
 export const MIN_TOKEN_LENGTH = FAL_ACCESS_MIN;
 
 type Cors = Record<string, string>;

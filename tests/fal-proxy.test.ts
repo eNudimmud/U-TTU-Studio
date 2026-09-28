@@ -8,6 +8,8 @@ import { MIN_TOKEN_LENGTH, handle, type Env } from "../workers/fal-proxy/src/pro
 import { FAKE, fakeFal, fakeJpeg, gateEntries } from "./fal-fixtures.ts";
 
 const ORIGIN = "https://enudimmud.github.io";
+const VERCEL = "https://u-ttu-studio.vercel.app";
+const BOTH_ORIGINS = `${VERCEL},${ORIGIN}`;
 const TOKEN = "studio-access-code-0123456789abcdef";
 const BASE = "https://uttu-fal-proxy.example.workers.dev";
 const env: Env = { FAL_KEY: FAKE.key, ACCESS_TOKEN: TOKEN, ALLOWED_ORIGINS: ORIGIN };
@@ -41,6 +43,26 @@ describe("fal proxy worker", () => {
     const other = await preflight("https://evil.example");
     assert.equal(other.status, 403);
     assert.equal(other.headers.get("Access-Control-Allow-Origin"), null);
+    assert.equal(fal.calls.length, 0);
+  });
+
+  it("accepts both the Vercel Studio origin and the frozen Pages origin from one comma-separated list", async () => {
+    const fal = fakeFal();
+    const environment: Env = { ...env, ALLOWED_ORIGINS: BOTH_ORIGINS };
+    for (const origin of [VERCEL, ORIGIN]) {
+      const response = await send(fal, statusPath, { origin, token: null }, environment);
+      assert.equal(response.status, 401);
+      assert.equal(response.headers.get("Access-Control-Allow-Origin"), origin);
+    }
+    const spaced = await send(fal, statusPath, { origin: VERCEL, token: null }, { ...env, ALLOWED_ORIGINS: `${VERCEL}, ${ORIGIN}` });
+    assert.equal(spaced.status, 401);
+    assert.equal(spaced.headers.get("Access-Control-Allow-Origin"), VERCEL);
+    const other = await send(fal, statusPath, { origin: "https://u-ttu-studio-git-preview.vercel.app", token: null }, environment);
+    assert.equal(other.status, 403);
+    assert.equal(other.headers.get("Access-Control-Allow-Origin"), null);
+    const fallback = await send(fal, statusPath, { origin: VERCEL, token: null }, { ...env, ALLOWED_ORIGINS: undefined });
+    assert.equal(fallback.status, 401);
+    assert.equal(fallback.headers.get("Access-Control-Allow-Origin"), VERCEL);
     assert.equal(fal.calls.length, 0);
   });
 

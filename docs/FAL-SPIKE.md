@@ -55,7 +55,7 @@ Le mode réel demande `--live` et `FAL_KEY` dans l’environnement du shell. `--
 ## Secrets et vie privée
 
 - `FAL_KEY` et `ACCESS_TOKEN` sont des secrets du Worker, jamais des variables `NEXT_PUBLIC_*`, des secrets de build Pages ou des fichiers commités. Le script utilise sa propre variable de shell `FAL_KEY`.
-- Seule `NEXT_PUBLIC_FAL_PROXY_URL` est publique et incorporée au build Pages. La modifier ou la vider exige une nouvelle construction du site.
+- Seule `NEXT_PUBLIC_FAL_PROXY_URL` est publique. Le chemin live est la variable d’environnement Vercel (Production et Preview). La modifier ou la vider exige un nouveau déploiement. Le catalogue Pages est figé.
 - Le code d’accès est saisi dans le panneau fal et reste en mémoire jusqu’au rechargement. Il n’est transmis qu’au Worker.
 - Les dépôts signés et téléchargements de fichiers se font sans clé fal. Les erreurs, journaux de progression et statuts inattendus relayés au navigateur masquent la clé.
 - Le proxy demande une expiration de 24 h pour le ZIP et 7 jours pour les sorties, ainsi que `X-Fal-Store-IO: 0`. L’effacement effectif n’est pas vérifié ; les URL de fichiers peuvent être lues par qui les connaît.
@@ -71,9 +71,9 @@ Le mode réel demande `--live` et `FAL_KEY` dans l’environnement du shell. `--
 | Secrets dans le client | Uniquement l’URL publique autorisée. `.env*`, `.dev.vars*`, `.wrangler/` et les sorties smoke sont ignorés. |
 | Worker | Non déployé dans cette reprise. JD doit suivre la [procédure en 8 commandes](../workers/fal-proxy/README.md#déployer-jd--8-commandes). |
 | Secrets Cloudflare | `FAL_KEY` et `ACCESS_TOKEN` à configurer par JD ; leur présence distante n’est pas vérifiée ici. |
-| CORS | Origine exacte `https://enudimmud.github.io`, **sans** `/U-TTU-Studio`. Vérifications HTTP sans appel fal dans le README Worker. |
-| Variable Pages | `NEXT_PUBLIC_FAL_PROXY_URL` à renseigner après validation du Worker ; valeur distante non vérifiée. Vide = fal reste désactivé. |
-| Mise en service | Après accord de fusion JD, reconstruire `main` avec la variable Pages. Ne pas lancer le workflow de déploiement depuis la branche DRAFT. |
+| CORS | Origines exactes `https://u-ttu-studio.vercel.app` et `https://enudimmud.github.io` (sans `/U-TTU-Studio`). Vérifications HTTP sans appel fal dans le README Worker. |
+| Variable Vercel | `NEXT_PUBLIC_FAL_PROXY_URL` en Production et Preview, après validation du Worker. Le chemin live n’est plus la variable Actions de Pages. Valeur distante non vérifiée. Vide = fal reste désactivé. |
+| Mise en service | Après accord de fusion JD, redéployer Vercel avec la variable. Le catalogue Pages reste figé. |
 | Commercialisation | HOLD ; qualité identité, coût réel et conditions d’exploitation restent à valider. |
 | PR | PR #5 déjà fusionnée au checkpoint actuel ; corrections dans une PR de suivi DRAFT jusqu’au feu JD. Aucune fusion par Astra ; contenu de PR #4 conservé. |
 

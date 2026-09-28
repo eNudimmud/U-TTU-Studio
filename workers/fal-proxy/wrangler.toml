@@ -5,7 +5,7 @@ compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-ALLOWED_ORIGINS = "https://enudimmud.github.io"
+ALLOWED_ORIGINS = "https://u-ttu-studio.vercel.app,https://enudimmud.github.io"
 
 # Secrets, jamais dans ce fichier :
 #   npx wrangler secret put FAL_KEY
