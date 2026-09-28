@@ -2,10 +2,12 @@
 
 import { UserButton, useUser } from "@clerk/nextjs";
 import { ACCOUNT_SIGN_IN_PATH, ACCOUNT_SIGN_UP_PATH, ACCOUNT_VAULT_LINKS } from "@/lib/account";
+import { BUDGET_ANON } from "@/lib/budget";
 import { clerkClientEnabled } from "@/lib/clerk-config";
 import { assetPath } from "@/lib/site";
 import { STARTER_VAULT_FILE, STARTER_VAULT_HREF } from "@/lib/vault";
 import { Arrow } from "../glyph";
+import { BudgetJournal } from "./budget-journal";
 import { useGoToMode } from "./mode-context";
 
 export function AccountPanel() {
@@ -67,6 +69,12 @@ function AccountBody({ phase, name, email }: { phase: "unconfigured" | "signed-o
         <p>Vide. Aucun fichier n’est déposé sur un serveur. Le dossier reste sur ta machine.</p>
       </article>
     </div>}
+
+    {signedIn ? <BudgetJournal /> : <article className="account-card account-budget" aria-labelledby="account-budget">
+      <p className="eyebrow">Budget</p>
+      <h2 id="account-budget">Le journal, une fois connecté.</h2>
+      <p>{BUDGET_ANON}</p>
+    </article>}
 
     <article className="vault-schema account-schema" aria-labelledby="account-vault">
       <p className="eyebrow">Coffre</p>

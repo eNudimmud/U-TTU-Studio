@@ -11,6 +11,7 @@ import {
   estimateFalGen, estimateFalRun, estimateFalTrain, formatChf, formatStrength, formatUsd,
   type FalGenResult, type FalJob, type FalJobResult, type FalJobStatus,
 } from "@/lib/fal-stack";
+import { BURN_CONFIRM_LABEL, BURN_HOLD_LABEL, BURN_WARN } from "@/lib/doctrine";
 import { cleanVariables } from "@/lib/gate/captions";
 import { falProxyUrl } from "@/lib/site";
 import { Arrow } from "../glyph";
@@ -39,6 +40,8 @@ interface Props {
   token?: string;
   onToken?: (value: string) => void;
   hideTokenField?: boolean;
+  /** When set, the long train asks for a confirm before it starts. Stills stay on the other button. */
+  armTrain?: boolean;
 }
 
 const POLL_MS: Record<FalJob, number> = { train: 5000, gen: 2000, vary: 2000 };
@@ -68,6 +71,7 @@ export function FalRail(props: Props) {
   const token = props.onToken ? (props.token ?? "") : ownToken;
   const setToken = props.onToken ?? setOwnToken;
   const [training, setTraining] = useState<Training>({ state: "idle" });
+  const [burnArmed, setBurnArmed] = useState(false);
   const [cells, setCells] = useState<Cell[]>(idleCells);
   const [trainedSignature, setTrainedSignature] = useState("");
   const alive = useRef(true);
@@ -82,6 +86,7 @@ export function FalRail(props: Props) {
     return () => { alive.current = false; };
   }, []);
   useEffect(() => onStage(stage), [onStage, stage]);
+  useEffect(() => { if (!props.armTrain) setBurnArmed(false); }, [props.armTrain]);
 
   const proxy: FalProxy | null = falProxyUrl ? { url: falProxyUrl, token: token.trim() } : null;
   const prompt = [props.trigger.trim(), cleanVariables(props.scene)].filter(Boolean).join(", ");
@@ -181,9 +186,20 @@ export function FalRail(props: Props) {
           <input id="fal-token" type="password" autoComplete="off" spellCheck={false} value={token} onChange={event => setToken(event.target.value)} aria-describedby="fal-token-help" />
           <p className="field-help" id="fal-token-help">Réservé au studio pendant l’essai : c’est la clé fal du studio qui paie. Le code reste dans cette page, rien n’est stocké.</p>
         </div>}
-        <button type="button" className="button button-primary" onClick={train} disabled={!proxy || !token.trim() || trainBusy} aria-describedby={proxy ? undefined : "fal-offline"}>
-          {trainBusy ? "Entraînement en cours…" : `Entraîner chez fal · ≈ ${formatUsd(trainCost.usd)}`} <Arrow />
+        <button type="button" className="button button-primary" onClick={() => {
+          if (props.armTrain && !burnArmed) {
+            setBurnArmed(true);
+            return;
+          }
+          setBurnArmed(false);
+          void train();
+        }} disabled={!proxy || !token.trim() || trainBusy} aria-describedby={proxy ? undefined : "fal-offline"}>
+          {trainBusy ? "Entraînement en cours…" : burnArmed ? BURN_CONFIRM_LABEL : `Entraîner chez fal · ≈ ${formatUsd(trainCost.usd)}`} <Arrow />
         </button>
+        {burnArmed && <>
+          <p className="inline-status warn" role="status">{BURN_WARN}</p>
+          <button type="button" className="text-button" onClick={() => setBurnArmed(false)}>{BURN_HOLD_LABEL}</button>
+        </>}
         {!proxy && <>
           <p className="inline-status warn" id="fal-offline">Proxy non branché : ce rail ne tourne qu’en script pour l’instant.</p>
           <p className="small-print">Le studio peut vérifier le ZIP par script sans appel réseau ni dépense. Un essai réel nécessite son accord et un budget : environ {formatUsd(estimateFalRun(FAL_TRAINING.steps, 1).usd)} pour {FAL_TRAINING.steps} étapes et 1 image.</p>
