@@ -13,6 +13,8 @@ Toutes exigent `Authorization: Bearer <ACCESS_TOKEN>`.
 | `POST /train?trigger=…&steps=…` | Corps : le ZIP fal (`application/zip`) | Revérifie la forme du gate : exactement 15 JPEG et 15 légendes qui commencent par le trigger, rien d’autre. Dépose le ZIP sur fal.storage (expiration demandée : 24 h), puis met `fal-ai/flux-lora-fast-training` en file (`create_masks: true`, `is_style: false`). | `202 { id }`, ou `422 { error, problems }` |
 | `GET /status?job=train\|gen&id=…` | — | Lit la file fal. Une fois terminé, renvoie le résultat utile. | `{ status: "IN_QUEUE", position }`, `{ status: "IN_PROGRESS", log }`, `{ status: "COMPLETED", result }` ou `{ status: "FAILED", error }` |
 | `POST /gen` | JSON `{ lora, prompt, scale, seed }` | 1 image `fal-ai/flux-lora`, 1024 × 1024, 28 pas, filtre de sécurité fal actif. `lora` doit être un fichier hébergé par fal, `scale` entre 0,5 et 1,3. | `202 { id }` |
+| `POST /bootstrap?trigger=…` | `multipart/form-data`, champ `refs` répété : 2 ou 3 images (JPEG, PNG ou WebP, 8 Mo chacune) | Vérifie le trigger. Dépose les photos (expiration demandée : 24 h). Met en file 15 jobs `fal-ai/flux-pro/kontext/multi`, prompts et seeds fixés dans `src/lib/fal-bootstrap.ts` (`enhance_prompt: false`, une image, carré). Le navigateur ne choisit ni le prompt ni le nombre. | `202 { refs, slots }` — chaque slot : `index`, `id`, `angle`, `framing`, `variables`, `caption`, `seed` |
+| `GET /file?url=…` | URL https hébergée par fal | Relaye les octets sans la clé, sans suivre une redirection. Refuse toute autre origine de fichier. | image JPEG, PNG ou WebP, `Cache-Control: private, no-store` |
 
 Résultat d’un entraînement : `{ lora, config }`, les URL de `diffusers_lora_file` et `config_file`. Résultat d’une image : `{ image, width, height, seed, nsfw }`.
 
@@ -20,13 +22,13 @@ Résultat d’un entraînement : `{ lora, config }`, les URL de `diffusers_lora_
 
 - **Code d’accès.** `ACCESS_TOKEN`, 24 caractères au moins, est exigé sur chaque route. Il n’est pas dans le site : le studio le tape dans le panneau « Rail fal », il reste en mémoire le temps de la page.
 - **CORS.** Pour les navigateurs, seules les origines de `ALLOWED_ORIGINS` sont acceptées (`https://enudimmud.github.io` par défaut, sans le chemin `/U-TTU-Studio`). Une autre origine reçoit un 403. Une requête sans `Origin` reste possible, mais exige toujours le code d’accès : CORS n’est pas une authentification.
-- **Pas de relais ouvert.** Deux endpoints fal, et des entrées fixées côté serveur : taille d’image, nombre d’images, 20 à 2 000 étapes. Au pire, un appel coûte environ 4 $ (`/train` à 2 000 étapes) ou 0,035 $ (`/gen`).
+- **Pas de relais ouvert.** Trois endpoints fal, et des entrées fixées côté serveur. `/train` : 20 à 2 000 étapes (environ 4 $ au maximum). `/gen` : une image (environ 0,035 $). `/bootstrap` : toujours 15 variations, prompts imposés (environ 0,60 $ si le tarif Kontext Pro de 0,04 $ s’applique au multi — hypothèse, voir [DECISIONS](../../docs/DECISIONS.md)). `/file` ne télécharge que depuis fal.
 - **Vie privée.** Le code du Worker ne persiste pas les images et n’écrit pas de journaux applicatifs. Les réglages de journalisation Cloudflare du compte restent à vérifier. Il envoie `X-Fal-Store-IO: 0` et demande une expiration de 7 jours sur la LoRA et les images (`X-Fal-Object-Lifecycle-Preference`) ; l’effacement effectif n’a pas été mesuré.
 - **Limite connue.** Aucune limite de débit : qui a le code peut dépenser. Avant toute ouverture publique, il faut ajouter Turnstile ou Cloudflare Access, et une limite de débit.
 
 ## Déployer (JD) — 8 commandes
 
-À exécuter par JD avec son accès Cloudflare, depuis la racine du dépôt sur `cursor/fal-rail-spike-bada` (ou `main` après fusion autorisée). Prérequis : Node 22 ou plus récent, npm, OpenSSL, un compte Cloudflare avec Workers activé et la clé fal. La tenue du plan gratuit avec un ZIP réel reste à mesurer.
+À exécuter par JD avec son accès Cloudflare, depuis la racine du dépôt sur la branche qui contient `POST /bootstrap` (ou `main` après fusion autorisée). Prérequis : Node 22 ou plus récent, npm, OpenSSL, un compte Cloudflare avec Workers activé et la clé fal. La tenue du plan gratuit avec un ZIP réel, et avec 15 mises en file d’un coup, reste à mesurer.
 
 Avant de commencer, contrôler `wrangler.toml` : `name = "uttu-fal-proxy"`, origine `ALLOWED_ORIGINS = "https://enudimmud.github.io"`. Aucune valeur secrète ne va dans ce fichier. Conserver la variable Pages vide pendant la vérification.
 

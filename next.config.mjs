@@ -8,7 +8,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
-  allowedDevOrigins: ["terminal.local"],
+  allowedDevOrigins: ["terminal.local", "127.0.0.1", "localhost"],
   basePath,
   ...(githubPages ? { output: "export", trailingSlash: true } : {}),
   images: { formats: ["image/avif", "image/webp"], unoptimized: githubPages },

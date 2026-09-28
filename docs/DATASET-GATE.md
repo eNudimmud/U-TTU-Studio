@@ -1,6 +1,6 @@
 # Gate dataset — critères FAIL
 
-Le gate décide si un dataset a le droit de partir à l’entraînement. Il tourne dans le navigateur du client : les images ne quittent pas l’appareil tant que le client ne les dépose pas lui-même dans l’app Comfy.
+Le gate décide si un dataset a le droit de partir à l’entraînement. Il tourne dans le navigateur du client. Depuis la Phase 0, un lot peut aussi être proposé à partir de 2 ou 3 photos (`src/lib/fal-bootstrap.ts`) : 4 gros plans, 7 bustes, 4 plein pied, face, trois-quarts et profil, légendes au format ci-dessous. Ces images ne passent le gate qu’après la revue humaine (garder, confirmations). Le gate ne les envoie pas tout seul.
 
 Le code fait foi : [`src/lib/gate/rules.ts`](../src/lib/gate/rules.ts) (règles et seuils), [`captions.ts`](../src/lib/gate/captions.ts) (légendes), [`pixels.ts`](../src/lib/gate/pixels.ts) (mesures d’image). Les tests de [`tests/gate.test.ts`](../tests/gate.test.ts) font échouer chaque règle au moins une fois.
 

@@ -18,9 +18,11 @@ La passation signale un smoke live PASS sur la machine U*TTU le 25 septembre : e
 | Entraînement | `fal-ai/flux-lora-fast-training`, `create_masks: true`, `is_style: false`, 1 000 étapes par défaut ; bornes serveur 20–2 000. |
 | Résultat | `diffusers_lora_file.url`, configuration si fournie. Télécharger la LoRA pour la conserver. |
 | Images | `fal-ai/flux-lora`, 1 024 × 1 024, une image par requête ; grille 0,60 / 0,75 / 0,90, même prompt et seed. |
-| Sans URL proxy | Après PASS : « Script seul », boutons fal désactivés. Aucun appel automatique. |
-| Avec URL proxy | Après PASS : « Prêt ». Le code d’accès reste requis ; cet état ne prouve pas la santé du Worker. |
-| Repli | Apps Comfy conservées, chargées au clic et marquées comme rail de repli. |
+| Sans URL proxy | Le bouton du lot est inactif (« proxy non branché »). L’entraînement fal reste fermé. Aucun appel automatique. L’import manuel des 15 images et le repli Comfy restent possibles. |
+| Avec URL proxy | Le lot et l’entraînement demandent le code d’accès. L’URL présente ne prouve pas que le Worker répond. |
+| Bootstrap 2–3 → 15 | `POST /bootstrap?trigger=…`, champ `refs` : 2 ou 3 images JPEG, PNG ou WebP. Le Worker dépose les références, puis met 15 fois `fal-ai/flux-pro/kontext/multi` en file. Réponse `202` : URL des références et 15 emplacements `{ index, id, angle, framing, variables, caption, seed }`. Les prompts sont ceux de `fal-bootstrap.ts`, pas ceux du navigateur. |
+| Fichier généré | `GET /file?url=…` ne relaie qu’une URL `*.fal.media` ou le bucket `storage.googleapis.com/fal…`, sans suivre une redirection, sans envoyer la clé. Le navigateur s’en sert pour la revue du gate. |
+| Repli | Comfy reste disponible, replié sous « Expert / repli », chargé au second clic. Ce n’est plus le chemin affiché à l’ouverture. |
 
 Le navigateur réencode les images, puis envoie au Worker un ZIP réduit de 30 fichiers (`01.jpg` / `01.txt` à `15.jpg` / `15.txt`). Rapport, `gate.json` et noms de fichiers d’origine restent locaux. Le Worker revérifie la **forme** de ce ZIP ; il ne refait pas l’analyse des pixels ni la revue humaine. Un PASS n’est pas une promesse de fidélité de la LoRA.
 
@@ -30,12 +32,13 @@ Les pages officielles fal, relues le 25 septembre 2026, indiquent 2 USD pour l�
 
 | Plan | Estimation USD | Conversion indicative CHF |
 | --- | --- | --- |
+| Lot 2–3 → 15 (Kontext Pro, hypothèse 0,04 $ / image) | 0,60 $ | ≈ CHF 0,49 |
 | 1 000 étapes + 1 image (script) | 2,04 $ | ≈ CHF 1,67 |
 | 1 000 étapes + grille de 3 images | 2,11 $ | ≈ CHF 1,73 |
 
 Taux fixe de calcul : **1 USD = 0,82 CHF, non vérifié**. Ce sont des frais fournisseur estimés, pas un prix de vente Studio. La clé du Studio paie les appels du proxy ; les crédits Comfy du repli restent sur le compte Comfy utilisé.
 
-Sources : [entraînement fal](https://fal.ai/models/fal-ai/flux-lora-fast-training), [génération fal](https://fal.ai/models/fal-ai/flux-lora). Les arrondis monétaires sont testés ; ils ne prouvent pas la facturation effective.
+Sources : [entraînement fal](https://fal.ai/models/fal-ai/flux-lora-fast-training), [génération fal](https://fal.ai/models/fal-ai/flux-lora), [Kontext multi](https://fal.ai/models/fal-ai/flux-pro/kontext/multi/api), [tarif Kontext Pro](https://fal.ai/models/fal-ai/flux-pro/kontext) (0,04 $ / image, relu le 28 septembre 2026 ; le tarif propre au multi n’est pas distingué). Les arrondis monétaires sont testés ; ils ne prouvent pas la facturation effective.
 
 ## Smoke sans dépense
 
@@ -61,7 +64,7 @@ Le mode réel demande `--live` et `FAL_KEY` dans l’environnement du shell. `--
 
 | Contrôle | État / action |
 | --- | --- |
-| Suite de tests | **PASS — 77 tests, 0 échec, 0 ignoré** sous Node 24.19.0 après report sur `main` (`41ef200`) ; doctrine UI, faux fal, refus des ZIP à 4 images, coûts, secrets et dry run sans réseau. |
+| Suite de tests | **PASS — 83 tests, 0 échec, 0 ignoré** au 28 septembre 2026, dont le plan bootstrap (gate PASS), le refus d’1 ou 4 références, les prompts serveur et le relais de fichier contre un faux fal. 0 appel réseau réel. |
 | Typage et export Pages | **PASS** — `npm run typecheck` et export statique avec `NEXT_PUBLIC_FAL_PROXY_URL` vide. Le HTML initial garde le gate verrouillé ; le JavaScript exporté n’inclut ni `FAL_KEY` ni le client serveur d’upload. |
 | Bundle Worker | **PASS** — Wrangler 4.141.0, `deploy --dry-run` : 24,41 Kio (8,51 Kio gzip), sans déploiement. |
 | CI de branche | Aucun workflow de PR au checkpoint. `pages.yml` exécute les tests sur `main` et sur lancement manuel ; les tests locaux ne sont pas un statut CI GitHub. |

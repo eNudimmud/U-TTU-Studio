@@ -60,7 +60,11 @@ export function fakeFal({ trainStatuses = [
     const body = typeof init.body === "string" ? JSON.parse(init.body) : init.body;
     calls.push({ method, url, headers, body });
 
-    if (method === "POST" && url === FAL_API.storageInitiate) return json({ upload_url: FAKE.uploadUrl, file_url: FAKE.zipUrl });
+    if (method === "POST" && url === FAL_API.storageInitiate) {
+      const name = typeof body === "object" && body && "file_name" in (body as object) ? String((body as { file_name: string }).file_name) : "file";
+      const file_url = name.endsWith(".zip") ? FAKE.zipUrl : `https://v3.fal.media/files/test/${encodeURIComponent(name)}`;
+      return json({ upload_url: FAKE.uploadUrl, file_url });
+    }
     if (method === "PUT" && url === FAKE.uploadUrl) return new Response(null, { status: 200 });
     if (method === "POST" && url === queue("train")) return json({ request_id: FAKE.trainId, status_url: `${queue("train")}/requests/${FAKE.trainId}/status` });
     if (method === "GET" && url === `${queue("train")}/requests/${FAKE.trainId}/status?logs=1`) return json(trainStatuses[Math.min(trainPolls++, trainStatuses.length - 1)]);
@@ -75,7 +79,19 @@ export function fakeFal({ trainStatuses = [
       if (gen[2]) return json({ status: "COMPLETED", logs: [] });
       return json({ images: [{ url: `https://v3.fal.media/files/test/${gen[1]}-${genScale.get(gen[1])}.jpg`, width: 1024, height: 1024 }], seed: 424242, has_nsfw_concepts: [false] });
     }
-    if (method === "GET" && url.startsWith("https://v3.fal.media/files/test/")) return new Response(encoder.encode(`bytes of ${url}`));
+    if (method === "POST" && url === queue("vary")) {
+      const id = `vary-${String(++gens).padStart(4, "0")}-0000-0000-000000000000`;
+      return json({ request_id: id });
+    }
+    const vary = new RegExp(`^${queue("vary")}/requests/(vary-[0-9-]+)(/status\\?logs=1)?$`).exec(url);
+    if (method === "GET" && vary) {
+      if (vary[2]) return json({ status: "COMPLETED", logs: [] });
+      return json({ images: [{ url: `https://v3.fal.media/files/test/${vary[1]}.jpg`, width: 1024, height: 1024 }], seed: 51001, has_nsfw_concepts: [false] });
+    }
+    if (method === "GET" && url.startsWith("https://v3.fal.media/files/test/")) {
+      if (url.split("?")[0].endsWith(".jpg")) return new Response(fakeJpeg(url.length), { headers: { "Content-Type": "image/jpeg" } });
+      return new Response(encoder.encode(`bytes of ${url}`));
+    }
     throw new Error(`Appel réseau inattendu : ${method} ${url}`);
   };
   return { fetch: fetch as typeof globalThis.fetch, calls };

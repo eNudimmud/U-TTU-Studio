@@ -1,10 +1,10 @@
 # U*TTU Studio — C micro
 
-> **Ta première LoRA, pas à pas. Comprendre → Préparer → Entraîner → Créer.**
+> **Deux photos. Une identité.** Créer dès l’ouverture.
 
-Site vitrine et outil guidé, en français (FR-CH), pour C micro : dataset gate → LoRA → image(s). Le site vérifie le dataset dans le navigateur et bloque l’entraînement tant qu’il reste un problème. La PR #5 ajoute un rail fal expérimental, avec LoRA téléchargeable et grille de 3 images ; Comfy Cloud reste le repli. **Vente HOLD.** L’identité produite n’est pas encore validée.
+Site en français (FR-CH) pour C micro : 2 ou 3 photos → lot de 15 images → LoRA → image(s). Le gate reste dans le navigateur et bloque l’entraînement tant qu’il reste un problème. Le chemin principal est le rail fal, dans la page, quand `NEXT_PUBLIC_FAL_PROXY_URL` est défini. Comfy Cloud est un repli replié, « Expert ». **Vente HOLD.** L’identité produite n’est pas encore validée.
 
-**État fal :** code présent, Worker non déployé dans cette reprise, UI désactivée tant que `NEXT_PUBLIC_FAL_PROXY_URL` est vide (« Script seul » après PASS). [Contrat, preuves et checklist](docs/FAL-SPIKE.md) · [déploiement Worker en 8 commandes](workers/fal-proxy/README.md#déployer-jd--8-commandes).
+**État fal :** le code du proxy et du bootstrap est dans le dépôt. Le Worker n’a pas été déployé par cette livraison. Tant que `NEXT_PUBLIC_FAL_PROXY_URL` est vide, le bouton de lot est inactif (« proxy non branché »). [Contrat](docs/FAL-SPIKE.md) · [déploiement Worker](workers/fal-proxy/README.md#déployer-jd--8-commandes).
 
 ## Date de kill : 8 octobre 2026
 
@@ -20,16 +20,17 @@ L’offre A (« Look-Lock » : forfait de direction artistique et ZIP-juge) a é
 
 ## Ce que fait le site
 
-1. **Comprendre.** Un tutoriel court explique le modèle de base, la LoRA, le prompt et le mot d’appel. La référence U*TTU est clairement distinguée d’un résultat d’entraînement.
-2. **Préparer.** Le client nomme son personnage, définit ses traits constants et importe ses images. Une planche de vignettes permet de choisir l’image à trier et décrire. Une seule fiche est éditable à la fois. Le résumé indique la prochaine action ; les 20 contrôles et le coaching des légendes se déplient à la demande. Le gate exige toujours exactement 15 images et les 5 confirmations ([règles détaillées](docs/DATASET-GATE.md)).
-3. **Entraîner.** Le client télécharge le ZIP, copie les légendes dans Comfy et confirme les trois sorties du test court payant à 20 étapes. Les coûts restent visibles ; le choix du plan et les réglages se déplient.
-4. **Créer.** Le client règle la scène, reporte les valeurs dans Comfy et lance l’entraînement final avec son image. Le budget et la limite de durée restent contrôlés. Les diagnostics, la grille de comparaison et le test de prompt sont repliés.
+La page s’ouvre sur **Créer**. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans.
 
-Un écran est affiché à la fois. Les étapes visitées restent montées pour conserver la sélection, les réglages et les tâches en cours lors d’un aller-retour ; une fermeture ou un rechargement de page efface la session locale. Les composants et styles du travail sur les images sont chargés à la demande.
+1. **Déposer.** 2 ou 3 photos de la même personne, un mot d’appel, deux traits constants. « J’ai déjà 15 images » reste possible.
+2. **Préparer le lot.** Au clic, le proxy demande 15 variations à `fal-ai/flux-pro/kontext/multi` (cadrages et légendes du gate). Le coût estimé est sur le bouton. Sans URL de proxy, le bouton reste inactif.
+3. **Vérifier.** Le gate est inchangé : 15 JPEG, angles, légendes, cinq confirmations ([règles](docs/DATASET-GATE.md)). « Garder les images proposées » ne coche pas les confirmations.
+4. **Entraîner et générer, ici.** Après PASS, `flux-lora-fast-training` puis la grille `flux-lora`. La LoRA se télécharge sur la page.
+5. **Expert / repli.** Comfy est replié. Le cadre ne se charge qu’après un second clic.
 
-L’option **fal**, dans les outils avancés de « Créer », conserve le gate de **15 images et légendes**, les coûts estimés et le statut expérimental **HOLD**. Aucun service distant n’est lancé par la navigation.
+Une fermeture ou un rechargement efface la session locale. Aucun service distant n’est lancé par la simple ouverture de la page.
 
-**Hors périmètre :** Look-Lock et ZIP-juge, vidéo (clips, storyboards, pubs), 3D, voix, avatars, plateforme d’identité et menu combinant plusieurs offres. Le rail fal et le repli Comfy restent dans C micro.
+**Hors périmètre de cette phase :** Look-Lock, vidéo, Sphère, dashboard, auth, Stripe, 3D, voix, avatars. La vente reste HOLD.
 
 ## Démarrer
 
@@ -45,7 +46,7 @@ npm run dev          # http://localhost:3000
 
 | Commande | Rôle |
 | --- | --- |
-| `npm test` | Gate, cadrages, coaching des légendes, grille de test, mesures d’image, ZIP, workflows Comfy, coûts, proxy fal contre un faux serveur, protection des secrets et smoke sans réseau. |
+| `npm test` | Gate, plan 2–3 → 15, cadrages, coaching des légendes, grille de test, mesures d’image, ZIP, workflows Comfy, coûts, proxy fal contre un faux serveur, protection des secrets et smoke sans réseau. |
 | `npm run typecheck` | TypeScript strict. |
 | `npm run build` | Build de production (`next build --webpack`). |
 | `npm run comfy:build` | Régénère `comfy/*.api.json` à partir de `src/lib/comfy-stack.ts`. |
@@ -125,7 +126,7 @@ GITHUB_PAGES=true NEXT_PUBLIC_BASE_PATH=/U-TTU-Studio NEXT_PUBLIC_SITE_URL=https
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Adresse de contact. `HelveticVault@gmail.com` par défaut, provisoire. |
 | `NEXT_PUBLIC_COMFY_TRAIN_APP_URL`, `NEXT_PUBLIC_COMFY_PROMPT_APP_URL` | Facultatives : remplacent les liens App Mode. |
 | `NEXT_PUBLIC_BASE_PATH`, `GITHUB_PAGES` | Réservées à l’export GitHub Pages. |
-| `NEXT_PUBLIC_FAL_PROXY_URL` | URL publique du Worker, variable de dépôt GitHub Actions lue au build Pages. Vide = rail fal désactivé. |
+| `NEXT_PUBLIC_FAL_PROXY_URL` | URL publique du Worker, variable de dépôt GitHub Actions lue au build Pages. Vide = lot automatique et entraînement fal inactifs. |
 
 Aucun secret n’est nécessaire au site statique. Le rail fal utilise les secrets `FAL_KEY` et `ACCESS_TOKEN` uniquement dans le Worker ([configuration](workers/fal-proxy/README.md)). Ne pas les placer dans le build Pages. Le repli Comfy s’exécute sur le compte Comfy du client.
 
@@ -134,18 +135,21 @@ Aucun secret n’est nécessaire au site statique. Le rail fal utilise les secre
 - Les images sont analysées et converties dans le navigateur du client. Le gate seul ne les envoie pas.
 - Le ZIP est créé localement. Le réencodage en JPEG retire les métadonnées EXIF, localisation GPS comprise.
 - Les images n’arrivent chez Comfy que lorsque le client les dépose lui-même dans l’app.
-- Avec fal activé, un clic sur « Entraîner chez fal » envoie les 15 JPEG et légendes via le Worker vers le stockage fal ; rapport et noms d’origine restent locaux. L’effacement demandé et les limites sont détaillés dans [FAL-SPIKE.md](docs/FAL-SPIKE.md#secrets-et-vie-privée).
+- Avec fal activé, un clic sur « Préparer les 15 images » envoie les 2 ou 3 photos de référence via le Worker. Un clic sur « Entraîner chez fal » envoie les 15 JPEG et légendes. Rapport et noms d’origine du gate restent locaux. L’effacement demandé et les limites sont dans [FAL-SPIKE.md](docs/FAL-SPIKE.md#secrets-et-vie-privée).
 - Le lien de contact ouvre la messagerie (`mailto:`), sans envoi automatique.
 - Aucun cookie, aucun stockage local, aucun outil de mesure d’audience (`src/lib/analytics.ts` est inerte).
 
 ## Organisation du code
 
 ```text
-src/app/page.tsx              page unique : guide progressif, questions fréquentes, contact
-src/components/guide/         tutoriel et parcours en 4 étapes, styles chargés à la demande
+src/app/page.tsx              page unique : shell Créer, questions fréquentes, contact
+src/components/studio/        dépôt des 2–3 photos et plan des 15 cadrages
+src/components/guide/         revue du gate, rail fal, repli Comfy, tuto en tiroir
+src/lib/fal-bootstrap.ts      plan 15 images, prompts Kontext, reconnaissance JPEG/PNG/WebP
 src/lib/gate/                 règles du gate, légendes, mesures d’image, rapport, export ZIP
 src/lib/comfy-stack.ts        réglages Flux.1 dev, coûts, durées, liens App Mode
 src/lib/comfy-workflows.ts    générateur des graphes Comfy
+workers/fal-proxy/            clé fal, /bootstrap, /train, /gen, /status, /file
 comfy/*.api.json              graphes générés, format API
 public/comfy/*.json           graphes tels que sauvegardés dans Comfy Cloud, avec App Mode
 tests/                        tests unitaires (node --test)
@@ -165,9 +169,30 @@ docs/                         documentation
 | [docs/QA.md](docs/QA.md) | Contrôles exécutés avant livraison, et leurs limites. |
 | [docs/VISUAL-CANON.md](docs/VISUAL-CANON.md) | Direction artistique U*TTU et provenance du portrait. |
 
+## JD — pour activer le chemin dans la page
+
+Le code est prêt. Le déploiement Cloudflare n’a pas été fait ici. Aucun appel fal réel (0 $).
+
+1. Déployer le Worker depuis cette branche ou depuis `main` après fusion : [8 commandes](workers/fal-proxy/README.md#déployer-jd--8-commandes). Les routes nouvelles sont `POST /bootstrap` et `GET /file`.
+2. Poser les secrets `FAL_KEY` et `ACCESS_TOKEN` (24 caractères au moins). Ne pas les mettre dans GitHub Actions ni dans `NEXT_PUBLIC_*`.
+3. Vérifier le CORS : origine `https://enudimmud.github.io`, sans le chemin `/U-TTU-Studio`. Les deux `curl` du README Worker ne lancent pas de job.
+4. Créer la variable de dépôt `NEXT_PUBLIC_FAL_PROXY_URL` (URL HTTPS du Worker, sans `/bootstrap`).
+5. Reconstruire les Pages depuis `main` (push de fusion, ou workflow manuel sur `main`). Ne pas lancer le workflow Pages depuis la branche DRAFT.
+6. Ouvrir le site : le bouton « Préparer les 15 images » est actif seulement avec l’URL et un code. Ne pas lancer de lot réel pour cette vérification, sauf budget annoncé (environ 0,60 $ le lot, puis environ 2,04 $ pour 1 000 étapes et 1 image).
+
+La vente reste HOLD. La fidélité du lot Kontext sur de vraies photos n’est pas mesurée.
+
+## Captures
+
+Shell Créer, Phase 0, 28 septembre 2026. Le proxy fal est vide sur ces vues : le bouton de lot est donc inactif, le repli Comfy reste fermé. Aucune photo réelle, aucun appel fal.
+
+![Shell Créer sur ordinateur](docs/screenshots/phase0-create-desktop.jpg)
+
+<img src="docs/screenshots/phase0-create-mobile.jpg" width="390" alt="Shell Créer sur mobile" />
+
 ## Captures de la version précédente
 
-Ces captures datent du 24 septembre 2026. Elles ne représentent pas la refonte du 27 septembre ; sa revue visuelle reste à effectuer. Voir [le rapport de refonte](docs/UX-GUIDE.md).
+Ces captures datent du 24 septembre 2026. Elles montrent l’ancien parcours en quatre écrans. Voir [le rapport de refonte](docs/UX-GUIDE.md).
 
 ![Hero sur ordinateur](docs/screenshots/hero-desktop.jpg)
 

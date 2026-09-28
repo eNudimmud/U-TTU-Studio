@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { FalProxyError, falJobStatus, startFalGeneration, startFalTraining, type FalProxy } from "../src/lib/fal-proxy.ts";
-import { FAL_API, FAL_ENDPOINTS, FAL_GEN, FAL_PRIVACY } from "../src/lib/fal-stack.ts";
+import { bootstrapCaption, bootstrapPlan, varyPrompt } from "../src/lib/fal-bootstrap.ts";
+import { fetchFalFile, FalProxyError, falJobStatus, startFalBootstrap, startFalGeneration, startFalTraining, type FalProxy } from "../src/lib/fal-proxy.ts";
+import { FAL_API, FAL_ENDPOINTS, FAL_GEN, FAL_PRIVACY, FAL_VARY } from "../src/lib/fal-stack.ts";
 import { createZip } from "../src/lib/zip.ts";
 import { MIN_TOKEN_LENGTH, handle, type Env } from "../workers/fal-proxy/src/proxy.ts";
-import { FAKE, fakeFal, gateEntries } from "./fal-fixtures.ts";
+import { FAKE, fakeFal, fakeJpeg, gateEntries } from "./fal-fixtures.ts";
 
 const ORIGIN = "https://enudimmud.github.io";
 const TOKEN = "studio-access-code-0123456789abcdef";
@@ -186,5 +187,101 @@ describe("fal proxy worker", () => {
     );
     await assert.rejects(falJobStatus({ ...proxy, token: "wrong" }, "train", id), (error: unknown) => error instanceof FalProxyError && error.status === 401);
     assert.ok(!fal.calls.some(call => call.headers.authorization?.includes(TOKEN)), "the access code stays between the browser and the proxy");
+  });
+
+  it("bootstraps 2 or 3 refs into 15 Kontext jobs with server-owned prompts", async () => {
+    const fal = fakeFal();
+    const refs = () => {
+      const form = new FormData();
+      form.append("refs", new File([fakeJpeg(1)], "a.jpg", { type: "image/jpeg" }));
+      form.append("refs", new File([fakeJpeg(2)], "b.jpg", { type: "image/jpeg" }));
+      return form;
+    };
+    const response = await send(fal, `/bootstrap?trigger=${gate.trigger}`, { method: "POST", body: refs() });
+    assert.equal(response.status, 202);
+    const body = await response.json() as { refs: string[]; slots: { index: number; id: string; caption: string; seed: number }[] };
+    const plan = bootstrapPlan();
+    assert.equal(body.slots.length, 15);
+    assert.equal(body.refs.length, 2);
+    assert.deepEqual(body.slots.map(slot => slot.caption), plan.map(slot => bootstrapCaption(gate.trigger, slot)));
+    body.slots.forEach((slot, i) => {
+      assert.equal(slot.index, i + 1);
+      assert.equal(slot.seed, plan[i].seed);
+      assert.match(slot.caption, new RegExp(`^${gate.trigger}, `));
+      assert.match(slot.id, /^vary-/);
+    });
+
+    const submits = fal.calls.filter(call => call.method === "POST" && call.url.endsWith(FAL_ENDPOINTS.vary));
+    assert.equal(submits.length, 15);
+    const puts = fal.calls.filter(call => call.method === "PUT");
+    assert.equal(puts.length, 2);
+    assert.ok(puts.every(call => call.headers.authorization === undefined));
+    for (const submit of submits) {
+      const input = submit.body as { prompt: string; image_urls: string[]; num_images: number; enhance_prompt: boolean; output_format: string };
+      assert.equal(submit.headers.authorization, `Key ${FAKE.key}`);
+      assert.equal(input.num_images, FAL_VARY.numImages);
+      assert.equal(input.enhance_prompt, false);
+      assert.equal(input.output_format, "jpeg");
+      assert.deepEqual(input.image_urls, body.refs);
+      assert.ok(!input.prompt.includes(gate.trigger));
+      assert.ok(plan.some(slot => varyPrompt(slot) === input.prompt));
+    }
+    assert.ok(!JSON.stringify(body).includes(FAKE.key));
+    assert.ok(!fal.calls.some(call => call.headers.authorization?.includes(TOKEN)));
+
+    const callsBefore = fal.calls.length;
+    const one = new FormData();
+    one.append("refs", new File([fakeJpeg(1)], "a.jpg", { type: "image/jpeg" }));
+    assert.equal((await send(fal, `/bootstrap?trigger=${gate.trigger}`, { method: "POST", body: one })).status, 400);
+    const four = new FormData();
+    for (let n = 0; n < 4; n++) four.append("refs", new File([fakeJpeg(n)], `${n}.jpg`, { type: "image/jpeg" }));
+    assert.equal((await send(fal, `/bootstrap?trigger=${gate.trigger}`, { method: "POST", body: four })).status, 400);
+    const bad = new FormData();
+    bad.append("refs", new File([fakeJpeg(1)], "a.jpg", { type: "image/jpeg" }));
+    bad.append("refs", new File([new Uint8Array([1, 2, 3, 4])], "notes.txt", { type: "text/plain" }));
+    assert.equal((await send(fal, `/bootstrap?trigger=${gate.trigger}`, { method: "POST", body: bad })).status, 400);
+    assert.equal((await send(fal, "/bootstrap?trigger=woman", { method: "POST", body: refs() })).status, 400);
+    assert.equal(fal.calls.length, callsBefore, "refused bootstraps must not reach fal");
+
+    const slot = body.slots[0];
+    assert.equal(((await (await send(fal, `/status?job=vary&id=${slot.id}`)).json()) as { status: string }).status, "COMPLETED");
+    const file = await send(fal, `/file?${new URLSearchParams({ url: `https://v3.fal.media/files/test/${slot.id}.jpg` })}`);
+    assert.equal(file.status, 200);
+    assert.equal(file.headers.get("Content-Type"), "image/jpeg");
+    assert.equal(file.headers.get("Cache-Control"), "private, no-store");
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    assert.equal(bytes[0], 0xff);
+    assert.equal(bytes[1], 0xd8);
+    const download = fal.calls.find(call => call.method === "GET" && call.url.endsWith(`${slot.id}.jpg`));
+    assert.equal(download?.headers.authorization, undefined);
+    assert.equal((await send(fal, "/file?url=https://evil.example/a.jpg")).status, 400);
+
+    const redirector: typeof fetch = async () => new Response(null, { status: 302, headers: { Location: "http://169.254.169.254/latest" } });
+    const redirected = await handle(new Request(`${BASE}/file?url=https://v3.fal.media/files/test/redir.jpg`, {
+      headers: { Origin: ORIGIN, Authorization: `Bearer ${TOKEN}` },
+    }), env, redirector);
+    assert.equal(redirected.status, 502);
+  });
+
+  it("lets the browser client start a bootstrap and pull a generated file through the proxy", async () => {
+    const fal = fakeFal();
+    const proxy: FalProxy = {
+      url: BASE, token: TOKEN,
+      fetch: (input, init) => {
+        const headers = new Headers(init?.headers);
+        headers.set("Origin", ORIGIN);
+        return handle(new Request(String(input), { ...init, headers }), env, fal.fetch);
+      },
+    };
+    const files = [new File([fakeJpeg(1)], "a.jpg", { type: "image/jpeg" }), new File([fakeJpeg(2)], "b.jpg", { type: "image/jpeg" })];
+    const started = await startFalBootstrap(proxy, files, gate.trigger);
+    assert.equal(started.slots.length, 15);
+    const status = await falJobStatus(proxy, "vary", started.slots[0].id);
+    assert.equal(status.status, "COMPLETED");
+    if (status.status !== "COMPLETED") return;
+    const blob = await fetchFalFile(proxy, status.result.image);
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    assert.equal(bytes[0], 0xff);
+    assert.ok(!fal.calls.some(call => call.headers.authorization?.includes(TOKEN)));
   });
 });

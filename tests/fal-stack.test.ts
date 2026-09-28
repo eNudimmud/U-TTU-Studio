@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { falQueueHeaders } from "../src/lib/fal-api.ts";
 import {
-  FAL_ENDPOINTS, FAL_GEN, FAL_PRICING, FAL_PRIVACY, FAL_TRAINING, USD_CHF,
-  billedMegapixels, checkFalGen, checkFalSteps, estimateFalGen, estimateFalRun, estimateFalTrain, falGenInput, falTrainInput,
+  FAL_ENDPOINTS, FAL_GEN, FAL_PRICING, FAL_PRIVACY, FAL_TRAINING, FAL_VARY, USD_CHF,
+  billedMegapixels, checkFalGen, checkFalSteps, estimateFalGen, estimateFalRun, estimateFalTrain, estimateFalVary, falGenInput, falTrainInput,
   formatChf, formatFalCost, formatStrength, formatUsd, isFalFileUrl, normalizeProxyUrl,
 } from "../src/lib/fal-stack.ts";
 import { FAKE } from "./fal-fixtures.ts";
@@ -51,6 +51,9 @@ describe("fal stack", () => {
     assert.equal(formatUsd(estimateFalGen(3).usd), "0,11 $");
     assert.equal(formatUsd(estimateFalRun(1000, 3).usd), "2,11 $", "2,00 $ + 0,11 $ must not display as 2,10 $");
     assert.equal(formatUsd(estimateFalRun(1000, 1).usd), "2,04 $", "the smoke budget announced in the docs");
+    assert.equal(FAL_VARY.usdPerImage, 0.04);
+    assert.equal(estimateFalVary(15).usd, 0.6);
+    assert.equal(formatUsd(estimateFalVary(15).usd), "0,60 $");
   });
 
   it("converts to CHF at a fixed rate that is labelled unverified", () => {

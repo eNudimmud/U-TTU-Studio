@@ -1,8 +1,10 @@
 # Refonte du guide LoRA — 27 septembre 2026
 
+Le 28 septembre 2026, la Phase 0 remplace l’ouverture en quatre écrans par un shell Créer. Le tutoriel de cette page reste disponible dans le tiroir « Comment ça marche ». Le détail du nouveau parcours est dans le README et dans [DECISIONS.md](DECISIONS.md).
+
 ## But
 
-Le site présentait une longue introduction, le formulaire, tous les contrôles et les outils avancés sur la même page. La refonte ouvre sur une explication de la LoRA, puis présente une seule étape à la fois : Comprendre, Préparer, Entraîner, Créer.
+Le site présentait une longue introduction, le formulaire, tous les contrôles et les outils avancés sur la même page. La refonte du 27 septembre ouvrait sur une explication de la LoRA, puis présentait une seule étape à la fois : Comprendre, Préparer, Entraîner, Créer.
 
 - Introduction courte, vocabulaire expliqué et exemple de prompt annoté.
 - Tri image par image, vignettes de navigation et filtres par décision.
