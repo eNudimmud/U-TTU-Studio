@@ -8,6 +8,7 @@ import { trackEvent } from "@/lib/analytics";
 import { captionsBlock } from "@/lib/gate/report";
 import { GATE, canKeep, evaluateGate, type ConfirmationId, type DatasetImage, type GateResult } from "@/lib/gate/rules";
 import type { Angle, Framing } from "@/lib/gate/vocabulary";
+import { prepareLaunch, runIfPrepareAllowed } from "@/lib/prepare-preflight";
 import { falProxyUrl } from "@/lib/site";
 import type { ExportState } from "../guide/train-step";
 
@@ -242,6 +243,23 @@ export function StudioSessionProvider({ children }: { children: ReactNode }) {
   }
 
   async function bootstrap() {
+    const attempt = {
+      proxyOn: !!falProxyUrl,
+      refCount: refFiles.length,
+      trigger: trigger.trim(),
+      invariants,
+      token,
+      busy: boot.phase !== "idle" || bootLock.current,
+    };
+    const ran = runIfPrepareAllowed(attempt, () => launchBootstrap());
+    if (ran) return ran;
+    const decision = prepareLaunch(attempt);
+    if (!decision.launch && boot.phase === "idle" && !bootLock.current) {
+      setBoot({ phase: "idle", done: 0, message: decision.reason });
+    }
+  }
+
+  async function launchBootstrap() {
     if (!falProxyUrl || bootLock.current) return;
     bootLock.current = true;
     const generation = ++bootGeneration.current;

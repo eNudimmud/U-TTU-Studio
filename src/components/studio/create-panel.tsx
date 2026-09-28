@@ -5,6 +5,7 @@ import { DATASET_SIZE } from "@/lib/comfy-stack";
 import { bootstrapCaption, bootstrapPlan } from "@/lib/fal-bootstrap";
 import { FAL_ACCESS_MIN, FAL_VARY, estimateFalVary, formatFalCost } from "@/lib/fal-stack";
 import { checkTrigger } from "@/lib/gate/captions";
+import { invariantFieldError, prepareLaunch } from "@/lib/prepare-preflight";
 import { ANGLES, FRAMINGS } from "@/lib/gate/vocabulary";
 import { Arrow } from "../glyph";
 
@@ -32,16 +33,20 @@ export interface CreatePanelProps {
 export function CreatePanel(props: CreatePanelProps) {
   const [dragging, setDragging] = useState(false);
   const triggerError = props.trigger ? checkTrigger(props.trigger) : null;
-  const ready = props.proxyOn
-    && props.refs.length >= FAL_VARY.minRefs
-    && props.refs.length <= FAL_VARY.maxRefs
-    && !triggerError
-    && !!props.trigger
-    && props.token.trim().length >= FAL_ACCESS_MIN
-    && !props.busy;
+  const invariantError = invariantFieldError(props.invariants);
+  const attempt = {
+    proxyOn: props.proxyOn,
+    refCount: props.refs.length,
+    trigger: props.trigger,
+    invariants: props.invariants,
+    token: props.token,
+    busy: props.busy,
+  };
+  const ready = prepareLaunch(attempt).launch;
+  const refsReady = props.refs.length >= FAL_VARY.minRefs && props.refs.length <= FAL_VARY.maxRefs;
+  const shortToken = props.proxyOn && !props.busy && !triggerError && !!props.trigger && refsReady && !invariantError && props.invariants.trim().length > 0 && props.token.trim().length < FAL_ACCESS_MIN;
   const angleLabel = (id: string) => ANGLES.find(item => item.id === id)?.label ?? id;
   const framingLabel = (id: string) => FRAMINGS.find(item => item.id === id)?.label ?? id;
-  const shortToken = props.proxyOn && !!props.trigger && !triggerError && props.refs.length >= FAL_VARY.minRefs && props.token.trim().length < FAL_ACCESS_MIN;
 
   function take(list: File[]) {
     props.onRefs(list);
@@ -76,8 +81,8 @@ export function CreatePanel(props: CreatePanelProps) {
       </div>
       <div className="create-field">
         <label htmlFor="create-invariants">Traits qui ne changent pas</label>
-        <input id="create-invariants" value={props.invariants} onChange={event => props.onInvariants(event.target.value)} placeholder="green eyes, freckles" spellCheck={false} disabled={props.busy} />
-        <p>Au moins deux, en anglais, séparés par des virgules. Ils ne vont pas dans les légendes.</p>
+        <input id="create-invariants" value={props.invariants} onChange={event => props.onInvariants(event.target.value)} placeholder="green eyes, freckles" spellCheck={false} disabled={props.busy} aria-invalid={!!invariantError} aria-describedby="create-invariants-help" />
+        <p id="create-invariants-help" className={invariantError ? "is-error" : ""}>{invariantError ?? "Au moins deux, en anglais, séparés par des virgules. Ils ne vont pas dans les légendes. Sans eux, le lot ne part pas."}</p>
       </div>
       {props.proxyOn && <div className="create-field">
         <label htmlFor="create-token">Code d’accès du studio</label>
@@ -95,16 +100,19 @@ export function CreatePanel(props: CreatePanelProps) {
       </ol>
     </div>
 
-    <div className="create-actions">
-      <button type="button" className="button button-primary" disabled={!ready} aria-busy={props.busy} onClick={props.onBootstrap}>
-        {props.busy ? "Préparation du lot…" : `Préparer les ${DATASET_SIZE} images · ≈ ${formatFalCost(COST)}`} <Arrow />
-      </button>
-      <button type="button" className="button button-outline" disabled={props.busy} onClick={props.onManual}>Importer mes {DATASET_SIZE} images</button>
-    </div>
-    <p className="create-path">Le lot automatique attend le proxy fal. Tes propres {DATASET_SIZE} images s’importent ici, sans réseau, puis passent le gate.</p>
-    {!props.proxyOn && <aside className="offline-fal" role="status">
-      <p><strong>Hors ligne.</strong> Proxy fal absent. Le bouton de lot reste éteint. Aucune photo ne part.</p>
+    {!props.proxyOn && <aside id="prepare-offline" className="offline-fal" role="status">
+      <p><strong>Lot automatique indisponible.</strong> Proxy fal absent. « Préparer les {DATASET_SIZE} images » ne lance rien, et rien n’est facturé.</p>
+      <p>Ici, le chemin est « J’ai déjà {DATASET_SIZE} images ». Le gate reste dans cette page.</p>
     </aside>}
+    <div className={`create-actions${props.proxyOn ? "" : " is-offline"}`}>
+      {!props.proxyOn && <button type="button" className="button button-primary" disabled={props.busy} onClick={props.onManual}>J’ai déjà {DATASET_SIZE} images <Arrow /></button>}
+      <button type="button" className={`button ${props.proxyOn ? "button-primary" : "button-outline"}`} disabled={!ready} aria-busy={props.busy} aria-describedby={props.proxyOn ? undefined : "prepare-offline"} onClick={() => { if (prepareLaunch(attempt).launch) props.onBootstrap(); }}>
+        {props.busy ? "Préparation du lot…" : props.proxyOn ? `Préparer les ${DATASET_SIZE} images · ≈ ${formatFalCost(COST)}` : `Préparer les ${DATASET_SIZE} images`} <Arrow />
+      </button>
+      {props.proxyOn && <button type="button" className="button button-outline" disabled={props.busy} onClick={props.onManual}>J’ai déjà {DATASET_SIZE} images</button>}
+    </div>
+    {props.proxyOn && <p className="create-path">Deux traits constants, un mot d’appel, deux ou trois photos. Tu peux aussi importer tes {DATASET_SIZE} images, sans lancer le lot.</p>}
+    {props.proxyOn && !props.busy && !triggerError && !!props.trigger && refsReady && !props.invariants.trim() && <p className="create-status">Deux traits constants avant l’envoi. Le bouton reste éteint : le gate les exige, et le lot ne part pas sans eux.</p>}
     {props.proxyOn && props.refs.length > 0 && props.refs.length < FAL_VARY.minRefs && <p className="create-status">Encore une photo : il en faut {FAL_VARY.minRefs} ou {FAL_VARY.maxRefs}.</p>}
     {shortToken && !props.busy && <p className="create-status">Le code d’accès du studio débloque le lot. Rien n’est envoyé avant le clic.</p>}
     {props.status && <p className="create-status" role="status">{props.status}</p>}
