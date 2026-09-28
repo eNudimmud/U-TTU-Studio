@@ -30,7 +30,9 @@ Le ZIP de départ ajoute `README.md`, le mode d’emploi du coffre. Ce n’est p
 | Studio | `jobs.md`, `processes/` | Le journal, et les recettes |
 | Compte | — | La session. Aucun dossier. |
 
-La bibliothèque du site montre encore la session de la page. Fermer l’onglet l’efface. Le coffre, lui, reste.
+Les fiches Sphère se notent dans la page, sur l’appareil. Chacune s’exporte en `.md` : `scenes/avant.md`, `scenes/apres.md`, `scenes/entre.md`. Le lieu, le rappel des quatre angles, et la note gauche / droite y tiennent. On pose le fichier dans `scenes/` à la main. Un collage, ou un fichier choisi dans le navigateur, remplit la fiche. Le site n’ouvre pas le coffre. Le ZIP laisse `scenes/` vide. Aucune sync.
+
+La bibliothèque du site montre encore la session de la page. Fermer l’onglet l’efface. Le coffre, lui, reste. Les fiches, elles, restent dans le navigateur jusqu’à ce qu’on les efface.
 
 Le panneau Studio liste les processus du catalogue : titre, état, une ligne. C’est un texte. On les range dans `processes/`, et chaque run se note dans `jobs.md`. Le site ne les écrit pas. Le ZIP ne change pas.
 
