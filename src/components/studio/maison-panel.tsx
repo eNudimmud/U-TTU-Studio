@@ -13,7 +13,7 @@ export function MaisonPanel() {
     <header className="mode-hero">
       <p className="eyebrow">Studio</p>
       <h1 id="mode-title" tabIndex={-1}>La maison, <em>chez toi.</em></h1>
-      <p className="mode-lead">Un dossier par personne. Obsidian l’ouvre comme un coffre. Le site ne le lit pas, et n’écrit pas dedans. Un compte pourra le rejoindre plus tard. Pas aujourd’hui.</p>
+      <p className="mode-lead">Un dossier par personne. Obsidian l’ouvre comme un coffre. Le site ne le lit pas, et n’écrit pas dedans. Le mode Compte non plus. Aucune sync.</p>
     </header>
 
     <div className="vault-layout">

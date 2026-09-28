@@ -1,5 +1,6 @@
-// Shell modes for the static Studio OS. Hashes stay ASCII so GitHub Pages
-// can switch panels without a server route.
+// Shell modes. Hashes stay ASCII so the panels switch without a server route.
+// Compte is last: Identité is the character canon, not the login. The account
+// is not a vault room and does not sit in front of Créer.
 
 export const STUDIO_MODES = [
   { id: "creer", label: "Créer" },
@@ -7,6 +8,7 @@ export const STUDIO_MODES = [
   { id: "identite", label: "Identité" },
   { id: "bibliotheque", label: "Bibliothèque" },
   { id: "studio", label: "Studio" },
+  { id: "compte", label: "Compte" },
 ] as const;
 
 export type StudioMode = (typeof STUDIO_MODES)[number]["id"];

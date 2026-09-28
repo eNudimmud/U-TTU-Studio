@@ -4,9 +4,9 @@ import { describe, it } from "node:test";
 import { SPHERE_PRESETS, STUDIO_MODES, modeFromHash } from "../src/lib/studio-modes.ts";
 
 describe("studio shell modes", () => {
-  it("exposes the five modes, in nav order, with ASCII hashes", () => {
-    assert.deepEqual(STUDIO_MODES.map(mode => mode.label), ["Créer", "Sphère", "Identité", "Bibliothèque", "Studio"]);
-    assert.deepEqual(STUDIO_MODES.map(mode => mode.id), ["creer", "sphere", "identite", "bibliotheque", "studio"]);
+  it("exposes six modes, Compte last, with ASCII hashes", () => {
+    assert.deepEqual(STUDIO_MODES.map(mode => mode.label), ["Créer", "Sphère", "Identité", "Bibliothèque", "Studio", "Compte"]);
+    assert.deepEqual(STUDIO_MODES.map(mode => mode.id), ["creer", "sphere", "identite", "bibliotheque", "studio", "compte"]);
     for (const mode of STUDIO_MODES) assert.match(mode.id, /^[a-z]+$/);
   });
 
@@ -22,6 +22,8 @@ describe("studio shell modes", () => {
     assert.equal(modeFromHash("#bibliotheque"), "bibliotheque");
     assert.equal(modeFromHash("#bibliothèque&suite"), "bibliotheque");
     assert.equal(modeFromHash("#studio?x=1"), "studio");
+    assert.equal(modeFromHash("#compte"), "compte");
+    assert.equal(modeFromHash("#COMPTE"), "compte");
   });
 });
 
@@ -41,9 +43,10 @@ describe("shell sources stay offline", () => {
     "src/components/studio/sphere-panel.tsx",
     "src/components/studio/library-panel.tsx",
     "src/components/studio/maison-panel.tsx",
+    "src/components/studio/account-panel.tsx",
   ];
 
-  it("does not call the network from Sphère, the library, or the vault home", () => {
+  it("does not call the network from Sphère, the library, the vault home, or Compte", () => {
     for (const file of panels) {
       const text = readFileSync(file, "utf8");
       assert.doesNotMatch(text, /fetch\(|XMLHttpRequest|new WebSocket|fal\.ai|cloud\.comfy\.org/, file);

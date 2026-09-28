@@ -20,7 +20,7 @@ L’offre A (« Look-Lock » : forfait de direction artistique et ZIP-juge) a é
 
 ## Ce que fait le site
 
-La page s’ouvre sur **Créer**, dans un shell à cinq modes : Créer, Sphère, Identité, Bibliothèque, Studio. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans. **Sphère** tient le catalogue des processus : deux gestes live (former un look, tester un prompt) s’ouvrent dans la page, après consentement ; les scènes restent en « Bientôt ». La bibliothèque ne lance ni vidéo, ni compte, ni paiement. **Studio** est la maison du coffre Obsidian : schéma, guide, ZIP de départ, et la liste texte des processus ([VAULT.md](docs/VAULT.md)).
+La page s’ouvre sur **Créer**, dans un shell à six modes : Créer, Sphère, Identité, Bibliothèque, Studio, Compte. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans. **Sphère** tient le catalogue des processus : deux gestes live (former un look, tester un prompt) s’ouvrent dans la page, après consentement ; les scènes restent en « Bientôt ». La bibliothèque ne lance ni vidéo ni paiement. **Compte** n’est pas un mur : sans session, Créer et le ZIP restent ouverts. Avec Clerk branché, il montre un tableau vide ([AUTH.md](docs/AUTH.md)). **Studio** est la maison du coffre Obsidian : schéma, guide, ZIP de départ, et la liste texte des processus ([VAULT.md](docs/VAULT.md)).
 
 1. **Déposer.** 2 ou 3 photos de la même personne, un mot d’appel, deux traits constants. « J’ai déjà 15 images » reste possible.
 2. **Préparer le lot.** Au clic, le proxy demande 15 variations à `fal-ai/flux-pro/kontext/multi` (cadrages et légendes du gate). Le coût estimé est sur le bouton. Il reste éteint sans trigger valide, sans 2 ou 3 photos, ou sans au moins 2 traits constants : le lot ne part pas. Sans URL de proxy, ce bouton reste inactif et « J’ai déjà 15 images » devient le bouton principal.
@@ -30,7 +30,7 @@ La page s’ouvre sur **Créer**, dans un shell à cinq modes : Créer, Sphère,
 
 Une fermeture ou un rechargement efface la session locale. Aucun service distant n’est lancé par la simple ouverture de la page.
 
-**Hors périmètre :** Look-Lock, rendu vidéo, auth, Stripe, sync du coffre, déploiement du Worker, 3D, voix, avatars. Les scènes de Sphère restent en aperçu. La vente reste HOLD.
+**Hors périmètre :** Look-Lock, rendu vidéo, Stripe, sync du coffre, jobs cloud, déploiement du Worker, 3D, voix, avatars. Le compte est un squelette Clerk (Google et GitHub), pas une vente. Les scènes de Sphère restent en aperçu. La vente reste HOLD.
 
 ## Démarrer
 
@@ -46,7 +46,7 @@ npm run dev          # http://localhost:3000
 
 | Commande | Rôle |
 | --- | --- |
-| `npm test` | Gate, plan 2–3 → 15, cadrages, coaching des légendes, grille de test, mesures d’image, ZIP, coffre Obsidian, catalogue des processus, workflows Comfy, coûts, proxy fal contre un faux serveur, protection des secrets et smoke sans réseau. |
+| `npm test` | Gate, plan 2–3 → 15, cadrages, coaching des légendes, grille de test, mesures d’image, ZIP, coffre Obsidian, catalogue des processus, mode Compte, workflows Comfy, coûts, proxy fal contre un faux serveur, protection des secrets et smoke sans réseau. |
 | `npm run vault:build` | Régénère `public/vault/U-TTU-Studio.zip` à partir de `src/lib/vault.ts`. `npm run build` le fait déjà. |
 | `npm run typecheck` | TypeScript strict. |
 | `npm run build` | Build de production (`next build --webpack`). |
@@ -112,24 +112,22 @@ Un run Comfy est coupé au bout de 30 minutes en Standard et Creator, 60 minutes
 
 ## Déployer
 
-**GitHub Pages.** Chaque push sur `main` lance le workflow [pages.yml](.github/workflows/pages.yml) : installation, tests, export statique, puis publication sur **https://enudimmud.github.io/U-TTU-Studio/**. La version en ligne est toujours celle de `main`. Le site fonctionne sans serveur : analyse des images, ZIP et formulaire tournent dans le navigateur. Pour reproduire l’export en local :
+**Vercel, cible officielle.** Importer le dépôt comme projet Next.js (`npm ci`, `npm run build`). Le compte Clerk a besoin de ce runtime. Les étapes, les domaines et les variables sont dans [docs/AUTH.md](docs/AUTH.md).
 
-```bash
-GITHUB_PAGES=true NEXT_PUBLIC_BASE_PATH=/U-TTU-Studio NEXT_PUBLIC_SITE_URL=https://enudimmud.github.io/U-TTU-Studio npm run build
-# résultat dans out/, à servir sous /U-TTU-Studio/
-```
-
-**Vercel.** Importer le dépôt comme projet Next.js (`npm ci`, `npm run build`).
+**GitHub Pages, arrêté.** `https://enudimmud.github.io/U-TTU-Studio/` reste la dernière publication (catalogue processus). Le workflow [pages.yml](.github/workflows/pages.yml) ne déploie plus : l’export statique est incompatible avec `src/proxy.ts`. `GITHUB_PAGES=true` est ignoré au build. Il n’y a plus de dossier `out/`.
 
 | Variable | Rôle |
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | URL publique HTTPS, pour la carte OG, l’URL canonique et le sitemap. Facultative sur Vercel. |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Adresse de contact. `HelveticVault@gmail.com` par défaut, provisoire. |
 | `NEXT_PUBLIC_COMFY_TRAIN_APP_URL`, `NEXT_PUBLIC_COMFY_PROMPT_APP_URL` | Facultatives : remplacent les liens App Mode. |
-| `NEXT_PUBLIC_BASE_PATH`, `GITHUB_PAGES` | Réservées à l’export GitHub Pages. |
-| `NEXT_PUBLIC_FAL_PROXY_URL` | URL publique du Worker, variable de dépôt GitHub Actions lue au build Pages. Vide = lot automatique et entraînement fal inactifs. |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | Session Clerk. Les deux vides : build vert, Compte en placeholder. Ne pas committer les valeurs. |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | `/sign-in` et `/sign-up`. |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | `/#compte` après connexion. |
+| `NEXT_PUBLIC_BASE_PATH` | Vide sur Vercel. L’ancien sous-chemin Pages n’est plus servi par ce build. |
+| `NEXT_PUBLIC_FAL_PROXY_URL` | URL publique du Worker. Vide = lot automatique et entraînement fal inactifs. Le Worker n’est pas déployé par cette livraison. |
 
-Aucun secret n’est nécessaire au site statique. Le rail fal utilise les secrets `FAL_KEY` et `ACCESS_TOKEN` uniquement dans le Worker ([configuration](workers/fal-proxy/README.md)). Ne pas les placer dans le build Pages. Le repli Comfy s’exécute sur le compte Comfy du client.
+Le rail fal utilise les secrets `FAL_KEY` et `ACCESS_TOKEN` uniquement dans le Worker ([configuration](workers/fal-proxy/README.md)). Ne pas les placer dans Vercel ni dans `NEXT_PUBLIC_*`. Le repli Comfy s’exécute sur le compte Comfy du client. Les secrets OAuth Google et GitHub vivent dans le dashboard Clerk, pas dans git.
 
 ## Confidentialité
 
@@ -138,13 +136,16 @@ Aucun secret n’est nécessaire au site statique. Le rail fal utilise les secre
 - Les images n’arrivent chez Comfy que lorsque le client les dépose lui-même dans l’app.
 - Avec fal activé, un clic sur « Préparer les 15 images » envoie les 2 ou 3 photos de référence via le Worker. Un clic sur « Entraîner chez fal » envoie les 15 JPEG et légendes. Rapport et noms d’origine du gate restent locaux. L’effacement demandé et les limites sont dans [FAL-SPIKE.md](docs/FAL-SPIKE.md#secrets-et-vie-privée).
 - Le lien de contact ouvre la messagerie (`mailto:`), sans envoi automatique.
-- Aucun cookie, aucun stockage local, aucun outil de mesure d’audience (`src/lib/analytics.ts` est inerte).
+- Sans clés Clerk : aucun cookie de compte, aucun stockage local, aucun outil de mesure d’audience (`src/lib/analytics.ts` est inerte).
+- Avec clés Clerk : la session pose les cookies de Clerk. Les images du gate ne passent pas par ce compte. Le coffre n’est pas envoyé.
 
 ## Organisation du code
 
 ```text
-src/app/page.tsx              page unique : shell Créer, questions fréquentes, contact
-src/components/studio/        dépôt des 2–3 photos et plan des 15 cadrages
+src/app/page.tsx              shell : Créer, Sphère, Identité, Bibliothèque, Studio, Compte
+src/app/sign-in, sign-up      flux Clerk, ou placeholder si les clés manquent
+src/proxy.ts                  session Clerk, aucune route protégée
+src/components/studio/        dépôt des 2–3 photos, catalogue, compte
 src/components/guide/         revue du gate, rail fal, repli Comfy, tuto en tiroir
 src/lib/fal-bootstrap.ts      plan 15 images, prompts Kontext, reconnaissance JPEG/PNG/WebP
 src/lib/gate/                 règles du gate, légendes, mesures d’image, rapport, export ZIP
@@ -165,6 +166,7 @@ docs/                         documentation
 | [docs/COMFY-STACK.md](docs/COMFY-STACK.md) | Choix de Flux, faits vérifiés sur Comfy Cloud, graphes, calcul du coût, calibration, grille de test, risques. |
 | [docs/FAL-SPIKE.md](docs/FAL-SPIKE.md) | Rail fal expérimental, coûts USD/CHF, preuves, limites et checklist de revue. |
 | [workers/fal-proxy/README.md](workers/fal-proxy/README.md) | Déploiement Cloudflare, secrets, CORS et variable Pages. |
+| [docs/AUTH.md](docs/AUTH.md) | Clerk, Vercel, variables, domaines, mode dégradé sans clés. |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Registre des faits, hypothèses, propositions et décisions. |
 | [docs/UX-GUIDE.md](docs/UX-GUIDE.md) | Refonte du guide, mesures de chargement et vérifications restantes. |
 | [docs/QA.md](docs/QA.md) | Contrôles exécutés avant livraison, et leurs limites. |
@@ -176,9 +178,9 @@ Le code est prêt. Le déploiement Cloudflare n’a pas été fait ici. Aucun ap
 
 1. Déployer le Worker depuis cette branche ou depuis `main` après fusion : [8 commandes](workers/fal-proxy/README.md#déployer-jd--8-commandes). Les routes nouvelles sont `POST /bootstrap` et `GET /file`.
 2. Poser les secrets `FAL_KEY` et `ACCESS_TOKEN` (24 caractères au moins). Ne pas les mettre dans GitHub Actions ni dans `NEXT_PUBLIC_*`.
-3. Vérifier le CORS : origine `https://enudimmud.github.io`, sans le chemin `/U-TTU-Studio`. Les deux `curl` du README Worker ne lancent pas de job.
+3. Vérifier le CORS : origine du site Vercel, une fois le domaine connu. L’ancienne origine `https://enudimmud.github.io` ne reçoit plus de nouveau build. Les deux `curl` du README Worker ne lancent pas de job.
 4. Créer la variable de dépôt `NEXT_PUBLIC_FAL_PROXY_URL` (URL HTTPS du Worker, sans `/bootstrap`).
-5. Reconstruire les Pages depuis `main` (push de fusion, ou workflow manuel sur `main`). Ne pas lancer le workflow Pages depuis la branche DRAFT.
+5. Poser `NEXT_PUBLIC_FAL_PROXY_URL` sur le projet Vercel, puis redéployer. Le workflow Pages ne publie plus.
 6. Ouvrir le site : le bouton « Préparer les 15 images » est actif seulement avec l’URL et un code. Ne pas lancer de lot réel pour cette vérification, sauf budget annoncé (environ 0,60 $ le lot, puis environ 2,04 $ pour 1 000 étapes et 1 image).
 
 La vente reste HOLD. La fidélité du lot Kontext sur de vraies photos n’est pas mesurée.

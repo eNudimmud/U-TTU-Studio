@@ -21,9 +21,12 @@ describe("vault schema", () => {
     assert.equal(VAULT_ROOT, "U-TTU-Studio");
   });
 
-  it("maps every shell mode onto those places", () => {
-    assert.deepEqual(VAULT_MODE_MAP.map(item => item.mode), STUDIO_MODES.map(mode => mode.id));
-    assert.deepEqual(VAULT_MODE_MAP.map(item => item.label), STUDIO_MODES.map(mode => mode.label));
+  it("maps the five studio modes, and leaves Compte outside the coffre", () => {
+    const studio = STUDIO_MODES.filter(mode => mode.id !== "compte");
+    assert.equal(studio.length, 5);
+    assert.equal(STUDIO_MODES.at(-1)?.id, "compte");
+    assert.deepEqual(VAULT_MODE_MAP.map(item => item.mode), studio.map(mode => mode.id));
+    assert.deepEqual(VAULT_MODE_MAP.map(item => item.label), studio.map(mode => mode.label));
     const known = new Set([
       ...VAULT_FOLDERS.map(folder => `${folder.name}/`),
       ...VAULT_DOCUMENTS.map(doc => doc.name),

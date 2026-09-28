@@ -1,7 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { frFR } from "@clerk/localizations";
+import { ClerkProvider } from "@clerk/nextjs";
 import "@fontsource-variable/syne";
 import "@fontsource-variable/manrope";
 import "./globals.css";
+import { ACCOUNT_CREER_HASH, ACCOUNT_HOME_HASH } from "@/lib/account";
+import { clerkAppearance } from "@/lib/clerk-appearance";
+import { clerkClientEnabled } from "@/lib/clerk-config";
 import { assetPath, siteDescription, siteOrigin, siteTitle, socialImage } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -21,6 +26,21 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = { themeColor: "#0A0A0B", colorScheme: "dark" };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+function Frame({ children }: { children: React.ReactNode }) {
   return <html lang="fr-CH"><body><a className="skip-link" href="#contenu">Aller au contenu</a>{children}</body></html>;
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  if (!clerkClientEnabled()) return <Frame>{children}</Frame>;
+  return <Frame>
+    <ClerkProvider
+      appearance={clerkAppearance}
+      localization={frFR}
+      afterSignOutUrl={assetPath(ACCOUNT_CREER_HASH)}
+      signInFallbackRedirectUrl={assetPath(ACCOUNT_HOME_HASH)}
+      signUpFallbackRedirectUrl={assetPath(ACCOUNT_HOME_HASH)}
+    >
+      {children}
+    </ClerkProvider>
+  </Frame>;
 }

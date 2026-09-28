@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { STUDIO_MODES, modeFromHash, type StudioMode } from "@/lib/studio-modes";
 import { contactEmail, testPhaseEnd } from "@/lib/site";
@@ -11,6 +12,10 @@ import { GoProvider } from "./mode-context";
 import { ProcessLaunchProvider } from "./process-launch";
 import { SpherePanel } from "./sphere-panel";
 import { StudioSessionProvider } from "./session";
+
+const AccountPanel = dynamic(() => import("./account-panel").then(m => m.AccountPanel), {
+  loading: () => <p className="loading-panel" role="status">Ouverture…</p>,
+});
 
 export function StudioShell() {
   const [mode, setMode] = useState<StudioMode>("creer");
@@ -58,6 +63,7 @@ export function StudioShell() {
         {mode === "identite" && <IdentityPanel />}
         {mode === "bibliotheque" && <LibraryPanel />}
         {mode === "studio" && <MaisonPanel />}
+        {mode === "compte" && <AccountPanel />}
       </main>
       <footer className="studio-footer shell">
         <span><span className="iii">iii</span> THE BLOC · SUISSE</span>
