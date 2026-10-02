@@ -44,9 +44,11 @@ describe("shell sources stay offline", () => {
     "src/components/studio/library-panel.tsx",
     "src/components/studio/maison-panel.tsx",
     "src/components/studio/account-panel.tsx",
+    "src/components/studio/plateau-panel.tsx",
+    "src/components/studio/take-panel.tsx",
   ];
 
-  it("does not call the network from Sphère, the library, the vault home, or Compte", () => {
+  it("does not call the network from the side panels, Plateau, or Take", () => {
     for (const file of panels) {
       const text = readFileSync(file, "utf8");
       assert.doesNotMatch(text, /fetch\(|XMLHttpRequest|new WebSocket|fal\.ai|cloud\.comfy\.org/, file);

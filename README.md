@@ -1,6 +1,6 @@
 # U*TTU Studio — C micro
 
-> **Deux photos. Une identité.** Créer dès l’ouverture.
+> **Ton style. Ta scène. La prise.** Tourner dans un monde.
 
 Site en français (FR-CH) pour C micro : 2 ou 3 photos → lot de 15 images → LoRA → image(s). Le gate reste dans le navigateur et bloque l’entraînement tant qu’il reste un problème. Le chemin principal est le rail fal, dans la page, quand `NEXT_PUBLIC_FAL_PROXY_URL` est défini. Comfy Cloud est un repli replié, « Expert ». **Vente HOLD.** L’identité produite n’est pas encore validée.
 
@@ -20,7 +20,7 @@ L’offre A (« Look-Lock » : forfait de direction artistique et ZIP-juge) a é
 
 ## Ce que fait le site
 
-L’accueil `/` raconte l’étoile cinéma : Look, Plateau, Take ([brief](docs/CINEMA-STUDIO-BRIEF.md), [doctrine d’interface](docs/LANDING-AND-UX.md)). Le shell `/studio` s’ouvre sur **Créer**, en six modes : Créer, Sphère, Identité, Bibliothèque, Studio, Compte. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans. **Sphère** tient le catalogue des processus : deux gestes live (former un look, tester un prompt) s’ouvrent dans la page, après consentement ; les scènes restent en « Bientôt ». La bibliothèque ne lance ni vidéo ni paiement. **Compte** n’est pas un mur : sans session, Créer et le ZIP restent ouverts. Avec Clerk branché, il montre un tableau vide ([AUTH.md](docs/AUTH.md)). **Studio** est la maison du coffre Obsidian : schéma, guide, ZIP de départ, et la liste texte des processus ([VAULT.md](docs/VAULT.md)).
+L’accueil `/` raconte l’étoile cinéma : Look, Plateau, Take ([brief](docs/CINEMA-STUDIO-BRIEF.md), [doctrine d’interface](docs/LANDING-AND-UX.md)). Le shell `/studio` s’ouvre sur **Ton style**. **Ta scène** reçoit le monde (lieu, images de préviz, suites, notes) sur cet appareil. **La prise** montre la chaîne monde → look tenu → prise courte, et ne tourne pas. Sphère, Identité, Bibliothèque, Studio et Compte restent à côté. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans. **Sphère** tient le catalogue des processus : deux gestes live (former un look, tester un prompt) s’ouvrent dans la page, après consentement ; les fiches Avant / Après restent. La bibliothèque ne lance ni vidéo ni paiement. **Compte** n’est pas un mur : sans session, Ton style et le ZIP restent ouverts. Avec Clerk branché, il montre un tableau vide ([AUTH.md](docs/AUTH.md)). **Studio** est la maison du coffre Obsidian : schéma, guide, ZIP de départ, et la liste texte des processus ([VAULT.md](docs/VAULT.md)).
 
 1. **Déposer.** 2 ou 3 photos de la même personne, un mot d’appel, deux traits constants. « J’ai déjà 15 images » reste possible.
 2. **Préparer le lot.** Au clic, le proxy demande 15 variations à `fal-ai/flux-pro/kontext/multi` (cadrages et légendes du gate). Le coût estimé est sur le bouton. Il reste éteint sans trigger valide, sans 2 ou 3 photos, ou sans au moins 2 traits constants : le lot ne part pas. Sans URL de proxy, ce bouton reste inactif et « J’ai déjà 15 images » devient le bouton principal.

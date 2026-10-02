@@ -31,7 +31,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 132px; }
+html { scroll-behavior: smooth; scroll-padding-top: 220px; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font: inherit; }
 button, a, summary, input, select, textarea, label { -webkit-tap-highlight-color: transparent; }
@@ -547,4 +547,73 @@ button.vault-row:hover strong { color: var(--gold-soft); }
   .landing-splash h1 { grid-column: 1; grid-row: 1; align-self: end; }
   .landing-sheet { grid-column: 1; grid-row: 2; }
   .landing-still { order: 0; grid-column: 2; grid-row: 1 / span 2; margin: 0; width: 100%; height: 100%; min-height: 0; max-height: none; align-self: stretch; }
+}
+
+/* Cinema shell — Look, Plateau, Take. The world is the shoot, not a caption. */
+.cinema-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 2px 0 8px; }
+.cinema-step { min-height: 72px; padding: 10px 12px; border: 1px solid var(--line); background: transparent; color: var(--muted); text-align: left; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; }
+.cinema-step:hover { border-color: var(--line-gold); color: var(--text); }
+.cinema-step[aria-current="step"] { border-color: var(--gold); background: #c4a5740c; color: var(--text); }
+.cinema-index { font-family: var(--font-heading); font-size: 11px; letter-spacing: .16em; color: var(--gold); }
+.cinema-plain { font-family: var(--font-heading); font-size: clamp(15px, 2.2vw, 22px); letter-spacing: -.03em; line-height: 1.1; color: inherit; }
+.cinema-step[aria-current="step"] .cinema-plain { color: var(--gold-soft); }
+.cinema-name { font-size: 12px; color: var(--muted); }
+.cinema-path { margin: 0 0 2px; color: var(--muted); font-size: 13px; }
+.atelier-nav { padding-top: 0; }
+.atelier-nav .studio-nav-item { flex: 0 1 auto; min-height: 44px; font-size: 13px; }
+.look-status { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; margin-top: 16px; padding: 12px 14px; border: 1px solid var(--line); background: var(--surface); max-width: 40rem; }
+.look-status[data-held="true"] { border-color: var(--line-gold); }
+.look-status-mark { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.look-status[data-held="true"] .look-status-mark { color: var(--gold); }
+.look-status span:last-child { color: var(--text); font-size: 14px; }
+.plateau-empty { margin-top: 22px; }
+.plateau-empty .button { margin-top: 8px; }
+.plateau-layout { display: grid; gap: 16px; margin-top: 22px; }
+.plateau-side { display: grid; gap: 8px; align-content: start; }
+.plateau-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; overflow-x: auto; }
+.plateau-list button { flex: 0 0 auto; min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-family: var(--font-heading); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.plateau-list button[aria-current="true"] { border-color: var(--gold); color: var(--gold-soft); }
+.plateau-name { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.plateau-name input { flex: 1 1 140px; height: 44px; background: #101010; border: 1px solid #776b5b; color: var(--text); padding: 10px 12px; font-size: 16px; }
+.plateau-work, .take-plan { border: 1px solid var(--line); background: var(--surface); padding: 22px 20px; display: grid; gap: 14px; }
+.plateau-work label, .take-plan label, .plateau-angles label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+.plateau-work input, .plateau-work textarea, .take-plan input, .take-plan select { width: 100%; background: #101010; border: 1px solid #776b5b; color: var(--text); padding: 10px 12px; font-size: 16px; }
+.plateau-work input, .take-plan input, .take-plan select { height: 48px; }
+.plateau-work textarea { min-height: 96px; resize: vertical; }
+.plateau-hint { border: 1px dashed #8a7554; padding: 14px 16px; color: var(--text); font-size: 14px; }
+.plateau-angles { border: 0; padding: 0; display: grid; gap: 10px; }
+.plateau-angles legend { font-family: var(--font-heading); font-size: 18px; letter-spacing: -.02em; color: var(--text); margin-bottom: 4px; }
+.plateau-bring { display: flex; flex-wrap: wrap; gap: 10px; }
+.file-button { position: relative; cursor: pointer; }
+.file-button input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.plateau-stills, .plateau-sequences { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 12px; }
+.plateau-stills li, .plateau-sequences li { border: 1px solid var(--line); padding: 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.plateau-stills img, .plateau-sequences img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border: 1px solid var(--line-gold); }
+.plateau-stills strong, .plateau-sequences p { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.plateau-foot { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+.take-chain { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 12px; }
+.take-chain li { border: 1px solid var(--line); background: var(--surface); padding: 20px 18px; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.take-chain li[data-state="held"] { border-color: var(--line-gold); }
+.take-chain li[data-state="wait"] { border-style: dashed; }
+.take-chain h2 { font-size: clamp(26px, 4vw, 32px); letter-spacing: -.03em; }
+.take-chain p { color: var(--muted); font-size: 14px; }
+.take-mark { margin-top: auto; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.take-chain li[data-state="open"] .take-mark { color: var(--muted); }
+.take-chain .text-button { margin-top: 4px; }
+.take-actions { margin-top: 22px; display: grid; gap: 10px; justify-items: start; }
+.take-actions p { color: var(--muted); font-size: 14px; max-width: 36rem; }
+.take-plan { margin-top: 16px; max-width: 40rem; }
+.take-card { margin-top: 22px; max-width: 36rem; min-height: 0; }
+@media (min-width: 800px) {
+  .plateau-layout { grid-template-columns: 200px minmax(0, 1fr); align-items: start; }
+  .plateau-list { flex-direction: column; overflow: visible; }
+  .plateau-list button { width: 100%; text-align: left; }
+  .plateau-angles { grid-template-columns: 1fr 1fr; }
+  .take-chain { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .take-chain li { min-height: 240px; }
+}
+@media (max-width: 700px) {
+  .plateau-bring .button, .plateau-foot .button, .take-actions .button, .take-plan .button { width: 100%; }
+  .cinema-step { padding: 8px; min-height: 64px; }
+  .cinema-name { display: none; }
 }

@@ -2,9 +2,14 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-02.
 
+## Cinéma — tourner dans un monde — shell — 2 octobre 2026
+
+- **Décision JD :** le sommet est de tourner dans un monde virtuel créé. Le shell `/studio` porte Look, Plateau, Take. Plateau reçoit la préviz (images, suites, notes) venue du bureau Blender. Take est le tournage dans ce monde, plus tard via Seedance ou un chemin équivalent, à partir de cette préviz et du look tenu. Pas une boîte texte-vers-vidéo. Le bouton ne lance rien. Détail : [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md).
+- **Fait :** aucun appel Seedance, aucune route fal nouvelle, aucun fichier `.blend` ouvert. Le monde et le plan restent sur l’appareil.
+
 ## Cinéma — Look, Plateau, Take — accueil — 2 octobre 2026
 
-- **Décision JD :** l’étoile du nord est Look, puis Plateau, puis Take. L’accueil `/` la montre en français clair. Le shell reste `/studio` et s’ouvre sur Créer. Détail : [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md), [LANDING-AND-UX.md](LANDING-AND-UX.md).
+- **Décision JD :** l’étoile du nord est Look, puis Plateau, puis Take. L’accueil `/` la montre en français clair. Le shell reste `/studio` et s’ouvre sur Ton style. Détail : [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md), [LANDING-AND-UX.md](LANDING-AND-UX.md).
 - **Décision :** pas de Blender dans le navigateur. La préviz reste un export du bureau. Pas de Night City. Take, plus tard, est Seedance dans le cloud — pas branché. Aucune route fal nouvelle. Aucun burn vidéo.
 - **Décision inchangée :** la phase 0 ferme toujours la boucle photo dans Créer. Vente HOLD. Apps Comfy et coffre conservés. Compte sans mur. Les retours Clerk vont vers `/studio#compte` et `/studio#creer`. Un ancien `/#compte` est reconduit vers le shell.
 
