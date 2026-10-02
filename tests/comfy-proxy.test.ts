@@ -48,7 +48,7 @@ describe("Comfy same-origin embed", () => {
   });
 
   it("loads only the validated share, and refuses anything else on that path", async () => {
-    const { calls, fetchImpl } = install(new Response("<html></html>", { headers: { "content-type": "text/html" } }));
+    const { calls, fetchImpl } = install(() => new Response("<html></html>", { headers: { "content-type": "text/html" } }));
     const ok = await proxyComfy(new Request(`${STUDIO}/comfy-embed?share=${SHARE}&next=https://evil.example`), fetchImpl);
     assert.equal(ok?.status, 200);
     assert.equal(calls[0].url, `https://cloud.comfy.org/?share=${SHARE}`);
@@ -65,7 +65,7 @@ describe("Comfy same-origin embed", () => {
   });
 
   it("injects the media worker boot into the Comfy document and echoes this origin", async () => {
-    const html = "<!doctype html><html><head><title>Comfy</title></head><body></body></html>";
+    const html = "<!doctype html><html><head><title>Comfy</title><script type=\"module\" crossorigin src=\"/assets/index-abc.js\"></script></head><body></body></html>";
     const { fetchImpl } = install(new Response(html, {
       headers: {
         "content-type": "text/html",
@@ -84,31 +84,52 @@ describe("Comfy same-origin embed", () => {
     assert.match(worker, /\/api\/assets\//);
     assert.match(worker, /\/api\/s\//);
     assert.match(text, /comfy-token-ack/);
-    assert.match(worker, /mode: "no-cors"/);
-    assert.match(worker, /credentials: "omit"/);
-    assert.match(worker, /x-comfy-media-redirect/);
+    assert.match(text, /firebaseLocalStorageDb/);
+    assert.match(text, /script\[data-comfy-main\]/);
+    assert.match(text, /type="text\/plain" data-comfy-main crossorigin src="\/assets\/index-abc\.js"/);
+    assert.doesNotMatch(text, /type="module" crossorigin src=/);
+    assert.match(worker, /Bearer /);
+    assert.doesNotMatch(worker, /no-cors/);
+    assert.doesNotMatch(worker, /x-comfy-media-redirect/);
     assert.doesNotMatch(worker, /https:\/\/cloud\.comfy\.org/);
+    const panel = readFileSync("src/components/guide/comfy-run-panel.tsx", "utf8");
+    assert.match(panel, /serviceWorker\.register\(COMFY_MEDIA_SW\)/);
   });
 
-  it("gives the media worker a readable signed URL and leaves cookie redirects alone", async () => {
+  it("streams a storage redirect as same-origin bytes for cookie and bearer", async () => {
+    const png = new Uint8Array([137, 80, 78, 71, 1, 2, 3]);
     const signed = "https://storage.googleapis.com/bucket/file.png?X-Goog-Signature=abc";
-    const upstream = () => new Response(null, { status: 302, headers: { location: signed } });
-    const { fetchImpl } = install(upstream);
+    const calls: { url: string; headers: Headers }[] = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      const headers = new Headers(init?.headers);
+      calls.push({ url: String(input), headers });
+      if (String(input) === signed) {
+        return new Response(png, { status: 206, headers: { "content-type": "image/png", "content-length": String(png.byteLength), "content-range": "bytes 0-2/3", "accept-ranges": "bytes" } });
+      }
+      const redirect = new Headers({ location: signed });
+      redirect.append("set-cookie", "__Host-comfy_session=abc; HttpOnly; Secure; Path=/; SameSite=Lax; Domain=cloud.comfy.org");
+      return new Response(null, { status: 302, headers: redirect });
+    };
     const authed = await proxyComfy(new Request(`${STUDIO}/api/view?filename=a.png&type=output`, {
-      headers: { authorization: "Bearer firebase-token" },
+      headers: { authorization: "Bearer firebase-token", range: "bytes=0-2", accept: "image/png" },
     }), fetchImpl);
-    assert.equal(authed?.status, 200);
-    assert.equal(authed?.headers.get("x-comfy-media-redirect"), "1");
-    assert.deepEqual(await authed?.json(), { location: signed });
-    const cookieOnly = await proxyComfy(new Request(`${STUDIO}/api/view?filename=a.png&type=output`), fetchImpl);
-    assert.equal(cookieOnly?.status, 302);
-    assert.equal(cookieOnly?.headers.get("location"), signed);
-    assert.equal(cookieOnly?.headers.get("x-comfy-media-redirect"), null);
+    assert.equal(authed?.status, 206);
+    assert.equal(authed?.headers.get("content-type"), "image/png");
+    assert.equal(authed?.headers.get("location"), null);
+    assert.equal(authed?.headers.get("x-comfy-media-redirect"), null);
+    assert.deepEqual(new Uint8Array(await authed?.arrayBuffer() ?? new ArrayBuffer(0)), png);
+    assert.equal(calls[1]?.url, signed);
+    assert.equal(calls[1]?.headers.get("range"), "bytes=0-2");
+    assert.equal(calls[1]?.headers.get("authorization"), null);
+    assert.equal(calls[1]?.headers.get("cookie"), null);
+    const cookie = authed?.headers.getSetCookie() ?? [];
+    assert.match(cookie[0] ?? "", /__Host-comfy_session=abc/);
+    assert.doesNotMatch(cookie[0] ?? "", /domain=/i);
     const login = await proxyComfy(new Request(`${STUDIO}/login`, {
       headers: { authorization: "Bearer firebase-token" },
     }), fetchImpl);
     assert.equal(login?.status, 302);
-    assert.equal(login?.headers.get("x-comfy-media-redirect"), null);
+    assert.equal(login?.headers.get("content-type"), null);
   });
 
   it("forwards the Comfy media cookie and the bearer token, not the Clerk session", async () => {
@@ -130,17 +151,23 @@ describe("Comfy same-origin embed", () => {
     assert.equal(await response?.text(), "{\"ok\":true}");
   });
 
-  it("passes a storage redirect through and rewrites a redirect back onto this host", async () => {
-    const gcs = new Headers({ location: "https://storage.googleapis.com/bucket/ComfyUI_00002_.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Signature=abc" });
-    gcs.append("set-cookie", "__Host-comfy_session=abc; HttpOnly; Secure; Path=/; SameSite=Lax");
-    gcs.append("set-cookie", "fe_canary=stable.11; Domain=cloud.comfy.org; Path=/; HttpOnly; Secure; SameSite=Lax");
-    gcs.set("content-encoding", "gzip");
-    const { calls, fetchImpl } = install(new Response(null, { status: 302, headers: gcs }));
+  it("streams storage bytes and rewrites a redirect back onto this host", async () => {
+    const mp4 = new Uint8Array([0, 0, 0, 24, 102, 116, 121, 112]);
+    const signed = "https://storage.googleapis.com/bucket/ComfyUI_00002_.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Signature=abc";
+    const fetchImpl: typeof fetch = async (input) => {
+      if (String(input) === signed) return new Response(mp4, { headers: { "content-type": "video/mp4", "accept-ranges": "bytes" } });
+      const gcs = new Headers({ location: signed });
+      gcs.append("set-cookie", "__Host-comfy_session=abc; HttpOnly; Secure; Path=/; SameSite=Lax");
+      gcs.append("set-cookie", "fe_canary=stable.11; Domain=cloud.comfy.org; Path=/; HttpOnly; Secure; SameSite=Lax");
+      gcs.set("content-encoding", "gzip");
+      return new Response(null, { status: 302, headers: gcs });
+    };
     const view = await proxyComfy(new Request(`${STUDIO}/api/view?filename=video/MiniMax_H3_00001_.mp4&type=output&subfolder=`), fetchImpl);
-    assert.equal(view?.status, 302);
-    assert.equal(calls.length, 1);
-    assert.equal(view?.headers.get("location"), "https://storage.googleapis.com/bucket/ComfyUI_00002_.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Signature=abc");
+    assert.equal(view?.status, 200);
+    assert.equal(view?.headers.get("content-type"), "video/mp4");
+    assert.equal(view?.headers.get("location"), null);
     assert.equal(view?.headers.get("content-encoding"), null);
+    assert.deepEqual(new Uint8Array(await view?.arrayBuffer() ?? new ArrayBuffer(0)), mp4);
     const cookies = view?.headers.getSetCookie() ?? [];
     assert.equal(cookies.length, 2);
     assert.match(cookies[0], /__Host-comfy_session=abc/);
@@ -152,6 +179,10 @@ describe("Comfy same-origin embed", () => {
     const again = install(new Response(null, { status: 302, headers: back }));
     const login = await proxyComfy(new Request(`${STUDIO}/api/auth/session`, { method: "POST" }), again.fetchImpl);
     assert.equal(login?.headers.get("location"), `${STUDIO}/api/auth/session`);
+    const internal = install(() => new Response(null, { status: 302, headers: { location: "https://169.254.169.254/latest" } }));
+    const blocked = await proxyComfy(new Request(`${STUDIO}/api/view?filename=a.png`), internal.fetchImpl);
+    assert.equal(blocked?.status, 302);
+    assert.equal(internal.calls.length, 1);
   });
 
   it("rewrites absolute Comfy media URLs in JSON and leaves signed storage URLs alone", async () => {
@@ -211,7 +242,7 @@ describe("Comfy same-origin embed", () => {
       return new Response(null, { status: 302, headers: { location: "https://storage.googleapis.com/bucket/x.png" } });
     };
     const redirected = await proxyComfy(new Request(`${STUDIO}/api/view?filename=ComfyUI_00002_.png`), once);
-    assert.equal(followed, 1);
-    assert.equal(redirected?.status, 302);
+    assert.equal(followed, 3);
+    assert.equal(redirected?.status, 502);
   });
 });
