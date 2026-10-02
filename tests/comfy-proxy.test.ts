@@ -41,7 +41,7 @@ describe("Comfy same-origin embed", () => {
 
   it("does not proxy the studio, its workflow files, or a path that climbs out", async () => {
     const { calls, fetchImpl } = install(new Response("no"));
-    for (const path of ["/studio", "/comfy/c-micro-train-image.json", "/images/look.png", "/api/../studio", "/assets/../comfy/c-micro-prompt-test.json"]) {
+    for (const path of ["/", "/studio", "/comfy/c-micro-train-image.json", "/images/look.png", "/api/../studio", "/assets/../comfy/c-micro-prompt-test.json", "/?share=../secret"]) {
       assert.equal(await proxyComfy(new Request(`${STUDIO}${path}`), fetchImpl), null, path);
     }
     assert.equal(calls.length, 0);
@@ -56,6 +56,12 @@ describe("Comfy same-origin embed", () => {
     const denied = await proxyComfy(new Request(`${STUDIO}/comfy-embed?share=../secret`), fetchImpl);
     assert.equal(denied?.status, 404);
     assert.equal(calls.length, 1);
+    const returned = await proxyComfy(new Request(`${STUDIO}/?share=${SHARE}`), fetchImpl);
+    assert.equal(returned?.status, 200);
+    assert.equal(calls.at(-1)?.url, `https://cloud.comfy.org/?share=${SHARE}`);
+    const login = await proxyComfy(new Request(`${STUDIO}/cloud/login?previousFullPath=%2F`), fetchImpl);
+    assert.equal(login?.status, 200);
+    assert.equal(calls.at(-1)?.url, "https://cloud.comfy.org/cloud/login?previousFullPath=%2F");
   });
 
   it("forwards the Comfy media cookie and the bearer token, not the Clerk session", async () => {

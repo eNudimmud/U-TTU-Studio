@@ -14,6 +14,9 @@ export const COMFY_ORIGIN = "https://cloud.comfy.org";
 
 const PREFIXES = ["assets", "fonts", "api", "website", "extensions", "templates", "internal", "models", "vhs", "flags", "cdn-cgi"];
 const EXACT = new Set(["/materialdesignicons.min.css", "/ws"]);
+// Vue routes. A refresh or the post-login return must still be the Comfy document, not the studio page.
+const SPA_EXACT = new Set(["/login", "/user-select"]);
+const SPA_PREFIXES = ["cloud", "oauth"];
 const METHODS = new Set(["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]);
 const REQUEST_HEADERS = ["accept", "accept-language", "authorization", "content-type", "range", "user-agent", "x-api-key"];
 const DROPPED_RESPONSE_HEADERS = new Set([
@@ -41,8 +44,18 @@ export function classifyComfy(url: URL): Route {
     const canonical = resolveComfyShare(`${COMFY_ORIGIN}/?share=${share}`);
     return canonical ? { kind: "proxy", upstream: new URL(canonical) } : { kind: "deny" };
   }
+  if (url.pathname === "/") {
+    const canonical = resolveComfyShare(`${COMFY_ORIGIN}/?share=${url.searchParams.get("share") ?? ""}`);
+    return canonical ? { kind: "proxy", upstream: new URL(canonical) } : { kind: "ignore" };
+  }
+  if (spaPath(url.pathname)) return { kind: "proxy", upstream: new URL(`${url.pathname}${url.search}`, COMFY_ORIGIN) };
   if (!allowedPath(url.pathname)) return { kind: "ignore" };
   return { kind: "proxy", upstream: new URL(`${url.pathname}${url.search}`, COMFY_ORIGIN) };
+}
+
+function spaPath(pathname: string): boolean {
+  if (SPA_EXACT.has(pathname)) return true;
+  return SPA_PREFIXES.some(prefix => pathname === `/${prefix}` || pathname.startsWith(`/${prefix}/`));
 }
 
 function allowedPath(pathname: string): boolean {
