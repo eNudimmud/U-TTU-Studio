@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
   CINEMA_PATH, CINEMA_STEPS, LOOK_HELD_LINE, LOOK_OPEN_LINE, PLATEAU_EMPTY_LINE, PLATEAU_EMPTY_TITLE, PLATEAU_HELP,
-  TAKE_CHAIN, TAKE_HELP, TAKE_LEAD, TAKE_SOON_LINE, TAKE_WAIT, placeFromLocation, takeReady,
+  TAKE_CHAIN, TAKE_FRAME_CONSENT, TAKE_FRAME_HTTP, TAKE_FRAME_LEAD, TAKE_FRAME_LINE, TAKE_FRAME_LOGIN, TAKE_HELP, TAKE_LEAD, TAKE_LOAD, TAKE_SOON_LINE, TAKE_TAB, TAKE_WAIT, placeFromLocation, takeReady,
 } from "../src/lib/cinema.ts";
 import {
   PLATEAU_FRAME_MAX, createPlateauScene, parsePlateau, parseTakeNote, readPlateau, readTakeNote, readyWorlds,
@@ -55,6 +55,13 @@ describe("shell Look Plateau Take", () => {
       TAKE_LEAD,
       TAKE_SOON_LINE,
       TAKE_WAIT,
+      TAKE_LOAD,
+      TAKE_TAB,
+      TAKE_FRAME_LEAD,
+      TAKE_FRAME_LINE,
+      TAKE_FRAME_CONSENT,
+      TAKE_FRAME_HTTP,
+      TAKE_FRAME_LOGIN,
     ].join("\n");
     assert.match(CINEMA_PATH, /monde/);
     assert.match(CINEMA_PATH, /look tenu/);
@@ -67,8 +74,11 @@ describe("shell Look Plateau Take", () => {
     assert.match(PLATEAU_HELP, /\.blend/);
     assert.match(TAKE_HELP, /Seedance/);
     assert.match(TAKE_HELP, /R2V/);
+    assert.match(TAKE_HELP, /video_minimax_h3_r2v/);
+    assert.match(TAKE_HELP, /nœud 145/);
     assert.match(TAKE_HELP, /échange de personnage/);
     assert.match(TAKE_HELP, /n’est pas branché/);
+    assert.match(TAKE_LOAD, /Charger la prise ici/);
     assert.doesNotMatch(`${PLATEAU_HELP}\n${TAKE_HELP}`, /night city/i);
   });
 

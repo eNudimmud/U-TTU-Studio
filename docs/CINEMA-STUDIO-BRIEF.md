@@ -36,10 +36,18 @@ Ce document fixe l’étoile du nord. Il n’ouvre aucun appel payant, aucune ro
 - **Fait :** un essai public du LoRA d’échange, [MiniMax-H3-Character-Swap-LoRA test](https://x.com/toyxyz3/status/2103933651797045300) (toyxyz). Le look entraîné dans Former mon look est l’identité que cet échange doit tenir.
 - **Décision :** Seedance reste un chemin possible, pas le seul. Ces noms restent dans l’aide de La prise. L’accueil ne les porte pas.
 
+## Décision — La prise ouvre le template H3 — 2 octobre 2026, nuit
+
+- **Décision :** quand le monde est posé et le look est tenu, « Charger la prise ici » ouvre le template officiel `video_minimax_h3_r2v` dans le même cadre que Former mon look (`/comfy-embed?template=video_minimax_h3_r2v`). « Ouvrir en plein onglet » va sur `https://cloud.comfy.org/?template=video_minimax_h3_r2v`. Aucun autre identifiant n’est accepté. `source=custom` n’est pas transmis.
+- **Fait :** ce graphe est MiniMax H3 Reference to Video, modèle `minimax_h3_ref2va_pruned_int8_convrot`. Il a deux images (nœuds 137 et 139), pas les 9 images / 3 vidéos / 3 audios du modèle. Les balises se nomment dans l’ordre de connexion. Le studio n’ajoute pas de nœuds.
+- **Fait :** le LoRA turbo 4 pas `minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16` est le champ `lora_name` du nœud 145. L’interrupteur nœud 146 est éteint. Les 4 pas sont le nœud 144, les 20 pas le nœud 143. Ouvrir la page ne l’allume pas.
+- **Décision :** le LoRA d’échange de personnage (toyxyz, MiniMax-H3-Character-Swap-LoRA) se pose à la main dans ce même champ, à la place du fichier turbo, une fois le look entraîné. Le look Flux de Former mon look n’entre pas dans ce champ.
+- **Décision :** le run payant n’est pas branché. Le studio ne poste pas `/api/prompt` et n’appelle pas `run_template`. Les références du brief ne sont pas remplies toutes seules. Seedance n’est pas ce bouton. 0 $ dans cette livraison.
+
 ## Décision — ce que v0 ne fait pas
 
 - **Décision :** pas de Blender dans le navigateur. La préviz se prépare dans Blender, sur le bureau, puis s’exporte. Le studio web ne lance pas Blender et n’ouvre pas un fichier `.blend`.
-- **Décision :** Take, plus tard, passe par le cloud. Les chemins notés sont MiniMax H3 R2V, le LoRA d’échange de personnage, ou Seedance. Aucun n’est branché ici. Pas de nouvelle route fal. Pas de burn vidéo payant dans cette livraison.
+- **Décision :** Take ouvre la page officielle MiniMax H3 R2V quand le monde est posé et le look tenu. Le run payant n’est pas branché. Le LoRA d’échange de personnage se pose à la main dans le nœud 145. Seedance n’est pas ce bouton. Pas de nouvelle route fal. Pas de burn vidéo payant dans cette livraison.
 - **Décision :** pas de Night City. Ni comme décor de démo, ni comme direction. Le canon visuel ne bascule pas vers une ville néon.
 - **Décision :** la phase 0 ne s’interrompt pas. Fermer la boucle photo reste le geste qui marche dans Créer. Le cinéma ne le remplace pas : il le nomme comme le début de Look.
 - **Décision inchangée :** les apps Comfy et le coffre restent. On ne les retire pas pour faire place au cinéma.
@@ -53,11 +61,11 @@ Ce document fixe l’étoile du nord. Il n’ouvre aucun appel payant, aucune ro
 ## Proposition — suite, hors de cette livraison
 
 - **Décision :** le dépôt Plateau existe, sur l’appareil (lieu, images, suites, notes), à côté des fiches Sphère. Le contrat fin d’export Blender (quelles caméras, quels fichiers) n’est pas figé. Le dépôt n’ouvre pas Blender.
-- **Proposition :** un bouton Take qui lance un tournage reste éteint tant qu’une route Seedance n’est pas décidée à part, avec un coût affiché et un second clic. Noter un plan sur l’appareil n’est pas ce lancement.
+- **Proposition :** un lancement payant reste à part, avec un coût affiché et un second clic. Ouvrir la page H3 n’est pas ce lancement. Noter un plan sur l’appareil non plus. Seedance, s’il revient, se décide à part.
 - **Proposition :** les noms Seedance, Comfy, fal et LoRA restent dans la doc et dans le repli Expert. L’accueil dit Look, Plateau, Take, Ton style, Ta scène, La prise.
 
 ## Cette livraison
 
 - **Décision :** l’accueil est `/`. Le shell est `/studio`, et le produit à l’écran est Look, Plateau, Take. L’accueil entre sur Ton style (`/studio?step=look`). Les anciens liens `/#creer` et `/#compte` rejoignent `/studio` avec le même hash : `#creer` ouvre Ton style, `#compte` ouvre Compte.
-- **Fait :** Plateau garde le monde sur cet appareil. Take montre la chaîne et refuse le tournage. Aucun crédit dépensé, aucun appel Seedance, aucune route fal nouvelle.
+- **Fait :** Plateau garde le monde sur cet appareil. Take charge la page du template officiel, sans lancer le graphe. Aucun crédit dépensé, aucun appel Seedance, aucune route fal nouvelle.
 - **Décision de ton :** le détail d’interface est dans [LANDING-AND-UX.md](LANDING-AND-UX.md).

@@ -45,7 +45,7 @@ export const TAKE_CHAIN = [
   {
     id: "prise",
     title: "La prise courte",
-    line: "Un plan tourné dans ce monde. Pas encore.",
+    line: "Un plan tourné dans ce monde.",
   },
 ] as const;
 
@@ -67,10 +67,17 @@ export const TAKE_NOTE = "Tu notes le plan dans ce lieu. Aucune image n’est pr
 export const TAKE_SOON_TITLE = "Tourner dans ce monde";
 export const TAKE_SOON_LINE = "La prise courte partira de la préviz et du look tenu. Le tournage n’est pas ouvert. Rien n’est envoyé.";
 export const TAKE_CLOSED = "Le plan reste noté. La prise reste fermée tant que le monde ou le look manque.";
+export const TAKE_LOAD = "Charger la prise ici";
+export const TAKE_TAB = "Ouvrir en plein onglet";
+export const TAKE_FRAME_LEAD = "Ton compte, tes crédits. Rien n’est chargé avant le clic.";
+export const TAKE_FRAME_LINE = "La page du tournage se charge ici. Deux images d’exemple y sont déjà. Remplace-les par les tiennes. Rien n’est envoyé tant que tu ne lances pas dans le cadre.";
+export const TAKE_FRAME_CONSENT = "Rien n’est chargé avant ton clic. Le bouton affiche la page du tournage dans cette page, via le studio, pour que l’image puisse s’y afficher. Rien n’est envoyé tant que tu ne lances pas dans le cadre. Cette page peut alors charger ses propres traceurs tiers.";
+export const TAKE_FRAME_HTTP = "Page en HTTP : la prise ne s’affiche dans un cadre que depuis une page HTTPS. Utilise « Ouvrir en plein onglet ».";
+export const TAKE_FRAME_LOGIN = "Connexion à refaire dans le cadre, même si le compte est ouvert dans un autre onglet. Si elle échoue, « Ouvrir en plein onglet » ouvre la même page.";
 
 /** Secondary help. Engine names live here, not on the step labels. */
 export const PLATEAU_HELP = "La préviz se prépare dans Blender, sur ton bureau : images fixes, une suite d’images, des notes de caméra. Tu les déposes ici. Le studio ne lance pas Blender et n’ouvre pas un fichier .blend.";
-export const TAKE_HELP = "Plus tard, la prise courte sera tournée dans le cloud, à partir de ces images et du look tenu. MiniMax H3 en référence (R2V, références nommées, LoRA turbo 4 pas), un LoRA d’échange de personnage, ou Seedance. Ce n’est pas branché. Rien n’est facturé.";
+export const TAKE_HELP = "Quand le monde est posé et le look tenu, « Charger la prise ici » ouvre le template officiel MiniMax H3 en référence (R2V, video_minimax_h3_r2v, modèle ref2va). Ouvrir la page ne lance pas le tournage : le run payant n’est pas branché. Le graphe a deux images (nœuds 137 et 139). Le modèle accepte 9 images, 3 vidéos et 3 audios, nommés par balise dans l’ordre de connexion. Le LoRA turbo 4 pas minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16 est déjà nommé sur le nœud 145, champ lora_name. L’interrupteur nœud 146 est éteint : il ne s’applique pas tant qu’on ne l’allume pas. Les 4 pas sont le nœud 144, les 20 pas le nœud 143. Le LoRA d’échange de personnage (toyxyz, MiniMax-H3-Character-Swap-LoRA) se met à la main dans ce même champ, à la place du fichier turbo, après un look entraîné. Le look Flux de Former mon look n’entre pas dans ce champ. Les références du brief ne sont pas remplies toutes seules. Seedance n’est pas ce bouton.";
 
 const STEP_ALIASES: Record<string, CinemaStep> = {
   look: "look",

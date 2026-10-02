@@ -53,6 +53,41 @@ export const APP_LABELS = {
 } as const;
 
 const SHARE_ID = /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/;
+const TEMPLATE_ID = /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/;
+
+/**
+ * Official MiniMax H3 Reference-to-Video graph.
+ * Node 145 `lora_name` holds the optional 4-step turbo file.
+ * Node 146 stays off, so opening the graph does not apply it.
+ * A Character-Swap file replaces that same `lora_name` by hand.
+ * The Flux look LoRA is a different model and does not belong in this slot.
+ * The stock graph has two LoadImage nodes (137, 139). Model limits are
+ * 9 images / 3 videos / 3 audio; this template does not add those nodes.
+ */
+export const H3_R2V_TEMPLATE = {
+  id: "video_minimax_h3_r2v",
+  title: "MiniMax H3: Reference to Video",
+  page: "https://cloud.comfy.org/?template=video_minimax_h3_r2v",
+  model: "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+  loraNode: "145",
+  loraInput: "lora_name",
+  turboLora: "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+  turboToggleNode: "146",
+  turboStepsNode: "144",
+  turboSteps: 4,
+  fullStepsNode: "143",
+  fullSteps: 20,
+  imageNodes: ["137", "139"],
+} as const;
+
+const ALLOWED_TEMPLATES = new Set<string>([H3_R2V_TEMPLATE.id]);
+
+/** An allowlisted Comfy template id, or null. No other id, no path. */
+export function resolveComfyTemplate(raw: string | undefined | null): string | null {
+  const value = raw?.trim() ?? "";
+  if (!value || !TEMPLATE_ID.test(value) || !ALLOWED_TEMPLATES.has(value)) return null;
+  return value;
+}
 
 /** A public App Mode link, or null. Anything else is dropped: no invented host, no bare id. */
 export function resolveComfyShare(raw: string | undefined | null): string | null {
