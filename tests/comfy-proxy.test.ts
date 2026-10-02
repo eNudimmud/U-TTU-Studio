@@ -64,6 +64,53 @@ describe("Comfy same-origin embed", () => {
     assert.equal(calls.at(-1)?.url, "https://cloud.comfy.org/cloud/login?previousFullPath=%2F");
   });
 
+  it("injects the media worker boot into the Comfy document and echoes this origin", async () => {
+    const html = "<!doctype html><html><head><title>Comfy</title></head><body></body></html>";
+    const { fetchImpl } = install(new Response(html, {
+      headers: {
+        "content-type": "text/html",
+        "access-control-allow-origin": "https://cloud.comfy.org",
+        "access-control-allow-credentials": "true",
+      },
+    }));
+    const response = await proxyComfy(new Request(`${STUDIO}/comfy-embed?share=${SHARE}`), fetchImpl);
+    const text = await response?.text() ?? "";
+    assert.match(text, /serviceWorker\.register\("\/comfy-media-sw\.js"\)/);
+    assert.ok(text.indexOf("serviceWorker.register") < text.indexOf("<title>"));
+    assert.equal(response?.headers.get("access-control-allow-origin"), STUDIO);
+    assert.equal(response?.headers.get("access-control-allow-credentials"), "true");
+    const worker = readFileSync("public/comfy-media-sw.js", "utf8");
+    assert.match(worker, /\/api\/view/);
+    assert.match(worker, /\/api\/assets\//);
+    assert.match(worker, /\/api\/s\//);
+    assert.match(text, /comfy-token-ack/);
+    assert.match(worker, /mode: "no-cors"/);
+    assert.match(worker, /credentials: "omit"/);
+    assert.match(worker, /x-comfy-media-redirect/);
+    assert.doesNotMatch(worker, /https:\/\/cloud\.comfy\.org/);
+  });
+
+  it("gives the media worker a readable signed URL and leaves cookie redirects alone", async () => {
+    const signed = "https://storage.googleapis.com/bucket/file.png?X-Goog-Signature=abc";
+    const upstream = () => new Response(null, { status: 302, headers: { location: signed } });
+    const { fetchImpl } = install(upstream);
+    const authed = await proxyComfy(new Request(`${STUDIO}/api/view?filename=a.png&type=output`, {
+      headers: { authorization: "Bearer firebase-token" },
+    }), fetchImpl);
+    assert.equal(authed?.status, 200);
+    assert.equal(authed?.headers.get("x-comfy-media-redirect"), "1");
+    assert.deepEqual(await authed?.json(), { location: signed });
+    const cookieOnly = await proxyComfy(new Request(`${STUDIO}/api/view?filename=a.png&type=output`), fetchImpl);
+    assert.equal(cookieOnly?.status, 302);
+    assert.equal(cookieOnly?.headers.get("location"), signed);
+    assert.equal(cookieOnly?.headers.get("x-comfy-media-redirect"), null);
+    const login = await proxyComfy(new Request(`${STUDIO}/login`, {
+      headers: { authorization: "Bearer firebase-token" },
+    }), fetchImpl);
+    assert.equal(login?.status, 302);
+    assert.equal(login?.headers.get("x-comfy-media-redirect"), null);
+  });
+
   it("forwards the Comfy media cookie and the bearer token, not the Clerk session", async () => {
     const { calls, fetchImpl } = install(new Response(JSON.stringify({ ok: true }), { headers: { "content-type": "application/json" } }));
     const response = await proxyComfy(new Request(`${STUDIO}/api/view?filename=ComfyUI_00002_.png&type=output&subfolder=`, {
