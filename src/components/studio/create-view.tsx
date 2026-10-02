@@ -10,7 +10,8 @@ import { Arrow } from "../glyph";
 import { CreatePanel } from "./create-panel";
 import { DoctrineBurn } from "./doctrine-burn";
 import { LotReview } from "./lot-review";
-import { useGoToMode } from "./mode-context";
+import { LookStatus } from "./look-status";
+import { useGoToMode, useGoToStep } from "./mode-context";
 import { useProcessLaunch } from "./process-launch";
 import { useStudioSession } from "./session";
 
@@ -26,6 +27,7 @@ const onFalStage = () => {};
 export function CreateView() {
   const session = useStudioSession();
   const go = useGoToMode();
+  const goStep = useGoToStep();
   const launch = useProcessLaunch();
   const former = processById("former");
   const tester = processById("tester");
@@ -66,10 +68,12 @@ export function CreateView() {
     launchFormer();
   }
 
-  return <section className="create-studio" aria-label="Créer">
+  return <section className="create-studio" aria-label="Ton style">
     <header className="create-hero">
-      <p className="eyebrow">Créer</p>
+      <p className="eyebrow">Look</p>
       <h1 id="mode-title" tabIndex={-1}>Dépose tes photos.</h1>
+      <LookStatus held={held} />
+      <button type="button" className="text-button" onClick={() => goStep("plateau")}>Ensuite, poser le monde</button>
     </header>
 
     <CreatePanel

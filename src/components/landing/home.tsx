@@ -3,7 +3,7 @@ import { Arrow } from "@/components/glyph";
 import { assetPath, contactEmail } from "@/lib/site";
 import { LegacyStudioHash } from "./legacy-hash";
 
-const STUDIO_HREF = assetPath("/studio");
+const STUDIO_HREF = `${assetPath("/studio")}?step=look`;
 
 const STEPS = [
   { name: "Look", plain: "Ton style" },

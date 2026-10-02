@@ -6,7 +6,7 @@ Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CIN
 
 - **Décision :** `/` est un écran d’appli. Une ligne, trois pastilles, un bouton. Pas une page qui explique.
 - **Décision :** la ligne est « Ton style, ta scène, la prise. » Look, Plateau et Take sont des pastilles : le nom, et le mot d’à côté (Ton style, Ta scène, La prise). Pas de paragraphe sous chaque geste.
-- **Décision :** le geste principal est « Entrer dans le studio », vers `/studio`. Il est répété dans le bandeau à partir de 720 px. À côté du bouton : « Rien à payer. »
+- **Décision :** le geste principal est « Entrer dans le studio », vers `/studio?step=look`. Il s’ouvre sur Ton style. Il est répété dans le bandeau à partir de 720 px. À côté du bouton : « Rien à payer. »
 - **Décision :** pas de seconde section, pas de promesse, pas de mode d’emploi. Le portrait reste, légende « Référence du studio. »
 
 ## Décision — pas de jargon au premier plan
@@ -14,19 +14,21 @@ Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CIN
 - **Décision :** l’accueil ne nomme pas les moteurs. Interdits dans le texte visible de `/` : Seedance, Comfy, fal, LoRA, Flux, Blender, Night City.
 - **Décision :** la correspondance, pour la doc.
 
-| Geste | Sur la pastille | Dans le shell, aujourd’hui | Nom technique, doc ou Expert |
+| Geste | Sur la pastille | Dans le shell, aujourd’hui | Nom technique, doc ou aide seulement |
 | --- | --- | --- | --- |
-| Look | Ton style | Créer, dépôt de photos | boucle photo, LoRA |
-| Plateau | Ta scène | Sphère, fiches | préviz, plus tard |
-| Take | La prise | pas branché | Seedance, plus tard, éteint |
+| Look | Ton style | Ton style : dépôt photo, statut « Look tenu » | boucle photo, LoRA |
+| Plateau | Ta scène | Ta scène : le monde, images, suites, notes | préviz Blender, sur le bureau |
+| Take | La prise | La prise : monde → look tenu → prise courte, bouton éteint | Seedance cloud, plus tard, éteint |
 
+- **Décision :** le shell parle d’abord Ton style, Ta scène, La prise. Une ligne dit « Le monde, le look tenu, puis une prise courte. » Blender et Seedance restent dans l’aide de Ta scène et de La prise, pas sur les boutons. On ne les met pas sur l’accueil.
 - **Décision :** « Vente HOLD » reste une décision de doc. Le bandeau du shell dit « Rien à payer » et la date. L’accueil ne le répète qu’une fois, à côté du bouton.
 
 ## Décision — le studio
 
-- **Décision :** `/studio` est l’appli. Il s’ouvre sur Créer. Le premier mot est « Dépose tes photos. » Le dépôt est le clic. La suite (« Former mon look ») dit qu’elle s’ouvre après. Le rappel « Avant un long entraînement » est replié : il ne précède pas le dépôt.
+- **Décision :** `/studio` est l’appli. Il s’ouvre sur Ton style. Le premier mot est « Dépose tes photos. » Le dépôt est le clic. Le statut « Look tenu » est sur cet écran. La suite dit qu’elle s’ouvre après. Le rappel « Avant un long entraînement » est replié : il ne précède pas le dépôt.
 - **Décision :** les libellés du premier écran sont du français de tous les jours. LoRA, fal, Comfy, gate et PASS ne sont pas sur ce premier écran. Ils restent dans Expert, le rail, et les tiroirs.
-- **Décision :** Créer reste le premier mode. Compte en fin de navigation. Pas de mur. Le mot-symbole ramène à Créer (`#creer`). « Accueil » ramène à `/`.
+- **Décision :** trois gestes d’abord : Ton style, Ta scène, La prise. Ta scène reçoit le monde (images, suites, notes). La prise montre monde → look tenu → prise courte, et le bouton reste éteint. Compte reste en fin de la rangée d’à côté. Pas de mur.
+- **Décision :** le mot-symbole ramène à Ton style (`#look`). `#creer` ouvre la même surface. « Accueil » ramène à `/`.
 - **Décision :** `/#creer`, `/#compte` et les autres hash de mode reconduisent vers `/studio` avec le même hash. Les retours Clerk déjà posés continuent d’atterrir au bon endroit.
 
 ## Décision — accessibilité

@@ -9,8 +9,8 @@ export const siteOrigin = configuredOrigin || (vercelHost ? `https://${vercelHos
 export const socialImage = siteOrigin ? `${siteOrigin}/og.jpg` : assetPath("/og.jpg");
 export const siteTitle = "U*TTU Studio — Ton style, ta scène, la prise";
 export const siteDescription = "Look, Plateau, Take. Entre dans le studio. Rien à payer.";
-export const studioTitle = "Créer — U*TTU Studio";
-export const studioDescription = "Le studio s’ouvre sur Créer. Dépose, prépare, vérifie. Pas de mur de compte. La vente n’est pas ouverte.";
+export const studioTitle = "Ton style — U*TTU Studio";
+export const studioDescription = "Le studio s’ouvre sur ton style, puis le monde, puis la prise. Dépose tes photos. Pose le lieu. Rien n’est tourné tant que ce n’est pas tenu. Pas de mur de compte.";
 export const testPhaseEnd = "8 octobre 2026";
 // The proxy URL only: the fal key never reaches this bundle.
 export const falProxyUrl = normalizeProxyUrl(process.env.NEXT_PUBLIC_FAL_PROXY_URL);
