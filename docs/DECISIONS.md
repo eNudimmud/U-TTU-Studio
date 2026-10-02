@@ -2,6 +2,12 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-02.
 
+## Cinéma — La prise ouvre le template H3 — 2 octobre 2026, nuit
+
+- **Décision :** Look tenu et monde posé, « Charger la prise ici » ouvre le template officiel `video_minimax_h3_r2v` dans `/comfy-embed`. Le plein onglet reste `https://cloud.comfy.org/?template=video_minimax_h3_r2v`. Un autre id, ou `source=custom`, est refusé.
+- **Fait :** le LoRA turbo est le nœud 145, champ `lora_name` (`minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16`). L’interrupteur nœud 146 est éteint (4 pas au nœud 144, 20 pas au nœud 143). Le Character-Swap se substitue à ce fichier, à la main. Le look Flux n’y entre pas. Deux images seulement (nœuds 137 et 139).
+- **Décision :** le run payant n’est pas branché. Pas de `run_template`, pas de remplissage du brief, pas de burn. Seedance reste un autre chemin. Détail : [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md).
+
 ## Cinéma — Take après le look — 2 octobre 2026, soir
 
 - **Décision JD :** le look tenu peut ensuite nourrir une prise MiniMax H3 en Reference-to-Video, ou un LoRA d’échange de personnage. R2V : modèle `ref2va`, références nommées par balise, LoRA turbo 4 pas. Essai public : [MiniMax-H3-Character-Swap-LoRA](https://x.com/toyxyz3/status/2103933651797045300). Doc : [H3 R2V](https://docs.comfy.org/tutorials/video/minimax/minimax-h3-native#minimax-h3-reference-to-video-r2v).
@@ -132,6 +138,7 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 
 | Décision | Par | Date |
 | --- | --- | --- |
+| La prise, look tenu et monde posé, ouvre `video_minimax_h3_r2v` dans le cadre. LoRA turbo : nœud 145 `lora_name`, interrupteur 146 éteint. Character-Swap à la main dans ce champ. Run payant non branché. Pas de burn. | Livraison | 2026-10-02 |
 | Take, après le look tenu : MiniMax H3 R2V (`ref2va`, balises, LoRA turbo 4 pas) ou LoRA d’échange de personnage. Non branché. Pas de burn. Seedance reste possible. | JD | 2026-10-02 |
 | Étoile cinéma : Look → Plateau → Take. Accueil `/`, shell `/studio`. Pas de Blender navigateur, pas de Night City, pas de route Seedance ni fal vidéo. Phase 0 photo inchangée. Vente HOLD. | JD (verrou) + livraison (accueil) | 2026-10-02 |
 | L’hôte live est Vercel (`https://u-ttu-studio.vercel.app`). Le Worker fal l’accepte en CORS, avec le catalogue Pages figé. `NEXT_PUBLIC_FAL_PROXY_URL` est une variable Vercel (Production et Preview). Vente HOLD. | Livraison (CORS Worker) | 2026-09-28 |

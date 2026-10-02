@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { comfyEmbedHref, proxyComfy, rewriteProxiedText } from "../src/lib/comfy-proxy.ts";
+import { comfyEmbedHref, comfyTemplateHref, proxyComfy, rewriteProxiedText } from "../src/lib/comfy-proxy.ts";
+import { H3_R2V_TEMPLATE } from "../src/lib/comfy-stack.ts";
 
 const STUDIO = "https://u-ttu-studio.vercel.app";
 const SHARE = "25954f3b0278";
@@ -62,6 +63,42 @@ describe("Comfy same-origin embed", () => {
     const login = await proxyComfy(new Request(`${STUDIO}/cloud/login?previousFullPath=%2F`), fetchImpl);
     assert.equal(login?.status, 200);
     assert.equal(calls.at(-1)?.url, "https://cloud.comfy.org/cloud/login?previousFullPath=%2F");
+  });
+
+  it("opens only the official H3 reference template, and does not forward source", async () => {
+    const upstream = `https://cloud.comfy.org/?template=${H3_R2V_TEMPLATE.id}`;
+    assert.equal(comfyTemplateHref(H3_R2V_TEMPLATE.id), `/comfy-embed?template=${H3_R2V_TEMPLATE.id}`);
+    assert.equal(comfyTemplateHref("api_minimax_h3_r2v"), null);
+    assert.equal(comfyTemplateHref("video_minimax_h3_t2v"), null);
+    assert.equal(comfyTemplateHref("../secret"), null);
+    assert.equal(H3_R2V_TEMPLATE.loraNode, "145");
+    assert.equal(H3_R2V_TEMPLATE.loraInput, "lora_name");
+    assert.equal(H3_R2V_TEMPLATE.turboToggleNode, "146");
+    const { calls, fetchImpl } = install(() => new Response("<html></html>", { headers: { "content-type": "text/html" } }));
+    const ok = await proxyComfy(new Request(`${STUDIO}/comfy-embed?template=${H3_R2V_TEMPLATE.id}`), fetchImpl);
+    assert.equal(ok?.status, 200);
+    assert.equal(calls[0]?.url, upstream);
+    const rooted = await proxyComfy(new Request(`${STUDIO}/?template=${H3_R2V_TEMPLATE.id}`), fetchImpl);
+    assert.equal(rooted?.status, 200);
+    assert.equal(calls[1]?.url, upstream);
+    for (const path of [
+      `/comfy-embed?template=${H3_R2V_TEMPLATE.id}&source=custom`,
+      `/comfy-embed?template=${H3_R2V_TEMPLATE.id}&mode=linear`,
+      `/comfy-embed?share=${SHARE}&template=${H3_R2V_TEMPLATE.id}`,
+      "/comfy-embed?template=video_minimax_h3_t2v",
+      `/comfy-embed?template=${H3_R2V_TEMPLATE.id}&template=other`,
+    ]) {
+      const denied = await proxyComfy(new Request(`${STUDIO}${path}`), fetchImpl);
+      assert.equal(denied?.status, 404, path);
+    }
+    assert.equal(calls.length, 2);
+    assert.equal(await proxyComfy(new Request(`${STUDIO}/?template=other`), fetchImpl), null);
+    assert.equal(await proxyComfy(new Request(`${STUDIO}/?template=${H3_R2V_TEMPLATE.id}&source=custom`), fetchImpl), null);
+    const frame = readFileSync("src/components/studio/take-frame.tsx", "utf8");
+    assert.match(frame, /comfyTemplateHref/);
+    assert.match(frame, /H3_R2V_TEMPLATE\.page/);
+    assert.doesNotMatch(frame, /src=\{H3_R2V_TEMPLATE|run_template|submit_workflow|\/api\/prompt/);
+    assert.match(readFileSync("src/components/studio/take-panel.tsx", "utf8"), /TakeFrame/);
   });
 
   it("injects the media worker boot into the Comfy document and echoes this origin", async () => {

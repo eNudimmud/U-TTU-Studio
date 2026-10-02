@@ -135,6 +135,7 @@
 
 .cost-panel, .read-panel { position: sticky; top: 20px; border: 1px solid var(--line-gold); background: #121111; padding: 22px; display: grid; gap: 14px; }
 .comfy-run-panel { margin: 0 28px 28px; border: 1px solid var(--line-gold); background: var(--surface); padding: 18px; display: grid; gap: 14px; }
+.take-run.comfy-run-panel { margin: 22px 0 0; }
 .comfy-run-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px 24px; }
 .comfy-run-head h4 { font-size: 22px; letter-spacing: -.02em; margin-top: 4px; }
 .comfy-run-frame { display: block; width: 100%; height: 720px; height: clamp(640px, calc(100svh - 48px), 900px); border: 1px solid var(--line); background: var(--bg); }

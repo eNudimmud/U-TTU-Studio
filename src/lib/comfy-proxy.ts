@@ -15,7 +15,7 @@
 // is not forwarded. This proxy turns it into Authorization on media GETs.
 
 import { COMFY_MEDIA_BOOT } from "./comfy-media.ts";
-import { resolveComfyShare } from "./comfy-stack.ts";
+import { resolveComfyShare, resolveComfyTemplate } from "./comfy-stack.ts";
 
 export const COMFY_ORIGIN = "https://cloud.comfy.org";
 
@@ -45,13 +45,35 @@ export function comfyEmbedHref(shareUrl: string): string | null {
   return share ? `/comfy-embed?share=${encodeURIComponent(share)}` : null;
 }
 
+export function comfyTemplateHref(templateId: string): string | null {
+  const id = resolveComfyTemplate(templateId);
+  return id ? `/comfy-embed?template=${encodeURIComponent(id)}` : null;
+}
+
+/** Only `?template=<allowlisted id>`. Any other parameter, including source=custom, is refused. */
+function templateUpstream(url: URL): URL | null {
+  const keys = [...url.searchParams.keys()];
+  const values = url.searchParams.getAll("template");
+  if (keys.length !== 1 || keys[0] !== "template" || values.length !== 1) return null;
+  const id = resolveComfyTemplate(values[0]);
+  return id ? new URL(`/?template=${id}`, COMFY_ORIGIN) : null;
+}
+
 export function classifyComfy(url: URL): Route {
   if (url.pathname === "/comfy-embed" || url.pathname === "/comfy-embed/") {
+    if (url.searchParams.has("template")) {
+      const upstream = templateUpstream(url);
+      return upstream ? { kind: "proxy", upstream } : { kind: "deny" };
+    }
     const share = url.searchParams.get("share") ?? "";
     const canonical = resolveComfyShare(`${COMFY_ORIGIN}/?share=${share}`);
     return canonical ? { kind: "proxy", upstream: new URL(canonical) } : { kind: "deny" };
   }
   if (url.pathname === "/") {
+    if (url.searchParams.has("template")) {
+      const upstream = templateUpstream(url);
+      return upstream ? { kind: "proxy", upstream } : { kind: "ignore" };
+    }
     const canonical = resolveComfyShare(`${COMFY_ORIGIN}/?share=${url.searchParams.get("share") ?? ""}`);
     return canonical ? { kind: "proxy", upstream: new URL(canonical) } : { kind: "ignore" };
   }

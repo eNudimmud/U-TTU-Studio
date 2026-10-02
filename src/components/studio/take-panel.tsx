@@ -11,6 +11,7 @@ import {
 } from "@/lib/plateau";
 import { useGoToStep } from "./mode-context";
 import { useStudioSession } from "./session";
+import { TakeFrame } from "./take-frame";
 
 export function TakePanel() {
   const session = useStudioSession();
@@ -39,13 +40,13 @@ export function TakePanel() {
   const chosen = worlds.find(scene => scene.id === note.sceneId) ?? worlds[0];
 
   function mark(id: (typeof TAKE_CHAIN)[number]["id"]): string {
-    if (id === "prise") return "Pas encore";
+    if (id === "prise") return ready ? "Prête" : "Pas encore";
     if (id === "monde") return hasWorld ? "Posé" : "À poser";
     return held ? "Tenu" : "Pas encore";
   }
 
   function state(id: (typeof TAKE_CHAIN)[number]["id"]): "held" | "open" | "wait" {
-    if (id === "prise") return "wait";
+    if (id === "prise") return ready ? "open" : "wait";
     if (id === "monde") return hasWorld ? "held" : "open";
     return held ? "held" : "open";
   }
@@ -103,15 +104,17 @@ export function TakePanel() {
       {saved && <p role="status">Noté ici. Le tournage n’a pas commencé.</p>}
     </form>}
 
-    <article className="soon-card take-card">
-      <p className="eyebrow">Bientôt</p>
-      <h2>{TAKE_SOON_TITLE}</h2>
-      <p>{TAKE_SOON_LINE}</p>
-      <p className="soon-mark">Pas encore</p>
-    </article>
+    {ready
+      ? <TakeFrame />
+      : <article className="soon-card take-card">
+        <p className="eyebrow">Bientôt</p>
+        <h2>{TAKE_SOON_TITLE}</h2>
+        <p>{TAKE_SOON_LINE}</p>
+        <p className="soon-mark">Pas encore</p>
+      </article>}
 
     <details className="disclosure create-drawer">
-      <summary>Comment la prise sera tournée ?</summary>
+      <summary>Comment la prise est tournée ?</summary>
       <p className="expert-note">{TAKE_HELP}</p>
     </details>
   </section>;

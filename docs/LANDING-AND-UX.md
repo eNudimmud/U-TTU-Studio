@@ -18,7 +18,7 @@ Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CIN
 | --- | --- | --- | --- |
 | Look | Ton style | Ton style : dépôt photo, statut « Look tenu » | boucle photo, LoRA |
 | Plateau | Ta scène | Ta scène : le monde, images, suites, notes | préviz Blender, sur le bureau |
-| Take | La prise | La prise : monde → look tenu → prise courte, bouton éteint | MiniMax H3 R2V et LoRA d’échange de personnage, ou Seedance, plus tard, éteints |
+| Take | La prise | La prise : monde → look tenu → charger la page ici. Rien n’est envoyé avant le lancement dans le cadre | MiniMax H3 R2V (`video_minimax_h3_r2v`), LoRA au nœud 145 ; échange de personnage à la main ; Seedance plus tard |
 
 - **Décision :** le shell parle d’abord Ton style, Ta scène, La prise. Une ligne dit « Le monde, le look tenu, puis une prise courte. » Blender et Seedance restent dans l’aide de Ta scène et de La prise, pas sur les boutons. On ne les met pas sur l’accueil.
 - **Décision :** « Vente HOLD » reste une décision de doc. Le bandeau du shell dit « Rien à payer » et la date. L’accueil ne le répète qu’une fois, à côté du bouton.
@@ -27,7 +27,7 @@ Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CIN
 
 - **Décision :** `/studio` est l’appli. Il s’ouvre sur Ton style. Le premier mot est « Dépose tes photos. » Le dépôt est le clic. Le statut « Look tenu » est sur cet écran. La suite dit qu’elle s’ouvre après. Le rappel « Avant un long entraînement » est replié : il ne précède pas le dépôt.
 - **Décision :** les libellés du premier écran sont du français de tous les jours. LoRA, fal, Comfy, gate et PASS ne sont pas sur ce premier écran. Ils restent dans Expert, le rail, et les tiroirs.
-- **Décision :** trois gestes d’abord : Ton style, Ta scène, La prise. Ta scène reçoit le monde (images, suites, notes). La prise montre monde → look tenu → prise courte, et le bouton reste éteint. Compte reste en fin de la rangée d’à côté. Pas de mur.
+- **Décision :** trois gestes d’abord : Ton style, Ta scène, La prise. Ta scène reçoit le monde (images, suites, notes). La prise montre monde → look tenu → prise courte, et charge la page du tournage quand les deux sont prêts. Rien n’est envoyé avant le lancement dans le cadre. Compte reste en fin de la rangée d’à côté. Pas de mur.
 - **Décision :** le mot-symbole ramène à Ton style (`#look`). `#creer` ouvre la même surface. « Accueil » ramène à `/`.
 - **Décision :** `/#creer`, `/#compte` et les autres hash de mode reconduisent vers `/studio` avec le même hash. Les retours Clerk déjà posés continuent d’atterrir au bon endroit.
 
