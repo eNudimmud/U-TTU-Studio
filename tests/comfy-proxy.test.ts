@@ -88,6 +88,7 @@ describe("Comfy same-origin embed", () => {
     assert.match(text, /__Host-uttu_media/);
     assert.match(text, /createObjectURL/);
     assert.match(text, /comfy-media-file/);
+    assert.match(text, /\?filename=/);
     assert.match(text, /uttu-media-note/);
     assert.match(text, /x-api-key/);
     assert.match(text, /el\.preload = "auto"/);
@@ -313,5 +314,121 @@ describe("Comfy same-origin embed", () => {
     const redirected = await proxyComfy(new Request(`${STUDIO}/api/view?filename=ComfyUI_00002_.png`), once);
     assert.equal(followed, 3);
     assert.equal(redirected?.status, 502);
+  });
+
+  it("rejoins a subfolder onto a 404 /api/view and does not search assets", async () => {
+    const png = new Uint8Array([137, 80, 78, 71, 7, 7, 7]);
+    const signed = "https://storage.googleapis.com/bucket/c-micro/avec-lora_00001_.png?X-Goog-Signature=abc";
+    const calls: string[] = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      calls.push(String(input));
+      const url = new URL(String(input));
+      if (url.pathname === "/api/view" && url.searchParams.get("filename") === "c-micro/avec-lora_00001_.png") {
+        return new Response(null, { status: 302, headers: { location: signed } });
+      }
+      if (String(input) === signed) {
+        assert.equal(new Headers(init?.headers).get("authorization"), null);
+        return new Response(png, { headers: { "content-type": "image/png" } });
+      }
+      return new Response(JSON.stringify({ error: "File not found or unauthorized" }), { status: 404, headers: { "content-type": "application/json" } });
+    };
+    const response = await proxyComfy(new Request(`${STUDIO}/api/view?filename=avec-lora_00001_.png&type=output&subfolder=c-micro`, {
+      headers: { authorization: "Bearer firebase-token" },
+    }), fetchImpl);
+    assert.equal(response?.status, 200);
+    assert.equal(response?.headers.get("content-type"), "image/png");
+    assert.deepEqual(new Uint8Array(await response?.arrayBuffer() ?? new ArrayBuffer(0)), png);
+    assert.equal(calls.some(url => url.includes("/api/assets")), false);
+    assert.match(calls[1] ?? "", /filename=c-micro%2Favec-lora_00001_\.png/);
+  });
+
+  it("loads a missed /api/view from the same-auth asset content", async () => {
+    const png = new Uint8Array([137, 80, 78, 71, 8, 8, 8]);
+    const id = "11111111-1111-4111-8111-111111111111";
+    const calls: { url: string; headers: Headers }[] = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      const headers = new Headers(init?.headers);
+      const url = String(input);
+      calls.push({ url, headers });
+      if (url.startsWith("https://cloud.comfy.org/api/view")) {
+        return new Response(JSON.stringify({ error: "File not found or unauthorized" }), { status: 404, headers: { "content-type": "application/json" } });
+      }
+      if (url.startsWith("https://cloud.comfy.org/api/assets?")) {
+        assert.equal(headers.get("authorization"), "Bearer firebase-token");
+        assert.equal(headers.get("x-api-key"), null);
+        return new Response(JSON.stringify({
+          assets: [
+            { id: "not-a-uuid", name: "c-micro/loss_00001_.png" },
+            { id, name: "c-micro/loss_00001_.png" },
+          ],
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url === `https://cloud.comfy.org/api/assets/${id}/content?disposition=inline`) {
+        assert.equal(headers.get("authorization"), "Bearer firebase-token");
+        return new Response(png, { headers: { "content-type": "image/png" } });
+      }
+      return new Response("no", { status: 500 });
+    };
+    const response = await proxyComfy(new Request(`${STUDIO}/api/view?filename=loss_00001_.png&type=output&subfolder=c-micro`, {
+      headers: { authorization: "Bearer firebase-token" },
+    }), fetchImpl);
+    assert.equal(response?.status, 200);
+    assert.deepEqual(new Uint8Array(await response?.arrayBuffer() ?? new ArrayBuffer(0)), png);
+    assert.equal(calls.filter(call => call.url.includes("/api/assets?")).length, 1);
+    const listed = new URL(calls.find(call => call.url.includes("/api/assets?"))?.url ?? "");
+    assert.equal(listed.searchParams.get("name_contains"), "c-micro/loss_00001_.png");
+  });
+
+  it("keeps a real /api/view 404 when the asset body is not a file", async () => {
+    const miss = JSON.stringify({ error: "File not found or unauthorized" });
+    const calls: string[] = [];
+    const fetchImpl: typeof fetch = async (input) => {
+      const url = String(input);
+      calls.push(url);
+      if (url.startsWith("https://cloud.comfy.org/api/assets?")) {
+        return new Response(JSON.stringify({
+          assets: [{ id: "22222222-2222-4222-8222-222222222222", name: "missing.png" }],
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/content")) {
+        return new Response(JSON.stringify({ error: "nope" }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      return new Response(miss, { status: 404, headers: { "content-type": "application/json" } });
+    };
+    const response = await proxyComfy(new Request(`${STUDIO}/api/view?filename=missing.png&type=output`, {
+      headers: { "x-api-key": "workspace-key" },
+    }), fetchImpl);
+    assert.equal(response?.status, 404);
+    assert.equal(await response?.text(), miss);
+    assert.equal(calls[0], "https://cloud.comfy.org/api/view?filename=missing.png&type=output");
+    const open = await proxyComfy(new Request(`${STUDIO}/api/view?filename=missing.png&type=output`), fetchImpl);
+    assert.equal(open?.status, 404);
+    assert.equal(calls.filter(url => url.includes("filename=missing.png")).length, 2);
+    const climbed = await proxyComfy(new Request(`${STUDIO}/api/view?filename=..%2Fsecret.png`, {
+      headers: { authorization: "Bearer firebase-token" },
+    }), fetchImpl);
+    assert.equal(climbed?.status, 404);
+    assert.equal(calls.filter(url => url.includes("secret")).length, 1);
+  });
+
+  it("retries a bearer 404 with the Comfy cookie before listing assets", async () => {
+    const png = new Uint8Array([137, 80, 78, 71, 6, 6, 6]);
+    const calls: { url: string; authorization: string | null; cookie: string | null }[] = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      const headers = new Headers(init?.headers);
+      calls.push({ url: String(input), authorization: headers.get("authorization"), cookie: headers.get("cookie") });
+      if (headers.get("authorization")) {
+        return new Response(JSON.stringify({ error: "File not found or unauthorized" }), { status: 404, headers: { "content-type": "application/json" } });
+      }
+      return new Response(png, { headers: { "content-type": "image/png" } });
+    };
+    const response = await proxyComfy(new Request(`${STUDIO}/api/viewvideo?filename=clip.mp4&type=output`, {
+      headers: { authorization: "Bearer firebase-token", cookie: "__Host-comfy_session=media; __session=clerk" },
+    }), fetchImpl);
+    assert.equal(response?.status, 200);
+    assert.deepEqual(new Uint8Array(await response?.arrayBuffer() ?? new ArrayBuffer(0)), png);
+    assert.equal(calls[1]?.authorization, null);
+    assert.equal(calls[1]?.cookie, "__Host-comfy_session=media");
+    assert.equal(calls.some(call => call.url.includes("/api/assets")), false);
   });
 });
