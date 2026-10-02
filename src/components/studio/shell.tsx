@@ -50,7 +50,7 @@ export function StudioShell() {
         <div className="shell header-inner">
           <a href="#creer" className="wordmark" aria-label="U*TTU Studio — Créer">U<span className="wordmark-star">*</span>TTU<span className="wordmark-studio">STUDIO</span></a>
           <a className="header-home" href={assetPath("/")}>Accueil</a>
-          <p className="header-kill"><span>Vente HOLD</span><span>{testPhaseEnd}</span></p>
+          <p className="header-kill"><span>Rien à payer</span><span>{testPhaseEnd}</span></p>
         </div>
         <div className="shell">
           <nav className="studio-nav" aria-label="Modes du studio">

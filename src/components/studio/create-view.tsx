@@ -66,11 +66,10 @@ export function CreateView() {
     launchFormer();
   }
 
-  return <section className="create-studio" aria-label="Créer une LoRA">
+  return <section className="create-studio" aria-label="Créer">
     <header className="create-hero">
       <p className="eyebrow">Créer</p>
-      <h1 id="mode-title" tabIndex={-1}>Deux photos. <em>Une identité.</em></h1>
-      <p className="create-lead">Dépose 2 ou 3 photos de la même personne. Le studio prépare 15 cadrages. Tu vérifies, puis l’image reste sur cette page.</p>
+      <h1 id="mode-title" tabIndex={-1}>Dépose tes photos.</h1>
     </header>
 
     <CreatePanel
@@ -80,13 +79,16 @@ export function CreateView() {
       onBootstrap={session.bootstrap} onManual={openManual}
     />
 
-    <DoctrineBurn input={canon} onCanonNoted={session.setCanonNoted} />
+    <details className="disclosure create-drawer">
+      <summary>Avant un long entraînement</summary>
+      <DoctrineBurn input={canon} onCanonNoted={session.setCanonNoted} />
+    </details>
 
     {former && formerAction && tester && <section className="create-process" aria-labelledby="former-access">
       <div>
-        <p className="eyebrow">Processus</p>
+        <p className="eyebrow">Ensuite</p>
         <h2 id="former-access">{former.title}</h2>
-        <p>{former.pitch} {session.passed ? "Le lot est tenu. Le cadre s’ouvre dans Sphère, après un second clic." : "Le bouton s’ouvre quand le lot est en PASS."}</p>
+        <p>{session.passed ? "Tes images sont prêtes. La suite s’ouvre après un second clic." : "D’abord tes photos. Ce bouton s’ouvre ensuite."}</p>
       </div>
       <div className="create-process-actions">
         <button type="button" className="button button-outline" onClick={() => { launch.request(tester.id); go("sphere"); }}>{tester.title}</button>
@@ -111,19 +113,19 @@ export function CreateView() {
         <div>
           <p className="eyebrow">Revue</p>
           <h2 id="revue-title" tabIndex={-1}>Le lot, à l’œil.</h2>
-          <p>Le gate est le même : {DATASET_SIZE} images, angles, légendes. Garde ce qui est la même personne. Une fiche à la fois.</p>
+          <p>Même vérification : {DATASET_SIZE} images, angles, légendes. Garde ce qui est la même personne. Une fiche à la fois.</p>
         </div>
         <span className="stage-badge">{session.result.kept.length} / {DATASET_SIZE}</span>
       </header>
       <LotReview />
     </section>}
 
-    {session.passed ? <section id="entrainer" className="create-train" aria-labelledby="entrainer-title">
+    {session.passed && <section id="entrainer" className="create-train" aria-labelledby="entrainer-title">
       <header className="stage-heading">
         <div>
           <p className="eyebrow">Entraîner · ici</p>
-          <h2 id="entrainer-title">La LoRA, puis une image.</h2>
-          <p>Le lot est en PASS. <code>flux-lora-fast-training</code>, puis <code>flux-lora</code>. Le fichier <code>.safetensors</code> se télécharge sur cette page.</p>
+          <h2 id="entrainer-title">Ton style, puis une image.</h2>
+          <p>Tes images sont prêtes. Le fichier se télécharge sur cette page.</p>
         </div>
       </header>
       <div className="create-scene">
@@ -133,10 +135,10 @@ export function CreateView() {
       </div>
       <FalRail hideTokenField armTrain={!held} token={session.token} onToken={session.setToken} onStage={onFalStage} passed={session.passed} trigger={session.trigger} scene={session.scene} seed={session.seed} signature={session.signature}
         onBuildZip={session.buildFalZip} />
-    </section> : <p className="create-next">L’entraînement s’ouvre après un lot en PASS. Sans proxy fal, le rail reste éteint. Le gate et le ZIP sont aussi dans Identité.</p>}
+    </section>}
 
     <details className="disclosure create-drawer expert-drawer" onToggle={event => { if (event.currentTarget.open) setExpertMounted(true); }}>
-      <summary>Expert / repli — Comfy</summary>
+      <summary>Expert</summary>
       <p className="expert-note">Comfy ouvre un compte sur un autre site, avec ses propres traceurs au chargement du cadre. Ce n’est pas le chemin pour créer. Le cadre ne se charge qu’après un second clic.</p>
       {expertMounted && session.passed && <>
         <TrainStep captions={session.captions} steps={session.steps} plan={session.plan} count={session.count} exportState={session.shownExport} testDone={session.testDone}
@@ -153,19 +155,19 @@ export function CreateView() {
         </section>
         <details className="disclosure advanced-tools" onToggle={event => { if (event.currentTarget.open) setShowTests(true); }}><summary>Comparer les forces et tester la scène</summary>{showTests && <><TestGrid trigger={session.trigger} seed={session.seed} steps={session.steps} /><ComfyRunPanel app="prompt" /></>}</details>
       </>}
-      {expertMounted && !session.passed && <p className="loading-panel">Le repli s’ouvre après un lot en PASS.</p>}
+      {expertMounted && !session.passed && <p className="loading-panel">Le repli s’ouvre quand tes images sont prêtes.</p>}
     </details>
 
     <section id="questions" className="create-questions" aria-labelledby="questions-title">
-      <p className="eyebrow">Les repères</p>
-      <h2 id="questions-title">Avant de cliquer.</h2>
+      <p className="eyebrow">Questions</p>
+      <h2 id="questions-title">En bref.</h2>
       <div className="faq-list">
-        <details><summary>De quoi ai-je besoin ?</summary><p>2 ou 3 photos nettes de la même personne, et les droits pour les utiliser. Le studio en prépare 15 cadrages. Tu vérifies le lot avant l’entraînement. Tu peux aussi importer tes 15 images toi-même.</p></details>
-        <details><summary>Qu’est-ce qui est payant ?</summary><p>La page ne facture rien. Préparer le lot, entraîner et générer consomment la clé fal du studio, aux tarifs affichés avant chaque clic. Le repli Comfy, lui, consomme les crédits de ton compte Comfy. L’offre de guidage U*TTU n’est pas en vente (HOLD).</p></details>
-        <details><summary>Où vont mes images ?</summary><p>Rien ne part tant que tu ne cliques pas. Au clic sur « Préparer les 15 images » ou « Entraîner chez fal », les photos passent par le proxy du studio, jamais avec une clé dans la page. Le ZIP du gate, lui, reste dans ton navigateur.</p></details>
-        <details><summary>Est-ce que je récupère un fichier LoRA ?</summary><p>Oui, sur le rail fal : un fichier .safetensors à télécharger. Le repli Comfy entraîne et produit une image dans le même lancement, sans fichier à emporter.</p></details>
-        <details><summary>Et si je connais déjà les LoRA ?</summary><p>Ouvre « J’ai déjà 15 images ». Sans proxy fal, c’est le bouton principal. Le tuto est dans « Comment ça marche ». Comfy est dans « Expert / repli ». Identité reprend le gate, les légendes et le ZIP.</p></details>
-        <details><summary>Où vit le studio, une fois la page fermée ?</summary><p>Dans un coffre Obsidian, sur ta machine. Le mode Studio donne le schéma et un ZIP de départ. Cette page n’écrit pas dans ce dossier.</p></details>
+        <details><summary>De quoi ai-je besoin ?</summary><p>2 ou 3 photos nettes de la même personne, et les droits pour les utiliser. Le studio en prépare 15 cadrages. Tu vérifies avant la suite. Tu peux aussi importer tes 15 images toi-même.</p></details>
+        <details><summary>Qu’est-ce qui est payant ?</summary><p>La page ne facture rien. Préparer les images, puis en créer, a un coût affiché avant chaque clic. Le repli Expert dépense les crédits d’un autre compte. Rien n’est en vente.</p></details>
+        <details><summary>Où vont mes images ?</summary><p>Rien ne part tant que tu ne cliques pas. Au clic sur « Préparer les 15 images », les photos passent par le studio, jamais avec une clé dans la page. Ce que tu télécharges reste dans ton navigateur.</p></details>
+        <details><summary>Est-ce que je récupère un fichier ?</summary><p>Oui. Un fichier à télécharger sur cette page, une fois tes images prêtes. Le repli Expert produit une image dans le même lancement, sans fichier à emporter.</p></details>
+        <details><summary>Et si j’ai déjà mes images ?</summary><p>Ouvre « J’ai déjà 15 images ». Sans la préparation automatique, c’est le bouton principal. Le tuto est dans « Comment ça marche ». Le repli est dans « Expert ».</p></details>
+        <details><summary>Où vit le studio, une fois la page fermée ?</summary><p>Sur ta machine. Le mode Studio donne le schéma et un fichier de départ. Cette page n’écrit pas dans ce dossier.</p></details>
       </div>
     </section>
   </section>;

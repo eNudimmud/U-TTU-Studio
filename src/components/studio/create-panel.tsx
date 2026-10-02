@@ -87,7 +87,7 @@ export function CreatePanel(props: CreatePanelProps) {
       {props.proxyOn && <div className="create-field">
         <label htmlFor="create-token">Code d’accès du studio</label>
         <input id="create-token" type="password" autoComplete="off" spellCheck={false} value={props.token} onChange={event => props.onToken(event.target.value)} disabled={props.busy} />
-        <p>La clé fal du studio paie. Le code reste dans cette page, rien n’est stocké.</p>
+        <p>Le studio paie. Le code reste dans cette page, rien n’est stocké.</p>
       </div>}
     </div>
 
@@ -101,8 +101,8 @@ export function CreatePanel(props: CreatePanelProps) {
     </div>
 
     {!props.proxyOn && <aside id="prepare-offline" className="offline-fal" role="status">
-      <p><strong>Lot automatique indisponible.</strong> Proxy fal absent. « Préparer les {DATASET_SIZE} images » ne lance rien, et rien n’est facturé.</p>
-      <p>Ici, le chemin est « J’ai déjà {DATASET_SIZE} images ». Le gate reste dans cette page.</p>
+      <p><strong>Préparation automatique éteinte.</strong> « Préparer les {DATASET_SIZE} images » ne lance rien, et rien n’est facturé.</p>
+      <p>Ici, commence par « J’ai déjà {DATASET_SIZE} images ».</p>
     </aside>}
     <div className={`create-actions${props.proxyOn ? "" : " is-offline"}`}>
       {!props.proxyOn && <button type="button" className="button button-primary" disabled={props.busy} onClick={props.onManual}>J’ai déjà {DATASET_SIZE} images <Arrow /></button>}
@@ -111,8 +111,8 @@ export function CreatePanel(props: CreatePanelProps) {
       </button>
       {props.proxyOn && <button type="button" className="button button-outline" disabled={props.busy} onClick={props.onManual}>J’ai déjà {DATASET_SIZE} images</button>}
     </div>
-    {props.proxyOn && <p className="create-path">Deux traits constants, un mot d’appel, deux ou trois photos. Tu peux aussi importer tes {DATASET_SIZE} images, sans lancer le lot.</p>}
-    {props.proxyOn && !props.busy && !triggerError && !!props.trigger && refsReady && !props.invariants.trim() && <p className="create-status">Deux traits constants avant l’envoi. Le bouton reste éteint : le gate les exige, et le lot ne part pas sans eux.</p>}
+    {props.proxyOn && <p className="create-path">Ou importe tes {DATASET_SIZE} images, sans lancer la préparation.</p>}
+    {props.proxyOn && !props.busy && !triggerError && !!props.trigger && refsReady && !props.invariants.trim() && <p className="create-status">Deux traits qui ne changent pas, avant l’envoi. Sans eux, le bouton reste éteint.</p>}
     {props.proxyOn && props.refs.length > 0 && props.refs.length < FAL_VARY.minRefs && <p className="create-status">Encore une photo : il en faut {FAL_VARY.minRefs} ou {FAL_VARY.maxRefs}.</p>}
     {shortToken && !props.busy && <p className="create-status">Le code d’accès du studio débloque le lot. Rien n’est envoyé avant le clic.</p>}
     {props.status && <p className="create-status" role="status">{props.status}</p>}
@@ -122,7 +122,7 @@ export function CreatePanel(props: CreatePanelProps) {
       <ol>{PLAN.map(slot => <li key={slot.index}><span>{String(slot.index).padStart(2, "0")}</span> {props.trigger && !triggerError ? bootstrapCaption(props.trigger, slot) : `${angleLabel(slot.angle)} · ${framingLabel(slot.framing)} · ${slot.variables}`}</li>)}</ol>
     </details>
     <p className="create-fine">{props.proxyOn
-      ? "Au clic, les photos partent vers fal via le proxy du studio. Le trigger n’est pas dans le prompt de génération : il entre seulement dans les légendes du lot. Chaque lancement est facturé, même si tu fermes la page."
-      : "Sans proxy, préparer le lot ne contacte personne. L’import et le gate restent dans le navigateur."}</p>
+      ? "Au clic, les photos partent. Rien n’est envoyé avant. Chaque préparation est facturée, même si tu fermes la page."
+      : "Sans connexion, préparer le lot ne contacte personne. L’import reste dans le navigateur."}</p>
   </div>;
 }
