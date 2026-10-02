@@ -85,6 +85,8 @@ describe("Comfy same-origin embed", () => {
     assert.match(worker, /\/api\/s\//);
     assert.match(text, /comfy-token-ack/);
     assert.match(text, /firebaseLocalStorageDb/);
+    assert.match(text, /__Host-uttu_media/);
+    assert.ok(text.indexOf("__Host-uttu_media") < text.indexOf("import("), "the media cookie is written before Comfy starts");
     assert.match(text, /script\[data-comfy-main\]/);
     assert.match(text, /type="text\/plain" data-comfy-main crossorigin src="\/assets\/index-abc\.js"/);
     assert.doesNotMatch(text, /type="module" crossorigin src=/);
@@ -149,6 +151,43 @@ describe("Comfy same-origin embed", () => {
     assert.equal(calls[0].headers.get("origin"), "https://cloud.comfy.org");
     assert.equal(calls[0].headers.get("referer"), `https://cloud.comfy.org/comfy-embed?share=${SHARE}`);
     assert.equal(await response?.text(), "{\"ok\":true}");
+  });
+
+  it("turns the page media cookie into a bearer on thumbnail and video GETs", async () => {
+    const png = new Uint8Array([137, 80, 78, 71, 9, 9, 9]);
+    const mp4 = new Uint8Array([0, 0, 0, 32, 102, 116, 121, 112]);
+    const signed = "https://storage.googleapis.com/bucket/thumb.png?X-Goog-Signature=abc";
+    const calls: { url: string; headers: Headers }[] = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      const headers = new Headers(init?.headers);
+      calls.push({ url: String(input), headers });
+      if (String(input) === signed) return new Response(png, { headers: { "content-type": "image/png" } });
+      if (headers.get("authorization") !== "Bearer good.token") {
+        return new Response(JSON.stringify({ message: "authentication required" }), { status: 401, headers: { "content-type": "application/json" } });
+      }
+      if (String(input).includes("/content")) return new Response(mp4, { headers: { "content-type": "video/mp4", "accept-ranges": "bytes" } });
+      return new Response(null, { status: 302, headers: { location: signed } });
+    };
+    const thumb = await proxyComfy(new Request(`${STUDIO}/api/view?filename=ComfyUI_00002_.png&type=output`, {
+      headers: { cookie: "__session=clerk; __Host-uttu_media=good.token" },
+    }), fetchImpl);
+    assert.equal(thumb?.status, 200);
+    assert.equal(thumb?.headers.get("content-type"), "image/png");
+    assert.deepEqual(new Uint8Array(await thumb?.arrayBuffer() ?? new ArrayBuffer(0)), png);
+    assert.equal(calls[0]?.headers.get("authorization"), "Bearer good.token");
+    assert.equal(calls[0]?.headers.get("cookie"), null);
+    assert.equal(calls[1]?.headers.get("authorization"), null);
+    const video = await proxyComfy(new Request(`${STUDIO}/api/assets/wan-id/content?disposition=inline`, {
+      headers: { cookie: "__Host-uttu_media=" + encodeURIComponent("good.token") },
+    }), fetchImpl);
+    assert.equal(video?.status, 200);
+    assert.equal(video?.headers.get("content-type"), "video/mp4");
+    assert.deepEqual(new Uint8Array(await video?.arrayBuffer() ?? new ArrayBuffer(0)), mp4);
+    const list = await proxyComfy(new Request(`${STUDIO}/api/settings`, {
+      headers: { cookie: "__Host-uttu_media=good.token" },
+    }), fetchImpl);
+    assert.equal(list?.status, 401);
+    assert.equal(calls.at(-1)?.headers.get("authorization"), null);
   });
 
   it("streams storage bytes and rewrites a redirect back onto this host", async () => {
