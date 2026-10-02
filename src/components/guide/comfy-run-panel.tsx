@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { comfyEmbedHref } from "@/lib/comfy-proxy";
 import { APP_LABELS, COMFY_APPS, FLUX_STACK } from "@/lib/comfy-stack";
 import { assetPath } from "@/lib/site";
 import { trackEvent, type StudioEvent } from "@/lib/analytics";
@@ -37,7 +38,8 @@ export function ComfyRunPanel({ app, heading, note, showFile = true }: { app: Co
   const detail = note ?? panel.note;
   const event = panel.event;
   const label = heading ?? panel.heading;
-  // Comfy answers with `frame-ancestors 'self' https:`: a page served over http cannot frame it.
+  const embed = url ? comfyEmbedHref(url) : null;
+  // The media cookie is Secure. An http page, including next dev, cannot store it.
   const framable = useSyncExternalStore(noSubscription, () => window.location.protocol === "https:", () => true);
   // Stays 0 until the visitor clicks: Comfy's pages load third-party ad and analytics tags.
   const [loads, setLoads] = useState(0);
@@ -65,10 +67,10 @@ export function ComfyRunPanel({ app, heading, note, showFile = true }: { app: Co
       ? <p className="inline-status warn">Aucun partage Comfy. Rien n’est chargé.</p>
       : !framable
       ? <p className="inline-status warn">Page en HTTP : Comfy ne s’affiche dans un cadre que depuis une page HTTPS. Utilise « Ouvrir en plein onglet ».</p>
-      : loads
-        ? <iframe key={loads} ref={frame} className="comfy-run-frame" src={url} title={title} allow="clipboard-write; fullscreen" />
+      : loads && embed
+        ? <iframe key={loads} ref={frame} className="comfy-run-frame" src={assetPath(embed)} title={title} allow="clipboard-write; fullscreen" />
         : <div className="comfy-run-consent">
-          <p id={`comfy-${app}-consent`}><strong>Rien n’est chargé depuis Comfy avant ton clic.</strong> Le bouton affiche Comfy Cloud en mode app (cloud.comfy.org) dans cette page. Comfy peut alors charger ses propres traceurs tiers : publicité et mesure d’audience, dont Google et LinkedIn sur sa page de connexion.</p>
+          <p id={`comfy-${app}-consent`}><strong>Rien n’est chargé depuis Comfy avant ton clic.</strong> Le bouton affiche l’app Comfy Cloud dans cette page, via le studio, pour que les images et les vidéos générées s’affichent. Comfy peut alors charger ses propres traceurs tiers : publicité et mesure d’audience, dont Google et LinkedIn sur sa page de connexion.</p>
           <button type="button" className="button button-primary" onClick={load} aria-describedby={`comfy-${app}-consent`}>Charger l’app Comfy ici <Arrow /></button>
         </div>}
     <div className="comfy-run-foot">
