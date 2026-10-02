@@ -10,11 +10,16 @@ const MODE_ALIASES = new Set(["sphère", "identité", "bibliothèque"]);
 /** Old Clerk and bookmark hashes lived on `/`. Send them to the studio shell. */
 export function LegacyStudioHash() {
   useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash || hash === "#") return;
-    const raw = decodeURIComponent(hash.replace(/^#/, "").split(/[?&]/)[0]).trim().toLowerCase();
-    if (!MODE_IDS.has(raw) && !MODE_ALIASES.has(raw)) return;
-    window.location.replace(`${assetPath("/studio")}${hash}`);
+    const go = () => {
+      const hash = window.location.hash;
+      if (!hash || hash === "#") return;
+      const raw = decodeURIComponent(hash.replace(/^#/, "").split(/[?&]/)[0]).trim().toLowerCase();
+      if (!MODE_IDS.has(raw) && !MODE_ALIASES.has(raw)) return;
+      window.location.replace(`${assetPath("/studio")}${hash}`);
+    };
+    go();
+    window.addEventListener("hashchange", go);
+    return () => window.removeEventListener("hashchange", go);
   }, []);
   return null;
 }
