@@ -66,7 +66,7 @@ npm run dev          # http://localhost:3000
 
 Le **test à blanc** n’est pas un troisième workflow. C’est le premier, lancé avec 20 étapes et 1 image, qui sont ses valeurs par défaut. Les images déposées restent en place pour le vrai run.
 
-Après un PASS du gate, le guide propose ces deux apps dans la page. Rien n’est chargé depuis Comfy avant un clic sur « Charger l’app Comfy ici », parce que Comfy charge ses propres traceurs. « Ouvrir en plein onglet » reste au-dessus de chaque panneau : la connexion Comfy dans un iframe n’est pas garantie, et une page HTTP, dont `next dev`, ne peut pas encadrer Comfy. Pour voir les cadres en local, servir le build en HTTPS.
+Après un PASS du gate, le guide propose ces deux apps dans la page. Rien n’est chargé depuis Comfy avant un clic sur « Charger l’app Comfy ici », parce que Comfy charge ses propres traceurs. Le cadre passe par le studio (`/comfy-embed`) pour que les images et les vidéos générées s’affichent. « Ouvrir en plein onglet » reste le lien direct `cloud.comfy.org` : la connexion du cadre est une autre origine, et une page HTTP, dont `next dev`, ne peut pas garder le cookie Secure de Comfy. Pour voir les cadres en local, servir le build en HTTPS.
 
 ### Créer les workflows dans Comfy Cloud
 
