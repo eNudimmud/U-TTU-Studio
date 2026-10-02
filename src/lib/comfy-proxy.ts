@@ -10,6 +10,9 @@
 // A media GET that Comfy answers with a storage redirect is fetched here
 // and returned as bytes. <img> and <video> then stay on this origin: a
 // cross-origin opaque response does not paint on mobile Chrome.
+// A hard reload does not consult the service worker, so the page also stores
+// the signed-in token in `__Host-uttu_media` before Comfy starts. That cookie
+// is not forwarded. This proxy turns it into Authorization on media GETs.
 
 import { COMFY_MEDIA_BOOT } from "./comfy-media.ts";
 import { resolveComfyShare } from "./comfy-stack.ts";
@@ -66,6 +69,28 @@ function allowedPath(pathname: string): boolean {
   if (pathname.includes("\\") || pathname.includes("\0") || pathname.split("/").includes("..")) return false;
   if (EXACT.has(pathname)) return true;
   return PREFIXES.some(prefix => pathname === `/${prefix}` || pathname.startsWith(`/${prefix}/`));
+}
+
+// Set by the embed boot from the Firebase (or workspace) token. It is not a
+// Comfy cookie: Comfy would treat an unknown session cookie as invalid.
+export const COMFY_MEDIA_TOKEN_COOKIE = "__Host-uttu_media";
+
+export function mediaBearerFromCookie(header: string | null): string | null {
+  if (!header) return null;
+  for (const part of header.split(";")) {
+    const trimmed = part.trim();
+    const eq = trimmed.indexOf("=");
+    if (eq <= 0 || trimmed.slice(0, eq) !== COMFY_MEDIA_TOKEN_COOKIE) continue;
+    let value = trimmed.slice(eq + 1);
+    try {
+      value = decodeURIComponent(value);
+    } catch {
+      return null;
+    }
+    if (!value || value.length > 4096 || /[\r\n\0]/.test(value) || !/^[A-Za-z0-9\-._~+/]+=*$/.test(value)) return null;
+    return value;
+  }
+  return null;
 }
 
 export function comfyCookieHeader(header: string | null): string | null {
@@ -327,8 +352,13 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
-  const cookie = comfyCookieHeader(request.headers.get("cookie"));
+  const rawCookie = request.headers.get("cookie");
+  const cookie = comfyCookieHeader(rawCookie);
   if (cookie) headers.set("cookie", cookie);
+  if (!headers.has("authorization") && (request.method === "GET" || request.method === "HEAD") && workerMediaPath(target.pathname)) {
+    const token = mediaBearerFromCookie(rawCookie);
+    if (token) headers.set("authorization", `Bearer ${token}`);
+  }
   const referer = request.headers.get("referer");
   if (referer) {
     const rewritten = refererForUpstream(referer, target.origin);
