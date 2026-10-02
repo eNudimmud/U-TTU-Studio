@@ -66,6 +66,8 @@ describe("shell Look Plateau Take", () => {
     assert.match(PLATEAU_HELP, /Blender/);
     assert.match(PLATEAU_HELP, /\.blend/);
     assert.match(TAKE_HELP, /Seedance/);
+    assert.match(TAKE_HELP, /R2V/);
+    assert.match(TAKE_HELP, /échange de personnage/);
     assert.match(TAKE_HELP, /n’est pas branché/);
     assert.doesNotMatch(`${PLATEAU_HELP}\n${TAKE_HELP}`, /night city/i);
   });

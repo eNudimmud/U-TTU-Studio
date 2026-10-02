@@ -18,7 +18,7 @@ Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CIN
 | --- | --- | --- | --- |
 | Look | Ton style | Ton style : dépôt photo, statut « Look tenu » | boucle photo, LoRA |
 | Plateau | Ta scène | Ta scène : le monde, images, suites, notes | préviz Blender, sur le bureau |
-| Take | La prise | La prise : monde → look tenu → prise courte, bouton éteint | Seedance cloud, plus tard, éteint |
+| Take | La prise | La prise : monde → look tenu → prise courte, bouton éteint | MiniMax H3 R2V et LoRA d’échange de personnage, ou Seedance, plus tard, éteints |
 
 - **Décision :** le shell parle d’abord Ton style, Ta scène, La prise. Une ligne dit « Le monde, le look tenu, puis une prise courte. » Blender et Seedance restent dans l’aide de Ta scène et de La prise, pas sur les boutons. On ne les met pas sur l’accueil.
 - **Décision :** « Vente HOLD » reste une décision de doc. Le bandeau du shell dit « Rien à payer » et la date. L’accueil ne le répète qu’une fois, à côté du bouton.

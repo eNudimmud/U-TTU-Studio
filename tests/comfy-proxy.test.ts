@@ -89,6 +89,10 @@ describe("Comfy same-origin embed", () => {
     assert.match(text, /createObjectURL/);
     assert.match(text, /comfy-media-file/);
     assert.match(text, /\?filename=/);
+    assert.match(text, /abs\.search\.slice\(0, 80\)/);
+    assert.match(text, /uttu-run-note/);
+    assert.match(text, /executionError/);
+    assert.doesNotMatch(text, /window\.WebSocket\s*=/);
     assert.match(text, /uttu-media-note/);
     assert.match(text, /x-api-key/);
     assert.match(text, /el\.preload = "auto"/);

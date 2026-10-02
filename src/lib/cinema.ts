@@ -70,7 +70,7 @@ export const TAKE_CLOSED = "Le plan reste noté. La prise reste fermée tant que
 
 /** Secondary help. Engine names live here, not on the step labels. */
 export const PLATEAU_HELP = "La préviz se prépare dans Blender, sur ton bureau : images fixes, une suite d’images, des notes de caméra. Tu les déposes ici. Le studio ne lance pas Blender et n’ouvre pas un fichier .blend.";
-export const TAKE_HELP = "Plus tard, la prise courte sera tournée dans le cloud, à partir de ces images et du look tenu — Seedance, ou un chemin équivalent. Ce n’est pas branché. Rien n’est facturé.";
+export const TAKE_HELP = "Plus tard, la prise courte sera tournée dans le cloud, à partir de ces images et du look tenu. MiniMax H3 en référence (R2V, références nommées, LoRA turbo 4 pas), un LoRA d’échange de personnage, ou Seedance. Ce n’est pas branché. Rien n’est facturé.";
 
 const STEP_ALIASES: Record<string, CinemaStep> = {
   look: "look",
