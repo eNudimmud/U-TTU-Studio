@@ -86,6 +86,12 @@ describe("Comfy same-origin embed", () => {
     assert.match(text, /comfy-token-ack/);
     assert.match(text, /firebaseLocalStorageDb/);
     assert.match(text, /__Host-uttu_media/);
+    assert.match(text, /createObjectURL/);
+    assert.match(text, /comfy-media-file/);
+    assert.match(text, /uttu-media-note/);
+    assert.match(text, /x-api-key/);
+    assert.match(text, /el\.preload = "auto"/);
+    assert.ok(text.indexOf("hookFetch()") < text.indexOf("import("), "the list Authorization is captured before Comfy starts");
     assert.ok(text.indexOf("__Host-uttu_media") < text.indexOf("import("), "the media cookie is written before Comfy starts");
     assert.match(text, /script\[data-comfy-main\]/);
     assert.match(text, /type="text\/plain" data-comfy-main crossorigin src="\/assets\/index-abc\.js"/);
@@ -188,6 +194,30 @@ describe("Comfy same-origin embed", () => {
     }), fetchImpl);
     assert.equal(list?.status, 401);
     assert.equal(calls.at(-1)?.headers.get("authorization"), null);
+  });
+
+  it("serves a signed storage thumbnail from this origin and refuses other hosts", async () => {
+    const png = new Uint8Array([137, 80, 78, 71, 4, 4, 4]);
+    const signed = "https://storage.googleapis.com/bucket/thumb.png?X-Goog-Signature=abc";
+    const calls: string[] = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      calls.push(String(input));
+      const headers = new Headers(init?.headers);
+      assert.equal(headers.get("authorization"), null);
+      assert.equal(headers.get("cookie"), null);
+      if (String(input) === signed) return new Response(png, { headers: { "content-type": "image/png" } });
+      return new Response("no", { status: 404 });
+    };
+    const ok = await proxyComfy(new Request(`${STUDIO}/comfy-media-file?u=${encodeURIComponent(signed)}`), fetchImpl);
+    assert.equal(ok?.status, 200);
+    assert.equal(ok?.headers.get("content-type"), "image/png");
+    assert.deepEqual(new Uint8Array(await ok?.arrayBuffer() ?? new ArrayBuffer(0)), png);
+    assert.deepEqual(calls, [signed]);
+    for (const blocked of ["https://evil.example/file.png", "https://169.254.169.254/latest", "http://storage.googleapis.com/bucket/a.png", "https://cloud.comfy.org/api/view?filename=a.png", "https://storage.googleapis.com.evil.example/a.png"]) {
+      const denied = await proxyComfy(new Request(`${STUDIO}/comfy-media-file?u=${encodeURIComponent(blocked)}`), fetchImpl);
+      assert.equal(denied?.status, 400, blocked);
+    }
+    assert.equal(calls.length, 1);
   });
 
   it("streams storage bytes and rewrites a redirect back onto this host", async () => {

@@ -237,6 +237,14 @@ function clientHeaders(upstream: Response, publicOrigin: string): Headers {
   return headers;
 }
 
+function signedStorageHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/\.+$/, "");
+  return host === "storage.googleapis.com"
+    || host === "storage.cloud.google.com"
+    || host.endsWith(".storage.googleapis.com")
+    || host.endsWith(".googleusercontent.com");
+}
+
 function workerMediaPath(pathname: string): boolean {
   return pathname === "/api/view"
     || pathname === "/api/viewvideo"
@@ -316,6 +324,42 @@ async function streamStorageRedirect(request: Request, upstream: Response, publi
   return mediaFileResponse(upstream, current, request.method);
 }
 
+// A tile whose src is already a signed storage URL never hits /api/view.
+// Fetch that URL here and return the bytes on this origin.
+async function streamSignedMedia(request: Request, target: URL, fetchImpl: typeof fetch): Promise<Response> {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response("Méthode refusée.", { status: 405, headers: { "allow": "GET, HEAD", "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+  }
+  const raw = target.searchParams.get("u");
+  let current = raw && raw.length <= 8000 ? storageTarget(raw, target.origin) : null;
+  if (!current || !signedStorageHost(current.hostname)) {
+    return new Response("URL média refusée.", { status: 400, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+  }
+  let file: Response | null = null;
+  for (let hop = 0; hop < 2; hop++) {
+    const headers = new Headers();
+    const range = request.headers.get("range");
+    if (range && request.method === "GET") headers.set("range", range);
+    const accept = request.headers.get("accept");
+    if (accept) headers.set("accept", accept);
+    try {
+      file = await fetchImpl(current, { method: request.method, headers, redirect: "manual" });
+    } catch {
+      return new Response("Fichier Comfy injoignable.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+    }
+    if (file.status < 300 || file.status >= 400) break;
+    const next = storageTarget(file.headers.get("location"), target.origin);
+    if (!next || !signedStorageHost(next.hostname)) {
+      return new Response("Redirection média refusée.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+    }
+    current = next;
+  }
+  if (!file || (file.status >= 300 && file.status < 400)) {
+    return new Response("Redirection média trop longue.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+  }
+  return mediaFileResponse(new Response(null), file, request.method);
+}
+
 function emptyStatus(status: number): boolean {
   return status === 204 || status === 205 || status === 304 || (status >= 300 && status < 400);
 }
@@ -341,6 +385,7 @@ async function toClientResponse(upstream: Response, publicOrigin: string): Promi
 
 export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fetch): Promise<Response | null> {
   const target = requestTarget(request);
+  if (target.pathname === "/comfy-media-file") return streamSignedMedia(request, target, fetchImpl);
   const route = classifyComfy(target);
   if (route.kind === "ignore") return null;
   if (route.kind === "deny") return new Response("Partage Comfy refusé.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
