@@ -4,8 +4,8 @@ import { VAULT_DOCUMENTS, VAULT_FOLDERS } from "./vault.ts";
 
 export const ACCOUNT_SIGN_IN_PATH = "/sign-in";
 export const ACCOUNT_SIGN_UP_PATH = "/sign-up";
-export const ACCOUNT_HOME_HASH = "/#compte";
-export const ACCOUNT_CREER_HASH = "/#creer";
+export const ACCOUNT_HOME_HASH = "/studio#compte";
+export const ACCOUNT_CREER_HASH = "/studio#creer";
 
 /** Providers JD enables in the Clerk dashboard. SignIn shows whatever is on. */
 export const CLERK_OAUTH_PROVIDERS = ["google", "github"] as const;

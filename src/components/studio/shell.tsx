@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { STUDIO_MODES, modeFromHash, type StudioMode } from "@/lib/studio-modes";
-import { contactEmail, testPhaseEnd } from "@/lib/site";
+import { assetPath, contactEmail, testPhaseEnd } from "@/lib/site";
 import { CreateView } from "./create-view";
 import { IdentityPanel } from "./identity-panel";
 import { MaisonPanel } from "./maison-panel";
@@ -49,6 +49,7 @@ export function StudioShell() {
       <header className="studio-header">
         <div className="shell header-inner">
           <a href="#creer" className="wordmark" aria-label="U*TTU Studio — Créer">U<span className="wordmark-star">*</span>TTU<span className="wordmark-studio">STUDIO</span></a>
+          <a className="header-home" href={assetPath("/")}>Accueil</a>
           <p className="header-kill"><span>Vente HOLD</span><span>{testPhaseEnd}</span></p>
         </div>
         <div className="shell">

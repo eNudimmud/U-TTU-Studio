@@ -19,8 +19,8 @@ describe("compte et coffre", () => {
     assert.equal(processesForMode("compte").length, 0);
     assert.equal(ACCOUNT_SIGN_IN_PATH, "/sign-in");
     assert.equal(ACCOUNT_SIGN_UP_PATH, "/sign-up");
-    assert.equal(ACCOUNT_HOME_HASH, "/#compte");
-    assert.equal(ACCOUNT_CREER_HASH, "/#creer");
+    assert.equal(ACCOUNT_HOME_HASH, "/studio#compte");
+    assert.equal(ACCOUNT_CREER_HASH, "/studio#creer");
   });
 
   it("keeps the signed-in skeleton in the panel, without a network call of its own", () => {

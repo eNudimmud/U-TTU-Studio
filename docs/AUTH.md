@@ -23,7 +23,7 @@ Sans les deux clés, `npm test`, `npm run typecheck` et `npm run build` passent.
 - `src/app/layout.tsx` — `ClerkProvider` seulement si la clé publique est posée. Localisation `frFR`. Apparence sombre.
 - `/sign-in` et `/sign-up` — flux OAuth Clerk standard. Google et GitHub apparaissent quand ils sont activés dans le dashboard Clerk. Le code ne parle pas à Google ni à GitHub directement.
 - `#compte` — anonyme : « Se connecter », « Créer un compte », rappel que Créer et le ZIP marchent sans compte, et le budget qui attend la session. Connecté : profil, `UserButton`, « Tes runs » sans run cloud, « Ton studio cloud » vide, journal local (libellé, estimation, date) dans `localStorage` sous l’identifiant Clerk, extrait `jobs-extrait.md` à copier ou télécharger, liens vers `refs/`, `dataset/`, `loras/`, `scenes/`, `processes/`, `jobs.md`, `CANON.md`, et le ZIP `public/vault/U-TTU-Studio.zip`. Le compte n’écrit pas dans le coffre.
-- Après connexion, retour vers `/#compte`. Après déconnexion, retour vers `/#creer`.
+- Après connexion, retour vers `/studio#compte`. Après déconnexion, retour vers `/studio#creer`. Un ancien lien `/#compte` ou `/#creer` est reconduit vers `/studio` avec le même hash.
 
 Pas de Stripe. Pas de jobs cloud. Pas de sync du coffre.
 
@@ -87,11 +87,11 @@ Quand l’instance **Production** sera créée, refaire les étapes 4, 5 et 8 su
 | `CLERK_SECRET_KEY` | `sk_test_…` en Preview. `sk_live_…` en Production. |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | `/sign-in` |
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | `/sign-up` |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` | `/#compte` |
-| `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | `/#compte` |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` | `/studio#compte` |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | `/studio#compte` |
 | `NEXT_PUBLIC_SITE_URL` | URL HTTPS publique, une fois le domaine connu |
 
-5. Déployer une preview. Ouvrir `/` : Créer, sans mur. `/#compte` : boutons. `/sign-in` : Google et GitHub, si l’étape SSO est faite et si le domaine de preview est autorisé sur l’instance Development.
+5. Déployer une preview. Ouvrir `/` : l’accueil (Look, Plateau, Take), sans jargon de moteur. `/studio` : Créer, sans mur. `/studio#compte` : boutons. `/sign-in` : Google et GitHub, si l’étape SSO est faite et si le domaine de preview est autorisé sur l’instance Development. Si Vercel a encore `NEXT_PUBLIC_CLERK_*_FALLBACK_REDIRECT_URL=/#compte`, le remplacer par `/studio#compte`. L’accueil reconduit aussi l’ancien hash.
 6. Dans Clerk, ajouter ce domaine (`*.vercel.app`, puis le domaine custom) aux domaines de la bonne instance. Sans ça, l’OAuth revient en erreur.
 
 Les noms vides sont dans [`.env.example`](../.env.example). Les valeurs ne vont pas dans git.
