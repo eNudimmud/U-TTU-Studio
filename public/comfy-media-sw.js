@@ -1,8 +1,7 @@
 // Thumbnails are <img> and <video>. They cannot send Authorization, and
 // Comfy's host-only session cookie is not always present on this host.
-// /api/view accepts a Firebase bearer (WWW-Authenticate: Bearer) and then
-// 302s to a signed storage URL. This worker adds that bearer, then lets the
-// element load the signed URL itself so the token never follows the redirect.
+// /api/view accepts a Firebase bearer. The studio proxy then streams the
+// storage file back on this origin, so the element receives same-origin bytes.
 
 let token = "";
 
@@ -75,33 +74,17 @@ self.addEventListener("fetch", (event) => {
 
 async function load(request) {
   const current = await remembered();
-  // No token: replay the <img>/<video> request. Its no-cors mode follows the
-  // storage redirect and can paint. A manual redirect would hide Location.
   if (!current) return fetch(request);
   const headers = new Headers(request.headers);
   headers.set("authorization", "Bearer " + current);
-  let nextUrl = request.url;
-  for (let hop = 0; hop < 4; hop++) {
-    const response = await fetch(nextUrl, {
-      method: request.method,
-      headers,
-      mode: "cors",
-      credentials: "include",
-      redirect: "manual",
-      cache: "no-store",
-    });
-    if (response.headers.get("x-comfy-media-redirect") === "1") {
-      const payload = await response.json();
-      const target = new URL(payload.location, nextUrl);
-      if (target.protocol !== "https:" && target.protocol !== "http:") break;
-      if (target.origin !== new URL(nextUrl).origin) {
-        return fetch(target.href, { mode: "no-cors", credentials: "omit", redirect: "follow", cache: "no-store" });
-      }
-      nextUrl = target.href;
-      continue;
-    }
-    if (response.status === 401) return fetch(request);
-    return response;
-  }
-  return fetch(request);
+  const response = await fetch(request.url, {
+    method: request.method,
+    headers,
+    mode: "cors",
+    credentials: "include",
+    redirect: "follow",
+    cache: "no-store",
+  });
+  if (response.status === 401) return fetch(request);
+  return response;
 }

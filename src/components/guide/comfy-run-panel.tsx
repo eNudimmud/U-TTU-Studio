@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { COMFY_MEDIA_SW } from "@/lib/comfy-media";
 import { comfyEmbedHref } from "@/lib/comfy-proxy";
 import { APP_LABELS, COMFY_APPS, FLUX_STACK } from "@/lib/comfy-stack";
 import { assetPath } from "@/lib/site";
@@ -46,6 +47,10 @@ export function ComfyRunPanel({ app, heading, note, showFile = true }: { app: Co
   const frame = useRef<HTMLIFrameElement>(null);
   useEffect(() => {
     if (loads === 1) frame.current?.focus({ preventScroll: true });
+  }, [loads]);
+  useEffect(() => {
+    if (!loads || !("serviceWorker" in navigator)) return;
+    void navigator.serviceWorker.register(COMFY_MEDIA_SW).catch(() => {});
   }, [loads]);
 
   function load() {

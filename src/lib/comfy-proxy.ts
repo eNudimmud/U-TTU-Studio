@@ -7,6 +7,9 @@
 // full-tab link stays on cloud.comfy.org. After the visitor clicks load,
 // Comfy's scripts run on the studio origin — that is the tradeoff, because
 // a sandbox without allow-same-origin drops the cookie again.
+// A media GET that Comfy answers with a storage redirect is fetched here
+// and returned as bytes. <img> and <video> then stay on this origin: a
+// cross-origin opaque response does not paint on mobile Chrome.
 
 import { COMFY_MEDIA_BOOT } from "./comfy-media.ts";
 import { resolveComfyShare } from "./comfy-stack.ts";
@@ -138,6 +141,16 @@ export function rewriteProxiedText(text: string, pairs: ReadonlyArray<readonly [
   return pairs.reduce((out, [from, to]) => out.replaceAll(from, to), text);
 }
 
+// Sibling module scripts do not wait for the boot's top-level await, so Comfy
+// was requesting thumbnails before the worker had the Firebase token. The
+// entry stays inert until the boot imports it.
+export function deferComfyEntry(html: string): string {
+  return html.replace(
+    /<script\b([^>]*?)\btype="module"([^>]*?)\bsrc="([^"]+)"([^>]*)><\/script>/,
+    `<script$1type="text/plain" data-comfy-main$2src="$3"$4></script>`,
+  );
+}
+
 function rewriteStream(input: ReadableStream<Uint8Array>, pairs: ReadonlyArray<readonly [string, string]>): ReadableStream<Uint8Array> {
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
@@ -206,24 +219,76 @@ function workerMediaPath(pathname: string): boolean {
     || pathname.startsWith("/api/s/");
 }
 
-// fetch(redirect: "manual") hides Location from the service worker, and a
-// cors follow of the signed storage URL fails without storage CORS. An
-// authorized media GET therefore returns the URL in JSON. The worker loads
-// that URL as no-cors, so the bearer never follows the redirect.
-export function mediaRedirectResponse(request: Request, upstream: Response, publicOrigin: string): Response | null {
-  if (request.method !== "GET" || !request.headers.has("authorization")) return null;
-  if (upstream.status < 300 || upstream.status >= 400) return null;
-  const raw = upstream.headers.get("location");
-  if (!raw || !workerMediaPath(requestTarget(request).pathname)) return null;
-  const location = rewriteLocation(raw, publicOrigin);
-  return new Response(JSON.stringify({ location }), {
-    status: 200,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store",
-      "x-comfy-media-redirect": "1",
-    },
-  });
+function blockedStorageHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/\.+$/, "");
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || host === "metadata.google.internal") return true;
+  const ip = host.startsWith("[") && host.endsWith("]") ? host.slice(1, -1) : host;
+  if (ip === "::1" || ip.startsWith("fe80:") || ip.startsWith("fc") || ip.startsWith("fd")) return true;
+  const match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(ip);
+  if (!match) return false;
+  const a = Number(match[1]);
+  const b = Number(match[2]);
+  if (a === 0 || a === 10 || a === 127) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 168) return true;
+  return false;
+}
+
+function storageTarget(location: string | null, publicOrigin: string): URL | null {
+  if (!location) return null;
+  let url: URL;
+  try {
+    url = new URL(rewriteLocation(location, publicOrigin));
+  } catch {
+    return null;
+  }
+  if (url.protocol !== "https:") return null;
+  if (url.origin === publicOrigin || url.hostname === "cloud.comfy.org") return null;
+  if (blockedStorageHost(url.hostname)) return null;
+  return url;
+}
+
+function mediaFileResponse(upstream: Response, file: Response, method: string): Response {
+  const headers = new Headers();
+  const contentType = file.headers.get("content-type");
+  if (contentType) headers.set("content-type", contentType);
+  for (const name of ["content-length", "content-range", "accept-ranges"]) {
+    const value = file.headers.get(name);
+    if (value) headers.set(name, value);
+  }
+  headers.set("cache-control", "private, no-store");
+  if (contentType) headers.set("x-content-type-options", "nosniff");
+  for (const cookie of upstream.headers.getSetCookie()) headers.append("set-cookie", stripCookieDomain(cookie));
+  return new Response(method === "HEAD" ? null : file.body, { status: file.status, headers });
+}
+
+// Comfy's /api/view 302s to a signed storage URL. The browser cannot paint
+// that hop from a service worker (manual redirects hide Location; a no-cors
+// body stays opaque). Fetch the file here and return it on this origin.
+async function streamStorageRedirect(request: Request, upstream: Response, publicOrigin: string, fetchImpl: typeof fetch): Promise<Response | null> {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  if (!workerMediaPath(requestTarget(request).pathname)) return null;
+  let current = upstream;
+  for (let hop = 0; hop < 2; hop++) {
+    if (current.status < 300 || current.status >= 400) return hop === 0 ? null : mediaFileResponse(upstream, current, request.method);
+    const next = storageTarget(current.headers.get("location"), publicOrigin);
+    if (!next) return hop === 0 ? null : new Response("Redirection média refusée.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+    const headers = new Headers();
+    const range = request.headers.get("range");
+    if (range && request.method === "GET") headers.set("range", range);
+    const accept = request.headers.get("accept");
+    if (accept) headers.set("accept", accept);
+    try {
+      current = await fetchImpl(next, { method: request.method, headers, redirect: "manual" });
+    } catch {
+      return new Response("Fichier Comfy injoignable.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+    }
+  }
+  if (current.status >= 300 && current.status < 400) {
+    return new Response("Redirection média trop longue.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+  }
+  return mediaFileResponse(upstream, current, request.method);
 }
 
 function emptyStatus(status: number): boolean {
@@ -233,7 +298,14 @@ function emptyStatus(status: number): boolean {
 async function toClientResponse(upstream: Response, publicOrigin: string): Promise<Response> {
   const headers = clientHeaders(upstream, publicOrigin);
   if (emptyStatus(upstream.status) || !upstream.body) return new Response(null, { status: upstream.status, headers });
-  const pairs = textPairs(mediaType(upstream.headers.get("content-type")), publicOrigin);
+  const type = mediaType(upstream.headers.get("content-type"));
+  const pairs = textPairs(type, publicOrigin);
+  if (type === "text/html" && pairs.length) {
+    headers.delete("etag");
+    headers.delete("content-md5");
+    const html = deferComfyEntry(rewriteProxiedText(await upstream.text(), pairs));
+    return new Response(html, { status: upstream.status, headers });
+  }
   const body = pairs.length ? rewriteStream(upstream.body, pairs) : upstream.body;
   if (pairs.length) {
     headers.delete("etag");
@@ -276,5 +348,5 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
   } catch {
     return new Response("Comfy est injoignable.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   }
-  return mediaRedirectResponse(request, upstream, target.origin) ?? toClientResponse(upstream, target.origin);
+  return await streamStorageRedirect(request, upstream, target.origin, fetchImpl) ?? toClientResponse(upstream, target.origin);
 }
