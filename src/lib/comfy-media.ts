@@ -18,8 +18,11 @@ function routeMedia(raw) {
     const path = abs.pathname;
     if (abs.origin === location.origin && (path === "/api/view" || path === "/api/viewvideo" || path.startsWith("/api/assets/") || path.startsWith("/api/s/"))) {
       let label = path;
-      const filename = abs.searchParams.get("filename");
-      if (filename && (path === "/api/view" || path === "/api/viewvideo")) label = path + "?filename=" + filename.slice(0, 96);
+      if (path === "/api/view" || path === "/api/viewvideo") {
+        const filename = abs.searchParams.get("filename");
+        if (filename) label = path + "?filename=" + filename.slice(0, 96);
+        else if (abs.search) label = path + abs.search.slice(0, 80);
+      }
       return { href: abs.pathname + abs.search, needsToken: true, label: label };
     }
     if (abs.protocol === "https:" && storageHost(abs.hostname)) {
@@ -41,6 +44,94 @@ function note(line) {
   const count = Number(box.dataset.count || 0) + 1;
   box.dataset.count = String(count);
   box.textContent = count > 1 ? line + " · " + count + " tuiles" : line;
+}
+function clipRun(text) {
+  const clean = String(text || "").replace(/\\s+/g, " ").trim();
+  if (!clean || /bearer\\s+\\S+/i.test(clean) || clean.indexOf("eyJ") >= 0) return "";
+  return clean.slice(0, 240);
+}
+function runNote(line) {
+  const body = document.body || document.documentElement;
+  let box = document.getElementById("uttu-run-note");
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "uttu-run-note";
+    box.setAttribute("role", "status");
+    box.style.cssText = "position:fixed;z-index:2147483646;left:8px;right:8px;bottom:128px;max-height:28vh;overflow:auto;padding:8px 10px;border-radius:8px;background:#1c1408;color:#fff;font:600 12px/1.35 sans-serif";
+    body.appendChild(box);
+  }
+  if (box.textContent !== line) box.textContent = line;
+}
+function pushRun(lines, text) {
+  const line = clipRun(text);
+  if (line && lines.indexOf(line) < 0) lines.push(line);
+}
+function linesFromRun(body) {
+  const lines = [];
+  const nodes = body && body.node_errors;
+  if (nodes && typeof nodes === "object") {
+    Object.keys(nodes).forEach((id) => {
+      const node = nodes[id] || {};
+      const errors = node.errors || [];
+      errors.forEach((error) => pushRun(lines, (node.class_type || id) + " — " + (error.message || error.details || "")));
+    });
+  }
+  const error = body && body.error;
+  if (error && typeof error === "object") pushRun(lines, (error.type ? error.type + " — " : "") + (error.message || error.details || ""));
+  else pushRun(lines, typeof error === "string" ? error : "");
+  return lines;
+}
+function inspectRun(response) {
+  try {
+    const url = String(response && response.url || "");
+    if (url.indexOf("/api/prompt") < 0) return;
+    const type = (response.headers.get("content-type") || "");
+    if (type.indexOf("json") < 0 || !response.clone) return;
+    response.clone().json().then((body) => {
+      const lines = linesFromRun(body).slice(0, 4);
+      if (lines.length) runNote(lines.join(" · "));
+    }).catch(() => {});
+  } catch (e) {}
+}
+function piniaStore(id) {
+  const root = document.getElementById("app") || document.querySelector("#vue-app");
+  const vueApp = root && root.__vue_app__;
+  const pinia = vueApp && vueApp.config && vueApp.config.globalProperties && vueApp.config.globalProperties.$pinia;
+  return pinia && pinia._s && pinia._s.get(id);
+}
+function readMissingFiles(lines) {
+  const media = piniaStore("missingMedia");
+  const list = media && media.missingMediaCandidates;
+  if (!list || !list.length) return;
+  const names = [];
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
+    if (!item || item.isMissing === false) continue;
+    const name = clipRun(item.name);
+    if (name && names.indexOf(name) < 0) names.push(name);
+  }
+  if (!names.length) return;
+  const extra = names.length > 3 ? " +" + (names.length - 3) : "";
+  pushRun(lines, "fichier manquant — " + names.slice(0, 3).join(", ") + extra);
+}
+function readRunError() {
+  try {
+    const lines = [];
+    readMissingFiles(lines);
+    const store = piniaStore("executionError");
+    if (store && store.isErrorOverlayOpen) {
+      const found = linesFromRun({ node_errors: store.lastNodeErrors, error: store.lastPromptError });
+      for (const line of found) pushRun(lines, line);
+      const exec = store.lastExecutionError;
+      if (exec) pushRun(lines, (exec.node_type || exec.node_id || "nœud") + " — " + (exec.exception_message || ""));
+    }
+    if (!lines.length) {
+      const box = document.getElementById("uttu-run-note");
+      if (box && box.parentNode) box.parentNode.removeChild(box);
+      return;
+    }
+    runNote(lines.slice(0, 4).join(" · "));
+  } catch (e) {}
 }
 function remember(map) {
   const next = {};
@@ -72,7 +163,11 @@ function hookFetch() {
       if (apiKey) map["x-api-key"] = apiKey;
       remember(map);
     } catch (e) {}
-    return orig.apply(this, arguments);
+    const pending = orig.apply(this, arguments);
+    try {
+      if (pending && pending.then) pending.then(inspectRun);
+    } catch (e) {}
+    return pending;
   };
   const setHeader = XMLHttpRequest.prototype.setRequestHeader;
   XMLHttpRequest.prototype.setRequestHeader = function (name, value) {
@@ -146,6 +241,7 @@ function hookSrc(proto) {
   });
 }
 hookFetch();
+setInterval(readRunError, 1000);
 hookSrc(HTMLImageElement.prototype);
 if (window.HTMLMediaElement) hookSrc(HTMLMediaElement.prototype);
 setTimeout(() => {

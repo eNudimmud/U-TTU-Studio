@@ -29,10 +29,17 @@ Ce document fixe l’étoile du nord. Il n’ouvre aucun appel payant, aucune ro
 - **Décision :** `#creer` ouvre Ton style, pour les retours Clerk. `#compte` ouvre Compte. L’accueil entre par `/studio?step=look`.
 - **Fait :** Plateau et Take n’envoient rien. Aucune route fal nouvelle. Aucun burn vidéo. 0 $.
 
+## Décision — Take après le look — 2 octobre 2026, soir
+
+- **Décision JD :** une fois le look tenu, Take peut s’appuyer sur MiniMax H3 en Reference-to-Video, et sur un LoRA d’échange de personnage. Le bouton ne lance rien. Aucune route nouvelle. Aucun burn. 0 $.
+- **Fait :** le R2V Comfy utilise le modèle `minimax_h3_ref2va_pruned_int8_convrot` (pas le `fl2va` du texte-vers-vidéo). Chaque référence se nomme par balise, dans l’ordre de connexion. Le turbo est le LoRA 4 pas `minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16`. Source : [MiniMax H3 Reference to Video](https://docs.comfy.org/tutorials/video/minimax/minimax-h3-native#minimax-h3-reference-to-video-r2v).
+- **Fait :** un essai public du LoRA d’échange, [MiniMax-H3-Character-Swap-LoRA test](https://x.com/toyxyz3/status/2103933651797045300) (toyxyz). Le look entraîné dans Former mon look est l’identité que cet échange doit tenir.
+- **Décision :** Seedance reste un chemin possible, pas le seul. Ces noms restent dans l’aide de La prise. L’accueil ne les porte pas.
+
 ## Décision — ce que v0 ne fait pas
 
 - **Décision :** pas de Blender dans le navigateur. La préviz se prépare dans Blender, sur le bureau, puis s’exporte. Le studio web ne lance pas Blender et n’ouvre pas un fichier `.blend`.
-- **Décision :** Take, plus tard, passe par Seedance dans le cloud. Ce n’est pas branché ici. Pas de nouvelle route fal. Pas de burn vidéo payant dans cette livraison.
+- **Décision :** Take, plus tard, passe par le cloud. Les chemins notés sont MiniMax H3 R2V, le LoRA d’échange de personnage, ou Seedance. Aucun n’est branché ici. Pas de nouvelle route fal. Pas de burn vidéo payant dans cette livraison.
 - **Décision :** pas de Night City. Ni comme décor de démo, ni comme direction. Le canon visuel ne bascule pas vers une ville néon.
 - **Décision :** la phase 0 ne s’interrompt pas. Fermer la boucle photo reste le geste qui marche dans Créer. Le cinéma ne le remplace pas : il le nomme comme le début de Look.
 - **Décision inchangée :** les apps Comfy et le coffre restent. On ne les retire pas pour faire place au cinéma.

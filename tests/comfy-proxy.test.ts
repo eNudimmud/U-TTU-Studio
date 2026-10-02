@@ -89,6 +89,11 @@ describe("Comfy same-origin embed", () => {
     assert.match(text, /createObjectURL/);
     assert.match(text, /comfy-media-file/);
     assert.match(text, /\?filename=/);
+    assert.match(text, /abs\.search\.slice\(0, 80\)/);
+    assert.match(text, /uttu-run-note/);
+    assert.match(text, /executionError/);
+    assert.match(text, /missingMedia/);
+    assert.doesNotMatch(text, /window\.WebSocket\s*=/);
     assert.match(text, /uttu-media-note/);
     assert.match(text, /x-api-key/);
     assert.match(text, /el\.preload = "auto"/);
@@ -103,6 +108,8 @@ describe("Comfy same-origin embed", () => {
     assert.doesNotMatch(worker, /https:\/\/cloud\.comfy\.org/);
     const panel = readFileSync("src/components/guide/comfy-run-panel.tsx", "utf8");
     assert.match(panel, /serviceWorker\.register\(COMFY_MEDIA_SW\)/);
+    assert.match(panel, /DEPOSER-IMAGE-01\.png/);
+    assert.match(panel, /Image 01 à Image/);
   });
 
   it("streams a storage redirect as same-origin bytes for cookie and bearer", async () => {
