@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { COMFY_MEDIA_SW } from "@/lib/comfy-media";
 import { comfyEmbedHref } from "@/lib/comfy-proxy";
-import { APP_LABELS, COMFY_APPS, FLUX_STACK } from "@/lib/comfy-stack";
+import { APP_LABELS, COMFY_APPS, DATASET_SIZE, FLUX_STACK } from "@/lib/comfy-stack";
 import { assetPath } from "@/lib/site";
 import { trackEvent, type StudioEvent } from "@/lib/analytics";
 import { Arrow } from "../glyph";
@@ -14,7 +14,7 @@ type ComfyApp = keyof typeof COMFY_APPS;
 const PANELS: Record<ComfyApp, { heading: string; note: string; event: StudioEvent }> = {
   train: {
     heading: "Dataset → LoRA → 1 image",
-    note: `Ton compte Comfy Cloud, tes crédits : le studio n’en fournit pas. Test à blanc d’abord (${FLUX_STACK.training.testSteps} étapes, 1 image), run réel ensuite. Tes images restent sur ton appareil jusqu’à ce que tu les déposes dans Comfy.`,
+    note: `Ton compte Comfy Cloud, tes crédits : le studio n’en fournit pas. Test à blanc d’abord (${FLUX_STACK.training.testSteps} étapes, 1 image), run réel ensuite. Tes images restent sur ton appareil jusqu’à ce que tu les déposes dans Comfy. Les ${DATASET_SIZE} champs Image 01 à Image ${String(DATASET_SIZE).padStart(2, "0")} affichent encore DEPOSER-IMAGE-01.png … DEPOSER-IMAGE-${String(DATASET_SIZE).padStart(2, "0")}.png : ce ne sont pas des fichiers. Remplace chacun par une image du lot avant de lancer.`,
     event: "comfy_app_opened",
   },
   prompt: {

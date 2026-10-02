@@ -93,17 +93,44 @@ function inspectRun(response) {
     }).catch(() => {});
   } catch (e) {}
 }
+function piniaStore(id) {
+  const root = document.getElementById("app") || document.querySelector("#vue-app");
+  const vueApp = root && root.__vue_app__;
+  const pinia = vueApp && vueApp.config && vueApp.config.globalProperties && vueApp.config.globalProperties.$pinia;
+  return pinia && pinia._s && pinia._s.get(id);
+}
+function readMissingFiles(lines) {
+  const media = piniaStore("missingMedia");
+  const list = media && media.missingMediaCandidates;
+  if (!list || !list.length) return;
+  const names = [];
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
+    if (!item || item.isMissing === false) continue;
+    const name = clipRun(item.name);
+    if (name && names.indexOf(name) < 0) names.push(name);
+  }
+  if (!names.length) return;
+  const extra = names.length > 3 ? " +" + (names.length - 3) : "";
+  pushRun(lines, "fichier manquant — " + names.slice(0, 3).join(", ") + extra);
+}
 function readRunError() {
   try {
-    const root = document.getElementById("app") || document.querySelector("#vue-app");
-    const vueApp = root && root.__vue_app__;
-    const pinia = vueApp && vueApp.config && vueApp.config.globalProperties && vueApp.config.globalProperties.$pinia;
-    const store = pinia && pinia._s && pinia._s.get("executionError");
-    if (!store || !store.isErrorOverlayOpen) return;
-    const lines = linesFromRun({ node_errors: store.lastNodeErrors, error: store.lastPromptError });
-    const exec = store.lastExecutionError;
-    if (exec) pushRun(lines, (exec.node_type || exec.node_id || "nœud") + " — " + (exec.exception_message || ""));
-    if (lines.length) runNote(lines.slice(0, 4).join(" · "));
+    const lines = [];
+    readMissingFiles(lines);
+    const store = piniaStore("executionError");
+    if (store && store.isErrorOverlayOpen) {
+      const found = linesFromRun({ node_errors: store.lastNodeErrors, error: store.lastPromptError });
+      for (const line of found) pushRun(lines, line);
+      const exec = store.lastExecutionError;
+      if (exec) pushRun(lines, (exec.node_type || exec.node_id || "nœud") + " — " + (exec.exception_message || ""));
+    }
+    if (!lines.length) {
+      const box = document.getElementById("uttu-run-note");
+      if (box && box.parentNode) box.parentNode.removeChild(box);
+      return;
+    }
+    runNote(lines.slice(0, 4).join(" · "));
   } catch (e) {}
 }
 function remember(map) {
