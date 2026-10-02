@@ -8,6 +8,7 @@
 // Comfy's scripts run on the studio origin — that is the tradeoff, because
 // a sandbox without allow-same-origin drops the cookie again.
 
+import { COMFY_MEDIA_BOOT } from "./comfy-media.ts";
 import { resolveComfyShare } from "./comfy-stack.ts";
 
 export const COMFY_ORIGIN = "https://cloud.comfy.org";
@@ -87,6 +88,15 @@ export function stripCookieDomain(cookie: string): string {
   return cookie.replace(/;\s*domain=[^;]*/ig, "");
 }
 
+export function rewriteAllowOrigin(value: string, publicOrigin: string): string {
+  try {
+    if (new URL(value).hostname === "cloud.comfy.org") return publicOrigin;
+  } catch {
+    return value;
+  }
+  return value;
+}
+
 function requestTarget(request: Request): URL {
   const nextUrl = (request as Request & { nextUrl?: URL }).nextUrl;
   return new URL((nextUrl ?? new URL(request.url)).href);
@@ -109,10 +119,14 @@ function mediaType(header: string | null): string {
 function textPairs(type: string, publicOrigin: string): ReadonlyArray<readonly [string, string]> {
   if (type === "text/html" || type === "application/json" || type.endsWith("+json")) {
     const escaped = publicOrigin.replaceAll("/", "\\/");
-    return [
+    const pairs: Array<readonly [string, string]> = [
       ["https://cloud.comfy.org", publicOrigin],
       ["https:\\/\\/cloud.comfy.org", escaped],
     ];
+    // <img> and <video> cannot attach the Firebase bearer. The boot script
+    // registers a same-origin worker that does, before Comfy paints thumbnails.
+    if (type === "text/html") pairs.push(["<head>", `<head>${COMFY_MEDIA_BOOT}`]);
+    return pairs;
   }
   if (type === "text/javascript" || type === "application/javascript" || type === "application/x-javascript" || type === "text/ecmascript") {
     return [[COMFY_ORG_HOST_RE, STUDIO_HOST_RE]];
@@ -175,10 +189,41 @@ function clientHeaders(upstream: Response, publicOrigin: string): Headers {
       headers.set(key, rewriteLocation(value, publicOrigin));
       return;
     }
+    if (key === "access-control-allow-origin") {
+      headers.set(key, rewriteAllowOrigin(value, publicOrigin));
+      return;
+    }
     headers.append(key, value);
   });
   for (const cookie of upstream.headers.getSetCookie()) headers.append("set-cookie", stripCookieDomain(cookie));
   return headers;
+}
+
+function workerMediaPath(pathname: string): boolean {
+  return pathname === "/api/view"
+    || pathname === "/api/viewvideo"
+    || pathname.startsWith("/api/assets/")
+    || pathname.startsWith("/api/s/");
+}
+
+// fetch(redirect: "manual") hides Location from the service worker, and a
+// cors follow of the signed storage URL fails without storage CORS. An
+// authorized media GET therefore returns the URL in JSON. The worker loads
+// that URL as no-cors, so the bearer never follows the redirect.
+export function mediaRedirectResponse(request: Request, upstream: Response, publicOrigin: string): Response | null {
+  if (request.method !== "GET" || !request.headers.has("authorization")) return null;
+  if (upstream.status < 300 || upstream.status >= 400) return null;
+  const raw = upstream.headers.get("location");
+  if (!raw || !workerMediaPath(requestTarget(request).pathname)) return null;
+  const location = rewriteLocation(raw, publicOrigin);
+  return new Response(JSON.stringify({ location }), {
+    status: 200,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+      "x-comfy-media-redirect": "1",
+    },
+  });
 }
 
 function emptyStatus(status: number): boolean {
@@ -231,5 +276,5 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
   } catch {
     return new Response("Comfy est injoignable.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   }
-  return toClientResponse(upstream, target.origin);
+  return mediaRedirectResponse(request, upstream, target.origin) ?? toClientResponse(upstream, target.origin);
 }
