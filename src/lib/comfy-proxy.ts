@@ -324,6 +324,162 @@ async function streamStorageRedirect(request: Request, upstream: Response, publi
   return mediaFileResponse(upstream, current, request.method);
 }
 
+const ASSET_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function viewPath(pathname: string): boolean {
+  return pathname === "/api/view" || pathname === "/api/viewvideo";
+}
+
+// Cloud stores an output under one name and ignores `subfolder`. Sorties still
+// asks for the OSS pair (basename + folder), which is a 404 JSON body.
+function viewLookupNames(url: URL): string[] {
+  const names: string[] = [];
+  const push = (value: string) => {
+    const name = value.trim().replace(/^\/+|\/+$/g, "");
+    if (!name || name.length > 512 || names.includes(name)) return;
+    if (name.includes("\\") || name.includes("\0") || name.startsWith("/")) return;
+    if (name.split("/").includes("..")) return;
+    names.push(name);
+  };
+  push(url.searchParams.get("filename") ?? "");
+  if (!names.length) return names;
+  const folder = (url.searchParams.get("subfolder") ?? "").trim().replace(/^\/+|\/+$/g, "");
+  const filename = names[0];
+  if (folder && !filename.startsWith(`${folder}/`)) push(`${folder}/${filename}`);
+  const slash = filename.lastIndexOf("/");
+  if (slash >= 0) push(filename.slice(slash + 1));
+  return names;
+}
+
+function fileMedia(upstream: Response): boolean {
+  if (!upstream.ok) return false;
+  const type = mediaType(upstream.headers.get("content-type"));
+  return !type.includes("json") && !type.startsWith("text/");
+}
+
+async function acceptViewMedia(request: Request, upstream: Response, publicOrigin: string, fetchImpl: typeof fetch): Promise<Response | null> {
+  if (upstream.status >= 300 && upstream.status < 400) {
+    return streamStorageRedirect(request, upstream, publicOrigin, fetchImpl);
+  }
+  if (!fileMedia(upstream)) return null;
+  return mediaFileResponse(upstream, upstream, request.method);
+}
+
+async function readAssetRows(response: Response): Promise<Array<{ id: string; name: string }>> {
+  if (!response.ok) return [];
+  const type = mediaType(response.headers.get("content-type"));
+  if (type && !type.includes("json")) return [];
+  const text = await response.text();
+  if (text.length > 1_000_000) return [];
+  let payload: unknown;
+  try {
+    payload = JSON.parse(text);
+  } catch {
+    return [];
+  }
+  const record = payload && typeof payload === "object" ? payload as { assets?: unknown } : null;
+  const list = Array.isArray(payload) ? payload : Array.isArray(record?.assets) ? record.assets : [];
+  const rows: Array<{ id: string; name: string }> = [];
+  for (const item of list) {
+    if (!item || typeof item !== "object") continue;
+    const id = (item as { id?: unknown }).id;
+    const name = (item as { name?: unknown }).name;
+    if (typeof id !== "string" || typeof name !== "string" || !ASSET_ID.test(id)) continue;
+    rows.push({ id, name });
+  }
+  return rows;
+}
+
+function pickAsset(rows: Array<{ id: string; name: string }>, candidates: string[]): string | null {
+  let bestId: string | null = null;
+  let best = -1;
+  for (const row of rows) {
+    for (const candidate of candidates) {
+      const exact = row.name === candidate;
+      const nested = row.name.endsWith(`/${candidate}`) || candidate.endsWith(`/${row.name}`);
+      if (!exact && !nested) continue;
+      const score = (exact ? 1000 : 0) + candidate.length;
+      if (score > best) {
+        best = score;
+        bestId = row.id;
+      }
+    }
+  }
+  return bestId;
+}
+
+async function findViewAsset(candidates: string[], headers: Headers, fetchImpl: typeof fetch): Promise<string | null> {
+  const ordered = [...candidates].sort((a, b) => b.length - a.length);
+  const lookups = [ordered[0]];
+  const short = ordered.find(name => !name.includes("/"));
+  if (short && short !== lookups[0]) lookups.push(short);
+  const listHeaders = new Headers();
+  for (const name of ["authorization", "x-api-key", "cookie", "origin", "referer"]) {
+    const value = headers.get(name);
+    if (value) listHeaders.set(name, value);
+  }
+  listHeaders.set("accept", "application/json");
+  for (const query of lookups) {
+    const url = new URL("/api/assets", COMFY_ORIGIN);
+    url.searchParams.set("name_contains", query);
+    url.searchParams.set("limit", "50");
+    let response: Response;
+    try {
+      response = await fetchImpl(url, { method: "GET", headers: listHeaders, redirect: "manual" });
+    } catch {
+      continue;
+    }
+    const id = pickAsset(await readAssetRows(response), candidates);
+    if (id) return id;
+  }
+  return null;
+}
+
+// A 200 or 302 from /api/view is unchanged. A 404 is retried with the joined
+// folder name, then loaded from the same account's asset bytes.
+async function recoverViewMiss(request: Request, upstream: Response, upstreamUrl: URL, headers: Headers, publicOrigin: string, fetchImpl: typeof fetch): Promise<Response | null> {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  if (!viewPath(requestTarget(request).pathname) || upstream.status !== 404) return null;
+  const token = headers.has("authorization") || headers.has("x-api-key");
+  if (!token && !headers.has("cookie")) return null;
+  const candidates = viewLookupNames(upstreamUrl);
+  if (!candidates.length) return null;
+  const attempt = async (name: string, attemptHeaders: Headers) => {
+    const url = new URL(upstreamUrl);
+    url.searchParams.set("filename", name);
+    try {
+      const retry = await fetchImpl(url, { method: request.method, headers: attemptHeaders, redirect: "manual" });
+      return acceptViewMedia(request, retry, publicOrigin, fetchImpl);
+    } catch {
+      return null;
+    }
+  };
+  for (const name of candidates.slice(1)) {
+    const hit = await attempt(name, headers);
+    if (hit) return hit;
+  }
+  if (token && headers.has("cookie")) {
+    const cookieHeaders = new Headers(headers);
+    cookieHeaders.delete("authorization");
+    cookieHeaders.delete("x-api-key");
+    for (const name of candidates) {
+      const hit = await attempt(name, cookieHeaders);
+      if (hit) return hit;
+    }
+  }
+  const id = await findViewAsset(candidates, headers, fetchImpl);
+  if (!id) return null;
+  const content = new URL(`/api/assets/${id}/content`, COMFY_ORIGIN);
+  content.searchParams.set("disposition", "inline");
+  let file: Response;
+  try {
+    file = await fetchImpl(content, { method: request.method, headers, redirect: "manual" });
+  } catch {
+    return null;
+  }
+  return acceptViewMedia(request, file, publicOrigin, fetchImpl);
+}
+
 // A tile whose src is already a signed storage URL never hits /api/view.
 // Fetch that URL here and return the bytes on this origin.
 async function streamSignedMedia(request: Request, target: URL, fetchImpl: typeof fetch): Promise<Response> {
@@ -423,5 +579,7 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
   } catch {
     return new Response("Comfy est injoignable.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   }
-  return await streamStorageRedirect(request, upstream, target.origin, fetchImpl) ?? toClientResponse(upstream, target.origin);
+  return await recoverViewMiss(request, upstream, route.upstream, headers, target.origin, fetchImpl)
+    ?? await streamStorageRedirect(request, upstream, target.origin, fetchImpl)
+    ?? toClientResponse(upstream, target.origin);
 }

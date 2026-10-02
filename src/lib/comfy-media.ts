@@ -17,7 +17,10 @@ function routeMedia(raw) {
     if (abs.protocol === "blob:" || abs.protocol === "data:") return null;
     const path = abs.pathname;
     if (abs.origin === location.origin && (path === "/api/view" || path === "/api/viewvideo" || path.startsWith("/api/assets/") || path.startsWith("/api/s/"))) {
-      return { href: abs.pathname + abs.search, needsToken: true, label: path };
+      let label = path;
+      const filename = abs.searchParams.get("filename");
+      if (filename && (path === "/api/view" || path === "/api/viewvideo")) label = path + "?filename=" + filename.slice(0, 96);
+      return { href: abs.pathname + abs.search, needsToken: true, label: label };
     }
     if (abs.protocol === "https:" && storageHost(abs.hostname)) {
       return { href: "/comfy-media-file?u=" + encodeURIComponent(abs.href), needsToken: false, label: abs.hostname + path };
