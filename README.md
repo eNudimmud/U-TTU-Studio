@@ -20,7 +20,7 @@ L’offre A (« Look-Lock » : forfait de direction artistique et ZIP-juge) a é
 
 ## Ce que fait le site
 
-La page s’ouvre sur **Créer**, dans un shell à six modes : Créer, Sphère, Identité, Bibliothèque, Studio, Compte. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans. **Sphère** tient le catalogue des processus : deux gestes live (former un look, tester un prompt) s’ouvrent dans la page, après consentement ; les scènes restent en « Bientôt ». La bibliothèque ne lance ni vidéo ni paiement. **Compte** n’est pas un mur : sans session, Créer et le ZIP restent ouverts. Avec Clerk branché, il montre un tableau vide ([AUTH.md](docs/AUTH.md)). **Studio** est la maison du coffre Obsidian : schéma, guide, ZIP de départ, et la liste texte des processus ([VAULT.md](docs/VAULT.md)).
+L’accueil `/` raconte l’étoile cinéma : Look, Plateau, Take ([brief](docs/CINEMA-STUDIO-BRIEF.md), [doctrine d’interface](docs/LANDING-AND-UX.md)). Le shell `/studio` s’ouvre sur **Créer**, en six modes : Créer, Sphère, Identité, Bibliothèque, Studio, Compte. Le tutoriel est un tiroir (« Comment ça marche »), pas un mur de quatre écrans. **Sphère** tient le catalogue des processus : deux gestes live (former un look, tester un prompt) s’ouvrent dans la page, après consentement ; les scènes restent en « Bientôt ». La bibliothèque ne lance ni vidéo ni paiement. **Compte** n’est pas un mur : sans session, Créer et le ZIP restent ouverts. Avec Clerk branché, il montre un tableau vide ([AUTH.md](docs/AUTH.md)). **Studio** est la maison du coffre Obsidian : schéma, guide, ZIP de départ, et la liste texte des processus ([VAULT.md](docs/VAULT.md)).
 
 1. **Déposer.** 2 ou 3 photos de la même personne, un mot d’appel, deux traits constants. « J’ai déjà 15 images » reste possible.
 2. **Préparer le lot.** Au clic, le proxy demande 15 variations à `fal-ai/flux-pro/kontext/multi` (cadrages et légendes du gate). Le coût estimé est sur le bouton. Il reste éteint sans trigger valide, sans 2 ou 3 photos, ou sans au moins 2 traits constants : le lot ne part pas. Sans URL de proxy, ce bouton reste inactif et « J’ai déjà 15 images » devient le bouton principal.
@@ -123,7 +123,7 @@ Un run Comfy est coupé au bout de 30 minutes en Standard et Creator, 60 minutes
 | `NEXT_PUBLIC_COMFY_TRAIN_APP_URL`, `NEXT_PUBLIC_COMFY_PROMPT_APP_URL` | Facultatives : remplacent les liens App Mode. |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | Session Clerk. Les deux vides : build vert, Compte en placeholder. Ne pas committer les valeurs. |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | `/sign-in` et `/sign-up`. |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | `/#compte` après connexion. |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | `/studio#compte` après connexion. |
 | `NEXT_PUBLIC_BASE_PATH` | Vide sur Vercel. L’ancien sous-chemin Pages n’est plus servi par ce build. |
 | `NEXT_PUBLIC_FAL_PROXY_URL` | URL publique du Worker. Vide = lot automatique et entraînement fal inactifs. Le Worker n’est pas déployé par cette livraison. |
 
@@ -142,7 +142,8 @@ Le rail fal utilise les secrets `FAL_KEY` et `ACCESS_TOKEN` uniquement dans le W
 ## Organisation du code
 
 ```text
-src/app/page.tsx              shell : Créer, Sphère, Identité, Bibliothèque, Studio, Compte
+src/app/page.tsx              accueil : Look, Plateau, Take
+src/app/studio/page.tsx       shell : Créer, Sphère, Identité, Bibliothèque, Studio, Compte
 src/app/sign-in, sign-up      flux Clerk, ou placeholder si les clés manquent
 src/proxy.ts                  session Clerk, aucune route protégée
 src/components/studio/        dépôt des 2–3 photos, catalogue, compte
@@ -171,6 +172,8 @@ docs/                         documentation
 | [docs/UX-GUIDE.md](docs/UX-GUIDE.md) | Refonte du guide, mesures de chargement et vérifications restantes. |
 | [docs/QA.md](docs/QA.md) | Contrôles exécutés avant livraison, et leurs limites. |
 | [docs/VISUAL-CANON.md](docs/VISUAL-CANON.md) | Direction artistique U*TTU et provenance du portrait. |
+| [docs/CINEMA-STUDIO-BRIEF.md](docs/CINEMA-STUDIO-BRIEF.md) | Verrou 2026-10-02 : Look, Plateau, Take. Pas de Blender navigateur, pas de Night City, pas de route Seedance. |
+| [docs/LANDING-AND-UX.md](docs/LANDING-AND-UX.md) | Doctrine de l’accueil : deux temps, français clair, accès, mobile. |
 
 ## JD — pour activer le chemin dans la page
 

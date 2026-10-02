@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     type: "website", locale: "fr_CH", siteName: "U*TTU Studio",
     title: siteTitle, description: siteDescription,
     ...(siteOrigin ? { url: siteOrigin } : {}),
-    images: [{ url: socialImage, width: 1200, height: 630, alt: "U*TTU Studio — On t’empêche de cramer une LoRA. Dataset → train → 1 image." }],
+    images: [{ url: socialImage, width: 1200, height: 630, alt: "U*TTU Studio — Ton style, ta scène, la prise." }],
   },
   twitter: { card: "summary_large_image", title: siteTitle, description: siteDescription, images: [socialImage] },
   icons: { icon: assetPath("/icon.svg") },
