@@ -14,6 +14,14 @@ Cette section remplace, pour l’écran, les décisions plus bas qui la contredi
 - **Décision :** un échec de rendu est un écran Soft Error (CRT), avec la raison du compte de rendu. « Reprendre », ou « Relier à nouveau » si la connexion est refusée.
 - **Décision, accès :** chaque feuille est un `dialog` modal ; le focus y entre à l’ouverture et revient au bouton qui l’a ouverte ; Échap et le fond la ferment. Cibles de 44 px au moins. Les étiquettes sont des `label`. Les états de calcul sont annoncés (`role="status"`, `aria-live`). `prefers-reduced-motion` coupe le fil animé, la pulsation, la bulle et les feuilles.
 
+## Décision — former son double, 3 octobre 2026
+
+- **Décision :** une page à part, `#lora`, pas un panneau de Ton style ni de La prise. Le fil du bas ne gagne pas de quatrième nœud. On y entre depuis Ton style (« Former ton double ») ou depuis La prise (« Ton double »).
+- **Décision :** avant tout geste payant, la page dit quatre choses : les clips (vidéo, dix au moins, trois à trente secondes), les photos du look (références, pas le cours), ce que le fichier fera dans La prise, ce qu’il ne fera pas. Le prix du jour est sur la ligne de coût. U*TTU reste une phrase en haut de page. Elle ne couvre pas le bouton.
+- **Décision :** une action pleine. « Relier mon compte fal » tant que le compte n’est pas là, puis « Former mon double · X $ ». Le bouton s’éteint si les clips ne tiennent pas, ou si le solde est illisible, vide, ou sous le devis. La feuille « Former · débit sur mon compte fal » est le seul envoi.
+- **Décision :** dans La prise, « Visage » choisit « Références » (compte de rendu, comme avant) ou « Ton double » (le fichier du coffre, compte fal). Le compteur du haut suit ce choix.
+- **Décision :** l’accueil ne change pas et ne nomme pas ce moteur.
+
 ## Décision — l’écran d’accueil
 
 - **Décision :** `/` est un écran d’appli. Une ligne, trois pastilles, un bouton. Pas une page qui explique.
