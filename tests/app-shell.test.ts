@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import manifest from "../src/app/manifest.ts";
+import { clerkPath } from "../src/lib/clerk-config.ts";
 
 const read = (path: string) => readFileSync(path, "utf8");
 
@@ -55,6 +56,9 @@ describe("le studio comme une app", () => {
     assert.match(read("src/components/studio/account-panel.tsx"), /<ClerkScope><AccountSession \/><\/ClerkScope>/);
     assert.match(read("src/app/sign-in/[[...sign-in]]/page.tsx"), /<ClerkScope>/);
     assert.match(read("src/app/sign-up/[[...sign-up]]/page.tsx"), /<ClerkScope>/);
+    assert.match(read("src/proxy.ts"), /!clerkPath\(request\.nextUrl\.pathname\)/);
+    for (const path of ["/sign-in", "/sign-in/sso-callback", "/sign-up", "/sign-up/verify"]) assert.equal(clerkPath(path), true, path);
+    for (const path of ["/", "/studio", "/sign-inx", "/comfy-embed", "/api/view"]) assert.equal(clerkPath(path), false, path);
   });
 
   it("installs on Ton style, standalone", () => {
