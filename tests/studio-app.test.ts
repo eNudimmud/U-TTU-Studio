@@ -19,6 +19,8 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#plateau", ""), "scene");
     assert.equal(tabFromLocation("#Take", ""), "prise");
     assert.equal(tabFromLocation("#sphère", ""), "sphere");
+    assert.equal(tabFromLocation("#lora", ""), "lora");
+    assert.equal(tabFromLocation("#Former", ""), "lora");
     assert.equal(tabFromLocation("#compte", ""), "compte");
     assert.equal(tabFromLocation("#inconnu", "?step=prise"), "prise");
     assert.match(read("src/app/studio/page.tsx"), /<StudioApp \/>/);
@@ -38,6 +40,16 @@ describe("le studio, une app", () => {
     const sheets = read("src/components/app/sheets.tsx");
     assert.match(sheets, /Tourner · débit sur mon compte/);
     assert.match(sheets, /disabled=\{!gate\.allowed\}/);
+    assert.match(read("src/components/app/lora-screen.tsx"), /Ce que tu envoies/);
+    assert.match(read("src/components/app/lora-screen.tsx"), /Ce qu’il ne fera pas/);
+    assert.match(read("src/components/app/lora-screen.tsx"), /Former mon double/);
+    assert.match(read("src/components/app/studio-app.tsx"), /LoraScreen/);
+    assert.match(context, /submitTraining\(/);
+    assert.match(context, /submitLoraTake\(/);
+    assert.ok(context.indexOf('falGate(fresh, quote, "formation")') < context.indexOf("submitTraining("), "the training quote is checked before anything is sent");
+    assert.ok(context.indexOf('falGate(fresh, quote, "prise")') < context.indexOf("submitLoraTake("), "the take quote is checked before the LoRA is sent");
+    assert.match(read("src/components/app/sheets.tsx"), /Former · débit sur mon compte fal/);
+    assert.doesNotMatch(read("src/components/app/lora-screen.tsx"), /@clerk\//);
   });
 
   it("publishes from the result, with the file, and never posts by itself", () => {

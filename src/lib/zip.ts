@@ -1,4 +1,5 @@
 export interface ZipEntry { name: string; data: Uint8Array }
+export interface BlobZipEntry { name: string; blob: Blob }
 
 const CRC_TABLE = (() => {
   const table = new Uint32Array(256);
@@ -10,9 +11,22 @@ const CRC_TABLE = (() => {
   return table;
 })();
 
-export function crc32(data: Uint8Array): number {
-  let crc = 0xffffffff;
+export function crc32Update(crc: number, data: Uint8Array): number {
   for (let i = 0; i < data.length; i++) crc = CRC_TABLE[(crc ^ data[i]) & 0xff] ^ (crc >>> 8);
+  return crc;
+}
+
+export function crc32(data: Uint8Array): number {
+  return (crc32Update(0xffffffff, data) ^ 0xffffffff) >>> 0;
+}
+
+const CRC_SLICE = 4 * 1024 * 1024;
+
+export async function crc32Blob(blob: Blob): Promise<number> {
+  let crc = 0xffffffff;
+  for (let start = 0; start < blob.size; start += CRC_SLICE) {
+    crc = crc32Update(crc, new Uint8Array(await blob.slice(start, start + CRC_SLICE).arrayBuffer()));
+  }
   return (crc ^ 0xffffffff) >>> 0;
 }
 
@@ -23,10 +37,59 @@ function dosDateTime(date: Date) {
   };
 }
 
+type Stamp = ReturnType<typeof dosDateTime>;
+
+function localHeader(name: Uint8Array, crc: number, size: number, { time, day }: Stamp): Uint8Array<ArrayBuffer> {
+  const local = new Uint8Array(30 + name.length);
+  const l = new DataView(local.buffer);
+  l.setUint32(0, 0x04034b50, true);
+  l.setUint16(4, 20, true);
+  l.setUint16(6, 0x0800, true);
+  l.setUint16(8, 0, true);
+  l.setUint16(10, time, true);
+  l.setUint16(12, day, true);
+  l.setUint32(14, crc, true);
+  l.setUint32(18, size, true);
+  l.setUint32(22, size, true);
+  l.setUint16(26, name.length, true);
+  local.set(name, 30);
+  return local;
+}
+
+function centralHeader(name: Uint8Array, crc: number, size: number, { time, day }: Stamp, offset: number): Uint8Array<ArrayBuffer> {
+  const central = new Uint8Array(46 + name.length);
+  const c = new DataView(central.buffer);
+  c.setUint32(0, 0x02014b50, true);
+  c.setUint16(4, 20, true);
+  c.setUint16(6, 20, true);
+  c.setUint16(8, 0x0800, true);
+  c.setUint16(10, 0, true);
+  c.setUint16(12, time, true);
+  c.setUint16(14, day, true);
+  c.setUint32(16, crc, true);
+  c.setUint32(20, size, true);
+  c.setUint32(24, size, true);
+  c.setUint16(28, name.length, true);
+  c.setUint32(42, offset, true);
+  central.set(name, 46);
+  return central;
+}
+
+function endRecord(count: number, directorySize: number, directoryOffset: number): Uint8Array<ArrayBuffer> {
+  const end = new Uint8Array(22);
+  const e = new DataView(end.buffer);
+  e.setUint32(0, 0x06054b50, true);
+  e.setUint16(8, count, true);
+  e.setUint16(10, count, true);
+  e.setUint32(12, directorySize, true);
+  e.setUint32(16, directoryOffset, true);
+  return end;
+}
+
 // Stored (uncompressed) entries: JPEGs are already compressed, and this keeps the writer dependency-free.
 export function createZip(entries: ZipEntry[], date = new Date()): Uint8Array {
   const encoder = new TextEncoder();
-  const { time, day } = dosDateTime(date);
+  const stamp = dosDateTime(date);
   const parts: Uint8Array[] = [];
   const directory: Uint8Array[] = [];
   let offset = 0;
@@ -35,51 +98,14 @@ export function createZip(entries: ZipEntry[], date = new Date()): Uint8Array {
     const name = encoder.encode(entry.name);
     const crc = crc32(entry.data);
     const size = entry.data.length;
-
-    const local = new Uint8Array(30 + name.length);
-    const l = new DataView(local.buffer);
-    l.setUint32(0, 0x04034b50, true);
-    l.setUint16(4, 20, true);
-    l.setUint16(6, 0x0800, true);
-    l.setUint16(8, 0, true);
-    l.setUint16(10, time, true);
-    l.setUint16(12, day, true);
-    l.setUint32(14, crc, true);
-    l.setUint32(18, size, true);
-    l.setUint32(22, size, true);
-    l.setUint16(26, name.length, true);
-    local.set(name, 30);
-
-    const central = new Uint8Array(46 + name.length);
-    const c = new DataView(central.buffer);
-    c.setUint32(0, 0x02014b50, true);
-    c.setUint16(4, 20, true);
-    c.setUint16(6, 20, true);
-    c.setUint16(8, 0x0800, true);
-    c.setUint16(10, 0, true);
-    c.setUint16(12, time, true);
-    c.setUint16(14, day, true);
-    c.setUint32(16, crc, true);
-    c.setUint32(20, size, true);
-    c.setUint32(24, size, true);
-    c.setUint16(28, name.length, true);
-    c.setUint32(42, offset, true);
-    central.set(name, 46);
-
+    const local = localHeader(name, crc, size, stamp);
     parts.push(local, entry.data);
-    directory.push(central);
+    directory.push(centralHeader(name, crc, size, stamp, offset));
     offset += local.length + size;
   }
 
   const directorySize = directory.reduce((total, item) => total + item.length, 0);
-  const end = new Uint8Array(22);
-  const e = new DataView(end.buffer);
-  e.setUint32(0, 0x06054b50, true);
-  e.setUint16(8, entries.length, true);
-  e.setUint16(10, entries.length, true);
-  e.setUint32(12, directorySize, true);
-  e.setUint32(16, offset, true);
-
+  const end = endRecord(entries.length, directorySize, offset);
   const archive = new Uint8Array(offset + directorySize + end.length);
   let cursor = 0;
   for (const part of [...parts, ...directory, end]) {
@@ -87,6 +113,36 @@ export function createZip(entries: ZipEntry[], date = new Date()): Uint8Array {
     cursor += part.length;
   }
   return archive;
+}
+
+const ZIP32_LIMIT = 0xffffffff;
+
+/** The same stored layout, built from Blobs: video clips are referenced, never copied into one buffer. */
+export async function createZipBlob(entries: BlobZipEntry[], date = new Date()): Promise<Blob> {
+  const encoder = new TextEncoder();
+  const stamp = dosDateTime(date);
+  const crcs = new Map<Blob, number>();
+  const parts: BlobPart[] = [];
+  const directory: Uint8Array<ArrayBuffer>[] = [];
+  let offset = 0;
+
+  for (const entry of entries) {
+    const name = encoder.encode(entry.name);
+    let crc = crcs.get(entry.blob);
+    if (crc === undefined) {
+      crc = await crc32Blob(entry.blob);
+      crcs.set(entry.blob, crc);
+    }
+    const size = entry.blob.size;
+    const local = localHeader(name, crc, size, stamp);
+    parts.push(local, entry.blob);
+    directory.push(centralHeader(name, crc, size, stamp, offset));
+    offset += local.length + size;
+    if (offset > ZIP32_LIMIT || entries.length > 0xffff) throw new Error("Archive trop grande pour un ZIP simple.");
+  }
+
+  const directorySize = directory.reduce((total, item) => total + item.length, 0);
+  return new Blob([...parts, ...directory, endRecord(entries.length, directorySize, offset)], { type: "application/zip" });
 }
 
 export interface ReadZipOptions {

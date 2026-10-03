@@ -70,6 +70,28 @@ export function runGate(balance: Balance | null, claim: CostClaim): RunGate {
   return { allowed: true, tone: "ok", line: `Environ ${formatCredits(claim.credits)} crédits, mesuré sur ${basis}.` };
 }
 
+/** The fal account's balance, in US dollars, as fal reports it. */
+export interface UsdBalance {
+  usd: number;
+  readAt: number;
+}
+
+const dollars = new Intl.NumberFormat("fr-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money = (value: number) => `${dollars.format(value)} $`;
+
+/**
+ * Training and LoRA takes are quoted from fal's live unit price before the tap.
+ * No balance, an empty one, no quote, or a quote above the balance: nothing leaves.
+ */
+export function falGate(balance: UsdBalance | null, quote: number | null, what: "formation" | "prise"): RunGate {
+  const label = what === "formation" ? "Cette formation" : "Cette prise";
+  if (!balance) return { allowed: false, tone: "block", line: "Solde fal illisible. Rien ne part sans lire le compte qui paiera." };
+  if (balance.usd <= 0) return { allowed: false, tone: "block", line: "Solde fal vide. Recharge-le sur fal.ai, puis relis-le ici." };
+  if (quote === null) return { allowed: false, tone: "block", line: "Prix fal illisible. Rien ne part sans un prix." };
+  if (balance.usd < quote) return { allowed: false, tone: "block", line: `Solde trop bas : ${money(balance.usd)} pour ${label.toLowerCase()} à ${money(quote)}.` };
+  return { allowed: true, tone: "ok", line: `${label} : ${money(quote)} au prix fal du jour, débités sur ton compte fal.` };
+}
+
 /** Two real readings around a take. A top-up in between makes it unreadable. */
 export function measuredCost(before: number | null, after: number | null): number | null {
   if (before === null || after === null) return null;

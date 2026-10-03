@@ -103,6 +103,12 @@
 .u-stack { display: grid; gap: 14px; }
 
 .u-card { padding: 16px; border: 1px solid var(--u-line); border-radius: 18px; background: rgba(18, 17, 16, .92); display: grid; gap: 14px; }
+.u-facts { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.u-facts li { padding: 12px 14px; border: 1px solid var(--u-line); border-radius: 14px; background: rgba(18, 17, 16, .72); font-size: 14px; line-height: 1.45; }
+.u-facts strong { display: block; margin-bottom: 4px; font: 600 11px/1.4 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--u-gold); }
+.u-problems { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; color: var(--u-fail); font-size: 14px; }
+.u-file { position: relative; overflow: hidden; }
+.u-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
 .u-scenes { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; }
 .u-scene { flex: 0 0 112px; display: grid; gap: 6px; padding: 0; border: 0; background: none; text-align: left; scroll-snap-align: start; }
