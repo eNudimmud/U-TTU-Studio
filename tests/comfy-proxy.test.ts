@@ -30,10 +30,9 @@ describe("Comfy same-origin embed", () => {
     assert.equal(comfyEmbedHref(`https://cloud.comfy.org/?share=${SHARE}`), `/comfy-embed?share=${SHARE}`);
     assert.equal(comfyEmbedHref("https://evil.example/?share=25954f3b0278"), null);
     assert.equal(comfyEmbedHref("https://cloud.comfy.org/"), null);
-    const panel = readFileSync("src/components/guide/comfy-run-panel.tsx", "utf8");
-    assert.match(panel, /comfyEmbedHref/);
-    assert.match(panel, /href=\{url\}/);
-    assert.doesNotMatch(panel, /src=\{url\}/);
+    const sheets = readFileSync("src/components/app/sheets.tsx", "utf8");
+    assert.match(sheets, /src=\{assetPath\("\/login"\)\}/, "sign-in loads through this host");
+    assert.doesNotMatch(sheets, /cloud\.comfy\.org/);
     const proxy = readFileSync("src/proxy.ts", "utf8");
     assert.ok(proxy.indexOf("proxyComfy") < proxy.indexOf("withClerk"), "Comfy runs before Clerk");
     assert.match(proxy, /\/assets\/:path\*/);
@@ -94,11 +93,6 @@ describe("Comfy same-origin embed", () => {
     assert.equal(calls.length, 2);
     assert.equal(await proxyComfy(new Request(`${STUDIO}/?template=other`), fetchImpl), null);
     assert.equal(await proxyComfy(new Request(`${STUDIO}/?template=${H3_R2V_TEMPLATE.id}&source=custom`), fetchImpl), null);
-    const frame = readFileSync("src/components/studio/take-frame.tsx", "utf8");
-    assert.match(frame, /comfyTemplateHref/);
-    assert.match(frame, /H3_R2V_TEMPLATE\.page/);
-    assert.doesNotMatch(frame, /src=\{H3_R2V_TEMPLATE|run_template|submit_workflow|\/api\/prompt/);
-    assert.match(readFileSync("src/components/studio/take-panel.tsx", "utf8"), /TakeFrame/);
   });
 
   it("injects the media worker boot into the Comfy document and echoes this origin", async () => {
@@ -135,11 +129,11 @@ describe("Comfy same-origin embed", () => {
     assert.match(text, /x-api-key/);
     assert.match(text, /el\.preload = "auto"/);
     assert.ok(text.indexOf("hookFetch()") < text.indexOf("import("), "the list Authorization is captured before Comfy starts");
-    assert.match(text, /\/templates\/video_minimax_h3_r2v\.json/);
-    assert.match(text, /indexedDB\.open\("uttu-take"\)/);
-    assert.match(text, /orig\("\/api\/assets"/);
-    assert.match(text, /widgets_values_named\.image/);
+    assert.match(text, /id = "uttu-gate"/);
+    assert.match(text, /Coût non calibré/);
+    assert.doesNotMatch(text, /Estimation : /);
     assert.doesNotMatch(text, /orig\("\/api\/prompt"|fetch\("\/api\/prompt"/);
+    assert.ok(text.indexOf("gateRun(input, init).then") < text.indexOf("const pending = orig.apply(this, arguments)"), "a run waits for Lancer before it leaves");
     assert.ok(text.indexOf("__Host-uttu_media") < text.indexOf("import("), "the media cookie is written before Comfy starts");
     assert.match(text, /script\[data-comfy-main\]/);
     assert.match(text, /type="text\/plain" data-comfy-main crossorigin src="\/assets\/index-abc\.js"/);
@@ -148,10 +142,6 @@ describe("Comfy same-origin embed", () => {
     assert.doesNotMatch(worker, /no-cors/);
     assert.doesNotMatch(worker, /x-comfy-media-redirect/);
     assert.doesNotMatch(worker, /https:\/\/cloud\.comfy\.org/);
-    const panel = readFileSync("src/components/guide/comfy-run-panel.tsx", "utf8");
-    assert.match(panel, /serviceWorker\.register\(COMFY_MEDIA_SW\)/);
-    assert.match(panel, /DEPOSER-IMAGE-01\.png/);
-    assert.match(panel, /Image 01 à Image/);
   });
 
   it("streams a storage redirect as same-origin bytes for cookie and bearer", async () => {

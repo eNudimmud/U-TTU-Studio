@@ -6,13 +6,13 @@ export default function manifest(): MetadataRoute.Manifest {
     id: assetPath("/studio"),
     name: "U*TTU Studio",
     short_name: "U*TTU",
-    description: "Ton style, ta scène, la prise.",
+    description: "Ton look, ta scène, la prise. Tout dans le studio.",
     lang: "fr-CH",
-    start_url: `${assetPath("/studio")}?step=look`,
+    start_url: assetPath("/studio"),
     scope: assetPath("/"),
     display: "standalone",
-    background_color: "#0A0A0B",
-    theme_color: "#0A0A0B",
+    background_color: "#0B0A09",
+    theme_color: "#0B0A09",
     icons: [{ src: assetPath("/icon.svg"), sizes: "any", type: "image/svg+xml", purpose: "any" }],
   };
 }
