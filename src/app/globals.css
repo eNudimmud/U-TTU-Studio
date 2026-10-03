@@ -550,7 +550,7 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 }
 
 /* App shell — one bar, one chain. Sphère and the rest stay to the side. */
-.app-bar { background: #0a0a0bf7; backdrop-filter: blur(10px); }
+.app-bar { background: #0a0a0bfa; }
 .app-bar-inner { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px 20px; min-height: 68px; padding-block: 8px; }
 .app-bar .wordmark { font-size: 24px; }
 .cinema-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-width: 560px; width: 100%; justify-self: center; }
@@ -580,6 +580,7 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 .credit-chip:hover, .credit-chip[aria-expanded="true"] { border-color: var(--gold); }
 .credit-chip-label { color: var(--muted); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
 .credit-chip strong { font-family: var(--font-heading); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--gold-soft); }
+.credit-chip-unit { display: none; color: var(--muted); font-size: 11px; }
 .credit-sheet { position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; width: min(380px, calc(100vw - 24px)); max-height: min(78vh, 640px); overflow: auto; display: grid; gap: 10px; padding: 18px 18px 16px; border: 1px solid var(--line-gold); border-radius: 12px; background: #111112; box-shadow: 0 18px 50px #000b; }
 .credit-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .credit-sheet h2 { font-size: 22px; letter-spacing: -.03em; }
@@ -664,7 +665,9 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 .look-marks li[data-held="true"] { color: var(--text); border-color: var(--line-gold); }
 .look-marks li[data-held="true"] .look-mark-dot { background: var(--gold); border-color: var(--gold); }
 .look-canon { padding: 4px 2px; }
-.look-card .look-status { margin-top: 0; max-width: none; }
+.look-card .look-status { margin-top: 0; max-width: none; padding: 0 2px; border: 0; background: none; }
+.look-card .look-status-mark { display: none; }
+.look-card .look-status span:last-child { color: var(--muted); font-size: 13px; }
 .look-next { width: 100%; }
 .look-more { margin-top: 28px; }
 .look-more > summary { color: var(--text); font-family: var(--font-heading); font-size: 17px; letter-spacing: -.02em; }
@@ -702,6 +705,7 @@ button.vault-row:hover strong { color: var(--gold-soft); }
   .plateau-angles { grid-template-columns: 1fr 1fr; }
   .look-board { grid-template-columns: minmax(0, 1.25fr) minmax(300px, .85fr); }
   .look-card { position: sticky; top: 92px; }
+  .look-poster { aspect-ratio: 1; max-height: 44vh; }
   .post-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
 }
 @media (max-width: 760px) {
@@ -714,6 +718,7 @@ button.vault-row:hover strong { color: var(--gold-soft); }
   .cinema-mark { font-size: 9px; letter-spacing: .1em; }
   .app-main { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
   .credit-chip-label { display: none; }
+  .credit-chip-unit { display: inline; }
   .app-tool { padding-inline: 8px; }
 }
 @media (max-width: 700px) {

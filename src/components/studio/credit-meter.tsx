@@ -39,6 +39,7 @@ export function CreditChip() {
     <button type="button" className="credit-chip" aria-expanded={open} aria-controls="credit-sheet" onClick={() => setOpen(value => !value)}>
       <span className="credit-chip-label">Crédits</span>
       <strong>{balance ? formatCredits(balance.credits) : "—"}</strong>
+      <span className="credit-chip-unit" aria-hidden="true">cr.</span>
     </button>
     {open && <section id="credit-sheet" className="credit-sheet" aria-labelledby="credit-sheet-title">
       <header className="credit-sheet-head">

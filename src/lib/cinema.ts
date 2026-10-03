@@ -85,7 +85,7 @@ export const TAKE_FRAME_LOGIN = "Connexion à refaire dans le cadre, même si le
 
 export const SHELF_LEAD = "Tes images et tes prises. Revois-les, puis publie la meilleure.";
 export const SHELF_TITLE = "L’étagère";
-export const SHELF_NOTE = "Ce que tu as généré reste dans ton compte de rendu : onglets « Générés » et « Sorties », dans le cadre. Rien n’est chargé avant le clic.";
+export const SHELF_NOTE = "Ce que tu as généré reste dans ton compte de rendu : onglets « Générés » et « Sorties », dans le cadre. Télécharge la prise depuis Sorties pour la publier.";
 
 /** Secondary help. Engine names live here, not on the step labels. */
 export const PLATEAU_HELP = "La préviz se prépare dans Blender, sur ton bureau : images fixes, une suite d’images, des notes de caméra. Tu les déposes ici. Le studio ne lance pas Blender et n’ouvre pas un fichier .blend.";

@@ -46,7 +46,7 @@ export function LookCard({ refs, trigger, invariants, canonNoted, onCanonNoted }
       <input type="checkbox" checked={canonNoted} onChange={event => onCanonNoted(event.target.checked)} />
       <span>Noté dans CANON.md</span>
     </label>
-    <LookStatus held={held} />
     <button type="button" className="button button-primary look-next" disabled={!held} onClick={() => goStep("plateau")}>Poser le monde <Arrow /></button>
+    <LookStatus held={held} />
   </aside>;
 }
