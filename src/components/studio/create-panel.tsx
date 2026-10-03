@@ -12,63 +12,42 @@ import { Arrow } from "../glyph";
 const PLAN = bootstrapPlan();
 const COST = estimateFalVary(DATASET_SIZE);
 const FRAMING_LINE = `${PLAN.filter(slot => slot.framing === "gros-plan").length} gros plans · ${PLAN.filter(slot => slot.framing === "buste").length} bustes · ${PLAN.filter(slot => slot.framing === "pied").length} plein pied`;
+const angleLabel = (id: string) => ANGLES.find(item => item.id === id)?.label ?? id;
+const framingLabel = (id: string) => FRAMINGS.find(item => item.id === id)?.label ?? id;
 
 export interface CreatePanelProps {
   trigger: string;
   invariants: string;
-  token: string;
-  proxyOn: boolean;
   busy: boolean;
-  arrived: boolean[];
   status: string;
   refs: { name: string; url: string }[];
   onTrigger: (value: string) => void;
   onInvariants: (value: string) => void;
-  onToken: (value: string) => void;
   onRefs: (files: File[]) => void;
-  onBootstrap: () => void;
-  onManual: () => void;
 }
 
+/** The look itself: the photos, the call word, what does not change. */
 export function CreatePanel(props: CreatePanelProps) {
   const [dragging, setDragging] = useState(false);
   const triggerError = props.trigger ? checkTrigger(props.trigger) : null;
   const invariantError = invariantFieldError(props.invariants);
-  const attempt = {
-    proxyOn: props.proxyOn,
-    refCount: props.refs.length,
-    trigger: props.trigger,
-    invariants: props.invariants,
-    token: props.token,
-    busy: props.busy,
-  };
-  const ready = prepareLaunch(attempt).launch;
-  const refsReady = props.refs.length >= FAL_VARY.minRefs && props.refs.length <= FAL_VARY.maxRefs;
-  const shortToken = props.proxyOn && !props.busy && !triggerError && !!props.trigger && refsReady && !invariantError && props.invariants.trim().length > 0 && props.token.trim().length < FAL_ACCESS_MIN;
-  const angleLabel = (id: string) => ANGLES.find(item => item.id === id)?.label ?? id;
-  const framingLabel = (id: string) => FRAMINGS.find(item => item.id === id)?.label ?? id;
-
-  function take(list: File[]) {
-    props.onRefs(list);
-  }
 
   function drop(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
     setDragging(false);
-    take([...event.dataTransfer.files]);
+    props.onRefs([...event.dataTransfer.files]);
   }
 
   return <div className="create-panel">
-    <label id="create-drop" className={`create-drop${dragging ? " is-dragging" : ""}${props.busy ? " is-busy" : ""}`} aria-busy={props.busy} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
-      <input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={props.busy} aria-label="Déposer 2 ou 3 photos de la même personne" onChange={event => { take([...(event.target.files ?? [])]); event.target.value = ""; }} />
-      <span className="create-mark" aria-hidden="true">iii</span>
+    <label id="create-drop" className={`create-drop${dragging ? " is-dragging" : ""}${props.busy ? " is-busy" : ""}${props.refs.length ? " has-refs" : ""}`} aria-busy={props.busy} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
+      <input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={props.busy} aria-label="Déposer 2 ou 3 photos de la même personne" onChange={event => { props.onRefs([...(event.target.files ?? [])]); event.target.value = ""; }} />
       {props.refs.length === 0 ? <>
+        <span className="create-mark" aria-hidden="true">iii</span>
         <span className="create-drop-title">Dépose 2 ou 3 photos</span>
         <span className="create-drop-hint">Même personne · JPEG, PNG ou WebP · 8 Mo chacune</span>
       </> : <>
-        <span className="ref-strip">{props.refs.map(ref => <img key={ref.url} src={ref.url} alt="" />)}</span>
-        <span className="create-drop-title">Photos prêtes</span>
-        <span className="create-drop-hint">{props.refs.length} photo{props.refs.length > 1 ? "s" : ""} · reclique pour remplacer</span>
+        <span className="ref-strip">{props.refs.map((ref, index) => <span key={ref.url} className="ref-frame" data-frame={String(index + 1).padStart(2, "0")}><img src={ref.url} alt="" /></span>)}</span>
+        <span className="create-drop-hint">{props.refs.length} photo{props.refs.length > 1 ? "s" : ""} · touche pour remplacer</span>
       </>}
       {props.busy && <span className="create-drop-hint">Préparation du lot…</span>}
     </label>
@@ -82,15 +61,43 @@ export function CreatePanel(props: CreatePanelProps) {
       <div className="create-field">
         <label htmlFor="create-invariants">Traits qui ne changent pas</label>
         <input id="create-invariants" value={props.invariants} onChange={event => props.onInvariants(event.target.value)} placeholder="green eyes, freckles" spellCheck={false} disabled={props.busy} aria-invalid={!!invariantError} aria-describedby="create-invariants-help" />
-        <p id="create-invariants-help" className={invariantError ? "is-error" : ""}>{invariantError ?? "Au moins deux, en anglais, séparés par des virgules. Ils ne vont pas dans les légendes. Sans eux, le lot ne part pas."}</p>
+        <p id="create-invariants-help" className={invariantError ? "is-error" : ""}>{invariantError ?? "Au moins deux, en anglais, séparés par des virgules."}</p>
       </div>
-      {props.proxyOn && <div className="create-field">
-        <label htmlFor="create-token">Code d’accès du studio</label>
-        <input id="create-token" type="password" autoComplete="off" spellCheck={false} value={props.token} onChange={event => props.onToken(event.target.value)} disabled={props.busy} />
-        <p>Le studio paie. Le code reste dans cette page, rien n’est stocké.</p>
-      </div>}
     </div>
+    {props.status && <p className="create-status" role="status">{props.status}</p>}
+  </div>;
+}
 
+export interface PreparePanelProps {
+  trigger: string;
+  invariants: string;
+  token: string;
+  proxyOn: boolean;
+  busy: boolean;
+  arrived: boolean[];
+  refs: { name: string; url: string }[];
+  onToken: (value: string) => void;
+  onBootstrap: () => void;
+  onManual: () => void;
+}
+
+/** Fifteen framings for a trained style. Paid by the studio code, or imported by hand. */
+export function PreparePanel(props: PreparePanelProps) {
+  const triggerError = props.trigger ? checkTrigger(props.trigger) : null;
+  const invariantError = invariantFieldError(props.invariants);
+  const attempt = {
+    proxyOn: props.proxyOn,
+    refCount: props.refs.length,
+    trigger: props.trigger,
+    invariants: props.invariants,
+    token: props.token,
+    busy: props.busy,
+  };
+  const ready = prepareLaunch(attempt).launch;
+  const refsReady = props.refs.length >= FAL_VARY.minRefs && props.refs.length <= FAL_VARY.maxRefs;
+  const shortToken = props.proxyOn && !props.busy && !triggerError && !!props.trigger && refsReady && !invariantError && props.invariants.trim().length > 0 && props.token.trim().length < FAL_ACCESS_MIN;
+
+  return <div className="prepare-panel">
     <div className="plan-preview">
       <p className="create-plan"><span>2–3</span> photos → <span>{DATASET_SIZE}</span> cadrages. {FRAMING_LINE}. Face, trois-quarts et profil.</p>
       <ol className="slot-meter" aria-label={`Plan des ${DATASET_SIZE} cadrages`}>
@@ -99,6 +106,12 @@ export function CreatePanel(props: CreatePanelProps) {
         </li>)}
       </ol>
     </div>
+
+    {props.proxyOn && <div className="create-field">
+      <label htmlFor="create-token">Code d’accès du studio</label>
+      <input id="create-token" type="password" autoComplete="off" spellCheck={false} value={props.token} onChange={event => props.onToken(event.target.value)} disabled={props.busy} />
+      <p>Le studio paie. Le code reste dans cette page, rien n’est stocké.</p>
+    </div>}
 
     {!props.proxyOn && <aside id="prepare-offline" className="offline-fal" role="status">
       <p><strong>Préparation automatique éteinte.</strong> « Préparer les {DATASET_SIZE} images » ne lance rien, et rien n’est facturé.</p>
@@ -111,18 +124,16 @@ export function CreatePanel(props: CreatePanelProps) {
       </button>
       {props.proxyOn && <button type="button" className="button button-outline" disabled={props.busy} onClick={props.onManual}>J’ai déjà {DATASET_SIZE} images</button>}
     </div>
-    {props.proxyOn && <p className="create-path">Ou importe tes {DATASET_SIZE} images, sans lancer la préparation.</p>}
     {props.proxyOn && !props.busy && !triggerError && !!props.trigger && refsReady && !props.invariants.trim() && <p className="create-status">Deux traits qui ne changent pas, avant l’envoi. Sans eux, le bouton reste éteint.</p>}
     {props.proxyOn && props.refs.length > 0 && props.refs.length < FAL_VARY.minRefs && <p className="create-status">Encore une photo : il en faut {FAL_VARY.minRefs} ou {FAL_VARY.maxRefs}.</p>}
     {shortToken && !props.busy && <p className="create-status">Le code d’accès du studio débloque le lot. Rien n’est envoyé avant le clic.</p>}
-    {props.status && <p className="create-status" role="status">{props.status}</p>}
 
     <details className="disclosure create-captions">
       <summary>Voir les {DATASET_SIZE} cadrages prévus</summary>
       <ol>{PLAN.map(slot => <li key={slot.index}><span>{String(slot.index).padStart(2, "0")}</span> {props.trigger && !triggerError ? bootstrapCaption(props.trigger, slot) : `${angleLabel(slot.angle)} · ${framingLabel(slot.framing)} · ${slot.variables}`}</li>)}</ol>
     </details>
     <p className="create-fine">{props.proxyOn
-      ? "Au clic, les photos partent. Rien n’est envoyé avant. Chaque préparation est facturée, même si tu fermes la page."
+      ? "Au clic, les photos partent. Rien n’est envoyé avant. Chaque préparation est facturée au studio, même si tu fermes la page."
       : "Sans connexion, préparer le lot ne contacte personne. L’import reste dans le navigateur."}</p>
   </div>;
 }

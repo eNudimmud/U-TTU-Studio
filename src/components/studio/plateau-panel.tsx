@@ -6,7 +6,7 @@ import {
   PLATEAU_EMPTY_LINE, PLATEAU_EMPTY_TITLE, PLATEAU_HELP, PLATEAU_NEXT_PREVIZ, PLATEAU_READY_LINE,
 } from "@/lib/cinema";
 import {
-  PLATEAU_FRAME_MAX, PLATEAU_SCENE_MAX, PLATEAU_SEQUENCE_MAX, PLATEAU_STILL_MAX,
+  PLATEAU_EVENT, PLATEAU_FRAME_MAX, PLATEAU_SCENE_MAX, PLATEAU_SEQUENCE_MAX, PLATEAU_STILL_MAX,
   clipPlateauText, createPlateauScene, emptyPlateau, readPlateau, savePlateau, sceneHasPreviz,
   type PlateauBook, type PlateauScene, type PlateauSequence, type PlateauStill,
 } from "@/lib/plateau";
@@ -56,6 +56,7 @@ export function PlateauPanel() {
     setBook(next);
     if (focusId) setOpenId(focusId);
     savePlateau(window.localStorage, next);
+    window.dispatchEvent(new Event(PLATEAU_EVENT));
   }
 
   function pose() {

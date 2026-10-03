@@ -143,10 +143,11 @@ export const COMFY_APPS = {
 export interface Range { low: number; high: number }
 export interface RunEstimate { seconds: Range; credits: Range; usd: Range }
 
-const toEstimate = (seconds: Range): RunEstimate => {
+export const estimateGpuSeconds = (seconds: Range): RunEstimate => {
   const credits = { low: seconds.low * COMFY_CLOUD.gpuCreditsPerSecond, high: seconds.high * COMFY_CLOUD.gpuCreditsPerSecond };
   return { seconds, credits, usd: { low: credits.low / COMFY_CLOUD.creditsPerUsd, high: credits.high / COMFY_CLOUD.creditsPerUsd } };
 };
+const toEstimate = estimateGpuSeconds;
 
 export function estimateTrainRun(steps: number, images: number): RunEstimate {
   const rendered = images + 1;

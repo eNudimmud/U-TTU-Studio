@@ -16,18 +16,25 @@ Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CIN
 
 | Geste | Sur la pastille | Dans le shell, aujourd’hui | Nom technique, doc ou aide seulement |
 | --- | --- | --- | --- |
-| Look | Ton style | Ton style : dépôt photo, statut « Look tenu » | boucle photo, LoRA |
+| Look | Ton style | Ton style : planche contact, carte du look, « Poser le monde » | boucle photo, LoRA |
 | Plateau | Ta scène | Ta scène : le monde, images, suites, notes | préviz Blender, sur le bureau |
 | Take | La prise | Look tenu et monde posé : un bouton charge la page ici et y écrit le plan. Les images partent si le compte les accepte. Le plein onglet n’a pas ce brief. Le tournage payant ne part pas tout seul | MiniMax H3 R2V (`video_minimax_h3_r2v`), texte au nœud 138, images 137 et 139 après `/api/assets` ; LoRA au nœud 145 à la main ; Seedance plus tard |
 
-- **Décision :** le shell parle d’abord Ton style, Ta scène, La prise. Une ligne dit « Le monde, le look tenu, puis une prise courte. » Blender et Seedance restent dans l’aide de Ta scène et de La prise, pas sur les boutons. On ne les met pas sur l’accueil.
-- **Décision :** « Vente HOLD » reste une décision de doc. Le bandeau du shell dit « Rien à payer » et la date. L’accueil ne le répète qu’une fois, à côté du bouton.
+- **Décision :** le shell parle d’abord Ton style, Ta scène, La prise. Blender et Seedance restent dans l’aide de Ta scène et de La prise, pas sur les boutons. On ne les met pas sur l’accueil.
+- **Décision :** « Vente HOLD » reste une décision de doc. Le menu « Plus » du shell dit « Rien à payer ici » et la date. L’accueil ne le répète qu’une fois, à côté du bouton.
+
+## Décision — l’app, 3 octobre 2026
+
+- **Décision :** `/studio` a une seule barre. À gauche le mot-symbole, au centre la chaîne 01 Ton style · 02 Ta scène · 03 La prise, avec la marque « Tenu », « Posé » ou « Prête ». À droite : « Crédits », « Sphère », « Plus ». Sous 760 px, la chaîne devient une barre d’onglets en bas de l’écran. Pas de pied de page.
+- **Décision :** Sphère est l’étagère des images et des prises, pas un second produit. Identité, Bibliothèque, Studio et Compte vivent dans « Plus ». Les noms anglais des pas ne sont plus dans la page.
+- **Décision :** Ton style est une fiche de casting : les photos en planche contact, une carte avec la première photo, le mot d’appel en grand, les traits en pastilles, les quatre marques du look et « Noté dans CANON.md ». Un seul bouton plein : « Poser le monde ». Les 15 images, Former mon look et Expert sont dans « Aller plus loin ».
+- **Décision :** `/manifest.webmanifest` rend le studio installable, plein écran, ouvert sur `/studio?step=look`.
 
 ## Décision — le studio
 
 - **Décision :** `/studio` est l’appli. Il s’ouvre sur Ton style. Le premier mot est « Dépose tes photos. » Le dépôt est le clic. Le statut « Look tenu » est sur cet écran. La suite dit qu’elle s’ouvre après. Le rappel « Avant un long entraînement » est replié : il ne précède pas le dépôt.
 - **Décision :** les libellés du premier écran sont du français de tous les jours. LoRA, fal, Comfy, gate et PASS ne sont pas sur ce premier écran. Ils restent dans Expert, le rail, et les tiroirs.
-- **Décision :** trois gestes d’abord : Ton style, Ta scène, La prise. Ta scène reçoit le monde (images, suites, notes). La prise montre monde → look tenu → prise courte, et charge la page du tournage quand les deux sont prêts. Rien n’est envoyé avant le lancement dans le cadre. Compte reste en fin de la rangée d’à côté. Pas de mur.
+- **Décision :** trois gestes d’abord : Ton style, Ta scène, La prise. Ta scène reçoit le monde (images, suites, notes). La prise montre monde → look tenu → prise courte, et charge la page du tournage quand les deux sont prêts. Rien n’est envoyé avant le lancement dans le cadre. Compte est dans « Plus ». Pas de mur.
 - **Décision :** le mot-symbole ramène à Ton style (`#look`). `#creer` ouvre la même surface. « Accueil » ramène à `/`.
 - **Décision :** `/#creer`, `/#compte` et les autres hash de mode reconduisent vers `/studio` avec le même hash. Les retours Clerk déjà posés continuent d’atterrir au bon endroit.
 

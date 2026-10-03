@@ -1,16 +1,18 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { type NextFetchEvent, type NextRequest, NextResponse } from "next/server";
-import { hasClerkKeys } from "@/lib/clerk-config";
+import { clerkPath, hasClerkKeys } from "@/lib/clerk-config";
 import { proxyComfy } from "@/lib/comfy-proxy";
 
 // Routes stay public. Créer, Sphère and the vault ZIP do not require a session.
+// Clerk's development handshake redirects any page it runs on, so it only runs
+// where an account is asked for. Compte loads its own client provider.
 const withClerk = clerkMiddleware();
 
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
   // Before Clerk: Comfy media is same-site only when the frame is this host.
   const comfy = await proxyComfy(request);
   if (comfy) return comfy;
-  if (!hasClerkKeys(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, process.env.CLERK_SECRET_KEY)) {
+  if (!hasClerkKeys(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, process.env.CLERK_SECRET_KEY) || !clerkPath(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
   return withClerk(request, event);

@@ -4,6 +4,7 @@ import "./workspace.css";
 
 import { useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { recordStudioSpend } from "@/lib/credit-store";
 import { DATASET_SIZE } from "@/lib/comfy-stack";
 import { FalProxyError, falJobStatus, startFalGeneration, startFalTraining, type FalProxy } from "@/lib/fal-proxy";
 import {
@@ -126,6 +127,7 @@ export function FalRail(props: Props) {
       const zip = await props.onBuildZip((done, count) => setTraining({ state: "zipping", done, total: count }));
       setTraining({ state: "sending" });
       requestId = (await startFalTraining(client, zip, props.trigger.trim(), steps)).id;
+      recordStudioSpend(`Entraînement · ${steps} pas`, trainCost.usd);
       const current = requestId;
       setTraining({ state: "queued", id: current, position: null });
       await follow(client, "train", current, next => {
@@ -152,6 +154,7 @@ export function FalRail(props: Props) {
       const set = (cell: Cell) => setCells(previous => previous.map((item, i) => (i === index ? cell : item)));
       try {
         const { id: genId } = await startFalGeneration(client, { lora: lora.lora, prompt, scale, seed: props.seed });
+        recordStudioSpend(`Image · force ${formatStrength(scale)}`, estimateFalGen(1).usd);
         await follow(client, "gen", genId, next => {
           if (next.status === "IN_QUEUE") set({ state: "queued" });
           else if (next.status === "IN_PROGRESS") set({ state: "running" });

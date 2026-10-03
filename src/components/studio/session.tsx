@@ -3,7 +3,8 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DATASET_SIZE, FLUX_STACK, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
 import { bootstrapPlan } from "@/lib/fal-bootstrap";
-import { FAL_VARY } from "@/lib/fal-stack";
+import { recordStudioSpend } from "@/lib/credit-store";
+import { FAL_VARY, estimateFalVary } from "@/lib/fal-stack";
 import { rememberLook } from "@/lib/take-files";
 import { trackEvent } from "@/lib/analytics";
 import { captionsBlock } from "@/lib/gate/report";
@@ -277,6 +278,7 @@ export function StudioSessionProvider({ children }: { children: ReactNode }) {
     try {
       const { startFalBootstrap, fetchFalFile, falJobStatus } = await import("@/lib/fal-proxy");
       const started = await startFalBootstrap(client, refFiles, trigger.trim());
+      recordStudioSpend(`${DATASET_SIZE} images préparées`, estimateFalVary(started.slots.length).usd);
       if (!alive.current || generation !== bootGeneration.current) return;
       setBoot({ phase: "running", done: 0, message: "Les cadrages arrivent. Tu peux laisser cette page ouverte." });
       const batch: ({ file: File; angle: Angle; framing: Framing; variables: string } | null)[] = started.slots.map(() => null);
