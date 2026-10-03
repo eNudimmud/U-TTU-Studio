@@ -135,6 +135,11 @@ describe("Comfy same-origin embed", () => {
     assert.match(text, /x-api-key/);
     assert.match(text, /el\.preload = "auto"/);
     assert.ok(text.indexOf("hookFetch()") < text.indexOf("import("), "the list Authorization is captured before Comfy starts");
+    assert.match(text, /\/templates\/video_minimax_h3_r2v\.json/);
+    assert.match(text, /indexedDB\.open\("uttu-take"\)/);
+    assert.match(text, /orig\("\/api\/assets"/);
+    assert.match(text, /widgets_values_named\.image/);
+    assert.doesNotMatch(text, /orig\("\/api\/prompt"|fetch\("\/api\/prompt"/);
     assert.ok(text.indexOf("__Host-uttu_media") < text.indexOf("import("), "the media cookie is written before Comfy starts");
     assert.match(text, /script\[data-comfy-main\]/);
     assert.match(text, /type="text\/plain" data-comfy-main crossorigin src="\/assets\/index-abc\.js"/);

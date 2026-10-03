@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
   CINEMA_PATH, CINEMA_STEPS, LOOK_HELD_LINE, LOOK_OPEN_LINE, PLATEAU_EMPTY_LINE, PLATEAU_EMPTY_TITLE, PLATEAU_HELP,
-  TAKE_CHAIN, TAKE_FRAME_CONSENT, TAKE_FRAME_HTTP, TAKE_FRAME_LEAD, TAKE_FRAME_LINE, TAKE_FRAME_LOGIN, TAKE_HELP, TAKE_LEAD, TAKE_LOAD, TAKE_SOON_LINE, TAKE_TAB, TAKE_WAIT, placeFromLocation, takeReady,
+  TAKE_CHAIN, TAKE_FRAME_CONSENT, TAKE_FRAME_HTTP, TAKE_FRAME_LEAD, TAKE_FRAME_LINE, TAKE_FRAME_LOGIN, TAKE_FRAME_STORE_FAIL, TAKE_FRAME_STORED, TAKE_FRAME_TEXT_ONLY, TAKE_GO_LOOK, TAKE_GO_WORLD, TAKE_HELP, TAKE_LEAD, TAKE_LOAD, TAKE_SOON_LINE, TAKE_STATUS_NEED_LOOK, TAKE_STATUS_NEED_WORLD, TAKE_STATUS_READY, TAKE_TAB, TAKE_WAIT, placeFromLocation, takeReady,
 } from "../src/lib/cinema.ts";
 import {
   PLATEAU_FRAME_MAX, createPlateauScene, parsePlateau, parseTakeNote, readPlateau, readTakeNote, readyWorlds,
@@ -57,9 +57,17 @@ describe("shell Look Plateau Take", () => {
       TAKE_WAIT,
       TAKE_LOAD,
       TAKE_TAB,
+      TAKE_STATUS_READY,
+      TAKE_STATUS_NEED_LOOK,
+      TAKE_STATUS_NEED_WORLD,
+      TAKE_GO_LOOK,
+      TAKE_GO_WORLD,
       TAKE_FRAME_LEAD,
       TAKE_FRAME_LINE,
       TAKE_FRAME_CONSENT,
+      TAKE_FRAME_STORED,
+      TAKE_FRAME_TEXT_ONLY,
+      TAKE_FRAME_STORE_FAIL,
       TAKE_FRAME_HTTP,
       TAKE_FRAME_LOGIN,
     ].join("\n");
@@ -78,6 +86,10 @@ describe("shell Look Plateau Take", () => {
     assert.match(TAKE_HELP, /nœud 145/);
     assert.match(TAKE_HELP, /échange de personnage/);
     assert.match(TAKE_HELP, /n’est pas branché/);
+    assert.match(TAKE_HELP, /nœud 138/);
+    assert.match(TAKE_HELP, /nœud 137/);
+    assert.match(TAKE_HELP, /plein onglet/);
+    assert.match(TAKE_HELP, /identifiant/);
     assert.match(TAKE_LOAD, /Charger la prise ici/);
     assert.doesNotMatch(`${PLATEAU_HELP}\n${TAKE_HELP}`, /night city/i);
   });

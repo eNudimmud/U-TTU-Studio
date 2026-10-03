@@ -36,6 +36,14 @@ Ce document fixe l’étoile du nord. Il n’ouvre aucun appel payant, aucune ro
 - **Fait :** un essai public du LoRA d’échange, [MiniMax-H3-Character-Swap-LoRA test](https://x.com/toyxyz3/status/2103933651797045300) (toyxyz). Le look entraîné dans Former mon look est l’identité que cet échange doit tenir.
 - **Décision :** Seedance reste un chemin possible, pas le seul. Ces noms restent dans l’aide de La prise. L’accueil ne les porte pas.
 
+## Décision — le brief dans le cadre, écran allégé — 3 octobre 2026
+
+- **Décision :** « Charger la prise ici » ne laisse pas un graphe d’exemple vide de ton plan. Le texte (mot d’appel, ce qui ne change pas, lieu, note, ligne de prise) est écrit dans le nœud 138. La première photo du look va au nœud 137 (Picture 1). La première image de préviz du lieu va au nœud 139 (Picture 2) ; à défaut, la seconde photo du look. Une seule photo : le nœud 139 garde l’exemple.
+- **Fait :** l’URL `?template=` n’accepte qu’un identifiant (`template`, et chez Comfy `source` / `mode`, chacun limité à des caractères de nom). Elle ne porte ni octets ni texte libre. Le studio ne desserre pas cette adresse. Le cadre, même origine, lit le brief dans IndexedDB (`uttu-take`) et réécrit `GET /templates/video_minimax_h3_r2v.json` avant que le graphe s’ouvre.
+- **Fait :** une image n’est peinte que si `POST /api/assets` (champ `file`, tag `input`) renvoie un `name` sûr : chaîne, 180 caractères au plus, sans slash. Sinon le fichier d’exemple reste. Un nom inventé recréerait l’erreur de média manquant. Cet envoi n’est pas un prompt : il n’a lieu qu’après le clic, et seulement dans le cadre.
+- **Décision :** « Ouvrir en plein onglet » reste `https://cloud.comfy.org/?template=video_minimax_h3_r2v`, sans brief. Le run payant n’est pas branché. Pas de `POST /api/prompt`. Le LoRA turbo et l’échange de personnage restent à la main (nœud 145, interrupteur 146 éteint).
+- **Décision :** l’écran `/studio` montre une chaîne, Ton style → Ta scène → La prise. Les noms anglais des pas sont cachés. Sphère reste un lien, pas une pastille au même rang. Le reste des espaces, Former mon look, Tester un prompt, et les questions sont repliés. 0 $.
+
 ## Décision — La prise ouvre le template H3 — 2 octobre 2026, nuit
 
 - **Décision :** quand le monde est posé et le look est tenu, « Charger la prise ici » ouvre le template officiel `video_minimax_h3_r2v` dans le même cadre que Former mon look (`/comfy-embed?template=video_minimax_h3_r2v`). « Ouvrir en plein onglet » va sur `https://cloud.comfy.org/?template=video_minimax_h3_r2v`. Aucun autre identifiant n’est accepté. `source=custom` n’est pas transmis.

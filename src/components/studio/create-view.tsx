@@ -70,7 +70,6 @@ export function CreateView() {
 
   return <section className="create-studio" aria-label="Ton style">
     <header className="create-hero">
-      <p className="eyebrow">Look</p>
       <h1 id="mode-title" tabIndex={-1}>Dépose tes photos.</h1>
       <LookStatus held={held} />
       <button type="button" className="text-button" onClick={() => goStep("plateau")}>Ensuite, poser le monde</button>
@@ -88,7 +87,9 @@ export function CreateView() {
       <DoctrineBurn input={canon} onCanonNoted={session.setCanonNoted} />
     </details>
 
-    {former && formerAction && tester && <section className="create-process" aria-labelledby="former-access">
+    {former && formerAction && tester && <details className="disclosure create-drawer">
+      <summary>Autres gestes</summary>
+      <section className="create-process" aria-labelledby="former-access">
       <div>
         <p className="eyebrow">Ensuite</p>
         <h2 id="former-access">{former.title}</h2>
@@ -105,7 +106,8 @@ export function CreateView() {
           <button type="button" className="button button-primary" onClick={confirmFormer}>{BURN_CONFIRM_LABEL}</button>
         </div>
       </div>}
-    </section>}
+    </section>
+    </details>}
 
     <details className="disclosure create-drawer" onToggle={event => { if (event.currentTarget.open) setTutorial(true); }}>
       <summary>Comment ça marche</summary>
@@ -162,6 +164,8 @@ export function CreateView() {
       {expertMounted && !session.passed && <p className="loading-panel">Le repli s’ouvre quand tes images sont prêtes.</p>}
     </details>
 
+    <details className="disclosure create-drawer">
+      <summary>Questions</summary>
     <section id="questions" className="create-questions" aria-labelledby="questions-title">
       <p className="eyebrow">Questions</p>
       <h2 id="questions-title">En bref.</h2>
@@ -174,5 +178,6 @@ export function CreateView() {
         <details><summary>Où vit le studio, une fois la page fermée ?</summary><p>Sur ta machine. Le mode Studio donne le schéma et un fichier de départ. Cette page n’écrit pas dans ce dossier.</p></details>
       </div>
     </section>
+    </details>
   </section>;
 }
