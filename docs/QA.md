@@ -1,5 +1,17 @@
 # Contrôles de livraison — C micro
 
+## Délier les comptes — 3 octobre 2026
+
+Branche `cursor/unlink-accounts-386f`. Aucun envoi vers un compte réel : **0 $ dépensé**. Le compte de rendu et fal sont simulés dans le navigateur.
+
+| Contrôle | Résultat | Périmètre |
+| --- | --- | --- |
+| Tests unitaires | PASS : 155/155 | `npm test`. La feuille « Comptes » porte « Délier le compte de rendu » et « Délier le compte fal ». Les fonctions n’effacent ni le coffre ni un fichier formé. |
+| Feuille ouverte une fois relié | PASS | Après la liaison Comfy, le compteur ouvre « Comptes » et le bouton de déliaison y est. fal n’a le sien qu’une fois relié. |
+| Chacun de son côté | PASS | « Délier le compte fal » retire seulement `u-ttu-fal`. « Délier le compte de rendu » retire ensuite `u-ttu-rendu`. L’autre compte reste jusqu’à son propre geste. |
+| Le coffre reste | PASS | Deux photos, le nom Mira et les deux traits sont encore là après les deux déliaisons. Le compteur redevient « Relier ». |
+| Rien n’est lancé | PASS | 0 `POST /api/prompt`, 0 requête vers la file fal, Comfy ou Clerk. 0 erreur console. |
+
 ## Former son double — 3 octobre 2026
 
 Branche `cursor/lora-fal-h3-386f`. Aucune formation réelle, aucune prise réelle : **0 $ dépensé**. fal est simulé dans le navigateur (CDP Fetch sur `api.fal.ai`, `queue.fal.run`, `rest.fal.ai`, `v3.fal.media`). Tout autre hôte est refusé. Le seul appel réseau hors de ce simulacre aurait été visible dans le journal : il n’y en a pas eu.
