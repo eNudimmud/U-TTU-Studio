@@ -118,8 +118,18 @@ function AppBar({ step, atelier, placeKey, onStep, onMode }: {
       const details = menu.current;
       if (details?.open && !details.contains(event.target as Node)) details.open = false;
     };
+    const escape = (event: KeyboardEvent) => {
+      const details = menu.current;
+      if (event.key !== "Escape" || !details?.open) return;
+      details.open = false;
+      details.querySelector("summary")?.focus();
+    };
     document.addEventListener("pointerdown", away);
-    return () => document.removeEventListener("pointerdown", away);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("keydown", escape);
+    };
   }, []);
 
   const marks: Record<CinemaStep, string> = {

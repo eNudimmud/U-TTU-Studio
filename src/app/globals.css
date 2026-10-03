@@ -719,6 +719,7 @@ button.vault-row:hover strong { color: var(--gold-soft); }
   .app-main { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
   .credit-chip-label { display: none; }
   .credit-chip-unit { display: inline; }
+  .credit-sheet { position: fixed; top: 64px; left: 12px; right: 12px; width: auto; max-height: calc(100svh - 190px); }
   .app-tool { padding-inline: 8px; }
 }
 @media (max-width: 700px) {
