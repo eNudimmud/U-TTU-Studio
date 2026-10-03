@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { X_COMPOSER, X_DIRECT_NEEDS, X_TEXT_MAX, clipForX, shareableFile, takeCaption, xComposerUrl, xLength } from "../src/lib/share.ts";
 
@@ -27,16 +26,5 @@ describe("publier une prise", () => {
     assert.equal(shareableFile({ type: "application/pdf", size: 1024 }), false);
     assert.equal(shareableFile({ type: "video/mp4", size: 0 }), false);
     assert.equal(shareableFile({ type: "video/mp4", size: 600 * 1024 * 1024 }), false);
-  });
-
-  it("posts only through a tap, never through an API, and leaves direct posting off", () => {
-    const post = readFileSync("src/components/studio/post-take.tsx", "utf8");
-    assert.doesNotMatch(post, /fetch\(|XMLHttpRequest|api\.x\.com|api\.twitter\.com|upload\.twitter\.com/);
-    assert.match(post, /navigator\.share\(payload\)/);
-    assert.ok(post.indexOf("async function share()") < post.indexOf("navigator.share(payload)"), "share runs only in the click handler");
-    assert.match(post, /xComposerUrl\(words\)/);
-    assert.match(post, /rel="noopener noreferrer"/);
-    assert.match(post, /disabled aria-describedby/);
-    assert.match(post, /Publier sans quitter le studio/);
   });
 });

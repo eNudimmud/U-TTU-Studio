@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { StudioShell } from "@/components/studio/shell";
+import { StudioApp } from "@/components/app/studio-app";
 import { siteOrigin, studioDescription, studioTitle } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -14,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function StudioPage() {
-  return <StudioShell />;
+  return <StudioApp />;
 }

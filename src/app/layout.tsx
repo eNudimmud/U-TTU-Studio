@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   icons: { icon: assetPath("/icon.svg") },
   appleWebApp: { capable: true, title: "U*TTU", statusBarStyle: "black-translucent" },
 };
-export const viewport: Viewport = { themeColor: "#0A0A0B", colorScheme: "dark", viewportFit: "cover" };
+export const viewport: Viewport = { themeColor: "#0B0A09", colorScheme: "dark", viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return <html lang="fr-CH"><body><a className="skip-link" href="#contenu">Aller au contenu</a>{children}</body></html>;

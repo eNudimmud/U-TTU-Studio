@@ -1,7 +1,7 @@
 import { SignIn } from "@clerk/nextjs";
 import { AuthScreen } from "@/components/account/auth-screen";
 import { ClerkScope } from "@/components/account/clerk-scope";
-import { ACCOUNT_HOME_HASH, ACCOUNT_SIGN_IN_PATH, ACCOUNT_SIGN_UP_PATH } from "@/lib/account";
+import { ACCOUNT_PATH, ACCOUNT_SIGN_IN_PATH, ACCOUNT_SIGN_UP_PATH } from "@/lib/account";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { assetPath } from "@/lib/site";
 
@@ -15,7 +15,7 @@ export default function SignInPage() {
         routing="path"
         path={assetPath(ACCOUNT_SIGN_IN_PATH)}
         signUpUrl={assetPath(ACCOUNT_SIGN_UP_PATH)}
-        fallbackRedirectUrl={assetPath(ACCOUNT_HOME_HASH)}
+        fallbackRedirectUrl={assetPath(ACCOUNT_PATH)}
       />
     </AuthScreen>
   </ClerkScope>;

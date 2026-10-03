@@ -2,6 +2,20 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-03.
 
+## Studio direct — tout dans l’app — 3 octobre 2026
+
+- **Décision JD :** le #32 était à moitié fait. Un adhérent, un studio : tenir un look, poser une scène, charger la prise, la lancer, voir le résultat, la publier, sans quitter l’app. Des crédits cohérents. Une mémoire personnelle du studio. Carte blanche sur l’architecture et l’identité, dans le canon U*TTU.
+- **Décision, architecture :** l’app est un client local. Elle parle elle-même à l’API documentée de Comfy Cloud (envoi des photos, mise en file, suivi, vidéo), sur le compte de la personne, par le relais même origine déjà en place. Le cadre Comfy n’est plus l’app. La réécriture du template H3 (#31), les apps App Mode et le rail fal quittent l’app.
+- **Décision, prise :** MiniMax H3 R2V, graphe construit par le studio (`src/lib/render/take-graph.ts`) : jusqu’à 9 références, 5 ou 8 s, 9:16 / 16:9 / 1:1, rapide 4 pas (LoRA turbo) ou fin 20 pas. **Fait :** les deux variantes passent le `dry_run` de Comfy Cloud, 0 crédit.
+- **Décision, compte de rendu :** deux chemins dans une feuille. La connexion Comfy dans la feuille (session sur l’appareil ; la page de Comfy charge ses traceurs, après le geste seulement), ou une clé API (abonnement payant, aucun code tiers). Rien côté serveur.
+- **Décision, crédits :** un seul payeur, le compte de rendu. Le solde vient de Comfy. Le coût d’une prise est la différence de deux lectures du solde, avant et après. Sans prise mesurée au même réglage, « non calibré » et aucun chiffre ; ensuite, la plus chère des trois dernières. « Tourner » s’éteint si le solde est illisible, vide, ou sous ce chiffre. Confirmation avant chaque prise. Pas de Stripe. Le studio n’encaisse rien. Le fal n’est plus un rail de l’app : deux payeurs rendraient le compteur faux.
+- **Décision, coffre :** le coffre Obsidian reste le pilier, mais l’app l’écrit elle-même : IndexedDB sur l’appareil, rangé comme un dossier Obsidian (`CANON.md`, `refs/`, `scenes/`, `prises/`, `jobs.md`), export ZIP en un geste, dossier Obsidian relié sur ordinateur. Remplace le ZIP de départ à remplir à la main. Pourquoi : [VAULT.md](VAULT.md).
+- **Décision, identité :** palette de la fiche personnage, toile en filigrane, fil d’or pour la chaîne, marque `iii`, Soft Error en CRT pour un échec. U*TTU guide en une phrase par moment ; son visage est le portrait canon recadré, pas un nouveau visage. Les planches ne sont pas publiées comme héros ([VISUAL-CANON.md](VISUAL-CANON.md)).
+- **Décision, publier :** sur téléphone, la feuille de partage reçoit la vidéo et le texte ; sur ordinateur, enregistrer la vidéo et le brouillon X. Rien n’est publié sans le geste dans X.
+- **Décision, compte U*TTU :** `/compte`, facultatif, hors du chemin. Clerk ne se charge que sur `/compte`, `/sign-in`, `/sign-up`. Le journal de budget local est retiré : le coût réel est dans `jobs.md`.
+- **Fait :** le relais, ses correctifs médias et le rejeu `/api/view` ne changent pas ; la vidéo d’une prise passe par ce même chemin. Sphère montre les prises du coffre, avec une vignette décodée de chaque vidéo. 0 $ : aucune prise réelle tournée, rien publié.
+- **Ce qui quitte encore l’app :** recharger des crédits (chez Comfy), créer une clé API (chemin clé seulement, une fois), joindre la vidéo dans X sur ordinateur. Raisons : [README](../README.md#ce-qui-quitte-encore-lapp).
+
 ## Cinéma — l’app : une chaîne, des crédits lisibles, publier — 3 octobre 2026
 
 - **Décision JD :** un adhérent, un studio. Ton style → Ta scène → La prise, en français, une action principale. Sphère est l’étagère. La création tourne dans le cloud. JD ne gère pas de données de visiteurs.
@@ -154,6 +168,7 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 
 | Décision | Par | Date |
 | --- | --- | --- |
+| Studio direct : l’app tourne la prise H3 R2V elle-même sur le compte Comfy Cloud de la personne (API documentée, relais même origine), après confirmation. Un seul payeur, coût mesuré par le solde, « non calibré » avant mesure. Coffre Obsidian écrit par l’app (IndexedDB, export ZIP, dossier relié). U*TTU guide en une phrase. fal, App Mode, template réécrit et journal de budget quittent l’app. Compte à `/compte`. | JD (intention, carte blanche) + livraison | 2026-10-03 |
 | App : une barre, la chaîne en onglets mobiles, Sphère étagère, carte de look. Crédits : solde Comfy lu dans le cadre, « Lancer ce rendu ? » avant chaque `POST /api/prompt`, journal local. Publier : feuille de partage ou brouillon X, rien sans clic. Clerk seulement sur Compte et connexion, télémétrie coupée. Solde fal et publication directe : éteints, secrets nommés. | JD (intention) + livraison | 2026-10-03 |
 | La prise écrit le texte du plan dans le nœud 138 du cadre H3. Les photos (137, 139) ne partent que si `/api/assets` renvoie un nom. L’URL du template ne porte pas les octets. Plein onglet sans brief. Run payant non branché. Écran : une chaîne, Sphère en retrait. | Livraison | 2026-10-03 |
 | La prise, look tenu et monde posé, ouvre `video_minimax_h3_r2v` dans le cadre. LoRA turbo : nœud 145 `lora_name`, interrupteur 146 éteint. Character-Swap à la main dans ce champ. Run payant non branché. Pas de burn. | Livraison | 2026-10-02 |

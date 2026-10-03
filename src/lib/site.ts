@@ -1,5 +1,3 @@
-import { normalizeProxyUrl } from "./fal-stack.ts";
-
 export const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "HelveticVault@gmail.com";
 export const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export const assetPath = (path: string) => `${basePath}${path}`;
@@ -8,9 +6,6 @@ const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERC
 export const siteOrigin = configuredOrigin || (vercelHost ? `https://${vercelHost}` : undefined);
 export const socialImage = siteOrigin ? `${siteOrigin}/og.jpg` : assetPath("/og.jpg");
 export const siteTitle = "U*TTU Studio — Ton style, ta scène, la prise";
-export const siteDescription = "Look, Plateau, Take. Entre dans le studio. Rien à payer.";
-export const studioTitle = "Ton style — U*TTU Studio";
-export const studioDescription = "Le studio s’ouvre sur ton style, puis le monde, puis la prise. Dépose tes photos. Pose le lieu. Rien n’est tourné tant que ce n’est pas tenu. Pas de mur de compte.";
-export const testPhaseEnd = "8 octobre 2026";
-// The proxy URL only: the fal key never reaches this bundle.
-export const falProxyUrl = normalizeProxyUrl(process.env.NEXT_PUBLIC_FAL_PROXY_URL);
+export const siteDescription = "Look, scène, prise. Tout se fait dans le studio ; le rendu tourne sur ton compte cloud, le studio ne vend rien.";
+export const studioTitle = "Studio — U*TTU";
+export const studioDescription = "Deux photos, un lieu, une phrase. La prise tourne sur ton compte de rendu et revient dans ton coffre, sur ton appareil. Pas de mur de compte.";

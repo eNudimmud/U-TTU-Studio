@@ -114,13 +114,13 @@ describe("fal smoke script", () => {
     assert.match(printed, /Training step 500\/1000/);
   });
 
-  it("keeps the fal key out of the static site: nothing in src/ reads FAL_KEY or imports the server-side client", () => {
+  it("keeps fal out of the site: nothing in src/ reads FAL_KEY, a fal variable, or the server-side client", () => {
     for (const file of sources("src")) {
       const text = readFileSync(join(root, file), "utf8");
       assert.doesNotMatch(text, /process\.env\.FAL_KEY|process\.env\["FAL_KEY"\]/, file);
       if (!file.endsWith("fal-api.ts")) assert.doesNotMatch(text, /from "[^"]*fal-api(\.ts)?"/, file);
     }
     const env = sources("src").flatMap(file => [...readFileSync(join(root, file), "utf8").matchAll(/process\.env\.(NEXT_PUBLIC_FAL\w*)/g)].map(match => match[1]));
-    assert.deepEqual([...new Set(env)], ["NEXT_PUBLIC_FAL_PROXY_URL"]);
+    assert.deepEqual(env, [], "the studio has one payer, the adherent's render account");
   });
 });

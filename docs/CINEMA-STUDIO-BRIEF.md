@@ -2,7 +2,15 @@
 
 Verrou produit JD, 2026-10-02. Registre de vérité : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**.
 
-Ce document fixe l’étoile du nord. Il n’ouvre aucun appel payant, aucune route fal nouvelle, aucun rendu vidéo.
+Ce document fixe l’étoile du nord. Les sections datées en dessous sont gardées pour l’historique.
+
+## Décision — la prise tourne dans l’app — 3 octobre 2026
+
+- **Décision JD :** tout se fait sans quitter l’app : tenir un look, poser une scène, charger la prise, la lancer, voir le résultat, la publier. Comfy Cloud reste le moteur, sur le compte de la personne.
+- **Décision :** à l’écran, la chaîne s’appelle Look → Scène → Prise, et Sphère est l’étagère. Plateau et Take restent les noms canon de la doc. Le monde arrive dans Scène en images (une préviz Blender rendue en image y a sa place), avec une note.
+- **Décision :** la prise est MiniMax H3 Reference-to-Video, lancée par le studio lui-même après la confirmation : jusqu’à 9 références (les photos du look, puis les images du lieu), une phrase, 5 ou 8 s, rapide (LoRA turbo 4 pas) ou fin (20 pas). Cette décision remplace les « run payant non branché » des sections du 2 et du 3 octobre. Le graphe est validé en `dry_run` ; aucune prise réelle n’a été tournée par cette livraison. Détail : [COMFY-STACK.md](COMFY-STACK.md).
+- **Décision :** le LoRA d’échange de personnage n’est pas branché. Seedance n’est pas appelé. Pas de Blender dans le navigateur. Pas de Night City.
+- **Décision :** la boucle photo de la phase 0 (lot de 15, LoRA Flux) n’est plus dans l’app. Le look est tenu par les photos, le nom et les traits, passés en références à chaque prise. Le code du gate et du rail fal reste, dormant.
 
 ## Décision — l’étoile
 

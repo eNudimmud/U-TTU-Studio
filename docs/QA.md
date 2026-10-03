@@ -1,5 +1,22 @@
 # Contrôles de livraison — C micro
 
+## Studio direct — 3 octobre 2026
+
+Branche `cursor/studio-direct-386f`. Aucune prise réelle, rien publié : **0 crédit dépensé**.
+
+| Contrôle | Résultat | Périmètre |
+| --- | --- | --- |
+| TypeScript strict | PASS | `npm run typecheck` |
+| Tests unitaires | PASS : 132/132 | `npm test` : graphe de prise égal aux graphes acceptés en `dry_run`, client de rendu et prise complète contre un faux Comfy Cloud (envoi, file, suivi, vidéo, coût mesuré, refus, annulation, réseau qui saute), crédits et porte, coffre et ZIP, session, Clerk hors du studio, page Comfy relayée. |
+| Build de production | PASS | `npm run build` (Next.js 16.3.6, Webpack). `/studio` et `/compte` statiques. |
+| Graphe de prise sur Comfy Cloud | PASS | `submit_workflow` en `dry_run`, variantes rapide et fine : « passed local pre-flight », aucun job. |
+| Parcours complet dans Chrome | PASS : 48/48 | Build de production, téléphone 390 × 844. Comfy Cloud simulé dans le navigateur (CDP Fetch) : chaque `/api/*` est servi localement, tout autre hôte est refusé, et le frontal local refuse en plus `POST /api/prompt`, `/api/upload`, `/api/queue`. Look, scène, liaison par clé, prise non calibrée, confirmation, suivi, vidéo, coût mesuré (55 crédits), annonce calibrée, Sphère (vignette en pixels), lecteur, crédits, coffre et export ZIP (ouvert par `unzip -t`), Soft Error, rechargement pendant une prise (même job repris, pas de second envoi), focus des feuilles, aucune requête vers Comfy, Clerk ou un traceur. 0 erreur console. |
+| Clerk hors du studio | PASS | Build avec une clé publique de l’instance Development et une clé secrète factice : 0 requête Clerk et 0 cookie sur `/` et `/studio` ; la poignée de main Clerk seulement sur `/compte` ; `/studio#compte` mène à `/compte`. |
+
+**Non vérifié ici :** une prise réelle sur un vrai compte (la première sera aussi la première calibration), la connexion Comfy dans la feuille avec un vrai compte, la feuille de partage d’un téléphone réel, le stockage persistant sur Safari iOS.
+
+## Livraison du 24 septembre 2026
+
 Vérification du 2026-09-24, sur la branche `cursor/c-micro-lora-guide-f6f7`. Aucun run Comfy Cloud n’a été lancé : **0 crédit dépensé**.
 
 ## Automatisés, rejouables

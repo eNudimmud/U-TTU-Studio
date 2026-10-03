@@ -1,5 +1,7 @@
 # Proxy fal — Cloudflare Worker (non déployé)
 
+> **Dormant depuis le 3 octobre 2026.** Le studio n’appelle plus ce Worker et ne lit plus `NEXT_PUBLIC_FAL_PROXY_URL` : un seul payeur, le compte de rendu de la personne. Le code reste pour JD.
+
 Le studio live est sur Vercel (`https://u-ttu-studio.vercel.app`) : la clé fal ne peut pas y vivre. Ce Worker la garde côté serveur. Le navigateur n’appelle que lui, jamais fal avec la clé. Le catalogue GitHub Pages (`https://enudimmud.github.io/U-TTU-Studio/`) est figé. Contexte, coûts et vie privée : [docs/FAL-SPIKE.md](../../docs/FAL-SPIKE.md).
 
 **Statut : code du spike présent, Worker non déployé dans cette reprise, vente HOLD.** Les tests (`tests/fal-proxy.test.ts`) le font tourner contre un faux fal, dans Node. Astra n’a effectué aucun appel fal réel (0 $). Le smoke live rapporté sur la machine U*TTU est documenté séparément ; il n’a pas été rejoué.

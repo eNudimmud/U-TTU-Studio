@@ -3,12 +3,12 @@ import { Arrow } from "@/components/glyph";
 import { assetPath, contactEmail } from "@/lib/site";
 import { LegacyStudioHash } from "./legacy-hash";
 
-const STUDIO_HREF = `${assetPath("/studio")}?step=look`;
+const STUDIO_HREF = assetPath("/studio");
 
 const STEPS = [
   { name: "Look", plain: "Ton style" },
-  { name: "Plateau", plain: "Ta scène" },
-  { name: "Take", plain: "La prise" },
+  { name: "Scène", plain: "Ton lieu" },
+  { name: "Prise", plain: "La vidéo" },
 ] as const;
 
 export function HomeLanding() {
@@ -33,18 +33,18 @@ export function HomeLanding() {
           </ol>
           <div className="landing-cta-row">
             <a className="button button-primary" href={STUDIO_HREF}>Entrer dans le studio <Arrow /></a>
-            <p className="landing-quiet">Rien à payer.</p>
+            <p className="landing-quiet">Le studio ne vend rien. Le rendu se paie sur ton compte cloud.</p>
           </div>
         </div>
         <figure className="landing-still">
           <Image
             src={assetPath("/images/uttu-canon-portrait.webp")}
-            alt="Portrait de référence : capuche noire, visage marqué de fines lignes dorées, fond sombre."
+            alt="U*TTU : capuche noire, visage marqué de fines lignes dorées, fond sombre."
             fill
             preload
             sizes="(max-width: 899px) 100vw, 42vw"
           />
-          <figcaption>Référence du studio.</figcaption>
+          <figcaption>U*TTU · elle te guide dans le studio</figcaption>
         </figure>
       </section>
     </main>

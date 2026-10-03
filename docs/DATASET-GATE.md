@@ -1,5 +1,7 @@
 # Gate dataset — critères FAIL
 
+> **Dormant depuis le 3 octobre 2026.** L’app ne prépare plus de dataset ni de LoRA : le look est tenu par ses photos, passées en références à chaque prise ([COMFY-STACK.md](COMFY-STACK.md)). Le code du gate reste, testé.
+
 Le gate décide si un dataset a le droit de partir à l’entraînement. Il tourne dans le navigateur du client. Depuis la Phase 0, un lot peut aussi être proposé à partir de 2 ou 3 photos (`src/lib/fal-bootstrap.ts`) : 4 gros plans, 7 bustes, 4 plein pied, face, trois-quarts et profil, légendes au format ci-dessous. Ces images ne passent le gate qu’après la revue humaine (garder, confirmations). Le gate ne les envoie pas tout seul.
 
 Le code fait foi : [`src/lib/gate/rules.ts`](../src/lib/gate/rules.ts) (règles et seuils), [`captions.ts`](../src/lib/gate/captions.ts) (légendes), [`pixels.ts`](../src/lib/gate/pixels.ts) (mesures d’image). Les tests de [`tests/gate.test.ts`](../tests/gate.test.ts) font échouer chaque règle au moins une fois.

@@ -1,5 +1,7 @@
 # Refonte du guide LoRA — 27 septembre 2026
 
+> **Historique.** Le guide LoRA n’est plus dans l’app depuis le 3 octobre 2026. La doctrine actuelle de l’écran est dans [LANDING-AND-UX.md](LANDING-AND-UX.md).
+
 Le 28 septembre 2026, la Phase 0 remplace l’ouverture en quatre écrans par un shell Créer. Le même jour, le shell gagne cinq modes (Créer, Sphère, Identité, Bibliothèque, Studio) et la zone de dépôt devient le geste principal. Le tutoriel reste dans le tiroir « Comment ça marche ». Plus tard le même jour, **Compte** s’ajoute en fin de nav, sans mur devant Créer ([AUTH.md](AUTH.md)). Le détail est dans le README et dans [DECISIONS.md](DECISIONS.md).
 
 ## But

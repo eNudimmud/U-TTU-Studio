@@ -1,5 +1,5 @@
 import { clerkClientEnabled } from "@/lib/clerk-config";
-import { ACCOUNT_CREER_HASH } from "@/lib/account";
+import { STUDIO_PATH } from "@/lib/account";
 import { assetPath } from "@/lib/site";
 
 export function AuthScreen({ kicker, title, note, children }: {
@@ -10,13 +10,13 @@ export function AuthScreen({ kicker, title, note, children }: {
 }) {
   const enabled = clerkClientEnabled();
   return <main id="contenu" className="auth-page">
-    <a href={assetPath(ACCOUNT_CREER_HASH)} className="wordmark" aria-label="U*TTU Studio — Créer">U<span className="wordmark-star">*</span>TTU<span className="wordmark-studio">STUDIO</span></a>
+    <a href={assetPath(STUDIO_PATH)} className="wordmark" aria-label="U*TTU Studio">U<span className="wordmark-star">*</span>TTU<span className="wordmark-studio">STUDIO</span></a>
     <header className="auth-copy">
       <p className="eyebrow">{kicker}</p>
       <h1>{title}</h1>
-      <p>{enabled ? note : "Les clés Clerk ne sont pas posées. Google et GitHub s’ouvriront ici quand elles le seront. Créer et le coffre restent ouverts, sans compte."}</p>
+      <p>{enabled ? note : "Comptes U*TTU fermés pour l’instant. Le studio reste ouvert, sans compte."}</p>
     </header>
-    {enabled ? children : <p className="auth-hold">Hors ligne · vente HOLD</p>}
-    <a className="text-button" href={assetPath(ACCOUNT_CREER_HASH)}>Retour à Créer</a>
+    {enabled ? children : <p className="auth-hold">Hors ligne</p>}
+    <a className="text-button" href={assetPath(STUDIO_PATH)}>Retour au studio</a>
   </main>;
 }
