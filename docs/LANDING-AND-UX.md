@@ -2,6 +2,18 @@
 
 Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md). Ici : le moins de mots possible.
 
+## Décision — studio direct, 3 octobre 2026
+
+Cette section remplace, pour l’écran, les décisions plus bas qui la contredisent.
+
+- **Décision :** les pastilles de l’accueil disent Look (Ton style), Scène (Ton lieu), Prise (La vidéo) : les mots de l’app. À côté du bouton : « Le studio ne vend rien. Le rendu se paie sur ton compte cloud. » « Rien à payer » n’était plus vrai : une prise débite le compte de rendu de la personne. Le bouton mène à `/studio`. Le portrait est légendé « U*TTU · elle te guide dans le studio ».
+- **Décision :** `/studio` est une colonne de téléphone (560 px au plus, centrée sur ordinateur). En haut : la marque `iii` U*TTU, le solde du compte de rendu (ou « Relier »), le coffre. En bas : le fil d’or avec trois nœuds, Look, Scène, Prise, et Sphère à côté. Un nœud tenu se remplit d’or. Pendant un calcul, le nœud Prise pulse.
+- **Décision :** un écran, une action pleine : « Poser la scène », « Préparer la prise », « Tourner », « Publier ». Le reste est en feuilles qui montent du bas : Relier, Crédits, Coffre, Confirmer, Lecteur. Aucune page ne quitte le studio pour finir une prise.
+- **Décision :** la confirmation est une feuille : lieu, plan, réglage, solde lu à l’instant, la ligne de coût (« non calibré » ou « environ X, mesuré »), et « Tourner · débit sur mon compte ». Rien ne part sans ce geste.
+- **Décision :** U*TTU guide en une phrase, dans une bulle au-dessus du fil, au moment du geste. « Compris », « Ne plus guider ». Elle ne recouvre pas le bouton : l’écran garde de la place sous le contenu tant que la bulle est là.
+- **Décision :** un échec de rendu est un écran Soft Error (CRT), avec la raison du compte de rendu. « Reprendre », ou « Relier à nouveau » si la connexion est refusée.
+- **Décision, accès :** chaque feuille est un `dialog` modal ; le focus y entre à l’ouverture et revient au bouton qui l’a ouverte ; Échap et le fond la ferment. Cibles de 44 px au moins. Les étiquettes sont des `label`. Les états de calcul sont annoncés (`role="status"`, `aria-live`). `prefers-reduced-motion` coupe le fil animé, la pulsation, la bulle et les feuilles.
+
 ## Décision — l’écran d’accueil
 
 - **Décision :** `/` est un écran d’appli. Une ligne, trois pastilles, un bouton. Pas une page qui explique.

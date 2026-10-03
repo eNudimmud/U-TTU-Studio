@@ -1,50 +1,47 @@
-# Coffre — studio personnel
+# Coffre — la mémoire du studio
 
-Chaque personne tient son studio dans un dossier Obsidian. Le site est la surface : Créer, Sphère, Identité, Bibliothèque, et Compte. Le coffre est le système de fichiers. Il vit sur la machine, hors ligne. Le mode Compte ne le lit pas. Une sync pourra le rejoindre plus tard. Cette page ne le fait pas.
-
-La vente reste HOLD. Clerk tient la session, quand les clés sont posées. Pas de Stripe, pas de Worker fal, pas de plugin Obsidian à installer. Pas de sync.
+Mis à jour le 3 octobre 2026 (studio direct). Chaque personne a un studio, et ce studio a une mémoire : son coffre. L’app l’écrit à chaque geste. Obsidian le lit tel quel. Le studio, côté serveur, ne le voit jamais.
 
 ## Schéma
 
-```
+```text
 U-TTU-Studio/
-  refs/           photos sources, deux ou trois
-  dataset/        lot de quinze, légendes .txt
-  loras/          .safetensors et notes
-  scenes/         avant, après, entre, clips plus tard
-  processes/      recettes, liens d’apps, prompts
-  jobs.md         journal des runs
-  CANON.md        identité, trigger, invariants
+  CANON.md               le look : nom, traits, photos (frontmatter + texte)
+  refs/look-*.jpg        les photos du look, réduites à 1 536 px
+  scenes/<lieu>.md       un lieu : nom, note, images
+  scenes/<lieu>-*.jpg    ses images
+  prises/<id>.md         une prise : date, lieu, plan, réglage, job, calcul, coût, soldes, texte envoyé
+  prises/<id>.mp4        la vidéo rapatriée
+  prises/<id>.jpg        une image décodée de la vidéo (vignette)
+  jobs.md                le journal : une ligne par prise, crédits mesurés compris
+  README.md              le mode d’emploi du dossier
+  .uttu/etat.json        le lieu courant
 ```
 
-Le ZIP de départ ajoute `README.md`, le mode d’emploi du coffre. Ce n’est pas une pièce de travail.
+Les fiches sont du Markdown avec frontmatter : `type`, `nom`, `traits`, `photos` pour le look ; `type`, `date`, `lieu`, `plan`, `duree_s`, `qualite`, `format`, `profil`, `job`, `video`, `vignette`, `calcul_s`, `cout_credits`, `solde_avant`, `solde_apres`, `texte` pour une prise. Les images et la vidéo sont liées en `![[…]]`. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
 
-## Modes
+## Où il vit
 
-| Mode | Endroit | Ce qu’on y range |
+- **Sur l’appareil, dans le navigateur.** IndexedDB, base `uttu-coffre`, un enregistrement par fichier (`path`, texte ou blob). Le studio demande le stockage persistant (`navigator.storage.persist()`). La feuille Coffre dit ce qui est occupé, et si le navigateur peut le vider.
+- **Exporter le coffre.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, à décompresser et ouvrir comme coffre Obsidian.
+- **Relier mon dossier Obsidian.** Sur ordinateur, Chrome ou Edge (File System Access) : l’app copie le coffre dans le dossier choisi, puis y écrit chaque changement tant que la page reste ouverte. Le lien ne survit pas à la fermeture : on le refait d’un geste.
+
+La clé et la session de rendu ne sont pas des fichiers du coffre. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
+
+## Pourquoi ce coffre
+
+L’ancien pilier était un ZIP de départ, téléchargé une fois, que la personne remplissait à la main. Le site n’écrivait rien dedans : la prise, son coût, ses images restaient à recopier. Il fallait quitter l’app pour tenir sa mémoire.
+
+| Chemin | Retenu ? | Raison |
 | --- | --- | --- |
-| Créer | `refs/`, `dataset/` | Les photos, puis le lot |
-| Sphère | `scenes/` | Avant, après, entre |
-| Identité | `CANON.md`, `loras/` | Ce qui ne doit pas bouger, et le fichier |
-| Bibliothèque | `refs/`, `dataset/`, `loras/`, `scenes/` | Ce qui est déjà rangé |
-| Studio | `jobs.md`, `processes/` | Le journal, et les recettes |
-| Compte | — | La session. Aucun dossier. |
+| ZIP de départ à remplir à la main | Non | Le studio ne pouvait rien y écrire. Chaque prise devait être rangée hors de l’app. |
+| Dossier Obsidian relié seulement (File System Access) | En plus | Absent de Safari et des téléphones. Seul, il exclurait le cas principal. |
+| OPFS seul | Non | Safari n’écrit pas de fichier OPFS depuis la page principale (`createWritable`). IndexedDB tient partout. |
+| Base du studio, ou sync liée à un compte | Non | Ce serait une base de visiteurs. Le brief l’exclut. |
+| **IndexedDB rangé comme un coffre Obsidian, export ZIP, dossier relié en option** | **Oui** | Marche sur téléphone, sans compte. L’app écrit le vrai coffre à chaque geste. Le format reste celui d’Obsidian, donc la personne peut partir avec. |
 
-Les fiches Sphère se notent dans la page, sur l’appareil. Chacune s’exporte en `.md` : `scenes/avant.md`, `scenes/apres.md`, `scenes/entre.md`. Le lieu, le rappel des quatre angles, et la note gauche / droite y tiennent. On pose le fichier dans `scenes/` à la main. Un collage, ou un fichier choisi dans le navigateur, remplit la fiche. Le site n’ouvre pas le coffre. Le ZIP laisse `scenes/` vide. Aucune sync.
+## Limites
 
-La bibliothèque du site montre encore la session de la page. Fermer l’onglet l’efface. Le coffre, lui, reste. Les fiches, elles, restent dans le navigateur jusqu’à ce qu’on les efface.
-
-Le panneau Studio liste les processus du catalogue : titre, état, une ligne. C’est un texte. On les range dans `processes/`, et chaque run se note dans `jobs.md`. Le site ne les écrit pas. Le ZIP ne change pas.
-
-## Ouvrir
-
-1. Dans Studio, télécharger le coffre.
-2. Décompresser. Le dossier s’appelle `U-TTU-Studio`.
-3. Obsidian → ouvrir un dossier comme coffre → ce dossier.
-4. Aucun plugin.
-
-Le fichier servi est `public/vault/U-TTU-Studio.zip`, produit par `src/lib/vault.ts`. `npm run vault:build` l’écrit. `npm run build` le régénère avant le build Next.
-
-## Plus tard
-
-Sync optionnelle vers un stockage du compte (R2 ou Git privé). Le compte Clerk est en place comme squelette. Il ne synchronise pas. Le même schéma. L’app compagnon, plus tard, lira le même dossier. Rien de cela n’est branché.
+- **Le navigateur peut vider ce stockage** si l’espace manque et que la persistance n’est pas accordée. La feuille Coffre le dit. Exporter, ou relier un dossier, garde une copie.
+- **Un coffre par navigateur.** Deux appareils ne partagent pas le même coffre. L’export, puis l’ouverture dans Obsidian, est le pont.
+- **Le dossier relié est à sens unique.** L’app écrit dans le dossier. Elle ne relit pas un changement fait dans Obsidian.

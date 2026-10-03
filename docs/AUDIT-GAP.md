@@ -1,5 +1,7 @@
 # Audit d’écarts — Studio OS
 
+> **Relevé historique.** L’état après la refonte « studio direct » du 3 octobre 2026 est dans [DECISIONS.md](DECISIONS.md) et le [README](../README.md).
+
 Relevé du **29 septembre 2026, 00:01 UTC**, sur `main` (`55f23a5`, PR #18 fusionnée) et sur l’hôte live. Aucun `POST /bootstrap`, `/train` ou `/gen` : pas de burn fal payant dans ce relevé.
 
 Direction verrouillée, absente comme fichier dans ce dépôt (`studio-os-v3-comfy-auth.md` n’y est pas) et lue dans [DECISIONS.md](DECISIONS.md) plus le brief JD : **processus Comfy** · **Compte Clerk (Google / GitHub) et tableau** · **coffre Obsidian local** · **Créer d’abord** · **vente HOLD** · **rail fal live via le Worker**.

@@ -1,8 +1,75 @@
-# Stack Comfy Cloud — Flux.1 [dev], une seule
+# Stack Comfy Cloud
 
-Source unique des réglages : [`src/lib/comfy-stack.ts`](../src/lib/comfy-stack.ts). Les graphes sont générés par [`src/lib/comfy-workflows.ts`](../src/lib/comfy-workflows.ts) (`npm run comfy:build`).
+## La prise — studio direct, 3 octobre 2026
 
-## Choix : Flux.1 [dev] plutôt que SDXL
+L’app tourne la prise elle-même, sur le compte Comfy Cloud de la personne, par l’API documentée de Comfy Cloud. Il n’y a plus de cadre Comfy à piloter, plus d’App Mode, plus de template réécrit.
+
+### Le graphe
+
+[`src/lib/render/take-graph.ts`](../src/lib/render/take-graph.ts) construit un graphe au format API, sur les modèles et l’échantillonneur du template officiel `video_minimax_h3_r2v`, sans ses interrupteurs.
+
+| Élément | Valeur |
+| --- | --- |
+| Modèle | `minimax_h3_ref2va_pruned_int8_convrot.safetensors` (`UNETLoader`) |
+| Texte | `qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors` (`CLIPLoader`, type `minimax`) |
+| VAE vidéo, audio | `minimax_h3_video_vae_int8_convrot.safetensors`, `minimax_h3_audio_vae_fp32.safetensors` |
+| Rapide | `LoraLoaderModelOnly` `minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors`, 4 pas |
+| Fin | sans LoRA, 20 pas |
+| Références | jusqu’à 9 `LoadImage`, titrées « Picture N », branchées sur `ref_images.ref_image_N` dans l’ordre : les photos du look, puis les images du lieu |
+| Taille | `ResolutionSelector` 0,4 MP, multiple de 32 ; 9:16, 16:9 ou 1:1 |
+| Images | 24 / s. Au moins 5, puis le compte suivant de la forme 17k + 5 : 5 s → 124, 8 s → 192 |
+| Échantillonnage | `res_multistep`, `BasicScheduler` simple, `RandomNoise` (seed tirée au hasard), `BasicGuider`, `SamplerCustomAdvanced` |
+| Sortie | `CreateVideo` (vidéo + son) → `SaveVideo` MP4 H.264, préfixe `uttu/prise` |
+
+Le texte ([`take-prompt.ts`](../src/lib/render/take-prompt.ts)) nomme les balises dans l’ordre de connexion : « <Picture 1> and <Picture 2> show the same person. Keep this person for the whole shot. What does not change: … <Picture 3> shows the place, … The shot: … ».
+
+**Fait (3 octobre 2026) :** les deux variantes (rapide et fin) passent `submit_workflow` en `dry_run` sur Comfy Cloud : « passed local pre-flight », aucun job, 0 crédit. Seul avertissement : `minimax_h3_video_vae_int8_convrot.safetensors` n’est pas dans l’index embarqué de l’outil ; c’est le fichier du template officiel. Les graphes validés sont les fixtures de `tests/take-graph.test.ts`.
+
+### Les appels
+
+Tout passe par le relais même origine du studio ([`src/lib/comfy-proxy.ts`](../src/lib/comfy-proxy.ts)), parce que `cloud.comfy.org` n’envoie pas d’en-têtes CORS pour ce domaine. Le relais transmet `authorization`, `x-api-key` et `content-type`, et le corps tel quel. Client : [`src/lib/render/client.ts`](../src/lib/render/client.ts), suivi : [`run.ts`](../src/lib/render/run.ts).
+
+| Geste | Appel |
+| --- | --- |
+| Vérifier une clé | `GET /api/user` |
+| Envoyer une photo | `POST /api/upload/image` (multipart `image`, `type=input`) → `name` |
+| Mettre en file | `POST /api/prompt` `{ prompt, client_id }` → `prompt_id`. 400 : `node_errors`, nœud par nœud. 402 : crédits insuffisants. 429 : abonnement inactif ou file pleine. |
+| Suivre | `GET /api/job/{id}/status` toutes les 3 s : en file, préparation, calcul, puis `success` / `completed`, ou `error`, `failed`, `lost`, `cancelled`. 35 min au plus. |
+| Lire le résultat | `GET /api/jobs/{id}` : sorties, horodatages d’exécution, `execution_error` |
+| Rapatrier la vidéo | `GET /api/view?filename&subfolder&type` : Comfy répond 302 vers une URL signée, le relais la suit et rend les octets sur le domaine du studio. Un 404 est rejoué comme avant (sous-dossier joint, puis recherche d’asset). |
+| Annuler | `POST /api/queue` `{ delete: [id] }` |
+
+Authentification : `X-API-Key` (clé créée sur `platform.comfy.org`, abonnement payant) ou `Authorization: Bearer` avec le jeton Firebase de la session ouverte dans la feuille « Me connecter ici ». Le jeton est rafraîchi comme le fait le SDK web (`securetoken.googleapis.com`), avec une marge de 60 s.
+
+Les photos sont réduites à 1 536 px avant l’envoi : la limite de corps d’une requête sur Vercel est d’environ 4,5 Mo, et le modèle réduit les références de toute façon (`ref_image_size: match`).
+
+### Les crédits
+
+- **Solde.** Session : `GET https://api.comfy.org/customers/balance` (ce domaine accepte l’origine du studio). Clé, ou à défaut : `GET /api/billing/usage/timeseries?granularity=month&months=1`, champ `summary.balance`. Comfy rend des cents malgré le nom `amount_micros` ; crédits = cents × 211 / 100.
+- **Coût mesuré.** Le solde est lu juste avant la confirmation, puis après la prise, jusqu’à 4 fois à 5 s d’écart tant qu’il n’a pas bougé. La différence est le coût. Une recharge entre les deux lectures rend la mesure illisible : rien n’est inventé.
+- **Annonce.** Clé de calibration : `h3-<pas>pas-<durée>s-<format>`. Sans prise mesurée à ce réglage : « non calibré », aucun chiffre. Ensuite : la plus chère des trois dernières mesures. « Tourner » s’éteint si le solde est illisible, vide, ou sous ce chiffre.
+- **Temps de calcul.** Lu dans les horodatages du job, affiché à titre d’information. `estimate_credits` répond 0 pour ce graphe : il ne compte pas le temps GPU. L’ancien barème `TAKE_TIMING` (240–720 s, 90–240 s, jamais mesuré) n’est plus affiché nulle part.
+
+### Pages Comfy relayées
+
+Le relais sert toujours les pages Comfy (la connexion de la feuille « Relier », et `/comfy-embed` s’il est ouvert à la main). Leur script ([`src/lib/comfy-media.ts`](../src/lib/comfy-media.ts)) garde les correctifs médias (tuiles en `blob:`, rejeu `/api/view`) et retient tout `POST /api/prompt` derrière « Lancer ce rendu ? ». Cette fenêtre nomme le rendu et montre le solde lu, mais n’annonce plus de coût : dans la page de Comfy, le studio n’a rien mesuré. La réécriture du template H3 (#31) est retirée : l’app tourne la prise elle-même.
+
+### Risques
+
+| Risque | Parade |
+| --- | --- |
+| La session dépend du stockage Firebase de Comfy et de son rafraîchissement. Un changement chez Comfy la casse. | Le chemin par clé ne dépend que de l’API documentée. L’erreur ramène à « Relier à nouveau ». |
+| Aucune prise réelle n’a été tournée par cette livraison. | Le graphe passe le `dry_run`, le client est testé contre un faux Comfy. La première prise d’un compte est le premier vrai test. |
+| Une vidéo longue traverse le relais. | Elle est diffusée en flux, comme les tuiles Sphère avant elle. |
+| Le fichier VAE vidéo n’est pas dans l’index de l’outil `dry_run`. | C’est le fichier du template officiel. À surveiller à la première prise. |
+
+## Archive — Flux.1 [dev], parcours LoRA (dormant)
+
+Tout ce qui suit décrit l’ancien parcours : dataset de 15 images, entraînement de LoRA, apps « Former mon look » et « Tester un prompt », cadre H3. L’app ne l’ouvre plus. Les bibliothèques restent dans le dépôt, testées. Les fichiers `comfy/*.api.json` et `public/comfy/*.json` ont été retirés ; ils restent dans l’historique git.
+
+Source des réglages : [`src/lib/comfy-stack.ts`](../src/lib/comfy-stack.ts).
+
+### Choix : Flux.1 [dev] plutôt que SDXL
 
 | | Flux.1 [dev] | SDXL |
 | --- | --- | --- |
@@ -15,7 +82,7 @@ Source unique des réglages : [`src/lib/comfy-stack.ts`](../src/lib/comfy-stack.
 
 **Licence — à vérifier par JD.** Les poids Flux.1 [dev] sont sous licence non commerciale BFL. Les sorties sont décrites comme utilisables commercialement. Le client exécute le modèle sur son propre compte Comfy Cloud : U*TTU n’héberge pas le modèle. À faire valider avant de facturer.
 
-## Faits Comfy Cloud vérifiés le 24.09.2026
+### Faits Comfy Cloud vérifiés le 24.09.2026
 
 | Fait | Source | Conséquence |
 | --- | --- | --- |
@@ -28,7 +95,7 @@ Source unique des réglages : [`src/lib/comfy-stack.ts`](../src/lib/comfy-stack.
 | 211 crédits ≈ 1 $ ; Standard 20 $ / 4 200 crédits ; Free 400 crédits/mois | [comfy.org/pricing](https://comfy.org/pricing/) | Conversion affichée. |
 | `estimate_credits` renvoie **0 crédit** pour ces workflows | Outil MCP | Il ne compte que les nodes partenaires, pas le temps GPU. Le site calcule donc lui-même. |
 
-## Les workflows
+### Les workflows
 
 | Workflow | Lien App Mode | Record Comfy | Fichier importable | Source API |
 | --- | --- | --- | --- | --- |
@@ -39,7 +106,7 @@ Le **test à blanc** n’est pas un troisième workflow : c’est le premier, la
 
 Dans le studio, ces deux apps sont les processus live du catalogue (`src/lib/processes.ts`) : « Former mon look » et « Tester un prompt ». Sphère les ouvre dans le cadre déjà consenti. Pas de troisième app.
 
-### 1. Dataset → LoRA → 1 image
+#### 1. Dataset → LoRA → 1 image
 
 ```text
 Image 01…15 (LoadImage) ─► CreateList ×3 ─► ImageScaleToTotalPixels (0,25 MP, pas 16)
@@ -59,11 +126,11 @@ Prompt (CLIPTextEncode) ─► FluxGuidance 3,5 ─► les deux KSampler · Seed
 - **Images non déposées** : leur valeur par défaut `DEPOSER-IMAGE-NN.png` n’existe pas, donc Comfy refuse le run à la validation, sans GPU.
 - **Échantillonnage** : Flux dev, 1024×1024, 20 pas, euler / simple, cfg 1, FluxGuidance 3,5.
 
-### 2. Test de prompt sans LoRA
+#### 2. Test de prompt sans LoRA
 
 UNETLoader, encodeurs Flux, `CLIPTextEncode`, FluxGuidance, KSampler (seed partagé), `SaveImage`. Entrées : Prompt, Seed. Il sert à régler scène, cadrage et lumière pour 7 à 29 crédits (estimation) avant de payer l’entraînement. Le trigger n’y a aucun effet.
 
-## Recréer les workflows (2 minutes, sans GPU)
+### Recréer les workflows (2 minutes, sans GPU)
 
 **Avec le MCP Comfy Cloud**, c’est la méthode utilisée ici :
 
@@ -78,7 +145,7 @@ UNETLoader, encodeurs Flux, `CLIPTextEncode`, FluxGuidance, KSampler (seed parta
 
 > Les liens `?share=` sont des instantanés publics du workflow, sans image ni clé. Selon Comfy, un lien de partage peut s’ouvrir sur le graphe tant que le partage App Mode complet n’est pas disponible. Les champs portent alors les mêmes titres. **À vérifier par JD au premier clic.**
 
-## Affichage dans le guide
+### Affichage dans le guide (ancien cadre)
 
 Après PASS, `ComfyRunPanel` propose `COMFY_APPS.train.url` en bas de l’étape 2 et `COMFY_APPS.prompt.url` en bas de l’étape 3. Rien n’est chargé depuis `cloud.comfy.org` avant un clic sur « Charger l’app Comfy ici » : le panneau dit ce qui va se charger et que Comfy peut charger ses propres traceurs. Au clic, un iframe de 640 à 900 px de haut remplace ce panneau ; sa source est `/comfy-embed?share=` sur l’hôte du studio, pas `cloud.comfy.org`. Le proxy (`src/lib/comfy-proxy.ts`) relaie ce document, `/assets`, `/api` (dont `/api/view`) et les polices. La grille lit `thumbnail_url` ou `preview_url` tels quels ; une vidéo sans ces champs charge `/api/assets/{id}/content?disposition=inline`. Ces URLs partent en `<img>` ou `<video>`, qui n’envoient pas l’`Authorization` déjà porté par le `fetch` de la liste (`Bearer` Firebase, jeton de workspace, ou `X-API-KEY`). Le document proxifié copie cet en-tête, retélécharge la tuile et assigne un `blob:` : la première `src` native est un fichier. Une URL `https://storage.googleapis.com`, `storage.cloud.google.com` ou `*.googleusercontent.com` passe par `GET /comfy-media-file`, sans y joindre le jeton. Comfy pose les vidéos en `preload=metadata` ; le script les passe en `auto` pour décoder une image. Si la réponse n’est pas un fichier, `#uttu-media-note` affiche le statut, le chemin (`/api/view` y ajoute `filename`, ou la requête si ce paramètre manque) et le type. Un second bandeau, `#uttu-run-note`, recopie le message du nœud quand l’overlay d’erreur de l’app est ouvert, ou quand `POST /api/prompt` renvoie `node_errors`. Un GET `/api/view` ou `/api/viewvideo` qui répond 404 est rejoué avec le nom `sous-dossier/fichier`, puis, avec le même jeton, cherché par `GET /api/assets?name_contains=` et renvoyé depuis `/api/assets/{id}/content`. Un 200 ou un 302 ne passe pas par cette recherche : les tuiles Sphère qui reçoivent déjà un fichier restent sur le `blob:`. `__Host-uttu_media` et `/comfy-media-sw.js` restent en secours. Un GLB reste une icône : `Media3DTop` n’assigne une image que si un aperçu `preview_url` existe. Après déploiement : rechargement forcé de `/studio#sphere`, en restant connecté dans le cadre. « Recharger l’app » recrée le cadre. Chaque étape se charge séparément. Le ZIP, les légendes et le coût restent au-dessus. Le client dépose toujours lui-même les 15 images et colle les légendes dans Comfy. Les 15 champs Image 01 à Image 15 partent avec `DEPOSER-IMAGE-01.png` … `DEPOSER-IMAGE-15.png` : ce ne sont pas des fichiers du compte. Comfy les signale par « Une entrée média requise n’a pas de fichier sélectionné. » Tant qu’un champ garde ce nom, le run est refusé. « Ouvrir en plein onglet » reste l’URL `cloud.comfy.org`, au-dessus de chaque panneau, chargé ou non.
 
@@ -97,7 +164,7 @@ Le boot retient chaque `POST /api/prompt` du cadre derrière une fenêtre « Lan
 
 Non vérifié sans compte Comfy tiers : la connexion (Google, GitHub ou e-mail) dans le cadre et l’écran App Mode connecté. Repli : « Ouvrir en plein onglet ».
 
-## Coût : modèle et calibration
+### Coût : modèle et calibration
 
 ```text
 durée   = frais fixes + étapes × s/étape + (images + témoin) × s/image
@@ -128,7 +195,7 @@ Plafond sûr = (limite du plan × 0,9 − frais fixes hauts − images × s/imag
 
 Aucun run n’a été lancé pendant cette livraison : **0 crédit dépensé**. La validité des graphes repose sur la validation `dry_run` de Comfy et sur la lecture du code des nodes (`comfy_extras/nodes_train.py`, `nodes_dataset.py`, `nodes_toolkit.py`). Le premier run réel reste le vrai test.
 
-### Grille de test (étape 3)
+#### Grille de test (étape 3)
 
 La grille compare 3 prompts fixes (trigger seul sur fond neutre, pose et lumière jamais vues, autre style en option) à 3 forces : 0,60, 0,75 et 0,90, autour de la bande d’usage 0,70–0,85. La seed de l’étape 3 sert partout, et chaque run rend aussi son témoin sans LoRA. Les réglages sont dans [`src/lib/test-grid.ts`](../src/lib/test-grid.ts).
 
@@ -136,7 +203,7 @@ Le workflow ne rend qu’un prompt et une force par run, et la LoRA disparaît �
 
 Pas de checkpoint intermédiaire non plus : sans `SaveLoRA`, impossible de comparer l’étape 400 à l’étape 800. La grille remplace cette comparaison par la paire avec/sans LoRA et par la variation de force.
 
-## Risques connus
+### Risques connus (parcours LoRA)
 
 | Risque | Parade |
 | --- | --- |

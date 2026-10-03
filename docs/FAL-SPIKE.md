@@ -1,5 +1,7 @@
 # C micro — rail fal expérimental
 
+> **Dormant depuis le 3 octobre 2026.** L’app n’appelle plus le rail fal : un seul payeur, le compte de rendu de la personne ([DECISIONS.md](DECISIONS.md)). Le code et ce document restent pour l’historique.
+
 État de la reprise au 26 septembre 2026, suite à la PR #5, branche `cursor/fal-rail-spike-bada`.
 
 ## Décision produit
