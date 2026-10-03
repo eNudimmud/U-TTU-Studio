@@ -116,17 +116,21 @@ const time = new Intl.DateTimeFormat("fr-CH", { hour: "2-digit", minute: "2-digi
 const date = new Intl.DateTimeFormat("fr-CH", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 export function CreditSheet() {
-  const { setSheet, balance, balanceNote, refreshBalance, claim, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal } = useStudio();
+  const { setSheet, connected, balance, balanceNote, refreshBalance, claim, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, disconnect, disconnectFal } = useStudio();
   const measured = studio.takes.filter(take => take.costCredits !== null || take.costUsd !== null).slice(0, 5);
   return <SheetFrame title="Comptes" label="Qui paie" onClose={() => setSheet(null)}>
     <div className="u-stack">
       <p className="u-label">Compte de rendu</p>
       <div className="u-balance">
         <strong>{balance ? formatCredits(balance.credits) : "—"}</strong>
-        <span>{balance ? `crédits, lus à ${time.format(balance.readAt)}` : balanceNote || "solde non lu"}</span>
-        <button type="button" className="u-icon" onClick={() => void refreshBalance()} aria-label="Relire le solde de rendu"><Refresh /></button>
+        <span>{!connected ? "non relié" : balance ? `crédits, lus à ${time.format(balance.readAt)}` : balanceNote || "solde non lu"}</span>
+        {connected && <button type="button" className="u-icon" onClick={() => void refreshBalance()} aria-label="Relire le solde de rendu"><Refresh /></button>}
       </div>
       <p className="u-small">Les prises « Références » tournent sur ton compte Comfy Cloud. 1 $ = {CREDITS_PER_USD} crédits. Le studio n’encaisse rien.</p>
+      {connected && <>
+        <p className="u-small">Cet appareil oublie la liaison. Le coffre et le compte restent.</p>
+        <button type="button" className="u-secondary" onClick={() => void disconnect()}>Délier le compte de rendu</button>
+      </>}
       {engine === "comfy" && <div className="u-card">
         <p className="u-label">À ce réglage · {takeProfile(settings)}</p>
         <p>{claim.state === "measured" ? `Environ ${formatCredits(claim.credits)} crédits, mesuré sur ${claimBasis(claim)}.` : "Non calibré. Aucun chiffre n’est annoncé avant une prise mesurée à ce réglage."}</p>
@@ -138,6 +142,10 @@ export function CreditSheet() {
         {falLinked && <button type="button" className="u-icon" onClick={() => void refreshFal()} aria-label="Relire le solde fal"><Refresh /></button>}
       </div>
       <p className="u-small">La formation et les prises « Ton double » sont débitées ici, au prix annoncé avant le geste.</p>
+      {falLinked && <>
+        <p className="u-small">Cet appareil oublie la clé. Le coffre, le fichier formé et le compte restent.</p>
+        <button type="button" className="u-secondary" onClick={disconnectFal}>Délier le compte fal</button>
+      </>}
       {measured.length > 0 && <ul className="u-ledger" aria-label="Dernières prises mesurées">
         {measured.map(take => <li key={take.id}><span>{date.format(new Date(take.at))}</span><span>{take.sceneName || "Prise"}</span><span>{costLabel(take) ?? "en attente"}</span></li>)}
       </ul>}

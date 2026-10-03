@@ -52,6 +52,27 @@ describe("le studio, une app", () => {
     assert.doesNotMatch(read("src/components/app/lora-screen.tsx"), /@clerk\//);
   });
 
+  it("unbinds each linked account from the sheet the header actually opens", () => {
+    const sheets = read("src/components/app/sheets.tsx");
+    const credit = sheets.slice(sheets.indexOf("export function CreditSheet"), sheets.indexOf("export function CoffreSheet"));
+    assert.match(credit, /Délier le compte de rendu/);
+    assert.match(credit, /Délier le compte fal/);
+    assert.ok(credit.indexOf("Délier le compte de rendu") < credit.indexOf("Délier le compte fal"), "each account has its own control");
+    assert.match(credit, /connected &&/);
+    assert.match(credit, /falLinked &&/);
+    const context = read("src/components/app/studio-context.tsx");
+    const falOff = context.slice(context.indexOf("const disconnectFal"), context.indexOf("const connectKey"));
+    const comfyOff = context.slice(context.indexOf("const disconnect ="), context.indexOf("const exportCoffre"));
+    assert.match(falOff, /saveFalKey\(localStorage, null\)/);
+    assert.doesNotMatch(falOff, /removeLora|writeLora|coffreZip|deleteDatabase/);
+    assert.match(comfyOff, /saveRenderLink\(localStorage, \{ mode: "none" \}\)/);
+    assert.match(comfyOff, /tokens\.forget\(\)/);
+    assert.doesNotMatch(comfyOff, /removeTake|removeLora|coffreZip|deleteDatabase/);
+    const app = read("src/components/app/studio-app.tsx");
+    assert.match(app, /falLinked \? "credits" : "fal"/);
+    assert.match(app, /connected \? "credits" : "connect"/);
+  });
+
   it("publishes from the result, with the file, and never posts by itself", () => {
     const publish = read("src/components/app/publish.tsx");
     assert.match(publish, /navigator\.share\(\{ files: \[/);
