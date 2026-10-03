@@ -63,9 +63,9 @@ Le relais sert toujours les pages Comfy (la connexion de la feuille « Relier »
 | Une vidéo longue traverse le relais. | Elle est diffusée en flux, comme les tuiles Sphère avant elle. |
 | Le fichier VAE vidéo n’est pas dans l’index de l’outil `dry_run`. | C’est le fichier du template officiel. À surveiller à la première prise. |
 
-## Un LoRA formé par l’adhérent pour la prise — pas de chemin aujourd’hui (3 octobre 2026)
+## Un double formé par l’adhérent — fal, pas Comfy Cloud (3 octobre 2026)
 
-Demande : former un LoRA à partir de ses propres photos, garder le fichier dans le coffre, et le charger dans La prise, sur le compte Comfy Cloud de l’adhérent. Il faut trois maillons. Le premier existe peut-être ; les deux autres n’existent pas.
+Comfy Cloud ne peut toujours pas garder un LoRA formé ni le recharger dans une prise suivante. Le constat du catalogue, relevé le 3 octobre 2026, tient :
 
 | Maillon | Ce qu’il faudrait | Ce que Comfy Cloud offre (catalogue relevé le 3 octobre 2026) |
 | --- | --- | --- |
@@ -79,7 +79,18 @@ Conséquences :
 - **Le rail fal** (`flux-lora-fast-training`) forme un LoRA Flux.1 [dev], dont les poids visent les blocs du transformeur Flux. Sur H3, `LoraLoaderModelOnly` ne trouverait aucune clé correspondante : la prise l’ignorerait. Le fichier n’entrerait pas non plus dans la bibliothèque Cloud (même règle d’import). Non branché.
 - **La prise d’aujourd’hui** charge un seul LoRA : le turbo 4 pas publié, `minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16`, pour la vitesse. Ce n’est ni un fichier de l’adhérent, ni le LoRA Character-Swap, qui n’est pas au catalogue Cloud.
 
-**Ce qui débloquerait, côté Comfy :** `SaveLoRA` sur Cloud, pour que le fichier sorte du run ; et une façon documentée de mettre son propre `.safetensors` dans sa bibliothèque sans passer par Hugging Face ou Civitai, avec un envoi qui ne traverse pas le relais. Avec les deux, la page demandée devient possible : guide et photos, run d’entraînement confirmé, fichier au coffre, fichier inscrit dans la bibliothèque du compte, choisi dans La prise.
+**Ce qui débloquerait ce chemin-là, côté Comfy :** `SaveLoRA` sur Cloud, et une façon documentée de mettre son propre `.safetensors` dans sa bibliothèque sans Hugging Face ni Civitai. Ce n’est pas le chemin livré.
+
+Le chemin livré est le compte fal de l’adhérent, appelé depuis le navigateur. fal envoie les en-têtes CORS pour cette origine sur `queue.fal.run`, `api.fal.ai`, `rest.fal.ai` et `*.fal.media` (prévol OPTIONS vérifié le 3 octobre 2026, 0 $). La clé ne traverse aucun serveur du studio.
+
+| Geste | Point d’entrée | Ce qu’il fait |
+| --- | --- | --- |
+| Former | `minimax/h3/ref2va/trainer` | Entraîne un LoRA MiniMax H3 référence-vers-vidéo, la famille de La prise. Archive de clips vidéo seulement (10 au moins, mp4/mov/mkv/avi) ; les photos du look partent en sidecars `clipNN.ref_N.jpg`. Sortie : `lora_file` `.safetensors`. |
+| Tourner « Ton double » | `minimax/h3/reference-to-video/lora` | Recharge ce fichier : `loras[0].path` est l’adresse de l’envoi du `.safetensors` du coffre. Les photos du look et du lieu restent les références (`Image N`). |
+
+Facturation publiée par fal le 3 octobre 2026, et relue sur le compte avant le geste (`GET /v1/models/pricing`) : la formation, `max(100, pas) ×` le prix du pas (0,015 $ publié) ; la prise, le prix de la seconde en 480p (0,0625 $ publié), fois le rapport publié 768p/480p (0,075 / 0,0625). Un solde illisible, vide, un prix illisible, ou un solde sous le devis : le bouton reste éteint. Le débit réel vient de `GET /v1/models/billing-events`, sinon de la différence de solde. Ces deux lectures demandent une clé de portée Admin (`GET /v1/account/billing?expand=credits` aussi). La clé reste sur l’appareil (`localStorage`), jamais dans le coffre.
+
+Le fichier formé est copié dans `loras/<id>.safetensors`. fal ne le garde que quelques jours : à la prise suivante, le studio renvoie le fichier du coffre dès que la copie distante a moins de deux heures à vivre. Le vieux rail Flux (`flux-lora-fast-training`, `src/lib/fal-*.ts`, le Worker) reste dormant : ses poids ne sont pas ceux d’H3.
 
 ## Archive — Flux.1 [dev], parcours LoRA (dormant)
 

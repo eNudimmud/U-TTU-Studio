@@ -2,7 +2,20 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-03.
 
-## Former son LoRA pour la prise — pas de chemin — 3 octobre 2026, soir
+## Former son double, le recharger dans La prise — 3 octobre 2026, nuit
+
+- **Demande JD :** le constat « pas de chemin » ne suffit pas. Dans l’app, l’adhérent forme son propre LoRA, le fichier arrive dans son coffre, et une création ultérieure charge ces poids. Page dédiée, guide et prix avant tout geste payant. Pas de fichier factice. Pas de run payant par la livraison.
+- **Fait, inchangé :** Comfy Cloud ne garde pas un LoRA formé (`SaveLoRA` absent) et ne recharge pas un fichier personnel hors import Hugging Face ou Civitai. Un LoRA Flux ne se branche pas sur H3.
+- **Décision :** le compte qui forme et qui recharge est le compte fal de l’adhérent. Entraîneur `minimax/h3/ref2va/trainer` (LoRA H3 référence-vers-vidéo). Création qui charge le fichier : `minimax/h3/reference-to-video/lora`, `loras[].path` = l’adresse du `.safetensors` envoyé depuis le coffre. Même famille que La prise. Le navigateur appelle fal directement (CORS vérifié, 0 $).
+- **Décision, page :** `#lora`, hors de la chaîne Look / Scène / Prise. Avant le geste : ce que les clips doivent être (vidéo, 10 à 30, 3 à 30 s), ce que les photos du look font (références, pas le cours), ce que le fichier fera et ne fera pas dans La prise, et le prix du jour. U*TTU en une phrase, en haut de page. Confirmation « Former · débit sur mon compte fal ».
+- **Décision, porte :** « Former » et « Tourner » s’éteignent si le solde fal est illisible, vide, si le prix est illisible, ou si le solde est sous le devis. Le devis vient du prix unitaire du compte. Le débit écrit au coffre vient de la facture de la demande, sinon du mouvement de solde.
+- **Décision, clé :** une clé fal de portée Admin, créée une fois sur fal.ai, collée dans la feuille. Elle reste sur l’appareil. Elle n’entre pas dans le coffre ni dans l’export. Le compteur du haut montre ce compte quand on forme ou quand La prise est sur « Ton double », et le compte Comfy le reste du temps.
+- **Fait :** 0 $ dépensé par cette livraison. Les tests parlent à un faux fal. La première formation d’un vrai compte sera le premier vrai débit.
+- **Ce qui quitte encore l’app, une fois :** créer le compte fal, le recharger, et créer la clé Admin.
+
+## Former son LoRA pour la prise — pas de chemin sur Comfy — 3 octobre 2026, soir
+
+Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient.
 
 - **Demande JD :** dans l’app, l’adhérent forme un vrai LoRA à partir de ses photos, le fichier arrive dans son coffre, et La prise le charge au rendu. Formation et prise sur son propre compte Comfy Cloud. Une page dédiée, avec un guide, avant tout geste payant. Si aucun entraîneur ne produit un fichier que la prise peut charger, le dire et s’arrêter.
 - **Fait :** aucun chemin n’existe aujourd’hui sur Comfy Cloud. Le seul entraîneur, `TrainLoraNode`, produit un LoRA qui ne vit que dans le run qui l’a formé : aucun nœud du catalogue Cloud ne l’écrit en fichier (`SaveLoRA` absent), donc rien ne peut arriver au coffre. Et une prise suivante ne charge un LoRA que par son nom dans la bibliothèque du compte, où un fichier personnel n’entre que par un import Hugging Face ou Civitai, plan Creator ou plus. Détail et sources : [COMFY-STACK.md](COMFY-STACK.md#un-lora-formé-par-ladhérent-pour-la-prise--pas-de-chemin-aujourdhui-3-octobre-2026).
@@ -177,7 +190,8 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 
 | Décision | Par | Date |
 | --- | --- | --- |
-| Pas de page de formation de LoRA : sur Comfy Cloud, le LoRA formé par `TrainLoraNode` ne peut pas être enregistré en fichier (`SaveLoRA` absent), et une prise ne charge que les LoRA de la bibliothèque du compte (import Hugging Face ou Civitai, plan Creator ou plus). Pas de LoRA Flux de fal branché à la prise : H3 ne le chargerait pas. | JD (demande) + livraison (constat) | 2026-10-03 |
+| Former son double sur le compte fal de l’adhérent (`minimax/h3/ref2va/trainer`), fichier `.safetensors` au coffre, rechargé par `minimax/h3/reference-to-video/lora`. Page dédiée, devis avant le geste, bouton éteint sans solde lisible. Comfy Cloud ne fait toujours pas ce chemin. Clé Admin fal sur l’appareil seulement. | JD (rejet du constat seul) + livraison | 2026-10-03 |
+| Pas de page de formation sur Comfy Cloud : `TrainLoraNode` ne peut pas être enregistré en fichier (`SaveLoRA` absent), et une prise ne charge que les LoRA de la bibliothèque du compte. Pas de LoRA Flux branché à H3. Constat tenu ; le produit passe par fal. | JD (demande) + livraison (constat) | 2026-10-03 |
 | Studio direct : l’app tourne la prise H3 R2V elle-même sur le compte Comfy Cloud de la personne (API documentée, relais même origine), après confirmation. Un seul payeur, coût mesuré par le solde, « non calibré » avant mesure. Coffre Obsidian écrit par l’app (IndexedDB, export ZIP, dossier relié). U*TTU guide en une phrase. fal, App Mode, template réécrit et journal de budget quittent l’app. Compte à `/compte`. | JD (intention, carte blanche) + livraison | 2026-10-03 |
 | App : une barre, la chaîne en onglets mobiles, Sphère étagère, carte de look. Crédits : solde Comfy lu dans le cadre, « Lancer ce rendu ? » avant chaque `POST /api/prompt`, journal local. Publier : feuille de partage ou brouillon X, rien sans clic. Clerk seulement sur Compte et connexion, télémétrie coupée. Solde fal et publication directe : éteints, secrets nommés. | JD (intention) + livraison | 2026-10-03 |
 | La prise écrit le texte du plan dans le nœud 138 du cadre H3. Les photos (137, 139) ne partent que si `/api/assets` renvoie un nom. L’URL du template ne porte pas les octets. Plein onglet sans brief. Run payant non branché. Écran : une chaîne, Sphère en retrait. | Livraison | 2026-10-03 |

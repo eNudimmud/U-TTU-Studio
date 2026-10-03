@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { CREDITS_PER_USD, centsToCredits, costClaim, formatCredits, measuredCost, runGate, type CostRecord } from "../src/lib/credits.ts";
+import { CREDITS_PER_USD, centsToCredits, costClaim, falGate, formatCredits, measuredCost, runGate, type CostRecord } from "../src/lib/credits.ts";
 
 const record = (patch: Partial<CostRecord>): CostRecord => ({ profile: "h3-4pas-5s-vertical", credits: 120, gpuSeconds: 300, at: "2026-10-03T10:00:00.000Z", ...patch });
 
@@ -39,6 +39,20 @@ describe("un seul payeur, des chiffres mesurés", () => {
     assert.match(runGate({ credits: 100, readAt: 1 }, measured).line, /140/);
     assert.equal(runGate({ credits: 400, readAt: 1 }, measured).allowed, true);
     assert.match(runGate({ credits: 400, readAt: 1 }, measured).line, /mesuré/);
+  });
+
+  it("refuses a fal training or take when the balance or the quote is missing or short", () => {
+    const balance = { usd: 20, readAt: 1 };
+    assert.equal(falGate(null, 15, "formation").allowed, false);
+    assert.equal(falGate({ usd: 0, readAt: 1 }, 15, "formation").allowed, false);
+    assert.equal(falGate(balance, null, "prise").allowed, false);
+    assert.equal(falGate({ usd: 10, readAt: 1 }, 15, "formation").allowed, false);
+    assert.match(falGate({ usd: 10, readAt: 1 }, 15, "formation").line, /15,00/);
+    const open = falGate(balance, 15, "formation");
+    assert.equal(open.allowed, true);
+    assert.equal(open.tone, "ok");
+    assert.match(open.line, /15,00 \$/);
+    assert.match(falGate(balance, 0.38, "prise").line, /prise/i);
   });
 
   it("takes the charge from two real readings, and refuses a reading a top-up spoiled", () => {

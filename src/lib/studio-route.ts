@@ -1,10 +1,11 @@
-// The studio's four places, read from the hash. Old links still land:
+// The studio's places, read from the hash. Old links still land:
 // #creer and #identite open the look, #plateau the scene, #take the take.
 
-export type Tab = "look" | "scene" | "prise" | "sphere";
+export type Tab = "look" | "lora" | "scene" | "prise" | "sphere";
 
 const ALIASES: Record<string, Tab> = {
   look: "look", creer: "look", créer: "look", style: "look", identite: "look", identité: "look",
+  lora: "lora", former: "lora", entrainer: "lora", entraîner: "lora", double: "lora",
   scene: "scene", scène: "scene", plateau: "scene", monde: "scene",
   prise: "prise", take: "prise", studio: "prise",
   sphere: "sphere", sphère: "sphere", bibliotheque: "sphere", bibliothèque: "sphere",

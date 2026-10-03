@@ -10,15 +10,19 @@ U-TTU-Studio/
   refs/look-*.jpg        les photos du look, réduites à 1 536 px
   scenes/<lieu>.md       un lieu : nom, note, images
   scenes/<lieu>-*.jpg    ses images
-  prises/<id>.md         une prise : date, lieu, plan, réglage, job, calcul, coût, soldes, texte envoyé
+  clips/clip-*.mp4       les courtes vidéos dont un double apprend
+  loras/<id>.md          un double formé : déclencheur, pas, demande, coût
+  loras/<id>.safetensors le fichier que La prise recharge
+  prises/<id>.md         une prise : date, lieu, plan, réglage, moteur, job, calcul, coût, soldes, texte envoyé
   prises/<id>.mp4        la vidéo rapatriée
   prises/<id>.jpg        une image décodée de la vidéo (vignette)
-  jobs.md                le journal : une ligne par prise, crédits mesurés compris
+  jobs.md                le journal : une ligne par prise et par formation
   README.md              le mode d’emploi du dossier
   .uttu/etat.json        le lieu courant
+  .uttu/clips.json       durée et taille de chaque clip
 ```
 
-Les fiches sont du Markdown avec frontmatter : `type`, `nom`, `traits`, `photos` pour le look ; `type`, `date`, `lieu`, `plan`, `duree_s`, `qualite`, `format`, `profil`, `job`, `video`, `vignette`, `calcul_s`, `cout_credits`, `solde_avant`, `solde_apres`, `texte` pour une prise. Les images et la vidéo sont liées en `![[…]]`. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
+Les fiches sont du Markdown avec frontmatter. Une prise porte en plus `moteur` (`comfy` ou `lora`), `lora`, `resolution`, `cout_usd`, `cout_source`. Une fiche de double porte `declencheur`, `fichier`, `sha256`, `pas`, `rang`, `entraineur`, `requete`. Les images et la vidéo sont liées en `![[…]]`. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
 
 ## Où il vit
 
@@ -26,7 +30,7 @@ Les fiches sont du Markdown avec frontmatter : `type`, `nom`, `traits`, `photos`
 - **Exporter le coffre.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, à décompresser et ouvrir comme coffre Obsidian.
 - **Relier mon dossier Obsidian.** Sur ordinateur, Chrome ou Edge (File System Access) : l’app copie le coffre dans le dossier choisi, puis y écrit chaque changement tant que la page reste ouverte. Le lien ne survit pas à la fermeture : on le refait d’un geste.
 
-La clé et la session de rendu ne sont pas des fichiers du coffre. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
+La clé et la session de rendu, et la clé fal, ne sont pas des fichiers du coffre. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
 
 ## Pourquoi ce coffre
 

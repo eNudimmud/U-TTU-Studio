@@ -3,8 +3,8 @@ import { describe, it } from "node:test";
 import { coffreEntries } from "../src/lib/coffre/export.ts";
 import { readFrontmatter, withFrontmatter } from "../src/lib/coffre/markdown.ts";
 import {
-  canonMarkdown, cleanTraits, loadStudio, lookCheck, parseCanon, parseTake, parseTraits, removeTake, slugify, takeId, takeMarkdown, uniqueId,
-  writeBlob, writeLook, writeScene, writeState, writeTake, type Take,
+  canonMarkdown, cleanTraits, loadStudio, lookCheck, loraMarkdown, parseCanon, parseLora, parseTake, parseTraits, removeLora, removeTake, sha256Hex, slugify, takeId, takeMarkdown, uniqueId,
+  writeBlob, writeClips, writeLook, writeLora, writeScene, writeState, writeTake, type Lora, type Take,
 } from "../src/lib/coffre/model.ts";
 import { cleanPath, memoryVault } from "../src/lib/coffre/store.ts";
 import { readZip } from "../src/lib/zip.ts";
@@ -25,6 +25,11 @@ const take = (patch: Partial<Take> = {}): Take => ({
   costCredits: 201,
   balanceBefore: 5001,
   balanceAfter: 4800,
+  engine: "comfy",
+  loraId: null,
+  resolution: null,
+  costUsd: null,
+  costSource: null,
   ...patch,
 });
 
@@ -88,7 +93,7 @@ describe("coffre en markdown", () => {
     await writeBlob(store, take().poster!, new Blob(["jpg"], { type: "image/jpeg" }));
     assert.equal((await loadStudio(store)).takes[0].poster, take().poster);
     const jobs = (await store.get("jobs.md"))?.text ?? "";
-    assert.match(jobs, /\| 2026-10-03 15:30 \| \[\[prises\/20261003-153000-le-quai\]\] \| h3-4pas-5s-vertical \| 140 \| 201 \|/);
+    assert.match(jobs, /\| 2026-10-03 15:30 \| \[\[prises\/20261003-153000-le-quai\]\] \| Comfy \| h3-4pas-5s-vertical \| 140 \| 201 cr\. \|/);
     const entries = await coffreEntries(store);
     const names = entries.map(entry => entry.name);
     for (const name of ["U-TTU-Studio/CANON.md", "U-TTU-Studio/README.md", "U-TTU-Studio/jobs.md", "U-TTU-Studio/refs/look-a-1.jpg", "U-TTU-Studio/scenes/le-quai.md", "U-TTU-Studio/prises/20261003-153000-le-quai.mp4", "U-TTU-Studio/prises/20261003-153000-le-quai.md"]) {
@@ -99,6 +104,47 @@ describe("coffre en markdown", () => {
     await removeTake(store, take(), []);
     assert.equal((await loadStudio(store)).takes.length, 0);
     assert.equal(await store.get(take().poster!), null);
+  });
+
+  it("keeps a trained double next to the takes, and never a key", async () => {
+    const trained: Lora = {
+      id: "20261003-160000-mira",
+      at: "2026-10-03T16:00:00.000Z",
+      name: "Mira",
+      trigger: "mira_uttu",
+      file: "loras/20261003-160000-mira.safetensors",
+      bytes: 4,
+      sha256: "ab",
+      steps: 1000,
+      rank: 16,
+      aspect: "9:16",
+      clips: 10,
+      endpoint: "minimax/h3/ref2va/trainer",
+      requestId: "req-12345678",
+      seconds: 400,
+      costUsd: 15,
+      costSource: "billing",
+      balanceBefore: 40,
+      balanceAfter: 25,
+    };
+    assert.deepEqual(parseLora(trained.id, loraMarkdown(trained)), trained);
+    const store = memoryVault();
+    const weights = new Blob(["lora"]);
+    await writeBlob(store, "clips/clip-a.mp4", new Blob(["mp4"]));
+    await writeClips(store, [{ path: "clips/clip-a.mp4", format: "mp4", bytes: 3, seconds: 4, width: 720, height: 1280 }]);
+    await writeLora(store, trained, weights, [], [trained]);
+    const studio = await loadStudio(store);
+    assert.equal(studio.loras.length, 1);
+    assert.equal(studio.loras[0].trigger, "mira_uttu");
+    assert.equal(studio.clips.length, 1);
+    assert.equal(await sha256Hex(weights), await sha256Hex((await store.get(trained.file))?.blob ?? new Blob()));
+    const jobs = (await store.get("jobs.md"))?.text ?? "";
+    assert.match(jobs, /\[\[loras\/20261003-160000-mira\]\] \| fal \| lora-1000pas-rang16 \| 400 \| 15\.00 \$/);
+    const names = (await coffreEntries(store)).map(entry => entry.name).join("\n");
+    assert.match(names, /loras\/20261003-160000-mira\.safetensors/);
+    assert.doesNotMatch(names, /u-ttu-fal|fal-key/);
+    await removeLora(store, trained, [], []);
+    assert.equal((await loadStudio(store)).loras.length, 0);
   });
 
   it("produces a ZIP the reader opens", async () => {

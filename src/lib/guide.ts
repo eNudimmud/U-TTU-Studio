@@ -13,6 +13,12 @@ export type GuideMoment =
   | "take-ready"
   | "take-running"
   | "take-done"
+  | "take-double"
+  | "lora-clips"
+  | "lora-connect"
+  | "lora-ready"
+  | "lora-running"
+  | "lora-done"
   | "sphere-empty";
 
 export const GUIDE_LINES: Record<GuideMoment, string> = {
@@ -27,6 +33,12 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
   "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
   "take-done": "La prise est au coffre. Publie-la d’un geste.",
+  "take-double": "Ton double tient ton visage. Les photos tiennent le reste.",
+  "lora-clips": "Dix clips de toi, trois à trente secondes. J’apprends ton visage.",
+  "lora-connect": "Relie le compte qui paiera la formation. Le studio n’encaisse rien.",
+  "lora-ready": "Le prix est là, avant ton geste. Rien ne part sans lui.",
+  "lora-running": "J’apprends ton visage. C’est long : reviens plus tard.",
+  "lora-done": "Ton double est au coffre. Choisis-le dans La prise.",
   "sphere-empty": "Tes prises viendront se poser ici.",
 };
 
