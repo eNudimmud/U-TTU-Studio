@@ -2,6 +2,9 @@
 // The asset list already sends Authorization. <img> and <video> cannot.
 // This script copies that header onto the tile request and, when the src is
 // a signed storage URL, loads it through /comfy-media-file on this origin.
+// A queued run waits for the visitor to see its estimate and tap Lancer.
+import { RUN_GATE_JS } from "./run-gate.ts";
+
 export const COMFY_MEDIA_SW = "/comfy-media-sw.js";
 
 export const COMFY_MEDIA_BOOT = `<script type="module">
@@ -266,6 +269,119 @@ async function paintTake(response, orig) {
     return response;
   }
 }
+${RUN_GATE_JS}
+let uttuBalance = null;
+let gateChain = Promise.resolve();
+function tellStudio(message) {
+  try {
+    if (window.parent && window.parent !== window) window.parent.postMessage(message, location.origin);
+  } catch (e) {}
+}
+function noteBalance(credits) {
+  if (typeof credits !== "number" || !isFinite(credits)) return;
+  const next = Math.round(credits);
+  if (next === uttuBalance) return;
+  uttuBalance = next;
+  tellStudio({ type: "uttu-credits", credits: next, readAt: Date.now() });
+}
+function balanceUrl(url) {
+  return /\\/(customers|billing)\\/balance(\\?|$)/.test(String(url || ""));
+}
+function readBalanceResponse(response) {
+  try {
+    if (!response || !response.ok || !response.clone || !balanceUrl(response.url)) return;
+    response.clone().json().then((body) => noteBalance(gateBalanceFrom(body))).catch(() => {});
+  } catch (e) {}
+}
+function readStoreBalance() {
+  try {
+    const store = piniaStore("auth");
+    if (store && store.balance) noteBalance(gateBalanceFrom(store.balance));
+  } catch (e) {}
+}
+function promptUrl(href) {
+  try { return new URL(href, location.href).pathname === "/api/prompt"; } catch (e) { return false; }
+}
+function gateText(input, init) {
+  if (init && typeof init.body === "string") return Promise.resolve(init.body);
+  if (input instanceof Request) return input.clone().text().catch(() => "");
+  return Promise.resolve("");
+}
+function gateLine(parent, text, css) {
+  const line = document.createElement("p");
+  line.textContent = text;
+  line.style.cssText = "margin:0 0 6px;" + (css || "");
+  parent.appendChild(line);
+  return line;
+}
+function gateAsk(label, estimate, decision) {
+  return new Promise((resolve) => {
+    const host = document.body || document.documentElement;
+    const wrap = document.createElement("div");
+    wrap.id = "uttu-gate";
+    wrap.setAttribute("role", "dialog");
+    wrap.setAttribute("aria-modal", "true");
+    wrap.setAttribute("aria-labelledby", "uttu-gate-title");
+    wrap.style.cssText = "position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:rgba(10,10,11,.74);font:500 14px/1.5 system-ui,-apple-system,sans-serif;color:#f1ede6";
+    const card = document.createElement("div");
+    card.style.cssText = "width:min(420px,calc(100% - 32px));background:#111112;border:1px solid #c4a574;border-radius:10px;padding:20px 20px 16px;box-shadow:0 24px 64px rgba(0,0,0,.6)";
+    const title = document.createElement("h2");
+    title.id = "uttu-gate-title";
+    title.textContent = "Lancer ce rendu ?";
+    title.style.cssText = "margin:0 0 10px;font:600 20px/1.2 system-ui,-apple-system,sans-serif;color:#f1ede6";
+    card.appendChild(title);
+    gateLine(card, label, "color:#e6cfa7");
+    gateLine(card, estimate ? "Estimation : " + gateCredits(estimate.low) + " à " + gateCredits(estimate.high) + " crédits. Non mesurée." : "Estimation : inconnue pour ce graphe.");
+    gateLine(card, typeof uttuBalance === "number" ? "Ton solde : " + gateCredits(uttuBalance) + " crédits." : "Ton solde : non lu.");
+    gateLine(card, decision.line, decision.tone === "block" ? "color:#df9390" : decision.tone === "warn" ? "color:#e6cfa7" : "color:#a8a6a2");
+    gateLine(card, "Rien ne part sans ce clic. Le studio n’encaisse rien.", "color:#a8a6a2;font-size:12px;margin-top:4px");
+    const actions = document.createElement("div");
+    actions.style.cssText = "display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap";
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.textContent = "Annuler";
+    cancel.style.cssText = "min-height:44px;padding:10px 18px;border:1px solid #8a7554;background:transparent;color:#f1ede6;border-radius:6px;font:600 14px system-ui,sans-serif;cursor:pointer";
+    const launch = document.createElement("button");
+    launch.type = "button";
+    launch.id = "uttu-gate-launch";
+    launch.textContent = "Lancer";
+    launch.disabled = !decision.allow;
+    launch.style.cssText = "min-height:44px;padding:10px 18px;border:1px solid #c4a574;background:#c4a574;color:#11100f;border-radius:6px;font:650 14px system-ui,sans-serif;cursor:pointer" + (decision.allow ? "" : ";opacity:.45;cursor:not-allowed");
+    actions.appendChild(cancel);
+    actions.appendChild(launch);
+    card.appendChild(actions);
+    wrap.appendChild(card);
+    const finish = (ok) => {
+      document.removeEventListener("keydown", onKey, true);
+      if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      resolve(ok);
+    };
+    const onKey = (event) => {
+      if (event.key === "Escape") { event.stopPropagation(); finish(false); }
+    };
+    cancel.addEventListener("click", () => finish(false));
+    launch.addEventListener("click", () => { if (decision.allow) finish(true); });
+    document.addEventListener("keydown", onKey, true);
+    host.appendChild(wrap);
+    cancel.focus();
+  });
+}
+function gateRun(input, init) {
+  const next = gateChain.then(() => gateText(input, init)).then((text) => {
+    const run = gateClassify(text);
+    const estimate = gateEstimate(run);
+    const label = gateLabel(run);
+    return gateAsk(label, estimate, gateDecide(estimate, uttuBalance)).then((ok) => {
+      tellStudio({ type: "uttu-run", label: label, low: estimate ? estimate.low : null, high: estimate ? estimate.high : null, accepted: ok });
+      return ok;
+    });
+  }).catch(() => window.confirm("Lancer ce rendu ? Le coût n’a pas pu être estimé. Il est débité sur ton compte."));
+  gateChain = next.catch(() => false);
+  return next;
+}
+function gateRefusal() {
+  return new Response(JSON.stringify({ error: { type: "uttu_gate", message: "Lancement annulé dans le studio. Rien n’est parti.", details: "" }, node_errors: {} }), { status: 400, headers: { "content-type": "application/json" } });
+}
 function hookFetch() {
   const orig = window.fetch;
   window.fetch = function (input, init) {
@@ -280,10 +396,29 @@ function hookFetch() {
       remember(map);
     } catch (e) {}
     let href = "";
-    try { href = typeof input === "string" ? input : String((input && input.url) || ""); } catch (e) {}
+    let method = "GET";
+    try {
+      href = typeof input === "string" ? input : String((input && input.url) || "");
+      method = String((init && init.method) || (input instanceof Request ? input.method : "GET")).toUpperCase();
+    } catch (e) {}
+    if (method === "POST" && promptUrl(href)) {
+      const self = this;
+      const args = arguments;
+      return gateRun(input, init).then((ok) => {
+        if (!ok) return gateRefusal();
+        const sent = orig.apply(self, args);
+        try {
+          if (sent && sent.then) sent.then(inspectRun);
+        } catch (e) {}
+        return sent;
+      });
+    }
     const pending = orig.apply(this, arguments);
     try {
-      if (pending && pending.then) pending.then(inspectRun);
+      if (pending && pending.then) {
+        pending.then(inspectRun);
+        pending.then(readBalanceResponse);
+      }
     } catch (e) {}
     if (href.indexOf("/templates/video_minimax_h3_r2v.json") >= 0 && pending && pending.then) {
       return pending.then((response) => paintTake(response, orig));
@@ -299,6 +434,26 @@ function hookFetch() {
       remember(this.__uttuAuth);
     }
     return setHeader.apply(this, arguments);
+  };
+  const open = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function (method, url) {
+    try { this.__uttuUrl = String(url || ""); } catch (e) {}
+    return open.apply(this, arguments);
+  };
+  const send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send = function () {
+    try {
+      if (balanceUrl(this.__uttuUrl)) {
+        this.addEventListener("load", () => {
+          try {
+            if (this.status !== 200) return;
+            const body = this.response && typeof this.response === "object" ? this.response : JSON.parse(this.responseText);
+            noteBalance(gateBalanceFrom(body));
+          } catch (e) {}
+        });
+      }
+    } catch (e) {}
+    return send.apply(this, arguments);
   };
 }
 function loadMedia(item) {
@@ -363,6 +518,7 @@ function hookSrc(proto) {
 }
 hookFetch();
 setInterval(readRunError, 1000);
+setInterval(readStoreBalance, 2000);
 hookSrc(HTMLImageElement.prototype);
 if (window.HTMLMediaElement) hookSrc(HTMLMediaElement.prototype);
 setTimeout(() => {
