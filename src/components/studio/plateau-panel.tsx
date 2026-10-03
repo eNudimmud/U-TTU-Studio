@@ -10,6 +10,7 @@ import {
   clipPlateauText, createPlateauScene, emptyPlateau, readPlateau, savePlateau, sceneHasPreviz,
   type PlateauBook, type PlateauScene, type PlateauSequence, type PlateauStill,
 } from "@/lib/plateau";
+import { forgetPlateauFile, rememberPlateauFile } from "@/lib/take-files";
 import { useGoToStep } from "./mode-context";
 
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -81,6 +82,7 @@ export function PlateauPanel() {
   }
 
   function remember(id: string, file: File) {
+    rememberPlateauFile(id, file);
     const url = URL.createObjectURL(file);
     urls.current.push(url);
     setPreviews(current => ({ ...current, [id]: url }));
@@ -90,7 +92,6 @@ export function PlateauPanel() {
 
   return <section className="mode-panel" aria-labelledby="mode-title">
     <header className="mode-hero">
-      <p className="eyebrow">Plateau</p>
       <h1 id="mode-title" tabIndex={-1}>Pose le <em>monde.</em></h1>
       <p className="mode-lead">Tu le construis à ton bureau, puis tu l’apportes ici. Images, suite d’images, notes d’angles. La prise se tournera dedans.</p>
     </header>
@@ -243,7 +244,7 @@ function SceneWorkspace({
             stills: scene.stills.map(item => item.id === still.id ? { ...item, note: event.target.value } : item),
           })} />
         </label>
-        <button type="button" className="text-button" onClick={() => onChange({ ...scene, stills: scene.stills.filter(item => item.id !== still.id) })}>Retirer</button>
+        <button type="button" className="text-button" onClick={() => { forgetPlateauFile(still.id); onChange({ ...scene, stills: scene.stills.filter(item => item.id !== still.id) }); }}>Retirer</button>
       </li>)}
     </ul>}
 
@@ -263,7 +264,7 @@ function SceneWorkspace({
             sequences: scene.sequences.map(item => item.id === sequence.id ? { ...item, note: event.target.value } : item),
           })} />
         </label>
-        <button type="button" className="text-button" onClick={() => onChange({ ...scene, sequences: scene.sequences.filter(item => item.id !== sequence.id) })}>Retirer la suite</button>
+        <button type="button" className="text-button" onClick={() => { forgetPlateauFile(sequence.id); onChange({ ...scene, sequences: scene.sequences.filter(item => item.id !== sequence.id) }); }}>Retirer la suite</button>
       </li>)}
     </ul>}
 

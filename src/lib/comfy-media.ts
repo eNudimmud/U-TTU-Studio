@@ -150,6 +150,122 @@ function remember(map) {
   const batch = waiting.splice(0);
   for (const item of batch) loadMedia(item);
 }
+function safeAssetName(name) {
+  if (typeof name !== "string") return "";
+  const clean = name.trim();
+  if (!clean || clean.length > 180) return "";
+  if (clean.indexOf("/") >= 0 || clean.indexOf("\\\\") >= 0 || /[\\u0000-\\u001f]/.test(clean) || clean === "." || clean === "..") return "";
+  return clean;
+}
+function readTakeBrief() {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value) => { if (!settled) { settled = true; resolve(value); } };
+    try {
+      const open = indexedDB.open("uttu-take");
+      open.onupgradeneeded = () => { try { open.transaction.abort(); } catch (e) {} finish(null); };
+      open.onerror = () => finish(null);
+      open.onsuccess = () => {
+        const db = open.result;
+        if (!db.objectStoreNames.contains("brief")) { try { db.close(); } catch (e) {} finish(null); return; }
+        try {
+          const request = db.transaction("brief").objectStore("brief").get("current");
+          request.onsuccess = () => { try { db.close(); } catch (e) {} finish(request.result || null); };
+          request.onerror = () => { try { db.close(); } catch (e) {} finish(null); };
+        } catch (e) { try { db.close(); } catch (e2) {} finish(null); }
+      };
+    } catch (e) { finish(null); }
+  });
+}
+function paintTakeNode(node, id, prompt, images) {
+  if (id === "138" && prompt) {
+    if (!Array.isArray(node.widgets_values)) node.widgets_values = [prompt];
+    else node.widgets_values[0] = prompt;
+    if (!node.widgets_values_named || typeof node.widgets_values_named !== "object") node.widgets_values_named = {};
+    node.widgets_values_named.value = prompt;
+    if (node.inputs && typeof node.inputs === "object") node.inputs.value = prompt;
+    return true;
+  }
+  const image = images[id];
+  if ((id === "137" || id === "139") && image) {
+    if (!Array.isArray(node.widgets_values)) node.widgets_values = [image, "image"];
+    else node.widgets_values[0] = image;
+    if (!node.widgets_values_named || typeof node.widgets_values_named !== "object") node.widgets_values_named = {};
+    node.widgets_values_named.image = image;
+    if (typeof node.widgets_values_named.upload !== "string") node.widgets_values_named.upload = "image";
+    if (node.inputs && typeof node.inputs === "object") node.inputs.image = image;
+    return true;
+  }
+  return false;
+}
+function paintTakeGraph(graph, prompt, images) {
+  let wrotePrompt = false;
+  const nodes = graph && Array.isArray(graph.nodes) ? graph.nodes : null;
+  if (nodes) {
+    for (const node of nodes) {
+      if (!node || typeof node !== "object") continue;
+      if (paintTakeNode(node, String(node.id), prompt, images) && String(node.id) === "138") wrotePrompt = true;
+    }
+    return wrotePrompt;
+  }
+  for (const id of ["137", "138", "139"]) {
+    const node = graph && graph[id];
+    if (!node || typeof node !== "object") continue;
+    if (!node.inputs || typeof node.inputs !== "object") node.inputs = {};
+    if (paintTakeNode(node, id, prompt, images) && id === "138") wrotePrompt = true;
+  }
+  return wrotePrompt;
+}
+async function uploadTakeFile(orig, file) {
+  try {
+    const body = new FormData();
+    const blob = new Blob([file.bytes], { type: file.type || "application/octet-stream" });
+    body.append("file", blob, String(file.name || "image.png").slice(0, 80));
+    body.append("tags", "[\\"input\\"]");
+    const headers = {};
+    if (listHeaders && listHeaders.authorization) headers.authorization = listHeaders.authorization;
+    if (listHeaders && listHeaders["x-api-key"]) headers["x-api-key"] = listHeaders["x-api-key"];
+    const response = await orig("/api/assets", { method: "POST", body: body, headers: headers, credentials: "include" });
+    if (!response.ok) return "";
+    const data = await response.json();
+    const name = data && (typeof data.name === "string" ? data.name : (data.asset && data.asset.name));
+    return safeAssetName(name);
+  } catch (e) { return ""; }
+}
+async function paintTake(response, orig) {
+  try {
+    if (!response || !response.ok || !response.clone) return response;
+    const brief = await readTakeBrief();
+    const prompt = brief && typeof brief.prompt === "string" ? brief.prompt.slice(0, 1600) : "";
+    if (!prompt) return response;
+    const graph = await response.clone().json();
+    const images = {};
+    const files = brief && Array.isArray(brief.files) ? brief.files : [];
+    let missed = false;
+    let sent = 0;
+    for (const file of files) {
+      const node = String(file && file.node || "");
+      if (node !== "137" && node !== "139") continue;
+      if (!file.bytes) continue;
+      sent += 1;
+      const name = await uploadTakeFile(orig, file);
+      if (name) images[node] = name;
+      else missed = true;
+    }
+    const wrotePrompt = paintTakeGraph(graph, prompt, images);
+    if (!wrotePrompt) runNote("Le texte du plan n’a pas trouvé le champ prévu. Les images d’exemple restent.");
+    else if (missed) runNote("Images d’exemple encore en place : le compte n’a pas accepté le fichier. Le texte du plan est écrit. Recharge après connexion.");
+    else if (sent === 0) runNote("Le texte du plan est écrit. Aucune photo n’était jointe : les images d’exemple restent.");
+    const headers = new Headers(response.headers);
+    headers.delete("content-length");
+    headers.delete("content-encoding");
+    if (!headers.get("content-type")) headers.set("content-type", "application/json");
+    return new Response(JSON.stringify(graph), { status: response.status, statusText: response.statusText, headers: headers });
+  } catch (e) {
+    runNote("Le graphe d’exemple reste : le plan n’a pas pu être écrit.");
+    return response;
+  }
+}
 function hookFetch() {
   const orig = window.fetch;
   window.fetch = function (input, init) {
@@ -163,10 +279,15 @@ function hookFetch() {
       if (apiKey) map["x-api-key"] = apiKey;
       remember(map);
     } catch (e) {}
+    let href = "";
+    try { href = typeof input === "string" ? input : String((input && input.url) || ""); } catch (e) {}
     const pending = orig.apply(this, arguments);
     try {
       if (pending && pending.then) pending.then(inspectRun);
     } catch (e) {}
+    if (href.indexOf("/templates/video_minimax_h3_r2v.json") >= 0 && pending && pending.then) {
+      return pending.then((response) => paintTake(response, orig));
+    }
     return pending;
   };
   const setHeader = XMLHttpRequest.prototype.setRequestHeader;

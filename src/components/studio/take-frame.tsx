@@ -5,8 +5,9 @@ import { COMFY_MEDIA_SW } from "@/lib/comfy-media";
 import { comfyTemplateHref } from "@/lib/comfy-proxy";
 import { H3_R2V_TEMPLATE } from "@/lib/comfy-stack";
 import {
-  TAKE_FRAME_CONSENT, TAKE_FRAME_HTTP, TAKE_FRAME_LEAD, TAKE_FRAME_LINE, TAKE_FRAME_LOGIN, TAKE_LOAD, TAKE_SOON_TITLE, TAKE_TAB,
+  TAKE_FRAME_CONSENT, TAKE_FRAME_HTTP, TAKE_FRAME_LEAD, TAKE_FRAME_LINE, TAKE_FRAME_LOGIN, TAKE_FRAME_STORE_FAIL, TAKE_FRAME_STORED, TAKE_FRAME_TEXT_ONLY, TAKE_LOAD, TAKE_SOON_TITLE, TAKE_TAB,
 } from "@/lib/cinema";
+import { heldLookFiles, placeFileFor, storeTakeHandoff } from "@/lib/take-files";
 import { assetPath } from "@/lib/site";
 import { trackEvent } from "@/lib/analytics";
 import { Arrow } from "../glyph";
@@ -14,10 +15,20 @@ import "../guide/workspace.css";
 
 const noSubscription = () => () => {};
 
-export function TakeFrame() {
+export function TakeFrame({
+  trigger, invariants, placeName, placeNote, takeLine, scene,
+}: {
+  trigger: string;
+  invariants: string;
+  placeName: string;
+  placeNote: string;
+  takeLine: string;
+  scene: { stills: { id: string }[]; sequences: { id: string }[] } | null;
+}) {
   const embed = comfyTemplateHref(H3_R2V_TEMPLATE.id);
   const framable = useSyncExternalStore(noSubscription, () => window.location.protocol === "https:", () => true);
   const [loads, setLoads] = useState(0);
+  const [handoff, setHandoff] = useState("");
   const frame = useRef<HTMLIFrameElement>(null);
   useEffect(() => {
     if (loads === 1) frame.current?.focus({ preventScroll: true });
@@ -27,7 +38,13 @@ export function TakeFrame() {
     void navigator.serviceWorker.register(COMFY_MEDIA_SW).catch(() => {});
   }, [loads]);
 
-  function load() {
+  async function load() {
+    const kept = await storeTakeHandoff({
+      trigger, invariants, placeName, placeNote, takeLine,
+      look: heldLookFiles(),
+      place: placeFileFor(scene),
+    });
+    setHandoff(kept === "miss" ? TAKE_FRAME_STORE_FAIL : kept === "text" ? TAKE_FRAME_TEXT_ONLY : TAKE_FRAME_STORED);
     setLoads(1);
     trackEvent("take_template_opened");
   }
@@ -46,10 +63,11 @@ export function TakeFrame() {
         ? <iframe key={loads} ref={frame} className="comfy-run-frame" src={assetPath(embed)} title={TAKE_SOON_TITLE} allow="clipboard-write; fullscreen" />
         : <div className="comfy-run-consent">
           <p id="prise-frame-consent">{TAKE_FRAME_CONSENT}</p>
-          <button type="button" className="button button-primary" onClick={load} aria-describedby="prise-frame-consent">{TAKE_LOAD} <Arrow /></button>
+          <button type="button" className="button button-primary" onClick={() => void load()} aria-describedby="prise-frame-consent">{TAKE_LOAD} <Arrow /></button>
         </div>}
     <div className="comfy-run-foot">
       <p className="small-print">{TAKE_FRAME_LINE} {TAKE_FRAME_LOGIN}</p>
+      {handoff && <p role="status">{handoff}</p>}
       {loads > 0 && <button type="button" className="text-button" onClick={() => setLoads(count => count + 1)}>Recharger l’app</button>}
     </div>
   </section>;

@@ -77,7 +77,7 @@ export function StudioShell() {
           <p className="header-kill"><span>Rien à payer</span><span>{testPhaseEnd}</span></p>
         </div>
         <div className="shell">
-          <nav className="cinema-nav" aria-label="Look, Plateau, Take">
+          <nav className="cinema-nav" aria-label="Ton style, Ta scène, La prise">
             {CINEMA_STEPS.map((item, index) => <button key={item.id} type="button" className="cinema-step" aria-current={step === item.id ? "step" : undefined} onClick={() => selectStep(item.id)}>
               <span className="cinema-index">{String(index + 1).padStart(2, "0")}</span>
               <span className="cinema-plain">{item.plain}</span>
@@ -85,9 +85,15 @@ export function StudioShell() {
             </button>)}
           </nav>
           <p className="cinema-path">{CINEMA_PATH}</p>
-          <nav className="studio-nav atelier-nav" aria-label="Autres espaces">
-            {atelierModes().map(item => <button key={item.id} type="button" className="studio-nav-item" aria-current={atelier === item.id ? "page" : undefined} onClick={() => select(item.id)}>{item.label}</button>)}
-          </nav>
+          <div className="atelier-quiet">
+            {atelierModes().filter(item => item.id === "sphere").map(item => <button key={item.id} type="button" className="text-button" aria-current={atelier === item.id ? "page" : undefined} onClick={() => select(item.id)}>{item.label}</button>)}
+            <details className="disclosure atelier-more">
+              <summary>Autres espaces</summary>
+              <nav className="studio-nav atelier-nav" aria-label="Autres espaces">
+                {atelierModes().filter(item => item.id !== "sphere").map(item => <button key={item.id} type="button" className="studio-nav-item" aria-current={atelier === item.id ? "page" : undefined} onClick={() => select(item.id)}>{item.label}</button>)}
+              </nav>
+            </details>
+          </div>
         </div>
       </header>
       <main id="contenu" className="shell studio-main" tabIndex={-1}>

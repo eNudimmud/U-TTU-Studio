@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { lookHeld } from "@/lib/doctrine";
 import {
-  TAKE_CHAIN, TAKE_CLOSED, TAKE_HELP, TAKE_LEAD, TAKE_NOTE, TAKE_SOON_LINE, TAKE_SOON_TITLE, TAKE_WAIT, takeReady,
+  TAKE_CLOSED, TAKE_GO_LOOK, TAKE_GO_WORLD, TAKE_HELP, TAKE_NOTE, TAKE_STATUS_NEED_LOOK, TAKE_STATUS_NEED_WORLD, TAKE_STATUS_READY, takeReady,
 } from "@/lib/cinema";
 import {
   emptyPlateau, emptyTakeNote, readPlateau, readTakeNote, readyWorlds, saveTakeNote, worldReady,
@@ -39,18 +39,6 @@ export function TakePanel() {
   const ready = worldsOn && takeReady({ lookHeld: held, worldReady: hasWorld });
   const chosen = worlds.find(scene => scene.id === note.sceneId) ?? worlds[0];
 
-  function mark(id: (typeof TAKE_CHAIN)[number]["id"]): string {
-    if (id === "prise") return ready ? "Prête" : "Pas encore";
-    if (id === "monde") return hasWorld ? "Posé" : "À poser";
-    return held ? "Tenu" : "Pas encore";
-  }
-
-  function state(id: (typeof TAKE_CHAIN)[number]["id"]): "held" | "open" | "wait" {
-    if (id === "prise") return ready ? "open" : "wait";
-    if (id === "monde") return hasWorld ? "held" : "open";
-    return held ? "held" : "open";
-  }
-
   function openPlan() {
     if (!ready) return;
     setPlanOpen(true);
@@ -68,50 +56,45 @@ export function TakePanel() {
 
   return <section className="mode-panel" aria-labelledby="mode-title">
     <header className="mode-hero">
-      <p className="eyebrow">Take</p>
       <h1 id="mode-title" tabIndex={-1}>La <em>prise.</em></h1>
-      <p className="mode-lead">{TAKE_LEAD}</p>
     </header>
 
-    <ol className="take-chain" aria-label="Avant la prise">
-      {TAKE_CHAIN.map((step, index) => <li key={step.id} data-state={state(step.id)}>
-        <span className="cinema-index">{String(index + 1).padStart(2, "0")}</span>
-        <h2>{step.title}</h2>
-        <p>{step.id === "monde" && chosen ? `${step.line} Lieu : ${chosen.name}.` : step.line}</p>
-        <span className="take-mark">{mark(step.id)}</span>
-        {step.id === "monde" && <button type="button" className="text-button" onClick={() => goStep("plateau")}>{hasWorld ? "Revoir le monde" : "Poser le monde"}</button>}
-        {step.id === "look" && <button type="button" className="text-button" onClick={() => goStep("look")}>{held ? "Revoir ton style" : "Tenir le look"}</button>}
-      </li>)}
-    </ol>
+    {!worldsOn && <p role="status">Ouverture…</p>}
 
-    <div className="take-actions">
-      <button type="button" className="button button-primary" disabled={!ready} onClick={openPlan}>Noter la prise</button>
-      <p role="status">{ready ? TAKE_NOTE : TAKE_WAIT}</p>
-      {note.line && !ready && <p>{TAKE_CLOSED}</p>}
-    </div>
+    {worldsOn && !ready && <>
+      <p className="take-status" role="status">{held ? TAKE_STATUS_NEED_WORLD : TAKE_STATUS_NEED_LOOK}</p>
+      <button type="button" className="button button-primary" onClick={() => goStep(held ? "plateau" : "look")}>{held ? TAKE_GO_WORLD : TAKE_GO_LOOK}</button>
+      {note.line && <p>{TAKE_CLOSED}</p>}
+    </>}
 
-    {planOpen && ready && <form className="take-plan" onSubmit={keep}>
-      {worlds.length > 1 && <label htmlFor="prise-lieu">Dans quel lieu
-        <select id="prise-lieu" value={chosen?.id ?? ""} onChange={event => setNote(current => ({ ...current, sceneId: event.target.value }))}>
-          {worlds.map(scene => <option key={scene.id} value={scene.id}>{scene.name}</option>)}
-        </select>
-      </label>}
-      {worlds.length === 1 && chosen && <p>Dans le lieu « {chosen.name} ».</p>}
-      <label htmlFor="prise-plan">Ce que montre la prise
-        <input id="prise-plan" value={note.line} maxLength={180} placeholder="Elle traverse le quai. La lumière ne change pas." onChange={event => { setSaved(false); setNote(current => ({ ...current, line: event.target.value })); }} />
-      </label>
-      <button type="submit" className="button button-outline" disabled={note.line.trim().length === 0}>Garder sur cet appareil</button>
-      {saved && <p role="status">Noté ici. Le tournage n’a pas commencé.</p>}
-    </form>}
-
-    {ready
-      ? <TakeFrame />
-      : <article className="soon-card take-card">
-        <p className="eyebrow">Bientôt</p>
-        <h2>{TAKE_SOON_TITLE}</h2>
-        <p>{TAKE_SOON_LINE}</p>
-        <p className="soon-mark">Pas encore</p>
-      </article>}
+    {ready && <>
+      <p className="take-status" role="status">{TAKE_STATUS_READY}{chosen ? ` Lieu : ${chosen.name}.` : ""}</p>
+      <TakeFrame
+        trigger={session.trigger}
+        invariants={session.invariants}
+        placeName={chosen?.name ?? ""}
+        placeNote={chosen?.note ?? ""}
+        takeLine={note.line}
+        scene={chosen ?? null}
+      />
+      <div className="take-actions">
+        <button type="button" className="text-button" onClick={openPlan}>Noter la prise</button>
+        {planOpen && <p role="status">{TAKE_NOTE}</p>}
+      </div>
+      {planOpen && <form className="take-plan" onSubmit={keep}>
+        {worlds.length > 1 && <label htmlFor="prise-lieu">Dans quel lieu
+          <select id="prise-lieu" value={chosen?.id ?? ""} onChange={event => setNote(current => ({ ...current, sceneId: event.target.value }))}>
+            {worlds.map(scene => <option key={scene.id} value={scene.id}>{scene.name}</option>)}
+          </select>
+        </label>}
+        {worlds.length === 1 && chosen && <p>Dans le lieu « {chosen.name} ».</p>}
+        <label htmlFor="prise-plan">Ce que montre la prise
+          <input id="prise-plan" value={note.line} maxLength={180} placeholder="Elle traverse le quai. La lumière ne change pas." onChange={event => { setSaved(false); setNote(current => ({ ...current, line: event.target.value })); }} />
+        </label>
+        <button type="submit" className="button button-outline" disabled={note.line.trim().length === 0}>Garder sur cet appareil</button>
+        {saved && <p role="status">Noté ici. Le tournage n’a pas commencé.</p>}
+      </form>}
+    </>}
 
     <details className="disclosure create-drawer">
       <summary>Comment la prise est tournée ?</summary>

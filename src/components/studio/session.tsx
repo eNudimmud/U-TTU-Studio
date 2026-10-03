@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { DATASET_SIZE, FLUX_STACK, maxSafeSteps, type ComfyPlan } from "@/lib/comfy-stack";
 import { bootstrapPlan } from "@/lib/fal-bootstrap";
 import { FAL_VARY } from "@/lib/fal-stack";
+import { rememberLook } from "@/lib/take-files";
 import { trackEvent } from "@/lib/analytics";
 import { captionsBlock } from "@/lib/gate/report";
 import { GATE, canKeep, evaluateGate, type ConfirmationId, type DatasetImage, type GateResult } from "@/lib/gate/rules";
@@ -210,6 +211,7 @@ export function StudioSessionProvider({ children }: { children: ReactNode }) {
     const next = incoming.map(file => ({ name: file.name, url: URL.createObjectURL(file) }));
     refUrls.current = next.map(item => item.url);
     setRefFiles(incoming);
+    rememberLook(incoming);
     setRefPreviews(next);
     const extra = list.length - incoming.length;
     setNotice(extra > 0 ? `Seules ${FAL_VARY.maxRefs} photos partent. Les autres sont ignorées.` : "");

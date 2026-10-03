@@ -557,8 +557,11 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 .cinema-index { font-family: var(--font-heading); font-size: 11px; letter-spacing: .16em; color: var(--gold); }
 .cinema-plain { font-family: var(--font-heading); font-size: clamp(15px, 2.2vw, 22px); letter-spacing: -.03em; line-height: 1.1; color: inherit; }
 .cinema-step[aria-current="step"] .cinema-plain { color: var(--gold-soft); }
-.cinema-name { font-size: 12px; color: var(--muted); }
+.cinema-name { display: none; }
 .cinema-path { margin: 0 0 2px; color: var(--muted); font-size: 13px; }
+.atelier-quiet { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
+.atelier-more { flex: 1 1 180px; }
+.atelier-more summary { min-height: 44px; }
 .atelier-nav { padding-top: 0; }
 .atelier-nav .studio-nav-item { flex: 0 1 auto; min-height: 44px; font-size: 13px; }
 .look-status { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; margin-top: 16px; padding: 12px 14px; border: 1px solid var(--line); background: var(--surface); max-width: 40rem; }
@@ -600,7 +603,8 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 .take-mark { margin-top: auto; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
 .take-chain li[data-state="open"] .take-mark { color: var(--muted); }
 .take-chain .text-button { margin-top: 4px; }
-.take-actions { margin-top: 22px; display: grid; gap: 10px; justify-items: start; }
+.take-status { margin: 18px 0 0; max-width: 36rem; color: var(--text); }
+.take-actions { margin-top: 8px; display: grid; gap: 10px; justify-items: start; }
 .take-actions p { color: var(--muted); font-size: 14px; max-width: 36rem; }
 .take-plan { margin-top: 16px; max-width: 40rem; }
 .take-card { margin-top: 22px; max-width: 36rem; min-height: 0; }
@@ -615,5 +619,4 @@ button.vault-row:hover strong { color: var(--gold-soft); }
 @media (max-width: 700px) {
   .plateau-bring .button, .plateau-foot .button, .take-actions .button, .take-plan .button { width: 100%; }
   .cinema-step { padding: 8px; min-height: 64px; }
-  .cinema-name { display: none; }
 }

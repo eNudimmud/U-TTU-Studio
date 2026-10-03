@@ -18,7 +18,7 @@ Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CIN
 | --- | --- | --- | --- |
 | Look | Ton style | Ton style : dépôt photo, statut « Look tenu » | boucle photo, LoRA |
 | Plateau | Ta scène | Ta scène : le monde, images, suites, notes | préviz Blender, sur le bureau |
-| Take | La prise | La prise : monde → look tenu → charger la page ici. Rien n’est envoyé avant le lancement dans le cadre | MiniMax H3 R2V (`video_minimax_h3_r2v`), LoRA au nœud 145 ; échange de personnage à la main ; Seedance plus tard |
+| Take | La prise | Look tenu et monde posé : un bouton charge la page ici et y écrit le plan. Les images partent si le compte les accepte. Le plein onglet n’a pas ce brief. Le tournage payant ne part pas tout seul | MiniMax H3 R2V (`video_minimax_h3_r2v`), texte au nœud 138, images 137 et 139 après `/api/assets` ; LoRA au nœud 145 à la main ; Seedance plus tard |
 
 - **Décision :** le shell parle d’abord Ton style, Ta scène, La prise. Une ligne dit « Le monde, le look tenu, puis une prise courte. » Blender et Seedance restent dans l’aide de Ta scène et de La prise, pas sur les boutons. On ne les met pas sur l’accueil.
 - **Décision :** « Vente HOLD » reste une décision de doc. Le bandeau du shell dit « Rien à payer » et la date. L’accueil ne le répète qu’une fois, à côté du bouton.
