@@ -164,10 +164,15 @@ export function TakeScreen({ goLook, goScene, goSphere }: { goLook(): void; goSc
   const scenePicture = scene?.stills[0];
   const result = run.phase === "done" ? studio.studio.takes.find(take => take.id === run.takeId) : undefined;
   const video = useRef<HTMLVideoElement>(null);
+  const resultCard = useRef<HTMLDivElement>(null);
+  const resultId = result?.id;
 
   useEffect(() => {
-    if (result) video.current?.play().catch(() => {});
-  }, [result]);
+    if (!resultId) return;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    resultCard.current?.scrollIntoView({ block: "start", behavior: still ? "auto" : "smooth" });
+    video.current?.play().catch(() => {});
+  }, [resultId]);
 
   if (!check.ready || !scene) {
     return <section className="u-screen" aria-labelledby="u-title">
@@ -193,7 +198,7 @@ export function TakeScreen({ goLook, goScene, goSphere }: { goLook(): void; goSc
       <button type="button" className="u-link u-muted" onClick={cancelRun}>Annuler</button>
     </div>}
 
-    {run.phase === "done" && result && media[result.video] && <div className="u-card u-result">
+    {run.phase === "done" && result && media[result.video] && <div ref={resultCard} className="u-card u-result">
       <video ref={video} src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted loop playsInline preload="auto" className={`is-${result.settings.aspect}`} />
       <p className="u-small">{result.costCredits !== null ? `Débité : ${formatCredits(result.costCredits)} crédits, lu sur ton solde.` : "Débit pas encore visible sur ton solde."}{result.gpuSeconds !== null ? ` Calcul : ${clock(result.gpuSeconds)}.` : ""}</p>
       <PublishActions take={result} />

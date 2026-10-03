@@ -92,6 +92,7 @@ function AppFrame() {
     </header>
 
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
+      {ready && <GuideBubble moments={moments} />}
       {!ready ? <p className="u-loading" role="status">Ouverture du coffre…</p>
         : tab === "look" ? <LookScreen onNext={() => go("scene")} />
         : tab === "scene" ? <SceneScreen onNext={() => go("prise")} />
@@ -99,7 +100,6 @@ function AppFrame() {
         : <SphereScreen />}
     </main>
 
-    {ready && !sheet && <GuideBubble moments={moments} />}
     {notice && <p className="u-toast" role="status">{notice}</p>}
 
     <nav className="u-chain" aria-label="Look, scène, prise">

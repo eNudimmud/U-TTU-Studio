@@ -12,12 +12,14 @@ export function GuideBubble({ moments }: { moments: readonly (GuideMoment | fals
   return <aside className="u-guide" role="note" aria-label="U*TTU" data-moment={moment}>
     <span className="u-guide-face" style={{ backgroundImage: `url(${assetPath("/images/uttu-canon-portrait.webp")})` }} aria-hidden="true" />
     <div className="u-guide-body">
-      <p className="u-label">U*TTU</p>
-      <p className="u-guide-line">{GUIDE_LINES[moment]}</p>
-      <div className="u-guide-actions">
-        <button type="button" className="u-link" onClick={() => dismissGuide(moment)}>Compris</button>
-        <button type="button" className="u-link u-muted" onClick={guideOff}>Ne plus guider</button>
+      <div className="u-guide-head">
+        <p className="u-label">U*TTU</p>
+        <div className="u-guide-actions">
+          <button type="button" className="u-link" onClick={() => dismissGuide(moment)}>Compris</button>
+          <button type="button" className="u-link u-muted" onClick={guideOff}>Ne plus guider</button>
+        </div>
       </div>
+      <p className="u-guide-line">{GUIDE_LINES[moment]}</p>
     </div>
   </aside>;
 }

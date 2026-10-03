@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { CREDITS_PER_USD, formatCredits } from "@/lib/credits";
+import { CREDITS_PER_USD, claimBasis, formatCredits } from "@/lib/credits";
 import { folderLinkSupported } from "@/lib/coffre/link";
 import { takeProfile } from "@/lib/render/take-graph";
 import { assetPath } from "@/lib/site";
@@ -126,7 +126,7 @@ export function CreditSheet() {
       <p className="u-small">Un seul payeur : ton compte Comfy Cloud. Le solde vient de lui, avant et après chaque prise. 1 $ = {CREDITS_PER_USD} crédits.</p>
       <div className="u-card">
         <p className="u-label">À ce réglage · {takeProfile(settings)}</p>
-        <p>{claim.state === "measured" ? `Environ ${formatCredits(claim.credits)} crédits, la plus chère de tes ${Math.min(claim.runs, 3)} dernières prises mesurées.` : "Non calibré. Aucun chiffre n’est annoncé avant une prise mesurée à ce réglage."}</p>
+        <p>{claim.state === "measured" ? `Environ ${formatCredits(claim.credits)} crédits, mesuré sur ${claimBasis(claim)}.` : "Non calibré. Aucun chiffre n’est annoncé avant une prise mesurée à ce réglage."}</p>
       </div>
       {measured.length > 0 && <ul className="u-ledger" aria-label="Dernières prises mesurées">
         {measured.map(take => <li key={take.id}><span>{date.format(new Date(take.at))}</span><span>{take.sceneName || "Prise"}</span><span>{formatCredits(take.costCredits ?? 0)} cr.</span></li>)}

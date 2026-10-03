@@ -48,13 +48,18 @@ export type RunGate = { allowed: boolean; tone: "ok" | "warn" | "block"; line: s
 
 const day = new Intl.DateTimeFormat("fr-CH", { day: "numeric", month: "short" });
 
+/** What a measured claim stands on, in the words the studio shows. */
+export function claimBasis(claim: Extract<CostClaim, { state: "measured" }>): string {
+  return claim.runs > 1 ? `la plus chère de tes ${Math.min(claim.runs, 3)} dernières prises à ce réglage` : `ta prise du ${day.format(new Date(claim.at))} à ce réglage`;
+}
+
 export function runGate(balance: Balance | null, claim: CostClaim): RunGate {
   if (!balance) return { allowed: false, tone: "block", line: "Solde illisible. Rien ne part sans lire le compte qui paiera." };
   if (balance.credits <= 0) return { allowed: false, tone: "block", line: "Solde vide sur ton compte de rendu." };
   if (claim.state === "uncalibrated") {
     return { allowed: true, tone: "warn", line: "Coût non calibré à ce réglage. Le temps de calcul réel sera débité, puis mesuré sur cette prise." };
   }
-  const basis = claim.runs > 1 ? `la plus chère de tes ${Math.min(claim.runs, 3)} dernières prises à ce réglage` : `ta prise du ${day.format(new Date(claim.at))} à ce réglage`;
+  const basis = claimBasis(claim);
   if (balance.credits < claim.credits) {
     return {
       allowed: false,
