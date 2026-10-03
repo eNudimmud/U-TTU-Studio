@@ -1,6 +1,7 @@
 "use client";
 
 import { UserButton, useUser } from "@clerk/nextjs";
+import { ClerkScope } from "@/components/account/clerk-scope";
 import { ACCOUNT_SIGN_IN_PATH, ACCOUNT_SIGN_UP_PATH, ACCOUNT_VAULT_LINKS } from "@/lib/account";
 import { BUDGET_ANON } from "@/lib/budget";
 import { clerkClientEnabled } from "@/lib/clerk-config";
@@ -12,7 +13,7 @@ import { useGoToMode } from "./mode-context";
 
 export function AccountPanel() {
   if (!clerkClientEnabled()) return <AccountBody phase="unconfigured" />;
-  return <AccountSession />;
+  return <ClerkScope><AccountSession /></ClerkScope>;
 }
 
 function AccountSession() {
