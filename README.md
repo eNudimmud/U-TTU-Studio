@@ -70,6 +70,12 @@ U-TTU-Studio/
 
 U*TTU dit une phrase à chaque moment où l’on peut hésiter : photos, nom, traits, lieu, relier, phrase, coût, calcul, publication. Une bulle au-dessus du fil, pas un mode d’emploi. « Compris » la range ; « Ne plus guider » la coupe. Son visage est un recadrage du portrait canon ([docs/VISUAL-CANON.md](docs/VISUAL-CANON.md)).
 
+### Captures
+
+Parcours vérifié le 3 octobre 2026 avec un compte de rendu simulé : la vidéo est un clip de test (« Prise simulée »), le coût et le solde viennent du faux compte. Aucune prise réelle.
+
+<img src="docs/screenshots/studio-direct-look-mobile.jpg" width="320" alt="Ton look : U*TTU guide en une phrase, trois photos à poser" /> <img src="docs/screenshots/studio-direct-take-mobile.jpg" width="320" alt="La prise revenue : vidéo, débit mesuré, Publier sur X" />
+
 ## Ce qui quitte encore l’app
 
 | Quoi | Pourquoi |
