@@ -49,6 +49,7 @@ Dans la feuille « Relier », deux chemins :
 - À un réglage donné (pas, durée, format), le studio annonce « environ X crédits » seulement après une prise mesurée à ce réglage : la plus chère des trois dernières. Avant, il dit « non calibré » et n’annonce aucun chiffre.
 - « Tourner » s’éteint si le solde est illisible, vide, ou sous le coût mesuré. Rien ne part sans le geste de confirmation. Le studio n’encaisse rien et ne recharge rien.
 - **Ton double a son propre payeur : le compte fal de la personne.** Le compteur du haut montre ce solde sur la page de formation et quand La prise est sur « Ton double », et les crédits Comfy le reste du temps. Le devis vient du prix unitaire du compte, avant le geste. « Former » et « Tourner » s’éteignent si ce solde est illisible, vide, ou sous le devis. Le vieux rail Flux (Worker, `src/lib/fal-*.ts`) reste dormant : il n’entraîne pas le modèle de La prise.
+- **Délier** se fait dans cette même feuille « Comptes », un bouton par compte. Ça retire la clé ou la session de cet appareil. Le coffre, le fichier formé et le compte chez Comfy ou fal restent.
 
 ### Coffre — la mémoire du studio
 

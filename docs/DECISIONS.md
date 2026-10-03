@@ -2,6 +2,12 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-03.
 
+## Délier un compte depuis la feuille ouverte — 3 octobre 2026, nuit
+
+- **Demande JD :** une fois Comfy et fal reliés, aucun des deux ne se délie. Les boutons existent, dans des feuilles que le compteur du haut n’ouvre plus.
+- **Fait :** après une liaison, ce bouton ouvre « Comptes ». « Délier ce compte » restait dans les feuilles de liaison, visibles seulement tant que le compte ne l’était pas.
+- **Décision :** « Comptes » porte un bouton par compte relié, « Délier le compte de rendu » et « Délier le compte fal ». Chacun retire la clé ou la session de cet appareil. Le coffre, le fichier formé et le compte chez le fournisseur restent.
+
 ## Former son double, le recharger dans La prise — 3 octobre 2026, nuit
 
 - **Demande JD :** le constat « pas de chemin » ne suffit pas. Dans l’app, l’adhérent forme son propre LoRA, le fichier arrive dans son coffre, et une création ultérieure charge ces poids. Page dédiée, guide et prix avant tout geste payant. Pas de fichier factice. Pas de run payant par la livraison.
