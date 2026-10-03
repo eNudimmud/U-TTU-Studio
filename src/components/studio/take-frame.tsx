@@ -11,6 +11,7 @@ import { heldLookFiles, placeFileFor, storeTakeHandoff } from "@/lib/take-files"
 import { assetPath } from "@/lib/site";
 import { trackEvent } from "@/lib/analytics";
 import { Arrow } from "../glyph";
+import { TakeCost } from "./credit-meter";
 import "../guide/workspace.css";
 
 const noSubscription = () => () => {};
@@ -57,6 +58,7 @@ export function TakeFrame({
       </div>
       <a className="button button-outline" href={H3_R2V_TEMPLATE.page} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("take_template_opened")}>{TAKE_TAB} <Arrow diagonal /><span className="sr-only">(nouvel onglet)</span></a>
     </header>
+    <TakeCost />
     {!framable
       ? <p className="inline-status warn">{TAKE_FRAME_HTTP}</p>
       : loads && embed

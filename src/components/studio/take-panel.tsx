@@ -10,6 +10,7 @@ import {
   type TakeNote,
 } from "@/lib/plateau";
 import { useGoToStep } from "./mode-context";
+import { PostTake } from "./post-take";
 import { useStudioSession } from "./session";
 import { TakeFrame } from "./take-frame";
 
@@ -94,6 +95,10 @@ export function TakePanel() {
         <button type="submit" className="button button-outline" disabled={note.line.trim().length === 0}>Garder sur cet appareil</button>
         {saved && <p role="status">Noté ici. Le tournage n’a pas commencé.</p>}
       </form>}
+      <details className="disclosure create-drawer take-post">
+        <summary>Publier la prise</summary>
+        <PostTake line={note.line} place={chosen?.name ?? ""} />
+      </details>
     </>}
 
     <details className="disclosure create-drawer">

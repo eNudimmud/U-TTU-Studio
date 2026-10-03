@@ -4,6 +4,8 @@
 
 export const PLATEAU_STORAGE_KEY = "u-ttu-plateau";
 export const TAKE_STORAGE_KEY = "u-ttu-take";
+/** Window event after Plateau writes the book, so the chain marks follow. */
+export const PLATEAU_EVENT = "u-ttu-plateau";
 
 export const PLATEAU_SCENE_MAX = 8;
 export const PLATEAU_STILL_MAX = 8;

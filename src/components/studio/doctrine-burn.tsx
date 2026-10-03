@@ -3,7 +3,7 @@
 import { BURN_WARN, CHEAP_BEFORE, LOOK_HELD_LINE, LOOK_OPEN_LINE, MUSIC_NOTE, canonChecklist, lookHeld, type CanonInput } from "@/lib/doctrine";
 import { useGoToMode } from "./mode-context";
 
-export function DoctrineBurn({ input, onCanonNoted }: { input: CanonInput; onCanonNoted: (value: boolean) => void }) {
+export function DoctrineBurn({ input, onCanonNoted, canonToggle = true }: { input: CanonInput; onCanonNoted: (value: boolean) => void; canonToggle?: boolean }) {
   const go = useGoToMode();
   const marks = canonChecklist(input);
   const held = lookHeld(input);
@@ -20,10 +20,10 @@ export function DoctrineBurn({ input, onCanonNoted }: { input: CanonInput; onCan
           <strong>{mark.label}</strong>
           <p>{mark.detail}</p>
           {mark.id === "canon" && <div className="canon-note">
-            <label className="check-inline">
+            {canonToggle && <label className="check-inline">
               <input type="checkbox" checked={input.canonNoted} onChange={event => onCanonNoted(event.target.checked)} />
               <span>Noté dans CANON.md</span>
-            </label>
+            </label>}
             <button type="button" className="text-button" onClick={() => go("studio")}>Ouvrir le coffre</button>
           </div>}
         </div>
