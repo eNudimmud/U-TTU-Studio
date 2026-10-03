@@ -1,5 +1,21 @@
 # Contrôles de livraison — C micro
 
+## Former son double — 3 octobre 2026
+
+Branche `cursor/lora-fal-h3-386f`. Aucune formation réelle, aucune prise réelle : **0 $ dépensé**. fal est simulé dans le navigateur (CDP Fetch sur `api.fal.ai`, `queue.fal.run`, `rest.fal.ai`, `v3.fal.media`). Tout autre hôte est refusé. Le seul appel réseau hors de ce simulacre aurait été visible dans le journal : il n’y en a pas eu.
+
+| Contrôle | Résultat | Périmètre |
+| --- | --- | --- |
+| TypeScript strict | PASS | `next build` (Webpack) typecheck inclus, Next.js 16.3.6. `/studio` statique. |
+| Tests unitaires | PASS : 154/154 | `npm test` : devis fal, jeu de clips, envoi de formation (archive `clipNN` + références, pas de découpe, mise à l’échelle), prise qui recharge le fichier du coffre, client fal, coffre et ZIP, porte sur le solde. |
+| Page avant le geste | PASS | « Former ton double » explique les clips, les photos du look, ce que le fichier fera et ne fera pas. Le seul bouton est « Relier mon compte fal ». Aucun envoi. |
+| Porte sur le solde | PASS | Dix clips, solde 1,00 $ : « Solde trop bas » pour 15,00 $, « Former mon double » désactivé, rien en file. Après relecture à 40,00 $, la feuille « Former ton double ? » s’ouvre et fal n’a toujours rien reçu. |
+| Formation puis recharge | PASS | Un seul envoi vers `minimax/h3/ref2va/trainer`. L’archive apparie chaque clip aux photos du look. Le coffre reçoit les octets exacts du `.safetensors` rendu. La prise suivante envoie ce fichier et `minimax/h3/reference-to-video/lora` le charge par cette URL (`loras[0].path`, échelle 1), avec les deux photos et l’image du lieu. Débits lus : 15,00 $ puis 0,38 $. |
+| Clé | PASS | La clé reste dans le navigateur. Elle n’est dans aucun fichier du coffre. La feuille coffre le dit. |
+| Hôtes | PASS | 0 requête vers Clerk, Comfy ou un traceur. 0 erreur console. |
+
+**Ce que l’adhérent relie encore :** un compte fal avec du crédit, et une clé API de portée Admin créée une fois sur fal.ai/dashboard/keys. Le compte de rendu Comfy n’est pas requis pour ce chemin.
+
 ## Studio direct — 3 octobre 2026
 
 Branche `cursor/studio-direct-386f`. Aucune prise réelle, rien publié : **0 crédit dépensé**.
