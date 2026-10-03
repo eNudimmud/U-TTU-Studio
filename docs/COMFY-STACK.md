@@ -63,6 +63,24 @@ Le relais sert toujours les pages Comfy (la connexion de la feuille « Relier »
 | Une vidéo longue traverse le relais. | Elle est diffusée en flux, comme les tuiles Sphère avant elle. |
 | Le fichier VAE vidéo n’est pas dans l’index de l’outil `dry_run`. | C’est le fichier du template officiel. À surveiller à la première prise. |
 
+## Un LoRA formé par l’adhérent pour la prise — pas de chemin aujourd’hui (3 octobre 2026)
+
+Demande : former un LoRA à partir de ses propres photos, garder le fichier dans le coffre, et le charger dans La prise, sur le compte Comfy Cloud de l’adhérent. Il faut trois maillons. Le premier existe peut-être ; les deux autres n’existent pas.
+
+| Maillon | Ce qu’il faudrait | Ce que Comfy Cloud offre (catalogue relevé le 3 octobre 2026) |
+| --- | --- | --- |
+| 1. Former | Un entraîneur sur le modèle de la prise, `minimax_h3_ref2va_pruned_int8_convrot` | `TrainLoraNode` (core) : `MODEL` + `LATENT` + `CONDITIONING` → `LORA_MODEL`, avec des réglages pour modèles quantifiés (`bypass_mode`, `quantized_backward`). C’est le seul entraîneur du catalogue : la recherche « trainer » ne renvoie rien, la catégorie `model/training` ne contient que `TrainLoraNode`, `LossGraphNode`, `MakeTrainingDataset` et `ResolutionBucket`. Aucun template d’entraînement, aucune doc ne montre qu’il marche avec H3 ; seul un run payant le dirait. |
+| 2. Garder le fichier | Un nœud qui écrit le LoRA formé en fichier de sortie, que `/api/view` rapatrie au coffre | Aucun. Seuls `TrainLoraNode` (qui le produit) et `LoraModelLoader` (qui l’applique, dans le même graphe) acceptent ou produisent un `LORA_MODEL`. `SaveLoRA` (« Save LoRA Weights ») est absent du catalogue Cloud, comme le 24 septembre. `LoraExtractKJ` écrit un LoRA ré-extrait par SVD dans `output/loras/`, mais ne déclare aucune sortie : rien ne dit que Cloud garde ce fichier. |
+| 3. Le charger dans une prise suivante | Un chargeur qui lit le fichier de l’adhérent | Tous les chargeurs de LoRA (`LoraLoaderModelOnly` et ses variantes) choisissent un nom dans la bibliothèque de modèles du compte. Aucun chargeur par URL ou par chemin. Pour y ajouter son propre fichier, Comfy documente un seul chemin : un lien Hugging Face ou Civitai, plan Creator ou plus ; l’envoi depuis son disque n’est pas pris en charge ([Import models](https://docs.comfy.org/cloud/import-models)). L’API Cloud a un `POST /api/assets` générique à étiquettes libres, mais rien n’y documente l’envoi d’un modèle, et `POST /api/assets/download` n’accepte que huggingface.co et civitai.com ([OpenAPI](https://docs.comfy.org/openapi-cloud.yaml)). Le relais du studio, sur Vercel, ne passe de toute façon pas un corps de plus de 4,5 Mo environ. |
+
+Conséquences :
+
+- **Former et tourner dans le même run** (`TrainLoraNode` → `LoraModelLoader` → la prise) est le seul montage où un LoRA formé toucherait une création. Il ne garde aucun fichier : rien au coffre, rien à choisir dans La prise, et chaque prise repaierait l’entraînement, dans la limite d’un run (30 min en Standard et Creator, 60 min en Pro). Sa compatibilité avec H3 n’est pas vérifiée. Non construit.
+- **Le rail fal** (`flux-lora-fast-training`) forme un LoRA Flux.1 [dev], dont les poids visent les blocs du transformeur Flux. Sur H3, `LoraLoaderModelOnly` ne trouverait aucune clé correspondante : la prise l’ignorerait. Le fichier n’entrerait pas non plus dans la bibliothèque Cloud (même règle d’import). Non branché.
+- **La prise d’aujourd’hui** charge un seul LoRA : le turbo 4 pas publié, `minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16`, pour la vitesse. Ce n’est ni un fichier de l’adhérent, ni le LoRA Character-Swap, qui n’est pas au catalogue Cloud.
+
+**Ce qui débloquerait, côté Comfy :** `SaveLoRA` sur Cloud, pour que le fichier sorte du run ; et une façon documentée de mettre son propre `.safetensors` dans sa bibliothèque sans passer par Hugging Face ou Civitai, avec un envoi qui ne traverse pas le relais. Avec les deux, la page demandée devient possible : guide et photos, run d’entraînement confirmé, fichier au coffre, fichier inscrit dans la bibliothèque du compte, choisi dans La prise.
+
 ## Archive — Flux.1 [dev], parcours LoRA (dormant)
 
 Tout ce qui suit décrit l’ancien parcours : dataset de 15 images, entraînement de LoRA, apps « Former mon look » et « Tester un prompt », cadre H3. L’app ne l’ouvre plus. Les bibliothèques restent dans le dépôt, testées. Les fichiers `comfy/*.api.json` et `public/comfy/*.json` ont été retirés ; ils restent dans l’historique git.

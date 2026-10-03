@@ -85,6 +85,8 @@ Parcours vérifié le 3 octobre 2026 avec un compte de rendu simulé : la vidéo
 | Joindre la vidéo dans X sur ordinateur | Les navigateurs de bureau ne partagent pas un fichier vers X. Sur téléphone, la feuille de partage le fait en un geste. |
 | Compte U*TTU (`/compte`) | Facultatif, hors du chemin. Le studio n’en a pas besoin. |
 
+**Pas possible aujourd’hui : former son propre LoRA et le charger dans La prise.** Sur Comfy Cloud, le LoRA formé ne peut pas être enregistré en fichier, et une prise ne charge que les LoRA de la bibliothèque du compte, où un fichier personnel n’entre que par un import Hugging Face ou Civitai (plan Creator ou plus). Le studio ne propose donc pas de formation. Détail : [docs/COMFY-STACK.md](docs/COMFY-STACK.md#un-lora-formé-par-ladhérent-pour-la-prise--pas-de-chemin-aujourdhui-3-octobre-2026).
+
 ## Démarrer
 
 Prérequis : Node.js 22 ou plus récent, et npm.

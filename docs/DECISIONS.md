@@ -2,6 +2,15 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-03.
 
+## Former son LoRA pour la prise — pas de chemin — 3 octobre 2026, soir
+
+- **Demande JD :** dans l’app, l’adhérent forme un vrai LoRA à partir de ses photos, le fichier arrive dans son coffre, et La prise le charge au rendu. Formation et prise sur son propre compte Comfy Cloud. Une page dédiée, avec un guide, avant tout geste payant. Si aucun entraîneur ne produit un fichier que la prise peut charger, le dire et s’arrêter.
+- **Fait :** aucun chemin n’existe aujourd’hui sur Comfy Cloud. Le seul entraîneur, `TrainLoraNode`, produit un LoRA qui ne vit que dans le run qui l’a formé : aucun nœud du catalogue Cloud ne l’écrit en fichier (`SaveLoRA` absent), donc rien ne peut arriver au coffre. Et une prise suivante ne charge un LoRA que par son nom dans la bibliothèque du compte, où un fichier personnel n’entre que par un import Hugging Face ou Civitai, plan Creator ou plus. Détail et sources : [COMFY-STACK.md](COMFY-STACK.md#un-lora-formé-par-ladhérent-pour-la-prise--pas-de-chemin-aujourdhui-3-octobre-2026).
+- **Fait :** l’hypothèse sur fal est juste. `flux-lora-fast-training` forme un LoRA Flux.1 [dev] ; H3 est un autre modèle, la prise n’en chargerait aucun poids.
+- **Correction :** la prise charge aujourd’hui le LoRA turbo 4 pas publié, pour la vitesse. Ce n’est pas le LoRA Character-Swap, qui n’est pas au catalogue Cloud.
+- **Décision :** rien n’est construit. Pas de page de formation, pas de bouton qui envoie des photos sans fichier au bout, pas de fichier Flux branché à la prise. Former et tourner dans le même run aurait gardé zéro fichier et repayé l’entraînement à chaque prise, sans preuve que `TrainLoraNode` marche avec H3. Le code fal reste dormant.
+- **Proposition, à décider par JD :** demander à Comfy `SaveLoRA` sur Cloud et l’envoi d’un fichier personnel dans la bibliothèque du compte. Avec les deux, la page dédiée se construit telle que demandée.
+
 ## Studio direct — tout dans l’app — 3 octobre 2026
 
 - **Décision JD :** le #32 était à moitié fait. Un adhérent, un studio : tenir un look, poser une scène, charger la prise, la lancer, voir le résultat, la publier, sans quitter l’app. Des crédits cohérents. Une mémoire personnelle du studio. Carte blanche sur l’architecture et l’identité, dans le canon U*TTU.
@@ -168,6 +177,7 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 
 | Décision | Par | Date |
 | --- | --- | --- |
+| Pas de page de formation de LoRA : sur Comfy Cloud, le LoRA formé par `TrainLoraNode` ne peut pas être enregistré en fichier (`SaveLoRA` absent), et une prise ne charge que les LoRA de la bibliothèque du compte (import Hugging Face ou Civitai, plan Creator ou plus). Pas de LoRA Flux de fal branché à la prise : H3 ne le chargerait pas. | JD (demande) + livraison (constat) | 2026-10-03 |
 | Studio direct : l’app tourne la prise H3 R2V elle-même sur le compte Comfy Cloud de la personne (API documentée, relais même origine), après confirmation. Un seul payeur, coût mesuré par le solde, « non calibré » avant mesure. Coffre Obsidian écrit par l’app (IndexedDB, export ZIP, dossier relié). U*TTU guide en une phrase. fal, App Mode, template réécrit et journal de budget quittent l’app. Compte à `/compte`. | JD (intention, carte blanche) + livraison | 2026-10-03 |
 | App : une barre, la chaîne en onglets mobiles, Sphère étagère, carte de look. Crédits : solde Comfy lu dans le cadre, « Lancer ce rendu ? » avant chaque `POST /api/prompt`, journal local. Publier : feuille de partage ou brouillon X, rien sans clic. Clerk seulement sur Compte et connexion, télémétrie coupée. Solde fal et publication directe : éteints, secrets nommés. | JD (intention) + livraison | 2026-10-03 |
 | La prise écrit le texte du plan dans le nœud 138 du cadre H3. Les photos (137, 139) ne partent que si `/api/assets` renvoie un nom. L’URL du template ne porte pas les octets. Plein onglet sans brief. Run payant non branché. Écran : une chaîne, Sphère en retrait. | Livraison | 2026-10-03 |
