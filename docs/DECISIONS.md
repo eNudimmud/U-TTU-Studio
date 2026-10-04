@@ -2,7 +2,20 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-04.
 
+## Lieux qui restent, Blender, personnage — 4 octobre 2026
+
+- **Demande JD :** une app complète. Un lieu nommé reste : le rouvrir montre le même endroit, et on peut en tenir plusieurs. Depuis ce lieu, on place et on déplace une caméra. La préviz est un rendu Blender de cette caméra dans ce lieu, pas un volume passé à Comfy, pas une image dessinée ici. La prise reçoit cette image et le personnage formé dans le studio, le fichier du coffre. La création reste dans le cloud. Français, téléphone inchangé, écran large inchangé, une action principale, rien sans un geste, pas de run payant pendant la construction.
+- **Plancher, Higgsfield Cinema Studio :** un plateau 3D qu’on ré-entre, une caméra (boîtier, focale, ouverture, mouvements), des éléments réutilisables (personnage, lieu, accessoire) et une cohérence de personnage (Soul Cast), une image héro puis le plan filmé, le tout sur leur compte et leurs crédits. Ce n’est pas le dessin de cette app, ni leur interface, ni leur marque, ni leur compte.
+- **Décision, lieu :** le lieu est la fiche du coffre. Le plan (pièce, quai, rue) et la caméra (position, visée, focale 24 / 35 / 50 / 85) y sont écrits. Rouvrir la fiche retrouve le même lieu. Plusieurs lieux restent. Changer le plan ne jette pas la caméra. La déplacer oublie l’image précédente, qui montrait une autre caméra.
+- **Décision, Blender :** Comfy Cloud n’a pas Blender. Le fichier est un `.blend` Blender 4.1.1, non compressé, écrit par ce binaire, avec les volumes, la caméra, Cycles, 768×1024, une image PNG. Le studio en remplace les transformations. Farpy (`https://farpy.com`) exécute ce fichier : `POST /node/v1/uploads/inspect` lit un devis et ne débite pas ; `POST /node/v1/uploads/{id}/start` avec `quote_id` et `FARPY_LEGAL_V1` est le seul envoi payant. La clé est une clé de job `farpy_agent_`, stockée sur l’appareil (`u-ttu-blender`), jamais dans le coffre. L’image n’apparaît que si le ZIP du job contient un PNG.
+- **Décision, prix :** pas de prix de liste collé à la place du devis. Sans devis lisible, le bouton de débit est éteint. La feuille montre le montant renvoyé, en francs suisses. Sans clé, le bouton dit « Relier Blender » et rien n’est dessiné.
+- **Décision, prise :** « Personnage » recharge le `.safetensors` du coffre. Si le lieu a une image filmée, elle part avec, et l’absence de photo de look ne bloque plus. Le rail Flux reste dormant. Les références Comfy restent l’autre moteur.
+- **Fait, cette livraison :** Blender 4.1.1 a ouvert le fichier écrit par l’app et en a rendu une image Cycles, sur cette machine, pour prouver le fichier. Aucun job Farpy n’a été lancé. Aucun LoRA n’a été formé. 0 $.
+- **Ce qui quitte encore l’app :** un compte Farpy, du crédit, et une clé de job `farpy_agent_`. Tant qu’ils manquent, le studio ne prétend pas avoir rendu l’image de l’adhérent.
+
 ## Personnage, préviz, remise à zéro, écran large — 4 octobre 2026
+
+La préviz de cette section (GLB, `RenderMesh`) est dépassée par la section ci-dessus. Le personnage, la remise à zéro et l’écran large tiennent.
 
 - **Demande JD :** « Former ton double » n’a rien à faire sur Look. Le LoRA sert la cohérence des personnages créés : un lieu pour en former un, et pour le recharger afin que les prises suivantes tiennent ce personnage. La préviz Blender puis Comfy doit exister, sans Blender sur l’appareil. Chaque page de création se remet à zéro sans effacer le coffre. Un écran large a sa propre mise en page. Le téléphone reste premier.
 - **Décision, personnage :** le fil du bas est Look, Rôle, Scène, Prise. Rôle ouvre `#lora`. Look n’a plus de lien vers la formation. Même entraîneur qu’avant, `minimax/h3/ref2va/trainer`. Le brouillon a un nom et deux à quatre photos de ce personnage ; elles accompagnent les clips. Le fichier revient au coffre. La prise « Personnage » le recharge via `minimax/h3/reference-to-video/lora`. Le rail Flux reste dormant.

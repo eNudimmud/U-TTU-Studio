@@ -59,5 +59,7 @@ describe("le texte de la prise", () => {
     const doubled = takePrompt({ traits: [], lookPictures: 2, place: null, line: "Elle avance.", tags: "image", subject: "mira_uttu" });
     assert.match(doubled, /^Image 1 and Image 2 show mira_uttu, the same person\./);
     assert.doesNotMatch(`${text}\n${lone}\n${doubled}`, /night city/i);
+    const filmed = takePrompt({ traits: [], lookPictures: 0, place: { name: "Le quai", note: "", pictures: 1 }, line: "Elle avance.", tags: "image", subject: "mira_uttu" });
+    assert.match(filmed, /^mira_uttu is the person\. Keep the same person for the whole shot\. Image 1 shows the place, Le quai\./);
   });
 });

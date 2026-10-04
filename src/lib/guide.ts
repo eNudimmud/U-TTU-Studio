@@ -31,7 +31,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "look-ready": "Ton look tient. Pose maintenant le lieu.",
   "scene-new": "Un lieu, un nom. Une image si tu l’as.",
   "scene-still": "Une image du lieu, et je le garde d’une prise à l’autre.",
-  "scene-previz": "Trois plans de volumes. L’image vient du rendu, après ton geste.",
+  "scene-previz": "Ce lieu reste. Place la caméra, puis filme d’un geste.",
   "take-connect": "Relie ton compte de rendu. Le calcul se paie là-bas, pas ici.",
   "take-line": "Une phrase : ce que fait la prise. Le reste est déjà tissé.",
   "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",

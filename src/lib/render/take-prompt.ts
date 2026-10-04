@@ -25,9 +25,12 @@ function tags(from: number, count: number, style: "picture" | "image"): string {
 
 export function takePrompt(input: TakePromptInput): string {
   const style = input.tags ?? "picture";
-  const look = Math.max(1, Math.floor(input.lookPictures));
+  const look = Math.max(0, Math.floor(input.lookPictures));
   const subject = input.subject ? clip(input.subject, 60) : "";
-  const lines = [`${tags(1, look, style)} ${look > 1 ? "show" : "shows"} ${subject ? `${subject}, ` : ""}the same person. Keep this person for the whole shot.`];
+  const person = look > 0
+    ? `${tags(1, look, style)} ${look > 1 ? "show" : "shows"} ${subject ? `${subject}, ` : ""}the same person. Keep this person for the whole shot.`
+    : `${subject ? `${subject} is the person. ` : ""}Keep the same person for the whole shot.`;
+  const lines = [person];
   const traits = input.traits.map(trait => clip(trait, 60)).filter(Boolean).slice(0, 8);
   if (traits.length) lines.push(`What does not change: ${traits.join(", ")}.`);
   if (input.place) {

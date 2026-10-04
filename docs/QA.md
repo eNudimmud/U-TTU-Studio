@@ -1,5 +1,27 @@
 # Contrôles de livraison — C micro
 
+## Lieu qui reste, caméra, Blender — 4 octobre 2026
+
+Branche `cursor/blender-place-shot-386f`. Aucun job Farpy, aucun LoRA formé, aucun run fal ni Comfy : **0 $ dépensé**. La marche navigateur part d’un profil Chrome vide, sur le build de production (`127.0.0.1:3456`). Aucune requête vers Farpy, fal, `/api/prompt`, `/api/upload` ou la file fal.
+
+| Contrôle | Résultat | Périmètre |
+| --- | --- | --- |
+| Tests unitaires | PASS : 163/163, 0 ignoré | `npm test`. Le `.blend` est `BLENDER-v401`. Blender 4.1.1 (`e1743a0317bc`) l’ouvre, lit Cycles, 768×1024, focale 35, et rend une preuve CPU (1 échantillon, 61×81). Cette image n’est pas celle du studio. |
+| TypeScript et build | PASS | `tsc --noEmit`. `next build --webpack`. `/studio` statique. |
+| Caméra qui reste | PASS | Pièce : `0, 1.6, 4.8` vise `0, 1.15, 0`, 35 mm. Après +X : `0.4, 1.6, 4.8`. Rechargement : la même ligne, plan Pièce encore choisi. Un second passage (+Y) rouvre `0.4, 2, 4.8`. |
+| Plusieurs lieux | PASS | Second lieu « La rue », plan Rue : `0.2, 1.7, 6.4` vise `0, 1.2, 0.6`, 24 mm. « Remettre ce lieu à zéro » enlève sa caméra. Le premier lieu garde `0.4, 1.6, 4.8`. |
+| Un geste | PASS | Sans clé, le seul bouton plein est « Relier Blender ». Pas d’image `.u-previz`. Le texte ne dit plus « Blender ne tourne pas » et ne cite plus `Load3D`. |
+| Feuille Blender | PASS | Titre « Blender ». Elle nomme Farpy et une clé `farpy_agent_`, et dit que coller la clé ne dépense rien. Fermée sans envoi. |
+| Téléphone | PASS | 390 × 844 : app 390 px, fil en bas (haut 767, haut. 77, larg. 390), marge du contenu 0, `scrollWidth` 390. |
+| Écran large | PASS | Émulation 1440 × 900 : rail à gauche (larg. 232, dès 65 px du haut), marge du contenu 232, colonnes 320 et 753, `scrollWidth` 1425. Le bouton plein reste « Relier Blender ». |
+| Réseau | PASS | Filtre Farpy, fal, `/api/prompt`, `/api/upload`, file fal : vide. |
+
+**Blender a tourné ici, pas pour l’adhérent.** Le test ouvre le fichier écrit par l’app et en tire la preuve 61×81. Aucun `POST` Farpy `start`. Sans clé `farpy_agent_`, le studio n’affiche aucune image et n’invente aucun prix.
+
+**Ce que JD relie encore :** un compte Farpy, du crédit, une clé de job `farpy_agent_` (pas une clé de compte `farpy_`). Elle reste sur l’appareil (`u-ttu-blender`).
+
+La vidéo de la marche montre la colonne téléphone et le bouton « Relier Blender ». Le rail large est prouvé par la capture 1440 px et les mesures ci-dessus. La relecture vidéo par un modèle externe n’a pas été lancée.
+
 ## Personnage, préviz, remise à zéro, écran large — 4 octobre 2026
 
 Branche `cursor/role-previz-desk-386f`. Aucune formation réelle, aucun rendu réel : **0 $ dépensé**. fal et le compte de rendu sont simulés dans le navigateur (soldes et prix seulement). Aucun `POST` vers `/api/prompt`, `/api/upload`, `/api/queue`, ni vers la file fal.

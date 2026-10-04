@@ -78,8 +78,8 @@ describe("coffre en markdown", () => {
     await writeBlob(store, "refs/look-a-1.jpg", new Blob(["p1"], { type: "image/jpeg" }));
     await writeBlob(store, "refs/look-a-2.jpg", new Blob(["p2"], { type: "image/jpeg" }));
     await writeLook(store, { name: "Mira", traits: ["yeux verts", "taches"], photos: ["refs/look-a-1.jpg", "refs/look-a-2.jpg", "refs/missing.jpg"], note: "" });
-    await writeScene(store, { id: "le-quai", name: "Le quai", note: "pluie fine", stills: [], previz: null, previzFile: null, render: null });
-    await writeScene(store, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, render: null });
+    await writeScene(store, { id: "le-quai", name: "Le quai", note: "pluie fine", stills: [], previz: null, previzFile: null, camera: null, render: null });
+    await writeScene(store, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, camera: null, render: null });
     await writeState(store, "la-serre");
     await writeBlob(store, take().video, new Blob(["mp4"], { type: "video/mp4" }));
     await writeTake(store, take(), [take()]);

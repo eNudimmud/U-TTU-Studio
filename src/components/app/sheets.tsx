@@ -116,7 +116,7 @@ const time = new Intl.DateTimeFormat("fr-CH", { hour: "2-digit", minute: "2-digi
 const date = new Intl.DateTimeFormat("fr-CH", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 export function CreditSheet() {
-  const { setSheet, connected, balance, balanceNote, refreshBalance, claim, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, disconnect, disconnectFal } = useStudio();
+  const { setSheet, connected, balance, balanceNote, refreshBalance, claim, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, disconnect, disconnectFal, blenderLinked, disconnectBlender } = useStudio();
   const measured = studio.takes.filter(take => take.costCredits !== null || take.costUsd !== null).slice(0, 5);
   return <SheetFrame title="Comptes" label="Qui paie" onClose={() => setSheet(null)}>
     <div className="u-stack">
@@ -146,6 +146,9 @@ export function CreditSheet() {
         <p className="u-small">Cet appareil oublie la clé. Le coffre, le fichier formé et le compte restent.</p>
         <button type="button" className="u-secondary" onClick={disconnectFal}>Délier le compte fal</button>
       </>}
+      <p className="u-label">Blender</p>
+      <p className="u-small">{blenderLinked ? "La clé de job est sur cet appareil. Elle paie le rendu du lieu, pas le studio." : "Aucune clé. Le lieu se filme une fois la clé collée, depuis la scène."}</p>
+      {blenderLinked && <button type="button" className="u-secondary" onClick={() => { disconnectBlender(); setSheet(null); }}>Délier Blender</button>}
       {measured.length > 0 && <ul className="u-ledger" aria-label="Dernières prises mesurées">
         {measured.map(take => <li key={take.id}><span>{date.format(new Date(take.at))}</span><span>{take.sceneName || "Prise"}</span><span>{costLabel(take) ?? "en attente"}</span></li>)}
       </ul>}
@@ -170,7 +173,7 @@ export function CoffreSheet() {
 
   return <SheetFrame title="Ton coffre" label="Mémoire du studio" onClose={() => setSheet(null)}>
     <div className="u-stack">
-      <p>Ton look, tes lieux, tes personnages et tes prises vivent ici, sur cet appareil, rangés comme un coffre Obsidian. Rien n’est envoyé au studio. La clé fal non plus.</p>
+      <p>Ton look, tes lieux, tes personnages et tes prises vivent ici, sur cet appareil, rangés comme un coffre Obsidian. Rien n’est envoyé au studio. Les clés non plus.</p>
       <ul className="u-ledger">
         <li><span>Photos du look</span><span>{studio.look.photos.length}</span></li>
         <li><span>Lieux</span><span>{studio.scenes.length}</span></li>
@@ -275,20 +278,55 @@ export function TrainConfirmSheet() {
 }
 
 export function PrevizConfirmSheet() {
-  const { setSheet, scene, balance, previzGate, confirmPreviz } = useStudio();
+  const { setSheet, scene, previzGate, confirmPreviz } = useStudio();
   const plan = scene?.previz === "quai" ? "Quai" : scene?.previz === "rue" ? "Rue" : scene?.previz === "piece" ? "Pièce" : "—";
-  return <SheetFrame title="Rendre l’image du lieu ?" label="Confirmer" onClose={() => setSheet(null)}>
+  const lens = scene?.camera?.lens;
+  return <SheetFrame title="Filmer ce plan ?" label="Confirmer" onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
         <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
         <li><span>Plan</span><span>{plan}</span></li>
-        <li><span>Ton solde</span><span>{balance ? `${formatCredits(balance.credits)} crédits` : "illisible"}</span></li>
+        <li><span>Focale</span><span>{lens ? `${lens} mm` : "—"}</span></li>
       </ul>
       <p className={`u-cost is-${previzGate.tone}`}>{previzGate.line}</p>
-      <p className="u-small">Blender ne tourne pas ici. Le rendu lit le fichier de volumes tenu au coffre. S’il ne renvoie pas d’image, aucune n’est affichée.</p>
-      <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>Rendre · débit sur mon compte</button>
+      <p className="u-small">Blender rend cette caméra dans ce lieu. S’il ne renvoie pas d’image, aucune n’est affichée.</p>
+      <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>Filmer · débit sur mon compte</button>
       <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
     </div>
+  </SheetFrame>;
+}
+
+export function BlenderSheet() {
+  const { setSheet, blenderLinked, connectBlender, disconnectBlender, setNotice } = useStudio();
+  const [key, setKey] = useState("");
+  const [error, setError] = useState("");
+
+  function linkKey() {
+    const problem = connectBlender(key);
+    if (problem) {
+      setError(problem);
+      return;
+    }
+    setNotice("Clé Blender tenue sur cet appareil.");
+    setSheet(null);
+  }
+
+  return <SheetFrame title="Blender" label="Relier" onClose={() => setSheet(null)}>
+    {blenderLinked
+      ? <div className="u-stack">
+        <p>La clé de job est sur cet appareil. Elle part seulement vers Farpy, au moment où tu filmes.</p>
+        <button type="button" className="u-secondary" onClick={() => { disconnectBlender(); setNotice("Clé Blender retirée de cet appareil."); setSheet(null); }}>Délier Blender</button>
+      </div>
+      : <div className="u-stack">
+        <p>Farpy fait tourner Blender, hors de ton appareil. Crée un compte, ajoute du crédit, puis une clé de job. Elle commence par farpy_agent_. Une clé de compte ne lance pas le rendu.</p>
+        <label className="u-field">
+          <span className="u-label">Clé de job</span>
+          <input type="password" value={key} autoComplete="off" spellCheck={false} placeholder="farpy_agent_…" onChange={event => setKey(event.target.value)} />
+        </label>
+        <p className="u-small">La clé reste sur cet appareil. Elle n’entre pas dans le coffre. Coller la clé ne débite rien : le devis est lu au premier film.</p>
+        {error && <p className="u-small is-error" role="alert">{error}</p>}
+        <button type="button" className="u-primary" disabled={!key.trim()} onClick={linkKey}>Relier</button>
+      </div>}
   </SheetFrame>;
 }
 

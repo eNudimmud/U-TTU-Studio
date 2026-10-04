@@ -52,6 +52,11 @@ describe("le studio, une app", () => {
     assert.ok(context.indexOf('falGate(fresh, quote, "prise")') < context.indexOf("submitLoraTake("), "the take quote is checked before the LoRA is sent");
     assert.match(read("src/components/app/sheets.tsx"), /Former · débit sur mon compte fal/);
     assert.doesNotMatch(read("src/components/app/screens.tsx"), /Former ton double/);
+    const scene = read("src/components/app/screens.tsx");
+    const sceneScreen = scene.slice(scene.indexOf("export function SceneScreen"), scene.indexOf("function clock"));
+    assert.match(sceneScreen, /Filmer ce plan/);
+    assert.doesNotMatch(sceneScreen, /Préparer la prise|Blender ne tourne pas|Load3DAdvanced|RenderMesh/);
+    assert.equal(sceneScreen.match(/u-primary/g)?.length, 1);
     const chain = read("src/components/app/studio-app.tsx");
     assert.match(chain, /label: "Rôle"/);
     assert.match(chain, /<LookScreen onNext=/);

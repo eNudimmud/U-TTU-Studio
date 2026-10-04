@@ -11,7 +11,7 @@ import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, SceneScreen, SphereScreen, TakeScreen } from "./screens";
-import { CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlayerSheet, PrevizConfirmSheet, TrainConfirmSheet } from "./sheets";
+import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlayerSheet, PrevizConfirmSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
@@ -134,6 +134,7 @@ function AppFrame() {
     {sheet === "coffre" && <CoffreSheet />}
     {sheet === "confirm" && <ConfirmSheet />}
     {sheet === "fal" && <FalSheet />}
+    {sheet === "blender" && <BlenderSheet />}
     {sheet === "train-confirm" && <TrainConfirmSheet />}
     {sheet === "previz-confirm" && <PrevizConfirmSheet />}
     {sheet && typeof sheet === "object" && <PlayerSheet id={sheet.take} />}
