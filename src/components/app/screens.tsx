@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { costLabel, LOOK_PHOTOS_MAX, SCENE_STILLS_MAX, cleanTraits, lookCheck, parseTraits } from "@/lib/coffre/model";
+import { PREVIZ_LABELS, PREVIZ_PLANS, previzFaces } from "@/lib/render/previz";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { TAKE_STEPS } from "@/lib/render/take-graph";
@@ -9,7 +10,7 @@ import { Arrow, Close, Plus, Web } from "./glyphs";
 import { PublishActions } from "./publish";
 import { useStudio, type RunState } from "./studio-context";
 
-function PictureSlot({ index, url, onAdd, onRemove, label }: { index: number; url?: string; onAdd(files: File[]): void; onRemove?(): void; label: string }) {
+export function PictureSlot({ index, url, onAdd, onRemove, label }: { index: number; url?: string; onAdd(files: File[]): void; onRemove?(): void; label: string }) {
   const number = String(index + 1).padStart(2, "0");
   if (url && onRemove) {
     return <figure className="u-slot is-filled" data-frame={number}>
@@ -23,8 +24,8 @@ function PictureSlot({ index, url, onAdd, onRemove, label }: { index: number; ur
   </label>;
 }
 
-export function LookScreen({ onNext, onTrain }: { onNext(): void; onTrain(): void }) {
-  const { studio, media, saveLook, addLookPhotos, removeLookPhoto } = useStudio();
+export function LookScreen({ onNext }: { onNext(): void }) {
+  const { studio, media, saveLook, addLookPhotos, removeLookPhoto, resetLook } = useStudio();
   const look = studio.look;
   const check = lookCheck(look);
   const [trait, setTrait] = useState("");
@@ -44,40 +45,48 @@ export function LookScreen({ onNext, onTrain }: { onNext(): void; onTrain(): voi
     }
   }
 
+  const dirty = Boolean(look.name || look.note || look.traits.length || look.photos.length);
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">01 · Ton style</p>
       <h1 id="u-title" tabIndex={-1}>Ton look.</h1>
     </header>
-    <div className="u-photos" aria-label="Photos du look">
-      {Array.from({ length: LOOK_PHOTOS_MAX }, (_, index) => {
-        const path = look.photos[index];
-        return <PictureSlot key={path ?? `empty-${index}`} index={index} url={path ? media[path] : undefined} label="la photo" onAdd={files => void addLookPhotos(files)} onRemove={path ? () => void removeLookPhoto(path) : undefined} />;
-      })}
-    </div>
-    <label className="u-field">
-      <span className="u-label">Nom</span>
-      <input value={look.name} maxLength={40} placeholder="Mira" autoComplete="off" onChange={event => void saveLook({ name: event.target.value.slice(0, 40) })} />
-    </label>
-    <div className="u-field">
-      <label className="u-label" htmlFor="u-trait">Ce qui ne change pas</label>
-      <div className="u-chips">
-        {look.traits.map(item => <button key={item} type="button" className="u-chip" onClick={() => void saveLook({ traits: look.traits.filter(other => other !== item) })} aria-label={`Retirer ${item}`}>{item}<Close /></button>)}
-        <input id="u-trait" value={trait} placeholder={look.traits.length ? "un autre" : "yeux verts, taches de rousseur"} onChange={event => setTrait(event.target.value)} onKeyDown={onTraitKey} onBlur={() => trait.trim() && addTrait(trait)} enterKeyHint="done" />
+    <div className="u-desk">
+      <div className="u-photos" aria-label="Photos du look">
+        {Array.from({ length: LOOK_PHOTOS_MAX }, (_, index) => {
+          const path = look.photos[index];
+          return <PictureSlot key={path ?? `empty-${index}`} index={index} url={path ? media[path] : undefined} label="la photo" onAdd={files => void addLookPhotos(files)} onRemove={path ? () => void removeLookPhoto(path) : undefined} />;
+        })}
+      </div>
+      <div className="u-stack">
+        <label className="u-field">
+          <span className="u-label">Nom</span>
+          <input value={look.name} maxLength={40} placeholder="Mira" autoComplete="off" onChange={event => void saveLook({ name: event.target.value.slice(0, 40) })} />
+        </label>
+        <div className="u-field">
+          <label className="u-label" htmlFor="u-trait">Ce qui ne change pas</label>
+          <div className="u-chips">
+            {look.traits.map(item => <button key={item} type="button" className="u-chip" onClick={() => void saveLook({ traits: look.traits.filter(other => other !== item) })} aria-label={`Retirer ${item}`}>{item}<Close /></button>)}
+            <input id="u-trait" value={trait} placeholder={look.traits.length ? "un autre" : "yeux verts, taches de rousseur"} onChange={event => setTrait(event.target.value)} onKeyDown={onTraitKey} onBlur={() => trait.trim() && addTrait(trait)} enterKeyHint="done" />
+          </div>
+        </div>
+        <ol className="u-marks" aria-label="Ce qui tient le look">
+          <li data-held={check.photos}>Deux photos</li>
+          <li data-held={check.name}>Un nom</li>
+          <li data-held={check.traits}>Deux traits</li>
+        </ol>
+        <div className="u-actions">
+          <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetLook()}>Remettre ce look à zéro</button>
+          <p className="u-small">Les prises, les lieux et les personnages formés restent.</p>
+          <button type="button" className="u-primary" disabled={!check.ready} onClick={onNext}>Poser la scène <Arrow /></button>
+        </div>
       </div>
     </div>
-    <ol className="u-marks" aria-label="Ce qui tient le look">
-      <li data-held={check.photos}>Deux photos</li>
-      <li data-held={check.name}>Un nom</li>
-      <li data-held={check.traits}>Deux traits</li>
-    </ol>
-    <button type="button" className="u-primary" disabled={!check.ready} onClick={onNext}>Poser la scène <Arrow /></button>
-    <button type="button" className="u-link" onClick={onTrain}>Former ton double</button>
   </section>;
 }
 
 export function SceneScreen({ onNext }: { onNext(): void }) {
-  const { studio, scene, media, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene } = useStudio();
+  const { studio, scene, media, addScene, selectScene } = useStudio();
   const [draft, setDraft] = useState("");
   const [adding, setAdding] = useState(false);
 
@@ -90,47 +99,92 @@ export function SceneScreen({ onNext }: { onNext(): void }) {
   }
 
   const showNew = adding || studio.scenes.length === 0;
-  return <section className="u-screen" aria-labelledby="u-title">
+  return <section className="u-screen u-scene-screen" aria-labelledby="u-title">
     <header className="u-head">
-      <p className="u-label">02 · Ta scène</p>
+      <p className="u-label">03 · Ta scène</p>
       <h1 id="u-title" tabIndex={-1}>Ta scène.</h1>
     </header>
-    {studio.scenes.length > 0 && <div className="u-scenes" role="radiogroup" aria-label="Lieux">
-      {studio.scenes.map(item => {
-        const still = item.stills[0];
-        return <button key={item.id} type="button" role="radio" aria-checked={item.id === scene?.id} className="u-scene" onClick={() => void selectScene(item.id)}>
-          {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
-          <span>{item.name}</span>
-        </button>;
-      })}
-      {!adding && <button type="button" className="u-scene u-scene-add" onClick={() => setAdding(true)} aria-label="Nouveau lieu"><Plus /></button>}
-    </div>}
-    {showNew && <form className="u-new" onSubmit={add}>
-      <label className="u-field">
-        <span className="u-label">Nouveau lieu</span>
-        <input value={draft} maxLength={40} placeholder="Le quai, la nuit" onChange={event => setDraft(event.target.value)} autoFocus={adding} />
-      </label>
-      <button type="submit" className="u-secondary" disabled={!draft.trim()}>Poser</button>
-    </form>}
-    {scene && <div className="u-card u-scene-edit">
-      <label className="u-field">
-        <span className="u-label">Nom du lieu</span>
-        <input value={scene.name} maxLength={40} onChange={event => void saveScene(scene.id, { name: event.target.value.slice(0, 40) })} />
-      </label>
-      <label className="u-field">
-        <span className="u-label">Ce qui tient le lieu</span>
-        <textarea value={scene.note} maxLength={280} rows={2} placeholder="Pluie fine, néons froids, l’heure bleue." onChange={event => void saveScene(scene.id, { note: event.target.value.slice(0, 280) })} />
-      </label>
-      <div className="u-photos is-wide" aria-label="Images du lieu">
-        {Array.from({ length: SCENE_STILLS_MAX }, (_, index) => {
-          const path = scene.stills[index];
-          return <PictureSlot key={path ?? `still-${index}`} index={index} url={path ? media[path] : undefined} label="l’image" onAdd={files => void addSceneStills(scene.id, files)} onRemove={path ? () => void removeSceneStill(scene.id, path) : undefined} />;
-        })}
+    <div className="u-desk">
+      <div className="u-stack">
+        {studio.scenes.length > 0 && <div className="u-scenes" role="radiogroup" aria-label="Lieux">
+          {studio.scenes.map(item => {
+            const still = item.render ?? item.stills[0];
+            return <button key={item.id} type="button" role="radio" aria-checked={item.id === scene?.id} className="u-scene" onClick={() => void selectScene(item.id)}>
+              {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
+              <span>{item.name || "Sans nom"}</span>
+            </button>;
+          })}
+          {!adding && <button type="button" className="u-scene u-scene-add" onClick={() => setAdding(true)} aria-label="Nouveau lieu"><Plus /></button>}
+        </div>}
+        {showNew && <form className="u-new" onSubmit={add}>
+          <label className="u-field">
+            <span className="u-label">Nouveau lieu</span>
+            <input value={draft} maxLength={40} placeholder="Le quai, la nuit" onChange={event => setDraft(event.target.value)} autoFocus={adding} />
+          </label>
+          <button type="submit" className="u-secondary" disabled={!draft.trim()}>Poser</button>
+        </form>}
       </div>
-      <button type="button" className="u-link u-muted" onClick={() => void deleteScene(scene.id)}>Retirer ce lieu</button>
-    </div>}
-    <button type="button" className="u-primary" disabled={!scene} onClick={onNext}>Préparer la prise <Arrow /></button>
+      <div className="u-stack">
+        {scene && <SceneEditor />}
+        <button type="button" className="u-primary" disabled={!scene} onClick={onNext}>Préparer la prise <Arrow /></button>
+      </div>
+    </div>
   </section>;
+}
+
+function SceneEditor() {
+  const { scene, media, saveScene, addSceneStills, removeSceneStill, deleteScene, setPreviz, previz, previzGate: gate, requestPreviz, cancelPreviz, resetScene, connected, balance, balanceNote } = useStudio();
+  if (!scene) return null;
+  const dirty = Boolean(scene.name || scene.note || scene.stills.length || scene.previz || scene.render);
+  const renderUrl = scene.render ? media[scene.render] : undefined;
+  return <div className="u-card u-scene-edit">
+    <label className="u-field">
+      <span className="u-label">Nom du lieu</span>
+      <input value={scene.name} maxLength={40} onChange={event => void saveScene(scene.id, { name: event.target.value.slice(0, 40) })} />
+    </label>
+    <label className="u-field">
+      <span className="u-label">Ce qui tient le lieu</span>
+      <textarea value={scene.note} maxLength={280} rows={2} placeholder="Pluie fine, néons froids, l’heure bleue." onChange={event => void saveScene(scene.id, { note: event.target.value.slice(0, 280) })} />
+    </label>
+    <ul className="u-facts">
+      <li><strong>Blender</strong>Il ne tourne pas ici, ni sur ton appareil. Le studio n’ouvre pas un fichier .blend.</li>
+      <li><strong>Ce que tu poses</strong>Un plan de volumes : pièce, quai ou rue. Le studio l’écrit en fichier et le tient au coffre.</li>
+      <li><strong>Ce que La prise charge</strong>L’image que le rendu renvoie de ce fichier. Pas une image dessinée ici. Sans cette image, La prise charge tes photos du lieu.</li>
+      <li><strong>Le prix</strong>Le compte de rendu est débité du calcul. Le montant n’est pas connu avant. Rien ne part sans confirmation.</li>
+    </ul>
+    <p className="u-label">Plan</p>
+    <div className="u-segments" role="group" aria-label="Plan">
+      {PREVIZ_PLANS.map(plan => <button key={plan} type="button" aria-pressed={scene.previz === plan} onClick={() => void setPreviz(scene.id, plan)}>{PREVIZ_LABELS[plan]}</button>)}
+    </div>
+    {scene.previz && !renderUrl && <p className="u-small">Fichier tenu · {previzFaces(scene.previz)} faces. Aucune image tant que le rendu n’en a pas renvoyé.</p>}
+    {renderUrl && <figure className="u-previz">
+      <img src={renderUrl} alt="" />
+      <figcaption>Image rendue. La prise la charge.</figcaption>
+    </figure>}
+    {previz.phase === "running" && <div className="u-run" role="status">
+      <div className="u-thread" aria-hidden="true"><span /></div>
+      <p className="u-run-label">Rendu du lieu</p>
+      <button type="button" className="u-link u-muted" onClick={cancelPreviz}>Annuler</button>
+    </div>}
+    {previz.phase === "error" && <p className="u-small is-error" role="alert">{previz.message}</p>}
+    {previz.phase !== "running" && <button type="button" className="u-secondary" disabled={!scene.previz || Boolean(connected && !gate.allowed)} onClick={() => void requestPreviz()}>
+      {!scene.previz ? "Choisis un plan" : !connected ? "Relier mon compte de rendu" : "Rendre l’image du lieu"}
+    </button>}
+    {scene.previz && <p className={`u-cost is-${connected ? gate.tone : "warn"}`}>
+      {!connected ? "Relie ton compte de rendu. Il paie le calcul, pas le studio."
+        : balance ? `${formatCredits(balance.credits)} crédits sur ton compte. ${gate.line}`
+        : balanceNote || "Lecture du solde…"}
+    </p>}
+    <div className="u-photos is-wide" aria-label="Images du lieu">
+      {Array.from({ length: SCENE_STILLS_MAX }, (_, index) => {
+        const path = scene.stills[index];
+        return <PictureSlot key={path ?? `still-${index}`} index={index} url={path ? media[path] : undefined} label="l’image" onAdd={files => void addSceneStills(scene.id, files)} onRemove={path ? () => void removeSceneStill(scene.id, path) : undefined} />;
+      })}
+    </div>
+    <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetScene()}>Remettre ce lieu à zéro</button>
+    <p className="u-small">Les autres lieux, les prises et les personnages formés restent.</p>
+    <button type="button" className="u-link u-muted" onClick={() => void deleteScene(scene.id)}>Retirer ce lieu</button>
+  </div>;
 }
 
 function clock(seconds: number): string {
@@ -142,7 +196,7 @@ function runLabel(run: Extract<RunState, { phase: "running" }>): string {
   switch (event.stage) {
     case "start": return "Préparation";
     case "upload": return `Envoi des images · ${event.done}/${event.total}`;
-    case "lora": return "Envoi de ton double";
+    case "lora": return "Envoi du personnage";
     case "submit": return "Mise en file";
     case "queue": return "position" in event && event.position ? `En file · ${event.position}` : "En file sur ton compte";
     case "prepare": return "Le calcul démarre";
@@ -161,10 +215,10 @@ export function Segments<T extends string | number>({ label, value, options, onC
 
 export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): void; goScene(): void; goSphere(): void; goLora(): void }) {
   const studio = useStudio();
-  const { media, scene, line, setLine, settings, setSettings, gate, connected, balance, balanceNote, run, requestRun, cancelRun, resetRun, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance, falBalanceNote } = studio;
+  const { media, scene, line, setLine, settings, setSettings, gate, connected, balance, balanceNote, run, requestRun, cancelRun, resetRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance, falBalanceNote } = studio;
   const check = lookCheck(studio.studio.look);
   const lookPicture = studio.studio.look.photos[0];
-  const scenePicture = scene?.stills[0];
+  const scenePicture = scene?.render ?? scene?.stills[0];
   const result = run.phase === "done" ? studio.studio.takes.find(take => take.id === run.takeId) : undefined;
   const video = useRef<HTMLVideoElement>(null);
   const resultCard = useRef<HTMLDivElement>(null);
@@ -180,7 +234,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
   if (!check.ready || !scene) {
     return <section className="u-screen" aria-labelledby="u-title">
       <header className="u-head">
-        <p className="u-label">03 · La prise</p>
+        <p className="u-label">04 · La prise</p>
         <h1 id="u-title" tabIndex={-1}>La prise.</h1>
       </header>
       <p className="u-lead">{!check.ready ? "Le look ne tient pas encore." : "Aucun lieu n’est posé."}</p>
@@ -190,14 +244,14 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
 
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
-      <p className="u-label">03 · La prise</p>
+        <p className="u-label">04 · La prise</p>
       <h1 id="u-title" tabIndex={-1}>La prise.</h1>
     </header>
 
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>
       <p className="u-run-label">{runLabel(run)}</p>
-      <p className="u-small">{engine === "lora" ? "Ton compte fal calcule, avec ton double." : "Ton compte de rendu calcule."} Tu peux rester ici ou revenir plus tard : la prise rejoint le coffre.</p>
+      <p className="u-small">{engine === "lora" ? "Ton compte fal calcule, avec ce personnage." : "Ton compte de rendu calcule."} Tu peux rester ici ou revenir plus tard : la prise rejoint le coffre.</p>
       <button type="button" className="u-link u-muted" onClick={cancelRun}>Annuler</button>
     </div>}
 
@@ -223,30 +277,33 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         : <button type="button" className="u-secondary" onClick={resetRun}>Reprendre</button>}
     </div>}
 
-    {run.phase === "idle" && <>
-      <div className="u-pair" aria-label="Look et lieu">
-        <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name}</figcaption></figure>
-        <span className="u-pair-thread" aria-hidden="true" />
-        <figure>{scenePicture && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene.name}</figcaption></figure>
+    {run.phase === "idle" && <div className="u-desk">
+      <div className="u-stack">
+        <div className="u-pair" aria-label="Look et lieu">
+          <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name}</figcaption></figure>
+          <span className="u-pair-thread" aria-hidden="true" />
+          <figure>{scenePicture && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene.render ? "Image rendue" : scene.name}</figcaption></figure>
+        </div>
+        <label className="u-field">
+          <span className="u-label">Ce que fait la prise</span>
+          <textarea value={line} rows={2} maxLength={240} placeholder="Elle traverse le quai sous la pluie, sans se retourner." onChange={event => setLine(event.target.value)} />
+        </label>
+        <button type="button" className="u-link u-muted" disabled={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={resetTake}>Remettre ce plan à zéro</button>
+        <p className="u-small">Les prises déjà tournées restent.</p>
       </div>
-      <label className="u-field">
-        <span className="u-label">Ce que fait la prise</span>
-        <textarea value={line} rows={2} maxLength={240} placeholder="Elle traverse le quai sous la pluie, sans se retourner." onChange={event => setLine(event.target.value)} />
-      </label>
       <div className="u-settings">
-        <Segments label="Visage" value={engine} onChange={setEngine} options={[{ value: "comfy", label: "Références" }, { value: "lora", label: "Ton double" }]} />
+        <Segments label="Cohérence" value={engine} onChange={setEngine} options={[{ value: "comfy", label: "Références" }, { value: "lora", label: "Personnage" }]} />
         {engine === "lora" && (studio.studio.loras.length === 0
-          ? <button type="button" className="u-link" onClick={goLora}>Aucun double au coffre. Le former</button>
-          : <Segments label="Double" value={chosenLora?.id ?? ""} onChange={setLora} options={studio.studio.loras.map(lora => ({ value: lora.id, label: lora.name || "Double" }))} />)}
+          ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre. Le former</button>
+          : <Segments label="Personnage" value={chosenLora?.id ?? ""} onChange={setLora} options={studio.studio.loras.map(lora => ({ value: lora.id, label: lora.name || "Personnage" }))} />)}
         {engine === "lora" && chosenLora && <Segments label="Netteté" value={loraResolution} onChange={setLoraResolution} options={[{ value: "768P", label: "768p" }, { value: "480P", label: "480p" }]} />}
         <Segments label="Format" value={settings.aspect} onChange={aspect => setSettings({ aspect })} options={[{ value: "vertical", label: "9:16" }, { value: "horizontal", label: "16:9" }, { value: "carre", label: "1:1" }]} />
         <Segments label="Durée" value={settings.seconds} onChange={seconds => setSettings({ seconds })} options={[{ value: 5, label: "5 s" }, { value: 8, label: "8 s" }]} />
         {engine === "comfy" && <Segments label="Rendu" value={settings.quality} onChange={quality => setSettings({ quality })} options={[{ value: "rapide", label: `Rapide · ${TAKE_STEPS.rapide} pas` }, { value: "fine", label: `Fin · ${TAKE_STEPS.fine} pas` }]} />}
-      </div>
       <p className={`u-cost is-${engine === "lora" ? (falLinked ? gate.tone : "warn") : (connected ? gate.tone : "warn")}`}>
         {engine === "lora"
-          ? (!falLinked ? "Relie ton compte fal pour tourner avec ton double. Il paie le calcul, pas le studio."
-            : !chosenLora ? "Forme d’abord ton double. Rien ne part sans fichier."
+          ? (!falLinked ? "Relie ton compte fal pour tourner avec un personnage. Il paie le calcul, pas le studio."
+            : !chosenLora ? "Forme d’abord le personnage. Rien ne part sans fichier."
             : falBalance ? `${formatUsd(falBalance.usd)} sur ton compte fal. ${gate.line}`
             : falBalanceNote || "Lecture du solde…")
           : (!connected ? "Relie ton compte de rendu pour tourner. Il paie le calcul, pas le studio."
@@ -258,7 +315,8 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
           ? (falLinked ? `Tourner${loraQuote !== null ? ` · ${formatUsd(loraQuote)}` : ""}` : "Relier mon compte fal")
           : (connected ? "Tourner" : "Relier mon compte de rendu")} <Arrow />
       </button>
-    </>}
+      </div>
+    </div>}
   </section>;
 }
 

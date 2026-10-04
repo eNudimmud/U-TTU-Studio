@@ -11,12 +11,13 @@ import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, SceneScreen, SphereScreen, TakeScreen } from "./screens";
-import { CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlayerSheet, TrainConfirmSheet } from "./sheets";
+import { CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlayerSheet, PrevizConfirmSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
-const STEPS: { id: Exclude<Tab, "sphere" | "lora">; label: string }[] = [
+const STEPS: { id: Exclude<Tab, "sphere">; label: string }[] = [
   { id: "look", label: "Look" },
+  { id: "lora", label: "Rôle" },
   { id: "scene", label: "Scène" },
   { id: "prise", label: "Prise" },
 ];
@@ -65,8 +66,9 @@ function AppFrame() {
     return () => window.clearTimeout(timer);
   }, [notice, setNotice]);
 
-  const done: Record<Exclude<Tab, "sphere" | "lora">, boolean> = {
+  const done: Record<Exclude<Tab, "sphere">, boolean> = {
     look: check.ready,
+    lora: studio.studio.loras.length > 0,
     scene: hasScene,
     prise: studio.studio.takes.length > 0,
   };
@@ -75,9 +77,9 @@ function AppFrame() {
   const moments: (GuideMoment | false)[] = tab === "look"
     ? [!check.photos && "look-photos", !check.name && "look-name", !check.traits && "look-traits", check.ready && "look-ready"]
     : tab === "scene"
-    ? [studio.studio.scenes.length === 0 && "scene-new", Boolean(studio.scene && studio.scene.stills.length === 0) && "scene-still"]
+    ? [studio.studio.scenes.length === 0 && "scene-new", Boolean(studio.scene && !studio.scene.previz && studio.scene.stills.length === 0) && "scene-still", Boolean(studio.scene && !studio.scene.render) && "scene-previz"]
     : tab === "lora"
-    ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready"]
+    ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", !studio.studio.role.name.trim() && "lora-name", studio.studio.role.photos.length < 2 && "lora-photos", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready"]
     : tab === "prise"
     ? [run.phase === "running" && "take-running", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : !studio.line.trim() ? "take-line" : "take-ready")]
     : [studio.studio.takes.length === 0 && "sphere-empty"];
@@ -101,22 +103,23 @@ function AppFrame() {
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
       {ready && <GuideBubble moments={moments} />}
       {!ready ? <p className="u-loading" role="status">Ouverture du coffre…</p>
-        : tab === "look" ? <LookScreen onNext={() => go("scene")} onTrain={() => go("lora")} />
+        : tab === "look" ? <LookScreen onNext={() => go("scene")} />
         : tab === "scene" ? <SceneScreen onNext={() => go("prise")} />
-        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onLook={() => go("look")} />
+        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} />
         : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goSphere={() => go("sphere")} goLora={() => go("lora")} />
         : <SphereScreen />}
     </main>
 
     {notice && <p className="u-toast" role="status">{notice}</p>}
 
-    <nav className="u-chain" aria-label="Look, scène, prise">
+    <nav className="u-chain" aria-label="Look, rôle, scène, prise">
       <ol>
         {STEPS.map((step, index) => <li key={step.id}>
           <button type="button" aria-current={tab === step.id ? "step" : undefined} data-done={done[step.id] || undefined} onClick={() => go(step.id)}>
             <span className="u-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <span>{step.label}</span>
             {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label="prise en cours" />}
+            {step.id === "lora" && training.phase === "running" && <span className="u-pulse" aria-label="formation en cours" />}
           </button>
         </li>)}
       </ol>
@@ -132,6 +135,7 @@ function AppFrame() {
     {sheet === "confirm" && <ConfirmSheet />}
     {sheet === "fal" && <FalSheet />}
     {sheet === "train-confirm" && <TrainConfirmSheet />}
+    {sheet === "previz-confirm" && <PrevizConfirmSheet />}
     {sheet && typeof sheet === "object" && <PlayerSheet id={sheet.take} />}
   </div>;
 }

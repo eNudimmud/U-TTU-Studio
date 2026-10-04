@@ -20,6 +20,8 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#Take", ""), "prise");
     assert.equal(tabFromLocation("#sphère", ""), "sphere");
     assert.equal(tabFromLocation("#lora", ""), "lora");
+    assert.equal(tabFromLocation("#personnage", ""), "lora");
+    assert.equal(tabFromLocation("#rôle", ""), "lora");
     assert.equal(tabFromLocation("#Former", ""), "lora");
     assert.equal(tabFromLocation("#compte", ""), "compte");
     assert.equal(tabFromLocation("#inconnu", "?step=prise"), "prise");
@@ -42,13 +44,27 @@ describe("le studio, une app", () => {
     assert.match(sheets, /disabled=\{!gate\.allowed\}/);
     assert.match(read("src/components/app/lora-screen.tsx"), /Ce que tu envoies/);
     assert.match(read("src/components/app/lora-screen.tsx"), /Ce qu’il ne fera pas/);
-    assert.match(read("src/components/app/lora-screen.tsx"), /Former mon double/);
+    assert.match(read("src/components/app/lora-screen.tsx"), /Former ce personnage/);
     assert.match(read("src/components/app/studio-app.tsx"), /LoraScreen/);
     assert.match(context, /submitTraining\(/);
     assert.match(context, /submitLoraTake\(/);
     assert.ok(context.indexOf('falGate(fresh, quote, "formation")') < context.indexOf("submitTraining("), "the training quote is checked before anything is sent");
     assert.ok(context.indexOf('falGate(fresh, quote, "prise")') < context.indexOf("submitLoraTake("), "the take quote is checked before the LoRA is sent");
     assert.match(read("src/components/app/sheets.tsx"), /Former · débit sur mon compte fal/);
+    assert.doesNotMatch(read("src/components/app/screens.tsx"), /Former ton double/);
+    const chain = read("src/components/app/studio-app.tsx");
+    assert.match(chain, /label: "Rôle"/);
+    assert.match(chain, /<LookScreen onNext=/);
+    assert.doesNotMatch(chain, /onTrain/);
+    const pages = `${read("src/components/app/screens.tsx")}\n${read("src/components/app/lora-screen.tsx")}`;
+    for (const label of ["Remettre ce look à zéro", "Remettre ce lieu à zéro", "Remettre ce plan à zéro", "Remettre ce personnage à zéro"]) {
+      assert.ok(pages.includes(label), label);
+    }
+    const css = read("src/components/app/app.css");
+    assert.match(css, /width: min\(560px, 100%\)/);
+    assert.match(css, /@media \(min-width: 1080px\)/);
+    assert.match(css, /margin-left: 232px/);
+    assert.match(css, /grid-template-columns: minmax\(0, 1fr\) minmax\(320px, 440px\)/);
     assert.doesNotMatch(read("src/components/app/lora-screen.tsx"), /@clerk\//);
   });
 

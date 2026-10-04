@@ -141,7 +141,7 @@ export function CreditSheet() {
         <span>{falLinked ? (falBalance ? `lus à ${time.format(falBalance.readAt)}` : falBalanceNote || "solde non lu") : "non relié"}</span>
         {falLinked && <button type="button" className="u-icon" onClick={() => void refreshFal()} aria-label="Relire le solde fal"><Refresh /></button>}
       </div>
-      <p className="u-small">La formation et les prises « Ton double » sont débitées ici, au prix annoncé avant le geste.</p>
+      <p className="u-small">La formation d’un personnage et les prises « Personnage » sont débitées ici, au prix annoncé avant le geste.</p>
       {falLinked && <>
         <p className="u-small">Cet appareil oublie la clé. Le coffre, le fichier formé et le compte restent.</p>
         <button type="button" className="u-secondary" onClick={disconnectFal}>Délier le compte fal</button>
@@ -170,7 +170,7 @@ export function CoffreSheet() {
 
   return <SheetFrame title="Ton coffre" label="Mémoire du studio" onClose={() => setSheet(null)}>
     <div className="u-stack">
-      <p>Ton look, tes lieux, tes doubles et tes prises vivent ici, sur cet appareil, rangés comme un coffre Obsidian. Rien n’est envoyé au studio. La clé fal non plus.</p>
+      <p>Ton look, tes lieux, tes personnages et tes prises vivent ici, sur cet appareil, rangés comme un coffre Obsidian. Rien n’est envoyé au studio. La clé fal non plus.</p>
       <ul className="u-ledger">
         <li><span>Photos du look</span><span>{studio.look.photos.length}</span></li>
         <li><span>Lieux</span><span>{studio.scenes.length}</span></li>
@@ -200,7 +200,7 @@ export function ConfirmSheet() {
         <li><span>Plan</span><span>{line.trim() || "sans phrase"}</span></li>
         {engine === "lora"
           ? <>
-            <li><span>Double</span><span>{chosenLora?.name || "Ton double"}</span></li>
+            <li><span>Personnage</span><span>{chosenLora?.name || "Personnage"}</span></li>
             <li><span>Réglage</span><span>{format} · {settings.seconds} s · {loraResolution === "480P" ? "480p" : "768p"}</span></li>
             <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : "illisible"}</span></li>
           </>
@@ -238,11 +238,11 @@ export function FalSheet() {
   return <SheetFrame title="Ton compte fal" label="Relier" onClose={() => setSheet(null)}>
     {falLinked
       ? <div className="u-stack">
-        <p>Relié{falUsername ? ` à ${falUsername}` : ""}. La formation et les prises « Ton double » sont débitées sur ce compte.</p>
+        <p>Relié{falUsername ? ` à ${falUsername}` : ""}. La formation et les prises « Personnage » sont débitées sur ce compte.</p>
         <button type="button" className="u-secondary" onClick={disconnectFal}>Délier ce compte</button>
       </div>
       : <div className="u-stack">
-        <p>Le studio ne forme rien lui-même. Ton double s’apprend sur ton compte fal, avec ton argent. Une seule visite hors de l’app : créer la clé. Ensuite tout reste ici.</p>
+        <p>Le studio ne forme rien lui-même. Le personnage s’apprend sur ton compte fal, avec ton argent. Une seule visite hors de l’app : créer la clé. Ensuite tout reste ici.</p>
         <p className="u-small">fal ne montre le solde qu’à une clé de portée Admin. Crée-la avec cette portée, une fois.</p>
         <a className="u-link" href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">Créer une clé sur fal</a>
         <label className="u-field">
@@ -257,10 +257,11 @@ export function FalSheet() {
 }
 
 export function TrainConfirmSheet() {
-  const { setSheet, dataset, trainingSteps, falBalance, trainGate, confirmTraining } = useStudio();
-  return <SheetFrame title="Former ton double ?" label="Confirmer" onClose={() => setSheet(null)}>
+  const { setSheet, studio, dataset, trainingSteps, falBalance, trainGate, confirmTraining } = useStudio();
+  return <SheetFrame title="Former ce personnage ?" label="Confirmer" onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
+        <li><span>Personnage</span><span>{studio.role.name || "—"}</span></li>
         <li><span>Clips</span><span>{dataset.clips}</span></li>
         <li><span>Apprentissage</span><span>{trainingSteps} pas</span></li>
         <li><span>Format</span><span>{dataset.aspect}</span></li>
@@ -268,6 +269,24 @@ export function TrainConfirmSheet() {
       </ul>
       <p className={`u-cost is-${trainGate.tone}`}>{trainGate.line}</p>
       <button type="button" className="u-primary" disabled={!trainGate.allowed} onClick={() => void confirmTraining()}>Former · débit sur mon compte fal</button>
+      <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
+    </div>
+  </SheetFrame>;
+}
+
+export function PrevizConfirmSheet() {
+  const { setSheet, scene, balance, previzGate, confirmPreviz } = useStudio();
+  const plan = scene?.previz === "quai" ? "Quai" : scene?.previz === "rue" ? "Rue" : scene?.previz === "piece" ? "Pièce" : "—";
+  return <SheetFrame title="Rendre l’image du lieu ?" label="Confirmer" onClose={() => setSheet(null)}>
+    <div className="u-stack">
+      <ul className="u-ledger">
+        <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
+        <li><span>Plan</span><span>{plan}</span></li>
+        <li><span>Ton solde</span><span>{balance ? `${formatCredits(balance.credits)} crédits` : "illisible"}</span></li>
+      </ul>
+      <p className={`u-cost is-${previzGate.tone}`}>{previzGate.line}</p>
+      <p className="u-small">Blender ne tourne pas ici. Le rendu lit le fichier de volumes tenu au coffre. S’il ne renvoie pas d’image, aucune n’est affichée.</p>
+      <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>Rendre · débit sur mon compte</button>
       <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
     </div>
   </SheetFrame>;

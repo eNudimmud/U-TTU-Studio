@@ -1,6 +1,15 @@
 # Registre — C micro
 
-Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-03.
+Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-04.
+
+## Personnage, préviz, remise à zéro, écran large — 4 octobre 2026
+
+- **Demande JD :** « Former ton double » n’a rien à faire sur Look. Le LoRA sert la cohérence des personnages créés : un lieu pour en former un, et pour le recharger afin que les prises suivantes tiennent ce personnage. La préviz Blender puis Comfy doit exister, sans Blender sur l’appareil. Chaque page de création se remet à zéro sans effacer le coffre. Un écran large a sa propre mise en page. Le téléphone reste premier.
+- **Décision, personnage :** le fil du bas est Look, Rôle, Scène, Prise. Rôle ouvre `#lora`. Look n’a plus de lien vers la formation. Même entraîneur qu’avant, `minimax/h3/ref2va/trainer`. Le brouillon a un nom et deux à quatre photos de ce personnage ; elles accompagnent les clips. Le fichier revient au coffre. La prise « Personnage » le recharge via `minimax/h3/reference-to-video/lora`. Le rail Flux reste dormant.
+- **Fait, préviz :** Comfy Cloud n’a pas Blender (`bpy` absent, aucun nœud Blender). Les nœuds « blend » du catalogue mélangent des vidéos. Le studio n’ouvre pas un `.blend` et ne peint pas une image. Ce qui est réel : le studio écrit un GLB de volumes (pièce, quai ou rue) et le tient au coffre. Le graphe envoyé est `Load3DAdvanced` (le fichier seul, viewport vide) → `Get3DComponents` → `CreateCameraInfo` → `RenderMesh` (`solid`) → `SaveImage`. L’image n’apparaît que si ce job en enregistre une. La prise la charge après les photos du lieu.
+- **Décision, prix de la préviz :** pas de devis inventé. Le bouton s’éteint si le solde de rendu est illisible ou vide. La confirmation dit que le montant n’est pas connu d’avance. Rien ne part sans elle.
+- **Décision, zéro :** « Remettre ce look à zéro », « Remettre ce personnage à zéro » (nom, photos, clips), « Remettre ce lieu à zéro », « Remettre ce plan à zéro ». Les fichiers formés, les autres lieux et les prises déjà tournées restent. « Retirer » reste l’effacement d’une pièce finie.
+- **Décision, écran :** sous 1080 px, la colonne téléphone (560 px, fil en bas) ne change pas. À partir de 1080 px, le fil est un rail à gauche et la page se partage : le travail prend la largeur, l’action reste une colonne étroite.
 
 ## Délier un compte depuis la feuille ouverte — 3 octobre 2026, nuit
 

@@ -27,7 +27,7 @@ describe("clips du double", () => {
     assert.equal(ready.ready, true);
     assert.equal(ready.aspect, "9:16");
     assert.equal(datasetCheck(ten.slice(0, 9), 2).ready, false);
-    assert.match(datasetCheck(ten, 1).problems[0], /deux photos/);
+    assert.match(datasetCheck(ten, 1).problems[0], /photos du personnage/);
     assert.equal(datasetCheck([...ten, clip({ width: 1920, height: 1080 }), clip({ width: 1920, height: 1080 })], 2).aspect, "9:16");
     assert.equal(clipAspect(clip({ width: 1920, height: 1080 })), "16:9");
     assert.equal(clipAspect(clip({ width: 1000, height: 1000 })), "1:1");
@@ -42,9 +42,12 @@ describe("clips du double", () => {
     ]);
   });
 
-  it("makes a trigger from the look's name", () => {
+  it("makes a trigger from the character's name", () => {
+    const ten = Array.from({ length: 10 }, () => clip());
     assert.equal(triggerPhrase("Mira"), "mira_uttu");
     assert.equal(triggerPhrase("Éloïse"), "eloise_uttu");
-    assert.equal(triggerPhrase("   "), "look_uttu");
+    assert.equal(triggerPhrase("   "), "personnage_uttu");
+    assert.equal(datasetCheck(ten, 2, "").ready, false);
+    assert.equal(datasetCheck(ten, 2, "Mira").ready, true);
   });
 });
