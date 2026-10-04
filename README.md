@@ -87,10 +87,13 @@ Parcours vérifié le 3 octobre 2026 avec un compte de rendu simulé : la vidéo
 | Recharger des crédits | Le payeur est le compte Comfy de la personne. Le studio ne vend pas de crédits. |
 | Créer une clé API (chemin « clé » seulement) | Une fois, sur `platform.comfy.org`. Le chemin « Me connecter ici » n’en a pas besoin. |
 | Créer un compte fal, le recharger, créer une clé Admin | Une fois, sur fal.ai. La formation et « Personnage » tournent sur ce compte. La clé se colle dans le studio et n’en sort plus. |
+| Créer un compte Farpy, le recharger, créer une clé de job `farpy_agent_` | Une fois. Blender 4.1.1 Cycles y rend le lieu. Une clé de compte (`farpy_` sans `agent`) ne lance pas le rendu. La clé se colle dans le studio et n’en sort plus. |
 | Joindre la vidéo dans X sur ordinateur | Les navigateurs de bureau ne partagent pas un fichier vers X. Sur téléphone, la feuille de partage le fait en un geste. |
 | Compte U*TTU (`/compte`) | Facultatif, hors du chemin. Le studio n’en a pas besoin. |
 
-**Former un personnage et le recharger dans La prise** se fait sur le compte fal de la personne, pas sur Comfy Cloud. Comfy ne sait toujours pas enregistrer un LoRA formé ni le recharger depuis un fichier personnel. Le studio envoie des clips à `minimax/h3/ref2va/trainer`, range le `.safetensors` au coffre, et La prise « Personnage » le recharge via `minimax/h3/reference-to-video/lora`. La préviz n’est pas Blender : le studio tient un GLB, et Comfy le rend en image avec `RenderMesh` si le job en enregistre une. Détail : [docs/DECISIONS.md](docs/DECISIONS.md).
+**Former un personnage et le recharger dans La prise** se fait sur le compte fal de la personne, pas sur Comfy Cloud. Comfy ne sait toujours pas enregistrer un LoRA formé ni le recharger depuis un fichier personnel. Le studio envoie des clips à `minimax/h3/ref2va/trainer`, range le `.safetensors` au coffre, et La prise « Personnage » le recharge via `minimax/h3/reference-to-video/lora`.
+
+**Filmer un lieu** écrit un fichier Blender 4.1.1 du plan et de la caméra, tenu au coffre. Farpy le rend en Cycles, hors de l’appareil : le devis est lu avant, et seul « Filmer · débit sur mon compte » lance le rendu. Sans clé, ou si le job ne renvoie pas d’image, aucune image n’est affichée. La prise « Personnage » charge cette image avec le fichier formé. Détail : [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Démarrer
 

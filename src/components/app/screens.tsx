@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { costLabel, LOOK_PHOTOS_MAX, SCENE_STILLS_MAX, cleanTraits, lookCheck, parseTraits } from "@/lib/coffre/model";
-import { PREVIZ_LABELS, PREVIZ_PLANS, previzFaces } from "@/lib/render/previz";
+import { LENSES, PREVIZ_LABELS, PREVIZ_PLANS, defaultCamera, placeVolumes } from "@/lib/render/previz";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { TAKE_STEPS } from "@/lib/render/take-graph";
 import { Arrow, Close, Plus, Web } from "./glyphs";
 import { PublishActions } from "./publish";
-import { useStudio, type RunState } from "./studio-context";
+import { useStudio, type PrevizState, type RunState } from "./studio-context";
 
 export function PictureSlot({ index, url, onAdd, onRemove, label }: { index: number; url?: string; onAdd(files: File[]): void; onRemove?(): void; label: string }) {
   const number = String(index + 1).padStart(2, "0");
@@ -86,7 +86,7 @@ export function LookScreen({ onNext }: { onNext(): void }) {
 }
 
 export function SceneScreen({ onNext }: { onNext(): void }) {
-  const { studio, scene, media, addScene, selectScene } = useStudio();
+  const { studio, scene, media, addScene, selectScene, previz, blenderLinked, requestPreviz } = useStudio();
   const [draft, setDraft] = useState("");
   const [adding, setAdding] = useState(false);
 
@@ -126,17 +126,43 @@ export function SceneScreen({ onNext }: { onNext(): void }) {
       </div>
       <div className="u-stack">
         {scene && <SceneEditor />}
-        <button type="button" className="u-primary" disabled={!scene} onClick={onNext}>Préparer la prise <Arrow /></button>
+        {previz.phase === "running" ? <FilmStatus /> : <button type="button" className="u-primary" disabled={!scene?.previz} onClick={() => void requestPreviz()}>
+          {!scene?.previz ? "Choisis un plan" : !blenderLinked ? "Relier Blender" : "Filmer ce plan"} <Arrow />
+        </button>}
+        <button type="button" className="u-link" disabled={!scene} onClick={onNext}>Aller à la prise</button>
       </div>
     </div>
   </section>;
 }
 
+function filmLabel(state: Extract<PrevizState, { phase: "running" }>): string {
+  const event = state.event;
+  switch (event.stage) {
+    case "write": return "Écriture du lieu";
+    case "inspect": return "Lecture du devis";
+    case "start": return "Envoi du plan";
+    case "queue": return "Rendu en file";
+    case "render": return `Blender tourne · ${event.seconds} s`;
+    case "fetch": return "L’image revient";
+  }
+}
+
+function FilmStatus() {
+  const { previz, cancelPreviz } = useStudio();
+  if (previz.phase !== "running") return null;
+  return <div className="u-run" role="status">
+    <div className="u-thread" aria-hidden="true"><span /></div>
+    <p className="u-run-label">{filmLabel(previz)}</p>
+    <button type="button" className="u-link u-muted" onClick={cancelPreviz}>Annuler</button>
+  </div>;
+}
+
 function SceneEditor() {
-  const { scene, media, saveScene, addSceneStills, removeSceneStill, deleteScene, setPreviz, previz, previzGate: gate, requestPreviz, cancelPreviz, resetScene, connected, balance, balanceNote } = useStudio();
+  const { scene, media, saveScene, addSceneStills, removeSceneStill, deleteScene, setPreviz, moveCamera, setLens, previz, resetScene, blenderLinked, setSheet } = useStudio();
   if (!scene) return null;
-  const dirty = Boolean(scene.name || scene.note || scene.stills.length || scene.previz || scene.render);
+  const dirty = Boolean(scene.name || scene.note || scene.stills.length || scene.previz || scene.camera || scene.render);
   const renderUrl = scene.render ? media[scene.render] : undefined;
+  const camera = scene.camera ?? (scene.previz ? defaultCamera(scene.previz) : null);
   return <div className="u-card u-scene-edit">
     <label className="u-field">
       <span className="u-label">Nom du lieu</span>
@@ -147,34 +173,43 @@ function SceneEditor() {
       <textarea value={scene.note} maxLength={280} rows={2} placeholder="Pluie fine, néons froids, l’heure bleue." onChange={event => void saveScene(scene.id, { note: event.target.value.slice(0, 280) })} />
     </label>
     <ul className="u-facts">
-      <li><strong>Blender</strong>Il ne tourne pas ici, ni sur ton appareil. Le studio n’ouvre pas un fichier .blend.</li>
-      <li><strong>Ce que tu poses</strong>Un plan de volumes : pièce, quai ou rue. Le studio l’écrit en fichier et le tient au coffre.</li>
-      <li><strong>Ce que La prise charge</strong>L’image que le rendu renvoie de ce fichier. Pas une image dessinée ici. Sans cette image, La prise charge tes photos du lieu.</li>
-      <li><strong>Le prix</strong>Le compte de rendu est débité du calcul. Le montant n’est pas connu avant. Rien ne part sans confirmation.</li>
+      <li><strong>Le lieu</strong>Il reste. Tu le rouvres : même nom, même plan, même caméra. Tu peux en tenir plusieurs.</li>
+      <li><strong>Blender</strong>L’image est un rendu Cycles de cette caméra, dans le cloud. Rien n’est dessiné ici.</li>
+      <li><strong>La prise</strong>Elle reçoit cette image, et le personnage formé au coffre. Pas un acteur du studio.</li>
+      <li><strong>Le prix</strong>Le devis est lu avant le geste. Rien ne part sans confirmation.</li>
     </ul>
     <p className="u-label">Plan</p>
     <div className="u-segments" role="group" aria-label="Plan">
       {PREVIZ_PLANS.map(plan => <button key={plan} type="button" aria-pressed={scene.previz === plan} onClick={() => void setPreviz(scene.id, plan)}>{PREVIZ_LABELS[plan]}</button>)}
     </div>
-    {scene.previz && !renderUrl && <p className="u-small">Fichier tenu · {previzFaces(scene.previz)} faces. Aucune image tant que le rendu n’en a pas renvoyé.</p>}
+    {camera && <>
+      <p className="u-small">Caméra {camera.x}, {camera.y}, {camera.z} · vise {camera.aimX}, {camera.aimY}, {camera.aimZ} · {camera.lens} mm</p>
+      <div className="u-nudge" role="group" aria-label="Déplacer la caméra">
+        {(["x", "y", "z"] as const).map(axis => <span key={axis}>
+          <button type="button" onClick={() => void moveCamera("stand", axis, -1)} aria-label={`Caméra moins ${axis}`}>−{axis.toUpperCase()}</button>
+          <button type="button" onClick={() => void moveCamera("stand", axis, 1)} aria-label={`Caméra plus ${axis}`}>+{axis.toUpperCase()}</button>
+        </span>)}
+      </div>
+      <div className="u-nudge" role="group" aria-label="Déplacer le point visé">
+        {(["x", "y", "z"] as const).map(axis => <span key={axis}>
+          <button type="button" onClick={() => void moveCamera("aim", axis, -1)} aria-label={`Visée moins ${axis}`}>−{axis.toUpperCase()}</button>
+          <button type="button" onClick={() => void moveCamera("aim", axis, 1)} aria-label={`Visée plus ${axis}`}>+{axis.toUpperCase()}</button>
+        </span>)}
+      </div>
+      <div className="u-segments" role="group" aria-label="Focale">
+        {LENSES.map(lens => <button key={lens} type="button" aria-pressed={camera.lens === lens} onClick={() => void setLens(lens)}>{lens}</button>)}
+      </div>
+    </>}
+    {scene.previz && !renderUrl && <p className="u-small">{placeVolumes(scene.previz)} volumes. Aucune image tant que Blender n’en a pas renvoyé.</p>}
     {renderUrl && <figure className="u-previz">
       <img src={renderUrl} alt="" />
-      <figcaption>Image rendue. La prise la charge.</figcaption>
+      <figcaption>Image filmée. La prise la charge.</figcaption>
     </figure>}
-    {previz.phase === "running" && <div className="u-run" role="status">
-      <div className="u-thread" aria-hidden="true"><span /></div>
-      <p className="u-run-label">Rendu du lieu</p>
-      <button type="button" className="u-link u-muted" onClick={cancelPreviz}>Annuler</button>
-    </div>}
     {previz.phase === "error" && <p className="u-small is-error" role="alert">{previz.message}</p>}
-    {previz.phase !== "running" && <button type="button" className="u-secondary" disabled={!scene.previz || Boolean(connected && !gate.allowed)} onClick={() => void requestPreviz()}>
-      {!scene.previz ? "Choisis un plan" : !connected ? "Relier mon compte de rendu" : "Rendre l’image du lieu"}
-    </button>}
-    {scene.previz && <p className={`u-cost is-${connected ? gate.tone : "warn"}`}>
-      {!connected ? "Relie ton compte de rendu. Il paie le calcul, pas le studio."
-        : balance ? `${formatCredits(balance.credits)} crédits sur ton compte. ${gate.line}`
-        : balanceNote || "Lecture du solde…"}
-    </p>}
+    <p className={`u-cost is-${blenderLinked ? "ok" : "warn"}`}>
+      {blenderLinked ? "Clé Blender sur cet appareil. Le devis est lu avant tout débit." : "Aucune clé Blender. Le rendu ne part pas, et aucune image n’est inventée."}
+    </p>
+    <button type="button" className="u-link u-muted" onClick={() => setSheet("blender")}>{blenderLinked ? "Changer la clé Blender" : "Où trouver la clé"}</button>
     <div className="u-photos is-wide" aria-label="Images du lieu">
       {Array.from({ length: SCENE_STILLS_MAX }, (_, index) => {
         const path = scene.stills[index];
@@ -282,7 +317,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         <div className="u-pair" aria-label="Look et lieu">
           <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name}</figcaption></figure>
           <span className="u-pair-thread" aria-hidden="true" />
-          <figure>{scenePicture && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene.render ? "Image rendue" : scene.name}</figcaption></figure>
+          <figure>{scenePicture && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene.render ? "Image filmée" : scene.name}</figcaption></figure>
         </div>
         <label className="u-field">
           <span className="u-label">Ce que fait la prise</span>

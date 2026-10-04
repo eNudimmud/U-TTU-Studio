@@ -17,7 +17,8 @@
 import type { LoraResolution } from "../fal/prices.ts";
 import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type TakeSettings } from "../render/take-graph.ts";
 import type { Clip, ClipFormat, TrainingAspect } from "../lora/dataset.ts";
-import type { PrevizPlan } from "../render/previz.ts";
+import type { PlaceCamera, PrevizPlan } from "../render/previz.ts";
+import { isLens } from "../render/previz.ts";
 import { list, num, readFrontmatter, text, withFrontmatter } from "./markdown.ts";
 import type { VaultStore } from "./store.ts";
 
@@ -42,10 +43,13 @@ export interface Scene {
   name: string;
   note: string;
   stills: string[];
-  /** Which blocking plan the studio wrote, when the GLB is still in the vault. */
+  /** Which blocking plan this place holds. It stays in the note, with or without a file. */
   previz: PrevizPlan | null;
+  /** The last .blend written for this place, when that file is still in the vault. */
   previzFile: string | null;
-  /** The still Render Mesh returned. Absent until that job actually saves one. */
+  /** Where the camera stands, in the studio's Y-up space. Null until a plan is chosen. */
+  camera: PlaceCamera | null;
+  /** The Cycles still Farpy returned. Absent until that job actually saves one. */
   render: string | null;
 }
 
@@ -116,8 +120,8 @@ export interface Studio {
 
 export const emptyLook = (): Look => ({ name: "", traits: [], photos: [], note: "" });
 export const emptyRole = (): RoleDraft => ({ name: "", photos: [] });
-export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "previz" | "previzFile" | "render"> => ({
-  name: "", note: "", stills: [], previz: null, previzFile: null, render: null,
+export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "previz" | "previzFile" | "camera" | "render"> => ({
+  name: "", note: "", stills: [], previz: null, previzFile: null, camera: null, render: null,
 });
 export const emptyStudio = (): Studio => ({ look: emptyLook(), scenes: [], currentScene: null, takes: [], loras: [], clips: [], role: emptyRole() });
 
@@ -200,6 +204,7 @@ const PLANS = ["piece", "quai", "rue"] as const;
 export function sceneMarkdown(scene: Scene): string {
   const stills = (scene.stills ?? []).map(path => `![[${path}]]`).join("\n");
   const body = `# ${scene.name}\n\n${scene.note || ""}\n\n${stills}\n`;
+  const camera = scene.camera;
   return withFrontmatter({
     type: "scene",
     nom: scene.name,
@@ -208,6 +213,13 @@ export function sceneMarkdown(scene: Scene): string {
     previz: scene.previz ?? null,
     fichier: scene.previzFile ?? null,
     rendu: scene.render ?? null,
+    cam_x: camera?.x ?? null,
+    cam_y: camera?.y ?? null,
+    cam_z: camera?.z ?? null,
+    vise_x: camera?.aimX ?? null,
+    vise_y: camera?.aimY ?? null,
+    vise_z: camera?.aimZ ?? null,
+    focale: camera?.lens ?? null,
   }, body);
 }
 
@@ -221,8 +233,16 @@ export function parseScene(id: string, source: string): Scene {
     stills: list(fields.images).slice(0, SCENE_STILLS_MAX),
     previz: (PLANS as readonly string[]).includes(plan) ? plan as PrevizPlan : null,
     previzFile: text(fields.fichier) || null,
+    camera: cameraFrom(fields),
     render: text(fields.rendu) || null,
   };
+}
+
+function cameraFrom(fields: ReturnType<typeof readFrontmatter>["fields"]): PlaceCamera | null {
+  const lens = num(fields.focale);
+  const values = [num(fields.cam_x), num(fields.cam_y), num(fields.cam_z), num(fields.vise_x), num(fields.vise_y), num(fields.vise_z)];
+  if (values.some(value => value === null) || lens === null || !isLens(lens)) return null;
+  return { x: values[0]!, y: values[1]!, z: values[2]!, aimX: values[3]!, aimY: values[4]!, aimZ: values[5]!, lens };
 }
 
 export function parseRole(source: string | undefined): RoleDraft {
@@ -426,8 +446,9 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
       studio.scenes.push({
         ...parsed,
         stills: parsed.stills.filter(path => byPath.has(path)),
-        previz: fileHeld ? parsed.previz : null,
+        previz: parsed.previz,
         previzFile: fileHeld ? parsed.previzFile : null,
+        camera: parsed.camera,
         render: parsed.render && byPath.has(parsed.render) ? parsed.render : null,
       });
       continue;

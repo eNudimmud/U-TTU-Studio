@@ -30,7 +30,7 @@ Les fiches sont du Markdown avec frontmatter. Une prise porte en plus `moteur` (
 - **Exporter le coffre.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, à décompresser et ouvrir comme coffre Obsidian.
 - **Relier mon dossier Obsidian.** Sur ordinateur, Chrome ou Edge (File System Access) : l’app copie le coffre dans le dossier choisi, puis y écrit chaque changement tant que la page reste ouverte. Le lien ne survit pas à la fermeture : on le refait d’un geste.
 
-La clé et la session de rendu, et la clé fal, ne sont pas des fichiers du coffre. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
+La clé et la session de rendu, la clé fal, et la clé Blender (`u-ttu-blender`) ne sont pas des fichiers du coffre. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
 
 ## Pourquoi ce coffre
 
