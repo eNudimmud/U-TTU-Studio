@@ -11,7 +11,7 @@ import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, SceneScreen, SphereScreen, TakeScreen } from "./screens";
-import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlayerSheet, PrevizConfirmSheet, TrainConfirmSheet } from "./sheets";
+import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
@@ -68,7 +68,7 @@ function AppFrame() {
 
   const done: Record<Exclude<Tab, "sphere">, boolean> = {
     look: check.ready,
-    lora: studio.studio.loras.length > 0,
+    lora: studio.studio.loras.some(item => item.kind !== "lieu"),
     scene: hasScene,
     prise: studio.studio.takes.length > 0,
   };
@@ -104,7 +104,7 @@ function AppFrame() {
       {ready && <GuideBubble moments={moments} />}
       {!ready ? <p className="u-loading" role="status">Ouverture du coffre…</p>
         : tab === "look" ? <LookScreen onNext={() => go("scene")} />
-        : tab === "scene" ? <SceneScreen onNext={() => go("prise")} />
+        : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} />
         : tab === "lora" ? <LoraScreen onTake={() => go("prise")} />
         : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goSphere={() => go("sphere")} goLora={() => go("lora")} />
         : <SphereScreen />}
@@ -137,6 +137,8 @@ function AppFrame() {
     {sheet === "blender" && <BlenderSheet />}
     {sheet === "train-confirm" && <TrainConfirmSheet />}
     {sheet === "previz-confirm" && <PrevizConfirmSheet />}
+    {sheet === "place-train" && <PlaceTrainSheet />}
+    {sheet === "place-scene" && <PlaceSceneSheet />}
     {sheet && typeof sheet === "object" && <PlayerSheet id={sheet.take} />}
   </div>;
 }

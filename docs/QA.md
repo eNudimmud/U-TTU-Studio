@@ -1,5 +1,30 @@
 # Contrôles de livraison — C micro
 
+## Trajet, personnage, liaison, LoRA de lieu — 4 octobre 2026
+
+Branche `cursor/film-path-character-386f`. Aucun job Farpy, aucun job fal, aucun job Comfy, aucun LoRA formé : **0 $ dépensé**. La marche part d’un profil Chrome vide, sur le build de production (`127.0.0.1:3462`). Aucune requête vers Farpy, fal, `/api/prompt` ou `/api/upload`.
+
+| Contrôle | Résultat | Périmètre |
+| --- | --- | --- |
+| Tests | PASS : 174/174 | `npm test`. Le `.blend` est `BLENDER-v401`, images 1 à 5. Blender 4.1.1 lit deux poses de caméra différentes et le milieu du trajet, puis rend une preuve CPU. Cette image n’est pas celle du studio. |
+| TypeScript et build | PASS | `tsc --noEmit`. `next build --webpack`. |
+| La feuille reste ouverte | PASS | « Relier Blender » ouvre « Blender ». Un tap sur le fond tout de suite ne la ferme pas. Après 600 ms, le même tap la ferme. Une seconde ouverture reste ouverte. La feuille Comfy (« Ton compte de rendu ») et la feuille fal (« Ton compte fal ») tiennent aussi au premier tap. |
+| Une seconde clé | PASS | `farpy_agent_premierecle1` est écrite dans `u-ttu-blender`. « Délier » l’efface. `farpy_agent_secondecle9` la remplace. Le coffre IndexedDB ne contient pas la clé. Coller la clé n’appelle pas Farpy. |
+| Trajet qui reste | PASS | Pièce, +X au départ : `Départ 0.4, 1.6, 4.8`, encore là après rechargement. +X à l’arrivée : `Arrivée 1.6, 1.6, 3.6`, encore là après rechargement. Un second lieu remis à zéro ne change pas Le quai. |
+| Un geste | PASS | Avant la clé, le seul bouton plein est « Relier Blender ». Après la clé, sans personnage au coffre, il devient « Former le personnage ». Un seul `u-primary`. |
+| LoRA de lieu | PASS, non exécuté | Le fait dit « 4 vues au moins. Il en manque 4. » et « Le prix de formation se lit sur le compte fal, avant le geste. » « Former ce lieu » est éteint. Aucun envoi. |
+| Téléphone | PASS | 390 × 844 : app 390 px, fil en bas (haut 767, haut. 77, larg. 390), marge 0, `scrollWidth` 390. |
+| Écran large | PASS | 1440 × 900 : rail 232 px dès 65 px, marge du contenu 232, colonnes 633 et 440, `scrollWidth` 1425. |
+| Réseau | PASS | Farpy, fal, `/api/prompt`, `/api/upload` : vide. |
+
+**La liaison qui ratait.** La feuille avalait le tap qui l’ouvrait. La lecture de la session Comfy pouvait créer puis supprimer `firebaseLocalStorageDb` pendant que la connexion écrivait. Une lecture de solde ancienne pouvait délier une clé plus récente. La seconde clé Farpy, collée dans la feuille du studio, remplace la première et reste sur l’appareil. Le test unitaire `reduceConnect` montre qu’un échec de lecture plus ancien ne délie pas la liaison suivante.
+
+**Le personnage n’est pas dans une image d’adhérent.** Blender rend le lieu vide. Le LoRA n’entre que dans le plan fal, après les deux prix et le geste. Ce plan n’a pas été lancé. La caméra se déplace dans le fichier : Blender 4.1.1 l’a lu ici. Farpy ne l’a pas rendu.
+
+**Un lieu peut être formé, et rechargé, sans l’avoir été ici.** L’entraîneur H3 refuse des images seules. Le chemin branché est `fal-ai/flux-lora-fast-training` (style, sans masque), rechargé par `fal-ai/flux-lora` pour une image neuve. Le fichier n’entre pas dans le graphe H3. Ce n’est pas un volume : le 3D reste le Blender. Aucune formation n’a tourné, donc aucun fichier n’a été relu depuis fal.
+
+**Ce que JD relie encore :** une clé Farpy `farpy_agent_` et du crédit pour le lieu vide ; une clé fal Admin et du crédit pour le personnage dans le plan ; le même compte fal, après une autre confirmation, pour former le lieu une fois quatre vues posées.
+
 ## Lieu qui reste, caméra, Blender — 4 octobre 2026
 
 Branche `cursor/blender-place-shot-386f`. Aucun job Farpy, aucun LoRA formé, aucun run fal ni Comfy : **0 $ dépensé**. La marche navigateur part d’un profil Chrome vide, sur le build de production (`127.0.0.1:3456`). Aucune requête vers Farpy, fal, `/api/prompt`, `/api/upload` ou la file fal.

@@ -78,8 +78,8 @@ describe("coffre en markdown", () => {
     await writeBlob(store, "refs/look-a-1.jpg", new Blob(["p1"], { type: "image/jpeg" }));
     await writeBlob(store, "refs/look-a-2.jpg", new Blob(["p2"], { type: "image/jpeg" }));
     await writeLook(store, { name: "Mira", traits: ["yeux verts", "taches"], photos: ["refs/look-a-1.jpg", "refs/look-a-2.jpg", "refs/missing.jpg"], note: "" });
-    await writeScene(store, { id: "le-quai", name: "Le quai", note: "pluie fine", stills: [], previz: null, previzFile: null, camera: null, render: null });
-    await writeScene(store, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, camera: null, render: null });
+    await writeScene(store, { id: "le-quai", name: "Le quai", note: "pluie fine", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
+    await writeScene(store, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
     await writeState(store, "la-serre");
     await writeBlob(store, take().video, new Blob(["mp4"], { type: "video/mp4" }));
     await writeTake(store, take(), [take()]);
@@ -112,6 +112,8 @@ describe("coffre en markdown", () => {
       id: "20261003-160000-mira",
       at: "2026-10-03T16:00:00.000Z",
       name: "Mira",
+      kind: "personnage",
+      sceneId: null,
       trigger: "mira_uttu",
       file: "loras/20261003-160000-mira.safetensors",
       bytes: 4,

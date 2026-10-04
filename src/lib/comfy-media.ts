@@ -447,14 +447,22 @@ function arm(token) {
 }
 async function readIdb() {
   try {
+    if (indexedDB.databases) {
+      const known = await indexedDB.databases();
+      const row = known.find((db) => db && db.name === "firebaseLocalStorageDb");
+      if (!row || !(row.version > 0)) return "";
+    }
     const database = await new Promise((resolve) => {
       const open = indexedDB.open("firebaseLocalStorageDb");
-      open.onupgradeneeded = () => { try { open.transaction.abort(); } catch (e) {} };
+      let created = false;
+      open.onupgradeneeded = () => {
+        created = true;
+        try { open.transaction.abort(); } catch (e) {}
+      };
       open.onsuccess = () => {
         const db = open.result;
-        if (!db.objectStoreNames.contains("firebaseLocalStorage")) {
+        if (created || !db.objectStoreNames.contains("firebaseLocalStorage")) {
           try { db.close(); } catch (e) {}
-          indexedDB.deleteDatabase("firebaseLocalStorageDb");
           resolve(null);
           return;
         }
