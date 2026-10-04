@@ -24,8 +24,8 @@ Trois gestes en bas de l’écran, reliés par un fil d’or, et Sphère à côt
 
 1. **Look.** Deux ou trois photos de soi, un nom, deux traits qui ne bougent pas. Les photos sont réduites dans le navigateur (1 536 px, JPEG) et rangées au coffre.
 2. **Scène.** Un lieu : un nom, une note, une ou deux images. Plusieurs lieux possibles, un lieu courant.
-3. **Prise.** Une phrase : ce que fait le plan. Format 9:16, 16:9 ou 1:1 ; 5 ou 8 s. « Références » tourne sur Comfy (rapide 4 pas ou fin 20 pas). « Ton double » recharge le fichier formé, sur fal, en 768p ou 480p. « Tourner » ouvre une confirmation avec le solde lu à l’instant. Après le geste, le studio envoie les photos, met la prise en file sur le compte qui paie, suit le calcul, rapatrie la vidéo dans le coffre et lit le débit.
-4. **Ton double.** Une page à part (`#lora`), pas un réglage de Ton style. Elle dit, avant tout geste payant, ce que les clips doivent être, ce que le fichier fera et ne fera pas dans La prise, et combien cela coûte. Le fichier `.safetensors` revient au coffre et se choisit ensuite dans La prise.
+3. **Prise.** Une phrase : ce que fait le plan. Format 9:16, 16:9 ou 1:1 ; 5 ou 8 s. « Références » tourne sur Comfy (rapide 4 pas ou fin 20 pas). « Personnage » recharge le fichier formé, sur fal, en 768p ou 480p. « Tourner » ouvre une confirmation avec le solde lu à l’instant. Après le geste, le studio envoie les photos, met la prise en file sur le compte qui paie, suit le calcul, rapatrie la vidéo dans le coffre et lit le débit.
+4. **Rôle.** Une page du fil (`#lora`), pas un lien de Look. Elle forme un personnage pour que les prises suivantes le tiennent. Avant tout geste payant : ce que les clips doivent être, ce que les photos font, ce que le fichier fera et ne fera pas, et le prix. Le fichier `.safetensors` revient au coffre et se choisit dans La prise.
 5. **Publier.** Sur téléphone, la feuille de partage de l’appareil reçoit la vidéo et le texte : X en un geste. Sur ordinateur, « Enregistrer la vidéo » et le brouillon X avec le texte. Rien n’est publié sans le geste dans X.
 6. **Sphère.** L’étagère des prises du coffre, avec une vignette décodée de chaque vidéo. Une prise s’ouvre en lecteur, se publie, ou se retire.
 
@@ -48,7 +48,7 @@ Dans la feuille « Relier », deux chemins :
 - Le coût d’une prise est **mesuré** : le solde juste avant, puis après. Il est écrit dans la fiche de la prise et dans `jobs.md`.
 - À un réglage donné (pas, durée, format), le studio annonce « environ X crédits » seulement après une prise mesurée à ce réglage : la plus chère des trois dernières. Avant, il dit « non calibré » et n’annonce aucun chiffre.
 - « Tourner » s’éteint si le solde est illisible, vide, ou sous le coût mesuré. Rien ne part sans le geste de confirmation. Le studio n’encaisse rien et ne recharge rien.
-- **Ton double a son propre payeur : le compte fal de la personne.** Le compteur du haut montre ce solde sur la page de formation et quand La prise est sur « Ton double », et les crédits Comfy le reste du temps. Le devis vient du prix unitaire du compte, avant le geste. « Former » et « Tourner » s’éteignent si ce solde est illisible, vide, ou sous le devis. Le vieux rail Flux (Worker, `src/lib/fal-*.ts`) reste dormant : il n’entraîne pas le modèle de La prise.
+- **Le personnage a son propre payeur : le compte fal de la personne.** Le compteur du haut montre ce solde sur la page de formation et quand La prise est sur « Personnage », et les crédits Comfy le reste du temps. Le devis vient du prix unitaire du compte, avant le geste. « Former » et « Tourner » s’éteignent si ce solde est illisible, vide, ou sous le devis. Le vieux rail Flux (Worker, `src/lib/fal-*.ts`) reste dormant : il n’entraîne pas le modèle de La prise.
 - **Délier** se fait dans cette même feuille « Comptes », un bouton par compte. Ça retire la clé ou la session de cet appareil. Le coffre, le fichier formé et le compte chez Comfy ou fal restent.
 
 ### Coffre — la mémoire du studio
@@ -86,11 +86,11 @@ Parcours vérifié le 3 octobre 2026 avec un compte de rendu simulé : la vidéo
 | --- | --- |
 | Recharger des crédits | Le payeur est le compte Comfy de la personne. Le studio ne vend pas de crédits. |
 | Créer une clé API (chemin « clé » seulement) | Une fois, sur `platform.comfy.org`. Le chemin « Me connecter ici » n’en a pas besoin. |
-| Créer un compte fal, le recharger, créer une clé Admin | Une fois, sur fal.ai. La formation et « Ton double » tournent sur ce compte. La clé se colle dans le studio et n’en sort plus. |
+| Créer un compte fal, le recharger, créer une clé Admin | Une fois, sur fal.ai. La formation et « Personnage » tournent sur ce compte. La clé se colle dans le studio et n’en sort plus. |
 | Joindre la vidéo dans X sur ordinateur | Les navigateurs de bureau ne partagent pas un fichier vers X. Sur téléphone, la feuille de partage le fait en un geste. |
 | Compte U*TTU (`/compte`) | Facultatif, hors du chemin. Le studio n’en a pas besoin. |
 
-**Former son double et le recharger dans La prise** se fait sur le compte fal de la personne, pas sur Comfy Cloud. Comfy ne sait toujours pas enregistrer un LoRA formé ni le recharger depuis un fichier personnel. Le studio envoie des clips à `minimax/h3/ref2va/trainer`, range le `.safetensors` au coffre, et La prise « Ton double » le recharge via `minimax/h3/reference-to-video/lora`. Détail : [docs/COMFY-STACK.md](docs/COMFY-STACK.md#un-double-formé-par-ladhérent--fal-pas-comfy-cloud-3-octobre-2026).
+**Former un personnage et le recharger dans La prise** se fait sur le compte fal de la personne, pas sur Comfy Cloud. Comfy ne sait toujours pas enregistrer un LoRA formé ni le recharger depuis un fichier personnel. Le studio envoie des clips à `minimax/h3/ref2va/trainer`, range le `.safetensors` au coffre, et La prise « Personnage » le recharge via `minimax/h3/reference-to-video/lora`. La préviz n’est pas Blender : le studio tient un GLB, et Comfy le rend en image avec `RenderMesh` si le job en enregistre une. Détail : [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Démarrer
 

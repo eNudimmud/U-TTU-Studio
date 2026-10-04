@@ -5,8 +5,8 @@ import { costClaim, falGate, runGate, type Balance, type CostClaim, type RunGate
 import { coffreZip } from "@/lib/coffre/export";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
-  LOOK_PHOTOS_MAX, SCENE_STILLS_MAX, emptyStudio, extensionFor, loadStudio, loraId, removeLora, removeScene, removeTake, sha256Hex, slugify, takeId, uniqueId,
-  writeBlob, writeClips, writeLook, writeLora, writeScene, writeState, writeTake, type Look, type Lora, type Scene, type Studio, type Take,
+  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, emptyLook, emptyRole, emptySceneDraft, emptyStudio, extensionFor, loadStudio, loraId, removeLora, removeScene, removeTake, sha256Hex, slugify, takeId, uniqueId,
+  writeBlob, writeClips, writeLook, writeLora, writeRole, writeScene, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { FalError, createFalClient, type FalClient, type FalPrice } from "@/lib/fal/client";
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
@@ -21,6 +21,9 @@ import { TRAINING_KEEP_SECONDS, TRAINING_RANK, TRAINING_STEPS, followTraining, s
 import { idbVault, type VaultStore } from "@/lib/coffre/store";
 import { readGuide, saveGuide, type GuideMoment, type GuideState } from "@/lib/guide";
 import { createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
+import { buildPrevizGlb, previzGate, type PrevizPlan } from "@/lib/render/previz";
+import { followPreviz, submitPreviz, type PrevizEvent } from "@/lib/render/previz-run";
+import { referencePaths } from "@/lib/render/references";
 import { followTake, submitTake, type TakeRunEvent } from "@/lib/render/run";
 import { sessionTokens } from "@/lib/render/session";
 import {
@@ -29,13 +32,43 @@ import {
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
 
-export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "train-confirm" | { take: string };
+export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "train-confirm" | "previz-confirm" | { take: string };
 
 export type RunState =
   | { phase: "idle" }
   | { phase: "running"; event: TakeRunEvent | LoraTakeEvent | { stage: "start" } }
   | { phase: "done"; takeId: string }
   | { phase: "error"; code: string; message: string; detail: string[] };
+
+export type PrevizState =
+  | { phase: "idle" }
+  | { phase: "running"; event: PrevizEvent }
+  | { phase: "error"; message: string; detail: string[] };
+
+const PREVIZ_KEY = "u-ttu-previz";
+
+interface PrevizFlight {
+  jobId: string;
+  sceneId: string;
+  balanceBefore: number;
+}
+
+function readPrevizFlight(): PrevizFlight | null {
+  try {
+    const data = JSON.parse(localStorage.getItem(PREVIZ_KEY) ?? "null") as PrevizFlight | null;
+    if (!data || typeof data.jobId !== "string" || typeof data.sceneId !== "string" || typeof data.balanceBefore !== "number") return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function savePrevizFlight(flight: PrevizFlight | null) {
+  try {
+    if (flight) localStorage.setItem(PREVIZ_KEY, JSON.stringify(flight));
+    else localStorage.removeItem(PREVIZ_KEY);
+  } catch {}
+}
 
 export type TrainingState =
   | { phase: "idle" }
@@ -214,10 +247,24 @@ interface StudioValue {
   removeSceneStill(id: string, path: string): Promise<void>;
   deleteScene(id: string): Promise<void>;
   selectScene(id: string): Promise<void>;
+  setPreviz(id: string, plan: PrevizPlan): Promise<void>;
+  previz: PrevizState;
+  previzGate: RunGate;
+  requestPreviz(): Promise<void>;
+  confirmPreviz(): Promise<void>;
+  cancelPreviz(): void;
   setLine(line: string): void;
   setSettings(patch: Partial<TakeSettings>): void;
   addClips(files: File[]): Promise<void>;
   removeClip(path: string): Promise<void>;
+  saveRole(patch: Partial<RoleDraft>): Promise<void>;
+  addRolePhotos(files: File[]): Promise<void>;
+  removeRolePhoto(path: string): Promise<void>;
+  copyLookPhotos(): Promise<void>;
+  resetLook(): Promise<void>;
+  resetScene(): Promise<void>;
+  resetTake(): void;
+  resetRole(): Promise<void>;
   requestTraining(): Promise<void>;
   confirmTraining(): Promise<void>;
   cancelTraining(): void;
@@ -256,6 +303,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const tokens = useMemo(() => sessionTokens(), []);
   const abort = useRef<AbortController | null>(null);
   const abortTrain = useRef<AbortController | null>(null);
+  const abortPreviz = useRef<AbortController | null>(null);
   const wake = useRef<{ release(): Promise<void> } | null>(null);
   const wakeTrain = useRef<{ release(): Promise<void> } | null>(null);
   const studioRef = useRef<Studio>(emptyStudio());
@@ -282,6 +330,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [trainingSteps, setTrainingStepsState] = useState<TrainingSteps>(1000);
   const [training, setTraining] = useState<TrainingState>({ phase: "idle" });
   const [run, setRun] = useState<RunState>({ phase: "idle" });
+  const [previz, setPrevizState] = useState<PrevizState>({ phase: "idle" });
   const [sheet, setSheet] = useState<Sheet>(null);
   const [folder, setFolder] = useState<string | null>(null);
   const [guide, setGuide] = useState<GuideState>({ off: false, seen: [] });
@@ -440,7 +489,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     [profile, studio.takes],
   );
   const comfyGate = useMemo(() => runGate(balance, claim), [balance, claim]);
-  const dataset = useMemo(() => datasetCheck(studio.clips, studio.look.photos.length), [studio.clips, studio.look.photos.length]);
+  const dataset = useMemo(() => datasetCheck(studio.clips, studio.role.photos.length, studio.role.name), [studio.clips, studio.role.photos.length, studio.role.name]);
+  const previzCheck = useMemo(() => previzGate(balance?.credits ?? null), [balance]);
   const chosenLora = studio.loras.find(item => item.id === loraPick) ?? studio.loras[0] ?? null;
   const trainQuote = useMemo(() => trainingQuote(trainerPrice, trainingSteps), [trainerPrice, trainingSteps]);
   const trainGate = useMemo(() => falGate(falBalance, trainQuote, "formation"), [falBalance, trainQuote]);
@@ -482,6 +532,79 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     await saveLook({ photos: studioRef.current.look.photos.filter(item => item !== path) });
   }, [dropMedia, saveLook, store]);
 
+  const resetLook = useCallback(async () => {
+    const current = studioRef.current.look;
+    for (const path of current.photos) {
+      await store().remove(path);
+      dropMedia(path);
+    }
+    const look = emptyLook();
+    setStudio({ ...studioRef.current, look });
+    await writeLook(store(), look);
+  }, [dropMedia, setStudio, store]);
+
+  const saveRole = useCallback(async (patch: Partial<RoleDraft>) => {
+    const role = { ...studioRef.current.role, ...patch };
+    setStudio({ ...studioRef.current, role });
+    await writeRole(store(), role);
+  }, [setStudio, store]);
+
+  const addRolePhotos = useCallback(async (files: File[]) => {
+    const room = ROLE_PHOTOS_MAX - studioRef.current.role.photos.length;
+    const picked = files.filter(file => file.type.startsWith("image/")).slice(0, Math.max(0, room));
+    if (picked.length === 0) {
+      setNotice(room <= 0 ? "Quatre photos au plus pour un personnage." : "Choisis une photo.");
+      return;
+    }
+    const paths: string[] = [];
+    for (const [index, file] of picked.entries()) {
+      try {
+        const blob = await downscale(file);
+        const path = `roles/photo-${stamp()}-${index + 1}.jpg`;
+        await writeBlob(store(), path, blob);
+        addMedia(path, blob);
+        paths.push(path);
+      } catch {
+        setNotice("Une photo n’a pas pu être lue. Essaie un JPEG ou un PNG.");
+      }
+    }
+    await saveRole({ photos: [...studioRef.current.role.photos, ...paths].slice(0, ROLE_PHOTOS_MAX) });
+  }, [addMedia, saveRole, store]);
+
+  const copyLookPhotos = useCallback(async () => {
+    const room = ROLE_PHOTOS_MAX - studioRef.current.role.photos.length;
+    const sources = studioRef.current.look.photos.slice(0, Math.max(0, room));
+    const paths: string[] = [];
+    for (const [index, path] of sources.entries()) {
+      const entry = await store().get(path);
+      if (!entry?.blob) continue;
+      const next = `roles/photo-${stamp()}-${index + 1}.jpg`;
+      await writeBlob(store(), next, entry.blob);
+      addMedia(next, entry.blob);
+      paths.push(next);
+    }
+    if (paths.length) await saveRole({ photos: [...studioRef.current.role.photos, ...paths].slice(0, ROLE_PHOTOS_MAX) });
+  }, [addMedia, saveRole, store]);
+
+  const removeRolePhoto = useCallback(async (path: string) => {
+    await store().remove(path);
+    dropMedia(path);
+    await saveRole({ photos: studioRef.current.role.photos.filter(item => item !== path) });
+  }, [dropMedia, saveRole, store]);
+
+  const resetRole = useCallback(async () => {
+    if (training.phase === "running") return;
+    const current = studioRef.current;
+    for (const path of [...current.role.photos, ...current.clips.map(clip => clip.path)]) {
+      await store().remove(path);
+      dropMedia(path);
+    }
+    const role = emptyRole();
+    setStudio({ ...studioRef.current, role, clips: [] });
+    await writeRole(store(), role);
+    await writeClips(store(), []);
+  }, [dropMedia, setStudio, store, training.phase]);
+
   const selectScene = useCallback(async (id: string) => {
     setStudio({ ...studioRef.current, currentScene: id });
     await writeState(store(), id);
@@ -491,7 +614,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const clean = name.replace(/\s+/g, " ").trim().slice(0, 40);
     if (!clean) return;
     const id = uniqueId(slugify(clean), studioRef.current.scenes.map(item => item.id));
-    const created: Scene = { id, name: clean, note: "", stills: [] };
+    const created: Scene = { id, name: clean, note: "", stills: [], previz: null, previzFile: null, render: null };
     setStudio({ ...studioRef.current, scenes: [...studioRef.current.scenes, created], currentScene: id });
     await writeScene(store(), created);
     await writeState(store(), id);
@@ -542,11 +665,32 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     if (!current) return;
     await removeScene(store(), current);
     current.stills.forEach(dropMedia);
+    if (current.previzFile) dropMedia(current.previzFile);
+    if (current.render) dropMedia(current.render);
     const scenes = studioRef.current.scenes.filter(item => item.id !== id);
     const currentScene = studioRef.current.currentScene === id ? scenes[0]?.id ?? null : studioRef.current.currentScene;
     setStudio({ ...studioRef.current, scenes, currentScene });
     await writeState(store(), currentScene);
   }, [dropMedia, setStudio, store]);
+
+  const setPreviz = useCallback(async (id: string, plan: PrevizPlan) => {
+    const bytes = buildPrevizGlb(plan);
+    const path = `scenes/${id}.glb`;
+    const blob = new Blob([new Uint8Array(bytes)], { type: "model/gltf-binary" });
+    await writeBlob(store(), path, blob);
+    await saveScene(id, { previz: plan, previzFile: path });
+  }, [saveScene, store]);
+
+  const resetScene = useCallback(async () => {
+    const current = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
+    if (!current) return;
+    for (const path of [...current.stills, current.previzFile, current.render]) {
+      if (!path) continue;
+      await store().remove(path);
+      dropMedia(path);
+    }
+    await saveScene(current.id, emptySceneDraft());
+  }, [dropMedia, saveScene, store]);
 
   const setLine = useCallback((value: string) => {
     const next = value.replace(/[\r\n]+/g, " ").slice(0, 240);
@@ -561,6 +705,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       return next;
     });
   }, []);
+
+  const resetTake = useCallback(() => {
+    if (run.phase !== "idle") return;
+    setLine("");
+    setSettings(DEFAULT_TAKE);
+  }, [run.phase, setLine, setSettings]);
 
   const finish = useCallback(async (flight: InFlight, renderClient: RenderClient) => {
     abort.current = new AbortController();
@@ -789,7 +939,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       const vault = store();
       const weights = await vault.get(trained.file);
       if (!weights?.blob) {
-        setRun({ phase: "error", code: "invalid", message: "Le fichier du double manque au coffre.", detail: [] });
+        setRun({ phase: "error", code: "invalid", message: "Le fichier du personnage manque au coffre.", detail: [] });
         return;
       }
       const pictures: { blob: Blob; name: string }[] = [];
@@ -800,7 +950,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         lookCount += 1;
         pictures.push({ blob: entry.blob, name: `uttu-${pictures.length + 1}.jpg` });
       }
-      for (const path of place?.stills ?? []) {
+      for (const path of referencePaths([], place)) {
         const entry = await vault.get(path);
         if (entry?.blob) pictures.push({ blob: entry.blob, name: `uttu-${pictures.length + 1}.jpg` });
       }
@@ -862,7 +1012,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setRun({ phase: "running", event: { stage: "start" } });
     const vault = store();
     const pictures: { blob: Blob; name: string }[] = [];
-    for (const [index, path] of [...current.look.photos, ...(place?.stills ?? [])].entries()) {
+    for (const [index, path] of referencePaths(current.look.photos, place).entries()) {
       const entry = await vault.get(path);
       if (entry?.blob) pictures.push({ blob: entry.blob, name: `uttu-${index + 1}.jpg` });
     }
@@ -903,6 +1053,87 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const cancelRun = useCallback(() => abort.current?.abort(), []);
   const resetRun = useCallback(() => setRun({ phase: "idle" }), []);
+
+  const keepPreviz = useCallback(async (sceneId: string, image: Blob, filename: string) => {
+    const current = studioRef.current.scenes.find(item => item.id === sceneId);
+    if (!current) return;
+    const lower = filename.toLowerCase();
+    const ext = lower.endsWith(".jpg") || lower.endsWith(".jpeg") ? "jpg" : lower.endsWith(".webp") ? "webp" : "png";
+    const path = `scenes/${sceneId}-rendu.${ext}`;
+    if (current.render && current.render !== path) {
+      await store().remove(current.render);
+      dropMedia(current.render);
+    }
+    await writeBlob(store(), path, image);
+    addMedia(path, image);
+    await saveScene(sceneId, { render: path });
+  }, [addMedia, dropMedia, saveScene, store]);
+
+  const finishPreviz = useCallback(async (flight: PrevizFlight, renderClient: RenderClient) => {
+    abortPreviz.current = new AbortController();
+    try {
+      const result = await followPreviz(renderClient, flight.jobId, flight.balanceBefore, event => setPrevizState({ phase: "running", event }), { signal: abortPreviz.current.signal });
+      savePrevizFlight(null);
+      await keepPreviz(flight.sceneId, result.image, result.filename);
+      setPrevizState({ phase: "idle" });
+      setNotice("Image rendue. La prise peut la charger.");
+      void refreshBalance();
+    } catch (error) {
+      const failure = error instanceof RenderError ? error : new RenderError("failed", "La préviz n’a pas abouti.");
+      if (failure.code !== "network" && failure.code !== "timeout") savePrevizFlight(null);
+      setPrevizState({ phase: "error", message: failure.message, detail: failure.detail });
+      void refreshBalance();
+    } finally {
+      abortPreviz.current = null;
+    }
+  }, [keepPreviz, refreshBalance]);
+
+  const requestPreviz = useCallback(async () => {
+    const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
+    if (!place?.previzFile || previz.phase === "running") return;
+    if (!client || !connected) {
+      setSheet("connect");
+      return;
+    }
+    await refreshBalance();
+    setSheet("previz-confirm");
+  }, [client, connected, previz.phase, refreshBalance]);
+
+  const confirmPreviz = useCallback(async () => {
+    if (!client || previz.phase === "running") return;
+    const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
+    if (!place?.previzFile) return;
+    const fresh = await refreshBalance();
+    if (!fresh || !previzGate(fresh.credits).allowed) return;
+    const entry = await store().get(place.previzFile);
+    if (!entry?.blob) {
+      setPrevizState({ phase: "error", message: "Le fichier de volumes manque au coffre.", detail: [] });
+      return;
+    }
+    setSheet(null);
+    setPrevizState({ phase: "running", event: { stage: "upload" } });
+    abortPreviz.current = new AbortController();
+    try {
+      const jobId = await submitPreviz(client, entry.blob, `uttu-${place.previz ?? "lieu"}.glb`, crypto.randomUUID(), event => setPrevizState({ phase: "running", event }), abortPreviz.current.signal);
+      const flight = { jobId, sceneId: place.id, balanceBefore: fresh.credits };
+      savePrevizFlight(flight);
+      await finishPreviz(flight, client);
+    } catch (error) {
+      const failure = error instanceof RenderError ? error : new RenderError("failed", "La préviz n’a pas abouti.");
+      setPrevizState({ phase: "error", message: failure.message, detail: failure.detail });
+      abortPreviz.current = null;
+    }
+  }, [client, finishPreviz, previz.phase, refreshBalance, store]);
+
+  const cancelPreviz = useCallback(() => abortPreviz.current?.abort(), []);
+
+  useEffect(() => {
+    if (!ready || !client || previz.phase !== "idle") return;
+    const flight = readPrevizFlight();
+    if (!flight) return;
+    setPrevizState({ phase: "running", event: { stage: "queue", jobId: flight.jobId } });
+    void finishPreviz(flight, client);
+  }, [client, finishPreviz, previz.phase, ready]);
 
   const deleteTake = useCallback(async (id: string) => {
     const take = studioRef.current.takes.find(item => item.id === id);
@@ -975,7 +1206,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const freshGate = falGate(fresh, quote, "formation");
     if (!fresh || !freshGate.allowed) return;
     const current = studioRef.current;
-    const check = datasetCheck(current.clips, current.look.photos.length);
+    const check = datasetCheck(current.clips, current.role.photos.length, current.role.name);
     if (!check.ready) return;
     const vault = store();
     const clips: { blob: Blob; format: Clip["format"] }[] = [];
@@ -984,24 +1215,24 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       if (entry?.blob) clips.push({ blob: entry.blob, format: clip.format });
     }
     const refs: Blob[] = [];
-    for (const path of current.look.photos.slice(0, 4)) {
+    for (const path of current.role.photos.slice(0, ROLE_PHOTOS_MAX)) {
       const entry = await vault.get(path);
       if (entry?.blob) refs.push(entry.blob);
     }
-    if (clips.length !== current.clips.length || refs.length !== Math.min(4, current.look.photos.length)) {
+    if (clips.length !== current.clips.length || refs.length !== current.role.photos.length) {
       setTraining({ phase: "error", code: "invalid", message: "Un clip ou une photo manque au coffre.", detail: [] });
       return;
     }
     setSheet(null);
     setTraining({ phase: "running", event: { stage: "pack" } });
-    const trigger = triggerPhrase(current.look.name);
+    const trigger = triggerPhrase(current.role.name);
     abortTrain.current = new AbortController();
     try {
       const handle = await submitTraining(fal, { clips, refs, trigger, steps: trainingSteps, aspect: check.aspect }, event => setTraining({ phase: "running", event }), abortTrain.current.signal);
       const flight: TrainingFlight = {
         handle,
         at: new Date().toISOString(),
-        name: current.look.name,
+        name: current.role.name,
         trigger,
         steps: trainingSteps,
         aspect: check.aspect,
@@ -1144,11 +1375,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value: StudioValue = {
-    ready, studio, media, scene, line, settings, claim, gate, link, connected, balance, balanceNote,
+    ready, studio, media, scene, line, settings, claim, gate, link, connected, balance, balanceNote, previz, previzGate: previzCheck, requestPreviz, confirmPreviz, cancelPreviz, setPreviz,
     falLinked, falBalance, falBalanceNote, falUsername, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote,
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,
-    setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene,
-    setLine, setSettings, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, deleteLora,
+    setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
+    setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, deleteLora,
     requestRun, confirmRun, cancelRun, resetRun, deleteTake, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
     exportCoffre, linkFolder, dismissGuide, guideOff,
   };

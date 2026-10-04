@@ -1,6 +1,6 @@
-// What the H3 trainer learns from: short video clips of the adherent, with the
-// look's photos as each clip's reference images. fal refuses image-only and
-// mixed archives, so photos ride along as `clipNN.ref_N.jpg` sidecars.
+// What the H3 trainer learns from: short video clips of one character, with
+// that character's photos as each clip's reference images. fal refuses
+// image-only and mixed archives, so the photos ride along as `clipNN.ref_N.jpg`.
 
 export const CLIPS_MIN = 10;
 export const CLIPS_MAX = 30;
@@ -60,10 +60,11 @@ export interface DatasetCheck {
   problems: string[];
 }
 
-export function datasetCheck(clips: readonly Clip[], lookPhotos: number): DatasetCheck {
+export function datasetCheck(clips: readonly Clip[], refPhotos: number, name?: string): DatasetCheck {
   const problems: string[] = [];
   const bytes = clips.reduce((total, clip) => total + clip.bytes, 0);
-  if (lookPhotos < 2) problems.push("Le look doit tenir : deux photos au moins servent de références.");
+  if (name !== undefined && !name.trim()) problems.push("Donne un nom à ce personnage.");
+  if (refPhotos < 2) problems.push("Deux photos du personnage au moins, pour accompagner les clips.");
   if (clips.length < CLIPS_MIN) problems.push(`${CLIPS_MIN - clips.length} clip${CLIPS_MIN - clips.length > 1 ? "s" : ""} de plus : ${CLIPS_MIN} au moins.`);
   if (clips.length > CLIPS_MAX) problems.push(`${CLIPS_MAX} clips au plus.`);
   if (bytes > DATASET_BYTES_MAX) problems.push("Les clips pèsent plus de 2 Go : retire les plus longs.");
@@ -73,10 +74,10 @@ export function datasetCheck(clips: readonly Clip[], lookPhotos: number): Datase
   return { ready: problems.length === 0, clips: clips.length, bytes, aspect, problems };
 }
 
-/** A word the model has never seen, said in every prompt that wants this person. */
+/** A word the model has never seen, said in every prompt that wants this character. */
 export function triggerPhrase(name: string): string {
   const base = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 24);
-  return `${base || "look"}_uttu`;
+  return `${base || "personnage"}_uttu`;
 }
 
 export interface DatasetFile {

@@ -66,6 +66,7 @@ export function jobStage(status: string): JobStage {
 }
 
 const VIDEO_FILE = /\.(mp4|webm|mov|mkv)$/i;
+const IMAGE_FILE = /\.(png|jpe?g|webp)$/i;
 
 /** The first video a job saved. SaveVideo reports it under `images`, `video` or `gifs`. */
 export function videoOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
@@ -88,6 +89,29 @@ export function videoOutput(outputs: Record<string, unknown> | undefined): Outpu
     }
   }
   return files.find(file => VIDEO_FILE.test(file.filename)) ?? null;
+}
+
+/** The first still a job saved. SaveImage reports it under `images`. */
+export function imageOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
+  if (!outputs || typeof outputs !== "object") return null;
+  const files: OutputRef[] = [];
+  for (const node of Object.values(outputs)) {
+    if (!node || typeof node !== "object") continue;
+    for (const list of Object.values(node as Record<string, unknown>)) {
+      if (!Array.isArray(list)) continue;
+      for (const item of list) {
+        if (!item || typeof item !== "object") continue;
+        const row = item as Record<string, unknown>;
+        if (typeof row.filename !== "string" || !row.filename) continue;
+        files.push({
+          filename: row.filename,
+          subfolder: typeof row.subfolder === "string" ? row.subfolder : "",
+          type: typeof row.type === "string" ? row.type : "output",
+        });
+      }
+    }
+  }
+  return files.find(file => IMAGE_FILE.test(file.filename)) ?? null;
 }
 
 /** Execution time the cloud recorded, from its own timeline. */
@@ -197,10 +221,11 @@ export function createRenderClient(options: RenderClientOptions) {
     },
 
     /** Returns the input name a LoadImage node takes. */
-    async upload(file: Blob, filename: string): Promise<string> {
+    async upload(file: Blob, filename: string, subfolder = ""): Promise<string> {
       const form = new FormData();
       form.append("image", file, filename);
       form.append("type", "input");
+      if (subfolder) form.append("subfolder", subfolder);
       const response = await call("/api/upload/image", { method: "POST", body: form });
       if (!response.ok) throw new RenderError("invalid", `Photo refusée (${response.status}).`);
       const body = await json<{ name?: unknown; subfolder?: unknown }>(response);

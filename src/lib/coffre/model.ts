@@ -17,11 +17,13 @@
 import type { LoraResolution } from "../fal/prices.ts";
 import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type TakeSettings } from "../render/take-graph.ts";
 import type { Clip, ClipFormat, TrainingAspect } from "../lora/dataset.ts";
+import type { PrevizPlan } from "../render/previz.ts";
 import { list, num, readFrontmatter, text, withFrontmatter } from "./markdown.ts";
 import type { VaultStore } from "./store.ts";
 
 export const COFFRE_ROOT = "U-TTU-Studio";
 export const LOOK_PHOTOS_MAX = 3;
+export const ROLE_PHOTOS_MAX = 4;
 export const SCENE_STILLS_MAX = 2;
 export const TRAITS_MIN = 2;
 export const NAME_MAX = 40;
@@ -40,6 +42,17 @@ export interface Scene {
   name: string;
   note: string;
   stills: string[];
+  /** Which blocking plan the studio wrote, when the GLB is still in the vault. */
+  previz: PrevizPlan | null;
+  previzFile: string | null;
+  /** The still Render Mesh returned. Absent until that job actually saves one. */
+  render: string | null;
+}
+
+/** The character being formed. Separate from the look, and from files already trained. */
+export interface RoleDraft {
+  name: string;
+  photos: string[];
 }
 
 /** "comfy": references only, on Comfy Cloud. "lora": the adherent's LoRA loaded by H3 on fal. */
@@ -98,10 +111,15 @@ export interface Studio {
   takes: Take[];
   loras: Lora[];
   clips: Clip[];
+  role: RoleDraft;
 }
 
 export const emptyLook = (): Look => ({ name: "", traits: [], photos: [], note: "" });
-export const emptyStudio = (): Studio => ({ look: emptyLook(), scenes: [], currentScene: null, takes: [], loras: [], clips: [] });
+export const emptyRole = (): RoleDraft => ({ name: "", photos: [] });
+export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "previz" | "previzFile" | "render"> => ({
+  name: "", note: "", stills: [], previz: null, previzFile: null, render: null,
+});
+export const emptyStudio = (): Studio => ({ look: emptyLook(), scenes: [], currentScene: null, takes: [], loras: [], clips: [], role: emptyRole() });
 
 const oneLine = (value: string, max: number) => value.replace(/[\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
 const block = (value: string, max: number) => value.replace(/\r\n/g, "\n").replace(/[\u0000-\u0009\u000b-\u001f]+/g, " ").trim().slice(0, max);
@@ -177,20 +195,48 @@ export function parseCanon(source: string): Look {
   };
 }
 
+const PLANS = ["piece", "quai", "rue"] as const;
+
 export function sceneMarkdown(scene: Scene): string {
-  const stills = scene.stills.map(path => `![[${path}]]`).join("\n");
+  const stills = (scene.stills ?? []).map(path => `![[${path}]]`).join("\n");
   const body = `# ${scene.name}\n\n${scene.note || ""}\n\n${stills}\n`;
-  return withFrontmatter({ type: "scene", nom: scene.name, note: scene.note, images: scene.stills }, body);
+  return withFrontmatter({
+    type: "scene",
+    nom: scene.name,
+    note: scene.note,
+    images: scene.stills ?? [],
+    previz: scene.previz ?? null,
+    fichier: scene.previzFile ?? null,
+    rendu: scene.render ?? null,
+  }, body);
 }
 
 export function parseScene(id: string, source: string): Scene {
   const { fields } = readFrontmatter(source);
+  const plan = text(fields.previz);
   return {
     id,
     name: oneLine(text(fields.nom, id), NAME_MAX) || id,
     note: block(text(fields.note), NOTE_MAX),
     stills: list(fields.images).slice(0, SCENE_STILLS_MAX),
+    previz: (PLANS as readonly string[]).includes(plan) ? plan as PrevizPlan : null,
+    previzFile: text(fields.fichier) || null,
+    render: text(fields.rendu) || null,
   };
+}
+
+export function parseRole(source: string | undefined): RoleDraft {
+  try {
+    const data = JSON.parse(source ?? "null") as { nom?: unknown; photos?: unknown } | null;
+    const photos = Array.isArray(data?.photos) ? data.photos.filter((item): item is string => typeof item === "string" && item.startsWith("roles/")) : [];
+    return { name: oneLine(typeof data?.nom === "string" ? data.nom : "", NAME_MAX), photos: photos.slice(0, ROLE_PHOTOS_MAX) };
+  } catch {
+    return emptyRole();
+  }
+}
+
+export function roleJson(role: RoleDraft): string {
+  return JSON.stringify({ nom: role.name, photos: role.photos });
 }
 
 const usd = (value: number) => `${value.toFixed(2)} $`;
@@ -282,7 +328,7 @@ export function loraId(date: Date, name: string): string {
 
 export function loraMarkdown(lora: Lora): string {
   const cost = lora.costUsd === null ? "Débit pas encore lu." : `${usd(lora.costUsd)} débités sur le compte fal.`;
-  const body = `# LoRA — ${lora.name || "mon look"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le charge en rendu « Ton LoRA » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
+  const body = `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
   return withFrontmatter({
     type: "lora",
     date: lora.at,
@@ -355,7 +401,8 @@ Ce dossier est ton studio. L’app l’écrit, Obsidian le lit tel quel.
 - \`refs/\` — les photos du look.
 - \`scenes/\` — tes lieux, une note et des images chacun.
 - \`prises/\` — chaque prise : la vidéo et sa fiche (plan, réglage, coût mesuré).
-- \`clips/\` — les courtes vidéos de toi dont ton LoRA apprend.
+- \`clips/\` — les courtes vidéos du personnage en cours.
+- \`roles/\` — les photos de ce personnage, effacées avec le brouillon.
 - \`loras/\` — chaque LoRA formé : le fichier \`.safetensors\` et sa fiche (déclencheur, pas, coût).
 - \`jobs.md\` — le journal des prises, des formations et de ce qu’elles ont coûté.
 
@@ -375,7 +422,14 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
     const scene = /^scenes\/([a-z0-9-]+)\.md$/.exec(entry.path);
     if (scene && entry.text) {
       const parsed = parseScene(scene[1], entry.text);
-      studio.scenes.push({ ...parsed, stills: parsed.stills.filter(path => byPath.has(path)) });
+      const fileHeld = Boolean(parsed.previzFile && byPath.has(parsed.previzFile));
+      studio.scenes.push({
+        ...parsed,
+        stills: parsed.stills.filter(path => byPath.has(path)),
+        previz: fileHeld ? parsed.previz : null,
+        previzFile: fileHeld ? parsed.previzFile : null,
+        render: parsed.render && byPath.has(parsed.render) ? parsed.render : null,
+      });
       continue;
     }
     const take = /^prises\/([A-Za-z0-9-]+)\.md$/.exec(entry.path);
@@ -398,6 +452,8 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
   } catch {}
   studio.currentScene ??= studio.scenes[0]?.id ?? null;
   studio.clips = readClips(byPath.get(".uttu/clips.json")?.text).filter(clip => byPath.has(clip.path));
+  const role = parseRole(byPath.get(".uttu/role.json")?.text);
+  studio.role = { ...role, photos: role.photos.filter(path => byPath.has(path)) };
   return studio;
 }
 
@@ -438,7 +494,13 @@ export async function writeScene(store: VaultStore, scene: Scene): Promise<void>
 
 export async function removeScene(store: VaultStore, scene: Scene): Promise<void> {
   for (const path of scene.stills) await store.remove(path);
+  if (scene.previzFile) await store.remove(scene.previzFile);
+  if (scene.render) await store.remove(scene.render);
   await store.remove(`scenes/${scene.id}.md`);
+}
+
+export async function writeRole(store: VaultStore, role: RoleDraft): Promise<void> {
+  await writeText(store, ".uttu/role.json", roleJson(role));
 }
 
 export async function writeState(store: VaultStore, currentScene: string | null): Promise<void> {
