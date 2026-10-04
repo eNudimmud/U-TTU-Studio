@@ -9,15 +9,18 @@ import { takeProfile } from "@/lib/render/take-graph";
 import { assetPath } from "@/lib/site";
 import { Close, Refresh, Trash } from "./glyphs";
 import { PublishActions } from "./publish";
+import { sheetDismissAllowed } from "@/lib/link-epoch";
 import { useStudio } from "./studio-context";
 
 function SheetFrame({ title, label, onClose, children, tall = false }: { title: string; label: string; onClose(): void; children: ReactNode; tall?: boolean }) {
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
+  const openedAt = useRef(0);
   useEffect(() => {
     close.current = onClose;
   });
   useEffect(() => {
+    openedAt.current = Date.now();
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     panel.current?.focus({ preventScroll: true });
     const escape = (event: KeyboardEvent) => {
@@ -29,7 +32,11 @@ function SheetFrame({ title, label, onClose, children, tall = false }: { title: 
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
-  return <div className="u-overlay" onPointerDown={event => { if (event.target === event.currentTarget) onClose(); }}>
+  return <div className="u-overlay" onPointerDown={event => {
+    if (event.target !== event.currentTarget) return;
+    if (!sheetDismissAllowed(openedAt.current, Date.now())) return;
+    onClose();
+  }}>
     <div ref={panel} tabIndex={-1} className={`u-sheet${tall ? " is-tall" : ""}`} role="dialog" aria-modal="true" aria-labelledby="u-sheet-title">
       <header className="u-sheet-head">
         <div>
@@ -289,7 +296,7 @@ export function PrevizConfirmSheet() {
         <li><span>Focale</span><span>{lens ? `${lens} mm` : "—"}</span></li>
       </ul>
       <p className={`u-cost is-${previzGate.tone}`}>{previzGate.line}</p>
-      <p className="u-small">Blender rend cette caméra dans ce lieu. S’il ne renvoie pas d’image, aucune n’est affichée.</p>
+      <p className="u-small">Blender rend le lieu vide, le long du trajet. Le personnage est le LoRA du coffre : il n’entre que dans le plan filmé. S’il ne revient pas d’image, aucune n’est affichée.</p>
       <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>Filmer · débit sur mon compte</button>
       <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
     </div>
@@ -327,6 +334,43 @@ export function BlenderSheet() {
         {error && <p className="u-small is-error" role="alert">{error}</p>}
         <button type="button" className="u-primary" disabled={!key.trim()} onClick={linkKey}>Relier</button>
       </div>}
+  </SheetFrame>;
+}
+
+export function PlaceTrainSheet() {
+  const { setSheet, scene, falBalance, placeTrainQuote, placeTrainGate, confirmPlaceTrain } = useStudio();
+  return <SheetFrame title="Former ce lieu ?" label="Confirmer" onClose={() => setSheet(null)}>
+    <div className="u-stack">
+      <ul className="u-ledger">
+        <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
+        <li><span>Vues</span><span>{(scene?.stills.length ?? 0) + (scene?.frames.length ?? 0) + (scene?.views.length ?? 0)}</span></li>
+        <li><span>Apprentissage</span><span>1000 pas · style</span></li>
+        <li><span>Prix</span><span>{placeTrainQuote !== null ? formatUsd(placeTrainQuote) : "illisible"}</span></li>
+        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : "illisible"}</span></li>
+      </ul>
+      <p className={`u-cost is-${placeTrainGate.tone}`}>{placeTrainGate.line}</p>
+      <p className="u-small">L’entraîneur H3 refuse des images seules. Ce lieu passe par l’entraîneur d’images déjà là, en style, sans masque de visage. Le fichier reste au coffre. Il ne devient pas un volume : le Blender du lieu reste le modèle 3D, et il n’entre pas dans la prise H3.</p>
+      <button type="button" className="u-primary" disabled={!placeTrainGate.allowed} onClick={() => void confirmPlaceTrain()}>Former ce lieu · débit sur mon compte fal</button>
+      <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
+    </div>
+  </SheetFrame>;
+}
+
+export function PlaceSceneSheet() {
+  const { setSheet, scene, falBalance, placeSceneQuote, placeSceneGate, confirmPlaceScene } = useStudio();
+  return <SheetFrame title="Bâtir une image de ce lieu ?" label="Confirmer" onClose={() => setSheet(null)}>
+    <div className="u-stack">
+      <ul className="u-ledger">
+        <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
+        <li><span>Fichier</span><span>LoRA du lieu, au coffre</span></li>
+        <li><span>Prix</span><span>{placeSceneQuote !== null ? formatUsd(placeSceneQuote) : "illisible"}</span></li>
+        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : "illisible"}</span></li>
+      </ul>
+      <p className={`u-cost is-${placeSceneGate.tone}`}>{placeSceneGate.line}</p>
+      <p className="u-small">L’image neuve recharge ce fichier. Le modèle 3D du lieu reste le fichier Blender, pas ce LoRA.</p>
+      <button type="button" className="u-primary" disabled={!placeSceneGate.allowed} onClick={() => void confirmPlaceScene()}>Bâtir · débit sur mon compte fal</button>
+      <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
+    </div>
   </SheetFrame>;
 }
 

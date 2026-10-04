@@ -41,6 +41,13 @@ export function trainingQuote(price: FalPrice | null, steps: number): number | n
   return ceilCents((Math.max(FAL_PUBLISHED.trainerMinSteps, Math.round(steps)) / size) * price.unitPrice);
 }
 
+/**
+ * A place is stills, and the H3 trainer refuses an image-only archive.
+ * These two endpoints already exist for Flux stills. They never enter the H3 take graph.
+ */
+export const PLACE_TRAINER = "fal-ai/flux-lora-fast-training";
+export const PLACE_SCENE = "fal-ai/flux-lora";
+
 /** fal bills a take per second of video; 768p costs fal's published 480p→768p ratio more. */
 export function loraTakeQuote(price: FalPrice | null, seconds: number, resolution: LoraResolution): number | null {
   if (!usable(price)) return null;
@@ -48,6 +55,24 @@ export function loraTakeQuote(price: FalPrice | null, seconds: number, resolutio
   if (size === null) return null;
   const ratio = FAL_PUBLISHED.takePerSecond[resolution] / FAL_PUBLISHED.takePerSecond["480P"];
   return ceilCents((seconds / size) * price.unitPrice * ratio);
+}
+
+/** Same step unit as a character training. An unknown unit leaves the button off. */
+export function placeTrainQuote(price: FalPrice | null, steps: number): number | null {
+  return trainingQuote(price, steps);
+}
+
+/** A new still of the place. Megapixels or one image; anything else is no quote. */
+export function placeSceneQuote(price: FalPrice | null, width: number, height: number): number | null {
+  if (!usable(price)) return null;
+  const mega = perUnit(price.unit, /^megapixel$/i);
+  if (mega !== null) {
+    const billed = Math.max(1, (width * height) / 1_000_000);
+    return ceilCents((billed / mega) * price.unitPrice);
+  }
+  const image = perUnit(price.unit, /^image$/i);
+  if (image !== null) return ceilCents(price.unitPrice / image);
+  return null;
 }
 
 const usd = new Intl.NumberFormat("fr-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });

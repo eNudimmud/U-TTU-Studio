@@ -1,6 +1,6 @@
 "use client";
 
-import { ROLE_PHOTOS_MAX } from "@/lib/coffre/model";
+import { ROLE_PHOTOS_MAX, isPlaceLora } from "@/lib/coffre/model";
 import { formatUsd } from "@/lib/fal/prices";
 import type { TrainingEvent } from "@/lib/lora/train";
 import { Arrow, Close } from "./glyphs";
@@ -114,10 +114,10 @@ export function LoraScreen({ onTake }: { onTake(): void }) {
       <p className="u-label">Au coffre</p>
       <ul className="u-ledger">
         {vault.loras.map(lora => <li key={lora.id}>
-          <span>{lora.name || "Personnage"} · {lora.steps} pas{lora.costUsd !== null ? ` · ${formatUsd(lora.costUsd)}` : ""}</span>
+          <span>{isPlaceLora(lora) ? "Lieu" : "Personnage"} · {lora.name || (isPlaceLora(lora) ? "Lieu" : "Personnage")} · {lora.steps} pas{lora.costUsd !== null ? ` · ${formatUsd(lora.costUsd)}` : ""}</span>
           <span className="u-row">
-            <button type="button" className="u-link" onClick={() => { setEngine("lora"); setLora(lora.id); onTake(); }}>Choisir</button>
-            <button type="button" className="u-link u-muted" onClick={() => void deleteLora(lora.id)} aria-label={`Retirer ${lora.name || "le personnage"}`}>Retirer</button>
+            {!isPlaceLora(lora) && <button type="button" className="u-link" onClick={() => { setEngine("lora"); setLora(lora.id); onTake(); }}>Choisir</button>}
+            <button type="button" className="u-link u-muted" onClick={() => void deleteLora(lora.id)} aria-label={`Retirer ${lora.name || "le fichier"}`}>Retirer</button>
           </span>
         </li>)}
       </ul>

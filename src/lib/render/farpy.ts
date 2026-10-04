@@ -4,7 +4,7 @@
 
 import { formatUsd } from "../fal/prices.ts";
 import type { RunGate } from "../credits.ts";
-import { pngFromZip } from "./zip-png.ts";
+import { pngsFromZip } from "./zip-png.ts";
 
 export const FARPY_ORIGIN = "https://farpy.com";
 export const FARPY_LEGAL = "FARPY_LEGAL_V1";
@@ -135,7 +135,7 @@ export async function readJob(key: string, jobId: string, signal?: AbortSignal, 
   return payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
 }
 
-export async function pngFromJob(key: string, job: Record<string, unknown>, signal?: AbortSignal, send: Send = fetchSend): Promise<Blob> {
+export async function pngsFromJob(key: string, job: Record<string, unknown>, signal?: AbortSignal, send: Send = fetchSend): Promise<Blob[]> {
   const url = filmDownload(job);
   if (!url.startsWith("https://")) throw new FarpyError("Le rendu est fini, mais aucune image n’est sortie.");
   const sameHost = url.startsWith(`${FARPY_ORIGIN}/`);
@@ -146,7 +146,14 @@ export async function pngFromJob(key: string, job: Record<string, unknown>, sign
   });
   if (!response.ok) throw new FarpyError("L’image du rendu n’est pas revenue.");
   const bytes = new Uint8Array(await response.arrayBuffer());
-  const png = await pngFromZip(bytes);
-  if (!png || png.length < 8 || png[0] !== 0x89) throw new FarpyError("Le rendu est fini, mais aucune image n’est sortie.");
-  return new Blob([new Uint8Array(png)], { type: "image/png" });
+  const frames = await pngsFromZip(bytes);
+  if (frames.length === 0 || frames.some(png => png.length < 8 || png[0] !== 0x89)) {
+    throw new FarpyError("Le rendu est fini, mais aucune image n’est sortie.");
+  }
+  return frames.map(png => new Blob([new Uint8Array(png)], { type: "image/png" }));
+}
+
+export async function pngFromJob(key: string, job: Record<string, unknown>, signal?: AbortSignal, send: Send = fetchSend): Promise<Blob> {
+  const frames = await pngsFromJob(key, job, signal, send);
+  return frames[0];
 }

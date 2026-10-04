@@ -16,6 +16,7 @@ export interface TokenSource {
   forget(): Promise<void>;
 }
 
+import { authDatabasePlan } from "../link-epoch.ts";
 const MARGIN_MS = 60_000;
 const SECURE_TOKEN = "https://securetoken.googleapis.com/v1/token";
 
@@ -57,34 +58,48 @@ export async function refreshIdToken(user: FirebaseUser, fetchImpl: typeof fetch
 
 function readStoredUsers(): Promise<unknown[]> {
   return new Promise(resolve => {
-    try {
-      const open = indexedDB.open("firebaseLocalStorageDb");
-      open.onupgradeneeded = () => {
-        try { open.transaction?.abort(); } catch {}
-        resolve([]);
-      };
-      open.onerror = () => resolve([]);
-      open.onsuccess = () => {
-        const db = open.result;
-        if (!db.objectStoreNames.contains("firebaseLocalStorage")) {
-          db.close();
-          resolve([]);
-          return;
-        }
-        const request = db.transaction("firebaseLocalStorage").objectStore("firebaseLocalStorage").getAll();
-        request.onsuccess = () => {
-          db.close();
-          const rows = (request.result ?? []) as { fbase_key?: unknown; value?: unknown }[];
-          resolve(rows.filter(row => typeof row.fbase_key === "string" && row.fbase_key.startsWith("firebase:authUser:")).map(row => row.value));
+    const finish = (rows: unknown[]) => resolve(rows);
+    const openExisting = () => {
+      try {
+        const open = indexedDB.open("firebaseLocalStorageDb");
+        let created = false;
+        open.onupgradeneeded = () => {
+          created = true;
+          try { open.transaction?.abort(); } catch { /* an aborted upgrade must not leave an empty database */ }
         };
-        request.onerror = () => {
-          db.close();
-          resolve([]);
+        open.onerror = () => finish([]);
+        open.onsuccess = () => {
+          const db = open.result;
+          const hasStore = !created && db.objectStoreNames.contains("firebaseLocalStorage");
+          if (authDatabasePlan(null, hasStore) !== "read") {
+            db.close();
+            finish([]);
+            return;
+          }
+          const request = db.transaction("firebaseLocalStorage").objectStore("firebaseLocalStorage").getAll();
+          request.onsuccess = () => {
+            db.close();
+            const rows = (request.result ?? []) as { fbase_key?: unknown; value?: unknown }[];
+            finish(rows.filter(row => typeof row.fbase_key === "string" && row.fbase_key.startsWith("firebase:authUser:")).map(row => row.value));
+          };
+          request.onerror = () => {
+            db.close();
+            finish([]);
+          };
         };
-      };
-    } catch {
-      resolve([]);
+      } catch {
+        finish([]);
+      }
+    };
+    const list = indexedDB.databases?.bind(indexedDB);
+    if (!list) {
+      openExisting();
+      return;
     }
+    list().then(rows => {
+      if (authDatabasePlan(rows, true) === "skip") finish([]);
+      else openExisting();
+    }).catch(() => openExisting());
   });
 }
 

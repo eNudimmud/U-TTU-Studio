@@ -5,17 +5,22 @@ import { costClaim, falGate, runGate, type Balance, type CostClaim, type RunGate
 import { coffreZip } from "@/lib/coffre/export";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
-  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, emptyLook, emptyRole, emptySceneDraft, emptyStudio, extensionFor, loadStudio, loraId, removeLora, removeScene, removeTake, sha256Hex, slugify, takeId, uniqueId,
+  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, emptyLook, emptyRole, emptySceneDraft, emptyStudio, extensionFor, isPlaceLora, loadStudio, loraId, removeLora, removeScene, removeTake, sha256Hex, slugify, takeId, uniqueId,
   writeBlob, writeClips, writeLook, writeLora, writeRole, writeScene, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Studio, type Take,
 } from "@/lib/coffre/model";
-import { FalError, createFalClient, type FalClient, type FalPrice } from "@/lib/fal/client";
+import { FalError, createFalClient, type FalClient, type FalHandle, type FalPrice } from "@/lib/fal/client";
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
-import { LORA_TAKE, LORA_TRAINER, loraTakeQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
+import { LORA_TAKE, LORA_TRAINER, PLACE_SCENE, PLACE_TRAINER, loraTakeQuote, placeSceneQuote, placeTrainQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
+import { reduceConnect } from "@/lib/link-epoch";
 import { CLIPS_MAX, clipFormat, clipProblem, datasetCheck, triggerPhrase, type Clip, type DatasetCheck, type TrainingAspect } from "@/lib/lora/dataset";
 import {
   readLoraTakeFlight, readLoraUploads, readTrainingFlight, saveLoraTakeFlight, saveLoraUploads, saveTrainingFlight,
   type LoraTakeFlight, type TrainingFlight,
 } from "@/lib/lora/flight";
+import {
+  PLACE_HEIGHT, PLACE_KEEP_SECONDS, PLACE_SHOTS_MIN, PLACE_STEPS, PLACE_UPLOAD_KEEP_SECONDS, PLACE_VIEWS_MAX, PLACE_WIDTH,
+  followPlaceScene, followPlaceTraining, placeShotLine, placeShotList, placeTrigger, submitPlaceScene, submitPlaceTraining,
+} from "@/lib/lora/place";
 import { followLoraTake, loraTakeProfile, submitLoraTake, type LoraTakeEvent } from "@/lib/lora/take";
 import { TRAINING_KEEP_SECONDS, TRAINING_RANK, TRAINING_STEPS, followTraining, submitTraining, type TrainingEvent, type TrainingSteps } from "@/lib/lora/train";
 import { idbVault, type VaultStore } from "@/lib/coffre/store";
@@ -25,6 +30,7 @@ import { createRenderClient, RenderError, type RenderClient } from "@/lib/render
 import { FarpyError, filmGate, type FilmQuote } from "@/lib/render/farpy";
 import { buildPlaceBlend, defaultCamera, moveCamera as shiftCamera, type Lens, type PrevizPlan } from "@/lib/render/previz";
 import { followFilm, quoteFilm, startRender, type PrevizEvent } from "@/lib/render/previz-run";
+import { SHOT_LINE, SHOT_RESOLUTION, SHOT_SECONDS, shotGate, shotPrompt } from "@/lib/render/shot";
 import { referencePaths } from "@/lib/render/references";
 import { followTake, submitTake, type TakeRunEvent } from "@/lib/render/run";
 import { sessionTokens } from "@/lib/render/session";
@@ -34,7 +40,7 @@ import {
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
 
-export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "blender" | "train-confirm" | "previz-confirm" | { take: string };
+export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | { take: string };
 
 export type RunState =
   | { phase: "idle" }
@@ -52,14 +58,31 @@ const FILM_KEY = "u-ttu-film";
 interface FilmFlight {
   jobId: string;
   sceneId: string;
+  stage: "blender" | "person";
+  handle: FalHandle | null;
+  balanceBefore: number | null;
+  loraId: string | null;
+  prompt: string;
 }
 
 function readFilmFlight(): FilmFlight | null {
   try {
     localStorage.removeItem("u-ttu-previz");
-    const data = JSON.parse(localStorage.getItem(FILM_KEY) ?? "null") as FilmFlight | null;
-    if (!data || typeof data.jobId !== "string" || typeof data.sceneId !== "string") return null;
-    return data;
+    const data = JSON.parse(localStorage.getItem(FILM_KEY) ?? "null") as Partial<FilmFlight> | null;
+    if (!data || typeof data.sceneId !== "string") return null;
+    const stage = data.stage === "person" ? "person" : "blender";
+    const handle = data.handle && typeof data.handle.requestId === "string" && typeof data.handle.statusUrl === "string" ? data.handle : null;
+    if (stage === "blender" && typeof data.jobId !== "string") return null;
+    if (stage === "person" && !handle) return null;
+    return {
+      jobId: typeof data.jobId === "string" ? data.jobId : "",
+      sceneId: data.sceneId,
+      stage,
+      handle,
+      balanceBefore: typeof data.balanceBefore === "number" ? data.balanceBefore : null,
+      loraId: typeof data.loraId === "string" ? data.loraId : null,
+      prompt: typeof data.prompt === "string" ? data.prompt : "",
+    };
   } catch {
     return null;
   }
@@ -258,7 +281,18 @@ interface StudioValue {
   deleteScene(id: string): Promise<void>;
   selectScene(id: string): Promise<void>;
   setPreviz(id: string, plan: PrevizPlan): Promise<void>;
-  moveCamera(target: "stand" | "aim", axis: "x" | "y" | "z", direction: -1 | 1): Promise<void>;
+  moveCamera(point: "start" | "end", target: "stand" | "aim", axis: "x" | "y" | "z", direction: -1 | 1): Promise<void>;
+  addSceneViews(id: string, files: File[]): Promise<void>;
+  removeSceneView(id: string, path: string): Promise<void>;
+  placeTrainQuote: number | null;
+  placeSceneQuote: number | null;
+  placeTrainGate: RunGate;
+  placeSceneGate: RunGate;
+  placeRun: "idle" | "running";
+  requestPlaceTrain(): Promise<void>;
+  confirmPlaceTrain(): Promise<void>;
+  requestPlaceScene(): Promise<void>;
+  confirmPlaceScene(): Promise<void>;
   setLens(lens: Lens): Promise<void>;
   previz: PrevizState;
   previzGate: RunGate;
@@ -318,10 +352,13 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const tokens = useMemo(() => sessionTokens(), []);
   const abort = useRef<AbortController | null>(null);
   const abortTrain = useRef<AbortController | null>(null);
+  const abortPlace = useRef<AbortController | null>(null);
   const abortPreviz = useRef<AbortController | null>(null);
   const wake = useRef<{ release(): Promise<void> } | null>(null);
   const wakeTrain = useRef<{ release(): Promise<void> } | null>(null);
   const studioRef = useRef<Studio>(emptyStudio());
+  const falEpoch = useRef(0);
+  const comfyEpoch = useRef(0);
 
   const [ready, setReady] = useState(false);
   const [studio, setStudioState] = useState<Studio>(emptyStudio());
@@ -349,6 +386,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [filmQuote, setFilmQuote] = useState<FilmQuote | null>(null);
   const quoteRef = useRef<FilmQuote | null>(null);
   const [blenderKey, setBlenderKey] = useState<string | null>(null);
+  const [placeTrainPrice, setPlaceTrainPrice] = useState<FalPrice | null>(null);
+  const [placeScenePrice, setPlaceScenePrice] = useState<FalPrice | null>(null);
+  const [placeRun, setPlaceRun] = useState<"idle" | "running">("idle");
   const [sheet, setSheet] = useState<Sheet>(null);
   const [folder, setFolder] = useState<string | null>(null);
   const [guide, setGuide] = useState<GuideState>({ off: false, seen: [] });
@@ -394,8 +434,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setBalance(null);
       return null;
     }
+    const epoch = comfyEpoch.current;
     try {
       const credits = await client.balance();
+      if (reduceConnect({ epoch: comfyEpoch.current, connected: true }, { type: "read", epoch, ok: true }).ignored) return null;
       setConnected(true);
       if (credits === null) {
         setBalanceNote("Solde illisible sur ce compte.");
@@ -407,6 +449,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setBalanceNote("");
       return next;
     } catch (error) {
+      if (reduceConnect({ epoch: comfyEpoch.current, connected: true }, { type: "read", epoch, ok: false }).ignored) return null;
       setBalance(null);
       if (error instanceof RenderError && error.code === "auth") setConnected(false);
       setBalanceNote(error instanceof Error ? error.message : "Solde illisible.");
@@ -419,13 +462,19 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setFalBalance(null);
       return null;
     }
-    const [account, trainer, priced] = await Promise.all([
+    const epoch = falEpoch.current;
+    const [account, trainer, priced, placeTrain, placeStill] = await Promise.all([
       fal.account().then(value => ({ ok: true as const, value }), (error: unknown) => ({ ok: false as const, error })),
       fal.price(LORA_TRAINER).catch(() => null),
       fal.price(LORA_TAKE).catch(() => null),
+      fal.price(PLACE_TRAINER).catch(() => null),
+      fal.price(PLACE_SCENE).catch(() => null),
     ]);
+    if (reduceConnect({ epoch: falEpoch.current, connected: true }, { type: "read", epoch, ok: account.ok }).ignored) return null;
     setTrainerPrice(trainer);
     setTakePrice(priced);
+    setPlaceTrainPrice(placeTrain);
+    setPlaceScenePrice(placeStill);
     if (!account.ok) {
       const failure = falFailure(account.error, "Solde fal illisible.");
       setFalBalance(null);
@@ -509,13 +558,20 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   );
   const comfyGate = useMemo(() => runGate(balance, claim), [balance, claim]);
   const dataset = useMemo(() => datasetCheck(studio.clips, studio.role.photos.length, studio.role.name), [studio.clips, studio.role.photos.length, studio.role.name]);
-  const previzCheck = useMemo(() => filmGate(filmQuote), [filmQuote]);
-  const chosenLora = studio.loras.find(item => item.id === loraPick) ?? studio.loras[0] ?? null;
+  const people = studio.loras.filter(item => !isPlaceLora(item));
+  const chosenLora = people.find(item => item.id === loraPick) ?? people[0] ?? null;
   const trainQuote = useMemo(() => trainingQuote(trainerPrice, trainingSteps), [trainerPrice, trainingSteps]);
   const trainGate = useMemo(() => falGate(falBalance, trainQuote, "formation"), [falBalance, trainQuote]);
   const loraQuote = useMemo(() => loraTakeQuote(takePrice, settings.seconds, loraResolution), [takePrice, settings.seconds, loraResolution]);
   const loraGate = useMemo(() => falGate(falBalance, loraQuote, "prise"), [falBalance, loraQuote]);
   const gate = engine === "lora" ? loraGate : comfyGate;
+  const characterUsd = useMemo(() => loraTakeQuote(takePrice, SHOT_SECONDS, SHOT_RESOLUTION), [takePrice]);
+  const trajetReady = (scene?.frames.length ?? 0) >= 2;
+  const shotCheck = useMemo(() => shotGate({ blender: filmQuote, characterUsd, trajetReady }), [characterUsd, filmQuote, trajetReady]);
+  const pricedPlace = useMemo(() => placeTrainQuote(placeTrainPrice, PLACE_STEPS), [placeTrainPrice]);
+  const pricedStill = useMemo(() => placeSceneQuote(placeScenePrice, PLACE_WIDTH, PLACE_HEIGHT), [placeScenePrice]);
+  const placeTrainGate = useMemo(() => falGate(falBalance, pricedPlace, "formation"), [falBalance, pricedPlace]);
+  const placeSceneGate = useMemo(() => falGate(falBalance, pricedStill, "prise"), [falBalance, pricedStill]);
 
   const saveLook = useCallback(async (patch: Partial<Look>) => {
     const look = { ...studioRef.current.look, ...patch };
@@ -633,7 +689,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const clean = name.replace(/\s+/g, " ").trim().slice(0, 40);
     if (!clean) return;
     const id = uniqueId(slugify(clean), studioRef.current.scenes.map(item => item.id));
-    const created: Scene = { id, name: clean, note: "", stills: [], previz: null, previzFile: null, camera: null, render: null };
+    const created: Scene = { id, ...emptySceneDraft(), name: clean };
     setStudio({ ...studioRef.current, scenes: [...studioRef.current.scenes, created], currentScene: id });
     await writeScene(store(), created);
     await writeState(store(), id);
@@ -686,57 +742,92 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     current.stills.forEach(dropMedia);
     if (current.previzFile) dropMedia(current.previzFile);
     if (current.render) dropMedia(current.render);
+    current.frames.forEach(dropMedia);
+    current.views.forEach(dropMedia);
     const scenes = studioRef.current.scenes.filter(item => item.id !== id);
     const currentScene = studioRef.current.currentScene === id ? scenes[0]?.id ?? null : studioRef.current.currentScene;
     setStudio({ ...studioRef.current, scenes, currentScene });
     await writeState(store(), currentScene);
   }, [dropMedia, setStudio, store]);
 
-  const dropRender = useCallback(async (current: Scene) => {
-    if (!current.render) return;
-    await store().remove(current.render);
-    dropMedia(current.render);
+  const dropPath = useCallback(async (current: Scene) => {
+    for (const path of current.frames) {
+      await store().remove(path);
+      dropMedia(path);
+    }
+    if (current.render && !current.frames.includes(current.render)) {
+      await store().remove(current.render);
+      dropMedia(current.render);
+    }
+    quoteRef.current = null;
+    setFilmQuote(null);
   }, [dropMedia, store]);
 
   const setPreviz = useCallback(async (id: string, plan: PrevizPlan) => {
     const current = studioRef.current.scenes.find(item => item.id === id);
     if (!current) return;
     const camera = current.camera ?? defaultCamera(plan);
-    quoteRef.current = null;
-    setFilmQuote(null);
-    if (current.previz !== plan) await dropRender(current);
-    await saveScene(id, { previz: plan, camera, ...(current.previz !== plan ? { render: null } : {}) });
-  }, [dropRender, saveScene]);
+    if (current.previz !== plan) await dropPath(current);
+    await saveScene(id, { previz: plan, camera, ...(current.previz !== plan ? { frames: [], render: null, shot: null } : {}) });
+  }, [dropPath, saveScene]);
 
-  const moveCamera = useCallback(async (target: "stand" | "aim", axis: "x" | "y" | "z", direction: -1 | 1) => {
+  const moveCamera = useCallback(async (point: "start" | "end", target: "stand" | "aim", axis: "x" | "y" | "z", direction: -1 | 1) => {
     const current = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
     if (!current?.previz) return;
-    const camera = shiftCamera(current.camera ?? defaultCamera(current.previz), target, axis, direction);
-    quoteRef.current = null;
-    setFilmQuote(null);
-    await dropRender(current);
-    await saveScene(current.id, { camera, render: null });
-  }, [dropRender, saveScene]);
+    const camera = shiftCamera(current.camera ?? defaultCamera(current.previz), point, target, axis, direction);
+    await dropPath(current);
+    await saveScene(current.id, { camera, frames: [], render: null, shot: null });
+  }, [dropPath, saveScene]);
 
   const setLens = useCallback(async (lens: Lens) => {
     const current = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
     if (!current?.previz) return;
     const camera = { ...(current.camera ?? defaultCamera(current.previz)), lens };
-    quoteRef.current = null;
-    setFilmQuote(null);
-    await dropRender(current);
-    await saveScene(current.id, { camera, render: null });
-  }, [dropRender, saveScene]);
+    await dropPath(current);
+    await saveScene(current.id, { camera, frames: [], render: null, shot: null });
+  }, [dropPath, saveScene]);
 
   const resetScene = useCallback(async () => {
     const current = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
     if (!current) return;
-    for (const path of [...current.stills, current.previzFile, current.render]) {
+    for (const path of [...current.stills, ...current.frames, ...current.views, current.previzFile, current.render]) {
       if (!path) continue;
       await store().remove(path);
       dropMedia(path);
     }
     await saveScene(current.id, emptySceneDraft());
+  }, [dropMedia, saveScene, store]);
+
+  const addSceneViews = useCallback(async (id: string, files: File[]) => {
+    const current = studioRef.current.scenes.find(item => item.id === id);
+    if (!current) return;
+    const room = PLACE_VIEWS_MAX - current.views.length;
+    const picked = files.filter(file => file.type.startsWith("image/")).slice(0, Math.max(0, room));
+    if (picked.length === 0) {
+      setNotice(room <= 0 ? "Douze vues en plus au plus." : "Choisis une image.");
+      return;
+    }
+    const paths: string[] = [];
+    for (const [index, file] of picked.entries()) {
+      try {
+        const blob = await downscale(file);
+        const path = `scenes/${id}-vue-${stamp()}-${index + 1}.jpg`;
+        await writeBlob(store(), path, blob);
+        addMedia(path, blob);
+        paths.push(path);
+      } catch {
+        setNotice("Une vue n’a pas pu être lue.");
+      }
+    }
+    await saveScene(id, { views: [...current.views, ...paths].slice(0, PLACE_VIEWS_MAX) });
+  }, [addMedia, saveScene, store]);
+
+  const removeSceneView = useCallback(async (id: string, path: string) => {
+    const current = studioRef.current.scenes.find(item => item.id === id);
+    if (!current) return;
+    await store().remove(path);
+    dropMedia(path);
+    await saveScene(id, { views: current.views.filter(item => item !== path) });
   }, [dropMedia, saveScene, store]);
 
   const setLine = useCallback((value: string) => {
@@ -896,6 +987,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         rank: TRAINING_RANK,
         aspect: flight.aspect,
         clips: flight.clips,
+        kind: "personnage",
+        sceneId: null,
         endpoint: LORA_TRAINER,
         requestId: result.requestId,
         seconds: result.seconds,
@@ -1104,32 +1197,100 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const cancelRun = useCallback(() => abort.current?.abort(), []);
   const resetRun = useCallback(() => setRun({ phase: "idle" }), []);
 
-  const keepPreviz = useCallback(async (sceneId: string, image: Blob, filename: string) => {
+  const keepFrames = useCallback(async (sceneId: string, images: readonly Blob[]) => {
     const current = studioRef.current.scenes.find(item => item.id === sceneId);
     if (!current) return;
-    const lower = filename.toLowerCase();
-    const ext = lower.endsWith(".jpg") || lower.endsWith(".jpeg") ? "jpg" : lower.endsWith(".webp") ? "webp" : "png";
-    const path = `scenes/${sceneId}-rendu.${ext}`;
-    if (current.render && current.render !== path) {
-      await store().remove(current.render);
-      dropMedia(current.render);
+    for (const path of current.frames) {
+      await store().remove(path);
+      dropMedia(path);
     }
-    await writeBlob(store(), path, image);
-    addMedia(path, image);
-    await saveScene(sceneId, { render: path });
+    const paths: string[] = [];
+    for (const [index, image] of images.entries()) {
+      const path = `scenes/${sceneId}-trajet-${String(index + 1).padStart(2, "0")}.png`;
+      await writeBlob(store(), path, image);
+      addMedia(path, image);
+      paths.push(path);
+    }
+    await saveScene(sceneId, { frames: paths, render: paths[0] ?? null });
   }, [addMedia, dropMedia, saveScene, store]);
+
+  const finishPerson = useCallback(async (flight: FilmFlight, falClient: FalClient) => {
+    if (!flight.handle || flight.balanceBefore === null || !flight.loraId) return;
+    const abort = new AbortController();
+    abortPreviz.current = abort;
+    try {
+      setPrevizState({ phase: "running", event: { stage: "person" } });
+      const result = await followLoraTake(falClient, flight.handle, flight.balanceBefore, event => {
+        if (event.stage === "render") setPrevizState({ phase: "running", event: { stage: "shot", seconds: event.seconds } });
+        else if (event.stage === "fetch" || event.stage === "measure") setPrevizState({ phase: "running", event: { stage: "video" } });
+        else setPrevizState({ phase: "running", event: { stage: "person" } });
+      }, { signal: abort.signal });
+      const place = studioRef.current.scenes.find(item => item.id === flight.sceneId);
+      const id = takeId(new Date(), place?.name || flight.sceneId);
+      const video = `prises/${id}.${extensionFor(result.video.type || "video/mp4")}`;
+      await writeBlob(store(), video, result.video);
+      addMedia(video, result.video);
+      const frame = await posterOf(result.video);
+      const poster = frame ? `prises/${id}.jpg` : null;
+      if (frame && poster) {
+        await writeBlob(store(), poster, frame);
+        addMedia(poster, frame);
+      }
+      const settings: TakeSettings = { seconds: 5, quality: "rapide", aspect: "vertical" };
+      const take: Take = {
+        id,
+        at: new Date().toISOString(),
+        sceneId: flight.sceneId,
+        sceneName: place?.name ?? "",
+        line: SHOT_LINE,
+        settings,
+        profile: loraTakeProfile(SHOT_SECONDS, "9:16", SHOT_RESOLUTION),
+        jobId: flight.handle.requestId,
+        video,
+        poster,
+        prompt: flight.prompt,
+        gpuSeconds: result.seconds,
+        costCredits: null,
+        balanceBefore: flight.balanceBefore,
+        balanceAfter: result.balanceAfter,
+        engine: "lora",
+        loraId: flight.loraId,
+        resolution: SHOT_RESOLUTION,
+        costUsd: result.costUsd,
+        costSource: result.costSource,
+      };
+      const takes = [take, ...studioRef.current.takes.filter(item => item.id !== id)];
+      await writeTake(store(), take, takes, studioRef.current.loras);
+      await saveScene(flight.sceneId, { shot: id });
+      setStudio({ ...studioRef.current, takes });
+      saveFilmFlight(null);
+      if (result.balanceAfter !== null) setFalBalance({ usd: result.balanceAfter, readAt: Date.now() });
+      setPrevizState({ phase: "idle" });
+      setNotice("Le plan est filmé. Blender a rendu le lieu vide. Le personnage est dans la prise.");
+    } catch (error) {
+      const failure = falFailure(error, "Le personnage n’est pas dans le plan.");
+      if (failure.code === "network" || failure.code === "timeout") {
+        setPrevizState({ phase: "error", message: "Le lieu est rendu. Le suivi du personnage reprend. Rien n’est renvoyé.", detail: [] });
+      } else {
+        saveFilmFlight(null);
+        setPrevizState({ phase: "error", message: `Le lieu est rendu. ${failure.message}`, detail: failure.detail });
+      }
+    } finally {
+      abortPreviz.current = null;
+    }
+  }, [addMedia, saveScene, setStudio, store]);
 
   const finishFilm = useCallback(async (flight: FilmFlight, key: string) => {
     const abort = abortPreviz.current ?? new AbortController();
     abortPreviz.current = abort;
     try {
       const result = await followFilm(key, flight.jobId, event => setPrevizState({ phase: "running", event }), { signal: abort.signal });
+      await keepFrames(flight.sceneId, result.images);
       saveFilmFlight(null);
       quoteRef.current = null;
       setFilmQuote(null);
-      await keepPreviz(flight.sceneId, result.image, `${flight.sceneId}-rendu.png`);
       setPrevizState({ phase: "idle" });
-      setNotice("Image filmée. La prise peut la charger.");
+      setNotice("Le lieu est rendu, vide. Le prochain geste filme le personnage, au prix fal seul.");
     } catch (error) {
       const failure = filmProblem(error);
       if (!(error instanceof DOMException)) saveFilmFlight(null);
@@ -1137,13 +1298,24 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     } finally {
       abortPreviz.current = null;
     }
-  }, [keepPreviz]);
+  }, [keepFrames]);
 
   const requestPreviz = useCallback(async () => {
     const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
     if (!place?.previz || previz.phase === "running") return;
+    const person = studioRef.current.loras.find(item => !isPlaceLora(item));
+    if (!person) return;
     if (!blenderKey) {
       setSheet("blender");
+      return;
+    }
+    if (!fal) {
+      setSheet("fal");
+      return;
+    }
+    if (place.frames.length >= 2) {
+      await refreshFal();
+      setSheet("previz-confirm");
       return;
     }
     saveFilmFlight(null);
@@ -1161,6 +1333,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       const quote = await quoteFilm(blenderKey, blob, `uttu-${place.id}.blend`, abortPreviz.current.signal);
       quoteRef.current = quote;
       setFilmQuote(quote);
+      await refreshFal();
       setPrevizState({ phase: "idle" });
       setSheet("previz-confirm");
     } catch (error) {
@@ -1169,27 +1342,91 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     } finally {
       abortPreviz.current = null;
     }
-  }, [blenderKey, previz.phase, saveScene, store]);
+  }, [blenderKey, fal, previz.phase, refreshFal, saveScene, store]);
 
   const confirmPreviz = useCallback(async () => {
-    const quote = quoteRef.current;
-    if (!blenderKey || !quote || previz.phase === "running" || !filmGate(quote).allowed) return;
+    if (!blenderKey || !fal || previz.phase === "running") return;
     const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
-    if (!place) return;
+    const person = studioRef.current.loras.find(item => !isPlaceLora(item));
+    if (!place?.previz || !person) return;
+    const fresh = await refreshFal();
+    const priced = await fal.price(LORA_TAKE).catch(() => null);
+    setTakePrice(priced);
+    const usd = loraTakeQuote(priced, SHOT_SECONDS, SHOT_RESOLUTION);
+    const ready = place.frames.length >= 2;
+    const gate = shotGate({ blender: quoteRef.current, characterUsd: usd, trajetReady: ready });
+    const money = falGate(fresh, usd, "prise");
+    if (!fresh || !gate.allowed || !money.allowed) {
+      setNotice(gate.allowed ? money.line : gate.line);
+      return;
+    }
+    if (!ready && !filmGate(quoteRef.current).allowed) return;
     setSheet(null);
-    setPrevizState({ phase: "running", event: { stage: "start" } });
     abortPreviz.current = new AbortController();
+    let started = false;
     try {
-      const jobId = await startRender(blenderKey, quote, abortPreviz.current.signal);
-      const flight = { jobId, sceneId: place.id };
+      let images: Blob[] = [];
+      if (!ready) {
+        const quote = quoteRef.current;
+        if (!quote) return;
+        setPrevizState({ phase: "running", event: { stage: "start" } });
+        const jobId = await startRender(blenderKey, quote, abortPreviz.current.signal);
+        started = true;
+        saveFilmFlight({ jobId, sceneId: place.id, stage: "blender", handle: null, balanceBefore: fresh.usd, loraId: person.id, prompt: "" });
+        const result = await followFilm(blenderKey, jobId, event => setPrevizState({ phase: "running", event }), { signal: abortPreviz.current.signal });
+        images = result.images;
+        await keepFrames(place.id, images);
+        saveFilmFlight(null);
+        quoteRef.current = null;
+        setFilmQuote(null);
+      } else {
+        for (const path of place.frames) {
+          const entry = await store().get(path);
+          if (entry?.blob) images.push(entry.blob);
+        }
+      }
+      if (images.length < 2) throw new FarpyError("Blender n’a pas rendu le trajet.");
+      const weights = await store().get(person.file);
+      if (!weights?.blob) throw new FalError("invalid", "Le fichier du personnage manque au coffre.");
+      const prompt = shotPrompt({ subject: person.trigger, place: place.name, note: place.note, frames: images.length, line: SHOT_LINE });
+      setPrevizState({ phase: "running", event: { stage: "person" } });
+      const cached = readLoraUploads(localStorage)[person.id];
+      const submitted = await submitLoraTake(fal, {
+        lora: { id: person.id, blob: weights.blob, url: cached?.url ?? null, urlUntil: cached?.until ?? null },
+        pictures: images.map((blob, index) => ({ blob, name: `trajet-${index + 1}.png` })),
+        prompt,
+        seconds: SHOT_SECONDS,
+        aspect: "9:16",
+        resolution: SHOT_RESOLUTION,
+        seed: crypto.getRandomValues(new Uint32Array(1))[0],
+      }, () => setPrevizState({ phase: "running", event: { stage: "person" } }), { signal: abortPreviz.current.signal });
+      const uploads = readLoraUploads(localStorage);
+      uploads[person.id] = { url: submitted.loraUrl, until: submitted.loraUrlUntil };
+      saveLoraUploads(localStorage, uploads);
+      const flight: FilmFlight = {
+        jobId: "",
+        sceneId: place.id,
+        stage: "person",
+        handle: submitted.handle,
+        balanceBefore: fresh.usd,
+        loraId: person.id,
+        prompt,
+      };
       saveFilmFlight(flight);
-      await finishFilm(flight, blenderKey);
+      await finishPerson(flight, fal);
     } catch (error) {
-      const failure = filmProblem(error);
-      setPrevizState({ phase: "error", message: failure.message, detail: failure.detail });
+      if (!started) saveFilmFlight(null);
+      const failure = error instanceof FalError ? falFailure(error, "Le personnage n’est pas dans le plan.") : filmProblem(error);
+      const held = studioRef.current.scenes.find(item => item.id === place.id);
+      const rendered = (held?.frames.length ?? 0) >= 2;
+      setPrevizState({
+        phase: "error",
+        message: rendered ? `Le lieu est rendu. ${failure.message}` : failure.message,
+        detail: failure.detail,
+      });
       abortPreviz.current = null;
     }
-  }, [blenderKey, finishFilm, previz.phase]);
+  }, [blenderKey, fal, finishPerson, keepFrames, previz.phase, refreshFal, store]);
 
   const cancelPreviz = useCallback(() => abortPreviz.current?.abort(), []);
 
@@ -1209,12 +1446,17 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!ready || !blenderKey || previz.phase !== "idle") return;
+    if (!ready || previz.phase !== "idle") return;
     const flight = readFilmFlight();
     if (!flight) return;
+    if (flight.stage === "person" && flight.handle && fal) {
+      void finishPerson(flight, fal);
+      return;
+    }
+    if (!blenderKey || flight.stage !== "blender" || !flight.jobId) return;
     setPrevizState({ phase: "running", event: { stage: "queue", jobId: flight.jobId } });
     void finishFilm(flight, blenderKey);
-  }, [blenderKey, finishFilm, previz.phase, ready]);
+  }, [blenderKey, fal, finishFilm, finishPerson, previz.phase, ready]);
 
   const deleteTake = useCallback(async (id: string) => {
     const take = studioRef.current.takes.find(item => item.id === id);
@@ -1361,8 +1603,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const connectFal = useCallback(async (raw: string): Promise<string | null> => {
     const key = cleanFalKey(raw);
     if (!key) return "Cette clé n’a pas la forme d’une clé fal.";
+    const opened = reduceConnect({ epoch: falEpoch.current, connected: false }, { type: "connect" });
+    falEpoch.current = opened.epoch;
     try {
       const account = await createFalClient({ key }).account();
+      if (reduceConnect(opened, { type: "read", epoch: opened.epoch, ok: Boolean(account) }).ignored) return null;
+      if (falEpoch.current !== opened.epoch) return null;
       if (!account) return "fal n’a pas montré de solde en dollars.";
       saveFalKey(localStorage, key);
       setFalKey(key);
@@ -1372,28 +1618,36 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setFalBalanceNote("");
       return null;
     } catch (error) {
+      if (falEpoch.current !== opened.epoch) return null;
       return falFailure(error, "Clé refusée.").message;
     }
   }, []);
 
   const disconnectFal = useCallback(() => {
+    falEpoch.current = reduceConnect({ epoch: falEpoch.current, connected: true }, { type: "connect" }).epoch;
     saveFalKey(localStorage, null);
     setFalKey(null);
     setFalLinked(false);
     setFalBalance(null);
     setFalUsername("");
     setFalBalanceNote("");
+    setPlaceTrainPrice(null);
+    setPlaceScenePrice(null);
   }, []);
 
   const connectKey = useCallback(async (raw: string): Promise<string | null> => {
     const key = cleanApiKey(raw);
     if (!key) return "Cette clé n’a pas la forme d’une clé de rendu.";
+    const opened = reduceConnect({ epoch: comfyEpoch.current, connected: false }, { type: "connect" });
+    comfyEpoch.current = opened.epoch;
     const candidate = createRenderClient({ auth: { kind: "key", key } });
     try {
       await candidate.user();
     } catch (error) {
+      if (comfyEpoch.current !== opened.epoch) return null;
       return error instanceof Error ? error.message : "Clé refusée.";
     }
+    if (comfyEpoch.current !== opened.epoch) return null;
     const next: RenderLink = { mode: "key", key };
     saveRenderLink(localStorage, next);
     setLink(next);
@@ -1403,6 +1657,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const sessionLinked = useCallback(async (): Promise<boolean> => {
     if (!(await tokens.connected())) return false;
+    const opened = reduceConnect({ epoch: comfyEpoch.current, connected: false }, { type: "connect" });
+    comfyEpoch.current = opened.epoch;
+    if (comfyEpoch.current !== opened.epoch) return false;
     const next: RenderLink = { mode: "session" };
     saveRenderLink(localStorage, next);
     setLink(next);
@@ -1411,6 +1668,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [tokens]);
 
   const disconnect = useCallback(async () => {
+    comfyEpoch.current = reduceConnect({ epoch: comfyEpoch.current, connected: true }, { type: "connect" }).epoch;
     if (link.mode === "session") await tokens.forget();
     saveRenderLink(localStorage, { mode: "none" });
     setLink({ mode: "none" });
@@ -1455,8 +1713,162 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const requestPlaceTrain = useCallback(async () => {
+    const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
+    if (!place || placeRun === "running") return;
+    const check = placeShotLine(placeShotList(place).length);
+    if (!check.ready) {
+      setNotice(check.line);
+      return;
+    }
+    if (!fal) {
+      setSheet("fal");
+      return;
+    }
+    await refreshFal();
+    setSheet("place-train");
+  }, [fal, placeRun, refreshFal]);
+
+  const confirmPlaceTrain = useCallback(async () => {
+    if (!fal || placeRun === "running") return;
+    const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
+    if (!place) return;
+    const shots = placeShotList(place);
+    if (shots.length < PLACE_SHOTS_MIN) return;
+    const fresh = await refreshFal();
+    const priced = await fal.price(PLACE_TRAINER).catch(() => null);
+    setPlaceTrainPrice(priced);
+    const quote = placeTrainQuote(priced, PLACE_STEPS);
+    const freshGate = falGate(fresh, quote, "formation");
+    if (!fresh || !freshGate.allowed) {
+      setNotice(freshGate.line);
+      return;
+    }
+    const images: Blob[] = [];
+    for (const path of shots) {
+      const entry = await store().get(path);
+      if (entry?.blob) images.push(entry.blob);
+    }
+    if (images.length < PLACE_SHOTS_MIN) {
+      setNotice("Une vue manque au coffre.");
+      return;
+    }
+    setSheet(null);
+    setPlaceRun("running");
+    abortPlace.current = new AbortController();
+    try {
+      const trigger = placeTrigger(place.name);
+      const handle = await submitPlaceTraining(fal, { images, trigger, steps: PLACE_STEPS }, abortPlace.current.signal);
+      const result = await followPlaceTraining(fal, handle, fresh.usd, { signal: abortPlace.current.signal });
+      const id = uniqueId(loraId(new Date(), place.name), studioRef.current.loras.map(item => item.id));
+      const file = `loras/${id}.safetensors`;
+      const created: Lora = {
+        id,
+        at: new Date().toISOString(),
+        name: place.name,
+        kind: "lieu",
+        sceneId: place.id,
+        trigger,
+        file,
+        bytes: result.lora.size,
+        sha256: await sha256Hex(result.lora),
+        steps: PLACE_STEPS,
+        rank: 0,
+        aspect: "9:16",
+        clips: images.length,
+        endpoint: PLACE_TRAINER,
+        requestId: result.requestId,
+        seconds: result.seconds,
+        costUsd: result.costUsd,
+        costSource: result.costSource,
+        balanceBefore: fresh.usd,
+        balanceAfter: result.balanceAfter,
+      };
+      const loras = [created, ...studioRef.current.loras.filter(item => item.id !== id)];
+      await writeLora(store(), created, result.lora, studioRef.current.takes, loras);
+      const uploads = readLoraUploads(localStorage);
+      uploads[id] = { url: result.loraUrl, until: Date.now() + PLACE_KEEP_SECONDS * 1000 };
+      saveLoraUploads(localStorage, uploads);
+      setStudio({ ...studioRef.current, loras });
+      if (result.balanceAfter !== null) setFalBalance({ usd: result.balanceAfter, readAt: Date.now() });
+      setNotice("Le lieu est au coffre. Ce fichier n’est pas un volume : le Blender du lieu reste le modèle 3D.");
+    } catch (error) {
+      setNotice(falFailure(error, "La formation du lieu n’a pas abouti.").message);
+    } finally {
+      abortPlace.current = null;
+      setPlaceRun("idle");
+    }
+  }, [fal, placeRun, refreshFal, setStudio, store]);
+
+  const requestPlaceScene = useCallback(async () => {
+    const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
+    const trained = studioRef.current.loras.find(item => isPlaceLora(item) && item.sceneId === place?.id);
+    if (!place || !trained || placeRun === "running") return;
+    if (!fal) {
+      setSheet("fal");
+      return;
+    }
+    await refreshFal();
+    setSheet("place-scene");
+  }, [fal, placeRun, refreshFal]);
+
+  const confirmPlaceScene = useCallback(async () => {
+    if (!fal || placeRun === "running") return;
+    const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
+    const trained = studioRef.current.loras.find(item => isPlaceLora(item) && item.sceneId === place?.id);
+    if (!place || !trained) return;
+    const fresh = await refreshFal();
+    const priced = await fal.price(PLACE_SCENE).catch(() => null);
+    setPlaceScenePrice(priced);
+    const quote = placeSceneQuote(priced, PLACE_WIDTH, PLACE_HEIGHT);
+    const freshGate = falGate(fresh, quote, "prise");
+    if (!fresh || !freshGate.allowed) {
+      setNotice(freshGate.line);
+      return;
+    }
+    setSheet(null);
+    setPlaceRun("running");
+    abortPlace.current = new AbortController();
+    try {
+      const cached = readLoraUploads(localStorage)[trained.id];
+      let loraUrl = cached?.url ?? "";
+      if (!loraUrl || (cached?.until ?? 0) - Date.now() < 2 * 3600 * 1000) {
+        const weights = await store().get(trained.file);
+        if (!weights?.blob) throw new FalError("invalid", "Le fichier du lieu manque au coffre.");
+        loraUrl = await fal.upload(weights.blob, `${trained.id}.safetensors`, { expiresIn: PLACE_UPLOAD_KEEP_SECONDS, signal: abortPlace.current.signal });
+        const uploads = readLoraUploads(localStorage);
+        uploads[trained.id] = { url: loraUrl, until: Date.now() + PLACE_UPLOAD_KEEP_SECONDS * 1000 };
+        saveLoraUploads(localStorage, uploads);
+      }
+      const handle = await submitPlaceScene(fal, {
+        loraUrl,
+        trigger: trained.trigger,
+        place: place.name,
+        seed: crypto.getRandomValues(new Uint32Array(1))[0],
+      }, abortPlace.current.signal);
+      const result = await followPlaceScene(fal, handle, fresh.usd, { signal: abortPlace.current.signal });
+      const path = `scenes/${place.id}-vue-${stamp()}-batie.jpg`;
+      await writeBlob(store(), path, result.image);
+      addMedia(path, result.image);
+      const views = place.views.length >= PLACE_VIEWS_MAX ? [...place.views.slice(1), path] : [...place.views, path];
+      if (place.views.length >= PLACE_VIEWS_MAX) {
+        await store().remove(place.views[0]);
+        dropMedia(place.views[0]);
+      }
+      await saveScene(place.id, { views });
+      if (result.balanceAfter !== null) setFalBalance({ usd: result.balanceAfter, readAt: Date.now() });
+      setNotice("Image bâtie depuis le LoRA du lieu. Le fichier Blender reste le modèle 3D.");
+    } catch (error) {
+      setNotice(falFailure(error, "L’image du lieu n’a pas abouti.").message);
+    } finally {
+      abortPlace.current = null;
+      setPlaceRun("idle");
+    }
+  }, [addMedia, dropMedia, fal, placeRun, refreshFal, saveScene, store]);
+
   const value: StudioValue = {
-    ready, studio, media, scene, line, settings, claim, gate, link, connected, balance, balanceNote, previz, previzGate: previzCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
+    ready, studio, media, scene, line, settings, claim, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
+    addSceneViews, removeSceneView, placeTrainQuote: pricedPlace, placeSceneQuote: pricedStill, placeTrainGate, placeSceneGate, placeRun, requestPlaceTrain, confirmPlaceTrain, requestPlaceScene, confirmPlaceScene,
     falLinked, falBalance, falBalanceNote, falUsername, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote,
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,

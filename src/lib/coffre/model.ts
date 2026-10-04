@@ -18,7 +18,7 @@ import type { LoraResolution } from "../fal/prices.ts";
 import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type TakeSettings } from "../render/take-graph.ts";
 import type { Clip, ClipFormat, TrainingAspect } from "../lora/dataset.ts";
 import type { PlaceCamera, PrevizPlan } from "../render/previz.ts";
-import { isLens } from "../render/previz.ts";
+import { defaultCamera, isLens } from "../render/previz.ts";
 import { list, num, readFrontmatter, text, withFrontmatter } from "./markdown.ts";
 import type { VaultStore } from "./store.ts";
 
@@ -47,10 +47,16 @@ export interface Scene {
   previz: PrevizPlan | null;
   /** The last .blend written for this place, when that file is still in the vault. */
   previzFile: string | null;
-  /** Where the camera stands, in the studio's Y-up space. Null until a plan is chosen. */
+  /** The camera path, start and end, in the studio's Y-up space. Null until a plan is chosen. */
   camera: PlaceCamera | null;
-  /** The Cycles still Farpy returned. Absent until that job actually saves one. */
+  /** Cycles frames of the empty place along that path. Absent until Farpy returns them. */
+  frames: string[];
+  /** First of those frames, so the place tile has pixels. Not the character. */
   render: string | null;
+  /** The filmed shot: the vault LoRA in this place. Null until that job saves a video. */
+  shot: string | null;
+  /** Extra stills of this place, kept for a place LoRA. Not the character. */
+  views: string[];
 }
 
 /** The character being formed. Separate from the look, and from files already trained. */
@@ -87,10 +93,16 @@ export interface Take {
   costSource: CostSource;
 }
 
+export type LoraKind = "personnage" | "lieu";
+
 export interface Lora {
   id: string;
   at: string;
   name: string;
+  /** Missing on older notes means a character. A place never enters the H3 take. */
+  kind: LoraKind;
+  /** The place this file was trained from, when kind is lieu. */
+  sceneId: string | null;
   trigger: string;
   file: string;
   bytes: number;
@@ -120,9 +132,11 @@ export interface Studio {
 
 export const emptyLook = (): Look => ({ name: "", traits: [], photos: [], note: "" });
 export const emptyRole = (): RoleDraft => ({ name: "", photos: [] });
-export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "previz" | "previzFile" | "camera" | "render"> => ({
-  name: "", note: "", stills: [], previz: null, previzFile: null, camera: null, render: null,
+export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "previz" | "previzFile" | "camera" | "frames" | "render" | "shot" | "views"> => ({
+  name: "", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [],
 });
+
+export const isPlaceLora = (lora: Pick<Lora, "kind">) => lora.kind === "lieu";
 export const emptyStudio = (): Studio => ({ look: emptyLook(), scenes: [], currentScene: null, takes: [], loras: [], clips: [], role: emptyRole() });
 
 const oneLine = (value: string, max: number) => value.replace(/[\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
@@ -213,12 +227,21 @@ export function sceneMarkdown(scene: Scene): string {
     previz: scene.previz ?? null,
     fichier: scene.previzFile ?? null,
     rendu: scene.render ?? null,
+    trajet: scene.frames ?? [],
+    plan_filme: scene.shot ?? null,
+    vues: scene.views ?? [],
     cam_x: camera?.x ?? null,
     cam_y: camera?.y ?? null,
     cam_z: camera?.z ?? null,
     vise_x: camera?.aimX ?? null,
     vise_y: camera?.aimY ?? null,
     vise_z: camera?.aimZ ?? null,
+    fin_x: camera?.endX ?? null,
+    fin_y: camera?.endY ?? null,
+    fin_z: camera?.endZ ?? null,
+    fin_vise_x: camera?.endAimX ?? null,
+    fin_vise_y: camera?.endAimY ?? null,
+    fin_vise_z: camera?.endAimZ ?? null,
     focale: camera?.lens ?? null,
   }, body);
 }
@@ -233,16 +256,29 @@ export function parseScene(id: string, source: string): Scene {
     stills: list(fields.images).slice(0, SCENE_STILLS_MAX),
     previz: (PLANS as readonly string[]).includes(plan) ? plan as PrevizPlan : null,
     previzFile: text(fields.fichier) || null,
-    camera: cameraFrom(fields),
+    camera: cameraFrom(fields, (PLANS as readonly string[]).includes(plan) ? plan as PrevizPlan : null),
+    frames: list(fields.trajet).filter(path => path.startsWith("scenes/")),
     render: text(fields.rendu) || null,
+    shot: text(fields.plan_filme) || null,
+    views: list(fields.vues).filter(path => path.startsWith("scenes/")),
   };
 }
 
-function cameraFrom(fields: ReturnType<typeof readFrontmatter>["fields"]): PlaceCamera | null {
+function cameraFrom(fields: ReturnType<typeof readFrontmatter>["fields"], plan: PrevizPlan | null): PlaceCamera | null {
   const lens = num(fields.focale);
   const values = [num(fields.cam_x), num(fields.cam_y), num(fields.cam_z), num(fields.vise_x), num(fields.vise_y), num(fields.vise_z)];
   if (values.some(value => value === null) || lens === null || !isLens(lens)) return null;
-  return { x: values[0]!, y: values[1]!, z: values[2]!, aimX: values[3]!, aimY: values[4]!, aimZ: values[5]!, lens };
+  const end = [num(fields.fin_x), num(fields.fin_y), num(fields.fin_z), num(fields.fin_vise_x), num(fields.fin_vise_y), num(fields.fin_vise_z)];
+  const fallback = defaultCamera(plan ?? "piece");
+  return {
+    x: values[0]!, y: values[1]!, z: values[2]!, aimX: values[3]!, aimY: values[4]!, aimZ: values[5]!, lens,
+    endX: end[0] ?? fallback.endX,
+    endY: end[1] ?? fallback.endY,
+    endZ: end[2] ?? fallback.endZ,
+    endAimX: end[3] ?? fallback.endAimX,
+    endAimY: end[4] ?? fallback.endAimY,
+    endAimZ: end[5] ?? fallback.endAimZ,
+  };
 }
 
 export function parseRole(source: string | undefined): RoleDraft {
@@ -348,11 +384,15 @@ export function loraId(date: Date, name: string): string {
 
 export function loraMarkdown(lora: Lora): string {
   const cost = lora.costUsd === null ? "Débit pas encore lu." : `${usd(lora.costUsd)} débités sur le compte fal.`;
-  const body = `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
+  const body = lora.kind === "lieu"
+    ? `# LoRA — ${lora.name || "lieu"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} vues de ce lieu, ${lora.steps} pas. ${cost}\n\nUne image neuve de ce lieu le recharge. Ce n’est pas un volume : le fichier Blender du lieu reste le modèle 3D. Il n’entre pas dans la prise H3.\n\nFichier : \`${lora.file}\`\n`
+    : `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
   return withFrontmatter({
     type: "lora",
     date: lora.at,
     nom: lora.name,
+    genre: lora.kind,
+    scene: lora.sceneId,
     declencheur: lora.trigger,
     fichier: lora.file,
     octets: lora.bytes,
@@ -381,6 +421,8 @@ export function parseLora(id: string, source: string): Lora | null {
     id,
     at: text(fields.date),
     name: oneLine(text(fields.nom), NAME_MAX),
+    kind: text(fields.genre) === "lieu" ? "lieu" : "personnage",
+    sceneId: text(fields.scene) || null,
     trigger: oneLine(trigger, 60),
     file,
     bytes: num(fields.octets) ?? 0,
@@ -449,7 +491,10 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
         previz: parsed.previz,
         previzFile: fileHeld ? parsed.previzFile : null,
         camera: parsed.camera,
+        frames: parsed.frames.length > 0 && parsed.frames.every(path => byPath.has(path)) ? parsed.frames : [],
         render: parsed.render && byPath.has(parsed.render) ? parsed.render : null,
+        shot: parsed.shot,
+        views: parsed.views.filter(path => byPath.has(path)),
       });
       continue;
     }
@@ -467,6 +512,8 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
   }
   studio.takes.sort((a, b) => b.at.localeCompare(a.at));
   studio.loras.sort((a, b) => b.at.localeCompare(a.at));
+  const filmed = new Set(studio.takes.map(take => take.id));
+  for (const scene of studio.scenes) if (scene.shot && !filmed.has(scene.shot)) scene.shot = null;
   try {
     const state = JSON.parse(byPath.get(".uttu/etat.json")?.text ?? "{}") as { lieu?: unknown };
     if (typeof state.lieu === "string" && studio.scenes.some(scene => scene.id === state.lieu)) studio.currentScene = state.lieu;
@@ -514,9 +561,9 @@ export async function writeScene(store: VaultStore, scene: Scene): Promise<void>
 }
 
 export async function removeScene(store: VaultStore, scene: Scene): Promise<void> {
-  for (const path of scene.stills) await store.remove(path);
+  for (const path of [...scene.stills, ...scene.frames, ...(scene.views ?? [])]) await store.remove(path);
   if (scene.previzFile) await store.remove(scene.previzFile);
-  if (scene.render) await store.remove(scene.render);
+  if (scene.render && !scene.frames.includes(scene.render)) await store.remove(scene.render);
   await store.remove(`scenes/${scene.id}.md`);
 }
 

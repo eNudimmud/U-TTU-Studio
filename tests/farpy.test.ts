@@ -5,7 +5,7 @@ import { cleanBlenderKey } from "../src/lib/render/blender-link.ts";
 import {
   FARPY_LEGAL, filmDownload, filmGate, filmStartBody, filmState, inspectBlend, readFilmQuote, startRender,
 } from "../src/lib/render/farpy.ts";
-import { pngFromZip } from "../src/lib/render/zip-png.ts";
+import { pngFromZip, pngsFromZip } from "../src/lib/render/zip-png.ts";
 
 const quote = { uploadId: "up_1", quoteId: "Q1", priceCents: 1, frameCount: 1 };
 
@@ -112,5 +112,13 @@ describe("Farpy", () => {
     assert.deepEqual(await pngFromZip(archive), png);
     assert.deepEqual(await pngFromZip(png), png);
     assert.equal(await pngFromZip(zip([{ name: "clip.mp4", data: new Uint8Array([1, 2]), method: 0 }])), null);
+    const second = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 4, 5]);
+    const frames = await pngsFromZip(zip([
+      { name: "frame_5.png", data: second, method: 0 },
+      { name: "frame_1.png", data: png, method: 0 },
+    ]));
+    assert.equal(frames.length, 2);
+    assert.deepEqual(frames[0], png);
+    assert.deepEqual(frames[1], second);
   });
 });

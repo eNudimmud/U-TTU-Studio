@@ -2,16 +2,17 @@
 // Stored and deflate entries are read from the central directory, so a
 // data descriptor after the bytes does not shift the next file.
 
-/** PNG bytes, or null when the archive holds none. A bare PNG is returned as itself. */
-export async function pngFromZip(bytes: Uint8Array): Promise<Uint8Array | null> {
-  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return bytes.subarray(0);
+/** Every PNG in the archive, sorted by filename. A bare PNG is returned as a single frame. */
+export async function pngsFromZip(bytes: Uint8Array): Promise<Uint8Array[]> {
+  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return [bytes.subarray(0)];
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const eocd = findEocd(bytes, view);
-  if (eocd === null) return null;
+  if (eocd === null) return [];
   let cursor = view.getUint32(eocd + 16, true);
   const count = view.getUint16(eocd + 10, true);
+  const frames: { name: string; bytes: Uint8Array }[] = [];
   for (let index = 0; index < count; index++) {
-    if (cursor + 46 > bytes.length || view.getUint32(cursor, true) !== 0x02014b50) return null;
+    if (cursor + 46 > bytes.length || view.getUint32(cursor, true) !== 0x02014b50) return [];
     const method = view.getUint16(cursor + 10, true);
     const size = view.getUint32(cursor + 20, true);
     const nameLength = view.getUint16(cursor + 28, true);
@@ -21,15 +22,22 @@ export async function pngFromZip(bytes: Uint8Array): Promise<Uint8Array | null> 
     const name = new TextDecoder().decode(bytes.subarray(cursor + 46, cursor + 46 + nameLength));
     cursor += 46 + nameLength + extraLength + commentLength;
     if (!name.toLowerCase().endsWith(".png")) continue;
-    if (local + 30 > bytes.length || view.getUint32(local, true) !== 0x04034b50) return null;
+    if (local + 30 > bytes.length || view.getUint32(local, true) !== 0x04034b50) return [];
     const data = local + 30 + view.getUint16(local + 26, true) + view.getUint16(local + 28, true);
-    if (data + size > bytes.length) return null;
+    if (data + size > bytes.length) return [];
     const compressed = bytes.subarray(data, data + size);
-    if (method === 0) return compressed;
-    if (method === 8) return inflate(compressed);
-    return null;
+    const png = method === 0 ? compressed : method === 8 ? await inflate(compressed) : null;
+    if (!png) return [];
+    frames.push({ name, bytes: png });
   }
-  return null;
+  frames.sort((a, b) => a.name.localeCompare(b.name, "en"));
+  return frames.map(frame => frame.bytes);
+}
+
+/** The first PNG, or null when the archive holds none. A bare PNG is returned as itself. */
+export async function pngFromZip(bytes: Uint8Array): Promise<Uint8Array | null> {
+  const frames = await pngsFromZip(bytes);
+  return frames[0] ?? null;
 }
 
 function findEocd(bytes: Uint8Array, view: DataView): number | null {

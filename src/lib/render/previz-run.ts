@@ -2,7 +2,7 @@
 // Inspect does not spend. Start is a separate call. No pixels are invented:
 // if the job returns no PNG, this throws.
 
-import { FarpyError, inspectBlend, pngFromJob, readJob, startRender, filmState, type FilmQuote } from "./farpy.ts";
+import { FarpyError, inspectBlend, pngsFromJob, readJob, startRender, filmState, type FilmQuote } from "./farpy.ts";
 
 export type PrevizEvent =
   | { stage: "write" }
@@ -10,7 +10,10 @@ export type PrevizEvent =
   | { stage: "start" }
   | { stage: "queue"; jobId: string }
   | { stage: "render"; jobId: string; seconds: number }
-  | { stage: "fetch"; jobId: string };
+  | { stage: "fetch"; jobId: string }
+  | { stage: "person" }
+  | { stage: "shot"; seconds: number }
+  | { stage: "video" };
 
 export interface FilmRunOptions {
   sleep?: (ms: number) => Promise<void>;
@@ -31,7 +34,7 @@ export async function followFilm(
   jobId: string,
   onEvent: (event: PrevizEvent) => void,
   options: FilmRunOptions = {},
-): Promise<{ jobId: string; image: Blob }> {
+): Promise<{ jobId: string; images: Blob[] }> {
   const sleep = options.sleep ?? defaultSleep;
   const now = options.now ?? Date.now;
   const pollMs = options.pollMs ?? 3000;
@@ -45,8 +48,9 @@ export async function followFilm(
     const state = filmState(job);
     if (state === "done") {
       onEvent({ stage: "fetch", jobId });
-      const image = await pngFromJob(key, job, options.signal);
-      return { jobId, image };
+      const images = await pngsFromJob(key, job, options.signal);
+      if (images.length < 2) throw new FarpyError("Blender n’a pas rendu le trajet.");
+      return { jobId, images };
     }
     if (state === "failed") throw new FarpyError("Blender n’a pas rendu l’image.");
     if (state === "cancelled") throw new FarpyError("Le rendu a été annulé sur le compte.");

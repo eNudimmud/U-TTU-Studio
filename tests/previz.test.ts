@@ -7,7 +7,7 @@ import { describe, it } from "node:test";
 import { loadStudio, parseScene, sceneMarkdown, writeText } from "../src/lib/coffre/model.ts";
 import { memoryVault } from "../src/lib/coffre/store.ts";
 import { referencePaths } from "../src/lib/render/references.ts";
-import { blenderPose, buildPlaceBlend, defaultCamera, moveCamera, placeVolumes } from "../src/lib/render/previz.ts";
+import { blenderPath, blenderPose, buildPlaceBlend, defaultCamera, moveCamera, placeVolumes } from "../src/lib/render/previz.ts";
 
 const floatBits = (value: number) => {
   const bytes = new Uint8Array(4);
@@ -40,9 +40,9 @@ describe("lieu filmé", () => {
   });
 
   it("keeps the camera on the place, and reopening does not require the blend file", async () => {
-    const camera = moveCamera(defaultCamera("quai"), "stand", "x", 1);
+    const camera = moveCamera(defaultCamera("quai"), "end", "stand", "x", 1);
     const source = sceneMarkdown({
-      id: "le-quai", name: "Le quai", note: "pluie fine", stills: [], previz: "quai", previzFile: "scenes/le-quai.blend", camera, render: null,
+      id: "le-quai", name: "Le quai", note: "pluie fine", stills: [], previz: "quai", previzFile: "scenes/le-quai.blend", camera, frames: [], render: null, shot: null, views: [],
     });
     assert.deepEqual(parseScene("le-quai", source).camera, camera);
     assert.equal(parseScene("le-quai", source).previz, "quai");
@@ -61,8 +61,10 @@ describe("lieu filmé", () => {
 
   const blender = process.env.BLENDER_BIN ?? "/tmp/blender";
   it("opens in Blender 4.1.1 and Cycles renders that camera", { skip: !existsSync(blender) && "blender absent" }, () => {
-    const camera = { x: 0, y: 1.6, z: 4.8, aimX: 0, aimY: 1.15, aimZ: 0, lens: 35 as const };
+    const camera = defaultCamera("piece");
     const pose = blenderPose("piece", camera);
+    const path = blenderPath("piece", camera);
+    const mid = path.start.location.map((value, index) => (value + path.end.location[index]) / 2);
     const file = join(tmpdir(), "uttu-piece-check.blend");
     const png = join(tmpdir(), "uttu-piece-proof");
     writeFileSync(file, buildPlaceBlend("piece", camera));
@@ -75,7 +77,15 @@ aim = mathutils.Vector(${JSON.stringify([camera.aimX, camera.aimZ, camera.aimY])
 direction = (aim - cam.location).normalized()
 forward = cam.matrix_world.to_quaternion() @ mathutils.Vector((0.0, 0.0, -1.0))
 print("DOT", forward.dot(direction))
-print("LOC", round(cam.location.x, 5), round(cam.location.y, 5), round(cam.location.z, 5))
+def loc():
+    return (round(cam.location.x, 5), round(cam.location.y, 5), round(cam.location.z, 5))
+scene.frame_set(1)
+print("START", *loc())
+scene.frame_set(5)
+print("END", *loc())
+scene.frame_set(3)
+print("MID", *loc())
+scene.frame_set(1)
 print("LENS", cam.data.lens)
 print("ENGINE", scene.render.engine)
 print("RES", scene.render.resolution_x, scene.render.resolution_y)
@@ -97,10 +107,15 @@ print("PNG", scene.render.filepath + ".png")
     assert.ok(dot > 0.98, run.stdout);
     assert.match(run.stdout, /ENGINE CYCLES/);
     assert.match(run.stdout, /RES 768 1024/);
-    assert.match(run.stdout, /FRAMES 1 1/);
+    assert.match(run.stdout, /FRAMES 1 5/);
     assert.match(run.stdout, /LENS 35/);
-    const loc = /LOC (\S+) (\S+) (\S+)/.exec(run.stdout);
-    pose.camera.location.forEach((value, index) => assert.ok(Math.abs(Number(loc?.[index + 1]) - value) < 1e-4, run.stdout));
+    const start = /START (\S+) (\S+) (\S+)/.exec(run.stdout);
+    const end = /END (\S+) (\S+) (\S+)/.exec(run.stdout);
+    const middle = /MID (\S+) (\S+) (\S+)/.exec(run.stdout);
+    path.start.location.forEach((value, index) => assert.ok(Math.abs(Number(start?.[index + 1]) - value) < 1e-3, run.stdout));
+    path.end.location.forEach((value, index) => assert.ok(Math.abs(Number(end?.[index + 1]) - value) < 1e-3, run.stdout));
+    mid.forEach((value, index) => assert.ok(Math.abs(Number(middle?.[index + 1]) - value) < 1e-3, run.stdout));
+    assert.notDeepEqual(path.start.location, path.end.location);
     const vol = /VOL 0 (\S+) (\S+) (\S+) (\S+) (\S+) (\S+)/.exec(run.stdout);
     [...pose.volumes[0].location, ...pose.volumes[0].scale].forEach((value, index) => assert.ok(Math.abs(Number(vol?.[index + 1]) - value) < 1e-4, run.stdout));
     const written = readFileSync(`${png}.png`);

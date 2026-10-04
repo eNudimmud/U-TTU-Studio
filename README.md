@@ -93,7 +93,9 @@ Parcours vérifié le 3 octobre 2026 avec un compte de rendu simulé : la vidéo
 
 **Former un personnage et le recharger dans La prise** se fait sur le compte fal de la personne, pas sur Comfy Cloud. Comfy ne sait toujours pas enregistrer un LoRA formé ni le recharger depuis un fichier personnel. Le studio envoie des clips à `minimax/h3/ref2va/trainer`, range le `.safetensors` au coffre, et La prise « Personnage » le recharge via `minimax/h3/reference-to-video/lora`.
 
-**Filmer un lieu** écrit un fichier Blender 4.1.1 du plan et de la caméra, tenu au coffre. Farpy le rend en Cycles, hors de l’appareil : le devis est lu avant, et seul « Filmer · débit sur mon compte » lance le rendu. Sans clé, ou si le job ne renvoie pas d’image, aucune image n’est affichée. La prise « Personnage » charge cette image avec le fichier formé. Détail : [docs/DECISIONS.md](docs/DECISIONS.md).
+**Filmer un lieu** écrit un fichier Blender 4.1.1 du plan et du trajet de caméra (départ et arrivée, cinq images), tenu au coffre. Farpy rend le lieu vide en Cycles. Le personnage est le LoRA du coffre : il n’entre que dans le plan filmé, via fal, et les deux prix sont lus avant l’unique geste. Sans clé, ou si le job ne renvoie pas d’image, aucune image n’est affichée.
+
+**Un lieu peut aussi s’apprendre.** L’entraîneur H3 refuse des photos seules, donc un lieu passe par `fal-ai/flux-lora-fast-training` (style, sans masque). Le fichier reste au coffre et se recharge avec `fal-ai/flux-lora` pour une image neuve. Il n’entre pas dans la prise H3, et il n’est pas le modèle 3D : ça reste le fichier Blender. Détail : [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Démarrer
 
