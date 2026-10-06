@@ -110,15 +110,24 @@ export function LoraScreen({ onTake }: { onTake(): void }) {
       </div>}
     </div>
 
-    {vault.loras.length > 0 && <div className="u-stack">
-      <p className="u-label">Au coffre</p>
-      <ul className="u-ledger">
-        {vault.loras.map(lora => <li key={lora.id}>
-          <span>{isPlaceLora(lora) ? "Lieu" : "Personnage"} · {lora.name || (isPlaceLora(lora) ? "Lieu" : "Personnage")} · {lora.steps} pas{lora.costUsd !== null ? ` · ${formatUsd(lora.costUsd)}` : ""}</span>
+    {vault.loras.some(lora => !isPlaceLora(lora)) && <div className="u-stack">
+      <p className="u-label">Distribution</p>
+      <ul className="u-ledger" aria-label="Distribution">
+        {vault.loras.filter(lora => !isPlaceLora(lora)).map(lora => <li key={lora.id}>
+          <span>{lora.name || "Personnage"} · {lora.steps} pas{lora.costUsd !== null ? ` · ${formatUsd(lora.costUsd)}` : ""}</span>
           <span className="u-row">
-            {!isPlaceLora(lora) && <button type="button" className="u-link" onClick={() => { setEngine("lora"); setLora(lora.id); onTake(); }}>Choisir</button>}
+            <button type="button" className="u-link" onClick={() => { setEngine("lora"); setLora(lora.id); onTake(); }}>Choisir</button>
             <button type="button" className="u-link u-muted" onClick={() => void deleteLora(lora.id)} aria-label={`Retirer ${lora.name || "le fichier"}`}>Retirer</button>
           </span>
+        </li>)}
+      </ul>
+    </div>}
+    {vault.loras.some(isPlaceLora) && <div className="u-stack">
+      <p className="u-label">Lieux formés</p>
+      <ul className="u-ledger" aria-label="Lieux formés">
+        {vault.loras.filter(isPlaceLora).map(lora => <li key={lora.id}>
+          <span>{lora.name || "Lieu"} · {lora.steps} pas{lora.costUsd !== null ? ` · ${formatUsd(lora.costUsd)}` : ""}</span>
+          <button type="button" className="u-link u-muted" onClick={() => void deleteLora(lora.id)} aria-label={`Retirer ${lora.name || "le fichier"}`}>Retirer</button>
         </li>)}
       </ul>
     </div>}

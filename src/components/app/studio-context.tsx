@@ -12,6 +12,7 @@ import { FalError, createFalClient, type FalClient, type FalHandle, type FalPric
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
 import { LORA_TAKE, LORA_TRAINER, PLACE_SCENE, PLACE_TRAINER, loraTakeQuote, placeSceneQuote, placeTrainQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
 import { reduceConnect } from "@/lib/link-epoch";
+import { pickEngine } from "@/lib/studio-comfort";
 import { CLIPS_MAX, clipFormat, clipProblem, datasetCheck, triggerPhrase, type Clip, type DatasetCheck, type TrainingAspect } from "@/lib/lora/dataset";
 import {
   readLoraTakeFlight, readLoraUploads, readTrainingFlight, saveLoraTakeFlight, saveLoraUploads, saveTrainingFlight,
@@ -252,7 +253,7 @@ interface StudioValue {
   falBalanceNote: string;
   falUsername: string;
   engine: TakeEngineChoice;
-  setEngine(engine: TakeEngineChoice): void;
+  setEngine(engine: string): void;
   chosenLora: Lora | null;
   setLora(id: string): void;
   loraResolution: LoraResolution;
@@ -516,7 +517,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setFalKey(storedFal);
       setFalLinked(Boolean(storedFal));
       setBlenderKey(readBlenderKey(localStorage));
-      setEngineState(localStorage.getItem(ENGINE_KEY) === "lora" ? "lora" : "comfy");
+      setEngineState(pickEngine(localStorage.getItem(ENGINE_KEY) ?? "") ?? "comfy");
       setLoraResolutionState(localStorage.getItem(LORA_RES_KEY) === "480P" ? "480P" : "768P");
       setLoraPickState(localStorage.getItem(LORA_PICK_KEY));
       setTrainingStepsState(localStorage.getItem(STEPS_KEY) === "2000" ? 2000 : 1000);
@@ -1585,9 +1586,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setStudio({ ...studioRef.current, loras });
   }, [setStudio, store]);
 
-  const setEngine = useCallback((next: TakeEngineChoice) => {
-    setEngineState(next);
-    try { localStorage.setItem(ENGINE_KEY, next); } catch {}
+  const setEngine = useCallback((next: string) => {
+    const picked = pickEngine(next);
+    if (!picked) return;
+    setEngineState(picked);
+    try { localStorage.setItem(ENGINE_KEY, picked); } catch {}
   }, []);
 
   const setLora = useCallback((id: string) => {

@@ -132,7 +132,7 @@
 .u-segments { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; border: 0; }
 .u-segments legend { width: 100%; margin-bottom: 6px; }
 .u-segments button { flex: 1 1 auto; min-height: 44px; padding: 8px 12px; border: 1px solid var(--u-line); border-radius: 12px; background: transparent; color: var(--u-muted); font-size: 14px; }
-.u-segments button[aria-pressed="true"] { border-color: var(--u-gold); background: rgba(201, 164, 106, .12); color: var(--u-gold-soft); }
+.u-segments button[aria-pressed="true"], .u-segments button[aria-checked="true"] { border-color: var(--u-gold); background: rgba(201, 164, 106, .12); color: var(--u-gold-soft); }
 
 .u-cost { font-size: 14px; line-height: 1.5; padding: 12px 14px; border-left: 2px solid var(--u-gold); background: rgba(201, 164, 106, .06); border-radius: 0 10px 10px 0; color: var(--u-gold-soft); }
 .u-cost.is-warn { border-color: var(--u-sand); color: var(--u-sand); }
