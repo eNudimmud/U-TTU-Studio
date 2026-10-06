@@ -102,7 +102,8 @@
 .u-row .u-secondary { width: auto; flex: 1 1 160px; }
 .u-stack { display: grid; gap: 14px; }
 
-.u-card { padding: 16px; border: 1px solid var(--u-line); border-radius: 18px; background: rgba(18, 17, 16, .92); display: grid; gap: 14px; }
+.u-card { padding: 16px; border: 1px solid var(--u-line); border-radius: 18px; background: rgba(18, 17, 16, .92); display: grid; gap: 14px; align-content: start; }
+.u-card h2 { margin: 0; font: 650 28px/1.1 var(--font-display, var(--font-body)); }
 .u-facts { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .u-facts li { padding: 12px 14px; border: 1px solid var(--u-line); border-radius: 14px; background: rgba(18, 17, 16, .72); font-size: 14px; line-height: 1.45; }
 .u-facts strong { display: block; margin-bottom: 4px; font: 600 11px/1.4 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--u-gold); }

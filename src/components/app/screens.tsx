@@ -27,7 +27,7 @@ export function PictureSlot({ index, url, onAdd, onRemove, label }: { index: num
   </label>;
 }
 
-export function LookScreen({ onNext }: { onNext(): void }) {
+export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void }) {
   const { studio, media, saveLook, addLookPhotos, removeLookPhoto, resetLook } = useStudio();
   const look = studio.look;
   const check = lookCheck(look);
@@ -51,8 +51,10 @@ export function LookScreen({ onNext }: { onNext(): void }) {
   const dirty = Boolean(look.name || look.note || look.traits.length || look.photos.length);
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
-      <p className="u-label">Photos et traits</p>
-      <h1 id="u-title" tabIndex={-1}>Ce qui ne change pas.</h1>
+      <p className="u-label">Personnage · Références</p>
+      <h1 id="u-title" tabIndex={-1}>Deux photos.</h1>
+      <p className="u-small">Pas de formation. Ces photos partent avec chaque prise « Références ». Le compte de rendu paie la prise, au prix lu à ce moment. Ici, rien n’est débité.</p>
+      <button type="button" className="u-link" onClick={onBack}>Les deux façons</button>
     </header>
     <div className="u-desk">
       <div className="u-photos" aria-label="Photos du look">

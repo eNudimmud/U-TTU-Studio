@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ROLE_PHOTOS_MAX, isPlaceLora } from "@/lib/coffre/model";
 import { formatUsd } from "@/lib/fal/prices";
 import type { TrainingEvent } from "@/lib/lora/train";
+import { characterPaths } from "@/lib/studio-comfort";
 import { Arrow, Close } from "./glyphs";
 import { PictureSlot, Segments } from "./screens";
 import { useStudio, type TrainingState } from "./studio-context";
@@ -27,7 +29,7 @@ function trainLabel(event: TrainingEvent): string {
   }
 }
 
-export function LoraScreen({ onTake, onScene, onPhotos }: { onTake(): void; onScene(): void; onPhotos(): void }) {
+export function LoraScreen({ onTake, onScene, onPhotos, choice }: { onTake(): void; onScene(): void; onPhotos(): void; choice: number }) {
   const studio = useStudio();
   const {
     studio: vault, media, dataset, falLinked, falBalance, falBalanceNote, training, trainingSteps, setTrainingSteps,
@@ -37,12 +39,16 @@ export function LoraScreen({ onTake, onScene, onPhotos }: { onTake(): void; onSc
   const role = vault.role;
   const done = training.phase === "done" ? vault.loras.find(lora => lora.id === training.loraId) : undefined;
   const dirty = Boolean(role.name || role.photos.length || vault.clips.length);
+  const [file, setFile] = useState(false);
+  useEffect(() => { setFile(false); }, [choice]);
+  const showFile = file || training.phase !== "idle";
+  const paths = characterPaths({ falLinked, quote: trainQuote, steps: trainingSteps });
 
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">01 · Personnage</p>
-      <h1 id="u-title" tabIndex={-1}>Former un personnage.</h1>
-      <button type="button" className="u-link" onClick={onPhotos}>Photos et traits</button>
+      <h1 id="u-title" tabIndex={-1}>{showFile ? "Former un personnage." : "Deux façons."}</h1>
+      {showFile && <button type="button" className="u-link" onClick={() => setFile(false)}>Les deux façons</button>}
     </header>
 
     {training.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
@@ -61,7 +67,15 @@ export function LoraScreen({ onTake, onScene, onPhotos }: { onTake(): void; onSc
 
     {training.phase === "error" && <TrainError training={training} onReset={resetTraining} onRelink={() => { resetTraining(); setSheet("fal"); }} />}
 
-    <div className="u-desk">
+    {!showFile && <div className="u-desk" aria-label="Deux façons de créer un personnage">
+      {paths.map(path => <article key={path.id} className="u-card">
+        <h2>{path.title}</h2>
+        <p>{path.body}</p>
+        <button type="button" className="u-secondary" onClick={path.id === "references" ? onPhotos : () => setFile(true)}>{path.action}</button>
+      </article>)}
+    </div>}
+
+    {showFile && <div className="u-desk">
       <ul className="u-facts">
         <li><strong>Ce que tu envoies</strong>Dix clips vidéo de ce personnage au moins, trente au plus. Chacun dure de 3 à 30 secondes : visage net, un peu de mouvement. mp4, mov, mkv ou avi. Des photos à la place des clips sont refusées.</li>
         <li><strong>Les photos</strong>Deux au moins, quatre au plus, de ce personnage. Elles accompagnent chaque clip. Elles n’apprennent pas à la place des clips.</li>
@@ -110,7 +124,7 @@ export function LoraScreen({ onTake, onScene, onPhotos }: { onTake(): void; onSc
           <button type="button" className="u-link" onClick={onScene}>Poser la scène</button>
         </div>
       </div>}
-    </div>
+    </div>}
 
     {vault.loras.some(lora => !isPlaceLora(lora)) && <div className="u-stack">
       <p className="u-label">Distribution</p>

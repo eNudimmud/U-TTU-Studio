@@ -6,7 +6,7 @@ import { LegacyStudioHash } from "./legacy-hash";
 const STUDIO_HREF = assetPath("/studio");
 
 const STEPS = [
-  { name: "Personnage", plain: "Qui tient" },
+  { name: "Personnage", plain: "Deux façons" },
   { name: "Scène", plain: "Ton lieu" },
   { name: "Prise", plain: "La vidéo" },
 ] as const;
