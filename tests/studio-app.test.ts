@@ -75,6 +75,15 @@ describe("le studio, une app", () => {
     assert.match(chain, /aria-label="Personnage, scène, prise"/);
     assert.match(chain, /<LookScreen onNext=/);
     assert.match(chain, /onPhotos=/);
+    assert.match(chain, /choice=\{choice\}/);
+    const role = read("src/components/app/lora-screen.tsx");
+    assert.match(role, /Deux façons de créer un personnage/);
+    assert.match(role, /characterPaths/);
+    assert.match(role, /u-secondary/);
+    const photos = read("src/components/app/screens.tsx");
+    const look = photos.slice(photos.indexOf("export function LookScreen"), photos.indexOf("export function SceneScreen"));
+    assert.match(look, /Pas de formation/);
+    assert.equal(look.match(/u-primary/g)?.length, 1);
     assert.doesNotMatch(chain, /onTrain/);
     const pages = `${read("src/components/app/screens.tsx")}\n${read("src/components/app/lora-screen.tsx")}`;
     for (const label of ["Remettre ce look à zéro", "Remettre ce lieu à zéro", "Remettre ce plan à zéro", "Remettre ce personnage à zéro"]) {

@@ -29,6 +29,7 @@ function AppFrame() {
   const studio = useStudio();
   const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, falLinked, falBalance, falBalanceNote, training } = studio;
   const [asked, setAsked] = useState<Tab | null>(null);
+  const [choice, setChoice] = useState(0);
 
   useEffect(() => {
     const apply = () => {
@@ -52,6 +53,7 @@ function AppFrame() {
   const tab: Tab = asked ?? "lora";
 
   const go = useCallback((next: Tab) => {
+    if (next === "lora") setChoice(value => value + 1);
     setAsked(next);
     const url = `${window.location.pathname}#${TAB_HASH[next]}`;
     if (`${window.location.pathname}${window.location.hash}` !== url) window.history.pushState(null, "", url);
@@ -102,9 +104,9 @@ function AppFrame() {
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
       {ready && <GuideBubble moments={moments} />}
       {!ready ? <p className="u-loading" role="status">Ouverture du coffre…</p>
-        : tab === "look" ? <LookScreen onNext={() => go("scene")} />
+        : tab === "look" ? <LookScreen onNext={() => go("scene")} onBack={() => go("lora")} />
         : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} />
-        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} />
+        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} />
         : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goSphere={() => go("sphere")} goLora={() => go("lora")} />
         : <SphereScreen />}
     </main>
