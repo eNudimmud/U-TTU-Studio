@@ -11,7 +11,7 @@ describe("compte facultatif, hors du studio", () => {
     assert.equal(ACCOUNT_SIGN_IN_PATH, "/sign-in");
     assert.equal(ACCOUNT_SIGN_UP_PATH, "/sign-up");
     assert.equal(ACCOUNT_PATH, "/compte");
-    assert.equal(STUDIO_PATH, "/studio#look");
+    assert.equal(STUDIO_PATH, "/studio#personnage");
     assert.deepEqual([...CLERK_OAUTH_PROVIDERS], ["google", "github"]);
     for (const path of ["/sign-in", "/sign-in/sso-callback", "/sign-up", "/compte"]) assert.equal(clerkPath(path), true, path);
     for (const path of ["/", "/studio", "/sign-inx", "/comfy-embed", "/api/view", "/login"]) assert.equal(clerkPath(path), false, path);

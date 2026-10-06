@@ -11,11 +11,12 @@ const appFiles = readdirSync("src/components/app").filter(name => name.endsWith(
 describe("le studio, une app", () => {
   it("opens on the next gesture and keeps old links working", () => {
     assert.equal(tabFromLocation("", ""), null);
-    assert.equal(resumeTab({ lookReady: false, hasScene: true }), "look");
+    assert.equal(resumeTab({ lookReady: false, hasScene: true }), "lora");
     assert.equal(resumeTab({ lookReady: true, hasScene: false }), "scene");
     assert.equal(resumeTab({ lookReady: true, hasScene: true }), "prise");
     assert.equal(tabFromLocation("", "?step=look"), "look");
     assert.equal(tabFromLocation("#creer", ""), "look");
+    assert.equal(tabFromLocation("#photos", ""), "look");
     assert.equal(tabFromLocation("#plateau", ""), "scene");
     assert.equal(tabFromLocation("#Take", ""), "prise");
     assert.equal(tabFromLocation("#sphère", ""), "sphere");
@@ -67,8 +68,13 @@ describe("le studio, une app", () => {
     assert.match(take, /aria-label="Distribution"/);
     assert.match(take, /label="Moteur"/);
     const chain = read("src/components/app/studio-app.tsx");
-    assert.match(chain, /label: "Rôle"/);
+    assert.match(chain, /label: "Personnage"/);
+    assert.match(chain, /label: "Scène"/);
+    assert.match(chain, /label: "Prise"/);
+    assert.doesNotMatch(chain, /label: "Look"|label: "Rôle"/);
+    assert.match(chain, /aria-label="Personnage, scène, prise"/);
     assert.match(chain, /<LookScreen onNext=/);
+    assert.match(chain, /onPhotos=/);
     assert.doesNotMatch(chain, /onTrain/);
     const pages = `${read("src/components/app/screens.tsx")}\n${read("src/components/app/lora-screen.tsx")}`;
     for (const label of ["Remettre ce look à zéro", "Remettre ce lieu à zéro", "Remettre ce plan à zéro", "Remettre ce personnage à zéro"]) {

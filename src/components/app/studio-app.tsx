@@ -6,7 +6,7 @@ import { formatUsd } from "@/lib/fal/prices";
 import { lookCheck } from "@/lib/coffre/model";
 import type { GuideMoment } from "@/lib/guide";
 import { assetPath } from "@/lib/site";
-import { resumeTab, tabFromLocation, type Tab } from "@/lib/studio-route";
+import { resumeTab, TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { LoraScreen } from "./lora-screen";
@@ -15,9 +15,8 @@ import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, Fal
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
-const STEPS: { id: Exclude<Tab, "sphere">; label: string }[] = [
-  { id: "look", label: "Look" },
-  { id: "lora", label: "Rôle" },
+const STEPS: { id: Exclude<Tab, "sphere" | "look">; label: string }[] = [
+  { id: "lora", label: "Personnage" },
   { id: "scene", label: "Scène" },
   { id: "prise", label: "Prise" },
 ];
@@ -50,11 +49,11 @@ function AppFrame() {
   useEffect(() => {
     if (ready && !asked) setAsked(resumeTab({ lookReady: check.ready, hasScene }));
   }, [ready, asked, check.ready, hasScene]);
-  const tab: Tab = asked ?? "look";
+  const tab: Tab = asked ?? "lora";
 
   const go = useCallback((next: Tab) => {
     setAsked(next);
-    const url = `${window.location.pathname}#${next}`;
+    const url = `${window.location.pathname}#${TAB_HASH[next]}`;
     if (`${window.location.pathname}${window.location.hash}` !== url) window.history.pushState(null, "", url);
     window.scrollTo({ top: 0, behavior: "instant" });
     requestAnimationFrame(() => document.getElementById("u-title")?.focus({ preventScroll: true }));
@@ -86,7 +85,7 @@ function AppFrame() {
 
   return <div className="u-app">
     <header className="u-top">
-      <a className="u-mark" href="#look" aria-label="U*TTU Studio">
+      <a className="u-mark" href="#personnage" aria-label="U*TTU Studio">
         <Iii />
         <span>U<em>*</em>TTU</span>
       </a>
@@ -105,14 +104,14 @@ function AppFrame() {
       {!ready ? <p className="u-loading" role="status">Ouverture du coffre…</p>
         : tab === "look" ? <LookScreen onNext={() => go("scene")} />
         : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} />
-        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} />
+        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} />
         : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goSphere={() => go("sphere")} goLora={() => go("lora")} />
         : <SphereScreen />}
     </main>
 
     {notice && <p className="u-toast" role="status">{notice}</p>}
 
-    <nav className="u-chain" aria-label="Look, rôle, scène, prise">
+    <nav className="u-chain" aria-label="Personnage, scène, prise">
       <ol>
         {STEPS.map((step, index) => <li key={step.id}>
           <button type="button" aria-current={tab === step.id ? "step" : undefined} data-done={done[step.id] || undefined} onClick={() => go(step.id)}>

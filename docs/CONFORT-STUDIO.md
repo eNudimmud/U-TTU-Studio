@@ -4,7 +4,7 @@
 
 ## But
 
-**Décision :** le confort studio, c’est une seule chaîne pour un adhérent. Il retrouve ses personnages nommés, ses décors nommés, et il choisit le moteur sans quitter Look → Rôle → Scène → Prise.
+**Décision :** le confort studio, c’est une seule chaîne pour un adhérent. Il retrouve ses personnages nommés, ses décors nommés, et il choisit le moteur sans quitter Personnage → Scène → Prise.
 
 - **Distribution.** Un personnage a un nom. Quand il est formé, son fichier reste au coffre. Le choisir recharge cette identité.
 - **Décors.** Un lieu a un nom. Il se rouvre : même plan, même caméra si elle a été enregistrée.
@@ -15,7 +15,7 @@
 - **Décision :** on reste dans l’app. Pas d’onglet moteur, pas de cadre étranger comme geste principal.
 - **Décision :** rouvrir un décor, c’est rouvrir le lieu du coffre, avec la caméra enregistrée.
 - **Décision :** choisir un personnage, c’est recharger son fichier. Le look, les photos et la phrase ne le remplacent pas.
-- **Décision :** le moteur vient après Look → Rôle → Scène → Prise. Il ne les précède pas.
+- **Décision :** le moteur vient après Personnage → Scène → Prise. Il ne les précède pas.
 - **Décision :** un seul geste or sur chaque écran.
 - **Décision :** le téléphone reste une colonne (`min(560px, 100%)`), chaîne en bas. À partir de 1080 px, le rail de 232 px et les deux colonnes restent.
 
@@ -30,7 +30,7 @@
 
 ## Écart — mesuré sur ce dépôt
 
-- **Fait :** la chaîne affichée est Look → Rôle → Scène → Prise. Rôle est `#lora`, `#personnage`, `#rôle`.
+- **Fait (6 octobre, suite) :** la chaîne affichée est Personnage → Scène → Prise. Personnage est `#personnage`, `#lora`, `#rôle`. Les photos et les traits restent une feuille, `#photos` et les anciens `#look`, `#creer`. Ce n’est pas le premier pas.
 - **Fait :** les personnages formés sont des fichiers du coffre (`kind` personnage, ou absent pour les fichiers d’avant). Sur Rôle, la liste « Au coffre » mélange personnages et lieux. Sur La prise, les noms n’apparaissent que si le moteur est déjà « Personnage ».
 - **Fait :** les lieux persistent : nom, note, plan, trajet de caméra, vues, images. L’étagère est sur Scène. La prise montre le lieu ouvert, pas l’étagère. Changer de décor oblige à quitter la prise.
 - **Fait :** deux moteurs de prise sont branchés. `comfy` : références H3, compte de rendu. `lora` : personnage H3 chez fal, fichier du coffre. Le contrôle s’appelle « Cohérence », pas « Moteur ».
@@ -42,7 +42,7 @@
 - **Décision :** La prise montre l’étagère des décors du coffre. En choisir un rouvre ce lieu, caméra comprise quand elle est enregistrée.
 - **Décision :** La prise montre la distribution : les personnages nommés, pas les fichiers de lieu. En choisir un passe le moteur sur Personnage et recharge ce fichier.
 - **Décision :** le contrôle s’appelle Moteur. Il ne propose que Références et Personnage. `pickEngine` renvoie `null` pour tout autre nom. Rien n’est inventé à la place.
-- **Décision :** le geste or reste « Tourner ». Poser un décor ou former un personnage se fait toujours sur Scène et sur Rôle.
+- **Décision :** le geste or reste « Tourner ». Poser un décor ou former un personnage se fait toujours sur Scène et sur Personnage.
 
 ## Encore dehors
 

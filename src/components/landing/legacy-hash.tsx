@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { ACCOUNT_PATH } from "@/lib/account";
 import { assetPath } from "@/lib/site";
 
-const STUDIO_HASHES = new Set(["creer", "look", "sphere", "sphère", "identite", "identité", "bibliotheque", "bibliothèque", "studio", "plateau", "scene", "scène", "take", "prise"]);
+const STUDIO_HASHES = new Set(["creer", "look", "photos", "sphere", "sphère", "identite", "identité", "bibliotheque", "bibliothèque", "studio", "plateau", "scene", "scène", "take", "prise", "personnage", "lora", "role", "rôle", "former"]);
 
 /** Old Clerk and bookmark hashes lived on `/`. Send them to the studio, or to the account page. */
 export function LegacyStudioHash() {

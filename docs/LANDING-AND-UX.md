@@ -2,6 +2,10 @@
 
 Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md). Ici : le moins de mots possible.
 
+## Décision — le fil, 6 octobre 2026
+
+- **Décision :** l’accueil dit « Ton personnage, ta scène, la prise. » Les pastilles sont Personnage, Scène, Prise. Le fil du studio est le même, Sphère à côté. Les photos et les traits ne sont pas un pas du fil. Les sections plus bas qui disent Look ou Ton style en premier sont l’historique.
+
 ## Décision — studio direct, 3 octobre 2026
 
 Cette section remplace, pour l’écran, les décisions plus bas qui la contredisent.

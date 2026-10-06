@@ -9,7 +9,9 @@ describe("accueil", () => {
   const page = readFileSync("src/app/page.tsx", "utf8");
 
   it("shows one line and one door into the studio, without jargon", () => {
-    assert.match(home, /Ton style, ta scène/);
+    assert.match(home, /Ton personnage, ta scène/);
+    assert.match(home, /Personnage/);
+    assert.doesNotMatch(home, /name: "Look"/);
     assert.match(home, /Entrer dans le studio/);
     assert.match(home, /assetPath\("\/studio"\)/);
     assert.doesNotMatch(`${page}\n${home}`, JARGON);

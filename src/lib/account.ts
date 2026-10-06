@@ -4,7 +4,7 @@
 export const ACCOUNT_SIGN_IN_PATH = "/sign-in";
 export const ACCOUNT_SIGN_UP_PATH = "/sign-up";
 export const ACCOUNT_PATH = "/compte";
-export const STUDIO_PATH = "/studio#look";
+export const STUDIO_PATH = "/studio#personnage";
 
 /** Providers JD enables in the Clerk dashboard. SignIn shows whatever is on. */
 export const CLERK_OAUTH_PROVIDERS = ["google", "github"] as const;

@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: assetPath("/studio"),
     name: "U*TTU Studio",
     short_name: "U*TTU",
-    description: "Ton look, ta scène, la prise. Tout dans le studio.",
+    description: "Ton personnage, ta scène, la prise. Tout dans le studio.",
     lang: "fr-CH",
     start_url: assetPath("/studio"),
     scope: assetPath("/"),

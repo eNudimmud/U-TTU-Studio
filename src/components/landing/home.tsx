@@ -6,7 +6,7 @@ import { LegacyStudioHash } from "./legacy-hash";
 const STUDIO_HREF = assetPath("/studio");
 
 const STEPS = [
-  { name: "Look", plain: "Ton style" },
+  { name: "Personnage", plain: "Qui tient" },
   { name: "Scène", plain: "Ton lieu" },
   { name: "Prise", plain: "La vidéo" },
 ] as const;
@@ -22,7 +22,7 @@ export function HomeLanding() {
     </header>
     <main id="contenu" className="landing-main" tabIndex={-1}>
       <section className="landing-splash" aria-labelledby="landing-title">
-        <h1 id="landing-title">Ton style, ta scène, <em>la prise.</em></h1>
+        <h1 id="landing-title">Ton personnage, ta scène, <em>la prise.</em></h1>
         <div className="landing-sheet">
           <ol className="landing-pills" aria-label="Trois gestes">
             {STEPS.map((step, index) => <li key={step.name}>

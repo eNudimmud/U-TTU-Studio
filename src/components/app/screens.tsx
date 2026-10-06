@@ -51,8 +51,8 @@ export function LookScreen({ onNext }: { onNext(): void }) {
   const dirty = Boolean(look.name || look.note || look.traits.length || look.photos.length);
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
-      <p className="u-label">01 · Ton style</p>
-      <h1 id="u-title" tabIndex={-1}>Ton look.</h1>
+      <p className="u-label">Photos et traits</p>
+      <h1 id="u-title" tabIndex={-1}>Ce qui ne change pas.</h1>
     </header>
     <div className="u-desk">
       <div className="u-photos" aria-label="Photos du look">
@@ -104,7 +104,7 @@ export function SceneScreen({ onNext, onRole }: { onNext(): void; onRole(): void
   const showNew = adding || studio.scenes.length === 0;
   return <section className="u-screen u-scene-screen" aria-labelledby="u-title">
     <header className="u-head">
-      <p className="u-label">03 · Ta scène</p>
+      <p className="u-label">02 · Ta scène</p>
       <h1 id="u-title" tabIndex={-1}>Ta scène.</h1>
     </header>
     <div className="u-desk">
@@ -307,17 +307,17 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
   if (!check.ready || !scene) {
     return <section className="u-screen" aria-labelledby="u-title">
       <header className="u-head">
-        <p className="u-label">04 · La prise</p>
+        <p className="u-label">03 · La prise</p>
         <h1 id="u-title" tabIndex={-1}>La prise.</h1>
       </header>
-      <p className="u-lead">{!check.ready ? "Le look ne tient pas encore." : "Aucun lieu n’est posé."}</p>
-      <button type="button" className="u-primary" onClick={!check.ready ? goLook : goScene}>{!check.ready ? "Tenir le look" : "Poser la scène"} <Arrow /></button>
+      <p className="u-lead">{!check.ready ? "Les photos et les traits ne tiennent pas encore." : "Aucun lieu n’est posé."}</p>
+      <button type="button" className="u-primary" onClick={!check.ready ? goLook : goScene}>{!check.ready ? "Poser les photos" : "Poser la scène"} <Arrow /></button>
     </section>;
   }
 
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
-        <p className="u-label">04 · La prise</p>
+        <p className="u-label">03 · La prise</p>
       <h1 id="u-title" tabIndex={-1}>La prise.</h1>
     </header>
 
@@ -352,7 +352,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
 
     {run.phase === "idle" && <div className="u-desk">
       <div className="u-stack">
-        <div className="u-pair" aria-label="Look et lieu">
+        <div className="u-pair" aria-label="Photos et lieu">
           <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name}</figcaption></figure>
           <span className="u-pair-thread" aria-hidden="true" />
           <figure>{scenePicture && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene.render ? "Image filmée" : scene.name}</figcaption></figure>
