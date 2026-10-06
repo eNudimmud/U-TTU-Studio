@@ -62,6 +62,10 @@ describe("le studio, une app", () => {
     assert.match(read("src/lib/lora/place.ts"), /flux-lora-fast-training/);
     assert.doesNotMatch(sceneScreen, /Préparer la prise|Blender ne tourne pas|Load3DAdvanced|RenderMesh/);
     assert.equal(sceneScreen.match(/u-primary/g)?.length, 1);
+    const take = scene.slice(scene.indexOf("export function TakeScreen"), scene.indexOf("export function SphereScreen"));
+    assert.match(take, /aria-label="Décors"/);
+    assert.match(take, /aria-label="Distribution"/);
+    assert.match(take, /label="Moteur"/);
     const chain = read("src/components/app/studio-app.tsx");
     assert.match(chain, /label: "Rôle"/);
     assert.match(chain, /<LookScreen onNext=/);

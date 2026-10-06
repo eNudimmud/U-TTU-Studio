@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { costLabel, LOOK_PHOTOS_MAX, SCENE_STILLS_MAX, cleanTraits, isPlaceLora, lookCheck, parseTraits } from "@/lib/coffre/model";
+import { castShelf, decorShelf, pickEngine, WIRED_ENGINES } from "@/lib/studio-comfort";
 import { PLACE_SHOTS_MIN, placeShotLine, placeShotList } from "@/lib/lora/place";
 import { LENSES, PREVIZ_LABELS, PREVIZ_PLANS, PATH_FRAMES, defaultCamera, pathPoint, placeVolumes } from "@/lib/render/previz";
 import { filmAction } from "@/lib/render/shot";
@@ -286,6 +287,8 @@ export function Segments<T extends string | number>({ label, value, options, onC
 export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): void; goScene(): void; goSphere(): void; goLora(): void }) {
   const studio = useStudio();
   const { media, scene, line, setLine, settings, setSettings, gate, connected, balance, balanceNote, run, requestRun, cancelRun, resetRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance, falBalanceNote } = studio;
+  const cast = castShelf(studio.studio.loras);
+  const decor = decorShelf(studio.studio.scenes);
   const check = lookCheck(studio.studio.look);
   const lookPicture = studio.studio.look.photos[0];
   const scenePicture = scene?.render ?? scene?.stills[0];
@@ -354,6 +357,24 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
           <span className="u-pair-thread" aria-hidden="true" />
           <figure>{scenePicture && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene.render ? "Image filmée" : scene.name}</figcaption></figure>
         </div>
+        <p className="u-label">Décors</p>
+        <div className="u-scenes" role="radiogroup" aria-label="Décors">
+          {studio.studio.scenes.map(item => {
+            const still = item.render ?? item.stills[0];
+            return <button key={item.id} type="button" role="radio" aria-checked={item.id === scene.id} className="u-scene" onClick={() => void studio.selectScene(item.id)}>
+              {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
+              <span>{item.name || "Sans nom"}</span>
+            </button>;
+          })}
+        </div>
+        {decor.find(item => item.id === scene.id)?.camera && <p className="u-small">Ce décor se rouvre avec sa caméra.</p>}
+        <p className="u-label">Distribution</p>
+        {cast.length === 0
+          ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre. Le former</button>
+          : <div className="u-segments" role="radiogroup" aria-label="Distribution">
+            {cast.map(person => <button key={person.id} type="button" role="radio" aria-checked={engine === "lora" && chosenLora?.id === person.id} onClick={() => { setEngine("lora"); setLora(person.id); }}>{person.name}</button>)}
+          </div>}
+        {engine === "lora" && chosenLora && <p className="u-small">Ce fichier recharge {chosenLora.name || "le personnage"}.</p>}
         <label className="u-field">
           <span className="u-label">Ce que fait la prise</span>
           <textarea value={line} rows={2} maxLength={240} placeholder="Elle traverse le quai sous la pluie, sans se retourner." onChange={event => setLine(event.target.value)} />
@@ -362,10 +383,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         <p className="u-small">Les prises déjà tournées restent.</p>
       </div>
       <div className="u-settings">
-        <Segments label="Cohérence" value={engine} onChange={setEngine} options={[{ value: "comfy", label: "Références" }, { value: "lora", label: "Personnage" }]} />
-        {engine === "lora" && (studio.studio.loras.length === 0
-          ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre. Le former</button>
-          : <Segments label="Personnage" value={chosenLora?.id ?? ""} onChange={setLora} options={studio.studio.loras.filter(lora => !isPlaceLora(lora)).map(lora => ({ value: lora.id, label: lora.name || "Personnage" }))} />)}
+        <Segments label="Moteur" value={engine} onChange={value => { if (pickEngine(value)) setEngine(value); }} options={WIRED_ENGINES.map(item => ({ value: item.id, label: item.label }))} />
         {engine === "lora" && chosenLora && <Segments label="Netteté" value={loraResolution} onChange={setLoraResolution} options={[{ value: "768P", label: "768p" }, { value: "480P", label: "480p" }]} />}
         <Segments label="Format" value={settings.aspect} onChange={aspect => setSettings({ aspect })} options={[{ value: "vertical", label: "9:16" }, { value: "horizontal", label: "16:9" }, { value: "carre", label: "1:1" }]} />
         <Segments label="Durée" value={settings.seconds} onChange={seconds => setSettings({ seconds })} options={[{ value: 5, label: "5 s" }, { value: 8, label: "8 s" }]} />
