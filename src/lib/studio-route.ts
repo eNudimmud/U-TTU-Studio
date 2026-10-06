@@ -1,14 +1,24 @@
-// The studio's places, read from the hash. Old links still land:
-// #creer and #identite open the look, #plateau the scene, #take the take.
+// The chain is Personnage → Scène → Prise. The photo sheet is not a step.
+// Old links still land: #creer and #look open the photos, #lora and #rôle
+// open Personnage, #plateau the scene, #take the take.
 
 export type Tab = "look" | "lora" | "scene" | "prise" | "sphere";
 
 const ALIASES: Record<string, Tab> = {
-  look: "look", creer: "look", créer: "look", style: "look", identite: "look", identité: "look",
+  look: "look", photos: "look", creer: "look", créer: "look", style: "look", identite: "look", identité: "look",
   lora: "lora", former: "lora", entrainer: "lora", entraîner: "lora", double: "lora", role: "lora", rôle: "lora", personnage: "lora",
   scene: "scene", scène: "scene", plateau: "scene", monde: "scene",
   prise: "prise", take: "prise", studio: "prise",
   sphere: "sphere", sphère: "sphere", bibliotheque: "sphere", bibliothèque: "sphere",
+};
+
+/** Hash written when the adherent opens a place from the chain. */
+export const TAB_HASH: Record<Tab, string> = {
+  look: "photos",
+  lora: "personnage",
+  scene: "scene",
+  prise: "prise",
+  sphere: "sphere",
 };
 
 /** The place a link asks for, or null when it asks for none. */
@@ -20,8 +30,8 @@ export function tabFromLocation(hash: string, search: string): Tab | "compte" | 
   return ALIASES[step] ?? null;
 }
 
-/** Without a link, the studio opens on the next gesture. */
+/** Without a link, the studio opens on the next step: Personnage, then Scène, then Prise. */
 export function resumeTab(state: { lookReady: boolean; hasScene: boolean }): Tab {
-  if (!state.lookReady) return "look";
+  if (!state.lookReady) return "lora";
   return state.hasScene ? "prise" : "scene";
 }

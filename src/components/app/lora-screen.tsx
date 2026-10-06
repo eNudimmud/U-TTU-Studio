@@ -27,7 +27,7 @@ function trainLabel(event: TrainingEvent): string {
   }
 }
 
-export function LoraScreen({ onTake }: { onTake(): void }) {
+export function LoraScreen({ onTake, onScene, onPhotos }: { onTake(): void; onScene(): void; onPhotos(): void }) {
   const studio = useStudio();
   const {
     studio: vault, media, dataset, falLinked, falBalance, falBalanceNote, training, trainingSteps, setTrainingSteps,
@@ -40,8 +40,9 @@ export function LoraScreen({ onTake }: { onTake(): void }) {
 
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
-      <p className="u-label">02 · Personnage</p>
+      <p className="u-label">01 · Personnage</p>
       <h1 id="u-title" tabIndex={-1}>Former un personnage.</h1>
+      <button type="button" className="u-link" onClick={onPhotos}>Photos et traits</button>
     </header>
 
     {training.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
@@ -79,7 +80,7 @@ export function LoraScreen({ onTake }: { onTake(): void }) {
             return <PictureSlot key={path ?? `role-${index}`} index={index} url={path ? media[path] : undefined} label="la photo" onAdd={files => void addRolePhotos(files)} onRemove={path ? () => void removeRolePhoto(path) : undefined} />;
           })}
         </div>
-        {vault.look.photos.length > 0 && role.photos.length < ROLE_PHOTOS_MAX && <button type="button" className="u-link u-muted" onClick={() => void copyLookPhotos()}>Reprendre les photos du look</button>}
+        {vault.look.photos.length > 0 && role.photos.length < ROLE_PHOTOS_MAX && <button type="button" className="u-link u-muted" onClick={() => void copyLookPhotos()}>Reprendre les photos et les traits</button>}
         {vault.clips.length > 0 && <ul className="u-ledger" aria-label="Clips">
           {vault.clips.map((clip, index) => <li key={clip.path}>
             <span>Clip {String(index + 1).padStart(2, "0")} · {Math.round(clip.seconds)} s</span>
@@ -106,6 +107,7 @@ export function LoraScreen({ onTake }: { onTake(): void }) {
           <button type="button" className="u-primary" disabled={falLinked && (!dataset.ready || !trainGate.allowed)} onClick={() => void requestTraining()}>
             {!falLinked ? "Relier mon compte fal" : `Former ce personnage${trainQuote !== null ? ` · ${formatUsd(trainQuote)}` : ""}`} <Arrow />
           </button>
+          <button type="button" className="u-link" onClick={onScene}>Poser la scène</button>
         </div>
       </div>}
     </div>

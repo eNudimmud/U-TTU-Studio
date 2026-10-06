@@ -1,8 +1,8 @@
 # U*TTU Studio
 
-> **Ton style. Ta scène. La prise.** Un studio vidéo dans la poche.
+> **Ton personnage. Ta scène. La prise.** Un studio vidéo dans la poche.
 
-Site en français (FR-CH). `/studio` est une app : on tient un look, on pose une scène, on tourne une prise vidéo, on la voit, on la publie, sans quitter la page. Le rendu tourne dans le cloud, sur le compte Comfy Cloud de la personne. Le studio ne vend rien, ne garde aucun compte de visiteur, et ne voit pas les fichiers : ils vivent dans un coffre Obsidian sur l’appareil.
+Site en français (FR-CH). `/studio` est une app : on forme un personnage, on pose une scène, on tourne une prise vidéo, on la voit, on la publie, sans quitter la page. Le rendu tourne dans le cloud, sur le compte Comfy Cloud de la personne. Le studio ne vend rien, ne garde aucun compte de visiteur, et ne voit pas les fichiers : ils vivent dans un coffre Obsidian sur l’appareil.
 
 **Vente HOLD.** Aucune prise réelle n’a été tournée par les livraisons : 0 crédit dépensé. La première prise d’un compte calibre le coût affiché.
 
@@ -22,12 +22,11 @@ L’offre A (« Look-Lock ») a été arrêtée le 24 septembre 2026. Son code r
 
 Trois gestes en bas de l’écran, reliés par un fil d’or, et Sphère à côté. Une action principale par écran.
 
-1. **Look.** Deux ou trois photos de soi, un nom, deux traits qui ne bougent pas. Les photos sont réduites dans le navigateur (1 536 px, JPEG) et rangées au coffre.
+1. **Personnage.** Le premier pas du fil (`#personnage`, aussi `#lora` et `#rôle`). Il forme un personnage pour que les prises suivantes le tiennent. Avant tout geste payant : ce que les clips doivent être, ce que les photos font, ce que le fichier fera et ne fera pas, et le prix. Le fichier `.safetensors` revient au coffre et se choisit dans La prise. Les photos et les traits des références s’ouvrent depuis ce pas. Ce n’est pas une étape du fil.
 2. **Scène.** Un lieu : un nom, une note, une ou deux images. Plusieurs lieux possibles, un lieu courant.
 3. **Prise.** Une phrase : ce que fait le plan. Format 9:16, 16:9 ou 1:1 ; 5 ou 8 s. « Références » tourne sur Comfy (rapide 4 pas ou fin 20 pas). « Personnage » recharge le fichier formé, sur fal, en 768p ou 480p. « Tourner » ouvre une confirmation avec le solde lu à l’instant. Après le geste, le studio envoie les photos, met la prise en file sur le compte qui paie, suit le calcul, rapatrie la vidéo dans le coffre et lit le débit.
-4. **Rôle.** Une page du fil (`#lora`), pas un lien de Look. Elle forme un personnage pour que les prises suivantes le tiennent. Avant tout geste payant : ce que les clips doivent être, ce que les photos font, ce que le fichier fera et ne fera pas, et le prix. Le fichier `.safetensors` revient au coffre et se choisit dans La prise.
-5. **Publier.** Sur téléphone, la feuille de partage de l’appareil reçoit la vidéo et le texte : X en un geste. Sur ordinateur, « Enregistrer la vidéo » et le brouillon X avec le texte. Rien n’est publié sans le geste dans X.
-6. **Sphère.** L’étagère des prises du coffre, avec une vignette décodée de chaque vidéo. Une prise s’ouvre en lecteur, se publie, ou se retire.
+4. **Publier.** Sur téléphone, la feuille de partage de l’appareil reçoit la vidéo et le texte : X en un geste. Sur ordinateur, « Enregistrer la vidéo » et le brouillon X avec le texte. Rien n’est publié sans le geste dans X.
+5. **Sphère.** L’étagère des prises du coffre, avec une vignette décodée de chaque vidéo. Une prise s’ouvre en lecteur, se publie, ou se retire.
 
 Une prise en cours survit à un rechargement ou à un changement d’app : le studio reprend le suivi du même job. L’écran reste allumé pendant le calcul quand le navigateur le permet.
 

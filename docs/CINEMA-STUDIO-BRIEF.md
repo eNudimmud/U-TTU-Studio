@@ -4,6 +4,12 @@ Verrou produit JD, 2026-10-02. Registre de vérité : chaque ligne est un **fait
 
 Ce document fixe l’étoile du nord. Les sections datées en dessous sont gardées pour l’historique.
 
+## Décision — Personnage, Scène, Prise — 6 octobre 2026
+
+- **Décision JD :** la suite Look → Rôle → Scène → Prise est mal nommée. Le fil est Personnage, puis Scène, puis Prise.
+- **Fait :** il n’y a pas d’entraînement du look dans l’app. La feuille photos, nom et traits reste. Elle s’ouvre depuis Personnage, et depuis La prise quand elle manque. `#photos`, `#look` et `#creer` l’ouvrent. Ce n’est pas le premier pas du fil.
+- **Fait :** Personnage est l’écran qui forme le fichier (`#personnage`, `#lora`, `#rôle`). Son geste or reste « Former ce personnage ».
+
 ## Décision — la prise tourne dans l’app — 3 octobre 2026
 
 - **Décision JD :** tout se fait sans quitter l’app : tenir un look, poser une scène, charger la prise, la lancer, voir le résultat, la publier. Comfy Cloud reste le moteur, sur le compte de la personne.
