@@ -1,14 +1,14 @@
 "use client";
 
+import { runGate } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { workflowFiches, type WorkflowFiche } from "@/lib/workflow-fiches";
 import { useStudio } from "./studio-context";
 
 export function FichesScreen({ onLaunch }: { onLaunch(fiche: WorkflowFiche): void }) {
-  const { connected, gate, falLinked, loraQuote, trainQuote, placeTrainQuote, placeSceneQuote, settings, loraResolution, trainingSteps, setSheet } = useStudio();
+  const { connected, balance, claim, falLinked, trainQuote, placeTrainQuote, placeSceneQuote, settings, loraResolution, trainingSteps, setSheet } = useStudio();
   const fiches = workflowFiches({
-    rendu: connected ? gate.line : null,
-    personnage: falLinked && loraQuote !== null ? formatUsd(loraQuote) : null,
+    rendu: connected ? runGate(balance, claim).line : null,
     former: falLinked && trainQuote !== null ? formatUsd(trainQuote) : null,
     lieu: falLinked && placeTrainQuote !== null ? formatUsd(placeTrainQuote) : null,
     image: falLinked && placeSceneQuote !== null ? formatUsd(placeSceneQuote) : null,
