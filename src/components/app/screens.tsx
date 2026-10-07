@@ -258,8 +258,8 @@ function SceneEditor() {
       <ul className="u-facts">
         <li><strong>Le lieu</strong>Il reste. Tu le rouvres : même nom, même plan, même trajet. Tu peux en tenir plusieurs.</li>
         <li><strong>Blender</strong>Il rend le lieu vide, {PATH_FRAMES} images le long du trajet. Le personnage n’est pas dans ce fichier.</li>
-        <li><strong>Le personnage</strong>C’est le LoRA du coffre. Il n’entre que dans le plan filmé, après ces images.</li>
-        <li><strong>Ce lieu, formé</strong>{learned.line} {falLinked && placeTrainQuote !== null ? `Formation : ${formatUsd(placeTrainQuote)}.` : "Le prix de formation se lit sur le compte fal, avant le geste."} {placeFile ? `Fichier au coffre.${placeSceneQuote !== null ? ` Image neuve : ${formatUsd(placeSceneQuote)}.` : ""}` : ""} Ce fichier n’est pas un volume. Le 3D reste le Blender.</li>
+        <li><strong>Le personnage</strong>C’est le fichier de mon studio. Il n’entre que dans le plan filmé, après ces images.</li>
+        <li><strong>Ce lieu, formé</strong>{learned.line} {falLinked && placeTrainQuote !== null ? `Formation : ${formatUsd(placeTrainQuote)}.` : "Le prix de formation se lit sur le compte fal, avant le geste."} {placeFile ? `Fichier dans mon studio.${placeSceneQuote !== null ? ` Image neuve : ${formatUsd(placeSceneQuote)}.` : ""}` : ""} Ce fichier n’est pas un volume. Le 3D reste le Blender.</li>
         <li><strong>Le prix</strong>Les deux devis sont lus avant le geste. Rien ne part sans confirmation.</li>
       </ul>
     </details>
@@ -383,7 +383,7 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
     <div className="u-stack">
       <p className="u-label">Distribution</p>
       {cast.length === 0
-        ? <button type="button" className="u-link" onClick={() => go("lora")}>Aucun personnage au coffre</button>
+        ? <button type="button" className="u-link" onClick={() => go("lora")}>Aucun personnage dans mon studio</button>
         : <div className="u-scenes" role="radiogroup" aria-label="Distribution">
           {cast.map(person => <button key={person.id} type="button" role="radio" aria-checked={chosenLora?.id === person.id} className="u-scene" onClick={() => chooseCast(person.id)}>
             <span className="u-scene-empty">{person.name.slice(0, 1)}</span>
@@ -394,7 +394,7 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
     <div className="u-stack">
       <p className="u-label">Lieux</p>
       {decor.length === 0
-        ? <button type="button" className="u-link" onClick={() => go("scene")}>Aucun lieu au coffre</button>
+        ? <button type="button" className="u-link" onClick={() => go("scene")}>Aucun lieu dans mon studio</button>
         : <div className="u-scenes" role="radiogroup" aria-label="Décors">
           {decor.map(item => {
             const held = studio.studio.scenes.find(sceneItem => sceneItem.id === item.id);
@@ -409,7 +409,7 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
     <div className="u-stack">
       <p className="u-label">Prises</p>
       {studio.studio.takes.length === 0
-        ? <button type="button" className="u-link" onClick={() => go("sphere")}>Aucune prise au coffre</button>
+        ? <button type="button" className="u-link" onClick={() => go("sphere")}>Aucune prise dans mon studio</button>
         : <div className="u-scenes">
           {studio.studio.takes.map(take => <button key={take.id} type="button" className="u-scene" onClick={() => setSheet({ take: take.id })}>
             {take.poster && media[take.poster] ? <img src={media[take.poster]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
@@ -497,13 +497,13 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>
       <p className="u-run-label">{runLabel(run)}</p>
-      <p className="u-small">{engine === "lora" ? "Ton compte fal calcule, avec ce personnage." : "Ton compte de rendu calcule."} Tu peux rester ici ou revenir plus tard : la prise rejoint le coffre.</p>
+      <p className="u-small">{engine === "lora" ? "Ton compte fal calcule, avec ce personnage." : "Ton compte de rendu calcule."} Tu peux rester ici ou revenir plus tard : la prise rejoint mon studio.</p>
       <button type="button" className="u-link u-muted" onClick={cancelRun}>Annuler</button>
     </div>}
 
     {run.phase === "done" && result && media[result.video] && <div ref={resultCard} className="u-card u-result">
       <video ref={video} src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted loop playsInline preload="auto" className={`is-${result.settings.aspect}`} />
-      <p className="u-small">Cette prise est dans la sphère et au coffre.</p>
+      <p className="u-small">Cette prise est dans la sphère et dans mon studio.</p>
       <p className="u-small">{result.engine === "lora"
         ? (result.costUsd !== null ? `Débité : ${formatUsd(result.costUsd)}, lu sur ton compte fal.` : "Débit pas encore visible sur ton compte fal.")
         : (result.costCredits !== null ? `Débité : ${formatCredits(result.costCredits)} crédits, lu sur ton solde.` : "Débit pas encore visible sur ton solde.")}{result.gpuSeconds !== null ? ` Calcul : ${clock(result.gpuSeconds)}.` : ""}</p>
@@ -534,7 +534,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         <div className="u-field">
           <span className="u-label">Distribution</span>
           {cast.length === 0
-            ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre</button>
+            ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage dans mon studio</button>
             : <select aria-label="Distribution" value={chosenLora?.id ?? ""} onChange={event => chooseCast(event.target.value)}>
               <option value="">Choisir</option>
               {cast.map(person => <option key={person.id} value={person.id}>{person.name}</option>)}
@@ -544,7 +544,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         <div className="u-field">
           <span className="u-label">Lieux</span>
           {studio.studio.scenes.length === 0
-            ? <button type="button" className="u-link" aria-label="Décors" onClick={goScene}>Aucun lieu au coffre</button>
+            ? <button type="button" className="u-link" aria-label="Décors" onClick={goScene}>Aucun lieu dans mon studio</button>
             : <select aria-label="Décors" value={scene?.id ?? ""} onChange={event => choosePlace(event.target.value)}>
               <option value="">Choisir</option>
               {decor.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}

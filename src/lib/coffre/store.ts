@@ -52,7 +52,7 @@ function request<T>(run: (store: IDBObjectStore) => IDBRequest<T>, mode: IDBTran
     open.onupgradeneeded = () => {
       if (!open.result.objectStoreNames.contains("files")) open.result.createObjectStore("files", { keyPath: "path" });
     };
-    open.onerror = () => reject(open.error ?? new Error("Coffre fermé."));
+    open.onerror = () => reject(open.error ?? new Error("Mon studio est fermé."));
     open.onsuccess = () => {
       const db = open.result;
       const tx = db.transaction("files", mode);
@@ -66,7 +66,7 @@ function request<T>(run: (store: IDBObjectStore) => IDBRequest<T>, mode: IDBTran
       };
       req.onerror = () => {
         db.close();
-        reject(req.error ?? new Error("Coffre illisible."));
+        reject(req.error ?? new Error("Mon studio est illisible."));
       };
     };
   });

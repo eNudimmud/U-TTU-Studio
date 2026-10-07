@@ -137,7 +137,7 @@ export function CreditSheet() {
       </div>
       <p className="u-small">Les prises « Références » tournent sur ton compte Comfy Cloud. 1 $ = {CREDITS_PER_USD} crédits. Le studio n’encaisse rien.</p>
       {connected && <>
-        <p className="u-small">Cet appareil oublie la liaison. Le coffre et le compte restent.</p>
+        <p className="u-small">Cet appareil oublie la liaison. Mon studio et le compte restent.</p>
         <button type="button" className="u-secondary" onClick={() => void disconnect()}>Délier le compte de rendu</button>
       </>}
       {engine === "comfy" && <div className="u-card">
@@ -152,7 +152,7 @@ export function CreditSheet() {
       </div>
       <p className="u-small">La formation d’un personnage et les prises « Personnage » sont débitées ici, au prix annoncé avant le geste.</p>
       {falLinked && <>
-        <p className="u-small">Cet appareil oublie la clé. Le coffre, le fichier formé et le compte restent.</p>
+        <p className="u-small">Cet appareil oublie la clé. Mon studio, le fichier formé et le compte restent.</p>
         <button type="button" className="u-secondary" onClick={disconnectFal}>Délier le compte fal</button>
       </>}
       <p className="u-label">Blender</p>
@@ -181,9 +181,9 @@ export function CoffreSheet() {
     void navigator.storage?.persisted?.().then(setPersisted);
   }, []);
 
-  return <SheetFrame title="Ton coffre" label="Mémoire du studio" onClose={() => setSheet(null)}>
+  return <SheetFrame title="Mon studio" label="Mémoire" onClose={() => setSheet(null)}>
     <div className="u-stack">
-      <p>Ce coffre reste sur cet appareil. La carte MOC.md relie le look, les personnages, les lieux, les prises et le journal. Obsidian ouvre ces liens.</p>
+      <p>Mon studio reste sur cet appareil. La carte MOC.md relie le look, les personnages, les lieux, les prises et le journal. Obsidian ouvre ces liens.</p>
       <p className="u-small">Pour le lire ailleurs : exporte le ZIP, ouvre ce dossier dans Obsidian, puis importe ce ZIP sur l’autre appareil. Les fichiers s’ajoutent. Une prise ou un personnage déjà ici reste.</p>
       <ul className="u-ledger">
         <li><span>Photos du look</span><span>{studio.look.photos.length}</span></li>
@@ -193,10 +193,10 @@ export function CoffreSheet() {
         <li><span>Prises</span><span>{studio.takes.length}</span></li>
       </ul>
       <p className="u-small">{usage}{persisted === false ? " · Le navigateur peut vider ce stockage : exporte ou relie un dossier." : persisted ? " · Stockage protégé." : ""}</p>
-      <button type="button" className="u-primary" onClick={() => void exportCoffre()}>Exporter le coffre (.zip)</button>
+      <button type="button" className="u-primary" onClick={() => void exportCoffre()}>Exporter mon studio (.zip)</button>
       <label className="u-secondary u-file">
-        {importing ? "Import…" : "Importer un coffre (.zip)"}
-        <input type="file" accept=".zip,application/zip" aria-label="Importer un coffre" disabled={importing} onChange={event => {
+        {importing ? "Import…" : "Importer un studio (.zip)"}
+        <input type="file" accept=".zip,application/zip" aria-label="Importer un studio" disabled={importing} onChange={event => {
           const file = event.target.files?.[0];
           event.target.value = "";
           if (!file) return;
@@ -206,7 +206,7 @@ export function CoffreSheet() {
       </label>
       {linkable && <button type="button" className="u-secondary" onClick={() => void linkFolder()}>{folder ? `Relié à « ${folder} »` : "Relier mon dossier Obsidian"}</button>}
       {!linkable && <p className="u-small">Sur ordinateur, Chrome ou Edge écrivent dans le dossier choisi. Sur téléphone, emporte le ZIP.</p>}
-      <p className="u-small">Les clés restent hors du coffre.</p>
+      <p className="u-small">Les clés restent hors de mon studio.</p>
       <div className="u-row">
         <a className="u-link u-muted" href={assetPath("/compte")}>Compte U*TTU, facultatif</a>
         {!guide.off && <button type="button" className="u-link u-muted" onClick={guideOff}>Couper le guide</button>}
@@ -274,7 +274,7 @@ export function FalSheet({ framed = true }: { framed?: boolean } = {}) {
           <span className="u-label">Clé fal</span>
           <input id="u-fal-key" type="password" value={key} autoComplete="off" spellCheck={false} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:…" onChange={event => setKey(event.target.value)} />
         </label>
-        <p className="u-small">La clé reste sur cet appareil. Elle part seulement vers fal, jamais dans le coffre ni dans son export. Ne la partage pas.</p>
+        <p className="u-small">La clé reste sur cet appareil. Elle part seulement vers fal, jamais dans mon studio ni dans son export. Ne la partage pas.</p>
         {(error || falBalanceNote) && <p className="u-small is-error" role="alert">{error || falBalanceNote}</p>}
         <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? "Vérification…" : framed ? "Relier" : "Relier le compte fal"}</button>
       </div>}
@@ -329,7 +329,7 @@ export function PrevizConfirmSheet() {
         <li><span>Focale</span><span>{lens ? `${lens} mm` : "—"}</span></li>
       </ul>
       <p className={`u-cost is-${previzGate.tone}`}>{previzGate.line}</p>
-      <p className="u-small">Blender rend le lieu vide, le long du trajet. Le personnage est le LoRA du coffre : il n’entre que dans le plan filmé. S’il ne revient pas d’image, aucune n’est affichée.</p>
+      <p className="u-small">Blender rend le lieu vide, le long du trajet. Le personnage est le fichier de mon studio : il n’entre que dans le plan filmé. S’il ne revient pas d’image, aucune n’est affichée.</p>
       <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>Filmer · débit sur mon compte</button>
       <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
     </div>
@@ -363,7 +363,7 @@ export function BlenderSheet() {
           <span className="u-label">Clé de job</span>
           <input type="password" value={key} autoComplete="off" spellCheck={false} placeholder="farpy_agent_…" onChange={event => setKey(event.target.value)} />
         </label>
-        <p className="u-small">La clé reste sur cet appareil. Elle n’entre pas dans le coffre. Coller la clé ne débite rien : le devis est lu au premier film.</p>
+        <p className="u-small">La clé reste sur cet appareil. Elle n’entre pas dans mon studio. Coller la clé ne débite rien : le devis est lu au premier film.</p>
         {error && <p className="u-small is-error" role="alert">{error}</p>}
         <button type="button" className="u-primary" disabled={!key.trim()} onClick={linkKey}>Relier</button>
       </div>}
@@ -382,7 +382,7 @@ export function PlaceTrainSheet() {
         <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
       </ul>
       <p className={`u-cost is-${placeTrainGate.tone}`}>{placeTrainGate.line}</p>
-      <p className="u-small">L’entraîneur H3 refuse des images seules. Ce lieu passe par l’entraîneur d’images déjà là, en style, sans masque de visage. Le fichier reste au coffre. Il ne devient pas un volume : le Blender du lieu reste le modèle 3D, et il n’entre pas dans la prise H3.</p>
+      <p className="u-small">L’entraîneur H3 refuse des images seules. Ce lieu passe par l’entraîneur d’images déjà là, en style, sans masque de visage. Le fichier reste dans mon studio. Il ne devient pas un volume : le Blender du lieu reste le modèle 3D, et il n’entre pas dans la prise H3.</p>
       <button type="button" className="u-primary" disabled={!placeTrainGate.allowed} onClick={() => void confirmPlaceTrain()}>Former ce lieu · débit sur mon compte fal</button>
       <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
     </div>
@@ -395,7 +395,7 @@ export function PlaceSceneSheet() {
     <div className="u-stack">
       <ul className="u-ledger">
         <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
-        <li><span>Fichier</span><span>LoRA du lieu, au coffre</span></li>
+        <li><span>Fichier</span><span>Fichier du lieu, dans mon studio</span></li>
         <li><span>Prix</span><span>{placeSceneQuote !== null ? formatUsd(placeSceneQuote) : "illisible"}</span></li>
         <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
       </ul>
@@ -421,7 +421,7 @@ export function PlayerSheet({ id }: { id: string }) {
         {take.gpuSeconds !== null && <li><span>Calcul</span><span>{take.gpuSeconds} s</span></li>}
       </ul>
       <PublishActions take={take} />
-      <button type="button" className="u-link u-muted" onClick={() => { void deleteTake(take.id); setSheet(null); }}><Trash /> Retirer du coffre</button>
+      <button type="button" className="u-link u-muted" onClick={() => { void deleteTake(take.id); setSheet(null); }}><Trash /> Retirer de mon studio</button>
     </div>
   </SheetFrame>;
 }

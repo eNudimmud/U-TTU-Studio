@@ -1,6 +1,6 @@
-# Coffre — la mémoire du studio
+# Mon studio — la mémoire
 
-Mis à jour le 7 octobre 2026. Chaque personne a un studio, et ce studio a une mémoire : son coffre. L’app l’écrit à chaque geste. Obsidian le lit tel quel. Le studio, côté serveur, ne le voit jamais, et ne le synchronise pas.
+Mis à jour le 7 octobre 2026. Le nom produit de ce dossier est **Mon studio**. L’app l’écrit à chaque geste. Obsidian le lit tel quel. Le serveur ne le voit jamais, et ne le synchronise pas.
 
 ## Schéma
 
@@ -27,14 +27,14 @@ Les fiches sont du Markdown avec frontmatter. Une prise porte en plus `moteur` (
 
 ## Où il vit
 
-- **Sur l’appareil, dans le navigateur.** IndexedDB, base `uttu-coffre`, un enregistrement par fichier (`path`, texte ou blob). Le studio demande le stockage persistant (`navigator.storage.persist()`). La feuille Coffre dit ce qui est occupé, et si le navigateur peut le vider.
-- **Exporter le coffre.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, `MOC.md` comprise, à décompresser et ouvrir comme coffre Obsidian.
-- **Importer un coffre.** Un ZIP du même schéma s’ajoute au coffre de cet appareil. Une prise ou un personnage déjà là reste. Une fiche illisible, ou qui pointe vers une vidéo ou un fichier absent, ne remplace pas la fiche valide. Le journal et la carte sont réécrits à partir de ce que le coffre peut ouvrir.
-- **Relier mon dossier Obsidian.** Sur ordinateur, Chrome ou Edge (File System Access) : l’app copie le coffre dans le dossier choisi, puis y écrit chaque changement tant que la page reste ouverte. Le lien ne survit pas à la fermeture : on le refait d’un geste.
+- **Sur l’appareil, dans le navigateur.** IndexedDB, base `uttu-coffre`, un enregistrement par fichier (`path`, texte ou blob). Le studio demande le stockage persistant (`navigator.storage.persist()`). La feuille Mon studio dit ce qui est occupé, et si le navigateur peut le vider.
+- **Exporter mon studio.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, `MOC.md` comprise, à décompresser et ouvrir dans Obsidian.
+- **Importer un studio.** Un ZIP du même schéma s’ajoute à mon studio sur cet appareil. Une prise ou un personnage déjà là reste. Une fiche illisible, ou qui pointe vers une vidéo ou un fichier absent, ne remplace pas la fiche valide. Le journal et la carte sont réécrits à partir de ce que mon studio peut ouvrir.
+- **Relier mon dossier Obsidian.** Sur ordinateur, Chrome ou Edge (File System Access) : l’app copie mon studio dans le dossier choisi, puis y écrit chaque changement tant que la page reste ouverte. Le lien ne survit pas à la fermeture : on le refait d’un geste.
 
-La clé et la session de rendu, la clé fal, et la clé Blender (`u-ttu-blender`) ne sont pas des fichiers du coffre. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
+La clé et la session de rendu, la clé fal, et la clé Blender (`u-ttu-blender`) ne sont pas des fichiers de mon studio. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
 
-## Pourquoi ce coffre
+## Pourquoi mon studio
 
 L’ancien pilier était un ZIP de départ, téléchargé une fois, que la personne remplissait à la main. Le site n’écrivait rien dedans : la prise, son coût, ses images restaient à recopier. Il fallait quitter l’app pour tenir sa mémoire.
 
@@ -44,10 +44,10 @@ L’ancien pilier était un ZIP de départ, téléchargé une fois, que la perso
 | Dossier Obsidian relié seulement (File System Access) | En plus | Absent de Safari et des téléphones. Seul, il exclurait le cas principal. |
 | OPFS seul | Non | Safari n’écrit pas de fichier OPFS depuis la page principale (`createWritable`). IndexedDB tient partout. |
 | Base du studio, ou sync liée à un compte | Non | Ce serait une base de visiteurs. Le brief l’exclut. |
-| **IndexedDB rangé comme un coffre Obsidian, export ZIP, dossier relié en option** | **Oui** | Marche sur téléphone, sans compte. L’app écrit le vrai coffre à chaque geste. Le format reste celui d’Obsidian, donc la personne peut partir avec. |
+| **IndexedDB rangé comme un dossier Obsidian, export ZIP, dossier relié en option** | **Oui** | Marche sur téléphone, sans compte. L’app écrit mon studio à chaque geste. Le format reste celui d’Obsidian, donc la personne peut partir avec. |
 
 ## Limites
 
-- **Le navigateur peut vider ce stockage** si l’espace manque et que la persistance n’est pas accordée. La feuille Coffre le dit. Exporter, ou relier un dossier, garde une copie.
-- **Un coffre par navigateur.** Deux appareils ne partagent pas le même coffre. Le pont : exporter le ZIP, ouvrir le dossier dans Obsidian, importer ce ZIP sur l’autre appareil. Il n’y a pas de copie sur le serveur du studio.
+- **Le navigateur peut vider ce stockage** si l’espace manque et que la persistance n’est pas accordée. La feuille Mon studio le dit. Exporter, ou relier un dossier, garde une copie.
+- **Un studio par navigateur.** Deux appareils ne partagent pas le même dossier. Le pont : exporter le ZIP, ouvrir le dossier dans Obsidian, importer ce ZIP sur l’autre appareil. Il n’y a pas de copie sur le serveur.
 - **Le dossier relié est à sens unique.** L’app écrit dans le dossier. Elle ne relit pas un changement fait dans Obsidian. L’import, lui, lit un ZIP.

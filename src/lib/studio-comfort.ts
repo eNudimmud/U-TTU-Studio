@@ -19,14 +19,14 @@ export const WIRED_ENGINES: readonly WiredEngine[] = [
     id: "comfy",
     label: "Références",
     model: "MiniMax H3",
-    detail: "Les photos du coffre partent à chaque prise.",
+    detail: "Les photos de mon studio partent à chaque prise.",
     sound: "Le son est dans la prise.",
   },
   {
     id: "lora",
     label: "Personnage",
     model: "MiniMax H3",
-    detail: "Le fichier du coffre tient le personnage.",
+    detail: "Le fichier de mon studio tient le personnage.",
     sound: "Le son n’est pas un réglage de ce fichier.",
   },
 ];

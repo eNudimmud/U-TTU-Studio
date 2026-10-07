@@ -467,7 +467,7 @@ export function mocMarkdown(studio: Studio): string {
     mapSection("Prises", studio.takes.map(take => wiki(`prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
     mapSection("Journal", [wiki("jobs", "Journal")]),
   ];
-  return `# Carte du coffre\n\nCette note relie le coffre. Obsidian ouvre chaque lien. Le dossier reste sur l’appareil qui le tient : le studio n’en garde pas de copie.\n\n${sections.join("\n\n")}\n`;
+  return `# Carte de mon studio\n\nCette note relie mon studio. Obsidian ouvre chaque lien. Le dossier reste sur l’appareil qui le tient : rien n’en est copié ailleurs.\n\n${sections.join("\n\n")}\n`;
 }
 
 export function jobsMarkdown(takes: readonly Take[], loras: readonly Lora[] = []): string {
@@ -484,9 +484,9 @@ export function jobsMarkdown(takes: readonly Take[], loras: readonly Lora[] = []
   return `# Journal\n\nUne ligne par prise et par formation. Le coût vient du compte qui a payé : le solde Comfy, ou la facture fal de la demande.\n\n| Date | Quoi | Moteur | Réglage | Calcul (s) | Coût |\n| --- | --- | --- | --- | --- | --- |\n${rows.join("\n")}\n`;
 }
 
-export const README = `# U*TTU Studio — coffre
+export const README = `# U*TTU — Mon studio
 
-Ce dossier est ton studio. L’app l’écrit, Obsidian le lit tel quel.
+Ce dossier est mon studio. L’app l’écrit, Obsidian le lit tel quel.
 
 - \`CANON.md\` — ton look : nom, traits, photos.
 - \`refs/\` — les photos du look.

@@ -77,9 +77,9 @@ describe("le studio, une app", () => {
     assert.match(take, /className="u-pickers"/);
     assert.doesNotMatch(take, /className="u-plateau"/);
     assert.match(take, /weaveBrief/);
-    assert.match(take, /Aucun personnage au coffre/);
-    assert.match(take, /Aucun lieu au coffre/);
-    assert.match(take, /Cette prise est dans la sphère et au coffre/);
+    assert.match(take, /Aucun personnage dans mon studio/);
+    assert.match(take, /Aucun lieu dans mon studio/);
+    assert.match(take, /Cette prise est dans la sphère et dans mon studio/);
     assert.match(read("src/components/app/studio-context.tsx"), /castFile\(current\.loras, loraPick\)/);
     assert.doesNotMatch(take, /Relier mon compte/);
     assert.match(take, /aria-label="Régler la prise"/);
@@ -156,7 +156,7 @@ describe("le studio, une app", () => {
     assert.match(desk, /\.u-comfort-work > \.u-pickers \{ display: none; \}/);
     assert.match(css, /grid-template-columns: minmax\(0, 1fr\) minmax\(320px, 440px\)/);
     assert.match(css, /\.u-paths \{ grid-template-columns: 1fr 1fr; align-items: stretch; \}/);
-    assert.match(read("src/components/app/studio-app.tsx"), /aria-label="Coffre"><Coffre \/><span>Coffre<\/span>/);
+    assert.match(read("src/components/app/studio-app.tsx"), /aria-label="Mon studio"><Coffre \/><span>Mon studio<\/span>/);
     assert.match(read("src/app/globals.css"), /\.landing-copy \{ justify-content: space-between; /);
     assert.doesNotMatch(read("src/components/app/lora-screen.tsx"), /@clerk\//);
   });
@@ -182,9 +182,14 @@ describe("le studio, une app", () => {
     const coffre = sheets.slice(sheets.indexOf("export function CoffreSheet"), sheets.indexOf("export function ConfirmSheet"));
     assert.match(coffre, /MOC\.md/);
     assert.match(coffre, /ouvre ce dossier dans Obsidian/);
-    assert.match(coffre, /Importer un coffre \(\.zip\)/);
+    assert.match(coffre, /Exporter mon studio \(\.zip\)/);
+    assert.match(coffre, /Importer un studio \(\.zip\)/);
     assert.match(coffre, /Une prise ou un personnage déjà ici reste/);
-    assert.match(coffre, /Les clés restent hors du coffre/);
+    assert.match(coffre, /Les clés restent hors de mon studio/);
+    const visible = coffre.slice(coffre.indexOf("return"));
+    assert.doesNotMatch(visible, />[^<]*\b[Cc]offre\b[^<]*</);
+    assert.doesNotMatch(visible, /"[^"]*\b[Cc]offre\b[^"]*"/);
+    assert.doesNotMatch(visible, /"[^"]*\bVault\b[^"]*"/);
     assert.doesNotMatch(coffre, /synchronis/i);
     assert.match(read("src/components/app/studio-context.tsx"), /mergeCoffreZip\(/);
     assert.match(sheets, /Il paie la formation du personnage et les prises « Personnage »/);
