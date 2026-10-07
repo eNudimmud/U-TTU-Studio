@@ -2,6 +2,12 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F5 — un solde, deux comptes — 7 octobre 2026
+
+- **Décision :** le bouton du haut ouvre toujours la même feuille, Solde. Elle montre le compte de rendu (crédits) et le compte fal (dollars) l’un sous l’autre. Mon studio est le libellé. Relier ouvre le compte qui manque. Devis nomme le prix, seulement s’il est lu.
+- **Décision :** trois états visibles. Non relié : aucun chiffre. Solde lu : le nombre lu, et l’heure. Erreur : la phrase du compte, sans chiffre. Solde non lu (lecture en cours, ou clé fal sans portée Admin) n’affiche pas de nombre non plus.
+- **Fait :** la feuille personnage Comfy n’est pas branchée. Aucun crédit n’est dépensé.
+
 ## F3 — feuille personnage — 7 octobre 2026
 
 - **Fait :** le template Cloud `templates-character_sheet` existe. Titre publié : « 360 Full-body Turnaround ». Tag : Character Reference. Une photo entre par `LoadImage`. Deux `GeminiImage2Node` (`gemini-3-pro-image-preview`, résolution 2K, `IMAGE+TEXT`) demandent un gros plan 9:16 et un corps entier 16:9. `ImageStitch` assemble, trois `SaveImage` écrivent. Aucun nœud n’a été inventé.

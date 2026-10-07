@@ -199,7 +199,15 @@ describe("le studio, une app", () => {
     assert.match(comfyOff, /tokens\.forget\(\)/);
     assert.doesNotMatch(comfyOff, /removeTake|removeLora|coffreZip|deleteDatabase/);
     const app = read("src/components/app/studio-app.tsx");
-    assert.match(app, /"credits" : "relier"/);
+    assert.match(app, /className="u-credit" onClick=\{\(\) => setSheet\("credits"\)\}/);
+    assert.match(credit, /data-state=\{renderState\}/);
+    assert.match(credit, /data-state=\{falState\}/);
+    assert.match(credit, /t\("sheet\.walletTitle"\)/);
+    assert.match(credit, /t\("verb\.relier"\)/);
+    assert.match(credit, /t\("sheet\.quote"\)/);
+    assert.doesNotMatch(credit, /strong>\{"—"/);
+    assert.ok(catalog.includes("Deux comptes, jamais mélangés"));
+    assert.ok(catalog.includes("Aucun chiffre tant que le devis"));
     const coffre = sheets.slice(sheets.indexOf("export function CoffreSheet"), sheets.indexOf("export function ConfirmSheet"));
     assert.match(coffre, /t\("sheet\.studioIntro"\)/);
     assert.match(coffre, /t\("sheet\.export"\)/);
