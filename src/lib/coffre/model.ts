@@ -7,6 +7,7 @@
 //   Projets/<slug>/Lieux/<id>.md          a place
 //   Projets/<slug>/Lieux/<id>-fichier.md  a place file (not the place note)
 //   Projets/<slug>/Prises/<id>.md         a take, plus its video and poster
+//   Projets/<slug>/Sequences/<id>.md      ordered takes and the raccord between them
 //   Projets/<slug>/Assets/                weights and clips
 //   Projets/<slug>/Journal.md
 //   Projets/<slug>/.uttu/                 current place, clips, role draft
@@ -32,6 +33,8 @@ export const SCENE_STILLS_MAX = 2;
 export const TRAITS_MIN = 2;
 export const NAME_MAX = 40;
 export const NOTE_MAX = 280;
+export const RACCORD_MAX = 240;
+export const SEQUENCE_LINKS_MAX = 24;
 export const LINE_MAX = 240;
 
 export interface Look {
@@ -123,11 +126,24 @@ export interface Lora {
   balanceAfter: number | null;
 }
 
+/** One step in a sequence. The raccord says what must match coming into this take. The first step has none. */
+export interface SequenceLink {
+  takeId: string;
+  raccord: string;
+}
+
+export interface Sequence {
+  id: string;
+  name: string;
+  links: SequenceLink[];
+}
+
 export interface Studio {
   look: Look;
   scenes: Scene[];
   currentScene: string | null;
   takes: Take[];
+  sequences: Sequence[];
   loras: Lora[];
   clips: Clip[];
   role: RoleDraft;
@@ -146,7 +162,7 @@ export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "pre
 
 export const isPlaceLora = (lora: Pick<Lora, "kind">) => lora.kind === "lieu";
 export const emptyStudio = (): Studio => ({
-  look: emptyLook(), scenes: [], currentScene: null, takes: [], loras: [], clips: [], role: emptyRole(),
+  look: emptyLook(), scenes: [], currentScene: null, takes: [], sequences: [], loras: [], clips: [], role: emptyRole(),
   project: null, projectName: "", projects: [], tree: [],
 });
 
@@ -400,6 +416,75 @@ export function parseTake(id: string, source: string): Take | null {
   };
 }
 
+/** Stems that would read as the section itself, or as the empty-folder note. */
+const SEQUENCE_SKIP = new Set(["index", "sequence", "sequences", "modele", "modeles", "lieu"]);
+
+const keptStrings = (value: ReturnType<typeof readFrontmatter>["fields"][string] | undefined): string[] =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+
+export function sequenceStem(name: string): string {
+  const base = slugify(name.trim());
+  return SEQUENCE_SKIP.has(base) ? "suite" : base;
+}
+
+export function normalizeLinks(links: readonly SequenceLink[]): SequenceLink[] {
+  const seen = new Set<string>();
+  const out: SequenceLink[] = [];
+  for (const link of links) {
+    const takeId = oneLine(link.takeId, 80);
+    if (!/^[A-Za-z0-9-]+$/.test(takeId) || seen.has(takeId)) continue;
+    seen.add(takeId);
+    out.push({ takeId, raccord: oneLine(link.raccord, RACCORD_MAX) });
+    if (out.length >= SEQUENCE_LINKS_MAX) break;
+  }
+  if (out[0]) out[0] = { ...out[0], raccord: "" };
+  return out;
+}
+
+/** Drops a take and clears the raccord that used to follow it, because that join changed. */
+export function dropTakeLink(links: readonly SequenceLink[], takeId: string): SequenceLink[] {
+  const index = links.findIndex(link => link.takeId === takeId);
+  if (index < 0) return normalizeLinks(links);
+  const next = links.filter(link => link.takeId !== takeId);
+  if (index < next.length) next[index] = { ...next[index], raccord: "" };
+  return normalizeLinks(next);
+}
+
+export function sequenceMarkdown(sequence: Sequence, projet = "", takes: readonly Pick<Take, "id" | "line">[] = []): string {
+  const links = normalizeLinks(sequence.links);
+  const rows = links.map((link, index) => {
+    const line = takes.find(item => item.id === link.takeId)?.line.trim() || link.takeId;
+    const alias = line.replace(/[\[\]|\r\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80) || link.takeId;
+    const target = projet ? `Projets/${projet}/Prises/${link.takeId}` : `Prises/${link.takeId}`;
+    const join = index > 0 && link.raccord ? `\n   Raccord : ${link.raccord}` : "";
+    return `${index + 1}. [[${target}|${alias}]]${join}`;
+  });
+  const listed = rows.length > 0 ? rows.join("\n") : "Aucune prise pour l’instant.";
+  const body = `# ${sequence.name}\n\nUne séquence tient l’ordre des prises. Le raccord dit ce qui doit coller : lumière, regard, mouvement, objet.\n\n${listed}\n`;
+  return withFrontmatter({
+    type: "sequence",
+    projet,
+    statut: "brouillon",
+    gesture: "sequence",
+    updated: new Date().toISOString(),
+    nom: sequence.name,
+    prises: links.map(link => link.takeId),
+    raccords: links.map(link => link.raccord),
+  }, body);
+}
+
+export function parseSequence(id: string, source: string): Sequence | null {
+  if (SEQUENCE_SKIP.has(id)) return null;
+  const { fields } = readFrontmatter(source);
+  const prises = keptStrings(fields.prises).map(item => oneLine(item, 80)).filter(item => /^[A-Za-z0-9-]+$/.test(item));
+  const raccords = keptStrings(fields.raccords);
+  return {
+    id,
+    name: oneLine(text(fields.nom), NAME_MAX) || id,
+    links: normalizeLinks(prises.map((takeId, index) => ({ takeId, raccord: raccords[index] ?? "" }))),
+  };
+}
+
 export function loraId(date: Date, name: string): string {
   return takeId(date, name || "lora");
 }
@@ -494,6 +579,7 @@ export function mocMarkdown(studio: Studio): string {
       ...places.map(lora => wiki(`${base}/Lieux/${lora.id}-fichier`, lora.name || "Lieu")),
     ]),
     mapSection("Prises", studio.takes.map(take => wiki(`${base}/Prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
+    mapSection("Séquences", studio.sequences.map(sequence => wiki(`${base}/Sequences/${sequence.id}`, sequence.name || "Séquence"))),
     mapSection("Repères", [wiki(`${base}/Bible`, "Bible"), wiki(`${base}/Style`, "Style"), wiki(`${base}/Lexique`, "Lexique"), wiki(`${base}/Journal`, "Journal")]),
     mapSection("Moteurs", [
       wiki(`${base}/Moteurs/moteur-references`, "Prise · Références"),
@@ -529,7 +615,7 @@ export const README = `# U*TTU — Mon studio
 Ce dossier est mon studio. L’app l’écrit, Obsidian le lit tel quel.
 
 - \`MOC.md\` — la carte des projets.
-- \`Projets/<projet>/\` — un univers complet : bible, style, lexique, personnages, références, lieux, prises, journal, moteurs.
+- \`Projets/<projet>/\` — un univers complet : bible, style, lexique, personnages, références, lieux, prises, séquences, journal, moteurs.
 - \`.uttu/projet.json\` — le projet en cours. Pas une clé.
 
 La chaîne ne lit que le projet en cours. Rien ici n’est envoyé au studio. Pour le lire sur un autre appareil, exporte ce dossier et importe-le là-bas. Les prises et les formations tournent sur tes propres comptes.
@@ -655,6 +741,7 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
   const placeRe = new RegExp(`^Projets/${slug}/Lieux/([A-Za-z0-9-]+)-fichier\\.md$`);
   const castRe = new RegExp(`^Projets/${slug}/Cast/([A-Za-z0-9-]+)\\.md$`);
   const takeRe = new RegExp(`^Projets/${slug}/Prises/([A-Za-z0-9-]+)\\.md$`);
+  const sequenceRe = new RegExp(`^Projets/${slug}/Sequences/([a-z0-9-]+)\\.md$`);
   for (const entry of entries) {
     if (!entry.path.startsWith(`${prefix}/`) || !entry.text) continue;
     const place = placeRe.exec(entry.path);
@@ -674,6 +761,12 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
       if (parsed && byPath.has(parsed.video)) studio.takes.push({ ...parsed, poster: parsed.poster && byPath.has(parsed.poster) ? parsed.poster : null });
       continue;
     }
+    const sequence = sequenceRe.exec(entry.path);
+    if (sequence) {
+      const parsed = parseSequence(sequence[1], entry.text);
+      if (parsed) studio.sequences.push(parsed);
+      continue;
+    }
     const cast = castRe.exec(entry.path);
     if (cast && cast[1] !== "canon") {
       const parsed = parseLora(cast[1], entry.text);
@@ -681,6 +774,7 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
     }
   }
   studio.takes.sort((a, b) => b.at.localeCompare(a.at));
+  studio.sequences.sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
   studio.loras.sort((a, b) => b.at.localeCompare(a.at));
   const filmed = new Set(studio.takes.map(take => take.id));
   for (const scene of studio.scenes) if (scene.shot && !filmed.has(scene.shot)) scene.shot = null;
@@ -810,6 +904,22 @@ export async function writeState(store: VaultStore, currentScene: string | null)
 export async function writeTake(store: VaultStore, take: Take, _takes: readonly Take[], _loras: readonly Lora[] = []): Promise<void> {
   const slug = await ensureActiveProject(store);
   await writeText(store, projectPath(slug, `Prises/${take.id}.md`), takeMarkdown(take, slug));
+  await writeMap(store);
+}
+
+export async function writeSequence(store: VaultStore, sequence: Sequence, takes: readonly Pick<Take, "id" | "line">[] = []): Promise<void> {
+  if (!/^[a-z0-9-]+$/.test(sequence.id) || SEQUENCE_SKIP.has(sequence.id)) return;
+  const slug = await ensureActiveProject(store);
+  const clean: Sequence = { ...sequence, name: oneLine(sequence.name, NAME_MAX), links: normalizeLinks(sequence.links) };
+  if (!clean.name) return;
+  await writeText(store, projectPath(slug, `Sequences/${clean.id}.md`), sequenceMarkdown(clean, slug, takes));
+  await writeMap(store);
+}
+
+export async function removeSequence(store: VaultStore, id: string): Promise<void> {
+  if (!/^[a-z0-9-]+$/.test(id) || id === "index") return;
+  const slug = await ensureActiveProject(store);
+  await store.remove(projectPath(slug, `Sequences/${id}.md`));
   await writeMap(store);
 }
 

@@ -194,6 +194,7 @@ export function scaffoldFiles(slug: string, name: string): { path: string; text:
     { path: `${root}/Templates/modele-personnage.md`, text: note(slug, "template", "Modèle · Personnage", "Nom, photos, ce qui ne change pas.", { gesture: "personnage" }) },
     { path: `${root}/Templates/modele-scene.md`, text: note(slug, "template", "Modèle · Scène", "Nom, note, images du lieu.", { gesture: "scene" }) },
     { path: `${root}/Templates/modele-prise.md`, text: note(slug, "template", "Modèle · Prise", "Phrase, durée, format. Le prix se lit avant le geste.", { gesture: "prise" }) },
+    { path: `${root}/Templates/modele-sequence.md`, text: note(slug, "template", "Modèle · Séquence", "Nom. Puis les prises, dans l’ordre. Entre deux, le raccord : lumière, regard, mouvement, objet.", { gesture: "sequence" }) },
     ...moteurs.map(([id, gesture, moteur, title, body]) => ({
       path: `${root}/Moteurs/${id}.md`,
       text: note(slug, "moteur", title, body, { moteur, gesture }),
@@ -214,7 +215,7 @@ export function projectMocShell(slug: string, name: string): string {
     link("Style", "Style"),
     link("Lexique", "Lexique"),
     link("Journal", "Journal"),
-  ].join("\n")}\n\n## Moteurs\n\n${[
+  ].join("\n")}\n\n## Séquences\n\n${link("Sequences/index", "Séquences")}\n\n## Moteurs\n\n${[
     link("Moteurs/moteur-references", "Prise · Références"),
     link("Moteurs/moteur-personnage", "Prise · Personnage"),
     link("Moteurs/former", "Former un personnage"),

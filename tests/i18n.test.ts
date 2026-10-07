@@ -51,12 +51,21 @@ describe("langues du studio", () => {
     assert.doesNotMatch(JSON.stringify(catalogs.de), /Angebot|Charakter|Tresor|Vault|Cofre/);
     assert.doesNotMatch(JSON.stringify(catalogs.es), /Cofre|Vault|Tresor|Carácter/);
     assert.equal(catalogs.en.tree.modelTake, "Template · Take");
+    assert.equal(catalogs.fr.sequence.raccord, "Raccord");
+    assert.equal(catalogs.en.sequence.raccord, "Continuity");
+    assert.equal(catalogs.de.sequence.raccord, "Anschluss");
+    assert.equal(catalogs.de.sequence.title, "Sequenzen");
+    assert.equal(catalogs.es.sequence.raccord, "Raccord");
+    assert.equal(catalogs.es.sequence.title, "Secuencias");
+    assert.equal(catalogs.en.tree.modelSequence, "Template · Sequence");
     assert.doesNotMatch(JSON.stringify(catalogs.en), /Vault|Tresor|Cofre/);
   });
 
   it("translates a gabarit and leaves a real take name", () => {
     const t = (key: string) => key;
     assert.equal(phrase(t, "Modèle · Prise"), "tree.modelTake");
+    assert.equal(phrase(t, "Modèle · Séquence"), "tree.modelSequence");
+    assert.equal(phrase(t, "Séquence créée."), "sequence.created");
     assert.equal(phrase(t, "Moteur · Personnage"), "tree.engineCharacter");
     assert.equal(phrase(t, "Prises"), "tree.takes");
     assert.equal(phrase(t, "une.md"), "une.md");

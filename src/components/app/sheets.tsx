@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useI18n, useStudioDates } from "@/components/i18n/provider";
-import { costLabel } from "@/lib/coffre/model";
+import { costLabel, dropTakeLink } from "@/lib/coffre/model";
 import { treeFileLabel } from "@/lib/coffre/project";
 import { CREDITS_PER_USD, claimBasis, formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
@@ -228,8 +228,15 @@ export function CoffreSheet() {
       </label>
       <button type="button" className="u-secondary" disabled={!draft.trim()} onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>{t("sheet.createProject")}</button>
       <Why on={!draft.trim()} text={t("why.needName")} />
+      <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
       {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
-        {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => <span key={file}>{say(treeFileLabel(group.label, file))}</span>)}</li>)}
+        {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => {
+          const sequenceId = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
+          const label = say(treeFileLabel(group.label, file));
+          return sequenceId
+            ? <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>
+            : <span key={file}>{label}</span>;
+        })}</li>)}
       </ul>}
       <p className="u-small">{t("sheet.obsidian")}</p>
       <ul className="u-ledger">
@@ -474,7 +481,10 @@ export function PlayerSheet({ id }: { id: string }) {
   const { date } = useStudioDates();
   const { setSheet, studio, media, deleteTake } = useStudio();
   const take = studio.takes.find(item => item.id === id);
-  if (!take) return null;
+  if (!take) return <SheetFrame title={t("sequence.missingTake")} label={t("common.take")} onClose={() => setSheet(null)}>
+    <p className="u-small">{t("sequence.missingTake")}</p>
+    <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.back")}</button>
+  </SheetFrame>;
   const priced = costLabel(take);
   return <SheetFrame title={take.line || t("common.take")} label={take.sceneName || t("common.take")} onClose={() => setSheet(null)} tall>
     <div className="u-stack">
@@ -486,7 +496,112 @@ export function PlayerSheet({ id }: { id: string }) {
         {take.gpuSeconds !== null && <li><span>{t("sheet.compute")}</span><span>{take.gpuSeconds} s</span></li>}
       </ul>
       <PublishActions take={take} />
+      {studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === take.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
+      <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
       <button type="button" className="u-link u-muted" onClick={() => { void deleteTake(take.id); setSheet(null); }}><Trash /> {t("sheet.removeFromStudio")}</button>
+    </div>
+  </SheetFrame>;
+}
+
+export function SequenceSheet({ id }: { id?: string }) {
+  if (id) return <SequenceEditor id={id} />;
+  return <SequenceList />;
+}
+
+function SequenceList() {
+  const { t } = useI18n();
+  const { setSheet, studio, createSequence } = useStudio();
+  const [draft, setDraft] = useState("");
+  return <SheetFrame title={t("sequence.title")} label={t("scene.project")} onClose={() => setSheet(null)} tall>
+    <div className="u-stack">
+      <p className="u-small">{t("sequence.lead")}</p>
+      <label className="u-field">{t("sequence.name")}
+        <input value={draft} maxLength={40} aria-label={t("sequence.name")} autoComplete="off" onChange={event => setDraft(event.target.value)} />
+      </label>
+      <button type="button" className="u-secondary" disabled={!draft.trim()} onClick={() => { const name = draft.trim(); setDraft(""); void createSequence(name); }}>{t("sequence.create")}</button>
+      <Why on={!draft.trim()} text={t("why.needName")} />
+      {studio.sequences.length === 0
+        ? <p className="u-small">{t("sequence.empty")}</p>
+        : <ul className="u-sequence">
+          {studio.sequences.map(sequence => <li key={sequence.id}>
+            <button type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })} aria-label={t("sequence.open", { name: sequence.name })}>{sequence.name || t("common.unnamed")}</button>
+            <p className="u-small">{sequence.links.length === 0 ? t("sequence.noLink") : sequence.links.length === 1 ? t("sequence.oneTake") : t("sequence.manyTakes", { count: sequence.links.length })}</p>
+          </li>)}
+        </ul>}
+    </div>
+  </SheetFrame>;
+}
+
+function SequenceEditor({ id }: { id: string }) {
+  const { t } = useI18n();
+  const { setSheet, studio, saveSequence, deleteSequence, setNotice } = useStudio();
+  const sequence = studio.sequences.find(item => item.id === id);
+  const [name, setName] = useState(sequence?.name ?? "");
+  const [pick, setPick] = useState("");
+  useEffect(() => {
+    setName(sequence?.name ?? "");
+  }, [sequence?.id, sequence?.name]);
+  if (!sequence) return null;
+  const available = studio.takes.filter(take => !sequence.links.some(link => link.takeId === take.id));
+  const chosen = available.some(take => take.id === pick) ? pick : available[0]?.id ?? "";
+  const blocked = available.length === 0;
+  return <SheetFrame title={sequence.name || t("common.unnamed")} label={t("sequence.title")} onClose={() => setSheet(null)} tall>
+    <div className="u-stack">
+      <p className="u-small">{t("sequence.lead")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.back")}</button>
+      <label className="u-field">{t("sequence.name")}
+        <input value={name} maxLength={40} aria-label={t("sequence.name")} autoComplete="off" onChange={event => {
+          const next = event.target.value.slice(0, 40);
+          setName(next);
+          if (next.trim()) void saveSequence(sequence.id, { name: next });
+        }} onBlur={() => { if (!name.trim()) setName(sequence.name); }} />
+      </label>
+      {sequence.links.length === 0
+        ? <p className="u-small">{t("sequence.noLink")}</p>
+        : <ol className="u-sequence">
+          {sequence.links.map((link, index) => {
+            const take = studio.takes.find(item => item.id === link.takeId);
+            const label = take?.line.trim() || take?.sceneName || t("sequence.missingTake");
+            return <li key={link.takeId}>
+              <button type="button" className="u-link" onClick={() => setSheet({ take: link.takeId })} aria-label={t("scene.openTake", { line: label })}>{label}</button>
+              {index === 0
+                ? <p className="u-small">{t("sequence.first")}</p>
+                : <label className="u-field">{t("sequence.raccord")}
+                  <textarea value={link.raccord} rows={2} maxLength={240} aria-label={t("sequence.raccord")} placeholder={t("sequence.raccordHint")} onChange={event => {
+                    const raccord = event.target.value.slice(0, 240);
+                    void saveSequence(sequence.id, { links: sequence.links.map((item, at) => at === index ? { ...item, raccord } : item) });
+                  }} />
+                </label>}
+              <div className="u-row">
+                {index > 0 && <button type="button" className="u-link" onClick={() => {
+                  const links = [...sequence.links];
+                  const [item] = links.splice(index, 1);
+                  links.splice(index - 1, 0, item);
+                  void saveSequence(sequence.id, { links });
+                }}>{t("sequence.up")}</button>}
+                {index < sequence.links.length - 1 && <button type="button" className="u-link" onClick={() => {
+                  const links = [...sequence.links];
+                  const [item] = links.splice(index, 1);
+                  links.splice(index + 1, 0, item);
+                  void saveSequence(sequence.id, { links });
+                }}>{t("sequence.down")}</button>}
+                <button type="button" className="u-link u-muted" onClick={() => void saveSequence(sequence.id, { links: dropTakeLink(sequence.links, link.takeId) })}>{t("sequence.removeLink")}</button>
+              </div>
+            </li>;
+          })}
+        </ol>}
+      {!blocked && <label className="u-field">{t("sequence.pick")}
+        <select aria-label={t("sequence.pick")} value={chosen} onChange={event => setPick(event.target.value)}>
+          {available.map(take => <option key={take.id} value={take.id}>{take.line.trim() || take.sceneName || t("common.take")}</option>)}
+        </select>
+      </label>}
+      <button type="button" className="u-secondary" disabled={blocked} onClick={() => {
+        if (!chosen) return;
+        void saveSequence(sequence.id, { links: [...sequence.links, { takeId: chosen, raccord: "" }] });
+        setNotice("Prise reliée.");
+      }}>{t("verb.relier")}</button>
+      <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("sequence.allLinked")} />
+      <button type="button" className="u-link u-muted" onClick={() => void deleteSequence(sequence.id)}>{t("sequence.delete")}</button>
     </div>
   </SheetFrame>;
 }
