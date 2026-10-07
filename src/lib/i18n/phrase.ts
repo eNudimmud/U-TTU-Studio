@@ -3,7 +3,7 @@ type PhraseFn = (key: string, values?: Record<string, string | number>) => strin
 const EXACT: Record<string, string> = {
   "Solde illisible. Rien ne part sans lire le compte qui paiera.": "runtime.balanceUnreadable",
   "Solde vide sur ton compte de rendu.": "runtime.renderEmpty",
-  "Coût non calibré à ce réglage. Le temps de calcul réel sera débité, puis mesuré sur cette prise.": "runtime.uncalibrated",
+  "Devis absent. Le total de cette prise n’est pas un nombre. Rien ne part.": "runtime.uncalibrated",
   "Prix fal illisible. Rien ne part sans un prix.": "runtime.falPriceUnreadable",
   "Solde fal illisible. Rien ne part sans lire le compte qui paiera.": "runtime.falBalanceUnreadable",
   "Solde fal vide. Recharge-le sur fal.ai, puis relis-le ici.": "runtime.falEmpty",

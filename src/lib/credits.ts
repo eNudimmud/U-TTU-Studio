@@ -57,7 +57,7 @@ export function runGate(balance: Balance | null, claim: CostClaim): RunGate {
   if (!balance) return { allowed: false, tone: "block", line: "Solde illisible. Rien ne part sans lire le compte qui paiera." };
   if (balance.credits <= 0) return { allowed: false, tone: "block", line: "Solde vide sur ton compte de rendu." };
   if (claim.state === "uncalibrated") {
-    return { allowed: true, tone: "warn", line: "Coût non calibré à ce réglage. Le temps de calcul réel sera débité, puis mesuré sur cette prise." };
+    return { allowed: false, tone: "block", line: "Devis absent. Le total de cette prise n’est pas un nombre. Rien ne part." };
   }
   const basis = claimBasis(claim);
   if (balance.credits < claim.credits) {

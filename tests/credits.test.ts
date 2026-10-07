@@ -29,11 +29,11 @@ describe("un seul payeur, des chiffres mesurés", () => {
     const uncalibrated = { state: "uncalibrated" } as const;
     assert.equal(runGate(null, uncalibrated).allowed, false);
     assert.equal(runGate({ credits: 0, readAt: 1 }, uncalibrated).allowed, false);
-    const open = runGate({ credits: 500, readAt: 1 }, uncalibrated);
-    assert.equal(open.allowed, true);
-    assert.equal(open.tone, "warn");
-    assert.match(open.line, /non calibré/);
-    assert.doesNotMatch(open.line, /\d/);
+    const held = runGate({ credits: 500, readAt: 1 }, uncalibrated);
+    assert.equal(held.allowed, false);
+    assert.equal(held.tone, "block");
+    assert.match(held.line, /Devis absent/);
+    assert.doesNotMatch(held.line, /\d/);
     const measured = { state: "measured", credits: 140, at: "2026-10-03T11:00:00.000Z", runs: 2 } as const;
     assert.equal(runGate({ credits: 100, readAt: 1 }, measured).allowed, false);
     assert.match(runGate({ credits: 100, readAt: 1 }, measured).line, /140/);

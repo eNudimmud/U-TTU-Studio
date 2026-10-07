@@ -494,7 +494,7 @@
     "unlinkRender": "Render-Konto trennen",
     "thisSetting": "Bei dieser Einstellung · {profile}",
     "aboutClaim": "Etwa {amount} Credits, gemessen an {basis}.",
-    "uncalibratedClaim": "Nicht kalibriert. Keine Zahl wird genannt, bevor ein Take bei dieser Einstellung gemessen ist.",
+    "uncalibratedClaim": "Kalkulation fehlt. Kein Gesamtbetrag für diesen Take. Nichts geht ohne eine Zahl, die bei derselben Einstellung gemessen wurde.",
     "falAccount": "fal-Konto",
     "readAtFal": "gelesen um {time}",
     "rereadFal": "fal-Guthaben neu lesen",
@@ -611,7 +611,7 @@
   "runtime": {
     "balanceUnreadable": "Guthaben unlesbar. Nichts geht, ohne das Konto zu lesen, das zahlt.",
     "renderEmpty": "Leeres Guthaben auf deinem Render-Konto.",
-    "uncalibrated": "Kosten nicht kalibriert bei dieser Einstellung. Die echte Rechenzeit wird abgebucht, dann an diesem Take gemessen.",
+    "uncalibrated": "Kalkulation fehlt. Der Gesamtbetrag dieses Takes ist keine Zahl. Nichts geht.",
     "falPriceUnreadable": "fal-Preis unlesbar. Nichts geht ohne einen Preis.",
     "falBalanceUnreadable": "fal-Guthaben unlesbar. Nichts geht, ohne das Konto zu lesen, das zahlt.",
     "falEmpty": "fal-Guthaben leer. Lade es auf fal.ai auf, dann lies es hier neu.",
