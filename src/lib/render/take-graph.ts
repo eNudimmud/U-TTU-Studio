@@ -59,7 +59,7 @@ export function takeProfile(settings: TakeSettings): string {
 
 export function takeGraph(input: TakeGraphInput): ApiGraph {
   const pictures = input.pictures.filter(name => typeof name === "string" && name.trim()).slice(0, TAKE_PICTURES_MAX);
-  if (pictures.length === 0) throw new Error("Au moins une photo du look.");
+  if (pictures.length === 0) throw new Error("Au moins une photo des références.");
   const prompt = input.prompt.trim();
   if (!prompt) throw new Error("Le plan est vide.");
   const steps = TAKE_STEPS[input.quality];

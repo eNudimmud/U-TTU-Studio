@@ -1134,7 +1134,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
       if (lookCount === 0 && !filmed) {
         setSheet(null);
-        setRun({ phase: "error", code: "invalid", message: place?.render ? "L’image filmée manque dans mon studio." : "Les photos du look manquent dans mon studio.", detail: [] });
+        setRun({ phase: "error", code: "invalid", message: place?.render ? "L’image filmée manque dans mon studio." : "Les photos des références manquent dans mon studio.", detail: [] });
         return;
       }
       const prompt = takePrompt({
@@ -1201,7 +1201,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
     if (pictures.length === 0) {
       setSheet(null);
-      setRun({ phase: "error", code: "invalid", message: "Les photos du look manquent dans mon studio.", detail: [] });
+      setRun({ phase: "error", code: "invalid", message: "Les photos des références manquent dans mon studio.", detail: [] });
       return;
     }
     setSheet(null);

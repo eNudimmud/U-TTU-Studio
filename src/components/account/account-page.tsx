@@ -23,7 +23,7 @@ function AccountBody({ phase, name, email }: { phase: "unconfigured" | "signed-o
     <header className="auth-copy">
       <p className="eyebrow">Compte · facultatif</p>
       <h1>Le studio n’en a pas besoin.</h1>
-      <p>Ton look, tes lieux et tes prises vivent dans mon studio, sur ton appareil. Le calcul tourne sur ton compte de rendu. Ce compte U*TTU ne garde rien de tout ça.</p>
+      <p>Tes références, tes lieux et tes prises vivent dans mon studio, sur ton appareil. Le calcul tourne sur ton compte de rendu. Ce compte U*TTU ne garde rien de tout ça.</p>
     </header>
     {phase === "unconfigured" && <p className="auth-hold">Comptes U*TTU fermés pour l’instant.</p>}
     {phase === "signed-out" && <div className="account-actions">
