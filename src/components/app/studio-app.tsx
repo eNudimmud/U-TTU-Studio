@@ -12,7 +12,7 @@ import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { FichesScreen } from "./fiches-screen";
 import { LoraScreen } from "./lora-screen";
-import { LookScreen, SceneScreen, SphereScreen, TakeScreen } from "./screens";
+import { LookScreen, PlateauShelf, SceneScreen, SphereScreen, TakeScreen } from "./screens";
 import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
@@ -124,6 +124,8 @@ function AppFrame() {
         }} />
         : <SphereScreen />}
     </main>
+
+    {ready && <PlateauShelf go={go} />}
 
     {notice && <p className="u-toast" role="status">{notice}</p>}
 
