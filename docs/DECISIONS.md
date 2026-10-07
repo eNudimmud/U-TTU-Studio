@@ -2,6 +2,15 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F3 — feuille personnage — 7 octobre 2026
+
+- **Fait :** le template Cloud `templates-character_sheet` existe. Titre publié : « 360 Full-body Turnaround ». Tag : Character Reference. Une photo entre par `LoadImage`. Deux `GeminiImage2Node` (`gemini-3-pro-image-preview`, résolution 2K, `IMAGE+TEXT`) demandent un gros plan 9:16 et un corps entier 16:9. `ImageStitch` assemble, trois `SaveImage` écrivent. Aucun nœud n’a été inventé.
+- **Fait :** `SaveLoRA` est absent du catalogue lu ce jour (3772 nœuds). Former un fichier 1:1 Comfy reste bloqué.
+- **Fait :** `estimate_credits` sur ce template, sans envoi, annonce deux nœuds payants à environ 34 crédits par image, et un total de run **inconnu**. L’estimateur refuse un chiffre pour le geste entier. Rien n’a été soumis. 0 crédit dépensé.
+- **Fait :** le graphe lu est au format éditeur. Le contrôle `dry_run` n’accepte que le format API. Le convertir à la main est interdit. Pas de `dry_run`, pas de run.
+- **Décision :** le geste Personnage (Références) qui écrirait des stills dans `Projets/<slug>/Refs/` n’est pas branché. Sans devis de run, Lancer annoncerait un prix faux ou débiterait à l’aveugle. Zéro panneau de nœuds, parce qu’il n’y a pas de geste.
+- **Hypothèse :** un devis viendrait d’une mesure sur le compte (le débit réel des deux images), pas de la multiplication 2 × 34. Cette mesure n’est pas faite.
+
 ## Quatre langues — 7 octobre 2026
 
 - **Décision :** le français reste la source. Anglais, allemand et espagnol suivent le lexique. Le visiteur choisit Français, English, Deutsch ou Español dans la barre du téléphone et dans le rail du bureau. Le choix reste sur l’appareil (`localStorage` et cookie `u-ttu-locale`). L’adresse ne change pas : `/studio`, `#look`, `#prise`, `#personnage`.
