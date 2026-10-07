@@ -6,7 +6,7 @@ const Q = "\u2019";
 const rows = [];
 const row = (key, fr, en, de, es) => rows.push([key, fr, en, de, es]);
 
-row("_status", "source", "reviewed_calques", "needs_human_audit", "needs_human_audit");
+row("_status", "source", "reviewed_calques", "reviewed", "reviewed");
 row("lang.label", "Langue", "Language", "Sprache", "Idioma");
 row("skip", "Aller au contenu", "Skip to content", "Zum Inhalt", "Ir al contenido");
 
@@ -54,7 +54,7 @@ const guide = {
   "take-line": ["Une phrase : ce que fait la prise. Le reste est déjà tissé.", "One line: what the take does. The rest is already woven.", "Ein Satz: was der Take tut. Der Rest ist schon gewebt.", "Una frase: lo que hace la toma. El resto ya está tejido."],
   "take-ready": ["Je montre le coût avant. Rien ne part sans ton geste.", "I show the cost first. Nothing leaves without your gesture.", "Ich zeige den Preis vorher. Nichts geht ohne deine Geste.", "Muestro el coste antes. Nada sale sin tu gesto."],
   "take-running": ["Le fil tourne. Reste ici, ou reviens plus tard.", "The thread is rolling. Stay here, or come back later.", "Der Faden läuft. Bleib hier, oder komm später zurück.", "El hilo rueda. Quédate, o vuelve más tarde."],
-  "take-done": [`La prise est dans mon studio. Publie-la d${Q}un geste.`, "The take is in my studio. Publish it with one gesture.", "Der Take liegt in Mein Studio. Veröffentliche ihn mit einer Geste.", "La toma está en mi estudio. Publícala con un gesto."],
+  "take-done": [`La prise est dans mon studio. Publie-la d${Q}un geste.`, "The take is in my studio. Publish it with one gesture.", "Der Take liegt in « Mein Studio ». Veröffentliche ihn mit einer Geste.", "La toma está en mi estudio. Publícala con un gesto."],
   "take-double": ["Ce personnage tient d’une prise à l’autre. Les photos tiennent le reste.", "This character holds from one take to the next. The photos hold the rest.", "Diese Figur hält von Take zu Take. Die Fotos halten den Rest.", "Este personaje se sostiene de una toma a la otra. Las fotos sostienen el resto."],
   "lora-name": ["Nomme le personnage. C’est lui que les prises suivantes tiennent.", "Name the character. Later takes hold that one.", "Benenne die Figur. Die nächsten Takes halten sie.", "Nombra el personaje. Las tomas siguientes lo sostienen."],
   "lora-photos": ["Deux photos de ce personnage. Elles accompagnent les clips.", "Two photos of this character. They go with the clips.", "Zwei Fotos dieser Figur. Sie begleiten die Clips.", "Dos fotos de este personaje. Acompañan los clips."],
@@ -62,23 +62,23 @@ const guide = {
   "lora-connect": [`Relie le compte qui paiera la formation. Le studio n${Q}encaisse rien.`, "Connect the account that will pay the training. The studio takes nothing.", "Verbinde das Konto, das das Training zahlt. Das Studio kassiert nichts.", "Vincula la cuenta que pagará el entrenamiento. El estudio no cobra nada."],
   "lora-ready": ["Le prix est là, avant ton geste. Rien ne part sans lui.", "The price is here, before your gesture. Nothing leaves without it.", "Der Preis steht hier, vor deiner Geste. Nichts geht ohne ihn.", "El precio está aquí, antes de tu gesto. Nada sale sin él."],
   "lora-running": [`J${Q}apprends ce personnage. C${Q}est long : reviens plus tard.`, "I am learning this character. It takes time: come back later.", "Ich lerne diese Figur. Das dauert: komm später zurück.", "Aprendo este personaje. Lleva tiempo: vuelve más tarde."],
-  "lora-done": ["Le personnage est dans mon studio. Choisis-le dans La prise.", "The character is in my studio. Choose them on the take.", "Die Figur ist in Mein Studio. Wähle sie im Take.", "El personaje está en mi estudio. Elígelo en la toma."],
+  "lora-done": ["Le personnage est dans mon studio. Choisis-le dans La prise.", "The character is in my studio. Choose them on the take.", "Die Figur ist in « Mein Studio ». Wähle sie im Take.", "El personaje está en mi estudio. Elígelo en la toma."],
   "sphere-empty": ["Tes prises viendront se poser ici.", "Your takes will come to rest here.", "Deine Takes kommen hier zur Ruhe.", "Tus tomas vendrán a posarse aquí."],
 };
 for (const [id, texts] of Object.entries(guide)) row(`guide.${id}`, ...texts);
 row("guide.understood", "Compris", "Understood", "Verstanden", "Entendido");
 row("guide.stepCharacter", "Photos, ou un fichier. Le prix se lit avant le geste.", "Photos, or a file. The price is read before the gesture.", "Fotos, oder eine Datei. Der Preis wird vor der Geste gelesen.", "Fotos, o un archivo. El precio se lee antes del gesto.");
 row("guide.stepScene", `Un lieu, un nom. Une image le tient d${Q}une prise à l${Q}autre.`, "A location, a name. One image holds it from take to take.", "Ein Drehort, ein Name. Ein Bild hält ihn von Take zu Take.", "Una localización, un nombre. Una imagen la sostiene de toma en toma.");
-row("guide.stepTake", "Une phrase. Relie le compte, lis le devis, puis Tourner.", "One line. Connect the account, read the quote, then Shoot.", "Ein Satz. Verbinde das Konto, lies das Angebot, dann Drehen.", "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar.");
+row("guide.stepTake", "Une phrase. Relie le compte, lis le devis, puis Tourner.", "One line. Connect the account, read the quote, then Shoot.", "Ein Satz. Verbinde das Konto, lies die Kalkulation, dann Drehen.", "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar.");
 row("why.unchanged", `Rien n${Q}a changé.`, "Nothing has changed.", "Nichts hat sich geändert.", "Nada ha cambiado.");
 row("why.needName", "Il manque un nom.", "A name is missing.", "Ein Name fehlt.", "Falta un nombre.");
 row("why.needKey", `Il manque la clé.`, "The key is missing.", "Der Schlüssel fehlt.", "Falta la clave.");
-row("why.planFresh", "Le plan est déjà remis.", "The layout is already reset.", "Der Raumplan ist schon zurückgesetzt.", "El plano ya está en cero.");
-row("why.hold", "Le devis ou le solde ne laisse pas partir.", "The quote or the balance will not let this leave.", "Angebot oder Guthaben lässt das nicht gehen.", "El presupuesto o el saldo no deja salir esto.");
+row("why.planFresh", "Le plan est déjà remis.", "The layout is already reset.", "Der Raumplan ist schon zurückgesetzt.", "El plano de espacio ya está en cero.");
+row("why.hold", "Le devis ou le solde ne laisse pas partir.", "The quote or the balance will not let this leave.", "Die Kalkulation oder das Guthaben hält die Geste zurück.", "El presupuesto o el saldo frena el gesto.");
 row("guide.stop", "Ne plus guider", "Stop guiding", "Nicht mehr führen", "No guiar más");
 
 row("verb.relier", "Relier", "Connect", "Verbinden", "Vincular");
-row("verb.lancer", "Lancer", "Launch", "Starten", "Lanzar");
+row("verb.lancer", "Lancer", "Launch", "Aufrufen", "Lanzar");
 row("verb.tourner", "Tourner", "Shoot", "Drehen", "Rodar");
 row("verb.former", "Former", "Train", "Trainieren", "Entrenar");
 row("verb.filmer", "Filmer", "Film", "Filmen", "Filmar");
@@ -97,18 +97,16 @@ row("verb.trainFile", "Former un fichier", "Train a file", "Eine Datei trainiere
 row("verb.shootPriced", "Tourner · {price}", "Shoot · {price}", "Drehen · {price}", "Rodar · {price}");
 row("verb.trainPriced", "Former ce personnage · {price}", "Train this character · {price}", "Diese Figur trainieren · {price}", "Entrenar este personaje · {price}");
 row("verb.trainPlacePriced", "Former ce lieu · {price}", "Train this location · {price}", "Diesen Drehort trainieren · {price}", "Entrenar esta localización · {price}");
-row("verb.buildPriced", "Bâtir une image de ce lieu · {price}", "Generate a still of this location · {price}", "Ein Bild dieses Drehorts erzeugen · {price}", "Generar una imagen de esta localización · {price}");
 row("verb.trainThis", "Former ce personnage", "Train this character", "Diese Figur trainieren", "Entrenar este personaje");
 row("verb.trainThisPlace", "Former ce lieu", "Train this location", "Diesen Drehort trainieren", "Entrenar esta localización");
-row("verb.buildThis", "Bâtir une image de ce lieu", "Generate a still of this location", "Ein Bild dieses Drehorts erzeugen", "Generar una imagen de esta localización");
 row("verb.another", "Former un autre", "Train another", "Eine andere trainieren", "Entrenar otro");
 row("verb.bothWays", "Les deux façons", "The two ways", "Die zwei Wege", "Los dos caminos");
 
 row("engine.comfy.label", "Références", "References", "Referenzen", "Referencias");
-row("engine.comfy.detail", "Les photos de mon studio partent à chaque prise.", "The photos in my studio go out with every take.", "Die Fotos in Mein Studio gehen mit jedem Take.", "Las fotos de mi estudio salen con cada toma.");
+row("engine.comfy.detail", "Les photos de mon studio partent à chaque prise.", "The photos in my studio go out with every take.", "Die Fotos in « Mein Studio » gehen mit jedem Take.", "Las fotos de mi estudio salen con cada toma.");
 row("engine.comfy.sound", "Le son est dans la prise.", "The sound is in the take.", "Der Ton ist im Take.", "El sonido está en la toma.");
 row("engine.lora.label", "Personnage (fichier)", "Character (trained)", "Figur (Datei)", "Personaje (archivo)");
-row("engine.lora.detail", "Le fichier de mon studio tient le personnage.", "The file in my studio holds the character.", "Die Datei in Mein Studio hält die Figur.", "El archivo de mi estudio sostiene el personaje.");
+row("engine.lora.detail", "Le fichier de mon studio tient le personnage.", "The file in my studio holds the character.", "Die Datei in « Mein Studio » hält die Figur.", "El archivo de mi estudio sostiene el personaje.");
 row("engine.lora.sound", `Le son n${Q}est pas un réglage de ce fichier.`, "Sound is not a setting of this file.", "Ton ist keine Einstellung dieser Datei.", "El sonido no es un ajuste de este archivo.");
 
 row("path.references.title", "Références", "References", "Referenzen", "Referencias");
@@ -128,9 +126,9 @@ row("shelf.label", "Étagère", "Shelf", "Regal", "Estantería");
 row("shelf.cast", "Distribution", "Cast", "Besetzung", "Reparto");
 row("shelf.places", "Lieux", "Locations", "Drehorte", "Localizaciones");
 row("shelf.takes", "Prises", "Takes", "Takes", "Tomas");
-row("shelf.noCharacter", "Aucun personnage dans mon studio", "No character in my studio", "Keine Figur in Mein Studio", "Ningún personaje en mi estudio");
-row("shelf.noPlace", "Aucun lieu dans mon studio", "No location in my studio", "Kein Drehort in Mein Studio", "Ninguna localización en mi estudio");
-row("shelf.noTake", "Aucune prise dans mon studio", "No take in my studio", "Kein Take in Mein Studio", "Ninguna toma en mi estudio");
+row("shelf.noCharacter", "Aucun personnage dans mon studio", "No character in my studio", "Keine Figur in « Mein Studio »", "Ningún personaje en mi estudio");
+row("shelf.noPlace", "Aucun lieu dans mon studio", "No location in my studio", "Kein Drehort in « Mein Studio »", "Ninguna localización en mi estudio");
+row("shelf.noTake", "Aucune prise dans mon studio", "No take in my studio", "Kein Take in « Mein Studio »", "Ninguna toma en mi estudio");
 
 row("look.kicker", "Personnage · Références", "Character · References", "Figur · Referenzen", "Personaje · Referencias");
 row("look.title", `Jusqu${Q}à trois photos.`, "Up to three photos.", "Bis zu drei Fotos.", "Hasta tres fotos.");
@@ -176,15 +174,14 @@ row("scene.holdsSummary", "Ce que tient ce lieu", "What this location holds", "W
 row("scene.thePlace", "Le lieu", "The location", "Der Drehort", "La localización");
 row("scene.thePlaceBody", "Il reste. Tu le rouvres : même nom, même plan, même trajet. Tu peux en tenir plusieurs.", "It stays. You reopen it: same name, same layout, same path. You can hold several.", "Er bleibt. Du öffnest ihn wieder: gleicher Name, gleicher Raumplan, gleicher Weg. Du kannst mehrere halten.", "Queda. La reabres: mismo nombre, mismo plano de espacio, mismo recorrido. Puedes sostener varias.");
 row("scene.blenderBody", `Il rend le lieu vide, {frames} images le long du trajet. Le personnage n${Q}est pas dans ce fichier.`, "It renders the empty location, {frames} images along the path. The character is not in this file.", "Er rendert den leeren Drehort, {frames} Bilder entlang des Wegs. Die Figur ist nicht in dieser Datei.", "Renderiza la localización vacía, {frames} imágenes a lo largo del recorrido. El personaje no está en este archivo.");
-row("scene.theCharacterBody", `C${Q}est le fichier de mon studio. Il n${Q}entre que dans le plan filmé, après ces images.`, "It is the file in my studio. It enters only the filmed layout, after these images.", "Es ist die Datei in Mein Studio. Sie tritt nur in den gefilmten Raumplan ein, nach diesen Bildern.", "Es el archivo de mi estudio. Solo entra en el plano de espacio filmado, después de estas imágenes.");
+row("scene.theCharacterBody", `C${Q}est le fichier de mon studio. Il n${Q}entre que dans le plan filmé, après ces images.`, "It is the file in my studio. It enters only the filmed layout, after these images.", "Es ist die Datei in « Mein Studio ». Sie tritt nur in den gefilmten Raumplan ein, nach diesen Bildern.", "Es el archivo de mi estudio. Solo entra en el plano de espacio filmado, después de estas imágenes.");
 row("scene.formed", "Ce lieu, formé", "This location, trained", "Dieser Drehort, trainiert", "Esta localización, entrenada");
 row("scene.formedPrice", "Formation : {amount}.", "Training: {amount}.", "Training: {amount}.", "Entrenamiento: {amount}.");
 row("scene.formedUnread", "Le prix de formation se lit sur le compte fal, avant le geste.", "The training price is read on the fal account, before the gesture.", "Der Trainingspreis wird auf dem fal-Konto gelesen, vor der Geste.", "El precio de entrenamiento se lee en la cuenta fal, antes del gesto.");
-row("scene.formedFile", "Fichier dans mon studio.", "File in my studio.", "Datei in Mein Studio.", "Archivo en mi estudio.");
-row("scene.formedNew", "Image neuve : {amount}.", "New still: {amount}.", "Neues Bild: {amount}.", "Imagen nueva: {amount}.");
+row("scene.formedFile", "Fichier dans mon studio.", "File in my studio.", "Datei in « Mein Studio ».", "Archivo en mi estudio.");
 row("scene.formedTail", "Ce fichier n’est pas un volume. Le 3D reste le Blender.", "This file is not a volume. The 3D stays the Blender file.", "Diese Datei ist kein Volumen. Das 3D bleibt die Blender-Datei.", "Este archivo no es un volumen. El 3D sigue siendo el archivo Blender.");
 row("scene.thePrice", "Le prix", "The price", "Der Preis", "El precio");
-row("scene.thePriceBody", "Les deux devis sont lus avant le geste. Rien ne part sans confirmation.", "Both quotes are read before the gesture. Nothing leaves without confirmation.", "Beide Angebote werden vor der Geste gelesen. Nichts geht ohne Bestätigung.", "Los dos presupuestos se leen antes del gesto. Nada sale sin confirmación.");
+row("scene.thePriceBody", "Les deux devis sont lus avant le geste. Rien ne part sans confirmation.", "Both quotes are read before the gesture. Nothing leaves without confirmation.", "Beide Kalkulationen werden vor der Geste gelesen. Nichts geht ohne Bestätigung.", "Los dos presupuestos se leen antes del gesto. Nada sale sin confirmación.");
 row("scene.plan", "Plan", "Layout", "Raumplan", "Plano de espacio");
 row("scene.path", "Trajet", "Path", "Weg", "Recorrido");
 row("scene.start", "Départ", "Start", "Start", "Salida");
@@ -199,7 +196,7 @@ row("scene.moveAim", "Déplacer le point visé", "Move the aim point", "Zielpunk
 row("scene.lens", "Focale", "Focal length", "Brennweite", "Focal");
 row("scene.volumes", `{count} volumes. Aucune image tant que Blender n${Q}a pas rendu le trajet.`, "{count} volumes. No image until Blender has rendered the path.", "{count} Volumen. Kein Bild, bis Blender den Weg gerendert hat.", "{count} volúmenes. Ninguna imagen hasta que Blender haya renderizado el recorrido.");
 row("scene.emptyCaption", `Lieu vide, première image du trajet. Le personnage n${Q}y est pas.`, "Empty location, first image of the path. The character is not in it.", "Leerer Drehort, erstes Bild des Wegs. Die Figur ist nicht darin.", "Localización vacía, primera imagen del recorrido. El personaje no está.");
-row("scene.blenderKey", "Clé Blender sur cet appareil. Le devis est lu avant tout débit.", "Blender key on this device. The quote is read before any charge.", "Blender-Schlüssel auf diesem Gerät. Das Angebot wird vor jeder Abbuchung gelesen.", "Clave Blender en este aparato. El presupuesto se lee antes de cualquier cargo.");
+row("scene.blenderKey", "Clé Blender sur cet appareil. Le devis est lu avant tout débit.", "Blender key on this device. The quote is read before any charge.", "Blender-Schlüssel auf diesem Gerät. Die Kalkulation wird vor jeder Abbuchung gelesen.", "Clave Blender en este aparato. El presupuesto se lee antes de cualquier cargo.");
 row("scene.noBlenderKey", `Aucune clé Blender. Le rendu ne part pas, et aucune image n${Q}est inventée.`, "No Blender key. The render does not leave, and no image is invented.", "Kein Blender-Schlüssel. Der Render geht nicht, und kein Bild wird erfunden.", "Ninguna clave Blender. El render no sale, y ninguna imagen se inventa.");
 row("scene.changeKey", "Changer la clé Blender", "Change the Blender key", "Blender-Schlüssel ändern", "Cambiar la clave Blender");
 row("scene.whereKey", "Où trouver la clé", "Where to find the key", "Wo der Schlüssel liegt", "Dónde encontrar la clave");
@@ -224,7 +221,7 @@ row("film.fal.label", "Relier le compte fal", "Connect the fal account", "fal-Ko
 row("film.fal.missing", "Il manque le compte fal. Il paie le personnage dans le plan.", "The fal account is missing. It pays the character in the layout.", "Das fal-Konto fehlt. Es zahlt die Figur im Raumplan.", "Falta la cuenta fal. Paga el personaje en el plano de espacio.");
 row("film.film.label", "Filmer ce plan", "Film this layout", "Diesen Raumplan filmen", "Filmar este plano de espacio");
 row("film.write", "Écriture du lieu", "Writing the location", "Drehort wird geschrieben", "Escribiendo la localización");
-row("film.inspect", "Lecture du devis", "Reading the quote", "Angebot wird gelesen", "Leyendo el presupuesto");
+row("film.inspect", "Lecture du devis", "Reading the quote", "Kalkulation wird gelesen", "Leyendo el presupuesto");
 row("film.start", "Envoi du plan", "Sending the layout", "Raumplan wird gesendet", "Enviando el plano de espacio");
 row("film.queue", "Rendu en file", "Render in queue", "Render in der Warteschlange", "Render en cola");
 row("film.render", "Blender tourne · {seconds} s", "Blender is rolling · {seconds} s", "Blender läuft · {seconds} s", "Blender rueda · {seconds} s");
@@ -237,8 +234,8 @@ row("take.kicker", "03 · La prise", "03 · The take", "03 · Der Take", "03 · 
 row("take.title", "La prise.", "The take.", "Der Take.", "La toma.");
 row("take.runningFal", "Ton compte fal calcule, avec ce personnage.", "Your fal account is computing, with this character.", "Dein fal-Konto rechnet, mit dieser Figur.", "Tu cuenta fal calcula, con este personaje.");
 row("take.runningRender", "Ton compte de rendu calcule.", "Your render account is computing.", "Dein Render-Konto rechnet.", "Tu cuenta de render calcula.");
-row("take.stay", "Tu peux rester ici ou revenir plus tard : la prise rejoint mon studio.", "You can stay here or come back later: the take joins my studio.", "Du kannst hier bleiben oder später zurückkommen: der Take kommt in Mein Studio.", "Puedes quedarte o volver más tarde: la toma llega a mi estudio.");
-row("take.inSphere", "Cette prise est dans la sphère et dans mon studio.", "This take is in the sphere and in my studio.", "Dieser Take ist in der Sphäre und in Mein Studio.", "Esta toma está en la esfera y en mi estudio.");
+row("take.stay", "Tu peux rester ici ou revenir plus tard : la prise rejoint mon studio.", "You can stay here or come back later: the take joins my studio.", "Du kannst hier bleiben oder später zurückkommen: der Take kommt in « Mein Studio ».", "Puedes quedarte o volver más tarde: la toma llega a mi estudio.");
+row("take.inSphere", "Cette prise est dans la sphère et dans mon studio.", "This take is in the sphere and in my studio.", "Dieser Take ist in der Sphäre und in « Mein Studio ».", "Esta toma está en la esfera y en mi estudio.");
 row("take.debitedFal", "Débité : {amount}, lu sur ton compte fal.", "Charged: {amount}, read on your fal account.", "Abbuchung: {amount}, gelesen auf deinem fal-Konto.", "Cargo: {amount}, leído en tu cuenta fal.");
 row("take.debitHiddenFal", "Débit pas encore visible sur ton compte fal.", "Charge not yet visible on your fal account.", "Abbuchung noch nicht sichtbar auf deinem fal-Konto.", "Cargo aún no visible en tu cuenta fal.");
 row("take.debitedRender", "Débité : {amount} crédits, lu sur ton solde.", "Charged: {amount} credits, read on your balance.", "Abbuchung: {amount} Credits, gelesen auf deinem Guthaben.", "Cargo: {amount} créditos, leído en tu saldo.");
@@ -246,7 +243,7 @@ row("take.debitHiddenRender", "Débit pas encore visible sur ton solde.", "Charg
 row("take.calc", " Calcul : {clock}.", " Compute: {clock}.", " Rechnung: {clock}.", " Cálculo: {clock}.");
 row("take.new", "Nouvelle prise", "New take", "Neuer Take", "Nueva toma");
 row("take.seeSphere", "Voir la sphère", "See the sphere", "Sphäre ansehen", "Ver la esfera");
-row("take.soft", `Ça n${Q}a pas abouti.`, "It did not land.", "Es ist nicht angekommen.", "No ha salido.");
+row("take.soft", `Ça n${Q}a pas abouti.`, "It did not land.", "Es ist nicht zustande gekommen.", "No ha salido.");
 row("take.reloadFal", "Recharge ton compte fal, puis relance. Le solde, en haut, montre ce qui reste.", "Top up your fal account, then run again. The balance, at the top, shows what remains.", "Lade dein fal-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.", "Recarga tu cuenta fal, luego relanza. El saldo, arriba, muestra lo que queda.");
 row("take.reloadRender", "Recharge ton compte de rendu, puis relance. Le solde, en haut, montre ce qui reste.", "Top up your render account, then run again. The balance, at the top, shows what remains.", "Lade dein Render-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.", "Recarga tu cuenta de render, luego relanza. El saldo, arriba, muestra lo que queda.");
 row("take.adjust", "Régler la prise", "Set the take", "Take einstellen", "Ajustar la toma");
@@ -292,8 +289,8 @@ row("run.measure", "Lecture du débit", "Reading the charge", "Abbuchung wird ge
 row("lora.kicker", "01 · Personnage", "01 · Character", "01 · Figur", "01 · Personaje");
 row("lora.twoWays", "Deux façons.", "Two ways.", "Zwei Wege.", "Dos caminos.");
 row("lora.trainTitle", "Former un personnage.", "Train a character.", "Eine Figur trainieren.", "Entrenar un personaje.");
-row("lora.long", `C${Q}est long. Tu peux quitter et revenir : le fichier rejoint mon studio.`, "It takes time. You can leave and come back: the file joins my studio.", "Das dauert. Du kannst gehen und zurückkommen: die Datei kommt in Mein Studio.", "Lleva tiempo. Puedes salir y volver: el archivo llega a mi estudio.");
-row("lora.filed", "Le personnage est dans mon studio.", "The character is in my studio.", "Die Figur ist in Mein Studio.", "El personaje está en mi estudio.");
+row("lora.long", `C${Q}est long. Tu peux quitter et revenir : le fichier rejoint mon studio.`, "It takes time. You can leave and come back: the file joins my studio.", "Das dauert. Du kannst gehen und zurückkommen: die Datei kommt in « Mein Studio ».", "Lleva tiempo. Puedes salir y volver: el archivo llega a mi estudio.");
+row("lora.filed", "Le personnage est dans mon studio.", "The character is in my studio.", "Die Figur ist in « Mein Studio ».", "El personaje está en mi estudio.");
 row("lora.shootWith", "Tourner avec ce personnage", "Shoot with this character", "Mit dieser Figur drehen", "Rodar con este personaje");
 row("lora.sendTitle", "Ce que tu envoies", "What you send", "Was du sendest", "Lo que envías");
 row("lora.send", "Dix clips vidéo de ce personnage au moins, trente au plus. Chacun dure de 3 à 30 secondes : visage net, un peu de mouvement. mp4, mov, mkv ou avi. Des photos à la place des clips sont refusées.", "At least ten video clips of this character, thirty at most. Each lasts from 3 to 30 seconds: a clear face, a little movement. mp4, mov, mkv or avi. Photos in place of clips are refused.", "Mindestens zehn Videoclips dieser Figur, höchstens dreißig. Jeder dauert 3 bis 30 Sekunden: klares Gesicht, etwas Bewegung. mp4, mov, mkv oder avi. Fotos statt Clips werden abgelehnt.", "Al menos diez clips de vídeo de este personaje, treinta como máximo. Cada uno dura de 3 a 30 segundos: rostro nítido, un poco de movimiento. mp4, mov, mkv o avi. Las fotos en lugar de clips se rechazan.");
@@ -327,26 +324,21 @@ row("train.fetch", "Le fichier revient", "The file is coming back", "Die Datei k
 row("train.credits", "Recharge ton compte fal, puis relance. Le solde, en haut, montre ce qui reste.", "Top up your fal account, then run again. The balance, at the top, shows what remains.", "Lade dein fal-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.", "Recarga tu cuenta fal, luego relanza. El saldo, arriba, muestra lo que queda.");
 
 row("fiche.kicker", "Fiches", "Sheets", "Karten", "Fichas");
-row("fiche.title", "Ce que le studio lance.", "What the studio launches.", "Was das Studio startet.", "Lo que el estudio lanza.");
+row("fiche.title", "Ce que le studio lance.", "What the studio launches.", "Was das Studio aufruft.", "Lo que el estudio lanza.");
 row("fiche.lead", `Les gestes déjà branchés se lisent ici. Le débit attend encore le geste, sur l${Q}écran qui le tient.`, "The gestures already wired are read here. The charge still waits for the gesture, on the screen that holds it.", "Die schon verdrahteten Gesten werden hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.", "Los gestos ya conectados se leen aquí. El cargo espera aún el gesto, en la pantalla que lo sostiene.");
 row("fiche.needs", "Ce qu’il faut", "What it needs", "Was es braucht", "Lo que hace falta");
 row("fiche.references.name", "Prise · Références", "Take · References", "Take · Referenzen", "Toma · Referencias");
-row("fiche.references.sentence", "Les photos de mon studio deviennent une prise, avec le son.", "The photos in my studio become a take, with the sound.", "Die Fotos in Mein Studio werden ein Take, mit Ton.", "Las fotos de mi estudio se vuelven una toma, con el sonido.");
+row("fiche.references.sentence", "Les photos de mon studio deviennent une prise, avec le son.", "The photos in my studio become a take, with the sound.", "Die Fotos in « Mein Studio » werden ein Take, mit Ton.", "Las fotos de mi estudio se vuelven una toma, con el sonido.");
 row("fiche.personnage.name", "Prise · Personnage", "Take · Character", "Take · Figur", "Toma · Personaje");
-row("fiche.personnage.sentence", `Les photos de mon studio tiennent le personnage, d${Q}une prise à l${Q}autre, avec le son.`, "The photos in my studio hold the character, from one take to the next, with the sound.", "Die Fotos in Mein Studio halten die Figur, von Take zu Take, mit Ton.", "Las fotos de mi estudio sostienen el personaje, de una toma a la otra, con el sonido.");
+row("fiche.personnage.sentence", `Les photos de mon studio tiennent le personnage, d${Q}une prise à l${Q}autre, avec le son.`, "The photos in my studio hold the character, from one take to the next, with the sound.", "Die Fotos in « Mein Studio » halten die Figur, von Take zu Take, mit Ton.", "Las fotos de mi estudio sostienen el personaje, de una toma a la otra, con el sonido.");
 row("fiche.former.name", "Former un personnage", "Train a character", "Eine Figur trainieren", "Entrenar un personaje");
 row("fiche.former.sentence", "Des clips deviennent un fichier. Les prises suivantes le rechargent.", "Clips become a file. Later takes reload it.", "Clips werden eine Datei. Die nächsten Takes laden sie neu.", "Los clips se vuelven un archivo. Las tomas siguientes lo recargan.");
 row("fiche.lieu.name", "Former un lieu", "Train a location", "Einen Drehort trainieren", "Entrenar una localización");
 row("fiche.lieu.sentence", `Les vues du lieu deviennent un fichier d${Q}images. Ce n${Q}est pas un volume.`, "The views of the location become an image file. It is not a volume.", "Die Ansichten des Drehorts werden eine Bilddatei. Das ist kein Volumen.", "Las vistas de la localización se vuelven un archivo de imágenes. No es un volumen.");
-row("fiche.image.name", "Image d’un lieu", "Still of a location", "Bild eines Drehorts", "Imagen de una localización");
-row("fiche.image.sentence", "Le fichier du lieu bâtit une image neuve. Le modèle 3D reste le fichier Blender.", "The location file generates a new still. The 3D model stays the Blender file.", "Die Datei des Drehorts erzeugt ein neues Bild. Das 3D-Modell bleibt die Blender-Datei.", "El archivo de la localización genera una imagen nueva. El modelo 3D sigue siendo el archivo Blender.");
-
 rows.push(["fiche.references.inputs", ["Deux photos, un nom, deux traits", "Un lieu", "Une phrase", "La durée et le format"], ["Two photos, a name, two traits", "A location", "A line", "The duration and the format"], ["Zwei Fotos, ein Name, zwei Züge", "Ein Drehort", "Ein Satz", "Dauer und Format"], ["Dos fotos, un nombre, dos rasgos", "Una localización", "Una frase", "La duración y el formato"]]);
 rows.push(["fiche.personnage.inputs", ["Les photos du personnage", "Un lieu", "Une phrase", "La durée et le format"], ["The character photos", "A location", "A line", "The duration and the format"], ["Die Fotos der Figur", "Ein Drehort", "Ein Satz", "Dauer und Format"], ["Las fotos del personaje", "Una localización", "Una frase", "La duración y el formato"]]);
 rows.push(["fiche.former.inputs", ["Un nom", "Deux photos", "{clips} clips"], ["A name", "Two photos", "{clips} clips"], ["Ein Name", "Zwei Fotos", "{clips} Clips"], ["Un nombre", "Dos fotos", "{clips} clips"]]);
 rows.push(["fiche.lieu.inputs", ["Un lieu nommé", "{views} vues"], ["A named location", "{views} views"], ["Ein benannter Drehort", "{views} Ansichten"], ["Una localización con nombre", "{views} vistas"]]);
-rows.push(["fiche.image.inputs", ["Un lieu déjà formé"], ["A location already trained"], ["Ein schon trainierter Drehort"], ["Una localización ya entrenada"]]);
-
 row("publish.shareOpen", `Partage ouvert. Rien n${Q}est publié sans ton geste dans X.`, "Share sheet open. Nothing is published without your gesture in X.", "Teilen ist offen. Nichts wird ohne deine Geste in X veröffentlicht.", "Compartir abierto. Nada se publica sin tu gesto en X.");
 row("publish.shareCancel", "Partage annulé.", "Share cancelled.", "Teilen abgebrochen.", "Compartir cancelado.");
 row("publish.shareFailed", `Le partage n${Q}a pas abouti.`, "The share did not finish.", "Das Teilen ist nicht gelungen.", "El compartir no ha llegado.");
@@ -358,7 +350,7 @@ row("publish.save", "Enregistrer la vidéo", "Save the video", "Video speichern"
 row("account.opening", "Ouverture du compte…", "Opening the account…", "Konto wird geöffnet…", "Abriendo la cuenta…");
 row("account.kicker", "Compte · facultatif", "Account · optional", "Konto · freiwillig", "Cuenta · opcional");
 row("account.title", `Le studio n${Q}en a pas besoin.`, "The studio does not need one.", "Das Studio braucht keins.", "El estudio no la necesita.");
-row("account.body", "Tes références, tes lieux et tes prises vivent dans mon studio, sur ton appareil. Le calcul tourne sur ton compte de rendu. Ce compte U*TTU ne garde rien de tout ça.", "Your references, your locations and your takes live in my studio, on your device. The compute runs on your render account. This U*TTU account keeps none of that.", "Deine Referenzen, deine Drehorte und deine Takes leben in Mein Studio, auf deinem Gerät. Die Rechnung läuft auf deinem Render-Konto. Dieses U*TTU-Konto behält davon nichts.", "Tus referencias, tus localizaciones y tus tomas viven en mi estudio, en tu aparato. El cálculo corre en tu cuenta de render. Esta cuenta U*TTU no guarda nada de eso.");
+row("account.body", "Tes références, tes lieux et tes prises vivent dans mon studio, sur ton appareil. Le calcul tourne sur ton compte de rendu. Ce compte U*TTU ne garde rien de tout ça.", "Your references, your locations and your takes live in my studio, on your device. The compute runs on your render account. This U*TTU account keeps none of that.", "Deine Referenzen, deine Drehorte und deine Takes leben in « Mein Studio », auf deinem Gerät. Die Rechnung läuft auf deinem Render-Konto. Dieses U*TTU-Konto behält davon nichts.", "Tus referencias, tus localizaciones y tus tomas viven en mi estudio, en tu aparato. El cálculo corre en tu cuenta de render. Esta cuenta U*TTU no guarda nada de eso.");
 row("account.closed", `Comptes U*TTU fermés pour l${Q}instant.`, "U*TTU accounts are closed for now.", "U*TTU-Konten sind vorerst geschlossen.", "Las cuentas U*TTU están cerradas por ahora.");
 row("account.signIn", "Se connecter", "Sign in", "Anmelden", "Entrar");
 row("account.signUp", "Créer un compte", "Create an account", "Konto erstellen", "Crear una cuenta");
@@ -393,10 +385,10 @@ row("sheet.checking", "Vérification…", "Checking…", "Prüfung…", "Comprob
 row("sheet.linkRender", "Relier le compte de rendu", "Connect the render account", "Render-Konto verbinden", "Vincular la cuenta de render");
 row("sheet.accountsTitle", "Comptes", "Accounts", "Konten", "Cuentas");
 row("sheet.walletTitle", "Solde", "Balance", "Guthaben", "Saldo");
-row("sheet.walletLead", `Deux comptes, jamais mélangés. Mon studio n${Q}encaisse rien. Le devis se lit avant le geste.`, "Two accounts, never mixed. My studio takes nothing. The quote is read before the gesture.", "Zwei Konten, nie gemischt. Mein Studio kassiert nichts. Das Angebot wird vor der Geste gelesen.", "Dos cuentas, nunca mezcladas. Mi estudio no cobra nada. El presupuesto se lee antes del gesto.");
+row("sheet.walletLead", `Deux comptes, jamais mélangés. Mon studio n${Q}encaisse rien. Le devis se lit avant le geste.`, "Two accounts, never mixed. My studio takes nothing. The quote is read before the gesture.", "Zwei Konten, nie gemischt. Mein Studio kassiert nichts. Die Kalkulation wird vor der Geste gelesen.", "Dos cuentas, nunca mezcladas. Mi estudio no cobra nada. El presupuesto se lee antes del gesto.");
 row("sheet.walletAria", "Solde. Rendu : {render}. fal : {fal}.", "Balance. Render: {render}. fal: {fal}.", "Guthaben. Render: {render}. fal: {fal}.", "Saldo. Render: {render}. fal: {fal}.");
-row("sheet.quote", "Devis", "Quote", "Angebot", "Presupuesto");
-row("sheet.quotePending", `Aucun chiffre tant que le devis n${Q}est pas lu.`, "No figure until the quote is read.", "Keine Zahl, solange das Angebot nicht gelesen ist.", "Ninguna cifra mientras el presupuesto no esté leído.");
+row("sheet.quote", "Devis", "Quote", "Kalkulation", "Presupuesto");
+row("sheet.quotePending", `Aucun chiffre tant que le devis n${Q}est pas lu.`, "No figure until the quote is read.", "Keine Zahl, solange die Kalkulation nicht gelesen ist.", "Ninguna cifra mientras el presupuesto no esté leído.");
 row("sheet.whoPays", "Qui paie", "Who pays", "Wer zahlt", "Quién paga");
 row("sheet.renderAccount", "Compte de rendu", "Render account", "Render-Konto", "Cuenta de render");
 row("sheet.notLinked", "non relié", "not connected", "nicht verbunden", "no vinculado");
@@ -440,7 +432,7 @@ row("sheet.importLabel", "Importer un studio", "Import a studio", "Ein Studio im
 row("sheet.linkedFolder", "Relié à « {name} »", "Linked to « {name} »", "Verbunden mit « {name} »", "Vinculado a « {name} »");
 row("sheet.linkObsidian", "Relier mon dossier Obsidian", "Connect my Obsidian folder", "Meinen Obsidian-Ordner verbinden", "Vincular mi carpeta de Obsidian");
 row("sheet.phoneZip", "Sur ordinateur, Chrome ou Edge écrivent dans le dossier choisi. Sur téléphone, emporte le ZIP.", "On a computer, Chrome or Edge write into the chosen folder. On a phone, carry the ZIP.", "Am Computer schreiben Chrome oder Edge in den gewählten Ordner. Am Telefon nimm das ZIP mit.", "En el ordenador, Chrome o Edge escriben en la carpeta elegida. En el teléfono, lleva el ZIP.");
-row("sheet.keysOut", "Les clés restent hors de mon studio.", "Keys stay outside my studio.", "Schlüssel bleiben außerhalb von Mein Studio.", "Las claves quedan fuera de mi estudio.");
+row("sheet.keysOut", "Les clés restent hors de mon studio.", "Keys stay outside my studio.", "Schlüssel bleiben außerhalb von « Mein Studio ».", "Las claves quedan fuera de mi estudio.");
 row("sheet.optionalAccount", "Compte U*TTU, facultatif", "U*TTU account, optional", "U*TTU-Konto, freiwillig", "Cuenta U*TTU, opcional");
 row("sheet.guideOff", "Couper le guide", "Turn the guide off", "Führung aus", "Apagar la guía");
 row("sheet.confirmShoot", "Tourner cette prise ?", "Shoot this take?", "Diesen Take drehen?", "¿Rodar esta toma?");
@@ -464,7 +456,7 @@ row("sheet.falIntro", `Le studio ne forme rien lui-même. Le personnage s${Q}app
 row("sheet.falScope", `Le solde s${Q}affiche seulement si la clé a la portée Admin. Ce n${Q}est pas demandé pour relier, former ou tourner.`, "The balance shows only if the key has Admin scope. That is not required to connect, train or shoot.", "Das Guthaben erscheint nur, wenn der Schlüssel Admin-Reichweite hat. Das ist nicht nötig zum Verbinden, Trainieren oder Drehen.", "El saldo se muestra solo si la clave tiene alcance Admin. No se pide para vincular, entrenar o rodar.");
 row("sheet.createFalKey", "Créer une clé sur fal", "Create a key on fal", "Einen Schlüssel auf fal erstellen", "Crear una clave en fal");
 row("sheet.falKey", "Clé fal", "fal key", "fal-Schlüssel", "Clave fal");
-row("sheet.falKeyHint", "La clé reste sur cet appareil. Elle part seulement vers fal, jamais dans mon studio ni dans son export. Ne la partage pas.", "The key stays on this device. It goes only to fal, never into my studio or its export. Do not share it.", "Der Schlüssel bleibt auf diesem Gerät. Er geht nur zu fal, nie in Mein Studio oder seinen Export. Teile ihn nicht.", "La clave se queda en este aparato. Solo va a fal, nunca a mi estudio ni a su exportación. No la compartas.");
+row("sheet.falKeyHint", "La clé reste sur cet appareil. Elle part seulement vers fal, jamais dans mon studio ni dans son export. Ne la partage pas.", "The key stays on this device. It goes only to fal, never into my studio or its export. Do not share it.", "Der Schlüssel bleibt auf diesem Gerät. Er geht nur zu fal, nie in « Mein Studio » oder seinen Export. Teile ihn nicht.", "La clave se queda en este aparato. Solo va a fal, nunca a mi estudio ni a su exportación. No la compartas.");
 row("sheet.linkFal", "Relier le compte fal", "Connect the fal account", "fal-Konto verbinden", "Vincular la cuenta fal");
 row("sheet.relierTitle", "Relier", "Connect", "Verbinden", "Vincular");
 row("sheet.falPaysTrain", `Il paie la formation du personnage et les prises « {engine} ».`, "It pays character training and « {engine} » takes.", "Es zahlt das Training der Figur und « {engine} »-Takes.", "Paga el entrenamiento del personaje y las tomas « {engine} ».");
@@ -472,26 +464,26 @@ row("sheet.referencesPays", `Il paie les prises « {engine} ».`, "It pays « {e
 row("sheet.confirmTrain", "Former ce personnage ?", "Train this character?", "Diese Figur trainieren?", "¿Entrenar este personaje?");
 row("sheet.trainDebit", "Former · débit sur mon compte fal", "Train · charge on my fal account", "Trainieren · Abbuchung auf meinem fal-Konto", "Entrenar · cargo en mi cuenta fal");
 row("sheet.confirmFilm", "Filmer ce plan ?", "Film this layout?", "Diesen Raumplan filmen?", "¿Filmar este plano de espacio?");
-row("sheet.filmBody", `Blender rend le lieu vide, le long du trajet. Le personnage est le fichier de mon studio : il n${Q}entre que dans le plan filmé. S${Q}il ne revient pas d${Q}image, aucune n${Q}est affichée.`, "Blender renders the empty location, along the path. The character is the file in my studio: it enters only the filmed layout. If no image comes back, none is shown.", "Blender rendert den leeren Drehort, entlang des Wegs. Die Figur ist die Datei in Mein Studio: sie tritt nur in den gefilmten Raumplan. Kommt kein Bild zurück, wird keins gezeigt.", "Blender renderiza la localización vacía, a lo largo del recorrido. El personaje es el archivo de mi estudio: solo entra en el plano de espacio filmado. Si no vuelve ninguna imagen, no se muestra ninguna.");
+row("sheet.filmBody", `Blender rend le lieu vide, le long du trajet. Le personnage est le fichier de mon studio : il n${Q}entre que dans le plan filmé. S${Q}il ne revient pas d${Q}image, aucune n${Q}est affichée.`, "Blender renders the empty location, along the path. The character is the file in my studio: it enters only the filmed layout. If no image comes back, none is shown.", "Blender rendert den leeren Drehort, entlang des Wegs. Die Figur ist die Datei in « Mein Studio »: sie tritt nur in den gefilmten Raumplan. Kommt kein Bild zurück, wird keins gezeigt.", "Blender renderiza la localización vacía, a lo largo del recorrido. El personaje es el archivo de mi estudio: solo entra en el plano de espacio filmado. Si no vuelve ninguna imagen, no se muestra ninguna.");
 row("sheet.filmDebit", "Filmer · débit sur mon compte", "Film · charge on my account", "Filmen · Abbuchung auf meinem Konto", "Filmar · cargo en mi cuenta");
 row("sheet.blenderLinked", "La clé de job est sur cet appareil. Elle part seulement vers Farpy, au moment où tu filmes.", "The job key is on this device. It goes only to Farpy, when you film.", "Der Job-Schlüssel ist auf diesem Gerät. Er geht nur zu Farpy, wenn du filmst.", "La clave de trabajo está en este aparato. Solo va a Farpy, cuando filmas.");
 row("sheet.blenderIntro", "Farpy fait tourner Blender, hors de ton appareil. Crée un compte, ajoute du crédit, puis une clé de job. Elle commence par farpy_agent_. Une clé de compte ne lance pas le rendu.", "Farpy runs Blender, off your device. Create an account, add credit, then a job key. It starts with farpy_agent_. An account key does not start the render.", "Farpy lässt Blender laufen, außerhalb deines Geräts. Erstelle ein Konto, füge Guthaben hinzu, dann einen Job-Schlüssel. Er beginnt mit farpy_agent_. Ein Kontoschlüssel startet den Render nicht.", "Farpy hace correr Blender, fuera de tu aparato. Crea una cuenta, añade crédito, luego una clave de trabajo. Empieza por farpy_agent_. Una clave de cuenta no lanza el render.");
 row("sheet.jobKey", "Clé de job", "Job key", "Job-Schlüssel", "Clave de trabajo");
-row("sheet.keyStays", `La clé reste sur cet appareil. Elle n${Q}entre pas dans mon studio. Coller la clé ne débite rien : le devis est lu au premier film.`, "The key stays on this device. It does not enter my studio. Pasting the key charges nothing: the quote is read at the first film.", "Der Schlüssel bleibt auf diesem Gerät. Er tritt nicht in Mein Studio ein. Den Schlüssel einzufügen bucht nichts ab: das Angebot wird beim ersten Film gelesen.", "La clave se queda en este aparato. No entra en mi estudio. Pegar la clave no carga nada: el presupuesto se lee en el primer filme.");
+row("sheet.keyStays", `La clé reste sur cet appareil. Elle n${Q}entre pas dans mon studio. Coller la clé ne débite rien : le devis est lu au premier film.`, "The key stays on this device. It does not enter my studio. Pasting the key charges nothing: the quote is read at the first film.", "Der Schlüssel bleibt auf diesem Gerät. Er tritt nicht in « Mein Studio » ein. Den Schlüssel einzufügen bucht nichts ab: die Kalkulation wird beim ersten Film gelesen.", "La clave se queda en este aparato. No entra en mi estudio. Pegar la clave no carga nada: el presupuesto se lee en el primer filme.");
 row("sheet.confirmPlace", "Former ce lieu ?", "Train this location?", "Diesen Drehort trainieren?", "¿Entrenar esta localización?");
 row("sheet.views", "Vues", "Views", "Ansichten", "Vistas");
 row("sheet.styleSteps", "1000 pas · style", "1000 steps · style", "1000 Schritte · Stil", "1000 pasos · estilo");
 row("sheet.price", "Prix", "Price", "Preis", "Precio");
-row("sheet.placeTrainBody", `L${Q}entraîneur H3 refuse des images seules. Ce lieu passe par l${Q}entraîneur d${Q}images déjà là, en style, sans masque de visage. Le fichier reste dans mon studio. Il ne devient pas un volume : le Blender du lieu reste le modèle 3D, et il n${Q}entre pas dans la prise H3.`, "The H3 trainer refuses stills alone. This location goes through the image trainer already here, in style, with no face mask. The file stays in my studio. It does not become a volume: the location’s Blender file stays the 3D model, and it does not enter the H3 take.", "Der H3-Trainer lehnt Einzelbilder ab. Dieser Drehort geht durch den Bildtrainer, der schon hier ist, im Stil, ohne Gesichtsmaske. Die Datei bleibt in Mein Studio. Sie wird kein Volumen: die Blender-Datei des Drehorts bleibt das 3D-Modell und tritt nicht in den H3-Take.", "El entrenador H3 rechaza imágenes solas. Esta localización pasa por el entrenador de imágenes que ya está aquí, en estilo, sin máscara de rostro. El archivo se queda en mi estudio. No se vuelve un volumen: el archivo Blender de la localización sigue siendo el modelo 3D, y no entra en la toma H3.");
+row("sheet.placeTrainBody", `L${Q}entraîneur H3 refuse des images seules. Ce lieu passe par l${Q}entraîneur d${Q}images déjà là, en style, sans masque de visage. Le fichier reste dans mon studio. Il ne devient pas un volume : le Blender du lieu reste le modèle 3D, et il n${Q}entre pas dans la prise H3.`, "The H3 trainer refuses stills alone. This location goes through the image trainer already here, in style, with no face mask. The file stays in my studio. It does not become a volume: the location’s Blender file stays the 3D model, and it does not enter the H3 take.", "Der H3-Trainer lehnt Einzelbilder ab. Dieser Drehort geht durch den Bildtrainer, der schon hier ist, im Stil, ohne Gesichtsmaske. Die Datei bleibt in « Mein Studio ». Sie wird kein Volumen: die Blender-Datei des Drehorts bleibt das 3D-Modell und tritt nicht in den H3-Take.", "El entrenador H3 rechaza imágenes solas. Esta localización pasa por el entrenador de imágenes que ya está aquí, en estilo, sin máscara de rostro. El archivo se queda en mi estudio. No se vuelve un volumen: el archivo Blender de la localización sigue siendo el modelo 3D, y no entra en la toma H3.");
 row("sheet.placeTrainDebit", "Former ce lieu · débit sur mon compte fal", "Train this location · charge on my fal account", "Diesen Drehort trainieren · Abbuchung auf meinem fal-Konto", "Entrenar esta localización · cargo en mi cuenta fal");
 row("sheet.confirmStill", "Bâtir une image de ce lieu ?", "Generate a still of this location?", "Ein Bild dieses Drehorts erzeugen?", "¿Generar una imagen de esta localización?");
-row("sheet.placeFile", "Fichier du lieu, dans mon studio", "Location file, in my studio", "Datei des Drehorts, in Mein Studio", "Archivo de la localización, en mi estudio");
+row("sheet.placeFile", "Fichier du lieu, dans mon studio", "Location file, in my studio", "Datei des Drehorts, in « Mein Studio »", "Archivo de la localización, en mi estudio");
 row("sheet.stillBody", `L${Q}image neuve recharge ce fichier. Le modèle 3D du lieu reste le fichier Blender, pas ce LoRA.`, "The new still reloads this file. The 3D model of the location stays the Blender file, not this LoRA.", "Das neue Bild lädt diese Datei neu. Das 3D-Modell des Drehorts bleibt die Blender-Datei, nicht dieses LoRA.", "La imagen nueva recarga este archivo. El modelo 3D de la localización sigue siendo el archivo Blender, no este LoRA.");
 row("sheet.buildDebit", "Bâtir · débit sur mon compte fal", "Generate still · charge on my fal account", "Bild erzeugen · Abbuchung auf meinem fal-Konto", "Generar imagen · cargo en mi cuenta fal");
 row("sheet.shot", "Tournée", "Filmed", "Gedreht", "Rodada");
 row("sheet.debit", "Débit", "Charge", "Abbuchung", "Cargo");
 row("sheet.compute", "Calcul", "Compute", "Rechnung", "Cálculo");
-row("sheet.removeFromStudio", "Retirer de mon studio", "Remove from my studio", "Aus Mein Studio entfernen", "Retirar de mi estudio");
+row("sheet.removeFromStudio", "Retirer de mon studio", "Remove from my studio", "Aus « Mein Studio » entfernen", "Retirar de mi estudio");
 row("sheet.file", "Fichier", "Trained file", "Datei", "Archivo");
 
 row("tree.characters", "Personnages", "Characters", "Figuren", "Personajes");
@@ -530,8 +522,8 @@ row("runtime.falPriceBeforeShort", "Le prix se lit sur le compte fal, avant le g
 row("runtime.linkFalFirst", `Il faut relier le compte fal. Le prix s${Q}affiche alors, avant tout débit.`, "The fal account must be connected. The price then shows, before any charge.", "Das fal-Konto muss verbunden sein. Der Preis erscheint dann, vor jeder Abbuchung.", "Hay que vincular la cuenta fal. El precio se muestra entonces, antes de cualquier cargo.");
 row("runtime.characterPriceUnread", `Le prix du personnage n${Q}est pas lu. Rien ne part.`, "The character price is not read. Nothing leaves.", "Der Preis der Figur ist nicht gelesen. Nichts geht.", "El precio del personaje no está leído. Nada sale.");
 row("runtime.bothPricesUnread", "Les deux prix ne sont pas lus. Rien ne part.", "Both prices are not read. Nothing leaves.", "Beide Preise sind nicht gelesen. Nichts geht.", "Los dos precios no están leídos. Nada sale.");
-row("runtime.quoteUnread", `Le devis n${Q}est pas encore lu. Rien ne part.`, "The quote is not read yet. Nothing leaves.", "Das Angebot ist noch nicht gelesen. Nichts geht.", "El presupuesto aún no está leído. Nada sale.");
-row("runtime.quoteUnreadable", `Le devis n${Q}est pas lisible. Rien ne part.`, "The quote is not readable. Nothing leaves.", "Das Angebot ist nicht lesbar. Nichts geht.", "El presupuesto no es legible. Nada sale.");
+row("runtime.quoteUnread", `Le devis n${Q}est pas encore lu. Rien ne part.`, "The quote is not read yet. Nothing leaves.", "Die Kalkulation ist noch nicht gelesen. Nichts geht.", "El presupuesto aún no está leído. Nada sale.");
+row("runtime.quoteUnreadable", `Le devis n${Q}est pas lisible. Rien ne part.`, "The quote is not readable. Nothing leaves.", "Die Kalkulation ist nicht lesbar. Nichts geht.", "El presupuesto no es legible. Nada sale.");
 row("runtime.renderLinked", "Compte de rendu relié.", "Render account connected.", "Render-Konto verbunden.", "Cuenta de render vinculada.");
 row("runtime.renderLinkedKey", "Compte de rendu relié par clé.", "Render account connected by key.", "Render-Konto per Schlüssel verbunden.", "Cuenta de render vinculada por clave.");
 row("runtime.falLinked", "Compte fal relié.", "fal account connected.", "fal-Konto verbunden.", "Cuenta fal vinculada.");
@@ -548,9 +540,9 @@ row("runtime.photoUnread", `Une photo n${Q}a pas pu être lue. Essaie un JPEG ou
 row("runtime.imageUnread", `Une image n${Q}a pas pu être lue.`, "An image could not be read.", "Ein Bild konnte nicht gelesen werden.", "Una imagen no se ha podido leer.");
 row("runtime.viewUnread", `Une vue n${Q}a pas pu être lue.`, "A view could not be read.", "Eine Ansicht konnte nicht gelesen werden.", "Una vista no se ha podido leer.");
 row("runtime.missingCharacterFile", "Il manque un fichier de personnage.", "A character file is missing.", "Eine Figur-Datei fehlt.", "Falta un archivo de personaje.");
-row("runtime.characterFileMissing", "Le fichier du personnage manque dans mon studio.", "The character file is missing from my studio.", "Die Datei der Figur fehlt in Mein Studio.", "El archivo del personaje falta en mi estudio.");
-row("runtime.referencePhotosMissing", "Les photos des références manquent dans mon studio.", "The reference photos are missing from my studio.", "Die Fotos der Referenzen fehlen in Mein Studio.", "Las fotos de las referencias faltan en mi estudio.");
-row("runtime.filmedStillMissing", `L${Q}image filmée manque dans mon studio.`, "The filmed image is missing from my studio.", "Das gefilmte Bild fehlt in Mein Studio.", "La imagen filmada falta en mi estudio.");
+row("runtime.characterFileMissing", "Le fichier du personnage manque dans mon studio.", "The character file is missing from my studio.", "Die Datei der Figur fehlt in « Mein Studio ».", "El archivo del personaje falta en mi estudio.");
+row("runtime.referencePhotosMissing", "Les photos des références manquent dans mon studio.", "The reference photos are missing from my studio.", "Die Fotos der Referenzen fehlen in « Mein Studio ».", "Las fotos de las referencias faltan en mi estudio.");
+row("runtime.filmedStillMissing", `L${Q}image filmée manque dans mon studio.`, "The filmed image is missing from my studio.", "Das gefilmte Bild fehlt in « Mein Studio ».", "La imagen filmada falta en mi estudio.");
 row("runtime.planFilmed", "Le plan est filmé. Blender a rendu le lieu vide. Le personnage est dans la prise.", "The layout is filmed. Blender rendered the empty location. The character is in the take.", "Der Raumplan ist gefilmt. Blender hat den leeren Drehort gerendert. Die Figur ist im Take.", "El plano de espacio está filmado. Blender ha renderizado la localización vacía. El personaje está en la toma.");
 row("runtime.placeRenderedResume", `Le lieu est rendu. Le suivi du personnage reprend. Rien n${Q}est renvoyé.`, "The location is rendered. The character follow resumes. Nothing is sent again.", "Der Drehort ist gerendert. Die Verfolgung der Figur geht weiter. Nichts wird erneut gesendet.", "La localización está renderizada. El seguimiento del personaje retoma. Nada se reenvía.");
 row("runtime.placeEmptyNext", "Le lieu est rendu, vide. Le prochain geste filme le personnage, au prix fal seul.", "The location is rendered, empty. The next gesture films the character, at the fal price alone.", "Der Drehort ist gerendert, leer. Die nächste Geste filmt die Figur, nur zum fal-Preis.", "La localización está renderizada, vacía. El siguiente gesto filma el personaje, solo al precio fal.");
@@ -558,11 +550,11 @@ row("runtime.followStopped", "Suivi arrêté ici. Si le rendu est déjà parti, 
 row("runtime.filmFailed", `Le filmage n${Q}a pas abouti.`, "The filming did not finish.", "Das Filmen ist nicht gelungen.", "El filme no ha llegado.");
 row("runtime.clipsMaxNotice", "Trente clips au plus.", "Thirty clips at most.", "Höchstens dreißig Clips.", "Treinta clips como máximo.");
 row("runtime.clipType", `Ce clip n${Q}est pas une vidéo mp4, mov, mkv ou avi.`, "This clip is not an mp4, mov, mkv or avi video.", "Dieser Clip ist kein mp4-, mov-, mkv- oder avi-Video.", "Este clip no es un vídeo mp4, mov, mkv o avi.");
-row("runtime.clipOrPhotoMissing", "Un clip ou une photo manque dans mon studio.", "A clip or a photo is missing from my studio.", "Ein Clip oder ein Foto fehlt in Mein Studio.", "Un clip o una foto falta en mi estudio.");
+row("runtime.clipOrPhotoMissing", "Un clip ou une photo manque dans mon studio.", "A clip or a photo is missing from my studio.", "Ein Clip oder ein Foto fehlt in « Mein Studio ».", "Un clip o una foto falta en mi estudio.");
 row("runtime.zipClosed", `Ce ZIP ne s${Q}ouvre pas.`, "This ZIP does not open.", "Dieses ZIP öffnet sich nicht.", "Este ZIP no se abre.");
 row("runtime.zipEmpty", "Ce ZIP ne contient pas de studio à ajouter.", "This ZIP has no studio to add.", "Dieses ZIP enthält kein Studio zum Hinzufügen.", "Este ZIP no contiene un estudio que añadir.");
-row("runtime.viewMissing", "Une vue manque dans mon studio.", "A view is missing from my studio.", "Eine Ansicht fehlt in Mein Studio.", "Una vista falta en mi estudio.");
-row("runtime.placeFiled", `Le lieu est dans mon studio. Ce fichier n${Q}est pas un volume : le Blender du lieu reste le modèle 3D.`, "The location is in my studio. This file is not a volume: the location’s Blender file stays the 3D model.", "Der Drehort ist in Mein Studio. Diese Datei ist kein Volumen: die Blender-Datei des Drehorts bleibt das 3D-Modell.", "La localización está en mi estudio. Este archivo no es un volumen: el archivo Blender de la localización sigue siendo el modelo 3D.");
+row("runtime.viewMissing", "Une vue manque dans mon studio.", "A view is missing from my studio.", "Eine Ansicht fehlt in « Mein Studio ».", "Una vista falta en mi estudio.");
+row("runtime.placeFiled", `Le lieu est dans mon studio. Ce fichier n${Q}est pas un volume : le Blender du lieu reste le modèle 3D.`, "The location is in my studio. This file is not a volume: the location’s Blender file stays the 3D model.", "Der Drehort ist in « Mein Studio ». Diese Datei ist kein Volumen: die Blender-Datei des Drehorts bleibt das 3D-Modell.", "La localización está en mi estudio. Este archivo no es un volumen: el archivo Blender de la localización sigue siendo el modelo 3D.");
 row("runtime.placeTrainFailed", `La formation du lieu n${Q}a pas abouti.`, "Location training did not finish.", "Das Training des Drehorts ist nicht gelungen.", "El entrenamiento de la localización no ha llegado.");
 row("runtime.stillBuilt", "Image bâtie depuis le LoRA du lieu. Le fichier Blender reste le modèle 3D.", "Still generated from the location LoRA. The Blender file stays the 3D model.", "Bild erzeugt aus dem LoRA des Drehorts. Die Blender-Datei bleibt das 3D-Modell.", "Imagen generada desde el LoRA de la localización. El archivo Blender sigue siendo el modelo 3D.");
 row("runtime.placeImageFailed", `L${Q}image du lieu n${Q}a pas abouti.`, "The location image did not finish.", "Das Bild des Drehorts ist nicht gelungen.", "La imagen de la localización no ha llegado.");
@@ -595,7 +587,7 @@ row("runtime.pathReady", "Le trajet est déjà rendu. Le personnage : {amount}."
 row("runtime.oneImage", "1 image", "1 image", "1 Bild", "1 imagen");
 row("runtime.nImages", "{count} images", "{count} images", "{count} Bilder", "{count} imágenes");
 row("runtime.blenderAndCharacter", "Blender : {blender} pour {images} du trajet. Personnage : {character}.", "Blender: {blender} for {images} of the path. Character: {character}.", "Blender: {blender} für {images} des Wegs. Figur: {character}.", "Blender: {blender} por {images} del recorrido. Personaje: {character}.");
-row("runtime.quoteRead", "Devis lu : {amount} pour {images}.", "Quote read: {amount} for {images}.", "Angebot gelesen: {amount} für {images}.", "Presupuesto leído: {amount} por {images}.");
+row("runtime.quoteRead", "Devis lu : {amount} pour {images}.", "Quote read: {amount} for {images}.", "Kalkulation gelesen: {amount} für {images}.", "Presupuesto leído: {amount} por {images}.");
 row("runtime.viewsShort", "{min} vues au moins. Il en manque {missing}.", "At least {min} views. {missing} are missing.", "Mindestens {min} Ansichten. Es fehlen {missing}.", "Al menos {min} vistas. Faltan {missing}.");
 row("runtime.viewsReady", "{count} vues. Le fichier apprend ce lieu, pas une personne.", "{count} views. The file learns this location, not a person.", "{count} Ansichten. Die Datei lernt diesen Drehort, nicht eine Person.", "{count} vistas. El archivo aprende esta localización, no una persona.");
 row("runtime.clipsShortOne", "{missing} clip de plus : {min} au moins.", "{missing} more clip: at least {min}.", "{missing} Clip mehr: mindestens {min}.", "{missing} clip más: al menos {min}.");
@@ -603,8 +595,8 @@ row("runtime.clipsShort", "{missing} clips de plus : {min} au moins.", "{missing
 row("runtime.clipsCeiling", "{max} clips au plus.", "{max} clips at most.", "Höchstens {max} Clips.", "{max} clips como máximo.");
 row("runtime.clipShort", "Clip trop court : {min} s au moins.", "Clip too short: at least {min} s.", "Clip zu kurz: mindestens {min} s.", "Clip demasiado corto: al menos {min} s.");
 row("runtime.clipLong", "Clip trop long : {max} s au plus.", "Clip too long: {max} s at most.", "Clip zu lang: höchstens {max} s.", "Clip demasiado largo: {max} s como máximo.");
-row("runtime.importedOne", "Ajouté à mon studio : {count} fichier. Les prises et les personnages déjà ici restent.", "Added to my studio: {count} file. Takes and characters already here stay.", "Zu Mein Studio hinzugefügt: {count} Datei. Takes und Figuren, die schon hier sind, bleiben.", "Añadido a mi estudio: {count} archivo. Las tomas y los personajes que ya están aquí se quedan.");
-row("runtime.importedMany", "Ajouté à mon studio : {count} fichiers. Les prises et les personnages déjà ici restent.", "Added to my studio: {count} files. Takes and characters already here stay.", "Zu Mein Studio hinzugefügt: {count} Dateien. Takes und Figuren, die schon hier sind, bleiben.", "Añadido a mi estudio: {count} archivos. Las tomas y los personajes que ya están aquí se quedan.");
+row("runtime.importedOne", "Ajouté à mon studio : {count} fichier. Les prises et les personnages déjà ici restent.", "Added to my studio: {count} file. Takes and characters already here stay.", "Zu « Mein Studio » hinzugefügt: {count} Datei. Takes und Figuren, die schon hier sind, bleiben.", "Añadido a mi estudio: {count} archivo. Las tomas y los personajes que ya están aquí se quedan.");
+row("runtime.importedMany", "Ajouté à mon studio : {count} fichiers. Les prises et les personnages déjà ici restent.", "Added to my studio: {count} files. Takes and characters already here stay.", "Zu « Mein Studio » hinzugefügt: {count} Dateien. Takes und Figuren, die schon hier sind, bleiben.", "Añadido a mi estudio: {count} archivos. Las tomas y los personajes que ya están aquí se quedan.");
 row("runtime.folderCopied", `{count} fichiers copiés dans « {name} ». Le dossier suit le studio jusqu${Q}à la fermeture.`, "{count} files copied into « {name} ». The folder follows the studio until it closes.", "{count} Dateien nach « {name} » kopiert. Der Ordner folgt dem Studio bis zum Schließen.", "{count} archivos copiados en « {name} ». La carpeta sigue al estudio hasta el cierre.");
 
 function nest(index) {

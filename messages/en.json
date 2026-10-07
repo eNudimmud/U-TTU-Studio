@@ -62,10 +62,10 @@
     "lora-done": "The character is in my studio. Choose them on the take.",
     "sphere-empty": "Your takes will come to rest here.",
     "understood": "Understood",
-    "stop": "Stop guiding",
     "stepCharacter": "Photos, or a file. The price is read before the gesture.",
     "stepScene": "A location, a name. One image holds it from take to take.",
-    "stepTake": "One line. Connect the account, read the quote, then Shoot."
+    "stepTake": "One line. Connect the account, read the quote, then Shoot.",
+    "stop": "Stop guiding"
   },
   "why": {
     "unchanged": "Nothing has changed.",
@@ -95,10 +95,8 @@
     "shootPriced": "Shoot · {price}",
     "trainPriced": "Train this character · {price}",
     "trainPlacePriced": "Train this location · {price}",
-    "buildPriced": "Generate a still of this location · {price}",
     "trainThis": "Train this character",
     "trainThisPlace": "Train this location",
-    "buildThis": "Generate a still of this location",
     "another": "Train another",
     "bothWays": "The two ways"
   },
@@ -193,7 +191,6 @@
     "formedPrice": "Training: {amount}.",
     "formedUnread": "The training price is read on the fal account, before the gesture.",
     "formedFile": "File in my studio.",
-    "formedNew": "New still: {amount}.",
     "formedTail": "This file is not a volume. The 3D stays the Blender file.",
     "thePrice": "The price",
     "thePriceBody": "Both quotes are read before the gesture. Nothing leaves without confirmation.",
@@ -397,13 +394,6 @@
       "inputs": [
         "A named location",
         "{views} views"
-      ]
-    },
-    "image": {
-      "name": "Still of a location",
-      "sentence": "The location file generates a new still. The 3D model stays the Blender file.",
-      "inputs": [
-        "A location already trained"
       ]
     }
   },

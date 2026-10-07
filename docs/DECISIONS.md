@@ -2,6 +2,14 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F7 — audit i18n DE/ES — 7 octobre 2026
+
+- **Décision :** les chaînes du geste masqué quittent les quatre catalogues. `verb.buildThis`, `verb.buildPriced`, `scene.formedNew` et `fiche.image` n’avaient plus d’écran. Le verbe **Bâtir** reste dans le lexique, distinct des cinq autres, pour le jour où le geste revient. Le fichier `Moteurs/image.md` reste dans le squelette du projet : le geste est parked, pas effacé de la bibliothèque.
+- **Décision :** l’allemand dit **Kalkulation** pour le devis (le prix lu avant le geste), plus **Angebot**. **Aufrufen** ouvre une fiche. **Starten** reste pour le calcul qui part. **Guthaben** est le solde. L’échec se lit « Es ist nicht zustande gekommen. ». Le nom **Mein Studio** reste tel quel au nominatif ; dans la phrase, il est cité « Mein Studio », pour ne pas le décliner.
+- **Décision :** l’espagnol garde **Presupuesto**, **Saldo**, **Vincular**, **Lanzar**, **Rodar**, **Entrenar**. **Lanzar** ouvre la fiche ; **Rodar** tourne la prise. L’échec reste « No ha salido. ». Le plan remis à zéro dit « plano de espacio ». La retenue se lit « El presupuesto o el saldo frena el gesto. »
+- **Fait :** la chaîne reste Figur → Szene → Take, et Personaje → Escena → Toma. Ni Charakter, ni Einstellung pour la prise, ni Tresor, ni Cofre. L’anglais garde `reviewed_calques` : « It did not land. » n’a pas été réécrit. Les catalogues DE et ES portent `_status: reviewed`. 0 crédit.
+- **Hypothèse :** `reviewed` est la relecture du lexique studio, pas la signature d’un locuteur natif sur chaque bulle du guide.
+
 ## Guide novice — 7 octobre 2026
 
 - **Décision :** un bouton désactivé porte la phrase qui dit pourquoi. Clé absente, nom absent, plan déjà remis, rien n’a changé, devis ou solde qui retient le geste. La phrase détaillée du devis reste au-dessus ; la ligne d’or est collée au bouton.
