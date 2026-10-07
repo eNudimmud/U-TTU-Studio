@@ -9,6 +9,7 @@ export type GuideMoment =
   | "scene-new"
   | "scene-still"
   | "scene-previz"
+  | "scene-memory"
   | "take-connect"
   | "take-line"
   | "take-memory"
@@ -21,6 +22,7 @@ export type GuideMoment =
   | "lora-clips"
   | "lora-connect"
   | "lora-ready"
+  | "lora-memory"
   | "lora-running"
   | "lora-done"
   | "sphere-empty";
@@ -33,6 +35,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "scene-new": "Un lieu, un nom. Une image si tu l’as.",
   "scene-still": "Une image du lieu, et je le garde d’une prise à l’autre.",
   "scene-previz": "Ce lieu reste. Le trajet aussi. Un geste filme ton personnage.",
+  "scene-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
   "take-connect": "Relie ton compte de rendu. Le calcul se paie là-bas, pas ici.",
   "take-line": "Une phrase : ce que fait la prise. Le reste est déjà tissé.",
   "take-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
@@ -45,6 +48,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "lora-clips": "Dix clips du personnage, de trois à trente secondes.",
   "lora-connect": "Relie le compte qui paiera la formation. Le studio n’encaisse rien.",
   "lora-ready": "Le prix est là, avant ton geste. Rien ne part sans lui.",
+  "lora-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
   "lora-running": "J’apprends ce personnage. C’est long : reviens plus tard.",
   "lora-done": "Le personnage est dans mon studio. Choisis-le dans La prise.",
   "sphere-empty": "Tes prises viendront se poser ici.",

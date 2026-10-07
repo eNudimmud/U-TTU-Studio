@@ -88,9 +88,9 @@ function AppFrame() {
   const moments: (GuideMoment | false)[] = tab === "look"
     ? [!check.photos && "look-photos", !check.name && "look-name", !check.traits && "look-traits", check.ready && "look-ready"]
     : tab === "scene"
-    ? [studio.studio.scenes.length === 0 && "scene-new", Boolean(studio.scene && !studio.scene.previz && studio.scene.stills.length === 0) && "scene-still", Boolean(studio.scene && !studio.scene.render) && "scene-previz"]
+    ? [studio.studio.scenes.length === 0 && "scene-new", Boolean(studio.scene && !studio.scene.previz && studio.scene.stills.length === 0) && "scene-still", Boolean(studio.scene && !studio.scene.render) && "scene-previz", !memoryFilled(studio.studio.memory) && "scene-memory"]
     : tab === "lora"
-    ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", !studio.studio.role.name.trim() && "lora-name", studio.studio.role.photos.length < 2 && "lora-photos", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready"]
+    ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", !studio.studio.role.name.trim() && "lora-name", studio.studio.role.photos.length < 2 && "lora-photos", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready", training.phase === "idle" && !memoryFilled(studio.studio.memory) && "lora-memory"]
     : tab === "prise"
     ? [run.phase === "running" && "take-running", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : !studio.line.trim() ? "take-line" : "take-ready"), run.phase === "idle" && !memoryFilled(studio.studio.memory) && "take-memory"]
     : tab === "fiches"

@@ -2,6 +2,17 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F22 — mémoire et texte envoyé, Personnage et Scène — 7 octobre 2026
+
+- **Fait :** Former, sur Personnage, envoie `trigger_phrase` : le mot que `triggerPhrase` tire du nom. La requête n’a pas de champ prompt. Les clips et les photos partent en fichiers, sans légende. `studio.memory` n’est pas un argument.
+- **Fait :** Former ce lieu, sur Scène, envoie `trigger_word` : le mot que `placeTrigger` tire du nom du lieu. Chaque légende du fichier est ce même mot, pas une phrase. La requête n’a pas de champ prompt. `studio.memory` n’est pas un argument. Un lieu sans nom enverrait le mot de repli `lieu_lieu`.
+- **Fait :** Filmer ce trajet montrait déjà `filmOutgoingText` (F21). Ce tour ne change pas ce texte.
+- **Fait :** « Bâtir une image de ce lieu » reste hors écran (F4). La feuille n’est pas ouverte depuis Scène. Aucune ligne n’est ajoutée pour un geste qui n’est pas à l’écran. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. 0 crédit.
+- **Décision :** le même composant que sur la Prise montre bible, style, lexique et prompts sur Personnage et sur Scène. Un champ vide dit « Rien d’écrit » et la ligne sur ce qu’on peut noter. Le texte enregistré revient dans le même fichier, `statut: tenu`. Rien n’est inventé à la place. Le parcours novice, quand les quatre notes sont vides, dit la même phrase que sur la Prise.
+- **Décision :** ne pas injecter la mémoire dans la requête. Avant Former, l’écran montre `personnageOutgoingText`, le même appel que `confirmTraining`. Sans nom, la ligne dit qu’aucun texte ne part. Avant Former ce lieu, l’écran montre `lieuOutgoingText` seulement quand les vues laissent le geste partir ; sinon la ligne dit qu’aucun texte ne part. Dans les deux cas, une ligne dit que bible, style, lexique et prompts n’y sont pas.
+- **Fait :** EN, DE et ES portent `_human: native_open`. Ce n’est pas une signature de locuteur natif. Les lignes neuves de ce tour s’ajoutent à celles encore ouvertes.
+- **Hypothèse :** une personne distingue le mot qui part du texte écrit à côté. Ce tour ne mesure pas cette lecture hors de l’écran.
+
 ## F21 — le texte qui part, audit i18n — 7 octobre 2026
 
 - **Fait :** `confirmRun` envoyait `takePrompt` (traits, photos, lieu, phrase de la prise, mot d’appel du fichier). `studio.memory` (bible, style, lexique, prompts, briques) n’était pas un argument. `shotPrompt`, pour Filmer ce trajet, non plus. Les trois gestes cinéma ne construisent aucune requête : Tourner reste éteint, aucun texte ne part. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. 0 crédit.

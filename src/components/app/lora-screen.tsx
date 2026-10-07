@@ -9,6 +9,8 @@ import { characterPaths } from "@/lib/studio-comfort";
 import { useI18n } from "@/components/i18n/provider";
 import { Why } from "./guide-bubble";
 import { Arrow, Close } from "./glyphs";
+import { OutgoingPersonnage } from "./outgoing-text";
+import { ProjectMemory } from "./project-memory";
 import { PictureSlot, Segments } from "./screens";
 import { useStudio, type TrainingState } from "./studio-context";
 
@@ -89,6 +91,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
         <button type="button" className="u-secondary" onClick={path.id === "references" ? onPhotos : () => setFile(true)}>{path.id === "references" ? t("path.references.action") : t("verb.trainFile")}</button>
       </article>)}
     </div>}
+    {!showFile && <ProjectMemory />}
 
     {showFile && <div className="u-desk">
       <ul className="u-facts">
@@ -130,6 +133,8 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
             : falBalance ? t("take.falBalance", { amount: formatUsd(falBalance.usd), line: say(trainGate.line) })
             : say(trainGate.line)}
         </p>
+        <ProjectMemory />
+        <OutgoingPersonnage />
         <div className="u-actions">
           <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetRole()}>{t("lora.reset")}</button>
           <Why on={!dirty} text={t("why.unchanged")} />
@@ -149,6 +154,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
           <button type="button" className="u-link" onClick={onScene}>{t("verb.setScene")}</button>
         </div>
       </div>}
+      {training.phase !== "idle" && <ProjectMemory />}
     </div>}
 
     {vault.loras.some(lora => !isPlaceLora(lora)) && <div className="u-stack">

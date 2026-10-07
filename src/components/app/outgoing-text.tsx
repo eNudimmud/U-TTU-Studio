@@ -1,7 +1,8 @@
 "use client";
 
 import { isPlaceLora } from "@/lib/coffre/model";
-import { filmOutgoingText, priseOutgoingText, prisePicturePaths } from "@/lib/render/outgoing-text";
+import { placeShotLine, placeShotList } from "@/lib/lora/place";
+import { filmOutgoingText, lieuOutgoingText, personnageOutgoingText, priseOutgoingText, prisePicturePaths } from "@/lib/render/outgoing-text";
 import { useI18n } from "@/components/i18n/provider";
 import { useStudio } from "./studio-context";
 
@@ -44,5 +45,35 @@ export function OutgoingFilm() {
       ? <p className="u-outgoing-text">{text}</p>
       : <p className="u-small">{t("sent.notYet")}</p>}
     {text ? <p className="u-small">{t("sent.memoryOut")}</p> : null}
+  </section>;
+}
+
+/** The call word Former would send. Memory is named as absent. */
+export function OutgoingPersonnage() {
+  const { t } = useI18n();
+  const { studio } = useStudio();
+  const text = personnageOutgoingText(studio.role.name);
+  return <section className="u-outgoing" aria-label={t("sent.title")}>
+    <p className="u-label">{t("sent.title")}</p>
+    {text
+      ? <p className="u-outgoing-text">{text}</p>
+      : <p className="u-small">{t("sent.noName")}</p>}
+    <p className="u-small">{t("sent.memoryOut")}</p>
+  </section>;
+}
+
+/** The place word Former ce lieu would send, once enough views let the gesture leave. */
+export function OutgoingLieu() {
+  const { t } = useI18n();
+  const { scene } = useStudio();
+  if (!scene) return null;
+  const ready = placeShotLine(placeShotList(scene).length).ready;
+  const text = ready ? lieuOutgoingText(scene.name) : "";
+  return <section className="u-outgoing" aria-label={t("sent.title")}>
+    <p className="u-label">{t("sent.title")}</p>
+    {text
+      ? <p className="u-outgoing-text">{text}</p>
+      : <p className="u-small">{t("sent.noViews")}</p>}
+    <p className="u-small">{t("sent.memoryOut")}</p>
   </section>;
 }

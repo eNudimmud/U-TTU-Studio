@@ -49,6 +49,7 @@
     "scene-new": "Un lieu, un nom. Une image si tu l’as.",
     "scene-still": "Une image du lieu, et je le garde d’une prise à l’autre.",
     "scene-previz": "Ce lieu reste. Le trajet aussi. Un geste filme ton personnage.",
+    "scene-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
     "take-connect": "Relie ton compte de rendu. Le calcul se paie là-bas, pas ici.",
     "take-line": "Une phrase : ce que fait la prise. Le reste est déjà tissé.",
     "take-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
@@ -61,6 +62,7 @@
     "lora-clips": "Dix clips du personnage, de trois à trente secondes.",
     "lora-connect": "Relie le compte qui paiera la formation. Le studio n’encaisse rien.",
     "lora-ready": "Le prix est là, avant ton geste. Rien ne part sans lui.",
+    "lora-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
     "lora-running": "J’apprends ce personnage. C’est long : reviens plus tard.",
     "lora-done": "Le personnage est dans mon studio. Choisis-le dans La prise.",
     "sphere-empty": "Tes prises viendront se poser ici.",
@@ -644,7 +646,9 @@
     "title": "Ce qui part",
     "memoryOut": "Bible, style, lexique et prompts n’y sont pas. Ils ne partent pas.",
     "noPictures": "Aucun texte ne part : il manque les images de cette prise.",
-    "notYet": "Le texte n’est pas encore là. Il s’écrit quand les images du trajet reviennent. Bible, style, lexique et prompts n’y entrent pas."
+    "notYet": "Le texte n’est pas encore là. Il s’écrit quand les images du trajet reviennent. Bible, style, lexique et prompts n’y entrent pas.",
+    "noName": "Aucun texte ne part : il manque le nom de ce personnage.",
+    "noViews": "Aucun texte ne part : il manque des vues de ce lieu."
   },
   "tree": {
     "characters": "Personnages",

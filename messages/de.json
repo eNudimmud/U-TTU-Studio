@@ -49,6 +49,7 @@
     "scene-new": "Ein Drehort, ein Name. Ein Bild, wenn du eins hast.",
     "scene-still": "Ein Bild des Drehorts, und ich halte ihn von Take zu Take.",
     "scene-previz": "Dieser Drehort bleibt. Der Weg auch. Eine Geste filmt deine Figur.",
+    "scene-memory": "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.",
     "take-connect": "Verbinde dein Render-Konto. Die Rechnung läuft dort, nicht hier.",
     "take-line": "Ein Satz: was der Take tut. Der Rest ist schon gewebt.",
     "take-memory": "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.",
@@ -61,6 +62,7 @@
     "lora-clips": "Zehn Clips der Figur, von drei bis dreißig Sekunden.",
     "lora-connect": "Verbinde das Konto, das das Training zahlt. Das Studio kassiert nichts.",
     "lora-ready": "Der Preis steht hier, vor deiner Geste. Nichts geht ohne ihn.",
+    "lora-memory": "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.",
     "lora-running": "Ich lerne diese Figur. Das dauert: komm später zurück.",
     "lora-done": "Die Figur ist in « Mein Studio ». Wähle sie im Take.",
     "sphere-empty": "Deine Takes kommen hier zur Ruhe.",
@@ -644,7 +646,9 @@
     "title": "Was rausgeht",
     "memoryOut": "Bibel, Stil, Lexikon und Prompts stehen nicht darin. Sie gehen nicht.",
     "noPictures": "Kein Text geht: die Bilder dieses Takes fehlen.",
-    "notYet": "Der Text ist noch nicht da. Er entsteht, wenn die Bilder des Wegs zurückkommen. Bibel, Stil, Lexikon und Prompts kommen nicht hinein."
+    "notYet": "Der Text ist noch nicht da. Er entsteht, wenn die Bilder des Wegs zurückkommen. Bibel, Stil, Lexikon und Prompts kommen nicht hinein.",
+    "noName": "Kein Text geht: der Name dieser Figur fehlt.",
+    "noViews": "Kein Text geht: Ansichten dieses Drehorts fehlen."
   },
   "tree": {
     "characters": "Figuren",

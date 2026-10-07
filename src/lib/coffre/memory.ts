@@ -1,4 +1,4 @@
-// Project memory on the take: bible, style, lexicon, prompts.
+// Project memory: bible, style, lexicon, prompts. The same notes on Personnage, Scène and Prise.
 // The four scaffold sentences are the empty guide, not the project's words.
 
 import { readFrontmatter, withFrontmatter } from "./markdown.ts";

@@ -74,7 +74,18 @@ describe("mémoire du projet", () => {
     const app = read("src/components/app/studio-app.tsx");
     assert.match(app, /<MemorySheet /);
     assert.match(app, /"take-memory"/);
+    assert.match(app, /"lora-memory"/);
+    assert.match(app, /"scene-memory"/);
+    assert.equal(GUIDE_LINES["lora-memory"], GUIDE_LINES["take-memory"]);
+    assert.equal(GUIDE_LINES["scene-memory"], GUIDE_LINES["take-memory"]);
+    const frGuide = JSON.parse(read("messages/fr.json")) as { guide: Record<string, string> };
+    assert.equal(frGuide.guide["lora-memory"], GUIDE_LINES["lora-memory"]);
+    assert.equal(frGuide.guide["scene-memory"], GUIDE_LINES["scene-memory"]);
     assert.ok(GUIDE_LINES["take-memory"].length <= 80);
+    const lora = read("src/components/app/lora-screen.tsx");
+    assert.match(lora, /<ProjectMemory \/>/);
+    const scene = screens.slice(screens.indexOf("export function SceneScreen"), screens.indexOf("function VueProjet"));
+    assert.match(scene, /<ProjectMemory \/>/);
 
     const css = read("src/components/app/app.css");
     const phone = css.slice(0, css.indexOf("@media (min-width: 720px)"));

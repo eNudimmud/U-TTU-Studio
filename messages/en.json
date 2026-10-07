@@ -49,6 +49,7 @@
     "scene-new": "A location, a name. An image if you have one.",
     "scene-still": "An image of the location, and I keep it from one take to the next.",
     "scene-previz": "This location stays. So does the path. One gesture films your character.",
+    "scene-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
     "take-connect": "Connect your render account. The compute is paid there, not here.",
     "take-line": "One line: what the take does. The rest is already woven.",
     "take-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
@@ -61,6 +62,7 @@
     "lora-clips": "Ten clips of the character, from three to thirty seconds.",
     "lora-connect": "Connect the account that will pay the training. The studio takes nothing.",
     "lora-ready": "The price is here, before your gesture. Nothing leaves without it.",
+    "lora-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
     "lora-running": "I am learning this character. It takes time: come back later.",
     "lora-done": "The character is in my studio. Choose them on the take.",
     "sphere-empty": "Your takes will come to rest here.",
@@ -644,7 +646,9 @@
     "title": "What leaves",
     "memoryOut": "Bible, style, lexicon and prompts are not in it. They do not leave.",
     "noPictures": "No text leaves: this take’s images are missing.",
-    "notYet": "The text is not here yet. It is written when the path images come back. Bible, style, lexicon and prompts do not enter it."
+    "notYet": "The text is not here yet. It is written when the path images come back. Bible, style, lexicon and prompts do not enter it.",
+    "noName": "No text leaves: this character’s name is missing.",
+    "noViews": "No text leaves: this location’s views are missing."
   },
   "tree": {
     "characters": "Characters",
