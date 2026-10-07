@@ -52,6 +52,7 @@ export function CinemaGestures({ shotId, anchor = false }: { shotId?: string; an
       return <article key={id} className="u-card u-fiche" data-geste={id}>
         <h2>{t(`cinema.${id}.name`)}</h2>
         <p>{t(`cinema.${id}.sentence`)}</p>
+        {id === "raccord" && <p className="u-small">{t("cinema.raccord.apart")}</p>}
         {id === "camera" && <MovePicker pose={pose} onPick={setPose} />}
         <button type="button" className="u-secondary" disabled={!gate.enabled}>{t("verb.tourner")}</button>
         <Why on={!gate.enabled} text={reason} />

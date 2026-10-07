@@ -145,7 +145,7 @@ describe("le studio, une app", () => {
     assert.match(photos, /t\("scene\.reset"\)/);
     assert.match(photos, /t\("take\.resetPlan"\)/);
     assert.match(role, /t\("lora\.reset"\)/);
-    for (const label of ["Remettre ces références", "Remettre ce lieu à zéro", "Remettre ce plan à zéro", "Remettre ce personnage à zéro"]) {
+    for (const label of ["Remettre ces références", "Remettre ce lieu à zéro", "Remettre cette prise à zéro", "Remettre ce personnage à zéro"]) {
       assert.ok(catalog.includes(label), label);
     }
     const css = read("src/components/app/app.css");

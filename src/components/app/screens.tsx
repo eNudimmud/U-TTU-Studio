@@ -166,6 +166,10 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
         {scene && <VueProjet />}
         <SceneJobs />
         {scene && <SceneEditor />}
+        {scene && <>
+          <p className="u-small">{t("scene.passTake")}</p>
+          <button type="button" className="u-secondary" onClick={onNext}>{t("scene.goTake")}</button>
+        </>}
         {previz.phase === "running" ? null : (() => {
           const action = filmAction({
             scene: Boolean(scene),
@@ -186,10 +190,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
             }}>{t(`film.${action.kind}.label`)} <Arrow /></button>
           </>;
         })()}
-        <button type="button" className="u-link" onClick={() => {
-          if (!scene) document.getElementById("u-lieu")?.focus();
-          else onNext();
-        }}>{scene ? t("scene.goTake") : t("scene.placeFirst")}</button>
+        {!scene && <button type="button" className="u-link" onClick={() => document.getElementById("u-lieu")?.focus()}>{t("scene.placeFirst")}</button>}
       </div>
     </div>
   </section>;
@@ -223,17 +224,6 @@ function VueProjet() {
           </ul>}
       </li>
       <li>
-        <strong>{t("sequence.title")}</strong>
-        {studio.sequences.length === 0
-          ? t("sequence.empty")
-          : <ul className="u-projet-prises">
-            {studio.sequences.map(sequence => <li key={sequence.id}>
-              <button type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })} aria-label={t("sequence.open", { name: sequence.name })}>{sequence.name || t("common.unnamed")}</button>
-            </li>)}
-          </ul>}
-        <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{studio.sequences.length === 0 ? t("sequence.create") : t("sequence.back")}</button>
-      </li>
-      <li>
         <strong>{t("shot.title")}</strong>
         {studio.shots.length === 0
           ? t("shot.empty")
@@ -243,6 +233,17 @@ function VueProjet() {
             </li>)}
           </ul>}
         <button type="button" className="u-link" onClick={() => setSheet("shots")}>{studio.shots.length === 0 ? t("shot.create") : t("shot.back")}</button>
+      </li>
+      <li>
+        <strong>{t("sequence.title")}</strong>
+        {studio.sequences.length === 0
+          ? t("sequence.empty")
+          : <ul className="u-projet-prises">
+            {studio.sequences.map(sequence => <li key={sequence.id}>
+              <button type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })} aria-label={t("sequence.open", { name: sequence.name })}>{sequence.name || t("common.unnamed")}</button>
+            </li>)}
+          </ul>}
+        <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{studio.sequences.length === 0 ? t("sequence.create") : t("sequence.back")}</button>
       </li>
     </ul>
   </section>;
@@ -361,18 +362,21 @@ function SceneEditor() {
         <button type="button" aria-pressed={point === "end"} onClick={() => setPoint("end")}>{t("scene.end")}</button>
       </div>
       <p className="u-small">{t("scene.coords", { end: point === "start" ? t("scene.start") : t("scene.end"), x: here.x, y: here.y, z: here.z, ax: here.aimX, ay: here.aimY, az: here.aimZ, lens: camera.lens })}</p>
+      <p className="u-label">{t("scene.moveCamera")}</p>
       <div className="u-nudge" role="group" aria-label={t("scene.moveCamera")}>
         {(["x", "y", "z"] as const).map(axis => <span key={axis}>
           <button type="button" onClick={() => void moveCamera(point, "stand", axis, -1)} aria-label={t("scene.cameraLess", { axis })}>−{axis.toUpperCase()}</button>
           <button type="button" onClick={() => void moveCamera(point, "stand", axis, 1)} aria-label={t("scene.cameraMore", { axis })}>+{axis.toUpperCase()}</button>
         </span>)}
       </div>
+      <p className="u-label">{t("scene.moveAim")}</p>
       <div className="u-nudge" role="group" aria-label={t("scene.moveAim")}>
         {(["x", "y", "z"] as const).map(axis => <span key={axis}>
           <button type="button" onClick={() => void moveCamera(point, "aim", axis, -1)} aria-label={t("scene.aimLess", { axis })}>−{axis.toUpperCase()}</button>
           <button type="button" onClick={() => void moveCamera(point, "aim", axis, 1)} aria-label={t("scene.aimMore", { axis })}>+{axis.toUpperCase()}</button>
         </span>)}
       </div>
+      <p className="u-label">{t("scene.lens")}</p>
       <div className="u-segments" role="group" aria-label={t("scene.lens")}>
         {LENSES.map(lens => <button key={lens} type="button" aria-pressed={camera.lens === lens} onClick={() => void setLens(lens)}>{lens}</button>)}
       </div>
@@ -506,17 +510,6 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
         </div>}
     </div>
     <div className="u-stack">
-      <p className="u-label">{t("sequence.title")}</p>
-      {studio.studio.sequences.length === 0
-        ? <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.create")}</button>
-        : <div className="u-scenes">
-          {studio.studio.sequences.map(sequence => <button key={sequence.id} type="button" className="u-scene" onClick={() => setSheet({ sequence: sequence.id })}>
-            <span className="u-scene-empty">{sequence.links.length}</span>
-            <span>{sequence.name || t("common.unnamed")}</span>
-          </button>)}
-        </div>}
-    </div>
-    <div className="u-stack">
       <p className="u-label">{t("shot.title")}</p>
       {studio.studio.shots.length === 0
         ? <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.create")}</button>
@@ -524,6 +517,17 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
           {studio.studio.shots.map(shot => <button key={shot.id} type="button" className="u-scene" onClick={() => setSheet({ shot: shot.id })}>
             <span className="u-scene-empty">{shot.takeIds.length}</span>
             <span>{shot.name || t("common.unnamed")}</span>
+          </button>)}
+        </div>}
+    </div>
+    <div className="u-stack">
+      <p className="u-label">{t("sequence.title")}</p>
+      {studio.studio.sequences.length === 0
+        ? <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.create")}</button>
+        : <div className="u-scenes">
+          {studio.studio.sequences.map(sequence => <button key={sequence.id} type="button" className="u-scene" onClick={() => setSheet({ sequence: sequence.id })}>
+            <span className="u-scene-empty">{sequence.links.length}</span>
+            <span>{sequence.name || t("common.unnamed")}</span>
           </button>)}
         </div>}
     </div>
@@ -617,11 +621,15 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         <p className="u-label">{t("take.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{t("take.title")}</h1>
       <p className="u-micro">{t("guide.stepTake")}</p>
-      <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
-      <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
+      <div className="u-next" aria-label={t("take.nextLabel")}>
+        <p className="u-small">{t("take.next")}</p>
+        <div className="u-row">
+          <button type="button" className="u-secondary" onClick={() => setSheet("shots")}>{studio.studio.shots.length === 0 ? t("shot.create") : t("shot.title")}</button>
+          <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{studio.studio.sequences.length === 0 ? t("sequence.create") : t("sequence.title")}</button>
+        </div>
+      </div>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
     </header>
-    <CinemaGestures anchor />
 
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>
@@ -701,7 +709,6 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
               ? t("sheet.measuredMark", { amount: formatCredits(claim.credits) })
               : null;
           return <button key={item.id} type="button" aria-pressed={on} onClick={() => { if (pickEngine(item.id)) setEngine(item.id); }}>
-            <span>{item.model}</span>
             <strong>{t(`engine.${item.id}.label`)}</strong>
             <em>{t(`engine.${item.id}.detail`)}</em>
             <b>{say(engineMark({ id: item.id, seconds: settings.seconds, resolution: loraResolution, live }))}</b>
@@ -739,6 +746,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <p className="u-small">{t("take.stayTakes")}</p>
       </div>
     </div>}
+    <CinemaGestures anchor />
   </section>;
 }
 

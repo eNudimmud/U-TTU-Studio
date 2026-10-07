@@ -245,27 +245,9 @@ export function CoffreSheet() {
       </label>
       <button type="button" className="u-secondary" disabled={!draft.trim()} onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>{t("sheet.createProject")}</button>
       <Why on={!draft.trim()} text={t("why.needName")} />
-      <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
       <button type="button" className="u-secondary" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
-      {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
-        {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => {
-          const sequenceId = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
-          const shotId = group.label === "Plans" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
-          const label = say(treeFileLabel(group.label, file));
-          if (sequenceId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>;
-          if (shotId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ shot: shotId })}>{label}</button>;
-          return <span key={file}>{label}</span>;
-        })}</li>)}
-      </ul>}
-      <p className="u-small">{t("sheet.obsidian")}</p>
-      <ul className="u-ledger">
-        <li><span>{t("sheet.referencePhotos")}</span><span>{studio.look.photos.length}</span></li>
-        <li><span>{t("tree.places")}</span><span>{studio.scenes.length}</span></li>
-        <li><span>{t("sheet.clips")}</span><span>{studio.clips.length}</span></li>
-        <li><span>{t("sheet.doubles")}</span><span>{studio.loras.length}</span></li>
-        <li><span>{t("tree.takes")}</span><span>{studio.takes.length}</span></li>
-      </ul>
-      <p className="u-small">{usage}{persisted === false ? t("sheet.usageVolatile") : persisted ? t("sheet.usageHeld") : ""}</p>
+      <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
+      <p className="u-small">{t("sheet.exportLead")}</p>
       <button type="button" className="u-primary" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
       <label className="u-secondary u-file">
         {importing ? t("sheet.importing") : t("sheet.import")}
@@ -280,6 +262,25 @@ export function CoffreSheet() {
       {linkable && <button type="button" className="u-secondary" onClick={() => void linkFolder()}>{folder ? t("sheet.linkedFolder", { name: folder }) : t("sheet.linkObsidian")}</button>}
       {!linkable && <p className="u-small">{t("sheet.phoneZip")}</p>}
       <p className="u-small">{t("sheet.keysOut")}</p>
+      <ul className="u-ledger">
+        <li><span>{t("sheet.referencePhotos")}</span><span>{studio.look.photos.length}</span></li>
+        <li><span>{t("tree.places")}</span><span>{studio.scenes.length}</span></li>
+        <li><span>{t("sheet.clips")}</span><span>{studio.clips.length}</span></li>
+        <li><span>{t("sheet.doubles")}</span><span>{studio.loras.length}</span></li>
+        <li><span>{t("tree.takes")}</span><span>{studio.takes.length}</span></li>
+      </ul>
+      <p className="u-small">{usage}{persisted === false ? t("sheet.usageVolatile") : persisted ? t("sheet.usageHeld") : ""}</p>
+      <p className="u-small">{t("sheet.obsidian")}</p>
+      {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
+        {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => {
+          const sequenceId = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
+          const shotId = group.label === "Plans" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
+          const label = say(treeFileLabel(group.label, file));
+          if (sequenceId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>;
+          if (shotId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ shot: shotId })}>{label}</button>;
+          return <span key={file}>{label}</span>;
+        })}</li>)}
+      </ul>}
       <div className="u-row">
         <a className="u-link u-muted" href={assetPath("/compte")}>{t("sheet.optionalAccount")}</a>
         {!guide.off && <button type="button" className="u-link u-muted" onClick={guideOff}>{t("sheet.guideOff")}</button>}
@@ -296,7 +297,7 @@ export function ConfirmSheet() {
     <div className="u-stack">
       <ul className="u-ledger">
         <li><span>{t("sheet.place")}</span><span>{scene?.name ?? "—"}</span></li>
-        <li><span>{t("scene.plan")}</span><span>{line.trim() || t("sheet.noLine")}</span></li>
+        <li><span>{t("take.action")}</span><span>{line.trim() || t("sheet.noLine")}</span></li>
         {engine === "lora"
           ? <>
             <li><span>{t("nav.character")}</span><span>{chosenLora?.name || t("common.character")}</span></li>
@@ -622,7 +623,7 @@ function SequenceEditor({ id }: { id: string }) {
         if (!chosen) return;
         void saveSequence(sequence.id, { links: [...sequence.links, { takeId: chosen, raccord: "" }] });
         setNotice("Prise reliée.");
-      }}>{t("verb.relier")}</button>
+      }}>{t("sequence.add")}</button>
       <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("sequence.allLinked")} />
       <p className="u-label">{t("shot.title")}</p>
       {shotsOf(studio.shots, sequence.id).length === 0
@@ -671,7 +672,6 @@ function ShotList() {
             <p className="u-small">{shot.note || (shot.takeIds.length === 0 ? t("shot.noTake") : shot.takeIds.length === 1 ? t("sequence.oneTake") : t("sequence.manyTakes", { count: shot.takeIds.length }))}</p>
           </li>)}
         </ul>}
-      <CinemaGestures />
     </div>
   </SheetFrame>;
 }
@@ -693,7 +693,6 @@ function ShotEditor({ id }: { id: string }) {
   return <SheetFrame title={shot.name || t("common.unnamed")} label={t("shot.title")} onClose={() => setSheet(null)} tall>
     <div className="u-stack">
       <p className="u-small">{t("shot.lead")}</p>
-      <CinemaGestures shotId={shot.id} />
       <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.back")}</button>
       <label className="u-field">{t("shot.name")}
         <input value={name} maxLength={40} aria-label={t("shot.name")} autoComplete="off" onChange={event => {
@@ -744,9 +743,10 @@ function ShotEditor({ id }: { id: string }) {
           {available.map(take => <option key={take.id} value={take.id}>{take.line.trim() || take.sceneName || t("common.take")}</option>)}
         </select>
       </label>}
-      <button type="button" className="u-secondary" disabled={blocked} onClick={() => { if (chosen) void saveShot(shot.id, { takeIds: [...shot.takeIds, chosen] }); }}>{t("verb.relier")}</button>
+      <button type="button" className="u-secondary" disabled={blocked} onClick={() => { if (chosen) void saveShot(shot.id, { takeIds: [...shot.takeIds, chosen] }); }}>{t("sequence.add")}</button>
       <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("shot.allLinked")} />
       <button type="button" className="u-link u-muted" onClick={() => void deleteShot(shot.id)}>{t("shot.delete")}</button>
+      <CinemaGestures shotId={shot.id} />
     </div>
   </SheetFrame>;
 }
