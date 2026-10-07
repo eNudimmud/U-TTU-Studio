@@ -14,3 +14,5 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - EN, DE et ES ne sont pas branchés. Pas de `next-intl` dans cette livraison.
 
 Le reste du glossaire (Look / Décors, i18n) reste une hypothèse. Il n’est pas appliqué ici.
+
+Chaque univers de travail est un projet sous `Projets/`. L’écran dit « Mon studio » et « Projet en cours ». Il ne dit pas « Coffre » ni « Vault ».

@@ -6,24 +6,30 @@ Mis à jour le 7 octobre 2026. Le nom produit de ce dossier est **Mon studio**. 
 
 ```text
 U-TTU-Studio/
-  CANON.md               le look : nom, traits, photos (frontmatter + texte)
-  refs/look-*.jpg        les photos du look, réduites à 1 536 px
-  scenes/<lieu>.md       un lieu : nom, note, images
-  scenes/<lieu>-*.jpg    ses images
-  clips/clip-*.mp4       les courtes vidéos dont un double apprend
-  loras/<id>.md          un double formé : déclencheur, pas, demande, coût
-  loras/<id>.safetensors le fichier que La prise recharge
-  prises/<id>.md         une prise : date, lieu, plan, réglage, moteur, job, calcul, coût, soldes, texte envoyé
-  prises/<id>.mp4        la vidéo rapatriée
-  prises/<id>.jpg        une image décodée de la vidéo (vignette)
-  jobs.md                le journal : une ligne par prise et par formation
-  MOC.md                 la carte : wikilinks vers le look, les personnages, les lieux, les prises et le journal
-  README.md              le mode d’emploi du dossier
-  .uttu/etat.json        le lieu courant
-  .uttu/clips.json       durée et taille de chaque clip
+  MOC.md                         la carte des projets
+  README.md                      le mode d’emploi du dossier
+  .uttu/projet.json              le projet en cours (pas une clé)
+  Projets/<projet>/
+    _MOC.md                      la carte de ce projet
+    Bible.md  Style.md  Lexique.md
+    Journal.md                   une ligne par prise et par formation
+    Cast/canon.md                le personnage : nom, traits, photos
+    Cast/<id>.md                 un fichier de personnage
+    Refs/                        photos du personnage
+    Lieux/<lieu>.md              un lieu, ses images à côté
+    Lieux/<id>-fichier.md        un fichier d’images du lieu, pas le lieu
+    Prises/<id>.md               une prise, sa vidéo et sa vignette
+    Sequences/  Shots/  Prompts/  Templates/
+    Moteurs/                     fiches Relier → Lancer, sans graphe
+    Assets/                      poids .safetensors et clips
+    .uttu/etat.json              le lieu courant
+    .uttu/clips.json             durée et taille de chaque clip
+    .uttu/role.json              le brouillon de personnage
 ```
 
-Les fiches sont du Markdown avec frontmatter. Une prise porte en plus `moteur` (`comfy` ou `lora`), `lora`, `resolution`, `cout_usd`, `cout_source`. Une fiche de double porte `declencheur`, `fichier`, `sha256`, `pas`, `rang`, `entraineur`, `requete`. Les images et la vidéo sont liées en `![[…]]`. `MOC.md` est réécrite à chaque geste qui change le look, un lieu, une prise ou un personnage : Obsidian y ouvre `[[CANON]]`, `[[loras/…]]`, `[[scenes/…]]`, `[[prises/…]]` et `[[jobs]]`. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
+Les fiches sont du Markdown avec frontmatter : `type`, `projet`, `statut`, `updated`, et `moteur` (`comfy`, `fal` ou `demo`) plus `gesture` quand le geste existe. Une prise garde aussi `lora`, `resolution`, `cout_usd`, `cout_source`. Le moteur `fal` d’une prise est le moteur interne `lora`. Une fiche de fichier porte `declencheur`, `fichier`, `sha256`, `pas`, `rang`, `entraineur`, `requete`. Les images et la vidéo sont liées en `![[…]]`. `MOC.md` liste les projets. `_MOC.md` relie le personnage, les lieux, les prises, la bible et le journal de ce projet. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
+
+Un ZIP ancien (`CANON.md`, `scenes/`, `prises/`, `loras/`) est rangé dans un projet à l’import. Un fichier déjà présent n’est pas écrasé.
 
 ## Où il vit
 

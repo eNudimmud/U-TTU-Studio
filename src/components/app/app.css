@@ -252,6 +252,13 @@
 .u-balance strong { font: 650 44px/1 var(--font-heading); letter-spacing: -.04em; color: var(--u-gold-soft); font-variant-numeric: tabular-nums; }
 .u-balance span { color: var(--u-muted); font-size: 14px; }
 .u-balance .u-icon { margin-left: auto; }
+.u-project-list { display: grid; gap: 4px; margin: 0; padding: 0; }
+.u-project-list label { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.u-project-list input { width: 18px; height: 18px; accent-color: var(--u-ochre); }
+.u-tree { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.u-tree li { display: grid; gap: 2px; }
+.u-tree strong { font-size: 13px; letter-spacing: .04em; color: var(--u-gold-soft); }
+.u-tree span { color: var(--u-muted); font-size: 13px; overflow-wrap: anywhere; }
 .u-ledger { display: grid; margin: 0; padding: 0; list-style: none; }
 .u-ledger li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--u-line); font-size: 14px; }
 .u-ledger li span:first-child { color: var(--u-muted); }

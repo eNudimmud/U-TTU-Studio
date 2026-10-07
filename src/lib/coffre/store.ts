@@ -16,7 +16,7 @@ export interface VaultStore {
   remove(path: string): Promise<void>;
 }
 
-const SEGMENT = /^\.?[A-Za-z0-9][A-Za-z0-9._ -]{0,80}$/;
+const SEGMENT = /^[._]?[A-Za-z0-9][A-Za-z0-9._ -]{0,80}$/;
 
 /** A vault-relative path, or null. No climbing out, no absolute path. */
 export function cleanPath(path: string): string | null {
