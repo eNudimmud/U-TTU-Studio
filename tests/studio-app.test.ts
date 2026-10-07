@@ -140,7 +140,7 @@ describe("le studio, une app", () => {
     const desk = css.slice(css.indexOf("@media (min-width: 1080px)"), css.indexOf("@media (prefers-reduced-motion"));
     assert.match(desk, /width: 232px/);
     assert.match(desk, /\.u-comfort > \.u-shelf \{ display: flex/);
-    assert.match(desk, /\.u-comfort > \.u-pickers \{ display: none; \}/);
+    assert.match(desk, /\.u-comfort-work > \.u-pickers \{ display: none; \}/);
     assert.match(css, /grid-template-columns: minmax\(0, 1fr\) minmax\(320px, 440px\)/);
     assert.match(css, /\.u-paths \{ grid-template-columns: 1fr 1fr; align-items: stretch; \}/);
     assert.match(read("src/components/app/studio-app.tsx"), /aria-label="Coffre"><Coffre \/><span>Coffre<\/span>/);
