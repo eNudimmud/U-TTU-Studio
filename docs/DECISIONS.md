@@ -2,6 +2,14 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F28 — lire la séquence — 7 octobre 2026
+
+- **Décision :** depuis une séquence, « Lire la séquence » enchaîne dans le navigateur les vidéos des prises déjà posées sur les plans, dans l’ordre des plans. L’ordre se change au doigt ou à la souris, et avec Monter / Descendre. Un plan sans prise est un carton « Plan sans prise », tenu 2 secondes, assez pour lire la ligne. Ce n’est pas une erreur, et ce n’est pas une durée de rendu.
+- **Décision :** la même liste s’écrit `Projets/<projet>/Sequences/<id>-montage.md` : ordre, plan, prise, durée, source, wikilinks. La durée d’une prise est celle déjà écrite sur la prise. La source est le fichier vidéo. Un plan sans prise a la source « Plan sans prise ». Aucun film n’est assemblé. Aucun rendu, aucun appel, aucune donnée visiteur côté serveur.
+- **Décision :** un fichier `*-montage.md` n’est pas une séquence. Un nom de séquence qui finirait par `-montage` est rangé sans ce suffixe, pour ne pas prendre la place de la liste. Sans plan, le bouton reste éteint : « Aucun plan dans cette séquence. La lecture suit l’ordre des plans. »
+- **Fait :** l’export puis l’import du ZIP gardent la liste, octet pour octet. Le chargement ne la relit pas comme une seconde séquence. 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. EN, DE et ES portent `_human: native_open`. Les lignes neuves de ce tour s’ajoutent à celles encore ouvertes. Ce n’est pas une signature de locuteur natif.
+- **Hypothèse :** le montage réel, hors du navigateur et hors Comfy, viendra plus tard. Ce tour ne l’assemble pas.
+
 ## F27 — la prise revient dans le projet — 7 octobre 2026
 
 - **Fait :** F26 a débloqué Tourner pour le seul profil `h3-4pas-5s-vertical`. Le devis facturé est 4 crédits, borne 6, dans `docs/mesures/h3-4pas-5s-vertical.json`. Un delta de solde déjà dans Mon studio prime (F11). La fiche montrait déjà la vidéo d’un job abouti (F13). La note `Prises/<id>.md` existait, sans wikilink vers la séquence ni le plan. Le journal ne comparait pas le devis annoncé au coût lu.

@@ -140,7 +140,15 @@
 .u-projet-prises { display: grid; gap: 2px; margin: 4px 0 0; padding: 0; list-style: none; }
 .u-projet-prises .u-link { min-height: 44px; }
 .u-sequence { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
-.u-sequence > li { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--u-line); border-radius: 14px; background: rgba(18, 17, 16, .72); }
+.u-sequence > li { display: grid; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--u-line); border-radius: 14px; background: rgba(18, 17, 16, .72); }
+.u-sequence > li.is-drop { border-color: var(--u-gold); }
+.u-montage { display: grid; gap: 10px; min-width: 0; }
+.u-montage-play { display: grid; gap: 8px; min-width: 0; }
+.u-montage-play .u-player { width: min(100%, 280px); }
+.u-slate { display: grid; align-content: center; justify-items: center; gap: 8px; width: min(100%, 280px); aspect-ratio: 9 / 16; max-height: min(42dvh, 420px); margin-inline: auto; padding: 16px; border: 1px solid var(--u-line-strong); border-radius: 14px; background: #000; color: var(--u-gold); text-align: center; }
+.u-slate strong { font: 650 22px/1.2 var(--font-heading); color: var(--u-gold-soft); }
+.u-slate span { color: var(--u-sand); font-size: 14px; line-height: 1.45; }
+.u-drag { min-width: 44px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--u-line-strong); border-radius: 12px; background: transparent; color: var(--u-gold); font: 600 13px/1.2 var(--font-body); touch-action: none; user-select: none; }
 .u-tree .u-link { justify-content: flex-start; min-height: 44px; padding: 4px 0; font-size: 13px; }
 .u-problems { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; color: var(--u-fail); font-size: 14px; }
 .u-file { position: relative; overflow: hidden; }

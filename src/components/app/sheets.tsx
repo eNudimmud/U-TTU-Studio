@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useI18n, useStudioDates } from "@/components/i18n/provider";
 import { costLabel, dropTakeLink, isPlaceLora, shotsOf } from "@/lib/coffre/model";
+import { MONTAGE_SLATE_SECONDS, montageCues } from "@/lib/coffre/montage";
 import { memoryKindOf, type MemoryKind } from "@/lib/coffre/memory";
 import { treeFileLabel } from "@/lib/coffre/project";
 import { CREDITS_PER_USD, costClaim, formatCredits } from "@/lib/credits";
@@ -280,9 +281,12 @@ export function CoffreSheet() {
       <p className="u-small">{t("sheet.obsidian")}</p>
       {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
         {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => {
-          const sequenceId = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
+          const rawStem = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
+          const fromMontage = rawStem.endsWith("-montage") ? rawStem.slice(0, -"-montage".length) : "";
+          const sequenceId = fromMontage || rawStem;
           const shotId = group.label === "Plans" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
-          const label = say(treeFileLabel(group.label, file));
+          const sequenceName = fromMontage ? (studio.sequences.find(item => item.id === sequenceId)?.name || sequenceId) : "";
+          const label = fromMontage ? t("sequence.listFile", { name: sequenceName }) : say(treeFileLabel(group.label, file));
           const memory = memoryKindOf(group.label, file);
           if (sequenceId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>;
           if (shotId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ shot: shotId })}>{label}</button>;
@@ -559,6 +563,111 @@ export function PlayerSheet({ id }: { id: string }) {
   </SheetFrame>;
 }
 
+function rowIndexAt(list: HTMLOListElement | null, clientY: number): number | null {
+  if (!list) return null;
+  const items = [...list.querySelectorAll(":scope > li")];
+  if (items.length === 0) return null;
+  for (let index = 0; index < items.length; index += 1) {
+    const rect = items[index].getBoundingClientRect();
+    if (clientY < rect.top + rect.height / 2) return index;
+  }
+  return items.length - 1;
+}
+
+function SequencePlayer({ sequenceId }: { sequenceId: string }) {
+  const { t } = useI18n();
+  const { studio, media } = useStudio();
+  const cues = montageCues(studio.shots, studio.takes, sequenceId);
+  const cueKey = cues.map(cue => `${cue.ordre}:${cue.shotId}:${cue.takeId ?? "slate"}:${cue.source ?? ""}`).join("|");
+  const [index, setIndex] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const indexRef = useRef(0);
+  const lengthRef = useRef(cues.length);
+  indexRef.current = index;
+  lengthRef.current = cues.length;
+  const advance = useCallback(() => {
+    const current = indexRef.current;
+    if (current + 1 >= lengthRef.current) setFinished(true);
+    else setIndex(current + 1);
+  }, []);
+  useEffect(() => {
+    setIndex(0);
+    setFinished(false);
+  }, [cueKey]);
+  const cue = cues[index];
+  const src = cue?.source ? media[cue.source] : undefined;
+  const slate = !cue?.source || !src;
+  useEffect(() => {
+    if (!slate || finished || !cue) return;
+    const timer = window.setTimeout(advance, MONTAGE_SLATE_SECONDS * 1000);
+    return () => window.clearTimeout(timer);
+  }, [advance, cue, finished, index, slate]);
+  if (!cue) return null;
+  return <div className="u-montage-play" data-montage="on" data-montage-index={index} data-montage-kind={slate ? "slate" : "video"} data-montage-shot={cue.shotId} data-montage-done={finished ? "true" : "false"}>
+    <p className="u-label" aria-live="polite">{t("sequence.now")} · {t("sequence.beat", { index: index + 1, count: cues.length })}</p>
+    <p>{cue.shotName || t("common.unnamed")}{cue.takeLine ? ` · ${cue.takeLine}` : ""}</p>
+    {slate
+      ? <div className="u-slate"><strong>{t("sequence.slate")}</strong><span>{t("sequence.slateBody")}</span></div>
+      : <video key={`${index}:${cue.source}`} src={src} autoPlay muted playsInline className="u-player" onEnded={advance} onError={advance} />}
+    {finished && <p className="u-small">{t("sequence.end")}</p>}
+    {finished && <button type="button" className="u-link" onClick={() => { setFinished(false); setIndex(0); }}>{t("sequence.again")}</button>}
+  </div>;
+}
+
+function PlanOrder({ sequenceId }: { sequenceId: string }) {
+  const { t } = useI18n();
+  const { setSheet, studio, moveShotInSequence, reorderShots } = useStudio();
+  const panels = shotsOf(studio.shots, sequenceId);
+  const list = useRef<HTMLOListElement>(null);
+  const origin = useRef<number | null>(null);
+  const [over, setOver] = useState<number | null>(null);
+  const move = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (origin.current === null) return;
+    setOver(rowIndexAt(list.current, event.clientY));
+  };
+  const finish = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (origin.current === null) return;
+    const start = origin.current;
+    origin.current = null;
+    setOver(null);
+    const target = rowIndexAt(list.current, event.clientY);
+    if (target === null || target === start) return;
+    const ids = panels.map(shot => shot.id);
+    const [item] = ids.splice(start, 1);
+    ids.splice(target, 0, item);
+    void reorderShots(sequenceId, ids);
+  };
+  if (panels.length === 0) return <p className="u-small">{t("shot.emptyHere")}</p>;
+  return <ol className="u-sequence" ref={list} aria-label={t("shot.title")}>
+    {panels.map((shot, index) => {
+      const name = shot.name || t("common.unnamed");
+      const linked = shot.takeIds.filter(id => studio.takes.some(take => take.id === id && take.video)).length;
+      return <li key={shot.id} className={over === index ? "is-drop" : undefined}>
+        <button type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })} aria-label={t("shot.open", { name })}>{name}</button>
+        <p className="u-small">{linked === 0 ? t("sequence.slate") : linked === 1 ? t("sequence.oneTake") : t("sequence.manyTakes", { count: linked })}</p>
+        <div className="u-row">
+          <button
+            type="button"
+            className="u-drag"
+            aria-label={t("sequence.drag", { name })}
+            onPointerDown={event => {
+              if (event.button !== 0) return;
+              origin.current = index;
+              event.currentTarget.setPointerCapture(event.pointerId);
+              setOver(index);
+            }}
+            onPointerMove={move}
+            onPointerUp={finish}
+            onPointerCancel={() => { origin.current = null; setOver(null); }}
+          >{t("sequence.dragHandle")}</button>
+          {index > 0 && <button type="button" className="u-link" onClick={() => void moveShotInSequence(shot.id, -1)}>{t("sequence.up")}</button>}
+          {index < panels.length - 1 && <button type="button" className="u-link" onClick={() => void moveShotInSequence(shot.id, 1)}>{t("sequence.down")}</button>}
+        </div>
+      </li>;
+    })}
+  </ol>;
+}
+
 export function SequenceSheet({ id }: { id?: string }) {
   if (id) return <SequenceEditor id={id} />;
   return <SequenceList />;
@@ -590,14 +699,19 @@ function SequenceList() {
 
 function SequenceEditor({ id }: { id: string }) {
   const { t } = useI18n();
-  const { setSheet, studio, saveSequence, deleteSequence, setNotice, createShot, moveShotInSequence } = useStudio();
+  const { setSheet, studio, saveSequence, deleteSequence, setNotice, createShot, refreshMontage } = useStudio();
   const sequence = studio.sequences.find(item => item.id === id);
   const [name, setName] = useState(sequence?.name ?? "");
   const [pick, setPick] = useState("");
   const [shotName, setShotName] = useState("");
+  const [playing, setPlaying] = useState(false);
   useEffect(() => {
     setName(sequence?.name ?? "");
   }, [sequence?.id, sequence?.name]);
+  useEffect(() => {
+    setPlaying(false);
+    void refreshMontage(id);
+  }, [id, refreshMontage]);
   if (!sequence) return null;
   const available = studio.takes.filter(take => !sequence.links.some(link => link.takeId === take.id));
   const chosen = available.some(take => take.id === pick) ? pick : available[0]?.id ?? "";
@@ -613,6 +727,20 @@ function SequenceEditor({ id }: { id: string }) {
           if (next.trim()) void saveSequence(sequence.id, { name: next });
         }} onBlur={() => { if (!name.trim()) setName(sequence.name); }} />
       </label>
+      <section className="u-montage" aria-label={t("sequence.play")}>
+        <p className="u-label">{t("shot.title")}</p>
+        <button type="button" className="u-secondary" disabled={shotsOf(studio.shots, sequence.id).length === 0} onClick={() => setPlaying(true)}>{t("sequence.play")}</button>
+        <Why on={shotsOf(studio.shots, sequence.id).length === 0} text={t("sequence.playOff")} />
+        {playing && <SequencePlayer sequenceId={sequence.id} />}
+        {playing && <button type="button" className="u-link" onClick={() => setPlaying(false)}>{t("sequence.stop")}</button>}
+        <p className="u-small">{t("sequence.listNote")}</p>
+        <PlanOrder sequenceId={sequence.id} />
+      </section>
+      <label className="u-field">{t("shot.name")}
+        <input value={shotName} maxLength={40} aria-label={t("shot.name")} autoComplete="off" onChange={event => setShotName(event.target.value)} />
+      </label>
+      <button type="button" className="u-secondary" disabled={!shotName.trim()} onClick={() => { const next = shotName.trim(); setShotName(""); void createShot(next, { sequenceId: sequence.id }); }}>{t("shot.create")}</button>
+      <Why on={!shotName.trim()} text={t("why.needName")} />
       {sequence.links.length === 0
         ? <p className="u-small">{t("sequence.noLink")}</p>
         : <ol className="u-sequence">
@@ -658,23 +786,6 @@ function SequenceEditor({ id }: { id: string }) {
         setNotice("Prise ajoutée.");
       }}>{t("sequence.add")}</button>
       <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("sequence.allLinked")} />
-      <p className="u-label">{t("shot.title")}</p>
-      {shotsOf(studio.shots, sequence.id).length === 0
-        ? <p className="u-small">{t("shot.emptyHere")}</p>
-        : <ol className="u-sequence">
-          {shotsOf(studio.shots, sequence.id).map((shot, index, panels) => <li key={shot.id}>
-            <button type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })} aria-label={t("shot.open", { name: shot.name })}>{shot.name || t("common.unnamed")}</button>
-            <div className="u-row">
-              {index > 0 && <button type="button" className="u-link" onClick={() => void moveShotInSequence(shot.id, -1)}>{t("sequence.up")}</button>}
-              {index < panels.length - 1 && <button type="button" className="u-link" onClick={() => void moveShotInSequence(shot.id, 1)}>{t("sequence.down")}</button>}
-            </div>
-          </li>)}
-        </ol>}
-      <label className="u-field">{t("shot.name")}
-        <input value={shotName} maxLength={40} aria-label={t("shot.name")} autoComplete="off" onChange={event => setShotName(event.target.value)} />
-      </label>
-      <button type="button" className="u-secondary" disabled={!shotName.trim()} onClick={() => { const next = shotName.trim(); setShotName(""); void createShot(next, { sequenceId: sequence.id }); }}>{t("shot.create")}</button>
-      <Why on={!shotName.trim()} text={t("why.needName")} />
       <button type="button" className="u-link u-muted" onClick={() => void deleteSequence(sequence.id)}>{t("sequence.delete")}</button>
     </div>
   </SheetFrame>;

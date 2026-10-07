@@ -19,7 +19,9 @@ U-TTU-Studio/
     Lieux/<lieu>.md              un lieu, ses images à côté
     Lieux/<id>-fichier.md        un fichier d’images du lieu, pas le lieu
     Prises/<id>.md               une prise, sa vidéo et sa vignette
-    Sequences/  Shots/  Prompts/
+    Sequences/<id>.md            la séquence, ses prises, le raccord
+    Sequences/<id>-montage.md    la liste de montage : ordre, plan, prise, durée, source
+    Shots/  Prompts/
     Templates/modele-personnage.md  modele-scene.md  modele-prise.md  modele-sequence.md  modele-shot.md
     Moteurs/                     fiches Relier → Lancer, sans graphe
     Assets/                      poids .safetensors et clips
@@ -36,7 +38,7 @@ Un ZIP ancien (`CANON.md`, `scenes/`, `prises/`, `loras/`) est rangé dans un pr
 ## Où il vit
 
 - **Sur l’appareil, dans le navigateur.** IndexedDB, base `uttu-coffre`, un enregistrement par fichier (`path`, texte ou blob). Le studio demande le stockage persistant (`navigator.storage.persist()`). La feuille Mon studio dit ce qui est occupé, et si le navigateur peut le vider.
-- **Exporter mon studio.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, `MOC.md` comprise, à décompresser et ouvrir dans Obsidian. Sequences/, Shots/, les gabarits `modele-*.md` et `.uttu/devis.json` sont dans ce ZIP.
+- **Exporter mon studio.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, `MOC.md` comprise, à décompresser et ouvrir dans Obsidian. Sequences/, la liste `Sequences/<id>-montage.md`, Shots/, les gabarits `modele-*.md` et `.uttu/devis.json` sont dans ce ZIP.
 - **Importer un studio.** Un ZIP du même schéma s’ajoute à mon studio sur cet appareil. Un fichier déjà là n’est pas remplacé. Une fiche illisible, ou qui pointe vers une vidéo ou un fichier absent, ne remplace pas la fiche valide. Le journal et la carte du projet en cours sont réécrits à partir de ce que mon studio peut ouvrir. Le journal et la carte des autres projets reviennent tels qu’exportés.
 - **Relier mon dossier Obsidian.** Sur ordinateur, Chrome ou Edge (File System Access) : l’app copie mon studio dans le dossier choisi, puis y écrit chaque changement tant que la page reste ouverte. Le lien ne survit pas à la fermeture : on le refait d’un geste.
 

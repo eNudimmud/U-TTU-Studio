@@ -253,7 +253,20 @@
     "missingTake": "Take not found",
     "created": "Sequence created.",
     "linked": "Take added.",
-    "removed": "Sequence removed."
+    "removed": "Sequence removed.",
+    "play": "Play the sequence",
+    "playOff": "No shot in this sequence. Playback follows the shot order.",
+    "now": "Playback",
+    "stop": "Stop",
+    "again": "Play again",
+    "slate": "Shot without a take",
+    "slateBody": "This shot has no take. Playback continues.",
+    "beat": "{index} of {count}",
+    "drag": "Move {name}",
+    "dragHandle": "Move",
+    "end": "End of the sequence.",
+    "listNote": "The edit list is in My studio, next to the sequence. No film is assembled.",
+    "listFile": "Edit list · {name}"
   },
   "shot": {
     "title": "Shots",
