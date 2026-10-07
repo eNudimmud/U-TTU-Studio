@@ -17,6 +17,7 @@ import { sheetDismissAllowed } from "@/lib/link-epoch";
 import { CinemaGestures } from "./cinema-gestures";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
+import { OutgoingFilm, OutgoingTake } from "./outgoing-text";
 import { useStudio } from "./studio-context";
 
 function SheetFrame({ title, label, onClose, children, tall = false }: { title: string; label: string; onClose(): void; children: ReactNode; tall?: boolean }) {
@@ -315,6 +316,7 @@ export function ConfirmSheet() {
           </>}
       </ul>
       <p className={`u-cost is-${gate.tone}`}>{say(gate.line)}</p>
+      <OutgoingTake />
       <button type="button" className="u-primary" disabled={!gate.allowed} onClick={() => void confirmRun()}>{engine === "lora" ? t("sheet.shootFal") : t("sheet.shootRender")}</button>
       <Why on={!gate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
@@ -417,6 +419,7 @@ export function PrevizConfirmSheet() {
       </ul>
       <p className={`u-cost is-${previzGate.tone}`}>{say(previzGate.line)}</p>
       <p className="u-small">{t("sheet.filmBody")}</p>
+      <OutgoingFilm />
       <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>{t("sheet.filmDebit")}</button>
       <Why on={!previzGate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
@@ -636,7 +639,7 @@ function SequenceEditor({ id }: { id: string }) {
       <button type="button" className="u-secondary" disabled={blocked} onClick={() => {
         if (!chosen) return;
         void saveSequence(sequence.id, { links: [...sequence.links, { takeId: chosen, raccord: "" }] });
-        setNotice("Prise reliée.");
+        setNotice("Prise ajoutée.");
       }}>{t("sequence.add")}</button>
       <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("sequence.allLinked")} />
       <p className="u-label">{t("shot.title")}</p>

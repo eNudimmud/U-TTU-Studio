@@ -65,7 +65,7 @@ describe("le studio, une app", () => {
     const scene = read("src/components/app/screens.tsx");
     const sceneScreen = scene.slice(scene.indexOf("export function SceneScreen"), scene.indexOf("function clock"));
     assert.match(sceneScreen, /filmAction/);
-    assert.match(read("src/lib/render/shot.ts"), /Filmer ce plan/);
+    assert.match(read("src/lib/render/shot.ts"), /Filmer ce trajet/);
     assert.match(read("src/lib/render/take-graph.ts"), /minimax_h3/);
     assert.doesNotMatch(read("src/lib/render/take-graph.ts"), /flux-lora/);
     assert.doesNotMatch(read("src/lib/lora/place.ts"), /reference-to-video\/lora|take-graph/);

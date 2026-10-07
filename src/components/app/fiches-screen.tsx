@@ -37,6 +37,7 @@ export function FichesScreen({ onLaunch }: { onLaunch(fiche: WorkflowFiche): voi
             {inputs.map(input => <li key={input}>{input}</li>)}
           </ul>
           <p className={`u-cost is-${fiche.payer === "rendu" ? (renderGate?.tone ?? "warn") : (linked ? "ok" : "warn")}`}>{say(fiche.cost)}</p>
+          <p className="u-small">{t("fiche.noSend")}</p>
           <button type="button" className="u-secondary" onClick={() => {
             if (!linked) setSheet("relier");
             else onLaunch(fiche);

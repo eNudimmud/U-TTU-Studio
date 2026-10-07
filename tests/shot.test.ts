@@ -8,11 +8,11 @@ describe("le plan filmé", () => {
     assert.equal(filmAction({ scene: false, plan: false, blender: true, character: true, fal: true }).kind, "place");
     assert.match(filmAction({ scene: false, plan: false, blender: true, character: true, fal: true }).missing, /lieu/);
     assert.equal(filmAction({ scene: true, plan: false, blender: true, character: true, fal: true }).kind, "plan");
-    assert.match(filmAction({ scene: true, plan: false, blender: true, character: true, fal: true }).missing, /plan/);
+    assert.match(filmAction({ scene: true, plan: false, blender: true, character: true, fal: true }).missing, /espace/);
     assert.equal(filmAction({ scene: true, plan: true, blender: false, character: true, fal: true }).kind, "blender");
     assert.equal(filmAction({ scene: true, plan: true, blender: true, character: false, fal: true }).kind, "role");
     assert.equal(filmAction({ scene: true, plan: true, blender: true, character: true, fal: false }).kind, "fal");
-    assert.equal(filmAction({ scene: true, plan: true, blender: true, character: true, fal: true }).label, "Filmer ce plan");
+    assert.equal(filmAction({ scene: true, plan: true, blender: true, character: true, fal: true }).label, "Filmer ce trajet");
     assert.equal(filmAction({ scene: true, plan: true, blender: true, character: true, fal: true }).missing, "");
   });
 

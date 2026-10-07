@@ -1,5 +1,6 @@
 {
   "_status": "reviewed",
+  "_human": "native_open",
   "lang": {
     "label": "Idioma"
   },
@@ -189,7 +190,7 @@
     "thePlace": "La localización",
     "thePlaceBody": "Queda. La reabres: mismo nombre, mismo plano de espacio, mismo recorrido. Puedes sostener varias.",
     "blenderBody": "Renderiza la localización vacía, {frames} imágenes a lo largo del recorrido. El personaje no está en este archivo.",
-    "theCharacterBody": "Es el archivo de mi estudio. Solo entra en el plano de espacio filmado, después de estas imágenes.",
+    "theCharacterBody": "Es el archivo de mi estudio. Solo entra en el recorrido filmado, después de estas imágenes.",
     "formed": "Esta localización, entrenada",
     "formedPrice": "Entrenamiento: {amount}.",
     "formedUnread": "El precio de entrenamiento se lee en la cuenta fal, antes del gesto.",
@@ -202,12 +203,12 @@
     "start": "Salida",
     "end": "Llegada",
     "coords": "{end} {x}, {y}, {z} · apunta {ax}, {ay}, {az} · {lens} mm",
-    "cameraLess": "Cámara menos {axis}",
-    "cameraMore": "Cámara más {axis}",
-    "aimLess": "Punto menos {axis}",
-    "aimMore": "Punto más {axis}",
-    "moveCamera": "Mover la cámara",
-    "moveAim": "Mover el punto de mira",
+    "cameraLess": "Cámara, menos {axis}",
+    "cameraMore": "Cámara, más {axis}",
+    "aimLess": "Punto visado, menos {axis}",
+    "aimMore": "Punto visado, más {axis}",
+    "moveCamera": "Desplazar la cámara",
+    "moveAim": "Desplazar el punto visado",
     "lens": "Focal",
     "volumes": "{count} volúmenes. Ninguna imagen hasta que Blender haya renderizado el recorrido.",
     "emptyCaption": "Localización vacía, primera imagen del recorrido. El personaje no está.",
@@ -249,7 +250,7 @@
     "delete": "Quitar la secuencia",
     "missingTake": "Toma no encontrada",
     "created": "Secuencia creada.",
-    "linked": "Toma vinculada.",
+    "linked": "Toma añadida.",
     "removed": "Secuencia quitada."
   },
   "shot": {
@@ -292,20 +293,20 @@
     },
     "fal": {
       "label": "Vincular la cuenta fal",
-      "missing": "Falta la cuenta fal. Paga el personaje en el plano de espacio."
+      "missing": "Falta la cuenta fal. Paga el personaje en el recorrido."
     },
     "film": {
-      "label": "Filmar este plano de espacio"
+      "label": "Filmar este recorrido"
     },
     "write": "Escribiendo la localización",
     "inspect": "Leyendo el presupuesto",
-    "start": "Enviando el plano de espacio",
+    "start": "Enviando el recorrido",
     "queue": "Render en cola",
     "render": "Blender rueda · {seconds} s",
     "fetch": "Las imágenes del recorrido vuelven",
-    "person": "El personaje entra en el plano de espacio",
+    "person": "El personaje entra en el recorrido",
     "shot": "El personaje rueda · {seconds} s",
-    "video": "El plano de espacio filmado vuelve"
+    "video": "El recorrido filmado vuelve"
   },
   "take": {
     "kicker": "03 · La toma",
@@ -420,6 +421,7 @@
     "title": "Lo que el estudio lanza.",
     "lead": "Los gestos ya conectados se leen aquí. El cargo espera aún el gesto, en la pantalla que lo sostiene.",
     "needs": "Lo que hace falta",
+    "noSend": "De aquí no sale nada. El texto de una toma se lee en la toma, antes de Rodar.",
     "references": {
       "name": "Toma · Referencias",
       "sentence": "Las fotos de mi estudio se vuelven una toma, con el sonido.",
@@ -598,8 +600,8 @@
     "referencesPays": "Paga las tomas « {engine} ».",
     "confirmTrain": "¿Entrenar este personaje?",
     "trainDebit": "Entrenar · cargo en mi cuenta fal",
-    "confirmFilm": "¿Filmar este plano de espacio?",
-    "filmBody": "Blender renderiza la localización vacía, a lo largo del recorrido. El personaje es el archivo de mi estudio: solo entra en el plano de espacio filmado. Si no vuelve ninguna imagen, no se muestra ninguna.",
+    "confirmFilm": "¿Filmar este recorrido?",
+    "filmBody": "Blender renderiza la localización vacía, a lo largo del recorrido. El personaje es el archivo de mi estudio: solo entra en el recorrido filmado. Si no vuelve ninguna imagen, no se muestra ninguna.",
     "filmDebit": "Filmar · cargo en mi cuenta",
     "blenderLinked": "La clave de trabajo está en este aparato. Solo va a Farpy, cuando filmas.",
     "blenderIntro": "Farpy hace correr Blender, fuera de tu aparato. Crea una cuenta, añade crédito, luego una clave de trabajo. Empieza por farpy_agent_. Una clave de cuenta no lanza el render.",
@@ -623,7 +625,7 @@
   },
   "memory": {
     "title": "Este proyecto",
-    "lead": "Biblia, estilo, léxico y prompts de {name}. Desde aquí no se envía nada.",
+    "lead": "Biblia, estilo, léxico y prompts de {name}. De aquí no sale nada.",
     "noProject": "Ningún proyecto en curso. Créalo en Mi estudio. Aquí no se inventa nada.",
     "open": "Biblia, estilo, léxico, prompts",
     "bible": "Biblia",
@@ -634,9 +636,15 @@
     "empty": {
       "bible": "Nada escrito. Lo que no cambia.",
       "style": "Nada escrito. La luz, el encuadre, lo que se evita.",
-      "lexique": "Nada escrito. Las palabras de este proyecto, y lo que nombran aquí.",
-      "prompts": "Nada escrito. Piezas de frase. Desde aquí no se envía nada."
+      "lexique": "Nada escrito. Las palabras de este proyecto, y lo que significan aquí.",
+      "prompts": "Nada escrito. Piezas de frase. De aquí no sale nada."
     }
+  },
+  "sent": {
+    "title": "Lo que sale",
+    "memoryOut": "Biblia, estilo, léxico y prompts no están ahí. No salen.",
+    "noPictures": "No sale ningún texto: faltan las imágenes de esta toma.",
+    "notYet": "El texto aún no está. Se escribe cuando vuelven las imágenes del recorrido. Biblia, estilo, léxico y prompts no entran."
   },
   "tree": {
     "characters": "Personajes",
@@ -706,7 +714,9 @@
     "characterFileMissing": "El archivo del personaje falta en mi estudio.",
     "referencePhotosMissing": "Las fotos de las referencias faltan en mi estudio.",
     "filmedStillMissing": "La imagen filmada falta en mi estudio.",
-    "planFilmed": "El plano de espacio está filmado. Blender ha renderizado la localización vacía. El personaje está en la toma.",
+    "planFilmed": "El recorrido está filmado. Blender ha renderizado la localización vacía. El personaje está en la toma.",
+    "characterNotOnPath": "El personaje no está en el recorrido.",
+    "pathImageMissing": "Falta una imagen del recorrido en mi estudio.",
     "placeRenderedResume": "La localización está renderizada. El seguimiento del personaje retoma. Nada se reenvía.",
     "placeEmptyNext": "La localización está renderizada, vacía. El siguiente gesto filma el personaje, solo al precio fal.",
     "followStopped": "Seguimiento parado aquí. Si el render ya ha salido, continúa en tu cuenta.",
@@ -796,6 +806,7 @@
       "name": "Poner un efecto",
       "sentence": "Una toma rodada recibe el estilo de una imagen.",
       "need": "Hace falta una toma rodada, y una imagen para el efecto."
-    }
+    },
+    "noText": "Con este gesto no sale ningún texto."
   }
 }

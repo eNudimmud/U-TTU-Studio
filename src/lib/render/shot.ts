@@ -17,12 +17,12 @@ export type FilmKind = "place" | "plan" | "blender" | "role" | "fal" | "film";
 
 /** What the one gold action does, from what is still missing on this screen. The button stays a jump, never a silent stop. */
 export function filmAction(input: { scene: boolean; plan: boolean; blender: boolean; character: boolean; fal: boolean }): { kind: FilmKind; label: string; missing: string } {
-  if (!input.scene) return { kind: "place", label: "Poser un lieu", missing: "Il manque un lieu. Nomme-le, puis choisis un plan." };
-  if (!input.plan) return { kind: "plan", label: "Choisir un plan", missing: "Il manque un plan. Pièce, Quai ou Rue." };
+  if (!input.scene) return { kind: "place", label: "Poser un lieu", missing: "Il manque un lieu. Nomme-le, puis choisis un espace." };
+  if (!input.plan) return { kind: "plan", label: "Choisir un espace", missing: "Il manque un espace. Pièce, Quai ou Rue." };
   if (!input.blender) return { kind: "blender", label: "Relier Blender", missing: "Il manque la clé Blender, sur cet appareil." };
   if (!input.character) return { kind: "role", label: "Former le personnage", missing: "Il manque un personnage formé." };
-  if (!input.fal) return { kind: "fal", label: "Relier le compte fal", missing: "Il manque le compte fal. Il paie le personnage dans le plan." };
-  return { kind: "film", label: "Filmer ce plan", missing: "" };
+  if (!input.fal) return { kind: "fal", label: "Relier le compte fal", missing: "Il manque le compte fal. Il paie le personnage dans le trajet." };
+  return { kind: "film", label: "Filmer ce trajet", missing: "" };
 }
 
 function clip(value: string, max: number): string {

@@ -188,6 +188,8 @@
 .u-memory .u-field, .u-memory textarea { min-width: 0; max-width: 100%; }
 .u-memory textarea, .u-memory-empty { overflow-wrap: anywhere; }
 .u-memory-empty { margin: 0; }
+.u-outgoing { display: grid; gap: 6px; min-width: 0; max-width: 100%; }
+.u-outgoing-text { margin: 0; min-width: 0; max-width: 100%; overflow-wrap: anywhere; font-size: 15px; line-height: 1.45; }
 .u-sound { display: grid; gap: 4px; margin: 0; font-size: 14px; line-height: 1.4; color: var(--u-muted); }
 .u-segments { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; border: 0; }
 .u-segments legend { width: 100%; margin-bottom: 6px; }
