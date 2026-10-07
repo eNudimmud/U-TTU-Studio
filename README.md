@@ -44,7 +44,7 @@ Dans la feuille « Relier », deux chemins :
 ### Crédits — un seul payeur
 
 - Le payeur est le compte Comfy Cloud de la personne. Le compteur en haut à droite est son solde, lu chez Comfy (`api.comfy.org/customers/balance` en session, `GET /api/billing/usage/timeseries` en clé). 211 crédits = 1 $.
-- Le coût d’une prise est **mesuré** : le solde juste avant, puis après. Il est écrit dans la fiche de la prise et dans `jobs.md`.
+- Le coût d’une prise est **mesuré** : le solde juste avant, puis après. Il est écrit dans la fiche de la prise et dans le journal du projet.
 - À un réglage donné (pas, durée, format), le studio annonce « environ X crédits » seulement après une prise mesurée à ce réglage : la plus chère des trois dernières. Avant, il dit « non calibré » et n’annonce aucun chiffre.
 - « Tourner » s’éteint si le solde est illisible, vide, ou sous le coût mesuré. Rien ne part sans le geste de confirmation. Le studio n’encaisse rien et ne recharge rien.
 - **Le personnage a son propre payeur : le compte fal de la personne.** Une clé fal ordinaire suffit pour former et tourner. Le solde ne s’affiche que si la clé a la portée Admin : sans elle, le compteur ne montre pas de chiffre, et le geste reste ouvert dès que le prix unitaire est lu. « Former » et « Tourner » s’éteignent si ce prix manque, si un solde lu est vide, ou s’il est sous le devis. Le compteur du haut montre ce solde sur la page de formation et quand La prise est sur « Personnage », et les crédits Comfy le reste du temps. Le vieux rail Flux (Worker, `src/lib/fal-*.ts`) reste dormant : il n’entraîne pas le modèle de La prise.
@@ -57,16 +57,17 @@ Mon studio est un dossier Obsidian, tenu par l’app dans le stockage de l’app
 
 ```text
 U-TTU-Studio/
-  CANON.md            le look : nom, traits, photos
-  refs/               les photos du look
-  scenes/<lieu>.md    chaque lieu, ses images à côté
-  clips/              les courtes vidéos dont le double apprend
-  loras/<id>.safetensors  le fichier formé, et sa fiche .md
-  prises/<id>.md      chaque prise : plan, réglage, job, coût mesuré
-  prises/<id>.mp4     la vidéo, et sa vignette .jpg
-  jobs.md             le journal : une ligne par prise et par formation
-  MOC.md              la carte : liens vers le look, les personnages, les lieux, les prises et le journal
-  README.md
+  MOC.md                      la carte des projets
+  .uttu/projet.json           le projet en cours
+  Projets/<projet>/
+    _MOC.md  Bible.md  Style.md  Lexique.md  Journal.md
+    Cast/                     le personnage, et chaque fichier formé
+    Refs/                     les photos
+    Lieux/                    chaque lieu, ses images à côté
+    Prises/                   chaque prise : fiche, vidéo, vignette
+    Assets/                   poids et clips
+    Moteurs/                  fiches des gestes, sans graphe
+    Sequences/  Shots/  Prompts/  Templates/
 ```
 
 « Exporter mon studio » télécharge `U-TTU-Studio.zip`, à ouvrir tel quel dans Obsidian. « Importer un studio » ajoute un ZIP à celui de cet appareil : une prise ou un personnage déjà là reste. Deux appareils ne partagent rien tout seuls. Sur ordinateur (Chrome, Edge), « Relier mon dossier Obsidian » écrit directement dans un dossier choisi. Ni la clé de rendu, ni la clé fal, n’entrent dans mon studio. Pourquoi ce dossier plutôt qu’un ZIP de départ : [docs/VAULT.md](docs/VAULT.md).

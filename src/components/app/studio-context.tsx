@@ -6,7 +6,7 @@ import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip } from "@/lib/coffre/import";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
-  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, emptyLook, emptyRole, emptySceneDraft, emptyStudio, extensionFor, isPlaceLora, loadStudio, loraId, removeLora, removeScene, removeTake, sha256Hex, slugify, takeId, uniqueId,
+  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, createProject, emptyLook, emptyRole, emptySceneDraft, emptyStudio, ensureActiveProject, extensionFor, isPlaceLora, loadStudio, loraId, removeLora, removeScene, removeTake, selectProject, sha256Hex, slugify, takeId, uniqueId,
   writeBlob, writeClips, writeLook, writeLora, writeRole, writeScene, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { FalError, createFalClient, type FalClient, type FalHandle, type FalPrice } from "@/lib/fal/client";
@@ -337,6 +337,8 @@ interface StudioValue {
   disconnect(): Promise<void>;
   exportCoffre(): Promise<void>;
   importCoffre(file: File): Promise<void>;
+  createNamedProject(name: string): Promise<void>;
+  selectNamedProject(slug: string): Promise<void>;
   linkFolder(): Promise<void>;
   dismissGuide(moment: GuideMoment): void;
   guideOff(): void;
@@ -405,6 +407,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     storeRef.current ??= linkedStore(idbVault(), () => folderRef.current);
     return storeRef.current;
   }, []);
+
+  const inProject = useCallback(async (folder: string, name: string) => {
+    const slug = await ensureActiveProject(store());
+    return `Projets/${slug}/${folder}/${name}`;
+  }, [store]);
 
   const setStudio = useCallback((next: Studio) => {
     studioRef.current = next;
@@ -599,8 +606,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const saveLook = useCallback(async (patch: Partial<Look>) => {
     const look = { ...studioRef.current.look, ...patch };
+    const had = studioRef.current.project;
     setStudio({ ...studioRef.current, look });
     await writeLook(store(), look);
+    if (!had) setStudio(await loadStudio(store()));
   }, [setStudio, store]);
 
   const addLookPhotos = useCallback(async (files: File[]) => {
@@ -614,7 +623,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     for (const [index, file] of picked.entries()) {
       try {
         const blob = await downscale(file);
-        const path = `refs/look-${stamp()}-${index + 1}.jpg`;
+        const path = await inProject("Refs", `look-${stamp()}-${index + 1}.jpg`);
         await writeBlob(store(), path, blob);
         addMedia(path, blob);
         paths.push(path);
@@ -623,7 +632,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
     }
     await saveLook({ photos: [...studioRef.current.look.photos, ...paths].slice(0, LOOK_PHOTOS_MAX) });
-  }, [addMedia, saveLook, store]);
+  }, [addMedia, inProject, saveLook, store]);
 
   const removeLookPhoto = useCallback(async (path: string) => {
     await store().remove(path);
@@ -659,7 +668,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     for (const [index, file] of picked.entries()) {
       try {
         const blob = await downscale(file);
-        const path = `roles/photo-${stamp()}-${index + 1}.jpg`;
+        const path = await inProject("Refs", `role-${stamp()}-${index + 1}.jpg`);
         await writeBlob(store(), path, blob);
         addMedia(path, blob);
         paths.push(path);
@@ -668,7 +677,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
     }
     await saveRole({ photos: [...studioRef.current.role.photos, ...paths].slice(0, ROLE_PHOTOS_MAX) });
-  }, [addMedia, saveRole, store]);
+  }, [addMedia, inProject, saveRole, store]);
 
   const copyLookPhotos = useCallback(async () => {
     const room = ROLE_PHOTOS_MAX - studioRef.current.role.photos.length;
@@ -677,13 +686,13 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     for (const [index, path] of sources.entries()) {
       const entry = await store().get(path);
       if (!entry?.blob) continue;
-      const next = `roles/photo-${stamp()}-${index + 1}.jpg`;
+      const next = await inProject("Refs", `role-${stamp()}-${index + 1}.jpg`);
       await writeBlob(store(), next, entry.blob);
       addMedia(next, entry.blob);
       paths.push(next);
     }
     if (paths.length) await saveRole({ photos: [...studioRef.current.role.photos, ...paths].slice(0, ROLE_PHOTOS_MAX) });
-  }, [addMedia, saveRole, store]);
+  }, [addMedia, inProject, saveRole, store]);
 
   const removeRolePhoto = useCallback(async (path: string) => {
     await store().remove(path);
@@ -740,7 +749,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     for (const [index, file] of picked.entries()) {
       try {
         const blob = await downscale(file);
-        const path = `scenes/${id}-${stamp()}-${index + 1}.jpg`;
+        const path = await inProject("Lieux", `${id}-${stamp()}-${index + 1}.jpg`);
         await writeBlob(store(), path, blob);
         addMedia(path, blob);
         paths.push(path);
@@ -749,7 +758,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
     }
     await saveScene(id, { stills: [...current.stills, ...paths].slice(0, SCENE_STILLS_MAX) });
-  }, [addMedia, saveScene, store]);
+  }, [addMedia, inProject, saveScene, store]);
 
   const removeSceneStill = useCallback(async (id: string, path: string) => {
     const current = studioRef.current.scenes.find(item => item.id === id);
@@ -835,7 +844,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     for (const [index, file] of picked.entries()) {
       try {
         const blob = await downscale(file);
-        const path = `scenes/${id}-vue-${stamp()}-${index + 1}.jpg`;
+        const path = await inProject("Lieux", `${id}-vue-${stamp()}-${index + 1}.jpg`);
         await writeBlob(store(), path, blob);
         addMedia(path, blob);
         paths.push(path);
@@ -844,7 +853,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
     }
     await saveScene(id, { views: [...current.views, ...paths].slice(0, PLACE_VIEWS_MAX) });
-  }, [addMedia, saveScene, store]);
+  }, [addMedia, inProject, saveScene, store]);
 
   const removeSceneView = useCallback(async (id: string, path: string) => {
     const current = studioRef.current.scenes.find(item => item.id === id);
@@ -882,11 +891,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     try {
       const result = await followTake(renderClient, flight.jobId, flight.balanceBefore, event => setRun({ phase: "running", event }), { signal: abort.current.signal });
       const id = takeId(new Date(flight.at), flight.sceneName);
-      const video = `prises/${id}.${extensionFor(result.video.type || "video/mp4")}`;
+      const video = await inProject("Prises", `${id}.${extensionFor(result.video.type || "video/mp4")}`);
       await writeBlob(store(), video, result.video);
       addMedia(video, result.video);
       const frame = await posterOf(result.video);
-      const poster = frame ? `prises/${id}.jpg` : null;
+      const poster = frame ? await inProject("Prises", `${id}.jpg`) : null;
       if (frame && poster) {
         await writeBlob(store(), poster, frame);
         addMedia(poster, frame);
@@ -930,7 +939,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       await wake.current?.release().catch(() => {});
       wake.current = null;
     }
-  }, [addMedia, refreshBalance, setStudio, store]);
+  }, [addMedia, inProject, refreshBalance, setStudio, store]);
 
   const finishLora = useCallback(async (flight: LoraTakeFlight, falClient: FalClient) => {
     abort.current = new AbortController();
@@ -940,11 +949,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     try {
       const result = await followLoraTake(falClient, flight.handle, flight.balanceBefore, event => setRun({ phase: "running", event }), { signal: abort.current.signal });
       const id = takeId(new Date(flight.at), flight.sceneName);
-      const video = `prises/${id}.${extensionFor(result.video.type || "video/mp4")}`;
+      const video = await inProject("Prises", `${id}.${extensionFor(result.video.type || "video/mp4")}`);
       await writeBlob(store(), video, result.video);
       addMedia(video, result.video);
       const frame = await posterOf(result.video);
-      const poster = frame ? `prises/${id}.jpg` : null;
+      const poster = frame ? await inProject("Prises", `${id}.jpg`) : null;
       if (frame && poster) {
         await writeBlob(store(), poster, frame);
         addMedia(poster, frame);
@@ -988,7 +997,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       await wake.current?.release().catch(() => {});
       wake.current = null;
     }
-  }, [addMedia, refreshFal, setStudio, store]);
+  }, [addMedia, inProject, refreshFal, setStudio, store]);
 
   const finishTraining = useCallback(async (flight: TrainingFlight, falClient: FalClient) => {
     abortTrain.current = new AbortController();
@@ -998,7 +1007,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     try {
       const result = await followTraining(falClient, flight.handle, flight.balanceBefore, event => setTraining({ phase: "running", event }), { signal: abortTrain.current.signal });
       const id = uniqueId(loraId(new Date(flight.at), flight.name), studioRef.current.loras.map(item => item.id));
-      const file = `loras/${id}.safetensors`;
+      const file = await inProject("Assets", `${id}.safetensors`);
       const created: Lora = {
         id,
         at: flight.at,
@@ -1043,7 +1052,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       await wakeTrain.current?.release().catch(() => {});
       wakeTrain.current = null;
     }
-  }, [refreshFal, setStudio, store]);
+  }, [inProject, refreshFal, setStudio, store]);
 
   useEffect(() => {
     if (!ready || run.phase !== "idle") return;
@@ -1253,13 +1262,13 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
     const paths: string[] = [];
     for (const [index, image] of images.entries()) {
-      const path = `scenes/${sceneId}-trajet-${String(index + 1).padStart(2, "0")}.png`;
+      const path = await inProject("Lieux", `${sceneId}-trajet-${String(index + 1).padStart(2, "0")}.png`);
       await writeBlob(store(), path, image);
       addMedia(path, image);
       paths.push(path);
     }
     await saveScene(sceneId, { frames: paths, render: paths[0] ?? null });
-  }, [addMedia, dropMedia, saveScene, store]);
+  }, [addMedia, dropMedia, inProject, saveScene, store]);
 
   const finishPerson = useCallback(async (flight: FilmFlight, falClient: FalClient) => {
     if (!flight.handle || flight.balanceBefore === null || !flight.loraId) return;
@@ -1274,11 +1283,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }, { signal: abort.signal });
       const place = studioRef.current.scenes.find(item => item.id === flight.sceneId);
       const id = takeId(new Date(), place?.name || flight.sceneId);
-      const video = `prises/${id}.${extensionFor(result.video.type || "video/mp4")}`;
+      const video = await inProject("Prises", `${id}.${extensionFor(result.video.type || "video/mp4")}`);
       await writeBlob(store(), video, result.video);
       addMedia(video, result.video);
       const frame = await posterOf(result.video);
-      const poster = frame ? `prises/${id}.jpg` : null;
+      const poster = frame ? await inProject("Prises", `${id}.jpg`) : null;
       if (frame && poster) {
         await writeBlob(store(), poster, frame);
         addMedia(poster, frame);
@@ -1325,7 +1334,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     } finally {
       abortPreviz.current = null;
     }
-  }, [addMedia, saveScene, setStudio, store]);
+  }, [addMedia, inProject, saveScene, setStudio, store]);
 
   const finishFilm = useCallback(async (flight: FilmFlight, key: string) => {
     const abort = abortPreviz.current ?? new AbortController();
@@ -1371,7 +1380,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     abortPreviz.current = new AbortController();
     try {
       const bytes = buildPlaceBlend(place.previz, camera);
-      const path = `scenes/${place.id}.blend`;
+      const path = await inProject("Lieux", `${place.id}.blend`);
       const blob = new Blob([new Uint8Array(bytes)], { type: "application/octet-stream" });
       if (place.previzFile && place.previzFile !== path) await store().remove(place.previzFile);
       await writeBlob(store(), path, blob);
@@ -1389,7 +1398,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     } finally {
       abortPreviz.current = null;
     }
-  }, [blenderKey, fal, previz.phase, refreshFal, saveScene, store]);
+  }, [blenderKey, fal, inProject, previz.phase, refreshFal, saveScene, store]);
 
   const confirmPreviz = useCallback(async () => {
     if (!blenderKey || !fal || previz.phase === "running") return;
@@ -1529,7 +1538,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         continue;
       }
       const probed = await probeClip(file);
-      const clip: Clip = { path: `clips/clip-${stamp()}-${index + 1}.${format}`, format, bytes: file.size, seconds: probed.seconds, width: probed.width, height: probed.height };
+      const clip: Clip = { path: await inProject("Assets", `clip-${stamp()}-${index + 1}.${format}`), format, bytes: file.size, seconds: probed.seconds, width: probed.width, height: probed.height };
       const problem = clipProblem(clip);
       if (problem) {
         setNotice(problem);
@@ -1543,7 +1552,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const clips = [...studioRef.current.clips, ...added];
     setStudio({ ...studioRef.current, clips });
     await writeClips(store(), clips);
-  }, [addMedia, setStudio, store]);
+  }, [addMedia, inProject, setStudio, store]);
 
   const removeClip = useCallback(async (path: string) => {
     await store().remove(path);
@@ -1782,6 +1791,18 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, [reloadVault, store]);
 
+  const createNamedProject = useCallback(async (name: string) => {
+    const clean = name.replace(/\s+/g, " ").trim();
+    if (!clean) return;
+    await createProject(store(), clean);
+    await reloadVault();
+  }, [reloadVault, store]);
+
+  const selectNamedProject = useCallback(async (slug: string) => {
+    await selectProject(store(), slug);
+    await reloadVault();
+  }, [reloadVault, store]);
+
   const linkFolder = useCallback(async () => {
     const handle = await pickFolder();
     if (!handle) return;
@@ -1855,7 +1876,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       const handle = await submitPlaceTraining(fal, { images, trigger, steps: PLACE_STEPS }, abortPlace.current.signal);
       const result = await followPlaceTraining(fal, handle, fresh?.usd ?? 0, { signal: abortPlace.current.signal });
       const id = uniqueId(loraId(new Date(), place.name), studioRef.current.loras.map(item => item.id));
-      const file = `loras/${id}.safetensors`;
+      const file = await inProject("Assets", `${id}.safetensors`);
       const created: Lora = {
         id,
         at: new Date().toISOString(),
@@ -1892,7 +1913,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       abortPlace.current = null;
       setPlaceRun("idle");
     }
-  }, [fal, placeRun, refreshFal, setStudio, store]);
+  }, [fal, inProject, placeRun, refreshFal, setStudio, store]);
 
   const requestPlaceScene = useCallback(async () => {
     const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
@@ -1941,7 +1962,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
       }, abortPlace.current.signal);
       const result = await followPlaceScene(fal, handle, fresh?.usd ?? 0, { signal: abortPlace.current.signal });
-      const path = `scenes/${place.id}-vue-${stamp()}-batie.jpg`;
+      const path = await inProject("Lieux", `${place.id}-vue-${stamp()}-batie.jpg`);
       await writeBlob(store(), path, result.image);
       addMedia(path, result.image);
       const views = place.views.length >= PLACE_VIEWS_MAX ? [...place.views.slice(1), path] : [...place.views, path];
@@ -1958,7 +1979,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       abortPlace.current = null;
       setPlaceRun("idle");
     }
-  }, [addMedia, dropMedia, fal, placeRun, refreshFal, saveScene, store]);
+  }, [addMedia, dropMedia, fal, inProject, placeRun, refreshFal, saveScene, store]);
 
   const value: StudioValue = {
     ready, studio, media, scene, line, settings, claim, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
@@ -1968,7 +1989,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
     setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, deleteLora,
     requestRun, confirmRun, cancelRun, resetRun, deleteTake, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
-    exportCoffre, importCoffre, linkFolder, dismissGuide, guideOff,
+    exportCoffre, importCoffre, createNamedProject, selectNamedProject, linkFolder, dismissGuide, guideOff,
   };
 
   return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;

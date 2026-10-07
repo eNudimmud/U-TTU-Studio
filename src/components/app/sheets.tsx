@@ -167,11 +167,12 @@ export function CreditSheet() {
 }
 
 export function CoffreSheet() {
-  const { setSheet, studio, exportCoffre, importCoffre, linkFolder, folder, guide, guideOff } = useStudio();
+  const { setSheet, studio, exportCoffre, importCoffre, linkFolder, folder, guide, guideOff, createNamedProject, selectNamedProject } = useStudio();
   const [usage, setUsage] = useState("");
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [linkable, setLinkable] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [draft, setDraft] = useState("");
 
   useEffect(() => {
     setLinkable(folderLinkSupported());
@@ -183,7 +184,20 @@ export function CoffreSheet() {
 
   return <SheetFrame title="Mon studio" label="Mémoire" onClose={() => setSheet(null)}>
     <div className="u-stack">
-      <p>Mon studio reste sur cet appareil. La carte MOC.md relie les références, les personnages, les lieux, les prises et le journal. Obsidian ouvre ces liens.</p>
+      <p>Mon studio reste sur cet appareil. La carte MOC.md relie les projets. Le projet en cours est le seul que la chaîne lit.</p>
+      <div role="radiogroup" aria-label="Projet en cours" className="u-project-list">
+        {studio.projects.map(item => <label key={item.slug}>
+          <input type="radio" name="projet" checked={studio.project === item.slug} onChange={() => void selectNamedProject(item.slug)} />
+          <span>{item.name}</span>
+        </label>)}
+      </div>
+      <label className="u-field">Nom du projet
+        <input value={draft} maxLength={40} aria-label="Nom du projet" autoComplete="off" onChange={event => setDraft(event.target.value)} />
+      </label>
+      <button type="button" className="u-secondary" onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>Créer ce projet</button>
+      {studio.tree.length > 0 && <ul className="u-tree" aria-label="Dossiers du projet">
+        {studio.tree.map(group => <li key={group.label}><strong>{group.label}</strong>{group.files.map(file => <span key={file}>{file}</span>)}</li>)}
+      </ul>}
       <p className="u-small">Pour le lire ailleurs : exporte le ZIP, ouvre ce dossier dans Obsidian, puis importe ce ZIP sur l’autre appareil. Les fichiers s’ajoutent. Une prise ou un personnage déjà ici reste.</p>
       <ul className="u-ledger">
         <li><span>Photos des références</span><span>{studio.look.photos.length}</span></li>

@@ -22,5 +22,6 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - Verbes : Relier, Lancer, Tourner, Former, Filmer, Bâtir.
 - Moteur. Distribution. Prise.
 - La ligne « FR Coffre · EN Vault » du glossaire de travail est dépassée. L’écran dit **Mon studio**.
+- Chaque univers de travail est un projet sous `Projets/`. L’écran dit « Mon studio » et « Projet en cours ».
 
 Le switcher EN / DE / ES reste une hypothèse. Il n’est pas dans cette livraison.

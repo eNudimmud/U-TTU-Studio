@@ -1,19 +1,17 @@
-// The studio's memory, read from and written to the vault. Every file is
-// plain Markdown with frontmatter, or the picture/video it points to.
-//   CANON.md              the look: name, traits, photos
-//   refs/look-N.jpg       the look's photos
-//   scenes/<id>.md        a place: name, note, stills
-//   scenes/<id>-N.jpg     its stills
-//   prises/<id>.md        a take: plan, settings, job, measured cost
-//   prises/<id>.mp4       the take itself
-//   prises/<id>.jpg       one decoded frame, so a shelf tile always has pixels
-//   clips/clip-*.mp4      the short videos a LoRA learns from
-//   loras/<id>.md         a trained LoRA: trigger, steps, request, measured cost
-//   loras/<id>.safetensors  the LoRA file itself
-//   jobs.md               one line per take and per training, cost included
-//   MOC.md                the map: wikilinks to the look, cast, places, takes, journal
-//   .uttu/etat.json       which place is current
-//   .uttu/clips.json      each clip's length and size
+// The studio's memory, read from and written to the active project.
+// Root: MOC.md lists projects. Each project is one working universe.
+//   Projets/<slug>/_MOC.md
+//   Projets/<slug>/Cast/canon.md          the look
+//   Projets/<slug>/Cast/<id>.md           a character file
+//   Projets/<slug>/Refs/                  look photos, role photos
+//   Projets/<slug>/Lieux/<id>.md          a place
+//   Projets/<slug>/Lieux/<id>-fichier.md  a place file (not the place note)
+//   Projets/<slug>/Prises/<id>.md         a take, plus its video and poster
+//   Projets/<slug>/Assets/                weights and clips
+//   Projets/<slug>/Journal.md
+//   Projets/<slug>/.uttu/                 current place, clips, role draft
+//   .uttu/projet.json                     which project is active
+// Legacy CANON.md, scenes/, prises/, loras/ are moved on the next read.
 
 import type { LoraResolution } from "../fal/prices.ts";
 import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type TakeSettings } from "../render/take-graph.ts";
@@ -21,7 +19,11 @@ import type { Clip, ClipFormat, TrainingAspect } from "../lora/dataset.ts";
 import type { PlaceCamera, PrevizPlan } from "../render/previz.ts";
 import { defaultCamera, isLens } from "../render/previz.ts";
 import { list, num, readFrontmatter, text, withFrontmatter } from "./markdown.ts";
-import type { VaultStore } from "./store.ts";
+import {
+  ACTIVE_FILE, DEFAULT_PROJECT_NAME, clipVaultPath, isLegacyPath, legacyDestination, projectPath, projectSlug, projectSlugsFrom, projectTitle, projectTree, relocateText, rolePhotoPath, rootMoc, scaffoldFiles, vaultMedia,
+  type ProjectCard, type TreeFolder,
+} from "./project.ts";
+import { cleanPath, type VaultEntry, type VaultStore } from "./store.ts";
 
 export const COFFRE_ROOT = "U-TTU-Studio";
 export const LOOK_PHOTOS_MAX = 3;
@@ -129,6 +131,11 @@ export interface Studio {
   loras: Lora[];
   clips: Clip[];
   role: RoleDraft;
+  /** Slug of the project the chain reads. Null when mon studio has no project yet. */
+  project: string | null;
+  projectName: string;
+  projects: ProjectCard[];
+  tree: TreeFolder[];
 }
 
 export const emptyLook = (): Look => ({ name: "", traits: [], photos: [], note: "" });
@@ -138,7 +145,10 @@ export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "pre
 });
 
 export const isPlaceLora = (lora: Pick<Lora, "kind">) => lora.kind === "lieu";
-export const emptyStudio = (): Studio => ({ look: emptyLook(), scenes: [], currentScene: null, takes: [], loras: [], clips: [], role: emptyRole() });
+export const emptyStudio = (): Studio => ({
+  look: emptyLook(), scenes: [], currentScene: null, takes: [], loras: [], clips: [], role: emptyRole(),
+  project: null, projectName: "", projects: [], tree: [],
+});
 
 const oneLine = (value: string, max: number) => value.replace(/[\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
 const block = (value: string, max: number) => value.replace(/\r\n/g, "\n").replace(/[\u0000-\u0009\u000b-\u001f]+/g, " ").trim().slice(0, max);
@@ -196,11 +206,14 @@ export function takeId(date: Date, scene: string): string {
 
 export const extensionFor = (type: string) => (type === "image/png" ? "png" : type === "image/webp" ? "webp" : type === "video/webm" ? "webm" : type.startsWith("video/") ? "mp4" : "jpg");
 
-export function canonMarkdown(look: Look): string {
+export function canonMarkdown(look: Look, projet = ""): string {
   const traits = look.traits.length ? look.traits.map(trait => `- ${trait}`).join("\n") : "-";
   const photos = look.photos.map(path => `![[${path}]]`).join("\n");
   const body = `# ${look.name || "Références"}\n\n## Ce qui ne change pas\n\n${traits}\n\n## Photos\n\n${photos || "Aucune."}\n${look.note ? `\n## Note\n\n${look.note}\n` : ""}`;
-  return withFrontmatter({ type: "look", nom: look.name, traits: look.traits, photos: look.photos }, body);
+  return withFrontmatter({
+    type: "personnage", projet, statut: "brouillon", gesture: "personnage", updated: new Date().toISOString(),
+    nom: look.name, traits: look.traits, photos: look.photos,
+  }, body);
 }
 
 export function parseCanon(source: string): Look {
@@ -216,12 +229,16 @@ export function parseCanon(source: string): Look {
 
 const PLANS = ["piece", "quai", "rue"] as const;
 
-export function sceneMarkdown(scene: Scene): string {
+export function sceneMarkdown(scene: Scene, projet = ""): string {
   const stills = (scene.stills ?? []).map(path => `![[${path}]]`).join("\n");
   const body = `# ${scene.name}\n\n${scene.note || ""}\n\n${stills}\n`;
   const camera = scene.camera;
   return withFrontmatter({
-    type: "scene",
+    type: "lieu",
+    projet,
+    statut: "brouillon",
+    gesture: "scene",
+    updated: new Date().toISOString(),
     nom: scene.name,
     note: scene.note,
     images: scene.stills ?? [],
@@ -258,10 +275,10 @@ export function parseScene(id: string, source: string): Scene {
     previz: (PLANS as readonly string[]).includes(plan) ? plan as PrevizPlan : null,
     previzFile: text(fields.fichier) || null,
     camera: cameraFrom(fields, (PLANS as readonly string[]).includes(plan) ? plan as PrevizPlan : null),
-    frames: list(fields.trajet).filter(path => path.startsWith("scenes/")),
+    frames: list(fields.trajet).filter(vaultMedia),
     render: text(fields.rendu) || null,
     shot: text(fields.plan_filme) || null,
-    views: list(fields.vues).filter(path => path.startsWith("scenes/")),
+    views: list(fields.vues).filter(vaultMedia),
   };
 }
 
@@ -285,7 +302,7 @@ function cameraFrom(fields: ReturnType<typeof readFrontmatter>["fields"], plan: 
 export function parseRole(source: string | undefined): RoleDraft {
   try {
     const data = JSON.parse(source ?? "null") as { nom?: unknown; photos?: unknown } | null;
-    const photos = Array.isArray(data?.photos) ? data.photos.filter((item): item is string => typeof item === "string" && item.startsWith("roles/")) : [];
+    const photos = Array.isArray(data?.photos) ? data.photos.filter((item): item is string => typeof item === "string" && rolePhotoPath(item)) : [];
     return { name: oneLine(typeof data?.nom === "string" ? data.nom : "", NAME_MAX), photos: photos.slice(0, ROLE_PHOTOS_MAX) };
   } catch {
     return emptyRole();
@@ -304,19 +321,23 @@ export function costLabel(take: Pick<Take, "engine" | "costCredits" | "costUsd">
   return take.costCredits === null ? null : `${take.costCredits} cr.`;
 }
 
-export function takeMarkdown(take: Take): string {
+export function takeMarkdown(take: Take, projet = ""): string {
   const cost = take.engine === "lora"
     ? take.costUsd === null ? "Débit pas encore lu." : `${usd(take.costUsd)} débités sur le compte fal.`
     : take.costCredits === null ? "Débit pas encore lu." : `${take.costCredits} crédits débités.`;
-  const engine = take.engine === "lora" ? `Rendu avec le LoRA [[loras/${take.loraId}]], chez fal. ` : "";
+  const engine = take.engine === "lora" ? "Rendu avec le fichier du personnage, chez fal. " : "";
   const body = `# ${take.line || "Prise"}\n\n![[${take.video}]]\n\n${take.sceneName ? `Lieu : ${take.sceneName}. ` : ""}${engine}${cost}\n`;
   return withFrontmatter({
     type: "prise",
+    projet,
+    statut: "tourné",
+    moteur: take.engine === "lora" ? "fal" : "comfy",
+    gesture: "prise",
+    updated: new Date().toISOString(),
     date: take.at,
     lieu: take.sceneId,
     lieu_nom: take.sceneName,
     plan: take.line,
-    moteur: take.engine,
     lora: take.loraId,
     duree_s: take.settings.seconds,
     qualite: take.settings.quality,
@@ -371,7 +392,7 @@ export function parseTake(id: string, source: string): Take | null {
     costCredits: num(fields.cout_credits),
     balanceBefore: num(fields.solde_avant),
     balanceAfter: num(fields.solde_apres),
-    engine: pick(text(fields.moteur), ENGINES) ?? "comfy",
+    engine: text(fields.moteur) === "fal" || text(fields.moteur) === "lora" ? "lora" : pick(text(fields.moteur), ENGINES) ?? "comfy",
     loraId: text(fields.lora) || null,
     resolution: pick(text(fields.resolution), RESOLUTIONS),
     costUsd: num(fields.cout_usd),
@@ -383,13 +404,18 @@ export function loraId(date: Date, name: string): string {
   return takeId(date, name || "lora");
 }
 
-export function loraMarkdown(lora: Lora): string {
+export function loraMarkdown(lora: Lora, projet = ""): string {
   const cost = lora.costUsd === null ? "Débit pas encore lu." : `${usd(lora.costUsd)} débités sur le compte fal.`;
   const body = lora.kind === "lieu"
     ? `# LoRA — ${lora.name || "lieu"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} vues de ce lieu, ${lora.steps} pas. ${cost}\n\nUne image neuve de ce lieu le recharge. Ce n’est pas un volume : le fichier Blender du lieu reste le modèle 3D. Il n’entre pas dans la prise H3.\n\nFichier : \`${lora.file}\`\n`
     : `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage (fichier) » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
   return withFrontmatter({
-    type: "lora",
+    type: lora.kind === "lieu" ? "lieu" : "personnage",
+    projet,
+    statut: "prêt",
+    moteur: "fal",
+    gesture: lora.kind === "lieu" ? "scene" : "personnage",
+    updated: new Date().toISOString(),
     date: lora.at,
     nom: lora.name,
     genre: lora.kind,
@@ -452,33 +478,47 @@ function mapSection(title: string, lines: readonly string[]): string {
   return `## ${title}\n\n${body}`;
 }
 
-/** The vault map. Obsidian opens each wikilink. The note never claims a server copy. */
+/** The active project's map. The root map only lists projects. */
 export function mocMarkdown(studio: Studio): string {
+  const slug = studio.project;
+  if (!slug) return rootMoc(studio.projects);
   const look = studio.look.name.trim();
   const people = studio.loras.filter(lora => !isPlaceLora(lora));
   const places = studio.loras.filter(lora => isPlaceLora(lora));
+  const base = `Projets/${slug}`;
   const sections = [
-    mapSection("Références", look || studio.look.photos.length > 0 ? [wiki("CANON", look || "Références")] : []),
-    mapSection("Personnages", people.map(lora => wiki(`loras/${lora.id}`, lora.name || lora.trigger || "Personnage"))),
+    mapSection("Références", look || studio.look.photos.length > 0 ? [wiki(`${base}/Cast/canon`, look || "Références")] : []),
+    mapSection("Fichiers", people.map(lora => wiki(`${base}/Cast/${lora.id}`, lora.name || lora.trigger || "Personnage"))),
     mapSection("Lieux", [
-      ...studio.scenes.map(scene => wiki(`scenes/${scene.id}`, scene.name || "Lieu")),
-      ...places.map(lora => wiki(`loras/${lora.id}`, lora.name || "Lieu")),
+      ...studio.scenes.map(scene => wiki(`${base}/Lieux/${scene.id}`, scene.name || "Lieu")),
+      ...places.map(lora => wiki(`${base}/Lieux/${lora.id}-fichier`, lora.name || "Lieu")),
     ]),
-    mapSection("Prises", studio.takes.map(take => wiki(`prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
-    mapSection("Journal", [wiki("jobs", "Journal")]),
+    mapSection("Prises", studio.takes.map(take => wiki(`${base}/Prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
+    mapSection("Repères", [wiki(`${base}/Bible`, "Bible"), wiki(`${base}/Style`, "Style"), wiki(`${base}/Lexique`, "Lexique"), wiki(`${base}/Journal`, "Journal")]),
+    mapSection("Moteurs", [
+      wiki(`${base}/Moteurs/references`, "Prise · Références"),
+      wiki(`${base}/Moteurs/personnage`, "Prise · Personnage"),
+      wiki(`${base}/Moteurs/former`, "Former un personnage"),
+      wiki(`${base}/Moteurs/lieu`, "Former un lieu"),
+      wiki(`${base}/Moteurs/image`, "Image d’un lieu"),
+    ]),
   ];
-  return `# Carte de mon studio\n\nCette note relie mon studio. Obsidian ouvre chaque lien. Le dossier reste sur l’appareil qui le tient : rien n’en est copié ailleurs.\n\n${sections.join("\n\n")}\n`;
+  return `# ${studio.projectName || slug}\n\nCarte de ce projet. Obsidian ouvre chaque lien. Mon studio reste sur l’appareil qui le tient.\n\n${sections.join("\n\n")}\n`;
 }
 
-export function jobsMarkdown(takes: readonly Take[], loras: readonly Lora[] = []): string {
+export function jobsMarkdown(takes: readonly Take[], loras: readonly Lora[] = [], slug = ""): string {
+  const prise = (id: string) => slug ? `Projets/${slug}/Prises/${id}` : `prises/${id}`;
+  const fiche = (lora: Lora) => slug
+    ? (isPlaceLora(lora) ? `Projets/${slug}/Lieux/${lora.id}-fichier` : `Projets/${slug}/Cast/${lora.id}`)
+    : `loras/${lora.id}`;
   const rows = [
     ...takes.map(take => ({
       at: take.at,
-      row: `| ${take.at.slice(0, 16).replace("T", " ")} | [[prises/${take.id}]] | ${take.engine === "lora" ? "fal" : "Comfy"} | ${take.profile} | ${take.gpuSeconds ?? "—"} | ${costLabel(take) ?? "en attente"} |`,
+      row: `| ${take.at.slice(0, 16).replace("T", " ")} | [[${prise(take.id)}]] | ${take.engine === "lora" ? "fal" : "Comfy"} | ${take.profile} | ${take.gpuSeconds ?? "—"} | ${costLabel(take) ?? "en attente"} |`,
     })),
     ...loras.map(lora => ({
       at: lora.at,
-      row: `| ${lora.at.slice(0, 16).replace("T", " ")} | [[loras/${lora.id}]] | fal | lora-${lora.steps}pas-rang${lora.rank} | ${lora.seconds ?? "—"} | ${lora.costUsd === null ? "en attente" : usd(lora.costUsd)} |`,
+      row: `| ${lora.at.slice(0, 16).replace("T", " ")} | [[${fiche(lora)}]] | fal | lora-${lora.steps}pas-rang${lora.rank} | ${lora.seconds ?? "—"} | ${lora.costUsd === null ? "en attente" : usd(lora.costUsd)} |`,
     })),
   ].sort((a, b) => a.at.localeCompare(b.at)).map(item => item.row);
   return `# Journal\n\nUne ligne par prise et par formation. Le coût vient du compte qui a payé : le solde Comfy, ou la facture fal de la demande.\n\n| Date | Quoi | Moteur | Réglage | Calcul (s) | Coût |\n| --- | --- | --- | --- | --- | --- |\n${rows.join("\n")}\n`;
@@ -488,55 +528,133 @@ export const README = `# U*TTU — Mon studio
 
 Ce dossier est mon studio. L’app l’écrit, Obsidian le lit tel quel.
 
-- \`CANON.md\` — les références : nom, traits, photos.
-- \`refs/\` — les photos des références.
-- \`scenes/\` — tes lieux, une note et des images chacun.
-- \`prises/\` — chaque prise : la vidéo et sa fiche (plan, réglage, coût mesuré).
-- \`clips/\` — les courtes vidéos du personnage en cours.
-- \`roles/\` — les photos de ce personnage, effacées avec le brouillon.
-- \`loras/\` — chaque LoRA formé : le fichier \`.safetensors\` et sa fiche (déclencheur, pas, coût).
-- \`jobs.md\` — le journal des prises, des formations et de ce qu’elles ont coûté.
-- \`MOC.md\` — la carte : liens vers les références, les personnages, les lieux, les prises et le journal.
+- \`MOC.md\` — la carte des projets.
+- \`Projets/<projet>/\` — un univers complet : bible, style, lexique, personnages, références, lieux, prises, journal, moteurs.
+- \`.uttu/projet.json\` — le projet en cours. Pas une clé.
 
-Rien ici n’est envoyé au studio. Pour le lire sur un autre appareil, exporte ce dossier et importe-le là-bas. Les prises et les formations tournent sur tes propres comptes.
+La chaîne ne lit que le projet en cours. Rien ici n’est envoyé au studio. Pour le lire sur un autre appareil, exporte ce dossier et importe-le là-bas. Les prises et les formations tournent sur tes propres comptes.
 `;
 
-export async function loadStudio(store: VaultStore): Promise<Studio> {
+async function readActive(store: VaultStore): Promise<string | null> {
+  try {
+    const raw = JSON.parse((await store.get(ACTIVE_FILE))?.text ?? "null") as { actif?: unknown } | null;
+    return typeof raw?.actif === "string" && projectSlug(raw.actif) === raw.actif ? raw.actif : null;
+  } catch {
+    return null;
+  }
+}
+
+async function writeActive(store: VaultStore, slug: string): Promise<void> {
+  await writeText(store, ACTIVE_FILE, JSON.stringify({ actif: slug }));
+}
+
+function loraFiche(slug: string, lora: Pick<Lora, "id" | "kind">): string {
+  return projectPath(slug, isPlaceLora(lora) ? `Lieux/${lora.id}-fichier.md` : `Cast/${lora.id}.md`);
+}
+
+/** Moves a vault from the old single-folder layout into one project. A file already there stays. */
+export async function migrateLegacy(store: VaultStore): Promise<void> {
   const entries = await store.list();
+  const legacy = entries.filter(entry => isLegacyPath(entry.path));
+  if (legacy.length === 0) return;
+  const canon = entries.find(entry => entry.path === "CANON.md")?.text;
+  const slug = projectSlug(canon ? parseCanon(canon).name : "");
+  for (const entry of legacy) {
+    let dest = legacyDestination(entry.path, slug);
+    if (entry.path.startsWith("loras/") && entry.path.endsWith(".md")) {
+      const id = entry.path.slice("loras/".length, -".md".length);
+      const parsed = entry.text ? parseLora(id, entry.text) : null;
+      dest = projectPath(slug, parsed?.kind === "lieu" ? `Lieux/${id}-fichier.md` : `Cast/${id}.md`);
+    }
+    if (!dest || !cleanPath(dest) || await store.get(dest)) {
+      await store.remove(entry.path);
+      continue;
+    }
+    const moved: VaultEntry = {
+      path: dest,
+      updatedAt: entry.updatedAt || Date.now(),
+    };
+    if (entry.text !== undefined) moved.text = relocateText(entry.text, slug);
+    if (entry.blob) moved.blob = entry.blob;
+    await store.put(moved);
+    await store.remove(entry.path);
+  }
+  if (!(await readActive(store))) await writeActive(store, slug);
+}
+
+async function fillScaffold(store: VaultStore, slug: string, name: string): Promise<void> {
+  for (const file of scaffoldFiles(slug, name)) {
+    if (!(await store.get(file.path))) await writeText(store, file.path, file.text);
+  }
+}
+
+function heldScene(parsed: Scene, byPath: Map<string, VaultEntry>): Scene {
+  const fileHeld = Boolean(parsed.previzFile && byPath.has(parsed.previzFile));
+  return {
+    ...parsed,
+    stills: parsed.stills.filter(path => byPath.has(path)),
+    previzFile: fileHeld ? parsed.previzFile : null,
+    frames: parsed.frames.length > 0 && parsed.frames.every(path => byPath.has(path)) ? parsed.frames : [],
+    render: parsed.render && byPath.has(parsed.render) ? parsed.render : null,
+    views: parsed.views.filter(path => byPath.has(path)),
+  };
+}
+
+export async function loadStudio(store: VaultStore): Promise<Studio> {
+  await migrateLegacy(store);
+  let entries = await store.list();
+  const slugs = projectSlugsFrom(entries.map(entry => entry.path));
+  let slug = await readActive(store);
+  if (!slug || !slugs.includes(slug)) slug = slugs[0] ?? null;
+  if (slug && (await readActive(store)) !== slug) await writeActive(store, slug);
+  if (slug) {
+    const heading = entries.find(entry => entry.path === projectPath(slug, "_MOC.md"))?.text;
+    await fillScaffold(store, slug, projectTitle(slug, heading));
+    entries = await store.list();
+  }
+  const projects = projectSlugsFrom(entries.map(entry => entry.path)).map(item => ({
+    slug: item,
+    name: projectTitle(item, entries.find(entry => entry.path === projectPath(item, "_MOC.md"))?.text),
+  }));
   const studio = emptyStudio();
+  studio.projects = projects;
+  studio.project = slug;
+  studio.projectName = projects.find(item => item.slug === slug)?.name ?? "";
+  studio.tree = slug ? projectTree(slug, entries.map(entry => entry.path)) : [];
+  if (!slug) return studio;
   const byPath = new Map(entries.map(entry => [entry.path, entry]));
-  const canon = byPath.get("CANON.md")?.text;
+  const prefix = projectPath(slug);
+  const canon = byPath.get(`${prefix}/Cast/canon.md`)?.text;
   if (canon) {
     const look = parseCanon(canon);
     studio.look = { ...look, photos: look.photos.filter(path => byPath.has(path)) };
   }
+  const sceneRe = new RegExp(`^Projets/${slug}/Lieux/([a-z0-9-]+)\\.md$`);
+  const placeRe = new RegExp(`^Projets/${slug}/Lieux/([A-Za-z0-9-]+)-fichier\\.md$`);
+  const castRe = new RegExp(`^Projets/${slug}/Cast/([A-Za-z0-9-]+)\\.md$`);
+  const takeRe = new RegExp(`^Projets/${slug}/Prises/([A-Za-z0-9-]+)\\.md$`);
   for (const entry of entries) {
-    const scene = /^scenes\/([a-z0-9-]+)\.md$/.exec(entry.path);
-    if (scene && entry.text) {
-      const parsed = parseScene(scene[1], entry.text);
-      const fileHeld = Boolean(parsed.previzFile && byPath.has(parsed.previzFile));
-      studio.scenes.push({
-        ...parsed,
-        stills: parsed.stills.filter(path => byPath.has(path)),
-        previz: parsed.previz,
-        previzFile: fileHeld ? parsed.previzFile : null,
-        camera: parsed.camera,
-        frames: parsed.frames.length > 0 && parsed.frames.every(path => byPath.has(path)) ? parsed.frames : [],
-        render: parsed.render && byPath.has(parsed.render) ? parsed.render : null,
-        shot: parsed.shot,
-        views: parsed.views.filter(path => byPath.has(path)),
-      });
+    if (!entry.path.startsWith(`${prefix}/`) || !entry.text) continue;
+    const place = placeRe.exec(entry.path);
+    if (place) {
+      const parsed = parseLora(place[1], entry.text);
+      if (parsed && byPath.has(parsed.file)) studio.loras.push(parsed);
       continue;
     }
-    const take = /^prises\/([A-Za-z0-9-]+)\.md$/.exec(entry.path);
-    if (take && entry.text) {
+    const scene = sceneRe.exec(entry.path);
+    if (scene && !entry.path.endsWith("-fichier.md")) {
+      studio.scenes.push(heldScene(parseScene(scene[1], entry.text), byPath));
+      continue;
+    }
+    const take = takeRe.exec(entry.path);
+    if (take) {
       const parsed = parseTake(take[1], entry.text);
       if (parsed && byPath.has(parsed.video)) studio.takes.push({ ...parsed, poster: parsed.poster && byPath.has(parsed.poster) ? parsed.poster : null });
       continue;
     }
-    const lora = /^loras\/([A-Za-z0-9-]+)\.md$/.exec(entry.path);
-    if (lora && entry.text) {
-      const parsed = parseLora(lora[1], entry.text);
+    const cast = castRe.exec(entry.path);
+    if (cast && cast[1] !== "canon") {
+      const parsed = parseLora(cast[1], entry.text);
       if (parsed && byPath.has(parsed.file)) studio.loras.push(parsed);
     }
   }
@@ -545,12 +663,12 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
   const filmed = new Set(studio.takes.map(take => take.id));
   for (const scene of studio.scenes) if (scene.shot && !filmed.has(scene.shot)) scene.shot = null;
   try {
-    const state = JSON.parse(byPath.get(".uttu/etat.json")?.text ?? "{}") as { lieu?: unknown };
+    const state = JSON.parse(byPath.get(`${prefix}/.uttu/etat.json`)?.text ?? "{}") as { lieu?: unknown };
     if (typeof state.lieu === "string" && studio.scenes.some(scene => scene.id === state.lieu)) studio.currentScene = state.lieu;
   } catch {}
   studio.currentScene ??= studio.scenes[0]?.id ?? null;
-  studio.clips = readClips(byPath.get(".uttu/clips.json")?.text).filter(clip => byPath.has(clip.path));
-  const role = parseRole(byPath.get(".uttu/role.json")?.text);
+  studio.clips = readClips(byPath.get(`${prefix}/.uttu/clips.json`)?.text).filter(clip => byPath.has(clip.path));
+  const role = parseRole(byPath.get(`${prefix}/.uttu/role.json`)?.text);
   studio.role = { ...role, photos: role.photos.filter(path => byPath.has(path)) };
   return studio;
 }
@@ -564,7 +682,7 @@ function readClips(source: string | undefined): Clip[] {
     return rows.flatMap(row => {
       const format = typeof row.format === "string" ? pick(row.format, FORMATS) : null;
       const values = [row.bytes, row.seconds, row.width, row.height].map(Number);
-      if (typeof row.path !== "string" || !row.path.startsWith("clips/") || !format || values.some(value => !Number.isFinite(value))) return [];
+      if (typeof row.path !== "string" || !clipVaultPath(row.path) || !format || values.some(value => !Number.isFinite(value))) return [];
       return [{ path: row.path, format, bytes: values[0], seconds: values[1], width: values[2], height: values[3] }];
     });
   } catch {
@@ -582,69 +700,121 @@ export async function writeBlob(store: VaultStore, path: string, blob: Blob): Pr
   await store.put({ path, blob, updatedAt: now() });
 }
 
-/** Keeps the map next to the files Obsidian opens. A missing journal is created empty so its link resolves. */
+async function writeRoot(store: VaultStore): Promise<void> {
+  const entries = await store.list();
+  const projects = projectSlugsFrom(entries.map(entry => entry.path)).map(item => ({
+    slug: item,
+    name: projectTitle(item, entries.find(entry => entry.path === projectPath(item, "_MOC.md"))?.text),
+  }));
+  await writeText(store, "MOC.md", rootMoc(projects));
+  if (!(await store.get("README.md"))) await writeText(store, "README.md", README);
+}
+
+/** Opens a project, or makes the default one. An empty vault stays empty until this, or until a write. */
+export async function ensureActiveProject(store: VaultStore, name = DEFAULT_PROJECT_NAME): Promise<string> {
+  await migrateLegacy(store);
+  const wanted = projectSlug(name);
+  const slugs = projectSlugsFrom((await store.list()).map(entry => entry.path));
+  const active = await readActive(store);
+  if (active && slugs.includes(active)) return active;
+  if (slugs.includes(wanted)) {
+    await writeActive(store, wanted);
+    return wanted;
+  }
+  if (slugs[0]) {
+    await writeActive(store, slugs[0]);
+    return slugs[0];
+  }
+  return createProject(store, name);
+}
+
+export async function createProject(store: VaultStore, name: string): Promise<string> {
+  const label = name.replace(/[\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, NAME_MAX) || DEFAULT_PROJECT_NAME;
+  const slug = uniqueId(projectSlug(label), projectSlugsFrom((await store.list()).map(entry => entry.path)));
+  for (const file of scaffoldFiles(slug, label)) await writeText(store, file.path, file.text);
+  await writeActive(store, slug);
+  await writeRoot(store);
+  return slug;
+}
+
+export async function selectProject(store: VaultStore, slug: string): Promise<void> {
+  const slugs = projectSlugsFrom((await store.list()).map(entry => entry.path));
+  if (!slugs.includes(slug)) return;
+  await writeActive(store, slug);
+}
+
+/** Keeps the root map and the active project's map next to the files Obsidian opens. */
 export async function writeMap(store: VaultStore): Promise<void> {
   const studio = await loadStudio(store);
-  if (!(await store.get("jobs.md"))) await writeText(store, "jobs.md", jobsMarkdown(studio.takes, studio.loras));
-  await writeText(store, "MOC.md", mocMarkdown(studio));
+  await writeText(store, "MOC.md", rootMoc(studio.projects));
+  if (studio.project) {
+    await writeText(store, projectPath(studio.project, "Journal.md"), jobsMarkdown(studio.takes, studio.loras, studio.project));
+    await writeText(store, projectPath(studio.project, "_MOC.md"), mocMarkdown(studio));
+  }
   if (!(await store.get("README.md"))) await writeText(store, "README.md", README);
 }
 
 export async function writeLook(store: VaultStore, look: Look): Promise<void> {
-  await writeText(store, "CANON.md", canonMarkdown(look));
+  const slug = await ensureActiveProject(store);
+  await writeText(store, projectPath(slug, "Cast/canon.md"), canonMarkdown(look, slug));
   await writeMap(store);
 }
 
 export async function writeScene(store: VaultStore, scene: Scene): Promise<void> {
-  await writeText(store, `scenes/${scene.id}.md`, sceneMarkdown(scene));
+  const slug = await ensureActiveProject(store);
+  await writeText(store, projectPath(slug, `Lieux/${scene.id}.md`), sceneMarkdown(scene, slug));
   await writeMap(store);
 }
 
 export async function removeScene(store: VaultStore, scene: Scene): Promise<void> {
+  const slug = await ensureActiveProject(store);
   for (const path of [...scene.stills, ...scene.frames, ...(scene.views ?? [])]) await store.remove(path);
   if (scene.previzFile) await store.remove(scene.previzFile);
   if (scene.render && !scene.frames.includes(scene.render)) await store.remove(scene.render);
-  await store.remove(`scenes/${scene.id}.md`);
+  await store.remove(projectPath(slug, `Lieux/${scene.id}.md`));
   await writeMap(store);
 }
 
 export async function writeRole(store: VaultStore, role: RoleDraft): Promise<void> {
-  await writeText(store, ".uttu/role.json", roleJson(role));
+  const slug = await ensureActiveProject(store);
+  await writeText(store, projectPath(slug, ".uttu/role.json"), roleJson(role));
 }
 
 export async function writeState(store: VaultStore, currentScene: string | null): Promise<void> {
-  await writeText(store, ".uttu/etat.json", JSON.stringify({ lieu: currentScene }));
+  const slug = await ensureActiveProject(store);
+  await writeText(store, projectPath(slug, ".uttu/etat.json"), JSON.stringify({ lieu: currentScene }));
 }
 
-export async function writeTake(store: VaultStore, take: Take, takes: readonly Take[], loras: readonly Lora[] = []): Promise<void> {
-  await writeText(store, `prises/${take.id}.md`, takeMarkdown(take));
-  await writeText(store, "jobs.md", jobsMarkdown(takes, loras));
+export async function writeTake(store: VaultStore, take: Take, _takes: readonly Take[], _loras: readonly Lora[] = []): Promise<void> {
+  const slug = await ensureActiveProject(store);
+  await writeText(store, projectPath(slug, `Prises/${take.id}.md`), takeMarkdown(take, slug));
   await writeMap(store);
 }
 
-export async function removeTake(store: VaultStore, take: Take, takes: readonly Take[], loras: readonly Lora[] = []): Promise<void> {
+export async function removeTake(store: VaultStore, take: Take, _takes: readonly Take[], _loras: readonly Lora[] = []): Promise<void> {
+  const slug = await ensureActiveProject(store);
   await store.remove(take.video);
   if (take.poster) await store.remove(take.poster);
-  await store.remove(`prises/${take.id}.md`);
-  await writeText(store, "jobs.md", jobsMarkdown(takes, loras));
+  await store.remove(projectPath(slug, `Prises/${take.id}.md`));
   await writeMap(store);
 }
 
 export async function writeClips(store: VaultStore, clips: readonly Clip[]): Promise<void> {
-  await writeText(store, ".uttu/clips.json", JSON.stringify(clips));
+  const slug = await ensureActiveProject(store);
+  await writeText(store, projectPath(slug, ".uttu/clips.json"), JSON.stringify(clips));
 }
 
-export async function writeLora(store: VaultStore, lora: Lora, file: Blob, takes: readonly Take[], loras: readonly Lora[]): Promise<void> {
+export async function writeLora(store: VaultStore, lora: Lora, file: Blob, _takes: readonly Take[], _loras: readonly Lora[]): Promise<void> {
+  const slug = await ensureActiveProject(store);
   await writeBlob(store, lora.file, file);
-  await writeText(store, `loras/${lora.id}.md`, loraMarkdown(lora));
-  await writeText(store, "jobs.md", jobsMarkdown(takes, loras));
+  await writeText(store, loraFiche(slug, lora), loraMarkdown(lora, slug));
   await writeMap(store);
 }
 
-export async function removeLora(store: VaultStore, lora: Lora, takes: readonly Take[], loras: readonly Lora[]): Promise<void> {
+export async function removeLora(store: VaultStore, lora: Lora, _takes: readonly Take[], _loras: readonly Lora[]): Promise<void> {
+  const slug = await ensureActiveProject(store);
   await store.remove(lora.file);
-  await store.remove(`loras/${lora.id}.md`);
-  await writeText(store, "jobs.md", jobsMarkdown(takes, loras));
+  await store.remove(loraFiche(slug, lora));
   await writeMap(store);
 }
 

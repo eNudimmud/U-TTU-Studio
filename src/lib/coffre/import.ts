@@ -3,7 +3,8 @@
 // weight file, is left out so it cannot replace a prise or a personnage.
 
 import { readFrontmatter } from "./markdown.ts";
-import { COFFRE_ROOT, jobsMarkdown, loadStudio, parseLora, parseTake, writeBlob, writeMap, writeText } from "./model.ts";
+import { COFFRE_ROOT, parseLora, parseTake, writeBlob, writeMap, writeText } from "./model.ts";
+import { ACTIVE_FILE } from "./project.ts";
 import { cleanPath, type VaultStore } from "./store.ts";
 import { readZip } from "../zip.ts";
 
@@ -15,8 +16,10 @@ export interface CoffreMerge {
 const ROOTS = new Set(["CANON.md", "README.md", "MOC.md", "jobs.md"]);
 
 function allowedVaultPath(path: string): boolean {
-  if (ROOTS.has(path)) return true;
-  return /^(refs|scenes|clips|loras|prises|roles|\.uttu)\//.test(path);
+  if (ROOTS.has(path) || path === ACTIVE_FILE) return true;
+  if (/^(refs|scenes|clips|loras|prises|roles|\.uttu)\//.test(path)) return true;
+  return /^Projets\/[a-z0-9-]+\/(?:_MOC|Bible|Style|Lexique|Journal)\.md$/.test(path)
+    || /^Projets\/[a-z0-9-]+\/(?:Cast|Refs|Lieux|Prises|Sequences|Shots|Prompts|Templates|Moteurs|Assets|\.uttu)\/[^/]+$/.test(path);
 }
 
 function isSecret(path: string): boolean {
@@ -52,19 +55,24 @@ function blobType(path: string): string {
   return types[ext] ?? "application/octet-stream";
 }
 
+function noteId(path: string): string {
+  const base = path.slice(path.lastIndexOf("/") + 1);
+  return base.endsWith("-fichier.md") ? base.slice(0, -"-fichier.md".length) : base.slice(0, -".md".length);
+}
+
 function acceptNote(path: string, text: string, future: ReadonlySet<string>): boolean {
-  const prise = /^prises\/([A-Za-z0-9-]+)\.md$/.exec(path);
+  const prise = /(?:^prises\/|\/Prises\/)([A-Za-z0-9-]+)\.md$/.exec(path);
   if (prise) {
     const parsed = parseTake(prise[1], text);
     return Boolean(parsed && future.has(parsed.video));
   }
-  const lora = /^loras\/([A-Za-z0-9-]+)\.md$/.exec(path);
-  if (lora) {
-    const parsed = parseLora(lora[1], text);
+  if (/^loras\/.+\.md$/.test(path) || /\/Cast\/(?!canon\.md).+\.md$/.test(path) || /\/Lieux\/.+-fichier\.md$/.test(path)) {
+    const parsed = parseLora(noteId(path), text);
     return Boolean(parsed && future.has(parsed.file));
   }
-  if (path === "CANON.md") return readFrontmatter(text).fields.type === "look";
-  if (/^scenes\/[a-z0-9-]+\.md$/.test(path)) return readFrontmatter(text).fields.type === "scene";
+  const type = String(readFrontmatter(text).fields.type ?? "");
+  if (path === "CANON.md" || path.endsWith("/Cast/canon.md")) return type === "look" || type === "personnage";
+  if (/^scenes\/[a-z0-9-]+\.md$/.test(path) || /\/Lieux\/[a-z0-9-]+\.md$/.test(path)) return type === "scene" || type === "lieu";
   return true;
 }
 
@@ -74,7 +82,7 @@ export async function mergeCoffreZip(store: VaultStore, archive: Uint8Array): Pr
   let skipped = 0;
   for (const entry of readZip(archive)) {
     const path = vaultPathFromZip(entry.name);
-    if (!path || path === "jobs.md" || path === "MOC.md") {
+    if (!path || path === "jobs.md" || path === "MOC.md" || path.endsWith("/_MOC.md") || path.endsWith("/Journal.md")) {
       skipped += 1;
       continue;
     }
@@ -104,8 +112,6 @@ export async function mergeCoffreZip(store: VaultStore, archive: Uint8Array): Pr
     written += 1;
   }
 
-  const studio = await loadStudio(store);
-  await writeText(store, "jobs.md", jobsMarkdown(studio.takes, studio.loras));
   await writeMap(store);
   return { written, skipped };
 }
