@@ -20,7 +20,7 @@ import type { PlaceCamera, PrevizPlan } from "../render/previz.ts";
 import { defaultCamera, isLens } from "../render/previz.ts";
 import { list, num, readFrontmatter, text, withFrontmatter } from "./markdown.ts";
 import {
-  ACTIVE_FILE, DEFAULT_PROJECT_NAME, clipVaultPath, isLegacyPath, legacyDestination, projectPath, projectSlug, projectSlugsFrom, projectTitle, projectTree, relocateText, rolePhotoPath, rootMoc, scaffoldFiles, vaultMedia,
+  ACTIVE_FILE, DEFAULT_PROJECT_NAME, SECTION_FILE_MOVES, clipVaultPath, isLegacyPath, legacyDestination, projectPath, projectSlug, projectSlugsFrom, projectTitle, projectTree, relocateText, rewriteSectionLinks, rolePhotoPath, rootMoc, scaffoldFiles, vaultMedia,
   type ProjectCard, type TreeFolder,
 } from "./project.ts";
 import { cleanPath, type VaultEntry, type VaultStore } from "./store.ts";
@@ -496,10 +496,10 @@ export function mocMarkdown(studio: Studio): string {
     mapSection("Prises", studio.takes.map(take => wiki(`${base}/Prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
     mapSection("Repères", [wiki(`${base}/Bible`, "Bible"), wiki(`${base}/Style`, "Style"), wiki(`${base}/Lexique`, "Lexique"), wiki(`${base}/Journal`, "Journal")]),
     mapSection("Moteurs", [
-      wiki(`${base}/Moteurs/references`, "Prise · Références"),
-      wiki(`${base}/Moteurs/personnage`, "Prise · Personnage"),
+      wiki(`${base}/Moteurs/moteur-references`, "Prise · Références"),
+      wiki(`${base}/Moteurs/moteur-personnage`, "Prise · Personnage"),
       wiki(`${base}/Moteurs/former`, "Former un personnage"),
-      wiki(`${base}/Moteurs/lieu`, "Former un lieu"),
+      wiki(`${base}/Moteurs/moteur-lieu`, "Former un lieu"),
       wiki(`${base}/Moteurs/image`, "Image d’un lieu"),
     ]),
   ];
@@ -552,6 +552,27 @@ function loraFiche(slug: string, lora: Pick<Lora, "id" | "kind">): string {
   return projectPath(slug, isPlaceLora(lora) ? `Lieux/${lora.id}-fichier.md` : `Cast/${lora.id}.md`);
 }
 
+/** Renames scaffold notes that used a section name. A file already at the new path stays, text included. */
+export async function migrateSectionFiles(store: VaultStore): Promise<void> {
+  const slugs = projectSlugsFrom((await store.list()).map(entry => entry.path));
+  for (const slug of slugs) {
+    for (const [from, to] of SECTION_FILE_MOVES) {
+      const src = projectPath(slug, from);
+      const dest = projectPath(slug, to);
+      const source = await store.get(src);
+      if (!source || await store.get(dest)) continue;
+      await store.put({ ...source, path: dest });
+      await store.remove(src);
+    }
+    for (const entry of await store.list()) {
+      if (!entry.text || !entry.path.startsWith(`${projectPath(slug)}/`)) continue;
+      const next = rewriteSectionLinks(entry.text);
+      if (next === entry.text) continue;
+      await writeText(store, entry.path, next);
+    }
+  }
+}
+
 /** Moves a vault from the old single-folder layout into one project. A file already there stays. */
 export async function migrateLegacy(store: VaultStore): Promise<void> {
   const entries = await store.list();
@@ -602,6 +623,7 @@ function heldScene(parsed: Scene, byPath: Map<string, VaultEntry>): Scene {
 
 export async function loadStudio(store: VaultStore): Promise<Studio> {
   await migrateLegacy(store);
+  await migrateSectionFiles(store);
   let entries = await store.list();
   const slugs = projectSlugsFrom(entries.map(entry => entry.path));
   let slug = await readActive(store);

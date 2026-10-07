@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { costLabel } from "@/lib/coffre/model";
+import { treeFileLabel } from "@/lib/coffre/project";
 import { CREDITS_PER_USD, claimBasis, formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { folderLinkSupported } from "@/lib/coffre/link";
@@ -196,7 +197,7 @@ export function CoffreSheet() {
       </label>
       <button type="button" className="u-secondary" onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>Créer ce projet</button>
       {studio.tree.length > 0 && <ul className="u-tree" aria-label="Dossiers du projet">
-        {studio.tree.map(group => <li key={group.label}><strong>{group.label}</strong>{group.files.map(file => <span key={file}>{file}</span>)}</li>)}
+        {studio.tree.map(group => <li key={group.label}><strong>{group.label}</strong>{group.files.map(file => <span key={file}>{treeFileLabel(group.label, file)}</span>)}</li>)}
       </ul>}
       <p className="u-small">Pour le lire ailleurs : exporte le ZIP, ouvre ce dossier dans Obsidian, puis importe ce ZIP sur l’autre appareil. Les fichiers s’ajoutent. Une prise ou un personnage déjà ici reste.</p>
       <ul className="u-ledger">

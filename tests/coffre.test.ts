@@ -7,6 +7,7 @@ import {
   canonMarkdown, cleanTraits, createProject, loadStudio, lookCheck, loraMarkdown, parseCanon, parseLora, parseTake, parseTraits, removeLora, removeScene, removeTake, sceneMarkdown, selectProject, sha256Hex, slugify, takeId, takeMarkdown, uniqueId,
   writeBlob, writeClips, writeLook, writeLora, writeScene, writeState, writeTake, writeText, type Lora, type Scene, type Take,
 } from "../src/lib/coffre/model.ts";
+import { scaffoldFiles, treeFileLabel } from "../src/lib/coffre/project.ts";
 import { cleanPath, memoryVault } from "../src/lib/coffre/store.ts";
 import { createZip, readZip } from "../src/lib/zip.ts";
 
@@ -168,8 +169,8 @@ describe("coffre en markdown", () => {
     const files = readZip(archive).map(entry => entry.name);
     assert.ok(files.includes("U-TTU-Studio/Projets/atelier/Cast/canon.md"));
     assert.ok(files.includes("U-TTU-Studio/MOC.md"));
-    assert.ok(files.includes("U-TTU-Studio/Projets/atelier/Moteurs/references.md"));
-    const moteur = new TextDecoder().decode(readZip(archive).find(entry => entry.name.endsWith("Moteurs/references.md"))?.data ?? new Uint8Array());
+    assert.ok(files.includes("U-TTU-Studio/Projets/atelier/Moteurs/moteur-references.md"));
+    const moteur = new TextDecoder().decode(readZip(archive).find(entry => entry.name.endsWith("Moteurs/moteur-references.md"))?.data ?? new Uint8Array());
     assert.match(moteur, /type: "moteur"/);
     assert.doesNotMatch(moteur, /class_type|SaveLoRA|LoadImage/);
   });
@@ -294,8 +295,68 @@ describe("coffre en markdown", () => {
     assert.deepEqual(moved.look.photos, ["Projets/nola/Refs/a.jpg"]);
     assert.equal(await old.get("CANON.md"), null);
     assert.equal(await old.get("scenes/le-quai.md"), null);
-    const moteur = (await old.get("Projets/nola/Moteurs/personnage.md"))?.text ?? "";
+    const moteur = (await old.get("Projets/nola/Moteurs/moteur-personnage.md"))?.text ?? "";
     assert.match(moteur, /compte de rendu/);
     assert.doesNotMatch(moteur, /class_type|Coffre|Vault/);
+  });
+
+  it("keeps a section name for the folder, and marks a gabarit", async () => {
+    const seeded = scaffoldFiles("mira", "Mira").map(file => file.path);
+    assert.ok(seeded.includes("Projets/mira/Templates/modele-personnage.md"));
+    assert.ok(seeded.includes("Projets/mira/Templates/modele-scene.md"));
+    assert.ok(seeded.includes("Projets/mira/Templates/modele-prise.md"));
+    assert.equal(seeded.some(path => /\/Templates\/(?:personnage|scene|prise)\.md$/.test(path)), false);
+    assert.ok(seeded.includes("Projets/mira/Moteurs/moteur-personnage.md"));
+    assert.equal(seeded.includes("Projets/mira/Moteurs/personnage.md"), false);
+
+    assert.equal(treeFileLabel("Modèles", "modele-prise.md"), "Modèle · Prise");
+    assert.equal(treeFileLabel("Modèles", "modele-personnage.md"), "Modèle · Personnage");
+    assert.equal(treeFileLabel("Modèles", "modele-scene.md"), "Modèle · Scène");
+    assert.equal(treeFileLabel("Modèles", "prise.md"), "Modèle · Prise");
+    assert.equal(treeFileLabel("Moteurs", "moteur-personnage.md"), "Moteur · Personnage");
+    assert.equal(treeFileLabel("Moteurs", "personnage.md"), "Moteur · Personnage");
+    assert.equal(treeFileLabel("Moteurs", "references.md"), "Moteur · Références");
+    assert.equal(treeFileLabel("Moteurs", "lieu.md"), "Moteur · Lieu");
+    assert.equal(treeFileLabel("Moteurs", "former.md"), "former.md");
+    assert.equal(treeFileLabel("Prises", "une.md"), "une.md");
+    assert.equal(treeFileLabel("Prises", "20261003-153000-le-quai.md"), "20261003-153000-le-quai.md");
+    assert.equal(treeFileLabel("Séquences", "index.md"), "index.md");
+    assert.equal(treeFileLabel("Notes", "Bible.md"), "Bible.md");
+
+    const store = memoryVault();
+    await writeText(store, "Projets/mira/_MOC.md", "# Mira\n\n- [[Projets/mira/Moteurs/personnage|Prise · Personnage]]\n- [[Projets/mira/Templates/prise.md]]\n");
+    await writeText(store, "Projets/mira/Templates/prise.md", "# Prise\n\nPhrase gardée.\n");
+    await writeText(store, "Projets/mira/Templates/personnage.md", "# Personnage\n");
+    await writeText(store, "Projets/mira/Templates/scene.md", "# Lieu\n");
+    await writeText(store, "Projets/mira/Moteurs/personnage.md", "ancien moteur\n");
+    await writeText(store, "Projets/mira/Moteurs/references.md", "ancien ref\n");
+    await writeText(store, "Projets/mira/Moteurs/lieu.md", "ancien lieu\n");
+    await writeText(store, "Projets/mira/Prises/une.md", "# Une vraie prise\n");
+    await writeText(store, ".uttu/projet.json", JSON.stringify({ actif: "mira" }));
+    const studio = await loadStudio(store);
+    assert.equal(await store.get("Projets/mira/Templates/prise.md"), null);
+    assert.match((await store.get("Projets/mira/Templates/modele-prise.md"))?.text ?? "", /Phrase gardée/);
+    assert.match((await store.get("Projets/mira/Prises/une.md"))?.text ?? "", /vraie prise/);
+    assert.equal(await store.get("Projets/mira/Moteurs/personnage.md"), null);
+    assert.match((await store.get("Projets/mira/Moteurs/moteur-personnage.md"))?.text ?? "", /ancien moteur/);
+    const moc = (await store.get("Projets/mira/_MOC.md"))?.text ?? "";
+    assert.match(moc, /Moteurs\/moteur-personnage\|Prise · Personnage/);
+    assert.doesNotMatch(moc, /Moteurs\/personnage\|/);
+    assert.match(moc, /Templates\/modele-prise\.md/);
+    const modeles = studio.tree.find(group => group.label === "Modèles");
+    assert.deepEqual(modeles?.files.map(file => treeFileLabel(modeles.label, file)).sort(), ["Modèle · Personnage", "Modèle · Prise", "Modèle · Scène"]);
+    assert.equal(modeles?.files.includes("prise.md"), false);
+    const prises = studio.tree.find(group => group.label === "Prises");
+    assert.deepEqual(prises?.files, ["une.md"]);
+    assert.equal(studio.tree.some(group => group.files.some(file => file === "prise.md" || file === "personnage.md" || file === "scene.md")), false);
+
+    const kept = memoryVault();
+    await writeText(kept, "Projets/mira/_MOC.md", "# Mira\n");
+    await writeText(kept, "Projets/mira/Templates/prise.md", "ancien\n");
+    await writeText(kept, "Projets/mira/Templates/modele-prise.md", "déjà là\n");
+    await writeText(kept, ".uttu/projet.json", JSON.stringify({ actif: "mira" }));
+    await loadStudio(kept);
+    assert.match((await kept.get("Projets/mira/Templates/modele-prise.md"))?.text ?? "", /déjà là/);
+    assert.match((await kept.get("Projets/mira/Templates/prise.md"))?.text ?? "", /ancien/);
   });
 });
