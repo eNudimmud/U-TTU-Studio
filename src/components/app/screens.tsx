@@ -205,7 +205,7 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
 export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScene(): void; goLora(): void }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { media, scene, line, setLine, settings, setSettings, claim, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resumeRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
+  const { ready, media, scene, line, setLine, settings, setSettings, claim, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resumeRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
   const cast = castShelf(studio.studio.loras);
   const decor = decorShelf(studio.studio.scenes);
   const check = lookCheck(studio.studio.look);
@@ -299,6 +299,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
     </header>
 
+    {ready && <>
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>
       <p className="u-label">{t("job.running")}</p>
@@ -418,6 +419,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
     </div>}
     {run.phase !== "idle" && <ProjectMemory />}
     <CinemaGestures anchor />
+    </>}
   </section>;
 }
 

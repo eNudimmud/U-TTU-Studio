@@ -121,11 +121,18 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       const bandBottom = Math.min(chain?.top ?? visibleBottom, visibleBottom) - 12;
       const rect = el.getBoundingClientRect();
       const delta = liftDelta(rect, bandTop, bandBottom);
-      if (delta !== 0) window.scrollBy(0, delta);
+      if (delta === 0) return;
+      // The document scrolls smoothly. A smooth jump leaves the field under the chain while the keyboard is already up.
+      const root = document.documentElement;
+      const previous = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollBy(0, delta);
+      root.style.scrollBehavior = previous;
     };
     const schedule = () => {
       window.cancelAnimationFrame(frame);
       window.clearTimeout(timer);
+      lift();
       frame = window.requestAnimationFrame(() => {
         lift();
         frame = window.requestAnimationFrame(lift);

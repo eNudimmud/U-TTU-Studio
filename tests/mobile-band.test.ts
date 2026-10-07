@@ -23,6 +23,10 @@ describe("bande mobile, 390 px", () => {
     assert.doesNotMatch(css, /\.u-comfort-gaps \.u-link \{ min-height: 0/);
     const app = readFileSync("src/components/app/studio-app.tsx", "utf8");
     assert.match(app, /liftDelta/);
+    assert.match(app, /scrollBehavior = "auto"/);
+    assert.match(css, /\.u-guide-line \{ min-height: 4\.2em/);
+    assert.match(readFileSync("src/components/app/scene-screen.tsx", "utf8"), /\{ready && <>/);
+    assert.match(readFileSync("src/components/app/screens.tsx", "utf8"), /\{ready && <>/);
     assert.match(app, /import\("\.\/sheets"\)/);
     assert.match(app, /ready && desk && <PlateauShelf /);
     assert.match(readFileSync("src/app/layout.tsx", "utf8"), /interactiveWidget: "resizes-content"/);

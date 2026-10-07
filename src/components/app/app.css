@@ -228,7 +228,7 @@
 .u-guide-face { flex: 0 0 auto; width: 44px; height: 44px; margin-top: 2px; border-radius: 50%; border: 1px solid var(--u-gold); background-size: 300% auto; background-position: 41% 18.5%; box-shadow: 0 0 14px rgba(201, 164, 106, .35); }
 .u-guide-body { flex: 1; display: grid; gap: 2px; min-width: 0; }
 .u-guide-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.u-guide-line { font-size: 15px; line-height: 1.4; color: var(--u-text); }
+.u-guide-line { min-height: 4.2em; font-size: 15px; line-height: 1.4; color: var(--u-text); }
 .u-guide-actions { display: flex; gap: 14px; }
 .u-guide-actions .u-link { min-height: 44px; margin-block: 0; padding: 0 2px; font-size: 12px; }
 @keyframes u-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }

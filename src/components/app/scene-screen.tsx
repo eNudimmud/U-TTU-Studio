@@ -21,7 +21,7 @@ function known(say: (line: string) => string, name: string) {
 }
 
 export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; onRole(): void; focus?: "vues" | "image" | null }) {
-  const { studio, scene, media, addScene, selectScene, previz, blenderLinked, falLinked, requestPreviz, setSheet } = useStudio();
+  const { ready, studio, scene, media, addScene, selectScene, previz, blenderLinked, falLinked, requestPreviz, setSheet } = useStudio();
   const { t } = useI18n();
   const [draft, setDraft] = useState("");
   const [adding, setAdding] = useState(false);
@@ -47,6 +47,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
       <p className="u-micro">{t("guide.stepScene")}</p>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
     </header>
+    {ready && <>
     <ProjectMemory />
     <div className="u-desk">
       <div className="u-stack">
@@ -101,6 +102,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
         {!scene && <button type="button" className="u-link" onClick={() => document.getElementById("u-lieu")?.focus()}>{t("scene.placeFirst")}</button>}
       </div>
     </div>
+    </>}
   </section>;
 }
 
