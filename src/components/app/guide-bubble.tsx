@@ -5,6 +5,12 @@ import { useI18n } from "@/components/i18n/provider";
 import { assetPath } from "@/lib/site";
 import { useStudio } from "./studio-context";
 
+/** The sentence under a disabled control. A mute button never stands alone. */
+export function Why({ on, text }: { on: boolean; text: string }) {
+  if (!on || !text) return null;
+  return <p className="u-why">{text}</p>;
+}
+
 /** One line from U*TTU, in place. The face is a crop of her canon portrait. */
 export function GuideBubble({ moments }: { moments: readonly (GuideMoment | false | null | undefined)[] }) {
   const { guide, dismissGuide, guideOff } = useStudio();

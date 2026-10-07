@@ -62,7 +62,17 @@
     "lora-done": "The character is in my studio. Choose them on the take.",
     "sphere-empty": "Your takes will come to rest here.",
     "understood": "Understood",
-    "stop": "Stop guiding"
+    "stop": "Stop guiding",
+    "stepCharacter": "Photos, or a file. The price is read before the gesture.",
+    "stepScene": "A location, a name. One image holds it from take to take.",
+    "stepTake": "One line. Connect the account, read the quote, then Shoot."
+  },
+  "why": {
+    "unchanged": "Nothing has changed.",
+    "needName": "A name is missing.",
+    "needKey": "The key is missing.",
+    "planFresh": "The layout is already reset.",
+    "hold": "The quote or the balance will not let this leave."
   },
   "verb": {
     "relier": "Connect",
@@ -262,7 +272,7 @@
     "calc": " Compute: {clock}.",
     "new": "New take",
     "seeSphere": "See the sphere",
-    "soft": "Soft error",
+    "soft": "It did not land.",
     "reloadFal": "Top up your fal account, then run again. The balance, at the top, shows what remains.",
     "reloadRender": "Top up your render account, then run again. The balance, at the top, shows what remains.",
     "adjust": "Set the take",
@@ -350,7 +360,7 @@
   "fiche": {
     "kicker": "Sheets",
     "title": "What the studio launches.",
-    "lead": "Five gestures already wired. Each one is read here. The charge still waits for the gesture, on the screen that holds it.",
+    "lead": "The gestures already wired are read here. The charge still waits for the gesture, on the screen that holds it.",
     "needs": "What it needs",
     "references": {
       "name": "Take · References",

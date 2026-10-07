@@ -67,6 +67,14 @@ const guide = {
 };
 for (const [id, texts] of Object.entries(guide)) row(`guide.${id}`, ...texts);
 row("guide.understood", "Compris", "Understood", "Verstanden", "Entendido");
+row("guide.stepCharacter", "Photos, ou un fichier. Le prix se lit avant le geste.", "Photos, or a file. The price is read before the gesture.", "Fotos, oder eine Datei. Der Preis wird vor der Geste gelesen.", "Fotos, o un archivo. El precio se lee antes del gesto.");
+row("guide.stepScene", `Un lieu, un nom. Une image le tient d${Q}une prise à l${Q}autre.`, "A location, a name. One image holds it from take to take.", "Ein Drehort, ein Name. Ein Bild hält ihn von Take zu Take.", "Una localización, un nombre. Una imagen la sostiene de toma en toma.");
+row("guide.stepTake", "Une phrase. Relie le compte, lis le devis, puis Tourner.", "One line. Connect the account, read the quote, then Shoot.", "Ein Satz. Verbinde das Konto, lies das Angebot, dann Drehen.", "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar.");
+row("why.unchanged", `Rien n${Q}a changé.`, "Nothing has changed.", "Nichts hat sich geändert.", "Nada ha cambiado.");
+row("why.needName", "Il manque un nom.", "A name is missing.", "Ein Name fehlt.", "Falta un nombre.");
+row("why.needKey", `Il manque la clé.`, "The key is missing.", "Der Schlüssel fehlt.", "Falta la clave.");
+row("why.planFresh", "Le plan est déjà remis.", "The layout is already reset.", "Der Raumplan ist schon zurückgesetzt.", "El plano ya está en cero.");
+row("why.hold", "Le devis ou le solde ne laisse pas partir.", "The quote or the balance will not let this leave.", "Angebot oder Guthaben lässt das nicht gehen.", "El presupuesto o el saldo no deja salir esto.");
 row("guide.stop", "Ne plus guider", "Stop guiding", "Nicht mehr führen", "No guiar más");
 
 row("verb.relier", "Relier", "Connect", "Verbinden", "Vincular");
@@ -238,7 +246,7 @@ row("take.debitHiddenRender", "Débit pas encore visible sur ton solde.", "Charg
 row("take.calc", " Calcul : {clock}.", " Compute: {clock}.", " Rechnung: {clock}.", " Cálculo: {clock}.");
 row("take.new", "Nouvelle prise", "New take", "Neuer Take", "Nueva toma");
 row("take.seeSphere", "Voir la sphère", "See the sphere", "Sphäre ansehen", "Ver la esfera");
-row("take.soft", "SOFT ERROR", "Soft error", "Soft Error", "Soft error");
+row("take.soft", `Ça n${Q}a pas abouti.`, "It did not land.", "Es ist nicht angekommen.", "No ha salido.");
 row("take.reloadFal", "Recharge ton compte fal, puis relance. Le solde, en haut, montre ce qui reste.", "Top up your fal account, then run again. The balance, at the top, shows what remains.", "Lade dein fal-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.", "Recarga tu cuenta fal, luego relanza. El saldo, arriba, muestra lo que queda.");
 row("take.reloadRender", "Recharge ton compte de rendu, puis relance. Le solde, en haut, montre ce qui reste.", "Top up your render account, then run again. The balance, at the top, shows what remains.", "Lade dein Render-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.", "Recarga tu cuenta de render, luego relanza. El saldo, arriba, muestra lo que queda.");
 row("take.adjust", "Régler la prise", "Set the take", "Take einstellen", "Ajustar la toma");
@@ -320,7 +328,7 @@ row("train.credits", "Recharge ton compte fal, puis relance. Le solde, en haut, 
 
 row("fiche.kicker", "Fiches", "Sheets", "Karten", "Fichas");
 row("fiche.title", "Ce que le studio lance.", "What the studio launches.", "Was das Studio startet.", "Lo que el estudio lanza.");
-row("fiche.lead", `Cinq gestes déjà branchés. Chacun se lit ici. Le débit attend encore le geste, sur l${Q}écran qui le tient.`, "Five gestures already wired. Each one is read here. The charge still waits for the gesture, on the screen that holds it.", "Fünf schon verdrahtete Gesten. Jede wird hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.", "Cinco gestos ya conectados. Cada uno se lee aquí. El cargo espera aún el gesto, en la pantalla que lo sostiene.");
+row("fiche.lead", `Les gestes déjà branchés se lisent ici. Le débit attend encore le geste, sur l${Q}écran qui le tient.`, "The gestures already wired are read here. The charge still waits for the gesture, on the screen that holds it.", "Die schon verdrahteten Gesten werden hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.", "Los gestos ya conectados se leen aquí. El cargo espera aún el gesto, en la pantalla que lo sostiene.");
 row("fiche.needs", "Ce qu’il faut", "What it needs", "Was es braucht", "Lo que hace falta");
 row("fiche.references.name", "Prise · Références", "Take · References", "Take · Referenzen", "Toma · Referencias");
 row("fiche.references.sentence", "Les photos de mon studio deviennent une prise, avec le son.", "The photos in my studio become a take, with the sound.", "Die Fotos in Mein Studio werden ein Take, mit Ton.", "Las fotos de mi estudio se vuelven una toma, con el sonido.");

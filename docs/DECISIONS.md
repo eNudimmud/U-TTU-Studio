@@ -2,6 +2,15 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## Guide novice — 7 octobre 2026
+
+- **Décision :** un bouton désactivé porte la phrase qui dit pourquoi. Clé absente, nom absent, plan déjà remis, rien n’a changé, devis ou solde qui retient le geste. La phrase détaillée du devis reste au-dessus ; la ligne d’or est collée au bouton.
+- **Décision :** un bouton dont le libellé change pendant le geste (Vérification…, Import…, Formation du lieu…) dit la raison sur le bouton lui-même.
+- **Décision :** Personnage, Scène et Prise portent chacun une ligne courte, toujours visible. Ces lignes ne nomment ni nœud, ni fichier entraîné.
+- **Décision :** l’échec d’un geste s’annonce « Ça n’a pas abouti. », puis la raison du compte. Anglais, allemand et espagnol ont le calque.
+- **Fait :** la fiche image d’un lieu reste hors écran. La feuille personnage Comfy reste non branchée. 0 crédit. Aucun panneau de nœuds.
+- **Hypothèse :** les calques EN, DE et ES de ces lignes attendent un audit humain, comme le reste du catalogue.
+
 ## F4 — image d’un lieu — 7 octobre 2026
 
 - **Fait :** le catalogue Cloud n’a pas de template nommé pour bâtir l’image d’un lieu. Les recherches (lieu, décor, plan, establishing, matte) renvoient des éditions d’image, des vidéos, ou du texte-vers-image générique. En choisir un inventerait le geste.

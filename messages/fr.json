@@ -62,7 +62,17 @@
     "lora-done": "Le personnage est dans mon studio. Choisis-le dans La prise.",
     "sphere-empty": "Tes prises viendront se poser ici.",
     "understood": "Compris",
-    "stop": "Ne plus guider"
+    "stop": "Ne plus guider",
+    "stepCharacter": "Photos, ou un fichier. Le prix se lit avant le geste.",
+    "stepScene": "Un lieu, un nom. Une image le tient d’une prise à l’autre.",
+    "stepTake": "Une phrase. Relie le compte, lis le devis, puis Tourner."
+  },
+  "why": {
+    "unchanged": "Rien n’a changé.",
+    "needName": "Il manque un nom.",
+    "needKey": "Il manque la clé.",
+    "planFresh": "Le plan est déjà remis.",
+    "hold": "Le devis ou le solde ne laisse pas partir."
   },
   "verb": {
     "relier": "Relier",
@@ -262,7 +272,7 @@
     "calc": " Calcul : {clock}.",
     "new": "Nouvelle prise",
     "seeSphere": "Voir la sphère",
-    "soft": "SOFT ERROR",
+    "soft": "Ça n’a pas abouti.",
     "reloadFal": "Recharge ton compte fal, puis relance. Le solde, en haut, montre ce qui reste.",
     "reloadRender": "Recharge ton compte de rendu, puis relance. Le solde, en haut, montre ce qui reste.",
     "adjust": "Régler la prise",
@@ -350,7 +360,7 @@
   "fiche": {
     "kicker": "Fiches",
     "title": "Ce que le studio lance.",
-    "lead": "Cinq gestes déjà branchés. Chacun se lit ici. Le débit attend encore le geste, sur l’écran qui le tient.",
+    "lead": "Les gestes déjà branchés se lisent ici. Le débit attend encore le geste, sur l’écran qui le tient.",
     "needs": "Ce qu’il faut",
     "references": {
       "name": "Prise · Références",

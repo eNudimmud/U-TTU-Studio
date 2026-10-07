@@ -62,7 +62,17 @@
     "lora-done": "Die Figur ist in Mein Studio. Wähle sie im Take.",
     "sphere-empty": "Deine Takes kommen hier zur Ruhe.",
     "understood": "Verstanden",
-    "stop": "Nicht mehr führen"
+    "stop": "Nicht mehr führen",
+    "stepCharacter": "Fotos, oder eine Datei. Der Preis wird vor der Geste gelesen.",
+    "stepScene": "Ein Drehort, ein Name. Ein Bild hält ihn von Take zu Take.",
+    "stepTake": "Ein Satz. Verbinde das Konto, lies das Angebot, dann Drehen."
+  },
+  "why": {
+    "unchanged": "Nichts hat sich geändert.",
+    "needName": "Ein Name fehlt.",
+    "needKey": "Der Schlüssel fehlt.",
+    "planFresh": "Der Raumplan ist schon zurückgesetzt.",
+    "hold": "Angebot oder Guthaben lässt das nicht gehen."
   },
   "verb": {
     "relier": "Verbinden",
@@ -262,7 +272,7 @@
     "calc": " Rechnung: {clock}.",
     "new": "Neuer Take",
     "seeSphere": "Sphäre ansehen",
-    "soft": "Soft Error",
+    "soft": "Es ist nicht angekommen.",
     "reloadFal": "Lade dein fal-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.",
     "reloadRender": "Lade dein Render-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.",
     "adjust": "Take einstellen",
@@ -350,7 +360,7 @@
   "fiche": {
     "kicker": "Karten",
     "title": "Was das Studio startet.",
-    "lead": "Fünf schon verdrahtete Gesten. Jede wird hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.",
+    "lead": "Die schon verdrahteten Gesten werden hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.",
     "needs": "Was es braucht",
     "references": {
       "name": "Take · Referenzen",
