@@ -72,7 +72,8 @@ describe("le studio, une app", () => {
     assert.match(sceneScreen, /Aucune prise pour ce lieu/);
     assert.match(read("src/lib/studio-comfort.ts"), /export function vueProjet/);
     const take = scene.slice(scene.indexOf("export function TakeScreen"), scene.indexOf("export function SphereScreen"));
-    assert.match(take, /aria-label="Décors"/);
+    assert.match(take, /aria-label="Lieux"/);
+    assert.doesNotMatch(take, /Décors|Ce décor/);
     assert.match(take, /aria-label="Distribution"/);
     assert.match(take, /className="u-pickers"/);
     assert.doesNotMatch(take, /className="u-plateau"/);
@@ -127,7 +128,7 @@ describe("le studio, une app", () => {
     assert.equal(look.match(/u-primary/g)?.length, 1);
     assert.doesNotMatch(chain, /onTrain/);
     const pages = `${read("src/components/app/screens.tsx")}\n${read("src/components/app/lora-screen.tsx")}`;
-    for (const label of ["Remettre ce look à zéro", "Remettre ce lieu à zéro", "Remettre ce plan à zéro", "Remettre ce personnage à zéro"]) {
+    for (const label of ["Remettre ces références", "Remettre ce lieu à zéro", "Remettre ce plan à zéro", "Remettre ce personnage à zéro"]) {
       assert.ok(pages.includes(label), label);
     }
     const css = read("src/components/app/app.css");
@@ -192,7 +193,7 @@ describe("le studio, une app", () => {
     assert.doesNotMatch(visible, /"[^"]*\bVault\b[^"]*"/);
     assert.doesNotMatch(coffre, /synchronis/i);
     assert.match(read("src/components/app/studio-context.tsx"), /mergeCoffreZip\(/);
-    assert.match(sheets, /Il paie la formation du personnage et les prises « Personnage »/);
+    assert.match(sheets, /Il paie la formation du personnage et les prises « Personnage \(fichier\) »/);
     assert.match(sheets, /Il paie les prises « Références »/);
   });
 

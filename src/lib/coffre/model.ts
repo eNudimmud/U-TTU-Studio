@@ -199,7 +199,7 @@ export const extensionFor = (type: string) => (type === "image/png" ? "png" : ty
 export function canonMarkdown(look: Look): string {
   const traits = look.traits.length ? look.traits.map(trait => `- ${trait}`).join("\n") : "-";
   const photos = look.photos.map(path => `![[${path}]]`).join("\n");
-  const body = `# ${look.name || "Mon look"}\n\n## Ce qui ne change pas\n\n${traits}\n\n## Photos\n\n${photos || "Aucune."}\n${look.note ? `\n## Note\n\n${look.note}\n` : ""}`;
+  const body = `# ${look.name || "Références"}\n\n## Ce qui ne change pas\n\n${traits}\n\n## Photos\n\n${photos || "Aucune."}\n${look.note ? `\n## Note\n\n${look.note}\n` : ""}`;
   return withFrontmatter({ type: "look", nom: look.name, traits: look.traits, photos: look.photos }, body);
 }
 
@@ -387,7 +387,7 @@ export function loraMarkdown(lora: Lora): string {
   const cost = lora.costUsd === null ? "Débit pas encore lu." : `${usd(lora.costUsd)} débités sur le compte fal.`;
   const body = lora.kind === "lieu"
     ? `# LoRA — ${lora.name || "lieu"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} vues de ce lieu, ${lora.steps} pas. ${cost}\n\nUne image neuve de ce lieu le recharge. Ce n’est pas un volume : le fichier Blender du lieu reste le modèle 3D. Il n’entre pas dans la prise H3.\n\nFichier : \`${lora.file}\`\n`
-    : `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
+    : `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage (fichier) » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
   return withFrontmatter({
     type: "lora",
     date: lora.at,
@@ -458,7 +458,7 @@ export function mocMarkdown(studio: Studio): string {
   const people = studio.loras.filter(lora => !isPlaceLora(lora));
   const places = studio.loras.filter(lora => isPlaceLora(lora));
   const sections = [
-    mapSection("Look", look || studio.look.photos.length > 0 ? [wiki("CANON", look || "Look")] : []),
+    mapSection("Références", look || studio.look.photos.length > 0 ? [wiki("CANON", look || "Références")] : []),
     mapSection("Personnages", people.map(lora => wiki(`loras/${lora.id}`, lora.name || lora.trigger || "Personnage"))),
     mapSection("Lieux", [
       ...studio.scenes.map(scene => wiki(`scenes/${scene.id}`, scene.name || "Lieu")),
@@ -488,15 +488,15 @@ export const README = `# U*TTU — Mon studio
 
 Ce dossier est mon studio. L’app l’écrit, Obsidian le lit tel quel.
 
-- \`CANON.md\` — ton look : nom, traits, photos.
-- \`refs/\` — les photos du look.
+- \`CANON.md\` — les références : nom, traits, photos.
+- \`refs/\` — les photos des références.
 - \`scenes/\` — tes lieux, une note et des images chacun.
 - \`prises/\` — chaque prise : la vidéo et sa fiche (plan, réglage, coût mesuré).
 - \`clips/\` — les courtes vidéos du personnage en cours.
 - \`roles/\` — les photos de ce personnage, effacées avec le brouillon.
 - \`loras/\` — chaque LoRA formé : le fichier \`.safetensors\` et sa fiche (déclencheur, pas, coût).
 - \`jobs.md\` — le journal des prises, des formations et de ce qu’elles ont coûté.
-- \`MOC.md\` — la carte : liens vers le look, les personnages, les lieux, les prises et le journal.
+- \`MOC.md\` — la carte : liens vers les références, les personnages, les lieux, les prises et le journal.
 
 Rien ici n’est envoyé au studio. Pour le lire sur un autre appareil, exporte ce dossier et importe-le là-bas. Les prises et les formations tournent sur tes propres comptes.
 `;

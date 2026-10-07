@@ -82,7 +82,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
       <ul className="u-facts">
         <li><strong>Ce que tu envoies</strong>Dix clips vidéo de ce personnage au moins, trente au plus. Chacun dure de 3 à 30 secondes : visage net, un peu de mouvement. mp4, mov, mkv ou avi. Des photos à la place des clips sont refusées.</li>
         <li><strong>Les photos</strong>Deux au moins, quatre au plus, de ce personnage. Elles accompagnent chaque clip. Elles n’apprennent pas à la place des clips.</li>
-        <li><strong>Ce qu’il fera</strong>Dans La prise, « Personnage » recharge ce fichier. Les prises suivantes tiennent le même personnage.</li>
+        <li><strong>Ce qu’il fera</strong>Dans La prise, « Personnage (fichier) » recharge ce fichier. Les prises suivantes tiennent le même personnage.</li>
         <li><strong>Ce qu’il ne fera pas</strong>Le lieu, les vêtements et le geste viennent des images et de ta phrase. « Références » ne charge pas ce fichier.</li>
       </ul>
 
