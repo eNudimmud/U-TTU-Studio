@@ -494,7 +494,7 @@
     "unlinkRender": "Délier le compte de rendu",
     "thisSetting": "À ce réglage · {profile}",
     "aboutClaim": "Environ {amount} crédits, mesuré sur {basis}.",
-    "uncalibratedClaim": "Non calibré. Aucun chiffre n’est annoncé avant une prise mesurée à ce réglage.",
+    "uncalibratedClaim": "Devis absent. Aucun total pour cette prise. Rien ne part sans un chiffre mesuré au même réglage.",
     "falAccount": "Compte fal",
     "readAtFal": "lus à {time}",
     "rereadFal": "Relire le solde fal",
@@ -611,7 +611,7 @@
   "runtime": {
     "balanceUnreadable": "Solde illisible. Rien ne part sans lire le compte qui paiera.",
     "renderEmpty": "Solde vide sur ton compte de rendu.",
-    "uncalibrated": "Coût non calibré à ce réglage. Le temps de calcul réel sera débité, puis mesuré sur cette prise.",
+    "uncalibrated": "Devis absent. Le total de cette prise n’est pas un nombre. Rien ne part.",
     "falPriceUnreadable": "Prix fal illisible. Rien ne part sans un prix.",
     "falBalanceUnreadable": "Solde fal illisible. Rien ne part sans lire le compte qui paiera.",
     "falEmpty": "Solde fal vide. Recharge-le sur fal.ai, puis relis-le ici.",

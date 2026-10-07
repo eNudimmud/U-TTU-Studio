@@ -11,8 +11,9 @@ import { useStudio } from "./studio-context";
 export function FichesScreen({ onLaunch }: { onLaunch(fiche: WorkflowFiche): void }) {
   const { connected, balance, claim, falLinked, trainQuote, placeTrainQuote, placeSceneQuote, settings, loraResolution, trainingSteps, setSheet } = useStudio();
   const { t, say } = useI18n();
+  const renderGate = connected ? runGate(balance, claim) : null;
   const fiches = workflowFiches({
-    rendu: connected ? runGate(balance, claim).line : null,
+    rendu: renderGate ? renderGate.line : null,
     former: falLinked && trainQuote !== null ? formatUsd(trainQuote) : null,
     lieu: falLinked && placeTrainQuote !== null ? formatUsd(placeTrainQuote) : null,
     image: falLinked && placeSceneQuote !== null ? formatUsd(placeSceneQuote) : null,
@@ -35,7 +36,7 @@ export function FichesScreen({ onLaunch }: { onLaunch(fiche: WorkflowFiche): voi
           <ul className="u-fiche-inputs">
             {inputs.map(input => <li key={input}>{input}</li>)}
           </ul>
-          <p className={`u-cost is-${linked ? "ok" : "warn"}`}>{say(fiche.cost)}</p>
+          <p className={`u-cost is-${fiche.payer === "rendu" ? (renderGate?.tone ?? "warn") : (linked ? "ok" : "warn")}`}>{say(fiche.cost)}</p>
           <button type="button" className="u-secondary" onClick={() => {
             if (!linked) setSheet("relier");
             else onLaunch(fiche);

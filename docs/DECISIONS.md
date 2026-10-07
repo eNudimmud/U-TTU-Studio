@@ -2,6 +2,15 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F10 — devis Prise e2e — 7 octobre 2026
+
+- **Fait :** le geste déjà branché est le graphe studio `takeGraph`. Le profil par défaut est `h3-4pas-5s-vertical` (rapide, 5 s, 9:16, 4 pas). Le template Cloud nommé est `video_minimax_h3_r2v`. Les deux ont été lus par `estimate_credits` le 7 octobre 2026. Rien n’a été soumis.
+- **Fait :** les deux lectures répondent « 0 credits - no paid API nodes found ». `MiniMaxH3ReferenceToVideo` est `api_node` faux (pack `core`, catégorie `model/conditioning/minimax`). L’outil exclut le temps GPU, la file et le stockage. Ce 0 n’est pas le prix du run. Pas de total.
+- **Fait :** `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. 0 crédit brûlé. Pas de burn calibré.
+- **Décision :** sans chiffre mesuré au même réglage, Tourner reste éteint. La ligne dit « Devis absent. Le total de cette prise n’est pas un nombre. Rien ne part. » Un réglage déjà mesuré, par la différence de deux soldes, garde ce chiffre et peut partir si le solde le couvre. Le 0 de l’estimateur n’ouvre pas le bouton.
+- **Fait :** les fiches `Moteurs/moteur-references.md` et `Moteurs/moteur-personnage.md` disent que le devis de run est absent. `SaveLoRA` et l’image d’un lieu restent hors écran. Le cadre Comfy ancien n’est pas le bouton Tourner.
+- **Hypothèse :** un total viendrait d’une mesure de solde sur un run réel, ou d’un estimateur qui compte le temps GPU. Cette mesure n’est pas faite.
+
 ## F9 — watch SaveLoRA / template lieu — 7 octobre 2026
 
 - **Fait :** relecture du catalogue Comfy Cloud le 7 octobre 2026, découverte seulement (`get_node`, `search_templates`, et le filtre `LORA_MODEL` déjà lu le même jour). Pas de `refresh` forcé : le catalogue rendu est `source: live`, `refreshed_at` `2026-10-07T15:24:41.277Z`, `node_count` 3772, le même compte qu’en F3.

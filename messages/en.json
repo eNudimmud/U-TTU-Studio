@@ -494,7 +494,7 @@
     "unlinkRender": "Disconnect the render account",
     "thisSetting": "At this setting · {profile}",
     "aboutClaim": "About {amount} credits, measured on {basis}.",
-    "uncalibratedClaim": "Uncalibrated. No figure is announced before a take measured at this setting.",
+    "uncalibratedClaim": "Quote absent. No total for this take. Nothing leaves without a figure measured at the same setting.",
     "falAccount": "fal account",
     "readAtFal": "read at {time}",
     "rereadFal": "Reread the fal balance",
@@ -611,7 +611,7 @@
   "runtime": {
     "balanceUnreadable": "Balance unreadable. Nothing leaves without reading the account that will pay.",
     "renderEmpty": "Empty balance on your render account.",
-    "uncalibrated": "Cost uncalibrated at this setting. The real compute time will be charged, then measured on this take.",
+    "uncalibrated": "Quote absent. The total for this take is not a number. Nothing leaves.",
     "falPriceUnreadable": "fal price unreadable. Nothing leaves without a price.",
     "falBalanceUnreadable": "fal balance unreadable. Nothing leaves without reading the account that will pay.",
     "falEmpty": "fal balance empty. Top it up on fal.ai, then reread it here.",

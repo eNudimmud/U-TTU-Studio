@@ -177,8 +177,8 @@ function note(slug: string, type: string, title: string, body: string, extra: Re
 export function scaffoldFiles(slug: string, name: string): { path: string; text: string }[] {
   const root = `Projets/${slug}`;
   const moteurs = [
-    ["moteur-references", "prise", "comfy", "Prise · Références", "Les photos de mon studio deviennent une prise, avec le son. Le prix se lit sur le compte de rendu, avant le geste."],
-    ["moteur-personnage", "prise", "comfy", "Prise · Personnage", "Les photos de mon studio tiennent le personnage, d’une prise à l’autre, avec le son. Le prix se lit sur le compte de rendu, avant le geste."],
+    ["moteur-references", "prise", "comfy", "Prise · Références", "Les photos de mon studio deviennent une prise, avec le son. Le devis de run est absent sur le compte de rendu : rien ne part sans un chiffre mesuré au même réglage."],
+    ["moteur-personnage", "prise", "comfy", "Prise · Personnage", "Les photos de mon studio tiennent le personnage, d’une prise à l’autre, avec le son. Le devis de run est absent sur le compte de rendu : rien ne part sans un chiffre mesuré au même réglage."],
     ["former", "personnage", "fal", "Former un personnage", "Des clips deviennent un fichier. Les prises suivantes le rechargent. Le prix se lit sur le compte fal, avant le geste."],
     ["moteur-lieu", "scene", "fal", "Former un lieu", "Les vues du lieu deviennent un fichier d’images. Ce n’est pas un volume. Le prix se lit sur le compte fal, avant le geste."],
     ["image", "scene", "fal", "Image d’un lieu", "Le fichier du lieu bâtit une image neuve. Le modèle 3D reste le fichier Blender. Le prix se lit sur le compte fal, avant le geste."],
