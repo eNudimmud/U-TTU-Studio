@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useI18n, useStudioDates } from "@/components/i18n/provider";
-import { costLabel, dropTakeLink } from "@/lib/coffre/model";
+import { costLabel, dropTakeLink, shotsOf } from "@/lib/coffre/model";
 import { treeFileLabel } from "@/lib/coffre/project";
 import { CREDITS_PER_USD, claimBasis, costClaim, formatCredits } from "@/lib/credits";
 import { profileParts, quotesToRecords } from "@/lib/render/measured-quote";
@@ -245,13 +245,15 @@ export function CoffreSheet() {
       <button type="button" className="u-secondary" disabled={!draft.trim()} onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>{t("sheet.createProject")}</button>
       <Why on={!draft.trim()} text={t("why.needName")} />
       <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
+      <button type="button" className="u-secondary" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
       {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
         {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => {
           const sequenceId = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
+          const shotId = group.label === "Plans" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
           const label = say(treeFileLabel(group.label, file));
-          return sequenceId
-            ? <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>
-            : <span key={file}>{label}</span>;
+          if (sequenceId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>;
+          if (shotId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ shot: shotId })}>{label}</button>;
+          return <span key={file}>{label}</span>;
         })}</li>)}
       </ul>}
       <p className="u-small">{t("sheet.obsidian")}</p>
@@ -514,6 +516,8 @@ export function PlayerSheet({ id }: { id: string }) {
       <PublishActions take={take} />
       {studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === take.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
       <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
+      {studio.shots.filter(shot => shot.takeIds.includes(take.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
+      <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
       <button type="button" className="u-link u-muted" onClick={() => { void deleteTake(take.id); setSheet(null); }}><Trash /> {t("sheet.removeFromStudio")}</button>
     </div>
   </SheetFrame>;
@@ -550,10 +554,11 @@ function SequenceList() {
 
 function SequenceEditor({ id }: { id: string }) {
   const { t } = useI18n();
-  const { setSheet, studio, saveSequence, deleteSequence, setNotice } = useStudio();
+  const { setSheet, studio, saveSequence, deleteSequence, setNotice, createShot, moveShotInSequence } = useStudio();
   const sequence = studio.sequences.find(item => item.id === id);
   const [name, setName] = useState(sequence?.name ?? "");
   const [pick, setPick] = useState("");
+  const [shotName, setShotName] = useState("");
   useEffect(() => {
     setName(sequence?.name ?? "");
   }, [sequence?.id, sequence?.name]);
@@ -617,7 +622,127 @@ function SequenceEditor({ id }: { id: string }) {
         setNotice("Prise reliée.");
       }}>{t("verb.relier")}</button>
       <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("sequence.allLinked")} />
+      <p className="u-label">{t("shot.title")}</p>
+      {shotsOf(studio.shots, sequence.id).length === 0
+        ? <p className="u-small">{t("shot.emptyHere")}</p>
+        : <ol className="u-sequence">
+          {shotsOf(studio.shots, sequence.id).map((shot, index, panels) => <li key={shot.id}>
+            <button type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })} aria-label={t("shot.open", { name: shot.name })}>{shot.name || t("common.unnamed")}</button>
+            <div className="u-row">
+              {index > 0 && <button type="button" className="u-link" onClick={() => void moveShotInSequence(shot.id, -1)}>{t("sequence.up")}</button>}
+              {index < panels.length - 1 && <button type="button" className="u-link" onClick={() => void moveShotInSequence(shot.id, 1)}>{t("sequence.down")}</button>}
+            </div>
+          </li>)}
+        </ol>}
+      <label className="u-field">{t("shot.name")}
+        <input value={shotName} maxLength={40} aria-label={t("shot.name")} autoComplete="off" onChange={event => setShotName(event.target.value)} />
+      </label>
+      <button type="button" className="u-secondary" disabled={!shotName.trim()} onClick={() => { const next = shotName.trim(); setShotName(""); void createShot(next, { sequenceId: sequence.id }); }}>{t("shot.create")}</button>
+      <Why on={!shotName.trim()} text={t("why.needName")} />
       <button type="button" className="u-link u-muted" onClick={() => void deleteSequence(sequence.id)}>{t("sequence.delete")}</button>
+    </div>
+  </SheetFrame>;
+}
+
+export function ShotSheet({ id }: { id?: string }) {
+  if (id) return <ShotEditor id={id} />;
+  return <ShotList />;
+}
+
+function ShotList() {
+  const { t } = useI18n();
+  const { setSheet, studio, createShot } = useStudio();
+  const [draft, setDraft] = useState("");
+  return <SheetFrame title={t("shot.title")} label={t("scene.project")} onClose={() => setSheet(null)} tall>
+    <div className="u-stack">
+      <p className="u-small">{t("shot.lead")}</p>
+      <label className="u-field">{t("shot.name")}
+        <input value={draft} maxLength={40} aria-label={t("shot.name")} autoComplete="off" onChange={event => setDraft(event.target.value)} />
+      </label>
+      <button type="button" className="u-secondary" disabled={!draft.trim()} onClick={() => { const name = draft.trim(); setDraft(""); void createShot(name); }}>{t("shot.create")}</button>
+      <Why on={!draft.trim()} text={t("why.needName")} />
+      {studio.shots.length === 0
+        ? <p className="u-small">{t("shot.empty")}</p>
+        : <ul className="u-sequence">
+          {studio.shots.map(shot => <li key={shot.id}>
+            <button type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })} aria-label={t("shot.open", { name: shot.name })}>{shot.name || t("common.unnamed")}</button>
+            <p className="u-small">{shot.note || (shot.takeIds.length === 0 ? t("shot.noTake") : shot.takeIds.length === 1 ? t("sequence.oneTake") : t("sequence.manyTakes", { count: shot.takeIds.length }))}</p>
+          </li>)}
+        </ul>}
+    </div>
+  </SheetFrame>;
+}
+
+function ShotEditor({ id }: { id: string }) {
+  const { t } = useI18n();
+  const { setSheet, studio, saveShot, deleteShot } = useStudio();
+  const shot = studio.shots.find(item => item.id === id);
+  const [name, setName] = useState(shot?.name ?? "");
+  const [pick, setPick] = useState("");
+  useEffect(() => {
+    setName(shot?.name ?? "");
+  }, [shot?.id, shot?.name]);
+  if (!shot) return null;
+  const available = studio.takes.filter(take => !shot.takeIds.includes(take.id));
+  const chosen = available.some(take => take.id === pick) ? pick : available[0]?.id ?? "";
+  const blocked = available.length === 0;
+  const missingSequence = Boolean(shot.sequenceId && !studio.sequences.some(item => item.id === shot.sequenceId));
+  return <SheetFrame title={shot.name || t("common.unnamed")} label={t("shot.title")} onClose={() => setSheet(null)} tall>
+    <div className="u-stack">
+      <p className="u-small">{t("shot.lead")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.back")}</button>
+      <label className="u-field">{t("shot.name")}
+        <input value={name} maxLength={40} aria-label={t("shot.name")} autoComplete="off" onChange={event => {
+          const next = event.target.value.slice(0, 40);
+          setName(next);
+          if (next.trim()) void saveShot(shot.id, { name: next });
+        }} onBlur={() => { if (!name.trim()) setName(shot.name); }} />
+      </label>
+      <label className="u-field">{t("shot.note")}
+        <textarea value={shot.note} rows={2} maxLength={240} aria-label={t("shot.note")} placeholder={t("shot.noteHint")} onChange={event => void saveShot(shot.id, { note: event.target.value.slice(0, 240) })} />
+      </label>
+      <label className="u-field">{t("shot.sequence")}
+        <select aria-label={t("shot.sequence")} value={shot.sequenceId ?? ""} onChange={event => void saveShot(shot.id, { sequenceId: event.target.value || null })}>
+          <option value="">{t("shot.noSequence")}</option>
+          {missingSequence && shot.sequenceId && <option value={shot.sequenceId}>{t("shot.missingSequence")}</option>}
+          {studio.sequences.map(sequence => <option key={sequence.id} value={sequence.id}>{sequence.name || t("common.unnamed")}</option>)}
+        </select>
+      </label>
+      {shot.sequenceId && studio.sequences.some(item => item.id === shot.sequenceId) && <button type="button" className="u-link" onClick={() => setSheet({ sequence: shot.sequenceId ?? "" })}>{t("sequence.inSequence", { name: studio.sequences.find(item => item.id === shot.sequenceId)?.name || t("common.unnamed") })}</button>}
+      {shot.takeIds.length === 0
+        ? <p className="u-small">{t("shot.noTake")}</p>
+        : <ol className="u-sequence">
+          {shot.takeIds.map((takeId, index) => {
+            const take = studio.takes.find(item => item.id === takeId);
+            const label = take?.line.trim() || take?.sceneName || t("sequence.missingTake");
+            return <li key={takeId}>
+              <button type="button" className="u-link" onClick={() => setSheet({ take: takeId })} aria-label={t("scene.openTake", { line: label })}>{label}</button>
+              <div className="u-row">
+                {index > 0 && <button type="button" className="u-link" onClick={() => {
+                  const takeIds = [...shot.takeIds];
+                  const [item] = takeIds.splice(index, 1);
+                  takeIds.splice(index - 1, 0, item);
+                  void saveShot(shot.id, { takeIds });
+                }}>{t("sequence.up")}</button>}
+                {index < shot.takeIds.length - 1 && <button type="button" className="u-link" onClick={() => {
+                  const takeIds = [...shot.takeIds];
+                  const [item] = takeIds.splice(index, 1);
+                  takeIds.splice(index + 1, 0, item);
+                  void saveShot(shot.id, { takeIds });
+                }}>{t("sequence.down")}</button>}
+                <button type="button" className="u-link u-muted" onClick={() => void saveShot(shot.id, { takeIds: shot.takeIds.filter(item => item !== takeId) })}>{t("shot.removeLink")}</button>
+              </div>
+            </li>;
+          })}
+        </ol>}
+      {!blocked && <label className="u-field">{t("shot.pick")}
+        <select aria-label={t("shot.pick")} value={chosen} onChange={event => setPick(event.target.value)}>
+          {available.map(take => <option key={take.id} value={take.id}>{take.line.trim() || take.sceneName || t("common.take")}</option>)}
+        </select>
+      </label>}
+      <button type="button" className="u-secondary" disabled={blocked} onClick={() => { if (chosen) void saveShot(shot.id, { takeIds: [...shot.takeIds, chosen] }); }}>{t("verb.relier")}</button>
+      <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("shot.allLinked")} />
+      <button type="button" className="u-link u-muted" onClick={() => void deleteShot(shot.id)}>{t("shot.delete")}</button>
     </div>
   </SheetFrame>;
 }

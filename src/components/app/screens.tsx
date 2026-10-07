@@ -215,6 +215,7 @@ function VueProjet() {
             {group.prises.map(prise => <li key={prise.id}>
               <button type="button" className="u-link" onClick={() => setSheet({ take: prise.id })} aria-label={t("scene.openTake", { line: prise.line })}>{known(say, prise.line)}</button>
               {studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === prise.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
+              {studio.shots.filter(shot => shot.takeIds.includes(prise.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
             </li>)}
           </ul>}
       </li>
@@ -228,6 +229,17 @@ function VueProjet() {
             </li>)}
           </ul>}
         <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{studio.sequences.length === 0 ? t("sequence.create") : t("sequence.back")}</button>
+      </li>
+      <li>
+        <strong>{t("shot.title")}</strong>
+        {studio.shots.length === 0
+          ? t("shot.empty")
+          : <ul className="u-projet-prises">
+            {studio.shots.map(shot => <li key={shot.id}>
+              <button type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })} aria-label={t("shot.open", { name: shot.name })}>{shot.name || t("common.unnamed")}</button>
+            </li>)}
+          </ul>}
+        <button type="button" className="u-link" onClick={() => setSheet("shots")}>{studio.shots.length === 0 ? t("shot.create") : t("shot.back")}</button>
       </li>
     </ul>
   </section>;
@@ -457,6 +469,17 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
           </button>)}
         </div>}
     </div>
+    <div className="u-stack">
+      <p className="u-label">{t("shot.title")}</p>
+      {studio.studio.shots.length === 0
+        ? <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.create")}</button>
+        : <div className="u-scenes">
+          {studio.studio.shots.map(shot => <button key={shot.id} type="button" className="u-scene" onClick={() => setSheet({ shot: shot.id })}>
+            <span className="u-scene-empty">{shot.takeIds.length}</span>
+            <span>{shot.name || t("common.unnamed")}</span>
+          </button>)}
+        </div>}
+    </div>
   </aside>;
 }
 
@@ -548,6 +571,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
       <h1 id="u-title" tabIndex={-1}>{t("take.title")}</h1>
       <p className="u-micro">{t("guide.stepTake")}</p>
       <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
+      <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
     </header>
 
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
@@ -565,6 +589,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         : (result.costCredits !== null ? t("take.debitedRender", { amount: formatCredits(result.costCredits) }) : t("take.debitHiddenRender"))}{result.gpuSeconds !== null ? t("take.calc", { clock: clock(result.gpuSeconds) }) : ""}</p>
       <PublishActions take={result} />
       {studio.studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === result.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
+      {studio.studio.shots.filter(shot => shot.takeIds.includes(result.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
       <div className="u-row">
         <button type="button" className="u-secondary" onClick={resetRun}>{t("take.new")}</button>
         <button type="button" className="u-link" onClick={goSphere}>{t("take.seeSphere")}</button>

@@ -248,6 +248,27 @@
     "linked": "Prise reliée.",
     "removed": "Séquence retirée."
   },
+  "shot": {
+    "title": "Plans",
+    "lead": "Un plan est une case du storyboard. Il suit une séquence, puis des prises, dans l’ordre. Une note courte dit le cadre.",
+    "name": "Nom du plan",
+    "create": "Créer le plan",
+    "empty": "Aucun plan dans ce projet.",
+    "emptyHere": "Aucun plan dans cette séquence.",
+    "open": "Ouvrir {name}",
+    "note": "Note",
+    "noteHint": "Le cadre, en une ligne.",
+    "sequence": "Séquence",
+    "noSequence": "Sans séquence",
+    "missingSequence": "Séquence introuvable",
+    "noTake": "Aucune prise dans ce plan.",
+    "pick": "Prise à relier",
+    "allLinked": "Toutes les prises sont déjà dans ce plan.",
+    "removeLink": "Retirer du plan",
+    "inShot": "Dans le plan {name}",
+    "back": "Tous les plans",
+    "delete": "Retirer le plan"
+  },
   "film": {
     "place": {
       "label": "Poser un lieu",
@@ -598,6 +619,7 @@
     "modelScene": "Modèle · Scène",
     "modelTake": "Modèle · Prise",
     "modelSequence": "Modèle · Séquence",
+    "modelShot": "Modèle · Plan",
     "engineCharacter": "Moteur · Personnage",
     "engineReferences": "Moteur · Références",
     "enginePlace": "Moteur · Lieu",
