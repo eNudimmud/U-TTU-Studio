@@ -1,8 +1,9 @@
 // Last Comfy Cloud catalog read for two parked gestures.
-// Discovery only: get_node, search_nodes, search_templates. No estimate, no dry_run, no run.
+// F19 forced refresh. Discovery only: get_node, search_nodes, search_templates.
+// No estimate, no dry_run, no run.
 
 export const CATALOG_WATCH = {
-  readAt: "2026-10-07T16:47:36.385Z",
+  readAt: "2026-10-07T19:01:20.907Z",
   nodeCount: 3772,
   /** Exact class names looked up. All of them came back missing. */
   saveLoraNames: ["SaveLoRA", "SaveLora", "SaveLoRANode", "LoraSave", "SaveLoraNode"] as const,
