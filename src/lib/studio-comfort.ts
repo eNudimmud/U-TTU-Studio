@@ -118,25 +118,41 @@ export function exampleTakeQuote(input: { engine: TakeEngine; seconds: number; r
   return `Exemple pour ${input.seconds} s : ${rate} crédit par seconde de calcul, publié le ${COMFY_CLOUD.checkedOn}. 1 $ = ${COMFY_CLOUD.creditsPerUsd} crédits. Le chiffre de cette prise se lit après Relier. Rien n’est débité ici.`;
 }
 
+/** The names chosen on La prise, written in front of the action sentence. */
+export function weaveBrief(input: { who: string; place: string; action: string }): string {
+  const head = [input.who.trim(), input.place.trim()].filter(Boolean).join(" · ");
+  const action = input.action.trim();
+  const woven = !head ? action : !action ? `${head}.` : `${head}. ${action}`;
+  return woven.length <= 240 ? woven : woven.slice(0, 240).trim();
+}
+
+/** The action sentence, once a previous cast and place prefix has been lifted off. */
+export function briefAction(line: string, who: string, place: string): string {
+  const prefix = weaveBrief({ who, place, action: "" });
+  const trimmed = line.trim();
+  if (!prefix) return trimmed;
+  if (trimmed === prefix) return "";
+  if (trimmed.startsWith(`${prefix} `)) return trimmed.slice(prefix.length).trim();
+  return trimmed;
+}
+
 export interface PriseGap {
-  id: "photos" | "scene" | "fichier" | "relier-fal" | "relier-rendu";
+  id: "photos" | "scene" | "fichier";
   text: string;
   action: string;
 }
 
-/** What is still missing on La prise. Each row is a sentence and a jump. */
-export function priseGaps(input: { lookReady: boolean; hasScene: boolean; engine: TakeEngine; falLinked: boolean; connected: boolean; hasCharacter: boolean }): PriseGap[] {
+/** What is still missing on La prise. Relier is the one gold entry, not another row. */
+export function priseGaps(input: { lookReady: boolean; hasScene: boolean; engine: TakeEngine; hasCharacter: boolean }): PriseGap[] {
   const gaps: PriseGap[] = [];
   if (!input.lookReady) gaps.push({ id: "photos", text: "Il manque deux photos, un nom et deux traits.", action: "Tenir les photos" });
   if (!input.hasScene) gaps.push({ id: "scene", text: "Il manque un lieu.", action: "Poser la scène" });
   if (input.engine === "lora" && !input.hasCharacter) gaps.push({ id: "fichier", text: "Le moteur Personnage attend un fichier formé.", action: "Former le personnage" });
-  if (input.engine === "lora" && !input.falLinked) gaps.push({ id: "relier-fal", text: "Le compte fal n’est pas relié. Rien ne part sans lui.", action: "Relier" });
-  if (input.engine === "comfy" && !input.connected) gaps.push({ id: "relier-rendu", text: "Le compte de rendu n’est pas relié. Rien ne part sans lui.", action: "Relier" });
   return gaps;
 }
 
 export interface PriseAction {
-  id: "relier-fal" | "relier-rendu" | "photos" | "scene" | "fichier" | "bloque" | "tourner";
+  id: "relier" | "photos" | "scene" | "fichier" | "bloque" | "tourner";
   label: string;
   hint: string;
 }
@@ -156,8 +172,8 @@ export function priseAction(input: {
   price: string | null;
 }): PriseAction {
   const priced = input.price ? `Tourner · ${input.price}` : "Tourner";
-  if (input.engine === "lora" && !input.falLinked) return { id: "relier-fal", label: "Relier mon compte fal", hint: "" };
-  if (input.engine === "comfy" && !input.connected) return { id: "relier-rendu", label: "Relier mon compte de rendu", hint: "" };
+  const accountMissing = input.engine === "lora" ? !input.falLinked : !input.connected;
+  if (accountMissing) return { id: "relier", label: "Relier", hint: "" };
   if (!input.lookReady) return { id: "photos", label: "Tenir les photos", hint: "Il manque deux photos, un nom et deux traits." };
   if (!input.hasScene) return { id: "scene", label: "Poser la scène", hint: "Il manque un lieu." };
   if (input.engine === "lora" && !input.hasCharacter) return { id: "fichier", label: "Former le personnage", hint: "Il manque un fichier de personnage." };

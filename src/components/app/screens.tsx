@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { costLabel, LOOK_PHOTOS_MAX, SCENE_STILLS_MAX, cleanTraits, isPlaceLora, lookCheck, parseTraits } from "@/lib/coffre/model";
-import { castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, WIRED_ENGINES } from "@/lib/studio-comfort";
+import { briefAction, castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, weaveBrief, WIRED_ENGINES } from "@/lib/studio-comfort";
 import { PLACE_SHOTS_MIN, placeShotLine, placeShotList } from "@/lib/lora/place";
 import { LENSES, PREVIZ_LABELS, PREVIZ_PLANS, PATH_FRAMES, defaultCamera, pathPoint, placeVolumes } from "@/lib/render/previz";
 import { filmAction } from "@/lib/render/shot";
@@ -340,7 +340,9 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
   }, [resultId]);
 
   const hasCharacter = Boolean(chosenLora);
-  const gaps = priseGaps({ lookReady: check.ready, hasScene: Boolean(scene), engine, falLinked, connected, hasCharacter });
+  const gaps = priseGaps({ lookReady: check.ready, hasScene: Boolean(scene), engine, hasCharacter });
+  const whoName = chosenLora?.name.trim() ?? "";
+  const placeName = scene?.name.trim() ?? "";
   const livePrice = engine === "lora" && loraQuote !== null ? formatUsd(loraQuote) : null;
   const example = exampleTakeQuote({ engine, seconds: settings.seconds, resolution: loraResolution });
   const showingExample = engine === "lora" ? !falLinked : !connected;
@@ -355,12 +357,34 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
     price: livePrice,
   });
 
+  function writeBrief(who: string, place: string) {
+    setLine(weaveBrief({ who, place, action: briefAction(line, whoName, placeName) }));
+  }
+
+  function chooseCast(id: string) {
+    const person = cast.find(item => item.id === id);
+    if (!person) {
+      setLora("");
+      writeBrief("", placeName);
+      return;
+    }
+    setEngine("lora");
+    setLora(person.id);
+    writeBrief(person.name, placeName);
+  }
+
+  function choosePlace(id: string) {
+    const place = studio.studio.scenes.find(item => item.id === id);
+    if (!place) return;
+    void studio.selectScene(place.id);
+    writeBrief(whoName, place.name.trim());
+  }
+
   function jump(id: string) {
     if (id === "photos") goLook();
     else if (id === "scene") goScene();
     else if (id === "fichier") goLora();
-    else if (id === "relier-fal") setSheet("fal");
-    else if (id === "relier-rendu") setSheet("connect");
+    else if (id === "relier") setSheet("relier");
   }
 
   return <section className="u-screen" aria-labelledby="u-title">
@@ -394,7 +418,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
       {run.detail.length > 0 && <ul>{run.detail.map(item => <li key={item}>{item}</li>)}</ul>}
       {run.code === "credits" && <p>{engine === "lora" ? "Recharge ton compte fal, puis relance. Le solde, en haut, montre ce qui reste." : "Recharge ton compte de rendu, puis relance. Le solde, en haut, montre ce qui reste."}</p>}
       {run.code === "auth" || run.code === "scope"
-        ? <button type="button" className="u-secondary" onClick={() => { resetRun(); setSheet(engine === "lora" ? "fal" : "connect"); }}>Relier à nouveau</button>
+        ? <button type="button" className="u-secondary" onClick={() => { resetRun(); setSheet("relier"); }}>Relier à nouveau</button>
         : <button type="button" className="u-secondary" onClick={resetRun}>Reprendre</button>}
     </div>}
 
@@ -403,6 +427,28 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         {gaps.map(gap => <li key={gap.id}><span>{gap.text}</span> <button type="button" className="u-link" onClick={() => jump(gap.id)}>{gap.action}</button></li>)}
       </ul>}
       {showingExample && <p className="u-small">Parcours d’exemple · {SAMPLE_TAKE.who}, {SAMPLE_TAKE.place}. {SAMPLE_TAKE.line} Rien n’est débité ici.</p>}
+      <div className="u-pickers">
+        <div className="u-field">
+          <span className="u-label">Distribution</span>
+          {cast.length === 0
+            ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre</button>
+            : <select aria-label="Distribution" value={chosenLora?.id ?? ""} onChange={event => chooseCast(event.target.value)}>
+              <option value="">Choisir</option>
+              {cast.map(person => <option key={person.id} value={person.id}>{person.name}</option>)}
+            </select>}
+          {engine === "lora" && chosenLora && <p className="u-small">Ce fichier recharge {chosenLora.name || "le personnage"}.</p>}
+        </div>
+        <div className="u-field">
+          <span className="u-label">Lieux</span>
+          {studio.studio.scenes.length === 0
+            ? <button type="button" className="u-link" aria-label="Décors" onClick={goScene}>Aucun lieu au coffre</button>
+            : <select aria-label="Décors" value={scene?.id ?? ""} onChange={event => choosePlace(event.target.value)}>
+              <option value="">Choisir</option>
+              {decor.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>}
+          {scene && decor.find(item => item.id === scene.id)?.camera && <p className="u-small">Ce décor se rouvre avec sa caméra.</p>}
+        </div>
+      </div>
       <label className="u-field">
         <span className="u-label">Ce que fait la prise</span>
         <textarea value={line} rows={2} maxLength={240} placeholder="Elle traverse le quai sous la pluie, sans se retourner." onChange={event => setLine(event.target.value)} />
@@ -439,32 +485,6 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         if (action.id === "tourner") void requestRun();
         else if (action.id !== "bloque") jump(action.id);
       }}>{action.label} <Arrow /></button>
-      <div className="u-comfort-split">
-        <div>
-          <p className="u-label">Distribution</p>
-          {cast.length === 0
-            ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre. Le former</button>
-            : <div className="u-segments" role="radiogroup" aria-label="Distribution">
-              {cast.map(person => <button key={person.id} type="button" role="radio" aria-checked={engine === "lora" && chosenLora?.id === person.id} onClick={() => { setEngine("lora"); setLora(person.id); }}>{person.name}</button>)}
-            </div>}
-          {engine === "lora" && chosenLora && <p className="u-small">Ce fichier recharge {chosenLora.name || "le personnage"}.</p>}
-        </div>
-        <div>
-          <p className="u-label">Décors</p>
-          {studio.studio.scenes.length === 0
-            ? <button type="button" className="u-link" onClick={goScene}>Aucun lieu encore. Poser la scène</button>
-            : <div className="u-scenes" role="radiogroup" aria-label="Décors">
-              {studio.studio.scenes.map(item => {
-                const still = item.render ?? item.stills[0];
-                return <button key={item.id} type="button" role="radio" aria-checked={item.id === scene?.id} className="u-scene" onClick={() => void studio.selectScene(item.id)}>
-                  {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
-                  <span>{item.name || "Sans nom"}</span>
-                </button>;
-              })}
-            </div>}
-          {scene && decor.find(item => item.id === scene.id)?.camera && <p className="u-small">Ce décor se rouvre avec sa caméra.</p>}
-        </div>
-      </div>
       <div className="u-pair" aria-label="Photos et lieu">
         <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name || `Exemple · ${SAMPLE_TAKE.who}`}</figcaption></figure>
         <span className="u-pair-thread" aria-hidden="true" />

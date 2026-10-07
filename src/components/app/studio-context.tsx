@@ -41,7 +41,7 @@ import {
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
 
-export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | { take: string };
+export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | { take: string };
 
 export type RunState =
   | { phase: "idle" }
@@ -1069,7 +1069,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const requestRun = useCallback(async () => {
     if (engine === "lora") {
       if (!falLinked || !fal) {
-        setSheet("fal");
+        setSheet("relier");
         return;
       }
       await refreshFal();
@@ -1077,7 +1077,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       return;
     }
     if (!client || !connected) {
-      setSheet("connect");
+      setSheet("relier");
       return;
     }
     await refreshBalance();

@@ -75,9 +75,13 @@
 .u-slot-remove { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(11, 10, 9, .78); color: var(--u-text); }
 
 .u-field { display: grid; gap: 8px; }
-.u-field input, .u-field textarea, .u-chips { width: 100%; padding: 12px 14px; border: 1px solid rgba(201, 164, 106, .28); border-radius: 12px; background: #11100f; font-size: 16px; line-height: 1.4; }
+.u-field input, .u-field textarea, .u-field select, .u-pickers select, .u-chips { width: 100%; padding: 12px 14px; border: 1px solid rgba(201, 164, 106, .28); border-radius: 12px; background: #11100f; font-size: 16px; line-height: 1.4; }
+.u-pickers { display: grid; gap: 10px; }
+.u-pickers .u-link { justify-content: flex-start; }
+.u-payer { display: grid; gap: 8px; }
+.u-payer + .u-payer { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--u-line); }
 .u-field textarea { resize: vertical; min-height: 64px; }
-.u-field input:focus, .u-field textarea:focus, .u-chips:focus-within { border-color: var(--u-gold); outline: none; }
+.u-field input:focus, .u-field textarea:focus, .u-field select:focus, .u-pickers select:focus, .u-chips:focus-within { border-color: var(--u-gold); outline: none; }
 .u-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 10px; }
 .u-chips input { flex: 1 1 140px; min-width: 0; padding: 6px 4px; border: 0; background: transparent; }
 .u-chips input:focus { outline: none; }
@@ -232,6 +236,7 @@
 .u-ledger li span:last-child { text-align: right; overflow-wrap: anywhere; }
 
 @media (min-width: 520px) {
+  .u-pickers { grid-template-columns: 1fr 1fr; }
   .u-engines { grid-template-columns: 1fr 1fr; }
   .u-engines legend { grid-column: 1 / -1; }
   .u-comfort-controls { grid-template-columns: 1fr 1fr; }
@@ -246,6 +251,7 @@
 }
 @media (min-width: 1080px) {
   .u-comfort { grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); grid-auto-flow: dense; align-items: start; }
+  .u-comfort > .u-pickers,
   .u-comfort > .u-field,
   .u-comfort > .u-engines,
   .u-comfort > .u-comfort-controls,

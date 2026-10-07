@@ -66,6 +66,11 @@ describe("le studio, une app", () => {
     const take = scene.slice(scene.indexOf("export function TakeScreen"), scene.indexOf("export function SphereScreen"));
     assert.match(take, /aria-label="Décors"/);
     assert.match(take, /aria-label="Distribution"/);
+    assert.match(take, /className="u-pickers"/);
+    assert.match(take, /weaveBrief/);
+    assert.match(take, /Aucun personnage au coffre/);
+    assert.match(take, /Aucun lieu au coffre/);
+    assert.doesNotMatch(take, /Relier mon compte/);
     assert.match(take, /aria-label="Régler la prise"/);
     assert.match(take, /className="u-comfort"/);
     assert.match(take, /className="u-label">Moteur</);
@@ -124,8 +129,9 @@ describe("le studio, une app", () => {
     assert.match(comfyOff, /tokens\.forget\(\)/);
     assert.doesNotMatch(comfyOff, /removeTake|removeLora|coffreZip|deleteDatabase/);
     const app = read("src/components/app/studio-app.tsx");
-    assert.match(app, /falLinked \? "credits" : "fal"/);
-    assert.match(app, /connected \? "credits" : "connect"/);
+    assert.match(app, /"credits" : "relier"/);
+    assert.match(sheets, /Il paie la formation du personnage et les prises « Personnage »/);
+    assert.match(sheets, /Il paie les prises « Références »/);
   });
 
   it("publishes from the result, with the file, and never posts by itself", () => {
