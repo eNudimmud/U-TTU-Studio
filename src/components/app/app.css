@@ -258,6 +258,10 @@
 .u-tabs button { min-height: 44px; border: 1px solid var(--u-line); border-radius: 12px; background: transparent; color: var(--u-muted); }
 .u-tabs button[aria-selected="true"] { border-color: var(--u-gold); color: var(--u-gold-soft); background: rgba(201, 164, 106, .1); }
 .u-signin { width: 100%; height: min(68dvh, 680px); border: 1px solid var(--u-line); border-radius: 14px; background: #000; }
+.u-wallets { display: grid; gap: 12px; }
+.u-wallet { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--u-line); border-radius: 16px; background: rgba(201, 164, 106, .04); }
+.u-wallet[data-state="read"] > strong { font: 650 40px/1 var(--font-heading); letter-spacing: -.04em; color: var(--u-gold-soft); font-variant-numeric: tabular-nums; }
+.u-wallet .u-secondary { justify-self: start; }
 .u-balance { display: flex; align-items: baseline; gap: 10px; }
 .u-balance strong { font: 650 44px/1 var(--font-heading); letter-spacing: -.04em; color: var(--u-gold-soft); font-variant-numeric: tabular-nums; }
 .u-balance span { color: var(--u-muted); font-size: 14px; }

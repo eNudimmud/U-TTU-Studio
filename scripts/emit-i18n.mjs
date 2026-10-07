@@ -384,6 +384,11 @@ row("sheet.keyHint", "La clé reste sur cet appareil. Elle demande un abonnement
 row("sheet.checking", "Vérification…", "Checking…", "Prüfung…", "Comprobación…");
 row("sheet.linkRender", "Relier le compte de rendu", "Connect the render account", "Render-Konto verbinden", "Vincular la cuenta de render");
 row("sheet.accountsTitle", "Comptes", "Accounts", "Konten", "Cuentas");
+row("sheet.walletTitle", "Solde", "Balance", "Guthaben", "Saldo");
+row("sheet.walletLead", `Deux comptes, jamais mélangés. Mon studio n${Q}encaisse rien. Le devis se lit avant le geste.`, "Two accounts, never mixed. My studio takes nothing. The quote is read before the gesture.", "Zwei Konten, nie gemischt. Mein Studio kassiert nichts. Das Angebot wird vor der Geste gelesen.", "Dos cuentas, nunca mezcladas. Mi estudio no cobra nada. El presupuesto se lee antes del gesto.");
+row("sheet.walletAria", "Solde. Rendu : {render}. fal : {fal}.", "Balance. Render: {render}. fal: {fal}.", "Guthaben. Render: {render}. fal: {fal}.", "Saldo. Render: {render}. fal: {fal}.");
+row("sheet.quote", "Devis", "Quote", "Angebot", "Presupuesto");
+row("sheet.quotePending", `Aucun chiffre tant que le devis n${Q}est pas lu.`, "No figure until the quote is read.", "Keine Zahl, solange das Angebot nicht gelesen ist.", "Ninguna cifra mientras el presupuesto no esté leído.");
 row("sheet.whoPays", "Qui paie", "Who pays", "Wer zahlt", "Quién paga");
 row("sheet.renderAccount", "Compte de rendu", "Render account", "Render-Konto", "Cuenta de render");
 row("sheet.notLinked", "non relié", "not connected", "nicht verbunden", "no vinculado");

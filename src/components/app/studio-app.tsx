@@ -31,7 +31,7 @@ export function StudioApp() {
 function AppFrame() {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, setEngine, falLinked, falBalance, falBalanceOptional, falBalanceNote, training } = studio;
+  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, setEngine, falLinked, falBalance, falBalanceNote, training } = studio;
   const [asked, setAsked] = useState<Tab | null>(null);
   const [choice, setChoice] = useState(0);
   const [startFile, setStartFile] = useState(false);
@@ -81,7 +81,8 @@ function AppFrame() {
     scene: hasScene,
     prise: studio.studio.takes.length > 0,
   };
-  const falHere = tab === "lora" || (tab === "prise" && engine === "lora");
+  const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
+  const falAria = !falLinked ? t("sheet.notLinked") : falBalance ? formatUsd(falBalance.usd) : (falBalanceNote ? say(falBalanceNote) : t("sheet.balanceUnread"));
 
   const moments: (GuideMoment | false)[] = tab === "look"
     ? [!check.photos && "look-photos", !check.name && "look-name", !check.traits && "look-traits", check.ready && "look-ready"]
@@ -103,12 +104,8 @@ function AppFrame() {
       </a>
       <div className="u-top-tools">
         <LanguageSwitcher />
-        <button type="button" className="u-credit" onClick={() => setSheet((falHere ? falLinked : connected) ? "credits" : "relier")} aria-label={(falHere ? falLinked : connected) ? (falHere ? (falBalance || !falBalanceOptional ? t("nav.falBalance") : t("nav.falUnread")) : t("nav.renderCredits")) : t("nav.connect")}>
-          {(falHere ? falLinked : connected)
-            ? (falHere
-              ? (falBalance ? <><strong>{formatUsd(falBalance.usd)}</strong><span>fal</span></> : falBalanceOptional ? <span>fal</span> : <><strong>{falBalanceNote ? "—" : "…"}</strong><span>fal</span></>)
-              : <><strong>{balance ? formatCredits(balance.credits) : balanceNote ? "—" : "…"}</strong><span>{t("nav.credits")}</span></>)
-            : <span>{t("nav.connect")}</span>}
+        <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria, fal: falAria })}>
+          <span>{t("sheet.walletTitle")}</span>
         </button>
         <button type="button" className="u-coffre" onClick={() => setSheet("coffre")} aria-label={t("nav.studio")}><Coffre /><span>{t("nav.studio")}</span></button>
       </div>

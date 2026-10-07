@@ -128,36 +128,60 @@ export function ConnectSheet({ framed = true }: { framed?: boolean } = {}) {
 export function CreditSheet() {
   const { t, say } = useI18n();
   const { time, date } = useStudioDates();
-  const { setSheet, connected, balance, balanceNote, refreshBalance, claim, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, disconnect, disconnectFal, blenderLinked, disconnectBlender } = useStudio();
+  const { setSheet, connected, balance, balanceNote, refreshBalance, claim, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, trainQuote, disconnect, disconnectFal, blenderLinked, disconnectBlender } = useStudio();
   const measured = studio.takes.filter(take => take.costCredits !== null || take.costUsd !== null).slice(0, 5);
-  return <SheetFrame title={t("sheet.accountsTitle")} label={t("sheet.whoPays")} onClose={() => setSheet(null)}>
+  const renderState = !connected ? "off" : balance ? "read" : balanceNote ? "error" : "unread";
+  const falState = !falLinked ? "off" : falBalance ? "read" : falBalanceNote ? "error" : "unread";
+  const renderLine = renderState === "off"
+    ? t("sheet.notLinked")
+    : renderState === "read" && balance
+      ? t("sheet.readAt", { time: time.format(balance.readAt) })
+      : renderState === "error"
+        ? say(balanceNote)
+        : t("sheet.balanceUnread");
+  const falLine = falState === "off"
+    ? t("sheet.notLinked")
+    : falState === "read" && falBalance
+      ? t("sheet.readAtFal", { time: time.format(falBalance.readAt) })
+      : falState === "error"
+        ? say(falBalanceNote)
+        : t("sheet.balanceUnread");
+  return <SheetFrame title={t("sheet.walletTitle")} label={t("nav.studio")} onClose={() => setSheet(null)}>
     <div className="u-stack">
-      <p className="u-label">{t("sheet.renderAccount")}</p>
-      <div className="u-balance">
-        <strong>{balance ? formatCredits(balance.credits) : "—"}</strong>
-        <span>{!connected ? t("sheet.notLinked") : balance ? t("sheet.readAt", { time: time.format(balance.readAt) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"))}</span>
-        {connected && <button type="button" className="u-icon" onClick={() => void refreshBalance()} aria-label={t("sheet.rereadRender")}><Refresh /></button>}
+      <p>{t("sheet.walletLead")}</p>
+      <div className="u-wallets">
+        <section className="u-wallet" data-state={renderState} aria-label={t("sheet.renderAccount")}>
+          <p className="u-label">{t("sheet.renderAccount")}</p>
+          {renderState === "read" && balance && <strong>{formatCredits(balance.credits)}</strong>}
+          <p className={renderState === "error" ? "u-small is-error" : "u-small"} role={renderState === "error" ? "alert" : undefined}>{renderLine}</p>
+          <p className="u-small">{t("sheet.referencesRun", { engine: t("engine.comfy.label"), rate: CREDITS_PER_USD })}</p>
+          <p className="u-label">{t("sheet.quote")}</p>
+          {engine === "comfy" && <p className="u-small">{t("sheet.thisSetting", { profile: takeProfile(settings) })}</p>}
+          <p>{engine === "comfy" && claim.state === "measured" ? t("sheet.aboutClaim", { amount: formatCredits(claim.credits), basis: say(claimBasis(claim)) }) : t("sheet.uncalibratedClaim")}</p>
+          {connected && <button type="button" className="u-icon" onClick={() => void refreshBalance()} aria-label={t("sheet.rereadRender")}><Refresh /></button>}
+          {connected
+            ? <>
+              <p className="u-small">{t("sheet.forgetLink")}</p>
+              <button type="button" className="u-secondary" onClick={() => void disconnect()}>{t("sheet.unlinkRender")}</button>
+            </>
+            : <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("verb.relier")}</button>}
+        </section>
+        <section className="u-wallet" data-state={falState} aria-label={t("sheet.falAccount")}>
+          <p className="u-label">{t("sheet.falAccount")}</p>
+          {falState === "read" && falBalance && <strong>{formatUsd(falBalance.usd)}</strong>}
+          <p className={falState === "error" ? "u-small is-error" : "u-small"} role={falState === "error" ? "alert" : undefined}>{falLine}</p>
+          <p className="u-small">{t("sheet.falPays", { engine: t("engine.lora.label") })}</p>
+          <p className="u-label">{t("sheet.quote")}</p>
+          <p>{trainQuote !== null ? formatUsd(trainQuote) : t("sheet.quotePending")}</p>
+          {falLinked && <button type="button" className="u-icon" onClick={() => void refreshFal()} aria-label={t("sheet.rereadFal")}><Refresh /></button>}
+          {falLinked
+            ? <>
+              <p className="u-small">{t("sheet.forgetFal")}</p>
+              <button type="button" className="u-secondary" onClick={disconnectFal}>{t("sheet.unlinkFal")}</button>
+            </>
+            : <button type="button" className="u-secondary" onClick={() => setSheet("fal")}>{t("verb.relier")}</button>}
+        </section>
       </div>
-      <p className="u-small">{t("sheet.referencesRun", { engine: t("engine.comfy.label"), rate: CREDITS_PER_USD })}</p>
-      {connected && <>
-        <p className="u-small">{t("sheet.forgetLink")}</p>
-        <button type="button" className="u-secondary" onClick={() => void disconnect()}>{t("sheet.unlinkRender")}</button>
-      </>}
-      {engine === "comfy" && <div className="u-card">
-        <p className="u-label">{t("sheet.thisSetting", { profile: takeProfile(settings) })}</p>
-        <p>{claim.state === "measured" ? t("sheet.aboutClaim", { amount: formatCredits(claim.credits), basis: say(claimBasis(claim)) }) : t("sheet.uncalibratedClaim")}</p>
-      </div>}
-      <p className="u-label">{t("sheet.falAccount")}</p>
-      <div className="u-balance">
-        <strong>{falBalance ? formatUsd(falBalance.usd) : "—"}</strong>
-        <span>{falLinked ? (falBalance ? t("sheet.readAtFal", { time: time.format(falBalance.readAt) }) : (falBalanceNote ? say(falBalanceNote) : t("sheet.balanceUnread"))) : t("sheet.notLinked")}</span>
-        {falLinked && <button type="button" className="u-icon" onClick={() => void refreshFal()} aria-label={t("sheet.rereadFal")}><Refresh /></button>}
-      </div>
-      <p className="u-small">{t("sheet.falPays", { engine: t("engine.lora.label") })}</p>
-      {falLinked && <>
-        <p className="u-small">{t("sheet.forgetFal")}</p>
-        <button type="button" className="u-secondary" onClick={disconnectFal}>{t("sheet.unlinkFal")}</button>
-      </>}
       <p className="u-label">Blender</p>
       <p className="u-small">{blenderLinked ? t("sheet.blenderOn") : t("sheet.blenderOff")}</p>
       {blenderLinked && <button type="button" className="u-secondary" onClick={() => { disconnectBlender(); setSheet(null); }}>{t("sheet.unlinkBlender")}</button>}
