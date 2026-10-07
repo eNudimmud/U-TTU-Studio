@@ -118,7 +118,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
   const [adding, setAdding] = useState(false);
   useEffect(() => {
     if (!focus) return;
-    const target = focus === "image" ? document.getElementById("u-image-lieu") ?? document.getElementById("u-former-lieu") : document.getElementById("u-vues");
+    const target = document.getElementById(focus === "image" ? "u-former-lieu" : "u-vues");
     target?.scrollIntoView({ block: "center" });
   }, [focus, scene?.id]);
 
@@ -244,7 +244,7 @@ function FilmStatus() {
 }
 
 function SceneEditor() {
-  const { scene, media, studio, saveScene, addSceneStills, removeSceneStill, deleteScene, setPreviz, moveCamera, setLens, previz, resetScene, blenderLinked, setSheet, falLinked, placeTrainQuote, placeSceneQuote, placeRun, requestPlaceTrain, requestPlaceScene, addSceneViews, removeSceneView } = useStudio();
+  const { scene, media, studio, saveScene, addSceneStills, removeSceneStill, deleteScene, setPreviz, moveCamera, setLens, previz, resetScene, blenderLinked, setSheet, falLinked, placeTrainQuote, placeRun, requestPlaceTrain, addSceneViews, removeSceneView } = useStudio();
   const { t, say } = useI18n();
   const [point, setPoint] = useState<"start" | "end">("start");
   if (!scene) return null;
@@ -271,7 +271,7 @@ function SceneEditor() {
         <li><strong>{t("scene.thePlace")}</strong>{t("scene.thePlaceBody")}</li>
         <li><strong>Blender</strong>{t("scene.blenderBody", { frames: PATH_FRAMES })}</li>
         <li><strong>{t("nav.character")}</strong>{t("scene.theCharacterBody")}</li>
-        <li><strong>{t("scene.formed")}</strong>{say(learned.line)} {falLinked && placeTrainQuote !== null ? t("scene.formedPrice", { amount: formatUsd(placeTrainQuote) }) : t("scene.formedUnread")} {placeFile ? `${t("scene.formedFile")}${placeSceneQuote !== null ? ` ${t("scene.formedNew", { amount: formatUsd(placeSceneQuote) })}` : ""}` : ""} {t("scene.formedTail")}</li>
+        <li><strong>{t("scene.formed")}</strong>{say(learned.line)} {falLinked && placeTrainQuote !== null ? t("scene.formedPrice", { amount: formatUsd(placeTrainQuote) }) : t("scene.formedUnread")} {placeFile ? `${t("scene.formedFile")} ` : ""}{t("scene.formedTail")}</li>
         <li><strong>{t("scene.thePrice")}</strong>{t("scene.thePriceBody")}</li>
       </ul>
     </details>
@@ -329,7 +329,6 @@ function SceneEditor() {
       }
       void requestPlaceTrain();
     }}>{placeRun === "running" ? t("scene.training") : learned.ready ? (placeTrainQuote !== null ? t("verb.trainPlacePriced", { price: formatUsd(placeTrainQuote) }) : t("verb.trainThisPlace")) : t("scene.addView")}</button>
-    {placeFile && <button type="button" id="u-image-lieu" className="u-link" disabled={placeRun === "running"} onClick={() => void requestPlaceScene()}>{placeSceneQuote !== null ? t("verb.buildPriced", { price: formatUsd(placeSceneQuote) }) : t("verb.buildThis")}</button>}
     <div className="u-photos is-wide" aria-label={t("scene.stills")}>
       {Array.from({ length: SCENE_STILLS_MAX }, (_, index) => {
         const path = scene.stills[index];
