@@ -253,7 +253,20 @@
     "missingTake": "Toma no encontrada",
     "created": "Secuencia creada.",
     "linked": "Toma añadida.",
-    "removed": "Secuencia quitada."
+    "removed": "Secuencia quitada.",
+    "play": "Reproducir la secuencia",
+    "playOff": "Ninguna viñeta en esta secuencia. La reproducción sigue el orden de las viñetas.",
+    "now": "Lectura",
+    "stop": "Parar",
+    "again": "Volver a ver",
+    "slate": "Viñeta sin toma",
+    "slateBody": "Esta viñeta no tiene toma. La reproducción sigue.",
+    "beat": "{index} de {count}",
+    "drag": "Mover {name}",
+    "dragHandle": "Mover",
+    "end": "Fin de la secuencia.",
+    "listNote": "La lista de montaje está en Mi estudio, junto a la secuencia. Ninguna película se ensambla.",
+    "listFile": "Lista de montaje · {name}"
   },
   "shot": {
     "title": "Viñetas",

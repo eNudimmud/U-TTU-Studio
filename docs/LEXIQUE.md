@@ -24,6 +24,7 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - La ligne « FR Coffre · EN Vault » du glossaire de travail est dépassée. L’écran dit **Mon studio**.
 - Chaque univers de travail est un projet sous `Projets/`. L’écran dit « Mon studio » et « Projet en cours ».
 - **Séquence** relie des prises dans l’ordre. Le **raccord** dit ce qui doit coller : lumière, regard, mouvement, objet. EN Sequence / Continuity. DE Sequenz / Anschluss. ES Secuencia / Raccord.
+- **Lire la séquence** enchaîne, dans le navigateur, les vidéos des prises déjà posées sur les plans, dans l’ordre des plans. Un plan sans prise est un carton : **Plan sans prise**. EN Play the sequence / Shot without a take. DE Sequenz abspielen / Shot ohne Take. ES Reproducir la secuencia / Viñeta sin toma. La liste de montage est `Sequences/<id>-montage.md` (ordre, plan, prise, durée, source). Ce n’est pas un film assemblé.
 - Le geste **Raccorder deux images** produit un court film, rangé avec les prises. Ce n’est pas la note de raccord d’une séquence, ni une case **Plan**. EN Bridge two images. DE Zwei Bilder verbinden. ES Empalmar dos imágenes.
 - **Espace** (Pièce, Quai, Rue) est le lieu type. Ce n’est pas le **Plan** du storyboard. EN Layout. DE Raumplan. ES Plano de espacio.
 - **Trajet** est le chemin de la caméra dans cet espace. EN Path. DE Weg. ES Recorrido. Ce n’est ni l’espace, ni le plan.

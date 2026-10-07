@@ -7,7 +7,8 @@
 //   Projets/<slug>/Lieux/<id>.md          a place
 //   Projets/<slug>/Lieux/<id>-fichier.md  a place file (not the place note)
 //   Projets/<slug>/Prises/<id>.md         a take, plus its video and poster
-//   Projets/<slug>/Sequences/<id>.md      ordered takes and the raccord between them
+//   Projets/<slug>/Sequences/<id>.md         ordered takes and the raccord between them
+//   Projets/<slug>/Sequences/<id>-montage.md cut list: order, shot, take, duration, source
 //   Projets/<slug>/Shots/<id>.md          one storyboard panel: a sequence, takes, a short note
 //   Projets/<slug>/Assets/                weights and clips
 //   Projets/<slug>/Journal.md
@@ -471,8 +472,9 @@ const keptStrings = (value: ReturnType<typeof readFrontmatter>["fields"][string]
   Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 
 export function sequenceStem(name: string): string {
-  const base = slugify(name.trim());
-  return SEQUENCE_SKIP.has(base) ? "suite" : base;
+  let base = slugify(name.trim());
+  while (base.endsWith("-montage")) base = base.slice(0, -"-montage".length).replace(/-+$/g, "");
+  return !base || base === "montage" || SEQUENCE_SKIP.has(base) ? "suite" : base;
 }
 
 export function normalizeLinks(links: readonly SequenceLink[]): SequenceLink[] {
@@ -522,8 +524,9 @@ export function sequenceMarkdown(sequence: Sequence, projet = "", takes: readonl
 }
 
 export function parseSequence(id: string, source: string): Sequence | null {
-  if (SEQUENCE_SKIP.has(id)) return null;
+  if (SEQUENCE_SKIP.has(id) || id.endsWith("-montage")) return null;
   const { fields } = readFrontmatter(source);
+  if (text(fields.type) === "montage") return null;
   const prises = keptStrings(fields.prises).map(item => oneLine(item, 80)).filter(item => /^[A-Za-z0-9-]+$/.test(item));
   const raccords = keptStrings(fields.raccords);
   return {
@@ -589,6 +592,17 @@ export function moveShot(shots: readonly Shot[], id: string, direction: -1 | 1):
   reordered.splice(next, 0, item);
   const ordre = new Map(reordered.map((panel, at) => [panel.id, at]));
   return shots.map(panel => ordre.has(panel.id) ? { ...panel, ordre: ordre.get(panel.id) ?? panel.ordre } : { ...panel });
+}
+
+/** Puts the panels of one sequence into the given order. Other panels stay put. */
+export function orderShots(shots: readonly Shot[], sequenceId: string, orderedIds: readonly string[]): Shot[] {
+  const group = shotsOf(shots, sequenceId);
+  const known = new Set(group.map(shot => shot.id));
+  const wanted = orderedIds.filter(id => known.has(id));
+  const rest = group.map(shot => shot.id).filter(id => !wanted.includes(id));
+  const ordre = new Map([...wanted, ...rest].map((id, index) => [id, index]));
+  if (ordre.size === 0) return shots.map(item => ({ ...item }));
+  return shots.map(shot => ordre.has(shot.id) ? { ...shot, ordre: ordre.get(shot.id) ?? shot.ordre } : { ...shot });
 }
 
 export function dropTakeFromShots(shots: readonly Shot[], takeId: string): Shot[] {
@@ -932,6 +946,7 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
     }
     const sequence = sequenceRe.exec(entry.path);
     if (sequence) {
+      if (sequence[1].endsWith("-montage")) continue;
       const parsed = parseSequence(sequence[1], entry.text);
       if (parsed) studio.sequences.push(parsed);
       continue;

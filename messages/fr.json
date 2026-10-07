@@ -253,7 +253,20 @@
     "missingTake": "Prise introuvable",
     "created": "Séquence créée.",
     "linked": "Prise ajoutée.",
-    "removed": "Séquence retirée."
+    "removed": "Séquence retirée.",
+    "play": "Lire la séquence",
+    "playOff": "Aucun plan dans cette séquence. La lecture suit l’ordre des plans.",
+    "now": "Lecture",
+    "stop": "Arrêter",
+    "again": "Revoir",
+    "slate": "Plan sans prise",
+    "slateBody": "Ce plan n’a pas de prise. La lecture continue.",
+    "beat": "{index} sur {count}",
+    "drag": "Déplacer {name}",
+    "dragHandle": "Déplacer",
+    "end": "Fin de la séquence.",
+    "listNote": "La liste de montage est dans Mon studio, à côté de la séquence. Aucun film n’est assemblé.",
+    "listFile": "Liste de montage · {name}"
   },
   "shot": {
     "title": "Plans",

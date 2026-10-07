@@ -253,7 +253,20 @@
     "missingTake": "Take nicht gefunden",
     "created": "Sequenz angelegt.",
     "linked": "Take hinzugefügt.",
-    "removed": "Sequenz entfernt."
+    "removed": "Sequenz entfernt.",
+    "play": "Sequenz abspielen",
+    "playOff": "Kein Shot in dieser Sequenz. Die Wiedergabe folgt der Reihenfolge der Shots.",
+    "now": "Wiedergabe",
+    "stop": "Stopp",
+    "again": "Nochmal ansehen",
+    "slate": "Shot ohne Take",
+    "slateBody": "Dieser Shot hat keinen Take. Die Wiedergabe geht weiter.",
+    "beat": "{index} von {count}",
+    "drag": "{name} verschieben",
+    "dragHandle": "Verschieben",
+    "end": "Ende der Sequenz.",
+    "listNote": "Die Schnittliste liegt in « Mein Studio », neben der Sequenz. Kein Film wird zusammengesetzt.",
+    "listFile": "Schnittliste · {name}"
   },
   "shot": {
     "title": "Shots",
