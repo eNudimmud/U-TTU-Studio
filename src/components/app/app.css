@@ -147,6 +147,7 @@
 
 .u-settings { display: grid; gap: 10px; }
 .u-comfort { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--u-line); border-radius: 18px; background: rgba(18, 17, 16, .55); }
+.u-comfort-work { display: grid; gap: 12px; align-content: start; }
 .u-comfort-gaps { gap: 0; border: 1px solid var(--u-line); border-radius: 14px; overflow: hidden; }
 .u-comfort-gaps li { border: 0; border-radius: 0; padding: 8px 12px; background: transparent; }
 .u-comfort-gaps li + li { border-top: 1px solid var(--u-line); }
@@ -271,24 +272,12 @@
   .u-sheet.is-tall { height: min(860px, 92dvh); max-height: 92dvh; }
 }
 @media (min-width: 1080px) {
-  .u-comfort { grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); grid-auto-flow: dense; align-items: start; padding: 22px 24px; gap: 16px; }
-  .u-comfort > .u-pickers { display: none; }
-  .u-comfort > .u-comfort-gaps,
-  .u-comfort > .u-small,
-  .u-comfort > .u-field,
-  .u-comfort > .u-engines,
-  .u-comfort > .u-comfort-controls,
-  .u-comfort > .u-cost,
-  .u-comfort > .u-comfort-hint,
-  .u-comfort > .u-comfort-split,
-  .u-comfort > .u-primary,
-  .u-comfort > .u-link { grid-column: 1; }
-  .u-comfort > .u-shelf,
-  .u-comfort > .u-pair { grid-column: 2; }
+  .u-comfort { grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); align-items: start; padding: 22px 24px; gap: 28px; }
+  .u-comfort-work { gap: 16px; }
+  .u-comfort-work > .u-pickers { display: none; }
   .u-comfort > .u-shelf { display: flex; flex-direction: column; gap: 18px; position: sticky; top: 88px; align-self: start; }
   .u-shelf .u-scenes { flex-direction: column; max-height: min(46dvh, 520px); overflow: auto; }
-  .u-comfort > .u-link.u-comfort-hint { grid-column: 1; }
-  .u-comfort > .u-comfort-split { grid-template-columns: 1fr; }
+  .u-comfort .u-comfort-split { grid-template-columns: 1fr; }
   .u-app { width: 100%; margin: 0; border-inline: 0; }
   .u-top { padding-inline: 28px; }
   .u-main { margin-left: 232px; padding: 32px 40px 48px; }
