@@ -34,7 +34,8 @@ describe("compte facultatif, hors du studio", () => {
   it("keeps no visitor data beyond Clerk's own optional account", () => {
     const page = read("src/components/account/account-page.tsx");
     assert.doesNotMatch(page, /fetch\(|localStorage|budget/i);
-    assert.match(page, /Le studio n’en a pas besoin/);
+    assert.match(page, /t\("account\.title"\)/);
+    assert.ok(read("messages/fr.json").includes("Le studio n’en a pas besoin."));
   });
 });
 

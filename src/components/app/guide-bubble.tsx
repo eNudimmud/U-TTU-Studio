@@ -1,12 +1,14 @@
 "use client";
 
-import { GUIDE_LINES, nextMoment, type GuideMoment } from "@/lib/guide";
+import { nextMoment, type GuideMoment } from "@/lib/guide";
+import { useI18n } from "@/components/i18n/provider";
 import { assetPath } from "@/lib/site";
 import { useStudio } from "./studio-context";
 
 /** One line from U*TTU, in place. The face is a crop of her canon portrait. */
 export function GuideBubble({ moments }: { moments: readonly (GuideMoment | false | null | undefined)[] }) {
   const { guide, dismissGuide, guideOff } = useStudio();
+  const { t } = useI18n();
   const moment = nextMoment(moments, guide);
   if (!moment) return null;
   return <aside className="u-guide" role="note" aria-label="U*TTU" data-moment={moment}>
@@ -15,11 +17,11 @@ export function GuideBubble({ moments }: { moments: readonly (GuideMoment | fals
       <div className="u-guide-head">
         <p className="u-label">U*TTU</p>
         <div className="u-guide-actions">
-          <button type="button" className="u-link" onClick={() => dismissGuide(moment)}>Compris</button>
-          <button type="button" className="u-link u-muted" onClick={guideOff}>Ne plus guider</button>
+          <button type="button" className="u-link" onClick={() => dismissGuide(moment)}>{t("guide.understood")}</button>
+          <button type="button" className="u-link u-muted" onClick={guideOff}>{t("guide.stop")}</button>
         </div>
       </div>
-      <p className="u-guide-line">{GUIDE_LINES[moment]}</p>
+      <p className="u-guide-line">{t(`guide.${moment}`)}</p>
     </div>
   </aside>;
 }

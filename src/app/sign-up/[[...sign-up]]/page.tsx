@@ -9,7 +9,7 @@ export const metadata = { title: "Créer un compte — U*TTU Studio" };
 
 export default function SignUpPage() {
   return <ClerkScope>
-    <AuthScreen kicker="Compte" title="Créer un compte." note="Google ou GitHub. Le studio, lui, n’attend pas cette page.">
+    <AuthScreen screen="signUp">
       <SignUp
         appearance={clerkAppearance}
         routing="path"

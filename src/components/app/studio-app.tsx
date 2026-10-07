@@ -8,6 +8,7 @@ import type { GuideMoment } from "@/lib/guide";
 import { assetPath } from "@/lib/site";
 import { resumeTab, TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import type { WorkflowFiche } from "@/lib/workflow-fiches";
+import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { FichesScreen } from "./fiches-screen";
@@ -17,10 +18,10 @@ import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, Fal
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
-const STEPS: { id: Exclude<Tab, "sphere" | "look" | "fiches">; label: string }[] = [
-  { id: "lora", label: "Personnage" },
-  { id: "scene", label: "Scène" },
-  { id: "prise", label: "Prise" },
+const STEPS: { id: Exclude<Tab, "sphere" | "look" | "fiches">; key: "nav.character" | "nav.scene" | "nav.take" }[] = [
+  { id: "lora", key: "nav.character" },
+  { id: "scene", key: "nav.scene" },
+  { id: "prise", key: "nav.take" },
 ];
 
 export function StudioApp() {
@@ -29,6 +30,7 @@ export function StudioApp() {
 
 function AppFrame() {
   const studio = useStudio();
+  const { t, say } = useI18n();
   const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, setEngine, falLinked, falBalance, falBalanceOptional, falBalanceNote, training } = studio;
   const [asked, setAsked] = useState<Tab | null>(null);
   const [choice, setChoice] = useState(0);
@@ -100,20 +102,21 @@ function AppFrame() {
         <span>U<em>*</em>TTU</span>
       </a>
       <div className="u-top-tools">
-        <button type="button" className="u-credit" onClick={() => setSheet((falHere ? falLinked : connected) ? "credits" : "relier")} aria-label={(falHere ? falLinked : connected) ? (falHere ? (falBalance || !falBalanceOptional ? "Solde du compte fal" : "Compte fal relié, solde non lu") : "Crédits du compte de rendu") : "Relier"}>
+        <LanguageSwitcher />
+        <button type="button" className="u-credit" onClick={() => setSheet((falHere ? falLinked : connected) ? "credits" : "relier")} aria-label={(falHere ? falLinked : connected) ? (falHere ? (falBalance || !falBalanceOptional ? t("nav.falBalance") : t("nav.falUnread")) : t("nav.renderCredits")) : t("nav.connect")}>
           {(falHere ? falLinked : connected)
             ? (falHere
               ? (falBalance ? <><strong>{formatUsd(falBalance.usd)}</strong><span>fal</span></> : falBalanceOptional ? <span>fal</span> : <><strong>{falBalanceNote ? "—" : "…"}</strong><span>fal</span></>)
-              : <><strong>{balance ? formatCredits(balance.credits) : balanceNote ? "—" : "…"}</strong><span>crédits</span></>)
-            : <span>Relier</span>}
+              : <><strong>{balance ? formatCredits(balance.credits) : balanceNote ? "—" : "…"}</strong><span>{t("nav.credits")}</span></>)
+            : <span>{t("nav.connect")}</span>}
         </button>
-        <button type="button" className="u-coffre" onClick={() => setSheet("coffre")} aria-label="Mon studio"><Coffre /><span>Mon studio</span></button>
+        <button type="button" className="u-coffre" onClick={() => setSheet("coffre")} aria-label={t("nav.studio")}><Coffre /><span>{t("nav.studio")}</span></button>
       </div>
     </header>
 
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
       {ready && <GuideBubble moments={moments} />}
-      {!ready ? <p className="u-loading" role="status">Ouverture de mon studio…</p>
+      {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p>
         : tab === "look" ? <LookScreen onNext={() => go("scene")} onBack={() => go("lora")} />
         : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} focus={sceneFocus} />
         : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} startFile={startFile} />
@@ -127,28 +130,29 @@ function AppFrame() {
 
     {ready && <PlateauShelf go={go} />}
 
-    {notice && <p className="u-toast" role="status">{notice}</p>}
+    {notice && <p className="u-toast" role="status">{say(notice)}</p>}
 
-    <nav className="u-chain" aria-label="Personnage, scène, prise">
+    <nav className="u-chain" aria-label={t("nav.chain")}>
       <ol>
         {STEPS.map((step, index) => <li key={step.id}>
           <button type="button" aria-current={tab === step.id ? "step" : undefined} data-done={done[step.id] || undefined} onClick={() => go(step.id)}>
             <span className="u-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-            <span>{step.label}</span>
-            {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label="prise en cours" />}
-            {step.id === "lora" && training.phase === "running" && <span className="u-pulse" aria-label="formation en cours" />}
+            <span>{t(step.key)}</span>
+            {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
+            {step.id === "lora" && training.phase === "running" && <span className="u-pulse" aria-label={t("nav.trainRunning")} />}
           </button>
         </li>)}
       </ol>
       <div className="u-side">
         <button type="button" className="u-sphere" aria-current={tab === "sphere" ? "page" : undefined} onClick={() => go("sphere")}>
           <Web />
-          <span>Sphère</span>
+          <span>{t("nav.sphere")}</span>
         </button>
         <button type="button" className="u-fiches-nav" aria-current={tab === "fiches" ? "page" : undefined} onClick={() => go("fiches")}>
-          <span>Fiches</span>
+          <span>{t("nav.sheets")}</span>
         </button>
-        <button type="button" className="u-rail-coffre" onClick={() => setSheet("coffre")} aria-label="Mon studio"><Coffre /><span>Mon studio</span></button>
+        <button type="button" className="u-rail-coffre" onClick={() => setSheet("coffre")} aria-label={t("nav.studio")}><Coffre /><span>{t("nav.studio")}</span></button>
+        <LanguageSwitcher rail />
       </div>
     </nav>
 

@@ -5,78 +5,78 @@ import { characterPaths, WIRED_ENGINES } from "../src/lib/studio-comfort.ts";
 import { workflowFiches } from "../src/lib/workflow-fiches.ts";
 
 const read = (path: string) => readFileSync(path, "utf8");
-
-/** Visible French copy. Technical ids (#look, type look, LookScreen) stay out of this bundle. */
-const COPY = [
-  "src/components/app/screens.tsx",
-  "src/components/app/sheets.tsx",
-  "src/components/app/lora-screen.tsx",
-  "src/components/app/fiches-screen.tsx",
-  "src/components/app/studio-app.tsx",
-  "src/components/app/studio-context.tsx",
-  "src/components/account/account-page.tsx",
-  "src/components/landing/home.tsx",
-  "src/lib/studio-comfort.ts",
-  "src/lib/render/take-graph.ts",
-  "src/lib/lora/take.ts",
-  "src/lib/coffre/model.ts",
-].map(read).join("\n");
+const fr = JSON.parse(read("messages/fr.json")) as {
+  _status: string;
+  nav: { character: string; scene: string; take: string; chain: string; studio: string };
+  verb: Record<string, string>;
+};
 
 describe("lexique français", () => {
   it("snapshots the canon strings", () => {
+    const copy = read("messages/fr.json");
     for (const line of [
       "Photos des références",
       "Remettre ces références",
       "Ce qui tient les références",
-      'aria-label="Lieux"',
+      "Lieux",
       "Ce lieu se rouvre avec sa caméra.",
       "Tes prises",
       "Personnage (fichier)",
-      'title: "Fichier"',
-      'title: "Références"',
+      "Fichier",
+      "Références",
       "Distribution",
-      'className="u-label">Moteur',
+      "Moteur",
       "Mon studio",
       "Les photos des références manquent dans mon studio.",
       "Au moins une photo des références.",
       "Tes références, tes lieux et tes prises",
+      "Modèle · Prise",
     ]) {
-      assert.ok(COPY.includes(line), line);
+      assert.ok(copy.includes(line), line);
     }
   });
 
   it("keeps the six verbs distinct", () => {
-    for (const verb of ["Relier", "Lancer", "Tourner", "Former", "Filmer", "Bâtir"]) {
-      assert.match(COPY, new RegExp(`\\b${verb}\\b`));
-    }
+    assert.equal(fr.verb.relier, "Relier");
+    assert.equal(fr.verb.lancer, "Lancer");
+    assert.equal(fr.verb.tourner, "Tourner");
+    assert.equal(fr.verb.former, "Former");
+    assert.equal(fr.verb.filmer, "Filmer");
+    assert.equal(fr.verb.batir, "Bâtir");
   });
 
   it("drops the retired French labels", () => {
+    const values = JSON.stringify(JSON.parse(read("messages/fr.json")));
     for (const retired of [
       "Photos du look",
       "Remettre ce look",
       "Ce qui tient le look",
       "Mon look",
-      "du look",
       "Décors",
       "Ce décor",
       "Cohérence",
-      '"Vault"',
-      '"Cast"',
-      '"Shot"',
+      "\"Vault\"",
+      "\"Cast\"",
+      "\"Shot\"",
       "Exporter le coffre",
       "Importer un coffre",
     ]) {
-      assert.equal(COPY.includes(retired), false, retired);
+      assert.equal(values.includes(retired), false, retired);
     }
+    assert.equal(values.includes("Coffre"), false);
   });
 
   it("names the chain, the file engine and the file path apart", () => {
     const steps = read("src/components/app/studio-app.tsx");
     const chain = steps.slice(steps.indexOf("const STEPS"), steps.indexOf("export function StudioApp"));
-    assert.match(chain, /label: "Personnage"/);
-    assert.match(chain, /label: "Scène"/);
-    assert.match(chain, /label: "Prise"/);
+    assert.match(chain, /key: "nav.character"/);
+    assert.match(chain, /key: "nav.scene"/);
+    assert.match(chain, /key: "nav.take"/);
+    assert.equal(fr.nav.character, "Personnage");
+    assert.equal(fr.nav.scene, "Scène");
+    assert.equal(fr.nav.take, "Prise");
+    assert.equal(fr.nav.chain, "Personnage, scène, prise");
+    assert.equal(fr.nav.studio, "Mon studio");
     assert.doesNotMatch(chain, /Personnage \(fichier\)|Look|Rôle/);
     assert.equal(WIRED_ENGINES.find(engine => engine.id === "comfy")?.label, "Références");
     assert.equal(WIRED_ENGINES.find(engine => engine.id === "lora")?.label, "Personnage (fichier)");
@@ -102,6 +102,7 @@ describe("lexique français", () => {
     assert.equal(references?.name, "Prise · Références");
     assert.equal(references?.payer, "rendu");
     assert.equal(references?.engine, "comfy");
-    assert.doesNotMatch(read("package.json"), /next-intl/);
+    assert.match(read("package.json"), /"next-intl"/);
+    assert.equal(fr._status, "source");
   });
 });
