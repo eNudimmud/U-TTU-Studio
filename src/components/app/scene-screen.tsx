@@ -48,7 +48,6 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
     </header>
     {ready && <>
-    <ProjectMemory />
     <div className="u-desk">
       <div className="u-stack">
         {studio.scenes.length > 0 && <div className="u-scenes" role="radiogroup" aria-label={t("shelf.places")}>
@@ -69,7 +68,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
         </form>}
       </div>
       <div className="u-stack">
-        {previz.phase === "running" ? null : (() => {
+        {previz.phase === "running" ? <ProjectMemory /> : (() => {
           const posing = !scene || adding;
           const action = filmAction({
             scene: Boolean(scene),
@@ -89,6 +88,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
             <Why on={posing && !draft.trim()} text={t("why.needName")} />
             {scene && !adding && <p className="u-small">{t("scene.passTake")}</p>}
             {scene && adding && <button type="button" className="u-link" onClick={onNext}>{t("scene.goTake")}</button>}
+            <ProjectMemory />
             {action.kind !== "place" && <>
               <OutgoingFilm />
               {action.kind !== "film" && <p className="u-small">{t(`film.${action.kind}.missing`)}</p>}
@@ -107,9 +107,9 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
         })()}
         {scene && <VueProjet />}
         <SceneJobs />
-        {scene && <SceneEditor />}
       </div>
     </div>
+    {scene && <SceneEditor />}
     </>}
   </section>;
 }

@@ -83,6 +83,9 @@
 .u-head h1:focus { outline: none; }
 
 .u-photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 719px) {
+  .u-photos:not(.is-wide) .u-slot { aspect-ratio: auto; height: 96px; }
+}
 .u-photos.is-wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .u-slot { position: relative; margin: 0; display: grid; place-items: center; aspect-ratio: 3 / 4; border: 1px dashed var(--u-line-strong); border-radius: 14px; background: rgba(201, 164, 106, .04); color: var(--u-gold); overflow: hidden; }
 .u-photos.is-wide .u-slot { aspect-ratio: 16 / 10; }
