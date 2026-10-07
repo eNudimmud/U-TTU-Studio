@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { costLabel, LOOK_PHOTOS_MAX, SCENE_STILLS_MAX, cleanTraits, isPlaceLora, lookCheck, parseTraits } from "@/lib/coffre/model";
-import { briefAction, castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, weaveBrief, WIRED_ENGINES } from "@/lib/studio-comfort";
+import { briefAction, castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, vueProjet, weaveBrief, WIRED_ENGINES } from "@/lib/studio-comfort";
 import { PLACE_SHOTS_MIN, placeShotLine, placeShotList } from "@/lib/lora/place";
 import { LENSES, PREVIZ_LABELS, PREVIZ_PLANS, PATH_FRAMES, defaultCamera, pathPoint, placeVolumes } from "@/lib/render/previz";
 import { filmAction } from "@/lib/render/shot";
@@ -143,6 +143,7 @@ export function SceneScreen({ onNext, onRole }: { onNext(): void; onRole(): void
         </form>}
       </div>
       <div className="u-stack">
+        {scene && <VueProjet />}
         {scene && <SceneEditor />}
         {previz.phase === "running" ? <FilmStatus /> : (() => {
           const action = filmAction({
@@ -170,6 +171,34 @@ export function SceneScreen({ onNext, onRole }: { onNext(): void; onRole(): void
         }}>{scene ? "Aller à la prise" : "Pose d’abord un lieu"}</button>
       </div>
     </div>
+  </section>;
+}
+
+function VueProjet() {
+  const { studio, scene, setSheet } = useStudio();
+  if (!scene) return null;
+  const group = vueProjet({
+    scene,
+    takes: studio.takes,
+    loras: studio.loras,
+    lookName: studio.look.name,
+  });
+  return <section className="u-card u-projet" aria-label="Vue projet">
+    <h2>Vue projet</h2>
+    <ul className="u-facts">
+      <li><strong>Personnage</strong>{group.personnages.length ? group.personnages.join(" · ") : "Aucun personnage sur ce lieu."}</li>
+      <li><strong>Lieu</strong>{group.lieu}</li>
+      <li>
+        <strong>Prises</strong>
+        {group.prises.length === 0
+          ? "Aucune prise pour ce lieu."
+          : <ul className="u-projet-prises">
+            {group.prises.map(prise => <li key={prise.id}>
+              <button type="button" className="u-link" onClick={() => setSheet({ take: prise.id })} aria-label={`Ouvrir la prise ${prise.line}`}>{prise.line}</button>
+            </li>)}
+          </ul>}
+      </li>
+    </ul>
   </section>;
 }
 
