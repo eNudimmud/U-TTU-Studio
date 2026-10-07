@@ -1,8 +1,8 @@
 // Last Comfy Cloud catalog read for two parked gestures.
-// Discovery only: get_node and search_templates. No estimate, no dry_run, no run.
+// Discovery only: get_node, search_nodes, search_templates. No estimate, no dry_run, no run.
 
 export const CATALOG_WATCH = {
-  readAt: "2026-10-07T15:24:41.277Z",
+  readAt: "2026-10-07T16:47:36.385Z",
   nodeCount: 3772,
   /** Exact class names looked up. All of them came back missing. */
   saveLoraNames: ["SaveLoRA", "SaveLora", "SaveLoRANode", "LoraSave", "SaveLoraNode"] as const,
@@ -23,6 +23,11 @@ export const CATALOG_WATCH = {
     "template_qwen_Image_2512_360_lora",
     "3d_moge_panorama_to_mesh",
   ] as const,
+  /**
+   * Output nodes that touch a LoRA file and were refused.
+   * Neither one keeps the LORA_MODEL that TrainLoraNode returns.
+   */
+  refusedLoraNodes: ["LoraExtractKJ", "LoraReduceRankKJ"] as const,
 } as const;
 
 /** A Comfy trained file can be wired only when a named node writes it and the run has a number. */

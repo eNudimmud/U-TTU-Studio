@@ -8,8 +8,8 @@ const empty = { rendu: null, former: null, lieu: null, image: null };
 const sample = { seconds: 5, resolution: "768P" as const, steps: 1000 };
 
 describe("dernier contrôle catalogue", () => {
-  it("keeps both parked gestures closed after the 7 October read", () => {
-    assert.equal(CATALOG_WATCH.readAt, "2026-10-07T15:24:41.277Z");
+  it("keeps both parked gestures closed after the second 7 October read", () => {
+    assert.equal(CATALOG_WATCH.readAt, "2026-10-07T16:47:36.385Z");
     assert.equal(CATALOG_WATCH.nodeCount, 3772);
     assert.equal(CATALOG_WATCH.saveLoraPresent, false);
     assert.equal(CATALOG_WATCH.trainLoraWritesFile, false);
@@ -18,6 +18,7 @@ describe("dernier contrôle catalogue", () => {
     assert.equal(CATALOG_WATCH.placeStillQuote, null);
     assert.deepEqual([...CATALOG_WATCH.saveLoraNames], ["SaveLoRA", "SaveLora", "SaveLoRANode", "LoraSave", "SaveLoraNode"]);
     assert.deepEqual([...CATALOG_WATCH.trainLoraOutputs], ["LORA_MODEL", "LOSS_MAP", "INT"]);
+    assert.deepEqual([...CATALOG_WATCH.refusedLoraNodes], ["LoraExtractKJ", "LoraReduceRankKJ"]);
     assert.equal(catalogAllowsComfyFile(), false);
     assert.equal(catalogAllowsPlaceStill(), false);
     assert.equal(workflowFiches(empty, sample).find(fiche => fiche.id === "image"), undefined);
@@ -35,6 +36,13 @@ describe("dernier contrôle catalogue", () => {
     assert.match(f9, /templates_text_prompt_to_360hdr\.app/);
     assert.match(f9, /0 crédit/);
     assert.match(f9, /`run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés/);
+    const f14 = decisions.slice(0, decisions.indexOf("## F13"));
+    assert.match(f14, /F14 — re-watch SaveLoRA/);
+    assert.match(f14, /2026-10-07T16:47:36.385Z/);
+    assert.match(f14, /LoraExtractKJ/);
+    assert.match(f14, /LoraReduceRankKJ/);
+    assert.match(f14, /0 crédit brûlé/);
+    assert.match(f14, /`run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés/);
     const screens = readFileSync("src/components/app/screens.tsx", "utf8");
     const sheets = readFileSync("src/components/app/sheets.tsx", "utf8");
     assert.doesNotMatch(screens + sheets, /class_type|SaveLoRA|panneau de nœuds|catalog-watch/);
