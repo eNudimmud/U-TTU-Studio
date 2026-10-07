@@ -103,10 +103,15 @@ export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void 
   </section>;
 }
 
-export function SceneScreen({ onNext, onRole }: { onNext(): void; onRole(): void }) {
+export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; onRole(): void; focus?: "vues" | "image" | null }) {
   const { studio, scene, media, addScene, selectScene, previz, blenderLinked, falLinked, requestPreviz, setSheet } = useStudio();
   const [draft, setDraft] = useState("");
   const [adding, setAdding] = useState(false);
+  useEffect(() => {
+    if (!focus) return;
+    const target = focus === "image" ? document.getElementById("u-image-lieu") ?? document.getElementById("u-former-lieu") : document.getElementById("u-vues");
+    target?.scrollIntoView({ block: "center" });
+  }, [focus, scene?.id]);
 
   function add(event: FormEvent) {
     event.preventDefault();
@@ -301,7 +306,7 @@ function SceneEditor() {
       {scene.views.map((path, index) => <PictureSlot key={path} index={index} url={media[path]} label="la vue" onAdd={files => void addSceneViews(scene.id, files)} onRemove={() => void removeSceneView(scene.id, path)} />)}
       {scene.views.length < 12 && <PictureSlot index={scene.views.length} label="la vue" onAdd={files => void addSceneViews(scene.id, files)} />}
     </div>
-    <button type="button" className="u-link" disabled={placeRun === "running"} onClick={() => {
+    <button type="button" id="u-former-lieu" className="u-link" disabled={placeRun === "running"} onClick={() => {
       if (!learned.ready) {
         document.getElementById("u-vues")?.scrollIntoView({ block: "center" });
         return;
@@ -312,7 +317,7 @@ function SceneEditor() {
       }
       void requestPlaceTrain();
     }}>{placeRun === "running" ? "Formation du lieu…" : learned.ready ? `Former ce lieu${placeTrainQuote !== null ? ` · ${formatUsd(placeTrainQuote)}` : ""}` : "Ajouter une vue"}</button>
-    {placeFile && <button type="button" className="u-link" disabled={placeRun === "running"} onClick={() => void requestPlaceScene()}>{`Bâtir une image de ce lieu${placeSceneQuote !== null ? ` · ${formatUsd(placeSceneQuote)}` : ""}`}</button>}
+    {placeFile && <button type="button" id="u-image-lieu" className="u-link" disabled={placeRun === "running"} onClick={() => void requestPlaceScene()}>{`Bâtir une image de ce lieu${placeSceneQuote !== null ? ` · ${formatUsd(placeSceneQuote)}` : ""}`}</button>}
     <div className="u-photos is-wide" aria-label="Images du lieu">
       {Array.from({ length: SCENE_STILLS_MAX }, (_, index) => {
         const path = scene.stills[index];

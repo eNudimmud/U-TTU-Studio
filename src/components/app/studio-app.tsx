@@ -7,15 +7,17 @@ import { lookCheck } from "@/lib/coffre/model";
 import type { GuideMoment } from "@/lib/guide";
 import { assetPath } from "@/lib/site";
 import { resumeTab, TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
+import type { WorkflowFiche } from "@/lib/workflow-fiches";
 import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
+import { FichesScreen } from "./fiches-screen";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, SceneScreen, SphereScreen, TakeScreen } from "./screens";
 import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
-const STEPS: { id: Exclude<Tab, "sphere" | "look">; label: string }[] = [
+const STEPS: { id: Exclude<Tab, "sphere" | "look" | "fiches">; label: string }[] = [
   { id: "lora", label: "Personnage" },
   { id: "scene", label: "Scène" },
   { id: "prise", label: "Prise" },
@@ -27,9 +29,11 @@ export function StudioApp() {
 
 function AppFrame() {
   const studio = useStudio();
-  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, falLinked, falBalance, falBalanceOptional, falBalanceNote, training } = studio;
+  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, setEngine, falLinked, falBalance, falBalanceOptional, falBalanceNote, training } = studio;
   const [asked, setAsked] = useState<Tab | null>(null);
   const [choice, setChoice] = useState(0);
+  const [startFile, setStartFile] = useState(false);
+  const [sceneFocus, setSceneFocus] = useState<"vues" | "image" | null>(null);
 
   useEffect(() => {
     const apply = () => {
@@ -52,7 +56,9 @@ function AppFrame() {
   }, [ready, asked, check.ready, hasScene]);
   const tab: Tab = asked ?? "lora";
 
-  const go = useCallback((next: Tab) => {
+  const go = useCallback((next: Tab, opts?: { file?: boolean; scene?: "vues" | "image" | null }) => {
+    setStartFile(Boolean(opts?.file));
+    setSceneFocus(opts?.scene ?? null);
     if (next === "lora") setChoice(value => value + 1);
     setAsked(next);
     const url = `${window.location.pathname}#${TAB_HASH[next]}`;
@@ -67,7 +73,7 @@ function AppFrame() {
     return () => window.clearTimeout(timer);
   }, [notice, setNotice]);
 
-  const done: Record<Exclude<Tab, "sphere">, boolean> = {
+  const done: Record<Exclude<Tab, "sphere" | "fiches">, boolean> = {
     look: check.ready,
     lora: studio.studio.loras.some(item => item.kind !== "lieu"),
     scene: hasScene,
@@ -83,6 +89,8 @@ function AppFrame() {
     ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", !studio.studio.role.name.trim() && "lora-name", studio.studio.role.photos.length < 2 && "lora-photos", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready"]
     : tab === "prise"
     ? [run.phase === "running" && "take-running", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : !studio.line.trim() ? "take-line" : "take-ready")]
+    : tab === "fiches"
+    ? []
     : [studio.studio.takes.length === 0 && "sphere-empty"];
 
   return <div className="u-app">
@@ -107,9 +115,13 @@ function AppFrame() {
       {ready && <GuideBubble moments={moments} />}
       {!ready ? <p className="u-loading" role="status">Ouverture du coffre…</p>
         : tab === "look" ? <LookScreen onNext={() => go("scene")} onBack={() => go("lora")} />
-        : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} />
-        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} />
+        : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} focus={sceneFocus} />
+        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} startFile={startFile} />
         : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goSphere={() => go("sphere")} goLora={() => go("lora")} />
+        : tab === "fiches" ? <FichesScreen onLaunch={(fiche: WorkflowFiche) => {
+          if (fiche.engine) setEngine(fiche.engine);
+          go(fiche.dest, { file: fiche.focus === "file", scene: fiche.focus === "vues" || fiche.focus === "image" ? fiche.focus : null });
+        }} />
         : <SphereScreen />}
     </main>
 
@@ -126,10 +138,15 @@ function AppFrame() {
           </button>
         </li>)}
       </ol>
-      <button type="button" className="u-sphere" aria-current={tab === "sphere" ? "page" : undefined} onClick={() => go("sphere")}>
-        <Web />
-        <span>Sphère</span>
-      </button>
+      <div className="u-side">
+        <button type="button" className="u-sphere" aria-current={tab === "sphere" ? "page" : undefined} onClick={() => go("sphere")}>
+          <Web />
+          <span>Sphère</span>
+        </button>
+        <button type="button" className="u-fiches-nav" aria-current={tab === "fiches" ? "page" : undefined} onClick={() => go("fiches")}>
+          <span>Fiches</span>
+        </button>
+      </div>
     </nav>
 
     {sheet === "connect" && <ConnectSheet />}

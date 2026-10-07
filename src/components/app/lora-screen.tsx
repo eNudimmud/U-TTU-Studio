@@ -30,7 +30,7 @@ function trainLabel(event: TrainingEvent): string {
   }
 }
 
-export function LoraScreen({ onTake, onScene, onPhotos, choice }: { onTake(): void; onScene(): void; onPhotos(): void; choice: number }) {
+export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = false }: { onTake(): void; onScene(): void; onPhotos(): void; choice: number; startFile?: boolean }) {
   const studio = useStudio();
   const {
     studio: vault, media, dataset, falLinked, falBalance, training, trainingSteps, setTrainingSteps,
@@ -42,7 +42,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice }: { onTake(): vo
   const dirty = Boolean(role.name || role.photos.length || vault.clips.length);
   const [file, setFile] = useState(false);
   const [touch, setTouch] = useState({ name: false, photos: false, clips: false, submit: false });
-  useEffect(() => { setFile(false); }, [choice]);
+  useEffect(() => { setFile(startFile); }, [choice, startFile]);
   const problems = problemsAfterTouch(dataset.problems, touch);
   const showFile = file || training.phase !== "idle";
   const paths = characterPaths({ falLinked, quote: trainQuote, steps: trainingSteps });

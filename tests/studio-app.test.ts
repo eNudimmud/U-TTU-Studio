@@ -20,6 +20,8 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#plateau", ""), "scene");
     assert.equal(tabFromLocation("#Take", ""), "prise");
     assert.equal(tabFromLocation("#sphère", ""), "sphere");
+    assert.equal(tabFromLocation("#fiches", ""), "fiches");
+    assert.equal(tabFromLocation("#fiche", ""), "fiches");
     assert.equal(tabFromLocation("#lora", ""), "lora");
     assert.equal(tabFromLocation("#personnage", ""), "lora");
     assert.equal(tabFromLocation("#rôle", ""), "lora");
@@ -96,6 +98,15 @@ describe("le studio, une app", () => {
     assert.match(chain, /label: "Prise"/);
     assert.doesNotMatch(chain, /label: "Look"|label: "Rôle"/);
     assert.match(chain, /aria-label="Personnage, scène, prise"/);
+    assert.match(chain, /className="u-fiches-nav"/);
+    assert.match(chain, /<FichesScreen /);
+    assert.equal(chain.match(/label: "Personnage"|label: "Scène"|label: "Prise"/g)?.length, 3);
+    const fiches = read("src/components/app/fiches-screen.tsx");
+    assert.match(fiches, /Ce que le studio lance/);
+    assert.match(fiches, /Lancer/);
+    assert.match(fiches, /Relier/);
+    assert.doesNotMatch(fiches, /u-primary/);
+    assert.doesNotMatch(fiches, /seedance|graphe|class_type/i);
     assert.match(chain, /<LookScreen onNext=/);
     assert.match(chain, /onPhotos=/);
     assert.match(chain, /choice=\{choice\}/);
