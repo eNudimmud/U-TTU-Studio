@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { briefAction, castShelf, characterPaths, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, weaveBrief, WIRED_ENGINES } from "../src/lib/studio-comfort.ts";
+import { briefAction, castShelf, characterPaths, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, vueProjet, weaveBrief, WIRED_ENGINES } from "../src/lib/studio-comfort.ts";
 import { formatUsd } from "../src/lib/fal/prices.ts";
 
 describe("confort studio", () => {
@@ -82,6 +82,38 @@ describe("confort studio", () => {
     assert.equal(briefAction("Mira · Le quai. Elle traverse.", "Mira", "Le quai"), "Elle traverse.");
     assert.equal(briefAction("Mira.", "Mira", ""), "");
     assert.equal(briefAction("Déjà écrit.", "Mira", "Le quai"), "Déjà écrit.");
+  });
+
+  it("groups a reopened place with its characters and its takes", () => {
+    const loras = [
+      { id: "mira", name: "Mira", kind: "personnage" as const },
+      { id: "quai", name: "Le quai", kind: "lieu" as const },
+    ];
+    const takes = [
+      { id: "p2", sceneId: "quai", line: "  ", engine: "comfy" as const, loraId: null },
+      { id: "p1", sceneId: "quai", line: "Elle traverse.", engine: "lora" as const, loraId: "mira" },
+      { id: "p0", sceneId: "quai", line: "Elle revient.", engine: "lora" as const, loraId: "mira" },
+      { id: "other", sceneId: "serre", line: "Ailleurs.", engine: "lora" as const, loraId: "mira" },
+      { id: "place", sceneId: "quai", line: "Le décor.", engine: "lora" as const, loraId: "quai" },
+      { id: "gone", sceneId: "quai", line: "Sans fichier.", engine: "lora" as const, loraId: "absent" },
+    ];
+    const group = vueProjet({ scene: { id: "quai", name: " Le quai " }, takes, loras, lookName: "Léa" });
+    assert.equal(group.lieu, "Le quai");
+    assert.deepEqual(group.personnages, ["Léa", "Mira", "Personnage"]);
+    assert.deepEqual(group.prises.map(prise => prise.id), ["p2", "p1", "p0", "place", "gone"]);
+    assert.equal(group.prises[0].line, "Prise");
+    assert.equal(group.prises[1].line, "Elle traverse.");
+    const empty = vueProjet({ scene: { id: "neuf", name: "   " }, takes, loras, lookName: "" });
+    assert.equal(empty.lieu, "Sans nom");
+    assert.deepEqual(empty.personnages, []);
+    assert.deepEqual(empty.prises, []);
+    const refs = vueProjet({
+      scene: { id: "rue", name: "La rue" },
+      takes: [{ id: "r", sceneId: "rue", line: "Elle marche.", engine: "comfy", loraId: null }],
+      loras,
+      lookName: "   ",
+    });
+    assert.deepEqual(refs.personnages, ["Références"]);
   });
 
   it("names each place and says when its camera is stored", () => {

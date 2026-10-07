@@ -1,5 +1,5 @@
 import { COMFY_CLOUD } from "./comfy-stack.ts";
-import { isPlaceLora, type Lora, type Scene, type TakeEngine } from "./coffre/model.ts";
+import { isPlaceLora, type Lora, type Scene, type Take, type TakeEngine } from "./coffre/model.ts";
 import { FAL_PUBLISHED, formatUsd, type LoraResolution } from "./fal/prices.ts";
 
 export interface WiredEngine {
@@ -179,6 +179,57 @@ export function priseAction(input: {
   if (input.engine === "lora" && !input.hasCharacter) return { id: "fichier", label: "Former le personnage", hint: "Il manque un fichier de personnage." };
   if (!input.canSpend) return { id: "bloque", label: priced, hint: "Le prix ou le solde ne laisse pas partir la prise." };
   return { id: "tourner", label: priced, hint: "" };
+}
+
+export interface ProjetPrise {
+  id: string;
+  line: string;
+}
+
+export interface VueProjet {
+  lieu: string;
+  personnages: string[];
+  prises: ProjetPrise[];
+}
+
+type ProjetTake = Pick<Take, "id" | "sceneId" | "line" | "engine" | "loraId">;
+type ProjetLora = Pick<Lora, "id" | "name" | "kind">;
+
+/**
+ * One open place, with the characters and takes that belong to it.
+ * A place file is never a character. Reference takes use the look’s name.
+ */
+export function vueProjet(input: {
+  scene: Pick<Scene, "id" | "name">;
+  takes: readonly ProjetTake[];
+  loras: readonly ProjetLora[];
+  lookName: string;
+}): VueProjet {
+  const lieu = input.scene.name.trim() || "Sans nom";
+  const prises = input.takes.filter(take => take.sceneId === input.scene.id);
+  const personnages: string[] = [];
+  const seen = new Set<string>();
+  const push = (name: string) => {
+    const clean = name.trim();
+    const key = clean.toLowerCase();
+    if (!clean || seen.has(key)) return;
+    seen.add(key);
+    personnages.push(clean);
+  };
+  for (const take of prises) {
+    if (take.engine === "lora" && take.loraId) {
+      const file = input.loras.find(lora => lora.id === take.loraId);
+      if (!file) push("Personnage");
+      else if (!isPlaceLora(file)) push(file.name.trim() || "Personnage");
+    } else if (take.engine === "comfy") {
+      push(input.lookName.trim() || "Références");
+    }
+  }
+  return {
+    lieu,
+    personnages,
+    prises: prises.map(take => ({ id: take.id, line: take.line.trim() || "Prise" })),
+  };
 }
 
 /** Named places, in vault order. The camera flag is the saved path, not a default. */
