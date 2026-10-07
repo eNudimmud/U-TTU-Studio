@@ -18,7 +18,7 @@
 - **Décision :** le moteur vient après Personnage → Scène → Prise. Il ne les précède pas.
 - **Décision :** un seul geste or sur chaque écran.
 - **Décision :** le téléphone reste une colonne (`min(560px, 100%)`), chaîne en bas. À partir de 1080 px, le rail de 232 px et les deux colonnes restent.
-- **Décision, 7 octobre :** sous 720 px la feuille prend toute la hauteur. Entre 720 et 1079 px la colonne s’élargit à 720 px et la chaîne reste en bas. Dès 1080 px, La prise range l’étagère (distribution, lieux) à droite du geste or.
+- **Décision, 7 octobre :** sous 720 px la poche validée garde la feuille qui monte du bas et la chaîne au pouce. Entre 720 et 1079 px la colonne s’élargit à 720 px, la chaîne reste en bas, la feuille est une carte. Dès 1080 px, le rail tient la chaîne et le coffre, le travail est au centre, et l’étagère montre ensemble la distribution, les lieux et les prises. La feuille s’ouvre en panneau. Le solde reste en haut.
 
 ## Hors sujet
 

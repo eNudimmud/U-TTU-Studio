@@ -12,7 +12,7 @@ import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { FichesScreen } from "./fiches-screen";
 import { LoraScreen } from "./lora-screen";
-import { LookScreen, SceneScreen, SphereScreen, TakeScreen } from "./screens";
+import { LookScreen, PlateauShelf, SceneScreen, SphereScreen, TakeScreen } from "./screens";
 import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
@@ -125,6 +125,8 @@ function AppFrame() {
         : <SphereScreen />}
     </main>
 
+    {ready && <PlateauShelf go={go} />}
+
     {notice && <p className="u-toast" role="status">{notice}</p>}
 
     <nav className="u-chain" aria-label="Personnage, scène, prise">
@@ -146,6 +148,7 @@ function AppFrame() {
         <button type="button" className="u-fiches-nav" aria-current={tab === "fiches" ? "page" : undefined} onClick={() => go("fiches")}>
           <span>Fiches</span>
         </button>
+        <button type="button" className="u-rail-coffre" onClick={() => setSheet("coffre")} aria-label="Coffre"><Coffre /><span>Coffre</span></button>
       </div>
     </nav>
 
