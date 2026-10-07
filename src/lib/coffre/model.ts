@@ -11,6 +11,7 @@
 //   loras/<id>.md         a trained LoRA: trigger, steps, request, measured cost
 //   loras/<id>.safetensors  the LoRA file itself
 //   jobs.md               one line per take and per training, cost included
+//   MOC.md                the map: wikilinks to the look, cast, places, takes, journal
 //   .uttu/etat.json       which place is current
 //   .uttu/clips.json      each clip's length and size
 
@@ -441,6 +442,34 @@ export function parseLora(id: string, source: string): Lora | null {
   };
 }
 
+function wiki(note: string, label: string): string {
+  const alias = label.replace(/[\[\]|\r\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+  return alias ? `[[${note}|${alias}]]` : `[[${note}]]`;
+}
+
+function mapSection(title: string, lines: readonly string[]): string {
+  const body = lines.length > 0 ? lines.map(line => `- ${line}`).join("\n") : "Rien pour l’instant.";
+  return `## ${title}\n\n${body}`;
+}
+
+/** The vault map. Obsidian opens each wikilink. The note never claims a server copy. */
+export function mocMarkdown(studio: Studio): string {
+  const look = studio.look.name.trim();
+  const people = studio.loras.filter(lora => !isPlaceLora(lora));
+  const places = studio.loras.filter(lora => isPlaceLora(lora));
+  const sections = [
+    mapSection("Look", look || studio.look.photos.length > 0 ? [wiki("CANON", look || "Look")] : []),
+    mapSection("Personnages", people.map(lora => wiki(`loras/${lora.id}`, lora.name || lora.trigger || "Personnage"))),
+    mapSection("Lieux", [
+      ...studio.scenes.map(scene => wiki(`scenes/${scene.id}`, scene.name || "Lieu")),
+      ...places.map(lora => wiki(`loras/${lora.id}`, lora.name || "Lieu")),
+    ]),
+    mapSection("Prises", studio.takes.map(take => wiki(`prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
+    mapSection("Journal", [wiki("jobs", "Journal")]),
+  ];
+  return `# Carte du coffre\n\nCette note relie le coffre. Obsidian ouvre chaque lien. Le dossier reste sur l’appareil qui le tient : le studio n’en garde pas de copie.\n\n${sections.join("\n\n")}\n`;
+}
+
 export function jobsMarkdown(takes: readonly Take[], loras: readonly Lora[] = []): string {
   const rows = [
     ...takes.map(take => ({
@@ -467,8 +496,9 @@ Ce dossier est ton studio. L’app l’écrit, Obsidian le lit tel quel.
 - \`roles/\` — les photos de ce personnage, effacées avec le brouillon.
 - \`loras/\` — chaque LoRA formé : le fichier \`.safetensors\` et sa fiche (déclencheur, pas, coût).
 - \`jobs.md\` — le journal des prises, des formations et de ce qu’elles ont coûté.
+- \`MOC.md\` — la carte : liens vers le look, les personnages, les lieux, les prises et le journal.
 
-Rien ici n’est envoyé au studio. Les prises et les formations tournent sur tes propres comptes.
+Rien ici n’est envoyé au studio. Pour le lire sur un autre appareil, exporte ce dossier et importe-le là-bas. Les prises et les formations tournent sur tes propres comptes.
 `;
 
 export async function loadStudio(store: VaultStore): Promise<Studio> {
@@ -552,12 +582,22 @@ export async function writeBlob(store: VaultStore, path: string, blob: Blob): Pr
   await store.put({ path, blob, updatedAt: now() });
 }
 
+/** Keeps the map next to the files Obsidian opens. A missing journal is created empty so its link resolves. */
+export async function writeMap(store: VaultStore): Promise<void> {
+  const studio = await loadStudio(store);
+  if (!(await store.get("jobs.md"))) await writeText(store, "jobs.md", jobsMarkdown(studio.takes, studio.loras));
+  await writeText(store, "MOC.md", mocMarkdown(studio));
+  if (!(await store.get("README.md"))) await writeText(store, "README.md", README);
+}
+
 export async function writeLook(store: VaultStore, look: Look): Promise<void> {
   await writeText(store, "CANON.md", canonMarkdown(look));
+  await writeMap(store);
 }
 
 export async function writeScene(store: VaultStore, scene: Scene): Promise<void> {
   await writeText(store, `scenes/${scene.id}.md`, sceneMarkdown(scene));
+  await writeMap(store);
 }
 
 export async function removeScene(store: VaultStore, scene: Scene): Promise<void> {
@@ -565,6 +605,7 @@ export async function removeScene(store: VaultStore, scene: Scene): Promise<void
   if (scene.previzFile) await store.remove(scene.previzFile);
   if (scene.render && !scene.frames.includes(scene.render)) await store.remove(scene.render);
   await store.remove(`scenes/${scene.id}.md`);
+  await writeMap(store);
 }
 
 export async function writeRole(store: VaultStore, role: RoleDraft): Promise<void> {
@@ -578,7 +619,7 @@ export async function writeState(store: VaultStore, currentScene: string | null)
 export async function writeTake(store: VaultStore, take: Take, takes: readonly Take[], loras: readonly Lora[] = []): Promise<void> {
   await writeText(store, `prises/${take.id}.md`, takeMarkdown(take));
   await writeText(store, "jobs.md", jobsMarkdown(takes, loras));
-  if (!(await store.get("README.md"))) await writeText(store, "README.md", README);
+  await writeMap(store);
 }
 
 export async function removeTake(store: VaultStore, take: Take, takes: readonly Take[], loras: readonly Lora[] = []): Promise<void> {
@@ -586,6 +627,7 @@ export async function removeTake(store: VaultStore, take: Take, takes: readonly 
   if (take.poster) await store.remove(take.poster);
   await store.remove(`prises/${take.id}.md`);
   await writeText(store, "jobs.md", jobsMarkdown(takes, loras));
+  await writeMap(store);
 }
 
 export async function writeClips(store: VaultStore, clips: readonly Clip[]): Promise<void> {
@@ -596,13 +638,14 @@ export async function writeLora(store: VaultStore, lora: Lora, file: Blob, takes
   await writeBlob(store, lora.file, file);
   await writeText(store, `loras/${lora.id}.md`, loraMarkdown(lora));
   await writeText(store, "jobs.md", jobsMarkdown(takes, loras));
-  if (!(await store.get("README.md"))) await writeText(store, "README.md", README);
+  await writeMap(store);
 }
 
 export async function removeLora(store: VaultStore, lora: Lora, takes: readonly Take[], loras: readonly Lora[]): Promise<void> {
   await store.remove(lora.file);
   await store.remove(`loras/${lora.id}.md`);
   await writeText(store, "jobs.md", jobsMarkdown(takes, loras));
+  await writeMap(store);
 }
 
 /** The file's own fingerprint, written in its sheet so a take can prove which file it loaded. */

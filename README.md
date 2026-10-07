@@ -65,10 +65,11 @@ U-TTU-Studio/
   prises/<id>.md      chaque prise : plan, réglage, job, coût mesuré
   prises/<id>.mp4     la vidéo, et sa vignette .jpg
   jobs.md             le journal : une ligne par prise et par formation
+  MOC.md              la carte : liens vers le look, les personnages, les lieux, les prises et le journal
   README.md
 ```
 
-« Exporter le coffre » télécharge `U-TTU-Studio.zip`, à ouvrir tel quel dans Obsidian. Sur ordinateur (Chrome, Edge), « Relier mon dossier Obsidian » écrit directement dans un dossier choisi. Ni la clé de rendu, ni la clé fal, n’entrent dans le coffre. Pourquoi ce coffre plutôt qu’un ZIP de départ : [docs/VAULT.md](docs/VAULT.md).
+« Exporter le coffre » télécharge `U-TTU-Studio.zip`, à ouvrir tel quel dans Obsidian. « Importer un coffre » ajoute un ZIP à celui de cet appareil : une prise ou un personnage déjà là reste. Deux appareils ne partagent rien tout seuls. Sur ordinateur (Chrome, Edge), « Relier mon dossier Obsidian » écrit directement dans un dossier choisi. Ni la clé de rendu, ni la clé fal, n’entrent dans le coffre. Pourquoi ce coffre plutôt qu’un ZIP de départ : [docs/VAULT.md](docs/VAULT.md).
 
 ### U*TTU, la guide
 
