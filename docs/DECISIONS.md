@@ -2,6 +2,16 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F14 — re-watch SaveLoRA / lieu — 7 octobre 2026
+
+- **Fait :** relecture du catalogue Comfy Cloud le 7 octobre 2026, découverte seulement (`get_node` avec `refresh`, `search_nodes`, `search_templates`). Le catalogue rendu est `source: live`, `refreshed_at` `2026-10-07T16:47:36.385Z`, `refresh.outcome` `swapped`, `node_count` 3772, le même compte qu’en F9.
+- **Fait :** `missing` contient encore `SaveLoRA`, `SaveLora`, `SaveLoRANode`, `LoraSave` et `SaveLoraNode`. `search_nodes` sur le nom `SaveLoRA` renvoie 0. Le filtre `output_type: LORA_MODEL` ne renvoie toujours que `TrainLoraNode` (pack `core`, catégorie `model/training`). Sorties inchangées : `LORA_MODEL`, `LOSS_MAP`, `INT`. `output_node` est faux. Il n’écrit pas de fichier.
+- **Fait :** `LoraExtractKJ` et `LoraReduceRankKJ` sont des nœuds de sortie, et `outputs` est vide. Le premier extrait un fichier depuis deux modèles, pas depuis un `LORA_MODEL` formé. Le second réduit le rang d’un fichier déjà dans la bibliothèque du compte. Aucun des deux ne garde le résultat de `TrainLoraNode`. Ils ne remplacent pas `SaveLoRA`.
+- **Fait :** `search_templates` avec « establishing » entre guillemets renvoie 0. Aucun template n’est nommé pour bâtir une image depuis le fichier d’un lieu. Les trois refus de F9 tiennent : `templates_text_prompt_to_360hdr.app` (ciel depuis un prompt), `template_qwen_Image_2512_360_lora` (texte vers panorama), `3d_moge_panorama_to_mesh` (panorama vers mesh).
+- **Fait :** `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Il n’y a pas de candidat nommé, donc pas de devis numérique. 0 crédit brûlé.
+- **Décision :** « Image d’un lieu » reste hors écran. Former un fichier Comfy reste non branché. `src/lib/comfy/catalog-watch.ts` tient ce dernier contrôle : les deux drapeaux restent faux.
+- **Hypothèse :** le fichier Comfy revient quand un nœud nommé écrit le `LORA_MODEL` formé en fichier que Mon studio peut garder, et qu’un devis de run est un nombre. L’image d’un lieu revient quand un template Cloud est nommé pour cette image depuis le lieu du projet, et que ce devis est un nombre.
+
 ## F13 — un run, un résultat — 7 octobre 2026
 
 - **Décision :** sur Personnage, Scène et Prise, un geste déjà branché dit où il en est : En cours, Abouti, ou « Ça n’a pas abouti. » avec la raison. Reprendre reprend un suivi encore tenu. Cela ne relance pas un envoi. Sorties s’ouvre sur la même fiche.
