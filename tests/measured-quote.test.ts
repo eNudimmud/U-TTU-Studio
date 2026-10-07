@@ -31,6 +31,8 @@ const filmed = (patch: Partial<Take> = {}): Take => ({
   resolution: null,
   costUsd: null,
   costSource: null,
+  announcedCredits: null,
+  announcedHigh: null,
   ...patch,
 });
 

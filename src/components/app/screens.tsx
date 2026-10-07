@@ -15,6 +15,7 @@ import { Why } from "./guide-bubble";
 import { Arrow, Close, Web } from "./glyphs";
 import { PictureSlot, Segments } from "./slots";
 import { PublishActions } from "./publish";
+import { TakeCostLines } from "./take-cost";
 import { useStudio, type RunState } from "./studio-context";
 
 const CinemaGestures = dynamic(() => import("./cinema-gestures").then(mod => mod.CinemaGestures));
@@ -319,6 +320,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <p className="u-label">{t("job.done")}</p>
       <video ref={video} src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted loop playsInline preload="auto" className={`is-${result.settings.aspect}`} />
       <p className="u-small">{t("take.inSphere")}</p>
+      <TakeCostLines take={result} gateLine={gate.line} />
       <p className="u-small">{result.engine === "lora"
         ? (result.costUsd !== null ? t("take.debitedFal", { amount: formatUsd(result.costUsd) }) : t("take.debitHiddenFal"))
         : (result.costCredits !== null ? t("take.debitedRender", { amount: formatCredits(result.costCredits) }) : t("take.debitHiddenRender"))}{result.gpuSeconds !== null ? t("take.calc", { clock: clock(result.gpuSeconds) }) : ""}</p>

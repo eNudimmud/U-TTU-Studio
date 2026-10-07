@@ -20,6 +20,7 @@ import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { priseOutgoingText } from "@/lib/render/outgoing-text";
 import { OutgoingFilm, OutgoingLieu, OutgoingPersonnage, OutgoingTake } from "./outgoing-text";
+import { TakeCostLines } from "./take-cost";
 import { useStudio } from "./studio-context";
 
 function SheetFrame({ title, label, onClose, children, tall = false }: { title: string; label: string; onClose(): void; children: ReactNode; tall?: boolean }) {
@@ -545,6 +546,7 @@ export function PlayerSheet({ id }: { id: string }) {
         <li><span>{t("sheet.debit")}</span><span>{priced ? say(priced) : t("common.notReadYet")}</span></li>
         {take.gpuSeconds !== null && <li><span>{t("sheet.compute")}</span><span>{take.gpuSeconds} s</span></li>}
       </ul>
+      <TakeCostLines take={take} />
       <PublishActions take={take} />
       <ProjectMemory heading />
       {studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === take.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
