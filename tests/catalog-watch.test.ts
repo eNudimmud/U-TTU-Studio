@@ -8,8 +8,8 @@ const empty = { rendu: null, former: null, lieu: null, image: null };
 const sample = { seconds: 5, resolution: "768P" as const, steps: 1000 };
 
 describe("dernier contrôle catalogue", () => {
-  it("keeps both parked gestures closed after the second 7 October read", () => {
-    assert.equal(CATALOG_WATCH.readAt, "2026-10-07T16:47:36.385Z");
+  it("keeps both parked gestures closed after the F19 read", () => {
+    assert.equal(CATALOG_WATCH.readAt, "2026-10-07T19:01:20.907Z");
     assert.equal(CATALOG_WATCH.nodeCount, 3772);
     assert.equal(CATALOG_WATCH.saveLoraPresent, false);
     assert.equal(CATALOG_WATCH.trainLoraWritesFile, false);
@@ -36,6 +36,17 @@ describe("dernier contrôle catalogue", () => {
     assert.match(f9, /templates_text_prompt_to_360hdr\.app/);
     assert.match(f9, /0 crédit/);
     assert.match(f9, /`run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés/);
+    const f19 = decisions.slice(0, decisions.indexOf("## F18"));
+    assert.match(f19, /F19 — re-watch catalogue/);
+    assert.match(f19, /2026-10-07T19:01:20.907Z/);
+    assert.match(f19, /3772/);
+    assert.match(f19, /SaveLoRA/);
+    assert.match(f19, /TrainLoraNode/);
+    assert.match(f19, /video_ltx2_5_flf2v/);
+    assert.match(f19, /video_wan2_2_14B_fun_camera/);
+    assert.match(f19, /templates_shane_video_restyle/);
+    assert.match(f19, /0 crédit brûlé/);
+    assert.match(f19, /`run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés/);
     const f14 = decisions.slice(0, decisions.indexOf("## F13"));
     assert.match(f14, /F14 — re-watch SaveLoRA/);
     assert.match(f14, /2026-10-07T16:47:36.385Z/);
