@@ -238,6 +238,10 @@
 .u-fiche { display: flex; flex-direction: column; gap: 10px; }
 .u-fiche-inputs { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; color: var(--u-text); font-size: 14px; }
 .u-fiche .u-secondary { margin-top: auto; }
+.u-cinema { display: grid; gap: 12px; margin-top: 8px; }
+.u-cinema-lead { display: grid; gap: 4px; }
+.u-cinema .u-card { min-width: 0; }
+.u-cinema h2 { font-size: 22px; }
 .u-desk { display: grid; gap: 18px; }
 .u-actions { display: grid; gap: 4px; }
 .u-nudge { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -328,6 +332,8 @@
   .u-desk { grid-template-columns: minmax(0, 1fr) minmax(320px, 440px); gap: 28px 40px; align-items: start; }
   .u-paths { grid-template-columns: 1fr 1fr; align-items: stretch; }
   .u-fiches { grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .u-screen .u-cinema { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+  .u-screen .u-cinema-lead { grid-column: 1 / -1; }
   .u-paths > .u-card { display: flex; flex-direction: column; height: 100%; }
   .u-paths > .u-card p { flex: 1; }
   .u-paths > .u-card .u-secondary { margin-top: 14px; }

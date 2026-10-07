@@ -10,6 +10,7 @@ import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
+import { CinemaGestures } from "./cinema-gestures";
 import { Why } from "./guide-bubble";
 import { Arrow, Close, Plus, Web } from "./glyphs";
 import { PublishActions } from "./publish";
@@ -620,6 +621,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
     </header>
+    <CinemaGestures anchor />
 
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>

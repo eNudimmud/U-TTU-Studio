@@ -24,5 +24,9 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - La ligne « FR Coffre · EN Vault » du glossaire de travail est dépassée. L’écran dit **Mon studio**.
 - Chaque univers de travail est un projet sous `Projets/`. L’écran dit « Mon studio » et « Projet en cours ».
 - **Séquence** relie des prises dans l’ordre. Le **raccord** dit ce qui doit coller : lumière, regard, mouvement, objet. EN Sequence / Continuity. DE Sequenz / Anschluss. ES Secuencia / Raccord.
+- Le geste **Raccorder deux images** est un court plan entre une première image et une dernière. Ce n’est pas la ligne de raccord de la séquence. EN Bridge two images. DE Zwei Bilder verbinden. ES Empalmar dos imágenes.
+- **Bouger la caméra** : EN Move the camera. DE Die Kamera bewegen. ES Mover la cámara.
+- **Poser un effet** : EN Apply an effect. DE Einen Effekt setzen. ES Poner un efecto.
+- Gabarits : `modele-raccord.md`, `modele-mouvement.md`, `modele-effet.md`. Moteurs : `moteur-raccord.md`, `moteur-mouvement.md`, `moteur-effet.md`. Jamais le nom nu de la section.
 
 Le switcher est dans la barre du téléphone et dans le rail du bureau. Les noms des langues ne se traduisent pas : Français, English, Deutsch, Español.

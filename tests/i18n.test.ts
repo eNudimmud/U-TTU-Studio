@@ -52,6 +52,10 @@ describe("langues du studio", () => {
     assert.doesNotMatch(JSON.stringify(catalogs.es), /Cofre|Vault|Tresor|Carácter/);
     assert.equal(catalogs.en.tree.modelTake, "Template · Take");
     assert.equal(catalogs.fr.sequence.raccord, "Raccord");
+    assert.equal(catalogs.fr.cinema.raccord.name, "Raccorder deux images");
+    assert.equal(catalogs.en.cinema.raccord.name, "Bridge two images");
+    assert.equal(catalogs.de.cinema.raccord.name, "Zwei Bilder verbinden");
+    assert.equal(catalogs.es.cinema.raccord.name, "Empalmar dos imágenes");
     assert.equal(catalogs.en.sequence.raccord, "Continuity");
     assert.equal(catalogs.de.sequence.raccord, "Anschluss");
     assert.equal(catalogs.de.sequence.title, "Sequenzen");
@@ -66,6 +70,10 @@ describe("langues du studio", () => {
     assert.equal(phrase(t, "Modèle · Prise"), "tree.modelTake");
     assert.equal(phrase(t, "Modèle · Séquence"), "tree.modelSequence");
     assert.equal(phrase(t, "Modèle · Plan"), "tree.modelShot");
+    assert.equal(phrase(t, "Modèle · Raccord"), "tree.modelBridge");
+    assert.equal(phrase(t, "Modèle · Mouvement"), "tree.modelMove");
+    assert.equal(phrase(t, "Modèle · Effet"), "tree.modelEffect");
+    assert.equal(phrase(t, "Moteur · Raccord"), "tree.engineBridge");
     assert.equal(phrase(t, "Séquence créée."), "sequence.created");
     assert.equal(phrase(t, "Moteur · Personnage"), "tree.engineCharacter");
     assert.equal(phrase(t, "Prises"), "tree.takes");

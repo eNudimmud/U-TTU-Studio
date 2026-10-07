@@ -348,7 +348,16 @@ describe("coffre en markdown", () => {
     assert.doesNotMatch(moc, /Moteurs\/personnage\|/);
     assert.match(moc, /Templates\/modele-prise\.md/);
     const modeles = studio.tree.find(group => group.label === "Modèles");
-    assert.deepEqual(modeles?.files.map(file => treeFileLabel(modeles.label, file)).sort(), ["Modèle · Personnage", "Modèle · Plan", "Modèle · Prise", "Modèle · Scène", "Modèle · Séquence"]);
+    assert.deepEqual(modeles?.files.map(file => treeFileLabel(modeles.label, file)).sort(), [
+      "Modèle · Effet",
+      "Modèle · Mouvement",
+      "Modèle · Personnage",
+      "Modèle · Plan",
+      "Modèle · Prise",
+      "Modèle · Raccord",
+      "Modèle · Scène",
+      "Modèle · Séquence",
+    ]);
     assert.equal(modeles?.files.includes("prise.md"), false);
     const prises = studio.tree.find(group => group.label === "Prises");
     assert.deepEqual(prises?.files, ["une.md"]);

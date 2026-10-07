@@ -614,6 +614,41 @@
     "removeFromStudio": "Retirer de mon studio",
     "file": "Fichier"
   },
+  "cinema": {
+    "kicker": "Gestes",
+    "lead": "Sur cette prise.",
+    "leadPlan": "Sur ce plan.",
+    "lands": "Le court plan se range avec les prises. Le plan du storyboard le garde s’il en part.",
+    "partage": "Partage manquant. Ce geste n’a pas de modèle lu. Rien ne s’ouvre.",
+    "devis": "Devis absent. Le total de ce geste n’est pas un nombre. Rien ne part.",
+    "raccord": {
+      "name": "Raccorder deux images",
+      "sentence": "La première image et la dernière deviennent un court plan.",
+      "need": "Il faut une première image et une dernière image, distinctes."
+    },
+    "camera": {
+      "name": "Bouger la caméra",
+      "sentence": "Une image fixe, ou l’image d’une prise, devient un court plan. La caméra bouge.",
+      "needStill": "Il faut une image fixe, ou l’image d’une prise.",
+      "needMove": "Choisis un mouvement.",
+      "moves": "Mouvement",
+      "pose": {
+        "up": "Monte",
+        "down": "Descend",
+        "left": "Va à gauche",
+        "right": "Va à droite",
+        "in": "S’approche",
+        "out": "S’éloigne",
+        "acw": "Tourne à gauche",
+        "cw": "Tourne à droite"
+      }
+    },
+    "effet": {
+      "name": "Poser un effet",
+      "sentence": "Une prise filmée reçoit le style d’une image.",
+      "need": "Il faut une prise filmée, et une image pour l’effet."
+    }
+  },
   "tree": {
     "characters": "Personnages",
     "references": "Références",
@@ -628,9 +663,15 @@
     "modelTake": "Modèle · Prise",
     "modelSequence": "Modèle · Séquence",
     "modelShot": "Modèle · Plan",
+    "modelBridge": "Modèle · Raccord",
+    "modelMove": "Modèle · Mouvement",
+    "modelEffect": "Modèle · Effet",
     "engineCharacter": "Moteur · Personnage",
     "engineReferences": "Moteur · Références",
     "enginePlace": "Moteur · Lieu",
+    "engineBridge": "Moteur · Raccord",
+    "engineMove": "Moteur · Mouvement",
+    "engineEffect": "Moteur · Effet",
     "engines": "Moteurs",
     "files": "Fichiers",
     "notes": "Notes"

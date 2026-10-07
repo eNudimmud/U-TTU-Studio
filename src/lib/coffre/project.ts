@@ -99,6 +99,9 @@ const SECTION_LABELS: Record<string, string> = {
   shots: "Plans",
   plan: "Plan",
   plans: "Plans",
+  raccord: "Raccord",
+  mouvement: "Mouvement",
+  effet: "Effet",
   prompt: "Prompt",
   prompts: "Prompts",
   modele: "Modèle",
@@ -184,6 +187,9 @@ export function scaffoldFiles(slug: string, name: string): { path: string; text:
     ["former", "personnage", "fal", "Former un personnage", "Des clips deviennent un fichier. Les prises suivantes le rechargent. Le prix se lit sur le compte fal, avant le geste."],
     ["moteur-lieu", "scene", "fal", "Former un lieu", "Les vues du lieu deviennent un fichier d’images. Ce n’est pas un volume. Le prix se lit sur le compte fal, avant le geste."],
     ["image", "scene", "fal", "Image d’un lieu", "Le fichier du lieu bâtit une image neuve. Le modèle 3D reste le fichier Blender. Le prix se lit sur le compte fal, avant le geste."],
+    ["moteur-raccord", "raccord", "comfy", "Moteur · Raccord", "La première image et la dernière deviennent un court plan. Le devis de run est absent : rien ne part sans un chiffre mesuré."],
+    ["moteur-mouvement", "mouvement", "comfy", "Moteur · Mouvement", "Une image fixe devient un court plan. La caméra bouge. Le devis de run est absent : rien ne part sans un chiffre mesuré."],
+    ["moteur-effet", "effet", "comfy", "Moteur · Effet", "Une prise filmée reçoit le style d’une image. Le devis de run est absent : rien ne part sans un chiffre mesuré."],
   ] as const;
   const files: { path: string; text: string }[] = [
     { path: `${root}/Bible.md`, text: note(slug, "projet", "Bible", "Ce qui ne change pas dans ce projet. Rien n’est copié ailleurs.") },
@@ -198,6 +204,9 @@ export function scaffoldFiles(slug: string, name: string): { path: string; text:
     { path: `${root}/Templates/modele-prise.md`, text: note(slug, "template", "Modèle · Prise", "Phrase, durée, format. Le prix se lit avant le geste.", { gesture: "prise" }) },
     { path: `${root}/Templates/modele-sequence.md`, text: note(slug, "template", "Modèle · Séquence", "Nom. Puis les prises, dans l’ordre. Entre deux, le raccord : lumière, regard, mouvement, objet.", { gesture: "sequence" }) },
     { path: `${root}/Templates/modele-shot.md`, text: note(slug, "template", "Modèle · Plan", "Nom. La séquence. Les prises, dans l’ordre. Une note courte pour le cadre.", { gesture: "shot" }) },
+    { path: `${root}/Templates/modele-raccord.md`, text: note(slug, "template", "Modèle · Raccord", "Première image. Dernière image. Le court plan se range avec les prises.", { gesture: "raccord" }) },
+    { path: `${root}/Templates/modele-mouvement.md`, text: note(slug, "template", "Modèle · Mouvement", "Une image. Un mouvement. Le court plan se range avec les prises.", { gesture: "mouvement" }) },
+    { path: `${root}/Templates/modele-effet.md`, text: note(slug, "template", "Modèle · Effet", "Une prise filmée. Une image pour le style. Le court plan se range avec les prises.", { gesture: "effet" }) },
     ...moteurs.map(([id, gesture, moteur, title, body]) => ({
       path: `${root}/Moteurs/${id}.md`,
       text: note(slug, "moteur", title, body, { moteur, gesture }),
@@ -224,6 +233,9 @@ export function projectMocShell(slug: string, name: string): string {
     link("Moteurs/former", "Former un personnage"),
     link("Moteurs/moteur-lieu", "Former un lieu"),
     link("Moteurs/image", "Image d’un lieu"),
+    link("Moteurs/moteur-raccord", "Raccorder deux images"),
+    link("Moteurs/moteur-mouvement", "Bouger la caméra"),
+    link("Moteurs/moteur-effet", "Poser un effet"),
   ].join("\n")}\n`;
 }
 

@@ -614,6 +614,41 @@
     "removeFromStudio": "Retirar de mi estudio",
     "file": "Archivo"
   },
+  "cinema": {
+    "kicker": "Gestos",
+    "lead": "En esta toma.",
+    "leadPlan": "En esta viñeta.",
+    "lands": "El clip corto se guarda con las tomas. La viñeta lo conserva si el clip sale de ella.",
+    "partage": "Falta el enlace. Este gesto no tiene un modelo leído. No se abre nada.",
+    "devis": "Presupuesto ausente. El total de este gesto no es un número. Nada sale.",
+    "raccord": {
+      "name": "Empalmar dos imágenes",
+      "sentence": "La primera imagen y la última se vuelven un clip corto.",
+      "need": "Hacen falta una primera imagen y una última imagen, distintas."
+    },
+    "camera": {
+      "name": "Mover la cámara",
+      "sentence": "Una imagen fija, o la imagen de una toma, se vuelve un clip corto. La cámara se mueve.",
+      "needStill": "Hace falta una imagen fija, o la imagen de una toma.",
+      "needMove": "Elige un movimiento.",
+      "moves": "Movimiento",
+      "pose": {
+        "up": "Sube",
+        "down": "Baja",
+        "left": "Va a la izquierda",
+        "right": "Va a la derecha",
+        "in": "Se acerca",
+        "out": "Se aleja",
+        "acw": "Gira a la izquierda",
+        "cw": "Gira a la derecha"
+      }
+    },
+    "effet": {
+      "name": "Poner un efecto",
+      "sentence": "Una toma rodada recibe el estilo de una imagen.",
+      "need": "Hace falta una toma rodada, y una imagen para el efecto."
+    }
+  },
   "tree": {
     "characters": "Personajes",
     "references": "Referencias",
@@ -628,9 +663,15 @@
     "modelTake": "Plantilla · Toma",
     "modelSequence": "Plantilla · Secuencia",
     "modelShot": "Plantilla · Viñeta",
+    "modelBridge": "Plantilla · Empalme",
+    "modelMove": "Plantilla · Movimiento",
+    "modelEffect": "Plantilla · Efecto",
     "engineCharacter": "Motor · Personaje",
     "engineReferences": "Motor · Referencias",
     "enginePlace": "Motor · Localización",
+    "engineBridge": "Motor · Empalme",
+    "engineMove": "Motor · Movimiento",
+    "engineEffect": "Motor · Efecto",
     "engines": "Motores",
     "files": "Assets",
     "notes": "Notas"
