@@ -2,7 +2,7 @@
 // Old links still land: #creer and #look open the photos, #lora and #rôle
 // open Personnage, #plateau the scene, #take the take.
 
-export type Tab = "look" | "lora" | "scene" | "prise" | "sphere";
+export type Tab = "look" | "lora" | "scene" | "prise" | "sphere" | "fiches";
 
 const ALIASES: Record<string, Tab> = {
   look: "look", photos: "look", creer: "look", créer: "look", style: "look", identite: "look", identité: "look",
@@ -10,6 +10,7 @@ const ALIASES: Record<string, Tab> = {
   scene: "scene", scène: "scene", plateau: "scene", monde: "scene",
   prise: "prise", take: "prise", studio: "prise",
   sphere: "sphere", sphère: "sphere", bibliotheque: "sphere", bibliothèque: "sphere",
+  fiches: "fiches", fiche: "fiches",
 };
 
 /** Hash written when the adherent opens a place from the chain. */
@@ -19,6 +20,7 @@ export const TAB_HASH: Record<Tab, string> = {
   scene: "scene",
   prise: "prise",
   sphere: "sphere",
+  fiches: "fiches",
 };
 
 /** The place a link asks for, or null when it asks for none. */
