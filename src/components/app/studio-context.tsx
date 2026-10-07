@@ -15,14 +15,14 @@ import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
 import { LORA_TAKE, LORA_TRAINER, PLACE_SCENE, PLACE_TRAINER, loraTakeQuote, placeSceneQuote, placeTrainQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
 import { reduceConnect } from "@/lib/link-epoch";
 import { castFile, pickEngine } from "@/lib/studio-comfort";
-import { CLIPS_MAX, clipFormat, clipProblem, datasetCheck, triggerPhrase, type Clip, type DatasetCheck, type TrainingAspect } from "@/lib/lora/dataset";
+import { CLIPS_MAX, clipFormat, clipProblem, datasetCheck, type Clip, type DatasetCheck, type TrainingAspect } from "@/lib/lora/dataset";
 import {
   readLoraTakeFlight, readLoraUploads, readTrainingFlight, saveLoraTakeFlight, saveLoraUploads, saveTrainingFlight,
   type LoraTakeFlight, type TrainingFlight,
 } from "@/lib/lora/flight";
 import {
   PLACE_HEIGHT, PLACE_KEEP_SECONDS, PLACE_SHOTS_MIN, PLACE_STEPS, PLACE_UPLOAD_KEEP_SECONDS, PLACE_VIEWS_MAX, PLACE_WIDTH,
-  followPlaceScene, followPlaceTraining, placeShotLine, placeShotList, placeTrigger, submitPlaceScene, submitPlaceTraining,
+  followPlaceScene, followPlaceTraining, placeShotLine, placeShotList, submitPlaceScene, submitPlaceTraining,
 } from "@/lib/lora/place";
 import { followLoraTake, loraTakeProfile, submitLoraTake, type LoraTakeEvent } from "@/lib/lora/take";
 import { TRAINING_KEEP_SECONDS, TRAINING_RANK, TRAINING_STEPS, followTraining, submitTraining, type TrainingEvent, type TrainingSteps } from "@/lib/lora/train";
@@ -33,7 +33,7 @@ import { createRenderClient, RenderError, type RenderClient } from "@/lib/render
 import { FarpyError, filmGate, type FilmQuote } from "@/lib/render/farpy";
 import { buildPlaceBlend, defaultCamera, moveCamera as shiftCamera, type Lens, type PrevizPlan } from "@/lib/render/previz";
 import { followFilm, quoteFilm, startRender, type PrevizEvent } from "@/lib/render/previz-run";
-import { filmOutgoingText, priseOutgoingText } from "@/lib/render/outgoing-text";
+import { filmOutgoingText, lieuOutgoingText, personnageOutgoingText, priseOutgoingText } from "@/lib/render/outgoing-text";
 import { SHOT_LINE, SHOT_RESOLUTION, SHOT_SECONDS, shotGate } from "@/lib/render/shot";
 import { referencePaths } from "@/lib/render/references";
 import { forgetQuote, quoteFromTake, quotesToRecords, rememberQuote } from "@/lib/render/measured-quote";
@@ -1758,7 +1758,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     if (!freshGate.allowed) return;
     const current = studioRef.current;
     const check = datasetCheck(current.clips, current.role.photos.length, current.role.name);
-    if (!check.ready) return;
+    const trigger = personnageOutgoingText(current.role.name);
+    if (!check.ready || !trigger) return;
     const vault = store();
     const clips: { blob: Blob; format: Clip["format"] }[] = [];
     for (const clip of current.clips) {
@@ -1776,7 +1777,6 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
     setSheet(null);
     setTraining({ phase: "running", event: { stage: "pack" } });
-    const trigger = triggerPhrase(current.role.name);
     abortTrain.current = new AbortController();
     try {
       const handle = await submitTraining(fal, { clips, refs, trigger, steps: trainingSteps, aspect: check.aspect }, event => setTraining({ phase: "running", event }), abortTrain.current.signal);
@@ -2079,7 +2079,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setPlaceRun("running");
     abortPlace.current = new AbortController();
     try {
-      const trigger = placeTrigger(place.name);
+      const trigger = lieuOutgoingText(place.name);
       const handle = await submitPlaceTraining(fal, { images, trigger, steps: PLACE_STEPS }, abortPlace.current.signal);
       const result = await followPlaceTraining(fal, handle, fresh?.usd ?? 0, { signal: abortPlace.current.signal });
       const id = uniqueId(loraId(new Date(), place.name), studioRef.current.loras.map(item => item.id));

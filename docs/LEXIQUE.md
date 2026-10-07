@@ -33,7 +33,7 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - **Déplacer la caméra** et **Déplacer le point visé** règlent l’espace, avant le trajet. EN Shift the camera / Shift the aim point. DE Die Kamera verschieben / Den Zielpunkt verschieben. ES Desplazar la cámara / Desplazar el punto visado.
 - **Poser un effet** : EN Apply an effect. DE Einen Effekt setzen. ES Poner un efecto.
 - Gabarits : `modele-raccord.md`, `modele-mouvement.md`, `modele-effet.md`. Moteurs : `moteur-raccord.md`, `moteur-mouvement.md`, `moteur-effet.md`. Jamais le nom nu de la section.
-- Mémoire du projet, sur la Prise : **Bible**, **Style**, **Lexique**, **Prompts**. EN Bible / Style / Lexicon / Prompts. DE Bibel / Stil / Lexikon / Prompts. ES Biblia / Estilo / Léxico / Prompts. Un champ vide dit qu’il n’y a rien d’écrit. Le fichier du squelette n’est pas présenté comme le texte du projet. Ces quatre notes ne sont pas le texte qui part avec Tourner.
+- Mémoire du projet, sur Personnage, Scène et Prise : **Bible**, **Style**, **Lexique**, **Prompts**. EN Bible / Style / Lexicon / Prompts. DE Bibel / Stil / Lexikon / Prompts. ES Biblia / Estilo / Léxico / Prompts. Un champ vide dit qu’il n’y a rien d’écrit. Le fichier du squelette n’est pas présenté comme le texte du projet. Ces quatre notes ne sont pas le texte qui part avec Former, Former ce lieu, Filmer ce trajet, ni Tourner. Former envoie le mot du nom. Former ce lieu envoie le mot du lieu, aussi comme légende de chaque vue.
 - Les catalogues EN, DE et ES portent `_human: native_open` : la relecture du lexique n’est pas une signature de locuteur natif.
 
 Le switcher est dans la barre du téléphone et dans le rail du bureau. Les noms des langues ne se traduisent pas : Français, English, Deutsch, Español.

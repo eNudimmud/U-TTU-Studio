@@ -49,6 +49,7 @@
     "scene-new": "Una localización, un nombre. Una imagen si la tienes.",
     "scene-still": "Una imagen de la localización, y la guardo de una toma a la otra.",
     "scene-previz": "Esta localización queda. El recorrido también. Un gesto filma tu personaje.",
+    "scene-memory": "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa.",
     "take-connect": "Vincula tu cuenta de render. El cálculo se paga allí, no aquí.",
     "take-line": "Una frase: lo que hace la toma. El resto ya está tejido.",
     "take-memory": "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa.",
@@ -61,6 +62,7 @@
     "lora-clips": "Diez clips del personaje, de tres a treinta segundos.",
     "lora-connect": "Vincula la cuenta que pagará el entrenamiento. El estudio no cobra nada.",
     "lora-ready": "El precio está aquí, antes de tu gesto. Nada sale sin él.",
+    "lora-memory": "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa.",
     "lora-running": "Aprendo este personaje. Lleva tiempo: vuelve más tarde.",
     "lora-done": "El personaje está en mi estudio. Elígelo en la toma.",
     "sphere-empty": "Tus tomas vendrán a posarse aquí.",
@@ -644,7 +646,9 @@
     "title": "Lo que sale",
     "memoryOut": "Biblia, estilo, léxico y prompts no están ahí. No salen.",
     "noPictures": "No sale ningún texto: faltan las imágenes de esta toma.",
-    "notYet": "El texto aún no está. Se escribe cuando vuelven las imágenes del recorrido. Biblia, estilo, léxico y prompts no entran."
+    "notYet": "El texto aún no está. Se escribe cuando vuelven las imágenes del recorrido. Biblia, estilo, léxico y prompts no entran.",
+    "noName": "No sale ningún texto: falta el nombre de este personaje.",
+    "noViews": "No sale ningún texto: faltan vistas de esta localización."
   },
   "tree": {
     "characters": "Personajes",

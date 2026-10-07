@@ -1,8 +1,10 @@
 // The text a gesture actually puts in its request.
 // Project memory (bible, style, lexicon, prompts) is not an argument:
-// F18 keeps those notes on the take, and F21 does not send them.
+// F18 keeps those notes on the screen, and F21–F22 do not send them.
 // The screen shows this string, and only this string, before the gesture.
 
+import { triggerPhrase } from "../lora/dataset.ts";
+import { placeTrigger } from "../lora/place.ts";
 import { referencePaths } from "./references.ts";
 import { SHOT_LINE, shotPrompt } from "./shot.ts";
 import { takePrompt } from "./take-prompt.ts";
@@ -51,4 +53,23 @@ export function filmOutgoingText(input: { subject: string; place: string; note: 
     frames: input.frames,
     line: SHOT_LINE,
   });
+}
+
+/**
+ * The only text Former sends for a character: the call word (`trigger_phrase`).
+ * Empty when the name is blank, because the gesture does not submit.
+ * Clips and photos leave as files, and those files have no caption.
+ */
+export function personnageOutgoingText(name: string): string {
+  if (!name.trim()) return "";
+  return triggerPhrase(name);
+}
+
+/**
+ * The only text Former sends for a location: the place word.
+ * It is `trigger_word` on the request, and the body of every caption file.
+ * An unnamed place still sends the fallback word. There is no prompt.
+ */
+export function lieuOutgoingText(name: string): string {
+  return placeTrigger(name);
 }

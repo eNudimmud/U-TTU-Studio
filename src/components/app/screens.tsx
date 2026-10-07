@@ -11,7 +11,7 @@ import { formatUsd } from "@/lib/fal/prices";
 import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
 import { CinemaGestures } from "./cinema-gestures";
-import { OutgoingFilm, OutgoingTake } from "./outgoing-text";
+import { OutgoingFilm, OutgoingLieu, OutgoingTake } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { Arrow, Close, Plus, Web } from "./glyphs";
@@ -143,6 +143,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
       <p className="u-micro">{t("guide.stepScene")}</p>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
     </header>
+    <ProjectMemory />
     <div className="u-desk">
       <div className="u-stack">
         {studio.scenes.length > 0 && <div className="u-scenes" role="radiogroup" aria-label={t("shelf.places")}>
@@ -400,6 +401,7 @@ function SceneEditor() {
       {scene.views.map((path, index) => <PictureSlot key={path} index={index} url={media[path]} label={t("look.view")} onAdd={files => void addSceneViews(scene.id, files)} onRemove={() => void removeSceneView(scene.id, path)} />)}
       {scene.views.length < 12 && <PictureSlot index={scene.views.length} label={t("look.view")} onAdd={files => void addSceneViews(scene.id, files)} />}
     </div>
+    <OutgoingLieu />
     <button type="button" id="u-former-lieu" className="u-link" disabled={placeRun === "running"} onClick={() => {
       if (!learned.ready) {
         document.getElementById("u-vues")?.scrollIntoView({ block: "center" });

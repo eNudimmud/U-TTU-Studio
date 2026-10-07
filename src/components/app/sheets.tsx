@@ -17,7 +17,7 @@ import { sheetDismissAllowed } from "@/lib/link-epoch";
 import { CinemaGestures } from "./cinema-gestures";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
-import { OutgoingFilm, OutgoingTake } from "./outgoing-text";
+import { OutgoingFilm, OutgoingLieu, OutgoingPersonnage, OutgoingTake } from "./outgoing-text";
 import { useStudio } from "./studio-context";
 
 function SheetFrame({ title, label, onClose, children, tall = false }: { title: string; label: string; onClose(): void; children: ReactNode; tall?: boolean }) {
@@ -398,6 +398,7 @@ export function TrainConfirmSheet() {
         <li><span>{t("sheet.yourBalance")}</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? t("sheet.unread") : t("sheet.unreadable")}</span></li>
       </ul>
       <p className={`u-cost is-${trainGate.tone}`}>{say(trainGate.line)}</p>
+      <OutgoingPersonnage />
       <button type="button" className="u-primary" disabled={!trainGate.allowed} onClick={() => void confirmTraining()}>{t("sheet.trainDebit")}</button>
       <Why on={!trainGate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
@@ -477,6 +478,7 @@ export function PlaceTrainSheet() {
       </ul>
       <p className={`u-cost is-${placeTrainGate.tone}`}>{say(placeTrainGate.line)}</p>
       <p className="u-small">{t("sheet.placeTrainBody")}</p>
+      <OutgoingLieu />
       <button type="button" className="u-primary" disabled={!placeTrainGate.allowed} onClick={() => void confirmPlaceTrain()}>{t("sheet.placeTrainDebit")}</button>
       <Why on={!placeTrainGate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
