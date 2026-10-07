@@ -11,7 +11,7 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - Import : **Importer un studio (.zip)**.
 - Les textes d’aide disent « mon studio ».
 - Les chemins de code `src/lib/coffre/` et la base `uttu-coffre` restent internes.
-- EN, DE et ES ne sont pas branchés. Pas de `next-intl` dans cette livraison.
+- EN, DE et ES sont branchés (`next-intl`, catalogues `messages/`). Le français est la source. DE et ES attendent un audit humain. L’adresse ne porte pas la langue.
 
 ## Termes appliqués dans l’interface
 
@@ -24,4 +24,4 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - La ligne « FR Coffre · EN Vault » du glossaire de travail est dépassée. L’écran dit **Mon studio**.
 - Chaque univers de travail est un projet sous `Projets/`. L’écran dit « Mon studio » et « Projet en cours ».
 
-Le switcher EN / DE / ES reste une hypothèse. Il n’est pas dans cette livraison.
+Le switcher est dans la barre du téléphone et dans le rail du bureau. Les noms des langues ne se traduisent pas : Français, English, Deutsch, Español.

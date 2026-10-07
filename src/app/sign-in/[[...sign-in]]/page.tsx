@@ -9,7 +9,7 @@ export const metadata = { title: "Se connecter — U*TTU Studio" };
 
 export default function SignInPage() {
   return <ClerkScope>
-    <AuthScreen kicker="Compte" title="Se connecter." note="Google ou GitHub. Mon studio, lui, reste sur ta machine.">
+    <AuthScreen screen="signIn">
       <SignIn
         appearance={clerkAppearance}
         routing="path"

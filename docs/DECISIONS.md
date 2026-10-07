@@ -2,6 +2,13 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## Quatre langues — 7 octobre 2026
+
+- **Décision :** le français reste la source. Anglais, allemand et espagnol suivent le lexique. Le visiteur choisit Français, English, Deutsch ou Español dans la barre du téléphone et dans le rail du bureau. Le choix reste sur l’appareil (`localStorage` et cookie `u-ttu-locale`). L’adresse ne change pas : `/studio`, `#look`, `#prise`, `#personnage`.
+- **Décision :** les phrases que les bibliothèques rendent encore en français sont traduites à l’affichage. Les montants restent en francs suisses. Les noms de fichiers, U*TTU, MOC, fal, Comfy, Pièce, Quai et Rue ne sont pas traduits.
+- **Fait :** l’allemand et l’espagnol portent `_status: needs_human_audit`. L’anglais porte `reviewed_calques`. Les calques du lexique sont ceux proposés, pas un audit humain. Aucun crédit n’est dépensé.
+- **Hypothèse :** un préfixe d’adresse par langue (`/en/studio`) n’est pas retenu.
+
 ## Une section, un dossier — 7 octobre 2026
 
 - **Décision JD :** une section de Mon studio est un dossier de contenu. `Prises/` ne tient que les prises tournées. Un gabarit n’est pas une prise.

@@ -292,6 +292,9 @@
   .u-plateau > .u-stack { min-height: 0; display: flex; flex-direction: column; gap: 10px; flex: 1; }
   .u-plateau .u-scenes { flex-direction: column; min-height: 0; overflow: auto; }
   .u-plateau .u-scene { min-height: 44px; }
+  .u-top .u-lang { display: none; }
+  .u-lang-rail { display: block; width: 100%; margin-top: 10px; }
+  .u-lang-rail select { width: 100%; max-width: none; border-radius: 12px; }
   .u-top .u-coffre { display: none; }
   .u-rail-coffre {
     display: grid; grid-template-columns: 36px 1fr; justify-items: start; align-items: center;

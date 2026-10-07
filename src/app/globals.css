@@ -95,7 +95,14 @@ fieldset { min-width: 0; margin: 0; }
 .landing-header { position: sticky; top: 0; z-index: 20; background: #0b0a09f2; border-bottom: 1px solid var(--line); }
 .landing-bar, .landing-main, .landing-footer { width: min(1120px, calc(100% - 32px)); margin-inline: auto; }
 .landing-bar { min-height: 64px; display: flex; align-items: center; gap: 16px; }
-.landing-header-cta { display: none; margin-left: auto; }
+.landing-tools { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.landing-header-cta { display: none; margin-left: 0; }
+.u-lang select {
+  min-height: 44px; max-width: 8.5rem; padding: 0 10px;
+  border: 1px solid var(--line-gold); border-radius: 999px; background: transparent;
+  color: var(--gold-soft); font: 600 12px/1 var(--font-mono);
+}
+.u-lang-rail { display: none; }
 .landing-main { flex: 1; display: flex; flex-direction: column; }
 .landing-main:focus { outline: none; }
 .landing-splash { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 12px 0 18px; }

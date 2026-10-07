@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import type { Take } from "@/lib/coffre/model";
 import { clipForX, takeCaption, xComposerUrl } from "@/lib/share";
+import { useI18n } from "@/components/i18n/provider";
 import { Save, Share } from "./glyphs";
 import { useStudio } from "./studio-context";
 
@@ -19,6 +20,7 @@ function filesShareable(): boolean {
 /** Phone: the device share sheet with the video, X first in line. Desktop: save, then X's composer. Never posts by itself. */
 export function PublishActions({ take }: { take: Take }) {
   const { media } = useStudio();
+  const { t } = useI18n();
   const canShare = useSyncExternalStore(never, filesShareable, () => false);
   const [status, setStatus] = useState("");
   const url = media[take.video];
@@ -30,19 +32,19 @@ export function PublishActions({ take }: { take: Take }) {
     try {
       const blob = await fetch(url).then(response => response.blob());
       await navigator.share({ files: [new File([blob], filename, { type: blob.type || "video/mp4" })], text: caption });
-      setStatus("Partage ouvert. Rien n’est publié sans ton geste dans X.");
+      setStatus(t("publish.shareOpen"));
     } catch (error) {
-      setStatus(error instanceof DOMException && error.name === "AbortError" ? "Partage annulé." : "Le partage n’a pas abouti.");
+      setStatus(error instanceof DOMException && error.name === "AbortError" ? t("publish.shareCancel") : t("publish.shareFailed"));
     }
   }
 
   if (!url) return null;
   return <div className="u-publish">
     {canShare
-      ? <button type="button" className="u-primary" onClick={() => void share()}>Publier <Share /></button>
+      ? <button type="button" className="u-primary" onClick={() => void share()}>{t("publish.publish")} <Share /></button>
       : <>
-        <a className="u-primary" href={xComposerUrl(caption)} target="_blank" rel="noopener noreferrer" onClick={() => setStatus("Le brouillon X s’ouvre avec le texte. Joins la vidéo enregistrée, puis publie.")}>Publier sur X <Share /></a>
-        <a className="u-secondary" href={url} download={filename}>Enregistrer la vidéo <Save /></a>
+        <a className="u-primary" href={xComposerUrl(caption)} target="_blank" rel="noopener noreferrer" onClick={() => setStatus(t("publish.xDraft"))}>{t("publish.publishX")} <Share /></a>
+        <a className="u-secondary" href={url} download={filename}>{t("publish.save")} <Save /></a>
       </>}
     {status && <p className="u-small" role="status">{status}</p>}
   </div>;

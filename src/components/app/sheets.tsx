@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useI18n, useStudioDates } from "@/components/i18n/provider";
 import { costLabel } from "@/lib/coffre/model";
 import { treeFileLabel } from "@/lib/coffre/project";
 import { CREDITS_PER_USD, claimBasis, formatCredits } from "@/lib/credits";
@@ -14,6 +15,7 @@ import { sheetDismissAllowed } from "@/lib/link-epoch";
 import { useStudio } from "./studio-context";
 
 function SheetFrame({ title, label, onClose, children, tall = false }: { title: string; label: string; onClose(): void; children: ReactNode; tall?: boolean }) {
+  const { t } = useI18n();
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
   const openedAt = useRef(0);
@@ -44,7 +46,7 @@ function SheetFrame({ title, label, onClose, children, tall = false }: { title: 
           <p className="u-label">{label}</p>
           <h2 id="u-sheet-title">{title}</h2>
         </div>
-        <button type="button" className="u-icon" onClick={onClose} aria-label="Fermer"><Close /></button>
+        <button type="button" className="u-icon" onClick={onClose} aria-label={t("verb.close")}><Close /></button>
       </header>
       {children}
     </div>
@@ -52,6 +54,7 @@ function SheetFrame({ title, label, onClose, children, tall = false }: { title: 
 }
 
 export function ConnectSheet({ framed = true }: { framed?: boolean } = {}) {
+  const { t, say } = useI18n();
   const { setSheet, connected, link, connectKey, sessionLinked, disconnect, setNotice } = useStudio();
   const [mode, setMode] = useState<"session" | "key">("session");
   const [signing, setSigning] = useState(false);
@@ -89,87 +92,87 @@ export function ConnectSheet({ framed = true }: { framed?: boolean } = {}) {
   const body = <div className="u-stack">
     {connected
       ? <div className="u-stack">
-        <p>Relié {link.mode === "key" ? "par clé" : "par ta session"}. Les prises tournent sur ce compte, et ses crédits les paient.</p>
-        <button type="button" className="u-secondary" onClick={() => void disconnect()}>Délier ce compte</button>
+        <p>{t("sheet.linkedBody", { how: link.mode === "key" ? t("sheet.linkedKey") : t("sheet.linkedSession") })}</p>
+        <button type="button" className="u-secondary" onClick={() => void disconnect()}>{t("sheet.unlink")}</button>
       </div>
       : <div className="u-stack">
-        <p>Le studio ne calcule rien lui-même. Tes prises tournent sur ton compte Comfy Cloud, avec tes crédits. Le studio ne garde ni ton mot de passe ni ta clé sur un serveur.</p>
+        <p>{t("sheet.renderIntro")}</p>
         <div className="u-tabs" role="tablist">
-          <button type="button" role="tab" aria-selected={mode === "session"} onClick={() => setMode("session")}>Me connecter ici</button>
-          <button type="button" role="tab" aria-selected={mode === "key"} onClick={() => setMode("key")}>J’ai une clé</button>
+          <button type="button" role="tab" aria-selected={mode === "session"} onClick={() => setMode("session")}>{t("sheet.signInHere")}</button>
+          <button type="button" role="tab" aria-selected={mode === "key"} onClick={() => setMode("key")}>{t("sheet.haveKey")}</button>
         </div>
         {mode === "session" && (signing
           ? <>
-            <iframe className="u-signin" src={assetPath("/login")} title="Connexion au compte de rendu" allow="clipboard-write" />
-            <p className="u-small">Connecte-toi dans ce cadre. Il se ferme dès que la session est là.</p>
+            <iframe className="u-signin" src={assetPath("/login")} title={t("sheet.frameTitle")} allow="clipboard-write" />
+            <p className="u-small">{t("sheet.frameHint")}</p>
           </>
           : <>
-            <p className="u-small">La page de connexion de Comfy s’ouvre dans cette feuille. Elle charge ses propres traceurs (Google, LinkedIn). Rien n’est chargé avant ton geste.</p>
-            <button type="button" className="u-primary" onClick={() => setSigning(true)}>Ouvrir la connexion</button>
+            <p className="u-small">{t("sheet.trackers")}</p>
+            <button type="button" className="u-primary" onClick={() => setSigning(true)}>{t("sheet.openSignIn")}</button>
           </>)}
         {mode === "key" && <>
           <label className="u-field">
-            <span className="u-label">Clé API Comfy Cloud</span>
+            <span className="u-label">{t("sheet.keyLabel")}</span>
             <input type="password" value={key} autoComplete="off" spellCheck={false} placeholder="comfyui-…" onChange={event => setKey(event.target.value)} />
           </label>
-          <p className="u-small">La clé reste sur cet appareil. Elle demande un abonnement Comfy Cloud payant. Aucun traceur tiers ne se charge dans ce mode.</p>
-          {error && <p className="u-small is-error" role="alert">{error}</p>}
-          <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? "Vérification…" : framed ? "Relier" : "Relier le compte de rendu"}</button>
+          <p className="u-small">{t("sheet.keyHint")}</p>
+          {error && <p className="u-small is-error" role="alert">{say(error)}</p>}
+          <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? t("sheet.checking") : framed ? t("verb.relier") : t("sheet.linkRender")}</button>
         </>}
       </div>}
   </div>;
   if (!framed) return body;
-  return <SheetFrame title="Ton compte de rendu" label="Relier" onClose={close} tall={signing}>{body}</SheetFrame>;
+  return <SheetFrame title={t("sheet.renderTitle")} label={t("verb.relier")} onClose={close} tall={signing}>{body}</SheetFrame>;
 }
 
-const time = new Intl.DateTimeFormat("fr-CH", { hour: "2-digit", minute: "2-digit" });
-const date = new Intl.DateTimeFormat("fr-CH", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-
 export function CreditSheet() {
+  const { t, say } = useI18n();
+  const { time, date } = useStudioDates();
   const { setSheet, connected, balance, balanceNote, refreshBalance, claim, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, disconnect, disconnectFal, blenderLinked, disconnectBlender } = useStudio();
   const measured = studio.takes.filter(take => take.costCredits !== null || take.costUsd !== null).slice(0, 5);
-  return <SheetFrame title="Comptes" label="Qui paie" onClose={() => setSheet(null)}>
+  return <SheetFrame title={t("sheet.accountsTitle")} label={t("sheet.whoPays")} onClose={() => setSheet(null)}>
     <div className="u-stack">
-      <p className="u-label">Compte de rendu</p>
+      <p className="u-label">{t("sheet.renderAccount")}</p>
       <div className="u-balance">
         <strong>{balance ? formatCredits(balance.credits) : "—"}</strong>
-        <span>{!connected ? "non relié" : balance ? `crédits, lus à ${time.format(balance.readAt)}` : balanceNote || "solde non lu"}</span>
-        {connected && <button type="button" className="u-icon" onClick={() => void refreshBalance()} aria-label="Relire le solde de rendu"><Refresh /></button>}
+        <span>{!connected ? t("sheet.notLinked") : balance ? t("sheet.readAt", { time: time.format(balance.readAt) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"))}</span>
+        {connected && <button type="button" className="u-icon" onClick={() => void refreshBalance()} aria-label={t("sheet.rereadRender")}><Refresh /></button>}
       </div>
-      <p className="u-small">Les prises « Références » tournent sur ton compte Comfy Cloud. 1 $ = {CREDITS_PER_USD} crédits. Le studio n’encaisse rien.</p>
+      <p className="u-small">{t("sheet.referencesRun", { engine: t("engine.comfy.label"), rate: CREDITS_PER_USD })}</p>
       {connected && <>
-        <p className="u-small">Cet appareil oublie la liaison. Mon studio et le compte restent.</p>
-        <button type="button" className="u-secondary" onClick={() => void disconnect()}>Délier le compte de rendu</button>
+        <p className="u-small">{t("sheet.forgetLink")}</p>
+        <button type="button" className="u-secondary" onClick={() => void disconnect()}>{t("sheet.unlinkRender")}</button>
       </>}
       {engine === "comfy" && <div className="u-card">
-        <p className="u-label">À ce réglage · {takeProfile(settings)}</p>
-        <p>{claim.state === "measured" ? `Environ ${formatCredits(claim.credits)} crédits, mesuré sur ${claimBasis(claim)}.` : "Non calibré. Aucun chiffre n’est annoncé avant une prise mesurée à ce réglage."}</p>
+        <p className="u-label">{t("sheet.thisSetting", { profile: takeProfile(settings) })}</p>
+        <p>{claim.state === "measured" ? t("sheet.aboutClaim", { amount: formatCredits(claim.credits), basis: say(claimBasis(claim)) }) : t("sheet.uncalibratedClaim")}</p>
       </div>}
-      <p className="u-label">Compte fal</p>
+      <p className="u-label">{t("sheet.falAccount")}</p>
       <div className="u-balance">
         <strong>{falBalance ? formatUsd(falBalance.usd) : "—"}</strong>
-        <span>{falLinked ? (falBalance ? `lus à ${time.format(falBalance.readAt)}` : falBalanceNote || "solde non lu") : "non relié"}</span>
-        {falLinked && <button type="button" className="u-icon" onClick={() => void refreshFal()} aria-label="Relire le solde fal"><Refresh /></button>}
+        <span>{falLinked ? (falBalance ? t("sheet.readAtFal", { time: time.format(falBalance.readAt) }) : (falBalanceNote ? say(falBalanceNote) : t("sheet.balanceUnread"))) : t("sheet.notLinked")}</span>
+        {falLinked && <button type="button" className="u-icon" onClick={() => void refreshFal()} aria-label={t("sheet.rereadFal")}><Refresh /></button>}
       </div>
-      <p className="u-small">La formation d’un personnage et les prises « Personnage (fichier) » sont débitées ici, au prix annoncé avant le geste.</p>
+      <p className="u-small">{t("sheet.falPays", { engine: t("engine.lora.label") })}</p>
       {falLinked && <>
-        <p className="u-small">Cet appareil oublie la clé. Mon studio, le fichier formé et le compte restent.</p>
-        <button type="button" className="u-secondary" onClick={disconnectFal}>Délier le compte fal</button>
+        <p className="u-small">{t("sheet.forgetFal")}</p>
+        <button type="button" className="u-secondary" onClick={disconnectFal}>{t("sheet.unlinkFal")}</button>
       </>}
       <p className="u-label">Blender</p>
-      <p className="u-small">{blenderLinked ? "La clé de job est sur cet appareil. Elle paie le rendu du lieu, pas le studio." : "Aucune clé. Le lieu se filme une fois la clé collée, depuis la scène."}</p>
-      {blenderLinked && <button type="button" className="u-secondary" onClick={() => { disconnectBlender(); setSheet(null); }}>Délier Blender</button>}
-      {measured.length > 0 && <ul className="u-ledger" aria-label="Dernières prises mesurées">
-        {measured.map(take => <li key={take.id}><span>{date.format(new Date(take.at))}</span><span>{take.sceneName || "Prise"}</span><span>{costLabel(take) ?? "en attente"}</span></li>)}
+      <p className="u-small">{blenderLinked ? t("sheet.blenderOn") : t("sheet.blenderOff")}</p>
+      {blenderLinked && <button type="button" className="u-secondary" onClick={() => { disconnectBlender(); setSheet(null); }}>{t("sheet.unlinkBlender")}</button>}
+      {measured.length > 0 && <ul className="u-ledger" aria-label={t("sheet.measured")}>
+        {measured.map(take => <li key={take.id}><span>{date.format(new Date(take.at))}</span><span>{take.sceneName || t("common.take")}</span><span>{costLabel(take) ? say(costLabel(take) ?? "") : t("common.pending")}</span></li>)}
       </ul>}
-      <p className="u-small">Recharger se fait sur le compte qui paie. Le studio ne vend rien.</p>
+      <p className="u-small">{t("sheet.topUp")}</p>
     </div>
   </SheetFrame>;
 }
 
 export function CoffreSheet() {
+  const { t, say } = useI18n();
   const { setSheet, studio, exportCoffre, importCoffre, linkFolder, folder, guide, guideOff, createNamedProject, selectNamedProject } = useStudio();
-  const [usage, setUsage] = useState("");
+  const [bytes, setBytes] = useState<number | null>(null);
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [linkable, setLinkable] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -178,40 +181,42 @@ export function CoffreSheet() {
   useEffect(() => {
     setLinkable(folderLinkSupported());
     void navigator.storage?.estimate?.().then(estimate => {
-      if (estimate.usage !== undefined) setUsage(`${(estimate.usage / 1048576).toFixed(1)} Mo sur cet appareil`);
+      if (estimate.usage !== undefined) setBytes(estimate.usage);
     });
     void navigator.storage?.persisted?.().then(setPersisted);
   }, []);
 
-  return <SheetFrame title="Mon studio" label="Mémoire" onClose={() => setSheet(null)}>
+  const usage = bytes === null ? "" : t("sheet.usageOnDevice", { amount: (bytes / 1048576).toFixed(1) });
+
+  return <SheetFrame title={t("nav.studio")} label={t("sheet.memory")} onClose={() => setSheet(null)}>
     <div className="u-stack">
-      <p>Mon studio reste sur cet appareil. La carte MOC.md relie les projets. Le projet en cours est le seul que la chaîne lit.</p>
-      <div role="radiogroup" aria-label="Projet en cours" className="u-project-list">
+      <p>{t("sheet.studioIntro")}</p>
+      <div role="radiogroup" aria-label={t("sheet.currentProject")} className="u-project-list">
         {studio.projects.map(item => <label key={item.slug}>
           <input type="radio" name="projet" checked={studio.project === item.slug} onChange={() => void selectNamedProject(item.slug)} />
           <span>{item.name}</span>
         </label>)}
       </div>
-      <label className="u-field">Nom du projet
-        <input value={draft} maxLength={40} aria-label="Nom du projet" autoComplete="off" onChange={event => setDraft(event.target.value)} />
+      <label className="u-field">{t("sheet.projectName")}
+        <input value={draft} maxLength={40} aria-label={t("sheet.projectName")} autoComplete="off" onChange={event => setDraft(event.target.value)} />
       </label>
-      <button type="button" className="u-secondary" onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>Créer ce projet</button>
-      {studio.tree.length > 0 && <ul className="u-tree" aria-label="Dossiers du projet">
-        {studio.tree.map(group => <li key={group.label}><strong>{group.label}</strong>{group.files.map(file => <span key={file}>{treeFileLabel(group.label, file)}</span>)}</li>)}
+      <button type="button" className="u-secondary" onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>{t("sheet.createProject")}</button>
+      {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
+        {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => <span key={file}>{say(treeFileLabel(group.label, file))}</span>)}</li>)}
       </ul>}
-      <p className="u-small">Pour le lire ailleurs : exporte le ZIP, ouvre ce dossier dans Obsidian, puis importe ce ZIP sur l’autre appareil. Les fichiers s’ajoutent. Une prise ou un personnage déjà ici reste.</p>
+      <p className="u-small">{t("sheet.obsidian")}</p>
       <ul className="u-ledger">
-        <li><span>Photos des références</span><span>{studio.look.photos.length}</span></li>
-        <li><span>Lieux</span><span>{studio.scenes.length}</span></li>
-        <li><span>Clips</span><span>{studio.clips.length}</span></li>
-        <li><span>Doubles</span><span>{studio.loras.length}</span></li>
-        <li><span>Prises</span><span>{studio.takes.length}</span></li>
+        <li><span>{t("sheet.referencePhotos")}</span><span>{studio.look.photos.length}</span></li>
+        <li><span>{t("tree.places")}</span><span>{studio.scenes.length}</span></li>
+        <li><span>{t("sheet.clips")}</span><span>{studio.clips.length}</span></li>
+        <li><span>{t("sheet.doubles")}</span><span>{studio.loras.length}</span></li>
+        <li><span>{t("tree.takes")}</span><span>{studio.takes.length}</span></li>
       </ul>
-      <p className="u-small">{usage}{persisted === false ? " · Le navigateur peut vider ce stockage : exporte ou relie un dossier." : persisted ? " · Stockage protégé." : ""}</p>
-      <button type="button" className="u-primary" onClick={() => void exportCoffre()}>Exporter mon studio (.zip)</button>
+      <p className="u-small">{usage}{persisted === false ? t("sheet.usageVolatile") : persisted ? t("sheet.usageHeld") : ""}</p>
+      <button type="button" className="u-primary" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
       <label className="u-secondary u-file">
-        {importing ? "Import…" : "Importer un studio (.zip)"}
-        <input type="file" accept=".zip,application/zip" aria-label="Importer un studio" disabled={importing} onChange={event => {
+        {importing ? t("sheet.importing") : t("sheet.import")}
+        <input type="file" accept=".zip,application/zip" aria-label={t("sheet.importLabel")} disabled={importing} onChange={event => {
           const file = event.target.files?.[0];
           event.target.value = "";
           if (!file) return;
@@ -219,44 +224,46 @@ export function CoffreSheet() {
           void importCoffre(file).finally(() => setImporting(false));
         }} />
       </label>
-      {linkable && <button type="button" className="u-secondary" onClick={() => void linkFolder()}>{folder ? `Relié à « ${folder} »` : "Relier mon dossier Obsidian"}</button>}
-      {!linkable && <p className="u-small">Sur ordinateur, Chrome ou Edge écrivent dans le dossier choisi. Sur téléphone, emporte le ZIP.</p>}
-      <p className="u-small">Les clés restent hors de mon studio.</p>
+      {linkable && <button type="button" className="u-secondary" onClick={() => void linkFolder()}>{folder ? t("sheet.linkedFolder", { name: folder }) : t("sheet.linkObsidian")}</button>}
+      {!linkable && <p className="u-small">{t("sheet.phoneZip")}</p>}
+      <p className="u-small">{t("sheet.keysOut")}</p>
       <div className="u-row">
-        <a className="u-link u-muted" href={assetPath("/compte")}>Compte U*TTU, facultatif</a>
-        {!guide.off && <button type="button" className="u-link u-muted" onClick={guideOff}>Couper le guide</button>}
+        <a className="u-link u-muted" href={assetPath("/compte")}>{t("sheet.optionalAccount")}</a>
+        {!guide.off && <button type="button" className="u-link u-muted" onClick={guideOff}>{t("sheet.guideOff")}</button>}
       </div>
     </div>
   </SheetFrame>;
 }
 
 export function ConfirmSheet() {
+  const { t, say } = useI18n();
   const { setSheet, settings, balance, gate, confirmRun, scene, line, engine, chosenLora, loraResolution, falBalance, falBalanceOptional } = useStudio();
   const format = settings.aspect === "vertical" ? "9:16" : settings.aspect === "horizontal" ? "16:9" : "1:1";
-  return <SheetFrame title="Tourner cette prise ?" label="Confirmer" onClose={() => setSheet(null)}>
+  return <SheetFrame title={t("sheet.confirmShoot")} label={t("sheet.confirm")} onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
-        <li><span>Lieu</span><span>{scene?.name ?? "—"}</span></li>
-        <li><span>Plan</span><span>{line.trim() || "sans phrase"}</span></li>
+        <li><span>{t("sheet.place")}</span><span>{scene?.name ?? "—"}</span></li>
+        <li><span>{t("scene.plan")}</span><span>{line.trim() || t("sheet.noLine")}</span></li>
         {engine === "lora"
           ? <>
-            <li><span>Personnage</span><span>{chosenLora?.name || "Personnage"}</span></li>
-            <li><span>Réglage</span><span>{format} · {settings.seconds} s · {loraResolution === "480P" ? "480p" : "768p"}</span></li>
-            <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
+            <li><span>{t("nav.character")}</span><span>{chosenLora?.name || t("common.character")}</span></li>
+            <li><span>{t("sheet.setting")}</span><span>{format} · {settings.seconds} s · {loraResolution === "480P" ? "480p" : "768p"}</span></li>
+            <li><span>{t("sheet.yourBalance")}</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? t("sheet.unread") : t("sheet.unreadable")}</span></li>
           </>
           : <>
-            <li><span>Réglage</span><span>{format} · {settings.seconds} s · {settings.quality === "rapide" ? "rapide" : "fin"}</span></li>
-            <li><span>Ton solde</span><span>{balance ? `${formatCredits(balance.credits)} crédits` : "illisible"}</span></li>
+            <li><span>{t("sheet.setting")}</span><span>{format} · {settings.seconds} s · {settings.quality === "rapide" ? t("sheet.fast") : t("sheet.fine")}</span></li>
+            <li><span>{t("sheet.yourBalance")}</span><span>{balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : t("sheet.unreadable")}</span></li>
           </>}
       </ul>
-      <p className={`u-cost is-${gate.tone}`}>{gate.line}</p>
-      <button type="button" className="u-primary" disabled={!gate.allowed} onClick={() => void confirmRun()}>{engine === "lora" ? "Tourner · débit sur mon compte fal" : "Tourner · débit sur mon compte"}</button>
-      <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
+      <p className={`u-cost is-${gate.tone}`}>{say(gate.line)}</p>
+      <button type="button" className="u-primary" disabled={!gate.allowed} onClick={() => void confirmRun()}>{engine === "lora" ? t("sheet.shootFal") : t("sheet.shootRender")}</button>
+      <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
 }
 
 export function FalSheet({ framed = true }: { framed?: boolean } = {}) {
+  const { t, say } = useI18n();
   const { setSheet, falLinked, falUsername, falBalanceNote, connectFal, disconnectFal, setNotice } = useStudio();
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
@@ -278,80 +285,84 @@ export function FalSheet({ framed = true }: { framed?: boolean } = {}) {
   const body = <div className="u-stack">
     {falLinked
       ? <div className="u-stack">
-        <p>Relié{falUsername ? ` à ${falUsername}` : ""}. La formation et les prises « Personnage (fichier) » sont débitées sur ce compte.</p>
-        <button type="button" className="u-secondary" onClick={disconnectFal}>Délier ce compte</button>
+        <p>{t("sheet.falLinkedBody", { name: falUsername ? t("sheet.falTo", { name: falUsername }) : "", engine: t("engine.lora.label") })}</p>
+        <button type="button" className="u-secondary" onClick={disconnectFal}>{t("sheet.unlink")}</button>
       </div>
       : <div className="u-stack">
-        <p>Le studio ne forme rien lui-même. Le personnage s’apprend sur ton compte fal, avec ton argent. Une clé ordinaire suffit. Une seule visite hors de l’app : créer la clé. Ensuite tout reste ici.</p>
-        <p className="u-small">Le solde s’affiche seulement si la clé a la portée Admin. Ce n’est pas demandé pour relier, former ou tourner.</p>
-        <a className="u-link" href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">Créer une clé sur fal</a>
+        <p>{t("sheet.falIntro")}</p>
+        <p className="u-small">{t("sheet.falScope")}</p>
+        <a className="u-link" href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">{t("sheet.createFalKey")}</a>
         <label className="u-field">
-          <span className="u-label">Clé fal</span>
+          <span className="u-label">{t("sheet.falKey")}</span>
           <input id="u-fal-key" type="password" value={key} autoComplete="off" spellCheck={false} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:…" onChange={event => setKey(event.target.value)} />
         </label>
-        <p className="u-small">La clé reste sur cet appareil. Elle part seulement vers fal, jamais dans mon studio ni dans son export. Ne la partage pas.</p>
-        {(error || falBalanceNote) && <p className="u-small is-error" role="alert">{error || falBalanceNote}</p>}
-        <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? "Vérification…" : framed ? "Relier" : "Relier le compte fal"}</button>
+        <p className="u-small">{t("sheet.falKeyHint")}</p>
+        {(error || falBalanceNote) && <p className="u-small is-error" role="alert">{say(error || falBalanceNote)}</p>}
+        <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? t("sheet.checking") : framed ? t("verb.relier") : t("sheet.linkFal")}</button>
       </div>}
   </div>;
   if (!framed) return body;
-  return <SheetFrame title="Ton compte fal" label="Relier" onClose={() => setSheet(null)}>{body}</SheetFrame>;
+  return <SheetFrame title={t("sheet.falTitle")} label={t("verb.relier")} onClose={() => setSheet(null)}>{body}</SheetFrame>;
 }
 
 export function RelierSheet() {
+  const { t } = useI18n();
   const { setSheet } = useStudio();
-  return <SheetFrame title="Relier" label="Comptes" onClose={() => setSheet(null)} tall>
+  return <SheetFrame title={t("sheet.relierTitle")} label={t("sheet.accountsTitle")} onClose={() => setSheet(null)} tall>
     <section className="u-payer">
-      <p className="u-label">Compte fal</p>
-      <p>Il paie la formation du personnage et les prises « Personnage (fichier) ».</p>
+      <p className="u-label">{t("sheet.falAccount")}</p>
+      <p>{t("sheet.falPaysTrain", { engine: t("engine.lora.label") })}</p>
       <FalSheet framed={false} />
     </section>
     <section className="u-payer">
-      <p className="u-label">Compte de rendu</p>
-      <p>Il paie les prises « Références ».</p>
+      <p className="u-label">{t("sheet.renderAccount")}</p>
+      <p>{t("sheet.referencesPays", { engine: t("engine.comfy.label") })}</p>
       <ConnectSheet framed={false} />
     </section>
   </SheetFrame>;
 }
 
 export function TrainConfirmSheet() {
+  const { t, say } = useI18n();
   const { setSheet, studio, dataset, trainingSteps, falBalance, falBalanceOptional, trainGate, confirmTraining } = useStudio();
-  return <SheetFrame title="Former ce personnage ?" label="Confirmer" onClose={() => setSheet(null)}>
+  return <SheetFrame title={t("sheet.confirmTrain")} label={t("sheet.confirm")} onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
-        <li><span>Personnage</span><span>{studio.role.name || "—"}</span></li>
-        <li><span>Clips</span><span>{dataset.clips}</span></li>
-        <li><span>Apprentissage</span><span>{trainingSteps} pas</span></li>
-        <li><span>Format</span><span>{dataset.aspect}</span></li>
-        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
+        <li><span>{t("nav.character")}</span><span>{studio.role.name || "—"}</span></li>
+        <li><span>{t("lora.clips")}</span><span>{dataset.clips}</span></li>
+        <li><span>{t("lora.learning")}</span><span>{t("lora.steps", { count: trainingSteps })}</span></li>
+        <li><span>{t("take.format")}</span><span>{dataset.aspect}</span></li>
+        <li><span>{t("sheet.yourBalance")}</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? t("sheet.unread") : t("sheet.unreadable")}</span></li>
       </ul>
-      <p className={`u-cost is-${trainGate.tone}`}>{trainGate.line}</p>
-      <button type="button" className="u-primary" disabled={!trainGate.allowed} onClick={() => void confirmTraining()}>Former · débit sur mon compte fal</button>
-      <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
+      <p className={`u-cost is-${trainGate.tone}`}>{say(trainGate.line)}</p>
+      <button type="button" className="u-primary" disabled={!trainGate.allowed} onClick={() => void confirmTraining()}>{t("sheet.trainDebit")}</button>
+      <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
 }
 
 export function PrevizConfirmSheet() {
+  const { t, say } = useI18n();
   const { setSheet, scene, previzGate, confirmPreviz } = useStudio();
   const plan = scene?.previz === "quai" ? "Quai" : scene?.previz === "rue" ? "Rue" : scene?.previz === "piece" ? "Pièce" : "—";
   const lens = scene?.camera?.lens;
-  return <SheetFrame title="Filmer ce plan ?" label="Confirmer" onClose={() => setSheet(null)}>
+  return <SheetFrame title={t("sheet.confirmFilm")} label={t("sheet.confirm")} onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
-        <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
-        <li><span>Plan</span><span>{plan}</span></li>
-        <li><span>Focale</span><span>{lens ? `${lens} mm` : "—"}</span></li>
+        <li><span>{t("sheet.place")}</span><span>{scene?.name || "—"}</span></li>
+        <li><span>{t("scene.plan")}</span><span>{plan}</span></li>
+        <li><span>{t("scene.lens")}</span><span>{lens ? `${lens} mm` : "—"}</span></li>
       </ul>
-      <p className={`u-cost is-${previzGate.tone}`}>{previzGate.line}</p>
-      <p className="u-small">Blender rend le lieu vide, le long du trajet. Le personnage est le fichier de mon studio : il n’entre que dans le plan filmé. S’il ne revient pas d’image, aucune n’est affichée.</p>
-      <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>Filmer · débit sur mon compte</button>
-      <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
+      <p className={`u-cost is-${previzGate.tone}`}>{say(previzGate.line)}</p>
+      <p className="u-small">{t("sheet.filmBody")}</p>
+      <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>{t("sheet.filmDebit")}</button>
+      <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
 }
 
 export function BlenderSheet() {
+  const { t, say } = useI18n();
   const { setSheet, blenderLinked, connectBlender, disconnectBlender, setNotice } = useStudio();
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
@@ -366,77 +377,82 @@ export function BlenderSheet() {
     setSheet(null);
   }
 
-  return <SheetFrame title="Blender" label="Relier" onClose={() => setSheet(null)}>
+  return <SheetFrame title="Blender" label={t("verb.relier")} onClose={() => setSheet(null)}>
     {blenderLinked
       ? <div className="u-stack">
-        <p>La clé de job est sur cet appareil. Elle part seulement vers Farpy, au moment où tu filmes.</p>
-        <button type="button" className="u-secondary" onClick={() => { disconnectBlender(); setNotice("Clé Blender retirée de cet appareil."); setSheet(null); }}>Délier Blender</button>
+        <p>{t("sheet.blenderLinked")}</p>
+        <button type="button" className="u-secondary" onClick={() => { disconnectBlender(); setNotice("Clé Blender retirée de cet appareil."); setSheet(null); }}>{t("sheet.unlinkBlender")}</button>
       </div>
       : <div className="u-stack">
-        <p>Farpy fait tourner Blender, hors de ton appareil. Crée un compte, ajoute du crédit, puis une clé de job. Elle commence par farpy_agent_. Une clé de compte ne lance pas le rendu.</p>
+        <p>{t("sheet.blenderIntro")}</p>
         <label className="u-field">
-          <span className="u-label">Clé de job</span>
+          <span className="u-label">{t("sheet.jobKey")}</span>
           <input type="password" value={key} autoComplete="off" spellCheck={false} placeholder="farpy_agent_…" onChange={event => setKey(event.target.value)} />
         </label>
-        <p className="u-small">La clé reste sur cet appareil. Elle n’entre pas dans mon studio. Coller la clé ne débite rien : le devis est lu au premier film.</p>
-        {error && <p className="u-small is-error" role="alert">{error}</p>}
-        <button type="button" className="u-primary" disabled={!key.trim()} onClick={linkKey}>Relier</button>
+        <p className="u-small">{t("sheet.keyStays")}</p>
+        {error && <p className="u-small is-error" role="alert">{say(error)}</p>}
+        <button type="button" className="u-primary" disabled={!key.trim()} onClick={linkKey}>{t("verb.relier")}</button>
       </div>}
   </SheetFrame>;
 }
 
 export function PlaceTrainSheet() {
+  const { t, say } = useI18n();
   const { setSheet, scene, falBalance, falBalanceOptional, placeTrainQuote, placeTrainGate, confirmPlaceTrain } = useStudio();
-  return <SheetFrame title="Former ce lieu ?" label="Confirmer" onClose={() => setSheet(null)}>
+  return <SheetFrame title={t("sheet.confirmPlace")} label={t("sheet.confirm")} onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
-        <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
-        <li><span>Vues</span><span>{(scene?.stills.length ?? 0) + (scene?.frames.length ?? 0) + (scene?.views.length ?? 0)}</span></li>
-        <li><span>Apprentissage</span><span>1000 pas · style</span></li>
-        <li><span>Prix</span><span>{placeTrainQuote !== null ? formatUsd(placeTrainQuote) : "illisible"}</span></li>
-        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
+        <li><span>{t("sheet.place")}</span><span>{scene?.name || "—"}</span></li>
+        <li><span>{t("sheet.views")}</span><span>{(scene?.stills.length ?? 0) + (scene?.frames.length ?? 0) + (scene?.views.length ?? 0)}</span></li>
+        <li><span>{t("lora.learning")}</span><span>{t("sheet.styleSteps")}</span></li>
+        <li><span>{t("sheet.price")}</span><span>{placeTrainQuote !== null ? formatUsd(placeTrainQuote) : t("sheet.unreadable")}</span></li>
+        <li><span>{t("sheet.yourBalance")}</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? t("sheet.unread") : t("sheet.unreadable")}</span></li>
       </ul>
-      <p className={`u-cost is-${placeTrainGate.tone}`}>{placeTrainGate.line}</p>
-      <p className="u-small">L’entraîneur H3 refuse des images seules. Ce lieu passe par l’entraîneur d’images déjà là, en style, sans masque de visage. Le fichier reste dans mon studio. Il ne devient pas un volume : le Blender du lieu reste le modèle 3D, et il n’entre pas dans la prise H3.</p>
-      <button type="button" className="u-primary" disabled={!placeTrainGate.allowed} onClick={() => void confirmPlaceTrain()}>Former ce lieu · débit sur mon compte fal</button>
-      <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
+      <p className={`u-cost is-${placeTrainGate.tone}`}>{say(placeTrainGate.line)}</p>
+      <p className="u-small">{t("sheet.placeTrainBody")}</p>
+      <button type="button" className="u-primary" disabled={!placeTrainGate.allowed} onClick={() => void confirmPlaceTrain()}>{t("sheet.placeTrainDebit")}</button>
+      <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
 }
 
 export function PlaceSceneSheet() {
+  const { t, say } = useI18n();
   const { setSheet, scene, falBalance, falBalanceOptional, placeSceneQuote, placeSceneGate, confirmPlaceScene } = useStudio();
-  return <SheetFrame title="Bâtir une image de ce lieu ?" label="Confirmer" onClose={() => setSheet(null)}>
+  return <SheetFrame title={t("sheet.confirmStill")} label={t("sheet.confirm")} onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
-        <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
-        <li><span>Fichier</span><span>Fichier du lieu, dans mon studio</span></li>
-        <li><span>Prix</span><span>{placeSceneQuote !== null ? formatUsd(placeSceneQuote) : "illisible"}</span></li>
-        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
+        <li><span>{t("sheet.place")}</span><span>{scene?.name || "—"}</span></li>
+        <li><span>{t("sheet.file")}</span><span>{t("sheet.placeFile")}</span></li>
+        <li><span>{t("sheet.price")}</span><span>{placeSceneQuote !== null ? formatUsd(placeSceneQuote) : t("sheet.unreadable")}</span></li>
+        <li><span>{t("sheet.yourBalance")}</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? t("sheet.unread") : t("sheet.unreadable")}</span></li>
       </ul>
-      <p className={`u-cost is-${placeSceneGate.tone}`}>{placeSceneGate.line}</p>
-      <p className="u-small">L’image neuve recharge ce fichier. Le modèle 3D du lieu reste le fichier Blender, pas ce LoRA.</p>
-      <button type="button" className="u-primary" disabled={!placeSceneGate.allowed} onClick={() => void confirmPlaceScene()}>Bâtir · débit sur mon compte fal</button>
-      <p className="u-small">Rien ne part sans ce geste. Le studio n’encaisse rien.</p>
+      <p className={`u-cost is-${placeSceneGate.tone}`}>{say(placeSceneGate.line)}</p>
+      <p className="u-small">{t("sheet.stillBody")}</p>
+      <button type="button" className="u-primary" disabled={!placeSceneGate.allowed} onClick={() => void confirmPlaceScene()}>{t("sheet.buildDebit")}</button>
+      <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
 }
 
 export function PlayerSheet({ id }: { id: string }) {
+  const { t, say } = useI18n();
+  const { date } = useStudioDates();
   const { setSheet, studio, media, deleteTake } = useStudio();
   const take = studio.takes.find(item => item.id === id);
   if (!take) return null;
-  return <SheetFrame title={take.line || "Prise"} label={take.sceneName || "Prise"} onClose={() => setSheet(null)} tall>
+  const priced = costLabel(take);
+  return <SheetFrame title={take.line || t("common.take")} label={take.sceneName || t("common.take")} onClose={() => setSheet(null)} tall>
     <div className="u-stack">
       {media[take.video] && <video src={media[take.video]} poster={take.poster ? media[take.poster] : undefined} controls autoPlay muted loop playsInline className={`u-player is-${take.settings.aspect}`} />}
       <ul className="u-ledger">
-        <li><span>Tournée</span><span>{date.format(new Date(take.at))}</span></li>
-        <li><span>Réglage</span><span>{take.profile}</span></li>
-        <li><span>Débit</span><span>{costLabel(take) ?? "pas encore lu"}</span></li>
-        {take.gpuSeconds !== null && <li><span>Calcul</span><span>{take.gpuSeconds} s</span></li>}
+        <li><span>{t("sheet.shot")}</span><span>{date.format(new Date(take.at))}</span></li>
+        <li><span>{t("sheet.setting")}</span><span>{take.profile}</span></li>
+        <li><span>{t("sheet.debit")}</span><span>{priced ? say(priced) : t("common.notReadYet")}</span></li>
+        {take.gpuSeconds !== null && <li><span>{t("sheet.compute")}</span><span>{take.gpuSeconds} s</span></li>}
       </ul>
       <PublishActions take={take} />
-      <button type="button" className="u-link u-muted" onClick={() => { void deleteTake(take.id); setSheet(null); }}><Trash /> Retirer de mon studio</button>
+      <button type="button" className="u-link u-muted" onClick={() => { void deleteTake(take.id); setSheet(null); }}><Trash /> {t("sheet.removeFromStudio")}</button>
     </div>
   </SheetFrame>;
 }
