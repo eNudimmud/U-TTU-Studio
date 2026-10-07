@@ -148,6 +148,7 @@ function AppFrame() {
         <button type="button" className="u-fiches-nav" aria-current={tab === "fiches" ? "page" : undefined} onClick={() => go("fiches")}>
           <span>Fiches</span>
         </button>
+        <button type="button" className="u-rail-coffre" onClick={() => setSheet("coffre")} aria-label="Coffre"><Coffre /><span>Coffre</span></button>
       </div>
     </nav>
 

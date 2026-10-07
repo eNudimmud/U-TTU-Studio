@@ -100,6 +100,7 @@ describe("le studio, une app", () => {
     assert.doesNotMatch(chain, /label: "Look"|label: "Rôle"/);
     assert.match(chain, /aria-label="Personnage, scène, prise"/);
     assert.match(chain, /<PlateauShelf /);
+    assert.match(chain, /className="u-rail-coffre"/);
     assert.match(read("src/components/app/screens.tsx"), /className="u-plateau"/);
     assert.match(read("src/components/app/screens.tsx"), /aria-label="Étagère"/);
     assert.match(read("src/components/app/screens.tsx"), /className="u-label">Prises/);
@@ -134,9 +135,12 @@ describe("le studio, une app", () => {
     assert.match(css, /@media \(min-width: 1080px\)/);
     assert.match(css, /margin-left: 232px/);
     const phone = css.slice(0, css.indexOf("@media (min-width: 720px)"));
-    assert.match(phone, /\.u-sheet \{[^}]*height: 100dvh/);
+    assert.match(phone, /\.u-overlay \{[^}]*align-items: flex-end/);
+    assert.match(phone, /\.u-sheet \{[^}]*max-height: 88dvh[^}]*border-radius: 22px 22px 0 0/);
+    assert.doesNotMatch(phone, /\.u-sheet \{[^}]*height: 100dvh/);
     assert.match(phone, /\.u-chain \{[^}]*bottom: 0/);
     assert.match(phone, /\.u-plateau \{ display: none; \}/);
+    assert.match(phone, /\.u-rail-coffre \{ display: none; \}/);
     assert.doesNotMatch(phone, /width: 232px/);
     const mid = css.slice(css.indexOf("@media (min-width: 720px)"), css.indexOf("@media (min-width: 1080px)"));
     assert.match(mid, /width: min\(720px, 100%\)/);
@@ -144,6 +148,8 @@ describe("le studio, une app", () => {
     const desk = css.slice(css.indexOf("@media (min-width: 1080px)"), css.indexOf("@media (prefers-reduced-motion"));
     assert.match(desk, /width: 232px/);
     assert.match(desk, /\.u-plateau \{[^}]*display: flex/);
+    assert.match(desk, /\.u-rail-coffre \{[^}]*display: grid/);
+    assert.match(desk, /\.u-top \.u-coffre \{ display: none; \}/);
     assert.match(desk, /margin-right: 300px/);
     assert.match(desk, /\.u-overlay \{[^}]*left: 232px[^}]*right: 300px/);
     assert.doesNotMatch(desk, /height: 100dvh/);
