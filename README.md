@@ -71,7 +71,7 @@ U-TTU-Studio/
     Templates/                gabarits modele-personnage, modele-scene, modele-prise, modele-sequence, modele-shot
 ```
 
-« Exporter mon studio » télécharge `U-TTU-Studio.zip`, à ouvrir tel quel dans Obsidian. « Importer un studio » ajoute un ZIP à celui de cet appareil : une prise ou un personnage déjà là reste. Deux appareils ne partagent rien tout seuls. Sur ordinateur (Chrome, Edge), « Relier mon dossier Obsidian » écrit directement dans un dossier choisi. Ni la clé de rendu, ni la clé fal, n’entrent dans mon studio. Pourquoi ce dossier plutôt qu’un ZIP de départ : [docs/VAULT.md](docs/VAULT.md).
+« Exporter mon studio » télécharge `U-TTU-Studio.zip`, à ouvrir tel quel dans Obsidian. « Importer un studio » ajoute un ZIP à celui de cet appareil : un fichier déjà là n’est pas remplacé. Deux appareils ne partagent rien tout seuls. Du téléphone à l’ordinateur, et retour : exporter le ZIP, emporter le fichier, l’importer. Aucun serveur. Sur ordinateur (Chrome, Edge), « Relier mon dossier Obsidian » écrit directement dans un dossier choisi. Ni la clé de rendu, ni la clé fal, n’entrent dans mon studio. Pourquoi ce dossier plutôt qu’un ZIP de départ : [docs/VAULT.md](docs/VAULT.md).
 
 ### U*TTU, la guide
 

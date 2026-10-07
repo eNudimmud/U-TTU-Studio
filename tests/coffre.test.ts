@@ -5,10 +5,10 @@ import { mergeCoffreZip, vaultPathFromZip } from "../src/lib/coffre/import.ts";
 import { readFrontmatter, withFrontmatter } from "../src/lib/coffre/markdown.ts";
 import {
   canonMarkdown, cleanTraits, createProject, loadStudio, lookCheck, loraMarkdown, parseCanon, parseLora, parseTake, parseTraits, removeLora, removeScene, removeTake, sceneMarkdown, selectProject, sha256Hex, slugify, takeId, takeMarkdown, uniqueId,
-  writeBlob, writeClips, writeLook, writeLora, writeScene, writeState, writeTake, writeText, type Lora, type Scene, type Take,
+  writeBlob, writeClips, writeLook, writeLora, writeQuotes, writeScene, writeSequence, writeShot, writeState, writeTake, writeText, type Lora, type Scene, type Take,
 } from "../src/lib/coffre/model.ts";
 import { scaffoldFiles, treeFileLabel } from "../src/lib/coffre/project.ts";
-import { cleanPath, memoryVault } from "../src/lib/coffre/store.ts";
+import { cleanPath, memoryVault, type VaultEntry, type VaultStore } from "../src/lib/coffre/store.ts";
 import { createZip, readZip } from "../src/lib/zip.ts";
 
 const take = (patch: Partial<Take> = {}): Take => ({
@@ -363,4 +363,127 @@ describe("coffre en markdown", () => {
     assert.match((await kept.get("Projets/mira/Templates/modele-prise.md"))?.text ?? "", /déjà là/);
     assert.match((await kept.get("Projets/mira/Templates/prise.md"))?.text ?? "", /ancien/);
   });
+
+  it("round-trips a whole project into an empty studio, including sequences, shots, gabarits and measured cost", async () => {
+    const filmed = take({
+      video: "Projets/mira/Prises/20261003-153000-le-quai.mp4",
+      poster: "Projets/mira/Prises/20261003-153000-le-quai.jpg",
+    });
+    const priced = take({
+      id: "20261011-101500-cout",
+      at: "2026-10-11T10:15:00.000Z",
+      line: "Gros plan, coût lu.",
+      video: "Projets/mira/Prises/20261011-101500-cout.mp4",
+      poster: null,
+      jobId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      engine: "lora",
+      loraId: "20261003-160000-mira",
+      resolution: "768P",
+      costCredits: null,
+      costUsd: 0.42,
+      costSource: "billing",
+      balanceBefore: 12.5,
+      balanceAfter: 12.08,
+      gpuSeconds: 90,
+    });
+    const trained: Lora = {
+      id: "20261003-160000-mira",
+      at: "2026-10-03T16:00:00.000Z",
+      name: "Mira",
+      kind: "personnage",
+      sceneId: null,
+      trigger: "mira_uttu",
+      file: "Projets/mira/Assets/20261003-160000-mira.safetensors",
+      bytes: 4,
+      sha256: "ab",
+      steps: 1000,
+      rank: 16,
+      aspect: "9:16",
+      clips: 10,
+      endpoint: "minimax/h3/ref2va/trainer",
+      requestId: "req-12345678",
+      seconds: 400,
+      costUsd: 15,
+      costSource: "billing",
+      balanceBefore: 40,
+      balanceAfter: 25,
+    };
+    const home = memoryVault();
+    await createProject(home, "Mira");
+    await writeBlob(home, "Projets/mira/Refs/look-a-1.jpg", new Blob(["p1"], { type: "image/jpeg" }));
+    await writeBlob(home, "Projets/mira/Refs/look-a-2.jpg", new Blob(["p2"], { type: "image/jpeg" }));
+    await writeLook(home, { name: "Mira", traits: ["yeux verts", "taches"], photos: ["Projets/mira/Refs/look-a-1.jpg", "Projets/mira/Refs/look-a-2.jpg"], note: "capuche" });
+    await writeScene(home, { id: "le-quai", name: "Le quai", note: "pluie", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
+    await writeState(home, "le-quai");
+    await writeBlob(home, filmed.video, new Blob(["mp4"], { type: "video/mp4" }));
+    await writeBlob(home, filmed.poster!, new Blob(["jpg"], { type: "image/jpeg" }));
+    await writeTake(home, filmed, [filmed]);
+    await writeBlob(home, priced.video, new Blob(["mp4b"], { type: "video/mp4" }));
+    await writeTake(home, priced, [filmed, priced]);
+    await writeLora(home, trained, new Blob(["lora"]), [filmed, priced], [trained]);
+    await writeQuotes(home, [{ profile: filmed.profile, before: 5001, after: 4800, credits: 201, at: filmed.at }]);
+    await writeSequence(home, {
+      id: "quai-la-nuit",
+      name: "Quai, la nuit",
+      links: [{ takeId: filmed.id, raccord: "" }, { takeId: priced.id, raccord: "même lampe" }],
+    }, [filmed, priced]);
+    await writeShot(home, {
+      id: "gros-plan",
+      name: "Gros plan",
+      sequenceId: "quai-la-nuit",
+      takeIds: [priced.id],
+      note: "Visage, quai, nuit.",
+      ordre: 0,
+    }, [filmed, priced], "Quai, la nuit");
+    await createProject(home, "Léo");
+    await selectProject(home, "mira");
+
+    const archive = await coffreZip(home);
+    const before = await payloadMap(home);
+    const empty = memoryVault();
+    await mergeCoffreZip(empty, archive);
+    const after = await payloadMap(empty);
+    assert.deepEqual([...after.keys()].sort(), [...before.keys()].sort());
+    for (const path of before.keys()) assert.equal(after.get(path), before.get(path), path);
+
+    const back = await loadStudio(empty);
+    assert.equal(back.project, "mira");
+    assert.equal(back.takes.find(item => item.id === filmed.id)?.costCredits, 201);
+    assert.equal(back.takes.find(item => item.id === priced.id)?.costUsd, 0.42);
+    assert.equal(back.quotes[0]?.credits, 201);
+    assert.equal(back.sequences[0]?.links[1]?.raccord, "même lampe");
+    assert.equal(back.shots[0]?.note, "Visage, quai, nuit.");
+    for (const name of ["modele-personnage.md", "modele-scene.md", "modele-prise.md", "modele-sequence.md", "modele-shot.md"]) {
+      assert.equal(after.has(`Projets/mira/Templates/${name}`), true, name);
+    }
+    assert.match(after.get("Projets/mira/.uttu/devis.json") ?? "", /"credits":201/);
+    assert.match(after.get("Projets/mira/Prises/20261011-101500-cout.md") ?? "", /cout_usd: 0\.42/);
+    assert.match(after.get("Projets/leo/_MOC.md") ?? "", /# Léo/);
+    assert.match(after.get("MOC.md") ?? "", /Léo/);
+    assert.equal(after.has("Projets/leo/Journal.md"), true);
+    assert.doesNotMatch([...after.keys()].join("\n"), /u-ttu-fal|u-ttu-rendu|u-ttu-blender/);
+
+    const phone = memoryVault();
+    await createProject(phone, "Mira");
+    await writeBlob(phone, filmed.video, new Blob(["ORIGINAL"], { type: "video/mp4" }));
+    await writeTake(phone, { ...filmed, line: "Version téléphone." }, [filmed]);
+    await mergeCoffreZip(phone, archive);
+    const kept = await loadStudio(phone);
+    assert.equal(kept.takes.find(item => item.id === filmed.id)?.line, "Version téléphone.");
+    assert.equal(await (await phone.get(filmed.video))?.blob?.text(), "ORIGINAL");
+    assert.match((await phone.get("Projets/mira/Sequences/quai-la-nuit.md"))?.text ?? "", /même lampe/);
+    assert.equal(kept.takes.some(item => item.id === priced.id), true);
+  });
 });
+
+async function payloadMap(store: VaultStore): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  for (const file of await store.list()) out.set(file.path, await payload(file));
+  return out;
+}
+
+async function payload(file: VaultEntry): Promise<string> {
+  if (file.text !== undefined) return `text:${file.text}`;
+  const bytes = new Uint8Array(await file.blob!.arrayBuffer());
+  return `bin:${Buffer.from(bytes).toString("base64")}`;
+}
