@@ -19,7 +19,8 @@ U-TTU-Studio/
     Lieux/<lieu>.md              un lieu, ses images à côté
     Lieux/<id>-fichier.md        un fichier d’images du lieu, pas le lieu
     Prises/<id>.md               une prise, sa vidéo et sa vignette
-    Sequences/  Shots/  Prompts/  Templates/
+    Sequences/  Shots/  Prompts/
+    Templates/modele-personnage.md  modele-scene.md  modele-prise.md
     Moteurs/                     fiches Relier → Lancer, sans graphe
     Assets/                      poids .safetensors et clips
     .uttu/etat.json              le lieu courant

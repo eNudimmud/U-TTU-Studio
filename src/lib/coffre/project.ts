@@ -81,6 +81,84 @@ export function projectTree(slug: string, paths: readonly string[]): TreeFolder[
   return notes.length > 0 ? [{ label: "Notes", files: notes }, ...folders] : folders;
 }
 
+/** A section owns its name. These stems are that name, singular or plural, without accents. */
+const SECTION_LABELS: Record<string, string> = {
+  personnage: "Personnage",
+  personnages: "Personnages",
+  reference: "Référence",
+  references: "Références",
+  lieu: "Lieu",
+  lieux: "Lieux",
+  prise: "Prise",
+  prises: "Prises",
+  scene: "Scène",
+  scenes: "Scènes",
+  sequence: "Séquence",
+  sequences: "Séquences",
+  plan: "Plan",
+  plans: "Plans",
+  prompt: "Prompt",
+  prompts: "Prompts",
+  modele: "Modèle",
+  modeles: "Modèles",
+  template: "Modèle",
+  templates: "Modèles",
+  moteur: "Moteur",
+  moteurs: "Moteurs",
+  fichier: "Fichier",
+  fichiers: "Fichiers",
+  note: "Note",
+  notes: "Notes",
+};
+
+const FOLDER_MARK: Record<string, string> = {
+  Personnages: "Personnage",
+  "Références": "Référence",
+  Lieux: "Lieu",
+  Prises: "Prise",
+  "Séquences": "Séquence",
+  Plans: "Plan",
+  Prompts: "Prompt",
+  "Modèles": "Modèle",
+  Moteurs: "Moteur",
+  Fichiers: "Fichier",
+  Notes: "Note",
+};
+
+function foldName(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+/** « Modèle · Prise », never the bare stem `prise`. Other section stems get the same mark. */
+export function treeFileLabel(folder: string, file: string): string {
+  const base = (file.split("/").pop() ?? file).replace(/\.[^.]+$/, "");
+  const stem = foldName(base);
+  const prefixed = /^(?:modele|moteur)-(.+)$/.exec(stem);
+  const name = SECTION_LABELS[prefixed?.[1] ?? stem];
+  if (!name) return file;
+  return `${FOLDER_MARK[folder] ?? folder} · ${name}`;
+}
+
+/** Scaffold notes whose stem was a section. The new file wins if it is already there. */
+export const SECTION_FILE_MOVES: readonly [string, string][] = [
+  ["Templates/personnage.md", "Templates/modele-personnage.md"],
+  ["Templates/scene.md", "Templates/modele-scene.md"],
+  ["Templates/prise.md", "Templates/modele-prise.md"],
+  ["Moteurs/personnage.md", "Moteurs/moteur-personnage.md"],
+  ["Moteurs/references.md", "Moteurs/moteur-references.md"],
+  ["Moteurs/lieu.md", "Moteurs/moteur-lieu.md"],
+];
+
+export function rewriteSectionLinks(text: string): string {
+  let next = text;
+  for (const [from, to] of SECTION_FILE_MOVES) {
+    const fromStem = from.replace(/\.md$/, "");
+    const toStem = to.replace(/\.md$/, "");
+    next = next.replaceAll(from, to).replaceAll(fromStem, toStem);
+  }
+  return next;
+}
+
 function fiche(slug: string, type: string, extra: Record<string, string | null> = {}): Record<string, string | null> {
   return {
     type,
@@ -99,10 +177,10 @@ function note(slug: string, type: string, title: string, body: string, extra: Re
 export function scaffoldFiles(slug: string, name: string): { path: string; text: string }[] {
   const root = `Projets/${slug}`;
   const moteurs = [
-    ["references", "prise", "comfy", "Prise · Références", "Les photos de mon studio deviennent une prise, avec le son. Le prix se lit sur le compte de rendu, avant le geste."],
-    ["personnage", "prise", "comfy", "Prise · Personnage", "Les photos de mon studio tiennent le personnage, d’une prise à l’autre, avec le son. Le prix se lit sur le compte de rendu, avant le geste."],
+    ["moteur-references", "prise", "comfy", "Prise · Références", "Les photos de mon studio deviennent une prise, avec le son. Le prix se lit sur le compte de rendu, avant le geste."],
+    ["moteur-personnage", "prise", "comfy", "Prise · Personnage", "Les photos de mon studio tiennent le personnage, d’une prise à l’autre, avec le son. Le prix se lit sur le compte de rendu, avant le geste."],
     ["former", "personnage", "fal", "Former un personnage", "Des clips deviennent un fichier. Les prises suivantes le rechargent. Le prix se lit sur le compte fal, avant le geste."],
-    ["lieu", "scene", "fal", "Former un lieu", "Les vues du lieu deviennent un fichier d’images. Ce n’est pas un volume. Le prix se lit sur le compte fal, avant le geste."],
+    ["moteur-lieu", "scene", "fal", "Former un lieu", "Les vues du lieu deviennent un fichier d’images. Ce n’est pas un volume. Le prix se lit sur le compte fal, avant le geste."],
     ["image", "scene", "fal", "Image d’un lieu", "Le fichier du lieu bâtit une image neuve. Le modèle 3D reste le fichier Blender. Le prix se lit sur le compte fal, avant le geste."],
   ] as const;
   const files: { path: string; text: string }[] = [
@@ -113,9 +191,9 @@ export function scaffoldFiles(slug: string, name: string): { path: string; text:
     { path: `${root}/Sequences/index.md`, text: note(slug, "sequence", "Séquences", "Rien pour l’instant. Une séquence relie des prises de ce projet.") },
     { path: `${root}/Shots/index.md`, text: note(slug, "shot", "Plans", "Rien pour l’instant. Un plan est une prise rangée dans ce projet.") },
     { path: `${root}/Prompts/index.md`, text: note(slug, "prompt", "Prompts", "Briques de phrase pour ce projet. Rien n’est envoyé d’ici.") },
-    { path: `${root}/Templates/personnage.md`, text: note(slug, "template", "Personnage", "Nom, photos, ce qui ne change pas.", { gesture: "personnage" }) },
-    { path: `${root}/Templates/scene.md`, text: note(slug, "template", "Lieu", "Nom, note, images du lieu.", { gesture: "scene" }) },
-    { path: `${root}/Templates/prise.md`, text: note(slug, "template", "Prise", "Phrase, durée, format. Le prix se lit avant le geste.", { gesture: "prise" }) },
+    { path: `${root}/Templates/modele-personnage.md`, text: note(slug, "template", "Modèle · Personnage", "Nom, photos, ce qui ne change pas.", { gesture: "personnage" }) },
+    { path: `${root}/Templates/modele-scene.md`, text: note(slug, "template", "Modèle · Scène", "Nom, note, images du lieu.", { gesture: "scene" }) },
+    { path: `${root}/Templates/modele-prise.md`, text: note(slug, "template", "Modèle · Prise", "Phrase, durée, format. Le prix se lit avant le geste.", { gesture: "prise" }) },
     ...moteurs.map(([id, gesture, moteur, title, body]) => ({
       path: `${root}/Moteurs/${id}.md`,
       text: note(slug, "moteur", title, body, { moteur, gesture }),
@@ -137,10 +215,10 @@ export function projectMocShell(slug: string, name: string): string {
     link("Lexique", "Lexique"),
     link("Journal", "Journal"),
   ].join("\n")}\n\n## Moteurs\n\n${[
-    link("Moteurs/references", "Prise · Références"),
-    link("Moteurs/personnage", "Prise · Personnage"),
+    link("Moteurs/moteur-references", "Prise · Références"),
+    link("Moteurs/moteur-personnage", "Prise · Personnage"),
     link("Moteurs/former", "Former un personnage"),
-    link("Moteurs/lieu", "Former un lieu"),
+    link("Moteurs/moteur-lieu", "Former un lieu"),
     link("Moteurs/image", "Image d’un lieu"),
   ].join("\n")}\n`;
 }

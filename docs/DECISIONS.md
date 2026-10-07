@@ -2,6 +2,14 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## Une section, un dossier — 7 octobre 2026
+
+- **Décision JD :** une section de Mon studio est un dossier de contenu. `Prises/` ne tient que les prises tournées. Un gabarit n’est pas une prise.
+- **Décision :** les gabarits sous `Templates/` s’appellent `modele-personnage.md`, `modele-scene.md`, `modele-prise.md`. L’arbre affiche « Modèle · Personnage », « Modèle · Scène », « Modèle · Prise ». Il n’affiche jamais le stem nu `prise`.
+- **Décision :** la même règle vaut pour tout fichier dont le nom est celui d’une section. Les fiches `Moteurs/personnage.md`, `references.md` et `lieu.md` deviennent `moteur-personnage.md`, `moteur-references.md` et `moteur-lieu.md`. L’arbre les affiche « Moteur · Personnage », « Moteur · Références », « Moteur · Lieu ».
+- **Décision :** à l’ouverture, un projet déjà écrit est renommé quand le nouveau fichier est absent. Le texte reste. Une prise sous `Prises/` n’est pas déplacée. Un fichier déjà au nouveau chemin n’est pas écrasé.
+- **Fait :** aucun crédit n’est dépensé. Obsidian lit le nom de fichier (`modele-prise.md`). L’arbre de l’app dit « Modèle · Prise ».
+
 ## Studio par projet — 7 octobre 2026
 
 - **Décision JD :** un projet est un univers de travail complet. Plusieurs projets vivent sous `Projets/`. La carte racine les liste. La chaîne Personnage → Scène → Prise et la feuille Mon studio ne lisent que le projet en cours.
