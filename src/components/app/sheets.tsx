@@ -247,25 +247,6 @@ export function CoffreSheet() {
       <Why on={!draft.trim()} text={t("why.needName")} />
       <button type="button" className="u-secondary" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
       <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
-      {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
-        {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => {
-          const sequenceId = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
-          const shotId = group.label === "Plans" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
-          const label = say(treeFileLabel(group.label, file));
-          if (sequenceId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>;
-          if (shotId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ shot: shotId })}>{label}</button>;
-          return <span key={file}>{label}</span>;
-        })}</li>)}
-      </ul>}
-      <p className="u-small">{t("sheet.obsidian")}</p>
-      <ul className="u-ledger">
-        <li><span>{t("sheet.referencePhotos")}</span><span>{studio.look.photos.length}</span></li>
-        <li><span>{t("tree.places")}</span><span>{studio.scenes.length}</span></li>
-        <li><span>{t("sheet.clips")}</span><span>{studio.clips.length}</span></li>
-        <li><span>{t("sheet.doubles")}</span><span>{studio.loras.length}</span></li>
-        <li><span>{t("tree.takes")}</span><span>{studio.takes.length}</span></li>
-      </ul>
-      <p className="u-small">{usage}{persisted === false ? t("sheet.usageVolatile") : persisted ? t("sheet.usageHeld") : ""}</p>
       <p className="u-small">{t("sheet.exportLead")}</p>
       <button type="button" className="u-primary" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
       <label className="u-secondary u-file">
@@ -281,6 +262,25 @@ export function CoffreSheet() {
       {linkable && <button type="button" className="u-secondary" onClick={() => void linkFolder()}>{folder ? t("sheet.linkedFolder", { name: folder }) : t("sheet.linkObsidian")}</button>}
       {!linkable && <p className="u-small">{t("sheet.phoneZip")}</p>}
       <p className="u-small">{t("sheet.keysOut")}</p>
+      <ul className="u-ledger">
+        <li><span>{t("sheet.referencePhotos")}</span><span>{studio.look.photos.length}</span></li>
+        <li><span>{t("tree.places")}</span><span>{studio.scenes.length}</span></li>
+        <li><span>{t("sheet.clips")}</span><span>{studio.clips.length}</span></li>
+        <li><span>{t("sheet.doubles")}</span><span>{studio.loras.length}</span></li>
+        <li><span>{t("tree.takes")}</span><span>{studio.takes.length}</span></li>
+      </ul>
+      <p className="u-small">{usage}{persisted === false ? t("sheet.usageVolatile") : persisted ? t("sheet.usageHeld") : ""}</p>
+      <p className="u-small">{t("sheet.obsidian")}</p>
+      {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
+        {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => {
+          const sequenceId = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
+          const shotId = group.label === "Plans" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
+          const label = say(treeFileLabel(group.label, file));
+          if (sequenceId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>;
+          if (shotId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ shot: shotId })}>{label}</button>;
+          return <span key={file}>{label}</span>;
+        })}</li>)}
+      </ul>}
       <div className="u-row">
         <a className="u-link u-muted" href={assetPath("/compte")}>{t("sheet.optionalAccount")}</a>
         {!guide.off && <button type="button" className="u-link u-muted" onClick={guideOff}>{t("sheet.guideOff")}</button>}
