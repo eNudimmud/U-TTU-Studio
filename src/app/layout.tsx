@@ -4,14 +4,10 @@ import "@fontsource-variable/syne";
 import "@fontsource-variable/manrope";
 import "./globals.css";
 import { LocaleProvider, SkipLink } from "@/components/i18n/provider";
+import { loadCatalog } from "@/lib/i18n/catalog";
 import { htmlLang, readLocaleValue, type Locale } from "@/lib/i18n/config";
 import { assetPath, siteOrigin, socialImage } from "@/lib/site";
-import de from "../../messages/de.json";
-import en from "../../messages/en.json";
-import es from "../../messages/es.json";
-import fr from "../../messages/fr.json";
 
-const catalogs = { fr, en, de, es } as const;
 const ogLocale: Record<Locale, string> = { fr: "fr_CH", en: "en_GB", de: "de_DE", es: "es_ES" };
 
 async function requestLocale(): Promise<Locale> {
@@ -21,7 +17,7 @@ async function requestLocale(): Promise<Locale> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await requestLocale();
-  const copy = catalogs[locale].meta;
+  const copy = (await loadCatalog(locale)).meta as { title: string; description: string };
   return {
     metadataBase: new URL(siteOrigin || "http://localhost:3000"),
     title: copy.title,
@@ -49,5 +45,6 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await requestLocale();
-  return <html lang={htmlLang(locale)}><body><LocaleProvider initial={locale}><SkipLink />{children}</LocaleProvider></body></html>;
+  const messages = await loadCatalog(locale);
+  return <html lang={htmlLang(locale)}><body><LocaleProvider initial={locale} messages={messages}><SkipLink />{children}</LocaleProvider></body></html>;
 }

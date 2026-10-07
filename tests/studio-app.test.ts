@@ -29,7 +29,7 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#Former", ""), "lora");
     assert.equal(tabFromLocation("#compte", ""), "compte");
     assert.equal(tabFromLocation("#inconnu", "?step=prise"), "prise");
-    assert.match(read("src/app/studio/page.tsx"), /<StudioApp \/>/);
+    assert.match(read("src/app/studio/page.tsx"), /<StudioApp initialTab=\{initialTab\} \/>/);
   });
 
   it("finishes a take inside the app: no Comfy tab, no Comfy frame as the studio", () => {
@@ -62,8 +62,8 @@ describe("le studio, une app", () => {
     assert.match(sheets, /t\("sheet\.trainDebit"\)/);
     assert.ok(catalog.includes("Former · débit sur mon compte fal"));
     assert.doesNotMatch(read("src/components/app/screens.tsx"), /Former ton double/);
-    const scene = read("src/components/app/screens.tsx");
-    const sceneScreen = scene.slice(scene.indexOf("export function SceneScreen"), scene.indexOf("function clock"));
+    const scene = read("src/components/app/scene-screen.tsx");
+    const sceneScreen = scene.slice(scene.indexOf("export function SceneScreen"));
     assert.match(sceneScreen, /filmAction/);
     assert.match(read("src/lib/render/shot.ts"), /Filmer ce trajet/);
     assert.match(read("src/lib/render/take-graph.ts"), /minimax_h3/);
@@ -81,7 +81,8 @@ describe("le studio, une app", () => {
     assert.ok(catalog.includes("Aucun personnage sur ce lieu."));
     assert.ok(catalog.includes("Aucune prise pour ce lieu."));
     assert.match(read("src/lib/studio-comfort.ts"), /export function vueProjet/);
-    const take = scene.slice(scene.indexOf("export function TakeScreen"), scene.indexOf("export function SphereScreen"));
+    const screens = read("src/components/app/screens.tsx");
+    const take = screens.slice(screens.indexOf("export function TakeScreen"), screens.indexOf("export function SphereScreen"));
     assert.match(take, /t\("shelf\.places"\)/);
     assert.doesNotMatch(take, /Décors|Ce décor/);
     assert.match(take, /t\("shelf\.cast"\)/);
@@ -136,13 +137,13 @@ describe("le studio, une app", () => {
     assert.match(role, /characterPaths/);
     assert.match(role, /u-secondary/);
     const photos = read("src/components/app/screens.tsx");
-    const look = photos.slice(photos.indexOf("export function LookScreen"), photos.indexOf("export function SceneScreen"));
+    const look = photos.slice(photos.indexOf("export function LookScreen"), photos.indexOf("function clock"));
     assert.match(look, /t\("look\.lead"/);
     assert.ok(catalog.includes("Pas de formation."));
     assert.equal(look.match(/u-primary/g)?.length, 1);
     assert.doesNotMatch(chain, /onTrain/);
     assert.match(photos, /t\("look\.reset"\)/);
-    assert.match(photos, /t\("scene\.reset"\)/);
+    assert.match(sceneScreen, /t\("scene\.reset"\)/);
     assert.match(photos, /t\("take\.resetPlan"\)/);
     assert.match(role, /t\("lora\.reset"\)/);
     for (const label of ["Remettre ces références", "Remettre ce lieu à zéro", "Remettre cette prise à zéro", "Remettre ce personnage à zéro"]) {

@@ -54,7 +54,7 @@ describe("dernier contrôle catalogue", () => {
     assert.match(f14, /LoraReduceRankKJ/);
     assert.match(f14, /0 crédit brûlé/);
     assert.match(f14, /`run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés/);
-    const screens = readFileSync("src/components/app/screens.tsx", "utf8");
+    const screens = readFileSync("src/components/app/screens.tsx", "utf8") + readFileSync("src/components/app/scene-screen.tsx", "utf8");
     const sheets = readFileSync("src/components/app/sheets.tsx", "utf8");
     assert.doesNotMatch(screens + sheets, /class_type|SaveLoRA|panneau de nœuds|catalog-watch/);
   });

@@ -7,6 +7,7 @@ import { describe, it } from "node:test";
 import { loadStudio, parseScene, sceneMarkdown, writeText } from "../src/lib/coffre/model.ts";
 import { memoryVault } from "../src/lib/coffre/store.ts";
 import { referencePaths } from "../src/lib/render/references.ts";
+import { PLACE_BLEND_B64 } from "../src/lib/render/place-template.ts";
 import { blenderPath, blenderPose, buildPlaceBlend, defaultCamera, moveCamera, placeVolumes } from "../src/lib/render/previz.ts";
 
 const floatBits = (value: number) => {
@@ -37,6 +38,9 @@ describe("lieu filmé", () => {
     assert.equal(includes(piece, 35), true);
     assert.equal(includes(quai, 85), true);
     assert.notDeepEqual(piece, quai);
+    const served = readFileSync("public/studio/place.blend");
+    const binary = Buffer.from(PLACE_BLEND_B64, "base64");
+    assert.equal(served.equals(binary), true);
   });
 
   it("keeps the camera on the place, and reopening does not require the blend file", async () => {
