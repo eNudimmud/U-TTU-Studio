@@ -434,6 +434,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
 
     {run.phase === "done" && result && media[result.video] && <div ref={resultCard} className="u-card u-result">
       <video ref={video} src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted loop playsInline preload="auto" className={`is-${result.settings.aspect}`} />
+      <p className="u-small">Cette prise est dans la sphère et au coffre.</p>
       <p className="u-small">{result.engine === "lora"
         ? (result.costUsd !== null ? `Débité : ${formatUsd(result.costUsd)}, lu sur ton compte fal.` : "Débit pas encore visible sur ton compte fal.")
         : (result.costCredits !== null ? `Débité : ${formatCredits(result.costCredits)} crédits, lu sur ton solde.` : "Débit pas encore visible sur ton solde.")}{result.gpuSeconds !== null ? ` Calcul : ${clock(result.gpuSeconds)}.` : ""}</p>

@@ -76,6 +76,8 @@ describe("le studio, une app", () => {
     assert.match(take, /weaveBrief/);
     assert.match(take, /Aucun personnage au coffre/);
     assert.match(take, /Aucun lieu au coffre/);
+    assert.match(take, /Cette prise est dans la sphère et au coffre/);
+    assert.match(read("src/components/app/studio-context.tsx"), /castFile\(current\.loras, loraPick\)/);
     assert.doesNotMatch(take, /Relier mon compte/);
     assert.match(take, /aria-label="Régler la prise"/);
     assert.match(take, /className="u-comfort"/);

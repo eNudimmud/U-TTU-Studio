@@ -12,7 +12,7 @@ import { FalError, createFalClient, type FalClient, type FalHandle, type FalPric
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
 import { LORA_TAKE, LORA_TRAINER, PLACE_SCENE, PLACE_TRAINER, loraTakeQuote, placeSceneQuote, placeTrainQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
 import { reduceConnect } from "@/lib/link-epoch";
-import { pickEngine } from "@/lib/studio-comfort";
+import { castFile, pickEngine } from "@/lib/studio-comfort";
 import { CLIPS_MAX, clipFormat, clipProblem, datasetCheck, triggerPhrase, type Clip, type DatasetCheck, type TrainingAspect } from "@/lib/lora/dataset";
 import {
   readLoraTakeFlight, readLoraUploads, readTrainingFlight, saveLoraTakeFlight, saveLoraUploads, saveTrainingFlight,
@@ -1089,18 +1089,29 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const current = studioRef.current;
     const place = current.scenes.find(item => item.id === current.currentScene) ?? null;
     if (engine === "lora") {
-      if (!fal) return;
-      const trained = current.loras.find(item => item.id === loraPick) ?? current.loras[0] ?? null;
-      if (!trained) return;
+      if (!fal) {
+        setSheet("relier");
+        return;
+      }
+      const trained = castFile(current.loras, loraPick);
+      if (!trained) {
+        setSheet(null);
+        setRun({ phase: "error", code: "invalid", message: "Il manque un fichier de personnage.", detail: [] });
+        return;
+      }
       const fresh = await refreshFal();
       const priced = await fal.price(LORA_TAKE).catch(() => null);
       setTakePrice(priced);
       const quote = loraTakeQuote(priced, settings.seconds, loraResolution);
       const freshGate = falGate(fresh, quote, "prise", falOptionalRef.current ? "optional" : "required");
-      if (!freshGate.allowed) return;
+      if (!freshGate.allowed) {
+        setNotice(freshGate.line);
+        return;
+      }
       const vault = store();
       const weights = await vault.get(trained.file);
       if (!weights?.blob) {
+        setSheet(null);
         setRun({ phase: "error", code: "invalid", message: "Le fichier du personnage manque au coffre.", detail: [] });
         return;
       }
@@ -1120,6 +1131,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         pictures.push({ blob: entry.blob, name: `uttu-${pictures.length + 1}.jpg` });
       }
       if (lookCount === 0 && !filmed) {
+        setSheet(null);
         setRun({ phase: "error", code: "invalid", message: place?.render ? "L’image filmée manque au coffre." : "Les photos du look manquent au coffre.", detail: [] });
         return;
       }
@@ -1169,18 +1181,29 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
       return;
     }
-    if (!client) return;
+    if (!client) {
+      setSheet("relier");
+      return;
+    }
     const fresh = await refreshBalance();
     const freshGate = runGate(fresh, claim);
-    if (!fresh || !freshGate.allowed) return;
-    setSheet(null);
-    setRun({ phase: "running", event: { stage: "start" } });
+    if (!fresh || !freshGate.allowed) {
+      setNotice(freshGate.line);
+      return;
+    }
     const vault = store();
     const pictures: { blob: Blob; name: string }[] = [];
     for (const [index, path] of referencePaths(current.look.photos, place).entries()) {
       const entry = await vault.get(path);
       if (entry?.blob) pictures.push({ blob: entry.blob, name: `uttu-${index + 1}.jpg` });
     }
+    if (pictures.length === 0) {
+      setSheet(null);
+      setRun({ phase: "error", code: "invalid", message: "Les photos du look manquent au coffre.", detail: [] });
+      return;
+    }
+    setSheet(null);
+    setRun({ phase: "running", event: { stage: "start" } });
     const lookCount = current.look.photos.length;
     const prompt = takePrompt({
       traits: current.look.traits,
@@ -1214,7 +1237,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setRun({ phase: "error", code: failure.code, message: failure.message, detail: failure.detail });
       abort.current = null;
     }
-  }, [claim, client, engine, fal, finish, finishLora, line, loraPick, loraResolution, refreshBalance, refreshFal, run.phase, settings, store]);
+  }, [claim, client, engine, fal, finish, finishLora, line, loraPick, loraResolution, refreshBalance, refreshFal, run.phase, setNotice, settings, store]);
 
   const cancelRun = useCallback(() => abort.current?.abort(), []);
   const resetRun = useCallback(() => setRun({ phase: "idle" }), []);
