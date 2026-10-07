@@ -30,7 +30,7 @@ Typographie : Syne (titres) et Manrope (texte), auto-hébergées, SIL OFL. Les �
 
 ## U*TTU, la guide
 
-- Son visage, dans la bulle du guide, est le portrait canon (`public/images/uttu-canon-portrait.webp`), recadré en CSS sur le visage : même capuche, mêmes lignes dorées. Aucun autre visage n’est dessiné ni généré.
+- Son visage, dans la bulle du guide, est le portrait canon réduit pour la pastille (`public/images/uttu-guide-face.webp`, 360×540), recadré en CSS sur le visage : même capuche, mêmes lignes dorées. Le fichier plein reste celui de l’accueil. Aucun autre visage n’est dessiné ni généré.
 - Elle parle une phrase, au moment où l’on en a besoin, à l’endroit du geste. Pas de tutoriel en écrans, pas de manuel. « Compris » range la phrase ; « Ne plus guider » coupe la guide. Les phrases : [`src/lib/guide.ts`](../src/lib/guide.ts).
 - Personnage, Scène et Prise gardent en plus une ligne courte, toujours visible. Elle ne se ferme pas. Elle ne nomme pas de nœud.
 - L’accueil garde le portrait, légendé « U*TTU · elle te guide dans le studio ». C’est la seule grande image du site.

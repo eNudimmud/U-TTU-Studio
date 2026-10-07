@@ -18,7 +18,7 @@ export function GuideBubble({ moments }: { moments: readonly (GuideMoment | fals
   const moment = nextMoment(moments, guide);
   if (!moment) return null;
   return <aside className="u-guide" role="note" aria-label="U*TTU" data-moment={moment}>
-    <span className="u-guide-face" style={{ backgroundImage: `url(${assetPath("/images/uttu-canon-portrait.webp")})` }} aria-hidden="true" />
+    <span className="u-guide-face" style={{ backgroundImage: `url(${assetPath("/images/uttu-guide-face.webp")})` }} aria-hidden="true" />
     <div className="u-guide-body">
       <div className="u-guide-head">
         <p className="u-label">U*TTU</p>
