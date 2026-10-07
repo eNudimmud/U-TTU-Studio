@@ -325,7 +325,7 @@ row("train.credits", "Recharge ton compte fal, puis relance. Le solde, en haut, 
 
 row("fiche.kicker", "Fiches", "Sheets", "Karten", "Fichas");
 row("fiche.title", "Ce que le studio lance.", "What the studio launches.", "Was das Studio aufruft.", "Lo que el estudio lanza.");
-row("fiche.lead", `Les gestes déjà branchés se lisent ici. Le débit attend encore le geste, sur l${Q}écran qui le tient.`, "The gestures already wired are read here. The charge still waits for the gesture, on the screen that holds it.", "Die schon verdrahteten Gesten werden hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.", "Los gestos ya conectados se leen aquí. El cargo espera aún el gesto, en la pantalla que lo sostiene.");
+row("fiche.lead", `Les gestes déjà branchés se lisent ici. Le débit attend encore le geste, sur l${Q}écran qui le tient.`, "The gestures already wired are read here. The charge still waits for the gesture, on the screen that holds it.", "Die schon angeschlossenen Gesten werden hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.", "Los gestos ya conectados se leen aquí. El cargo espera aún el gesto, en la pantalla que lo sostiene.");
 row("fiche.needs", "Ce qu’il faut", "What it needs", "Was es braucht", "Lo que hace falta");
 row("fiche.references.name", "Prise · Références", "Take · References", "Take · Referenzen", "Toma · Referencias");
 row("fiche.references.sentence", "Les photos de mon studio deviennent une prise, avec le son.", "The photos in my studio become a take, with the sound.", "Die Fotos in « Mein Studio » werden ein Take, mit Ton.", "Las fotos de mi estudio se vuelven una toma, con el sonido.");

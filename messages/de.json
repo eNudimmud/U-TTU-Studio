@@ -357,7 +357,7 @@
   "fiche": {
     "kicker": "Karten",
     "title": "Was das Studio aufruft.",
-    "lead": "Die schon verdrahteten Gesten werden hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.",
+    "lead": "Die schon angeschlossenen Gesten werden hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.",
     "needs": "Was es braucht",
     "references": {
       "name": "Take · Referenzen",
