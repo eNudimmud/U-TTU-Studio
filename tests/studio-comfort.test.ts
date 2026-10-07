@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { briefAction, castShelf, characterPaths, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, vueProjet, weaveBrief, WIRED_ENGINES } from "../src/lib/studio-comfort.ts";
+import { briefAction, castFile, castShelf, characterPaths, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, vueProjet, weaveBrief, WIRED_ENGINES } from "../src/lib/studio-comfort.ts";
 import { formatUsd } from "../src/lib/fal/prices.ts";
 
 describe("confort studio", () => {
@@ -33,6 +33,20 @@ describe("confort studio", () => {
       { id: "a", name: "Mira" },
       { id: "c", name: "Personnage" },
     ]);
+  });
+
+  it("loads the chosen character file, and never a place file", () => {
+    const files = [
+      { id: "lieu", kind: "lieu" as const, file: "loras/quai.safetensors" },
+      { id: "mira", kind: "personnage" as const, file: "loras/mira.safetensors" },
+      { id: "leo", kind: "personnage" as const, file: "loras/leo.safetensors" },
+    ];
+    assert.equal(castFile(files, "leo")?.id, "leo");
+    assert.equal(castFile(files, "lieu")?.id, "mira");
+    assert.equal(castFile(files, "")?.id, "mira");
+    assert.equal(castFile(files, "absent")?.id, "mira");
+    assert.equal(castFile([{ id: "lieu", kind: "lieu" as const }], "lieu"), null);
+    assert.equal(castFile([], null), null);
   });
 
   it("keeps the two character paths apart, and only prices the file when fal has a quote", () => {

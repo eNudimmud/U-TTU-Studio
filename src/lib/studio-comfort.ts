@@ -55,6 +55,16 @@ export function castShelf(loras: readonly Pick<Lora, "id" | "name" | "kind">[]):
   }));
 }
 
+/** The character a Personnage take loads. Never a place file. An empty or stale pick uses the first character. */
+export function castFile<T extends Pick<Lora, "id" | "kind">>(loras: readonly T[], pickId: string | null): T | null {
+  const people = loras.filter(lora => !isPlaceLora(lora));
+  if (pickId) {
+    const chosen = people.find(lora => lora.id === pickId);
+    if (chosen) return chosen;
+  }
+  return people[0] ?? null;
+}
+
 export interface CharacterPath {
   id: "references" | "fichier";
   title: string;
