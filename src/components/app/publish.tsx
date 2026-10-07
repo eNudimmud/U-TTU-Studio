@@ -41,9 +41,9 @@ export function PublishActions({ take }: { take: Take }) {
   if (!url) return null;
   return <div className="u-publish">
     {canShare
-      ? <button type="button" className="u-primary" onClick={() => void share()}>{t("publish.publish")} <Share /></button>
+      ? <button type="button" className="u-secondary" onClick={() => void share()}>{t("publish.publish")} <Share /></button>
       : <>
-        <a className="u-primary" href={xComposerUrl(caption)} target="_blank" rel="noopener noreferrer" onClick={() => setStatus(t("publish.xDraft"))}>{t("publish.publishX")} <Share /></a>
+        <a className="u-secondary" href={xComposerUrl(caption)} target="_blank" rel="noopener noreferrer" onClick={() => setStatus(t("publish.xDraft"))}>{t("publish.publishX")} <Share /></a>
         <a className="u-secondary" href={url} download={filename}>{t("publish.save")} <Save /></a>
       </>}
     {status && <p className="u-small" role="status">{status}</p>}

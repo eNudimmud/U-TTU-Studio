@@ -67,7 +67,8 @@ describe("texte qui part", () => {
     assert.ok(take.indexOf("className=\"u-primary\"") < take.indexOf("<CinemaGestures anchor />"));
     const sceneFile = read("src/components/app/scene-screen.tsx");
     const scene = sceneFile.slice(sceneFile.indexOf("export function SceneScreen"));
-    assert.ok(scene.indexOf("<OutgoingFilm />") < scene.indexOf("className=\"u-primary\""));
+    assert.ok(scene.indexOf("<OutgoingFilm />") < scene.indexOf("void requestPreviz()"));
+    assert.match(scene, /t\("scene\.setPlace"\)/);
     const sheets = read("src/components/app/sheets.tsx");
     const confirm = sheets.slice(sheets.indexOf("export function ConfirmSheet"), sheets.indexOf("export function FalSheet"));
     assert.ok(confirm.indexOf("<OutgoingTake />") < confirm.indexOf("confirmRun()"));

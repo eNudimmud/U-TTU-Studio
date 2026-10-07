@@ -27,6 +27,9 @@
     "falUnread": "fal-Konto verbunden, Guthaben ungelesen",
     "renderCredits": "Credits des Render-Kontos"
   },
+  "project": {
+    "lead": "Der Name steht schon da: {name}. Eine Geste legt das Projekt an. Du kannst ihn ändern."
+  },
   "landing": {
     "home": "U*TTU Studio — Start",
     "enter": "Studio öffnen",
@@ -55,7 +58,7 @@
     "take-memory": "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.",
     "take-ready": "Ich zeige den Preis vorher. Nichts geht ohne deine Geste.",
     "take-running": "Der Faden läuft. Bleib hier, oder komm später zurück.",
-    "take-done": "Der Take liegt in « Mein Studio ». Veröffentliche ihn mit einer Geste.",
+    "take-done": "Der Take ist da. Eine Geste setzt ihn in einen Shot.",
     "take-double": "Diese Figur hält von Take zu Take. Die Fotos halten den Rest.",
     "lora-name": "Benenne die Figur. Die nächsten Takes halten sie.",
     "lora-photos": "Zwei Fotos dieser Figur. Sie begleiten die Clips.",
@@ -66,6 +69,7 @@
     "lora-running": "Ich lerne diese Figur. Das dauert: komm später zurück.",
     "lora-done": "Die Figur ist in « Mein Studio ». Wähle sie im Take.",
     "sphere-empty": "Deine Takes kommen hier zur Ruhe.",
+    "project-name": "Atelier steht schon da. Eine Geste legt das Projekt an.",
     "understood": "Verstanden",
     "stepCharacter": "Fotos, oder eine Datei. Der Preis wird vor der Geste gelesen.",
     "stepScene": "Ein Drehort, ein Name. Danach der Take. Der Weg wird extra gefilmt.",
@@ -77,7 +81,8 @@
     "needName": "Ein Name fehlt.",
     "needKey": "Der Schlüssel fehlt.",
     "planFresh": "Dieser Take steht schon am Anfang.",
-    "hold": "Die Kalkulation oder das Guthaben hält die Geste zurück."
+    "hold": "Die Kalkulation oder das Guthaben hält die Geste zurück.",
+    "running": "Es läuft schon."
   },
   "verb": {
     "relier": "Verbinden",
@@ -183,6 +188,8 @@
     "noTake": "Kein Take für diesen Drehort.",
     "openTake": "Take öffnen {line}",
     "goTake": "Zum Take",
+    "setPlace": "Diesen Ort setzen",
+    "spaceSummary": "Raumplan und Weg einstellen",
     "passTake": "Du kannst zum Take weitergehen. Den Weg zu filmen ist eine andere Geste.",
     "placeFirst": "Zuerst einen Drehort setzen",
     "placeName": "Name des Drehorts",
@@ -255,6 +262,8 @@
     "linked": "Take hinzugefügt.",
     "removed": "Sequenz entfernt.",
     "play": "Sequenz abspielen",
+    "defaultName": "Sequenz 1",
+    "exportHint": "Du kannst das ZIP von hier mitnehmen, ohne zurückzugehen.",
     "playOff": "Kein Shot in dieser Sequenz. Die Wiedergabe folgt der Reihenfolge der Shots.",
     "now": "Wiedergabe",
     "stop": "Stopp",
@@ -273,6 +282,7 @@
     "lead": "Ein Shot ist ein Kästchen im Storyboard. Er folgt einer Sequenz, dann den Takes, der Reihe nach. Eine kurze Notiz sagt den Rahmen.",
     "name": "Name des Shots",
     "create": "Shot anlegen",
+    "defaultName": "Shot 1",
     "empty": "Kein Shot in diesem Projekt.",
     "emptyHere": "Kein Shot in dieser Sequenz.",
     "open": "{name} öffnen",
@@ -368,7 +378,11 @@
     "examplePlace": "Beispiel · {place}",
     "filmedStill": "Gefilmtes Bild",
     "resetPlan": "Diesen Take zurücksetzen",
-    "next": "Danach: ein Shot, dann eine Sequenz. Der Export liegt in « Mein Studio ».",
+    "next": "Nach Drehen setzt eine Geste den Shot. Der Export liegt auf der Sequenz.",
+    "pose": "Den Shot setzen",
+    "poseHint": "Ein Shot, in einer Sequenz. Die Namen stehen schon da.",
+    "measuredFold": "Einstellung · {seconds} s, {format}, {quality}",
+    "measuredNote": "Die gemessene Kalkulation ist 5 s, vertikal, schnell. Eine andere Einstellung lässt Drehen aus.",
     "nextLabel": "Nach dem Take",
     "stayTakes": "Schon gedrehte Takes bleiben.",
     "gapPhotos": "Zwei Fotos, ein Name und zwei Züge fehlen.",

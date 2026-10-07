@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ROLE_PHOTOS_MAX, isPlaceLora } from "@/lib/coffre/model";
+import { ROLE_PHOTOS_MAX, isPlaceLora, lookCheck } from "@/lib/coffre/model";
+import { DEFAULT_PROJECT_NAME } from "@/lib/coffre/project";
 import { formatUsd } from "@/lib/fal/prices";
 import { problemsAfterTouch } from "@/lib/lora/dataset";
 import type { TrainingEvent } from "@/lib/lora/train";
@@ -9,6 +10,7 @@ import { characterPaths } from "@/lib/studio-comfort";
 import { useI18n } from "@/components/i18n/provider";
 import { Why } from "./guide-bubble";
 import { Arrow, Close } from "./glyphs";
+import { completeLook, LookFields } from "./look-form";
 import { OutgoingPersonnage } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { PictureSlot, Segments } from "./slots";
@@ -34,28 +36,45 @@ function trainLabel(t: ReturnType<typeof useI18n>["t"], event: TrainingEvent): s
   }
 }
 
-export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = false }: { onTake(): void; onScene(): void; onPhotos(): void; choice: number; startFile?: boolean }) {
+export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile }: { onTake(): void; onScene(): void; onPhotos(): void; choice: number; startFile?: boolean; onFile?(file: boolean): void }) {
   const studio = useStudio();
   const { t, say } = useI18n();
   const {
     studio: vault, media, dataset, falLinked, falBalance, training, trainingSteps, setTrainingSteps,
     trainQuote, trainGate, addClips, removeClip, requestTraining, cancelTraining, resetTraining, resumeTraining, deleteLora, setEngine, setLora, setSheet,
-    saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole,
+    saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, ready, createNamedProject,
   } = studio;
   const role = vault.role;
   const done = training.phase === "done" ? vault.loras.find(lora => lora.id === training.loraId) : undefined;
   const dirty = Boolean(role.name || role.photos.length || vault.clips.length);
   const [file, setFile] = useState(false);
+  const [projectName, setProjectName] = useState(DEFAULT_PROJECT_NAME);
   const [touch, setTouch] = useState({ name: false, photos: false, clips: false, submit: false });
   useEffect(() => { setFile(startFile); }, [choice, startFile]);
+  useEffect(() => { onFile?.(file || training.phase !== "idle"); }, [file, onFile, training.phase]);
   const problems = problemsAfterTouch(dataset.problems, touch);
   const showFile = file || training.phase !== "idle";
   const paths = characterPaths({ falLinked, quote: trainQuote, steps: trainingSteps });
+  const referencesReady = lookCheck(vault.look);
+
+  if (ready && !vault.project) return <section className="u-screen" aria-labelledby="u-title">
+    <header className="u-head">
+      <p className="u-label">{t("lora.kicker")}</p>
+      <h1 id="u-title" tabIndex={-1}>{t("sheet.projectName")}</h1>
+      <p className="u-micro">{t("project.lead", { name: DEFAULT_PROJECT_NAME })}</p>
+    </header>
+    <label className="u-field">
+      <span className="u-label">{t("sheet.projectName")}</span>
+      <input value={projectName} maxLength={40} aria-label={t("sheet.projectName")} autoComplete="off" onChange={event => setProjectName(event.target.value.slice(0, 40))} />
+    </label>
+    <button type="button" className="u-primary" disabled={!projectName.trim()} onClick={() => void createNamedProject(projectName.trim())}>{t("sheet.createProject")} <Arrow /></button>
+    <Why on={!projectName.trim()} text={t("why.needName")} />
+  </section>;
 
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">{t("lora.kicker")}</p>
-      <h1 id="u-title" tabIndex={-1}>{showFile ? t("lora.trainTitle") : t("lora.twoWays")}</h1>
+      <h1 id="u-title" tabIndex={-1}>{showFile ? t("lora.trainTitle") : t("look.title")}</h1>
       <p className="u-micro">{t("guide.stepCharacter")}</p>
       <button type="button" className="u-link" onClick={() => setSheet("coffre")}>{t("sheet.openProject", { name: vault.projectName || t("common.unnamed") })}</button>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "lora" })}>{t("job.outputs")}</button>
@@ -82,14 +101,21 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
 
     {training.phase === "error" && <TrainError training={training} onReset={resumeTraining} onRelink={() => { resetTraining(); setSheet("fal"); }} onOutputs={() => setSheet({ outputs: "lora" })} />}
 
-    {!showFile && <div className="u-desk u-paths" aria-label={t("path.aria")}>
-      {paths.map(path => <article key={path.id} className="u-card">
-        <h2>{t(`path.${path.id}.title`)}</h2>
-        <p>{path.id === "references"
-          ? t("path.references.body", { engine: t("engine.comfy.label") })
-          : t("path.fichier.body", { price: !falLinked ? t("runtime.linkFalFirst") : trainQuote === null ? t("runtime.falPriceBeforeShort") : t("runtime.trainQuote", { amount: formatUsd(trainQuote), steps: trainingSteps }), engine: t("engine.lora.label") })}</p>
-        <button type="button" className="u-secondary" onClick={path.id === "references" ? onPhotos : () => setFile(true)}>{path.id === "references" ? t("path.references.action") : t("verb.trainFile")}</button>
-      </article>)}
+    {!showFile && <div className="u-desk">
+      <LookFields />
+      <button type="button" className="u-primary" onClick={() => completeLook(referencesReady, onScene)}>{referencesReady.ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>
+      <details className="u-fold">
+        <summary>{t("lora.twoWays")}</summary>
+        <div className="u-desk u-paths" aria-label={t("path.aria")}>
+          {paths.map(path => path.id === "references"
+            ? <p key={path.id} className="u-small">{t("path.references.body", { engine: t("engine.comfy.label") })}</p>
+            : <article key={path.id} className="u-card">
+              <h2>{t("path.fichier.title")}</h2>
+              <p>{t("path.fichier.body", { price: !falLinked ? t("runtime.linkFalFirst") : trainQuote === null ? t("runtime.falPriceBeforeShort") : t("runtime.trainQuote", { amount: formatUsd(trainQuote), steps: trainingSteps }), engine: t("engine.lora.label") })}</p>
+              <button type="button" className="u-secondary" onClick={() => setFile(true)}>{t("verb.trainFile")}</button>
+            </article>)}
+        </div>
+      </details>
     </div>}
     {!showFile && <ProjectMemory />}
 

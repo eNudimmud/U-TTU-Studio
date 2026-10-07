@@ -27,6 +27,9 @@
     "falUnread": "Compte fal relié, solde non lu",
     "renderCredits": "Crédits du compte de rendu"
   },
+  "project": {
+    "lead": "Le nom est déjà écrit : {name}. Un geste crée le projet. Tu peux le changer."
+  },
   "landing": {
     "home": "U*TTU Studio — Accueil",
     "enter": "Entrer dans le studio",
@@ -55,7 +58,7 @@
     "take-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
     "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
     "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
-    "take-done": "La prise est dans mon studio. Publie-la d’un geste.",
+    "take-done": "La prise est là. Un geste la pose dans un plan.",
     "take-double": "Ce personnage tient d’une prise à l’autre. Les photos tiennent le reste.",
     "lora-name": "Nomme le personnage. C’est lui que les prises suivantes tiennent.",
     "lora-photos": "Deux photos de ce personnage. Elles accompagnent les clips.",
@@ -66,6 +69,7 @@
     "lora-running": "J’apprends ce personnage. C’est long : reviens plus tard.",
     "lora-done": "Le personnage est dans mon studio. Choisis-le dans La prise.",
     "sphere-empty": "Tes prises viendront se poser ici.",
+    "project-name": "Atelier est écrit. Un geste crée le projet.",
     "understood": "Compris",
     "stepCharacter": "Photos, ou un fichier. Le prix se lit avant le geste.",
     "stepScene": "Un lieu, un nom. Ensuite, la prise. Le trajet se filme à part.",
@@ -77,7 +81,8 @@
     "needName": "Il manque un nom.",
     "needKey": "Il manque la clé.",
     "planFresh": "Cette prise est déjà au départ.",
-    "hold": "Le devis ou le solde ne laisse pas partir."
+    "hold": "Le devis ou le solde ne laisse pas partir.",
+    "running": "Ça tourne déjà."
   },
   "verb": {
     "relier": "Relier",
@@ -183,6 +188,8 @@
     "noTake": "Aucune prise pour ce lieu.",
     "openTake": "Ouvrir la prise {line}",
     "goTake": "Aller à la prise",
+    "setPlace": "Poser ce lieu",
+    "spaceSummary": "Régler l’espace et le trajet",
     "passTake": "Tu peux passer à la prise. Filmer le trajet est un autre geste.",
     "placeFirst": "Pose d’abord un lieu",
     "placeName": "Nom du lieu",
@@ -255,6 +262,8 @@
     "linked": "Prise ajoutée.",
     "removed": "Séquence retirée.",
     "play": "Lire la séquence",
+    "defaultName": "Séquence 1",
+    "exportHint": "Tu peux emporter le ZIP d’ici, sans revenir en arrière.",
     "playOff": "Aucun plan dans cette séquence. La lecture suit l’ordre des plans.",
     "now": "Lecture",
     "stop": "Arrêter",
@@ -273,6 +282,7 @@
     "lead": "Un plan est une case du storyboard. Il suit une séquence, puis des prises, dans l’ordre. Une note courte dit le cadre.",
     "name": "Nom du plan",
     "create": "Créer le plan",
+    "defaultName": "Plan 1",
     "empty": "Aucun plan dans ce projet.",
     "emptyHere": "Aucun plan dans cette séquence.",
     "open": "Ouvrir {name}",
@@ -368,7 +378,11 @@
     "examplePlace": "Exemple · {place}",
     "filmedStill": "Image filmée",
     "resetPlan": "Remettre cette prise à zéro",
-    "next": "Ensuite : un plan, puis une séquence. L’export est dans Mon studio.",
+    "next": "Après Tourner, un geste pose le plan. L’export est sur la séquence.",
+    "pose": "Poser le plan",
+    "poseHint": "Un plan, dans une séquence. Les noms sont déjà écrits.",
+    "measuredFold": "Réglage · {seconds} s, {format}, {quality}",
+    "measuredNote": "Le devis mesuré est 5 s, vertical, rapide. Un autre réglage éteint Tourner.",
     "nextLabel": "Après la prise",
     "stayTakes": "Les prises déjà tournées restent.",
     "gapPhotos": "Il manque deux photos, un nom et deux traits.",

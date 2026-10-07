@@ -144,7 +144,7 @@ describe("le studio, une app", () => {
     assert.ok(catalog.includes("Pas de formation."));
     assert.equal(look.match(/u-primary/g)?.length, 1);
     assert.doesNotMatch(chain, /onTrain/);
-    assert.match(photos, /t\("look\.reset"\)/);
+    assert.match(read("src/components/app/look-form.tsx"), /t\("look\.reset"\)/);
     assert.match(sceneScreen, /t\("scene\.reset"\)/);
     assert.match(photos, /t\("take\.resetPlan"\)/);
     assert.match(role, /t\("lora\.reset"\)/);

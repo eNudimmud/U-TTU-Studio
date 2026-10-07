@@ -27,6 +27,9 @@
     "falUnread": "Cuenta fal vinculada, saldo no leído",
     "renderCredits": "Créditos de la cuenta de render"
   },
+  "project": {
+    "lead": "El nombre ya está escrito: {name}. Un gesto crea el proyecto. Puedes cambiarlo."
+  },
   "landing": {
     "home": "U*TTU Studio — Inicio",
     "enter": "Entrar al estudio",
@@ -55,7 +58,7 @@
     "take-memory": "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa.",
     "take-ready": "Muestro el coste antes. Nada sale sin tu gesto.",
     "take-running": "El hilo rueda. Quédate, o vuelve más tarde.",
-    "take-done": "La toma está en mi estudio. Publícala con un gesto.",
+    "take-done": "La toma está aquí. Un gesto la pone en una viñeta.",
     "take-double": "Este personaje se sostiene de una toma a la otra. Las fotos sostienen el resto.",
     "lora-name": "Nombra el personaje. Las tomas siguientes lo sostienen.",
     "lora-photos": "Dos fotos de este personaje. Acompañan los clips.",
@@ -66,6 +69,7 @@
     "lora-running": "Aprendo este personaje. Lleva tiempo: vuelve más tarde.",
     "lora-done": "El personaje está en mi estudio. Elígelo en la toma.",
     "sphere-empty": "Tus tomas vendrán a posarse aquí.",
+    "project-name": "Atelier ya está escrito. Un gesto crea el proyecto.",
     "understood": "Entendido",
     "stepCharacter": "Fotos, o un archivo. El precio se lee antes del gesto.",
     "stepScene": "Una localización, un nombre. Luego, la toma. El recorrido se filma aparte.",
@@ -77,7 +81,8 @@
     "needName": "Falta un nombre.",
     "needKey": "Falta la clave.",
     "planFresh": "Esta toma ya está al inicio.",
-    "hold": "El presupuesto o el saldo frena el gesto."
+    "hold": "El presupuesto o el saldo frena el gesto.",
+    "running": "Ya está en curso."
   },
   "verb": {
     "relier": "Vincular",
@@ -183,6 +188,8 @@
     "noTake": "Ninguna toma para esta localización.",
     "openTake": "Abrir la toma {line}",
     "goTake": "Ir a la toma",
+    "setPlace": "Poner este lugar",
+    "spaceSummary": "Ajustar el plano de espacio y el recorrido",
     "passTake": "Puedes pasar a la toma. Filmar el recorrido es otro gesto.",
     "placeFirst": "Coloca primero una localización",
     "placeName": "Nombre de la localización",
@@ -255,6 +262,8 @@
     "linked": "Toma añadida.",
     "removed": "Secuencia quitada.",
     "play": "Reproducir la secuencia",
+    "defaultName": "Secuencia 1",
+    "exportHint": "Puedes llevarte el ZIP desde aquí, sin volver atrás.",
     "playOff": "Ninguna viñeta en esta secuencia. La reproducción sigue el orden de las viñetas.",
     "now": "Lectura",
     "stop": "Parar",
@@ -273,6 +282,7 @@
     "lead": "Una viñeta es una casilla del storyboard. Sigue una secuencia, luego tomas, en orden. Una nota breve dice el encuadre.",
     "name": "Nombre de la viñeta",
     "create": "Crear la viñeta",
+    "defaultName": "Viñeta 1",
     "empty": "Ninguna viñeta en este proyecto.",
     "emptyHere": "Ninguna viñeta en esta secuencia.",
     "open": "Abrir {name}",
@@ -368,7 +378,11 @@
     "examplePlace": "Ejemplo · {place}",
     "filmedStill": "Imagen filmada",
     "resetPlan": "Restablecer esta toma",
-    "next": "Luego: una viñeta, y una secuencia. La exportación está en Mi estudio.",
+    "next": "Después de Rodar, un gesto pone la viñeta. La exportación está en la secuencia.",
+    "pose": "Poner la viñeta",
+    "poseHint": "Una viñeta, en una secuencia. Los nombres ya están escritos.",
+    "measuredFold": "Ajuste · {seconds} s, {format}, {quality}",
+    "measuredNote": "El presupuesto medido es 5 s, vertical, rápido. Otro ajuste deja Rodar apagado.",
     "nextLabel": "Después de la toma",
     "stayTakes": "Las tomas ya rodadas quedan.",
     "gapPhotos": "Faltan dos fotos, un nombre y dos rasgos.",
