@@ -356,6 +356,70 @@ export function Segments<T extends string | number>({ label, value, options, onC
   </fieldset>;
 }
 
+export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sphere"): void }) {
+  const studio = useStudio();
+  const { media, scene, line, setLine, setSheet, setEngine, chosenLora, setLora, selectScene } = studio;
+  const cast = castShelf(studio.studio.loras);
+  const decor = decorShelf(studio.studio.scenes);
+  const who = chosenLora?.name.trim() ?? "";
+  const place = scene?.name.trim() ?? "";
+
+  function chooseCast(id: string) {
+    const person = cast.find(item => item.id === id);
+    if (!person) return;
+    setEngine("lora");
+    setLora(person.id);
+    setLine(weaveBrief({ who: person.name, place, action: briefAction(line, who, place) }));
+  }
+
+  function choosePlace(id: string) {
+    const next = studio.studio.scenes.find(item => item.id === id);
+    if (!next) return;
+    void selectScene(next.id);
+    setLine(weaveBrief({ who, place: next.name.trim(), action: briefAction(line, who, place) }));
+  }
+
+  return <aside className="u-plateau" aria-label="Étagère">
+    <div className="u-stack">
+      <p className="u-label">Distribution</p>
+      {cast.length === 0
+        ? <button type="button" className="u-link" onClick={() => go("lora")}>Aucun personnage au coffre</button>
+        : <div className="u-scenes" role="radiogroup" aria-label="Distribution">
+          {cast.map(person => <button key={person.id} type="button" role="radio" aria-checked={chosenLora?.id === person.id} className="u-scene" onClick={() => chooseCast(person.id)}>
+            <span className="u-scene-empty">{person.name.slice(0, 1)}</span>
+            <span>{person.name}</span>
+          </button>)}
+        </div>}
+    </div>
+    <div className="u-stack">
+      <p className="u-label">Lieux</p>
+      {decor.length === 0
+        ? <button type="button" className="u-link" onClick={() => go("scene")}>Aucun lieu au coffre</button>
+        : <div className="u-scenes" role="radiogroup" aria-label="Décors">
+          {decor.map(item => {
+            const held = studio.studio.scenes.find(sceneItem => sceneItem.id === item.id);
+            const still = held?.render ?? held?.stills[0];
+            return <button key={item.id} type="button" role="radio" aria-checked={scene?.id === item.id} className="u-scene" onClick={() => choosePlace(item.id)}>
+              {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
+              <span>{item.name}</span>
+            </button>;
+          })}
+        </div>}
+    </div>
+    <div className="u-stack">
+      <p className="u-label">Prises</p>
+      {studio.studio.takes.length === 0
+        ? <button type="button" className="u-link" onClick={() => go("sphere")}>Aucune prise au coffre</button>
+        : <div className="u-scenes">
+          {studio.studio.takes.map(take => <button key={take.id} type="button" className="u-scene" onClick={() => setSheet({ take: take.id })}>
+            {take.poster && media[take.poster] ? <img src={media[take.poster]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
+            <span>{take.line || take.sceneName || "Prise"}</span>
+          </button>)}
+        </div>}
+    </div>
+  </aside>;
+}
+
 export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): void; goScene(): void; goSphere(): void; goLora(): void }) {
   const studio = useStudio();
   const { media, scene, line, setLine, settings, setSettings, gate, connected, balance, run, requestRun, cancelRun, resetRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
@@ -532,34 +596,6 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
       <button type="button" className="u-link u-muted" disabled={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={resetTake}>Remettre ce plan à zéro</button>
       <p className="u-small">Les prises déjà tournées restent.</p>
       </div>
-      <aside className="u-shelf" aria-label="Étagère">
-        <div className="u-stack">
-          <p className="u-label">Distribution</p>
-          {cast.length === 0
-            ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre</button>
-            : <div className="u-scenes" role="radiogroup" aria-label="Distribution">
-              {cast.map(person => <button key={person.id} type="button" role="radio" aria-checked={chosenLora?.id === person.id} className="u-scene" onClick={() => chooseCast(person.id)}>
-                <span className="u-scene-empty">{person.name.slice(0, 1)}</span>
-                <span>{person.name}</span>
-              </button>)}
-            </div>}
-        </div>
-        <div className="u-stack">
-          <p className="u-label">Lieux</p>
-          {studio.studio.scenes.length === 0
-            ? <button type="button" className="u-link" aria-label="Décors" onClick={goScene}>Aucun lieu au coffre</button>
-            : <div className="u-scenes" role="radiogroup" aria-label="Décors">
-              {decor.map(item => {
-                const place = studio.studio.scenes.find(sceneItem => sceneItem.id === item.id);
-                const still = place?.render ?? place?.stills[0];
-                return <button key={item.id} type="button" role="radio" aria-checked={scene?.id === item.id} className="u-scene" onClick={() => choosePlace(item.id)}>
-                  {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
-                  <span>{item.name}</span>
-                </button>;
-              })}
-            </div>}
-        </div>
-      </aside>
     </div>}
   </section>;
 }

@@ -4,10 +4,10 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 
 ## Deux peaux — 7 octobre 2026
 
-- **Demande JD :** une peau téléphone et une peau bureau, le même coffre. Pas de dépense Comfy.
-- **Décision :** sous 720 px, la feuille prend toute la hauteur et la chaîne Personnage → Scène → Prise reste en bas. Pas de rail.
-- **Décision :** de 720 à 1079 px, la colonne passe à 720 px, la chaîne reste en bas, la feuille redevient une carte.
-- **Décision :** à partir de 1080 px, le rail de 232 px tient la chaîne. La prise montre l’étagère des personnages et des lieux à côté du geste or. Les listes compactes restent pour le téléphone.
+- **Demande JD :** une peau téléphone et une peau bureau, le même coffre. Pas de dépense Comfy. Le bureau n’est pas la colonne du téléphone élargie.
+- **Décision :** sous 720 px, la poche reste. La feuille prend toute la hauteur. La chaîne Personnage → Scène → Prise reste en bas, au pouce. Pas de rail, pas d’étagère.
+- **Décision :** de 720 à 1079 px, la colonne passe à 720 px, la chaîne reste en bas, la feuille redevient une carte. Le rail n’apparaît pas.
+- **Décision :** à partir de 1080 px, le plateau a trois zones. Le rail de 232 px tient la chaîne. L’étagère de 300 px, à droite, montre en permanence la distribution, les lieux et les prises du coffre. Le travail est au centre. La feuille s’ouvre en panneau dans cette zone, entre le rail et l’étagère. Elle ne couvre pas l’écran.
 - **Fait :** les payeurs des fiches ne changent pas. Aucun graphe Comfy n’est ajouté. `SaveLoRA` reste absent.
 
 ## Coffre, carte Obsidian — 7 octobre 2026
@@ -245,7 +245,7 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 
 | Décision | Par | Date |
 | --- | --- | --- |
-| Deux peaux, même coffre. Sous 720 px : feuille pleine hauteur, chaîne en bas. De 720 à 1079 px : colonne 720 px, chaîne en bas, feuille carte. Dès 1080 px : rail 232 px et étagère distribution / lieux sur La prise. | JD (brief futur, tranche F2) + livraison | 2026-10-07 |
+| Deux peaux, même coffre. Sous 720 px : poche, feuille pleine hauteur, chaîne en bas. De 720 à 1079 px : colonne 720 px, chaîne en bas, feuille carte. Dès 1080 px : rail 232 px, étagère permanente (distribution, lieux, prises) de 300 px, travail au centre, feuille en panneau. | JD (brief futur, tranche F2) + livraison | 2026-10-07 |
 | Coffre second cerveau : `MOC.md` tenu par l’app, wikilinks vers look, personnages, lieux, prises et journal. Export ZIP avec la carte. Import ZIP en fusion, sans effacer une prise ou un personnage déjà là. Pas de sync serveur. | JD (brief futur, tranche F1) + livraison | 2026-10-07 |
 | Former son double sur le compte fal de l’adhérent (`minimax/h3/ref2va/trainer`), fichier `.safetensors` au coffre, rechargé par `minimax/h3/reference-to-video/lora`. Page dédiée, devis avant le geste, bouton éteint sans solde lisible. Comfy Cloud ne fait toujours pas ce chemin. Clé Admin fal sur l’appareil seulement. | JD (rejet du constat seul) + livraison | 2026-10-03 |
 | Pas de page de formation sur Comfy Cloud : `TrainLoraNode` ne peut pas être enregistré en fichier (`SaveLoRA` absent), et une prise ne charge que les LoRA de la bibliothèque du compte. Pas de LoRA Flux branché à H3. Constat tenu ; le produit passe par fal. | JD (demande) + livraison (constat) | 2026-10-03 |
