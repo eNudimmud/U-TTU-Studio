@@ -2,6 +2,15 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F9 — watch SaveLoRA / template lieu — 7 octobre 2026
+
+- **Fait :** relecture du catalogue Comfy Cloud le 7 octobre 2026, découverte seulement (`get_node`, `search_templates`, et le filtre `LORA_MODEL` déjà lu le même jour). Pas de `refresh` forcé : le catalogue rendu est `source: live`, `refreshed_at` `2026-10-07T15:24:41.277Z`, `node_count` 3772, le même compte qu’en F3.
+- **Fait :** `missing` contient `SaveLoRA`, `SaveLora`, `SaveLoRANode`, `LoraSave` et `SaveLoraNode`. Le seul nom résolu est `TrainLoraNode` (pack `core`, catégorie `model/training`, libellé « Train LoRA »). Sorties : `LORA_MODEL`, `LOSS_MAP`, `INT`. `output_node` est faux. Il n’écrit pas de fichier. Le champ `existing_lora` a pour défaut `[None]` et pour infobulle « The existing LoRA to append to. Set to None for new LoRA. » Un LoRA neuf ne vit que le temps du run. Le filtre `output_type: LORA_MODEL` ne renvoie que ce nœud : aucun autre n’écrit le fichier à sa place.
+- **Fait :** `search_templates` avec « establishing » entre guillemets renvoie 0. Aucun template n’est nommé pour bâtir une image depuis le fichier d’un lieu. Trois templates d’environnement ont été lus et refusés, parce qu’ils ne partent pas du lieu du projet : `templates_text_prompt_to_360hdr.app` (« Equirectangular HDR Skybox Generator », un ciel équirectangulaire depuis un prompt), `template_qwen_Image_2512_360_lora` (texte vers panorama), `3d_moge_panorama_to_mesh` (panorama vers mesh). `templates-character_sheet` (« 360 Full-body Turnaround ») est toujours publié. Ce n’est pas l’image d’un lieu, et F3 a déjà noté que l’estimateur refuse un total de run. Il n’a pas été re-chiffré.
+- **Fait :** `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Il n’y a pas de candidat à chiffrer. 0 crédit brûlé. L’outil `estimate_credits` se décrit comme une lecture qui ne soumet rien ; l’appeler sans nœud ni template nommé ne produit pas un devis de geste.
+- **Décision :** « Image d’un lieu » reste hors écran. Former un fichier Comfy reste non branché. `src/lib/comfy/catalog-watch.ts` tient ce dernier contrôle : les deux drapeaux restent faux tant qu’un nœud ou un template nommé n’a pas un devis de run qui soit un nombre.
+- **Hypothèse :** le fichier Comfy revient quand un nœud nommé écrit un fichier que Mon studio peut garder, et qu’un devis de run est un nombre. L’image d’un lieu revient quand un template Cloud est nommé pour cette image, et que ce devis est un nombre.
+
 ## F8 — séquences / raccords — 7 octobre 2026
 
 - **Décision :** une séquence est une note du projet, `Projets/<projet>/Sequences/<id>.md`. Elle tient des prises déjà filmées, dans l’ordre. Entre deux, le raccord est une ligne : lumière, regard, mouvement, objet. La première prise n’a pas de raccord. Pas de graphe, pas de panneau de nœuds.

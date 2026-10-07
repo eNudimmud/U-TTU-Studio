@@ -49,7 +49,7 @@ function renduCost(live: string | null): string {
   return `Exemple · ${rate} crédit par seconde de calcul, sur le compte de rendu. Rien n’est débité ici.`;
 }
 
-/** Wired jobs only. « Image d’un lieu » stays off until a Cloud template has a whole-run quote. */
+/** Wired jobs only. Image d’un lieu and a Comfy trained file stay off: see catalog-watch. */
 export function workflowFiches(quotes: FicheQuotes, sample: { seconds: number; resolution: LoraResolution; steps: number }): readonly WorkflowFiche[] {
   const formExample = FAL_PUBLISHED.trainerPerStep * sample.steps;
   const rendu = renduCost(quotes.rendu);
