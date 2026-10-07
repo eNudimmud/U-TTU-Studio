@@ -40,7 +40,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { themeColor: "#0B0A09", colorScheme: "dark", viewportFit: "cover" };
+export const viewport: Viewport = {
+  themeColor: "#0B0A09",
+  colorScheme: "dark",
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+};
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await requestLocale();

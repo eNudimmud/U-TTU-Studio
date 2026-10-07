@@ -10,13 +10,15 @@ import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
-import { CinemaGestures } from "./cinema-gestures";
+import dynamic from "next/dynamic";
 import { OutgoingFilm, OutgoingLieu, OutgoingTake } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { Arrow, Close, Plus, Web } from "./glyphs";
 import { PublishActions } from "./publish";
 import { useStudio, type PrevizState, type RunState } from "./studio-context";
+
+const CinemaGestures = dynamic(() => import("./cinema-gestures").then(mod => mod.CinemaGestures));
 
 export function PictureSlot({ index, url, onAdd, onRemove, label }: { index: number; url?: string; onAdd(files: File[]): void; onRemove?(): void; label: string }) {
   const { t } = useI18n();

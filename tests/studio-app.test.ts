@@ -243,7 +243,8 @@ describe("le studio, une app", () => {
       assert.doesNotMatch(line, /\b(comfy|fal|lora|flux|seedance|night city)\b/i, moment);
     }
     const bubble = read("src/components/app/guide-bubble.tsx");
-    assert.match(bubble, /\/images\/uttu-canon-portrait\.webp/, "her face comes from the canon portrait");
+    assert.match(bubble, /\/images\/uttu-guide-face\.webp/, "her face is the scaled canon portrait");
+    assert.match(read("src/components/landing/home.tsx"), /\/images\/uttu-canon-portrait\.webp/);
     assert.equal(nextMoment(["look-photos", "look-name"], { off: false, seen: ["look-photos"] }), "look-name");
     assert.equal(nextMoment(["look-photos"], { off: true, seen: [] }), null);
     assert.equal(nextMoment([false, null, "take-ready"], { off: false, seen: [] }), "take-ready");

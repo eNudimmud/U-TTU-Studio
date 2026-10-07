@@ -1,21 +1,39 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { lookCheck } from "@/lib/coffre/model";
 import { memoryFilled } from "@/lib/coffre/memory";
 import type { GuideMoment } from "@/lib/guide";
+import { liftDelta } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
 import { resumeTab, TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import type { WorkflowFiche } from "@/lib/workflow-fiches";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
-import { FichesScreen } from "./fiches-screen";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, PlateauShelf, SceneScreen, SphereScreen, TakeScreen } from "./screens";
-import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, MemorySheet, OutputsSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, SequenceSheet, ShotSheet, TrainConfirmSheet } from "./sheets";
+
+const FichesScreen = dynamic(() => import("./fiches-screen").then(mod => mod.FichesScreen));
+const BlenderSheet = dynamic(() => import("./sheets").then(mod => mod.BlenderSheet));
+const CoffreSheet = dynamic(() => import("./sheets").then(mod => mod.CoffreSheet));
+const ConfirmSheet = dynamic(() => import("./sheets").then(mod => mod.ConfirmSheet));
+const ConnectSheet = dynamic(() => import("./sheets").then(mod => mod.ConnectSheet));
+const CreditSheet = dynamic(() => import("./sheets").then(mod => mod.CreditSheet));
+const FalSheet = dynamic(() => import("./sheets").then(mod => mod.FalSheet));
+const MemorySheet = dynamic(() => import("./sheets").then(mod => mod.MemorySheet));
+const OutputsSheet = dynamic(() => import("./sheets").then(mod => mod.OutputsSheet));
+const PlaceSceneSheet = dynamic(() => import("./sheets").then(mod => mod.PlaceSceneSheet));
+const PlaceTrainSheet = dynamic(() => import("./sheets").then(mod => mod.PlaceTrainSheet));
+const PlayerSheet = dynamic(() => import("./sheets").then(mod => mod.PlayerSheet));
+const PrevizConfirmSheet = dynamic(() => import("./sheets").then(mod => mod.PrevizConfirmSheet));
+const RelierSheet = dynamic(() => import("./sheets").then(mod => mod.RelierSheet));
+const SequenceSheet = dynamic(() => import("./sheets").then(mod => mod.SequenceSheet));
+const ShotSheet = dynamic(() => import("./sheets").then(mod => mod.ShotSheet));
+const TrainConfirmSheet = dynamic(() => import("./sheets").then(mod => mod.TrainConfirmSheet));
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
@@ -37,6 +55,7 @@ function AppFrame() {
   const [choice, setChoice] = useState(0);
   const [startFile, setStartFile] = useState(false);
   const [sceneFocus, setSceneFocus] = useState<"vues" | "image" | null>(null);
+  const [desk, setDesk] = useState(false);
 
   useEffect(() => {
     const apply = () => {
@@ -75,6 +94,51 @@ function AppFrame() {
     const timer = window.setTimeout(() => setNotice(""), 5000);
     return () => window.clearTimeout(timer);
   }, [notice, setNotice]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1080px)");
+    const apply = () => setDesk(media.matches);
+    apply();
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, []);
+
+  useEffect(() => {
+    let frame = 0;
+    let timer = 0;
+    const lift = () => {
+      const el = document.activeElement;
+      if (!(el instanceof HTMLElement) || !el.matches("input, textarea, select") || !el.closest(".u-app")) return;
+      const chain = document.querySelector(".u-chain")?.getBoundingClientRect();
+      const header = document.querySelector(".u-top")?.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      const bandTop = (header?.bottom ?? 0) + 8;
+      const bandBottom = Math.min(chain?.top ?? visibleBottom, visibleBottom) - 12;
+      const rect = el.getBoundingClientRect();
+      const delta = liftDelta(rect, bandTop, bandBottom);
+      if (delta !== 0) window.scrollBy(0, delta);
+    };
+    const schedule = () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      frame = window.requestAnimationFrame(() => {
+        lift();
+        frame = window.requestAnimationFrame(lift);
+      });
+      timer = window.setTimeout(lift, 80);
+    };
+    document.addEventListener("focusin", schedule);
+    window.addEventListener("resize", schedule);
+    window.visualViewport?.addEventListener("resize", schedule);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      document.removeEventListener("focusin", schedule);
+      window.removeEventListener("resize", schedule);
+      window.visualViewport?.removeEventListener("resize", schedule);
+    };
+  }, []);
 
   const done: Record<Exclude<Tab, "sphere" | "fiches">, boolean> = {
     look: check.ready,
@@ -126,7 +190,7 @@ function AppFrame() {
         : <SphereScreen />}
     </main>
 
-    {ready && <PlateauShelf go={go} />}
+    {ready && desk && <PlateauShelf go={go} />}
 
     {notice && <p className="u-toast" role="status">{say(notice)}</p>}
 
