@@ -53,6 +53,12 @@ describe("un seul payeur, des chiffres mesurés", () => {
     assert.equal(open.tone, "ok");
     assert.match(open.line, /15,00 \$/);
     assert.match(falGate(balance, 0.38, "prise").line, /prise/i);
+    const unread = falGate(null, 15, "formation", "optional");
+    assert.equal(unread.allowed, true);
+    assert.equal(unread.tone, "warn");
+    assert.match(unread.line, /Solde non lu/);
+    assert.match(unread.line, /15,00/);
+    assert.equal(falGate(null, null, "formation", "optional").allowed, false);
   });
 
   it("takes the charge from two real readings, and refuses a reading a top-up spoiled", () => {

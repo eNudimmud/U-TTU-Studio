@@ -74,6 +74,20 @@ export function datasetCheck(clips: readonly Clip[], refPhotos: number, name?: s
   return { ready: problems.length === 0, clips: clips.length, bytes, aspect, problems };
 }
 
+/** Red lines wait for a blur, a touch on that field, or a submit attempt. */
+export function problemsAfterTouch(
+  problems: readonly string[],
+  touch: { name: boolean; photos: boolean; clips: boolean; submit: boolean },
+): string[] {
+  if (touch.submit) return [...problems];
+  return problems.filter(problem => {
+    if (/nom/i.test(problem)) return touch.name;
+    if (/photo/i.test(problem)) return touch.photos;
+    if (/clip|pèsent|Go/i.test(problem)) return touch.clips;
+    return false;
+  });
+}
+
 /** A word the model has never seen, said in every prompt that wants this character. */
 export function triggerPhrase(name: string): string {
   const base = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 24);

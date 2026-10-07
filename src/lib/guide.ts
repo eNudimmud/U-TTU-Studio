@@ -25,7 +25,7 @@ export type GuideMoment =
   | "sphere-empty";
 
 export const GUIDE_LINES: Record<GuideMoment, string> = {
-  "look-photos": "Deux photos de toi. Face, puis trois-quarts. Je tisse le reste.",
+  "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",
   "look-name": "Donne un nom. C’est lui que je tiens.",
   "look-traits": "Deux traits qui ne bougent pas. Les yeux, une marque.",
   "look-ready": "Les photos tiennent. Pose maintenant le lieu.",
