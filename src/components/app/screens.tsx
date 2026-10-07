@@ -64,7 +64,7 @@ export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void 
       <button type="button" className="u-link" onClick={onBack}>Les deux façons</button>
     </header>
     <div className="u-desk">
-      <div className="u-photos" aria-label="Photos du look">
+      <div className="u-photos" aria-label="Photos des références">
         {Array.from({ length: LOOK_PHOTOS_MAX }, (_, index) => {
           const path = look.photos[index];
           return <PictureSlot key={path ?? `empty-${index}`} index={index} url={path ? media[path] : undefined} label="la photo" onAdd={files => void addLookPhotos(files)} onRemove={path ? () => void removeLookPhoto(path) : undefined} />;
@@ -82,13 +82,13 @@ export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void 
             <input id="u-trait" value={trait} placeholder={look.traits.length ? "un autre" : "yeux verts, taches de rousseur"} onChange={event => setTrait(event.target.value)} onKeyDown={onTraitKey} onBlur={() => trait.trim() && addTrait(trait)} enterKeyHint="done" />
           </div>
         </div>
-        <ol className="u-marks" aria-label="Ce qui tient le look">
+        <ol className="u-marks" aria-label="Ce qui tient les références">
           <li data-held={check.photos}>Deux photos au moins</li>
           <li data-held={check.name}>Un nom</li>
           <li data-held={check.traits}>Deux traits</li>
         </ol>
         <div className="u-actions">
-          <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetLook()}>Remettre ce look à zéro</button>
+          <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetLook()}>Remettre ces références</button>
           <p className="u-small">Les prises, les lieux et les personnages formés restent.</p>
           {!check.ready && <p className="u-small">{lookGap([!check.photos && "deux photos", !check.name && "un nom", !check.traits && "deux traits"])}</p>}
           <button type="button" className="u-primary" onClick={() => {
@@ -395,7 +395,7 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
       <p className="u-label">Lieux</p>
       {decor.length === 0
         ? <button type="button" className="u-link" onClick={() => go("scene")}>Aucun lieu dans mon studio</button>
-        : <div className="u-scenes" role="radiogroup" aria-label="Décors">
+        : <div className="u-scenes" role="radiogroup" aria-label="Lieux">
           {decor.map(item => {
             const held = studio.studio.scenes.find(sceneItem => sceneItem.id === item.id);
             const still = held?.render ?? held?.stills[0];
@@ -544,12 +544,12 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         <div className="u-field">
           <span className="u-label">Lieux</span>
           {studio.studio.scenes.length === 0
-            ? <button type="button" className="u-link" aria-label="Décors" onClick={goScene}>Aucun lieu dans mon studio</button>
-            : <select aria-label="Décors" value={scene?.id ?? ""} onChange={event => choosePlace(event.target.value)}>
+            ? <button type="button" className="u-link" aria-label="Lieux" onClick={goScene}>Aucun lieu dans mon studio</button>
+            : <select aria-label="Lieux" value={scene?.id ?? ""} onChange={event => choosePlace(event.target.value)}>
               <option value="">Choisir</option>
               {decor.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>}
-          {scene && decor.find(item => item.id === scene.id)?.camera && <p className="u-small">Ce décor se rouvre avec sa caméra.</p>}
+          {scene && decor.find(item => item.id === scene.id)?.camera && <p className="u-small">Ce lieu se rouvre avec sa caméra.</p>}
         </div>
       </div>
       <label className="u-field">
@@ -606,6 +606,7 @@ export function SphereScreen() {
     <header className="u-head">
       <p className="u-label">Sphère</p>
       <h1 id="u-title" tabIndex={-1}>Ta sphère.</h1>
+      <p className="u-small">Tes prises</p>
     </header>
     {studio.takes.length === 0
       ? <p className="u-lead">Aucune prise encore.</p>

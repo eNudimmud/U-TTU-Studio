@@ -73,7 +73,7 @@ export async function submitLoraTake(
   { signal, now = Date.now }: { signal?: AbortSignal; now?: () => number } = {},
 ): Promise<SubmittedLoraTake> {
   const pictures = input.pictures.slice(0, LORA_PICTURES_MAX);
-  if (pictures.length === 0) throw new FalError("invalid", "Au moins une photo du look.");
+  if (pictures.length === 0) throw new FalError("invalid", "Au moins une photo des références.");
   const imageUrls: string[] = [];
   for (const [index, picture] of pictures.entries()) {
     if (signal?.aborted) throw new FalError("cancelled", "Prise annulée avant l’envoi.");

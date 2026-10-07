@@ -14,6 +14,8 @@ describe("confort studio", () => {
     assert.deepEqual(WIRED_ENGINES.map(engine => engine.model), ["MiniMax H3", "MiniMax H3"]);
     assert.match(WIRED_ENGINES.find(engine => engine.id === "comfy")!.sound, /Le son est dans la prise/);
     assert.match(WIRED_ENGINES.find(engine => engine.id === "lora")!.sound, /pas un réglage/);
+    assert.equal(WIRED_ENGINES.find(engine => engine.id === "comfy")!.label, "Références");
+    assert.equal(WIRED_ENGINES.find(engine => engine.id === "lora")!.label, "Personnage (fichier)");
   });
 
   it("prints an example price on each engine, and a live amount only when one was quoted", () => {

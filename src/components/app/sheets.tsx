@@ -150,7 +150,7 @@ export function CreditSheet() {
         <span>{falLinked ? (falBalance ? `lus à ${time.format(falBalance.readAt)}` : falBalanceNote || "solde non lu") : "non relié"}</span>
         {falLinked && <button type="button" className="u-icon" onClick={() => void refreshFal()} aria-label="Relire le solde fal"><Refresh /></button>}
       </div>
-      <p className="u-small">La formation d’un personnage et les prises « Personnage » sont débitées ici, au prix annoncé avant le geste.</p>
+      <p className="u-small">La formation d’un personnage et les prises « Personnage (fichier) » sont débitées ici, au prix annoncé avant le geste.</p>
       {falLinked && <>
         <p className="u-small">Cet appareil oublie la clé. Mon studio, le fichier formé et le compte restent.</p>
         <button type="button" className="u-secondary" onClick={disconnectFal}>Délier le compte fal</button>
@@ -200,7 +200,7 @@ export function CoffreSheet() {
       </ul>}
       <p className="u-small">Pour le lire ailleurs : exporte le ZIP, ouvre ce dossier dans Obsidian, puis importe ce ZIP sur l’autre appareil. Les fichiers s’ajoutent. Une prise ou un personnage déjà ici reste.</p>
       <ul className="u-ledger">
-        <li><span>Photos du look</span><span>{studio.look.photos.length}</span></li>
+        <li><span>Photos des références</span><span>{studio.look.photos.length}</span></li>
         <li><span>Lieux</span><span>{studio.scenes.length}</span></li>
         <li><span>Clips</span><span>{studio.clips.length}</span></li>
         <li><span>Doubles</span><span>{studio.loras.length}</span></li>
@@ -277,7 +277,7 @@ export function FalSheet({ framed = true }: { framed?: boolean } = {}) {
   const body = <div className="u-stack">
     {falLinked
       ? <div className="u-stack">
-        <p>Relié{falUsername ? ` à ${falUsername}` : ""}. La formation et les prises « Personnage » sont débitées sur ce compte.</p>
+        <p>Relié{falUsername ? ` à ${falUsername}` : ""}. La formation et les prises « Personnage (fichier) » sont débitées sur ce compte.</p>
         <button type="button" className="u-secondary" onClick={disconnectFal}>Délier ce compte</button>
       </div>
       : <div className="u-stack">
@@ -302,7 +302,7 @@ export function RelierSheet() {
   return <SheetFrame title="Relier" label="Comptes" onClose={() => setSheet(null)} tall>
     <section className="u-payer">
       <p className="u-label">Compte fal</p>
-      <p>Il paie la formation du personnage et les prises « Personnage ».</p>
+      <p>Il paie la formation du personnage et les prises « Personnage (fichier) ».</p>
       <FalSheet framed={false} />
     </section>
     <section className="u-payer">

@@ -24,7 +24,7 @@ export const WIRED_ENGINES: readonly WiredEngine[] = [
   },
   {
     id: "lora",
-    label: "Personnage",
+    label: "Personnage (fichier)",
     model: "MiniMax H3",
     detail: "Le fichier de mon studio tient le personnage.",
     sound: "Le son n’est pas un réglage de ce fichier.",
@@ -92,7 +92,7 @@ export function characterPaths(input: { falLinked: boolean; quote: number | null
     {
       id: "fichier",
       title: "Fichier",
-      body: `Dix clips. On forme un fichier, une fois. ${price} 2000 pas coûtent le double de 1000. Les prises « Personnage » rechargent ce fichier, et se paient à part, sur le compte fal.`,
+      body: `Dix clips. On forme un fichier, une fois. ${price} 2000 pas coûtent le double de 1000. Les prises « Personnage (fichier) » rechargent ce fichier, et se paient à part, sur le compte fal.`,
       action: "Former un fichier",
     },
   ];
@@ -157,7 +157,7 @@ export function priseGaps(input: { lookReady: boolean; hasScene: boolean; engine
   const gaps: PriseGap[] = [];
   if (!input.lookReady) gaps.push({ id: "photos", text: "Il manque deux photos, un nom et deux traits.", action: "Tenir les photos" });
   if (!input.hasScene) gaps.push({ id: "scene", text: "Il manque un lieu.", action: "Poser la scène" });
-  if (input.engine === "lora" && !input.hasCharacter) gaps.push({ id: "fichier", text: "Le moteur Personnage attend un fichier formé.", action: "Former le personnage" });
+  if (input.engine === "lora" && !input.hasCharacter) gaps.push({ id: "fichier", text: "Le moteur Personnage (fichier) attend un fichier formé.", action: "Former le personnage" });
   return gaps;
 }
 

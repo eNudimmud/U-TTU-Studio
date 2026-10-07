@@ -209,7 +209,7 @@ export const extensionFor = (type: string) => (type === "image/png" ? "png" : ty
 export function canonMarkdown(look: Look, projet = ""): string {
   const traits = look.traits.length ? look.traits.map(trait => `- ${trait}`).join("\n") : "-";
   const photos = look.photos.map(path => `![[${path}]]`).join("\n");
-  const body = `# ${look.name || "Mon look"}\n\n## Ce qui ne change pas\n\n${traits}\n\n## Photos\n\n${photos || "Aucune."}\n${look.note ? `\n## Note\n\n${look.note}\n` : ""}`;
+  const body = `# ${look.name || "Références"}\n\n## Ce qui ne change pas\n\n${traits}\n\n## Photos\n\n${photos || "Aucune."}\n${look.note ? `\n## Note\n\n${look.note}\n` : ""}`;
   return withFrontmatter({
     type: "personnage", projet, statut: "brouillon", gesture: "personnage", updated: new Date().toISOString(),
     nom: look.name, traits: look.traits, photos: look.photos,
@@ -408,7 +408,7 @@ export function loraMarkdown(lora: Lora, projet = ""): string {
   const cost = lora.costUsd === null ? "Débit pas encore lu." : `${usd(lora.costUsd)} débités sur le compte fal.`;
   const body = lora.kind === "lieu"
     ? `# LoRA — ${lora.name || "lieu"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} vues de ce lieu, ${lora.steps} pas. ${cost}\n\nUne image neuve de ce lieu le recharge. Ce n’est pas un volume : le fichier Blender du lieu reste le modèle 3D. Il n’entre pas dans la prise H3.\n\nFichier : \`${lora.file}\`\n`
-    : `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
+    : `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage (fichier) » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
   return withFrontmatter({
     type: lora.kind === "lieu" ? "lieu" : "personnage",
     projet,
@@ -487,7 +487,7 @@ export function mocMarkdown(studio: Studio): string {
   const places = studio.loras.filter(lora => isPlaceLora(lora));
   const base = `Projets/${slug}`;
   const sections = [
-    mapSection("Personnage", look || studio.look.photos.length > 0 ? [wiki(`${base}/Cast/canon`, look || "Personnage")] : []),
+    mapSection("Références", look || studio.look.photos.length > 0 ? [wiki(`${base}/Cast/canon`, look || "Références")] : []),
     mapSection("Fichiers", people.map(lora => wiki(`${base}/Cast/${lora.id}`, lora.name || lora.trigger || "Personnage"))),
     mapSection("Lieux", [
       ...studio.scenes.map(scene => wiki(`${base}/Lieux/${scene.id}`, scene.name || "Lieu")),
