@@ -11,7 +11,7 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - Import : **Importer un studio (.zip)**.
 - Les textes d’aide disent « mon studio ».
 - Les chemins de code `src/lib/coffre/` et la base `uttu-coffre` restent internes.
-- EN, DE et ES sont branchés (`next-intl`, catalogues `messages/`). Le français est la source. DE et ES attendent un audit humain. L’adresse ne porte pas la langue.
+- EN, DE et ES sont branchés (`next-intl`, catalogues `messages/`). Le français est la source. L’audit des termes de studio (chaîne, verbes, solde, devis, échec) est dans les catalogues DE et ES, statut `reviewed`. L’adresse ne porte pas la langue.
 
 ## Termes appliqués dans l’interface
 

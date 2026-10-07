@@ -62,10 +62,10 @@
     "lora-done": "Le personnage est dans mon studio. Choisis-le dans La prise.",
     "sphere-empty": "Tes prises viendront se poser ici.",
     "understood": "Compris",
-    "stop": "Ne plus guider",
     "stepCharacter": "Photos, ou un fichier. Le prix se lit avant le geste.",
     "stepScene": "Un lieu, un nom. Une image le tient d’une prise à l’autre.",
-    "stepTake": "Une phrase. Relie le compte, lis le devis, puis Tourner."
+    "stepTake": "Une phrase. Relie le compte, lis le devis, puis Tourner.",
+    "stop": "Ne plus guider"
   },
   "why": {
     "unchanged": "Rien n’a changé.",
@@ -95,10 +95,8 @@
     "shootPriced": "Tourner · {price}",
     "trainPriced": "Former ce personnage · {price}",
     "trainPlacePriced": "Former ce lieu · {price}",
-    "buildPriced": "Bâtir une image de ce lieu · {price}",
     "trainThis": "Former ce personnage",
     "trainThisPlace": "Former ce lieu",
-    "buildThis": "Bâtir une image de ce lieu",
     "another": "Former un autre",
     "bothWays": "Les deux façons"
   },
@@ -193,7 +191,6 @@
     "formedPrice": "Formation : {amount}.",
     "formedUnread": "Le prix de formation se lit sur le compte fal, avant le geste.",
     "formedFile": "Fichier dans mon studio.",
-    "formedNew": "Image neuve : {amount}.",
     "formedTail": "Ce fichier n’est pas un volume. Le 3D reste le Blender.",
     "thePrice": "Le prix",
     "thePriceBody": "Les deux devis sont lus avant le geste. Rien ne part sans confirmation.",
@@ -397,13 +394,6 @@
       "inputs": [
         "Un lieu nommé",
         "{views} vues"
-      ]
-    },
-    "image": {
-      "name": "Image d’un lieu",
-      "sentence": "Le fichier du lieu bâtit une image neuve. Le modèle 3D reste le fichier Blender.",
-      "inputs": [
-        "Un lieu déjà formé"
       ]
     }
   },

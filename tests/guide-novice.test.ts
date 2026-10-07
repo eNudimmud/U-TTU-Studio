@@ -35,7 +35,7 @@ describe("guide novice", () => {
     }
     assert.equal(catalogs[0].take.soft, "Ça n\u2019a pas abouti.");
     assert.equal(catalogs[1].take.soft, "It did not land.");
-    assert.equal(catalogs[2].take.soft, "Es ist nicht angekommen.");
+    assert.equal(catalogs[2].take.soft, "Es ist nicht zustande gekommen.");
     assert.equal(catalogs[3].take.soft, "No ha salido.");
     assert.equal(catalogs[0].why.needKey, "Il manque la cl\u00e9.");
     assert.equal(catalogs[0].why.needName, "Il manque un nom.");

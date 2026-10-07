@@ -1,5 +1,5 @@
 {
-  "_status": "needs_human_audit",
+  "_status": "reviewed",
   "lang": {
     "label": "Idioma"
   },
@@ -62,17 +62,17 @@
     "lora-done": "El personaje está en mi estudio. Elígelo en la toma.",
     "sphere-empty": "Tus tomas vendrán a posarse aquí.",
     "understood": "Entendido",
-    "stop": "No guiar más",
     "stepCharacter": "Fotos, o un archivo. El precio se lee antes del gesto.",
     "stepScene": "Una localización, un nombre. Una imagen la sostiene de toma en toma.",
-    "stepTake": "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar."
+    "stepTake": "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar.",
+    "stop": "No guiar más"
   },
   "why": {
     "unchanged": "Nada ha cambiado.",
     "needName": "Falta un nombre.",
     "needKey": "Falta la clave.",
-    "planFresh": "El plano ya está en cero.",
-    "hold": "El presupuesto o el saldo no deja salir esto."
+    "planFresh": "El plano de espacio ya está en cero.",
+    "hold": "El presupuesto o el saldo frena el gesto."
   },
   "verb": {
     "relier": "Vincular",
@@ -95,10 +95,8 @@
     "shootPriced": "Rodar · {price}",
     "trainPriced": "Entrenar este personaje · {price}",
     "trainPlacePriced": "Entrenar esta localización · {price}",
-    "buildPriced": "Generar una imagen de esta localización · {price}",
     "trainThis": "Entrenar este personaje",
     "trainThisPlace": "Entrenar esta localización",
-    "buildThis": "Generar una imagen de esta localización",
     "another": "Entrenar otro",
     "bothWays": "Los dos caminos"
   },
@@ -193,7 +191,6 @@
     "formedPrice": "Entrenamiento: {amount}.",
     "formedUnread": "El precio de entrenamiento se lee en la cuenta fal, antes del gesto.",
     "formedFile": "Archivo en mi estudio.",
-    "formedNew": "Imagen nueva: {amount}.",
     "formedTail": "Este archivo no es un volumen. El 3D sigue siendo el archivo Blender.",
     "thePrice": "El precio",
     "thePriceBody": "Los dos presupuestos se leen antes del gesto. Nada sale sin confirmación.",
@@ -397,13 +394,6 @@
       "inputs": [
         "Una localización con nombre",
         "{views} vistas"
-      ]
-    },
-    "image": {
-      "name": "Imagen de una localización",
-      "sentence": "El archivo de la localización genera una imagen nueva. El modelo 3D sigue siendo el archivo Blender.",
-      "inputs": [
-        "Una localización ya entrenada"
       ]
     }
   },
