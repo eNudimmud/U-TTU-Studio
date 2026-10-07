@@ -90,11 +90,11 @@
 .u-slot::after { content: attr(data-frame); position: absolute; left: 10px; bottom: 8px; font: 600 10px/1 var(--font-mono); letter-spacing: .14em; color: var(--u-gold); text-shadow: 0 1px 6px #000; }
 .u-slot.is-filled { border-style: solid; border-color: var(--u-line-strong); }
 .u-slot img { width: 100%; height: 100%; object-fit: cover; }
-.u-slot-remove { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(11, 10, 9, .78); color: var(--u-text); }
+.u-slot-remove { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(11, 10, 9, .78); color: var(--u-text); }
 
 .u-field { display: grid; gap: 8px; }
 .u-app :where(input, textarea, select) { scroll-margin-top: 88px; scroll-margin-bottom: calc(148px + var(--u-safe)); }
-.u-field input, .u-field textarea, .u-field select, .u-pickers select, .u-chips { width: 100%; padding: 12px 14px; border: 1px solid rgba(201, 164, 106, .28); border-radius: 12px; background: #11100f; font-size: 16px; line-height: 1.4; }
+.u-field input, .u-field textarea, .u-field select, .u-pickers select, .u-chips { width: 100%; min-height: 44px; padding: 12px 14px; border: 1px solid rgba(201, 164, 106, .28); border-radius: 12px; background: #11100f; font-size: 16px; line-height: 1.4; }
 .u-pickers { display: grid; gap: 10px; }
 .u-pickers .u-link { justify-content: flex-start; }
 .u-payer { display: grid; gap: 8px; }
@@ -102,9 +102,9 @@
 .u-field textarea { resize: vertical; min-height: 64px; }
 .u-field input:focus, .u-field textarea:focus, .u-field select:focus, .u-pickers select:focus, .u-chips:focus-within { border-color: var(--u-gold); outline: none; }
 .u-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 10px; }
-.u-chips input { flex: 1 1 140px; min-width: 0; padding: 6px 4px; border: 0; background: transparent; }
+.u-chips input { flex: 1 1 140px; min-width: 0; min-height: 44px; padding: 6px 4px; border: 0; background: transparent; }
 .u-chips input:focus { outline: none; }
-.u-chip { display: inline-flex; align-items: center; gap: 4px; min-height: 34px; padding: 4px 10px 4px 12px; border: 1px solid var(--u-line-strong); border-radius: 999px; background: rgba(201, 164, 106, .08); color: var(--u-gold-soft); font-size: 14px; }
+.u-chip { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 4px 10px 4px 12px; border: 1px solid var(--u-line-strong); border-radius: 999px; background: rgba(201, 164, 106, .08); color: var(--u-gold-soft); font-size: 14px; }
 .u-chip svg { width: 14px; height: 14px; opacity: .7; }
 
 .u-marks { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; padding: 0; list-style: none; }
@@ -301,7 +301,7 @@
 .u-balance .u-icon { margin-left: auto; }
 .u-project-list { display: grid; gap: 4px; margin: 0; padding: 0; }
 .u-project-list label { display: flex; align-items: center; gap: 10px; min-height: 44px; }
-.u-project-list input { width: 18px; height: 18px; accent-color: var(--u-ochre); }
+.u-project-list input { width: 44px; height: 44px; accent-color: var(--u-ochre); }
 .u-tree { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .u-tree li { display: grid; gap: 2px; }
 .u-tree strong { font-size: 13px; letter-spacing: .04em; color: var(--u-gold-soft); }

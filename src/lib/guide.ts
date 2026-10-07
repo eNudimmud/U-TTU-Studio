@@ -25,7 +25,8 @@ export type GuideMoment =
   | "lora-memory"
   | "lora-running"
   | "lora-done"
-  | "sphere-empty";
+  | "sphere-empty"
+  | "project-name";
 
 export const GUIDE_LINES: Record<GuideMoment, string> = {
   "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",
@@ -41,7 +42,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "take-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
   "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
   "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
-  "take-done": "La prise est dans mon studio. Publie-la d’un geste.",
+  "take-done": "La prise est là. Un geste la pose dans un plan.",
   "take-double": "Ce personnage tient d’une prise à l’autre. Les photos tiennent le reste.",
   "lora-name": "Nomme le personnage. C’est lui que les prises suivantes tiennent.",
   "lora-photos": "Deux photos de ce personnage. Elles accompagnent les clips.",
@@ -52,6 +53,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "lora-running": "J’apprends ce personnage. C’est long : reviens plus tard.",
   "lora-done": "Le personnage est dans mon studio. Choisis-le dans La prise.",
   "sphere-empty": "Tes prises viendront se poser ici.",
+  "project-name": "Atelier est écrit. Un geste crée le projet.",
 };
 
 export const GUIDE_KEY = "u-ttu-guide";

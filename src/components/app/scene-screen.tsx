@@ -61,24 +61,16 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
           })}
           {!adding && <button type="button" className="u-scene u-scene-add" onClick={() => setAdding(true)} aria-label={t("scene.new")}><Plus /></button>}
         </div>}
-        {showNew && <form className="u-new" onSubmit={add}>
+        {showNew && <form id="u-lieu-form" className="u-new" onSubmit={add}>
           <label className="u-field">
             <span className="u-label">{t("scene.new")}</span>
             <input id="u-lieu" value={draft} maxLength={40} placeholder={t("scene.placeholder")} onChange={event => setDraft(event.target.value)} autoFocus={adding} />
           </label>
-          <button type="submit" className="u-secondary" disabled={!draft.trim()}>{t("verb.set")}</button>
-          <Why on={!draft.trim()} text={t("why.needName")} />
         </form>}
       </div>
       <div className="u-stack">
-        {scene && <VueProjet />}
-        <SceneJobs />
-        {scene && <SceneEditor />}
-        {scene && <>
-          <p className="u-small">{t("scene.passTake")}</p>
-          <button type="button" className="u-secondary" onClick={onNext}>{t("scene.goTake")}</button>
-        </>}
         {previz.phase === "running" ? null : (() => {
+          const posing = !scene || adding;
           const action = filmAction({
             scene: Boolean(scene),
             plan: Boolean(scene?.previz),
@@ -87,19 +79,35 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
             fal: falLinked,
           });
           return <>
-            {action.kind !== "film" && <p className="u-small">{t(`film.${action.kind}.missing`)}</p>}
-            <OutgoingFilm />
-            <button type="button" className="u-primary" onClick={() => {
-              if (action.kind === "place") document.getElementById("u-lieu")?.focus();
-              else if (action.kind === "plan") document.getElementById("u-plans")?.scrollIntoView({ block: "center" });
-              else if (action.kind === "blender") setSheet("blender");
-              else if (action.kind === "role") onRole();
-              else if (action.kind === "fal") setSheet("fal");
-              else void requestPreviz();
-            }}>{t(`film.${action.kind}.label`)} <Arrow /></button>
+            <button
+              type={posing ? "submit" : "button"}
+              form={posing ? "u-lieu-form" : undefined}
+              className="u-primary"
+              disabled={posing && !draft.trim()}
+              onClick={() => { if (!posing) onNext(); }}
+            >{posing ? t("scene.setPlace") : t("scene.goTake")} <Arrow /></button>
+            <Why on={posing && !draft.trim()} text={t("why.needName")} />
+            {scene && !adding && <p className="u-small">{t("scene.passTake")}</p>}
+            {scene && adding && <button type="button" className="u-link" onClick={onNext}>{t("scene.goTake")}</button>}
+            {action.kind !== "place" && <>
+              <OutgoingFilm />
+              {action.kind !== "film" && <p className="u-small">{t(`film.${action.kind}.missing`)}</p>}
+              <button type="button" className="u-secondary" onClick={() => {
+                if (action.kind === "plan") {
+                  const fold = document.getElementById("u-espace");
+                  if (fold instanceof HTMLDetailsElement) fold.open = true;
+                  document.getElementById("u-plans")?.scrollIntoView({ block: "center" });
+                } else if (action.kind === "blender") setSheet("blender");
+                else if (action.kind === "role") onRole();
+                else if (action.kind === "fal") setSheet("fal");
+                else void requestPreviz();
+              }}>{t(`film.${action.kind}.label`)} <Arrow /></button>
+            </>}
           </>;
         })()}
-        {!scene && <button type="button" className="u-link" onClick={() => document.getElementById("u-lieu")?.focus()}>{t("scene.placeFirst")}</button>}
+        {scene && <VueProjet />}
+        <SceneJobs />
+        {scene && <SceneEditor />}
       </div>
     </div>
     </>}
@@ -262,6 +270,8 @@ function SceneEditor() {
         <li><strong>{t("scene.thePrice")}</strong>{t("scene.thePriceBody")}</li>
       </ul>
     </details>
+    <details className="u-fold" id="u-espace">
+      <summary>{t("scene.spaceSummary")}</summary>
     <p className="u-label">{t("scene.plan")}</p>
     <div id="u-plans" className="u-segments" role="group" aria-label={t("scene.plan")}>
       {PREVIZ_PLANS.map(plan => <button key={plan} type="button" aria-pressed={scene.previz === plan} onClick={() => void setPreviz(scene.id, plan)}>{PREVIZ_LABELS[plan]}</button>)}
@@ -319,12 +329,14 @@ function SceneEditor() {
       }
       void requestPlaceTrain();
     }}>{placeRun === "running" ? t("scene.training") : learned.ready ? (placeTrainQuote !== null ? t("verb.trainPlacePriced", { price: formatUsd(placeTrainQuote) }) : t("verb.trainThisPlace")) : t("scene.addView")}</button>
+    <Why on={placeRun === "running"} text={t("why.running")} />
     <div className="u-photos is-wide" aria-label={t("scene.stills")}>
       {Array.from({ length: SCENE_STILLS_MAX }, (_, index) => {
         const path = scene.stills[index];
         return <PictureSlot key={path ?? `still-${index}`} index={index} url={path ? media[path] : undefined} label={t("look.still")} onAdd={files => void addSceneStills(scene.id, files)} onRemove={path ? () => void removeSceneStill(scene.id, path) : undefined} />;
       })}
     </div>
+    </details>
     <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetScene()}>{t("scene.reset")}</button>
     <Why on={!dirty} text={t("why.unchanged")} />
     <p className="u-small">{t("scene.resetStay")}</p>

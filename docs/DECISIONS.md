@@ -2,6 +2,29 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F29 — audit ergonomie de bout en bout — 7 octobre 2026
+
+Méthode du compte. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui pose une prise sur un plan, lit la séquence, puis exporte. Le sélecteur de photos accepte plusieurs fichiers : un tap. Former un fichier et filmer le trajet restent hors du chemin. Un nom déjà écrit n’est pas une décision. Un réglage déjà sur le profil mesuré non plus. La confirmation payante reste : le texte qui part se lit avant.
+
+| | Avant, F28 | Après, F29 |
+| --- | --- | --- |
+| Gestes | 27 | 15 |
+| dont saisies | 8 | 5 |
+| dont taps | 19 | 10 |
+| Écrans | 13 | 7 |
+| Décisions | 9 | 5 |
+| Retours forcés | 3 | 0 |
+
+- **Fait :** sur F28, le chemin passe par Mon studio (nom vide, puis fermer la feuille), puis par l’écran Références, puis par une séquence au nom vide, puis par un plan qui s’ouvre seul et ne tient pas encore la prise. Lire la séquence est un bouton secondaire, éteint sans plan. L’export n’est que dans Mon studio. Trois retours : fermer Mon studio, revenir du plan vers la séquence, quitter la séquence pour exporter. Décisions : nom du projet, voie (références ou fichier), nom du personnage, deux traits, lieu, phrase, nom de séquence, nom de plan.
+- **Décision :** sans projet, Personnage propose « Atelier » déjà écrit. Un geste crée le projet. Les références sont sur le même écran, un seul bouton or : « Poser la scène », ou « Compléter les références » tant qu’il manque une photo, le nom ou deux traits. La voie fichier reste sous « Deux façons. »
+- **Décision :** sur Scène, le bouton or pose le lieu, puis devient « Aller à la prise ». L’espace, le trajet et Former ce lieu sont sous un repli. Le texte qui part pour Filmer ce trajet reste avant ce geste, qui n’est plus le bouton or.
+- **Décision :** après Tourner, « Poser le plan » crée Séquence 1 et Plan 1 s’ils manquent, y pose la prise, et ouvre la séquence. « Lire la séquence » est le bouton or. « Exporter mon studio (.zip) » est sur la même feuille. Les noms suivants, s’ils existent déjà, prennent le numéro libre.
+- **Décision :** durée, format et qualité de la prise sont sous le repli « Réglage ». Le profil ouvert reste `h3-4pas-5s-vertical`. Un autre réglage laisse Tourner éteint, avec la raison déjà écrite. Le texte qui part reste au-dessus de Tourner.
+- **Décision :** une cible interactive dont le CSS fixe une taille entre 1 px et 43 px fait échouer le test. `min-width: 0` ne compte pas : c’est le plancher flex, pas la taille du doigt. Un `<button disabled>` sans `<Why>` dans les lignes qui suivent, et sans `aria-describedby`, fait échouer le test.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. EN, DE et ES portent `_human: native_open`. Les lignes neuves s’ajoutent à celles encore ouvertes. Ce n’est pas une signature de locuteur natif.
+- **Hypothèse :** une personne qui ne change pas « Atelier », « Séquence 1 » ni « Plan 1 » suit le compte d’après. Ce tour ne mesure pas cette personne hors de l’écran.
+- **Hypothèse :** le sélecteur du téléphone laisse bien passer deux photos en un tap. Le compte le prend ainsi, avant comme après.
+
 ## F28 — lire la séquence — 7 octobre 2026
 
 - **Décision :** depuis une séquence, « Lire la séquence » enchaîne dans le navigateur les vidéos des prises déjà posées sur les plans, dans l’ordre des plans. L’ordre se change au doigt ou à la souris, et avec Monter / Descendre. Un plan sans prise est un carton « Plan sans prise », tenu 2 secondes, assez pour lire la ligne. Ce n’est pas une erreur, et ce n’est pas une durée de rendu.

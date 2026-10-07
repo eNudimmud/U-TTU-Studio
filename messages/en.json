@@ -27,6 +27,9 @@
     "falUnread": "fal account connected, balance unread",
     "renderCredits": "Render account credits"
   },
+  "project": {
+    "lead": "The name is already written: {name}. One gesture creates the project. You can change it."
+  },
   "landing": {
     "home": "U*TTU Studio — Home",
     "enter": "Enter the studio",
@@ -55,7 +58,7 @@
     "take-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
     "take-ready": "I show the cost first. Nothing leaves without your gesture.",
     "take-running": "The thread is rolling. Stay here, or come back later.",
-    "take-done": "The take is in my studio. Publish it with one gesture.",
+    "take-done": "The take is here. One gesture sets it on a shot.",
     "take-double": "This character holds from one take to the next. The photos hold the rest.",
     "lora-name": "Name the character. Later takes hold that one.",
     "lora-photos": "Two photos of this character. They go with the clips.",
@@ -66,6 +69,7 @@
     "lora-running": "I am learning this character. It takes time: come back later.",
     "lora-done": "The character is in my studio. Choose them on the take.",
     "sphere-empty": "Your takes will come to rest here.",
+    "project-name": "Atelier is written. One gesture creates the project.",
     "understood": "Understood",
     "stepCharacter": "Photos, or a file. The price is read before the gesture.",
     "stepScene": "A location, a name. Next, the take. The path is filmed apart.",
@@ -77,7 +81,8 @@
     "needName": "A name is missing.",
     "needKey": "The key is missing.",
     "planFresh": "This take is already at the start.",
-    "hold": "The quote or the balance will not let this leave."
+    "hold": "The quote or the balance will not let this leave.",
+    "running": "It is already running."
   },
   "verb": {
     "relier": "Connect",
@@ -183,6 +188,8 @@
     "noTake": "No take for this location.",
     "openTake": "Open the take {line}",
     "goTake": "Go to the take",
+    "setPlace": "Set this place",
+    "spaceSummary": "Set the layout and the path",
     "passTake": "You can go on to the take. Filming the path is another gesture.",
     "placeFirst": "Set a location first",
     "placeName": "Location name",
@@ -255,6 +262,8 @@
     "linked": "Take added.",
     "removed": "Sequence removed.",
     "play": "Play the sequence",
+    "defaultName": "Sequence 1",
+    "exportHint": "You can take the ZIP from here, without going back.",
     "playOff": "No shot in this sequence. Playback follows the shot order.",
     "now": "Playback",
     "stop": "Stop",
@@ -273,6 +282,7 @@
     "lead": "A shot is one storyboard panel. It follows a sequence, then takes, in order. A short note says the frame.",
     "name": "Shot name",
     "create": "Create the shot",
+    "defaultName": "Shot 1",
     "empty": "No shot in this project.",
     "emptyHere": "No shot in this sequence.",
     "open": "Open {name}",
@@ -368,7 +378,11 @@
     "examplePlace": "Sample · {place}",
     "filmedStill": "Filmed image",
     "resetPlan": "Reset this take",
-    "next": "Next: a shot, then a sequence. Export is in My studio.",
+    "next": "After Shoot, one gesture sets the shot. The export is on the sequence.",
+    "pose": "Set the shot",
+    "poseHint": "One shot, inside a sequence. The names are already written.",
+    "measuredFold": "Setting · {seconds} s, {format}, {quality}",
+    "measuredNote": "The measured quote is 5 s, vertical, fast. Another setting keeps Shoot off.",
     "nextLabel": "After the take",
     "stayTakes": "Takes already shot stay.",
     "gapPhotos": "Two photos, a name and two traits are missing.",

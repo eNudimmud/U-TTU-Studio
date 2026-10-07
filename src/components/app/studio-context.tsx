@@ -15,6 +15,7 @@ import { FalError, createFalClient, type FalClient, type FalHandle, type FalPric
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
 import { LORA_TAKE, LORA_TRAINER, PLACE_SCENE, PLACE_TRAINER, loraTakeQuote, placeSceneQuote, placeTrainQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
 import { reduceConnect } from "@/lib/link-epoch";
+import { posePlan } from "@/lib/ergonomie";
 import { castFile, pickEngine } from "@/lib/studio-comfort";
 import { CLIPS_MAX, clipFormat, clipProblem, datasetCheck, type Clip, type DatasetCheck, type TrainingAspect } from "@/lib/lora/dataset";
 import {
@@ -349,10 +350,11 @@ interface StudioValue {
   resetRun(): void;
   resumeRun(): void;
   deleteTake(id: string): Promise<void>;
-  createSequence(name: string): Promise<void>;
+  createSequence(name: string, options?: { open?: boolean }): Promise<string | null>;
   saveSequence(id: string, patch: Partial<Pick<Sequence, "name" | "links">>): Promise<void>;
   deleteSequence(id: string): Promise<void>;
-  createShot(name: string, link?: { sequenceId?: string | null; takeId?: string | null }): Promise<void>;
+  createShot(name: string, link?: { sequenceId?: string | null; takeId?: string | null }, options?: { open?: boolean }): Promise<string | null>;
+  poseTake(takeId: string, names: { sequence: string; shot: string }): Promise<void>;
   saveShot(id: string, patch: Partial<Pick<Shot, "name" | "sequenceId" | "takeIds" | "note">>): Promise<void>;
   moveShotInSequence(id: string, direction: -1 | 1): Promise<void>;
   reorderShots(sequenceId: string, orderedIds: readonly string[]): Promise<void>;
@@ -1667,16 +1669,17 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     await syncMontages(montageIds);
   }, [dropMedia, setStudio, store, syncMontages]);
 
-  const createSequence = useCallback(async (name: string) => {
+  const createSequence = useCallback(async (name: string, options?: { open?: boolean }) => {
     const clean = name.replace(/\s+/g, " ").trim().slice(0, 40);
-    if (!clean) return;
+    if (!clean) return null;
     const id = uniqueId(sequenceStem(clean), studioRef.current.sequences.map(item => item.id));
     const created: Sequence = { id, name: clean, links: [] };
     const sequences = [...studioRef.current.sequences, created].sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
     setStudio({ ...studioRef.current, sequences });
     await writeSequence(store(), created, studioRef.current.takes);
     setNotice("Séquence créée.");
-    setSheet({ sequence: id });
+    if (options?.open !== false) setSheet({ sequence: id });
+    return id;
   }, [setStudio, store]);
 
   const saveSequence = useCallback(async (id: string, patch: Partial<Pick<Sequence, "name" | "links">>) => {
@@ -1711,9 +1714,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const shotSort = (shots: Shot[]) => shots.sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
 
-  const createShot = useCallback(async (name: string, link?: { sequenceId?: string | null; takeId?: string | null }) => {
+  const createShot = useCallback(async (name: string, link?: { sequenceId?: string | null; takeId?: string | null }, options?: { open?: boolean }) => {
     const clean = name.replace(/\s+/g, " ").trim().slice(0, 40);
-    if (!clean) return;
+    if (!clean) return null;
     const sequenceId = studioRef.current.sequences.some(item => item.id === link?.sequenceId) ? link?.sequenceId ?? null : null;
     const takeId = studioRef.current.takes.some(item => item.id === link?.takeId) ? link?.takeId ?? null : null;
     const id = uniqueId(shotStem(clean), studioRef.current.shots.map(item => item.id));
@@ -1725,7 +1728,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const sequenceName = studioRef.current.sequences.find(item => item.id === created.sequenceId)?.name ?? "";
     await writeShot(store(), created, studioRef.current.takes, sequenceName);
     await syncMontages([created.sequenceId]);
-    setSheet({ shot: id });
+    if (options?.open !== false) setSheet({ shot: id });
+    return id;
   }, [setStudio, store, syncMontages]);
 
   const saveShot = useCallback(async (id: string, patch: Partial<Pick<Shot, "name" | "sequenceId" | "takeIds" | "note">>) => {
@@ -1746,6 +1750,18 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     await writeShot(store(), next, studioRef.current.takes, sequenceName);
     await syncMontages([current.sequenceId, next.sequenceId]);
   }, [setStudio, store, syncMontages]);
+
+  const poseTake = useCallback(async (takeId: string, names: { sequence: string; shot: string }) => {
+    if (!studioRef.current.takes.some(item => item.id === takeId)) return;
+    const plan = posePlan(takeId, studioRef.current.sequences, studioRef.current.shots, names);
+    if (!plan) return;
+    let sequenceId = plan.openSequenceId;
+    if (plan.createSequence) sequenceId = await createSequence(plan.createSequence, { open: false });
+    if (!sequenceId) return;
+    if (plan.adoptShotId) await saveShot(plan.adoptShotId, { sequenceId, takeIds: studioRef.current.shots.find(item => item.id === plan.adoptShotId)?.takeIds ?? [takeId] });
+    else if (plan.createShotName) await createShot(plan.createShotName, { sequenceId, takeId }, { open: false });
+    setSheet({ sequence: sequenceId });
+  }, [createSequence, createShot, saveShot]);
 
   const moveShotInSequence = useCallback(async (id: string, direction: -1 | 1) => {
     const previousShots = studioRef.current.shots;
@@ -2290,7 +2306,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
     setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, resumeTraining, deleteLora,
-    requestRun, confirmRun, cancelRun, resetRun, resumeRun, deleteTake, createSequence, saveSequence, deleteSequence, createShot, saveShot, moveShotInSequence, reorderShots, refreshMontage, deleteShot, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
+    requestRun, confirmRun, cancelRun, resetRun, resumeRun, deleteTake, createSequence, saveSequence, deleteSequence, createShot, saveShot, poseTake, moveShotInSequence, reorderShots, refreshMontage, deleteShot, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
     exportCoffre, importCoffre, createNamedProject, selectNamedProject, saveMemory, savePromptNote, linkFolder, dismissGuide, guideOff,
   };
 

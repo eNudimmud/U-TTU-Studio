@@ -5,13 +5,14 @@ import { useI18n, useStudioDates } from "@/components/i18n/provider";
 import { costLabel, dropTakeLink, isPlaceLora, shotsOf } from "@/lib/coffre/model";
 import { MONTAGE_SLATE_SECONDS, montageCues } from "@/lib/coffre/montage";
 import { memoryKindOf, type MemoryKind } from "@/lib/coffre/memory";
-import { treeFileLabel } from "@/lib/coffre/project";
+import { DEFAULT_PROJECT_NAME, treeFileLabel } from "@/lib/coffre/project";
 import { CREDITS_PER_USD, costClaim, formatCredits } from "@/lib/credits";
 import { quoteSentence } from "@/lib/render/billed-quote";
 import { profileParts, quotesToRecords } from "@/lib/render/measured-quote";
 import { formatUsd } from "@/lib/fal/prices";
 import { folderLinkSupported } from "@/lib/coffre/link";
 import { takeProfile } from "@/lib/render/take-graph";
+import { nextNumberedName } from "@/lib/ergonomie";
 import { assetPath } from "@/lib/site";
 import { Close, Refresh, Trash } from "./glyphs";
 import { PublishActions } from "./publish";
@@ -226,7 +227,7 @@ export function CoffreSheet() {
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [linkable, setLinkable] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(studio.projects.length === 0 ? DEFAULT_PROJECT_NAME : "");
 
   useEffect(() => {
     setLinkable(folderLinkSupported());
@@ -250,13 +251,13 @@ export function CoffreSheet() {
       <label className="u-field">{t("sheet.projectName")}
         <input value={draft} maxLength={40} aria-label={t("sheet.projectName")} autoComplete="off" onChange={event => setDraft(event.target.value)} />
       </label>
-      <button type="button" className="u-secondary" disabled={!draft.trim()} onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>{t("sheet.createProject")}</button>
+      <button type="button" className={studio.projects.length === 0 ? "u-primary" : "u-secondary"} disabled={!draft.trim()} onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>{t("sheet.createProject")}</button>
       <Why on={!draft.trim()} text={t("why.needName")} />
       <button type="button" className="u-secondary" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
       <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
       {studio.project && <button type="button" className="u-secondary" onClick={() => setSheet({ memory: "bible" })}>{t("memory.open")}</button>}
       <p className="u-small">{t("sheet.exportLead")}</p>
-      <button type="button" className="u-primary" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
+      <button type="button" className={studio.projects.length === 0 ? "u-secondary" : "u-primary"} onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
       <label className="u-secondary u-file">
         {importing ? t("sheet.importing") : t("sheet.import")}
         <input type="file" accept=".zip,application/zip" aria-label={t("sheet.importLabel")} disabled={importing} onChange={event => {
@@ -676,7 +677,7 @@ export function SequenceSheet({ id }: { id?: string }) {
 function SequenceList() {
   const { t } = useI18n();
   const { setSheet, studio, createSequence } = useStudio();
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(() => nextNumberedName(t("sequence.defaultName"), studio.sequences.map(item => item.name)));
   return <SheetFrame title={t("sequence.title")} label={t("scene.project")} onClose={() => setSheet(null)} tall>
     <div className="u-stack">
       <p className="u-small">{t("sequence.lead")}</p>
@@ -699,11 +700,11 @@ function SequenceList() {
 
 function SequenceEditor({ id }: { id: string }) {
   const { t } = useI18n();
-  const { setSheet, studio, saveSequence, deleteSequence, setNotice, createShot, refreshMontage } = useStudio();
+  const { setSheet, studio, saveSequence, deleteSequence, setNotice, createShot, refreshMontage, exportCoffre } = useStudio();
   const sequence = studio.sequences.find(item => item.id === id);
   const [name, setName] = useState(sequence?.name ?? "");
   const [pick, setPick] = useState("");
-  const [shotName, setShotName] = useState("");
+  const [shotName, setShotName] = useState(() => nextNumberedName(t("shot.defaultName"), studio.shots.map(item => item.name)));
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
     setName(sequence?.name ?? "");
@@ -729,8 +730,10 @@ function SequenceEditor({ id }: { id: string }) {
       </label>
       <section className="u-montage" aria-label={t("sequence.play")}>
         <p className="u-label">{t("shot.title")}</p>
-        <button type="button" className="u-secondary" disabled={shotsOf(studio.shots, sequence.id).length === 0} onClick={() => setPlaying(true)}>{t("sequence.play")}</button>
+        <button type="button" className="u-primary" disabled={shotsOf(studio.shots, sequence.id).length === 0} onClick={() => setPlaying(true)}>{t("sequence.play")}</button>
         <Why on={shotsOf(studio.shots, sequence.id).length === 0} text={t("sequence.playOff")} />
+        <p className="u-small">{t("sequence.exportHint")}</p>
+        <button type="button" className="u-link" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
         {playing && <SequencePlayer sequenceId={sequence.id} />}
         {playing && <button type="button" className="u-link" onClick={() => setPlaying(false)}>{t("sequence.stop")}</button>}
         <p className="u-small">{t("sequence.listNote")}</p>
@@ -799,7 +802,7 @@ export function ShotSheet({ id }: { id?: string }) {
 function ShotList() {
   const { t } = useI18n();
   const { setSheet, studio, createShot } = useStudio();
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(() => nextNumberedName(t("shot.defaultName"), studio.shots.map(item => item.name)));
   return <SheetFrame title={t("shot.title")} label={t("scene.project")} onClose={() => setSheet(null)} tall>
     <div className="u-stack">
       <p className="u-small">{t("shot.lead")}</p>

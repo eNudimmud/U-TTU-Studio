@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { costLabel, LOOK_PHOTOS_MAX, cleanTraits, lookCheck, parseTraits } from "@/lib/coffre/model";
+import { useEffect, useRef, type ReactNode } from "react";
+import { costLabel, lookCheck } from "@/lib/coffre/model";
 import { briefAction, castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, weaveBrief, WIRED_ENGINES } from "@/lib/studio-comfort";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
@@ -12,44 +12,23 @@ import dynamic from "next/dynamic";
 import { OutgoingTake } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
-import { Arrow, Close, Web } from "./glyphs";
-import { PictureSlot, Segments } from "./slots";
+import { Arrow, Web } from "./glyphs";
+import { completeLook, LookFields } from "./look-form";
+import { Segments } from "./slots";
 import { PublishActions } from "./publish";
 import { TakeCostLines } from "./take-cost";
 import { useStudio, type RunState } from "./studio-context";
 
 const CinemaGestures = dynamic(() => import("./cinema-gestures").then(mod => mod.CinemaGestures));
 
-function lookGap(t: ReturnType<typeof useI18n>["t"], parts: (string | false)[]): string {
-  const missing = parts.filter((part): part is string => Boolean(part));
-  if (missing.length === 0) return "";
-  if (missing.length === 1) return t("look.missingOne", { what: missing[0] });
-  return t("look.missingMany", { list: missing.slice(0, -1).join(", "), last: missing[missing.length - 1] });
+function ChainButton({ onClick, children }: { onClick(): void; children: ReactNode }) {
+  return <button type="button" className="u-primary" onClick={onClick}>{children}</button>;
 }
 
 export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void }) {
-  const { studio, media, saveLook, addLookPhotos, removeLookPhoto, resetLook } = useStudio();
+  const { studio } = useStudio();
   const { t } = useI18n();
-  const look = studio.look;
-  const check = lookCheck(look);
-  const [trait, setTrait] = useState("");
-
-  function addTrait(raw: string) {
-    const added = parseTraits(raw);
-    if (added.length) void saveLook({ traits: cleanTraits([...look.traits, ...added]) });
-    setTrait("");
-  }
-
-  function onTraitKey(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter" || event.key === ",") {
-      event.preventDefault();
-      addTrait(trait);
-    } else if (event.key === "Backspace" && !trait && look.traits.length) {
-      void saveLook({ traits: look.traits.slice(0, -1) });
-    }
-  }
-
-  const dirty = Boolean(look.name || look.note || look.traits.length || look.photos.length);
+  const check = lookCheck(studio.look);
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">{t("look.kicker")}</p>
@@ -58,42 +37,8 @@ export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void 
       <button type="button" className="u-link" onClick={onBack}>{t("verb.bothWays")}</button>
     </header>
     <div className="u-desk">
-      <div className="u-photos" aria-label={t("look.photos")}>
-        {Array.from({ length: LOOK_PHOTOS_MAX }, (_, index) => {
-          const path = look.photos[index];
-          return <PictureSlot key={path ?? `empty-${index}`} index={index} url={path ? media[path] : undefined} label={t("look.photo")} onAdd={files => void addLookPhotos(files)} onRemove={path ? () => void removeLookPhoto(path) : undefined} />;
-        })}
-      </div>
-      <div className="u-stack">
-        <label className="u-field">
-          <span className="u-label">{t("look.name")}</span>
-          <input value={look.name} maxLength={40} placeholder="Mira" autoComplete="off" onChange={event => void saveLook({ name: event.target.value.slice(0, 40) })} />
-        </label>
-        <div className="u-field">
-          <label className="u-label" htmlFor="u-trait">{t("look.traits")}</label>
-          <div className="u-chips">
-            {look.traits.map(item => <button key={item} type="button" className="u-chip" onClick={() => void saveLook({ traits: look.traits.filter(other => other !== item) })} aria-label={t("look.removeTrait", { item })}>{item}<Close /></button>)}
-            <input id="u-trait" value={trait} placeholder={look.traits.length ? t("look.another") : t("look.placeholder")} onChange={event => setTrait(event.target.value)} onKeyDown={onTraitKey} onBlur={() => trait.trim() && addTrait(trait)} enterKeyHint="done" />
-          </div>
-        </div>
-        <ol className="u-marks" aria-label={t("look.held")}>
-          <li data-held={check.photos}>{t("look.twoPhotos")}</li>
-          <li data-held={check.name}>{t("look.aName")}</li>
-          <li data-held={check.traits}>{t("look.twoTraits")}</li>
-        </ol>
-        <div className="u-actions">
-          <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetLook()}>{t("look.reset")}</button>
-          <Why on={!dirty} text={t("why.unchanged")} />
-          <p className="u-small">{t("look.stay")}</p>
-          {!check.ready && <p className="u-small">{lookGap(t, [!check.photos && t("look.gapPhotos"), !check.name && t("look.gapName"), !check.traits && t("look.gapTraits")])}</p>}
-          <button type="button" className="u-primary" onClick={() => {
-            if (!check.photos) document.querySelector<HTMLElement>(".u-photos input")?.focus();
-            else if (!check.name) document.querySelector<HTMLInputElement>(".u-stack input")?.focus();
-            else if (!check.traits) document.getElementById("u-trait")?.focus();
-            else onNext();
-          }}>{check.ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>
-        </div>
-      </div>
+      <LookFields />
+      <button type="button" className="u-primary" onClick={() => completeLook(check, onNext)}>{check.ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>
     </div>
   </section>;
 }
@@ -298,10 +243,6 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <p className="u-micro">{t("guide.stepTake")}</p>
       <div className="u-next" aria-label={t("take.nextLabel")}>
         <p className="u-small">{t("take.next")}</p>
-        <div className="u-row">
-          <button type="button" className="u-secondary" onClick={() => setSheet("shots")}>{studio.studio.shots.length === 0 ? t("shot.create") : t("shot.title")}</button>
-          <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{studio.studio.sequences.length === 0 ? t("sequence.create") : t("sequence.title")}</button>
-        </div>
       </div>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
     </header>
@@ -325,6 +266,8 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         ? (result.costUsd !== null ? t("take.debitedFal", { amount: formatUsd(result.costUsd) }) : t("take.debitHiddenFal"))
         : (result.costCredits !== null ? t("take.debitedRender", { amount: formatCredits(result.costCredits) }) : t("take.debitHiddenRender"))}{result.gpuSeconds !== null ? t("take.calc", { clock: clock(result.gpuSeconds) }) : ""}</p>
       <PublishActions take={result} />
+      <ChainButton onClick={() => void studio.poseTake(result.id, { sequence: t("sequence.defaultName"), shot: t("shot.defaultName") })}>{t("take.pose")} <Arrow /></ChainButton>
+      <p className="u-small">{t("take.poseHint")}</p>
       {studio.studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === result.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
       {studio.studio.shots.filter(shot => shot.takeIds.includes(result.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
       <div className="u-row">
@@ -397,13 +340,21 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
           </button>;
         })}
       </fieldset>
-      <div className="u-comfort-controls">
-        <Segments label={t("take.format")} value={settings.aspect} onChange={aspect => setSettings({ aspect })} options={[{ value: "vertical", label: "9:16" }, { value: "horizontal", label: "16:9" }, { value: "carre", label: "1:1" }]} />
-        <Segments label={t("take.duration")} value={settings.seconds} onChange={seconds => setSettings({ seconds })} options={[{ value: 5, label: "5 s" }, { value: 8, label: "8 s" }]} />
-        {engine === "lora" && chosenLora && <Segments label={t("take.sharpness")} value={loraResolution} onChange={setLoraResolution} options={[{ value: "768P", label: "768p" }, { value: "480P", label: "480p" }]} />}
-        {engine === "comfy" && <Segments label={t("take.render")} value={settings.quality} onChange={quality => setSettings({ quality })} options={[{ value: "rapide", label: t("take.fast", { steps: TAKE_STEPS.rapide }) }, { value: "fine", label: t("take.fine", { steps: TAKE_STEPS.fine }) }]} />}
-        <p className="u-sound"><span className="u-label">{t("take.sound")}</span>{t(`engine.${engine}.sound`)}</p>
-      </div>
+      <details className="u-fold">
+        <summary>{t("take.measuredFold", {
+          seconds: settings.seconds,
+          format: settings.aspect === "vertical" ? "9:16" : settings.aspect === "horizontal" ? "16:9" : "1:1",
+          quality: engine === "lora" ? loraResolution : settings.quality === "rapide" ? t("take.fast", { steps: TAKE_STEPS.rapide }) : t("take.fine", { steps: TAKE_STEPS.fine }),
+        })}</summary>
+        <div className="u-comfort-controls">
+          <p className="u-small">{t("take.measuredNote")}</p>
+          <Segments label={t("take.format")} value={settings.aspect} onChange={aspect => setSettings({ aspect })} options={[{ value: "vertical", label: "9:16" }, { value: "horizontal", label: "16:9" }, { value: "carre", label: "1:1" }]} />
+          <Segments label={t("take.duration")} value={settings.seconds} onChange={seconds => setSettings({ seconds })} options={[{ value: 5, label: "5 s" }, { value: 8, label: "8 s" }]} />
+          {engine === "lora" && chosenLora && <Segments label={t("take.sharpness")} value={loraResolution} onChange={setLoraResolution} options={[{ value: "768P", label: "768p" }, { value: "480P", label: "480p" }]} />}
+          {engine === "comfy" && <Segments label={t("take.render")} value={settings.quality} onChange={quality => setSettings({ quality })} options={[{ value: "rapide", label: t("take.fast", { steps: TAKE_STEPS.rapide }) }, { value: "fine", label: t("take.fine", { steps: TAKE_STEPS.fine }) }]} />}
+          <p className="u-sound"><span className="u-label">{t("take.sound")}</span>{t(`engine.${engine}.sound`)}</p>
+        </div>
+      </details>
       {engine === "comfy" && takeQuote.source === "balance" && <button type="button" className="u-link" onClick={() => void clearMeasuredQuote(takeProfile(settings))}>{t("sheet.clearQuote")}</button>}
       <p className={`u-cost is-${samplePrice ? "warn" : engine === "comfy" && !connected ? (takeQuote.source === "unmeasured" ? "block" : "ok") : gate.tone}`}>
         {samplePrice ? say(example)
