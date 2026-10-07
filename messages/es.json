@@ -64,7 +64,7 @@
     "sphere-empty": "Tus tomas vendrán a posarse aquí.",
     "understood": "Entendido",
     "stepCharacter": "Fotos, o un archivo. El precio se lee antes del gesto.",
-    "stepScene": "Una localización, un nombre. Una imagen la sostiene de toma en toma.",
+    "stepScene": "Una localización, un nombre. Luego, la toma. El recorrido se filma aparte.",
     "stepTake": "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar.",
     "stop": "No guiar más"
   },
@@ -72,7 +72,7 @@
     "unchanged": "Nada ha cambiado.",
     "needName": "Falta un nombre.",
     "needKey": "Falta la clave.",
-    "planFresh": "El plano de espacio ya está en cero.",
+    "planFresh": "Esta toma ya está al inicio.",
     "hold": "El presupuesto o el saldo frena el gesto."
   },
   "verb": {
@@ -179,6 +179,7 @@
     "noTake": "Ninguna toma para esta localización.",
     "openTake": "Abrir la toma {line}",
     "goTake": "Ir a la toma",
+    "passTake": "Puedes pasar a la toma. Filmar el recorrido es otro gesto.",
     "placeFirst": "Coloca primero una localización",
     "placeName": "Nombre de la localización",
     "holds": "Lo que sostiene la localización",
@@ -224,9 +225,10 @@
   },
   "sequence": {
     "title": "Secuencias",
-    "lead": "Una secuencia vincula tomas, en orden. El raccord dice lo que debe coincidir.",
+    "lead": "Una secuencia vincula tomas, en orden. El raccord es una nota: luz, mirada, movimiento, objeto. No es el gesto « Empalmar dos imágenes ».",
     "name": "Nombre de la secuencia",
     "create": "Crear la secuencia",
+    "add": "Añadir esta toma",
     "empty": "Ninguna secuencia en este proyecto.",
     "open": "Abrir {name}",
     "oneTake": "1 toma",
@@ -234,7 +236,7 @@
     "raccord": "Raccord",
     "raccordHint": "Luz, mirada, movimiento, objeto.",
     "first": "Primera toma. No hay raccord antes de ella.",
-    "pick": "Toma a vincular",
+    "pick": "Toma a añadir",
     "noTake": "Ninguna toma en este proyecto.",
     "noLink": "Ninguna toma en esta secuencia.",
     "allLinked": "Todas las tomas ya están en esta secuencia.",
@@ -263,7 +265,7 @@
     "noSequence": "Sin secuencia",
     "missingSequence": "Secuencia no encontrada",
     "noTake": "Ninguna toma en esta viñeta.",
-    "pick": "Toma a vincular",
+    "pick": "Toma a añadir",
     "allLinked": "Todas las tomas ya están en esta viñeta.",
     "removeLink": "Quitar de la viñeta",
     "inShot": "En la viñeta {name}",
@@ -342,7 +344,9 @@
     "exampleWho": "Ejemplo · {who}",
     "examplePlace": "Ejemplo · {place}",
     "filmedStill": "Imagen filmada",
-    "resetPlan": "Restablecer este plano de espacio",
+    "resetPlan": "Restablecer esta toma",
+    "next": "Luego: una viñeta, y una secuencia. La exportación está en Mi estudio.",
+    "nextLabel": "Después de la toma",
     "stayTakes": "Las tomas ya rodadas quedan.",
     "gapPhotos": "Faltan dos fotos, un nombre y dos rasgos.",
     "gapScene": "Falta una localización.",
@@ -543,6 +547,7 @@
     "memory": "Memoria",
     "studioIntro": "Mi estudio se queda en este aparato. El mapa MOC.md vincula los proyectos. El proyecto en curso es el único que lee la cadena.",
     "currentProject": "Proyecto en curso",
+    "openProject": "Proyecto en curso · {name}",
     "projectName": "Nombre del proyecto",
     "createProject": "Crear este proyecto",
     "folders": "Carpetas del proyecto",
@@ -553,6 +558,7 @@
     "usageVolatile": " · El navegador puede vaciar este almacenamiento: exporta o vincula una carpeta.",
     "usageHeld": " · Almacenamiento protegido.",
     "usageOnDevice": "{amount} MB en este aparato",
+    "exportLead": "El ZIP es mi estudio. Lo llevas tú. Ningún servidor lo copia.",
     "export": "Exportar mi estudio (.zip)",
     "importing": "Importación…",
     "import": "Importar un estudio (.zip)",
@@ -615,20 +621,21 @@
     "file": "Archivo"
   },
   "cinema": {
-    "kicker": "Gestos",
-    "lead": "En esta toma.",
-    "leadPlan": "En esta viñeta.",
-    "lands": "El clip corto se guarda con las tomas. La viñeta lo conserva si el clip sale de ella.",
+    "kicker": "Aparte",
+    "lead": "Tres gestos aparte. No ruedan esta toma. Sin un número, Rodar sigue apagado.",
+    "leadPlan": "Los mismos gestos, a partir de las imágenes de esta viñeta.",
+    "lands": "El corto se guarda con las tomas. La viñeta lo conserva si el corto sale de ella.",
     "partage": "Falta el enlace. Este gesto no tiene un modelo leído. No se abre nada.",
     "devis": "Presupuesto ausente. El total de este gesto no es un número. Nada sale.",
     "raccord": {
       "name": "Empalmar dos imágenes",
-      "sentence": "La primera imagen y la última se vuelven un clip corto.",
-      "need": "Hacen falta una primera imagen y una última imagen, distintas."
+      "sentence": "La primera imagen y la última se vuelven un corto.",
+      "need": "Hacen falta una primera imagen y una última imagen, distintas.",
+      "apart": "No es la nota de raccord entre dos tomas de una secuencia."
     },
     "camera": {
       "name": "Mover la cámara",
-      "sentence": "Una imagen fija, o la imagen de una toma, se vuelve un clip corto. La cámara se mueve.",
+      "sentence": "Una imagen fija, o la imagen de una toma, se vuelve un corto. La cámara se mueve.",
       "needStill": "Hace falta una imagen fija, o la imagen de una toma.",
       "needMove": "Elige un movimiento.",
       "moves": "Movimiento",
@@ -639,8 +646,8 @@
         "right": "Va a la derecha",
         "in": "Se acerca",
         "out": "Se aleja",
-        "acw": "Gira a la izquierda",
-        "cw": "Gira a la derecha"
+        "acw": "Pivota a la izquierda",
+        "cw": "Pivota a la derecha"
       }
     },
     "effet": {

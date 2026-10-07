@@ -2,6 +2,20 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F17 — audit novice bout en bout — 7 octobre 2026
+
+- **Fait :** le parcours a été lu dans le studio, à 390 px et à 1280 px : projet, Personnage, Scène, Prise, Plan, Séquence, feuille Mon studio. Le français est la langue par défaut.
+- **Fait :** sur la prise, les trois gestes cinéma (Raccorder, Caméra, Effet) s’ouvraient avant le formulaire. Trois boutons Tourner éteints couvraient le geste de la prise. Sur la liste des plans, les mêmes fiches s’ouvraient avant qu’un plan existe.
+- **Fait :** en français, « Plan » nommait à la fois l’espace (Pièce, Quai, Rue), la case du storyboard, et la remise à zéro de la phrase de prise. En anglais, allemand et espagnol, le bouton de la prise disait remettre le layout, le Raumplan ou le plano de espacio, alors qu’il remet la phrase et le réglage.
+- **Fait :** la feuille de confirmation de la prise étiquetait la phrase avec le mot de l’espace. Deux groupes de boutons −X +Y se suivaient sans dire lequel bouge la caméra et lequel bouge le point visé. Le nom MiniMax H3 était sur les deux moteurs, identique, sans aider le choix.
+- **Fait :** « Relier » ajoutait une prise à une séquence ou à un plan, le même verbe que la liaison d’un compte. Le bandeau du téléphone (langue, Solde, Mon studio) dépassait 390 px. La rangée des lieux défilait en travers.
+- **Décision :** l’espace s’appelle **Espace**. Le plan du storyboard reste **Plan**. Filmer le trajet dit **Filmer ce trajet**. La remise à zéro de la prise dit **Remettre cette prise à zéro**, et la raison « Cette prise est déjà au départ. »
+- **Décision :** depuis Personnage, une ligne ouvre le projet en cours dans Mon studio. Sur Scène, « Aller à la prise » passe devant le geste du trajet, avec la phrase qui dit que filmer le trajet est à part. Sur Prise, « Créer le plan » puis « Créer la séquence » sont sous le titre, et l’export est nommé dans Mon studio. Le ZIP a une phrase courte au-dessus du bouton.
+- **Décision :** les gestes cinéma restent sur la prise et sur un plan ouvert, après le geste principal. Le bouton reste Tourner, éteint. La phrase dit qu’ils ne tournent pas cette prise, et que sans un nombre rien ne part. « Raccorder deux images » dit que ce n’est pas la note de la séquence. La liste des plans ne les montre pas tant qu’aucun plan n’est ouvert.
+- **Décision :** ajouter une prise à une séquence ou à un plan dit « Ajouter cette prise ». Relier reste le verbe du compte. Les deux déplacements d’axes portent leur nom. Le nom de modèle quitte les deux boutons de moteur.
+- **Décision :** sous 480 px, la barre passe à la ligne pour garder Mon studio lisible. Les lieux se rangent en lignes, sans défilement horizontal.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Tourner de la prise reste éteint sans devis mesuré. Les catalogues DE et ES restent `_status: reviewed`. Ce n’est pas une signature de locuteur natif.
+
 ## F16 — trois gestes cinéma — 7 octobre 2026
 
 - **Fait :** lecture du catalogue Comfy Cloud le 7 octobre 2026, découverte seulement (`search_templates`, `get_template` avec `summary_only`, `get_template_schema`, `get_node` avec `refresh`, `search_nodes` non utilisé pour un second compte). Le catalogue rendu par `get_node` est `source: live`, `refreshed_at` `2026-10-07T17:15:59.583Z`, `refresh.outcome` `swapped`, `node_count` 3772, le même compte qu’en F14.

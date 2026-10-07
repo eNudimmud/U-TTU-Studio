@@ -55,6 +55,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
       <p className="u-label">{t("lora.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{showFile ? t("lora.trainTitle") : t("lora.twoWays")}</h1>
       <p className="u-micro">{t("guide.stepCharacter")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet("coffre")}>{t("sheet.openProject", { name: vault.projectName || t("common.unnamed") })}</button>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "lora" })}>{t("job.outputs")}</button>
       {showFile && <button type="button" className="u-link" onClick={() => setFile(false)}>{t("verb.bothWays")}</button>}
     </header>

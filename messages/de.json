@@ -64,7 +64,7 @@
     "sphere-empty": "Deine Takes kommen hier zur Ruhe.",
     "understood": "Verstanden",
     "stepCharacter": "Fotos, oder eine Datei. Der Preis wird vor der Geste gelesen.",
-    "stepScene": "Ein Drehort, ein Name. Ein Bild hält ihn von Take zu Take.",
+    "stepScene": "Ein Drehort, ein Name. Danach der Take. Der Weg wird extra gefilmt.",
     "stepTake": "Ein Satz. Verbinde das Konto, lies die Kalkulation, dann Drehen.",
     "stop": "Nicht mehr führen"
   },
@@ -72,7 +72,7 @@
     "unchanged": "Nichts hat sich geändert.",
     "needName": "Ein Name fehlt.",
     "needKey": "Der Schlüssel fehlt.",
-    "planFresh": "Der Raumplan ist schon zurückgesetzt.",
+    "planFresh": "Dieser Take steht schon am Anfang.",
     "hold": "Die Kalkulation oder das Guthaben hält die Geste zurück."
   },
   "verb": {
@@ -179,6 +179,7 @@
     "noTake": "Kein Take für diesen Drehort.",
     "openTake": "Take öffnen {line}",
     "goTake": "Zum Take",
+    "passTake": "Du kannst zum Take weitergehen. Den Weg zu filmen ist eine andere Geste.",
     "placeFirst": "Zuerst einen Drehort setzen",
     "placeName": "Name des Drehorts",
     "holds": "Was den Drehort hält",
@@ -224,9 +225,10 @@
   },
   "sequence": {
     "title": "Sequenzen",
-    "lead": "Eine Sequenz verbindet Takes, der Reihe nach. Der Anschluss sagt, was von einem Take zum nächsten passen muss.",
+    "lead": "Eine Sequenz verbindet Takes, der Reihe nach. Der Anschluss ist eine Notiz: Licht, Blick, Bewegung, Gegenstand. Das ist nicht die Geste « Zwei Bilder verbinden ».",
     "name": "Name der Sequenz",
     "create": "Sequenz anlegen",
+    "add": "Diesen Take hinzufügen",
     "empty": "Keine Sequenz in diesem Projekt.",
     "open": "{name} öffnen",
     "oneTake": "1 Take",
@@ -234,7 +236,7 @@
     "raccord": "Anschluss",
     "raccordHint": "Licht, Blick, Bewegung, Gegenstand.",
     "first": "Erster Take. Davor gibt es keinen Anschluss.",
-    "pick": "Take zum Verbinden",
+    "pick": "Take zum Hinzufügen",
     "noTake": "Kein Take in diesem Projekt.",
     "noLink": "Kein Take in dieser Sequenz.",
     "allLinked": "Alle Takes sind schon in dieser Sequenz.",
@@ -263,7 +265,7 @@
     "noSequence": "Keine Sequenz",
     "missingSequence": "Sequenz nicht gefunden",
     "noTake": "Kein Take in diesem Shot.",
-    "pick": "Take zum Verbinden",
+    "pick": "Take zum Hinzufügen",
     "allLinked": "Alle Takes sind schon in diesem Shot.",
     "removeLink": "Aus dem Shot nehmen",
     "inShot": "Im Shot {name}",
@@ -342,7 +344,9 @@
     "exampleWho": "Beispiel · {who}",
     "examplePlace": "Beispiel · {place}",
     "filmedStill": "Gefilmtes Bild",
-    "resetPlan": "Diesen Raumplan zurücksetzen",
+    "resetPlan": "Diesen Take zurücksetzen",
+    "next": "Danach: ein Shot, dann eine Sequenz. Der Export liegt in « Mein Studio ».",
+    "nextLabel": "Nach dem Take",
     "stayTakes": "Schon gedrehte Takes bleiben.",
     "gapPhotos": "Zwei Fotos, ein Name und zwei Züge fehlen.",
     "gapScene": "Ein Drehort fehlt.",
@@ -543,6 +547,7 @@
     "memory": "Gedächtnis",
     "studioIntro": "Mein Studio bleibt auf diesem Gerät. Die Karte MOC.md verbindet die Projekte. Das aktuelle Projekt ist das einzige, das die Kette liest.",
     "currentProject": "Aktuelles Projekt",
+    "openProject": "Aktuelles Projekt · {name}",
     "projectName": "Projektname",
     "createProject": "Dieses Projekt erstellen",
     "folders": "Projektordner",
@@ -553,6 +558,7 @@
     "usageVolatile": " · Der Browser kann diesen Speicher leeren: exportiere oder verbinde einen Ordner.",
     "usageHeld": " · Speicher geschützt.",
     "usageOnDevice": "{amount} MB auf diesem Gerät",
+    "exportLead": "Das ZIP ist « Mein Studio ». Du nimmst es selbst mit. Kein Server kopiert es.",
     "export": "Mein Studio exportieren (.zip)",
     "importing": "Import…",
     "import": "Ein Studio importieren (.zip)",
@@ -615,20 +621,21 @@
     "file": "Datei"
   },
   "cinema": {
-    "kicker": "Gesten",
-    "lead": "Auf diesem Take.",
-    "leadPlan": "Auf diesem Shot.",
-    "lands": "Der kurze Clip liegt bei den Takes. Der Shot behält ihn, wenn der Clip von dort kommt.",
+    "kicker": "Extra",
+    "lead": "Drei Gesten extra. Sie drehen diesen Take nicht. Ohne eine Zahl bleibt Drehen aus.",
+    "leadPlan": "Dieselben Gesten, aus den Bildern dieses Shots.",
+    "lands": "Der kurze Film liegt bei den Takes. Der Shot behält ihn, wenn der Film von dort kommt.",
     "partage": "Freigabe fehlt. Für diese Geste liegt kein Modell vor. Es öffnet sich nichts.",
     "devis": "Kalkulation fehlt. Der Gesamtbetrag dieser Geste ist keine Zahl. Nichts geht.",
     "raccord": {
       "name": "Zwei Bilder verbinden",
-      "sentence": "Das erste Bild und das letzte Bild werden ein kurzer Clip.",
-      "need": "Es braucht ein erstes Bild und ein letztes Bild, und sie müssen verschieden sein."
+      "sentence": "Das erste Bild und das letzte Bild werden ein kurzer Film.",
+      "need": "Es braucht ein erstes Bild und ein letztes Bild, und sie müssen verschieden sein.",
+      "apart": "Das ist nicht die Anschluss-Notiz zwischen zwei Takes einer Sequenz."
     },
     "camera": {
       "name": "Die Kamera bewegen",
-      "sentence": "Ein Standbild, oder das Bild eines Takes, wird ein kurzer Clip. Die Kamera bewegt sich.",
+      "sentence": "Ein Standbild, oder das Bild eines Takes, wird ein kurzer Film. Die Kamera bewegt sich.",
       "needStill": "Es braucht ein Standbild, oder das Bild eines Takes.",
       "needMove": "Wähle eine Bewegung.",
       "moves": "Bewegung",
@@ -639,8 +646,8 @@
         "right": "Nach rechts",
         "in": "Näher",
         "out": "Weiter weg",
-        "acw": "Dreht nach links",
-        "cw": "Dreht nach rechts"
+        "acw": "Schwenkt nach links",
+        "cw": "Schwenkt nach rechts"
       }
     },
     "effet": {

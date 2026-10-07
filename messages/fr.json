@@ -64,7 +64,7 @@
     "sphere-empty": "Tes prises viendront se poser ici.",
     "understood": "Compris",
     "stepCharacter": "Photos, ou un fichier. Le prix se lit avant le geste.",
-    "stepScene": "Un lieu, un nom. Une image le tient d’une prise à l’autre.",
+    "stepScene": "Un lieu, un nom. Ensuite, la prise. Le trajet se filme à part.",
     "stepTake": "Une phrase. Relie le compte, lis le devis, puis Tourner.",
     "stop": "Ne plus guider"
   },
@@ -72,7 +72,7 @@
     "unchanged": "Rien n’a changé.",
     "needName": "Il manque un nom.",
     "needKey": "Il manque la clé.",
-    "planFresh": "Le plan est déjà remis.",
+    "planFresh": "Cette prise est déjà au départ.",
     "hold": "Le devis ou le solde ne laisse pas partir."
   },
   "verb": {
@@ -179,15 +179,16 @@
     "noTake": "Aucune prise pour ce lieu.",
     "openTake": "Ouvrir la prise {line}",
     "goTake": "Aller à la prise",
+    "passTake": "Tu peux passer à la prise. Filmer le trajet est un autre geste.",
     "placeFirst": "Pose d’abord un lieu",
     "placeName": "Nom du lieu",
     "holds": "Ce qui tient le lieu",
     "holdsPlaceholder": "Pluie fine, néons froids, l’heure bleue.",
     "holdsSummary": "Ce que tient ce lieu",
     "thePlace": "Le lieu",
-    "thePlaceBody": "Il reste. Tu le rouvres : même nom, même plan, même trajet. Tu peux en tenir plusieurs.",
+    "thePlaceBody": "Il reste. Tu le rouvres : même nom, même espace, même trajet. Tu peux en tenir plusieurs.",
     "blenderBody": "Il rend le lieu vide, {frames} images le long du trajet. Le personnage n’est pas dans ce fichier.",
-    "theCharacterBody": "C’est le fichier de mon studio. Il n’entre que dans le plan filmé, après ces images.",
+    "theCharacterBody": "C’est le fichier de mon studio. Il n’entre que dans le trajet filmé, après ces images.",
     "formed": "Ce lieu, formé",
     "formedPrice": "Formation : {amount}.",
     "formedUnread": "Le prix de formation se lit sur le compte fal, avant le geste.",
@@ -195,7 +196,7 @@
     "formedTail": "Ce fichier n’est pas un volume. Le 3D reste le Blender.",
     "thePrice": "Le prix",
     "thePriceBody": "Les deux devis sont lus avant le geste. Rien ne part sans confirmation.",
-    "plan": "Plan",
+    "plan": "Espace",
     "path": "Trajet",
     "start": "Départ",
     "end": "Arrivée",
@@ -224,9 +225,10 @@
   },
   "sequence": {
     "title": "Séquences",
-    "lead": "Une séquence relie des prises, dans l’ordre. Le raccord dit ce qui doit coller.",
+    "lead": "Une séquence relie des prises, dans l’ordre. Le raccord est une note : lumière, regard, mouvement, objet. Ce n’est pas le geste « Raccorder deux images ».",
     "name": "Nom de la séquence",
     "create": "Créer la séquence",
+    "add": "Ajouter cette prise",
     "empty": "Aucune séquence dans ce projet.",
     "open": "Ouvrir {name}",
     "oneTake": "1 prise",
@@ -234,7 +236,7 @@
     "raccord": "Raccord",
     "raccordHint": "Lumière, regard, mouvement, objet.",
     "first": "Première prise. Rien à raccorder avant elle.",
-    "pick": "Prise à relier",
+    "pick": "Prise à ajouter",
     "noTake": "Aucune prise dans ce projet.",
     "noLink": "Aucune prise dans cette séquence.",
     "allLinked": "Toutes les prises sont déjà dans cette séquence.",
@@ -263,7 +265,7 @@
     "noSequence": "Sans séquence",
     "missingSequence": "Séquence introuvable",
     "noTake": "Aucune prise dans ce plan.",
-    "pick": "Prise à relier",
+    "pick": "Prise à ajouter",
     "allLinked": "Toutes les prises sont déjà dans ce plan.",
     "removeLink": "Retirer du plan",
     "inShot": "Dans le plan {name}",
@@ -273,11 +275,11 @@
   "film": {
     "place": {
       "label": "Poser un lieu",
-      "missing": "Il manque un lieu. Nomme-le, puis choisis un plan."
+      "missing": "Il manque un lieu. Nomme-le, puis choisis un espace."
     },
     "plan": {
-      "label": "Choisir un plan",
-      "missing": "Il manque un plan. Pièce, Quai ou Rue."
+      "label": "Choisir un espace",
+      "missing": "Il manque un espace. Pièce, Quai ou Rue."
     },
     "blender": {
       "label": "Relier Blender",
@@ -289,20 +291,20 @@
     },
     "fal": {
       "label": "Relier le compte fal",
-      "missing": "Il manque le compte fal. Il paie le personnage dans le plan."
+      "missing": "Il manque le compte fal. Il paie le personnage dans le trajet."
     },
     "film": {
-      "label": "Filmer ce plan"
+      "label": "Filmer ce trajet"
     },
     "write": "Écriture du lieu",
     "inspect": "Lecture du devis",
-    "start": "Envoi du plan",
+    "start": "Envoi du trajet",
     "queue": "Rendu en file",
     "render": "Blender tourne · {seconds} s",
     "fetch": "Les images du trajet reviennent",
-    "person": "Le personnage entre dans le plan",
+    "person": "Le personnage entre dans le trajet",
     "shot": "Le personnage tourne · {seconds} s",
-    "video": "Le plan filmé revient"
+    "video": "Le trajet filmé revient"
   },
   "take": {
     "kicker": "03 · La prise",
@@ -342,7 +344,9 @@
     "exampleWho": "Exemple · {who}",
     "examplePlace": "Exemple · {place}",
     "filmedStill": "Image filmée",
-    "resetPlan": "Remettre ce plan à zéro",
+    "resetPlan": "Remettre cette prise à zéro",
+    "next": "Ensuite : un plan, puis une séquence. L’export est dans Mon studio.",
+    "nextLabel": "Après la prise",
     "stayTakes": "Les prises déjà tournées restent.",
     "gapPhotos": "Il manque deux photos, un nom et deux traits.",
     "gapScene": "Il manque un lieu.",
@@ -543,16 +547,18 @@
     "memory": "Mémoire",
     "studioIntro": "Mon studio reste sur cet appareil. La carte MOC.md relie les projets. Le projet en cours est le seul que la chaîne lit.",
     "currentProject": "Projet en cours",
+    "openProject": "Projet en cours · {name}",
     "projectName": "Nom du projet",
     "createProject": "Créer ce projet",
     "folders": "Dossiers du projet",
     "obsidian": "Pour passer du téléphone à l’ordinateur, et revenir : exporte le ZIP sur l’appareil de départ, emporte ce fichier toi-même, puis importe-le sur l’autre appareil. Aucun serveur ne le copie. Pour le lire à côté, ouvre ce dossier dans Obsidian. Les fichiers s’ajoutent. Une prise ou un personnage déjà ici reste.",
     "referencePhotos": "Photos des références",
     "clips": "Clips",
-    "doubles": "Doubles",
+    "doubles": "Personnages formés",
     "usageVolatile": " · Le navigateur peut vider ce stockage : exporte ou relie un dossier.",
     "usageHeld": " · Stockage protégé.",
     "usageOnDevice": "{amount} Mo sur cet appareil",
+    "exportLead": "Le ZIP est mon studio. Tu l’emportes toi-même. Aucun serveur ne le copie.",
     "export": "Exporter mon studio (.zip)",
     "importing": "Import…",
     "import": "Importer un studio (.zip)",
@@ -591,8 +597,8 @@
     "referencesPays": "Il paie les prises « {engine} ».",
     "confirmTrain": "Former ce personnage ?",
     "trainDebit": "Former · débit sur mon compte fal",
-    "confirmFilm": "Filmer ce plan ?",
-    "filmBody": "Blender rend le lieu vide, le long du trajet. Le personnage est le fichier de mon studio : il n’entre que dans le plan filmé. S’il ne revient pas d’image, aucune n’est affichée.",
+    "confirmFilm": "Filmer ce trajet ?",
+    "filmBody": "Blender rend le lieu vide, le long du trajet. Le personnage est le fichier de mon studio : il n’entre que dans le trajet filmé. S’il ne revient pas d’image, aucune n’est affichée.",
     "filmDebit": "Filmer · débit sur mon compte",
     "blenderLinked": "La clé de job est sur cet appareil. Elle part seulement vers Farpy, au moment où tu filmes.",
     "blenderIntro": "Farpy fait tourner Blender, hors de ton appareil. Crée un compte, ajoute du crédit, puis une clé de job. Elle commence par farpy_agent_. Une clé de compte ne lance pas le rendu.",
@@ -615,20 +621,21 @@
     "file": "Fichier"
   },
   "cinema": {
-    "kicker": "Gestes",
-    "lead": "Sur cette prise.",
-    "leadPlan": "Sur ce plan.",
-    "lands": "Le court plan se range avec les prises. Le plan du storyboard le garde s’il en part.",
+    "kicker": "À part",
+    "lead": "Trois gestes à part. Ils ne tournent pas cette prise. Sans un nombre, Tourner reste éteint.",
+    "leadPlan": "Les mêmes gestes, à partir des images de ce plan.",
+    "lands": "Le court film se range avec les prises. Le plan du storyboard le garde s’il en part.",
     "partage": "Partage manquant. Ce geste n’a pas de modèle lu. Rien ne s’ouvre.",
     "devis": "Devis absent. Le total de ce geste n’est pas un nombre. Rien ne part.",
     "raccord": {
       "name": "Raccorder deux images",
-      "sentence": "La première image et la dernière deviennent un court plan.",
-      "need": "Il faut une première image et une dernière image, distinctes."
+      "sentence": "La première image et la dernière deviennent un court film.",
+      "need": "Il faut une première image et une dernière image, distinctes.",
+      "apart": "Ce n’est pas la note entre deux prises d’une séquence."
     },
     "camera": {
       "name": "Bouger la caméra",
-      "sentence": "Une image fixe, ou l’image d’une prise, devient un court plan. La caméra bouge.",
+      "sentence": "Une image fixe, ou l’image d’une prise, devient un court film. La caméra bouge.",
       "needStill": "Il faut une image fixe, ou l’image d’une prise.",
       "needMove": "Choisis un mouvement.",
       "moves": "Mouvement",
@@ -639,8 +646,8 @@
         "right": "Va à droite",
         "in": "S’approche",
         "out": "S’éloigne",
-        "acw": "Tourne à gauche",
-        "cw": "Tourne à droite"
+        "acw": "Pivote à gauche",
+        "cw": "Pivote à droite"
       }
     },
     "effet": {
@@ -717,7 +724,7 @@
     "characterFileMissing": "Le fichier du personnage manque dans mon studio.",
     "referencePhotosMissing": "Les photos des références manquent dans mon studio.",
     "filmedStillMissing": "L’image filmée manque dans mon studio.",
-    "planFilmed": "Le plan est filmé. Blender a rendu le lieu vide. Le personnage est dans la prise.",
+    "planFilmed": "Le trajet est filmé. Blender a rendu le lieu vide. Le personnage est dans la prise.",
     "placeRenderedResume": "Le lieu est rendu. Le suivi du personnage reprend. Rien n’est renvoyé.",
     "placeEmptyNext": "Le lieu est rendu, vide. Le prochain geste filme le personnage, au prix fal seul.",
     "followStopped": "Suivi arrêté ici. Si le rendu est déjà parti, il continue sur ton compte.",
