@@ -2,6 +2,16 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F15 — export Mon studio — 7 octobre 2026
+
+- **Fait :** un ZIP exporté, puis importé dans un studio vide, rend la même arborescence et les mêmes contenus. Cela couvre `Sequences/`, `Shots/`, les gabarits `modele-personnage.md`, `modele-scene.md`, `modele-prise.md`, `modele-sequence.md`, `modele-shot.md`, le coût écrit sur la prise (`cout_credits`, `cout_usd`) et le devis mesuré `Projets/<projet>/.uttu/devis.json`.
+- **Fait :** le journal et la carte d’un projet qui n’est pas le projet en cours revenaient absents. L’import les garde. Le journal et la carte du projet en cours sont toujours réécrits à partir de ce que l’appareil peut ouvrir.
+- **Décision :** un fichier déjà présent n’est pas remplacé. Une prise ou un personnage déjà sur l’appareil reste, y compris au retour du téléphone vers l’ordinateur.
+- **Décision :** le message dit comment passer du téléphone à l’ordinateur, et revenir, sans serveur. On exporte le ZIP, on emporte le fichier soi-même, on l’importe. Obsidian reste la lecture à côté, pas le pont.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Aucune route fal nouvelle.
+- **Hypothèse :** la personne emporte le fichier par un moyen à elle (câble, partage de l’appareil). Ce tour ne mesure pas ce geste hors de l’app.
+- **Proposition :** Syncthing, iCloud ou un Git privé restent hors de l’app. Pas de copie sur le serveur.
+
 ## F14 — re-watch SaveLoRA / lieu — 7 octobre 2026
 
 - **Fait :** relecture du catalogue Comfy Cloud le 7 octobre 2026, découverte seulement (`get_node` avec `refresh`, `search_nodes`, `search_templates`). Le catalogue rendu est `source: live`, `refreshed_at` `2026-10-07T16:47:36.385Z`, `refresh.outcome` `swapped`, `node_count` 3772, le même compte qu’en F9.

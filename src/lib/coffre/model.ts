@@ -746,7 +746,7 @@ Ce dossier est mon studio. L’app l’écrit, Obsidian le lit tel quel.
 - \`Projets/<projet>/\` — un univers complet : bible, style, lexique, personnages, références, lieux, prises, séquences, journal, moteurs.
 - \`.uttu/projet.json\` — le projet en cours. Pas une clé.
 
-La chaîne ne lit que le projet en cours. Rien ici n’est envoyé au studio. Pour le lire sur un autre appareil, exporte ce dossier et importe-le là-bas. Les prises et les formations tournent sur tes propres comptes.
+La chaîne ne lit que le projet en cours. Rien ici n’est envoyé au studio. Du téléphone à l’ordinateur, et retour : exporte ce dossier, emporte le ZIP toi-même, importe-le sur l’autre appareil. Aucun serveur ne le copie. Les prises et les formations tournent sur tes propres comptes.
 `;
 
 async function readActive(store: VaultStore): Promise<string | null> {

@@ -26,6 +26,7 @@ U-TTU-Studio/
     .uttu/etat.json              le lieu courant
     .uttu/clips.json             durée et taille de chaque clip
     .uttu/role.json              le brouillon de personnage
+    .uttu/devis.json             devis mesuré : la baisse entre deux soldes
 ```
 
 Les fiches sont du Markdown avec frontmatter : `type`, `projet`, `statut`, `updated`, et `moteur` (`comfy`, `fal` ou `demo`) plus `gesture` quand le geste existe. Une prise garde aussi `lora`, `resolution`, `cout_usd`, `cout_source`. Le moteur `fal` d’une prise est le moteur interne `lora`. Une fiche de fichier porte `declencheur`, `fichier`, `sha256`, `pas`, `rang`, `entraineur`, `requete`. Les images et la vidéo sont liées en `![[…]]`. `MOC.md` liste les projets. `_MOC.md` relie le personnage, les lieux, les prises, la bible et le journal de ce projet. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
@@ -35,8 +36,8 @@ Un ZIP ancien (`CANON.md`, `scenes/`, `prises/`, `loras/`) est rangé dans un pr
 ## Où il vit
 
 - **Sur l’appareil, dans le navigateur.** IndexedDB, base `uttu-coffre`, un enregistrement par fichier (`path`, texte ou blob). Le studio demande le stockage persistant (`navigator.storage.persist()`). La feuille Mon studio dit ce qui est occupé, et si le navigateur peut le vider.
-- **Exporter mon studio.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, `MOC.md` comprise, à décompresser et ouvrir dans Obsidian.
-- **Importer un studio.** Un ZIP du même schéma s’ajoute à mon studio sur cet appareil. Une prise ou un personnage déjà là reste. Une fiche illisible, ou qui pointe vers une vidéo ou un fichier absent, ne remplace pas la fiche valide. Le journal et la carte sont réécrits à partir de ce que mon studio peut ouvrir.
+- **Exporter mon studio.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, `MOC.md` comprise, à décompresser et ouvrir dans Obsidian. Sequences/, Shots/, les gabarits `modele-*.md` et `.uttu/devis.json` sont dans ce ZIP.
+- **Importer un studio.** Un ZIP du même schéma s’ajoute à mon studio sur cet appareil. Un fichier déjà là n’est pas remplacé. Une fiche illisible, ou qui pointe vers une vidéo ou un fichier absent, ne remplace pas la fiche valide. Le journal et la carte du projet en cours sont réécrits à partir de ce que mon studio peut ouvrir. Le journal et la carte des autres projets reviennent tels qu’exportés.
 - **Relier mon dossier Obsidian.** Sur ordinateur, Chrome ou Edge (File System Access) : l’app copie mon studio dans le dossier choisi, puis y écrit chaque changement tant que la page reste ouverte. Le lien ne survit pas à la fermeture : on le refait d’un geste.
 
 La clé et la session de rendu, la clé fal, et la clé Blender (`u-ttu-blender`) ne sont pas des fichiers de mon studio. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
@@ -56,5 +57,12 @@ L’ancien pilier était un ZIP de départ, téléchargé une fois, que la perso
 ## Limites
 
 - **Le navigateur peut vider ce stockage** si l’espace manque et que la persistance n’est pas accordée. La feuille Mon studio le dit. Exporter, ou relier un dossier, garde une copie.
-- **Un studio par navigateur.** Deux appareils ne partagent pas le même dossier. Le pont : exporter le ZIP, ouvrir le dossier dans Obsidian, importer ce ZIP sur l’autre appareil. Il n’y a pas de copie sur le serveur.
+- **Un studio par navigateur.** Deux appareils ne partagent pas le même dossier. Du téléphone à l’ordinateur, et retour : exporter le ZIP sur l’appareil de départ, emporter ce fichier soi-même, l’importer sur l’autre. Aucun serveur ne le copie. Obsidian ouvre le dossier si on veut le lire à côté.
 - **Le dossier relié est à sens unique.** L’app écrit dans le dossier. Elle ne relit pas un changement fait dans Obsidian. L’import, lui, lit un ZIP.
+
+## Scorecard — brief futur
+
+| Tranche | Fait |
+| --- | --- |
+| F1 | Export ZIP avec `MOC.md`. Import en fusion : une prise ou un personnage déjà là n’est pas effacé. Pas de sync serveur. |
+| F15 | Aller-retour d’un projet complet vers un studio vide : même arborescence, mêmes contenus. `Sequences/`, `Shots/`, gabarits `modele-*.md`, coûts de prise et `.uttu/devis.json` reviennent. Le journal et la carte d’un autre projet aussi. Le passage téléphone ↔ ordinateur est ce ZIP, emporté à la main, sans serveur. |

@@ -1,6 +1,9 @@
-// Merge an exported vault ZIP into the coffre on this device. Files already
-// here stay. A note that does not parse, or that points at a missing video or
-// weight file, is left out so it cannot replace a prise or a personnage.
+// Merge an exported vault ZIP into the coffre on this device. A file already
+// here stays, byte for byte. A note that does not parse, or that points at a
+// missing video or weight file, is left out so it cannot replace a prise or a
+// personnage. The active project's journal and map are rewritten afterwards
+// from what this device can still open. Every other project's journal and map
+// come back as they were exported.
 
 import { readFrontmatter } from "./markdown.ts";
 import { COFFRE_ROOT, parseLora, parseTake, writeBlob, writeMap, writeText } from "./model.ts";
@@ -76,20 +79,21 @@ function acceptNote(path: string, text: string, future: ReadonlySet<string>): bo
   return true;
 }
 
-/** Adds the ZIP onto the coffre. The journal and the map are rewritten from what the coffre can still open. */
+/** Adds the ZIP onto the coffre. A path already stored is left as it is. The active project's journal and map are then rewritten from what this device can still open. */
 export async function mergeCoffreZip(store: VaultStore, archive: Uint8Array): Promise<CoffreMerge> {
   const planned: { path: string; data: Uint8Array }[] = [];
   let skipped = 0;
   for (const entry of readZip(archive)) {
     const path = vaultPathFromZip(entry.name);
-    if (!path || path === "jobs.md" || path === "MOC.md" || path.endsWith("/_MOC.md") || path.endsWith("/Journal.md")) {
+    if (!path || path === "jobs.md" || path === "MOC.md") {
       skipped += 1;
       continue;
     }
     planned.push({ path, data: entry.data });
   }
 
-  const future = new Set((await store.list()).map(file => file.path));
+  const held = new Set((await store.list()).map(file => file.path));
+  const future = new Set(held);
   for (const item of planned) {
     if (!item.path.endsWith(".md")) future.add(item.path);
   }
@@ -98,17 +102,27 @@ export async function mergeCoffreZip(store: VaultStore, archive: Uint8Array): Pr
   const notes = planned.filter(item => item.path.endsWith(".md"));
   for (const item of planned) {
     if (item.path.endsWith(".md")) continue;
+    if (held.has(item.path)) {
+      skipped += 1;
+      continue;
+    }
     if (item.path.endsWith(".json")) await writeText(store, item.path, new TextDecoder().decode(item.data));
     else await writeBlob(store, item.path, new Blob([item.data.slice()], { type: blobType(item.path) }));
+    held.add(item.path);
     written += 1;
   }
   for (const item of notes) {
+    if (held.has(item.path)) {
+      skipped += 1;
+      continue;
+    }
     const text = new TextDecoder().decode(item.data);
     if (!acceptNote(item.path, text, future)) {
       skipped += 1;
       continue;
     }
     await writeText(store, item.path, text);
+    held.add(item.path);
     written += 1;
   }
 
