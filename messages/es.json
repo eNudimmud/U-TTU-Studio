@@ -50,6 +50,7 @@
     "scene-previz": "Esta localización queda. El recorrido también. Un gesto filma tu personaje.",
     "take-connect": "Vincula tu cuenta de render. El cálculo se paga allí, no aquí.",
     "take-line": "Una frase: lo que hace la toma. El resto ya está tejido.",
+    "take-memory": "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa.",
     "take-ready": "Muestro el coste antes. Nada sale sin tu gesto.",
     "take-running": "El hilo rueda. Quédate, o vuelve más tarde.",
     "take-done": "La toma está en mi estudio. Publícala con un gesto.",
@@ -620,40 +621,21 @@
     "removeFromStudio": "Retirar de mi estudio",
     "file": "Archivo"
   },
-  "cinema": {
-    "kicker": "Aparte",
-    "lead": "Tres gestos aparte. No ruedan esta toma. Sin un número, Rodar sigue apagado.",
-    "leadPlan": "Los mismos gestos, a partir de las imágenes de esta viñeta.",
-    "lands": "El corto se guarda con las tomas. La viñeta lo conserva si el corto sale de ella.",
-    "partage": "Falta el enlace. Este gesto no tiene un modelo leído. No se abre nada.",
-    "devis": "Presupuesto ausente. El total de este gesto no es un número. Nada sale.",
-    "raccord": {
-      "name": "Empalmar dos imágenes",
-      "sentence": "La primera imagen y la última se vuelven un corto.",
-      "need": "Hacen falta una primera imagen y una última imagen, distintas.",
-      "apart": "No es la nota de raccord entre dos tomas de una secuencia."
-    },
-    "camera": {
-      "name": "Mover la cámara",
-      "sentence": "Una imagen fija, o la imagen de una toma, se vuelve un corto. La cámara se mueve.",
-      "needStill": "Hace falta una imagen fija, o la imagen de una toma.",
-      "needMove": "Elige un movimiento.",
-      "moves": "Movimiento",
-      "pose": {
-        "up": "Sube",
-        "down": "Baja",
-        "left": "Va a la izquierda",
-        "right": "Va a la derecha",
-        "in": "Se acerca",
-        "out": "Se aleja",
-        "acw": "Pivota a la izquierda",
-        "cw": "Pivota a la derecha"
-      }
-    },
-    "effet": {
-      "name": "Poner un efecto",
-      "sentence": "Una toma rodada recibe el estilo de una imagen.",
-      "need": "Hace falta una toma rodada, y una imagen para el efecto."
+  "memory": {
+    "title": "Este proyecto",
+    "lead": "Biblia, estilo, léxico y prompts de {name}. Desde aquí no se envía nada.",
+    "noProject": "Ningún proyecto en curso. Créalo en Mi estudio. Aquí no se inventa nada.",
+    "open": "Biblia, estilo, léxico, prompts",
+    "bible": "Biblia",
+    "style": "Estilo",
+    "lexique": "Léxico",
+    "prompts": "Prompts",
+    "note": "Prompt · {file}",
+    "empty": {
+      "bible": "Nada escrito. Lo que no cambia.",
+      "style": "Nada escrito. La luz, el encuadre, lo que se evita.",
+      "lexique": "Nada escrito. Las palabras de este proyecto, y lo que nombran aquí.",
+      "prompts": "Nada escrito. Piezas de frase. Desde aquí no se envía nada."
     }
   },
   "tree": {
@@ -670,18 +652,18 @@
     "modelTake": "Plantilla · Toma",
     "modelSequence": "Plantilla · Secuencia",
     "modelShot": "Plantilla · Viñeta",
-    "modelBridge": "Plantilla · Empalme",
-    "modelMove": "Plantilla · Movimiento",
-    "modelEffect": "Plantilla · Efecto",
     "engineCharacter": "Motor · Personaje",
     "engineReferences": "Motor · Referencias",
     "enginePlace": "Motor · Localización",
-    "engineBridge": "Motor · Empalme",
-    "engineMove": "Motor · Movimiento",
-    "engineEffect": "Motor · Efecto",
     "engines": "Motores",
     "files": "Assets",
-    "notes": "Notas"
+    "notes": "Notas",
+    "modelBridge": "Plantilla · Empalme",
+    "modelMove": "Plantilla · Movimiento",
+    "modelEffect": "Plantilla · Efecto",
+    "engineBridge": "Motor · Empalme",
+    "engineMove": "Motor · Movimiento",
+    "engineEffect": "Motor · Efecto"
   },
   "common": {
     "unnamed": "Sin nombre",
@@ -779,5 +761,41 @@
     "importedOne": "Añadido a mi estudio: {count} archivo. Las tomas y los personajes que ya están aquí se quedan.",
     "importedMany": "Añadido a mi estudio: {count} archivos. Las tomas y los personajes que ya están aquí se quedan.",
     "folderCopied": "{count} archivos copiados en « {name} ». La carpeta sigue al estudio hasta el cierre."
+  },
+  "cinema": {
+    "kicker": "Aparte",
+    "lead": "Tres gestos aparte. No ruedan esta toma. Sin un número, Rodar sigue apagado.",
+    "leadPlan": "Los mismos gestos, a partir de las imágenes de esta viñeta.",
+    "lands": "El corto se guarda con las tomas. La viñeta lo conserva si el corto sale de ella.",
+    "partage": "Falta el enlace. Este gesto no tiene un modelo leído. No se abre nada.",
+    "devis": "Presupuesto ausente. El total de este gesto no es un número. Nada sale.",
+    "raccord": {
+      "name": "Empalmar dos imágenes",
+      "sentence": "La primera imagen y la última se vuelven un corto.",
+      "need": "Hacen falta una primera imagen y una última imagen, distintas.",
+      "apart": "No es la nota de raccord entre dos tomas de una secuencia."
+    },
+    "camera": {
+      "name": "Mover la cámara",
+      "sentence": "Una imagen fija, o la imagen de una toma, se vuelve un corto. La cámara se mueve.",
+      "needStill": "Hace falta una imagen fija, o la imagen de una toma.",
+      "needMove": "Elige un movimiento.",
+      "moves": "Movimiento",
+      "pose": {
+        "up": "Sube",
+        "down": "Baja",
+        "left": "Va a la izquierda",
+        "right": "Va a la derecha",
+        "in": "Se acerca",
+        "out": "Se aleja",
+        "acw": "Pivota a la izquierda",
+        "cw": "Pivota a la derecha"
+      }
+    },
+    "effet": {
+      "name": "Poner un efecto",
+      "sentence": "Una toma rodada recibe el estilo de una imagen.",
+      "need": "Hace falta una toma rodada, y una imagen para el efecto."
+    }
   }
 }

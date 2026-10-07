@@ -11,6 +11,7 @@ import { formatUsd } from "@/lib/fal/prices";
 import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
 import { CinemaGestures } from "./cinema-gestures";
+import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { Arrow, Close, Plus, Web } from "./glyphs";
 import { PublishActions } from "./publish";
@@ -699,6 +700,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         <span className="u-label">{t("take.action")}</span>
         <textarea value={line} rows={2} maxLength={240} placeholder={t("take.actionPlaceholder")} onChange={event => setLine(event.target.value)} />
       </label>
+      <ProjectMemory />
       <fieldset className="u-engines">
         <legend className="u-label">{t("take.engine")}</legend>
         {WIRED_ENGINES.map(item => {
@@ -746,6 +748,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <p className="u-small">{t("take.stayTakes")}</p>
       </div>
     </div>}
+    {run.phase !== "idle" && <ProjectMemory />}
     <CinemaGestures anchor />
   </section>;
 }

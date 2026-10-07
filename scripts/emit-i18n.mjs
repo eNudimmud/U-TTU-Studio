@@ -53,6 +53,7 @@ const guide = {
   "scene-previz": ["Ce lieu reste. Le trajet aussi. Un geste filme ton personnage.", "This location stays. So does the path. One gesture films your character.", "Dieser Drehort bleibt. Der Weg auch. Eine Geste filmt deine Figur.", "Esta localización queda. El recorrido también. Un gesto filma tu personaje."],
   "take-connect": ["Relie ton compte de rendu. Le calcul se paie là-bas, pas ici.", "Connect your render account. The compute is paid there, not here.", "Verbinde dein Render-Konto. Die Rechnung läuft dort, nicht hier.", "Vincula tu cuenta de render. El cálculo se paga allí, no aquí."],
   "take-line": ["Une phrase : ce que fait la prise. Le reste est déjà tissé.", "One line: what the take does. The rest is already woven.", "Ein Satz: was der Take tut. Der Rest ist schon gewebt.", "Una frase: lo que hace la toma. El resto ya está tejido."],
+  "take-memory": ["Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.", "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.", "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.", "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa."],
   "take-ready": ["Je montre le coût avant. Rien ne part sans ton geste.", "I show the cost first. Nothing leaves without your gesture.", "Ich zeige den Preis vorher. Nichts geht ohne deine Geste.", "Muestro el coste antes. Nada sale sin tu gesto."],
   "take-running": ["Le fil tourne. Reste ici, ou reviens plus tard.", "The thread is rolling. Stay here, or come back later.", "Der Faden läuft. Bleib hier, oder komm später zurück.", "El hilo rueda. Quédate, o vuelve más tarde."],
   "take-done": [`La prise est dans mon studio. Publie-la d${Q}un geste.`, "The take is in my studio. Publish it with one gesture.", "Der Take liegt in « Mein Studio ». Veröffentliche ihn mit einer Geste.", "La toma está en mi estudio. Publícala con un gesto."],
@@ -472,6 +473,19 @@ row("sheet.unlinkBlender", "Délier Blender", "Disconnect Blender", "Blender tre
 row("sheet.measured", "Dernières prises mesurées", "Latest measured takes", "Zuletzt gemessene Takes", "Últimas tomas medidas");
 row("sheet.topUp", "Recharger se fait sur le compte qui paie. Le studio ne vend rien.", "Topping up happens on the account that pays. The studio sells nothing.", "Aufladen geschieht auf dem Konto, das zahlt. Das Studio verkauft nichts.", "La recarga se hace en la cuenta que paga. El estudio no vende nada.");
 row("sheet.memory", "Mémoire", "Memory", "Gedächtnis", "Memoria");
+row("memory.title", "Ce projet", "This project", "Dieses Projekt", "Este proyecto");
+row("memory.lead", `Bible, style, lexique et prompts de {name}. Rien n${Q}est envoyé d${Q}ici.`, "Bible, style, lexicon and prompts of {name}. Nothing is sent from here.", "Bibel, Stil, Lexikon und Prompts von {name}. Von hier geht nichts raus.", "Biblia, estilo, léxico y prompts de {name}. Desde aquí no se envía nada.");
+row("memory.noProject", `Aucun projet en cours. Crée-le dans Mon studio. Rien n${Q}est inventé ici.`, "No current project. Create it in My studio. Nothing is invented here.", "Kein aktuelles Projekt. Lege es in « Mein Studio » an. Hier wird nichts erfunden.", "Ningún proyecto en curso. Créalo en Mi estudio. Aquí no se inventa nada.");
+row("memory.open", "Bible, style, lexique, prompts", "Bible, style, lexicon, prompts", "Bibel, Stil, Lexikon, Prompts", "Biblia, estilo, léxico, prompts");
+row("memory.bible", "Bible", "Bible", "Bibel", "Biblia");
+row("memory.style", "Style", "Style", "Stil", "Estilo");
+row("memory.lexique", "Lexique", "Lexicon", "Lexikon", "Léxico");
+row("memory.prompts", "Prompts", "Prompts", "Prompts", "Prompts");
+row("memory.note", "Prompt · {file}", "Prompt · {file}", "Prompt · {file}", "Prompt · {file}");
+row("memory.empty.bible", "Rien d’écrit. Ce qui ne change pas.", "Nothing written. What does not change.", "Noch nichts. Was gleich bleibt.", "Nada escrito. Lo que no cambia.");
+row("memory.empty.style", `Rien d${Q}écrit. La lumière, le cadre, ce qu${Q}on évite.`, "Nothing written. The light, the frame, what to avoid.", "Noch nichts. Licht, Kadrierung, was vermieden wird.", "Nada escrito. La luz, el encuadre, lo que se evita.");
+row("memory.empty.lexique", `Rien d${Q}écrit. Les mots de ce projet, et ce qu${Q}ils désignent.`, "Nothing written. This project’s words, and what they mean here.", "Noch nichts. Die Wörter dieses Projekts, und was sie hier meinen.", "Nada escrito. Las palabras de este proyecto, y lo que nombran aquí.");
+row("memory.empty.prompts", `Rien d${Q}écrit. Des briques de phrase. Rien n${Q}est envoyé d${Q}ici.`, "Nothing written. Phrase bricks. Nothing is sent from here.", "Noch nichts. Satzbausteine. Von hier geht nichts raus.", "Nada escrito. Piezas de frase. Desde aquí no se envía nada.");
 row("sheet.studioIntro", "Mon studio reste sur cet appareil. La carte MOC.md relie les projets. Le projet en cours est le seul que la chaîne lit.", "My studio stays on this device. The MOC.md map links the projects. The current project is the only one the chain reads.", "Mein Studio bleibt auf diesem Gerät. Die Karte MOC.md verbindet die Projekte. Das aktuelle Projekt ist das einzige, das die Kette liest.", "Mi estudio se queda en este aparato. El mapa MOC.md vincula los proyectos. El proyecto en curso es el único que lee la cadena.");
 row("sheet.currentProject", "Projet en cours", "Current project", "Aktuelles Projekt", "Proyecto en curso");
 row("sheet.openProject", "Projet en cours · {name}", "Current project · {name}", "Aktuelles Projekt · {name}", "Proyecto en curso · {name}");
@@ -661,6 +675,39 @@ row("runtime.clipLong", "Clip trop long : {max} s au plus.", "Clip too long: {ma
 row("runtime.importedOne", "Ajouté à mon studio : {count} fichier. Les prises et les personnages déjà ici restent.", "Added to my studio: {count} file. Takes and characters already here stay.", "Zu « Mein Studio » hinzugefügt: {count} Datei. Takes und Figuren, die schon hier sind, bleiben.", "Añadido a mi estudio: {count} archivo. Las tomas y los personajes que ya están aquí se quedan.");
 row("runtime.importedMany", "Ajouté à mon studio : {count} fichiers. Les prises et les personnages déjà ici restent.", "Added to my studio: {count} files. Takes and characters already here stay.", "Zu « Mein Studio » hinzugefügt: {count} Dateien. Takes und Figuren, die schon hier sind, bleiben.", "Añadido a mi estudio: {count} archivos. Las tomas y los personajes que ya están aquí se quedan.");
 row("runtime.folderCopied", `{count} fichiers copiés dans « {name} ». Le dossier suit le studio jusqu${Q}à la fermeture.`, "{count} files copied into « {name} ». The folder follows the studio until it closes.", "{count} Dateien nach « {name} » kopiert. Der Ordner folgt dem Studio bis zum Schließen.", "{count} archivos copiados en « {name} ». La carpeta sigue al estudio hasta el cierre.");
+
+row("cinema.kicker", "À part", "Apart", "Extra", "Aparte");
+row("cinema.lead", "Trois gestes à part. Ils ne tournent pas cette prise. Sans un nombre, Tourner reste éteint.", "Three gestures apart. They do not shoot this take. Without a number, Shoot stays off.", "Drei Gesten extra. Sie drehen diesen Take nicht. Ohne eine Zahl bleibt Drehen aus.", "Tres gestos aparte. No ruedan esta toma. Sin un número, Rodar sigue apagado.");
+row("cinema.leadPlan", "Les mêmes gestes, à partir des images de ce plan.", "The same gestures, from the images of this shot.", "Dieselben Gesten, aus den Bildern dieses Shots.", "Los mismos gestos, a partir de las imágenes de esta viñeta.");
+row("cinema.lands", `Le court film se range avec les prises. Le plan du storyboard le garde s${Q}il en part.`, "The short film is filed with the takes. The storyboard shot keeps it when the film starts there.", "Der kurze Film liegt bei den Takes. Der Shot behält ihn, wenn der Film von dort kommt.", "El corto se guarda con las tomas. La viñeta lo conserva si el corto sale de ella.");
+row("cinema.partage", `Partage manquant. Ce geste n${Q}a pas de modèle lu. Rien ne s${Q}ouvre.`, "Share missing. This gesture has no model on file. Nothing opens.", "Freigabe fehlt. Für diese Geste liegt kein Modell vor. Es öffnet sich nichts.", "Falta el enlace. Este gesto no tiene un modelo leído. No se abre nada.");
+row("cinema.devis", `Devis absent. Le total de ce geste n${Q}est pas un nombre. Rien ne part.`, "Quote absent. The total for this gesture is not a number. Nothing leaves.", "Kalkulation fehlt. Der Gesamtbetrag dieser Geste ist keine Zahl. Nichts geht.", "Presupuesto ausente. El total de este gesto no es un número. Nada sale.");
+row("cinema.raccord.name", "Raccorder deux images", "Bridge two images", "Zwei Bilder verbinden", "Empalmar dos imágenes");
+row("cinema.raccord.sentence", "La première image et la dernière deviennent un court film.", "The first image and the last image become a short film.", "Das erste Bild und das letzte Bild werden ein kurzer Film.", "La primera imagen y la última se vuelven un corto.");
+row("cinema.raccord.need", "Il faut une première image et une dernière image, distinctes.", "It needs a first image and a last image, and they must differ.", "Es braucht ein erstes Bild und ein letztes Bild, und sie müssen verschieden sein.", "Hacen falta una primera imagen y una última imagen, distintas.");
+row("cinema.raccord.apart", `Ce n${Q}est pas la note entre deux prises d${Q}une séquence.`, "This is not the continuity note between two takes in a sequence.", "Das ist nicht die Anschluss-Notiz zwischen zwei Takes einer Sequenz.", "No es la nota de raccord entre dos tomas de una secuencia.");
+row("cinema.camera.name", "Bouger la caméra", "Move the camera", "Die Kamera bewegen", "Mover la cámara");
+row("cinema.camera.sentence", `Une image fixe, ou l${Q}image d${Q}une prise, devient un court film. La caméra bouge.`, `A still, or a take${Q}s image, becomes a short film. The camera moves.`, "Ein Standbild, oder das Bild eines Takes, wird ein kurzer Film. Die Kamera bewegt sich.", "Una imagen fija, o la imagen de una toma, se vuelve un corto. La cámara se mueve.");
+row("cinema.camera.needStill", `Il faut une image fixe, ou l${Q}image d${Q}une prise.`, `It needs a still, or a take${Q}s image.`, "Es braucht ein Standbild, oder das Bild eines Takes.", "Hace falta una imagen fija, o la imagen de una toma.");
+row("cinema.camera.needMove", "Choisis un mouvement.", "Choose a move.", "Wähle eine Bewegung.", "Elige un movimiento.");
+row("cinema.camera.moves", "Mouvement", "Move", "Bewegung", "Movimiento");
+row("cinema.camera.pose.up", "Monte", "Up", "Nach oben", "Sube");
+row("cinema.camera.pose.down", "Descend", "Down", "Nach unten", "Baja");
+row("cinema.camera.pose.left", "Va à gauche", "Left", "Nach links", "Va a la izquierda");
+row("cinema.camera.pose.right", "Va à droite", "Right", "Nach rechts", "Va a la derecha");
+row("cinema.camera.pose.in", `S${Q}approche`, "Closer", "Näher", "Se acerca");
+row("cinema.camera.pose.out", `S${Q}éloigne`, "Farther", "Weiter weg", "Se aleja");
+row("cinema.camera.pose.acw", "Pivote à gauche", "Turns left", "Schwenkt nach links", "Pivota a la izquierda");
+row("cinema.camera.pose.cw", "Pivote à droite", "Turns right", "Schwenkt nach rechts", "Pivota a la derecha");
+row("cinema.effet.name", "Poser un effet", "Apply an effect", "Einen Effekt setzen", "Poner un efecto");
+row("cinema.effet.sentence", `Une prise filmée reçoit le style d${Q}une image.`, "A filmed take receives the look of one image.", "Ein gedrehter Take erhält das Aussehen eines Bildes.", "Una toma rodada recibe el estilo de una imagen.");
+row("cinema.effet.need", `Il faut une prise filmée, et une image pour l${Q}effet.`, "It needs a filmed take, and an image for the effect.", "Es braucht einen gedrehten Take und ein Bild für den Effekt.", "Hace falta una toma rodada, y una imagen para el efecto.");
+row("tree.modelBridge", "Modèle · Raccord", "Template · Bridge", "Vorlage · Brücke", "Plantilla · Empalme");
+row("tree.modelMove", "Modèle · Mouvement", "Template · Move", "Vorlage · Bewegung", "Plantilla · Movimiento");
+row("tree.modelEffect", "Modèle · Effet", "Template · Effect", "Vorlage · Effekt", "Plantilla · Efecto");
+row("tree.engineBridge", "Moteur · Raccord", "Engine · Bridge", "Motor · Brücke", "Motor · Empalme");
+row("tree.engineMove", "Moteur · Mouvement", "Engine · Move", "Motor · Bewegung", "Motor · Movimiento");
+row("tree.engineEffect", "Moteur · Effet", "Engine · Effect", "Motor · Effekt", "Motor · Efecto");
 
 function nest(index) {
   const out = {};

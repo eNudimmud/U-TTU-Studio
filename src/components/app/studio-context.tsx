@@ -7,8 +7,9 @@ import { mergeCoffreZip } from "@/lib/coffre/import";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
   LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, assignOrdre, clearShotSequence, createProject, dropTakeFromShots, dropTakeLink, emptyLook, emptyRole, emptySceneDraft, emptyStudio, ensureActiveProject, extensionFor, isPlaceLora, loadStudio, loraId, moveShot, normalizeLinks, normalizeTakeIds, removeLora, removeScene, removeSequence, removeShot, removeTake, selectProject, sequenceStem, sha256Hex, shotStem, slugify, takeId, uniqueId,
-  writeBlob, writeClips, writeLook, writeLora, writeQuotes, writeRole, writeScene, writeSequence, writeShot, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Sequence, type Shot, type Studio, type Take,
+  writeBlob, writeClips, writeLook, writeLora, writeMemory, writePromptNote, writeQuotes, writeRole, writeScene, writeSequence, writeShot, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Sequence, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
+import { cleanMemoryText, type MemoryKind } from "@/lib/coffre/memory";
 import { FalError, createFalClient, type FalClient, type FalHandle, type FalPrice } from "@/lib/fal/client";
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
 import { LORA_TAKE, LORA_TRAINER, PLACE_SCENE, PLACE_TRAINER, loraTakeQuote, placeSceneQuote, placeTrainQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
@@ -43,7 +44,7 @@ import {
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
 
-export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | "sequences" | "shots" | { take: string } | { sequence: string } | { shot: string } | { outputs: "prise" | "scene" | "lora" };
+export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | "sequences" | "shots" | { take: string } | { sequence: string } | { shot: string } | { memory: MemoryKind } | { outputs: "prise" | "scene" | "lora" };
 
 export type RunState =
   | { phase: "idle" }
@@ -360,6 +361,8 @@ interface StudioValue {
   importCoffre(file: File): Promise<void>;
   createNamedProject(name: string): Promise<void>;
   selectNamedProject(slug: string): Promise<void>;
+  saveMemory(kind: MemoryKind, body: string): Promise<void>;
+  savePromptNote(file: string, body: string): Promise<void>;
   linkFolder(): Promise<void>;
   dismissGuide(moment: GuideMoment): void;
   guideOff(): void;
@@ -1982,6 +1985,30 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     await reloadVault();
   }, [reloadVault, store]);
 
+  const saveMemory = useCallback(async (kind: MemoryKind, body: string) => {
+    const slug = studioRef.current.project;
+    if (!slug) return;
+    const clean = cleanMemoryText(body);
+    if (clean === studioRef.current.memory[kind]) return;
+    await writeMemory(store(), slug, kind, clean);
+    if (studioRef.current.project !== slug) return;
+    setStudio({ ...studioRef.current, memory: { ...studioRef.current.memory, [kind]: clean } });
+  }, [store]);
+
+  const savePromptNote = useCallback(async (file: string, body: string) => {
+    const slug = studioRef.current.project;
+    if (!slug) return;
+    const clean = cleanMemoryText(body);
+    const previous = studioRef.current.memory.notes.find(note => note.file === file)?.text ?? "";
+    if (clean === previous) return;
+    await writePromptNote(store(), slug, file, clean);
+    if (studioRef.current.project !== slug) return;
+    const notes = studioRef.current.memory.notes
+      .map(note => (note.file === file ? { ...note, text: clean } : note))
+      .filter(note => note.text.trim());
+    setStudio({ ...studioRef.current, memory: { ...studioRef.current.memory, notes } });
+  }, [store]);
+
   const linkFolder = useCallback(async () => {
     const handle = await pickFolder();
     if (!handle) return;
@@ -2174,7 +2201,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
     setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, resumeTraining, deleteLora,
     requestRun, confirmRun, cancelRun, resetRun, resumeRun, deleteTake, createSequence, saveSequence, deleteSequence, createShot, saveShot, moveShotInSequence, deleteShot, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
-    exportCoffre, importCoffre, createNamedProject, selectNamedProject, linkFolder, dismissGuide, guideOff,
+    exportCoffre, importCoffre, createNamedProject, selectNamedProject, saveMemory, savePromptNote, linkFolder, dismissGuide, guideOff,
   };
 
   return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;

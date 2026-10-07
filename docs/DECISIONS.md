@@ -2,6 +2,16 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F18 — mémoire du projet dans la Prise — 7 octobre 2026
+
+- **Fait :** bible, style, lexique et prompts vivent déjà dans le projet en cours : `Projets/<slug>/Bible.md`, `Style.md`, `Lexique.md`, `Prompts/index.md`. Un fichier supplémentaire sous `Prompts/` (hors `index.md`) est une brique de plus. La chaîne ne lisait pas ces notes. Dans Mon studio, les noms étaient des lignes mortes.
+- **Fait :** le squelette écrit quatre phrases guides (`statut: brouillon`). Ce ne sont pas les mots du projet. Tant que la note n’est pas tenue, l’écran les lit comme vides.
+- **Décision :** sur la fiche Prise, sous la phrase de la prise, et sur une prise ouverte, les quatre notes sont visibles et éditables. Le texte enregistré revient dans le même fichier, `statut: tenu`. Un champ vidé revient au guide, et l’écran dit « Rien d’écrit » avec une ligne sur ce qu’on peut noter. Rien n’est inventé à la place.
+- **Décision :** le parcours novice, sur Prise, dit la même chose quand les quatre notes sont vides : « Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé. » Relier, le devis et Tourner ne bougent pas. Les trois gestes cinéma restent après le bouton de la prise.
+- **Décision :** Mon studio ouvre les mêmes notes (bouton, et chaque ligne Bible, Style, Lexique, Prompts de l’arbre). Les mots d’écran : FR Bible / Style / Lexique / Prompts. EN Bible / Style / Lexicon / Prompts. DE Bibel / Stil / Lexikon / Prompts. ES Biblia / Estilo / Léxico / Prompts.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés.
+- **Hypothèse :** une personne distingue le guide vide (« Rien d’écrit ») d’une bible qu’elle a écrite. Ce tour ne mesure pas cette lecture hors de l’écran.
+
 ## F17 — audit novice bout en bout — 7 octobre 2026
 
 - **Fait :** le parcours a été lu dans le studio, à 390 px et à 1280 px : projet, Personnage, Scène, Prise, Plan, Séquence, feuille Mon studio. Le français est la langue par défaut.

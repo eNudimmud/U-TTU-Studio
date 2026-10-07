@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { lookCheck } from "@/lib/coffre/model";
+import { memoryFilled } from "@/lib/coffre/memory";
 import type { GuideMoment } from "@/lib/guide";
 import { assetPath } from "@/lib/site";
 import { resumeTab, TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
@@ -14,7 +15,7 @@ import { GuideBubble } from "./guide-bubble";
 import { FichesScreen } from "./fiches-screen";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, PlateauShelf, SceneScreen, SphereScreen, TakeScreen } from "./screens";
-import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, OutputsSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, SequenceSheet, ShotSheet, TrainConfirmSheet } from "./sheets";
+import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, MemorySheet, OutputsSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, SequenceSheet, ShotSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
@@ -91,7 +92,7 @@ function AppFrame() {
     : tab === "lora"
     ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", !studio.studio.role.name.trim() && "lora-name", studio.studio.role.photos.length < 2 && "lora-photos", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready"]
     : tab === "prise"
-    ? [run.phase === "running" && "take-running", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : !studio.line.trim() ? "take-line" : "take-ready")]
+    ? [run.phase === "running" && "take-running", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : !studio.line.trim() ? "take-line" : "take-ready"), run.phase === "idle" && !memoryFilled(studio.studio.memory) && "take-memory"]
     : tab === "fiches"
     ? []
     : [studio.studio.takes.length === 0 && "sphere-empty"];
@@ -168,6 +169,7 @@ function AppFrame() {
     {sheet === "sequences" && <SequenceSheet />}
     {sheet === "shots" && <ShotSheet />}
     {sheet && typeof sheet === "object" && "take" in sheet && <PlayerSheet id={sheet.take} />}
+    {sheet && typeof sheet === "object" && "memory" in sheet && <MemorySheet focus={sheet.memory} />}
     {sheet && typeof sheet === "object" && "sequence" in sheet && <SequenceSheet id={sheet.sequence} />}
     {sheet && typeof sheet === "object" && "shot" in sheet && <ShotSheet id={sheet.shot} />}
     {sheet && typeof sheet === "object" && "outputs" in sheet && <OutputsSheet kind={sheet.outputs} />}

@@ -50,6 +50,7 @@
     "scene-previz": "Dieser Drehort bleibt. Der Weg auch. Eine Geste filmt deine Figur.",
     "take-connect": "Verbinde dein Render-Konto. Die Rechnung läuft dort, nicht hier.",
     "take-line": "Ein Satz: was der Take tut. Der Rest ist schon gewebt.",
+    "take-memory": "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.",
     "take-ready": "Ich zeige den Preis vorher. Nichts geht ohne deine Geste.",
     "take-running": "Der Faden läuft. Bleib hier, oder komm später zurück.",
     "take-done": "Der Take liegt in « Mein Studio ». Veröffentliche ihn mit einer Geste.",
@@ -620,40 +621,21 @@
     "removeFromStudio": "Aus « Mein Studio » entfernen",
     "file": "Datei"
   },
-  "cinema": {
-    "kicker": "Extra",
-    "lead": "Drei Gesten extra. Sie drehen diesen Take nicht. Ohne eine Zahl bleibt Drehen aus.",
-    "leadPlan": "Dieselben Gesten, aus den Bildern dieses Shots.",
-    "lands": "Der kurze Film liegt bei den Takes. Der Shot behält ihn, wenn der Film von dort kommt.",
-    "partage": "Freigabe fehlt. Für diese Geste liegt kein Modell vor. Es öffnet sich nichts.",
-    "devis": "Kalkulation fehlt. Der Gesamtbetrag dieser Geste ist keine Zahl. Nichts geht.",
-    "raccord": {
-      "name": "Zwei Bilder verbinden",
-      "sentence": "Das erste Bild und das letzte Bild werden ein kurzer Film.",
-      "need": "Es braucht ein erstes Bild und ein letztes Bild, und sie müssen verschieden sein.",
-      "apart": "Das ist nicht die Anschluss-Notiz zwischen zwei Takes einer Sequenz."
-    },
-    "camera": {
-      "name": "Die Kamera bewegen",
-      "sentence": "Ein Standbild, oder das Bild eines Takes, wird ein kurzer Film. Die Kamera bewegt sich.",
-      "needStill": "Es braucht ein Standbild, oder das Bild eines Takes.",
-      "needMove": "Wähle eine Bewegung.",
-      "moves": "Bewegung",
-      "pose": {
-        "up": "Nach oben",
-        "down": "Nach unten",
-        "left": "Nach links",
-        "right": "Nach rechts",
-        "in": "Näher",
-        "out": "Weiter weg",
-        "acw": "Schwenkt nach links",
-        "cw": "Schwenkt nach rechts"
-      }
-    },
-    "effet": {
-      "name": "Einen Effekt setzen",
-      "sentence": "Ein gedrehter Take erhält das Aussehen eines Bildes.",
-      "need": "Es braucht einen gedrehten Take und ein Bild für den Effekt."
+  "memory": {
+    "title": "Dieses Projekt",
+    "lead": "Bibel, Stil, Lexikon und Prompts von {name}. Von hier geht nichts raus.",
+    "noProject": "Kein aktuelles Projekt. Lege es in « Mein Studio » an. Hier wird nichts erfunden.",
+    "open": "Bibel, Stil, Lexikon, Prompts",
+    "bible": "Bibel",
+    "style": "Stil",
+    "lexique": "Lexikon",
+    "prompts": "Prompts",
+    "note": "Prompt · {file}",
+    "empty": {
+      "bible": "Noch nichts. Was gleich bleibt.",
+      "style": "Noch nichts. Licht, Kadrierung, was vermieden wird.",
+      "lexique": "Noch nichts. Die Wörter dieses Projekts, und was sie hier meinen.",
+      "prompts": "Noch nichts. Satzbausteine. Von hier geht nichts raus."
     }
   },
   "tree": {
@@ -670,18 +652,18 @@
     "modelTake": "Vorlage · Take",
     "modelSequence": "Vorlage · Sequenz",
     "modelShot": "Vorlage · Shot",
-    "modelBridge": "Vorlage · Brücke",
-    "modelMove": "Vorlage · Bewegung",
-    "modelEffect": "Vorlage · Effekt",
     "engineCharacter": "Motor · Figur",
     "engineReferences": "Motor · Referenzen",
     "enginePlace": "Motor · Drehort",
-    "engineBridge": "Motor · Brücke",
-    "engineMove": "Motor · Bewegung",
-    "engineEffect": "Motor · Effekt",
     "engines": "Motoren",
     "files": "Assets",
-    "notes": "Notizen"
+    "notes": "Notizen",
+    "modelBridge": "Vorlage · Brücke",
+    "modelMove": "Vorlage · Bewegung",
+    "modelEffect": "Vorlage · Effekt",
+    "engineBridge": "Motor · Brücke",
+    "engineMove": "Motor · Bewegung",
+    "engineEffect": "Motor · Effekt"
   },
   "common": {
     "unnamed": "Ohne Namen",
@@ -779,5 +761,41 @@
     "importedOne": "Zu « Mein Studio » hinzugefügt: {count} Datei. Takes und Figuren, die schon hier sind, bleiben.",
     "importedMany": "Zu « Mein Studio » hinzugefügt: {count} Dateien. Takes und Figuren, die schon hier sind, bleiben.",
     "folderCopied": "{count} Dateien nach « {name} » kopiert. Der Ordner folgt dem Studio bis zum Schließen."
+  },
+  "cinema": {
+    "kicker": "Extra",
+    "lead": "Drei Gesten extra. Sie drehen diesen Take nicht. Ohne eine Zahl bleibt Drehen aus.",
+    "leadPlan": "Dieselben Gesten, aus den Bildern dieses Shots.",
+    "lands": "Der kurze Film liegt bei den Takes. Der Shot behält ihn, wenn der Film von dort kommt.",
+    "partage": "Freigabe fehlt. Für diese Geste liegt kein Modell vor. Es öffnet sich nichts.",
+    "devis": "Kalkulation fehlt. Der Gesamtbetrag dieser Geste ist keine Zahl. Nichts geht.",
+    "raccord": {
+      "name": "Zwei Bilder verbinden",
+      "sentence": "Das erste Bild und das letzte Bild werden ein kurzer Film.",
+      "need": "Es braucht ein erstes Bild und ein letztes Bild, und sie müssen verschieden sein.",
+      "apart": "Das ist nicht die Anschluss-Notiz zwischen zwei Takes einer Sequenz."
+    },
+    "camera": {
+      "name": "Die Kamera bewegen",
+      "sentence": "Ein Standbild, oder das Bild eines Takes, wird ein kurzer Film. Die Kamera bewegt sich.",
+      "needStill": "Es braucht ein Standbild, oder das Bild eines Takes.",
+      "needMove": "Wähle eine Bewegung.",
+      "moves": "Bewegung",
+      "pose": {
+        "up": "Nach oben",
+        "down": "Nach unten",
+        "left": "Nach links",
+        "right": "Nach rechts",
+        "in": "Näher",
+        "out": "Weiter weg",
+        "acw": "Schwenkt nach links",
+        "cw": "Schwenkt nach rechts"
+      }
+    },
+    "effet": {
+      "name": "Einen Effekt setzen",
+      "sentence": "Ein gedrehter Take erhält das Aussehen eines Bildes.",
+      "need": "Es braucht einen gedrehten Take und ein Bild für den Effekt."
+    }
   }
 }

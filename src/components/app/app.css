@@ -182,6 +182,12 @@
 .u-engines button em { font-style: normal; font-size: 13px; line-height: 1.35; }
 .u-engines button b { font: 600 13px/1.3 var(--font-mono); font-weight: 600; color: var(--u-gold-soft); }
 .u-comfort-controls { display: grid; gap: 10px; }
+.u-memory { display: grid; gap: 10px; min-width: 0; }
+.u-memory h2 { margin: 0; font: 650 22px/1.15 var(--font-heading); letter-spacing: -.02em; }
+.u-memory-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+.u-memory .u-field, .u-memory textarea { min-width: 0; max-width: 100%; }
+.u-memory textarea, .u-memory-empty { overflow-wrap: anywhere; }
+.u-memory-empty { margin: 0; }
 .u-sound { display: grid; gap: 4px; margin: 0; font-size: 14px; line-height: 1.4; color: var(--u-muted); }
 .u-segments { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; border: 0; }
 .u-segments legend { width: 100%; margin-bottom: 6px; }
@@ -302,6 +308,7 @@
   .u-sound { grid-column: 1 / -1; }
 }
 @media (min-width: 720px) {
+  .u-memory-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .u-comfort-split { grid-template-columns: 1fr 1fr; }
   .u-app { width: min(720px, 100%); border-inline: 1px solid var(--u-line); }
   .u-chain { width: min(720px, 100%); }
