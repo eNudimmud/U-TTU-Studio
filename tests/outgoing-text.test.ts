@@ -63,8 +63,9 @@ describe("texte qui part", () => {
   it("shows that text before the gesture, and says when nothing leaves", () => {
     const screens = read("src/components/app/screens.tsx");
     const take = screens.slice(screens.indexOf("export function TakeScreen"), screens.indexOf("export function SphereScreen"));
-    assert.ok(take.indexOf("<OutgoingTake />") < take.indexOf("className=\"u-primary\""));
-    assert.ok(take.indexOf("className=\"u-primary\"") < take.indexOf("<CinemaGestures anchor />"));
+    assert.ok(take.indexOf("<OutgoingTake") < take.indexOf("data-prise-gold"));
+    assert.ok(take.indexOf("data-prise-gold") < take.indexOf("<CinemaGestures anchor />"));
+    assert.ok(take.indexOf("quoteText") < take.indexOf("data-prise-gold"));
     const sceneFile = read("src/components/app/scene-screen.tsx");
     const scene = sceneFile.slice(sceneFile.indexOf("export function SceneScreen"));
     assert.ok(scene.indexOf("<OutgoingFilm />") < scene.indexOf("void requestPreviz()"));

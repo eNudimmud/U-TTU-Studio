@@ -2,6 +2,29 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F30 — le geste or de la Prise dans le premier écran — 7 octobre 2026
+
+Méthode du compte, la même que F29. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui pose une prise sur un plan, lit la séquence, puis exporte. Ce tour ne retire pas un geste : il rapproche le bouton or du haut de la Prise.
+
+| | Avant, F29 | Après, F30 |
+| --- | --- | --- |
+| Gestes | 15 | 15 |
+| dont saisies | 5 | 5 |
+| dont taps | 10 | 10 |
+| Écrans | 7 | 7 |
+| Décisions | 5 | 5 |
+| Retours forcés | 0 | 0 |
+
+- **Décision :** la confirmation payante n’est pas une barre fixe. Une barre collée au bas couvrirait la chaîne, ou le devis, dès que la phrase est longue. La carte « Avant le geste » est dans le flux, juste sous le titre : la phrase (une ligne, 44 px), le texte qui part (deux lignes quand il dépasse 180 caractères), le devis en entier, puis le bouton or. « Le texte en entier », le réglage, la mémoire et le reste restent dessous. Le devis n’est pas raccourci.
+- **Décision :** sur la Prise, tant que cette carte est à l’écran, la ligne de la guide réserve 2,8 em au lieu de 4,2 em. Les autres écrans gardent 4,2 em. Le titre de la Prise, sous 480 px, est à 32 px. Le profil `h3-4pas-5s-vertical` reste écrit, sur la même ligne que le début du devis.
+- **Décision :** « Voir le compte », quand Tourner est éteint, est sous la carte. La raison courte reste sous le bouton. Le devis au-dessus dit déjà pourquoi.
+- **Fait :** F29 écrit qu’à 390 le bouton « Relier » est à 2317 px. Sur cette machine, code F29, Chrome headless 390×844, dpr 2, scroll 0 : Prise vide, « Relier » va de 1704 à 1758 px, hauteur 54, la chaîne commence à 723 px. Projet Quai (deux photos, deux traits, un lieu, quatre notes, phrase longue), « Relier » va de 2144 à 2198 px. 2317 n’a pas été retrouvé sur ces deux états.
+- **Fait :** après ce tour, même machine, même fenêtre, scroll 0, français. Chaîne à 723 px. Prise vide, le bas de « Relier » est à 645 px. Prise remplie, le bas de « Relier » est à 643 px. Compte lié, « Tourner · environ 4 crédits » va de 607 à 661 px, hauteur 54. Le devis va de 483 à 605 px et contient « À ce réglage · h3-4pas-5s-vertical », « Environ 4 crédits, au plus 6 » et « 21 100 crédits sur ton compte ». Le texte qui part est dans la carte. Tourner éteint (solde 2 crédits, borne 6) : bouton de 607 à 661 px, raison de 663 à 681 px. Allemand, même solde : bouton de 625 à 679 px, raison de 681 à 698 px. `scrollWidth` = `clientWidth` = 390. À 1280×800 la chaîne est le rail gauche ; le bas de « Tourner » est à 593 px, la fenêtre fait 800 px.
+- **Fait :** le parcours « Tourner » (job simulé, vidéo locale de 0,6 s, aucun appel vers cloud.comfy.org) puis « Poser le plan », « Lire la séquence », « Exporter mon studio (.zip) » passe dans Chrome headless à 390×844 et à 1280×800. Le ZIP se teste avec `unzip -t`. Le même test échoue si le bouton or, le devis ou le texte qui part sortent du premier écran, ou si la raison d’un Tourner éteint n’y est pas.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. EN, DE et ES portent `_human: native_open`. La ligne allemande de la raison est plus courte pour tenir sur une ligne à 390 px. Ce n’est pas une signature de locuteur natif.
+- **Hypothèse :** une personne qui ne change pas « Atelier », « Séquence 1 » ni « Plan 1 » suit encore le compte de F29, 15 gestes.
+- **Pas fait :** pas de téléphone physique. Le clavier est une fenêtre à 500 px de haut. Le chiffre 2317 de F29 n’est pas rejoué sur un autre poste.
+
 ## F29 — audit ergonomie de bout en bout — 7 octobre 2026
 
 Méthode du compte. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui pose une prise sur un plan, lit la séquence, puis exporte. Le sélecteur de photos accepte plusieurs fichiers : un tap. Former un fichier et filmer le trajet restent hors du chemin. Un nom déjà écrit n’est pas une décision. Un réglage déjà sur le profil mesuré non plus. La confirmation payante reste : le texte qui part se lit avant.
