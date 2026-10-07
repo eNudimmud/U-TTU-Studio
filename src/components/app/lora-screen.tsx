@@ -37,7 +37,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
   const { t, say } = useI18n();
   const {
     studio: vault, media, dataset, falLinked, falBalance, training, trainingSteps, setTrainingSteps,
-    trainQuote, trainGate, addClips, removeClip, requestTraining, cancelTraining, resetTraining, deleteLora, setEngine, setLora, setSheet,
+    trainQuote, trainGate, addClips, removeClip, requestTraining, cancelTraining, resetTraining, resumeTraining, deleteLora, setEngine, setLora, setSheet,
     saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole,
   } = studio;
   const role = vault.role;
@@ -55,24 +55,29 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
       <p className="u-label">{t("lora.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{showFile ? t("lora.trainTitle") : t("lora.twoWays")}</h1>
       <p className="u-micro">{t("guide.stepCharacter")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "lora" })}>{t("job.outputs")}</button>
       {showFile && <button type="button" className="u-link" onClick={() => setFile(false)}>{t("verb.bothWays")}</button>}
     </header>
 
     {training.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>
+      <p className="u-label">{t("job.running")}</p>
       <p className="u-run-label">{trainLabel(t, training.event)}</p>
       <p className="u-small">{t("lora.long")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "lora" })}>{t("job.outputs")}</button>
       <button type="button" className="u-link u-muted" onClick={cancelTraining}>{t("verb.cancel")}</button>
     </div>}
 
     {training.phase === "done" && done && <div className="u-card u-result">
+      <p className="u-label">{t("job.done")}</p>
       <p className="u-run-label">{t("lora.filed")}</p>
       <p className="u-small">{done.costUsd !== null ? t("take.debitedFal", { amount: formatUsd(done.costUsd) }) : t("take.debitHiddenFal")}{done.seconds !== null ? t("take.calc", { clock: clock(done.seconds) }) : ""}</p>
       <button type="button" className="u-primary" onClick={() => { setEngine("lora"); setLora(done.id); onTake(); }}>{t("lora.shootWith")} <Arrow /></button>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "lora" })}>{t("job.outputs")}</button>
       <button type="button" className="u-link" onClick={resetTraining}>{t("verb.another")}</button>
     </div>}
 
-    {training.phase === "error" && <TrainError training={training} onReset={resetTraining} onRelink={() => { resetTraining(); setSheet("fal"); }} />}
+    {training.phase === "error" && <TrainError training={training} onReset={resumeTraining} onRelink={() => { resetTraining(); setSheet("fal"); }} onOutputs={() => setSheet({ outputs: "lora" })} />}
 
     {!showFile && <div className="u-desk u-paths" aria-label={t("path.aria")}>
       {paths.map(path => <article key={path.id} className="u-card">
@@ -169,7 +174,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
   </section>;
 }
 
-function TrainError({ training, onReset, onRelink }: { training: Extract<TrainingState, { phase: "error" }>; onReset(): void; onRelink(): void }) {
+function TrainError({ training, onReset, onRelink, onOutputs }: { training: Extract<TrainingState, { phase: "error" }>; onReset(): void; onRelink(): void; onOutputs(): void }) {
   const { t, say } = useI18n();
   return <div className="u-card u-soft-error" role="alert">
     <p className="u-crt">{t("take.soft")}</p>
@@ -179,5 +184,6 @@ function TrainError({ training, onReset, onRelink }: { training: Extract<Trainin
     {training.code === "auth" || training.code === "scope"
       ? <button type="button" className="u-secondary" onClick={onRelink}>{t("verb.connectAgain")}</button>
       : <button type="button" className="u-secondary" onClick={onReset}>{t("verb.resume")}</button>}
+    <button type="button" className="u-link" onClick={onOutputs}>{t("job.outputs")}</button>
   </div>;
 }

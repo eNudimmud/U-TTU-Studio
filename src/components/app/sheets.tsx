@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useI18n, useStudioDates } from "@/components/i18n/provider";
-import { costLabel, dropTakeLink, shotsOf } from "@/lib/coffre/model";
+import { costLabel, dropTakeLink, isPlaceLora, shotsOf } from "@/lib/coffre/model";
 import { treeFileLabel } from "@/lib/coffre/project";
 import { CREDITS_PER_USD, claimBasis, costClaim, formatCredits } from "@/lib/credits";
 import { profileParts, quotesToRecords } from "@/lib/render/measured-quote";
@@ -518,6 +518,7 @@ export function PlayerSheet({ id }: { id: string }) {
       <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
       {studio.shots.filter(shot => shot.takeIds.includes(take.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
       <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
       <button type="button" className="u-link u-muted" onClick={() => { void deleteTake(take.id); setSheet(null); }}><Trash /> {t("sheet.removeFromStudio")}</button>
     </div>
   </SheetFrame>;
@@ -743,6 +744,55 @@ function ShotEditor({ id }: { id: string }) {
       <button type="button" className="u-secondary" disabled={blocked} onClick={() => { if (chosen) void saveShot(shot.id, { takeIds: [...shot.takeIds, chosen] }); }}>{t("verb.relier")}</button>
       <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("shot.allLinked")} />
       <button type="button" className="u-link u-muted" onClick={() => void deleteShot(shot.id)}>{t("shot.delete")}</button>
+    </div>
+  </SheetFrame>;
+}
+
+export function OutputsSheet({ kind }: { kind: "prise" | "scene" | "lora" }) {
+  const { t, say } = useI18n();
+  const { setSheet, studio, media, scene, run, training, previz, placeRun, placeResult } = useStudio();
+  const status = kind === "prise" ? run.phase
+    : kind === "lora" ? training.phase
+      : previz.phase !== "idle" ? previz.phase
+        : placeResult.phase !== "idle" ? placeResult.phase
+          : placeRun === "running" ? "running" : "idle";
+  const reason = kind === "prise" && run.phase === "error" ? run.message
+    : kind === "lora" && training.phase === "error" ? training.message
+      : kind === "scene" && previz.phase === "error" ? previz.message
+        : kind === "scene" && placeResult.phase === "error" ? placeResult.message
+          : "";
+  const takes = kind === "lora" ? []
+    : kind === "scene" && scene ? studio.takes.filter(take => take.sceneId === scene.id || take.id === scene.shot)
+      : studio.takes;
+  const files = kind === "lora" ? studio.loras.filter(lora => !isPlaceLora(lora))
+    : kind === "scene" && scene ? studio.loras.filter(lora => isPlaceLora(lora) && lora.sceneId === scene.id)
+      : [];
+  const lead = takes.find(take => media[take.video]);
+  const still = kind === "scene" && scene?.render ? media[scene.render] : undefined;
+  const empty = !lead && !still && files.length === 0;
+  return <SheetFrame title={t("job.outputs")} label={t(kind === "lora" ? "nav.character" : kind === "scene" ? "nav.scene" : "nav.take")} onClose={() => setSheet(null)} tall>
+    <div className="u-stack">
+      <p className="u-small">{t("job.lead")}</p>
+      {status === "running" && <p className="u-label">{t("job.running")}</p>}
+      {status === "done" && <p className="u-label">{t("job.done")}</p>}
+      {status === "error" && <div className="u-card u-soft-error" role="alert">
+        <p className="u-crt">{t("take.soft")}</p>
+        {reason && <p>{say(reason)}</p>}
+      </div>}
+      {still && <figure className="u-previz"><img src={still} alt="" /><figcaption>{t("job.latest")}</figcaption></figure>}
+      {lead && <video src={media[lead.video]} poster={lead.poster ? media[lead.poster] : undefined} controls muted playsInline className={`u-player is-${lead.settings.aspect}`} />}
+      {empty && <p className="u-small">{t("job.empty")}</p>}
+      {takes.length > 0 && <ul className="u-sequence">
+        {takes.map(take => <li key={take.id}>
+          <button type="button" className="u-link" onClick={() => setSheet({ take: take.id })}>{take.line.trim() || take.sceneName || t("common.take")}</button>
+        </li>)}
+      </ul>}
+      {files.length > 0 && <ul className="u-sequence">
+        {files.map(lora => <li key={lora.id}>
+          <p>{lora.name || t("common.unnamed")}</p>
+          <p className="u-small">{t("lora.pass", { steps: lora.steps })}</p>
+        </li>)}
+      </ul>}
     </div>
   </SheetFrame>;
 }

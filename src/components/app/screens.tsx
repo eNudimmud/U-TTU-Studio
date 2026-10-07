@@ -138,6 +138,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
       <p className="u-label">{t("scene.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{t("scene.title")}</h1>
       <p className="u-micro">{t("guide.stepScene")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
     </header>
     <div className="u-desk">
       <div className="u-stack">
@@ -162,8 +163,9 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
       </div>
       <div className="u-stack">
         {scene && <VueProjet />}
+        <SceneJobs />
         {scene && <SceneEditor />}
-        {previz.phase === "running" ? <FilmStatus /> : (() => {
+        {previz.phase === "running" ? null : (() => {
           const action = filmAction({
             scene: Boolean(scene),
             plan: Boolean(scene?.previz),
@@ -261,18 +263,63 @@ function filmLabel(t: ReturnType<typeof useI18n>["t"], state: Extract<PrevizStat
 }
 
 function FilmStatus() {
-  const { previz, cancelPreviz } = useStudio();
+  const { previz, cancelPreviz, setSheet } = useStudio();
   const { t } = useI18n();
   if (previz.phase !== "running") return null;
-  return <div className="u-run" role="status">
+  return <div className="u-card u-run" role="status">
     <div className="u-thread" aria-hidden="true"><span /></div>
+    <p className="u-label">{t("job.running")}</p>
     <p className="u-run-label">{filmLabel(t, previz)}</p>
+    <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
     <button type="button" className="u-link u-muted" onClick={cancelPreviz}>{t("verb.cancel")}</button>
   </div>;
 }
 
+function SceneJobs() {
+  const { t, say } = useI18n();
+  const { previz, scene, media, studio, setSheet, resumePreviz, placeResult, resetPlaceResult } = useStudio();
+  const filmed = previz.phase === "done" && previz.takeId ? studio.takes.find(item => item.id === previz.takeId) : undefined;
+  const still = scene?.render ? media[scene.render] : undefined;
+  const file = placeResult.phase === "done" ? studio.loras.find(item => item.id === placeResult.loraId) : undefined;
+  return <>
+    {previz.phase === "running" && <FilmStatus />}
+    {previz.phase === "done" && <div className="u-card u-result">
+      <p className="u-label">{t("job.done")}</p>
+      <p className="u-small">{t("job.latest")}</p>
+      {filmed && media[filmed.video]
+        ? <video src={media[filmed.video]} poster={filmed.poster ? media[filmed.poster] : undefined} controls muted playsInline className={`u-player is-${filmed.settings.aspect}`} />
+        : still ? <img src={still} alt="" /> : <p className="u-small">{t("job.empty")}</p>}
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
+    </div>}
+    {previz.phase === "error" && <div className="u-card u-soft-error" role="alert">
+      <p className="u-crt">{t("take.soft")}</p>
+      <p>{say(previz.message)}</p>
+      {previz.detail.length > 0 && <ul>{previz.detail.map(item => <li key={item}>{say(item)}</li>)}</ul>}
+      <button type="button" className="u-secondary" onClick={resumePreviz}>{t("verb.resume")}</button>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
+    </div>}
+    {placeResult.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
+      <p className="u-label">{t("job.running")}</p>
+      <p className="u-run-label">{t("scene.training")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
+    </div>}
+    {placeResult.phase === "done" && file && <div className="u-card u-result">
+      <p className="u-label">{t("job.done")}</p>
+      <p>{file.name || t("common.unnamed")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
+    </div>}
+    {placeResult.phase === "error" && <div className="u-card u-soft-error" role="alert">
+      <p className="u-crt">{t("take.soft")}</p>
+      <p>{say(placeResult.message)}</p>
+      {placeResult.detail.length > 0 && <ul>{placeResult.detail.map(item => <li key={item}>{say(item)}</li>)}</ul>}
+      <button type="button" className="u-secondary" onClick={resetPlaceResult}>{t("verb.resume")}</button>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
+    </div>}
+  </>;
+}
+
 function SceneEditor() {
-  const { scene, media, studio, saveScene, addSceneStills, removeSceneStill, deleteScene, setPreviz, moveCamera, setLens, previz, resetScene, blenderLinked, setSheet, falLinked, placeTrainQuote, placeRun, requestPlaceTrain, addSceneViews, removeSceneView } = useStudio();
+  const { scene, media, studio, saveScene, addSceneStills, removeSceneStill, deleteScene, setPreviz, moveCamera, setLens, resetScene, blenderLinked, setSheet, falLinked, placeTrainQuote, placeRun, requestPlaceTrain, addSceneViews, removeSceneView } = useStudio();
   const { t, say } = useI18n();
   const [point, setPoint] = useState<"start" | "end">("start");
   if (!scene) return null;
@@ -335,7 +382,6 @@ function SceneEditor() {
       <figcaption>{t("scene.emptyCaption")}</figcaption>
     </figure>}
     {filmed && media[filmed.video] && <video src={media[filmed.video]} poster={filmed.poster ? media[filmed.poster] : undefined} controls muted playsInline preload="metadata" />}
-    {previz.phase === "error" && <p className="u-small is-error" role="alert">{say(previz.message)}</p>}
     <p className={`u-cost is-${blenderLinked ? "ok" : "warn"}`}>
       {blenderLinked ? t("scene.blenderKey") : t("scene.noBlenderKey")}
     </p>
@@ -483,10 +529,10 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
   </aside>;
 }
 
-export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): void; goScene(): void; goSphere(): void; goLora(): void }) {
+export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScene(): void; goLora(): void }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { media, scene, line, setLine, settings, setSettings, claim, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
+  const { media, scene, line, setLine, settings, setSettings, claim, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resumeRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
   const cast = castShelf(studio.studio.loras);
   const decor = decorShelf(studio.studio.scenes);
   const check = lookCheck(studio.studio.look);
@@ -572,16 +618,20 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
       <p className="u-micro">{t("guide.stepTake")}</p>
       <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
       <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
     </header>
 
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>
+      <p className="u-label">{t("job.running")}</p>
       <p className="u-run-label">{runLabel(t, run)}</p>
       <p className="u-small">{engine === "lora" ? t("take.runningFal") : t("take.runningRender")} {t("take.stay")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
       <button type="button" className="u-link u-muted" onClick={cancelRun}>{t("verb.cancel")}</button>
     </div>}
 
     {run.phase === "done" && result && media[result.video] && <div ref={resultCard} className="u-card u-result">
+      <p className="u-label">{t("job.done")}</p>
       <video ref={video} src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted loop playsInline preload="auto" className={`is-${result.settings.aspect}`} />
       <p className="u-small">{t("take.inSphere")}</p>
       <p className="u-small">{result.engine === "lora"
@@ -592,7 +642,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
       {studio.studio.shots.filter(shot => shot.takeIds.includes(result.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
       <div className="u-row">
         <button type="button" className="u-secondary" onClick={resetRun}>{t("take.new")}</button>
-        <button type="button" className="u-link" onClick={goSphere}>{t("take.seeSphere")}</button>
+        <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
       </div>
     </div>}
 
@@ -603,7 +653,8 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
       {run.code === "credits" && <p>{engine === "lora" ? t("take.reloadFal") : t("take.reloadRender")}</p>}
       {run.code === "auth" || run.code === "scope"
         ? <button type="button" className="u-secondary" onClick={() => { resetRun(); setSheet("relier"); }}>{t("verb.connectAgain")}</button>
-        : <button type="button" className="u-secondary" onClick={resetRun}>{t("verb.resume")}</button>}
+        : <button type="button" className="u-secondary" onClick={resumeRun}>{t("verb.resume")}</button>}
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
     </div>}
 
     {run.phase === "idle" && <div className="u-comfort" aria-label={t("take.adjust")}>

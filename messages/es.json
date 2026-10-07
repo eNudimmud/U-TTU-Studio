@@ -21,6 +21,7 @@
     "opening": "Abriendo mi estudio…",
     "takeRunning": "toma en curso",
     "trainRunning": "entrenamiento en curso",
+    "sceneRunning": "escena en curso",
     "falBalance": "Saldo de la cuenta fal",
     "falUnread": "Cuenta fal vinculada, saldo no leído",
     "renderCredits": "Créditos de la cuenta de render"
@@ -316,7 +317,6 @@
     "debitHiddenRender": "Cargo aún no visible en tu saldo.",
     "calc": " Cálculo: {clock}.",
     "new": "Nueva toma",
-    "seeSphere": "Ver la esfera",
     "soft": "No ha salido.",
     "reloadFal": "Recarga tu cuenta fal, luego relanza. El saldo, arriba, muestra lo que queda.",
     "reloadRender": "Recarga tu cuenta de render, luego relanza. El saldo, arriba, muestra lo que queda.",
@@ -349,6 +349,14 @@
     "gapFile": "El motor Personaje (archivo) espera un archivo entrenado.",
     "hintFile": "Falta un archivo de personaje.",
     "hintBlocked": "El precio o el saldo no deja salir la toma."
+  },
+  "job": {
+    "running": "En curso",
+    "done": "Ha salido",
+    "outputs": "Salidas",
+    "latest": "Última salida",
+    "empty": "Ninguna salida para este gesto.",
+    "lead": "La última salida de este gesto está aquí. La esfera sigue siendo la estantería."
   },
   "run": {
     "start": "Preparación",

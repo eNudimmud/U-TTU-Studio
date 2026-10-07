@@ -21,6 +21,7 @@
     "opening": "Opening my studio…",
     "takeRunning": "take in progress",
     "trainRunning": "training in progress",
+    "sceneRunning": "scene in progress",
     "falBalance": "fal account balance",
     "falUnread": "fal account connected, balance unread",
     "renderCredits": "Render account credits"
@@ -316,7 +317,6 @@
     "debitHiddenRender": "Charge not yet visible on your balance.",
     "calc": " Compute: {clock}.",
     "new": "New take",
-    "seeSphere": "See the sphere",
     "soft": "It did not land.",
     "reloadFal": "Top up your fal account, then run again. The balance, at the top, shows what remains.",
     "reloadRender": "Top up your render account, then run again. The balance, at the top, shows what remains.",
@@ -349,6 +349,14 @@
     "gapFile": "The Character (trained) engine is waiting for a trained file.",
     "hintFile": "A character file is missing.",
     "hintBlocked": "The price or the balance will not let the take leave."
+  },
+  "job": {
+    "running": "In progress",
+    "done": "Landed",
+    "outputs": "Outputs",
+    "latest": "Latest output",
+    "empty": "No output for this gesture.",
+    "lead": "The latest output of this gesture is here. The sphere stays the shelf."
   },
   "run": {
     "start": "Preparing",

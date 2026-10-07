@@ -21,6 +21,7 @@
     "opening": "Ouverture de mon studio…",
     "takeRunning": "prise en cours",
     "trainRunning": "formation en cours",
+    "sceneRunning": "scène en cours",
     "falBalance": "Solde du compte fal",
     "falUnread": "Compte fal relié, solde non lu",
     "renderCredits": "Crédits du compte de rendu"
@@ -316,7 +317,6 @@
     "debitHiddenRender": "Débit pas encore visible sur ton solde.",
     "calc": " Calcul : {clock}.",
     "new": "Nouvelle prise",
-    "seeSphere": "Voir la sphère",
     "soft": "Ça n’a pas abouti.",
     "reloadFal": "Recharge ton compte fal, puis relance. Le solde, en haut, montre ce qui reste.",
     "reloadRender": "Recharge ton compte de rendu, puis relance. Le solde, en haut, montre ce qui reste.",
@@ -349,6 +349,14 @@
     "gapFile": "Le moteur Personnage (fichier) attend un fichier formé.",
     "hintFile": "Il manque un fichier de personnage.",
     "hintBlocked": "Le prix ou le solde ne laisse pas partir la prise."
+  },
+  "job": {
+    "running": "En cours",
+    "done": "Abouti",
+    "outputs": "Sorties",
+    "latest": "Dernière sortie",
+    "empty": "Aucune sortie pour ce geste.",
+    "lead": "La dernière sortie de ce geste est ici. La sphère reste l’étagère."
   },
   "run": {
     "start": "Préparation",

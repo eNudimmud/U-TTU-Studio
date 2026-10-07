@@ -43,7 +43,7 @@ import {
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
 
-export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | "sequences" | "shots" | { take: string } | { sequence: string } | { shot: string };
+export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | "sequences" | "shots" | { take: string } | { sequence: string } | { shot: string } | { outputs: "prise" | "scene" | "lora" };
 
 export type RunState =
   | { phase: "idle" }
@@ -54,6 +54,13 @@ export type RunState =
 export type PrevizState =
   | { phase: "idle" }
   | { phase: "running"; event: PrevizEvent }
+  | { phase: "done"; takeId: string | null }
+  | { phase: "error"; message: string; detail: string[] };
+
+export type PlaceResult =
+  | { phase: "idle" }
+  | { phase: "running" }
+  | { phase: "done"; loraId: string }
   | { phase: "error"; message: string; detail: string[] };
 
 const FILM_KEY = "u-ttu-film";
@@ -295,6 +302,8 @@ interface StudioValue {
   placeTrainGate: RunGate;
   placeSceneGate: RunGate;
   placeRun: "idle" | "running";
+  placeResult: PlaceResult;
+  resetPlaceResult(): void;
   requestPlaceTrain(): Promise<void>;
   confirmPlaceTrain(): Promise<void>;
   requestPlaceScene(): Promise<void>;
@@ -306,6 +315,7 @@ interface StudioValue {
   requestPreviz(): Promise<void>;
   confirmPreviz(): Promise<void>;
   cancelPreviz(): void;
+  resumePreviz(): void;
   connectBlender(raw: string): string | null;
   disconnectBlender(): void;
   setLine(line: string): void;
@@ -324,11 +334,13 @@ interface StudioValue {
   confirmTraining(): Promise<void>;
   cancelTraining(): void;
   resetTraining(): void;
+  resumeTraining(): void;
   deleteLora(id: string): Promise<void>;
   requestRun(): Promise<void>;
   confirmRun(): Promise<void>;
   cancelRun(): void;
   resetRun(): void;
+  resumeRun(): void;
   deleteTake(id: string): Promise<void>;
   createSequence(name: string): Promise<void>;
   saveSequence(id: string, patch: Partial<Pick<Sequence, "name" | "links">>): Promise<void>;
@@ -407,6 +419,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [placeTrainPrice, setPlaceTrainPrice] = useState<FalPrice | null>(null);
   const [placeScenePrice, setPlaceScenePrice] = useState<FalPrice | null>(null);
   const [placeRun, setPlaceRun] = useState<"idle" | "running">("idle");
+  const [placeResult, setPlaceResult] = useState<PlaceResult>({ phase: "idle" });
   const [sheet, setSheet] = useState<Sheet>(null);
   const [folder, setFolder] = useState<string | null>(null);
   const [guide, setGuide] = useState<GuideState>({ off: false, seen: [] });
@@ -1270,6 +1283,22 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const cancelRun = useCallback(() => abort.current?.abort(), []);
   const resetRun = useCallback(() => setRun({ phase: "idle" }), []);
+  const resumeRun = useCallback(() => {
+    if (run.phase === "running") return;
+    const comfyFlight = readInFlight(localStorage);
+    if (comfyFlight && client) {
+      setRun({ phase: "running", event: { stage: "queue", jobId: comfyFlight.jobId } });
+      void finish(comfyFlight, client);
+      return;
+    }
+    const loraFlight = readLoraTakeFlight(localStorage);
+    if (loraFlight && fal) {
+      setRun({ phase: "running", event: { stage: "queue", position: null } });
+      void finishLora(loraFlight, fal);
+      return;
+    }
+    if (!comfyFlight && !loraFlight) setRun({ phase: "idle" });
+  }, [client, fal, finish, finishLora, run.phase]);
 
   const keepFrames = useCallback(async (sceneId: string, images: readonly Blob[]) => {
     const current = studioRef.current.scenes.find(item => item.id === sceneId);
@@ -1339,7 +1368,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setStudio({ ...studioRef.current, takes });
       saveFilmFlight(null);
       if (result.balanceAfter !== null) setFalBalance({ usd: result.balanceAfter, readAt: Date.now() });
-      setPrevizState({ phase: "idle" });
+      setPrevizState({ phase: "done", takeId: id });
       setNotice("Le plan est filmé. Blender a rendu le lieu vide. Le personnage est dans la prise.");
     } catch (error) {
       const failure = falFailure(error, "Le personnage n’est pas dans le plan.");
@@ -1363,7 +1392,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       saveFilmFlight(null);
       quoteRef.current = null;
       setFilmQuote(null);
-      setPrevizState({ phase: "idle" });
+      setPrevizState({ phase: "done", takeId: null });
       setNotice("Le lieu est rendu, vide. Le prochain geste filme le personnage, au prix fal seul.");
     } catch (error) {
       const failure = filmProblem(error);
@@ -1503,6 +1532,20 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [blenderKey, fal, finishPerson, keepFrames, previz.phase, refreshFal, store]);
 
   const cancelPreviz = useCallback(() => abortPreviz.current?.abort(), []);
+  const resumePreviz = useCallback(() => {
+    if (previz.phase === "running") return;
+    const flight = readFilmFlight();
+    if (flight?.stage === "person" && flight.handle && fal) {
+      void finishPerson(flight, fal);
+      return;
+    }
+    if (flight?.stage === "blender" && flight.jobId && blenderKey) {
+      setPrevizState({ phase: "running", event: { stage: "queue", jobId: flight.jobId } });
+      void finishFilm(flight, blenderKey);
+      return;
+    }
+    setPrevizState({ phase: "idle" });
+  }, [blenderKey, fal, finishFilm, finishPerson, previz.phase]);
 
   const connectBlender = useCallback((raw: string): string | null => {
     const key = cleanBlenderKey(raw);
@@ -1755,6 +1798,16 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const cancelTraining = useCallback(() => abortTrain.current?.abort(), []);
   const resetTraining = useCallback(() => setTraining({ phase: "idle" }), []);
+  const resumeTraining = useCallback(() => {
+    if (training.phase === "running") return;
+    const flight = readTrainingFlight(localStorage);
+    if (flight && fal) {
+      setTraining({ phase: "running", event: { stage: "queue", position: null } });
+      void finishTraining(flight, fal);
+      return;
+    }
+    if (!flight) setTraining({ phase: "idle" });
+  }, [fal, finishTraining, training.phase]);
 
   const deleteLora = useCallback(async (id: string) => {
     const lora = studioRef.current.loras.find(item => item.id === id);
@@ -1995,6 +2048,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       return;
     }
     setSheet(null);
+    setPlaceResult({ phase: "running" });
     setPlaceRun("running");
     abortPlace.current = new AbortController();
     try {
@@ -2032,9 +2086,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       saveLoraUploads(localStorage, uploads);
       setStudio({ ...studioRef.current, loras });
       if (result.balanceAfter !== null) setFalBalance({ usd: result.balanceAfter, readAt: Date.now() });
+      setPlaceResult({ phase: "done", loraId: id });
       setNotice("Le lieu est dans mon studio. Ce fichier n’est pas un volume : le Blender du lieu reste le modèle 3D.");
     } catch (error) {
-      setNotice(falFailure(error, "La formation du lieu n’a pas abouti.").message);
+      const failure = falFailure(error, "La formation du lieu n’a pas abouti.");
+      setPlaceResult({ phase: "error", message: failure.message, detail: failure.detail });
+      setNotice(failure.message);
     } finally {
       abortPlace.current = null;
       setPlaceRun("idle");
@@ -2107,14 +2164,16 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, [addMedia, dropMedia, fal, inProject, placeRun, refreshFal, saveScene, store]);
 
+  const resetPlaceResult = useCallback(() => setPlaceResult({ phase: "idle" }), []);
+
   const value: StudioValue = {
-    ready, studio, media, scene, line, settings, claim, clearMeasuredQuote, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
-    addSceneViews, removeSceneView, placeTrainQuote: pricedPlace, placeSceneQuote: pricedStill, placeTrainGate, placeSceneGate, placeRun, requestPlaceTrain, confirmPlaceTrain, requestPlaceScene, confirmPlaceScene,
+    ready, studio, media, scene, line, settings, claim, clearMeasuredQuote, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, resumePreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
+    addSceneViews, removeSceneView, placeTrainQuote: pricedPlace, placeSceneQuote: pricedStill, placeTrainGate, placeSceneGate, placeRun, placeResult, resetPlaceResult, requestPlaceTrain, confirmPlaceTrain, requestPlaceScene, confirmPlaceScene,
     falLinked, falBalance, falBalanceOptional, falBalanceNote, falUsername, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote,
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
-    setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, deleteLora,
-    requestRun, confirmRun, cancelRun, resetRun, deleteTake, createSequence, saveSequence, deleteSequence, createShot, saveShot, moveShotInSequence, deleteShot, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
+    setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, resumeTraining, deleteLora,
+    requestRun, confirmRun, cancelRun, resetRun, resumeRun, deleteTake, createSequence, saveSequence, deleteSequence, createShot, saveShot, moveShotInSequence, deleteShot, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
     exportCoffre, importCoffre, createNamedProject, selectNamedProject, linkFolder, dismissGuide, guideOff,
   };
 
