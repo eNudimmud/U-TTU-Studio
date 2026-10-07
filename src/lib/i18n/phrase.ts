@@ -4,6 +4,7 @@ const EXACT: Record<string, string> = {
   "Solde illisible. Rien ne part sans lire le compte qui paiera.": "runtime.balanceUnreadable",
   "Solde vide sur ton compte de rendu.": "runtime.renderEmpty",
   "Devis absent. Le total de cette prise n’est pas un nombre. Rien ne part.": "runtime.uncalibrated",
+  "Pas encore mesuré. Cette durée, cette qualité ou ce format n’a pas de prise réelle. Rien ne part.": "runtime.notMeasured",
   "Prix fal illisible. Rien ne part sans un prix.": "runtime.falPriceUnreadable",
   "Solde fal illisible. Rien ne part sans lire le compte qui paiera.": "runtime.falBalanceUnreadable",
   "Solde fal vide. Recharge-le sur fal.ai, puis relis-le ici.": "runtime.falEmpty",
@@ -120,6 +121,26 @@ const PATTERNS: Pattern[] = [
   {
     re: /^ta prise du (.+) à ce réglage$/,
     apply: (t, match) => t("runtime.basisOne", { date: match[1] }),
+  },
+  {
+    re: /^Environ (\S+) crédits, au plus (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
+    apply: (t, match) => t("runtime.billedQuote", { amount: match[1], high: match[2], date: match[3] }),
+  },
+  {
+    re: /^Solde trop bas : (\S+) crédits\. Environ (\S+) crédits, au plus (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
+    apply: (t, match) => t("runtime.billedLow", { have: match[1], amount: match[2], high: match[3], date: match[4] }),
+  },
+  {
+    re: /^Solde illisible\. Rien ne part sans lire le compte qui paiera\. Environ (\S+) crédits, au plus (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
+    apply: (t, match) => t("runtime.billedUnread", { amount: match[1], high: match[2], date: match[3] }),
+  },
+  {
+    re: /^Solde vide sur ton compte de rendu\. Environ (\S+) crédits, au plus (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
+    apply: (t, match) => t("runtime.billedEmpty", { amount: match[1], high: match[2], date: match[3] }),
+  },
+  {
+    re: /^environ (\S+) crédits$/,
+    apply: (t, match) => t("runtime.billedMark", { amount: match[1] }),
   },
   {
     re: /^Environ (.+) crédits, mesuré sur (.+)\.$/,

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "kind": "gpu-facture",
+  "profile": "h3-4pas-5s-vertical",
+  "at": "2026-10-07T21:16:45.000Z",
+  "displayDay": "7 octobre",
+  "jobId": "51662b20-4ac7-44bc-b203-a4127ff462a0",
+  "gpu": "rtx_pro_6000",
+  "gpuSeconds": 15.680729,
+  "usdPerGpuSecond": 0.001295,
+  "creditsPerUsd": 211,
+  "gpuCreditsPerSecondBound": 0.39,
+  "credits": 4,
+  "creditsHigh": 6,
+  "runs": 1,
+  "modelsWarm": true
+}

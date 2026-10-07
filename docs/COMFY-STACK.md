@@ -47,7 +47,7 @@ Les photos sont réduites à 1 536 px avant l’envoi : la limite de corps d’u
 
 - **Solde.** Session : `GET https://api.comfy.org/customers/balance` (ce domaine accepte l’origine du studio). Clé, ou à défaut : `GET /api/billing/usage/timeseries?granularity=month&months=1`, champ `summary.balance`. Comfy rend des cents malgré le nom `amount_micros` ; crédits = cents × 211 / 100.
 - **Coût mesuré.** Le solde est lu juste avant la confirmation, puis après la prise, jusqu’à 4 fois à 5 s d’écart tant qu’il n’a pas bougé. La différence est le coût. Une recharge entre les deux lectures rend la mesure illisible : rien n’est inventé.
-- **Annonce.** Clé de calibration : `h3-<pas>pas-<durée>s-<format>`. Sans prise mesurée à ce réglage : « non calibré », aucun chiffre. Ensuite : la plus chère des trois dernières mesures. « Tourner » s’éteint si le solde est illisible, vide, ou sous ce chiffre.
+- **Annonce.** Clé de calibration : `h3-<pas>pas-<durée>s-<format>`. Un delta de solde dans Mon studio (F11) prime. Sans ce delta, un seul profil a un devis facturé dans le repo : `h3-4pas-5s-vertical` (F26, environ 4 crédits, au plus 6). Les autres réglages restent « pas encore mesuré », aucun chiffre. « Tourner » s’éteint si le solde est illisible, vide, ou sous le chiffre retenu (pour le devis facturé, sous la borne haute).
 - **Temps de calcul.** Lu dans les horodatages du job, affiché à titre d’information. `estimate_credits` répond 0 pour ce graphe : il ne compte pas le temps GPU. L’ancien barème `TAKE_TIMING` (240–720 s, 90–240 s, jamais mesuré) n’est plus affiché nulle part.
 
 ### Pages Comfy relayées
