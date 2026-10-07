@@ -30,5 +30,6 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - **Bouger la caméra** : EN Move the camera. DE Die Kamera bewegen. ES Mover la cámara.
 - **Poser un effet** : EN Apply an effect. DE Einen Effekt setzen. ES Poner un efecto.
 - Gabarits : `modele-raccord.md`, `modele-mouvement.md`, `modele-effet.md`. Moteurs : `moteur-raccord.md`, `moteur-mouvement.md`, `moteur-effet.md`. Jamais le nom nu de la section.
+- Mémoire du projet, sur la Prise : **Bible**, **Style**, **Lexique**, **Prompts**. EN Bible / Style / Lexicon / Prompts. DE Bibel / Stil / Lexikon / Prompts. ES Biblia / Estilo / Léxico / Prompts. Un champ vide dit qu’il n’y a rien d’écrit. Le fichier du squelette n’est pas présenté comme le texte du projet.
 
 Le switcher est dans la barre du téléphone et dans le rail du bureau. Les noms des langues ne se traduisent pas : Français, English, Deutsch, Español.

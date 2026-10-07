@@ -50,6 +50,7 @@
     "scene-previz": "Ce lieu reste. Le trajet aussi. Un geste filme ton personnage.",
     "take-connect": "Relie ton compte de rendu. Le calcul se paie là-bas, pas ici.",
     "take-line": "Une phrase : ce que fait la prise. Le reste est déjà tissé.",
+    "take-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
     "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
     "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
     "take-done": "La prise est dans mon studio. Publie-la d’un geste.",
@@ -620,40 +621,21 @@
     "removeFromStudio": "Retirer de mon studio",
     "file": "Fichier"
   },
-  "cinema": {
-    "kicker": "À part",
-    "lead": "Trois gestes à part. Ils ne tournent pas cette prise. Sans un nombre, Tourner reste éteint.",
-    "leadPlan": "Les mêmes gestes, à partir des images de ce plan.",
-    "lands": "Le court film se range avec les prises. Le plan du storyboard le garde s’il en part.",
-    "partage": "Partage manquant. Ce geste n’a pas de modèle lu. Rien ne s’ouvre.",
-    "devis": "Devis absent. Le total de ce geste n’est pas un nombre. Rien ne part.",
-    "raccord": {
-      "name": "Raccorder deux images",
-      "sentence": "La première image et la dernière deviennent un court film.",
-      "need": "Il faut une première image et une dernière image, distinctes.",
-      "apart": "Ce n’est pas la note entre deux prises d’une séquence."
-    },
-    "camera": {
-      "name": "Bouger la caméra",
-      "sentence": "Une image fixe, ou l’image d’une prise, devient un court film. La caméra bouge.",
-      "needStill": "Il faut une image fixe, ou l’image d’une prise.",
-      "needMove": "Choisis un mouvement.",
-      "moves": "Mouvement",
-      "pose": {
-        "up": "Monte",
-        "down": "Descend",
-        "left": "Va à gauche",
-        "right": "Va à droite",
-        "in": "S’approche",
-        "out": "S’éloigne",
-        "acw": "Pivote à gauche",
-        "cw": "Pivote à droite"
-      }
-    },
-    "effet": {
-      "name": "Poser un effet",
-      "sentence": "Une prise filmée reçoit le style d’une image.",
-      "need": "Il faut une prise filmée, et une image pour l’effet."
+  "memory": {
+    "title": "Ce projet",
+    "lead": "Bible, style, lexique et prompts de {name}. Rien n’est envoyé d’ici.",
+    "noProject": "Aucun projet en cours. Crée-le dans Mon studio. Rien n’est inventé ici.",
+    "open": "Bible, style, lexique, prompts",
+    "bible": "Bible",
+    "style": "Style",
+    "lexique": "Lexique",
+    "prompts": "Prompts",
+    "note": "Prompt · {file}",
+    "empty": {
+      "bible": "Rien d’écrit. Ce qui ne change pas.",
+      "style": "Rien d’écrit. La lumière, le cadre, ce qu’on évite.",
+      "lexique": "Rien d’écrit. Les mots de ce projet, et ce qu’ils désignent.",
+      "prompts": "Rien d’écrit. Des briques de phrase. Rien n’est envoyé d’ici."
     }
   },
   "tree": {
@@ -670,18 +652,18 @@
     "modelTake": "Modèle · Prise",
     "modelSequence": "Modèle · Séquence",
     "modelShot": "Modèle · Plan",
-    "modelBridge": "Modèle · Raccord",
-    "modelMove": "Modèle · Mouvement",
-    "modelEffect": "Modèle · Effet",
     "engineCharacter": "Moteur · Personnage",
     "engineReferences": "Moteur · Références",
     "enginePlace": "Moteur · Lieu",
-    "engineBridge": "Moteur · Raccord",
-    "engineMove": "Moteur · Mouvement",
-    "engineEffect": "Moteur · Effet",
     "engines": "Moteurs",
     "files": "Fichiers",
-    "notes": "Notes"
+    "notes": "Notes",
+    "modelBridge": "Modèle · Raccord",
+    "modelMove": "Modèle · Mouvement",
+    "modelEffect": "Modèle · Effet",
+    "engineBridge": "Moteur · Raccord",
+    "engineMove": "Moteur · Mouvement",
+    "engineEffect": "Moteur · Effet"
   },
   "common": {
     "unnamed": "Sans nom",
@@ -779,5 +761,41 @@
     "importedOne": "Ajouté à mon studio : {count} fichier. Les prises et les personnages déjà ici restent.",
     "importedMany": "Ajouté à mon studio : {count} fichiers. Les prises et les personnages déjà ici restent.",
     "folderCopied": "{count} fichiers copiés dans « {name} ». Le dossier suit le studio jusqu’à la fermeture."
+  },
+  "cinema": {
+    "kicker": "À part",
+    "lead": "Trois gestes à part. Ils ne tournent pas cette prise. Sans un nombre, Tourner reste éteint.",
+    "leadPlan": "Les mêmes gestes, à partir des images de ce plan.",
+    "lands": "Le court film se range avec les prises. Le plan du storyboard le garde s’il en part.",
+    "partage": "Partage manquant. Ce geste n’a pas de modèle lu. Rien ne s’ouvre.",
+    "devis": "Devis absent. Le total de ce geste n’est pas un nombre. Rien ne part.",
+    "raccord": {
+      "name": "Raccorder deux images",
+      "sentence": "La première image et la dernière deviennent un court film.",
+      "need": "Il faut une première image et une dernière image, distinctes.",
+      "apart": "Ce n’est pas la note entre deux prises d’une séquence."
+    },
+    "camera": {
+      "name": "Bouger la caméra",
+      "sentence": "Une image fixe, ou l’image d’une prise, devient un court film. La caméra bouge.",
+      "needStill": "Il faut une image fixe, ou l’image d’une prise.",
+      "needMove": "Choisis un mouvement.",
+      "moves": "Mouvement",
+      "pose": {
+        "up": "Monte",
+        "down": "Descend",
+        "left": "Va à gauche",
+        "right": "Va à droite",
+        "in": "S’approche",
+        "out": "S’éloigne",
+        "acw": "Pivote à gauche",
+        "cw": "Pivote à droite"
+      }
+    },
+    "effet": {
+      "name": "Poser un effet",
+      "sentence": "Une prise filmée reçoit le style d’une image.",
+      "need": "Il faut une prise filmée, et une image pour l’effet."
+    }
   }
 }

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useI18n, useStudioDates } from "@/components/i18n/provider";
 import { costLabel, dropTakeLink, isPlaceLora, shotsOf } from "@/lib/coffre/model";
+import { memoryKindOf, type MemoryKind } from "@/lib/coffre/memory";
 import { treeFileLabel } from "@/lib/coffre/project";
 import { CREDITS_PER_USD, claimBasis, costClaim, formatCredits } from "@/lib/credits";
 import { profileParts, quotesToRecords } from "@/lib/render/measured-quote";
@@ -14,6 +15,7 @@ import { Close, Refresh, Trash } from "./glyphs";
 import { PublishActions } from "./publish";
 import { sheetDismissAllowed } from "@/lib/link-epoch";
 import { CinemaGestures } from "./cinema-gestures";
+import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { useStudio } from "./studio-context";
 
@@ -247,6 +249,7 @@ export function CoffreSheet() {
       <Why on={!draft.trim()} text={t("why.needName")} />
       <button type="button" className="u-secondary" onClick={() => setSheet("shots")}>{t("shot.title")}</button>
       <button type="button" className="u-secondary" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
+      {studio.project && <button type="button" className="u-secondary" onClick={() => setSheet({ memory: "bible" })}>{t("memory.open")}</button>}
       <p className="u-small">{t("sheet.exportLead")}</p>
       <button type="button" className="u-primary" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
       <label className="u-secondary u-file">
@@ -276,8 +279,10 @@ export function CoffreSheet() {
           const sequenceId = group.label === "Séquences" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
           const shotId = group.label === "Plans" && file !== "index.md" && file.endsWith(".md") ? file.slice(0, -3) : "";
           const label = say(treeFileLabel(group.label, file));
+          const memory = memoryKindOf(group.label, file);
           if (sequenceId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ sequence: sequenceId })}>{label}</button>;
           if (shotId) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ shot: shotId })}>{label}</button>;
+          if (memory) return <button key={file} type="button" className="u-link" onClick={() => setSheet({ memory })}>{memory === "prompts" && file !== "index.md" ? file : t(`memory.${memory}`)}</button>;
           return <span key={file}>{label}</span>;
         })}</li>)}
       </ul>}
@@ -496,6 +501,14 @@ export function PlaceSceneSheet() {
   </SheetFrame>;
 }
 
+export function MemorySheet({ focus }: { focus: MemoryKind }) {
+  const { t } = useI18n();
+  const { setSheet, studio } = useStudio();
+  return <SheetFrame title={t("memory.title")} label={studio.projectName || t("sheet.currentProject")} onClose={() => setSheet(null)} tall>
+    <ProjectMemory focus={focus} heading={false} />
+  </SheetFrame>;
+}
+
 export function PlayerSheet({ id }: { id: string }) {
   const { t, say } = useI18n();
   const { date } = useStudioDates();
@@ -516,6 +529,7 @@ export function PlayerSheet({ id }: { id: string }) {
         {take.gpuSeconds !== null && <li><span>{t("sheet.compute")}</span><span>{take.gpuSeconds} s</span></li>}
       </ul>
       <PublishActions take={take} />
+      <ProjectMemory heading />
       {studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === take.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
       <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
       {studio.shots.filter(shot => shot.takeIds.includes(take.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}

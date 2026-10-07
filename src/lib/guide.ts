@@ -11,6 +11,7 @@ export type GuideMoment =
   | "scene-previz"
   | "take-connect"
   | "take-line"
+  | "take-memory"
   | "take-ready"
   | "take-running"
   | "take-done"
@@ -34,6 +35,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "scene-previz": "Ce lieu reste. Le trajet aussi. Un geste filme ton personnage.",
   "take-connect": "Relie ton compte de rendu. Le calcul se paie là-bas, pas ici.",
   "take-line": "Une phrase : ce que fait la prise. Le reste est déjà tissé.",
+  "take-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
   "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
   "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
   "take-done": "La prise est dans mon studio. Publie-la d’un geste.",

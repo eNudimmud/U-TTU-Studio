@@ -21,6 +21,10 @@ import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type
 import type { Clip, ClipFormat, TrainingAspect } from "../lora/dataset.ts";
 import type { PlaceCamera, PrevizPlan } from "../render/previz.ts";
 import { defaultCamera, isLens } from "../render/previz.ts";
+import {
+  emptyMemory, MEMORY_FILE, memoryMarkdown, promptNoteFile, promptNoteMarkdown, readProjectMemory,
+  type MemoryKind, type ProjectMemory,
+} from "./memory.ts";
 import { list, num, readFrontmatter, text, withFrontmatter } from "./markdown.ts";
 import {
   ACTIVE_FILE, DEFAULT_PROJECT_NAME, SECTION_FILE_MOVES, clipVaultPath, isLegacyPath, legacyDestination, projectPath, projectSlug, projectSlugsFrom, projectTitle, projectTree, relocateText, rewriteSectionLinks, rolePhotoPath, rootMoc, scaffoldFiles, vaultMedia,
@@ -169,6 +173,8 @@ export interface Studio {
   projectName: string;
   projects: ProjectCard[];
   tree: TreeFolder[];
+  /** Bible, style, lexicon and prompts of the open project. Scaffold sentences stay empty here. */
+  memory: ProjectMemory;
 }
 
 export const emptyLook = (): Look => ({ name: "", traits: [], photos: [], note: "" });
@@ -180,7 +186,7 @@ export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "pre
 export const isPlaceLora = (lora: Pick<Lora, "kind">) => lora.kind === "lieu";
 export const emptyStudio = (): Studio => ({
   look: emptyLook(), scenes: [], currentScene: null, takes: [], sequences: [], shots: [], loras: [], clips: [], role: emptyRole(), quotes: [],
-  project: null, projectName: "", projects: [], tree: [],
+  project: null, projectName: "", projects: [], tree: [], memory: emptyMemory(),
 });
 
 const oneLine = (value: string, max: number) => value.replace(/[\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
@@ -857,6 +863,7 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
   studio.project = slug;
   studio.projectName = projects.find(item => item.slug === slug)?.name ?? "";
   studio.tree = slug ? projectTree(slug, entries.map(entry => entry.path)) : [];
+  studio.memory = slug ? readProjectMemory(slug, entries) : emptyMemory();
   if (!slug) return studio;
   const byPath = new Map(entries.map(entry => [entry.path, entry]));
   const prefix = projectPath(slug);
@@ -953,6 +960,15 @@ function readClips(source: string | undefined): Clip[] {
 }
 
 const now = () => Date.now();
+
+export async function writeMemory(store: VaultStore, slug: string, kind: MemoryKind, body: string): Promise<void> {
+  await writeText(store, projectPath(slug, MEMORY_FILE[kind]), memoryMarkdown(slug, kind, body));
+}
+
+export async function writePromptNote(store: VaultStore, slug: string, file: string, body: string): Promise<void> {
+  if (!promptNoteFile(file)) return;
+  await writeText(store, projectPath(slug, `Prompts/${file}`), promptNoteMarkdown(slug, file, body));
+}
 
 export async function writeText(store: VaultStore, path: string, value: string): Promise<void> {
   await store.put({ path, text: value, updatedAt: now() });
