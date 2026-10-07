@@ -1,7 +1,7 @@
 "use client";
 
 import { useI18n } from "@/components/i18n/provider";
-import { runGate } from "@/lib/credits";
+import { priseGate } from "@/lib/render/billed-quote";
 import { formatUsd } from "@/lib/fal/prices";
 import { CLIPS_MIN } from "@/lib/lora/dataset";
 import { PLACE_SHOTS_MIN } from "@/lib/lora/place";
@@ -9,9 +9,9 @@ import { workflowFiches, type WorkflowFiche } from "@/lib/workflow-fiches";
 import { useStudio } from "./studio-context";
 
 export function FichesScreen({ onLaunch }: { onLaunch(fiche: WorkflowFiche): void }) {
-  const { connected, balance, claim, falLinked, trainQuote, placeTrainQuote, placeSceneQuote, settings, loraResolution, trainingSteps, setSheet } = useStudio();
+  const { connected, balance, takeQuote, falLinked, trainQuote, placeTrainQuote, placeSceneQuote, settings, loraResolution, trainingSteps, setSheet } = useStudio();
   const { t, say } = useI18n();
-  const renderGate = connected ? runGate(balance, claim) : null;
+  const renderGate = connected ? priseGate(balance, takeQuote) : null;
   const fiches = workflowFiches({
     rendu: renderGate ? renderGate.line : null,
     former: falLinked && trainQuote !== null ? formatUsd(trainQuote) : null,

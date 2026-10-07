@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { costClaim, falGate, runGate, type Balance, type CostClaim, type RunGate, type UsdBalance } from "@/lib/credits";
+import { costClaim, falGate, type Balance, type CostClaim, type RunGate, type UsdBalance } from "@/lib/credits";
+import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
 import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip } from "@/lib/coffre/import";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
@@ -254,6 +255,7 @@ interface StudioValue {
   line: string;
   settings: TakeSettings;
   claim: CostClaim;
+  takeQuote: TakeQuote;
   clearMeasuredQuote(profile: string): Promise<void>;
   gate: RunGate;
   link: RenderLink;
@@ -612,7 +614,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     () => costClaim(profile, quotesToRecords(studio.quotes)),
     [profile, studio.quotes],
   );
-  const comfyGate = useMemo(() => runGate(balance, claim), [balance, claim]);
+  const takeQuote = useMemo(
+    () => resolveTakeQuote(profile, quotesToRecords(studio.quotes)),
+    [profile, studio.quotes],
+  );
+  const comfyGate = useMemo(() => priseGate(balance, takeQuote), [balance, takeQuote]);
   const dataset = useMemo(() => datasetCheck(studio.clips, studio.role.photos.length, studio.role.name), [studio.clips, studio.role.photos.length, studio.role.name]);
   const people = studio.loras.filter(item => !isPlaceLora(item));
   const chosenLora = people.find(item => item.id === loraPick) ?? people[0] ?? null;
@@ -1178,6 +1184,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         engine: "lora",
         subject: trained.trigger,
       });
+      if (!prompt.trim()) {
+        setNotice("Aucun texte ne part : il manque les images de cette prise.");
+        return;
+      }
       setSheet(null);
       setRun({ phase: "running", event: { stage: "start" } });
       abort.current = new AbortController();
@@ -1221,9 +1231,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       return;
     }
     const fresh = await refreshBalance();
-    const freshGate = runGate(fresh, claim);
-    if (!fresh || !freshGate.allowed) {
-      setNotice(freshGate.line);
+    const freshQuote = resolveTakeQuote(takeProfile(settings), quotesToRecords(studioRef.current.quotes));
+    const freshGate = priseGate(fresh, freshQuote);
+    if (!fresh || !freshGate.allowed || !freshGate.line.trim()) {
+      setNotice(freshGate.line || "Pas encore mesuré. Cette durée, cette qualité ou ce format n’a pas de prise réelle. Rien ne part.");
       return;
     }
     const vault = store();
@@ -1242,8 +1253,6 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setRun({ phase: "error", code: "invalid", message: "Les photos des références manquent dans mon studio.", detail: [] });
       return;
     }
-    setSheet(null);
-    setRun({ phase: "running", event: { stage: "start" } });
     const prompt = priseOutgoingText({
       traits: current.look.traits,
       photos: current.look.photos,
@@ -1251,6 +1260,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       line,
       engine: "comfy",
     });
+    if (!prompt.trim()) {
+      setNotice("Aucun texte ne part : il manque les images de cette prise.");
+      return;
+    }
+    setSheet(null);
+    setRun({ phase: "running", event: { stage: "start" } });
     abort.current = new AbortController();
     try {
       const jobId = await submitTake(client, {
@@ -1277,7 +1292,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setRun({ phase: "error", code: failure.code, message: failure.message, detail: failure.detail });
       abort.current = null;
     }
-  }, [claim, client, engine, fal, finish, finishLora, line, loraPick, loraResolution, refreshBalance, refreshFal, run.phase, setNotice, settings, store]);
+  }, [client, engine, fal, finish, finishLora, line, loraPick, loraResolution, refreshBalance, refreshFal, run.phase, setNotice, settings, store]);
 
   const clearMeasuredQuote = useCallback(async (profile: string) => {
     const quotes = forgetQuote(studioRef.current.quotes, profile);
@@ -2198,7 +2213,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const resetPlaceResult = useCallback(() => setPlaceResult({ phase: "idle" }), []);
 
   const value: StudioValue = {
-    ready, studio, media, scene, line, settings, claim, clearMeasuredQuote, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, resumePreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
+    ready, studio, media, scene, line, settings, claim, takeQuote, clearMeasuredQuote, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, resumePreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
     addSceneViews, removeSceneView, placeTrainQuote: pricedPlace, placeSceneQuote: pricedStill, placeTrainGate, placeSceneGate, placeRun, placeResult, resetPlaceResult, requestPlaceTrain, confirmPlaceTrain, requestPlaceScene, confirmPlaceScene,
     falLinked, falBalance, falBalanceOptional, falBalanceNote, falUsername, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote,
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,

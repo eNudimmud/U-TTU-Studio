@@ -42,10 +42,12 @@ describe("le studio, une app", () => {
     assert.match(context, /submitTake\(/);
     assert.match(context, /followTake\(/);
     assert.match(context, /saveInFlight\(localStorage, flight\)/, "a queued take survives a reload");
-    assert.ok(context.indexOf("runGate(fresh, claim)") < context.indexOf("submitTake("), "the balance is re-read and gated before anything is sent");
+    assert.ok(context.includes("priseGate(fresh, freshQuote)") && context.indexOf("priseGate(fresh, freshQuote)") < context.indexOf("submitTake("), "the balance is re-read and gated before anything is sent");
+    assert.ok(context.indexOf("if (!prompt.trim())") < context.indexOf("submitTake("), "no text means nothing is sent");
     const sheets = read("src/components/app/sheets.tsx");
     assert.match(sheets, /t\("sheet\.shootRender"\)/);
-    assert.match(sheets, /disabled=\{!gate\.allowed\}/);
+    assert.match(sheets, /disabled=\{!canConfirm\}/);
+    assert.match(sheets, /gate\.allowed && gate\.line\.trim\(\)\.length > 0 && outgoing\.trim\(\)\.length > 0/);
     assert.ok(catalog.includes("Tourner · débit sur mon compte"));
     const roleFile = read("src/components/app/lora-screen.tsx");
     assert.match(roleFile, /t\("lora\.sendTitle"\)/);

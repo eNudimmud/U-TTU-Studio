@@ -2,6 +2,16 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F26 — Tourner au réglage mesuré — 7 octobre 2026
+
+- **Fait :** un run réel unique du graphe `takeGraph()`, profil `h3-4pas-5s-vertical` (5 s, rapide, vertical, 480×864, 4 pas), le 7 octobre 2026 vers 23:16 (Europe/Zurich). Job `51662b20-4ac7-44bc-b203-a4127ff462a0`. Temps GPU facturé 15,680729 s sur `rtx_pro_6000`, tarif 0,001295 $/s. 15,680729 × 0,001295 × 211 crédits/$ ≈ 4,3 crédits, annoncés 4. Borne du repo `gpuCreditsPerSecond` 0,39 : 15,680729 × 0,39 ≈ 6,1, annoncée 6. L’estimateur Cloud reste à 0 : il ne compte pas le temps GPU. Le solde avant/après n’a pas été lu.
+- **Fait :** ce tour n’appelle ni `estimate_credits`, ni `dry_run`, ni `run_template`, ni `submit_workflow`, ni `partner_generate`. 0 crédit brûlé. Aucun autre profil n’est chiffré.
+- **Décision :** le devis facturé vit dans `docs/mesures/h3-4pas-5s-vertical.json`, distinct du delta de solde F11 (`Projets/<slug>/.uttu/devis.json`). Il ne débloque que ce profil. La ligne novice, avant Tourner : « Environ 4 crédits, au plus 6, mesuré sur une prise réelle le 7 octobre (temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus). » Tourner part seulement si le solde lu couvre 6. Un autre réglage (durée, qualité, format) éteint Tourner : « Pas encore mesuré. Cette durée, cette qualité ou ce format n’a pas de prise réelle. Rien ne part. »
+- **Décision :** si Mon studio a un delta de solde pour ce profil, ce delta prime. Effacer ce devis revient au devis facturé, pour ce seul profil. Le 0 de l’estimateur n’ouvre pas le bouton. La confirmation exige le devis et le texte qui part (F21). Aucun nœud n’est montré.
+- **Fait :** EN, DE et ES portent `_human: native_open`. Les lignes neuves de ce tour s’ajoutent à celles encore ouvertes. Ce n’est pas une signature de locuteur natif.
+- **Hypothèse :** 15,7 s est une prise à chaud. Une première prise à froid peut dépasser 6 crédits. Une seule mesure. Le nombre de références n’est pas mesuré à part.
+- **Hypothèse :** le delta de solde qu’aurait lu le studio égale le coût facturé, si 211 crédits/$ tient. Ce taux n’est pas relu dans ce tour.
+
 ## F25 — audit 390 px de la Prise, studio déjà rempli — 7 octobre 2026
 
 - **Fait :** Chrome headless, 390×844 et 1280×800, dpr 2, français, anglais, allemand, espagnol. Prise vide, puis Prise avec un studio déjà dans IndexedDB (projet Quai, deux personnages, deux lieux dont « Der Kai bei Nacht und Regen », deux prises, une séquence, un plan, bible tenue). `scrollWidth` = `clientWidth`. Aucune cible interactive sous 44 px. Aucun texte coupé hors le libellé `sr-only` de la langue. Chaque bouton éteint (remise à zéro, et Tourner des trois gestes cinéma) a sa raison lisible en dessous.

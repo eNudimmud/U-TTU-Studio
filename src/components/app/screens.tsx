@@ -5,6 +5,7 @@ import { costLabel, LOOK_PHOTOS_MAX, cleanTraits, lookCheck, parseTraits } from 
 import { briefAction, castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, weaveBrief, WIRED_ENGINES } from "@/lib/studio-comfort";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
+import { quoteSentence } from "@/lib/render/billed-quote";
 import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
 import dynamic from "next/dynamic";
@@ -205,7 +206,7 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
 export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScene(): void; goLora(): void }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, media, scene, line, setLine, settings, setSettings, claim, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resumeRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
+  const { ready, media, scene, line, setLine, settings, setSettings, takeQuote, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resumeRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
   const cast = castShelf(studio.studio.loras);
   const decor = decorShelf(studio.studio.scenes);
   const check = lookCheck(studio.studio.look);
@@ -227,10 +228,15 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
   const gaps = priseGaps({ lookReady: check.ready, hasScene: Boolean(scene), engine, hasCharacter });
   const whoName = chosenLora?.name.trim() ?? "";
   const placeName = scene?.name.trim() ?? "";
-  const measuredPrice = engine === "comfy" && claim.state === "measured" ? t("sheet.measuredMark", { amount: formatCredits(claim.credits) }) : null;
-  const livePrice = engine === "lora" && loraQuote !== null ? formatUsd(loraQuote) : measuredPrice;
+  const comfyPrice = takeQuote.source === "balance"
+    ? t("sheet.measuredMark", { amount: formatCredits(takeQuote.credits) })
+    : takeQuote.source === "billed"
+      ? t("runtime.billedMark", { amount: formatCredits(takeQuote.measure.credits) })
+      : null;
+  const livePrice = engine === "lora" && loraQuote !== null ? formatUsd(loraQuote) : engine === "comfy" ? comfyPrice : null;
   const example = exampleTakeQuote({ engine, seconds: settings.seconds, resolution: loraResolution });
-  const showingExample = engine === "lora" ? !falLinked : !connected;
+  const sampleWalk = engine === "lora" ? !falLinked : !connected;
+  const samplePrice = engine === "lora" ? !falLinked : false;
   const action = priseAction({
     engine,
     falLinked,
@@ -341,7 +347,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       {gaps.length > 0 && <ul className="u-facts u-comfort-gaps">
         {gaps.map(gap => <li key={gap.id}><span>{gapCopy[gap.id][0]}</span> <button type="button" className="u-link" onClick={() => jump(gap.id)}>{gapCopy[gap.id][1]}</button></li>)}
       </ul>}
-      {showingExample && <p className="u-small">{t("take.exampleWalk", { who: SAMPLE_TAKE.who, place: SAMPLE_TAKE.place, line: SAMPLE_TAKE.line })}</p>}
+      {sampleWalk && <p className="u-small">{t("take.exampleWalk", { who: SAMPLE_TAKE.who, place: SAMPLE_TAKE.place, line: SAMPLE_TAKE.line })}</p>}
       <div className="u-pickers">
         <div className="u-field">
           <span className="u-label">{t("shelf.cast")}</span>
@@ -373,11 +379,15 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         <legend className="u-label">{t("take.engine")}</legend>
         {WIRED_ENGINES.map(item => {
           const on = engine === item.id;
-          const live = on && !showingExample && item.id === "lora" && loraQuote !== null
+          const live = on && !samplePrice && item.id === "lora" && loraQuote !== null
             ? formatUsd(loraQuote)
-            : item.id === "comfy" && claim.state === "measured"
-              ? t("sheet.measuredMark", { amount: formatCredits(claim.credits) })
-              : null;
+            : item.id === "comfy" && takeQuote.source === "balance"
+              ? t("sheet.measuredMark", { amount: formatCredits(takeQuote.credits) })
+              : item.id === "comfy" && takeQuote.source === "billed"
+                ? t("runtime.billedMark", { amount: formatCredits(takeQuote.measure.credits) })
+                : item.id === "comfy"
+                  ? t("runtime.notMeasuredShort")
+                  : null;
           return <button key={item.id} type="button" aria-pressed={on} onClick={() => { if (pickEngine(item.id)) setEngine(item.id); }}>
             <strong>{t(`engine.${item.id}.label`)}</strong>
             <em>{t(`engine.${item.id}.detail`)}</em>
@@ -392,12 +402,16 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         {engine === "comfy" && <Segments label={t("take.render")} value={settings.quality} onChange={quality => setSettings({ quality })} options={[{ value: "rapide", label: t("take.fast", { steps: TAKE_STEPS.rapide }) }, { value: "fine", label: t("take.fine", { steps: TAKE_STEPS.fine }) }]} />}
         <p className="u-sound"><span className="u-label">{t("take.sound")}</span>{t(`engine.${engine}.sound`)}</p>
       </div>
-      {engine === "comfy" && claim.state === "measured" && <button type="button" className="u-link" onClick={() => void clearMeasuredQuote(takeProfile(settings))}>{t("sheet.clearQuote")}</button>}
-      <p className={`u-cost is-${showingExample ? "warn" : gate.tone}`}>
-        {showingExample ? say(example)
+      {engine === "comfy" && takeQuote.source === "balance" && <button type="button" className="u-link" onClick={() => void clearMeasuredQuote(takeProfile(settings))}>{t("sheet.clearQuote")}</button>}
+      <p className={`u-cost is-${samplePrice ? "warn" : engine === "comfy" && !connected ? (takeQuote.source === "unmeasured" ? "block" : "ok") : gate.tone}`}>
+        {samplePrice ? say(example)
           : engine === "lora"
             ? (falBalance ? t("take.falBalance", { amount: formatUsd(falBalance.usd), line: say(gate.line) }) : say(gate.line))
-            : (balance ? t("take.renderBalance", { amount: formatCredits(balance.credits), line: say(gate.line) }) : say(gate.line))}
+            : !connected
+              ? say(quoteSentence(takeQuote))
+              : balance
+                ? t("take.renderBalance", { amount: formatCredits(balance.credits), line: say(gate.line) })
+                : say(gate.line)}
       </p>
       {hint && action.id !== "bloque" && <p className="u-small u-comfort-hint">{hint}</p>}
       {action.id === "bloque" && <button type="button" className="u-link u-comfort-hint" onClick={() => setSheet("credits")}>{t("take.seeAccount")}</button>}

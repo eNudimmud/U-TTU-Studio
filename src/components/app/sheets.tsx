@@ -5,7 +5,8 @@ import { useI18n, useStudioDates } from "@/components/i18n/provider";
 import { costLabel, dropTakeLink, isPlaceLora, shotsOf } from "@/lib/coffre/model";
 import { memoryKindOf, type MemoryKind } from "@/lib/coffre/memory";
 import { treeFileLabel } from "@/lib/coffre/project";
-import { CREDITS_PER_USD, claimBasis, costClaim, formatCredits } from "@/lib/credits";
+import { CREDITS_PER_USD, costClaim, formatCredits } from "@/lib/credits";
+import { quoteSentence } from "@/lib/render/billed-quote";
 import { profileParts, quotesToRecords } from "@/lib/render/measured-quote";
 import { formatUsd } from "@/lib/fal/prices";
 import { folderLinkSupported } from "@/lib/coffre/link";
@@ -17,6 +18,7 @@ import { sheetDismissAllowed } from "@/lib/link-epoch";
 import { CinemaGestures } from "./cinema-gestures";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
+import { priseOutgoingText } from "@/lib/render/outgoing-text";
 import { OutgoingFilm, OutgoingLieu, OutgoingPersonnage, OutgoingTake } from "./outgoing-text";
 import { useStudio } from "./studio-context";
 
@@ -135,7 +137,7 @@ export function ConnectSheet({ framed = true }: { framed?: boolean } = {}) {
 export function CreditSheet() {
   const { t, say } = useI18n();
   const { time, date } = useStudioDates();
-  const { setSheet, connected, balance, balanceNote, refreshBalance, claim, clearMeasuredQuote, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, trainQuote, disconnect, disconnectFal, blenderLinked, disconnectBlender } = useStudio();
+  const { setSheet, connected, balance, balanceNote, refreshBalance, takeQuote, clearMeasuredQuote, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, trainQuote, disconnect, disconnectFal, blenderLinked, disconnectBlender } = useStudio();
   const quoteRows = [...new Set(studio.quotes.map(quote => quote.profile))].flatMap(profile => {
     const row = costClaim(profile, quotesToRecords(studio.quotes));
     if (row.state !== "measured") return [];
@@ -169,7 +171,7 @@ export function CreditSheet() {
           <p className="u-small">{t("sheet.referencesRun", { engine: t("engine.comfy.label"), rate: CREDITS_PER_USD })}</p>
           <p className="u-label">{t("sheet.quote")}</p>
           {engine === "comfy" && <p className="u-small">{t("sheet.thisSetting", { profile: takeProfile(settings) })}</p>}
-          <p>{engine === "comfy" && claim.state === "measured" ? t("sheet.aboutClaim", { amount: formatCredits(claim.credits), basis: say(claimBasis(claim)) }) : t("sheet.uncalibratedClaim")}</p>
+          <p>{engine === "comfy" ? say(quoteSentence(takeQuote)) : t("sheet.uncalibratedClaim")}</p>
           {quoteRows.length > 0 && <>
             <p className="u-small">{t("sheet.measuredLead")}</p>
             <ul className="u-ledger" aria-label={t("sheet.measuredQuotes")}>
@@ -297,8 +299,18 @@ export function CoffreSheet() {
 
 export function ConfirmSheet() {
   const { t, say } = useI18n();
-  const { setSheet, settings, balance, gate, confirmRun, scene, line, engine, chosenLora, loraResolution, falBalance, falBalanceOptional } = useStudio();
+  const { setSheet, settings, balance, gate, confirmRun, scene, line, engine, chosenLora, loraResolution, falBalance, falBalanceOptional, studio } = useStudio();
   const format = settings.aspect === "vertical" ? "9:16" : settings.aspect === "horizontal" ? "16:9" : "1:1";
+  const place = scene ? { name: scene.name, note: scene.note, stills: scene.stills, render: scene.render } : null;
+  const outgoing = priseOutgoingText({
+    traits: studio.look.traits,
+    photos: studio.look.photos,
+    place,
+    line,
+    engine: engine === "lora" ? "lora" : "comfy",
+    subject: chosenLora?.trigger,
+  });
+  const canConfirm = gate.allowed && gate.line.trim().length > 0 && outgoing.trim().length > 0;
   return <SheetFrame title={t("sheet.confirmShoot")} label={t("sheet.confirm")} onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
@@ -317,8 +329,8 @@ export function ConfirmSheet() {
       </ul>
       <p className={`u-cost is-${gate.tone}`}>{say(gate.line)}</p>
       <OutgoingTake />
-      <button type="button" className="u-primary" disabled={!gate.allowed} onClick={() => void confirmRun()}>{engine === "lora" ? t("sheet.shootFal") : t("sheet.shootRender")}</button>
-      <Why on={!gate.allowed} text={t("why.hold")} />
+      <button type="button" className="u-primary" disabled={!canConfirm} onClick={() => void confirmRun()}>{engine === "lora" ? t("sheet.shootFal") : t("sheet.shootRender")}</button>
+      <Why on={!canConfirm} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
