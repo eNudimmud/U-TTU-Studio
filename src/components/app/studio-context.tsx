@@ -33,7 +33,8 @@ import { createRenderClient, RenderError, type RenderClient } from "@/lib/render
 import { FarpyError, filmGate, type FilmQuote } from "@/lib/render/farpy";
 import { buildPlaceBlend, defaultCamera, moveCamera as shiftCamera, type Lens, type PrevizPlan } from "@/lib/render/previz";
 import { followFilm, quoteFilm, startRender, type PrevizEvent } from "@/lib/render/previz-run";
-import { SHOT_LINE, SHOT_RESOLUTION, SHOT_SECONDS, shotGate, shotPrompt } from "@/lib/render/shot";
+import { filmOutgoingText, priseOutgoingText } from "@/lib/render/outgoing-text";
+import { SHOT_LINE, SHOT_RESOLUTION, SHOT_SECONDS, shotGate } from "@/lib/render/shot";
 import { referencePaths } from "@/lib/render/references";
 import { forgetQuote, quoteFromTake, quotesToRecords, rememberQuote } from "@/lib/render/measured-quote";
 import { followTake, submitTake, type TakeRunEvent } from "@/lib/render/run";
@@ -42,8 +43,6 @@ import {
   readInFlight, readRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink,
 } from "@/lib/render/settings";
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
-import { takePrompt } from "@/lib/render/take-prompt";
-
 export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | "sequences" | "shots" | { take: string } | { sequence: string } | { shot: string } | { memory: MemoryKind } | { outputs: "prise" | "scene" | "lora" };
 
 export type RunState =
@@ -1155,31 +1154,26 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         return;
       }
       const pictures: { blob: Blob; name: string }[] = [];
-      let lookCount = 0;
-      for (const path of current.look.photos) {
+      for (const path of referencePaths(current.look.photos, place)) {
         const entry = await vault.get(path);
-        if (!entry?.blob) continue;
-        lookCount += 1;
+        if (!entry?.blob) {
+          setSheet(null);
+          setRun({ phase: "error", code: "invalid", message: path === place?.render ? "L’image filmée manque dans mon studio." : "Les photos des références manquent dans mon studio.", detail: [] });
+          return;
+        }
         pictures.push({ blob: entry.blob, name: `uttu-${pictures.length + 1}.jpg` });
       }
-      let filmed = false;
-      for (const path of referencePaths([], place)) {
-        const entry = await vault.get(path);
-        if (!entry?.blob) continue;
-        if (path === place?.render) filmed = true;
-        pictures.push({ blob: entry.blob, name: `uttu-${pictures.length + 1}.jpg` });
-      }
-      if (lookCount === 0 && !filmed) {
+      if (pictures.length === 0) {
         setSheet(null);
-        setRun({ phase: "error", code: "invalid", message: place?.render ? "L’image filmée manque dans mon studio." : "Les photos des références manquent dans mon studio.", detail: [] });
+        setRun({ phase: "error", code: "invalid", message: "Les photos des références manquent dans mon studio.", detail: [] });
         return;
       }
-      const prompt = takePrompt({
+      const prompt = priseOutgoingText({
         traits: current.look.traits,
-        lookPictures: lookCount,
-        place: place ? { name: place.name, note: place.note, pictures: pictures.length - lookCount } : null,
+        photos: current.look.photos,
+        place,
         line,
-        tags: "image",
+        engine: "lora",
         subject: trained.trigger,
       });
       setSheet(null);
@@ -1232,9 +1226,14 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
     const vault = store();
     const pictures: { blob: Blob; name: string }[] = [];
-    for (const [index, path] of referencePaths(current.look.photos, place).entries()) {
+    for (const path of referencePaths(current.look.photos, place)) {
       const entry = await vault.get(path);
-      if (entry?.blob) pictures.push({ blob: entry.blob, name: `uttu-${index + 1}.jpg` });
+      if (!entry?.blob) {
+        setSheet(null);
+        setRun({ phase: "error", code: "invalid", message: path === place?.render ? "L’image filmée manque dans mon studio." : "Les photos des références manquent dans mon studio.", detail: [] });
+        return;
+      }
+      pictures.push({ blob: entry.blob, name: `uttu-${pictures.length + 1}.jpg` });
     }
     if (pictures.length === 0) {
       setSheet(null);
@@ -1243,12 +1242,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
     setSheet(null);
     setRun({ phase: "running", event: { stage: "start" } });
-    const lookCount = current.look.photos.length;
-    const prompt = takePrompt({
+    const prompt = priseOutgoingText({
       traits: current.look.traits,
-      lookPictures: lookCount,
-      place: place ? { name: place.name, note: place.note, pictures: Math.max(0, pictures.length - lookCount) } : null,
+      photos: current.look.photos,
+      place,
       line,
+      engine: "comfy",
     });
     abort.current = new AbortController();
     try {
@@ -1372,9 +1371,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       saveFilmFlight(null);
       if (result.balanceAfter !== null) setFalBalance({ usd: result.balanceAfter, readAt: Date.now() });
       setPrevizState({ phase: "done", takeId: id });
-      setNotice("Le plan est filmé. Blender a rendu le lieu vide. Le personnage est dans la prise.");
+      setNotice("Le trajet est filmé. Blender a rendu le lieu vide. Le personnage est dans la prise.");
     } catch (error) {
-      const failure = falFailure(error, "Le personnage n’est pas dans le plan.");
+      const failure = falFailure(error, "Le personnage n’est pas dans le trajet.");
       if (failure.code === "network" || failure.code === "timeout") {
         setPrevizState({ phase: "error", message: "Le lieu est rendu. Le suivi du personnage reprend. Rien n’est renvoyé.", detail: [] });
       } else {
@@ -1488,13 +1487,14 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       } else {
         for (const path of place.frames) {
           const entry = await store().get(path);
-          if (entry?.blob) images.push(entry.blob);
+          if (!entry?.blob) throw new FarpyError("Une image du trajet manque dans mon studio.");
+          images.push(entry.blob);
         }
       }
       if (images.length < 2) throw new FarpyError("Blender n’a pas rendu le trajet.");
       const weights = await store().get(person.file);
       if (!weights?.blob) throw new FalError("invalid", "Le fichier du personnage manque dans mon studio.");
-      const prompt = shotPrompt({ subject: person.trigger, place: place.name, note: place.note, frames: images.length, line: SHOT_LINE });
+      const prompt = filmOutgoingText({ subject: person.trigger, place: place.name, note: place.note, frames: images.length });
       setPrevizState({ phase: "running", event: { stage: "person" } });
       const cached = readLoraUploads(localStorage)[person.id];
       const submitted = await submitLoraTake(fal, {
@@ -1522,7 +1522,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       await finishPerson(flight, fal);
     } catch (error) {
       if (!started) saveFilmFlight(null);
-      const failure = error instanceof FalError ? falFailure(error, "Le personnage n’est pas dans le plan.") : filmProblem(error);
+      const failure = error instanceof FalError ? falFailure(error, "Le personnage n’est pas dans le trajet.") : filmProblem(error);
       const held = studioRef.current.scenes.find(item => item.id === place.id);
       const rendered = (held?.frames.length ?? 0) >= 2;
       setPrevizState({

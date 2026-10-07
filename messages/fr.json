@@ -1,5 +1,6 @@
 {
   "_status": "source",
+  "_human": "source",
   "lang": {
     "label": "Langue"
   },
@@ -249,7 +250,7 @@
     "delete": "Retirer la séquence",
     "missingTake": "Prise introuvable",
     "created": "Séquence créée.",
-    "linked": "Prise reliée.",
+    "linked": "Prise ajoutée.",
     "removed": "Séquence retirée."
   },
   "shot": {
@@ -420,6 +421,7 @@
     "title": "Ce que le studio lance.",
     "lead": "Les gestes déjà branchés se lisent ici. Le débit attend encore le geste, sur l’écran qui le tient.",
     "needs": "Ce qu’il faut",
+    "noSend": "Rien ne part d’ici. Le texte d’une prise se lit sur la prise, avant Tourner.",
     "references": {
       "name": "Prise · Références",
       "sentence": "Les photos de mon studio deviennent une prise, avec le son.",
@@ -638,6 +640,12 @@
       "prompts": "Rien d’écrit. Des briques de phrase. Rien n’est envoyé d’ici."
     }
   },
+  "sent": {
+    "title": "Ce qui part",
+    "memoryOut": "Bible, style, lexique et prompts n’y sont pas. Ils ne partent pas.",
+    "noPictures": "Aucun texte ne part : il manque les images de cette prise.",
+    "notYet": "Le texte n’est pas encore là. Il s’écrit quand les images du trajet reviennent. Bible, style, lexique et prompts n’y entrent pas."
+  },
   "tree": {
     "characters": "Personnages",
     "references": "Références",
@@ -707,6 +715,8 @@
     "referencePhotosMissing": "Les photos des références manquent dans mon studio.",
     "filmedStillMissing": "L’image filmée manque dans mon studio.",
     "planFilmed": "Le trajet est filmé. Blender a rendu le lieu vide. Le personnage est dans la prise.",
+    "characterNotOnPath": "Le personnage n’est pas dans le trajet.",
+    "pathImageMissing": "Une image du trajet manque dans mon studio.",
     "placeRenderedResume": "Le lieu est rendu. Le suivi du personnage reprend. Rien n’est renvoyé.",
     "placeEmptyNext": "Le lieu est rendu, vide. Le prochain geste filme le personnage, au prix fal seul.",
     "followStopped": "Suivi arrêté ici. Si le rendu est déjà parti, il continue sur ton compte.",
@@ -796,6 +806,7 @@
       "name": "Poser un effet",
       "sentence": "Une prise filmée reçoit le style d’une image.",
       "need": "Il faut une prise filmée, et une image pour l’effet."
-    }
+    },
+    "noText": "Aucun texte ne part avec ce geste."
   }
 }

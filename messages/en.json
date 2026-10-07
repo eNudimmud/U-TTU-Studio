@@ -1,5 +1,6 @@
 {
   "_status": "reviewed_calques",
+  "_human": "native_open",
   "lang": {
     "label": "Language"
   },
@@ -189,7 +190,7 @@
     "thePlace": "The location",
     "thePlaceBody": "It stays. You reopen it: same name, same layout, same path. You can hold several.",
     "blenderBody": "It renders the empty location, {frames} images along the path. The character is not in this file.",
-    "theCharacterBody": "It is the file in my studio. It enters only the filmed layout, after these images.",
+    "theCharacterBody": "It is the file in my studio. It enters only the filmed path, after these images.",
     "formed": "This location, trained",
     "formedPrice": "Training: {amount}.",
     "formedUnread": "The training price is read on the fal account, before the gesture.",
@@ -202,12 +203,12 @@
     "start": "Start",
     "end": "End",
     "coords": "{end} {x}, {y}, {z} · aims {ax}, {ay}, {az} · {lens} mm",
-    "cameraLess": "Camera minus {axis}",
-    "cameraMore": "Camera plus {axis}",
-    "aimLess": "Aim minus {axis}",
-    "aimMore": "Aim plus {axis}",
-    "moveCamera": "Move the camera",
-    "moveAim": "Move the aim point",
+    "cameraLess": "Camera, less {axis}",
+    "cameraMore": "Camera, more {axis}",
+    "aimLess": "Aim, less {axis}",
+    "aimMore": "Aim, more {axis}",
+    "moveCamera": "Shift the camera",
+    "moveAim": "Shift the aim point",
     "lens": "Focal length",
     "volumes": "{count} volumes. No image until Blender has rendered the path.",
     "emptyCaption": "Empty location, first image of the path. The character is not in it.",
@@ -249,7 +250,7 @@
     "delete": "Remove the sequence",
     "missingTake": "Take not found",
     "created": "Sequence created.",
-    "linked": "Take connected.",
+    "linked": "Take added.",
     "removed": "Sequence removed."
   },
   "shot": {
@@ -292,20 +293,20 @@
     },
     "fal": {
       "label": "Connect the fal account",
-      "missing": "The fal account is missing. It pays the character in the layout."
+      "missing": "The fal account is missing. It pays the character on the path."
     },
     "film": {
-      "label": "Film this layout"
+      "label": "Film this path"
     },
     "write": "Writing the location",
     "inspect": "Reading the quote",
-    "start": "Sending the layout",
+    "start": "Sending the path",
     "queue": "Render in queue",
     "render": "Blender is rolling · {seconds} s",
     "fetch": "The path images are coming back",
-    "person": "The character enters the layout",
+    "person": "The character enters the path",
     "shot": "The character is shooting · {seconds} s",
-    "video": "The filmed layout is coming back"
+    "video": "The filmed path is coming back"
   },
   "take": {
     "kicker": "03 · The take",
@@ -420,6 +421,7 @@
     "title": "What the studio launches.",
     "lead": "The gestures already wired are read here. The charge still waits for the gesture, on the screen that holds it.",
     "needs": "What it needs",
+    "noSend": "Nothing leaves from here. A take’s text is read on the take, before Shoot.",
     "references": {
       "name": "Take · References",
       "sentence": "The photos in my studio become a take, with the sound.",
@@ -598,8 +600,8 @@
     "referencesPays": "It pays « {engine} » takes.",
     "confirmTrain": "Train this character?",
     "trainDebit": "Train · charge on my fal account",
-    "confirmFilm": "Film this layout?",
-    "filmBody": "Blender renders the empty location, along the path. The character is the file in my studio: it enters only the filmed layout. If no image comes back, none is shown.",
+    "confirmFilm": "Film this path?",
+    "filmBody": "Blender renders the empty location, along the path. The character is the file in my studio: it enters only the filmed path. If no image comes back, none is shown.",
     "filmDebit": "Film · charge on my account",
     "blenderLinked": "The job key is on this device. It goes only to Farpy, when you film.",
     "blenderIntro": "Farpy runs Blender, off your device. Create an account, add credit, then a job key. It starts with farpy_agent_. An account key does not start the render.",
@@ -637,6 +639,12 @@
       "lexique": "Nothing written. This project’s words, and what they mean here.",
       "prompts": "Nothing written. Phrase bricks. Nothing is sent from here."
     }
+  },
+  "sent": {
+    "title": "What leaves",
+    "memoryOut": "Bible, style, lexicon and prompts are not in it. They do not leave.",
+    "noPictures": "No text leaves: this take’s images are missing.",
+    "notYet": "The text is not here yet. It is written when the path images come back. Bible, style, lexicon and prompts do not enter it."
   },
   "tree": {
     "characters": "Characters",
@@ -706,7 +714,9 @@
     "characterFileMissing": "The character file is missing from my studio.",
     "referencePhotosMissing": "The reference photos are missing from my studio.",
     "filmedStillMissing": "The filmed image is missing from my studio.",
-    "planFilmed": "The layout is filmed. Blender rendered the empty location. The character is in the take.",
+    "planFilmed": "The path is filmed. Blender rendered the empty location. The character is in the take.",
+    "characterNotOnPath": "The character is not on the path.",
+    "pathImageMissing": "A path image is missing from my studio.",
     "placeRenderedResume": "The location is rendered. The character follow resumes. Nothing is sent again.",
     "placeEmptyNext": "The location is rendered, empty. The next gesture films the character, at the fal price alone.",
     "followStopped": "Follow stopped here. If the render has already left, it continues on your account.",
@@ -767,7 +777,7 @@
     "lead": "Three gestures apart. They do not shoot this take. Without a number, Shoot stays off.",
     "leadPlan": "The same gestures, from the images of this shot.",
     "lands": "The short film is filed with the takes. The storyboard shot keeps it when the film starts there.",
-    "partage": "Share missing. This gesture has no model on file. Nothing opens.",
+    "partage": "The link is missing. This gesture has no model on file. Nothing opens.",
     "devis": "Quote absent. The total for this gesture is not a number. Nothing leaves.",
     "raccord": {
       "name": "Bridge two images",
@@ -788,14 +798,15 @@
         "right": "Right",
         "in": "Closer",
         "out": "Farther",
-        "acw": "Turns left",
-        "cw": "Turns right"
+        "acw": "Rolls left",
+        "cw": "Rolls right"
       }
     },
     "effet": {
       "name": "Apply an effect",
-      "sentence": "A filmed take receives the look of one image.",
+      "sentence": "A filmed take receives the style of one image.",
       "need": "It needs a filmed take, and an image for the effect."
-    }
+    },
+    "noText": "No text leaves with this gesture."
   }
 }

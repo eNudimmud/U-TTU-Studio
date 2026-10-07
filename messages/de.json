@@ -1,5 +1,6 @@
 {
   "_status": "reviewed",
+  "_human": "native_open",
   "lang": {
     "label": "Sprache"
   },
@@ -189,7 +190,7 @@
     "thePlace": "Der Drehort",
     "thePlaceBody": "Er bleibt. Du öffnest ihn wieder: gleicher Name, gleicher Raumplan, gleicher Weg. Du kannst mehrere halten.",
     "blenderBody": "Er rendert den leeren Drehort, {frames} Bilder entlang des Wegs. Die Figur ist nicht in dieser Datei.",
-    "theCharacterBody": "Es ist die Datei in « Mein Studio ». Sie tritt nur in den gefilmten Raumplan ein, nach diesen Bildern.",
+    "theCharacterBody": "Es ist die Datei in « Mein Studio ». Sie tritt nur in den gefilmten Weg ein, nach diesen Bildern.",
     "formed": "Dieser Drehort, trainiert",
     "formedPrice": "Training: {amount}.",
     "formedUnread": "Der Trainingspreis wird auf dem fal-Konto gelesen, vor der Geste.",
@@ -202,12 +203,12 @@
     "start": "Start",
     "end": "Ziel",
     "coords": "{end} {x}, {y}, {z} · zielt {ax}, {ay}, {az} · {lens} mm",
-    "cameraLess": "Kamera minus {axis}",
-    "cameraMore": "Kamera plus {axis}",
-    "aimLess": "Ziel minus {axis}",
-    "aimMore": "Ziel plus {axis}",
-    "moveCamera": "Kamera bewegen",
-    "moveAim": "Zielpunkt bewegen",
+    "cameraLess": "Kamera, weniger {axis}",
+    "cameraMore": "Kamera, mehr {axis}",
+    "aimLess": "Ziel, weniger {axis}",
+    "aimMore": "Ziel, mehr {axis}",
+    "moveCamera": "Die Kamera verschieben",
+    "moveAim": "Den Zielpunkt verschieben",
     "lens": "Brennweite",
     "volumes": "{count} Volumen. Kein Bild, bis Blender den Weg gerendert hat.",
     "emptyCaption": "Leerer Drehort, erstes Bild des Wegs. Die Figur ist nicht darin.",
@@ -249,12 +250,12 @@
     "delete": "Sequenz entfernen",
     "missingTake": "Take nicht gefunden",
     "created": "Sequenz angelegt.",
-    "linked": "Take verbunden.",
+    "linked": "Take hinzugefügt.",
     "removed": "Sequenz entfernt."
   },
   "shot": {
     "title": "Shots",
-    "lead": "Ein Shot ist ein Bild im Storyboard. Er folgt einer Sequenz, dann den Takes, der Reihe nach. Eine kurze Notiz sagt den Rahmen.",
+    "lead": "Ein Shot ist ein Kästchen im Storyboard. Er folgt einer Sequenz, dann den Takes, der Reihe nach. Eine kurze Notiz sagt den Rahmen.",
     "name": "Name des Shots",
     "create": "Shot anlegen",
     "empty": "Kein Shot in diesem Projekt.",
@@ -292,20 +293,20 @@
     },
     "fal": {
       "label": "fal-Konto verbinden",
-      "missing": "Das fal-Konto fehlt. Es zahlt die Figur im Raumplan."
+      "missing": "Das fal-Konto fehlt. Es zahlt die Figur auf dem Weg."
     },
     "film": {
-      "label": "Diesen Raumplan filmen"
+      "label": "Diesen Weg filmen"
     },
     "write": "Drehort wird geschrieben",
     "inspect": "Kalkulation wird gelesen",
-    "start": "Raumplan wird gesendet",
+    "start": "Der Weg wird gesendet",
     "queue": "Render in der Warteschlange",
     "render": "Blender läuft · {seconds} s",
     "fetch": "Die Bilder des Wegs kommen zurück",
-    "person": "Die Figur tritt in den Raumplan",
+    "person": "Die Figur tritt in den Weg",
     "shot": "Die Figur dreht · {seconds} s",
-    "video": "Der gefilmte Raumplan kommt zurück"
+    "video": "Der gefilmte Weg kommt zurück"
   },
   "take": {
     "kicker": "03 · Der Take",
@@ -420,6 +421,7 @@
     "title": "Was das Studio aufruft.",
     "lead": "Die schon angeschlossenen Gesten werden hier gelesen. Die Abbuchung wartet noch auf die Geste, auf dem Bildschirm, der sie hält.",
     "needs": "Was es braucht",
+    "noSend": "Von hier geht nichts. Der Text eines Takes steht auf dem Take, vor dem Drehen.",
     "references": {
       "name": "Take · Referenzen",
       "sentence": "Die Fotos in « Mein Studio » werden ein Take, mit Ton.",
@@ -598,8 +600,8 @@
     "referencesPays": "Es zahlt « {engine} »-Takes.",
     "confirmTrain": "Diese Figur trainieren?",
     "trainDebit": "Trainieren · Abbuchung auf meinem fal-Konto",
-    "confirmFilm": "Diesen Raumplan filmen?",
-    "filmBody": "Blender rendert den leeren Drehort, entlang des Wegs. Die Figur ist die Datei in « Mein Studio »: sie tritt nur in den gefilmten Raumplan. Kommt kein Bild zurück, wird keins gezeigt.",
+    "confirmFilm": "Diesen Weg filmen?",
+    "filmBody": "Blender rendert den leeren Drehort, entlang des Wegs. Die Figur ist die Datei in « Mein Studio »: sie tritt nur in den gefilmten Weg. Kommt kein Bild zurück, wird keins gezeigt.",
     "filmDebit": "Filmen · Abbuchung auf meinem Konto",
     "blenderLinked": "Der Job-Schlüssel ist auf diesem Gerät. Er geht nur zu Farpy, wenn du filmst.",
     "blenderIntro": "Farpy lässt Blender laufen, außerhalb deines Geräts. Erstelle ein Konto, füge Guthaben hinzu, dann einen Job-Schlüssel. Er beginnt mit farpy_agent_. Ein Kontoschlüssel startet den Render nicht.",
@@ -632,11 +634,17 @@
     "prompts": "Prompts",
     "note": "Prompt · {file}",
     "empty": {
-      "bible": "Noch nichts. Was gleich bleibt.",
-      "style": "Noch nichts. Licht, Kadrierung, was vermieden wird.",
-      "lexique": "Noch nichts. Die Wörter dieses Projekts, und was sie hier meinen.",
-      "prompts": "Noch nichts. Satzbausteine. Von hier geht nichts raus."
+      "bible": "Nichts geschrieben. Was gleich bleibt.",
+      "style": "Nichts geschrieben. Das Licht, der Rahmen, was man meidet.",
+      "lexique": "Nichts geschrieben. Die Wörter dieses Projekts, und was sie hier meinen.",
+      "prompts": "Nichts geschrieben. Satzbausteine. Von hier geht nichts."
     }
+  },
+  "sent": {
+    "title": "Was rausgeht",
+    "memoryOut": "Bibel, Stil, Lexikon und Prompts stehen nicht darin. Sie gehen nicht.",
+    "noPictures": "Kein Text geht: die Bilder dieses Takes fehlen.",
+    "notYet": "Der Text ist noch nicht da. Er entsteht, wenn die Bilder des Wegs zurückkommen. Bibel, Stil, Lexikon und Prompts kommen nicht hinein."
   },
   "tree": {
     "characters": "Figuren",
@@ -658,10 +666,10 @@
     "engines": "Motoren",
     "files": "Assets",
     "notes": "Notizen",
-    "modelBridge": "Vorlage · Brücke",
+    "modelBridge": "Vorlage · Bildverbindung",
     "modelMove": "Vorlage · Bewegung",
     "modelEffect": "Vorlage · Effekt",
-    "engineBridge": "Motor · Brücke",
+    "engineBridge": "Motor · Bildverbindung",
     "engineMove": "Motor · Bewegung",
     "engineEffect": "Motor · Effekt"
   },
@@ -706,7 +714,9 @@
     "characterFileMissing": "Die Datei der Figur fehlt in « Mein Studio ».",
     "referencePhotosMissing": "Die Fotos der Referenzen fehlen in « Mein Studio ».",
     "filmedStillMissing": "Das gefilmte Bild fehlt in « Mein Studio ».",
-    "planFilmed": "Der Raumplan ist gefilmt. Blender hat den leeren Drehort gerendert. Die Figur ist im Take.",
+    "planFilmed": "Der Weg ist gefilmt. Blender hat den leeren Drehort gerendert. Die Figur ist im Take.",
+    "characterNotOnPath": "Die Figur ist nicht auf dem Weg.",
+    "pathImageMissing": "Ein Bild des Wegs fehlt in « Mein Studio ».",
     "placeRenderedResume": "Der Drehort ist gerendert. Die Verfolgung der Figur geht weiter. Nichts wird erneut gesendet.",
     "placeEmptyNext": "Der Drehort ist gerendert, leer. Die nächste Geste filmt die Figur, nur zum fal-Preis.",
     "followStopped": "Verfolgung hier gestoppt. Wenn der Render schon weg ist, läuft er auf deinem Konto weiter.",
@@ -766,8 +776,8 @@
     "kicker": "Extra",
     "lead": "Drei Gesten extra. Sie drehen diesen Take nicht. Ohne eine Zahl bleibt Drehen aus.",
     "leadPlan": "Dieselben Gesten, aus den Bildern dieses Shots.",
-    "lands": "Der kurze Film liegt bei den Takes. Der Shot behält ihn, wenn der Film von dort kommt.",
-    "partage": "Freigabe fehlt. Für diese Geste liegt kein Modell vor. Es öffnet sich nichts.",
+    "lands": "Der kurze Film liegt bei den Takes. Der Shot behält ihn, wenn der Film dort beginnt.",
+    "partage": "Der Link fehlt. Für diese Geste liegt kein Modell vor. Es öffnet sich nichts.",
     "devis": "Kalkulation fehlt. Der Gesamtbetrag dieser Geste ist keine Zahl. Nichts geht.",
     "raccord": {
       "name": "Zwei Bilder verbinden",
@@ -788,14 +798,15 @@
         "right": "Nach rechts",
         "in": "Näher",
         "out": "Weiter weg",
-        "acw": "Schwenkt nach links",
-        "cw": "Schwenkt nach rechts"
+        "acw": "Rollt nach links",
+        "cw": "Rollt nach rechts"
       }
     },
     "effet": {
       "name": "Einen Effekt setzen",
-      "sentence": "Ein gedrehter Take erhält das Aussehen eines Bildes.",
+      "sentence": "Ein gedrehter Take erhält den Stil eines Bildes.",
       "need": "Es braucht einen gedrehten Take und ein Bild für den Effekt."
-    }
+    },
+    "noText": "Mit dieser Geste geht kein Text."
   }
 }

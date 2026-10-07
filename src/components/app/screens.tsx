@@ -11,6 +11,7 @@ import { formatUsd } from "@/lib/fal/prices";
 import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
 import { CinemaGestures } from "./cinema-gestures";
+import { OutgoingFilm, OutgoingTake } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { Arrow, Close, Plus, Web } from "./glyphs";
@@ -181,6 +182,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
           });
           return <>
             {action.kind !== "film" && <p className="u-small">{t(`film.${action.kind}.missing`)}</p>}
+            <OutgoingFilm />
             <button type="button" className="u-primary" onClick={() => {
               if (action.kind === "place") document.getElementById("u-lieu")?.focus();
               else if (action.kind === "plan") document.getElementById("u-plans")?.scrollIntoView({ block: "center" });
@@ -733,6 +735,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       </p>
       {hint && action.id !== "bloque" && <p className="u-small u-comfort-hint">{hint}</p>}
       {action.id === "bloque" && <button type="button" className="u-link u-comfort-hint" onClick={() => setSheet("credits")}>{t("take.seeAccount")}</button>}
+      <OutgoingTake />
       <button type="button" className="u-primary" disabled={action.id === "bloque"} onClick={() => {
         if (action.id === "tourner") void requestRun();
         else if (action.id !== "bloque") jump(action.id);
