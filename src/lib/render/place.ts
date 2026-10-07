@@ -1,9 +1,6 @@
-// A place the studio can reopen, written as a real Blender 4.1.1 file.
-// The template was saved by that binary, uncompressed: five volumes, and a
-// camera keyed at frame 1 and frame 5. This module only overwrites those
-// floats. It does not run Blender and it does not paint a frame.
-
-import { PLACE_BLEND_B64, PLACE_SLOTS } from "./place-template.ts";
+// Plans, the camera path, and the volumes of a place. The .blend bytes live in
+// place-blend.ts and load only when a path is filmed. This module does not
+// run Blender and it does not paint a frame.
 
 export const PREVIZ_PLANS = ["piece", "quai", "rue"] as const;
 export type PrevizPlan = (typeof PREVIZ_PLANS)[number];
@@ -228,54 +225,3 @@ function quaternionFromBasis(
   return [w / norm, x / norm, y / norm, z / norm];
 }
 
-let template: Uint8Array | null = null;
-
-function templateBytes(): Uint8Array {
-  if (!template) {
-    const binary = atob(PLACE_BLEND_B64);
-    const bytes = new Uint8Array(binary.length);
-    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
-    template = bytes;
-  }
-  return template;
-}
-
-function writeFloat(bytes: Uint8Array, id: string, value: number): void {
-  const offsets = PLACE_SLOTS[id];
-  if (!offsets?.length) throw new Error(`Le modèle Blender n’a pas d’emplacement ${id}.`);
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  for (const offset of offsets) {
-    if (offset < 0 || offset + 4 > bytes.byteLength) throw new Error(`Emplacement ${id} hors du fichier.`);
-    view.setFloat32(offset, value, true);
-  }
-}
-
-function writeCamera(bytes: Uint8Array, which: "0" | "1", camera: BlenderPose["camera"]): void {
-  const loc = which === "0" ? "a0" : "b0";
-  const quat = which === "0" ? "q0" : "q1";
-  writeFloat(bytes, `${loc}x`, camera.location[0]);
-  writeFloat(bytes, `${loc}y`, camera.location[1]);
-  writeFloat(bytes, `${loc}z`, camera.location[2]);
-  writeFloat(bytes, `${quat}w`, camera.quaternion[0]);
-  writeFloat(bytes, `${quat}x`, camera.quaternion[1]);
-  writeFloat(bytes, `${quat}y`, camera.quaternion[2]);
-  writeFloat(bytes, `${quat}z`, camera.quaternion[3]);
-}
-
-/** A .blend Blender 4.1.1 can open: the place, the camera path, Cycles, one PNG per frame. No person is in the file. */
-export function buildPlaceBlend(plan: PrevizPlan, camera: PlaceCamera): Uint8Array {
-  const bytes = templateBytes().slice();
-  const path = blenderPath(plan, camera);
-  path.volumes.forEach((volume, index) => {
-    writeFloat(bytes, `v${index}x`, volume.location[0]);
-    writeFloat(bytes, `v${index}y`, volume.location[1]);
-    writeFloat(bytes, `v${index}z`, volume.location[2]);
-    writeFloat(bytes, `v${index}sx`, volume.scale[0]);
-    writeFloat(bytes, `v${index}sy`, volume.scale[1]);
-    writeFloat(bytes, `v${index}sz`, volume.scale[2]);
-  });
-  writeCamera(bytes, "0", path.start);
-  writeCamera(bytes, "1", path.end);
-  writeFloat(bytes, "lens", path.start.lens);
-  return bytes;
-}

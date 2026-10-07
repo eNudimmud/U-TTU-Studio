@@ -11,7 +11,7 @@ import { Why } from "./guide-bubble";
 import { Arrow, Close } from "./glyphs";
 import { OutgoingPersonnage } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
-import { PictureSlot, Segments } from "./screens";
+import { PictureSlot, Segments } from "./slots";
 import { useStudio, type TrainingState } from "./studio-context";
 
 function clock(seconds: number): string {

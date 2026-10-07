@@ -1,15 +1,10 @@
 "use client";
 
-import { NextIntlClientProvider, useTranslations } from "next-intl";
+import { NextIntlClientProvider, useTranslations, type AbstractIntlMessages } from "next-intl";
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
-import de from "../../../messages/de.json";
-import en from "../../../messages/en.json";
-import es from "../../../messages/es.json";
-import fr from "../../../messages/fr.json";
+import { loadCatalog } from "@/lib/i18n/catalog";
 import { dateLocale, htmlLang, LOCALE_COOKIE, LOCALE_STORAGE, type Locale, readLocaleValue } from "@/lib/i18n/config";
 import { phrase } from "@/lib/i18n/phrase";
-
-const CATALOGS = { fr, en, de, es } as const;
 
 const LocaleContext = createContext<{ locale: Locale; setLocale(locale: Locale): void }>({
   locale: "fr",
@@ -24,16 +19,20 @@ function persist(locale: Locale) {
   document.documentElement.lang = htmlLang(locale);
 }
 
-export function LocaleProvider({ initial, children }: { initial: Locale; children: ReactNode }) {
+export function LocaleProvider({ initial, messages, children }: { initial: Locale; messages: AbstractIntlMessages; children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(initial);
+  const [catalog, setCatalog] = useState<AbstractIntlMessages>(messages);
   const setLocale = useCallback((next: Locale) => {
     const locale = readLocaleValue(next);
-    setLocaleState(locale);
-    persist(locale);
+    void loadCatalog(locale).then(nextMessages => {
+      setCatalog(nextMessages);
+      setLocaleState(locale);
+      persist(locale);
+    });
   }, []);
   const value = useMemo(() => ({ locale, setLocale }), [locale, setLocale]);
   return <LocaleContext.Provider value={value}>
-    <NextIntlClientProvider locale={htmlLang(locale)} messages={CATALOGS[locale]} timeZone="Europe/Zurich">
+    <NextIntlClientProvider locale={htmlLang(locale)} messages={catalog} timeZone="Europe/Zurich">
       {children}
     </NextIntlClientProvider>
   </LocaleContext.Provider>;

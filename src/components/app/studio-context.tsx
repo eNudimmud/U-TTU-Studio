@@ -31,9 +31,11 @@ import { readGuide, saveGuide, type GuideMoment, type GuideState } from "@/lib/g
 import { cleanBlenderKey, readBlenderKey, saveBlenderKey } from "@/lib/render/blender-link";
 import { createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
 import { FarpyError, filmGate, type FilmQuote } from "@/lib/render/farpy";
-import { buildPlaceBlend, defaultCamera, moveCamera as shiftCamera, type Lens, type PrevizPlan } from "@/lib/render/previz";
+import { defaultCamera, moveCamera as shiftCamera, type Lens, type PrevizPlan } from "@/lib/render/place";
 import { followFilm, quoteFilm, startRender, type PrevizEvent } from "@/lib/render/previz-run";
 import { filmOutgoingText, lieuOutgoingText, personnageOutgoingText, priseOutgoingText } from "@/lib/render/outgoing-text";
+import { applyPlaceBlend } from "@/lib/render/place-write";
+import { assetPath } from "@/lib/site";
 import { SHOT_LINE, SHOT_RESOLUTION, SHOT_SECONDS, shotGate } from "@/lib/render/shot";
 import { referencePaths } from "@/lib/render/references";
 import { forgetQuote, quoteFromTake, quotesToRecords, rememberQuote } from "@/lib/render/measured-quote";
@@ -1428,7 +1430,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setPrevizState({ phase: "running", event: { stage: "write" } });
     abortPreviz.current = new AbortController();
     try {
-      const bytes = buildPlaceBlend(place.previz, camera);
+      const response = await fetch(assetPath("/studio/place.blend"));
+      if (!response.ok) throw new Error("Le filmage n’a pas abouti.");
+      const bytes = applyPlaceBlend(new Uint8Array(await response.arrayBuffer()), place.previz, camera);
       const path = await inProject("Lieux", `${place.id}.blend`);
       const blob = new Blob([new Uint8Array(bytes)], { type: "application/octet-stream" });
       if (place.previzFile && place.previzFile !== path) await store().remove(place.previzFile);

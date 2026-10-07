@@ -84,7 +84,8 @@ describe("mémoire du projet", () => {
     assert.ok(GUIDE_LINES["take-memory"].length <= 80);
     const lora = read("src/components/app/lora-screen.tsx");
     assert.match(lora, /<ProjectMemory \/>/);
-    const scene = screens.slice(screens.indexOf("export function SceneScreen"), screens.indexOf("function VueProjet"));
+    const sceneFile = read("src/components/app/scene-screen.tsx");
+    const scene = sceneFile.slice(sceneFile.indexOf("export function SceneScreen"), sceneFile.indexOf("function VueProjet"));
     assert.match(scene, /<ProjectMemory \/>/);
 
     const css = read("src/components/app/app.css");

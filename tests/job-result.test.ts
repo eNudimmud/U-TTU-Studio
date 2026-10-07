@@ -7,8 +7,9 @@ const read = (path: string) => readFileSync(path, "utf8");
 describe("un run, un résultat", () => {
   it("keeps the job on the fiche and opens outputs there", () => {
     const screens = read("src/components/app/screens.tsx");
+    const sceneFile = read("src/components/app/scene-screen.tsx");
     const take = screens.slice(screens.indexOf("export function TakeScreen"), screens.indexOf("export function SphereScreen"));
-    const scene = screens.slice(screens.indexOf("export function SceneScreen"), screens.indexOf("function clock"));
+    const scene = sceneFile.slice(sceneFile.indexOf("export function SceneScreen"));
     const role = read("src/components/app/lora-screen.tsx");
     const sheets = read("src/components/app/sheets.tsx");
     const app = read("src/components/app/studio-app.tsx");
@@ -32,7 +33,7 @@ describe("un run, un résultat", () => {
     assert.match(sheets, /t\("job\.empty"\)/);
     assert.match(app, /<OutputsSheet/);
     assert.match(app, /nav\.sceneRunning/);
-    assert.doesNotMatch(screens + sheets + role, /class_type|SaveLoRA|panneau de nœuds|estimate_credits|run_template|submit_workflow|partner_generate/);
+    assert.doesNotMatch(screens + sceneFile + sheets + role, /class_type|SaveLoRA|panneau de nœuds|estimate_credits|run_template|submit_workflow|partner_generate/);
   });
 
   it("names the four languages and does not spend", () => {

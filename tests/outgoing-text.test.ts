@@ -65,7 +65,8 @@ describe("texte qui part", () => {
     const take = screens.slice(screens.indexOf("export function TakeScreen"), screens.indexOf("export function SphereScreen"));
     assert.ok(take.indexOf("<OutgoingTake />") < take.indexOf("className=\"u-primary\""));
     assert.ok(take.indexOf("className=\"u-primary\"") < take.indexOf("<CinemaGestures anchor />"));
-    const scene = screens.slice(screens.indexOf("export function SceneScreen"), screens.indexOf("function clock"));
+    const sceneFile = read("src/components/app/scene-screen.tsx");
+    const scene = sceneFile.slice(sceneFile.indexOf("export function SceneScreen"));
     assert.ok(scene.indexOf("<OutgoingFilm />") < scene.indexOf("className=\"u-primary\""));
     const sheets = read("src/components/app/sheets.tsx");
     const confirm = sheets.slice(sheets.indexOf("export function ConfirmSheet"), sheets.indexOf("export function FalSheet"));
@@ -117,11 +118,11 @@ describe("texte qui part", () => {
     assert.match(lora, /!showFile && <ProjectMemory \/>/);
     assert.ok(form.indexOf("<ProjectMemory />") < form.indexOf("<OutgoingPersonnage />"));
     assert.ok(form.indexOf("<OutgoingPersonnage />") < form.indexOf('className="u-primary"'));
-    const screens = read("src/components/app/screens.tsx");
+    const screens = read("src/components/app/scene-screen.tsx");
     const scene = screens.slice(screens.indexOf("export function SceneScreen"), screens.indexOf("function VueProjet"));
     assert.match(scene, /<ProjectMemory \/>/);
     assert.ok(scene.indexOf("<ProjectMemory />") < scene.indexOf("<OutgoingFilm />"));
-    const editor = screens.slice(screens.indexOf("function SceneEditor"), screens.indexOf("function clock"));
+    const editor = screens.slice(screens.indexOf("function SceneEditor"));
     assert.ok(editor.indexOf("<OutgoingLieu />") < editor.indexOf('id="u-former-lieu"'));
     const sheets = read("src/components/app/sheets.tsx");
     const train = sheets.slice(sheets.indexOf("export function TrainConfirmSheet"), sheets.indexOf("export function PrevizConfirmSheet"));

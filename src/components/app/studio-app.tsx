@@ -15,8 +15,12 @@ import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { LoraScreen } from "./lora-screen";
-import { LookScreen, PlateauShelf, SceneScreen, SphereScreen, TakeScreen } from "./screens";
+import { SceneScreen } from "./scene-screen";
 
+const LookScreen = dynamic(() => import("./screens").then(mod => mod.LookScreen));
+const SphereScreen = dynamic(() => import("./screens").then(mod => mod.SphereScreen));
+const TakeScreen = dynamic(() => import("./screens").then(mod => mod.TakeScreen));
+const PlateauShelf = dynamic(() => import("./screens").then(mod => mod.PlateauShelf));
 const FichesScreen = dynamic(() => import("./fiches-screen").then(mod => mod.FichesScreen));
 const BlenderSheet = dynamic(() => import("./sheets").then(mod => mod.BlenderSheet));
 const CoffreSheet = dynamic(() => import("./sheets").then(mod => mod.CoffreSheet));
@@ -43,15 +47,15 @@ const STEPS: { id: Exclude<Tab, "sphere" | "look" | "fiches">; key: "nav.charact
   { id: "prise", key: "nav.take" },
 ];
 
-export function StudioApp() {
-  return <StudioProvider><AppFrame /></StudioProvider>;
+export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
+  return <StudioProvider><AppFrame initialTab={initialTab ?? null} /></StudioProvider>;
 }
 
-function AppFrame() {
+function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
   const { t, say } = useI18n();
   const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, setEngine, falLinked, falBalance, falBalanceNote, training, previz, placeRun } = studio;
-  const [asked, setAsked] = useState<Tab | null>(null);
+  const [asked, setAsked] = useState<Tab | null>(initialTab);
   const [choice, setChoice] = useState(0);
   const [startFile, setStartFile] = useState(false);
   const [sceneFocus, setSceneFocus] = useState<"vues" | "image" | null>(null);
@@ -177,9 +181,10 @@ function AppFrame() {
     </header>
 
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
-      {ready && <GuideBubble moments={moments} />}
-      {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p>
-        : tab === "look" ? <LookScreen onNext={() => go("scene")} onBack={() => go("lora")} />
+      {!ready && !asked ? <p className="u-loading" role="status">{t("nav.opening")}</p> : <>
+      {!ready && <p className="sr-only" role="status">{t("nav.opening")}</p>}
+      <GuideBubble moments={moments} />
+      {tab === "look" ? <LookScreen onNext={() => go("scene")} onBack={() => go("lora")} />
         : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} focus={sceneFocus} />
         : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} startFile={startFile} />
         : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goLora={() => go("lora")} />
@@ -188,6 +193,7 @@ function AppFrame() {
           go(fiche.dest, { file: fiche.focus === "file", scene: fiche.focus === "vues" || fiche.focus === "image" ? fiche.focus : null });
         }} />
         : <SphereScreen />}
+      </>}
     </main>
 
     {ready && desk && <PlateauShelf go={go} />}

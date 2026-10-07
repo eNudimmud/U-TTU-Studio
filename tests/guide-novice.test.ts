@@ -44,12 +44,13 @@ describe("guide novice", () => {
 
   it("puts the sentence under a muted control, and a line on the chain", () => {
     const screens = read("src/components/app/screens.tsx");
+    const scene = read("src/components/app/scene-screen.tsx");
     const role = read("src/components/app/lora-screen.tsx");
     const sheets = read("src/components/app/sheets.tsx");
     assert.match(role, /t\("guide\.stepCharacter"\)/);
-    assert.match(screens, /t\("guide\.stepScene"\)/);
+    assert.match(scene, /t\("guide\.stepScene"\)/);
     assert.match(screens, /t\("guide\.stepTake"\)/);
-    for (const source of [screens, role, sheets]) {
+    for (const source of [screens, scene, role, sheets]) {
       let from = 0;
       for (const control of mutedControls(source)) {
         const at = source.indexOf(`disabled={${control.slice(0, 80)}`, from);
@@ -70,6 +71,6 @@ describe("guide novice", () => {
     assert.match(phone, /\.u-why \{/);
     assert.match(phone, /\.u-micro \{/);
     assert.doesNotMatch(phone, /\.u-why \{[^}]*height: 100dvh/);
-    assert.doesNotMatch(screens + role + sheets, /class_type|SaveLoRA|panneau de nœuds/);
+    assert.doesNotMatch(screens + scene + role + sheets, /class_type|SaveLoRA|panneau de nœuds/);
   });
 });
