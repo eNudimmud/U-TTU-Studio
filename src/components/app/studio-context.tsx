@@ -336,7 +336,7 @@ interface StudioValue {
   sessionLinked(): Promise<boolean>;
   disconnect(): Promise<void>;
   exportCoffre(): Promise<void>;
-  importCoffre(file: File): Promise<void>;
+  importCoffre(file: File): Promise<string>;
   linkFolder(): Promise<void>;
   dismissGuide(moment: GuideMoment): void;
   guideOff(): void;
@@ -1774,11 +1774,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     try {
       const report = await mergeCoffreZip(store(), new Uint8Array(await file.arrayBuffer()));
       await reloadVault();
-      setNotice(report.written === 0
+      return report.written === 0
         ? "Ce ZIP ne contient pas de coffre à ajouter."
-        : `Coffre ajouté : ${report.written} fichier${report.written > 1 ? "s" : ""}. Les prises et les personnages déjà ici restent.`);
+        : `Coffre ajouté : ${report.written} fichier${report.written > 1 ? "s" : ""}. Les prises et les personnages déjà ici restent.`;
     } catch {
-      setNotice("Ce ZIP ne s’ouvre pas.");
+      return "Ce ZIP ne s’ouvre pas.";
     }
   }, [reloadVault, store]);
 

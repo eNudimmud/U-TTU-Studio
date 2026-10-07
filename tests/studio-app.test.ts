@@ -161,6 +161,8 @@ describe("le studio, une app", () => {
     assert.match(coffre, /Les clés restent hors du coffre/);
     assert.doesNotMatch(coffre, /synchronis/i);
     assert.match(read("src/components/app/studio-context.tsx"), /mergeCoffreZip\(/);
+    assert.match(read("src/components/app/studio-context.tsx"), /Coffre ajouté/);
+    assert.match(coffre, /role="status"/);
     assert.match(sheets, /Il paie la formation du personnage et les prises « Personnage »/);
     assert.match(sheets, /Il paie les prises « Références »/);
   });

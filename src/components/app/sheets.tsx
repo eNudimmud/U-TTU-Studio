@@ -172,6 +172,7 @@ export function CoffreSheet() {
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [linkable, setLinkable] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [importNote, setImportNote] = useState("");
 
   useEffect(() => {
     setLinkable(folderLinkSupported());
@@ -201,9 +202,11 @@ export function CoffreSheet() {
           event.target.value = "";
           if (!file) return;
           setImporting(true);
-          void importCoffre(file).finally(() => setImporting(false));
+          setImportNote("");
+          void importCoffre(file).then(setImportNote).finally(() => setImporting(false));
         }} />
       </label>
+      {importNote && <p className="u-small" role="status">{importNote}</p>}
       {linkable && <button type="button" className="u-secondary" onClick={() => void linkFolder()}>{folder ? `Relié à « ${folder} »` : "Relier mon dossier Obsidian"}</button>}
       {!linkable && <p className="u-small">Sur ordinateur, Chrome ou Edge écrivent dans le dossier choisi. Sur téléphone, emporte le ZIP.</p>}
       <p className="u-small">Les clés restent hors du coffre.</p>
