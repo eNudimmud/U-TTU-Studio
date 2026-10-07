@@ -21,6 +21,7 @@
     "opening": "Mein Studio wird geöffnet…",
     "takeRunning": "Take läuft",
     "trainRunning": "Training läuft",
+    "sceneRunning": "Szene läuft",
     "falBalance": "Guthaben des fal-Kontos",
     "falUnread": "fal-Konto verbunden, Guthaben ungelesen",
     "renderCredits": "Credits des Render-Kontos"
@@ -316,7 +317,6 @@
     "debitHiddenRender": "Abbuchung noch nicht sichtbar auf deinem Guthaben.",
     "calc": " Rechnung: {clock}.",
     "new": "Neuer Take",
-    "seeSphere": "Sphäre ansehen",
     "soft": "Es ist nicht zustande gekommen.",
     "reloadFal": "Lade dein fal-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.",
     "reloadRender": "Lade dein Render-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.",
@@ -349,6 +349,14 @@
     "gapFile": "Der Motor Figur (Datei) wartet auf eine trainierte Datei.",
     "hintFile": "Eine Figur-Datei fehlt.",
     "hintBlocked": "Preis oder Guthaben lässt den Take nicht gehen."
+  },
+  "job": {
+    "running": "Läuft",
+    "done": "Zustande gekommen",
+    "outputs": "Ausgaben",
+    "latest": "Letzte Ausgabe",
+    "empty": "Keine Ausgabe für diese Geste.",
+    "lead": "Die letzte Ausgabe dieser Geste ist hier. Die Sphäre bleibt das Regal."
   },
   "run": {
     "start": "Vorbereitung",

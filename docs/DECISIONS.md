@@ -2,6 +2,12 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F13 — un run, un résultat — 7 octobre 2026
+
+- **Décision :** sur Personnage, Scène et Prise, un geste déjà branché dit où il en est : En cours, Abouti, ou « Ça n’a pas abouti. » avec la raison. Reprendre reprend un suivi encore tenu. Cela ne relance pas un envoi. Sorties s’ouvre sur la même fiche.
+- **Décision :** après un succès, la sortie récente est sur la fiche et dans le tiroir Sorties. La sphère reste l’étagère. On n’y envoie plus pour voir le résultat.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Pas de graphe, pas de panneau de nœuds. Les catalogues DE et ES restent `_status: reviewed`. Ce n’est pas une signature de locuteur natif.
+
 ## F12 — shots / storyboard — 7 octobre 2026
 
 - **Décision :** un plan est une note `Projets/<projet>/Shots/<id>.md`. Le dossier s’appelle déjà `Shots/`. L’écran français dit **Plan**, jamais Shot. Anglais : Shot. Allemand : Shot, comme Take. Espagnol : Viñeta. Le plan de l’espace (Pièce, Quai, Rue) reste un autre mot : Layout, Raumplan, plano de espacio.

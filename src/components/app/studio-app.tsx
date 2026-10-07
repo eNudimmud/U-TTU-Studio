@@ -14,7 +14,7 @@ import { GuideBubble } from "./guide-bubble";
 import { FichesScreen } from "./fiches-screen";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, PlateauShelf, SceneScreen, SphereScreen, TakeScreen } from "./screens";
-import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, SequenceSheet, ShotSheet, TrainConfirmSheet } from "./sheets";
+import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, OutputsSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, SequenceSheet, ShotSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
@@ -31,7 +31,7 @@ export function StudioApp() {
 function AppFrame() {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, setEngine, falLinked, falBalance, falBalanceNote, training } = studio;
+  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, setEngine, falLinked, falBalance, falBalanceNote, training, previz, placeRun } = studio;
   const [asked, setAsked] = useState<Tab | null>(null);
   const [choice, setChoice] = useState(0);
   const [startFile, setStartFile] = useState(false);
@@ -117,7 +117,7 @@ function AppFrame() {
         : tab === "look" ? <LookScreen onNext={() => go("scene")} onBack={() => go("lora")} />
         : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} focus={sceneFocus} />
         : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} startFile={startFile} />
-        : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goSphere={() => go("sphere")} goLora={() => go("lora")} />
+        : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goLora={() => go("lora")} />
         : tab === "fiches" ? <FichesScreen onLaunch={(fiche: WorkflowFiche) => {
           if (fiche.engine) setEngine(fiche.engine);
           go(fiche.dest, { file: fiche.focus === "file", scene: fiche.focus === "vues" || fiche.focus === "image" ? fiche.focus : null });
@@ -136,6 +136,7 @@ function AppFrame() {
             <span className="u-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <span>{t(step.key)}</span>
             {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
+            {step.id === "scene" && (previz.phase === "running" || placeRun === "running") && <span className="u-pulse" aria-label={t("nav.sceneRunning")} />}
             {step.id === "lora" && training.phase === "running" && <span className="u-pulse" aria-label={t("nav.trainRunning")} />}
           </button>
         </li>)}
@@ -169,5 +170,6 @@ function AppFrame() {
     {sheet && typeof sheet === "object" && "take" in sheet && <PlayerSheet id={sheet.take} />}
     {sheet && typeof sheet === "object" && "sequence" in sheet && <SequenceSheet id={sheet.sequence} />}
     {sheet && typeof sheet === "object" && "shot" in sheet && <ShotSheet id={sheet.shot} />}
+    {sheet && typeof sheet === "object" && "outputs" in sheet && <OutputsSheet kind={sheet.outputs} />}
   </div>;
 }
