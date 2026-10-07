@@ -50,7 +50,7 @@ function SheetFrame({ title, label, onClose, children, tall = false }: { title: 
   </div>;
 }
 
-export function ConnectSheet() {
+export function ConnectSheet({ framed = true }: { framed?: boolean } = {}) {
   const { setSheet, connected, link, connectKey, sessionLinked, disconnect, setNotice } = useStudio();
   const [mode, setMode] = useState<"session" | "key">("session");
   const [signing, setSigning] = useState(false);
@@ -85,7 +85,7 @@ export function ConnectSheet() {
     setSheet(null);
   }
 
-  return <SheetFrame title="Ton compte de rendu" label="Relier" onClose={close} tall={signing}>
+  const body = <div className="u-stack">
     {connected
       ? <div className="u-stack">
         <p>Relié {link.mode === "key" ? "par clé" : "par ta session"}. Les prises tournent sur ce compte, et ses crédits les paient.</p>
@@ -113,10 +113,12 @@ export function ConnectSheet() {
           </label>
           <p className="u-small">La clé reste sur cet appareil. Elle demande un abonnement Comfy Cloud payant. Aucun traceur tiers ne se charge dans ce mode.</p>
           {error && <p className="u-small is-error" role="alert">{error}</p>}
-          <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? "Vérification…" : "Relier"}</button>
+          <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? "Vérification…" : framed ? "Relier" : "Relier le compte de rendu"}</button>
         </>}
       </div>}
-  </SheetFrame>;
+  </div>;
+  if (!framed) return body;
+  return <SheetFrame title="Ton compte de rendu" label="Relier" onClose={close} tall={signing}>{body}</SheetFrame>;
 }
 
 const time = new Intl.DateTimeFormat("fr-CH", { hour: "2-digit", minute: "2-digit" });
@@ -226,7 +228,7 @@ export function ConfirmSheet() {
   </SheetFrame>;
 }
 
-export function FalSheet() {
+export function FalSheet({ framed = true }: { framed?: boolean } = {}) {
   const { setSheet, falLinked, falUsername, falBalanceNote, connectFal, disconnectFal, setNotice } = useStudio();
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
@@ -245,7 +247,7 @@ export function FalSheet() {
     setSheet(null);
   }
 
-  return <SheetFrame title="Ton compte fal" label="Relier" onClose={() => setSheet(null)}>
+  const body = <div className="u-stack">
     {falLinked
       ? <div className="u-stack">
         <p>Relié{falUsername ? ` à ${falUsername}` : ""}. La formation et les prises « Personnage » sont débitées sur ce compte.</p>
@@ -261,8 +263,26 @@ export function FalSheet() {
         </label>
         <p className="u-small">La clé reste sur cet appareil. Elle part seulement vers fal, jamais dans le coffre ni dans son export. Ne la partage pas.</p>
         {(error || falBalanceNote) && <p className="u-small is-error" role="alert">{error || falBalanceNote}</p>}
-        <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? "Vérification…" : "Relier"}</button>
+        <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? "Vérification…" : framed ? "Relier" : "Relier le compte fal"}</button>
       </div>}
+  </div>;
+  if (!framed) return body;
+  return <SheetFrame title="Ton compte fal" label="Relier" onClose={() => setSheet(null)}>{body}</SheetFrame>;
+}
+
+export function RelierSheet() {
+  const { setSheet } = useStudio();
+  return <SheetFrame title="Relier" label="Comptes" onClose={() => setSheet(null)} tall>
+    <section className="u-payer">
+      <p className="u-label">Compte fal</p>
+      <p>Il paie la formation du personnage et les prises « Personnage ».</p>
+      <FalSheet framed={false} />
+    </section>
+    <section className="u-payer">
+      <p className="u-label">Compte de rendu</p>
+      <p>Il paie les prises « Références ».</p>
+      <ConnectSheet framed={false} />
+    </section>
   </SheetFrame>;
 }
 

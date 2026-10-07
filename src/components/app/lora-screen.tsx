@@ -123,14 +123,14 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice }: { onTake(): vo
           <p className="u-small">Les fichiers déjà formés restent.</p>
           <button type="button" className="u-primary" disabled={falLinked && dataset.ready && !trainGate.allowed} onClick={() => {
             if (!falLinked) {
-              setSheet("fal");
+              setSheet("relier");
               return;
             }
             setTouch(current => ({ ...current, name: true, photos: true, clips: true, submit: true }));
             if (!dataset.ready) return;
             void requestTraining();
           }}>
-            {!falLinked ? "Relier mon compte fal" : `Former ce personnage${trainQuote !== null ? ` · ${formatUsd(trainQuote)}` : ""}`} <Arrow />
+            {!falLinked ? "Relier" : `Former ce personnage${trainQuote !== null ? ` · ${formatUsd(trainQuote)}` : ""}`} <Arrow />
           </button>
           <button type="button" className="u-link" onClick={onScene}>Poser la scène</button>
         </div>

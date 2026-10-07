@@ -11,7 +11,7 @@ import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, SceneScreen, SphereScreen, TakeScreen } from "./screens";
-import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, TrainConfirmSheet } from "./sheets";
+import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
@@ -92,10 +92,12 @@ function AppFrame() {
         <span>U<em>*</em>TTU</span>
       </a>
       <div className="u-top-tools">
-        <button type="button" className="u-credit" onClick={() => setSheet(falHere ? (falLinked ? "credits" : "fal") : (connected ? "credits" : "connect"))} aria-label={falHere ? (falLinked ? (falBalance || !falBalanceOptional ? "Solde du compte fal" : "Compte fal relié, solde non lu") : "Relier le compte fal") : (connected ? "Crédits du compte de rendu" : "Relier le compte de rendu")}>
-          {falHere
-            ? (falLinked ? (falBalance ? <><strong>{formatUsd(falBalance.usd)}</strong><span>fal</span></> : falBalanceOptional ? <span>fal</span> : <><strong>{falBalanceNote ? "—" : "…"}</strong><span>fal</span></>) : <span>Relier fal</span>)
-            : (connected ? <><strong>{balance ? formatCredits(balance.credits) : balanceNote ? "—" : "…"}</strong><span>crédits</span></> : <span>Relier</span>)}
+        <button type="button" className="u-credit" onClick={() => setSheet((falHere ? falLinked : connected) ? "credits" : "relier")} aria-label={(falHere ? falLinked : connected) ? (falHere ? (falBalance || !falBalanceOptional ? "Solde du compte fal" : "Compte fal relié, solde non lu") : "Crédits du compte de rendu") : "Relier"}>
+          {(falHere ? falLinked : connected)
+            ? (falHere
+              ? (falBalance ? <><strong>{formatUsd(falBalance.usd)}</strong><span>fal</span></> : falBalanceOptional ? <span>fal</span> : <><strong>{falBalanceNote ? "—" : "…"}</strong><span>fal</span></>)
+              : <><strong>{balance ? formatCredits(balance.credits) : balanceNote ? "—" : "…"}</strong><span>crédits</span></>)
+            : <span>Relier</span>}
         </button>
         <button type="button" className="u-icon" onClick={() => setSheet("coffre")} aria-label="Coffre"><Coffre /></button>
       </div>
@@ -135,6 +137,7 @@ function AppFrame() {
     {sheet === "coffre" && <CoffreSheet />}
     {sheet === "confirm" && <ConfirmSheet />}
     {sheet === "fal" && <FalSheet />}
+    {sheet === "relier" && <RelierSheet />}
     {sheet === "blender" && <BlenderSheet />}
     {sheet === "train-confirm" && <TrainConfirmSheet />}
     {sheet === "previz-confirm" && <PrevizConfirmSheet />}
