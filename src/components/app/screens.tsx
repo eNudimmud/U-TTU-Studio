@@ -214,8 +214,20 @@ function VueProjet() {
           : <ul className="u-projet-prises">
             {group.prises.map(prise => <li key={prise.id}>
               <button type="button" className="u-link" onClick={() => setSheet({ take: prise.id })} aria-label={t("scene.openTake", { line: prise.line })}>{known(say, prise.line)}</button>
+              {studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === prise.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
             </li>)}
           </ul>}
+      </li>
+      <li>
+        <strong>{t("sequence.title")}</strong>
+        {studio.sequences.length === 0
+          ? t("sequence.empty")
+          : <ul className="u-projet-prises">
+            {studio.sequences.map(sequence => <li key={sequence.id}>
+              <button type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })} aria-label={t("sequence.open", { name: sequence.name })}>{sequence.name || t("common.unnamed")}</button>
+            </li>)}
+          </ul>}
+        <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{studio.sequences.length === 0 ? t("sequence.create") : t("sequence.back")}</button>
       </li>
     </ul>
   </section>;
@@ -434,6 +446,17 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
           </button>)}
         </div>}
     </div>
+    <div className="u-stack">
+      <p className="u-label">{t("sequence.title")}</p>
+      {studio.studio.sequences.length === 0
+        ? <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.create")}</button>
+        : <div className="u-scenes">
+          {studio.studio.sequences.map(sequence => <button key={sequence.id} type="button" className="u-scene" onClick={() => setSheet({ sequence: sequence.id })}>
+            <span className="u-scene-empty">{sequence.links.length}</span>
+            <span>{sequence.name || t("common.unnamed")}</span>
+          </button>)}
+        </div>}
+    </div>
   </aside>;
 }
 
@@ -523,6 +546,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         <p className="u-label">{t("take.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{t("take.title")}</h1>
       <p className="u-micro">{t("guide.stepTake")}</p>
+      <button type="button" className="u-link" onClick={() => setSheet("sequences")}>{t("sequence.title")}</button>
     </header>
 
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
@@ -539,6 +563,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         ? (result.costUsd !== null ? t("take.debitedFal", { amount: formatUsd(result.costUsd) }) : t("take.debitHiddenFal"))
         : (result.costCredits !== null ? t("take.debitedRender", { amount: formatCredits(result.costCredits) }) : t("take.debitHiddenRender"))}{result.gpuSeconds !== null ? t("take.calc", { clock: clock(result.gpuSeconds) }) : ""}</p>
       <PublishActions take={result} />
+      {studio.studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === result.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
       <div className="u-row">
         <button type="button" className="u-secondary" onClick={resetRun}>{t("take.new")}</button>
         <button type="button" className="u-link" onClick={goSphere}>{t("take.seeSphere")}</button>

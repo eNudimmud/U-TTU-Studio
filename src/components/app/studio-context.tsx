@@ -6,8 +6,8 @@ import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip } from "@/lib/coffre/import";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
-  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, createProject, emptyLook, emptyRole, emptySceneDraft, emptyStudio, ensureActiveProject, extensionFor, isPlaceLora, loadStudio, loraId, removeLora, removeScene, removeTake, selectProject, sha256Hex, slugify, takeId, uniqueId,
-  writeBlob, writeClips, writeLook, writeLora, writeRole, writeScene, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Studio, type Take,
+  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, createProject, dropTakeLink, emptyLook, emptyRole, emptySceneDraft, emptyStudio, ensureActiveProject, extensionFor, isPlaceLora, loadStudio, loraId, normalizeLinks, removeLora, removeScene, removeSequence, removeTake, selectProject, sequenceStem, sha256Hex, slugify, takeId, uniqueId,
+  writeBlob, writeClips, writeLook, writeLora, writeRole, writeScene, writeSequence, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Sequence, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { FalError, createFalClient, type FalClient, type FalHandle, type FalPrice } from "@/lib/fal/client";
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
@@ -42,7 +42,7 @@ import {
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
 
-export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | { take: string };
+export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | "sequences" | { take: string } | { sequence: string };
 
 export type RunState =
   | { phase: "idle" }
@@ -328,6 +328,9 @@ interface StudioValue {
   cancelRun(): void;
   resetRun(): void;
   deleteTake(id: string): Promise<void>;
+  createSequence(name: string): Promise<void>;
+  saveSequence(id: string, patch: Partial<Pick<Sequence, "name" | "links">>): Promise<void>;
+  deleteSequence(id: string): Promise<void>;
   refreshBalance(): Promise<Balance | null>;
   refreshFal(): Promise<UsdBalance | null>;
   connectFal(raw: string): Promise<string | null>;
@@ -1518,11 +1521,51 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const take = studioRef.current.takes.find(item => item.id === id);
     if (!take) return;
     const takes = studioRef.current.takes.filter(item => item.id !== id);
+    const sequences = studioRef.current.sequences.map(sequence => ({ ...sequence, links: dropTakeLink(sequence.links, id) }));
+    for (const sequence of sequences) {
+      const previous = studioRef.current.sequences.find(item => item.id === sequence.id);
+      if (previous && previous.links.length === sequence.links.length && previous.links.every((link, index) => link.takeId === sequence.links[index]?.takeId && link.raccord === sequence.links[index]?.raccord)) continue;
+      await writeSequence(store(), sequence, takes);
+    }
     await removeTake(store(), take, takes, studioRef.current.loras);
     dropMedia(take.video);
     if (take.poster) dropMedia(take.poster);
-    setStudio({ ...studioRef.current, takes });
+    setStudio({ ...studioRef.current, takes, sequences });
   }, [dropMedia, setStudio, store]);
+
+  const createSequence = useCallback(async (name: string) => {
+    const clean = name.replace(/\s+/g, " ").trim().slice(0, 40);
+    if (!clean) return;
+    const id = uniqueId(sequenceStem(clean), studioRef.current.sequences.map(item => item.id));
+    const created: Sequence = { id, name: clean, links: [] };
+    const sequences = [...studioRef.current.sequences, created].sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
+    setStudio({ ...studioRef.current, sequences });
+    await writeSequence(store(), created, studioRef.current.takes);
+    setNotice("Séquence créée.");
+    setSheet({ sequence: id });
+  }, [setStudio, store]);
+
+  const saveSequence = useCallback(async (id: string, patch: Partial<Pick<Sequence, "name" | "links">>) => {
+    const current = studioRef.current.sequences.find(item => item.id === id);
+    if (!current) return;
+    const name = patch.name === undefined ? current.name : patch.name.replace(/\s+/g, " ").trim().slice(0, 40);
+    if (!name) return;
+    const links = normalizeLinks(patch.links ?? current.links);
+    const next: Sequence = { ...current, name, links };
+    const sequences = studioRef.current.sequences
+      .map(item => (item.id === id ? next : item))
+      .sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
+    setStudio({ ...studioRef.current, sequences });
+    await writeSequence(store(), next, studioRef.current.takes);
+  }, [setStudio, store]);
+
+  const deleteSequence = useCallback(async (id: string) => {
+    if (!studioRef.current.sequences.some(item => item.id === id)) return;
+    await removeSequence(store(), id);
+    setStudio({ ...studioRef.current, sequences: studioRef.current.sequences.filter(item => item.id !== id) });
+    setNotice("Séquence retirée.");
+    setSheet("sequences");
+  }, [setStudio, store]);
 
   const addClips = useCallback(async (files: File[]) => {
     const room = CLIPS_MAX - studioRef.current.clips.length;
@@ -1988,7 +2031,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
     setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, deleteLora,
-    requestRun, confirmRun, cancelRun, resetRun, deleteTake, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
+    requestRun, confirmRun, cancelRun, resetRun, deleteTake, createSequence, saveSequence, deleteSequence, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
     exportCoffre, importCoffre, createNamedProject, selectNamedProject, linkFolder, dismissGuide, guideOff,
   };
 

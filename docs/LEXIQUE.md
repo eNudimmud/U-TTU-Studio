@@ -23,5 +23,6 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - Moteur. Distribution. Prise.
 - La ligne « FR Coffre · EN Vault » du glossaire de travail est dépassée. L’écran dit **Mon studio**.
 - Chaque univers de travail est un projet sous `Projets/`. L’écran dit « Mon studio » et « Projet en cours ».
+- **Séquence** relie des prises dans l’ordre. Le **raccord** dit ce qui doit coller : lumière, regard, mouvement, objet. EN Sequence / Continuity. DE Sequenz / Anschluss. ES Secuencia / Raccord.
 
 Le switcher est dans la barre du téléphone et dans le rail du bureau. Les noms des langues ne se traduisent pas : Français, English, Deutsch, Español.

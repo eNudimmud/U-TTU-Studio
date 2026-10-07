@@ -134,7 +134,10 @@
 .u-fold .u-facts { padding: 0 10px 12px; }
 .u-projet { gap: 12px; }
 .u-projet-prises { display: grid; gap: 2px; margin: 4px 0 0; padding: 0; list-style: none; }
-.u-projet-prises .u-link { min-height: 36px; }
+.u-projet-prises .u-link { min-height: 44px; }
+.u-sequence { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.u-sequence > li { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--u-line); border-radius: 14px; background: rgba(18, 17, 16, .72); }
+.u-tree .u-link { justify-content: flex-start; min-height: 44px; padding: 4px 0; font-size: 13px; }
 .u-problems { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; color: var(--u-fail); font-size: 14px; }
 .u-file { position: relative; overflow: hidden; }
 .u-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }

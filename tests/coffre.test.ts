@@ -305,6 +305,8 @@ describe("coffre en markdown", () => {
     assert.ok(seeded.includes("Projets/mira/Templates/modele-personnage.md"));
     assert.ok(seeded.includes("Projets/mira/Templates/modele-scene.md"));
     assert.ok(seeded.includes("Projets/mira/Templates/modele-prise.md"));
+    assert.ok(seeded.includes("Projets/mira/Templates/modele-sequence.md"));
+    assert.equal(seeded.some(path => /\/(?:Templates|Sequences)\/sequence\.md$/.test(path)), false);
     assert.equal(seeded.some(path => /\/Templates\/(?:personnage|scene|prise)\.md$/.test(path)), false);
     assert.ok(seeded.includes("Projets/mira/Moteurs/moteur-personnage.md"));
     assert.equal(seeded.includes("Projets/mira/Moteurs/personnage.md"), false);
@@ -312,6 +314,8 @@ describe("coffre en markdown", () => {
     assert.equal(treeFileLabel("Modèles", "modele-prise.md"), "Modèle · Prise");
     assert.equal(treeFileLabel("Modèles", "modele-personnage.md"), "Modèle · Personnage");
     assert.equal(treeFileLabel("Modèles", "modele-scene.md"), "Modèle · Scène");
+    assert.equal(treeFileLabel("Modèles", "modele-sequence.md"), "Modèle · Séquence");
+    assert.equal(treeFileLabel("Séquences", "sequence.md"), "Séquence · Séquence");
     assert.equal(treeFileLabel("Modèles", "prise.md"), "Modèle · Prise");
     assert.equal(treeFileLabel("Moteurs", "moteur-personnage.md"), "Moteur · Personnage");
     assert.equal(treeFileLabel("Moteurs", "personnage.md"), "Moteur · Personnage");
@@ -344,7 +348,7 @@ describe("coffre en markdown", () => {
     assert.doesNotMatch(moc, /Moteurs\/personnage\|/);
     assert.match(moc, /Templates\/modele-prise\.md/);
     const modeles = studio.tree.find(group => group.label === "Modèles");
-    assert.deepEqual(modeles?.files.map(file => treeFileLabel(modeles.label, file)).sort(), ["Modèle · Personnage", "Modèle · Prise", "Modèle · Scène"]);
+    assert.deepEqual(modeles?.files.map(file => treeFileLabel(modeles.label, file)).sort(), ["Modèle · Personnage", "Modèle · Prise", "Modèle · Scène", "Modèle · Séquence"]);
     assert.equal(modeles?.files.includes("prise.md"), false);
     const prises = studio.tree.find(group => group.label === "Prises");
     assert.deepEqual(prises?.files, ["une.md"]);

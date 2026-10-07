@@ -2,6 +2,14 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F8 — séquences / raccords — 7 octobre 2026
+
+- **Décision :** une séquence est une note du projet, `Projets/<projet>/Sequences/<id>.md`. Elle tient des prises déjà filmées, dans l’ordre. Entre deux, le raccord est une ligne : lumière, regard, mouvement, objet. La première prise n’a pas de raccord. Pas de graphe, pas de panneau de nœuds.
+- **Décision :** le gabarit est `Templates/modele-sequence.md`. Le fichier `sequence.md` n’est pas écrit : ce nom est déjà celui de la section, et l’écran le lirait « Séquence · Séquence ». `Sequences/index.md` reste le mot du dossier vide. Un nom qui deviendrait `sequence` est rangé `suite`.
+- **Décision :** l’ordre et les raccords sont deux listes de textes dans la note (`prises`, `raccords`). Le dialecte du projet ne tient pas d’objets imbriqués. Retirer une prise au milieu efface le raccord qui la suivait, parce que la jointure a changé.
+- **Fait :** on ouvre les séquences depuis Mon studio, depuis la vue projet, depuis la prise, et depuis l’étagère. Chaque prise reliée rouvre la séquence. 0 crédit. `SaveLoRA` n’entre pas dans ce geste.
+- **Fait :** les chaînes neuves ont été relues. FR source. EN Continuity. DE Sequenz / Anschluss. ES Secuencia / Raccord. Les catalogues DE et ES restent `_status: reviewed` pour le lexique déjà tenu, y compris ces lignes. Ce n’est pas une signature de locuteur natif.
+
 ## F7 — audit i18n DE/ES — 7 octobre 2026
 
 - **Décision :** les chaînes du geste masqué quittent les quatre catalogues. `verb.buildThis`, `verb.buildPriced`, `scene.formedNew` et `fiche.image` n’avaient plus d’écran. Le verbe **Bâtir** reste dans le lexique, distinct des cinq autres, pour le jour où le geste revient. Le fichier `Moteurs/image.md` reste dans le squelette du projet : le geste est parked, pas effacé de la bibliothèque.
