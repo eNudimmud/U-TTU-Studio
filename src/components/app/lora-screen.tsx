@@ -7,6 +7,7 @@ import { problemsAfterTouch } from "@/lib/lora/dataset";
 import type { TrainingEvent } from "@/lib/lora/train";
 import { characterPaths } from "@/lib/studio-comfort";
 import { useI18n } from "@/components/i18n/provider";
+import { Why } from "./guide-bubble";
 import { Arrow, Close } from "./glyphs";
 import { PictureSlot, Segments } from "./screens";
 import { useStudio, type TrainingState } from "./studio-context";
@@ -53,6 +54,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
     <header className="u-head">
       <p className="u-label">{t("lora.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{showFile ? t("lora.trainTitle") : t("lora.twoWays")}</h1>
+      <p className="u-micro">{t("guide.stepCharacter")}</p>
       {showFile && <button type="button" className="u-link" onClick={() => setFile(false)}>{t("verb.bothWays")}</button>}
     </header>
 
@@ -124,6 +126,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
         </p>
         <div className="u-actions">
           <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetRole()}>{t("lora.reset")}</button>
+          <Why on={!dirty} text={t("why.unchanged")} />
           <p className="u-small">{t("lora.resetStay")}</p>
           <button type="button" className="u-primary" disabled={falLinked && dataset.ready && !trainGate.allowed} onClick={() => {
             if (!falLinked) {
@@ -136,6 +139,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
           }}>
             {!falLinked ? t("verb.relier") : trainQuote !== null ? t("verb.trainPriced", { price: formatUsd(trainQuote) }) : t("verb.trainThis")} <Arrow />
           </button>
+          <Why on={falLinked && dataset.ready && !trainGate.allowed} text={t("why.hold")} />
           <button type="button" className="u-link" onClick={onScene}>{t("verb.setScene")}</button>
         </div>
       </div>}

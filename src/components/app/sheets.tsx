@@ -12,6 +12,7 @@ import { assetPath } from "@/lib/site";
 import { Close, Refresh, Trash } from "./glyphs";
 import { PublishActions } from "./publish";
 import { sheetDismissAllowed } from "@/lib/link-epoch";
+import { Why } from "./guide-bubble";
 import { useStudio } from "./studio-context";
 
 function SheetFrame({ title, label, onClose, children, tall = false }: { title: string; label: string; onClose(): void; children: ReactNode; tall?: boolean }) {
@@ -118,6 +119,7 @@ export function ConnectSheet({ framed = true }: { framed?: boolean } = {}) {
           <p className="u-small">{t("sheet.keyHint")}</p>
           {error && <p className="u-small is-error" role="alert">{say(error)}</p>}
           <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? t("sheet.checking") : framed ? t("verb.relier") : t("sheet.linkRender")}</button>
+          <Why on={!busy && !key.trim()} text={t("why.needKey")} />
         </>}
       </div>}
   </div>;
@@ -224,7 +226,8 @@ export function CoffreSheet() {
       <label className="u-field">{t("sheet.projectName")}
         <input value={draft} maxLength={40} aria-label={t("sheet.projectName")} autoComplete="off" onChange={event => setDraft(event.target.value)} />
       </label>
-      <button type="button" className="u-secondary" onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>{t("sheet.createProject")}</button>
+      <button type="button" className="u-secondary" disabled={!draft.trim()} onClick={() => { const name = draft.trim(); setDraft(""); void createNamedProject(name); }}>{t("sheet.createProject")}</button>
+      <Why on={!draft.trim()} text={t("why.needName")} />
       {studio.tree.length > 0 && <ul className="u-tree" aria-label={t("sheet.folders")}>
         {studio.tree.map(group => <li key={group.label}><strong>{say(group.label)}</strong>{group.files.map(file => <span key={file}>{say(treeFileLabel(group.label, file))}</span>)}</li>)}
       </ul>}
@@ -281,6 +284,7 @@ export function ConfirmSheet() {
       </ul>
       <p className={`u-cost is-${gate.tone}`}>{say(gate.line)}</p>
       <button type="button" className="u-primary" disabled={!gate.allowed} onClick={() => void confirmRun()}>{engine === "lora" ? t("sheet.shootFal") : t("sheet.shootRender")}</button>
+      <Why on={!gate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
@@ -323,6 +327,7 @@ export function FalSheet({ framed = true }: { framed?: boolean } = {}) {
         <p className="u-small">{t("sheet.falKeyHint")}</p>
         {(error || falBalanceNote) && <p className="u-small is-error" role="alert">{say(error || falBalanceNote)}</p>}
         <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? t("sheet.checking") : framed ? t("verb.relier") : t("sheet.linkFal")}</button>
+        <Why on={!busy && !key.trim()} text={t("why.needKey")} />
       </div>}
   </div>;
   if (!framed) return body;
@@ -360,6 +365,7 @@ export function TrainConfirmSheet() {
       </ul>
       <p className={`u-cost is-${trainGate.tone}`}>{say(trainGate.line)}</p>
       <button type="button" className="u-primary" disabled={!trainGate.allowed} onClick={() => void confirmTraining()}>{t("sheet.trainDebit")}</button>
+      <Why on={!trainGate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
@@ -380,6 +386,7 @@ export function PrevizConfirmSheet() {
       <p className={`u-cost is-${previzGate.tone}`}>{say(previzGate.line)}</p>
       <p className="u-small">{t("sheet.filmBody")}</p>
       <button type="button" className="u-primary" disabled={!previzGate.allowed} onClick={() => void confirmPreviz()}>{t("sheet.filmDebit")}</button>
+      <Why on={!previzGate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
@@ -416,6 +423,7 @@ export function BlenderSheet() {
         <p className="u-small">{t("sheet.keyStays")}</p>
         {error && <p className="u-small is-error" role="alert">{say(error)}</p>}
         <button type="button" className="u-primary" disabled={!key.trim()} onClick={linkKey}>{t("verb.relier")}</button>
+        <Why on={!key.trim()} text={t("why.needKey")} />
       </div>}
   </SheetFrame>;
 }
@@ -435,6 +443,7 @@ export function PlaceTrainSheet() {
       <p className={`u-cost is-${placeTrainGate.tone}`}>{say(placeTrainGate.line)}</p>
       <p className="u-small">{t("sheet.placeTrainBody")}</p>
       <button type="button" className="u-primary" disabled={!placeTrainGate.allowed} onClick={() => void confirmPlaceTrain()}>{t("sheet.placeTrainDebit")}</button>
+      <Why on={!placeTrainGate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;
@@ -454,6 +463,7 @@ export function PlaceSceneSheet() {
       <p className={`u-cost is-${placeSceneGate.tone}`}>{say(placeSceneGate.line)}</p>
       <p className="u-small">{t("sheet.stillBody")}</p>
       <button type="button" className="u-primary" disabled={!placeSceneGate.allowed} onClick={() => void confirmPlaceScene()}>{t("sheet.buildDebit")}</button>
+      <Why on={!placeSceneGate.allowed} text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;

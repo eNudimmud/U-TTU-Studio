@@ -26,12 +26,13 @@ Typographie : Syne (titres) et Manrope (texte), auto-hébergées, SIL OFL. Les �
 - **La toile.** Un filigrane de cercles et de rayons, or à 7 %, dans le coin haut droit du fond. C’est le schéma de toile de la fiche, pas une texture décorative.
 - **Le fil.** Les trois gestes sont des nœuds sur un fil d’or, en bas de l’écran. Un nœud tenu se remplit d’or. Pendant un calcul, un point d’or court sur le fil.
 - **La marque `iii`.** Le mot-symbole de l’app : `iii` en or, puis U*TTU.
-- **Soft Error.** L’échec d’une prise s’affiche en écran CRT (« SOFT ERROR »), avec la raison donnée par le compte de rendu, nœud par nœud.
+- **Soft Error.** L’échec d’un geste s’affiche en écran CRT (« Ça n’a pas abouti. »), puis la raison donnée par le compte.
 
 ## U*TTU, la guide
 
 - Son visage, dans la bulle du guide, est le portrait canon (`public/images/uttu-canon-portrait.webp`), recadré en CSS sur le visage : même capuche, mêmes lignes dorées. Aucun autre visage n’est dessiné ni généré.
 - Elle parle une phrase, au moment où l’on en a besoin, à l’endroit du geste. Pas de tutoriel en écrans, pas de manuel. « Compris » range la phrase ; « Ne plus guider » coupe la guide. Les phrases : [`src/lib/guide.ts`](../src/lib/guide.ts).
+- Personnage, Scène et Prise gardent en plus une ligne courte, toujours visible. Elle ne se ferme pas. Elle ne nomme pas de nœud.
 - L’accueil garde le portrait, légendé « U*TTU · elle te guide dans le studio ». C’est la seule grande image du site.
 
 ## Portrait

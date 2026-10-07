@@ -10,6 +10,7 @@ import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
 import { TAKE_STEPS } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
+import { Why } from "./guide-bubble";
 import { Arrow, Close, Plus, Web } from "./glyphs";
 import { PublishActions } from "./publish";
 import { useStudio, type PrevizState, type RunState } from "./studio-context";
@@ -97,6 +98,7 @@ export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void 
         </ol>
         <div className="u-actions">
           <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetLook()}>{t("look.reset")}</button>
+          <Why on={!dirty} text={t("why.unchanged")} />
           <p className="u-small">{t("look.stay")}</p>
           {!check.ready && <p className="u-small">{lookGap(t, [!check.photos && t("look.gapPhotos"), !check.name && t("look.gapName"), !check.traits && t("look.gapTraits")])}</p>}
           <button type="button" className="u-primary" onClick={() => {
@@ -135,6 +137,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
     <header className="u-head">
       <p className="u-label">{t("scene.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{t("scene.title")}</h1>
+      <p className="u-micro">{t("guide.stepScene")}</p>
     </header>
     <div className="u-desk">
       <div className="u-stack">
@@ -154,6 +157,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
             <input id="u-lieu" value={draft} maxLength={40} placeholder={t("scene.placeholder")} onChange={event => setDraft(event.target.value)} autoFocus={adding} />
           </label>
           <button type="submit" className="u-secondary" disabled={!draft.trim()}>{t("verb.set")}</button>
+          <Why on={!draft.trim()} text={t("why.needName")} />
         </form>}
       </div>
       <div className="u-stack">
@@ -336,6 +340,7 @@ function SceneEditor() {
       })}
     </div>
     <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetScene()}>{t("scene.reset")}</button>
+    <Why on={!dirty} text={t("why.unchanged")} />
     <p className="u-small">{t("scene.resetStay")}</p>
     <button type="button" className="u-link u-muted" onClick={() => void deleteScene(scene.id)}>{t("scene.remove")}</button>
   </div>;
@@ -517,6 +522,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
     <header className="u-head">
         <p className="u-label">{t("take.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{t("take.title")}</h1>
+      <p className="u-micro">{t("guide.stepTake")}</p>
     </header>
 
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
@@ -607,18 +613,20 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
             ? (falBalance ? t("take.falBalance", { amount: formatUsd(falBalance.usd), line: say(gate.line) }) : say(gate.line))
             : (balance ? t("take.renderBalance", { amount: formatCredits(balance.credits), line: say(gate.line) }) : say(gate.line))}
       </p>
-      {hint && <p className="u-small u-comfort-hint">{hint}</p>}
+      {hint && action.id !== "bloque" && <p className="u-small u-comfort-hint">{hint}</p>}
       {action.id === "bloque" && <button type="button" className="u-link u-comfort-hint" onClick={() => setSheet("credits")}>{t("take.seeAccount")}</button>}
       <button type="button" className="u-primary" disabled={action.id === "bloque"} onClick={() => {
         if (action.id === "tourner") void requestRun();
         else if (action.id !== "bloque") jump(action.id);
       }}>{actionLabel} <Arrow /></button>
+      <Why on={action.id === "bloque"} text={t("why.hold")} />
       <div className="u-pair" aria-label={t("take.pair")}>
         <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name || t("take.exampleWho", { who: SAMPLE_TAKE.who })}</figcaption></figure>
         <span className="u-pair-thread" aria-hidden="true" />
         <figure>{scenePicture && scene && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene ? (scene.render ? t("take.filmedStill") : scene.name) : t("take.examplePlace", { place: SAMPLE_TAKE.place })}</figcaption></figure>
       </div>
       <button type="button" className="u-link u-muted" disabled={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={resetTake}>{t("take.resetPlan")}</button>
+      <Why on={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} text={t("why.planFresh")} />
       <p className="u-small">{t("take.stayTakes")}</p>
       </div>
     </div>}

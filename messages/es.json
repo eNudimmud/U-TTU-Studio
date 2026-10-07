@@ -62,7 +62,17 @@
     "lora-done": "El personaje está en mi estudio. Elígelo en la toma.",
     "sphere-empty": "Tus tomas vendrán a posarse aquí.",
     "understood": "Entendido",
-    "stop": "No guiar más"
+    "stop": "No guiar más",
+    "stepCharacter": "Fotos, o un archivo. El precio se lee antes del gesto.",
+    "stepScene": "Una localización, un nombre. Una imagen la sostiene de toma en toma.",
+    "stepTake": "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar."
+  },
+  "why": {
+    "unchanged": "Nada ha cambiado.",
+    "needName": "Falta un nombre.",
+    "needKey": "Falta la clave.",
+    "planFresh": "El plano ya está en cero.",
+    "hold": "El presupuesto o el saldo no deja salir esto."
   },
   "verb": {
     "relier": "Vincular",
@@ -262,7 +272,7 @@
     "calc": " Cálculo: {clock}.",
     "new": "Nueva toma",
     "seeSphere": "Ver la esfera",
-    "soft": "Soft error",
+    "soft": "No ha salido.",
     "reloadFal": "Recarga tu cuenta fal, luego relanza. El saldo, arriba, muestra lo que queda.",
     "reloadRender": "Recarga tu cuenta de render, luego relanza. El saldo, arriba, muestra lo que queda.",
     "adjust": "Ajustar la toma",
@@ -350,7 +360,7 @@
   "fiche": {
     "kicker": "Fichas",
     "title": "Lo que el estudio lanza.",
-    "lead": "Cinco gestos ya conectados. Cada uno se lee aquí. El cargo espera aún el gesto, en la pantalla que lo sostiene.",
+    "lead": "Los gestos ya conectados se leen aquí. El cargo espera aún el gesto, en la pantalla que lo sostiene.",
     "needs": "Lo que hace falta",
     "references": {
       "name": "Toma · Referencias",
