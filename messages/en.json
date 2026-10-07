@@ -356,6 +356,7 @@
     "reloadFal": "Top up your fal account, then run again. The balance, at the top, shows what remains.",
     "reloadRender": "Top up your render account, then run again. The balance, at the top, shows what remains.",
     "adjust": "Set the take",
+    "before": "Before the gesture",
     "exampleWalk": "Sample walk · {who}, {place}. {line} Nothing is charged here.",
     "reloads": "This file reloads {name}.",
     "theCharacter": "the character",
@@ -681,7 +682,8 @@
     "noPictures": "No text leaves: this take’s images are missing.",
     "notYet": "The text is not here yet. It is written when the path images come back. Bible, style, lexicon and prompts do not enter it.",
     "noName": "No text leaves: this character’s name is missing.",
-    "noViews": "No text leaves: this location’s views are missing."
+    "noViews": "No text leaves: this location’s views are missing.",
+    "full": "The full text"
   },
   "tree": {
     "characters": "Characters",

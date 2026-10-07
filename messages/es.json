@@ -356,6 +356,7 @@
     "reloadFal": "Recarga tu cuenta fal, luego relanza. El saldo, arriba, muestra lo que queda.",
     "reloadRender": "Recarga tu cuenta de render, luego relanza. El saldo, arriba, muestra lo que queda.",
     "adjust": "Ajustar la toma",
+    "before": "Antes del gesto",
     "exampleWalk": "Recorrido de ejemplo · {who}, {place}. {line} Aquí no se carga nada.",
     "reloads": "Este archivo recarga {name}.",
     "theCharacter": "el personaje",
@@ -681,7 +682,8 @@
     "noPictures": "No sale ningún texto: faltan las imágenes de esta toma.",
     "notYet": "El texto aún no está. Se escribe cuando vuelven las imágenes del recorrido. Biblia, estilo, léxico y prompts no entran.",
     "noName": "No sale ningún texto: falta el nombre de este personaje.",
-    "noViews": "No sale ningún texto: faltan vistas de esta localización."
+    "noViews": "No sale ningún texto: faltan vistas de esta localización.",
+    "full": "El texto entero"
   },
   "tree": {
     "characters": "Personajes",

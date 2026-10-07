@@ -81,7 +81,7 @@
     "needName": "Ein Name fehlt.",
     "needKey": "Der Schlüssel fehlt.",
     "planFresh": "Dieser Take steht schon am Anfang.",
-    "hold": "Die Kalkulation oder das Guthaben hält die Geste zurück.",
+    "hold": "Kalkulation oder Guthaben hält die Geste zurück.",
     "running": "Es läuft schon."
   },
   "verb": {
@@ -356,6 +356,7 @@
     "reloadFal": "Lade dein fal-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.",
     "reloadRender": "Lade dein Render-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.",
     "adjust": "Take einstellen",
+    "before": "Vor der Geste",
     "exampleWalk": "Beispielweg · {who}, {place}. {line} Hier wird nichts abgebucht.",
     "reloads": "Diese Datei lädt {name} neu.",
     "theCharacter": "die Figur",
@@ -681,7 +682,8 @@
     "noPictures": "Kein Text geht: die Bilder dieses Takes fehlen.",
     "notYet": "Der Text ist noch nicht da. Er entsteht, wenn die Bilder des Wegs zurückkommen. Bibel, Stil, Lexikon und Prompts kommen nicht hinein.",
     "noName": "Kein Text geht: der Name dieser Figur fehlt.",
-    "noViews": "Kein Text geht: Ansichten dieses Drehorts fehlen."
+    "noViews": "Kein Text geht: Ansichten dieses Drehorts fehlen.",
+    "full": "Der ganze Text"
   },
   "tree": {
     "characters": "Figuren",

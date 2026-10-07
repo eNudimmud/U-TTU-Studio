@@ -63,8 +63,8 @@ describe("mémoire du projet", () => {
     const screens = read("src/components/app/screens.tsx");
     const take = screens.slice(screens.indexOf("export function TakeScreen"), screens.indexOf("export function SphereScreen"));
     assert.match(take, /<ProjectMemory \/>/);
-    assert.ok(take.indexOf("<ProjectMemory />") < take.indexOf("className=\"u-primary\""));
-    assert.ok(take.indexOf("className=\"u-primary\"") < take.indexOf("<CinemaGestures anchor />"));
+    assert.ok(take.indexOf("data-prise-gold") < take.indexOf("<ProjectMemory />"));
+    assert.ok(take.indexOf("<ProjectMemory />") < take.indexOf("<CinemaGestures anchor />"));
     assert.match(take, /t\("verb\.relier"\)/);
     assert.match(take, /t\("verb\.tourner"\)/);
     const sheets = read("src/components/app/sheets.tsx");

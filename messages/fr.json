@@ -356,6 +356,7 @@
     "reloadFal": "Recharge ton compte fal, puis relance. Le solde, en haut, montre ce qui reste.",
     "reloadRender": "Recharge ton compte de rendu, puis relance. Le solde, en haut, montre ce qui reste.",
     "adjust": "Régler la prise",
+    "before": "Avant le geste",
     "exampleWalk": "Parcours d’exemple · {who}, {place}. {line} Rien n’est débité ici.",
     "reloads": "Ce fichier recharge {name}.",
     "theCharacter": "le personnage",
@@ -681,7 +682,8 @@
     "noPictures": "Aucun texte ne part : il manque les images de cette prise.",
     "notYet": "Le texte n’est pas encore là. Il s’écrit quand les images du trajet reviennent. Bible, style, lexique et prompts n’y entrent pas.",
     "noName": "Aucun texte ne part : il manque le nom de ce personnage.",
-    "noViews": "Aucun texte ne part : il manque des vues de ce lieu."
+    "noViews": "Aucun texte ne part : il manque des vues de ce lieu.",
+    "full": "Le texte en entier"
   },
   "tree": {
     "characters": "Personnages",

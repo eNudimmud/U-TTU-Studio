@@ -7,7 +7,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { useStudio } from "./studio-context";
 
 /** The take prompt, exactly as Tourner would send it. Memory is named as absent. */
-export function OutgoingTake() {
+export function OutgoingTake({ clamp = false }: { clamp?: boolean }) {
   const { t } = useI18n();
   const { studio, scene, line, engine, chosenLora } = useStudio();
   const place = scene ? { name: scene.name, note: scene.note, stills: scene.stills, render: scene.render } : null;
@@ -21,13 +21,36 @@ export function OutgoingTake() {
       subject: chosenLora?.trigger,
     })
     : "";
+  const folded = clamp && text.length > 180;
   return <section className="u-outgoing" aria-label={t("sent.title")}>
     <p className="u-label">{t("sent.title")}</p>
     {text
-      ? <p className="u-outgoing-text">{text}</p>
+      ? <p className={folded ? "u-outgoing-text u-outgoing-clamp" : "u-outgoing-text"}>{text}</p>
       : <p className="u-small">{t("sent.noPictures")}</p>}
     <p className="u-small">{t("sent.memoryOut")}</p>
   </section>;
+}
+
+/** The rest of a long prompt. It stays off the gold gesture so four lines cannot push the button down. */
+export function OutgoingTakeFull() {
+  const { t } = useI18n();
+  const { studio, scene, line, engine, chosenLora } = useStudio();
+  const place = scene ? { name: scene.name, note: scene.note, stills: scene.stills, render: scene.render } : null;
+  const text = prisePicturePaths(studio.look.photos, place).length > 0
+    ? priseOutgoingText({
+      traits: studio.look.traits,
+      photos: studio.look.photos,
+      place,
+      line,
+      engine: engine === "lora" ? "lora" : "comfy",
+      subject: chosenLora?.trigger,
+    })
+    : "";
+  if (text.length <= 180) return null;
+  return <details className="u-fold">
+    <summary>{t("sent.full")}</summary>
+    <p className="u-outgoing-text">{text}</p>
+  </details>;
 }
 
 /** The path prompt, once the frames on the place are the ones that would leave. */

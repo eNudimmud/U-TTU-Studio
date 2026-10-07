@@ -9,7 +9,7 @@ import { quoteSentence } from "@/lib/render/billed-quote";
 import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
 import dynamic from "next/dynamic";
-import { OutgoingTake } from "./outgoing-text";
+import { OutgoingTake, OutgoingTakeFull } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { Arrow, Web } from "./glyphs";
@@ -236,15 +236,20 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
     : action.id === "fichier" ? t("verb.trainCharacter")
     : livePrice ? t("verb.shootPriced", { price: livePrice }) : t("verb.tourner");
 
-  return <section className="u-screen" aria-labelledby="u-title">
+  const quoteText = samplePrice ? say(example)
+    : engine === "lora"
+      ? (falBalance ? t("take.falBalance", { amount: formatUsd(falBalance.usd), line: say(gate.line) }) : say(gate.line))
+      : !connected
+        ? say(quoteSentence(takeQuote))
+        : balance
+          ? t("take.renderBalance", { amount: formatCredits(balance.credits), line: say(gate.line) })
+          : say(gate.line);
+  const quoteTone = samplePrice ? "warn" : engine === "comfy" && !connected ? (takeQuote.source === "unmeasured" ? "block" : "ok") : gate.tone;
+
+  return <section className="u-screen u-prise-screen" aria-labelledby="u-title">
     <header className="u-head">
         <p className="u-label">{t("take.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{t("take.title")}</h1>
-      <p className="u-micro">{t("guide.stepTake")}</p>
-      <div className="u-next" aria-label={t("take.nextLabel")}>
-        <p className="u-small">{t("take.next")}</p>
-      </div>
-      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
     </header>
 
     {ready && <>
@@ -287,8 +292,29 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
     </div>}
 
-    {run.phase === "idle" && <div className="u-comfort" aria-label={t("take.adjust")}>
+    {run.phase === "idle" && <>
+    <div className="u-prise-confirm" aria-label={t("take.before")}>
+      <label className="u-field">
+        <span className="u-label">{t("take.action")}</span>
+        <textarea value={line} rows={1} maxLength={240} placeholder={t("take.actionPlaceholder")} onChange={event => setLine(event.target.value)} />
+      </label>
+      <OutgoingTake clamp />
+      <p className={`u-cost is-${quoteTone}`}>
+        {engine === "comfy" && <span className="u-prise-profile">{t("sheet.thisSetting", { profile: takeProfile(settings) })}</span>}
+        {quoteText}
+      </p>
+      {hint && action.id !== "bloque" && <p className="u-small u-comfort-hint">{hint}</p>}
+      <button type="button" className="u-primary" data-prise-gold="" disabled={action.id === "bloque"} onClick={() => {
+        if (action.id === "tourner") void requestRun();
+        else if (action.id !== "bloque") jump(action.id);
+      }}>{actionLabel} <Arrow /></button>
+      <Why on={action.id === "bloque"} text={t("why.hold")} />
+    </div>
+    <div className="u-comfort" aria-label={t("take.adjust")}>
       <div className="u-comfort-work">
+      <OutgoingTakeFull />
+      {action.id === "bloque" && <button type="button" className="u-link" onClick={() => setSheet("credits")}>{t("take.seeAccount")}</button>}
+      <p className="u-micro">{t("guide.stepTake")}</p>
       {gaps.length > 0 && <ul className="u-facts u-comfort-gaps">
         {gaps.map(gap => <li key={gap.id}><span>{gapCopy[gap.id][0]}</span> <button type="button" className="u-link" onClick={() => jump(gap.id)}>{gapCopy[gap.id][1]}</button></li>)}
       </ul>}
@@ -315,39 +341,35 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
           {scene && decor.find(item => item.id === scene.id)?.camera && <p className="u-small">{t("take.cameraBack")}</p>}
         </div>
       </div>
-      <label className="u-field">
-        <span className="u-label">{t("take.action")}</span>
-        <textarea value={line} rows={2} maxLength={240} placeholder={t("take.actionPlaceholder")} onChange={event => setLine(event.target.value)} />
-      </label>
       <ProjectMemory />
-      <fieldset className="u-engines">
-        <legend className="u-label">{t("take.engine")}</legend>
-        {WIRED_ENGINES.map(item => {
-          const on = engine === item.id;
-          const live = on && !samplePrice && item.id === "lora" && loraQuote !== null
-            ? formatUsd(loraQuote)
-            : item.id === "comfy" && takeQuote.source === "balance"
-              ? t("sheet.measuredMark", { amount: formatCredits(takeQuote.credits) })
-              : item.id === "comfy" && takeQuote.source === "billed"
-                ? t("runtime.billedMark", { amount: formatCredits(takeQuote.measure.credits) })
-                : item.id === "comfy"
-                  ? t("runtime.notMeasuredShort")
-                  : null;
-          return <button key={item.id} type="button" aria-pressed={on} onClick={() => { if (pickEngine(item.id)) setEngine(item.id); }}>
-            <strong>{t(`engine.${item.id}.label`)}</strong>
-            <em>{t(`engine.${item.id}.detail`)}</em>
-            <b>{say(engineMark({ id: item.id, seconds: settings.seconds, resolution: loraResolution, live }))}</b>
-          </button>;
-        })}
-      </fieldset>
       <details className="u-fold">
         <summary>{t("take.measuredFold", {
           seconds: settings.seconds,
           format: settings.aspect === "vertical" ? "9:16" : settings.aspect === "horizontal" ? "16:9" : "1:1",
           quality: engine === "lora" ? loraResolution : settings.quality === "rapide" ? t("take.fast", { steps: TAKE_STEPS.rapide }) : t("take.fine", { steps: TAKE_STEPS.fine }),
-        })}</summary>
+        })} · {t(`engine.${engine}.label`)}</summary>
         <div className="u-comfort-controls">
           <p className="u-small">{t("take.measuredNote")}</p>
+          <fieldset className="u-engines">
+            <legend className="u-label">{t("take.engine")}</legend>
+            {WIRED_ENGINES.map(item => {
+              const on = engine === item.id;
+              const live = on && !samplePrice && item.id === "lora" && loraQuote !== null
+                ? formatUsd(loraQuote)
+                : item.id === "comfy" && takeQuote.source === "balance"
+                  ? t("sheet.measuredMark", { amount: formatCredits(takeQuote.credits) })
+                  : item.id === "comfy" && takeQuote.source === "billed"
+                    ? t("runtime.billedMark", { amount: formatCredits(takeQuote.measure.credits) })
+                    : item.id === "comfy"
+                      ? t("runtime.notMeasuredShort")
+                      : null;
+              return <button key={item.id} type="button" aria-pressed={on} onClick={() => { if (pickEngine(item.id)) setEngine(item.id); }}>
+                <strong>{t(`engine.${item.id}.label`)}</strong>
+                <em>{t(`engine.${item.id}.detail`)}</em>
+                <b>{say(engineMark({ id: item.id, seconds: settings.seconds, resolution: loraResolution, live }))}</b>
+              </button>;
+            })}
+          </fieldset>
           <Segments label={t("take.format")} value={settings.aspect} onChange={aspect => setSettings({ aspect })} options={[{ value: "vertical", label: "9:16" }, { value: "horizontal", label: "16:9" }, { value: "carre", label: "1:1" }]} />
           <Segments label={t("take.duration")} value={settings.seconds} onChange={seconds => setSettings({ seconds })} options={[{ value: 5, label: "5 s" }, { value: 8, label: "8 s" }]} />
           {engine === "lora" && chosenLora && <Segments label={t("take.sharpness")} value={loraResolution} onChange={setLoraResolution} options={[{ value: "768P", label: "768p" }, { value: "480P", label: "480p" }]} />}
@@ -356,24 +378,6 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         </div>
       </details>
       {engine === "comfy" && takeQuote.source === "balance" && <button type="button" className="u-link" onClick={() => void clearMeasuredQuote(takeProfile(settings))}>{t("sheet.clearQuote")}</button>}
-      <p className={`u-cost is-${samplePrice ? "warn" : engine === "comfy" && !connected ? (takeQuote.source === "unmeasured" ? "block" : "ok") : gate.tone}`}>
-        {samplePrice ? say(example)
-          : engine === "lora"
-            ? (falBalance ? t("take.falBalance", { amount: formatUsd(falBalance.usd), line: say(gate.line) }) : say(gate.line))
-            : !connected
-              ? say(quoteSentence(takeQuote))
-              : balance
-                ? t("take.renderBalance", { amount: formatCredits(balance.credits), line: say(gate.line) })
-                : say(gate.line)}
-      </p>
-      {hint && action.id !== "bloque" && <p className="u-small u-comfort-hint">{hint}</p>}
-      {action.id === "bloque" && <button type="button" className="u-link u-comfort-hint" onClick={() => setSheet("credits")}>{t("take.seeAccount")}</button>}
-      <OutgoingTake />
-      <button type="button" className="u-primary" disabled={action.id === "bloque"} onClick={() => {
-        if (action.id === "tourner") void requestRun();
-        else if (action.id !== "bloque") jump(action.id);
-      }}>{actionLabel} <Arrow /></button>
-      <Why on={action.id === "bloque"} text={t("why.hold")} />
       <div className="u-pair" aria-label={t("take.pair")}>
         <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name || t("take.exampleWho", { who: SAMPLE_TAKE.who })}</figcaption></figure>
         <span className="u-pair-thread" aria-hidden="true" />
@@ -381,9 +385,14 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       </div>
       <button type="button" className="u-link u-muted" disabled={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={resetTake}>{t("take.resetPlan")}</button>
       <Why on={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} text={t("why.planFresh")} />
+      <div className="u-next" aria-label={t("take.nextLabel")}>
+        <p className="u-small">{t("take.next")}</p>
+      </div>
+      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
       <p className="u-small">{t("take.stayTakes")}</p>
       </div>
-    </div>}
+    </div>
+    </>}
     {run.phase !== "idle" && <ProjectMemory />}
     <CinemaGestures anchor />
     </>}

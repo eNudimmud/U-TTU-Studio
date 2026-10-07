@@ -41,7 +41,7 @@ describe("langues du studio", () => {
     assert.equal(catalogs.es.sheet.quote, "Presupuesto");
     assert.equal(catalogs.de.take.soft, "Es ist nicht zustande gekommen.");
     assert.equal(catalogs.es.take.soft, "No ha salido.");
-    assert.equal(catalogs.de.why.hold, "Die Kalkulation oder das Guthaben hält die Geste zurück.");
+    assert.equal(catalogs.de.why.hold, "Kalkulation oder Guthaben hält die Geste zurück.");
     assert.equal(catalogs.es.why.hold, "El presupuesto o el saldo frena el gesto.");
     assert.equal(catalogs.fr.verb.batir, "Bâtir");
     assert.equal(catalogs.fr.verb.buildThis, undefined);

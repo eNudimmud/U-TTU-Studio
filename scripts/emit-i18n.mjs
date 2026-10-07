@@ -79,7 +79,7 @@ row("why.unchanged", `Rien n${Q}a changé.`, "Nothing has changed.", "Nichts hat
 row("why.needName", "Il manque un nom.", "A name is missing.", "Ein Name fehlt.", "Falta un nombre.");
 row("why.needKey", `Il manque la clé.`, "The key is missing.", "Der Schlüssel fehlt.", "Falta la clave.");
 row("why.planFresh", "Cette prise est déjà au départ.", "This take is already at the start.", "Dieser Take steht schon am Anfang.", "Esta toma ya está al inicio.");
-row("why.hold", "Le devis ou le solde ne laisse pas partir.", "The quote or the balance will not let this leave.", "Die Kalkulation oder das Guthaben hält die Geste zurück.", "El presupuesto o el saldo frena el gesto.");
+row("why.hold", "Le devis ou le solde ne laisse pas partir.", "The quote or the balance will not let this leave.", "Kalkulation oder Guthaben hält die Geste zurück.", "El presupuesto o el saldo frena el gesto.");
 row("guide.stop", "Ne plus guider", "Stop guiding", "Nicht mehr führen", "No guiar más");
 
 row("verb.relier", "Relier", "Connect", "Verbinden", "Vincular");
@@ -303,6 +303,7 @@ row("job.lead", `La dernière sortie de ce geste est ici. La sphère reste l${Q}
 row("take.reloadFal", "Recharge ton compte fal, puis relance. Le solde, en haut, montre ce qui reste.", "Top up your fal account, then run again. The balance, at the top, shows what remains.", "Lade dein fal-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.", "Recarga tu cuenta fal, luego relanza. El saldo, arriba, muestra lo que queda.");
 row("take.reloadRender", "Recharge ton compte de rendu, puis relance. Le solde, en haut, montre ce qui reste.", "Top up your render account, then run again. The balance, at the top, shows what remains.", "Lade dein Render-Konto auf, dann starte erneut. Das Guthaben oben zeigt, was bleibt.", "Recarga tu cuenta de render, luego relanza. El saldo, arriba, muestra lo que queda.");
 row("take.adjust", "Régler la prise", "Set the take", "Take einstellen", "Ajustar la toma");
+row("take.before", "Avant le geste", "Before the gesture", "Vor der Geste", "Antes del gesto");
 row("take.exampleWalk", `Parcours d${Q}exemple · {who}, {place}. {line} Rien n${Q}est débité ici.`, "Sample walk · {who}, {place}. {line} Nothing is charged here.", "Beispielweg · {who}, {place}. {line} Hier wird nichts abgebucht.", "Recorrido de ejemplo · {who}, {place}. {line} Aquí no se carga nada.");
 row("take.reloads", "Ce fichier recharge {name}.", "This file reloads {name}.", "Diese Datei lädt {name} neu.", "Este archivo recarga {name}.");
 row("take.theCharacter", "le personnage", "the character", "die Figur", "el personaje");
@@ -496,6 +497,7 @@ row("sent.noPictures", "Aucun texte ne part : il manque les images de cette pris
 row("sent.notYet", `Le texte n${Q}est pas encore là. Il s${Q}écrit quand les images du trajet reviennent. Bible, style, lexique et prompts n${Q}y entrent pas.`, "The text is not here yet. It is written when the path images come back. Bible, style, lexicon and prompts do not enter it.", "Der Text ist noch nicht da. Er entsteht, wenn die Bilder des Wegs zurückkommen. Bibel, Stil, Lexikon und Prompts kommen nicht hinein.", "El texto aún no está. Se escribe cuando vuelven las imágenes del recorrido. Biblia, estilo, léxico y prompts no entran.");
 row("sent.noName", "Aucun texte ne part : il manque le nom de ce personnage.", "No text leaves: this character’s name is missing.", "Kein Text geht: der Name dieser Figur fehlt.", "No sale ningún texto: falta el nombre de este personaje.");
 row("sent.noViews", "Aucun texte ne part : il manque des vues de ce lieu.", "No text leaves: this location’s views are missing.", "Kein Text geht: Ansichten dieses Drehorts fehlen.", "No sale ningún texto: faltan vistas de esta localización.");
+row("sent.full", "Le texte en entier", "The full text", "Der ganze Text", "El texto entero");
 row("sheet.studioIntro", "Mon studio reste sur cet appareil. La carte MOC.md relie les projets. Le projet en cours est le seul que la chaîne lit.", "My studio stays on this device. The MOC.md map links the projects. The current project is the only one the chain reads.", "Mein Studio bleibt auf diesem Gerät. Die Karte MOC.md verbindet die Projekte. Das aktuelle Projekt ist das einzige, das die Kette liest.", "Mi estudio se queda en este aparato. El mapa MOC.md vincula los proyectos. El proyecto en curso es el único que lee la cadena.");
 row("sheet.currentProject", "Projet en cours", "Current project", "Aktuelles Projekt", "Proyecto en curso");
 row("sheet.openProject", "Projet en cours · {name}", "Current project · {name}", "Aktuelles Projekt · {name}", "Proyecto en curso · {name}");
