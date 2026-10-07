@@ -279,7 +279,8 @@
 .u-tree strong { font-size: 13px; letter-spacing: .04em; color: var(--u-gold-soft); }
 .u-tree span { color: var(--u-muted); font-size: 13px; overflow-wrap: anywhere; }
 .u-ledger { display: grid; margin: 0; padding: 0; list-style: none; }
-.u-ledger li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--u-line); font-size: 14px; }
+.u-ledger li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--u-line); font-size: 14px; }
+.u-ledger li .u-link { flex-basis: 100%; justify-content: flex-start; }
 .u-ledger li span:first-child { color: var(--u-muted); }
 .u-ledger li span:last-child { text-align: right; overflow-wrap: anywhere; }
 

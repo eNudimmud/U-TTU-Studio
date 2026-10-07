@@ -10,11 +10,12 @@
 //   Projets/<slug>/Sequences/<id>.md      ordered takes and the raccord between them
 //   Projets/<slug>/Assets/                weights and clips
 //   Projets/<slug>/Journal.md
-//   Projets/<slug>/.uttu/                 current place, clips, role draft
+//   Projets/<slug>/.uttu/                 current place, clips, role draft, measured quotes
 //   .uttu/projet.json                     which project is active
 // Legacy CANON.md, scenes/, prises/, loras/ are moved on the next read.
 
 import type { LoraResolution } from "../fal/prices.ts";
+import { parseQuoteFile, QUOTE_FILE, quotesJson, seedQuotes, type MeasuredQuote } from "../render/measured-quote.ts";
 import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type TakeSettings } from "../render/take-graph.ts";
 import type { Clip, ClipFormat, TrainingAspect } from "../lora/dataset.ts";
 import type { PlaceCamera, PrevizPlan } from "../render/previz.ts";
@@ -147,6 +148,8 @@ export interface Studio {
   loras: Lora[];
   clips: Clip[];
   role: RoleDraft;
+  /** Balance deltas that may open Tourner. Cleared quotes stay gone. */
+  quotes: MeasuredQuote[];
   /** Slug of the project the chain reads. Null when mon studio has no project yet. */
   project: string | null;
   projectName: string;
@@ -162,7 +165,7 @@ export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "pre
 
 export const isPlaceLora = (lora: Pick<Lora, "kind">) => lora.kind === "lieu";
 export const emptyStudio = (): Studio => ({
-  look: emptyLook(), scenes: [], currentScene: null, takes: [], sequences: [], loras: [], clips: [], role: emptyRole(),
+  look: emptyLook(), scenes: [], currentScene: null, takes: [], sequences: [], loras: [], clips: [], role: emptyRole(), quotes: [],
   project: null, projectName: "", projects: [], tree: [],
 });
 
@@ -783,6 +786,12 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
     if (typeof state.lieu === "string" && studio.scenes.some(scene => scene.id === state.lieu)) studio.currentScene = state.lieu;
   } catch {}
   studio.currentScene ??= studio.scenes[0]?.id ?? null;
+  const storedQuotes = parseQuoteFile(byPath.get(`${prefix}/${QUOTE_FILE}`)?.text);
+  if (storedQuotes) studio.quotes = storedQuotes;
+  else {
+    studio.quotes = seedQuotes(studio.takes);
+    if (studio.quotes.length > 0) await writeText(store, `${prefix}/${QUOTE_FILE}`, quotesJson(studio.quotes));
+  }
   studio.clips = readClips(byPath.get(`${prefix}/.uttu/clips.json`)?.text).filter(clip => byPath.has(clip.path));
   const role = parseRole(byPath.get(`${prefix}/.uttu/role.json`)?.text);
   studio.role = { ...role, photos: role.photos.filter(path => byPath.has(path)) };
@@ -899,6 +908,11 @@ export async function writeRole(store: VaultStore, role: RoleDraft): Promise<voi
 export async function writeState(store: VaultStore, currentScene: string | null): Promise<void> {
   const slug = await ensureActiveProject(store);
   await writeText(store, projectPath(slug, ".uttu/etat.json"), JSON.stringify({ lieu: currentScene }));
+}
+
+export async function writeQuotes(store: VaultStore, quotes: readonly MeasuredQuote[]): Promise<void> {
+  const slug = await ensureActiveProject(store);
+  await writeText(store, projectPath(slug, QUOTE_FILE), quotesJson(quotes));
 }
 
 export async function writeTake(store: VaultStore, take: Take, _takes: readonly Take[], _loras: readonly Lora[] = []): Promise<void> {

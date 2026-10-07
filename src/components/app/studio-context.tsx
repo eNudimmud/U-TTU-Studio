@@ -7,7 +7,7 @@ import { mergeCoffreZip } from "@/lib/coffre/import";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
   LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, createProject, dropTakeLink, emptyLook, emptyRole, emptySceneDraft, emptyStudio, ensureActiveProject, extensionFor, isPlaceLora, loadStudio, loraId, normalizeLinks, removeLora, removeScene, removeSequence, removeTake, selectProject, sequenceStem, sha256Hex, slugify, takeId, uniqueId,
-  writeBlob, writeClips, writeLook, writeLora, writeRole, writeScene, writeSequence, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Sequence, type Studio, type Take,
+  writeBlob, writeClips, writeLook, writeLora, writeQuotes, writeRole, writeScene, writeSequence, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Sequence, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { FalError, createFalClient, type FalClient, type FalHandle, type FalPrice } from "@/lib/fal/client";
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
@@ -34,6 +34,7 @@ import { buildPlaceBlend, defaultCamera, moveCamera as shiftCamera, type Lens, t
 import { followFilm, quoteFilm, startRender, type PrevizEvent } from "@/lib/render/previz-run";
 import { SHOT_LINE, SHOT_RESOLUTION, SHOT_SECONDS, shotGate, shotPrompt } from "@/lib/render/shot";
 import { referencePaths } from "@/lib/render/references";
+import { forgetQuote, quoteFromTake, quotesToRecords, rememberQuote } from "@/lib/render/measured-quote";
 import { followTake, submitTake, type TakeRunEvent } from "@/lib/render/run";
 import { sessionTokens } from "@/lib/render/session";
 import {
@@ -244,6 +245,7 @@ interface StudioValue {
   line: string;
   settings: TakeSettings;
   claim: CostClaim;
+  clearMeasuredQuote(profile: string): Promise<void>;
   gate: RunGate;
   link: RenderLink;
   connected: boolean;
@@ -586,8 +588,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const scene = studio.scenes.find(item => item.id === studio.currentScene) ?? null;
   const profile = takeProfile(settings);
   const claim = useMemo(
-    () => costClaim(profile, studio.takes.map(take => ({ profile: take.profile, credits: take.costCredits, gpuSeconds: take.gpuSeconds, at: take.at }))),
-    [profile, studio.takes],
+    () => costClaim(profile, quotesToRecords(studio.quotes)),
+    [profile, studio.quotes],
   );
   const comfyGate = useMemo(() => runGate(balance, claim), [balance, claim]);
   const dataset = useMemo(() => datasetCheck(studio.clips, studio.role.photos.length, studio.role.name), [studio.clips, studio.role.photos.length, studio.role.name]);
@@ -927,7 +929,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       };
       const takes = [take, ...studioRef.current.takes.filter(item => item.id !== id)];
       await writeTake(store(), take, takes, studioRef.current.loras);
-      setStudio({ ...studioRef.current, takes });
+      const measured = quoteFromTake(take);
+      const quotes = measured ? rememberQuote(studioRef.current.quotes, measured) : studioRef.current.quotes;
+      if (measured) await writeQuotes(store(), quotes);
+      setStudio({ ...studioRef.current, takes, quotes });
       saveInFlight(localStorage, null);
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
       else void refreshBalance();
@@ -1252,6 +1257,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       abort.current = null;
     }
   }, [claim, client, engine, fal, finish, finishLora, line, loraPick, loraResolution, refreshBalance, refreshFal, run.phase, setNotice, settings, store]);
+
+  const clearMeasuredQuote = useCallback(async (profile: string) => {
+    const quotes = forgetQuote(studioRef.current.quotes, profile);
+    await writeQuotes(store(), quotes);
+    setStudio({ ...studioRef.current, quotes });
+  }, [setStudio, store]);
 
   const cancelRun = useCallback(() => abort.current?.abort(), []);
   const resetRun = useCallback(() => setRun({ phase: "idle" }), []);
@@ -2025,7 +2036,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [addMedia, dropMedia, fal, inProject, placeRun, refreshFal, saveScene, store]);
 
   const value: StudioValue = {
-    ready, studio, media, scene, line, settings, claim, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
+    ready, studio, media, scene, line, settings, claim, clearMeasuredQuote, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
     addSceneViews, removeSceneView, placeTrainQuote: pricedPlace, placeSceneQuote: pricedStill, placeTrainGate, placeSceneGate, placeRun, requestPlaceTrain, confirmPlaceTrain, requestPlaceScene, confirmPlaceScene,
     falLinked, falBalance, falBalanceOptional, falBalanceNote, falUsername, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote,
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,

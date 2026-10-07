@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useI18n, useStudioDates } from "@/components/i18n/provider";
 import { costLabel, dropTakeLink } from "@/lib/coffre/model";
 import { treeFileLabel } from "@/lib/coffre/project";
-import { CREDITS_PER_USD, claimBasis, formatCredits } from "@/lib/credits";
+import { CREDITS_PER_USD, claimBasis, costClaim, formatCredits } from "@/lib/credits";
+import { profileParts, quotesToRecords } from "@/lib/render/measured-quote";
 import { formatUsd } from "@/lib/fal/prices";
 import { folderLinkSupported } from "@/lib/coffre/link";
 import { takeProfile } from "@/lib/render/take-graph";
@@ -130,7 +131,12 @@ export function ConnectSheet({ framed = true }: { framed?: boolean } = {}) {
 export function CreditSheet() {
   const { t, say } = useI18n();
   const { time, date } = useStudioDates();
-  const { setSheet, connected, balance, balanceNote, refreshBalance, claim, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, trainQuote, disconnect, disconnectFal, blenderLinked, disconnectBlender } = useStudio();
+  const { setSheet, connected, balance, balanceNote, refreshBalance, claim, clearMeasuredQuote, settings, studio, engine, falLinked, falBalance, falBalanceNote, refreshFal, trainQuote, disconnect, disconnectFal, blenderLinked, disconnectBlender } = useStudio();
+  const quoteRows = [...new Set(studio.quotes.map(quote => quote.profile))].flatMap(profile => {
+    const row = costClaim(profile, quotesToRecords(studio.quotes));
+    if (row.state !== "measured") return [];
+    return [{ profile, credits: row.credits, parts: profileParts(profile) }];
+  });
   const measured = studio.takes.filter(take => take.costCredits !== null || take.costUsd !== null).slice(0, 5);
   const renderState = !connected ? "off" : balance ? "read" : balanceNote ? "error" : "unread";
   const falState = !falLinked ? "off" : falBalance ? "read" : falBalanceNote ? "error" : "unread";
@@ -160,6 +166,16 @@ export function CreditSheet() {
           <p className="u-label">{t("sheet.quote")}</p>
           {engine === "comfy" && <p className="u-small">{t("sheet.thisSetting", { profile: takeProfile(settings) })}</p>}
           <p>{engine === "comfy" && claim.state === "measured" ? t("sheet.aboutClaim", { amount: formatCredits(claim.credits), basis: say(claimBasis(claim)) }) : t("sheet.uncalibratedClaim")}</p>
+          {quoteRows.length > 0 && <>
+            <p className="u-small">{t("sheet.measuredLead")}</p>
+            <ul className="u-ledger" aria-label={t("sheet.measuredQuotes")}>
+              {quoteRows.map(row => <li key={row.profile}>
+                <span>{row.parts ? t("sheet.measuredSetting", { steps: row.parts.steps, seconds: row.parts.seconds, aspect: row.parts.aspect }) : row.profile}</span>
+                <span>{t("sheet.measuredMark", { amount: formatCredits(row.credits) })}</span>
+                <button type="button" className="u-link" onClick={() => void clearMeasuredQuote(row.profile)}>{t("sheet.clearQuote")}</button>
+              </li>)}
+            </ul>
+          </>}
           {connected && <button type="button" className="u-icon" onClick={() => void refreshBalance()} aria-label={t("sheet.rereadRender")}><Refresh /></button>}
           {connected
             ? <>
