@@ -2,6 +2,18 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F27 — la prise revient dans le projet — 7 octobre 2026
+
+- **Fait :** F26 a débloqué Tourner pour le seul profil `h3-4pas-5s-vertical`. Le devis facturé est 4 crédits, borne 6, dans `docs/mesures/h3-4pas-5s-vertical.json`. Un delta de solde déjà dans Mon studio prime (F11). La fiche montrait déjà la vidéo d’un job abouti (F13). La note `Prises/<id>.md` existait, sans wikilink vers la séquence ni le plan. Le journal ne comparait pas le devis annoncé au coût lu.
+- **Décision :** quand Tourner aboutit, la vidéo reste sur la fiche. La note du projet courant, `Projets/<projet>/Prises/<id>.md`, tient le texte qui est parti, le profil, le job et la date. Si une séquence ou un plan existe déjà, la prise les rejoint, et la note pose le wikilink. Une liste déjà pleine (24 dans la séquence, 12 dans le plan) ne gagne pas un lien que le dossier refuse.
+- **Décision :** le journal ajoute, sous le tableau, la ligne devis annoncé contre coût réel. Le devis annoncé est celui en vigueur avant d’enregistrer le delta de cette prise. Pour le devis facturé, la ligne dit le chiffre et la borne. Le coût réel est la baisse entre les deux lectures de solde, quand les deux existent. Sinon la ligne dit « Coût réel non lu ». Aucun chiffre n’est écrit à la place d’une lecture absente.
+- **Décision :** si le coût réel dépasse le devis annoncé, la fiche le dit en clair. Ce delta devient la référence du profil, dans `Projets/<projet>/.uttu/devis.json`, le même mécanisme que F11. Si le solde lu ne couvre plus cette référence, Tourner s’éteint et la fiche reprend la raison déjà écrite pour un solde trop bas. Une autre durée, une autre qualité ou un autre format reste « Pas encore mesuré ».
+- **Décision :** l’export puis l’import du ZIP gardent la note et ses wikilinks. Le journal du projet en cours est réécrit depuis la note, comme en F15, donc la comparaison revient avec elle. Rien de ce dossier ne part sur un serveur.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Aucun nœud n’est montré. La capture de la fiche est un job simulé : les deux soldes sont ceux du mock, le devis 4 et la borne 6 restent le fichier de F26.
+- **Fait :** EN, DE et ES portent `_human: native_open`. Les lignes neuves de ce tour s’ajoutent à celles encore ouvertes. Ce n’est pas une signature de locuteur natif.
+- **Hypothèse :** une personne retrouve la prise sur la fiche, puis dans le projet, sans chercher. Ce tour ne mesure pas cette lecture hors de l’écran.
+- **Hypothèse :** un run à froid peut dépasser 4, et parfois 6. Ce tour ne fait pas ce run.
+
 ## F26 — Tourner au réglage mesuré — 7 octobre 2026
 
 - **Fait :** un run réel unique du graphe `takeGraph()`, profil `h3-4pas-5s-vertical` (5 s, rapide, vertical, 480×864, 4 pas), le 7 octobre 2026 vers 23:16 (Europe/Zurich). Job `51662b20-4ac7-44bc-b203-a4127ff462a0`. Temps GPU facturé 15,680729 s sur `rtx_pro_6000`, tarif 0,001295 $/s. 15,680729 × 0,001295 × 211 crédits/$ ≈ 4,3 crédits, annoncés 4. Borne du repo `gpuCreditsPerSecond` 0,39 : 15,680729 × 0,39 ≈ 6,1, annoncée 6. L’estimateur Cloud reste à 0 : il ne compte pas le temps GPU. Le solde avant/après n’a pas été lu.

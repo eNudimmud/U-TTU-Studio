@@ -16,6 +16,7 @@
 // Legacy CANON.md, scenes/, prises/, loras/ are moved on the next read.
 
 import type { LoraResolution } from "../fal/prices.ts";
+import { journalCostLine } from "../render/landed-cost.ts";
 import { parseQuoteFile, QUOTE_FILE, quotesJson, seedQuotes, type MeasuredQuote } from "../render/measured-quote.ts";
 import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type TakeSettings } from "../render/take-graph.ts";
 import type { Clip, ClipFormat, TrainingAspect } from "../lora/dataset.ts";
@@ -105,6 +106,10 @@ export interface Take {
   resolution: LoraResolution | null;
   costUsd: number | null;
   costSource: CostSource;
+  /** Credits announced before this take's own delta was stored. Null on older notes and on fal. */
+  announcedCredits: number | null;
+  /** Billed ceiling shown with the announcement. Null when the quote was a balance delta, or absent. */
+  announcedHigh: number | null;
 }
 
 export type LoraKind = "personnage" | "lieu";
@@ -360,12 +365,28 @@ export function costLabel(take: Pick<Take, "engine" | "costCredits" | "costUsd">
   return take.costCredits === null ? null : `${take.costCredits} cr.`;
 }
 
-export function takeMarkdown(take: Take, projet = ""): string {
+export interface TakeNoteLinks {
+  sequences: readonly { id: string; name: string }[];
+  shots: readonly { id: string; name: string }[];
+}
+
+function noteLink(projet: string, folder: "Sequences" | "Shots", item: { id: string; name: string }, label: string): string {
+  const target = projet ? `Projets/${projet}/${folder}/${item.id}` : `${folder}/${item.id}`;
+  return `${label} : ${wiki(target, item.name || item.id)}`;
+}
+
+export function takeMarkdown(take: Take, projet = "", links: TakeNoteLinks = { sequences: [], shots: [] }): string {
   const cost = take.engine === "lora"
     ? take.costUsd === null ? "Débit pas encore lu." : `${usd(take.costUsd)} débités sur le compte fal.`
     : take.costCredits === null ? "Débit pas encore lu." : `${take.costCredits} crédits débités.`;
   const engine = take.engine === "lora" ? "Rendu avec le fichier du personnage, chez fal. " : "";
-  const body = `# ${take.line || "Prise"}\n\n![[${take.video}]]\n\n${take.sceneName ? `Lieu : ${take.sceneName}. ` : ""}${engine}${cost}\n`;
+  const when = take.at ? take.at.slice(0, 16).replace("T", " ") : "";
+  const text = take.prompt.trim() ? take.prompt.trim() : "Aucun texte n’est parti.";
+  const tied = [
+    ...links.sequences.map(item => noteLink(projet, "Sequences", item, "Séquence")),
+    ...links.shots.map(item => noteLink(projet, "Shots", item, "Plan")),
+  ];
+  const body = `# ${take.line || "Prise"}\n\n![[${take.video}]]\n\n## Texte parti\n\n${text}\n\nProfil : ${take.profile}\nJob : ${take.jobId}\nDate : ${when}\n${tied.length ? `\n${tied.join("\n")}\n` : ""}\n${take.sceneName ? `Lieu : ${take.sceneName}. ` : ""}${engine}${cost}\n`;
   return withFrontmatter({
     type: "prise",
     projet,
@@ -393,6 +414,8 @@ export function takeMarkdown(take: Take, projet = ""): string {
     solde_avant: take.balanceBefore,
     solde_apres: take.balanceAfter,
     texte: take.prompt,
+    devis_annonce: take.announcedCredits,
+    devis_borne: take.announcedHigh,
   }, body);
 }
 
@@ -436,6 +459,8 @@ export function parseTake(id: string, source: string): Take | null {
     resolution: pick(text(fields.resolution), RESOLUTIONS),
     costUsd: num(fields.cout_usd),
     costSource: pick(text(fields.cout_source), SOURCES),
+    announcedCredits: num(fields.devis_annonce),
+    announcedHigh: num(fields.devis_borne),
   };
 }
 
@@ -741,7 +766,15 @@ export function jobsMarkdown(takes: readonly Take[], loras: readonly Lora[] = []
       row: `| ${lora.at.slice(0, 16).replace("T", " ")} | [[${fiche(lora)}]] | fal | lora-${lora.steps}pas-rang${lora.rank} | ${lora.seconds ?? "—"} | ${lora.costUsd === null ? "en attente" : usd(lora.costUsd)} |`,
     })),
   ].sort((a, b) => a.at.localeCompare(b.at)).map(item => item.row);
-  return `# Journal\n\nUne ligne par prise et par formation. Le coût vient du compte qui a payé : le solde Comfy, ou la facture fal de la demande.\n\n| Date | Quoi | Moteur | Réglage | Calcul (s) | Coût |\n| --- | --- | --- | --- | --- | --- |\n${rows.join("\n")}\n`;
+  const compared = [...takes]
+    .filter(take => journalCostLine(take))
+    .sort((a, b) => a.at.localeCompare(b.at))
+    .map(take => {
+      const alias = (take.line.trim() || "Prise").replace(/[\[\]|\r\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80) || "Prise";
+      return `- [[${prise(take.id)}|${alias}]] — ${journalCostLine(take)}`;
+    });
+  const extra = compared.length > 0 ? `\n## Devis et coût\n\n${compared.join("\n")}\n` : "";
+  return `# Journal\n\nUne ligne par prise et par formation. Le coût vient du compte qui a payé : le solde Comfy, ou la facture fal de la demande.\n\n| Date | Quoi | Moteur | Réglage | Calcul (s) | Coût |\n| --- | --- | --- | --- | --- | --- |\n${rows.join("\n")}\n${extra}`;
 }
 
 export const README = `# U*TTU — Mon studio
@@ -1068,9 +1101,9 @@ export async function writeQuotes(store: VaultStore, quotes: readonly MeasuredQu
   await writeText(store, projectPath(slug, QUOTE_FILE), quotesJson(quotes));
 }
 
-export async function writeTake(store: VaultStore, take: Take, _takes: readonly Take[], _loras: readonly Lora[] = []): Promise<void> {
+export async function writeTake(store: VaultStore, take: Take, _takes: readonly Take[], _loras: readonly Lora[] = [], links: TakeNoteLinks = { sequences: [], shots: [] }): Promise<void> {
   const slug = await ensureActiveProject(store);
-  await writeText(store, projectPath(slug, `Prises/${take.id}.md`), takeMarkdown(take, slug));
+  await writeText(store, projectPath(slug, `Prises/${take.id}.md`), takeMarkdown(take, slug, links));
   await writeMap(store);
 }
 

@@ -39,7 +39,9 @@ import { applyPlaceBlend } from "@/lib/render/place-write";
 import { assetPath } from "@/lib/site";
 import { SHOT_LINE, SHOT_RESOLUTION, SHOT_SECONDS, shotGate } from "@/lib/render/shot";
 import { referencePaths } from "@/lib/render/references";
-import { forgetQuote, quoteFromTake, quotesToRecords, rememberQuote } from "@/lib/render/measured-quote";
+import { forgetQuote, quotesToRecords } from "@/lib/render/measured-quote";
+import { learnTakeCost } from "@/lib/render/landed-cost";
+import { settleLandedTake } from "@/lib/render/settle-take";
 import { followTake, submitTake, type TakeRunEvent } from "@/lib/render/run";
 import { sessionTokens } from "@/lib/render/session";
 import {
@@ -953,13 +955,23 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         resolution: null,
         costUsd: null,
         costSource: null,
+        announcedCredits: null,
+        announcedHigh: null,
       };
+      const learned = learnTakeCost({
+        profile: take.profile,
+        quotes: studioRef.current.quotes,
+        before: result.balanceBefore,
+        after: result.balanceAfter,
+        at: flight.at,
+        balance: result.balanceAfter ?? flight.balanceBefore,
+      });
+      take.announcedCredits = learned.announced?.credits ?? null;
+      take.announcedHigh = learned.announced?.high ?? null;
       const takes = [take, ...studioRef.current.takes.filter(item => item.id !== id)];
-      await writeTake(store(), take, takes, studioRef.current.loras);
-      const measured = quoteFromTake(take);
-      const quotes = measured ? rememberQuote(studioRef.current.quotes, measured) : studioRef.current.quotes;
-      if (measured) await writeQuotes(store(), quotes);
-      setStudio({ ...studioRef.current, takes, quotes });
+      const placed = await settleLandedTake(store(), take, studioRef.current.sequences, studioRef.current.shots, takes, studioRef.current.loras);
+      if (learned.stored) await writeQuotes(store(), learned.quotes);
+      setStudio({ ...studioRef.current, takes, quotes: learned.quotes, sequences: placed.sequences, shots: placed.shots });
       saveInFlight(localStorage, null);
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
       else void refreshBalance();
@@ -1014,6 +1026,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         resolution: flight.resolution,
         costUsd: result.costUsd,
         costSource: result.costSource,
+        announcedCredits: null,
+        announcedHigh: null,
       };
       const takes = [take, ...studioRef.current.takes.filter(item => item.id !== id)];
       await writeTake(store(), take, takes, studioRef.current.loras);
@@ -1380,6 +1394,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         resolution: SHOT_RESOLUTION,
         costUsd: result.costUsd,
         costSource: result.costSource,
+        announcedCredits: null,
+        announcedHigh: null,
       };
       const takes = [take, ...studioRef.current.takes.filter(item => item.id !== id)];
       await writeTake(store(), take, takes, studioRef.current.loras);

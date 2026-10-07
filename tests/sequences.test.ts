@@ -29,6 +29,8 @@ const take = (id: string, line: string): Take => ({
   resolution: null,
   costUsd: null,
   costSource: null,
+  announcedCredits: null,
+  announcedHigh: null,
 });
 
 describe("séquences", () => {
