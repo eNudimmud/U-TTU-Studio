@@ -8,4 +8,4 @@ export const socialImage = siteOrigin ? `${siteOrigin}/og.jpg` : assetPath("/og.
 export const siteTitle = "U*TTU Studio — Ton personnage, ta scène, la prise";
 export const siteDescription = "Personnage, scène, prise. Tout se fait dans le studio ; le rendu tourne sur ton compte cloud, le studio ne vend rien.";
 export const studioTitle = "Studio — U*TTU";
-export const studioDescription = "Deux photos, un lieu, une phrase. La prise tourne sur ton compte de rendu et revient dans ton coffre, sur ton appareil. Pas de mur de compte.";
+export const studioDescription = "Deux photos, un lieu, une phrase. La prise tourne sur ton compte de rendu et revient dans mon studio, sur ton appareil. Pas de mur de compte.";

@@ -2,6 +2,12 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## Mon studio — 7 octobre 2026
+
+- **Décision JD :** l’espace Obsidian local ne s’affiche plus sous le nom « Coffre », ni « Vault ». Le nom produit est **Mon studio**. Le bouton du rail et de la barre dit « Mon studio ». L’export dit « Exporter mon studio (.zip) ». L’import dit « Importer un studio (.zip) ». Les textes d’aide disent « mon studio ».
+- **Décision :** plus tard, les autres langues diront My studio, Mein Studio, Mi estudio. Cette livraison ne traduit pas l’app.
+- **Fait :** les chemins de code `coffre/` et les identifiants internes restent. Aucun graphe n’est ajouté. Aucun crédit n’est dépensé.
+
 ## Deux peaux — 7 octobre 2026
 
 - **Demande JD :** une peau téléphone et une peau bureau, le même coffre. Pas de dépense Comfy. Le bureau n’est pas la colonne du téléphone élargie.
@@ -245,6 +251,7 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 
 | Décision | Par | Date |
 | --- | --- | --- |
+| L’espace Obsidian local s’appelle Mon studio. Pas « Coffre », pas « Vault » dans l’interface française. Export : « Exporter mon studio ». Import : « Importer un studio ». EN / DE / ES plus tard : My studio, Mein Studio, Mi estudio. | JD | 2026-10-07 |
 | Deux peaux, même coffre. Sous 720 px : poche validée, feuille par le bas, chaîne au pouce, coffre et solde en haut. De 720 à 1079 px : colonne 720 px, chaîne en bas, feuille carte. Dès 1080 px : rail 232 px (chaîne + coffre), étagère 300 px (distribution, lieux, prises ensemble), travail au centre, feuille en panneau, solde en haut. | JD (brief futur, tranche F2) + livraison | 2026-10-07 |
 | Coffre second cerveau : `MOC.md` tenu par l’app, wikilinks vers look, personnages, lieux, prises et journal. Export ZIP avec la carte. Import ZIP en fusion, sans effacer une prise ou un personnage déjà là. Pas de sync serveur. | JD (brief futur, tranche F1) + livraison | 2026-10-07 |
 | Former son double sur le compte fal de l’adhérent (`minimax/h3/ref2va/trainer`), fichier `.safetensors` au coffre, rechargé par `minimax/h3/reference-to-video/lora`. Page dédiée, devis avant le geste, bouton éteint sans solde lisible. Comfy Cloud ne fait toujours pas ce chemin. Clé Admin fal sur l’appareil seulement. | JD (rejet du constat seul) + livraison | 2026-10-03 |

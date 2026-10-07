@@ -57,12 +57,12 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice, startFile = fals
     {training.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>
       <p className="u-run-label">{trainLabel(training.event)}</p>
-      <p className="u-small">C’est long. Tu peux quitter et revenir : le fichier rejoint le coffre.</p>
+      <p className="u-small">C’est long. Tu peux quitter et revenir : le fichier rejoint mon studio.</p>
       <button type="button" className="u-link u-muted" onClick={cancelTraining}>Annuler</button>
     </div>}
 
     {training.phase === "done" && done && <div className="u-card u-result">
-      <p className="u-run-label">Le personnage est au coffre.</p>
+      <p className="u-run-label">Le personnage est dans mon studio.</p>
       <p className="u-small">{done.costUsd !== null ? `Débité : ${formatUsd(done.costUsd)}, lu sur ton compte fal.` : "Débit pas encore visible sur ton compte fal."}{done.seconds !== null ? ` Calcul : ${clock(done.seconds)}.` : ""}</p>
       <button type="button" className="u-primary" onClick={() => { setEngine("lora"); setLora(done.id); onTake(); }}>Tourner avec ce personnage <Arrow /></button>
       <button type="button" className="u-link" onClick={resetTraining}>Former un autre</button>

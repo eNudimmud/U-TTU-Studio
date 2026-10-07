@@ -36,7 +36,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "take-line": "Une phrase : ce que fait la prise. Le reste est déjà tissé.",
   "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
   "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
-  "take-done": "La prise est au coffre. Publie-la d’un geste.",
+  "take-done": "La prise est dans mon studio. Publie-la d’un geste.",
   "take-double": "Ce personnage tient d’une prise à l’autre. Les photos tiennent le reste.",
   "lora-name": "Nomme le personnage. C’est lui que les prises suivantes tiennent.",
   "lora-photos": "Deux photos de ce personnage. Elles accompagnent les clips.",
@@ -44,7 +44,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "lora-connect": "Relie le compte qui paiera la formation. Le studio n’encaisse rien.",
   "lora-ready": "Le prix est là, avant ton geste. Rien ne part sans lui.",
   "lora-running": "J’apprends ce personnage. C’est long : reviens plus tard.",
-  "lora-done": "Le personnage est au coffre. Choisis-le dans La prise.",
+  "lora-done": "Le personnage est dans mon studio. Choisis-le dans La prise.",
   "sphere-empty": "Tes prises viendront se poser ici.",
 };
 

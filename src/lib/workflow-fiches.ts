@@ -57,7 +57,7 @@ export function workflowFiches(quotes: FicheQuotes, sample: { seconds: number; r
     {
       id: "references",
       name: "Prise · Références",
-      sentence: "Les photos du coffre deviennent une prise, avec le son.",
+      sentence: "Les photos de mon studio deviennent une prise, avec le son.",
       inputs: ["Deux photos, un nom, deux traits", "Un lieu", "Une phrase", "La durée et le format"],
       cost: rendu,
       payer: "rendu",
@@ -68,7 +68,7 @@ export function workflowFiches(quotes: FicheQuotes, sample: { seconds: number; r
     {
       id: "personnage",
       name: "Prise · Personnage",
-      sentence: "Les photos du coffre tiennent le personnage, d’une prise à l’autre, avec le son.",
+      sentence: "Les photos de mon studio tiennent le personnage, d’une prise à l’autre, avec le son.",
       inputs: ["Les photos du personnage", "Un lieu", "Une phrase", "La durée et le format"],
       cost: rendu,
       payer: "rendu",

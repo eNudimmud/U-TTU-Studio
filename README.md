@@ -49,11 +49,11 @@ Dans la feuille « Relier », deux chemins :
 - « Tourner » s’éteint si le solde est illisible, vide, ou sous le coût mesuré. Rien ne part sans le geste de confirmation. Le studio n’encaisse rien et ne recharge rien.
 - **Le personnage a son propre payeur : le compte fal de la personne.** Une clé fal ordinaire suffit pour former et tourner. Le solde ne s’affiche que si la clé a la portée Admin : sans elle, le compteur ne montre pas de chiffre, et le geste reste ouvert dès que le prix unitaire est lu. « Former » et « Tourner » s’éteignent si ce prix manque, si un solde lu est vide, ou s’il est sous le devis. Le compteur du haut montre ce solde sur la page de formation et quand La prise est sur « Personnage », et les crédits Comfy le reste du temps. Le vieux rail Flux (Worker, `src/lib/fal-*.ts`) reste dormant : il n’entraîne pas le modèle de La prise.
 - Sans compte, La prise reste ouverte : moteurs, durée, format, et un devis marqué comme exemple. Seul le geste payant demande Relier.
-- **Délier** se fait dans cette même feuille « Comptes », un bouton par compte. Ça retire la clé ou la session de cet appareil. Le coffre, le fichier formé et le compte chez Comfy ou fal restent.
+- **Délier** se fait dans cette même feuille « Comptes », un bouton par compte. Ça retire la clé ou la session de cet appareil. Mon studio, le fichier formé et le compte chez Comfy ou fal restent.
 
-### Coffre — la mémoire du studio
+### Mon studio — la mémoire
 
-Le coffre est un dossier Obsidian, tenu par l’app dans le stockage de l’appareil (IndexedDB), rangé ainsi :
+Mon studio est un dossier Obsidian, tenu par l’app dans le stockage de l’appareil (IndexedDB), rangé ainsi :
 
 ```text
 U-TTU-Studio/
@@ -69,7 +69,7 @@ U-TTU-Studio/
   README.md
 ```
 
-« Exporter le coffre » télécharge `U-TTU-Studio.zip`, à ouvrir tel quel dans Obsidian. « Importer un coffre » ajoute un ZIP à celui de cet appareil : une prise ou un personnage déjà là reste. Deux appareils ne partagent rien tout seuls. Sur ordinateur (Chrome, Edge), « Relier mon dossier Obsidian » écrit directement dans un dossier choisi. Ni la clé de rendu, ni la clé fal, n’entrent dans le coffre. Pourquoi ce coffre plutôt qu’un ZIP de départ : [docs/VAULT.md](docs/VAULT.md).
+« Exporter mon studio » télécharge `U-TTU-Studio.zip`, à ouvrir tel quel dans Obsidian. « Importer un studio » ajoute un ZIP à celui de cet appareil : une prise ou un personnage déjà là reste. Deux appareils ne partagent rien tout seuls. Sur ordinateur (Chrome, Edge), « Relier mon dossier Obsidian » écrit directement dans un dossier choisi. Ni la clé de rendu, ni la clé fal, n’entrent dans mon studio. Pourquoi ce dossier plutôt qu’un ZIP de départ : [docs/VAULT.md](docs/VAULT.md).
 
 ### U*TTU, la guide
 

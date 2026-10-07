@@ -554,7 +554,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         setMedia(urls);
         setStudio(loaded);
       } catch {
-        setNotice("Le coffre de cet appareil ne s’ouvre pas. Un navigateur privé peut le bloquer.");
+        setNotice("Mon studio ne s’ouvre pas sur cet appareil. Un navigateur privé peut le bloquer.");
       }
       setReady(true);
     })();
@@ -1114,7 +1114,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       const weights = await vault.get(trained.file);
       if (!weights?.blob) {
         setSheet(null);
-        setRun({ phase: "error", code: "invalid", message: "Le fichier du personnage manque au coffre.", detail: [] });
+        setRun({ phase: "error", code: "invalid", message: "Le fichier du personnage manque dans mon studio.", detail: [] });
         return;
       }
       const pictures: { blob: Blob; name: string }[] = [];
@@ -1134,7 +1134,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
       if (lookCount === 0 && !filmed) {
         setSheet(null);
-        setRun({ phase: "error", code: "invalid", message: place?.render ? "L’image filmée manque au coffre." : "Les photos du look manquent au coffre.", detail: [] });
+        setRun({ phase: "error", code: "invalid", message: place?.render ? "L’image filmée manque dans mon studio." : "Les photos du look manquent dans mon studio.", detail: [] });
         return;
       }
       const prompt = takePrompt({
@@ -1201,7 +1201,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
     if (pictures.length === 0) {
       setSheet(null);
-      setRun({ phase: "error", code: "invalid", message: "Les photos du look manquent au coffre.", detail: [] });
+      setRun({ phase: "error", code: "invalid", message: "Les photos du look manquent dans mon studio.", detail: [] });
       return;
     }
     setSheet(null);
@@ -1434,7 +1434,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
       if (images.length < 2) throw new FarpyError("Blender n’a pas rendu le trajet.");
       const weights = await store().get(person.file);
-      if (!weights?.blob) throw new FalError("invalid", "Le fichier du personnage manque au coffre.");
+      if (!weights?.blob) throw new FalError("invalid", "Le fichier du personnage manque dans mon studio.");
       const prompt = shotPrompt({ subject: person.trigger, place: place.name, note: place.note, frames: images.length, line: SHOT_LINE });
       setPrevizState({ phase: "running", event: { stage: "person" } });
       const cached = readLoraUploads(localStorage)[person.id];
@@ -1590,7 +1590,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       if (entry?.blob) refs.push(entry.blob);
     }
     if (clips.length !== current.clips.length || refs.length !== current.role.photos.length) {
-      setTraining({ phase: "error", code: "invalid", message: "Un clip ou une photo manque au coffre.", detail: [] });
+      setTraining({ phase: "error", code: "invalid", message: "Un clip ou une photo manque dans mon studio.", detail: [] });
       return;
     }
     setSheet(null);
@@ -1775,8 +1775,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       const report = await mergeCoffreZip(store(), new Uint8Array(await file.arrayBuffer()));
       await reloadVault();
       setNotice(report.written === 0
-        ? "Ce ZIP ne contient pas de coffre à ajouter."
-        : `Coffre ajouté : ${report.written} fichier${report.written > 1 ? "s" : ""}. Les prises et les personnages déjà ici restent.`);
+        ? "Ce ZIP ne contient pas de studio à ajouter."
+        : `Ajouté à mon studio : ${report.written} fichier${report.written > 1 ? "s" : ""}. Les prises et les personnages déjà ici restent.`);
     } catch {
       setNotice("Ce ZIP ne s’ouvre pas.");
     }
@@ -1844,7 +1844,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       if (entry?.blob) images.push(entry.blob);
     }
     if (images.length < PLACE_SHOTS_MIN) {
-      setNotice("Une vue manque au coffre.");
+      setNotice("Une vue manque dans mon studio.");
       return;
     }
     setSheet(null);
@@ -1885,7 +1885,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       saveLoraUploads(localStorage, uploads);
       setStudio({ ...studioRef.current, loras });
       if (result.balanceAfter !== null) setFalBalance({ usd: result.balanceAfter, readAt: Date.now() });
-      setNotice("Le lieu est au coffre. Ce fichier n’est pas un volume : le Blender du lieu reste le modèle 3D.");
+      setNotice("Le lieu est dans mon studio. Ce fichier n’est pas un volume : le Blender du lieu reste le modèle 3D.");
     } catch (error) {
       setNotice(falFailure(error, "La formation du lieu n’a pas abouti.").message);
     } finally {
@@ -1928,7 +1928,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       let loraUrl = cached?.url ?? "";
       if (!loraUrl || (cached?.until ?? 0) - Date.now() < 2 * 3600 * 1000) {
         const weights = await store().get(trained.file);
-        if (!weights?.blob) throw new FalError("invalid", "Le fichier du lieu manque au coffre.");
+        if (!weights?.blob) throw new FalError("invalid", "Le fichier du lieu manque dans mon studio.");
         loraUrl = await fal.upload(weights.blob, `${trained.id}.safetensors`, { expiresIn: PLACE_UPLOAD_KEEP_SECONDS, signal: abortPlace.current.signal });
         const uploads = readLoraUploads(localStorage);
         uploads[trained.id] = { url: loraUrl, until: Date.now() + PLACE_UPLOAD_KEEP_SECONDS * 1000 };

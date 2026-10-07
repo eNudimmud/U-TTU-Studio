@@ -107,13 +107,13 @@ function AppFrame() {
               : <><strong>{balance ? formatCredits(balance.credits) : balanceNote ? "—" : "…"}</strong><span>crédits</span></>)
             : <span>Relier</span>}
         </button>
-        <button type="button" className="u-coffre" onClick={() => setSheet("coffre")} aria-label="Coffre"><Coffre /><span>Coffre</span></button>
+        <button type="button" className="u-coffre" onClick={() => setSheet("coffre")} aria-label="Mon studio"><Coffre /><span>Mon studio</span></button>
       </div>
     </header>
 
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
       {ready && <GuideBubble moments={moments} />}
-      {!ready ? <p className="u-loading" role="status">Ouverture du coffre…</p>
+      {!ready ? <p className="u-loading" role="status">Ouverture de mon studio…</p>
         : tab === "look" ? <LookScreen onNext={() => go("scene")} onBack={() => go("lora")} />
         : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} focus={sceneFocus} />
         : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} startFile={startFile} />
@@ -148,7 +148,7 @@ function AppFrame() {
         <button type="button" className="u-fiches-nav" aria-current={tab === "fiches" ? "page" : undefined} onClick={() => go("fiches")}>
           <span>Fiches</span>
         </button>
-        <button type="button" className="u-rail-coffre" onClick={() => setSheet("coffre")} aria-label="Coffre"><Coffre /><span>Coffre</span></button>
+        <button type="button" className="u-rail-coffre" onClick={() => setSheet("coffre")} aria-label="Mon studio"><Coffre /><span>Mon studio</span></button>
       </div>
     </nav>
 
