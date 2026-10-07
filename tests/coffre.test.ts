@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { coffreEntries } from "../src/lib/coffre/export.ts";
+import { coffreEntries, coffreZip } from "../src/lib/coffre/export.ts";
+import { mergeCoffreZip, vaultPathFromZip } from "../src/lib/coffre/import.ts";
 import { readFrontmatter, withFrontmatter } from "../src/lib/coffre/markdown.ts";
 import {
-  canonMarkdown, cleanTraits, loadStudio, lookCheck, loraMarkdown, parseCanon, parseLora, parseTake, parseTraits, removeLora, removeTake, sha256Hex, slugify, takeId, takeMarkdown, uniqueId,
+  canonMarkdown, cleanTraits, loadStudio, lookCheck, loraMarkdown, parseCanon, parseLora, parseTake, parseTraits, removeLora, removeScene, removeTake, sha256Hex, slugify, takeId, takeMarkdown, uniqueId,
   writeBlob, writeClips, writeLook, writeLora, writeScene, writeState, writeTake, type Lora, type Take,
 } from "../src/lib/coffre/model.ts";
 import { cleanPath, memoryVault } from "../src/lib/coffre/store.ts";
-import { readZip } from "../src/lib/zip.ts";
+import { createZip, readZip } from "../src/lib/zip.ts";
 
 const take = (patch: Partial<Take> = {}): Take => ({
   id: "20261003-153000-le-quai",
@@ -157,5 +158,98 @@ describe("coffre en markdown", () => {
     const archive = createZip(await coffreEntries(store), new Date(2026, 9, 3, 12, 0, 0));
     const files = readZip(archive).map(entry => entry.name);
     assert.ok(files.includes("U-TTU-Studio/CANON.md"));
+    assert.ok(files.includes("U-TTU-Studio/MOC.md"));
+  });
+
+  it("maps the coffre with wikilinks and merges a ZIP without dropping what is already here", async () => {
+    const trained: Lora = {
+      id: "20261003-160000-mira",
+      at: "2026-10-03T16:00:00.000Z",
+      name: "Mira",
+      kind: "personnage",
+      sceneId: null,
+      trigger: "mira_uttu",
+      file: "loras/20261003-160000-mira.safetensors",
+      bytes: 4,
+      sha256: "ab",
+      steps: 1000,
+      rank: 16,
+      aspect: "9:16",
+      clips: 10,
+      endpoint: "minimax/h3/ref2va/trainer",
+      requestId: "req-12345678",
+      seconds: 400,
+      costUsd: 15,
+      costSource: "billing",
+      balanceBefore: 40,
+      balanceAfter: 25,
+    };
+    const here = take();
+    const elsewhere = take({
+      id: "20261004-090000-la-serre",
+      at: "2026-10-04T09:00:00.000Z",
+      sceneId: "la-serre",
+      sceneName: "La serre",
+      line: "Elle entre.",
+      video: "prises/20261004-090000-la-serre.mp4",
+      poster: "prises/20261004-090000-la-serre.jpg",
+      jobId: "1a6c1b1e-8d47-4f39-9e16-5f5d0f0b9a22",
+    });
+    const home = memoryVault();
+    await writeBlob(home, "refs/look-a-1.jpg", new Blob(["p1"]));
+    await writeBlob(home, "refs/look-a-2.jpg", new Blob(["p2"]));
+    await writeLook(home, { name: "Mira", traits: ["yeux verts", "taches"], photos: ["refs/look-a-1.jpg", "refs/look-a-2.jpg"], note: "" });
+    await writeScene(home, { id: "le-quai", name: "Le quai", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
+    await writeScene(home, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
+    await writeBlob(home, here.video, new Blob(["mp4-ici"]));
+    await writeBlob(home, here.poster!, new Blob(["jpg-ici"]));
+    await writeTake(home, here, [here]);
+    const weights = new Blob(["lora-ici"]);
+    await writeLora(home, trained, weights, [here], [trained]);
+    const map = (await home.get("MOC.md"))?.text ?? "";
+    assert.match(map, /\[\[CANON\|Mira\]\]/);
+    assert.match(map, /\[\[scenes\/le-quai\|Le quai\]\]/);
+    assert.match(map, /\[\[prises\/20261003-153000-le-quai\|Elle traverse le quai\.\]\]/);
+    assert.match(map, /\[\[loras\/20261003-160000-mira\|Mira\]\]/);
+    assert.match(map, /\[\[jobs\|Journal\]\]/);
+    assert.doesNotMatch(map, /SaveLoRA|synchronis/i);
+    await removeScene(home, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
+    assert.doesNotMatch((await home.get("MOC.md"))?.text ?? "", /la-serre/);
+
+    const away = memoryVault();
+    await writeScene(away, { id: "la-serre", name: "La serre", note: "verre", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
+    await writeBlob(away, elsewhere.video, new Blob(["mp4-la"]));
+    await writeBlob(away, elsewhere.poster!, new Blob(["jpg-la"]));
+    await writeTake(away, elsewhere, [elsewhere]);
+    const archive = await coffreZip(away);
+    assert.ok(readZip(archive).some(entry => entry.name === "U-TTU-Studio/MOC.md"));
+
+    const kept = await sha256Hex(weights);
+    const poisoned = createZip([
+      { name: "U-TTU-Studio/prises/20261003-153000-le-quai.md", data: new TextEncoder().encode("pas une fiche") },
+      { name: "U-TTU-Studio/u-ttu-fal/secret.txt", data: new TextEncoder().encode("clef") },
+      { name: "U-TTU-Studio/../hors.md", data: new TextEncoder().encode("hors") },
+    ]);
+    await mergeCoffreZip(home, poisoned);
+    assert.equal((await loadStudio(home)).takes[0].line, "Elle traverse le quai.");
+    assert.equal(await home.get("u-ttu-fal/secret.txt"), null);
+    assert.equal(vaultPathFromZip("U-TTU-Studio/CANON.md"), "CANON.md");
+    assert.equal(vaultPathFromZip("U-TTU-Studio/u-ttu-rendu.json"), null);
+
+    const report = await mergeCoffreZip(home, archive);
+    assert.ok(report.written > 0);
+    const merged = await loadStudio(home);
+    assert.deepEqual(merged.takes.map(item => item.id).sort(), [here.id, elsewhere.id]);
+    assert.equal(merged.takes.find(item => item.id === here.id)?.costCredits, 201);
+    assert.equal(merged.loras.length, 1);
+    assert.equal(merged.loras[0].trigger, "mira_uttu");
+    assert.equal(await sha256Hex((await home.get(trained.file))?.blob ?? new Blob()), kept);
+    const jobs = (await home.get("jobs.md"))?.text ?? "";
+    assert.match(jobs, /\[\[prises\/20261003-153000-le-quai\]\]/);
+    assert.match(jobs, /\[\[prises\/20261004-090000-la-serre\]\]/);
+    const after = (await home.get("MOC.md"))?.text ?? "";
+    assert.match(after, /\[\[prises\/20261004-090000-la-serre\|Elle entre\.\]\]/);
+    assert.match(after, /\[\[scenes\/la-serre\|La serre\]\]/);
+    assert.match(after, /\[\[loras\/20261003-160000-mira\|Mira\]\]/);
   });
 });

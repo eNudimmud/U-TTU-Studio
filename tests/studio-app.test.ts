@@ -153,6 +153,14 @@ describe("le studio, une app", () => {
     assert.doesNotMatch(comfyOff, /removeTake|removeLora|coffreZip|deleteDatabase/);
     const app = read("src/components/app/studio-app.tsx");
     assert.match(app, /"credits" : "relier"/);
+    const coffre = sheets.slice(sheets.indexOf("export function CoffreSheet"), sheets.indexOf("export function ConfirmSheet"));
+    assert.match(coffre, /MOC\.md/);
+    assert.match(coffre, /ouvre ce dossier dans Obsidian/);
+    assert.match(coffre, /Importer un coffre \(\.zip\)/);
+    assert.match(coffre, /Une prise ou un personnage déjà ici reste/);
+    assert.match(coffre, /Les clés restent hors du coffre/);
+    assert.doesNotMatch(coffre, /synchronis/i);
+    assert.match(read("src/components/app/studio-context.tsx"), /mergeCoffreZip\(/);
     assert.match(sheets, /Il paie la formation du personnage et les prises « Personnage »/);
     assert.match(sheets, /Il paie les prises « Références »/);
   });

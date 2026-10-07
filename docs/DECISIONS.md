@@ -1,6 +1,13 @@
 # Registre — C micro
 
-Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-04.
+Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
+
+## Coffre, carte Obsidian — 7 octobre 2026
+
+- **Demande JD :** le coffre doit se lire comme un second cerveau Obsidian, sans sync serveur. Un seul PR, la première tranche du brief futur.
+- **Décision :** l’app tient `MOC.md` à jour, avec des wikilinks vers le look, les personnages, les lieux, les prises et `jobs.md`. L’export ZIP l’inclut. L’import d’un ZIP fusionne les fichiers dans le coffre de l’appareil : une prise ou un personnage déjà là n’est pas effacé, une fiche illisible ne remplace pas une fiche valide. La feuille Coffre dit d’exporter, d’ouvrir le dossier dans Obsidian, puis d’importer. Aucune copie sur le serveur. Détail : [VAULT.md](VAULT.md).
+- **Fait :** `SaveLoRA` reste absent du catalogue Cloud. Cette livraison ne forme rien et n’invente pas de nœud.
+- **Hypothèse, hors de cette livraison :** Syncthing, iCloud ou un Git privé pourraient porter le dossier entre appareils. L’app ne le fait pas.
 
 ## Trajet, personnage dans le plan, liaison, LoRA de lieu — 4 octobre 2026
 
@@ -230,6 +237,7 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 
 | Décision | Par | Date |
 | --- | --- | --- |
+| Coffre second cerveau : `MOC.md` tenu par l’app, wikilinks vers look, personnages, lieux, prises et journal. Export ZIP avec la carte. Import ZIP en fusion, sans effacer une prise ou un personnage déjà là. Pas de sync serveur. | JD (brief futur, tranche F1) + livraison | 2026-10-07 |
 | Former son double sur le compte fal de l’adhérent (`minimax/h3/ref2va/trainer`), fichier `.safetensors` au coffre, rechargé par `minimax/h3/reference-to-video/lora`. Page dédiée, devis avant le geste, bouton éteint sans solde lisible. Comfy Cloud ne fait toujours pas ce chemin. Clé Admin fal sur l’appareil seulement. | JD (rejet du constat seul) + livraison | 2026-10-03 |
 | Pas de page de formation sur Comfy Cloud : `TrainLoraNode` ne peut pas être enregistré en fichier (`SaveLoRA` absent), et une prise ne charge que les LoRA de la bibliothèque du compte. Pas de LoRA Flux branché à H3. Constat tenu ; le produit passe par fal. | JD (demande) + livraison (constat) | 2026-10-03 |
 | Studio direct : l’app tourne la prise H3 R2V elle-même sur le compte Comfy Cloud de la personne (API documentée, relais même origine), après confirmation. Un seul payeur, coût mesuré par le solde, « non calibré » avant mesure. Coffre Obsidian écrit par l’app (IndexedDB, export ZIP, dossier relié). U*TTU guide en une phrase. fal, App Mode, template réécrit et journal de budget quittent l’app. Compte à `/compte`. | JD (intention, carte blanche) + livraison | 2026-10-03 |

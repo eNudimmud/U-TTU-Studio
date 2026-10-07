@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { costClaim, falGate, runGate, type Balance, type CostClaim, type RunGate, type UsdBalance } from "@/lib/credits";
 import { coffreZip } from "@/lib/coffre/export";
+import { mergeCoffreZip } from "@/lib/coffre/import";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
   LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, emptyLook, emptyRole, emptySceneDraft, emptyStudio, extensionFor, isPlaceLora, loadStudio, loraId, removeLora, removeScene, removeTake, sha256Hex, slugify, takeId, uniqueId,
@@ -335,6 +336,7 @@ interface StudioValue {
   sessionLinked(): Promise<boolean>;
   disconnect(): Promise<void>;
   exportCoffre(): Promise<void>;
+  importCoffre(file: File): Promise<void>;
   linkFolder(): Promise<void>;
   dismissGuide(moment: GuideMoment): void;
   guideOff(): void;
@@ -1745,6 +1747,17 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setBalance(null);
   }, [link.mode, tokens]);
 
+  const reloadVault = useCallback(async () => {
+    const loaded = await loadStudio(store());
+    const entries = await store().list();
+    for (const url of Object.values(mediaRef.current)) URL.revokeObjectURL(url);
+    const urls: Record<string, string> = {};
+    for (const entry of entries) if (entry.blob) urls[entry.path] = URL.createObjectURL(entry.blob);
+    mediaRef.current = urls;
+    setMedia(urls);
+    setStudio(loaded);
+  }, [setStudio, store]);
+
   const exportCoffre = useCallback(async () => {
     const data = await coffreZip(store());
     const url = URL.createObjectURL(new Blob([data.slice().buffer], { type: "application/zip" }));
@@ -1756,6 +1769,18 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     anchor.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 30000);
   }, [store]);
+
+  const importCoffre = useCallback(async (file: File) => {
+    try {
+      const report = await mergeCoffreZip(store(), new Uint8Array(await file.arrayBuffer()));
+      await reloadVault();
+      setNotice(report.written === 0
+        ? "Ce ZIP ne contient pas de coffre à ajouter."
+        : `Coffre ajouté : ${report.written} fichier${report.written > 1 ? "s" : ""}. Les prises et les personnages déjà ici restent.`);
+    } catch {
+      setNotice("Ce ZIP ne s’ouvre pas.");
+    }
+  }, [reloadVault, store]);
 
   const linkFolder = useCallback(async () => {
     const handle = await pickFolder();
@@ -1943,7 +1968,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
     setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, deleteLora,
     requestRun, confirmRun, cancelRun, resetRun, deleteTake, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
-    exportCoffre, linkFolder, dismissGuide, guideOff,
+    exportCoffre, importCoffre, linkFolder, dismissGuide, guideOff,
   };
 
   return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;

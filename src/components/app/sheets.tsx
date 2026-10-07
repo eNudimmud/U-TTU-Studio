@@ -167,10 +167,11 @@ export function CreditSheet() {
 }
 
 export function CoffreSheet() {
-  const { setSheet, studio, exportCoffre, linkFolder, folder, guide, guideOff } = useStudio();
+  const { setSheet, studio, exportCoffre, importCoffre, linkFolder, folder, guide, guideOff } = useStudio();
   const [usage, setUsage] = useState("");
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [linkable, setLinkable] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     setLinkable(folderLinkSupported());
@@ -182,7 +183,8 @@ export function CoffreSheet() {
 
   return <SheetFrame title="Ton coffre" label="Mémoire du studio" onClose={() => setSheet(null)}>
     <div className="u-stack">
-      <p>Ton look, tes lieux, tes personnages et tes prises vivent ici, sur cet appareil, rangés comme un coffre Obsidian. Rien n’est envoyé au studio. Les clés non plus.</p>
+      <p>Ce coffre reste sur cet appareil. La carte MOC.md relie le look, les personnages, les lieux, les prises et le journal. Obsidian ouvre ces liens.</p>
+      <p className="u-small">Pour le lire ailleurs : exporte le ZIP, ouvre ce dossier dans Obsidian, puis importe ce ZIP sur l’autre appareil. Les fichiers s’ajoutent. Une prise ou un personnage déjà ici reste.</p>
       <ul className="u-ledger">
         <li><span>Photos du look</span><span>{studio.look.photos.length}</span></li>
         <li><span>Lieux</span><span>{studio.scenes.length}</span></li>
@@ -192,8 +194,19 @@ export function CoffreSheet() {
       </ul>
       <p className="u-small">{usage}{persisted === false ? " · Le navigateur peut vider ce stockage : exporte ou relie un dossier." : persisted ? " · Stockage protégé." : ""}</p>
       <button type="button" className="u-primary" onClick={() => void exportCoffre()}>Exporter le coffre (.zip)</button>
+      <label className="u-secondary u-file">
+        {importing ? "Import…" : "Importer un coffre (.zip)"}
+        <input type="file" accept=".zip,application/zip" aria-label="Importer un coffre" disabled={importing} onChange={event => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (!file) return;
+          setImporting(true);
+          void importCoffre(file).finally(() => setImporting(false));
+        }} />
+      </label>
       {linkable && <button type="button" className="u-secondary" onClick={() => void linkFolder()}>{folder ? `Relié à « ${folder} »` : "Relier mon dossier Obsidian"}</button>}
-      {!linkable && <p className="u-small">Sur ordinateur, Chrome ou Edge peuvent écrire directement dans ton dossier Obsidian.</p>}
+      {!linkable && <p className="u-small">Sur ordinateur, Chrome ou Edge écrivent dans le dossier choisi. Sur téléphone, emporte le ZIP.</p>}
+      <p className="u-small">Les clés restent hors du coffre.</p>
       <div className="u-row">
         <a className="u-link u-muted" href={assetPath("/compte")}>Compte U*TTU, facultatif</a>
         {!guide.off && <button type="button" className="u-link u-muted" onClick={guideOff}>Couper le guide</button>}

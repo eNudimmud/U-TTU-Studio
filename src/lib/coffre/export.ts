@@ -1,10 +1,11 @@
 // The whole vault as one ZIP, laid out as an Obsidian vault folder.
 
 import { createZip, type ZipEntry } from "../zip.ts";
-import { COFFRE_ROOT, README } from "./model.ts";
+import { COFFRE_ROOT, README, writeMap } from "./model.ts";
 import type { VaultStore } from "./store.ts";
 
 export async function coffreEntries(store: VaultStore): Promise<ZipEntry[]> {
+  await writeMap(store);
   const encoder = new TextEncoder();
   const entries: ZipEntry[] = [];
   const files = await store.list();
