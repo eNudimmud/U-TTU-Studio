@@ -614,6 +614,41 @@
     "removeFromStudio": "Remove from my studio",
     "file": "Trained file"
   },
+  "cinema": {
+    "kicker": "Gestures",
+    "lead": "On this take.",
+    "leadPlan": "On this shot.",
+    "lands": "The short clip is filed with the takes. The storyboard shot keeps it when the clip starts there.",
+    "partage": "Share missing. This gesture has no model on file. Nothing opens.",
+    "devis": "Quote absent. The total for this gesture is not a number. Nothing leaves.",
+    "raccord": {
+      "name": "Bridge two images",
+      "sentence": "The first image and the last image become a short clip.",
+      "need": "It needs a first image and a last image, and they must differ."
+    },
+    "camera": {
+      "name": "Move the camera",
+      "sentence": "A still, or a take’s image, becomes a short clip. The camera moves.",
+      "needStill": "It needs a still, or a take’s image.",
+      "needMove": "Choose a move.",
+      "moves": "Move",
+      "pose": {
+        "up": "Up",
+        "down": "Down",
+        "left": "Left",
+        "right": "Right",
+        "in": "Closer",
+        "out": "Farther",
+        "acw": "Turns left",
+        "cw": "Turns right"
+      }
+    },
+    "effet": {
+      "name": "Apply an effect",
+      "sentence": "A filmed take receives the look of one image.",
+      "need": "It needs a filmed take, and an image for the effect."
+    }
+  },
   "tree": {
     "characters": "Characters",
     "references": "References",
@@ -628,9 +663,15 @@
     "modelTake": "Template · Take",
     "modelSequence": "Template · Sequence",
     "modelShot": "Template · Shot",
+    "modelBridge": "Template · Bridge",
+    "modelMove": "Template · Move",
+    "modelEffect": "Template · Effect",
     "engineCharacter": "Engine · Character",
     "engineReferences": "Engine · References",
     "enginePlace": "Engine · Location",
+    "engineBridge": "Engine · Bridge",
+    "engineMove": "Engine · Move",
+    "engineEffect": "Engine · Effect",
     "engines": "Engines",
     "files": "Assets",
     "notes": "Notes"

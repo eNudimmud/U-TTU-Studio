@@ -614,6 +614,41 @@
     "removeFromStudio": "Aus « Mein Studio » entfernen",
     "file": "Datei"
   },
+  "cinema": {
+    "kicker": "Gesten",
+    "lead": "Auf diesem Take.",
+    "leadPlan": "Auf diesem Shot.",
+    "lands": "Der kurze Clip liegt bei den Takes. Der Shot behält ihn, wenn der Clip von dort kommt.",
+    "partage": "Freigabe fehlt. Für diese Geste liegt kein Modell vor. Es öffnet sich nichts.",
+    "devis": "Kalkulation fehlt. Der Gesamtbetrag dieser Geste ist keine Zahl. Nichts geht.",
+    "raccord": {
+      "name": "Zwei Bilder verbinden",
+      "sentence": "Das erste Bild und das letzte Bild werden ein kurzer Clip.",
+      "need": "Es braucht ein erstes Bild und ein letztes Bild, und sie müssen verschieden sein."
+    },
+    "camera": {
+      "name": "Die Kamera bewegen",
+      "sentence": "Ein Standbild, oder das Bild eines Takes, wird ein kurzer Clip. Die Kamera bewegt sich.",
+      "needStill": "Es braucht ein Standbild, oder das Bild eines Takes.",
+      "needMove": "Wähle eine Bewegung.",
+      "moves": "Bewegung",
+      "pose": {
+        "up": "Nach oben",
+        "down": "Nach unten",
+        "left": "Nach links",
+        "right": "Nach rechts",
+        "in": "Näher",
+        "out": "Weiter weg",
+        "acw": "Dreht nach links",
+        "cw": "Dreht nach rechts"
+      }
+    },
+    "effet": {
+      "name": "Einen Effekt setzen",
+      "sentence": "Ein gedrehter Take erhält das Aussehen eines Bildes.",
+      "need": "Es braucht einen gedrehten Take und ein Bild für den Effekt."
+    }
+  },
   "tree": {
     "characters": "Figuren",
     "references": "Referenzen",
@@ -628,9 +663,15 @@
     "modelTake": "Vorlage · Take",
     "modelSequence": "Vorlage · Sequenz",
     "modelShot": "Vorlage · Shot",
+    "modelBridge": "Vorlage · Brücke",
+    "modelMove": "Vorlage · Bewegung",
+    "modelEffect": "Vorlage · Effekt",
     "engineCharacter": "Motor · Figur",
     "engineReferences": "Motor · Referenzen",
     "enginePlace": "Motor · Drehort",
+    "engineBridge": "Motor · Brücke",
+    "engineMove": "Motor · Bewegung",
+    "engineEffect": "Motor · Effekt",
     "engines": "Motoren",
     "files": "Assets",
     "notes": "Notizen"

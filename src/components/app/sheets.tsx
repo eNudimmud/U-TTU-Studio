@@ -13,6 +13,7 @@ import { assetPath } from "@/lib/site";
 import { Close, Refresh, Trash } from "./glyphs";
 import { PublishActions } from "./publish";
 import { sheetDismissAllowed } from "@/lib/link-epoch";
+import { CinemaGestures } from "./cinema-gestures";
 import { Why } from "./guide-bubble";
 import { useStudio } from "./studio-context";
 
@@ -670,6 +671,7 @@ function ShotList() {
             <p className="u-small">{shot.note || (shot.takeIds.length === 0 ? t("shot.noTake") : shot.takeIds.length === 1 ? t("sequence.oneTake") : t("sequence.manyTakes", { count: shot.takeIds.length }))}</p>
           </li>)}
         </ul>}
+      <CinemaGestures />
     </div>
   </SheetFrame>;
 }
@@ -691,6 +693,7 @@ function ShotEditor({ id }: { id: string }) {
   return <SheetFrame title={shot.name || t("common.unnamed")} label={t("shot.title")} onClose={() => setSheet(null)} tall>
     <div className="u-stack">
       <p className="u-small">{t("shot.lead")}</p>
+      <CinemaGestures shotId={shot.id} />
       <button type="button" className="u-link" onClick={() => setSheet("shots")}>{t("shot.back")}</button>
       <label className="u-field">{t("shot.name")}
         <input value={name} maxLength={40} aria-label={t("shot.name")} autoComplete="off" onChange={event => {
