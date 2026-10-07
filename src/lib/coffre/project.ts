@@ -95,6 +95,8 @@ const SECTION_LABELS: Record<string, string> = {
   scenes: "Scènes",
   sequence: "Séquence",
   sequences: "Séquences",
+  shot: "Plan",
+  shots: "Plans",
   plan: "Plan",
   plans: "Plans",
   prompt: "Prompt",
@@ -189,12 +191,13 @@ export function scaffoldFiles(slug: string, name: string): { path: string; text:
     { path: `${root}/Lexique.md`, text: note(slug, "projet", "Lexique", "Les mots de ce projet, et ce qu’ils désignent ici.") },
     { path: `${root}/Journal.md`, text: journalShell() },
     { path: `${root}/Sequences/index.md`, text: note(slug, "sequence", "Séquences", "Rien pour l’instant. Une séquence relie des prises de ce projet.") },
-    { path: `${root}/Shots/index.md`, text: note(slug, "shot", "Plans", "Rien pour l’instant. Un plan est une prise rangée dans ce projet.") },
+    { path: `${root}/Shots/index.md`, text: note(slug, "shot", "Plans", "Rien pour l’instant. Un plan est une case du storyboard : une séquence, puis des prises, dans l’ordre.") },
     { path: `${root}/Prompts/index.md`, text: note(slug, "prompt", "Prompts", "Briques de phrase pour ce projet. Rien n’est envoyé d’ici.") },
     { path: `${root}/Templates/modele-personnage.md`, text: note(slug, "template", "Modèle · Personnage", "Nom, photos, ce qui ne change pas.", { gesture: "personnage" }) },
     { path: `${root}/Templates/modele-scene.md`, text: note(slug, "template", "Modèle · Scène", "Nom, note, images du lieu.", { gesture: "scene" }) },
     { path: `${root}/Templates/modele-prise.md`, text: note(slug, "template", "Modèle · Prise", "Phrase, durée, format. Le prix se lit avant le geste.", { gesture: "prise" }) },
     { path: `${root}/Templates/modele-sequence.md`, text: note(slug, "template", "Modèle · Séquence", "Nom. Puis les prises, dans l’ordre. Entre deux, le raccord : lumière, regard, mouvement, objet.", { gesture: "sequence" }) },
+    { path: `${root}/Templates/modele-shot.md`, text: note(slug, "template", "Modèle · Plan", "Nom. La séquence. Les prises, dans l’ordre. Une note courte pour le cadre.", { gesture: "shot" }) },
     ...moteurs.map(([id, gesture, moteur, title, body]) => ({
       path: `${root}/Moteurs/${id}.md`,
       text: note(slug, "moteur", title, body, { moteur, gesture }),
@@ -215,7 +218,7 @@ export function projectMocShell(slug: string, name: string): string {
     link("Style", "Style"),
     link("Lexique", "Lexique"),
     link("Journal", "Journal"),
-  ].join("\n")}\n\n## Séquences\n\n${link("Sequences/index", "Séquences")}\n\n## Moteurs\n\n${[
+  ].join("\n")}\n\n## Séquences\n\n${link("Sequences/index", "Séquences")}\n\n## Plans\n\n${link("Shots/index", "Plans")}\n\n## Moteurs\n\n${[
     link("Moteurs/moteur-references", "Prise · Références"),
     link("Moteurs/moteur-personnage", "Prise · Personnage"),
     link("Moteurs/former", "Former un personnage"),

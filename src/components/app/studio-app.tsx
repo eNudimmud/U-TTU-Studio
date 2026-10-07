@@ -14,7 +14,7 @@ import { GuideBubble } from "./guide-bubble";
 import { FichesScreen } from "./fiches-screen";
 import { LoraScreen } from "./lora-screen";
 import { LookScreen, PlateauShelf, SceneScreen, SphereScreen, TakeScreen } from "./screens";
-import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, SequenceSheet, TrainConfirmSheet } from "./sheets";
+import { BlenderSheet, CoffreSheet, ConfirmSheet, ConnectSheet, CreditSheet, FalSheet, PlaceSceneSheet, PlaceTrainSheet, PlayerSheet, PrevizConfirmSheet, RelierSheet, SequenceSheet, ShotSheet, TrainConfirmSheet } from "./sheets";
 import { StudioProvider, useStudio } from "./studio-context";
 import "./app.css";
 
@@ -165,7 +165,9 @@ function AppFrame() {
     {sheet === "place-train" && <PlaceTrainSheet />}
     {sheet === "place-scene" && <PlaceSceneSheet />}
     {sheet === "sequences" && <SequenceSheet />}
+    {sheet === "shots" && <ShotSheet />}
     {sheet && typeof sheet === "object" && "take" in sheet && <PlayerSheet id={sheet.take} />}
     {sheet && typeof sheet === "object" && "sequence" in sheet && <SequenceSheet id={sheet.sequence} />}
+    {sheet && typeof sheet === "object" && "shot" in sheet && <ShotSheet id={sheet.shot} />}
   </div>;
 }

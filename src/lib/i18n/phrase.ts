@@ -66,6 +66,7 @@ const EXACT: Record<string, string> = {
   "Modèle · Scène": "tree.modelScene",
   "Modèle · Prise": "tree.modelTake",
   "Modèle · Séquence": "tree.modelSequence",
+  "Modèle · Plan": "tree.modelShot",
   "Séquence créée.": "sequence.created",
   "Prise reliée.": "sequence.linked",
   "Séquence retirée.": "sequence.removed",

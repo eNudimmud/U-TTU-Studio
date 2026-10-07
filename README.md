@@ -68,7 +68,7 @@ U-TTU-Studio/
     Assets/                   poids et clips
     Moteurs/                  fiches des gestes, sans graphe
     Sequences/  Shots/  Prompts/
-    Templates/                gabarits modele-personnage, modele-scene, modele-prise
+    Templates/                gabarits modele-personnage, modele-scene, modele-prise, modele-sequence, modele-shot
 ```
 
 « Exporter mon studio » télécharge `U-TTU-Studio.zip`, à ouvrir tel quel dans Obsidian. « Importer un studio » ajoute un ZIP à celui de cet appareil : une prise ou un personnage déjà là reste. Deux appareils ne partagent rien tout seuls. Sur ordinateur (Chrome, Edge), « Relier mon dossier Obsidian » écrit directement dans un dossier choisi. Ni la clé de rendu, ni la clé fal, n’entrent dans mon studio. Pourquoi ce dossier plutôt qu’un ZIP de départ : [docs/VAULT.md](docs/VAULT.md).

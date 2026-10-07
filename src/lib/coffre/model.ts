@@ -8,6 +8,7 @@
 //   Projets/<slug>/Lieux/<id>-fichier.md  a place file (not the place note)
 //   Projets/<slug>/Prises/<id>.md         a take, plus its video and poster
 //   Projets/<slug>/Sequences/<id>.md      ordered takes and the raccord between them
+//   Projets/<slug>/Shots/<id>.md          one storyboard panel: a sequence, takes, a short note
 //   Projets/<slug>/Assets/                weights and clips
 //   Projets/<slug>/Journal.md
 //   Projets/<slug>/.uttu/                 current place, clips, role draft, measured quotes
@@ -36,6 +37,8 @@ export const NAME_MAX = 40;
 export const NOTE_MAX = 280;
 export const RACCORD_MAX = 240;
 export const SEQUENCE_LINKS_MAX = 24;
+export const SHOT_NOTE_MAX = 240;
+export const SHOT_TAKES_MAX = 12;
 export const LINE_MAX = 240;
 
 export interface Look {
@@ -139,12 +142,23 @@ export interface Sequence {
   links: SequenceLink[];
 }
 
+/** One storyboard panel. The sequence orders the panels. The takes are the panel, in order. */
+export interface Shot {
+  id: string;
+  name: string;
+  sequenceId: string | null;
+  takeIds: string[];
+  note: string;
+  ordre: number;
+}
+
 export interface Studio {
   look: Look;
   scenes: Scene[];
   currentScene: string | null;
   takes: Take[];
   sequences: Sequence[];
+  shots: Shot[];
   loras: Lora[];
   clips: Clip[];
   role: RoleDraft;
@@ -165,7 +179,7 @@ export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "pre
 
 export const isPlaceLora = (lora: Pick<Lora, "kind">) => lora.kind === "lieu";
 export const emptyStudio = (): Studio => ({
-  look: emptyLook(), scenes: [], currentScene: null, takes: [], sequences: [], loras: [], clips: [], role: emptyRole(), quotes: [],
+  look: emptyLook(), scenes: [], currentScene: null, takes: [], sequences: [], shots: [], loras: [], clips: [], role: emptyRole(), quotes: [],
   project: null, projectName: "", projects: [], tree: [],
 });
 
@@ -488,6 +502,116 @@ export function parseSequence(id: string, source: string): Sequence | null {
   };
 }
 
+/** Stems that would read as the Shots section, or as the empty-folder note. */
+const SHOT_SKIP = new Set(["index", "shot", "shots", "plan", "plans", "modele", "modeles", "sequence", "sequences", "lieu", "prise", "prises"]);
+
+export function shotStem(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return "cadre";
+  const base = slugify(trimmed);
+  return SHOT_SKIP.has(base) ? "cadre" : base;
+}
+
+export function normalizeTakeIds(ids: readonly string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of ids) {
+    const takeId = oneLine(raw, 80);
+    if (!/^[A-Za-z0-9-]+$/.test(takeId) || seen.has(takeId)) continue;
+    seen.add(takeId);
+    out.push(takeId);
+    if (out.length >= SHOT_TAKES_MAX) break;
+  }
+  return out;
+}
+
+function cleanSequenceId(value: string | null): string | null {
+  const id = oneLine(value ?? "", 80);
+  return /^[a-z0-9-]+$/.test(id) ? id : null;
+}
+
+/** Panels of one sequence, in storyboard order. */
+export function shotsOf(shots: readonly Shot[], sequenceId: string): Shot[] {
+  return shots
+    .filter(shot => shot.sequenceId === sequenceId)
+    .sort((a, b) => a.ordre - b.ordre || a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
+}
+
+/** A newly linked panel goes at the end of that sequence. */
+export function assignOrdre(shots: readonly Shot[], shot: Shot): Shot {
+  if (!shot.sequenceId) return { ...shot, ordre: 0 };
+  const others = shotsOf(shots.filter(item => item.id !== shot.id), shot.sequenceId);
+  const ordre = others.reduce((max, item) => Math.max(max, item.ordre), -1) + 1;
+  return { ...shot, ordre };
+}
+
+/** Moves a panel among the panels of its sequence. Panels without a sequence stay put. */
+export function moveShot(shots: readonly Shot[], id: string, direction: -1 | 1): Shot[] {
+  const shot = shots.find(item => item.id === id);
+  if (!shot?.sequenceId) return shots.map(item => ({ ...item }));
+  const group = shotsOf(shots, shot.sequenceId);
+  const index = group.findIndex(item => item.id === id);
+  const next = index + direction;
+  if (index < 0 || next < 0 || next >= group.length) return shots.map(item => ({ ...item }));
+  const reordered = [...group];
+  const [item] = reordered.splice(index, 1);
+  reordered.splice(next, 0, item);
+  const ordre = new Map(reordered.map((panel, at) => [panel.id, at]));
+  return shots.map(panel => ordre.has(panel.id) ? { ...panel, ordre: ordre.get(panel.id) ?? panel.ordre } : { ...panel });
+}
+
+export function dropTakeFromShots(shots: readonly Shot[], takeId: string): Shot[] {
+  return shots.map(shot => shot.takeIds.includes(takeId) ? { ...shot, takeIds: normalizeTakeIds(shot.takeIds.filter(id => id !== takeId)) } : shot);
+}
+
+export function clearShotSequence(shots: readonly Shot[], sequenceId: string): Shot[] {
+  return shots.map(shot => shot.sequenceId === sequenceId ? { ...shot, sequenceId: null, ordre: 0 } : shot);
+}
+
+export function shotMarkdown(shot: Shot, projet = "", takes: readonly Pick<Take, "id" | "line">[] = [], sequenceName = ""): string {
+  const sequenceId = cleanSequenceId(shot.sequenceId);
+  const takeIds = normalizeTakeIds(shot.takeIds);
+  const note = oneLine(shot.note, SHOT_NOTE_MAX);
+  const rows = takeIds.map((takeId, index) => {
+    const line = takes.find(item => item.id === takeId)?.line.trim() || takeId;
+    const alias = line.replace(/[\[\]|\r\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80) || takeId;
+    const target = projet ? `Projets/${projet}/Prises/${takeId}` : `Prises/${takeId}`;
+    return `${index + 1}. [[${target}|${alias}]]`;
+  });
+  const sequenceLine = sequenceId
+    ? `Séquence : [[${projet ? `Projets/${projet}/Sequences/${sequenceId}` : `Sequences/${sequenceId}`}|${(sequenceName || sequenceId).replace(/[\[\]|]/g, " ")}]]`
+    : "Sans séquence.";
+  const listed = rows.length > 0 ? rows.join("\n") : "Aucune prise pour l’instant.";
+  const noted = note ? `Note : ${note}\n\n` : "";
+  const body = `# ${shot.name}\n\nUn plan est une case du storyboard. Il suit une séquence, puis des prises, dans l’ordre.\n\n${sequenceLine}\n\n${noted}${listed}\n`;
+  return withFrontmatter({
+    type: "shot",
+    projet,
+    statut: "brouillon",
+    gesture: "shot",
+    updated: new Date().toISOString(),
+    nom: shot.name,
+    sequence: sequenceId ?? "",
+    prises: takeIds,
+    note,
+    ordre: sequenceId ? Math.max(0, Math.round(shot.ordre)) : 0,
+  }, body);
+}
+
+export function parseShot(id: string, source: string): Shot | null {
+  if (SHOT_SKIP.has(id)) return null;
+  const { fields } = readFrontmatter(source);
+  const ordre = num(fields.ordre);
+  return {
+    id,
+    name: oneLine(text(fields.nom), NAME_MAX) || id,
+    sequenceId: cleanSequenceId(text(fields.sequence)),
+    takeIds: normalizeTakeIds(keptStrings(fields.prises)),
+    note: oneLine(text(fields.note), SHOT_NOTE_MAX),
+    ordre: ordre === null || ordre < 0 ? 0 : Math.round(ordre),
+  };
+}
+
 export function loraId(date: Date, name: string): string {
   return takeId(date, name || "lora");
 }
@@ -583,6 +707,7 @@ export function mocMarkdown(studio: Studio): string {
     ]),
     mapSection("Prises", studio.takes.map(take => wiki(`${base}/Prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
     mapSection("Séquences", studio.sequences.map(sequence => wiki(`${base}/Sequences/${sequence.id}`, sequence.name || "Séquence"))),
+    mapSection("Plans", studio.shots.map(shot => wiki(`${base}/Shots/${shot.id}`, shot.name || "Plan"))),
     mapSection("Repères", [wiki(`${base}/Bible`, "Bible"), wiki(`${base}/Style`, "Style"), wiki(`${base}/Lexique`, "Lexique"), wiki(`${base}/Journal`, "Journal")]),
     mapSection("Moteurs", [
       wiki(`${base}/Moteurs/moteur-references`, "Prise · Références"),
@@ -745,6 +870,7 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
   const castRe = new RegExp(`^Projets/${slug}/Cast/([A-Za-z0-9-]+)\\.md$`);
   const takeRe = new RegExp(`^Projets/${slug}/Prises/([A-Za-z0-9-]+)\\.md$`);
   const sequenceRe = new RegExp(`^Projets/${slug}/Sequences/([a-z0-9-]+)\\.md$`);
+  const shotRe = new RegExp(`^Projets/${slug}/Shots/([a-z0-9-]+)\\.md$`);
   for (const entry of entries) {
     if (!entry.path.startsWith(`${prefix}/`) || !entry.text) continue;
     const place = placeRe.exec(entry.path);
@@ -770,6 +896,12 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
       if (parsed) studio.sequences.push(parsed);
       continue;
     }
+    const shot = shotRe.exec(entry.path);
+    if (shot) {
+      const parsed = parseShot(shot[1], entry.text);
+      if (parsed) studio.shots.push(parsed);
+      continue;
+    }
     const cast = castRe.exec(entry.path);
     if (cast && cast[1] !== "canon") {
       const parsed = parseLora(cast[1], entry.text);
@@ -778,6 +910,11 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
   }
   studio.takes.sort((a, b) => b.at.localeCompare(a.at));
   studio.sequences.sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
+  studio.shots.sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
+  const shotIndex = byPath.get(`${prefix}/Shots/index.md`)?.text;
+  if (shotIndex?.includes("Un plan est une prise rangée dans ce projet.")) {
+    await writeText(store, `${prefix}/Shots/index.md`, shotIndex.replace("Un plan est une prise rangée dans ce projet.", "Un plan est une case du storyboard : une séquence, puis des prises, dans l’ordre."));
+  }
   studio.loras.sort((a, b) => b.at.localeCompare(a.at));
   const filmed = new Set(studio.takes.map(take => take.id));
   for (const scene of studio.scenes) if (scene.shot && !filmed.has(scene.shot)) scene.shot = null;
@@ -918,6 +1055,30 @@ export async function writeQuotes(store: VaultStore, quotes: readonly MeasuredQu
 export async function writeTake(store: VaultStore, take: Take, _takes: readonly Take[], _loras: readonly Lora[] = []): Promise<void> {
   const slug = await ensureActiveProject(store);
   await writeText(store, projectPath(slug, `Prises/${take.id}.md`), takeMarkdown(take, slug));
+  await writeMap(store);
+}
+
+export async function writeShot(store: VaultStore, shot: Shot, takes: readonly Pick<Take, "id" | "line">[] = [], sequenceName = ""): Promise<void> {
+  if (!/^[a-z0-9-]+$/.test(shot.id) || SHOT_SKIP.has(shot.id)) return;
+  const slug = await ensureActiveProject(store);
+  const clean: Shot = {
+    ...shot,
+    name: oneLine(shot.name, NAME_MAX),
+    sequenceId: cleanSequenceId(shot.sequenceId),
+    takeIds: normalizeTakeIds(shot.takeIds),
+    note: oneLine(shot.note, SHOT_NOTE_MAX),
+    ordre: 0,
+  };
+  if (!clean.name) return;
+  clean.ordre = clean.sequenceId ? Math.max(0, Math.round(shot.ordre)) : 0;
+  await writeText(store, projectPath(slug, `Shots/${clean.id}.md`), shotMarkdown(clean, slug, takes, sequenceName));
+  await writeMap(store);
+}
+
+export async function removeShot(store: VaultStore, id: string): Promise<void> {
+  if (!/^[a-z0-9-]+$/.test(id) || id === "index") return;
+  const slug = await ensureActiveProject(store);
+  await store.remove(projectPath(slug, `Shots/${id}.md`));
   await writeMap(store);
 }
 

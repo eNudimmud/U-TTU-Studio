@@ -65,6 +65,7 @@ describe("langues du studio", () => {
     const t = (key: string) => key;
     assert.equal(phrase(t, "Modèle · Prise"), "tree.modelTake");
     assert.equal(phrase(t, "Modèle · Séquence"), "tree.modelSequence");
+    assert.equal(phrase(t, "Modèle · Plan"), "tree.modelShot");
     assert.equal(phrase(t, "Séquence créée."), "sequence.created");
     assert.equal(phrase(t, "Moteur · Personnage"), "tree.engineCharacter");
     assert.equal(phrase(t, "Prises"), "tree.takes");

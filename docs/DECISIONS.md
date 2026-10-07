@@ -2,6 +2,14 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F12 — shots / storyboard — 7 octobre 2026
+
+- **Décision :** un plan est une note `Projets/<projet>/Shots/<id>.md`. Le dossier s’appelle déjà `Shots/`. L’écran français dit **Plan**, jamais Shot. Anglais : Shot. Allemand : Shot, comme Take. Espagnol : Viñeta. Le plan de l’espace (Pièce, Quai, Rue) reste un autre mot : Layout, Raumplan, plano de espacio.
+- **Décision :** le gabarit est `Templates/modele-shot.md`. Les fichiers `shot.md` et `plan.md` ne sont pas écrits : ce nom est déjà celui de la section. Un nom qui deviendrait `shot` ou `plan` est rangé `cadre`. `Shots/index.md` reste le mot du dossier vide.
+- **Décision :** un plan suit au plus une séquence, tient des prises dans l’ordre, et une note courte. L’ordre des plans dans la séquence est le storyboard. Retirer une séquence laisse le plan, sans séquence. Retirer une prise l’ôte du plan. Pas de graphe, pas de panneau de nœuds.
+- **Fait :** on ouvre les plans depuis la vue projet, depuis la séquence, depuis la prise, depuis l’étagère, et depuis Mon studio. 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés.
+- **Fait :** le dossier Plans était traduit Layouts, Raumpläne, Planos de espacio. Ce n’était pas le plan de l’espace. Il se lit maintenant Shots, Shots, Viñetas. Les catalogues DE et ES restent `_status: reviewed`. Ce n’est pas une signature de locuteur natif.
+
 ## F11 — devis mesuré (delta solde) — 7 octobre 2026
 
 - **Fait :** l’estimateur Cloud lu en F10 répond « 0 credits » sur `video_minimax_h3_r2v` et sur le graphe `h3-4pas-5s-vertical`. Ce 0 exclut le temps GPU, la file et le stockage. Ce n’est pas le prix du run.

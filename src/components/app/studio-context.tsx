@@ -6,8 +6,8 @@ import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip } from "@/lib/coffre/import";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
-  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, createProject, dropTakeLink, emptyLook, emptyRole, emptySceneDraft, emptyStudio, ensureActiveProject, extensionFor, isPlaceLora, loadStudio, loraId, normalizeLinks, removeLora, removeScene, removeSequence, removeTake, selectProject, sequenceStem, sha256Hex, slugify, takeId, uniqueId,
-  writeBlob, writeClips, writeLook, writeLora, writeQuotes, writeRole, writeScene, writeSequence, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Sequence, type Studio, type Take,
+  LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, assignOrdre, clearShotSequence, createProject, dropTakeFromShots, dropTakeLink, emptyLook, emptyRole, emptySceneDraft, emptyStudio, ensureActiveProject, extensionFor, isPlaceLora, loadStudio, loraId, moveShot, normalizeLinks, normalizeTakeIds, removeLora, removeScene, removeSequence, removeShot, removeTake, selectProject, sequenceStem, sha256Hex, shotStem, slugify, takeId, uniqueId,
+  writeBlob, writeClips, writeLook, writeLora, writeQuotes, writeRole, writeScene, writeSequence, writeShot, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Sequence, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { FalError, createFalClient, type FalClient, type FalHandle, type FalPrice } from "@/lib/fal/client";
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
@@ -43,7 +43,7 @@ import {
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
 
-export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | "sequences" | { take: string } | { sequence: string };
+export type Sheet = null | "connect" | "credits" | "coffre" | "confirm" | "fal" | "relier" | "blender" | "train-confirm" | "previz-confirm" | "place-train" | "place-scene" | "sequences" | "shots" | { take: string } | { sequence: string } | { shot: string };
 
 export type RunState =
   | { phase: "idle" }
@@ -333,6 +333,10 @@ interface StudioValue {
   createSequence(name: string): Promise<void>;
   saveSequence(id: string, patch: Partial<Pick<Sequence, "name" | "links">>): Promise<void>;
   deleteSequence(id: string): Promise<void>;
+  createShot(name: string, link?: { sequenceId?: string | null; takeId?: string | null }): Promise<void>;
+  saveShot(id: string, patch: Partial<Pick<Shot, "name" | "sequenceId" | "takeIds" | "note">>): Promise<void>;
+  moveShotInSequence(id: string, direction: -1 | 1): Promise<void>;
+  deleteShot(id: string): Promise<void>;
   refreshBalance(): Promise<Balance | null>;
   refreshFal(): Promise<UsdBalance | null>;
   connectFal(raw: string): Promise<string | null>;
@@ -1538,10 +1542,17 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       if (previous && previous.links.length === sequence.links.length && previous.links.every((link, index) => link.takeId === sequence.links[index]?.takeId && link.raccord === sequence.links[index]?.raccord)) continue;
       await writeSequence(store(), sequence, takes);
     }
+    const shots = dropTakeFromShots(studioRef.current.shots, id);
+    for (const shot of shots) {
+      const previous = studioRef.current.shots.find(item => item.id === shot.id);
+      if (previous && previous.takeIds.join("\n") === shot.takeIds.join("\n")) continue;
+      const sequenceName = studioRef.current.sequences.find(item => item.id === shot.sequenceId)?.name ?? "";
+      await writeShot(store(), shot, takes, sequenceName);
+    }
     await removeTake(store(), take, takes, studioRef.current.loras);
     dropMedia(take.video);
     if (take.poster) dropMedia(take.poster);
-    setStudio({ ...studioRef.current, takes, sequences });
+    setStudio({ ...studioRef.current, takes, sequences, shots });
   }, [dropMedia, setStudio, store]);
 
   const createSequence = useCallback(async (name: string) => {
@@ -1573,9 +1584,70 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const deleteSequence = useCallback(async (id: string) => {
     if (!studioRef.current.sequences.some(item => item.id === id)) return;
     await removeSequence(store(), id);
-    setStudio({ ...studioRef.current, sequences: studioRef.current.sequences.filter(item => item.id !== id) });
+    const shots = clearShotSequence(studioRef.current.shots, id);
+    for (const shot of shots) {
+      const previous = studioRef.current.shots.find(item => item.id === shot.id);
+      if (previous?.sequenceId !== id) continue;
+      await writeShot(store(), shot, studioRef.current.takes, "");
+    }
+    setStudio({ ...studioRef.current, sequences: studioRef.current.sequences.filter(item => item.id !== id), shots });
     setNotice("Séquence retirée.");
     setSheet("sequences");
+  }, [setStudio, store]);
+
+  const shotSort = (shots: Shot[]) => shots.sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
+
+  const createShot = useCallback(async (name: string, link?: { sequenceId?: string | null; takeId?: string | null }) => {
+    const clean = name.replace(/\s+/g, " ").trim().slice(0, 40);
+    if (!clean) return;
+    const sequenceId = studioRef.current.sequences.some(item => item.id === link?.sequenceId) ? link?.sequenceId ?? null : null;
+    const takeId = studioRef.current.takes.some(item => item.id === link?.takeId) ? link?.takeId ?? null : null;
+    const id = uniqueId(shotStem(clean), studioRef.current.shots.map(item => item.id));
+    const created = assignOrdre(studioRef.current.shots, {
+      id, name: clean, sequenceId, takeIds: takeId ? [takeId] : [], note: "", ordre: 0,
+    });
+    const shots = shotSort([...studioRef.current.shots, created]);
+    setStudio({ ...studioRef.current, shots });
+    const sequenceName = studioRef.current.sequences.find(item => item.id === created.sequenceId)?.name ?? "";
+    await writeShot(store(), created, studioRef.current.takes, sequenceName);
+    setSheet({ shot: id });
+  }, [setStudio, store]);
+
+  const saveShot = useCallback(async (id: string, patch: Partial<Pick<Shot, "name" | "sequenceId" | "takeIds" | "note">>) => {
+    const current = studioRef.current.shots.find(item => item.id === id);
+    if (!current) return;
+    const name = patch.name === undefined ? current.name : patch.name.replace(/\s+/g, " ").trim().slice(0, 40);
+    if (!name) return;
+    const sequenceId = patch.sequenceId === undefined
+      ? current.sequenceId
+      : (studioRef.current.sequences.some(item => item.id === patch.sequenceId) ? patch.sequenceId : null);
+    const takeIds = patch.takeIds === undefined ? current.takeIds : normalizeTakeIds(patch.takeIds);
+    const note = patch.note === undefined ? current.note : patch.note;
+    let next: Shot = { ...current, name, sequenceId, takeIds, note };
+    if (sequenceId !== current.sequenceId) next = assignOrdre(studioRef.current.shots, next);
+    const shots = shotSort(studioRef.current.shots.map(item => (item.id === id ? next : item)));
+    setStudio({ ...studioRef.current, shots });
+    const sequenceName = studioRef.current.sequences.find(item => item.id === next.sequenceId)?.name ?? "";
+    await writeShot(store(), next, studioRef.current.takes, sequenceName);
+  }, [setStudio, store]);
+
+  const moveShotInSequence = useCallback(async (id: string, direction: -1 | 1) => {
+    const previousShots = studioRef.current.shots;
+    const shots = moveShot(previousShots, id, direction);
+    setStudio({ ...studioRef.current, shots });
+    for (const previous of previousShots) {
+      const shot = shots.find(item => item.id === previous.id);
+      if (!shot || shot.ordre === previous.ordre) continue;
+      const sequenceName = studioRef.current.sequences.find(item => item.id === shot.sequenceId)?.name ?? "";
+      await writeShot(store(), shot, studioRef.current.takes, sequenceName);
+    }
+  }, [setStudio, store]);
+
+  const deleteShot = useCallback(async (id: string) => {
+    if (!studioRef.current.shots.some(item => item.id === id)) return;
+    await removeShot(store(), id);
+    setStudio({ ...studioRef.current, shots: studioRef.current.shots.filter(item => item.id !== id) });
+    setSheet("shots");
   }, [setStudio, store]);
 
   const addClips = useCallback(async (files: File[]) => {
@@ -2042,7 +2114,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
     setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, deleteLora,
-    requestRun, confirmRun, cancelRun, resetRun, deleteTake, createSequence, saveSequence, deleteSequence, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
+    requestRun, confirmRun, cancelRun, resetRun, deleteTake, createSequence, saveSequence, deleteSequence, createShot, saveShot, moveShotInSequence, deleteShot, refreshBalance, refreshFal, connectFal, disconnectFal, connectKey, sessionLinked, disconnect,
     exportCoffre, importCoffre, createNamedProject, selectNamedProject, linkFolder, dismissGuide, guideOff,
   };
 
