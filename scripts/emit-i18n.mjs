@@ -186,9 +186,6 @@ row("sequence.inSequence", "Dans la séquence {name}", "In the sequence {name}",
 row("sequence.back", "Toutes les séquences", "All sequences", "Alle Sequenzen", "Todas las secuencias");
 row("sequence.delete", "Retirer la séquence", "Remove the sequence", "Sequenz entfernen", "Quitar la secuencia");
 row("sequence.missingTake", "Prise introuvable", "Take not found", "Take nicht gefunden", "Toma no encontrada");
-row("sequence.created", "Séquence créée.", "Sequence created.", "Sequenz angelegt.", "Secuencia creada.");
-row("sequence.linked", "Prise reliée.", "Take connected.", "Take verbunden.", "Toma vinculada.");
-row("sequence.removed", "Séquence retirée.", "Sequence removed.", "Sequenz entfernt.", "Secuencia quitada.");
 row("scene.openTake", "Ouvrir la prise {line}", "Open the take {line}", "Take öffnen {line}", "Abrir la toma {line}");
 row("scene.goTake", "Aller à la prise", "Go to the take", "Zum Take", "Ir a la toma");
 row("scene.placeFirst", `Pose d${Q}abord un lieu`, "Set a location first", "Zuerst einen Drehort setzen", "Coloca primero una localización");

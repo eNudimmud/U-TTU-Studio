@@ -243,10 +243,7 @@
     "inSequence": "Dans la séquence {name}",
     "back": "Toutes les séquences",
     "delete": "Retirer la séquence",
-    "missingTake": "Prise introuvable",
-    "created": "Séquence créée.",
-    "linked": "Prise reliée.",
-    "removed": "Séquence retirée."
+    "missingTake": "Prise introuvable"
   },
   "film": {
     "place": {

@@ -1541,7 +1541,6 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const sequences = [...studioRef.current.sequences, created].sort((a, b) => a.name.localeCompare(b.name, "fr") || a.id.localeCompare(b.id));
     setStudio({ ...studioRef.current, sequences });
     await writeSequence(store(), created, studioRef.current.takes);
-    setNotice("Séquence créée.");
     setSheet({ sequence: id });
   }, [setStudio, store]);
 
@@ -1563,7 +1562,6 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     if (!studioRef.current.sequences.some(item => item.id === id)) return;
     await removeSequence(store(), id);
     setStudio({ ...studioRef.current, sequences: studioRef.current.sequences.filter(item => item.id !== id) });
-    setNotice("Séquence retirée.");
     setSheet("sequences");
   }, [setStudio, store]);
 

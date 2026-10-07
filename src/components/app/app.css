@@ -257,7 +257,8 @@
 .u-rail-coffre { display: none; }
 .u-sheet:focus { outline: none; }
 .u-sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-.u-sheet-head h2 { font: 600 24px/1.1 var(--font-heading); letter-spacing: -.03em; margin-top: 4px; }
+.u-sheet-head > div { min-width: 0; }
+.u-sheet-head h2 { font: 600 24px/1.1 var(--font-heading); letter-spacing: -.03em; margin-top: 4px; overflow-wrap: anywhere; }
 @keyframes u-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 .u-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .u-tabs button { min-height: 44px; border: 1px solid var(--u-line); border-radius: 12px; background: transparent; color: var(--u-muted); }

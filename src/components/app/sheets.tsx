@@ -534,7 +534,7 @@ function SequenceList() {
 
 function SequenceEditor({ id }: { id: string }) {
   const { t } = useI18n();
-  const { setSheet, studio, saveSequence, deleteSequence, setNotice } = useStudio();
+  const { setSheet, studio, saveSequence, deleteSequence } = useStudio();
   const sequence = studio.sequences.find(item => item.id === id);
   const [name, setName] = useState(sequence?.name ?? "");
   const [pick, setPick] = useState("");
@@ -598,7 +598,6 @@ function SequenceEditor({ id }: { id: string }) {
       <button type="button" className="u-secondary" disabled={blocked} onClick={() => {
         if (!chosen) return;
         void saveSequence(sequence.id, { links: [...sequence.links, { takeId: chosen, raccord: "" }] });
-        setNotice("Prise reliée.");
       }}>{t("verb.relier")}</button>
       <Why on={blocked} text={studio.takes.length === 0 ? t("sequence.noTake") : t("sequence.allLinked")} />
       <button type="button" className="u-link u-muted" onClick={() => void deleteSequence(sequence.id)}>{t("sequence.delete")}</button>

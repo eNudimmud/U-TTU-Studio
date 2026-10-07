@@ -243,10 +243,7 @@
     "inSequence": "In the sequence {name}",
     "back": "All sequences",
     "delete": "Remove the sequence",
-    "missingTake": "Take not found",
-    "created": "Sequence created.",
-    "linked": "Take connected.",
-    "removed": "Sequence removed."
+    "missingTake": "Take not found"
   },
   "film": {
     "place": {
