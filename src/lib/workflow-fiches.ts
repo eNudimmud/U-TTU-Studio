@@ -49,7 +49,7 @@ function renduCost(live: string | null): string {
   return `Exemple · ${rate} crédit par seconde de calcul, sur le compte de rendu. Rien n’est débité ici.`;
 }
 
-/** Five wired jobs. Anything else is not a fiche. */
+/** Wired jobs only. « Image d’un lieu » stays off until a Cloud template has a whole-run quote. */
 export function workflowFiches(quotes: FicheQuotes, sample: { seconds: number; resolution: LoraResolution; steps: number }): readonly WorkflowFiche[] {
   const formExample = FAL_PUBLISHED.trainerPerStep * sample.steps;
   const rendu = renduCost(quotes.rendu);
@@ -100,17 +100,6 @@ export function workflowFiches(quotes: FicheQuotes, sample: { seconds: number; r
       dest: "scene",
       engine: null,
       focus: "vues",
-    },
-    {
-      id: "image",
-      name: "Image d’un lieu",
-      sentence: "Le fichier du lieu bâtit une image neuve. Le modèle 3D reste le fichier Blender.",
-      inputs: ["Un lieu déjà formé"],
-      cost: liveOrExample(quotes.image, unread),
-      payer: "fal",
-      dest: "scene",
-      engine: null,
-      focus: "image",
     },
   ];
 }

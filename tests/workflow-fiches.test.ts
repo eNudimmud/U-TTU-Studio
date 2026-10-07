@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { formatUsd } from "../src/lib/fal/prices.ts";
 import { workflowFiches } from "../src/lib/workflow-fiches.ts";
@@ -9,8 +10,8 @@ const sample = { seconds: 5, resolution: "768P" as const, steps: 1000 };
 describe("fiches de geste", () => {
   it("lists only the jobs already wired, as cards", () => {
     const fiches = workflowFiches(empty, sample);
-    assert.deepEqual(fiches.map(fiche => fiche.id), ["references", "personnage", "former", "lieu", "image"]);
-    assert.deepEqual(fiches.map(fiche => fiche.payer), ["rendu", "rendu", "fal", "fal", "fal"]);
+    assert.deepEqual(fiches.map(fiche => fiche.id), ["references", "personnage", "former", "lieu"]);
+    assert.deepEqual(fiches.map(fiche => fiche.payer), ["rendu", "rendu", "fal", "fal"]);
     assert.equal(fiches[0].engine, "comfy");
     assert.equal(fiches[1].engine, "comfy");
     assert.equal(fiches[1].dest, "prise");
@@ -18,11 +19,11 @@ describe("fiches de geste", () => {
     assert.doesNotMatch(fiches[1].cost, /fal|\$/);
     assert.equal(fiches[2].focus, "file");
     assert.equal(fiches[3].focus, "vues");
-    assert.equal(fiches[4].focus, "image");
+    assert.equal(fiches.find(fiche => fiche.id === "image"), undefined);
     const text = JSON.stringify(fiches);
     assert.doesNotMatch(text, /graphe|nœud|seedance|flux|workflow|UNET|class_type/i);
     assert.match(fiches[3].sentence, /pas un volume/);
-    assert.match(fiches[4].sentence, /fichier Blender/);
+    assert.doesNotMatch(readFileSync("src/components/app/screens.tsx", "utf8"), /u-image-lieu|verb\.buildThis|verb\.buildPriced/);
   });
 
   it("keeps an example until a live price exists, and never invents one for a place", () => {
@@ -36,7 +37,6 @@ describe("fiches de geste", () => {
     assert.match(closed[2].cost, /Exemple/);
     assert.match(closed[2].cost, new RegExp(formatUsd(0.015 * 1000).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.equal(closed[3].cost.includes("$"), false);
-    assert.equal(closed[4].cost.includes("$"), false);
     assert.match(closed[3].cost, /avant le geste/);
 
     const open = workflowFiches({
@@ -50,7 +50,6 @@ describe("fiches de geste", () => {
     assert.doesNotMatch(open[0].cost, /Exemple/);
     assert.doesNotMatch(open[1].cost, /fal|\$/);
     assert.match(open[3].cost, /4,00 \$/);
-    assert.match(open[4].cost, /0,03 \$/);
     assert.doesNotMatch(open[3].cost, /Exemple/);
   });
 });

@@ -2,6 +2,13 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F4 — image d’un lieu — 7 octobre 2026
+
+- **Fait :** le catalogue Cloud n’a pas de template nommé pour bâtir l’image d’un lieu. Les recherches (lieu, décor, plan, establishing, matte) renvoient des éditions d’image, des vidéos, ou du texte-vers-image générique. En choisir un inventerait le geste.
+- **Fait :** pas de schéma retenu, pas d’`estimate_credits`, pas de `dry_run`. 0 crédit dépensé. `SaveLoRA` n’entre pas dans ce geste.
+- **Décision :** la fiche « Image d’un lieu » et le bouton « Bâtir une image de ce lieu » quittent l’écran. Former un lieu reste. Le code fal qui bâtirait l’image depuis un fichier de lieu reste dans la bibliothèque, sans bouton.
+- **Hypothèse :** le geste revient le jour où un template Cloud a un devis de run, pas une multiplication au jugé.
+
 ## F5 — un solde, deux comptes — 7 octobre 2026
 
 - **Décision :** le bouton du haut ouvre toujours la même feuille, Solde. Elle montre le compte de rendu (crédits) et le compte fal (dollars) l’un sous l’autre. Mon studio est le libellé. Relier ouvre le compte qui manque. Devis nomme le prix, seulement s’il est lu.
