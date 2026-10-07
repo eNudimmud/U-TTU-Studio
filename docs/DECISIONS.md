@@ -2,6 +2,14 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F11 — devis mesuré (delta solde) — 7 octobre 2026
+
+- **Fait :** l’estimateur Cloud lu en F10 répond « 0 credits » sur `video_minimax_h3_r2v` et sur le graphe `h3-4pas-5s-vertical`. Ce 0 exclut le temps GPU, la file et le stockage. Ce n’est pas le prix du run.
+- **Décision :** seul un devis mesuré débloque Tourner. Un devis mesuré est la baisse entre deux lectures de solde, au même réglage de prise. Le fichier `Projets/<slug>/.uttu/devis.json` est cette porte. Un chiffre seul sur la note, un solde qui n’a pas bougé, un rechargement, ou le 0 de l’estimateur n’ouvrent pas le bouton. Un estimateur futur qui compterait le temps GPU pourrait aussi débloquer, le jour où il rend un total de run.
+- **Décision :** la feuille Solde liste chaque réglage mesuré. Effacer ce devis oublie le chiffre. La prise et la vidéo restent. Au même réglage, Tourner se rallume seulement si un nouveau delta est écrit.
+- **Fait :** ce tour n’appelle ni `estimate_credits`, ni `dry_run`, ni `run_template`, ni `submit_workflow`, ni `partner_generate`. 0 crédit brûlé. `SaveLoRA` et l’image d’un lieu restent hors écran.
+- **Hypothèse :** la première paire de soldes réels se lit encore sur un compte relié, hors de ce tour. Ce tour ne fait pas ce run.
+
 ## F10 — devis Prise e2e — 7 octobre 2026
 
 - **Fait :** le geste déjà branché est le graphe studio `takeGraph`. Le profil par défaut est `h3-4pas-5s-vertical` (rapide, 5 s, 9:16, 4 pas). Le template Cloud nommé est `video_minimax_h3_r2v`. Les deux ont été lus par `estimate_credits` le 7 octobre 2026. Rien n’a été soumis.

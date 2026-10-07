@@ -8,7 +8,7 @@ import { LENSES, PREVIZ_LABELS, PREVIZ_PLANS, PATH_FRAMES, defaultCamera, pathPo
 import { filmAction } from "@/lib/render/shot";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
-import { TAKE_STEPS } from "@/lib/render/take-graph";
+import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { useI18n } from "@/components/i18n/provider";
 import { Why } from "./guide-bubble";
 import { Arrow, Close, Plus, Web } from "./glyphs";
@@ -463,7 +463,7 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
 export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): void; goScene(): void; goSphere(): void; goLora(): void }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { media, scene, line, setLine, settings, setSettings, gate, connected, balance, run, requestRun, cancelRun, resetRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
+  const { media, scene, line, setLine, settings, setSettings, claim, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
   const cast = castShelf(studio.studio.loras);
   const decor = decorShelf(studio.studio.scenes);
   const check = lookCheck(studio.studio.look);
@@ -485,7 +485,8 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
   const gaps = priseGaps({ lookReady: check.ready, hasScene: Boolean(scene), engine, hasCharacter });
   const whoName = chosenLora?.name.trim() ?? "";
   const placeName = scene?.name.trim() ?? "";
-  const livePrice = engine === "lora" && loraQuote !== null ? formatUsd(loraQuote) : null;
+  const measuredPrice = engine === "comfy" && claim.state === "measured" ? t("sheet.measuredMark", { amount: formatCredits(claim.credits) }) : null;
+  const livePrice = engine === "lora" && loraQuote !== null ? formatUsd(loraQuote) : measuredPrice;
   const example = exampleTakeQuote({ engine, seconds: settings.seconds, resolution: loraResolution });
   const showingExample = engine === "lora" ? !falLinked : !connected;
   const action = priseAction({
@@ -616,7 +617,11 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         <legend className="u-label">{t("take.engine")}</legend>
         {WIRED_ENGINES.map(item => {
           const on = engine === item.id;
-          const live = on && !showingExample && item.id === "lora" && loraQuote !== null ? formatUsd(loraQuote) : null;
+          const live = on && !showingExample && item.id === "lora" && loraQuote !== null
+            ? formatUsd(loraQuote)
+            : item.id === "comfy" && claim.state === "measured"
+              ? t("sheet.measuredMark", { amount: formatCredits(claim.credits) })
+              : null;
           return <button key={item.id} type="button" aria-pressed={on} onClick={() => { if (pickEngine(item.id)) setEngine(item.id); }}>
             <span>{item.model}</span>
             <strong>{t(`engine.${item.id}.label`)}</strong>
@@ -632,6 +637,7 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
         {engine === "comfy" && <Segments label={t("take.render")} value={settings.quality} onChange={quality => setSettings({ quality })} options={[{ value: "rapide", label: t("take.fast", { steps: TAKE_STEPS.rapide }) }, { value: "fine", label: t("take.fine", { steps: TAKE_STEPS.fine }) }]} />}
         <p className="u-sound"><span className="u-label">{t("take.sound")}</span>{t(`engine.${engine}.sound`)}</p>
       </div>
+      {engine === "comfy" && claim.state === "measured" && <button type="button" className="u-link" onClick={() => void clearMeasuredQuote(takeProfile(settings))}>{t("sheet.clearQuote")}</button>}
       <p className={`u-cost is-${showingExample ? "warn" : gate.tone}`}>
         {showingExample ? say(example)
           : engine === "lora"

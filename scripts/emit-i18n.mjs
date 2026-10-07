@@ -426,6 +426,11 @@ row("sheet.unlinkRender", "Délier le compte de rendu", "Disconnect the render a
 row("sheet.thisSetting", "À ce réglage · {profile}", "At this setting · {profile}", "Bei dieser Einstellung · {profile}", "En este ajuste · {profile}");
 row("sheet.aboutClaim", "Environ {amount} crédits, mesuré sur {basis}.", "About {amount} credits, measured on {basis}.", "Etwa {amount} Credits, gemessen an {basis}.", "Unos {amount} créditos, medido sobre {basis}.");
 row("sheet.uncalibratedClaim", "Devis absent. Aucun total pour cette prise. Rien ne part sans un chiffre mesuré au même réglage.", "Quote absent. No total for this take. Nothing leaves without a figure measured at the same setting.", "Kalkulation fehlt. Kein Gesamtbetrag für diesen Take. Nichts geht ohne eine Zahl, die bei derselben Einstellung gemessen wurde.", "Presupuesto ausente. Ningún total para esta toma. Nada sale sin una cifra medida en el mismo ajuste.");
+row("sheet.measuredLead", "Un devis mesuré est la différence de deux soldes, au même réglage.", "A measured quote is the difference of two balances, at the same setting.", "Eine gemessene Kalkulation ist die Differenz zweier Guthaben, bei derselben Einstellung.", "Un presupuesto medido es la diferencia de dos saldos, en el mismo ajuste.");
+row("sheet.measuredQuotes", "Devis mesurés", "Measured quotes", "Gemessene Kalkulationen", "Presupuestos medidos");
+row("sheet.measuredSetting", "{steps} pas · {seconds} s · {aspect}", "{steps} steps · {seconds} s · {aspect}", "{steps} Schritte · {seconds} s · {aspect}", "{steps} pasos · {seconds} s · {aspect}");
+row("sheet.measuredMark", "{amount} crédits, mesurés", "{amount} credits, measured", "{amount} Credits, gemessen", "{amount} créditos, medidos");
+row("sheet.clearQuote", "Effacer ce devis", "Clear this quote", "Diese Kalkulation löschen", "Borrar este presupuesto");
 row("sheet.falAccount", "Compte fal", "fal account", "fal-Konto", "Cuenta fal");
 row("sheet.readAtFal", "lus à {time}", "read at {time}", "gelesen um {time}", "leídos a las {time}");
 row("sheet.rereadFal", "Relire le solde fal", "Reread the fal balance", "fal-Guthaben neu lesen", "Releer el saldo fal");
