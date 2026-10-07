@@ -26,10 +26,8 @@ export interface WorkflowFiche {
 }
 
 export interface FicheQuotes {
-  /** The live line from the render account, or null before that account is linked. */
+  /** The live line from the render account, or null before that account is linked. Références and Prise · Personnage both read it. */
   rendu: string | null;
-  /** A live amount for the personnage take, already formatted, or null. */
-  personnage: string | null;
   /** A live amount for forming a character, already formatted, or null. */
   former: string | null;
   /** A live amount for forming a place, already formatted, or null. */
@@ -44,18 +42,24 @@ function liveOrExample(live: string | null, example: string): string {
   return live ? `${live}, lu sur le compte fal.` : example;
 }
 
+/** The render account's own line, or the published Comfy rate. Never a dollar amount. */
+function renduCost(live: string | null): string {
+  if (live) return live;
+  const rate = String(COMFY_CLOUD.gpuCreditsPerSecond).replace(".", ",");
+  return `Exemple · ${rate} crédit par seconde de calcul, sur le compte de rendu. Rien n’est débité ici.`;
+}
+
 /** Five wired jobs. Anything else is not a fiche. */
 export function workflowFiches(quotes: FicheQuotes, sample: { seconds: number; resolution: LoraResolution; steps: number }): readonly WorkflowFiche[] {
-  const rate = String(COMFY_CLOUD.gpuCreditsPerSecond).replace(".", ",");
-  const takeExample = FAL_PUBLISHED.takePerSecond[sample.resolution] * sample.seconds;
   const formExample = FAL_PUBLISHED.trainerPerStep * sample.steps;
+  const rendu = renduCost(quotes.rendu);
   return [
     {
       id: "references",
       name: "Prise · Références",
       sentence: "Les photos du coffre deviennent une prise, avec le son.",
       inputs: ["Deux photos, un nom, deux traits", "Un lieu", "Une phrase", "La durée et le format"],
-      cost: quotes.rendu ?? `Exemple · ${rate} crédit par seconde de calcul, sur le compte de rendu. Rien n’est débité ici.`,
+      cost: rendu,
       payer: "rendu",
       dest: "prise",
       engine: "comfy",
@@ -64,15 +68,12 @@ export function workflowFiches(quotes: FicheQuotes, sample: { seconds: number; r
     {
       id: "personnage",
       name: "Prise · Personnage",
-      sentence: "Le fichier du coffre tient le personnage, d’une prise à l’autre.",
-      inputs: ["Un fichier de personnage", "Les photos du coffre", "Un lieu", "Une phrase"],
-      cost: liveOrExample(
-        quotes.personnage,
-        `Exemple · ${formatUsd(takeExample)} pour ${sample.seconds} s. Le prix du compte fal le remplace après Relier. Rien n’est débité ici.`,
-      ),
-      payer: "fal",
+      sentence: "Les photos du coffre tiennent le personnage, d’une prise à l’autre, avec le son.",
+      inputs: ["Les photos du personnage", "Un lieu", "Une phrase", "La durée et le format"],
+      cost: rendu,
+      payer: "rendu",
       dest: "prise",
-      engine: "lora",
+      engine: "comfy",
       focus: null,
     },
     {
