@@ -234,9 +234,10 @@
 .u-pulse { position: absolute; top: 2px; right: calc(50% - 22px); width: 9px; height: 9px; border-radius: 50%; background: var(--u-gold); animation: u-pulse 1.4s ease-in-out infinite; }
 @keyframes u-pulse { 50% { opacity: .25; } }
 
-.u-overlay { position: fixed; inset: 0; z-index: 80; display: flex; align-items: flex-end; justify-content: center; background: rgba(0, 0, 0, .62); }
-.u-sheet { width: min(560px, 100%); max-height: 88dvh; overflow: auto; padding: 16px 18px calc(18px + var(--u-safe)); border: 1px solid var(--u-line); border-bottom: 0; border-radius: 22px 22px 0 0; background: #121110; animation: u-up .22s ease-out; }
-.u-sheet.is-tall { height: 94dvh; max-height: 94dvh; }
+.u-overlay { position: fixed; inset: 0; z-index: 80; display: flex; align-items: stretch; justify-content: center; background: rgba(0, 0, 0, .62); }
+.u-sheet { width: 100%; height: 100dvh; max-height: 100dvh; overflow: auto; padding: 16px 18px calc(18px + var(--u-safe)); border: 0; border-radius: 0; background: #121110; animation: u-up .22s ease-out; }
+.u-sheet.is-tall { height: 100dvh; max-height: 100dvh; }
+.u-shelf { display: none; }
 .u-sheet:focus { outline: none; }
 .u-sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .u-sheet-head h2 { font: 600 24px/1.1 var(--font-heading); letter-spacing: -.03em; margin-top: 4px; }
@@ -263,25 +264,29 @@
 }
 @media (min-width: 720px) {
   .u-comfort-split { grid-template-columns: 1fr 1fr; }
-  .u-app { border-inline: 1px solid var(--u-line); }
+  .u-app { width: min(720px, 100%); border-inline: 1px solid var(--u-line); }
+  .u-chain { width: min(720px, 100%); }
   .u-overlay { align-items: center; }
-  .u-sheet { border-bottom: 1px solid var(--u-line); border-radius: 22px; }
-  .u-sheet.is-tall { height: min(860px, 92dvh); }
+  .u-sheet { width: min(640px, calc(100% - 48px)); height: auto; max-height: 88dvh; border: 1px solid var(--u-line); border-radius: 22px; }
+  .u-sheet.is-tall { height: min(860px, 92dvh); max-height: 92dvh; }
 }
 @media (min-width: 1080px) {
-  .u-comfort { grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); grid-auto-flow: dense; align-items: start; }
-  .u-comfort > .u-pickers,
+  .u-comfort { grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); grid-auto-flow: dense; align-items: start; padding: 22px 24px; gap: 16px; }
+  .u-comfort > .u-pickers { display: none; }
+  .u-comfort > .u-comfort-gaps,
+  .u-comfort > .u-small,
   .u-comfort > .u-field,
   .u-comfort > .u-engines,
   .u-comfort > .u-comfort-controls,
   .u-comfort > .u-cost,
   .u-comfort > .u-comfort-hint,
-  .u-comfort > .u-primary { grid-column: 1; }
-  .u-comfort > .u-comfort-gaps,
-  .u-comfort > .u-small,
   .u-comfort > .u-comfort-split,
-  .u-comfort > .u-pair,
-  .u-comfort > .u-link { grid-column: 2; }
+  .u-comfort > .u-primary,
+  .u-comfort > .u-link { grid-column: 1; }
+  .u-comfort > .u-shelf,
+  .u-comfort > .u-pair { grid-column: 2; }
+  .u-comfort > .u-shelf { display: flex; flex-direction: column; gap: 18px; position: sticky; top: 88px; align-self: start; }
+  .u-shelf .u-scenes { flex-direction: column; max-height: min(46dvh, 520px); overflow: auto; }
   .u-comfort > .u-link.u-comfort-hint { grid-column: 1; }
   .u-comfort > .u-comfort-split { grid-template-columns: 1fr; }
   .u-app { width: 100%; margin: 0; border-inline: 0; }

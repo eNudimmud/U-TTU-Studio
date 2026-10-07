@@ -75,6 +75,8 @@ describe("le studio, une app", () => {
     assert.match(take, /aria-label="Décors"/);
     assert.match(take, /aria-label="Distribution"/);
     assert.match(take, /className="u-pickers"/);
+    assert.match(take, /className="u-shelf"/);
+    assert.match(take, /aria-label="Étagère"/);
     assert.match(take, /weaveBrief/);
     assert.match(take, /Aucun personnage au coffre/);
     assert.match(take, /Aucun lieu au coffre/);
@@ -128,6 +130,17 @@ describe("le studio, une app", () => {
     assert.match(css, /width: min\(560px, 100%\)/);
     assert.match(css, /@media \(min-width: 1080px\)/);
     assert.match(css, /margin-left: 232px/);
+    const phone = css.slice(0, css.indexOf("@media (min-width: 720px)"));
+    assert.match(phone, /\.u-sheet \{[^}]*height: 100dvh/);
+    assert.match(phone, /\.u-chain \{[^}]*bottom: 0/);
+    assert.doesNotMatch(phone, /width: 232px/);
+    const mid = css.slice(css.indexOf("@media (min-width: 720px)"), css.indexOf("@media (min-width: 1080px)"));
+    assert.match(mid, /width: min\(720px, 100%\)/);
+    assert.doesNotMatch(mid, /width: 232px|margin-left: 232px/);
+    const desk = css.slice(css.indexOf("@media (min-width: 1080px)"), css.indexOf("@media (prefers-reduced-motion"));
+    assert.match(desk, /width: 232px/);
+    assert.match(desk, /\.u-comfort > \.u-shelf \{ display: flex/);
+    assert.match(desk, /\.u-comfort > \.u-pickers \{ display: none; \}/);
     assert.match(css, /grid-template-columns: minmax\(0, 1fr\) minmax\(320px, 440px\)/);
     assert.match(css, /\.u-paths \{ grid-template-columns: 1fr 1fr; align-items: stretch; \}/);
     assert.match(read("src/components/app/studio-app.tsx"), /aria-label="Coffre"><Coffre \/><span>Coffre<\/span>/);
