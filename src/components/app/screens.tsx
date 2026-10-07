@@ -399,41 +399,10 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
     </div>}
 
     {run.phase === "idle" && <div className="u-comfort" aria-label="Régler la prise">
-      {gaps.length > 0 && <ul className="u-facts">
+      {gaps.length > 0 && <ul className="u-facts u-comfort-gaps">
         {gaps.map(gap => <li key={gap.id}><span>{gap.text}</span> <button type="button" className="u-link" onClick={() => jump(gap.id)}>{gap.action}</button></li>)}
       </ul>}
       {showingExample && <p className="u-small">Parcours d’exemple · {SAMPLE_TAKE.who}, {SAMPLE_TAKE.place}. {SAMPLE_TAKE.line} Rien n’est débité ici.</p>}
-      <div className="u-pair" aria-label="Photos et lieu">
-        <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name || `Exemple · ${SAMPLE_TAKE.who}`}</figcaption></figure>
-        <span className="u-pair-thread" aria-hidden="true" />
-        <figure>{scenePicture && scene && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene ? (scene.render ? "Image filmée" : scene.name) : `Exemple · ${SAMPLE_TAKE.place}`}</figcaption></figure>
-      </div>
-      <div className="u-comfort-split">
-        <div>
-          <p className="u-label">Distribution</p>
-          {cast.length === 0
-            ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre. Le former</button>
-            : <div className="u-segments" role="radiogroup" aria-label="Distribution">
-              {cast.map(person => <button key={person.id} type="button" role="radio" aria-checked={engine === "lora" && chosenLora?.id === person.id} onClick={() => { setEngine("lora"); setLora(person.id); }}>{person.name}</button>)}
-            </div>}
-          {engine === "lora" && chosenLora && <p className="u-small">Ce fichier recharge {chosenLora.name || "le personnage"}.</p>}
-        </div>
-        <div>
-          <p className="u-label">Décors</p>
-          {studio.studio.scenes.length === 0
-            ? <button type="button" className="u-link" onClick={goScene}>Aucun lieu encore. Poser la scène</button>
-            : <div className="u-scenes" role="radiogroup" aria-label="Décors">
-              {studio.studio.scenes.map(item => {
-                const still = item.render ?? item.stills[0];
-                return <button key={item.id} type="button" role="radio" aria-checked={item.id === scene?.id} className="u-scene" onClick={() => void studio.selectScene(item.id)}>
-                  {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
-                  <span>{item.name || "Sans nom"}</span>
-                </button>;
-              })}
-            </div>}
-          {scene && decor.find(item => item.id === scene.id)?.camera && <p className="u-small">Ce décor se rouvre avec sa caméra.</p>}
-        </div>
-      </div>
       <label className="u-field">
         <span className="u-label">Ce que fait la prise</span>
         <textarea value={line} rows={2} maxLength={240} placeholder="Elle traverse le quai sous la pluie, sans se retourner." onChange={event => setLine(event.target.value)} />
@@ -464,12 +433,43 @@ export function TakeScreen({ goLook, goScene, goSphere, goLora }: { goLook(): vo
             ? (falBalance ? `${formatUsd(falBalance.usd)} sur ton compte fal. ${gate.line}` : gate.line)
             : (balance ? `${formatCredits(balance.credits)} crédits sur ton compte. ${gate.line}` : gate.line)}
       </p>
-      {action.hint && <p className="u-small">{action.hint}</p>}
-      {action.id === "bloque" && <button type="button" className="u-link" onClick={() => setSheet("credits")}>Voir le compte</button>}
+      {action.hint && <p className="u-small u-comfort-hint">{action.hint}</p>}
+      {action.id === "bloque" && <button type="button" className="u-link u-comfort-hint" onClick={() => setSheet("credits")}>Voir le compte</button>}
       <button type="button" className="u-primary" disabled={action.id === "bloque"} onClick={() => {
         if (action.id === "tourner") void requestRun();
         else if (action.id !== "bloque") jump(action.id);
       }}>{action.label} <Arrow /></button>
+      <div className="u-comfort-split">
+        <div>
+          <p className="u-label">Distribution</p>
+          {cast.length === 0
+            ? <button type="button" className="u-link" onClick={goLora}>Aucun personnage au coffre. Le former</button>
+            : <div className="u-segments" role="radiogroup" aria-label="Distribution">
+              {cast.map(person => <button key={person.id} type="button" role="radio" aria-checked={engine === "lora" && chosenLora?.id === person.id} onClick={() => { setEngine("lora"); setLora(person.id); }}>{person.name}</button>)}
+            </div>}
+          {engine === "lora" && chosenLora && <p className="u-small">Ce fichier recharge {chosenLora.name || "le personnage"}.</p>}
+        </div>
+        <div>
+          <p className="u-label">Décors</p>
+          {studio.studio.scenes.length === 0
+            ? <button type="button" className="u-link" onClick={goScene}>Aucun lieu encore. Poser la scène</button>
+            : <div className="u-scenes" role="radiogroup" aria-label="Décors">
+              {studio.studio.scenes.map(item => {
+                const still = item.render ?? item.stills[0];
+                return <button key={item.id} type="button" role="radio" aria-checked={item.id === scene?.id} className="u-scene" onClick={() => void studio.selectScene(item.id)}>
+                  {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
+                  <span>{item.name || "Sans nom"}</span>
+                </button>;
+              })}
+            </div>}
+          {scene && decor.find(item => item.id === scene.id)?.camera && <p className="u-small">Ce décor se rouvre avec sa caméra.</p>}
+        </div>
+      </div>
+      <div className="u-pair" aria-label="Photos et lieu">
+        <figure>{lookPicture && media[lookPicture] ? <img src={media[lookPicture]} alt="" /> : <span />}<figcaption>{studio.studio.look.name || `Exemple · ${SAMPLE_TAKE.who}`}</figcaption></figure>
+        <span className="u-pair-thread" aria-hidden="true" />
+        <figure>{scenePicture && scene && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene ? (scene.render ? "Image filmée" : scene.name) : `Exemple · ${SAMPLE_TAKE.place}`}</figcaption></figure>
+      </div>
       <button type="button" className="u-link u-muted" disabled={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={resetTake}>Remettre ce plan à zéro</button>
       <p className="u-small">Les prises déjà tournées restent.</p>
     </div>}
