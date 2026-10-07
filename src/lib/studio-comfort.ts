@@ -2,10 +2,33 @@ import { COMFY_CLOUD } from "./comfy-stack.ts";
 import { isPlaceLora, type Lora, type Scene, type TakeEngine } from "./coffre/model.ts";
 import { FAL_PUBLISHED, formatUsd, type LoraResolution } from "./fal/prices.ts";
 
+export interface WiredEngine {
+  id: TakeEngine;
+  /** Short name on the picker. */
+  label: string;
+  /** The model this button actually runs. An unwired name is not listed. */
+  model: string;
+  detail: string;
+  /** What this engine does with sound. There is no separate mute switch. */
+  sound: string;
+}
+
 /** Engines the take can actually run. Anything else is refused. */
-export const WIRED_ENGINES: readonly { id: TakeEngine; label: string }[] = [
-  { id: "comfy", label: "Références" },
-  { id: "lora", label: "Personnage" },
+export const WIRED_ENGINES: readonly WiredEngine[] = [
+  {
+    id: "comfy",
+    label: "Références",
+    model: "MiniMax H3",
+    detail: "Les photos du coffre partent à chaque prise.",
+    sound: "Le son est dans la prise.",
+  },
+  {
+    id: "lora",
+    label: "Personnage",
+    model: "MiniMax H3",
+    detail: "Le fichier du coffre tient le personnage.",
+    sound: "Le son n’est pas un réglage de ce fichier.",
+  },
 ];
 
 export function pickEngine(value: string): TakeEngine | null {
@@ -73,6 +96,17 @@ export const SAMPLE_TAKE = {
   aspect: "9:16",
   seconds: 5,
 } as const;
+
+/** A short price on each engine card. A live amount replaces the example only for the engine that was quoted. */
+export function engineMark(input: { id: TakeEngine; seconds: number; resolution: LoraResolution; live: string | null }): string {
+  if (input.live) return input.live;
+  if (input.id === "lora") {
+    const usd = FAL_PUBLISHED.takePerSecond[input.resolution] * input.seconds;
+    return `Exemple · ${formatUsd(usd)}`;
+  }
+  const rate = String(COMFY_CLOUD.gpuCreditsPerSecond).replace(".", ",");
+  return `Exemple · ${rate} crédit/s`;
+}
 
 /** Example price for the open take. A linked account replaces it with the live quote. */
 export function exampleTakeQuote(input: { engine: TakeEngine; seconds: number; resolution: LoraResolution }): string {

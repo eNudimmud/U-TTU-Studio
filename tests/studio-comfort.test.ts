@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { castShelf, characterPaths, decorShelf, exampleTakeQuote, pickEngine, priseAction, priseGaps, WIRED_ENGINES } from "../src/lib/studio-comfort.ts";
+import { castShelf, characterPaths, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, WIRED_ENGINES } from "../src/lib/studio-comfort.ts";
 import { formatUsd } from "../src/lib/fal/prices.ts";
 
 describe("confort studio", () => {
@@ -11,6 +11,17 @@ describe("confort studio", () => {
     assert.equal(pickEngine("flux"), null);
     assert.equal(pickEngine("seedance"), null);
     assert.equal(pickEngine(""), null);
+    assert.deepEqual(WIRED_ENGINES.map(engine => engine.model), ["MiniMax H3", "MiniMax H3"]);
+    assert.match(WIRED_ENGINES.find(engine => engine.id === "comfy")!.sound, /Le son est dans la prise/);
+    assert.match(WIRED_ENGINES.find(engine => engine.id === "lora")!.sound, /pas un réglage/);
+  });
+
+  it("prints an example price on each engine, and a live amount only when one was quoted", () => {
+    assert.equal(engineMark({ id: "lora", seconds: 5, resolution: "768P", live: null }), `Exemple · ${formatUsd(0.075 * 5)}`);
+    assert.equal(engineMark({ id: "lora", seconds: 8, resolution: "480P", live: null }), `Exemple · ${formatUsd(0.0625 * 8)}`);
+    assert.equal(engineMark({ id: "lora", seconds: 5, resolution: "768P", live: "1,20 $" }), "1,20 $");
+    assert.equal(engineMark({ id: "comfy", seconds: 8, resolution: "768P", live: null }), "Exemple · 0,39 crédit/s");
+    assert.equal(engineMark({ id: "comfy", seconds: 5, resolution: "480P", live: "12 crédits" }), "12 crédits");
   });
 
   it("keeps named characters off the place files", () => {

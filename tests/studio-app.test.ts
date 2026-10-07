@@ -66,7 +66,17 @@ describe("le studio, une app", () => {
     const take = scene.slice(scene.indexOf("export function TakeScreen"), scene.indexOf("export function SphereScreen"));
     assert.match(take, /aria-label="Décors"/);
     assert.match(take, /aria-label="Distribution"/);
-    assert.match(take, /label="Moteur"/);
+    assert.match(take, /aria-label="Régler la prise"/);
+    assert.match(take, /className="u-comfort"/);
+    assert.match(take, /className="u-label">Moteur</);
+    assert.match(take, /Ce que fait la prise/);
+    assert.match(take, /label="Format"/);
+    assert.match(take, /label="Durée"/);
+    assert.match(take, /className="u-sound"/);
+    assert.match(take, /engineMark/);
+    assert.equal(take.match(/className="u-primary"/g)?.length, 1);
+    assert.doesNotMatch(take, /seedance/i);
+    assert.doesNotMatch(take, /className="u-desk"/);
     const chain = read("src/components/app/studio-app.tsx");
     assert.match(chain, /label: "Personnage"/);
     assert.match(chain, /label: "Scène"/);
