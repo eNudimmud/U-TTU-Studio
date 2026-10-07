@@ -56,6 +56,9 @@
 .u-credit span { font: 600 10px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--u-muted); }
 .u-icon { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--u-gold); }
 .u-icon:hover { background: rgba(201, 164, 106, .1); }
+.u-coffre { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 10px; border: 0; border-radius: 12px; background: transparent; color: var(--u-gold); }
+.u-coffre span { font: 600 11px/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; }
+.u-coffre:hover { background: rgba(201, 164, 106, .1); }
 
 .u-main { padding: 18px 18px calc(150px + var(--u-safe)); }
 .u-main:focus { outline: none; }
@@ -111,6 +114,12 @@
 .u-facts { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .u-facts li { padding: 12px 14px; border: 1px solid var(--u-line); border-radius: 14px; background: rgba(18, 17, 16, .72); font-size: 14px; line-height: 1.45; }
 .u-facts strong { display: block; margin-bottom: 4px; font: 600 11px/1.4 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--u-gold); }
+.u-fold { border: 1px solid var(--u-line); border-radius: 14px; background: rgba(18, 17, 16, .45); }
+.u-fold summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 12px 14px; list-style: none; font: 600 11px/1.4 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--u-gold); }
+.u-fold summary::-webkit-details-marker { display: none; }
+.u-fold summary::after { content: "+"; font-size: 16px; line-height: 1; }
+.u-fold[open] summary::after { content: "–"; }
+.u-fold .u-facts { padding: 0 10px 12px; }
 .u-projet { gap: 12px; }
 .u-projet-prises { display: grid; gap: 2px; margin: 4px 0 0; padding: 0; list-style: none; }
 .u-projet-prises .u-link { min-height: 36px; }
@@ -273,6 +282,10 @@
   .u-main { margin-left: 232px; padding: 32px 40px 48px; }
   .u-head h1 { font-size: 68px; }
   .u-desk { grid-template-columns: minmax(0, 1fr) minmax(320px, 440px); gap: 28px 40px; align-items: start; }
+  .u-paths { grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .u-paths > .u-card { display: flex; flex-direction: column; height: 100%; }
+  .u-paths > .u-card p { flex: 1; }
+  .u-paths > .u-card .u-secondary { margin-top: 14px; }
   .u-scene-screen .u-desk { grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); }
   .u-desk > .u-facts { grid-template-columns: 1fr 1fr; }
   .u-scene-add { grid-template-columns: 1fr; }

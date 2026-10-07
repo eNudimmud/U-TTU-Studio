@@ -70,7 +70,7 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice }: { onTake(): vo
 
     {training.phase === "error" && <TrainError training={training} onReset={resetTraining} onRelink={() => { resetTraining(); setSheet("fal"); }} />}
 
-    {!showFile && <div className="u-desk" aria-label="Deux façons de créer un personnage">
+    {!showFile && <div className="u-desk u-paths" aria-label="Deux façons de créer un personnage">
       {paths.map(path => <article key={path.id} className="u-card">
         <h2>{path.title}</h2>
         <p>{path.body}</p>

@@ -22,18 +22,20 @@ export function HomeLanding() {
     </header>
     <main id="contenu" className="landing-main" tabIndex={-1}>
       <section className="landing-splash" aria-labelledby="landing-title">
-        <h1 id="landing-title">Ton personnage, ta scène, <em>la prise.</em></h1>
-        <div className="landing-sheet">
-          <ol className="landing-pills" aria-label="Trois gestes">
-            {STEPS.map((step, index) => <li key={step.name}>
-              <span className="step-index">{String(index + 1).padStart(2, "0")}</span>
-              <strong>{step.name}</strong>
-              <span className="step-plain">{step.plain}</span>
-            </li>)}
-          </ol>
-          <div className="landing-cta-row">
-            <a className="button button-primary" href={STUDIO_HREF}>Entrer dans le studio <Arrow /></a>
-            <p className="landing-quiet">Le studio ne vend rien. Le rendu se paie sur ton compte cloud.</p>
+        <div className="landing-copy">
+          <h1 id="landing-title">Ton personnage, ta scène, <em>la prise.</em></h1>
+          <div className="landing-sheet">
+            <ol className="landing-pills" aria-label="Trois gestes">
+              {STEPS.map((step, index) => <li key={step.name}>
+                <span className="step-index">{String(index + 1).padStart(2, "0")}</span>
+                <strong>{step.name}</strong>
+                <span className="step-plain">{step.plain}</span>
+              </li>)}
+            </ol>
+            <div className="landing-cta-row">
+              <a className="button button-primary" href={STUDIO_HREF}>Entrer dans le studio <Arrow /></a>
+              <p className="landing-quiet">Le studio ne vend rien. Le rendu se paie sur ton compte cloud.</p>
+            </div>
           </div>
         </div>
         <figure className="landing-still">

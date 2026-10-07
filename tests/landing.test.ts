@@ -13,6 +13,7 @@ describe("accueil", () => {
     assert.match(home, /Personnage/);
     assert.match(home, /Deux façons/);
     assert.doesNotMatch(home, /name: "Look"/);
+    assert.match(home, /className="landing-copy"/);
     assert.match(home, /Entrer dans le studio/);
     assert.match(home, /assetPath\("\/studio"\)/);
     assert.doesNotMatch(`${page}\n${home}`, JARGON);

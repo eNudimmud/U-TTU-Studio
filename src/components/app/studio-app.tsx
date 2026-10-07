@@ -99,7 +99,7 @@ function AppFrame() {
               : <><strong>{balance ? formatCredits(balance.credits) : balanceNote ? "—" : "…"}</strong><span>crédits</span></>)
             : <span>Relier</span>}
         </button>
-        <button type="button" className="u-icon" onClick={() => setSheet("coffre")} aria-label="Coffre"><Coffre /></button>
+        <button type="button" className="u-coffre" onClick={() => setSheet("coffre")} aria-label="Coffre"><Coffre /><span>Coffre</span></button>
       </div>
     </header>
 

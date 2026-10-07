@@ -248,13 +248,16 @@ function SceneEditor() {
       <span className="u-label">Ce qui tient le lieu</span>
       <textarea value={scene.note} maxLength={280} rows={2} placeholder="Pluie fine, néons froids, l’heure bleue." onChange={event => void saveScene(scene.id, { note: event.target.value.slice(0, 280) })} />
     </label>
-    <ul className="u-facts">
-      <li><strong>Le lieu</strong>Il reste. Tu le rouvres : même nom, même plan, même trajet. Tu peux en tenir plusieurs.</li>
-      <li><strong>Blender</strong>Il rend le lieu vide, {PATH_FRAMES} images le long du trajet. Le personnage n’est pas dans ce fichier.</li>
-      <li><strong>Le personnage</strong>C’est le LoRA du coffre. Il n’entre que dans le plan filmé, après ces images.</li>
-      <li><strong>Ce lieu, formé</strong>{learned.line} {falLinked && placeTrainQuote !== null ? `Formation : ${formatUsd(placeTrainQuote)}.` : "Le prix de formation se lit sur le compte fal, avant le geste."} {placeFile ? `Fichier au coffre.${placeSceneQuote !== null ? ` Image neuve : ${formatUsd(placeSceneQuote)}.` : ""}` : ""} Ce fichier n’est pas un volume. Le 3D reste le Blender.</li>
-      <li><strong>Le prix</strong>Les deux devis sont lus avant le geste. Rien ne part sans confirmation.</li>
-    </ul>
+    <details className="u-fold">
+      <summary>Ce que tient ce lieu</summary>
+      <ul className="u-facts">
+        <li><strong>Le lieu</strong>Il reste. Tu le rouvres : même nom, même plan, même trajet. Tu peux en tenir plusieurs.</li>
+        <li><strong>Blender</strong>Il rend le lieu vide, {PATH_FRAMES} images le long du trajet. Le personnage n’est pas dans ce fichier.</li>
+        <li><strong>Le personnage</strong>C’est le LoRA du coffre. Il n’entre que dans le plan filmé, après ces images.</li>
+        <li><strong>Ce lieu, formé</strong>{learned.line} {falLinked && placeTrainQuote !== null ? `Formation : ${formatUsd(placeTrainQuote)}.` : "Le prix de formation se lit sur le compte fal, avant le geste."} {placeFile ? `Fichier au coffre.${placeSceneQuote !== null ? ` Image neuve : ${formatUsd(placeSceneQuote)}.` : ""}` : ""} Ce fichier n’est pas un volume. Le 3D reste le Blender.</li>
+        <li><strong>Le prix</strong>Les deux devis sont lus avant le geste. Rien ne part sans confirmation.</li>
+      </ul>
+    </details>
     <p className="u-label">Plan</p>
     <div id="u-plans" className="u-segments" role="group" aria-label="Plan">
       {PREVIZ_PLANS.map(plan => <button key={plan} type="button" aria-pressed={scene.previz === plan} onClick={() => void setPreviz(scene.id, plan)}>{PREVIZ_LABELS[plan]}</button>)}
