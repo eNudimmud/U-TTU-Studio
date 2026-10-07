@@ -63,6 +63,8 @@ describe("le studio, une app", () => {
     assert.match(read("src/lib/lora/place.ts"), /flux-lora-fast-training/);
     assert.doesNotMatch(sceneScreen, /Préparer la prise|Blender ne tourne pas|Load3DAdvanced|RenderMesh/);
     assert.equal(sceneScreen.match(/u-primary/g)?.length, 1);
+    assert.match(sceneScreen, /<details className="u-fold">/);
+    assert.match(sceneScreen, /Ce que tient ce lieu/);
     assert.match(sceneScreen, /aria-label="Vue projet"/);
     assert.match(sceneScreen, /Aucun personnage sur ce lieu/);
     assert.match(sceneScreen, /Aucune prise pour ce lieu/);
@@ -97,6 +99,7 @@ describe("le studio, une app", () => {
     assert.match(chain, /choice=\{choice\}/);
     const role = read("src/components/app/lora-screen.tsx");
     assert.match(role, /Deux façons de créer un personnage/);
+    assert.match(role, /className="u-desk u-paths"/);
     assert.match(role, /characterPaths/);
     assert.match(role, /u-secondary/);
     const photos = read("src/components/app/screens.tsx");
@@ -113,6 +116,9 @@ describe("le studio, une app", () => {
     assert.match(css, /@media \(min-width: 1080px\)/);
     assert.match(css, /margin-left: 232px/);
     assert.match(css, /grid-template-columns: minmax\(0, 1fr\) minmax\(320px, 440px\)/);
+    assert.match(css, /\.u-paths \{ grid-template-columns: 1fr 1fr; align-items: stretch; \}/);
+    assert.match(read("src/components/app/studio-app.tsx"), /aria-label="Coffre"><Coffre \/><span>Coffre<\/span>/);
+    assert.match(read("src/app/globals.css"), /\.landing-copy \{ justify-content: space-between; /);
     assert.doesNotMatch(read("src/components/app/lora-screen.tsx"), /@clerk\//);
   });
 
