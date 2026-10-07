@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { clipAspect, clipFormat, clipProblem, datasetCheck, datasetLayout, triggerPhrase, type Clip } from "../src/lib/lora/dataset.ts";
+import { clipAspect, clipFormat, clipProblem, datasetCheck, datasetLayout, problemsAfterTouch, triggerPhrase, type Clip } from "../src/lib/lora/dataset.ts";
 
 const clip = (patch: Partial<Clip> = {}): Clip => ({ path: "clips/a.mp4", format: "mp4", bytes: 1000, seconds: 8, width: 720, height: 1280, ...patch });
 
@@ -28,6 +28,10 @@ describe("clips du double", () => {
     assert.equal(ready.aspect, "9:16");
     assert.equal(datasetCheck(ten.slice(0, 9), 2).ready, false);
     assert.match(datasetCheck(ten, 1).problems[0], /photos du personnage/);
+    const early = datasetCheck([], 0, "");
+    assert.equal(problemsAfterTouch(early.problems, { name: false, photos: false, clips: false, submit: false }).length, 0);
+    assert.deepEqual(problemsAfterTouch(early.problems, { name: true, photos: false, clips: false, submit: false }).map(line => /nom/.test(line)), [true]);
+    assert.equal(problemsAfterTouch(early.problems, { name: false, photos: false, clips: false, submit: true }).length, early.problems.length);
     assert.equal(datasetCheck([...ten, clip({ width: 1920, height: 1080 }), clip({ width: 1920, height: 1080 })], 2).aspect, "9:16");
     assert.equal(clipAspect(clip({ width: 1920, height: 1080 })), "16:9");
     assert.equal(clipAspect(clip({ width: 1000, height: 1000 })), "1:1");

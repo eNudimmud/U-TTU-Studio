@@ -1,5 +1,6 @@
+import { COMFY_CLOUD } from "./comfy-stack.ts";
 import { isPlaceLora, type Lora, type Scene, type TakeEngine } from "./coffre/model.ts";
-import { formatUsd } from "./fal/prices.ts";
+import { FAL_PUBLISHED, formatUsd, type LoraResolution } from "./fal/prices.ts";
 
 /** Engines the take can actually run. Anything else is refused. */
 export const WIRED_ENGINES: readonly { id: TakeEngine; label: string }[] = [
@@ -52,7 +53,7 @@ export function characterPaths(input: { falLinked: boolean; quote: number | null
     {
       id: "references",
       title: "Références",
-      body: "Deux photos, un nom, deux traits. Rien à former. Chaque prise « Références » paie le compte de rendu, au prix lu au moment de tourner.",
+      body: "Deux photos au moins, trois au plus, un nom, deux traits. Rien à former. Chaque prise « Références » paie le compte de rendu, au prix lu au moment de tourner.",
       action: "Tenir les photos",
     },
     {
@@ -62,6 +63,72 @@ export function characterPaths(input: { falLinked: boolean; quote: number | null
       action: "Former un fichier",
     },
   ];
+}
+
+/** A walkthrough the visitor can read before any account exists. The numbers are published tariffs, not a charge. */
+export const SAMPLE_TAKE = {
+  who: "Mira",
+  place: "Le quai, la nuit",
+  line: "Elle traverse le quai sous la pluie, sans se retourner.",
+  aspect: "9:16",
+  seconds: 5,
+} as const;
+
+/** Example price for the open take. A linked account replaces it with the live quote. */
+export function exampleTakeQuote(input: { engine: TakeEngine; seconds: number; resolution: LoraResolution }): string {
+  if (input.engine === "lora") {
+    const usd = FAL_PUBLISHED.takePerSecond[input.resolution] * input.seconds;
+    return `Exemple, tarif publié le ${FAL_PUBLISHED.checkedOn} : ${formatUsd(usd)} pour ${input.seconds} s en ${input.resolution}. Le prix de ton compte le remplace après Relier. Rien n’est débité ici.`;
+  }
+  const rate = String(COMFY_CLOUD.gpuCreditsPerSecond).replace(".", ",");
+  return `Exemple pour ${input.seconds} s : ${rate} crédit par seconde de calcul, publié le ${COMFY_CLOUD.checkedOn}. 1 $ = ${COMFY_CLOUD.creditsPerUsd} crédits. Le chiffre de cette prise se lit après Relier. Rien n’est débité ici.`;
+}
+
+export interface PriseGap {
+  id: "photos" | "scene" | "fichier" | "relier-fal" | "relier-rendu";
+  text: string;
+  action: string;
+}
+
+/** What is still missing on La prise. Each row is a sentence and a jump. */
+export function priseGaps(input: { lookReady: boolean; hasScene: boolean; engine: TakeEngine; falLinked: boolean; connected: boolean; hasCharacter: boolean }): PriseGap[] {
+  const gaps: PriseGap[] = [];
+  if (!input.lookReady) gaps.push({ id: "photos", text: "Il manque deux photos, un nom et deux traits.", action: "Tenir les photos" });
+  if (!input.hasScene) gaps.push({ id: "scene", text: "Il manque un lieu.", action: "Poser la scène" });
+  if (input.engine === "lora" && !input.hasCharacter) gaps.push({ id: "fichier", text: "Le moteur Personnage attend un fichier formé.", action: "Former le personnage" });
+  if (input.engine === "lora" && !input.falLinked) gaps.push({ id: "relier-fal", text: "Le compte fal n’est pas relié. Rien ne part sans lui.", action: "Relier" });
+  if (input.engine === "comfy" && !input.connected) gaps.push({ id: "relier-rendu", text: "Le compte de rendu n’est pas relié. Rien ne part sans lui.", action: "Relier" });
+  return gaps;
+}
+
+export interface PriseAction {
+  id: "relier-fal" | "relier-rendu" | "photos" | "scene" | "fichier" | "bloque" | "tourner";
+  label: string;
+  hint: string;
+}
+
+/**
+ * The gold button on La prise. Without an account it only opens Relier.
+ * A paid turn waits until the photos, the place, and the quote allow it.
+ */
+export function priseAction(input: {
+  engine: TakeEngine;
+  falLinked: boolean;
+  connected: boolean;
+  lookReady: boolean;
+  hasScene: boolean;
+  hasCharacter: boolean;
+  canSpend: boolean;
+  price: string | null;
+}): PriseAction {
+  const priced = input.price ? `Tourner · ${input.price}` : "Tourner";
+  if (input.engine === "lora" && !input.falLinked) return { id: "relier-fal", label: "Relier mon compte fal", hint: "" };
+  if (input.engine === "comfy" && !input.connected) return { id: "relier-rendu", label: "Relier mon compte de rendu", hint: "" };
+  if (!input.lookReady) return { id: "photos", label: "Tenir les photos", hint: "Il manque deux photos, un nom et deux traits." };
+  if (!input.hasScene) return { id: "scene", label: "Poser la scène", hint: "Il manque un lieu." };
+  if (input.engine === "lora" && !input.hasCharacter) return { id: "fichier", label: "Former le personnage", hint: "Il manque un fichier de personnage." };
+  if (!input.canSpend) return { id: "bloque", label: priced, hint: "Le prix ou le solde ne laisse pas partir la prise." };
+  return { id: "tourner", label: priced, hint: "" };
 }
 
 /** Named places, in vault order. The camera flag is the saved path, not a default. */

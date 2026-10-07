@@ -201,7 +201,7 @@ export function CoffreSheet() {
 }
 
 export function ConfirmSheet() {
-  const { setSheet, settings, balance, gate, confirmRun, scene, line, engine, chosenLora, loraResolution, falBalance } = useStudio();
+  const { setSheet, settings, balance, gate, confirmRun, scene, line, engine, chosenLora, loraResolution, falBalance, falBalanceOptional } = useStudio();
   const format = settings.aspect === "vertical" ? "9:16" : settings.aspect === "horizontal" ? "16:9" : "1:1";
   return <SheetFrame title="Tourner cette prise ?" label="Confirmer" onClose={() => setSheet(null)}>
     <div className="u-stack">
@@ -212,7 +212,7 @@ export function ConfirmSheet() {
           ? <>
             <li><span>Personnage</span><span>{chosenLora?.name || "Personnage"}</span></li>
             <li><span>Réglage</span><span>{format} · {settings.seconds} s · {loraResolution === "480P" ? "480p" : "768p"}</span></li>
-            <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : "illisible"}</span></li>
+            <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
           </>
           : <>
             <li><span>Réglage</span><span>{format} · {settings.seconds} s · {settings.quality === "rapide" ? "rapide" : "fin"}</span></li>
@@ -252,14 +252,14 @@ export function FalSheet() {
         <button type="button" className="u-secondary" onClick={disconnectFal}>Délier ce compte</button>
       </div>
       : <div className="u-stack">
-        <p>Le studio ne forme rien lui-même. Le personnage s’apprend sur ton compte fal, avec ton argent. Une seule visite hors de l’app : créer la clé. Ensuite tout reste ici.</p>
-        <p className="u-small">fal ne montre le solde qu’à une clé de portée Admin. Crée-la avec cette portée, une fois.</p>
+        <p>Le studio ne forme rien lui-même. Le personnage s’apprend sur ton compte fal, avec ton argent. Une clé ordinaire suffit. Une seule visite hors de l’app : créer la clé. Ensuite tout reste ici.</p>
+        <p className="u-small">Le solde s’affiche seulement si la clé a la portée Admin. Ce n’est pas demandé pour relier, former ou tourner.</p>
         <a className="u-link" href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">Créer une clé sur fal</a>
         <label className="u-field">
           <span className="u-label">Clé fal</span>
           <input id="u-fal-key" type="password" value={key} autoComplete="off" spellCheck={false} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:…" onChange={event => setKey(event.target.value)} />
         </label>
-        <p className="u-small">La clé reste sur cet appareil. Elle part seulement vers fal, jamais dans le coffre ni dans son export. Une clé Admin peut aussi dépenser : ne la partage pas.</p>
+        <p className="u-small">La clé reste sur cet appareil. Elle part seulement vers fal, jamais dans le coffre ni dans son export. Ne la partage pas.</p>
         {(error || falBalanceNote) && <p className="u-small is-error" role="alert">{error || falBalanceNote}</p>}
         <button type="button" className="u-primary" disabled={busy || !key.trim()} onClick={() => void linkKey()}>{busy ? "Vérification…" : "Relier"}</button>
       </div>}
@@ -267,7 +267,7 @@ export function FalSheet() {
 }
 
 export function TrainConfirmSheet() {
-  const { setSheet, studio, dataset, trainingSteps, falBalance, trainGate, confirmTraining } = useStudio();
+  const { setSheet, studio, dataset, trainingSteps, falBalance, falBalanceOptional, trainGate, confirmTraining } = useStudio();
   return <SheetFrame title="Former ce personnage ?" label="Confirmer" onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
@@ -275,7 +275,7 @@ export function TrainConfirmSheet() {
         <li><span>Clips</span><span>{dataset.clips}</span></li>
         <li><span>Apprentissage</span><span>{trainingSteps} pas</span></li>
         <li><span>Format</span><span>{dataset.aspect}</span></li>
-        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : "illisible"}</span></li>
+        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
       </ul>
       <p className={`u-cost is-${trainGate.tone}`}>{trainGate.line}</p>
       <button type="button" className="u-primary" disabled={!trainGate.allowed} onClick={() => void confirmTraining()}>Former · débit sur mon compte fal</button>
@@ -338,7 +338,7 @@ export function BlenderSheet() {
 }
 
 export function PlaceTrainSheet() {
-  const { setSheet, scene, falBalance, placeTrainQuote, placeTrainGate, confirmPlaceTrain } = useStudio();
+  const { setSheet, scene, falBalance, falBalanceOptional, placeTrainQuote, placeTrainGate, confirmPlaceTrain } = useStudio();
   return <SheetFrame title="Former ce lieu ?" label="Confirmer" onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
@@ -346,7 +346,7 @@ export function PlaceTrainSheet() {
         <li><span>Vues</span><span>{(scene?.stills.length ?? 0) + (scene?.frames.length ?? 0) + (scene?.views.length ?? 0)}</span></li>
         <li><span>Apprentissage</span><span>1000 pas · style</span></li>
         <li><span>Prix</span><span>{placeTrainQuote !== null ? formatUsd(placeTrainQuote) : "illisible"}</span></li>
-        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : "illisible"}</span></li>
+        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
       </ul>
       <p className={`u-cost is-${placeTrainGate.tone}`}>{placeTrainGate.line}</p>
       <p className="u-small">L’entraîneur H3 refuse des images seules. Ce lieu passe par l’entraîneur d’images déjà là, en style, sans masque de visage. Le fichier reste au coffre. Il ne devient pas un volume : le Blender du lieu reste le modèle 3D, et il n’entre pas dans la prise H3.</p>
@@ -357,14 +357,14 @@ export function PlaceTrainSheet() {
 }
 
 export function PlaceSceneSheet() {
-  const { setSheet, scene, falBalance, placeSceneQuote, placeSceneGate, confirmPlaceScene } = useStudio();
+  const { setSheet, scene, falBalance, falBalanceOptional, placeSceneQuote, placeSceneGate, confirmPlaceScene } = useStudio();
   return <SheetFrame title="Bâtir une image de ce lieu ?" label="Confirmer" onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
         <li><span>Lieu</span><span>{scene?.name || "—"}</span></li>
         <li><span>Fichier</span><span>LoRA du lieu, au coffre</span></li>
         <li><span>Prix</span><span>{placeSceneQuote !== null ? formatUsd(placeSceneQuote) : "illisible"}</span></li>
-        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : "illisible"}</span></li>
+        <li><span>Ton solde</span><span>{falBalance ? formatUsd(falBalance.usd) : falBalanceOptional ? "non lu" : "illisible"}</span></li>
       </ul>
       <p className={`u-cost is-${placeSceneGate.tone}`}>{placeSceneGate.line}</p>
       <p className="u-small">L’image neuve recharge ce fichier. Le modèle 3D du lieu reste le fichier Blender, pas ce LoRA.</p>

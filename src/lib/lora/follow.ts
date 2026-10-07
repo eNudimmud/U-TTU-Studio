@@ -77,7 +77,12 @@ export async function measureCharge(fal: FalClient, requestId: string, balanceBe
   const ms = options.measureMs ?? 5000;
   let cost: number | null = null;
   for (let attempt = 0; attempt < tries && cost === null; attempt++) {
-    cost = await fal.charged(requestId).catch(() => null);
+    try {
+      cost = await fal.charged(requestId);
+    } catch (error) {
+      cost = null;
+      if (error instanceof FalError && (error.code === "scope" || error.code === "auth")) break;
+    }
     if (cost === null && attempt < tries - 1) await sleep(ms);
   }
   const after = (await fal.account().catch(() => null))?.usd ?? null;

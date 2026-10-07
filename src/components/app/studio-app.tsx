@@ -27,7 +27,7 @@ export function StudioApp() {
 
 function AppFrame() {
   const studio = useStudio();
-  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, falLinked, falBalance, falBalanceNote, training } = studio;
+  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, falLinked, falBalance, falBalanceOptional, falBalanceNote, training } = studio;
   const [asked, setAsked] = useState<Tab | null>(null);
   const [choice, setChoice] = useState(0);
 
@@ -92,9 +92,9 @@ function AppFrame() {
         <span>U<em>*</em>TTU</span>
       </a>
       <div className="u-top-tools">
-        <button type="button" className="u-credit" onClick={() => setSheet(falHere ? (falLinked ? "credits" : "fal") : (connected ? "credits" : "connect"))} aria-label={falHere ? (falLinked ? "Solde du compte fal" : "Relier le compte fal") : (connected ? "Crédits du compte de rendu" : "Relier le compte de rendu")}>
+        <button type="button" className="u-credit" onClick={() => setSheet(falHere ? (falLinked ? "credits" : "fal") : (connected ? "credits" : "connect"))} aria-label={falHere ? (falLinked ? (falBalance || !falBalanceOptional ? "Solde du compte fal" : "Compte fal relié, solde non lu") : "Relier le compte fal") : (connected ? "Crédits du compte de rendu" : "Relier le compte de rendu")}>
           {falHere
-            ? (falLinked ? <><strong>{falBalance ? formatUsd(falBalance.usd) : falBalanceNote ? "—" : "…"}</strong><span>fal</span></> : <span>Relier fal</span>)
+            ? (falLinked ? (falBalance ? <><strong>{formatUsd(falBalance.usd)}</strong><span>fal</span></> : falBalanceOptional ? <span>fal</span> : <><strong>{falBalanceNote ? "—" : "…"}</strong><span>fal</span></>) : <span>Relier fal</span>)
             : (connected ? <><strong>{balance ? formatCredits(balance.credits) : balanceNote ? "—" : "…"}</strong><span>crédits</span></> : <span>Relier</span>)}
         </button>
         <button type="button" className="u-icon" onClick={() => setSheet("coffre")} aria-label="Coffre"><Coffre /></button>

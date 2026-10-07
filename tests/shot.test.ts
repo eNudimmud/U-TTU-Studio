@@ -5,11 +5,15 @@ import { LORA_TAKE } from "../src/lib/fal/prices.ts";
 
 describe("le plan filmé", () => {
   it("asks for the character only after the place and the accounts are there", () => {
-    assert.equal(filmAction({ plan: false, blender: true, character: true, fal: true }).label, "Choisis un plan");
-    assert.equal(filmAction({ plan: true, blender: false, character: true, fal: true }).kind, "blender");
-    assert.equal(filmAction({ plan: true, blender: true, character: false, fal: true }).kind, "role");
-    assert.equal(filmAction({ plan: true, blender: true, character: true, fal: false }).kind, "fal");
-    assert.equal(filmAction({ plan: true, blender: true, character: true, fal: true }).label, "Filmer ce plan");
+    assert.equal(filmAction({ scene: false, plan: false, blender: true, character: true, fal: true }).kind, "place");
+    assert.match(filmAction({ scene: false, plan: false, blender: true, character: true, fal: true }).missing, /lieu/);
+    assert.equal(filmAction({ scene: true, plan: false, blender: true, character: true, fal: true }).kind, "plan");
+    assert.match(filmAction({ scene: true, plan: false, blender: true, character: true, fal: true }).missing, /plan/);
+    assert.equal(filmAction({ scene: true, plan: true, blender: false, character: true, fal: true }).kind, "blender");
+    assert.equal(filmAction({ scene: true, plan: true, blender: true, character: false, fal: true }).kind, "role");
+    assert.equal(filmAction({ scene: true, plan: true, blender: true, character: true, fal: false }).kind, "fal");
+    assert.equal(filmAction({ scene: true, plan: true, blender: true, character: true, fal: true }).label, "Filmer ce plan");
+    assert.equal(filmAction({ scene: true, plan: true, blender: true, character: true, fal: true }).missing, "");
   });
 
   it("tells the model the images are the empty place and the person is the LoRA", () => {

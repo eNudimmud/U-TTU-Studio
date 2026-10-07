@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ROLE_PHOTOS_MAX, isPlaceLora } from "@/lib/coffre/model";
 import { formatUsd } from "@/lib/fal/prices";
+import { problemsAfterTouch } from "@/lib/lora/dataset";
 import type { TrainingEvent } from "@/lib/lora/train";
 import { characterPaths } from "@/lib/studio-comfort";
 import { Arrow, Close } from "./glyphs";
@@ -32,7 +33,7 @@ function trainLabel(event: TrainingEvent): string {
 export function LoraScreen({ onTake, onScene, onPhotos, choice }: { onTake(): void; onScene(): void; onPhotos(): void; choice: number }) {
   const studio = useStudio();
   const {
-    studio: vault, media, dataset, falLinked, falBalance, falBalanceNote, training, trainingSteps, setTrainingSteps,
+    studio: vault, media, dataset, falLinked, falBalance, training, trainingSteps, setTrainingSteps,
     trainQuote, trainGate, addClips, removeClip, requestTraining, cancelTraining, resetTraining, deleteLora, setEngine, setLora, setSheet,
     saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole,
   } = studio;
@@ -40,7 +41,9 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice }: { onTake(): vo
   const done = training.phase === "done" ? vault.loras.find(lora => lora.id === training.loraId) : undefined;
   const dirty = Boolean(role.name || role.photos.length || vault.clips.length);
   const [file, setFile] = useState(false);
+  const [touch, setTouch] = useState({ name: false, photos: false, clips: false, submit: false });
   useEffect(() => { setFile(false); }, [choice]);
+  const problems = problemsAfterTouch(dataset.problems, touch);
   const showFile = file || training.phase !== "idle";
   const paths = characterPaths({ falLinked, quote: trainQuote, steps: trainingSteps });
 
@@ -86,39 +89,47 @@ export function LoraScreen({ onTake, onScene, onPhotos, choice }: { onTake(): vo
       {training.phase === "idle" && <div className="u-stack">
         <label className="u-field">
           <span className="u-label">Nom du personnage</span>
-          <input value={role.name} maxLength={40} placeholder="Mira" autoComplete="off" onChange={event => void saveRole({ name: event.target.value.slice(0, 40) })} />
+          <input value={role.name} maxLength={40} placeholder="Mira" autoComplete="off" onBlur={() => setTouch(current => ({ ...current, name: true }))} onChange={event => void saveRole({ name: event.target.value.slice(0, 40) })} />
         </label>
         <div className="u-photos" aria-label="Photos du personnage">
           {Array.from({ length: ROLE_PHOTOS_MAX }, (_, index) => {
             const path = role.photos[index];
-            return <PictureSlot key={path ?? `role-${index}`} index={index} url={path ? media[path] : undefined} label="la photo" onAdd={files => void addRolePhotos(files)} onRemove={path ? () => void removeRolePhoto(path) : undefined} />;
+            return <PictureSlot key={path ?? `role-${index}`} index={index} url={path ? media[path] : undefined} label="la photo" onAdd={files => { setTouch(current => ({ ...current, photos: true })); void addRolePhotos(files); }} onRemove={path ? () => { setTouch(current => ({ ...current, photos: true })); void removeRolePhoto(path); } : undefined} />;
           })}
         </div>
         {vault.look.photos.length > 0 && role.photos.length < ROLE_PHOTOS_MAX && <button type="button" className="u-link u-muted" onClick={() => void copyLookPhotos()}>Reprendre les photos et les traits</button>}
         {vault.clips.length > 0 && <ul className="u-ledger" aria-label="Clips">
           {vault.clips.map((clip, index) => <li key={clip.path}>
             <span>Clip {String(index + 1).padStart(2, "0")} · {Math.round(clip.seconds)} s</span>
-            <button type="button" className="u-link u-muted" onClick={() => void removeClip(clip.path)} aria-label={`Retirer le clip ${index + 1}`}><Close /> Retirer</button>
+            <button type="button" className="u-link u-muted" onClick={() => { setTouch(current => ({ ...current, clips: true })); void removeClip(clip.path); }} aria-label={`Retirer le clip ${index + 1}`}><Close /> Retirer</button>
           </li>)}
         </ul>}
         <label className="u-secondary u-file">
           Ajouter des clips
-          <input id="u-clips" type="file" accept="video/mp4,video/quicktime,video/x-matroska,video/avi,.mp4,.mov,.mkv,.avi" multiple onChange={event => { void addClips([...(event.target.files ?? [])]); event.target.value = ""; }} />
+          <input id="u-clips" type="file" accept="video/mp4,video/quicktime,video/x-matroska,video/avi,.mp4,.mov,.mkv,.avi" multiple onChange={event => { setTouch(current => ({ ...current, clips: true })); void addClips([...(event.target.files ?? [])]); event.target.value = ""; }} />
         </label>
-        {dataset.problems.length > 0 && <ul className="u-problems">
-          {dataset.problems.map(problem => <li key={problem}>{problem}</li>)}
+        {problems.length > 0 && <ul className="u-problems">
+          {problems.map(problem => <li key={problem}>{problem}</li>)}
         </ul>}
         <Segments label="Apprentissage" value={trainingSteps} onChange={setTrainingSteps} options={[{ value: 1000, label: "1000 pas" }, { value: 2000, label: "2000 pas" }]} />
         <p className="u-small">1000 pas pour un premier fichier. 2000 pas le tiennent mieux, et coûtent le double.</p>
         <p className={`u-cost is-${falLinked ? trainGate.tone : "warn"}`}>
           {!falLinked ? "Relie ton compte fal pour former. Il paie la formation, pas le studio."
             : falBalance ? `${formatUsd(falBalance.usd)} sur ton compte fal. ${trainGate.line}`
-            : falBalanceNote || "Lecture du solde…"}
+            : trainGate.line}
         </p>
         <div className="u-actions">
           <button type="button" className="u-link u-muted" disabled={!dirty} onClick={() => void resetRole()}>Remettre ce personnage à zéro</button>
           <p className="u-small">Les fichiers déjà formés restent.</p>
-          <button type="button" className="u-primary" disabled={falLinked && (!dataset.ready || !trainGate.allowed)} onClick={() => void requestTraining()}>
+          <button type="button" className="u-primary" disabled={falLinked && dataset.ready && !trainGate.allowed} onClick={() => {
+            if (!falLinked) {
+              setSheet("fal");
+              return;
+            }
+            setTouch(current => ({ ...current, name: true, photos: true, clips: true, submit: true }));
+            if (!dataset.ready) return;
+            void requestTraining();
+          }}>
             {!falLinked ? "Relier mon compte fal" : `Former ce personnage${trainQuote !== null ? ` · ${formatUsd(trainQuote)}` : ""}`} <Arrow />
           </button>
           <button type="button" className="u-link" onClick={onScene}>Poser la scène</button>

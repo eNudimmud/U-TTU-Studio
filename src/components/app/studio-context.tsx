@@ -250,6 +250,8 @@ interface StudioValue {
   balanceNote: string;
   falLinked: boolean;
   falBalance: UsdBalance | null;
+  /** True when the key authenticated and fal refused the balance for lack of Admin scope. */
+  falBalanceOptional: boolean;
   falBalanceNote: string;
   falUsername: string;
   engine: TakeEngineChoice;
@@ -373,6 +375,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [falKey, setFalKey] = useState<string | null>(null);
   const [falLinked, setFalLinked] = useState(false);
   const [falBalance, setFalBalance] = useState<UsdBalance | null>(null);
+  const [falBalanceOptional, setFalBalanceOptional] = useState(false);
+  const falOptionalRef = useRef(false);
   const [falBalanceNote, setFalBalanceNote] = useState("");
   const [falUsername, setFalUsername] = useState("");
   const [trainerPrice, setTrainerPrice] = useState<FalPrice | null>(null);
@@ -479,7 +483,21 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     if (!account.ok) {
       const failure = falFailure(account.error, "Solde fal illisible.");
       setFalBalance(null);
-      if (failure.code === "auth" || failure.code === "scope") setFalLinked(false);
+      if (failure.code === "auth") {
+        falOptionalRef.current = false;
+        setFalBalanceOptional(false);
+        setFalLinked(false);
+        setFalBalanceNote(failure.message);
+        return null;
+      }
+      if (failure.code === "scope") {
+        falOptionalRef.current = true;
+        setFalBalanceOptional(true);
+        setFalLinked(true);
+        setFalBalanceNote("");
+        return null;
+      }
+      if (falOptionalRef.current) return null;
       setFalBalanceNote(failure.message);
       return null;
     }
@@ -489,6 +507,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       return null;
     }
     const next = { usd: account.value.usd, readAt: Date.now() };
+    falOptionalRef.current = false;
+    setFalBalanceOptional(false);
     setFalLinked(true);
     setFalUsername(account.value.username);
     setFalBalance(next);
@@ -562,17 +582,18 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const people = studio.loras.filter(item => !isPlaceLora(item));
   const chosenLora = people.find(item => item.id === loraPick) ?? people[0] ?? null;
   const trainQuote = useMemo(() => trainingQuote(trainerPrice, trainingSteps), [trainerPrice, trainingSteps]);
-  const trainGate = useMemo(() => falGate(falBalance, trainQuote, "formation"), [falBalance, trainQuote]);
+  const falMode = falBalanceOptional ? "optional" as const : "required" as const;
+  const trainGate = useMemo(() => falGate(falBalance, trainQuote, "formation", falMode), [falBalance, falMode, trainQuote]);
   const loraQuote = useMemo(() => loraTakeQuote(takePrice, settings.seconds, loraResolution), [takePrice, settings.seconds, loraResolution]);
-  const loraGate = useMemo(() => falGate(falBalance, loraQuote, "prise"), [falBalance, loraQuote]);
+  const loraGate = useMemo(() => falGate(falBalance, loraQuote, "prise", falMode), [falBalance, falMode, loraQuote]);
   const gate = engine === "lora" ? loraGate : comfyGate;
   const characterUsd = useMemo(() => loraTakeQuote(takePrice, SHOT_SECONDS, SHOT_RESOLUTION), [takePrice]);
   const trajetReady = (scene?.frames.length ?? 0) >= 2;
   const shotCheck = useMemo(() => shotGate({ blender: filmQuote, characterUsd, trajetReady }), [characterUsd, filmQuote, trajetReady]);
   const pricedPlace = useMemo(() => placeTrainQuote(placeTrainPrice, PLACE_STEPS), [placeTrainPrice]);
   const pricedStill = useMemo(() => placeSceneQuote(placeScenePrice, PLACE_WIDTH, PLACE_HEIGHT), [placeScenePrice]);
-  const placeTrainGate = useMemo(() => falGate(falBalance, pricedPlace, "formation"), [falBalance, pricedPlace]);
-  const placeSceneGate = useMemo(() => falGate(falBalance, pricedStill, "prise"), [falBalance, pricedStill]);
+  const placeTrainGate = useMemo(() => falGate(falBalance, pricedPlace, "formation", falMode), [falBalance, falMode, pricedPlace]);
+  const placeSceneGate = useMemo(() => falGate(falBalance, pricedStill, "prise", falMode), [falBalance, falMode, pricedStill]);
 
   const saveLook = useCallback(async (patch: Partial<Look>) => {
     const look = { ...studioRef.current.look, ...patch };
@@ -1075,8 +1096,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       const priced = await fal.price(LORA_TAKE).catch(() => null);
       setTakePrice(priced);
       const quote = loraTakeQuote(priced, settings.seconds, loraResolution);
-      const freshGate = falGate(fresh, quote, "prise");
-      if (!fresh || !freshGate.allowed) return;
+      const freshGate = falGate(fresh, quote, "prise", falOptionalRef.current ? "optional" : "required");
+      if (!freshGate.allowed) return;
       const vault = store();
       const weights = await vault.get(trained.file);
       if (!weights?.blob) {
@@ -1137,7 +1158,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           settings,
           resolution: loraResolution,
           loraId: trained.id,
-          balanceBefore: fresh.usd,
+          balanceBefore: fresh?.usd ?? 0,
         };
         saveLoraTakeFlight(localStorage, flight);
         await finishLora(flight, fal);
@@ -1356,8 +1377,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const usd = loraTakeQuote(priced, SHOT_SECONDS, SHOT_RESOLUTION);
     const ready = place.frames.length >= 2;
     const gate = shotGate({ blender: quoteRef.current, characterUsd: usd, trajetReady: ready });
-    const money = falGate(fresh, usd, "prise");
-    if (!fresh || !gate.allowed || !money.allowed) {
+    const money = falGate(fresh, usd, "prise", falOptionalRef.current ? "optional" : "required");
+    if (!gate.allowed || !money.allowed) {
       setNotice(gate.allowed ? money.line : gate.line);
       return;
     }
@@ -1373,7 +1394,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         setPrevizState({ phase: "running", event: { stage: "start" } });
         const jobId = await startRender(blenderKey, quote, abortPreviz.current.signal);
         started = true;
-        saveFilmFlight({ jobId, sceneId: place.id, stage: "blender", handle: null, balanceBefore: fresh.usd, loraId: person.id, prompt: "" });
+        saveFilmFlight({ jobId, sceneId: place.id, stage: "blender", handle: null, balanceBefore: fresh?.usd ?? 0, loraId: person.id, prompt: "" });
         const result = await followFilm(blenderKey, jobId, event => setPrevizState({ phase: "running", event }), { signal: abortPreviz.current.signal });
         images = result.images;
         await keepFrames(place.id, images);
@@ -1409,7 +1430,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         sceneId: place.id,
         stage: "person",
         handle: submitted.handle,
-        balanceBefore: fresh.usd,
+        balanceBefore: fresh?.usd ?? 0,
         loraId: person.id,
         prompt,
       };
@@ -1527,8 +1548,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const priced = await fal.price(LORA_TRAINER).catch(() => null);
     setTrainerPrice(priced);
     const quote = trainingQuote(priced, trainingSteps);
-    const freshGate = falGate(fresh, quote, "formation");
-    if (!fresh || !freshGate.allowed) return;
+    const freshGate = falGate(fresh, quote, "formation", falOptionalRef.current ? "optional" : "required");
+    if (!freshGate.allowed) return;
     const current = studioRef.current;
     const check = datasetCheck(current.clips, current.role.photos.length, current.role.name);
     if (!check.ready) return;
@@ -1561,7 +1582,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         steps: trainingSteps,
         aspect: check.aspect,
         clips: clips.length,
-        balanceBefore: fresh.usd,
+        balanceBefore: fresh?.usd ?? 0,
       };
       saveTrainingFlight(localStorage, flight);
       await finishTraining(flight, fal);
@@ -1609,17 +1630,37 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const opened = reduceConnect({ epoch: falEpoch.current, connected: false }, { type: "connect" });
     falEpoch.current = opened.epoch;
     try {
-      const account = await createFalClient({ key }).account();
-      if (reduceConnect(opened, { type: "read", epoch: opened.epoch, ok: Boolean(account) }).ignored) return null;
-      if (falEpoch.current !== opened.epoch) return null;
-      if (!account) return "fal n’a pas montré de solde en dollars.";
-      saveFalKey(localStorage, key);
-      setFalKey(key);
-      setFalLinked(true);
-      setFalUsername(account.username);
-      setFalBalance({ usd: account.usd, readAt: Date.now() });
-      setFalBalanceNote("");
-      return null;
+      const client = createFalClient({ key });
+      try {
+        const account = await client.account();
+        if (reduceConnect(opened, { type: "read", epoch: opened.epoch, ok: Boolean(account) }).ignored) return null;
+        if (falEpoch.current !== opened.epoch) return null;
+        if (!account) return "fal n’a pas montré de solde en dollars.";
+        saveFalKey(localStorage, key);
+        setFalKey(key);
+        setFalLinked(true);
+        falOptionalRef.current = false;
+        setFalBalanceOptional(false);
+        setFalUsername(account.username);
+        setFalBalance({ usd: account.usd, readAt: Date.now() });
+        setFalBalanceNote("");
+        return null;
+      } catch (error) {
+        if (falEpoch.current !== opened.epoch) return null;
+        const failure = falFailure(error, "Clé refusée.");
+        if (failure.code !== "scope") return failure.message;
+        if (reduceConnect(opened, { type: "read", epoch: opened.epoch, ok: true }).ignored) return null;
+        if (falEpoch.current !== opened.epoch) return null;
+        saveFalKey(localStorage, key);
+        setFalKey(key);
+        setFalLinked(true);
+        falOptionalRef.current = true;
+        setFalBalanceOptional(true);
+        setFalUsername("");
+        setFalBalance(null);
+        setFalBalanceNote("");
+        return null;
+      }
     } catch (error) {
       if (falEpoch.current !== opened.epoch) return null;
       return falFailure(error, "Clé refusée.").message;
@@ -1632,6 +1673,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setFalKey(null);
     setFalLinked(false);
     setFalBalance(null);
+    falOptionalRef.current = false;
+    setFalBalanceOptional(false);
     setFalUsername("");
     setFalBalanceNote("");
     setPlaceTrainPrice(null);
@@ -1742,8 +1785,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const priced = await fal.price(PLACE_TRAINER).catch(() => null);
     setPlaceTrainPrice(priced);
     const quote = placeTrainQuote(priced, PLACE_STEPS);
-    const freshGate = falGate(fresh, quote, "formation");
-    if (!fresh || !freshGate.allowed) {
+    const freshGate = falGate(fresh, quote, "formation", falOptionalRef.current ? "optional" : "required");
+    if (!freshGate.allowed) {
       setNotice(freshGate.line);
       return;
     }
@@ -1762,7 +1805,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     try {
       const trigger = placeTrigger(place.name);
       const handle = await submitPlaceTraining(fal, { images, trigger, steps: PLACE_STEPS }, abortPlace.current.signal);
-      const result = await followPlaceTraining(fal, handle, fresh.usd, { signal: abortPlace.current.signal });
+      const result = await followPlaceTraining(fal, handle, fresh?.usd ?? 0, { signal: abortPlace.current.signal });
       const id = uniqueId(loraId(new Date(), place.name), studioRef.current.loras.map(item => item.id));
       const file = `loras/${id}.safetensors`;
       const created: Lora = {
@@ -1784,7 +1827,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         seconds: result.seconds,
         costUsd: result.costUsd,
         costSource: result.costSource,
-        balanceBefore: fresh.usd,
+        balanceBefore: fresh?.usd ?? 0,
         balanceAfter: result.balanceAfter,
       };
       const loras = [created, ...studioRef.current.loras.filter(item => item.id !== id)];
@@ -1824,8 +1867,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const priced = await fal.price(PLACE_SCENE).catch(() => null);
     setPlaceScenePrice(priced);
     const quote = placeSceneQuote(priced, PLACE_WIDTH, PLACE_HEIGHT);
-    const freshGate = falGate(fresh, quote, "prise");
-    if (!fresh || !freshGate.allowed) {
+    const freshGate = falGate(fresh, quote, "prise", falOptionalRef.current ? "optional" : "required");
+    if (!freshGate.allowed) {
       setNotice(freshGate.line);
       return;
     }
@@ -1849,7 +1892,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         place: place.name,
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
       }, abortPlace.current.signal);
-      const result = await followPlaceScene(fal, handle, fresh.usd, { signal: abortPlace.current.signal });
+      const result = await followPlaceScene(fal, handle, fresh?.usd ?? 0, { signal: abortPlace.current.signal });
       const path = `scenes/${place.id}-vue-${stamp()}-batie.jpg`;
       await writeBlob(store(), path, result.image);
       addMedia(path, result.image);
@@ -1872,7 +1915,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const value: StudioValue = {
     ready, studio, media, scene, line, settings, claim, gate, link, connected, balance, balanceNote, previz, previzGate: shotCheck, blenderLinked: Boolean(blenderKey), requestPreviz, confirmPreviz, cancelPreviz, connectBlender, disconnectBlender, setPreviz, moveCamera, setLens,
     addSceneViews, removeSceneView, placeTrainQuote: pricedPlace, placeSceneQuote: pricedStill, placeTrainGate, placeSceneGate, placeRun, requestPlaceTrain, confirmPlaceTrain, requestPlaceScene, confirmPlaceScene,
-    falLinked, falBalance, falBalanceNote, falUsername, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote,
+    falLinked, falBalance, falBalanceOptional, falBalanceNote, falUsername, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote,
     dataset, trainingSteps, setTrainingSteps, training, trainQuote, trainGate, run, sheet, folder, guide, notice,
     setSheet, setNotice, saveLook, addLookPhotos, removeLookPhoto, resetLook, addScene, saveScene, addSceneStills, removeSceneStill, deleteScene, selectScene, resetScene,
     setLine, setSettings, resetTake, saveRole, addRolePhotos, removeRolePhoto, copyLookPhotos, resetRole, addClips, removeClip, requestTraining, confirmTraining, cancelTraining, resetTraining, deleteLora,
