@@ -645,6 +645,12 @@ export function MontageStage() {
       <div className="u-bin-tabs" role="tablist">
         {(["medias", "voix", "effets", "musique"] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={binTab === tab} onClick={() => setBinTab(tab)}>{t(tab === "medias" ? "montage.medias" : `montage.${tab}`)}</button>)}
       </div>
+      {binTab === "medias" && edit.audio.length > 0 && <div className="u-chutier-row">
+        {edit.audio.map(clip => <button key={clip.id} type="button" className="u-bin-sound" aria-pressed={selected === clip.id} onClick={() => { setSelected(clip.id); setBinTab(clip.track); }}>
+          <Waveform url={urlOf(clip.source)} media={clip.media} start={0} px={36} />
+          <span>{clip.label}</span>
+        </button>)}
+      </div>}
       {binTab === "medias" && <div className="u-chutier-row">
         {edit.video.map(clip => {
           const thumb = thumbOf(clip);

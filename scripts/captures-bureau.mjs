@@ -72,18 +72,19 @@ for (const [width, height, label] of sizes) {
     await page.click(".u-desk-switch button:first-child");
     await ready(".u-slot");
   }
-  const dropped = await page.evaluate(() => {
+  const dropped = await page.evaluate(async () => {
     const card = document.querySelector(".u-desk-gallery article");
     const slot = document.querySelector(".u-slot:not([data-filled])") ?? document.querySelector(".u-slot");
     if (!card || !slot) return "missing";
     const transfer = new DataTransfer();
-    card.dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: transfer }));
+    card.dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true, dataTransfer: transfer }));
     slot.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: transfer }));
     slot.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: transfer }));
-    return slot.getAttribute("data-filled") ?? "empty";
+    await new Promise(resolve => setTimeout(resolve, 400));
+    return String(document.querySelectorAll(".u-slot[data-filled='true']").length);
   });
-  console.log(`drag ${label} ${dropped}`);
-  await new Promise(resolve => setTimeout(resolve, 300));
+  console.log(`drag ${label} filled ${dropped}`);
+  if (width < 1024) await page.click(".u-desk-switch button:first-child");
   await shot(`bureau-drag-${label}`);
 
   await page.goto(`${local}/studio?barre=1#montage`, { waitUntil: "networkidle2", timeout: 60000 });
