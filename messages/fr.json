@@ -1198,6 +1198,7 @@
     "role": "Rôle",
     "empty": "Aucune référence.",
     "emptySlot": "Vide",
+    "help": "Glisse un asset de la galerie ou dépose une photo.",
     "visage": "Visage",
     "tenue": "Tenue",
     "style": "Style",

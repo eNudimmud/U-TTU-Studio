@@ -22,6 +22,8 @@ export const Mic = ({ className }: GlyphProps) => <svg {...base} className={clas
 export const Spark = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8z" /></svg>;
 export const Music = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M9 18V6l10-2v12" /><circle cx="7" cy="18" r="2.2" /><circle cx="17" cy="16" r="2.2" /></svg>;
 export const More = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="6" cy="12" r="1.2" fill="currentColor" /><circle cx="12" cy="12" r="1.2" fill="currentColor" /><circle cx="18" cy="12" r="1.2" fill="currentColor" /></svg>;
+export const Search = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg>;
+export const Check = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M5 12.5l4.2 4.2L19 7" /></svg>;
 
 /** The vault: a box tied with one thread. */
 export const Coffre = ({ className }: GlyphProps) => <svg {...base} className={className}><rect x="3.5" y="6.5" width="17" height="13" rx="2" /><path d="M3.5 10.5h17M12 10.5v4" /></svg>;

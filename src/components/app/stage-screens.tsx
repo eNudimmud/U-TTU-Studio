@@ -19,7 +19,7 @@ import { useStudio } from "./studio-session";
 
 function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   if (!on || !text) return null;
-  return <p className="u-why" id={id}>{text}</p>;
+  return <p className="u-why" id={id} title={text}>{text}</p>;
 }
 
 function CardFace({ src, kind }: { src: string; kind: MarkKind }) {
@@ -171,7 +171,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <p className="u-lead">{t("create.castLead")}</p>
     </header>
     <div className="u-desk-scroll">
-      <SlotBoard geste={row} refs={refs} onChange={setRefs} />
+      <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>
         <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
@@ -262,7 +262,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <p className="u-lead">{t("create.decorLead")}</p>
     </header>
     <div className="u-desk-scroll">
-      <SlotBoard geste={row} refs={refs} onChange={setRefs} />
+      <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>
         <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
@@ -365,7 +365,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     </div>}
     {run.phase === "idle" && <>
     {gesteId !== "prise-plan" && row && <div className="u-desk-scroll">
-      <SlotBoard geste={row} refs={[]} onChange={() => {}} />
+      <SlotBoard geste={row} refs={[]} onChange={() => {}} onGallery={() => setGalleryOpen(true)} />
       <div className="u-prise-go">
         <button type="button" className="u-secondary" disabled aria-describedby="u-why-geste">{t("stage.generate")}</button>
         <Why on id="u-why-geste" text={!connected ? t("create.needLink") : t("gestes.unwired")} />

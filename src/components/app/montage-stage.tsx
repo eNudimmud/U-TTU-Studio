@@ -108,6 +108,7 @@ export function MontageStage() {
   const [binOpen, setBinOpen] = useState(false);
   const [speedOpen, setSpeedOpen] = useState(false);
   const [titleOpen, setTitleOpen] = useState(false);
+  const [soonOpen, setSoonOpen] = useState(false);
   const selectedRef = useRef<string | null>(null);
   const historyRef = useRef(history);
   const timeRef = useRef(0);
@@ -643,7 +644,7 @@ export function MontageStage() {
     <div className="u-capcut">
     <aside className="u-chutier" data-open={binOpen || undefined} aria-label={t("montage.bin")}>
       <div className="u-bin-tabs" role="tablist">
-        {(["medias", "voix", "effets", "musique"] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={binTab === tab} onClick={() => setBinTab(tab)}>{t(tab === "medias" ? "montage.medias" : `montage.${tab}`)}</button>)}
+        {(["medias", "voix", "effets", "musique"] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={binTab === tab} onClick={() => { setBinTab(tab); setSoonOpen(false); }}>{t(tab === "medias" ? "montage.medias" : `montage.${tab}`)}</button>)}
       </div>
       {binTab === "medias" && edit.audio.length > 0 && <div className="u-chutier-row">
         {edit.audio.map(clip => <button key={clip.id} type="button" className="u-bin-sound" aria-pressed={selected === clip.id} onClick={() => { setSelected(clip.id); setBinTab(clip.track); }}>
@@ -674,20 +675,21 @@ export function MontageStage() {
         </button>)}
       </div>}
       <div className="u-soon">
-        <p className="u-label">{t("gestes.soon")}</p>
-        {(binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"]).map(id => {
-          const row = gesteParId(id);
-          if (!row) return null;
-          return <button key={id} type="button" className="u-tile is-soon" aria-pressed={gesteId === id} onClick={() => {
-            setGesteId(id);
-            if (id === "mont-voix") setStem("voix");
-            if (id === "mont-effet") setStem("effets");
-          }}>
-            <span className="u-wave-mark" aria-hidden="true" />
-            <strong>{t(`gestes.${row.clef}.title`)}</strong>
-            <span>{t(`gestes.${row.clef}.phrase`)}</span>
-          </button>;
-        })}
+        <button type="button" className="u-link" aria-expanded={soonOpen} onClick={() => setSoonOpen(current => !current)}>{t("gestes.soon")}</button>
+        {soonOpen && <div className="u-soon-list">
+          {(binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"]).map(id => {
+            const row = gesteParId(id);
+            if (!row) return null;
+            return <button key={id} type="button" className="u-soon-card" aria-pressed={gesteId === id} onClick={() => {
+              setGesteId(id);
+              if (id === "mont-voix") setStem("voix");
+              if (id === "mont-effet") setStem("effets");
+            }}>
+              <strong>{t(`gestes.${row.clef}.title`)}</strong>
+              <span>{t(`gestes.${row.clef}.phrase`)}</span>
+            </button>;
+          })}
+        </div>}
       </div>
       <button type="button" className="u-link u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.cancel")}</button>
     </aside>

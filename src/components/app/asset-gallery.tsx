@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { filterAssets, previewAssets, type AssetFilter, type AssetKind, type AssetRecord } from "@/lib/creation/assets";
 import { gesteParId } from "@/lib/workflows/registre";
 import { assetPath } from "@/lib/site";
-import { KindMark, type MarkKind } from "./glyphs";
+import { Check, KindMark, Refresh, Search, Share, type MarkKind } from "./glyphs";
 
 const FILTERS: { id: AssetFilter; key: string }[] = [
   { id: "tout", key: "assets.all" },
@@ -44,8 +44,12 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
+  const [selecting, setSelecting] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [armed, setArmed] = useState<string | null>(null);
   const [preview, setPreview] = useState<AssetRecord[]>([]);
+  const hold = useRef<number | null>(null);
+  const held = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -66,23 +70,38 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     setPicked(list => list.includes(id) ? list.filter(item => item !== id) : [...list, id]);
   }
 
-  return <section className="u-assets" aria-labelledby="u-assets-title">
+  function holdStart(id: string) {
+    if (hold.current) window.clearTimeout(hold.current);
+    held.current = false;
+    hold.current = window.setTimeout(() => {
+      held.current = true;
+      setSelecting(true);
+      toggle(id);
+    }, 500);
+  }
+
+  function holdEnd() {
+    if (hold.current) window.clearTimeout(hold.current);
+    hold.current = null;
+  }
+
+  return <section className="u-assets" data-selecting={selecting || undefined} aria-labelledby="u-assets-title">
     <div className="u-assets-bar">
       <h2 id="u-assets-title" className="u-label">{t("create.gallery")}</h2>
       <p className="u-assets-count" data-asset-count={rows.length}>{t("assets.count", { count: rows.length })}</p>
+      <button type="button" className="u-assets-select" aria-pressed={selecting} onClick={() => setSelecting(current => !current)}>{t("assets.select")}</button>
     </div>
     <div className="u-filter" role="group" aria-label={t("assets.search")}>
       {FILTERS.map(item => <button key={item.id} type="button" aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{t(item.key)}</button>)}
     </div>
     <div className="u-assets-tools">
-      <label className="u-field">
-        <span className="sr-only">{t("assets.search")}</span>
-        <input className="u-search" value={query} placeholder={t("assets.search")} onChange={event => setQuery(event.target.value)} />
-      </label>
-      {onRefresh && <button type="button" className="u-link" onClick={onRefresh}>{t("assets.refresh")}</button>}
-      {onImport && <label className="u-link">{t("assets.import")}
+      <button type="button" className="u-icon" aria-pressed={searchOpen} aria-label={t("assets.search")} onClick={() => setSearchOpen(current => !current)}><Search /></button>
+      {searchOpen && <input className="u-search" value={query} placeholder={t("assets.search")} aria-label={t("assets.search")} onChange={event => setQuery(event.target.value)} />}
+      {onImport && <label className="u-icon" aria-label={t("assets.import")}>
+        <Share />
         <input className="sr-only" type="file" accept="image/*,video/*,audio/*" multiple onChange={event => { const files = [...(event.target.files ?? [])]; event.target.value = ""; if (files.length) onImport(files); }} />
       </label>}
+      {onRefresh && <button type="button" className="u-icon" aria-label={t("assets.refresh")} onClick={onRefresh}><Refresh /></button>}
     </div>
     {picked.length > 0 && <p className="u-small">{t("assets.selected", { count: picked.length })}</p>}
     {current && <article className="u-detail u-asset-detail">
@@ -114,19 +133,23 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         const src = srcOf(card);
         const selected = picked.includes(card.id);
         return <article key={card.id} className="u-card-lg" data-kind={card.kind} data-selected={selected || undefined} draggable onDragStart={event => {
+          holdEnd();
           event.dataTransfer.setData("application/x-uttu-asset", card.id);
           event.dataTransfer.setData("application/x-uttu-asset-json", JSON.stringify({ id: card.id, name: card.name, url: src, kind: card.kind }));
           event.dataTransfer.setData("text/plain", card.name);
           event.dataTransfer.effectAllowed = "copy";
-        }}>
-          <button type="button" className="u-pick" aria-pressed={open === card.id} onClick={() => setOpen(card.id)}>
-            {src ? <img src={src} alt="" /> : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}
-            <span>{card.name}</span>
+        }} onPointerDown={() => holdStart(card.id)} onPointerUp={holdEnd} onPointerCancel={holdEnd} onPointerLeave={holdEnd}>
+          <button type="button" className="u-pick" aria-label={card.name} aria-pressed={open === card.id} onClick={() => {
+            if (held.current) { held.current = false; return; }
+            if (selecting) { toggle(card.id); return; }
+            setOpen(card.id);
+          }}>
+            <span className="u-thumb">{src ? <img src={src} alt="" /> : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}</span>
           </button>
-          <label className="u-check">
-            <input type="checkbox" checked={selected} onChange={() => toggle(card.id)} />
-            <span>{t("assets.select")}</span>
-          </label>
+          <span className="u-asset-name">{card.name}</span>
+          <button type="button" className="u-asset-check" aria-pressed={selected} aria-label={t("assets.select")} onPointerDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); toggle(card.id); }}>
+            <Check />
+          </button>
         </article>;
       })}
     </div>}

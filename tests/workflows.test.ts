@@ -67,10 +67,11 @@ describe("registre des gestes", () => {
     assert.equal(graph.load2?.inputs.image, "b.jpg");
   });
 
-  it("draws four face boxes for photos and sends only the three the graph accepts", () => {
+  it("draws one face box per image the graph accepts", () => {
     const row = REGISTRE.find(item => item.id === "cast-photos");
     assert.ok(row);
-    assert.deepEqual(casesVisibles(row).map(item => item.role), ["visage", "visage", "visage", "visage"]);
-    assert.equal(row.slots.length, 3);
+    assert.deepEqual(casesVisibles(row).map(item => item.id), ["image_1", "image_2", "image_3"]);
+    assert.deepEqual(casesVisibles(row).map(item => item.role), ["visage", "visage", "visage"]);
+    assert.equal(casesVisibles(row).length, row.slots.length);
   });
 });

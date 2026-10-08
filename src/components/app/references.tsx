@@ -1,8 +1,9 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { casesVisibles, ROLES, type Geste, type RoleRef } from "@/lib/workflows/registre";
+import { Close, Plus } from "./glyphs";
 
 export interface LocalRef {
   id: string;
@@ -98,13 +99,15 @@ export function ReferenceZone({ refs, onChange, gallery, defaultRole = "visage" 
   </div>;
 }
 
-export function SlotBoard({ geste, refs, onChange }: {
+export function SlotBoard({ geste, refs, onChange, onGallery }: {
   geste: Geste;
   refs: LocalRef[];
   onChange(next: LocalRef[]): void;
+  onGallery?(): void;
 }) {
   const { t } = useI18n();
   const base = useId();
+  const [menu, setMenu] = useState<string | null>(null);
   const cases = casesVisibles(geste);
   if (cases.length === 0) return null;
 
@@ -113,6 +116,7 @@ export function SlotBoard({ geste, refs, onChange }: {
       ...refs.filter(item => item.caseId !== caseId),
       { id: `ref-${caseId}`, role, caseId, ...next },
     ]);
+    setMenu(null);
   }
 
   function addFile(caseId: string, role: RoleRef, file: File | undefined) {
@@ -121,36 +125,42 @@ export function SlotBoard({ geste, refs, onChange }: {
   }
 
   return <div className="u-slots">
-    {cases.map(item => {
-      const filled = refs.find(ref => ref.caseId === item.id) ?? null;
-      const inputId = `${base}-${item.id}-file`;
-      const cameraId = `${base}-${item.id}-cam`;
-      return <div
-        key={item.id}
-        className="u-slot"
-        data-filled={filled ? "true" : undefined}
-        data-slot={item.id}
-        onDragOver={event => event.preventDefault()}
-        onDrop={event => {
-          event.preventDefault();
-          const asset = readDroppedAsset(event.dataTransfer);
-          if (asset) {
-            write(item.id, item.role, { name: asset.name, url: asset.url, file: null, assetId: asset.id });
-            return;
-          }
-          addFile(item.id, item.role, event.dataTransfer.files[0]);
-        }}
-      >
-        <span className="u-label">{t(`refs.${item.role}`)}</span>
-        {filled?.url ? <img src={filled.url} alt="" /> : <span className="u-slot-empty">{t("refs.emptySlot")}</span>}
-        <div className="u-slot-actions">
-          <label className="u-link" htmlFor={inputId}>{t("refs.drop")}</label>
-          <input id={inputId} className="sr-only" type="file" accept="image/*" onChange={event => { addFile(item.id, item.role, event.target.files?.[0]); event.target.value = ""; }} />
-          <label className="u-link" htmlFor={cameraId}>{t("refs.camera")}</label>
-          <input id={cameraId} className="sr-only" type="file" accept="image/*" capture="environment" onChange={event => { addFile(item.id, item.role, event.target.files?.[0]); event.target.value = ""; }} />
-          {filled && <button type="button" className="u-link" onClick={() => onChange(refs.filter(ref => ref.caseId !== item.id))}>{t("refs.remove")}</button>}
-        </div>
-      </div>;
-    })}
+    <div className="u-refslots">
+      {cases.map(item => {
+        const filled = refs.find(ref => ref.caseId === item.id) ?? null;
+        const inputId = `${base}-${item.id}-file`;
+        const cameraId = `${base}-${item.id}-cam`;
+        return <div
+          key={item.id}
+          className="u-refslot"
+          data-filled={filled ? "true" : undefined}
+          data-slot={item.id}
+          onDragOver={event => event.preventDefault()}
+          onDrop={event => {
+            event.preventDefault();
+            const asset = readDroppedAsset(event.dataTransfer);
+            if (asset) {
+              write(item.id, item.role, { name: asset.name, url: asset.url, file: null, assetId: asset.id });
+              return;
+            }
+            addFile(item.id, item.role, event.dataTransfer.files[0]);
+          }}
+        >
+          {filled?.url ? <img src={filled.url} alt="" /> : <button type="button" className="u-refslot-add" aria-expanded={menu === item.id} aria-label={t(`refs.${item.role}`)} onClick={() => setMenu(current => current === item.id ? null : item.id)}>
+            <Plus />
+            <span>{t(`refs.${item.role}`)}</span>
+          </button>}
+          {filled && <button type="button" className="u-refslot-x" aria-label={t("refs.remove")} onClick={() => onChange(refs.filter(ref => ref.caseId !== item.id))}><Close /></button>}
+          {!filled && menu === item.id && <div className="u-refslot-menu" role="menu">
+            <label htmlFor={inputId}>{t("refs.drop")}</label>
+            <input id={inputId} className="sr-only" type="file" accept="image/*" onChange={event => { addFile(item.id, item.role, event.target.files?.[0]); event.target.value = ""; }} />
+            <label htmlFor={cameraId}>{t("refs.camera")}</label>
+            <input id={cameraId} className="sr-only" type="file" accept="image/*" capture="environment" onChange={event => { addFile(item.id, item.role, event.target.files?.[0]); event.target.value = ""; }} />
+            <button type="button" onClick={() => { setMenu(null); onGallery?.(); }}>{t("refs.gallery")}</button>
+          </div>}
+        </div>;
+      })}
+    </div>
+    <p className="u-small u-refslot-help">{t("refs.help")}</p>
   </div>;
 }

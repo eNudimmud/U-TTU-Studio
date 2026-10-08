@@ -1198,6 +1198,7 @@
     "role": "Rol",
     "empty": "Ninguna referencia.",
     "emptySlot": "Vacío",
+    "help": "Arrastra un asset de la galería, o suelta una foto.",
     "visage": "Rostro",
     "tenue": "Ropa",
     "style": "Estilo",

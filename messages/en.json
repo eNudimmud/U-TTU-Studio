@@ -1198,6 +1198,7 @@
     "role": "Role",
     "empty": "No reference.",
     "emptySlot": "Empty",
+    "help": "Drag an asset from the gallery, or drop a photo.",
     "visage": "Face",
     "tenue": "Outfit",
     "style": "Style",

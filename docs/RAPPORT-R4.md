@@ -78,3 +78,11 @@ Le filtre de la galerie dit « Décor », pas « Décors » : ce pluriel est un 
 - `bureau-galerie-1280.png`, `bureau-galerie-390.png`
 - `bureau-drag-1280.png`, `bureau-drag-390.png`
 - `bureau-clip-1280.png`, `bureau-clip-390.png`
+
+## Finition — même jour
+
+- La galerie est une grille 4:5, deux colonnes, nom sur une ligne. La sélection est une coche au survol ou à l’appui long, plus « Sélectionner » dans l’en-tête.
+- Depuis des photos montre trois cases, celles du graphe. Case vide : « + » et Visage. Case pleine : vignette et croix.
+- MONTAGE à 1280×800 : lecteur réduit, quatre pistes dans la fenêtre, chutier ouvert sur Médias. « Bientôt » est fermé, en bas de l’onglet.
+- Sur 390, Créer est opaque, dans le flux, sous le contenu. Le sélecteur Que veux-tu faire ? / Galerie est en haut. `bureau-cast-bas-390.png` montre le bouton en bas de page.
+- 0 crédit. Rien n’est mergé.

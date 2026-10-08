@@ -287,15 +287,8 @@ export interface CaseRef {
   role: RoleRef;
 }
 
-/**
- * Boxes drawn for the chosen gesture.
- * Depuis des photos shows four face boxes. The graph still accepts three images;
- * the fourth face stays on the card.
- */
+/** One box per image the graph actually receives. */
 export function casesVisibles(row: Geste): CaseRef[] {
-  if (row.id === "cast-photos") {
-    return [1, 2, 3, 4].map(index => ({ id: `visage-${index}`, role: "visage" }));
-  }
   return row.slots.map(slot => ({ id: slot.slot, role: slot.role }));
 }
 
