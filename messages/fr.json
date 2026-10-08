@@ -1049,6 +1049,7 @@
     "more": "Plus de gestes",
     "less": "Moins de gestes",
     "soon": "Bientôt",
+    "soonQuiet": "Bientôt · {names}",
     "seeExample": "Voir un exemple",
     "cost": "Environ {amount} crédits, plafond {high}. Hypothèse.",
     "costMeasured": "Environ {amount} crédits, plafond {high}. Mesuré.",
@@ -1059,24 +1060,24 @@
     "needRefs": "Il manque une référence.",
     "needOutfit": "Il manque la photo de tenue.",
     "raisons": {
-      "castAngle": "Autres angles : le coût de ce geste n’est pas chiffré.",
-      "castExpression": "Expression : il faut un visage et un clip, et le coût n’est pas chiffré.",
-      "castLight": "Rééclairer : le coût n’est pas chiffré.",
-      "castUpscale": "Agrandir l’image : le coût n’est pas chiffré.",
-      "castVolume": "Volume : le coût n’est pas chiffré.",
-      "decorAngles": "Autres angles du lieu : le coût n’est pas chiffré.",
-      "decorWiden": "Élargir demande une très haute définition. Ce palier n’est pas mesuré.",
-      "decorVolume": "Volume du lieu : le coût n’est pas chiffré.",
-      "priseStill": "Image vers plan : ce réglage n’est pas la prise mesurée (4 crédits).",
-      "priseBridge": "Raccord : seul le plan à 4 crédits est mesuré.",
-      "priseExtend": "Prolonger : ce réglage n’est pas la prise mesurée (4 crédits).",
-      "priseCamera": "Caméra : le coût n’est pas chiffré.",
-      "priseMotion": "Transfert de mouvement : le coût n’est pas chiffré.",
-      "priseLips": "Lèvres : le coût n’est pas chiffré.",
-      "priseVidu": "Cet autre plan n’est pas branché. Rien ne part.",
-      "montLips": "Synchro labiale : le coût n’est pas chiffré.",
-      "montUpscale": "Agrandir la vidéo : le coût n’est pas chiffré.",
-      "montFrames": "Fluidifier : le coût n’est pas chiffré."
+      "castAngle": "Bientôt : prix pas encore vérifié.",
+      "castExpression": "Bientôt : prix pas encore vérifié.",
+      "castLight": "Bientôt : prix pas encore vérifié.",
+      "castUpscale": "Bientôt : prix pas encore vérifié.",
+      "castVolume": "Bientôt : prix pas encore vérifié.",
+      "decorAngles": "Bientôt : prix pas encore vérifié.",
+      "decorWiden": "Bientôt : prix pas encore vérifié.",
+      "decorVolume": "Bientôt : prix pas encore vérifié.",
+      "priseStill": "Bientôt : prix pas encore vérifié.",
+      "priseBridge": "Bientôt : prix pas encore vérifié.",
+      "priseExtend": "Bientôt : prix pas encore vérifié.",
+      "priseCamera": "Bientôt : prix pas encore vérifié.",
+      "priseMotion": "Bientôt : prix pas encore vérifié.",
+      "priseLips": "Bientôt : prix pas encore vérifié.",
+      "priseVidu": "Bientôt : prix pas encore vérifié.",
+      "montLips": "Bientôt : prix pas encore vérifié.",
+      "montUpscale": "Bientôt : prix pas encore vérifié.",
+      "montFrames": "Bientôt : prix pas encore vérifié."
     },
     "cat": {
       "identite": "Identité",
@@ -1192,7 +1193,7 @@
     },
     "priseVidu": {
       "title": "Autre plan, références",
-      "phrase": "Un plan à partir de plusieurs images. Coût non branché."
+      "phrase": "Un plan à partir de plusieurs images."
     },
     "montVoice": {
       "title": "Voix",
@@ -1208,15 +1209,18 @@
     },
     "montLips": {
       "title": "Synchro labiale",
-      "phrase": "La bouche suit le son."
+      "phrase": "La bouche suit le son.",
+      "quiet": "Synchro labiale"
     },
     "montUpscale": {
       "title": "Agrandir la vidéo",
-      "phrase": "Plus de détail sur le plan."
+      "phrase": "Plus de détail sur le plan.",
+      "quiet": "Agrandir"
     },
     "montFrames": {
       "title": "Fluidifier",
-      "phrase": "Plus d’images entre les images."
+      "phrase": "Plus d’images entre les images.",
+      "quiet": "Fluidifier"
     }
   },
   "refs": {

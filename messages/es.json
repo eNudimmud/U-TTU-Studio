@@ -1049,6 +1049,7 @@
     "more": "Más gestos",
     "less": "Menos gestos",
     "soon": "Pronto",
+    "soonQuiet": "Pronto · {names}",
     "seeExample": "Ver un ejemplo",
     "cost": "Unos {amount} créditos, tope {high}. Hipótesis.",
     "costMeasured": "Unos {amount} créditos, tope {high}. Medido.",
@@ -1059,24 +1060,24 @@
     "needRefs": "No hay referencia.",
     "needOutfit": "La foto de la ropa no está.",
     "raisons": {
-      "castAngle": "Otros ángulos: este gesto aún no tiene precio.",
-      "castExpression": "La expresión pide un rostro y un clip, y aún no tiene precio.",
-      "castLight": "Reiluminar aún no tiene precio.",
-      "castUpscale": "Agrandar la imagen aún no tiene precio.",
-      "castVolume": "El volumen aún no tiene precio.",
-      "decorAngles": "Otros ángulos del lugar aún no tienen precio.",
-      "decorWiden": "Ampliar pide una definición muy alta. Ese nivel no está medido.",
-      "decorVolume": "El volumen del lugar aún no tiene precio.",
-      "priseStill": "Imagen a plano: este ajuste no es la toma medida (4 créditos).",
-      "priseBridge": "Empalme: solo el plano de 4 créditos está medido.",
-      "priseExtend": "Prolongar: este ajuste no es la toma medida (4 créditos).",
-      "priseCamera": "Cámara: aún no hay precio.",
-      "priseMotion": "Transferir el movimiento aún no tiene precio.",
-      "priseLips": "Labios: aún no hay precio.",
-      "priseVidu": "Este otro plano no está conectado. No sale nada.",
-      "montLips": "Sincronía labial: aún no hay precio.",
-      "montUpscale": "Agrandar el vídeo aún no tiene precio.",
-      "montFrames": "Suavizar aún no tiene precio."
+      "castAngle": "Pronto: el precio aún no está comprobado.",
+      "castExpression": "Pronto: el precio aún no está comprobado.",
+      "castLight": "Pronto: el precio aún no está comprobado.",
+      "castUpscale": "Pronto: el precio aún no está comprobado.",
+      "castVolume": "Pronto: el precio aún no está comprobado.",
+      "decorAngles": "Pronto: el precio aún no está comprobado.",
+      "decorWiden": "Pronto: el precio aún no está comprobado.",
+      "decorVolume": "Pronto: el precio aún no está comprobado.",
+      "priseStill": "Pronto: el precio aún no está comprobado.",
+      "priseBridge": "Pronto: el precio aún no está comprobado.",
+      "priseExtend": "Pronto: el precio aún no está comprobado.",
+      "priseCamera": "Pronto: el precio aún no está comprobado.",
+      "priseMotion": "Pronto: el precio aún no está comprobado.",
+      "priseLips": "Pronto: el precio aún no está comprobado.",
+      "priseVidu": "Pronto: el precio aún no está comprobado.",
+      "montLips": "Pronto: el precio aún no está comprobado.",
+      "montUpscale": "Pronto: el precio aún no está comprobado.",
+      "montFrames": "Pronto: el precio aún no está comprobado."
     },
     "cat": {
       "identite": "Identidad",
@@ -1192,7 +1193,7 @@
     },
     "priseVidu": {
       "title": "Otro plano, referencias",
-      "phrase": "Un plano desde varias imágenes. Coste no conectado."
+      "phrase": "Un plano desde varias imágenes."
     },
     "montVoice": {
       "title": "Voz",
@@ -1208,15 +1209,18 @@
     },
     "montLips": {
       "title": "Sincro labial",
-      "phrase": "La boca sigue el sonido."
+      "phrase": "La boca sigue el sonido.",
+      "quiet": "Sincro labial"
     },
     "montUpscale": {
       "title": "Ampliar el vídeo",
-      "phrase": "Más detalle en el plano."
+      "phrase": "Más detalle en el plano.",
+      "quiet": "Ampliar"
     },
     "montFrames": {
       "title": "Suavizar",
-      "phrase": "Más imágenes entre las imágenes."
+      "phrase": "Más imágenes entre las imágenes.",
+      "quiet": "Suavizar"
     }
   },
   "refs": {

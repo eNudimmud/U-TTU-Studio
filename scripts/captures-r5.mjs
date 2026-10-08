@@ -29,6 +29,7 @@ async function size(width, height) {
 }
 
 async function openStudio(path) {
+  await page.goto("about:blank");
   await page.goto(local + path, { waitUntil: "networkidle2", timeout: 60000 });
   await page.waitForSelector(".u-app", { timeout: 20000 });
   await new Promise(resolve => setTimeout(resolve, 400));
@@ -50,9 +51,23 @@ for (const [kind, path, name] of shots) {
     await openStudio(path);
     if (kind === "montage") {
       if (width < 1024) {
-        const toggle = await page.$(".u-bin-toggle");
-        if (toggle) await toggle.click();
-        await page.waitForSelector(".u-chutier[data-open='true'] .u-bin-label", { timeout: 8000 });
+        const closed = await page.evaluate(() => {
+          const head = document.querySelector(".u-montage-bar");
+          const viewer = document.querySelector(".u-capcut-player .u-viewer");
+          const play = document.querySelector(".u-play");
+          const timeline = document.querySelector(".u-tl");
+          if (document.querySelector(".u-chutier[data-open='true']")) return "feuille ouverte";
+          if (!head || !viewer || !play || !timeline) return "montage incomplet";
+          const h = head.getBoundingClientRect();
+          const v = viewer.getBoundingClientRect();
+          const p = play.getBoundingClientRect();
+          const t = timeline.getBoundingClientRect();
+          if (h.bottom > v.top + 1) return `titre sur l’image ${Math.round(h.bottom)}>${Math.round(v.top)}`;
+          if (p.height < 44 || p.top < 0 || p.bottom > window.innerHeight) return "lecture hors cadre";
+          if (t.top < p.bottom - 1) return "timeline sur la lecture";
+          return "";
+        });
+        if (closed) throw new Error(`${name}-${label} ${closed}`);
       } else {
         await page.waitForSelector(".u-capcut .u-bin-label", { timeout: 8000 });
         const fit = await page.evaluate(() => {
@@ -85,6 +100,13 @@ for (const [kind, path, name] of shots) {
               if (name && (name.scrollWidth > name.clientWidth + 1 || name.scrollHeight > name.clientHeight + 2)) return `nom coupé ${name.textContent}`;
             }
           }
+          for (const span of document.querySelectorAll(".u-clip.is-audio .u-clip-body > span")) {
+            const label = span.getBoundingClientRect();
+            const clip = span.closest(".u-clip")?.getBoundingClientRect();
+            if (!clip) return "plan audio sans boîte";
+            if (label.top < clip.top - 1 || label.bottom > clip.bottom + 1) return `nom de piste coupé ${span.textContent}`;
+            if (span.scrollHeight > span.clientHeight + 2) return `nom de piste coupé ${span.textContent}`;
+          }
           return "";
         });
         if (fit) throw new Error(`${name}-${label} ${fit}`);
@@ -100,7 +122,7 @@ for (const [kind, path, name] of shots) {
     if (name === "r5-decor-elargir") {
       await page.waitForSelector("[data-geste='decor-elargir'][data-selected]", { timeout: 8000 });
       const why = await page.$eval("#u-why-decor", node => node.textContent ?? "");
-      if (!why.includes("haute définition") && !why.includes("pas mesuré")) throw new Error(`${name}-${label} raison absente : ${why}`);
+      if (!why.includes("prix pas encore vérifié")) throw new Error(`${name}-${label} raison absente : ${why}`);
     }
     if (name === "r5-prise-raccord") {
       await page.waitForSelector("[data-geste='prise-raccord'][data-selected]", { timeout: 8000 });
@@ -131,43 +153,63 @@ for (const [kind, path, name] of shots) {
       });
       if (desk) throw new Error(`${name}-${label} ${desk}`);
     }
-    if (kind === "montage" && width < 1024) {
-      const sheet = await page.evaluate(() => {
+    await page.screenshot({ path: `${out}/${name}-${label}.png` });
+    console.log(`${name}-${label}`);
+    if (kind === "montage" && width === 390) {
+      const toggle = await page.$(".u-bin-toggle");
+      if (toggle) await toggle.click();
+      await page.waitForSelector(".u-chutier[data-open='true'] .u-bin-label", { timeout: 8000 });
+      const sheet = await page.evaluate(assertLabels);
+      if (sheet) throw new Error(`${name}-chutier ${sheet}`);
+      const fit = await page.evaluate(() => {
         const bin = document.querySelector(".u-chutier[data-open='true']");
-        const player = document.querySelector(".u-capcut-player .u-viewer");
+        const play = document.querySelector(".u-play");
+        const head = document.querySelector(".u-montage-bar");
+        const viewer = document.querySelector(".u-capcut-player .u-viewer");
         const close = document.querySelector(".u-bin-close");
-        if (!bin || !player || !close) return "feuille incomplète";
+        if (!bin || !play || !head || !viewer || !close) return "feuille incomplète";
         const b = bin.getBoundingClientRect();
-        const p = player.getBoundingClientRect();
+        const p = play.getBoundingClientRect();
+        const h = head.getBoundingClientRect();
+        const v = viewer.getBoundingClientRect();
+        if (h.bottom > v.top + 1) return "titre sur l’image";
+        if (p.bottom > b.top + 1) return `lecture sous la feuille ${Math.round(p.bottom)}>${Math.round(b.top)}`;
+        if (p.height < 44) return "lecture trop petite";
         if (b.height > window.innerHeight * 0.56) return `feuille trop haute ${Math.round(b.height)}`;
-        if (p.left < -1 || p.right > window.innerWidth + 1) return `lecteur hors cadre ${Math.round(p.left)}…${Math.round(p.right)}`;
-        const visible = Math.min(p.bottom, b.top) - p.top;
-        if (visible < 120) return `lecteur couvert ${Math.round(visible)}`;
         if (close.getBoundingClientRect().height < 44) return "Fermer trop petit";
-          const cards = [...bin.querySelectorAll(".u-chutier-row button")];
+        const quietNode = document.querySelector(".u-bin-quiet");
+        const quiet = quietNode?.textContent ?? "";
+        if (quiet !== "Bientôt · Agrandir, Fluidifier") return `ligne ${quiet}`;
+        const q = quietNode.getBoundingClientRect();
+        if (q.top < b.top - 1 || q.bottom > b.bottom + 1 || q.height < 12) return "ligne hors feuille";
+        if (quietNode.scrollWidth > quietNode.clientWidth + 1) return "ligne coupée";
         const edge = b.right - 1;
-        for (const card of cards) {
-          const cardBox = card.getBoundingClientRect();
-          if (cardBox.right > edge) return "carte coupée";
-          const name = card.querySelector(".u-bin-name");
-          if (name && (name.scrollWidth > name.clientWidth + 1 || name.scrollHeight > name.clientHeight + 2)) return `nom coupé ${name.textContent}`;
+        for (const card of bin.querySelectorAll(".u-chutier-row button")) {
+          if (card.getBoundingClientRect().right > edge) return "carte coupée";
         }
         return "";
       });
-      if (sheet) throw new Error(`${name}-${label} ${sheet}`);
+      if (fit) throw new Error(`${name}-chutier ${fit}`);
+      await page.screenshot({ path: `${out}/r5-montage-390-chutier.png` });
+      console.log("r5-montage-390-chutier");
     }
-    await page.screenshot({ path: `${out}/${name}-${label}.png` });
-    console.log(`${name}-${label}`);
   }
 }
 
 await size(360, 800);
 await openStudio("/studio?barre=1#montage");
-const toggle = await page.$(".u-bin-toggle");
-if (toggle) await toggle.click();
-await page.waitForSelector(".u-chutier[data-open='true'] .u-bin-label", { timeout: 8000 });
-const cut = await page.evaluate(assertLabels);
-if (cut) throw new Error(`r5-montage-360 ${cut}`);
+const closed360 = await page.evaluate(() => {
+  const head = document.querySelector(".u-montage-bar");
+  const viewer = document.querySelector(".u-capcut-player .u-viewer");
+  const play = document.querySelector(".u-play");
+  if (document.querySelector(".u-chutier[data-open='true']")) return "feuille ouverte";
+  if (!head || !viewer || !play) return "montage incomplet";
+  if (head.getBoundingClientRect().bottom > viewer.getBoundingClientRect().top + 1) return "titre sur l’image";
+  const p = play.getBoundingClientRect();
+  if (p.height < 44 || p.bottom > window.innerHeight) return "lecture hors cadre";
+  return "";
+});
+if (closed360) throw new Error(`r5-montage-360 ${closed360}`);
 await page.screenshot({ path: `${out}/r5-montage-360.png` });
 console.log("r5-montage-360");
 

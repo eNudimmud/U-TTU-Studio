@@ -22,9 +22,9 @@ function Tile({ item, selected, example, onChange, onExample }: {
       <span className="u-tile-copy">
         <strong>{t(`gestes.${item.clef}.title`)}</strong>
         <span>{t(`gestes.${item.clef}.phrase`)}</span>
-        {!open && item.raison && <span className="u-tile-why">{t(item.raison)}</span>}
       </span>
     </button>
+    {!open && item.raison && <p className="u-tile-why">{t(item.raison)}</p>}
     {example && onExample && <button type="button" className="u-link" onClick={() => onExample(item.id)}>{t("gestes.seeExample")}</button>}
   </article>;
 }

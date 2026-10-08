@@ -1049,6 +1049,7 @@
     "more": "Weitere Gesten",
     "less": "Weniger Gesten",
     "soon": "Bald",
+    "soonQuiet": "Bald · {names}",
     "seeExample": "Ein Beispiel ansehen",
     "cost": "Etwa {amount} Credits, Deckel {high}. Annahme.",
     "costMeasured": "Etwa {amount} Credits, Deckel {high}. Gemessen.",
@@ -1059,24 +1060,24 @@
     "needRefs": "Eine Referenz fehlt.",
     "needOutfit": "Das Foto der Kleidung fehlt.",
     "raisons": {
-      "castAngle": "Andere Winkel: dieser Gestus hat noch keinen Preis.",
-      "castExpression": "Ausdruck braucht ein Gesicht und einen Clip, und hat noch keinen Preis.",
-      "castLight": "Umleuchten hat noch keinen Preis.",
-      "castUpscale": "Das Bild vergrößern hat noch keinen Preis.",
-      "castVolume": "Volumen hat noch keinen Preis.",
-      "decorAngles": "Andere Winkel des Orts haben noch keinen Preis.",
-      "decorWiden": "Erweitern verlangt eine sehr hohe Auflösung. Diese Stufe ist nicht gemessen.",
-      "decorVolume": "Volumen des Orts hat noch keinen Preis.",
-      "priseStill": "Bild zu Plan: diese Einstellung ist nicht die gemessene Aufnahme (4 Credits).",
-      "priseBridge": "Anschluss: nur der Plan zu 4 Credits ist gemessen.",
-      "priseExtend": "Verlängern: diese Einstellung ist nicht die gemessene Aufnahme (4 Credits).",
-      "priseCamera": "Kamera: noch kein Preis.",
-      "priseMotion": "Bewegungsübertragung hat noch keinen Preis.",
-      "priseLips": "Lippen: noch kein Preis.",
-      "priseVidu": "Dieser andere Plan ist nicht angeschlossen. Nichts geht raus.",
-      "montLips": "Lippensynchronisation hat noch keinen Preis.",
-      "montUpscale": "Das Video vergrößern hat noch keinen Preis.",
-      "montFrames": "Weicher machen hat noch keinen Preis."
+      "castAngle": "Bald: der Preis ist noch nicht geprüft.",
+      "castExpression": "Bald: der Preis ist noch nicht geprüft.",
+      "castLight": "Bald: der Preis ist noch nicht geprüft.",
+      "castUpscale": "Bald: der Preis ist noch nicht geprüft.",
+      "castVolume": "Bald: der Preis ist noch nicht geprüft.",
+      "decorAngles": "Bald: der Preis ist noch nicht geprüft.",
+      "decorWiden": "Bald: der Preis ist noch nicht geprüft.",
+      "decorVolume": "Bald: der Preis ist noch nicht geprüft.",
+      "priseStill": "Bald: der Preis ist noch nicht geprüft.",
+      "priseBridge": "Bald: der Preis ist noch nicht geprüft.",
+      "priseExtend": "Bald: der Preis ist noch nicht geprüft.",
+      "priseCamera": "Bald: der Preis ist noch nicht geprüft.",
+      "priseMotion": "Bald: der Preis ist noch nicht geprüft.",
+      "priseLips": "Bald: der Preis ist noch nicht geprüft.",
+      "priseVidu": "Bald: der Preis ist noch nicht geprüft.",
+      "montLips": "Bald: der Preis ist noch nicht geprüft.",
+      "montUpscale": "Bald: der Preis ist noch nicht geprüft.",
+      "montFrames": "Bald: der Preis ist noch nicht geprüft."
     },
     "cat": {
       "identite": "Identität",
@@ -1192,7 +1193,7 @@
     },
     "priseVidu": {
       "title": "Andere Referenz-Einstellung",
-      "phrase": "Eine Einstellung aus mehreren Bildern. Kosten nicht verbunden."
+      "phrase": "Eine Einstellung aus mehreren Bildern."
     },
     "montVoice": {
       "title": "Stimme",
@@ -1208,15 +1209,18 @@
     },
     "montLips": {
       "title": "Lippensynchron",
-      "phrase": "Der Mund folgt dem Ton."
+      "phrase": "Der Mund folgt dem Ton.",
+      "quiet": "Lippensynchron"
     },
     "montUpscale": {
       "title": "Video vergrößern",
-      "phrase": "Mehr Detail auf der Einstellung."
+      "phrase": "Mehr Detail auf der Einstellung.",
+      "quiet": "Vergrößern"
     },
     "montFrames": {
       "title": "Weicher",
-      "phrase": "Mehr Bilder zwischen den Bildern."
+      "phrase": "Mehr Bilder zwischen den Bildern.",
+      "quiet": "Weicher"
     }
   },
   "refs": {

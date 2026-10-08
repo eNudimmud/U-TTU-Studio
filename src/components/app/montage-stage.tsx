@@ -683,10 +683,6 @@ export function MontageStage() {
           const row = gesteParId(id);
           return row && gesteOuvert(row) ? [row] : [];
         });
-        const closed = ids.flatMap(id => {
-          const row = gesteParId(id);
-          return row && !gesteOuvert(row) ? [row] : [];
-        });
         return <>
           {wired.map(row => <button key={row.id} type="button" className="u-secondary" onClick={() => {
             setGesteId(row.id);
@@ -695,10 +691,17 @@ export function MontageStage() {
             setStem(track);
             setBinTab(track);
           }}>{t(`gestes.${row.clef}.title`)}</button>)}
-          {closed.map(row => <p key={row.id} className="u-bin-quiet">{t(row.raison ?? `gestes.${row.clef}.title`)}</p>)}
         </>;
       })()}
       </div>
+      {(() => {
+        const ids = binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
+        const names = ids.flatMap(id => {
+          const row = gesteParId(id);
+          return row && !gesteOuvert(row) ? [t(`gestes.${row.clef}.quiet`)] : [];
+        });
+        return names.length > 0 ? <p className="u-bin-quiet">{t("gestes.soonQuiet", { names: names.join(", ") })}</p> : null;
+      })()}
       <button type="button" className="u-secondary u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.close")}</button>
     </aside>
     <div className="u-capcut-player">

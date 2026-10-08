@@ -60,7 +60,7 @@ Le bloc Créer est dans le flux, sous le texte, pas collé par-dessus. Le bouton
 
 Le lecteur est le cadre noir de la colonne (environ 1052×429). L’image 16:9 à l’intérieur mesure environ 759×427. Rien n’est écrit par-dessus, à part l’heure de lecture. La barre du plan (Scinder, Dupliquer, vitesse, Fondu, titre, Supprimer) est dans la rangée d’outils, au-dessus de la timeline, et seulement quand un plan est choisi. Elle ne double pas Scinder ni Supprimer.
 
-À 390 et à 360, le chutier est une feuille basse : au plus 55 % de la hauteur, une poignée, le lecteur reste visible au-dessus, une grille de deux colonnes, un bouton Fermer d’au moins 44 px. Les noms tiennent. La page du montage ne défile pas sur le côté.
+À 390 et à 360, le titre et Exporter sont une rangée au-dessus du lecteur. La capture au repos laisse le chutier fermé : lecteur, lecture et timeline visibles. La feuille ouverte (`r5-montage-390-chutier.png`) reste sous les contrôles de lecture. Elle dit « Bientôt · Agrandir, Fluidifier », en une ligne.
 
 ## Captures
 
@@ -80,5 +80,6 @@ Fenêtres 1280×800 et 390×844. Montage aussi à 360 pour les libellés. Fichie
 - À 1280×800, `scrollHeight` du montage est 800. La timeline finit dans la fenêtre. Le cadre du lecteur fait environ 1052×429, l’image 16:9 environ 759×427. La barre du plan est sous l’image (`top` 604, bas de l’image 595). Aucune phrase d’explication dans le lecteur.
 - Les libellés Médias, Voix, Effets, Musique tiennent en entier à 1280, 390 et 360 (`scrollWidth` égal à `clientWidth`). Les noms « Le quai, la nuit », « Sous la pluie », « Une pièce » et « Voix d’exemple » aussi.
 - Tenue : le champ Texte finit au-dessus du bloc Créer (bas du champ 543, haut du bloc 687). Le bouton dit « environ 12 crédits », et « Plafond 18, hypothèse. » est en dessous. Les quatre tuiles, dont « Voir un exemple », tiennent dans la colonne (bas 650, colonne 788).
-- Élargir : bouton « Créer le décor », sans prix, et la phrase entière sur la haute définition. Raccord : cases Début et Fin, et la ligne qui dit que seul le plan à 4 crédits est mesuré.
-- À 390, la feuille du chutier fait 447 px sur 844 (sous 55 %), le lecteur au-dessus reste large de 352 px, Fermer fait 44 px.
+- Élargir : bouton « Créer le décor », sans prix. La tuile dit « Bientôt : prix pas encore vérifié. » Raccord montre Début et Fin, avec la même ligne.
+- Le cadre « Vide » sous le texte n’est plus là tant qu’il n’y a pas d’image.
+- À 390, la feuille ouverte ne couvre pas le bouton lecture. Les pistes voix et musique montrent le nom en entier.

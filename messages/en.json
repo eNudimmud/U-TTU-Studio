@@ -1049,6 +1049,7 @@
     "more": "More gestures",
     "less": "Fewer gestures",
     "soon": "Soon",
+    "soonQuiet": "Soon · {names}",
     "seeExample": "See an example",
     "cost": "About {amount} credits, ceiling {high}. Hypothesis.",
     "costMeasured": "About {amount} credits, ceiling {high}. Measured.",
@@ -1059,24 +1060,24 @@
     "needRefs": "A reference is missing.",
     "needOutfit": "The outfit photo is missing.",
     "raisons": {
-      "castAngle": "Other angles: this gesture has no price yet.",
-      "castExpression": "Expression needs a face and a clip, and has no price yet.",
-      "castLight": "Relighting has no price yet.",
-      "castUpscale": "Enlarging the picture has no price yet.",
-      "castVolume": "Volume has no price yet.",
-      "decorAngles": "Other angles of the place have no price yet.",
-      "decorWiden": "Widening asks for a very high definition. That tier is not measured.",
-      "decorVolume": "Place volume has no price yet.",
-      "priseStill": "Still to shot: this setting is not the measured take (4 credits).",
-      "priseBridge": "Bridge: only the 4-credit shot is measured.",
-      "priseExtend": "Extend: this setting is not the measured take (4 credits).",
-      "priseCamera": "Camera: no price yet.",
-      "priseMotion": "Motion transfer has no price yet.",
-      "priseLips": "Lips: no price yet.",
-      "priseVidu": "This other shot is not wired. Nothing is sent.",
-      "montLips": "Lip sync has no price yet.",
-      "montUpscale": "Enlarging the video has no price yet.",
-      "montFrames": "Smoothing frames has no price yet."
+      "castAngle": "Soon: the price is not checked yet.",
+      "castExpression": "Soon: the price is not checked yet.",
+      "castLight": "Soon: the price is not checked yet.",
+      "castUpscale": "Soon: the price is not checked yet.",
+      "castVolume": "Soon: the price is not checked yet.",
+      "decorAngles": "Soon: the price is not checked yet.",
+      "decorWiden": "Soon: the price is not checked yet.",
+      "decorVolume": "Soon: the price is not checked yet.",
+      "priseStill": "Soon: the price is not checked yet.",
+      "priseBridge": "Soon: the price is not checked yet.",
+      "priseExtend": "Soon: the price is not checked yet.",
+      "priseCamera": "Soon: the price is not checked yet.",
+      "priseMotion": "Soon: the price is not checked yet.",
+      "priseLips": "Soon: the price is not checked yet.",
+      "priseVidu": "Soon: the price is not checked yet.",
+      "montLips": "Soon: the price is not checked yet.",
+      "montUpscale": "Soon: the price is not checked yet.",
+      "montFrames": "Soon: the price is not checked yet."
     },
     "cat": {
       "identite": "Identity",
@@ -1192,7 +1193,7 @@
     },
     "priseVidu": {
       "title": "Another reference shot",
-      "phrase": "A shot from several pictures. Cost not wired."
+      "phrase": "A shot from several pictures."
     },
     "montVoice": {
       "title": "Voice",
@@ -1208,15 +1209,18 @@
     },
     "montLips": {
       "title": "Lip sync",
-      "phrase": "The mouth follows the sound."
+      "phrase": "The mouth follows the sound.",
+      "quiet": "Lip sync"
     },
     "montUpscale": {
       "title": "Enlarge the video",
-      "phrase": "More detail on the shot."
+      "phrase": "More detail on the shot.",
+      "quiet": "Enlarge"
     },
     "montFrames": {
       "title": "Smooth",
-      "phrase": "More frames between the frames."
+      "phrase": "More frames between the frames.",
+      "quiet": "Smooth"
     }
   },
   "refs": {

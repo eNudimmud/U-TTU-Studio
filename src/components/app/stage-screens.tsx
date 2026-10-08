@@ -200,9 +200,9 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         <span className="u-label">{t("create.prompt")}</span>
         <textarea value={prompt} rows={3} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => setPrompt(event.target.value)} />
       </label>
-      <div className="u-result-frame" data-ratio="3/4">
-        {apres ? <img src={apres} alt="" /> : preview ? <img src={preview} alt="" /> : <p className="u-small">{t(gesteId === "cast-planche" ? "gestes.exampleSoon" : "refs.emptySlot")}</p>}
-      </div>
+      {(apres || preview) && <div className="u-result-frame" data-ratio="3/4">
+        <img src={apres || preview} alt="" />
+      </div>}
     </div>
     <div className="u-create-bar">
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
@@ -300,9 +300,9 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         <span className="u-label">{t("create.prompt")}</span>
         <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
       </label>
-      <div className="u-result-frame">
-        {apres ? <img src={apres} alt="" /> : preview ? <img src={preview} alt="" /> : <p className="u-small">{t("refs.emptySlot")}</p>}
-      </div>
+      {(apres || preview) && <div className="u-result-frame">
+        <img src={apres || preview} alt="" />
+      </div>}
     </div>
     <div className="u-create-bar">
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
@@ -425,11 +425,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           })}
         </div>
       </div>
-      <div className="u-result-frame">
+      {(whoSrc || whereSrc) && <div className="u-result-frame">
         {whoSrc ? <img src={whoSrc} alt="" /> : null}
         {whereSrc ? <img src={whereSrc} alt="" /> : null}
-        {!whoSrc && !whereSrc && <p className="u-small">{t("refs.emptySlot")}</p>}
-      </div>
+      </div>}
       <label className="u-field u-prise-action">
         <span className="u-label">{t("stage.action")}</span>
         <textarea id="u-prise-phrase" value={line} rows={2} maxLength={240} placeholder={t("take.defaultLine")} onChange={event => setLine(event.target.value)} />
