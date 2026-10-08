@@ -170,6 +170,14 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
     video.current?.play().catch(() => {});
   }, [resultId]);
 
+  const writtenLine = t("take.actionPlaceholder");
+  useEffect(() => {
+    let stored: string | null = null;
+    try { stored = localStorage.getItem("u-ttu-plan"); } catch { return; }
+    if (stored !== null) return;
+    setLine(writtenLine);
+  }, [setLine, writtenLine]);
+
   const hasCharacter = Boolean(chosenLora);
   const gaps = priseGaps({ lookReady: check.ready, hasScene: Boolean(scene), engine, hasCharacter });
   const whoName = chosenLora?.name.trim() ?? "";
@@ -383,8 +391,9 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         <span className="u-pair-thread" aria-hidden="true" />
         <figure>{scenePicture && scene && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene ? (scene.render ? t("take.filmedStill") : scene.name) : t("take.examplePlace", { place: SAMPLE_TAKE.place })}</figcaption></figure>
       </div>
-      <button type="button" className="u-link u-muted" disabled={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={resetTake}>{t("take.resetPlan")}</button>
-      <Why on={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} text={t("why.planFresh")} />
+      <p className="u-small">{t("take.written")}</p>
+      <button type="button" className="u-link u-muted" disabled={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={() => { resetTake(); setLine(writtenLine); }}>{t("take.resetPlan")}</button>
+      <Why on={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} text={t("why.planFresh")} />
       <div className="u-next" aria-label={t("take.nextLabel")}>
         <p className="u-small">{t("take.next")}</p>
       </div>

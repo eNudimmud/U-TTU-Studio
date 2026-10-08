@@ -2,6 +2,31 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
 
+## F31 — moins de gestes sur le parcours novice — 7 octobre 2026
+
+Méthode du compte, la même que F29. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui pose une prise sur un plan, lit la séquence, puis exporte. Une saisie déjà écrite n’est pas un geste. Un nom déjà écrit n’est pas une décision. Deux photos restent un tap : le sélecteur accepte plusieurs fichiers. La confirmation payante reste.
+
+| | Avant, F30 | Après, F31 |
+| --- | --- | --- |
+| Gestes | 15 | 9 |
+| dont saisies | 5 | 0 |
+| dont taps | 10 | 9 |
+| Écrans | 7 | 7 |
+| Décisions | 5 | 0 |
+| Retours forcés | 0 | 0 |
+
+- **Décision :** la première fois que le personnage est vide, le nom **Mira** et les deux traits de « Ce qui ne change pas » sont écrits (en français : yeux verts, taches de rousseur). La marque `u-ttu-look-ecrit:<projet>` empêche de les réécrire. On peut les changer. Les effacer ensuite les laisse vides. « Remettre ces références » les réécrit. Les mots sont ceux de la langue ouverte au premier écrit ; un changement de langue ne les réécrit pas.
+- **Décision :** sans lieu, le champ porte **Lieu 1** (Place 1, Ort 1, Lugar 1). Le premier « Poser ce lieu » pose le lieu et ouvre la prise. Un lieu déjà posé laisse « Aller à la prise » comme bouton or.
+- **Décision :** la phrase de la prise est celle qui était déjà l’indication du champ. Elle est écrite seulement si `u-ttu-plan` est absent. La vider ensuite la laisse vide. « Remettre cette prise à zéro » la réécrit, avec le réglage 5 s, rapide, vertical.
+- **Décision :** « Créer ce projet » reste un geste. Atelier est déjà écrit, et le nom se change avant. « Poser le plan » reste un geste : il crée Séquence 1 et Plan 1. La confirmation payante reste.
+- **Fait :** Chrome headless, 390×844, dpr 2, scroll 0, français. Chaîne à 723 px. `scrollWidth` − `clientWidth` = 0. Projet : champ « Atelier » de 427 à 475 px (hauteur 48), « Créer ce projet » de 493 à 547 px (hauteur 54). Personnage, après ce geste : la ligne « Mira et deux traits sont écrits. Deux photos. » va de 383 à 405 px (hauteur 22). Le champ « Mira » va de 656 à 704 px (hauteur 48), au-dessus de la chaîne. Pastilles « yeux verts » et « taches de rousseur ». « Remettre ces références » est éteint, raison « Rien n’a changé. » Scène : champ « Lieu 1 » de 455 à 504 px (hauteur 48), « Poser ce lieu » de 522 à 576 px (hauteur 54). Aucune cible interactive mesurée sous 44 px sur ces écrans.
+- **Fait :** même fenêtre, prise du parcours (deux photos, Lieu 1, phrase écrite, compte lié par une clé locale, solde du mock). La phrase va de 339 à 383 px (hauteur 44) : « Elle traverse le quai sous la pluie, sans se retourner. » Le texte qui part va de 385 à 481 px. Le devis va de 483 à 605 px et contient « À ce réglage · h3-4pas-5s-vertical ». Le bouton or va de 607 à 661 px (hauteur 54). Solde du mock trop bas : le même bouton, éteint, de 607 à 661 px, raison de 663 à 681 px, « Le devis ou le solde ne laisse pas partir. »
+- **Fait :** Chrome headless, 1280×800, dpr 2, scroll 0, français. La chaîne est le rail gauche, large de 232 px. `scrollWidth` − `clientWidth` = 0. Personnage : champ « Mira » de 588 à 636 px (hauteur 48, largeur 188), bouton or de 476 à 530 px (hauteur 54, largeur 440). Prise : bouton or de 540 à 594 px, phrase de 343 à 387 px (hauteur 44), fenêtre de 800 px. Aucune cible interactive mesurée sous 44 px.
+- **Fait :** le même Chrome, 390×844, a enchaîné neuf taps et zéro saisie : « Créer ce projet », deux photos dans un sélecteur, « Poser la scène », « Poser ce lieu » (la prise s’ouvre), « Tourner · environ 4 crédits », « Tourner · débit sur mon compte », « Poser le plan », « Lire la séquence », « Exporter mon studio (.zip) ». Le ZIP passe `unzip -t`. Le job est le mock local de F30. Le nom « Lina », écrit à la place de Mira, est encore là après rechargement. Nom et traits effacés restent vides, marque `u-ttu-look-ecrit:atelier` à 1.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. EN, DE et ES portent `_human: native_open`. Les lignes neuves ne sont pas une signature de locuteur natif.
+- **Hypothèse :** une personne qui ne change pas « Atelier », « Mira », les deux traits, « Lieu 1 », la phrase, « Séquence 1 » ni « Plan 1 » suit ces 9 gestes. Le sélecteur du téléphone laisse passer deux photos en un tap, comme en F29. Ce tour ne le rejoue pas sur un téléphone.
+- **Pas fait :** pas de téléphone physique. Pas de création automatique d’Atelier. Pas de « Poser le plan » automatique. Le compteur de fuites du script de mesure n’a pas été relu ; le test F30, sur ce code, enregistre une liste vide.
+
 ## F30 — le geste or de la Prise dans le premier écran — 7 octobre 2026
 
 Méthode du compte, la même que F29. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui pose une prise sur un plan, lit la séquence, puis exporte. Ce tour ne retire pas un geste : il rapproche le bouton or du haut de la Prise.
