@@ -27,7 +27,7 @@ import { referencePaths } from "@/lib/render/references";
 import { followTake, submitTake, type TakeRunEvent } from "@/lib/render/run";
 import { sessionTokens } from "@/lib/render/session";
 import { settleLandedTake } from "@/lib/render/settle-take";
-import { readInFlight, readRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
+import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
 
@@ -288,7 +288,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const stored = localStorage.getItem(LINE_KEY);
       setLineState(stored ?? "");
     } catch {}
-    setLink(readRenderLink(localStorage));
+    setLink(prev => {
+      const next = readRenderLink(localStorage);
+      return sameRenderLink(prev, next) ? prev : next;
+    });
     let gone = false;
     void (async () => {
       baseRef.current = idbVault();
