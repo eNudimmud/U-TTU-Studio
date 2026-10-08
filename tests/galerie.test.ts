@@ -160,6 +160,10 @@ describe("galerie CAST et DÉCOR", () => {
   });
 
   it("sends a gallery card into PRISE and keeps a 44px target", () => {
+    const coursiere = DEMO_CAST.find(card => card.preview?.endsWith("/cast-coursiere.webp"));
+    assert.equal(coursiere?.name, "La coursière");
+    assert.equal(DEMO_CAST.find(card => card.name === "Mira")?.preview?.endsWith("/cast-mira.webp"), true);
+    assert.equal(DEMO_CAST.some(card => card.name === "Mira" && card.preview?.includes("coursiere")), false);
     const picked = prisePick({ castId: "demo-mira", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR });
     assert.equal(picked.who?.name, "Mira");
     assert.equal(picked.where?.name, "Le quai, la nuit");

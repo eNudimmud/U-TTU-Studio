@@ -164,12 +164,16 @@ describe("le studio, une app", () => {
     assert.match(phone, /\.u-sheet \{[^}]*max-height: 88dvh[^}]*border-radius: 22px 22px 0 0/);
     assert.doesNotMatch(phone, /\.u-sheet \{[^}]*height: 100dvh/);
     assert.match(phone, /\.u-chain \{[^}]*bottom: 0/);
+    assert.match(phone, /\.u-chain \{[^}]*background: var\(--u-ink\)/);
+    assert.doesNotMatch(phone, /\.u-chain \{[^}]*rgba\(/);
     assert.match(phone, /\.u-plateau \{ display: none; \}/);
     assert.match(phone, /\.u-rail-coffre \{ display: none; \}/);
     assert.doesNotMatch(phone, /width: 232px/);
     assert.doesNotMatch(css, /margin-left: 232px|margin-right: 300px/);
     const desk = css.slice(css.indexOf("@media (min-width: 800px)"));
     assert.match(desk, /\.u-chain \{[^}]*position: sticky/);
+    assert.match(desk, /\.u-chain \{[^}]*background: var\(--u-ink\)/);
+    assert.match(desk, /\.u-toast \{[^}]*top: 148px/);
     assert.match(desk, /\.u-plateau \{ display: none; \}/);
     assert.match(desk, /\.u-rail-coffre \{ display: none; \}/);
     assert.match(desk, /\.u-paths \{ grid-template-columns: 1fr 1fr; align-items: stretch; \}/);
