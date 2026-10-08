@@ -9,6 +9,19 @@ export const Share = ({ className }: GlyphProps) => <svg {...base} className={cl
 export const Save = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M12 4v11M7 10l5 5 5-5" /><path d="M5 20h14" /></svg>;
 export const Trash = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></svg>;
 export const Refresh = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M20 11a8 8 0 1 0-2.3 5.7" /><path d="M20 4v7h-7" /></svg>;
+export const Play = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M8 5.5v13l11-6.5z" /></svg>;
+export const Pause = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M8 5v14M16 5v14" /></svg>;
+export const Expand = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>;
+export const Undo = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M8 8H4v4" /><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8" /></svg>;
+export const Redo = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M16 8h4v4" /><path d="M20 12a8 8 0 1 1-2.3-5.7L20 8" /></svg>;
+export const Split = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M12 3v18M8 8l-4 4 4 4M16 8l4 4-4 4" /></svg>;
+export const ZoomOut = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4M8.5 11h5" /></svg>;
+export const ZoomIn = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4M11 8.5v5M8.5 11h5" /></svg>;
+export const Film = ({ className }: GlyphProps) => <svg {...base} className={className}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4" /></svg>;
+export const Mic = ({ className }: GlyphProps) => <svg {...base} className={className}><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M6 11a6 6 0 0 0 12 0M12 17v4" /></svg>;
+export const Spark = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8z" /></svg>;
+export const Music = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M9 18V6l10-2v12" /><circle cx="7" cy="18" r="2.2" /><circle cx="17" cy="16" r="2.2" /></svg>;
+export const More = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="6" cy="12" r="1.2" fill="currentColor" /><circle cx="12" cy="12" r="1.2" fill="currentColor" /><circle cx="18" cy="12" r="1.2" fill="currentColor" /></svg>;
 
 /** The vault: a box tied with one thread. */
 export const Coffre = ({ className }: GlyphProps) => <svg {...base} className={className}><rect x="3.5" y="6.5" width="17" height="13" rx="2" /><path d="M3.5 10.5h17M12 10.5v4" /></svg>;

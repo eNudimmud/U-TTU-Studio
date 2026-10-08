@@ -8,15 +8,17 @@ import { priseReady } from "@/lib/stage";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Coffre } from "./glyphs";
+import { MontageStage } from "./montage-stage";
 import { CastStage, DecorStage, PriseStage } from "./stage-screens";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
 
-const STEPS: { id: "lora" | "scene" | "prise"; key: "nav.character" | "nav.scene" | "nav.take" }[] = [
+const STEPS: { id: "lora" | "scene" | "prise" | "montage"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" }[] = [
   { id: "lora", key: "nav.character" },
   { id: "scene", key: "nav.scene" },
   { id: "prise", key: "nav.take" },
+  { id: "montage", key: "nav.edit" },
 ];
 
 export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
@@ -26,7 +28,7 @@ export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
 function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, cast, decor, pickedCast, pickedDecor, line } = studio;
+  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, cast, decor, pickedCast, pickedDecor, line, studio: vault } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const decorOk = decor.length > 0 && Boolean(pickedDecor);
   const priseOk = priseReady({ cast: castOk, decor: decorOk, line });
   const tab: Tab = asked ?? "lora";
-  const section: "lora" | "scene" | "prise" = tab === "scene" ? "scene" : tab === "prise" ? "prise" : "lora";
+  const section: "lora" | "scene" | "prise" | "montage" = tab === "scene" || tab === "prise" || tab === "montage" ? tab : "lora";
 
   const go = useCallback((next: Tab) => {
     const shown: Tab = next === "look" || next === "fiches" || next === "sphere" ? "lora" : next;
@@ -108,10 +110,15 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     };
   }, []);
 
-  const marks: Record<"lora" | "scene" | "prise", boolean> = { lora: castOk, scene: decorOk, prise: priseOk };
+  const marks: Record<"lora" | "scene" | "prise" | "montage", boolean> = {
+    lora: castOk,
+    scene: decorOk,
+    prise: priseOk,
+    montage: vault.takes.length > 0,
+  };
   const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
 
-  return <div className="u-app">
+  return <div className="u-app" data-studio={section}>
     <header className="u-top">
       <a className="u-mark" href={assetPath("/studio#personnage")} aria-label="U*TTU Studio">U<em>*</em>TTU</a>
       <div className="u-top-tools">
@@ -133,7 +140,8 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
       {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p> : <>
         {section === "scene" ? <DecorStage onPrise={() => go("prise")} />
-          : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} />
+          : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
+          : section === "montage" ? <MontageStage />
           : <CastStage onDecor={() => go("scene")} />}
       </>}
     </main>

@@ -1,4 +1,4 @@
-import manifest from "../../../public/exemples/manifest.json";
+import manifest from "../../../public/exemples/manifest.json" with { type: "json" };
 
 export interface ExempleItem {
   id: string;

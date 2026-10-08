@@ -30,6 +30,8 @@ import { settleLandedTake } from "@/lib/render/settle-take";
 import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
+import type { Edit } from "@/lib/montage/edit";
+import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 
 export type SheetName = null | "credits" | "confirm" | "connect";
 
@@ -91,6 +93,8 @@ export interface StudioSession {
   pickCast(id: string): Promise<void>;
   pickDecor(id: string): Promise<void>;
   poseTake(takeId: string, names: { sequence: string; shot: string }): Promise<void>;
+  loadMontages(): Promise<Edit[]>;
+  saveMontage(edit: Edit, files: Record<string, { blob: Blob; ext: string }>): Promise<{ edit: Edit; slug: string }>;
   exportCoffre(): Promise<void>;
   importCoffre(file: File): Promise<void>;
   importFiles(files: File[]): Promise<void>;
@@ -190,6 +194,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     for (const take of next.takes) {
       wanted.add(take.video);
       if (take.poster) wanted.add(take.poster);
+    }
+    for (const entry of await vault.list()) {
+      if (/\/Sequences\/[^/]+\.(wav|mp3|m4a|ogg|webm|mp4)$/i.test(entry.path)) wanted.add(entry.path);
     }
     for (const path of next.look.photos) wanted.add(path);
     for (const path of wanted) {
@@ -807,6 +814,18 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     else setFolderMode("ask");
   }, [attachFolder, linkFolder]);
 
+  const loadMontages = useCallback(async () => {
+    const slug = studioRef.current?.project;
+    if (!slug) return [];
+    return readMontages(store(), slug);
+  }, [store]);
+
+  const saveMontage = useCallback(async (edit: Edit, files: Record<string, { blob: Blob; ext: string }>) => {
+    const placed = await writeMontageEdit(store(), edit, files);
+    await reload();
+    return { edit: placed, slug: studioRef.current?.project ?? "" };
+  }, [reload, store]);
+
   const selectProject = useCallback(async (slug: string) => {
     await chooseProject(store(), slug);
     await reload();
@@ -823,7 +842,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     requestRun, confirmRun, cancelRun, resetRun, resumeRun, refreshBalance, connectKey, sessionLinked, disconnect,
     createCast, createDecor, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
-    pickCast, pickDecor, poseTake, exportCoffre, importCoffre, importFiles, linkFolder, allowLinkedFolder, selectProject, outgoing,
+    pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, linkFolder, allowLinkedFolder, selectProject, outgoing,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

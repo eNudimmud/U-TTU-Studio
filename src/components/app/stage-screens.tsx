@@ -226,7 +226,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   </section>;
 }
 
-export function PriseStage({ goCast, goDecor }: { goCast(): void; goDecor(): void }) {
+export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
   const { t, say } = useI18n();
   const {
     studio, media, cast, decor, pickedCast, pickedDecor, pickCast, pickDecor, line, setLine, setSheet,
@@ -261,7 +261,7 @@ export function PriseStage({ goCast, goDecor }: { goCast(): void; goDecor(): voi
     </div>}
     {run.phase === "done" && result && media[result.video] && <div className="u-card u-result" data-retour-suite="">
       {filed ? <>
-        <button type="button" className="u-primary" data-lire-sequence="" onClick={() => document.getElementById("u-prise-video")?.scrollIntoView({ block: "center" })}>{t("sequence.play")} <Arrow /></button>
+        <button type="button" className="u-primary" data-lire-sequence="" onClick={onMontage}>{t("sequence.play")} <Arrow /></button>
         <button type="button" className="u-link" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
         <button type="button" className="u-link" disabled aria-describedby="u-why-filed">{t("take.pose")}</button>
         <Why on id="u-why-filed" text={t("why.alreadyFiled", { name: filed.name || t("common.unnamed") })} />
