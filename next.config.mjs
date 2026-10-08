@@ -12,6 +12,7 @@ if (process.env.GITHUB_PAGES === "true") {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
   allowedDevOrigins: ["terminal.local", "127.0.0.1", "localhost"],
   basePath,

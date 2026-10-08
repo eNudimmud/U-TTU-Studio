@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { parseTraits } from "../src/lib/coffre/model.ts";
 import {
-  DECISIONS_APRES, DECISIONS_AVANT, DECISIONS_F30, GESTES_F30, MIN_TARGET, PATH_APRES, PATH_AVANT, RETOURS_APRES, RETOURS_AVANT,
+  DECISIONS_APRES, DECISIONS_AVANT, DECISIONS_F30, DECISIONS_RETOUR, GESTES_F30, GESTES_RETOUR, MIN_TARGET, PATH_APRES, PATH_AVANT, PATH_RETOUR_APRES, PATH_RETOUR_AVANT, RETOURS_APRES, RETOURS_AVANT, RETOURS_RETOUR,
   cssTargetViolations, disabledWithoutReason, nextNumberedName, pathCount, posePlan, untouchedLook,
 } from "../src/lib/ergonomie.ts";
 
@@ -93,6 +93,35 @@ describe("parcours F31", () => {
     assert.equal(fresh?.createSequence, "Séquence 1");
     assert.equal(fresh?.createShotName, "Plan 1");
     assert.equal(posePlan("  ", [], [], { sequence: "Séquence 1", shot: "Plan 1" }), null);
+  });
+});
+
+describe("parcours de retour F33", () => {
+  it("locks the return under the numbered ceiling, and leaves the novice path at 9", () => {
+    const avant = pathCount(PATH_RETOUR_AVANT);
+    const apres = pathCount(PATH_RETOUR_APRES);
+    assert.deepEqual(avant, { gestes: 5, saisies: 0, taps: 5, ecrans: 4 });
+    assert.deepEqual(apres, { gestes: 4, saisies: 0, taps: 4, ecrans: 3 });
+    assert.equal(GESTES_RETOUR, 4);
+    assert.ok(apres.gestes <= GESTES_RETOUR);
+    assert.ok(apres.gestes < avant.gestes);
+    assert.ok(apres.ecrans < avant.ecrans);
+    assert.equal(apres.saisies, 0);
+    assert.equal(DECISIONS_RETOUR, 0);
+    assert.equal(RETOURS_RETOUR, 0);
+    assert.equal(PATH_RETOUR_AVANT[2].screen, "prise");
+    assert.equal(PATH_RETOUR_APRES.filter(step => step.screen === "sequence").length, 0);
+    assert.equal(PATH_RETOUR_APRES.at(-1)?.screen, "prise");
+    assert.deepEqual(pathCount(PATH_APRES), { gestes: 9, saisies: 0, taps: 9, ecrans: 7 });
+    const take = read("src/components/app/screens.tsx");
+    const prise = take.slice(take.indexOf("export function TakeScreen"), take.indexOf("export function SphereScreen"));
+    assert.match(prise, /data-reprise/);
+    assert.match(prise, /data-personnage-repris/);
+    assert.match(prise, /data-lieu-repris/);
+    assert.match(prise, /data-lire-sequence/);
+    assert.match(prise, /why\.alreadyFiled/);
+    assert.ok(prise.indexOf("data-lire-sequence") < prise.indexOf("ref={video}"));
+    assert.match(read("src/lib/guide.ts"), /take-filed/);
   });
 });
 

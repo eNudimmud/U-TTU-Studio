@@ -59,6 +59,7 @@
     "take-ready": "Muestro el coste antes. Nada sale sin tu gesto.",
     "take-running": "El hilo rueda. Quédate, o vuelve más tarde.",
     "take-done": "La toma está aquí. Un gesto la pone en una viñeta.",
+    "take-filed": "La toma está en la secuencia. Un gesto la lee.",
     "take-double": "Este personaje se sostiene de una toma a la otra. Las fotos sostienen el resto.",
     "lora-name": "Nombra el personaje. Las tomas siguientes lo sostienen.",
     "lora-photos": "Dos fotos de este personaje. Acompañan los clips.",
@@ -82,6 +83,7 @@
     "needKey": "Falta la clave.",
     "planFresh": "Esta toma ya está al inicio.",
     "hold": "El presupuesto o el saldo frena el gesto.",
+    "alreadyFiled": "Esta toma ya está en {name}.",
     "running": "Ya está en curso."
   },
   "verb": {
@@ -340,6 +342,9 @@
   "take": {
     "kicker": "03 · La toma",
     "title": "La toma.",
+    "reprise": "{project} · {who} · {place}.",
+    "repriseHeld": "De vuelta. Nada que volver a escribir.",
+    "characterHeld": "{name} vuelve para esta toma.",
     "runningFal": "Tu cuenta fal calcula, con este personaje.",
     "runningRender": "Tu cuenta de render calcula.",
     "stay": "Puedes quedarte o volver más tarde: la toma llega a mi estudio.",
@@ -385,6 +390,7 @@
     "filmedStill": "Imagen filmada",
     "resetPlan": "Restablecer esta toma",
     "next": "Después de Rodar, un gesto pone la viñeta. La exportación está en la secuencia.",
+    "nextReturn": "Tras Rodar, la toma entra en la secuencia. Leer, luego exportar.",
     "pose": "Poner la viñeta",
     "poseHint": "Una viñeta, en una secuencia. Los nombres ya están escritos.",
     "measuredFold": "Ajuste · {seconds} s, {format}, {quality}",

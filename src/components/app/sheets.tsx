@@ -575,7 +575,7 @@ function rowIndexAt(list: HTMLOListElement | null, clientY: number): number | nu
   return items.length - 1;
 }
 
-function SequencePlayer({ sequenceId }: { sequenceId: string }) {
+export function SequencePlayer({ sequenceId }: { sequenceId: string }) {
   const { t } = useI18n();
   const { studio, media } = useStudio();
   const cues = montageCues(studio.shots, studio.takes, sequenceId);

@@ -68,6 +68,34 @@ export const PATH_APRES: readonly PathStep[] = [
 export const GESTES_F30 = 15;
 
 /**
+ * F33 — coming back. The project, the character and the place are already in Mon studio.
+ * Before: Tourner, the paid confirmation, Poser le plan, Lire, Export.
+ * Poser was a tap even when the new take had already joined the sequence.
+ */
+export const PATH_RETOUR_AVANT: readonly PathStep[] = [
+  { kind: "tap", screen: "prise" },
+  { kind: "tap", screen: "confirmation" },
+  { kind: "tap", screen: "prise" },
+  { kind: "tap", screen: "sequence" },
+  { kind: "tap", screen: "sequence" },
+];
+
+/**
+ * The same return after F33.
+ * The take is already in the sequence, so Lire is the gold gesture and Poser stays off.
+ * The paid confirmation stays.
+ */
+export const PATH_RETOUR_APRES: readonly PathStep[] = [
+  { kind: "tap", screen: "prise" },
+  { kind: "tap", screen: "confirmation" },
+  { kind: "tap", screen: "prise" },
+  { kind: "tap", screen: "prise" },
+];
+
+/** Ceiling for the return. A later round fails the test if the path grows past this. */
+export const GESTES_RETOUR = 4;
+
+/**
  * A decision is a blank the path will not pass, or two equal choices with no default.
  * A name already written, and a control already on the measured profile, are not decisions.
  * Before: project name, which way, character name, two traits, place, line, sequence name, shot name.
@@ -77,10 +105,13 @@ export const GESTES_F30 = 15;
 export const DECISIONS_AVANT = 9;
 export const DECISIONS_F30 = 5;
 export const DECISIONS_APRES = 0;
+/** The return has no blank and no equal choice without a default, before or after. */
+export const DECISIONS_RETOUR = 0;
 
 /** Times the path sends the person back before the next step is reachable. */
 export const RETOURS_AVANT = 3;
 export const RETOURS_APRES = 0;
+export const RETOURS_RETOUR = 0;
 
 export function pathCount(steps: readonly PathStep[]): { gestes: number; saisies: number; taps: number; ecrans: number } {
   const screens: string[] = [];

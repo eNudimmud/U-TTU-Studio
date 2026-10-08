@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { costLabel, lookCheck } from "@/lib/coffre/model";
 import { briefAction, castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, weaveBrief, WIRED_ENGINES } from "@/lib/studio-comfort";
 import { formatCredits } from "@/lib/credits";
@@ -20,6 +20,7 @@ import { TakeCostLines } from "./take-cost";
 import { useStudio, type RunState } from "./studio-context";
 
 const CinemaGestures = dynamic(() => import("./cinema-gestures").then(mod => mod.CinemaGestures));
+const SequencePlayer = dynamic(() => import("./sheets").then(mod => mod.SequencePlayer));
 
 function ChainButton({ onClick, children }: { onClick(): void; children: ReactNode }) {
   return <button type="button" className="u-primary" onClick={onClick}>{children}</button>;
@@ -65,7 +66,7 @@ function runLabel(t: ReturnType<typeof useI18n>["t"], run: Extract<RunState, { p
 export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sphere"): void }) {
   const studio = useStudio();
   const { t } = useI18n();
-  const { media, scene, line, setLine, setSheet, setEngine, chosenLora, setLora, selectScene } = studio;
+  const { media, scene, line, setLine, setSheet, engine, setEngine, chosenLora, setLora, selectScene } = studio;
   const cast = castShelf(studio.studio.loras);
   const decor = decorShelf(studio.studio.scenes);
   const who = chosenLora?.name.trim() ?? "";
@@ -90,7 +91,9 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
     <div className="u-stack">
       <p className="u-label">{t("shelf.cast")}</p>
       {cast.length === 0
-        ? <button type="button" className="u-link" onClick={() => go("lora")}>{t("shelf.noCharacter")}</button>
+        ? (engine !== "lora" && studio.studio.look.name.trim()
+          ? <p className="u-small" data-personnage-repris="">{t("take.characterHeld", { name: studio.studio.look.name.trim() })}</p>
+          : <button type="button" className="u-link" onClick={() => go("lora")}>{t("shelf.noCharacter")}</button>)
         : <div className="u-scenes" role="radiogroup" aria-label={t("shelf.cast")}>
           {cast.map(person => <button key={person.id} type="button" role="radio" aria-checked={chosenLora?.id === person.id} className="u-scene" onClick={() => chooseCast(person.id)}>
             <span className="u-scene-empty">{person.name.slice(0, 1)}</span>
@@ -152,18 +155,21 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
 export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScene(): void; goLora(): void }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, media, scene, line, setLine, settings, setSettings, takeQuote, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resumeRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance } = studio;
+  const { ready, media, scene, line, setLine, settings, setSettings, takeQuote, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resumeRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance, exportCoffre } = studio;
   const cast = castShelf(studio.studio.loras);
   const decor = decorShelf(studio.studio.scenes);
   const check = lookCheck(studio.studio.look);
   const lookPicture = studio.studio.look.photos[0];
   const scenePicture = scene?.render ?? scene?.stills[0];
   const result = run.phase === "done" ? studio.studio.takes.find(take => take.id === run.takeId) : undefined;
+  const filed = result ? studio.studio.sequences.find(item => item.links.some(link => link.takeId === result.id)) : undefined;
+  const [reading, setReading] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
   const resultCard = useRef<HTMLDivElement>(null);
   const resultId = result?.id;
 
   useEffect(() => {
+    setReading(false);
     if (!resultId) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     resultCard.current?.scrollIntoView({ block: "start", behavior: still ? "auto" : "smooth" });
@@ -182,6 +188,8 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
   const gaps = priseGaps({ lookReady: check.ready, hasScene: Boolean(scene), engine, hasCharacter });
   const whoName = chosenLora?.name.trim() ?? "";
   const placeName = scene?.name.trim() ?? "";
+  const heldWho = (engine === "lora" ? chosenLora?.name : studio.studio.look.name)?.trim() ?? "";
+  const heldProject = studio.studio.projectName.trim();
   const comfyPrice = takeQuote.source === "balance"
     ? t("sheet.measuredMark", { amount: formatCredits(takeQuote.credits) })
     : takeQuote.source === "billed"
@@ -272,6 +280,13 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
 
     {run.phase === "done" && result && media[result.video] && <div ref={resultCard} className="u-card u-result">
       <p className="u-label">{t("job.done")}</p>
+      {filed && <div data-retour-suite="" data-lire-sequence="">
+        <ChainButton onClick={() => setReading(true)}>{t("sequence.play")} <Arrow /></ChainButton>
+        <button type="button" className="u-link" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
+        <button type="button" className="u-link u-muted" disabled={true}>{t("take.pose")}</button>
+        <Why on text={t("why.alreadyFiled", { name: filed.name || t("common.unnamed") })} />
+        {reading && <SequencePlayer sequenceId={filed.id} />}
+      </div>}
       <video ref={video} src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted loop playsInline preload="auto" className={`is-${result.settings.aspect}`} />
       <p className="u-small">{t("take.inSphere")}</p>
       <TakeCostLines take={result} gateLine={gate.line} />
@@ -279,8 +294,8 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         ? (result.costUsd !== null ? t("take.debitedFal", { amount: formatUsd(result.costUsd) }) : t("take.debitHiddenFal"))
         : (result.costCredits !== null ? t("take.debitedRender", { amount: formatCredits(result.costCredits) }) : t("take.debitHiddenRender"))}{result.gpuSeconds !== null ? t("take.calc", { clock: clock(result.gpuSeconds) }) : ""}</p>
       <PublishActions take={result} />
-      <ChainButton onClick={() => void studio.poseTake(result.id, { sequence: t("sequence.defaultName"), shot: t("shot.defaultName") })}>{t("take.pose")} <Arrow /></ChainButton>
-      <p className="u-small">{t("take.poseHint")}</p>
+      {!filed && <ChainButton onClick={() => void studio.poseTake(result.id, { sequence: t("sequence.defaultName"), shot: t("shot.defaultName") })}>{t("take.pose")} <Arrow /></ChainButton>}
+      {!filed && <p className="u-small">{t("take.poseHint")}</p>}
       {studio.studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === result.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
       {studio.studio.shots.filter(shot => shot.takeIds.includes(result.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
       <div className="u-row">
@@ -302,6 +317,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
 
     {run.phase === "idle" && <>
     <div className="u-prise-confirm" aria-label={t("take.before")}>
+      {heldProject && heldWho && placeName && <p className="u-reprise" data-reprise="">{t("take.reprise", { project: heldProject, who: heldWho, place: placeName })} {t("take.repriseHeld")}</p>}
       <label className="u-field">
         <span className="u-label">{t("take.action")}</span>
         <textarea value={line} rows={1} maxLength={240} placeholder={t("take.actionPlaceholder")} onChange={event => setLine(event.target.value)} />
@@ -331,8 +347,10 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         <div className="u-field">
           <span className="u-label">{t("shelf.cast")}</span>
           {cast.length === 0
-            ? <button type="button" className="u-link" onClick={goLora}>{t("shelf.noCharacter")}</button>
-            : <select aria-label={t("shelf.cast")} value={chosenLora?.id ?? ""} onChange={event => chooseCast(event.target.value)}>
+            ? (engine !== "lora" && check.ready && studio.studio.look.name.trim()
+              ? <p className="u-small" data-personnage-repris="">{t("take.characterHeld", { name: studio.studio.look.name.trim() })}</p>
+              : <button type="button" className="u-link" onClick={goLora}>{t("shelf.noCharacter")}</button>)
+            : <select aria-label={t("shelf.cast")} data-personnage-repris={chosenLora ? "" : undefined} value={chosenLora?.id ?? ""} onChange={event => chooseCast(event.target.value)}>
               <option value="">{t("verb.choose")}</option>
               {cast.map(person => <option key={person.id} value={person.id}>{person.name}</option>)}
             </select>}
@@ -342,7 +360,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
           <span className="u-label">{t("shelf.places")}</span>
           {studio.studio.scenes.length === 0
             ? <button type="button" className="u-link" aria-label={t("shelf.places")} onClick={goScene}>{t("shelf.noPlace")}</button>
-            : <select aria-label={t("shelf.places")} value={scene?.id ?? ""} onChange={event => choosePlace(event.target.value)}>
+            : <select aria-label={t("shelf.places")} data-lieu-repris={scene ? "" : undefined} value={scene?.id ?? ""} onChange={event => choosePlace(event.target.value)}>
               <option value="">{t("verb.choose")}</option>
               {decor.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>}
@@ -395,7 +413,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <button type="button" className="u-link u-muted" disabled={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={() => { resetTake(); setLine(writtenLine); }}>{t("take.resetPlan")}</button>
       <Why on={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} text={t("why.planFresh")} />
       <div className="u-next" aria-label={t("take.nextLabel")}>
-        <p className="u-small">{t("take.next")}</p>
+        <p className="u-small">{studio.studio.sequences.length > 0 ? t("take.nextReturn") : t("take.next")}</p>
       </div>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "prise" })}>{t("job.outputs")}</button>
       <p className="u-small">{t("take.stayTakes")}</p>
