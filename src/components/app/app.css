@@ -701,22 +701,27 @@
   .u-desk .u-tile-scroll { display: grid; grid-template-columns: 1fr; overflow: visible; }
   .u-desk .u-tile-scroll > .u-tile { flex: none; }
   .u-capcut { display: grid; flex: 1; grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }
-  .u-capcut .u-chutier { display: flex; flex-direction: column; grid-column: 1; grid-row: 1; position: static; max-height: none; overflow: auto; border: 1px solid var(--u-line); border-radius: 16px; padding: 10px; background: #100e0c; }
+  .u-capcut .u-chutier { display: flex; flex-direction: column; gap: 4px; grid-column: 1; grid-row: 1; position: static; max-height: none; overflow: auto; border: 1px solid var(--u-line); border-radius: 16px; padding: 6px; background: #100e0c; }
+  .u-capcut .u-chutier-row { padding-bottom: 0; }
+  .u-capcut .u-chutier > * { flex: 0 0 auto; }
+  .u-capcut .u-chutier-row button { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; height: 44px; min-height: 44px; padding: 0 8px 0 4px; overflow: hidden; }
+  .u-capcut .u-chutier-row img { width: 56px; height: 36px; object-fit: cover; }
+  .u-capcut .u-chutier-row .u-wave { width: 56px !important; height: 28px; margin: 0 !important; }
   .u-capcut-player { grid-column: 2; grid-row: 1; min-height: 0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
   .u-capcut-player .u-lead, .u-capcut-player > .u-small { flex: none; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .u-capcut-player .u-monitor { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-  .u-capcut-player .u-stage-frame { flex: 1 1 auto; min-height: 0; display: flex; }
-  .u-capcut-player .u-viewer { flex: 1 1 auto; width: 100%; height: 100%; max-height: 100%; min-height: 0; aspect-ratio: auto; }
+  .u-capcut-player .u-stage-frame { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  .u-capcut-player .u-viewer { flex: 0 1 auto; width: auto; height: 100%; max-width: 100%; max-height: 100%; min-height: 0; aspect-ratio: 16 / 9; margin-inline: auto; }
   .u-capcut-player .u-controls { flex: none; }
   .u-capcut-time { grid-column: 1 / -1; grid-row: 2; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
   .u-capcut .u-tl { flex: none; overflow-x: auto; overflow-y: hidden; }
   .u-capcut .u-tl-inner { min-height: 0; }
-  .u-capcut .u-track-row { grid-template-columns: 96px minmax(0, 1fr); min-height: 52px; }
-  .u-capcut .u-track { min-height: 52px; }
+  .u-capcut .u-track-row { grid-template-columns: 96px minmax(0, 1fr); min-height: 44px; }
+  .u-capcut .u-track { min-height: 44px; }
   .u-capcut .u-track-head { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0; }
   .u-capcut .u-track-row.is-ruler { min-height: 28px; }
   .u-capcut .u-ruler { height: 28px; }
-  .u-capcut .u-track-row.is-audio, .u-capcut .u-track-row.is-audio .u-track { min-height: 52px; }
+  .u-capcut .u-track-row.is-audio, .u-capcut .u-track-row.is-audio .u-track { min-height: 44px; }
   .u-bin-toggle, .u-bin-close { display: none; }
   .u-create-bar { position: sticky; bottom: 0; z-index: 2; padding-top: 8px; background: #0b0a09; }
 }

@@ -38,7 +38,12 @@ for (const [width, height, label] of sizes) {
   await page.waitForSelector(".u-refslot[data-filled='true'] img", { timeout: 15000 });
   await shot(`bureau-cast-${label}`);
   if (width < 1024) {
-    await page.evaluate(() => document.querySelector(".u-create-bar")?.scrollIntoView({ block: "end" }));
+    await page.evaluate(() => {
+      const bar = document.querySelector(".u-create-bar");
+      if (!bar) return;
+      const top = bar.getBoundingClientRect().top + window.scrollY - (window.innerHeight - bar.getBoundingClientRect().height - 72);
+      window.scrollTo({ top: Math.max(0, top), behavior: "instant" });
+    });
     await new Promise(resolve => setTimeout(resolve, 300));
     await shot(`bureau-cast-bas-${label}`);
   }
@@ -77,7 +82,7 @@ for (const [width, height, label] of sizes) {
 
   if (width < 1024) {
     await page.click(".u-desk-switch button:first-child");
-    await ready(".u-slot");
+    await ready(".u-refslot");
   }
   const dropped = await page.evaluate(async () => {
     const card = document.querySelector(".u-desk-gallery article");
