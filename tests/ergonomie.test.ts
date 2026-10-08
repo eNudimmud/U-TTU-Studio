@@ -59,7 +59,10 @@ describe("parcours F32", () => {
     const look = read("src/components/app/look-form.tsx");
     assert.match(look, /t\("look\.defaultName"\)/);
     assert.match(look, /offeredName\(/);
-    assert.match(look, /plainEnter\(event\)/);
+    assert.match(look, /form="u-look-form"/);
+    assert.match(look, /id="u-look-name"/);
+    assert.ok(look.indexOf("<LookLead") < look.indexOf("data-look-gold"));
+    assert.ok(look.indexOf("data-look-gold") < look.indexOf("<LookRest"));
     assert.doesNotMatch(look, /u-ttu-look-ecrit/);
     const scene = read("src/components/app/scene-screen.tsx");
     assert.match(scene, /t\("scene\.defaultName"\)/);
@@ -135,7 +138,7 @@ describe("parcours F32", () => {
     assert.equal(spendOnEnter({ key: "Enter" }, { ...visible, allowed: false }), false);
     const order: [string, string, string][] = [
       ["src/components/app/lora-screen.tsx", "u-projet-nom", "data-projet-gold"],
-      ["src/components/app/look-form.tsx", "u-look-name", "data-look-gold"],
+      ["src/components/app/look-form.tsx", "<LookLead", "data-look-gold"],
       ["src/components/app/scene-screen.tsx", "id=\"u-lieu\"", "data-lieu-gold"],
       ["src/components/app/screens.tsx", "u-prise-phrase", "data-prise-gold"],
       ["src/components/app/sheets.tsx", "u-confirm-cost", "data-confirm-gold"],

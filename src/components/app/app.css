@@ -379,6 +379,7 @@
   .u-main { margin-left: 232px; margin-right: 300px; padding: 32px 40px 48px; }
   .u-head h1 { font-size: 68px; }
   .u-desk { grid-template-columns: minmax(0, 1fr) minmax(320px, 440px); gap: 28px 40px; align-items: start; }
+  .u-look-rest { grid-column: 1 / -1; }
   .u-paths { grid-template-columns: 1fr 1fr; align-items: stretch; }
   .u-fiches { grid-template-columns: 1fr 1fr; align-items: stretch; }
   .u-screen .u-cinema { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }

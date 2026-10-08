@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from "react";
 import { LOOK_PHOTOS_MAX, cleanTraits, lookCheck, parseTraits, type LookCheck } from "@/lib/coffre/model";
-import { offeredName, plainEnter, readLookNameCleared, writeLookNameCleared } from "@/lib/ergonomie";
+import { offeredName, readLookNameCleared, writeLookNameCleared } from "@/lib/ergonomie";
 import { useI18n } from "@/components/i18n/provider";
 import { Why } from "./guide-bubble";
 import { Arrow, Close } from "./glyphs";
@@ -69,44 +69,20 @@ export function LookForm({ onReady }: { onReady(): void }) {
 
   return <>
     <form id="u-look-form" className="u-stack" onSubmit={event => void go(event)}>
-      <LookFields name={name} offered={offered} check={check} pristine={pristine} onName={onName} onReset={onReset} />
+      <LookLead name={name} offered={offered} onName={onName} />
     </form>
     <div className="u-stack">
       <button type="submit" form="u-look-form" className="u-primary" data-look-gold="" aria-describedby={check.ready ? undefined : "u-look-gap"}>{check.ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>
       {!check.ready && <p className="u-small" id="u-look-gap">{lookGap(t, [!check.photos && t("look.gapPhotos"), !check.name && t("look.gapName")])}</p>}
     </div>
+    <LookRest check={check} pristine={pristine} onReset={onReset} />
   </>;
 }
 
-function LookFields({ name, offered, check, pristine, onName, onReset }: {
-  name: string;
-  offered: string;
-  check: LookCheck;
-  pristine: boolean;
-  onName(value: string): void;
-  onReset(): void;
-}) {
-  const { studio, media, saveLook, addLookPhotos, removeLookPhoto } = useStudio();
+function LookLead({ name, offered, onName }: { name: string; offered: string; onName(value: string): void }) {
+  const { studio, media, addLookPhotos, removeLookPhoto } = useStudio();
   const { t } = useI18n();
   const look = studio.look;
-  const [trait, setTrait] = useState("");
-
-  function addTrait(raw: string) {
-    const added = parseTraits(raw);
-    if (added.length) void saveLook({ traits: cleanTraits([...look.traits, ...added]) });
-    setTrait("");
-  }
-
-  function onTraitKey(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter" && !trait.trim() && plainEnter(event)) return;
-    if (event.key === "Enter" || event.key === ",") {
-      event.preventDefault();
-      addTrait(trait);
-    } else if (event.key === "Backspace" && !trait && look.traits.length) {
-      void saveLook({ traits: look.traits.slice(0, -1) });
-    }
-  }
-
   return <>
     <div className="u-photos" aria-label={t("look.photos")}>
       {Array.from({ length: LOOK_PHOTOS_MAX }, (_, index) => {
@@ -119,6 +95,35 @@ function LookFields({ name, offered, check, pristine, onName, onReset }: {
       <input id="u-look-name" value={name} maxLength={40} autoComplete="off" enterKeyHint="go" onChange={event => onName(event.target.value)} />
     </label>
     {name.trim() === offered && <p className="u-small">{t("look.written")}</p>}
+  </>;
+}
+
+function LookRest({ check, pristine, onReset }: {
+  check: LookCheck;
+  pristine: boolean;
+  onReset(): void;
+}) {
+  const { studio, saveLook } = useStudio();
+  const { t } = useI18n();
+  const look = studio.look;
+  const [trait, setTrait] = useState("");
+
+  function addTrait(raw: string) {
+    const added = parseTraits(raw);
+    if (added.length) void saveLook({ traits: cleanTraits([...look.traits, ...added]) });
+    setTrait("");
+  }
+
+  function onTraitKey(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter" || event.key === ",") {
+      event.preventDefault();
+      addTrait(trait);
+    } else if (event.key === "Backspace" && !trait && look.traits.length) {
+      void saveLook({ traits: look.traits.slice(0, -1) });
+    }
+  }
+
+  return <div className="u-stack u-look-rest">
     <div className="u-field">
       <label className="u-label" htmlFor="u-trait">{t("look.traits")}</label>
       <div className="u-chips">
@@ -135,5 +140,5 @@ function LookFields({ name, offered, check, pristine, onName, onReset }: {
     <button type="button" className="u-link u-muted" disabled={pristine} aria-describedby={pristine ? "u-why-look-reset" : undefined} onClick={onReset}>{t("look.reset")}</button>
     <Why on={pristine} id="u-why-look-reset" text={t("why.unchanged")} />
     <p className="u-small">{t("look.stay")}</p>
-  </>;
+  </div>;
 }
