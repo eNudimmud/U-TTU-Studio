@@ -79,5 +79,18 @@ Cinq images « après » pour CAST et DÉCOR, générées sur le compte Comfy Cl
 - **Source :** Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud.
 - **Licence :** même dépôt que le code. Personnages et lieux fictifs.
 - **Total utile mesuré :** 62,53 crédits. Total session mesuré 90,48 (dont 14,85 d’un job annulé encore facturé + 13,10 d’un essai démo sans override de prompt).
-- **Planche (`templates-character_sheet`) :** non rendue. Devis corrigé à ~68 crédits / plafond ~100 (hypothèse : 2 × GeminiImage2 à 2K ≈ 34/image). Affiché désormais ainsi dans le registre.
+- **Planche :** rendue ensuite (voir section suivante). Devis corrigé à ~68 / plafond ~100 (hypothèse).
+
+## Après d’exemple — planche templates-character_sheet (2026-10-08)
+
+Une planche « après » pour CAST, générée sur le compte Comfy Cloud de JD avec son accord explicite (plafond session 160 ; devis ~68 ; mesure 70,74).
+
+| Identifiant | Fichier | Template | Credits (mesure) | prompt_id |
+| --- | --- | --- | --- | --- |
+| `apres-cast-planche` | `apres-cast-planche.webp` | `templates-character_sheet` (2× GeminiImage2 @2K + stitch) | 70,74 (35,41 + 35,33) | `6387ad5a-c3e6-4bfd-aff3-b844acdc34c4` |
+
+- **Source :** Rendu maison U*TTU, généré avec `templates-character_sheet` via Comfy Cloud. Référence visage : crop de `cast-coursiere.webp` (upload `be23612a…png`).
+- **Licence :** même dépôt que le code. Personnage fictif.
+- **Session :** 90,48 (cinq Nano Banana + essais) + 70,74 = **161,22** (plafond 160 dépassé de 1,22 : devis 68, mesure 70,74). Un seul run, pas d’annulation.
+- **Qualité :** même personne que la coursière (taches de rousseur, cheveux bouclés, imper jaune, sac olive) sur 4 vues corps + grille de close-ups. Identité stable. Pas de texte.
 
