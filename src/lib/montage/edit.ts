@@ -25,7 +25,7 @@ export interface VideoClip {
   /** Trim out, inside the media. */
   end: number;
   takeId: string | null;
-  /** Playback rate. 1 keeps the timeline length. The picture moves faster. */
+  /** Playback rate. 2 plays the same trim in half the timeline length. */
   speed?: number;
   /** Seconds of dissolve into the next shot. */
   fadeOut?: number;
@@ -66,8 +66,14 @@ export function span(clip: { start: number; end: number }): number {
   return Math.max(0, clip.end - clip.start);
 }
 
+/** Seconds the clip occupies on the timeline. Speed 2 halves that length. The trim stays in media time. */
+export function playSpan(clip: { start: number; end: number; speed?: number }): number {
+  const rate = clip.speed === undefined ? 1 : clipSpeed({ speed: clip.speed });
+  return span(clip) / rate;
+}
+
 export function videoDuration(edit: Pick<Edit, "video">): number {
-  return edit.video.reduce((sum, clip) => sum + span(clip), 0);
+  return edit.video.reduce((sum, clip) => sum + playSpan(clip), 0);
 }
 
 export function audioEnd(clip: AudioClip): number {
@@ -85,7 +91,7 @@ export function videoAt(edit: Pick<Edit, "video">, time: number): { clip: VideoC
   let cursor = 0;
   for (let index = 0; index < edit.video.length; index += 1) {
     const clip = edit.video[index];
-    const length = span(clip);
+    const length = playSpan(clip);
     if (time < cursor + length) return { clip, offset: time - cursor, index };
     cursor += length;
   }
@@ -96,7 +102,7 @@ export function clipOrigin(edit: Pick<Edit, "video">, id: string): number | null
   let cursor = 0;
   for (const clip of edit.video) {
     if (clip.id === id) return cursor;
-    cursor += span(clip);
+    cursor += playSpan(clip);
   }
   return null;
 }
@@ -120,11 +126,12 @@ export function trimVideo(edit: Edit, id: string, edge: "start" | "end", timelin
   if (origin === null || !Number.isFinite(timelineTime)) return edit;
   const video = edit.video.map(clip => {
     if (clip.id !== id) return clip;
+    const rate = clipSpeed(clip);
     if (edge === "start") {
-      const start = clamp(clip.start + (timelineTime - origin), 0, clip.end - MIN_CLIP);
+      const start = clamp(clip.start + (timelineTime - origin) * rate, 0, clip.end - MIN_CLIP);
       return start === clip.start ? clip : { ...clip, start };
     }
-    const end = clamp(clip.start + (timelineTime - origin), clip.start + MIN_CLIP, clip.media);
+    const end = clamp(clip.start + (timelineTime - origin) * rate, clip.start + MIN_CLIP, clip.media);
     return end === clip.end ? clip : { ...clip, end };
   });
   if (video.every((clip, index) => clip === edit.video[index])) return edit;
@@ -137,10 +144,10 @@ export function splitVideo(edit: Edit, playhead: number, id: string): Edit {
   let cursor = 0;
   for (let index = 0; index < edit.video.length; index += 1) {
     const clip = edit.video[index];
-    const length = span(clip);
+    const length = playSpan(clip);
     const local = playhead - cursor;
     if (local > MIN_CLIP && length - local > MIN_CLIP) {
-      const cut = clip.start + local;
+      const cut = clip.start + local * clipSpeed(clip);
       const video = edit.video.slice();
       video.splice(index, 1, { ...clip, end: cut }, { ...clip, id, start: cut });
       return { ...edit, video };
@@ -233,7 +240,7 @@ export function collectSnapPoints(edit: Edit, playhead: number, ignoreId?: strin
   const points: SnapPoint[] = [{ time: playhead, kind: "playhead" }];
   let cursor = 0;
   for (const clip of edit.video) {
-    const length = span(clip);
+    const length = playSpan(clip);
     if (clip.id !== ignoreId) {
       points.push({ time: cursor, kind: "start", clipId: clip.id });
       points.push({ time: cursor + length, kind: "end", clipId: clip.id });
@@ -293,6 +300,8 @@ export interface MixSpan {
   volume: number;
   fadeIn: number;
   fadeOut: number;
+  /** Playback rate. 1 reads the media as stored. */
+  rate?: number;
 }
 
 /** Video files keep their own sound. Stills stay silent. The three tracks sit on top. */
@@ -300,9 +309,9 @@ export function mixSpans(edit: Edit): MixSpan[] {
   const spans: MixSpan[] = [];
   let cursor = 0;
   for (const clip of edit.video) {
-    const duration = span(clip);
+    const duration = playSpan(clip);
     if (clip.kind === "video" && clip.source) {
-      spans.push({ source: clip.source, at: cursor, trim: clip.start, duration, volume: 1, fadeIn: 0, fadeOut: 0 });
+      spans.push({ source: clip.source, at: cursor, trim: clip.start, duration, volume: 1, fadeIn: 0, fadeOut: 0, rate: clipSpeed(clip) });
     }
     cursor += duration;
   }
@@ -334,8 +343,10 @@ export function mixInto(output: Float32Array, source: Float32Array, options: {
   fadeOut: number;
   sampleRate: number;
   sourceRate: number;
+  rate?: number;
 }): void {
   const { at, trim, duration, volume, fadeIn, fadeOut, sampleRate, sourceRate } = options;
+  const rate = options.rate && options.rate > 0 ? options.rate : 1;
   if (!(sampleRate > 0) || !(sourceRate > 0) || !(duration > 0) || source.length === 0) return;
   const start = Math.floor(at * sampleRate);
   const count = Math.ceil(duration * sampleRate);
@@ -343,7 +354,7 @@ export function mixInto(output: Float32Array, source: Float32Array, options: {
     const index = start + i;
     if (index < 0 || index >= output.length) continue;
     const local = i / sampleRate;
-    const sourceIndex = (trim + local) * sourceRate;
+    const sourceIndex = (trim + local * rate) * sourceRate;
     if (sourceIndex >= source.length) break;
     const lower = Math.floor(sourceIndex);
     const upper = Math.min(source.length - 1, lower + 1);
@@ -407,7 +418,7 @@ export function clipSpeed(clip: Pick<VideoClip, "speed">): number {
   return speed >= 0.25 && speed <= 4 ? speed : 1;
 }
 
-/** Media time inside a clip. The timeline length stays the trim; the rate only moves the picture. */
+/** Media time for a timeline offset inside the clip. Offset is in timeline seconds. */
 export function mediaTime(clip: VideoClip, offset: number): number {
   const local = Math.max(0, offset) * clipSpeed(clip);
   return Math.min(clip.end, clip.start + local);
@@ -473,7 +484,7 @@ export function fadeMix(edit: Edit, time: number): { index: number; mix: number 
   if (!hit) return null;
   const fade = hit.clip.fadeOut ?? 0;
   if (!(fade > 0) || hit.index + 1 >= edit.video.length) return null;
-  const left = span(hit.clip) - hit.offset;
+  const left = playSpan(hit.clip) - hit.offset;
   if (left >= fade) return null;
   return { index: hit.index, mix: Math.min(1, Math.max(0, 1 - left / fade)) };
 }

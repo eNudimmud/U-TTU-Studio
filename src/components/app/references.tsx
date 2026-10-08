@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { useI18n } from "@/components/i18n/provider";
-import { ROLES, type RoleRef } from "@/lib/workflows/registre";
+import { casesVisibles, ROLES, type Geste, type RoleRef } from "@/lib/workflows/registre";
 
 export interface LocalRef {
   id: string;
@@ -11,6 +11,27 @@ export interface LocalRef {
   url: string;
   file: File | null;
   assetId: string | null;
+  /** Which drawn box holds this reference. */
+  caseId?: string;
+}
+
+export interface DroppedAsset {
+  id: string;
+  name: string;
+  url: string;
+  kind?: string;
+}
+
+export function readDroppedAsset(transfer: DataTransfer): DroppedAsset | null {
+  const raw = transfer.getData("application/x-uttu-asset-json");
+  if (!raw) return null;
+  try {
+    const asset = JSON.parse(raw) as DroppedAsset;
+    if (!asset || typeof asset.id !== "string") return null;
+    return asset;
+  } catch {
+    return null;
+  }
 }
 
 export function ReferenceZone({ refs, onChange, gallery, defaultRole = "visage" }: {
@@ -74,14 +95,62 @@ export function ReferenceZone({ refs, onChange, gallery, defaultRole = "visage" 
         <button type="button" className="u-link" onClick={() => onChange(refs.filter(item => item.id !== ref.id))}>{t("refs.remove")}</button>
       </li>)}
     </ul>}
-    {gallery && gallery.length > 0 && <details className="u-refs-gallery">
-      <summary>{t("refs.gallery")}</summary>
-      <div className="u-refs-pick">
-        {gallery.map(item => <button key={item.id} type="button" onClick={() => onChange([...refs, { id: `ref-${item.id}-${refs.length}`, role: item.role, name: item.name, url: item.url, file: null, assetId: item.id }])}>
-          {item.url ? <img src={item.url} alt="" /> : <span className="u-card-blank" />}
-          <span>{item.name}</span>
-        </button>)}
-      </div>
-    </details>}
+  </div>;
+}
+
+export function SlotBoard({ geste, refs, onChange }: {
+  geste: Geste;
+  refs: LocalRef[];
+  onChange(next: LocalRef[]): void;
+}) {
+  const { t } = useI18n();
+  const base = useId();
+  const cases = casesVisibles(geste);
+  if (cases.length === 0) return null;
+
+  function write(caseId: string, role: RoleRef, next: { name: string; url: string; file: File | null; assetId: string | null }) {
+    onChange([
+      ...refs.filter(item => item.caseId !== caseId),
+      { id: `ref-${caseId}`, role, caseId, ...next },
+    ]);
+  }
+
+  function addFile(caseId: string, role: RoleRef, file: File | undefined) {
+    if (!file || !file.type.startsWith("image/")) return;
+    write(caseId, role, { name: file.name, url: URL.createObjectURL(file), file, assetId: null });
+  }
+
+  return <div className="u-slots">
+    {cases.map(item => {
+      const filled = refs.find(ref => ref.caseId === item.id) ?? null;
+      const inputId = `${base}-${item.id}-file`;
+      const cameraId = `${base}-${item.id}-cam`;
+      return <div
+        key={item.id}
+        className="u-slot"
+        data-filled={filled ? "true" : undefined}
+        data-slot={item.id}
+        onDragOver={event => event.preventDefault()}
+        onDrop={event => {
+          event.preventDefault();
+          const asset = readDroppedAsset(event.dataTransfer);
+          if (asset) {
+            write(item.id, item.role, { name: asset.name, url: asset.url, file: null, assetId: asset.id });
+            return;
+          }
+          addFile(item.id, item.role, event.dataTransfer.files[0]);
+        }}
+      >
+        <span className="u-label">{t(`refs.${item.role}`)}</span>
+        {filled?.url ? <img src={filled.url} alt="" /> : <span className="u-slot-empty">{t("refs.emptySlot")}</span>}
+        <div className="u-slot-actions">
+          <label className="u-link" htmlFor={inputId}>{t("refs.drop")}</label>
+          <input id={inputId} className="sr-only" type="file" accept="image/*" onChange={event => { addFile(item.id, item.role, event.target.files?.[0]); event.target.value = ""; }} />
+          <label className="u-link" htmlFor={cameraId}>{t("refs.camera")}</label>
+          <input id={cameraId} className="sr-only" type="file" accept="image/*" capture="environment" onChange={event => { addFile(item.id, item.role, event.target.files?.[0]); event.target.value = ""; }} />
+          {filled && <button type="button" className="u-link" onClick={() => onChange(refs.filter(ref => ref.caseId !== item.id))}>{t("refs.remove")}</button>}
+        </div>
+      </div>;
+    })}
   </div>;
 }

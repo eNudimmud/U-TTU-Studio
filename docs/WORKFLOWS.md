@@ -22,7 +22,7 @@ Les coûts marqués hypothèse ne sont pas une mesure de ce tour. Le seul coût 
 | cast-agrandir | Agrandir | `utility_seedvr2_3b_int8_upscale_image` | non mesuré | fermé |
 | cast-volume | Volume | `api_hunyuan3d_image_to_model` | non mesuré | fermé |
 
-Slots CAST : `cast-photos` envoie visage, visage, style vers `image_1`, `image_2`, `image_3`. `cast-tenue` envoie visage et tenue vers `image_1` et `image_2`. `cast-planche` envoie le visage vers `image_1`.
+Slots CAST : `cast-photos` dessine quatre cases Visage. Le graphe déjà écrit n’accepte que trois images : `image_1`, `image_2`, `image_3` reçoivent les trois premiers visages. La quatrième case reste sur la carte. `cast-tenue` envoie visage et tenue vers `image_1` et `image_2`. `cast-planche` envoie le visage vers `image_1`.
 
 ## DÉCOR
 

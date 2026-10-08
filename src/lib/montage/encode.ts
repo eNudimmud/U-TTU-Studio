@@ -1,6 +1,6 @@
 // Browser MP4. Mediabunny writes the file in this tab. Nothing is uploaded.
 
-import { editDuration, fadeMix, mediaTime, mixInto, mixSpans, type Edit } from "./edit.ts";
+import { editDuration, fadeMix, mediaTime, mixInto, mixSpans, playSpan, type Edit } from "./edit.ts";
 import { EXPORT_FPS, EXPORT_HEIGHT, EXPORT_WIDTH } from "./export-plan.ts";
 
 const SAMPLE_RATE = 48_000;
@@ -72,6 +72,7 @@ async function mixAudio(edit: Edit, urlOf: (source: string) => string, seconds: 
             fadeOut: span.fadeOut,
             sampleRate: SAMPLE_RATE,
             sourceRate: decoded.sampleRate,
+            rate: span.rate,
           });
         }
       } catch {
@@ -135,7 +136,7 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
       let drawn = false;
       for (let index = 0; index < input.edit.video.length; index += 1) {
         const clip = input.edit.video[index];
-        const length = Math.max(0, clip.end - clip.start);
+        const length = playSpan(clip);
         if (time < cursor + length) {
           const local = time - cursor;
           if (clip.kind === "image" && clip.source) {

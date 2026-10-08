@@ -113,7 +113,12 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       {rows.map(card => {
         const src = srcOf(card);
         const selected = picked.includes(card.id);
-        return <article key={card.id} className="u-card-lg" data-kind={card.kind} data-selected={selected || undefined} draggable onDragStart={event => { event.dataTransfer.setData("application/x-uttu-asset", card.id); event.dataTransfer.setData("text/plain", card.name); }}>
+        return <article key={card.id} className="u-card-lg" data-kind={card.kind} data-selected={selected || undefined} draggable onDragStart={event => {
+          event.dataTransfer.setData("application/x-uttu-asset", card.id);
+          event.dataTransfer.setData("application/x-uttu-asset-json", JSON.stringify({ id: card.id, name: card.name, url: src, kind: card.kind }));
+          event.dataTransfer.setData("text/plain", card.name);
+          event.dataTransfer.effectAllowed = "copy";
+        }}>
           <button type="button" className="u-pick" aria-pressed={open === card.id} onClick={() => setOpen(card.id)}>
             {src ? <img src={src} alt="" /> : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}
             <span>{card.name}</span>

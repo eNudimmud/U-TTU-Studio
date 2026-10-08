@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type P
 import { assetPath } from "@/lib/site";
 import {
   addAudio, appendVideo, audioEnd, canSplit, clipGain, clipSpeed, collectSnapPoints, commit, deleteClip, duplicateAudio, duplicateVideo, editDuration,
-  emptyEdit, fadeMix, formatClock, historyOf, mediaTime, moveAudio, nextZoom, redo, reorderVideo, resolveSnap, setVideoFade, setVideoSpeed, setVideoTitle, snapThreshold, span,
+  emptyEdit, fadeMix, formatClock, historyOf, mediaTime, moveAudio, nextZoom, playSpan, redo, reorderVideo, resolveSnap, setVideoFade, setVideoSpeed, setVideoTitle, snapThreshold, span,
   splitVideo, trimAudio, trimVideo, undo, videoAt, videoDuration, setAudioLevels,
   type AudioClip, type AudioTrackId, type Edit, type History, type VideoClip,
 } from "@/lib/montage/edit";
@@ -15,8 +15,8 @@ import { chooseEdit, editFromShots } from "@/lib/montage/from-takes";
 import { SFX_DEFAULT_SECONDS, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import { Close, Expand, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
-import { GestePicker } from "./geste-picker";
 import { useStudio } from "./studio-session";
+import { gesteParId } from "@/lib/workflows/registre";
 
 function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   if (!on || !text) return null;
@@ -104,6 +104,10 @@ export function MontageStage() {
   const [menuAt, setMenuAt] = useState<{ top: number; left: number } | null>(null);
   const [magnet, setMagnet] = useState(false);
   const [gesteId, setGesteId] = useState("mont-voix");
+  const [binTab, setBinTab] = useState<"medias" | AudioTrackId>("medias");
+  const [binOpen, setBinOpen] = useState(false);
+  const [speedOpen, setSpeedOpen] = useState(false);
+  const [titleOpen, setTitleOpen] = useState(false);
   const selectedRef = useRef<string | null>(null);
   const historyRef = useRef(history);
   const timeRef = useRef(0);
@@ -422,7 +426,7 @@ export function MontageStage() {
       let cursor = 0;
       let to = base.present.video.length - 1;
       for (let i = 0; i < base.present.video.length; i += 1) {
-        const width = span(base.present.video[i]);
+        const width = playSpan(base.present.video[i]);
         if (x < cursor + width / 2) { to = i; break; }
         cursor += width;
       }
@@ -436,7 +440,7 @@ export function MontageStage() {
       let cursor = 0;
       let to = base.present.video.length - 1;
       for (let i = 0; i < base.present.video.length; i += 1) {
-        const width = span(base.present.video[i]);
+        const width = playSpan(base.present.video[i]);
         if (x < cursor + width / 2) { to = i; break; }
         cursor += width;
       }
@@ -584,7 +588,7 @@ export function MontageStage() {
   }
 
   function renderVideoClip(clip: VideoClip, index: number, origin: number) {
-    const width = Math.max(span(clip) * px, 48);
+    const width = Math.max(playSpan(clip) * px, 48);
     const thumb = thumbOf(clip);
     return <div key={clip.id} className="u-clip is-video" data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width }}>
       <button type="button" className="u-handle is-start" aria-label={t("montage.trimStart")} onPointerDown={event => onTrim(event, clip.id, "start", "video")} />
@@ -608,7 +612,7 @@ export function MontageStage() {
   let cursor = 0;
   const videoNodes = edit.video.map((clip, index) => {
     const node = renderVideoClip(clip, index, cursor);
-    cursor += span(clip);
+    cursor += playSpan(clip);
     return node;
   });
   const axis = Math.max(duration * px + 80, 280);
@@ -636,12 +640,53 @@ export function MontageStage() {
         {exportBlocked && <span className="u-tip" id="u-why-export" role="tooltip">{exportWhy}</span>}
       </span>
     </header>
+    <div className="u-capcut">
+    <aside className="u-chutier" data-open={binOpen || undefined} aria-label={t("montage.bin")}>
+      <div className="u-bin-tabs" role="tablist">
+        {(["medias", "voix", "effets", "musique"] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={binTab === tab} onClick={() => setBinTab(tab)}>{t(tab === "medias" ? "montage.medias" : `montage.${tab}`)}</button>)}
+      </div>
+      {binTab === "medias" && <div className="u-chutier-row">
+        {edit.video.map(clip => {
+          const thumb = thumbOf(clip);
+          return <button key={clip.id} type="button" aria-pressed={selected === clip.id} onClick={() => setSelected(clip.id)}>{thumb ? <img src={thumb} alt="" /> : null}<span>{clip.label}</span></button>;
+        })}
+        {studio.takes.map(take => {
+          const poster = take.poster ? urlOf(take.poster) : "";
+          return <button key={take.id} type="button" draggable onDragStart={event => event.dataTransfer.setData("application/x-uttu-take", take.id)} onClick={() => {
+            const seconds = take.settings.seconds > 0 ? take.settings.seconds : 1;
+            const clip: VideoClip = { id: `plan-${take.id}`, kind: "video", source: take.video, label: take.line || take.id, media: seconds, start: 0, end: seconds, takeId: take.id };
+            if (edit.video.some(item => item.id === clip.id)) { setSelected(clip.id); return; }
+            commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
+            setSelected(clip.id);
+          }}>{poster ? <img src={poster} alt="" /> : null}<span>{take.line || take.id}</span></button>;
+        })}
+      </div>}
+      {binTab !== "medias" && <div className="u-chutier-row">
+        {edit.audio.filter(clip => clip.track === binTab).map(clip => <button key={clip.id} type="button" className="u-bin-sound" aria-pressed={selected === clip.id} onClick={() => setSelected(clip.id)}>
+          <Waveform url={urlOf(clip.source)} media={clip.media} start={0} px={36} />
+          <span>{clip.label}</span>
+        </button>)}
+      </div>}
+      <div className="u-soon">
+        <p className="u-label">{t("gestes.soon")}</p>
+        {(binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"]).map(id => {
+          const row = gesteParId(id);
+          if (!row) return null;
+          return <button key={id} type="button" className="u-tile is-soon" aria-pressed={gesteId === id} onClick={() => {
+            setGesteId(id);
+            if (id === "mont-voix") setStem("voix");
+            if (id === "mont-effet") setStem("effets");
+          }}>
+            <span className="u-wave-mark" aria-hidden="true" />
+            <strong>{t(`gestes.${row.clef}.title`)}</strong>
+            <span>{t(`gestes.${row.clef}.phrase`)}</span>
+          </button>;
+        })}
+      </div>
+      <button type="button" className="u-link u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.cancel")}</button>
+    </aside>
+    <div className="u-capcut-player">
     <p className="u-lead">{t("montage.lead")}</p>
-    <GestePicker onglet="montage" value={gesteId} onChange={id => {
-      setGesteId(id);
-      if (id === "mont-voix") setStem("voix");
-      if (id === "mont-effet") setStem("effets");
-    }} />
     {montageState === "exemple" && <p className="u-small">{t("montage.exampleNote")}</p>}
     {montageState === "vide" && <p className="u-small">{t("montage.empty")}</p>}
     {studio.sequences.length > 1 && <div className="u-suggest">
@@ -672,6 +717,28 @@ export function MontageStage() {
         }}><Expand /></button>
       </div>
     </div>
+    </div>
+    <div className="u-capcut-time">
+    {(selectedVideo || selectedAudio) && <div className="u-floatbar" role="toolbar" aria-label={t("montage.context")}>
+      {selectedVideo && <>
+        <button type="button" disabled={!splitOk} aria-describedby={!splitOk ? "u-why-split" : undefined} onClick={() => commitFrom(historyRef.current, splitVideo(historyRef.current.present, timeRef.current, `plan-${crypto.randomUUID()}`))}><Split /><span>{t("montage.split")}</span></button>
+        <button type="button" onClick={() => { const id = `plan-${crypto.randomUUID()}`; commitFrom(historyRef.current, duplicateVideo(historyRef.current.present, selectedVideo.id, id)); setSelected(id); }}><Plus /><span>{t("montage.duplicate")}</span></button>
+        <span className="u-speed">
+          <button type="button" aria-expanded={speedOpen} aria-label={t("montage.speed")} onClick={() => setSpeedOpen(current => !current)}>×{clipSpeed(selectedVideo)}</button>
+          {speedOpen && <span className="u-speed-menu" role="menu">
+            {([0.5, 1, 1.5, 2] as const).map(speed => <button key={speed} type="button" role="menuitem" aria-pressed={clipSpeed(selectedVideo) === speed} onClick={() => { commitFrom(historyRef.current, setVideoSpeed(historyRef.current.present, selectedVideo.id, speed)); setSpeedOpen(false); }}>×{speed}</button>)}
+          </span>}
+        </span>
+        <button type="button" aria-pressed={(selectedVideo.fadeOut ?? 0) > 0} onClick={() => commitFrom(historyRef.current, setVideoFade(historyRef.current.present, selectedVideo.id, (selectedVideo.fadeOut ?? 0) > 0 ? 0 : Math.min(0.5, playSpan(selectedVideo))))}>{t("montage.fadeShort")}</button>
+        <button type="button" aria-expanded={titleOpen} aria-label={t("montage.title")} onClick={() => setTitleOpen(current => !current)}>T</button>
+        {titleOpen && <label className="u-field">
+          <span className="sr-only">{t("montage.title")}</span>
+          <input value={selectedVideo.title ?? ""} maxLength={80} placeholder={t("montage.titlePh")} onChange={event => commitFrom(historyRef.current, setVideoTitle(historyRef.current.present, selectedVideo.id, event.target.value))} />
+        </label>}
+      </>}
+      {selectedAudio && <button type="button" onClick={() => { const id = `son-${crypto.randomUUID()}`; commitFrom(historyRef.current, duplicateAudio(historyRef.current.present, selectedAudio.id, id)); setSelected(id); }}><Plus /><span>{t("montage.duplicate")}</span></button>}
+      <button type="button" onClick={() => { if (!selected) return; commitFrom(historyRef.current, deleteClip(historyRef.current.present, selected)); setSelected(null); }}><Trash /><span>{t("montage.delete")}</span></button>
+    </div>}
     <div className="u-toolrow">
       <div className="u-toolrow-main">
         <Tool id="u-why-undo" off={history.past.length === 0} reason={t("montage.undoOff")} label={t("montage.undo")} glyph={<Undo />} onClick={() => { const next = undo(historyRef.current); if (next !== historyRef.current) { show(next); void persist(next.present); } }} />
@@ -679,38 +746,11 @@ export function MontageStage() {
         <Tool id="u-why-split" off={!splitOk} reason={t("montage.splitOff")} label={t("montage.split")} glyph={<Split />} onClick={() => commitFrom(historyRef.current, splitVideo(historyRef.current.present, timeRef.current, `plan-${crypto.randomUUID()}`))} />
         <Tool id="u-why-delete" off={!selectedClip} reason={t("montage.deleteOff")} label={t("montage.delete")} glyph={<Trash />} onClick={() => { if (!selected) return; commitFrom(historyRef.current, deleteClip(historyRef.current.present, selected)); setSelected(null); }} />
         <button type="button" className="u-tool" aria-label={t("montage.more")} aria-expanded={panel === "more" || panel === "confirm"} onClick={event => openPanel("more", event)}><More /><span>{t("montage.more")}</span></button>
+        <button type="button" className="u-tool u-bin-toggle" aria-pressed={binOpen} onClick={() => setBinOpen(current => !current)}><Film /><span>{t("montage.bin")}</span></button>
       </div>
       <div className="u-toolrow-zoom">
         <button type="button" className="u-tool" aria-label={t("montage.zoomOut")} onClick={() => setPx(current => nextZoom(current, 1 / 1.15))}><ZoomOut /><span>−</span></button>
         <button type="button" className="u-tool" aria-label={t("montage.zoomIn")} onClick={() => setPx(current => nextZoom(current, 1.15))}><ZoomIn /><span>+</span></button>
-      </div>
-    </div>
-    {selectedVideo && <div className="u-context" role="toolbar" aria-label={t("montage.context")}>
-      <button type="button" disabled={!splitOk} aria-describedby={!splitOk ? "u-why-split" : undefined} onClick={() => commitFrom(historyRef.current, splitVideo(historyRef.current.present, timeRef.current, `plan-${crypto.randomUUID()}`))}>{t("montage.split")}</button>
-      <button type="button" onClick={() => { const id = `plan-${crypto.randomUUID()}`; commitFrom(historyRef.current, duplicateVideo(historyRef.current.present, selectedVideo.id, id)); setSelected(id); }}>{t("montage.duplicate")}</button>
-      {([0.5, 1, 1.5, 2] as const).map(speed => <button key={speed} type="button" aria-pressed={clipSpeed(selectedVideo) === speed} onClick={() => commitFrom(historyRef.current, setVideoSpeed(historyRef.current.present, selectedVideo.id, speed))}>{t("montage.speed")} {speed}</button>)}
-      <button type="button" onClick={() => commitFrom(historyRef.current, setVideoFade(historyRef.current.present, selectedVideo.id, (selectedVideo.fadeOut ?? 0) > 0 ? 0 : Math.min(0.5, span(selectedVideo))))}>{t("montage.fade")}</button>
-      <label className="u-field">
-        <span className="sr-only">{t("montage.title")}</span>
-        <input value={selectedVideo.title ?? ""} maxLength={80} placeholder={t("montage.titlePh")} onChange={event => commitFrom(historyRef.current, setVideoTitle(historyRef.current.present, selectedVideo.id, event.target.value))} />
-      </label>
-      <button type="button" onClick={() => { commitFrom(historyRef.current, deleteClip(historyRef.current.present, selectedVideo.id)); setSelected(null); }}>{t("montage.delete")}</button>
-    </div>}
-    <div className="u-chutier" aria-label={t("montage.bin")}>
-      <p className="u-label">{t("montage.bin")}</p>
-      <div className="u-chutier-row">
-        {studio.takes.map(take => {
-          const poster = take.poster ? urlOf(take.poster) : "";
-          return <button key={take.id} type="button" draggable onDragStart={event => event.dataTransfer.setData("application/x-uttu-take", take.id)} onClick={() => {
-            const seconds = take.settings.seconds > 0 ? take.settings.seconds : 1;
-            const clip: VideoClip = { id: `plan-${take.id}`, kind: "video", source: take.video, label: take.line || take.id, media: seconds, start: 0, end: seconds, takeId: take.id };
-            if (edit.video.some(item => item.id === clip.id)) { setSelected(clip.id); return; }
-            commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
-            setSelected(clip.id);
-          }}>{poster ? <img src={poster} alt="" /> : null}<span>{take.line || take.id}</span></button>;
-        })}
-        {edit.video.map(clip => <button key={clip.id} type="button" aria-pressed={selected === clip.id} onClick={() => setSelected(clip.id)}><span>{clip.label}</span></button>)}
-        {edit.audio.map(clip => <button key={clip.id} type="button" aria-pressed={selected === clip.id} onClick={() => setSelected(clip.id)}><span>{clip.label}</span></button>)}
       </div>
     </div>
     {magnet && <p className="u-snap">{t("montage.snap")}</p>}
@@ -777,6 +817,8 @@ export function MontageStage() {
         <input type="range" min={0} max={Math.max(span(selectedAudio), 0.1)} step={0.05} value={selectedAudio.fadeOut} onChange={event => commitFrom(historyRef.current, setAudioLevels(historyRef.current.present, selectedAudio.id, { fadeOut: Number(event.target.value) }))} />
       </label>
     </div>}
+    </div>
+    </div>
     {(panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique") && menuAt && <>
       <button type="button" className="u-menu-back" aria-label={t("verb.cancel")} onClick={() => setPanel(null)} />
       <div className="u-popover" role="menu" style={{ top: menuAt.top, left: menuAt.left }}>

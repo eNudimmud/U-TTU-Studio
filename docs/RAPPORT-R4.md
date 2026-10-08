@@ -20,7 +20,7 @@ Date : 2026-10-08. Prod lue : https://u-ttu-studio.vercel.app. Rien n’est merg
 
 - Les devis 12/18 (texte ou photo), 24/36 (planche), voix 24,14 / 36,21 pour 1 000 caractères, effet 2,46 / 3,69 pour 5 s, musique 16 / 24 pour 30 s, Vidu 100 / 150 : déjà écrits, non remesurés ici.
 - EN, DE, ES restent `_human: native_open`.
-- La vitesse ne change pas la durée du plan sur la timeline. Elle ne change que l’image lue. Un plan de 4 s à vitesse 2 ne dure pas 2 s.
+- La passe de mise en page (même jour) inverse la vitesse : un plan de 4 s à ×2 occupe 2 s sur la timeline. Le trim dans le média reste 0–4 s.
 - Le fondu vers un plan vidéo, à l’export, passe par le noir. Le fondu vers une image superpose l’image.
 - Un asset envoyé au montage sans durée connue tient 5 s. Hypothèse d’affichage, pas une mesure du fichier.
 - Aucun téléphone physique. Les largeurs 360, 390, 768, 1280 et 1440 sont des fenêtres de navigateur.
@@ -37,9 +37,9 @@ Date : 2026-10-08. Prod lue : https://u-ttu-studio.vercel.app. Rien n’est merg
 
 - Plusieurs gestes utiles sont des cartes seulement : autres angles, expressions, rééclairage, agrandir, volume, élargir, objet seulement quand le texte suffit au graphe photo déjà branché, image vers plan, raccord, prolonger, caméra, transfert de mouvement, lèvres, Vidu, voix, effet, musique, synchro, agrandir la vidéo, fluidifier. Le visiteur les voit. Il ne peut pas les lancer.
 - Les « après » d’exemple ne sont pas rendus. L’état « Exemple à venir » est honnête et encore vide.
-- La vitesse ne resserre pas les plans voisins. Ce n’est pas un vrai ralenti de timeline.
+- Les gestes « Bientôt » restent visibles et éteints. Créer ne part pas.
 - Le titre est une ligne sur l’image, pas une piste de titrage.
-- Le chutier ne montre pas la forme d’onde des sons du projet tant qu’ils ne sont pas déjà sur la timeline ou dans les prises.
+- La forme d’onde du chutier suit les sons déjà posés sur la timeline. Un son seulement dans le dossier, pas encore calé, n’a pas d’onde.
 - EN, DE, ES ne sont pas relus par un natif.
 - Pas de vérification sur un téléphone tenu en main. Le doigt est simulé par le pointeur du navigateur.
 
@@ -65,3 +65,16 @@ Après, cette branche. CAST et DÉCOR : un exemple a été cliqué, la référen
 - `apres-mon-studio-1280.png`, `apres-mon-studio-390.png`
 
 Le filtre de la galerie dit « Décor », pas « Décors » : ce pluriel est un libellé retiré du lexique français.
+
+## Bureau — fenêtres réelles
+
+1280×800 et 390×844, capture de la fenêtre, pas la page assemblée. `?galerie=32` pour la même galerie que le projet. `?barre=1` sélectionne le premier plan.
+
+- `bureau-cast-1280.png`, `bureau-cast-390.png`
+- `bureau-decor-1280.png`, `bureau-decor-390.png`
+- `bureau-prise-1280.png`, `bureau-prise-390.png`
+- `bureau-montage-1280.png`, `bureau-montage-390.png`
+- `bureau-slots-1280.png`, `bureau-slots-390.png`
+- `bureau-galerie-1280.png`, `bureau-galerie-390.png`
+- `bureau-drag-1280.png`, `bureau-drag-390.png`
+- `bureau-clip-1280.png`, `bureau-clip-390.png`

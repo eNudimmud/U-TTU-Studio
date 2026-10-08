@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, type DragEvent, type ReactNode } from "react";
 import { formatCredits } from "@/lib/credits";
 import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
+import type { AssetRecord } from "@/lib/creation/assets";
 import { creationAllowed, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
 import { quotedCredits, priseNext } from "@/lib/stage";
-import { gesteOuvert, gesteParId, mapReferences, type RoleRef } from "@/lib/workflows/registre";
+import { casesVisibles, gesteOuvert, gesteParId, mapReferences, type RoleRef } from "@/lib/workflows/registre";
+import { EXEMPLE_PAR_GESTE } from "@/lib/workflows/tuiles";
 import { useI18n } from "@/components/i18n/provider";
 import { Arrow, KindMark, type MarkKind } from "./glyphs";
 import { GestePicker } from "./geste-picker";
 import { ProjectGallery } from "./project-gallery";
-import { ReferenceZone, type LocalRef } from "./references";
+import { readDroppedAsset, SlotBoard, type LocalRef } from "./references";
 import { TakeCostLines } from "./take-cost";
 import { useStudio } from "./studio-session";
 
@@ -25,43 +27,39 @@ function CardFace({ src, kind }: { src: string; kind: MarkKind }) {
   return <img src={src} alt="" />;
 }
 
-const PAIRES_CAST: { geste: string; id: string; role: RoleRef }[] = [
-  { geste: "cast-photos", id: "cast-mira", role: "visage" },
-  { geste: "cast-planche", id: "cast-coursiere", role: "visage" },
-];
-
-const PAIRES_DECOR: { geste: string; id: string; role: RoleRef }[] = [
-  { geste: "decor-photo", id: "decor-quai-nuit", role: "lieu" },
-  { geste: "decor-heure", id: "decor-rue-pluie", role: "lieu" },
-];
-
-function ExemplePaires({ items, pairs, onPick }: {
-  items: ExempleItem[];
-  pairs: { geste: string; id: string; role: RoleRef }[];
-  onPick(item: ExempleItem, geste: string, role: RoleRef): void;
+function Desk({ section, galleryOpen, onGallery, gestures, children, gallery }: {
+  section: string;
+  galleryOpen: boolean;
+  onGallery(open: boolean): void;
+  gestures: ReactNode;
+  children: ReactNode;
+  gallery: ReactNode;
 }) {
   const { t } = useI18n();
-  return <div className="u-examples">
-    {pairs.map(pair => {
-      const item = items.find(entry => entry.id === pair.id);
-      if (!item) return null;
-      return <button key={pair.geste} type="button" onClick={() => onPick(item, pair.geste, pair.role)}>
-        <span className="u-pair">
-          <img src={assetPath(item.file)} alt="" />
-          <span className="u-geste-soon">{t("gestes.exampleSoon")}</span>
-        </span>
-        <span>{item.title}</span>
-      </button>;
-    })}
-  </div>;
+  return <section className="u-screen u-stage u-desk" data-section={section} data-gallery={galleryOpen || undefined} aria-labelledby="u-title">
+    <aside className="u-desk-gestes">{gestures}</aside>
+    <div className="u-desk-work">{children}</div>
+    <aside className="u-desk-gallery">{gallery}</aside>
+    <div className="u-desk-switch" role="tablist">
+      <button type="button" aria-pressed={!galleryOpen} onClick={() => onGallery(false)}>{t("gestes.ask")}</button>
+      <button type="button" aria-pressed={galleryOpen} onClick={() => onGallery(true)}>{t("create.gallery")}</button>
+    </div>
+  </section>;
 }
 
 async function filesFor(gesteId: string, refs: LocalRef[]): Promise<File[]> {
   const row = gesteParId(gesteId);
   if (!row) return [];
+  const cases = casesVisibles(row);
+  const ordered = cases.length
+    ? cases.flatMap(item => {
+      const ref = refs.find(entry => entry.caseId === item.id);
+      return ref ? [ref] : [];
+    })
+    : refs;
   const files: File[] = [];
-  for (const slot of mapReferences(row, refs)) {
-    const ref = refs.find(item => item.id === slot.refId);
+  for (const slot of mapReferences(row, ordered)) {
+    const ref = ordered.find(item => item.id === slot.refId);
     if (!ref) continue;
     if (ref.file) {
       files.push(ref.file);
@@ -72,6 +70,18 @@ async function filesFor(gesteId: string, refs: LocalRef[]): Promise<File[]> {
     files.push(new File([blob], `${ref.name || "ref"}.jpg`, { type: blob.type || "image/jpeg" }));
   }
   return files;
+}
+
+function placeAsset(gesteId: string, refs: LocalRef[], asset: AssetRecord, url: string): LocalRef[] {
+  const row = gesteParId(gesteId);
+  if (!row) return refs;
+  const cases = casesVisibles(row);
+  const target = cases.find(item => !refs.some(ref => ref.caseId === item.id)) ?? cases[0];
+  if (!target) return refs;
+  return [
+    ...refs.filter(ref => ref.caseId !== target.id),
+    { id: `ref-${asset.id}-${target.id}`, role: target.role, caseId: target.id, name: asset.name, url, file: null, assetId: asset.preview ? null : asset.id },
+  ];
 }
 
 function CreateConfirm({ title, amount, high, onCancel, onYes }: { title: string; amount: number; high: number; onCancel(): void; onYes(): void }) {
@@ -88,12 +98,14 @@ function CreateConfirm({ title, amount, high, onCancel, onYes }: { title: string
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
   const { t } = useI18n();
-  const { cast, decor, media, createCast, connected, balance, creating, pendingRef, holdRef } = useStudio();
+  const { media, createCast, connected, balance, creating } = useStudio();
   const [gesteId, setGesteId] = useState("cast-photos");
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [refs, setRefs] = useState<LocalRef[]>([]);
   const [ask, setAsk] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const house = EXEMPLES_CAST;
   const row = gesteParId(gesteId) ?? gesteParId("cast-photos")!;
   const opened = gesteOuvert(row);
   const amount = row.credits;
@@ -104,25 +116,30 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const covered = opened && amount !== null && high !== null && creationAllowed(connected, balance?.credits ?? null, high);
   const blocked = !covered || !ready || creating;
   const why = !connected ? t("create.needLink") : !opened ? t("gestes.unwired") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
-  const gallery = [
-    ...cast.map(card => ({ id: card.id, name: card.name, url: card.preview ? assetPath(card.preview) : (card.sheet && media[card.sheet]) || (card.photos[0] && media[card.photos[0]]) || "", role: "visage" as const })),
-    ...decor.map(card => ({ id: card.id, name: card.name, url: card.preview ? assetPath(card.preview) : (card.sheet && media[card.sheet]) || "", role: "lieu" as const })),
-  ];
+  const preview = refs.find(ref => ref.url)?.url ?? "";
+  const cost = row.nature === "mesure" && amount !== null && high !== null
+    ? t("gestes.costMeasured", { amount, high })
+    : amount !== null && high !== null
+      ? t("gestes.cost", { amount, high })
+      : t("gestes.costUnknown");
 
-  useEffect(() => {
-    if (!pendingRef) return;
-    setRefs(list => [...list, { ...pendingRef, file: null }]);
-    holdRef(null);
-  }, [pendingRef, holdRef]);
+  async function loadExemple(geste: string) {
+    const pair = EXEMPLE_PAR_GESTE[geste];
+    const item = house.find(entry => entry.id === pair?.id);
+    if (!pair || !item) return;
+    await applyHouse(item, geste, pair.role);
+  }
 
-  async function loadExemple(item: ExempleItem, geste: string, role: RoleRef) {
+  async function applyHouse(item: ExempleItem, geste: string, role: RoleRef) {
     const response = await fetch(assetPath(item.file));
     const blob = await response.blob();
     const file = new File([blob], `${item.id}.webp`, { type: blob.type || "image/webp" });
+    const target = gesteParId(geste);
+    const first = target ? casesVisibles(target)[0] : null;
     setGesteId(geste);
     setName(item.title);
-    setPrompt("");
-    setRefs([{ id: `ref-${item.id}`, role, name: item.title, url: assetPath(item.file), file, assetId: null }]);
+    setPrompt(item.prompt);
+    setRefs(first ? [{ id: `ref-${item.id}`, role, caseId: first.id, name: item.title, url: assetPath(item.file), file, assetId: null }] : []);
   }
 
   async function confirm() {
@@ -138,50 +155,59 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     onDecor();
   }
 
-  return <section className="u-screen u-stage" data-section="cast" aria-labelledby="u-title">
+  return <Desk
+    section="cast"
+    galleryOpen={galleryOpen}
+    onGallery={setGalleryOpen}
+    gestures={<GestePicker onglet="cast" value={gesteId} onChange={setGesteId} examples={["cast-photos", "cast-planche"]} onExample={id => void loadExemple(id)} />}
+    gallery={<ProjectGallery defaultFilter="personnage" onUseRef={asset => {
+      const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
+      setRefs(list => placeAsset(gesteId, list, asset, url));
+    }} />}
+  >
     <header className="u-head">
       <p className="u-label">01</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.character")}</h1>
       <p className="u-lead">{t("create.castLead")}</p>
     </header>
-    <GestePicker onglet="cast" value={gesteId} onChange={setGesteId} />
-    <ReferenceZone refs={refs} onChange={setRefs} gallery={gallery} />
-    <label className="u-field">
-      <span className="u-label">{t("create.name")}</span>
-      <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
-    </label>
-    <label className="u-field">
-      <span className="u-label">{t("create.prompt")}</span>
-      <textarea value={prompt} rows={3} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => setPrompt(event.target.value)} />
-    </label>
-    <p className="u-label">{t("create.examples")}</p>
-    <p className="u-small">{t("create.examplesNote")}</p>
-    <ExemplePaires items={EXEMPLES_CAST} pairs={PAIRES_CAST} onPick={(item, geste, role) => void loadExemple(item, geste, role)} />
-    {amount !== null && high !== null && <p className="u-cost is-ok">{t("create.estimate", { amount, high })}</p>}
-    {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
-      <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
-        {t("create.castButton", { amount: amount ?? "—" })} <Arrow />
-      </button>
-      <Why on={blocked} id="u-why-cast" text={why} />
-    </>}
-    <ProjectGallery onUseRef={asset => {
-      const role = asset.kind === "decor" ? "lieu" : asset.kind === "personnage" ? "visage" : "style";
-      const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
-      setRefs(list => [...list, { id: `ref-${asset.id}-${list.length}`, role, name: asset.name, url, file: null, assetId: asset.preview ? null : asset.id }]);
-    }} />
-  </section>;
+    <div className="u-desk-scroll">
+      <SlotBoard geste={row} refs={refs} onChange={setRefs} />
+      <label className="u-field">
+        <span className="u-label">{t("create.name")}</span>
+        <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
+      </label>
+      <label className="u-field">
+        <span className="u-label">{t("create.prompt")}</span>
+        <textarea value={prompt} rows={3} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => setPrompt(event.target.value)} />
+      </label>
+      <div className="u-result-frame" data-ratio="3/4">
+        {preview ? <img src={preview} alt="" /> : <p className="u-small">{t("refs.emptySlot")}</p>}
+      </div>
+    </div>
+    <div className="u-create-bar">
+      <p className="u-cost is-ok">{cost}</p>
+      {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+        <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
+          {t("create.castButton", { amount: amount ?? "—" })} <Arrow />
+        </button>
+        <Why on={blocked} id="u-why-cast" text={why} />
+      </>}
+    </div>
+  </Desk>;
 }
 
 const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.suggestToit"] as const;
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { cast, decor, media, createDecor, connected, balance, creating, pendingRef, holdRef } = useStudio();
+  const { media, createDecor, connected, balance, creating } = useStudio();
   const [gesteId, setGesteId] = useState("decor-photo");
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [refs, setRefs] = useState<LocalRef[]>([]);
   const [ask, setAsk] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const house = EXEMPLES_DECOR;
   const row = gesteParId(gesteId) ?? gesteParId("decor-photo")!;
   const opened = gesteOuvert(row);
   const amount = row.credits;
@@ -192,25 +218,22 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const covered = opened && amount !== null && high !== null && creationAllowed(connected, balance?.credits ?? null, high);
   const blocked = !covered || !ready || creating;
   const why = !connected ? t("create.needLink") : !opened ? t("gestes.unwired") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
-  const gallery = [
-    ...decor.map(card => ({ id: card.id, name: card.name, url: card.preview ? assetPath(card.preview) : (card.sheet && media[card.sheet]) || "", role: "lieu" as const })),
-    ...cast.map(card => ({ id: card.id, name: card.name, url: card.preview ? assetPath(card.preview) : (card.sheet && media[card.sheet]) || "", role: "style" as const })),
-  ];
+  const preview = refs.find(ref => ref.url)?.url ?? "";
+  const cost = amount !== null && high !== null ? t("gestes.cost", { amount, high }) : t("gestes.costUnknown");
 
-  useEffect(() => {
-    if (!pendingRef || pendingRef.role !== "lieu") return;
-    setRefs(list => [...list, { ...pendingRef, file: null }]);
-    holdRef(null);
-  }, [pendingRef, holdRef]);
-
-  async function loadExemple(item: ExempleItem, geste: string, role: RoleRef) {
+  async function loadExemple(geste: string) {
+    const pair = EXEMPLE_PAR_GESTE[geste];
+    const item = house.find(entry => entry.id === pair?.id);
+    if (!pair || !item) return;
     const response = await fetch(assetPath(item.file));
     const blob = await response.blob();
     const file = new File([blob], `${item.id}.webp`, { type: blob.type || "image/webp" });
+    const target = gesteParId(geste);
+    const first = target ? casesVisibles(target)[0] : null;
     setGesteId(geste);
     setName(item.title);
-    setPrompt("");
-    setRefs([{ id: `ref-${item.id}`, role, name: item.title, url: assetPath(item.file), file, assetId: null }]);
+    setPrompt(geste === "decor-texte" ? item.prompt : "");
+    setRefs(first && geste !== "decor-texte" ? [{ id: `ref-${item.id}`, role: pair.role, caseId: first.id, name: item.title, url: assetPath(item.file), file, assetId: null }] : []);
   }
 
   async function confirm() {
@@ -223,41 +246,49 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     onPrise();
   }
 
-  return <section className="u-screen u-stage" data-section="decor" aria-labelledby="u-title">
+  return <Desk
+    section="decor"
+    galleryOpen={galleryOpen}
+    onGallery={setGalleryOpen}
+    gestures={<GestePicker onglet="decor" value={gesteId} onChange={setGesteId} examples={["decor-photo", "decor-heure", "decor-texte"]} onExample={id => void loadExemple(id)} />}
+    gallery={<ProjectGallery defaultFilter="decor" onUseRef={asset => {
+      const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
+      setRefs(list => placeAsset(gesteId, list, asset, url));
+    }} />}
+  >
     <header className="u-head">
       <p className="u-label">02</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.scene")}</h1>
       <p className="u-lead">{t("create.decorLead")}</p>
     </header>
-    <GestePicker onglet="decor" value={gesteId} onChange={setGesteId} />
-    <ReferenceZone refs={refs} onChange={setRefs} gallery={gallery} defaultRole="lieu" />
-    <label className="u-field">
-      <span className="u-label">{t("create.name")}</span>
-      <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
-    </label>
-    <p className="u-label">{t("create.suggestions")}</p>
-    <div className="u-suggest">
-      {SUGGESTIONS.map(key => <button key={key} type="button" onClick={() => { setPrompt(t(key)); if (!name.trim()) setName(t(key)); }}>{t(key)}</button>)}
+    <div className="u-desk-scroll">
+      <SlotBoard geste={row} refs={refs} onChange={setRefs} />
+      <label className="u-field">
+        <span className="u-label">{t("create.name")}</span>
+        <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
+      </label>
+      <p className="u-label">{t("create.suggestions")}</p>
+      <div className="u-suggest">
+        {SUGGESTIONS.map(key => <button key={key} type="button" onClick={() => { setPrompt(t(key)); if (!name.trim()) setName(t(key)); }}>{t(key)}</button>)}
+      </div>
+      <label className="u-field">
+        <span className="u-label">{t("create.prompt")}</span>
+        <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
+      </label>
+      <div className="u-result-frame">
+        {preview ? <img src={preview} alt="" /> : <p className="u-small">{t("refs.emptySlot")}</p>}
+      </div>
     </div>
-    <label className="u-field">
-      <span className="u-label">{t("create.prompt")}</span>
-      <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
-    </label>
-    <p className="u-label">{t("create.examples")}</p>
-    <p className="u-small">{t("create.examplesNote")}</p>
-    <ExemplePaires items={EXEMPLES_DECOR} pairs={PAIRES_DECOR} onPick={(item, geste, role) => void loadExemple(item, geste, role)} />
-    {amount !== null && high !== null && <p className="u-cost is-ok">{t("create.estimate", { amount, high })}</p>}
-    {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
-      <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>
-        {t("create.decorButton", { amount: amount ?? "—" })} <Arrow />
-      </button>
-      <Why on={blocked} id="u-why-decor" text={why} />
-    </>}
-    <ProjectGallery defaultFilter="decor" onUseRef={asset => {
-      const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
-      setRefs(list => [...list, { id: `ref-${asset.id}-${list.length}`, role: "lieu", name: asset.name, url, file: null, assetId: asset.preview ? null : asset.id }]);
-    }} />
-  </section>;
+    <div className="u-create-bar">
+      <p className="u-cost is-ok">{cost}</p>
+      {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+        <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>
+          {t("create.decorButton", { amount: amount ?? "—" })} <Arrow />
+        </button>
+        <Why on={blocked} id="u-why-decor" text={why} />
+      </>}
+    </div>
+  </Desk>;
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
@@ -275,7 +306,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const result = run.phase === "done" ? studio.takes.find(take => take.id === run.takeId) : undefined;
   const filed = result ? studio.sequences.find(item => item.links.some(link => link.takeId === result.id)) : undefined;
   const [gesteId, setGesteId] = useState("prise-plan");
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const missing = step === "cast" ? t("stage.missingPhotos") : step === "decor" ? t("stage.missingDecor") : step === "action" ? t("stage.missingAction") : step === "connect" ? t("stage.missingConnect") : step === "hold" ? (price ? t("stage.hold") : t("stage.noQuote")) : "";
+  const who = cast.find(card => card.id === pickedCast);
+  const where = decor.find(card => card.id === pickedDecor);
+  const whoSrc = who ? (who.preview ? assetPath(who.preview) : who.sheet && media[who.sheet] ? media[who.sheet] : "") : "";
+  const whereSrc = where ? (where.preview ? assetPath(where.preview) : where.sheet && media[where.sheet] ? media[where.sheet] : "") : "";
+  const row = gesteParId(gesteId);
 
   function press() {
     if (step === "cast") goCast();
@@ -284,7 +321,24 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     else if (step === "generate") void requestRun();
   }
 
-  return <section className="u-screen u-stage" data-section="prise" aria-labelledby="u-title">
+  function dropOn(kind: "personnage" | "decor", event: DragEvent) {
+    event.preventDefault();
+    const asset = readDroppedAsset(event.dataTransfer);
+    if (!asset) return;
+    if (kind === "decor" || asset.kind === "decor") void pickDecor(asset.id);
+    else void pickCast(asset.id);
+  }
+
+  return <Desk
+    section="prise"
+    galleryOpen={galleryOpen}
+    onGallery={setGalleryOpen}
+    gestures={<GestePicker onglet="prise" value={gesteId} onChange={setGesteId} />}
+    gallery={<ProjectGallery defaultFilter="plan" onUseRef={asset => {
+      if (asset.kind === "decor") void pickDecor(asset.id);
+      else if (asset.kind === "personnage") void pickCast(asset.id);
+    }} />}
+  >
     <header className="u-head">
       <p className="u-label">03</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.take")}</h1>
@@ -310,14 +364,16 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <button type="button" className="u-primary" onClick={() => { if (run.code === "auth") { resetRun(); setSheet("connect"); } else resumeRun(); }}>{run.code === "auth" ? t("stage.connectComfy") : t("verb.resume")}</button>
     </div>}
     {run.phase === "idle" && <>
-    <GestePicker onglet="prise" value={gesteId} onChange={setGesteId} />
-    {gesteId !== "prise-plan" && <div className="u-prise-go">
-      <button type="button" className="u-secondary" disabled aria-describedby="u-why-geste">{t("stage.generate")}</button>
-      <Why on id="u-why-geste" text={!connected ? t("create.needLink") : t("gestes.unwired")} />
+    {gesteId !== "prise-plan" && row && <div className="u-desk-scroll">
+      <SlotBoard geste={row} refs={[]} onChange={() => {}} />
+      <div className="u-prise-go">
+        <button type="button" className="u-secondary" disabled aria-describedby="u-why-geste">{t("stage.generate")}</button>
+        <Why on id="u-why-geste" text={!connected ? t("create.needLink") : t("gestes.unwired")} />
+      </div>
     </div>}
     {gesteId === "prise-plan" && <div className="u-prise-board">
-      <div>
-        <p className="u-label">{t("stage.who")}</p>
+      <div className="u-slot" data-slot="visage" onDragOver={event => event.preventDefault()} onDrop={event => dropOn("personnage", event)}>
+        <p className="u-label">{t("refs.visage")}</p>
         <div className="u-pick-row">
           {cast.length === 0 ? <button type="button" className="u-pick" onClick={goCast}>{t("stage.addCharacter")}</button> : cast.map(card => {
             const src = card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "";
@@ -330,8 +386,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           })}
         </div>
       </div>
-      <div>
-        <p className="u-label">{t("stage.where")}</p>
+      <div className="u-slot" data-slot="lieu" onDragOver={event => event.preventDefault()} onDrop={event => dropOn("decor", event)}>
+        <p className="u-label">{t("refs.lieu")}</p>
         <div className="u-pick-row">
           {decor.length === 0 ? <button type="button" className="u-pick" onClick={goDecor}>{t("stage.addDecor")}</button> : decor.map(card => {
             const src = card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "";
@@ -343,11 +399,16 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           })}
         </div>
       </div>
+      <div className="u-result-frame">
+        {whoSrc ? <img src={whoSrc} alt="" /> : null}
+        {whereSrc ? <img src={whereSrc} alt="" /> : null}
+        {!whoSrc && !whereSrc && <p className="u-small">{t("refs.emptySlot")}</p>}
+      </div>
       <label className="u-field u-prise-action">
         <span className="u-label">{t("stage.action")}</span>
         <textarea id="u-prise-phrase" value={line} rows={2} maxLength={240} placeholder={t("take.defaultLine")} onChange={event => setLine(event.target.value)} />
       </label>
-      <div className="u-prise-go">
+      <div className="u-prise-go u-create-bar">
         <p className={`u-cost is-${price ? "ok" : "block"}`}>{price ?? t("stage.noQuote")}</p>
         <button type="button" className="u-primary" data-prise-gold="" disabled={step !== "generate"} aria-describedby={step !== "generate" ? "u-why-prise" : undefined} onClick={press}>{price ? t("stage.generatePriced", { price }) : t("stage.generate")} <Arrow /></button>
         <Why on={step !== "generate"} id="u-why-prise" text={missing} />
@@ -355,5 +416,5 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </div>
     </div>}
     </>}
-  </section>;
+  </Desk>;
 }

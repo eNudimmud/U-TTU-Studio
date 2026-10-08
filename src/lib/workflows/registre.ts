@@ -80,7 +80,7 @@ const LIEU = (slot: string): SlotImage => ({ role: "lieu", slot });
 export const REGISTRE: readonly Geste[] = [
   geste({
     id: "cast-photos", onglet: "cast", categorie: "identite", clef: "castPhotos",
-    fournit: ["photos"], slots: [FACE("image_1"), FACE("image_2"), STYLE("image_3")],
+    fournit: ["photos"], slots: [FACE("image_1"), FACE("image_2"), FACE("image_3")],
     template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
     premier: true, still: "photo-cast", minRefs: 1,
     consigne: "Même personne que les photos. Visage reconnaissable. Fond simple. Pas de texte.",
@@ -280,6 +280,23 @@ export function gestesOnglet(onglet: Onglet): { premiers: Geste[]; suite: Geste[
 
 export function gesteOuvert(geste: Geste): boolean {
   return geste.still !== null && geste.credits !== null && geste.high !== null && geste.nature !== "non-mesure";
+}
+
+export interface CaseRef {
+  id: string;
+  role: RoleRef;
+}
+
+/**
+ * Boxes drawn for the chosen gesture.
+ * Depuis des photos shows four face boxes. The graph still accepts three images;
+ * the fourth face stays on the card.
+ */
+export function casesVisibles(row: Geste): CaseRef[] {
+  if (row.id === "cast-photos") {
+    return [1, 2, 3, 4].map(index => ({ id: `visage-${index}`, role: "visage" }));
+  }
+  return row.slots.map(slot => ({ id: slot.slot, role: slot.role }));
 }
 
 export interface RefInput {

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  duplicateAudio, duplicateVideo, emptyEdit, fadeMix, mediaTime, setVideoFade, setVideoSpeed, setVideoTitle,
+  duplicateAudio, duplicateVideo, emptyEdit, fadeMix, mediaTime, playSpan, setVideoFade, setVideoSpeed, setVideoTitle, videoDuration,
   type AudioClip, type VideoClip,
 } from "../src/lib/montage/edit.ts";
 
@@ -25,10 +25,12 @@ describe("actions de montage", () => {
     assert.equal(sounds.audio[1]?.id, "v2");
   });
 
-  it("keeps the timeline length when the speed changes, and stores fade and title", () => {
+  it("shortens the timeline when the speed rises, and stores fade and title", () => {
     const edit = { ...emptyEdit("m", "M"), video: [video("a")], audio: [] };
     const fast = setVideoSpeed(edit, "a", 2);
     assert.equal(fast.video[0]?.end, 4);
+    assert.equal(playSpan(fast.video[0]!), 2);
+    assert.equal(videoDuration(fast), 2);
     assert.equal(mediaTime(fast.video[0]!, 1), 2);
     assert.equal(mediaTime(fast.video[0]!, 10), 4);
     assert.equal(setVideoSpeed(edit, "a", 0).video[0]?.speed, 0.25);

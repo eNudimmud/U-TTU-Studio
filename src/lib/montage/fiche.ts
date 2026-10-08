@@ -3,7 +3,7 @@
 
 import { readFrontmatter, text, num, list, withFrontmatter } from "../coffre/markdown.ts";
 import {
-  editDuration, emptyEdit, span,
+  editDuration, emptyEdit, playSpan, span,
   type AudioClip, type AudioTrackId, type Edit, type MediaKind, type VideoClip,
 } from "./edit.ts";
 
@@ -74,8 +74,8 @@ export function sequenceFiche(edit: Edit, projet = ""): string {
   let cursor = 0;
   for (const clip of edit.video) {
     const source = clip.source ? wiki(clip.source, clip.label) : "Plan sans prise";
-    rows.push(row(ordre, TRACK_LABEL.video, cleanLabel(clip.label) || clip.id, cursor, span(clip), "—", "—", source));
-    cursor += span(clip);
+    rows.push(row(ordre, TRACK_LABEL.video, cleanLabel(clip.label) || clip.id, cursor, playSpan(clip), "—", "—", source));
+    cursor += playSpan(clip);
     ordre += 1;
   }
   for (const track of TRACKS) {

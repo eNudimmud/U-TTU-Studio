@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { stillGraph } from "../src/lib/creation/still.ts";
 import {
-  REGISTRE, TEMPLATES_OFFICIELS, gesteOuvert, gestesOnglet, mapReferences,
+  REGISTRE, TEMPLATES_OFFICIELS, casesVisibles, gesteOuvert, gestesOnglet, mapReferences,
 } from "../src/lib/workflows/registre.ts";
 
 const doc = readFileSync("docs/WORKFLOWS.md", "utf8");
@@ -35,7 +35,8 @@ describe("registre des gestes", () => {
     const mapped = mapReferences(row, [
       { id: "a", role: "visage" },
       { id: "b", role: "visage" },
-      { id: "c", role: "style" },
+      { id: "c", role: "visage" },
+      { id: "d", role: "visage" },
     ]);
     assert.deepEqual(mapped, [
       { slot: "image_1", refId: "a" },
@@ -64,5 +65,12 @@ describe("registre des gestes", () => {
     assert.deepEqual(still["model.images.image_1"], ["load", 0]);
     assert.deepEqual(still["model.images.image_2"], ["load2", 0]);
     assert.equal(graph.load2?.inputs.image, "b.jpg");
+  });
+
+  it("draws four face boxes for photos and sends only the three the graph accepts", () => {
+    const row = REGISTRE.find(item => item.id === "cast-photos");
+    assert.ok(row);
+    assert.deepEqual(casesVisibles(row).map(item => item.role), ["visage", "visage", "visage", "visage"]);
+    assert.equal(row.slots.length, 3);
   });
 });
