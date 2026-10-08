@@ -10,37 +10,42 @@ export interface CreationQuote {
   kind: "hypothese";
 }
 
-/** Flux.3 Image, one still. See docs/TEMPLATES-COMFY.md. */
+/** One Nano Banana 2.1 still, prompted as a view sheet. About 12 credits an image. */
 export const CAST_TEXT_QUOTE: CreationQuote = {
-  credits: 8,
-  high: 12,
-  template: "api_bfl_flux3_t2i",
+  credits: 12,
+  high: 18,
+  template: "api_nano_banana_2_1_t2i",
   kind: "hypothese",
 };
 
-/** Gemini turnaround, two images (close-up and full body). */
+/** The view sheet: two images, then a stitch. 12 credits an image, so 24. */
 export const CAST_PHOTO_QUOTE: CreationQuote = {
-  credits: 16,
-  high: 24,
+  credits: 24,
+  high: 36,
   template: "templates-character_sheet",
   kind: "hypothese",
 };
 
-/** Flux.3 Image, one cinema still. */
+/** One Nano Banana 2.1 cinema still. */
 export const DECOR_TEXT_QUOTE: CreationQuote = {
-  credits: 8,
-  high: 12,
-  template: "api_bfl_flux3_t2i",
+  credits: 12,
+  high: 18,
+  template: "api_nano_banana_2_1_t2i",
   kind: "hypothese",
 };
 
-/** Flux.3 Image edit, one place photo in, one still out. */
+/** One Nano Banana 2.1 edit of a place photo. */
 export const DECOR_PHOTO_QUOTE: CreationQuote = {
-  credits: 8,
-  high: 12,
-  template: "api_bfl_flux3_image_edit",
+  credits: 12,
+  high: 18,
+  template: "api_nano_banana_2_1_image_edit",
   kind: "hypothese",
 };
+
+/** The button stays off until the account is linked and the balance covers the ceiling. */
+export function creationAllowed(connected: boolean, credits: number | null, high: number): boolean {
+  return connected === true && typeof credits === "number" && Number.isFinite(credits) && Number.isFinite(high) && high > 0 && credits >= high;
+}
 
 export function quoteForCast(source: "texte" | "photos"): CreationQuote {
   return source === "photos" ? CAST_PHOTO_QUOTE : CAST_TEXT_QUOTE;

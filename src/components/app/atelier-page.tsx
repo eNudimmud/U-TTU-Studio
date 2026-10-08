@@ -6,7 +6,7 @@ import { DEMO_NOTES, DEMO_SEQUENCES, DEMO_TAKES } from "@/lib/creation/demo";
 import { memoryFilled } from "@/lib/coffre/memory";
 import { assetPath } from "@/lib/site";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
-import { Coffre } from "./glyphs";
+import { Coffre, KindMark } from "./glyphs";
 import { ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
@@ -162,7 +162,7 @@ function AtelierFrame() {
             </article>}
             {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p> : shown.length === 0 ? <p className="u-small">{t("atelier.empty")}</p> : <div className="u-gallery">
               {shown.map(row => <article key={`${row.kind}:${row.id}`} className="u-card-lg">
-                {row.image ? <img src={row.image} alt="" /> : <div className="u-card-blank" aria-hidden="true">{row.name.slice(0, 1)}</div>}
+                {row.image ? <img src={row.image} alt="" /> : <KindMark kind={row.kind} />}
                 <strong>{row.name}</strong>
                 <small>{t(FILTERS.find(item => item.id === row.kind)?.key ?? "atelier.all")}</small>
                 <div className="u-card-actions">

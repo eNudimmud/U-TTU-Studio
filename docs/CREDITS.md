@@ -22,22 +22,21 @@ Quai, Rue et Pièce restent les trois espaces déjà stockés (`previz` : `quai`
 
 Le portrait d’exemple `public/images/uttu-canon-portrait.webp` est le personnage fictif déjà dans le dépôt. Ce n’est pas une photo d’une personne réelle.
 
-## Exemples — emplacements stables
+## Exemples — rendus maison
 
-Les vignettes SVG ne sont plus sur l’écran DÉCOR. Les rendus définitifs seront des images maison, déposées dans `public/exemples/` sous le même nom. Le manifeste `public/exemples/manifest.json` fixe les identifiants. Tant que `statut` vaut `provisoire`, le fichier est une photo libre ou un personnage fictif déjà dans le dépôt. Remplacer le fichier et passer `statut` à `maison` ne change pas l’identifiant. Les six décors sont en 16:9.
+Les vignettes SVG ne sont plus sur l’écran DÉCOR. Les exemples sont les fichiers de `public/exemples/`, listés par `manifest.json`. Les six décors et les trois planches `cast-coursiere`, `cast-vieil-homme`, `cast-dj` sont des rendus Seedream 4.5, en 16:9 (1600×899), générés par JD sur son compte Comfy, avec son accord. `statut` vaut `maison`.
 
-| Identifiant | Fichier | Sujet | Source | Licence |
-| --- | --- | --- | --- | --- |
-| `decor-quai-nuit` | `decor-quai-nuit.jpg` | Le quai, la nuit | [Unsplash 1471922694854](https://unsplash.com/photos/1471922694854-ff1b63b20054) | [Unsplash License](https://unsplash.com/license) |
-| `decor-rue-pluie` | `decor-rue-pluie.jpg` | Sous la pluie (vitre mouillée) | [Unsplash 1428592953211](https://unsplash.com/photos/1428592953211-077101b2021b) | [Unsplash License](https://unsplash.com/license) |
-| `decor-piece` | `decor-piece.jpg` | Une pièce vide | [Unsplash 1502672260266](https://unsplash.com/photos/1502672260266-1c1ef2d93688) | [Unsplash License](https://unsplash.com/license) |
-| `decor-toit-aube` | `decor-toit-aube.jpg` | Un toit au lever du jour | [Unsplash 1449844908441](https://unsplash.com/photos/1449844908441-8829872d2607) | [Unsplash License](https://unsplash.com/license) |
-| `decor-gare` | `decor-gare.jpg` | Hall de gare — photo provisoire : couloir de station vide | [Unsplash Yj0zZ5s6fAY](https://unsplash.com/photos/empty-subway-station-hallway-with-tiled-walls-and-fluorescent-lights-Yj0zZ5s6fAY) | [Unsplash License](https://unsplash.com/license) |
-| `decor-couloir` | `decor-couloir.jpg` | Un couloir | [Unsplash 1497366754035](https://unsplash.com/photos/1497366754035-f200968a6e72) | [Unsplash License](https://unsplash.com/license) |
-| `cast-mira` | `cast-mira.webp` | Mira, portrait fictif | copie de `public/images/uttu-canon-portrait.webp` | même dépôt |
-| `cast-guide` | `cast-guide.webp` | Le guide, dessin fictif | copie de `public/images/uttu-guide-face.webp` | même dépôt |
+| Identifiant | Fichier | Sujet | Source |
+| --- | --- | --- | --- |
+| `decor-quai-nuit` | `decor-quai-nuit.webp` | Le quai, la nuit | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `decor-rue-pluie` | `decor-rue-pluie.webp` | Sous la pluie | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `decor-piece` | `decor-piece.webp` | Une pièce | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `decor-toit-aube` | `decor-toit-aube.webp` | Un toit au lever du jour | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `decor-gare` | `decor-gare.webp` | Un hall de gare | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `decor-couloir` | `decor-couloir.webp` | Un couloir | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `cast-coursiere` | `cast-coursiere.webp` | La coursière | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `cast-vieil-homme` | `cast-vieil-homme.webp` | Le vieil homme | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `cast-dj` | `cast-dj.webp` | DJ | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
+| `cast-mira` | `cast-mira.webp` | Mira, canon | copie de `public/images/uttu-canon-portrait.webp`, personnage fictif du dépôt |
 
-Les décors ne montrent pas de personne identifiable. `decor-gare` est un couloir de station, en attendant le hall maison. Les deux planches `cast-*` sont des personnages fictifs déjà dans le dépôt, pas des photos de personnes réelles. Un troisième `cast-*` peut s’ajouter dans le manifeste quand une planche fictive existe.
-
-- **Licence :** Unsplash License pour les photos. Utilisation libre, y compris commerciale. Pas d’attribution obligatoire. On la donne quand même.
-- **Outil :** recadrage local en 16:9. Aucune image d’exemple n’a été générée par une IA payante. Aucun crédit Comfy n’a été dépensé.
+Les photos libres qui servaient d’attente ont été retirées. Mira n’est pas un rendu Seedream : c’est le portrait fictif déjà dans le dépôt. Le guide n’est plus un exemple.

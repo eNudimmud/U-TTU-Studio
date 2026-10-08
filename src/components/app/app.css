@@ -441,11 +441,17 @@
   background: transparent; color: var(--u-gold-soft); font: 600 14px/1.2 var(--font-body);
 }
 .u-modes button[aria-pressed="true"], .u-filter button[aria-pressed="true"] { border-color: var(--u-gold); color: var(--u-gold); }
-.u-gallery { display: grid; gap: 12px; }
+.u-gallery { display: grid; gap: 20px; }
 .u-card-lg { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--u-line); border-radius: 16px; background: #121110; }
-.u-card-lg img, .u-card-lg .u-card-blank { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; background: #0b0a09; }
-.u-card-blank { display: grid; place-items: center; color: var(--u-gold); font: 700 28px/1 var(--font-heading); }
-.u-examples { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(140px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.u-card-lg img, .u-card-lg .u-card-blank { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; background: #100e0c; }
+.u-card-blank { display: grid; place-items: center; color: var(--u-gold); }
+.u-card-blank.is-personnage { background: #16130e; }
+.u-card-blank.is-lieu { background: #121410; }
+.u-card-blank.is-prise { background: #141210; }
+.u-card-blank.is-sequence { background: #121214; }
+.u-card-blank.is-note { background: #14120f; }
+.u-decor-layout, .u-decor-form, .u-decor-examples { display: grid; gap: 12px; align-content: start; }
+.u-examples { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .u-examples button { min-height: 44px; padding: 0; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: inherit; text-align: left; }
 .u-examples img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px 12px 0 0; }
 .u-examples.is-cast img { object-fit: contain; background: #0c0b0a; }
@@ -457,5 +463,9 @@
 .u-lien .u-row .u-secondary { width: auto; flex: 1 1 180px; }
 @media (min-width: 800px) {
   .u-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .u-stage[data-section="decor"] .u-head h1 { font-size: 48px; }
+  .u-decor-layout { grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: 28px; align-items: start; }
+  .u-decor-examples .u-examples { grid-template-columns: 1fr 1fr; }
+  .u-decor-examples .u-examples span { min-height: 32px; padding: 6px 8px; }
   .u-atelier-grid { grid-template-columns: 220px minmax(0, 1fr); align-items: start; }
 }

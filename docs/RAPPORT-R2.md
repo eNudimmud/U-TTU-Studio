@@ -7,15 +7,16 @@
 - Le second compte sort de l’interface et des catalogues FR, EN, DE, ES. Le HTML de `/studio` ne contient plus « Solde du compte fal », « Relier le compte fal », « Recharge ton compte fal », ni l’étiquette « fal : pas connecté ».
 - Le graphe client (`studio-session`, `stage-screens`, `atelier-page`) n’importe plus ces chemins. Les fichiers historiques restent sur le disque, non branchés : `src/lib/fal/`, `src/lib/lora/`, `studio-context.tsx`, `sheets.tsx`, `studio-drawer.tsx`, les écrans de formation, `workers/fal-proxy/`, `scripts/fal-smoke.mjs`.
 - CAST : « Décris ton personnage » ou « À partir de tes photos » (2, 3 au plus). Devis avant le geste. Bouton « Créer le personnage · environ N crédits ». La galerie a de grandes cartes, le statut Prêt, renommer, dupliquer, supprimer, copier vers un autre projet.
-- DÉCOR : un texte, des suggestions, ou une photo. Mêmes règles de devis. Les vignettes SVG ne sont plus sur l’écran. Les exemples sont dans `public/exemples/` avec `manifest.json`. Sources dans `docs/CREDITS.md`. Les noms stables sont `decor-quai-nuit`, `decor-rue-pluie`, `decor-piece`, `decor-toit-aube`, `decor-gare`, `decor-couloir` (16:9) et `cast-mira`, `cast-guide`. Les fichiers sont provisoires. Un rendu maison les remplace au même chemin.
+- DÉCOR : un texte, des suggestions, ou une photo. Les exemples maison sont dans `public/exemples/` (`.webp`, `statut: maison`). Sur ordinateur ils sont à côté du formulaire. Un clic remplit le texte.
+- « Créer » envoie le rendu sur le compte Comfy du visiteur, après la feuille de confirmation. Sans compte, le bouton est éteint. L’image revient dans la galerie et dans Mon studio. Le coût réel s’écrit quand il est connu.
 - PRISE choisit dans ces galeries. Le devis mesuré ne change pas : environ 4 crédits, plafond 6, profil `h3-4pas-5s-vertical`.
 - `/mon-studio` classe par projet, puis personnages, lieux, prises, séquences et notes. Recherche, filtre, ouverture, réutilisation d’un geste. « Relier mon coffre Obsidian » utilise la File System Access API. Sans elle, la page le dit, et propose l’export ZIP et l’import.
 - `npm test`, `tsc --noEmit` et `npm run build` passent. 0 crédit : `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés.
 
 ## Limites
 
-- « Créer » écrit la fiche sur l’appareil. Aucun pixel n’est demandé à Comfy. `cout` reste `null`. L’écran le dit : « La fiche est sur cet appareil. Aucun rendu n’a été demandé. »
-- Une création par texte n’a pas d’image tant qu’un rendu n’a pas eu lieu. La carte montre l’initiale. Une création par photos range les photos envoyées, pas une planche calculée.
+- « Créer » demande l’image au compte du visiteur. Cette vérification n’envoie aucun job : le client est simulé.
+- Sans image revenue, la fiche n’est pas écrite. Une carte sans image montre une icône, pas une lettre.
 - La formation d’un fichier n’a pas d’équivalent enregistrable (pas de nœud pour sauver un LoRA dans le catalogue consulté). Elle est retirée de l’écran. Le remplacement est la planche de références, pas un entraînement.
 - Le dossier Obsidian se relie sur Chrome et Edge, ordinateur. Safari, Firefox et le téléphone restent sur IndexedDB, ZIP, ou import d’un dossier. Les chemins de plus de quatre segments ne sont pas repris.
 - `?demo=1` montre des exemples. Ils ne sont pas écrits dans le coffre et ne lancent rien.
@@ -26,10 +27,10 @@
 
 | Geste | Template | Environ | Plafond | Nature |
 | --- | --- | --- | --- | --- |
-| CAST, texte | `api_bfl_flux3_t2i` | 8 | 12 | Hypothèse |
-| CAST, photos | `templates-character_sheet` | 16 | 24 | Hypothèse |
-| DÉCOR, texte | `api_bfl_flux3_t2i` | 8 | 12 | Hypothèse |
-| DÉCOR, photo | `api_bfl_flux3_image_edit` | 8 | 12 | Hypothèse |
+| CAST, texte | `api_nano_banana_2_1_t2i` | 12 | 18 | Hypothèse |
+| CAST, photos | `templates-character_sheet` | 24 | 36 | Hypothèse, 12 par image |
+| DÉCOR, texte | `api_nano_banana_2_1_t2i` | 12 | 18 | Hypothèse |
+| DÉCOR, photo | `api_nano_banana_2_1_image_edit` | 12 | 18 | Hypothèse |
 | PRISE | `video_minimax_h3_r2v`, profil `h3-4pas-5s-vertical` | 4 | 6 | Mesure déjà au dépôt |
 
 Détail : `docs/TEMPLATES-COMFY.md`.

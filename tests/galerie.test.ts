@@ -147,9 +147,12 @@ describe("galerie CAST et DÉCOR", () => {
     const session = read("src/components/app/studio-session.tsx");
     const cast = session.slice(session.indexOf("const createCast"), session.indexOf("const createDecor"));
     const decor = session.slice(session.indexOf("const createDecor"), session.indexOf("const rewriteCast"));
-    assert.ok(cast.indexOf("spendAllowed") < cast.indexOf("writeText"));
-    assert.ok(decor.indexOf("spendAllowed") < decor.indexOf("writeScene"));
+    assert.ok(cast.indexOf("spendAllowed") < cast.indexOf("runStill"));
+    assert.ok(cast.indexOf("runStill") < cast.indexOf("writeText"));
+    assert.ok(decor.indexOf("spendAllowed") < decor.indexOf("runStill"));
+    assert.ok(decor.indexOf("runStill") < decor.indexOf("writeScene"));
     assert.doesNotMatch(cast + decor, /fetch\(|submit_workflow|run_template|partner_generate|estimate_credits/);
+    assert.match(read("src/components/app/stage-screens.tsx"), /create\.needLink/);
     const prise = read("src/components/app/stage-screens.tsx");
     const board = prise.slice(prise.indexOf("export function PriseStage"));
     assert.match(board, /requestRun\(\)/);
@@ -178,16 +181,15 @@ describe("galerie CAST et DÉCOR", () => {
 
   it("reserves stable slots for the homemade examples", () => {
     const manifest = JSON.parse(read("public/exemples/manifest.json")) as {
-      items: { id: string; file: string; kind: string; aspect: string; statut: string }[];
+      items: { id: string; file: string; kind: string; aspect: string; statut: string; license: string }[];
     };
     const decor = ["decor-quai-nuit", "decor-rue-pluie", "decor-piece", "decor-toit-aube", "decor-gare", "decor-couloir"];
     const places = manifest.items.filter(item => item.kind === "decor");
     const people = manifest.items.filter(item => item.kind === "cast");
     assert.deepEqual(places.map(item => item.id), decor);
-    assert.ok(people.length >= 2 && people.length <= 3);
-    assert.ok(people.every(item => item.id.startsWith("cast-")));
+    assert.deepEqual(people.map(item => item.id), ["cast-mira", "cast-coursiere", "cast-vieil-homme", "cast-dj"]);
     for (const item of manifest.items) {
-      assert.equal(item.statut, "provisoire");
+      assert.equal(item.statut, "maison");
       assert.equal(existsSync(item.file.replace(/^\//, "public/")), true, item.file);
       if (item.kind === "decor") assert.equal(item.aspect, "16:9");
     }
@@ -200,6 +202,14 @@ describe("galerie CAST et DÉCOR", () => {
     assert.doesNotMatch(board, /EXEMPLES_CAST/);
     assert.match(read("src/components/app/app.css"), /aspect-ratio: 16 \/ 9/);
     assert.equal(existsSync("public/exemples/port.jpg"), false);
-    assert.equal(existsSync("public/exemples/quai-nuit.jpg"), false);
+    assert.equal(existsSync("public/exemples/decor-quai-nuit.jpg"), false);
+    assert.equal(existsSync("public/exemples/cast-guide.webp"), false);
+    const maison = "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud";
+    for (const item of manifest.items) {
+      if (item.id === "cast-mira") continue;
+      assert.equal(item.statut, "maison");
+      assert.equal(item.license, maison);
+      assert.equal(item.file.endsWith(".webp"), true, item.file);
+    }
   });
 });

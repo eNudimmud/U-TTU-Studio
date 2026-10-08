@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { formatCredits } from "@/lib/credits";
 import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
-import { quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
+import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
 import { quotedCredits, priseNext } from "@/lib/stage";
 import { useI18n } from "@/components/i18n/provider";
-import { Arrow } from "./glyphs";
+import { Arrow, KindMark, type MarkKind } from "./glyphs";
 import { TakeCostLines } from "./take-cost";
 import { PictureSlot } from "./slots";
 import { useStudio } from "./studio-session";
@@ -17,8 +17,8 @@ function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   return <p className="u-why" id={id}>{text}</p>;
 }
 
-function CardFace({ src, name }: { src: string; name: string }) {
-  if (!src) return <div className="u-card-blank" aria-hidden="true">{name.slice(0, 1)}</div>;
+function CardFace({ src, kind }: { src: string; kind: MarkKind }) {
+  if (!src) return <KindMark kind={kind} />;
   return <img src={src} alt="" />;
 }
 
@@ -31,13 +31,13 @@ function ExampleStrip({ items, cast, onPick }: { items: ExempleItem[]; cast?: bo
   </div>;
 }
 
-function CreateConfirm({ title, amount, onCancel, onYes }: { title: string; amount: number; onCancel(): void; onYes(): void }) {
+function CreateConfirm({ title, amount, high, onCancel, onYes }: { title: string; amount: number; high: number; onCancel(): void; onYes(): void }) {
   const { t } = useI18n();
   const open = spendAllowed(amount, true);
   return <div className="u-card" role="dialog" aria-labelledby="u-create-title">
     <h2 id="u-create-title">{title}</h2>
     <p>{t("create.confirmBody")}</p>
-    <p className="u-cost is-ok" id="u-create-cost">{t("create.estimate", { amount })}</p>
+    <p className="u-cost is-ok" id="u-create-cost">{t("create.estimate", { amount, high })}</p>
     <button type="button" className="u-primary" disabled={!open} aria-describedby="u-create-cost" onClick={onYes}>{t("verb.lancer")}</button>
     <button type="button" className="u-link" onClick={onCancel}>{t("verb.cancel")}</button>
   </div>;
@@ -45,7 +45,7 @@ function CreateConfirm({ title, amount, onCancel, onYes }: { title: string; amou
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
   const { t } = useI18n();
-  const { cast, media, pickedCast, pickCast, createCast, renameCast, duplicateCast, deleteCast, copyCastTo, studio } = useStudio();
+  const { cast, media, pickedCast, pickCast, createCast, renameCast, duplicateCast, deleteCast, copyCastTo, studio, connected, balance, creating } = useStudio();
   const [mode, setMode] = useState<"texte" | "photos">("texte");
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -56,6 +56,9 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const [editing, setEditing] = useState<string | null>(null);
   const quote = quoteForCast(mode);
   const ready = name.trim().length > 0 && (mode === "texte" ? prompt.trim().length > 0 : files.length >= 2 && files.length <= 3);
+  const covered = creationAllowed(connected, balance?.credits ?? null, quote.high);
+  const blocked = !covered || !ready || creating;
+  const why = !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : mode === "photos" && files.length < 2 ? t("create.photoRule") : t("why.needName");
 
   function addFiles(list: File[]) {
     const next = [...files, ...list].slice(0, 3);
@@ -99,12 +102,12 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     <p className="u-label">{t("create.examples")}</p>
     <p className="u-small">{t("create.examplesNote")}</p>
     <ExampleStrip cast items={EXEMPLES_CAST} onPick={item => { setMode("texte"); setPrompt(item.prompt); setName(item.title); }} />
-    <p className="u-cost is-ok">{t("create.estimate", { amount: quote.credits })}</p>
-    {ask ? <CreateConfirm title={t("create.confirmTitle")} amount={quote.credits} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
-      <button type="button" className="u-primary" data-cast-gold="" disabled={!ready} aria-describedby={!ready ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
+    <p className="u-cost is-ok">{t("create.estimate", { amount: quote.credits, high: quote.high })}</p>
+    {ask ? <CreateConfirm title={t("create.confirmTitle")} amount={quote.credits} high={quote.high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+      <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
         {t("create.castButton", { amount: quote.credits })} <Arrow />
       </button>
-      <Why on={!ready} id="u-why-cast" text={mode === "photos" && files.length < 2 ? t("create.photoRule") : t("why.needName")} />
+      <Why on={blocked} id="u-why-cast" text={why} />
     </>}
     <h2 className="u-label">{t("create.gallery")}</h2>
     {cast.length === 0 ? <p className="u-small">{t("create.emptyGallery")}</p> : <div className="u-gallery">
@@ -113,7 +116,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         const selected = card.id === pickedCast;
         return <article key={card.id} className="u-card-lg" data-selected={selected || undefined}>
           <button type="button" className="u-pick" aria-pressed={selected} onClick={() => void pickCast(card.id)}>
-            <CardFace src={src} name={card.name} />
+            <CardFace src={src} kind="personnage" />
             <span>{card.name}</span>
             <small>{t("create.ready")}</small>
           </button>
@@ -136,7 +139,7 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { decor, media, pickedDecor, pickDecor, createDecor, renameDecor, duplicateDecor, deleteDecor } = useStudio();
+  const { decor, media, pickedDecor, pickDecor, createDecor, renameDecor, duplicateDecor, deleteDecor, connected, balance, creating } = useStudio();
   const [mode, setMode] = useState<"texte" | "photo">("texte");
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -145,7 +148,10 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const [ask, setAsk] = useState(false);
   const [armed, setArmed] = useState<string | null>(null);
   const quote = quoteForDecor(mode);
-  const blocked = !(name.trim() && (mode === "texte" ? prompt.trim() : file));
+  const formReady = Boolean(name.trim() && (mode === "texte" ? prompt.trim() : file));
+  const covered = creationAllowed(connected, balance?.credits ?? null, quote.high);
+  const blocked = !covered || !formReady || creating;
+  const why = !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : t("stage.chooseDecor");
 
   async function confirm() {
     const ok = await createDecor({ name, prompt, source: mode, file, confirmed: true });
@@ -155,43 +161,49 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   }
 
   return <section className="u-screen u-stage" data-section="decor" aria-labelledby="u-title">
-    <header className="u-head">
-      <p className="u-label">02</p>
-      <h1 id="u-title" tabIndex={-1}>{t("nav.scene")}</h1>
-      <p className="u-lead">{t("create.decorLead")}</p>
-    </header>
-    <div className="u-modes" role="group" aria-label={t("create.decorLead")}>
-      <button type="button" aria-pressed={mode === "texte"} onClick={() => setMode("texte")}>{t("create.describeDecor")}</button>
-      <button type="button" aria-pressed={mode === "photo"} onClick={() => setMode("photo")}>{t("create.fromPhoto")}</button>
-    </div>
-    <label className="u-field">
-      <span className="u-label">{t("create.name")}</span>
-      <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
-    </label>
-    {mode === "texte" ? <>
-      <p className="u-label">{t("create.suggestions")}</p>
-      <div className="u-suggest">
-        {SUGGESTIONS.map(key => <button key={key} type="button" onClick={() => { setPrompt(t(key)); if (!name.trim()) setName(t(key)); }}>{t(key)}</button>)}
+    <div className="u-decor-layout">
+      <div className="u-decor-form">
+        <header className="u-head">
+          <p className="u-label">02</p>
+          <h1 id="u-title" tabIndex={-1}>{t("nav.scene")}</h1>
+          <p className="u-lead">{t("create.decorLead")}</p>
+        </header>
+        <div className="u-modes" role="group" aria-label={t("create.decorLead")}>
+          <button type="button" aria-pressed={mode === "texte"} onClick={() => setMode("texte")}>{t("create.describeDecor")}</button>
+          <button type="button" aria-pressed={mode === "photo"} onClick={() => setMode("photo")}>{t("create.fromPhoto")}</button>
+        </div>
+        <label className="u-field">
+          <span className="u-label">{t("create.name")}</span>
+          <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
+        </label>
+        {mode === "texte" ? <>
+          <p className="u-label">{t("create.suggestions")}</p>
+          <div className="u-suggest">
+            {SUGGESTIONS.map(key => <button key={key} type="button" onClick={() => { setPrompt(t(key)); if (!name.trim()) setName(t(key)); }}>{t(key)}</button>)}
+          </div>
+          <label className="u-field">
+            <span className="u-label">{t("create.prompt")}</span>
+            <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
+          </label>
+        </> : <label className="u-field">
+          <span className="u-label">{t("create.fromPhoto")}</span>
+          <input type="file" accept="image/*" onChange={event => { const next = event.target.files?.[0] ?? null; setFile(next); setPreview(next ? URL.createObjectURL(next) : ""); }} />
+          {preview && <img src={preview} alt="" />}
+        </label>}
+        <p className="u-cost is-ok">{t("create.estimate", { amount: quote.credits, high: quote.high })}</p>
+        {ask ? <CreateConfirm title={t("create.confirmTitle")} amount={quote.credits} high={quote.high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+          <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>
+            {t("create.decorButton", { amount: quote.credits })} <Arrow />
+          </button>
+          <Why on={blocked} id="u-why-decor" text={why} />
+        </>}
       </div>
-      <label className="u-field">
-        <span className="u-label">{t("create.prompt")}</span>
-        <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
-      </label>
-    </> : <label className="u-field">
-      <span className="u-label">{t("create.fromPhoto")}</span>
-      <input type="file" accept="image/*" onChange={event => { const next = event.target.files?.[0] ?? null; setFile(next); setPreview(next ? URL.createObjectURL(next) : ""); }} />
-      {preview && <img src={preview} alt="" />}
-    </label>}
-    <p className="u-label">{t("create.examples")}</p>
-    <p className="u-small">{t("create.examplesNote")}</p>
-    <ExampleStrip items={EXEMPLES_DECOR} onPick={item => { setMode("texte"); setPrompt(item.prompt); setName(item.title); }} />
-    <p className="u-cost is-ok">{t("create.estimate", { amount: quote.credits })}</p>
-    {ask ? <CreateConfirm title={t("create.confirmTitle")} amount={quote.credits} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
-      <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>
-        {t("create.decorButton", { amount: quote.credits })} <Arrow />
-      </button>
-      <Why on={blocked} id="u-why-decor" text={t("stage.chooseDecor")} />
-    </>}
+      <aside className="u-decor-examples">
+        <p className="u-label">{t("create.examples")}</p>
+        <p className="u-small">{t("create.examplesNote")}</p>
+        <ExampleStrip items={EXEMPLES_DECOR} onPick={item => { setMode("texte"); setPrompt(item.prompt); setName(item.title); }} />
+      </aside>
+    </div>
     <h2 className="u-label">{t("create.gallery")}</h2>
     {decor.length === 0 ? <p className="u-small">{t("create.emptyGallery")}</p> : <div className="u-gallery">
       {decor.map(card => {
@@ -199,7 +211,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         const selected = card.id === pickedDecor;
         return <article key={card.id} className="u-card-lg">
           <button type="button" className="u-pick" aria-pressed={selected} onClick={() => void pickDecor(card.id)}>
-            <CardFace src={src} name={card.name} />
+            <CardFace src={src} kind="lieu" />
             <span>{card.name}</span>
             <small>{t("create.ready")}</small>
           </button>
@@ -270,7 +282,7 @@ export function PriseStage({ goCast, goDecor }: { goCast(): void; goDecor(): voi
             const src = card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "";
             const selected = card.id === pickedCast;
             return <button key={card.id} type="button" className="u-pick" aria-pressed={selected} data-selected={selected || undefined} onClick={() => void pickCast(card.id)}>
-              <CardFace src={src} name={card.name} />
+              <CardFace src={src} kind="personnage" />
               <span>{card.name}</span>
               <small>{t("stage.ready")}</small>
             </button>;
@@ -284,7 +296,7 @@ export function PriseStage({ goCast, goDecor }: { goCast(): void; goDecor(): voi
             const src = card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "";
             const selected = card.id === pickedDecor;
             return <button key={card.id} type="button" className="u-pick" aria-pressed={selected} data-selected={selected || undefined} onClick={() => void pickDecor(card.id)}>
-              <CardFace src={src} name={card.name} />
+              <CardFace src={src} kind="lieu" />
               <span>{card.name}</span>
             </button>;
           })}
