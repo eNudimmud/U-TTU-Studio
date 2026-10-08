@@ -1,0 +1,22 @@
+/* Latin only: FR, EN, DE and ES sit in this range. The other files of the
+   variable families (Greek, Cyrillic, Vietnamese) are not requested.
+   optional: a slow phone paints with Arial and does not wait for the file.
+   A fast phone, or a second visit, still gets Syne and Manrope. */
+
+@font-face {
+  font-family: "Syne Variable";
+  font-style: normal;
+  font-display: optional;
+  font-weight: 400 800;
+  src: url("../../node_modules/@fontsource-variable/syne/files/syne-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Manrope Variable";
+  font-style: normal;
+  font-display: optional;
+  font-weight: 200 800;
+  src: url("../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}

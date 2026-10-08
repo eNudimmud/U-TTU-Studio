@@ -44,3 +44,5 @@ jobs:
         run: npm run typecheck
       - name: Build serveur, sans clés Clerk
         run: npm run build
+      - name: Budget du JS initial du studio
+        run: node scripts/studio-js-budget.mjs

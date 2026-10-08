@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import "@fontsource-variable/syne";
-import "@fontsource-variable/manrope";
+import "./fonts.css";
 import "./globals.css";
 import { LocaleProvider, SkipLink } from "@/components/i18n/provider";
 import { loadCatalog } from "@/lib/i18n/catalog";
