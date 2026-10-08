@@ -69,17 +69,18 @@ export function LookForm({ onReady }: { onReady(): void }) {
 
   return <>
     <form id="u-look-form" className="u-stack" onSubmit={event => void go(event)}>
-      <LookLead name={name} offered={offered} onName={onName} />
+      <LookLead name={name} onName={onName} />
     </form>
     <div className="u-stack">
       <button type="submit" form="u-look-form" className="u-primary" data-look-gold="" aria-describedby={check.ready ? undefined : "u-look-gap"}>{check.ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>
+      {showingOffer && <p className="u-small">{t("look.written")}</p>}
       {!check.ready && <p className="u-small" id="u-look-gap">{lookGap(t, [!check.photos && t("look.gapPhotos"), !check.name && t("look.gapName")])}</p>}
     </div>
     <LookRest check={check} pristine={pristine} onReset={onReset} />
   </>;
 }
 
-function LookLead({ name, offered, onName }: { name: string; offered: string; onName(value: string): void }) {
+function LookLead({ name, onName }: { name: string; onName(value: string): void }) {
   const { studio, media, addLookPhotos, removeLookPhoto } = useStudio();
   const { t } = useI18n();
   const look = studio.look;
@@ -94,7 +95,6 @@ function LookLead({ name, offered, onName }: { name: string; offered: string; on
       <span className="u-label">{t("look.name")}</span>
       <input id="u-look-name" value={name} maxLength={40} autoComplete="off" enterKeyHint="go" onChange={event => onName(event.target.value)} />
     </label>
-    {name.trim() === offered && <p className="u-small">{t("look.written")}</p>}
   </>;
 }
 

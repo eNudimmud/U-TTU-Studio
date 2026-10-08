@@ -210,6 +210,14 @@
 .u-outgoing-clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .u-prise-screen { gap: 8px; }
 .u-app:has(.u-prise-confirm) .u-guide-line { min-height: 2.8em; }
+.u-app:has(.u-look-home) .u-guide-line { min-height: 2.8em; }
+.u-look-home .u-fold,
+.u-look-tools { grid-column: 1 / -1; }
+@media (max-width: 719px) {
+  .u-look-home { gap: 10px; }
+  .u-look-home .u-head h1 { font-size: 32px; }
+  .u-look-home .u-desk { gap: 10px; }
+}
 .u-prise-confirm { display: grid; gap: 2px; padding: 6px 10px 4px; border: 1px solid var(--u-line-strong); border-radius: 18px; background: rgba(18, 17, 16, .72); }
 .u-prise-confirm .u-why { line-height: 1.35; }
 .u-prise-confirm .u-field { gap: 4px; }

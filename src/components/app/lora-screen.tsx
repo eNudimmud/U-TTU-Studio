@@ -76,14 +76,16 @@ export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile 
     </form>
   </section>;
 
-  return <section className="u-screen" aria-labelledby="u-title">
+  return <section className={showFile ? "u-screen" : "u-screen u-look-home"} aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">{t("lora.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{showFile ? t("lora.trainTitle") : t("look.title")}</h1>
       <p className="u-micro">{t("guide.stepCharacter")}</p>
-      <button type="button" className="u-link" onClick={() => setSheet("coffre")}>{t("sheet.openProject", { name: vault.projectName || t("common.unnamed") })}</button>
-      <button type="button" className="u-link" onClick={() => setSheet({ outputs: "lora" })}>{t("job.outputs")}</button>
-      {showFile && <button type="button" className="u-link" onClick={() => setFile(false)}>{t("verb.bothWays")}</button>}
+      {showFile && <>
+        <button type="button" className="u-link" onClick={() => setSheet("coffre")}>{t("sheet.openProject", { name: vault.projectName || t("common.unnamed") })}</button>
+        <button type="button" className="u-link" onClick={() => setSheet({ outputs: "lora" })}>{t("job.outputs")}</button>
+        <button type="button" className="u-link" onClick={() => setFile(false)}>{t("verb.bothWays")}</button>
+      </>}
     </header>
 
     {training.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
@@ -108,6 +110,10 @@ export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile 
 
     {!showFile && <div className="u-desk">
       <LookForm onReady={onScene} />
+      <div className="u-look-tools">
+        <button type="button" className="u-link" onClick={() => setSheet("coffre")}>{t("sheet.openProject", { name: vault.projectName || t("common.unnamed") })}</button>
+        <button type="button" className="u-link" onClick={() => setSheet({ outputs: "lora" })}>{t("job.outputs")}</button>
+      </div>
       <details className="u-fold">
         <summary>{t("lora.twoWays")}</summary>
         <div className="u-desk u-paths" aria-label={t("path.aria")}>

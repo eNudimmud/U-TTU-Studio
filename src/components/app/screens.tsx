@@ -276,6 +276,8 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
 
     {run.phase === "done" && result && media[result.video] && <div ref={resultCard} className="u-card u-result">
       <p className="u-label">{t("job.done")}</p>
+      <ChainButton onClick={() => void studio.poseTake(result.id, { sequence: t("sequence.defaultName"), shot: t("shot.defaultName") })}>{t("take.pose")} <Arrow /></ChainButton>
+      <p className="u-small">{t("take.poseHint")}</p>
       <video ref={video} src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted loop playsInline preload="auto" className={`is-${result.settings.aspect}`} />
       <p className="u-small">{t("take.inSphere")}</p>
       <TakeCostLines take={result} gateLine={gate.line} />
@@ -283,8 +285,6 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         ? (result.costUsd !== null ? t("take.debitedFal", { amount: formatUsd(result.costUsd) }) : t("take.debitHiddenFal"))
         : (result.costCredits !== null ? t("take.debitedRender", { amount: formatCredits(result.costCredits) }) : t("take.debitHiddenRender"))}{result.gpuSeconds !== null ? t("take.calc", { clock: clock(result.gpuSeconds) }) : ""}</p>
       <PublishActions take={result} />
-      <ChainButton onClick={() => void studio.poseTake(result.id, { sequence: t("sequence.defaultName"), shot: t("shot.defaultName") })}>{t("take.pose")} <Arrow /></ChainButton>
-      <p className="u-small">{t("take.poseHint")}</p>
       {studio.studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === result.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
       {studio.studio.shots.filter(shot => shot.takeIds.includes(result.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
       <div className="u-row">
