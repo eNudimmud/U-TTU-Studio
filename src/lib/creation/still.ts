@@ -5,7 +5,7 @@ import { measuredCost } from "../credits.ts";
 import { imageOutput, jobStage, RenderError, type JobDetail, type OutputRef, type RenderClient } from "../render/client.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
-import { CAST_PHOTO_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
+import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
 
 export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche";
 
@@ -40,7 +40,7 @@ const SYSTEM = "You are an expert image-generation engine. You must ALWAYS produ
 const sleepDefault = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 export function quoteForKind(kind: StillKind): CreationQuote {
-  if (kind === "planche") return CAST_PHOTO_QUOTE;
+  if (kind === "planche") return CAST_SHEET_QUOTE;
   if (kind === "photo-decor") return DECOR_PHOTO_QUOTE;
   if (kind === "texte-decor") return DECOR_TEXT_QUOTE;
   return CAST_TEXT_QUOTE;

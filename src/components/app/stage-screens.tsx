@@ -8,7 +8,7 @@ import { creationAllowed, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
 import { quotedCredits, priseNext } from "@/lib/stage";
 import { casesVisibles, gesteOuvert, gesteParId, mapReferences, type RoleRef } from "@/lib/workflows/registre";
-import { EXEMPLE_PAR_GESTE } from "@/lib/workflows/tuiles";
+import { APRES_PAR_GESTE, EXEMPLE_PAR_GESTE } from "@/lib/workflows/tuiles";
 import { useI18n } from "@/components/i18n/provider";
 import { Arrow, KindMark, type MarkKind } from "./glyphs";
 import { GestePicker } from "./geste-picker";
@@ -117,6 +117,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const blocked = !covered || !ready || creating;
   const why = !connected ? t("create.needLink") : !opened ? t("gestes.unwired") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
   const preview = refs.find(ref => ref.url)?.url ?? "";
+  const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
   const cost = row.nature === "mesure" && amount !== null && high !== null
     ? t("gestes.costMeasured", { amount, high })
     : amount !== null && high !== null
@@ -125,6 +126,15 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
 
   async function loadExemple(geste: string) {
     const pair = EXEMPLE_PAR_GESTE[geste];
+    if (geste === "cast-texte") {
+      const item = house.find(entry => entry.id === "cast-vieil-homme") ?? house[0];
+      if (!item) return;
+      setGesteId(geste);
+      setName(item.title);
+      setPrompt(item.prompt);
+      setRefs([]);
+      return;
+    }
     const item = house.find(entry => entry.id === pair?.id);
     if (!pair || !item) return;
     await applyHouse(item, geste, pair.role);
@@ -159,7 +169,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     section="cast"
     galleryOpen={galleryOpen}
     onGallery={setGalleryOpen}
-    gestures={<GestePicker onglet="cast" value={gesteId} onChange={setGesteId} examples={["cast-photos", "cast-planche"]} onExample={id => void loadExemple(id)} />}
+    gestures={<GestePicker onglet="cast" value={gesteId} onChange={setGesteId} examples={["cast-photos", "cast-planche", "cast-texte"]} onExample={id => void loadExemple(id)} />}
     gallery={<ProjectGallery defaultFilter="personnage" onUseRef={asset => {
       const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
       setRefs(list => placeAsset(gesteId, list, asset, url));
@@ -181,7 +191,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         <textarea value={prompt} rows={3} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => setPrompt(event.target.value)} />
       </label>
       <div className="u-result-frame" data-ratio="3/4">
-        {preview ? <img src={preview} alt="" /> : <p className="u-small">{t("refs.emptySlot")}</p>}
+        {apres ? <img src={apres} alt="" /> : preview ? <img src={preview} alt="" /> : <p className="u-small">{t(gesteId === "cast-planche" ? "gestes.exampleSoon" : "refs.emptySlot")}</p>}
       </div>
     </div>
     <div className="u-create-bar">
@@ -219,6 +229,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const blocked = !covered || !ready || creating;
   const why = !connected ? t("create.needLink") : !opened ? t("gestes.unwired") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
   const preview = refs.find(ref => ref.url)?.url ?? "";
+  const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
   const cost = amount !== null && high !== null ? t("gestes.cost", { amount, high }) : t("gestes.costUnknown");
 
   async function loadExemple(geste: string) {
@@ -276,7 +287,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
       </label>
       <div className="u-result-frame">
-        {preview ? <img src={preview} alt="" /> : <p className="u-small">{t("refs.emptySlot")}</p>}
+        {apres ? <img src={apres} alt="" /> : preview ? <img src={preview} alt="" /> : <p className="u-small">{t("refs.emptySlot")}</p>}
       </div>
     </div>
     <div className="u-create-bar">

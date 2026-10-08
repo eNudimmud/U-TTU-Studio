@@ -88,7 +88,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "cast-planche", onglet: "cast", categorie: "identite", clef: "castSheet",
     fournit: ["photo"], slots: [FACE("image_1")],
-    template: "templates-character_sheet", credits: 24, high: 36, nature: "hypothese",
+    template: "templates-character_sheet", credits: 68, high: 100, nature: "hypothese",
     premier: true, still: "planche", minRefs: 1,
     consigne: "Planche : face, trois-quarts, profil, dos. Même personne.",
   }),

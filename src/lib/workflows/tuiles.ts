@@ -36,7 +36,17 @@ export function illustrationGeste(id: string): string {
 export const EXEMPLE_PAR_GESTE: Record<string, { id: string; role: RoleRef }> = {
   "cast-photos": { id: "cast-mira", role: "visage" },
   "cast-planche": { id: "cast-coursiere", role: "visage" },
+  "cast-texte": { id: "cast-vieil-homme", role: "visage" },
   "decor-photo": { id: "decor-quai-nuit", role: "lieu" },
   "decor-heure": { id: "decor-rue-pluie", role: "lieu" },
   "decor-texte": { id: "decor-quai-nuit", role: "lieu" },
+};
+
+/** After still for “Voir un exemple”. Missing file → UI shows « Exemple à venir ». */
+export const APRES_PAR_GESTE: Record<string, string> = {
+  "cast-photos": "/exemples/apres-cast-photos.webp",
+  "cast-texte": "/exemples/apres-cast-texte.webp",
+  "decor-photo": "/exemples/apres-decor-photo.webp",
+  "decor-heure": "/exemples/apres-decor-heure.webp",
+  "decor-texte": "/exemples/apres-decor-texte.webp",
 };
