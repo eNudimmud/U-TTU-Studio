@@ -487,6 +487,8 @@
 .u-toolrow-main { display: flex; flex: 1 1 auto; gap: 2px; min-width: 0; overflow-x: auto; }
 .u-toolrow-zoom { display: flex; flex: 0 0 auto; gap: 2px; }
 .u-tool { display: grid; justify-items: center; align-content: center; gap: 2px; min-width: 52px; min-height: 52px; padding: 4px 6px; border: 0; border-radius: 10px; background: transparent; color: var(--u-gold-soft); font: 600 10px/1.1 var(--font-body); }
+.u-tool span { white-space: nowrap; }
+.u-ruler-zoom { display: none; }
 .u-tool:disabled { color: var(--u-muted); }
 .u-tool svg { width: 20px; height: 20px; }
 .u-tool-slot { position: relative; display: grid; }
@@ -532,6 +534,19 @@
 .u-meter span { display: block; height: 100%; background: var(--u-gold); }
 @media (max-width: 799px) {
   .u-stage.u-montage .u-tl { width: calc(100% + 36px); margin-inline: -18px; border-radius: 0; border-inline: 0; }
+}
+@media (max-width: 480px) {
+  .u-toolrow-zoom { display: none; }
+  .u-toolrow-main { overflow: visible; gap: 0; }
+  .u-toolrow-main > .u-tool-slot,
+  .u-toolrow-main > .u-tool { flex: 1 1 0; min-width: 44px; }
+  .u-toolrow-main .u-tool { width: 100%; min-width: 44px; min-height: 44px; padding: 2px 0; }
+  .u-tl { position: relative; }
+  .u-ruler-zoom { position: absolute; z-index: 8; top: 0; right: 0; display: flex; background: #141210; }
+  .u-ruler-zoom .u-tool { width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; }
+  .u-track-row.is-ruler { min-height: 44px; }
+  .u-ruler { height: 44px; }
+  .u-ruler span { top: 18px; }
 }
 @media (min-width: 800px) {
   .u-levels { grid-template-columns: repeat(3, minmax(0, 1fr)); }

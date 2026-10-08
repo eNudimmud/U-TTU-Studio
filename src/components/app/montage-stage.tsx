@@ -595,6 +595,10 @@ export function MontageStage() {
       </div>
     </div>
     <div className="u-tl" ref={scrollerRef} onPointerDown={onPinchDown} onPointerMove={onPinchMove} onPointerUp={onPinchUp} onPointerCancel={onPinchUp}>
+      <div className="u-ruler-zoom" onPointerDown={event => event.stopPropagation()}>
+        <button type="button" className="u-tool" aria-label={t("montage.zoomOut")} onClick={() => setPx(current => nextZoom(current, 1 / 1.15))}><ZoomOut /><span>−</span></button>
+        <button type="button" className="u-tool" aria-label={t("montage.zoomIn")} onClick={() => setPx(current => nextZoom(current, 1.15))}><ZoomIn /><span>+</span></button>
+      </div>
       <div className="u-tl-inner" style={{ width: `max(100%, ${width}px)` }}>
         <div className="u-playline" style={{ left: TRACK_LABEL_PX + time * px }} />
         <button type="button" className="u-playhead" style={{ left: TRACK_LABEL_PX + time * px }} aria-label={t("montage.playhead")} onPointerDown={event => {
