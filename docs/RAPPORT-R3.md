@@ -14,12 +14,15 @@
 - « Partir de zéro » vide le montage et l’enregistre. Rouvrir le projet relit `Projets/{slug}/Sequences/{id}-montage.md` (`type: sequence`, `gesture: montage`). Le chargeur ne prend pas cette fiche pour une seconde séquence.
 - « Ajouter une voix » et « Ajouter un effet sonore » sont éteints sans compte. La raison affichée est « Relie ton compte de rendu pour créer. »
 - 0 crédit. Aucun `estimate_credits`, `dry_run`, `run_template`, `submit_workflow`, `partner_generate`.
-- `npm test` : 270 tests passés, 1 ignoré, 0 échec. `tsc --noEmit` et `npm run build` passent. Il n’y a pas de script `lint` séparé : la vérification CI est ce trio.
+- `npm test` : 270 tests passés, 1 ignoré, 0 échec. `tsc --noEmit` et `npm run build` passent. Il n’y a pas de script `lint` séparé : la vérification CI est ce trio. Le job `verify` du premier commit de la PR est vert.
+- Lecture de l’exemple : l’horloge passe de `0:00 / 0:07` à `0:01 / 0:07`.
+- Export de l’exemple, Chrome headless de cette machine, sans rognage : fichier `exemple-montage.mp4`, 187 684 octets (environ 188 Ko), boîtier `ftyp isom`, image AVC (`avcC`), son Opus. L’écran annonçait « 7 s · environ 812 Ko » avant le geste. La barre de progression a été lue à 58 % puis à 68 %.
+- L’aperçu Vercel répond 302 vers l’authentification Vercel. Les captures sont donc celles du `next start` de ce commit, aux largeurs 1280 et 390. Huit images et le MP4 sont dans les artefacts.
 
 ## Hypothèse
 
-- La taille annoncée avant l’export (800 kbit/s d’image + 128 kbit/s de son, 960×540, 12 images/s) n’est pas une mesure du fichier. Le fichier lui-même, une fois écrit, est la mesure. Elle sera notée ici après l’export de l’exemple.
-- Safari sur iPhone n’a pas été ouvert ici. Le code refuse l’export si l’encodeur H.264 ou AAC manque, et affiche « Cet appareil n’écrit pas le MP4. Chrome ou Edge, sur ordinateur, le font. » C’est le comportement prévu quand WebCodecs ne propose pas ces codecs. Que Safari iOS les propose, ou non, n’a pas été mesuré sur un téléphone.
+- La taille annoncée (800 kbit/s d’image + 128 kbit/s de son) n’est pas le fichier. Sur cet exemple d’images fixes, le MP4 mesuré fait 188 Ko, pas 812 Ko. Le chiffre à l’écran reste une estimation haute. Un plan filmé peut s’en rapprocher. Une seule mesure ne change pas la formule.
+- Safari sur iPhone n’a pas été ouvert ici. L’export cherche le premier codec MP4 que l’appareil sait écrire. H.264 et AAC passent en premier. Ici, l’AAC manquait et le fichier est sorti en AVC et Opus. S’il ne reste aucun codec, le bouton affiche « Cet appareil n’écrit pas le MP4. Chrome ou Edge, sur ordinateur, le font. » Que Safari iOS encode, ou non, n’a pas été mesuré sur un téléphone.
 - Au-delà de 60 secondes, le bouton d’export reste éteint (« Soixante secondes au plus dans le navigateur. »). La limite vient de la mémoire d’un onglet, pas d’une mesure sur un grand film.
 - Les devis voix (24,14 crédits / 1 000 caractères) et effet (29,54 crédits / minute) viennent de la note de chaîne. Ils ne sont pas mesurés.
 - EN, DE et ES portent `_human: native_open`.

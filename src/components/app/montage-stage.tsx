@@ -50,7 +50,7 @@ function Waveform({ url, media, start, px }: { url: string; media: number; start
       wave?.destroy();
     };
   }, [url, media, px]);
-  return <div className="u-wave" style={{ width: `${Math.max(1, media * px)}px`, marginLeft: `${-start * px}px` }}><div ref={host} /></div>;
+  return <div ref={host} className="u-wave" style={{ width: `${Math.max(1, media * px)}px`, marginLeft: `${-start * px}px` }} />;
 }
 
 type ExportPhase = { phase: "idle" } | { phase: "run"; done: number; total: number } | { phase: "done"; bytes: number } | { phase: "fail" };

@@ -91,8 +91,11 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
   const mediabunny = await import("mediabunny");
   const width = EXPORT_WIDTH;
   const height = EXPORT_HEIGHT;
-  const videoCodec = await mediabunny.getFirstEncodableVideoCodec(["avc"], { width, height, quality: mediabunny.QUALITY_LOW });
-  const audioCodec = await mediabunny.getFirstEncodableAudioCodec(["aac"], { numberOfChannels: 2, sampleRate: SAMPLE_RATE, quality: mediabunny.QUALITY_LOW });
+  const format = new mediabunny.Mp4OutputFormat();
+  const quality = mediabunny.QUALITY_LOW;
+  // H.264 and AAC come first in mediabunny’s lists. A browser without them still writes MP4 with the next codec it can encode.
+  const videoCodec = await mediabunny.getFirstEncodableVideoCodec(format.getSupportedVideoCodecs(), { width, height, quality });
+  const audioCodec = await mediabunny.getFirstEncodableAudioCodec(format.getSupportedAudioCodecs(), { numberOfChannels: 2, sampleRate: SAMPLE_RATE, quality });
   if (!videoCodec || !audioCodec) throw new Error("unsupported");
 
   const frames = Math.max(1, Math.round(seconds * EXPORT_FPS));
@@ -116,7 +119,7 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
   let videoSourceUrl = "";
 
   const target = new mediabunny.BufferTarget();
-  const output = new mediabunny.Output({ format: new mediabunny.Mp4OutputFormat(), target });
+  const output = new mediabunny.Output({ format, target });
   const picture = new mediabunny.CanvasSource(canvas, { codec: videoCodec, quality: mediabunny.QUALITY_LOW });
   const sound = new mediabunny.AudioBufferSource({ codec: audioCodec, quality: mediabunny.QUALITY_LOW });
   output.addVideoTrack(picture);
