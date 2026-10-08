@@ -317,7 +317,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
 
     {run.phase === "idle" && <>
     <div className="u-prise-confirm" aria-label={t("take.before")}>
-      {heldProject && heldWho && placeName && <p className="u-reprise" data-reprise="">{t("take.reprise", { project: heldProject, who: heldWho, place: placeName })} {t("take.repriseHeld")}</p>}
+      {studio.studio.takes.length > 0 && heldProject && heldWho && placeName && <p className="u-reprise" data-reprise="">{t("take.reprise", { project: heldProject, who: heldWho, place: placeName })} {t("take.repriseHeld")}</p>}
       <label className="u-field">
         <span className="u-label">{t("take.action")}</span>
         <textarea value={line} rows={1} maxLength={240} placeholder={t("take.actionPlaceholder")} onChange={event => setLine(event.target.value)} />
