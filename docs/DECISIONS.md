@@ -4,25 +4,25 @@ Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, u
 
 ## F34 — premier écran plus léger — 8 octobre 2026
 
-Méthode, la même des deux côtés, une passe sauf la seconde passe du Projet notée à part. Lighthouse 12.8.2, `formFactor: mobile`, écran 412×823, dpr 1.75, `throttlingMethod: simulate`, Chrome 148, `next build --webpack` puis `next start` sur `http://127.0.0.1:3456`. Coffre vide : le stockage est remis à zéro. INP n’est pas dans cette passe (`numericValue` null). Le JS inutilisé est `wastedBytes` du chunk `app/studio/page-*.js` dans l’audit `unused-javascript`, pas le `numericValue` de l’audit (des millisecondes). Le transfert JS est la somme des `transferSize` des scripts. Ces chiffres sont ceux du build d’avant la rebase sur F33 (`9f88f2e`).
+Méthode, la même des deux côtés, une passe sauf la seconde passe du Projet notée à part. Lighthouse 12.8.2, `formFactor: mobile`, écran 412×823, dpr 1.75, `throttlingMethod: simulate`, Chrome 148, `next build --webpack` puis `next start` sur `http://127.0.0.1:3456`. Coffre vide : le stockage est remis à zéro. INP n’est pas dans cette passe (`numericValue` null). Le JS inutilisé est `wastedBytes` du chunk `app/studio/page-*.js` dans l’audit `unused-javascript`, pas le `numericValue` de l’audit (des millisecondes). Le transfert JS est la somme des `transferSize` des scripts. La colonne « après » est le build rebasé sur F33 (`9f88f2e`).
 
 | Écran | LCP avant | LCP après | TBT avant | TBT après | CLS avant | CLS après | Page gaspillée avant | Page gaspillée après | Transfert JS avant | Transfert JS après |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Projet, `?step=personnage`, coffre vide | 2196 ms | 2849 ms | 174 ms | 36 ms | 0,0256 | 0 | 48 607 / 67 539 | 31 907 / 46 964 | 218 780 | 205 764 |
-| Même URL, seconde passe | 2410 ms | 2573 ms | 39 ms | 46 ms | 0,0256 | 0 | 48 639 / 67 539 | 31 939 / 46 964 | 218 780 | 205 764 |
-| Scène | 3086 ms | 2834 ms | 69 ms | 34 ms | 0,000025 | 0 | 50 679 / 67 539 | 31 942 / 46 964 | 218 780 | 204 526 |
-| Prise | 3182 ms | 2818 ms | 82 ms | 35 ms | 0,0160 | 0 | 51 269 / 67 539 | 31 474 / 46 964 | 227 211 | 210 359 |
+| Projet, `?step=personnage`, coffre vide | 2196 ms | 2841 ms | 174 ms | 32 ms | 0,0256 | 0 | 48 607 / 67 539 | 31 974 / 47 042 | 218 780 | 205 857 |
+| Même URL, seconde passe | 2410 ms | 2829 ms | 39 ms | 31 ms | 0,0256 | 0 | 48 639 / 67 539 | 32 005 / 47 042 | 218 780 | 205 857 |
+| Scène | 3086 ms | 2573 ms | 69 ms | 50 ms | 0,000025 | 0 | 50 679 / 67 539 | 32 008 / 47 042 | 218 780 | 204 619 |
+| Prise | 3182 ms | 2831 ms | 82 ms | 34 ms | 0,0160 | 0 | 51 269 / 67 539 | 31 542 / 47 042 | 227 211 | 210 842 |
 
 Nœud LCP, avant et après : Projet « Nom du projet ». Scène « Aucun projet en cours… ». Prise « À ce réglage · h3-4pas-5s-vertical… ». La seconde passe est la variance du même écran Projet. Sans projet, `?step=personnage` peint le formulaire, pas « Jusqu’à trois photos. ».
 
-- **Fait :** `tsc` passe dans le build (`Finished TypeScript`). `npm test` : 250 réussites, 1 ignoré, 0 échec, sur l’arbre d’avant la rebase. Le budget `node scripts/studio-js-budget.mjs` lit le gzip niveau 9 du chunk `app/studio/page-*.js` : 46 903 octets, plafond 55 000. Avant, le transfert Lighthouse de ce chunk était 67 539 octets.
+- **Fait :** `tsc` passe dans le build (`Finished TypeScript`). Après rebase sur F33, `npm test` : 252 réussites, 1 ignoré, 0 échec. Le budget `node scripts/studio-js-budget.mjs` lit le gzip niveau 9 du chunk `app/studio/page-*.js` : 46 975 octets, plafond 55 000. Avant, le transfert Lighthouse de ce chunk était 67 539 octets ; après, 47 042.
 - **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Aucune requête vers cloud.comfy.org, api.comfy.org ou fal.ai.
 - **Décision :** un coffre vide peint Projet, Scène et Prise dans le HTML. Le plus grand texte n’attend plus IndexedDB. Un coffre qui a déjà un projet écrit le cookie `u-ttu-plein=1` ; le document suivant attend la lecture, pour ne pas peindre le vide puis le plein. `PATH_APRES` reste 9. Les boutons or et Entrée ne changent pas de geste.
 - **Décision :** Personnage, Scène, Prise, lecteur, feuilles et fiches sont des imports dynamiques. Le préchargement part au `pointerdown` de la chaîne, pas pendant le chargement. Le ZIP, les clients et les formateurs sont dans `studio-later`, chargé au geste qui envoie. Le mot du lieu et le JSON d’une prise LoRA sont dans des modules courts, pour que le premier script ne tire pas ces clients. Le lecteur de séquence ajouté par F33 reste un import dynamique.
 - **Décision :** seules les polices latines de Syne et Manrope partent, avec `font-display: optional`. Le grec, le cyrillique et le vietnamien ne sont plus déclarés. Sur cette machine le fichier arrive dans le court délai, donc le laboratoire peint encore avec la police et compte son téléchargement. Un téléphone lent qui rate ce délai peint en Arial et ne change pas ensuite. Ce téléphone n’a pas été mesuré.
 - **Fait :** Personnage avec un projet déjà créé. Avant, même Chrome, cache chaud, `disableStorageReset` : LCP 1051 ms, TBT 0, CLS 0,000025, transfert JS 0, nœud « Deux photos, trois au plus… ». Le 0 vient du cache, pas d’un script vide. Après, même geste, cache HTTP vidé, cookie `u-ttu-plein=1`, IndexedDB gardé : LCP 3163 ms, TBT 106 ms, CLS 0, transfert JS 205 764, page gaspillée 28 905 / 46 964, même nœud. Les deux passes ne se comparent pas : l’une est chaude, l’autre est froide et attend le coffre.
 - **Hypothèse :** le LCP simulé qui reste au-dessus de 2,5 s sur la Prise est le fichier de police, parce que le trace local le reçoit à temps. Le découpage a baissé le JS inutilisé du chunk de page d’environ 20 Ko et le TBT. Il n’a pas ramené ce LCP sous 2,5 s.
-- **Pas fait :** pas de téléphone physique. Pas d’INP de laboratoire (la valeur est null). LCP Prise sous 2,5 s : non, la passe donne 2818 ms. Le score Lighthouse n’est pas recopié ici : il n’était pas la cible.
+- **Pas fait :** pas de téléphone physique. Pas d’INP de laboratoire (la valeur est null). LCP Prise sous 2,5 s : non, la passe donne 2831 ms. Le score Lighthouse n’est pas recopié ici : il n’était pas la cible.
 
 ## F33 fusionné avec F32 — 8 octobre 2026
 
