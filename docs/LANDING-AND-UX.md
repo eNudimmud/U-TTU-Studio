@@ -2,6 +2,12 @@
 
 Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md). Ici : le moins de mots possible.
 
+## Décision — CAST, DÉCOR, PRISE, 8 octobre 2026
+
+- **Décision :** l’accueil dit « Fais tourner ton personnage, en vidéo. » Les pastilles sont CAST, DÉCOR, PRISE. Le studio ouvre sur ces trois sections, une tâche et un bouton or chacune. La barre unique « Que veux-tu tourner ? » n’est pas l’écran.
+- **Décision :** sur téléphone, les trois onglets sont en bas. À partir de 800 px, ils sont en haut. Chacun dit Vide ou Prêt. Le tiroir Mon studio, fermé au départ, tient le reste : notes, listes, devis technique, fiches, formation, trajet.
+- **Décision :** un studio vide montre l’exemple déjà dans le dépôt (`public/images/uttu-canon-portrait.webp`) et un panneau de nuit pour le décor. Pas de photo inventée d’une personne réelle.
+
 ## Décision — le fil, 6 octobre 2026
 
 - **Décision :** l’accueil dit « Ton personnage, ta scène, la prise. » Les pastilles sont Personnage, Scène, Prise. Le fil du studio est le même, Sphère à côté. Les photos et les traits ne sont pas un pas du fil. Les sections plus bas qui disent Look ou Ton style en premier sont l’historique.

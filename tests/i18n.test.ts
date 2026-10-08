@@ -23,10 +23,18 @@ describe("langues du studio", () => {
     assert.equal(catalogs.en.nav.studio, "My studio");
     assert.equal(catalogs.de.nav.studio, "Mein Studio");
     assert.equal(catalogs.es.nav.studio, "Mi estudio");
-    assert.equal(catalogs.de.nav.character, "Figur");
+    assert.equal(catalogs.de.nav.character, "Besetzung");
+    assert.equal(catalogs.de.nav.scene, "Kulisse");
     assert.equal(catalogs.de.nav.take, "Take");
-    assert.equal(catalogs.es.nav.character, "Personaje");
+    assert.equal(catalogs.es.nav.character, "Reparto");
+    assert.equal(catalogs.es.nav.scene, "Decorado");
     assert.equal(catalogs.es.nav.take, "Toma");
+    assert.equal(catalogs.en.nav.character, "Cast");
+    assert.equal(catalogs.en.nav.scene, "Set");
+    assert.equal(catalogs.en.nav.take, "Take");
+    assert.equal(catalogs.en._human, "native_open");
+    assert.equal(catalogs.de._human, "native_open");
+    assert.equal(catalogs.es._human, "native_open");
     assert.equal(catalogs.de.verb.relier, "Verbinden");
     assert.equal(catalogs.de.verb.lancer, "Aufrufen");
     assert.equal(catalogs.de.verb.tourner, "Drehen");
@@ -35,8 +43,8 @@ describe("langues du studio", () => {
     assert.equal(catalogs.es.verb.lancer, "Lanzar");
     assert.equal(catalogs.es.verb.tourner, "Rodar");
     assert.equal(catalogs.es.verb.former, "Entrenar");
-    assert.equal(catalogs.de.sheet.walletTitle, "Guthaben");
-    assert.equal(catalogs.es.sheet.walletTitle, "Saldo");
+    assert.equal(catalogs.de.sheet.walletTitle, "Meine Credits");
+    assert.equal(catalogs.es.sheet.walletTitle, "Mis créditos");
     assert.equal(catalogs.de.sheet.quote, "Kalkulation");
     assert.equal(catalogs.es.sheet.quote, "Presupuesto");
     assert.equal(catalogs.de.take.soft, "Es ist nicht zustande gekommen.");
@@ -87,7 +95,6 @@ describe("langues du studio", () => {
   it("switches language without a locale in the path", () => {
     assert.equal(existsSync("src/app/[locale]"), false);
     assert.match(read("src/components/app/studio-app.tsx"), /<LanguageSwitcher \/>/);
-    assert.match(read("src/components/app/studio-app.tsx"), /<LanguageSwitcher rail \/>/);
     assert.match(read("src/components/landing/home.tsx"), /<LanguageSwitcher \/>/);
     assert.match(read("src/app/layout.tsx"), /u-ttu-locale|LOCALE_COOKIE/);
     assert.doesNotMatch(read("src/app/layout.tsx"), /messages\/en\.json|messages\/de\.json|messages\/es\.json/);

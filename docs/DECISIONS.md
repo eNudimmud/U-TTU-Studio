@@ -2,6 +2,17 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
 
+## CAST, DÉCOR, PRISE — 8 octobre 2026
+
+Cette note remplace, pour l’écran, la chaîne Personnage → Scène → Prise et le plafond `PATH_APRES` comme loi d’interface. Les comptes plus bas restent l’historique. Les constantes `PATH_APRES` et `PATH_RETOUR_APRES` restent dans le code pour ne pas réécrire ces mesures.
+
+- **Décision :** trois sections, nommées CAST, DÉCOR, PRISE. EN Cast / Set / Take. DE Besetzung / Kulisse / Take. ES Reparto / Decorado / Toma. Les catalogues EN, DE et ES portent `_human: native_open`.
+- **Décision :** une tâche et un bouton or par section. CAST : photos (2, 3 au plus) et nom. DÉCOR : un lieu, ou une photo de lieu. PRISE : qui, où, l’action, le devis simple (« environ 4 crédits » sur le profil mesuré), puis « Générer la vidéo ». Un prérequis manquant nomme la section et y mène. Rien ne part sans la feuille de confirmation.
+- **Décision :** les chemins stockés ne changent pas. IndexedDB, `Projets/{slug}/Cast/`, `Lieux/`, `Prises/`.
+- **Fait :** le devis affiché sur PRISE vient de `quotedCredits`. Le profil `h3-4pas-5s-vertical` vaut 4 crédits. Un autre réglage n’a pas de nombre, et le bouton reste éteint.
+- **Hypothèse :** un second personnage photographié, indépendant du canon, n’existe pas dans le coffre. CAST montre le canon, les fichiers déjà formés, et le brouillon de rôle déjà stocké.
+- **Pas fait :** 0 crédit. Aucun appel Comfy, fal ou Higgsfield. Pas de téléphone physique.
+
 ## F33 fusionné avec F32 — 8 octobre 2026
 
 `main` est à `b95dfd2` (F32, PR #90). Cette note dit ce que la fusion garde. Elle ne remplace pas les mesures d’avant.

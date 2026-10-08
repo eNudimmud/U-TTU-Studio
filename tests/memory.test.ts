@@ -73,9 +73,11 @@ describe("mémoire du projet", () => {
     assert.match(sheets, /memoryKindOf\(group\.label, file\)/);
     const app = read("src/components/app/studio-app.tsx");
     assert.match(app, /<MemorySheet /);
-    assert.match(app, /"take-memory"/);
-    assert.match(app, /"lora-memory"/);
-    assert.match(app, /"scene-memory"/);
+    const guide = read("src/lib/guide.ts");
+    assert.match(guide, /"take-memory"/);
+    assert.match(guide, /"lora-memory"/);
+    assert.match(guide, /"scene-memory"/);
+    assert.match(read("src/components/app/studio-drawer.tsx"), /<ProjectMemory heading=\{false\} \/>/);
     assert.equal(GUIDE_LINES["lora-memory"], GUIDE_LINES["take-memory"]);
     assert.equal(GUIDE_LINES["scene-memory"], GUIDE_LINES["take-memory"]);
     const frGuide = JSON.parse(read("messages/fr.json")) as { guide: Record<string, string> };
