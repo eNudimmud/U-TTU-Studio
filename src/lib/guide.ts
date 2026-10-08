@@ -33,7 +33,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "look-name": "Donne un nom. C’est lui que je tiens.",
   "look-traits": "Deux traits qui ne bougent pas. Les yeux, une marque.",
   "look-ready": "Les photos tiennent. Pose maintenant le lieu.",
-  "scene-new": "Un lieu, un nom. Une image si tu l’as.",
+  "scene-new": "Lieu 1 est écrit. Tu peux changer le nom.",
   "scene-still": "Une image du lieu, et je le garde d’une prise à l’autre.",
   "scene-previz": "Ce lieu reste. Le trajet aussi. Un geste filme ton personnage.",
   "scene-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",

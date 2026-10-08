@@ -49,7 +49,7 @@ const guide = {
   "look-name": [`Donne un nom. C${Q}est lui que je tiens.`, "Give a name. That is the one I hold.", "Gib einen Namen. Den halte ich.", "Da un nombre. A ese lo sostengo."],
   "look-traits": ["Deux traits qui ne bougent pas. Les yeux, une marque.", "Two traits that do not move. The eyes, a mark.", "Zwei Züge, die bleiben. Die Augen, ein Mal.", "Dos rasgos que no se mueven. Los ojos, una marca."],
   "look-ready": ["Les photos tiennent. Pose maintenant le lieu.", "The photos hold. Set the location now.", "Die Fotos halten. Setze jetzt den Drehort.", "Las fotos sostienen. Coloca ahora la localización."],
-  "scene-new": ["Un lieu, un nom. Une image si tu l’as.", "A location, a name. An image if you have one.", "Ein Drehort, ein Name. Ein Bild, wenn du eins hast.", "Una localización, un nombre. Una imagen si la tienes."],
+  "scene-new": ["Lieu 1 est écrit. Tu peux changer le nom.", "Place 1 is written. You can change the name.", "Ort 1 steht da. Den Namen kannst du ändern.", "Lugar 1 ya está. Puedes cambiar el nombre."],
   "scene-still": [`Une image du lieu, et je le garde d${Q}une prise à l${Q}autre.`, "An image of the location, and I keep it from one take to the next.", "Ein Bild des Drehorts, und ich halte ihn von Take zu Take.", "Una imagen de la localización, y la guardo de una toma a la otra."],
   "scene-previz": ["Ce lieu reste. Le trajet aussi. Un geste filme ton personnage.", "This location stays. So does the path. One gesture films your character.", "Dieser Drehort bleibt. Der Weg auch. Eine Geste filmt deine Figur.", "Esta localización queda. El recorrido también. Un gesto filma tu personaje."],
   "scene-memory": ["Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.", "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.", "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.", "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa."],
@@ -72,9 +72,9 @@ const guide = {
 };
 for (const [id, texts] of Object.entries(guide)) row(`guide.${id}`, ...texts);
 row("guide.understood", "Compris", "Understood", "Verstanden", "Entendido");
-row("guide.stepCharacter", "Photos, ou un fichier. Le prix se lit avant le geste.", "Photos, or a file. The price is read before the gesture.", "Fotos, oder eine Datei. Der Preis wird vor der Geste gelesen.", "Fotos, o un archivo. El precio se lee antes del gesto.");
-row("guide.stepScene", `Un lieu, un nom. Ensuite, la prise. Le trajet se filme à part.`, "A location, a name. Next, the take. The path is filmed apart.", "Ein Drehort, ein Name. Danach der Take. Der Weg wird extra gefilmt.", "Una localización, un nombre. Luego, la toma. El recorrido se filma aparte.");
-row("guide.stepTake", "Une phrase. Relie le compte, lis le devis, puis Tourner.", "One line. Connect the account, read the quote, then Shoot.", "Ein Satz. Verbinde das Konto, lies die Kalkulation, dann Drehen.", "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar.");
+row("guide.stepCharacter", "Mira et deux traits sont écrits. Deux photos.", "Mira and two traits are written. Two photos.", "Mira und zwei Züge stehen da. Zwei Fotos.", "Mira y dos rasgos ya están. Dos fotos.");
+row("guide.stepScene", "Lieu 1 est écrit. Un geste le pose, puis la prise.", "Place 1 is written. One gesture sets it, then the take.", "Ort 1 steht da. Eine Geste setzt ihn, dann der Take.", "Lugar 1 ya está. Un gesto lo pone, luego la toma.");
+row("guide.stepTake", "La phrase est écrite. Relie, lis le devis, puis Tourner.", "The line is written. Connect, read the quote, then Shoot.", "Der Satz steht da. Verbinde, lies die Kalkulation, dann Drehen.", "La frase ya está. Vincula, lee el presupuesto, luego Rodar.");
 row("why.unchanged", `Rien n${Q}a changé.`, "Nothing has changed.", "Nichts hat sich geändert.", "Nada ha cambiado.");
 row("why.needName", "Il manque un nom.", "A name is missing.", "Ein Name fehlt.", "Falta un nombre.");
 row("why.needKey", `Il manque la clé.`, "The key is missing.", "Der Schlüssel fehlt.", "Falta la clave.");
@@ -141,7 +141,9 @@ row("look.lead", `Deux suffisent, trois tiennent. Pas de formation. Ces photos p
 row("look.photos", "Photos des références", "Photos of the references", "Fotos der Referenzen", "Fotos de las referencias");
 row("look.name", "Nom", "Name", "Name", "Nombre");
 row("look.traits", "Ce qui ne change pas", "What does not change", "Was sich nicht ändert", "Lo que no cambia");
+row("look.defaultName", "Mira", "Mira", "Mira", "Mira");
 row("look.placeholder", "yeux verts, taches de rousseur", "green eyes, freckles", "grüne Augen, Sommersprossen", "ojos verdes, pecas");
+row("look.written", "Déjà écrit. Tu peux changer le nom et les traits.", "Already written. You can change the name and the traits.", "Schon geschrieben. Name und Züge kannst du ändern.", "Ya está escrito. Puedes cambiar el nombre y los rasgos.");
 row("look.another", "un autre", "another", "ein weiterer", "otro");
 row("look.held", "Ce qui tient les références", "What holds the references", "Was die Referenzen hält", "Lo que sostiene las referencias");
 row("look.twoPhotos", "Deux photos au moins", "At least two photos", "Mindestens zwei Fotos", "Al menos dos fotos");
@@ -165,7 +167,9 @@ row("look.removeTrait", "Retirer {item}", "Remove {item}", "{item} entfernen", "
 row("scene.kicker", "02 · Ta scène", "02 · Your scene", "02 · Deine Szene", "02 · Tu escena");
 row("scene.title", "Ta scène.", "Your scene.", "Deine Szene.", "Tu escena.");
 row("scene.new", "Nouveau lieu", "New location", "Neuer Drehort", "Nueva localización");
+row("scene.defaultName", "Lieu 1", "Place 1", "Ort 1", "Lugar 1");
 row("scene.placeholder", "Le quai, la nuit", "The quay, at night", "Der Kai, bei Nacht", "El muelle, de noche");
+row("scene.written", "Déjà écrit. Tu peux changer ce nom.", "Already written. You can change this name.", "Schon geschrieben. Diesen Namen kannst du ändern.", "Ya está escrito. Puedes cambiar este nombre.");
 row("scene.project", "Vue projet", "Project view", "Projektansicht", "Vista de proyecto");
 row("scene.noCharacter", "Aucun personnage sur ce lieu.", "No character on this location.", "Keine Figur an diesem Drehort.", "Ningún personaje en esta localización.");
 row("scene.noTake", "Aucune prise pour ce lieu.", "No take for this location.", "Kein Take für diesen Drehort.", "Ninguna toma para esta localización.");
@@ -310,6 +314,7 @@ row("take.theCharacter", "le personnage", "the character", "die Figur", "el pers
 row("take.cameraBack", "Ce lieu se rouvre avec sa caméra.", "This location reopens with its camera.", "Dieser Drehort öffnet sich wieder mit seiner Kamera.", "Esta localización se reabre con su cámara.");
 row("take.action", "Ce que fait la prise", "What the take does", "Was der Take tut", "Lo que hace la toma");
 row("take.actionPlaceholder", "Elle traverse le quai sous la pluie, sans se retourner.", "She crosses the quay in the rain, without looking back.", "Sie überquert den Kai im Regen, ohne sich umzudrehen.", "Ella cruza el muelle bajo la lluvia, sin volverse.");
+row("take.written", "La phrase est déjà écrite. Tu peux la changer.", "The line is already written. You can change it.", "Der Satz steht schon da. Du kannst ihn ändern.", "La frase ya está escrita. Puedes cambiarla.");
 row("take.engine", "Moteur", "Engine", "Motor", "Motor");
 row("take.format", "Format", "Format", "Format", "Formato");
 row("take.duration", "Durée", "Duration", "Dauer", "Duración");

@@ -1,7 +1,8 @@
-// F29 — the novice path, counted, and the two rules that keep it that way.
+// F31 — the novice path, counted, and the two rules that keep it that way.
 // A gesture is one tap or one text entry. A screen passage is a view that
 // differs from the view of the previous gesture. Safe defaults are already
 // written; the paid confirmation stays, because the text that leaves is read first.
+// The count must not rise: PATH_APRES is the ceiling.
 
 export const MIN_TARGET = 44;
 
@@ -46,18 +47,16 @@ export const PATH_AVANT: readonly PathStep[] = [
   { kind: "tap", screen: "mon-studio" },
 ];
 
-/** The same path after the round. Atelier, Séquence 1 and Plan 1 are already written. */
+/**
+ * The same path after F31.
+ * Atelier, Mira, two traits, Lieu 1, the shot line, Séquence 1 and Plan 1 are already written.
+ * The first place opens the take. The paid confirmation and Poser le plan stay.
+ */
 export const PATH_APRES: readonly PathStep[] = [
   { kind: "tap", screen: "projet" },
   { kind: "tap", screen: "personnage" },
-  { kind: "saisie", screen: "personnage" },
-  { kind: "saisie", screen: "personnage" },
-  { kind: "saisie", screen: "personnage" },
   { kind: "tap", screen: "personnage" },
-  { kind: "saisie", screen: "scene" },
   { kind: "tap", screen: "scene" },
-  { kind: "tap", screen: "scene" },
-  { kind: "saisie", screen: "prise" },
   { kind: "tap", screen: "prise" },
   { kind: "tap", screen: "confirmation" },
   { kind: "tap", screen: "prise" },
@@ -65,14 +64,19 @@ export const PATH_APRES: readonly PathStep[] = [
   { kind: "tap", screen: "sequence" },
 ];
 
+/** F30 ceiling. A later round fails the test if the path grows past this. */
+export const GESTES_F30 = 15;
+
 /**
  * A decision is a blank the path will not pass, or two equal choices with no default.
  * A name already written, and a control already on the measured profile, are not decisions.
  * Before: project name, which way, character name, two traits, place, line, sequence name, shot name.
- * After: character name, two traits, place, line.
+ * F30: character name, two traits, place, line.
+ * F31: none of those blanks remain. Two photos stay a tap, as in F29.
  */
 export const DECISIONS_AVANT = 9;
-export const DECISIONS_APRES = 5;
+export const DECISIONS_F30 = 5;
+export const DECISIONS_APRES = 0;
 
 /** Times the path sends the person back before the next step is reachable. */
 export const RETOURS_AVANT = 3;
@@ -89,6 +93,11 @@ export function pathCount(steps: readonly PathStep[]): { gestes: number; saisies
     taps: steps.filter(step => step.kind === "tap").length,
     ecrans: screens.length,
   };
+}
+
+/** A look that has never been written. Seeding it once does not fight a later clear. */
+export function untouchedLook(look: { name: string; traits: readonly string[]; photos: readonly string[]; note: string }): boolean {
+  return !look.name.trim() && look.traits.length === 0 && look.photos.length === 0 && !look.note.trim();
 }
 
 export function nextNumberedName(seed: string, used: readonly string[]): string {
