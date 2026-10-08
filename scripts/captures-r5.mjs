@@ -64,8 +64,27 @@ for (const [kind, path, name] of shots) {
           if (bottom > window.innerHeight + 2) return `timeline sous la fenêtre ${Math.round(bottom)}>${window.innerHeight}`;
           const box = viewer.getBoundingClientRect();
           const stage = frame.getBoundingClientRect();
-          if (box.height < 240) return `lecteur trop petit ${Math.round(box.height)}`;
-          if (box.height < stage.height * 0.7) return `lecteur trop petit ${Math.round(box.height)}/${Math.round(stage.height)}`;
+          if (box.width < 600 || box.height < 320) return `lecteur trop petit ${Math.round(box.width)}×${Math.round(box.height)}`;
+          const lead = document.querySelector(".u-capcut-player .u-lead, .u-capcut-player > .u-small");
+          if (lead) return "texte sur le lecteur";
+          const bar = document.querySelector(".u-floatbar");
+          if (bar) {
+            const b = bar.getBoundingClientRect();
+            const overlap = !(b.bottom <= box.top + 1 || b.top >= box.bottom - 1);
+            if (overlap) return "barre du plan sur l’image";
+          }
+          const bin = document.querySelector(".u-capcut .u-chutier");
+          if (bin) {
+            const edge = bin.getBoundingClientRect().right - 1;
+            const floor = bin.getBoundingClientRect().bottom + 1;
+            for (const card of bin.querySelectorAll(".u-chutier-row button")) {
+              const cardBox = card.getBoundingClientRect();
+              if (cardBox.right > edge) return "carte hors chutier";
+              if (cardBox.bottom > floor) return "carte coupée en bas";
+              const name = card.querySelector(".u-bin-name");
+              if (name && (name.scrollWidth > name.clientWidth + 1 || name.scrollHeight > name.clientHeight + 2)) return `nom coupé ${name.textContent}`;
+            }
+          }
           return "";
         });
         if (fit) throw new Error(`${name}-${label} ${fit}`);
@@ -87,6 +106,55 @@ for (const [kind, path, name] of shots) {
       await page.waitForSelector("[data-geste='prise-raccord'][data-selected]", { timeout: 8000 });
       const roles = await page.$$eval(".u-refslot-add span", nodes => nodes.map(node => node.textContent?.trim()));
       if (!roles.includes("Début") || !roles.includes("Fin")) throw new Error(`${name}-${label} cases ${roles.join(",")}`);
+    }
+    if (kind !== "montage" && label === "1280") {
+      const desk = await page.evaluate(() => {
+        const field = document.querySelector(".u-desk-work textarea");
+        const bar = document.querySelector(".u-desk-work .u-create-bar");
+        const scroll = document.querySelector(".u-desk-scroll");
+        if (field && bar && scroll) {
+          const a = field.getBoundingClientRect();
+          const b = bar.getBoundingClientRect();
+          const s = scroll.getBoundingClientRect();
+          const visible = Math.min(a.bottom, s.bottom) - Math.max(a.top, s.top);
+          if (visible < a.height - 4) return `texte coupé ${Math.round(visible)}/${Math.round(a.height)}`;
+          if (Math.min(a.bottom, s.bottom) > b.top + 1) return `texte sous Créer`;
+        }
+        const tiles = [...document.querySelectorAll(".u-desk-gestes .u-tile")];
+        const column = document.querySelector(".u-desk-gestes");
+        if (tiles[2] && column) {
+          const tile = tiles[2].getBoundingClientRect();
+          const box = column.getBoundingClientRect();
+          if (tile.bottom > box.bottom + 2) return `tuile 3 coupée ${Math.round(tile.bottom)}>${Math.round(box.bottom)}`;
+        }
+        return "";
+      });
+      if (desk) throw new Error(`${name}-${label} ${desk}`);
+    }
+    if (kind === "montage" && width < 1024) {
+      const sheet = await page.evaluate(() => {
+        const bin = document.querySelector(".u-chutier[data-open='true']");
+        const player = document.querySelector(".u-capcut-player .u-viewer");
+        const close = document.querySelector(".u-bin-close");
+        if (!bin || !player || !close) return "feuille incomplète";
+        const b = bin.getBoundingClientRect();
+        const p = player.getBoundingClientRect();
+        if (b.height > window.innerHeight * 0.56) return `feuille trop haute ${Math.round(b.height)}`;
+        if (p.left < -1 || p.right > window.innerWidth + 1) return `lecteur hors cadre ${Math.round(p.left)}…${Math.round(p.right)}`;
+        const visible = Math.min(p.bottom, b.top) - p.top;
+        if (visible < 120) return `lecteur couvert ${Math.round(visible)}`;
+        if (close.getBoundingClientRect().height < 44) return "Fermer trop petit";
+          const cards = [...bin.querySelectorAll(".u-chutier-row button")];
+        const edge = b.right - 1;
+        for (const card of cards) {
+          const cardBox = card.getBoundingClientRect();
+          if (cardBox.right > edge) return "carte coupée";
+          const name = card.querySelector(".u-bin-name");
+          if (name && (name.scrollWidth > name.clientWidth + 1 || name.scrollHeight > name.clientHeight + 2)) return `nom coupé ${name.textContent}`;
+        }
+        return "";
+      });
+      if (sheet) throw new Error(`${name}-${label} ${sheet}`);
     }
     await page.screenshot({ path: `${out}/${name}-${label}.png` });
     console.log(`${name}-${label}`);

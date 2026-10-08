@@ -66,6 +66,9 @@ export function GestePicker({ onglet, value, onChange, onExample, examples = [] 
   useEffect(() => {
     if (soon.some(item => item.id === value) || folded.some(item => item.id === value)) setMore(true);
   }, [value, onglet]);
+  useEffect(() => {
+    document.querySelector(`[data-geste="${value}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [value, more]);
 
   return <div className="u-gestes">
     <p className="u-label" id="u-gestes-label">{t("gestes.ask")}</p>

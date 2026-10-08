@@ -50,9 +50,17 @@ Chaque carte fermée a une ligne, sans nom de nœud. La raison technique est ici
 
 ## Bureau
 
-La table à trois colonnes de R4 reste : gestes, travail, galerie, à partir de 1024 px. La colonne de gestes montre au plus quatre gestes ouverts (les premiers d’abord). Le surplus ouvert est groupé sous « Plus de gestes ». Les fermés sont seulement sous « Bientôt », groupés par catégorie quand il y en a plusieurs. `?geste=` sélectionne un geste après le montage de la page.
+La table à trois colonnes de R4 reste : gestes, travail, galerie, à partir de 1024 px. La colonne de gestes montre au plus quatre gestes ouverts (les premiers d’abord). Le surplus ouvert est groupé sous « Plus de gestes ». Les fermés sont seulement sous « Bientôt », groupés par catégorie quand il y en a plusieurs. `?geste=` sélectionne un geste après le montage de la page, et la tuile choisie se range dans la colonne.
 
-Le lecteur du montage, à partir de 1024 px, est le plus grand 16:9 (ou 9:16) qui tient dans le cadre au-dessus de la timeline. La page ne défile pas pour atteindre la timeline à 1280×800. Les onglets du chutier sont une grille de quatre colonnes. Les libellés Médias, Voix, Effets, Musique ne sont pas coupés.
+Le bloc Créer est dans le flux, sous le texte, pas collé par-dessus. Le bouton porte le devis quand il existe (« Créer le personnage · environ 12 crédits »). La ligne sous le bouton est le plafond, hypothèse ou mesuré. Un geste fermé n’affiche pas de prix : le bouton dit seulement « Créer le décor », et la raison reste à côté. Les tuiles de geste sont compactes : à 1280×800, « Depuis un texte » et « Voir un exemple » tiennent dans la colonne, avec Tenue.
+
+## Montage
+
+À 1280×800 la page ne défile pas. Le chutier fait 196 px, à gauche du lecteur. Les onglets sont en deux par deux, pour que Musique tienne. Chaque carte est une liste verticale : la vignette, puis le nom sur sa ligne (deux lignes au plus). Les trois décors de l’exemple tiennent en entier, ainsi que la ligne qui dit pourquoi Agrandir et Fluidifier restent fermés. Il n’y a plus de lien « Bientôt » seul en bas du chutier.
+
+Le lecteur est le cadre noir de la colonne (environ 1052×429). L’image 16:9 à l’intérieur mesure environ 759×427. Rien n’est écrit par-dessus, à part l’heure de lecture. La barre du plan (Scinder, Dupliquer, vitesse, Fondu, titre, Supprimer) est dans la rangée d’outils, au-dessus de la timeline, et seulement quand un plan est choisi. Elle ne double pas Scinder ni Supprimer.
+
+À 390 et à 360, le chutier est une feuille basse : au plus 55 % de la hauteur, une poignée, le lecteur reste visible au-dessus, une grille de deux colonnes, un bouton Fermer d’au moins 44 px. Les noms tiennent. La page du montage ne défile pas sur le côté.
 
 ## Captures
 
@@ -68,8 +76,9 @@ Fenêtres 1280×800 et 390×844. Montage aussi à 360 pour les libellés. Fichie
 
 ## Vérification
 
-- `npm test` : 286 tests passés, 1 ignoré, 0 échec (287 au total).
-- `npm run typecheck` et `npm run build` passent.
-- À 1280×800, la page du montage ne défile pas (`scrollHeight` 800). La timeline est dans la fenêtre. Le lecteur est le plus grand 16:9 du cadre : environ 525×296. Les contrôles et la barre du plan sont posés sur l’image, pour ne pas lui voler la hauteur.
-- Les libellés Médias, Voix, Effets, Musique tiennent en entier à 1280, 390 et 360 (`scrollWidth` égal à `clientWidth`).
-- Tenue montre Visage et Tenue. Élargir montre Lieu et la phrase entière, y compris à 390 où elle passe sur deux lignes. Raccord montre Début et Fin, avec la ligne qui dit que seul le plan à 4 crédits est mesuré.
+- `npm test` : 286 tests passés, 1 ignoré, 0 échec (287 au total). `npm run typecheck` et `npm run build` passent. 0 crédit Comfy.
+- À 1280×800, `scrollHeight` du montage est 800. La timeline finit dans la fenêtre. Le cadre du lecteur fait environ 1052×429, l’image 16:9 environ 759×427. La barre du plan est sous l’image (`top` 604, bas de l’image 595). Aucune phrase d’explication dans le lecteur.
+- Les libellés Médias, Voix, Effets, Musique tiennent en entier à 1280, 390 et 360 (`scrollWidth` égal à `clientWidth`). Les noms « Le quai, la nuit », « Sous la pluie », « Une pièce » et « Voix d’exemple » aussi.
+- Tenue : le champ Texte finit au-dessus du bloc Créer (bas du champ 543, haut du bloc 687). Le bouton dit « environ 12 crédits », et « Plafond 18, hypothèse. » est en dessous. Les quatre tuiles, dont « Voir un exemple », tiennent dans la colonne (bas 650, colonne 788).
+- Élargir : bouton « Créer le décor », sans prix, et la phrase entière sur la haute définition. Raccord : cases Début et Fin, et la ligne qui dit que seul le plan à 4 crédits est mesuré.
+- À 390, la feuille du chutier fait 447 px sur 844 (sous 55 %), le lecteur au-dessus reste large de 352 px, Fermer fait 44 px.

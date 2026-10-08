@@ -130,11 +130,9 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : missingTenue ? t("gestes.needOutfit") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
-  const cost = row.nature === "mesure" && amount !== null && high !== null
-    ? t("gestes.costMeasured", { amount, high })
-    : amount !== null && high !== null
-      ? t("gestes.cost", { amount, high })
-      : t("gestes.costUnknown");
+  const ceiling = amount !== null && high !== null
+    ? t(row.nature === "mesure" ? "create.ceilingMeasured" : "create.ceilingHyp", { high })
+    : "";
 
   async function loadExemple(geste: string) {
     const pair = EXEMPLE_PAR_GESTE[geste];
@@ -207,11 +205,11 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       </div>
     </div>
     <div className="u-create-bar">
-      <p className="u-cost is-ok">{cost}</p>
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
         <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
-          {t("create.castButton", { amount: amount ?? "—" })} <Arrow />
+          {amount !== null ? t("create.castButton", { amount }) : t("create.castButtonClosed")} <Arrow />
         </button>
+        {ceiling && <p className="u-ceiling">{ceiling}</p>}
         <Why on={blocked} id="u-why-cast" text={why} />
       </>}
     </div>
@@ -246,7 +244,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
-  const cost = amount !== null && high !== null ? t("gestes.cost", { amount, high }) : t("gestes.costUnknown");
+  const ceiling = amount !== null && high !== null ? t("create.ceilingHyp", { high }) : "";
 
   async function loadExemple(geste: string) {
     const pair = EXEMPLE_PAR_GESTE[geste];
@@ -307,11 +305,11 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       </div>
     </div>
     <div className="u-create-bar">
-      <p className="u-cost is-ok">{cost}</p>
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
         <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>
-          {t("create.decorButton", { amount: amount ?? "—" })} <Arrow />
+          {amount !== null ? t("create.decorButton", { amount }) : t("create.decorButtonClosed")} <Arrow />
         </button>
+        {ceiling && <p className="u-ceiling">{ceiling}</p>}
         <Why on={blocked} id="u-why-decor" text={why} />
       </>}
     </div>
@@ -397,14 +395,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <button type="button" className="u-primary" onClick={() => { if (run.code === "auth") { resetRun(); setSheet("connect"); } else resumeRun(); }}>{run.code === "auth" ? t("stage.connectComfy") : t("verb.resume")}</button>
     </div>}
     {run.phase === "idle" && <>
-    {gesteId !== "prise-plan" && row && <div className="u-desk-scroll">
-      <SlotBoard geste={row} refs={priseRefs} onChange={setPriseRefs} onGallery={() => setGalleryOpen(true)} />
-      <p className="u-cost">{row.credits !== null && row.high !== null ? t("gestes.cost", { amount: row.credits, high: row.high }) : t("gestes.costUnknown")}</p>
-      <div className="u-prise-go">
-        <button type="button" className="u-secondary" disabled aria-describedby="u-why-geste">{t("stage.generate")}</button>
-        <Why on id="u-why-geste" text={t(row.raison ?? "gestes.unwired")} />
-      </div>
-    </div>}
+    <div className="u-desk-scroll">
+    {gesteId !== "prise-plan" && row && <SlotBoard geste={row} refs={priseRefs} onChange={setPriseRefs} onGallery={() => setGalleryOpen(true)} />}
     {gesteId === "prise-plan" && <div className="u-prise-board">
       <div className="u-slot" data-slot="visage" onDragOver={event => event.preventDefault()} onDrop={event => dropOn("personnage", event)}>
         <p className="u-label">{t("refs.visage")}</p>
@@ -442,12 +434,18 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <span className="u-label">{t("stage.action")}</span>
         <textarea id="u-prise-phrase" value={line} rows={2} maxLength={240} placeholder={t("take.defaultLine")} onChange={event => setLine(event.target.value)} />
       </label>
-      <div className="u-prise-go u-create-bar">
-        <p className={`u-cost is-${price ? "ok" : "block"}`}>{price ?? t("stage.noQuote")}</p>
-        <button type="button" className="u-primary" data-prise-gold="" disabled={step !== "generate"} aria-describedby={step !== "generate" ? "u-why-prise" : undefined} onClick={press}>{price ? t("stage.generatePriced", { price }) : t("stage.generate")} <Arrow /></button>
-        <Why on={step !== "generate"} id="u-why-prise" text={missing} />
-        {step === "connect" && <button type="button" className="u-link" onClick={() => setSheet("connect")}>{t("stage.connectComfy")}</button>}
-      </div>
+    </div>}
+    </div>
+    {gesteId !== "prise-plan" && row && <div className="u-create-bar">
+      <button type="button" className="u-secondary" disabled aria-describedby="u-why-geste">{t("stage.generate")}</button>
+      {row.credits !== null && row.high !== null && <p className="u-ceiling">{t("create.ceilingHyp", { high: row.high })}</p>}
+      <Why on id="u-why-geste" text={t(row.raison ?? "gestes.unwired")} />
+    </div>}
+    {gesteId === "prise-plan" && <div className="u-create-bar">
+      <button type="button" className="u-primary" data-prise-gold="" disabled={step !== "generate"} aria-describedby={step !== "generate" ? "u-why-prise" : undefined} onClick={press}>{price ? t("stage.generatePriced", { price }) : t("stage.generate")} <Arrow /></button>
+      {takeQuote.source === "billed" && <p className="u-ceiling">{t("create.ceilingMeasured", { high: takeQuote.measure.creditsHigh })}</p>}
+      <Why on={step !== "generate"} id="u-why-prise" text={missing} />
+      {step === "connect" && <button type="button" className="u-link" onClick={() => setSheet("connect")}>{t("stage.connectComfy")}</button>}
     </div>}
     </>}
   </Desk>;
