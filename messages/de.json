@@ -902,6 +902,10 @@
     "name": "Name",
     "castButton": "Figur erstellen · etwa {amount} Credits",
     "decorButton": "Kulisse erstellen · etwa {amount} Credits",
+    "castButtonClosed": "Figur erstellen",
+    "decorButtonClosed": "Kulisse erstellen",
+    "ceilingHyp": "Deckel {high}, Annahme.",
+    "ceilingMeasured": "Deckel {high}, gemessen.",
     "confirmTitle": "Jetzt erstellen?",
     "confirmBody": "Die Kalkulation ist da. Ohne diese Geste geht nichts raus.",
     "estimate": "Etwa {amount} Credits, Obergrenze {high}, eine Annahme. Vor der Bestätigung wird nichts abgebucht.",
@@ -960,8 +964,14 @@
     "addVoice": "Eine Stimme hinzufügen",
     "addSfx": "Einen Soundeffekt hinzufügen",
     "needLink": "Verbinde dein Render-Konto, um zu erstellen.",
-    "voiceLead": "Eine Stimme aus einem Text. Die Kalkulation ist eine Hypothese. Nichts geht raus.",
-    "sfxLead": "Ein Soundeffekt aus einem Text. Die Kalkulation ist eine Hypothese. Nichts geht raus.",
+    "voiceLead": "Eine Stimme aus einem Text. Die Kalkulation ist eine Hypothese.",
+    "sfxLead": "Ein Soundeffekt aus einem Text. Die Kalkulation ist eine Hypothese.",
+    "musicLead": "Dreißig Sekunden Musik aus einem Text. Die Kalkulation ist eine Hypothese.",
+    "musicQuote": "Hypothese · etwa {amount} Credits für {seconds} Sekunden. Deckel {high}.",
+    "musicRate": "Hypothese · etwa 16 Credits für 30 Sekunden.",
+    "createMusic": "Musik erstellen",
+    "addMusic": "Musik hinzufügen",
+    "needScript": "Schreib den Text.",
     "voiceQuote": "Hypothese · etwa {amount} Credits für {count} Zeichen. Obergrenze {high}.",
     "voiceRate": "Hypothese · etwa 24,1 Credits für 1 000 Zeichen.",
     "sfxQuote": "Hypothese · etwa {amount} Credits für {seconds} Sekunden. Obergrenze {high}.",
@@ -1039,6 +1049,7 @@
     "more": "Weitere Gesten",
     "less": "Weniger Gesten",
     "soon": "Bald",
+    "soonQuiet": "Bald · {names}",
     "seeExample": "Ein Beispiel ansehen",
     "cost": "Etwa {amount} Credits, Deckel {high}. Annahme.",
     "costMeasured": "Etwa {amount} Credits, Deckel {high}. Gemessen.",
@@ -1047,6 +1058,27 @@
     "exampleSoon": "Beispiel folgt",
     "unwired": "Diese Geste ist noch nicht verbunden. Es geht nichts raus.",
     "needRefs": "Eine Referenz fehlt.",
+    "needOutfit": "Das Foto der Kleidung fehlt.",
+    "raisons": {
+      "castAngle": "Bald: der Preis ist noch nicht geprüft.",
+      "castExpression": "Bald: der Preis ist noch nicht geprüft.",
+      "castLight": "Bald: der Preis ist noch nicht geprüft.",
+      "castUpscale": "Bald: der Preis ist noch nicht geprüft.",
+      "castVolume": "Bald: der Preis ist noch nicht geprüft.",
+      "decorAngles": "Bald: der Preis ist noch nicht geprüft.",
+      "decorWiden": "Bald: der Preis ist noch nicht geprüft.",
+      "decorVolume": "Bald: der Preis ist noch nicht geprüft.",
+      "priseStill": "Bald: der Preis ist noch nicht geprüft.",
+      "priseBridge": "Bald: der Preis ist noch nicht geprüft.",
+      "priseExtend": "Bald: der Preis ist noch nicht geprüft.",
+      "priseCamera": "Bald: der Preis ist noch nicht geprüft.",
+      "priseMotion": "Bald: der Preis ist noch nicht geprüft.",
+      "priseLips": "Bald: der Preis ist noch nicht geprüft.",
+      "priseVidu": "Bald: der Preis ist noch nicht geprüft.",
+      "montLips": "Bald: der Preis ist noch nicht geprüft.",
+      "montUpscale": "Bald: der Preis ist noch nicht geprüft.",
+      "montFrames": "Bald: der Preis ist noch nicht geprüft."
+    },
     "cat": {
       "identite": "Identität",
       "apparence": "Aussehen",
@@ -1161,7 +1193,7 @@
     },
     "priseVidu": {
       "title": "Andere Referenz-Einstellung",
-      "phrase": "Eine Einstellung aus mehreren Bildern. Kosten nicht verbunden."
+      "phrase": "Eine Einstellung aus mehreren Bildern."
     },
     "montVoice": {
       "title": "Stimme",
@@ -1177,15 +1209,18 @@
     },
     "montLips": {
       "title": "Lippensynchron",
-      "phrase": "Der Mund folgt dem Ton."
+      "phrase": "Der Mund folgt dem Ton.",
+      "quiet": "Lippensynchron"
     },
     "montUpscale": {
       "title": "Video vergrößern",
-      "phrase": "Mehr Detail auf der Einstellung."
+      "phrase": "Mehr Detail auf der Einstellung.",
+      "quiet": "Vergrößern"
     },
     "montFrames": {
       "title": "Weicher",
-      "phrase": "Mehr Bilder zwischen den Bildern."
+      "phrase": "Mehr Bilder zwischen den Bildern.",
+      "quiet": "Weicher"
     }
   },
   "refs": {
@@ -1202,7 +1237,12 @@
     "visage": "Gesicht",
     "tenue": "Kleidung",
     "style": "Stil",
-    "lieu": "Ort"
+    "lieu": "Ort",
+    "debut": "Anfang",
+    "fin": "Ende",
+    "plan": "Plan",
+    "voix": "Stimme",
+    "clip": "Clip"
   },
   "assets": {
     "count": "{count} Assets",

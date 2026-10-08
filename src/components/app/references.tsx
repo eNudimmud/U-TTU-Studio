@@ -119,8 +119,14 @@ export function SlotBoard({ geste, refs, onChange, onGallery }: {
     setMenu(null);
   }
 
-  function addFile(caseId: string, role: RoleRef, file: File | undefined) {
-    if (!file || !file.type.startsWith("image/")) return;
+  function accepts(file: File, media: "image" | "video" | "audio") {
+    if (media === "video") return file.type.startsWith("video/");
+    if (media === "audio") return file.type.startsWith("audio/");
+    return file.type.startsWith("image/");
+  }
+
+  function addFile(caseId: string, role: RoleRef, media: "image" | "video" | "audio", file: File | undefined) {
+    if (!file || !accepts(file, media)) return;
     write(caseId, role, { name: file.name, url: URL.createObjectURL(file), file, assetId: null });
   }
 
@@ -128,8 +134,10 @@ export function SlotBoard({ geste, refs, onChange, onGallery }: {
     <div className="u-refslots">
       {cases.map(item => {
         const filled = refs.find(ref => ref.caseId === item.id) ?? null;
+        const media = item.media;
         const inputId = `${base}-${item.id}-file`;
         const cameraId = `${base}-${item.id}-cam`;
+        const accept = media === "video" ? "video/*" : media === "audio" ? "audio/*" : "image/*";
         return <div
           key={item.id}
           className="u-refslot"
@@ -143,19 +151,19 @@ export function SlotBoard({ geste, refs, onChange, onGallery }: {
               write(item.id, item.role, { name: asset.name, url: asset.url, file: null, assetId: asset.id });
               return;
             }
-            addFile(item.id, item.role, event.dataTransfer.files[0]);
+            addFile(item.id, item.role, media, event.dataTransfer.files[0]);
           }}
         >
-          {filled?.url ? <img src={filled.url} alt="" /> : <button type="button" className="u-refslot-add" aria-expanded={menu === item.id} aria-label={t(`refs.${item.role}`)} onClick={() => setMenu(current => current === item.id ? null : item.id)}>
+          {filled?.url && media === "video" ? <video src={filled.url} muted playsInline /> : filled?.url && media === "audio" ? <span className="u-refslot-audio">{filled.name}</span> : filled?.url ? <img src={filled.url} alt="" /> : <button type="button" className="u-refslot-add" aria-expanded={menu === item.id} aria-label={t(`refs.${item.role}`)} onClick={() => setMenu(current => current === item.id ? null : item.id)}>
             <Plus />
             <span>{t(`refs.${item.role}`)}</span>
           </button>}
           {filled && <button type="button" className="u-refslot-x" aria-label={t("refs.remove")} onClick={() => onChange(refs.filter(ref => ref.caseId !== item.id))}><Close /></button>}
           {!filled && menu === item.id && <div className="u-refslot-menu" role="menu">
             <label htmlFor={inputId}>{t("refs.drop")}</label>
-            <input id={inputId} className="sr-only" type="file" accept="image/*" onChange={event => { addFile(item.id, item.role, event.target.files?.[0]); event.target.value = ""; }} />
-            <label htmlFor={cameraId}>{t("refs.camera")}</label>
-            <input id={cameraId} className="sr-only" type="file" accept="image/*" capture="environment" onChange={event => { addFile(item.id, item.role, event.target.files?.[0]); event.target.value = ""; }} />
+            <input id={inputId} className="sr-only" type="file" accept={accept} onChange={event => { addFile(item.id, item.role, media, event.target.files?.[0]); event.target.value = ""; }} />
+            {media === "image" && <label htmlFor={cameraId}>{t("refs.camera")}</label>}
+            {media === "image" && <input id={cameraId} className="sr-only" type="file" accept="image/*" capture="environment" onChange={event => { addFile(item.id, item.role, media, event.target.files?.[0]); event.target.value = ""; }} />}
             <button type="button" onClick={() => { setMenu(null); onGallery?.(); }}>{t("refs.gallery")}</button>
           </div>}
         </div>;

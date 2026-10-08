@@ -54,9 +54,45 @@ describe("registre des gestes", () => {
     assert.ok(open.includes("cast-photos"));
     assert.ok(open.includes("decor-photo"));
     assert.ok(open.includes("prise-plan"));
+    assert.ok(open.includes("mont-voix"));
+    assert.ok(open.includes("mont-effet"));
+    assert.ok(open.includes("mont-musique"));
     assert.equal(open.includes("cast-angle"), false);
-    assert.equal(open.includes("mont-voix"), false);
+    assert.equal(open.includes("decor-elargir"), false);
+    assert.equal(open.includes("prise-raccord"), false);
     assert.equal(open.includes("prise-vidu"), false);
+    assert.equal(open.includes("mont-agrandir"), false);
+  });
+
+  it("shows the measured sheet price and a required outfit slot", () => {
+    const sheet = REGISTRE.find(item => item.id === "cast-planche");
+    assert.ok(sheet);
+    assert.equal(sheet.credits, 71);
+    assert.equal(sheet.high, 100);
+    assert.equal(sheet.nature, "mesure");
+    const wardrobe = REGISTRE.find(item => item.id === "cast-tenue");
+    assert.ok(wardrobe);
+    assert.equal(wardrobe.minRefs, 2);
+    assert.deepEqual(casesVisibles(wardrobe).map(item => item.role), ["visage", "tenue"]);
+    const bridge = REGISTRE.find(item => item.id === "prise-raccord");
+    assert.ok(bridge);
+    assert.deepEqual(casesVisibles(bridge).map(item => item.role), ["debut", "fin"]);
+  });
+
+  it("keeps an unpriced gesture closed with a one-line reason", () => {
+    const fr = JSON.parse(readFileSync("messages/fr.json", "utf8")) as { gestes: { raisons: Record<string, string> } };
+    for (const row of REGISTRE) {
+      if (gesteOuvert(row)) {
+        assert.equal(row.raison, undefined, row.id);
+        continue;
+      }
+      assert.equal(typeof row.raison, "string", row.id);
+      const key = row.raison?.split(".").pop() ?? "";
+      const line = fr.gestes.raisons[key];
+      assert.equal(typeof line, "string", row.id);
+      assert.ok(line.length > 12 && line.length < 120, line);
+      assert.doesNotMatch(line, /nœud|Comfy|LivePortrait|SeedVR|ControlNet|LTX|Wan|Vidu|MiniMax|4K/i);
+    }
   });
 
   it("sends a second photo to the second image slot", () => {

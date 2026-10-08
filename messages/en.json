@@ -902,6 +902,10 @@
     "name": "Name",
     "castButton": "Create the character · about {amount} credits",
     "decorButton": "Create the set · about {amount} credits",
+    "castButtonClosed": "Create the character",
+    "decorButtonClosed": "Create the set",
+    "ceilingHyp": "Ceiling {high}, hypothesis.",
+    "ceilingMeasured": "Ceiling {high}, measured.",
     "confirmTitle": "Create now?",
     "confirmBody": "The quote is here. Nothing leaves without this gesture.",
     "estimate": "About {amount} credits, ceiling {high}, a hypothesis. Nothing is charged before you confirm.",
@@ -960,8 +964,14 @@
     "addVoice": "Add a voice",
     "addSfx": "Add a sound effect",
     "needLink": "Link your render account to create.",
-    "voiceLead": "A voice, from a text. The quote is a hypothesis. Nothing is sent.",
-    "sfxLead": "A sound effect, from a text. The quote is a hypothesis. Nothing is sent.",
+    "voiceLead": "A voice from a text. The quote is a hypothesis.",
+    "sfxLead": "A sound effect from a text. The quote is a hypothesis.",
+    "musicLead": "Thirty seconds of music from a text. The quote is a hypothesis.",
+    "musicQuote": "Hypothesis · about {amount} credits for {seconds} seconds. Ceiling {high}.",
+    "musicRate": "Hypothesis · about 16 credits for 30 seconds.",
+    "createMusic": "Create the music",
+    "addMusic": "Add music",
+    "needScript": "Write the text.",
     "voiceQuote": "Hypothesis · about {amount} credits for {count} characters. Ceiling {high}.",
     "voiceRate": "Hypothesis · about 24.1 credits per 1,000 characters.",
     "sfxQuote": "Hypothesis · about {amount} credits for {seconds} seconds. Ceiling {high}.",
@@ -1039,6 +1049,7 @@
     "more": "More gestures",
     "less": "Fewer gestures",
     "soon": "Soon",
+    "soonQuiet": "Soon · {names}",
     "seeExample": "See an example",
     "cost": "About {amount} credits, ceiling {high}. Hypothesis.",
     "costMeasured": "About {amount} credits, ceiling {high}. Measured.",
@@ -1047,6 +1058,27 @@
     "exampleSoon": "Example coming",
     "unwired": "This gesture is not wired yet. Nothing is sent.",
     "needRefs": "A reference is missing.",
+    "needOutfit": "The outfit photo is missing.",
+    "raisons": {
+      "castAngle": "Soon: the price is not checked yet.",
+      "castExpression": "Soon: the price is not checked yet.",
+      "castLight": "Soon: the price is not checked yet.",
+      "castUpscale": "Soon: the price is not checked yet.",
+      "castVolume": "Soon: the price is not checked yet.",
+      "decorAngles": "Soon: the price is not checked yet.",
+      "decorWiden": "Soon: the price is not checked yet.",
+      "decorVolume": "Soon: the price is not checked yet.",
+      "priseStill": "Soon: the price is not checked yet.",
+      "priseBridge": "Soon: the price is not checked yet.",
+      "priseExtend": "Soon: the price is not checked yet.",
+      "priseCamera": "Soon: the price is not checked yet.",
+      "priseMotion": "Soon: the price is not checked yet.",
+      "priseLips": "Soon: the price is not checked yet.",
+      "priseVidu": "Soon: the price is not checked yet.",
+      "montLips": "Soon: the price is not checked yet.",
+      "montUpscale": "Soon: the price is not checked yet.",
+      "montFrames": "Soon: the price is not checked yet."
+    },
     "cat": {
       "identite": "Identity",
       "apparence": "Look",
@@ -1161,7 +1193,7 @@
     },
     "priseVidu": {
       "title": "Another reference shot",
-      "phrase": "A shot from several pictures. Cost not wired."
+      "phrase": "A shot from several pictures."
     },
     "montVoice": {
       "title": "Voice",
@@ -1177,15 +1209,18 @@
     },
     "montLips": {
       "title": "Lip sync",
-      "phrase": "The mouth follows the sound."
+      "phrase": "The mouth follows the sound.",
+      "quiet": "Lip sync"
     },
     "montUpscale": {
       "title": "Enlarge the video",
-      "phrase": "More detail on the shot."
+      "phrase": "More detail on the shot.",
+      "quiet": "Enlarge"
     },
     "montFrames": {
       "title": "Smooth",
-      "phrase": "More frames between the frames."
+      "phrase": "More frames between the frames.",
+      "quiet": "Smooth"
     }
   },
   "refs": {
@@ -1202,7 +1237,12 @@
     "visage": "Face",
     "tenue": "Outfit",
     "style": "Style",
-    "lieu": "Place"
+    "lieu": "Place",
+    "debut": "Start",
+    "fin": "End",
+    "plan": "Shot",
+    "voix": "Voice",
+    "clip": "Clip"
   },
   "assets": {
     "count": "{count} assets",

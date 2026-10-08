@@ -2,6 +2,19 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
 
+## Gestes R5 — 8 octobre 2026
+
+Le détail est dans `docs/RAPPORT-R5.md`. Rien n’est mergé.
+
+- **Fait :** la planche `templates-character_sheet` a coûté 70,74 crédits (35,41 + 35,33, deux `GeminiImage2` en 2K). L’écran montre environ 71, plafond 100. Le graphe du studio envoie ces deux images en 2K.
+- **Fait :** Tenue exige la photo de visage et la photo de tenue. Les cases s’appellent Visage et Tenue.
+- **Fait :** Voix, effet et musique ont un graphe sur les nœuds payants des templates officiels. Les devis restent les hypothèses de la note de chaîne. Créer part après la feuille, sur le compte du visiteur.
+- **Fait :** Élargir (`template_sirolim_any_aspect_ratio_nb2`) appelle `GeminiNanoBanana2` en 4K. Ce palier n’est pas mesuré. Le geste reste sous Bientôt. La case est Lieu.
+- **Fait :** Angles, expression, raccord, prolonger, caméra, lèvres et agrandir la vidéo restent sous Bientôt. Leurs templates officiels n’ont pas de nœud payant chiffré, ou ne sont pas le profil mesuré à 4 crédits. Chaque carte porte une ligne.
+- **Décision :** quatre gestes ouverts au plus dans la colonne. Le reste est groupé. Bientôt ne montre pas un mur.
+- **Décision :** à 1280×800, le lecteur du montage est le plus grand 16:9 qui tient au-dessus de la timeline. La timeline reste dans la fenêtre. Les onglets Médias, Voix, Effets, Musique tiennent en entier, y compris à 390 et 360.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés.
+
 ## Bureau de studio — 8 octobre 2026
 
 Suite visuelle, même branche, toujours brouillon. Le registre, les références et la galerie restent. La page n’est plus un déroulé de cartes de texte.

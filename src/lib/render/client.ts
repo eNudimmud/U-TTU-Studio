@@ -67,6 +67,7 @@ export function jobStage(status: string): JobStage {
 
 const VIDEO_FILE = /\.(mp4|webm|mov|mkv)$/i;
 const IMAGE_FILE = /\.(png|jpe?g|webp)$/i;
+const AUDIO_FILE = /\.(mp3|wav|ogg|m4a|flac|opus)$/i;
 
 /** The first video a job saved. SaveVideo reports it under `images`, `video` or `gifs`. */
 export function videoOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
@@ -89,6 +90,29 @@ export function videoOutput(outputs: Record<string, unknown> | undefined): Outpu
     }
   }
   return files.find(file => VIDEO_FILE.test(file.filename)) ?? null;
+}
+
+/** The first audio file a job saved. */
+export function audioOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
+  if (!outputs || typeof outputs !== "object") return null;
+  const files: OutputRef[] = [];
+  for (const node of Object.values(outputs)) {
+    if (!node || typeof node !== "object") continue;
+    for (const list of Object.values(node as Record<string, unknown>)) {
+      if (!Array.isArray(list)) continue;
+      for (const item of list) {
+        if (!item || typeof item !== "object") continue;
+        const row = item as Record<string, unknown>;
+        if (typeof row.filename !== "string" || !row.filename) continue;
+        files.push({
+          filename: row.filename,
+          subfolder: typeof row.subfolder === "string" ? row.subfolder : "",
+          type: typeof row.type === "string" ? row.type : "output",
+        });
+      }
+    }
+  }
+  return files.find(file => AUDIO_FILE.test(file.filename)) ?? null;
 }
 
 /** The first still a job saved. SaveImage reports it under `images`. */

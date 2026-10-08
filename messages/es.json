@@ -902,6 +902,10 @@
     "name": "Nombre",
     "castButton": "Crear el personaje · unos {amount} créditos",
     "decorButton": "Crear el decorado · unos {amount} créditos",
+    "castButtonClosed": "Crear el personaje",
+    "decorButtonClosed": "Crear el decorado",
+    "ceilingHyp": "Tope {high}, hipótesis.",
+    "ceilingMeasured": "Tope {high}, medido.",
     "confirmTitle": "¿Crear ahora?",
     "confirmBody": "El presupuesto está aquí. Nada sale sin este gesto.",
     "estimate": "Unos {amount} créditos, techo {high}, una hipótesis. No se cobra antes de confirmar.",
@@ -960,8 +964,14 @@
     "addVoice": "Añadir una voz",
     "addSfx": "Añadir un efecto de sonido",
     "needLink": "Vincula tu cuenta de render para crear.",
-    "voiceLead": "Una voz, a partir de un texto. El presupuesto es una hipótesis. No sale nada.",
-    "sfxLead": "Un efecto de sonido, a partir de un texto. El presupuesto es una hipótesis. No sale nada.",
+    "voiceLead": "Una voz a partir de un texto. El presupuesto es una hipótesis.",
+    "sfxLead": "Un efecto de sonido a partir de un texto. El presupuesto es una hipótesis.",
+    "musicLead": "Treinta segundos de música a partir de un texto. El presupuesto es una hipótesis.",
+    "musicQuote": "Hipótesis · unos {amount} créditos para {seconds} segundos. Techo {high}.",
+    "musicRate": "Hipótesis · unos 16 créditos para 30 segundos.",
+    "createMusic": "Crear la música",
+    "addMusic": "Añadir música",
+    "needScript": "Escribe el texto.",
     "voiceQuote": "Hipótesis · unos {amount} créditos para {count} caracteres. Techo {high}.",
     "voiceRate": "Hipótesis · unos 24,1 créditos por 1 000 caracteres.",
     "sfxQuote": "Hipótesis · unos {amount} créditos para {seconds} segundos. Techo {high}.",
@@ -1039,6 +1049,7 @@
     "more": "Más gestos",
     "less": "Menos gestos",
     "soon": "Pronto",
+    "soonQuiet": "Pronto · {names}",
     "seeExample": "Ver un ejemplo",
     "cost": "Unos {amount} créditos, tope {high}. Hipótesis.",
     "costMeasured": "Unos {amount} créditos, tope {high}. Medido.",
@@ -1047,6 +1058,27 @@
     "exampleSoon": "Ejemplo por llegar",
     "unwired": "Este gesto aún no está conectado. No sale nada.",
     "needRefs": "No hay referencia.",
+    "needOutfit": "La foto de la ropa no está.",
+    "raisons": {
+      "castAngle": "Pronto: el precio aún no está comprobado.",
+      "castExpression": "Pronto: el precio aún no está comprobado.",
+      "castLight": "Pronto: el precio aún no está comprobado.",
+      "castUpscale": "Pronto: el precio aún no está comprobado.",
+      "castVolume": "Pronto: el precio aún no está comprobado.",
+      "decorAngles": "Pronto: el precio aún no está comprobado.",
+      "decorWiden": "Pronto: el precio aún no está comprobado.",
+      "decorVolume": "Pronto: el precio aún no está comprobado.",
+      "priseStill": "Pronto: el precio aún no está comprobado.",
+      "priseBridge": "Pronto: el precio aún no está comprobado.",
+      "priseExtend": "Pronto: el precio aún no está comprobado.",
+      "priseCamera": "Pronto: el precio aún no está comprobado.",
+      "priseMotion": "Pronto: el precio aún no está comprobado.",
+      "priseLips": "Pronto: el precio aún no está comprobado.",
+      "priseVidu": "Pronto: el precio aún no está comprobado.",
+      "montLips": "Pronto: el precio aún no está comprobado.",
+      "montUpscale": "Pronto: el precio aún no está comprobado.",
+      "montFrames": "Pronto: el precio aún no está comprobado."
+    },
     "cat": {
       "identite": "Identidad",
       "apparence": "Apariencia",
@@ -1161,7 +1193,7 @@
     },
     "priseVidu": {
       "title": "Otro plano, referencias",
-      "phrase": "Un plano desde varias imágenes. Coste no conectado."
+      "phrase": "Un plano desde varias imágenes."
     },
     "montVoice": {
       "title": "Voz",
@@ -1177,15 +1209,18 @@
     },
     "montLips": {
       "title": "Sincro labial",
-      "phrase": "La boca sigue el sonido."
+      "phrase": "La boca sigue el sonido.",
+      "quiet": "Sincro labial"
     },
     "montUpscale": {
       "title": "Ampliar el vídeo",
-      "phrase": "Más detalle en el plano."
+      "phrase": "Más detalle en el plano.",
+      "quiet": "Ampliar"
     },
     "montFrames": {
       "title": "Suavizar",
-      "phrase": "Más imágenes entre las imágenes."
+      "phrase": "Más imágenes entre las imágenes.",
+      "quiet": "Suavizar"
     }
   },
   "refs": {
@@ -1202,7 +1237,12 @@
     "visage": "Rostro",
     "tenue": "Ropa",
     "style": "Estilo",
-    "lieu": "Lugar"
+    "lieu": "Lugar",
+    "debut": "Inicio",
+    "fin": "Fin",
+    "plan": "Plano",
+    "voix": "Voz",
+    "clip": "Clip"
   },
   "assets": {
     "count": "{count} assets",

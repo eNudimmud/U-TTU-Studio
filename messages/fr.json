@@ -902,6 +902,10 @@
     "name": "Nom",
     "castButton": "Créer le personnage · environ {amount} crédits",
     "decorButton": "Créer le décor · environ {amount} crédits",
+    "castButtonClosed": "Créer le personnage",
+    "decorButtonClosed": "Créer le décor",
+    "ceilingHyp": "Plafond {high}, hypothèse.",
+    "ceilingMeasured": "Plafond {high}, mesuré.",
     "confirmTitle": "Créer maintenant ?",
     "confirmBody": "Le devis est là. Rien ne part sans ce geste.",
     "estimate": "Environ {amount} crédits, plafond {high}, hypothèse. Rien n’est débité avant confirmation.",
@@ -960,8 +964,14 @@
     "addVoice": "Ajouter une voix",
     "addSfx": "Ajouter un effet sonore",
     "needLink": "Relie ton compte de rendu pour créer.",
-    "voiceLead": "Une voix, à partir d’un texte. Le devis est une hypothèse. Rien ne part.",
-    "sfxLead": "Un effet sonore, à partir d’un texte. Le devis est une hypothèse. Rien ne part.",
+    "voiceLead": "Une voix à partir d’un texte. Le devis est une hypothèse.",
+    "sfxLead": "Un effet sonore à partir d’un texte. Le devis est une hypothèse.",
+    "musicLead": "Une musique de 30 secondes à partir d’un texte. Le devis est une hypothèse.",
+    "musicQuote": "Hypothèse · environ {amount} crédits pour {seconds} secondes. Plafond {high}.",
+    "musicRate": "Hypothèse · environ 16 crédits pour 30 secondes.",
+    "createMusic": "Créer la musique",
+    "addMusic": "Ajouter une musique",
+    "needScript": "Écris le texte.",
     "voiceQuote": "Hypothèse · environ {amount} crédits pour {count} caractères. Plafond {high}.",
     "voiceRate": "Hypothèse · environ 24,1 crédits pour 1 000 caractères.",
     "sfxQuote": "Hypothèse · environ {amount} crédits pour {seconds} secondes. Plafond {high}.",
@@ -1039,6 +1049,7 @@
     "more": "Plus de gestes",
     "less": "Moins de gestes",
     "soon": "Bientôt",
+    "soonQuiet": "Bientôt · {names}",
     "seeExample": "Voir un exemple",
     "cost": "Environ {amount} crédits, plafond {high}. Hypothèse.",
     "costMeasured": "Environ {amount} crédits, plafond {high}. Mesuré.",
@@ -1047,6 +1058,27 @@
     "exampleSoon": "Exemple à venir",
     "unwired": "Ce geste n’est pas encore branché. Rien ne part.",
     "needRefs": "Il manque une référence.",
+    "needOutfit": "Il manque la photo de tenue.",
+    "raisons": {
+      "castAngle": "Bientôt : prix pas encore vérifié.",
+      "castExpression": "Bientôt : prix pas encore vérifié.",
+      "castLight": "Bientôt : prix pas encore vérifié.",
+      "castUpscale": "Bientôt : prix pas encore vérifié.",
+      "castVolume": "Bientôt : prix pas encore vérifié.",
+      "decorAngles": "Bientôt : prix pas encore vérifié.",
+      "decorWiden": "Bientôt : prix pas encore vérifié.",
+      "decorVolume": "Bientôt : prix pas encore vérifié.",
+      "priseStill": "Bientôt : prix pas encore vérifié.",
+      "priseBridge": "Bientôt : prix pas encore vérifié.",
+      "priseExtend": "Bientôt : prix pas encore vérifié.",
+      "priseCamera": "Bientôt : prix pas encore vérifié.",
+      "priseMotion": "Bientôt : prix pas encore vérifié.",
+      "priseLips": "Bientôt : prix pas encore vérifié.",
+      "priseVidu": "Bientôt : prix pas encore vérifié.",
+      "montLips": "Bientôt : prix pas encore vérifié.",
+      "montUpscale": "Bientôt : prix pas encore vérifié.",
+      "montFrames": "Bientôt : prix pas encore vérifié."
+    },
     "cat": {
       "identite": "Identité",
       "apparence": "Apparence",
@@ -1161,7 +1193,7 @@
     },
     "priseVidu": {
       "title": "Autre plan, références",
-      "phrase": "Un plan à partir de plusieurs images. Coût non branché."
+      "phrase": "Un plan à partir de plusieurs images."
     },
     "montVoice": {
       "title": "Voix",
@@ -1177,15 +1209,18 @@
     },
     "montLips": {
       "title": "Synchro labiale",
-      "phrase": "La bouche suit le son."
+      "phrase": "La bouche suit le son.",
+      "quiet": "Synchro labiale"
     },
     "montUpscale": {
       "title": "Agrandir la vidéo",
-      "phrase": "Plus de détail sur le plan."
+      "phrase": "Plus de détail sur le plan.",
+      "quiet": "Agrandir"
     },
     "montFrames": {
       "title": "Fluidifier",
-      "phrase": "Plus d’images entre les images."
+      "phrase": "Plus d’images entre les images.",
+      "quiet": "Fluidifier"
     }
   },
   "refs": {
@@ -1202,7 +1237,12 @@
     "visage": "Visage",
     "tenue": "Tenue",
     "style": "Style",
-    "lieu": "Lieu"
+    "lieu": "Lieu",
+    "debut": "Début",
+    "fin": "Fin",
+    "plan": "Plan",
+    "voix": "Voix",
+    "clip": "Clip"
   },
   "assets": {
     "count": "{count} assets",
