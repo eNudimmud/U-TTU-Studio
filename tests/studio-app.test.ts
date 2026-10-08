@@ -142,7 +142,9 @@ describe("le studio, une app", () => {
     const look = photos.slice(photos.indexOf("export function LookScreen"), photos.indexOf("function clock"));
     assert.match(look, /t\("look\.lead"/);
     assert.ok(catalog.includes("Pas de formation."));
-    assert.equal(look.match(/u-primary/g)?.length, 1);
+    // F32: the gold button lives in LookForm so Enter in the name submits it, and the desktop grid stays two columns.
+    assert.match(look, /<LookForm /);
+    assert.equal(read("src/components/app/look-form.tsx").match(/u-primary/g)?.length, 1);
     assert.doesNotMatch(chain, /onTrain/);
     assert.match(read("src/components/app/look-form.tsx"), /t\("look\.reset"\)/);
     assert.match(sceneScreen, /t\("scene\.reset"\)/);

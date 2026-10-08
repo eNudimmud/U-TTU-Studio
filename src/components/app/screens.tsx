@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { costLabel, lookCheck } from "@/lib/coffre/model";
+import { phraseKeyAction } from "@/lib/ergonomie";
 import { briefAction, castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, weaveBrief, WIRED_ENGINES } from "@/lib/studio-comfort";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
@@ -13,7 +14,7 @@ import { OutgoingTake, OutgoingTakeFull } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { Arrow, Web } from "./glyphs";
-import { completeLook, LookFields } from "./look-form";
+import { LookForm } from "./look-form";
 import { Segments } from "./slots";
 import { PublishActions } from "./publish";
 import { TakeCostLines } from "./take-cost";
@@ -26,9 +27,7 @@ function ChainButton({ onClick, children }: { onClick(): void; children: ReactNo
 }
 
 export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void }) {
-  const { studio } = useStudio();
   const { t } = useI18n();
-  const check = lookCheck(studio.look);
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">{t("look.kicker")}</p>
@@ -37,8 +36,7 @@ export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void 
       <button type="button" className="u-link" onClick={onBack}>{t("verb.bothWays")}</button>
     </header>
     <div className="u-desk">
-      <LookFields />
-      <button type="button" className="u-primary" onClick={() => completeLook(check, onNext)}>{check.ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>
+      <LookForm onReady={onNext} />
     </div>
   </section>;
 }
@@ -160,6 +158,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
   const scenePicture = scene?.render ?? scene?.stills[0];
   const result = run.phase === "done" ? studio.studio.takes.find(take => take.id === run.takeId) : undefined;
   const video = useRef<HTMLVideoElement>(null);
+  const phrase = useRef<HTMLTextAreaElement>(null);
   const resultCard = useRef<HTMLDivElement>(null);
   const resultId = result?.id;
 
@@ -170,13 +169,13 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
     video.current?.play().catch(() => {});
   }, [resultId]);
 
-  const writtenLine = t("take.actionPlaceholder");
+  const writtenLine = t("take.defaultLine");
   useEffect(() => {
-    let stored: string | null = null;
-    try { stored = localStorage.getItem("u-ttu-plan"); } catch { return; }
-    if (stored !== null) return;
-    setLine(writtenLine);
-  }, [setLine, writtenLine]);
+    const el = phrase.current;
+    if (!el) return;
+    el.style.height = "44px";
+    el.style.height = `${Math.max(44, el.scrollHeight)}px`;
+  }, [line]);
 
   const hasCharacter = Boolean(chosenLora);
   const gaps = priseGaps({ lookReady: check.ready, hasScene: Boolean(scene), engine, hasCharacter });
@@ -232,6 +231,11 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
     else if (id === "relier") setSheet("relier");
   }
 
+  function pressGold() {
+    if (action.id === "tourner") void requestRun();
+    else if (action.id !== "bloque") jump(action.id);
+  }
+
   const gapCopy = {
     photos: [t("take.gapPhotos"), t("verb.holdPhotos")],
     scene: [t("take.gapScene"), t("verb.setScene")],
@@ -272,6 +276,8 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
 
     {run.phase === "done" && result && media[result.video] && <div ref={resultCard} className="u-card u-result">
       <p className="u-label">{t("job.done")}</p>
+      <ChainButton onClick={() => void studio.poseTake(result.id, { sequence: t("sequence.defaultName"), shot: t("shot.defaultName") })}>{t("take.pose")} <Arrow /></ChainButton>
+      <p className="u-small">{t("take.poseHint")}</p>
       <video ref={video} src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted loop playsInline preload="auto" className={`is-${result.settings.aspect}`} />
       <p className="u-small">{t("take.inSphere")}</p>
       <TakeCostLines take={result} gateLine={gate.line} />
@@ -279,8 +285,6 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         ? (result.costUsd !== null ? t("take.debitedFal", { amount: formatUsd(result.costUsd) }) : t("take.debitHiddenFal"))
         : (result.costCredits !== null ? t("take.debitedRender", { amount: formatCredits(result.costCredits) }) : t("take.debitHiddenRender"))}{result.gpuSeconds !== null ? t("take.calc", { clock: clock(result.gpuSeconds) }) : ""}</p>
       <PublishActions take={result} />
-      <ChainButton onClick={() => void studio.poseTake(result.id, { sequence: t("sequence.defaultName"), shot: t("shot.defaultName") })}>{t("take.pose")} <Arrow /></ChainButton>
-      <p className="u-small">{t("take.poseHint")}</p>
       {studio.studio.sequences.filter(sequence => sequence.links.some(link => link.takeId === result.id)).map(sequence => <button key={sequence.id} type="button" className="u-link" onClick={() => setSheet({ sequence: sequence.id })}>{t("sequence.inSequence", { name: sequence.name || t("common.unnamed") })}</button>)}
       {studio.studio.shots.filter(shot => shot.takeIds.includes(result.id)).map(shot => <button key={shot.id} type="button" className="u-link" onClick={() => setSheet({ shot: shot.id })}>{t("shot.inShot", { name: shot.name || t("common.unnamed") })}</button>)}
       <div className="u-row">
@@ -304,7 +308,12 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
     <div className="u-prise-confirm" aria-label={t("take.before")}>
       <label className="u-field">
         <span className="u-label">{t("take.action")}</span>
-        <textarea value={line} rows={1} maxLength={240} placeholder={t("take.actionPlaceholder")} onChange={event => setLine(event.target.value)} />
+        <textarea id="u-prise-phrase" ref={phrase} value={line} rows={1} maxLength={240} placeholder={t("take.actionPlaceholder")} enterKeyHint="enter" onChange={event => setLine(event.target.value)} onKeyDown={event => {
+          if (phraseKeyAction(event, window.matchMedia("(pointer: coarse)").matches) !== "submit") return;
+          event.preventDefault();
+          event.stopPropagation();
+          pressGold();
+        }} />
       </label>
       <OutgoingTake clamp />
       <p className={`u-cost is-${quoteTone}`}>
@@ -312,11 +321,8 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         {quoteText}
       </p>
       {hint && action.id !== "bloque" && <p className="u-small u-comfort-hint">{hint}</p>}
-      <button type="button" className="u-primary" data-prise-gold="" disabled={action.id === "bloque"} onClick={() => {
-        if (action.id === "tourner") void requestRun();
-        else if (action.id !== "bloque") jump(action.id);
-      }}>{actionLabel} <Arrow /></button>
-      <Why on={action.id === "bloque"} text={t("why.hold")} />
+      <button type="button" className="u-primary" data-prise-gold="" disabled={action.id === "bloque"} aria-describedby={action.id === "bloque" ? "u-why-prise" : undefined} onClick={pressGold}>{actionLabel} <Arrow /></button>
+      <Why on={action.id === "bloque"} id="u-why-prise" text={t("why.hold")} />
     </div>
     <div className="u-comfort" aria-label={t("take.adjust")}>
       <div className="u-comfort-work">
@@ -392,8 +398,8 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         <figure>{scenePicture && scene && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene ? (scene.render ? t("take.filmedStill") : scene.name) : t("take.examplePlace", { place: SAMPLE_TAKE.place })}</figcaption></figure>
       </div>
       <p className="u-small">{t("take.written")}</p>
-      <button type="button" className="u-link u-muted" disabled={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={() => { resetTake(); setLine(writtenLine); }}>{t("take.resetPlan")}</button>
-      <Why on={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} text={t("why.planFresh")} />
+      <button type="button" className="u-link u-muted" disabled={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} aria-describedby={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical" ? "u-why-prise-reset" : undefined} onClick={() => resetTake()}>{t("take.resetPlan")}</button>
+      <Why on={line.trim() === writtenLine.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} id="u-why-prise-reset" text={t("why.planFresh")} />
       <div className="u-next" aria-label={t("take.nextLabel")}>
         <p className="u-small">{t("take.next")}</p>
       </div>

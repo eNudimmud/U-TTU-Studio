@@ -57,7 +57,11 @@ describe("coffre en markdown", () => {
     assert.deepEqual(parseCanon(text), look);
     assert.deepEqual(lookCheck(look), { ready: true, photos: true, name: true, traits: true });
     assert.equal(lookCheck({ ...look, photos: ["refs/a.jpg"] }).ready, false);
-    assert.equal(lookCheck({ ...look, traits: ["yeux verts"] }).ready, false);
+    // F32: two traits stay visible and do not block. Photos and a name are enough. Nothing is invented in their place.
+    assert.equal(lookCheck({ ...look, traits: ["yeux verts"] }).traits, false);
+    assert.equal(lookCheck({ ...look, traits: ["yeux verts"] }).ready, true);
+    assert.equal(lookCheck({ ...look, traits: [] }).ready, true);
+    assert.equal(lookCheck({ ...look, name: "" }).ready, false);
     assert.deepEqual(parseTraits("yeux verts, Yeux verts ; cicatrice\n"), ["yeux verts", "cicatrice"]);
     assert.equal(cleanTraits(Array.from({ length: 12 }, (_, index) => `trait ${index}`)).length, 8);
   });

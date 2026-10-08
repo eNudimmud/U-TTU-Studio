@@ -15,7 +15,8 @@ import { FalError, createFalClient, type FalClient, type FalHandle, type FalPric
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
 import { LORA_TAKE, LORA_TRAINER, PLACE_SCENE, PLACE_TRAINER, loraTakeQuote, placeSceneQuote, placeTrainQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
 import { reduceConnect } from "@/lib/link-epoch";
-import { posePlan } from "@/lib/ergonomie";
+import { keepLineBreaks, posePlan } from "@/lib/ergonomie";
+import { useI18n } from "@/components/i18n/provider";
 import { castFile, pickEngine } from "@/lib/studio-comfort";
 import { CLIPS_MAX, clipFormat, clipProblem, datasetCheck, type Clip, type DatasetCheck, type TrainingAspect } from "@/lib/lora/dataset";
 import {
@@ -387,6 +388,7 @@ export function useStudio(): StudioValue {
 }
 
 export function StudioProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
   const folderRef = useRef<DirectoryHandle | null>(null);
   const storeRef = useRef<VaultStore | null>(null);
   const mediaRef = useRef<Record<string, string>>({});
@@ -404,7 +406,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [studio, setStudioState] = useState<Studio>(emptyStudio());
   const [media, setMedia] = useState<Record<string, string>>({});
-  const [line, setLineState] = useState("");
+  const [ownLine, setOwnLine] = useState("");
+  const [lineSource, setLineSource] = useState<"pending" | "offer" | "own">("pending");
+  const line = lineSource === "offer" ? t("take.defaultLine") : ownLine;
   const [settings, setSettingsState] = useState<TakeSettings>(DEFAULT_TAKE);
   const [link, setLink] = useState<RenderLink>({ mode: "none" });
   const [connected, setConnected] = useState(false);
@@ -575,7 +579,14 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     (async () => {
       setGuide(readGuide(localStorage));
       setSettingsState(readSettings());
-      setLineState(localStorage.getItem(LINE_KEY) ?? "");
+      const storedLine = localStorage.getItem(LINE_KEY);
+      if (storedLine === null) {
+        setOwnLine("");
+        setLineSource("offer");
+      } else {
+        setOwnLine(storedLine);
+        setLineSource("own");
+      }
       setLink(readRenderLink(localStorage));
       const storedFal = readFalKey(localStorage);
       setFalKey(storedFal);
@@ -903,8 +914,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [dropMedia, saveScene, store]);
 
   const setLine = useCallback((value: string) => {
-    const next = value.replace(/[\r\n]+/g, " ").slice(0, 240);
-    setLineState(next);
+    const next = keepLineBreaks(value);
+    setOwnLine(next);
+    setLineSource("own");
     try { localStorage.setItem(LINE_KEY, next); } catch {}
   }, []);
 
@@ -918,9 +930,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const resetTake = useCallback(() => {
     if (run.phase !== "idle") return;
-    setLine("");
+    setOwnLine("");
+    setLineSource("offer");
+    try { localStorage.removeItem(LINE_KEY); } catch {}
     setSettings(DEFAULT_TAKE);
-  }, [run.phase, setLine, setSettings]);
+  }, [run.phase, setSettings]);
 
   const syncMontages = useCallback(async (ids: Iterable<string | null | undefined>) => {
     const { writeMontage, removeMontage } = await import("@/lib/coffre/montage");

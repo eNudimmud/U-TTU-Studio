@@ -77,7 +77,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
         {showNew && <form id="u-lieu-form" className="u-new" onSubmit={add}>
           <label className="u-field">
             <span className="u-label">{t("scene.new")}</span>
-            <input id="u-lieu" value={draft} maxLength={40} placeholder={t("scene.placeholder")} onChange={event => setDraft(event.target.value)} autoFocus={adding} />
+            <input id="u-lieu" value={draft} maxLength={40} placeholder={t("scene.placeholder")} enterKeyHint="go" onChange={event => setDraft(event.target.value)} autoFocus={adding} />
           </label>
         </form>}
       </div>
@@ -96,10 +96,12 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
               type={posing ? "submit" : "button"}
               form={posing ? "u-lieu-form" : undefined}
               className="u-primary"
+              data-lieu-gold=""
               disabled={posing && !draft.trim()}
+              aria-describedby={posing && !draft.trim() ? "u-why-lieu" : undefined}
               onClick={() => { if (!posing) onNext(); }}
-            >{posing ? t("scene.setPlace") : t("scene.goTake")} <Arrow /></button>
-            <Why on={posing && !draft.trim()} text={t("why.needName")} />
+            >{posing ? (studio.scenes.length === 0 ? t("scene.setAndTake") : t("scene.setPlace")) : t("scene.goTake")} <Arrow /></button>
+            <Why on={posing && !draft.trim()} id="u-why-lieu" text={t("why.needName")} />
             {posing && draft.trim() === suggested && <p className="u-small">{t("scene.written")}</p>}
             {scene && !adding && <p className="u-small">{t("scene.passTake")}</p>}
             {scene && adding && <button type="button" className="u-link" onClick={onNext}>{t("scene.goTake")}</button>}

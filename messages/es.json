@@ -47,7 +47,7 @@
   "guide": {
     "look-photos": "Dos fotos, tres como máximo. De frente, luego tres cuartos. Yo tejo el resto.",
     "look-name": "Da un nombre. A ese lo sostengo.",
-    "look-traits": "Dos rasgos que no se mueven. Los ojos, una marca.",
+    "look-traits": "Dos rasgos, si los tienes. No se inventa nada.",
     "look-ready": "Las fotos sostienen. Coloca ahora la localización.",
     "scene-new": "Lugar 1 ya está. Puedes cambiar el nombre.",
     "scene-still": "Una imagen de la localización, y la guardo de una toma a la otra.",
@@ -71,7 +71,7 @@
     "sphere-empty": "Tus tomas vendrán a posarse aquí.",
     "project-name": "Atelier ya está escrito. Un gesto crea el proyecto.",
     "understood": "Entendido",
-    "stepCharacter": "Mira y dos rasgos ya están. Dos fotos.",
+    "stepCharacter": "El nombre ya está. Dos fotos.",
     "stepScene": "Lugar 1 ya está. Un gesto lo pone, luego la toma.",
     "stepTake": "La frase ya está. Vincula, lee el presupuesto, luego Rodar.",
     "stop": "No guiar más"
@@ -125,7 +125,7 @@
   "path": {
     "references": {
       "title": "Referencias",
-      "body": "Al menos dos fotos, tres como máximo, un nombre, dos rasgos. Nada que entrenar. Cada toma « {engine} » paga la cuenta de render, al precio leído al rodar.",
+      "body": "Al menos dos fotos, tres como máximo, un nombre. Dos rasgos, si los tienes. Nada que entrenar. Cada toma « {engine} » paga la cuenta de render, al precio leído al rodar.",
       "action": "Sostener las fotos"
     },
     "fichier": {
@@ -157,9 +157,9 @@
     "photos": "Fotos de las referencias",
     "name": "Nombre",
     "traits": "Lo que no cambia",
-    "defaultName": "Mira",
+    "defaultName": "Personaje 1",
     "placeholder": "ojos verdes, pecas",
-    "written": "Ya está escrito. Puedes cambiar el nombre y los rasgos.",
+    "written": "Ya está escrito. Puedes cambiar el nombre.",
     "another": "otro",
     "held": "Lo que sostiene las referencias",
     "twoPhotos": "Al menos dos fotos",
@@ -178,7 +178,8 @@
     "photo": "la foto",
     "view": "la vista",
     "still": "la imagen",
-    "removeTrait": "Retirar {item}"
+    "removeTrait": "Retirar {item}",
+    "traitsOptional": "Dos rasgos, si los tienes. No se inventa nada."
   },
   "scene": {
     "kicker": "02 · Tu escena",
@@ -236,7 +237,8 @@
     "addView": "Añadir una vista",
     "reset": "Restablecer esta localización",
     "resetStay": "Las otras localizaciones, las tomas y los personajes entrenados quedan.",
-    "remove": "Retirar esta localización"
+    "remove": "Retirar esta localización",
+    "setAndTake": "Poner este lugar y abrir la toma"
   },
   "sequence": {
     "title": "Secuencias",
@@ -366,7 +368,7 @@
     "theCharacter": "el personaje",
     "cameraBack": "Esta localización se reabre con su cámara.",
     "action": "Lo que hace la toma",
-    "actionPlaceholder": "Ella cruza el muelle bajo la lluvia, sin volverse.",
+    "actionPlaceholder": "Lo que hace el personaje en el lugar.",
     "written": "La frase ya está escrita. Puedes cambiarla.",
     "engine": "Motor",
     "format": "Formato",
@@ -391,11 +393,12 @@
     "measuredNote": "El presupuesto medido es 5 s, vertical, rápido. Otro ajuste deja Rodar apagado.",
     "nextLabel": "Después de la toma",
     "stayTakes": "Las tomas ya rodadas quedan.",
-    "gapPhotos": "Faltan dos fotos, un nombre y dos rasgos.",
+    "gapPhotos": "Faltan dos fotos y un nombre.",
     "gapScene": "Falta una localización.",
     "gapFile": "El motor Personaje (archivo) espera un archivo entrenado.",
     "hintFile": "Falta un archivo de personaje.",
-    "hintBlocked": "El precio o el saldo no deja salir la toma."
+    "hintBlocked": "El precio o el saldo no deja salir la toma.",
+    "defaultLine": "El personaje está en el lugar."
   },
   "job": {
     "running": "En curso",
@@ -467,7 +470,7 @@
       "name": "Toma · Referencias",
       "sentence": "Las fotos de mi estudio se vuelven una toma, con el sonido.",
       "inputs": [
-        "Dos fotos, un nombre, dos rasgos",
+        "Dos fotos, un nombre. Dos rasgos, si los tienes.",
         "Una localización",
         "Una frase",
         "La duración y el formato"

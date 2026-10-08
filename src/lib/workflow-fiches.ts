@@ -58,7 +58,7 @@ export function workflowFiches(quotes: FicheQuotes, sample: { seconds: number; r
       id: "references",
       name: "Prise · Références",
       sentence: "Les photos de mon studio deviennent une prise, avec le son.",
-      inputs: ["Deux photos, un nom, deux traits", "Un lieu", "Une phrase", "La durée et le format"],
+      inputs: ["Deux photos, un nom. Deux traits, si tu en as.", "Un lieu", "Une phrase", "La durée et le format"],
       cost: rendu,
       payer: "rendu",
       dest: "prise",
