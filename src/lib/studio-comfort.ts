@@ -86,7 +86,7 @@ export function characterPaths(input: { falLinked: boolean; quote: number | null
     {
       id: "references",
       title: "Références",
-      body: "Deux photos au moins, trois au plus, un nom, deux traits. Rien à former. Chaque prise « Références » paie le compte de rendu, au prix lu au moment de tourner.",
+      body: "Deux photos au moins, trois au plus, un nom. Deux traits, si tu en as. Rien à former. Chaque prise « Références » paie le compte de rendu, au prix lu au moment de tourner.",
       action: "Tenir les photos",
     },
     {
@@ -155,7 +155,7 @@ export interface PriseGap {
 /** What is still missing on La prise. Relier is the one gold entry, not another row. */
 export function priseGaps(input: { lookReady: boolean; hasScene: boolean; engine: TakeEngine; hasCharacter: boolean }): PriseGap[] {
   const gaps: PriseGap[] = [];
-  if (!input.lookReady) gaps.push({ id: "photos", text: "Il manque deux photos, un nom et deux traits.", action: "Tenir les photos" });
+  if (!input.lookReady) gaps.push({ id: "photos", text: "Il manque deux photos et un nom.", action: "Tenir les photos" });
   if (!input.hasScene) gaps.push({ id: "scene", text: "Il manque un lieu.", action: "Poser la scène" });
   if (input.engine === "lora" && !input.hasCharacter) gaps.push({ id: "fichier", text: "Le moteur Personnage (fichier) attend un fichier formé.", action: "Former le personnage" });
   return gaps;
@@ -184,7 +184,7 @@ export function priseAction(input: {
   const priced = input.price ? `Tourner · ${input.price}` : "Tourner";
   const accountMissing = input.engine === "lora" ? !input.falLinked : !input.connected;
   if (accountMissing) return { id: "relier", label: "Relier", hint: "" };
-  if (!input.lookReady) return { id: "photos", label: "Tenir les photos", hint: "Il manque deux photos, un nom et deux traits." };
+  if (!input.lookReady) return { id: "photos", label: "Tenir les photos", hint: "Il manque deux photos et un nom." };
   if (!input.hasScene) return { id: "scene", label: "Poser la scène", hint: "Il manque un lieu." };
   if (input.engine === "lora" && !input.hasCharacter) return { id: "fichier", label: "Former le personnage", hint: "Il manque un fichier de personnage." };
   if (!input.canSpend) return { id: "bloque", label: priced, hint: "Le prix ou le solde ne laisse pas partir la prise." };

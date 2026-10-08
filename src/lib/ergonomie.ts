@@ -48,9 +48,11 @@ export const PATH_AVANT: readonly PathStep[] = [
 ];
 
 /**
- * The same path after F31.
- * Atelier, Mira, two traits, Lieu 1, the shot line, Séquence 1 and Plan 1 are already written.
+ * The same path after F31, re-read in F32.
+ * Atelier, Personnage 1, Lieu 1, the shot line, Séquence 1 and Plan 1 are already written.
+ * Two traits stay on the screen and do not block. Nothing is invented in their place.
  * The first place opens the take. The paid confirmation and Poser le plan stay.
+ * F32 did not drop a step: that would hide the quote, the paid confirmation, a written name, or the take that just landed.
  */
 export const PATH_APRES: readonly PathStep[] = [
   { kind: "tap", screen: "projet" },
@@ -67,12 +69,16 @@ export const PATH_APRES: readonly PathStep[] = [
 /** F30 ceiling. A later round fails the test if the path grows past this. */
 export const GESTES_F30 = 15;
 
+/** F32 ceiling. The counted path fails the test if it grows past this. */
+export const GESTES_PLAFOND = 9;
+
 /**
  * A decision is a blank the path will not pass, or two equal choices with no default.
  * A name already written, and a control already on the measured profile, are not decisions.
  * Before: project name, which way, character name, two traits, place, line, sequence name, shot name.
  * F30: character name, two traits, place, line.
  * F31: none of those blanks remain. Two photos stay a tap, as in F29.
+ * F32: still none. Personnage 1, Lieu 1 and the line are written. Traits do not block.
  */
 export const DECISIONS_AVANT = 9;
 export const DECISIONS_F30 = 5;
@@ -95,9 +101,94 @@ export function pathCount(steps: readonly PathStep[]): { gestes: number; saisies
   };
 }
 
-/** A look that has never been written. Seeding it once does not fight a later clear. */
+/** A look that has never been written. */
 export function untouchedLook(look: { name: string; traits: readonly string[]; photos: readonly string[]; note: string }): boolean {
   return !look.name.trim() && look.traits.length === 0 && look.photos.length === 0 && !look.note.trim();
+}
+
+export const LOOK_NAME_CLEARED = "vide";
+
+export function lookNameKey(slug: string): string {
+  return `u-ttu-look-nom:${slug}`;
+}
+
+export function readLookNameCleared(storage: Pick<Storage, "getItem"> | null, slug: string | null): boolean {
+  if (!storage || !slug?.trim()) return false;
+  try {
+    return storage.getItem(lookNameKey(slug)) === LOOK_NAME_CLEARED;
+  } catch {
+    return false;
+  }
+}
+
+export function writeLookNameCleared(storage: Pick<Storage, "setItem" | "removeItem"> | null, slug: string | null, cleared: boolean): void {
+  if (!storage || !slug?.trim()) return;
+  try {
+    if (cleared) storage.setItem(lookNameKey(slug), LOOK_NAME_CLEARED);
+    else storage.removeItem(lookNameKey(slug));
+  } catch {}
+}
+
+/** A stored name, or the offered one, until the person clears the field. */
+export function offeredName(stored: string, offered: string, cleared: boolean): string {
+  if (cleared) return stored;
+  const clean = stored.trim();
+  return clean || offered;
+}
+
+/**
+ * No stored phrase follows the open language.
+ * A stored string, even empty, is the person's own line and does not follow the language.
+ */
+export function offeredLine(stored: string | null, offered: string): { text: string; followsLocale: boolean } {
+  if (stored === null) return { text: offered, followsLocale: true };
+  return { text: stored, followsLocale: false };
+}
+
+/** Keep a Shift+Enter break. The prompt still folds it later, in one sentence. */
+export function keepLineBreaks(value: string, max = 240): string {
+  return value.replace(/\r\n?/g, "\n").slice(0, max);
+}
+
+export interface PlainKey {
+  key: string;
+  shiftKey?: boolean;
+  metaKey?: boolean;
+  ctrlKey?: boolean;
+  altKey?: boolean;
+  isComposing?: boolean;
+  keyCode?: number;
+  /** A held key. A repeat must not spend, and must not open the confirmation twice. */
+  repeat?: boolean;
+}
+
+/** Enter alone. Shift, shortcuts, a held key and an IME confirmation do not count. */
+export function plainEnter(event: PlainKey): boolean {
+  if (event.isComposing || event.keyCode === 229 || event.repeat) return false;
+  return event.key === "Enter" && !event.shiftKey && !event.metaKey && !event.ctrlKey && !event.altKey;
+}
+
+/**
+ * Desktop Enter submits the gesture already on the phrase.
+ * Shift+Enter keeps a line break. A phone return also keeps the break: the gold button is the tap.
+ */
+export function phraseKeyAction(event: PlainKey, coarsePointer: boolean): "submit" | "break" | "ignore" {
+  if (event.key !== "Enter") return "ignore";
+  if (event.repeat || event.isComposing || event.keyCode === 229) return "ignore";
+  if (event.metaKey || event.ctrlKey || event.altKey) return "ignore";
+  if (event.shiftKey) return "break";
+  if (coarsePointer) return "break";
+  return "submit";
+}
+
+/**
+ * Enter spends only when the quote and the text that leaves are on screen, and the gate allows it.
+ * A field keeps the key. The paid confirmation stays its own gesture.
+ */
+export function spendOnEnter(event: PlainKey, input: { field: boolean; quoteVisible: boolean; textVisible: boolean; allowed: boolean }): boolean {
+  if (!plainEnter(event)) return false;
+  if (input.field) return false;
+  return input.quoteVisible && input.textVisible && input.allowed;
 }
 
 export function nextNumberedName(seed: string, used: readonly string[]): string {

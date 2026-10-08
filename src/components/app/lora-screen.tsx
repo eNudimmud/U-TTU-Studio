@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ROLE_PHOTOS_MAX, isPlaceLora, lookCheck } from "@/lib/coffre/model";
+import { ROLE_PHOTOS_MAX, isPlaceLora } from "@/lib/coffre/model";
 import { DEFAULT_PROJECT_NAME } from "@/lib/coffre/project";
 import { formatUsd } from "@/lib/fal/prices";
 import { problemsAfterTouch } from "@/lib/lora/dataset";
@@ -10,7 +10,7 @@ import { characterPaths } from "@/lib/studio-comfort";
 import { useI18n } from "@/components/i18n/provider";
 import { Why } from "./guide-bubble";
 import { Arrow, Close } from "./glyphs";
-import { completeLook, LookFields } from "./look-form";
+import { LookForm } from "./look-form";
 import { OutgoingPersonnage } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { PictureSlot, Segments } from "./slots";
@@ -55,7 +55,6 @@ export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile 
   const problems = problemsAfterTouch(dataset.problems, touch);
   const showFile = file || training.phase !== "idle";
   const paths = characterPaths({ falLinked, quote: trainQuote, steps: trainingSteps });
-  const referencesReady = lookCheck(vault.look);
 
   if (ready && !vault.project) return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
@@ -63,12 +62,18 @@ export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile 
       <h1 id="u-title" tabIndex={-1}>{t("sheet.projectName")}</h1>
       <p className="u-micro">{t("project.lead", { name: DEFAULT_PROJECT_NAME })}</p>
     </header>
-    <label className="u-field">
-      <span className="u-label">{t("sheet.projectName")}</span>
-      <input value={projectName} maxLength={40} aria-label={t("sheet.projectName")} autoComplete="off" onChange={event => setProjectName(event.target.value.slice(0, 40))} />
-    </label>
-    <button type="button" className="u-primary" disabled={!projectName.trim()} onClick={() => void createNamedProject(projectName.trim())}>{t("sheet.createProject")} <Arrow /></button>
-    <Why on={!projectName.trim()} text={t("why.needName")} />
+    <form className="u-stack" onSubmit={event => {
+      event.preventDefault();
+      const name = projectName.trim();
+      if (name) void createNamedProject(name);
+    }}>
+      <label className="u-field">
+        <span className="u-label">{t("sheet.projectName")}</span>
+        <input id="u-projet-nom" value={projectName} maxLength={40} aria-label={t("sheet.projectName")} autoComplete="off" enterKeyHint="go" onChange={event => setProjectName(event.target.value.slice(0, 40))} />
+      </label>
+      <button type="submit" className="u-primary" data-projet-gold="" disabled={!projectName.trim()} aria-describedby={!projectName.trim() ? "u-why-projet" : undefined}>{t("sheet.createProject")} <Arrow /></button>
+      <Why on={!projectName.trim()} id="u-why-projet" text={t("why.needName")} />
+    </form>
   </section>;
 
   return <section className="u-screen" aria-labelledby="u-title">
@@ -102,8 +107,7 @@ export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile 
     {training.phase === "error" && <TrainError training={training} onReset={resumeTraining} onRelink={() => { resetTraining(); setSheet("fal"); }} onOutputs={() => setSheet({ outputs: "lora" })} />}
 
     {!showFile && <div className="u-desk">
-      <LookFields />
-      <button type="button" className="u-primary" onClick={() => completeLook(referencesReady, onScene)}>{referencesReady.ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>
+      <LookForm onReady={onScene} />
       <details className="u-fold">
         <summary>{t("lora.twoWays")}</summary>
         <div className="u-desk u-paths" aria-label={t("path.aria")}>

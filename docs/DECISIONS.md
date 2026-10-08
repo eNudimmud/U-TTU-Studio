@@ -1,6 +1,34 @@
 # Registre — C micro
 
-Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
+Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
+
+## F32 — Entrée, défauts novice, clavier — 8 octobre 2026
+
+Méthode du compte, la même que F29. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui pose une prise sur un plan, lit la séquence, puis exporte. Une saisie déjà écrite n’est pas un geste. Un nom déjà écrit n’est pas une décision. Deux photos restent un tap. La confirmation payante reste. Entrée, sur ordinateur, est une autre façon de faire le geste déjà à l’écran : elle ne retire pas un tap du compte, parce que le téléphone n’a pas cette touche.
+
+| | Avant, F31 | Après, F32 |
+| --- | --- | --- |
+| Gestes | 9 | 9 |
+| dont saisies | 0 | 0 |
+| dont taps | 9 | 9 |
+| Écrans | 7 | 7 |
+| Décisions | 0 | 0 |
+| Retours forcés | 0 | 0 |
+
+Le tableau est le même à 390×844 et à 1280×800 : le compte ne dépend pas de la largeur. Entrée sur ordinateur remplace le tap du geste or déjà visible. Elle n’ajoute pas un geste, et elle n’en retire pas un du plafond, parce que le même parcours au doigt reste neuf taps.
+
+- **Fait :** #88 (fusionné, `f82da6f`) écrit Mira, deux traits (« yeux verts », « taches de rousseur ») et la phrase « Elle traverse le quai sous la pluie, sans se retourner. » au premier passage, dans la langue ouverte à ce moment, marque `u-ttu-look-ecrit`. #89 (fermé sans fusion) écrit Personnage 1, aucun trait, et « Le personnage est dans le lieu. », phrase qui suit la langue tant qu’elle n’est pas modifiée.
+- **Décision :** on garde Personnage 1, Lieu 1, et « Le personnage est dans le lieu. » (Character 1 / Place 1 / The character is in the place. ; Figur 1 / Ort 1 / Die Figur ist an diesem Ort. ; Personaje 1 / Lugar 1 / El personaje está en el lugar.). Mira est le même mot dans les quatre langues, mais il invente une personne. Les deux traits inventent un visage que les photos n’ont pas montré. La phrase de #88 invente un genre, de la pluie et un quai qui n’est pas Lieu 1, et elle fige la première langue. Personnage 1 suit Atelier, Lieu 1, Séquence 1 et Plan 1. La phrase nomme le personnage et le lieu, sans histoire inventée, et elle suit la langue ouverte tant que `u-ttu-plan` est absent. Une chaîne enregistrée, même vide, reste celle de la personne. Un studio F31 qui a déjà Mira ou la phrase du quai dans le coffre les garde.
+- **Décision :** deux traits restent à l’écran, sous « Ce qui ne change pas », et ne bloquent plus le geste or. `lookCheck` est prêt avec deux photos et un nom. Le booléen `traits` dit encore s’il y en a deux. Raison écrite : rien n’est inventé à la place des traits, et le novice peut poser la scène dès que les photos et le nom tiennent. Le test `tests/coffre.test.ts` qui exigeait `ready === false` avec un seul trait est mis à jour pour cette raison.
+- **Décision :** le nom offert suit la langue tant que le champ n’est pas modifié et tant que le geste or ne l’a pas enregistré. L’effacer pose `u-ttu-look-nom:<projet>` à `vide` et le laisse vide. « Remettre ces références » retire cette marque et rend l’offre. Le premier lieu dit **Poser ce lieu, puis la prise** et ouvre la prise. Un lieu suivant dit **Poser ce lieu**. Un lieu déjà posé dit **Aller à la prise**.
+- **Décision :** sur ordinateur, Entrée valide le geste déjà à l’écran : créer le projet, le nom du personnage, le lieu, la phrase. Maj+Entrée dans la phrase fait un saut de ligne. Sur un pointeur grossier, Entrée dans la phrase fait aussi un saut de ligne : le bouton or reste le tap. Une touche maintenue ne répète pas le geste.
+- **Décision :** Entrée sur la phrase ouvre la confirmation, elle ne débite pas. Entrée sur la confirmation débite seulement si le devis (`#u-confirm-cost`) et le texte qui part (`#u-confirm-sent`) sont dans la feuille et se coupent avec son rectangle, et si le devis autorise le départ. Un champ garde la touche. La confirmation payante reste un geste à part.
+- **Décision :** le parcours ne descend pas sous 9. Retirer « Créer ce projet » cacherait le nom Atelier avant qu’il soit posé. Enchaîner tout seul après les photos cacherait Personnage 1. Fondre la scène dans le personnage cacherait Lieu 1. Fondre Tourner et la confirmation cacherait le devis ou débiterait au même geste que son apparition. Poser le plan tout seul cacherait Séquence 1 et Plan 1, et la prise qui vient d’atterrir. `PATH_APRES` reste ces neuf taps. `GESTES_PLAFOND` reste 9.
+- **Décision :** le focus visible est un contour or. L’ordre du source place le champ avant le bouton or (projet, nom, lieu, phrase, confirmation). Un bouton éteint porte `aria-describedby` vers la raison écrite dessous. Le bouton de confirmation, quand il est allumé, décrit le devis et le texte qui part.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` ne sont pas appelés. Aucune requête vers cloud.comfy.org, api.comfy.org ou fal.ai : le parcours mesure avec le mock local.
+- **Fait :** EN, DE et ES portent `_human: native_open`. Les lignes neuves ne sont pas une signature de locuteur natif. À relire : EN « Two traits, if you have them. Nothing is invented. », « Set this place, then the take », « The character is in the place. » ; DE « Zwei Züge, wenn du sie hast. Nichts wird erfunden. », « Diesen Ort setzen, dann der Take », « Die Figur ist an diesem Ort. » ; ES « Dos rasgos, si los tienes. No se inventa nada. », « Poner este lugar y abrir la toma », « El personaje está en el lugar. »
+- **Hypothèse :** une personne qui ne change pas Atelier, Personnage 1, Lieu 1, la phrase, Séquence 1 ni Plan 1 suit ces 9 gestes, au doigt comme à la souris. Le sélecteur du téléphone laisse passer deux photos en un tap, comme en F29.
+- **Pas fait :** pas de téléphone physique. Pas de relecture native EN/DE/ES. Les mesures de rectangles Chrome (390×844 et 1280×800) sont ajoutées au tour de vérification, pas inventées ici.
 
 ## F31 — moins de gestes sur le parcours novice — 7 octobre 2026
 

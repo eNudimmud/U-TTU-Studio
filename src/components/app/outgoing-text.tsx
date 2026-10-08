@@ -7,7 +7,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { useStudio } from "./studio-context";
 
 /** The take prompt, exactly as Tourner would send it. Memory is named as absent. */
-export function OutgoingTake({ clamp = false }: { clamp?: boolean }) {
+export function OutgoingTake({ clamp = false, id }: { clamp?: boolean; id?: string }) {
   const { t } = useI18n();
   const { studio, scene, line, engine, chosenLora } = useStudio();
   const place = scene ? { name: scene.name, note: scene.note, stills: scene.stills, render: scene.render } : null;
@@ -22,7 +22,7 @@ export function OutgoingTake({ clamp = false }: { clamp?: boolean }) {
     })
     : "";
   const folded = clamp && text.length > 180;
-  return <section className="u-outgoing" aria-label={t("sent.title")}>
+  return <section className="u-outgoing" id={id} aria-label={t("sent.title")}>
     <p className="u-label">{t("sent.title")}</p>
     {text
       ? <p className={folded ? "u-outgoing-text u-outgoing-clamp" : "u-outgoing-text"}>{text}</p>

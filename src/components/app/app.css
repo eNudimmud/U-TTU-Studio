@@ -104,9 +104,12 @@
 .u-payer + .u-payer { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--u-line); }
 .u-field textarea { resize: vertical; min-height: 64px; }
 .u-field input:focus, .u-field textarea:focus, .u-field select:focus, .u-pickers select:focus, .u-chips:focus-within { border-color: var(--u-gold); outline: none; }
+.u-field input:focus-visible, .u-field textarea:focus-visible, .u-field select:focus-visible, .u-pickers select:focus-visible, .u-chips input:focus-visible { outline: 2px solid var(--u-gold); outline-offset: 2px; }
+.u-phrase { white-space: pre-wrap; }
 .u-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 10px; }
 .u-chips input { flex: 1 1 140px; min-width: 0; min-height: 44px; padding: 6px 4px; border: 0; background: transparent; }
 .u-chips input:focus { outline: none; }
+.u-chips input:focus-visible { outline: 2px solid var(--u-gold); outline-offset: 2px; }
 .u-chip { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 4px 10px 4px 12px; border: 1px solid var(--u-line-strong); border-radius: 999px; background: rgba(201, 164, 106, .08); color: var(--u-gold-soft); font-size: 14px; }
 .u-chip svg { width: 14px; height: 14px; opacity: .7; }
 

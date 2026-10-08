@@ -5,10 +5,10 @@ import { useI18n } from "@/components/i18n/provider";
 import { assetPath } from "@/lib/site";
 import { useStudio } from "./studio-context";
 
-/** The sentence under a disabled control. A mute button never stands alone. */
-export function Why({ on, text }: { on: boolean; text: string }) {
+/** The sentence under a disabled control. A mute button never stands alone. `id` is what aria-describedby points at. */
+export function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   if (!on || !text) return null;
-  return <p className="u-why">{text}</p>;
+  return <p className="u-why" id={id}>{text}</p>;
 }
 
 /** One line from U*TTU, in place. The face is a crop of her canon portrait. */

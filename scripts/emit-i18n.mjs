@@ -47,7 +47,7 @@ row("landing.contact", "Contacter le studio ↗", "Contact the studio ↗", "Stu
 const guide = {
   "look-photos": ["Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.", "Two photos, three at most. Front, then three-quarter. I weave the rest.", "Zwei Fotos, höchstens drei. Frontal, dann Dreiviertel. Den Rest webe ich.", "Dos fotos, tres como máximo. De frente, luego tres cuartos. Yo tejo el resto."],
   "look-name": [`Donne un nom. C${Q}est lui que je tiens.`, "Give a name. That is the one I hold.", "Gib einen Namen. Den halte ich.", "Da un nombre. A ese lo sostengo."],
-  "look-traits": ["Deux traits qui ne bougent pas. Les yeux, une marque.", "Two traits that do not move. The eyes, a mark.", "Zwei Züge, die bleiben. Die Augen, ein Mal.", "Dos rasgos que no se mueven. Los ojos, una marca."],
+  "look-traits": ["Deux traits, si tu en as. Rien n’est inventé.", "Two traits, if you have them. Nothing is invented.", "Zwei Züge, wenn du sie hast. Nichts wird erfunden.", "Dos rasgos, si los tienes. No se inventa nada."],
   "look-ready": ["Les photos tiennent. Pose maintenant le lieu.", "The photos hold. Set the location now.", "Die Fotos halten. Setze jetzt den Drehort.", "Las fotos sostienen. Coloca ahora la localización."],
   "scene-new": ["Lieu 1 est écrit. Tu peux changer le nom.", "Place 1 is written. You can change the name.", "Ort 1 steht da. Den Namen kannst du ändern.", "Lugar 1 ya está. Puedes cambiar el nombre."],
   "scene-still": [`Une image du lieu, et je le garde d${Q}une prise à l${Q}autre.`, "An image of the location, and I keep it from one take to the next.", "Ein Bild des Drehorts, und ich halte ihn von Take zu Take.", "Una imagen de la localización, y la guardo de una toma a la otra."],
@@ -72,7 +72,7 @@ const guide = {
 };
 for (const [id, texts] of Object.entries(guide)) row(`guide.${id}`, ...texts);
 row("guide.understood", "Compris", "Understood", "Verstanden", "Entendido");
-row("guide.stepCharacter", "Mira et deux traits sont écrits. Deux photos.", "Mira and two traits are written. Two photos.", "Mira und zwei Züge stehen da. Zwei Fotos.", "Mira y dos rasgos ya están. Dos fotos.");
+row("guide.stepCharacter", "Le nom est écrit. Deux photos.", "The name is written. Two photos.", "Der Name steht da. Zwei Fotos.", "El nombre ya está. Dos fotos.");
 row("guide.stepScene", "Lieu 1 est écrit. Un geste le pose, puis la prise.", "Place 1 is written. One gesture sets it, then the take.", "Ort 1 steht da. Eine Geste setzt ihn, dann der Take.", "Lugar 1 ya está. Un gesto lo pone, luego la toma.");
 row("guide.stepTake", "La phrase est écrite. Relie, lis le devis, puis Tourner.", "The line is written. Connect, read the quote, then Shoot.", "Der Satz steht da. Verbinde, lies die Kalkulation, dann Drehen.", "La frase ya está. Vincula, lee el presupuesto, luego Rodar.");
 row("why.unchanged", `Rien n${Q}a changé.`, "Nothing has changed.", "Nichts hat sich geändert.", "Nada ha cambiado.");
@@ -115,7 +115,7 @@ row("engine.lora.detail", "Le fichier de mon studio tient le personnage.", "The 
 row("engine.lora.sound", `Le son n${Q}est pas un réglage de ce fichier.`, "Sound is not a setting of this file.", "Ton ist keine Einstellung dieser Datei.", "El sonido no es un ajuste de este archivo.");
 
 row("path.references.title", "Références", "References", "Referenzen", "Referencias");
-row("path.references.body", `Deux photos au moins, trois au plus, un nom, deux traits. Rien à former. Chaque prise « {engine} » paie le compte de rendu, au prix lu au moment de tourner.`, "At least two photos, three at most, a name, two traits. Nothing to train. Each « {engine} » take pays the render account, at the price read when you shoot.", "Mindestens zwei Fotos, höchstens drei, ein Name, zwei Züge. Nichts zu trainieren. Jeder « {engine} »-Take zahlt das Render-Konto, zum Preis beim Drehen.", "Al menos dos fotos, tres como máximo, un nombre, dos rasgos. Nada que entrenar. Cada toma « {engine} » paga la cuenta de render, al precio leído al rodar.");
+row("path.references.body", `Deux photos au moins, trois au plus, un nom. Deux traits, si tu en as. Rien à former. Chaque prise « {engine} » paie le compte de rendu, au prix lu au moment de tourner.`, "At least two photos, three at most, a name. Two traits, if you have them. Nothing to train. Each « {engine} » take pays the render account, at the price read when you shoot.", "Mindestens zwei Fotos, höchstens drei, ein Name. Zwei Züge, wenn du sie hast. Nichts zu trainieren. Jeder « {engine} »-Take zahlt das Render-Konto, zum Preis beim Drehen.", "Al menos dos fotos, tres como máximo, un nombre. Dos rasgos, si los tienes. Nada que entrenar. Cada toma « {engine} » paga la cuenta de render, al precio leído al rodar.");
 row("path.references.action", "Tenir les photos", "Hold the photos", "Fotos halten", "Sostener las fotos");
 row("path.fichier.title", "Fichier", "Trained file", "Datei", "Archivo");
 row("path.fichier.body", `Dix clips. On forme un fichier, une fois. {price} 2000 pas coûtent le double de 1000. Les prises « {engine} » rechargent ce fichier, et se paient à part, sur le compte fal.`, "Ten clips. A file is trained, once. {price} 2000 steps cost twice 1000. « {engine} » takes reload this file, and are paid separately, on the fal account.", "Zehn Clips. Eine Datei wird einmal trainiert. {price} 2000 Schritte kosten das Doppelte von 1000. « {engine} »-Takes laden diese Datei neu und werden extra auf dem fal-Konto bezahlt.", "Diez clips. Se entrena un archivo, una vez. {price} 2000 pasos cuestan el doble de 1000. Las tomas « {engine} » recargan este archivo y se pagan aparte, en la cuenta fal.");
@@ -141,9 +141,10 @@ row("look.lead", `Deux suffisent, trois tiennent. Pas de formation. Ces photos p
 row("look.photos", "Photos des références", "Photos of the references", "Fotos der Referenzen", "Fotos de las referencias");
 row("look.name", "Nom", "Name", "Name", "Nombre");
 row("look.traits", "Ce qui ne change pas", "What does not change", "Was sich nicht ändert", "Lo que no cambia");
-row("look.defaultName", "Mira", "Mira", "Mira", "Mira");
+row("look.defaultName", "Personnage 1", "Character 1", "Figur 1", "Personaje 1");
 row("look.placeholder", "yeux verts, taches de rousseur", "green eyes, freckles", "grüne Augen, Sommersprossen", "ojos verdes, pecas");
-row("look.written", "Déjà écrit. Tu peux changer le nom et les traits.", "Already written. You can change the name and the traits.", "Schon geschrieben. Name und Züge kannst du ändern.", "Ya está escrito. Puedes cambiar el nombre y los rasgos.");
+row("look.written", "Déjà écrit. Tu peux changer le nom.", "Already written. You can change the name.", "Schon geschrieben. Den Namen kannst du ändern.", "Ya está escrito. Puedes cambiar el nombre.");
+row("look.traitsOptional", "Deux traits, si tu en as. Rien n’est inventé.", "Two traits, if you have them. Nothing is invented.", "Zwei Züge, wenn du sie hast. Nichts wird erfunden.", "Dos rasgos, si los tienes. No se inventa nada.");
 row("look.another", "un autre", "another", "ein weiterer", "otro");
 row("look.held", "Ce qui tient les références", "What holds the references", "Was die Referenzen hält", "Lo que sostiene las referencias");
 row("look.twoPhotos", "Deux photos au moins", "At least two photos", "Mindestens zwei Fotos", "Al menos dos fotos");
@@ -170,6 +171,7 @@ row("scene.new", "Nouveau lieu", "New location", "Neuer Drehort", "Nueva localiz
 row("scene.defaultName", "Lieu 1", "Place 1", "Ort 1", "Lugar 1");
 row("scene.placeholder", "Le quai, la nuit", "The quay, at night", "Der Kai, bei Nacht", "El muelle, de noche");
 row("scene.written", "Déjà écrit. Tu peux changer ce nom.", "Already written. You can change this name.", "Schon geschrieben. Diesen Namen kannst du ändern.", "Ya está escrito. Puedes cambiar este nombre.");
+row("scene.setAndTake", "Poser ce lieu, puis la prise", "Set this place, then the take", "Diesen Ort setzen, dann der Take", "Poner este lugar y abrir la toma");
 row("scene.project", "Vue projet", "Project view", "Projektansicht", "Vista de proyecto");
 row("scene.noCharacter", "Aucun personnage sur ce lieu.", "No character on this location.", "Keine Figur an diesem Drehort.", "Ningún personaje en esta localización.");
 row("scene.noTake", "Aucune prise pour ce lieu.", "No take for this location.", "Kein Take für diesen Drehort.", "Ninguna toma para esta localización.");
@@ -313,7 +315,8 @@ row("take.reloads", "Ce fichier recharge {name}.", "This file reloads {name}.", 
 row("take.theCharacter", "le personnage", "the character", "die Figur", "el personaje");
 row("take.cameraBack", "Ce lieu se rouvre avec sa caméra.", "This location reopens with its camera.", "Dieser Drehort öffnet sich wieder mit seiner Kamera.", "Esta localización se reabre con su cámara.");
 row("take.action", "Ce que fait la prise", "What the take does", "Was der Take tut", "Lo que hace la toma");
-row("take.actionPlaceholder", "Elle traverse le quai sous la pluie, sans se retourner.", "She crosses the quay in the rain, without looking back.", "Sie überquert den Kai im Regen, ohne sich umzudrehen.", "Ella cruza el muelle bajo la lluvia, sin volverse.");
+row("take.defaultLine", "Le personnage est dans le lieu.", "The character is in the place.", "Die Figur ist an diesem Ort.", "El personaje está en el lugar.");
+row("take.actionPlaceholder", "Ce que fait le personnage dans le lieu.", "What the character does in the place.", "Was die Figur an diesem Ort tut.", "Lo que hace el personaje en el lugar.");
 row("take.written", "La phrase est déjà écrite. Tu peux la changer.", "The line is already written. You can change it.", "Der Satz steht schon da. Du kannst ihn ändern.", "La frase ya está escrita. Puedes cambiarla.");
 row("take.engine", "Moteur", "Engine", "Motor", "Motor");
 row("take.format", "Format", "Format", "Format", "Formato");
@@ -334,7 +337,7 @@ row("take.resetPlan", "Remettre cette prise à zéro", "Reset this take", "Diese
 row("take.next", `Ensuite : un plan, puis une séquence. L${Q}export est dans Mon studio.`, "Next: a shot, then a sequence. Export is in My studio.", "Danach: ein Shot, dann eine Sequenz. Der Export liegt in « Mein Studio ».", "Luego: una viñeta, y una secuencia. La exportación está en Mi estudio.");
 row("take.nextLabel", "Après la prise", "After the take", "Nach dem Take", "Después de la toma");
 row("take.stayTakes", "Les prises déjà tournées restent.", "Takes already shot stay.", "Schon gedrehte Takes bleiben.", "Las tomas ya rodadas quedan.");
-row("take.gapPhotos", "Il manque deux photos, un nom et deux traits.", "Two photos, a name and two traits are missing.", "Zwei Fotos, ein Name und zwei Züge fehlen.", "Faltan dos fotos, un nombre y dos rasgos.");
+row("take.gapPhotos", "Il manque deux photos et un nom.", "Two photos and a name are missing.", "Zwei Fotos und ein Name fehlen.", "Faltan dos fotos y un nombre.");
 row("take.gapScene", "Il manque un lieu.", "A location is missing.", "Ein Drehort fehlt.", "Falta una localización.");
 row("take.gapFile", "Le moteur Personnage (fichier) attend un fichier formé.", "The Character (trained) engine is waiting for a trained file.", "Der Motor Figur (Datei) wartet auf eine trainierte Datei.", "El motor Personaje (archivo) espera un archivo entrenado.");
 row("take.hintFile", "Il manque un fichier de personnage.", "A character file is missing.", "Eine Figur-Datei fehlt.", "Falta un archivo de personaje.");
@@ -400,7 +403,7 @@ row("fiche.former.name", "Former un personnage", "Train a character", "Eine Figu
 row("fiche.former.sentence", "Des clips deviennent un fichier. Les prises suivantes le rechargent.", "Clips become a file. Later takes reload it.", "Clips werden eine Datei. Die nächsten Takes laden sie neu.", "Los clips se vuelven un archivo. Las tomas siguientes lo recargan.");
 row("fiche.lieu.name", "Former un lieu", "Train a location", "Einen Drehort trainieren", "Entrenar una localización");
 row("fiche.lieu.sentence", `Les vues du lieu deviennent un fichier d${Q}images. Ce n${Q}est pas un volume.`, "The views of the location become an image file. It is not a volume.", "Die Ansichten des Drehorts werden eine Bilddatei. Das ist kein Volumen.", "Las vistas de la localización se vuelven un archivo de imágenes. No es un volumen.");
-rows.push(["fiche.references.inputs", ["Deux photos, un nom, deux traits", "Un lieu", "Une phrase", "La durée et le format"], ["Two photos, a name, two traits", "A location", "A line", "The duration and the format"], ["Zwei Fotos, ein Name, zwei Züge", "Ein Drehort", "Ein Satz", "Dauer und Format"], ["Dos fotos, un nombre, dos rasgos", "Una localización", "Una frase", "La duración y el formato"]]);
+rows.push(["fiche.references.inputs", ["Deux photos, un nom. Deux traits, si tu en as.", "Un lieu", "Une phrase", "La durée et le format"], ["Two photos, a name. Two traits, if you have them.", "A location", "A line", "The duration and the format"], ["Zwei Fotos, ein Name. Zwei Züge, wenn du sie hast.", "Ein Drehort", "Ein Satz", "Dauer und Format"], ["Dos fotos, un nombre. Dos rasgos, si los tienes.", "Una localización", "Una frase", "La duración y el formato"]]);
 rows.push(["fiche.personnage.inputs", ["Les photos du personnage", "Un lieu", "Une phrase", "La durée et le format"], ["The character photos", "A location", "A line", "The duration and the format"], ["Die Fotos der Figur", "Ein Drehort", "Ein Satz", "Dauer und Format"], ["Las fotos del personaje", "Una localización", "Una frase", "La duración y el formato"]]);
 rows.push(["fiche.former.inputs", ["Un nom", "Deux photos", "{clips} clips"], ["A name", "Two photos", "{clips} clips"], ["Ein Name", "Zwei Fotos", "{clips} Clips"], ["Un nombre", "Dos fotos", "{clips} clips"]]);
 rows.push(["fiche.lieu.inputs", ["Un lieu nommé", "{views} vues"], ["A named location", "{views} views"], ["Ein benannter Drehort", "{views} Ansichten"], ["Una localización con nombre", "{views} vistas"]]);

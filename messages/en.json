@@ -47,7 +47,7 @@
   "guide": {
     "look-photos": "Two photos, three at most. Front, then three-quarter. I weave the rest.",
     "look-name": "Give a name. That is the one I hold.",
-    "look-traits": "Two traits that do not move. The eyes, a mark.",
+    "look-traits": "Two traits, if you have them. Nothing is invented.",
     "look-ready": "The photos hold. Set the location now.",
     "scene-new": "Place 1 is written. You can change the name.",
     "scene-still": "An image of the location, and I keep it from one take to the next.",
@@ -71,7 +71,7 @@
     "sphere-empty": "Your takes will come to rest here.",
     "project-name": "Atelier is written. One gesture creates the project.",
     "understood": "Understood",
-    "stepCharacter": "Mira and two traits are written. Two photos.",
+    "stepCharacter": "The name is written. Two photos.",
     "stepScene": "Place 1 is written. One gesture sets it, then the take.",
     "stepTake": "The line is written. Connect, read the quote, then Shoot.",
     "stop": "Stop guiding"
@@ -125,7 +125,7 @@
   "path": {
     "references": {
       "title": "References",
-      "body": "At least two photos, three at most, a name, two traits. Nothing to train. Each « {engine} » take pays the render account, at the price read when you shoot.",
+      "body": "At least two photos, three at most, a name. Two traits, if you have them. Nothing to train. Each « {engine} » take pays the render account, at the price read when you shoot.",
       "action": "Hold the photos"
     },
     "fichier": {
@@ -157,9 +157,9 @@
     "photos": "Photos of the references",
     "name": "Name",
     "traits": "What does not change",
-    "defaultName": "Mira",
+    "defaultName": "Character 1",
     "placeholder": "green eyes, freckles",
-    "written": "Already written. You can change the name and the traits.",
+    "written": "Already written. You can change the name.",
     "another": "another",
     "held": "What holds the references",
     "twoPhotos": "At least two photos",
@@ -178,7 +178,8 @@
     "photo": "the photo",
     "view": "the view",
     "still": "the image",
-    "removeTrait": "Remove {item}"
+    "removeTrait": "Remove {item}",
+    "traitsOptional": "Two traits, if you have them. Nothing is invented."
   },
   "scene": {
     "kicker": "02 · Your scene",
@@ -236,7 +237,8 @@
     "addView": "Add a view",
     "reset": "Reset this location",
     "resetStay": "Other locations, takes and trained characters stay.",
-    "remove": "Remove this location"
+    "remove": "Remove this location",
+    "setAndTake": "Set this place, then the take"
   },
   "sequence": {
     "title": "Sequences",
@@ -366,7 +368,7 @@
     "theCharacter": "the character",
     "cameraBack": "This location reopens with its camera.",
     "action": "What the take does",
-    "actionPlaceholder": "She crosses the quay in the rain, without looking back.",
+    "actionPlaceholder": "What the character does in the place.",
     "written": "The line is already written. You can change it.",
     "engine": "Engine",
     "format": "Format",
@@ -391,11 +393,12 @@
     "measuredNote": "The measured quote is 5 s, vertical, fast. Another setting keeps Shoot off.",
     "nextLabel": "After the take",
     "stayTakes": "Takes already shot stay.",
-    "gapPhotos": "Two photos, a name and two traits are missing.",
+    "gapPhotos": "Two photos and a name are missing.",
     "gapScene": "A location is missing.",
     "gapFile": "The Character (trained) engine is waiting for a trained file.",
     "hintFile": "A character file is missing.",
-    "hintBlocked": "The price or the balance will not let the take leave."
+    "hintBlocked": "The price or the balance will not let the take leave.",
+    "defaultLine": "The character is in the place."
   },
   "job": {
     "running": "In progress",
@@ -467,7 +470,7 @@
       "name": "Take · References",
       "sentence": "The photos in my studio become a take, with the sound.",
       "inputs": [
-        "Two photos, a name, two traits",
+        "Two photos, a name. Two traits, if you have them.",
         "A location",
         "A line",
         "The duration and the format"
