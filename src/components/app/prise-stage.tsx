@@ -185,7 +185,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     gold = { label: "★ Garder", price: "", enabled: true, reason: "", composer: false, onClick: keep };
     extra = { label: "Autre prise", price: "", enabled: false, reason: PAS_MESURE, onClick: () => {} };
   } else if (etat === "gardee" || etat === "finalisee") {
-    gold = { label: "Finaliser (agrandir)", price: priceOf(fin.quote), enabled: fin.enabled, reason: fin.reason || PAS_MESURE, composer: false, onClick: () => setPanel(true) };
+    gold = { label: FINAL_LABEL, price: priceOf(fin.quote), enabled: fin.enabled, reason: fin.reason || PAS_MESURE, composer: false, onClick: () => setPanel(true) };
   } else {
     gold = { label: "Composer l'image", price: priceOf(composer.quote), enabled: composer.enabled, reason: composer.reason, composer: true, onClick: () => { if (composer.enabled) setAsk("composer"); } };
     extra = { label: "Essai rapide", price: priceOf(essai.quote), enabled: essai.enabled, reason: essai.reason, onClick: () => { if (essai.enabled) void requestRun(); } };
@@ -367,22 +367,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <div className="u-prise-actions">
         <p className="u-prise-quote u-bar-quote">{quoteLine}</p>
         {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
-        <button
-          type="button"
-          className="u-primary"
-          data-composer-gold={gold.composer ? "" : undefined}
-          disabled={!gold.enabled}
-          aria-describedby={reasonText ? "u-prise-reason" : undefined}
-          onClick={gold.onClick}
-        >{gold.label}{gold.price}</button>
+        <button type="button" className="u-primary" data-composer-gold={gold.composer ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}{gold.price}</button>
         {ask === "composer" && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
-        {extra && <button
-          type="button"
-          className="u-secondary"
-          disabled={!extra.enabled}
-          aria-describedby={!extra.enabled && extra.reason ? (extra.reason === reasonText ? "u-prise-reason" : "u-prise-extra") : undefined}
-          onClick={extra.onClick}
-        >{extra.label}{extra.price}</button>}
+        {extra && <button type="button" className="u-secondary" disabled={!extra.enabled} aria-describedby={!extra.enabled && extra.reason ? (extra.reason === reasonText ? "u-prise-reason" : "u-prise-extra") : undefined} onClick={extra.onClick}>{extra.label}{extra.price}</button>}
         {extraReason && <p className="u-why" id="u-prise-extra">{extraReason}</p>}
       </div>
     </aside>
@@ -656,3 +643,5 @@ function AddPlaceIcon() {
     <path d="M3 16 10 11l5 5 4-3 10 7" />
   </svg>;
 }
+
+const FINAL_LABEL = "Finaliser (agrandir)";
