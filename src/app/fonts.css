@@ -1,7 +1,6 @@
-/* First paint uses Arial, already on the machine. The latin files are fetched
-   on the first gesture (pointer or key), after the largest text has painted.
-   The fallback faces match Arial at the font's default weight, so that later
-   swap does not move the line. */
+/* Sized Arial faces. Syne and Manrope (latin woff2) are declared in the
+   root layout, with a preload link in the head and font-display: swap.
+   These metrics keep that swap from moving the line. */
 
 @font-face {
   font-family: "Syne Fallback";
@@ -19,22 +18,4 @@
   ascent-override: 106.45%;
   descent-override: 29.96%;
   line-gap-override: 0%;
-}
-
-@font-face {
-  font-family: "Syne Variable";
-  font-style: normal;
-  font-display: optional;
-  font-weight: 400 800;
-  src: url("../../node_modules/@fontsource-variable/syne/files/syne-latin-wght-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Manrope Variable";
-  font-style: normal;
-  font-display: optional;
-  font-weight: 200 800;
-  src: url("../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }

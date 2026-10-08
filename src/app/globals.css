@@ -3,8 +3,8 @@
 @theme inline {
   --color-ink: var(--bg);
   --color-gold: var(--gold);
-  --font-sans: Arial, sans-serif;
-  --font-display: Arial, sans-serif;
+  --font-sans: "Manrope Variable", "Manrope Fallback", Arial, sans-serif;
+  --font-display: "Syne Variable", "Syne Fallback", Arial, sans-serif;
 }
 
 /* Character sheet palette: near-black, charcoal, graphite, ochre gold, sand. */
@@ -19,8 +19,8 @@
   --muted: #b3aa9d;
   --line: #ffffff24;
   --line-gold: #c9a46a42;
-  --font-body: Arial, sans-serif;
-  --font-heading: Arial, sans-serif;
+  --font-body: "Manrope Variable", "Manrope Fallback", Arial, sans-serif;
+  --font-heading: "Syne Variable", "Syne Fallback", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: dark;
 }
@@ -28,12 +28,6 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
-html.u-fonts {
-  --font-sans: "Manrope Variable", "Manrope Fallback", Arial, sans-serif;
-  --font-display: "Syne Variable", "Syne Fallback", Arial, sans-serif;
-  --font-body: "Manrope Variable", "Manrope Fallback", Arial, sans-serif;
-  --font-heading: "Syne Variable", "Syne Fallback", Arial, sans-serif;
-}
 button, input, select, textarea { font: inherit; border-radius: 6px; }
 button, a, summary, input, select, textarea, label { -webkit-tap-highlight-color: transparent; }
 button, summary { cursor: pointer; }

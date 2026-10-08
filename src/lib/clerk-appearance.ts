@@ -10,8 +10,8 @@ export const clerkAppearance = {
     colorInputText: "#f1ede6",
     colorNeutral: "#8b909a",
     borderRadius: "0px",
-    fontFamily: '"Manrope Variable", Arial, sans-serif',
-    fontFamilyButtons: '"Manrope Variable", Arial, sans-serif',
+    fontFamily: '"Manrope Variable", "Manrope Fallback", Arial, sans-serif',
+    fontFamilyButtons: '"Manrope Variable", "Manrope Fallback", Arial, sans-serif',
   },
   elements: {
     card: {
@@ -20,7 +20,7 @@ export const clerkAppearance = {
       boxShadow: "none",
       borderRadius: "0px",
     },
-    headerTitle: { fontFamily: '"Syne Variable", Arial, sans-serif' },
+    headerTitle: { fontFamily: '"Syne Variable", "Syne Fallback", Arial, sans-serif' },
     socialButtonsBlockButton: { borderRadius: "0px" },
     formButtonPrimary: { borderRadius: "0px", color: "#11100f" },
     footerActionLink: { color: "#c4a574" },
