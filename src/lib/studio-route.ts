@@ -2,13 +2,14 @@
 // Old links still land: #creer and #look open the photos, #lora and #rôle
 // open Personnage, #plateau the scene, #take the take.
 
-export type Tab = "look" | "lora" | "scene" | "prise" | "sphere" | "fiches";
+export type Tab = "look" | "lora" | "scene" | "prise" | "montage" | "sphere" | "fiches";
 
 const ALIASES: Record<string, Tab> = {
   look: "look", photos: "look", creer: "look", créer: "look", style: "look", identite: "look", identité: "look",
   lora: "lora", former: "lora", entrainer: "lora", entraîner: "lora", double: "lora", role: "lora", rôle: "lora", personnage: "lora",
   scene: "scene", scène: "scene", plateau: "scene", monde: "scene",
   prise: "prise", take: "prise", studio: "prise",
+  montage: "montage", monter: "montage", edit: "montage",
   sphere: "sphere", sphère: "sphere", bibliotheque: "sphere", bibliothèque: "sphere",
   fiches: "fiches", fiche: "fiches",
 };
@@ -19,6 +20,7 @@ export const TAB_HASH: Record<Tab, string> = {
   lora: "personnage",
   scene: "scene",
   prise: "prise",
+  montage: "montage",
   sphere: "sphere",
   fiches: "fiches",
 };

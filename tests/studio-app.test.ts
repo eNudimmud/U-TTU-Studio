@@ -28,6 +28,9 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#rôle", ""), "lora");
     assert.equal(tabFromLocation("#Former", ""), "lora");
     assert.equal(tabFromLocation("#compte", ""), "compte");
+    assert.equal(tabFromLocation("#montage", ""), "montage");
+    assert.equal(tabFromLocation("#monter", ""), "montage");
+    assert.equal(tabFromLocation("#edit", ""), "montage");
     assert.equal(tabFromLocation("#inconnu", "?step=prise"), "prise");
     assert.match(read("src/app/studio/page.tsx"), /<StudioApp initialTab=\{initialTab\} \/>/);
   });
@@ -112,12 +115,14 @@ describe("le studio, une app", () => {
     assert.match(chain, /key: "nav.character"/);
     assert.match(chain, /key: "nav.scene"/);
     assert.match(chain, /key: "nav.take"/);
+    assert.match(chain, /key: "nav.edit"/);
     assert.doesNotMatch(chain, /label: "Look"|label: "Rôle"/);
     assert.match(chain, /t\("nav\.chain"\)/);
     assert.ok(catalog.includes("CAST, DÉCOR, PRISE"));
     assert.match(chain, /<CastStage /);
     assert.match(chain, /<DecorStage /);
     assert.match(chain, /<PriseStage /);
+    assert.match(chain, /<MontageStage /);
     assert.match(chain, /href=\{assetPath\("\/mon-studio"\)\}/);
     assert.doesNotMatch(chain, /<StudioDrawer /);
     assert.doesNotMatch(chain, /<PlateauShelf |<LookScreen |<FichesScreen |className="u-rail-coffre"/);
@@ -125,7 +130,7 @@ describe("le studio, une app", () => {
     assert.match(read("src/components/app/screens.tsx"), /t\("shelf\.label"\)/);
     assert.match(read("src/components/app/screens.tsx"), /t\("shelf\.takes"\)/);
     assert.match(read("src/components/app/studio-drawer.tsx"), /<FichesScreen /);
-    assert.equal(chain.match(/\{ id: "(?:lora|scene|prise)", key: "nav\.(?:character|scene|take)" \}/g)?.length, 3);
+    assert.equal(chain.match(/\{ id: "(?:lora|scene|prise|montage)", key: "nav\.(?:character|scene|take|edit)" \}/g)?.length, 4);
     const fiches = read("src/components/app/fiches-screen.tsx");
     assert.match(fiches, /t\("fiche\.title"\)/);
     assert.match(fiches, /t\("verb\.lancer"\)/);

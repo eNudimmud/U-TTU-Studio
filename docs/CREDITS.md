@@ -22,6 +22,29 @@ Quai, Rue et Pièce restent les trois espaces déjà stockés (`previz` : `quai`
 
 Le portrait d’exemple `public/images/uttu-canon-portrait.webp` est le personnage fictif déjà dans le dépôt. Ce n’est pas une photo d’une personne réelle.
 
+## Sons d’exemple
+
+| Fichier | Durée | Sujet |
+| --- | --- | --- |
+| `public/exemples/voix-exemple.wav` | 2,4 s | Ton synthétique, mono 16 bits, 22 050 Hz. Pas une voix enregistrée. |
+| `public/exemples/musique-exemple.wav` | 7 s | Nappe synthétique (220 Hz, 261,63 Hz, 329,63 Hz), même format. |
+
+- **Source :** `scripts/exemple-audio.mjs`, synthèse originale de ce dépôt.
+- **Licence :** même dépôt que le code. Aucune banque de sons tierce. Aucune personne enregistrée.
+
+## Montage — code repris
+
+Le montage ne copie pas un éditeur. Trois calculs viennent d’OpenCut classic, réécrits ici en secondes.
+
+| Pièce | Dépôt | Licence | Ce qui est repris |
+| --- | --- | --- | --- |
+| Aimantation | [OpenCut-app/opencut-classic](https://github.com/OpenCut-app/opencut-classic) `apps/web/src/timeline/snapping/resolve.ts` | MIT | Le point le plus proche dans le seuil. À égalité, le premier reste. Seuil 10 px (`DEFAULT_TIMELINE_SNAP_THRESHOLD_PX`). |
+| Mixage | même dépôt, `apps/web/src/media/audio.ts` (`mixAudioChannels`) | MIT | Interpolation linéaire, un gain par échantillon. Les fondus sont à nous. |
+| Crêtes | même dépôt, `computePeakBuckets` | MIT | Une crête par barre. L’écran dessine la forme avec wavesurfer.js. |
+
+- **wavesurfer.js** 7.9.8, [BSD-3-Clause](https://github.com/katspaugh/wavesurfer.js/blob/main/LICENSE). Forme d’onde des pistes audio.
+- **mediabunny** 1.61.3, [MPL-2.0](https://github.com/Vanilagy/mediabunny/blob/main/LICENSE). Export MP4 dans le navigateur. Le dépôt OpenCut réécrit en Rust n’est pas utilisé.
+
 ## Exemples — rendus maison
 
 Les vignettes SVG ne sont plus sur l’écran DÉCOR. Les exemples sont les fichiers de `public/exemples/`, listés par `manifest.json`. Les six décors et les trois planches `cast-coursiere`, `cast-vieil-homme`, `cast-dj` sont des rendus Seedream 4.5, en 16:9 (1600×899), générés par JD sur son compte Comfy, avec son accord. `statut` vaut `maison`.

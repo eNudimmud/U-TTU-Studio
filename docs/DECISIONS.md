@@ -2,6 +2,20 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
 
+## Montage — 8 octobre 2026
+
+Quatrième geste, après PRISE. JD relit sur l’aperçu. Rien n’est mergé avant.
+
+- **Décision :** le montage est une quatrième section de la chaîne, **MONTAGE**, après PRISE. Un novice voit le geste suivant au même endroit que CAST, DÉCOR et PRISE. Une vue cachée dans le projet lui demanderait de savoir qu’un film se range ailleurs. EN Edit. DE Schnitt. ES Montaje. La chaîne dit « CAST, DÉCOR, PRISE, MONTAGE ». L’accueil compte quatre gestes. La pastille dit « Le film ».
+- **Décision :** « Lire la séquence », sur PRISE, ouvre MONTAGE. L’ancien lecteur de la feuille F28 (`sheets.tsx`, non monté) reste tel quel, avec ses tests. On ne pose pas un second lecteur à côté.
+- **Décision :** la piste vidéo est serrée : réordonner, rogner, scinder et supprimer font suivre les plans. Les pistes Voix, Effets et Musique ne se serrent pas : on cale un son en le glissant. La tête de lecture joue l’image et, pour une prise, son son. L’export mélange ce son avec les trois pistes.
+- **Décision :** le montage s’écrit `Projets/{slug}/Sequences/{id}-montage.md`, frontmatter `type: sequence` et `gesture: montage`. Le nom finit par `-montage` pour que le chargeur ne l’ouvre pas comme une seconde séquence. L’exemple n’est pas écrit tant que le visiteur ne le change pas. « Partir de zéro » écrit le vide.
+- **Décision :** l’export MP4 se fait dans le navigateur (mediabunny), 960×540, 12 images par seconde, au plus 60 secondes. La taille annoncée avant le geste est une estimation (800 kbit/s image + 128 kbit/s son). Aucun envoi, aucun serveur.
+- **Décision :** « Ajouter une voix » et « Ajouter un effet sonore » restent éteints sans compte, raison « Relie ton compte de rendu pour créer. » Avec un compte, la feuille montre un devis marqué hypothèse, et « Créer » reste éteint : « Le devis n’est pas mesuré. Rien ne part. » Aucun appel de rendu pour ce tour.
+- **Hypothèse :** voix Eleven v4, 24,14 crédits pour 1 000 caractères (`api_elevenlabs_v4_text_to_speech`). Effet, 29,54 crédits par minute (`api_elevenlabs_text_to_sound_effects`), durée d’affichage 5 secondes. Lus dans la note de chaîne le 2026-10-08. Non mesurés ici. Les identifiants de template ne sont pas dans l’écran.
+- **Hypothèse :** EN, DE et ES portent `_human: native_open`.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés.
+
 ## Un seul compte, galeries, Mon studio — 8 octobre 2026
 
 Suite de CAST · DÉCOR · PRISE. JD relit sur l’aperçu. Cette note ne remplace pas les mesures plus bas.

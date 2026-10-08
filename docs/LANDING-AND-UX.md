@@ -2,6 +2,10 @@
 
 Verrou du 2026-10-02, resserré le même jour. L’étoile cinéma est dans [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md). Ici : le moins de mots possible.
 
+## Décision — MONTAGE, 8 octobre 2026
+
+- **Décision :** l’accueil compte quatre gestes. La quatrième pastille est MONTAGE, « Le film ». Le détail est dans [DECISIONS.md](DECISIONS.md).
+
 ## Décision — CAST, DÉCOR, PRISE, 8 octobre 2026
 
 - **Décision :** l’accueil dit « Fais tourner ton personnage, en vidéo. » Les pastilles sont CAST, DÉCOR, PRISE. Le studio ouvre sur ces trois sections, une tâche et un bouton or chacune. La barre unique « Que veux-tu tourner ? » n’est pas l’écran.

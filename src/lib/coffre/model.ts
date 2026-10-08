@@ -8,7 +8,7 @@
 //   Projets/<slug>/Lieux/<id>-fichier.md  a place file (not the place note)
 //   Projets/<slug>/Prises/<id>.md         a take, plus its video and poster
 //   Projets/<slug>/Sequences/<id>.md         ordered takes and the raccord between them
-//   Projets/<slug>/Sequences/<id>-montage.md cut list: order, shot, take, duration, source
+//   Projets/<slug>/Sequences/<id>-montage.md cut list, type sequence, gesture montage
 //   Projets/<slug>/Shots/<id>.md          one storyboard panel: a sequence, takes, a short note
 //   Projets/<slug>/Assets/                weights and clips
 //   Projets/<slug>/Journal.md

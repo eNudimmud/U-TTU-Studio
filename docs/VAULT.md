@@ -20,7 +20,7 @@ U-TTU-Studio/
     Lieux/<id>-fichier.md        un fichier d’images du lieu, pas le lieu
     Prises/<id>.md               une prise, sa vidéo et sa vignette
     Sequences/<id>.md            la séquence, ses prises, le raccord
-    Sequences/<id>-montage.md    la liste de montage : ordre, plan, prise, durée, source
+    Sequences/<id>-montage.md    la liste de montage, type sequence, gesture montage : plans, voix, effets, musique. Le MP4 reste sur l’appareil.
     Shots/  Prompts/
     Templates/modele-personnage.md  modele-scene.md  modele-prise.md  modele-sequence.md  modele-shot.md
     Moteurs/                     fiches Relier → Lancer, sans graphe

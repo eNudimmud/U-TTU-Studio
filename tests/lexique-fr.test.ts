@@ -7,7 +7,7 @@ import { workflowFiches } from "../src/lib/workflow-fiches.ts";
 const read = (path: string) => readFileSync(path, "utf8");
 const fr = JSON.parse(read("messages/fr.json")) as {
   _status: string;
-  nav: { character: string; scene: string; take: string; chain: string; studio: string };
+  nav: { character: string; scene: string; take: string; edit: string; chain: string; studio: string };
   verb: Record<string, string>;
 };
 
@@ -81,7 +81,8 @@ describe("lexique français", () => {
     assert.equal(fr.nav.character, "CAST");
     assert.equal(fr.nav.scene, "DÉCOR");
     assert.equal(fr.nav.take, "PRISE");
-    assert.equal(fr.nav.chain, "CAST, DÉCOR, PRISE");
+    assert.equal(fr.nav.edit, "MONTAGE");
+    assert.equal(fr.nav.chain, "CAST, DÉCOR, PRISE, MONTAGE");
     assert.equal(fr.nav.studio, "Mon studio");
     assert.doesNotMatch(chain, /Personnage \(fichier\)|Look|Rôle/);
     assert.equal(WIRED_ENGINES.find(engine => engine.id === "comfy")?.label, "Références");

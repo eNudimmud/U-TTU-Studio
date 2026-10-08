@@ -1,12 +1,13 @@
 # Lexique — nom de l’espace
 
-Décision JD, 8 octobre 2026. Les trois sections s’appellent **CAST**, **DÉCOR** et **PRISE**. Les données stockées ne changent pas : `Projets/{slug}/Cast/`, `Lieux/`, `Prises/`.
+Décision JD, 8 octobre 2026. Les sections s’appellent **CAST**, **DÉCOR**, **PRISE** et **MONTAGE**. Les données stockées ne changent pas : `Projets/{slug}/Cast/`, `Lieux/`, `Prises/`, `Sequences/`.
 
 | Section | FR | EN | DE | ES |
 | --- | --- | --- | --- | --- |
 | Personnage | CAST | Cast | Besetzung | Reparto |
 | Lieu | DÉCOR | Set | Kulisse | Decorado |
 | Prise | PRISE | Take | Take | Toma |
+| Montage | MONTAGE | Edit | Schnitt | Montaje |
 
 DE et ES, et l’anglais, portent `_human: native_open`. Ce ne sont pas des relectures de locuteur natif.
 
@@ -40,7 +41,7 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - La ligne « FR Coffre · EN Vault » du glossaire de travail est dépassée. L’écran dit **Mon studio**.
 - Chaque univers de travail est un projet sous `Projets/`. L’écran dit « Mon studio » et « Projet en cours ».
 - **Séquence** relie des prises dans l’ordre. Le **raccord** dit ce qui doit coller : lumière, regard, mouvement, objet. EN Sequence / Continuity. DE Sequenz / Anschluss. ES Secuencia / Raccord.
-- **Lire la séquence** enchaîne, dans le navigateur, les vidéos des prises déjà posées sur les plans, dans l’ordre des plans. Un plan sans prise est un carton : **Plan sans prise**. EN Play the sequence / Shot without a take. DE Sequenz abspielen / Shot ohne Take. ES Reproducir la secuencia / Viñeta sin toma. La liste de montage est `Sequences/<id>-montage.md` (ordre, plan, prise, durée, source). Ce n’est pas un film assemblé.
+- **Lire la séquence** ouvre **MONTAGE**. Le visualiseur enchaîne les plans. Un plan sans prise est un carton : **Plan sans prise**. EN Play the sequence / Shot without a take. DE Sequenz abspielen / Einstellung ohne Take. ES Reproducir la secuencia / Plano sin toma. La liste est `Sequences/<id>-montage.md` (`type: sequence`, `gesture: montage`). Le MP4, s’il est écrit, reste sur l’appareil.
 - Sans lieu, le nom déjà écrit est **Lieu 1** (Place 1, Ort 1, Lugar 1). Le bouton or du premier lieu est **Poser ce lieu, puis la prise**. Un lieu déjà posé laisse **Aller à la prise**. Un second lieu garde **Poser ce lieu**.
 - **Poser le plan** range la prise dans un plan, dans une séquence. Les noms sûrs sont déjà écrits : **Séquence 1**, **Plan 1**. EN Set the shot / Sequence 1 / Shot 1. DE Den Shot setzen / Sequenz 1 / Shot 1. ES Poner la viñeta / Secuencia 1 / Viñeta 1.
 - Sans projet, le nom déjà écrit est **Atelier**. Un geste crée le projet. EN The name is already written. DE Der Name steht schon da. ES El nombre ya está escrito.

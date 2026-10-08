@@ -14,6 +14,7 @@ export function HomeLanding() {
     { name: t("nav.character"), plain: t("landing.twoWays") },
     { name: t("nav.scene"), plain: t("landing.yourPlace") },
     { name: t("nav.take"), plain: t("landing.theVideo") },
+    { name: t("nav.edit"), plain: t("landing.theCut") },
   ];
   return <div className="landing">
     <LegacyStudioHash />
