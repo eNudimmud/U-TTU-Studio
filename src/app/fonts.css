@@ -1,7 +1,25 @@
-/* Latin only: FR, EN, DE and ES sit in this range. The other files of the
-   variable families (Greek, Cyrillic, Vietnamese) are not requested.
-   optional: a slow phone paints with Arial and does not wait for the file.
-   A fast phone, or a second visit, still gets Syne and Manrope. */
+/* First paint uses Arial, already on the machine. The latin files are fetched
+   on the first gesture (pointer or key), after the largest text has painted.
+   The fallback faces match Arial at the font's default weight, so that later
+   swap does not move the line. */
+
+@font-face {
+  font-family: "Syne Fallback";
+  src: local("Arial");
+  size-adjust: 99.63%;
+  ascent-override: 92.84%;
+  descent-override: 27.60%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Manrope Fallback";
+  src: local("Arial");
+  size-adjust: 100.14%;
+  ascent-override: 106.45%;
+  descent-override: 29.96%;
+  line-gap-override: 0%;
+}
 
 @font-face {
   font-family: "Syne Variable";

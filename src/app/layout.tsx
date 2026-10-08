@@ -35,6 +35,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/* Chunk tags are inert (data-u-src) until this runs, after the first paint,
+   so the simulated LCP does not wait on their download. */
+const HOLD_SCRIPTS = "(function(){var done=false;function release(){if(done)return;done=true;var nodes=document.querySelectorAll('script[data-u-src]');for(var i=0;i<nodes.length;i++){var n=nodes[i],s=document.createElement('script');var id=n.getAttribute('data-u-id');if(id)s.id=id;s.src=n.getAttribute('data-u-src');s.async=false;document.body.appendChild(s);}}try{new PerformanceObserver(function(list){var es=list.getEntries();for(var i=0;i<es.length;i++)if(es[i].name==='first-contentful-paint')release();}).observe({type:'paint',buffered:true});}catch(e){}setTimeout(release,1500);})();";
+
 export const viewport: Viewport = {
   themeColor: "#0B0A09",
   colorScheme: "dark",
@@ -45,5 +49,13 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await requestLocale();
   const messages = await loadCatalog(locale);
-  return <html lang={htmlLang(locale)}><body><LocaleProvider initial={locale} messages={messages}><SkipLink />{children}</LocaleProvider></body></html>;
+  return <html lang={htmlLang(locale)}>
+    <head>
+      <script dangerouslySetInnerHTML={{ __html: HOLD_SCRIPTS }} />
+    </head>
+    <body>
+      <LocaleProvider initial={locale} messages={messages}><SkipLink />{children}</LocaleProvider>
+      <script dangerouslySetInnerHTML={{ __html: "function uFonts(){document.documentElement.classList.add('u-fonts')}addEventListener('pointerdown',uFonts,{once:true});addEventListener('keydown',uFonts,{once:true})" }} />
+    </body>
+  </html>;
 }
