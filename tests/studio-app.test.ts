@@ -171,7 +171,7 @@ describe("le studio, une app", () => {
     assert.match(desk, /\.u-plateau \{ display: none; \}/);
     assert.match(desk, /\.u-rail-coffre \{ display: none; \}/);
     assert.match(desk, /\.u-paths \{ grid-template-columns: 1fr 1fr; align-items: stretch; \}/);
-    assert.match(read("src/components/app/studio-app.tsx"), /aria-label=\{t\("nav\.studio"\)\}><Coffre \/><span>\{t\("nav\.studio"\)\}<\/span>/);
+    assert.match(read("src/components/app/studio-app.tsx"), /aria-label=\{t\("nav\.studio"\)\}><Coffre \/><span className="u-tool-label">\{t\("nav\.studio"\)\}<\/span>/);
     assert.ok(catalog.includes("Mon studio"));
     assert.match(read("src/app/globals.css"), /\.landing-copy \{ justify-content: space-between; /);
     assert.doesNotMatch(read("src/components/app/lora-screen.tsx"), /@clerk\//);

@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, isPlaceLora } from "@/lib/coffre/model";
+import { useEffect, useState } from "react";
+import { LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, isPlaceLora, type Scene } from "@/lib/coffre/model";
 import { offeredName, readLookNameCleared, writeLookNameCleared, nextNumberedName } from "@/lib/ergonomie";
 import { formatCredits } from "@/lib/credits";
 import { formatUsd } from "@/lib/fal/prices";
+import { DECOR_PRESETS, decorPresetOf, decorStorageId, presetPlan, type DecorPresetId } from "@/lib/decor-catalog";
 import { CAST_PHOTO_MAX, castReady, quotedCredits, priseNext } from "@/lib/stage";
 import { assetPath } from "@/lib/site";
 import { useI18n } from "@/components/i18n/provider";
 import { Why } from "./guide-bubble";
-import { Arrow, Plus, Web } from "./glyphs";
+import { Arrow, Web } from "./glyphs";
 import { PublishActions } from "./publish";
 import { SequencePlayer } from "./sheets";
 import { PictureSlot } from "./slots";
@@ -104,21 +105,76 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   </section>;
 }
 
-export function DecorStage({ onPrise }: { onPrise(): void }) {
-  const { studio, scene, media, addScene, selectScene, addSceneStills } = useStudio();
-  const { t } = useI18n();
-  const suggested = nextNumberedName(t("scene.defaultName"), studio.scenes.map(item => item.name));
-  const [draft, setDraft] = useState(suggested);
-  const [adding, setAdding] = useState(false);
-  useEffect(() => { setDraft(suggested); }, [suggested]);
-  const posing = studio.scenes.length === 0 || adding;
-  const blocked = posing && !draft.trim();
+const PRESET_LABEL: Record<DecorPresetId, "stage.decorQuai" | "stage.decorRue" | "stage.decorPiece" | "stage.decorToit" | "stage.decorGare" | "stage.decorCouloir"> = {
+  quai: "stage.decorQuai",
+  rue: "stage.decorRue",
+  piece: "stage.decorPiece",
+  toit: "stage.decorToit",
+  gare: "stage.decorGare",
+  couloir: "stage.decorCouloir",
+};
 
-  function add(event: FormEvent) {
-    event.preventDefault();
-    const name = draft.trim();
-    if (!name) return;
-    void addScene(name).then(() => setAdding(false));
+function presetCards(scenes: Scene[]) {
+  const taken = new Set<string>();
+  const byPreset = new Map<DecorPresetId, Scene>();
+  for (const item of scenes) {
+    const key = decorPresetOf(item);
+    if (!key || byPreset.has(key)) continue;
+    byPreset.set(key, item);
+    taken.add(item.id);
+  }
+  return { byPreset, extras: scenes.filter(item => !taken.has(item.id)) };
+}
+
+function DecorPicture({ item, media }: { item: Scene; media: Record<string, string> }) {
+  const photo = item.render ?? item.stills[0];
+  if (photo && media[photo]) return <img src={media[photo]} alt="" />;
+  const preset = decorPresetOf(item);
+  if (preset) return <img src={assetPath(`/images/decors/${preset}.svg`)} alt="" />;
+  return <span className="u-decor-plain" />;
+}
+
+function Tick() {
+  return <span className="u-tick" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 12.5 10 17l9-10" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg></span>;
+}
+
+export function DecorStage({ onPrise }: { onPrise(): void }) {
+  const { studio, scene, media, addScene, selectScene, addSceneStills, saveScene, setPreviz } = useStudio();
+  const { t } = useI18n();
+  const { byPreset, extras } = presetCards(studio.scenes);
+  const blocked = !scene;
+
+  async function choose(id: DecorPresetId) {
+    const held = byPreset.get(id);
+    if (held) {
+      await selectScene(held.id);
+      return;
+    }
+    const created = await addScene(t(PRESET_LABEL[id]), decorStorageId(id));
+    const plan = presetPlan(id);
+    if (created && plan) await setPreviz(created, plan);
+  }
+
+  async function addPhoto(files: File[]) {
+    if (files.length === 0) return;
+    const name = nextNumberedName(t("stage.photoPlaceName"), studio.scenes.map(item => item.name));
+    const created = await addScene(name);
+    if (created) await addSceneStills(created, files);
+  }
+
+  function card(item: Scene, picture: DecorPresetId | "photo") {
+    const selected = item.id === scene?.id;
+    return <article key={item.id} className="u-decor-card" data-selected={selected || undefined}>
+      <button type="button" aria-pressed={selected} onClick={() => void selectScene(item.id)}>
+        {picture === "photo" ? <DecorPicture item={item} media={media} /> : <img src={assetPath(`/images/decors/${picture}.svg`)} alt="" />}
+        <span>{item.name.trim() || t("common.unnamed")}</span>
+        {selected && <Tick />}
+      </button>
+      {selected && <label className="u-field u-decor-name">
+        <span className="u-label">{t("stage.name")}</span>
+        <input value={item.name} maxLength={40} aria-label={t("stage.name")} onChange={event => void saveScene(item.id, { name: event.target.value.slice(0, 40) })} />
+      </label>}
+    </article>;
   }
 
   return <section className="u-screen u-stage" data-section="decor" aria-labelledby="u-title">
@@ -127,42 +183,28 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <h1 id="u-title" tabIndex={-1}>{t("nav.scene")}</h1>
       <p className="u-lead">{t("stage.decorLead")}</p>
     </header>
-    <div className="u-board">
-      {studio.scenes.length === 0 && <figure className="u-example u-night">
-        <figcaption>{t("stage.exampleDecor")}</figcaption>
-      </figure>}
-      {studio.scenes.map(item => {
-        const still = item.render ?? item.stills[0];
-        const selected = item.id === scene?.id;
-        return <article key={item.id} className="u-place" data-selected={selected || undefined}>
-          <button type="button" aria-pressed={selected} onClick={() => void selectScene(item.id)}>
-            {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
-            <span>{item.name.trim() || t("common.unnamed")}</span>
+    <div className="u-decor-grid">
+      {DECOR_PRESETS.map(preset => {
+        const held = byPreset.get(preset.id);
+        if (held) return card(held, "photo");
+        return <article key={preset.id} className="u-decor-card">
+          <button type="button" aria-pressed={false} onClick={() => void choose(preset.id)}>
+            <img src={assetPath(`/images/decors/${preset.id}.svg`)} alt="" />
+            <span>{t(PRESET_LABEL[preset.id])}</span>
           </button>
-          {selected && item.stills.length < 2 && <label className="u-link">
-            {t("stage.addPlacePhoto")}
-            <input className="sr-only" type="file" accept="image/*" onChange={event => { void addSceneStills(item.id, [...(event.target.files ?? [])]); event.target.value = ""; }} />
-          </label>}
         </article>;
       })}
-    </div>
-    {posing && <form id="u-decor-form" className="u-stack" onSubmit={add}>
-      <label className="u-field">
-        <span className="u-label">{t("stage.chooseDecor")}</span>
-        <input id="u-decor-name" value={draft} maxLength={40} onChange={event => setDraft(event.target.value)} />
+      {extras.map(item => card(item, "photo"))}
+      <label className="u-decor-card u-decor-add">
+        <span className="u-decor-plus" aria-hidden="true">+</span>
+        <span>{t("stage.addPlacePhoto")}</span>
+        <input className="sr-only" type="file" accept="image/*" aria-label={t("stage.addPlacePhoto")} onChange={event => { void addPhoto([...(event.target.files ?? [])]); event.target.value = ""; }} />
       </label>
-    </form>}
-    {studio.scenes.length > 0 && !adding && <button type="button" className="u-link" onClick={() => setAdding(true)}>{t("stage.addDecor")}</button>}
-    <button
-      type={posing ? "submit" : "button"}
-      form={posing ? "u-decor-form" : undefined}
-      className="u-primary"
-      data-decor-gold=""
-      disabled={blocked}
-      aria-describedby={blocked ? "u-why-decor" : undefined}
-      onClick={() => { if (!posing) onPrise(); }}
-    >{posing ? t("stage.addDecor") : t("stage.passPrise")} <Arrow /></button>
-    <Why on={blocked} id="u-why-decor" text={t("why.needName")} />
+    </div>
+    <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={onPrise}>
+      {t("stage.passPrise")} <Arrow />
+    </button>
+    <Why on={blocked} id="u-why-decor" text={t("stage.chooseDecor")} />
   </section>;
 }
 
@@ -188,12 +230,6 @@ export function PriseStage({ goCast, goDecor }: { goCast(): void; goDecor(): voi
   const [reading, setReading] = useState(false);
   const lookPhoto = studio.look.photos[0];
   const missing = step === "cast" ? t("stage.missingPhotos") : step === "decor" ? t("stage.missingDecor") : step === "action" ? t("stage.missingAction") : step === "connect" ? (engine === "lora" ? t("stage.missingFal") : t("stage.missingConnect")) : step === "hold" ? (price ? t("stage.hold") : t("stage.noQuote")) : "";
-  const gold = step === "cast" ? t("stage.goCast")
-    : step === "decor" ? t("stage.goDecor")
-    : step === "connect" ? (engine === "lora" ? t("stage.connectFal") : t("stage.connectComfy"))
-    : price ? t("stage.generatePriced", { price }) : t("stage.generate");
-  const blocked = step === "action" || step === "hold";
-
   function press() {
     if (step === "cast") goCast();
     else if (step === "decor") goDecor();
@@ -237,56 +273,52 @@ export function PriseStage({ goCast, goDecor }: { goCast(): void; goDecor(): voi
       <button type="button" className="u-primary" onClick={() => { if (run.code === "auth" || run.code === "scope") { resetRun(); setSheet("connect"); } else resumeRun(); }}>{run.code === "auth" || run.code === "scope" ? t("stage.connectComfy") : t("verb.resume")}</button>
     </div>}
 
-    {run.phase === "idle" && <>
-      {(step === "cast" || step === "decor") && <>
-        <p className="u-small">{missing}</p>
-        <button type="button" className="u-primary" data-prise-gold="" onClick={press}>{gold} <Arrow /></button>
-      </>}
-      <div className="u-prise-grid">
-      {(!readyCast || !scene) && <figure className="u-example">
-        <img src={assetPath("/images/uttu-canon-portrait.webp")} alt={t("stage.exampleCastAlt")} />
-        <figcaption>{t("stage.examplePrise")}</figcaption>
-      </figure>}
-      <div className="u-stack">
+    {run.phase === "idle" && <div className="u-prise-board">
       <div>
         <p className="u-label">{t("stage.who")}</p>
         <div className="u-pick-row">
-          <button type="button" aria-pressed={engine !== "lora"} onClick={() => { setEngine("comfy"); setLora(""); }}>
-            {lookPhoto && media[lookPhoto] ? <img src={media[lookPhoto]} alt="" /> : <span className="u-scene-empty"><Plus /></span>}
-            <span>{name || t("common.character")}</span>
-            <small>{t("stage.photosCharacter")}</small>
-          </button>
-          {people.map(person => <button key={person.id} type="button" aria-pressed={engine === "lora" && chosenLora?.id === person.id} onClick={() => { setEngine("lora"); setLora(person.id); }}>
-            <span className="u-scene-empty"><Web /></span>
-            <span>{person.name || t("common.character")}</span>
-            <small>{t("stage.fileCharacter")}</small>
-          </button>)}
+          {studio.look.photos.length === 0 && people.length === 0 ? <button type="button" className="u-pick" onClick={goCast}>{t("stage.addCharacter")}</button> : <>
+            {studio.look.photos.length > 0 && <button type="button" className="u-pick" aria-pressed={engine !== "lora"} data-selected={engine !== "lora" || undefined} onClick={() => { setEngine("comfy"); setLora(""); }}>
+              {lookPhoto && media[lookPhoto] ? <img src={media[lookPhoto]} alt="" /> : <img src={assetPath("/images/decors/silhouette.svg")} alt="" />}
+              <span>{name || t("common.character")}</span>
+              <small>{readyCast ? t("stage.ready") : t("stage.incomplete")}</small>
+              {engine !== "lora" && <Tick />}
+            </button>}
+            {people.map(person => {
+              const selected = engine === "lora" && chosenLora?.id === person.id;
+              return <button key={person.id} type="button" className="u-pick" aria-pressed={selected} data-selected={selected || undefined} onClick={() => { setEngine("lora"); setLora(person.id); }}>
+                <img src={assetPath("/images/decors/silhouette.svg")} alt="" />
+                <span>{person.name || t("common.character")}</span>
+                <small>{t("stage.ready")}</small>
+                {selected && <Tick />}
+              </button>;
+            })}
+          </>}
         </div>
       </div>
       <div>
         <p className="u-label">{t("stage.where")}</p>
         <div className="u-pick-row">
-          {studio.scenes.length === 0 && <p className="u-small">{t("stage.missingDecor")}</p>}
-          {studio.scenes.map(item => {
-            const still = item.render ?? item.stills[0];
-            return <button key={item.id} type="button" aria-pressed={item.id === scene?.id} onClick={() => void selectScene(item.id)}>
-              {still && media[still] ? <img src={media[still]} alt="" /> : <span className="u-scene-empty"><Web /></span>}
+          {studio.scenes.length === 0 ? <button type="button" className="u-pick" onClick={goDecor}>{t("stage.addDecor")}</button> : studio.scenes.map(item => {
+            const selected = item.id === scene?.id;
+            return <button key={item.id} type="button" className="u-pick" aria-pressed={selected} data-selected={selected || undefined} onClick={() => void selectScene(item.id)}>
+              <DecorPicture item={item} media={media} />
               <span>{item.name.trim() || t("common.unnamed")}</span>
+              {selected && <Tick />}
             </button>;
           })}
         </div>
       </div>
-      <label className="u-field">
+      <label className="u-field u-prise-action">
         <span className="u-label">{t("stage.action")}</span>
-        <textarea id="u-prise-phrase" value={line} rows={3} maxLength={240} onChange={event => setLine(event.target.value)} />
+        <textarea id="u-prise-phrase" value={line} rows={2} maxLength={240} onChange={event => setLine(event.target.value)} />
       </label>
-      <p className={`u-cost is-${price ? "ok" : "block"}`}>{price ?? t("stage.noQuote")}</p>
-      {step !== "cast" && step !== "decor" && <>
-        <button type="button" className="u-primary" data-prise-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-prise" : undefined} onClick={press}>{gold} <Arrow /></button>
-        <Why on={blocked} id="u-why-prise" text={missing} />
-      </>}
+      <div className="u-prise-go">
+        <p className={`u-cost is-${price ? "ok" : "block"}`}>{price ?? t("stage.noQuote")}</p>
+        <button type="button" className="u-primary" data-prise-gold="" disabled={step !== "generate"} aria-describedby={step !== "generate" ? "u-why-prise" : undefined} onClick={press}>{price ? t("stage.generatePriced", { price }) : t("stage.generate")} <Arrow /></button>
+        <Why on={step !== "generate"} id="u-why-prise" text={missing} />
+        {step === "connect" && <button type="button" className="u-link" onClick={() => setSheet(engine === "lora" ? "fal" : "connect")}>{engine === "lora" ? t("stage.connectFal") : t("stage.connectComfy")}</button>}
       </div>
-      </div>
-    </>}
+    </div>}
   </section>;
 }

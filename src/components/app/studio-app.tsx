@@ -160,9 +160,10 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
         <span>U<em>*</em>TTU</span>
       </a>
       <div className="u-top-tools">
-        <button type="button" className="u-coffre" onClick={() => { setDrawerFocus(null); setDrawer(true); }} aria-label={t("nav.studio")}><Coffre /><span>{t("nav.studio")}</span></button>
+        <button type="button" className="u-coffre" onClick={() => { setDrawerFocus(null); setDrawer(true); }} aria-label={t("nav.studio")}><Coffre /><span className="u-tool-label">{t("nav.studio")}</span></button>
         <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria, fal: falAria })}>
-          <span>{t("sheet.walletTitle")}</span>
+          <span className="u-tool-full">{t("sheet.walletTitle")}</span>
+          <span className="u-tool-short">{t("stage.creditsShort")}</span>
         </button>
         <LanguageSwitcher />
       </div>

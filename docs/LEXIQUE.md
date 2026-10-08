@@ -33,6 +33,7 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 - Aria et libellés de lieu : **Lieux**.
 - Étape : **CAST**. Moteur du fichier : **Personnage (fichier)**. Chemin : **Fichier**.
 - Lieu : **DÉCOR**. Prise : **PRISE**. EN Cast / Set / Take. DE Besetzung / Kulisse / Take. ES Reparto / Decorado / Toma. `_human: native_open`.
+- Les vignettes de DÉCOR sont Le quai, la nuit, Une rue, Une pièce, Un toit, Une gare, Un couloir. Quai, Rue et Pièce restent les espaces stockés. Les images sont des SVG du dépôt : [CREDITS.md](CREDITS.md).
 - Sphère : sous-titre **Tes prises**.
 - Verbes : Relier, Lancer, Tourner, Former, Filmer, Bâtir.
 - Moteur. Distribution. Prise.

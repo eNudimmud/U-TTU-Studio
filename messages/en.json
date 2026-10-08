@@ -916,6 +916,15 @@
     "closeDrawer": "Close",
     "trainFile": "Train a file",
     "cameraPath": "Set path",
-    "cinema": "Camera moves"
+    "cinema": "Camera moves",
+    "decorQuai": "The quay at night",
+    "decorRue": "A street",
+    "decorPiece": "A room",
+    "decorToit": "A roof",
+    "decorGare": "A station",
+    "decorCouloir": "A corridor",
+    "incomplete": "Incomplete",
+    "creditsShort": "Credits",
+    "photoPlaceName": "Place photo"
   }
 }

@@ -916,6 +916,15 @@
     "closeDrawer": "Cerrar",
     "trainFile": "Formar un archivo",
     "cameraPath": "Recorrido del decorado",
-    "cinema": "Gestos de cámara"
+    "cinema": "Gestos de cámara",
+    "decorQuai": "El muelle de noche",
+    "decorRue": "Una calle",
+    "decorPiece": "Una habitación",
+    "decorToit": "Un tejado",
+    "decorGare": "Una estación",
+    "decorCouloir": "Un pasillo",
+    "incomplete": "Incompleto",
+    "creditsShort": "Créditos",
+    "photoPlaceName": "Foto del lugar"
   }
 }

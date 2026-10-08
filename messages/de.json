@@ -916,6 +916,15 @@
     "closeDrawer": "Schliessen",
     "trainFile": "Eine Datei trainieren",
     "cameraPath": "Weg der Kulisse",
-    "cinema": "Kamerabewegungen"
+    "cinema": "Kamerabewegungen",
+    "decorQuai": "Der Kai bei Nacht",
+    "decorRue": "Eine Straße",
+    "decorPiece": "Ein Zimmer",
+    "decorToit": "Ein Dach",
+    "decorGare": "Ein Bahnhof",
+    "decorCouloir": "Ein Gang",
+    "incomplete": "Unvollständig",
+    "creditsShort": "Credits",
+    "photoPlaceName": "Foto des Orts"
   }
 }

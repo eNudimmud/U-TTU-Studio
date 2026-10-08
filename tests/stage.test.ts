@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import { decorPresetOf, DECOR_PRESETS } from "../src/lib/decor-catalog.ts";
 import { BILLED_MEASURE } from "../src/lib/render/billed-quote.ts";
 import { castReady, decorReady, priseNext, priseReady, quotedCredits } from "../src/lib/stage.ts";
 
@@ -47,7 +48,7 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.match(decor, /data-decor-gold/);
     assert.match(decor, /aria-describedby=\{blocked \? "u-why-decor"/);
     assert.match(prise, /data-prise-gold/);
-    assert.match(prise, /aria-describedby=\{blocked \? "u-why-prise"/);
+    assert.match(prise, /aria-describedby=\{step !== "generate" \? "u-why-prise"/);
     assert.match(prise, /requestRun\(\)/);
     assert.doesNotMatch(prise, /confirmRun\(/);
     assert.match(prise, /goCast\(\)/);
@@ -62,5 +63,20 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.match(drawer, /t\("nav\.take"\)/);
     assert.match(drawer, /quoteSentence\(takeQuote\)/);
     assert.doesNotMatch(drawer, /className="u-primary"/);
+    assert.match(drawer, /LanguageSwitcher/);
+    assert.match(read("src/components/app/app.css"), /\.u-top \.u-lang \{ display: none; \}/);
+    assert.match(read("src/components/app/stage-screens.tsx"), /images\/decors\/\$\{preset\.id\}\.svg/);
+    assert.match(read("src/components/app/stage-screens.tsx"), /data-prise-gold/);
+    assert.match(read("src/components/app/stage-screens.tsx"), /stage\.generatePriced/);
+  });
+
+  it("keeps Quai, Rue and Pièce as pictures, without a new stored plan", () => {
+    assert.deepEqual(DECOR_PRESETS.map(item => item.id), ["quai", "rue", "piece", "toit", "gare", "couloir"]);
+    assert.equal(decorPresetOf({ id: "decor-quai", previz: "quai" }), "quai");
+    assert.equal(decorPresetOf({ id: "le-quai", previz: "quai" }), "quai");
+    assert.equal(decorPresetOf({ id: "decor-toit", previz: null }), "toit");
+    assert.equal(decorPresetOf({ id: "lieu-1", previz: null }), null);
+    assert.equal(DECOR_PRESETS.find(item => item.id === "toit")?.plan, null);
+    assert.equal(DECOR_PRESETS.find(item => item.id === "piece")?.plan, "piece");
   });
 });

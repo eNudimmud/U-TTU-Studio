@@ -916,6 +916,15 @@
     "closeDrawer": "Fermer",
     "trainFile": "Former un fichier",
     "cameraPath": "Trajet du décor",
-    "cinema": "Gestes de caméra"
+    "cinema": "Gestes de caméra",
+    "decorQuai": "Le quai, la nuit",
+    "decorRue": "Une rue",
+    "decorPiece": "Une pièce",
+    "decorToit": "Un toit",
+    "decorGare": "Une gare",
+    "decorCouloir": "Un couloir",
+    "incomplete": "Incomplet",
+    "creditsShort": "Crédits",
+    "photoPlaceName": "Photo de lieu"
   }
 }

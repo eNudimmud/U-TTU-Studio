@@ -9,7 +9,7 @@ import { quoteSentence } from "@/lib/render/billed-quote";
 import { TAKE_STEPS, takeProfile } from "@/lib/render/take-graph";
 import { quotedCredits } from "@/lib/stage";
 import { assetPath } from "@/lib/site";
-import { useI18n } from "@/components/i18n/provider";
+import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { CinemaGestures } from "./cinema-gestures";
 import { FichesScreen } from "./fiches-screen";
 import { Why } from "./guide-bubble";
@@ -58,6 +58,7 @@ export function StudioDrawer({
         <button type="button" id="u-drawer-close" className="u-icon" aria-label={t("stage.closeDrawer")} onClick={onClose}><Close /></button>
       </header>
       <div className="u-drawer-body">
+        <div className="u-drawer-lang"><LanguageSwitcher /></div>
         <section className="u-stack">
           <p className="u-small">{t("stage.drawerProject")}</p>
           <div role="radiogroup" aria-label={t("sheet.currentProject")} className="u-project-list">
