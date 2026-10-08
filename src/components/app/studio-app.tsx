@@ -177,7 +177,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", !studio.studio.role.name.trim() && "lora-name", studio.studio.role.photos.length < 2 && "lora-photos", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready", training.phase === "idle" && !memoryFilled(studio.studio.memory) && "lora-memory"]
       : [!check.photos && "look-photos", !check.name && "look-name", check.ready && "look-ready", !memoryFilled(studio.studio.memory) && "lora-memory"]
     : tab === "prise"
-    ? [run.phase === "running" && "take-running", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : !studio.line.trim() ? "take-line" : "take-ready"), run.phase === "idle" && !memoryFilled(studio.studio.memory) && "take-memory"]
+    ? [run.phase === "running" && "take-running", run.phase === "done" && studio.studio.sequences.some(item => item.links.some(link => link.takeId === run.takeId)) && "take-filed", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : !studio.line.trim() ? "take-line" : "take-ready"), run.phase === "idle" && !memoryFilled(studio.studio.memory) && "take-memory"]
     : tab === "fiches"
     ? []
     : [studio.studio.takes.length === 0 && "sphere-empty"];

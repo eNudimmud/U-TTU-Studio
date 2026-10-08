@@ -59,6 +59,7 @@
     "take-ready": "Ich zeige den Preis vorher. Nichts geht ohne deine Geste.",
     "take-running": "Der Faden läuft. Bleib hier, oder komm später zurück.",
     "take-done": "Der Take ist da. Eine Geste setzt ihn in einen Shot.",
+    "take-filed": "Der Take liegt in der Sequenz. Eine Geste liest ihn.",
     "take-double": "Diese Figur hält von Take zu Take. Die Fotos halten den Rest.",
     "lora-name": "Benenne die Figur. Die nächsten Takes halten sie.",
     "lora-photos": "Zwei Fotos dieser Figur. Sie begleiten die Clips.",
@@ -82,6 +83,7 @@
     "needKey": "Der Schlüssel fehlt.",
     "planFresh": "Dieser Take steht schon am Anfang.",
     "hold": "Kalkulation oder Guthaben hält die Geste zurück.",
+    "alreadyFiled": "Dieser Take ist schon in {name}.",
     "running": "Es läuft schon."
   },
   "verb": {
@@ -342,6 +344,9 @@
   "take": {
     "kicker": "03 · Der Take",
     "title": "Der Take.",
+    "reprise": "{project} · {who} · {place}.",
+    "repriseHeld": "Wieder da. Nichts neu zu schreiben.",
+    "characterHeld": "{name} ist für diesen Take wieder da.",
     "runningFal": "Dein fal-Konto rechnet, mit dieser Figur.",
     "runningRender": "Dein Render-Konto rechnet.",
     "stay": "Du kannst hier bleiben oder später zurückkommen: der Take kommt in « Mein Studio ».",
@@ -387,6 +392,7 @@
     "filmedStill": "Gefilmtes Bild",
     "resetPlan": "Diesen Take zurücksetzen",
     "next": "Nach Drehen setzt eine Geste den Shot. Der Export liegt auf der Sequenz.",
+    "nextReturn": "Nach Drehen kommt der Take in die Sequenz. Lesen, dann exportieren.",
     "pose": "Den Shot setzen",
     "poseHint": "Ein Shot, in einer Sequenz. Die Namen stehen schon da.",
     "measuredFold": "Einstellung · {seconds} s, {format}, {quality}",

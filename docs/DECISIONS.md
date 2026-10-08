@@ -2,6 +2,40 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
 
+## F33 fusionné avec F32 — 8 octobre 2026
+
+`main` est à `b95dfd2` (F32, PR #90). Cette note dit ce que la fusion garde. Elle ne remplace pas les mesures d’avant.
+
+- **Fait :** la fusion a conflicté sur `docs/DECISIONS.md`, `src/components/app/screens.tsx` et `tests/ergonomie.test.ts`.
+- **Décision :** un projet neuf offre Personnage 1, Lieu 1 et « Le personnage est dans le lieu. ». Un projet déjà nommé les garde : le coffre du retour garde Mira. Entrée sur ordinateur reste. `PATH_APRES` reste 9 gestes, 0 saisie. `PATH_RETOUR_APRES` reste 4 gestes, 0 saisie. Sans séquence, « Poser le plan » est le bouton or, avant la vidéo. Quand la prise est déjà dans la séquence, « Lire la séquence » est le bouton or, avant la vidéo, et « Poser le plan » est éteint, avec sa raison.
+- **Fait :** `npm test`, Chrome headless, français, coffre Atelier / Mira / Lieu 1, dpr 2. À 390×844, la ligne reprise finit à 338 px, « Tourner · 4 crédits, mesurés » va de 592 à 646 px (hauteur 54), limite de chaîne 723, overflow 0. « Lire la séquence » finit à 248 px (hauteur 54). « Poser le plan » est éteint. La raison est « Cette prise est déjà dans Séquence 1. ». À 1280×800, la reprise finit à 342 px, le bouton or va de 542 à 596 px (hauteur 54), limite 800, overflow 0. « Lire la séquence » finit à 248 px (hauteur 54). Le test compte quatre taps : Tourner, confirmation, Lire, Export. Le parcours novice du même `npm test` passe aux deux fenêtres.
+- **Hypothèse :** une personne qui ne change pas la phrase reprise suit ces 4 gestes. Le bouton or à 390 est plus bas qu’avant la fusion (575–629 px dans la note F33 ci-dessous). La ligne reprise, elle, finit au même endroit. Le test n’exige que le bas au-dessus de la chaîne.
+- **Pas fait :** pas de téléphone physique. Pas de nouvelle mesure EN, DE ou ES sur le retour. 0 crédit : le test coupe `cloud.comfy.org`, `api.comfy.org` et `fal.ai`.
+
+## F33 — le retour reprend le projet, le personnage et le lieu — 8 octobre 2026
+
+Méthode du compte, la même que F29 et F31. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui rouvre le studio, retrouve le projet déjà dans Mon studio, tourne une deuxième prise avec le même personnage et le même lieu, relit la séquence, puis exporte. Une saisie déjà écrite n’est pas un geste. La confirmation payante reste. Le parcours novice (9 gestes, 0 saisie) ne bouge pas.
+
+| | Avant | Après, F33 |
+| --- | --- | --- |
+| Gestes | 5 | 4 |
+| dont saisies | 0 | 0 |
+| dont taps | 5 | 4 |
+| Écrans | 4 | 3 |
+| Décisions | 0 | 0 |
+| Retours forcés | 0 | 0 |
+
+- **Fait :** avant ce tour, Chrome headless, 390×844, dpr 2, scroll 0, français, coffre déjà rempli (projet Atelier, Mira, deux photos, deux traits, Lieu 1, une prise, Séquence 1, Plan 1, compte lié par une clé locale, solde du mock). L’ouverture sans `?step=` tombe sur La prise. Le bouton or « Tourner · 4 crédits, mesurés » va de 555 à 609 px (hauteur 54). La chaîne commence à 723 px. `scrollWidth` − `clientWidth` = 0. Le lieu est déjà « Lieu 1 » dans la liste. Le nom Mira n’est que dans la légende, plus bas. La ligne à côté de la distribution dit « Aucun personnage dans mon studio ». Le nom du projet n’est pas à côté du geste. Le plus court chemin tape ensuite : confirmation, « Poser le plan », « Lire la séquence », « Exporter mon studio (.zip) ». Cinq taps, zéro saisie. Poser ouvre la séquence alors que la prise neuve y est déjà rangée.
+- **Fait :** même machine, avant, 1280×800, dpr 2, scroll 0, français. La chaîne est le rail gauche. Le bouton or va de 522 à 576 px (hauteur 54), la fenêtre fait 800 px. `scrollWidth` − `clientWidth` = 0. Même phrase « Aucun personnage », même lieu déjà choisi.
+- **Proposition :** écrire le dernier projet, le dernier personnage et le dernier lieu au-dessus du geste. Remplacer « Aucun personnage » par le nom repris, tant que la prise passe par les références. Éteindre « Poser le plan » quand la prise est déjà dans la séquence, avec la raison sous le bouton, et faire de « Lire la séquence » le geste or, sur la même feuille que l’export.
+- **Décision :** la ligne « Atelier · Mira · Lieu 1. Repris. Rien à ressaisir. » est dans la carte, au-dessus de la phrase et du bouton or, dès qu’une prise est déjà dans le projet. Sans prise, la carte reste celle de F30 : la raison sous un Tourner éteint tient dans le premier écran, y compris en allemand. « Mira est repris pour cette prise. » remplace le lien qui envoyait vers un fichier. Le lieu reste le dernier lieu du projet. Quand la prise aboutit et qu’une séquence la tient déjà, « Lire la séquence » et « Exporter mon studio (.zip) » sont au-dessus de la vidéo. « Poser le plan » est éteint. La raison : « Cette prise est déjà dans Séquence 1. » La guide dit alors « La prise est dans la séquence. Un geste la lit. » Sans séquence, « Poser le plan » reste le geste or du novice, avant la vidéo. Un projet déjà nommé garde son nom. Un projet neuf suit Personnage 1 (F32), pas Mira.
+- **Fait :** après ce tour, Chrome headless, 390×844, dpr 2, scroll 0, français, même coffre. Chaîne à 723 px. `scrollWidth` − `clientWidth` = 0. La ligne reprise finit à 338 px. Le bouton or va de 575 à 629 px (hauteur 54). Après Tourner et la confirmation, « Lire la séquence » finit à 248 px (hauteur 54), au-dessus de la chaîne. « Poser le plan » est éteint. La raison est lisible. Quatre taps, zéro saisie : Tourner, confirmation, Lire, Export. Le lecteur enchaîne les deux prises. Le ZIP passe `unzip -t`.
+- **Fait :** même fenêtre, 1280×800, dpr 2, scroll 0, français. La chaîne est le rail gauche, la fenêtre fait 800 px. `scrollWidth` − `clientWidth` = 0. La ligne reprise finit à 342 px. Le bouton or va de 542 à 596 px (hauteur 54). « Lire la séquence » finit à 248 px (hauteur 54). Même quatre taps, même ZIP.
+- **Fait :** le parcours novice reste 9 gestes, 0 saisie, 7 écrans. `tests/ergonomie.test.ts` et `tests/prise-parcours.test.ts` le tiennent. `tests/retour-parcours.test.ts` tient le plafond 4 aux deux fenêtres.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Le test coupe `cloud.comfy.org`, `api.comfy.org` et `fal.ai`. Tourner passe par le mock local. EN, DE et ES portent `_human: native_open`. Les lignes neuves ne sont pas une signature de locuteur natif.
+- **Hypothèse :** une personne qui ne change pas la phrase suit ces 4 gestes. Le lien « Aucun personnage » n’était pas sur le plus court chemin : il envoyait vers un fichier que cette prise n’utilise pas. Ce tour ne rejoue pas le sélecteur de photos.
+- **Pas fait :** pas de téléphone physique. Les mesures Chrome de ce tour sont en français. EN, DE et ES n’ont pas été remesurés dans Chrome.
+
 ## F32 — Entrée, défauts novice, clavier — 8 octobre 2026
 
 Méthode du compte, la même que F29. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui pose une prise sur un plan, lit la séquence, puis exporte. Une saisie déjà écrite n’est pas un geste. Un nom déjà écrit n’est pas une décision. Deux photos restent un tap. La confirmation payante reste. Entrée, sur ordinateur, est une autre façon de faire le geste déjà à l’écran : elle ne retire pas un tap du compte, parce que le téléphone n’a pas cette touche.

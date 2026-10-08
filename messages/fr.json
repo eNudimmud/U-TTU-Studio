@@ -59,6 +59,7 @@
     "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
     "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
     "take-done": "La prise est là. Un geste la pose dans un plan.",
+    "take-filed": "La prise est dans la séquence. Un geste la lit.",
     "take-double": "Ce personnage tient d’une prise à l’autre. Les photos tiennent le reste.",
     "lora-name": "Nomme le personnage. C’est lui que les prises suivantes tiennent.",
     "lora-photos": "Deux photos de ce personnage. Elles accompagnent les clips.",
@@ -82,6 +83,7 @@
     "needKey": "Il manque la clé.",
     "planFresh": "Cette prise est déjà au départ.",
     "hold": "Le devis ou le solde ne laisse pas partir.",
+    "alreadyFiled": "Cette prise est déjà dans {name}.",
     "running": "Ça tourne déjà."
   },
   "verb": {
@@ -342,6 +344,9 @@
   "take": {
     "kicker": "03 · La prise",
     "title": "La prise.",
+    "reprise": "{project} · {who} · {place}.",
+    "repriseHeld": "Repris. Rien à ressaisir.",
+    "characterHeld": "{name} est repris pour cette prise.",
     "runningFal": "Ton compte fal calcule, avec ce personnage.",
     "runningRender": "Ton compte de rendu calcule.",
     "stay": "Tu peux rester ici ou revenir plus tard : la prise rejoint mon studio.",
@@ -387,6 +392,7 @@
     "filmedStill": "Image filmée",
     "resetPlan": "Remettre cette prise à zéro",
     "next": "Après Tourner, un geste pose le plan. L’export est sur la séquence.",
+    "nextReturn": "Après Tourner, la prise rejoint la séquence. Lire, puis exporter.",
     "pose": "Poser le plan",
     "poseHint": "Un plan, dans une séquence. Les noms sont déjà écrits.",
     "measuredFold": "Réglage · {seconds} s, {format}, {quality}",

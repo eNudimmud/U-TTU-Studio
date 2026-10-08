@@ -238,7 +238,7 @@ describe("F30 prise, geste or et parcours", () => {
     const port = await freePort();
     const child = spawn("npx", ["next", "dev", "--hostname", "127.0.0.1", "--port", String(port)], {
       cwd: root,
-      env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1" },
+      env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1", NEXT_DIST_DIR: ".next-prise" },
       stdio: ["ignore", "pipe", "pipe"],
       detached: true,
     });

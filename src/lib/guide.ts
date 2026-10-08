@@ -16,6 +16,7 @@ export type GuideMoment =
   | "take-ready"
   | "take-running"
   | "take-done"
+  | "take-filed"
   | "take-double"
   | "lora-name"
   | "lora-photos"
@@ -43,6 +44,7 @@ export const GUIDE_LINES: Record<GuideMoment, string> = {
   "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
   "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
   "take-done": "La prise est là. Un geste la pose dans un plan.",
+  "take-filed": "La prise est dans la séquence. Un geste la lit.",
   "take-double": "Ce personnage tient d’une prise à l’autre. Les photos tiennent le reste.",
   "lora-name": "Nomme le personnage. C’est lui que les prises suivantes tiennent.",
   "lora-photos": "Deux photos de ce personnage. Elles accompagnent les clips.",

@@ -59,6 +59,7 @@
     "take-ready": "I show the cost first. Nothing leaves without your gesture.",
     "take-running": "The thread is rolling. Stay here, or come back later.",
     "take-done": "The take is here. One gesture sets it on a shot.",
+    "take-filed": "The take is in the sequence. One gesture plays it.",
     "take-double": "This character holds from one take to the next. The photos hold the rest.",
     "lora-name": "Name the character. Later takes hold that one.",
     "lora-photos": "Two photos of this character. They go with the clips.",
@@ -82,6 +83,7 @@
     "needKey": "The key is missing.",
     "planFresh": "This take is already at the start.",
     "hold": "The quote or the balance will not let this leave.",
+    "alreadyFiled": "This take is already in {name}.",
     "running": "It is already running."
   },
   "verb": {
@@ -342,6 +344,9 @@
   "take": {
     "kicker": "03 · The take",
     "title": "The take.",
+    "reprise": "{project} · {who} · {place}.",
+    "repriseHeld": "Back. Nothing to type again.",
+    "characterHeld": "{name} is back for this take.",
     "runningFal": "Your fal account is computing, with this character.",
     "runningRender": "Your render account is computing.",
     "stay": "You can stay here or come back later: the take joins my studio.",
@@ -387,6 +392,7 @@
     "filmedStill": "Filmed image",
     "resetPlan": "Reset this take",
     "next": "After Shoot, one gesture sets the shot. The export is on the sequence.",
+    "nextReturn": "After Shoot, the take joins the sequence. Play, then export.",
     "pose": "Set the shot",
     "poseHint": "One shot, inside a sequence. The names are already written.",
     "measuredFold": "Setting · {seconds} s, {format}, {quality}",
