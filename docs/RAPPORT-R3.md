@@ -29,8 +29,10 @@
 
 ## Passe visuelle — 8 octobre 2026
 
-- **Fait :** la bande « Lecture / temps / Plein écran » n’est plus sur l’image. Les contrôles sont sous le cadre noir. Les outils sont une rangée d’icônes. La timeline a une règle, une tête or avec poignée, des vignettes sur les plans, une icône par piste. Le « + » de chaque piste audio remplace les liens « Déposer un son » et les deux gros boutons vides. « Exporter » est dans l’en-tête du montage. Sur 390 px, la chaîne est collée sous l’en-tête du studio, plus en bas de l’écran.
-- **Hypothèse :** la proximité avec CapCut web n’a pas été mesurée sur un compte CapCut. Les captures du studio sont celles du `next start` local. L’aperçu Vercel reste derrière l’authentification.
+- **Fait :** la bande « Lecture / temps / Plein écran » n’est plus sur l’image. Les contrôles sont sous le cadre noir. Le bouton lecture mesure 52 px. Sur le `next start` local, le cadre 16:9 de l’exemple fait 982×552 px à 1280 de large, et 352×198 px à 390. Les outils sont une rangée d’icônes. La timeline a une règle, une tête or avec poignée, des vignettes sur les plans, une icône par piste. Le « + » de chaque piste audio ouvre « Déposer un fichier » et, pour la voix, « Ajouter une voix » avec « Relie ton compte de rendu pour créer. » et le devis hypothèse. « Exporter » est dans l’en-tête. La fenêtre dit « 7 s · environ 812 Ko ». La lecture passe de `0:00 / 0:07` à `0:01 / 0:07`.
+- **Fait :** à 390 px, au repos, la chaîne est sous l’en-tête du studio (haut 56 px, bas 122 px). La timeline commence vers 640 px. Elles ne se recouvrent pas.
+- **Fait :** `https://www.capcut.com/editor` répond 200 et montre la page d’accueil, pas la table de montage. Sans compte, il n’y a pas de capture de comparaison.
+- **Hypothèse :** l’aperçu Vercel reste derrière l’authentification. Les captures sont celles du `next start` de ce commit.
 
 ## Ce qui manque
 

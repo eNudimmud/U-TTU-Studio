@@ -465,17 +465,18 @@
 .u-lien, .u-detail { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--u-line); border-radius: 16px; background: #121110; }
 .u-lien .u-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .u-lien .u-row .u-secondary { width: auto; flex: 1 1 180px; }
-.u-stage.u-montage { gap: 12px; }
+.u-stage.u-montage { gap: 12px; min-width: 0; max-width: 100%; }
 .u-stage.u-montage .u-head h1 { font-size: clamp(28px, 6vw, 48px); }
+.u-stage.u-montage > * { min-width: 0; }
 .u-montage-bar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .u-montage-bar .u-lead { margin: 0; }
 .u-export { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 12px; background: linear-gradient(180deg, var(--u-gold), var(--u-ochre)); color: #11100e; font: 650 14px/1 var(--font-body); }
 .u-export:disabled { opacity: .4; }
-.u-player { display: grid; gap: 8px; }
-.u-stage-frame { display: grid; place-items: center; width: 100%; min-height: 160px; border: 1px solid var(--u-line-strong); border-radius: 16px; background: #000; overflow: hidden; }
+.u-monitor { display: grid; gap: 8px; width: 100%; }
+.u-stage-frame { display: flex; align-items: center; justify-content: center; width: 100%; border: 1px solid var(--u-line-strong); border-radius: 16px; background: #000; overflow: hidden; }
 .u-viewer { position: relative; background: #000; }
-.u-viewer[data-ratio="16/9"] { width: min(100%, calc(min(46dvh, 480px) * 16 / 9)); aspect-ratio: 16 / 9; }
-.u-viewer[data-ratio="9/16"] { width: auto; height: min(46dvh, 480px); aspect-ratio: 9 / 16; }
+.u-viewer[data-ratio="16/9"] { width: 100%; max-height: 70dvh; aspect-ratio: 16 / 9; }
+.u-viewer[data-ratio="9/16"] { width: auto; max-width: 100%; height: min(52dvh, 560px); aspect-ratio: 9 / 16; }
 .u-viewer img, .u-viewer video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
 .u-viewer .u-slate { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; max-height: none; aspect-ratio: auto; margin: 0; padding: 16px; border: 0; border-radius: 0; background: transparent; }
 .u-controls { display: flex; align-items: center; gap: 8px; min-height: 52px; }
@@ -530,7 +531,7 @@
 .u-meter { height: 8px; overflow: hidden; border-radius: 99px; background: #1a1814; }
 .u-meter span { display: block; height: 100%; background: var(--u-gold); }
 @media (max-width: 799px) {
-  .u-stage.u-montage .u-tl { margin-inline: -18px; border-radius: 0; border-inline: 0; }
+  .u-stage.u-montage .u-tl { width: calc(100% + 36px); margin-inline: -18px; border-radius: 0; border-inline: 0; }
 }
 @media (min-width: 800px) {
   .u-levels { grid-template-columns: repeat(3, minmax(0, 1fr)); }

@@ -561,7 +561,7 @@ export function MontageStage() {
         show(historyOf(found ?? editFromShots(sequence, studio.shots, studio.takes)));
       })}>{sequence.name}</button>)}
     </div>}
-    <div className="u-player">
+    <div className="u-monitor">
       <div className="u-stage-frame">
         <div className="u-viewer" data-ratio={ratio} ref={viewerRef} onClick={toggle}>
           {picture ? <img src={picture} alt="" /> : null}
