@@ -860,7 +860,7 @@
 @media (max-width: 1023px) {
   .u-top { flex-wrap: wrap; }
   .u-top-project { flex: 1 1 100%; order: 3; }
-  .u-stage.u-prise { padding-bottom: calc(168px + var(--u-safe)); }
+  .u-stage.u-prise { padding-bottom: calc(220px + var(--u-safe)); }
   .u-prise-strip { order: 1; }
   .u-prise-preview { order: 2; }
   .u-prise-work { order: 3; }
@@ -873,7 +873,7 @@
   .u-plan-add { width: 64px; min-height: 64px; }
   .u-bar-quote { display: block; }
   .u-prise-card .u-prise-quote { display: none; }
-  .u-prise-actions { position: fixed; left: 10px; right: 10px; bottom: calc(70px + var(--u-safe)); z-index: 40; gap: 4px; padding: 8px; border: 1px solid var(--u-line-strong); border-radius: 14px; background: rgba(11, 10, 9, .96); }
+  .u-prise-actions { position: fixed; left: 10px; right: 10px; bottom: calc(82px + var(--u-safe)); z-index: 40; gap: 4px; padding: 8px; border: 1px solid var(--u-line-strong); border-radius: 14px; background: rgba(11, 10, 9, .96); }
 }
 .u-prise-side { display: contents; }
 @media (min-width: 1024px) {
