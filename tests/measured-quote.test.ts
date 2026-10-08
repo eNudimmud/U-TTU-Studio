@@ -19,7 +19,7 @@ const filmed = (patch: Partial<Take> = {}): Take => ({
   settings: { seconds: 5, quality: "rapide", aspect: "vertical" },
   profile: PROFILE,
   jobId: "0f6c1b1e-8d47-4f39-9e16-5f5d0f0b9a11",
-  video: "Projets/mira/Prises/prise-a.mp4",
+  video: "Projets/uttu/Prises/prise-a.mp4",
   poster: null,
   prompt: "",
   gpuSeconds: null,
@@ -83,7 +83,7 @@ describe("devis mesuré", () => {
 
   it("seeds the project once, and a cleared file stays empty", async () => {
     const store = memoryVault();
-    await createProject(store, "Mira");
+    await createProject(store, "Uttu");
     const take = filmed({ balanceBefore: 9000, balanceAfter: 8860, costCredits: 12 });
     await writeBlob(store, take.video, new Blob(["mp4"], { type: "video/mp4" }));
     await writeTake(store, take, [take]);
@@ -91,7 +91,7 @@ describe("devis mesuré", () => {
     assert.equal(seeded.quotes.length, 1);
     assert.equal(seeded.quotes[0]?.credits, 140);
     assert.equal(seeded.takes[0]?.costCredits, 12);
-    const file = (await store.get(`Projets/mira/${QUOTE_FILE}`))?.text ?? "";
+    const file = (await store.get(`Projets/uttu/${QUOTE_FILE}`))?.text ?? "";
     assert.match(file, /"seeded":true/);
     assert.equal(parseQuoteFile(undefined), null);
     assert.equal(parseQuoteFile("{"), null);
@@ -101,7 +101,7 @@ describe("devis mesuré", () => {
     const cleared = await loadStudio(store);
     assert.deepEqual(cleared.quotes, []);
     assert.equal(cleared.takes.length, 1);
-    const kept = (await store.get(`Projets/mira/${QUOTE_FILE}`))?.text ?? "";
+    const kept = (await store.get(`Projets/uttu/${QUOTE_FILE}`))?.text ?? "";
     assert.match(kept, /"quotes":\[\]/);
   });
 

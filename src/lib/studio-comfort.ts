@@ -100,7 +100,7 @@ export function characterPaths(input: { falLinked: boolean; quote: number | null
 
 /** A walkthrough the visitor can read before any account exists. The numbers are published tariffs, not a charge. */
 export const SAMPLE_TAKE = {
-  who: "Mira",
+  who: "Uttu",
   place: "Le quai, la nuit",
   line: "Elle traverse le quai sous la pluie, sans se retourner.",
   aspect: "9:16",

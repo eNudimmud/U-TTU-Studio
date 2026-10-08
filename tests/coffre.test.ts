@@ -39,16 +39,16 @@ const take = (patch: Partial<Take> = {}): Take => ({
 
 describe("coffre en markdown", () => {
   it("writes frontmatter Obsidian reads, and reads it back", () => {
-    const text = withFrontmatter({ type: "look", nom: "Mira: « v1 »", traits: ["yeux verts", "taches"], photos: [], vide: null, n: 3, ok: true }, "# Mira\n");
-    assert.match(text, /^---\ntype: "look"\nnom: "Mira: « v1 »"\ntraits:\n  - "yeux verts"\n  - "taches"\nphotos:\nvide: null\nn: 3\nok: true\n---\n/);
+    const text = withFrontmatter({ type: "look", nom: "Uttu: « v1 »", traits: ["yeux verts", "taches"], photos: [], vide: null, n: 3, ok: true }, "# Uttu\n");
+    assert.match(text, /^---\ntype: "look"\nnom: "Uttu: « v1 »"\ntraits:\n  - "yeux verts"\n  - "taches"\nphotos:\nvide: null\nn: 3\nok: true\n---\n/);
     const back = readFrontmatter(text);
-    assert.deepEqual(back.fields, { type: "look", nom: "Mira: « v1 »", traits: ["yeux verts", "taches"], photos: [], vide: null, n: 3, ok: true });
-    assert.equal(back.body, "# Mira\n");
+    assert.deepEqual(back.fields, { type: "look", nom: "Uttu: « v1 »", traits: ["yeux verts", "taches"], photos: [], vide: null, n: 3, ok: true });
+    assert.equal(back.body, "# Uttu\n");
     assert.deepEqual(readFrontmatter("pas de frontmatter").fields, {});
   });
 
   it("keeps the look, its traits and its photos in CANON.md", () => {
-    const look = { name: "Mira", traits: ["yeux verts", "taches de rousseur"], photos: ["Projets/atelier/Refs/look-a-1.jpg", "Projets/atelier/Refs/look-a-2.jpg"], note: "Toujours la capuche." };
+    const look = { name: "Uttu", traits: ["yeux verts", "taches de rousseur"], photos: ["Projets/atelier/Refs/look-a-1.jpg", "Projets/atelier/Refs/look-a-2.jpg"], note: "Toujours la capuche." };
     const text = canonMarkdown(look, "atelier");
     assert.match(text, /!\[\[Projets\/atelier\/Refs\/look-a-1\.jpg\]\]/);
     assert.equal(readFrontmatter(text).fields.type, "personnage");
@@ -71,7 +71,7 @@ describe("coffre en markdown", () => {
     assert.match(text, /!\[\[Projets\/atelier\/Prises\/20261003-153000-le-quai\.mp4\]\]/);
     assert.match(text, /cout_credits: 201/);
     assert.match(text, /moteur: "comfy"/);
-    assert.equal(parseTake("20261003-153000-le-quai", takeMarkdown(take({ engine: "lora", loraId: "mira" })))?.engine, "lora");
+    assert.equal(parseTake("20261003-153000-le-quai", takeMarkdown(take({ engine: "lora", loraId: "uttu" })))?.engine, "lora");
     assert.deepEqual(parseTake("20261003-153000-le-quai", text), take());
     assert.equal(parseTake("x", "---\ntype: \"prise\"\n---\n"), null);
   });
@@ -92,7 +92,7 @@ describe("coffre en markdown", () => {
     const store = memoryVault();
     await writeBlob(store, "Projets/atelier/Refs/look-a-1.jpg", new Blob(["p1"], { type: "image/jpeg" }));
     await writeBlob(store, "Projets/atelier/Refs/look-a-2.jpg", new Blob(["p2"], { type: "image/jpeg" }));
-    await writeLook(store, { name: "Mira", traits: ["yeux verts", "taches"], photos: ["Projets/atelier/Refs/look-a-1.jpg", "Projets/atelier/Refs/look-a-2.jpg", "Projets/atelier/Refs/missing.jpg"], note: "" });
+    await writeLook(store, { name: "Uttu", traits: ["yeux verts", "taches"], photos: ["Projets/atelier/Refs/look-a-1.jpg", "Projets/atelier/Refs/look-a-2.jpg", "Projets/atelier/Refs/missing.jpg"], note: "" });
     await writeScene(store, { id: "le-quai", name: "Le quai", note: "pluie fine", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
     await writeScene(store, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
     await writeState(store, "la-serre");
@@ -126,13 +126,13 @@ describe("coffre en markdown", () => {
 
   it("keeps a trained double next to the takes, and never a key", async () => {
     const trained: Lora = {
-      id: "20261003-160000-mira",
+      id: "20261003-160000-uttu",
       at: "2026-10-03T16:00:00.000Z",
-      name: "Mira",
+      name: "Uttu",
       kind: "personnage",
       sceneId: null,
-      trigger: "mira_uttu",
-      file: "Projets/atelier/Assets/20261003-160000-mira.safetensors",
+      trigger: "uttu_uttu",
+      file: "Projets/atelier/Assets/20261003-160000-uttu.safetensors",
       bytes: 4,
       sha256: "ab",
       steps: 1000,
@@ -155,14 +155,14 @@ describe("coffre en markdown", () => {
     await writeLora(store, trained, weights, [], [trained]);
     const studio = await loadStudio(store);
     assert.equal(studio.loras.length, 1);
-    assert.equal(studio.loras[0].trigger, "mira_uttu");
+    assert.equal(studio.loras[0].trigger, "uttu_uttu");
     assert.equal(studio.clips.length, 1);
     assert.equal(await sha256Hex(weights), await sha256Hex((await store.get(trained.file))?.blob ?? new Blob()));
     const jobs = (await store.get("Projets/atelier/Journal.md"))?.text ?? "";
-    assert.match(jobs, /\[\[Projets\/atelier\/Cast\/20261003-160000-mira\]\] \| fichier \| lora-1000pas-rang16 \| 400 \| 15\.00 \$/);
+    assert.match(jobs, /\[\[Projets\/atelier\/Cast\/20261003-160000-uttu\]\] \| fichier \| lora-1000pas-rang16 \| 400 \| 15\.00 \$/);
     assert.doesNotMatch(jobs, /\| fal \|/);
     const names = (await coffreEntries(store)).map(entry => entry.name).join("\n");
-    assert.match(names, /Assets\/20261003-160000-mira\.safetensors/);
+    assert.match(names, /Assets\/20261003-160000-uttu\.safetensors/);
     assert.doesNotMatch(names, /u-ttu-fal|fal-key/);
     await removeLora(store, trained, [], []);
     assert.equal((await loadStudio(store)).loras.length, 0);
@@ -170,7 +170,7 @@ describe("coffre en markdown", () => {
 
   it("produces a ZIP the reader opens", async () => {
     const store = memoryVault();
-    await writeLook(store, { name: "Mira", traits: [], photos: [], note: "" });
+    await writeLook(store, { name: "Uttu", traits: [], photos: [], note: "" });
     const { createZip } = await import("../src/lib/zip.ts");
     const archive = createZip(await coffreEntries(store), new Date(2026, 9, 3, 12, 0, 0));
     const files = readZip(archive).map(entry => entry.name);
@@ -184,13 +184,13 @@ describe("coffre en markdown", () => {
 
   it("maps the coffre with wikilinks and merges a ZIP without dropping what is already here", async () => {
     const trained: Lora = {
-      id: "20261003-160000-mira",
+      id: "20261003-160000-uttu",
       at: "2026-10-03T16:00:00.000Z",
-      name: "Mira",
+      name: "Uttu",
       kind: "personnage",
       sceneId: null,
-      trigger: "mira_uttu",
-      file: "Projets/atelier/Assets/20261003-160000-mira.safetensors",
+      trigger: "uttu_uttu",
+      file: "Projets/atelier/Assets/20261003-160000-uttu.safetensors",
       bytes: 4,
       sha256: "ab",
       steps: 1000,
@@ -219,7 +219,7 @@ describe("coffre en markdown", () => {
     const home = memoryVault();
     await writeBlob(home, "Projets/atelier/Refs/look-a-1.jpg", new Blob(["p1"]));
     await writeBlob(home, "Projets/atelier/Refs/look-a-2.jpg", new Blob(["p2"]));
-    await writeLook(home, { name: "Mira", traits: ["yeux verts", "taches"], photos: ["Projets/atelier/Refs/look-a-1.jpg", "Projets/atelier/Refs/look-a-2.jpg"], note: "" });
+    await writeLook(home, { name: "Uttu", traits: ["yeux verts", "taches"], photos: ["Projets/atelier/Refs/look-a-1.jpg", "Projets/atelier/Refs/look-a-2.jpg"], note: "" });
     await writeScene(home, { id: "le-quai", name: "Le quai", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
     await writeScene(home, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
     await writeBlob(home, here.video, new Blob(["mp4-ici"]));
@@ -230,10 +230,10 @@ describe("coffre en markdown", () => {
     const root = (await home.get("MOC.md"))?.text ?? "";
     assert.match(root, /\[\[Projets\/atelier\/_MOC\|Atelier\]\]/);
     const map = (await home.get("Projets/atelier/_MOC.md"))?.text ?? "";
-    assert.match(map, /\[\[Projets\/atelier\/Cast\/canon\|Mira\]\]/);
+    assert.match(map, /\[\[Projets\/atelier\/Cast\/canon\|Uttu\]\]/);
     assert.match(map, /\[\[Projets\/atelier\/Lieux\/le-quai\|Le quai\]\]/);
     assert.match(map, /\[\[Projets\/atelier\/Prises\/20261003-153000-le-quai\|Elle traverse le quai\.\]\]/);
-    assert.match(map, /\[\[Projets\/atelier\/Cast\/20261003-160000-mira\|Mira\]\]/);
+    assert.match(map, /\[\[Projets\/atelier\/Cast\/20261003-160000-uttu\|Uttu\]\]/);
     assert.match(map, /\[\[Projets\/atelier\/Journal\|Journal\]\]/);
     assert.doesNotMatch(map, /SaveLoRA|synchronis/i);
     await removeScene(home, { id: "la-serre", name: "La serre", note: "", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
@@ -265,7 +265,7 @@ describe("coffre en markdown", () => {
     assert.deepEqual(merged.takes.map(item => item.id).sort(), [here.id, elsewhere.id]);
     assert.equal(merged.takes.find(item => item.id === here.id)?.costCredits, 201);
     assert.equal(merged.loras.length, 1);
-    assert.equal(merged.loras[0].trigger, "mira_uttu");
+    assert.equal(merged.loras[0].trigger, "uttu_uttu");
     assert.equal(await sha256Hex((await home.get(trained.file))?.blob ?? new Blob()), kept);
     const jobs = (await home.get("Projets/atelier/Journal.md"))?.text ?? "";
     assert.match(jobs, /\[\[Projets\/atelier\/Prises\/20261003-153000-le-quai\]\]/);
@@ -273,21 +273,21 @@ describe("coffre en markdown", () => {
     const after = (await home.get("Projets/atelier/_MOC.md"))?.text ?? "";
     assert.match(after, /\[\[Projets\/atelier\/Prises\/20261004-090000-la-serre\|Elle entre\.\]\]/);
     assert.match(after, /\[\[Projets\/atelier\/Lieux\/la-serre\|La serre\]\]/);
-    assert.match(after, /\[\[Projets\/atelier\/Cast\/20261003-160000-mira\|Mira\]\]/);
+    assert.match(after, /\[\[Projets\/atelier\/Cast\/20261003-160000-uttu\|Uttu\]\]/);
   });
 
   it("keeps each project to itself, and still opens an old vault", async () => {
     const store = memoryVault();
-    await createProject(store, "Mira");
-    await writeLook(store, { name: "Mira", traits: ["yeux"], photos: [], note: "ici" });
+    await createProject(store, "Uttu");
+    await writeLook(store, { name: "Uttu", traits: ["yeux"], photos: [], note: "ici" });
     await createProject(store, "Léo");
     let studio = await loadStudio(store);
     assert.equal(studio.project, "leo");
     assert.equal(studio.look.name, "");
     assert.equal(studio.projects.length, 2);
-    await selectProject(store, "mira");
+    await selectProject(store, "uttu");
     studio = await loadStudio(store);
-    assert.equal(studio.look.name, "Mira");
+    assert.equal(studio.look.name, "Uttu");
     assert.equal(studio.look.note, "ici");
     assert.equal(studio.scenes.length, 0);
 
@@ -308,15 +308,15 @@ describe("coffre en markdown", () => {
   });
 
   it("keeps a section name for the folder, and marks a gabarit", async () => {
-    const seeded = scaffoldFiles("mira", "Mira").map(file => file.path);
-    assert.ok(seeded.includes("Projets/mira/Templates/modele-personnage.md"));
-    assert.ok(seeded.includes("Projets/mira/Templates/modele-scene.md"));
-    assert.ok(seeded.includes("Projets/mira/Templates/modele-prise.md"));
-    assert.ok(seeded.includes("Projets/mira/Templates/modele-sequence.md"));
+    const seeded = scaffoldFiles("uttu", "Uttu").map(file => file.path);
+    assert.ok(seeded.includes("Projets/uttu/Templates/modele-personnage.md"));
+    assert.ok(seeded.includes("Projets/uttu/Templates/modele-scene.md"));
+    assert.ok(seeded.includes("Projets/uttu/Templates/modele-prise.md"));
+    assert.ok(seeded.includes("Projets/uttu/Templates/modele-sequence.md"));
     assert.equal(seeded.some(path => /\/(?:Templates|Sequences)\/sequence\.md$/.test(path)), false);
     assert.equal(seeded.some(path => /\/Templates\/(?:personnage|scene|prise)\.md$/.test(path)), false);
-    assert.ok(seeded.includes("Projets/mira/Moteurs/moteur-personnage.md"));
-    assert.equal(seeded.includes("Projets/mira/Moteurs/personnage.md"), false);
+    assert.ok(seeded.includes("Projets/uttu/Moteurs/moteur-personnage.md"));
+    assert.equal(seeded.includes("Projets/uttu/Moteurs/personnage.md"), false);
 
     assert.equal(treeFileLabel("Modèles", "modele-prise.md"), "Modèle · Prise");
     assert.equal(treeFileLabel("Modèles", "modele-personnage.md"), "Modèle · Personnage");
@@ -335,22 +335,22 @@ describe("coffre en markdown", () => {
     assert.equal(treeFileLabel("Notes", "Bible.md"), "Bible.md");
 
     const store = memoryVault();
-    await writeText(store, "Projets/mira/_MOC.md", "# Mira\n\n- [[Projets/mira/Moteurs/personnage|Prise · Personnage]]\n- [[Projets/mira/Templates/prise.md]]\n");
-    await writeText(store, "Projets/mira/Templates/prise.md", "# Prise\n\nPhrase gardée.\n");
-    await writeText(store, "Projets/mira/Templates/personnage.md", "# Personnage\n");
-    await writeText(store, "Projets/mira/Templates/scene.md", "# Lieu\n");
-    await writeText(store, "Projets/mira/Moteurs/personnage.md", "ancien moteur\n");
-    await writeText(store, "Projets/mira/Moteurs/references.md", "ancien ref\n");
-    await writeText(store, "Projets/mira/Moteurs/lieu.md", "ancien lieu\n");
-    await writeText(store, "Projets/mira/Prises/une.md", "# Une vraie prise\n");
-    await writeText(store, ".uttu/projet.json", JSON.stringify({ actif: "mira" }));
+    await writeText(store, "Projets/uttu/_MOC.md", "# Uttu\n\n- [[Projets/uttu/Moteurs/personnage|Prise · Personnage]]\n- [[Projets/uttu/Templates/prise.md]]\n");
+    await writeText(store, "Projets/uttu/Templates/prise.md", "# Prise\n\nPhrase gardée.\n");
+    await writeText(store, "Projets/uttu/Templates/personnage.md", "# Personnage\n");
+    await writeText(store, "Projets/uttu/Templates/scene.md", "# Lieu\n");
+    await writeText(store, "Projets/uttu/Moteurs/personnage.md", "ancien moteur\n");
+    await writeText(store, "Projets/uttu/Moteurs/references.md", "ancien ref\n");
+    await writeText(store, "Projets/uttu/Moteurs/lieu.md", "ancien lieu\n");
+    await writeText(store, "Projets/uttu/Prises/une.md", "# Une vraie prise\n");
+    await writeText(store, ".uttu/projet.json", JSON.stringify({ actif: "uttu" }));
     const studio = await loadStudio(store);
-    assert.equal(await store.get("Projets/mira/Templates/prise.md"), null);
-    assert.match((await store.get("Projets/mira/Templates/modele-prise.md"))?.text ?? "", /Phrase gardée/);
-    assert.match((await store.get("Projets/mira/Prises/une.md"))?.text ?? "", /vraie prise/);
-    assert.equal(await store.get("Projets/mira/Moteurs/personnage.md"), null);
-    assert.match((await store.get("Projets/mira/Moteurs/moteur-personnage.md"))?.text ?? "", /ancien moteur/);
-    const moc = (await store.get("Projets/mira/_MOC.md"))?.text ?? "";
+    assert.equal(await store.get("Projets/uttu/Templates/prise.md"), null);
+    assert.match((await store.get("Projets/uttu/Templates/modele-prise.md"))?.text ?? "", /Phrase gardée/);
+    assert.match((await store.get("Projets/uttu/Prises/une.md"))?.text ?? "", /vraie prise/);
+    assert.equal(await store.get("Projets/uttu/Moteurs/personnage.md"), null);
+    assert.match((await store.get("Projets/uttu/Moteurs/moteur-personnage.md"))?.text ?? "", /ancien moteur/);
+    const moc = (await store.get("Projets/uttu/_MOC.md"))?.text ?? "";
     assert.match(moc, /Moteurs\/moteur-personnage\|Prise · Personnage/);
     assert.doesNotMatch(moc, /Moteurs\/personnage\|/);
     assert.match(moc, /Templates\/modele-prise\.md/);
@@ -371,29 +371,29 @@ describe("coffre en markdown", () => {
     assert.equal(studio.tree.some(group => group.files.some(file => file === "prise.md" || file === "personnage.md" || file === "scene.md")), false);
 
     const kept = memoryVault();
-    await writeText(kept, "Projets/mira/_MOC.md", "# Mira\n");
-    await writeText(kept, "Projets/mira/Templates/prise.md", "ancien\n");
-    await writeText(kept, "Projets/mira/Templates/modele-prise.md", "déjà là\n");
-    await writeText(kept, ".uttu/projet.json", JSON.stringify({ actif: "mira" }));
+    await writeText(kept, "Projets/uttu/_MOC.md", "# Uttu\n");
+    await writeText(kept, "Projets/uttu/Templates/prise.md", "ancien\n");
+    await writeText(kept, "Projets/uttu/Templates/modele-prise.md", "déjà là\n");
+    await writeText(kept, ".uttu/projet.json", JSON.stringify({ actif: "uttu" }));
     await loadStudio(kept);
-    assert.match((await kept.get("Projets/mira/Templates/modele-prise.md"))?.text ?? "", /déjà là/);
-    assert.match((await kept.get("Projets/mira/Templates/prise.md"))?.text ?? "", /ancien/);
+    assert.match((await kept.get("Projets/uttu/Templates/modele-prise.md"))?.text ?? "", /déjà là/);
+    assert.match((await kept.get("Projets/uttu/Templates/prise.md"))?.text ?? "", /ancien/);
   });
 
   it("round-trips a whole project into an empty studio, including sequences, shots, gabarits and measured cost", async () => {
     const filmed = take({
-      video: "Projets/mira/Prises/20261003-153000-le-quai.mp4",
-      poster: "Projets/mira/Prises/20261003-153000-le-quai.jpg",
+      video: "Projets/uttu/Prises/20261003-153000-le-quai.mp4",
+      poster: "Projets/uttu/Prises/20261003-153000-le-quai.jpg",
     });
     const priced = take({
       id: "20261011-101500-cout",
       at: "2026-10-11T10:15:00.000Z",
       line: "Gros plan, coût lu.",
-      video: "Projets/mira/Prises/20261011-101500-cout.mp4",
+      video: "Projets/uttu/Prises/20261011-101500-cout.mp4",
       poster: null,
       jobId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       engine: "lora",
-      loraId: "20261003-160000-mira",
+      loraId: "20261003-160000-uttu",
       resolution: "768P",
       costCredits: null,
       costUsd: 0.42,
@@ -403,13 +403,13 @@ describe("coffre en markdown", () => {
       gpuSeconds: 90,
     });
     const trained: Lora = {
-      id: "20261003-160000-mira",
+      id: "20261003-160000-uttu",
       at: "2026-10-03T16:00:00.000Z",
-      name: "Mira",
+      name: "Uttu",
       kind: "personnage",
       sceneId: null,
-      trigger: "mira_uttu",
-      file: "Projets/mira/Assets/20261003-160000-mira.safetensors",
+      trigger: "uttu_uttu",
+      file: "Projets/uttu/Assets/20261003-160000-uttu.safetensors",
       bytes: 4,
       sha256: "ab",
       steps: 1000,
@@ -425,10 +425,10 @@ describe("coffre en markdown", () => {
       balanceAfter: 25,
     };
     const home = memoryVault();
-    await createProject(home, "Mira");
-    await writeBlob(home, "Projets/mira/Refs/look-a-1.jpg", new Blob(["p1"], { type: "image/jpeg" }));
-    await writeBlob(home, "Projets/mira/Refs/look-a-2.jpg", new Blob(["p2"], { type: "image/jpeg" }));
-    await writeLook(home, { name: "Mira", traits: ["yeux verts", "taches"], photos: ["Projets/mira/Refs/look-a-1.jpg", "Projets/mira/Refs/look-a-2.jpg"], note: "capuche" });
+    await createProject(home, "Uttu");
+    await writeBlob(home, "Projets/uttu/Refs/look-a-1.jpg", new Blob(["p1"], { type: "image/jpeg" }));
+    await writeBlob(home, "Projets/uttu/Refs/look-a-2.jpg", new Blob(["p2"], { type: "image/jpeg" }));
+    await writeLook(home, { name: "Uttu", traits: ["yeux verts", "taches"], photos: ["Projets/uttu/Refs/look-a-1.jpg", "Projets/uttu/Refs/look-a-2.jpg"], note: "capuche" });
     await writeScene(home, { id: "le-quai", name: "Le quai", note: "pluie", stills: [], previz: null, previzFile: null, camera: null, frames: [], render: null, shot: null, views: [] });
     await writeState(home, "le-quai");
     await writeBlob(home, filmed.video, new Blob(["mp4"], { type: "video/mp4" }));
@@ -452,7 +452,7 @@ describe("coffre en markdown", () => {
       ordre: 0,
     }, [filmed, priced], "Quai, la nuit");
     await createProject(home, "Léo");
-    await selectProject(home, "mira");
+    await selectProject(home, "uttu");
 
     const archive = await coffreZip(home);
     const before = await payloadMap(home);
@@ -463,31 +463,31 @@ describe("coffre en markdown", () => {
     for (const path of before.keys()) assert.equal(after.get(path), before.get(path), path);
 
     const back = await loadStudio(empty);
-    assert.equal(back.project, "mira");
+    assert.equal(back.project, "uttu");
     assert.equal(back.takes.find(item => item.id === filmed.id)?.costCredits, 201);
     assert.equal(back.takes.find(item => item.id === priced.id)?.costUsd, 0.42);
     assert.equal(back.quotes[0]?.credits, 201);
     assert.equal(back.sequences[0]?.links[1]?.raccord, "même lampe");
     assert.equal(back.shots[0]?.note, "Visage, quai, nuit.");
     for (const name of ["modele-personnage.md", "modele-scene.md", "modele-prise.md", "modele-sequence.md", "modele-shot.md"]) {
-      assert.equal(after.has(`Projets/mira/Templates/${name}`), true, name);
+      assert.equal(after.has(`Projets/uttu/Templates/${name}`), true, name);
     }
-    assert.match(after.get("Projets/mira/.uttu/devis.json") ?? "", /"credits":201/);
-    assert.match(after.get("Projets/mira/Prises/20261011-101500-cout.md") ?? "", /cout_usd: 0\.42/);
+    assert.match(after.get("Projets/uttu/.uttu/devis.json") ?? "", /"credits":201/);
+    assert.match(after.get("Projets/uttu/Prises/20261011-101500-cout.md") ?? "", /cout_usd: 0\.42/);
     assert.match(after.get("Projets/leo/_MOC.md") ?? "", /# Léo/);
     assert.match(after.get("MOC.md") ?? "", /Léo/);
     assert.equal(after.has("Projets/leo/Journal.md"), true);
     assert.doesNotMatch([...after.keys()].join("\n"), /u-ttu-fal|u-ttu-rendu|u-ttu-blender/);
 
     const phone = memoryVault();
-    await createProject(phone, "Mira");
+    await createProject(phone, "Uttu");
     await writeBlob(phone, filmed.video, new Blob(["ORIGINAL"], { type: "video/mp4" }));
     await writeTake(phone, { ...filmed, line: "Version téléphone." }, [filmed]);
     await mergeCoffreZip(phone, archive);
     const kept = await loadStudio(phone);
     assert.equal(kept.takes.find(item => item.id === filmed.id)?.line, "Version téléphone.");
     assert.equal(await (await phone.get(filmed.video))?.blob?.text(), "ORIGINAL");
-    assert.match((await phone.get("Projets/mira/Sequences/quai-la-nuit.md"))?.text ?? "", /même lampe/);
+    assert.match((await phone.get("Projets/uttu/Sequences/quai-la-nuit.md"))?.text ?? "", /même lampe/);
     assert.equal(kept.takes.some(item => item.id === priced.id), true);
   });
 });

@@ -48,7 +48,7 @@ describe("mémoire du projet", () => {
     const shell = (await store.get(`Projets/${slug}/Bible.md`))?.text ?? "";
     assert.match(shell, new RegExp(MEMORY_SHELL.bible.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.equal(readFrontmatter(shell).fields.statut, "brouillon");
-    assert.doesNotMatch(cleared.memory.bible + cleared.memory.style + cleared.memory.lexique, /Mira|quai, la nuit/i);
+    assert.doesNotMatch(cleared.memory.bible + cleared.memory.style + cleared.memory.lexique, /Uttu|quai, la nuit/i);
   });
 
   it("opens the same four notes from the tree, and shows them on the take", () => {

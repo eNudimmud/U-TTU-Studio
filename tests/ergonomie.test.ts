@@ -46,10 +46,10 @@ describe("parcours F32", () => {
 
   it("offers a name and a line until the person changes them, and keeps the first place on the way to the take", () => {
     assert.equal(untouchedLook({ name: "", traits: [], photos: [], note: "" }), true);
-    assert.equal(untouchedLook({ name: "Mira", traits: [], photos: [], note: "" }), false);
+    assert.equal(untouchedLook({ name: "Uttu", traits: [], photos: [], note: "" }), false);
     assert.equal(offeredName("", "Personnage 1", false), "Personnage 1");
     assert.equal(offeredName("  ", "Lieu 1", false), "Lieu 1");
-    assert.equal(offeredName("Mira", "Personnage 1", false), "Mira");
+    assert.equal(offeredName("Uttu", "Personnage 1", false), "Uttu");
     assert.equal(offeredName("", "Personnage 1", true), "");
     assert.deepEqual(offeredLine(null, "Le personnage est dans le lieu."), { text: "Le personnage est dans le lieu.", followsLocale: true });
     assert.deepEqual(offeredLine("", "Le personnage est dans le lieu."), { text: "", followsLocale: false });
@@ -113,7 +113,7 @@ describe("parcours F32", () => {
       assert.ok(catalog.guide.stepScene.length <= 90, catalog.guide.stepScene);
       assert.ok(catalog.guide.stepTake.length <= 90, catalog.guide.stepTake);
       assert.ok(catalog.guide["scene-new"].length <= 80, catalog.guide["scene-new"]);
-      assert.doesNotMatch(catalog.guide.stepCharacter, /Mira/);
+      assert.doesNotMatch(catalog.guide.stepCharacter, /Uttu/);
     }
   });
 

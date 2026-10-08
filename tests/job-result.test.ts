@@ -31,7 +31,7 @@ describe("un run, un résultat", () => {
     assert.match(sheets, /export function OutputsSheet/);
     assert.match(sheets, /t\("job\.lead"\)/);
     assert.match(sheets, /t\("job\.empty"\)/);
-    assert.match(read("src/components/app/stage-screens.tsx"), /t\("job\.running"\)/);
+    assert.match(read("src/components/app/prise-stage.tsx"), /t\("job\.running"\)/);
     assert.match(read("src/components/app/atelier-page.tsx"), /studio\.takes/);
     assert.doesNotMatch(app, /<OutputsSheet/);
     assert.doesNotMatch(screens + sceneFile + sheets + role, /class_type|SaveLoRA|panneau de nœuds|estimate_credits|run_template|submit_workflow|partner_generate/);

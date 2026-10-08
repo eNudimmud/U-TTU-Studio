@@ -24,7 +24,7 @@ describe("zip reader", () => {
   });
 
   it("detects corruption unless told to skip the CRC", () => {
-    const archive = createZip([{ name: "01.txt", data: text("mira_v1, front view\n") }]);
+    const archive = createZip([{ name: "01.txt", data: text("uttu_v1, front view\n") }]);
     archive[30 + "01.txt".length + 4] ^= 0xff;
     assert.throws(() => readZip(archive), /CRC/);
     assert.equal(readZip(archive, { verifyCrc: false }).length, 1);
@@ -34,12 +34,12 @@ describe("zip reader", () => {
   it("reads deflated archives from zip(1) when given an inflater", { skip: !hasZip && "zip absent" }, () => {
     const dir = mkdtempSync(join(tmpdir(), "c-micro-fal-"));
     try {
-      writeFileSync(join(dir, "01.txt"), "mira_v1, front view, close-up portrait, ".repeat(20));
+      writeFileSync(join(dir, "01.txt"), "uttu_v1, front view, close-up portrait, ".repeat(20));
       assert.equal(spawnSync("zip", ["-q", "-9", "-D", join(dir, "set.zip"), "01.txt"], { cwd: dir }).status, 0);
       const archive = new Uint8Array(readFileSync(join(dir, "set.zip")));
       assert.throws(() => readZip(archive), /compression/);
       const [entry] = readZip(archive, { inflateRaw: data => inflateRawSync(data) });
-      assert.equal(new TextDecoder().decode(entry.data), "mira_v1, front view, close-up portrait, ".repeat(20));
+      assert.equal(new TextDecoder().decode(entry.data), "uttu_v1, front view, close-up portrait, ".repeat(20));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

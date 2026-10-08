@@ -12,7 +12,7 @@ function demoCast(id: string, name: string, prompt: string, preview: string, at:
 }
 
 export const DEMO_CAST: CastCard[] = [
-  demoCast("demo-mira", "Mira", "Une femme au manteau sombre, regard calme.", "/exemples/cast-mira.webp", "2026-10-08T12:00:00.000Z"),
+  demoCast("demo-uttu", "Uttu", "Une femme au manteau sombre, regard calme.", "/exemples/cast-uttu.webp", "2026-10-08T12:00:00.000Z"),
   demoCast("demo-coursiere", "La coursière", "Une coursière, planche de vues, personnage fictif.", "/exemples/cast-coursiere.webp", "2026-10-08T12:05:00.000Z"),
   demoCast("demo-vieil-homme", "Le vieil homme", "Un vieil homme, planche de vues, personnage fictif.", "/exemples/cast-vieil-homme.webp", "2026-10-08T12:06:00.000Z"),
   demoCast("demo-dj", "DJ", "Un DJ, planche de vues, personnage fictif.", "/exemples/cast-dj.webp", "2026-10-08T12:07:00.000Z"),

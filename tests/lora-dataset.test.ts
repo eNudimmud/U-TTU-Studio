@@ -48,10 +48,10 @@ describe("clips du double", () => {
 
   it("makes a trigger from the character's name", () => {
     const ten = Array.from({ length: 10 }, () => clip());
-    assert.equal(triggerPhrase("Mira"), "mira_uttu");
+    assert.equal(triggerPhrase("Uttu"), "uttu_uttu");
     assert.equal(triggerPhrase("Éloïse"), "eloise_uttu");
     assert.equal(triggerPhrase("   "), "personnage_uttu");
     assert.equal(datasetCheck(ten, 2, "").ready, false);
-    assert.equal(datasetCheck(ten, 2, "Mira").ready, true);
+    assert.equal(datasetCheck(ten, 2, "Uttu").ready, true);
   });
 });

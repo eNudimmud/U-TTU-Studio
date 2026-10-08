@@ -23,12 +23,12 @@ describe("client fal, depuis l’appareil", () => {
       fetch: routed((url, init) => {
         calls.push(`${init.method ?? "GET"} ${url}`);
         assert.equal(new Headers(init.headers).get("authorization"), `Key ${KEY}`);
-        if (url.includes("/account/billing")) return Response.json({ username: "mira", credits: { current_balance: 42.5, currency: "USD" } });
+        if (url.includes("/account/billing")) return Response.json({ username: "uttu", credits: { current_balance: 42.5, currency: "USD" } });
         if (url.includes("/models/pricing")) return Response.json({ prices: [{ endpoint_id: "minimax/h3/ref2va/trainer", unit_price: 0.015, unit: "steps", currency: "USD" }] });
         return new Response("nope", { status: 404 });
       }),
     });
-    assert.deepEqual(await fal.account(), { username: "mira", usd: 42.5 });
+    assert.deepEqual(await fal.account(), { username: "uttu", usd: 42.5 });
     assert.equal((await fal.price("minimax/h3/ref2va/trainer"))?.unitPrice, 0.015);
     const denied = createFalClient({
       key: KEY,

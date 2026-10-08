@@ -35,13 +35,13 @@ describe("zip", () => {
     try {
       const payload = new Uint8Array(70000).map((_, i) => (i * 31) % 251);
       const path = join(dir, "dataset.zip");
-      writeFileSync(path, createZip([{ name: "01.jpg", data: payload }, { name: "01.txt", data: encoder.encode("mira_v1, front view\n") }]));
+      writeFileSync(path, createZip([{ name: "01.jpg", data: payload }, { name: "01.txt", data: encoder.encode("uttu_v1, front view\n") }]));
       const test = spawnSync("unzip", ["-t", path], { encoding: "utf8" });
       assert.equal(test.status, 0, test.stdout + test.stderr);
       assert.match(test.stdout, /No errors detected/);
       assert.equal(spawnSync("unzip", ["-o", "-q", path, "-d", dir]).status, 0);
       assert.deepEqual(new Uint8Array(readFileSync(join(dir, "01.jpg"))), payload);
-      assert.equal(readFileSync(join(dir, "01.txt"), "utf8"), "mira_v1, front view\n");
+      assert.equal(readFileSync(join(dir, "01.txt"), "utf8"), "uttu_v1, front view\n");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

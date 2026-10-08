@@ -17,7 +17,7 @@ const take = (id: string, line: string): Take => ({
   settings: { seconds: 5, quality: "rapide", aspect: "vertical" },
   profile: "h3-4pas-5s-vertical",
   jobId: "0f6c1b1e-8d47-4f39-9e16-5f5d0f0b9a11",
-  video: `Projets/mira/Prises/${id}.mp4`,
+  video: `Projets/uttu/Prises/${id}.mp4`,
   poster: null,
   prompt: "",
   gpuSeconds: null,
@@ -57,21 +57,21 @@ describe("séquences", () => {
         { takeId: "prise-b", raccord: "même lumière, regard à gauche" },
       ],
     };
-    const text = sequenceMarkdown(sequence, "mira", [
+    const text = sequenceMarkdown(sequence, "uttu", [
       { id: "prise-a", line: "Elle entre" },
       { id: "prise-b", line: "Elle sort" },
     ]);
     assert.equal(parseSequence("index", text), null);
     assert.equal(parseSequence("sequence", text), null);
     assert.deepEqual(parseSequence("quai-nuit", text), sequence);
-    assert.match(text, /\[\[Projets\/mira\/Prises\/prise-a\|Elle entre\]\]/);
+    assert.match(text, /\[\[Projets\/uttu\/Prises\/prise-a\|Elle entre\]\]/);
     assert.match(text, /Raccord : même lumière, regard à gauche/);
     assert.doesNotMatch(text, /class_type|SaveLoRA|panneau de nœuds/);
   });
 
   it("loads a sequence from the project and skips the folder note", async () => {
     const store = memoryVault();
-    await createProject(store, "Mira");
+    await createProject(store, "Uttu");
     const filmed = take("prise-a", "Elle entre");
     await writeBlob(store, filmed.video, new Blob(["mp4"], { type: "video/mp4" }));
     await writeTake(store, filmed, [filmed]);
@@ -91,10 +91,10 @@ describe("séquences", () => {
       { takeId: "prise-a", raccord: "" },
       { takeId: "absente", raccord: "prop sur la table" },
     ]);
-    assert.equal(await store.get("Projets/mira/Sequences/sequence.md"), null);
-    assert.match((await store.get("Projets/mira/Sequences/index.md"))?.text ?? "", /Une séquence relie/);
-    assert.match((await store.get("Projets/mira/Templates/modele-sequence.md"))?.text ?? "", /raccord/);
-    const moc = (await store.get("Projets/mira/_MOC.md"))?.text ?? "";
+    assert.equal(await store.get("Projets/uttu/Sequences/sequence.md"), null);
+    assert.match((await store.get("Projets/uttu/Sequences/index.md"))?.text ?? "", /Une séquence relie/);
+    assert.match((await store.get("Projets/uttu/Templates/modele-sequence.md"))?.text ?? "", /raccord/);
+    const moc = (await store.get("Projets/uttu/_MOC.md"))?.text ?? "";
     assert.match(moc, /Sequences\/quai-nuit\|Quai, la nuit/);
     assert.doesNotMatch(moc, /Sequences\/sequence\|/);
   });

@@ -140,7 +140,7 @@ export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile 
       {training.phase === "idle" && <div className="u-stack">
         <label className="u-field">
           <span className="u-label">{t("lora.name")}</span>
-          <input value={role.name} maxLength={40} placeholder="Mira" autoComplete="off" onBlur={() => setTouch(current => ({ ...current, name: true }))} onChange={event => void saveRole({ name: event.target.value.slice(0, 40) })} />
+          <input value={role.name} maxLength={40} placeholder="Uttu" autoComplete="off" onBlur={() => setTouch(current => ({ ...current, name: true }))} onChange={event => void saveRole({ name: event.target.value.slice(0, 40) })} />
         </label>
         <div className="u-photos" aria-label={t("lora.photosLabel")}>
           {Array.from({ length: ROLE_PHOTOS_MAX }, (_, index) => {

@@ -30,7 +30,7 @@ export function gateEntries() {
 export const FAKE = {
   key: "fal-key-for-tests-only-0123456789",
   uploadUrl: "https://v3.fal.media/files/upload/signed?sig=abc",
-  zipUrl: "https://v3.fal.media/files/test/c-micro-mira_v1-fal.zip",
+  zipUrl: "https://v3.fal.media/files/test/c-micro-uttu_v1-fal.zip",
   trainId: "train-0001-0000-0000-000000000001",
   lora: "https://v3.fal.media/files/test/pytorch_lora_weights.safetensors",
   config: "https://v3.fal.media/files/test/config.json",

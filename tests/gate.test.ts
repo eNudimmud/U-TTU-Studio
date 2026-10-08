@@ -11,7 +11,7 @@ describe("dataset gate", () => {
     const result = evaluateGate(cleanInput());
     assert.equal(result.verdict, "PASS", result.checks.filter(item => item.status !== "pass").map(item => `${item.id} ${item.detail}`).join("\n"));
     assert.equal(result.captions.length, 15);
-    assert.equal(result.captions[0], "mira_v1, front view, close-up portrait, black leather jacket, rainy street at night, neon rim light");
+    assert.equal(result.captions[0], "uttu_v1, front view, close-up portrait, black leather jacket, rainy street at night, neon rim light");
   });
 
   it("starts in a pending state instead of a wall of FAIL", () => {
@@ -130,8 +130,8 @@ describe("dataset gate", () => {
   });
 
   it("rejects weak triggers and requires at least two invariants", () => {
-    for (const trigger of ["woman", "woman_1", "mira", "Mira_v1", "m_1", "sks_2"]) assert.equal(status({ ...cleanInput(), trigger }, "G01"), "fail", trigger);
-    assert.equal(status({ ...cleanInput(), trigger: "mira_v1" }, "G01"), "pass");
+    for (const trigger of ["woman", "woman_1", "uttu", "Uttu_v1", "m_1", "sks_2"]) assert.equal(status({ ...cleanInput(), trigger }, "G01"), "fail", trigger);
+    assert.equal(status({ ...cleanInput(), trigger: "uttu_v1" }, "G01"), "pass");
     assert.equal(status({ ...cleanInput(), invariants: "green eyes" }, "G02"), "todo");
     assert.equal(evaluateGate({ ...cleanInput(), invariants: "green eyes" }).verdict, "FAIL");
   });

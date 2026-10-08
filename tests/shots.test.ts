@@ -15,7 +15,7 @@ const filmed = (id: string, line: string): Take => ({
   settings: { seconds: 5, quality: "rapide", aspect: "vertical" },
   profile: "h3-4pas-5s-vertical",
   jobId: "0f6c1b1e-8d47-4f39-9e16-5f5d0f0b9a11",
-  video: `Projets/mira/Prises/${id}.mp4`,
+  video: `Projets/uttu/Prises/${id}.mp4`,
   poster: null,
   prompt: "",
   gpuSeconds: null,
@@ -60,9 +60,9 @@ describe("plans du storyboard", () => {
     assert.deepEqual(dropTakeFromShots([first], "prise-b")[0]?.takeIds, ["prise-a"]);
     assert.equal(clearShotSequence([first, loose], "quai-nuit")[0]?.sequenceId, null);
 
-    const text = shotMarkdown(panel(), "mira", [{ id: "prise-a", line: "Elle entre" }], "Quai, la nuit");
-    assert.match(text, /\[\[Projets\/mira\/Sequences\/quai-nuit\|Quai, la nuit\]\]/);
-    assert.match(text, /\[\[Projets\/mira\/Prises\/prise-a\|Elle entre\]\]/);
+    const text = shotMarkdown(panel(), "uttu", [{ id: "prise-a", line: "Elle entre" }], "Quai, la nuit");
+    assert.match(text, /\[\[Projets\/uttu\/Sequences\/quai-nuit\|Quai, la nuit\]\]/);
+    assert.match(text, /\[\[Projets\/uttu\/Prises\/prise-a\|Elle entre\]\]/);
     assert.match(text, /Note : Elle regarde à gauche/);
     assert.doesNotMatch(text, /class_type|SaveLoRA|panneau de nœuds/);
     const read = parseShot("gros-plan", text);
@@ -73,7 +73,7 @@ describe("plans du storyboard", () => {
 
   it("loads a plan from the project and never names the file shot.md", async () => {
     const store = memoryVault();
-    await createProject(store, "Mira");
+    await createProject(store, "Uttu");
     const take = filmed("prise-a", "Elle entre");
     await writeBlob(store, take.video, new Blob(["mp4"], { type: "video/mp4" }));
     await writeTake(store, take, [take]);
@@ -84,27 +84,27 @@ describe("plans du storyboard", () => {
     assert.equal(studio.shots.length, 1);
     assert.equal(studio.shots[0]?.name, "Gros plan");
     assert.equal(studio.shots[0]?.sequenceId, "quai-nuit");
-    assert.equal(await store.get("Projets/mira/Shots/shot.md"), null);
-    assert.equal(await store.get("Projets/mira/Shots/plan.md"), null);
-    assert.match((await store.get("Projets/mira/Shots/index.md"))?.text ?? "", /case du storyboard/);
-    assert.match((await store.get("Projets/mira/Templates/modele-shot.md"))?.text ?? "", /note courte/);
-    const moc = (await store.get("Projets/mira/_MOC.md"))?.text ?? "";
+    assert.equal(await store.get("Projets/uttu/Shots/shot.md"), null);
+    assert.equal(await store.get("Projets/uttu/Shots/plan.md"), null);
+    assert.match((await store.get("Projets/uttu/Shots/index.md"))?.text ?? "", /case du storyboard/);
+    assert.match((await store.get("Projets/uttu/Templates/modele-shot.md"))?.text ?? "", /note courte/);
+    const moc = (await store.get("Projets/uttu/_MOC.md"))?.text ?? "";
     assert.match(moc, /Shots\/gros-plan\|Gros plan/);
     assert.doesNotMatch(moc, /Shots\/shot\|/);
   });
 
   it("replaces the old empty-folder sentence and keeps a cleared sequence off the plan", async () => {
     const store = memoryVault();
-    await createProject(store, "Mira");
-    const index = (await store.get("Projets/mira/Shots/index.md"))?.text ?? "";
+    await createProject(store, "Uttu");
+    const index = (await store.get("Projets/uttu/Shots/index.md"))?.text ?? "";
     await store.put({
-      path: "Projets/mira/Shots/index.md",
+      path: "Projets/uttu/Shots/index.md",
       text: index.replace("Un plan est une case du storyboard : une séquence, puis des prises, dans l’ordre.", "Un plan est une prise rangée dans ce projet."),
       updatedAt: Date.now(),
     });
     await writeShot(store, panel({ sequenceId: null, note: "" }));
     const seeded = await loadStudio(store);
-    assert.match((await store.get("Projets/mira/Shots/index.md"))?.text ?? "", /case du storyboard/);
+    assert.match((await store.get("Projets/uttu/Shots/index.md"))?.text ?? "", /case du storyboard/);
     assert.equal(seeded.shots[0]?.sequenceId, null);
     const cleared = clearShotSequence(seeded.shots, "quai-nuit");
     assert.equal(cleared[0]?.sequenceId, null);

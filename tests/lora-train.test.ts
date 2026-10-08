@@ -38,13 +38,13 @@ describe("formation du double", () => {
     const sent = await submitTraining(fal, {
       clips: [{ blob: new Blob(["clip-a"]), format: "mp4" }, { blob: new Blob(["clip-b"]), format: "mov" }],
       refs: [new Blob(["look"])],
-      trigger: "mira_uttu",
+      trigger: "uttu_uttu",
       steps: 1000,
       aspect: "9:16",
     }, () => {});
     assert.equal(sent.requestId, handle.requestId);
     assert.equal(captured.endpoint, LORA_TRAINER);
-    assert.deepEqual(captured.body, trainingRequest("https://v3.fal.media/files/dataset.zip", { trigger: "mira_uttu", steps: 1000, aspect: "9:16" }));
+    assert.deepEqual(captured.body, trainingRequest("https://v3.fal.media/files/dataset.zip", { trigger: "uttu_uttu", steps: 1000, aspect: "9:16" }));
     assert.equal(captured.body?.split_input_into_scenes, false);
     assert.equal(captured.body?.auto_scale_input, true);
     const names = readZip(new Uint8Array(await captured.archived!.arrayBuffer())).map(entry => entry.name);
@@ -69,7 +69,7 @@ describe("formation du double", () => {
         return 15;
       },
       async account() {
-        return { username: "mira", usd: 25 };
+        return { username: "uttu", usd: 25 };
       },
       async cancel() {},
     } as unknown as FalClient;

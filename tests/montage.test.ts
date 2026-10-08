@@ -20,7 +20,7 @@ const take = (id: string, line: string): Take => ({
   settings: { seconds: 5, quality: "rapide", aspect: "vertical" },
   profile: "h3-4pas-5s-vertical",
   jobId: "0f6c1b1e-8d47-4f39-9e16-5f5d0f0b9a11",
-  video: `Projets/mira/Prises/${id}.mp4`,
+  video: `Projets/uttu/Prises/${id}.mp4`,
   poster: null,
   prompt: "",
   gpuSeconds: null,
@@ -54,26 +54,26 @@ describe("liste de montage", () => {
       shot("depart", "Départ", 2, ["prise-b"]),
     ];
     assert.deepEqual(montageCues(shots, takes, "quai-nuit").map(cue => [cue.ordre, cue.shotId, cue.takeId, cue.seconds, cue.source]), [
-      [1, "arrivee", "prise-a", 5, "Projets/mira/Prises/prise-a.mp4"],
+      [1, "arrivee", "prise-a", 5, "Projets/uttu/Prises/prise-a.mp4"],
       [2, "regard", null, 2, null],
-      [3, "depart", "prise-b", 5, "Projets/mira/Prises/prise-b.mp4"],
+      [3, "depart", "prise-b", 5, "Projets/uttu/Prises/prise-b.mp4"],
     ]);
     const moved = orderShots(shots, "quai-nuit", ["depart", "arrivee", "regard"]);
     assert.deepEqual(montageCues(moved, takes, "quai-nuit").map(cue => cue.shotId), ["depart", "arrivee", "regard"]);
-    const text = montageMarkdown({ id: "quai-nuit", name: "Quai, la nuit" }, shots, takes, "mira");
+    const text = montageMarkdown({ id: "quai-nuit", name: "Quai, la nuit" }, shots, takes, "uttu");
     assert.equal(parseSequence("quai-nuit-montage", text), null);
-    assert.match(text, /\[\[Projets\/mira\/Shots\/arrivee\|Arrivée\]\]/);
-    assert.match(text, /\[\[Projets\/mira\/Prises\/prise-a\|Elle entre\]\]/);
-    assert.match(text, /\[\[Projets\/mira\/Sequences\/quai-nuit\|Quai, la nuit\]\]/);
-    assert.match(text, /\| 2 \| \[\[Projets\/mira\/Shots\/regard\|Le regard\]\] \| — \| 2 s \| Plan sans prise \|/);
-    assert.match(text, /!\[\[Projets\/mira\/Prises\/prise-b\.mp4\]\]/);
+    assert.match(text, /\[\[Projets\/uttu\/Shots\/arrivee\|Arrivée\]\]/);
+    assert.match(text, /\[\[Projets\/uttu\/Prises\/prise-a\|Elle entre\]\]/);
+    assert.match(text, /\[\[Projets\/uttu\/Sequences\/quai-nuit\|Quai, la nuit\]\]/);
+    assert.match(text, /\| 2 \| \[\[Projets\/uttu\/Shots\/regard\|Le regard\]\] \| — \| 2 s \| Plan sans prise \|/);
+    assert.match(text, /!\[\[Projets\/uttu\/Prises\/prise-b\.mp4\]\]/);
     assert.match(text, /Aucun film n’est assemblé/);
     assert.doesNotMatch(text, /class_type|SaveLoRA|estimate_credits|run_template|submit_workflow|partner_generate/);
   });
 
   it("keeps the cut list through a studio ZIP and does not read it as a sequence", async () => {
     const home = memoryVault();
-    await createProject(home, "Mira");
+    await createProject(home, "Uttu");
     const takes = [take("prise-a", "Elle entre"), take("prise-b", "Elle sort")];
     for (const filmed of takes) {
       await writeBlob(home, filmed.video, new Blob(["mp4"], { type: "video/mp4" }));
@@ -88,7 +88,7 @@ describe("liste de montage", () => {
     ];
     for (const panel of shots) await writeShot(home, panel, takes, sequence.name);
     await writeMontage(home, sequence, shots, takes);
-    const path = "Projets/mira/Sequences/quai-nuit-montage.md";
+    const path = "Projets/uttu/Sequences/quai-nuit-montage.md";
     const before = (await home.get(path))?.text ?? "";
     assert.match(before, /Plan sans prise/);
 

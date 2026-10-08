@@ -22,7 +22,10 @@ export interface MontageCue {
   source: string | null;
 }
 
-type TakeCue = Pick<Take, "id" | "line" | "video" | "settings">;
+type TakeCue = Pick<Take, "id" | "line" | "video" | "settings"> & {
+  etat?: Take["etat"];
+  finalVideo?: string | null;
+};
 
 export function montageFile(sequenceId: string): string {
   return `Sequences/${sequenceId}-montage.md`;
@@ -50,7 +53,9 @@ export function montageCues(shots: readonly Shot[], takes: readonly TakeCue[], s
   for (const shot of shotsOf(shots, sequenceId)) {
     const present = shot.takeIds.flatMap(id => {
       const take = takes.find(item => item.id === id);
-      return take?.video ? [take] : [];
+      if (!take?.video || take.etat === "essai") return [];
+      if (take.etat === "finalisee" && take.finalVideo) return [{ ...take, video: take.finalVideo }];
+      return [take];
     });
     if (present.length === 0) {
       cues.push({

@@ -63,5 +63,5 @@ export function cleanDataset(): DatasetImage[] {
 export const allConfirmed = () => Object.fromEntries(CONFIRMATIONS.map(item => [item.id, true]));
 
 export function cleanInput(images = cleanDataset()): GateInput {
-  return { trigger: "mira_v1", invariants: INVARIANTS, images, confirmations: allConfirmed() };
+  return { trigger: "uttu_v1", invariants: INVARIANTS, images, confirmations: allConfirmed() };
 }

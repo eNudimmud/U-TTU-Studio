@@ -28,11 +28,11 @@ describe("confort studio", () => {
 
   it("keeps named characters off the place files", () => {
     assert.deepEqual(castShelf([
-      { id: "a", name: "Mira", kind: "personnage" },
+      { id: "a", name: "Uttu", kind: "personnage" },
       { id: "b", name: "Le quai", kind: "lieu" },
       { id: "c", name: "   ", kind: "personnage" },
     ]), [
-      { id: "a", name: "Mira" },
+      { id: "a", name: "Uttu" },
       { id: "c", name: "Personnage" },
     ]);
   });
@@ -40,13 +40,13 @@ describe("confort studio", () => {
   it("loads the chosen character file, and never a place file", () => {
     const files = [
       { id: "lieu", kind: "lieu" as const, file: "loras/quai.safetensors" },
-      { id: "mira", kind: "personnage" as const, file: "loras/mira.safetensors" },
+      { id: "uttu", kind: "personnage" as const, file: "loras/uttu.safetensors" },
       { id: "leo", kind: "personnage" as const, file: "loras/leo.safetensors" },
     ];
     assert.equal(castFile(files, "leo")?.id, "leo");
-    assert.equal(castFile(files, "lieu")?.id, "mira");
-    assert.equal(castFile(files, "")?.id, "mira");
-    assert.equal(castFile(files, "absent")?.id, "mira");
+    assert.equal(castFile(files, "lieu")?.id, "uttu");
+    assert.equal(castFile(files, "")?.id, "uttu");
+    assert.equal(castFile(files, "absent")?.id, "uttu");
     assert.equal(castFile([{ id: "lieu", kind: "lieu" as const }], "lieu"), null);
     assert.equal(castFile([], null), null);
   });
@@ -92,30 +92,30 @@ describe("confort studio", () => {
   });
 
   it("writes the chosen cast and place into the brief, and lifts that prefix back off", () => {
-    assert.equal(weaveBrief({ who: "Mira", place: "Le quai", action: "Elle traverse." }), "Mira · Le quai. Elle traverse.");
-    assert.equal(weaveBrief({ who: "Mira", place: "", action: "" }), "Mira.");
+    assert.equal(weaveBrief({ who: "Uttu", place: "Le quai", action: "Elle traverse." }), "Uttu · Le quai. Elle traverse.");
+    assert.equal(weaveBrief({ who: "Uttu", place: "", action: "" }), "Uttu.");
     assert.equal(weaveBrief({ who: "", place: "", action: "Elle traverse." }), "Elle traverse.");
-    assert.equal(briefAction("Mira · Le quai. Elle traverse.", "Mira", "Le quai"), "Elle traverse.");
-    assert.equal(briefAction("Mira.", "Mira", ""), "");
-    assert.equal(briefAction("Déjà écrit.", "Mira", "Le quai"), "Déjà écrit.");
+    assert.equal(briefAction("Uttu · Le quai. Elle traverse.", "Uttu", "Le quai"), "Elle traverse.");
+    assert.equal(briefAction("Uttu.", "Uttu", ""), "");
+    assert.equal(briefAction("Déjà écrit.", "Uttu", "Le quai"), "Déjà écrit.");
   });
 
   it("groups a reopened place with its characters and its takes", () => {
     const loras = [
-      { id: "mira", name: "Mira", kind: "personnage" as const },
+      { id: "uttu", name: "Uttu", kind: "personnage" as const },
       { id: "quai", name: "Le quai", kind: "lieu" as const },
     ];
     const takes = [
       { id: "p2", sceneId: "quai", line: "  ", engine: "comfy" as const, loraId: null },
-      { id: "p1", sceneId: "quai", line: "Elle traverse.", engine: "lora" as const, loraId: "mira" },
-      { id: "p0", sceneId: "quai", line: "Elle revient.", engine: "lora" as const, loraId: "mira" },
-      { id: "other", sceneId: "serre", line: "Ailleurs.", engine: "lora" as const, loraId: "mira" },
+      { id: "p1", sceneId: "quai", line: "Elle traverse.", engine: "lora" as const, loraId: "uttu" },
+      { id: "p0", sceneId: "quai", line: "Elle revient.", engine: "lora" as const, loraId: "uttu" },
+      { id: "other", sceneId: "serre", line: "Ailleurs.", engine: "lora" as const, loraId: "uttu" },
       { id: "place", sceneId: "quai", line: "Le décor.", engine: "lora" as const, loraId: "quai" },
       { id: "gone", sceneId: "quai", line: "Sans fichier.", engine: "lora" as const, loraId: "absent" },
     ];
     const group = vueProjet({ scene: { id: "quai", name: " Le quai " }, takes, loras, lookName: "Léa" });
     assert.equal(group.lieu, "Le quai");
-    assert.deepEqual(group.personnages, ["Léa", "Mira", "Personnage"]);
+    assert.deepEqual(group.personnages, ["Léa", "Uttu", "Personnage"]);
     assert.deepEqual(group.prises.map(prise => prise.id), ["p2", "p1", "p0", "place", "gone"]);
     assert.equal(group.prises[0].line, "Prise");
     assert.equal(group.prises[1].line, "Elle traverse.");
