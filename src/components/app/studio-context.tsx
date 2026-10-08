@@ -31,6 +31,7 @@ import { TRAINING_KEEP_SECONDS, TRAINING_RANK, TRAINING_STEPS, followTraining, s
 import { projectTree } from "@/lib/coffre/project";
 import { idbVault, type VaultStore } from "@/lib/coffre/store";
 import { readGuide, saveGuide, type GuideMoment, type GuideState } from "@/lib/guide";
+import { useI18n } from "@/components/i18n/provider";
 import { cleanBlenderKey, readBlenderKey, saveBlenderKey } from "@/lib/render/blender-link";
 import { createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
 import { FarpyError, filmGate, type FilmQuote } from "@/lib/render/farpy";
@@ -387,6 +388,7 @@ export function useStudio(): StudioValue {
 }
 
 export function StudioProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
   const folderRef = useRef<DirectoryHandle | null>(null);
   const storeRef = useRef<VaultStore | null>(null);
   const mediaRef = useRef<Record<string, string>>({});
@@ -404,7 +406,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [studio, setStudioState] = useState<Studio>(emptyStudio());
   const [media, setMedia] = useState<Record<string, string>>({});
-  const [line, setLineState] = useState("");
+  const [ownLine, setOwnLine] = useState("");
+  const [lineSource, setLineSource] = useState<"pending" | "offer" | "own">("pending");
+  const line = lineSource === "offer" ? t("take.defaultLine") : ownLine;
   const [settings, setSettingsState] = useState<TakeSettings>(DEFAULT_TAKE);
   const [link, setLink] = useState<RenderLink>({ mode: "none" });
   const [connected, setConnected] = useState(false);
@@ -575,7 +579,14 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     (async () => {
       setGuide(readGuide(localStorage));
       setSettingsState(readSettings());
-      setLineState(localStorage.getItem(LINE_KEY) ?? "");
+      const storedLine = localStorage.getItem(LINE_KEY);
+      if (storedLine === null) {
+        setOwnLine("");
+        setLineSource("offer");
+      } else {
+        setOwnLine(storedLine);
+        setLineSource("own");
+      }
       setLink(readRenderLink(localStorage));
       const storedFal = readFalKey(localStorage);
       setFalKey(storedFal);
@@ -904,7 +915,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const setLine = useCallback((value: string) => {
     const next = value.replace(/[\r\n]+/g, " ").slice(0, 240);
-    setLineState(next);
+    setOwnLine(next);
+    setLineSource("own");
     try { localStorage.setItem(LINE_KEY, next); } catch {}
   }, []);
 
@@ -918,9 +930,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const resetTake = useCallback(() => {
     if (run.phase !== "idle") return;
-    setLine("");
+    setOwnLine("");
+    setLineSource("offer");
+    try { localStorage.removeItem(LINE_KEY); } catch {}
     setSettings(DEFAULT_TAKE);
-  }, [run.phase, setLine, setSettings]);
+  }, [run.phase, setSettings]);
 
   const syncMontages = useCallback(async (ids: Iterable<string | null | undefined>) => {
     const { writeMontage, removeMontage } = await import("@/lib/coffre/montage");

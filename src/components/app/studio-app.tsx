@@ -77,6 +77,8 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   }, []);
 
   const check = lookCheck(studio.studio.look);
+  const nameIsOffer = studio.studio.look.name.trim() === t("look.defaultName");
+  const lineIsOffer = !studio.line.trim() || studio.line.trim() === t("take.defaultLine");
   const hasScene = Boolean(studio.scene);
   useEffect(() => {
     if (ready && !asked) setAsked(resumeTab({ lookReady: check.ready, hasScene }));
@@ -162,7 +164,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const falAria = !falLinked ? t("sheet.notLinked") : falBalance ? formatUsd(falBalance.usd) : (falBalanceNote ? say(falBalanceNote) : t("sheet.balanceUnread"));
 
   const moments: (GuideMoment | false)[] = tab === "look"
-    ? [!check.photos && "look-photos", !check.name && "look-name", !check.traits && "look-traits", check.ready && "look-ready"]
+    ? [!check.photos && "look-photos", !check.name && "look-name", check.ready && nameIsOffer && "look-name", check.ready && "look-ready"]
     : tab === "scene"
     ? [studio.studio.scenes.length === 0 && "scene-new", Boolean(studio.scene && !studio.scene.previz && studio.scene.stills.length === 0) && "scene-still", Boolean(studio.scene && !studio.scene.render) && "scene-previz", !memoryFilled(studio.studio.memory) && "scene-memory"]
     : tab === "lora"
@@ -170,9 +172,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       ? ["project-name" as const]
       : characterFile
       ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", !studio.studio.role.name.trim() && "lora-name", studio.studio.role.photos.length < 2 && "lora-photos", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready", training.phase === "idle" && !memoryFilled(studio.studio.memory) && "lora-memory"]
-      : [!check.photos && "look-photos", !check.name && "look-name", !check.traits && "look-traits", check.ready && "look-ready", !memoryFilled(studio.studio.memory) && "lora-memory"]
+      : [!check.photos && "look-photos", !check.name && "look-name", check.ready && nameIsOffer && "look-name", check.ready && "look-ready", !memoryFilled(studio.studio.memory) && "lora-memory"]
     : tab === "prise"
-    ? [run.phase === "running" && "take-running", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : !studio.line.trim() ? "take-line" : "take-ready"), run.phase === "idle" && !memoryFilled(studio.studio.memory) && "take-memory"]
+    ? [run.phase === "running" && "take-running", run.phase === "done" && "take-done", engine === "lora" && run.phase === "idle" && "take-double", check.ready && Boolean(studio.scene) && run.phase === "idle" && (engine === "lora" ? !falLinked && "lora-connect" : !connected ? "take-connect" : lineIsOffer ? "take-line" : "take-ready"), run.phase === "idle" && !memoryFilled(studio.studio.memory) && "take-memory"]
     : tab === "fiches"
     ? []
     : [studio.studio.takes.length === 0 && "sphere-empty"];

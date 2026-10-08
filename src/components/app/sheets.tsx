@@ -317,6 +317,20 @@ export function ConfirmSheet() {
     subject: chosenLora?.trigger,
   });
   const canConfirm = gate.allowed && gate.line.trim().length > 0 && outgoing.trim().length > 0;
+  const shoot = useRef(confirmRun);
+  shoot.current = confirmRun;
+  useEffect(() => {
+    if (!canConfirm) return;
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Enter" || event.shiftKey || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target;
+      if (target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement || target instanceof HTMLSelectElement) return;
+      event.preventDefault();
+      void shoot.current();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [canConfirm]);
   return <SheetFrame title={t("sheet.confirmShoot")} label={t("sheet.confirm")} onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">

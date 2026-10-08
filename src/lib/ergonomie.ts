@@ -46,8 +46,11 @@ export const PATH_AVANT: readonly PathStep[] = [
   { kind: "tap", screen: "mon-studio" },
 ];
 
-/** The same path after the round. Atelier, Séquence 1 and Plan 1 are already written. */
-export const PATH_APRES: readonly PathStep[] = [
+/**
+ * The F29/F30 path. Atelier, Séquence 1 and Plan 1 are already written.
+ * The character name, two traits, the place and the line are still typed.
+ */
+export const PATH_F30: readonly PathStep[] = [
   { kind: "tap", screen: "projet" },
   { kind: "tap", screen: "personnage" },
   { kind: "saisie", screen: "personnage" },
@@ -66,17 +69,47 @@ export const PATH_APRES: readonly PathStep[] = [
 ];
 
 /**
+ * F31. Personnage 1, Lieu 1 and the shot line are already written.
+ * Two traits stay on the screen and do not block. Posing the place opens the take.
+ * The paid confirmation stays: the quote and the text that leaves are read first.
+ */
+export const PATH_APRES: readonly PathStep[] = [
+  { kind: "tap", screen: "projet" },
+  { kind: "tap", screen: "personnage" },
+  { kind: "tap", screen: "personnage" },
+  { kind: "tap", screen: "scene" },
+  { kind: "tap", screen: "prise" },
+  { kind: "tap", screen: "confirmation" },
+  { kind: "tap", screen: "prise" },
+  { kind: "tap", screen: "sequence" },
+  { kind: "tap", screen: "sequence" },
+];
+
+/**
  * A decision is a blank the path will not pass, or two equal choices with no default.
  * A name already written, and a control already on the measured profile, are not decisions.
  * Before: project name, which way, character name, two traits, place, line, sequence name, shot name.
- * After: character name, two traits, place, line.
+ * F30: character name, two traits, place, line.
+ * F31: none. The written names and the written line are not decisions. Traits do not block.
  */
 export const DECISIONS_AVANT = 9;
-export const DECISIONS_APRES = 5;
+export const DECISIONS_F30 = 5;
+export const DECISIONS_APRES = 0;
 
 /** Times the path sends the person back before the next step is reachable. */
 export const RETOURS_AVANT = 3;
+export const RETOURS_F30 = 0;
 export const RETOURS_APRES = 0;
+
+/** The F31 path fails the test if it grows past this. */
+export const GESTES_PLAFOND = 9;
+
+/** A stored name, or the offered one, until the person clears the field. */
+export function offeredName(stored: string, offered: string, cleared: boolean): string {
+  if (cleared) return stored;
+  const clean = stored.trim();
+  return clean || offered;
+}
 
 export function pathCount(steps: readonly PathStep[]): { gestes: number; saisies: number; taps: number; ecrans: number } {
   const screens: string[] = [];

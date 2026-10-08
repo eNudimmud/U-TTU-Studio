@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { costLabel, lookCheck } from "@/lib/coffre/model";
 import { briefAction, castShelf, decorShelf, engineMark, exampleTakeQuote, pickEngine, priseAction, priseGaps, SAMPLE_TAKE, weaveBrief, WIRED_ENGINES } from "@/lib/studio-comfort";
 import { formatCredits } from "@/lib/credits";
@@ -13,7 +13,7 @@ import { OutgoingTake, OutgoingTakeFull } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { Arrow, Web } from "./glyphs";
-import { completeLook, LookFields } from "./look-form";
+import { LookDesk } from "./look-form";
 import { Segments } from "./slots";
 import { PublishActions } from "./publish";
 import { TakeCostLines } from "./take-cost";
@@ -26,9 +26,7 @@ function ChainButton({ onClick, children }: { onClick(): void; children: ReactNo
 }
 
 export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void }) {
-  const { studio } = useStudio();
   const { t } = useI18n();
-  const check = lookCheck(studio.look);
   return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">{t("look.kicker")}</p>
@@ -37,8 +35,7 @@ export function LookScreen({ onNext, onBack }: { onNext(): void; onBack(): void 
       <button type="button" className="u-link" onClick={onBack}>{t("verb.bothWays")}</button>
     </header>
     <div className="u-desk">
-      <LookFields />
-      <button type="button" className="u-primary" onClick={() => completeLook(check, onNext)}>{check.ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>
+      <LookDesk onNext={onNext} submit={ready => <button type="submit" form="u-look-form" className="u-primary">{ready ? t("verb.setScene") : t("look.complete")} <Arrow /></button>} />
     </div>
   </section>;
 }
@@ -296,7 +293,12 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
     <div className="u-prise-confirm" aria-label={t("take.before")}>
       <label className="u-field">
         <span className="u-label">{t("take.action")}</span>
-        <textarea value={line} rows={1} maxLength={240} placeholder={t("take.actionPlaceholder")} onChange={event => setLine(event.target.value)} />
+        <textarea value={line} rows={1} maxLength={240} placeholder={t("take.actionPlaceholder")} enterKeyHint="go" onChange={event => setLine(event.target.value)} onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
+          if (event.key !== "Enter" || event.shiftKey) return;
+          event.preventDefault();
+          if (action.id === "tourner") void requestRun();
+          else if (action.id !== "bloque") jump(action.id);
+        }} />
       </label>
       <OutgoingTake clamp />
       <p className={`u-cost is-${quoteTone}`}>
@@ -383,8 +385,8 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
         <span className="u-pair-thread" aria-hidden="true" />
         <figure>{scenePicture && scene && media[scenePicture] ? <img src={media[scenePicture]} alt="" /> : <span className="u-scene-empty"><Web /></span>}<figcaption>{scene ? (scene.render ? t("take.filmedStill") : scene.name) : t("take.examplePlace", { place: SAMPLE_TAKE.place })}</figcaption></figure>
       </div>
-      <button type="button" className="u-link u-muted" disabled={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={resetTake}>{t("take.resetPlan")}</button>
-      <Why on={!line.trim() && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} text={t("why.planFresh")} />
+      <button type="button" className="u-link u-muted" disabled={(!line.trim() || line.trim() === t("take.defaultLine")) && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} onClick={resetTake}>{t("take.resetPlan")}</button>
+      <Why on={(!line.trim() || line.trim() === t("take.defaultLine")) && settings.seconds === 5 && settings.quality === "rapide" && settings.aspect === "vertical"} text={t("why.planFresh")} />
       <div className="u-next" aria-label={t("take.nextLabel")}>
         <p className="u-small">{t("take.next")}</p>
       </div>

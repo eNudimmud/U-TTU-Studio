@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { SCENE_STILLS_MAX, isPlaceLora } from "@/lib/coffre/model";
 import { vueProjet } from "@/lib/studio-comfort";
 import { PLACE_SHOTS_MIN, placeShotLine, placeShotList } from "@/lib/lora/place";
 import { LENSES, PREVIZ_LABELS, PREVIZ_PLANS, PATH_FRAMES, defaultCamera, pathPoint, placeVolumes } from "@/lib/render/place";
 import { filmAction } from "@/lib/render/shot";
 import { formatUsd } from "@/lib/fal/prices";
+import { nextNumberedName } from "@/lib/ergonomie";
 import { useI18n } from "@/components/i18n/provider";
 import { OutgoingFilm, OutgoingLieu } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
@@ -23,8 +24,11 @@ function known(say: (line: string) => string, name: string) {
 export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; onRole(): void; focus?: "vues" | "image" | null }) {
   const { ready, studio, scene, media, addScene, selectScene, previz, blenderLinked, falLinked, requestPreviz, setSheet } = useStudio();
   const { t } = useI18n();
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const posting = useRef(false);
+  const suggested = nextNumberedName(t("scene.defaultName"), studio.scenes.map(item => item.name));
+  const placeName = draft ?? suggested;
   useEffect(() => {
     if (!focus) return;
     const target = document.getElementById(focus === "image" ? "u-former-lieu" : "u-vues");
@@ -33,10 +37,14 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
 
   function add(event: FormEvent) {
     event.preventDefault();
-    if (!draft.trim()) return;
-    void addScene(draft);
-    setDraft("");
-    setAdding(false);
+    const name = placeName.trim();
+    if (!name || posting.current) return;
+    posting.current = true;
+    void addScene(name).then(() => {
+      setDraft(null);
+      setAdding(false);
+      onNext();
+    }).finally(() => { posting.current = false; });
   }
 
   const showNew = adding || studio.scenes.length === 0;
@@ -63,7 +71,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
         {showNew && <form id="u-lieu-form" className="u-new" onSubmit={add}>
           <label className="u-field">
             <span className="u-label">{t("scene.new")}</span>
-            <input id="u-lieu" value={draft} maxLength={40} placeholder={t("scene.placeholder")} onChange={event => setDraft(event.target.value)} autoFocus={adding} />
+            <input id="u-lieu" value={placeName} maxLength={40} enterKeyHint="go" onChange={event => setDraft(event.target.value)} autoFocus={adding} />
           </label>
         </form>}
       </div>
@@ -82,10 +90,10 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
               type={posing ? "submit" : "button"}
               form={posing ? "u-lieu-form" : undefined}
               className="u-primary"
-              disabled={posing && !draft.trim()}
+              disabled={posing && !placeName.trim()}
               onClick={() => { if (!posing) onNext(); }}
-            >{posing ? t("scene.setPlace") : t("scene.goTake")} <Arrow /></button>
-            <Why on={posing && !draft.trim()} text={t("why.needName")} />
+            >{posing ? t("scene.setAndTake") : t("scene.goTake")} <Arrow /></button>
+            <Why on={posing && !placeName.trim()} text={t("why.needName")} />
             {scene && !adding && <p className="u-small">{t("scene.passTake")}</p>}
             {scene && adding && <button type="button" className="u-link" onClick={onNext}>{t("scene.goTake")}</button>}
             <ProjectMemory />

@@ -206,7 +206,7 @@
 .u-outgoing-text { margin: 0; min-width: 0; max-width: 100%; overflow-wrap: anywhere; font-size: 15px; line-height: 1.45; }
 .u-outgoing-clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .u-prise-screen { gap: 8px; }
-.u-app:has(.u-prise-confirm) .u-guide-line { min-height: 2.8em; }
+.u-app:has(.u-prise-confirm) .u-guide-line, .u-app:has(#u-look-form) .u-guide-line { min-height: 2.8em; }
 .u-prise-confirm { display: grid; gap: 2px; padding: 6px 10px 4px; border: 1px solid var(--u-line-strong); border-radius: 18px; background: rgba(18, 17, 16, .72); }
 .u-prise-confirm .u-why { line-height: 1.35; }
 .u-prise-confirm .u-field { gap: 4px; }
@@ -218,7 +218,7 @@
 .u-prise-profile { display: inline; margin: 0; font: 600 11px/1.4 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--u-gold); }
 .u-prise-profile::after { content: " — "; }
 @media (max-width: 480px) {
-  .u-prise-screen .u-head h1 { font-size: 32px; }
+  .u-prise-screen .u-head h1, .u-screen:has(#u-look-form) .u-head h1 { font-size: 32px; }
 }
 .u-fold .u-comfort-controls, .u-fold .u-outgoing-text { padding: 0 12px 12px; }
 .u-sound { display: grid; gap: 4px; margin: 0; font-size: 14px; line-height: 1.4; color: var(--u-muted); }

@@ -46,15 +46,15 @@
   },
   "guide": {
     "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",
-    "look-name": "Donne un nom. C’est lui que je tiens.",
-    "look-traits": "Deux traits qui ne bougent pas. Les yeux, une marque.",
+    "look-name": "Le nom est déjà écrit. Tu peux le changer.",
+    "look-traits": "Deux traits, si tu en as. Rien n’est inventé.",
     "look-ready": "Les photos tiennent. Pose maintenant le lieu.",
-    "scene-new": "Un lieu, un nom. Une image si tu l’as.",
+    "scene-new": "Le nom du lieu est écrit. Un geste ouvre la prise.",
     "scene-still": "Une image du lieu, et je le garde d’une prise à l’autre.",
     "scene-previz": "Ce lieu reste. Le trajet aussi. Un geste filme ton personnage.",
     "scene-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
     "take-connect": "Relie ton compte de rendu. Le calcul se paie là-bas, pas ici.",
-    "take-line": "Une phrase : ce que fait la prise. Le reste est déjà tissé.",
+    "take-line": "La phrase est déjà écrite. Tu peux la changer.",
     "take-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
     "take-ready": "Je montre le coût avant. Rien ne part sans ton geste.",
     "take-running": "Le fil tourne. Reste ici, ou reviens plus tard.",
@@ -72,8 +72,8 @@
     "project-name": "Atelier est écrit. Un geste crée le projet.",
     "understood": "Compris",
     "stepCharacter": "Photos, ou un fichier. Le prix se lit avant le geste.",
-    "stepScene": "Un lieu, un nom. Ensuite, la prise. Le trajet se filme à part.",
-    "stepTake": "Une phrase. Relie le compte, lis le devis, puis Tourner.",
+    "stepScene": "Le lieu est écrit. Un geste ouvre la prise.",
+    "stepTake": "La phrase est écrite. Lis le devis, puis Tourner.",
     "stop": "Ne plus guider"
   },
   "why": {
@@ -125,7 +125,7 @@
   "path": {
     "references": {
       "title": "Références",
-      "body": "Deux photos au moins, trois au plus, un nom, deux traits. Rien à former. Chaque prise « {engine} » paie le compte de rendu, au prix lu au moment de tourner.",
+      "body": "Deux photos au moins, trois au plus, un nom. Deux traits, si tu en as : rien n’est inventé. Rien à former. Chaque prise « {engine} » paie le compte de rendu, au prix lu au moment de tourner.",
       "action": "Tenir les photos"
     },
     "fichier": {
@@ -162,7 +162,9 @@
     "held": "Ce qui tient les références",
     "twoPhotos": "Deux photos au moins",
     "aName": "Un nom",
-    "twoTraits": "Deux traits",
+    "twoTraits": "Traits, si tu en as",
+    "defaultName": "Personnage 1",
+    "traitsOptional": "Deux traits, si tu en as. Rien n’est inventé.",
     "reset": "Remettre ces références",
     "stay": "Les prises, les lieux et les personnages formés restent.",
     "missingOne": "Il manque {what}.",
@@ -189,6 +191,8 @@
     "openTake": "Ouvrir la prise {line}",
     "goTake": "Aller à la prise",
     "setPlace": "Poser ce lieu",
+    "setAndTake": "Poser ce lieu, puis la prise",
+    "defaultName": "Lieu 1",
     "spaceSummary": "Régler l’espace et le trajet",
     "passTake": "Tu peux passer à la prise. Filmer le trajet est un autre geste.",
     "placeFirst": "Pose d’abord un lieu",
@@ -363,6 +367,7 @@
     "cameraBack": "Ce lieu se rouvre avec sa caméra.",
     "action": "Ce que fait la prise",
     "actionPlaceholder": "Elle traverse le quai sous la pluie, sans se retourner.",
+    "defaultLine": "Le personnage est dans le lieu.",
     "engine": "Moteur",
     "format": "Format",
     "duration": "Durée",
@@ -386,7 +391,7 @@
     "measuredNote": "Le devis mesuré est 5 s, vertical, rapide. Un autre réglage éteint Tourner.",
     "nextLabel": "Après la prise",
     "stayTakes": "Les prises déjà tournées restent.",
-    "gapPhotos": "Il manque deux photos, un nom et deux traits.",
+    "gapPhotos": "Il manque deux photos et un nom.",
     "gapScene": "Il manque un lieu.",
     "gapFile": "Le moteur Personnage (fichier) attend un fichier formé.",
     "hintFile": "Il manque un fichier de personnage.",
@@ -462,7 +467,7 @@
       "name": "Prise · Références",
       "sentence": "Les photos de mon studio deviennent une prise, avec le son.",
       "inputs": [
-        "Deux photos, un nom, deux traits",
+        "Deux photos, un nom. Deux traits, si tu en as.",
         "Un lieu",
         "Une phrase",
         "La durée et le format"
@@ -718,7 +723,8 @@
     "pending": "en attente",
     "notReadYet": "pas encore lu",
     "character": "Personnage",
-    "take": "Prise"
+    "take": "Prise",
+    "nameWritten": "Le nom est déjà écrit. Tu peux le changer."
   },
   "runtime": {
     "balanceUnreadable": "Solde illisible. Rien ne part sans lire le compte qui paiera.",

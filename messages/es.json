@@ -46,15 +46,15 @@
   },
   "guide": {
     "look-photos": "Dos fotos, tres como máximo. De frente, luego tres cuartos. Yo tejo el resto.",
-    "look-name": "Da un nombre. A ese lo sostengo.",
-    "look-traits": "Dos rasgos que no se mueven. Los ojos, una marca.",
+    "look-name": "El nombre ya está escrito. Puedes cambiarlo.",
+    "look-traits": "Dos rasgos, si los tienes. No se inventa nada.",
     "look-ready": "Las fotos sostienen. Coloca ahora la localización.",
-    "scene-new": "Una localización, un nombre. Una imagen si la tienes.",
+    "scene-new": "El nombre del lugar ya está. Un gesto abre la toma.",
     "scene-still": "Una imagen de la localización, y la guardo de una toma a la otra.",
     "scene-previz": "Esta localización queda. El recorrido también. Un gesto filma tu personaje.",
     "scene-memory": "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa.",
     "take-connect": "Vincula tu cuenta de render. El cálculo se paga allí, no aquí.",
-    "take-line": "Una frase: lo que hace la toma. El resto ya está tejido.",
+    "take-line": "La frase ya está escrita. Puedes cambiarla.",
     "take-memory": "Biblia, estilo, léxico, prompts: vacíos, o los tuyos. Nada se inventa.",
     "take-ready": "Muestro el coste antes. Nada sale sin tu gesto.",
     "take-running": "El hilo rueda. Quédate, o vuelve más tarde.",
@@ -72,8 +72,8 @@
     "project-name": "Atelier ya está escrito. Un gesto crea el proyecto.",
     "understood": "Entendido",
     "stepCharacter": "Fotos, o un archivo. El precio se lee antes del gesto.",
-    "stepScene": "Una localización, un nombre. Luego, la toma. El recorrido se filma aparte.",
-    "stepTake": "Una frase. Vincula la cuenta, lee el presupuesto, luego Rodar.",
+    "stepScene": "El lugar ya está escrito. Un gesto abre la toma.",
+    "stepTake": "La frase está escrita. Lee el presupuesto, luego Rodar.",
     "stop": "No guiar más"
   },
   "why": {
@@ -125,7 +125,7 @@
   "path": {
     "references": {
       "title": "Referencias",
-      "body": "Al menos dos fotos, tres como máximo, un nombre, dos rasgos. Nada que entrenar. Cada toma « {engine} » paga la cuenta de render, al precio leído al rodar.",
+      "body": "Al menos dos fotos, tres como máximo, un nombre. Dos rasgos, si los tienes: no se inventa nada. Nada que entrenar. Cada toma « {engine} » paga la cuenta de render, al precio leído al rodar.",
       "action": "Sostener las fotos"
     },
     "fichier": {
@@ -162,7 +162,9 @@
     "held": "Lo que sostiene las referencias",
     "twoPhotos": "Al menos dos fotos",
     "aName": "Un nombre",
-    "twoTraits": "Dos rasgos",
+    "twoTraits": "Rasgos, si los tienes",
+    "defaultName": "Personaje 1",
+    "traitsOptional": "Dos rasgos, si los tienes. No se inventa nada.",
     "reset": "Restablecer estas referencias",
     "stay": "Las tomas, las localizaciones y los personajes entrenados quedan.",
     "missingOne": "Falta {what}.",
@@ -189,6 +191,8 @@
     "openTake": "Abrir la toma {line}",
     "goTake": "Ir a la toma",
     "setPlace": "Poner este lugar",
+    "setAndTake": "Poner este lugar y abrir la toma",
+    "defaultName": "Lugar 1",
     "spaceSummary": "Ajustar el plano de espacio y el recorrido",
     "passTake": "Puedes pasar a la toma. Filmar el recorrido es otro gesto.",
     "placeFirst": "Coloca primero una localización",
@@ -363,6 +367,7 @@
     "cameraBack": "Esta localización se reabre con su cámara.",
     "action": "Lo que hace la toma",
     "actionPlaceholder": "Ella cruza el muelle bajo la lluvia, sin volverse.",
+    "defaultLine": "El personaje está en el lugar.",
     "engine": "Motor",
     "format": "Formato",
     "duration": "Duración",
@@ -386,7 +391,7 @@
     "measuredNote": "El presupuesto medido es 5 s, vertical, rápido. Otro ajuste deja Rodar apagado.",
     "nextLabel": "Después de la toma",
     "stayTakes": "Las tomas ya rodadas quedan.",
-    "gapPhotos": "Faltan dos fotos, un nombre y dos rasgos.",
+    "gapPhotos": "Faltan dos fotos y un nombre.",
     "gapScene": "Falta una localización.",
     "gapFile": "El motor Personaje (archivo) espera un archivo entrenado.",
     "hintFile": "Falta un archivo de personaje.",
@@ -462,7 +467,7 @@
       "name": "Toma · Referencias",
       "sentence": "Las fotos de mi estudio se vuelven una toma, con el sonido.",
       "inputs": [
-        "Dos fotos, un nombre, dos rasgos",
+        "Dos fotos, un nombre. Dos rasgos, si los tienes.",
         "Una localización",
         "Una frase",
         "La duración y el formato"
@@ -718,7 +723,8 @@
     "pending": "en espera",
     "notReadYet": "aún no leído",
     "character": "Personaje",
-    "take": "Toma"
+    "take": "Toma",
+    "nameWritten": "El nombre ya está escrito. Puedes cambiarlo."
   },
   "runtime": {
     "balanceUnreadable": "Saldo ilegible. Nada sale sin leer la cuenta que pagará.",

@@ -46,15 +46,15 @@
   },
   "guide": {
     "look-photos": "Zwei Fotos, höchstens drei. Frontal, dann Dreiviertel. Den Rest webe ich.",
-    "look-name": "Gib einen Namen. Den halte ich.",
-    "look-traits": "Zwei Züge, die bleiben. Die Augen, ein Mal.",
+    "look-name": "Der Name steht schon da. Du kannst ihn ändern.",
+    "look-traits": "Zwei Züge, wenn du sie hast. Nichts wird erfunden.",
     "look-ready": "Die Fotos halten. Setze jetzt den Drehort.",
-    "scene-new": "Ein Drehort, ein Name. Ein Bild, wenn du eins hast.",
+    "scene-new": "Der Ortsname steht da. Eine Geste öffnet den Take.",
     "scene-still": "Ein Bild des Drehorts, und ich halte ihn von Take zu Take.",
     "scene-previz": "Dieser Drehort bleibt. Der Weg auch. Eine Geste filmt deine Figur.",
     "scene-memory": "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.",
     "take-connect": "Verbinde dein Render-Konto. Die Rechnung läuft dort, nicht hier.",
-    "take-line": "Ein Satz: was der Take tut. Der Rest ist schon gewebt.",
+    "take-line": "Der Satz steht schon da. Du kannst ihn ändern.",
     "take-memory": "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.",
     "take-ready": "Ich zeige den Preis vorher. Nichts geht ohne deine Geste.",
     "take-running": "Der Faden läuft. Bleib hier, oder komm später zurück.",
@@ -72,8 +72,8 @@
     "project-name": "Atelier steht schon da. Eine Geste legt das Projekt an.",
     "understood": "Verstanden",
     "stepCharacter": "Fotos, oder eine Datei. Der Preis wird vor der Geste gelesen.",
-    "stepScene": "Ein Drehort, ein Name. Danach der Take. Der Weg wird extra gefilmt.",
-    "stepTake": "Ein Satz. Verbinde das Konto, lies die Kalkulation, dann Drehen.",
+    "stepScene": "Der Ort steht da. Eine Geste öffnet den Take.",
+    "stepTake": "Der Satz steht da. Lies die Kalkulation, dann Drehen.",
     "stop": "Nicht mehr führen"
   },
   "why": {
@@ -125,7 +125,7 @@
   "path": {
     "references": {
       "title": "Referenzen",
-      "body": "Mindestens zwei Fotos, höchstens drei, ein Name, zwei Züge. Nichts zu trainieren. Jeder « {engine} »-Take zahlt das Render-Konto, zum Preis beim Drehen.",
+      "body": "Mindestens zwei Fotos, höchstens drei, ein Name. Zwei Züge, wenn du sie hast: nichts wird erfunden. Nichts zu trainieren. Jeder « {engine} »-Take zahlt das Render-Konto, zum Preis beim Drehen.",
       "action": "Fotos halten"
     },
     "fichier": {
@@ -162,7 +162,9 @@
     "held": "Was die Referenzen hält",
     "twoPhotos": "Mindestens zwei Fotos",
     "aName": "Ein Name",
-    "twoTraits": "Zwei Züge",
+    "twoTraits": "Züge, wenn du sie hast",
+    "defaultName": "Figur 1",
+    "traitsOptional": "Zwei Züge, wenn du sie hast. Nichts wird erfunden.",
     "reset": "Diese Referenzen zurücksetzen",
     "stay": "Takes, Drehorte und trainierte Figuren bleiben.",
     "missingOne": "Es fehlt {what}.",
@@ -189,6 +191,8 @@
     "openTake": "Take öffnen {line}",
     "goTake": "Zum Take",
     "setPlace": "Diesen Ort setzen",
+    "setAndTake": "Diesen Ort setzen, dann der Take",
+    "defaultName": "Ort 1",
     "spaceSummary": "Raumplan und Weg einstellen",
     "passTake": "Du kannst zum Take weitergehen. Den Weg zu filmen ist eine andere Geste.",
     "placeFirst": "Zuerst einen Drehort setzen",
@@ -363,6 +367,7 @@
     "cameraBack": "Dieser Drehort öffnet sich wieder mit seiner Kamera.",
     "action": "Was der Take tut",
     "actionPlaceholder": "Sie überquert den Kai im Regen, ohne sich umzudrehen.",
+    "defaultLine": "Die Figur ist an diesem Ort.",
     "engine": "Motor",
     "format": "Format",
     "duration": "Dauer",
@@ -386,7 +391,7 @@
     "measuredNote": "Die gemessene Kalkulation ist 5 s, vertikal, schnell. Eine andere Einstellung lässt Drehen aus.",
     "nextLabel": "Nach dem Take",
     "stayTakes": "Schon gedrehte Takes bleiben.",
-    "gapPhotos": "Zwei Fotos, ein Name und zwei Züge fehlen.",
+    "gapPhotos": "Zwei Fotos und ein Name fehlen.",
     "gapScene": "Ein Drehort fehlt.",
     "gapFile": "Der Motor Figur (Datei) wartet auf eine trainierte Datei.",
     "hintFile": "Eine Figur-Datei fehlt.",
@@ -462,7 +467,7 @@
       "name": "Take · Referenzen",
       "sentence": "Die Fotos in « Mein Studio » werden ein Take, mit Ton.",
       "inputs": [
-        "Zwei Fotos, ein Name, zwei Züge",
+        "Zwei Fotos, ein Name. Zwei Züge, wenn du sie hast.",
         "Ein Drehort",
         "Ein Satz",
         "Dauer und Format"
@@ -718,7 +723,8 @@
     "pending": "ausstehend",
     "notReadYet": "noch nicht gelesen",
     "character": "Figur",
-    "take": "Take"
+    "take": "Take",
+    "nameWritten": "Der Name steht schon da. Du kannst ihn ändern."
   },
   "runtime": {
     "balanceUnreadable": "Guthaben unlesbar. Nichts geht, ohne das Konto zu lesen, das zahlt.",

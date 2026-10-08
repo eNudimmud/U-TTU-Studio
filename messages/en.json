@@ -46,15 +46,15 @@
   },
   "guide": {
     "look-photos": "Two photos, three at most. Front, then three-quarter. I weave the rest.",
-    "look-name": "Give a name. That is the one I hold.",
-    "look-traits": "Two traits that do not move. The eyes, a mark.",
+    "look-name": "The name is already written. You can change it.",
+    "look-traits": "Two traits, if you have them. Nothing is invented.",
     "look-ready": "The photos hold. Set the location now.",
-    "scene-new": "A location, a name. An image if you have one.",
+    "scene-new": "The place name is written. One gesture opens the take.",
     "scene-still": "An image of the location, and I keep it from one take to the next.",
     "scene-previz": "This location stays. So does the path. One gesture films your character.",
     "scene-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
     "take-connect": "Connect your render account. The compute is paid there, not here.",
-    "take-line": "One line: what the take does. The rest is already woven.",
+    "take-line": "The line is already written. You can change it.",
     "take-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
     "take-ready": "I show the cost first. Nothing leaves without your gesture.",
     "take-running": "The thread is rolling. Stay here, or come back later.",
@@ -72,8 +72,8 @@
     "project-name": "Atelier is written. One gesture creates the project.",
     "understood": "Understood",
     "stepCharacter": "Photos, or a file. The price is read before the gesture.",
-    "stepScene": "A location, a name. Next, the take. The path is filmed apart.",
-    "stepTake": "One line. Connect the account, read the quote, then Shoot.",
+    "stepScene": "The place is written. One gesture opens the take.",
+    "stepTake": "The line is written. Read the quote, then Shoot.",
     "stop": "Stop guiding"
   },
   "why": {
@@ -125,7 +125,7 @@
   "path": {
     "references": {
       "title": "References",
-      "body": "At least two photos, three at most, a name, two traits. Nothing to train. Each « {engine} » take pays the render account, at the price read when you shoot.",
+      "body": "At least two photos, three at most, a name. Two traits, if you have them: nothing is invented. Nothing to train. Each « {engine} » take pays the render account, at the price read when you shoot.",
       "action": "Hold the photos"
     },
     "fichier": {
@@ -162,7 +162,9 @@
     "held": "What holds the references",
     "twoPhotos": "At least two photos",
     "aName": "A name",
-    "twoTraits": "Two traits",
+    "twoTraits": "Traits, if you have them",
+    "defaultName": "Character 1",
+    "traitsOptional": "Two traits, if you have them. Nothing is invented.",
     "reset": "Reset these references",
     "stay": "Takes, locations and trained characters stay.",
     "missingOne": "Missing {what}.",
@@ -189,6 +191,8 @@
     "openTake": "Open the take {line}",
     "goTake": "Go to the take",
     "setPlace": "Set this place",
+    "setAndTake": "Set this place, then the take",
+    "defaultName": "Place 1",
     "spaceSummary": "Set the layout and the path",
     "passTake": "You can go on to the take. Filming the path is another gesture.",
     "placeFirst": "Set a location first",
@@ -363,6 +367,7 @@
     "cameraBack": "This location reopens with its camera.",
     "action": "What the take does",
     "actionPlaceholder": "She crosses the quay in the rain, without looking back.",
+    "defaultLine": "The character is in the place.",
     "engine": "Engine",
     "format": "Format",
     "duration": "Duration",
@@ -386,7 +391,7 @@
     "measuredNote": "The measured quote is 5 s, vertical, fast. Another setting keeps Shoot off.",
     "nextLabel": "After the take",
     "stayTakes": "Takes already shot stay.",
-    "gapPhotos": "Two photos, a name and two traits are missing.",
+    "gapPhotos": "Two photos and a name are missing.",
     "gapScene": "A location is missing.",
     "gapFile": "The Character (trained) engine is waiting for a trained file.",
     "hintFile": "A character file is missing.",
@@ -462,7 +467,7 @@
       "name": "Take · References",
       "sentence": "The photos in my studio become a take, with the sound.",
       "inputs": [
-        "Two photos, a name, two traits",
+        "Two photos, a name. Two traits, if you have them.",
         "A location",
         "A line",
         "The duration and the format"
@@ -718,7 +723,8 @@
     "pending": "pending",
     "notReadYet": "not read yet",
     "character": "Character",
-    "take": "Take"
+    "take": "Take",
+    "nameWritten": "The name is already written. You can change it."
   },
   "runtime": {
     "balanceUnreadable": "Balance unreadable. Nothing leaves without reading the account that will pay.",

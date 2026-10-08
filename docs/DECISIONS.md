@@ -1,6 +1,33 @@
 # Registre — C micro
 
-Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-07.
+Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
+
+## F31 — moins de saisies, moins de décisions — 8 octobre 2026
+
+Méthode du compte, la même que F29 et F30. Un geste est un tap ou une saisie. L’écran est celui où la personne est pendant le geste. Le chemin est le plus court qui pose une prise sur un plan, lit la séquence, puis exporte. Un nom déjà écrit, une phrase déjà écrite, un réglage déjà sur le profil mesuré ne sont pas des décisions. La confirmation payante reste : le devis et le texte qui part se lisent avant le geste qui débite.
+
+| | Avant, F30 | Après, F31 |
+| --- | --- | --- |
+| Gestes | 15 | 9 |
+| dont saisies | 5 | 0 |
+| dont taps | 10 | 9 |
+| Écrans | 7 | 7 |
+| Décisions | 5 | 0 |
+| Retours forcés | 0 | 0 |
+
+Les neuf taps : créer le projet (Atelier déjà écrit), deux photos en un sélecteur, poser la scène, poser le lieu puis ouvrir la prise, Tourner, confirmer, poser le plan (Séquence 1, Plan 1), lire la séquence, exporter. Le compte échoue s’il dépasse 9.
+
+- **Décision :** le personnage sans nom écrit reçoit « Personnage 1 », déjà dans le champ. Effacer le champ le laisse vide. Deux traits restent visibles, éditables, et ne bloquent plus : rien n’est inventé à leur place. Le bouton or suit le nom. Tant que les photos manquent, il dit « Compléter les références » et la phrase du manque est dessous.
+- **Décision :** « Poser ce lieu, puis la prise » nomme le lieu (« Lieu 1 » s’il est libre) et ouvre la prise, un seul geste. Une fois le lieu posé, le même bouton redevient « Aller à la prise ».
+- **Décision :** sans phrase écrite, la prise montre « Le personnage est dans le lieu. » La phrase suit la langue tant qu’elle n’a pas été modifiée, et elle n’est pas rangée tant qu’on ne l’écrit pas. Elle se lit dans le champ et dans le texte qui part, au-dessus de Tourner. Remettre la prise à zéro la ramène.
+- **Décision :** sur ordinateur, Entrée valide le projet, le nom du personnage, le lieu, la phrase de la prise, et la confirmation. Maj+Entrée dans la phrase ne valide pas. La confirmation n’est pas une barre fixe : la carte « Avant le geste » de F30 reste.
+- **Fait :** Chrome headless, build de production, 390×844 et 1280×800, dpr 2, français, puis allemand, anglais, espagnol à 390. `scrollWidth` = `clientWidth`. Aucune cible interactive sous 44 px. Aucun bouton éteint sans raison visible. Aucune requête vers cloud.comfy.org, api.comfy.org ou fal.ai.
+- **Fait :** à 390, français, scroll 0, la chaîne commence à 723 px. « Créer ce projet » va de 481 à 535 px. « Poser la scène », photos posées, nom « Personnage 1 », va de 586 à 640 px. Les photos vont de 357 à 453 px, le nom de 490 à 538 px. « Poser ce lieu, puis la prise », champ « Lieu 1 », va de 528 à 582 px. « Relier » va de 615 à 669 px. La phrase écrite est « Le personnage est dans le lieu. » Le texte qui part la contient, avec « Lieu 1 », et le devis contient « Environ 4 crédits, au plus 6 » et `h3-4pas-5s-vertical`.
+- **Fait :** à 1280×800, français, la chaîne est le rail gauche, la fenêtre fait 800 px. « Créer ce projet » va de 448 à 502 px. « Poser la scène » de 582 à 636 px. « Poser ce lieu, puis la prise » de 426 à 480 px. Entrée dans le champ du lieu ouvre la prise. « Relier » va de 540 à 594 px.
+- **Fait :** à 390, allemand : « Figur 1 », « Szene setzen » de 608 à 662 px, « Ort 1 », « Diesen Ort setzen, dann der Take » de 528 à 582 px, « Die Figur ist an diesem Ort. », « Verbinden » de 633 à 687 px. Anglais : « Character 1 », « Place 1 », « The character is in the place. », « Connect » de 615 à 669 px. Espagnol : « Personaje 1 », « Lugar 1 », « El personaje está en el lugar. », « Vincular » de 595 à 649 px. Chaque bouton or tient au-dessus de la chaîne.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. EN, DE et ES portent `_human: native_open`. Les lignes neuves s’ajoutent à celles encore ouvertes. Ce n’est pas une signature de locuteur natif.
+- **Hypothèse :** une personne qui garde « Atelier », « Personnage 1 », « Lieu 1 », la phrase écrite, « Séquence 1 » et « Plan 1 » suit ces 9 gestes. Le sélecteur du téléphone laisse passer deux photos en un tap, comme en F29.
+- **Pas fait :** pas de téléphone physique. Pas de prise filmée sur un compte réel : Tourner n’a pas été tapé hors du job simulé déjà couvert en F30. Les sept écrans restent. Retirer la confirmation cacherait le devis et le texte qui part avant le débit. Les deux traits ne sont pas retirés de l’écran : ils ne comptent plus comme une décision, ils restent lisibles sous le bouton or.
 
 ## F30 — le geste or de la Prise dans le premier écran — 7 octobre 2026
 

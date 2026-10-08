@@ -223,12 +223,15 @@ export interface LookCheck {
   traits: boolean;
 }
 
-/** The look holds with two photos, a name, and two things that do not change. */
+/**
+ * The look holds with two photos and a name. Two traits stay visible and do not block:
+ * nothing is invented in their place.
+ */
 export function lookCheck(look: Look): LookCheck {
   const photos = look.photos.length >= 2;
   const name = look.name.trim().length > 0;
   const traits = look.traits.length >= TRAITS_MIN;
-  return { ready: photos && name && traits, photos, name, traits };
+  return { ready: photos && name, photos, name, traits };
 }
 
 export function slugify(name: string): string {
