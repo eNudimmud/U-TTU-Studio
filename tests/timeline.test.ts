@@ -201,7 +201,7 @@ describe("timeline", () => {
     const stage = read("src/components/app/montage-stage.tsx");
     assert.match(stage, /data-section="montage"/);
     assert.doesNotMatch(stage, /class_type|api_elevenlabs|estimate_credits|partner_generate|submit_workflow|run_template/);
-    assert.match(read("src/components/app/stage-screens.tsx"), /data-lire-sequence/);
-    assert.match(read("src/components/app/stage-screens.tsx"), /onMontage\(\)/);
+    assert.match(read("src/components/app/prise-stage.tsx"), /data-lire-sequence/);
+    assert.match(read("src/components/app/prise-stage.tsx"), /onMontage\(\)/);
   });
 });

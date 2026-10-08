@@ -787,3 +787,69 @@
   .u-bin-toggle, .u-bin-close { display: none; }
   .u-create-bar { position: static; padding-top: 4px; background: #0b0a09; }
 }
+
+.u-top-project { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.u-project-name { margin: 0; font: 650 16px/1.2 var(--font-display, var(--font-body)); overflow-wrap: anywhere; }
+.u-format { display: flex; gap: 4px; }
+.u-format button { min-width: 44px; min-height: 44px; padding: 0 10px; border: 1px solid var(--u-line); border-radius: 10px; background: transparent; color: var(--u-text); white-space: nowrap; }
+.u-format button[aria-pressed="true"] { color: #11100e; background: var(--u-gold); border-color: var(--u-gold); }
+
+.u-prise { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+.u-prise-strip, .u-prise-work, .u-prise-preview, .u-prise-dock { min-width: 0; }
+.u-prise-film { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.u-plan-card, .u-plan-add { flex: 0 0 auto; display: grid; justify-items: center; align-content: start; gap: 4px; min-width: 88px; min-height: 44px; padding: 6px; border: 1px solid var(--u-line); border-radius: 12px; background: #100e0c; color: inherit; }
+.u-plan-card[aria-current="true"] { border-color: var(--u-gold); }
+.u-plan-num, .u-plan-etat, .u-plan-time, .u-plan-sum { white-space: nowrap; }
+.u-plan-etat { color: var(--u-gold-soft); font-size: 12px; }
+.u-plan-thumb, .u-avatar-face, .u-place-face { display: block; width: 72px; height: 72px; border-radius: 10px; overflow: hidden; background: #000; }
+.u-plan-thumb img, .u-avatar-face img, .u-place-face img, .u-prise-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.u-plan-sum { margin: 8px 0 0; color: var(--u-muted); font-size: 13px; }
+.u-prise-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.u-prise-head h1 { margin: 0; font: 650 28px/1.1 var(--font-display, var(--font-body)); }
+.u-prise-row, .u-final, .u-prise-card, .u-prise-actions { display: grid; gap: 8px; }
+.u-choice-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.u-tile, .u-chip, .u-avatar, .u-place { flex: 0 0 auto; display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 44px; padding: 6px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: var(--u-text); }
+.u-tile span, .u-chip, .u-avatar > span, .u-place > span, .u-plan-etat { white-space: nowrap; overflow: visible; text-overflow: clip; }
+.u-tile[aria-pressed="true"], .u-chip[aria-pressed="true"], .u-avatar[aria-pressed="true"], .u-place[aria-pressed="true"] { border-color: var(--u-gold); background: rgba(201, 164, 106, .14); }
+.u-tile:disabled, .u-primary:disabled, .u-secondary:disabled { opacity: .55; }
+.u-ico { width: 32px; height: 24px; stroke: var(--u-gold); fill: none; stroke-width: 1.5; }
+.u-cam-tile:hover .u-cam-move, .u-cam-tile:focus-visible .u-cam-move { animation: u-cam-in .9s ease-in-out infinite alternate; }
+.u-cam-tile[data-cam="travelling-arriere"]:hover .u-cam-move { animation-name: u-cam-out; }
+.u-cam-tile[data-cam="panoramique"]:hover .u-cam-move, .u-cam-tile[data-cam="suivi"]:hover .u-cam-move { animation-name: u-cam-pan; }
+.u-cam-tile[data-cam="orbite"]:hover .u-cam-move { animation-name: u-cam-orbit; }
+.u-cam-tile[data-cam="epaule"]:hover .u-cam-move { animation-name: u-cam-shake; }
+.u-cam-tile[data-cam="fixe"]:hover .u-cam-move, .u-cam-tile[data-cam="fixe"]:focus-visible .u-cam-move { animation: none; }
+@keyframes u-cam-in { from { transform: translateX(0); } to { transform: translateX(3px) scale(1.08); } }
+@keyframes u-cam-out { from { transform: scale(1.06); } to { transform: translateX(-3px) scale(.92); } }
+@keyframes u-cam-pan { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+@keyframes u-cam-orbit { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+@keyframes u-cam-shake { from { transform: translate(0, 0); } to { transform: translate(1px, -1px); } }
+@media (prefers-reduced-motion: reduce) {
+  .u-cam-tile:hover .u-cam-move, .u-cam-tile:focus-visible .u-cam-move { animation: none; }
+}
+.u-prise-frame { position: relative; display: grid; width: 100%; background: #000; border: 1px solid var(--u-line); border-radius: 12px; overflow: hidden; }
+.u-prise-frame[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
+.u-prise-frame[data-ratio="9:16"] { aspect-ratio: 9 / 16; width: min(100%, 168px); margin-inline: auto; }
+.u-prise-frame img { grid-area: 1 / 1; }
+.u-prise-empty { display: grid; place-items: center; min-height: 96px; color: var(--u-muted); }
+.u-compare { display: grid; gap: 6px; }
+.u-compare-legend { display: flex; justify-content: space-between; margin: 0; color: var(--u-gold-soft); font-size: 12px; }
+.u-compare input { width: 100%; min-height: 44px; }
+.u-prise-quote { margin: 0; color: var(--u-gold-soft); }
+.u-prise-prompt { width: 100%; min-height: 140px; padding: 8px; border: 1px solid var(--u-line); border-radius: 10px; background: #100e0c; color: inherit; resize: vertical; }
+.u-prise-actions .u-primary, .u-prise-actions .u-secondary, .u-final .u-primary { min-height: 44px; }
+@media (max-width: 1023px) {
+  .u-top { flex-wrap: wrap; }
+  .u-top-project { flex: 1 1 100%; order: 3; }
+  .u-prise-actions { position: sticky; bottom: calc(78px + var(--u-safe)); z-index: 5; max-height: 46vh; overflow: auto; padding: 8px; border: 1px solid var(--u-line); border-radius: 14px; background: rgba(11, 10, 9, .96); }
+}
+@media (min-width: 1024px) {
+  .u-stage.u-prise { width: 100%; max-width: none; height: 100%; min-height: 0; margin: 0; overflow: hidden; display: grid; grid-template-columns: 156px minmax(0, 1fr) 300px; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "strip work preview" "strip work dock"; gap: 8px 12px; }
+  .u-prise-strip { grid-area: strip; min-height: 0; overflow: auto; }
+  .u-prise-work { grid-area: work; min-height: 0; overflow: auto; display: grid; align-content: start; gap: 10px; }
+  .u-prise-preview { grid-area: preview; }
+  .u-prise-dock { grid-area: dock; min-height: 0; overflow: auto; display: grid; align-content: start; gap: 8px; }
+  .u-prise-film { flex-direction: column; overflow: visible; }
+  .u-plan-card, .u-plan-add { width: 100%; }
+  .u-prise-work .u-choice-row { flex-wrap: wrap; overflow: visible; }
+}

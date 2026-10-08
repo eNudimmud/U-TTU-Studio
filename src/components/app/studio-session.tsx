@@ -20,6 +20,7 @@ import {
   type Scene, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { allowFolder, folderPermission, loadFolderHandle, readFolder, saveFolderHandle } from "@/lib/coffre/permit";
+import { projectPath } from "@/lib/coffre/project";
 import { idbVault, type VaultStore } from "@/lib/coffre/store";
 import { posePlan } from "@/lib/ergonomie";
 import { type Balance } from "@/lib/credits";
@@ -115,6 +116,9 @@ export interface StudioSession {
   allowLinkedFolder(): Promise<void>;
   selectProject(slug: string): Promise<void>;
   outgoing(): string;
+  readProjectFile(file: string): Promise<string | undefined>;
+  writeProjectFile(file: string, text: string): Promise<void>;
+  saveShot(shot: Shot): Promise<void>;
 }
 
 export interface HeldRef {
@@ -986,6 +990,22 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     setPickedDecor(prev => prev ?? DEMO_DECOR[0]?.id ?? null);
   }, [demoOn, ready]);
 
+  const readProjectFile = useCallback(async (file: string) => {
+    const slug = current.project;
+    if (!slug) return undefined;
+    const entry = await store().get(projectPath(slug, file));
+    return entry?.text;
+  }, [current.project, store]);
+
+  const writeProjectFile = useCallback(async (file: string, text: string) => {
+    const slug = current.project ?? await ensureActiveProject(store());
+    await writeText(store(), projectPath(slug, file), text);
+  }, [current.project, store]);
+
+  const saveShot = useCallback(async (shot: Shot) => {
+    await writeShot(store(), shot, current.takes, "");
+  }, [current.takes, store]);
+
   const value: StudioSession = {
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
@@ -994,6 +1014,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,
+    readProjectFile, writeProjectFile, saveShot,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

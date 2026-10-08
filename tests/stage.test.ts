@@ -39,8 +39,8 @@ describe("CAST, DÉCOR, PRISE", () => {
   it("keeps one gold button per section, a reason when it is off, and the spend behind the confirm sheet", () => {
     const stage = read("src/components/app/stage-screens.tsx");
     const cast = stage.slice(stage.indexOf("export function CastStage"), stage.indexOf("export function DecorStage"));
-    const decor = stage.slice(stage.indexOf("export function DecorStage"), stage.indexOf("export function PriseStage"));
-    const prise = stage.slice(stage.indexOf("export function PriseStage"));
+    const decor = stage.slice(stage.indexOf("export function DecorStage"));
+    const prise = read("src/components/app/prise-stage.tsx");
     assert.equal(cast.match(/className="u-primary"/g)?.length, 1);
     assert.equal(decor.match(/className="u-primary"/g)?.length, 1);
     assert.match(cast, /data-cast-gold/);
@@ -48,15 +48,16 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.match(cast, /create\.needLink/);
     assert.match(decor, /data-decor-gold/);
     assert.match(decor, /aria-describedby=\{blocked \? "u-why-decor"/);
-    assert.match(prise, /data-prise-gold/);
-    assert.match(prise, /aria-describedby=\{step !== "generate" \? "u-why-prise"/);
+    assert.match(prise, /data-composer-gold/);
+    assert.match(prise, /aria-describedby=\{decision\.enabled \? undefined : whyId\}/);
     assert.match(prise, /requestRun\(\)/);
     assert.doesNotMatch(prise, /confirmRun\(/);
     assert.match(prise, /goCast\(\)/);
     assert.match(prise, /goDecor\(\)/);
     assert.match(prise, /data-lire-sequence/);
-    assert.match(prise, /why\.alreadyFiled/);
-    assert.match(prise, /t\("sheet\.export"\)/);
+    assert.match(prise, /PAS_MESURE/);
+    assert.match(read("src/lib/prise/copy.ts"), /Pas encore mesuré/);
+    assert.match(prise, /Finaliser \(agrandir\)/);
     assert.match(read("src/components/app/studio-app.tsx"), /data-state=\{marks\[step\.id\] \? "pret" : "vide"\}/);
     const drawer = read("src/components/app/studio-drawer.tsx");
     assert.match(drawer, /t\("nav\.character"\)/);
@@ -68,8 +69,8 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.match(read("src/components/app/app.css"), /\.u-top \.u-lang \{ display: none; \}/);
     assert.match(read("src/components/app/stage-screens.tsx"), /EXEMPLES/);
     assert.doesNotMatch(read("src/components/app/stage-screens.tsx"), /images\/decors\/\$\{preset\.id\}\.svg/);
-    assert.match(read("src/components/app/stage-screens.tsx"), /data-prise-gold/);
-    assert.match(read("src/components/app/stage-screens.tsx"), /stage\.generatePriced/);
+    assert.match(read("src/components/app/prise-stage.tsx"), /data-composer-gold/);
+    assert.match(read("src/components/app/prise-stage.tsx"), /Composer l'image/);
   });
 
   it("keeps Quai, Rue and Pièce as pictures, without a new stored plan", () => {

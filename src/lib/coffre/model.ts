@@ -96,6 +96,7 @@ export interface RoleDraft {
 /** "comfy": references only, on Comfy Cloud. "lora": an older character file. */
 export type TakeEngine = "comfy" | "lora";
 export type CostSource = "billing" | "balance" | null;
+export type TakeEtat = "essai" | "gardee" | "finalisee";
 
 export interface Take {
   id: string;
@@ -123,6 +124,10 @@ export interface Take {
   announcedCredits: number | null;
   /** Billed ceiling shown with the announcement. Null when the quote was a balance delta, or absent. */
   announcedHigh: number | null;
+  /** Absent on older notes: those takes already sit in the cut. `essai` stays out of the montage. */
+  etat?: TakeEtat | null;
+  /** Upscale of `video`. The original file stays. */
+  finalVideo?: string | null;
 }
 
 export type LoraKind = "personnage" | "lieu";
@@ -172,6 +177,8 @@ export interface Shot {
   takeIds: string[];
   note: string;
   ordre: number;
+  /** Composer JSON. Absent on older storyboard notes. */
+  composeur?: string | null;
 }
 
 export interface Studio {
@@ -449,6 +456,8 @@ export function takeMarkdown(take: Take, projet = "", links: TakeNoteLinks = { s
     texte: take.prompt,
     devis_annonce: take.announcedCredits,
     devis_borne: take.announcedHigh,
+    ...(take.etat ? { etat: take.etat } : {}),
+    ...(take.finalVideo ? { video_finale: take.finalVideo } : {}),
   }, body);
 }
 
@@ -494,6 +503,8 @@ export function parseTake(id: string, source: string): Take | null {
     costSource: pick(text(fields.cout_source), SOURCES),
     announcedCredits: num(fields.devis_annonce),
     announcedHigh: num(fields.devis_borne),
+    ...(pick(text(fields.etat), ["essai", "gardee", "finalisee"] as const) ? { etat: pick(text(fields.etat), ["essai", "gardee", "finalisee"] as const) } : {}),
+    ...(text(fields.video_finale) ? { finalVideo: text(fields.video_finale) } : {}),
   };
 }
 
@@ -672,6 +683,7 @@ export function shotMarkdown(shot: Shot, projet = "", takes: readonly Pick<Take,
     prises: takeIds,
     note,
     ordre: sequenceId ? Math.max(0, Math.round(shot.ordre)) : 0,
+    ...(shot.composeur ? { composeur: shot.composeur } : {}),
   }, body);
 }
 
@@ -686,6 +698,7 @@ export function parseShot(id: string, source: string): Shot | null {
     takeIds: normalizeTakeIds(keptStrings(fields.prises)),
     note: oneLine(text(fields.note), SHOT_NOTE_MAX),
     ordre: ordre === null || ordre < 0 ? 0 : Math.round(ordre),
+    ...(typeof fields.composeur === "string" && fields.composeur ? { composeur: fields.composeur } : {}),
   };
 }
 

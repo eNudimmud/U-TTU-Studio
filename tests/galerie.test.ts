@@ -153,8 +153,7 @@ describe("galerie CAST et DÉCOR", () => {
     assert.ok(decor.indexOf("runStill") < decor.indexOf("writeScene"));
     assert.doesNotMatch(cast + decor, /fetch\(|submit_workflow|run_template|partner_generate|estimate_credits/);
     assert.match(read("src/components/app/stage-screens.tsx"), /create\.needLink/);
-    const prise = read("src/components/app/stage-screens.tsx");
-    const board = prise.slice(prise.indexOf("export function PriseStage"));
+    const board = read("src/components/app/prise-stage.tsx");
     assert.match(board, /requestRun\(\)/);
     assert.doesNotMatch(board, /confirmRun\(/);
   });
@@ -169,9 +168,10 @@ describe("galerie CAST et DÉCOR", () => {
     assert.equal(picked.where?.name, "Le quai, la nuit");
     assert.equal(picked.ready, true);
     assert.equal(prisePick({ castId: "absent", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR }).ready, false);
+    const prise = read("src/components/app/prise-stage.tsx");
+    assert.match(prise, /pickCast\(/);
+    assert.match(prise, /pickDecor\(/);
     const stage = read("src/components/app/stage-screens.tsx");
-    assert.match(stage, /pickCast\(/);
-    assert.match(stage, /pickDecor\(/);
     assert.match(stage, /EXEMPLES_DECOR/);
     assert.match(stage, /EXEMPLES_CAST/);
     assert.doesNotMatch(stage, /images\/decors\/\$\{preset/);
@@ -199,7 +199,7 @@ describe("galerie CAST et DÉCOR", () => {
     }
     const stage = read("src/components/app/stage-screens.tsx");
     const cast = stage.slice(stage.indexOf("export function CastStage"), stage.indexOf("export function DecorStage"));
-    const board = stage.slice(stage.indexOf("export function DecorStage"), stage.indexOf("export function PriseStage"));
+    const board = stage.slice(stage.indexOf("export function DecorStage"));
     assert.match(cast, /EXEMPLES_CAST/);
     assert.doesNotMatch(cast, /EXEMPLES_DECOR/);
     assert.match(board, /EXEMPLES_DECOR/);
