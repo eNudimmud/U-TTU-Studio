@@ -24,7 +24,13 @@ describe("lexique français", () => {
       "Personnage (fichier)",
       "Fichier",
       "Références",
-      "Distribution",
+      "CAST",
+      "DÉCOR",
+      "PRISE",
+      "Ajoute 2 photos (face et trois-quarts).",
+      "Générer la vidéo",
+      "Mes crédits",
+      "Connecter mon compte Comfy",
       "Moteur",
       "Mon studio",
       "Les photos des références manquent dans mon studio.",
@@ -72,10 +78,10 @@ describe("lexique français", () => {
     assert.match(chain, /key: "nav.character"/);
     assert.match(chain, /key: "nav.scene"/);
     assert.match(chain, /key: "nav.take"/);
-    assert.equal(fr.nav.character, "Personnage");
-    assert.equal(fr.nav.scene, "Scène");
-    assert.equal(fr.nav.take, "Prise");
-    assert.equal(fr.nav.chain, "Personnage, scène, prise");
+    assert.equal(fr.nav.character, "CAST");
+    assert.equal(fr.nav.scene, "DÉCOR");
+    assert.equal(fr.nav.take, "PRISE");
+    assert.equal(fr.nav.chain, "CAST, DÉCOR, PRISE");
     assert.equal(fr.nav.studio, "Mon studio");
     assert.doesNotMatch(chain, /Personnage \(fichier\)|Look|Rôle/);
     assert.equal(WIRED_ENGINES.find(engine => engine.id === "comfy")?.label, "Références");

@@ -14,9 +14,11 @@ describe("accueil", () => {
     assert.match(home, /t\("nav\.character"\)/);
     assert.match(home, /t\("landing\.twoWays"\)/);
     assert.match(home, /t\("landing\.enter"\)/);
-    assert.ok(fr.includes("Ton personnage, ta scène"));
-    assert.ok(fr.includes("\"character\": \"Personnage\""));
-    assert.ok(fr.includes("Deux façons"));
+    assert.ok(fr.includes("Fais tourner ton personnage"));
+    assert.ok(fr.includes("\"character\": \"CAST\""));
+    assert.ok(fr.includes("\"scene\": \"DÉCOR\""));
+    assert.ok(fr.includes("\"take\": \"PRISE\""));
+    assert.ok(fr.includes("2 photos"));
     assert.ok(fr.includes("Entrer dans le studio"));
     assert.doesNotMatch(home, /name: "Look"/);
     assert.match(home, /className="landing-copy"/);

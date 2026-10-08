@@ -28,7 +28,9 @@ describe("bande mobile, 390 px", () => {
     assert.match(readFileSync("src/components/app/scene-screen.tsx", "utf8"), /\{ready && <>/);
     assert.match(readFileSync("src/components/app/screens.tsx", "utf8"), /\{ready && <>/);
     assert.match(app, /import\("\.\/sheets"\)/);
-    assert.match(app, /ready && desk && <PlateauShelf /);
+    assert.match(app, /<CastStage /);
+    assert.match(app, /<StudioDrawer /);
+    assert.match(css, /\.u-chain \{[^}]*bottom: 0/);
     assert.match(readFileSync("src/app/layout.tsx", "utf8"), /interactiveWidget: "resizes-content"/);
     const full = statSync("public/images/uttu-canon-portrait.webp").size;
     const face = statSync("public/images/uttu-guide-face.webp").size;

@@ -296,7 +296,7 @@ interface StudioValue {
   saveLook(patch: Partial<Look>): Promise<void>;
   addLookPhotos(files: File[]): Promise<void>;
   removeLookPhoto(path: string): Promise<void>;
-  addScene(name: string): Promise<void>;
+  addScene(name: string, idBase?: string): Promise<string | null>;
   saveScene(id: string, patch: Partial<Scene>): Promise<void>;
   addSceneStills(id: string, files: File[]): Promise<void>;
   removeSceneStill(id: string, path: string): Promise<void>;
@@ -768,14 +768,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     await writeState(store(), id);
   }, [setStudio, store]);
 
-  const addScene = useCallback(async (name: string) => {
+  const addScene = useCallback(async (name: string, idBase?: string) => {
     const clean = name.replace(/\s+/g, " ").trim().slice(0, 40);
-    if (!clean) return;
-    const id = uniqueId(slugify(clean), studioRef.current.scenes.map(item => item.id));
+    if (!clean) return null;
+    const id = uniqueId(slugify(idBase || clean), studioRef.current.scenes.map(item => item.id));
     const created: Scene = { id, ...emptySceneDraft(), name: clean };
     setStudio({ ...studioRef.current, scenes: [...studioRef.current.scenes, created], currentScene: id });
     await writeScene(store(), created);
     await writeState(store(), id);
+    return id;
   }, [setStudio, store]);
 
   const saveScene = useCallback(async (id: string, patch: Partial<Scene>) => {

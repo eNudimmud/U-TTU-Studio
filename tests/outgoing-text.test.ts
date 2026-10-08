@@ -141,9 +141,9 @@ describe("texte qui part", () => {
     assert.doesNotMatch(confirmTrain, /memory\.|bible|lexique/);
     assert.doesNotMatch(confirmPlace, /memory\.|bible|lexique/);
     assert.doesNotMatch(context, /estimate_credits|dry_run|run_template|submit_workflow|partner_generate/);
-    const app = read("src/components/app/studio-app.tsx");
-    assert.match(app, /"lora-memory"/);
-    assert.match(app, /"scene-memory"/);
+    const guide = read("src/lib/guide.ts");
+    assert.match(guide, /"lora-memory"/);
+    assert.match(guide, /"scene-memory"/);
     for (const locale of ["fr", "en", "de", "es"] as const) {
       const catalog = JSON.parse(read(`messages/${locale}.json`)) as {
         _human: string;

@@ -1,5 +1,19 @@
 # Lexique — nom de l’espace
 
+Décision JD, 8 octobre 2026. Les trois sections s’appellent **CAST**, **DÉCOR** et **PRISE**. Les données stockées ne changent pas : `Projets/{slug}/Cast/`, `Lieux/`, `Prises/`.
+
+| Section | FR | EN | DE | ES |
+| --- | --- | --- | --- | --- |
+| Personnage | CAST | Cast | Besetzung | Reparto |
+| Lieu | DÉCOR | Set | Kulisse | Decorado |
+| Prise | PRISE | Take | Take | Toma |
+
+DE et ES, et l’anglais, portent `_human: native_open`. Ce ne sont pas des relectures de locuteur natif.
+
+- Navigation, tiroir Mon studio, messages et ce glossaire utilisent ces trois noms.
+- Le moteur du fichier reste **Personnage (fichier)**. Le chemin reste **Fichier**.
+- **Mes crédits** remplace le solde comme titre du compte. Le devis technique et le nom du profil restent dans le tiroir.
+
 Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffre » ni « Vault ».
 
 | Clé | FR | EN | DE | ES |
@@ -17,7 +31,9 @@ Décision JD, 7 octobre 2026. L’interface française n’affiche plus « Coffr
 
 - Feuille photos : **Références**. « Photos des références ». « Remettre ces références ». Le hash `#look` reste.
 - Aria et libellés de lieu : **Lieux**.
-- Étape : **Personnage**. Moteur du fichier : **Personnage (fichier)**. Chemin : **Fichier**.
+- Étape : **CAST**. Moteur du fichier : **Personnage (fichier)**. Chemin : **Fichier**.
+- Lieu : **DÉCOR**. Prise : **PRISE**. EN Cast / Set / Take. DE Besetzung / Kulisse / Take. ES Reparto / Decorado / Toma. `_human: native_open`.
+- Les vignettes de DÉCOR sont Le quai, la nuit, Une rue, Une pièce, Un toit, Une gare, Un couloir. Quai, Rue et Pièce restent les espaces stockés. Les images sont des SVG du dépôt : [CREDITS.md](CREDITS.md).
 - Sphère : sous-titre **Tes prises**.
 - Verbes : Relier, Lancer, Tourner, Former, Filmer, Bâtir.
 - Moteur. Distribution. Prise.

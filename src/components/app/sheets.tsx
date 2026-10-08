@@ -201,7 +201,7 @@ export function CreditSheet() {
               <p className="u-small">{t("sheet.forgetLink")}</p>
               <button type="button" className="u-secondary" onClick={() => void disconnect()}>{t("sheet.unlinkRender")}</button>
             </>
-            : <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("verb.relier")}</button>}
+            : <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("stage.connectComfy")}</button>}
         </section>
         <section className="u-wallet" data-state={falState} aria-label={t("sheet.falAccount")}>
           <p className="u-label">{t("sheet.falAccount")}</p>
@@ -216,7 +216,7 @@ export function CreditSheet() {
               <p className="u-small">{t("sheet.forgetFal")}</p>
               <button type="button" className="u-secondary" onClick={disconnectFal}>{t("sheet.unlinkFal")}</button>
             </>
-            : <button type="button" className="u-secondary" onClick={() => setSheet("fal")}>{t("verb.relier")}</button>}
+            : <button type="button" className="u-secondary" onClick={() => setSheet("fal")}>{t("stage.connectFal")}</button>}
         </section>
       </div>
       <p className="u-label">Blender</p>

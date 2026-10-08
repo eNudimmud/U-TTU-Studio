@@ -15,6 +15,7 @@ const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
   allowedDevOrigins: ["terminal.local", "127.0.0.1", "localhost"],
+  devIndicators: { position: "top-right" },
   basePath,
   env: { NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: "true" },
   images: { formats: ["image/avif", "image/webp"] },
