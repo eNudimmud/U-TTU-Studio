@@ -18,10 +18,18 @@ export const CAST_TEXT_QUOTE: CreationQuote = {
   kind: "hypothese",
 };
 
-/** The view sheet: two images, then a stitch. 12 credits an image, so 24. */
+/** One Nano Banana 2.1 edit from face photos. */
 export const CAST_PHOTO_QUOTE: CreationQuote = {
-  credits: 24,
-  high: 36,
+  credits: 12,
+  high: 18,
+  template: "api_nano_banana_2_1_image_edit",
+  kind: "hypothese",
+};
+
+/** The view sheet: two GeminiImage2 stills at 2K (~34 each), then a stitch. About 68. */
+export const CAST_SHEET_QUOTE: CreationQuote = {
+  credits: 68,
+  high: 100,
   template: "templates-character_sheet",
   kind: "hypothese",
 };

@@ -1,30 +1,46 @@
 {
-  "note": "Rendus d’exemple encore absents. Les images d’entrée sont des rendus maison déjà dans public/exemples. Aucun envoi n’a été lancé pour écrire ce fichier. Les coûts sont des hypothèses déjà écrites, pas une mesure de ce tour.",
+  "note": "Cinq « après » rendus le 2026-10-08 avec Nano Banana 2.1 via Comfy Cloud (mesure billing). cast-planche pas lancé : le plafond 130 était déjà trop juste après 90,48 crédits mesurés (dont 14,85 d’un job annulé facturé + 13,10 d’un essai démo sans override). Planche templates-character_sheet ≈ 68 (2×GeminiImage2 @2K, hypothèse).",
   "licenceEntree": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
   "items": [
     {
       "geste": "cast-photos",
       "template": "api_nano_banana_2_1_image_edit",
-      "entrees": [{ "fichier": "/exemples/cast-mira.webp", "role": "visage", "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud" }],
+      "entrees": [
+        {
+          "fichier": "/exemples/cast-mira.webp",
+          "role": "visage",
+          "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud"
+        }
+      ],
       "prompt": "Même personne que les photos. Visage reconnaissable. Fond simple. Pas de texte.",
       "resolution": "1K",
       "coutEstime": 12,
       "plafond": 18,
-      "nature": "hypothese",
+      "nature": "mesure",
       "sortie": "/exemples/apres-cast-photos.webp",
-      "sortiePresente": false
+      "sortiePresente": true,
+      "coutMesure": 11.53,
+      "prompt_id": "cdc498f1-0a22-44de-a83a-93b02feed6f2",
+      "licence": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
     },
     {
       "geste": "cast-planche",
       "template": "templates-character_sheet",
-      "entrees": [{ "fichier": "/exemples/cast-coursiere.webp", "role": "visage", "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud" }],
+      "entrees": [
+        {
+          "fichier": "/exemples/cast-coursiere.webp",
+          "role": "visage",
+          "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud"
+        }
+      ],
       "prompt": "Planche : face, trois-quarts, profil, dos. Même personne.",
       "resolution": "1K",
-      "coutEstime": 24,
-      "plafond": 36,
+      "coutEstime": 68,
+      "plafond": 100,
       "nature": "hypothese",
       "sortie": "/exemples/apres-cast-planche.webp",
-      "sortiePresente": false
+      "sortiePresente": false,
+      "note": "Non lancé : reste de plafond insuffisant (~39 < ~68)."
     },
     {
       "geste": "cast-texte",
@@ -34,33 +50,54 @@
       "resolution": "1K",
       "coutEstime": 12,
       "plafond": 18,
-      "nature": "hypothese",
+      "nature": "mesure",
       "sortie": "/exemples/apres-cast-texte.webp",
-      "sortiePresente": false
+      "sortiePresente": true,
+      "coutMesure": 13.17,
+      "prompt_id": "79ba4035-d5ca-4fc4-8042-b927ea441617",
+      "licence": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
     },
     {
       "geste": "decor-photo",
       "template": "api_nano_banana_2_1_image_edit",
-      "entrees": [{ "fichier": "/exemples/decor-quai-nuit.webp", "role": "lieu", "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud" }],
+      "entrees": [
+        {
+          "fichier": "/exemples/decor-quai-nuit.webp",
+          "role": "lieu",
+          "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud"
+        }
+      ],
       "prompt": "Même lieu que la photo. 16:9, sans personne. Pas de texte.",
       "resolution": "1K",
       "coutEstime": 12,
       "plafond": 18,
-      "nature": "hypothese",
+      "nature": "mesure",
       "sortie": "/exemples/apres-decor-photo.webp",
-      "sortiePresente": false
+      "sortiePresente": true,
+      "coutMesure": 13.1,
+      "prompt_id": "b9382512-2900-47db-958b-789357c8e66b",
+      "licence": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
     },
     {
       "geste": "decor-heure",
       "template": "api_nano_banana_2_1_image_edit",
-      "entrees": [{ "fichier": "/exemples/decor-rue-pluie.webp", "role": "lieu", "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud" }],
+      "entrees": [
+        {
+          "fichier": "/exemples/decor-rue-pluie.webp",
+          "role": "lieu",
+          "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud"
+        }
+      ],
       "prompt": "Même lieu. Change l’heure, la météo ou la saison. Sans personne. Aube sèche, même rue.",
       "resolution": "1K",
       "coutEstime": 12,
       "plafond": 18,
-      "nature": "hypothese",
+      "nature": "mesure",
       "sortie": "/exemples/apres-decor-heure.webp",
-      "sortiePresente": false
+      "sortiePresente": true,
+      "coutMesure": 12.86,
+      "prompt_id": "047644bb-8be0-43d7-8a4a-79f685146aa5",
+      "licence": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
     },
     {
       "geste": "decor-texte",
@@ -70,9 +107,12 @@
       "resolution": "1K",
       "coutEstime": 12,
       "plafond": 18,
-      "nature": "hypothese",
+      "nature": "mesure",
       "sortie": "/exemples/apres-decor-texte.webp",
-      "sortiePresente": false
+      "sortiePresente": true,
+      "coutMesure": 11.87,
+      "prompt_id": "4ca1188f-4f73-435e-a42b-65f258a19e8e",
+      "licence": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
     }
   ],
   "enAttenteDeReference": [
@@ -81,5 +121,6 @@
     "decor-angles, decor-elargir, decor-volume : même raison.",
     "prise-image, prise-raccord, prise-prolonger, prise-camera, prise-mouvement, prise-levres, prise-vidu : cartes visibles, rien ne part.",
     "mont-voix, mont-effet, mont-musique, mont-levres, mont-agrandir, mont-fluide : cartes visibles, Créer éteint."
-  ]
+  ],
+  "licenceApres": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
 }
