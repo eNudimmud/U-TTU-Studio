@@ -13,7 +13,7 @@ export const DEMO_CAST: CastCard[] = [
     source: "texte",
     photos: [],
     sheet: null,
-    preview: "/exemples/personnage.webp",
+    preview: "/exemples/cast-mira.webp",
     status: "pret",
     template: CAST_TEXT_QUOTE.template,
     quote: CAST_TEXT_QUOTE.credits,
@@ -28,7 +28,7 @@ export const DEMO_CAST: CastCard[] = [
     source: "photos",
     photos: [],
     sheet: null,
-    preview: "/images/uttu-guide-face.webp",
+    preview: "/exemples/cast-guide.webp",
     status: "pret",
     template: CAST_PHOTO_QUOTE.template,
     quote: CAST_PHOTO_QUOTE.credits,
@@ -38,9 +38,12 @@ export const DEMO_CAST: CastCard[] = [
 ];
 
 export const DEMO_DECOR: DecorCard[] = [
-  { id: "demo-quai", name: "Le quai, la nuit", prompt: "Un quai la nuit, eau noire, sans personne.", sheet: null, preview: "/exemples/quai-nuit.jpg", status: "pret" },
-  { id: "demo-pluie", name: "Sous la pluie", prompt: "Une rue sous la pluie, sans personne.", sheet: null, preview: "/exemples/pluie.jpg", status: "pret" },
-  { id: "demo-toit", name: "Un toit au lever du jour", prompt: "Un toit au lever du jour, sans personne.", sheet: null, preview: "/exemples/toit-lever.jpg", status: "pret" },
+  { id: "demo-quai", name: "Le quai, la nuit", prompt: "Un quai la nuit, eau noire, sans personne.", sheet: null, preview: "/exemples/decor-quai-nuit.jpg", status: "pret" },
+  { id: "demo-pluie", name: "Sous la pluie", prompt: "Une rue sous la pluie, sans personne.", sheet: null, preview: "/exemples/decor-rue-pluie.jpg", status: "pret" },
+  { id: "demo-piece", name: "Une pièce", prompt: "Une pièce vide, sans personne.", sheet: null, preview: "/exemples/decor-piece.jpg", status: "pret" },
+  { id: "demo-toit", name: "Un toit au lever du jour", prompt: "Un toit au lever du jour, sans personne.", sheet: null, preview: "/exemples/decor-toit-aube.jpg", status: "pret" },
+  { id: "demo-gare", name: "Un hall de gare", prompt: "Un hall de gare, vide, sans personne.", sheet: null, preview: "/exemples/decor-gare.jpg", status: "pret" },
+  { id: "demo-couloir", name: "Un couloir", prompt: "Un couloir clair, sans personne.", sheet: null, preview: "/exemples/decor-couloir.jpg", status: "pret" },
 ];
 
 export const DEMO_DECOR_QUOTE = DECOR_TEXT_QUOTE.credits;

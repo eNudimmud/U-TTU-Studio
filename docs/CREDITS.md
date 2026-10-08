@@ -22,20 +22,22 @@ Quai, Rue et Pièce restent les trois espaces déjà stockés (`previz` : `quai`
 
 Le portrait d’exemple `public/images/uttu-canon-portrait.webp` est le personnage fictif déjà dans le dépôt. Ce n’est pas une photo d’une personne réelle.
 
-## Exemples de lieux — écran principal
+## Exemples — emplacements stables
 
-Les vignettes SVG ne sont plus sur l’écran DÉCOR. Les exemples sont dans `public/exemples/`, listés par `public/exemples/manifest.json`. JD peut remplacer chaque fichier par un rendu maison, en gardant le même nom.
+Les vignettes SVG ne sont plus sur l’écran DÉCOR. Les rendus définitifs seront des images maison, déposées dans `public/exemples/` sous le même nom. Le manifeste `public/exemples/manifest.json` fixe les identifiants. Tant que `statut` vaut `provisoire`, le fichier est une photo libre ou un personnage fictif déjà dans le dépôt. Remplacer le fichier et passer `statut` à `maison` ne change pas l’identifiant. Les six décors sont en 16:9.
 
-| Fichier | Sujet | Source | Licence |
-| --- | --- | --- | --- |
-| `quai-nuit.jpg` | Le quai, la nuit | [Unsplash 1471922694854](https://unsplash.com/photos/1471922694854-ff1b63b20054) | [Unsplash License](https://unsplash.com/license) |
-| `pluie.jpg` | Sous la pluie (vitre mouillée) | [Unsplash 1428592953211](https://unsplash.com/photos/1428592953211-077101b2021b) | [Unsplash License](https://unsplash.com/license) |
-| `toit-lever.jpg` | Un toit au lever du jour | [Unsplash 1449844908441](https://unsplash.com/photos/1449844908441-8829872d2607) | [Unsplash License](https://unsplash.com/license) |
-| `piece.jpg` | Une pièce vide | [Unsplash 1502672260266](https://unsplash.com/photos/1502672260266-1c1ef2d93688) | [Unsplash License](https://unsplash.com/license) |
-| `couloir.jpg` | Un couloir | [Unsplash 1497366754035](https://unsplash.com/photos/1497366754035-f200968a6e72) | [Unsplash License](https://unsplash.com/license) |
-| `port.jpg` | Un port | [Unsplash 1468413253725](https://unsplash.com/photos/1468413253725-0d5181091126) | [Unsplash License](https://unsplash.com/license) |
+| Identifiant | Fichier | Sujet | Source | Licence |
+| --- | --- | --- | --- | --- |
+| `decor-quai-nuit` | `decor-quai-nuit.jpg` | Le quai, la nuit | [Unsplash 1471922694854](https://unsplash.com/photos/1471922694854-ff1b63b20054) | [Unsplash License](https://unsplash.com/license) |
+| `decor-rue-pluie` | `decor-rue-pluie.jpg` | Sous la pluie (vitre mouillée) | [Unsplash 1428592953211](https://unsplash.com/photos/1428592953211-077101b2021b) | [Unsplash License](https://unsplash.com/license) |
+| `decor-piece` | `decor-piece.jpg` | Une pièce vide | [Unsplash 1502672260266](https://unsplash.com/photos/1502672260266-1c1ef2d93688) | [Unsplash License](https://unsplash.com/license) |
+| `decor-toit-aube` | `decor-toit-aube.jpg` | Un toit au lever du jour | [Unsplash 1449844908441](https://unsplash.com/photos/1449844908441-8829872d2607) | [Unsplash License](https://unsplash.com/license) |
+| `decor-gare` | `decor-gare.jpg` | Hall de gare — photo provisoire : couloir de station vide | [Unsplash Yj0zZ5s6fAY](https://unsplash.com/photos/empty-subway-station-hallway-with-tiled-walls-and-fluorescent-lights-Yj0zZ5s6fAY) | [Unsplash License](https://unsplash.com/license) |
+| `decor-couloir` | `decor-couloir.jpg` | Un couloir | [Unsplash 1497366754035](https://unsplash.com/photos/1497366754035-f200968a6e72) | [Unsplash License](https://unsplash.com/license) |
+| `cast-mira` | `cast-mira.webp` | Mira, portrait fictif | copie de `public/images/uttu-canon-portrait.webp` | même dépôt |
+| `cast-guide` | `cast-guide.webp` | Le guide, dessin fictif | copie de `public/images/uttu-guide-face.webp` | même dépôt |
 
-Ces photos ne montrent pas de personne identifiable. `personnage.webp` est une copie du portrait fictif déjà dans le dépôt (`uttu-canon-portrait`), pas une photo Unsplash.
+Les décors ne montrent pas de personne identifiable. `decor-gare` est un couloir de station, en attendant le hall maison. Les deux planches `cast-*` sont des personnages fictifs déjà dans le dépôt, pas des photos de personnes réelles. Un troisième `cast-*` peut s’ajouter dans le manifeste quand une planche fictive existe.
 
-- **Licence :** Unsplash License. Utilisation libre, y compris commerciale. Pas d’attribution obligatoire. On la donne quand même.
-- **Outil :** téléchargement des photos. Aucune image d’exemple n’a été générée par une IA payante. Aucun crédit Comfy n’a été dépensé.
+- **Licence :** Unsplash License pour les photos. Utilisation libre, y compris commerciale. Pas d’attribution obligatoire. On la donne quand même.
+- **Outil :** recadrage local en 16:9. Aucune image d’exemple n’a été générée par une IA payante. Aucun crédit Comfy n’a été dépensé.

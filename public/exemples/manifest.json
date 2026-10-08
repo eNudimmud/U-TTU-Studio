@@ -1,11 +1,13 @@
 {
-  "version": 1,
-  "note": "Emplacements d’exemples. JD peut remplacer chaque fichier par un rendu maison, en gardant le même nom.",
+  "version": 2,
+  "note": "Noms stables. Les fichiers présents sont provisoires. Un rendu maison remplace le fichier du même nom, puis statut passe à maison. Les six décors restent en 16:9.",
   "items": [
     {
-      "id": "quai-nuit",
-      "file": "/exemples/quai-nuit.jpg",
+      "id": "decor-quai-nuit",
+      "file": "/exemples/decor-quai-nuit.jpg",
       "kind": "decor",
+      "aspect": "16:9",
+      "statut": "provisoire",
       "title": "Le quai, la nuit",
       "prompt": "Un quai la nuit, eau noire, lumières lointaines, sans personne.",
       "source": "https://unsplash.com/photos/1471922694854-ff1b63b20054",
@@ -13,9 +15,11 @@
       "licenseUrl": "https://unsplash.com/license"
     },
     {
-      "id": "pluie",
-      "file": "/exemples/pluie.jpg",
+      "id": "decor-rue-pluie",
+      "file": "/exemples/decor-rue-pluie.jpg",
       "kind": "decor",
+      "aspect": "16:9",
+      "statut": "provisoire",
       "title": "Sous la pluie",
       "prompt": "Une rue sous la pluie, vitre mouillée, lumières floues, sans personne.",
       "source": "https://unsplash.com/photos/1428592953211-077101b2021b",
@@ -23,19 +27,11 @@
       "licenseUrl": "https://unsplash.com/license"
     },
     {
-      "id": "toit-lever",
-      "file": "/exemples/toit-lever.jpg",
+      "id": "decor-piece",
+      "file": "/exemples/decor-piece.jpg",
       "kind": "decor",
-      "title": "Un toit au lever du jour",
-      "prompt": "Un toit au lever du jour, ciel rose, ville calme, sans personne.",
-      "source": "https://unsplash.com/photos/1449844908441-8829872d2607",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
-    },
-    {
-      "id": "piece",
-      "file": "/exemples/piece.jpg",
-      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "provisoire",
       "title": "Une pièce",
       "prompt": "Une pièce vide, lumière douce, parquet, sans personne.",
       "source": "https://unsplash.com/photos/1502672260266-1c1ef2d93688",
@@ -43,9 +39,35 @@
       "licenseUrl": "https://unsplash.com/license"
     },
     {
-      "id": "couloir",
-      "file": "/exemples/couloir.jpg",
+      "id": "decor-toit-aube",
+      "file": "/exemples/decor-toit-aube.jpg",
       "kind": "decor",
+      "aspect": "16:9",
+      "statut": "provisoire",
+      "title": "Un toit au lever du jour",
+      "prompt": "Un toit au lever du jour, ciel rose, ville calme, sans personne.",
+      "source": "https://unsplash.com/photos/1449844908441-8829872d2607",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "id": "decor-gare",
+      "file": "/exemples/decor-gare.jpg",
+      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "provisoire",
+      "title": "Un hall de gare",
+      "prompt": "Un hall de gare, vide, lumière froide, sans personne.",
+      "source": "https://unsplash.com/photos/empty-subway-station-hallway-with-tiled-walls-and-fluorescent-lights-Yj0zZ5s6fAY",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "id": "decor-couloir",
+      "file": "/exemples/decor-couloir.jpg",
+      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "provisoire",
       "title": "Un couloir",
       "prompt": "Un couloir clair, lignes longues, sans personne.",
       "source": "https://unsplash.com/photos/1497366754035-f200968a6e72",
@@ -53,14 +75,28 @@
       "licenseUrl": "https://unsplash.com/license"
     },
     {
-      "id": "port",
-      "file": "/exemples/port.jpg",
-      "kind": "decor",
-      "title": "Un port",
-      "prompt": "Un port calme, bateaux, eau plate, sans personne.",
-      "source": "https://unsplash.com/photos/1468413253725-0d5181091126",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "id": "cast-mira",
+      "file": "/exemples/cast-mira.webp",
+      "kind": "cast",
+      "aspect": "planche",
+      "statut": "provisoire",
+      "title": "Mira",
+      "prompt": "Une femme au manteau sombre, regard calme.",
+      "source": "public/images/uttu-canon-portrait.webp",
+      "license": "Personnage fictif du dépôt",
+      "licenseUrl": ""
+    },
+    {
+      "id": "cast-guide",
+      "file": "/exemples/cast-guide.webp",
+      "kind": "cast",
+      "aspect": "planche",
+      "statut": "provisoire",
+      "title": "Le guide",
+      "prompt": "Visage dessiné, lumière dorée.",
+      "source": "public/images/uttu-guide-face.webp",
+      "license": "Personnage fictif du dépôt",
+      "licenseUrl": ""
     }
   ]
 }

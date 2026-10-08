@@ -919,7 +919,7 @@
     "describeDecor": "Describe your set",
     "fromPhoto": "A photo of the place",
     "examples": "Examples",
-    "examplesNote": "Free images. You can replace them.",
+    "examplesNote": "Free photos, until a homemade picture replaces them.",
     "copyProject": "Copy to {name}",
     "copied": "Copied into the other project.",
     "imported": "Added: {count}",

@@ -165,7 +165,8 @@ describe("galerie CAST et DÉCOR", () => {
     const stage = read("src/components/app/stage-screens.tsx");
     assert.match(stage, /pickCast\(/);
     assert.match(stage, /pickDecor\(/);
-    assert.match(stage, /EXEMPLES/);
+    assert.match(stage, /EXEMPLES_DECOR/);
+    assert.match(stage, /EXEMPLES_CAST/);
     assert.doesNotMatch(stage, /images\/decors\/\$\{preset/);
     const css = read("src/components/app/app.css");
     assert.match(css, /\.u-modes button, \.u-suggest button, \.u-card-actions button, \.u-gallery button, \.u-filter button \{ min-height: 44px; \}/);
@@ -173,5 +174,32 @@ describe("galerie CAST et DÉCOR", () => {
     assert.match(read("src/components/app/atelier-page.tsx"), /atelier\.linkFolder/);
     assert.match(read("src/components/app/atelier-page.tsx"), /studio\.memory/);
     assert.match(read("src/components/app/atelier-page.tsx"), /studio\.shots/);
+  });
+
+  it("reserves stable slots for the homemade examples", () => {
+    const manifest = JSON.parse(read("public/exemples/manifest.json")) as {
+      items: { id: string; file: string; kind: string; aspect: string; statut: string }[];
+    };
+    const decor = ["decor-quai-nuit", "decor-rue-pluie", "decor-piece", "decor-toit-aube", "decor-gare", "decor-couloir"];
+    const places = manifest.items.filter(item => item.kind === "decor");
+    const people = manifest.items.filter(item => item.kind === "cast");
+    assert.deepEqual(places.map(item => item.id), decor);
+    assert.ok(people.length >= 2 && people.length <= 3);
+    assert.ok(people.every(item => item.id.startsWith("cast-")));
+    for (const item of manifest.items) {
+      assert.equal(item.statut, "provisoire");
+      assert.equal(existsSync(item.file.replace(/^\//, "public/")), true, item.file);
+      if (item.kind === "decor") assert.equal(item.aspect, "16:9");
+    }
+    const stage = read("src/components/app/stage-screens.tsx");
+    const cast = stage.slice(stage.indexOf("export function CastStage"), stage.indexOf("export function DecorStage"));
+    const board = stage.slice(stage.indexOf("export function DecorStage"), stage.indexOf("export function PriseStage"));
+    assert.match(cast, /EXEMPLES_CAST/);
+    assert.doesNotMatch(cast, /EXEMPLES_DECOR/);
+    assert.match(board, /EXEMPLES_DECOR/);
+    assert.doesNotMatch(board, /EXEMPLES_CAST/);
+    assert.match(read("src/components/app/app.css"), /aspect-ratio: 16 \/ 9/);
+    assert.equal(existsSync("public/exemples/port.jpg"), false);
+    assert.equal(existsSync("public/exemples/quai-nuit.jpg"), false);
   });
 });

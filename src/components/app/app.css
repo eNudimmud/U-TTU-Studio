@@ -447,7 +447,8 @@
 .u-card-blank { display: grid; place-items: center; color: var(--u-gold); font: 700 28px/1 var(--font-heading); }
 .u-examples { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(140px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 4px; }
 .u-examples button { min-height: 44px; padding: 0; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: inherit; text-align: left; }
-.u-examples img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px 12px 0 0; }
+.u-examples img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px 12px 0 0; }
+.u-examples.is-cast img { object-fit: contain; background: #0c0b0a; }
 .u-examples span { display: block; min-height: 44px; padding: 8px 10px; }
 .u-atelier-grid { display: grid; gap: 16px; }
 .u-search { width: 100%; }

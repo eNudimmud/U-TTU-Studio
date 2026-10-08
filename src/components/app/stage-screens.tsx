@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatCredits } from "@/lib/credits";
-import { EXEMPLES } from "@/lib/creation/exemples";
+import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
 import { quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
 import { quotedCredits, priseNext } from "@/lib/stage";
@@ -20,6 +20,15 @@ function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
 function CardFace({ src, name }: { src: string; name: string }) {
   if (!src) return <div className="u-card-blank" aria-hidden="true">{name.slice(0, 1)}</div>;
   return <img src={src} alt="" />;
+}
+
+function ExampleStrip({ items, cast, onPick }: { items: ExempleItem[]; cast?: boolean; onPick(item: ExempleItem): void }) {
+  return <div className={cast ? "u-examples is-cast" : "u-examples"}>
+    {items.map(item => <button key={item.id} type="button" onClick={() => onPick(item)}>
+      <img src={assetPath(item.file)} alt="" />
+      <span>{item.title}</span>
+    </button>)}
+  </div>;
 }
 
 function CreateConfirm({ title, amount, onCancel, onYes }: { title: string; amount: number; onCancel(): void; onYes(): void }) {
@@ -87,6 +96,9 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       {Array.from({ length: 3 }, (_, index) => <PictureSlot key={previews[index] ?? `photo-${index}`} index={index} url={previews[index]} label={t("look.photo")} onAdd={addFiles} onRemove={previews[index] ? () => { setFiles(files.filter((_, i) => i !== index)); setPreviews(previews.filter((_, i) => i !== index)); } : undefined} />)}
       <p className="u-small">{t("create.photoRule")}</p>
     </div>}
+    <p className="u-label">{t("create.examples")}</p>
+    <p className="u-small">{t("create.examplesNote")}</p>
+    <ExampleStrip cast items={EXEMPLES_CAST} onPick={item => { setMode("texte"); setPrompt(item.prompt); setName(item.title); }} />
     <p className="u-cost is-ok">{t("create.estimate", { amount: quote.credits })}</p>
     {ask ? <CreateConfirm title={t("create.confirmTitle")} amount={quote.credits} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
       <button type="button" className="u-primary" data-cast-gold="" disabled={!ready} aria-describedby={!ready ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
@@ -172,12 +184,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     </label>}
     <p className="u-label">{t("create.examples")}</p>
     <p className="u-small">{t("create.examplesNote")}</p>
-    <div className="u-examples">
-      {EXEMPLES.map(item => <button key={item.id} type="button" onClick={() => { setMode("texte"); setPrompt(item.prompt); setName(item.title); }}>
-        <img src={assetPath(item.file)} alt="" />
-        <span>{item.title}</span>
-      </button>)}
-    </div>
+    <ExampleStrip items={EXEMPLES_DECOR} onPick={item => { setMode("texte"); setPrompt(item.prompt); setName(item.title); }} />
     <p className="u-cost is-ok">{t("create.estimate", { amount: quote.credits })}</p>
     {ask ? <CreateConfirm title={t("create.confirmTitle")} amount={quote.credits} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
       <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>

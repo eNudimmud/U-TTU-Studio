@@ -919,7 +919,7 @@
     "describeDecor": "Describe tu decorado",
     "fromPhoto": "Una foto del lugar",
     "examples": "Ejemplos",
-    "examplesNote": "Imágenes libres. Podrás sustituirlas.",
+    "examplesNote": "Fotos libres, hasta que una imagen propia las sustituya.",
     "copyProject": "Copiar a {name}",
     "copied": "Copiado en el otro proyecto.",
     "imported": "Añadido: {count}",
