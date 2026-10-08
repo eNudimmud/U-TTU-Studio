@@ -27,6 +27,11 @@
 - Les devis voix (24,14 crédits / 1 000 caractères) et effet (29,54 crédits / minute) viennent de la note de chaîne. Ils ne sont pas mesurés.
 - EN, DE et ES portent `_human: native_open`.
 
+## Passe visuelle — 8 octobre 2026
+
+- **Fait :** la bande « Lecture / temps / Plein écran » n’est plus sur l’image. Les contrôles sont sous le cadre noir. Les outils sont une rangée d’icônes. La timeline a une règle, une tête or avec poignée, des vignettes sur les plans, une icône par piste. Le « + » de chaque piste audio remplace les liens « Déposer un son » et les deux gros boutons vides. « Exporter » est dans l’en-tête du montage. Sur 390 px, la chaîne est collée sous l’en-tête du studio, plus en bas de l’écran.
+- **Hypothèse :** la proximité avec CapCut web n’a pas été mesurée sur un compte CapCut. Les captures du studio sont celles du `next start` local. L’aperçu Vercel reste derrière l’authentification.
+
 ## Ce qui manque
 
 - Créer une voix ou un effet ne lance rien. Les boutons préparent le devis seulement.

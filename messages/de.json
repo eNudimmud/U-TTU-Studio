@@ -989,7 +989,13 @@
     "playhead": "Abspielkopf",
     "fromTake": "{name} auf die Effekte legen",
     "addTake": "{name} hinzufügen",
-    "savedHint": "Länge der Einstellungen: {time}. Der Schnitt steht in Mein Studio."
+    "savedHint": "Länge der Einstellungen: {time}. Der Schnitt steht in Mein Studio.",
+    "exportShort": "Exportieren",
+    "more": "Mehr",
+    "clearAsk": "Diesen Schnitt leeren? Einstellungen und Töne verlassen die Timeline.",
+    "clearYes": "Leeren",
+    "dropFile": "Datei ablegen",
+    "addOnTrack": "Hinzufügen auf {track}"
   },
   "atelier": {
     "lead": "Alles, was du erstellt hast, auf diesem Gerät.",

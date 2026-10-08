@@ -989,7 +989,13 @@
     "playhead": "Cabezal",
     "fromTake": "Poner {name} en los efectos",
     "addTake": "Añadir {name}",
-    "savedHint": "Duración de los planos: {time}. El montaje se escribe en Mi estudio."
+    "savedHint": "Duración de los planos: {time}. El montaje se escribe en Mi estudio.",
+    "exportShort": "Exportar",
+    "more": "Más",
+    "clearAsk": "¿Vaciar este montaje? Los planos y los sonidos salen de la línea de tiempo.",
+    "clearYes": "Vaciar",
+    "dropFile": "Soltar un archivo",
+    "addOnTrack": "Añadir en {track}"
   },
   "atelier": {
     "lead": "Todo lo que creaste, en este aparato.",

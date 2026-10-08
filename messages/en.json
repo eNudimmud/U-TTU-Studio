@@ -989,7 +989,13 @@
     "playhead": "Playhead",
     "fromTake": "Place {name} on effects",
     "addTake": "Add {name}",
-    "savedHint": "Shot length: {time}. The edit is written in My studio."
+    "savedHint": "Shot length: {time}. The edit is written in My studio.",
+    "exportShort": "Export",
+    "more": "More",
+    "clearAsk": "Clear this edit? The shots and sounds leave the timeline.",
+    "clearYes": "Clear",
+    "dropFile": "Drop a file",
+    "addOnTrack": "Add on {track}"
   },
   "atelier": {
     "lead": "Everything you created, on this device.",

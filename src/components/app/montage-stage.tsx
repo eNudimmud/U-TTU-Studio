@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { assetPath } from "@/lib/site";
 import {
   addAudio, appendVideo, audioEnd, canSplit, clipGain, collectSnapPoints, commit, deleteClip, editDuration,
@@ -14,11 +14,19 @@ import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
 import { chooseEdit, editFromShots } from "@/lib/montage/from-takes";
 import { SFX_DEFAULT_SECONDS, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
+import { Close, Expand, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
 import { useStudio } from "./studio-session";
 
 function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   if (!on || !text) return null;
   return <p className="u-why" id={id}>{text}</p>;
+}
+
+function Tool({ id, off, reason, label, glyph, onClick }: { id: string; off: boolean; reason: string; label: string; glyph: ReactNode; onClick: () => void }) {
+  return <span className="u-tool-slot">
+    <button type="button" className="u-tool" disabled={off} aria-describedby={off ? id : undefined} aria-label={label} onClick={onClick}>{glyph}<span>{label}</span></button>
+    {off && <span className="u-tip" id={id} role="tooltip">{reason}</span>}
+  </span>;
 }
 
 function Waveform({ url, media, start, px }: { url: string; media: number; start: number; px: number }) {
@@ -33,7 +41,7 @@ function Waveform({ url, media, start, px }: { url: string; media: number; start
       const created = WaveSurfer.create({
         container: node,
         url,
-        height: 36,
+        height: 48,
         waveColor: "#c9a46a",
         progressColor: "#e8d3ad",
         cursorWidth: 0,
@@ -56,7 +64,27 @@ function Waveform({ url, media, start, px }: { url: string; media: number; start
 type ExportPhase = { phase: "idle" } | { phase: "run"; done: number; total: number } | { phase: "done"; bytes: number } | { phase: "fail" };
 
 const AUDIO_EXT = new Set(["wav", "mp3", "m4a", "ogg", "webm", "mp4"]);
-const TRACK_LABEL_PX = 72;
+const TRACK_LABEL_PX = 56;
+type Panel = null | "more" | "confirm" | "export" | "video" | AudioTrackId;
+
+function rulerStep(px: number): number {
+  if (px >= 96) return 1;
+  if (px >= 48) return 2;
+  return 5;
+}
+
+function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: string } }[]): "16/9" | "9/16" {
+  let vertical = false;
+  let horizontal = false;
+  for (const clip of edit.video) {
+    if (!clip.takeId) continue;
+    const aspect = takes.find(take => take.id === clip.takeId)?.settings.aspect;
+    if (aspect === "vertical") vertical = true;
+    if (aspect === "horizontal") horizontal = true;
+  }
+  if (vertical && !horizontal) return "9/16";
+  return "16/9";
+}
 
 export function MontageStage() {
   const { t } = useI18n();
@@ -71,6 +99,8 @@ export function MontageStage() {
   const [stem, setStem] = useState<AudioTrackId | null>(null);
   const [script, setScript] = useState("");
   const [exportPhase, setExportPhase] = useState<ExportPhase>({ phase: "idle" });
+  const [panel, setPanel] = useState<Panel>(null);
+  const [menuAt, setMenuAt] = useState<{ top: number; left: number } | null>(null);
   const historyRef = useRef(history);
   const timeRef = useRef(0);
   const playingRef = useRef(false);
@@ -435,11 +465,46 @@ export function MontageStage() {
   const effect = sfxQuote(SFX_DEFAULT_SECONDS);
   const trackName = (id: AudioTrackId) => t(id === "voix" ? "montage.voix" : id === "effets" ? "montage.effets" : "montage.musique");
 
+  function placeMenu(event: ReactMouseEvent | ReactPointerEvent) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - 288));
+    const top = Math.min(rect.bottom + 6, window.innerHeight - 240);
+    setMenuAt({ top, left });
+  }
+
+  function runExport() {
+    const current = historyRef.current.present;
+    const plan = exportEstimate(editDuration(current));
+    if (!plan || !exportAllowed(plan.seconds) || exportPhase.phase === "run") return;
+    setPanel("export");
+    setExportPhase({ phase: "run", done: 0, total: plan.frames });
+    void exportMp4({
+      edit: current,
+      urlOf: source => urlOfRef.current(source),
+      onProgress: (done, total) => setExportPhase({ phase: "run", done, total }),
+    }).then(blob => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${current.name || "montage"}.mp4`;
+      link.click();
+      setExportPhase({ phase: "done", bytes: blob.size });
+    }).catch(() => setExportPhase({ phase: "fail" }));
+  }
+
+  function thumbOf(clip: VideoClip): string {
+    if (clip.kind === "image" && clip.source) return urlOf(clip.source);
+    if (!clip.takeId) return "";
+    const poster = studio.takes.find(take => take.id === clip.takeId)?.poster;
+    return poster ? urlOf(poster) : "";
+  }
+
   function renderVideoClip(clip: VideoClip, index: number, origin: number) {
-    const width = Math.max(span(clip) * px, 44);
-    return <div key={clip.id} className="u-clip" data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width }}>
+    const width = Math.max(span(clip) * px, 48);
+    const thumb = thumbOf(clip);
+    return <div key={clip.id} className="u-clip is-video" data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width }}>
       <button type="button" className="u-handle is-start" aria-label={t("montage.trimStart")} onPointerDown={event => onTrim(event, clip.id, "start", "video")} />
-      <button type="button" className="u-clip-body" onPointerDown={event => { setSelected(clip.id); onReorder(event, index); }}>{clip.label}</button>
+      <button type="button" className="u-clip-body" style={thumb ? { backgroundImage: `url(${thumb})` } : undefined} onPointerDown={event => { setSelected(clip.id); onReorder(event, index); }}><span>{clip.label}</span></button>
       <button type="button" className="u-handle is-end" aria-label={t("montage.trimEnd")} onPointerDown={event => onTrim(event, clip.id, "end", "video")} />
     </div>;
   }
@@ -462,15 +527,32 @@ export function MontageStage() {
     cursor += span(clip);
     return node;
   });
-  const axis = Math.max(duration * px + 48, 240);
+  const axis = Math.max(duration * px + 80, 280);
   const width = TRACK_LABEL_PX + axis;
+  const ratio = projectRatio(edit, studio.takes);
+  const exportBlocked = exportPhase.phase === "idle" && !canExport;
+  const unusedTakes = studio.takes.filter(take => !edit.video.some(clip => clip.takeId === take.id));
+  const ticks: number[] = [];
+  const step = rulerStep(px);
+  for (let mark = 0; mark <= Math.max(duration, step) + 1e-6; mark += step) ticks.push(Number(mark.toFixed(3)));
+
+  function openPanel(next: Panel, event: ReactMouseEvent | ReactPointerEvent) {
+    placeMenu(event);
+    setPanel(current => current === next ? null : next);
+  }
 
   return <section className="u-screen u-stage u-montage" data-section="montage" data-montage={montageState} data-export={exportPhase.phase} aria-labelledby="u-title">
-    <header className="u-head">
-      <p className="u-label">04</p>
-      <h1 id="u-title" tabIndex={-1}>{t("nav.edit")}</h1>
-      <p className="u-lead">{t("montage.lead")}</p>
+    <header className="u-head u-montage-bar">
+      <div>
+        <p className="u-label">04</p>
+        <h1 id="u-title" tabIndex={-1}>{t("nav.edit")}</h1>
+      </div>
+      <span className="u-tool-slot">
+        <button type="button" className="u-export" data-export-open="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => setPanel("export")}>{t("montage.exportShort")}</button>
+        {exportBlocked && <span className="u-tip" id="u-why-export" role="tooltip">{exportWhy}</span>}
+      </span>
     </header>
+    <p className="u-lead">{t("montage.lead")}</p>
     {montageState === "exemple" && <p className="u-small">{t("montage.exampleNote")}</p>}
     {montageState === "vide" && <p className="u-small">{t("montage.empty")}</p>}
     {studio.sequences.length > 1 && <div className="u-suggest">
@@ -479,40 +561,44 @@ export function MontageStage() {
         show(historyOf(found ?? editFromShots(sequence, studio.shots, studio.takes)));
       })}>{sequence.name}</button>)}
     </div>}
-    <div className="u-viewer" ref={viewerRef}>
-      {picture ? <img src={picture} alt="" /> : null}
-      {hit?.clip.kind === "video" ? <video ref={videoRef} playsInline /> : null}
-      {hit?.clip.kind === "slate" ? <p className="u-slate">{t("montage.slate")}</p> : null}
-      {!hit ? <p className="u-slate">{filled ? t("montage.end") : t("montage.empty")}</p> : null}
-      <div className="u-viewer-bar">
-        <button type="button" className="u-link" onClick={toggle}>{playing ? t("montage.pause") : t("montage.play")}</button>
+    <div className="u-player">
+      <div className="u-stage-frame">
+        <div className="u-viewer" data-ratio={ratio} ref={viewerRef} onClick={toggle}>
+          {picture ? <img src={picture} alt="" /> : null}
+          {hit?.clip.kind === "video" ? <video ref={videoRef} playsInline /> : null}
+          {hit?.clip.kind === "slate" ? <p className="u-slate">{t("montage.slate")}</p> : null}
+          {!hit ? <p className="u-slate">{filled ? t("montage.end") : t("montage.empty")}</p> : null}
+        </div>
+      </div>
+      <div className="u-controls">
+        <button type="button" className="u-play" aria-label={playing ? t("montage.pause") : t("montage.play")} onClick={toggle}>{playing ? <Pause /> : <Play />}</button>
         <span className="u-time">{t("montage.time", { now: formatClock(time), total: formatClock(duration) })}</span>
-        <button type="button" className="u-link" onClick={() => {
+        <button type="button" className="u-icon" aria-label={t("montage.fullscreen")} onClick={() => {
           const node = viewerRef.current;
           if (!node) return;
           if (document.fullscreenElement) void document.exitFullscreen();
           else void node.requestFullscreen();
-        }}>{t("montage.fullscreen")}</button>
+        }}><Expand /></button>
       </div>
-      <input className="u-scrub" type="range" min={0} max={Math.max(duration, 0.1)} step={0.01} value={Math.min(time, Math.max(duration, 0.1))} aria-label={t("montage.playhead")} onChange={event => seek(Number(event.target.value))} />
     </div>
-    <div className="u-tl-tools">
-      <button type="button" className="u-link" disabled={history.past.length === 0} aria-describedby={history.past.length === 0 ? "u-why-undo" : undefined} onClick={() => { const next = undo(historyRef.current); if (next !== historyRef.current) { show(next); void persist(next.present); } }}>{t("montage.undo")}</button>
-      <Why on={history.past.length === 0} id="u-why-undo" text={t("montage.undoOff")} />
-      <button type="button" className="u-link" disabled={history.future.length === 0} aria-describedby={history.future.length === 0 ? "u-why-redo" : undefined} onClick={() => { const next = redo(historyRef.current); if (next !== historyRef.current) { show(next); void persist(next.present); } }}>{t("montage.redo")}</button>
-      <Why on={history.future.length === 0} id="u-why-redo" text={t("montage.redoOff")} />
-      <button type="button" className="u-link" disabled={!splitOk} aria-describedby={!splitOk ? "u-why-split" : undefined} onClick={() => commitFrom(historyRef.current, splitVideo(historyRef.current.present, timeRef.current, `plan-${crypto.randomUUID()}`))}>{t("montage.split")}</button>
-      <Why on={!splitOk} id="u-why-split" text={t("montage.splitOff")} />
-      <button type="button" className="u-link" disabled={!selectedClip} aria-describedby={!selectedClip ? "u-why-delete" : undefined} onClick={() => { if (!selected) return; commitFrom(historyRef.current, deleteClip(historyRef.current.present, selected)); setSelected(null); }}>{t("montage.delete")}</button>
-      <Why on={!selectedClip} id="u-why-delete" text={t("montage.deleteOff")} />
-      <button type="button" className="u-link" onClick={() => setPx(current => nextZoom(current, 1 / 1.15))}>{t("montage.zoomOut")}</button>
-      <button type="button" className="u-link" onClick={() => setPx(current => nextZoom(current, 1.15))}>{t("montage.zoomIn")}</button>
-      {montageState !== "vide" && <button type="button" className="u-link" onClick={() => commitFrom(historyRef.current, emptyEdit(edit.id, edit.name))}>{t("montage.clear")}</button>}
-      {montageState === "vide" && <button type="button" className="u-link" onClick={() => commitFrom(historyRef.current, exempleEdit())}>{t("montage.openExample")}</button>}
+    <div className="u-toolrow">
+      <div className="u-toolrow-main">
+        <Tool id="u-why-undo" off={history.past.length === 0} reason={t("montage.undoOff")} label={t("montage.undo")} glyph={<Undo />} onClick={() => { const next = undo(historyRef.current); if (next !== historyRef.current) { show(next); void persist(next.present); } }} />
+        <Tool id="u-why-redo" off={history.future.length === 0} reason={t("montage.redoOff")} label={t("montage.redo")} glyph={<Redo />} onClick={() => { const next = redo(historyRef.current); if (next !== historyRef.current) { show(next); void persist(next.present); } }} />
+        <Tool id="u-why-split" off={!splitOk} reason={t("montage.splitOff")} label={t("montage.split")} glyph={<Split />} onClick={() => commitFrom(historyRef.current, splitVideo(historyRef.current.present, timeRef.current, `plan-${crypto.randomUUID()}`))} />
+        <Tool id="u-why-delete" off={!selectedClip} reason={t("montage.deleteOff")} label={t("montage.delete")} glyph={<Trash />} onClick={() => { if (!selected) return; commitFrom(historyRef.current, deleteClip(historyRef.current.present, selected)); setSelected(null); }} />
+        <button type="button" className="u-tool" aria-label={t("montage.more")} aria-expanded={panel === "more" || panel === "confirm"} onClick={event => openPanel("more", event)}><More /><span>{t("montage.more")}</span></button>
+      </div>
+      <div className="u-toolrow-zoom">
+        <button type="button" className="u-tool" aria-label={t("montage.zoomOut")} onClick={() => setPx(current => nextZoom(current, 1 / 1.15))}><ZoomOut /><span>−</span></button>
+        <button type="button" className="u-tool" aria-label={t("montage.zoomIn")} onClick={() => setPx(current => nextZoom(current, 1.15))}><ZoomIn /><span>+</span></button>
+      </div>
     </div>
     <div className="u-tl" ref={scrollerRef} onPointerDown={onPinchDown} onPointerMove={onPinchMove} onPointerUp={onPinchUp} onPointerCancel={onPinchUp}>
-      <div className="u-tl-inner" style={{ width }}>
+      <div className="u-tl-inner" style={{ width: `max(100%, ${width}px)` }}>
+        <div className="u-playline" style={{ left: TRACK_LABEL_PX + time * px }} />
         <button type="button" className="u-playhead" style={{ left: TRACK_LABEL_PX + time * px }} aria-label={t("montage.playhead")} onPointerDown={event => {
+          event.stopPropagation();
           const target = event.currentTarget;
           target.setPointerCapture(event.pointerId);
           const move = (ev: PointerEvent) => seek(pointerTime(ev.clientX));
@@ -520,17 +606,29 @@ export function MontageStage() {
           target.addEventListener("pointermove", move);
           target.addEventListener("pointerup", up);
         }} />
-        <div className="u-track-row">
-          <span className="u-track-name">{t("montage.video")}</span>
-          <div className="u-track" style={{ width: axis }}>{videoNodes}</div>
+        <div className="u-track-row is-ruler">
+          <span className="u-track-head" />
+          <div className="u-ruler" onPointerDown={event => seek(pointerTime(event.clientX))}>
+            {ticks.map(mark => <span key={mark} style={{ left: mark * px }}>{formatClock(mark)}</span>)}
+          </div>
         </div>
-        {(["voix", "effets", "musique"] as const).map(track => <div key={track} className="u-track-row" onDragOver={event => event.preventDefault()} onDrop={event => {
+        <div className="u-track-row">
+          <div className="u-track-head">
+            <span className="u-track-mark" title={t("montage.video")} aria-label={t("montage.video")}><Film /></span>
+            {unusedTakes.length > 0 && <button type="button" className="u-track-add" aria-label={t("montage.addOnTrack", { track: t("montage.video") })} onClick={event => openPanel("video", event)}><Plus /></button>}
+          </div>
+          <div className="u-track">{videoNodes}</div>
+        </div>
+        {(["voix", "effets", "musique"] as const).map(track => <div key={track} className="u-track-row is-audio" onDragOver={event => event.preventDefault()} onDrop={event => {
           event.preventDefault();
           const file = event.dataTransfer.files[0];
           if (file) void addFile(file, track);
         }}>
-          <span className="u-track-name">{trackName(track)}</span>
-          <div className="u-track" style={{ width: axis }}>{edit.audio.filter(clip => clip.track === track).map(renderAudioClip)}</div>
+          <div className="u-track-head">
+            <span className="u-track-mark" title={trackName(track)} aria-label={trackName(track)}>{track === "voix" ? <Mic /> : track === "effets" ? <Spark /> : <Music />}</span>
+            <button type="button" className="u-track-add" aria-label={t("montage.addOnTrack", { track: trackName(track) })} onClick={event => openPanel(track, event)}><Plus /></button>
+          </div>
+          <div className="u-track">{edit.audio.filter(clip => clip.track === track).map(renderAudioClip)}</div>
         </div>)}
       </div>
     </div>
@@ -545,62 +643,75 @@ export function MontageStage() {
         <input type="range" min={0} max={Math.max(span(selectedAudio), 0.1)} step={0.05} value={selectedAudio.fadeOut} onChange={event => commitFrom(historyRef.current, setAudioLevels(historyRef.current.present, selectedAudio.id, { fadeOut: Number(event.target.value) }))} />
       </label>
     </div>}
-    <div className="u-stem-actions">
-      {(["voix", "effets", "musique"] as const).map(track => <label key={track} className="u-link">
-        {t("montage.drop", { track: trackName(track) })}
-        <input className="sr-only" type="file" accept="audio/*,video/mp4" onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void addFile(file, track); }} />
-      </label>)}
-    </div>
-    {studio.takes.length > 0 && <div className="u-suggest">
-      {studio.takes.slice(0, 6).map(take => <button key={take.id} type="button" onClick={() => addTakeSound(take, "effets")}>{t("montage.fromTake", { name: take.line || take.id })}</button>)}
+    {(panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique") && menuAt && <>
+      <button type="button" className="u-menu-back" aria-label={t("verb.cancel")} onClick={() => setPanel(null)} />
+      <div className="u-popover" role="menu" style={{ top: menuAt.top, left: menuAt.left }}>
+        {panel === "more" && <>
+          {filled
+            ? <button type="button" onClick={() => setPanel("confirm")}>{t("montage.clear")}</button>
+            : <button type="button" onClick={() => { commitFrom(historyRef.current, exempleEdit()); setPanel(null); }}>{t("montage.openExample")}</button>}
+        </>}
+        {panel === "confirm" && <>
+          <p>{t("montage.clearAsk")}</p>
+          <button type="button" onClick={() => { commitFrom(historyRef.current, emptyEdit(edit.id, edit.name)); setSelected(null); setPanel(null); }}>{t("montage.clearYes")}</button>
+          <button type="button" onClick={() => setPanel(null)}>{t("verb.cancel")}</button>
+        </>}
+        {panel === "video" && unusedTakes.slice(0, 6).map(take => <button key={take.id} type="button" onClick={() => {
+          const seconds = take.settings.seconds > 0 ? take.settings.seconds : 1;
+          const clip: VideoClip = { id: `plan-${take.id}`, kind: "video", source: take.video, label: take.line || take.id, media: seconds, start: 0, end: seconds, takeId: take.id };
+          commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
+          setPanel(null);
+        }}>{t("montage.addTake", { name: take.line || take.id })}</button>)}
+        {(panel === "voix" || panel === "effets" || panel === "musique") && <label>
+          {t("montage.dropFile")}
+          <input className="sr-only" type="file" accept="audio/*,video/mp4" onChange={event => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            setPanel(null);
+            if (file) void addFile(file, panel);
+          }} />
+        </label>}
+        {panel === "voix" && <>
+          <button type="button" disabled={!connected} aria-describedby={!connected ? "u-why-voice" : undefined} onClick={() => { setStem("voix"); setScript(""); setPanel(null); }}>{t("montage.addVoice")}</button>
+          {!connected && <Why on id="u-why-voice" text={t("montage.needLink")} />}
+          <p className="u-small">{voice ? t("montage.voiceQuote", { amount: voice.credits, high: voice.high, count: Math.max(script.trim().length, 1) }) : t("montage.voiceRate")}</p>
+        </>}
+        {panel === "effets" && <>
+          <button type="button" disabled={!connected} aria-describedby={!connected ? "u-why-sfx" : undefined} onClick={() => { setStem("effets"); setPanel(null); }}>{t("montage.addSfx")}</button>
+          {!connected && <Why on id="u-why-sfx" text={t("montage.needLink")} />}
+          <p className="u-small">{effect ? t("montage.sfxQuote", { amount: effect.credits, high: effect.high, seconds: SFX_DEFAULT_SECONDS }) : t("montage.sfxRate")}</p>
+          {studio.takes.slice(0, 6).map(take => <button key={take.id} type="button" onClick={() => { addTakeSound(take, "effets"); setPanel(null); }}>{t("montage.fromTake", { name: take.line || take.id })}</button>)}
+        </>}
+      </div>
+    </>}
+    {stem && <div className="u-overlay" role="presentation" onClick={event => { if (event.target === event.currentTarget) setStem(null); }}>
+      <div className="u-sheet" role="dialog" aria-modal="true">
+        <p>{stem === "voix" ? t("montage.voiceLead") : t("montage.sfxLead")}</p>
+        {stem === "voix" && <label className="u-field"><span className="u-label">{t("montage.script")}</span>
+          <textarea rows={3} maxLength={1000} value={script} onChange={event => setScript(event.target.value)} />
+        </label>}
+        <p className="u-cost is-ok">{stem === "voix"
+          ? (voice ? t("montage.voiceQuote", { amount: voice.credits, high: voice.high, count: script.trim().length }) : t("montage.voiceRate"))
+          : (effect ? t("montage.sfxQuote", { amount: effect.credits, high: effect.high, seconds: SFX_DEFAULT_SECONDS }) : t("montage.sfxRate"))}</p>
+        <button type="button" className="u-secondary" disabled={true} aria-describedby="u-why-create">{stem === "voix" ? t("montage.createVoice") : t("montage.createSfx")}</button>
+        <Why on id="u-why-create" text={t("montage.createOff")} />
+        <button type="button" className="u-link" onClick={() => setStem(null)}>{t("verb.cancel")}</button>
+      </div>
     </div>}
-    <div className="u-stem-create">
-      <button type="button" className="u-secondary" disabled={!connected} aria-describedby={!connected ? "u-why-voice" : undefined} onClick={() => { setStem("voix"); setScript(""); }}>{t("montage.addVoice")}</button>
-      <Why on={!connected} id="u-why-voice" text={t("montage.needLink")} />
-      <button type="button" className="u-secondary" disabled={!connected} aria-describedby={!connected ? "u-why-sfx" : undefined} onClick={() => setStem("effets")}>{t("montage.addSfx")}</button>
-      <Why on={!connected} id="u-why-sfx" text={t("montage.needLink")} />
-    </div>
-    {stem && <div className="u-card">
-      <p>{stem === "voix" ? t("montage.voiceLead") : t("montage.sfxLead")}</p>
-      {stem === "voix" && <label className="u-field"><span className="u-label">{t("montage.script")}</span>
-        <textarea rows={3} maxLength={1000} value={script} onChange={event => setScript(event.target.value)} />
-      </label>}
-      <p className="u-cost is-ok">{stem === "voix"
-        ? (voice ? t("montage.voiceQuote", { amount: voice.credits, high: voice.high, count: script.trim().length }) : t("montage.voiceRate"))
-        : (effect ? t("montage.sfxQuote", { amount: effect.credits, high: effect.high, seconds: SFX_DEFAULT_SECONDS }) : t("montage.sfxRate"))}</p>
-      <button type="button" className="u-secondary" disabled={true} aria-describedby="u-why-create">{stem === "voix" ? t("montage.createVoice") : t("montage.createSfx")}</button>
-      <Why on id="u-why-create" text={t("montage.createOff")} />
-      <button type="button" className="u-link" onClick={() => setStem(null)}>{t("verb.cancel")}</button>
-    </div>}
-    {estimate && <p className="u-cost is-ok">{t("montage.exportAnnounce", { seconds: Math.round(estimate.seconds), size })}</p>}
-    <button type="button" className="u-primary" data-export-gold="" disabled={!canExport} aria-describedby={!canExport ? "u-why-export" : undefined} onClick={() => {
-      const current = historyRef.current.present;
-      const plan = exportEstimate(editDuration(current));
-      if (!plan || !exportAllowed(plan.seconds)) return;
-      setExportPhase({ phase: "run", done: 0, total: plan.frames });
-      void exportMp4({
-        edit: current,
-        urlOf: source => urlOfRef.current(source),
-        onProgress: (done, total) => setExportPhase({ phase: "run", done, total }),
-      }).then(blob => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${current.name || "montage"}.mp4`;
-        link.click();
-        setExportPhase({ phase: "done", bytes: blob.size });
-      }).catch(() => setExportPhase({ phase: "fail" }));
-    }}>{t("montage.export")}</button>
-    <Why on={!canExport} id="u-why-export" text={exportWhy} />
-    {exportPhase.phase === "run" && <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={exportPhase.total} aria-valuenow={exportPhase.done}><span style={{ width: `${exportPhase.total ? (100 * exportPhase.done) / exportPhase.total : 0}%` }} /></div>}
-    {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")}</p>}
-    {exportPhase.phase === "done" && <p className="u-small">{t("montage.exportDone")}</p>}
-    {studio.takes.some(take => !edit.video.some(clip => clip.takeId === take.id)) && <div className="u-suggest">
-      {studio.takes.filter(take => !edit.video.some(clip => clip.takeId === take.id)).slice(0, 6).map(take => <button key={`v-${take.id}`} type="button" onClick={() => {
-        const seconds = take.settings.seconds > 0 ? take.settings.seconds : 1;
-        const clip: VideoClip = { id: `plan-${take.id}`, kind: "video", source: take.video, label: take.line || take.id, media: seconds, start: 0, end: seconds, takeId: take.id };
-        commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
-      }}>{t("montage.addTake", { name: take.line || take.id })}</button>)}
+    {panel === "export" && <div className="u-overlay" role="presentation" onClick={event => { if (event.target === event.currentTarget && exportPhase.phase !== "run") setPanel(null); }}>
+      <div className="u-sheet" role="dialog" aria-modal="true" aria-labelledby="u-export-title">
+        <div className="u-sheet-head">
+          <h2 id="u-export-title">{t("montage.exportShort")}</h2>
+          <button type="button" className="u-icon" aria-label={t("verb.cancel")} disabled={exportPhase.phase === "run"} aria-describedby={exportPhase.phase === "run" ? "u-why-export-close" : undefined} onClick={() => setPanel(null)}><Close /></button>
+        </div>
+        {exportPhase.phase === "run" && <span className="sr-only" id="u-why-export-close">{t("montage.exportRun")}</span>}
+        {estimate ? <p className="u-cost is-ok">{t("montage.exportAnnounce", { seconds: Math.round(estimate.seconds), size })}</p> : <p className="u-why">{t("montage.exportOff")}</p>}
+        <button type="button" className="u-primary" data-export-gold="" disabled={!canExport} aria-describedby={!canExport ? "u-why-export-go" : undefined} onClick={runExport}>{t("montage.export")}</button>
+        {!canExport && <Why on id="u-why-export-go" text={exportWhy} />}
+        {exportPhase.phase === "run" && <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={exportPhase.total} aria-valuenow={exportPhase.done}><span style={{ width: `${exportPhase.total ? (100 * exportPhase.done) / exportPhase.total : 0}%` }} /></div>}
+        {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")}</p>}
+        {exportPhase.phase === "done" && <p className="u-small">{t("montage.exportDone")}</p>}
+      </div>
     </div>}
     <p className="u-small">{t("montage.savedHint", { time: formatClock(videoDuration(edit)) })}</p>
   </section>;

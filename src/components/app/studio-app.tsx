@@ -118,7 +118,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   };
   const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
 
-  return <div className="u-app">
+  return <div className="u-app" data-studio={section}>
     <header className="u-top">
       <a className="u-mark" href={assetPath("/studio#personnage")} aria-label="U*TTU Studio">U<em>*</em>TTU</a>
       <div className="u-top-tools">

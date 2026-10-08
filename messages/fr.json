@@ -989,7 +989,13 @@
     "playhead": "Tête de lecture",
     "fromTake": "Poser {name} sur les effets",
     "addTake": "Ajouter {name}",
-    "savedHint": "Durée des plans : {time}. Le montage s’écrit dans Mon studio."
+    "savedHint": "Durée des plans : {time}. Le montage s’écrit dans Mon studio.",
+    "exportShort": "Exporter",
+    "more": "Plus",
+    "clearAsk": "Effacer ce montage ? Les plans et les sons quittent la timeline.",
+    "clearYes": "Effacer",
+    "dropFile": "Déposer un fichier",
+    "addOnTrack": "Ajouter sur {track}"
   },
   "atelier": {
     "lead": "Tout ce que tu as créé, sur cet appareil.",
