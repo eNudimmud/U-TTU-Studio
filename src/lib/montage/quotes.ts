@@ -10,6 +10,11 @@ export const VOICE_PER_THOUSAND = 24.14;
 export const SFX_PER_MINUTE = 29.54;
 /** A short effect, used when the visitor has not named a length. */
 export const SFX_DEFAULT_SECONDS = 5;
+/** Sonilo text-to-music, 30 seconds. Chain note: 16 / 24. The catalog sample is 60 s; the studio sends 30 s so this figure applies. */
+export const MUSIC_TEMPLATE = "api_sonilo_t2m";
+export const MUSIC_SECONDS = 30;
+export const MUSIC_CREDITS = 16;
+export const MUSIC_HIGH = 24;
 
 export interface SoundQuote {
   credits: number;
@@ -33,4 +38,9 @@ export function sfxQuote(seconds: number): SoundQuote | null {
   if (!Number.isFinite(seconds) || seconds <= 0) return null;
   const credits = Math.max(1, Math.round((SFX_PER_MINUTE * seconds) / 60));
   return { credits, high: ceiling(credits), kind: "hypothese", template: SFX_TEMPLATE };
+}
+
+/** Fixed 30 s piece. Not measured on this account. */
+export function musicQuote(): SoundQuote {
+  return { credits: MUSIC_CREDITS, high: MUSIC_HIGH, kind: "hypothese", template: MUSIC_TEMPLATE };
 }

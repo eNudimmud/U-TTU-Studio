@@ -12,11 +12,12 @@ import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
 import { exportMp4 } from "@/lib/montage/encode";
 import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
 import { chooseEdit, editFromShots } from "@/lib/montage/from-takes";
-import { SFX_DEFAULT_SECONDS, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
+import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
+import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import { Close, Expand, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
 import { useStudio } from "./studio-session";
-import { gesteParId } from "@/lib/workflows/registre";
+import { gesteOuvert, gesteParId } from "@/lib/workflows/registre";
 
 function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   if (!on || !text) return null;
@@ -90,7 +91,7 @@ function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: strin
 export function MontageStage() {
   const { t } = useI18n();
   const { locale } = useLocaleSwitch();
-  const { ready, studio, media, connected, loadMontages, saveMontage, pendingClip, holdClip } = useStudio();
+  const { ready, studio, media, connected, balance, creating, createStem, loadMontages, saveMontage, pendingClip, holdClip } = useStudio();
   const [history, setHistory] = useState<History<Edit>>(() => historyOf(exempleEdit()));
   const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -552,6 +553,7 @@ export function MontageStage() {
     : t("montage.sizeKb", { amount: String(Math.max(1, Math.round(estimate.bytes / 1000))) })) : "";
   const voice = voiceQuote(script.trim().length);
   const effect = sfxQuote(SFX_DEFAULT_SECONDS);
+  const music = musicQuote();
   const trackName = (id: AudioTrackId) => t(id === "voix" ? "montage.voix" : id === "effets" ? "montage.effets" : "montage.musique");
 
   function placeMenu(event: ReactMouseEvent | ReactPointerEvent) {
@@ -644,7 +646,7 @@ export function MontageStage() {
     <div className="u-capcut">
     <aside className="u-chutier" data-open={binOpen || undefined} aria-label={t("montage.bin")}>
       <div className="u-bin-tabs" role="tablist">
-        {(["medias", "voix", "effets", "musique"] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={binTab === tab} onClick={() => { setBinTab(tab); setSoonOpen(false); }}>{t(tab === "medias" ? "montage.medias" : `montage.${tab}`)}</button>)}
+        {(["medias", "voix", "effets", "musique"] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={binTab === tab} onClick={() => { setBinTab(tab); setSoonOpen(false); }}><span className="u-bin-label">{t(tab === "medias" ? "montage.medias" : `montage.${tab}`)}</span></button>)}
       </div>
       {binTab === "medias" && edit.audio.length > 0 && <div className="u-chutier-row">
         {edit.audio.map(clip => <button key={clip.id} type="button" className="u-bin-sound" aria-pressed={selected === clip.id} onClick={() => { setSelected(clip.id); setBinTab(clip.track); }}>
@@ -674,23 +676,36 @@ export function MontageStage() {
           <span>{clip.label}</span>
         </button>)}
       </div>}
-      <div className="u-soon">
-        <button type="button" className="u-link" aria-expanded={soonOpen} onClick={() => setSoonOpen(current => !current)}>{t("gestes.soon")}</button>
-        {soonOpen && <div className="u-soon-list">
-          {(binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"]).map(id => {
-            const row = gesteParId(id);
-            if (!row) return null;
-            return <button key={id} type="button" className="u-soon-card" aria-pressed={gesteId === id} onClick={() => {
-              setGesteId(id);
-              if (id === "mont-voix") setStem("voix");
-              if (id === "mont-effet") setStem("effets");
-            }}>
-              <strong>{t(`gestes.${row.clef}.title`)}</strong>
-              <span>{t(`gestes.${row.clef}.phrase`)}</span>
-            </button>;
-          })}
-        </div>}
-      </div>
+      {(() => {
+        const ids = binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
+        const wired = ids.flatMap(id => {
+          const row = gesteParId(id);
+          return row && gesteOuvert(row) ? [row] : [];
+        });
+        const closed = ids.flatMap(id => {
+          const row = gesteParId(id);
+          return row && !gesteOuvert(row) ? [row] : [];
+        });
+        return <>
+          {wired.map(row => <button key={row.id} type="button" className="u-secondary" onClick={() => {
+            setGesteId(row.id);
+            const track = row.id === "mont-effet" ? "effets" : row.id === "mont-musique" ? "musique" : "voix";
+            setScript("");
+            setStem(track);
+            setBinTab(track);
+          }}>{t(`gestes.${row.clef}.title`)}</button>)}
+          {closed.length > 0 && <div className="u-soon">
+            <button type="button" className="u-link" aria-expanded={soonOpen} onClick={() => setSoonOpen(current => !current)}>{t("gestes.soon")}</button>
+            {soonOpen && <div className="u-soon-list">
+              {closed.map(row => <button key={row.id} type="button" className="u-soon-card" aria-pressed={gesteId === row.id} onClick={() => setGesteId(row.id)}>
+                <strong>{t(`gestes.${row.clef}.title`)}</strong>
+                <span>{t(`gestes.${row.clef}.phrase`)}</span>
+                {row.raison && <span className="u-tile-why">{t(row.raison)}</span>}
+              </button>)}
+            </div>}
+          </div>}
+        </>;
+      })()}
       <button type="button" className="u-link u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.cancel")}</button>
     </aside>
     <div className="u-capcut-player">
@@ -869,17 +884,39 @@ export function MontageStage() {
         </>}
       </div>
     </>}
-    {stem && <div className="u-overlay" role="presentation" onClick={event => { if (event.target === event.currentTarget) setStem(null); }}>
+    {stem && <div className="u-overlay" role="presentation" onClick={event => { if (event.target === event.currentTarget && !creating) setStem(null); }}>
       <div className="u-sheet" role="dialog" aria-modal="true">
-        <p>{stem === "voix" ? t("montage.voiceLead") : t("montage.sfxLead")}</p>
-        {stem === "voix" && <label className="u-field"><span className="u-label">{t("montage.script")}</span>
+        <p>{stem === "voix" ? t("montage.voiceLead") : stem === "musique" ? t("montage.musicLead") : t("montage.sfxLead")}</p>
+        <label className="u-field"><span className="u-label">{t("montage.script")}</span>
           <textarea rows={3} maxLength={1000} value={script} onChange={event => setScript(event.target.value)} />
-        </label>}
+        </label>
         <p className="u-cost is-ok">{stem === "voix"
           ? (voice ? t("montage.voiceQuote", { amount: voice.credits, high: voice.high, count: script.trim().length }) : t("montage.voiceRate"))
-          : (effect ? t("montage.sfxQuote", { amount: effect.credits, high: effect.high, seconds: SFX_DEFAULT_SECONDS }) : t("montage.sfxRate"))}</p>
-        <button type="button" className="u-secondary" disabled={true} aria-describedby="u-why-create">{stem === "voix" ? t("montage.createVoice") : t("montage.createSfx")}</button>
-        <Why on id="u-why-create" text={t("montage.createOff")} />
+          : stem === "musique"
+            ? t("montage.musicQuote", { amount: music.credits, high: music.high, seconds: 30 })
+            : (effect ? t("montage.sfxQuote", { amount: effect.credits, high: effect.high, seconds: SFX_DEFAULT_SECONDS }) : t("montage.sfxRate"))}</p>
+        {(() => {
+          const quote = stem === "voix" ? voice : stem === "musique" ? music : effect;
+          const row = gesteParId(stem === "voix" ? "mont-voix" : stem === "musique" ? "mont-musique" : "mont-effet");
+          const opened = Boolean(row && gesteOuvert(row));
+          const needText = script.trim().length === 0;
+          const covered = opened && quote !== null && creationAllowed(connected, balance?.credits ?? null, quote.high);
+          const blocked = !opened || !covered || needText || creating;
+          const why = !opened ? t(row?.raison ?? "gestes.unwired") : !connected ? t("montage.needLink") : needText ? t("montage.needScript") : !covered ? t("create.needCeiling") : creating ? t("create.running") : "";
+          return <>
+            <button type="button" className="u-primary" disabled={blocked} aria-describedby={blocked ? "u-why-create" : undefined} onClick={() => {
+              if (!stem) return;
+              const id = stem === "voix" ? "mont-voix" : stem === "musique" ? "mont-musique" : "mont-effet";
+              void createStem({ geste: id, text: script, confirmed: true }).then(file => {
+                if (!file) return;
+                void addFile(file, stem);
+                setStem(null);
+                setScript("");
+              });
+            }}>{stem === "voix" ? t("montage.createVoice") : stem === "musique" ? t("montage.createMusic") : t("montage.createSfx")}</button>
+            <Why on={blocked} id="u-why-create" text={why} />
+          </>;
+        })()}
         <button type="button" className="u-link" onClick={() => setStem(null)}>{t("verb.cancel")}</button>
       </div>
     </div>}

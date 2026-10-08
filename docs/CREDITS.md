@@ -79,7 +79,7 @@ Cinq images « après » pour CAST et DÉCOR, générées sur le compte Comfy Cl
 - **Source :** Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud.
 - **Licence :** même dépôt que le code. Personnages et lieux fictifs.
 - **Total utile mesuré :** 62,53 crédits. Total session mesuré 90,48 (dont 14,85 d’un job annulé encore facturé + 13,10 d’un essai démo sans override de prompt).
-- **Planche :** rendue ensuite (voir section suivante). Devis corrigé à ~68 / plafond ~100 (hypothèse).
+- **Planche :** rendue ensuite (voir section suivante). Affichage du studio : environ 71 crédits, plafond 100. Fait : 70,74 arrondis à 71.
 
 ## Après d’exemple — planche templates-character_sheet (2026-10-08)
 
@@ -87,7 +87,7 @@ Une planche « après » pour CAST, générée sur le compte Comfy Cloud de JD a
 
 | Identifiant | Fichier | Template | Credits (mesure) | prompt_id |
 | --- | --- | --- | --- | --- |
-| `apres-cast-planche` | `apres-cast-planche.webp` | `templates-character_sheet` (2× GeminiImage2 @2K + stitch) | 70,74 (35,41 + 35,33) | `6387ad5a-c3e6-4bfd-aff3-b844acdc34c4` |
+| `apres-cast-planche` | `apres-cast-planche.webp` | `templates-character_sheet` (2× GeminiImage2 @2K + stitch) | 70,74 (35,41 + 35,33), affiché 71, plafond 100 | `6387ad5a-c3e6-4bfd-aff3-b844acdc34c4` |
 
 - **Source :** Rendu maison U*TTU, généré avec `templates-character_sheet` via Comfy Cloud. Référence visage : crop de `cast-coursiere.webp` (upload `be23612a…png`).
 - **Licence :** même dépôt que le code. Personnage fictif.

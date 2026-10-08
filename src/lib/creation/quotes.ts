@@ -7,7 +7,7 @@ export interface CreationQuote {
   /** Ceiling written next to the estimate. Not a measured bound. */
   high: number;
   template: string;
-  kind: "hypothese";
+  kind: "hypothese" | "mesure";
 }
 
 /** One Nano Banana 2.1 still, prompted as a view sheet. About 12 credits an image. */
@@ -26,12 +26,15 @@ export const CAST_PHOTO_QUOTE: CreationQuote = {
   kind: "hypothese",
 };
 
-/** The view sheet: two GeminiImage2 stills at 2K (~34 each), then a stitch. About 68. */
+/**
+ * The view sheet: two GeminiImage2 stills at 2K, then a stitch.
+ * Measured 70.74 (35.41 + 35.33) on 2026-10-08. The screen shows 71. Ceiling 100.
+ */
 export const CAST_SHEET_QUOTE: CreationQuote = {
-  credits: 68,
+  credits: 71,
   high: 100,
   template: "templates-character_sheet",
-  kind: "hypothese",
+  kind: "mesure",
 };
 
 /** One Nano Banana 2.1 cinema still. */

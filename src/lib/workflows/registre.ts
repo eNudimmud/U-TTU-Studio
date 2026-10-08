@@ -2,7 +2,7 @@
 // (docs/TEMPLATES-COMFY.md and the catalogs synced 2026-10-08). No node names here.
 // A null `still` means the studio has no graph for it yet: the card stays, Créer stays off.
 
-export const ROLES = ["visage", "tenue", "style", "lieu"] as const;
+export const ROLES = ["visage", "tenue", "style", "lieu", "debut", "fin", "plan", "voix", "clip"] as const;
 export type RoleRef = (typeof ROLES)[number];
 
 export const ONGLET = ["cast", "decor", "prise", "montage"] as const;
@@ -14,8 +14,9 @@ export type StillKindName = "texte-cast" | "texte-decor" | "photo-decor" | "phot
 
 export interface SlotImage {
   role: RoleRef;
-  /** Template image input. Not a node class. */
+  /** Template input name. Not a node class. */
   slot: string;
+  media?: "image" | "video" | "audio";
 }
 
 export interface Geste {
@@ -31,8 +32,10 @@ export interface Geste {
   nature: NatureCout;
   premier: boolean;
   /** Graph already in the studio. `prise` is the measured take. Null stays closed. */
-  still: StillKindName | "prise" | null;
+  still: StillKindName | "prise" | "voix" | "effet" | "musique" | null;
   minRefs: number;
+  /** i18n key. One line, shown when the gesture stays under Bientôt. */
+  raison?: string;
   /** Appended to the visitor text inside the graph. Studio words, not a model setting. */
   consigne: string;
 }
@@ -88,7 +91,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "cast-planche", onglet: "cast", categorie: "identite", clef: "castSheet",
     fournit: ["photo"], slots: [FACE("image_1")],
-    template: "templates-character_sheet", credits: 68, high: 100, nature: "hypothese",
+    template: "templates-character_sheet", credits: 71, high: 100, nature: "mesure",
     premier: true, still: "planche", minRefs: 1,
     consigne: "Planche : face, trois-quarts, profil, dos. Même personne.",
   }),
@@ -103,38 +106,38 @@ export const REGISTRE: readonly Geste[] = [
     id: "cast-tenue", onglet: "cast", categorie: "apparence", clef: "castWardrobe",
     fournit: ["photos"], slots: [FACE("image_1"), TENUE("image_2")],
     template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
-    premier: true, still: "photo-cast", minRefs: 1,
+    premier: true, still: "photo-cast", minRefs: 2,
     consigne: "Garde le visage. Change seulement la tenue ou la coiffure demandée.",
   }),
   geste({
     id: "cast-angle", onglet: "cast", categorie: "apparence", clef: "castAngle",
     fournit: ["photo"], slots: [FACE("image_1")],
     template: "templates-1_click_multiple_character_angles-v1.0", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.castAngle",
   }),
   geste({
     id: "cast-expressions", onglet: "cast", categorie: "apparence", clef: "castExpression",
-    fournit: ["photo", "video"], slots: [FACE("image_1")],
+    fournit: ["photo", "video"], slots: [FACE("image_1"), { role: "clip", slot: "video_1", media: "video" }],
     template: "templates_liveportrait.app", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 2, consigne: "", raison: "gestes.raisons.castExpression",
   }),
   geste({
     id: "cast-eclair", onglet: "cast", categorie: "finition", clef: "castLight",
     fournit: ["photo"], slots: [FACE("image_1"), STYLE("image_2")],
     template: "template_character_portrait_relighting", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.castLight",
   }),
   geste({
     id: "cast-agrandir", onglet: "cast", categorie: "finition", clef: "castUpscale",
     fournit: ["photo"], slots: [FACE("image_1")],
     template: "utility_seedvr2_3b_int8_upscale_image", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.castUpscale",
   }),
   geste({
     id: "cast-volume", onglet: "cast", categorie: "finition", clef: "castVolume",
     fournit: ["photo"], slots: [FACE("image_1")],
     template: "api_hunyuan3d_image_to_model", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.castVolume",
   }),
   geste({
     id: "decor-texte", onglet: "decor", categorie: "lieu", clef: "decorText",
@@ -161,13 +164,13 @@ export const REGISTRE: readonly Geste[] = [
     id: "decor-angles", onglet: "decor", categorie: "variante", clef: "decorAngles",
     fournit: ["photo"], slots: [LIEU("image_1")],
     template: "templates-1_click_multiple_scene_angles-v1.0", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 1, consigne: "",
+    premier: true, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.decorAngles",
   }),
   geste({
     id: "decor-elargir", onglet: "decor", categorie: "finition", clef: "decorWiden",
     fournit: ["photo"], slots: [LIEU("image_1")],
     template: "template_sirolim_any_aspect_ratio_nb2", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.decorWiden",
   }),
   geste({
     id: "decor-objet", onglet: "decor", categorie: "variante", clef: "decorObject",
@@ -180,7 +183,7 @@ export const REGISTRE: readonly Geste[] = [
     id: "decor-volume", onglet: "decor", categorie: "finition", clef: "decorVolume",
     fournit: ["photo"], slots: [LIEU("image_1")],
     template: "3d_pixal3d_trellis2_image_to_model", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.decorVolume",
   }),
   geste({
     id: "prise-plan", onglet: "prise", categorie: "plan", clef: "prisePlan",
@@ -193,79 +196,79 @@ export const REGISTRE: readonly Geste[] = [
     id: "prise-image", onglet: "prise", categorie: "plan", clef: "priseStill",
     fournit: ["photo", "texte"], slots: [LIEU("image_1")],
     template: "video_minimax_h3_i2v", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 1, consigne: "",
+    premier: true, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseStill",
   }),
   geste({
     id: "prise-raccord", onglet: "prise", categorie: "raccord", clef: "priseBridge",
-    fournit: ["photos", "texte"], slots: [LIEU("image_1"), LIEU("image_2")],
+    fournit: ["photos", "texte"], slots: [{ role: "debut", slot: "image_1" }, { role: "fin", slot: "image_2" }],
     template: "video_minimax_h3_multiframe_reference", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 2, consigne: "",
+    premier: true, still: null, minRefs: 2, consigne: "", raison: "gestes.raisons.priseBridge",
   }),
   geste({
     id: "prise-prolonger", onglet: "prise", categorie: "raccord", clef: "priseExtend",
-    fournit: ["video", "texte"], slots: [],
+    fournit: ["photo", "texte"], slots: [{ role: "plan", slot: "image_1" }],
     template: "video_minimax_h3_i2v_continuation", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 0, consigne: "",
+    premier: true, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseExtend",
   }),
   geste({
     id: "prise-camera", onglet: "prise", categorie: "mouvement", clef: "priseCamera",
-    fournit: ["video"], slots: [],
+    fournit: ["video"], slots: [{ role: "plan", slot: "video_1", media: "video" }],
     template: "video_minimax_h3_fun_controlnet_union", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 0, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseCamera",
   }),
   geste({
     id: "prise-mouvement", onglet: "prise", categorie: "mouvement", clef: "priseMotion",
     fournit: ["photo", "video"], slots: [FACE("image_1")],
     template: "video_wan_animate2", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseMotion",
   }),
   geste({
     id: "prise-levres", onglet: "prise", categorie: "mouvement", clef: "priseLips",
-    fournit: ["photo", "audio"], slots: [FACE("image_1")],
+    fournit: ["photo", "audio"], slots: [FACE("image_1"), { role: "voix", slot: "audio_1", media: "audio" }],
     template: "video_ltx2_3_ia2v", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "",
+    premier: false, still: null, minRefs: 2, consigne: "", raison: "gestes.raisons.priseLips",
   }),
   geste({
     id: "prise-vidu", onglet: "prise", categorie: "plan", clef: "priseVidu",
     fournit: ["photos", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
     template: "api_vidu_q4_preview_r2v", credits: 100, high: 150, nature: "hypothese",
-    premier: false, still: null, minRefs: 2, consigne: "",
+    premier: false, still: null, minRefs: 2, consigne: "", raison: "gestes.raisons.priseVidu",
   }),
   geste({
     id: "mont-voix", onglet: "montage", categorie: "son", clef: "montVoice",
     fournit: ["texte"], slots: [],
     template: "api_elevenlabs_v4_text_to_speech", credits: 24.14, high: 36.21, nature: "hypothese",
-    premier: true, still: null, minRefs: 0, consigne: "",
+    premier: true, still: "voix", minRefs: 0, consigne: "",
   }),
   geste({
     id: "mont-effet", onglet: "montage", categorie: "son", clef: "montSfx",
     fournit: ["texte"], slots: [],
     template: "api_elevenlabs_text_to_sound_effects", credits: 2.46, high: 3.69, nature: "hypothese",
-    premier: true, still: null, minRefs: 0, consigne: "",
+    premier: true, still: "effet", minRefs: 0, consigne: "",
   }),
   geste({
     id: "mont-musique", onglet: "montage", categorie: "son", clef: "montMusic",
     fournit: ["texte"], slots: [],
     template: "api_sonilo_t2m", credits: 16, high: 24, nature: "hypothese",
-    premier: true, still: null, minRefs: 0, consigne: "",
+    premier: true, still: "musique", minRefs: 0, consigne: "",
   }),
   geste({
     id: "mont-levres", onglet: "montage", categorie: "son", clef: "montLips",
-    fournit: ["video", "audio"], slots: [],
+    fournit: ["video", "audio"], slots: [{ role: "plan", slot: "video_1", media: "video" }, { role: "voix", slot: "audio_1", media: "audio" }],
     template: "video_ltx2_3_ia2v", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 0, consigne: "",
+    premier: true, still: null, minRefs: 2, consigne: "", raison: "gestes.raisons.montLips",
   }),
   geste({
     id: "mont-agrandir", onglet: "montage", categorie: "image", clef: "montUpscale",
-    fournit: ["video"], slots: [],
+    fournit: ["video"], slots: [{ role: "plan", slot: "video_1", media: "video" }],
     template: "utility_seedvr2_3b_int8_upscale_video", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 0, consigne: "",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.montUpscale",
   }),
   geste({
     id: "mont-fluide", onglet: "montage", categorie: "image", clef: "montFrames",
     fournit: ["video"], slots: [],
     template: "utility_video_frame_interpolation", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 0, consigne: "",
+    premier: false, still: null, minRefs: 0, consigne: "", raison: "gestes.raisons.montFrames",
   }),
 ];
 
@@ -285,11 +288,12 @@ export function gesteOuvert(geste: Geste): boolean {
 export interface CaseRef {
   id: string;
   role: RoleRef;
+  media: "image" | "video" | "audio";
 }
 
-/** One box per image the graph actually receives. */
+/** One box per file the graph actually receives. */
 export function casesVisibles(row: Geste): CaseRef[] {
-  return row.slots.map(slot => ({ id: slot.slot, role: slot.role }));
+  return row.slots.map(slot => ({ id: slot.slot, role: slot.role, media: slot.media ?? "image" }));
 }
 
 export interface RefInput {

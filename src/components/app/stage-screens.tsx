@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, type DragEvent, type ReactNode } from "react";
+import { useEffect, useState, type DragEvent, type ReactNode } from "react";
 import { formatCredits } from "@/lib/credits";
 import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { creationAllowed, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
 import { quotedCredits, priseNext } from "@/lib/stage";
-import { casesVisibles, gesteOuvert, gesteParId, mapReferences, type RoleRef } from "@/lib/workflows/registre";
+import { casesVisibles, gesteOuvert, gesteParId, mapReferences, type Onglet, type RoleRef } from "@/lib/workflows/registre";
 import { APRES_PAR_GESTE, EXEMPLE_PAR_GESTE } from "@/lib/workflows/tuiles";
 import { useI18n } from "@/components/i18n/provider";
 import { Arrow, KindMark, type MarkKind } from "./glyphs";
@@ -16,6 +16,13 @@ import { ProjectGallery } from "./project-gallery";
 import { readDroppedAsset, SlotBoard, type LocalRef } from "./references";
 import { TakeCostLines } from "./take-cost";
 import { useStudio } from "./studio-session";
+
+function gesteFromQuery(onglet: Onglet, fallback: string): string | null {
+  if (typeof window === "undefined") return null;
+  const asked = new URLSearchParams(window.location.search).get("geste");
+  const row = asked ? gesteParId(asked) : null;
+  return row && row.onglet === onglet ? row.id : fallback;
+}
 
 function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   if (!on || !text) return null;
@@ -100,6 +107,10 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const { t } = useI18n();
   const { media, createCast, connected, balance, creating } = useStudio();
   const [gesteId, setGesteId] = useState("cast-photos");
+  useEffect(() => {
+    const asked = gesteFromQuery("cast", "");
+    if (asked) setGesteId(asked);
+  }, []);
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [refs, setRefs] = useState<LocalRef[]>([]);
@@ -115,7 +126,8 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const ready = name.trim().length > 0 && mapped >= row.minRefs && (!textOnly || prompt.trim().length > 0);
   const covered = opened && amount !== null && high !== null && creationAllowed(connected, balance?.credits ?? null, high);
   const blocked = !covered || !ready || creating;
-  const why = !connected ? t("create.needLink") : !opened ? t("gestes.unwired") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
+  const missingTenue = casesVisibles(row).some(item => item.role === "tenue" && !refs.some(ref => ref.caseId === item.id));
+  const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : missingTenue ? t("gestes.needOutfit") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
   const cost = row.nature === "mesure" && amount !== null && high !== null
@@ -212,6 +224,10 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
   const { media, createDecor, connected, balance, creating } = useStudio();
   const [gesteId, setGesteId] = useState("decor-photo");
+  useEffect(() => {
+    const asked = gesteFromQuery("decor", "");
+    if (asked) setGesteId(asked);
+  }, []);
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [refs, setRefs] = useState<LocalRef[]>([]);
@@ -227,7 +243,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const ready = name.trim().length > 0 && mapped >= row.minRefs && (!textOnly || prompt.trim().length > 0);
   const covered = opened && amount !== null && high !== null && creationAllowed(connected, balance?.credits ?? null, high);
   const blocked = !covered || !ready || creating;
-  const why = !connected ? t("create.needLink") : !opened ? t("gestes.unwired") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
+  const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
   const cost = amount !== null && high !== null ? t("gestes.cost", { amount, high }) : t("gestes.costUnknown");
@@ -317,6 +333,12 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const result = run.phase === "done" ? studio.takes.find(take => take.id === run.takeId) : undefined;
   const filed = result ? studio.sequences.find(item => item.links.some(link => link.takeId === result.id)) : undefined;
   const [gesteId, setGesteId] = useState("prise-plan");
+  const [priseRefs, setPriseRefs] = useState<LocalRef[]>([]);
+  useEffect(() => {
+    const asked = gesteFromQuery("prise", "");
+    if (asked) setGesteId(asked);
+  }, []);
+  useEffect(() => { setPriseRefs([]); }, [gesteId]);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const missing = step === "cast" ? t("stage.missingPhotos") : step === "decor" ? t("stage.missingDecor") : step === "action" ? t("stage.missingAction") : step === "connect" ? t("stage.missingConnect") : step === "hold" ? (price ? t("stage.hold") : t("stage.noQuote")) : "";
   const who = cast.find(card => card.id === pickedCast);
@@ -376,10 +398,11 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     </div>}
     {run.phase === "idle" && <>
     {gesteId !== "prise-plan" && row && <div className="u-desk-scroll">
-      <SlotBoard geste={row} refs={[]} onChange={() => {}} onGallery={() => setGalleryOpen(true)} />
+      <SlotBoard geste={row} refs={priseRefs} onChange={setPriseRefs} onGallery={() => setGalleryOpen(true)} />
+      <p className="u-cost">{row.credits !== null && row.high !== null ? t("gestes.cost", { amount: row.credits, high: row.high }) : t("gestes.costUnknown")}</p>
       <div className="u-prise-go">
         <button type="button" className="u-secondary" disabled aria-describedby="u-why-geste">{t("stage.generate")}</button>
-        <Why on id="u-why-geste" text={!connected ? t("create.needLink") : t("gestes.unwired")} />
+        <Why on id="u-why-geste" text={t(row.raison ?? "gestes.unwired")} />
       </div>
     </div>}
     {gesteId === "prise-plan" && <div className="u-prise-board">

@@ -64,7 +64,9 @@ describe("rendu CAST et DÉCOR", () => {
     assert.deepEqual(edit.still?.inputs["model.images.image_1"], ["load", 0]);
     const sheet = stillGraph({ kind: "planche", prompt: "La coursière", images: ["face.png"], seed: 4 });
     assert.equal(sheet.close?.class_type, "GeminiImage2Node");
+    assert.equal(sheet.close?.inputs.resolution, "2K");
     assert.equal(sheet.body?.class_type, "GeminiImage2Node");
+    assert.equal(sheet.body?.inputs.resolution, "2K");
     assert.equal(sheet.stitch?.class_type, "ImageStitch");
     assert.equal(sheet.save?.inputs.filename_prefix, "uttu-planche");
   });

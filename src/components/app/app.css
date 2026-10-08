@@ -666,9 +666,13 @@
 .u-capcut .u-chutier { display: none; }
 .u-capcut .u-chutier[data-open="true"] { display: grid; position: fixed; z-index: 46; left: 8px; right: 8px; bottom: 12px; max-height: 52dvh; overflow: auto; padding: 12px; border: 1px solid var(--u-line-gold, var(--u-gold)); border-radius: 16px; background: #121110; }
 .u-app:not([data-studio="montage"]) .u-capcut .u-chutier[data-open="true"] { bottom: calc(72px + var(--u-safe)); }
-.u-bin-tabs { display: flex; gap: 4px; overflow-x: auto; }
-.u-bin-tabs button { min-height: 44px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; color: var(--u-muted); }
+.u-bin-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; overflow: visible; }
+.u-bin-tabs button { min-width: 0; min-height: 44px; padding: 0 2px; border: 0; border-radius: 10px; background: transparent; color: var(--u-muted); }
+.u-bin-label { display: block; overflow: visible; white-space: nowrap; text-overflow: clip; font-size: 13px; line-height: 1; letter-spacing: 0; }
 .u-bin-tabs button[aria-selected="true"] { color: var(--u-gold); background: rgba(201, 164, 106, .12); }
+.u-tile-why { display: block; color: var(--u-gold-soft, #e8d3ad); font-size: 12px; line-height: 1.3; }
+.u-refslot-audio { display: grid; place-items: center; padding: 8px; font-size: 12px; text-align: center; }
+.u-geste-group { display: grid; gap: 6px; }
 .u-floatbar { position: sticky; top: 0; z-index: 6; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; width: max-content; max-width: 100%; margin: 0 auto 8px; padding: 4px; border: 1px solid var(--u-gold); border-radius: 12px; background: #1c1b19; box-shadow: 0 10px 28px #000; }
 .u-floatbar button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 44px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: inherit; }
 .u-floatbar button[aria-pressed="true"] { color: var(--u-gold); }
@@ -700,7 +704,7 @@
   .u-stage.u-montage .u-head h1 { font-size: 22px; }
   .u-desk .u-tile-scroll { display: grid; grid-template-columns: 1fr; overflow: visible; }
   .u-desk .u-tile-scroll > .u-tile { flex: none; }
-  .u-capcut { display: grid; flex: 1; grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }
+  .u-capcut { display: grid; flex: 1; grid-template-columns: minmax(272px, 300px) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }
   .u-capcut .u-chutier { display: flex; flex-direction: column; gap: 4px; grid-column: 1; grid-row: 1; position: static; max-height: none; overflow: auto; border: 1px solid var(--u-line); border-radius: 16px; padding: 6px; background: #100e0c; }
   .u-capcut .u-chutier-row { padding-bottom: 0; }
   .u-capcut .u-chutier > * { flex: 0 0 auto; }
@@ -710,8 +714,9 @@
   .u-capcut-player { grid-column: 2; grid-row: 1; min-height: 0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
   .u-capcut-player .u-lead, .u-capcut-player > .u-small { flex: none; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .u-capcut-player .u-monitor { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-  .u-capcut-player .u-stage-frame { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
-  .u-capcut-player .u-viewer { flex: 0 1 auto; width: auto; height: 100%; max-width: 100%; max-height: 100%; min-height: 0; aspect-ratio: 16 / 9; margin-inline: auto; }
+  .u-capcut-player .u-stage-frame { container-type: size; flex: 1 1 auto; min-height: 180px; display: flex; align-items: center; justify-content: center; }
+  .u-capcut-player .u-viewer { flex: none; width: min(100cqw, calc(100cqh * 16 / 9)); height: min(100cqh, calc(100cqw * 9 / 16)); max-width: 100%; max-height: 100%; aspect-ratio: 16 / 9; margin-inline: auto; }
+  .u-capcut-player .u-viewer[data-ratio="9/16"] { width: min(100cqw, calc(100cqh * 9 / 16)); height: min(100cqh, calc(100cqw * 16 / 9)); aspect-ratio: 9 / 16; }
   .u-capcut-player .u-controls { flex: none; }
   .u-capcut-time { grid-column: 1 / -1; grid-row: 2; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
   .u-capcut .u-tl { flex: none; overflow-x: auto; overflow-y: hidden; }

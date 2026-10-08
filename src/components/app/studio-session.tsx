@@ -4,6 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useI18n } from "@/components/i18n/provider";
 import { assetNote, assetPaths, looseAssets, type AssetRecord } from "@/lib/creation/assets";
 import { castNote } from "@/lib/creation/fiche";
+import { runStem, type StemKind } from "@/lib/creation/stem";
+import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { gesteOuvert, gesteParId, type RoleRef } from "@/lib/workflows/registre";
 import { cleanCardName, copyCast, decorFromScene, renameById, type CastCard, type DecorCard } from "@/lib/creation/gallery";
 import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
@@ -86,6 +88,7 @@ export interface StudioSession {
   loose: AssetRecord[];
   createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
   createDecor(input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; files?: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
+  createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
   duplicateCast(id: string): Promise<void>;
@@ -545,6 +548,48 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
   }, [client, refreshBalance, reload, store, t]);
 
+  const createStem = useCallback(async (input: { geste: string; text: string; confirmed: boolean }) => {
+    const row = gesteParId(input.geste);
+    const text = input.text.trim();
+    const quote = row?.id === "mont-voix" ? voiceQuote(text.length)
+      : row?.id === "mont-effet" ? sfxQuote(SFX_DEFAULT_SECONDS)
+      : row?.id === "mont-musique" ? musicQuote()
+      : null;
+    const kind: StemKind | null = row?.still === "voix" || row?.still === "effet" || row?.still === "musique" ? row.still : null;
+    if (!row || row.onglet !== "montage" || !gesteOuvert(row) || !kind || !quote) {
+      setNotice(t(row?.raison ?? "gestes.unwired"));
+      return null;
+    }
+    if (!text || !spendAllowed(quote.credits, input.confirmed)) return null;
+    if (!client) {
+      setNotice(t("create.needLink"));
+      return null;
+    }
+    const fresh = await refreshBalance();
+    if (!creationAllowed(true, fresh?.credits ?? null, quote.high)) {
+      setNotice(t("create.needCeiling"));
+      return null;
+    }
+    setCreating(true);
+    try {
+      const result = await runStem(client, {
+        kind,
+        text,
+        seed: crypto.getRandomValues(new Uint32Array(1))[0],
+        clientId: crypto.randomUUID(),
+        balanceBefore: fresh?.credits ?? 0,
+      });
+      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+      return new File([result.audio], result.filename, { type: result.audio.type || "audio/mpeg" });
+    } catch (error) {
+      const failure = error instanceof RenderError ? error : new RenderError("failed", error instanceof Error ? error.message : t("create.failed"));
+      setNotice(failure.message || t("create.failed"));
+      return null;
+    } finally {
+      setCreating(false);
+    }
+  }, [client, refreshBalance, t]);
+
   const rewriteCast = useCallback(async (cards: CastCard[]) => {
     const vault = store();
     const slug = current.project ?? await ensureActiveProject(vault);
@@ -945,7 +990,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     requestRun, confirmRun, cancelRun, resetRun, resumeRun, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast, createDecor, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast, createDecor, createStem, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,
