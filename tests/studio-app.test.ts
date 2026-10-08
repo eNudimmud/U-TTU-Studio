@@ -29,7 +29,7 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#Former", ""), "lora");
     assert.equal(tabFromLocation("#compte", ""), "compte");
     assert.equal(tabFromLocation("#inconnu", "?step=prise"), "prise");
-    assert.match(read("src/app/studio/page.tsx"), /<StudioApp initialTab=\{initialTab\} \/>/);
+    assert.match(read("src/app/studio/page.tsx"), /<StudioApp initialTab=\{initialTab\} assumeFilled=\{assumeFilled\} \/>/);
   });
 
   it("finishes a take inside the app: no Comfy tab, no Comfy frame as the studio", () => {

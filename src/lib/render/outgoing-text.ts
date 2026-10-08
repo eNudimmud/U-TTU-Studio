@@ -4,7 +4,7 @@
 // The screen shows this string, and only this string, before the gesture.
 
 import { triggerPhrase } from "../lora/dataset.ts";
-import { placeTrigger } from "../lora/place.ts";
+import { placeTrigger } from "../lora/place-views.ts";
 import { referencePaths } from "./references.ts";
 import { SHOT_LINE, shotPrompt } from "./shot.ts";
 import { takePrompt } from "./take-prompt.ts";

@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { SCENE_STILLS_MAX, isPlaceLora } from "@/lib/coffre/model";
 import { nextNumberedName } from "@/lib/ergonomie";
 import { vueProjet } from "@/lib/studio-comfort";
-import { PLACE_SHOTS_MIN, placeShotLine, placeShotList } from "@/lib/lora/place";
+import { PLACE_SHOTS_MIN } from "@/lib/lora/place-numbers";
+import { placeShotLine, placeShotList } from "@/lib/lora/place-views";
 import { LENSES, PREVIZ_LABELS, PREVIZ_PLANS, PATH_FRAMES, defaultCamera, pathPoint, placeVolumes } from "@/lib/render/place";
 import { filmAction } from "@/lib/render/shot";
 import { formatUsd } from "@/lib/fal/prices";
@@ -14,6 +15,7 @@ import { ProjectMemory } from "./project-memory";
 import { Why } from "./guide-bubble";
 import { Arrow, Plus, Web } from "./glyphs";
 import { PictureSlot } from "./slots";
+import { paintShell } from "@/lib/paint-shell";
 import { useStudio, type PrevizState } from "./studio-context";
 
 function known(say: (line: string) => string, name: string) {
@@ -21,7 +23,7 @@ function known(say: (line: string) => string, name: string) {
   return name;
 }
 
-export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; onRole(): void; focus?: "vues" | "image" | null }) {
+export function SceneScreen({ onNext, onRole, focus = null, assumeFilled = false }: { onNext(): void; onRole(): void; focus?: "vues" | "image" | null; assumeFilled?: boolean }) {
   const { ready, studio, scene, media, addScene, selectScene, previz, blenderLinked, falLinked, requestPreviz, setSheet } = useStudio();
   const { t } = useI18n();
   const suggested = nextNumberedName(t("scene.defaultName"), studio.scenes.map(item => item.name));
@@ -61,7 +63,7 @@ export function SceneScreen({ onNext, onRole, focus = null }: { onNext(): void; 
       <p className="u-micro">{t("guide.stepScene")}</p>
       <button type="button" className="u-link" onClick={() => setSheet({ outputs: "scene" })}>{t("job.outputs")}</button>
     </header>
-    {ready && <>
+    {paintShell(ready, assumeFilled) && <>
     <div className="u-desk">
       <div className="u-stack">
         {studio.scenes.length > 0 && <div className="u-scenes" role="radiogroup" aria-label={t("shelf.places")}>

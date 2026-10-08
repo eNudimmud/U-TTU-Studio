@@ -4,7 +4,7 @@
 
 import type { RunGate } from "../credits.ts";
 import { LORA_TAKE, formatUsd, type LoraResolution } from "../fal/prices.ts";
-import { loraTakeRequest } from "../lora/take.ts";
+import { loraTakeRequest } from "../lora/take-request.ts";
 import type { TrainingAspect } from "../lora/dataset.ts";
 import type { FilmQuote } from "./farpy.ts";
 

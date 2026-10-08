@@ -18,9 +18,10 @@ import { LookForm } from "./look-form";
 import { Segments } from "./slots";
 import { PublishActions } from "./publish";
 import { TakeCostLines } from "./take-cost";
+import { paintShell } from "@/lib/paint-shell";
 import { useStudio, type RunState } from "./studio-context";
 
-const CinemaGestures = dynamic(() => import("./cinema-gestures").then(mod => mod.CinemaGestures));
+const CinemaGestures = dynamic(() => import("./cinema-gestures").then(mod => mod.CinemaGestures), { ssr: false });
 const SequencePlayer = dynamic(() => import("./sheets").then(mod => mod.SequencePlayer));
 
 function ChainButton({ onClick, children }: { onClick(): void; children: ReactNode }) {
@@ -150,7 +151,7 @@ export function PlateauShelf({ go }: { go(next: "lora" | "scene" | "prise" | "sp
   </aside>;
 }
 
-export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScene(): void; goLora(): void }) {
+export function TakeScreen({ goLook, goScene, goLora, assumeFilled = false }: { goLook(): void; goScene(): void; goLora(): void; assumeFilled?: boolean }) {
   const studio = useStudio();
   const { t, say } = useI18n();
   const { ready, media, scene, line, setLine, settings, setSettings, takeQuote, clearMeasuredQuote, gate, connected, balance, run, requestRun, cancelRun, resetRun, resumeRun, resetTake, setSheet, engine, setEngine, chosenLora, setLora, loraResolution, setLoraResolution, loraQuote, falLinked, falBalance, exportCoffre } = studio;
@@ -272,7 +273,7 @@ export function TakeScreen({ goLook, goScene, goLora }: { goLook(): void; goScen
       <h1 id="u-title" tabIndex={-1}>{t("take.title")}</h1>
     </header>
 
-    {ready && <>
+    {paintShell(ready, assumeFilled) && <>
     {run.phase === "running" && <div className="u-card u-run" role="status" aria-live="polite">
       <div className="u-thread" aria-hidden="true"><span /></div>
       <p className="u-label">{t("job.running")}</p>

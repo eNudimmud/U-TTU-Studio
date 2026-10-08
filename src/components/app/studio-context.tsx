@@ -3,15 +3,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { costClaim, falGate, type Balance, type CostClaim, type RunGate, type UsdBalance } from "@/lib/credits";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
-import { coffreZip } from "@/lib/coffre/export";
-import { mergeCoffreZip } from "@/lib/coffre/import";
 import { linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
   LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, SCENE_STILLS_MAX, assignOrdre, clearShotSequence, createProject, dropTakeFromShots, dropTakeLink, emptyLook, emptyRole, emptySceneDraft, emptyStudio, ensureActiveProject, extensionFor, isPlaceLora, loadStudio, loraId, moveShot, normalizeLinks, normalizeTakeIds, orderShots, removeLora, removeScene, removeSequence, removeShot, removeTake, selectProject, sequenceStem, sha256Hex, shotStem, slugify, takeId, uniqueId,
   writeBlob, writeClips, writeLook, writeLora, writeMemory, writePromptNote, writeQuotes, writeRole, writeScene, writeSequence, writeShot, writeState, writeTake, type Look, type Lora, type RoleDraft, type Scene, type Sequence, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { cleanMemoryText, type MemoryKind } from "@/lib/coffre/memory";
-import { FalError, createFalClient, type FalClient, type FalHandle, type FalPrice } from "@/lib/fal/client";
+import type { FalClient, FalHandle, FalPrice } from "@/lib/fal/client";
 import { cleanFalKey, readFalKey, saveFalKey } from "@/lib/fal/link";
 import { LORA_TAKE, LORA_TRAINER, PLACE_SCENE, PLACE_TRAINER, loraTakeQuote, placeSceneQuote, placeTrainQuote, trainingQuote, type LoraResolution } from "@/lib/fal/prices";
 import { reduceConnect } from "@/lib/link-epoch";
@@ -25,27 +23,27 @@ import {
 } from "@/lib/lora/flight";
 import {
   PLACE_HEIGHT, PLACE_KEEP_SECONDS, PLACE_SHOTS_MIN, PLACE_STEPS, PLACE_UPLOAD_KEEP_SECONDS, PLACE_VIEWS_MAX, PLACE_WIDTH,
-  followPlaceScene, followPlaceTraining, placeShotLine, placeShotList, submitPlaceScene, submitPlaceTraining,
-} from "@/lib/lora/place";
-import { followLoraTake, loraTakeProfile, submitLoraTake, type LoraTakeEvent } from "@/lib/lora/take";
-import { TRAINING_KEEP_SECONDS, TRAINING_RANK, TRAINING_STEPS, followTraining, submitTraining, type TrainingEvent, type TrainingSteps } from "@/lib/lora/train";
+} from "@/lib/lora/place-numbers";
+import type { LoraTakeEvent } from "@/lib/lora/take";
+import type { TrainingEvent, TrainingSteps } from "@/lib/lora/train";
 import { projectTree } from "@/lib/coffre/project";
 import { idbVault, type VaultStore } from "@/lib/coffre/store";
 import { readGuide, saveGuide, type GuideMoment, type GuideState } from "@/lib/guide";
 import { cleanBlenderKey, readBlenderKey, saveBlenderKey } from "@/lib/render/blender-link";
-import { createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
-import { FarpyError, filmGate, type FilmQuote } from "@/lib/render/farpy";
+import type { RenderClient } from "@/lib/render/client";
+import type { FilmQuote } from "@/lib/render/farpy";
 import { defaultCamera, moveCamera as shiftCamera, type Lens, type PrevizPlan } from "@/lib/render/place";
-import { followFilm, quoteFilm, startRender, type PrevizEvent } from "@/lib/render/previz-run";
+import { placeShotLine, placeShotList } from "@/lib/lora/place-views";
+import type { PrevizEvent } from "@/lib/render/previz-run";
 import { filmOutgoingText, lieuOutgoingText, personnageOutgoingText, priseOutgoingText } from "@/lib/render/outgoing-text";
-import { applyPlaceBlend } from "@/lib/render/place-write";
+import { vaultFilledCookie } from "@/lib/paint-shell";
 import { assetPath } from "@/lib/site";
 import { SHOT_LINE, SHOT_RESOLUTION, SHOT_SECONDS, shotGate } from "@/lib/render/shot";
 import { referencePaths } from "@/lib/render/references";
 import { forgetQuote, quotesToRecords } from "@/lib/render/measured-quote";
 import { learnTakeCost } from "@/lib/render/landed-cost";
 import { settleLandedTake } from "@/lib/render/settle-take";
-import { followTake, submitTake, type TakeRunEvent } from "@/lib/render/run";
+import type { TakeRunEvent } from "@/lib/render/run";
 import { sessionTokens } from "@/lib/render/session";
 import {
   readInFlight, readRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink,
@@ -113,11 +111,25 @@ function saveFilmFlight(flight: FilmFlight | null) {
   } catch {}
 }
 
+type Later = typeof import("@/lib/studio-later");
+
+function later(): Promise<Later> {
+  return import("@/lib/studio-later");
+}
+
+function codedError(error: unknown, name: string): { code: string; message: string; detail: string[] } | null {
+  if (!(error instanceof Error) || error.name !== name || !("detail" in error)) return null;
+  const detail = (error as { detail?: unknown }).detail;
+  const code = "code" in error && typeof (error as { code?: unknown }).code === "string" ? (error as { code: string }).code : "";
+  return { code, message: error.message, detail: Array.isArray(detail) ? detail.filter((item): item is string => typeof item === "string") : [] };
+}
+
 function filmProblem(error: unknown): { message: string; detail: string[] } {
   if (error instanceof DOMException && error.name === "AbortError") {
     return { message: "Suivi arrêté ici. Si le rendu est déjà parti, il continue sur ton compte.", detail: [] };
   }
-  if (error instanceof FarpyError) return { message: error.message, detail: error.detail };
+  const farpy = codedError(error, "FarpyError");
+  if (farpy) return { message: farpy.message, detail: farpy.detail };
   return { message: "Le filmage n’a pas abouti.", detail: [] };
 }
 
@@ -142,7 +154,8 @@ function toAspect(aspect: TakeSettings["aspect"]): TrainingAspect {
 }
 
 function falFailure(error: unknown, fallback: string): { code: string; message: string; detail: string[] } {
-  if (error instanceof FalError) return { code: error.code, message: error.message, detail: error.detail };
+  const fal = codedError(error, "FalError");
+  if (fal) return { code: fal.code || "failed", message: fal.message, detail: fal.detail };
   return { code: "failed", message: error instanceof Error ? error.message : fallback, detail: [] };
 }
 
@@ -407,7 +420,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [studio, setStudioState] = useState<Studio>(emptyStudio());
   const [media, setMedia] = useState<Record<string, string>>({});
   const [ownLine, setOwnLine] = useState("");
-  const [lineSource, setLineSource] = useState<"pending" | "offer" | "own">("pending");
+  const [lineSource, setLineSource] = useState<"pending" | "offer" | "own">("offer");
   const line = lineSource === "offer" ? t("take.defaultLine") : ownLine;
   const [settings, setSettingsState] = useState<TakeSettings>(DEFAULT_TAKE);
   const [link, setLink] = useState<RenderLink>({ mode: "none" });
@@ -474,13 +487,37 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setMedia(next);
   }, []);
 
-  const client = useMemo<RenderClient | null>(() => {
-    if (link.mode === "key") return createRenderClient({ auth: { kind: "key", key: link.key } });
-    if (link.mode === "session") return createRenderClient({ auth: { kind: "session", token: () => tokens.token() } });
-    return null;
+  const [client, setClient] = useState<RenderClient | null>(null);
+  const [fal, setFal] = useState<FalClient | null>(null);
+
+  useEffect(() => {
+    if (link.mode === "none") {
+      setClient(null);
+      return;
+    }
+    let cancel = false;
+    const current = link;
+    void later().then(({ createRenderClient }) => {
+      if (cancel) return;
+      if (current.mode === "key") setClient(createRenderClient({ auth: { kind: "key", key: current.key } }));
+      else if (current.mode === "session") setClient(createRenderClient({ auth: { kind: "session", token: () => tokens.token() } }));
+      else setClient(null);
+    });
+    return () => { cancel = true; };
   }, [link, tokens]);
 
-  const fal = useMemo<FalClient | null>(() => (falKey ? createFalClient({ key: falKey }) : null), [falKey]);
+  useEffect(() => {
+    if (!falKey) {
+      setFal(null);
+      return;
+    }
+    let cancel = false;
+    const key = falKey;
+    void later().then(({ createFalClient }) => {
+      if (!cancel) setFal(createFalClient({ key }));
+    });
+    return () => { cancel = true; };
+  }, [falKey]);
 
   const refreshBalance = useCallback(async (): Promise<Balance | null> => {
     if (!client) {
@@ -504,6 +541,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       if (reduceConnect({ epoch: comfyEpoch.current, connected: true }, { type: "read", epoch, ok: false }).ignored) return null;
       setBalance(null);
+      const { RenderError } = await later();
       if (error instanceof RenderError && error.code === "auth") setConnected(false);
       setBalanceNote(error instanceof Error ? error.message : "Solde illisible.");
       return null;
@@ -596,6 +634,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setLoraResolutionState(localStorage.getItem(LORA_RES_KEY) === "480P" ? "480P" : "768P");
       setLoraPickState(localStorage.getItem(LORA_PICK_KEY));
       setTrainingStepsState(localStorage.getItem(STEPS_KEY) === "2000" ? 2000 : 1000);
+      let filled = false;
       try {
         void navigator.storage?.persist?.();
         const loaded = await loadStudio(store());
@@ -606,10 +645,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         mediaRef.current = urls;
         setMedia(urls);
         setStudio(loaded);
+        filled = Boolean(loaded.project);
       } catch {
         setNotice("Mon studio ne s’ouvre pas sur cet appareil. Un navigateur privé peut le bloquer.");
       }
       setReady(true);
+      document.cookie = vaultFilledCookie(filled);
     })();
     return () => {
       alive = false;
@@ -958,6 +999,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [setStudio, store]);
 
   const finish = useCallback(async (flight: InFlight, renderClient: RenderClient) => {
+    const { followTake, RenderError } = await later();
     abort.current = new AbortController();
     try {
       wake.current = await (navigator as Navigator & { wakeLock?: { request(type: "screen"): Promise<{ release(): Promise<void> }> } }).wakeLock?.request("screen") ?? null;
@@ -1034,6 +1076,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [addMedia, inProject, refreshBalance, setStudio, store, syncMontages]);
 
   const finishLora = useCallback(async (flight: LoraTakeFlight, falClient: FalClient) => {
+    const { followLoraTake, loraTakeProfile } = await later();
     abort.current = new AbortController();
     try {
       wake.current = await (navigator as Navigator & { wakeLock?: { request(type: "screen"): Promise<{ release(): Promise<void> }> } }).wakeLock?.request("screen") ?? null;
@@ -1094,6 +1137,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [addMedia, inProject, refreshFal, setStudio, store]);
 
   const finishTraining = useCallback(async (flight: TrainingFlight, falClient: FalClient) => {
+    const { followTraining, TRAINING_KEEP_SECONDS, TRAINING_RANK } = await later();
     abortTrain.current = new AbortController();
     try {
       wakeTrain.current = await (navigator as Navigator & { wakeLock?: { request(type: "screen"): Promise<{ release(): Promise<void> }> } }).wakeLock?.request("screen") ?? null;
@@ -1247,6 +1291,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         setNotice("Aucun texte ne part : il manque les images de cette prise.");
         return;
       }
+      const { submitLoraTake } = await later();
       setSheet(null);
       setRun({ phase: "running", event: { stage: "start" } });
       abort.current = new AbortController();
@@ -1323,6 +1368,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setNotice("Aucun texte ne part : il manque les images de cette prise.");
       return;
     }
+    const { submitTake, RenderError } = await later();
     setSheet(null);
     setRun({ phase: "running", event: { stage: "start" } });
     abort.current = new AbortController();
@@ -1396,6 +1442,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [addMedia, dropMedia, inProject, saveScene, store]);
 
   const finishPerson = useCallback(async (flight: FilmFlight, falClient: FalClient) => {
+    const { followLoraTake, loraTakeProfile } = await later();
     if (!flight.handle || flight.balanceBefore === null || !flight.loraId) return;
     const abort = new AbortController();
     abortPreviz.current = abort;
@@ -1464,6 +1511,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [addMedia, inProject, saveScene, setStudio, store]);
 
   const finishFilm = useCallback(async (flight: FilmFlight, key: string) => {
+    const { followFilm } = await later();
     const abort = abortPreviz.current ?? new AbortController();
     abortPreviz.current = abort;
     try {
@@ -1501,6 +1549,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setSheet("previz-confirm");
       return;
     }
+    const { applyPlaceBlend, quoteFilm } = await later();
     saveFilmFlight(null);
     const camera = place.camera ?? defaultCamera(place.previz);
     setPrevizState({ phase: "running", event: { stage: "write" } });
@@ -1530,6 +1579,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [blenderKey, fal, inProject, previz.phase, refreshFal, saveScene, store]);
 
   const confirmPreviz = useCallback(async () => {
+    const { filmGate, startRender, followFilm, FarpyError, FalError, submitLoraTake } = await later();
     if (!blenderKey || !fal || previz.phase === "running") return;
     const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
     const person = studioRef.current.loras.find(item => !isPlaceLora(item));
@@ -1899,6 +1949,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setTraining({ phase: "running", event: { stage: "pack" } });
     abortTrain.current = new AbortController();
     try {
+      const { submitTraining } = await later();
       const handle = await submitTraining(fal, { clips, refs, trigger, steps: trainingSteps, aspect: check.aspect }, event => setTraining({ phase: "running", event }), abortTrain.current.signal);
       const flight: TrainingFlight = {
         handle,
@@ -1966,6 +2017,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const opened = reduceConnect({ epoch: falEpoch.current, connected: false }, { type: "connect" });
     falEpoch.current = opened.epoch;
     try {
+      const { createFalClient } = await later();
       const client = createFalClient({ key });
       try {
         const account = await client.account();
@@ -2022,6 +2074,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     if (!key) return "Cette clé n’a pas la forme d’une clé de rendu.";
     const opened = reduceConnect({ epoch: comfyEpoch.current, connected: false }, { type: "connect" });
     comfyEpoch.current = opened.epoch;
+    const { createRenderClient } = await later();
     const candidate = createRenderClient({ auth: { kind: "key", key } });
     try {
       await candidate.user();
@@ -2067,9 +2120,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     mediaRef.current = urls;
     setMedia(urls);
     setStudio(loaded);
+    document.cookie = vaultFilledCookie(Boolean(loaded.project));
   }, [setStudio, store]);
 
   const exportCoffre = useCallback(async () => {
+    const { coffreZip } = await later();
     const data = await coffreZip(store());
     const url = URL.createObjectURL(new Blob([data.slice().buffer], { type: "application/zip" }));
     const anchor = document.createElement("a");
@@ -2083,6 +2138,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const importCoffre = useCallback(async (file: File) => {
     try {
+      const { mergeCoffreZip } = await later();
       const report = await mergeCoffreZip(store(), new Uint8Array(await file.arrayBuffer()));
       await reloadVault();
       setNotice(report.written === 0
@@ -2200,6 +2256,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     abortPlace.current = new AbortController();
     try {
       const trigger = lieuOutgoingText(place.name);
+      const { submitPlaceTraining, followPlaceTraining } = await later();
       const handle = await submitPlaceTraining(fal, { images, trigger, steps: PLACE_STEPS }, abortPlace.current.signal);
       const result = await followPlaceTraining(fal, handle, fresh?.usd ?? 0, { signal: abortPlace.current.signal });
       const id = uniqueId(loraId(new Date(), place.name), studioRef.current.loras.map(item => item.id));
@@ -2258,6 +2315,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [fal, placeRun, refreshFal]);
 
   const confirmPlaceScene = useCallback(async () => {
+    const { FalError, submitPlaceScene, followPlaceScene } = await later();
     if (!fal || placeRun === "running") return;
     const place = studioRef.current.scenes.find(item => item.id === studioRef.current.currentScene);
     const trained = studioRef.current.loras.find(item => isPlaceLora(item) && item.sceneId === place?.id);

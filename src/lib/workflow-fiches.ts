@@ -4,7 +4,7 @@
 
 import { COMFY_CLOUD } from "./comfy-stack.ts";
 import { CLIPS_MIN } from "./lora/dataset.ts";
-import { PLACE_SHOTS_MIN } from "./lora/place.ts";
+import { PLACE_SHOTS_MIN } from "./lora/place-numbers.ts";
 import { FAL_PUBLISHED, formatUsd, type LoraResolution } from "./fal/prices.ts";
 
 export type FicheId = "references" | "personnage" | "former" | "lieu" | "image";

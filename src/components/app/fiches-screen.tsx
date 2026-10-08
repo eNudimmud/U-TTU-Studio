@@ -4,7 +4,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { priseGate } from "@/lib/render/billed-quote";
 import { formatUsd } from "@/lib/fal/prices";
 import { CLIPS_MIN } from "@/lib/lora/dataset";
-import { PLACE_SHOTS_MIN } from "@/lib/lora/place";
+import { PLACE_SHOTS_MIN } from "@/lib/lora/place-numbers";
 import { workflowFiches, type WorkflowFiche } from "@/lib/workflow-fiches";
 import { useStudio } from "./studio-context";
 

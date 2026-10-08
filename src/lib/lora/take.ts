@@ -6,14 +6,14 @@ import { FalError, type FalClient, type FalHandle } from "../fal/client.ts";
 import { LORA_TAKE, type LoraResolution } from "../fal/prices.ts";
 import type { TrainingAspect } from "./dataset.ts";
 import { followQueue, measureCharge, type FollowOptions } from "./follow.ts";
+import { LORA_PICTURES_MAX, loraTakeRequest } from "./take-request.ts";
 
-export const LORA_SCALE = 1;
+export { LORA_PICTURES_MAX, LORA_SCALE, loraTakeRequest } from "./take-request.ts";
 
 /** Same settings, same quote: what a LoRA take is filed under in the vault. */
 export function loraTakeProfile(seconds: number, aspect: string, resolution: LoraResolution): string {
   return `fal-h3-lora-${resolution}-${seconds}s-${aspect}`;
 }
-export const LORA_PICTURES_MAX = 9;
 export const LORA_UPLOAD_KEEP_SECONDS = 24 * 3600;
 export const LORA_TAKE_KEEP_SECONDS = 7 * 24 * 3600;
 /** An earlier copy on fal is reused only with this much life left; else the vault file is sent again. */
@@ -45,20 +45,6 @@ export type LoraTakeEvent =
   | { stage: "render"; seconds: number }
   | { stage: "fetch" }
   | { stage: "measure" };
-
-export function loraTakeRequest(input: { prompt: string; imageUrls: readonly string[]; loraUrl: string; seconds: number; aspect: TrainingAspect; resolution: LoraResolution; seed: number }): Record<string, unknown> {
-  return {
-    prompt: input.prompt,
-    loras: [{ path: input.loraUrl, scale: LORA_SCALE }],
-    reference_image_urls: input.imageUrls.slice(0, LORA_PICTURES_MAX),
-    duration: input.seconds,
-    aspect_ratio: input.aspect,
-    resolution: input.resolution,
-    seed: input.seed,
-    prompt_expansion_mode: "disabled",
-    enable_safety_checker: true,
-  };
-}
 
 export interface SubmittedLoraTake {
   handle: FalHandle;

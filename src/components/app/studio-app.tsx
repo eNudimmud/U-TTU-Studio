@@ -9,15 +9,16 @@ import { offeredName, readLookNameCleared } from "@/lib/ergonomie";
 import { memoryFilled } from "@/lib/coffre/memory";
 import type { GuideMoment } from "@/lib/guide";
 import { liftDelta } from "@/lib/mobile-band";
+import { paintShell } from "@/lib/paint-shell";
 import { assetPath } from "@/lib/site";
 import { resumeTab, TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import type { WorkflowFiche } from "@/lib/workflow-fiches";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Coffre, Iii, Web } from "./glyphs";
 import { GuideBubble } from "./guide-bubble";
-import { LoraScreen } from "./lora-screen";
-import { SceneScreen } from "./scene-screen";
 
+const LoraScreen = dynamic(() => import("./lora-screen").then(mod => mod.LoraScreen));
+const SceneScreen = dynamic(() => import("./scene-screen").then(mod => mod.SceneScreen));
 const LookScreen = dynamic(() => import("./screens").then(mod => mod.LookScreen));
 const SphereScreen = dynamic(() => import("./screens").then(mod => mod.SphereScreen));
 const TakeScreen = dynamic(() => import("./screens").then(mod => mod.TakeScreen));
@@ -48,11 +49,18 @@ const STEPS: { id: Exclude<Tab, "sphere" | "look" | "fiches">; key: "nav.charact
   { id: "prise", key: "nav.take" },
 ];
 
-export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
-  return <StudioProvider><AppFrame initialTab={initialTab ?? null} /></StudioProvider>;
+export function StudioApp({ initialTab = null, assumeFilled = false }: { initialTab?: Tab | null; assumeFilled?: boolean }) {
+  return <StudioProvider><AppFrame initialTab={initialTab ?? null} assumeFilled={assumeFilled} /></StudioProvider>;
 }
 
-function AppFrame({ initialTab }: { initialTab: Tab | null }) {
+function warm(next: Tab) {
+  if (next === "scene") void import("./scene-screen");
+  else if (next === "lora" || next === "look") void import("./lora-screen");
+  else if (next === "prise" || next === "sphere") void import("./screens");
+  else if (next === "fiches") void import("./fiches-screen");
+}
+
+function AppFrame({ initialTab, assumeFilled }: { initialTab: Tab | null; assumeFilled: boolean }) {
   const studio = useStudio();
   const { t, say } = useI18n();
   const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, engine, setEngine, falLinked, falBalance, falBalanceNote, training, previz, placeRun } = studio;
@@ -171,7 +179,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     : tab === "scene"
     ? [studio.studio.scenes.length === 0 && "scene-new", Boolean(studio.scene && !studio.scene.previz && studio.scene.stills.length === 0) && "scene-still", Boolean(studio.scene && !studio.scene.render) && "scene-previz", !memoryFilled(studio.studio.memory) && "scene-memory"]
     : tab === "lora"
-    ? ready && studio.studio.projects.length === 0
+    ? paintShell(ready, assumeFilled) && studio.studio.projects.length === 0
       ? ["project-name" as const]
       : characterFile
       ? [training.phase === "running" && "lora-running", training.phase === "done" && "lora-done", !studio.studio.role.name.trim() && "lora-name", studio.studio.role.photos.length < 2 && "lora-photos", studio.studio.clips.length < 10 && "lora-clips", !falLinked && "lora-connect", studio.dataset.ready && falLinked && training.phase === "idle" && "lora-ready", training.phase === "idle" && !memoryFilled(studio.studio.memory) && "lora-memory"]
@@ -202,9 +210,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       {!ready && <p className="sr-only" role="status">{t("nav.opening")}</p>}
       <GuideBubble moments={moments} />
       {tab === "look" ? <LookScreen onNext={() => go("scene")} onBack={() => go("lora")} />
-        : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} focus={sceneFocus} />
-        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} startFile={startFile} onFile={setCharacterFile} />
-        : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goLora={() => go("lora")} />
+        : tab === "scene" ? <SceneScreen onNext={() => go("prise")} onRole={() => go("lora")} focus={sceneFocus} assumeFilled={assumeFilled} />
+        : tab === "lora" ? <LoraScreen onTake={() => go("prise")} onScene={() => go("scene")} onPhotos={() => go("look")} choice={choice} startFile={startFile} onFile={setCharacterFile} assumeFilled={assumeFilled} />
+        : tab === "prise" ? <TakeScreen goLook={() => go("look")} goScene={() => go("scene")} goLora={() => go("lora")} assumeFilled={assumeFilled} />
         : tab === "fiches" ? <FichesScreen onLaunch={(fiche: WorkflowFiche) => {
           if (fiche.engine) setEngine(fiche.engine);
           go(fiche.dest, { file: fiche.focus === "file", scene: fiche.focus === "vues" || fiche.focus === "image" ? fiche.focus : null });
@@ -220,7 +228,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     <nav className="u-chain" aria-label={t("nav.chain")}>
       <ol>
         {STEPS.map((step, index) => <li key={step.id}>
-          <button type="button" aria-current={tab === step.id ? "step" : undefined} data-done={done[step.id] || undefined} onClick={() => go(step.id)}>
+          <button type="button" aria-current={tab === step.id ? "step" : undefined} data-done={done[step.id] || undefined} onPointerDown={() => warm(step.id)} onClick={() => go(step.id)}>
             <span className="u-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <span>{t(step.key)}</span>
             {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}

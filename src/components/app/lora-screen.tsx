@@ -14,6 +14,7 @@ import { LookForm } from "./look-form";
 import { OutgoingPersonnage } from "./outgoing-text";
 import { ProjectMemory } from "./project-memory";
 import { PictureSlot, Segments } from "./slots";
+import { paintShell } from "@/lib/paint-shell";
 import { useStudio, type TrainingState } from "./studio-context";
 
 function clock(seconds: number): string {
@@ -36,7 +37,7 @@ function trainLabel(t: ReturnType<typeof useI18n>["t"], event: TrainingEvent): s
   }
 }
 
-export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile }: { onTake(): void; onScene(): void; onPhotos(): void; choice: number; startFile?: boolean; onFile?(file: boolean): void }) {
+export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile, assumeFilled = false }: { onTake(): void; onScene(): void; onPhotos(): void; choice: number; startFile?: boolean; onFile?(file: boolean): void; assumeFilled?: boolean }) {
   const studio = useStudio();
   const { t, say } = useI18n();
   const {
@@ -56,7 +57,7 @@ export function LoraScreen({ onTake, onScene, choice, startFile = false, onFile 
   const showFile = file || training.phase !== "idle";
   const paths = characterPaths({ falLinked, quote: trainQuote, steps: trainingSteps });
 
-  if (ready && !vault.project) return <section className="u-screen" aria-labelledby="u-title">
+  if (!vault.project && paintShell(ready, assumeFilled)) return <section className="u-screen" aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">{t("lora.kicker")}</p>
       <h1 id="u-title" tabIndex={-1}>{t("sheet.projectName")}</h1>

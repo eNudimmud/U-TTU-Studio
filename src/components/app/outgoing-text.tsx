@@ -1,7 +1,7 @@
 "use client";
 
 import { isPlaceLora } from "@/lib/coffre/model";
-import { placeShotLine, placeShotList } from "@/lib/lora/place";
+import { placeShotLine, placeShotList } from "@/lib/lora/place-views";
 import { filmOutgoingText, lieuOutgoingText, personnageOutgoingText, priseOutgoingText, prisePicturePaths } from "@/lib/render/outgoing-text";
 import { useI18n } from "@/components/i18n/provider";
 import { useStudio } from "./studio-context";

@@ -25,8 +25,8 @@ describe("bande mobile, 390 px", () => {
     assert.match(app, /liftDelta/);
     assert.match(app, /scrollBehavior = "auto"/);
     assert.match(css, /\.u-guide-line \{ min-height: 4\.2em/);
-    assert.match(readFileSync("src/components/app/scene-screen.tsx", "utf8"), /\{ready && <>/);
-    assert.match(readFileSync("src/components/app/screens.tsx", "utf8"), /\{ready && <>/);
+    assert.match(readFileSync("src/components/app/scene-screen.tsx", "utf8"), /paintShell\(ready, assumeFilled\)/);
+    assert.match(readFileSync("src/components/app/screens.tsx", "utf8"), /paintShell\(ready, assumeFilled\)/);
     assert.match(app, /import\("\.\/sheets"\)/);
     assert.match(app, /ready && desk && <PlateauShelf /);
     assert.match(readFileSync("src/app/layout.tsx", "utf8"), /interactiveWidget: "resizes-content"/);

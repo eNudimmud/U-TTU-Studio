@@ -9,44 +9,15 @@ import { FalError, type FalClient, type FalHandle } from "../fal/client.ts";
 import { PLACE_SCENE, PLACE_TRAINER } from "../fal/prices.ts";
 import { createZipBlob } from "../zip.ts";
 import { followQueue, isSafetensors, measureCharge, type FollowOptions } from "./follow.ts";
+import {
+  PLACE_HEIGHT, PLACE_KEEP_SECONDS, PLACE_SHOTS_MAX, PLACE_SHOTS_MIN, PLACE_STEPS, PLACE_UPLOAD_KEEP_SECONDS, PLACE_WIDTH,
+} from "./place-numbers.ts";
 
-export const PLACE_SHOTS_MIN = 4;
-export const PLACE_SHOTS_MAX = 16;
-export const PLACE_VIEWS_MAX = 12;
-export const PLACE_STEPS = 1000;
-export const PLACE_WIDTH = 768;
-export const PLACE_HEIGHT = 1024;
-export const PLACE_UPLOAD_KEEP_SECONDS = 24 * 3600;
-export const PLACE_KEEP_SECONDS = 7 * 24 * 3600;
-
+export {
+  PLACE_HEIGHT, PLACE_KEEP_SECONDS, PLACE_SHOTS_MAX, PLACE_SHOTS_MIN, PLACE_STEPS, PLACE_UPLOAD_KEEP_SECONDS, PLACE_VIEWS_MAX, PLACE_WIDTH,
+} from "./place-numbers.ts";
+export { placeShotLine, placeShotList, placeTrigger } from "./place-views.ts";
 export { PLACE_SCENE, PLACE_TRAINER };
-
-/** Distinct from a character trigger, so a prompt cannot mix the two by accident. */
-export function placeTrigger(name: string): string {
-  const base = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 24);
-  return `${base || "lieu"}_lieu`;
-}
-
-/** Stills, filmed frames, then extra views. Duplicates drop. The trainer sees at most sixteen. */
-export function placeShotList(input: { stills: readonly string[]; frames: readonly string[]; views: readonly string[] }): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const path of [...input.stills, ...input.frames, ...input.views]) {
-    if (!path || seen.has(path)) continue;
-    seen.add(path);
-    out.push(path);
-    if (out.length >= PLACE_SHOTS_MAX) break;
-  }
-  return out;
-}
-
-export function placeShotLine(count: number): { ready: boolean; line: string } {
-  if (count < PLACE_SHOTS_MIN) {
-    const missing = PLACE_SHOTS_MIN - count;
-    return { ready: false, line: `${PLACE_SHOTS_MIN} vues au moins. Il en manque ${missing}.` };
-  }
-  return { ready: true, line: `${count} vues. Le fichier apprend ce lieu, pas une personne.` };
-}
 
 export function placeTrainInput(zipUrl: string, trigger: string, steps = PLACE_STEPS): Record<string, unknown> {
   return {
