@@ -289,6 +289,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <p className="u-plan-sum">Séquence : {clock(total)} / {drafts.length} {drafts.length > 1 ? "plans" : "plan"}</p>
     </aside>
 
+    <div className="u-prise-side">
     <div className="u-prise-preview">
       <p className="u-label">Aperçu</p>
       {run.phase === "running" && <div className="u-card u-run" role="status">
@@ -301,6 +302,54 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           {previewSrc ? <img src={previewSrc} alt="" /> : <span className="u-prise-empty">Aucune image</span>}
         </div>}
       {(etat === "gardee" || etat === "finalisee") && <button type="button" className="u-link" data-lire-sequence="" onClick={onMontage}>Voir au montage</button>}
+    </div>
+
+    <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
+      <div className="u-prise-card" id="u-prise-card" data-row={showFinal ? "final" : cardDecision.row}>
+        <p className="u-label">Ce que l'app va faire</p>
+        <h2>{card.titre || "En attente"}</h2>
+        {card.mots && <p>{card.mots}</p>}
+        {card.pourquoi && card.pourquoi !== card.mots && <p>{card.pourquoi}</p>}
+        <p className="u-prise-quote">
+          {card.quote === null ? "Devis : inconnu" : `Devis : ${fr(card.quote)} · ${card.statut === "mesure" ? "mesuré" : card.statut === "hypothese" ? "hypothèse" : "inconnu"}`}
+          {card.cap !== null && ` · Plafond ${fr(card.cap)}`}
+        </p>
+        <button type="button" className="u-link" aria-expanded={details} onClick={() => setDetails(open => !open)}>Détails</button>
+        {details && <div className="u-prise-details">
+          {card.graph && <p>Graphe : {card.graph}</p>}
+          {showFinal && fin.graphs.filter(item => !item.choisi).map(item => <p key={item.id}>{item.role} : {item.note}</p>)}
+          <button type="button" className="u-link" aria-expanded={textOpen} onClick={() => setTextOpen(open => !open)}>Texte envoyé</button>
+          {textOpen && <textarea className="u-prise-prompt" readOnly value={prompt.text} aria-label="Texte envoyé" />}
+        </div>}
+      </div>
+
+      {showFinal && <FinalPanel
+        value={{ ...finaliser, media: mediaKind, seconds: input.duree }}
+        onMedia={next => { setMediaKind(next); setFinaliser(finaliserDefaults(next, input.duree)); }}
+        onChange={setFinaliser}
+        plan={fin}
+      />}
+
+      <div className="u-prise-actions">
+        {!showFinal && <>
+          <ActionButton
+            gold
+            marker="data-composer-gold"
+            label={input.imageCle === "validee" ? "Refaire l'image" : "1 · Composer l'image"}
+            decision={composer}
+            onClick={() => { if (composer.enabled) setAsk("composer"); }}
+          />
+          {ask === "composer" && composer.enabled && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
+          <ActionButton label="2 · Tourner" decision={tourner} onClick={() => {}} />
+          <ActionButton label="Essai rapide" decision={essai} onClick={() => { if (essai.enabled) void requestRun(); }} />
+        </>}
+        <button type="button" className="u-secondary" aria-pressed={draft.kept || draft.finalised} disabled={!(draft.hasTake || draft.kept || draft.finalised)} aria-describedby={draft.hasTake || draft.kept || draft.finalised ? undefined : "u-why-garder"} onClick={keep}>★ Garder</button>
+        {!(draft.hasTake || draft.kept || draft.finalised) && <p className="u-why" id="u-why-garder">{TOURNE_DABORD}</p>}
+        {(draft.kept || draft.finalised) && !showFinal && <button type="button" className="u-primary" disabled aria-describedby="u-why-final" onClick={() => setPanel(true)}>Finaliser (agrandir)</button>}
+        {(draft.kept || draft.finalised) && !showFinal && <p className="u-why" id="u-why-final">{fin.reason || PAS_MESURE}</p>}
+        {!hasAnchor(input) && <p className="u-why">{CHOISIS}</p>}
+      </div>
+    </aside>
     </div>
 
     <div className="u-prise-work">
@@ -413,52 +462,6 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </details>
     </div>
 
-    <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
-      <div className="u-prise-card" id="u-prise-card" data-row={showFinal ? "final" : cardDecision.row}>
-        <p className="u-label">Ce que l'app va faire</p>
-        <h2>{card.titre || "En attente"}</h2>
-        {card.mots && <p>{card.mots}</p>}
-        {card.pourquoi && card.pourquoi !== card.mots && <p>{card.pourquoi}</p>}
-        <p className="u-prise-quote">
-          {card.quote === null ? "Devis : inconnu" : `Devis : ${fr(card.quote)} · ${card.statut === "mesure" ? "mesuré" : card.statut === "hypothese" ? "hypothèse" : "inconnu"}`}
-          {card.cap !== null && ` · Plafond ${fr(card.cap)}`}
-        </p>
-        <button type="button" className="u-link" aria-expanded={details} onClick={() => setDetails(open => !open)}>Détails</button>
-        {details && <div className="u-prise-details">
-          {card.graph && <p>Graphe : {card.graph}</p>}
-          {showFinal && fin.graphs.filter(item => !item.choisi).map(item => <p key={item.id}>{item.role} : {item.note}</p>)}
-          <button type="button" className="u-link" aria-expanded={textOpen} onClick={() => setTextOpen(open => !open)}>Texte envoyé</button>
-          {textOpen && <textarea className="u-prise-prompt" readOnly value={prompt.text} aria-label="Texte envoyé" />}
-        </div>}
-      </div>
-
-      {showFinal && <FinalPanel
-        value={{ ...finaliser, media: mediaKind, seconds: input.duree }}
-        onMedia={next => { setMediaKind(next); setFinaliser(finaliserDefaults(next, input.duree)); }}
-        onChange={setFinaliser}
-        plan={fin}
-      />}
-
-      <div className="u-prise-actions">
-        {!showFinal && <>
-          <ActionButton
-            gold
-            marker="data-composer-gold"
-            label={input.imageCle === "validee" ? "Refaire l'image" : "1 · Composer l'image"}
-            decision={composer}
-            onClick={() => { if (composer.enabled) setAsk("composer"); }}
-          />
-          {ask === "composer" && composer.enabled && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
-          <ActionButton label="2 · Tourner" decision={tourner} onClick={() => {}} />
-          <ActionButton label="Essai rapide" decision={essai} onClick={() => { if (essai.enabled) void requestRun(); }} />
-        </>}
-        <button type="button" className="u-secondary" aria-pressed={draft.kept || draft.finalised} disabled={!(draft.hasTake || draft.kept || draft.finalised)} aria-describedby={draft.hasTake || draft.kept || draft.finalised ? undefined : "u-why-garder"} onClick={keep}>★ Garder</button>
-        {!(draft.hasTake || draft.kept || draft.finalised) && <p className="u-why" id="u-why-garder">{TOURNE_DABORD}</p>}
-        {(draft.kept || draft.finalised) && <button type="button" className="u-primary" disabled aria-describedby="u-why-final" onClick={() => setPanel(true)}>Finaliser (agrandir)</button>}
-        {(draft.kept || draft.finalised) && <p className="u-why" id="u-why-final">{fin.reason || PAS_MESURE}</p>}
-        {!hasAnchor(input) && <p className="u-why">{CHOISIS}</p>}
-      </div>
-    </aside>
   </section>;
 }
 
@@ -532,7 +535,6 @@ function FinalPanel({ value, onMedia, onChange, plan }: {
 }) {
   return <div className="u-final" data-finaliser="">
     <p className="u-label">Finaliser</p>
-    <p>{plan.sentence}</p>
     <div className="u-choice-row" role="group" aria-label="Ce qu'on agrandit">
       <button type="button" className="u-tile" aria-pressed={value.media === "video"} onClick={() => onMedia("video")}>La prise</button>
       <button type="button" className="u-tile" aria-pressed={value.media === "image"} onClick={() => onMedia("image")}>L'image</button>

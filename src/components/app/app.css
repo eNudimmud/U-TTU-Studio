@@ -809,7 +809,7 @@
 .u-prise-row, .u-final, .u-prise-card, .u-prise-actions { display: grid; gap: 8px; }
 .u-choice-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
 .u-tile, .u-chip, .u-avatar, .u-place { flex: 0 0 auto; display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 44px; padding: 6px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: var(--u-text); }
-.u-tile span, .u-chip, .u-avatar > span, .u-place > span, .u-plan-etat { white-space: nowrap; overflow: visible; text-overflow: clip; }
+.u-prise .u-tile span, .u-prise .u-chip, .u-prise .u-avatar > span, .u-prise .u-place > span, .u-prise .u-plan-etat { white-space: nowrap; overflow: visible; text-overflow: clip; }
 .u-tile[aria-pressed="true"], .u-chip[aria-pressed="true"], .u-avatar[aria-pressed="true"], .u-place[aria-pressed="true"] { border-color: var(--u-gold); background: rgba(201, 164, 106, .14); }
 .u-tile:disabled, .u-primary:disabled, .u-secondary:disabled { opacity: .55; }
 .u-ico { width: 32px; height: 24px; stroke: var(--u-gold); fill: none; stroke-width: 1.5; }
@@ -841,14 +841,20 @@
 @media (max-width: 1023px) {
   .u-top { flex-wrap: wrap; }
   .u-top-project { flex: 1 1 100%; order: 3; }
+  .u-prise-strip { order: 1; }
+  .u-prise-preview { order: 2; }
+  .u-prise-work { order: 3; }
+  .u-prise-dock { order: 4; }
   .u-prise-actions { position: sticky; bottom: calc(78px + var(--u-safe)); z-index: 5; max-height: 46vh; overflow: auto; padding: 8px; border: 1px solid var(--u-line); border-radius: 14px; background: rgba(11, 10, 9, .96); }
 }
+.u-prise-side { display: contents; }
 @media (min-width: 1024px) {
-  .u-stage.u-prise { width: 100%; max-width: none; height: 100%; min-height: 0; margin: 0; overflow: hidden; display: grid; grid-template-columns: 156px minmax(0, 1fr) 300px; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "strip work preview" "strip work dock"; gap: 8px 12px; }
+  .u-stage.u-prise { width: 100%; max-width: none; height: 100%; min-height: 0; margin: 0; overflow: hidden; display: grid; grid-template-columns: 168px minmax(0, 1fr) 320px; grid-template-rows: minmax(0, 1fr); grid-template-areas: "strip work side"; gap: 8px 12px; }
   .u-prise-strip { grid-area: strip; min-height: 0; overflow: auto; }
   .u-prise-work { grid-area: work; min-height: 0; overflow: auto; display: grid; align-content: start; gap: 10px; }
-  .u-prise-preview { grid-area: preview; }
-  .u-prise-dock { grid-area: dock; min-height: 0; overflow: auto; display: grid; align-content: start; gap: 8px; }
+  .u-prise-side { display: flex; flex-direction: column; grid-area: side; min-height: 0; overflow: auto; gap: 8px; }
+  .u-prise-preview, .u-prise-dock { flex: 0 0 auto; min-height: auto; }
+  .u-prise-dock { display: grid; align-content: start; gap: 8px; }
   .u-prise-film { flex-direction: column; overflow: visible; }
   .u-plan-card, .u-plan-add { width: 100%; }
   .u-prise-work .u-choice-row { flex-wrap: wrap; overflow: visible; }
