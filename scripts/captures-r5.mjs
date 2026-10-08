@@ -64,6 +64,7 @@ for (const [kind, path, name] of shots) {
           if (bottom > window.innerHeight + 2) return `timeline sous la fenêtre ${Math.round(bottom)}>${window.innerHeight}`;
           const box = viewer.getBoundingClientRect();
           const stage = frame.getBoundingClientRect();
+          if (box.height < 240) return `lecteur trop petit ${Math.round(box.height)}`;
           if (box.height < stage.height * 0.7) return `lecteur trop petit ${Math.round(box.height)}/${Math.round(stage.height)}`;
           return "";
         });
@@ -73,15 +74,18 @@ for (const [kind, path, name] of shots) {
       if (cut) throw new Error(`${name}-${label} ${cut}`);
     }
     if (name === "r5-cast-tenue") {
-      const roles = await page.$$eval(".u-refslot .u-label", nodes => nodes.map(node => node.textContent?.trim()));
+      await page.waitForSelector("[data-geste='cast-tenue'][data-selected]", { timeout: 8000 });
+      const roles = await page.$$eval(".u-refslot-add span", nodes => nodes.map(node => node.textContent?.trim()));
       if (!roles.includes("Visage") || !roles.includes("Tenue")) throw new Error(`${name}-${label} cases ${roles.join(",")}`);
     }
     if (name === "r5-decor-elargir") {
+      await page.waitForSelector("[data-geste='decor-elargir'][data-selected]", { timeout: 8000 });
       const why = await page.$eval("#u-why-decor", node => node.textContent ?? "");
       if (!why.includes("haute définition") && !why.includes("pas mesuré")) throw new Error(`${name}-${label} raison absente : ${why}`);
     }
     if (name === "r5-prise-raccord") {
-      const roles = await page.$$eval(".u-refslot .u-label", nodes => nodes.map(node => node.textContent?.trim()));
+      await page.waitForSelector("[data-geste='prise-raccord'][data-selected]", { timeout: 8000 });
+      const roles = await page.$$eval(".u-refslot-add span", nodes => nodes.map(node => node.textContent?.trim()));
       if (!roles.includes("Début") || !roles.includes("Fin")) throw new Error(`${name}-${label} cases ${roles.join(",")}`);
     }
     await page.screenshot({ path: `${out}/${name}-${label}.png` });

@@ -1053,7 +1053,7 @@
     "exampleSoon": "Ejemplo por llegar",
     "unwired": "Este gesto aún no está conectado. No sale nada.",
     "needRefs": "No hay referencia.",
-    "needOutfit": "Falta la foto de la ropa.",
+    "needOutfit": "La foto de la ropa no está.",
     "raisons": {
       "castAngle": "Otros ángulos: este gesto aún no tiene precio.",
       "castExpression": "La expresión pide un rostro y un clip, y aún no tiene precio.",

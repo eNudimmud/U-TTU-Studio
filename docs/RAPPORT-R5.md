@@ -68,4 +68,8 @@ Fenêtres 1280×800 et 390×844. Montage aussi à 360 pour les libellés. Fichie
 
 ## Vérification
 
-Les commandes et le résultat sont ajoutés après la passe de ce tour. La CI est `npm test`, `npm run typecheck`, `npm run build`.
+- `npm test` : 286 tests passés, 1 ignoré, 0 échec (287 au total).
+- `npm run typecheck` et `npm run build` passent.
+- À 1280×800, la page du montage ne défile pas (`scrollHeight` 800). La timeline est dans la fenêtre. Le lecteur est le plus grand 16:9 du cadre : environ 525×296. Les contrôles et la barre du plan sont posés sur l’image, pour ne pas lui voler la hauteur.
+- Les libellés Médias, Voix, Effets, Musique tiennent en entier à 1280, 390 et 360 (`scrollWidth` égal à `clientWidth`).
+- Tenue montre Visage et Tenue. Élargir montre Lieu et la phrase entière, y compris à 390 où elle passe sur deux lignes. Raccord montre Début et Fin, avec la ligne qui dit que seul le plan à 4 crédits est mesuré.
