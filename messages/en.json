@@ -925,7 +925,7 @@
     "describeDecor": "Describe your set",
     "fromPhoto": "A photo of the place",
     "examples": "Examples",
-    "examplesNote": "Homemade renders. A click fills the text and does not create.",
+    "examplesNote": "A click loads the reference and the gesture. The after is not rendered yet.",
     "copyProject": "Copy to {name}",
     "copied": "Copied into the other project.",
     "imported": "Added: {count}",
@@ -995,7 +995,19 @@
     "clearAsk": "Clear this edit? The shots and sounds leave the timeline.",
     "clearYes": "Clear",
     "dropFile": "Drop a file",
-    "addOnTrack": "Add on {track}"
+    "addOnTrack": "Add on {track}",
+    "bin": "Bin",
+    "medias": "Media",
+    "fadeShort": "Fade",
+    "context": "On this shot",
+    "duplicate": "Duplicate",
+    "speed": "Speed",
+    "fade": "Fade into the next shot",
+    "title": "Title",
+    "titlePh": "A title on the picture",
+    "shortcuts": "Shortcuts",
+    "shortcutHelp": "Space plays. S splits. Delete removes. Ctrl+Z undoes, Ctrl+Y redoes. Arrows: one frame.",
+    "snap": "Snapped"
   },
   "atelier": {
     "lead": "Everything you created, on this device.",
@@ -1021,5 +1033,202 @@
     "auto": "What you create in the studio is filed here on its own.",
     "projects": "Projects",
     "close": "Close"
+  },
+  "gestes": {
+    "ask": "What do you want to do?",
+    "more": "More gestures",
+    "less": "Fewer gestures",
+    "soon": "Soon",
+    "seeExample": "See an example",
+    "cost": "About {amount} credits, ceiling {high}. Hypothesis.",
+    "costMeasured": "About {amount} credits, ceiling {high}. Measured.",
+    "costUnknown": "Quote not measured. Nothing is sent.",
+    "need": "You need: {list}",
+    "exampleSoon": "Example coming",
+    "unwired": "This gesture is not wired yet. Nothing is sent.",
+    "needRefs": "A reference is missing.",
+    "cat": {
+      "identite": "Identity",
+      "apparence": "Look",
+      "finition": "Finish",
+      "lieu": "Place",
+      "variante": "Variant",
+      "plan": "Shot",
+      "raccord": "Bridge",
+      "mouvement": "Motion",
+      "son": "Sound",
+      "image": "Picture"
+    },
+    "fournit": {
+      "texte": "text",
+      "photo": "one photo",
+      "photos": "several photos",
+      "asset": "an asset",
+      "video": "a video",
+      "audio": "a sound"
+    },
+    "castPhotos": {
+      "title": "From photos",
+      "phrase": "The face comes from your photos."
+    },
+    "castSheet": {
+      "title": "View sheet",
+      "phrase": "Front, profile and back, same person."
+    },
+    "castText": {
+      "title": "From text",
+      "phrase": "A fictional person, no photo."
+    },
+    "castWardrobe": {
+      "title": "Outfit or hair",
+      "phrase": "The face stays. Outfit or hair changes."
+    },
+    "castAngle": {
+      "title": "Another angle",
+      "phrase": "A new pose or another angle."
+    },
+    "castExpression": {
+      "title": "Expression",
+      "phrase": "The face changes expression."
+    },
+    "castLight": {
+      "title": "Relight",
+      "phrase": "The light changes, the face stays."
+    },
+    "castUpscale": {
+      "title": "Enlarge",
+      "phrase": "More detail, same picture."
+    },
+    "castVolume": {
+      "title": "Volume",
+      "phrase": "A solid form, from one photo."
+    },
+    "decorText": {
+      "title": "From text",
+      "phrase": "A place, no photo."
+    },
+    "decorPhoto": {
+      "title": "From a photo",
+      "phrase": "The place starts from a real photo."
+    },
+    "decorTime": {
+      "title": "Time and weather",
+      "phrase": "Same place, other hour, weather or season."
+    },
+    "decorAngles": {
+      "title": "Other angles",
+      "phrase": "The same place, seen from elsewhere."
+    },
+    "decorWiden": {
+      "title": "Widen the frame",
+      "phrase": "The frame opens around the place."
+    },
+    "decorObject": {
+      "title": "Object",
+      "phrase": "Remove or add an object."
+    },
+    "decorVolume": {
+      "title": "Place volume",
+      "phrase": "The place becomes a form."
+    },
+    "prisePlan": {
+      "title": "Person in the set",
+      "phrase": "The person and the place become a shot."
+    },
+    "priseStill": {
+      "title": "Still to shot",
+      "phrase": "One picture becomes a shot."
+    },
+    "priseBridge": {
+      "title": "Bridge",
+      "phrase": "The first picture meets the last."
+    },
+    "priseExtend": {
+      "title": "Extend",
+      "phrase": "The shot goes on."
+    },
+    "priseCamera": {
+      "title": "Camera",
+      "phrase": "The camera moves on the shot."
+    },
+    "priseMotion": {
+      "title": "Motion transfer",
+      "phrase": "A video’s motion lands on a photo."
+    },
+    "priseLips": {
+      "title": "Lips",
+      "phrase": "The mouth follows a voice."
+    },
+    "priseVidu": {
+      "title": "Another reference shot",
+      "phrase": "A shot from several pictures. Cost not wired."
+    },
+    "montVoice": {
+      "title": "Voice",
+      "phrase": "A voice from text."
+    },
+    "montSfx": {
+      "title": "Sound effect",
+      "phrase": "A sound from text."
+    },
+    "montMusic": {
+      "title": "Music",
+      "phrase": "Music from text."
+    },
+    "montLips": {
+      "title": "Lip sync",
+      "phrase": "The mouth follows the sound."
+    },
+    "montUpscale": {
+      "title": "Enlarge the video",
+      "phrase": "More detail on the shot."
+    },
+    "montFrames": {
+      "title": "Smooth",
+      "phrase": "More frames between the frames."
+    }
+  },
+  "refs": {
+    "title": "References",
+    "lead": "One photo, several, or a studio asset.",
+    "drop": "Drop photos",
+    "camera": "Camera",
+    "gallery": "From the gallery",
+    "remove": "Remove",
+    "role": "Role",
+    "empty": "No reference.",
+    "emptySlot": "Empty",
+    "help": "Drag an asset from the gallery, or drop a photo.",
+    "visage": "Face",
+    "tenue": "Outfit",
+    "style": "Style",
+    "lieu": "Place"
+  },
+  "assets": {
+    "count": "{count} assets",
+    "search": "Search",
+    "all": "All",
+    "personnages": "People",
+    "decors": "Sets",
+    "plans": "Shots",
+    "sons": "Sounds",
+    "importes": "Imported",
+    "useRef": "Use as reference",
+    "toPrise": "Send to the take",
+    "toMontage": "Add to the edit",
+    "close": "Close",
+    "path": "Path",
+    "geste": "Gesture",
+    "cost": "Cost",
+    "date": "Date",
+    "refs": "References",
+    "import": "Import",
+    "refresh": "Refresh",
+    "select": "Select",
+    "selected": "{count} selected",
+    "empty": "No asset.",
+    "none": "—",
+    "credits": "{amount} credits",
+    "estimate": "Quote {amount}"
   }
 }

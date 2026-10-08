@@ -15,6 +15,7 @@ export interface FiledCast {
   quote: number;
   cost: number | null;
   project: string;
+  geste?: string;
 }
 
 export interface FiledDecor {
@@ -54,6 +55,7 @@ export function castNote(card: FiledCast): string {
     sheet: card.sheet,
     photos: card.photos,
     vues: [...VIEW_NAMES],
+    geste: card.geste ?? "",
   }, body);
 }
 
@@ -76,6 +78,7 @@ export function readCastNote(id: string, source: string): FiledCast | null {
     quote,
     cost: num(fields.cout),
     project: text(fields.projet),
+    geste: text(fields.geste),
   };
 }
 
@@ -94,6 +97,7 @@ export function filedToCard(card: FiledCast): CastCard {
     quote: card.quote,
     cost: card.cost,
     engine: "comfy",
+    geste: card.geste || undefined,
   };
 }
 

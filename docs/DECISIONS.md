@@ -2,6 +2,32 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
 
+## Bureau de studio — 8 octobre 2026
+
+Suite visuelle, même branche, toujours brouillon. Le registre, les références et la galerie restent. La page n’est plus un déroulé de cartes de texte.
+
+- **Décision :** à partir de 1024 px, CAST, DÉCOR et PRISE tiennent dans l’écran. Gauche : tuiles de gestes. Centre : cases nommées, grand aperçu, Créer visible. Droite : la galerie du projet, la même que Mon studio, filtrée sur l’onglet, défilement seul. En dessous de 1024 px : sélecteur en haut (geste ou galerie), carrousel de tuiles, travail dessous.
+- **Décision :** une tuile montre une image maison, un titre, une ligne. Pas d’étiquette « Exemple à venir », pas de « Il faut ». Le coût est à côté de Créer, sur le geste choisi. Les gestes sans graphe sont sous « Plus de gestes », section « Bientôt ». « Voir un exemple » charge la photo maison et le geste.
+- **Décision :** les cases suivent le geste, et seulement les images que le graphe envoie. Depuis des photos : trois cases Visage (`image_1` à `image_3`). Tenue ou coiffure : Visage et Tenue. Décor depuis une photo : Lieu. Case vide : « + » et le rôle. Le clic ouvre Déposer, Appareil photo, Depuis la galerie. Case pleine : la photo remplit la case, une croix retire. Une ligne sous les cases : « Glisse un asset de la galerie ou dépose une photo. »
+- **Décision (finition) :** la galerie du bureau est une grille de deux colonnes, vignettes 4:5, `object-fit: cover`. Le survol et la fiche montrent l’image entière. Le nom tient sur une ligne. La coche de sélection apparaît au survol ou à l’appui long. « Sélectionner » est dans l’en-tête, pas sous chaque carte. Les filtres tiennent sur une ligne qui défile. Chercher, Importer et Actualiser sont des icônes.
+- **Décision (finition) :** sur le téléphone, Créer n’est pas un panneau transparent. Il est opaque, en bas du contenu (un bouton avec le coût, la raison sur une ligne), et sa hauteur est dans le flux : rien ne passe dessous. « Que veux-tu faire ? » et « Galerie » sont un sélecteur en haut de la zone, pas deux boutons flottants.
+- **Décision (finition) :** à 1280×800, MONTAGE tient dans la fenêtre. Le lecteur est plus petit. Les quatre pistes sont visibles. Le chutier ouvre sur Médias (plans et sons). « Bientôt » est un bouton au bas de l’onglet, fermé au départ.
+- **Décision :** « Aller au contenu » ne se peint qu’au focus clavier. L’en-tête reste en haut parce que le bureau ne fait pas défiler la page.
+- **Décision :** MONTAGE, à partir de 1024 px, est une table : chutier à gauche (Médias, Voix, Effets, Musique), lecteur à droite, timeline en bas. La barre du clip flotte au-dessus de la timeline, seulement s’il est sélectionné. Vitesse : un bouton « ×1 » et un menu. Fondu : interrupteur. Titre : bouton « T ». La vitesse change la longueur du plan sur la timeline : un trim de 4 s à ×2 occupe 2 s. Le trim média ne bouge pas.
+- **Hypothèse :** les devis ne sont pas remesurés. 0 crédit.
+
+## Studio par gestes — 8 octobre 2026
+
+Suite du verdict de JD sur la prod. Le détail est dans `docs/RAPPORT-R4.md` et `docs/WORKFLOWS.md`. Rien n’est mergé avant relecture des captures.
+
+- **Décision :** chaque onglet ouvre sur « Que veux-tu faire ? ». Quatre gestes d’abord, le reste derrière « Plus de gestes ». Une carte dit le geste, ce qu’il faut fournir et un coût. Le template reste dans `src/lib/workflows/registre.ts`. Aucun nom de modèle sur la carte.
+- **Décision :** un geste sans graphe déjà écrit, ou sans devis, reste visible et Créer reste éteint. Sans compte, la raison est « Relie ton compte de rendu pour créer. »
+- **Décision :** les exemples qui ne faisaient que remplir un texte sortent. Un clic charge la photo maison comme référence et le geste. L’après absent affiche « Exemple à venir ». La liste à rendre est `public/exemples/A-GENERER.json`.
+- **Décision :** une galerie d’assets par projet, filtres Personnages, Décors, Plans, Sons, Importés. La fiche markdown porte `geste`, `template`, `refs`, `prompt`, `cout`. Un fichier déposé dans le dossier, sans fiche, revient après Actualiser. Les chemins `Sons/` et `Assets/` passent l’import ZIP.
+- **Décision :** le montage gagne un chutier, une barre sur le plan sélectionné (scinder, dupliquer, vitesse, fondu, titre, supprimer) et les raccourcis dans le menu Plus. La vitesse ne raccourcissait pas la timeline dans cette note. La note « Bureau de studio », plus haut, l’inverse : ×2 occupe la moitié de la durée sur la timeline. Le fondu est une dissolution vers le plan suivant, ou un passage au noir si le plan suivant n’est pas une image déjà en mémoire.
+- **Hypothèse :** les devis 12/18, 24/36, voix, effet et musique sont ceux déjà écrits. Non remesurés. 0 crédit dépensé pour ce tour.
+- **Hypothèse :** EN, DE et ES restent `_human: native_open`.
+
 ## Montage — 8 octobre 2026
 
 Quatrième geste, après PRISE. JD relit sur l’aperçu. Rien n’est mergé avant.

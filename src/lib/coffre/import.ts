@@ -22,7 +22,7 @@ function allowedVaultPath(path: string): boolean {
   if (ROOTS.has(path) || path === ACTIVE_FILE) return true;
   if (/^(refs|scenes|clips|loras|prises|roles|\.uttu)\//.test(path)) return true;
   return /^Projets\/[a-z0-9-]+\/(?:_MOC|Bible|Style|Lexique|Journal)\.md$/.test(path)
-    || /^Projets\/[a-z0-9-]+\/(?:Cast|Refs|Lieux|Decors|Prises|Sequences|Shots|Prompts|Templates|Moteurs|Assets|\.uttu)\/[^/]+$/.test(path);
+    || /^Projets\/[a-z0-9-]+\/(?:Cast|Refs|Lieux|Decors|Prises|Sons|Sequences|Shots|Prompts|Templates|Moteurs|Assets|\.uttu)\/[^/]+$/.test(path);
 }
 
 /** A folder segment that used to hold a retired account key. Compared by code. */

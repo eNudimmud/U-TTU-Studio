@@ -19,6 +19,8 @@ export interface CastCard {
   quote: number;
   cost: number | null;
   engine: "comfy";
+  /** Studio gesture id, when the card was made from one. */
+  geste?: string;
 }
 
 export interface DecorCard {
@@ -28,6 +30,7 @@ export interface DecorCard {
   sheet: string | null;
   preview: string | null;
   status: "pret";
+  geste?: string;
 }
 
 const NAME_MAX = 40;
@@ -53,6 +56,7 @@ export function decorFromScene(scene: {
   prompt?: string;
   render?: string | null;
   stills?: readonly string[];
+  geste?: string;
 }): DecorCard {
   return {
     id: scene.id,
@@ -61,6 +65,7 @@ export function decorFromScene(scene: {
     sheet: scene.render || scene.stills?.[0] || null,
     preview: null,
     status: "pret",
+    geste: scene.geste,
   };
 }
 

@@ -3,7 +3,7 @@
 
 import { readFrontmatter, text, num, list, withFrontmatter } from "../coffre/markdown.ts";
 import {
-  editDuration, emptyEdit, span,
+  editDuration, emptyEdit, playSpan, span,
   type AudioClip, type AudioTrackId, type Edit, type MediaKind, type VideoClip,
 } from "./edit.ts";
 
@@ -34,6 +34,9 @@ function videoLine(clip: VideoClip): string {
     start: clip.start,
     end: clip.end,
     takeId: clip.takeId,
+    speed: clip.speed ?? 1,
+    fadeOut: clip.fadeOut ?? 0,
+    title: clip.title ?? "",
   });
 }
 
@@ -71,8 +74,8 @@ export function sequenceFiche(edit: Edit, projet = ""): string {
   let cursor = 0;
   for (const clip of edit.video) {
     const source = clip.source ? wiki(clip.source, clip.label) : "Plan sans prise";
-    rows.push(row(ordre, TRACK_LABEL.video, cleanLabel(clip.label) || clip.id, cursor, span(clip), "—", "—", source));
-    cursor += span(clip);
+    rows.push(row(ordre, TRACK_LABEL.video, cleanLabel(clip.label) || clip.id, cursor, playSpan(clip), "—", "—", source));
+    cursor += playSpan(clip);
     ordre += 1;
   }
   for (const track of TRACKS) {
@@ -122,6 +125,9 @@ function asVideo(raw: string): VideoClip | null {
       start,
       end: Math.max(start, end),
       takeId: typeof value.takeId === "string" && value.takeId ? value.takeId : null,
+      speed: finite(value.speed, 1),
+      fadeOut: Math.max(0, finite(value.fadeOut, 0)),
+      title: cleanLabel(typeof value.title === "string" ? value.title : ""),
     };
   } catch {
     return null;

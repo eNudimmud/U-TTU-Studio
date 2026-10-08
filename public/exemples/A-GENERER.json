@@ -1,0 +1,85 @@
+{
+  "note": "Rendus d’exemple encore absents. Les images d’entrée sont des rendus maison déjà dans public/exemples. Aucun envoi n’a été lancé pour écrire ce fichier. Les coûts sont des hypothèses déjà écrites, pas une mesure de ce tour.",
+  "licenceEntree": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+  "items": [
+    {
+      "geste": "cast-photos",
+      "template": "api_nano_banana_2_1_image_edit",
+      "entrees": [{ "fichier": "/exemples/cast-mira.webp", "role": "visage", "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud" }],
+      "prompt": "Même personne que les photos. Visage reconnaissable. Fond simple. Pas de texte.",
+      "resolution": "1K",
+      "coutEstime": 12,
+      "plafond": 18,
+      "nature": "hypothese",
+      "sortie": "/exemples/apres-cast-photos.webp",
+      "sortiePresente": false
+    },
+    {
+      "geste": "cast-planche",
+      "template": "templates-character_sheet",
+      "entrees": [{ "fichier": "/exemples/cast-coursiere.webp", "role": "visage", "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud" }],
+      "prompt": "Planche : face, trois-quarts, profil, dos. Même personne.",
+      "resolution": "1K",
+      "coutEstime": 24,
+      "plafond": 36,
+      "nature": "hypothese",
+      "sortie": "/exemples/apres-cast-planche.webp",
+      "sortiePresente": false
+    },
+    {
+      "geste": "cast-texte",
+      "template": "api_nano_banana_2_1_t2i",
+      "entrees": [],
+      "prompt": "Une personne fictive. Face, trois-quarts, profil, en pied. Fond neutre. Pas de texte.",
+      "resolution": "1K",
+      "coutEstime": 12,
+      "plafond": 18,
+      "nature": "hypothese",
+      "sortie": "/exemples/apres-cast-texte.webp",
+      "sortiePresente": false
+    },
+    {
+      "geste": "decor-photo",
+      "template": "api_nano_banana_2_1_image_edit",
+      "entrees": [{ "fichier": "/exemples/decor-quai-nuit.webp", "role": "lieu", "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud" }],
+      "prompt": "Même lieu que la photo. 16:9, sans personne. Pas de texte.",
+      "resolution": "1K",
+      "coutEstime": 12,
+      "plafond": 18,
+      "nature": "hypothese",
+      "sortie": "/exemples/apres-decor-photo.webp",
+      "sortiePresente": false
+    },
+    {
+      "geste": "decor-heure",
+      "template": "api_nano_banana_2_1_image_edit",
+      "entrees": [{ "fichier": "/exemples/decor-rue-pluie.webp", "role": "lieu", "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud" }],
+      "prompt": "Même lieu. Change l’heure, la météo ou la saison. Sans personne. Aube sèche, même rue.",
+      "resolution": "1K",
+      "coutEstime": 12,
+      "plafond": 18,
+      "nature": "hypothese",
+      "sortie": "/exemples/apres-decor-heure.webp",
+      "sortiePresente": false
+    },
+    {
+      "geste": "decor-texte",
+      "template": "api_nano_banana_2_1_t2i",
+      "entrees": [],
+      "prompt": "Plan cinéma 16:9, sans personne. Pas de texte. Un quai la nuit.",
+      "resolution": "1K",
+      "coutEstime": 12,
+      "plafond": 18,
+      "nature": "hypothese",
+      "sortie": "/exemples/apres-decor-texte.webp",
+      "sortiePresente": false
+    }
+  ],
+  "enAttenteDeReference": [
+    "cast-tenue : il faut une seconde photo, rôle tenue. Aucune photo de tenue libre n’est dans public/exemples.",
+    "cast-angle, cast-expressions, cast-eclair, cast-agrandir, cast-volume : template cité, graphe non branché, devis non mesuré. Pas d’après à commander tant que le geste ne part pas.",
+    "decor-angles, decor-elargir, decor-volume : même raison.",
+    "prise-image, prise-raccord, prise-prolonger, prise-camera, prise-mouvement, prise-levres, prise-vidu : cartes visibles, rien ne part.",
+    "mont-voix, mont-effet, mont-musique, mont-levres, mont-agrandir, mont-fluide : cartes visibles, Créer éteint."
+  ]
+}

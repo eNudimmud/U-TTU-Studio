@@ -2,7 +2,9 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
+import { assetNote, assetPaths, looseAssets, type AssetRecord } from "@/lib/creation/assets";
 import { castNote } from "@/lib/creation/fiche";
+import { gesteOuvert, gesteParId, type RoleRef } from "@/lib/workflows/registre";
 import { cleanCardName, copyCast, decorFromScene, renameById, type CastCard, type DecorCard } from "@/lib/creation/gallery";
 import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
 import { runStill } from "@/lib/creation/still";
@@ -11,7 +13,7 @@ import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip } from "@/lib/coffre/import";
 import { folderLinkSupported, linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
-  emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, selectProject as chooseProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
+  emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, sceneMarkdown, selectProject as chooseProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
   writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeText,
   type Scene, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
@@ -81,8 +83,9 @@ export interface StudioSession {
   sessionLinked(): Promise<boolean>;
   disconnect(): Promise<void>;
   creating: boolean;
-  createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean }): Promise<boolean>;
-  createDecor(input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; confirmed: boolean }): Promise<boolean>;
+  loose: AssetRecord[];
+  createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
+  createDecor(input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; files?: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
   duplicateCast(id: string): Promise<void>;
@@ -98,10 +101,31 @@ export interface StudioSession {
   exportCoffre(): Promise<void>;
   importCoffre(file: File): Promise<void>;
   importFiles(files: File[]): Promise<void>;
+  importAssets(files: File[]): Promise<void>;
+  refreshStudio(): Promise<void>;
+  pendingRef: HeldRef | null;
+  holdRef(ref: HeldRef | null): void;
+  pendingClip: HeldClip | null;
+  holdClip(clip: HeldClip | null): void;
+  copyDecorTo(id: string, slug: string): Promise<void>;
   linkFolder(): Promise<void>;
   allowLinkedFolder(): Promise<void>;
   selectProject(slug: string): Promise<void>;
   outgoing(): string;
+}
+
+export interface HeldRef {
+  id: string;
+  role: RoleRef;
+  name: string;
+  url: string;
+  assetId: string | null;
+}
+
+export interface HeldClip {
+  source: string;
+  label: string;
+  kind: "video" | "audio" | "image";
 }
 
 const SessionContext = createContext<StudioSession | null>(null);
@@ -168,6 +192,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [folderMode, setFolderMode] = useState<FolderMode>("off");
   const [folderName, setFolderName] = useState<string | null>(null);
   const [demoOn, setDemoOn] = useState(demo);
+  const [loose, setLoose] = useState<AssetRecord[]>([]);
+  const [pendingRef, setPendingRef] = useState<HeldRef | null>(null);
+  const [pendingClip, setPendingClip] = useState<HeldClip | null>(null);
 
   const store = useCallback((): VaultStore => {
     const base = baseRef.current ?? idbVault();
@@ -197,6 +224,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
     for (const entry of await vault.list()) {
       if (/\/Sequences\/[^/]+\.(wav|mp3|m4a|ogg|webm|mp4)$/i.test(entry.path)) wanted.add(entry.path);
+      if (/\/(?:Cast|Decors|Lieux|Prises|Sons|Assets)\/[^/]+\.(png|jpe?g|webp|gif|mp4|webm|mov|wav|mp3|m4a|ogg)$/i.test(entry.path)) wanted.add(entry.path);
     }
     for (const path of next.look.photos) wanted.add(path);
     for (const path of wanted) {
@@ -210,9 +238,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, []);
 
   const reload = useCallback(async () => {
-    const next = await loadStudio(store());
+    const vault = store();
+    const next = await loadStudio(vault);
     setStudio(next);
-    await showMedia(store(), next);
+    const entries = await vault.list();
+    setLoose(looseAssets(entries.map(entry => entry.path), next.project));
+    await showMedia(vault, next);
     return next;
   }, [setStudio, showMedia, store]);
 
@@ -375,17 +406,26 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     });
   }, [cast, current.look.photos, current.look.traits, current.scenes, line, pickedCast, pickedDecor, t]);
 
-  const createCast = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean }) => {
-    const quote = quoteForCast(input.source);
+  const createCast = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }) => {
+    const row = input.geste ? gesteParId(input.geste) : null;
+    const opened = !row || (gesteOuvert(row) && row.still !== "prise" && row.onglet === "cast");
+    const quote = row && row.credits !== null && row.high !== null
+      ? { credits: row.credits, high: row.high, template: row.template }
+      : quoteForCast(input.source);
     if (!spendAllowed(quote.credits, input.confirmed)) return false;
+    if (!opened) {
+      setNotice(t("gestes.unwired"));
+      return false;
+    }
     if (!client) {
       setNotice(t("create.needLink"));
       return false;
     }
     const name = cleanCardName(input.name);
     if (!name) return false;
-    if (input.source === "photos" && (input.files.length < 2 || input.files.length > 3)) return false;
-    if (input.source === "texte" && !input.prompt.trim()) return false;
+    if (!row && input.source === "photos" && (input.files.length < 2 || input.files.length > 3)) return false;
+    if (row && (input.files.length < row.minRefs || input.files.length > 3)) return false;
+    if ((!row && input.source === "texte" || row?.still === "texte-cast") && !input.prompt.trim()) return false;
     const fresh = await refreshBalance();
     if (!creationAllowed(true, fresh?.credits ?? null, quote.high)) {
       setNotice(t("create.needCeiling"));
@@ -395,11 +435,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const slug = await ensureActiveProject(vault);
     const held = studioRef.current ?? await loadStudio(vault);
     const id = uniqueId(slugify(name), held.cast.map(card => card.id));
+    const kind = row?.still === "photo-cast" || row?.still === "planche" || row?.still === "texte-cast"
+      ? row.still
+      : input.source === "photos" ? "planche" : "texte-cast";
+    const sent = [input.prompt.trim(), row?.consigne ?? ""].filter(Boolean).join("\n\n");
     setCreating(true);
     try {
       const result = await runStill(client, {
-        kind: input.source === "photos" ? "planche" : "texte-cast",
-        prompt: input.prompt.trim(),
+        kind,
+        prompt: sent,
         pictures: input.files.slice(0, 3).map((file, index) => ({ blob: file, name: `uttu-${index + 1}.jpg` })),
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
         clientId: crypto.randomUUID(),
@@ -416,7 +460,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const at = new Date().toISOString();
       await writeText(vault, `Projets/${slug}/Cast/${id}.md`, castNote({
         id, name, at, prompt: input.prompt.trim(), source: input.source, photos, sheet,
-        template: quote.template, quote: quote.credits, cost: result.costCredits, project: slug,
+        template: quote.template, quote: quote.credits, cost: result.costCredits, project: slug, geste: row?.id ?? "",
       }));
       await writeLook(vault, { ...held.look, name, photos: [sheet, ...photos].slice(0, 3) });
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
@@ -433,17 +477,27 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
   }, [client, refreshBalance, reload, store, t]);
 
-  const createDecor = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; confirmed: boolean }) => {
-    const quote = quoteForDecor(input.source);
+  const createDecor = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; files?: File[]; confirmed: boolean; geste?: string }) => {
+    const row = input.geste ? gesteParId(input.geste) : null;
+    const opened = !row || (gesteOuvert(row) && row.onglet === "decor");
+    const pictures = (input.files && input.files.length > 0 ? input.files : input.file ? [input.file] : []).slice(0, 3);
+    const quote = row && row.credits !== null && row.high !== null
+      ? { credits: row.credits, high: row.high, template: row.template }
+      : quoteForDecor(input.source);
     if (!spendAllowed(quote.credits, input.confirmed)) return false;
+    if (!opened) {
+      setNotice(t("gestes.unwired"));
+      return false;
+    }
     if (!client) {
       setNotice(t("create.needLink"));
       return false;
     }
     const name = cleanCardName(input.name);
     if (!name) return false;
-    if (input.source === "texte" && !input.prompt.trim()) return false;
-    if (input.source === "photo" && !input.file) return false;
+    if ((!row && input.source === "texte" || row?.still === "texte-decor") && !input.prompt.trim()) return false;
+    if (row && pictures.length < row.minRefs) return false;
+    if (!row && input.source === "photo" && pictures.length === 0) return false;
     const fresh = await refreshBalance();
     if (!creationAllowed(true, fresh?.credits ?? null, quote.high)) {
       setNotice(t("create.needCeiling"));
@@ -453,12 +507,16 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const slug = await ensureActiveProject(vault);
     const held = studioRef.current ?? await loadStudio(vault);
     const id = uniqueId(slugify(name), held.scenes.map(scene => scene.id));
+    const kind = row?.still === "photo-decor" || row?.still === "texte-decor"
+      ? row.still
+      : input.source === "photo" ? "photo-decor" : "texte-decor";
+    const sent = [input.prompt.trim(), row?.consigne ?? ""].filter(Boolean).join("\n\n");
     setCreating(true);
     try {
       const result = await runStill(client, {
-        kind: input.source === "photo" ? "photo-decor" : "texte-decor",
-        prompt: input.prompt.trim(),
-        pictures: input.file ? [{ blob: input.file, name: "uttu-lieu.jpg" }] : [],
+        kind,
+        prompt: sent,
+        pictures: pictures.map((file, index) => ({ blob: file, name: `uttu-lieu-${index + 1}.jpg` })),
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
         clientId: crypto.randomUUID(),
         balanceBefore: fresh?.credits ?? 0,
@@ -469,6 +527,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         ...emptySceneDraft(),
         id, name, note: input.prompt.trim(), stills: [sheet], render: sheet,
         prompt: input.prompt.trim(), template: quote.template, devis: quote.credits, cout: result.costCredits, home: "Decors", source: input.source,
+        geste: row?.id,
       };
       await writeScene(vault, scene);
       await writeState(vault, id);
@@ -831,6 +890,51 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await reload();
   }, [reload, store]);
 
+  const importAssets = useCallback(async (files: File[]) => {
+    const vault = store();
+    const slug = await ensureActiveProject(vault);
+    const taken = new Set<string>();
+    let count = 0;
+    for (const file of files) {
+      const kind = file.type.startsWith("video/") ? "plan" : file.type.startsWith("audio/") ? "son" : "importe";
+      const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+      const id = uniqueId(slugify(file.name.replace(/\.[^.]+$/, "") || "import"), taken);
+      taken.add(id);
+      const paths = assetPaths(slug, kind, id, ext);
+      await writeBlob(vault, paths.media, file);
+      const card: AssetRecord = {
+        id, kind, name: cleanCardName(file.name.replace(/\.[^.]+$/, "")) || id, at: new Date().toISOString(),
+        prompt: "", geste: "", template: "", refs: [], devis: null, cout: null, media: paths.media, note: paths.note, preview: null, loose: false,
+      };
+      await writeText(vault, paths.note, assetNote(card));
+      count += 1;
+    }
+    await reload();
+    if (count > 0) setNotice(t("create.imported", { count }));
+  }, [reload, store, t]);
+
+  const refreshStudio = useCallback(async () => {
+    await reload();
+  }, [reload]);
+
+  const copyDecorTo = useCallback(async (id: string, slug: string) => {
+    const scene = current.scenes.find(item => item.id === id);
+    if (!scene || slug === current.project) return;
+    const vault = store();
+    const copyId = uniqueId(scene.id, [scene.id]);
+    const stills: string[] = [];
+    for (const path of scene.stills) {
+      const entry = await vault.get(path);
+      if (!entry?.blob) continue;
+      const next = `Projets/${slug}/Decors/${copyId}-${path.split("/").pop()}`;
+      await writeBlob(vault, next, entry.blob);
+      stills.push(next);
+    }
+    const copy: Scene = { ...scene, id: copyId, name: cleanCardName(`${scene.name} copie`) || scene.name, stills, render: stills[0] ?? null, home: "Decors", cout: null };
+    await writeText(vault, `Projets/${slug}/Decors/${copyId}.md`, sceneMarkdown(copy, slug));
+    setNotice(t("create.copied"));
+  }, [current.project, current.scenes, store, t]);
+
   useEffect(() => {
     if (!demoOn || !ready) return;
     setPickedCast(prev => prev ?? DEMO_CAST[0]?.id ?? null);
@@ -841,8 +945,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     requestRun, confirmRun, cancelRun, resetRun, resumeRun, refreshBalance, connectKey, sessionLinked, disconnect,
-    createCast, createDecor, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
-    pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, linkFolder, allowLinkedFolder, selectProject, outgoing,
+    loose, createCast, createDecor, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
+    pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
+    linkFolder, allowLinkedFolder, selectProject, outgoing,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
