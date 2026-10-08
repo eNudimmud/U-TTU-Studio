@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { costClaim, falGate, type Balance, type CostClaim, type RunGate, type UsdBalance } from "@/lib/credits";
+import { costClaim, type Balance, type CostClaim, type RunGate } from "@/lib/credits";
+import { falGate, type UsdBalance } from "@/lib/fal/gate";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
 import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip } from "@/lib/coffre/import";

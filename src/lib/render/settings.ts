@@ -15,6 +15,13 @@ export function cleanApiKey(raw: string): string | null {
   return KEY_PATTERN.test(key) ? key : null;
 }
 
+/** Same account link. A new object with the same mode and key is not a change. */
+export function sameRenderLink(left: RenderLink, right: RenderLink): boolean {
+  if (left.mode !== right.mode) return false;
+  if (left.mode === "key" && right.mode === "key") return left.key === right.key;
+  return true;
+}
+
 export function readRenderLink(storage: Pick<Storage, "getItem"> | null): RenderLink {
   try {
     const data = JSON.parse(storage?.getItem(RENDER_LINK_KEY) ?? "null") as { mode?: unknown; key?: unknown } | null;

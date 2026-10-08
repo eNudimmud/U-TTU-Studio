@@ -44,7 +44,8 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.equal(cast.match(/className="u-primary"/g)?.length, 1);
     assert.equal(decor.match(/className="u-primary"/g)?.length, 1);
     assert.match(cast, /data-cast-gold/);
-    assert.match(cast, /aria-describedby=\{!ready \? "u-why-cast"/);
+    assert.match(cast, /aria-describedby=\{blocked \? "u-why-cast"/);
+    assert.match(cast, /create\.needLink/);
     assert.match(decor, /data-decor-gold/);
     assert.match(decor, /aria-describedby=\{blocked \? "u-why-decor"/);
     assert.match(prise, /data-prise-gold/);
@@ -65,7 +66,8 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.doesNotMatch(drawer, /className="u-primary"/);
     assert.match(drawer, /LanguageSwitcher/);
     assert.match(read("src/components/app/app.css"), /\.u-top \.u-lang \{ display: none; \}/);
-    assert.match(read("src/components/app/stage-screens.tsx"), /images\/decors\/\$\{preset\.id\}\.svg/);
+    assert.match(read("src/components/app/stage-screens.tsx"), /EXEMPLES/);
+    assert.doesNotMatch(read("src/components/app/stage-screens.tsx"), /images\/decors\/\$\{preset\.id\}\.svg/);
     assert.match(read("src/components/app/stage-screens.tsx"), /data-prise-gold/);
     assert.match(read("src/components/app/stage-screens.tsx"), /stage\.generatePriced/);
   });

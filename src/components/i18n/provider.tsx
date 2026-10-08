@@ -1,7 +1,7 @@
 "use client";
 
 import { NextIntlClientProvider, useTranslations, type AbstractIntlMessages } from "next-intl";
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { loadCatalog } from "@/lib/i18n/catalog";
 import { dateLocale, htmlLang, LOCALE_COOKIE, LOCALE_STORAGE, type Locale, readLocaleValue } from "@/lib/i18n/config";
 import { phrase } from "@/lib/i18n/phrase";
@@ -67,10 +67,18 @@ const NAMES: Record<Locale, string> = {
 export function LanguageSwitcher({ rail = false }: { rail?: boolean }) {
   const { locale, setLocale } = useLocaleSwitch();
   const t = useTranslations();
-  return <label className={rail ? "u-lang u-lang-rail" : "u-lang"}>
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 799px)");
+    const apply = () => setCompact(media.matches);
+    apply();
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, []);
+  return <label className={rail ? "u-lang u-lang-rail" : "u-lang is-live"}>
     <span className="sr-only">{t("lang.label")}</span>
     <select aria-label={t("lang.label")} value={locale} onChange={event => setLocale(readLocaleValue(event.target.value))}>
-      {(Object.keys(NAMES) as Locale[]).map(code => <option key={code} value={code}>{NAMES[code]}</option>)}
+      {(Object.keys(NAMES) as Locale[]).map(code => <option key={code} value={code}>{compact ? code.toUpperCase() : NAMES[code]}</option>)}
     </select>
   </label>;
 }

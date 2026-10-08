@@ -62,7 +62,8 @@ describe("le studio, une app", () => {
     assert.ok(context.indexOf('falGate(fresh, quote, "formation")') < context.indexOf("submitTraining("), "the training quote is checked before anything is sent");
     assert.ok(context.indexOf('falGate(fresh, quote, "prise")') < context.indexOf("submitLoraTake("), "the take quote is checked before the LoRA is sent");
     assert.match(sheets, /t\("sheet\.trainDebit"\)/);
-    assert.ok(catalog.includes("Former · débit sur mon compte fal"));
+    assert.ok(catalog.includes("Former · le devis se lit avant"));
+    assert.equal(catalog.includes("compte fal"), false);
     assert.doesNotMatch(read("src/components/app/screens.tsx"), /Former ton double/);
     const scene = read("src/components/app/scene-screen.tsx");
     const sceneScreen = scene.slice(scene.indexOf("export function SceneScreen"));
@@ -117,7 +118,8 @@ describe("le studio, une app", () => {
     assert.match(chain, /<CastStage /);
     assert.match(chain, /<DecorStage /);
     assert.match(chain, /<PriseStage /);
-    assert.match(chain, /<StudioDrawer /);
+    assert.match(chain, /href=\{assetPath\("\/mon-studio"\)\}/);
+    assert.doesNotMatch(chain, /<StudioDrawer /);
     assert.doesNotMatch(chain, /<PlateauShelf |<LookScreen |<FichesScreen |className="u-rail-coffre"/);
     assert.match(read("src/components/app/screens.tsx"), /className="u-plateau"/);
     assert.match(read("src/components/app/screens.tsx"), /t\("shelf\.label"\)/);
@@ -162,12 +164,16 @@ describe("le studio, une app", () => {
     assert.match(phone, /\.u-sheet \{[^}]*max-height: 88dvh[^}]*border-radius: 22px 22px 0 0/);
     assert.doesNotMatch(phone, /\.u-sheet \{[^}]*height: 100dvh/);
     assert.match(phone, /\.u-chain \{[^}]*bottom: 0/);
+    assert.match(phone, /\.u-chain \{[^}]*background: var\(--u-ink\)/);
+    assert.doesNotMatch(phone, /\.u-chain \{[^}]*rgba\(/);
     assert.match(phone, /\.u-plateau \{ display: none; \}/);
     assert.match(phone, /\.u-rail-coffre \{ display: none; \}/);
     assert.doesNotMatch(phone, /width: 232px/);
     assert.doesNotMatch(css, /margin-left: 232px|margin-right: 300px/);
     const desk = css.slice(css.indexOf("@media (min-width: 800px)"));
     assert.match(desk, /\.u-chain \{[^}]*position: sticky/);
+    assert.match(desk, /\.u-chain \{[^}]*background: var\(--u-ink\)/);
+    assert.match(desk, /\.u-toast \{[^}]*top: 148px/);
     assert.match(desk, /\.u-plateau \{ display: none; \}/);
     assert.match(desk, /\.u-rail-coffre \{ display: none; \}/);
     assert.match(desk, /\.u-paths \{ grid-template-columns: 1fr 1fr; align-items: stretch; \}/);
@@ -184,7 +190,7 @@ describe("le studio, une app", () => {
     assert.match(credit, /t\("sheet\.unlinkFal"\)/);
     assert.ok(credit.indexOf("sheet.unlinkRender") < credit.indexOf("sheet.unlinkFal"), "each account has its own control");
     assert.ok(catalog.includes("Délier le compte de rendu"));
-    assert.ok(catalog.includes("Délier le compte fal"));
+    assert.equal(catalog.includes("Délier le compte fal"), false);
     assert.match(credit, /connected &&/);
     assert.match(credit, /falLinked &&/);
     const context = read("src/components/app/studio-context.tsx");
@@ -204,7 +210,7 @@ describe("le studio, une app", () => {
     assert.match(credit, /t\("stage\.connectFal"\)/);
     assert.match(credit, /t\("sheet\.quote"\)/);
     assert.doesNotMatch(credit, /strong>\{"—"/);
-    assert.ok(catalog.includes("Deux comptes, jamais mélangés"));
+    assert.ok(catalog.includes("Un seul compte"));
     assert.ok(catalog.includes("Aucun chiffre tant que le devis"));
     const coffre = sheets.slice(sheets.indexOf("export function CoffreSheet"), sheets.indexOf("export function ConfirmSheet"));
     assert.match(coffre, /t\("sheet\.studioIntro"\)/);
@@ -223,7 +229,6 @@ describe("le studio, une app", () => {
     assert.match(read("src/components/app/studio-context.tsx"), /mergeCoffreZip\(/);
     assert.match(sheets, /t\("sheet\.falPaysTrain"/);
     assert.match(sheets, /t\("sheet\.referencesPays"/);
-    assert.ok(catalog.includes("Il paie la formation du personnage"));
     assert.ok(catalog.includes("Il paie les prises"));
   });
 

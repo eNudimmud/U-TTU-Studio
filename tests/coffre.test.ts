@@ -159,7 +159,8 @@ describe("coffre en markdown", () => {
     assert.equal(studio.clips.length, 1);
     assert.equal(await sha256Hex(weights), await sha256Hex((await store.get(trained.file))?.blob ?? new Blob()));
     const jobs = (await store.get("Projets/atelier/Journal.md"))?.text ?? "";
-    assert.match(jobs, /\[\[Projets\/atelier\/Cast\/20261003-160000-mira\]\] \| fal \| lora-1000pas-rang16 \| 400 \| 15\.00 \$/);
+    assert.match(jobs, /\[\[Projets\/atelier\/Cast\/20261003-160000-mira\]\] \| fichier \| lora-1000pas-rang16 \| 400 \| 15\.00 \$/);
+    assert.doesNotMatch(jobs, /\| fal \|/);
     const names = (await coffreEntries(store)).map(entry => entry.name).join("\n");
     assert.match(names, /Assets\/20261003-160000-mira\.safetensors/);
     assert.doesNotMatch(names, /u-ttu-fal|fal-key/);

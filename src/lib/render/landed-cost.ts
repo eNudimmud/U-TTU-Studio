@@ -34,7 +34,7 @@ export function announcedFromQuote(quote: TakeQuote): AnnouncedQuote | null {
   return null;
 }
 
-/** The journal sentence for one landed take. Older notes, and fal takes, stay out of it. */
+/** The journal sentence for one landed take. Older notes stay out of it. */
 export function journalCostLine(take: LandedCostTake): string | null {
   if (take.engine !== "comfy" || take.announcedCredits === null) return null;
   const announced = take.announcedHigh !== null

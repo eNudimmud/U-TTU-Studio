@@ -119,7 +119,8 @@ describe("plans du storyboard", () => {
     assert.match(sheets, /shot\.lead/);
     assert.match(sheets, /shot\.create/);
     assert.match(sheets, /group\.label === "Plans"/);
-    assert.match(app, /<ShotSheet/);
+    assert.match(readFileSync("src/components/app/atelier-page.tsx", "utf8"), /studio\.shots/);
+    assert.doesNotMatch(app, /<ShotSheet/);
     assert.doesNotMatch(screens + sheets, /class_type|SaveLoRA|panneau de nœuds/);
     const decisions = readFileSync("docs/DECISIONS.md", "utf8");
     const f12 = decisions.slice(0, decisions.indexOf("## F11"));

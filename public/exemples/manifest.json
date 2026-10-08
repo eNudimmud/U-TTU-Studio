@@ -1,0 +1,126 @@
+{
+  "version": 3,
+  "note": "Noms stables. statut maison : le fichier est le rendu définitif. Le remplacer garde l’identifiant.",
+  "items": [
+    {
+      "id": "decor-quai-nuit",
+      "file": "/exemples/decor-quai-nuit.webp",
+      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "Le quai, la nuit",
+      "prompt": "Un quai la nuit, eau noire, lumières lointaines, sans personne.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "decor-rue-pluie",
+      "file": "/exemples/decor-rue-pluie.webp",
+      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "Sous la pluie",
+      "prompt": "Une rue sous la pluie, vitre mouillée, lumières floues, sans personne.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "decor-piece",
+      "file": "/exemples/decor-piece.webp",
+      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "Une pièce",
+      "prompt": "Une pièce vide, lumière douce, parquet, sans personne.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "decor-toit-aube",
+      "file": "/exemples/decor-toit-aube.webp",
+      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "Un toit au lever du jour",
+      "prompt": "Un toit au lever du jour, ciel rose, ville calme, sans personne.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "decor-gare",
+      "file": "/exemples/decor-gare.webp",
+      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "Un hall de gare",
+      "prompt": "Un hall de gare, vide, lumière froide, sans personne.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "decor-couloir",
+      "file": "/exemples/decor-couloir.webp",
+      "kind": "decor",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "Un couloir",
+      "prompt": "Un couloir clair, lignes longues, sans personne.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "cast-mira",
+      "file": "/exemples/cast-mira.webp",
+      "kind": "cast",
+      "aspect": "portrait",
+      "statut": "maison",
+      "title": "Mira",
+      "prompt": "Une femme au manteau sombre, regard calme.",
+      "source": "public/images/uttu-canon-portrait.webp",
+      "license": "Personnage fictif du dépôt",
+      "licenseUrl": ""
+    },
+    {
+      "id": "cast-coursiere",
+      "file": "/exemples/cast-coursiere.webp",
+      "kind": "cast",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "La coursière",
+      "prompt": "Une coursière, planche de vues, personnage fictif.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "cast-vieil-homme",
+      "file": "/exemples/cast-vieil-homme.webp",
+      "kind": "cast",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "Le vieil homme",
+      "prompt": "Un vieil homme, planche de vues, personnage fictif.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "cast-dj",
+      "file": "/exemples/cast-dj.webp",
+      "kind": "cast",
+      "aspect": "16:9",
+      "statut": "maison",
+      "title": "DJ",
+      "prompt": "Un DJ, planche de vues, personnage fictif.",
+      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    }
+  ]
+}

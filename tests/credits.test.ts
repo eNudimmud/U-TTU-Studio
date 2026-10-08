@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { CREDITS_PER_USD, centsToCredits, costClaim, falGate, formatCredits, measuredCost, runGate, type CostRecord } from "../src/lib/credits.ts";
+import { CREDITS_PER_USD, centsToCredits, costClaim, formatCredits, measuredCost, runGate, type CostRecord } from "../src/lib/credits.ts";
+import { falGate } from "../src/lib/fal/gate.ts";
 
 const record = (patch: Partial<CostRecord>): CostRecord => ({ profile: "h3-4pas-5s-vertical", credits: 120, gpuSeconds: 300, at: "2026-10-03T10:00:00.000Z", ...patch });
 

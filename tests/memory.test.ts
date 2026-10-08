@@ -71,8 +71,8 @@ describe("mémoire du projet", () => {
     assert.match(sheets, /<ProjectMemory heading \/>/);
     assert.match(sheets, /export function MemorySheet/);
     assert.match(sheets, /memoryKindOf\(group\.label, file\)/);
-    const app = read("src/components/app/studio-app.tsx");
-    assert.match(app, /<MemorySheet /);
+    assert.match(read("src/components/app/atelier-page.tsx"), /studio\.memory/);
+    assert.doesNotMatch(read("src/components/app/studio-app.tsx"), /<MemorySheet /);
     const guide = read("src/lib/guide.ts");
     assert.match(guide, /"take-memory"/);
     assert.match(guide, /"lora-memory"/);

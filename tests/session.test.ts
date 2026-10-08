@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { readFirebaseUser, refreshIdToken } from "../src/lib/render/session.ts";
-import { cleanApiKey, readInFlight, readRenderLink, saveInFlight, saveRenderLink } from "../src/lib/render/settings.ts";
+import { cleanApiKey, readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink } from "../src/lib/render/settings.ts";
 
 function memory() {
   const store = new Map<string, string>();
@@ -43,7 +43,12 @@ describe("session du compte de rendu", () => {
     assert.equal(cleanApiKey(" short "), null);
     assert.equal(cleanApiKey("comfyui-0123456789abcdef"), "comfyui-0123456789abcdef");
     saveRenderLink(storage, { mode: "key", key: "comfyui-0123456789abcdef" });
-    assert.deepEqual(readRenderLink(storage), { mode: "key", key: "comfyui-0123456789abcdef" });
+    const linked = readRenderLink(storage);
+    assert.deepEqual(linked, { mode: "key", key: "comfyui-0123456789abcdef" });
+    assert.equal(sameRenderLink(linked, { mode: "key", key: "comfyui-0123456789abcdef" }), true);
+    assert.equal(sameRenderLink(linked, { mode: "key", key: "comfyui-ffffffffffffffff" }), false);
+    assert.equal(sameRenderLink({ mode: "session" }, { mode: "session" }), true);
+    assert.equal(sameRenderLink({ mode: "none" }, { mode: "session" }), false);
     saveRenderLink(storage, { mode: "none" });
     assert.deepEqual(readRenderLink(storage), { mode: "none" });
     assert.equal(readInFlight(storage), null);

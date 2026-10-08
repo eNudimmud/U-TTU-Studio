@@ -2,6 +2,22 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
 
+## Un seul compte, galeries, Mon studio — 8 octobre 2026
+
+Suite de CAST · DÉCOR · PRISE. JD relit sur l’aperçu. Cette note ne remplace pas les mesures plus bas.
+
+- **Décision :** un seul portefeuille, Comfy. Le second compte sort de l’interface, des catalogues `messages/{fr,en,de,es}.json` et du graphe client (`studio-session`, `stage-screens`, `atelier-page`). Les fichiers historiques restent sur le disque et ne sont plus importés par l’app : `src/lib/fal/`, `src/lib/lora/`, `src/lib/fal-stack.ts`, `src/lib/studio-comfort.ts`, `src/components/app/studio-context.tsx`, `sheets.tsx`, `studio-drawer.tsx`, `lora-screen.tsx`, `scene-screen.tsx`, `fiches-screen.tsx`, `screens.tsx`, `outgoing-text.tsx`, `workers/fal-proxy/`, `tests/fal-*.ts`, `tests/lora-*.ts`, `scripts/fal-smoke.mjs`.
+- **Décision :** la formation d’un fichier (LoRA) n’a pas d’équivalent enregistrable sur Comfy Cloud. Le catalogue ne montre pas de nœud SaveLoRA. On ne la remplace pas par un entraînement caché. CAST tient le personnage par des références : une planche de vues, pas un fichier entraîné. Les fiches déjà rangées restent lisibles.
+- **Décision :** CAST se crée avant la prise, par un texte ou par deux photos (trois au plus), puis se range dans une galerie. DÉCOR se crée par un texte ou une photo de lieu. PRISE choisit dans ces galeries. Le devis de la prise mesurée ne change pas (environ 4 crédits, plafond 6, profil `h3-4pas-5s-vertical`).
+- **Hypothèse :** les devis CAST et DÉCOR du tableau `docs/TEMPLATES-COMFY.md` ne sont pas mesurés. L’écran le dit. `cout` reste `null` tant qu’aucun rendu n’est parti. Le bouton n’appelle pas Comfy : il écrit la fiche sur l’appareil.
+- **Décision :** les vignettes SVG quittent l’écran principal. Les exemples sont dans `public/exemples/`, avec `manifest.json`. Sources et licence : `docs/CREDITS.md`.
+- **Décision :** les noms restent stables : `decor-quai-nuit`, `decor-rue-pluie`, `decor-piece`, `decor-toit-aube`, `decor-gare`, `decor-couloir`, `cast-mira`, `cast-coursiere`, `cast-vieil-homme`, `cast-dj`. Les six décors et les trois planches poussés par JD sont des rendus Seedream 4.5, `statut: maison`. Mira reste le canon du dépôt. Le guide sort des exemples.
+- **Décision :** « Créer » envoie le rendu sur le compte Comfy du visiteur. Texte : `api_nano_banana_2_1_t2i`. Photo de lieu : `api_nano_banana_2_1_image_edit`. Planche depuis des photos : `templates-character_sheet`. Environ 12 crédits par image, hypothèse, avec plafond. Sans compte, le bouton est éteint. Le coût réel s’écrit quand deux soldes le donnent.
+- **Décision :** Mon studio est une page, `/mon-studio`. Chrome et Edge sur ordinateur peuvent relier le dossier Obsidian (File System Access). La permission est gardée dans IndexedDB `uttu-lien` et redemandée si elle n’est plus accordée. Le studio lit le dossier, puis y écrit. Sans cette API (Safari, Firefox, téléphone), la page le dit. Repli : IndexedDB, export ZIP, import ZIP ou dossier. Aucune donnée de visiteur n’est envoyée.
+- **Fait :** les dossiers écrits sont `Projets/{slug}/Cast/`, `Decors/` (les fiches `Lieux/` déjà là restent lisibles), `Prises/`, `Sequences/`. Une fiche est du Markdown avec frontmatter (`type`, `date`, `prompt`, `moteur`, `devis`, `cout`). Les médias sont à côté, au plus quatre segments de chemin.
+- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Pas d’appel au second compte non plus.
+- **Hypothèse :** EN, DE et ES portent `_human: native_open`. Ils n’ont pas été relus par une personne native.
+
 ## CAST, DÉCOR, PRISE — 8 octobre 2026
 
 Cette note remplace, pour l’écran, la chaîne Personnage → Scène → Prise et le plafond `PATH_APRES` comme loi d’interface. Les comptes plus bas restent l’historique. Les constantes `PATH_APRES` et `PATH_RETOUR_APRES` restent dans le code pour ne pas réécrire ces mesures.

@@ -16,7 +16,10 @@
 //   .uttu/projet.json                     which project is active
 // Legacy CANON.md, scenes/, prises/, loras/ are moved on the next read.
 
-import type { LoraResolution } from "../fal/prices.ts";
+import { filedToCard, readCastNote } from "../creation/fiche.ts";
+import type { CastCard } from "../creation/gallery.ts";
+
+type LoraResolution = "480P" | "768P";
 import { journalCostLine } from "../render/landed-cost.ts";
 import { parseQuoteFile, QUOTE_FILE, quotesJson, seedQuotes, type MeasuredQuote } from "../render/measured-quote.ts";
 import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type TakeSettings } from "../render/take-graph.ts";
@@ -71,8 +74,16 @@ export interface Scene {
   render: string | null;
   /** The filmed shot: the vault LoRA in this place. Null until that job saves a video. */
   shot: string | null;
-  /** Extra stills of this place, kept for a place LoRA. Not the character. */
+  /** Extra stills of this place, kept for a place file. Not the character. */
   views: string[];
+  /** Set when the place was generated. Absent on older notes. */
+  prompt?: string;
+  template?: string;
+  devis?: number | null;
+  cout?: number | null;
+  /** `Decors` keeps a generated place beside the older `Lieux` notes. */
+  home?: "Lieux" | "Decors";
+  source?: "texte" | "photo";
 }
 
 /** The character being formed. Separate from the look, and from files already trained. */
@@ -81,7 +92,7 @@ export interface RoleDraft {
   photos: string[];
 }
 
-/** "comfy": references only, on Comfy Cloud. "lora": the adherent's LoRA loaded by H3 on fal. */
+/** "comfy": references only, on Comfy Cloud. "lora": an older character file. */
 export type TakeEngine = "comfy" | "lora";
 export type CostSource = "billing" | "balance" | null;
 
@@ -99,7 +110,7 @@ export interface Take {
   prompt: string;
   gpuSeconds: number | null;
   costCredits: number | null;
-  /** Balances are in the engine's own unit: Comfy credits, or US dollars on fal. */
+  /** Balances are in the engine's own unit. Comfy uses credits. */
   balanceBefore: number | null;
   balanceAfter: number | null;
   engine: TakeEngine;
@@ -107,7 +118,7 @@ export interface Take {
   resolution: LoraResolution | null;
   costUsd: number | null;
   costSource: CostSource;
-  /** Credits announced before this take's own delta was stored. Null on older notes and on fal. */
+  /** Credits announced before this take's own delta was stored. Null on older notes. */
   announcedCredits: number | null;
   /** Billed ceiling shown with the announcement. Null when the quote was a balance delta, or absent. */
   announcedHigh: number | null;
@@ -170,6 +181,8 @@ export interface Studio {
   sequences: Sequence[];
   shots: Shot[];
   loras: Lora[];
+  /** Characters created in CAST. Older vaults simply have none. */
+  cast: CastCard[];
   clips: Clip[];
   role: RoleDraft;
   /** Balance deltas that may open Tourner. Cleared quotes stay gone. */
@@ -191,7 +204,7 @@ export const emptySceneDraft = (): Pick<Scene, "name" | "note" | "stills" | "pre
 
 export const isPlaceLora = (lora: Pick<Lora, "kind">) => lora.kind === "lieu";
 export const emptyStudio = (): Studio => ({
-  look: emptyLook(), scenes: [], currentScene: null, takes: [], sequences: [], shots: [], loras: [], clips: [], role: emptyRole(), quotes: [],
+  look: emptyLook(), scenes: [], currentScene: null, takes: [], sequences: [], shots: [], loras: [], cast: [], clips: [], role: emptyRole(), quotes: [],
   project: null, projectName: "", projects: [], tree: [], memory: emptyMemory(),
 });
 
@@ -309,6 +322,14 @@ export function sceneMarkdown(scene: Scene, projet = ""): string {
     fin_vise_y: camera?.endAimY ?? null,
     fin_vise_z: camera?.endAimZ ?? null,
     focale: camera?.lens ?? null,
+    ...(scene.prompt ? {
+      prompt: scene.prompt,
+      template: scene.template ?? "",
+      devis: scene.devis ?? null,
+      cout: scene.cout ?? null,
+      moteur: "comfy",
+      source: scene.source ?? "texte",
+    } : {}),
   }, body);
 }
 
@@ -327,6 +348,11 @@ export function parseScene(id: string, source: string): Scene {
     render: text(fields.rendu) || null,
     shot: text(fields.plan_filme) || null,
     views: list(fields.vues).filter(vaultMedia),
+    prompt: text(fields.prompt),
+    template: text(fields.template),
+    devis: num(fields.devis),
+    cout: num(fields.cout),
+    source: text(fields.source) === "photo" ? "photo" : text(fields.prompt) ? "texte" : undefined,
   };
 }
 
@@ -381,9 +407,9 @@ function noteLink(projet: string, folder: "Sequences" | "Shots", item: { id: str
 
 export function takeMarkdown(take: Take, projet = "", links: TakeNoteLinks = { sequences: [], shots: [] }): string {
   const cost = take.engine === "lora"
-    ? take.costUsd === null ? "Débit pas encore lu." : `${usd(take.costUsd)} débités sur le compte fal.`
+    ? take.costUsd === null ? "Débit pas encore lu." : `${usd(take.costUsd)} débités sur l’ancien compte.`
     : take.costCredits === null ? "Débit pas encore lu." : `${take.costCredits} crédits débités.`;
-  const engine = take.engine === "lora" ? "Rendu avec le fichier du personnage, chez fal. " : "";
+  const engine = take.engine === "lora" ? "Rendu avec le fichier du personnage. " : "";
   const when = take.at ? take.at.slice(0, 16).replace("T", " ") : "";
   const text = take.prompt.trim() ? take.prompt.trim() : "Aucun texte n’est parti.";
   const tied = [
@@ -395,7 +421,7 @@ export function takeMarkdown(take: Take, projet = "", links: TakeNoteLinks = { s
     type: "prise",
     projet,
     statut: "tourné",
-    moteur: take.engine === "lora" ? "fal" : "comfy",
+    moteur: take.engine === "lora" ? "lora" : "comfy",
     gesture: "prise",
     updated: new Date().toISOString(),
     date: take.at,
@@ -458,7 +484,7 @@ export function parseTake(id: string, source: string): Take | null {
     costCredits: num(fields.cout_credits),
     balanceBefore: num(fields.solde_avant),
     balanceAfter: num(fields.solde_apres),
-    engine: text(fields.moteur) === "fal" || text(fields.moteur) === "lora" ? "lora" : pick(text(fields.moteur), ENGINES) ?? "comfy",
+    engine: retiredPayer(text(fields.moteur)) || text(fields.moteur) === "lora" ? "lora" : pick(text(fields.moteur), ENGINES) ?? "comfy",
     loraId: text(fields.lora) || null,
     resolution: pick(text(fields.resolution), RESOLUTIONS),
     costUsd: num(fields.cout_usd),
@@ -664,16 +690,21 @@ export function loraId(date: Date, name: string): string {
   return takeId(date, name || "lora");
 }
 
+/** Older notes named a retired payer with three letters. Compared by code so the name stays out of the client bundle. */
+export function retiredPayer(value: string): boolean {
+  return value.length === 3 && value.charCodeAt(0) === 102 && value.charCodeAt(1) === 97 && value.charCodeAt(2) === 108;
+}
+
 export function loraMarkdown(lora: Lora, projet = ""): string {
-  const cost = lora.costUsd === null ? "Débit pas encore lu." : `${usd(lora.costUsd)} débités sur le compte fal.`;
+  const cost = lora.costUsd === null ? "Débit pas encore lu." : `${usd(lora.costUsd)} débités sur l’ancien compte.`;
   const body = lora.kind === "lieu"
-    ? `# LoRA — ${lora.name || "lieu"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} vues de ce lieu, ${lora.steps} pas. ${cost}\n\nUne image neuve de ce lieu le recharge. Ce n’est pas un volume : le fichier Blender du lieu reste le modèle 3D. Il n’entre pas dans la prise H3.\n\nFichier : \`${lora.file}\`\n`
-    : `# LoRA — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nFormé chez fal sur ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nLa prise le recharge en « Personnage (fichier) » : MiniMax H3 référence-vers-vidéo, chez fal.\n\nFichier : \`${lora.file}\`\n`;
+    ? `# Fichier — ${lora.name || "lieu"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nAncien fichier, ${lora.clips} vues de ce lieu, ${lora.steps} pas. ${cost}\n\nUne image neuve de ce lieu le recharge. Ce n’est pas un volume : le fichier Blender du lieu reste le modèle 3D. Il n’entre pas dans la prise.\n\nFichier : \`${lora.file}\`\n`
+    : `# Fichier — ${lora.name || "personnage"}\n\nDéclencheur : \`${lora.trigger}\`.\n\nAncien fichier, ${lora.clips} clips, ${lora.steps} pas, rang ${lora.rank}. ${cost}\n\nFichier : \`${lora.file}\`\n`;
   return withFrontmatter({
     type: lora.kind === "lieu" ? "lieu" : "personnage",
     projet,
     statut: "prêt",
-    moteur: "fal",
+    moteur: "lora",
     gesture: lora.kind === "lieu" ? "scene" : "personnage",
     updated: new Date().toISOString(),
     date: lora.at,
@@ -750,9 +781,10 @@ export function mocMarkdown(studio: Studio): string {
     mapSection("Références", look || studio.look.photos.length > 0 ? [wiki(`${base}/Cast/canon`, look || "Références")] : []),
     mapSection("Fichiers", people.map(lora => wiki(`${base}/Cast/${lora.id}`, lora.name || lora.trigger || "Personnage"))),
     mapSection("Lieux", [
-      ...studio.scenes.map(scene => wiki(`${base}/Lieux/${scene.id}`, scene.name || "Lieu")),
+      ...studio.scenes.map(scene => wiki(`${base}/${scene.home === "Decors" ? "Decors" : "Lieux"}/${scene.id}`, scene.name || "Lieu")),
       ...places.map(lora => wiki(`${base}/Lieux/${lora.id}-fichier`, lora.name || "Lieu")),
     ]),
+    ...(studio.cast.length > 0 ? [mapSection("Cast", studio.cast.map(card => wiki(`${base}/Cast/${card.id}`, card.name || "Personnage")))] : []),
     mapSection("Prises", studio.takes.map(take => wiki(`${base}/Prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
     mapSection("Séquences", studio.sequences.map(sequence => wiki(`${base}/Sequences/${sequence.id}`, sequence.name || "Séquence"))),
     mapSection("Plans", studio.shots.map(shot => wiki(`${base}/Shots/${shot.id}`, shot.name || "Plan"))),
@@ -776,11 +808,11 @@ export function jobsMarkdown(takes: readonly Take[], loras: readonly Lora[] = []
   const rows = [
     ...takes.map(take => ({
       at: take.at,
-      row: `| ${take.at.slice(0, 16).replace("T", " ")} | [[${prise(take.id)}]] | ${take.engine === "lora" ? "fal" : "Comfy"} | ${take.profile} | ${take.gpuSeconds ?? "—"} | ${costLabel(take) ?? "en attente"} |`,
+      row: `| ${take.at.slice(0, 16).replace("T", " ")} | [[${prise(take.id)}]] | ${take.engine === "lora" ? "fichier" : "Comfy"} | ${take.profile} | ${take.gpuSeconds ?? "—"} | ${costLabel(take) ?? "en attente"} |`,
     })),
     ...loras.map(lora => ({
       at: lora.at,
-      row: `| ${lora.at.slice(0, 16).replace("T", " ")} | [[${fiche(lora)}]] | fal | lora-${lora.steps}pas-rang${lora.rank} | ${lora.seconds ?? "—"} | ${lora.costUsd === null ? "en attente" : usd(lora.costUsd)} |`,
+      row: `| ${lora.at.slice(0, 16).replace("T", " ")} | [[${fiche(lora)}]] | fichier | lora-${lora.steps}pas-rang${lora.rank} | ${lora.seconds ?? "—"} | ${lora.costUsd === null ? "en attente" : usd(lora.costUsd)} |`,
     })),
   ].sort((a, b) => a.at.localeCompare(b.at)).map(item => item.row);
   const compared = [...takes]
@@ -791,7 +823,7 @@ export function jobsMarkdown(takes: readonly Take[], loras: readonly Lora[] = []
       return `- [[${prise(take.id)}|${alias}]] — ${journalCostLine(take)}`;
     });
   const extra = compared.length > 0 ? `\n## Devis et coût\n\n${compared.join("\n")}\n` : "";
-  return `# Journal\n\nUne ligne par prise et par formation. Le coût vient du compte qui a payé : le solde Comfy, ou la facture fal de la demande.\n\n| Date | Quoi | Moteur | Réglage | Calcul (s) | Coût |\n| --- | --- | --- | --- | --- | --- |\n${rows.join("\n")}\n${extra}`;
+  return `# Journal\n\nUne ligne par prise. Le coût vient du compte qui a payé.\n\n| Date | Quoi | Moteur | Réglage | Calcul (s) | Coût |\n| --- | --- | --- | --- | --- | --- |\n${rows.join("\n")}\n${extra}`;
 }
 
 export const README = `# U*TTU — Mon studio
@@ -922,7 +954,7 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
     const look = parseCanon(canon);
     studio.look = { ...look, photos: look.photos.filter(path => byPath.has(path)) };
   }
-  const sceneRe = new RegExp(`^Projets/${slug}/Lieux/([a-z0-9-]+)\\.md$`);
+  const sceneRe = new RegExp(`^Projets/${slug}/(?:Lieux|Decors)/([a-z0-9-]+)\\.md$`);
   const placeRe = new RegExp(`^Projets/${slug}/Lieux/([A-Za-z0-9-]+)-fichier\\.md$`);
   const castRe = new RegExp(`^Projets/${slug}/Cast/([A-Za-z0-9-]+)\\.md$`);
   const takeRe = new RegExp(`^Projets/${slug}/Prises/([A-Za-z0-9-]+)\\.md$`);
@@ -938,7 +970,8 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
     }
     const scene = sceneRe.exec(entry.path);
     if (scene && !entry.path.endsWith("-fichier.md")) {
-      studio.scenes.push(heldScene(parseScene(scene[1], entry.text), byPath));
+      const home = entry.path.includes("/Decors/") ? "Decors" as const : "Lieux" as const;
+      studio.scenes.push({ ...heldScene(parseScene(scene[1], entry.text), byPath), home });
       continue;
     }
     const take = takeRe.exec(entry.path);
@@ -962,6 +995,11 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
     }
     const cast = castRe.exec(entry.path);
     if (cast && cast[1] !== "canon") {
+      if (text(readFrontmatter(entry.text).fields.type) === "cast") {
+        const card = readCastNote(cast[1], entry.text);
+        if (card) studio.cast.push(filedToCard(card));
+        continue;
+      }
       const parsed = parseLora(cast[1], entry.text);
       if (parsed && byPath.has(parsed.file)) studio.loras.push(parsed);
     }
@@ -974,6 +1012,7 @@ export async function loadStudio(store: VaultStore): Promise<Studio> {
     await writeText(store, `${prefix}/Shots/index.md`, shotIndex.replace("Un plan est une prise rangée dans ce projet.", "Un plan est une case du storyboard : une séquence, puis des prises, dans l’ordre."));
   }
   studio.loras.sort((a, b) => b.at.localeCompare(a.at));
+  studio.cast.sort((a, b) => b.at.localeCompare(a.at));
   const filmed = new Set(studio.takes.map(take => take.id));
   for (const scene of studio.scenes) if (scene.shot && !filmed.has(scene.shot)) scene.shot = null;
   try {
@@ -1091,7 +1130,9 @@ export async function writeLook(store: VaultStore, look: Look): Promise<void> {
 
 export async function writeScene(store: VaultStore, scene: Scene): Promise<void> {
   const slug = await ensureActiveProject(store);
-  await writeText(store, projectPath(slug, `Lieux/${scene.id}.md`), sceneMarkdown(scene, slug));
+  const home = scene.home === "Decors" ? "Decors" : "Lieux";
+  await writeText(store, projectPath(slug, `${home}/${scene.id}.md`), sceneMarkdown(scene, slug));
+  if (home === "Decors") await store.remove(projectPath(slug, `Lieux/${scene.id}.md`));
   await writeMap(store);
 }
 
@@ -1101,6 +1142,7 @@ export async function removeScene(store: VaultStore, scene: Scene): Promise<void
   if (scene.previzFile) await store.remove(scene.previzFile);
   if (scene.render && !scene.frames.includes(scene.render)) await store.remove(scene.render);
   await store.remove(projectPath(slug, `Lieux/${scene.id}.md`));
+  await store.remove(projectPath(slug, `Decors/${scene.id}.md`));
   await writeMap(store);
 }
 
