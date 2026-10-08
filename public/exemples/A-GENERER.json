@@ -1,5 +1,5 @@
 {
-  "note": "Cinq « après » rendus le 2026-10-08 avec Nano Banana 2.1 via Comfy Cloud (mesure billing). cast-planche pas lancé : le plafond 130 était déjà trop juste après 90,48 crédits mesurés (dont 14,85 d’un job annulé facturé + 13,10 d’un essai démo sans override). Planche templates-character_sheet ≈ 68 (2×GeminiImage2 @2K, hypothèse).",
+  "note": "Six « après » rendus le 2026-10-08 via Comfy Cloud (mesure billing). Cinq Nano Banana 2.1 + cast-planche templates-character_sheet (70,74). Session planche : 90,48 + 70,74 = 161,22 (plafond 160 légèrement dépassé de 1,22 — devis 68, mesure 70,74).",
   "licenceEntree": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
   "items": [
     {
@@ -37,10 +37,13 @@
       "resolution": "1K",
       "coutEstime": 68,
       "plafond": 100,
-      "nature": "hypothese",
+      "nature": "mesure",
       "sortie": "/exemples/apres-cast-planche.webp",
-      "sortiePresente": false,
-      "note": "Non lancé : reste de plafond insuffisant (~39 < ~68)."
+      "sortiePresente": true,
+      "note": "Mesure billing : 35.41 + 35.33 = 70.74 (2× GeminiImage2 @2K). Portrait ref be23612a…png (cast-coursiere crop).",
+      "coutMesure": 70.74,
+      "prompt_id": "6387ad5a-c3e6-4bfd-aff3-b844acdc34c4",
+      "licence": "Rendu maison U*TTU, généré avec templates-character_sheet (GeminiImage2 2K) via Comfy Cloud"
     },
     {
       "geste": "cast-texte",
