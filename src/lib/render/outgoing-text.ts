@@ -15,7 +15,7 @@ export interface PriseOutgoingInput {
   place: { name: string; note: string; stills?: readonly string[]; render?: string | null } | null;
   line: string;
   engine: "comfy" | "lora";
-  /** The character file's trigger. Only the fal take uses it. */
+  /** The character file's trigger. Only an older file take uses it. */
   subject?: string;
 }
 

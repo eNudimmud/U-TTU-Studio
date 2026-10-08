@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "note": "Emplacements d’exemples. JD peut remplacer chaque fichier par un rendu maison, en gardant le même nom.",
+  "items": [
+    {
+      "id": "quai-nuit",
+      "file": "/exemples/quai-nuit.jpg",
+      "kind": "decor",
+      "title": "Le quai, la nuit",
+      "prompt": "Un quai la nuit, eau noire, lumières lointaines, sans personne.",
+      "source": "https://unsplash.com/photos/1471922694854-ff1b63b20054",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "id": "pluie",
+      "file": "/exemples/pluie.jpg",
+      "kind": "decor",
+      "title": "Sous la pluie",
+      "prompt": "Une rue sous la pluie, vitre mouillée, lumières floues, sans personne.",
+      "source": "https://unsplash.com/photos/1428592953211-077101b2021b",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "id": "toit-lever",
+      "file": "/exemples/toit-lever.jpg",
+      "kind": "decor",
+      "title": "Un toit au lever du jour",
+      "prompt": "Un toit au lever du jour, ciel rose, ville calme, sans personne.",
+      "source": "https://unsplash.com/photos/1449844908441-8829872d2607",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "id": "piece",
+      "file": "/exemples/piece.jpg",
+      "kind": "decor",
+      "title": "Une pièce",
+      "prompt": "Une pièce vide, lumière douce, parquet, sans personne.",
+      "source": "https://unsplash.com/photos/1502672260266-1c1ef2d93688",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "id": "couloir",
+      "file": "/exemples/couloir.jpg",
+      "kind": "decor",
+      "title": "Un couloir",
+      "prompt": "Un couloir clair, lignes longues, sans personne.",
+      "source": "https://unsplash.com/photos/1497366754035-f200968a6e72",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "id": "port",
+      "file": "/exemples/port.jpg",
+      "kind": "decor",
+      "title": "Un port",
+      "prompt": "Un port calme, bateaux, eau plate, sans personne.",
+      "source": "https://unsplash.com/photos/1468413253725-0d5181091126",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

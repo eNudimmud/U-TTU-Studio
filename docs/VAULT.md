@@ -40,9 +40,11 @@ Un ZIP ancien (`CANON.md`, `scenes/`, `prises/`, `loras/`) est rangé dans un pr
 - **Sur l’appareil, dans le navigateur.** IndexedDB, base `uttu-coffre`, un enregistrement par fichier (`path`, texte ou blob). Le studio demande le stockage persistant (`navigator.storage.persist()`). La feuille Mon studio dit ce qui est occupé, et si le navigateur peut le vider.
 - **Exporter mon studio.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, `MOC.md` comprise, à décompresser et ouvrir dans Obsidian. Sequences/, la liste `Sequences/<id>-montage.md`, Shots/, les gabarits `modele-*.md` et `.uttu/devis.json` sont dans ce ZIP.
 - **Importer un studio.** Un ZIP du même schéma s’ajoute à mon studio sur cet appareil. Un fichier déjà là n’est pas remplacé. Une fiche illisible, ou qui pointe vers une vidéo ou un fichier absent, ne remplace pas la fiche valide. Le journal et la carte du projet en cours sont réécrits à partir de ce que mon studio peut ouvrir. Le journal et la carte des autres projets reviennent tels qu’exportés.
-- **Relier mon dossier Obsidian.** Sur ordinateur, Chrome ou Edge (File System Access) : l’app copie mon studio dans le dossier choisi, puis y écrit chaque changement tant que la page reste ouverte. Le lien ne survit pas à la fermeture : on le refait d’un geste.
+- **Relier mon coffre Obsidian.** Page `/mon-studio`. Sur ordinateur, Chrome ou Edge (File System Access) : un geste choisit le dossier. Le studio lit ce dossier, puis y écrit. La permission est mémorisée (IndexedDB `uttu-lien`) et redemandée si le navigateur ne l’accorde plus. Safari, Firefox et le téléphone ne donnent pas ce dossier : la page le dit. Le repli est IndexedDB, plus « Exporter vers Obsidian » (ZIP) et « Importer depuis Obsidian » (ZIP ou dossier).
 
-La clé et la session de rendu, la clé fal, et la clé Blender (`u-ttu-blender`) ne sont pas des fichiers de mon studio. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
+Depuis le 8 octobre 2026, un lieu créé dans DÉCOR s’écrit dans `Projets/{slug}/Decors/`. Les fiches déjà dans `Lieux/` restent lues. Les médias restent à côté de la fiche, sur un chemin d’au plus quatre segments (`Projets/{slug}/Cast/{id}-p1.jpg`). Un fichier plus profond est ignoré à l’import.
+
+La clé et la session de rendu, et la clé Blender (`u-ttu-blender`), ne sont pas des fichiers de mon studio. Elles restent dans le stockage du navigateur et n’entrent jamais dans l’export.
 
 ## Pourquoi mon studio
 
@@ -60,7 +62,7 @@ L’ancien pilier était un ZIP de départ, téléchargé une fois, que la perso
 
 - **Le navigateur peut vider ce stockage** si l’espace manque et que la persistance n’est pas accordée. La feuille Mon studio le dit. Exporter, ou relier un dossier, garde une copie.
 - **Un studio par navigateur.** Deux appareils ne partagent pas le même dossier. Du téléphone à l’ordinateur, et retour : exporter le ZIP sur l’appareil de départ, emporter ce fichier soi-même, l’importer sur l’autre. Aucun serveur ne le copie. Obsidian ouvre le dossier si on veut le lire à côté.
-- **Le dossier relié est à sens unique.** L’app écrit dans le dossier. Elle ne relit pas un changement fait dans Obsidian. L’import, lui, lit un ZIP.
+- **Le dossier relié se lit au moment où la permission est accordée, puis le studio réécrit ses fichiers.** Un changement fait dans Obsidian pendant que la page est fermée revient au prochain lien, si le fichier est dans le dossier. L’import ZIP ou dossier reste le chemin sans File System Access. Un fichier plus profond que quatre segments n’entre pas.
 
 ## Scorecard — brief futur
 

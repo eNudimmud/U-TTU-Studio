@@ -65,7 +65,8 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.doesNotMatch(drawer, /className="u-primary"/);
     assert.match(drawer, /LanguageSwitcher/);
     assert.match(read("src/components/app/app.css"), /\.u-top \.u-lang \{ display: none; \}/);
-    assert.match(read("src/components/app/stage-screens.tsx"), /images\/decors\/\$\{preset\.id\}\.svg/);
+    assert.match(read("src/components/app/stage-screens.tsx"), /EXEMPLES/);
+    assert.doesNotMatch(read("src/components/app/stage-screens.tsx"), /images\/decors\/\$\{preset\.id\}\.svg/);
     assert.match(read("src/components/app/stage-screens.tsx"), /data-prise-gold/);
     assert.match(read("src/components/app/stage-screens.tsx"), /stage\.generatePriced/);
   });

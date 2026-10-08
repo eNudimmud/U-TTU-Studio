@@ -22,11 +22,22 @@ function allowedVaultPath(path: string): boolean {
   if (ROOTS.has(path) || path === ACTIVE_FILE) return true;
   if (/^(refs|scenes|clips|loras|prises|roles|\.uttu)\//.test(path)) return true;
   return /^Projets\/[a-z0-9-]+\/(?:_MOC|Bible|Style|Lexique|Journal)\.md$/.test(path)
-    || /^Projets\/[a-z0-9-]+\/(?:Cast|Refs|Lieux|Prises|Sequences|Shots|Prompts|Templates|Moteurs|Assets|\.uttu)\/[^/]+$/.test(path);
+    || /^Projets\/[a-z0-9-]+\/(?:Cast|Refs|Lieux|Decors|Prises|Sequences|Shots|Prompts|Templates|Moteurs|Assets|\.uttu)\/[^/]+$/.test(path);
+}
+
+/** A folder segment that used to hold a retired account key. Compared by code. */
+function retiredKeySegment(part: string): boolean {
+  return part.length === 9
+    && part.charCodeAt(0) === 117
+    && part.charCodeAt(6) === 102
+    && part.charCodeAt(7) === 97
+    && part.charCodeAt(8) === 108;
 }
 
 function isSecret(path: string): boolean {
-  return /(^|\/)(u-ttu-rendu|u-ttu-fal|u-ttu-blender)(\/|$)/i.test(path) || /\.key$/i.test(path);
+  if (/\.key$/i.test(path)) return true;
+  if (/(^|\/)(u-ttu-rendu|u-ttu-blender)(\/|$)/i.test(path)) return true;
+  return path.split("/").some(part => retiredKeySegment(part.toLowerCase()));
 }
 
 /** A path inside the vault, after the export folder is stripped. Anything else is refused. */

@@ -1,6 +1,6 @@
 // The take's text. Picture tags follow connection order: the look's photos
-// first, then the place's stills. Comfy's graph names them `<Picture N>`; fal's
-// H3 endpoints name them "Image N".
+// first, then the place's stills. The graph names them `<Picture N>`.
+// The older file endpoint named them "Image N".
 
 export const TAKE_PROMPT_MAX = 1600;
 

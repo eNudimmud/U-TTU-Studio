@@ -5,19 +5,12 @@ const EXACT: Record<string, string> = {
   "Solde vide sur ton compte de rendu.": "runtime.renderEmpty",
   "Devis absent. Le total de cette prise n’est pas un nombre. Rien ne part.": "runtime.uncalibrated",
   "Pas encore mesuré. Cette durée, cette qualité ou ce format n’a pas de prise réelle. Rien ne part.": "runtime.notMeasured",
-  "Prix fal illisible. Rien ne part sans un prix.": "runtime.falPriceUnreadable",
-  "Solde fal illisible. Rien ne part sans lire le compte qui paiera.": "runtime.falBalanceUnreadable",
-  "Solde fal vide. Recharge-le sur fal.ai, puis relis-le ici.": "runtime.falEmpty",
-  "Le prix se lit sur le compte fal, avant le geste. Rien n’est débité ici.": "runtime.falPriceBefore",
-  "Le prix se lit sur le compte fal, avant le geste.": "runtime.falPriceBeforeShort",
-  "Il faut relier le compte fal. Le prix s’affiche alors, avant tout débit.": "runtime.linkFalFirst",
   "Le prix du personnage n’est pas lu. Rien ne part.": "runtime.characterPriceUnread",
   "Les deux prix ne sont pas lus. Rien ne part.": "runtime.bothPricesUnread",
   "Le devis n’est pas encore lu. Rien ne part.": "runtime.quoteUnread",
   "Le devis n’est pas lisible. Rien ne part.": "runtime.quoteUnreadable",
   "Compte de rendu relié.": "runtime.renderLinked",
   "Compte de rendu relié par clé.": "runtime.renderLinkedKey",
-  "Compte fal relié.": "runtime.falLinked",
   "Clé Blender tenue sur cet appareil.": "runtime.blenderHeld",
   "Clé Blender retirée de cet appareil.": "runtime.blenderRemoved",
   "Mon studio ne s’ouvre pas sur cet appareil. Un navigateur privé peut le bloquer.": "runtime.studioBlocked",
@@ -38,7 +31,7 @@ const EXACT: Record<string, string> = {
   "Le personnage n’est pas dans le trajet.": "runtime.characterNotOnPath",
   "Une image du trajet manque dans mon studio.": "runtime.pathImageMissing",
   "Le lieu est rendu. Le suivi du personnage reprend. Rien n’est renvoyé.": "runtime.placeRenderedResume",
-  "Le lieu est rendu, vide. Le prochain geste filme le personnage, au prix fal seul.": "runtime.placeEmptyNext",
+  "Le lieu est rendu, vide. Le prochain geste filme le personnage.": "runtime.placeEmptyNext",
   "Suivi arrêté ici. Si le rendu est déjà parti, il continue sur ton compte.": "runtime.followStopped",
   "Le filmage n’a pas abouti.": "runtime.filmFailed",
   "Trente clips au plus.": "runtime.clipsMaxNotice",
@@ -106,10 +99,6 @@ function phraseInner(t: PhraseFn, line: string, depth: number): string {
     const match = line.match(pattern.re);
     if (match) return pattern.apply(t, match);
   }
-  const suffix = ", lu sur le compte fal.";
-  if (line.endsWith(suffix)) {
-    return t("runtime.readOnFal", { line: phraseInner(t, line.slice(0, -suffix.length), depth + 1) });
-  }
   return line;
 }
 
@@ -151,28 +140,12 @@ const PATTERNS: Pattern[] = [
     apply: (t, match) => t("runtime.balanceLow", { have: match[1], need: match[2], basis: phraseInner(t, match[3], 1) }),
   },
   {
-    re: /^(Cette formation|Cette prise) : (.+) au prix fal du jour\. Solde non lu\. Le débit part sur ton compte fal\.$/,
-    apply: (t, match) => t("runtime.falOptional", { what: match[1] === "Cette formation" ? t("runtime.thisTraining") : t("runtime.thisTake"), amount: match[2] }),
-  },
-  {
-    re: /^(Cette formation|Cette prise) : (.+) au prix fal du jour, débités sur ton compte fal\.$/,
-    apply: (t, match) => t("runtime.falOk", { what: match[1] === "Cette formation" ? t("runtime.thisTraining") : t("runtime.thisTake"), amount: match[2] }),
-  },
-  {
-    re: /^Solde trop bas : (.+) pour (cette formation|cette prise) à (.+)\.$/,
-    apply: (t, match) => t("runtime.falLow", { have: match[1], what: match[2] === "cette formation" ? t("runtime.thisTrainingLower") : t("runtime.thisTakeLower"), need: match[3] }),
-  },
-  {
     re: /^Exemple · (.+) crédit par seconde de calcul, sur le compte de rendu\. Rien n’est débité ici\.$/,
     apply: (t, match) => t("runtime.exampleRender", { rate: match[1] }),
   },
   {
     re: /^Exemple · (.+) pour (\d+) pas, tarif publié le (.+)\. Rien n’est débité ici\.$/,
     apply: (t, match) => t("runtime.exampleTrain", { amount: match[1], steps: match[2], date: match[3] }),
-  },
-  {
-    re: /^Exemple, tarif publié le (.+) : (.+) pour (\d+) s en ([^.]+)\. Le prix de ton compte le remplace après Relier\. Rien n’est débité ici\.$/,
-    apply: (t, match) => t("runtime.exampleFalTake", { date: match[1], amount: match[2], seconds: match[3], resolution: match[4] }),
   },
   {
     re: /^Exemple pour (\d+) s : (.+) crédit par seconde de calcul, publié le (.+)\. 1 \$ = (\d+) crédits\. Le chiffre de cette prise se lit après Relier\. Rien n’est débité ici\.$/,
@@ -187,7 +160,7 @@ const PATTERNS: Pattern[] = [
     apply: (t, match) => t("runtime.exampleAmount", { amount: match[1] }),
   },
   {
-    re: /^Formation : (.+) pour (\d+) pas, lu sur le compte fal\.$/,
+    re: /^Formation : (.+) pour (\d+) pas\.$/,
     apply: (t, match) => t("runtime.trainQuote", { amount: match[1], steps: match[2] }),
   },
   {

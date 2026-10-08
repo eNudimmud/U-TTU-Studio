@@ -6,6 +6,9 @@ import type { VaultEntry, VaultStore } from "./store.ts";
 
 type DirectoryHandle = {
   name: string;
+  queryPermission?(options: { mode: "readwrite" }): Promise<"granted" | "denied" | "prompt">;
+  requestPermission?(options: { mode: "readwrite" }): Promise<"granted" | "denied" | "prompt">;
+  entries?(): AsyncIterable<[string, DirectoryHandle & { kind?: "file" | "directory"; getFile?: () => Promise<File> }]>;
   getDirectoryHandle(name: string, options?: { create?: boolean }): Promise<DirectoryHandle>;
   getFileHandle(name: string, options?: { create?: boolean }): Promise<{ createWritable(): Promise<{ write(data: Blob | string): Promise<void>; close(): Promise<void> }> }>;
   removeEntry(name: string): Promise<void>;

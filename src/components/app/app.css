@@ -61,6 +61,7 @@
   .u-mark span { font-size: 18px; }
   .u-top-tools { flex: 1 1 auto; justify-content: flex-end; gap: 4px; min-width: 0; }
   .u-top .u-lang { display: none; }
+  .u-top .u-lang.is-live { display: inline-flex; }
   .u-tool-label, .u-tool-full { display: none; }
   .u-tool-short { display: inline; letter-spacing: .04em; }
   .u-coffre, .u-credit { min-width: 44px; justify-content: center; padding-inline: 10px; }
@@ -431,4 +432,29 @@
 
 @media (prefers-reduced-motion: reduce) {
   .u-thread span, .u-pulse, .u-guide, .u-sheet { animation: none; }
+}
+
+.u-modes, .u-suggest, .u-card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.u-modes button, .u-suggest button, .u-card-actions button, .u-gallery button, .u-filter button { min-height: 44px; }
+.u-modes button, .u-suggest button, .u-filter button {
+  min-height: 44px; padding: 8px 14px; border: 1px solid var(--u-line); border-radius: 999px;
+  background: transparent; color: var(--u-gold-soft); font: 600 14px/1.2 var(--font-body);
+}
+.u-modes button[aria-pressed="true"], .u-filter button[aria-pressed="true"] { border-color: var(--u-gold); color: var(--u-gold); }
+.u-gallery { display: grid; gap: 12px; }
+.u-card-lg { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--u-line); border-radius: 16px; background: #121110; }
+.u-card-lg img, .u-card-lg .u-card-blank { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; background: #0b0a09; }
+.u-card-blank { display: grid; place-items: center; color: var(--u-gold); font: 700 28px/1 var(--font-heading); }
+.u-examples { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(140px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.u-examples button { min-height: 44px; padding: 0; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: inherit; text-align: left; }
+.u-examples img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px 12px 0 0; }
+.u-examples span { display: block; min-height: 44px; padding: 8px 10px; }
+.u-atelier-grid { display: grid; gap: 16px; }
+.u-search { width: 100%; }
+.u-lien, .u-detail { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--u-line); border-radius: 16px; background: #121110; }
+.u-lien .u-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.u-lien .u-row .u-secondary { width: auto; flex: 1 1 180px; }
+@media (min-width: 800px) {
+  .u-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .u-atelier-grid { grid-template-columns: 220px minmax(0, 1fr); align-items: start; }
 }

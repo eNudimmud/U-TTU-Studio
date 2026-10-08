@@ -1,58 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { LOOK_PHOTOS_MAX, ROLE_PHOTOS_MAX, isPlaceLora, type Scene } from "@/lib/coffre/model";
-import { offeredName, readLookNameCleared, writeLookNameCleared, nextNumberedName } from "@/lib/ergonomie";
+import { useState } from "react";
 import { formatCredits } from "@/lib/credits";
-import { formatUsd } from "@/lib/fal/prices";
-import { DECOR_PRESETS, decorPresetOf, decorStorageId, presetPlan, type DecorPresetId } from "@/lib/decor-catalog";
-import { CAST_PHOTO_MAX, castReady, quotedCredits, priseNext } from "@/lib/stage";
+import { EXEMPLES } from "@/lib/creation/exemples";
+import { quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
+import { quotedCredits, priseNext } from "@/lib/stage";
 import { useI18n } from "@/components/i18n/provider";
-import { Why } from "./guide-bubble";
-import { Arrow, Web } from "./glyphs";
-import { PublishActions } from "./publish";
-import { SequencePlayer } from "./sheets";
-import { PictureSlot } from "./slots";
-import { useStudio } from "./studio-context";
+import { Arrow } from "./glyphs";
 import { TakeCostLines } from "./take-cost";
+import { PictureSlot } from "./slots";
+import { useStudio } from "./studio-session";
 
-function useOfferedLookName() {
-  const { studio } = useStudio();
+function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
+  if (!on || !text) return null;
+  return <p className="u-why" id={id}>{text}</p>;
+}
+
+function CardFace({ src, name }: { src: string; name: string }) {
+  if (!src) return <div className="u-card-blank" aria-hidden="true">{name.slice(0, 1)}</div>;
+  return <img src={src} alt="" />;
+}
+
+function CreateConfirm({ title, amount, onCancel, onYes }: { title: string; amount: number; onCancel(): void; onYes(): void }) {
   const { t } = useI18n();
-  const [cleared, setCleared] = useState(false);
-  useEffect(() => {
-    setCleared(readLookNameCleared(window.localStorage, studio.project));
-  }, [studio.look.name, studio.project]);
-  const offered = t("look.defaultName");
-  const name = offeredName(studio.look.name, offered, cleared);
-  return { name, cleared, setCleared, offered };
+  const open = spendAllowed(amount, true);
+  return <div className="u-card" role="dialog" aria-labelledby="u-create-title">
+    <h2 id="u-create-title">{title}</h2>
+    <p>{t("create.confirmBody")}</p>
+    <p className="u-cost is-ok" id="u-create-cost">{t("create.estimate", { amount })}</p>
+    <button type="button" className="u-primary" disabled={!open} aria-describedby="u-create-cost" onClick={onYes}>{t("verb.lancer")}</button>
+    <button type="button" className="u-link" onClick={onCancel}>{t("verb.cancel")}</button>
+  </div>;
 }
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
-  const studio = useStudio();
   const { t } = useI18n();
-  const { studio: vault, media, saveLook, addLookPhotos, removeLookPhoto, saveRole, addRolePhotos, removeRolePhoto } = studio;
-  const { name, setCleared } = useOfferedLookName();
-  const [extra, setExtra] = useState(false);
-  const people = vault.loras.filter(lora => !isPlaceLora(lora));
-  const ready = castReady({ name, photos: vault.look.photos });
-  const showExtra = extra || vault.role.name.trim().length > 0 || vault.role.photos.length > 0;
-  const roleSlots = Math.max(LOOK_PHOTOS_MAX, Math.min(vault.role.photos.length, ROLE_PHOTOS_MAX));
+  const { cast, media, pickedCast, pickCast, createCast, renameCast, duplicateCast, deleteCast, copyCastTo, studio } = useStudio();
+  const [mode, setMode] = useState<"texte" | "photos">("texte");
+  const [name, setName] = useState("");
+  const [prompt, setPrompt] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [ask, setAsk] = useState(false);
+  const [armed, setArmed] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const quote = quoteForCast(mode);
+  const ready = name.trim().length > 0 && (mode === "texte" ? prompt.trim().length > 0 : files.length >= 2 && files.length <= 3);
 
-  function onName(value: string) {
-    const next = value.slice(0, 40);
-    const empty = !next.trim();
-    writeLookNameCleared(window.localStorage, vault.project, empty);
-    setCleared(empty);
-    void saveLook({ name: next });
+  function addFiles(list: File[]) {
+    const next = [...files, ...list].slice(0, 3);
+    setFiles(next);
+    setPreviews(next.map(file => URL.createObjectURL(file)));
   }
 
-  async function pass() {
-    const next = name.trim();
-    if (vault.project && next) writeLookNameCleared(window.localStorage, vault.project, false);
-    if (next && vault.look.name !== next) await saveLook({ name: next });
-    setCleared(false);
+  async function confirm() {
+    const ok = await createCast({ name, prompt, source: mode, files, confirmed: true });
+    if (!ok) return;
+    setAsk(false);
+    setName("");
+    setPrompt("");
+    setFiles([]);
+    setPreviews([]);
     onDecor();
   }
 
@@ -60,185 +69,165 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     <header className="u-head">
       <p className="u-label">01</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.character")}</h1>
-      <p className="u-lead">{t("stage.castLead")}</p>
+      <p className="u-lead">{t("create.castLead")}</p>
     </header>
-    <div className="u-board">
-      {vault.look.photos.length === 0 && <figure className="u-example">
-        <img src={assetPath("/images/uttu-canon-portrait.webp")} alt={t("stage.exampleCastAlt")} />
-        <figcaption>{t("stage.exampleCast")}</figcaption>
-      </figure>}
-      <article className="u-person">
-        <div className="u-photos" aria-label={t("stage.photoRule")}>
-          {Array.from({ length: LOOK_PHOTOS_MAX }, (_, index) => {
-            const path = vault.look.photos[index];
-            return <PictureSlot key={path ?? `cast-${index}`} index={index} url={path ? media[path] : undefined} label={t("look.photo")} onAdd={files => void addLookPhotos(files)} onRemove={path ? () => void removeLookPhoto(path) : undefined} />;
-          })}
-        </div>
-        <label className="u-field">
-          <span className="u-label">{t("stage.name")}</span>
-          <input id="u-cast-name" value={name} maxLength={40} autoComplete="off" onChange={event => onName(event.target.value)} />
-        </label>
-      </article>
-      {people.map(person => <article key={person.id} className="u-person u-person-file">
-        <span className="u-scene-empty"><Web /></span>
-        <strong>{person.name || t("common.character")}</strong>
-        <p className="u-small">{t("stage.fileCharacter")}</p>
-      </article>)}
-      {showExtra && <article className="u-person">
-        <div className="u-photos" aria-label={t("stage.addCharacter")}>
-          {Array.from({ length: roleSlots }, (_, index) => {
-            const path = vault.role.photos[index];
-            return <PictureSlot key={path ?? `role-${index}`} index={index} url={path ? media[path] : undefined} label={t("look.photo")} onAdd={files => void addRolePhotos(files)} onRemove={path ? () => void removeRolePhoto(path) : undefined} />;
-          })}
-        </div>
-        <label className="u-field">
-          <span className="u-label">{t("stage.name")}</span>
-          <input value={vault.role.name} maxLength={40} autoComplete="off" onChange={event => void saveRole({ name: event.target.value.slice(0, 40) })} />
-        </label>
-      </article>}
+    <div className="u-modes" role="group" aria-label={t("create.castLead")}>
+      <button type="button" aria-pressed={mode === "texte"} onClick={() => setMode("texte")}>{t("create.describe")}</button>
+      <button type="button" aria-pressed={mode === "photos"} onClick={() => setMode("photos")}>{t("create.fromPhotos")}</button>
     </div>
-    <button type="button" className="u-primary" data-cast-gold="" disabled={!ready} aria-describedby={!ready ? "u-why-cast" : undefined} onClick={() => void pass()}>
-      {t("stage.passDecor")} <Arrow />
-    </button>
-    <Why on={!ready} id="u-why-cast" text={vault.look.photos.length < 2 ? t("stage.addPhotos") : vault.look.photos.length > CAST_PHOTO_MAX ? t("stage.photoRule") : t("why.needName")} />
-    {!showExtra && <button type="button" className="u-link" onClick={() => setExtra(true)}>{t("stage.addCharacter")}</button>}
+    <label className="u-field">
+      <span className="u-label">{t("create.name")}</span>
+      <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
+    </label>
+    {mode === "texte" ? <label className="u-field">
+      <span className="u-label">{t("create.prompt")}</span>
+      <textarea value={prompt} rows={4} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => setPrompt(event.target.value)} />
+      <span className="u-small">{t("create.views")}</span>
+    </label> : <div className="u-photos" aria-label={t("create.photoRule")}>
+      {Array.from({ length: 3 }, (_, index) => <PictureSlot key={previews[index] ?? `photo-${index}`} index={index} url={previews[index]} label={t("look.photo")} onAdd={addFiles} onRemove={previews[index] ? () => { setFiles(files.filter((_, i) => i !== index)); setPreviews(previews.filter((_, i) => i !== index)); } : undefined} />)}
+      <p className="u-small">{t("create.photoRule")}</p>
+    </div>}
+    <p className="u-cost is-ok">{t("create.estimate", { amount: quote.credits })}</p>
+    {ask ? <CreateConfirm title={t("create.confirmTitle")} amount={quote.credits} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+      <button type="button" className="u-primary" data-cast-gold="" disabled={!ready} aria-describedby={!ready ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
+        {t("create.castButton", { amount: quote.credits })} <Arrow />
+      </button>
+      <Why on={!ready} id="u-why-cast" text={mode === "photos" && files.length < 2 ? t("create.photoRule") : t("why.needName")} />
+    </>}
+    <h2 className="u-label">{t("create.gallery")}</h2>
+    {cast.length === 0 ? <p className="u-small">{t("create.emptyGallery")}</p> : <div className="u-gallery">
+      {cast.map(card => {
+        const src = card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : card.photos[0] && media[card.photos[0]] ? media[card.photos[0]] : "";
+        const selected = card.id === pickedCast;
+        return <article key={card.id} className="u-card-lg" data-selected={selected || undefined}>
+          <button type="button" className="u-pick" aria-pressed={selected} onClick={() => void pickCast(card.id)}>
+            <CardFace src={src} name={card.name} />
+            <span>{card.name}</span>
+            <small>{t("create.ready")}</small>
+          </button>
+          <div className="u-card-actions">
+            {editing === card.id ? <label className="u-field">
+              <span className="sr-only">{t("create.rename")}</span>
+              <input defaultValue={card.name} maxLength={40} onBlur={event => { void renameCast(card.id, event.target.value); setEditing(null); }} />
+            </label> : <button type="button" className="u-link" onClick={() => setEditing(card.id)}>{t("create.rename")}</button>}
+            <button type="button" className="u-link" onClick={() => void duplicateCast(card.id)}>{t("create.duplicate")}</button>
+            {armed === card.id ? <button type="button" className="u-link" onClick={() => void deleteCast(card.id)}>{t("create.deleteYes")}</button> : <button type="button" className="u-link" onClick={() => setArmed(card.id)}>{t("create.delete")}</button>}
+            {studio.projects.length > 1 && studio.projects.filter(item => item.slug !== studio.project).map(item => <button key={item.slug} type="button" className="u-link" onClick={() => void copyCastTo(card.id, item.slug)}>{t("create.copyProject", { name: item.name })}</button>)}
+          </div>
+        </article>;
+      })}
+    </div>}
   </section>;
 }
 
-const PRESET_LABEL: Record<DecorPresetId, "stage.decorQuai" | "stage.decorRue" | "stage.decorPiece" | "stage.decorToit" | "stage.decorGare" | "stage.decorCouloir"> = {
-  quai: "stage.decorQuai",
-  rue: "stage.decorRue",
-  piece: "stage.decorPiece",
-  toit: "stage.decorToit",
-  gare: "stage.decorGare",
-  couloir: "stage.decorCouloir",
-};
-
-function presetCards(scenes: Scene[]) {
-  const taken = new Set<string>();
-  const byPreset = new Map<DecorPresetId, Scene>();
-  for (const item of scenes) {
-    const key = decorPresetOf(item);
-    if (!key || byPreset.has(key)) continue;
-    byPreset.set(key, item);
-    taken.add(item.id);
-  }
-  return { byPreset, extras: scenes.filter(item => !taken.has(item.id)) };
-}
-
-function DecorPicture({ item, media }: { item: Scene; media: Record<string, string> }) {
-  const photo = item.render ?? item.stills[0];
-  if (photo && media[photo]) return <img src={media[photo]} alt="" />;
-  const preset = decorPresetOf(item);
-  if (preset) return <img src={assetPath(`/images/decors/${preset}.svg`)} alt="" />;
-  return <span className="u-decor-plain" />;
-}
-
-function Tick() {
-  return <span className="u-tick" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 12.5 10 17l9-10" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg></span>;
-}
+const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.suggestToit"] as const;
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
-  const { studio, scene, media, addScene, selectScene, addSceneStills, saveScene, setPreviz } = useStudio();
   const { t } = useI18n();
-  const { byPreset, extras } = presetCards(studio.scenes);
-  const blocked = !scene;
+  const { decor, media, pickedDecor, pickDecor, createDecor, renameDecor, duplicateDecor, deleteDecor } = useStudio();
+  const [mode, setMode] = useState<"texte" | "photo">("texte");
+  const [name, setName] = useState("");
+  const [prompt, setPrompt] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
+  const [ask, setAsk] = useState(false);
+  const [armed, setArmed] = useState<string | null>(null);
+  const quote = quoteForDecor(mode);
+  const blocked = !(name.trim() && (mode === "texte" ? prompt.trim() : file));
 
-  async function choose(id: DecorPresetId) {
-    const held = byPreset.get(id);
-    if (held) {
-      await selectScene(held.id);
-      return;
-    }
-    const created = await addScene(t(PRESET_LABEL[id]), decorStorageId(id));
-    const plan = presetPlan(id);
-    if (created && plan) await setPreviz(created, plan);
-  }
-
-  async function addPhoto(files: File[]) {
-    if (files.length === 0) return;
-    const name = nextNumberedName(t("stage.photoPlaceName"), studio.scenes.map(item => item.name));
-    const created = await addScene(name);
-    if (created) await addSceneStills(created, files);
-  }
-
-  function card(item: Scene, picture: DecorPresetId | "photo") {
-    const selected = item.id === scene?.id;
-    return <article key={item.id} className="u-decor-card" data-selected={selected || undefined}>
-      <button type="button" aria-pressed={selected} onClick={() => void selectScene(item.id)}>
-        {picture === "photo" ? <DecorPicture item={item} media={media} /> : <img src={assetPath(`/images/decors/${picture}.svg`)} alt="" />}
-        <span>{item.name.trim() || t("common.unnamed")}</span>
-        {selected && <Tick />}
-      </button>
-      {selected && <label className="u-field u-decor-name">
-        <span className="u-label">{t("stage.name")}</span>
-        <input value={item.name} maxLength={40} aria-label={t("stage.name")} onChange={event => void saveScene(item.id, { name: event.target.value.slice(0, 40) })} />
-      </label>}
-    </article>;
+  async function confirm() {
+    const ok = await createDecor({ name, prompt, source: mode, file, confirmed: true });
+    if (!ok) return;
+    setAsk(false);
+    onPrise();
   }
 
   return <section className="u-screen u-stage" data-section="decor" aria-labelledby="u-title">
     <header className="u-head">
       <p className="u-label">02</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.scene")}</h1>
-      <p className="u-lead">{t("stage.decorLead")}</p>
+      <p className="u-lead">{t("create.decorLead")}</p>
     </header>
-    <div className="u-decor-grid">
-      {DECOR_PRESETS.map(preset => {
-        const held = byPreset.get(preset.id);
-        if (held) return card(held, "photo");
-        return <article key={preset.id} className="u-decor-card">
-          <button type="button" aria-pressed={false} onClick={() => void choose(preset.id)}>
-            <img src={assetPath(`/images/decors/${preset.id}.svg`)} alt="" />
-            <span>{t(PRESET_LABEL[preset.id])}</span>
+    <div className="u-modes" role="group" aria-label={t("create.decorLead")}>
+      <button type="button" aria-pressed={mode === "texte"} onClick={() => setMode("texte")}>{t("create.describeDecor")}</button>
+      <button type="button" aria-pressed={mode === "photo"} onClick={() => setMode("photo")}>{t("create.fromPhoto")}</button>
+    </div>
+    <label className="u-field">
+      <span className="u-label">{t("create.name")}</span>
+      <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
+    </label>
+    {mode === "texte" ? <>
+      <p className="u-label">{t("create.suggestions")}</p>
+      <div className="u-suggest">
+        {SUGGESTIONS.map(key => <button key={key} type="button" onClick={() => { setPrompt(t(key)); if (!name.trim()) setName(t(key)); }}>{t(key)}</button>)}
+      </div>
+      <label className="u-field">
+        <span className="u-label">{t("create.prompt")}</span>
+        <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
+      </label>
+    </> : <label className="u-field">
+      <span className="u-label">{t("create.fromPhoto")}</span>
+      <input type="file" accept="image/*" onChange={event => { const next = event.target.files?.[0] ?? null; setFile(next); setPreview(next ? URL.createObjectURL(next) : ""); }} />
+      {preview && <img src={preview} alt="" />}
+    </label>}
+    <p className="u-label">{t("create.examples")}</p>
+    <p className="u-small">{t("create.examplesNote")}</p>
+    <div className="u-examples">
+      {EXEMPLES.map(item => <button key={item.id} type="button" onClick={() => { setMode("texte"); setPrompt(item.prompt); setName(item.title); }}>
+        <img src={assetPath(item.file)} alt="" />
+        <span>{item.title}</span>
+      </button>)}
+    </div>
+    <p className="u-cost is-ok">{t("create.estimate", { amount: quote.credits })}</p>
+    {ask ? <CreateConfirm title={t("create.confirmTitle")} amount={quote.credits} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+      <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>
+        {t("create.decorButton", { amount: quote.credits })} <Arrow />
+      </button>
+      <Why on={blocked} id="u-why-decor" text={t("stage.chooseDecor")} />
+    </>}
+    <h2 className="u-label">{t("create.gallery")}</h2>
+    {decor.length === 0 ? <p className="u-small">{t("create.emptyGallery")}</p> : <div className="u-gallery">
+      {decor.map(card => {
+        const src = card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "";
+        const selected = card.id === pickedDecor;
+        return <article key={card.id} className="u-card-lg">
+          <button type="button" className="u-pick" aria-pressed={selected} onClick={() => void pickDecor(card.id)}>
+            <CardFace src={src} name={card.name} />
+            <span>{card.name}</span>
+            <small>{t("create.ready")}</small>
           </button>
+          {!card.id.startsWith("demo-") && <div className="u-card-actions">
+            <button type="button" className="u-link" onClick={() => { const next = window.prompt(t("create.rename"), card.name); if (next) void renameDecor(card.id, next); }}>{t("create.rename")}</button>
+            <button type="button" className="u-link" onClick={() => void duplicateDecor(card.id)}>{t("create.duplicate")}</button>
+            {armed === card.id ? <button type="button" className="u-link" onClick={() => void deleteDecor(card.id)}>{t("create.deleteYes")}</button> : <button type="button" className="u-link" onClick={() => setArmed(card.id)}>{t("create.delete")}</button>}
+          </div>}
         </article>;
       })}
-      {extras.map(item => card(item, "photo"))}
-      <label className="u-decor-card u-decor-add">
-        <span className="u-decor-plus" aria-hidden="true">+</span>
-        <span>{t("stage.addPlacePhoto")}</span>
-        <input className="sr-only" type="file" accept="image/*" aria-label={t("stage.addPlacePhoto")} onChange={event => { void addPhoto([...(event.target.files ?? [])]); event.target.value = ""; }} />
-      </label>
-    </div>
-    <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={onPrise}>
-      {t("stage.passPrise")} <Arrow />
-    </button>
-    <Why on={blocked} id="u-why-decor" text={t("stage.chooseDecor")} />
+    </div>}
   </section>;
 }
 
 export function PriseStage({ goCast, goDecor }: { goCast(): void; goDecor(): void }) {
-  const studioApi = useStudio();
   const { t, say } = useI18n();
   const {
-    studio, media, scene, line, setLine, setSheet, engine, setEngine, chosenLora, setLora, selectScene,
-    takeQuote, gate, connected, falLinked, loraQuote, requestRun, run, resetRun, resumeRun, cancelRun, poseTake, exportCoffre,
-  } = studioApi;
-  const { name } = useOfferedLookName();
-  const readyCast = castReady({ name, photos: studio.look.photos });
-  const people = studio.loras.filter(lora => !isPlaceLora(lora));
-  const credits = engine === "comfy" ? quotedCredits(takeQuote) : null;
-  const price = engine === "lora" && loraQuote !== null ? formatUsd(loraQuote) : credits !== null ? t("stage.aboutCredits", { amount: formatCredits(credits) }) : null;
-  const account = engine === "lora" ? falLinked : connected;
-  const canSpend = engine === "lora"
-    ? Boolean(falLinked && chosenLora && gate.allowed && loraQuote !== null)
-    : Boolean(connected && gate.allowed && credits !== null);
-  const step = priseNext({ cast: readyCast, decor: Boolean(scene), line, connected: account, canSpend });
+    studio, media, cast, decor, pickedCast, pickedDecor, pickCast, pickDecor, line, setLine, setSheet,
+    takeQuote, gate, connected, requestRun, run, resetRun, resumeRun, cancelRun, poseTake, exportCoffre,
+  } = useStudio();
+  const credits = quotedCredits(takeQuote);
+  const price = credits !== null ? t("stage.aboutCredits", { amount: formatCredits(credits) }) : null;
+  const castOk = Boolean(pickedCast && cast.some(card => card.id === pickedCast));
+  const decorOk = Boolean(pickedDecor && decor.some(card => card.id === pickedDecor));
+  const canSpend = Boolean(connected && gate.allowed && credits !== null);
+  const step = priseNext({ cast: castOk, decor: decorOk, line, connected, canSpend });
   const result = run.phase === "done" ? studio.takes.find(take => take.id === run.takeId) : undefined;
   const filed = result ? studio.sequences.find(item => item.links.some(link => link.takeId === result.id)) : undefined;
-  const [reading, setReading] = useState(false);
-  const lookPhoto = studio.look.photos[0];
-  const missing = step === "cast" ? t("stage.missingPhotos") : step === "decor" ? t("stage.missingDecor") : step === "action" ? t("stage.missingAction") : step === "connect" ? (engine === "lora" ? t("stage.missingFal") : t("stage.missingConnect")) : step === "hold" ? (price ? t("stage.hold") : t("stage.noQuote")) : "";
+  const missing = step === "cast" ? t("stage.missingPhotos") : step === "decor" ? t("stage.missingDecor") : step === "action" ? t("stage.missingAction") : step === "connect" ? t("stage.missingConnect") : step === "hold" ? (price ? t("stage.hold") : t("stage.noQuote")) : "";
+
   function press() {
     if (step === "cast") goCast();
     else if (step === "decor") goDecor();
-    else if (step === "connect") setSheet(engine === "lora" ? "fal" : "connect");
-    else if (step === "generate") {
-      const next = name.trim();
-      const saved = next && studio.look.name !== next ? studioApi.saveLook({ name: next }) : Promise.resolve();
-      void saved.then(() => requestRun());
-    }
+    else if (step === "connect") setSheet("connect");
+    else if (step === "generate") void requestRun();
   }
 
   return <section className="u-screen u-stage" data-section="prise" aria-labelledby="u-title">
@@ -247,77 +236,62 @@ export function PriseStage({ goCast, goDecor }: { goCast(): void; goDecor(): voi
       <h1 id="u-title" tabIndex={-1}>{t("nav.take")}</h1>
       <p className="u-lead">{t("stage.priseLead")}</p>
     </header>
-
     {run.phase === "running" && <div className="u-card u-run" role="status">
-      <div className="u-thread" aria-hidden="true"><span /></div>
       <p className="u-run-label">{t("job.running")}</p>
       <button type="button" className="u-link" onClick={cancelRun}>{t("verb.cancel")}</button>
     </div>}
-
     {run.phase === "done" && result && media[result.video] && <div className="u-card u-result" data-retour-suite="">
       {filed ? <>
-        <button type="button" className="u-primary" data-lire-sequence="" onClick={() => setReading(true)}>{t("sequence.play")} <Arrow /></button>
+        <button type="button" className="u-primary" data-lire-sequence="" onClick={() => document.getElementById("u-prise-video")?.scrollIntoView({ block: "center" })}>{t("sequence.play")} <Arrow /></button>
         <button type="button" className="u-link" onClick={() => void exportCoffre()}>{t("sheet.export")}</button>
         <button type="button" className="u-link" disabled aria-describedby="u-why-filed">{t("take.pose")}</button>
         <Why on id="u-why-filed" text={t("why.alreadyFiled", { name: filed.name || t("common.unnamed") })} />
-        {reading && <SequencePlayer sequenceId={filed.id} />}
       </> : <button type="button" className="u-primary" onClick={() => void poseTake(result.id, { sequence: t("sequence.defaultName"), shot: t("shot.defaultName") })}>{t("take.pose")} <Arrow /></button>}
-      <video src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted playsInline className={`is-${result.settings.aspect}`} />
+      <video id="u-prise-video" src={media[result.video]} poster={result.poster ? media[result.poster] : undefined} controls muted playsInline />
       <TakeCostLines take={result} gateLine={gate.line} />
-      <PublishActions take={result} />
       <button type="button" className="u-link" onClick={resetRun}>{t("take.new")}</button>
     </div>}
-
-    {run.phase === "error" && <div className="u-card u-soft-error" role="alert">
+    {run.phase === "error" && <div className="u-card" role="alert">
       <p>{say(run.message)}</p>
-      <button type="button" className="u-primary" onClick={() => { if (run.code === "auth" || run.code === "scope") { resetRun(); setSheet("connect"); } else resumeRun(); }}>{run.code === "auth" || run.code === "scope" ? t("stage.connectComfy") : t("verb.resume")}</button>
+      <button type="button" className="u-primary" onClick={() => { if (run.code === "auth") { resetRun(); setSheet("connect"); } else resumeRun(); }}>{run.code === "auth" ? t("stage.connectComfy") : t("verb.resume")}</button>
     </div>}
-
     {run.phase === "idle" && <div className="u-prise-board">
       <div>
         <p className="u-label">{t("stage.who")}</p>
         <div className="u-pick-row">
-          {studio.look.photos.length === 0 && people.length === 0 ? <button type="button" className="u-pick" onClick={goCast}>{t("stage.addCharacter")}</button> : <>
-            {studio.look.photos.length > 0 && <button type="button" className="u-pick" aria-pressed={engine !== "lora"} data-selected={engine !== "lora" || undefined} onClick={() => { setEngine("comfy"); setLora(""); }}>
-              {lookPhoto && media[lookPhoto] ? <img src={media[lookPhoto]} alt="" /> : <img src={assetPath("/images/decors/silhouette.svg")} alt="" />}
-              <span>{name || t("common.character")}</span>
-              <small>{readyCast ? t("stage.ready") : t("stage.incomplete")}</small>
-              {engine !== "lora" && <Tick />}
-            </button>}
-            {people.map(person => {
-              const selected = engine === "lora" && chosenLora?.id === person.id;
-              return <button key={person.id} type="button" className="u-pick" aria-pressed={selected} data-selected={selected || undefined} onClick={() => { setEngine("lora"); setLora(person.id); }}>
-                <img src={assetPath("/images/decors/silhouette.svg")} alt="" />
-                <span>{person.name || t("common.character")}</span>
-                <small>{t("stage.ready")}</small>
-                {selected && <Tick />}
-              </button>;
-            })}
-          </>}
+          {cast.length === 0 ? <button type="button" className="u-pick" onClick={goCast}>{t("stage.addCharacter")}</button> : cast.map(card => {
+            const src = card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "";
+            const selected = card.id === pickedCast;
+            return <button key={card.id} type="button" className="u-pick" aria-pressed={selected} data-selected={selected || undefined} onClick={() => void pickCast(card.id)}>
+              <CardFace src={src} name={card.name} />
+              <span>{card.name}</span>
+              <small>{t("stage.ready")}</small>
+            </button>;
+          })}
         </div>
       </div>
       <div>
         <p className="u-label">{t("stage.where")}</p>
         <div className="u-pick-row">
-          {studio.scenes.length === 0 ? <button type="button" className="u-pick" onClick={goDecor}>{t("stage.addDecor")}</button> : studio.scenes.map(item => {
-            const selected = item.id === scene?.id;
-            return <button key={item.id} type="button" className="u-pick" aria-pressed={selected} data-selected={selected || undefined} onClick={() => void selectScene(item.id)}>
-              <DecorPicture item={item} media={media} />
-              <span>{item.name.trim() || t("common.unnamed")}</span>
-              {selected && <Tick />}
+          {decor.length === 0 ? <button type="button" className="u-pick" onClick={goDecor}>{t("stage.addDecor")}</button> : decor.map(card => {
+            const src = card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "";
+            const selected = card.id === pickedDecor;
+            return <button key={card.id} type="button" className="u-pick" aria-pressed={selected} data-selected={selected || undefined} onClick={() => void pickDecor(card.id)}>
+              <CardFace src={src} name={card.name} />
+              <span>{card.name}</span>
             </button>;
           })}
         </div>
       </div>
       <label className="u-field u-prise-action">
         <span className="u-label">{t("stage.action")}</span>
-        <textarea id="u-prise-phrase" value={line} rows={2} maxLength={240} onChange={event => setLine(event.target.value)} />
+        <textarea id="u-prise-phrase" value={line} rows={2} maxLength={240} placeholder={t("take.defaultLine")} onChange={event => setLine(event.target.value)} />
       </label>
       <div className="u-prise-go">
         <p className={`u-cost is-${price ? "ok" : "block"}`}>{price ?? t("stage.noQuote")}</p>
         <button type="button" className="u-primary" data-prise-gold="" disabled={step !== "generate"} aria-describedby={step !== "generate" ? "u-why-prise" : undefined} onClick={press}>{price ? t("stage.generatePriced", { price }) : t("stage.generate")} <Arrow /></button>
         <Why on={step !== "generate"} id="u-why-prise" text={missing} />
-        {step === "connect" && <button type="button" className="u-link" onClick={() => setSheet(engine === "lora" ? "fal" : "connect")}>{engine === "lora" ? t("stage.connectFal") : t("stage.connectComfy")}</button>}
+        {step === "connect" && <button type="button" className="u-link" onClick={() => setSheet("connect")}>{t("stage.connectComfy")}</button>}
       </div>
     </div>}
   </section>;

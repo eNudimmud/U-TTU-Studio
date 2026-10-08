@@ -184,9 +184,9 @@ export function scaffoldFiles(slug: string, name: string): { path: string; text:
   const moteurs = [
     ["moteur-references", "prise", "comfy", "Prise · Références", "Les photos de mon studio deviennent une prise, avec le son. Le devis de run est absent sur le compte de rendu : rien ne part sans un chiffre mesuré au même réglage."],
     ["moteur-personnage", "prise", "comfy", "Prise · Personnage", "Les photos de mon studio tiennent le personnage, d’une prise à l’autre, avec le son. Le devis de run est absent sur le compte de rendu : rien ne part sans un chiffre mesuré au même réglage."],
-    ["former", "personnage", "fal", "Former un personnage", "Des clips deviennent un fichier. Les prises suivantes le rechargent. Le prix se lit sur le compte fal, avant le geste."],
-    ["moteur-lieu", "scene", "fal", "Former un lieu", "Les vues du lieu deviennent un fichier d’images. Ce n’est pas un volume. Le prix se lit sur le compte fal, avant le geste."],
-    ["image", "scene", "fal", "Image d’un lieu", "Le fichier du lieu bâtit une image neuve. Le modèle 3D reste le fichier Blender. Le prix se lit sur le compte fal, avant le geste."],
+    ["former", "personnage", "comfy", "Planche de personnage", "Un texte ou deux photos deviennent une planche de vues. Le devis s’affiche avant le geste. Rien ne part sans confirmation."],
+    ["moteur-lieu", "scene", "comfy", "Image d’un lieu", "Un texte ou une photo de lieu devient une image. Le devis s’affiche avant le geste."],
+    ["image", "scene", "comfy", "Image depuis une photo", "Une photo de lieu devient une image de cinéma. Le devis s’affiche avant le geste. Le fichier Blender, s’il existe, reste à part."],
     ["moteur-raccord", "raccord", "comfy", "Moteur · Raccord", "La première image et la dernière deviennent un court plan. Le devis de run est absent : rien ne part sans un chiffre mesuré."],
     ["moteur-mouvement", "mouvement", "comfy", "Moteur · Mouvement", "Une image fixe devient un court plan. La caméra bouge. Le devis de run est absent : rien ne part sans un chiffre mesuré."],
     ["moteur-effet", "effet", "comfy", "Moteur · Effet", "Une prise filmée reçoit le style d’une image. Le devis de run est absent : rien ne part sans un chiffre mesuré."],
