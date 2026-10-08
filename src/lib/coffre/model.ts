@@ -84,6 +84,7 @@ export interface Scene {
   /** `Decors` keeps a generated place beside the older `Lieux` notes. */
   home?: "Lieux" | "Decors";
   source?: "texte" | "photo";
+  geste?: string;
 }
 
 /** The character being formed. Separate from the look, and from files already trained. */
@@ -330,6 +331,7 @@ export function sceneMarkdown(scene: Scene, projet = ""): string {
       moteur: "comfy",
       source: scene.source ?? "texte",
     } : {}),
+    ...(scene.geste ? { geste: scene.geste } : {}),
   }, body);
 }
 
@@ -353,6 +355,7 @@ export function parseScene(id: string, source: string): Scene {
     devis: num(fields.devis),
     cout: num(fields.cout),
     source: text(fields.source) === "photo" ? "photo" : text(fields.prompt) ? "texte" : undefined,
+    geste: text(fields.geste) || undefined,
   };
 }
 

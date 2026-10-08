@@ -925,7 +925,7 @@
     "describeDecor": "Décris ton décor",
     "fromPhoto": "Une photo du lieu",
     "examples": "Exemples",
-    "examplesNote": "Rendus maison. Un clic remplit le texte, sans créer.",
+    "examplesNote": "Un clic charge la référence et le geste. L’après n’est pas encore rendu.",
     "copyProject": "Copier vers {name}",
     "copied": "Copié dans l’autre projet.",
     "imported": "Ajouté : {count}",
@@ -995,7 +995,17 @@
     "clearAsk": "Effacer ce montage ? Les plans et les sons quittent la timeline.",
     "clearYes": "Effacer",
     "dropFile": "Déposer un fichier",
-    "addOnTrack": "Ajouter sur {track}"
+    "addOnTrack": "Ajouter sur {track}",
+    "bin": "Chutier",
+    "context": "Sur ce plan",
+    "duplicate": "Dupliquer",
+    "speed": "Vitesse",
+    "fade": "Fondu vers le plan suivant",
+    "title": "Titre",
+    "titlePh": "Un titre sur l’image",
+    "shortcuts": "Raccourcis",
+    "shortcutHelp": "Espace lecture. S scinde. Suppr retire. Ctrl+Z annule, Ctrl+Y rétablit. Flèches : une image.",
+    "snap": "Aimanté"
   },
   "atelier": {
     "lead": "Tout ce que tu as créé, sur cet appareil.",
@@ -1021,5 +1031,198 @@
     "auto": "Les créations du studio se rangent ici toutes seules.",
     "projects": "Projets",
     "close": "Fermer"
+  },
+  "gestes": {
+    "ask": "Que veux-tu faire ?",
+    "more": "Plus de gestes",
+    "less": "Moins de gestes",
+    "cost": "Environ {amount} crédits, plafond {high}. Hypothèse.",
+    "costMeasured": "Environ {amount} crédits, plafond {high}. Mesuré.",
+    "costUnknown": "Devis non mesuré. Rien ne part.",
+    "need": "Il faut : {list}",
+    "exampleSoon": "Exemple à venir",
+    "unwired": "Ce geste n’est pas encore branché. Rien ne part.",
+    "needRefs": "Il manque une référence.",
+    "cat": {
+      "identite": "Identité",
+      "apparence": "Apparence",
+      "finition": "Finition",
+      "lieu": "Lieu",
+      "variante": "Variante",
+      "plan": "Plan",
+      "raccord": "Raccord",
+      "mouvement": "Mouvement",
+      "son": "Son",
+      "image": "Image"
+    },
+    "fournit": {
+      "texte": "un texte",
+      "photo": "une photo",
+      "photos": "plusieurs photos",
+      "asset": "un asset",
+      "video": "une vidéo",
+      "audio": "un son"
+    },
+    "castPhotos": {
+      "title": "Depuis des photos",
+      "phrase": "Le visage vient de tes photos."
+    },
+    "castSheet": {
+      "title": "Planche de vues",
+      "phrase": "Face, profil et dos, pour garder la même personne."
+    },
+    "castText": {
+      "title": "Depuis un texte",
+      "phrase": "Une personne fictive, sans photo."
+    },
+    "castWardrobe": {
+      "title": "Tenue ou coiffure",
+      "phrase": "Le visage reste. La tenue ou la coiffure change."
+    },
+    "castAngle": {
+      "title": "Autre angle",
+      "phrase": "Une nouvelle pose ou un autre angle."
+    },
+    "castExpression": {
+      "title": "Expression",
+      "phrase": "Le visage change d’expression."
+    },
+    "castLight": {
+      "title": "Rééclairer",
+      "phrase": "La lumière change, le visage reste."
+    },
+    "castUpscale": {
+      "title": "Agrandir",
+      "phrase": "Plus de détail, même image."
+    },
+    "castVolume": {
+      "title": "Volume",
+      "phrase": "Une forme en volume, à partir d’une photo."
+    },
+    "decorText": {
+      "title": "Depuis un texte",
+      "phrase": "Un lieu, sans photo."
+    },
+    "decorPhoto": {
+      "title": "Depuis une photo",
+      "phrase": "Le lieu part d’une photo réelle."
+    },
+    "decorTime": {
+      "title": "Heure et météo",
+      "phrase": "Même lieu, autre heure, météo ou saison."
+    },
+    "decorAngles": {
+      "title": "Autres angles",
+      "phrase": "Le même lieu, vu d’ailleurs."
+    },
+    "decorWiden": {
+      "title": "Élargir le cadre",
+      "phrase": "Le cadre s’ouvre autour du lieu."
+    },
+    "decorObject": {
+      "title": "Objet",
+      "phrase": "Enlever ou ajouter un objet."
+    },
+    "decorVolume": {
+      "title": "Volume du lieu",
+      "phrase": "Le lieu devient une forme."
+    },
+    "prisePlan": {
+      "title": "Personnage dans le décor",
+      "phrase": "Le personnage et le lieu deviennent un plan."
+    },
+    "priseStill": {
+      "title": "Image vers plan",
+      "phrase": "Une image devient un plan."
+    },
+    "priseBridge": {
+      "title": "Raccord",
+      "phrase": "La première image rejoint la dernière."
+    },
+    "priseExtend": {
+      "title": "Prolonger",
+      "phrase": "Le plan continue."
+    },
+    "priseCamera": {
+      "title": "Caméra",
+      "phrase": "La caméra bouge sur le plan."
+    },
+    "priseMotion": {
+      "title": "Transfert de mouvement",
+      "phrase": "Le mouvement d’une vidéo passe sur une photo."
+    },
+    "priseLips": {
+      "title": "Lèvres",
+      "phrase": "La bouche suit une voix."
+    },
+    "priseVidu": {
+      "title": "Autre plan, références",
+      "phrase": "Un plan à partir de plusieurs images. Coût non branché."
+    },
+    "montVoice": {
+      "title": "Voix",
+      "phrase": "Une voix à partir d’un texte."
+    },
+    "montSfx": {
+      "title": "Effet sonore",
+      "phrase": "Un son à partir d’un texte."
+    },
+    "montMusic": {
+      "title": "Musique",
+      "phrase": "Une musique à partir d’un texte."
+    },
+    "montLips": {
+      "title": "Synchro labiale",
+      "phrase": "La bouche suit le son."
+    },
+    "montUpscale": {
+      "title": "Agrandir la vidéo",
+      "phrase": "Plus de détail sur le plan."
+    },
+    "montFrames": {
+      "title": "Fluidifier",
+      "phrase": "Plus d’images entre les images."
+    }
+  },
+  "refs": {
+    "title": "Références",
+    "lead": "Une photo, plusieurs, ou un asset du studio.",
+    "drop": "Déposer des photos",
+    "camera": "Appareil photo",
+    "gallery": "Depuis la galerie",
+    "remove": "Retirer",
+    "role": "Rôle",
+    "empty": "Aucune référence.",
+    "visage": "Visage",
+    "tenue": "Tenue",
+    "style": "Style",
+    "lieu": "Lieu"
+  },
+  "assets": {
+    "count": "{count} assets",
+    "search": "Chercher",
+    "all": "Tout",
+    "personnages": "Personnages",
+    "decors": "Décor",
+    "plans": "Plans",
+    "sons": "Sons",
+    "importes": "Importés",
+    "useRef": "Utiliser comme référence",
+    "toPrise": "Mettre dans la prise",
+    "toMontage": "Ajouter au montage",
+    "close": "Fermer",
+    "path": "Chemin",
+    "geste": "Geste",
+    "cost": "Coût",
+    "date": "Date",
+    "refs": "Références",
+    "import": "Importer",
+    "refresh": "Actualiser",
+    "select": "Sélectionner",
+    "selected": "{count} sélectionnés",
+    "empty": "Aucun asset.",
+    "none": "—",
+    "credits": "{amount} crédits",
+    "estimate": "Devis {amount}"
   }
 }

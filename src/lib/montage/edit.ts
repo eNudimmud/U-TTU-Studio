@@ -25,6 +25,12 @@ export interface VideoClip {
   /** Trim out, inside the media. */
   end: number;
   takeId: string | null;
+  /** Playback rate. 1 keeps the timeline length. The picture moves faster. */
+  speed?: number;
+  /** Seconds of dissolve into the next shot. */
+  fadeOut?: number;
+  /** Short title drawn on the picture. */
+  title?: string;
 }
 
 export interface AudioClip {
@@ -394,4 +400,80 @@ export function redo<T>(history: History<T>): History<T> {
 
 export function emptyEdit(id: string, name: string): Edit {
   return { id, name, video: [], audio: [] };
+}
+
+export function clipSpeed(clip: Pick<VideoClip, "speed">): number {
+  const speed = clip.speed ?? 1;
+  return speed >= 0.25 && speed <= 4 ? speed : 1;
+}
+
+/** Media time inside a clip. The timeline length stays the trim; the rate only moves the picture. */
+export function mediaTime(clip: VideoClip, offset: number): number {
+  const local = Math.max(0, offset) * clipSpeed(clip);
+  return Math.min(clip.end, clip.start + local);
+}
+
+export function duplicateVideo(edit: Edit, id: string, nextId: string): Edit {
+  if (!nextId || edit.video.some(clip => clip.id === nextId) || edit.audio.some(clip => clip.id === nextId)) return edit;
+  const index = edit.video.findIndex(clip => clip.id === id);
+  if (index < 0) return edit;
+  const video = edit.video.slice();
+  video.splice(index + 1, 0, { ...edit.video[index], id: nextId, takeId: null });
+  return { ...edit, video };
+}
+
+export function duplicateAudio(edit: Edit, id: string, nextId: string): Edit {
+  if (!nextId || edit.video.some(clip => clip.id === nextId) || edit.audio.some(clip => clip.id === nextId)) return edit;
+  const index = edit.audio.findIndex(clip => clip.id === id);
+  if (index < 0) return edit;
+  const audio = edit.audio.slice();
+  audio.splice(index + 1, 0, { ...edit.audio[index], id: nextId, at: audioEnd(edit.audio[index]) });
+  return { ...edit, audio };
+}
+
+export function setVideoSpeed(edit: Edit, id: string, speed: number): Edit {
+  if (!Number.isFinite(speed)) return edit;
+  const next = Math.min(4, Math.max(0.25, speed));
+  let changed = false;
+  const video = edit.video.map(clip => {
+    if (clip.id !== id || clipSpeed(clip) === next) return clip;
+    changed = true;
+    return { ...clip, speed: next };
+  });
+  return changed ? { ...edit, video } : edit;
+}
+
+export function setVideoFade(edit: Edit, id: string, fadeOut: number): Edit {
+  if (!Number.isFinite(fadeOut)) return edit;
+  let changed = false;
+  const video = edit.video.map(clip => {
+    if (clip.id !== id) return clip;
+    const next = clamp(fadeOut, 0, span(clip));
+    if ((clip.fadeOut ?? 0) === next) return clip;
+    changed = true;
+    return { ...clip, fadeOut: next };
+  });
+  return changed ? { ...edit, video } : edit;
+}
+
+export function setVideoTitle(edit: Edit, id: string, title: string): Edit {
+  const next = title.replace(/\s+/g, " ").trim().slice(0, 80);
+  let changed = false;
+  const video = edit.video.map(clip => {
+    if (clip.id !== id || (clip.title ?? "") === next) return clip;
+    changed = true;
+    return { ...clip, title: next };
+  });
+  return changed ? { ...edit, video } : edit;
+}
+
+/** How far the next shot has faded in, at the end of a clip that asked for a dissolve. */
+export function fadeMix(edit: Edit, time: number): { index: number; mix: number } | null {
+  const hit = videoAt(edit, time);
+  if (!hit) return null;
+  const fade = hit.clip.fadeOut ?? 0;
+  if (!(fade > 0) || hit.index + 1 >= edit.video.length) return null;
+  const left = span(hit.clip) - hit.offset;
+  if (left >= fade) return null;
+  return { index: hit.index, mix: Math.min(1, Math.max(0, 1 - left / fade)) };
 }

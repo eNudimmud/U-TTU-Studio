@@ -2,6 +2,18 @@
 
 Registre de vérité U*TTU : chaque ligne est un **fait**, une **hypothèse**, une **proposition** ou une **décision**. Dernière mise à jour : 2026-10-08.
 
+## Studio par gestes — 8 octobre 2026
+
+Suite du verdict de JD sur la prod. Le détail est dans `docs/RAPPORT-R4.md` et `docs/WORKFLOWS.md`. Rien n’est mergé avant relecture des captures.
+
+- **Décision :** chaque onglet ouvre sur « Que veux-tu faire ? ». Quatre gestes d’abord, le reste derrière « Plus de gestes ». Une carte dit le geste, ce qu’il faut fournir et un coût. Le template reste dans `src/lib/workflows/registre.ts`. Aucun nom de modèle sur la carte.
+- **Décision :** un geste sans graphe déjà écrit, ou sans devis, reste visible et Créer reste éteint. Sans compte, la raison est « Relie ton compte de rendu pour créer. »
+- **Décision :** les exemples qui ne faisaient que remplir un texte sortent. Un clic charge la photo maison comme référence et le geste. L’après absent affiche « Exemple à venir ». La liste à rendre est `public/exemples/A-GENERER.json`.
+- **Décision :** une galerie d’assets par projet, filtres Personnages, Décors, Plans, Sons, Importés. La fiche markdown porte `geste`, `template`, `refs`, `prompt`, `cout`. Un fichier déposé dans le dossier, sans fiche, revient après Actualiser. Les chemins `Sons/` et `Assets/` passent l’import ZIP.
+- **Décision :** le montage gagne un chutier, une barre sur le plan sélectionné (scinder, dupliquer, vitesse, fondu, titre, supprimer) et les raccourcis dans le menu Plus. La vitesse ne raccourcit pas la timeline : elle ne change que l’image lue. Le fondu est une dissolution vers le plan suivant, ou un passage au noir si le plan suivant n’est pas une image déjà en mémoire.
+- **Hypothèse :** les devis 12/18, 24/36, voix, effet et musique sont ceux déjà écrits. Non remesurés. 0 crédit dépensé pour ce tour.
+- **Hypothèse :** EN, DE et ES restent `_human: native_open`.
+
 ## Montage — 8 octobre 2026
 
 Quatrième geste, après PRISE. JD relit sur l’aperçu. Rien n’est mergé avant.

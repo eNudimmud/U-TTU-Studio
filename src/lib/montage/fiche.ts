@@ -34,6 +34,9 @@ function videoLine(clip: VideoClip): string {
     start: clip.start,
     end: clip.end,
     takeId: clip.takeId,
+    speed: clip.speed ?? 1,
+    fadeOut: clip.fadeOut ?? 0,
+    title: clip.title ?? "",
   });
 }
 
@@ -122,6 +125,9 @@ function asVideo(raw: string): VideoClip | null {
       start,
       end: Math.max(start, end),
       takeId: typeof value.takeId === "string" && value.takeId ? value.takeId : null,
+      speed: finite(value.speed, 1),
+      fadeOut: Math.max(0, finite(value.fadeOut, 0)),
+      title: cleanLabel(typeof value.title === "string" ? value.title : ""),
     };
   } catch {
     return null;

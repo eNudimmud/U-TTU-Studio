@@ -1,6 +1,6 @@
 // Browser MP4. Mediabunny writes the file in this tab. Nothing is uploaded.
 
-import { editDuration, mixInto, mixSpans, type Edit } from "./edit.ts";
+import { editDuration, fadeMix, mediaTime, mixInto, mixSpans, type Edit } from "./edit.ts";
 import { EXPORT_FPS, EXPORT_HEIGHT, EXPORT_WIDTH } from "./export-plan.ts";
 
 const SAMPLE_RATE = 48_000;
@@ -133,7 +133,8 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
       ctx.fillRect(0, 0, width, height);
       let cursor = 0;
       let drawn = false;
-      for (const clip of input.edit.video) {
+      for (let index = 0; index < input.edit.video.length; index += 1) {
+        const clip = input.edit.video[index];
         const length = Math.max(0, clip.end - clip.start);
         if (time < cursor + length) {
           const local = time - cursor;
@@ -151,13 +152,33 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
               });
             }
             if (video.readyState >= 2) {
-              await seekTo(video, clip.start + local);
+              await seekTo(video, mediaTime(clip, local));
               contain(ctx, canvas, video, video.videoWidth, video.videoHeight);
             }
           } else {
             ctx.fillStyle = "#c9a46a";
             ctx.font = "600 42px sans-serif";
             ctx.fillText(clip.label || "", 48, height / 2);
+          }
+          if (clip.title) {
+            ctx.fillStyle = "rgba(0,0,0,.55)";
+            ctx.fillRect(0, height - 72, width, 72);
+            ctx.fillStyle = "#f4efe6";
+            ctx.font = "600 28px sans-serif";
+            ctx.fillText(clip.title, 24, height - 28);
+          }
+          const mix = fadeMix(input.edit, time);
+          if (mix && mix.index === index) {
+            const next = input.edit.video[index + 1];
+            ctx.save();
+            ctx.globalAlpha = mix.mix;
+            const nextImage = next?.kind === "image" && next.source ? images.get(next.source) : undefined;
+            if (nextImage) contain(ctx, canvas, nextImage, nextImage.naturalWidth, nextImage.naturalHeight);
+            else {
+              ctx.fillStyle = "#0b0a09";
+              ctx.fillRect(0, 0, width, height);
+            }
+            ctx.restore();
           }
           drawn = true;
           break;

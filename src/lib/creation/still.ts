@@ -7,7 +7,7 @@ import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
 import { CAST_PHOTO_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
 
-export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "planche";
+export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche";
 
 export interface StillRunInput {
   kind: StillKind;
@@ -110,30 +110,40 @@ export function stillGraph(input: { kind: StillKind; prompt: string; images: rea
       save: save("planche", "stitch", "uttu-planche"),
     };
   }
-  if (input.kind === "photo-decor") {
+  if (input.kind === "photo-cast" || input.kind === "photo-decor") {
     const image = input.images[0];
-    if (!image) throw new Error("Le décor part d’une photo.");
-    return {
-      load: { class_type: "LoadImage", inputs: { image }, _meta: { title: "Photo du lieu" } },
-      still: {
-        class_type: "GeminiNanoBanana2V2",
-        inputs: {
-          prompt: `${prompt}\n\nCinema still, 16:9, the same place, empty of people. No text.`,
-          model: "Gemini Nano Banana 2.1",
-          "model.aspect_ratio": "16:9",
-          "model.resolution": "1K",
-          "model.thinking_level": "MEDIUM",
-          "model.images.image_1": ["load", 0],
-          seed,
-          response_modalities: "IMAGE",
-          system_prompt: SYSTEM,
-          temperature: 1,
-          top_p: 0.95,
-        },
-        _meta: { title: "Décor" },
-      },
-      save: save("save", "still", "uttu-still"),
+    if (!image) throw new Error(input.kind === "photo-cast" ? "Le personnage part d’une photo." : "Le décor part d’une photo.");
+    const place = input.kind === "photo-decor";
+    const graph: ApiGraph = {
+      load: { class_type: "LoadImage", inputs: { image }, _meta: { title: place ? "Photo du lieu" : "Photo" } },
     };
+    const images: Record<string, [string, number]> = { "model.images.image_1": ["load", 0] };
+    input.images.slice(1, 3).forEach((name, index) => {
+      const id = `load${index + 2}`;
+      graph[id] = { class_type: "LoadImage", inputs: { image: name }, _meta: { title: `Photo ${index + 2}` } };
+      images[`model.images.image_${index + 2}`] = [id, 0];
+    });
+    graph.still = {
+      class_type: "GeminiNanoBanana2V2",
+      inputs: {
+        prompt: place
+          ? `${prompt}\n\nCinema still, 16:9, the same place, empty of people. No text.`
+          : `${prompt}\n\nThe same fictional person as the photos. Keep the face. No text.`,
+        model: "Gemini Nano Banana 2.1",
+        "model.aspect_ratio": place ? "16:9" : "3:4",
+        "model.resolution": "1K",
+        "model.thinking_level": "MEDIUM",
+        ...images,
+        seed,
+        response_modalities: "IMAGE",
+        system_prompt: SYSTEM,
+        temperature: 1,
+        top_p: 0.95,
+      },
+      _meta: { title: place ? "Décor" : "Personnage" },
+    };
+    graph.save = save("save", "still", "uttu-still");
+    return graph;
   }
   const place = input.kind === "texte-decor";
   return {

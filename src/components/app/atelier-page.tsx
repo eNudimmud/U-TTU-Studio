@@ -7,6 +7,7 @@ import { memoryFilled } from "@/lib/coffre/memory";
 import { assetPath } from "@/lib/site";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Coffre, KindMark } from "./glyphs";
+import { ProjectGallery } from "./project-gallery";
 import { ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
@@ -171,6 +172,7 @@ function AtelierFrame() {
                 </div>
               </article>)}
             </div>}
+            <ProjectGallery />
           </div>
         </div>
       </section>
