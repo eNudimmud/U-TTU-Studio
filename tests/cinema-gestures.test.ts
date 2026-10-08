@@ -47,12 +47,12 @@ describe("gestes cinéma", () => {
     assert.equal(CINEMA_GESTURES.camera.nodes, 37);
     assert.equal(CINEMA_GESTURES.effet.templateId, "templates_shane_video_restyle");
     assert.equal(CINEMA_GESTURES.effet.nodes, 25);
-    const landed = gestureLanding("mira", "raccord-1", "quai");
-    assert.equal(landed.prise, "Projets/mira/Prises/raccord-1.md");
-    assert.equal(landed.video, "Projets/mira/Prises/raccord-1.mp4");
-    assert.equal(landed.shot, "Projets/mira/Shots/quai.md");
-    assert.equal(gestureLanding("mira", "raccord-1", null).shot, null);
-    assert.throws(() => gestureLanding("mira", "prise", null));
+    const landed = gestureLanding("uttu", "raccord-1", "quai");
+    assert.equal(landed.prise, "Projets/uttu/Prises/raccord-1.md");
+    assert.equal(landed.video, "Projets/uttu/Prises/raccord-1.mp4");
+    assert.equal(landed.shot, "Projets/uttu/Shots/quai.md");
+    assert.equal(gestureLanding("uttu", "raccord-1", null).shot, null);
+    assert.throws(() => gestureLanding("uttu", "prise", null));
     assert.throws(() => gestureLanding("../x", "raccord-1", null));
   });
 
@@ -77,10 +77,10 @@ describe("gestes cinéma", () => {
     assert.equal(catalog.take.resetPlan, "Remettre cette prise à zéro");
     assert.match(catalog.cinema.raccord.apart, /séquence/);
     assert.match(catalog.cinema.lead, /Tourner reste éteint/);
-    const seeded = scaffoldFiles("mira", "Mira").map(file => file.path);
-    assert.ok(seeded.includes("Projets/mira/Templates/modele-raccord.md"));
-    assert.ok(seeded.includes("Projets/mira/Templates/modele-mouvement.md"));
-    assert.ok(seeded.includes("Projets/mira/Templates/modele-effet.md"));
+    const seeded = scaffoldFiles("uttu", "Uttu").map(file => file.path);
+    assert.ok(seeded.includes("Projets/uttu/Templates/modele-raccord.md"));
+    assert.ok(seeded.includes("Projets/uttu/Templates/modele-mouvement.md"));
+    assert.ok(seeded.includes("Projets/uttu/Templates/modele-effet.md"));
     assert.equal(seeded.some(path => /\/(?:raccord|mouvement|effet|camera)\.md$/.test(path)), false);
     assert.equal(treeFileLabel("Modèles", "modele-raccord.md"), "Modèle · Raccord");
     assert.equal(treeFileLabel("Modèles", "modele-mouvement.md"), "Modèle · Mouvement");

@@ -4,15 +4,19 @@ Date : 2026-10-08. Base : `main` à `e1099aa`. Rien n’est mergé. 0 crédit Co
 
 ## Ce qui est là
 
-PRISE n’est plus une liste de gestes. Le visiteur compose un plan : Qui, Où, Cadrage, Action, Caméra, Durée. Paroles et Enchaîner sont repliés. Le format du projet est 16:9 par défaut, 9:16 dans l’en-tête. Il n’y a pas de ligne Qualité.
+PRISE n’est plus une liste de gestes. Le visiteur compose un plan : Qui, Où, Cadrage, Action, Caméra, Durée. Paroles et Enchaîner sont repliés. Le format du projet est 16:9 par défaut. Le choix 16:9 / 9:16 est à côté du titre du plan. Il n’y a pas de ligne Qualité.
 
-La carte « Ce que l’app va faire » dit le graphe en mots simples, la phrase « Pourquoi » telle qu’elle est dans la table, le devis et le plafond (1,5 × le devis). La première ligne qui correspond gagne. Une seule colonne de prise : le Final n’est plus une deuxième génération.
+Cadrage est une rangée de huit tuiles carrées, avec un personnage dans un cadre 16:9. Caméra est la même rangée, avec une flèche. Qui et Où sont des vignettes d’une ligne. À 1280×800, Qui, Où, Cadrage, Action et Caméra tiennent sans défiler. Le numéro du titre suit la carte choisie dans la bande (Plan 01 si c’est la première).
 
-Boutons ouverts seulement quand le devis est mesuré : composer l’image (`api_nano_banana_2_1_image_edit`, 12,5, plafond 18,75) et l’essai rapide (`video_minimax_h3_r2v`, 4,3, plafond 6,45) tant qu’il n’y a pas d’image clé. Tout le reste reste éteint, avec la raison écrite dessous. Une hypothèse affiche le nombre et le bouton reste éteint : « Pas encore mesuré : un rendu de mesure doit être validé ».
+La carte « Ce que l’app va faire » dit le graphe en mots simples, la phrase « Pourquoi » telle qu’elle est dans la table, le devis et le plafond (1,5 × le devis). La première ligne qui correspond gagne. Une seule colonne de prise : le Final n’est plus une deuxième génération. Un seul bouton or à la fois : Vide → Composer l’image (Essai rapide à côté) ; Image clé → Garder ce cadre ; Validée → Tourner ; Prise → Garder ; Gardée → Finaliser. La raison d’un bouton éteint est écrite une fois, à côté de ce bouton.
+
+Boutons ouverts seulement quand le devis est mesuré : composer l’image (`api_nano_banana_2_1_image_edit`, 12,5, plafond 18,75) et l’essai rapide (`video_minimax_h3_r2v`, 4,3, plafond 6,45) tant qu’il n’y a pas d’image clé. Tout le reste reste éteint. Une hypothèse affiche le nombre et le bouton reste éteint : « Pas encore mesuré : un rendu de mesure doit être validé ». Les cases vides sont un contour or en tirets (« Ajouter un personnage », « Ajouter un lieu », « Ton image clé apparaîtra ici »).
 
 Le texte envoyé est sous Détails › Texte envoyé, en lecture seule. Échafaudage anglais, répliques françaises entre guillemets. `<Picture N>` seulement pour les graphes H3 ouverts. Les autres graphes nomment « image N ». La timeline est 40 % de mise en place et 60 % d’action. « (portrait + planche) » n’est ajouté que si la fiche a déjà une planche.
 
-Après ★ Garder, le panneau Finaliser s’ouvre pour la prise et pour l’image. Trois réglages : Résolution (1080p, 4K éteint : « Aucun graphe vérifié ne va au-delà du 1080p. »), Netteté et détails (allumé), Fluidifier (éteint, vidéo seulement). La carte dit : « On garde ta prise telle quelle et on augmente sa résolution et sa netteté. » Une image dit la même phrase avec « ton image ». Une fois finalisé, l’aperçu a un curseur Avant / Après. Mon studio garde l’original et le fichier `-final`. Le montage accepte Gardée ou Finalisée. Un essai n’entre pas dans le cut.
+Après ★ Garder, le panneau Finaliser s’ouvre pour la prise et pour l’image. Trois réglages : Résolution (1080p, 4K éteint : « Aucun graphe vérifié ne va au-delà du 1080p. »), Netteté et détails (allumé), Fluidifier (éteint, vidéo seulement). La carte dit : « On garde ta prise telle quelle et on augmente sa résolution et sa netteté. » Une image dit la même phrase avec « ton image ». Une fois finalisé, l’aperçu compare la même image : Avant est adouci, Après est net, le curseur est or. Mon studio garde l’original et le fichier `-final`. Le montage accepte Gardée ou Finalisée. Un essai n’entre pas dans le cut.
+
+Le personnage du dépôt s’appelle Uttu (le personnage d’U*TTU). Les tuiles, le manifeste, les déclencheurs `uttu_v1` / `uttu_uttu` et les textes suivent ce nom. Le portrait est `cast-uttu.webp`.
 
 | Réglage | Graphe | Devis | Choisi |
 | --- | --- | --- | --- |
@@ -39,5 +43,5 @@ Captures sous `/opt/cursor/artifacts/screenshots/` : `prise-1280`, `prise-compos
 - Les lignes geste filmé, prolonger, retoucher et les 3 à 6 images clés sont dans la table, pas dans les tuiles.
 - 10 s est affiché, éteint : « Pas encore mesurée ».
 - Les phrases du composeur sont en français dans le code. Les calques EN, DE et ES de cet écran ne sont pas faits.
-- Sur 1280×800, la colonne de droite défile : le curseur Avant / Après, la phrase et la résolution sont visibles tout de suite. Fluidifier et le bouton Finaliser sont un défilement plus bas.
+- Sur 1280×800, la colonne de droite peut encore défiler quand le panneau Finaliser est ouvert : la phrase et le curseur sont en haut, Fluidifier plus bas.
 - Kling n’est pas proposé. Le registre des anciens gestes PRISE reste dans le catalogue pour les tests, il n’est plus affiché sur cet écran.

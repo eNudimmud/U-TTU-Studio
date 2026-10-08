@@ -9,7 +9,7 @@ import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Coffre } from "./glyphs";
 import { MontageStage } from "./montage-stage";
-import { FormatProvider, FormatSwitch } from "./format-switch";
+import { FormatProvider } from "./format-switch";
 import { CastStage, DecorStage, PriseStage } from "./stage-screens";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
@@ -124,7 +124,6 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       <a className="u-mark" href={assetPath("/studio#personnage")} aria-label="U*TTU Studio">U<em>*</em>TTU</a>
       <div className="u-top-project">
         {vault.projectName && <p className="u-project-name">{vault.projectName}</p>}
-        <FormatSwitch />
       </div>
       <div className="u-top-tools">
         <a className="u-coffre" href={assetPath("/mon-studio")} aria-label={t("nav.studio")}><Coffre /><span className="u-tool-label">{t("nav.studio")}</span></a>

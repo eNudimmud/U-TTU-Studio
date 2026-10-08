@@ -54,7 +54,7 @@ describe("rendu CAST et DÉCOR", () => {
   });
 
   it("builds the text, photo and sheet graphs without calling out", () => {
-    const text = stillGraph({ kind: "texte-cast", prompt: "Mira", images: [], seed: 1 });
+    const text = stillGraph({ kind: "texte-cast", prompt: "Uttu", images: [], seed: 1 });
     assert.equal(text.still?.class_type, "GeminiNanoBanana2V2");
     assert.equal(text.save?.class_type, "SaveImageAdvanced");
     const place = stillGraph({ kind: "texte-decor", prompt: "Un quai", images: [], seed: 2 });

@@ -57,7 +57,7 @@ Branche `cursor/role-previz-desk-386f`. Aucune formation réelle, aucun rendu r�
 | TypeScript | PASS | `tsc --noEmit`. Le build de production (`next build --webpack`) passe aussi. |
 | Look | PASS | Pas de « Former ton double ». Le fil porte Rôle. « Poser la scène » reste le geste principal. |
 | Personnage | PASS | Faits (clips, photos, ce que le fichier fera et ne fera pas) et prix `15,00 $` avant tout envoi. « Former ce personnage » ne part pas : le jeu de clips n’est pas prêt, et le bouton de débit n’est pas pressé. |
-| Remise à zéro | PASS | « Remettre ce personnage à zéro » efface le nom Lina. Mira, déjà au coffre, reste. |
+| Remise à zéro | PASS | « Remettre ce personnage à zéro » efface le nom Lina. Uttu, déjà au coffre, reste. |
 | Préviz | PASS | Plan Pièce : fichier `scenes/gare.glb`, magie `glTF`, 5 nœuds, 1004 octets, pas un JPEG. Le texte dit « Aucune image tant que le rendu n’en a pas renvoyé. » Aucune image n’est peinte. La feuille « Rendre l’image du lieu ? » dit que Blender ne tourne pas ici et que le montant n’est pas connu d’avance. Elle est fermée sans envoi. |
 | Écran large | PASS | À 1440 px : rail à gauche (232 px, dès 65 px du haut), marge du contenu 232 px, deux colonnes (648 px et 440 px). Pas de défilement horizontal. |
 | Téléphone | PASS | À 390 px : colonne unique (354 px), fil en bas (du haut 767 au bas 844), marge 0. Le fil montre Look, Rôle, Scène, Prise, Sphère. Pas de défilement horizontal. |
@@ -74,7 +74,7 @@ Branche `cursor/unlink-accounts-386f`. Aucun envoi vers un compte réel : **0 $ 
 | Tests unitaires | PASS : 155/155 | `npm test`. La feuille « Comptes » porte « Délier le compte de rendu » et « Délier le compte fal ». Les fonctions n’effacent ni le coffre ni un fichier formé. |
 | Feuille ouverte une fois relié | PASS | Après la liaison Comfy, le compteur ouvre « Comptes » et le bouton de déliaison y est. fal n’a le sien qu’une fois relié. |
 | Chacun de son côté | PASS | « Délier le compte fal » retire seulement `u-ttu-fal`. « Délier le compte de rendu » retire ensuite `u-ttu-rendu`. L’autre compte reste jusqu’à son propre geste. |
-| Le coffre reste | PASS | Deux photos, le nom Mira et les deux traits sont encore là après les deux déliaisons. Le compteur redevient « Relier ». |
+| Le coffre reste | PASS | Deux photos, le nom Uttu et les deux traits sont encore là après les deux déliaisons. Le compteur redevient « Relier ». |
 | Rien n’est lancé | PASS | 0 `POST /api/prompt`, 0 requête vers la file fal, Comfy ou Clerk. 0 erreur console. |
 
 ## Former son double — 3 octobre 2026

@@ -8,13 +8,13 @@ import {
 } from "../src/lib/fal-stack.ts";
 import { FAKE } from "./fal-fixtures.ts";
 
-const request = { lora: FAKE.lora, prompt: "mira_v1, plain grey background, soft even light", scale: 0.75, seed: 424242 };
+const request = { lora: FAKE.lora, prompt: "uttu_v1, plain grey background, soft even light", scale: 0.75, seed: 424242 };
 
 describe("fal stack", () => {
   it("trains a subject LoRA on the documented endpoint, captions from the gate kept", () => {
     assert.equal(FAL_ENDPOINTS.train, "fal-ai/flux-lora-fast-training");
-    assert.deepEqual(falTrainInput(FAKE.zipUrl, "mira_v1"), {
-      images_data_url: FAKE.zipUrl, trigger_word: "mira_v1", steps: 1000, create_masks: true, is_style: false,
+    assert.deepEqual(falTrainInput(FAKE.zipUrl, "uttu_v1"), {
+      images_data_url: FAKE.zipUrl, trigger_word: "uttu_v1", steps: 1000, create_masks: true, is_style: false,
     });
     assert.equal(FAL_TRAINING.steps, 1000);
     assert.ok(FAL_TRAINING.slider.min <= FAL_TRAINING.steps && FAL_TRAINING.steps <= FAL_TRAINING.slider.max);

@@ -60,9 +60,9 @@ Les vignettes SVG ne sont plus sur l’écran DÉCOR. Les exemples sont les fich
 | `cast-coursiere` | `cast-coursiere.webp` | La coursière | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
 | `cast-vieil-homme` | `cast-vieil-homme.webp` | Le vieil homme | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
 | `cast-dj` | `cast-dj.webp` | DJ | Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud |
-| `cast-mira` | `cast-mira.webp` | Mira, canon | copie de `public/images/uttu-canon-portrait.webp`, personnage fictif du dépôt |
+| `cast-uttu` | `cast-uttu.webp` | Uttu, canon | copie de `public/images/uttu-canon-portrait.webp`, personnage fictif du dépôt |
 
-Les photos libres qui servaient d’attente ont été retirées. Mira n’est pas un rendu Seedream : c’est le portrait fictif déjà dans le dépôt. Le guide n’est plus un exemple.
+Les photos libres qui servaient d’attente ont été retirées. Uttu n’est pas un rendu Seedream : c’est le portrait fictif déjà dans le dépôt. Le guide n’est plus un exemple.
 
 ## Après d’exemple — Nano Banana 2.1 (2026-10-08)
 

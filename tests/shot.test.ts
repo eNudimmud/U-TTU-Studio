@@ -17,8 +17,8 @@ describe("le plan filmé", () => {
   });
 
   it("tells the model the images are the empty place and the person is the LoRA", () => {
-    const prompt = shotPrompt({ subject: "mira_uttu", place: "Le quai", note: "pluie", frames: 5, line: "elle avance" });
-    assert.match(prompt, /mira_uttu is the person/);
+    const prompt = shotPrompt({ subject: "uttu_uttu", place: "Le quai", note: "pluie", frames: 5, line: "elle avance" });
+    assert.match(prompt, /uttu_uttu is the person/);
     assert.match(prompt, /not drawn in the place images/);
     assert.match(prompt, /Image 1 to Image 5/);
     assert.match(prompt, /camera moves/);

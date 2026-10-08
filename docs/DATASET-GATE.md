@@ -19,7 +19,7 @@ Verdict **PASS** si et seulement si aucun contrôle n’est en FAIL ni en À FAI
 
 ## Format imposé
 
-**Trigger.** 4 à 24 caractères, `a–z`, `0–9`, `_`. Il commence par une lettre et contient au moins un chiffre ou un `_` (ex. `mira_v1`). Une fois les chiffres et `_` retirés, il ne doit pas redonner un mot courant (`woman_1` → refusé).
+**Trigger.** 4 à 24 caractères, `a–z`, `0–9`, `_`. Il commence par une lettre et contient au moins un chiffre ou un `_` (ex. `uttu_v1`). Une fois les chiffres et `_` retirés, il ne doit pas redonner un mot courant (`woman_1` → refusé).
 
 **Légende.** `trigger, angle, cadrage, variables`. L’angle et le cadrage viennent des étiquettes, en anglais contrôlé : `front view` / `three-quarter view` / `side profile view` / `back view` ; `close-up portrait` / `upper body shot` / `full body shot`. Les variables décrivent ce qui change d’une image à l’autre : tenue, pose, décor, lumière, expression. Elles s’écrivent en anglais, recommandé pour l’encodeur T5 de Flux.
 
@@ -89,10 +89,10 @@ Au-dessus des cartes, le guide affiche le principe en une ligne : écrire ce qui
 
 | | Légende | Ce qu’elle apprend à la LoRA |
 | --- | --- | --- |
-| FAIL | `mira_v1, front view, close-up portrait, young woman, oval face, green eyes, freckles, long wavy red hair, full lips` | Les traits s’attachent aux mots de la légende, plus au trigger : il faudra les réécrire dans chaque prompt. G15 bloque les invariants déclarés, G16 les traits recopiés. |
-| PASS | `mira_v1, three-quarter view, upper body shot, laughing, leaning on a pillar, grey hoodie, subway platform, cold fluorescent light` | Expression, pose, tenue, décor, lumière : ce qui varie d’une image à l’autre. Le visage reste au trigger. |
+| FAIL | `uttu_v1, front view, close-up portrait, young woman, oval face, green eyes, freckles, long wavy red hair, full lips` | Les traits s’attachent aux mots de la légende, plus au trigger : il faudra les réécrire dans chaque prompt. G15 bloque les invariants déclarés, G16 les traits recopiés. |
+| PASS | `uttu_v1, three-quarter view, upper body shot, laughing, leaning on a pillar, grey hoodie, subway platform, cold fluorescent light` | Expression, pose, tenue, décor, lumière : ce qui varie d’une image à l’autre. Le visage reste au trigger. |
 
-Le trigger remplace `mira_v1` dès qu’il est valide. Le trigger, l’angle et le cadrage viennent des étiquettes : le client n’écrit que la fin, en anglais simple, sans tags du type « 1girl, masterpiece ». Les exemples sont construits avec `buildCaption` et vérifiés contre le gate par `tests/doctrine.test.ts`.
+Le trigger remplace `uttu_v1` dès qu’il est valide. Le trigger, l’angle et le cadrage viennent des étiquettes : le client n’écrit que la fin, en anglais simple, sans tags du type « 1girl, masterpiece ». Les exemples sont construits avec `buildCaption` et vérifiés contre le gate par `tests/doctrine.test.ts`.
 
 Sur chaque carte gardée :
 

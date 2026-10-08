@@ -28,7 +28,7 @@ const filmed = (patch: Partial<Take> = {}): Take => ({
   settings: { seconds: 5, quality: "rapide", aspect: "vertical" },
   profile: PROFILE,
   jobId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-  video: "Projets/mira/Prises/prise-f27.mp4",
+  video: "Projets/uttu/Prises/prise-f27.mp4",
   poster: null,
   prompt: PROMPT,
   gpuSeconds: null,
@@ -48,34 +48,34 @@ const filmed = (patch: Partial<Take> = {}): Take => ({
 describe("prise rangée après Tourner", () => {
   it("range la sortie dans Prises/ et lie la séquence et le plan quand ils existent", async () => {
     const store = memoryVault();
-    await createProject(store, "Mira");
+    await createProject(store, "Uttu");
     await writeSequence(store, sequence(), []);
     await writeShot(store, shot(), [], sequence().name);
     const take = filmed();
     await writeBlob(store, take.video, new Blob(["mp4"], { type: "video/mp4" }));
     const placed = await settleLandedTake(store, take, [sequence()], [shot()], [take]);
-    const note = (await store.get("Projets/mira/Prises/prise-f27.md"))?.text ?? "";
+    const note = (await store.get("Projets/uttu/Prises/prise-f27.md"))?.text ?? "";
     assert.match(note, /## Texte parti/);
     assert.match(note, new RegExp(PROMPT.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.match(note, new RegExp(`Profil : ${PROFILE}`));
     assert.match(note, /Job : aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/);
     assert.match(note, /Date : 2026-10-07 21:40/);
-    assert.match(note, /\[\[Projets\/mira\/Sequences\/quai-nuit\|Quai, la nuit\]\]/);
-    assert.match(note, /\[\[Projets\/mira\/Shots\/gros-plan\|Gros plan\]\]/);
+    assert.match(note, /\[\[Projets\/uttu\/Sequences\/quai-nuit\|Quai, la nuit\]\]/);
+    assert.match(note, /\[\[Projets\/uttu\/Shots\/gros-plan\|Gros plan\]\]/);
     assert.equal(placed.sequences[0]?.links[0]?.takeId, take.id);
     assert.deepEqual(placed.shots[0]?.takeIds, [take.id]);
-    const sequenceNote = (await store.get("Projets/mira/Sequences/quai-nuit.md"))?.text ?? "";
-    const shotNote = (await store.get("Projets/mira/Shots/gros-plan.md"))?.text ?? "";
-    assert.match(sequenceNote, /\[\[Projets\/mira\/Prises\/prise-f27\|Elle traverse\]\]/);
-    assert.match(shotNote, /\[\[Projets\/mira\/Prises\/prise-f27\|Elle traverse\]\]/);
+    const sequenceNote = (await store.get("Projets/uttu/Sequences/quai-nuit.md"))?.text ?? "";
+    const shotNote = (await store.get("Projets/uttu/Shots/gros-plan.md"))?.text ?? "";
+    assert.match(sequenceNote, /\[\[Projets\/uttu\/Prises\/prise-f27\|Elle traverse\]\]/);
+    assert.match(shotNote, /\[\[Projets\/uttu\/Prises\/prise-f27\|Elle traverse\]\]/);
     assert.doesNotMatch(note, /Coffre|Vault|class_type|UNETLoader/);
 
     const bare = memoryVault();
-    await createProject(bare, "Mira");
-    const alone = filmed({ id: "prise-seule", video: "Projets/mira/Prises/prise-seule.mp4" });
+    await createProject(bare, "Uttu");
+    const alone = filmed({ id: "prise-seule", video: "Projets/uttu/Prises/prise-seule.mp4" });
     await writeBlob(bare, alone.video, new Blob(["mp4"], { type: "video/mp4" }));
     await settleLandedTake(bare, alone, [], [], [alone]);
-    const lone = (await bare.get("Projets/mira/Prises/prise-seule.md"))?.text ?? "";
+    const lone = (await bare.get("Projets/uttu/Prises/prise-seule.md"))?.text ?? "";
     assert.match(lone, /Profil : h3-4pas-5s-vertical/);
     assert.doesNotMatch(lone, /Sequences\/|Shots\//);
   });
@@ -92,17 +92,17 @@ describe("prise rangée après Tourner", () => {
     assert.equal(journalCostLine({ ...read, announcedCredits: null, announcedHigh: null }), null);
 
     const store = memoryVault();
-    await createProject(store, "Mira");
+    await createProject(store, "Uttu");
     await writeBlob(store, unread.video, new Blob(["mp4"], { type: "video/mp4" }));
     await settleLandedTake(store, unread, [], [], [unread]);
-    const hidden = (await store.get("Projets/mira/Journal.md"))?.text ?? "";
+    const hidden = (await store.get("Projets/uttu/Journal.md"))?.text ?? "";
     assert.match(hidden, /## Devis et coût/);
     assert.match(hidden, /devis annoncé 4 crédits, au plus 6\. Coût réel non lu\./);
 
-    const seen = filmed({ id: "prise-lue", video: "Projets/mira/Prises/prise-lue.mp4", costCredits: 6, balanceBefore: 8, balanceAfter: 2 });
+    const seen = filmed({ id: "prise-lue", video: "Projets/uttu/Prises/prise-lue.mp4", costCredits: 6, balanceBefore: 8, balanceAfter: 2 });
     await writeBlob(store, seen.video, new Blob(["mp4"], { type: "video/mp4" }));
     await settleLandedTake(store, seen, [], [], [unread, seen]);
-    const journal = (await store.get("Projets/mira/Journal.md"))?.text ?? "";
+    const journal = (await store.get("Projets/uttu/Journal.md"))?.text ?? "";
     assert.match(journal, /prise-lue\|Elle traverse\]\] — devis annoncé 4 crédits, au plus 6\. Coût réel lu : 6 crédits\. Le coût réel dépasse le devis annoncé\./);
     assert.doesNotMatch(journal, /Coffre|Vault/);
   });
@@ -143,7 +143,7 @@ describe("prise rangée après Tourner", () => {
 
   it("conserve la note, les liens et le journal au retour du ZIP", async () => {
     const store = memoryVault();
-    await createProject(store, "Mira");
+    await createProject(store, "Uttu");
     await writeSequence(store, sequence(), []);
     await writeShot(store, shot(), [], sequence().name);
     const learned = learnTakeCost({ profile: PROFILE, quotes: [], before: 8, after: 2, at: AT, balance: 2 });
@@ -161,14 +161,14 @@ describe("prise rangée après Tourner", () => {
     const empty = memoryVault();
     await mergeCoffreZip(empty, archive);
     const back = await loadStudio(empty);
-    const note = (await empty.get("Projets/mira/Prises/prise-f27.md"))?.text ?? "";
+    const note = (await empty.get("Projets/uttu/Prises/prise-f27.md"))?.text ?? "";
     assert.match(note, new RegExp(PROMPT.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.match(note, /Profil : h3-4pas-5s-vertical/);
     assert.match(note, /Job : aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/);
     assert.match(note, /Date : 2026-10-07 21:40/);
     assert.match(note, /Sequences\/quai-nuit/);
     assert.match(note, /Shots\/gros-plan/);
-    const journal = (await empty.get("Projets/mira/Journal.md"))?.text ?? "";
+    const journal = (await empty.get("Projets/uttu/Journal.md"))?.text ?? "";
     assert.match(journal, /devis annoncé 4 crédits, au plus 6/);
     assert.match(journal, /Coût réel lu : 6 crédits/);
     assert.match(journal, /Le coût réel dépasse le devis annoncé/);

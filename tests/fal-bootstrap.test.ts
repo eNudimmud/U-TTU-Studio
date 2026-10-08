@@ -10,7 +10,7 @@ import { evaluateGate, framingTarget } from "../src/lib/gate/rules.ts";
 import { FACE_ANGLES, FRAMINGS } from "../src/lib/gate/vocabulary.ts";
 import { allConfirmed, makeImage } from "./fixtures.ts";
 
-const TRIGGER = "mira_v1";
+const TRIGGER = "uttu_v1";
 const INVARIANTS = "green eyes, freckles, scar on left cheek";
 
 describe("bootstrap plan", () => {

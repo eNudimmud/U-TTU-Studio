@@ -33,7 +33,7 @@ describe("ce que l’appareil retient", () => {
 
   it("round-trips a training and refuses a handle that is not on fal's queue", () => {
     const store = memory();
-    const flight = { handle, at: "2026-10-03T16:00:00.000Z", name: "Mira", trigger: "mira_uttu", steps: 1000, aspect: "9:16" as const, clips: 10, balanceBefore: 40 };
+    const flight = { handle, at: "2026-10-03T16:00:00.000Z", name: "Uttu", trigger: "uttu_uttu", steps: 1000, aspect: "9:16" as const, clips: 10, balanceBefore: 40 };
     saveTrainingFlight(store, flight);
     assert.deepEqual(readTrainingFlight(store), flight);
     saveTrainingFlight(store, { ...flight, handle: { ...handle, statusUrl: "https://evil.example/status" } });
@@ -50,19 +50,19 @@ describe("ce que l’appareil retient", () => {
       sceneId: "quai",
       sceneName: "Le quai",
       line: "Elle avance.",
-      prompt: "Image 1 shows mira_uttu.",
+      prompt: "Image 1 shows uttu_uttu.",
       settings: { seconds: 5 as const, quality: "rapide" as const, aspect: "vertical" as const },
       resolution: "768P" as const,
-      loraId: "mira",
+      loraId: "uttu",
       balanceBefore: 20,
     };
     saveLoraTakeFlight(store, flight);
-    assert.equal(readLoraTakeFlight(store)?.loraId, "mira");
+    assert.equal(readLoraTakeFlight(store)?.loraId, "uttu");
     saveLoraUploads(store, {
-      mira: { url: "https://v3.fal.media/files/mira.safetensors", until: 99 },
-      other: { url: "https://example.com/mira.safetensors", until: 99 },
+      uttu: { url: "https://v3.fal.media/files/uttu.safetensors", until: 99 },
+      other: { url: "https://example.com/uttu.safetensors", until: 99 },
     });
-    assert.deepEqual(readLoraUploads(store), { mira: { url: "https://v3.fal.media/files/mira.safetensors", until: 99 } });
+    assert.deepEqual(readLoraUploads(store), { uttu: { url: "https://v3.fal.media/files/uttu.safetensors", until: 99 } });
     assert.equal(store.getItem(LORA_UPLOADS_KEY)?.includes("example.com"), true);
     assert.equal(readLoraUploads(store).other, undefined);
   });

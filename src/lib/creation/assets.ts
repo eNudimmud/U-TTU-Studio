@@ -178,7 +178,7 @@ export function galleryColumns(width: number): number {
 }
 
 const CYCLE = [
-  { kind: "personnage" as const, file: "/exemples/cast-mira.webp", title: "Mira" },
+  { kind: "personnage" as const, file: "/exemples/cast-uttu.webp", title: "Uttu" },
   { kind: "personnage" as const, file: "/exemples/cast-coursiere.webp", title: "La coursière" },
   { kind: "personnage" as const, file: "/exemples/cast-vieil-homme.webp", title: "Le vieil homme" },
   { kind: "personnage" as const, file: "/exemples/cast-dj.webp", title: "DJ" },

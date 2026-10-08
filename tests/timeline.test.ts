@@ -113,7 +113,7 @@ describe("timeline", () => {
 
   it("round-trips the sequence sheet and refuses an older cut list", () => {
     const edit = exempleEdit();
-    const sheet = sequenceFiche(edit, "mira");
+    const sheet = sequenceFiche(edit, "uttu");
     assert.match(sheet, /type: "sequence"/);
     assert.match(sheet, /gesture: "montage"/);
     assert.match(sheet, /\| Ordre \| Piste \| Nom \| Début \| Durée \| Volume \| Fondu \| Source \|/);
@@ -142,7 +142,7 @@ describe("timeline", () => {
       saved: [],
       sequences: [{ id: "seq-1", name: "Séquence 1" }],
       shots: [shot("plan-1", "seq-1", ["prise-1"])],
-      takes: [{ id: "prise-1", line: "Elle avance", video: "Projets/mira/Prises/prise-1.mp4", settings: DEFAULT_TAKE }],
+      takes: [{ id: "prise-1", line: "Elle avance", video: "Projets/uttu/Prises/prise-1.mp4", settings: DEFAULT_TAKE }],
     });
     assert.equal(filed.stored, false);
     assert.equal(filed.edit.video[0].takeId, "prise-1");
@@ -152,19 +152,19 @@ describe("timeline", () => {
       saved: [emptyEdit("seq-1", "Vide")],
       sequences: [{ id: "seq-1", name: "Séquence 1" }],
       shots: [shot("plan-1", "seq-1", ["prise-1"])],
-      takes: [{ id: "prise-1", line: "Elle avance", video: "Projets/mira/Prises/prise-1.mp4", settings: DEFAULT_TAKE }],
+      takes: [{ id: "prise-1", line: "Elle avance", video: "Projets/uttu/Prises/prise-1.mp4", settings: DEFAULT_TAKE }],
     });
     assert.equal(kept.stored, true);
     assert.equal(kept.edit.video.length, 0);
 
     const store = memoryVault();
-    await createProject(store, "Mira");
-    const placed = placeLocalSources(addAudio(exempleEdit(), { ...tone("son-abc", 0, 1), source: "local:son-abc" }), "mira", { "son-abc": "mp3" });
-    assert.equal(placed.audio.at(-1)?.source, "Projets/mira/Sequences/son-abc.mp3");
+    await createProject(store, "Uttu");
+    const placed = placeLocalSources(addAudio(exempleEdit(), { ...tone("son-abc", 0, 1), source: "local:son-abc" }), "uttu", { "son-abc": "mp3" });
+    assert.equal(placed.audio.at(-1)?.source, "Projets/uttu/Sequences/son-abc.mp3");
     await writeMontageEdit(store, exempleEdit());
-    const note = await store.get("Projets/mira/Sequences/exemple-montage.md");
+    const note = await store.get("Projets/uttu/Sequences/exemple-montage.md");
     assert.ok(note?.text);
-    const loaded = await readMontages(store, "mira");
+    const loaded = await readMontages(store, "uttu");
     assert.equal(loaded.length, 1);
     assert.equal(loaded[0].video.length, 3);
     const studio = await loadStudio(store);

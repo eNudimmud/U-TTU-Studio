@@ -35,9 +35,9 @@ describe("texte qui part", () => {
       place: null,
       line: "Elle avance.",
       engine: "lora",
-      subject: "mira_uttu",
+      subject: "uttu_uttu",
     });
-    assert.match(lora, /^Image 1 shows mira_uttu, the same person\./);
+    assert.match(lora, /^Image 1 shows uttu_uttu, the same person\./);
     assert.equal(priseOutgoingText({ traits: [], photos: [], place: null, line: "Elle avance.", engine: "comfy" }), "");
 
     const memory: ProjectMemory = {
@@ -54,8 +54,8 @@ describe("texte qui part", () => {
   });
 
   it("uses the same words for a filmed path", () => {
-    const text = filmOutgoingText({ subject: "mira_uttu", place: "Le quai", note: "pluie", frames: 5 });
-    assert.equal(text, shotPrompt({ subject: "mira_uttu", place: "Le quai", note: "pluie", frames: 5, line: SHOT_LINE }));
+    const text = filmOutgoingText({ subject: "uttu_uttu", place: "Le quai", note: "pluie", frames: 5 });
+    assert.equal(text, shotPrompt({ subject: "uttu_uttu", place: "Le quai", note: "pluie", frames: 5, line: SHOT_LINE }));
     assert.match(text, /Image 1 to Image 5 show the place, Le quai/);
     assert.doesNotMatch(text, /La pluie ne s’arrête pas/);
   });
@@ -95,9 +95,9 @@ describe("texte qui part", () => {
       notes: [{ file: "nuit.md", text: "La ville reste noire." }],
     };
     const held = [memory.bible, memory.style, memory.lexique, memory.prompts, memory.notes[0].text];
-    const call = personnageOutgoingText("Mira");
-    assert.equal(call, triggerPhrase("Mira"));
-    assert.equal(call, "mira_uttu");
+    const call = personnageOutgoingText("Uttu");
+    assert.equal(call, triggerPhrase("Uttu"));
+    assert.equal(call, "uttu_uttu");
     assert.equal(personnageOutgoingText("  "), "");
     const trained = trainingRequest("https://example.invalid/clips.zip", { trigger: call, steps: 1000, aspect: "9:16" });
     assert.equal(trained.trigger_phrase, call);

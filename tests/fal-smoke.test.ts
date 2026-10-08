@@ -46,7 +46,7 @@ describe("fal smoke script", () => {
     assert.match(run.out, /Forme {6}OK : 15 JPEG, 15 légendes/);
     assert.match(run.out, /restent ici : captions_comfy\.txt, RAPPORT_GATE\.txt, gate\.json, LISEZMOI\.txt/);
     assert.match(run.out, /POST https:\/\/queue\.fal\.run\/fal-ai\/flux-lora-fast-training/);
-    assert.match(run.out, /"trigger_word":"mira_v1","steps":1000,"create_masks":true,"is_style":false/);
+    assert.match(run.out, /"trigger_word":"uttu_v1","steps":1000,"create_masks":true,"is_style":false/);
     assert.match(run.out, /fal-ai\/flux-lora · force 0,75/);
     assert.match(run.out, /= 2,04 \$ \(≈ CHF 1,67\)/);
     assert.match(run.out, /non vérifié/);
@@ -60,7 +60,7 @@ describe("fal smoke script", () => {
     assert.equal(four.status, 1);
     assert.match(four.out, /ZIP refusé, rien n’est parti/);
     assert.match(four.out, /4 images sur 15/);
-    const failed: ZipEntry[] = gate.all.map(entry => (entry.name === "gate.json" ? { name: entry.name, data: new TextEncoder().encode('{"verdict":"FAIL","trigger":"mira_v1"}') } : entry));
+    const failed: ZipEntry[] = gate.all.map(entry => (entry.name === "gate.json" ? { name: entry.name, data: new TextEncoder().encode('{"verdict":"FAIL","trigger":"uttu_v1"}') } : entry));
     const fail = dryRun(createZip(failed));
     assert.equal(fail.status, 1);
     assert.match(fail.out, /verdict FAIL, PASS exigé/);

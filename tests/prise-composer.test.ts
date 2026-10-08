@@ -289,7 +289,7 @@ describe("écran PRISE", () => {
     assert.match(source, /Texte envoyé/);
     assert.match(source, /requestRun\(\)/);
     assert.doesNotMatch(source, /confirmRun\(|GestePicker|Bientôt|prise-plan|run_template|submit_workflow|partner_generate|estimate_credits|fal\.ai/);
-    assert.match(readFileSync("src/components/app/studio-app.tsx", "utf8"), /FormatSwitch/);
+    assert.match(source, /FormatSwitch/);
     assert.match(readFileSync("src/components/app/app.css", "utf8"), /@media \(min-width: 1024px\)[\s\S]*u-prise-dock/);
   });
 });

@@ -75,12 +75,12 @@
       "licenseUrl": ""
     },
     {
-      "id": "cast-mira",
-      "file": "/exemples/cast-mira.webp",
+      "id": "cast-uttu",
+      "file": "/exemples/cast-uttu.webp",
       "kind": "cast",
       "aspect": "portrait",
       "statut": "maison",
-      "title": "Mira",
+      "title": "Uttu",
       "prompt": "Une femme au manteau sombre, regard calme.",
       "source": "public/images/uttu-canon-portrait.webp",
       "license": "Personnage fictif du dépôt",

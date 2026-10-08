@@ -13,8 +13,8 @@ describe("captions", () => {
   });
 
   it("builds trigger, angle, framing, then variables", () => {
-    assert.equal(buildCaption("mira_v1", "profil", "pied", "red coat"), "mira_v1, side profile view, full body shot, red coat");
-    assert.equal(buildCaption("mira_v1", null, null, ""), "mira_v1");
+    assert.equal(buildCaption("uttu_v1", "profil", "pied", "red coat"), "uttu_v1, side profile view, full body shot, red coat");
+    assert.equal(buildCaption("uttu_v1", null, null, ""), "uttu_v1");
   });
 
   it("parses invariants once each, ignoring noise", () => {
@@ -35,7 +35,7 @@ describe("captions", () => {
   });
 
   it("explains why a trigger is refused", () => {
-    assert.match(checkTrigger("mira") ?? "", /chiffre/);
+    assert.match(checkTrigger("uttu") ?? "", /chiffre/);
     assert.match(checkTrigger("girl_01") ?? "", /mot courant/);
     assert.equal(checkTrigger("uttu_v1"), null);
   });

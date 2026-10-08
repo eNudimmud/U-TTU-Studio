@@ -1,6 +1,6 @@
 import type { Angle, Framing } from "./vocabulary.ts";
 
-export const EXAMPLE_TRIGGER = "mira_v1";
+export const EXAMPLE_TRIGGER = "uttu_v1";
 
 export interface CaptionExample { angle: Angle; framing: Framing; variables: readonly string[] }
 

@@ -35,19 +35,19 @@ describe("prise qui recharge le fichier", () => {
       },
     } as unknown as FalClient;
     const sent = await submitLoraTake(fal, {
-      lora: { id: "mira", blob: file, url: null, urlUntil: null },
+      lora: { id: "uttu", blob: file, url: null, urlUntil: null },
       pictures: [{ blob: new Blob(["photo"]), name: "uttu-1.jpg" }],
-      prompt: "Image 1 shows mira_uttu, the same person.",
+      prompt: "Image 1 shows uttu_uttu, the same person.",
       seconds: 5,
       aspect: "9:16",
       resolution: "768P",
       seed: 7,
     }, () => {}, { now: () => 1_000 });
     assert.equal(captured.endpoint, LORA_TAKE);
-    assert.equal(sent.loraUrl, "https://v3.fal.media/files/mira.safetensors");
+    assert.equal(sent.loraUrl, "https://v3.fal.media/files/uttu.safetensors");
     assert.deepEqual(captured.body?.loras, [{ path: sent.loraUrl, scale: 1 }]);
     assert.deepEqual(captured.body?.reference_image_urls, ["https://v3.fal.media/files/uttu-1.jpg"]);
-    assert.equal(uploaded.find(item => item.name === "mira.safetensors")?.text, "vault-lora-bytes");
+    assert.equal(uploaded.find(item => item.name === "uttu.safetensors")?.text, "vault-lora-bytes");
   });
 
   it("reuses a copy fal still holds, and sends the vault file again once that copy is about to expire", async () => {
@@ -67,9 +67,9 @@ describe("prise qui recharge le fichier", () => {
       },
     } as unknown as FalClient;
     const input = {
-      lora: { id: "mira", blob: file, url: "https://v3.fal.media/files/still-there.safetensors", urlUntil: now + 3 * 3600 * 1000 },
+      lora: { id: "uttu", blob: file, url: "https://v3.fal.media/files/still-there.safetensors", urlUntil: now + 3 * 3600 * 1000 },
       pictures: [{ blob: new Blob(["photo"]), name: "uttu-1.jpg" }],
-      prompt: "Image 1 shows mira_uttu.",
+      prompt: "Image 1 shows uttu_uttu.",
       seconds: 5,
       aspect: "9:16" as const,
       resolution: "480P" as const,
@@ -100,7 +100,7 @@ describe("prise qui recharge le fichier", () => {
         return null;
       },
       async account() {
-        return { username: "mira", usd: 19.62 };
+        return { username: "uttu", usd: 19.62 };
       },
       async cancel() {},
     } as unknown as FalClient;

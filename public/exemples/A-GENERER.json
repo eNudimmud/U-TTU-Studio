@@ -7,7 +7,7 @@
       "template": "api_nano_banana_2_1_image_edit",
       "entrees": [
         {
-          "fichier": "/exemples/cast-mira.webp",
+          "fichier": "/exemples/cast-uttu.webp",
           "role": "visage",
           "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud"
         }

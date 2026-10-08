@@ -93,13 +93,13 @@ describe("galerie CAST et DÉCOR", () => {
   it("writes a markdown fiche and reads the same frontmatter back", async () => {
     const store = memoryVault();
     const cast = castNote({
-      id: "mira",
-      name: "Mira",
+      id: "uttu",
+      name: "Uttu",
       at: "2026-10-08T12:00:00.000Z",
       prompt: "Une femme au manteau sombre.",
       source: "texte",
-      photos: ["Projets/atelier/Cast/mira-p1.jpg"],
-      sheet: "Projets/atelier/Cast/mira-p1.jpg",
+      photos: ["Projets/atelier/Cast/uttu-p1.jpg"],
+      sheet: "Projets/atelier/Cast/uttu-p1.jpg",
       template: "api_bfl_flux3_t2i",
       quote: 8,
       cost: null,
@@ -109,9 +109,9 @@ describe("galerie CAST et DÉCOR", () => {
     assert.match(cast, /type: "cast"/);
     assert.match(cast, /moteur: "comfy"/);
     assert.match(cast, /cout: null/);
-    await store.put({ path: "Projets/atelier/Cast/mira.md", text: cast, updatedAt: 1 });
-    const back = readCastNote("mira", (await store.get("Projets/atelier/Cast/mira.md"))?.text ?? "");
-    assert.equal(back?.name, "Mira");
+    await store.put({ path: "Projets/atelier/Cast/uttu.md", text: cast, updatedAt: 1 });
+    const back = readCastNote("uttu", (await store.get("Projets/atelier/Cast/uttu.md"))?.text ?? "");
+    assert.equal(back?.name, "Uttu");
     assert.equal(back?.prompt, "Une femme au manteau sombre.");
     assert.equal(back?.quote, 8);
     assert.equal(back?.cost, null);
@@ -127,14 +127,14 @@ describe("galerie CAST et DÉCOR", () => {
       quote: 8,
       cost: null,
       project: "atelier",
-      castLink: "Projets/atelier/Cast/mira.md",
+      castLink: "Projets/atelier/Cast/uttu.md",
     });
-    assert.match(decor, /\[\[Projets\/atelier\/Cast\/mira\.md\|Personnage\]\]/);
+    assert.match(decor, /\[\[Projets\/atelier\/Cast\/uttu\.md\|Personnage\]\]/);
     assert.match(decor, /type: "decor"/);
     await store.put({ path: "Projets/atelier/Decors/quai.md", text: decor, updatedAt: 2 });
     const place = readDecorNote("quai", (await store.get("Projets/atelier/Decors/quai.md"))?.text ?? "");
     assert.equal(place?.name, "Le quai, la nuit");
-    assert.equal(place?.castLink, "Projets/atelier/Cast/mira.md");
+    assert.equal(place?.castLink, "Projets/atelier/Cast/uttu.md");
     assert.equal(place?.cost, null);
   });
 
@@ -161,10 +161,10 @@ describe("galerie CAST et DÉCOR", () => {
   it("sends a gallery card into PRISE and keeps a 44px target", () => {
     const coursiere = DEMO_CAST.find(card => card.preview?.endsWith("/cast-coursiere.webp"));
     assert.equal(coursiere?.name, "La coursière");
-    assert.equal(DEMO_CAST.find(card => card.name === "Mira")?.preview?.endsWith("/cast-mira.webp"), true);
-    assert.equal(DEMO_CAST.some(card => card.name === "Mira" && card.preview?.includes("coursiere")), false);
-    const picked = prisePick({ castId: "demo-mira", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR });
-    assert.equal(picked.who?.name, "Mira");
+    assert.equal(DEMO_CAST.find(card => card.name === "Uttu")?.preview?.endsWith("/cast-uttu.webp"), true);
+    assert.equal(DEMO_CAST.some(card => card.name === "Uttu" && card.preview?.includes("coursiere")), false);
+    const picked = prisePick({ castId: "demo-uttu", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR });
+    assert.equal(picked.who?.name, "Uttu");
     assert.equal(picked.where?.name, "Le quai, la nuit");
     assert.equal(picked.ready, true);
     assert.equal(prisePick({ castId: "absent", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR }).ready, false);
@@ -191,7 +191,7 @@ describe("galerie CAST et DÉCOR", () => {
     const places = manifest.items.filter(item => item.kind === "decor");
     const people = manifest.items.filter(item => item.kind === "cast");
     assert.deepEqual(places.map(item => item.id), decor);
-    assert.deepEqual(people.map(item => item.id), ["cast-mira", "cast-coursiere", "cast-vieil-homme", "cast-dj"]);
+    assert.deepEqual(people.map(item => item.id), ["cast-uttu", "cast-coursiere", "cast-vieil-homme", "cast-dj"]);
     for (const item of manifest.items) {
       assert.equal(item.statut, "maison");
       assert.equal(existsSync(item.file.replace(/^\//, "public/")), true, item.file);
@@ -210,7 +210,7 @@ describe("galerie CAST et DÉCOR", () => {
     assert.equal(existsSync("public/exemples/cast-guide.webp"), false);
     const maison = "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud";
     for (const item of manifest.items) {
-      if (item.id === "cast-mira") continue;
+      if (item.id === "cast-uttu") continue;
       assert.equal(item.statut, "maison");
       assert.equal(item.license, maison);
       assert.equal(item.file.endsWith(".webp"), true, item.file);

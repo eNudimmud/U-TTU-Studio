@@ -56,10 +56,10 @@ describe("le texte de la prise", () => {
     assert.match(text, /The shot: Elle traverse le quai\.$/);
     const lone = takePrompt({ traits: [], lookPictures: 1, place: { name: "Serre", note: "", pictures: 0 }, line: "" });
     assert.equal(lone, "<Picture 1> shows the same person. Keep this person for the whole shot. The place: Serre.");
-    const doubled = takePrompt({ traits: [], lookPictures: 2, place: null, line: "Elle avance.", tags: "image", subject: "mira_uttu" });
-    assert.match(doubled, /^Image 1 and Image 2 show mira_uttu, the same person\./);
+    const doubled = takePrompt({ traits: [], lookPictures: 2, place: null, line: "Elle avance.", tags: "image", subject: "uttu_uttu" });
+    assert.match(doubled, /^Image 1 and Image 2 show uttu_uttu, the same person\./);
     assert.doesNotMatch(`${text}\n${lone}\n${doubled}`, /night city/i);
-    const filmed = takePrompt({ traits: [], lookPictures: 0, place: { name: "Le quai", note: "", pictures: 1 }, line: "Elle avance.", tags: "image", subject: "mira_uttu" });
-    assert.match(filmed, /^mira_uttu is the person\. Keep the same person for the whole shot\. Image 1 shows the place, Le quai\./);
+    const filmed = takePrompt({ traits: [], lookPictures: 0, place: { name: "Le quai", note: "", pictures: 1 }, line: "Elle avance.", tags: "image", subject: "uttu_uttu" });
+    assert.match(filmed, /^uttu_uttu is the person\. Keep the same person for the whole shot\. Image 1 shows the place, Le quai\./);
   });
 });

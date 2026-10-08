@@ -49,7 +49,7 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.match(decor, /data-decor-gold/);
     assert.match(decor, /aria-describedby=\{blocked \? "u-why-decor"/);
     assert.match(prise, /data-composer-gold/);
-    assert.match(prise, /aria-describedby=\{decision\.enabled \? undefined : whyId\}/);
+    assert.match(prise, /aria-describedby=\{reasonText \? "u-prise-reason" : undefined\}/);
     assert.match(prise, /requestRun\(\)/);
     assert.doesNotMatch(prise, /confirmRun\(/);
     assert.match(prise, /goCast\(\)/);
