@@ -47,7 +47,7 @@
   "guide": {
     "look-photos": "Zwei Fotos, höchstens drei. Frontal, dann Dreiviertel. Den Rest webe ich.",
     "look-name": "Gib einen Namen. Den halte ich.",
-    "look-traits": "Zwei Züge, die bleiben. Die Augen, ein Mal.",
+    "look-traits": "Zwei Züge, wenn du sie hast. Nichts wird erfunden.",
     "look-ready": "Die Fotos halten. Setze jetzt den Drehort.",
     "scene-new": "Ort 1 steht da. Den Namen kannst du ändern.",
     "scene-still": "Ein Bild des Drehorts, und ich halte ihn von Take zu Take.",
@@ -72,7 +72,7 @@
     "sphere-empty": "Deine Takes kommen hier zur Ruhe.",
     "project-name": "Atelier steht schon da. Eine Geste legt das Projekt an.",
     "understood": "Verstanden",
-    "stepCharacter": "Mira und zwei Züge stehen da. Zwei Fotos.",
+    "stepCharacter": "Der Name steht da. Zwei Fotos.",
     "stepScene": "Ort 1 steht da. Eine Geste setzt ihn, dann der Take.",
     "stepTake": "Der Satz steht da. Verbinde, lies die Kalkulation, dann Drehen.",
     "stop": "Nicht mehr führen"
@@ -127,7 +127,7 @@
   "path": {
     "references": {
       "title": "Referenzen",
-      "body": "Mindestens zwei Fotos, höchstens drei, ein Name, zwei Züge. Nichts zu trainieren. Jeder « {engine} »-Take zahlt das Render-Konto, zum Preis beim Drehen.",
+      "body": "Mindestens zwei Fotos, höchstens drei, ein Name. Zwei Züge, wenn du sie hast. Nichts zu trainieren. Jeder « {engine} »-Take zahlt das Render-Konto, zum Preis beim Drehen.",
       "action": "Fotos halten"
     },
     "fichier": {
@@ -159,9 +159,9 @@
     "photos": "Fotos der Referenzen",
     "name": "Name",
     "traits": "Was sich nicht ändert",
-    "defaultName": "Mira",
+    "defaultName": "Figur 1",
     "placeholder": "grüne Augen, Sommersprossen",
-    "written": "Schon geschrieben. Name und Züge kannst du ändern.",
+    "written": "Schon geschrieben. Den Namen kannst du ändern.",
     "another": "ein weiterer",
     "held": "Was die Referenzen hält",
     "twoPhotos": "Mindestens zwei Fotos",
@@ -180,7 +180,8 @@
     "photo": "das Foto",
     "view": "die Ansicht",
     "still": "das Bild",
-    "removeTrait": "{item} entfernen"
+    "removeTrait": "{item} entfernen",
+    "traitsOptional": "Zwei Züge, wenn du sie hast. Nichts wird erfunden."
   },
   "scene": {
     "kicker": "02 · Deine Szene",
@@ -238,7 +239,8 @@
     "addView": "Eine Ansicht hinzufügen",
     "reset": "Diesen Drehort zurücksetzen",
     "resetStay": "Andere Drehorte, Takes und trainierte Figuren bleiben.",
-    "remove": "Diesen Drehort entfernen"
+    "remove": "Diesen Drehort entfernen",
+    "setAndTake": "Diesen Ort setzen, dann der Take"
   },
   "sequence": {
     "title": "Sequenzen",
@@ -371,7 +373,7 @@
     "theCharacter": "die Figur",
     "cameraBack": "Dieser Drehort öffnet sich wieder mit seiner Kamera.",
     "action": "Was der Take tut",
-    "actionPlaceholder": "Sie überquert den Kai im Regen, ohne sich umzudrehen.",
+    "actionPlaceholder": "Was die Figur an diesem Ort tut.",
     "written": "Der Satz steht schon da. Du kannst ihn ändern.",
     "engine": "Motor",
     "format": "Format",
@@ -397,11 +399,12 @@
     "measuredNote": "Die gemessene Kalkulation ist 5 s, vertikal, schnell. Eine andere Einstellung lässt Drehen aus.",
     "nextLabel": "Nach dem Take",
     "stayTakes": "Schon gedrehte Takes bleiben.",
-    "gapPhotos": "Zwei Fotos, ein Name und zwei Züge fehlen.",
+    "gapPhotos": "Zwei Fotos und ein Name fehlen.",
     "gapScene": "Ein Drehort fehlt.",
     "gapFile": "Der Motor Figur (Datei) wartet auf eine trainierte Datei.",
     "hintFile": "Eine Figur-Datei fehlt.",
-    "hintBlocked": "Preis oder Guthaben lässt den Take nicht gehen."
+    "hintBlocked": "Preis oder Guthaben lässt den Take nicht gehen.",
+    "defaultLine": "Die Figur ist an diesem Ort."
   },
   "job": {
     "running": "Läuft",
@@ -473,7 +476,7 @@
       "name": "Take · Referenzen",
       "sentence": "Die Fotos in « Mein Studio » werden ein Take, mit Ton.",
       "inputs": [
-        "Zwei Fotos, ein Name, zwei Züge",
+        "Zwei Fotos, ein Name. Zwei Züge, wenn du sie hast.",
         "Ein Drehort",
         "Ein Satz",
         "Dauer und Format"

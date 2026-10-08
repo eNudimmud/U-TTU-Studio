@@ -12,7 +12,7 @@ import { profileParts, quotesToRecords } from "@/lib/render/measured-quote";
 import { formatUsd } from "@/lib/fal/prices";
 import { folderLinkSupported } from "@/lib/coffre/link";
 import { takeProfile } from "@/lib/render/take-graph";
-import { nextNumberedName } from "@/lib/ergonomie";
+import { nextNumberedName, spendOnEnter } from "@/lib/ergonomie";
 import { assetPath } from "@/lib/site";
 import { Close, Refresh, Trash } from "./glyphs";
 import { PublishActions } from "./publish";
@@ -24,6 +24,16 @@ import { priseOutgoingText } from "@/lib/render/outgoing-text";
 import { OutgoingFilm, OutgoingLieu, OutgoingPersonnage, OutgoingTake } from "./outgoing-text";
 import { TakeCostLines } from "./take-cost";
 import { useStudio } from "./studio-context";
+
+function inSheet(el: HTMLElement | null): boolean {
+  if (!el) return false;
+  const rect = el.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) return false;
+  const sheet = el.closest(".u-sheet");
+  if (!sheet) return false;
+  const frame = sheet.getBoundingClientRect();
+  return rect.top < frame.bottom && rect.bottom > frame.top && rect.left < frame.right && rect.right > frame.left;
+}
 
 function SheetFrame({ title, label, onClose, children, tall = false }: { title: string; label: string; onClose(): void; children: ReactNode; tall?: boolean }) {
   const { t } = useI18n();
@@ -317,11 +327,27 @@ export function ConfirmSheet() {
     subject: chosenLora?.trigger,
   });
   const canConfirm = gate.allowed && gate.line.trim().length > 0 && outgoing.trim().length > 0;
+  const shoot = useRef(confirmRun);
+  shoot.current = confirmRun;
+  useEffect(() => {
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      const quote = document.getElementById("u-confirm-cost");
+      const sent = document.getElementById("u-confirm-sent");
+      const quoteVisible = inSheet(quote);
+      const textVisible = inSheet(sent);
+      const field = event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement;
+      if (!spendOnEnter(event, { field, quoteVisible, textVisible, allowed: canConfirm })) return;
+      event.preventDefault();
+      void shoot.current();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [canConfirm]);
   return <SheetFrame title={t("sheet.confirmShoot")} label={t("sheet.confirm")} onClose={() => setSheet(null)}>
     <div className="u-stack">
       <ul className="u-ledger">
         <li><span>{t("sheet.place")}</span><span>{scene?.name ?? "—"}</span></li>
-        <li><span>{t("take.action")}</span><span>{line.trim() || t("sheet.noLine")}</span></li>
+        <li><span>{t("take.action")}</span><span className="u-phrase">{line.trim() || t("sheet.noLine")}</span></li>
         {engine === "lora"
           ? <>
             <li><span>{t("nav.character")}</span><span>{chosenLora?.name || t("common.character")}</span></li>
@@ -333,10 +359,10 @@ export function ConfirmSheet() {
             <li><span>{t("sheet.yourBalance")}</span><span>{balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : t("sheet.unreadable")}</span></li>
           </>}
       </ul>
-      <p className={`u-cost is-${gate.tone}`}>{say(gate.line)}</p>
-      <OutgoingTake />
-      <button type="button" className="u-primary" disabled={!canConfirm} onClick={() => void confirmRun()}>{engine === "lora" ? t("sheet.shootFal") : t("sheet.shootRender")}</button>
-      <Why on={!canConfirm} text={t("why.hold")} />
+      <p id="u-confirm-cost" className={`u-cost is-${gate.tone}`}>{say(gate.line)}</p>
+      <OutgoingTake id="u-confirm-sent" />
+      <button type="button" className="u-primary" data-confirm-gold="" disabled={!canConfirm} aria-describedby={canConfirm ? "u-confirm-cost u-confirm-sent" : "u-why-confirm"} onClick={() => void confirmRun()}>{engine === "lora" ? t("sheet.shootFal") : t("sheet.shootRender")}</button>
+      <Why on={!canConfirm} id="u-why-confirm" text={t("why.hold")} />
       <p className="u-small">{t("sheet.nothing")}</p>
     </div>
   </SheetFrame>;

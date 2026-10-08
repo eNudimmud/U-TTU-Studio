@@ -47,7 +47,7 @@
   "guide": {
     "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",
     "look-name": "Donne un nom. C’est lui que je tiens.",
-    "look-traits": "Deux traits qui ne bougent pas. Les yeux, une marque.",
+    "look-traits": "Deux traits, si tu en as. Rien n’est inventé.",
     "look-ready": "Les photos tiennent. Pose maintenant le lieu.",
     "scene-new": "Lieu 1 est écrit. Tu peux changer le nom.",
     "scene-still": "Une image du lieu, et je le garde d’une prise à l’autre.",
@@ -72,7 +72,7 @@
     "sphere-empty": "Tes prises viendront se poser ici.",
     "project-name": "Atelier est écrit. Un geste crée le projet.",
     "understood": "Compris",
-    "stepCharacter": "Mira et deux traits sont écrits. Deux photos.",
+    "stepCharacter": "Le nom est écrit. Deux photos.",
     "stepScene": "Lieu 1 est écrit. Un geste le pose, puis la prise.",
     "stepTake": "La phrase est écrite. Relie, lis le devis, puis Tourner.",
     "stop": "Ne plus guider"
@@ -127,7 +127,7 @@
   "path": {
     "references": {
       "title": "Références",
-      "body": "Deux photos au moins, trois au plus, un nom, deux traits. Rien à former. Chaque prise « {engine} » paie le compte de rendu, au prix lu au moment de tourner.",
+      "body": "Deux photos au moins, trois au plus, un nom. Deux traits, si tu en as. Rien à former. Chaque prise « {engine} » paie le compte de rendu, au prix lu au moment de tourner.",
       "action": "Tenir les photos"
     },
     "fichier": {
@@ -159,9 +159,9 @@
     "photos": "Photos des références",
     "name": "Nom",
     "traits": "Ce qui ne change pas",
-    "defaultName": "Mira",
+    "defaultName": "Personnage 1",
     "placeholder": "yeux verts, taches de rousseur",
-    "written": "Déjà écrit. Tu peux changer le nom et les traits.",
+    "written": "Déjà écrit. Tu peux changer le nom.",
     "another": "un autre",
     "held": "Ce qui tient les références",
     "twoPhotos": "Deux photos au moins",
@@ -180,7 +180,8 @@
     "photo": "la photo",
     "view": "la vue",
     "still": "l’image",
-    "removeTrait": "Retirer {item}"
+    "removeTrait": "Retirer {item}",
+    "traitsOptional": "Deux traits, si tu en as. Rien n’est inventé."
   },
   "scene": {
     "kicker": "02 · Ta scène",
@@ -238,7 +239,8 @@
     "addView": "Ajouter une vue",
     "reset": "Remettre ce lieu à zéro",
     "resetStay": "Les autres lieux, les prises et les personnages formés restent.",
-    "remove": "Retirer ce lieu"
+    "remove": "Retirer ce lieu",
+    "setAndTake": "Poser ce lieu, puis la prise"
   },
   "sequence": {
     "title": "Séquences",
@@ -371,7 +373,7 @@
     "theCharacter": "le personnage",
     "cameraBack": "Ce lieu se rouvre avec sa caméra.",
     "action": "Ce que fait la prise",
-    "actionPlaceholder": "Elle traverse le quai sous la pluie, sans se retourner.",
+    "actionPlaceholder": "Ce que fait le personnage dans le lieu.",
     "written": "La phrase est déjà écrite. Tu peux la changer.",
     "engine": "Moteur",
     "format": "Format",
@@ -397,11 +399,12 @@
     "measuredNote": "Le devis mesuré est 5 s, vertical, rapide. Un autre réglage éteint Tourner.",
     "nextLabel": "Après la prise",
     "stayTakes": "Les prises déjà tournées restent.",
-    "gapPhotos": "Il manque deux photos, un nom et deux traits.",
+    "gapPhotos": "Il manque deux photos et un nom.",
     "gapScene": "Il manque un lieu.",
     "gapFile": "Le moteur Personnage (fichier) attend un fichier formé.",
     "hintFile": "Il manque un fichier de personnage.",
-    "hintBlocked": "Le prix ou le solde ne laisse pas partir la prise."
+    "hintBlocked": "Le prix ou le solde ne laisse pas partir la prise.",
+    "defaultLine": "Le personnage est dans le lieu."
   },
   "job": {
     "running": "En cours",
@@ -473,7 +476,7 @@
       "name": "Prise · Références",
       "sentence": "Les photos de mon studio deviennent une prise, avec le son.",
       "inputs": [
-        "Deux photos, un nom, deux traits",
+        "Deux photos, un nom. Deux traits, si tu en as.",
         "Un lieu",
         "Une phrase",
         "La durée et le format"

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn, type ChildProcess } from "node:child_process";
 import { execFile } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -166,6 +166,59 @@ async function readBand(page: Page): Promise<Band> {
   });
 }
 
+const TINY_JPEG = Buffer.from("/9j/4AAQSkZJRgABAgAAAQABAAD//gAQTGF2YzYwLjMxLjEwMgD/2wBDAAgEBAQEBAUFBQUFBQYGBgYGBgYGBgYGBgYHBwcICAgHBwcGBgcHCAgICAkJCQgICAgJCQoKCgwMCwsODg4RERT/xABLAAEBAAAAAAAAAAAAAAAAAAAABAEBAAAAAAAAAAAAAAAAAAAABhABAAAAAAAAAAAAAAAAAAAAABEBAAAAAAAAAAAAAAAAAAAAAP/AABEIAAgACAMBIgACEQADEQD/2gAMAwEAAhEDEQA/AKABwkf/2Q==", "base64");
+
+interface GoldBox {
+  missing: boolean;
+  text: string;
+  top: number;
+  bottom: number;
+  height: number;
+  chainTop: number;
+  covered: boolean;
+  onScreen: boolean;
+  scroll: number;
+}
+
+async function readGold(page: Page, selector: string): Promise<GoldBox> {
+  return page.evaluate((selector) => {
+    const button = document.querySelector(selector);
+    const chain = document.querySelector(".u-chain");
+    if (!(button instanceof HTMLElement) || !chain) {
+      return { missing: true, text: "", top: 0, bottom: 0, height: 0, chainTop: 0, covered: true, onScreen: false, scroll: window.scrollY };
+    }
+    const b = button.getBoundingClientRect();
+    const c = chain.getBoundingClientRect();
+    const overlaps = b.top < c.bottom && b.bottom >= c.top && b.left < c.right && b.right > c.left;
+    const sheet = button.closest(".u-sheet");
+    let covered = overlaps && !sheet;
+    if (sheet) {
+      const hit = document.elementFromPoint(b.left + b.width / 2, Math.min(b.bottom - 4, b.top + b.height / 2));
+      covered = !(hit === button || button.contains(hit));
+    }
+    const onScreen = b.top >= 0 && b.left >= 0 && b.bottom <= window.innerHeight && b.right <= window.innerWidth;
+    return {
+      missing: false,
+      text: (button.textContent ?? "").replace(/\s+/g, " ").trim(),
+      top: Math.round(b.top),
+      bottom: Math.round(b.bottom),
+      height: Math.round(b.height),
+      chainTop: Math.round(c.top),
+      covered,
+      onScreen,
+      scroll: window.scrollY,
+    };
+  }, selector);
+}
+
+function assertGoldClear(box: GoldBox, selector: string) {
+  assert.equal(box.missing, false, selector);
+  assert.equal(box.scroll, 0, `${selector} ${box.text}`);
+  assert.equal(box.covered, false, `${selector} ${box.text} ${box.bottom} chaîne ${box.chainTop}`);
+  assert.equal(box.onScreen, true, `${selector} ${box.text} ${box.top}–${box.bottom} chaîne ${box.chainTop}`);
+  assert.ok(box.height >= 44, `${selector} ${box.height}`);
+}
+
 function assertOnScreen(band: Band, blocked: boolean) {
   assert.equal(band.overflow, 0, band.label);
   assert.ok(band.buttonHeight >= 44, `${band.label} ${band.buttonHeight}`);
@@ -203,6 +256,16 @@ describe("F30 prise, geste or et parcours", () => {
       await waitForStudio(port, child);
       const page = await browser.newPage();
       await page.setCacheEnabled(false);
+      await page.evaluateOnNewDocument(() => {
+        const mark = window as unknown as { __cls: number };
+        mark.__cls = 0;
+        new PerformanceObserver(list => {
+          for (const entry of list.getEntries()) {
+            const shift = entry as PerformanceEntry & { hadRecentInput?: boolean; value?: number };
+            if (!shift.hadRecentInput) mark.__cls += shift.value ?? 0;
+          }
+        }).observe({ type: "layout-shift", buffered: true });
+      });
       let beforeCents = 10000;
       let afterPrompt = false;
       await page.setRequestInterception(true);
@@ -274,6 +337,124 @@ describe("F30 prise, geste or et parcours", () => {
         await page.reload({ waitUntil: "networkidle0", timeout: 60_000 });
         await page.waitForSelector("[data-prise-gold]", { timeout: 20_000 });
         await new Promise(resolve => setTimeout(resolve, 400));
+      }
+
+      const photoA = join(tmpdir(), "uttu-f32-a.jpg");
+      const photoB = join(tmpdir(), "uttu-f32-b.jpg");
+      writeFileSync(photoA, TINY_JPEG);
+      writeFileSync(photoB, TINY_JPEG);
+
+      async function fresh(width: number, height: number) {
+        beforeCents = 10000;
+        await page.setViewport({ width, height, deviceScaleFactor: 2 });
+        await page.setCookie({ name: "u-ttu-locale", value: "fr", url: origin });
+        await page.goto(`${origin}/studio`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+        await page.evaluate(async () => {
+          localStorage.clear();
+          localStorage.setItem("u-ttu-locale", "fr");
+          localStorage.setItem("u-ttu-rendu", JSON.stringify({ mode: "key", key: "comfyui-0123456789abcdef" }));
+          await new Promise<void>(resolve => {
+            const del = indexedDB.deleteDatabase("uttu-coffre");
+            del.onsuccess = () => resolve();
+            del.onerror = () => resolve();
+            del.onblocked = () => resolve();
+          });
+        });
+        await page.reload({ waitUntil: "networkidle0", timeout: 60_000 });
+        await page.waitForSelector("[data-projet-gold]", { timeout: 20_000 });
+        await page.evaluate(() => window.scrollTo(0, 0));
+      }
+
+      async function clearGold(selector: string) {
+        await page.evaluate(async () => {
+          const settle = () => window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+          settle();
+          const start = performance.now();
+          while (window.scrollY !== 0 && performance.now() - start < 600) {
+            settle();
+            await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+          }
+        });
+        const box = await readGold(page, selector);
+        assertGoldClear(box, selector);
+        return box;
+      }
+
+      async function clearGoldText(text: string) {
+        const marked = await page.evaluate((text) => {
+          const button = [...document.querySelectorAll("button.u-primary")].find(item =>
+            item.textContent?.includes(text) && !(item as HTMLButtonElement).disabled);
+          if (!(button instanceof HTMLElement)) return false;
+          button.setAttribute("data-path-gold", "");
+          return true;
+        }, text);
+        assert.equal(marked, true, text);
+        try {
+          return await clearGold("[data-path-gold]");
+        } finally {
+          await page.evaluate(() => document.querySelector("[data-path-gold]")?.removeAttribute("data-path-gold"));
+        }
+      }
+
+      for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 800 }] as const) {
+        await fresh(viewport.width, viewport.height);
+        await clearGold("[data-projet-gold]");
+        await page.click("[data-projet-gold]");
+        await page.waitForSelector("#u-look-name", { timeout: 20_000 });
+        await page.evaluate(() => window.scrollTo(0, 0));
+        const beforePhotos = await readGold(page, "[data-look-gold]");
+        const input = await page.$(".u-photos input");
+        if (!input) throw new Error("Sélecteur de photos absent");
+        await page.evaluate(() => { (window as unknown as { __cls: number }).__cls = 0; });
+        await input.uploadFile(photoA, photoB);
+        await page.waitForFunction(() => {
+          const label = document.querySelector("[data-look-gold]")?.textContent ?? "";
+          return /Poser la scène|Set the scene|Szene setzen|Colocar la escena/.test(label);
+        }, { timeout: 15_000 });
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const afterPhotos = await clearGold("[data-look-gold]");
+        assert.equal(afterPhotos.top, beforePhotos.top, `CLS ${viewport.width} ${beforePhotos.top} → ${afterPhotos.top}`);
+        const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+        assert.ok(cls < 0.01, `CLS ${viewport.width} ${cls}`);
+        for (const locale of ["de", "en", "es", "fr"] as const) {
+          await page.select(".u-top .u-lang select", locale);
+          await page.waitForFunction((code) => document.documentElement.lang.toLowerCase().startsWith(code === "fr" ? "fr" : code), { timeout: 5_000 }, locale);
+          await new Promise(resolve => setTimeout(resolve, 150));
+          await clearGold("[data-look-gold]");
+        }
+        await page.click("[data-look-gold]");
+        await page.waitForSelector("#u-lieu", { timeout: 20_000 });
+        await clearGold("[data-lieu-gold]");
+        for (const locale of ["de", "en", "es", "fr"] as const) {
+          await page.select(".u-top .u-lang select", locale);
+          await new Promise(resolve => setTimeout(resolve, 150));
+          await clearGold("[data-lieu-gold]");
+        }
+        await page.click("[data-lieu-gold]");
+        await page.waitForSelector("[data-prise-gold]", { timeout: 20_000 });
+        await page.waitForFunction(() => {
+          const field = document.querySelector("#u-prise-phrase");
+          return field instanceof HTMLTextAreaElement && field.value.length > 0;
+        }, { timeout: 10_000 });
+        await clearGold("[data-prise-gold]");
+        for (const locale of ["de", "en", "es", "fr"] as const) {
+          await page.select(".u-top .u-lang select", locale);
+          await new Promise(resolve => setTimeout(resolve, 200));
+          await clearGold("[data-prise-gold]");
+        }
+        await page.click("[data-prise-gold]");
+        await page.waitForSelector("[data-confirm-gold]:not([disabled])", { timeout: 10_000 });
+        for (const locale of ["de", "en", "es", "fr"] as const) {
+          await page.select(".u-top .u-lang select", locale);
+          await new Promise(resolve => setTimeout(resolve, 200));
+          await clearGold("[data-confirm-gold]");
+        }
+        await page.click("[data-confirm-gold]");
+        await page.waitForFunction(() => [...document.querySelectorAll("button.u-primary")].some(button => button.textContent?.includes("Poser le plan")), { timeout: 20_000 });
+        await clearGoldText("Poser le plan");
+        await clickLabel("Poser le plan");
+        await page.waitForFunction(() => [...document.querySelectorAll("button.u-primary")].some(button => button.textContent?.includes("Lire la séquence") && !(button as HTMLButtonElement).disabled), { timeout: 10_000 });
+        await clearGoldText("Lire la séquence");
       }
 
       await open(390, 844, false, false, false);

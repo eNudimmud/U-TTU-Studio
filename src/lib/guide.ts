@@ -32,7 +32,7 @@ export type GuideMoment =
 export const GUIDE_LINES: Record<GuideMoment, string> = {
   "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",
   "look-name": "Donne un nom. C’est lui que je tiens.",
-  "look-traits": "Deux traits qui ne bougent pas. Les yeux, une marque.",
+  "look-traits": "Deux traits, si tu en as. Rien n’est inventé.",
   "look-ready": "Les photos tiennent. Pose maintenant le lieu.",
   "scene-new": "Lieu 1 est écrit. Tu peux changer le nom.",
   "scene-still": "Une image du lieu, et je le garde d’une prise à l’autre.",
