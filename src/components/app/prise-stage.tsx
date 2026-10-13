@@ -439,9 +439,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       reason: fin.reason,
     }
     : cardDecision;
+  const statusWord = t(card.statut === "mesure" ? "create.statusMeasured" : card.statut === "hypothese" ? "create.statusHypothesis" : "create.statusUnknown");
+  const ceiling = card.cap === null
+    ? ""
+    : ` · ${t(card.statut === "mesure" ? "create.ceilingMeasured" : "create.ceilingHyp", { high: fr(card.cap) })}`;
   const quoteLine = card.quote === null
-    ? "Devis : inconnu"
-    : `Devis : ${fr(card.quote)} · ${card.statut === "mesure" ? "mesuré" : card.statut === "hypothese" ? "hypothèse" : "inconnu"}${card.cap !== null ? ` · Plafond ${fr(card.cap)}` : ""}`;
+    ? t("create.quoteUnknown")
+    : `${t("create.quoteLead", { quote: fr(card.quote), status: statusWord })}${ceiling}`;
   const sameAsMots = Boolean(reasonText) && reasonText === card.mots;
   const sameAsPourquoi = Boolean(reasonText) && reasonText === card.pourquoi;
 
@@ -524,46 +528,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <button type="button" className="u-link" data-lire-sequence="" data-envoyer-montage="" disabled={sending} aria-describedby={sending ? "u-why-envoyer" : undefined} onClick={() => void envoyer()}>{t("r7.envoyer")}</button>
       {sending && <p className="u-why" id="u-why-envoyer">{t("nav.opening")}</p>}
     </div>
-
-    <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
-      <div className="u-prise-card" id="u-prise-card" data-row={showFinal ? "final" : cardDecision.row}>
-        <p className="u-label">Ce que l'app va faire</p>
-        <p className="u-prise-brief" data-lire-maquette="">
-          <span>{t("r7.lireCast")} : {maquette.figures.map(figure => figure.name).join(", ") || "—"}</span>
-          <span>{t("r7.lireLieu")} : {shownPlace?.name || "—"}{quartier ? ` · ${t("r7.rue")}` : ""}</span>
-          <span>{t("r7.lireCadrage")} : {t(`r7.tuile.${maquette.tuile}`)}</span>
-        </p>
-        <h2>{card.titre || "En attente"}</h2>
-        {card.mots && !sameAsMots && <p>{card.mots}</p>}
-        {card.pourquoi && card.pourquoi !== card.mots && !sameAsPourquoi && <p>{card.pourquoi}</p>}
-        <p className="u-prise-quote">{quoteLine}</p>
-        <button type="button" className="u-link" aria-expanded={details} onClick={() => setDetails(open => !open)}>Détails</button>
-        {details && <div className="u-prise-details">
-          {card.graph && <p>Graphe : {card.graph}</p>}
-          {showFinal && fin.graphs.filter(item => !item.choisi).map(item => <p key={item.id}>{item.role} : {item.note}</p>)}
-          <button type="button" className="u-link" aria-expanded={textOpen} onClick={() => setTextOpen(open => !open)}>Texte envoyé</button>
-          {textOpen && <textarea className="u-prise-prompt" readOnly value={prompt.text} aria-label="Texte envoyé" />}
-        </div>}
-      </div>
-
-      {showFinal && <FinalPanel
-        value={{ ...finaliser, media: mediaKind, seconds: input.duree }}
-        onMedia={next => { setMediaKind(next); setFinaliser(finaliserDefaults(next, input.duree)); }}
-        onChange={setFinaliser}
-        plan={fin}
-      />}
-
-      <div className="u-prise-actions">
-        <p className="u-prise-quote u-bar-quote">{quoteLine}</p>
-        {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
-        <button type="button" className="u-primary" data-composer-gold={gold.composer ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}{gold.price}</button>
-        {ask === "composer" && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
-        {extra && <button type="button" className="u-secondary" disabled={!extra.enabled} aria-describedby={!extra.enabled && extra.reason ? (extra.reason === reasonText ? "u-prise-reason" : "u-prise-extra") : undefined} onClick={extra.onClick}>{extra.label}{extra.price}</button>}
-        {extraReason && <p className="u-why" id="u-prise-extra">{extraReason}</p>}
-      </div>
-    </aside>
     </div>
 
+    <div className="u-prise-rail">
     <div className="u-prise-work">
       <header className="u-prise-head">
         <div className="u-prise-title">
@@ -684,6 +651,45 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {!input.previousKept && input.enchainer && <p className="u-why">Le plan précédent n'est pas encore gardé.</p>}
         <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>Imposer l'image de fin</button>
       </details>
+    </div>
+
+    <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
+      <div className="u-prise-card" id="u-prise-card" data-row={showFinal ? "final" : cardDecision.row}>
+        <p className="u-label">Ce que l'app va faire</p>
+        <p className="u-prise-brief" data-lire-maquette="">
+          <span>{t("r7.lireCast")} : {maquette.figures.map(figure => figure.name).join(", ") || "—"}</span>
+          <span>{t("r7.lireLieu")} : {shownPlace?.name || "—"}{quartier ? ` · ${t("r7.rue")}` : ""}</span>
+          <span>{t("r7.lireCadrage")} : {t(`r7.tuile.${maquette.tuile}`)}</span>
+        </p>
+        <h2>{card.titre || "En attente"}</h2>
+        {card.mots && !sameAsMots && <p>{card.mots}</p>}
+        {card.pourquoi && card.pourquoi !== card.mots && !sameAsPourquoi && <p>{card.pourquoi}</p>}
+        <p className="u-prise-quote">{quoteLine}</p>
+        <button type="button" className="u-link" aria-expanded={details} onClick={() => setDetails(open => !open)}>Détails</button>
+        {details && <div className="u-prise-details">
+          {card.graph && <p>Graphe : {card.graph}</p>}
+          {showFinal && fin.graphs.filter(item => !item.choisi).map(item => <p key={item.id}>{item.role} : {item.note}</p>)}
+          <button type="button" className="u-link" aria-expanded={textOpen} onClick={() => setTextOpen(open => !open)}>Texte envoyé</button>
+          {textOpen && <textarea className="u-prise-prompt" readOnly value={prompt.text} aria-label="Texte envoyé" />}
+        </div>}
+      </div>
+
+      {showFinal && <FinalPanel
+        value={{ ...finaliser, media: mediaKind, seconds: input.duree }}
+        onMedia={next => { setMediaKind(next); setFinaliser(finaliserDefaults(next, input.duree)); }}
+        onChange={setFinaliser}
+        plan={fin}
+      />}
+
+      <div className="u-prise-actions">
+        <p className="u-prise-quote u-bar-quote">{quoteLine}</p>
+        {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
+        <button type="button" className="u-primary" data-composer-gold={gold.composer ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}{gold.price}</button>
+        {ask === "composer" && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
+        {extra && <button type="button" className="u-secondary" disabled={!extra.enabled} aria-describedby={!extra.enabled && extra.reason ? (extra.reason === reasonText ? "u-prise-reason" : "u-prise-extra") : undefined} onClick={extra.onClick}>{extra.label}{extra.price}</button>}
+        {extraReason && <p className="u-why" id="u-prise-extra">{extraReason}</p>}
+      </div>
+    </aside>
     </div>
 
   </section>;

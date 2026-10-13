@@ -326,7 +326,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       <p className="u-small">{t("r7.pasAngle")}</p>
       <QuartierView quartier={quartier} regard={regard} onStand={stand => setQuartier(current => current ? { ...current, stand } : current)} />
     </section>}
-    {quartier && <section className={photoState === "token" ? "u-photos is-off" : "u-photos"} aria-label={t("r7.photosLieu")} data-photos={demo && photoState === "ready" ? "fixture" : photoState}>
+    {quartier && <section className={photoState === "token" ? "u-photos u-photos-lieu is-off" : "u-photos u-photos-lieu"} aria-label={t("r7.photosLieu")} data-photos={demo && photoState === "ready" ? "fixture" : photoState}>
       <p className="u-label">{t("r7.photosLieu")}</p>
       {photoState === "token" && <p className="u-why">{t("r7.photosOff")}</p>}
       {photoState === "load" && <p className="u-small">{t("r7.photosBusy")}</p>}

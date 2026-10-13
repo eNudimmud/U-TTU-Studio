@@ -48,6 +48,25 @@ function layout() {
     if (style.overflow === "hidden" && node.scrollHeight > node.clientHeight + 2) clipped.push((node.textContent ?? "").trim().slice(0, 40));
   }
   if (clipped.length) problems.push(`texte coupé ${clipped.join(" | ")}`);
+  const scene = document.querySelector(".u-scene-row textarea");
+  const dock = document.querySelector(".u-prise-dock");
+  if (scene instanceof HTMLElement && dock instanceof HTMLElement) {
+    const a = scene.getBoundingClientRect();
+    const b = dock.getBoundingClientRect();
+    const overlap = a.width > 0 && b.width > 0 && !(a.bottom <= b.top + 1 || a.top >= b.bottom - 1 || a.right <= b.left + 1 || a.left >= b.right - 1);
+    if (overlap) problems.push("ce qui se passe recouvert");
+    if (scene.scrollHeight > scene.clientHeight + 2) problems.push("ce qui se passe coupé");
+  }
+  for (const span of document.querySelectorAll(".u-photo span")) {
+    if (!(span instanceof HTMLElement)) continue;
+    const text = (span.textContent ?? "").trim();
+    if (span.scrollHeight > span.clientHeight + 2 || span.scrollWidth > span.clientWidth + 2) problems.push(`légende coupée ${text.slice(0, 48)}`);
+    if (text.includes("Panoramax") && !/CC BY-SA/.test(text)) problems.push(`légende incomplète ${text.slice(0, 48)}`);
+  }
+  for (const node of document.querySelectorAll(".u-ceiling, .u-prise-quote")) {
+    const text = node.textContent ?? "";
+    if (/Plafond|Deckel |Tope /.test(text)) problems.push(`plafond opaque ${text.trim().slice(0, 60)}`);
+  }
   return problems.join("; ");
 }
 
@@ -72,6 +91,7 @@ for (const [width, height, label] of sizes) {
   await page.getByRole("button", { name: "Montmartre", exact: true }).click();
   await page.locator("[data-quartier='1']").waitFor();
   await page.locator("[data-photos=fixture]").waitFor();
+  await page.locator(".u-photos-lieu").scrollIntoViewIfNeeded();
   await page.locator("[data-photo=fixture-ada]").click();
   await page.locator("[data-photo-ajoute]").waitFor();
   await page.locator("[data-pas='2']").scrollIntoViewIfNeeded();
@@ -88,7 +108,10 @@ for (const [width, height, label] of sizes) {
   await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
   await page.locator("[data-maquette][data-quartier='1']").waitFor();
   await page.locator("[data-figures='1']").waitFor();
-  await page.waitForTimeout(1200);
+  const action = page.locator(".u-scene-row textarea");
+  await action.fill("Elle s'arrête au bord du quai, regarde la rue, et reste immobile.");
+  await action.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
   for (const dir of dirs) {
     await page.screenshot({ path: `${dir}/r7-prise-${label}.png` });
     await page.screenshot({ path: `${dir}/r7-prise-1-${label}.png` });
@@ -114,3 +137,4 @@ for (const [width, height, label] of sizes) {
 
 await browser.close();
 console.log(notes.join("\n"));
+if (notes.some(line => /recouvert|coupé|légende|plafond opaque/.test(line))) process.exit(1);

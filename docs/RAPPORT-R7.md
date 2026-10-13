@@ -33,13 +33,15 @@ Chaque personnage ajouté se place sur une ligne, face caméra, avec une couleur
 
 « Ce qui se passe » n’est écrit qu’une fois. « Qui ? » montre les personnages réellement dans la scène. Un plan qui a un cast, un lieu ou une action dit « En place », plus « Vide ». Tourner et Retirer sont des puces, plus des rangées hautes.
 
+À 1280, le champ « Ce qui se passe » et le panneau « Ce que l’app va faire » sont dans la même colonne de droite. Elle défile toute seule : le panneau ne recouvre plus le champ, et le texte n’est plus coupé. Le devis se lit « Au maximum 18,75 crédits (mesuré). » Le même tour de phrase vaut partout : « Au maximum 18 crédits (estimation). » à la place de « Plafond 18, hypothèse. »
+
 ### Décor
 
 Trois gestes, tout en open source. Aucune clé Google, aucun Street View, aucune tuile Google. Un lien Google collé est seulement lu.
 
 1. On touche un point n’importe où sur la carte (MapLibre GL, style OpenFreeMap). Le champ « Où ? » accepte aussi un nom, des coordonnées, un lien, ou un fichier KML, KMZ ou GeoJSON. Quatre exemples : Montmartre, Shibuya, Brooklyn Bridge, Genève.
 2. La vue depuis le sol s’ouvre en three.js. On tourne la tête au doigt pour choisir l’angle. Les bâtiments et les rues viennent d’Overpass (OpenStreetMap), appelé depuis le navigateur. Les photos de rue viennent d’abord de Panoramax, ouvert et sans jeton, avec les vues 360° en premier. Mapillary n’est appelé que si `NEXT_PUBLIC_MAPILLARY_TOKEN` est présent. Un tap choisit une photo et l’enregistre dans les références du décor, avec l’auteur et la licence.
-3. « Créer le décor » est le seul coût affiché : ≈ 13 crédits, hypothèse, estimation à mesurer. En démo le bouton reste éteint, avec sa raison. Rien n’est envoyé. « Garder ce lieu » écrit le volume 3D dans Mon studio. PRISE le reprend comme fond de la maquette.
+3. « Créer le décor » est le seul coût affiché : ≈ 13 crédits, hypothèse, estimation à mesurer. En démo le bouton reste éteint, avec sa raison. Rien n’est envoyé. « Garder ce lieu » écrit le volume 3D dans Mon studio. PRISE le reprend comme fond de la maquette. Les légendes des photos de rue tiennent en entier, sur deux lignes si besoin (« Nils Quai · Panoramax · CC BY-SA · 360° »). Le bouton doré dit « Au maximum 18 crédits (estimation). »
 
 Aucun serveur n’est hébergé pour ça, et aucun service payant n’est appelé. Le navigateur parle directement à OpenFreeMap, à Photon (recherche d’un nom), à Overpass et à Panoramax. Un lien complet ou des coordonnées se lisent sur l’appareil. Un lien court demande le lien complet. Chaque service est limité à une requête par seconde et gardé dix minutes. Les mentions restent visibles : © contributeurs OpenStreetMap, ODbL, OpenFreeMap, Photon, et pour chaque photo l’auteur avec Panoramax ou Mapillary. Sur mobile le rayon est plus court. En démo, et donc en CI, le quartier et les photos sont factices : aucun appel Overpass, Photon, Panoramax, Mapillary ni Google.
 
@@ -64,5 +66,7 @@ Aucun serveur n’est hébergé pour ça, et aucun service payant n’est appel�
 ## Vérifié
 
 `npm test` : 319 passés, 1 ignoré. `npm run typecheck`. `npx playwright test` : le parcours CAST → DÉCOR (toucher la carte, vue depuis le sol, tourner la tête, photo Panoramax d’Ada Rue en 360° et CC BY-SA, « Créer le décor » éteint en démo avec le devis ≈ 13, « Garder ce lieu », aucune requête Overpass, Photon, Panoramax, Google, Mapillary ni fbcdn) → PRISE (le lieu 3D en fond, un mannequin puis trois espacés dans la rue, retrait, tuile, Autre essai, cadenas, un seul bouton « Composer l'image », un seul devis 12,5, panneau qui lit le cast, le lieu et le cadrage) → MONTAGE (statut Prêt, libellés entiers, pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
+
+Relecture des captures : à 1280 et à 390, « Ce qui se passe » et « Ce que l’app va faire » ne se recouvrent pas, le texte du champ tient en entier, les deux légendes photo se lisent sur deux lignes (« Nils Quai · Panoramax · CC BY-SA · 360° »), et le plafond dit « Au maximum 18 crédits (estimation). » ou « Au maximum 18,75 crédits (mesuré). »
 
 Captures 1280×800 et 390×844 : `artifacts/screenshots/r7-pas-1-*` (carte), `r7-pas-2-*` (depuis le sol), `r7-pas-3-*` (créer le décor), `r7-cast-*`, `r7-decor-*`, `r7-prise-1-*`, `r7-prise-3-*`, `r7-montage-*`. La prod, avant correctif : `r7-prod-montage-*`.
