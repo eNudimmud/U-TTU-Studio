@@ -20,6 +20,8 @@ interface RueVue {
   id: string;
   author: string;
   thumb: string;
+  source: "panoramax" | "mapillary";
+  license: string;
   blob?: Blob;
 }
 
@@ -40,6 +42,8 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
   const { demo } = useStudio();
   const host = useRef<HTMLDivElement>(null);
   const mapRef = useRef<{ easeTo(options: object): void; remove(): void } | null>(null);
+  const markerRef = useRef<{ setLngLat(center: [number, number]): void } | null>(null);
+  const loadRef = useRef<(next: LieuTrouve, heading?: number, tilt?: number, wide?: boolean) => Promise<void>>(async () => {});
   const [query, setQuery] = useState("");
   const [place, setPlace] = useState<LieuTrouve>(LIEUX_EXEMPLE[0]);
   const [regard, setRegard] = useState<Regard>("debout");
@@ -51,6 +55,8 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
   const [photoState, setPhotoState] = useState<"idle" | "load" | "ready" | "token" | "empty" | "fail" | "rate">("idle");
   const [saving, setSaving] = useState("");
   const [photoNote, setPhotoNote] = useState("");
+  const [chosen, setChosen] = useState<string[]>([]);
+  const [mapillaryOff, setMapillaryOff] = useState(false);
   const guide = guideQuote();
   const lastAsk = useRef(0);
 
@@ -70,6 +76,15 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
         pitch: pitchFor("debout"),
       });
       map.addControl(new maplibre.NavigationControl({ showCompass: false }), "top-left");
+      const marker = new maplibre.Marker({ color: "#d4af37" })
+        .setLngLat([LIEUX_EXEMPLE[0].lon, LIEUX_EXEMPLE[0].lat])
+        .addTo(map);
+      markerRef.current = marker;
+      map.on("click", (event: { lngLat: { lat: number; lng: number } }) => {
+        const lat = event.lngLat.lat;
+        const lon = event.lngLat.lng;
+        void loadRef.current({ name: `${lat.toFixed(4)}, ${lon.toFixed(4)}`, lat, lon }, 0, 0);
+      });
       mapRef.current = map;
       remove = () => map.remove();
     }).catch(() => { setNote(t("r7.introuvable")); });
@@ -77,6 +92,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       dead = true;
       remove();
       mapRef.current = null;
+      markerRef.current = null;
     };
   }, [t]);
 
@@ -85,10 +101,12 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
   useEffect(() => {
     if (lat === null || lon === null) {
       setPhotos([]);
+      setChosen([]);
       setPhotoState("idle");
       setPhotoNote("");
       return;
     }
+    setChosen([]);
     let dead = false;
     const made: string[] = [];
     if (demo) {
@@ -97,7 +115,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
         const blob = await paintRue(item.author);
         const thumb = URL.createObjectURL(blob);
         made.push(thumb);
-        return { id: item.id, author: item.author, thumb, blob };
+        return { id: item.id, author: item.author, thumb, blob, source: item.source, license: item.license };
       })).then(list => {
         if (dead) {
           for (const url of made) URL.revokeObjectURL(url);
@@ -124,8 +142,9 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     });
     void fetch(`/api/repere?${params}`)
       .then(async response => {
-        const payload = await response.json() as { error?: string; photos?: { id?: string; author?: string; thumb?: string }[] };
+        const payload = await response.json() as { error?: string; mapillary?: string; photos?: { id?: string; author?: string; thumb?: string; source?: string; license?: string }[] };
         if (dead) return;
+        setMapillaryOff(payload.mapillary === "off");
         if (payload.error === "token") {
           setPhotos([]);
           setPhotoState("token");
@@ -142,7 +161,8 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
         }
         const list = (payload.photos ?? []).flatMap(item => {
           if (!item.id || !item.author || !item.thumb) return [];
-          return [{ id: item.id, author: item.author, thumb: item.thumb }];
+          const source = item.source === "mapillary" ? "mapillary" as const : "panoramax" as const;
+          return [{ id: item.id, author: item.author, thumb: item.thumb, source, license: item.license || (source === "mapillary" ? "CC BY-SA" : "etalab-2.0") }];
         });
         setPhotos(list);
         setPhotoState(list.length > 0 ? "ready" : "empty");
@@ -162,6 +182,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       pitch: pitchFor(view),
       duration: 600,
     });
+    markerRef.current?.setLngLat([next.lon, next.lat]);
   }
 
   function limited(): boolean {
@@ -200,6 +221,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       setBusy(false);
     }
   }
+  loadRef.current = loadBlock;
 
   async function fetchBlock(next: LieuTrouve, heading: number, tilt: number, wide: boolean): Promise<Quartier | "rate" | null> {
     const mobile = window.matchMedia("(max-width: 799px)").matches;
@@ -310,8 +332,9 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
         setPhotoNote(t("r7.photosFail"));
         return;
       }
-      const credit = t("r7.photosCredit", { author: photo.author });
+      const credit = lineOf(photo);
       await onPhoto?.(place, regard, autour, JSON.stringify(quartier), { id: photo.id, author: photo.author, credit, blob });
+      setChosen(list => list.includes(photo.id) ? list : [...list, photo.id]);
       setPhotoNote(`${t("r7.photosAdded")} ${credit}`);
     } catch (error) {
       setPhotoNote(error instanceof Error && error.message === "rate" ? t("r7.rate") : t("r7.photosFail"));
@@ -335,9 +358,16 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     void loadBlock(place, quartier.heading, quartier.tilt, wide);
   }
 
+  function lineOf(photo: RueVue): string {
+    if (photo.source === "panoramax") return t("r7.photosDroit", { author: photo.author, license: photo.license });
+    return t("r7.photosCredit", { author: photo.author });
+  }
+
   const empty = query.trim().length < 2;
   const waiting = empty || busy;
   const canKeep = Boolean(quartier) && !busy;
+  const creerBlocked = !quartier || demo || !guide.enabled;
+  const creerWhy = !quartier ? t("r7.creerOff") : demo ? t("r7.creerDemo") : t("r7.creerMesure");
   return <section className="u-repere" aria-label={t("r7.repere")}>
     <p className="u-label">{t("r7.repere")}</p>
     <div className="u-repere-search">
@@ -352,9 +382,14 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
         <input aria-label={t("r7.fichier")} type="file" accept=".kml,.kmz,.geojson,.json,application/geo+json,application/vnd.google-earth.kml+xml" onChange={event => { void onFile(event.target.files?.[0] ?? null); event.target.value = ""; }} />
       </label>
     </div>
-    <p className="u-repere-credit">{OSM_CREDIT} · {t("r7.creditMap")} · {t("r7.creditRelief")}</p>
-    <div className="u-repere-map" ref={host} />
-    {quartier && <QuartierView quartier={quartier} regard={regard} onStand={stand => setQuartier(current => current ? { ...current, stand } : current)} />}
+    <p className="u-label">{t("r7.pasCarte")}</p>
+    <p className="u-repere-credit">{OSM_CREDIT} · {t("r7.creditMap")} · {t("r7.creditRelief")}{quartier ? ` · ${quartier.source === "overture" ? t("r7.creditOverture") : t("r7.creditBatiments")}` : ""}</p>
+    <div className="u-repere-map" data-pas="1" ref={host} />
+    {quartier && <section data-pas="2">
+      <p className="u-label">{t("r7.pasSol")}</p>
+      <p className="u-small">{t("r7.pasAngle")}</p>
+      <QuartierView quartier={quartier} regard={regard} onStand={stand => setQuartier(current => current ? { ...current, stand } : current)} />
+    </section>}
     {quartier && <section className={photoState === "token" ? "u-photos is-off" : "u-photos"} aria-label={t("r7.photosLieu")} data-photos={demo && photoState === "ready" ? "fixture" : photoState}>
       <p className="u-label">{t("r7.photosLieu")}</p>
       {photoState === "token" && <p className="u-why">{t("r7.photosOff")}</p>}
@@ -362,13 +397,15 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       {photoState === "empty" && <p className="u-small">{t("r7.photosEmpty")}</p>}
       {photoState === "fail" && <p className="u-small">{t("r7.photosFail")}</p>}
       {photoState === "rate" && <p className="u-why">{t("r7.rate")}</p>}
+      {mapillaryOff && photoState === "ready" && <p className="u-small">{t("r7.mapillaryOff")}</p>}
       {photoState === "ready" && <div className="u-photos-row">
         {photos.map(photo => {
-          const credit = t("r7.photosCredit", { author: photo.author });
+          const credit = lineOf(photo);
           const held = saving === photo.id;
-          return <button key={photo.id} type="button" className="u-photo" data-photo={photo.id} aria-label={credit} disabled={held} aria-describedby={held ? "u-why-photo" : undefined} onClick={() => void addPhoto(photo)}>
+          const picked = chosen.includes(photo.id);
+          return <button key={photo.id} type="button" className="u-photo" data-photo={photo.id} aria-label={credit} aria-pressed={picked} disabled={held} aria-describedby={held ? "u-why-photo" : undefined} onClick={() => { if (picked) setChosen(list => list.filter(id => id !== photo.id)); else void addPhoto(photo); }}>
             <img src={photo.thumb} alt="" />
-            <span>{photo.author} · CC BY-SA</span>
+            <span>{photo.author} · {photo.source === "panoramax" ? "Panoramax" : "Mapillary"} · {photo.license}</span>
           </button>;
         })}
       </div>}
@@ -383,8 +420,12 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     <p className="u-small">{lieuNote(place, regard, autour)}</p>
     <button type="button" className="u-secondary" data-garder-lieu="" disabled={!canKeep} aria-describedby={canKeep ? undefined : "u-why-garder"} onClick={() => void keep()}>{t("r7.garderLieu")}</button>
     {!canKeep && <p className="u-why" id="u-why-garder">{busy ? t("r7.allerBusy") : t("r7.garderOff")}</p>}
-    <button type="button" className="u-secondary" disabled aria-describedby="u-why-habiller">{t("r7.habiller")}</button>
-    <p className="u-prise-quote" id="u-why-habiller">{t("r7.habillerQuote", { credits: guide.credits })}</p>
+    <section data-pas="3" data-choisies={chosen.length}>
+      <p className="u-label">{t("r7.pasCreer")}</p>
+      <button type="button" className="u-secondary" data-creer-decor="" disabled={creerBlocked} aria-describedby="u-why-creer">{t("r7.creerDecor")}</button>
+      <p className="u-why" id="u-why-creer">{creerWhy}</p>
+      <p className="u-prise-quote">{t("r7.habillerQuote", { credits: guide.credits })}</p>
+    </section>
     {note && <p className="u-small" role="status">{note}</p>}
   </section>;
 }

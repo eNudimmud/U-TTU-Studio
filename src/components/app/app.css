@@ -931,6 +931,8 @@
 .u-repere-file { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-width: 44px; min-height: 44px; padding: 4px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; }
 .u-repere-file input { width: 148px; max-width: 100%; min-width: 44px; min-height: 44px; }
 .u-repere-map, .u-quartier { height: 260px; min-height: 180px; border: 1px solid var(--u-line); border-radius: 12px; overflow: hidden; }
+.u-repere-map { cursor: crosshair; }
+.maplibregl-marker { pointer-events: none; }
 .u-quartier { position: relative; border-color: var(--u-gold); background: #14110c; touch-action: none; }
 .u-quartier-canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .u-repere-map .maplibregl-ctrl button { width: 44px; height: 44px; }

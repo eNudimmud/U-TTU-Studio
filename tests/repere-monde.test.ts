@@ -8,8 +8,10 @@ import { fixtureQuartier } from "../src/lib/repere/fixture.ts";
 import { LIEUX_EXEMPLE } from "../src/lib/repere/lieu.ts";
 import { hostAllowed, isShortHost } from "../src/lib/repere/lien.ts";
 import { fixturePhotos, mapillaryImagesUrl, parseMapillary, photoCredit, thumbAllowed } from "../src/lib/repere/mapillary.ts";
+import { buildingHeight, buildingsFromShapes, pointOf } from "../src/lib/repere/overture.ts";
+import { panoramaxSearchUrl, panoramaxThumbAllowed, parsePanoramax } from "../src/lib/repere/panoramax.ts";
 import { decodePngRgba } from "../src/lib/repere/png.ts";
-import { parseOverpass, parseQuartier, plafondBatiments, rayonFor, standsInStreet, terrariumMeters } from "../src/lib/repere/quartier.ts";
+import { parseOverpass, parseQuartier, plafondBatiments, rayonFor, standsInStreet, terrariumMeters, tileOf } from "../src/lib/repere/quartier.ts";
 import { parseGeoJson, parseKml, parseSaisie } from "../src/lib/repere/saisie.ts";
 
 describe("saisie d'un lieu", () => {
@@ -123,7 +125,7 @@ describe("quartier", () => {
     assert.match(route, /429/);
     assert.match(route, /hostAllowed/);
     const client = readFileSync(new URL("../src/components/app/repere-carte.tsx", import.meta.url), "utf8");
-    assert.doesNotMatch(client, /overpass-api\.de|node:zlib|googleapis|streetview|mt\.google|khms|graph\.mapillary\.com/);
+    assert.doesNotMatch(client, /overpass-api\.de|node:zlib|googleapis|streetview|mt\.google|khms|graph\.mapillary\.com|panoramax\.xyz|overturemaps/);
     assert.match(client, /data-garder-lieu/);
     assert.match(client, /fixtureQuartier/);
     assert.match(client, /data-photo=/);
@@ -197,6 +199,58 @@ describe("photos Mapillary", () => {
     assert.match(found[0].name, /Ada Rue/);
     assert.match(found[0].prompt, /CC BY-SA/);
     assert.equal(looseAssets(["Projets/atelier/Lieux/montmartre-mly-fixtureada.png"], "atelier").length, 0);
+  });
+
+  it("prefers Overture footprints, then keeps a nearby ring", () => {
+    const tile = tileOf(48.8867, 2.3431, 14);
+    const [lat, lon] = pointOf(tile.x, tile.y, 14, 2048, 2048, 4096);
+    const near = buildingsFromShapes([{
+      ring: [{ x: 2000, y: 2000 }, { x: 2100, y: 2000 }, { x: 2100, y: 2100 }, { x: 2000, y: 2100 }],
+      height: Number.NaN,
+      floors: 4,
+    }], tile, 4096, lat, lon, 200, 10);
+    assert.equal(near.length, 1);
+    assert.equal(near[0].height, buildingHeight(Number.NaN, 4));
+    const far = buildingsFromShapes([{
+      ring: [{ x: 0, y: 0 }, { x: 8, y: 0 }, { x: 8, y: 8 }, { x: 0, y: 8 }],
+      height: 12,
+      floors: 0,
+    }], tile, 4096, lat, lon, 40, 10);
+    assert.equal(far.length, 0);
+    const route = readFileSync(new URL("../src/app/api/repere/route.ts", import.meta.url), "utf8");
+    const lib = readFileSync(new URL("../src/lib/repere/overture.ts", import.meta.url), "utf8");
+    assert.match(lib, /overturemaps-extras/);
+    assert.match(route, /OVERTURE_BUILDINGS/);
+    assert.match(route, /overture\.length > 0/);
+    assert.doesNotMatch(`${route}\n${lib}`, /maps\.googleapis|streetview|mt\.google|khms/);
+  });
+
+  it("reads Panoramax pictures without a token", () => {
+    const url = panoramaxSearchUrl(48.8867, 2.3431, 80, 6);
+    assert.match(url, /api\.panoramax\.xyz\/api\/search/);
+    assert.match(url, /limit=6/);
+    assert.doesNotMatch(url, /access_token/);
+    const photos = parsePanoramax({
+      features: [{
+        id: "bc20abb2-0ef4-474a-bfe9-f9f14867a7bf",
+        properties: { license: "etalab-2.0", "geovisio:producer": "Ada Rue" },
+        assets: { thumb: { href: "https://panoramax.ign.fr/api/pictures/x/thumb.jpg" } },
+      }, {
+        id: "nope",
+        properties: { license: "etalab-2.0" },
+        assets: { thumb: { href: "http://evil.example/a.jpg" } },
+      }],
+    });
+    assert.equal(photos.length, 1);
+    assert.equal(photos[0].author, "Ada Rue");
+    assert.equal(photos[0].source, "panoramax");
+    assert.equal(photos[0].license, "etalab-2.0");
+    assert.equal(panoramaxThumbAllowed("https://panoramax.ign.fr/api/pictures/x/thumb.jpg"), true);
+    assert.equal(panoramaxThumbAllowed("https://evil.example/a.jpg"), false);
+    assert.equal(photoCredit("Ada Rue", "panoramax", "CC BY-SA"), "© Ada Rue, Panoramax, CC BY-SA");
+    const route = readFileSync(new URL("../src/app/api/repere/route.ts", import.meta.url), "utf8");
+    assert.match(route, /panoramaxSearchUrl/);
+    assert.match(route, /mapillary: "off"/);
   });
 });
 

@@ -26,6 +26,8 @@ export interface Quartier {
   buildings: Batiment[];
   streets: Rue[];
   relief: Relief | null;
+  /** Where the footprints came from. Streets stay OpenStreetMap. */
+  source: "overture" | "osm";
 }
 
 export const OVERPASS = "https://overpass-api.de/api/interpreter";
@@ -182,6 +184,7 @@ export function parseQuartier(raw: string): Quartier | null {
     buildings: row.buildings.filter(item => Array.isArray(item?.ring) && typeof item.height === "number").slice(0, 160),
     streets: row.streets.filter(item => Array.isArray(item?.points)).slice(0, 80),
     relief: row.relief && typeof row.relief.n === "number" && Array.isArray(row.relief.samples) ? row.relief : null,
+    source: row.source === "overture" ? "overture" : "osm",
   };
 }
 

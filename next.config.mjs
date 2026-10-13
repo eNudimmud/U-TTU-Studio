@@ -19,7 +19,7 @@ const nextConfig = {
   basePath,
   env: { NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: "true" },
   images: { formats: ["image/avif", "image/webp"] },
-  transpilePackages: ["three", "maplibre-gl"],
+  transpilePackages: ["three", "maplibre-gl", "pmtiles"],
   async headers() {
     return [{ source: "/comfy-media-sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }, { key: "Service-Worker-Allowed", value: "/" }] }];
   },

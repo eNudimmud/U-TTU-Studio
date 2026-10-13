@@ -65,11 +65,19 @@ for (const [width, height, label] of sizes) {
 
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
   await page.getByText("© contributeurs OpenStreetMap, ODbL").waitFor();
+  await page.locator(".maplibregl-canvas").waitFor();
+  await page.locator(".maplibregl-canvas").click({ position: { x: 220, y: 140 } });
+  await page.locator("[data-quartier='1']").waitFor();
+  for (const dir of dirs) await page.screenshot({ path: `${dir}/r7-pas-1-${label}.png` });
   await page.getByRole("button", { name: "Montmartre", exact: true }).click();
   await page.locator("[data-quartier='1']").waitFor();
   await page.locator("[data-photos=fixture]").waitFor();
   await page.locator("[data-photo=fixture-ada]").click();
   await page.locator("[data-photo-ajoute]").waitFor();
+  await page.locator("[data-pas='2']").scrollIntoViewIfNeeded();
+  for (const dir of dirs) await page.screenshot({ path: `${dir}/r7-pas-2-${label}.png` });
+  await page.locator("[data-pas='3']").scrollIntoViewIfNeeded();
+  for (const dir of dirs) await page.screenshot({ path: `${dir}/r7-pas-3-${label}.png` });
   await page.locator("[data-photos=fixture]").scrollIntoViewIfNeeded();
   await page.getByRole("button", { name: "Garder ce lieu" }).click();
   await page.getByText("Enregistré dans Mon studio.").waitFor();

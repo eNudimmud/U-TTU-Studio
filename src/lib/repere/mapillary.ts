@@ -25,15 +25,17 @@ export function mapillaryImageUrl(id: string): string {
   return `${MAPILLARY}/${id}?fields=id,thumb_1024_url,creator`;
 }
 
-export function photoCredit(author: string): string {
-  const name = author.trim().slice(0, 80) || "Mapillary";
-  return `© ${name}, Mapillary, CC BY-SA`;
+export function photoCredit(author: string, source: "mapillary" | "panoramax" = "mapillary", license = "CC BY-SA"): string {
+  const name = author.trim().slice(0, 80) || (source === "panoramax" ? "Panoramax" : "Mapillary");
+  const who = source === "panoramax" ? "Panoramax" : "Mapillary";
+  const right = (license || "CC BY-SA").trim().slice(0, 40);
+  return `© ${name}, ${who}, ${right}`;
 }
 
-export function fixturePhotos(): { id: string; author: string }[] {
+export function fixturePhotos(): { id: string; author: string; source: "panoramax"; license: string }[] {
   return [
-    { id: "fixture-ada", author: "Ada Rue" },
-    { id: "fixture-nils", author: "Nils Quai" },
+    { id: "fixture-ada", author: "Ada Rue", source: "panoramax", license: "CC BY-SA" },
+    { id: "fixture-nils", author: "Nils Quai", source: "panoramax", license: "CC BY-SA" },
   ];
 }
 

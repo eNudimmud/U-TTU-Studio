@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MAX_PIXEL_RATIO } from "@/lib/maquette/state";
 import { sampleRelief, snapToStreet, standsInStreet, type Quartier } from "@/lib/repere/quartier";
 import type { Regard } from "@/lib/repere/lieu";
@@ -10,15 +10,19 @@ interface Props {
   quartier: Quartier;
   regard: Regard;
   onStand(next: { x: number; z: number }): void;
+  onCap?(degrees: number): void;
 }
 
-export function QuartierView({ quartier, regard, onStand }: Props) {
+export function QuartierView({ quartier, regard, onStand, onCap }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const quartierRef = useRef(quartier);
   const standRef = useRef(onStand);
+  const capRef = useRef(onCap);
   quartierRef.current = quartier;
   standRef.current = onStand;
+  capRef.current = onCap;
   const heading = quartier.heading;
+  const [cap, setCap] = useState(0);
 
   useEffect(() => {
     const node = host.current;
@@ -85,7 +89,7 @@ export function QuartierView({ quartier, regard, onStand }: Props) {
       }
 
       function onDown(event: PointerEvent) {
-        canvas.setPointerCapture(event.pointerId);
+        try { canvas.setPointerCapture(event.pointerId); } catch { /* the drag still follows the pointer */ }
         last = { x: event.clientX, y: event.clientY };
         moved = 0;
       }
@@ -99,10 +103,19 @@ export function QuartierView({ quartier, regard, onStand }: Props) {
         last = { x: event.clientX, y: event.clientY };
         paint();
       }
+      function reportCap() {
+        const degrees = Math.round((((-orbit.theta * 180) / Math.PI) % 360 + 360) % 360);
+        setCap(degrees);
+        capRef.current?.(degrees);
+      }
+
       function onUp(event: PointerEvent) {
         const tap = moved < 8;
         last = null;
-        if (!tap) return;
+        if (!tap) {
+          reportCap();
+          return;
+        }
         raycaster.setFromCamera(ndc(event), camera);
         const point = new THREE.Vector3();
         if (!raycaster.ray.intersectPlane(ground, point)) return;
@@ -117,6 +130,7 @@ export function QuartierView({ quartier, regard, onStand }: Props) {
       const observer = new ResizeObserver(() => paint());
       observer.observe(host.current);
       paint();
+      reportCap();
       stop = () => {
         observer.disconnect();
         canvas.removeEventListener("pointerdown", onDown);
@@ -140,6 +154,8 @@ export function QuartierView({ quartier, regard, onStand }: Props) {
     className="u-quartier"
     ref={host}
     data-quartier="1"
+    data-sol={regard === "debout" ? "1" : "0"}
+    data-cap={cap}
     data-batiments={quartier.buildings.length}
     data-rue={standsInStreet(quartier) ? "1" : "0"}
     data-stand={stand}

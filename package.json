@@ -20,6 +20,7 @@
     "mediabunny": "^1.61.3",
     "next": "16.3.6",
     "next-intl": "^4.14.9",
+    "pmtiles": "4.5.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "three": "^0.160.1",

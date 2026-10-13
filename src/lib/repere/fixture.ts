@@ -37,5 +37,6 @@ export function fixtureQuartier(place: LieuTrouve, heading = 0, tilt = 0): Quart
       { points: [[0, -22], [0, 22]], width: 6 },
     ],
     relief: { n: 9, span: 56, samples: RELIEF },
+    source: "osm",
   };
 }
