@@ -3,7 +3,7 @@
 // Mapillary is asked only when a free client token is present.
 
 import { mapillaryImagesUrl, mapillaryToken, parseMapillary } from "./mapillary.ts";
-import { panoramaxSearchUrl, parsePanoramax, type PhotoRue } from "./panoramax.ts";
+import { chaineRue, panoramaxByIdUrl, panoramaxSearchUrl, parsePanoramax, RUE_RAYON, type PhotoRue } from "./panoramax.ts";
 import { parsePhoton, photonUrl } from "./photon.ts";
 import {
   OVERPASS, overpassQuery, parseOverpass, plafondBatiments, streetStand,
@@ -98,40 +98,71 @@ export async function chargerQuartier(
   return block;
 }
 
-export async function chargerPhotos(lat: number, lon: number, limit: number): Promise<{ photos: PhotoRue[]; mapillary: "off" | "ok" | "fail" } | "rate"> {
+export async function chargerPhoto(id: string): Promise<PhotoRue | "rate" | null> {
+  if (!/^[0-9a-f-]{16,80}$/i.test(id)) return null;
+  const key = `photo:${id}`;
+  const cached = readPublicCache<PhotoRue>(key);
+  if (cached) return cached;
+  if (!takePublicSlot("panoramax")) return "rate";
+  try {
+    const response = await fetch(panoramaxByIdUrl(id), { headers: { Accept: "application/json" } });
+    if (!response.ok) return null;
+    const photo = parsePanoramax(await response.json())[0] ?? null;
+    if (photo) writePublicCache(key, photo);
+    return photo;
+  } catch {
+    return null;
+  }
+}
+
+export async function chargerPhotos(lat: number, lon: number): Promise<{ photos: PhotoRue[]; start: number; mapillary: "off" | "ok" | "fail" } | "rate"> {
   const token = mapillaryToken();
-  const key = `photos:${lat.toFixed(4)},${lon.toFixed(4)},${limit},${token ? "m" : "p"}`;
-  const cached = readPublicCache<{ photos: PhotoRue[]; mapillary: "off" | "ok" | "fail" }>(key);
+  const key = `photos:${lat.toFixed(4)},${lon.toFixed(4)},${RUE_RAYON},${token ? "m" : "p"}`;
+  const cached = readPublicCache<{ photos: PhotoRue[]; start: number; mapillary: "off" | "ok" | "fail" }>(key);
   if (cached) return cached;
   if (!takePublicSlot("panoramax")) return "rate";
   let panoramax: PhotoRue[] | null = null;
   try {
-    const response = await fetch(panoramaxSearchUrl(lat, lon, limit > 4 ? 80 : 50, limit), { headers: { Accept: "application/json" } });
+    const response = await fetch(panoramaxSearchUrl(lat, lon, RUE_RAYON, 20), { headers: { Accept: "application/json" } });
     panoramax = response.ok ? parsePanoramax(await response.json()) : null;
   } catch {
     panoramax = null;
   }
   let mapillary: PhotoRue[] = [];
   let mapillaryState: "off" | "ok" | "fail" = token ? "ok" : "off";
-  if (token && (panoramax?.length ?? 0) < limit) {
+  if (token && (panoramax?.length ?? 0) === 0) {
     if (!takePublicSlot("mapillary")) return "rate";
     try {
-      const response = await fetch(mapillaryImagesUrl(lat, lon, limit), {
+      const response = await fetch(mapillaryImagesUrl(lat, lon, 6), {
         headers: { Accept: "application/json", Authorization: `OAuth ${token}` },
       });
       if (!response.ok) mapillaryState = "fail";
       else {
         mapillary = parseMapillary(await response.json()).map(item => ({
-          id: item.id, author: item.author, thumb: item.thumb, source: "mapillary" as const, license: "CC BY-SA", tour: false,
+          id: item.id,
+          author: item.author,
+          thumb: item.thumb,
+          view: item.thumb,
+          source: "mapillary" as const,
+          license: "CC BY-SA",
+          tour: false,
+          lat,
+          lon,
+          heading: 0,
+          fov: null,
+          next: null,
+          prev: null,
         }));
       }
     } catch {
       mapillaryState = "fail";
     }
   }
-  const photos = [...(panoramax ?? []), ...mapillary].slice(0, limit);
-  if (panoramax === null && photos.length === 0) return { photos: [], mapillary: mapillaryState };
-  const body = { photos, mapillary: mapillaryState };
+  const chain = chaineRue(panoramax ?? [], lat, lon);
+  const photos = chain.photos.length > 0 ? chain.photos : mapillary;
+  const start = chain.photos.length > 0 ? chain.start : 0;
+  if (panoramax === null && photos.length === 0) return { photos: [], start: 0, mapillary: mapillaryState };
+  const body = { photos, start, mapillary: mapillaryState };
   writePublicCache(key, body);
   return body;
 }

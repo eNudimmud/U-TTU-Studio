@@ -9,7 +9,7 @@ import { LIEUX_EXEMPLE } from "../src/lib/repere/lieu.ts";
 import { hostAllowed, isShortHost } from "../src/lib/repere/lien.ts";
 import { fixturePhotos, mapillaryImagesUrl, parseMapillary, photoCredit, thumbAllowed } from "../src/lib/repere/mapillary.ts";
 import { readPublicCache, takePublicSlot, writePublicCache } from "../src/lib/repere/direct.ts";
-import { panoramaxSearchUrl, panoramaxThumbAllowed, parsePanoramax } from "../src/lib/repere/panoramax.ts";
+import { cadrePano, chaineRue, panoramaxSearchUrl, panoramaxThumbAllowed, parsePanoramax, RUE_RAYON } from "../src/lib/repere/panoramax.ts";
 import { parsePhoton, photonUrl } from "../src/lib/repere/photon.ts";
 import { decodePngRgba } from "../src/lib/repere/png.ts";
 import { parseOverpass, parseQuartier, plafondBatiments, rayonFor, standsInStreet, terrariumMeters } from "../src/lib/repere/quartier.ts";
@@ -214,20 +214,27 @@ describe("photos Mapillary", () => {
     assert.equal(parsePhoton({ features: [] }), null);
   });
 
-  it("reads Panoramax pictures without a token and keeps a 360 first", () => {
-    const url = panoramaxSearchUrl(48.8867, 2.3431, 80, 6);
+  it("opens the closest Panoramax picture within 300 m, then walks the sequence", () => {
+    const url = panoramaxSearchUrl(48.8867, 2.3431);
+    assert.equal(RUE_RAYON, 300);
     assert.match(url, /api\.panoramax\.xyz\/api\/search/);
-    assert.match(url, /limit=6/);
+    assert.match(url, /place_distance=0-300/);
+    assert.match(url, /place_position=2\.343100%2C48\.886700/);
+    assert.match(url, /limit=20/);
     assert.doesNotMatch(url, /access_token/);
     const photos = parsePanoramax({
       features: [{
         id: "bc20abb2-0ef4-474a-bfe9-f9f14867a7bf",
-        properties: { license: "etalab-2.0", "geovisio:producer": "Nils Quai", "pers:interior_orientation": { field_of_view: 95 } },
-        assets: { thumb: { href: "https://panoramax.ign.fr/api/pictures/x/thumb.jpg" } },
+        geometry: { coordinates: [2.34315, 48.88672] },
+        links: [{ rel: "next", href: "https://api.panoramax.xyz/api/collections/x/items/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }],
+        properties: { license: "etalab-2.0", "geovisio:producer": "Nils Quai", "view:azimuth": 90, "pers:interior_orientation": { field_of_view: 95 } },
+        assets: { sd: { href: "https://panoramax.openstreetmap.fr/derivates/x/sd.jpg" }, thumb: { href: "https://panoramax.ign.fr/api/pictures/x/thumb.jpg" } },
       }, {
         id: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-        properties: { license: "CC BY-SA", "geovisio:producer": "Ada Rue", "pers:interior_orientation": { field_of_view: 360 } },
-        assets: { thumb: { href: "https://panoramax.ign.fr/api/pictures/y/thumb.jpg" } },
+        geometry: { coordinates: [2.36, 48.9] },
+        links: [{ rel: "prev", href: "https://api.panoramax.xyz/api/collections/x/items/bc20abb2-0ef4-474a-bfe9-f9f14867a7bf" }],
+        properties: { license: "CC-BY-SA-4.0", "geovisio:producer": "Ada Rue", "pers:interior_orientation": { field_of_view: 360 } },
+        assets: { hd: { href: "https://panoramax.ign.fr/api/pictures/y/hd.jpg" }, thumb: { href: "https://panoramax.ign.fr/api/pictures/y/thumb.jpg" } },
       }, {
         id: "nope",
         properties: { license: "etalab-2.0" },
@@ -235,16 +242,22 @@ describe("photos Mapillary", () => {
       }],
     });
     assert.equal(photos.length, 2);
-    assert.equal(photos[0].author, "Ada Rue");
-    assert.equal(photos[0].tour, true);
-    assert.equal(photos[1].tour, false);
-    assert.equal(photos[0].source, "panoramax");
-    assert.equal(photos[0].license, "CC BY-SA");
+    const chain = chaineRue(photos, 48.8867, 2.3431);
+    assert.equal(chain.photos[chain.start].author, "Nils Quai");
+    assert.equal(chain.photos[chain.start].view, "https://panoramax.openstreetmap.fr/derivates/x/sd.jpg");
+    assert.equal(chain.photos[1].author, "Ada Rue");
+    assert.equal(chain.photos[1].tour, true);
+    assert.equal(chain.photos[1].license, "CC BY-SA");
+    assert.equal(chain.start, 0);
+    assert.equal(cadrePano({ tour: true, fov: 360 }, 2000, 1000).croppedX, 0);
+    assert.ok(cadrePano({ tour: false, fov: 90 }, 1000, 750).fullWidth > 1000);
     assert.equal(panoramaxThumbAllowed("https://panoramax.ign.fr/api/pictures/x/thumb.jpg"), true);
+    assert.equal(panoramaxThumbAllowed("https://panoramax.openstreetmap.fr/derivates/x/sd.jpg"), true);
     assert.equal(panoramaxThumbAllowed("https://evil.example/a.jpg"), false);
     assert.equal(photoCredit("Ada Rue", "panoramax", "CC BY-SA"), "© Ada Rue, Panoramax, CC BY-SA");
     const direct = readFileSync(new URL("../src/lib/repere/direct.ts", import.meta.url), "utf8");
     assert.match(direct, /panoramaxSearchUrl/);
+    assert.match(direct, /RUE_RAYON/);
     assert.match(direct, /: "off"/);
   });
 });
