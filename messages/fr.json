@@ -1346,6 +1346,13 @@
     "creditRelief": "Relief : Terrarium, AWS Open Data",
     "quartierFail": "Le quartier n'a pas pu être chargé.",
     "rue": "Dans la rue.",
+    "photosLieu": "Photos du lieu",
+    "photosOff": "Le jeton Mapillary manque. Les photos de rue restent éteintes.",
+    "photosEmpty": "Aucune photo de rue par ici.",
+    "photosFail": "Les photos n'ont pas pu être chargées.",
+    "photosCredit": "© {author}, Mapillary, CC BY-SA",
+    "photosAdded": "Photo ajoutée aux références.",
+    "photosBusy": "Chargement des photos.",
     "reacMontage": "Réaction muette"
   }
 }

@@ -6,9 +6,9 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   page.on("request", request => {
     const url = request.url();
     if (/fal\.ai|comfy\.cloud|api\.comfy|partner_generate|run_template/i.test(url)) spent.push(url);
-    if (/overpass-api\.de|nominatim\.openstreetmap\.org|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app/i.test(url)) upstream.push(url);
+    if (/overpass-api\.de|nominatim\.openstreetmap\.org|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net/i.test(url)) upstream.push(url);
   });
-  await page.route(/overpass-api\.de|nominatim\.openstreetmap\.org|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app/i, route => route.abort());
+  await page.route(/overpass-api\.de|nominatim\.openstreetmap\.org|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net/i, route => route.abort());
 
   await page.goto("/studio?demo=1#personnage");
   await expect(page.getByRole("heading", { name: "CAST" })).toBeVisible();
@@ -24,6 +24,13 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(block).toBeVisible();
   await expect(block).toHaveAttribute("data-batiments", /[1-9]/);
   await expect(block).toHaveAttribute("data-rue", "1");
+  await expect(page.getByText("Photos du lieu")).toBeVisible();
+  await expect(page.locator("[data-photos=fixture]")).toBeVisible();
+  await page.locator("[data-photo=fixture-ada]").click();
+  const added = page.locator("[data-photo-ajoute]");
+  await expect(added).toContainText("Photo ajoutée aux références.");
+  await expect(added).toContainText("CC BY-SA");
+  await expect(added).toContainText("Ada Rue");
   await page.getByRole("button", { name: "Garder ce lieu" }).click();
   await expect(page.getByText("Enregistré dans Mon studio.")).toBeVisible();
 

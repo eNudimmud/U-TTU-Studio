@@ -1346,6 +1346,13 @@
     "creditRelief": "Relieve: Terrarium, datos abiertos de AWS",
     "quartierFail": "No se pudo cargar el barrio.",
     "rue": "En la calle.",
+    "photosLieu": "Fotos del lugar",
+    "photosOff": "El token de Mapillary no está. Las fotos de calle siguen apagadas.",
+    "photosEmpty": "Aquí no hay foto de calle.",
+    "photosFail": "No se pudieron cargar las fotos.",
+    "photosCredit": "© {author}, Mapillary, CC BY-SA",
+    "photosAdded": "Foto añadida a las referencias.",
+    "photosBusy": "Cargando fotos.",
     "reacMontage": "Reacción muda"
   }
 }

@@ -67,6 +67,10 @@ for (const [width, height, label] of sizes) {
   await page.getByText("© contributeurs OpenStreetMap, ODbL").waitFor();
   await page.getByRole("button", { name: "Montmartre", exact: true }).click();
   await page.locator("[data-quartier='1']").waitFor();
+  await page.locator("[data-photos=fixture]").waitFor();
+  await page.locator("[data-photo=fixture-ada]").click();
+  await page.locator("[data-photo-ajoute]").waitFor();
+  await page.locator("[data-photos=fixture]").scrollIntoViewIfNeeded();
   await page.getByRole("button", { name: "Garder ce lieu" }).click();
   await page.getByText("Enregistré dans Mon studio.").waitFor();
   await page.waitForTimeout(1200);

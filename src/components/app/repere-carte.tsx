@@ -6,6 +6,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { guideQuote } from "@/lib/prise/guide";
 import { parseFichier } from "@/lib/repere/fichier";
 import { fixtureQuartier } from "@/lib/repere/fixture";
+import { fixturePhotos } from "@/lib/repere/mapillary";
 import {
   LIEUX_EXEMPLE, OSM_CREDIT, OPENFREEMAP_STYLE, lieuNote, pitchFor, zoomFor,
   type LieuTrouve, type Regard,
@@ -15,11 +16,26 @@ import { parseSaisie } from "@/lib/repere/saisie";
 import { useStudio } from "./studio-session";
 import { QuartierView } from "./quartier-view";
 
-interface Props {
-  onSave(place: LieuTrouve, regard: Regard, autour: boolean, quartier: string): Promise<void>;
+interface RueVue {
+  id: string;
+  author: string;
+  thumb: string;
+  blob?: Blob;
 }
 
-export function RepereCarte({ onSave }: Props) {
+interface PhotoFile {
+  id: string;
+  author: string;
+  credit: string;
+  blob: Blob;
+}
+
+interface Props {
+  onSave(place: LieuTrouve, regard: Regard, autour: boolean, quartier: string): Promise<void>;
+  onPhoto?(place: LieuTrouve, regard: Regard, autour: boolean, quartier: string, photo: PhotoFile): Promise<void>;
+}
+
+export function RepereCarte({ onSave, onPhoto }: Props) {
   const { t } = useI18n();
   const { demo } = useStudio();
   const host = useRef<HTMLDivElement>(null);
@@ -31,6 +47,10 @@ export function RepereCarte({ onSave }: Props) {
   const [quartier, setQuartier] = useState<Quartier | null>(null);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const [photos, setPhotos] = useState<RueVue[]>([]);
+  const [photoState, setPhotoState] = useState<"idle" | "load" | "ready" | "token" | "empty" | "fail" | "rate">("idle");
+  const [saving, setSaving] = useState("");
+  const [photoNote, setPhotoNote] = useState("");
   const guide = guideQuote();
   const lastAsk = useRef(0);
 
@@ -59,6 +79,81 @@ export function RepereCarte({ onSave }: Props) {
       mapRef.current = null;
     };
   }, [t]);
+
+  const lat = quartier?.lat ?? null;
+  const lon = quartier?.lon ?? null;
+  useEffect(() => {
+    if (lat === null || lon === null) {
+      setPhotos([]);
+      setPhotoState("idle");
+      setPhotoNote("");
+      return;
+    }
+    let dead = false;
+    const made: string[] = [];
+    if (demo) {
+      setPhotoState("load");
+      void Promise.all(fixturePhotos().map(async item => {
+        const blob = await paintRue(item.author);
+        const thumb = URL.createObjectURL(blob);
+        made.push(thumb);
+        return { id: item.id, author: item.author, thumb, blob };
+      })).then(list => {
+        if (dead) {
+          for (const url of made) URL.revokeObjectURL(url);
+          return;
+        }
+        setPhotos(list);
+        setPhotoState("ready");
+      }).catch(() => {
+        if (!dead) setPhotoState("fail");
+      });
+      return () => {
+        dead = true;
+        for (const url of made) URL.revokeObjectURL(url);
+      };
+    }
+    setPhotoState("load");
+    setPhotos([]);
+    const mobile = window.matchMedia("(max-width: 799px)").matches;
+    const params = new URLSearchParams({
+      photos: "1",
+      lat: String(lat),
+      lon: String(lon),
+      mobile: mobile ? "1" : "0",
+    });
+    void fetch(`/api/repere?${params}`)
+      .then(async response => {
+        const payload = await response.json() as { error?: string; photos?: { id?: string; author?: string; thumb?: string }[] };
+        if (dead) return;
+        if (payload.error === "token") {
+          setPhotos([]);
+          setPhotoState("token");
+          return;
+        }
+        if (response.status === 429 || payload.error === "rate") {
+          setPhotoState("rate");
+          return;
+        }
+        if (payload.error || !response.ok) {
+          setPhotos([]);
+          setPhotoState("fail");
+          return;
+        }
+        const list = (payload.photos ?? []).flatMap(item => {
+          if (!item.id || !item.author || !item.thumb) return [];
+          return [{ id: item.id, author: item.author, thumb: item.thumb }];
+        });
+        setPhotos(list);
+        setPhotoState(list.length > 0 ? "ready" : "empty");
+      })
+      .catch(() => {
+        if (!dead) setPhotoState("fail");
+      });
+    return () => {
+      dead = true;
+    };
+  }, [demo, lat, lon]);
 
   function showMap(next: LieuTrouve, view = regard, wide = autour) {
     mapRef.current?.easeTo({
@@ -205,6 +300,26 @@ export function RepereCarte({ onSave }: Props) {
     await loadBlock({ name: point.name, lat: point.lat, lon: point.lon }, point.heading, point.tilt);
   }
 
+  async function addPhoto(photo: RueVue) {
+    if (saving || !quartier) return;
+    setSaving(photo.id);
+    setPhotoNote("");
+    try {
+      const blob = photo.blob ?? await loadPhoto(photo.id);
+      if (!blob || blob.size < 32) {
+        setPhotoNote(t("r7.photosFail"));
+        return;
+      }
+      const credit = t("r7.photosCredit", { author: photo.author });
+      await onPhoto?.(place, regard, autour, JSON.stringify(quartier), { id: photo.id, author: photo.author, credit, blob });
+      setPhotoNote(`${t("r7.photosAdded")} ${credit}`);
+    } catch (error) {
+      setPhotoNote(error instanceof Error && error.message === "rate" ? t("r7.rate") : t("r7.photosFail"));
+    } finally {
+      setSaving("");
+    }
+  }
+
   async function keep() {
     if (!quartier) return;
     await onSave(place, regard, autour, JSON.stringify(quartier));
@@ -240,6 +355,26 @@ export function RepereCarte({ onSave }: Props) {
     <p className="u-repere-credit">{OSM_CREDIT} · {t("r7.creditMap")} · {t("r7.creditRelief")}</p>
     <div className="u-repere-map" ref={host} />
     {quartier && <QuartierView quartier={quartier} regard={regard} onStand={stand => setQuartier(current => current ? { ...current, stand } : current)} />}
+    {quartier && <section className={photoState === "token" ? "u-photos is-off" : "u-photos"} aria-label={t("r7.photosLieu")} data-photos={demo && photoState === "ready" ? "fixture" : photoState}>
+      <p className="u-label">{t("r7.photosLieu")}</p>
+      {photoState === "token" && <p className="u-why">{t("r7.photosOff")}</p>}
+      {photoState === "load" && <p className="u-small">{t("r7.photosBusy")}</p>}
+      {photoState === "empty" && <p className="u-small">{t("r7.photosEmpty")}</p>}
+      {photoState === "fail" && <p className="u-small">{t("r7.photosFail")}</p>}
+      {photoState === "rate" && <p className="u-why">{t("r7.rate")}</p>}
+      {photoState === "ready" && <div className="u-photos-row">
+        {photos.map(photo => {
+          const credit = t("r7.photosCredit", { author: photo.author });
+          const held = saving === photo.id;
+          return <button key={photo.id} type="button" className="u-photo" data-photo={photo.id} aria-label={credit} disabled={held} aria-describedby={held ? "u-why-photo" : undefined} onClick={() => void addPhoto(photo)}>
+            <img src={photo.thumb} alt="" />
+            <span>{photo.author} · CC BY-SA</span>
+          </button>;
+        })}
+      </div>}
+      {saving && <p className="u-why" id="u-why-photo">{t("r7.photosBusy")}</p>}
+      {photoNote && <p className="u-small" role="status" data-photo-ajoute="">{photoNote}</p>}
+    </section>}
     <div className="u-repere-views">
       <button type="button" aria-pressed={regard === "debout"} onClick={() => retake("debout", autour)}>{t("r7.debout")}</button>
       <button type="button" aria-pressed={regard === "dessus"} onClick={() => retake("dessus", autour)}>{t("r7.dessus")}</button>
@@ -256,4 +391,30 @@ export function RepereCarte({ onSave }: Props) {
 
 function pause(ms: number): Promise<void> {
   return new Promise(resolve => { window.setTimeout(resolve, ms); });
+}
+
+async function paintRue(author: string): Promise<Blob> {
+  const canvas = document.createElement("canvas");
+  canvas.width = 160;
+  canvas.height = 100;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.fillStyle = "#8a7355";
+    ctx.fillRect(0, 0, 160, 100);
+    ctx.fillStyle = "#6e675c";
+    ctx.fillRect(0, 62, 160, 38);
+    ctx.fillStyle = "#d4af37";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(author, 8, 28);
+  }
+  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(file => resolve(file), "image/png"));
+  return blob ?? new Blob();
+}
+
+async function loadPhoto(id: string): Promise<Blob | null> {
+  const response = await fetch(`/api/repere?photo=${encodeURIComponent(id)}`);
+  if (response.status === 429) throw new Error("rate");
+  const type = response.headers.get("content-type") ?? "";
+  if (!response.ok || !type.startsWith("image/")) return null;
+  return response.blob();
 }

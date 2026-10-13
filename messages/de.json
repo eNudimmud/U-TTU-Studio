@@ -1346,6 +1346,13 @@
     "creditRelief": "Relief: Terrarium, offene AWS-Daten",
     "quartierFail": "Das Viertel konnte nicht geladen werden.",
     "rue": "In der Straße.",
+    "photosLieu": "Fotos des Orts",
+    "photosOff": "Das Mapillary-Kennwort fehlt. Die Straßenfotos bleiben aus.",
+    "photosEmpty": "Hier gibt es kein Straßenfoto.",
+    "photosFail": "Die Fotos konnten nicht geladen werden.",
+    "photosCredit": "© {author}, Mapillary, CC BY-SA",
+    "photosAdded": "Foto zu den Referenzen gelegt.",
+    "photosBusy": "Fotos werden geladen.",
     "reacMontage": "Stumme Reaktion"
   }
 }

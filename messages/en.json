@@ -1346,6 +1346,13 @@
     "creditRelief": "Terrain: Terrarium, AWS Open Data",
     "quartierFail": "The block could not be loaded.",
     "rue": "In the street.",
+    "photosLieu": "Photos of this place",
+    "photosOff": "The Mapillary token is missing. Street photos stay off.",
+    "photosEmpty": "No street photo here.",
+    "photosFail": "The photos could not be loaded.",
+    "photosCredit": "© {author}, Mapillary, CC BY-SA",
+    "photosAdded": "Photo added to the references.",
+    "photosBusy": "Loading photos.",
     "reacMontage": "Silent reaction"
   }
 }

@@ -916,7 +916,7 @@
 .u-maquette-place { top: 8px; right: 8px; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--u-gold-soft); font-size: 12px; text-align: right; text-shadow: 0 1px 2px #000; }
 .u-maquette-hint { left: 8px; right: 8px; bottom: 8px; max-width: none; padding: 8px 10px; border-radius: 10px; background: rgba(11, 10, 9, .88); color: var(--u-gold-soft); font-size: 13px; line-height: 1.35; }
 .u-maquette-tools, .u-repere-chips, .u-repere-views { display: flex; flex-wrap: wrap; gap: 6px; }
-.u-maquette-tools button, .u-lock, .u-repere-chips button, .u-repere-views button, .u-repere-go, .u-tuile { min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: inherit; }
+.u-maquette-tools button, .u-lock, .u-repere-chips button, .u-repere-views button, .u-repere-go, .u-photo, .u-tuile { min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: inherit; }
 .u-lock[aria-pressed="true"], .u-tuile[aria-pressed="true"], .u-repere-views button[aria-pressed="true"], .u-repere-chips button[aria-pressed="true"] { border-color: var(--u-gold); color: var(--u-gold-soft); background: rgba(201, 164, 106, .14); }
 .u-maquette-tools small { color: var(--u-gold-soft); font-size: 12px; }
 .u-maquette-render { display: grid; gap: 4px; }
@@ -935,6 +935,12 @@
 .u-quartier-canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .u-repere-map .maplibregl-ctrl button { width: 44px; height: 44px; }
 .u-repere-credit { margin: 0; color: var(--u-gold-soft); font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; white-space: normal; }
+.u-photos { display: grid; gap: 8px; min-width: 0; }
+.u-photos.is-off { opacity: .55; }
+.u-photos-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.u-photo { display: grid; justify-items: start; gap: 4px; width: auto; max-width: 100%; padding: 4px; text-align: start; }
+.u-photo img { width: 120px; height: 72px; object-fit: cover; display: block; }
+.u-photo span { display: block; max-width: 140px; font-size: 12px; line-height: 1.3; }
 .u-track-mark { width: 100%; height: auto; min-height: 0; }
 .u-track-mark svg { width: 16px; height: 16px; }
 .u-track-word { display: block; max-width: 100%; overflow: visible; text-overflow: clip; white-space: nowrap; text-align: center; font: 600 11px/1.15 var(--font-body); letter-spacing: 0; text-transform: none; }

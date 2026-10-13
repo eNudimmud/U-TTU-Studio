@@ -1,8 +1,10 @@
 // One search at a time. Nominatim, Overpass and Terrarium stay on the server, where a User-Agent can be set.
-// Map links are parsed. No Google key, and no fetch outside the short-link allowlist.
+// Map links are parsed. No Google key, no Street View, no Google tiles.
+// Street photos use the Mapillary Graph API. The client token stays in MAPILLARY_TOKEN.
 
 import { nominatimUrl, parseNominatim } from "@/lib/repere/lieu";
 import { hostAllowed, isShortHost } from "@/lib/repere/lien";
+import { mapillaryImageUrl, mapillaryImagesUrl, parseMapillary, thumbAllowed } from "@/lib/repere/mapillary";
 import { decodePngRgba } from "@/lib/repere/png";
 import {
   OVERPASS, TERRARIUM, overpassQuery, parseOverpass, plafondBatiments, reliefFromRgba, streetStand, tileOf,
@@ -16,12 +18,18 @@ const UA = "UTTU-Studio/1.0 (reperage; https://u-ttu-studio.vercel.app)";
 const REFERER = "https://u-ttu-studio.vercel.app";
 const TTL = 10 * 60 * 1000;
 const last = { at: 0 };
+const photoSlot = { at: 0 };
 const cache = new Map<string, { at: number; body: Quartier }>();
+const photoLists = new Map<string, { at: number; body: { photos: { id: string; author: string; thumb: string }[] } }>();
+const photoBytes = new Map<string, { at: number; bytes: ArrayBuffer; type: string }>();
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const rawUrl = params.get("url")?.trim() ?? "";
   if (rawUrl) return resolveLink(rawUrl);
+  if (params.get("photos") === "1") return listPhotos(params);
+  const photoId = params.get("photo")?.trim() ?? "";
+  if (photoId) return streamPhoto(photoId);
 
   const lat = numberIn(params.get("lat"), -90, 90);
   const lon = numberIn(params.get("lon"), -180, 180);
@@ -166,10 +174,104 @@ async function askNominatim(query: string): Promise<{ name: string; lat: number;
   }
 }
 
+async function listPhotos(params: URLSearchParams): Promise<Response> {
+  const token = mapillaryToken();
+  if (!token) return Response.json({ error: "token", photos: [] });
+  const lat = numberIn(params.get("lat"), -90, 90);
+  const lon = numberIn(params.get("lon"), -180, 180);
+  if (lat === null || lon === null) return Response.json({ error: "photos", photos: [] }, { status: 400 });
+  const limit = params.get("mobile") === "1" ? 4 : 6;
+  const key = `${lat.toFixed(4)},${lon.toFixed(4)},${limit}`;
+  const hit = photoLists.get(key);
+  if (hit && Date.now() - hit.at < TTL) return Response.json(hit.body);
+  if (!takePhotoSlot()) return Response.json({ error: "rate", photos: [] }, { status: 429 });
+  try {
+    const upstream = await fetch(mapillaryImagesUrl(lat, lon, limit), {
+      headers: { Authorization: `OAuth ${token}`, Accept: "application/json", "User-Agent": UA },
+      cache: "no-store",
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!upstream.ok) return Response.json({ error: "photos", photos: [] });
+    const photos = parseMapillary(await upstream.json()).map(item => ({ id: item.id, author: item.author, thumb: item.thumb }));
+    const body = { photos };
+    photoLists.set(key, { at: Date.now(), body });
+    return Response.json(body);
+  } catch {
+    return Response.json({ error: "photos", photos: [] });
+  }
+}
+
+async function streamPhoto(id: string): Promise<Response> {
+  if (!/^\d{1,30}$/.test(id)) return Response.json({ error: "photos" }, { status: 400 });
+  const token = mapillaryToken();
+  if (!token) return Response.json({ error: "token", photos: [] });
+  const hit = photoBytes.get(id);
+  if (hit && Date.now() - hit.at < TTL) {
+    return new Response(hit.bytes, { headers: { "Content-Type": hit.type, "Cache-Control": "private, max-age=600" } });
+  }
+  if (!takePhotoSlot()) return Response.json({ error: "rate", photos: [] }, { status: 429 });
+  try {
+    const meta = await fetch(mapillaryImageUrl(id), {
+      headers: { Authorization: `OAuth ${token}`, Accept: "application/json", "User-Agent": UA },
+      cache: "no-store",
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!meta.ok) return Response.json({ error: "photos", photos: [] });
+    const payload = await meta.json() as { thumb_1024_url?: unknown };
+    const thumb = typeof payload.thumb_1024_url === "string" ? payload.thumb_1024_url : "";
+    const image = await fetchThumb(thumb);
+    if (!image) return Response.json({ error: "photos", photos: [] });
+    photoBytes.set(id, { at: Date.now(), bytes: image.bytes, type: image.type });
+    return new Response(image.bytes, { headers: { "Content-Type": image.type, "Cache-Control": "private, max-age=600" } });
+  } catch {
+    return Response.json({ error: "photos", photos: [] });
+  }
+}
+
+async function fetchThumb(start: string): Promise<{ bytes: ArrayBuffer; type: string } | null> {
+  let current = start;
+  for (let hop = 0; hop < 2; hop += 1) {
+    if (!thumbAllowed(current)) return null;
+    const response = await fetch(current, {
+      redirect: "manual",
+      headers: { Accept: "image/*", "User-Agent": UA },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (!location) return null;
+      try {
+        current = new URL(location, current).toString();
+      } catch {
+        return null;
+      }
+      continue;
+    }
+    if (!response.ok) return null;
+    const type = (response.headers.get("content-type") ?? "image/jpeg").split(";")[0].trim();
+    if (!type.startsWith("image/")) return null;
+    const bytes = await response.arrayBuffer();
+    if (bytes.byteLength < 32 || bytes.byteLength > 8_000_000) return null;
+    return { bytes, type };
+  }
+  return null;
+}
+
+function mapillaryToken(): string {
+  return (process.env.MAPILLARY_TOKEN ?? "").trim();
+}
+
 function takeSlot(): boolean {
   const now = Date.now();
   if (now - last.at < 1000) return false;
   last.at = now;
+  return true;
+}
+
+function takePhotoSlot(): boolean {
+  const now = Date.now();
+  if (now - photoSlot.at < 1000) return false;
+  photoSlot.at = now;
   return true;
 }
 

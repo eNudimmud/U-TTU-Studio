@@ -35,17 +35,22 @@ Chaque personnage ajouté se place sur une ligne, face caméra, avec une couleur
 
 ### Décor
 
-Le repérage couvre le monde entier. Un seul champ « Où ? » accepte un nom, un lien Google Maps ou Google Earth (lien court compris ; l’orientation de la caméra est reprise quand Earth la donne), des coordonnées décimales ou en degrés-minutes-secondes, ou un fichier KML, KMZ ou GeoJSON. Aucune clé Google : le lien est seulement lu.
+La carte du monde reste open source : OpenStreetMap, OpenFreeMap, Nominatim, Overpass et le relief Terrarium. Un lien Google Maps ou Google Earth collé est seulement lu (lien court compris, orientation reprise quand Earth la donne). Aucune clé Google, aucun Street View, aucune tuile Google.
+
+Le repérage couvre le monde entier. Un seul champ « Où ? » accepte un nom, ce lien, des coordonnées décimales ou en degrés-minutes-secondes, ou un fichier KML, KMZ ou GeoJSON.
 
 Le quartier s’affiche en 3D : bâtiments extrudés et rues via l’API Overpass (`overpass-api.de`, OpenStreetMap), carte OpenFreeMap, relief en tuiles Terrarium (AWS Open Data), recherche Nominatim. On se place debout dans la rue au doigt, puis « Garder ce lieu » crée la fiche décor du projet dans Mon studio. Le volume est à côté, dans `Lieux/<id>.quartier.json`, pas dans la note. Quatre exemples : Montmartre, Shibuya, Brooklyn Bridge, Genève. « Debout dans la rue », « Vue du dessus » et « Inclure les alentours » règlent la caméra et, hors démo, le rayon. Les mentions restent visibles : © contributeurs OpenStreetMap, ODbL, OpenFreeMap, et le relief Terrarium. Une requête à la fois, un cache d’environ dix minutes, un User-Agent, et un message clair si Overpass ou Nominatim refuse. Sur mobile le rayon est plus court et le relief moins détaillé. En démo, et donc en CI, le quartier est factice : aucun appel Overpass, Nominatim, Terrarium ni Google. « Habiller ce décor » reste éteint, même hypothèse de devis.
 
 Dans PRISE, ce lieu 3D devient le fond de la maquette. Les mannequins sont posés dans la rue. Le cadrage et la ligne « Dans la rue » entrent dans le texte de la requête, sous Détails, avec le devis 12,5.
+
+Une fois le lieu choisi, le volet « Photos du lieu » demande les photos de rue Mapillary proches (API Graph, rayon 50 m). Le jeton client se lit dans `MAPILLARY_TOKEN`, côté serveur. **Ce jeton est absent dans cet environnement.** Sans lui, le volet est grisé et affiche « Le jeton Mapillary manque. Les photos de rue restent éteintes. » Rien ne plante. Dès que le jeton est fourni, les vignettes s’affichent. Un tap enregistre la photo dans les références du décor de Mon studio, avec la mention « © auteur, Mapillary, CC BY-SA ». La démo et la CI n’appellent pas Mapillary : deux photos factices, Ada Rue et Nils Quai.
 
 ## Hypothèses
 
 - 13 crédits pour le graphe guidé `api_nano_banana_2_1_image_edit`. Le chemin mesuré sans guide reste 12,5. Le 13 n’est pas une mesure.
 - Le même ordre de grandeur pour « Habiller ce décor ». Rien n’est envoyé.
 - OpenFreeMap, Nominatim, Overpass et les tuiles Terrarium se comportent comme leur documentation publique. Chacun peut échouer ou limiter le débit : le message le dit, et la mention ODbL reste. La démo et les tests n’appellent pas ces services.
+- L’API Graph Mapillary demande un jeton client gratuit. Il manque ici (`MAPILLARY_TOKEN` vide). Le volet le dit et reste éteint. Les photos de la démo sont peintes dans le navigateur.
 - La réaction muette du montage est un plan muet enchaîné, pas une deuxième prise PRISE.
 - Douze personnages est le plafond de la maquette, pour que la scène reste légère. Le bouton + Personnage dit pourquoi il s’éteint.
 
@@ -54,10 +59,11 @@ Dans PRISE, ce lieu 3D devient le fond de la maquette. Les mannequins sont posé
 - Brancher l’envoi de « Composer l'image ». Il dit encore que rien ne part. Le devis affiché est 12,5, mesuré.
 - Finaliser : résolution et netteté d’une prise déjà gardée. Inchangé, toujours éteint tant que le graphe n’est pas mesuré.
 - Habiller un lieu repéré. Le volume 3D est là ; l’habillage reste éteint tant que le graphe n’est pas mesuré.
+- Fournir `MAPILLARY_TOKEN` pour allumer les vraies photos de rue. Le volet et l’attribution sont déjà en place.
 - Poses VRMA / BVH, VRM détaillé, export PSD, trait manga.
 
 ## Vérifié
 
-`npm test` : 314 passés, 1 ignoré. `npm run typecheck`. `npm run build`. `npx playwright test` : le parcours CAST → DÉCOR (quartier 3D factice, « Garder ce lieu », aucune requête Overpass, Nominatim, Terrarium ni Google) → PRISE (le lieu 3D en fond, un mannequin puis trois espacés dans la rue, retrait, tuile, Autre essai, cadenas, un seul bouton « Composer l'image », un seul devis 12,5, panneau qui lit le cast, le lieu et le cadrage) → MONTAGE (statut Prêt, libellés entiers, pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
+`npm test` : 317 passés, 1 ignoré. `npm run typecheck`. `npm run build`. `npx playwright test` : le parcours CAST → DÉCOR (quartier 3D factice, volet « Photos du lieu », tap sur la photo d’Ada Rue, mention CC BY-SA, « Garder ce lieu », aucune requête Overpass, Nominatim, Terrarium, Google, Mapillary ni fbcdn) → PRISE (le lieu 3D en fond, un mannequin puis trois espacés dans la rue, retrait, tuile, Autre essai, cadenas, un seul bouton « Composer l'image », un seul devis 12,5, panneau qui lit le cast, le lieu et le cadrage) → MONTAGE (statut Prêt, libellés entiers, pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
 
 Captures 1280×800 et 390×844 : `artifacts/screenshots/r7-cast-*`, `r7-decor-*`, `r7-prise-1-*`, `r7-prise-3-*`, `r7-montage-*`. La prod, avant correctif : `r7-prod-montage-*`.

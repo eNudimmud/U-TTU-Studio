@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { deflateRawSync, deflateSync } from "node:zlib";
 import { describe, it } from "node:test";
+import { assetNote, importNotes, looseAssets, type AssetRecord } from "../src/lib/creation/assets.ts";
 import { parseFichier } from "../src/lib/repere/fichier.ts";
 import { fixtureQuartier } from "../src/lib/repere/fixture.ts";
 import { LIEUX_EXEMPLE } from "../src/lib/repere/lieu.ts";
 import { hostAllowed, isShortHost } from "../src/lib/repere/lien.ts";
+import { fixturePhotos, mapillaryImagesUrl, parseMapillary, photoCredit, thumbAllowed } from "../src/lib/repere/mapillary.ts";
 import { decodePngRgba } from "../src/lib/repere/png.ts";
 import { parseOverpass, parseQuartier, plafondBatiments, rayonFor, standsInStreet, terrariumMeters } from "../src/lib/repere/quartier.ts";
 import { parseGeoJson, parseKml, parseSaisie } from "../src/lib/repere/saisie.ts";
@@ -121,9 +123,80 @@ describe("quartier", () => {
     assert.match(route, /429/);
     assert.match(route, /hostAllowed/);
     const client = readFileSync(new URL("../src/components/app/repere-carte.tsx", import.meta.url), "utf8");
-    assert.doesNotMatch(client, /overpass-api\.de|node:zlib|googleapis/);
+    assert.doesNotMatch(client, /overpass-api\.de|node:zlib|googleapis|streetview|mt\.google|khms|graph\.mapillary\.com/);
     assert.match(client, /data-garder-lieu/);
     assert.match(client, /fixtureQuartier/);
+    assert.match(client, /data-photo=/);
+  });
+});
+
+describe("photos Mapillary", () => {
+  it("reads nearby street photos and keeps the licence", () => {
+    const url = mapillaryImagesUrl(48.8867, 2.3431, 6);
+    assert.match(url, /graph\.mapillary\.com\/images/);
+    assert.match(url, /radius=50/);
+    assert.doesNotMatch(url, /access_token/);
+    const photos = parseMapillary({
+      data: [
+        { id: "101", thumb_256_url: "https://scontent.xx.fbcdn.net/a.jpg", creator: { username: "Ada Rue" }, camera_type: "equirectangular" },
+        { id: "202", thumb_256_url: "https://scontent.xx.fbcdn.net/b.jpg", creator: { username: "Nils Quai" }, camera_type: "perspective" },
+        { id: "bad", thumb_256_url: "http://evil.example/x.jpg", creator: { username: "Nope" }, camera_type: "perspective" },
+      ],
+    });
+    assert.deepEqual(photos.map(item => item.id), ["202"]);
+    assert.equal(photos[0].author, "Nils Quai");
+    assert.equal(photoCredit("Ada Rue"), "© Ada Rue, Mapillary, CC BY-SA");
+    assert.equal(photoCredit("  "), "© Mapillary, Mapillary, CC BY-SA");
+    assert.equal(thumbAllowed("https://scontent.xx.fbcdn.net/a.jpg"), true);
+    assert.equal(thumbAllowed("https://images.mapillary.com/a.jpg"), true);
+    assert.equal(thumbAllowed("https://graph.mapillary.com/1"), false);
+    assert.equal(thumbAllowed("http://scontent.xx.fbcdn.net/a.jpg"), false);
+    assert.equal(thumbAllowed("https://evil.example/a.jpg"), false);
+    assert.deepEqual(fixturePhotos().map(item => item.id), ["fixture-ada", "fixture-nils"]);
+  });
+
+  it("stays off without a token, and never calls a Google map API", () => {
+    const route = readFileSync(new URL("../src/app/api/repere/route.ts", import.meta.url), "utf8");
+    const lib = readFileSync(new URL("../src/lib/repere/mapillary.ts", import.meta.url), "utf8");
+    const server = `${route}\n${lib}`;
+    assert.match(server, /MAPILLARY_TOKEN/);
+    assert.match(server, /graph\.mapillary\.com/);
+    assert.match(server, /Authorization/);
+    assert.match(route, /if \(!token\) return Response\.json\(\{ error: "token", photos: \[\] \}\)/);
+    assert.ok(route.includes(String.raw`/^\d{1,30}$/`));
+    assert.doesNotMatch(server, /maps\.googleapis|streetview|mt\.google|khms/);
+    assert.equal((process.env.MAPILLARY_TOKEN ?? "").trim(), "");
+  });
+
+  it("keeps the street photo as a décor reference, with the author", async () => {
+    const credit = photoCredit("Ada Rue");
+    const card: AssetRecord = {
+      id: "montmartre-mly-fixtureada",
+      kind: "importe",
+      name: credit,
+      at: "2026-10-13T00:00:00.000Z",
+      prompt: credit,
+      geste: "repere",
+      template: "",
+      refs: ["Projets/atelier/Lieux/montmartre-mly-fixtureada.png"],
+      devis: null,
+      cout: null,
+      media: "Projets/atelier/Lieux/montmartre-mly-fixtureada.png",
+      note: "Projets/atelier/Assets/montmartre-mly-fixtureada.md",
+      preview: null,
+      loose: false,
+    };
+    const note = assetNote(card);
+    const found = await importNotes(
+      async () => note,
+      ["Projets/atelier/Assets/montmartre-mly-fixtureada.md"],
+      "atelier",
+    );
+    assert.equal(found.length, 1);
+    assert.equal(found[0].kind, "decor");
+    assert.match(found[0].name, /Ada Rue/);
+    assert.match(found[0].prompt, /CC BY-SA/);
+    assert.equal(looseAssets(["Projets/atelier/Lieux/montmartre-mly-fixtureada.png"], "atelier").length, 0);
   });
 });
 
