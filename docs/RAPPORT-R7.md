@@ -1,6 +1,30 @@
 # Rapport R7 — montage, maquette, repérage
 
-Date : 2026-10-13. Base : `main` à `f57a2ad` (R6). Rien n’est mergé. 0 crédit Comfy : aucun `run_template`, `submit_workflow`, `partner_generate`, `estimate_credits`. Finaliser n’a pas été modifié.
+Date : 2026-10-13. R7 est dans `main` (`cb6ac1a`). R7.1 part de là. 0 crédit Comfy : aucun `run_template`, `submit_workflow`, `partner_generate`, `estimate_credits`. Finaliser n’a pas été modifié.
+
+## R7.1 — la vue de rue
+
+En prod (`https://u-ttu-studio.vercel.app/studio`, sans `?demo=1`), DÉCOR sur « Lausanne Place Saint-François » ne montrait pas de rue. Le diagnostic Playwright :
+
+- le mode démo n’est pas actif (pas de `?demo=1`, pas de photo factice Ada Rue) ;
+- aucune en-tête Content-Security-Policy, et le navigateur joint bien Photon, OpenFreeMap et Overpass ;
+- Overpass a répondu que le quartier n’avait pas pu être chargé. Les photos n’étaient demandées qu’après ce quartier, donc Panoramax n’était même pas appelé ;
+- quand les photos partaient, l’écran ne montrait que des vignettes, pas une vue où l’on regarde autour de soi.
+
+Les photos existent. `place_position=6.6323,46.5197` avec `place_distance=0-300` renvoie des images sur `panoramax.openstreetmap.fr` (auteur, licence CC BY-SA, liens prev/next). L’ancienne recherche ne couvrait que 50 à 80 m : à Lausanne la plus proche est plus loin.
+
+Maintenant, le point choisi ouvre tout de suite la photo Panoramax la plus proche, dans un rayon de 300 m. Photo Sphere Viewer (le moteur du visualiseur Panoramax) affiche l’image HD ou SD : on glisse pour regarder, « Photo suivante » et « Photo précédente » avancent le long de la séquence, et le marqueur de la mini-carte suit la photo. « Prendre cette vue » enregistre le cadrage affiché, avec l’auteur et la licence. « Créer le décor » reste un devis, éteint en démo. « Garder ce lieu » écrit le lieu dans Mon studio. La vue 3D Overpass ne s’ouvre que s’il n’y a aucune photo dans les 300 m, avec la phrase qui le dit.
+
+À 390 px la vue passe en plein écran (`position: fixed` sur le viewport, `touch-action: none` sur l’image). Le doigt tourne la tête sans faire défiler la page. « Quitter la vue » rend le reste de l’écran.
+
+Vérifié hors démo, avec de vrais appels, le 2026-10-13 :
+
+- Lausanne, Place Saint-François : photo `1b15b784-e306-4eef-beb0-30930eac6eed`, jo2sm, CC BY-SA. La séquence en contient 9 dans le rayon. « Photo précédente » ouvre `847445f6-…`. Le glisser change le cap (336° à 1280, 334° à 390).
+- Paris, Montmartre : photo `47f259eb-e482-40bf-a0d2-3477a15ffc0a`, pyrog, CC BY-SA. « Photo suivante » ouvre `365dd2c5-…`. Le cap passe à 355° (1280) et 356° (390).
+- « Prendre cette vue » répond « Photo ajoutée aux références. © jo2sm, Panoramax, CC BY-SA » (et de même pour pyrog).
+- Captures 1280 et 390 de Lausanne et de Paris, jointes à la PR. Elles ne sont pas dans le dépôt : ce sont des photos CC BY-SA.
+
+La CI reste en `?demo=1`. Les routes Overpass, Photon et Panoramax y sont coupées. La vue de démo est peinte dans le navigateur (Ada Rue, Nils Quai, CC BY-SA) et le glisser change quand même le cap. Le visualiseur Panoramax complet (`@panoramax/web-viewer`) n’est pas embarqué : il remplace la page par sa propre carte et il demande MapLibre 6, alors que la carte du studio est en MapLibre 4. Photo Sphere Viewer est le moteur qu’il utilise pour regarder autour.
 
 ## Ce qui est fait
 
@@ -40,8 +64,8 @@ Chaque personnage ajouté se place sur une ligne, face caméra, avec une couleur
 Trois gestes, tout en open source. Aucune clé Google, aucun Street View, aucune tuile Google. Un lien Google collé est seulement lu.
 
 1. On touche un point n’importe où sur la carte (MapLibre GL, style OpenFreeMap). Le champ « Où ? » accepte aussi un nom, des coordonnées, un lien, ou un fichier KML, KMZ ou GeoJSON. Quatre exemples : Montmartre, Shibuya, Brooklyn Bridge, Genève.
-2. La vue depuis le sol s’ouvre en three.js. On tourne la tête au doigt pour choisir l’angle. Les bâtiments et les rues viennent d’Overpass (OpenStreetMap), appelé depuis le navigateur. Les photos de rue viennent d’abord de Panoramax, ouvert et sans jeton, avec les vues 360° en premier. Mapillary n’est appelé que si `NEXT_PUBLIC_MAPILLARY_TOKEN` est présent. Un tap choisit une photo et l’enregistre dans les références du décor, avec l’auteur et la licence.
-3. « Créer le décor » est le seul coût affiché : ≈ 13 crédits, hypothèse, estimation à mesurer. En démo le bouton reste éteint, avec sa raison. Rien n’est envoyé. « Garder ce lieu » écrit le volume 3D dans Mon studio. PRISE le reprend comme fond de la maquette. Les légendes des photos de rue tiennent en entier, sur deux lignes si besoin (« Nils Quai · Panoramax · CC BY-SA · 360° »). Le bouton doré dit « Au maximum 18 crédits (estimation). »
+2. La photo de rue la plus proche s’ouvre dans la vue immersive (Photo Sphere Viewer, images Panoramax). On glisse pour regarder, on avance de photo en photo, le marqueur suit sur la mini-carte. « Prendre cette vue » garde le cadrage, l’auteur et la licence. S’il n’y a aucune photo à moins de 300 m, la vue 3D Overpass prend le relais et le dit. Mapillary n’est appelé que si `NEXT_PUBLIC_MAPILLARY_TOKEN` est présent, et seulement quand Panoramax n’a rien.
+3. « Créer le décor » est le seul coût affiché : ≈ 13 crédits, hypothèse, estimation à mesurer. En démo le bouton reste éteint, avec sa raison. Rien n’est envoyé. « Garder ce lieu » écrit le lieu dans Mon studio. Le bouton doré dit « Au maximum 18 crédits (estimation). »
 
 Aucun serveur n’est hébergé pour ça, et aucun service payant n’est appelé. Le navigateur parle directement à OpenFreeMap, à Photon (recherche d’un nom), à Overpass et à Panoramax. Un lien complet ou des coordonnées se lisent sur l’appareil. Un lien court demande le lien complet. Chaque service est limité à une requête par seconde et gardé dix minutes. Les mentions restent visibles : © contributeurs OpenStreetMap, ODbL, OpenFreeMap, Photon, et pour chaque photo l’auteur avec Panoramax ou Mapillary. Sur mobile le rayon est plus court. En démo, et donc en CI, le quartier et les photos sont factices : aucun appel Overpass, Photon, Panoramax, Mapillary ni Google.
 
