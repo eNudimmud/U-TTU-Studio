@@ -916,7 +916,7 @@
 .u-maquette-place { top: 8px; right: 8px; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--u-gold-soft); font-size: 12px; text-align: right; text-shadow: 0 1px 2px #000; }
 .u-maquette-hint { left: 8px; right: 8px; bottom: 8px; max-width: none; padding: 8px 10px; border-radius: 10px; background: rgba(11, 10, 9, .88); color: var(--u-gold-soft); font-size: 13px; line-height: 1.35; }
 .u-maquette-tools, .u-repere-chips, .u-repere-views { display: flex; flex-wrap: wrap; gap: 6px; }
-.u-maquette-tools button, .u-lock, .u-repere-chips button, .u-repere-views button, .u-tuile { min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: inherit; }
+.u-maquette-tools button, .u-lock, .u-repere-chips button, .u-repere-views button, .u-repere-go, .u-tuile { min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: inherit; }
 .u-lock[aria-pressed="true"], .u-tuile[aria-pressed="true"], .u-repere-views button[aria-pressed="true"], .u-repere-chips button[aria-pressed="true"] { border-color: var(--u-gold); color: var(--u-gold-soft); background: rgba(201, 164, 106, .14); }
 .u-maquette-tools small { color: var(--u-gold-soft); font-size: 12px; }
 .u-maquette-render { display: grid; gap: 4px; }
@@ -927,10 +927,14 @@
 .u-repere { display: grid; gap: 8px; min-width: 0; }
 .u-repere-search { display: flex; gap: 8px; align-items: center; min-width: 0; }
 .u-repere-search input { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid var(--u-line); border-radius: 12px; background: #100e0c; color: inherit; }
-.u-repere-search .u-primary { width: auto; flex: none; }
-.u-repere-map { height: 280px; min-height: 180px; border: 1px solid var(--u-line); border-radius: 12px; overflow: hidden; }
+.u-repere-search .u-primary, .u-repere-search .u-repere-go { width: auto; flex: none; }
+.u-repere-file { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-width: 44px; min-height: 44px; padding: 4px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; }
+.u-repere-file input { width: 148px; max-width: 100%; min-width: 44px; min-height: 44px; }
+.u-repere-map, .u-quartier { height: 260px; min-height: 180px; border: 1px solid var(--u-line); border-radius: 12px; overflow: hidden; }
+.u-quartier { position: relative; border-color: var(--u-gold); background: #14110c; touch-action: none; }
+.u-quartier-canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .u-repere-map .maplibregl-ctrl button { width: 44px; height: 44px; }
-.u-repere-credit { margin: 0; color: var(--u-gold-soft); font-size: 12px; line-height: 1.4; }
+.u-repere-credit { margin: 0; color: var(--u-gold-soft); font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; white-space: normal; }
 .u-track-mark { width: 100%; height: auto; min-height: 0; }
 .u-track-mark svg { width: 16px; height: 16px; }
 .u-track-word { display: block; max-width: 100%; overflow: visible; text-overflow: clip; white-space: nowrap; text-align: center; font: 600 11px/1.15 var(--font-body); letter-spacing: 0; text-transform: none; }
@@ -946,7 +950,7 @@
   .u-maquette-stage { height: 248px; }
   .u-maquette-hint { font-size: 12px; padding: 6px 8px; }
   .u-maquette { gap: 6px; }
-  .u-repere-map { height: 220px; }
+  .u-repere-map, .u-quartier { height: 200px; }
   .u-tuile { min-height: 56px; }
 }
 @media (min-width: 1024px) {
@@ -960,5 +964,5 @@
   .u-prise-dock .u-prise-actions .u-secondary { width: auto; flex: 1 1 140px; }
   .u-prise-dock .u-prise-card { gap: 2px; }
   .u-prise-dock .u-prise-card h2 { font-size: 18px; }
-  .u-repere-map { height: 200px; }
+  .u-repere-map, .u-quartier { height: 200px; }
 }

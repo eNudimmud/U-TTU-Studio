@@ -66,13 +66,15 @@ for (const [width, height, label] of sizes) {
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
   await page.getByText("© contributeurs OpenStreetMap, ODbL").waitFor();
   await page.getByRole("button", { name: "Montmartre", exact: true }).click();
+  await page.locator("[data-quartier='1']").waitFor();
+  await page.getByRole("button", { name: "Garder ce lieu" }).click();
   await page.getByText("Enregistré dans Mon studio.").waitFor();
   await page.waitForTimeout(1200);
   for (const dir of dirs) await page.screenshot({ path: `${dir}/r7-decor-${label}.png` });
   notes.push(`decor ${label}: ${await page.evaluate(layout)}`);
 
   await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
-  await page.locator("[data-maquette]").waitFor();
+  await page.locator("[data-maquette][data-quartier='1']").waitFor();
   await page.locator("[data-figures='1']").waitFor();
   await page.waitForTimeout(1200);
   for (const dir of dirs) {

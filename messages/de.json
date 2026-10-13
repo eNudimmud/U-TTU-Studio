@@ -1324,7 +1324,8 @@
       "tailleHintMany": "Die Gruppe bis zur Hüfte"
     },
     "repere": "Suche · ein echter Ort",
-    "lieuPh": "Ein Ort, eine Stadt",
+    "lieuPh": "Name, Link oder Koordinaten",
+    "ou": "Wo?",
     "aller": "Hin",
     "allerOff": "Schreib einen Ort.",
     "autour": "Umgebung einbeziehen",
@@ -1337,6 +1338,14 @@
     "saved": "In Mein Studio gespeichert.",
     "rate": "Eine Suche nach der anderen.",
     "introuvable": "Dieser Ort wurde nicht gefunden.",
+    "garderLieu": "Diesen Ort behalten",
+    "garderOff": "Such zuerst einen Ort.",
+    "fichier": "Datei",
+    "fichierOff": "Diese Datei enthält keinen Ort.",
+    "creditMap": "OpenFreeMap",
+    "creditRelief": "Relief: Terrarium, offene AWS-Daten",
+    "quartierFail": "Das Viertel konnte nicht geladen werden.",
+    "rue": "In der Straße.",
     "reacMontage": "Stumme Reaktion"
   }
 }

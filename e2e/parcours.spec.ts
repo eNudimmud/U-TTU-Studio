@@ -2,10 +2,13 @@ import { expect, test } from "@playwright/test";
 
 test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   const spent: string[] = [];
+  const upstream: string[] = [];
   page.on("request", request => {
     const url = request.url();
     if (/fal\.ai|comfy\.cloud|api\.comfy|partner_generate|run_template/i.test(url)) spent.push(url);
+    if (/overpass-api\.de|nominatim\.openstreetmap\.org|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app/i.test(url)) upstream.push(url);
   });
+  await page.route(/overpass-api\.de|nominatim\.openstreetmap\.org|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app/i, route => route.abort());
 
   await page.goto("/studio?demo=1#personnage");
   await expect(page.getByRole("heading", { name: "CAST" })).toBeVisible();
@@ -15,12 +18,19 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
 
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
   await expect(page.getByText("© contributeurs OpenStreetMap, ODbL")).toBeVisible();
+  await expect(page.getByText("OpenFreeMap")).toBeVisible();
   await page.getByRole("button", { name: "Montmartre", exact: true }).click();
+  const block = page.locator("[data-quartier='1']");
+  await expect(block).toBeVisible();
+  await expect(block).toHaveAttribute("data-batiments", /[1-9]/);
+  await expect(block).toHaveAttribute("data-rue", "1");
+  await page.getByRole("button", { name: "Garder ce lieu" }).click();
   await expect(page.getByText("Enregistré dans Mon studio.")).toBeVisible();
 
   await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
   const stage = page.locator("[data-maquette]");
   await expect(stage).toBeVisible();
+  await expect(stage).toHaveAttribute("data-quartier", "1");
   await expect(stage).toHaveAttribute("data-figures", "1");
   const names = page.locator(".u-maquette-names");
   await expect(names).toHaveText("Uttu");
@@ -124,4 +134,5 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(page.locator("[data-track=voix]")).toBeVisible();
   await expect(page.locator(".u-track .u-clip").first()).toBeVisible();
   expect(spent).toEqual([]);
+  expect(upstream).toEqual([]);
 });

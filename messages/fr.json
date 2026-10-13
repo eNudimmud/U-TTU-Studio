@@ -1324,7 +1324,8 @@
       "tailleHintMany": "Le groupe, à la taille"
     },
     "repere": "Repérage · un vrai lieu",
-    "lieuPh": "Un lieu, une ville",
+    "lieuPh": "Nom, lien, ou coordonnées",
+    "ou": "Où ?",
     "aller": "Y aller",
     "allerOff": "Écris un lieu.",
     "autour": "Inclure les alentours",
@@ -1337,6 +1338,14 @@
     "saved": "Enregistré dans Mon studio.",
     "rate": "Une recherche à la fois.",
     "introuvable": "Ce lieu n'a pas été trouvé.",
+    "garderLieu": "Garder ce lieu",
+    "garderOff": "Cherche d'abord un lieu.",
+    "fichier": "Fichier",
+    "fichierOff": "Ce fichier ne contient pas de lieu.",
+    "creditMap": "OpenFreeMap",
+    "creditRelief": "Relief : Terrarium, AWS Open Data",
+    "quartierFail": "Le quartier n'a pas pu être chargé.",
+    "rue": "Dans la rue.",
     "reacMontage": "Réaction muette"
   }
 }

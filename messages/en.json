@@ -1324,7 +1324,8 @@
       "tailleHintMany": "The group, to the waist"
     },
     "repere": "Scouting · a real place",
-    "lieuPh": "A place, a city",
+    "lieuPh": "Name, link, or coordinates",
+    "ou": "Where?",
     "aller": "Go there",
     "allerOff": "Write a place.",
     "autour": "Include the surroundings",
@@ -1337,6 +1338,14 @@
     "saved": "Saved in My studio.",
     "rate": "One search at a time.",
     "introuvable": "This place was not found.",
+    "garderLieu": "Keep this place",
+    "garderOff": "Look up a place first.",
+    "fichier": "File",
+    "fichierOff": "This file has no place.",
+    "creditMap": "OpenFreeMap",
+    "creditRelief": "Terrain: Terrarium, AWS Open Data",
+    "quartierFail": "The block could not be loaded.",
+    "rue": "In the street.",
     "reacMontage": "Silent reaction"
   }
 }

@@ -16,6 +16,7 @@ import {
 import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/decision";
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
+import { parseQuartier, type Quartier } from "@/lib/repere/quartier";
 import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, priseMarkdown, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
@@ -74,7 +75,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage } = useStudio();
+  const { ready, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage } = useStudio();
   const { t } = useI18n();
   const { format } = useFormat();
   const [seed, setSeed] = useState<Seed>("vide");
@@ -91,6 +92,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [sending, setSending] = useState(false);
   const [picker, setPicker] = useState(false);
   const [placeCleared, setPlaceCleared] = useState(false);
+  const [quartier, setQuartier] = useState<Quartier | null>(null);
   const booted = useRef(false);
   const seeded = useRef(false);
 
@@ -168,6 +170,21 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
   const index = Math.max(0, drafts.findIndex(item => item.id === currentId));
   const draft = drafts[index] ?? drafts[0];
+  const previewPlaceId = !draft
+    ? null
+    : draft.input.decorId ?? (placeCleared ? null : pickedDecor) ?? places[0]?.id ?? null;
+  useEffect(() => {
+    let dead = false;
+    if (!previewPlaceId) {
+      setQuartier(null);
+      return;
+    }
+    void readProjectFile(`Lieux/${previewPlaceId}.quartier.json`).then(text => {
+      if (dead) return;
+      setQuartier(text ? parseQuartier(text) : null);
+    });
+    return () => { dead = true; };
+  }, [previewPlaceId, readProjectFile]);
   const previous = index > 0 ? drafts[index - 1] : null;
 
   function patch(partial: Partial<PlanInput>) {
@@ -210,7 +227,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const tourner = decide(input, "tourner");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
   const showFinal = panel || draft.finalised;
-  const cadre = captureLine(maquette, tuileById(maquette.tuile).prompt);
+  const cadre = [captureLine(maquette, tuileById(maquette.tuile).prompt), quartier ? t("r7.rue") : ""].filter(Boolean).join(" ");
   const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision, { cadre });
   const tip = astuce(maquette);
   const tileLabels = TUILES.map(item => ({ id: item.id, label: t(`r7.tuile.${item.id}`) }));
@@ -470,8 +487,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
         : <MaquetteView
           state={maquette}
-          backdrop={shownPlace?.src || ""}
+          backdrop={quartier ? "" : (shownPlace?.src || "")}
           placeName={shownPlace?.name || ""}
+          quartier={quartier}
           badge={t(`r7.tuile.${maquette.tuile}`)}
           hint={t("r7.hint")}
           onMove={(id, x, z) => setMaquette(state => moveFigure(state, id, x, z))}
@@ -512,7 +530,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <p className="u-label">Ce que l'app va faire</p>
         <p className="u-prise-brief" data-lire-maquette="">
           <span>{t("r7.lireCast")} : {maquette.figures.map(figure => figure.name).join(", ") || "—"}</span>
-          <span>{t("r7.lireLieu")} : {shownPlace?.name || "—"}</span>
+          <span>{t("r7.lireLieu")} : {shownPlace?.name || "—"}{quartier ? ` · ${t("r7.rue")}` : ""}</span>
           <span>{t("r7.lireCadrage")} : {t(`r7.tuile.${maquette.tuile}`)}</span>
         </p>
         <h2>{card.titre || "En attente"}</h2>

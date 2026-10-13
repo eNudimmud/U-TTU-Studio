@@ -121,7 +121,7 @@ export interface StudioSession {
   readProjectFile(file: string): Promise<string | undefined>;
   writeProjectFile(file: string, text: string): Promise<void>;
   saveShot(shot: Shot): Promise<void>;
-  saveLieu(input: { name: string; note: string }): Promise<string | null>;
+  saveLieu(input: { name: string; note: string; quartier?: string }): Promise<string | null>;
   sendToMontage(input: { planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }): Promise<void>;
 }
 
@@ -1010,17 +1010,18 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await writeShot(store(), shot, current.takes, "");
   }, [current.takes, store]);
 
-  const saveLieu = useCallback(async (input: { name: string; note: string }) => {
+  const saveLieu = useCallback(async (input: { name: string; note: string; quartier?: string }) => {
     const name = cleanCardName(input.name);
     if (!name) return null;
     const vault = store();
-    await ensureActiveProject(vault);
+    const slug = await ensureActiveProject(vault);
     const held = studioRef.current ?? await loadStudio(vault);
     const note = input.note.slice(0, 500);
     const existing = held.scenes.find(scene => scene.geste === "repere" && scene.name.toLowerCase() === name.toLowerCase());
     const id = existing?.id ?? uniqueId(slugify(name), held.scenes.map(scene => scene.id));
     const scene: Scene = { ...(existing ?? emptySceneDraft()), id, name, note, prompt: note, home: "Lieux", geste: "repere" };
     await writeScene(vault, scene);
+    if (input.quartier) await writeText(vault, projectPath(slug, `Lieux/${id}.quartier.json`), input.quartier);
     await reload();
     setPickedDecor(id);
     return id;

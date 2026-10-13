@@ -283,7 +283,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <p className="u-lead">{t("create.decorLead")}</p>
     </header>
     <div className="u-desk-scroll">
-      <RepereCarte onSave={async (place, regard, autour) => { await saveLieu({ name: place.name, note: lieuNote(place, regard, autour) }); }} />
+      <RepereCarte onSave={async (place, regard, autour, quartier) => { await saveLieu({ name: place.name, note: lieuNote(place, regard, autour), quartier }); }} />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>

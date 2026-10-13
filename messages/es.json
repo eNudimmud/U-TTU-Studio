@@ -1324,7 +1324,8 @@
       "tailleHintMany": "El grupo, a la cintura"
     },
     "repere": "Localización · un lugar real",
-    "lieuPh": "Un lugar, una ciudad",
+    "lieuPh": "Nombre, enlace o coordenadas",
+    "ou": "¿Dónde?",
     "aller": "Ir",
     "allerOff": "Escribe un lugar.",
     "autour": "Incluir los alrededores",
@@ -1337,6 +1338,14 @@
     "saved": "Guardado en Mi estudio.",
     "rate": "Una búsqueda cada vez.",
     "introuvable": "Este lugar no se ha encontrado.",
+    "garderLieu": "Guardar este lugar",
+    "garderOff": "Busca primero un lugar.",
+    "fichier": "Archivo",
+    "fichierOff": "Este archivo no tiene un lugar.",
+    "creditMap": "OpenFreeMap",
+    "creditRelief": "Relieve: Terrarium, datos abiertos de AWS",
+    "quartierFail": "No se pudo cargar el barrio.",
+    "rue": "En la calle.",
     "reacMontage": "Reacción muda"
   }
 }
