@@ -154,8 +154,9 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     setPhotoState("load");
     setPhotos([]);
     try {
+      // Les photos ne dépendent pas des bâtiments : un Overpass en panne (406, CORS) ne doit pas les emporter.
       const [block, shots] = await Promise.all([
-        fetchBlock(next, heading, tilt, wide),
+        fetchBlock(next, heading, tilt, wide).then(value => value, () => null),
         chargerPhotos(next.lat, next.lon),
       ]);
       if (block !== "rate") setQuartier(block);
@@ -356,6 +357,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       {stepWhy && <p className="u-why" id="u-why-rue">{stepWhy}</p>}
       {saving && <p className="u-why" id="u-why-photo">{t("r7.photosBusy")}</p>}
       <p className="u-small" data-rue-credit="">{photo ? `${photo.author} · ${photo.source === "panoramax" ? "Panoramax" : "Mapillary"} · ${photo.license}${photo.tour ? " · 360°" : ""}` : ""}</p>
+      <p className="u-small u-rue-carte-credit" data-carte-credit="">{t("r7.creditCarteMini")} {OSM_CREDIT} · {t("r7.creditMap")}</p>
       {mapillaryOff && <p className="u-small">{t("r7.mapillaryOff")}</p>}
       {photoNote && <p className="u-small" role="status" data-photo-ajoute="">{photoNote}</p>}
     </section>}
