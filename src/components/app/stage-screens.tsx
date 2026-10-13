@@ -11,6 +11,8 @@ import { useI18n } from "@/components/i18n/provider";
 import { Arrow } from "./glyphs";
 import { GestePicker } from "./geste-picker";
 import { ProjectGallery } from "./project-gallery";
+import { RepereCarte } from "./repere-carte";
+import { lieuNote } from "@/lib/repere/lieu";
 import { SlotBoard, type LocalRef } from "./references";
 import { useStudio } from "./studio-session";
 
@@ -214,7 +216,7 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { media, createDecor, connected, balance, creating } = useStudio();
+  const { media, createDecor, connected, balance, creating, saveLieu } = useStudio();
   const [gesteId, setGesteId] = useState("decor-photo");
   useEffect(() => {
     const asked = gesteFromQuery("decor", "");
@@ -281,6 +283,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <p className="u-lead">{t("create.decorLead")}</p>
     </header>
     <div className="u-desk-scroll">
+      <RepereCarte onSave={async (place, regard, autour) => { await saveLieu({ name: place.name, note: lieuNote(place, regard, autour) }); }} />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>

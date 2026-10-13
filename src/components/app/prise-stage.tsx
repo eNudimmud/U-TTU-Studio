@@ -3,18 +3,25 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { assetPath } from "@/lib/site";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
+import { TUILES, rewriteScene, tuileById, tuileInText, type TuileId } from "@/lib/cinema/tuiles";
 import {
-  ACTION_EXAMPLES, ACTION_MAX, CADRAGE_LABEL, CADRAGES, CAMERA_LABEL, CAMERAS,
+  applyTuile, astuce, autreEssai, captureLine, initialMaquette, moveFigure, orbitDrag, pinch, toggleLock, undoMaquette, withPeople,
+  type MaquetteState,
+} from "@/lib/maquette/state";
+import { guideQuote } from "@/lib/prise/guide";
+import {
+  ACTION_EXAMPLES, ACTION_MAX,
   DUREE_DIX, ETAT_LABEL, PAS_MESURE, TROIS,
-  type Cadrage, type CameraMove, type PlanEtat,
+  type PlanEtat,
 } from "@/lib/prise/copy";
 import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/decision";
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
-import { moveId, planFromJson, planMarkdown, planStateFromJson, priseMarkdown, type StoredPlan } from "@/lib/prise/vault";
+import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, priseMarkdown, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
 import { FormatSwitch, useFormat } from "./format-switch";
+import { MaquetteView } from "./maquette-view";
 import { useStudio } from "./studio-session";
 
 type Seed = "vide" | "compose" | "final";
@@ -68,7 +75,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, cast, decor, media, studio, requestRun, writeProjectFile, pickCast, pickDecor, run, cancelRun } = useStudio();
+  const { ready, cast, decor, media, studio, requestRun, writeProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage } = useStudio();
   const { t } = useI18n();
   const { format } = useFormat();
   const [seed, setSeed] = useState<Seed>("vide");
@@ -81,6 +88,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [details, setDetails] = useState(false);
   const [textOpen, setTextOpen] = useState(false);
   const [ask, setAsk] = useState<"composer" | null>(null);
+  const [maquette, setMaquette] = useState<MaquetteState>(() => initialMaquette());
+  const [sending, setSending] = useState(false);
   const booted = useRef(false);
 
   useEffect(() => {
@@ -129,6 +138,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return DEMO_DECOR.map(card => ({ id: card.id, name: card.name, note: card.prompt, src: card.preview ? assetPath(card.preview) : "" }));
   }, [decor, media, seed]);
 
+  const castKey = `${drafts.find(item => item.id === currentId)?.input.castIds.join(",") ?? ""}|${people.map(person => person.id).join(",")}`;
+  useEffect(() => {
+    const chosenIds = drafts.find(item => item.id === currentId)?.input.castIds ?? [];
+    const chosen = chosenIds.length > 0 ? people.filter(person => chosenIds.includes(person.id)) : people;
+    setMaquette(state => withPeople(state, chosen.slice(0, 2).map(person => ({ id: person.id, name: person.name }))));
+  }, [castKey, people, drafts, currentId]);
+
   const index = Math.max(0, drafts.findIndex(item => item.id === currentId));
   const draft = drafts[index] ?? drafts[0];
   const previous = index > 0 ? drafts[index - 1] : null;
@@ -168,10 +184,14 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const tourner = decide(input, "tourner");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
   const showFinal = panel || draft.finalised;
-  const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision);
+  const cadre = captureLine(maquette, tuileById(maquette.tuile).prompt);
+  const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision, { cadre });
+  const guide = guideQuote();
+  const tip = astuce(maquette);
+  const tileLabels = TUILES.map(item => ({ id: item.id, label: t(`r7.tuile.${item.id}`) }));
+  const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
   const etat = etatOf(draft);
   const total = drafts.reduce((sum, item) => sum + item.input.duree, 0);
-  const previewSrc = draft.before || places.find(place => place.id === input.decorId)?.src || people.find(person => person.id === input.castIds[0])?.src || "";
   const planLabel = `Plan ${String(index + 1).padStart(2, "0")}`;
 
   let gold: ClickAction & { composer: boolean };
@@ -248,6 +268,54 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     const on = input.decorId === id;
     patch({ decorId: on ? null : id });
     if (!on && decor.some(card => card.id === id)) void pickDecor(id);
+  }
+
+  function sceneLabels(): string[] {
+    return knownLabels.map(item => item.label);
+  }
+
+  function chooseTuile(id: TuileId) {
+    const preset = tuileById(id);
+    setMaquette(state => applyTuile(state, id));
+    patch({
+      cadrage: preset.cadrage,
+      camera: preset.camera,
+      action: rewriteScene(draft.input.action, t(`r7.tuile.${id}`), sceneLabels()),
+    });
+  }
+
+  function onAction(action: string) {
+    const id = tuileInText(action, knownLabels);
+    if (id && id !== maquette.tuile) {
+      const preset = tuileById(id);
+      setMaquette(state => applyTuile(state, id));
+      patch({ action, cadrage: preset.cadrage, camera: preset.camera });
+      return;
+    }
+    patch({ action });
+  }
+
+  async function envoyer() {
+    if (sending) return;
+    setSending(true);
+    const still = places.find(place => place.id === input.decorId)?.src
+      || people.find(person => person.id === input.castIds[0])?.src
+      || "/exemples/decor-piece.webp";
+    try {
+      await sendToMontage({
+        planId: draft.id,
+        label: draft.input.action.trim() || t(`r7.tuile.${maquette.tuile}`),
+        seconds: input.duree,
+        aspect: input.format === "9:16" ? "vertical" : "horizontal",
+        still,
+        prompt: prompt.text,
+        sceneName: input.decorName,
+        composeur: planJson(input, { etat: etatOf(draft), before: draft.before, after: draft.after }),
+      });
+      onMontage();
+    } finally {
+      setSending(false);
+    }
   }
 
   function keep() {
@@ -335,10 +403,31 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </div>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
-        : <div className={previewSrc ? "u-prise-frame" : "u-prise-frame is-empty"} data-ratio={format}>
-          {previewSrc ? <img src={previewSrc} alt="" /> : <span className="u-prise-empty"><FrameIcon kind="moyen" />Ton image clé apparaîtra ici</span>}
-        </div>}
-      {(etat === "gardee" || etat === "finalisee") && <button type="button" className="u-link" data-lire-sequence="" onClick={onMontage}>Voir au montage</button>}
+        : <MaquetteView
+          state={maquette}
+          backdrop={places.find(place => place.id === input.decorId)?.src || places[0]?.src || ""}
+          placeName={places.find(place => place.id === input.decorId)?.name || places[0]?.name || ""}
+          badge={t(`r7.tuile.${maquette.tuile}`)}
+          hint={t("r7.hint")}
+          onMove={(id, x, z) => setMaquette(state => moveFigure(state, id, x, z))}
+          onOrbit={(dx, dy) => setMaquette(state => orbitDrag(state, dx, dy))}
+          onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
+        />}
+      <div className="u-maquette-tools">
+        <button type="button" className="u-lock" aria-pressed={maquette.lockPose} onClick={() => setMaquette(state => toggleLock(state, "pose"))}>{maquette.lockPose ? "🔒" : "🔓"} {t("r7.pose")}</button>
+        <button type="button" className="u-lock" aria-pressed={maquette.lockCam} onClick={() => setMaquette(state => toggleLock(state, "cam"))}>{maquette.lockCam ? "🔒" : "🔓"} {t("r7.cam")}</button>
+        <button type="button" data-autre-essai="" onClick={() => setMaquette(state => autreEssai(state))}>🎲 {t("r7.essai")} <small>{t("r7.gratuit")}</small></button>
+        <button type="button" disabled={maquette.past.length === 0} aria-describedby={maquette.past.length === 0 ? "u-why-annuler" : undefined} onClick={() => setMaquette(state => undoMaquette(state))}>{t("r7.annuler")}</button>
+      </div>
+      {maquette.past.length === 0 && <p className="u-why" id="u-why-annuler">{t("r7.annulerOff")}</p>}
+      <div className="u-maquette-render">
+        <button type="button" className="u-primary" data-rendre="" disabled aria-describedby="u-why-rendre">{t("r7.rendre")}</button>
+        <p className="u-prise-quote">{t("r7.devis", { credits: guide.credits })}</p>
+      </div>
+      <p className="u-why" id="u-why-rendre">{guide.mark}</p>
+      <p className="u-why" data-astuce={tip.id}>{t(`r7.astuce.${tip.id}`, { name: tip.name })}</p>
+      <button type="button" className="u-link" data-lire-sequence="" data-envoyer-montage="" disabled={sending} aria-describedby={sending ? "u-why-envoyer" : undefined} onClick={() => void envoyer()}>{t("r7.envoyer")}</button>
+      {sending && <p className="u-why" id="u-why-envoyer">{t("nav.opening")}</p>}
     </div>
 
     <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
@@ -418,35 +507,24 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </div>
       </Row>
 
-      <Row label="Cadrage">
-        <div className="u-choice-row u-cadrage">
-          {CADRAGES.map(id => (
-            <button key={id} type="button" className="u-shot-tile" aria-pressed={input.cadrage === id} onClick={() => patch({ cadrage: id })}>
-              <FrameIcon kind={id} />
-              <span>{CADRAGE_LABEL[id]}</span>
-            </button>
-          ))}
-        </div>
-      </Row>
-
-      <Row label="Action">
+      <Row className="u-scene-row" label={t("r7.cequi")}>
         <label className="u-field">
-          <span className="u-label">Ce qui se passe</span>
-          <textarea value={input.action} rows={1} maxLength={ACTION_MAX} placeholder={ACTION_PLACEHOLDER} onChange={event => patch({ action: event.target.value })} />
+          <span className="u-label">{t("r7.cequi")}</span>
+          <textarea value={input.action} rows={3} maxLength={ACTION_MAX} placeholder={ACTION_PLACEHOLDER} onChange={event => onAction(event.target.value)} />
         </label>
         <div className="u-choice-row u-actions">
           {ACTION_EXAMPLES.map(example => (
-            <button key={example} type="button" className="u-chip" aria-pressed={input.action === example} onClick={() => patch({ action: example })}>{example}</button>
+            <button key={example} type="button" className="u-chip" aria-pressed={input.action === example} onClick={() => onAction(example)}>{example}</button>
           ))}
         </div>
       </Row>
 
-      <Row label="Caméra">
-        <div className="u-choice-row u-camera">
-          {CAMERAS.map(id => (
-            <button key={id} type="button" className="u-shot-tile u-cam-tile" data-cam={id} aria-pressed={input.camera === id} onClick={() => patch({ camera: id })}>
-              <CameraIcon kind={id} />
-              <span>{CAMERA_LABEL[id]}</span>
+      <Row className="u-tuiles-row" label={t("r7.tuiles")}>
+        <div className="u-tuiles" data-tuiles="">
+          {TUILES.map(item => (
+            <button key={item.id} type="button" className="u-tuile" data-tuile={item.id} aria-pressed={maquette.tuile === item.id} onClick={() => chooseTuile(item.id)}>
+              <span>{t(`r7.tuile.${item.id}`)}</span>
+              <small>{t(`r7.tuile.${item.id}Hint`)}</small>
             </button>
           ))}
         </div>
@@ -543,8 +621,8 @@ function draftFromShot(shot: Shot, format: PlanInput["format"]): Draft {
   };
 }
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
-  return <div className="u-prise-row">
+function Row({ label, children, className = "" }: { label: string; children: ReactNode; className?: string }) {
+  return <div className={className ? `u-prise-row ${className}` : "u-prise-row"}>
     <p className="u-label">{label}</p>
     {children}
   </div>;
@@ -583,51 +661,6 @@ function Compare({ before, after, ratio }: { before: string; after: string; rati
     </div>
     <input type="range" min={0} max={100} value={pos} aria-label="Comparer avant et après" onChange={event => setPos(Number(event.target.value))} />
   </div>;
-}
-
-function FrameIcon({ kind }: { kind: Cadrage }) {
-  const figure = <g className="u-fig">
-    <circle cx="0" cy="-9" r="3.1" />
-    <path d="M-4.6 -5.6h9.2l-1.1 7.2h-7z" />
-    <path d="M-2 1.6 -3.2 12M2 1.6 3.2 12" />
-  </g>;
-  const place: Record<Cadrage, string> = {
-    large: "translate(32 20) scale(.4)",
-    moyen: "translate(32 30) scale(1.15)",
-    americain: "translate(32 26) scale(.88)",
-    gros: "translate(32 32) scale(1.75)",
-    tgp: "",
-    plongee: "translate(32 24) scale(.72) rotate(10)",
-    contre: "translate(32 14) scale(1.2) rotate(-8)",
-    epaule: "translate(46 22) scale(.5)",
-  };
-  return <svg className="u-ico u-frame-ico" viewBox="0 0 64 36" aria-hidden="true">
-    <rect x="1.5" y="1.5" width="61" height="33" rx="2" />
-    {kind === "plongee" && <path className="u-fig" d="M32 5.5 27.5 11h9z" />}
-    {kind === "contre" && <path className="u-fig" d="M32 30.5 27.5 25h9z" />}
-    {kind === "epaule" && <path className="u-fig" d="M1.5 34.5c7-18 16-20 24-8 2 4 1 8-1 8H1.5z" />}
-    {kind === "tgp" ? <>
-      <ellipse cx="24" cy="18" rx="7" ry="3.4" />
-      <ellipse cx="40" cy="18" rx="7" ry="3.4" />
-      <circle className="u-fig" cx="24" cy="18" r="1.7" />
-      <circle className="u-fig" cx="40" cy="18" r="1.7" />
-    </> : <g transform={place[kind]}>{figure}</g>}
-  </svg>;
-}
-
-function CameraIcon({ kind }: { kind: CameraMove }) {
-  return <svg className="u-ico u-cam-ico" viewBox="0 0 32 24" aria-hidden="true">
-    <g className="u-cam-move" data-cam={kind}>
-      <rect x="1.5" y="8" width="13" height="9" rx="1.5" />
-      <path d="M14.5 11.2 22 8v8l-7.5-4.8z" />
-      {kind === "travelling-avant" && <path d="M24 12h6M27 9.2 30 12l-3 2.8" />}
-      {kind === "travelling-arriere" && <path d="M24 12h6M27 9.2 24 12l3 2.8" />}
-      {kind === "panoramique" && <path d="M24 15c2-4 5-4 7 0M29.2 13.2 31 15.2l-2.2.4" />}
-      {kind === "suivi" && <path d="M24 16h6M28 13.2 31 16l-3 2.6" />}
-      {kind === "orbite" && <path d="M24 8.5a5 5 0 1 1-1 6.2M23.2 8.2 25.4 7.2 25.2 9.6" />}
-      {kind === "epaule" && <path d="M24 9v2M26.5 10.2l-1 1.6M28.5 12.5h-2" />}
-    </g>
-  </svg>;
 }
 
 function AddPersonIcon() {

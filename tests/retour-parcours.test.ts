@@ -13,7 +13,8 @@ describe("retour sur PRISE", () => {
     assert.match(prise, /data-lire-sequence/);
     assert.match(prise, /★ Garder/);
     assert.match(prise, /Finaliser \(agrandir\)/);
-    assert.match(prise, /Voir au montage/);
+    assert.match(prise, /data-envoyer-montage/);
+    assert.match(prise, /r7\.envoyer/);
     assert.ok(prise.indexOf("data-lire-sequence") < prise.indexOf("Finaliser (agrandir)"));
   });
 });
