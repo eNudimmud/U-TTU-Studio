@@ -40,4 +40,15 @@ test("les photos de rue s'affichent même si Overpass refuse", async ({ page }) 
   await expect(page.locator("[data-rue-vue]")).toBeVisible();
   await expect(page.getByText("Les photos n'ont pas pu être chargées")).toHaveCount(0);
   await expect(page.locator("[data-rue-credit]")).toContainText("Ada Rue");
+  // Attributions : rien ne recouvre la photo, tout reste lisible sous elle.
+  await expect(page.locator(".u-repere-map.is-mini .maplibregl-ctrl-attrib")).toBeHidden();
+  const carte = page.locator("[data-carte-credit]");
+  await expect(carte).toBeVisible();
+  await expect(carte).toContainText("© contributeurs OpenStreetMap, ODbL");
+  await expect(carte).toContainText("OpenFreeMap");
+  await expect(page.locator("[data-rue-credit]")).toContainText("CC BY-SA");
+  for (const sel of ["[data-rue-prev]", "[data-rue-next]", "[data-prendre-vue]"]) {
+    const box = await page.locator(sel).boundingBox();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  }
 });
