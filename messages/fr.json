@@ -1297,6 +1297,10 @@
     "envoyer": "Envoyer au montage",
     "tuiles": "Langage de cinéaste",
     "cequi": "Ce qui se passe",
+    "lireCast": "Personnages",
+    "lireLieu": "Lieu",
+    "lireCadrage": "Cadrage",
+    "enPlace": "En place",
     "allerBusy": "Recherche en cours.",
     "astuce": {
       "bord": "Astuce : la tête de {name} touche le bord du cadre.",

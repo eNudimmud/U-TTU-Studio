@@ -29,7 +29,9 @@ Le premier du cast (sinon Uttu) et le décor choisi (sinon le premier lieu) sont
 
 « Autre essai » est gratuit et reste dans le navigateur. « Garder la pose » et « Garder la caméra » sont des cadenas. « Annuler » revient en arrière, et dit pourquoi il est éteint.
 
-« Rendre cette prise » est éteint. Le devis tient sur une seule ligne : « Devis avant envoi : ≈ 13 crédits (hypothèse, estimation à mesurer) ». Cette ligne est aussi la raison du bouton. « Habiller ce décor » fait de même. Le cadrage et la ligne de maquette entrent dans le texte de la requête, sous Détails. « Composer l'image » reste le chemin mesuré (12,5). Ce n’est pas le même geste : l’un guide une image, l’autre est le compositeur déjà en place. Aucun des deux n’envoie dans ce round.
+Chaque personnage ajouté se place sur une ligne, face caméra, avec une couleur à lui et son nom au-dessus de la tête. « Rendre cette prise » et le devis ≈ 13 ne sont plus à côté du compositeur. Il reste un seul bouton principal, « Composer l'image », et un seul devis (12,5, mesuré). « Essai rapide » reste le second bouton, sans deuxième devis. Le panneau « Ce que l'app va faire » lit le cast, le lieu et le cadrage de la maquette : trois personnages et Montmartre ne laissent plus « Devis : inconnu » ni « Choisis au moins un personnage ou un lieu ». Le clic dit encore que rien ne part. « Habiller ce décor » garde l’hypothèse « estimation à mesurer ». Le cadrage et la ligne de maquette entrent dans le texte de la requête, sous Détails.
+
+« Ce qui se passe » n’est écrit qu’une fois. « Qui ? » montre les personnages réellement dans la scène. Un plan qui a un cast, un lieu ou une action dit « En place », plus « Vide ». Tourner et Retirer sont des puces, plus des rangées hautes.
 
 ### Décor
 
@@ -45,14 +47,13 @@ Repérage MapLibre, tuiles OpenFreeMap (style sombre). Quatre exemples : Montmar
 
 ## Ce qui reste
 
-- Mesurer le rendu guidé avant d’allumer « Rendre cette prise ».
-- Brancher l’envoi de « Composer l'image ». Il dit encore que rien ne part.
+- Brancher l’envoi de « Composer l'image ». Il dit encore que rien ne part. Le devis affiché est 12,5, mesuré.
 - Finaliser : résolution et netteté d’une prise déjà gardée. Inchangé, toujours éteint tant que le graphe n’est pas mesuré.
 - Habiller un lieu repéré. Le volume 3D du quartier n’est pas construit.
 - Poses VRMA / BVH, VRM détaillé, export PSD, trait manga.
 
 ## Vérifié
 
-`npm test` : 308 passés, 1 ignoré. `npm run typecheck`. `npx playwright test` : le parcours CAST → DÉCOR → PRISE (un mannequin, ajout, retrait, tuile, Autre essai, cadenas, une seule ligne de devis) → MONTAGE (statut Prêt, libellés entiers, pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
+`npm test` : 308 passés, 1 ignoré. `npm run typecheck`. `npx playwright test` : le parcours CAST → DÉCOR → PRISE (un mannequin, trois espacés, retrait, tuile, Autre essai, cadenas, un seul bouton « Composer l'image », un seul devis 12,5, panneau qui lit le cast, le lieu et le cadrage) → MONTAGE (statut Prêt, libellés entiers, pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
 
 Captures 1280×800 et 390×844 : `artifacts/screenshots/r7-cast-*`, `r7-decor-*`, `r7-prise-1-*`, `r7-prise-3-*`, `r7-montage-*`. La prod, avant correctif : `r7-prod-montage-*`.

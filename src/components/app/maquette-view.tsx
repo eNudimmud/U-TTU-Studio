@@ -141,14 +141,54 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, onMove, 
           group.traverse(child => {
             if (child.userData.arm) child.rotation.z = figure.pose * (child.position.x < 0 ? 1 : -1);
           });
+          const label = group.children.find(child => child.userData.kind === "name");
+          if (!label || label.userData.label !== figure.name || label.userData.tint !== figure.color) {
+            if (label) group.remove(label);
+            const sprite = nameSprite(figure.name, figure.color);
+            if (sprite) {
+              sprite.userData.root = group;
+              group.add(sprite);
+            }
+          }
         }
+      }
+
+      function nameSprite(name: string, color: string) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 512;
+        canvas.height = 128;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+        ctx.clearRect(0, 0, 512, 128);
+        ctx.font = "600 54px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = "rgba(0,0,0,0.9)";
+        ctx.strokeText(name, 256, 64);
+        ctx.fillStyle = color;
+        ctx.fillText(name, 256, 64);
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.needsUpdate = true;
+        const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+        materials.push(material);
+        const sprite = new THREE.Sprite(material);
+        sprite.position.set(0, 2.42, 0);
+        sprite.scale.set(1.15, 0.29, 1);
+        sprite.userData.kind = "name";
+        sprite.userData.label = name;
+        sprite.userData.tint = color;
+        return sprite;
       }
 
       function frameCamera() {
         const orbit = stateRef.current.orbit;
-        // Close tiles stay above the distance that keeps head and feet inside the stage.
-        const radius = Math.max(orbit.radius, 6.6);
-        const targetY = 1.2;
+        const span = stateRef.current.figures.reduce((max, figure) => Math.max(max, Math.abs(figure.x), Math.abs(figure.z)), 0);
+        const aspect = Math.max(0.75, camera.aspect || 1);
+        const needed = (span + 1.2) / (Math.tan((20 * Math.PI) / 180) * aspect);
+        // Close tiles stay above the distance that keeps head, name and feet inside the stage.
+        const radius = Math.max(orbit.radius, 6.6, needed);
+        const targetY = 1.25;
         camera.position.set(
           radius * Math.sin(orbit.phi) * Math.sin(orbit.theta),
           targetY + radius * Math.cos(orbit.phi),
@@ -271,7 +311,8 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, onMove, 
     };
   }, [mode]);
 
-  return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile} data-figures={state.figures.length}>
+  const layout = state.figures.map(figure => `${figure.id}@${figure.x.toFixed(2)},${figure.z.toFixed(2)}`).join(" ");
+  return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile} data-figures={state.figures.length} data-layout={layout}>
     <div
       className="u-maquette-stage"
       style={backdrop ? { backgroundImage: `linear-gradient(180deg, rgba(11,10,9,.25), rgba(11,10,9,.72)), url(${backdrop})` } : undefined}
@@ -279,7 +320,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, onMove, 
       <div className="u-maquette-gl" ref={host} />
       {mode === "plat" && <Plat state={state} onMove={onMove} onOrbit={onOrbit} onPinch={onPinch} />}
       <p className="u-maquette-badge">{badge}</p>
-      <p className="u-maquette-names">{state.figures.map(figure => figure.name).join(" · ")}</p>
+      <p className="u-maquette-names">{state.figures.map((figure, index) => <span key={figure.id} style={{ color: figure.color }}>{index > 0 ? " · " : ""}{figure.name}</span>)}</p>
       {placeName && <p className="u-maquette-place">{placeName}</p>}
       <p className="u-maquette-hint">{hint}</p>
     </div>

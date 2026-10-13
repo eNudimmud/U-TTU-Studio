@@ -1297,6 +1297,10 @@
     "envoyer": "Enviar al montaje",
     "tuiles": "Lenguaje de cine",
     "cequi": "Qué pasa",
+    "lireCast": "Personas",
+    "lireLieu": "Lugar",
+    "lireCadrage": "Encuadre",
+    "enPlace": "En escena",
     "allerBusy": "Búsqueda en curso.",
     "astuce": {
       "bord": "Consejo: la cabeza de {name} toca el borde del encuadre.",

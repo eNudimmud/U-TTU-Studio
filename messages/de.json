@@ -1297,6 +1297,10 @@
     "envoyer": "An den Schnitt senden",
     "tuiles": "Filmsprache",
     "cequi": "Was geschieht",
+    "lireCast": "Personen",
+    "lireLieu": "Ort",
+    "lireCadrage": "Bildausschnitt",
+    "enPlace": "Steht",
     "allerBusy": "Suche läuft.",
     "astuce": {
       "bord": "Hinweis: der Kopf von {name} berührt den Rahmen.",

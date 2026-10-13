@@ -78,6 +78,11 @@ describe("tuiles et maquette", () => {
     assert.equal(sized.tuile, "taille");
     const three = addFigure(two, { id: "coursiere", name: "La coursière" });
     assert.equal(three.figures.length, 3);
+    const xs = three.figures.map(figure => figure.x);
+    assert.ok(xs[1] - xs[0] >= 1.5, `écart ${xs.join(",")}`);
+    assert.ok(xs[2] - xs[1] >= 1.5, `écart ${xs.join(",")}`);
+    assert.ok(three.figures.every(figure => figure.z === 0));
+    assert.equal(new Set(three.figures.map(figure => figure.color)).size, 3);
     assert.equal(scenePhrase(three.figures.map(figure => figure.name), "Plan taille"), "Uttu, Personnage et La coursière, plan taille.");
     assert.match(scenePhrase(start.figures.map(figure => figure.name), "Regard caméra"), /Uttu, regard caméra\./);
     const back = removeFigure(sized, "neutre-1");

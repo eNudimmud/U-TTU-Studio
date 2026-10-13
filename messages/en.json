@@ -1297,6 +1297,10 @@
     "envoyer": "Send to the edit",
     "tuiles": "Film language",
     "cequi": "What happens",
+    "lireCast": "People",
+    "lireLieu": "Place",
+    "lireCadrage": "Framing",
+    "enPlace": "Staged",
     "allerBusy": "Search in progress.",
     "astuce": {
       "bord": "Tip: the head of {name} touches the frame.",

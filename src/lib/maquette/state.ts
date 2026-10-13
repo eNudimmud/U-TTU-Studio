@@ -44,9 +44,22 @@ export interface CastBody {
   name: string;
 }
 
-const GOLD = "#d4af37";
-const GREY = "#8a8f99";
-const COLORS = [GOLD, GREY, "#c4b49a", "#8d7348", "#a89880", "#6e6248"];
+/** Distinct on the brown floor. The second used to be grey and disappeared. */
+const PALETTE = [
+  "#d4af37",
+  "#3d8bfd",
+  "#e07a4a",
+  "#3dba7a",
+  "#d07adf",
+  "#f4f0e6",
+  "#e85d8c",
+  "#5ec8e6",
+  "#f0c14a",
+  "#8fd18a",
+  "#c4a574",
+  "#9aa7ff",
+];
+const LINE_GAP = 1.85;
 
 export const EXEMPLE_CAST: readonly CastBody[] = [
   { id: "uttu", name: "Uttu" },
@@ -74,22 +87,33 @@ export function uprightRotation(yaw: number): { x: 0; y: number; z: 0 } {
   return { x: 0, y: yaw, z: 0 };
 }
 
-function spot(index: number): { x: number; z: number } {
-  if (index <= 0) return { x: 0, z: 0 };
-  const ring = Math.ceil(index / 4);
-  const angle = (index - 1) * (Math.PI / 3);
-  return {
-    x: clamp(Math.sin(angle) * 0.95 * ring, -FLOOR, FLOOR),
-    z: clamp(Math.cos(angle) * 0.45 * ring, -FLOOR, FLOOR),
-  };
+/** Side by side on the floor line, facing the camera. Nobody stands behind another. */
+export function linePositions(count: number): { x: number; z: number }[] {
+  if (count <= 0) return [];
+  const gap = count <= 1 ? 0 : Math.min(LINE_GAP, 8 / (count - 1));
+  const origin = ((count - 1) * gap) / 2;
+  return Array.from({ length: count }, (_, index) => ({
+    x: clamp(index * gap - origin, -FLOOR, FLOOR),
+    z: 0,
+  }));
+}
+
+function alongLine(figures: Figure[]): Figure[] {
+  const spots = linePositions(figures.length);
+  return figures.map((item, index) => ({ ...item, x: spots[index].x, z: spots[index].z }));
+}
+
+function freshColor(figures: readonly Figure[]): string {
+  const used = new Set(figures.map(item => item.color.toLowerCase()));
+  return PALETTE.find(color => !used.has(color.toLowerCase())) ?? PALETTE[figures.length % PALETTE.length];
 }
 
 function makeFigure(person: CastBody, index: number): Figure {
-  const place = spot(index);
+  const place = linePositions(index + 1)[index] ?? { x: 0, z: 0 };
   return {
     id: person.id,
     name: person.name.trim() || "Uttu",
-    color: COLORS[index % COLORS.length],
+    color: PALETTE[index % PALETTE.length],
     x: place.x,
     z: place.z,
     yaw: 0,
@@ -131,7 +155,8 @@ export function addFigure(state: MaquetteState, person: CastBody): MaquetteState
   const name = person.name.trim();
   if (!person.id || !name || !canAddFigure(state) || state.figures.some(item => item.id === person.id)) return state;
   const next = remember(state);
-  return { ...next, figures: [...state.figures, makeFigure({ id: person.id, name }, state.figures.length)] };
+  const born = { ...makeFigure({ id: person.id, name }, state.figures.length), color: freshColor(state.figures) };
+  return { ...next, figures: alongLine([...state.figures, born]) };
 }
 
 export function addNeutral(state: MaquetteState, name = "Personnage"): MaquetteState {
