@@ -8,6 +8,7 @@ export interface PhotoRue {
   thumb: string;
   source: "panoramax" | "mapillary";
   license: string;
+  tour: boolean;
 }
 
 export function panoramaxSearchUrl(lat: number, lon: number, radius: number, limit: number): string {
@@ -46,7 +47,12 @@ export function parsePanoramax(payload: unknown): PhotoRue[] {
     if (!row || typeof row !== "object") continue;
     const feature = row as {
       id?: unknown;
-      properties?: { license?: unknown; "geovisio:producer"?: unknown; providers?: { name?: unknown }[] };
+      properties?: {
+        license?: unknown;
+        "geovisio:producer"?: unknown;
+        providers?: { name?: unknown }[];
+        "pers:interior_orientation"?: { field_of_view?: unknown };
+      };
       assets?: { thumb?: { href?: unknown } };
     };
     const id = typeof feature.id === "string" ? feature.id : "";
@@ -57,13 +63,16 @@ export function parsePanoramax(payload: unknown): PhotoRue[] {
     const provider = feature.properties?.providers?.find(item => typeof item?.name === "string")?.name;
     const author = (typeof producer === "string" && producer.trim()) || (typeof provider === "string" && provider.trim()) || "Panoramax";
     const raw = typeof feature.properties?.license === "string" ? feature.properties.license.trim() : "";
+    const fov = Number(feature.properties?.["pers:interior_orientation"]?.field_of_view);
     photos.push({
       id,
       author: author.slice(0, 80),
       thumb,
       source: "panoramax",
       license: (raw || "etalab-2.0").slice(0, 40),
+      tour: Number.isFinite(fov) && fov >= 300,
     });
   }
+  photos.sort((a, b) => Number(b.tour) - Number(a.tour));
   return photos.slice(0, 8);
 }

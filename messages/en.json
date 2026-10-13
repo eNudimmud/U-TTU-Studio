@@ -1343,6 +1343,8 @@
     "fichier": "File",
     "fichierOff": "This file has no place.",
     "creditMap": "OpenFreeMap",
+    "creditPhoton": "Search: Photon",
+    "lienCourt": "This short link cannot be opened here. Paste the full link, or coordinates.",
     "creditRelief": "Terrain: Terrarium, AWS Open Data",
     "quartierFail": "The block could not be loaded.",
     "rue": "In the street.",

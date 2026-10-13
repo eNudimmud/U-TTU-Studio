@@ -6,9 +6,9 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   page.on("request", request => {
     const url = request.url();
     if (/fal\.ai|comfy\.cloud|api\.comfy|partner_generate|run_template/i.test(url)) spent.push(url);
-    if (/overpass-api\.de|nominatim\.openstreetmap\.org|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net|panoramax|overturemaps/i.test(url)) upstream.push(url);
+    if (/overpass-api\.de|nominatim\.openstreetmap\.org|photon\.komoot\.io|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net|panoramax|overturemaps/i.test(url)) upstream.push(url);
   });
-  await page.route(/overpass-api\.de|nominatim\.openstreetmap\.org|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net|panoramax|overturemaps/i, route => route.abort());
+  await page.route(/overpass-api\.de|nominatim\.openstreetmap\.org|photon\.komoot\.io|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net|panoramax|overturemaps/i, route => route.abort());
 
   await page.goto("/studio?demo=1#personnage");
   await expect(page.getByRole("heading", { name: "CAST" })).toBeVisible();

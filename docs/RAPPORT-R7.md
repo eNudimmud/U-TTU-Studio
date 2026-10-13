@@ -38,18 +38,18 @@ Chaque personnage ajouté se place sur une ligne, face caméra, avec une couleur
 Trois gestes, tout en open source. Aucune clé Google, aucun Street View, aucune tuile Google. Un lien Google collé est seulement lu.
 
 1. On touche un point n’importe où sur la carte (MapLibre GL, style OpenFreeMap). Le champ « Où ? » accepte aussi un nom, des coordonnées, un lien, ou un fichier KML, KMZ ou GeoJSON. Quatre exemples : Montmartre, Shibuya, Brooklyn Bridge, Genève.
-2. La vue depuis le sol s’ouvre en three.js. On tourne la tête au doigt pour choisir l’angle. Les bâtiments viennent d’abord d’Overture Maps (tuile PMTiles publique `2026-09-23.1`, hauteurs ou nombre d’étages), sinon d’OpenStreetMap via Overpass. Les rues viennent d’Overpass. Le relief vient des tuiles Terrarium. Les photos de rue proches viennent d’abord de Panoramax (ouvert, sans jeton), puis de Mapillary si `MAPILLARY_TOKEN` est présent. Un tap choisit une photo et l’enregistre dans les références du décor, avec l’auteur et la licence (Panoramax, souvent etalab-2.0 ou CC BY-SA ; Mapillary, CC BY-SA).
-3. « Créer le décor » affiche le devis avant envoi : ≈ 13 crédits, hypothèse, estimation à mesurer. En démo le bouton reste éteint, avec sa raison : rien n’est envoyé. Hors démo il reste éteint aussi, tant que ce graphe n’est pas mesuré. Aucune dépense. « Garder ce lieu » écrit déjà le volume 3D dans Mon studio (`Lieux/<id>.quartier.json`). PRISE le reprend comme fond de la maquette, mannequins dans la rue.
+2. La vue depuis le sol s’ouvre en three.js. On tourne la tête au doigt pour choisir l’angle. Les bâtiments et les rues viennent d’Overpass (OpenStreetMap), appelé depuis le navigateur. Les photos de rue viennent d’abord de Panoramax, ouvert et sans jeton, avec les vues 360° en premier. Mapillary n’est appelé que si `NEXT_PUBLIC_MAPILLARY_TOKEN` est présent. Un tap choisit une photo et l’enregistre dans les références du décor, avec l’auteur et la licence.
+3. « Créer le décor » est le seul coût affiché : ≈ 13 crédits, hypothèse, estimation à mesurer. En démo le bouton reste éteint, avec sa raison. Rien n’est envoyé. « Garder ce lieu » écrit le volume 3D dans Mon studio. PRISE le reprend comme fond de la maquette.
 
-Les mentions restent visibles : © contributeurs OpenStreetMap, ODbL, OpenFreeMap, relief Terrarium, et, quand la tuile répond, « Bâtiments : Overture Maps, ODbL ». Une requête à la fois, un cache d’environ dix minutes, un User-Agent. Sur mobile le rayon est plus court, le plafond de bâtiments plus bas, et le relief moins détaillé. En démo, et donc en CI, le quartier et les photos sont factices : aucun appel Overpass, Nominatim, Terrarium, Overture, Panoramax, Mapillary ni Google.
+Aucun serveur n’est hébergé pour ça, et aucun service payant n’est appelé. Le navigateur parle directement à OpenFreeMap, à Photon (recherche d’un nom), à Overpass et à Panoramax. Un lien complet ou des coordonnées se lisent sur l’appareil. Un lien court demande le lien complet. Chaque service est limité à une requête par seconde et gardé dix minutes. Les mentions restent visibles : © contributeurs OpenStreetMap, ODbL, OpenFreeMap, Photon, et pour chaque photo l’auteur avec Panoramax ou Mapillary. Sur mobile le rayon est plus court. En démo, et donc en CI, le quartier et les photos sont factices : aucun appel Overpass, Photon, Panoramax, Mapillary ni Google.
 
-**`MAPILLARY_TOKEN` est absent dans cet environnement.** Panoramax n’en a pas besoin. Sans jeton, Mapillary reste éteint et le dit, sans griser les photos Panoramax et sans planter.
+**Le jeton Mapillary est absent.** Panoramax n’en a pas besoin. Sans jeton, Mapillary n’est pas appelé et le dit, sans griser les photos Panoramax.
 
 ## Hypothèses
 
 - 13 crédits pour le graphe guidé `api_nano_banana_2_1_image_edit`, celui de « Créer le décor » (capture au sol et photos choisies, style du projet). Le chemin mesuré sans guide reste 12,5. Le 13 n’est pas une mesure. Rien n’est envoyé.
-- OpenFreeMap, Nominatim, Overpass, les tuiles Terrarium, la tuile bâtiments Overture et l’API Panoramax se comportent comme leur documentation publique. Chacun peut échouer ou limiter le débit : le message le dit, et la mention ODbL reste. La démo et les tests n’appellent pas ces services.
-- L’API Graph Mapillary demande un jeton client gratuit. Il manque ici (`MAPILLARY_TOKEN` vide). Panoramax passe devant et n’en a pas besoin. Les photos de la démo sont peintes dans le navigateur.
+- OpenFreeMap, Photon, Overpass et Panoramax se comportent comme leur documentation publique. Chacun peut échouer ou limiter le débit : le navigateur attend une seconde, garde la réponse dix minutes, et la mention reste. La démo et les tests n’appellent pas ces services.
+- Mapillary reste optionnel, avec un jeton client gratuit dans `NEXT_PUBLIC_MAPILLARY_TOKEN`. Il est vide ici. Panoramax passe devant. Les photos de la démo sont peintes dans le navigateur.
 - La réaction muette du montage est un plan muet enchaîné, pas une deuxième prise PRISE.
 - Douze personnages est le plafond de la maquette, pour que la scène reste légère. Le bouton + Personnage dit pourquoi il s’éteint.
 
@@ -58,11 +58,11 @@ Les mentions restent visibles : © contributeurs OpenStreetMap, ODbL, OpenFreeMa
 - Brancher l’envoi de « Composer l'image ». Il dit encore que rien ne part. Le devis affiché est 12,5, mesuré.
 - Finaliser : résolution et netteté d’une prise déjà gardée. Inchangé, toujours éteint tant que le graphe n’est pas mesuré.
 - Allumer « Créer le décor » une fois le graphe NB2.1 mesuré. Le volume 3D et les références sont déjà gardés. Le bouton reste éteint, y compris en démo, et rien n’est envoyé.
-- Fournir `MAPILLARY_TOKEN` seulement pour compléter Panoramax. Le volet et l’attribution sont déjà en place.
+- Fournir `NEXT_PUBLIC_MAPILLARY_TOKEN` seulement pour compléter Panoramax. Le volet et l’attribution sont déjà en place.
 - Poses VRMA / BVH, VRM détaillé, export PSD, trait manga.
 
 ## Vérifié
 
-`npm test` : 319 passés, 1 ignoré. `npm run typecheck`. `npx playwright test` : le parcours CAST → DÉCOR (toucher la carte, vue depuis le sol, tourner la tête, photo Panoramax d’Ada Rue en CC BY-SA, « Créer le décor » éteint en démo avec le devis ≈ 13, « Garder ce lieu », aucune requête Overpass, Nominatim, Terrarium, Overture, Panoramax, Google, Mapillary ni fbcdn) → PRISE (le lieu 3D en fond, un mannequin puis trois espacés dans la rue, retrait, tuile, Autre essai, cadenas, un seul bouton « Composer l'image », un seul devis 12,5, panneau qui lit le cast, le lieu et le cadrage) → MONTAGE (statut Prêt, libellés entiers, pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
+`npm test` : 319 passés, 1 ignoré. `npm run typecheck`. `npx playwright test` : le parcours CAST → DÉCOR (toucher la carte, vue depuis le sol, tourner la tête, photo Panoramax d’Ada Rue en 360° et CC BY-SA, « Créer le décor » éteint en démo avec le devis ≈ 13, « Garder ce lieu », aucune requête Overpass, Photon, Panoramax, Google, Mapillary ni fbcdn) → PRISE (le lieu 3D en fond, un mannequin puis trois espacés dans la rue, retrait, tuile, Autre essai, cadenas, un seul bouton « Composer l'image », un seul devis 12,5, panneau qui lit le cast, le lieu et le cadrage) → MONTAGE (statut Prêt, libellés entiers, pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
 
 Captures 1280×800 et 390×844 : `artifacts/screenshots/r7-pas-1-*` (carte), `r7-pas-2-*` (depuis le sol), `r7-pas-3-*` (créer le décor), `r7-cast-*`, `r7-decor-*`, `r7-prise-1-*`, `r7-prise-3-*`, `r7-montage-*`. La prod, avant correctif : `r7-prod-montage-*`.

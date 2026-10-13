@@ -5,13 +5,14 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useI18n } from "@/components/i18n/provider";
 import { guideQuote } from "@/lib/prise/guide";
 import { parseFichier } from "@/lib/repere/fichier";
+import { chargerPhotos, chargerQuartier, chercherNom } from "@/lib/repere/direct";
 import { fixtureQuartier } from "@/lib/repere/fixture";
 import { fixturePhotos } from "@/lib/repere/mapillary";
 import {
   LIEUX_EXEMPLE, OSM_CREDIT, OPENFREEMAP_STYLE, lieuNote, pitchFor, zoomFor,
   type LieuTrouve, type Regard,
 } from "@/lib/repere/lieu";
-import { parseQuartier, rayonFor, type Quartier } from "@/lib/repere/quartier";
+import { rayonFor, type Quartier } from "@/lib/repere/quartier";
 import { parseSaisie } from "@/lib/repere/saisie";
 import { useStudio } from "./studio-session";
 import { QuartierView } from "./quartier-view";
@@ -22,6 +23,7 @@ interface RueVue {
   thumb: string;
   source: "panoramax" | "mapillary";
   license: string;
+  tour?: boolean;
   blob?: Blob;
 }
 
@@ -115,7 +117,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
         const blob = await paintRue(item.author);
         const thumb = URL.createObjectURL(blob);
         made.push(thumb);
-        return { id: item.id, author: item.author, thumb, blob, source: item.source, license: item.license };
+        return { id: item.id, author: item.author, thumb, blob, source: item.source, license: item.license, tour: true };
       })).then(list => {
         if (dead) {
           for (const url of made) URL.revokeObjectURL(url);
@@ -134,38 +136,16 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     setPhotoState("load");
     setPhotos([]);
     const mobile = window.matchMedia("(max-width: 799px)").matches;
-    const params = new URLSearchParams({
-      photos: "1",
-      lat: String(lat),
-      lon: String(lon),
-      mobile: mobile ? "1" : "0",
-    });
-    void fetch(`/api/repere?${params}`)
-      .then(async response => {
-        const payload = await response.json() as { error?: string; mapillary?: string; photos?: { id?: string; author?: string; thumb?: string; source?: string; license?: string }[] };
+    void chargerPhotos(lat, lon, mobile ? 4 : 6)
+      .then(payload => {
         if (dead) return;
-        setMapillaryOff(payload.mapillary === "off");
-        if (payload.error === "token") {
-          setPhotos([]);
-          setPhotoState("token");
-          return;
-        }
-        if (response.status === 429 || payload.error === "rate") {
+        if (payload === "rate") {
           setPhotoState("rate");
           return;
         }
-        if (payload.error || !response.ok) {
-          setPhotos([]);
-          setPhotoState("fail");
-          return;
-        }
-        const list = (payload.photos ?? []).flatMap(item => {
-          if (!item.id || !item.author || !item.thumb) return [];
-          const source = item.source === "mapillary" ? "mapillary" as const : "panoramax" as const;
-          return [{ id: item.id, author: item.author, thumb: item.thumb, source, license: item.license || (source === "mapillary" ? "CC BY-SA" : "etalab-2.0") }];
-        });
-        setPhotos(list);
-        setPhotoState(list.length > 0 ? "ready" : "empty");
+        setMapillaryOff(payload.mapillary === "off");
+        setPhotos(payload.photos);
+        setPhotoState(payload.photos.length > 0 ? "ready" : "empty");
       })
       .catch(() => {
         if (!dead) setPhotoState("fail");
@@ -225,20 +205,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
 
   async function fetchBlock(next: LieuTrouve, heading: number, tilt: number, wide: boolean): Promise<Quartier | "rate" | null> {
     const mobile = window.matchMedia("(max-width: 799px)").matches;
-    const params = new URLSearchParams({
-      lat: String(next.lat),
-      lon: String(next.lon),
-      rayon: String(rayonFor(mobile, wide)),
-      mobile: mobile ? "1" : "0",
-      name: next.name,
-      heading: String(heading),
-      tilt: String(tilt),
-    });
-    const response = await fetch(`/api/repere?${params}`);
-    const payload = await response.json() as { error?: string };
-    if (response.status === 429 || payload.error === "rate") return "rate";
-    if (!response.ok) return null;
-    return parseQuartier(JSON.stringify(payload));
+    return chargerQuartier(next, rayonFor(mobile, wide), mobile, heading, tilt);
   }
 
   async function go() {
@@ -250,30 +217,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       return;
     }
     if (parsed.kind === "short") {
-      if (demo) {
-        setNote(t("r7.introuvable"));
-        return;
-      }
-      if (limited()) return;
-      setBusy(true);
-      try {
-        const response = await fetch(`/api/repere?url=${encodeURIComponent(parsed.url)}`);
-        const payload = await response.json() as { name?: string; lat?: number; lon?: number; heading?: number; tilt?: number; error?: string };
-        if (!response.ok || typeof payload.lat !== "number" || typeof payload.lon !== "number") {
-          setNote(payload.error === "rate" ? t("r7.rate") : t("r7.introuvable"));
-          return;
-        }
-        await pause(1100);
-        await loadBlock(
-          { name: payload.name || "Lieu", lat: payload.lat, lon: payload.lon },
-          payload.heading ?? 0,
-          payload.tilt ?? 0,
-        );
-      } catch {
-        setNote(t("r7.introuvable"));
-      } finally {
-        setBusy(false);
-      }
+      setNote(t("r7.lienCourt"));
       return;
     }
     if (demo) {
@@ -285,27 +229,19 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     if (limited()) return;
     setBusy(true);
     try {
-      const mobile = window.matchMedia("(max-width: 799px)").matches;
-      const params = new URLSearchParams({
-        q: parsed.query,
-        bloc: "1",
-        mobile: mobile ? "1" : "0",
-        rayon: String(rayonFor(mobile, autour)),
-      });
-      const response = await fetch(`/api/repere?${params}`);
-      const payload = await response.json() as { name?: string; lat?: number; lon?: number; quartier?: unknown; error?: string };
-      if (!response.ok || typeof payload.lat !== "number" || typeof payload.lon !== "number" || !payload.name) {
-        setNote(payload.error === "rate" ? t("r7.rate") : t("r7.introuvable"));
+      const found = await chercherNom(parsed.query);
+      if (found === "rate") {
+        setNote(t("r7.rate"));
         return;
       }
-      const next = { name: payload.name, lat: payload.lat, lon: payload.lon };
-      setPlace(next);
-      showMap(next);
-      const block = payload.quartier ? parseQuartier(JSON.stringify(payload.quartier)) : null;
-      setQuartier(block);
-      setNote(block ? "" : t("r7.quartierFail"));
+      if (!found) {
+        setNote(t("r7.introuvable"));
+        return;
+      }
+      setBusy(false);
+      await loadBlock(found, 0, 0);
     } catch {
-      setNote(t("r7.quartierFail"));
+      setNote(t("r7.introuvable"));
     } finally {
       setBusy(false);
     }
@@ -327,7 +263,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     setSaving(photo.id);
     setPhotoNote("");
     try {
-      const blob = photo.blob ?? await loadPhoto(photo.id);
+      const blob = photo.blob ?? await loadPhoto(photo.thumb);
       if (!blob || blob.size < 32) {
         setPhotoNote(t("r7.photosFail"));
         return;
@@ -383,7 +319,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       </label>
     </div>
     <p className="u-label">{t("r7.pasCarte")}</p>
-    <p className="u-repere-credit">{OSM_CREDIT} · {t("r7.creditMap")} · {t("r7.creditRelief")}{quartier ? ` · ${quartier.source === "overture" ? t("r7.creditOverture") : t("r7.creditBatiments")}` : ""}</p>
+    <p className="u-repere-credit">{OSM_CREDIT} · {t("r7.creditMap")} · {t("r7.creditPhoton")}{quartier ? ` · ${t("r7.creditBatiments")}` : ""}</p>
     <div className="u-repere-map" data-pas="1" ref={host} />
     {quartier && <section data-pas="2">
       <p className="u-label">{t("r7.pasSol")}</p>
@@ -405,7 +341,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
           const picked = chosen.includes(photo.id);
           return <button key={photo.id} type="button" className="u-photo" data-photo={photo.id} aria-label={credit} aria-pressed={picked} disabled={held} aria-describedby={held ? "u-why-photo" : undefined} onClick={() => { if (picked) setChosen(list => list.filter(id => id !== photo.id)); else void addPhoto(photo); }}>
             <img src={photo.thumb} alt="" />
-            <span>{photo.author} · {photo.source === "panoramax" ? "Panoramax" : "Mapillary"} · {photo.license}</span>
+            <span>{photo.author} · {photo.source === "panoramax" ? "Panoramax" : "Mapillary"} · {photo.license}{photo.tour ? " · 360°" : ""}</span>
           </button>;
         })}
       </div>}
@@ -430,10 +366,6 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
   </section>;
 }
 
-function pause(ms: number): Promise<void> {
-  return new Promise(resolve => { window.setTimeout(resolve, ms); });
-}
-
 async function paintRue(author: string): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = 160;
@@ -452,9 +384,8 @@ async function paintRue(author: string): Promise<Blob> {
   return blob ?? new Blob();
 }
 
-async function loadPhoto(id: string): Promise<Blob | null> {
-  const response = await fetch(`/api/repere?photo=${encodeURIComponent(id)}`);
-  if (response.status === 429) throw new Error("rate");
+async function loadPhoto(thumb: string): Promise<Blob | null> {
+  const response = await fetch(thumb);
   const type = response.headers.get("content-type") ?? "";
   if (!response.ok || !type.startsWith("image/")) return null;
   return response.blob();

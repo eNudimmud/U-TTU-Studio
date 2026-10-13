@@ -1343,6 +1343,8 @@
     "fichier": "Archivo",
     "fichierOff": "Este archivo no tiene un lugar.",
     "creditMap": "OpenFreeMap",
+    "creditPhoton": "Búsqueda: Photon",
+    "lienCourt": "Este enlace corto no se abre aquí. Pega el enlace completo o unas coordenadas.",
     "creditRelief": "Relieve: Terrarium, datos abiertos de AWS",
     "quartierFail": "No se pudo cargar el barrio.",
     "rue": "En la calle.",

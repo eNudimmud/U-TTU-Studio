@@ -1,4 +1,4 @@
-// Street photos from the Mapillary Graph API. The client token stays on the server.
+// Mapillary is optional. A free client token may live in the browser. Without it, nothing is asked.
 
 export const MAPILLARY = "https://graph.mapillary.com";
 
@@ -21,8 +21,8 @@ export function mapillaryImagesUrl(lat: number, lon: number, limit: number): str
   return `${MAPILLARY}/images?${params}`;
 }
 
-export function mapillaryImageUrl(id: string): string {
-  return `${MAPILLARY}/${id}?fields=id,thumb_1024_url,creator`;
+export function mapillaryToken(): string {
+  return (process.env.NEXT_PUBLIC_MAPILLARY_TOKEN ?? "").trim();
 }
 
 export function photoCredit(author: string, source: "mapillary" | "panoramax" = "mapillary", license = "CC BY-SA"): string {
