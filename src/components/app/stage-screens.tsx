@@ -11,6 +11,8 @@ import { useI18n } from "@/components/i18n/provider";
 import { Arrow } from "./glyphs";
 import { GestePicker } from "./geste-picker";
 import { ProjectGallery } from "./project-gallery";
+import { RepereCarte } from "./repere-carte";
+import { lieuNote } from "@/lib/repere/lieu";
 import { SlotBoard, type LocalRef } from "./references";
 import { useStudio } from "./studio-session";
 
@@ -71,6 +73,19 @@ async function filesFor(gesteId: string, refs: LocalRef[]): Promise<File[]> {
     files.push(new File([blob], `${ref.name || "ref"}.jpg`, { type: blob.type || "image/jpeg" }));
   }
   return files;
+}
+
+function placePhoto(gesteId: string, refs: LocalRef[], photo: { id: string; credit: string; blob: Blob }): LocalRef[] {
+  const row = gesteParId(gesteId);
+  if (!row) return refs;
+  const cases = casesVisibles(row);
+  const target = cases.find(item => !refs.some(ref => ref.caseId === item.id)) ?? cases[0];
+  if (!target) return refs;
+  const file = new File([photo.blob], `${photo.id}.png`, { type: photo.blob.type || "image/png" });
+  return [
+    ...refs.filter(ref => ref.caseId !== target.id),
+    { id: `ref-${photo.id}-${target.id}`, role: target.role, caseId: target.id, name: photo.credit.slice(0, 40), url: URL.createObjectURL(file), file, assetId: null },
+  ];
 }
 
 function placeAsset(gesteId: string, refs: LocalRef[], asset: AssetRecord, url: string): LocalRef[] {
@@ -214,7 +229,7 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { media, createDecor, connected, balance, creating } = useStudio();
+  const { media, createDecor, connected, balance, creating, saveLieu, saveLieuPhoto } = useStudio();
   const [gesteId, setGesteId] = useState("decor-photo");
   useEffect(() => {
     const asked = gesteFromQuery("decor", "");
@@ -281,6 +296,14 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <p className="u-lead">{t("create.decorLead")}</p>
     </header>
     <div className="u-desk-scroll">
+      <RepereCarte
+        onSave={async (place, regard, autour, quartier) => { await saveLieu({ name: place.name, note: lieuNote(place, regard, autour), quartier }); }}
+        onPhoto={async (place, regard, autour, quartier, photo) => {
+          const id = await saveLieuPhoto({ name: place.name, note: lieuNote(place, regard, autour), quartier, photo });
+          if (!id) return;
+          setRefs(list => placePhoto(gesteId, list, photo));
+        }}
+      />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>

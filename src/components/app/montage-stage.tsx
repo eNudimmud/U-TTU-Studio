@@ -11,7 +11,7 @@ import {
 import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
 import { exportMp4 } from "@/lib/montage/encode";
 import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
-import { chooseEdit, editFromShots } from "@/lib/montage/from-takes";
+import { chooseEdit, editFromShots, editHasClips } from "@/lib/montage/from-takes";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
@@ -88,7 +88,7 @@ function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: strin
   return "16/9";
 }
 
-export function MontageStage() {
+export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => void }) {
   const { t } = useI18n();
   const { locale } = useLocaleSwitch();
   const { ready, studio, media, connected, balance, creating, createStem, loadMontages, saveMontage, pendingClip, holdClip } = useStudio();
@@ -116,6 +116,7 @@ export function MontageStage() {
   const pxRef = useRef(px);
   const mediaRef = useRef(media);
   const boot = useRef<string | null>(null);
+  const cutLive = useRef(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -224,12 +225,19 @@ export function MontageStage() {
         shots: studio.shots,
         takes: studio.takes,
       });
+      cutLive.current = true;
+      onFilled?.(editHasClips(choice.edit));
       show(historyOf(choice.edit));
       timeRef.current = 0;
       setTime(0);
     });
     return () => { gone = true; };
-  }, [ready, studio.project, loadMontages]);
+  }, [ready, studio.project, loadMontages, onFilled]);
+
+  useEffect(() => {
+    if (!cutLive.current) return;
+    onFilled?.(editHasClips(edit));
+  }, [edit, onFilled]);
 
   useEffect(() => {
     const node = videoRef.current;
@@ -765,6 +773,12 @@ export function MontageStage() {
           <Tool id="u-why-delete" off={!selectedClip} reason={t("montage.deleteOff")} label={t("montage.delete")} glyph={<Trash />} onClick={() => { if (!selected) return; commitFrom(historyRef.current, deleteClip(historyRef.current.present, selected)); setSelected(null); }} />
         </>}
         <button type="button" className="u-tool" aria-label={t("montage.more")} aria-expanded={panel === "more" || panel === "confirm"} onClick={event => openPanel("more", event)}><More /><span>{t("montage.more")}</span></button>
+        <button type="button" className="u-tool" data-reac="" onClick={() => {
+          const id = `plan-reac-${crypto.randomUUID()}`;
+          const clip: VideoClip = { id, kind: "slate", source: null, label: t("r7.reacMontage"), media: 2, start: 0, end: 2, takeId: null, title: t("r7.reacMontage") };
+          commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
+          setSelected(id);
+        }}><span>{t("r7.reacMontage")}</span></button>
         <button type="button" className="u-tool u-bin-toggle" aria-pressed={binOpen} onClick={() => setBinOpen(current => !current)}><Film /><span>{t("montage.bin")}</span></button>
       </div>
       <div className="u-toolrow-zoom">
@@ -811,17 +825,20 @@ export function MontageStage() {
           </div>
           <div className="u-track">{videoNodes}</div>
         </div>
-        {(["voix", "effets", "musique"] as const).map(track => <div key={track} className="u-track-row is-audio" onDragOver={event => event.preventDefault()} onDrop={event => {
-          event.preventDefault();
-          const file = event.dataTransfer.files[0];
-          if (file) void addFile(file, track);
-        }}>
-          <div className="u-track-head">
-            <span className="u-track-mark" title={trackName(track)} aria-label={trackName(track)}>{track === "voix" ? <Mic /> : track === "effets" ? <Spark /> : <Music />}</span>
-            <button type="button" className="u-track-add" aria-label={t("montage.addOnTrack", { track: trackName(track) })} onClick={event => openPanel(track, event)}><Plus /></button>
-          </div>
-          <div className="u-track">{edit.audio.filter(clip => clip.track === track).map(renderAudioClip)}</div>
-        </div>)}
+        {(["voix", "effets", "musique"] as const).map(track => {
+          const clips = edit.audio.filter(clip => clip.track === track);
+          return <div key={track} className="u-track-row is-audio" data-track={track} onDragOver={event => event.preventDefault()} onDrop={event => {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+            if (file) void addFile(file, track);
+          }}>
+            <div className="u-track-head">
+              <span className="u-track-mark" title={trackName(track)} aria-label={trackName(track)}>{track === "voix" ? <Mic /> : track === "effets" ? <Spark /> : <Music />}<span className="u-track-word">{trackName(track)}</span></span>
+              <button type="button" className="u-track-add" aria-label={t("montage.addOnTrack", { track: trackName(track) })} onClick={event => openPanel(track, event)}><Plus /></button>
+            </div>
+            <div className="u-track" data-track-lane={track}>{clips.map(renderAudioClip)}{clips.length === 0 && <span className="u-track-empty">{trackName(track)}</span>}</div>
+          </div>;
+        })}
       </div>
     </div>
     {selectedAudio && <div className="u-levels">

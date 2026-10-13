@@ -7,11 +7,17 @@ import type { Edit, VideoClip } from "./edit.ts";
 
 type TakeCue = Parameters<typeof montageCues>[1][number];
 
+function mediaKind(source: string | null): VideoClip["kind"] {
+  if (!source) return "slate";
+  if (/\.(png|jpe?g|webp|gif)$/i.test(source)) return "image";
+  return "video";
+}
+
 function cueClip(cue: MontageCue): VideoClip {
   const id = cue.takeId ? `plan-${cue.takeId}` : `ardoise-${cue.shotId}-${cue.ordre}`;
   return {
     id,
-    kind: cue.source ? "video" : "slate",
+    kind: mediaKind(cue.source),
     source: cue.source,
     label: cue.takeLine || cue.shotName || cue.shotId,
     media: cue.seconds,
@@ -19,6 +25,10 @@ function cueClip(cue: MontageCue): VideoClip {
     end: cue.seconds,
     takeId: cue.takeId,
   };
+}
+
+export function editHasClips(edit: { video: readonly unknown[]; audio: readonly unknown[] }): boolean {
+  return edit.video.length + edit.audio.length > 0;
 }
 
 export function editFromShots(

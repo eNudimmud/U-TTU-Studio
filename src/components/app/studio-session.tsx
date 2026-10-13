@@ -2,7 +2,10 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
-import { assetNote, assetPaths, looseAssets, type AssetRecord } from "@/lib/creation/assets";
+import { placeStoryboard } from "@/lib/montage/arrivee";
+import type { Edit } from "@/lib/montage/edit";
+import { assetPath } from "@/lib/site";
+import { assetNote, assetPaths, importNotes, looseAssets, type AssetRecord } from "@/lib/creation/assets";
 import { castNote } from "@/lib/creation/fiche";
 import { runStem, type StemKind } from "@/lib/creation/stem";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
@@ -16,7 +19,7 @@ import { mergeCoffreZip } from "@/lib/coffre/import";
 import { folderLinkSupported, linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
   emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, sceneMarkdown, selectProject as chooseProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
-  writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeText,
+  writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
   type Scene, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { allowFolder, folderPermission, loadFolderHandle, readFolder, saveFolderHandle } from "@/lib/coffre/permit";
@@ -35,7 +38,6 @@ import { settleLandedTake } from "@/lib/render/settle-take";
 import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { takePrompt } from "@/lib/render/take-prompt";
-import type { Edit } from "@/lib/montage/edit";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 
 export type SheetName = null | "credits" | "confirm" | "connect";
@@ -119,6 +121,9 @@ export interface StudioSession {
   readProjectFile(file: string): Promise<string | undefined>;
   writeProjectFile(file: string, text: string): Promise<void>;
   saveShot(shot: Shot): Promise<void>;
+  saveLieu(input: { name: string; note: string; quartier?: string }): Promise<string | null>;
+  saveLieuPhoto(input: { name: string; note: string; quartier?: string; photo: { id: string; author: string; credit: string; blob: Blob } }): Promise<string | null>;
+  sendToMontage(input: { planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }): Promise<void>;
 }
 
 export interface HeldRef {
@@ -249,7 +254,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const next = await loadStudio(vault);
     setStudio(next);
     const entries = await vault.list();
-    setLoose(looseAssets(entries.map(entry => entry.path), next.project));
+    const paths = entries.map(entry => entry.path);
+    const noted = await importNotes(async path => (await vault.get(path))?.text, paths, next.project);
+    setLoose([...looseAssets(paths, next.project), ...noted]);
     await showMedia(vault, next);
     return next;
   }, [setStudio, showMedia, store]);
@@ -1006,6 +1013,143 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await writeShot(store(), shot, current.takes, "");
   }, [current.takes, store]);
 
+  const saveLieu = useCallback(async (input: { name: string; note: string; quartier?: string }) => {
+    const name = cleanCardName(input.name);
+    if (!name) return null;
+    const vault = store();
+    const slug = await ensureActiveProject(vault);
+    const held = studioRef.current ?? await loadStudio(vault);
+    const note = input.note.slice(0, 500);
+    const existing = held.scenes.find(scene => scene.geste === "repere" && scene.name.toLowerCase() === name.toLowerCase());
+    const id = existing?.id ?? uniqueId(slugify(name), held.scenes.map(scene => scene.id));
+    const scene: Scene = { ...(existing ?? emptySceneDraft()), id, name, note, prompt: note, home: "Lieux", geste: "repere" };
+    await writeScene(vault, scene);
+    if (input.quartier) await writeText(vault, projectPath(slug, `Lieux/${id}.quartier.json`), input.quartier);
+    await reload();
+    setPickedDecor(id);
+    return id;
+  }, [reload, store]);
+
+  const saveLieuPhoto = useCallback(async (input: { name: string; note: string; quartier?: string; photo: { id: string; author: string; credit: string; blob: Blob } }) => {
+    const sceneId = await saveLieu({ name: input.name, note: input.note, quartier: input.quartier });
+    if (!sceneId || input.photo.blob.size < 32) return sceneId;
+    const vault = store();
+    const slug = await ensureActiveProject(vault);
+    const safe = input.photo.id.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 24) || "photo";
+    const ext = input.photo.blob.type.includes("jpeg") ? "jpg" : "png";
+    const path = projectPath(slug, `Lieux/${sceneId}-mly-${safe}.${ext}`);
+    await writeBlob(vault, path, input.photo.blob);
+    const held = await loadStudio(vault);
+    const scene = held.scenes.find(item => item.id === sceneId);
+    if (scene) {
+      const views = scene.views.includes(path) ? scene.views : [...scene.views, path].slice(-12);
+      await writeScene(vault, { ...scene, views });
+    }
+    const assetId = (slugify(`${sceneId}-mly-${safe}`) || `mly-${safe}`).slice(0, 40);
+    const paths = assetPaths(slug, "importe", assetId, ext);
+    const credit = input.photo.credit.replace(/\s+/g, " ").trim().slice(0, 240);
+    const card: AssetRecord = {
+      id: assetId,
+      kind: "importe",
+      name: cleanCardName(credit) || assetId,
+      at: new Date().toISOString(),
+      prompt: credit,
+      geste: "repere",
+      template: "",
+      refs: [path],
+      devis: null,
+      cout: null,
+      media: path,
+      note: paths.note,
+      preview: null,
+      loose: false,
+    };
+    await writeText(vault, paths.note, assetNote(card));
+    await reload();
+    setPickedDecor(sceneId);
+    return sceneId;
+  }, [reload, saveLieu, store]);
+
+  const sendToMontage = useCallback(async (input: { planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }) => {
+    const vault = store();
+    const slug = await ensureActiveProject(vault);
+    const held = studioRef.current ?? await loadStudio(vault);
+    const planId = input.planId.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40) || "plan";
+    const takeKey = uniqueId(`${planId}-garde`, held.takes.map(item => item.id));
+    const sourceUrl = input.still.startsWith("/") ? assetPath(input.still) : input.still;
+    let blob: Blob | null = null;
+    if (sourceUrl) {
+      try {
+        const response = await fetch(sourceUrl);
+        if (response.ok) blob = await response.blob();
+      } catch { blob = null; }
+    }
+    if (!blob) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 32;
+      canvas.height = 18;
+      const ctx = canvas.getContext("2d");
+      if (ctx) { ctx.fillStyle = "#1a1610"; ctx.fillRect(0, 0, 32, 18); }
+      blob = await new Promise(resolve => canvas.toBlob(file => resolve(file), "image/webp"));
+    }
+    if (!blob) return;
+    const video = projectPath(slug, `Prises/${takeKey}.webp`);
+    await writeBlob(vault, video, blob);
+    const seconds = input.seconds === 8 ? 8 : 5;
+    const settings: TakeSettings = { seconds, quality: "rapide", aspect: input.aspect };
+    const take: Take = {
+      id: takeKey,
+      at: new Date().toISOString(),
+      sceneId: null,
+      sceneName: input.sceneName.slice(0, 80),
+      line: input.label.slice(0, 80) || planId,
+      settings,
+      profile: takeProfile(settings),
+      jobId: "maquette",
+      video,
+      poster: video,
+      prompt: input.prompt,
+      gpuSeconds: null,
+      costCredits: 0,
+      balanceBefore: null,
+      balanceAfter: null,
+      engine: "comfy",
+      loraId: null,
+      resolution: null,
+      costUsd: null,
+      costSource: null,
+      announcedCredits: null,
+      announcedHigh: null,
+      etat: "gardee",
+    };
+    const opened = held.sequences[0] ?? { id: "suite", name: "Séquence", links: [] as { takeId: string; raccord: string }[] };
+    const sequence = {
+      ...opened,
+      links: opened.links.some(link => link.takeId === takeKey) ? opened.links : [...opened.links, { takeId: takeKey, raccord: "" }],
+    };
+    await writeTake(vault, take, held.takes, [], {
+      sequences: [{ id: sequence.id, name: sequence.name }],
+      shots: [{ id: planId, name: take.line }],
+    });
+    await writeSequence(vault, sequence, [...held.takes, take]);
+    const previous = held.shots.find(shot => shot.id === planId);
+    const shot: Shot = {
+      id: planId,
+      name: take.line,
+      sequenceId: sequence.id,
+      takeIds: [takeKey],
+      note: previous?.note ?? "",
+      ordre: previous?.ordre ?? held.shots.length,
+      composeur: input.composeur,
+    };
+    await writeShot(vault, shot, [...held.takes, take], sequence.name);
+    const saved = await readMontages(vault, slug);
+    const existing = saved.find(edit => edit.id === sequence.id);
+    const base: Edit = existing ?? { id: sequence.id, name: sequence.name, video: [], audio: [] };
+    await writeMontageEdit(vault, placeStoryboard(base, { id: takeKey, label: take.line, seconds, source: video }, !existing), {});
+    await reload();
+  }, [reload, store]);
+
   const value: StudioSession = {
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
@@ -1014,7 +1158,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,
-    readProjectFile, writeProjectFile, saveShot,
+    readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, sendToMontage,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

@@ -3,18 +3,25 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { assetPath } from "@/lib/site";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
+import { TUILES, tuileById, tuileInText, tuileNeedsPair, type TuileId } from "@/lib/cinema/tuiles";
 import {
-  ACTION_EXAMPLES, ACTION_MAX, CADRAGE_LABEL, CADRAGES, CAMERA_LABEL, CAMERAS,
-  DUREE_DIX, ETAT_LABEL, PAS_MESURE, TROIS,
-  type Cadrage, type CameraMove, type PlanEtat,
+  addFigure, addNeutral, applyTuile, astuce, autreEssai, canAddFigure, captureLine, initialMaquette, MAX_FIGURES, moveFigure, orbitDrag, pinch, removeFigure, scenePhrase, seedLead, toggleLock, undoMaquette, yawFigure,
+  type MaquetteState,
+} from "@/lib/maquette/state";
+import {
+  ACTION_EXAMPLES, ACTION_MAX,
+  DUREE_DIX, ETAT_LABEL, PAS_MESURE,
+  type PlanEtat,
 } from "@/lib/prise/copy";
 import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/decision";
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
-import { moveId, planFromJson, planMarkdown, planStateFromJson, priseMarkdown, type StoredPlan } from "@/lib/prise/vault";
+import { parseQuartier, type Quartier } from "@/lib/repere/quartier";
+import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, priseMarkdown, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
 import { FormatSwitch, useFormat } from "./format-switch";
+import { MaquetteView } from "./maquette-view";
 import { useStudio } from "./studio-session";
 
 type Seed = "vide" | "compose" | "final";
@@ -68,7 +75,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, cast, decor, media, studio, requestRun, writeProjectFile, pickCast, pickDecor, run, cancelRun } = useStudio();
+  const { ready, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage } = useStudio();
   const { t } = useI18n();
   const { format } = useFormat();
   const [seed, setSeed] = useState<Seed>("vide");
@@ -81,7 +88,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [details, setDetails] = useState(false);
   const [textOpen, setTextOpen] = useState(false);
   const [ask, setAsk] = useState<"composer" | null>(null);
+  const [maquette, setMaquette] = useState<MaquetteState>(() => initialMaquette());
+  const [sending, setSending] = useState(false);
+  const [picker, setPicker] = useState(false);
+  const [placeCleared, setPlaceCleared] = useState(false);
+  const [quartier, setQuartier] = useState<Quartier | null>(null);
   const booted = useRef(false);
+  const seeded = useRef(false);
 
   useEffect(() => {
     if (!ready || booted.current) return;
@@ -129,8 +142,49 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return DEMO_DECOR.map(card => ({ id: card.id, name: card.name, note: card.prompt, src: card.preview ? assetPath(card.preview) : "" }));
   }, [decor, media, seed]);
 
+  const castKey = `${drafts.find(item => item.id === currentId)?.input.castIds.join(",") ?? ""}|${people.map(person => `${person.id}:${person.name}`).join(",")}`;
+  useEffect(() => {
+    if (seeded.current || people.length === 0) return;
+    const chosenIds = drafts.find(item => item.id === currentId)?.input.castIds ?? [];
+    const lead = (chosenIds.length > 0 ? people.find(person => person.id === chosenIds[0]) : people[0]) ?? null;
+    if (!lead) return;
+    seeded.current = true;
+    setMaquette(state => seedLead(state, { id: lead.id, name: lead.name }));
+    const tile = tuileById("regard");
+    const placeId = places.find(place => place.id === pickedDecor)?.id ?? places[0]?.id ?? null;
+    setDrafts(list => list.map(item => {
+      if (item.id !== currentId || item.input.action.trim()) return item;
+      return {
+        ...item,
+        input: {
+          ...item.input,
+          castIds: item.input.castIds.length > 0 ? item.input.castIds : [lead.id],
+          decorId: item.input.decorId ?? placeId,
+          action: scenePhrase([lead.name], t("r7.tuile.regard"), t("r7.link")),
+          cadrage: tile.cadrage,
+          camera: tile.camera,
+        },
+      };
+    }));
+  }, [castKey, people, drafts, currentId, places, pickedDecor, t]);
+
   const index = Math.max(0, drafts.findIndex(item => item.id === currentId));
   const draft = drafts[index] ?? drafts[0];
+  const previewPlaceId = !draft
+    ? null
+    : draft.input.decorId ?? (placeCleared ? null : pickedDecor) ?? places[0]?.id ?? null;
+  useEffect(() => {
+    let dead = false;
+    if (!previewPlaceId) {
+      setQuartier(null);
+      return;
+    }
+    void readProjectFile(`Lieux/${previewPlaceId}.quartier.json`).then(text => {
+      if (dead) return;
+      setQuartier(text ? parseQuartier(text) : null);
+    });
+    return () => { dead = true; };
+  }, [previewPlaceId, readProjectFile]);
   const previous = index > 0 ? drafts[index - 1] : null;
 
   function patch(partial: Partial<PlanInput>) {
@@ -146,18 +200,23 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
   if (!draft) return null;
 
-  const chosen = draft.input.castIds.flatMap(id => {
-    const person = people.find(item => item.id === id);
-    return person ? [{ name: person.name, planche: person.planche }] : [];
-  });
+  const shownPlace = draft.input.decorId
+    ? places.find(place => place.id === draft.input.decorId) ?? null
+    : placeCleared
+      ? null
+      : places.find(place => place.id === pickedDecor) ?? places[0] ?? null;
   const input: PlanInput = {
     ...draft.input,
     format,
-    castNames: chosen.map(person => person.name),
-    castPlanche: chosen.map(person => person.planche),
-    decorName: places.find(place => place.id === draft.input.decorId)?.name ?? "",
-    decorNote: places.find(place => place.id === draft.input.decorId)?.note ?? "",
-    speakerName: draft.input.speakerName || people.find(person => person.id === draft.input.castIds[0])?.name || "",
+    castIds: maquette.figures.map(figure => figure.id),
+    castNames: maquette.figures.map(figure => figure.name),
+    castPlanche: maquette.figures.map(figure => people.find(person => person.id === figure.id)?.planche ?? false),
+    decorId: shownPlace?.id ?? null,
+    decorName: shownPlace?.name ?? "",
+    decorNote: shownPlace?.note ?? "",
+    cadrage: tuileById(maquette.tuile).cadrage,
+    camera: tuileById(maquette.tuile).camera,
+    speakerName: draft.input.speakerName || maquette.figures[0]?.name || "",
     previousKept: Boolean(previous && (previous.kept || previous.finalised)),
     hasKeptTake: draft.kept || draft.finalised,
   };
@@ -168,10 +227,21 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const tourner = decide(input, "tourner");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
   const showFinal = panel || draft.finalised;
-  const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision);
+  const cadre = [captureLine(maquette, tuileById(maquette.tuile).prompt), quartier ? t("r7.rue") : ""].filter(Boolean).join(" ");
+  const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision, { cadre });
+  const tip = astuce(maquette);
+  const tileLabels = TUILES.map(item => ({ id: item.id, label: t(`r7.tuile.${item.id}`) }));
+  const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
   const etat = etatOf(draft);
+  function planWord(item: Draft): string {
+    const mark = etatOf(item);
+    if (mark !== "vide") return ETAT_LABEL[mark];
+    const live = item.id === draft.id;
+    const filled = Boolean(item.input.action.trim() || item.input.castIds.length > 0 || item.input.decorId)
+      || (live && (maquette.figures.length > 0 || Boolean(shownPlace)));
+    return filled ? t("r7.enPlace") : ETAT_LABEL.vide;
+  }
   const total = drafts.reduce((sum, item) => sum + item.input.duree, 0);
-  const previewSrc = draft.before || places.find(place => place.id === input.decorId)?.src || people.find(person => person.id === input.castIds[0])?.src || "";
   const planLabel = `Plan ${String(index + 1).padStart(2, "0")}`;
 
   let gold: ClickAction & { composer: boolean };
@@ -187,8 +257,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   } else if (etat === "gardee" || etat === "finalisee") {
     gold = { label: FINAL_LABEL, price: priceOf(fin.quote), enabled: fin.enabled, reason: fin.reason || PAS_MESURE, composer: false, onClick: () => setPanel(true) };
   } else {
-    gold = { label: "Composer l'image", price: priceOf(composer.quote), enabled: composer.enabled, reason: composer.reason, composer: true, onClick: () => { if (composer.enabled) setAsk("composer"); } };
-    extra = { label: "Essai rapide", price: priceOf(essai.quote), enabled: essai.enabled, reason: essai.reason, onClick: () => { if (essai.enabled) void requestRun(); } };
+    gold = { label: "Composer l'image", price: "", enabled: composer.enabled, reason: composer.reason, composer: true, onClick: () => { if (composer.enabled) setAsk("composer"); } };
+    extra = { label: "Essai rapide", price: "", enabled: essai.enabled, reason: essai.reason, onClick: () => { if (essai.enabled) void requestRun(); } };
   }
   const reasonText = gold.enabled ? "" : gold.reason;
   const extraReason = extra && !extra.enabled && extra.reason && extra.reason !== reasonText ? extra.reason : "";
@@ -236,18 +306,97 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     persist(next, id);
   }
 
-  function toggleCast(id: string) {
-    const selected = input.castIds.includes(id);
-    if (!selected && input.castIds.length >= 3) return;
-    const castIds = selected ? input.castIds.filter(item => item !== id) : [...input.castIds, id];
-    patch({ castIds });
-    if (!selected && cast.some(card => card.id === id)) void pickCast(id);
+  function onWho(id: string) {
+    if (maquette.figures.some(figure => figure.id === id)) {
+      if (maquette.lockPose) return;
+      placeFigure(removeFigure(maquette, id));
+      return;
+    }
+    const person = people.find(item => item.id === id);
+    if (!person || !canAddFigure(maquette)) return;
+    placeFigure(addFigure(maquette, { id: person.id, name: person.name }));
+    if (cast.some(card => card.id === id)) void pickCast(id);
   }
 
   function choosePlace(id: string) {
-    const on = input.decorId === id;
-    patch({ decorId: on ? null : id });
-    if (!on && decor.some(card => card.id === id)) void pickDecor(id);
+    const current = draft.input.decorId ?? shownPlace?.id ?? null;
+    if (current === id) {
+      setPlaceCleared(true);
+      patch({ decorId: null });
+      return;
+    }
+    setPlaceCleared(false);
+    patch({ decorId: id });
+    if (decor.some(card => card.id === id)) void pickDecor(id);
+  }
+
+  function phraseFor(names: string[], shot: string): string {
+    return scenePhrase(names, shot, t("r7.link"));
+  }
+
+  function chooseTuile(id: TuileId) {
+    if (tuileNeedsPair(id) && maquette.figures.length < 2) return;
+    const preset = tuileById(id);
+    setMaquette(state => applyTuile(state, id));
+    patch({
+      cadrage: preset.cadrage,
+      camera: preset.camera,
+      action: phraseFor(maquette.figures.map(figure => figure.name), t(`r7.tuile.${id}`)),
+    });
+  }
+
+  function onAction(action: string) {
+    const id = tuileInText(action, knownLabels);
+    if (id && tuileNeedsPair(id) && maquette.figures.length < 2) {
+      patch({ action });
+      return;
+    }
+    if (id && id !== maquette.tuile) {
+      const preset = tuileById(id);
+      setMaquette(state => applyTuile(state, id));
+      patch({ action, cadrage: preset.cadrage, camera: preset.camera });
+      return;
+    }
+    patch({ action });
+  }
+
+  function placeFigure(next: MaquetteState) {
+    setMaquette(next);
+    setPicker(false);
+    const preset = tuileById(next.tuile);
+    const names = next.figures.map(figure => figure.name);
+    const shot = t(`r7.tuile.${next.tuile}`);
+    const written = tuileInText(draft.input.action, knownLabels);
+    patch({
+      castIds: next.figures.map(figure => figure.id),
+      decorId: draft.input.decorId ?? (placeCleared ? null : shownPlace?.id ?? null),
+      cadrage: preset.cadrage,
+      camera: preset.camera,
+      action: !draft.input.action.trim() || written ? phraseFor(names, shot) : phraseFor(names, draft.input.action),
+    });
+  }
+
+  async function envoyer() {
+    if (sending) return;
+    setSending(true);
+    const still = places.find(place => place.id === input.decorId)?.src
+      || people.find(person => person.id === input.castIds[0])?.src
+      || "/exemples/decor-piece.webp";
+    try {
+      await sendToMontage({
+        planId: draft.id,
+        label: draft.input.action.trim() || t(`r7.tuile.${maquette.tuile}`),
+        seconds: input.duree,
+        aspect: input.format === "9:16" ? "vertical" : "horizontal",
+        still,
+        prompt: prompt.text,
+        sceneName: input.decorName,
+        composeur: planJson(input, { etat: etatOf(draft), before: draft.before, after: draft.after }),
+      });
+      onMontage();
+    } finally {
+      setSending(false);
+    }
   }
 
   function keep() {
@@ -290,9 +439,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       reason: fin.reason,
     }
     : cardDecision;
+  const statusWord = t(card.statut === "mesure" ? "create.statusMeasured" : card.statut === "hypothese" ? "create.statusHypothesis" : "create.statusUnknown");
+  const ceiling = card.cap === null
+    ? ""
+    : ` · ${t(card.statut === "mesure" ? "create.ceilingMeasured" : "create.ceilingHyp", { high: fr(card.cap) })}`;
   const quoteLine = card.quote === null
-    ? "Devis : inconnu"
-    : `Devis : ${fr(card.quote)} · ${card.statut === "mesure" ? "mesuré" : card.statut === "hypothese" ? "hypothèse" : "inconnu"}${card.cap !== null ? ` · Plafond ${fr(card.cap)}` : ""}`;
+    ? t("create.quoteUnknown")
+    : `${t("create.quoteLead", { quote: fr(card.quote), status: statusWord })}${ceiling}`;
   const sameAsMots = Boolean(reasonText) && reasonText === card.mots;
   const sameAsPourquoi = Boolean(reasonText) && reasonText === card.pourquoi;
 
@@ -303,6 +456,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {drafts.map((item, at) => {
           const mark = etatOf(item);
           const thumb = item.before || "";
+          const word = planWord(item);
           return <button
             key={item.id}
             type="button"
@@ -317,7 +471,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           >
             <span className="u-plan-num">{String(at + 1).padStart(2, "0")}</span>
             <span className={thumb ? "u-plan-thumb" : "u-plan-thumb is-empty"}>{thumb ? <img src={thumb} alt="" /> : null}</span>
-            <span className="u-plan-etat">{ETAT_LABEL[mark]}</span>
+            <span className="u-plan-etat">{word}</span>
             <span className="u-plan-time">{item.input.duree} s</span>
           </button>;
         })}
@@ -335,61 +489,70 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </div>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
-        : <div className={previewSrc ? "u-prise-frame" : "u-prise-frame is-empty"} data-ratio={format}>
-          {previewSrc ? <img src={previewSrc} alt="" /> : <span className="u-prise-empty"><FrameIcon kind="moyen" />Ton image clé apparaîtra ici</span>}
-        </div>}
-      {(etat === "gardee" || etat === "finalisee") && <button type="button" className="u-link" data-lire-sequence="" onClick={onMontage}>Voir au montage</button>}
+        : <MaquetteView
+          state={maquette}
+          backdrop={quartier ? "" : (shownPlace?.src || "")}
+          placeName={shownPlace?.name || ""}
+          quartier={quartier}
+          badge={t(`r7.tuile.${maquette.tuile}`)}
+          hint={t("r7.hint")}
+          onMove={(id, x, z) => setMaquette(state => moveFigure(state, id, x, z))}
+          onOrbit={(dx, dy) => setMaquette(state => orbitDrag(state, dx, dy))}
+          onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
+        />}
+      <div className="u-maquette-tools">
+        <button type="button" className="u-lock" aria-pressed={maquette.lockPose} onClick={() => setMaquette(state => toggleLock(state, "pose"))}>{maquette.lockPose ? "🔒" : "🔓"} {t("r7.pose")}</button>
+        <button type="button" className="u-lock" aria-pressed={maquette.lockCam} onClick={() => setMaquette(state => toggleLock(state, "cam"))}>{maquette.lockCam ? "🔒" : "🔓"} {t("r7.cam")}</button>
+        <button type="button" data-autre-essai="" onClick={() => setMaquette(state => autreEssai(state))}>🎲 {t("r7.essai")} <small>{t("r7.gratuit")}</small></button>
+        <button type="button" disabled={maquette.past.length === 0} aria-describedby={maquette.past.length === 0 ? "u-why-annuler" : undefined} onClick={() => setMaquette(state => undoMaquette(state))}>{t("r7.annuler")}</button>
+        <button type="button" data-add-person="" disabled={!canAddFigure(maquette)} aria-describedby={!canAddFigure(maquette) ? "u-why-cap" : undefined} onClick={() => setPicker(open => !open)}>{t("r7.add")}</button>
+      </div>
+      {maquette.past.length === 0 && <p className="u-why" id="u-why-annuler">{t("r7.annulerOff")}</p>}
+      {!canAddFigure(maquette) && <p className="u-why" id="u-why-cap">{t("r7.addOff", { max: MAX_FIGURES })}</p>}
+      {picker && canAddFigure(maquette) && <div className="u-picker" data-personnage-picker="">
+        {people.filter(person => !maquette.figures.some(figure => figure.id === person.id)).map(person => (
+          <button key={person.id} type="button" data-pick={person.id} onClick={() => placeFigure(addFigure(maquette, { id: person.id, name: person.name }))}>{person.name}</button>
+        ))}
+        <button type="button" data-pick="neutre" onClick={() => placeFigure(addNeutral(maquette, t("r7.neutralName")))}>{t("r7.neutral")}</button>
+        <button type="button" onClick={() => setPicker(false)}>{t("verb.cancel")}</button>
+      </div>}
+      <ul className="u-figure-row">
+        {maquette.figures.map(figure => <li key={figure.id}>
+          <span className="u-figure-name"><i className="u-swatch" style={{ background: figure.color }} aria-hidden="true" />{figure.name}</span>
+          <button type="button" className="u-chip" data-tourner={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.turnName", { name: figure.name })} onClick={() => setMaquette(state => yawFigure(state, figure.id, Math.PI / 4))}>{t("r7.turn")}</button>
+          <button type="button" className="u-chip" data-retirer={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.removeName", { name: figure.name })} onClick={() => placeFigure(removeFigure(maquette, figure.id))}>{t("r7.remove")}</button>
+        </li>)}
+      </ul>
+      {maquette.lockPose && <p className="u-why" id="u-why-pose">{t("r7.poseLock")}</p>}
+      <p className="u-why" data-astuce={tip.id}>{t(`r7.astuce.${tip.id}`, { name: tip.name })}</p>
+      <button type="button" className="u-link" data-lire-sequence="" data-envoyer-montage="" disabled={sending} aria-describedby={sending ? "u-why-envoyer" : undefined} onClick={() => void envoyer()}>{t("r7.envoyer")}</button>
+      {sending && <p className="u-why" id="u-why-envoyer">{t("nav.opening")}</p>}
+    </div>
     </div>
 
-    <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
-      <div className="u-prise-card" id="u-prise-card" data-row={showFinal ? "final" : cardDecision.row}>
-        <p className="u-label">Ce que l'app va faire</p>
-        <h2>{card.titre || "En attente"}</h2>
-        {card.mots && !sameAsMots && <p>{card.mots}</p>}
-        {card.pourquoi && card.pourquoi !== card.mots && !sameAsPourquoi && <p>{card.pourquoi}</p>}
-        <p className="u-prise-quote">{quoteLine}</p>
-        <button type="button" className="u-link" aria-expanded={details} onClick={() => setDetails(open => !open)}>Détails</button>
-        {details && <div className="u-prise-details">
-          {card.graph && <p>Graphe : {card.graph}</p>}
-          {showFinal && fin.graphs.filter(item => !item.choisi).map(item => <p key={item.id}>{item.role} : {item.note}</p>)}
-          <button type="button" className="u-link" aria-expanded={textOpen} onClick={() => setTextOpen(open => !open)}>Texte envoyé</button>
-          {textOpen && <textarea className="u-prise-prompt" readOnly value={prompt.text} aria-label="Texte envoyé" />}
-        </div>}
-      </div>
-
-      {showFinal && <FinalPanel
-        value={{ ...finaliser, media: mediaKind, seconds: input.duree }}
-        onMedia={next => { setMediaKind(next); setFinaliser(finaliserDefaults(next, input.duree)); }}
-        onChange={setFinaliser}
-        plan={fin}
-      />}
-
-      <div className="u-prise-actions">
-        <p className="u-prise-quote u-bar-quote">{quoteLine}</p>
-        {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
-        <button type="button" className="u-primary" data-composer-gold={gold.composer ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}{gold.price}</button>
-        {ask === "composer" && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
-        {extra && <button type="button" className="u-secondary" disabled={!extra.enabled} aria-describedby={!extra.enabled && extra.reason ? (extra.reason === reasonText ? "u-prise-reason" : "u-prise-extra") : undefined} onClick={extra.onClick}>{extra.label}{extra.price}</button>}
-        {extraReason && <p className="u-why" id="u-prise-extra">{extraReason}</p>}
-      </div>
-    </aside>
-    </div>
-
+    <div className="u-prise-rail">
     <div className="u-prise-work">
       <header className="u-prise-head">
         <div className="u-prise-title">
           <h1 id="u-title" tabIndex={-1}>{planLabel}</h1>
           <FormatSwitch />
         </div>
-        <p className="u-plan-etat">{ETAT_LABEL[etat]}</p>
+        <p className="u-plan-etat">{planWord(draft)}</p>
       </header>
 
-      <Row label="Qui ?">
+      <Row className="u-who-row" label="Qui ?">
         <div className="u-choice-row u-who">
-          {people.map(person => {
-            const on = input.castIds.includes(person.id);
-            const blocked = !on && input.castIds.length >= 3;
-            return <button key={person.id} type="button" className="u-avatar" aria-pressed={on} disabled={blocked} aria-describedby={blocked ? "u-why-trois" : undefined} onClick={() => toggleCast(person.id)}>
+          {maquette.figures.map(figure => {
+            const person = people.find(item => item.id === figure.id);
+            const locked = maquette.lockPose;
+            return <button key={figure.id} type="button" className="u-avatar" aria-pressed={true} disabled={locked} aria-describedby={locked ? "u-why-pose" : undefined} onClick={() => onWho(figure.id)}>
+              <span className="u-avatar-face" style={{ boxShadow: `inset 0 0 0 3px ${figure.color}` }}>{person?.src ? <img src={person.src} alt="" /> : <i style={{ background: figure.color }} />}</span>
+              <span>{figure.name}</span>
+            </button>;
+          })}
+          {people.filter(person => !maquette.figures.some(figure => figure.id === person.id)).map(person => {
+            const blocked = !canAddFigure(maquette);
+            return <button key={person.id} type="button" className="u-avatar" aria-pressed={false} disabled={blocked} aria-describedby={blocked ? "u-why-cap" : undefined} onClick={() => onWho(person.id)}>
               <span className="u-avatar-face">{person.src ? <img src={person.src} alt="" /> : <i />}</span>
               <span>{person.name}</span>
             </button>;
@@ -399,13 +562,12 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
             <span>Ajouter un personnage</span>
           </button>
         </div>
-        {input.castIds.length >= 3 && <p className="u-why" id="u-why-trois">{TROIS}</p>}
       </Row>
 
       <Row label="Où ?">
         <div className="u-choice-row u-where">
           {places.map(place => {
-            const on = input.decorId === place.id;
+            const on = shownPlace?.id === place.id;
             return <button key={place.id} type="button" className="u-place" aria-pressed={on} onClick={() => choosePlace(place.id)}>
               <span className="u-place-face">{place.src ? <img src={place.src} alt="" /> : <i />}</span>
               <span>{place.name}</span>
@@ -418,38 +580,35 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </div>
       </Row>
 
-      <Row label="Cadrage">
-        <div className="u-choice-row u-cadrage">
-          {CADRAGES.map(id => (
-            <button key={id} type="button" className="u-shot-tile" aria-pressed={input.cadrage === id} onClick={() => patch({ cadrage: id })}>
-              <FrameIcon kind={id} />
-              <span>{CADRAGE_LABEL[id]}</span>
-            </button>
-          ))}
-        </div>
-      </Row>
-
-      <Row label="Action">
+      <Row className="u-scene-row" label={t("r7.cequi")}>
         <label className="u-field">
-          <span className="u-label">Ce qui se passe</span>
-          <textarea value={input.action} rows={1} maxLength={ACTION_MAX} placeholder={ACTION_PLACEHOLDER} onChange={event => patch({ action: event.target.value })} />
+          <textarea aria-label={t("r7.cequi")} value={input.action} rows={3} maxLength={ACTION_MAX} placeholder={ACTION_PLACEHOLDER} onChange={event => onAction(event.target.value)} />
         </label>
         <div className="u-choice-row u-actions">
           {ACTION_EXAMPLES.map(example => (
-            <button key={example} type="button" className="u-chip" aria-pressed={input.action === example} onClick={() => patch({ action: example })}>{example}</button>
+            <button key={example} type="button" className="u-chip" aria-pressed={input.action === example} onClick={() => onAction(example)}>{example}</button>
           ))}
         </div>
       </Row>
 
-      <Row label="Caméra">
-        <div className="u-choice-row u-camera">
-          {CAMERAS.map(id => (
-            <button key={id} type="button" className="u-shot-tile u-cam-tile" data-cam={id} aria-pressed={input.camera === id} onClick={() => patch({ camera: id })}>
-              <CameraIcon kind={id} />
-              <span>{CAMERA_LABEL[id]}</span>
-            </button>
-          ))}
+      <Row className="u-tuiles-row" label={t("r7.tuiles")}>
+        <div className="u-tuiles" data-tuiles="">
+          {TUILES.map(item => {
+            const needsPair = tuileNeedsPair(item.id) && maquette.figures.length < 2;
+            const hint = needsPair
+              ? t("r7.pairShort")
+              : item.id === "taille" && maquette.figures.length > 2
+                ? t("r7.tuile.tailleHintMany")
+                : item.id === "regard" && maquette.figures.length > 1
+                  ? t("r7.tuile.regardHintMany")
+                  : t(`r7.tuile.${item.id}Hint`);
+            return <button key={item.id} type="button" className="u-tuile" data-tuile={item.id} aria-pressed={maquette.tuile === item.id} disabled={needsPair} aria-describedby={needsPair ? "u-why-paire" : undefined} onClick={() => chooseTuile(item.id)}>
+              <span>{t(`r7.tuile.${item.id}`)}</span>
+              <small>{hint}</small>
+            </button>;
+          })}
         </div>
+        {maquette.figures.length < 2 && <p className="u-why" id="u-why-paire">{t("r7.pairWhy")}</p>}
       </Row>
 
       <Row label="Durée">
@@ -492,6 +651,45 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {!input.previousKept && input.enchainer && <p className="u-why">Le plan précédent n'est pas encore gardé.</p>}
         <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>Imposer l'image de fin</button>
       </details>
+    </div>
+
+    <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
+      <div className="u-prise-card" id="u-prise-card" data-row={showFinal ? "final" : cardDecision.row}>
+        <p className="u-label">Ce que l'app va faire</p>
+        <p className="u-prise-brief" data-lire-maquette="">
+          <span>{t("r7.lireCast")} : {maquette.figures.map(figure => figure.name).join(", ") || "—"}</span>
+          <span>{t("r7.lireLieu")} : {shownPlace?.name || "—"}{quartier ? ` · ${t("r7.rue")}` : ""}</span>
+          <span>{t("r7.lireCadrage")} : {t(`r7.tuile.${maquette.tuile}`)}</span>
+        </p>
+        <h2>{card.titre || "En attente"}</h2>
+        {card.mots && !sameAsMots && <p>{card.mots}</p>}
+        {card.pourquoi && card.pourquoi !== card.mots && !sameAsPourquoi && <p>{card.pourquoi}</p>}
+        <p className="u-prise-quote">{quoteLine}</p>
+        <button type="button" className="u-link" aria-expanded={details} onClick={() => setDetails(open => !open)}>Détails</button>
+        {details && <div className="u-prise-details">
+          {card.graph && <p>Graphe : {card.graph}</p>}
+          {showFinal && fin.graphs.filter(item => !item.choisi).map(item => <p key={item.id}>{item.role} : {item.note}</p>)}
+          <button type="button" className="u-link" aria-expanded={textOpen} onClick={() => setTextOpen(open => !open)}>Texte envoyé</button>
+          {textOpen && <textarea className="u-prise-prompt" readOnly value={prompt.text} aria-label="Texte envoyé" />}
+        </div>}
+      </div>
+
+      {showFinal && <FinalPanel
+        value={{ ...finaliser, media: mediaKind, seconds: input.duree }}
+        onMedia={next => { setMediaKind(next); setFinaliser(finaliserDefaults(next, input.duree)); }}
+        onChange={setFinaliser}
+        plan={fin}
+      />}
+
+      <div className="u-prise-actions">
+        <p className="u-prise-quote u-bar-quote">{quoteLine}</p>
+        {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
+        <button type="button" className="u-primary" data-composer-gold={gold.composer ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}{gold.price}</button>
+        {ask === "composer" && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
+        {extra && <button type="button" className="u-secondary" disabled={!extra.enabled} aria-describedby={!extra.enabled && extra.reason ? (extra.reason === reasonText ? "u-prise-reason" : "u-prise-extra") : undefined} onClick={extra.onClick}>{extra.label}{extra.price}</button>}
+        {extraReason && <p className="u-why" id="u-prise-extra">{extraReason}</p>}
+      </div>
+    </aside>
     </div>
 
   </section>;
@@ -543,8 +741,8 @@ function draftFromShot(shot: Shot, format: PlanInput["format"]): Draft {
   };
 }
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
-  return <div className="u-prise-row">
+function Row({ label, children, className = "" }: { label: string; children: ReactNode; className?: string }) {
+  return <div className={className ? `u-prise-row ${className}` : "u-prise-row"}>
     <p className="u-label">{label}</p>
     {children}
   </div>;
@@ -583,51 +781,6 @@ function Compare({ before, after, ratio }: { before: string; after: string; rati
     </div>
     <input type="range" min={0} max={100} value={pos} aria-label="Comparer avant et après" onChange={event => setPos(Number(event.target.value))} />
   </div>;
-}
-
-function FrameIcon({ kind }: { kind: Cadrage }) {
-  const figure = <g className="u-fig">
-    <circle cx="0" cy="-9" r="3.1" />
-    <path d="M-4.6 -5.6h9.2l-1.1 7.2h-7z" />
-    <path d="M-2 1.6 -3.2 12M2 1.6 3.2 12" />
-  </g>;
-  const place: Record<Cadrage, string> = {
-    large: "translate(32 20) scale(.4)",
-    moyen: "translate(32 30) scale(1.15)",
-    americain: "translate(32 26) scale(.88)",
-    gros: "translate(32 32) scale(1.75)",
-    tgp: "",
-    plongee: "translate(32 24) scale(.72) rotate(10)",
-    contre: "translate(32 14) scale(1.2) rotate(-8)",
-    epaule: "translate(46 22) scale(.5)",
-  };
-  return <svg className="u-ico u-frame-ico" viewBox="0 0 64 36" aria-hidden="true">
-    <rect x="1.5" y="1.5" width="61" height="33" rx="2" />
-    {kind === "plongee" && <path className="u-fig" d="M32 5.5 27.5 11h9z" />}
-    {kind === "contre" && <path className="u-fig" d="M32 30.5 27.5 25h9z" />}
-    {kind === "epaule" && <path className="u-fig" d="M1.5 34.5c7-18 16-20 24-8 2 4 1 8-1 8H1.5z" />}
-    {kind === "tgp" ? <>
-      <ellipse cx="24" cy="18" rx="7" ry="3.4" />
-      <ellipse cx="40" cy="18" rx="7" ry="3.4" />
-      <circle className="u-fig" cx="24" cy="18" r="1.7" />
-      <circle className="u-fig" cx="40" cy="18" r="1.7" />
-    </> : <g transform={place[kind]}>{figure}</g>}
-  </svg>;
-}
-
-function CameraIcon({ kind }: { kind: CameraMove }) {
-  return <svg className="u-ico u-cam-ico" viewBox="0 0 32 24" aria-hidden="true">
-    <g className="u-cam-move" data-cam={kind}>
-      <rect x="1.5" y="8" width="13" height="9" rx="1.5" />
-      <path d="M14.5 11.2 22 8v8l-7.5-4.8z" />
-      {kind === "travelling-avant" && <path d="M24 12h6M27 9.2 30 12l-3 2.8" />}
-      {kind === "travelling-arriere" && <path d="M24 12h6M27 9.2 24 12l3 2.8" />}
-      {kind === "panoramique" && <path d="M24 15c2-4 5-4 7 0M29.2 13.2 31 15.2l-2.2.4" />}
-      {kind === "suivi" && <path d="M24 16h6M28 13.2 31 16l-3 2.6" />}
-      {kind === "orbite" && <path d="M24 8.5a5 5 0 1 1-1 6.2M23.2 8.2 25.4 7.2 25.2 9.6" />}
-      {kind === "epaule" && <path d="M24 9v2M26.5 10.2l-1 1.6M28.5 12.5h-2" />}
-    </g>
-  </svg>;
 }
 
 function AddPersonIcon() {

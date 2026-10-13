@@ -138,6 +138,8 @@ export function looseAssets(paths: readonly string[], project: string | null): A
     if (notes.has(key)) continue;
     const parsed = kindFromPath(path);
     if (!parsed) continue;
+    // Street photos are listed from their asset note, with the author and the licence.
+    if (parsed.kind === "decor" && /-mly-/.test(parsed.id)) continue;
     const name = cleanCardName(parsed.id.replace(/-/g, " ")) || parsed.id;
     out.push({
       id: parsed.id,
@@ -157,6 +159,30 @@ export function looseAssets(paths: readonly string[], project: string | null): A
     });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name, "fr"));
+}
+
+/** Asset notes written beside a street photo. A repérage note is a décor reference. */
+export async function importNotes(
+  read: (path: string) => Promise<string | undefined>,
+  paths: readonly string[],
+  project: string | null,
+): Promise<AssetRecord[]> {
+  if (!project) return [];
+  const prefix = `Projets/${project}/Assets/`;
+  const out: AssetRecord[] = [];
+  for (const path of paths) {
+    if (!path.startsWith(prefix) || !path.endsWith(".md")) continue;
+    const id = path.slice(prefix.length, -".md".length);
+    if (!/^[a-z0-9-]+$/.test(id)) continue;
+    const source = await read(path);
+    if (!source) continue;
+    const card = readAssetNote(id, source);
+    if (!card?.media) continue;
+    card.note = path;
+    if (card.geste === "repere") card.kind = "decor";
+    out.push(card);
+  }
+  return out;
 }
 
 export function filterAssets(cards: readonly AssetRecord[], filter: AssetFilter, query: string): AssetRecord[] {

@@ -44,3 +44,5 @@ jobs:
         run: npm run typecheck
       - name: Build serveur, sans clés Clerk
         run: npm run build
+      - name: Parcours CAST, DÉCOR, PRISE, MONTAGE
+        run: npx playwright test

@@ -57,7 +57,7 @@ export interface BuiltPrompt {
   grammar: ReferenceGrammar;
 }
 
-export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | "son">): BuiltPrompt {
+export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | "son">, extra?: { cadre?: string }): BuiltPrompt {
   const grammar = referenceGrammar(decision.graph);
   const refs: string[] = [];
   const names = plan.castNames.slice(0, 3);
@@ -83,6 +83,7 @@ export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | 
     `[timeline]    [0s-${setupLabel}s] ${who} stands still and breathes.`,
     `              [${setupLabel}s-${plan.duree}s] ${who} ${actionEn(plan.action)}.`,
   ];
+  if (extra?.cadre?.trim()) lines.push(`[maquette]    ${extra.cadre.trim()}`);
   if (decision.son && plan.paroles === "replique" && plan.replique.trim()) {
     const said = plan.replique.trim().replace(/"/g, "");
     lines.push(`[réplique]    ${who} says in French: "${said}"`);
