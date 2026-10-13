@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { TUILES, rewriteScene, tuileInText } from "../src/lib/cinema/tuiles.ts";
+import { TUILES, rewriteScene, tuileInText, tuileNeedsPair } from "../src/lib/cinema/tuiles.ts";
 import { placeStoryboard } from "../src/lib/montage/arrivee.ts";
+import { emptyEdit } from "../src/lib/montage/edit.ts";
 import { exempleEdit } from "../src/lib/montage/exemple.ts";
-import { editFromShots } from "../src/lib/montage/from-takes.ts";
+import { chooseEdit, editFromShots, editHasClips } from "../src/lib/montage/from-takes.ts";
 import {
-  applyTuile, astuce, autreEssai, captureLine, initialMaquette, moveFigure, nextRadius, pinch, toggleLock, undoMaquette,
+  addFigure, addNeutral, applyTuile, astuce, autreEssai, captureLine, initialMaquette, MAX_FIGURES, moveFigure, nextRadius, pinch, removeFigure, scenePhrase, toggleLock, undoMaquette, uprightRotation, yawFigure,
 } from "../src/lib/maquette/state.ts";
 import { emptyPlan } from "../src/lib/prise/decision.ts";
 import { GUIDE_CREDITS, GUIDE_MARK, guideQuote } from "../src/lib/prise/guide.ts";
@@ -42,7 +43,7 @@ describe("tuiles et maquette", () => {
   });
 
   it("gives a soft tip and a cinema line without a matrix", () => {
-    const far = initialMaquette();
+    const far = addFigure(initialMaquette(), { id: "kael", name: "Kael" });
     far.figures[0].x = -3;
     far.figures[1].x = 3;
     far.tuile = "taille";
@@ -50,9 +51,42 @@ describe("tuiles et maquette", () => {
     const close = applyTuile(initialMaquette(), "impact");
     assert.equal(astuce(close).id, "bord");
     const line = captureLine(initialMaquette(), "waist-up framing");
-    assert.match(line, /Uttu/);
+    assert.match(line, /Uttu alone/);
     assert.match(line, /waist-up framing/);
-    assert.doesNotMatch(line, /matrix|focal|\d+mm|theta|phi/i);
+    assert.doesNotMatch(line, /facing|matrix|focal|\d+mm|theta|phi/i);
+    const pair = captureLine(far, "waist-up framing");
+    assert.match(pair, /facing Kael/);
+  });
+
+  it("starts with one standing figure and adds or removes the others", () => {
+    const start = initialMaquette();
+    assert.equal(start.figures.length, 1);
+    assert.equal(start.figures[0].name, "Uttu");
+    assert.equal(start.tuile, "regard");
+    assert.deepEqual(uprightRotation(0.4), { x: 0, y: 0.4, z: 0 });
+    assert.equal(applyTuile(start, "taille"), start);
+    assert.equal(tuileNeedsPair("contre"), true);
+    assert.equal(tuileNeedsPair("large"), false);
+    const turned = yawFigure(start, start.figures[0].id, Math.PI / 4);
+    assert.equal(turned.figures[0].yaw, Math.PI / 4);
+    assert.equal(uprightRotation(turned.figures[0].yaw).x, 0);
+    assert.equal(uprightRotation(turned.figures[0].yaw).z, 0);
+    const two = addNeutral(start);
+    assert.equal(two.figures.length, 2);
+    assert.equal(two.figures[1].name, "Personnage");
+    const sized = applyTuile(two, "taille");
+    assert.equal(sized.tuile, "taille");
+    const three = addFigure(two, { id: "coursiere", name: "La coursière" });
+    assert.equal(three.figures.length, 3);
+    assert.equal(scenePhrase(three.figures.map(figure => figure.name), "Plan taille"), "Uttu, Personnage et La coursière, plan taille.");
+    assert.match(scenePhrase(start.figures.map(figure => figure.name), "Regard caméra"), /Uttu, regard caméra\./);
+    const back = removeFigure(sized, "neutre-1");
+    assert.equal(back.figures.length, 1);
+    assert.equal(back.tuile, "regard");
+    let full = start;
+    for (let index = 0; index < MAX_FIGURES; index += 1) full = addNeutral(full, "Fig");
+    assert.equal(full.figures.length, MAX_FIGURES);
+    assert.equal(addNeutral(full, "Fig"), full);
   });
 });
 
@@ -84,6 +118,16 @@ describe("devis guidé et prise gardée", () => {
     );
     assert.equal(kept.video[0]?.kind, "image");
     assert.equal(kept.video[0]?.source, "Projets/uttu/Prises/t1.webp");
+  });
+});
+
+describe("statut du montage", () => {
+  it("reads the clips on screen, including the example bed", () => {
+    assert.equal(editHasClips(exempleEdit()), true);
+    assert.equal(editHasClips(emptyEdit("vide", "Vide")), false);
+    const shown = chooseEdit({ saved: [], sequences: [], shots: [], takes: [] });
+    assert.equal(editHasClips(shown.edit), true);
+    assert.equal(editHasClips(chooseEdit({ saved: [emptyEdit("seq", "Vide")], sequences: [], shots: [], takes: [] }).edit), false);
   });
 });
 

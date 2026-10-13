@@ -73,9 +73,22 @@ for (const [width, height, label] of sizes) {
 
   await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
   await page.locator("[data-maquette]").waitFor();
+  await page.locator("[data-figures='1']").waitFor();
+  await page.waitForTimeout(1200);
+  for (const dir of dirs) {
+    await page.screenshot({ path: `${dir}/r7-prise-${label}.png` });
+    await page.screenshot({ path: `${dir}/r7-prise-1-${label}.png` });
+  }
+  notes.push(`prise-1 ${label}: ${await page.evaluate(layout)}`);
+
+  await page.locator("[data-add-person]").click();
+  await page.locator("[data-pick=neutre]").click();
+  await page.locator("[data-add-person]").click();
+  await page.locator("[data-pick=demo-coursiere]").click();
+  await page.locator("[data-figures='3']").waitFor();
   await page.waitForTimeout(800);
-  for (const dir of dirs) await page.screenshot({ path: `${dir}/r7-prise-${label}.png` });
-  notes.push(`prise ${label}: ${await page.evaluate(layout)}`);
+  for (const dir of dirs) await page.screenshot({ path: `${dir}/r7-prise-3-${label}.png` });
+  notes.push(`prise-3 ${label}: ${await page.evaluate(layout)}`);
 
   await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
   await page.locator("[data-track=musique]").waitFor();

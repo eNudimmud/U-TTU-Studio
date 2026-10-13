@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MAX_PIXEL_RATIO, type MaquetteState } from "@/lib/maquette/state";
+import { MAX_PIXEL_RATIO, uprightRotation, type MaquetteState } from "@/lib/maquette/state";
 
 interface Props {
   state: MaquetteState;
@@ -84,18 +84,32 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, onMove, 
           mesh.userData.root = group;
           group.add(mesh);
         };
-        add(new THREE.CapsuleGeometry(0.28, 0.7, 4, 10), 1.15);
-        add(new THREE.SphereGeometry(0.22, 16, 12), 1.82);
-        const left = new THREE.Mesh(new THREE.CapsuleGeometry(0.08, 0.5, 3, 6), material);
+        add(new THREE.CapsuleGeometry(0.22, 0.78, 4, 10), 1.28);
+        add(new THREE.SphereGeometry(0.2, 16, 12), 1.96);
+        const nose = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.14), material);
+        geometries.push(nose.geometry);
+        nose.position.set(0, 1.96, 0.22);
+        group.add(nose);
+        const left = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.62, 3, 6), material);
         const right = left.clone();
         geometries.push(left.geometry);
-        left.position.set(-0.42, 1.2, 0);
-        right.position.set(0.42, 1.2, 0);
+        left.position.set(0.24, 1.24, 0);
+        right.position.set(-0.24, 1.24, 0);
         left.userData.arm = true;
         right.userData.arm = true;
         group.add(left, right);
-        add(new THREE.CapsuleGeometry(0.1, 0.55, 3, 6), 0.4, -0.14);
-        add(new THREE.CapsuleGeometry(0.1, 0.55, 3, 6), 0.4, 0.14);
+        add(new THREE.CapsuleGeometry(0.09, 0.78, 3, 6), 0.48, -0.1);
+        add(new THREE.CapsuleGeometry(0.09, 0.78, 3, 6), 0.48, 0.1);
+        const shadow = new THREE.Mesh(
+          new THREE.CircleGeometry(0.42, 20),
+          new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 }),
+        );
+        geometries.push(shadow.geometry);
+        materials.push(shadow.material);
+        shadow.rotation.x = -Math.PI / 2;
+        shadow.position.y = 0.02;
+        group.add(shadow);
+        group.scale.setScalar(1.2);
         group.traverse(child => { child.userData.root = group; });
         return group;
       }
@@ -122,24 +136,23 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, onMove, 
             if (!Array.isArray(material) && material instanceof THREE.MeshStandardMaterial) material.color.set(figure.color);
           }
           group.position.set(figure.x, 0, figure.z);
+          const stand = uprightRotation(figure.yaw);
+          group.rotation.set(stand.x, stand.y, stand.z);
           group.traverse(child => {
             if (child.userData.arm) child.rotation.z = figure.pose * (child.position.x < 0 ? 1 : -1);
           });
-        }
-        const bodies = [...groups.values()];
-        for (const group of bodies) {
-          const other = bodies.find(item => item !== group);
-          if (other) group.lookAt(other.position.x, 1.4, other.position.z);
         }
       }
 
       function frameCamera() {
         const orbit = stateRef.current.orbit;
-        const targetY = 1.15;
+        // Close tiles stay above the distance that keeps head and feet inside the stage.
+        const radius = Math.max(orbit.radius, 6.6);
+        const targetY = 1.2;
         camera.position.set(
-          orbit.radius * Math.sin(orbit.phi) * Math.sin(orbit.theta),
-          targetY + orbit.radius * Math.cos(orbit.phi),
-          orbit.radius * Math.sin(orbit.phi) * Math.cos(orbit.theta),
+          radius * Math.sin(orbit.phi) * Math.sin(orbit.theta),
+          targetY + radius * Math.cos(orbit.phi),
+          radius * Math.sin(orbit.phi) * Math.cos(orbit.theta),
         );
         camera.lookAt(0, targetY, 0);
       }
@@ -258,7 +271,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, onMove, 
     };
   }, [mode]);
 
-  return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile}>
+  return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile} data-figures={state.figures.length}>
     <div
       className="u-maquette-stage"
       style={backdrop ? { backgroundImage: `linear-gradient(180deg, rgba(11,10,9,.25), rgba(11,10,9,.72)), url(${backdrop})` } : undefined}
@@ -323,7 +336,7 @@ function Plat({ state, onMove, onOrbit, onPinch }: { state: MaquetteState; onMov
       key={figure.id}
       type="button"
       className="u-figure"
-      style={{ left: `${50 + figure.x * 8}%`, top: `${58 + figure.z * 8}%`, background: figure.color }}
+      style={{ left: `${50 + figure.x * 8}%`, top: `${46 + figure.z * 6}%`, background: figure.color, transform: `translate(-50%, -100%) rotate(${figure.yaw}rad)` }}
       onPointerDown={event => { event.stopPropagation(); down(event, figure.id); }}
     >{figure.name}</button>)}
   </div>;

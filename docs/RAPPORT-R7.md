@@ -13,6 +13,8 @@ En prod (`https://u-ttu-studio.vercel.app/studio?demo=1#montage`, le R6 publié)
 Maintenant :
 
 - les quatre rangées (image, voix, effets, musique) tiennent dans la fenêtre à 1280×800 et à 390×844 ;
+- Voix, Effets et Musique s'écrivent en entier dans la colonne des pistes, y compris à 1280 px ;
+- l'onglet MONTAGE dit « Prêt » quand le cut affiché a des clips (l'exemple en a), et « Vide » seulement quand le cut enregistré est vide ;
 - les pistes ont leur nom, un clip se déplace au doigt, la lecture change d’état ;
 - « Envoyer au montage » écrit l’image du plan, la prise gardée (0 crédit, moteur comfy), le plan, la séquence et le cut. Un cut neuf garde la voix et la musique d’exemple, pour que les pistes ne naissent pas vides ;
 - en montage, « Réaction muette » ajoute un plan muet de 2 s à la suite.
@@ -21,13 +23,13 @@ Maintenant :
 
 Les huit tuiles de cadrage et les sept tuiles de caméra ont laissé la place à six tuiles : Plan large, Plan taille, Champ / contrechamp, Réaction muette, Zoom d’impact, Regard caméra. Un tap place la caméra de la maquette et réécrit la phrase. La phrase reste la source : y nommer une tuile la sélectionne.
 
-La maquette three.js montre au plus deux mannequins. On les glisse, on tourne en glissant le fond, on pince pour zoomer. `touch-action: none` ne couvre que la scène, le défilement de la page reste libre. Le pixel ratio est plafonné à 2. Sans WebGL, un plateau 2D reprend les mêmes gestes. Le texte d’aide est dans le cadre doré.
+La maquette three.js ouvre sur un seul mannequin, debout, les pieds sur le sol. Le corps ne tangue plus : seul le lacet change. « + Personnage » en ajoute d’autres, pris dans le cast ou laissés neutres, jusqu’à douze. Chacun se retire, se déplace et se tourne seul. Plan taille, champ / contrechamp et réaction muette demandent deux personnages : avec un seul, la tuile dit pourquoi et indique + Personnage. La phrase suit le nombre. On glisse un personnage pour le déplacer, le fond pour tourner la caméra, on pince pour zoomer. `touch-action: none` ne couvre que la scène. Le pixel ratio est plafonné à 2. Sans WebGL, un plateau 2D reprend les mêmes gestes. Le texte d’aide est dans le cadre doré.
 
-Le cast choisi (sinon les deux premiers de la galerie, sinon Uttu et Kael) et le décor choisi (sinon le premier lieu) sont dans la scène. Le personnage d’exemple s’appelle Uttu.
+Le premier du cast (sinon Uttu) et le décor choisi (sinon le premier lieu) sont dans la scène. Le personnage d’exemple s’appelle Uttu.
 
 « Autre essai » est gratuit et reste dans le navigateur. « Garder la pose » et « Garder la caméra » sont des cadenas. « Annuler » revient en arrière, et dit pourquoi il est éteint.
 
-« Rendre cette prise » est éteint. Le devis affiché est « ≈ 13 crédits (hypothèse, estimation à mesurer) ». Le cadrage et la ligne de maquette entrent dans le texte de la requête, sous Détails. « Composer l'image » reste le chemin mesuré (12,5). Ce n’est pas le même geste : l’un guide une image, l’autre est le compositeur déjà en place. Aucun des deux n’envoie dans ce round.
+« Rendre cette prise » est éteint. Le devis tient sur une seule ligne : « Devis avant envoi : ≈ 13 crédits (hypothèse, estimation à mesurer) ». Cette ligne est aussi la raison du bouton. « Habiller ce décor » fait de même. Le cadrage et la ligne de maquette entrent dans le texte de la requête, sous Détails. « Composer l'image » reste le chemin mesuré (12,5). Ce n’est pas le même geste : l’un guide une image, l’autre est le compositeur déjà en place. Aucun des deux n’envoie dans ce round.
 
 ### Décor
 
@@ -39,6 +41,7 @@ Repérage MapLibre, tuiles OpenFreeMap (style sombre). Quatre exemples : Montmar
 - Le même ordre de grandeur pour « Habiller ce décor ». Rien n’est envoyé.
 - Le style sombre OpenFreeMap et le géocodage Nominatim se comportent comme leur documentation publique. La carte peut être vide si les tuiles ne répondent pas ; la mention ODbL reste.
 - La réaction muette du montage est un plan muet enchaîné, pas une deuxième prise PRISE.
+- Douze personnages est le plafond de la maquette, pour que la scène reste légère. Le bouton + Personnage dit pourquoi il s’éteint.
 
 ## Ce qui reste
 
@@ -50,6 +53,6 @@ Repérage MapLibre, tuiles OpenFreeMap (style sombre). Quatre exemples : Montmar
 
 ## Vérifié
 
-`npm test` : 306 passés, 1 ignoré. `npm run typecheck`. `npm run build`. `npx playwright test` : le parcours CAST → DÉCOR → PRISE (maquette, tuile, Autre essai, cadenas) → MONTAGE (pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
+`npm test` : 308 passés, 1 ignoré. `npm run typecheck`. `npx playwright test` : le parcours CAST → DÉCOR → PRISE (un mannequin, ajout, retrait, tuile, Autre essai, cadenas, une seule ligne de devis) → MONTAGE (statut Prêt, libellés entiers, pistes visibles, glisser, lecture, envoi) passe à 1280×800 et à 390×844. Aucune requête Comfy ni fal.
 
-Captures 1280×800 et 390×844 : `artifacts/screenshots/r7-cast-*`, `r7-decor-*`, `r7-prise-*`, `r7-montage-*`. La prod, avant correctif : `r7-prod-montage-*`.
+Captures 1280×800 et 390×844 : `artifacts/screenshots/r7-cast-*`, `r7-decor-*`, `r7-prise-1-*`, `r7-prise-3-*`, `r7-montage-*`. La prod, avant correctif : `r7-prod-montage-*`.

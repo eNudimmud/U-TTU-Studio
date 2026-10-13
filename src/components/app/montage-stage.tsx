@@ -11,7 +11,7 @@ import {
 import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
 import { exportMp4 } from "@/lib/montage/encode";
 import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
-import { chooseEdit, editFromShots } from "@/lib/montage/from-takes";
+import { chooseEdit, editFromShots, editHasClips } from "@/lib/montage/from-takes";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
@@ -88,7 +88,7 @@ function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: strin
   return "16/9";
 }
 
-export function MontageStage() {
+export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => void }) {
   const { t } = useI18n();
   const { locale } = useLocaleSwitch();
   const { ready, studio, media, connected, balance, creating, createStem, loadMontages, saveMontage, pendingClip, holdClip } = useStudio();
@@ -116,6 +116,7 @@ export function MontageStage() {
   const pxRef = useRef(px);
   const mediaRef = useRef(media);
   const boot = useRef<string | null>(null);
+  const cutLive = useRef(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -224,12 +225,19 @@ export function MontageStage() {
         shots: studio.shots,
         takes: studio.takes,
       });
+      cutLive.current = true;
+      onFilled?.(editHasClips(choice.edit));
       show(historyOf(choice.edit));
       timeRef.current = 0;
       setTime(0);
     });
     return () => { gone = true; };
-  }, [ready, studio.project, loadMontages]);
+  }, [ready, studio.project, loadMontages, onFilled]);
+
+  useEffect(() => {
+    if (!cutLive.current) return;
+    onFilled?.(editHasClips(edit));
+  }, [edit, onFilled]);
 
   useEffect(() => {
     const node = videoRef.current;

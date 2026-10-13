@@ -114,8 +114,7 @@ export function RepereCarte({ onSave }: Props) {
     </div>
     <p className="u-small">{lieuNote(place, regard, autour)}</p>
     <button type="button" className="u-secondary" disabled aria-describedby="u-why-habiller">{t("r7.habiller")}</button>
-    <p className="u-why" id="u-why-habiller">{t("r7.habillerWhy")}</p>
-    <p className="u-prise-quote">{t("r7.habillerQuote", { credits: guide.credits })}</p>
+    <p className="u-prise-quote" id="u-why-habiller">{t("r7.habillerQuote", { credits: guide.credits })}</p>
     {note && <p className="u-small" role="status">{note}</p>}
   </section>;
 }

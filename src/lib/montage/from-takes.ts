@@ -27,6 +27,10 @@ function cueClip(cue: MontageCue): VideoClip {
   };
 }
 
+export function editHasClips(edit: { video: readonly unknown[]; audio: readonly unknown[] }): boolean {
+  return edit.video.length + edit.audio.length > 0;
+}
+
 export function editFromShots(
   sequence: { id: string; name: string },
   shots: readonly Shot[],

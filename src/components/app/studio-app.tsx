@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { formatCredits } from "@/lib/credits";
 import { liftDelta } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
+import { chooseEdit, editHasClips } from "@/lib/montage/from-takes";
 import { priseReady } from "@/lib/stage";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
@@ -29,8 +30,9 @@ export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
 function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, cast, decor, pickedCast, pickedDecor, line, studio: vault } = studio;
+  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, cast, decor, pickedCast, pickedDecor, line, loadMontages, studio: vault } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
+  const [cutReady, setCutReady] = useState<boolean | null>(null);
 
   useEffect(() => {
     const apply = () => {
@@ -111,11 +113,23 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     };
   }, []);
 
+  const montageKey = `${vault.project ?? ""}|${vault.sequences.length}|${vault.shots.length}|${vault.takes.length}`;
+  useEffect(() => {
+    if (!ready) return;
+    let gone = false;
+    void loadMontages().then(saved => {
+      if (gone) return;
+      const choice = chooseEdit({ saved, sequences: vault.sequences, shots: vault.shots, takes: vault.takes });
+      setCutReady(editHasClips(choice.edit));
+    });
+    return () => { gone = true; };
+  }, [ready, montageKey, loadMontages, vault.sequences, vault.shots, vault.takes]);
+
   const marks: Record<"lora" | "scene" | "prise" | "montage", boolean> = {
     lora: castOk,
     scene: decorOk,
     prise: priseOk,
-    montage: vault.takes.length > 0,
+    montage: cutReady !== false,
   };
   const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
 
@@ -145,7 +159,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p> : <>
         {section === "scene" ? <DecorStage onPrise={() => go("prise")} />
           : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
-          : section === "montage" ? <MontageStage />
+          : section === "montage" ? <MontageStage onFilled={setCutReady} />
           : <CastStage onDecor={() => go("scene")} />}
       </>}
     </main>

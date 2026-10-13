@@ -21,7 +21,24 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
   const stage = page.locator("[data-maquette]");
   await expect(stage).toBeVisible();
-  await expect(page.locator(".u-maquette-names")).toContainText("Uttu");
+  await expect(stage).toHaveAttribute("data-figures", "1");
+  const names = page.locator(".u-maquette-names");
+  await expect(names).toHaveText("Uttu");
+  await expect(page.locator("[data-tuile=contre]")).toBeDisabled();
+  await expect(page.locator("#u-why-paire")).toContainText("deux personnages");
+  await page.locator("[data-add-person]").click();
+  await page.locator("[data-pick=neutre]").click();
+  await expect(stage).toHaveAttribute("data-figures", "2");
+  await expect(names).toContainText("Personnage");
+  await expect(page.locator("[data-tuile=contre]")).toBeEnabled();
+  await page.locator("[data-add-person]").click();
+  await page.locator("[data-pick=demo-coursiere]").click();
+  await expect(stage).toHaveAttribute("data-figures", "3");
+  await expect(names).toContainText("La coursière");
+  await page.locator("[data-tourner]").first().click();
+  await page.locator("[data-retirer=neutre-1]").click();
+  await expect(stage).toHaveAttribute("data-figures", "2");
+  await expect(names).not.toContainText("Personnage");
   const hintFit = await page.evaluate(() => {
     const frame = document.querySelector(".u-maquette-stage");
     const hint = document.querySelector(".u-maquette-hint");
@@ -43,9 +60,16 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(pose).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Annuler" }).click();
   await expect(page.locator("[data-rendre]")).toBeDisabled();
-  await expect(page.getByText("estimation à mesurer").first()).toBeVisible();
+  await expect(page.locator(".u-prise-preview").getByText("estimation à mesurer")).toHaveCount(1);
 
   await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
+  await expect(page.getByRole("navigation").getByRole("button", { name: "MONTAGE" })).toContainText("Prêt");
+  for (const word of ["Voix", "Effets", "Musique"]) {
+    const label = page.locator(".u-track-word", { hasText: word });
+    await expect(label).toHaveText(word);
+    const clipped = await label.evaluate(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1);
+    expect(clipped, word).toBe(false);
+  }
   const viewport = page.viewportSize() ?? { width: 1280, height: 800 };
   for (const track of ["voix", "effets", "musique"]) {
     const row = page.locator(`[data-track=${track}]`);
