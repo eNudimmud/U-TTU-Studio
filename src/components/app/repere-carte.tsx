@@ -154,8 +154,9 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     setPhotoState("load");
     setPhotos([]);
     try {
+      // Les photos ne dépendent pas des bâtiments : un Overpass en panne (406, CORS) ne doit pas les emporter.
       const [block, shots] = await Promise.all([
-        fetchBlock(next, heading, tilt, wide),
+        fetchBlock(next, heading, tilt, wide).then(value => value, () => null),
         chargerPhotos(next.lat, next.lon),
       ]);
       if (block !== "rate") setQuartier(block);
