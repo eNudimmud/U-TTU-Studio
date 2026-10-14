@@ -33,11 +33,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Chrome pour le parcours de la Prise
-        run: |
-          wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt-get update
-          sudo apt-get install -y /tmp/chrome.deb
+      - name: Navigateur Playwright
+        run: npx playwright install --with-deps chromium
       - name: Test
         run: npm test
       - name: Typecheck
@@ -46,3 +43,11 @@ jobs:
         run: npm run build
       - name: Parcours CAST, DÉCOR, PRISE, MONTAGE
         run: npx playwright test
+
+      - name: Preuves navigateur en cas d’échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7

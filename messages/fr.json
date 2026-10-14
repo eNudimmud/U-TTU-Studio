@@ -1381,5 +1381,13 @@
     "photosAdded": "Photo ajoutée aux références.",
     "photosBusy": "Chargement des photos.",
     "reacMontage": "Réaction muette"
+  },
+  "audit": {
+    "mapillaryFail": "Mapillary ne répond pas. Les résultats Panoramax restent disponibles.",
+    "source": "Voir la source",
+    "licenseMissing": "Auteur ou licence incomplet : cette photo ne peut pas être ajoutée aux références.",
+    "photosEmpty": "Aucune photo disponible dans les {radius} m recherchés.",
+    "expand": "Chercher dans un rayon de {radius} m",
+    "retry": "Réessayer"
   }
 }

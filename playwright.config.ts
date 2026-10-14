@@ -11,7 +11,7 @@ export default defineConfig({
   retries: ci ? 1 : 0,
   use: {
     baseURL: "http://127.0.0.1:3000",
-    channel: "chrome",
+    channel: process.env.PLAYWRIGHT_CHANNEL || "chromium",
     locale: "fr-FR",
   },
   webServer: {

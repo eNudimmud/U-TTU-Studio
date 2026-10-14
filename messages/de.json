@@ -1381,5 +1381,13 @@
     "photosAdded": "Foto zu den Referenzen gelegt.",
     "photosBusy": "Fotos werden geladen.",
     "reacMontage": "Stumme Reaktion"
+  },
+  "audit": {
+    "mapillaryFail": "Mapillary ist nicht erreichbar. Panoramax bleibt verfügbar.",
+    "source": "Quelle ansehen",
+    "licenseMissing": "Autor oder Lizenz fehlt: Dieses Foto kann nicht als Referenz gespeichert werden.",
+    "photosEmpty": "Keine Fotos im Umkreis von {radius} m gefunden.",
+    "expand": "Im Umkreis von {radius} m suchen",
+    "retry": "Erneut versuchen"
   }
 }

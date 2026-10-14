@@ -18,10 +18,13 @@ function feature(id: string, href: string, lon: number, links: { rel: string; hr
   };
 }
 
-test("les photos de rue s'affichent même si Overpass refuse", async ({ page }) => {
+test("la recherche par nom atteint les photos même si Overpass refuse", async ({ page }) => {
   const jpg = readFileSync("public/og.jpg");
+  let searches = 0;
+  await page.route("**/photon.komoot.io/api/**", route => route.fulfill({ json: { features: [{ geometry: { coordinates: [2.34063, 48.88805] }, properties: { name: "Rue test" } }] } }));
+  await page.route("**/api.panoramax.xyz/api/instances", route => route.fulfill({ json: { instances: [] } }));
   await page.route("**/overpass-api.de/**", route => route.abort("failed"));
-  await page.route("**/api.panoramax.xyz/api/search**", route => route.fulfill({
+  await page.route("**/api.panoramax.xyz/api/search**", route => { searches++; return route.fulfill({
     status: 200,
     headers: { "access-control-allow-origin": "*" },
     contentType: "application/json",
@@ -29,24 +32,26 @@ test("les photos de rue s'affichent même si Overpass refuse", async ({ page }) 
       feature(ID, IMG, 2.34063, [{ rel: "next", href: `https://api.panoramax.xyz/api/collections/c/items/${NEXT}` }]),
       feature(NEXT, IMG2, 2.34070, [{ rel: "prev", href: `https://api.panoramax.xyz/api/collections/c/items/${ID}` }]),
     ] }),
-  }));
+  }); });
   await page.route("**/panoramax.openstreetmap.fr/**", route => route.fulfill({ status: 200, headers: { "access-control-allow-origin": "*" }, contentType: "image/jpeg", body: jpg }));
 
   await page.goto("/studio");
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
   const lieu = page.getByRole("textbox", { name: /où/i }).first();
-  await lieu.fill("48.88805, 2.34063");
+  await lieu.fill("Rue test Paris");
   await lieu.press("Enter");
   await expect(page.locator("[data-rue-vue]")).toBeVisible();
   await expect(page.getByText("Les photos n'ont pas pu être chargées")).toHaveCount(0);
   await expect(page.locator("[data-rue-credit]")).toContainText("Ada Rue");
+  expect(searches).toBe(1);
+  await expect(page.getByText("Une recherche à la fois.", { exact: true })).toHaveCount(0);
   // Attributions : rien ne recouvre la photo, tout reste lisible sous elle.
   await expect(page.locator(".u-repere-map.is-mini .maplibregl-ctrl-attrib")).toBeHidden();
   const carte = page.locator("[data-carte-credit]");
   await expect(carte).toBeVisible();
   await expect(carte).toContainText("© contributeurs OpenStreetMap, ODbL");
   await expect(carte).toContainText("OpenFreeMap");
-  await expect(page.locator("[data-rue-credit]")).toContainText("CC BY-SA");
+  await expect(page.locator("[data-rue-credit]")).toContainText("CC-BY-SA-4.0");
   for (const sel of ["[data-rue-prev]", "[data-rue-next]", "[data-prendre-vue]"]) {
     const box = await page.locator(sel).boundingBox();
     expect(box!.height).toBeGreaterThanOrEqual(44);

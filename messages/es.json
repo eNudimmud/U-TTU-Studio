@@ -1381,5 +1381,13 @@
     "photosAdded": "Foto añadida a las referencias.",
     "photosBusy": "Cargando fotos.",
     "reacMontage": "Reacción muda"
+  },
+  "audit": {
+    "mapillaryFail": "Mapillary no está disponible. Panoramax sigue disponible.",
+    "source": "Ver fuente",
+    "licenseMissing": "Falta el autor o la licencia: no se puede guardar esta foto como referencia.",
+    "photosEmpty": "No hay fotos en un radio de {radius} m.",
+    "expand": "Buscar en un radio de {radius} m",
+    "retry": "Reintentar"
   }
 }

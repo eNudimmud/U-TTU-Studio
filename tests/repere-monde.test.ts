@@ -141,17 +141,18 @@ describe("photos Mapillary", () => {
   it("reads nearby street photos and keeps the licence", () => {
     const url = mapillaryImagesUrl(48.8867, 2.3431, 6);
     assert.match(url, /graph\.mapillary\.com\/images/);
-    assert.match(url, /radius=50/);
+    assert.match(url, /bbox=/);
+    assert.doesNotMatch(url, /radius=|lat=|lng=/);
     assert.doesNotMatch(url, /access_token/);
     const photos = parseMapillary({
       data: [
-        { id: "101", thumb_256_url: "https://scontent.xx.fbcdn.net/a.jpg", creator: { username: "Ada Rue" }, camera_type: "equirectangular" },
-        { id: "202", thumb_256_url: "https://scontent.xx.fbcdn.net/b.jpg", creator: { username: "Nils Quai" }, camera_type: "perspective" },
+        { id: "101", thumb_256_url: "https://scontent.xx.fbcdn.net/a.jpg", geometry: { coordinates: [2.3431, 48.8867] }, creator: { username: "Ada Rue" }, camera_type: "equirectangular" },
+        { id: "202", thumb_256_url: "https://scontent.xx.fbcdn.net/b.jpg", geometry: { coordinates: [2.3431, 48.8867] }, creator: { username: "Nils Quai" }, camera_type: "perspective" },
         { id: "bad", thumb_256_url: "http://evil.example/x.jpg", creator: { username: "Nope" }, camera_type: "perspective" },
       ],
     });
-    assert.deepEqual(photos.map(item => item.id), ["202"]);
-    assert.equal(photos[0].author, "Nils Quai");
+    assert.deepEqual(photos.map(item => item.id), ["101", "202"]);
+    assert.equal(photos[1].author, "Nils Quai");
     assert.equal(photoCredit("Ada Rue"), "© Ada Rue, Mapillary, CC BY-SA");
     assert.equal(photoCredit("  "), "© Mapillary, Mapillary, CC BY-SA");
     assert.equal(thumbAllowed("https://scontent.xx.fbcdn.net/a.jpg"), true);
@@ -247,7 +248,7 @@ describe("photos Mapillary", () => {
     assert.equal(chain.photos[chain.start].view, "https://panoramax.openstreetmap.fr/derivates/x/sd.jpg");
     assert.equal(chain.photos[1].author, "Ada Rue");
     assert.equal(chain.photos[1].tour, true);
-    assert.equal(chain.photos[1].license, "CC BY-SA");
+    assert.equal(chain.photos[1].license, "CC-BY-SA-4.0");
     assert.equal(chain.start, 0);
     assert.equal(cadrePano({ tour: true, fov: 360 }, 2000, 1000).croppedX, 0);
     assert.ok(cadrePano({ tour: false, fov: 90 }, 1000, 750).fullWidth > 1000);

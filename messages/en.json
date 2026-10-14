@@ -1381,5 +1381,13 @@
     "photosAdded": "Photo added to the references.",
     "photosBusy": "Loading photos.",
     "reacMontage": "Silent reaction"
+  },
+  "audit": {
+    "mapillaryFail": "Mapillary is unavailable. Panoramax results remain available.",
+    "source": "View source",
+    "licenseMissing": "Author or licence missing: this photo cannot be saved as a reference.",
+    "photosEmpty": "No photos found within {radius} m.",
+    "expand": "Search within {radius} m",
+    "retry": "Retry"
   }
 }
