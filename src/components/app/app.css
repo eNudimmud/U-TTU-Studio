@@ -1018,3 +1018,20 @@
 .u-meter.is-busy span { width: 35%; animation: u-final-busy 1.4s ease-in-out infinite; }
 @keyframes u-final-busy { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
 @media (prefers-reduced-motion: reduce) { .u-meter.is-busy span { animation: none; width: 100%; opacity: .5; } }
+
+/* R9 · « Partir de cet exemple » et « Exemple — refais-le » */
+.u-tile-examples { display: flex; flex-wrap: wrap; gap: 0 14px; margin: 0 8px 8px; }
+.u-tile .u-tile-examples .u-link { margin: 0; }
+.u-tile .u-start { font-weight: 700; }
+.u-depart { display: grid; gap: 10px; margin: 0 0 16px; padding: 10px; border: 1px solid var(--u-gold); border-radius: 14px; background: #121110; }
+.u-depart-hit { position: relative; display: block; min-height: 44px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; background: none; cursor: pointer; }
+.u-depart-hit img { display: block; width: 100%; max-height: 300px; object-fit: cover; }
+.u-depart-badge { position: absolute; left: 8px; top: 8px; padding: 6px 10px; border-radius: 999px; background: rgba(0,0,0,.78); color: var(--u-gold); font-size: 13px; font-weight: 700; letter-spacing: .02em; }
+.u-depart figcaption { display: grid; gap: 4px; }
+.u-depart figcaption strong { font-family: Syne, sans-serif; }
+.u-depart figcaption span { color: var(--u-muted, #b9b2a3); font-size: 14px; }
+.u-depart figcaption .u-link { justify-content: flex-start; font-weight: 700; }
+.u-depart-in { position: absolute; inset: 0 0 auto 0; display: flex; justify-content: center; padding: 8px; z-index: 4; }
+.u-depart[data-compact] { grid-template-columns: minmax(96px, 160px) 1fr; align-items: center; width: min(100%, 460px); margin: 0; padding: 8px; background: rgba(18,17,16,.95); }
+.u-depart[data-compact] .u-depart-hit img { height: 84px; max-height: none; }
+.u-depart[data-compact] .u-depart-badge { left: 4px; top: 4px; padding: 3px 7px; font-size: 11px; }

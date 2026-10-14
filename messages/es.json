@@ -1056,6 +1056,7 @@
     "soon": "Pronto",
     "soonQuiet": "Pronto · {names}",
     "seeExample": "Ver un ejemplo",
+    "startExample": "Empezar con este ejemplo",
     "cost": "Unos {amount} créditos. Como máximo {high} créditos (estimación).",
     "costMeasured": "Unos {amount} créditos. Como máximo {high} créditos (medido).",
     "costUnknown": "Presupuesto no medido. No sale nada.",
@@ -1418,5 +1419,13 @@
     "fail": "La finalización no salió: {message}",
     "close": "Cerrar",
     "download": "Descargar"
+  },
+  "depart": {
+    "label": "Ejemplo — rehazlo",
+    "aria": "Empezar con el ejemplo {title}",
+    "cast": "Un resultado real del estudio. Tócalo: foto, nombre y texto se rellenan.",
+    "decor": "Un decorado real del estudio. Tócalo: la referencia, el nombre y el gesto se rellenan.",
+    "prise": "Uttu en el muelle, ya encuadrada. Tócala: personaje, decorado, encuadre y acción se rellenan.",
+    "montage": "Tres planos, una voz y música. Tócalo: el montaje se rellena, no se envía nada."
   }
 }

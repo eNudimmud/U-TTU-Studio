@@ -1056,6 +1056,7 @@
     "soon": "Soon",
     "soonQuiet": "Soon · {names}",
     "seeExample": "See an example",
+    "startExample": "Start from this example",
     "cost": "About {amount} credits. At most {high} credits (estimate).",
     "costMeasured": "About {amount} credits. At most {high} credits (measured).",
     "costUnknown": "Quote not measured. Nothing is sent.",
@@ -1418,5 +1419,13 @@
     "fail": "Finalising did not work: {message}",
     "close": "Close",
     "download": "Download"
+  },
+  "depart": {
+    "label": "Example — make it yours",
+    "aria": "Start from the example {title}",
+    "cast": "A real studio result. Tap it: photo, name and text fill in, you only change them.",
+    "decor": "A real studio set. Tap it: the reference, name and gesture fill in.",
+    "prise": "Uttu on the quay, already framed. Tap it: character, set, framing and action fill in.",
+    "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent."
   }
 }

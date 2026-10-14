@@ -11,6 +11,8 @@ import {
 import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
 import { exportMp4 } from "@/lib/montage/encode";
 import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
+import { montrerDepart } from "@/lib/creation/depart";
+import { ExempleDepart } from "./exemple-depart";
 import { chooseEdit, editFromShots, editHasClips } from "@/lib/montage/from-takes";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { creationAllowed } from "@/lib/creation/quotes";
@@ -778,7 +780,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           {picture ? <img src={picture} alt="" /> : null}
           {hit?.clip.kind === "video" ? <video ref={videoRef} playsInline /> : null}
           {hit?.clip.kind === "slate" ? <p className="u-slate">{t("montage.slate")}</p> : null}
-          {!hit ? <p className="u-slate">{filled ? t("montage.end") : t("montage.empty")}</p> : null}
+          {!hit && montrerDepart({ mesAssets: studio.takes.length, rempli: filled })
+            ? <div className="u-depart-in" onClick={event => event.stopPropagation()}><ExempleDepart etape="montage" compact onStart={() => { commitFrom(historyRef.current, exempleEdit()); setSelected(null); setPanel(null); }} /></div>
+            : !hit ? <p className="u-slate">{filled ? t("montage.end") : t("montage.empty")}</p> : null}
           {hit?.clip.title ? <p className="u-on-title">{hit.clip.title}</p> : null}
           {mix && nextUrl ? <img className="u-fade" src={nextUrl} alt="" style={{ opacity: mix.mix }} /> : mix ? <div className="u-fade" style={{ opacity: mix.mix }} /> : null}
         </div>

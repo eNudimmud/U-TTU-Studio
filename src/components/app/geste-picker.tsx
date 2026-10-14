@@ -6,12 +6,13 @@ import { assetPath } from "@/lib/site";
 import { illustrationGeste } from "@/lib/workflows/tuiles";
 import { REGISTRE, gesteOuvert, type Geste, type Onglet } from "@/lib/workflows/registre";
 
-function Tile({ item, selected, example, onChange, onExample }: {
+function Tile({ item, selected, example, onChange, onExample, onStart }: {
   item: Geste;
   selected: boolean;
   example: boolean;
   onChange(id: string): void;
   onExample?(id: string): void;
+  onStart?(id: string): void;
 }) {
   const { t } = useI18n();
   const file = illustrationGeste(item.id);
@@ -25,7 +26,10 @@ function Tile({ item, selected, example, onChange, onExample }: {
       </span>
     </button>
     {!open && item.raison && <p className="u-tile-why">{t(item.raison)}</p>}
-    {example && onExample && <button type="button" className="u-link" onClick={() => onExample(item.id)}>{t("gestes.seeExample")}</button>}
+    {example && (onExample || onStart) && <div className="u-tile-examples">
+      {onExample && <button type="button" className="u-link" data-voir-exemple={item.id} onClick={() => onExample(item.id)}>{t("gestes.seeExample")}</button>}
+      {onStart && <button type="button" className="u-link u-start" data-partir-exemple={item.id} onClick={() => onStart(item.id)}>{t("gestes.startExample")}</button>}
+    </div>}
   </article>;
 }
 
@@ -43,11 +47,12 @@ function groupsOf(items: readonly Geste[]): { categorie: Geste["categorie"]; row
   return order.map(categorie => ({ categorie, rows: map.get(categorie) ?? [] }));
 }
 
-export function GestePicker({ onglet, value, onChange, onExample, examples = [] }: {
+export function GestePicker({ onglet, value, onChange, onExample, onStart, examples = [] }: {
   onglet: Onglet;
   value: string;
   onChange(id: string): void;
   onExample?(id: string): void;
+  onStart?(id: string): void;
   examples?: readonly string[];
 }) {
   const { t } = useI18n();
@@ -73,14 +78,14 @@ export function GestePicker({ onglet, value, onChange, onExample, examples = [] 
   return <div className="u-gestes">
     <p className="u-label" id="u-gestes-label">{t("gestes.ask")}</p>
     <div className="u-tile-scroll" role="listbox" aria-labelledby="u-gestes-label">
-      {visible.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} />)}
+      {visible.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} onStart={onStart} />)}
     </div>
     {(folded.length > 0 || soon.length > 0) && <button type="button" className="u-link" aria-expanded={more} onClick={() => setMore(current => !current)}>{more ? t("gestes.less") : t("gestes.more")}</button>}
     {more && <>
       {foldedGroups.map(group => <div key={group.categorie} className="u-geste-group">
         {foldedGroups.length > 1 && <p className="u-label">{t(`gestes.cat.${group.categorie}`)}</p>}
         <div className="u-tile-scroll" role="listbox">
-          {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} />)}
+          {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} onStart={onStart} />)}
         </div>
       </div>)}
       {soon.length > 0 && <div className="u-soon">
@@ -88,7 +93,7 @@ export function GestePicker({ onglet, value, onChange, onExample, examples = [] 
         {soonGroups.map(group => <div key={group.categorie} className="u-geste-group">
           {soonGroups.length > 1 && <p className="u-label">{t(`gestes.cat.${group.categorie}`)}</p>}
           <div className="u-tile-scroll" role="listbox" aria-label={t("gestes.soon")}>
-            {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={false} onChange={onChange} onExample={onExample} />)}
+            {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={false} onChange={onChange} onExample={onExample} onStart={onStart} />)}
           </div>
         </div>)}
       </div>}
