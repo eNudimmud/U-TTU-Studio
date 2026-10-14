@@ -12,3 +12,4 @@ next-env.d.ts
 .dev.vars*
 .wrangler/
 fal-smoke-out/
+test-results/

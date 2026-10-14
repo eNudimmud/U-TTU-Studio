@@ -285,7 +285,7 @@ describe("écran PRISE", () => {
     assert.match(source, /Ce que l'app va faire/);
     assert.match(source, /Composer l'image/);
     assert.match(source, /Essai rapide/);
-    assert.match(source, /Finaliser \(agrandir\)/);
+    assert.match(source, /Finaliser au montage/);
     assert.match(source, /Texte envoyé/);
     assert.match(source, /requestRun\(\)/);
     assert.doesNotMatch(source, /confirmRun\(|GestePicker|Bientôt|prise-plan|run_template|submit_workflow|partner_generate|estimate_credits|fal\.ai/);
