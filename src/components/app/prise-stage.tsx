@@ -226,7 +226,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const essai = decide(input, "essai");
   const tourner = decide(input, "tourner");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
-  const showFinal = panel || draft.finalised;
+  const showFinal = draft.finalised;
   const cadre = [captureLine(maquette, tuileById(maquette.tuile).prompt), quartier ? t("r7.rue") : ""].filter(Boolean).join(" ");
   const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision, { cadre });
   const tip = astuce(maquette);
@@ -255,7 +255,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     gold = { label: "★ Garder", price: "", enabled: true, reason: "", composer: false, onClick: keep };
     extra = { label: "Autre prise", price: "", enabled: false, reason: PAS_MESURE, onClick: () => {} };
   } else if (etat === "gardee" || etat === "finalisee") {
-    gold = { label: FINAL_LABEL, price: priceOf(fin.quote), enabled: fin.enabled, reason: fin.reason || PAS_MESURE, composer: false, onClick: () => setPanel(true) };
+    // Finaliser se fait une seule fois, sur tout le montage (R8). La prise gardée y part.
+    gold = { label: FINAL_LABEL, price: "", enabled: true, reason: "", composer: false, onClick: onMontage };
   } else {
     gold = { label: "Composer l'image", price: "", enabled: composer.enabled, reason: composer.reason, composer: true, onClick: () => { if (composer.enabled) setAsk("composer"); } };
     extra = { label: "Essai rapide", price: "", enabled: essai.enabled, reason: essai.reason, onClick: () => { if (essai.enabled) void requestRun(); } };
@@ -674,12 +675,6 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </div>}
       </div>
 
-      {showFinal && <FinalPanel
-        value={{ ...finaliser, media: mediaKind, seconds: input.duree }}
-        onMedia={next => { setMediaKind(next); setFinaliser(finaliserDefaults(next, input.duree)); }}
-        onChange={setFinaliser}
-        plan={fin}
-      />}
 
       <div className="u-prise-actions">
         <p className="u-prise-quote u-bar-quote">{quoteLine}</p>
@@ -748,29 +743,6 @@ function Row({ label, children, className = "" }: { label: string; children: Rea
   </div>;
 }
 
-function FinalPanel({ value, onMedia, onChange, plan }: {
-  value: FinaliserInput;
-  onMedia(next: FinalMedia): void;
-  onChange(next: FinaliserInput): void;
-  plan: ReturnType<typeof chooseFinaliser>;
-}) {
-  return <div className="u-final" data-finaliser="">
-    <p className="u-label">Finaliser</p>
-    <div className="u-choice-row" role="group" aria-label="Ce qu'on agrandit">
-      <button type="button" className="u-chip" aria-pressed={value.media === "video"} onClick={() => onMedia("video")}>La prise</button>
-      <button type="button" className="u-chip" aria-pressed={value.media === "image"} onClick={() => onMedia("image")}>L'image</button>
-    </div>
-    <p className="u-label">Résolution</p>
-    <div className="u-choice-row">
-      <button type="button" className="u-chip" aria-pressed={value.resolution === "1080p"} onClick={() => onChange({ ...value, resolution: "1080p" })}>1080p</button>
-      <button type="button" className="u-chip" disabled aria-describedby="u-why-4k" aria-pressed={false}>4K</button>
-    </div>
-    <p className="u-why" id="u-why-4k">{plan.resolution4k.reason}</p>
-    <button type="button" className="u-chip" aria-pressed={value.nettete} onClick={() => onChange({ ...value, nettete: !value.nettete })}>Netteté et détails</button>
-    {value.media === "video" && <button type="button" className="u-chip" aria-pressed={value.fluidifier} onClick={() => onChange({ ...value, fluidifier: !value.fluidifier })}>Fluidifier</button>}
-  </div>;
-}
-
 function Compare({ before, after, ratio }: { before: string; after: string; ratio: string }) {
   const [pos, setPos] = useState(58);
   return <div className="u-compare">
@@ -797,4 +769,4 @@ function AddPlaceIcon() {
   </svg>;
 }
 
-const FINAL_LABEL = "Finaliser (agrandir)";
+const FINAL_LABEL = "Finaliser au montage";
