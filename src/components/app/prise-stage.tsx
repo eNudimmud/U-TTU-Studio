@@ -20,6 +20,8 @@ import { parseQuartier, type Quartier } from "@/lib/repere/quartier";
 import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, priseMarkdown, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
+import { montrerDepart } from "@/lib/creation/depart";
+import { ExempleDepart } from "./exemple-depart";
 import { FormatSwitch, useFormat } from "./format-switch";
 import { MaquetteView } from "./maquette-view";
 import { useStudio } from "./studio-session";
@@ -118,6 +120,17 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setDrafts(next);
     setCurrentId(next[0]?.id ?? "plan-01");
   }, [ready, format, studio.shots]);
+
+  /** Same fill as ?prise=compose: Uttu and La coursière on the quay, framing, camera and action set. */
+  function partirExemple() {
+    const next = demoDraft("compose", format);
+    seeded.current = false;
+    setSeed("compose");
+    setDrafts([next]);
+    setCurrentId(next.id);
+    setPanel(false);
+    setFinaliser(finaliserDefaults("video", next.input.duree));
+  }
 
   const people = useMemo(() => {
     const cards = cast.length > 0 ? cast : seed === "vide" ? [] : DEMO_CAST;
@@ -540,6 +553,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </div>
         <p className="u-plan-etat">{planWord(draft)}</p>
       </header>
+      {montrerDepart({ mesAssets: cast.length + decor.length + studio.shots.filter(shot => shot.composeur).length, rempli: seed !== "vide" }) && <ExempleDepart etape="prise" onStart={partirExemple} />}
 
       <Row className="u-who-row" label="Qui ?">
         <div className="u-choice-row u-who">

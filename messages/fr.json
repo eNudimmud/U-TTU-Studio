@@ -1056,6 +1056,7 @@
     "soon": "Bientôt",
     "soonQuiet": "Bientôt · {names}",
     "seeExample": "Voir un exemple",
+    "startExample": "Partir de cet exemple",
     "cost": "Environ {amount} crédits. Au maximum {high} crédits (estimation).",
     "costMeasured": "Environ {amount} crédits. Au maximum {high} crédits (mesuré).",
     "costUnknown": "Devis non mesuré. Rien ne part.",
@@ -1418,5 +1419,13 @@
     "fail": "La finalisation n'a pas abouti : {message}",
     "close": "Fermer",
     "download": "Télécharger"
+  },
+  "depart": {
+    "label": "Exemple — refais-le",
+    "aria": "Partir de l’exemple {title}",
+    "cast": "Un vrai résultat du studio. Touche-le : photo, nom et texte se remplissent, tu n’as plus qu’à changer.",
+    "decor": "Un vrai décor du studio. Touche-le : la référence, le nom et le geste se remplissent.",
+    "prise": "Uttu sur le quai, déjà cadrée. Touche-la : personnage, décor, cadrage et action se remplissent.",
+    "montage": "Trois plans, une voix et une musique. Touche-le : le montage se remplit, rien n’est envoyé."
   }
 }

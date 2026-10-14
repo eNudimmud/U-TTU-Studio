@@ -1056,6 +1056,7 @@
     "soon": "Bald",
     "soonQuiet": "Bald · {names}",
     "seeExample": "Ein Beispiel ansehen",
+    "startExample": "Mit diesem Beispiel starten",
     "cost": "Etwa {amount} Credits. Höchstens {high} Credits (Schätzung).",
     "costMeasured": "Etwa {amount} Credits. Höchstens {high} Credits (gemessen).",
     "costUnknown": "Nicht gemessen. Es geht nichts raus.",
@@ -1418,5 +1419,13 @@
     "fail": "Finalisieren hat nicht geklappt: {message}",
     "close": "Schließen",
     "download": "Herunterladen"
+  },
+  "depart": {
+    "label": "Beispiel — mach es nach",
+    "aria": "Mit dem Beispiel {title} starten",
+    "cast": "Ein echtes Studio-Ergebnis. Tippe darauf: Foto, Name und Text werden ausgefüllt.",
+    "decor": "Eine echte Studio-Kulisse. Tippe darauf: Referenz, Name und Geste werden ausgefüllt.",
+    "prise": "Uttu am Kai, schon gerahmt. Tippe darauf: Figur, Kulisse, Bildausschnitt und Handlung werden ausgefüllt.",
+    "montage": "Drei Einstellungen, eine Stimme und Musik. Tippe darauf: der Schnitt wird gefüllt, nichts wird gesendet."
   }
 }
