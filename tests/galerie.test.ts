@@ -8,7 +8,7 @@ import { DEMO_CAST, DEMO_DECOR } from "../src/lib/creation/demo.ts";
 import { spendAllowed } from "../src/lib/creation/quotes.ts";
 import { memoryVault } from "../src/lib/coffre/store.ts";
 
-const BRAND = /fal(?!se|lback)/i;
+const BRAND = /\bfal(?:\.ai)?\b/i;
 const read = (path: string) => readFileSync(path, "utf8");
 
 function stripComments(source: string): string {

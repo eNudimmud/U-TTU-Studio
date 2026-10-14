@@ -348,7 +348,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     <p className="u-repere-credit">{OSM_CREDIT} · {t("r7.creditMap")} · {t("r7.creditPhoton")}{quartier ? ` · ${t("r7.creditBatiments")}` : ""}</p>
     <div className={rue ? "u-rue-frame" : "u-map-slot"}>
       <div className={rue ? "u-repere-map is-mini" : "u-repere-map"} data-pas="1" ref={host} />
-    {photoState === "load" && <p className="u-small">{t("r7.photosBusy")}</p>}
+    {photoState === "load" && <p className="u-small" id="u-why-search">{t("r7.photosBusy")}</p>}
     {photoState === "fail" && <p className="u-small">{t("r7.photosFail")}</p>}
     {photoState === "rate" && <p className="u-why">{t("r7.rate")}</p>}
     {rue && <section className="u-rue" aria-label={t("r7.photosLieu")} data-pas="2" data-photos={demo ? "fixture" : "live"} data-rue-count={photos.length} data-rue-index={index}>
@@ -358,7 +358,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       <div className="u-rue-bar">
         <button type="button" className="u-secondary" data-rue-prev="" disabled={!canPrev} aria-describedby={!canPrev ? "u-why-rue" : undefined} onClick={() => void step(-1)}>{t("r7.vuePrecedente")}</button>
         <button type="button" className="u-secondary" data-rue-next="" disabled={!canNext} aria-describedby={!canNext ? "u-why-rue" : undefined} onClick={() => void step(1)}>{t("r7.vueSuivante")}</button>
-        <button type="button" className="u-secondary" data-prendre-vue="" disabled={Boolean(saving) || (!demo && Boolean(photo) && !reusablePhoto(photo!))} aria-describedby={saving ? "u-why-photo" : undefined} onClick={() => void takeView()}>{t("r7.prendreVue")}</button>
+        <button type="button" className="u-secondary" data-prendre-vue="" disabled={Boolean(saving) || (!demo && Boolean(photo) && !reusablePhoto(photo!))} aria-describedby={saving ? "u-why-photo" : photo && !reusablePhoto(photo) ? "u-why-license" : undefined} onClick={() => void takeView()}>{t("r7.prendreVue")}</button>
         <button type="button" className="u-secondary u-rue-quit" data-rue-quitter="" onClick={() => setPlein(false)}>{t("r7.vueQuitter")}</button>
       </div>
       {stepWhy && <p className="u-why" id="u-why-rue">{stepWhy}</p>}
@@ -366,7 +366,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       <p className="u-small" data-rue-credit="">{photo ? `${photo.author} · ${photo.source === "panoramax" ? "Panoramax" : "Mapillary"} · ${photo.license}${photo.tour ? " · 360°" : ""}` : ""}</p>
       <p className="u-small u-rue-carte-credit" data-carte-credit="">{t("r7.creditCarteMini")} {OSM_CREDIT} · {t("r7.creditMap")}</p>
       {photo && <p className="u-small"><a href={photo.sourceUrl || photoSourceUrl(photo)} target="_blank" rel="noreferrer">{t("audit.source")}</a>{photoLicenseUrl(photo.license) && <> · <a href={photoLicenseUrl(photo.license)} target="_blank" rel="noreferrer">{photo.license}</a></>} · {Math.round(distanceMeters(place.lat, place.lon, photo.lat, photo.lon))} m</p>}
-      {photo && !demo && !reusablePhoto(photo) && <p className="u-why">{t("audit.licenseMissing")}</p>}
+      {photo && !demo && !reusablePhoto(photo) && <p className="u-why" id="u-why-license">{t("audit.licenseMissing")}</p>}
       {photoNote && <p className="u-small" role="status" data-photo-ajoute="">{photoNote}</p>}
     </section>}
     </div>
@@ -377,7 +377,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     </section>}
     {photoState === "empty" && !quartier && <p className="u-small">{t("audit.photosEmpty", { radius })}</p>}
     {mapillaryOff && <p className="u-small">{t("r7.mapillaryOff")}</p>}
-    {(photoState === "empty" || photoState === "fail") && <button type="button" className="u-secondary" disabled={busy} onClick={() => void loadBlock(place, 0, 0, autour, radius < 1000 ? 1000 : 3000)}>{radius < 3000 ? t("audit.expand", { radius: radius < 1000 ? 1000 : 3000 }) : t("audit.retry")}</button>}
+    {(photoState === "empty" || photoState === "fail") && <button type="button" className="u-secondary" disabled={busy} aria-describedby={busy ? "u-why-search" : undefined} onClick={() => void loadBlock(place, 0, 0, autour, radius < 1000 ? 1000 : 3000)}>{radius < 3000 ? t("audit.expand", { radius: radius < 1000 ? 1000 : 3000 }) : t("audit.retry")}</button>}
     <div className="u-repere-views">
       <button type="button" aria-pressed={regard === "debout"} onClick={() => retake("debout", autour)}>{t("r7.debout")}</button>
       <button type="button" aria-pressed={regard === "dessus"} onClick={() => retake("dessus", autour)}>{t("r7.dessus")}</button>
