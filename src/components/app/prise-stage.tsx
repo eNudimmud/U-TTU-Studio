@@ -142,7 +142,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     }));
   }, [cast, media, seed]);
 
-  // Only décors the user made, with pixels. A name-only scene has nothing to film.
+  // Only décors the user made: with pixels, or a real place kept from repérage.
+  // A name-only scene has nothing to film.
   // With none, three labelled house renders stay usable in one tap.
   const mine = useMemo(() => decor
     .map(card => ({
@@ -151,11 +152,12 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       note: card.prompt ?? "",
       src: card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "",
       exemple: false,
+      repere: card.geste === "repere",
     }))
-    .filter(place => place.src), [decor, media]);
+    .filter(place => place.src || place.repere), [decor, media]);
   const places = useMemo(() => {
     if (mine.length > 0) return mine;
-    return DEMO_DECOR.map(card => ({ id: card.id, name: card.name, note: card.prompt, src: card.preview ? assetPath(card.preview) : "", exemple: true }));
+    return DEMO_DECOR.map(card => ({ id: card.id, name: card.name, note: card.prompt, src: card.preview ? assetPath(card.preview) : "", exemple: true, repere: false }));
   }, [mine]);
 
   const castKey = `${drafts.find(item => item.id === currentId)?.input.castIds.join(",") ?? ""}|${people.map(person => `${person.id}:${person.name}`).join(",")}`;

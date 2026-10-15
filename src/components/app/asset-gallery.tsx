@@ -68,7 +68,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
   // R10: a card with no file behind it (a décor named but never rendered) is not an asset yet.
   // It stays in DÉCOR; the gallery only shows what can be seen or heard.
   const visible = useMemo(() => [...assets, ...preview].filter(card => srcOf(card)), [assets, preview, media]);
-  const hidden = assets.length - assets.filter(card => srcOf(card)).length;
+  const hidden = assets.filter(card => card.kind === "decor" && card.geste !== "repere" && !srcOf(card)).length;
   const rows = useMemo(() => filterAssets(visible, filter, query), [visible, filter, query]);
   const current = rows.find(item => item.id === open) ?? null;
 
