@@ -16,6 +16,7 @@
     "@clerk/nextjs": "^7.9.7",
     "@fontsource-variable/manrope": "^5.2.0",
     "@fontsource-variable/syne": "^5.2.0",
+    "@mediabunny/aac-encoder": "1.61.0",
     "@photo-sphere-viewer/core": "^5.15.1",
     "maplibre-gl": "^4.7.1",
     "mediabunny": "^1.61.3",

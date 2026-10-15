@@ -140,6 +140,9 @@ export function initialMaquette(people: readonly CastBody[] = []): MaquetteState
 
 /** Replace the untouched starter once the cast has loaded. Later additions stay. */
 export function seedLead(state: MaquetteState, person: CastBody): MaquetteState {
+  if (state.figures.length === 0 && state.past.length === 0 && person.id && person.name.trim()) {
+    return { ...state, figures: [makeFigure(person, 0)] };
+  }
   if (state.figures.length !== 1 || state.past.length > 0) return state;
   const current = state.figures[0];
   if (!current || current.x !== 0 || current.z !== 0 || current.pose !== 0 || current.yaw !== 0) return state;

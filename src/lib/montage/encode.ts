@@ -4,6 +4,7 @@ import { editDuration, fadeMix, mediaTime, mixInto, mixSpans, playSpan, type Edi
 import { EXPORT_FPS, EXPORT_HEIGHT, EXPORT_WIDTH } from "./export-plan.ts";
 
 const SAMPLE_RATE = 48_000;
+let aacFallback: Promise<void> | null = null;
 
 export interface ExportInput {
   edit: Edit;
@@ -124,7 +125,15 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
   const quality = input.size?.quality === "high" ? mediabunny.QUALITY_HIGH : mediabunny.QUALITY_LOW;
   // Require broadly interoperable MP4 codecs; never silently change the output contract.
   const videoCodec = await mediabunny.getFirstEncodableVideoCodec(["avc"], { width, height, quality });
-  const audioCodec = await mediabunny.getFirstEncodableAudioCodec(["aac"], { numberOfChannels: 2, sampleRate: SAMPLE_RATE, quality });
+  const audioConfig = { numberOfChannels: 2, sampleRate: SAMPLE_RATE, quality };
+  let audioCodec = await mediabunny.getFirstEncodableAudioCodec(["aac"], audioConfig);
+  if (!audioCodec) {
+    // Some browsers decode AAC but cannot encode it. This optional WASM encoder
+    // runs locally and is loaded only for an export that needs it.
+    aacFallback ??= import("@mediabunny/aac-encoder").then(({ registerAacEncoder }) => registerAacEncoder());
+    await aacFallback;
+    audioCodec = await mediabunny.getFirstEncodableAudioCodec(["aac"], audioConfig);
+  }
   if (!videoCodec || !audioCodec) throw new Error("Ce navigateur ne peut pas encoder le MP4 H.264/AAC. Essayez Chrome récent sur ordinateur.");
 
   const frames = Math.max(1, Math.round(seconds * fps));

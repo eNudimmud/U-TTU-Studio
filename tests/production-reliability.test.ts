@@ -9,7 +9,7 @@ import { memoryVault, removeUnreferenced } from '../src/lib/coffre/store.ts';
 import { PENDING_RENDER_KEY, readPending, clearPending, recoverableClient, projectVault, type PendingRender } from '../src/lib/render/recovery.ts';
 import { RenderError, type RenderClient } from '../src/lib/render/client.ts';
 import { placeLandedTake } from '../src/lib/render/settle-take.ts';
-import { initialMaquette, addFigure } from '../src/lib/maquette/state.ts';
+import { initialMaquette, addFigure, seedLead, removeFigure } from '../src/lib/maquette/state.ts';
 import { maquetteJson, readMaquette } from '../src/lib/maquette/persistence.ts';
 import { chooseEdit } from '../src/lib/montage/from-takes.ts';
 import { readFolder } from '../src/lib/coffre/permit.ts';
@@ -23,6 +23,14 @@ const receipt: PendingRender = { version: 1, kind: 'take', project: 'film-a', id
 const graph = {};
 
 describe('parcours de production : données et reprise', () => {
+  it('places the imported cast in an untouched empty scene without undoing a deliberate removal', () => {
+    const empty = { ...initialMaquette(), figures: [] };
+    const placed = seedLead(empty, { id: 'alice', name: 'Alice' });
+    assert.deepEqual(placed.figures.map(figure => figure.id), ['alice']);
+    const removed = removeFigure(placed, 'alice');
+    assert.equal(seedLead(removed, { id: 'alice', name: 'Alice' }), removed);
+  });
+
   it('imports the same filename twice without overwriting bytes, and restores all media from ZIP', async () => {
     const vault = memoryVault();
     await createProject(vault, 'Film A');

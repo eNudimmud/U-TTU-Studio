@@ -257,12 +257,13 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
     setSaving(photo.id);
     setPhotoNote("");
     try {
-      const blob = photo.blob ?? await rueRef.current?.capture() ?? await loadPhoto(photo.view || photo.thumb);
+      const captured = photo.blob ?? await rueRef.current?.capture();
+      const blob = captured ?? await loadPhoto(photo.view || photo.thumb);
       if (!blob || blob.size < 32) {
         setPhotoNote(t("r7.photosFail"));
         return;
       }
-      const credit = `${lineOf(photo)}. Vue recadrée. ${photo.sourceUrl || photoSourceUrl(photo)} — ${photo.licenseUrl || photoLicenseUrl(photo.license)}`;
+      const credit = `${lineOf(photo)}. ${captured ? "Vue recadrée" : "Photo entière"}. ${photo.sourceUrl || photoSourceUrl(photo)} — ${photo.licenseUrl || photoLicenseUrl(photo.license)}`;
       await onPhoto?.(place, regard, autour, volume(), { id: photo.id, author: photo.author, credit, blob });
       setChosen(list => list.includes(photo.id) ? list : [...list, photo.id]);
       setPhotoNote(`${t("r7.photosAdded")} ${credit}`);

@@ -144,6 +144,7 @@ export interface TakeRequest {
 export type FinaliseStage = "envoi" | "file" | "calcul" | "retour" | "mesure";
 
 export interface FinaliseInput {
+  project: string;
   video: Blob;
   name: string;
   seconds: number;
@@ -706,7 +707,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (!creationAllowed(true, fresh?.credits ?? null, quote.ceiling)) return { ok: false, message: t("create.needCeiling") };
     setCreating(true);
     try {
-      const slug = await ensureActiveProject(store());
+      const slug = input.project;
       const vault = projectVault(store(), slug);
       const at = new Date().toISOString();
       const id = `${finalFileId(input.name, input.choice.resolution, new Date(at))}-${crypto.randomUUID().slice(0, 8)}`;
@@ -1150,6 +1151,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     setPickedCast(next.cast[0]?.id ?? null);
     setPickedDecor(next.currentScene);
     setPendingTake(null);
+    setSheet(null);
   }, [reload, store]);
 
   const importAssets = useCallback(async (files: File[], as?: "personnage" | "decor") => {

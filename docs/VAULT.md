@@ -1,6 +1,6 @@
 # Mon studio — la mémoire
 
-Mis à jour le 7 octobre 2026. Le nom produit de ce dossier est **Mon studio**. L’app l’écrit à chaque geste. Obsidian le lit tel quel. Le serveur ne le voit jamais, et ne le synchronise pas.
+Mis à jour le 15 octobre 2026. Le nom produit de ce dossier est **Mon studio**. Obsidian lit son export. Le serveur ne synchronise pas le coffre. Voir les [limites constatées](audit-2026-10-14/rapport.md) ; les références transmises à un rendu quittent bien l’appareil après confirmation.
 
 ## Schéma
 
@@ -37,7 +37,7 @@ Un ZIP ancien (`CANON.md`, `scenes/`, `prises/`, `loras/`) est rangé dans un pr
 
 ## Où il vit
 
-- **Sur l’appareil, dans le navigateur.** IndexedDB, base `uttu-coffre`, un enregistrement par fichier (`path`, texte ou blob). Le studio demande le stockage persistant (`navigator.storage.persist()`). La feuille Mon studio dit ce qui est occupé, et si le navigateur peut le vider.
+- **Sur l’appareil, dans le navigateur.** IndexedDB, base `uttu-coffre`, un enregistrement par fichier (`path`, texte ou blob). Une sauvegarde est confirmée après validation de sa transaction. La demande de stockage persistant et l’indicateur d’occupation de l’ancien contrôleur ne sont pas présents dans le parcours actuel : ne pas supposer que le navigateur a accordé une protection contre l’éviction.
 - **Exporter mon studio.** Un geste : `U-TTU-Studio.zip`, le dossier ci-dessus, `MOC.md` comprise, à décompresser et ouvrir dans Obsidian. Sequences/, la liste `Sequences/<id>-montage.md`, Shots/, les gabarits `modele-*.md` et `.uttu/devis.json` sont dans ce ZIP.
 - **Importer un studio.** Un ZIP du même schéma s’ajoute à mon studio sur cet appareil. Un fichier déjà là n’est pas remplacé. Une fiche illisible, ou qui pointe vers une vidéo ou un fichier absent, ne remplace pas la fiche valide. Le journal et la carte du projet en cours sont réécrits à partir de ce que mon studio peut ouvrir. Le journal et la carte des autres projets reviennent tels qu’exportés.
 - **Relier mon coffre Obsidian.** Page `/mon-studio`. Sur ordinateur, Chrome ou Edge (File System Access) : un geste choisit le dossier. Le studio lit ce dossier, puis y écrit. La permission est mémorisée (IndexedDB `uttu-lien`) et redemandée si le navigateur ne l’accorde plus. Safari, Firefox et le téléphone ne donnent pas ce dossier : la page le dit. Le repli est IndexedDB, plus « Exporter vers Obsidian » (ZIP) et « Importer depuis Obsidian » (ZIP ou dossier).
@@ -60,9 +60,9 @@ L’ancien pilier était un ZIP de départ, téléchargé une fois, que la perso
 
 ## Limites
 
-- **Le navigateur peut vider ce stockage** si l’espace manque et que la persistance n’est pas accordée. La feuille Mon studio le dit. Exporter, ou relier un dossier, garde une copie.
+- **Le navigateur peut vider ce stockage** si l’espace manque et que la persistance n’est pas accordée. Exporter, ou relier un dossier, garde une copie indépendante.
 - **Un studio par navigateur.** Deux appareils ne partagent pas le même dossier. Du téléphone à l’ordinateur, et retour : exporter le ZIP sur l’appareil de départ, emporter ce fichier soi-même, l’importer sur l’autre. Aucun serveur ne le copie. Obsidian ouvre le dossier si on veut le lire à côté.
-- **Le dossier relié se lit au moment où la permission est accordée, puis le studio réécrit ses fichiers.** Un changement fait dans Obsidian pendant que la page est fermée revient au prochain lien, si le fichier est dans le dossier. L’import ZIP ou dossier reste le chemin sans File System Access. Un fichier plus profond que quatre segments n’entre pas.
+- **Le dossier relié se lit avant activation de la liaison.** Si un fichier diffère de la copie locale existante, la liaison est suspendue avec un message ; aucune version divergente n’est écrasée. La résolution du conflit reste manuelle. L’import ZIP ou dossier reste le chemin sans File System Access. Un fichier plus profond que quatre segments n’entre pas.
 
 ## Scorecard — brief futur
 

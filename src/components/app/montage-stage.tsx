@@ -640,8 +640,10 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     const current = historyRef.current.present;
     const seconds = editDuration(current);
     const quote = finalQuote(seconds, finChoice);
-    if (!quote || finGoWhy || exporting.current) return;
+    if (!quote || finGoWhy || exporting.current || !studio.project) return;
     exporting.current = true;
+    const project = studio.project;
+    const sources = new Map([...current.video, ...current.audio].flatMap(clip => clip.source ? [[clip.source, urlOfRef.current(clip.source)] as const] : []));
     const choice = { ...finChoice };
     const confirmed = finConfirm;
     const ratio = projectRatio(current, studio.takes, format);
@@ -649,10 +651,11 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     setFinPhase({ phase: "prepare", done: 0, total: Math.max(1, Math.round(seconds * MASTER.fps)) });
     void exportMp4({
       edit: current,
-      urlOf: source => urlOfRef.current(source),
+      urlOf: source => sources.get(source) ?? "",
       onProgress: (done, total) => setFinPhase({ phase: "prepare", done, total }),
       size: { ...size, fps: MASTER.fps, quality: "high" },
     }).then(video => finaliseMontage({
+      project,
       video,
       name: current.name,
       seconds,

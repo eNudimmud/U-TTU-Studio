@@ -24,7 +24,7 @@ function markOf(kind: AssetKind): MarkKind {
   return "note";
 }
 
-export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh, onImport, onRename, onDuplicate, onDelete, onCopy, onUseRef, onPrise, onMontage, projects = [] }: {
+export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh, onImport, onRename, onDuplicate, onDelete, onCopy, onUseRef, onPrise, onMontage, onEmptyDecor, projects = [] }: {
   assets: AssetRecord[];
   media: Record<string, string>;
   defaultFilter?: AssetFilter;
@@ -37,6 +37,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
   onUseRef?(asset: AssetRecord): void;
   onPrise?(asset: AssetRecord): void;
   onMontage?(asset: AssetRecord): void;
+  onEmptyDecor?(): void;
   projects?: { slug: string; name: string }[];
 }) {
   const { t } = useI18n();
@@ -62,10 +63,14 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     }
   }, [assets]);
 
-  const rows = useMemo(() => filterAssets([...assets, ...preview], filter, query), [assets, preview, filter, query]);
-  const current = rows.find(item => item.id === open) ?? null;
   const isVideo = (card: AssetRecord) => /\.(mp4|webm|mov)$/i.test(card.media || card.preview || "");
   const srcOf = (card: AssetRecord) => card.preview ? assetPath(card.preview) : (card.media && media[card.media]) || "";
+  // R10: a card with no file behind it (a décor named but never rendered) is not an asset yet.
+  // It stays in DÉCOR; the gallery only shows what can be seen or heard.
+  const visible = useMemo(() => [...assets, ...preview].filter(card => srcOf(card)), [assets, preview, media]);
+  const hidden = assets.filter(card => card.kind === "decor" && card.geste !== "repere" && !srcOf(card)).length;
+  const rows = useMemo(() => filterAssets(visible, filter, query), [visible, filter, query]);
+  const current = rows.find(item => item.id === open) ?? null;
 
   function toggle(id: string) {
     setPicked(list => list.includes(id) ? list.filter(item => item !== id) : [...list, id]);
@@ -104,6 +109,10 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       </label>}
       {onRefresh && <button type="button" className="u-icon" aria-label={t("assets.refresh")} onClick={onRefresh}><Refresh /></button>}
     </div>
+    {hidden > 0 && onEmptyDecor && <div className="u-gallery-hidden" data-sans-image={hidden}>
+      <span>{hidden === 1 ? "1 lieu sans image attend dans DÉCOR." : `${hidden} lieux sans image attendent dans DÉCOR.`}</span>
+      <button type="button" onClick={onEmptyDecor}>Les créer</button>
+    </div>}
     {picked.length > 0 && <p className="u-small">{t("assets.selected", { count: picked.length })}</p>}
     {current && <article className="u-detail u-asset-detail">
       {srcOf(current) ? (isVideo(current) ? <video src={srcOf(current)} controls playsInline preload="metadata" /> : <img src={srcOf(current)} alt="" />) : <KindMark kind={markOf(current.kind)} />}

@@ -1,5 +1,17 @@
 # U*TTU Studio
 
+## État du parcours — audit du 15 octobre 2026
+
+Le parcours actuel comporte quatre espaces : **CAST → DÉCOR → PRISE → MONTAGE**, puis export. Le coffre principal est IndexedDB dans le navigateur ; le dossier Obsidian et le ZIP sont des copies portables, sans synchronisation entre appareils.
+
+Les corrections de fiabilité sont proposées dans les PR [#104](https://github.com/eNudimmud/U-TTU-Studio/pull/104) et [#107](https://github.com/eNudimmud/U-TTU-Studio/pull/107), sans fusion ni dépense cloud pendant l’audit. Les tests avec des réponses cloud simulées ne valident pas les générations réelles.
+
+Lire le [rapport technique](docs/audit-2026-10-14/rapport.md), la [matrice des fonctions](docs/audit-2026-10-14/matrice.md), les [anomalies](docs/audit-2026-10-14/anomalies.md) et les [preuves et limites de validation](docs/audit-2026-10-14/validation.md). Le profil vidéo actuellement autorisé est H3, 4 pas, 5 s, vertical ; les autres profils restent fermés sans mesure. Les bibliothèques LoRA/fal/Farpy historiques ne sont pas exposées par le contrôleur actuel des quatre espaces.
+
+## Description historique et documentation de démarrage
+
+Les sections suivantes conservent l’historique des versions précédentes. Les mentions de trois gestes, de LoRA accessible, de première prise jamais exécutée ou de plafonds garantis ne décrivent pas l’état audité. Les mesures historiques du dépôt ne sont pas des tests répétés pendant cet audit.
+
 > **Ton personnage. Ta scène. La prise.** Un studio vidéo dans la poche.
 
 Site en français (FR-CH). `/studio` est une app : on forme un personnage, on pose une scène, on tourne une prise vidéo, on la voit, on la publie, sans quitter la page. Le rendu tourne dans le cloud, sur le compte Comfy Cloud de la personne. Le studio ne vend rien, ne garde aucun compte de visiteur, et ne voit pas les fichiers : ils vivent dans un coffre Obsidian sur l’appareil.

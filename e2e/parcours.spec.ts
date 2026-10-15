@@ -30,13 +30,15 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   const view = page.locator("[data-rue-vue]");
   const canvas = page.locator(".u-rue-canvas");
   await canvas.waitFor();
-  await view.scrollIntoViewIfNeeded();
+  // Hover waits for a stable, hittable point after the map changes layout.
+  await canvas.hover();
   const angleBefore = await view.getAttribute("data-cap");
   const viewBox = await canvas.boundingBox();
   expect(viewBox).toBeTruthy();
-  await page.mouse.move(viewBox!.x + 40, viewBox!.y + 50);
+  const center = { x: viewBox!.x + viewBox!.width / 2, y: viewBox!.y + viewBox!.height / 2 };
+  await page.mouse.move(center.x, center.y);
   await page.mouse.down();
-  await page.mouse.move(viewBox!.x + 180, viewBox!.y + 50, { steps: 10 });
+  await page.mouse.move(center.x + 100, center.y, { steps: 10 });
   await page.mouse.up();
   await expect(view).not.toHaveAttribute("data-cap", angleBefore ?? "");
   await expect(page.locator("[data-photos=fixture]")).toBeVisible();

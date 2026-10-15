@@ -1434,6 +1434,7 @@
     "licenseMissing": "Falta el autor o la licencia: no se puede guardar esta foto como referencia.",
     "photosEmpty": "No hay fotos en un radio de {radius} m.",
     "expand": "Buscar en un radio de {radius} m",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "flatPhoto": "Foto completa: la vista panorámica no está disponible en este navegador."
   }
 }
