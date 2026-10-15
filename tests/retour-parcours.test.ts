@@ -12,9 +12,9 @@ describe("retour sur PRISE", () => {
     const prise = readFileSync("src/components/app/prise-stage.tsx", "utf8");
     assert.match(prise, /data-lire-sequence/);
     assert.match(prise, /★ Garder/);
-    assert.match(prise, /Finaliser \(agrandir\)/);
+    assert.match(prise, /Finaliser au montage/);
     assert.match(prise, /data-envoyer-montage/);
     assert.match(prise, /r7\.envoyer/);
-    assert.ok(prise.indexOf("data-lire-sequence") < prise.indexOf("Finaliser (agrandir)"));
+    assert.ok(prise.indexOf("data-lire-sequence") < prise.indexOf("Finaliser au montage"));
   });
 });

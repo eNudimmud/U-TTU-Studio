@@ -9,6 +9,8 @@ export interface ExportInput {
   edit: Edit;
   urlOf(source: string): string;
   onProgress(done: number, total: number): void;
+  /** Taille et cadence du fichier. Par défaut, l'export léger du téléphone. */
+  size?: { width: number; height: number; fps: number; quality: "low" | "high" };
 }
 
 function contain(
@@ -90,17 +92,18 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
   const seconds = editDuration(input.edit);
   if (!(seconds > 0)) throw new Error("empty");
   const mediabunny = await import("mediabunny");
-  const width = EXPORT_WIDTH;
-  const height = EXPORT_HEIGHT;
+  const width = input.size?.width ?? EXPORT_WIDTH;
+  const height = input.size?.height ?? EXPORT_HEIGHT;
+  const fps = input.size?.fps ?? EXPORT_FPS;
   const format = new mediabunny.Mp4OutputFormat();
-  const quality = mediabunny.QUALITY_LOW;
+  const quality = input.size?.quality === "high" ? mediabunny.QUALITY_HIGH : mediabunny.QUALITY_LOW;
   // H.264 and AAC come first in mediabunny’s lists. A browser without them still writes MP4 with the next codec it can encode.
   const videoCodec = await mediabunny.getFirstEncodableVideoCodec(format.getSupportedVideoCodecs(), { width, height, quality });
   const audioCodec = await mediabunny.getFirstEncodableAudioCodec(format.getSupportedAudioCodecs(), { numberOfChannels: 2, sampleRate: SAMPLE_RATE, quality });
   if (!videoCodec || !audioCodec) throw new Error("unsupported");
 
-  const frames = Math.max(1, Math.round(seconds * EXPORT_FPS));
-  const frameDuration = 1 / EXPORT_FPS;
+  const frames = Math.max(1, Math.round(seconds * fps));
+  const frameDuration = 1 / fps;
   const images = new Map<string, HTMLImageElement>();
   for (const clip of input.edit.video) {
     if (clip.kind !== "image" || !clip.source || images.has(clip.source)) continue;
@@ -121,8 +124,8 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
 
   const target = new mediabunny.BufferTarget();
   const output = new mediabunny.Output({ format, target });
-  const picture = new mediabunny.CanvasSource(canvas, { codec: videoCodec, quality: mediabunny.QUALITY_LOW });
-  const sound = new mediabunny.AudioBufferSource({ codec: audioCodec, quality: mediabunny.QUALITY_LOW });
+  const picture = new mediabunny.CanvasSource(canvas, { codec: videoCodec, quality });
+  const sound = new mediabunny.AudioBufferSource({ codec: audioCodec, quality });
   output.addVideoTrack(picture);
   output.addAudioTrack(sound);
   await output.start();

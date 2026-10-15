@@ -57,7 +57,7 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.match(prise, /data-lire-sequence/);
     assert.match(prise, /PAS_MESURE/);
     assert.match(read("src/lib/prise/copy.ts"), /Pas encore mesuré/);
-    assert.match(prise, /Finaliser \(agrandir\)/);
+    assert.match(prise, /Finaliser au montage/);
     assert.match(read("src/components/app/studio-app.tsx"), /data-state=\{marks\[step\.id\] \? "pret" : "vide"\}/);
     const drawer = read("src/components/app/studio-drawer.tsx");
     assert.match(drawer, /t\("nav\.character"\)/);

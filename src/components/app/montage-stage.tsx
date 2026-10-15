@@ -11,6 +11,8 @@ import {
 import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
 import { exportMp4 } from "@/lib/montage/encode";
 import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
+import { montrerDepart } from "@/lib/creation/depart";
+import { ExempleDepart } from "./exemple-depart";
 import { chooseEdit, editFromShots, editHasClips } from "@/lib/montage/from-takes";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { creationAllowed } from "@/lib/creation/quotes";
@@ -18,6 +20,8 @@ import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import { Close, Expand, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
 import { useStudio } from "./studio-session";
 import { gesteOuvert, gesteParId } from "@/lib/workflows/registre";
+import { FINAL_MAX_SECONDS, MASTER, finalQuote, masterSize, type FinalChoice, type FinalNettoyage, type FinalResolution } from "@/lib/montage/finaliser";
+import type { FinaliseStage } from "./studio-session";
 
 function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   if (!on || !text) return null;
@@ -67,7 +71,13 @@ type ExportPhase = { phase: "idle" } | { phase: "run"; done: number; total: numb
 
 const AUDIO_EXT = new Set(["wav", "mp3", "m4a", "ogg", "webm", "mp4"]);
 const TRACK_LABEL_PX = 56;
-type Panel = null | "more" | "confirm" | "export" | "video" | AudioTrackId;
+type Panel = null | "more" | "confirm" | "export" | "finaliser" | "video" | AudioTrackId;
+type FinalPhase =
+  | { phase: "idle" }
+  | { phase: "prepare"; done: number; total: number }
+  | { phase: "run"; stage: FinaliseStage; seconds: number }
+  | { phase: "done"; url: string; path: string; cost: number | null }
+  | { phase: "fail"; message: string };
 
 function rulerStep(px: number): number {
   if (px >= 96) return 1;
@@ -91,7 +101,10 @@ function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: strin
 export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => void }) {
   const { t } = useI18n();
   const { locale } = useLocaleSwitch();
-  const { ready, studio, media, connected, balance, creating, createStem, loadMontages, saveMontage, pendingClip, holdClip } = useStudio();
+  const { ready, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip } = useStudio();
+  const [finChoice, setFinChoice] = useState<FinalChoice>({ resolution: "1080p", nettoyer: "aucun" });
+  const [finConfirm, setFinConfirm] = useState(false);
+  const [finPhase, setFinPhase] = useState<FinalPhase>({ phase: "idle" });
   const [history, setHistory] = useState<History<Edit>>(() => historyOf(exempleEdit()));
   const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -558,6 +571,15 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const size = estimate ? (estimate.bytes >= 1_000_000
     ? t("montage.sizeMb", { amount: (estimate.bytes / 1_000_000).toFixed(1).replace(".", comma ? "," : ".") })
     : t("montage.sizeKb", { amount: String(Math.max(1, Math.round(estimate.bytes / 1000))) })) : "";
+  const finBusy = finPhase.phase === "prepare" || finPhase.phase === "run";
+  const finQuote = finalQuote(duration, finChoice);
+  const num = (value: number) => comma ? String(value).replace(".", ",") : String(value);
+  const finOpenWhy = duration <= 0 ? t("finaliser.empty") : duration > FINAL_MAX_SECONDS ? t("finaliser.long") : "";
+  const finGoWhy = finOpenWhy || (finBusy ? t("finaliser.busy")
+    : !finQuote ? t("finaliser.noQuote")
+    : !connected ? t("finaliser.needLink")
+    : balance && balance.credits < finQuote.ceiling ? t("finaliser.needCeiling", { ceiling: num(finQuote.ceiling) })
+    : !finConfirm ? t("finaliser.needConfirm") : "");
   const voice = voiceQuote(script.trim().length);
   const effect = sfxQuote(SFX_DEFAULT_SECONDS);
   const music = musicQuote();
@@ -588,6 +610,33 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       link.click();
       setExportPhase({ phase: "done", bytes: blob.size });
     }).catch(() => setExportPhase({ phase: "fail" }));
+  }
+
+  function runFinal() {
+    const current = historyRef.current.present;
+    const seconds = editDuration(current);
+    const quote = finalQuote(seconds, finChoice);
+    if (!quote || finGoWhy) return;
+    const ratio = projectRatio(current, studio.takes);
+    const size = masterSize(ratio);
+    setFinPhase({ phase: "prepare", done: 0, total: Math.max(1, Math.round(seconds * MASTER.fps)) });
+    void exportMp4({
+      edit: current,
+      urlOf: source => urlOfRef.current(source),
+      onProgress: (done, total) => setFinPhase({ phase: "prepare", done, total }),
+      size: { ...size, fps: MASTER.fps, quality: "high" },
+    }).then(video => finaliseMontage({
+      video,
+      name: current.name,
+      seconds,
+      ratio,
+      choice: finChoice,
+      confirmed: finConfirm,
+      onStage: (stage, elapsed) => setFinPhase({ phase: "run", stage, seconds: elapsed ?? 0 }),
+    })).then(outcome => {
+      setFinConfirm(false);
+      setFinPhase(outcome.ok ? { phase: "done", url: outcome.url, path: outcome.path, cost: outcome.cost } : { phase: "fail", message: outcome.message });
+    }).catch(error => setFinPhase({ phase: "fail", message: error instanceof Error ? error.message : "" }));
   }
 
   function thumbOf(clip: VideoClip): string {
@@ -645,9 +694,15 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         <p className="u-label">04</p>
         <h1 id="u-title" tabIndex={-1}>{t("nav.edit")}</h1>
       </div>
+      <span className="u-bar-actions">
       <span className="u-tool-slot">
         <button type="button" className="u-export" data-export-open="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => setPanel("export")}>{t("montage.exportShort")}</button>
         {exportBlocked && <span className="u-tip" id="u-why-export" role="tooltip">{exportWhy}</span>}
+      </span>
+      <span className="u-tool-slot">
+        <button type="button" className="u-export u-final-open" data-finaliser-open="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} onClick={() => setPanel("finaliser")}><Spark />{t("finaliser.open")}</button>
+        {finOpenWhy && !finBusy && <span className="u-tip" id="u-why-final" role="tooltip">{finOpenWhy}</span>}
+      </span>
       </span>
     </header>
     <div className="u-capcut">
@@ -725,7 +780,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           {picture ? <img src={picture} alt="" /> : null}
           {hit?.clip.kind === "video" ? <video ref={videoRef} playsInline /> : null}
           {hit?.clip.kind === "slate" ? <p className="u-slate">{t("montage.slate")}</p> : null}
-          {!hit ? <p className="u-slate">{filled ? t("montage.end") : t("montage.empty")}</p> : null}
+          {!hit && montrerDepart({ mesAssets: studio.takes.length, rempli: filled })
+            ? <div className="u-depart-in" onClick={event => event.stopPropagation()}><ExempleDepart etape="montage" compact onStart={() => { commitFrom(historyRef.current, exempleEdit()); setSelected(null); setPanel(null); }} /></div>
+            : !hit ? <p className="u-slate">{filled ? t("montage.end") : t("montage.empty")}</p> : null}
           {hit?.clip.title ? <p className="u-on-title">{hit.clip.title}</p> : null}
           {mix && nextUrl ? <img className="u-fade" src={nextUrl} alt="" style={{ opacity: mix.mix }} /> : mix ? <div className="u-fade" style={{ opacity: mix.mix }} /> : null}
         </div>
@@ -946,6 +1003,54 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         {exportPhase.phase === "run" && <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={exportPhase.total} aria-valuenow={exportPhase.done}><span style={{ width: `${exportPhase.total ? (100 * exportPhase.done) / exportPhase.total : 0}%` }} /></div>}
         {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")}</p>}
         {exportPhase.phase === "done" && <p className="u-small">{t("montage.exportDone")}</p>}
+      </div>
+    </div>}
+    {panel === "finaliser" && <div className="u-overlay" role="presentation" onClick={event => { if (event.target === event.currentTarget && !finBusy) setPanel(null); }}>
+      <div className="u-sheet u-final-sheet" role="dialog" aria-modal="true" aria-labelledby="u-final-title" data-final={finPhase.phase}>
+        <div className="u-sheet-head">
+          <h2 id="u-final-title">{t("finaliser.title")}</h2>
+          <button type="button" className="u-icon" aria-label={t("finaliser.close")} disabled={finBusy} aria-describedby={finBusy ? "u-why-final-close" : undefined} onClick={() => setPanel(null)}><Close /></button>
+        </div>
+        {finBusy && <span className="sr-only" id="u-why-final-close">{t("finaliser.keepOpen")}</span>}
+        {(finPhase.phase === "idle" || finPhase.phase === "fail") && <>
+          <p className="u-small">{t("finaliser.lead")}</p>
+          <p className="u-label">{t("finaliser.resolution")}</p>
+          <div className="u-choice-row" role="group" aria-label={t("finaliser.resolution")}>
+            {(["1080p", "4k"] as FinalResolution[]).map(value => <button key={value} type="button" className="u-chip" aria-pressed={finChoice.resolution === value} onClick={() => { setFinChoice(current => ({ ...current, resolution: value })); setFinConfirm(false); }}>{value === "4k" ? "4K" : "1080p"}</button>)}
+          </div>
+          <p className="u-label">{t("finaliser.nettoyer")}</p>
+          <div className="u-choice-row" role="group" aria-label={t("finaliser.nettoyer")}>
+            {(["aucun", "bruit", "flou"] as FinalNettoyage[]).map(value => <button key={value} type="button" className="u-chip" aria-pressed={finChoice.nettoyer === value} onClick={() => { setFinChoice(current => ({ ...current, nettoyer: value })); setFinConfirm(false); }}>{t(`finaliser.${value}`)}</button>)}
+          </div>
+          {finQuote && <div className="u-final-quote" data-final-quote={finQuote.kind}>
+            <p className="u-cost is-ok">{t("finaliser.quote", { credits: num(finQuote.credits), ceiling: num(finQuote.ceiling) })}</p>
+            <p className="u-small">{t("finaliser.seconds", { seconds: num(Math.round(duration * 10) / 10) })} {t(finQuote.kind === "mesure" ? "finaliser.measured" : "finaliser.estimate")}</p>
+          </div>}
+          {finQuote && <button type="button" role="checkbox" className="u-final-confirm" data-final-confirm="" aria-checked={finConfirm} onClick={() => setFinConfirm(current => !current)}>
+            <span className="u-final-box" aria-hidden="true">{finConfirm ? "✓" : ""}</span>
+            <span>{t("finaliser.confirm", { ceiling: num(finQuote.ceiling) })}</span>
+          </button>}
+          <button type="button" className="u-primary" data-final-go="" disabled={Boolean(finGoWhy)} aria-describedby={finGoWhy ? "u-why-final-go" : undefined} onClick={runFinal}>{t("finaliser.go", { credits: num(finQuote?.credits ?? 0) })}</button>
+          <Why on={Boolean(finGoWhy)} id="u-why-final-go" text={finGoWhy} />
+          {finPhase.phase === "fail" && <p className="u-why" role="alert">{t("finaliser.fail", { message: finPhase.message })}</p>}
+        </>}
+        {finPhase.phase === "prepare" && <>
+          <p className="u-small" aria-live="polite">{t("finaliser.prepare")}</p>
+          <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={finPhase.total} aria-valuenow={finPhase.done}><span style={{ width: `${(100 * finPhase.done) / finPhase.total}%` }} /></div>
+          <p className="u-small">{t("finaliser.keepOpen")}</p>
+        </>}
+        {finPhase.phase === "run" && <>
+          <p className="u-small" aria-live="polite" data-final-stage={finPhase.stage}>{t(`finaliser.${finPhase.stage}`, { seconds: finPhase.seconds })}</p>
+          <div className="u-meter is-busy" role="progressbar" aria-busy="true"><span /></div>
+          <p className="u-small">{t("finaliser.keepOpen")}</p>
+        </>}
+        {finPhase.phase === "done" && <>
+          <p className="u-cost is-ok" role="status">{t("finaliser.done")}</p>
+          <video className="u-final-video" src={finPhase.url} controls playsInline style={{ aspectRatio: ratio === "9/16" ? "9 / 16" : "16 / 9" }} />
+          <p className="u-small">{finPhase.cost !== null ? t("finaliser.cost", { credits: num(finPhase.cost) }) : t("finaliser.costUnknown")}</p>
+          <a className="u-secondary u-final-download" href={finPhase.url} download={finPhase.path.split("/").pop()}>{t("finaliser.download")}</a>
+          <button type="button" className="u-link" onClick={() => setFinPhase({ phase: "idle" })}>{t("finaliser.again")}</button>
+        </>}
       </div>
     </div>}
   </section>;

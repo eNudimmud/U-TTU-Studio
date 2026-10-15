@@ -64,6 +64,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
 
   const rows = useMemo(() => filterAssets([...assets, ...preview], filter, query), [assets, preview, filter, query]);
   const current = rows.find(item => item.id === open) ?? null;
+  const isVideo = (card: AssetRecord) => /\.(mp4|webm|mov)$/i.test(card.media || card.preview || "");
   const srcOf = (card: AssetRecord) => card.preview ? assetPath(card.preview) : (card.media && media[card.media]) || "";
 
   function toggle(id: string) {
@@ -105,7 +106,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     </div>
     {picked.length > 0 && <p className="u-small">{t("assets.selected", { count: picked.length })}</p>}
     {current && <article className="u-detail u-asset-detail">
-      {srcOf(current) ? <img src={srcOf(current)} alt="" /> : <KindMark kind={markOf(current.kind)} />}
+      {srcOf(current) ? (isVideo(current) ? <video src={srcOf(current)} controls playsInline preload="metadata" /> : <img src={srcOf(current)} alt="" />) : <KindMark kind={markOf(current.kind)} />}
       <h3>{current.name}</h3>
       {current.prompt && <p>{current.prompt}</p>}
       <dl>
@@ -144,7 +145,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
             if (selecting) { toggle(card.id); return; }
             setOpen(card.id);
           }}>
-            <span className="u-thumb">{src ? <img src={src} alt="" /> : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}</span>
+            <span className="u-thumb">{src ? (isVideo(card) ? <video src={`${src}#t=0.1`} muted playsInline preload="metadata" aria-hidden="true" /> : <img src={src} alt="" />) : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}</span>
           </button>
           <span className="u-asset-name">{card.name}</span>
           <button type="button" className="u-asset-check" aria-pressed={selected} aria-label={t("assets.select")} onPointerDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); toggle(card.id); }}>

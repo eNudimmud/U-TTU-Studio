@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
+import { DEPARTS, montrerDepart } from "@/lib/creation/depart";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { creationAllowed, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
@@ -9,6 +10,7 @@ import { casesVisibles, gesteOuvert, gesteParId, mapReferences, type Onglet, typ
 import { APRES_PAR_GESTE, EXEMPLE_PAR_GESTE } from "@/lib/workflows/tuiles";
 import { useI18n } from "@/components/i18n/provider";
 import { Arrow } from "./glyphs";
+import { ExempleDepart } from "./exemple-depart";
 import { GestePicker } from "./geste-picker";
 import { ProjectGallery } from "./project-gallery";
 import { RepereCarte } from "./repere-carte";
@@ -114,7 +116,7 @@ function CreateConfirm({ title, amount, high, onCancel, onYes }: { title: string
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
   const { t } = useI18n();
-  const { media, createCast, connected, balance, creating } = useStudio();
+  const { media, createCast, connected, balance, creating, cast } = useStudio();
   const [gesteId, setGesteId] = useState("cast-photos");
   useEffect(() => {
     const asked = gesteFromQuery("cast", "");
@@ -139,9 +141,17 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : missingTenue ? t("gestes.needOutfit") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
+  const depart = montrerDepart({ mesAssets: cast.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
   const ceiling = amount !== null && high !== null
     ? t(row.nature === "mesure" ? "create.ceilingMeasured" : "create.ceilingHyp", { high })
     : "";
+
+
+  function voirExemple(geste: string) {
+    setGesteId(geste);
+    setGalleryOpen(false);
+    requestAnimationFrame(() => document.querySelector(".u-depart, .u-result-frame")?.scrollIntoView({ block: "center", behavior: "smooth" }));
+  }
 
   async function loadExemple(geste: string) {
     const pair = EXEMPLE_PAR_GESTE[geste];
@@ -188,7 +198,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     section="cast"
     galleryOpen={galleryOpen}
     onGallery={setGalleryOpen}
-    gestures={<GestePicker onglet="cast" value={gesteId} onChange={setGesteId} examples={["cast-photos", "cast-planche", "cast-texte"]} onExample={id => void loadExemple(id)} />}
+    gestures={<GestePicker onglet="cast" value={gesteId} onChange={setGesteId} examples={["cast-photos", "cast-planche", "cast-texte"]} onExample={voirExemple} onStart={id => void loadExemple(id)} />}
     gallery={<ProjectGallery defaultFilter="personnage" onUseRef={asset => {
       const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
       setRefs(list => placeAsset(gesteId, list, asset, url));
@@ -200,6 +210,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <p className="u-lead">{t("create.castLead")}</p>
     </header>
     <div className="u-desk-scroll">
+      {depart && <ExempleDepart etape="cast" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.cast.geste)} />}
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>
@@ -209,7 +220,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         <span className="u-label">{t("create.prompt")}</span>
         <textarea value={prompt} rows={3} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => setPrompt(event.target.value)} />
       </label>
-      {(apres || preview) && <div className="u-result-frame" data-ratio="3/4">
+      {!depart && (apres || preview) && <div className="u-result-frame" data-ratio="3/4">
         <img src={apres || preview} alt="" />
       </div>}
     </div>
@@ -229,7 +240,7 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { media, createDecor, connected, balance, creating, saveLieu, saveLieuPhoto } = useStudio();
+  const { media, createDecor, connected, balance, creating, saveLieu, saveLieuPhoto, decor } = useStudio();
   const [gesteId, setGesteId] = useState("decor-photo");
   useEffect(() => {
     const asked = gesteFromQuery("decor", "");
@@ -253,7 +264,15 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
+  const depart = montrerDepart({ mesAssets: decor.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
   const ceiling = amount !== null && high !== null ? t("create.ceilingHyp", { high }) : "";
+
+
+  function voirExemple(geste: string) {
+    setGesteId(geste);
+    setGalleryOpen(false);
+    requestAnimationFrame(() => document.querySelector(".u-depart, .u-result-frame")?.scrollIntoView({ block: "center", behavior: "smooth" }));
+  }
 
   async function loadExemple(geste: string) {
     const pair = EXEMPLE_PAR_GESTE[geste];
@@ -284,7 +303,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     section="decor"
     galleryOpen={galleryOpen}
     onGallery={setGalleryOpen}
-    gestures={<GestePicker onglet="decor" value={gesteId} onChange={setGesteId} examples={["decor-photo", "decor-heure", "decor-texte"]} onExample={id => void loadExemple(id)} />}
+    gestures={<GestePicker onglet="decor" value={gesteId} onChange={setGesteId} examples={["decor-photo", "decor-heure", "decor-texte"]} onExample={voirExemple} onStart={id => void loadExemple(id)} />}
     gallery={<ProjectGallery defaultFilter="decor" onUseRef={asset => {
       const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
       setRefs(list => placeAsset(gesteId, list, asset, url));
@@ -296,6 +315,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <p className="u-lead">{t("create.decorLead")}</p>
     </header>
     <div className="u-desk-scroll">
+      {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
       <RepereCarte
         onSave={async (place, regard, autour, quartier) => { await saveLieu({ name: place.name, note: lieuNote(place, regard, autour), quartier }); }}
         onPhoto={async (place, regard, autour, quartier, photo) => {
@@ -317,7 +337,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         <span className="u-label">{t("create.prompt")}</span>
         <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
       </label>
-      {(apres || preview) && <div className="u-result-frame">
+      {!depart && (apres || preview) && <div className="u-result-frame">
         <img src={apres || preview} alt="" />
       </div>}
     </div>

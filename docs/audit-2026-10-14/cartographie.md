@@ -26,7 +26,9 @@ Inspection commencée le 13 octobre 2026, poursuivie le 14 octobre. Aucun rendu 
 - 16 tests unitaires cartographiques réussis (parseurs, rayons, licences, fédération, chaînes).
 - Régression Playwright ajoutée : recherche par nom rapide, Overpass en panne, photos visibles, attribution et boutons tactiles. Ses services externes sont simulés : ce test ne certifie pas la disponibilité des fournisseurs.
 - Exécution Playwright locale bloquée par le système avant ouverture de page (`socket() failed: Operation not permitted`). Le binaire Chromium a bien été installé. Aucun succès navigateur local n’est revendiqué.
-- Configuration portable Chromium et installation alignée en CI ; résultats CI à consulter sur la PR.
+- CI sur `18bfd5e` : 325 tests, 324 réussis, 1 ignoré, 0 échec ; types et build réussis ; 4 tests Playwright réussis (ordinateur/mobile). [Exécution 38544492900](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38544492900).
+- Prévisualisation Vercel déployée, mais protégée par une connexion Vercel : contrôle manuel du correctif non réalisé.
+- Mise à jour de la branche le 15 octobre : intégration de main `2e4f4d38` (R8/R9), sans modifier ces ajouts. Nouvelle CI nécessaire.
 - Pas de jeton Mapillary fourni : son appel authentifié réel reste à valider. La documentation Meta détaillée a présenté une page de connexion pendant l’inspection.
 - Ni Panoramax ni Mapillary ne garantissent une photo à chaque adresse. Une erreur réseau se distingue désormais d’une recherche vide.
 - Les copies sont limitées aux licences ouvertes reconnues avec attribution. Le recadrage et les liens d’origine sont conservés. Les obligations de partage à l’identique doivent accompagner les médias réutilisés ; aucune licence n’est déduite d’une absence de métadonnée.

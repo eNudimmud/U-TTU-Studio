@@ -27,6 +27,7 @@ import { projectPath } from "@/lib/coffre/project";
 import { idbVault, type VaultStore } from "@/lib/coffre/store";
 import { posePlan } from "@/lib/ergonomie";
 import { type Balance } from "@/lib/credits";
+import { finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
 import { createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
 import { learnTakeCost } from "@/lib/render/landed-cost";
@@ -92,6 +93,7 @@ export interface StudioSession {
   createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
   createDecor(input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; files?: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
   createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
+  finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
   duplicateCast(id: string): Promise<void>;
@@ -125,6 +127,22 @@ export interface StudioSession {
   saveLieuPhoto(input: { name: string; note: string; quartier?: string; photo: { id: string; author: string; credit: string; blob: Blob } }): Promise<string | null>;
   sendToMontage(input: { planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }): Promise<void>;
 }
+
+export type FinaliseStage = "envoi" | "file" | "calcul" | "retour" | "mesure";
+
+export interface FinaliseInput {
+  video: Blob;
+  name: string;
+  seconds: number;
+  ratio: FinalRatio;
+  choice: FinalChoice;
+  confirmed: boolean;
+  onStage(stage: FinaliseStage, seconds?: number): void;
+}
+
+export type FinaliseOutcome =
+  | { ok: true; path: string; url: string; cost: number | null }
+  | { ok: false; message: string };
 
 export interface HeldRef {
   id: string;
@@ -600,6 +618,40 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       setCreating(false);
     }
   }, [client, refreshBalance, t]);
+
+  // Finaliser : une passe sur le montage entier. Jamais d'annulation : le job va au bout.
+  const finaliseMontage = useCallback(async (input: FinaliseInput): Promise<FinaliseOutcome> => {
+    const quote = finalQuote(input.seconds, input.choice);
+    if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
+    if (!client) return { ok: false, message: t("create.needLink") };
+    const fresh = await refreshBalance();
+    if (!creationAllowed(true, fresh?.credits ?? null, quote.ceiling)) return { ok: false, message: t("create.needCeiling") };
+    setCreating(true);
+    try {
+      input.onStage("envoi");
+      const file = await client.upload(input.video, "uttu-montage.mp4");
+      const graph = finalGraph({ file, ratio: input.ratio, ...input.choice });
+      const jobId = await client.submit(graph, crypto.randomUUID());
+      const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
+        if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
+        else if (event.stage === "render") input.onStage("calcul", event.seconds);
+        else if (event.stage === "fetch") input.onStage("retour");
+        else if (event.stage === "measure") input.onStage("mesure");
+      });
+      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+      const vault = store();
+      const slug = await ensureActiveProject(vault);
+      const path = `Projets/${slug}/Assets/${finalFileId(input.name, input.choice.resolution, new Date())}.mp4`;
+      await writeBlob(vault, path, result.video);
+      await reload();
+      return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
+    } catch (error) {
+      const message = error instanceof Error && error.message ? error.message : t("create.failed");
+      return { ok: false, message };
+    } finally {
+      setCreating(false);
+    }
+  }, [client, refreshBalance, reload, store, t]);
 
   const rewriteCast = useCallback(async (cards: CastCard[]) => {
     const vault = store();
@@ -1154,7 +1206,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     requestRun, confirmRun, cancelRun, resetRun, resumeRun, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast, createDecor, createStem, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast, createDecor, createStem, finaliseMontage, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,
