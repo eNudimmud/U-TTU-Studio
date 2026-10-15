@@ -12,7 +12,7 @@
 | Gate dataset historique | `gate/`, `fal-bootstrap.ts` | Règles locales et ZIP testés ; ancien parcours | Ne pas présenter comme étape obligatoire actuelle |
 | DÉCOR import | `creation/import-media.ts`, `coffre/model.ts` | Décor conservé et réutilisable, fichiers originaux conservés | Téléphones physiques |
 | DÉCOR génération / transformation | `creation/still.ts`, registre des gestes | Branché pour gestes avec graphe et devis ; opérations inactives restent fermées | Images, facture et règles du modèle réel |
-| Exemples R9 | `exemple-depart.tsx`, `creation/depart.ts` | Remplissent formulaires ; pas de dépense implicite | Régression après déploiement |
+| Exemples R9/R10 | `exemple-depart.tsx`, `creation/depart.ts` | Remplissent formulaires ; pas de dépense implicite. Décors PRISE non enregistrés : prévisualisation, génération fermée avec explication | Régression après déploiement |
 | Recherche par nom / coordonnées / liens | `repere/photon.ts`, `saisie.ts`, `lien.ts` | Recherche réelle contrôlée ; double limiteur corrigé | Autres régions, quotas et indisponibilités réelles |
 | Bâtiments, relief, carte | `repere/quartier.ts`, `direct.ts`, `/api/repere` | Indépendants des photos ; géométrie de repérage approximative | Précision locale et performances WebGL |
 | Photos Panoramax | `repere/panoramax.ts`, `repere-carte.tsx` | GET public réel avec photos ; fédération, rayon, chaînes et attribution corrigés | Plusieurs villes/pays ; aucune couverture garantie |
@@ -32,7 +32,7 @@
 | Montage, rognage, scission, ordre | `montage/edit.ts`, `montage-stage.tsx` | Calculs testés, liste persistée ; ajout initial sécurisé | Montage prolongé, gestes tactiles sur vrais appareils |
 | Import audio / mixage | `montage/encode.ts`, `creation/stem.ts` | Audio réel conservé, gain/fondu ; absence de piste distinguée d’une panne | Formats variés, synchronisation longue, écoute humaine |
 | Voix / musique / effets IA | `creation/stem.ts`, session | Graphes, devis, confirmation et récupération ; contrats locaux | Génération et licence réelles de chaque modèle |
-| Export MP4 local | `montage/encode.ts` | Fichiers réels téléchargés et inspectés par les tests navigateur ; limites 60 s / 12 fps | Chrome/Edge réels, Safari/Firefox, mémoire mobile |
+| Export MP4 local | `montage/encode.ts` | Encodage H.264/AAC, secours AAC local ; tests de téléchargement et analyse MP4, résultat par SHA dans validation.md ; limites 60 s / 12 fps | Chrome/Edge réels, Safari/Firefox, mémoire mobile |
 | Finaliser R8 1080p/4K | `montage/finaliser.ts`, session | Master 720p/24 fps, confirmation, reçu et résultat conservé | Passe réelle ; 4K/nettoyage et fidélité sonore non validés |
 | IndexedDB / réouverture | `coffre/store.ts` | Fin de transaction attendue, erreurs remontées ; fermeture de page testée | Arrêt processus/appareil, quota, éviction |
 | Export/import ZIP Obsidian | `coffre/import.ts`, `export.ts` | Aller-retour octets/notes testé ; import sans écrasement | ZIP volumineux et formats d’archives externes variés |

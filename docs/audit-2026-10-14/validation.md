@@ -11,7 +11,9 @@
 | #104 après R8/R9 `efd4686`, [CI 38660191878](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38660191878) | 332 réussis, 1 ignoré | Réussis | 6 réussis, 2 échecs : lecture MP4 R8 attendue trop longtemps |
 | #104 `92678aa`, [CI 38728457036](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38728457036) | 332 réussis, 1 ignoré | Réussis | **10 réussis**, Chrome, ordinateur/mobile, 47,1 s |
 | #107 `712271e`, [CI 38727049394](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38727049394) | 343 réussis, 1 ignoré | Réussis | **5 réussis, 9 échecs** : personnage absent de la maquette, AAC non encodable, sélection galerie mobile et glissement panorama |
-| Travail local après R10 et corrections de ces échecs | 344 réussis, 1 ignoré, 0 échec (345 tests, 87 suites) | TypeScript réussi ; nouveau build à confirmer par CI | Nouvelle CI navigateur à exécuter |
+| #104 après R10 `75e9ed2`, [CI 38818150540](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38818150540) | 332 réussis, 1 ignoré | Réussis | **10 réussis**, Chrome ordinateur/mobile, 39,7 s |
+| #107 après R10 `e3ceee8`, [CI 38818233890](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38818233890) | **344 réussis, 1 ignoré**, 0 échec (345 tests, 87 suites) | **Réussis** | **16 réussis**, Chrome ordinateur/mobile, 1,3 min |
+| Protection complémentaire : décor d’exemple absent des références | Même suite locale réussie | Types réussis | Nouvelle CI de la révision finale à confirmer |
 
 Le test ignoré est le rendu Blender : le binaire attendu n’est pas disponible. Il ne constitue pas un succès Farpy. La suite contient de nombreux contrôles de chaînes de code en plus des tests comportementaux. Leur nombre brut n’est pas un indicateur suffisant de fonctionnement réel.
 
@@ -49,6 +51,7 @@ Les résultats de chaque scénario navigateur doivent être lus dans le résulta
 | Recherche « Lausanne Place Saint-François », contrôle initial | Coordonnées 46.5196, 6.6330 puis « Une recherche à la fois » ; défaut reproduit |
 | Même recherche, 15 octobre | Photo Panoramax de jo2sm trouvée ; erreur WebGL dans le lecteur ; jeton Mapillary absent indiqué |
 | Panoramax API publique | 20 résultats obtenus dans les 300 m au premier contrôle ; une licence CC-BY-SA-4.0 explicitement fournie |
+| PRISE après R10, contrôle du 16 octobre (Zurich) | Trois décors étiquetés « EXEMPLE », aucun sélectionné ; invitation à créer son lieu. Uttu et « Composer l’image » encore présents dans le projet public vide ; protections proposées dans #107 |
 | MONTAGE, 15 octobre | « Prêt » dès le projet vide ; montage d’exemple de 7 s avec voix/musique ; cela ne représente pas des prises de l’utilisateur |
 | Coûts CAST/DÉCOR publics | « Au maximum 18 crédits (estimation) » encore affiché ; correction proposée, non déployée |
 | Aperçu Vercel #104 | Page de connexion Vercel ; pas de revue manuelle du correctif derrière cette protection |

@@ -882,6 +882,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
     const held = studioRef.current;
     const place = held?.scenes.find(item => item.id === (pendingTake ? pendingTake.decorId : pickedDecor)) ?? null;
+    if (pendingTake?.decorId && !place) { setNotice("Le décor choisi n’est pas enregistré dans ce projet. Enregistrez-le dans DÉCOR avant de générer."); return; }
     const selected = pendingTake ? pendingTake.castIds.flatMap(id => held?.cast.find(item => item.id === id) ? [held.cast.find(item => item.id === id)!] : []) : held?.cast.filter(item => item.id === pickedCast) ?? [];
     if (pendingTake && selected.length !== pendingTake.castIds.length) { setNotice("Chaque personnage doit avoir une référence enregistrée. Retirez les silhouettes neutres avant de générer."); return; }
     const photos = selected.length ? selected.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)) : (pendingTake ? [] : held?.look.photos ?? []);

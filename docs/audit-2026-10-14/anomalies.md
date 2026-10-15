@@ -39,4 +39,9 @@ P0 : perte de données, dépense involontaire ou parcours principal bloqué. P1 
 | A33 | P2 | URLs Blob anciennes conservées jusqu’au démontage pour protéger les opérations en cours | Limite mémoire connue ; nettoyage fin par consommateurs à envisager après mesure |
 | A34 | P2 | Liens de certaines prises/séquences dans Mon studio ouvrent PRISE sans sélection précise | À compléter ; galerie et montage conservent les fichiers, pas de suppression |
 
+| A35 | P0 | Chrome Linux lit le MP4 mais ne propose pas d’encodeur AAC ; export et master R8 bloqués | Reproduit dans la CI #107 ; encodeur AAC-LC WebAssembly local de secours, version et licence conservées |
+| A36 | P0 | Le personnage importé apparaît dans la fiche mais la maquette vide refuse de l’initialiser | `seedLead` accepte désormais une scène neuve vide et respecte les suppressions volontaires ; régression comportementale |
+| A37 | P1 | Décor d’exemple R10 affiché mais absent des références réellement envoyées | Génération bloquée avec explication tant que ce décor n’est pas enregistré ; contrôle répété avant soumission |
+| A38 | P2 | Test mobile clique Galerie avant qu’elle soit visible ; glissement panorama cible une zone masquée après changement de mise en page | Tests attendent un contrôle interactif et un point stable ; assertions conservées |
+
 Les codes P0 corrigés restent des corrections à valider, et non une preuve qu’aucun autre défaut P0 ne peut exister. Aucun service payant ne doit être lancé pour vérifier ces lignes sans accord préalable.

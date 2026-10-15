@@ -289,10 +289,12 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const etat = etatOf(draft);
   const measuredProfile = input.format === "9:16" && input.duree === 5;
   const realRefs = input.castIds.length <= 3 && input.castIds.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
-  const canGenerate = !demo && !creating && run.phase !== "running" && measuredProfile && realRefs && Boolean(input.castIds.length || shownPlace?.src);
+  const savedDecor = !input.decorId || studio.scenes.some(scene => scene.id === input.decorId);
+  const canGenerate = !demo && !creating && run.phase !== "running" && measuredProfile && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
   const generateReason = demo ? "La démonstration n’envoie aucun rendu."
     : !measuredProfile ? "Le profil actuellement chiffré est 5 s en 9:16. Choisissez ce format pour générer."
     : !realRefs ? "Utilisez au plus trois personnages enregistrés ; les silhouettes neutres servent à préparer le cadre."
+    : !savedDecor ? "Ce décor d’exemple sert à préparer le cadre. Importez ou créez votre décor dans DÉCOR pour le transmettre au rendu."
     : "Choisissez au moins un personnage ou une image de décor enregistrée.";
   async function generate() {
     if (!canGenerate) return;

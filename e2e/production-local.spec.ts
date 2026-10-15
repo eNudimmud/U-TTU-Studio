@@ -91,6 +91,12 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1');
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Alice tend la main audit');
+  // R10 examples remain previews: never charge for a take that silently omits its selected decor.
+  const example = page.getByRole('button', { name: /^Exemple Le quai, la nuit$/i });
+  await example.click();
+  await expect(page.getByRole('button', { name: 'Générer une prise', exact: true })).toBeDisabled();
+  expect(posts).toBe(0);
+  await example.click();
   await page.getByRole('button', { name: 'Générer une prise', exact: true }).click();
   await expect(page.locator('[data-confirm-gold]')).toBeEnabled();
   expect(posts).toBe(0);
