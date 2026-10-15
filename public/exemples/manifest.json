@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "note": "Noms stables. statut maison : le fichier est le rendu définitif. Le remplacer garde l’identifiant.",
   "items": [
     {
@@ -9,9 +9,9 @@
       "aspect": "16:9",
       "statut": "maison",
       "title": "Le quai, la nuit",
-      "prompt": "Un quai la nuit, eau noire, lumières lointaines, sans personne.",
-      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
-      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "prompt": "Cinematic night harbour quay, wet cobblestones, iron bollard and coiled rope in foreground, black still water, distant warm sodium lamps in light fog, gold and black palette, 35mm anamorphic, empty, no people, ultra detailed.",
+      "source": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
       "licenseUrl": ""
     },
     {
@@ -21,9 +21,9 @@
       "aspect": "16:9",
       "statut": "maison",
       "title": "Sous la pluie",
-      "prompt": "Une rue sous la pluie, vitre mouillée, lumières floues, sans personne.",
-      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
-      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "prompt": "Narrow European street in heavy rain at night, glistening pavement, blurred warm shop lights, steam from a grate, black and gold tones, shallow depth of field, cinematic still, no people.",
+      "source": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
       "licenseUrl": ""
     },
     {
@@ -45,9 +45,9 @@
       "aspect": "16:9",
       "statut": "maison",
       "title": "Un toit au lever du jour",
-      "prompt": "Un toit au lever du jour, ciel rose, ville calme, sans personne.",
-      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
-      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "prompt": "Paris rooftops at dawn, zinc roofs and chimneys, soft gold sunrise haze over the city, quiet atmosphere, wide cinematic frame, no people.",
+      "source": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
       "licenseUrl": ""
     },
     {
@@ -57,9 +57,9 @@
       "aspect": "16:9",
       "statut": "maison",
       "title": "Un hall de gare",
-      "prompt": "Un hall de gare, vide, lumière froide, sans personne.",
-      "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
-      "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "prompt": "Vast empty 19th-century railway station hall at night, iron and glass roof, polished wet floor reflecting warm gold lamps, deep shadows, symmetrical composition, cinematic, no people.",
+      "source": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
       "licenseUrl": ""
     },
     {
@@ -120,6 +120,18 @@
       "prompt": "Un DJ, planche de vues, personnage fictif.",
       "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
       "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
+      "licenseUrl": ""
+    },
+    {
+      "id": "cast-uttu-planche",
+      "file": "/exemples/cast-uttu-planche.webp",
+      "kind": "cast",
+      "aspect": "2:3",
+      "statut": "maison",
+      "title": "Uttu, planche de vues",
+      "prompt": "Character turnaround sheet of this exact woman: front, three-quarter, profile and back, full body, same hooded dark coat, braids and gold skin markings, neutral grey studio background, even soft light, consistent identity. (édition depuis cast-uttu.webp)",
+      "source": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "license": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
       "licenseUrl": ""
     }
   ]

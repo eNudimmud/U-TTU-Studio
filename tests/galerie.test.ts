@@ -191,7 +191,7 @@ describe("galerie CAST et DÉCOR", () => {
     const places = manifest.items.filter(item => item.kind === "decor");
     const people = manifest.items.filter(item => item.kind === "cast");
     assert.deepEqual(places.map(item => item.id), decor);
-    assert.deepEqual(people.map(item => item.id), ["cast-uttu", "cast-coursiere", "cast-vieil-homme", "cast-dj"]);
+    assert.deepEqual(people.map(item => item.id), ["cast-uttu", "cast-coursiere", "cast-vieil-homme", "cast-dj", "cast-uttu-planche"]);
     for (const item of manifest.items) {
       assert.equal(item.statut, "maison");
       assert.equal(existsSync(item.file.replace(/^\//, "public/")), true, item.file);
