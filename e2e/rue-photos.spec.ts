@@ -21,7 +21,7 @@ function feature(id: string, href: string, lon: number, links: { rel: string; hr
 for (const flat of [false, true]) test(`la recherche par nom atteint les photos même si Overpass refuse${flat ? ' et sans WebGL' : ''}`, async ({ page }) => {
   if (flat) await page.addInitScript(() => {
     const original = HTMLCanvasElement.prototype.getContext;
-    HTMLCanvasElement.prototype.getContext = function (kind: string, ...args: any[]) {
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, kind: string, ...args: any[]) {
       if (kind.includes('webgl')) return null;
       return (original as any).call(this, kind, ...args);
     } as typeof original;
