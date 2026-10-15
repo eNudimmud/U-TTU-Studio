@@ -1434,6 +1434,7 @@
     "licenseMissing": "Author or licence missing: this photo cannot be saved as a reference.",
     "photosEmpty": "No photos found within {radius} m.",
     "expand": "Search within {radius} m",
-    "retry": "Retry"
+    "retry": "Retry",
+    "flatPhoto": "Full photo: the panoramic viewer is unavailable in this browser."
   }
 }

@@ -1434,6 +1434,7 @@
     "licenseMissing": "Autor oder Lizenz fehlt: Dieses Foto kann nicht als Referenz gespeichert werden.",
     "photosEmpty": "Keine Fotos im Umkreis von {radius} m gefunden.",
     "expand": "Im Umkreis von {radius} m suchen",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "flatPhoto": "Ganzes Foto: Die Panoramaansicht ist in diesem Browser nicht verfügbar."
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, type PointerEvent } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent } from "react";
+import { useI18n } from "@/components/i18n/provider";
 import "@photo-sphere-viewer/core/index.css";
 import type { Viewer } from "@photo-sphere-viewer/core";
 import { cadrePano, type PhotoRue } from "@/lib/repere/panoramax";
@@ -18,6 +19,8 @@ interface Props {
 }
 
 export const RueViewer = forwardRef<RueHandle, Props>(function RueViewer({ photo, demo, cap, onCap, onFail }, ref) {
+  const { t } = useI18n();
+  const [flat, setFlat] = useState(false);
   const host = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drag = useRef<{ x: number; cap: number } | null>(null);
@@ -73,6 +76,18 @@ export const RueViewer = forwardRef<RueHandle, Props>(function RueViewer({ photo
     const node = host.current;
     const picture = photo;
     let dead = false;
+    const fallback = () => {
+      if (dead) return;
+      viewerRef.current?.destroy();
+      viewerRef.current = null;
+      setFlat(true);
+    };
+    // Keep the real photograph available when panoramic rendering is unavailable.
+    const probe = document.createElement("canvas");
+    let webgl: WebGL2RenderingContext | null = null;
+    try { webgl = probe.getContext("webgl2"); } catch { /* image fallback below */ }
+    if (!webgl) { fallback(); return; }
+    webgl.getExtension("WEBGL_lose_context")?.loseContext();
     void import("@photo-sphere-viewer/core").then(({ Viewer }) => {
       if (dead || !node.isConnected) return;
       const frame = (image: { width: number; height: number }) => cadrePano(picture, image.width, image.height);
@@ -83,7 +98,7 @@ export const RueViewer = forwardRef<RueHandle, Props>(function RueViewer({ photo
       const current = viewerRef.current;
       if (current) {
         current.setOptions(fov);
-        void current.setPanorama(picture.view, { transition: false, showLoader: true, panoData: frame }).catch(() => failRef.current());
+        void current.setPanorama(picture.view, { transition: false, showLoader: true, panoData: frame }).catch(fallback);
         return;
       }
       const viewer = new Viewer({
@@ -102,9 +117,9 @@ export const RueViewer = forwardRef<RueHandle, Props>(function RueViewer({ photo
         const yaw = event.position.yaw;
         capRef.current(Math.round(((yaw * 180) / Math.PI + 360) % 360));
       });
-      viewer.addEventListener("panorama-error", () => failRef.current());
+      viewer.addEventListener("panorama-error", fallback);
       viewerRef.current = viewer;
-    }).catch(() => failRef.current());
+    }).catch(fallback);
     return () => {
       dead = true;
     };
@@ -142,7 +157,10 @@ export const RueViewer = forwardRef<RueHandle, Props>(function RueViewer({ photo
         onPointerUp={look}
         onPointerCancel={look}
       />
-      : <div ref={host} className="u-rue-live" />}
+      : flat && photo ? <div className="u-rue-flat" data-rue-flat="">
+        <img src={photo.view} alt={`${photo.author} · ${photo.license}`} onError={() => failRef.current()} />
+        <p>{t("audit.flatPhoto")}</p>
+      </div> : <div ref={host} className="u-rue-live" />}
   </div>;
 });
 

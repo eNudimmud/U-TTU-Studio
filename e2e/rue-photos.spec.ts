@@ -18,7 +18,14 @@ function feature(id: string, href: string, lon: number, links: { rel: string; hr
   };
 }
 
-test("la recherche par nom atteint les photos même si Overpass refuse", async ({ page }) => {
+for (const flat of [false, true]) test(`la recherche par nom atteint les photos même si Overpass refuse${flat ? ' et sans WebGL' : ''}`, async ({ page }) => {
+  if (flat) await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (kind: string, ...args: any[]) {
+      if (kind.includes('webgl')) return null;
+      return (original as any).call(this, kind, ...args);
+    } as typeof original;
+  });
   const jpg = readFileSync("public/og.jpg");
   let searches = 0;
   await page.route("**/photon.komoot.io/api/**", route => route.fulfill({ json: { features: [{ geometry: { coordinates: [2.34063, 48.88805] }, properties: { name: "Rue test" } }] } }));
@@ -52,6 +59,11 @@ test("la recherche par nom atteint les photos même si Overpass refuse", async (
   await expect(carte).toContainText("© contributeurs OpenStreetMap, ODbL");
   await expect(carte).toContainText("OpenFreeMap");
   await expect(page.locator("[data-rue-credit]")).toContainText("CC-BY-SA-4.0");
+  if (flat) {
+    const picture = page.locator('[data-rue-flat] img');
+    await expect(picture).toBeVisible();
+    await expect.poll(() => picture.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  }
   for (const sel of ["[data-rue-prev]", "[data-rue-next]", "[data-prendre-vue]"]) {
     const box = await page.locator(sel).boundingBox();
     expect(box!.height).toBeGreaterThanOrEqual(44);

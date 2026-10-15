@@ -1434,6 +1434,7 @@
     "licenseMissing": "Auteur ou licence incomplet : cette photo ne peut pas être ajoutée aux références.",
     "photosEmpty": "Aucune photo disponible dans les {radius} m recherchés.",
     "expand": "Chercher dans un rayon de {radius} m",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "flatPhoto": "Photo entière : la vue panoramique est indisponible dans ce navigateur."
   }
 }

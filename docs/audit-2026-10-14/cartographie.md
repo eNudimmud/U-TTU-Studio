@@ -20,6 +20,7 @@ Inspection commencée le 13 octobre 2026, poursuivie le 14 octobre. Aucun rendu 
 - Production : défaut de recherche par nom reproduit dans Chrome, interface réelle, sans clé.
 - API publique Panoramax : requête `https://api.panoramax.xyz/api/search?place_position=6.6330,46.5196&place_distance=0-300&limit=20` → 20 photographies au moment du contrôle. La photo `1b15b784-e306-4eef-beb0-30930eac6eed` porte le crédit `jo2sm`, licence `CC-BY-SA-4.0`. Cela démontre une disponibilité locale masquée par le parcours ; cela ne démontre pas une couverture mondiale.
 - Catalogue public `/api/instances` lu effectivement.
+- Nouveau contrôle public le 15 octobre : la même recherche retourne cette fois une photo de `jo2sm`. Le blocage dépend donc notamment du délai de géocodage ; il n’est pas systématique. Le lecteur affiche « Your browser does not seem to support WebGL » dans le navigateur distant utilisé. Un repli affiche désormais la photographie entière lorsque le panorama est indisponible, sans créer une image simulée.
 
 ## Tests et limites
 
@@ -28,7 +29,7 @@ Inspection commencée le 13 octobre 2026, poursuivie le 14 octobre. Aucun rendu 
 - Exécution Playwright locale bloquée par le système avant ouverture de page (`socket() failed: Operation not permitted`). Le binaire Chromium a bien été installé. Aucun succès navigateur local n’est revendiqué.
 - CI sur `18bfd5e` : 325 tests, 324 réussis, 1 ignoré, 0 échec ; types et build réussis ; 4 tests Playwright réussis (ordinateur/mobile). [Exécution 38544492900](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38544492900).
 - Prévisualisation Vercel déployée, mais protégée par une connexion Vercel : contrôle manuel du correctif non réalisé.
-- Mise à jour de la branche le 15 octobre : intégration de main `2e4f4d38` (R8/R9), sans modifier ces ajouts. Nouvelle CI nécessaire.
+- Intégration de main `2e4f4d38` (R8/R9). CI `38660191878` : 332 tests unitaires réussis, 1 ignoré ; types et build réussis ; 6 tests navigateur réussis, 2 échecs sur la lecture de la vidéo R8 dans Chromium. Ces échecs ne sont pas dissimulés : la suite passe sur Chrome pour tester les codecs MP4, et une régression sans WebGL est ajoutée.
 - Pas de jeton Mapillary fourni : son appel authentifié réel reste à valider. La documentation Meta détaillée a présenté une page de connexion pendant l’inspection.
 - Ni Panoramax ni Mapillary ne garantissent une photo à chaque adresse. Une erreur réseau se distingue désormais d’une recherche vide.
 - Les copies sont limitées aux licences ouvertes reconnues avec attribution. Le recadrage et les liens d’origine sont conservés. Les obligations de partage à l’identique doivent accompagner les médias réutilisés ; aucune licence n’est déduite d’une absence de métadonnée.
