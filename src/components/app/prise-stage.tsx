@@ -142,18 +142,23 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     }));
   }, [cast, media, seed]);
 
+  // Only décors the user made: with pixels, or a real place kept from repérage.
+  // A name-only scene has nothing to film.
+  // With none, three labelled house renders stay usable in one tap.
+  const mine = useMemo(() => decor
+    .map(card => ({
+      id: card.id,
+      name: card.name,
+      note: card.prompt ?? "",
+      src: card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "",
+      exemple: false,
+      repere: card.geste === "repere",
+    }))
+    .filter(place => place.src || place.repere), [decor, media]);
   const places = useMemo(() => {
-    if (decor.length > 0) {
-      return decor.map(card => ({
-        id: card.id,
-        name: card.name,
-        note: card.prompt ?? "",
-        src: card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "",
-      }));
-    }
-    if (seed === "vide") return [];
-    return DEMO_DECOR.map(card => ({ id: card.id, name: card.name, note: card.prompt, src: card.preview ? assetPath(card.preview) : "" }));
-  }, [decor, media, seed]);
+    if (mine.length > 0) return mine;
+    return DEMO_DECOR.map(card => ({ id: card.id, name: card.name, note: card.prompt, src: card.preview ? assetPath(card.preview) : "", exemple: true, repere: false }));
+  }, [mine]);
 
   const castKey = `${drafts.find(item => item.id === currentId)?.input.castIds.join(",") ?? ""}|${people.map(person => `${person.id}:${person.name}`).join(",")}`;
   useEffect(() => {
@@ -164,7 +169,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     seeded.current = true;
     setMaquette(state => seedLead(state, { id: lead.id, name: lead.name }));
     const tile = tuileById("regard");
-    const placeId = places.find(place => place.id === pickedDecor)?.id ?? places[0]?.id ?? null;
+    const placeId = places.find(place => place.id === pickedDecor)?.id ?? mine[0]?.id ?? null;
     setDrafts(list => list.map(item => {
       if (item.id !== currentId || item.input.action.trim()) return item;
       return {
@@ -185,7 +190,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const draft = drafts[index] ?? drafts[0];
   const previewPlaceId = !draft
     ? null
-    : draft.input.decorId ?? (placeCleared ? null : pickedDecor) ?? places[0]?.id ?? null;
+    : draft.input.decorId ?? (placeCleared ? null : pickedDecor) ?? mine[0]?.id ?? null;
   useEffect(() => {
     let dead = false;
     if (!previewPlaceId) {
@@ -217,7 +222,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     ? places.find(place => place.id === draft.input.decorId) ?? null
     : placeCleared
       ? null
-      : places.find(place => place.id === pickedDecor) ?? places[0] ?? null;
+      : places.find(place => place.id === pickedDecor) ?? mine[0] ?? null;
   const input: PlanInput = {
     ...draft.input,
     format,
@@ -395,7 +400,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setSending(true);
     const still = places.find(place => place.id === input.decorId)?.src
       || people.find(person => person.id === input.castIds[0])?.src
-      || "/exemples/decor-piece.webp";
+      || "/exemples/decor-quai-nuit.webp";
     try {
       await sendToMontage({
         planId: draft.id,
@@ -580,18 +585,23 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </Row>
 
       <Row label="Où ?">
-        <div className="u-choice-row u-where">
+        {mine.length === 0 && <button type="button" className="u-where-empty" onClick={goDecor} data-ou-vide="">
+          <span className="u-place-face is-empty" aria-hidden="true"><AddPlaceIcon /></span>
+          <span><strong>Crée ton premier lieu</strong><small>Dans DÉCOR, depuis un texte ou une photo de rue. Il apparaîtra ici.</small></span>
+        </button>}
+        {mine.length === 0 && places.length > 0 && <p className="u-where-note">Ou pars d’un exemple :</p>}
+        <div className="u-choice-row u-where" data-ou-count={places.length} data-ou-source={mine.length > 0 ? "mes-decors" : "exemples"}>
           {places.map(place => {
             const on = shownPlace?.id === place.id;
             return <button key={place.id} type="button" className="u-place" aria-pressed={on} onClick={() => choosePlace(place.id)}>
-              <span className="u-place-face">{place.src ? <img src={place.src} alt="" /> : <i />}</span>
+              <span className="u-place-face">{place.src ? <img src={place.src} alt="" /> : <i />}{place.exemple && <em className="u-place-tag">Exemple</em>}</span>
               <span>{place.name}</span>
             </button>;
           })}
-          <button type="button" className="u-place u-add-tile" onClick={goDecor}>
+          {mine.length > 0 && <button type="button" className="u-place u-add-tile" onClick={goDecor}>
             <span className="u-place-face is-empty" aria-hidden="true"><AddPlaceIcon /></span>
             <span>Ajouter un lieu</span>
-          </button>
+          </button>}
         </div>
       </Row>
 
