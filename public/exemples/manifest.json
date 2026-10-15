@@ -126,12 +126,12 @@
       "id": "cast-uttu-planche",
       "file": "/exemples/cast-uttu-planche.webp",
       "kind": "cast",
-      "aspect": "2:3",
+      "aspect": "21:9",
       "statut": "maison",
-      "title": "Uttu, planche de vues",
-      "prompt": "Character turnaround sheet of this exact woman: front, three-quarter, profile and back, full body, same hooded dark coat, braids and gold skin markings, neutral grey studio background, even soft light, consistent identity. (édition depuis cast-uttu.webp)",
-      "source": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
-      "license": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "title": "Uttu, planche de vues (face, trois-quarts, dos)",
+      "prompt": "Turnaround face / trois-quarts / dos depuis la fiche officielle d’Uttu (2 références : fiche officielle + mise en page). Badge « NEUKO » retouché à la main.",
+      "source": "Rendu maison U*TTU, généré avec Nano Banana Pro (Gemini 3 Pro Image) via Comfy Cloud, 62,59 crédits, 4K 21:9 ; badge NEUKO retouché",
+      "license": "Rendu maison U*TTU, généré avec Nano Banana Pro via Comfy Cloud",
       "licenseUrl": ""
     }
   ]
