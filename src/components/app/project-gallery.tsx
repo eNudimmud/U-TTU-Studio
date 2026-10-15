@@ -56,7 +56,7 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout" }: {
     defaultFilter={defaultFilter}
     projects={studio.projects.filter(item => item.slug !== studio.project)}
     onRefresh={() => void refreshStudio()}
-    onImport={files => void importAssets(files)}
+    onImport={files => void importAssets(files, defaultFilter === "personnage" || defaultFilter === "decor" ? defaultFilter : undefined)}
     onUseRef={useRef}
     onPrise={asset => {
       if (asset.kind === "decor") void pickDecor(asset.id);
@@ -64,12 +64,14 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout" }: {
       window.location.hash = "prise";
     }}
     onMontage={asset => {
-      const source = asset.preview ? assetPath(asset.preview) : sourceOf(asset, media);
+      const take = studio.takes.find(item => item.id === asset.id);
+      const source = take?.video || (asset.preview ? assetPath(asset.preview) : asset.media);
       if (!source) return;
       holdClip({
         source,
         label: asset.name,
-        kind: asset.kind === "son" ? "audio" : asset.kind === "plan" ? "video" : "image",
+        kind: asset.kind === "son" ? "audio" : /\.(mp4|webm|mov)$/i.test(source) ? "video" : "image",
+        seconds: take?.settings.seconds,
       });
       window.location.hash = "montage";
     }}

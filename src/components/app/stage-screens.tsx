@@ -104,7 +104,8 @@ function placeAsset(gesteId: string, refs: LocalRef[], asset: AssetRecord, url: 
 
 function CreateConfirm({ title, amount, high, onCancel, onYes }: { title: string; amount: number; high: number; onCancel(): void; onYes(): void }) {
   const { t } = useI18n();
-  const open = spendAllowed(amount, true);
+  const { creating } = useStudio();
+  const open = !creating && spendAllowed(amount, true);
   return <div className="u-card" role="dialog" aria-labelledby="u-create-title">
     <h2 id="u-create-title">{title}</h2>
     <p>{t("create.confirmBody")}</p>
@@ -116,7 +117,7 @@ function CreateConfirm({ title, amount, high, onCancel, onYes }: { title: string
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
   const { t } = useI18n();
-  const { media, createCast, connected, balance, creating, cast } = useStudio();
+  const { media, createCast, connected, balance, creating, importAssets, cast } = useStudio();
   const [gesteId, setGesteId] = useState("cast-photos");
   useEffect(() => {
     const asked = gesteFromQuery("cast", "");
@@ -208,6 +209,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <p className="u-label">01</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.character")}</h1>
       <p className="u-lead">{t("create.castLead")}</p>
+      <label className="u-secondary">Importer un personnage · gratuit<input className="sr-only" type="file" accept="image/*" aria-label="Importer un personnage" multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "personnage"); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
       {depart && <ExempleDepart etape="cast" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.cast.geste)} />}
@@ -240,7 +242,7 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { media, createDecor, connected, balance, creating, saveLieu, saveLieuPhoto, decor } = useStudio();
+  const { media, createDecor, connected, balance, creating, importAssets, saveLieu, saveLieuPhoto, decor } = useStudio();
   const [gesteId, setGesteId] = useState("decor-photo");
   useEffect(() => {
     const asked = gesteFromQuery("decor", "");
@@ -313,6 +315,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <p className="u-label">02</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.scene")}</h1>
       <p className="u-lead">{t("create.decorLead")}</p>
+      <label className="u-secondary">Importer un décor · gratuit<input className="sr-only" type="file" accept="image/*" aria-label="Importer un décor" multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "decor"); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
       {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}

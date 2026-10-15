@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: "1"
+      PLAYWRIGHT_CHANNEL: "chrome"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -34,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Navigateur Playwright
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chrome
       - name: Test
         run: npm test
       - name: Typecheck
@@ -44,8 +45,8 @@ jobs:
       - name: Parcours CAST, DÉCOR, PRISE, MONTAGE
         run: npx playwright test
 
-      - name: Preuves navigateur en cas d’échec
-        if: failure()
+      - name: Preuves navigateur et exports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results

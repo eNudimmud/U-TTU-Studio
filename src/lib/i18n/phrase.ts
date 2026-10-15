@@ -112,19 +112,19 @@ const PATTERNS: Pattern[] = [
     apply: (t, match) => t("runtime.basisOne", { date: match[1] }),
   },
   {
-    re: /^Environ (\S+) crédits, au plus (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
+    re: /^Environ (\S+) crédits, réserve conseillée (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
     apply: (t, match) => t("runtime.billedQuote", { amount: match[1], high: match[2], date: match[3] }),
   },
   {
-    re: /^Solde trop bas : (\S+) crédits\. Environ (\S+) crédits, au plus (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
+    re: /^Solde trop bas : (\S+) crédits\. Environ (\S+) crédits, réserve conseillée (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
     apply: (t, match) => t("runtime.billedLow", { have: match[1], amount: match[2], high: match[3], date: match[4] }),
   },
   {
-    re: /^Solde illisible\. Rien ne part sans lire le compte qui paiera\. Environ (\S+) crédits, au plus (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
+    re: /^Solde illisible\. Rien ne part sans lire le compte qui paiera\. Environ (\S+) crédits, réserve conseillée (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
     apply: (t, match) => t("runtime.billedUnread", { amount: match[1], high: match[2], date: match[3] }),
   },
   {
-    re: /^Solde vide sur ton compte de rendu\. Environ (\S+) crédits, au plus (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
+    re: /^Solde vide sur ton compte de rendu\. Environ (\S+) crédits, réserve conseillée (\S+), mesuré sur une prise réelle le (.+) \(temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus\)\.$/,
     apply: (t, match) => t("runtime.billedEmpty", { amount: match[1], high: match[2], date: match[3] }),
   },
   {

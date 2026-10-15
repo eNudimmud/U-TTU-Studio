@@ -13,6 +13,8 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:3000",
     channel: process.env.PLAYWRIGHT_CHANNEL || "chromium",
     locale: "fr-FR",
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
   },
   webServer: {
     command: ci ? "npm start -- --port 3000" : "npm run dev -- --hostname 127.0.0.1 --port 3000",

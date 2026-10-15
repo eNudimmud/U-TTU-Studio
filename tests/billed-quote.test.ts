@@ -48,7 +48,7 @@ describe("devis facturé", () => {
     const open = priseGate({ credits: 100, readAt: 1 }, resolveTakeQuote(PROFILE, []));
     assert.equal(open.allowed, true);
     assert.equal(open.tone, "ok");
-    assert.match(open.line, /Environ 4 crédits, au plus 6/);
+    assert.match(open.line, /Environ 4 crédits, réserve conseillée 6/);
     assert.match(open.line, /prise réelle le 7 octobre/);
     assert.match(open.line, /temps GPU facturé, une seule mesure, modèles déjà chargés/);
     assert.match(open.line, /une première prise à froid peut coûter un peu plus/);
@@ -59,7 +59,7 @@ describe("devis facturé", () => {
     const short = priseGate({ credits: 5, readAt: 1 }, resolveTakeQuote(PROFILE, []));
     assert.equal(short.allowed, false);
     assert.match(short.line, /Solde trop bas/);
-    assert.match(short.line, /au plus 6/);
+    assert.match(short.line, /réserve conseillée 6/);
     assert.equal(priseGate({ credits: 0, readAt: 1 }, resolveTakeQuote(PROFILE, [])).allowed, false);
     assert.equal(priseGate(null, resolveTakeQuote(PROFILE, [])).allowed, false);
     assert.match(priseGate(null, resolveTakeQuote(PROFILE, [])).line, /Environ 4 crédits/);
@@ -83,7 +83,7 @@ describe("devis facturé", () => {
     const won = priseGate({ credits: 9000, readAt: 1 }, delta);
     assert.equal(won.allowed, true);
     assert.match(won.line, /140/);
-    assert.doesNotMatch(won.line, /au plus 6/);
+    assert.doesNotMatch(won.line, /réserve conseillée 6/);
     const quote = quoteSentence(delta);
     assert.match(quote, /140/);
     assert.equal(quoteSentence(resolveTakeQuote("h3-20pas-5s-horizontal", [])), UNMEASURED_LINE);
@@ -105,9 +105,9 @@ describe("devis facturé", () => {
       catalogs.fr.runtime.billedQuote.replaceAll("{amount}", "4").replaceAll("{high}", "6").replaceAll("{date}", "7 octobre"),
       sentence,
     );
-    assert.match(catalogs.en.runtime.billedQuote, /at most \{high\}/);
-    assert.match(catalogs.de.runtime.billedQuote, /höchstens \{high\}/);
-    assert.match(catalogs.es.runtime.billedQuote, /como máximo \{high\}/);
+    assert.match(catalogs.en.runtime.billedQuote, /recommended reserve \{high\}/);
+    assert.match(catalogs.de.runtime.billedQuote, /empfohlene Reserve \{high\}/);
+    assert.match(catalogs.es.runtime.billedQuote, /reserva recomendada \{high\}/);
     assert.match(catalogs.en.runtime.notMeasured, /Not measured yet/);
     assert.match(catalogs.de.runtime.notMeasured, /Noch nicht gemessen/);
     assert.match(catalogs.es.runtime.notMeasured, /Aún no medido/);

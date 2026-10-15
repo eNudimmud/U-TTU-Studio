@@ -201,7 +201,7 @@ export function createRenderClient(options: RenderClientOptions) {
     for (const [key, value] of Object.entries(await authHeaders())) headers.set(key, value);
     let response: Response;
     try {
-      response = await doFetch(`${relay}${path}`, { ...init, headers, credentials: "same-origin", cache: "no-store" });
+      response = await doFetch(`${relay}${path}`, { ...init, headers, signal: init.signal ?? AbortSignal.timeout(path.startsWith("/api/view") ? 120_000 : 60_000), credentials: "same-origin", cache: "no-store" });
     } catch {
       throw new RenderError("network", "Le compte de rendu ne répond pas.");
     }
@@ -230,7 +230,7 @@ export function createRenderClient(options: RenderClientOptions) {
     async balance(): Promise<number | null> {
       if (options.auth.kind === "session") {
         try {
-          const response = await doFetch(balanceUrl, { headers: await authHeaders(), cache: "no-store" });
+          const response = await doFetch(balanceUrl, { headers: await authHeaders(), signal: AbortSignal.timeout(15_000), cache: "no-store" });
           if (response.ok) {
             const cents = readCents(await response.json());
             if (cents !== null) return centsToCredits(cents);

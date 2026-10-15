@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { maquetteJson, readMaquette } from "@/lib/maquette/persistence";
 import { assetPath } from "@/lib/site";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
 import { TUILES, tuileById, tuileInText, tuileNeedsPair, type TuileId } from "@/lib/cinema/tuiles";
@@ -17,7 +18,7 @@ import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/de
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
 import { parseQuartier, type Quartier } from "@/lib/repere/quartier";
-import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, priseMarkdown, type StoredPlan } from "@/lib/prise/vault";
+import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
 import { montrerDepart } from "@/lib/creation/depart";
@@ -77,7 +78,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage } = useStudio();
+  const { ready, demo, gate: productionGate, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage } = useStudio();
   const { t } = useI18n();
   const { format } = useFormat();
   const [seed, setSeed] = useState<Seed>("vide");
@@ -95,12 +96,38 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [picker, setPicker] = useState(false);
   const [placeCleared, setPlaceCleared] = useState(false);
   const [quartier, setQuartier] = useState<Quartier | null>(null);
-  const booted = useRef(false);
+  const booted = useRef<string | null>(null);
   const seeded = useRef(false);
+  const [maquetteLoaded, setMaquetteLoaded] = useState("");
+  const maquetteKey = `${studio.project ?? ""}/${currentId}`;
+  useEffect(() => {
+    if (!ready) return;
+    let dead = false;
+    setMaquetteLoaded("");
+    seeded.current = false;
+    void readProjectFile(`.uttu/maquette-${currentId}.json`).then(raw => {
+      if (dead) return;
+      const saved = readMaquette(raw);
+      if (saved) { setMaquette(saved); seeded.current = true; }
+      else setMaquette(demo ? initialMaquette() : { ...initialMaquette(), figures: [] });
+      setMaquetteLoaded(maquetteKey);
+    }).catch(error => setNotice(error.message));
+    return () => { dead = true; };
+  }, [ready, maquetteKey, readProjectFile, demo, setNotice]);
+  useEffect(() => {
+    if (!ready || maquetteLoaded !== maquetteKey) return;
+    const save = () => { void writeProjectFile(`.uttu/maquette-${currentId}.json`, maquetteJson(maquette)).catch(error => setNotice(error.message)); };
+    const timer = window.setTimeout(save, 250);
+    return () => { window.clearTimeout(timer); save(); };
+  }, [ready, maquetteLoaded, maquetteKey, currentId, maquette, writeProjectFile, setNotice]);
 
   useEffect(() => {
-    if (!ready || booted.current) return;
-    booted.current = true;
+    const key = studio.project ?? "";
+    if (!ready || booted.current === key) return;
+    booted.current = key;
+    seeded.current = false;
+    setMaquette(initialMaquette());
+    setPlaceCleared(false);
     const asked = new URLSearchParams(window.location.search).get("prise");
     if (asked === "compose" || asked === "final") {
       const next = demoDraft(asked, format);
@@ -112,14 +139,14 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       return;
     }
     const stored = studio.shots.filter(shot => shot.composeur);
-    if (stored.length === 0) return;
+    if (stored.length === 0) { setDrafts([blank("plan-01", "Plan 01", format)]); setCurrentId("plan-01"); return; }
     const next = stored
       .slice()
       .sort((a, b) => a.ordre - b.ordre)
       .map(shot => draftFromShot(shot, format));
     setDrafts(next);
     setCurrentId(next[0]?.id ?? "plan-01");
-  }, [ready, format, studio.shots]);
+  }, [ready, format, studio.project, studio.shots]);
 
   /** Same fill as ?prise=compose: Uttu and La coursière on the quay, framing, camera and action set. */
   function partirExemple() {
@@ -137,7 +164,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return cards.map(card => ({
       id: card.id,
       name: card.name,
-      planche: Boolean(card.sheet),
+      planche: Boolean(card.sheet && card.template),
       src: personSrc(card.preview, card.sheet, media),
     }));
   }, [cast, media, seed]);
@@ -157,7 +184,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
   const castKey = `${drafts.find(item => item.id === currentId)?.input.castIds.join(",") ?? ""}|${people.map(person => `${person.id}:${person.name}`).join(",")}`;
   useEffect(() => {
-    if (seeded.current || people.length === 0) return;
+    if (maquetteLoaded !== maquetteKey || seeded.current || people.length === 0) return;
     const chosenIds = drafts.find(item => item.id === currentId)?.input.castIds ?? [];
     const lead = (chosenIds.length > 0 ? people.find(person => person.id === chosenIds[0]) : people[0]) ?? null;
     if (!lead) return;
@@ -179,13 +206,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         },
       };
     }));
-  }, [castKey, people, drafts, currentId, places, pickedDecor, t]);
+  }, [maquetteLoaded, maquetteKey, castKey, people, drafts, currentId, places, pickedDecor, t]);
 
   const index = Math.max(0, drafts.findIndex(item => item.id === currentId));
   const draft = drafts[index] ?? drafts[0];
   const previewPlaceId = !draft
     ? null
-    : draft.input.decorId ?? (placeCleared ? null : pickedDecor) ?? places[0]?.id ?? null;
+    : draft.input.decorId ?? (placeCleared ? null : pickedDecor ?? places[0]?.id ?? null);
   useEffect(() => {
     let dead = false;
     if (!previewPlaceId) {
@@ -199,12 +226,21 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return () => { dead = true; };
   }, [previewPlaceId, readProjectFile]);
   const previous = index > 0 ? drafts[index - 1] : null;
+  const takeIds = studio.shots.find(shot => shot.id === draft?.id)?.takeIds ?? [];
+  const landed = studio.takes.find(take => takeIds.includes(take.id)) ?? null;
+  useEffect(() => {
+    setDrafts(list => list.map(item => {
+      const ids = studio.shots.find(shot => shot.id === item.id)?.takeIds ?? [];
+      const hasTake = studio.takes.some(take => ids.includes(take.id));
+      return hasTake === item.hasTake ? item : { ...item, hasTake };
+    }));
+  }, [studio.shots, studio.takes]);
 
   function patch(partial: Partial<PlanInput>) {
-    const next = drafts.map(item => item.id === draft.id ? { ...item, input: { ...item.input, ...partial, format } } : item);
+    const next = drafts.map(item => item.id === draft.id ? { ...item, input: { ...input, ...partial, format } } : item);
     setDrafts(next);
     setAsk(null);
-    persist(next);
+    void persist(next).catch(error => setNotice(error.message));
   }
 
   useEffect(() => {
@@ -235,7 +271,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   };
   const intent = primaryIntent(input);
   const cardDecision = decide(input, intent);
-  const composer = decide(input, "composer");
+  const composer = { ...decide(input, "composer"), enabled: false, reason: "La composition d’image clé n’est pas encore raccordée. Utilisez Générer une prise." };
   const essai = decide(input, "essai");
   const tourner = decide(input, "tourner");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
@@ -246,6 +282,21 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const tileLabels = TUILES.map(item => ({ id: item.id, label: t(`r7.tuile.${item.id}`) }));
   const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
   const etat = etatOf(draft);
+  const measuredProfile = input.format === "9:16" && input.duree === 5;
+  const realRefs = input.castIds.length <= 3 && input.castIds.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
+  const canGenerate = !demo && !creating && run.phase !== "running" && measuredProfile && realRefs && Boolean(input.castIds.length || shownPlace?.src);
+  const generateReason = demo ? "La démonstration n’envoie aucun rendu."
+    : !measuredProfile ? "Le profil actuellement chiffré est 5 s en 9:16. Choisissez ce format pour générer."
+    : !realRefs ? "Utilisez au plus trois personnages enregistrés ; les silhouettes neutres servent à préparer le cadre."
+    : "Choisissez au moins un personnage ou une image de décor enregistrée.";
+  async function generate() {
+    if (!canGenerate) return;
+    try {
+      await persist(drafts.map(item => item.id === draft.id ? { ...item, input } : item));
+      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre }).text, settings: { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide" } });
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Sauvegarde du plan impossible."); }
+  }
+
   function planWord(item: Draft): string {
     const mark = etatOf(item);
     if (mark !== "vide") return ETAT_LABEL[mark];
@@ -266,18 +317,23 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     gold = { label: "Tourner", price: priceOf(tourner.quote), enabled: tourner.enabled, reason: tourner.reason, composer: false, onClick: () => {} };
   } else if (etat === "prise") {
     gold = { label: "★ Garder", price: "", enabled: true, reason: "", composer: false, onClick: keep };
-    extra = { label: "Autre prise", price: "", enabled: false, reason: PAS_MESURE, onClick: () => {} };
+    extra = { label: "Autre prise", price: "", enabled: canGenerate, reason: generateReason, onClick: () => void generate() };
   } else if (etat === "gardee" || etat === "finalisee") {
     // Finaliser se fait une seule fois, sur tout le montage (R8). La prise gardée y part.
-    gold = { label: FINAL_LABEL, price: "", enabled: true, reason: "", composer: false, onClick: onMontage };
+    gold = { label: FINAL_LABEL, price: "", enabled: true, reason: "", composer: false, onClick: () => void envoyer() };
+    extra = { label: "Autre prise", price: "", enabled: canGenerate, reason: generateReason, onClick: () => void generate() };
   } else {
     gold = { label: "Composer l'image", price: "", enabled: composer.enabled, reason: composer.reason, composer: true, onClick: () => { if (composer.enabled) setAsk("composer"); } };
-    extra = { label: "Essai rapide", price: "", enabled: essai.enabled, reason: essai.reason, onClick: () => { if (essai.enabled) void requestRun(); } };
+    extra = { label: "Essai rapide", price: "", enabled: essai.enabled, reason: essai.reason, onClick: () => { void generate(); } };
+  }
+  if (!demo && etat !== "prise" && etat !== "gardee" && etat !== "finalisee") {
+    gold = { label: "Générer une prise", price: "", enabled: canGenerate, reason: generateReason, composer: false, onClick: () => void generate() };
+    extra = { label: "Composer l’image clé", price: "", enabled: false, reason: composer.reason, onClick() {} };
   }
   const reasonText = gold.enabled ? "" : gold.reason;
   const extraReason = extra && !extra.enabled && extra.reason && extra.reason !== reasonText ? extra.reason : "";
 
-  function persist(next: Draft[], focus = draft.id) {
+  async function persist(next: Draft[], focus = draft.id) {
     const shot = next.find(item => item.id === focus);
     if (!shot) return;
     const ordre = next.findIndex(item => item.id === focus);
@@ -290,12 +346,12 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       input: { ...shot.input, format },
       graph: decision.graph ?? "",
       pourquoi: decision.pourquoi,
-      takeIds: [],
+      takeIds: studio.shots.find(item => item.id === shot.id)?.takeIds ?? [],
       imageCle: shot.before,
       imageFin: "",
       finalVideo: shot.finalised ? shot.after : "",
     };
-    void writeProjectFile(`Shots/${shot.id}.md`, planMarkdown(record));
+    await writeProjectFile(`Shots/${shot.id}.md`, planMarkdown(record));
   }
 
   function addPlan() {
@@ -305,7 +361,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setDrafts(next);
     setCurrentId(id);
     setPanel(false);
-    persist(next, id);
+    void persist(next, id).catch(error => setNotice(error.message));
   }
 
   function dropOn(id: string) {
@@ -317,7 +373,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     });
     setDrafts(next);
     setDragId(null);
-    persist(next, id);
+    void Promise.all(next.map(item => persist(next, item.id))).catch(error => setNotice(error.message));
   }
 
   function onWho(id: string) {
@@ -395,9 +451,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setSending(true);
     const still = places.find(place => place.id === input.decorId)?.src
       || people.find(person => person.id === input.castIds[0])?.src
-      || "/exemples/decor-piece.webp";
+      || "";
     try {
       await sendToMontage({
+        takeId: landed?.id,
         planId: draft.id,
         label: draft.input.action.trim() || t(`r7.tuile.${maquette.tuile}`),
         seconds: input.duree,
@@ -408,6 +465,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         composeur: planJson(input, { etat: etatOf(draft), before: draft.before, after: draft.after }),
       });
       onMontage();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Envoi au montage interrompu.");
     } finally {
       setSending(false);
     }
@@ -419,25 +478,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setDrafts(next);
     setPanel(true);
     setFinaliser(finaliserDefaults("video", input.duree));
-    persist(next);
-    const video = `Prises/${draft.id}-prise.mp4`;
-    void writeProjectFile(`Prises/${draft.id}-prise.md`, priseMarkdown({
-      id: `${draft.id}-prise`,
-      planId: draft.id,
-      template: tourner.graph ?? "",
-      entrees: [...input.castIds.map(id => `Cast/${id}`), ...(input.decorId ? [`Lieux/${input.decorId}`] : [])],
-      camera: input.camera,
-      duree: input.duree,
-      devis: tourner.quote ?? "inconnu",
-      plafond: tourner.cap,
-      cout: 0,
-      promptId: "",
-      etat: "gardee",
-      date: "2026-10-08",
-      video,
-      finalVideo: "",
-      prompt: prompt.text,
-    }));
+    void persist(next).catch(error => setNotice(error.message));
   }
 
   const card = showFinal
@@ -457,7 +498,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const ceiling = card.cap === null
     ? ""
     : ` · ${t(card.statut === "mesure" ? "create.ceilingMeasured" : "create.ceilingHyp", { high: fr(card.cap) })}`;
-  const quoteLine = card.quote === null
+  const quoteLine = !demo ? (measuredProfile ? productionGate.line : "Ce format n’est pas encore chiffré ; aucun envoi.") : card.quote === null
     ? t("create.quoteUnknown")
     : `${t("create.quoteLead", { quote: fr(card.quote), status: statusWord })}${ceiling}`;
   const sameAsMots = Boolean(reasonText) && reasonText === card.mots;
@@ -501,6 +542,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <p className="u-run-label">{t("job.running")}</p>
         <button type="button" className="u-link" onClick={cancelRun}>{t("verb.cancel")}</button>
       </div>}
+      {run.phase === "error" && <div role="alert"><p>{run.message}</p><button type="button" className="u-secondary" onClick={resumeRun}>Récupérer le rendu</button></div>}
+      {landed && media[landed.video] && <div><p>Prise enregistrée · {landed.settings.seconds} s</p><video controls playsInline src={media[landed.video]} style={{ width: "100%", maxHeight: 360 }} /></div>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
         : <MaquetteView
@@ -539,7 +582,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </ul>
       {maquette.lockPose && <p className="u-why" id="u-why-pose">{t("r7.poseLock")}</p>}
       <p className="u-why" data-astuce={tip.id}>{t(`r7.astuce.${tip.id}`, { name: tip.name })}</p>
-      <button type="button" className="u-link" data-lire-sequence="" data-envoyer-montage="" disabled={sending} aria-describedby={sending ? "u-why-envoyer" : undefined} onClick={() => void envoyer()}>{t("r7.envoyer")}</button>
+      <button type="button" className="u-link" data-lire-sequence="" data-envoyer-montage="" disabled={sending || (!landed && !shownPlace?.src && !people.some(person => input.castIds.includes(person.id) && person.src))} aria-describedby={sending ? "u-why-envoyer" : undefined} onClick={() => void envoyer()}>{landed ? "Envoyer la prise au montage" : "Ajouter l’image au montage"}</button>
       {sending && <p className="u-why" id="u-why-envoyer">{t("nav.opening")}</p>}
     </div>
     </div>
@@ -676,9 +719,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           <span>{t("r7.lireLieu")} : {shownPlace?.name || "—"}{quartier ? ` · ${t("r7.rue")}` : ""}</span>
           <span>{t("r7.lireCadrage")} : {t(`r7.tuile.${maquette.tuile}`)}</span>
         </p>
-        <h2>{card.titre || "En attente"}</h2>
-        {card.mots && !sameAsMots && <p>{card.mots}</p>}
-        {card.pourquoi && card.pourquoi !== card.mots && !sameAsPourquoi && <p>{card.pourquoi}</p>}
+        <h2>{!demo ? "Générer une prise" : card.titre || "En attente"}</h2>
+        {demo && card.mots && !sameAsMots && <p>{card.mots}</p>}
+        {demo && card.pourquoi && card.pourquoi !== card.mots && !sameAsPourquoi && <p>{card.pourquoi}</p>}
         <p className="u-prise-quote">{quoteLine}</p>
         <button type="button" className="u-link" aria-expanded={details} onClick={() => setDetails(open => !open)}>Détails</button>
         {details && <div className="u-prise-details">

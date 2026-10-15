@@ -569,6 +569,15 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
   if (route.kind === "deny") return new Response("Partage Comfy refusé.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   if (!METHODS.has(request.method)) return new Response("Méthode refusée.", { status: 405, headers: { "allow": [...METHODS].join(", ") } });
 
+  // Never turn a cross-site browser POST into a trusted cloud-origin mutation.
+  // API clients without browser Origin remain supported; upstream auth still applies.
+  if (target.pathname.startsWith('/api/') && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
+    const origin = request.headers.get('origin');
+    if ((origin && origin !== target.origin) || request.headers.get('sec-fetch-site') === 'cross-site') {
+      return new Response('Origine refusée.', { status: 403, headers: { 'cache-control': 'no-store' } });
+    }
+  }
+
   const headers = new Headers();
   headers.set("origin", COMFY_ORIGIN);
   for (const name of REQUEST_HEADERS) {

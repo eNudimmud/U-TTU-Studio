@@ -14,7 +14,7 @@ export function useFormat(): { format: ProjectFormat; setFormat(next: ProjectFor
 }
 
 export function FormatProvider({ children }: { children: ReactNode }) {
-  const { ready, readProjectFile, writeProjectFile } = useStudio();
+  const { ready, readProjectFile, writeProjectFile, setNotice } = useStudio();
   const [format, setFormatState] = useState<ProjectFormat>(DEFAULT_PROJECT_FORMAT);
 
   useEffect(() => {
@@ -22,13 +22,13 @@ export function FormatProvider({ children }: { children: ReactNode }) {
     let live = true;
     void readProjectFile(FORMAT_FILE).then(text => {
       if (live) setFormatState(readProjectFormat(text));
-    });
+    }).catch(error => setNotice(error.message));
     return () => { live = false; };
   }, [ready, readProjectFile]);
 
   const setFormat = useCallback((next: ProjectFormat) => {
     setFormatState(next);
-    void writeProjectFile(FORMAT_FILE, formatMarkdown(next));
+    void writeProjectFile(FORMAT_FILE, formatMarkdown(next)).catch(error => setNotice(error.message));
   }, [writeProjectFile]);
 
   return <FormatContext.Provider value={{ format, setFormat }}>{children}</FormatContext.Provider>;

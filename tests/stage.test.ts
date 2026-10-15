@@ -50,7 +50,7 @@ describe("CAST, DÉCOR, PRISE", () => {
     assert.match(decor, /aria-describedby=\{blocked \? "u-why-decor"/);
     assert.match(prise, /data-composer-gold/);
     assert.match(prise, /aria-describedby=\{reasonText \? "u-prise-reason" : undefined\}/);
-    assert.match(prise, /requestRun\(\)/);
+    assert.match(prise, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
     assert.doesNotMatch(prise, /confirmRun\(/);
     assert.match(prise, /goCast\(\)/);
     assert.match(prise, /goDecor\(\)/);

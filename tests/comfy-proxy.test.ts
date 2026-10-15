@@ -26,6 +26,17 @@ function install(response: Response | (() => Response | Promise<Response>)) {
 }
 
 describe("Comfy same-origin embed", () => {
+  it('rejects a cross-origin paid mutation before contacting Comfy', async () => {
+    const { calls, fetchImpl } = install(new Response('{}'));
+    for (const headers of [new Headers({ origin: 'https://other.example' }), new Headers({ 'sec-fetch-site': 'cross-site' })]) {
+      const response = await proxyComfy(new Request(`${STUDIO}/api/prompt`, { method: 'POST', headers, body: '{}' }), fetchImpl);
+      assert.equal(response?.status, 403);
+    }
+    assert.equal(calls.length, 0);
+    assert.equal((await proxyComfy(new Request(`${STUDIO}/api/prompt`, { method: 'POST', headers: { origin: STUDIO }, body: '{}' }), fetchImpl))?.status, 200);
+    assert.equal(calls.length, 1);
+  });
+
   it("keeps the full-tab link on cloud.comfy.org and points the frame at this host", () => {
     assert.equal(comfyEmbedHref(`https://cloud.comfy.org/?share=${SHARE}`), `/comfy-embed?share=${SHARE}`);
     assert.equal(comfyEmbedHref("https://evil.example/?share=25954f3b0278"), null);

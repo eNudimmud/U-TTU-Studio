@@ -10,7 +10,7 @@ import { describe, it } from "node:test";
 describe("parcours CAST DÉCOR PRISE", () => {
   it("asks to generate from PRISE and spends only on the confirm sheet", () => {
     const prise = readFileSync("src/components/app/prise-stage.tsx", "utf8");
-    assert.match(prise, /requestRun\(\)/);
+    assert.match(prise, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
     assert.doesNotMatch(prise, /confirmRun\(/);
     const sheets = readFileSync("src/components/app/sheets.tsx", "utf8");
     const confirm = sheets.slice(sheets.indexOf("export function ConfirmSheet"), sheets.indexOf("export function FalSheet"));

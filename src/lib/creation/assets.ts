@@ -168,11 +168,11 @@ export async function importNotes(
   project: string | null,
 ): Promise<AssetRecord[]> {
   if (!project) return [];
-  const prefix = `Projets/${project}/Assets/`;
+  const prefix = `Projets/${project}/`;
   const out: AssetRecord[] = [];
   for (const path of paths) {
-    if (!path.startsWith(prefix) || !path.endsWith(".md")) continue;
-    const id = path.slice(prefix.length, -".md".length);
+    if (!path.startsWith(prefix) || !/\/(Assets|Sons|Prises)\/[^/]+\.md$/.test(path)) continue;
+    const id = path.split("/").pop()!.slice(0, -".md".length);
     if (!/^[a-z0-9-]+$/.test(id)) continue;
     const source = await read(path);
     if (!source) continue;

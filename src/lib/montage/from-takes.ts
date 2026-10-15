@@ -3,7 +3,7 @@
 import { montageCues, type MontageCue } from "../coffre/montage.ts";
 import type { Shot } from "../coffre/model.ts";
 import { exempleEdit } from "./exemple.ts";
-import type { Edit, VideoClip } from "./edit.ts";
+import { emptyEdit, type Edit, type VideoClip } from "./edit.ts";
 
 type TakeCue = Parameters<typeof montageCues>[1][number];
 
@@ -46,9 +46,10 @@ export function editFromShots(
 
 /**
  * A saved cut wins. Otherwise the first sequence that already has a take.
- * With nothing filed, the example plays and stays out of the vault.
+ * With nothing filed, the cut stays empty. Examples require explicit demo mode.
  */
 export function chooseEdit(input: {
+  demo?: boolean;
   saved: readonly Edit[];
   sequences: readonly { id: string; name: string }[];
   shots: readonly Shot[];
@@ -63,5 +64,5 @@ export function chooseEdit(input: {
   }
   const filed = input.saved[0];
   if (filed) return { edit: filed, stored: true };
-  return { edit: exempleEdit(), stored: false };
+  return { edit: input.demo ? exempleEdit() : emptyEdit("suite", "Séquence"), stored: false };
 }

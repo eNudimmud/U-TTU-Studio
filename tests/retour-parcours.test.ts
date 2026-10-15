@@ -14,7 +14,7 @@ describe("retour sur PRISE", () => {
     assert.match(prise, /★ Garder/);
     assert.match(prise, /Finaliser au montage/);
     assert.match(prise, /data-envoyer-montage/);
-    assert.match(prise, /r7\.envoyer/);
+    assert.match(prise, /Envoyer la prise au montage/);
     assert.ok(prise.indexOf("data-lire-sequence") < prise.indexOf("Finaliser au montage"));
   });
 });
