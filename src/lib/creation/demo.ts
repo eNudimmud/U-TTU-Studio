@@ -18,13 +18,12 @@ export const DEMO_CAST: CastCard[] = [
   demoCast("demo-dj", "DJ", "Un DJ, planche de vues, personnage fictif.", "/exemples/cast-dj.webp", "2026-10-08T12:07:00.000Z"),
 ];
 
+// Only the three house renders that hold up at full size. The flat room, the
+// roof and the corridor were dropped (R10): they did not make anyone want to use them.
 export const DEMO_DECOR: DecorCard[] = [
-  { id: "demo-quai", name: "Le quai, la nuit", prompt: "Un quai la nuit, eau noire, sans personne.", sheet: null, preview: "/exemples/decor-quai-nuit.webp", status: "pret" },
-  { id: "demo-pluie", name: "Sous la pluie", prompt: "Une rue sous la pluie, sans personne.", sheet: null, preview: "/exemples/decor-rue-pluie.webp", status: "pret" },
-  { id: "demo-piece", name: "Une pièce", prompt: "Une pièce vide, sans personne.", sheet: null, preview: "/exemples/decor-piece.webp", status: "pret" },
-  { id: "demo-toit", name: "Un toit au lever du jour", prompt: "Un toit au lever du jour, sans personne.", sheet: null, preview: "/exemples/decor-toit-aube.webp", status: "pret" },
-  { id: "demo-gare", name: "Un hall de gare", prompt: "Un hall de gare, vide, sans personne.", sheet: null, preview: "/exemples/decor-gare.webp", status: "pret" },
-  { id: "demo-couloir", name: "Un couloir", prompt: "Un couloir clair, sans personne.", sheet: null, preview: "/exemples/decor-couloir.webp", status: "pret" },
+  { id: "demo-quai", name: "Le quai, la nuit", prompt: "Un quai la nuit, eau noire, lumières lointaines, sans personne.", sheet: null, preview: "/exemples/decor-quai-nuit.webp", status: "pret" },
+  { id: "demo-gare", name: "Un hall de gare", prompt: "Un hall de gare, vide, lumière froide, sans personne.", sheet: null, preview: "/exemples/decor-gare.webp", status: "pret" },
+  { id: "demo-pluie", name: "Sous la pluie", prompt: "Une rue sous la pluie, lumières floues, sans personne.", sheet: null, preview: "/exemples/decor-rue-pluie.webp", status: "pret" },
 ];
 
 export const DEMO_DECOR_QUOTE = DECOR_TEXT_QUOTE.credits;

@@ -56,6 +56,7 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout" }: {
     defaultFilter={defaultFilter}
     projects={studio.projects.filter(item => item.slug !== studio.project)}
     onRefresh={() => void refreshStudio()}
+    onEmptyDecor={() => { window.location.hash = "scene"; }}
     onImport={files => void importAssets(files)}
     onUseRef={useRef}
     onPrise={asset => {

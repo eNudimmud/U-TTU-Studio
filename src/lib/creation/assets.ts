@@ -210,13 +210,10 @@ const CYCLE = [
   { kind: "personnage" as const, file: "/exemples/cast-dj.webp", title: "DJ" },
   { kind: "decor" as const, file: "/exemples/decor-quai-nuit.webp", title: "Le quai" },
   { kind: "decor" as const, file: "/exemples/decor-rue-pluie.webp", title: "La pluie" },
-  { kind: "decor" as const, file: "/exemples/decor-piece.webp", title: "La pièce" },
-  { kind: "decor" as const, file: "/exemples/decor-toit-aube.webp", title: "Le toit" },
   { kind: "decor" as const, file: "/exemples/decor-gare.webp", title: "La gare" },
-  { kind: "decor" as const, file: "/exemples/decor-couloir.webp", title: "Le couloir" },
   { kind: "plan" as const, file: "/exemples/decor-quai-nuit.webp", title: "Plan quai" },
   { kind: "son" as const, file: "", title: "Voix" },
-  { kind: "importe" as const, file: "/exemples/decor-piece.webp", title: "Import" },
+  { kind: "importe" as const, file: "/exemples/decor-rue-pluie.webp", title: "Import" },
 ];
 
 export function assetFromCast(card: CastCard): AssetRecord {
