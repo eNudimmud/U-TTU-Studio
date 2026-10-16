@@ -30,6 +30,7 @@ import { type Balance } from "@/lib/credits";
 import { finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
 import { isVideoGeste, VIDEO_GESTE_TEXT, videoGesteGraph } from "@/lib/render/video-gestes";
+import { isMeshGeste, meshGesteGraph, runMesh } from "@/lib/render/mesh-gestes";
 import { createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
 import { learnTakeCost } from "@/lib/render/landed-cost";
 import { quotesToRecords } from "@/lib/render/measured-quote";
@@ -99,6 +100,7 @@ export interface StudioSession {
   setPrefs(next: Partial<StudioPrefs>): void;
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   runVideoGeste(input: VideoGesteRun): Promise<FinaliseOutcome>;
+  runMeshGeste(input: MeshGesteRun): Promise<FinaliseOutcome>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
   duplicateCast(id: string): Promise<void>;
@@ -140,6 +142,13 @@ export interface VideoGesteRun {
   prompt: string;
   confirmed: boolean;
   aspect?: "horizontal" | "vertical";
+  onStage(stage: FinaliseStage, seconds?: number): void;
+}
+
+export interface MeshGesteRun {
+  geste: string;
+  file: File;
+  confirmed: boolean;
   onStage(stage: FinaliseStage, seconds?: number): void;
 }
 
@@ -725,6 +734,41 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
   }, [client, refreshBalance, reload, store, t]);
 
+  // « Générer en 3D » de la maquette. Même règle : devis estimé, confirmé, plafond couvert. Jamais d'annulation.
+  const runMeshGeste = useCallback(async (input: MeshGesteRun): Promise<FinaliseOutcome> => {
+    const row = gesteParId(input.geste);
+    if (!row || row.still !== "mesh" || !gesteOuvert(row) || !isMeshGeste(row.id) || row.credits === null || row.high === null) {
+      return { ok: false, message: t(row?.raison ?? "gestes.unwired") };
+    }
+    if (!spendAllowed(row.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
+    if (!client) return { ok: false, message: t("create.needLink") };
+    const fresh = await refreshBalance();
+    if (!creationAllowed(true, fresh?.credits ?? null, row.high)) return { ok: false, message: t("create.needCeiling") };
+    setCreating(true);
+    try {
+      input.onStage("envoi");
+      const ext = input.file.name.includes(".") ? input.file.name.slice(input.file.name.lastIndexOf(".")) : ".png";
+      const image = await client.upload(input.file, `uttu-${row.id}${ext}`);
+      const graph = meshGesteGraph({ geste: row.id, image, seed: crypto.getRandomValues(new Uint32Array(1))[0] });
+      const result = await runMesh(client, { graph, clientId: crypto.randomUUID(), balanceBefore: fresh?.credits ?? 0 }, {
+        onStage: (stage, seconds) => input.onStage(stage, seconds),
+      });
+      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+      const vault = store();
+      const slug = await ensureActiveProject(vault);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const path = `Projets/${slug}/Assets/${row.id}-${stamp}.glb`;
+      await writeBlob(vault, path, result.mesh);
+      await reload();
+      return { ok: true, path, url: URL.createObjectURL(result.mesh), cost: result.costCredits };
+    } catch (error) {
+      const message = error instanceof Error && error.message ? error.message : t("create.failed");
+      return { ok: false, message };
+    } finally {
+      setCreating(false);
+    }
+  }, [client, refreshBalance, reload, store, t]);
+
   const rewriteCast = useCallback(async (cards: CastCard[]) => {
     const vault = store();
     const slug = current.project ?? await ensureActiveProject(vault);
@@ -1279,7 +1323,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     requestRun, confirmRun, cancelRun, resetRun, resumeRun, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast, createDecor, createStem, finaliseMontage, runVideoGeste, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast, createDecor, createStem, finaliseMontage, runVideoGeste, runMeshGeste, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,

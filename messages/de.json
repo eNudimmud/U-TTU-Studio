@@ -1184,6 +1184,14 @@
     "prisePrevis": {
       "title": "Gesteuerte Kamera",
       "phrase": "Dein 3D-Modell legt Kamera, Handlung und Timing fest; LTX macht daraus die Einstellung."
+    },
+    "priseVolumePerso": {
+      "title": "Figur in 3D",
+      "phrase": "Ein CAST-Porträt wird mit Hunyuan3D 2.1 zur 3D-Puppe, offene Gewichte."
+    },
+    "priseVolumeObjet": {
+      "title": "Objekt oder Kulisse in 3D",
+      "phrase": "Ein Foto wird mit TRELLIS.2 zum 3D-Objekt oder Kulissenteil, offene Gewichte."
     }
   },
   "refs": {
@@ -1420,5 +1428,59 @@
     "previsMove": "Bewege jetzt die Kamera im Modell.",
     "previsReady": "Previs von {seconds} s bereit. Nichts wurde gesendet.",
     "previsNoCanvas": "Das 3D-Modell lässt sich auf diesem Gerät nicht filmen: füge ein Previs-Video hinzu."
+  },
+  "previs": {
+    "title": "Previs mit dem Finger",
+    "touch": "Ein Finger: Kamera drehen oder eine Person, ein Objekt verschieben. Zwei Finger: zusammenziehen, um näher zu kommen.",
+    "agent": {
+      "label": "Satz → Szene",
+      "placeholder": "Uttu und Kael in einer Gasse bei Nacht, ein Auto, zwei Laternen, Fahrt näher",
+      "go": "Szene aufbauen",
+      "why": "Schreib einen Satz: wer, welche Objekte, welche Bewegung.",
+      "people": "{n} Figur(en)",
+      "props": "Objekte: {list}",
+      "done": "Verstanden: {list}. Rückgängig holt die vorige Szene zurück.",
+      "none": "Nichts erkannt. Versuch: „zwei Personen, ein Tisch, die Kamera kreist herum“."
+    },
+    "props": "Objekte",
+    "glb": ".glb importieren",
+    "glbNote": "Eine .glb bleibt auf deinem Gerät. Sie wird fürs Handy erleichtert.",
+    "propsFull": "Höchstens {max} Objekte.",
+    "prop": {
+      "caisse": "Kiste",
+      "mur": "Wand",
+      "voiture": "Auto",
+      "arbre": "Baum",
+      "lampadaire": "Laterne",
+      "table": "Tisch",
+      "glb": "3D-Modell"
+    },
+    "move": {
+      "avant": "Fahrt nach vorn",
+      "arriere": "Rückfahrt",
+      "tour": "Kreisfahrt",
+      "pano": "Schwenk",
+      "plongee": "Vogelperspektive",
+      "fixe": "feste Kamera"
+    },
+    "path": "Kamerafahrt ({seconds} s)",
+    "pathLead": "Mit dem Finger kadrieren, den Moment wählen, einen Keyframe setzen. Die Kamera gleitet von einem zum nächsten.",
+    "keyAt": "Keyframe bei {t} s",
+    "addKey": "＋ Keyframe hier",
+    "clearPath": "Fahrt löschen",
+    "removeKey": "Keyframe bei {t} s entfernen",
+    "noPath": "Noch kein Keyframe: die Previs folgt deinen Gesten.",
+    "film": "Previs filmen ({seconds} s)",
+    "filmPath": "Die Kamera folgt deinen Keyframes; der Clip geht an Gesteuerte Kamera.",
+    "filmFree": "Beweg die Kamera beim Filmen; der Clip geht an Gesteuerte Kamera.",
+    "mesh": {
+      "title": "In 3D erzeugen",
+      "photo": "Ausgangsfoto",
+      "needPhoto": "Füge ein Foto hinzu.",
+      "estimate": "Eine Schätzung, noch nie gemessen. Offizieller Comfy-Workflow; nichts läuft ohne deine Bestätigung.",
+      "go": "In 3D erzeugen · {credits} geschätzt",
+      "done": "Modell zur Maquette hinzugefügt."
+    },
+    "keysFull": "Höchstens {max} Keyframes."
   }
 }

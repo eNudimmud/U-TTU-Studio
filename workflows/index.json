@@ -303,6 +303,26 @@
       "api_file": "workflows/prise/prise-previs.api.json"
     },
     {
+      "id": "prise-volume-perso",
+      "onglet": "prise",
+      "template": "3d_hunyuan3d-v2.1",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-volume-perso.json",
+      "api_file": "workflows/prise/prise-volume-perso.api.json"
+    },
+    {
+      "id": "prise-volume-objet",
+      "onglet": "prise",
+      "template": "3d_pixal3d_trellis2_image_to_model",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-volume-objet.json",
+      "api_file": "workflows/prise/prise-volume-objet.api.json"
+    },
+    {
       "id": "prise-mouvement",
       "onglet": "prise",
       "template": "video_wan_animate2",

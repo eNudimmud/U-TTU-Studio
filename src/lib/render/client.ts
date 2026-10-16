@@ -115,6 +115,26 @@ export function audioOutput(outputs: Record<string, unknown> | undefined): Outpu
   return files.find(file => AUDIO_FILE.test(file.filename)) ?? null;
 }
 
+const MESH_FILE = /\.(glb|gltf)$/i;
+
+/** The first 3D model a job saved. SaveGLB and Save3DAdvanced report it under `3d` or `result`. */
+export function meshOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
+  if (!outputs || typeof outputs !== "object") return null;
+  for (const node of Object.values(outputs)) {
+    if (!node || typeof node !== "object") continue;
+    for (const list of Object.values(node as Record<string, unknown>)) {
+      if (!Array.isArray(list)) continue;
+      for (const item of list) {
+        if (!item || typeof item !== "object") continue;
+        const row = item as Record<string, unknown>;
+        if (typeof row.filename !== "string" || !MESH_FILE.test(row.filename)) continue;
+        return { filename: row.filename, subfolder: typeof row.subfolder === "string" ? row.subfolder : "", type: typeof row.type === "string" ? row.type : "output" };
+      }
+    }
+  }
+  return null;
+}
+
 /** The first still a job saved. SaveImage reports it under `images`. */
 export function imageOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
   if (!outputs || typeof outputs !== "object") return null;

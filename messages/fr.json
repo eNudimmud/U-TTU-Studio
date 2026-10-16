@@ -1184,6 +1184,14 @@
     "prisePrevis": {
       "title": "Caméra maîtrisée",
       "phrase": "Ta maquette 3D fixe la caméra, l’action et le timing ; LTX en fait le plan."
+    },
+    "priseVolumePerso": {
+      "title": "Personnage en 3D",
+      "phrase": "Un portrait CAST devient un mannequin 3D avec Hunyuan3D 2.1, poids ouverts."
+    },
+    "priseVolumeObjet": {
+      "title": "Objet ou décor en 3D",
+      "phrase": "Une photo devient un objet ou un morceau de décor en 3D avec TRELLIS.2, poids ouverts."
     }
   },
   "refs": {
@@ -1420,5 +1428,59 @@
     "previsMove": "Bouge la caméra dans la maquette maintenant.",
     "previsReady": "Prévis de {seconds} s prête. Rien n’est parti.",
     "previsNoCanvas": "La maquette 3D n’est pas filmable sur cet appareil : ajoute une vidéo de prévis."
+  },
+  "previs": {
+    "title": "Prévis au doigt",
+    "touch": "Un doigt : tourner la caméra, ou déplacer une personne, un objet. Deux doigts : pincer pour rapprocher.",
+    "agent": {
+      "label": "Phrase → scène",
+      "placeholder": "Uttu et Kael dans une ruelle la nuit, une voiture, deux lampadaires, travelling avant",
+      "go": "Composer la scène",
+      "why": "Écris une phrase : qui, quels objets, quel mouvement.",
+      "people": "{n} personnage(s)",
+      "props": "objets : {list}",
+      "done": "Compris : {list}. Annuler revient à la scène d’avant.",
+      "none": "Rien reconnu. Essaie : « deux personnages, une table, la caméra tourne autour »."
+    },
+    "props": "Objets",
+    "glb": "Importer un .glb",
+    "glbNote": "Un .glb reste sur ton appareil. Il est allégé pour le téléphone.",
+    "propsFull": "{max} objets au plus.",
+    "prop": {
+      "caisse": "Caisse",
+      "mur": "Mur",
+      "voiture": "Voiture",
+      "arbre": "Arbre",
+      "lampadaire": "Lampadaire",
+      "table": "Table",
+      "glb": "Modèle 3D"
+    },
+    "move": {
+      "avant": "travelling avant",
+      "arriere": "travelling arrière",
+      "tour": "tour autour",
+      "pano": "panoramique",
+      "plongee": "plongée",
+      "fixe": "plan fixe"
+    },
+    "path": "Trajet caméra ({seconds} s)",
+    "pathLead": "Cadre au doigt, choisis l’instant, ajoute un point-clé. La caméra glisse d’un point à l’autre.",
+    "keyAt": "Point-clé à {t} s",
+    "addKey": "＋ Point-clé ici",
+    "clearPath": "Effacer le trajet",
+    "removeKey": "Retirer le point-clé à {t} s",
+    "noPath": "Pas encore de point-clé : la prévis suivra tes gestes.",
+    "film": "Filmer la prévis ({seconds} s)",
+    "filmPath": "La caméra suit tes points-clés ; le clip part dans Caméra maîtrisée.",
+    "filmFree": "Bouge la caméra pendant le film ; le clip part dans Caméra maîtrisée.",
+    "mesh": {
+      "title": "Générer en 3D",
+      "photo": "Photo de départ",
+      "needPhoto": "Ajoute une photo.",
+      "estimate": "Devis estimé, jamais encore mesuré. Workflow Comfy officiel, rien ne part sans ta confirmation.",
+      "go": "Générer en 3D · {credits} estimés",
+      "done": "Modèle ajouté à la maquette."
+    },
+    "keysFull": "{max} points-clés au plus."
   }
 }

@@ -25,7 +25,10 @@ import { ExempleDepart } from "./exemple-depart";
 import { FormatSwitch, useFormat } from "./format-switch";
 import { MaquetteView } from "./maquette-view";
 import { useStudio } from "./studio-session";
-import { VideoGestes } from "./video-gestes";
+import { VideoGestes, type PrevisClip } from "./video-gestes";
+import { PrevisPanel } from "./previs-panel";
+import { recordMaquette } from "@/lib/maquette/record";
+import { PATH_SECONDS, moveProp } from "@/lib/maquette/scene";
 
 type Seed = "vide" | "compose" | "final";
 
@@ -94,6 +97,23 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [maquette, setMaquette] = useState<MaquetteState>(() => initialMaquette());
   const [sending, setSending] = useState(false);
   const [picker, setPicker] = useState(false);
+  const [playFrom, setPlayFrom] = useState<number | null>(null);
+  const [previsLeft, setPrevisLeft] = useState(0);
+  const [previsClip, setPrevisClip] = useState<PrevisClip | null>(null);
+  const filming = useRef(false);
+
+  // Films 5 s of the maquette, along the camera path when there is one, and hands the clip to Caméra maîtrisée.
+  async function filmPrevis() {
+    if (filming.current) return;
+    filming.current = true;
+    const keyed = (maquette.path?.length ?? 0) > 1;
+    if (keyed) setPlayFrom(performance.now());
+    const file = await recordMaquette(PATH_SECONDS, setPrevisLeft);
+    setPlayFrom(null);
+    setPrevisLeft(0);
+    filming.current = false;
+    if (file) setPrevisClip({ file, at: Date.now() });
+  }
   const [placeCleared, setPlaceCleared] = useState(false);
   const [quartier, setQuartier] = useState<Quartier | null>(null);
   const booted = useRef(false);
@@ -519,6 +539,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           onMove={(id, x, z) => setMaquette(state => moveFigure(state, id, x, z))}
           onOrbit={(dx, dy) => setMaquette(state => orbitDrag(state, dx, dy))}
           onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
+          onMoveProp={(id, x, z) => setMaquette(state => moveProp(state, id, x, z))}
+          playFrom={playFrom}
         />}
       <div className="u-maquette-tools">
         <button type="button" className="u-lock" aria-pressed={maquette.lockPose} onClick={() => setMaquette(state => toggleLock(state, "pose"))}>{maquette.lockPose ? "🔒" : "🔓"} {t("r7.pose")}</button>
@@ -544,6 +566,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </li>)}
       </ul>
       {maquette.lockPose && <p className="u-why" id="u-why-pose">{t("r7.poseLock")}</p>}
+      <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} />
       <p className="u-why" data-astuce={tip.id}>{t(`r7.astuce.${tip.id}`, { name: tip.name })}</p>
       <button type="button" className="u-link" data-lire-sequence="" data-envoyer-montage="" disabled={sending} aria-describedby={sending ? "u-why-envoyer" : undefined} onClick={() => void envoyer()}>{t("r7.envoyer")}</button>
       {sending && <p className="u-why" id="u-why-envoyer">{t("nav.opening")}</p>}
@@ -686,7 +709,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {!input.previousKept && input.enchainer && <p className="u-why">Le plan précédent n'est pas encore gardé.</p>}
         <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>Imposer l'image de fin</button>
       </details>
-      <VideoGestes aspect={format === "9:16" ? "vertical" : "horizontal"} />
+      <VideoGestes aspect={format === "9:16" ? "vertical" : "horizontal"} previs={previsClip} previsLeft={previsLeft} onRecordPrevis={() => void filmPrevis()} />
     </div>
 
     <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
