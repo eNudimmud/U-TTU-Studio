@@ -6,10 +6,11 @@
 import type { ApiGraph } from "./take-graph.ts";
 import { VIDEO_BRIDGE_BASE, VIDEO_CAMERA_BASE, VIDEO_OUTPAINT_BASE, VIDEO_REMOVE_BASE } from "./video-gestes-base.ts";
 
-export const VIDEO_GESTES = ["prise-raccord", "prise-camera", "prise-elargir", "prise-effacer"] as const;
+export const VIDEO_GESTES = ["prise-previs", "prise-raccord", "prise-camera", "prise-elargir", "prise-effacer"] as const;
 export type VideoGesteId = (typeof VIDEO_GESTES)[number];
 
 export const VIDEO_GESTE_PREFIX: Record<VideoGesteId, string> = {
+  "prise-previs": "uttu/previs",
   "prise-raccord": "uttu/raccord",
   "prise-camera": "uttu/camera",
   "prise-elargir": "uttu/elargir",
@@ -18,6 +19,7 @@ export const VIDEO_GESTE_PREFIX: Record<VideoGesteId, string> = {
 
 /** Whether the gesture needs the visitor's text. Élargir works without one. */
 export const VIDEO_GESTE_TEXT: Record<VideoGesteId, boolean> = {
+  "prise-previs": true,
   "prise-raccord": true,
   "prise-camera": true,
   "prise-elargir": false,
@@ -30,7 +32,12 @@ export interface VideoGesteInput {
   files: Readonly<Record<string, string>>;
   prompt: string;
   seed: number;
+  /** Caméra maîtrisée only: output frame. Defaults to horizontal, as the template. */
+  aspect?: "horizontal" | "vertical";
 }
+
+/** Seconds of previs the controlled shot follows. The template trims the clip to this. */
+export const PREVIS_SECONDS = 5;
 
 export function isVideoGeste(id: string): id is VideoGesteId {
   return (VIDEO_GESTES as readonly string[]).includes(id);
@@ -61,6 +68,21 @@ export function videoGesteGraph(input: VideoGesteInput): ApiGraph {
     graph["39"].inputs.image = need(input.files, "image_2");
     graph["251:252"].inputs.value = prompt;
     graph["251:250"].inputs.value = false;
+    return finish(graph, input.geste, seed);
+  }
+  if (input.geste === "prise-previs") {
+    // Caméra maîtrisée : la prévis de la maquette 3D fixe caméra, action et timing.
+    // MoGe en tire la profondeur, l'IC-LoRA union de LTX-2.3 la suit ; l'image donne le rendu.
+    const graph = structuredClone(VIDEO_CAMERA_BASE);
+    graph["200"].inputs.image = need(input.files, "image_1");
+    graph["199"].inputs.file = need(input.files, "video_1");
+    graph["692"].inputs.duration = PREVIS_SECONDS;
+    graph["129:211"].inputs.on_false = `${prompt} Follow the camera move, the blocking and the timing of the guide exactly.`;
+    graph["129:209"].inputs.prompt = prompt;
+    graph["129:212"].inputs.value = false;
+    const vertical = input.aspect === "vertical";
+    graph["129:113"].inputs.value = vertical ? 704 : 1280;
+    graph["129:98"].inputs.value = vertical ? 1280 : 704;
     return finish(graph, input.geste, seed);
   }
   if (input.geste === "prise-camera") {

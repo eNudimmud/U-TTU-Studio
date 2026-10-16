@@ -97,7 +97,7 @@ describe("registre des gestes", () => {
 
   it("sends a second photo to the second image slot", () => {
     const graph = stillGraph({ kind: "photo-cast", prompt: "Même personne.", images: ["a.jpg", "b.jpg"], seed: 1 });
-    const refs = graph.klein_refs?.inputs as Record<string, unknown>;
+    const refs = graph.klein_17?.inputs as Record<string, unknown>;
     assert.deepEqual(refs["images.image0"], ["load", 0]);
     assert.deepEqual(refs["images.image1"], ["load2", 0]);
     assert.equal(graph.load2?.inputs.image, "b.jpg");

@@ -686,7 +686,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {!input.previousKept && input.enchainer && <p className="u-why">Le plan précédent n'est pas encore gardé.</p>}
         <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>Imposer l'image de fin</button>
       </details>
-      <VideoGestes />
+      <VideoGestes aspect={format === "9:16" ? "vertical" : "horizontal"} />
     </div>
 
     <aside className="u-prise-dock" aria-label="Ce que l'app va faire">

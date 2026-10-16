@@ -122,7 +122,7 @@ describe("une prise sans quitter le studio", () => {
     assert.equal(result.costCredits, 201);
     assert.deepEqual(events.map(event => event.stage), ["upload", "upload", "upload", "submit", "queue", "queue", "render", "render", "fetch", "measure"]);
     const sent = JSON.parse(String(calls.find(call => call.url === "/api/prompt")?.body));
-    assert.deepEqual(sent.prompt.take.inputs["ref_images.ref_image_1"], ["picture_2", 0]);
+    assert.deepEqual(sent.prompt["136"].inputs["ref_images.ref_image_1"], ["picture_2", 0]);
     assert.equal(sent.prompt.picture_1.inputs.image, "in-1.jpg");
     assert.equal(calls.filter(call => call.url === "/api/prompt").length, 1, "one confirmed take, one queued run");
   });

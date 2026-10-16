@@ -277,13 +277,19 @@ export const REGISTRE: readonly Geste[] = [
     id: "prise-prolonger", onglet: "prise", categorie: "raccord", clef: "priseExtend",
     fournit: ["photo", "texte"], slots: [{ role: "plan", slot: "image_1" }],
     template: "video_minimax_h3_i2v_continuation", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseExtend",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseExtend",
   }),
   geste({
     id: "prise-camera", onglet: "prise", categorie: "mouvement", clef: "priseCamera",
     fournit: ["photo", "video"], slots: [{ role: "plan", slot: "image_1" }, { role: "clip", slot: "video_1", media: "video" }],
     template: "video_ltx2_3_ic_lora", credits: 15, high: 30, nature: "hypothese",
     premier: false, still: "video", minRefs: 2, consigne: "",
+  }),
+  geste({
+    id: "prise-previs", onglet: "prise", categorie: "mouvement", clef: "prisePrevis",
+    fournit: ["photo", "video", "texte"], slots: [{ role: "plan", slot: "image_1" }, { role: "clip", slot: "video_1", media: "video" }],
+    template: "video_ltx2_3_ic_lora", credits: 15, high: 30, nature: "hypothese",
+    premier: true, still: "video", minRefs: 2, consigne: "",
   }),
   geste({
     id: "prise-mouvement", onglet: "prise", categorie: "mouvement", clef: "priseMotion",

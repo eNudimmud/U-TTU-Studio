@@ -1052,3 +1052,5 @@
 .u-video-gestes .u-chip, .u-video-gestes .u-primary, .u-video-gestes .u-final-confirm { min-height: 44px; }
 .u-video-file input[type="file"] { min-height: 44px; color: var(--u-muted); }
 .u-video-done video { width: 100%; max-height: 360px; border-radius: 10px; background: #000; }
+.u-previs { display: grid; gap: 8px; }
+.u-previs-clip { width: 100%; max-height: 220px; border-radius: 10px; background: #000; }

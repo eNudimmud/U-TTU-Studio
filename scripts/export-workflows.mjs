@@ -11,6 +11,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { REGISTRE } from "../src/lib/workflows/registre.ts";
 import { wiredGraphs } from "../src/lib/workflows/export.ts";
 import { FINAL_GRAPH } from "../src/lib/prise/finaliser.ts";
+import { finalGraph } from "../src/lib/montage/finaliser.ts";
 
 const RAW = "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates";
 const COMFY = process.env.COMFY_URL ?? "http://127.0.0.1:8188";
@@ -65,6 +66,9 @@ async function exportOne(id, onglet, name, wiredGraph) {
 
 for (const row of REGISTRE) await exportOne(row.id, row.onglet, row.template, wired.get(row.id)?.graph ?? null);
 for (const name of Object.values(FINAL_GRAPH)) await exportOne(name, "finaliser", name, null);
+// The Finaliser the studio really sends: the RTX Video Super Resolution stage of the
+// official template `utility_nvidia_rtx_video_enhance`, without its HDR and frame steps.
+await exportOne("montage-finaliser", "finaliser", "utility_nvidia_rtx_video_enhance", finalGraph({ file: "uttu-montage.mp4", ratio: "16/9", resolution: "1080p", nettoyer: "aucun" }));
 
 writeFileSync("workflows/index.json", json({ source: RAW, exported: new Date().toISOString().slice(0, 10), workflows: index }));
 console.log(`${index.length} workflows, ${index.filter(item => item.api_file).length} API graphs`);

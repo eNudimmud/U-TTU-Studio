@@ -21,9 +21,9 @@ Every render runs on the visitor's own Comfy account through the documented **Co
 | DÉCOR | **FLUX 3 Image Klein** (text, real place photo, time of day) | `image_flux3_klein_t2i`, `image_flux3_klein_image_edit` | open |
 | PRISE | **LTX-2.5** image-to-video, first frame composed by FLUX 3 Klein from character + set (one graph) | `video_ltx2_5_i2v` (+ Klein edit) | open |
 | PRISE | **MiniMax H3** reference-to-video, second engine | `video_minimax_h3_r2v` | open |
-| PRISE (video gestures) | LTX-2.5 first/last frame bridge, LTX-2.3 IC-LoRA camera, LTX-2.3 video outpainting and object removal (VFX / re-shoot) | `video_ltx2_5_flf2v`, `video_ltx2_3_ic_lora`, `template_ltx2_3_lora_video_outpainting`, `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | open |
+| PRISE (video gestures) | **Directed camera** (previs-to-picture: the studio's 3D maquette is filmed in the browser, MoGe depth + LTX-2.3 IC-LoRA union control render the shot), LTX-2.5 first/last frame bridge, LTX-2.3 IC-LoRA camera, LTX-2.3 video outpainting and object removal (VFX / re-shoot) | `video_ltx2_5_flf2v`, `video_ltx2_3_ic_lora`, `template_ltx2_3_lora_video_outpainting`, `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | open |
 | MONTAGE | voice, sound effect, music | ElevenLabs, Sonilo partner templates | partner |
-| Finalize | SeedVR2 restore/upscale, frame interpolation (never regenerates) | `utility_seedvr2_*`, `utility_video_frame_interpolation` | open (+ partner options) |
+| Finalize | NVIDIA RTX Video Super Resolution on the whole edit, optional denoise/deblur (never regenerates) | `utility_nvidia_rtx_video_enhance` (Super Resolution stage) | open |
 
 Nano Banana stays available as an **option, off by default** (toggle « Nano Banana (option) »). **Open weights only** hides every gesture whose graph contains a partner node. Both toggles sit above the gesture cards; the PRISE tab has an engine switch (LTX-2.5 default / MiniMax H3).
 
@@ -62,6 +62,8 @@ Link a Comfy Cloud account in the app (session or API key, kept on the device) t
    ```
    The script refuses graphs with partner nodes unless `--allow-partner` is set.
 
+Every feature runs through its dedicated Comfy workflow (official template, exported): see `docs/AUDIT-WORKFLOWS-COMFY.md`.
+
 ### Spending rules
 
 A quote is shown before every spend; Create/Shoot stays off when the balance does not cover the ceiling. LTX-2.5 takes and the video gestures have no measured take yet: their quote is labelled « Estimé » / estimated (never shown as measured), the visitor confirms the estimated maximum, and the balance must cover it. Running jobs are never cancelled by the studio on its own. Finalize only upscales/restores.
@@ -79,8 +81,8 @@ Street-level references come from [Panoramax](https://panoramax.fr) (CC BY-SA: d
 Chaque rendu part sur le compte Comfy du visiteur par l’**API Comfy Cloud** documentée, via un relais même origine qui ne garde rien. Le studio ne vend rien et ne garde aucun compte ; les fichiers restent dans un coffre local.
 
 - **CAST et DÉCOR :** FLUX 3 Image Klein (open weights) par défaut ; FLUX 3 Image (nœud partenaire) pour plusieurs références et la planche ; Nano Banana en option, éteinte par défaut.
-- **PRISE :** LTX-2.5 par défaut (FLUX 3 Klein compose la première image à partir du personnage et du décor, puis LTX-2.5 l’anime, dans un seul graphe) ; MiniMax H3 en second moteur. Gestes vidéo : raccord LTX-2.5, caméra LTX-2.3 IC-LoRA, élargir le plan et effacer un objet (VFX, re-shoot).
-- **MONTAGE :** voix, effet, musique (partenaires) ; Finaliser : SeedVR2 et interpolation, sans jamais refaire le rendu.
+- **PRISE :** LTX-2.5 par défaut (FLUX 3 Klein compose la première image à partir du personnage et du décor, puis LTX-2.5 l’anime, dans un seul graphe) ; MiniMax H3 en second moteur. Gestes vidéo : caméra maîtrisée (la maquette 3D filmée dans le navigateur sert de prévis ; profondeur MoGe + IC-LoRA LTX-2.3 rendent le plan), raccord LTX-2.5, caméra LTX-2.3 IC-LoRA, élargir le plan et effacer un objet (VFX, re-shoot).
+- **MONTAGE :** voix, effet, musique (partenaires) ; Finaliser : RTX Video Super Resolution (étape du template `utility_nvidia_rtx_video_enhance`), sans jamais refaire le rendu.
 - **Open weights seulement :** cache tous les gestes à nœud partenaire.
 
 ### Workflows

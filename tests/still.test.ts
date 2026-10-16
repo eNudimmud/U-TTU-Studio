@@ -56,15 +56,15 @@ describe("rendu CAST et DÉCOR", () => {
   it("builds the text, photo and sheet graphs without calling out", () => {
     // FLUX 3 Image Klein by default (open weights).
     const text = stillGraph({ kind: "texte-cast", prompt: "Uttu", images: [], seed: 1 });
-    assert.equal(text.klein_unet?.inputs.unet_name, "flux3_image_klein_base_int8_convrot.safetensors");
-    assert.equal(text.klein_sampler?.inputs.steps, 50);
+    assert.equal(text["klein_18:1"]?.inputs.unet_name, "flux3_image_klein_base_int8_convrot.safetensors");
+    assert.equal(text["klein_18:7"]?.inputs.steps, 50);
     assert.equal(text.save?.class_type, "SaveImageAdvanced");
     assert.deepEqual(text.save?.inputs.images, ["klein_decode", 0]);
     const place = stillGraph({ kind: "texte-decor", prompt: "Un quai", images: [], seed: 2 });
-    assert.equal(place.klein_size?.inputs.aspect_ratio, "16:9 (Widescreen)");
+    assert.equal(place.klein_19?.inputs.aspect_ratio, "16:9 (Widescreen)");
     const edit = stillGraph({ kind: "photo-decor", prompt: "Le même lieu", images: ["lieu.png"], seed: 3 });
     assert.equal(edit.load?.class_type, "LoadImage");
-    assert.deepEqual(edit.klein_refs?.inputs["images.image0"], ["load", 0]);
+    assert.deepEqual(edit.klein_17?.inputs["images.image0"], ["load", 0]);
     // Nano Banana stays available as an option.
     const nano = stillGraph({ kind: "texte-decor", prompt: "Un quai", images: [], seed: 2, template: "api_nano_banana_2_1_t2i" });
     assert.equal(nano.still?.class_type, "GeminiNanoBanana2V2");
@@ -94,6 +94,6 @@ describe("rendu CAST et DÉCOR", () => {
     assert.equal(result.jobId, "job-1");
     assert.equal(result.costCredits, 12);
     assert.equal(result.image, png);
-    assert.equal(fake.graph()?.klein_unet?.class_type, "UNETLoader");
+    assert.equal(fake.graph()?.["klein_18:1"]?.class_type, "UNETLoader");
   });
 });

@@ -1180,6 +1180,10 @@
     "priseRemove": {
       "title": "Effacer un objet",
       "phrase": "Un objet disparaît de la vidéo."
+    },
+    "prisePrevis": {
+      "title": "Caméra maîtrisée",
+      "phrase": "Ta maquette 3D fixe la caméra, l’action et le timing ; LTX en fait le plan."
     }
   },
   "refs": {
@@ -1383,7 +1387,7 @@
   },
   "videoGeste": {
     "title": "Gestes vidéo",
-    "lead": "Raccord, caméra, élargir, effacer : LTX, poids ouverts. Devis estimé, jamais encore mesuré sur une vraie prise.",
+    "lead": "Prévis, raccord, caméra, élargir, effacer : LTX, poids ouverts. Devis estimé, jamais encore mesuré sur une vraie prise.",
     "slot": {
       "debut": "Première image",
       "fin": "Dernière image",
@@ -1393,7 +1397,8 @@
     "text": {
       "prise-raccord": "Ce qui se passe entre les deux",
       "prise-camera": "Le mouvement et la scène",
-      "prise-effacer": "Ce qu'il faut effacer"
+      "prise-effacer": "Ce qu'il faut effacer",
+      "prise-previs": "Ce que l’on voit dans le plan"
     },
     "textOptional": "Ce qui apparaît sur les côtés (facultatif)",
     "quote": "Estimé : environ {credits} crédits, maximum {ceiling}.",
@@ -1404,6 +1409,16 @@
     "needFiles": "Il manque un fichier ou le texte.",
     "needText": "Le texte est vide.",
     "needConfirm": "Coche la confirmation pour lancer.",
-    "done": "Vidéo enregistrée dans Mon studio."
+    "done": "Vidéo enregistrée dans Mon studio.",
+    "slotPrevis": {
+      "plan": "Image de rendu (personnage dans le décor)",
+      "clip": "Prévis (vidéo de la maquette)"
+    },
+    "previsLead": "Bouge la caméra et les personnages dans la maquette pendant {seconds} s : cette prévis guide le plan (profondeur, cadre, rythme).",
+    "previsRecord": "Filmer la maquette ({seconds} s)",
+    "previsRecording": "Prévis en cours… {seconds} s",
+    "previsMove": "Bouge la caméra dans la maquette maintenant.",
+    "previsReady": "Prévis de {seconds} s prête. Rien n’est parti.",
+    "previsNoCanvas": "La maquette 3D n’est pas filmable sur cet appareil : ajoute une vidéo de prévis."
   }
 }

@@ -21,7 +21,7 @@ describe("workflows exportés", () => {
       const workflow = read(entry.template_file);
       assert.ok(Array.isArray(workflow.nodes), `${row.id}: UI format`);
     }
-    assert.equal(index.length, REGISTRE.length + Object.keys(FINAL_GRAPH).length);
+    assert.equal(index.length, REGISTRE.length + Object.keys(FINAL_GRAPH).length + 1, "plus montage-finaliser");
   });
 
   it("keeps each wired API graph equal to what the studio sends", () => {

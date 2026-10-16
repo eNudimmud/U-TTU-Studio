@@ -1180,6 +1180,10 @@
     "priseRemove": {
       "title": "Remove an object",
       "phrase": "An object disappears from the video."
+    },
+    "prisePrevis": {
+      "title": "Directed camera",
+      "phrase": "Your 3D maquette sets camera, action and timing; LTX turns it into the shot."
     }
   },
   "refs": {
@@ -1383,7 +1387,7 @@
   },
   "videoGeste": {
     "title": "Video gestures",
-    "lead": "Bridge, camera, widen, erase: LTX, open weights. Estimated quote, not yet measured on a real take.",
+    "lead": "Previs, bridge, camera, widen, erase: LTX, open weights. Estimated quote, not yet measured on a real take.",
     "slot": {
       "debut": "First frame",
       "fin": "Last frame",
@@ -1393,7 +1397,8 @@
     "text": {
       "prise-raccord": "What happens in between",
       "prise-camera": "The move and the scene",
-      "prise-effacer": "What to erase"
+      "prise-effacer": "What to erase",
+      "prise-previs": "What we see in the shot"
     },
     "textOptional": "What appears on the sides (optional)",
     "quote": "Estimated: about {credits} credits, at most {ceiling}.",
@@ -1404,6 +1409,16 @@
     "needFiles": "A file or the text is missing.",
     "needText": "The text is empty.",
     "needConfirm": "Tick the confirmation to run.",
-    "done": "Video saved in My studio."
+    "done": "Video saved in My studio.",
+    "slotPrevis": {
+      "plan": "Look picture (character in the set)",
+      "clip": "Previs (maquette video)"
+    },
+    "previsLead": "Move the camera and the characters in the maquette for {seconds} s: this previs guides the shot (depth, framing, timing).",
+    "previsRecord": "Film the maquette ({seconds} s)",
+    "previsRecording": "Recording previs… {seconds} s",
+    "previsMove": "Move the camera in the maquette now.",
+    "previsReady": "{seconds} s previs ready. Nothing was sent.",
+    "previsNoCanvas": "The 3D maquette can't be filmed on this device: add a previs video."
   }
 }

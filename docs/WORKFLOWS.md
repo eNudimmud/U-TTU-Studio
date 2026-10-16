@@ -49,7 +49,8 @@ Les coûts marqués hypothèse ne sont pas une mesure. Mesurés : la prise MiniM
 | prise-plan-h3 | Plan, second moteur | `video_minimax_h3_r2v` | 4 / 6, mesuré | ouvert, premier, open weights |
 | prise-image | Image vers plan | `video_minimax_h3_i2v` | non mesuré | fermé, open weights |
 | prise-raccord | Raccord | `video_ltx2_5_flf2v` | 12 / 25, estimé | ouvert, premier, open weights |
-| prise-prolonger | Prolonger | `video_minimax_h3_i2v_continuation` | non mesuré | fermé, premier, open weights |
+| prise-prolonger | Prolonger | `video_minimax_h3_i2v_continuation` | non mesuré | fermé, open weights |
+| prise-previs | Caméra maîtrisée (prévis maquette 3D → plan) | `video_ltx2_3_ic_lora` | 15 / 30, estimé | ouvert, premier, open weights |
 | prise-camera | Caméra | `video_ltx2_3_ic_lora` | 15 / 30, estimé | ouvert, open weights |
 | prise-mouvement | Transfert de mouvement | `video_wan_animate2` | non mesuré | fermé, open weights |
 | prise-levres | Lèvres | `video_ltx2_3_ia2v` | non mesuré | fermé, open weights |

@@ -8,7 +8,7 @@ import { H3_R2V_TEMPLATE } from "../src/lib/comfy-stack.ts";
 const fixture = (name: string) => JSON.parse(readFileSync(`tests/fixtures/${name}.json`, "utf8"));
 
 describe("la prise comme graphe", () => {
-  it("builds exactly the graphs Comfy Cloud's pre-flight accepted on 3 October 2026", () => {
+  it("builds the official template graph with only the visitor inputs patched (fixtures 2026-10-16)", () => {
     const rapide = takeGraph({
       seconds: 5, quality: "rapide", aspect: "vertical",
       prompt: "<Picture 1> keeps the same person for the whole shot. <Picture 2> is the place, a quiet harbour at dusk. The shot: she walks along the quay, slow dolly.",
@@ -24,14 +24,14 @@ describe("la prise comme graphe", () => {
     assert.equal(TAKE_MODELS.turboLora, H3_R2V_TEMPLATE.turboLora);
     const pictures = Array.from({ length: 12 }, (_, index) => `p${index}.jpg`);
     const graph = takeGraph({ seconds: 5, quality: "fine", aspect: "carre", prompt: "x", pictures, seed: 1 });
-    const take = graph.take.inputs;
+    const take = graph["136"].inputs;
     for (let index = 0; index < TAKE_PICTURES_MAX; index++) assert.deepEqual(take[`ref_images.ref_image_${index}`], [`picture_${index + 1}`, 0]);
     assert.equal(take["ref_images.ref_image_9"], undefined);
     assert.equal(graph.picture_1.inputs.image, "p0.jpg");
-    assert.equal(graph.lora, undefined, "the fine take does not load the turbo file");
-    assert.deepEqual(graph.guider.inputs.model, ["unet", 0]);
-    assert.equal(graph.sigmas.inputs.steps, 20);
-    assert.equal(graph.size.inputs.aspect_ratio, "1:1 (Square)");
+    assert.equal(graph["146"].inputs.value, false, "the fine take leaves the template's turbo switch off");
+    assert.deepEqual(graph["126"].inputs.model, ["141", 0]);
+    assert.equal(graph["143"].inputs.value, 20);
+    assert.equal(graph["115"].inputs.aspect_ratio, "1:1 (Square)");
     assert.throws(() => takeGraph({ seconds: 5, quality: "fine", aspect: "carre", prompt: "x", pictures: [], seed: 1 }), /photo/);
     assert.throws(() => takeGraph({ seconds: 5, quality: "fine", aspect: "carre", prompt: "  ", pictures: ["a"], seed: 1 }), /plan/);
   });

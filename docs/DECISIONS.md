@@ -836,3 +836,15 @@ La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une 
 - Plus de crédits Comfy : aucune prise de calibrage. La prise LTX-2.5 affiche un devis **estimé** (12 à 25 crédits pour 5 s, proportionnel à la durée), toujours libellé « Estimé », jamais « mesuré ». Le devis précède toujours la dépense ; le maximum estimé sert de plafond face au solde.
 - Gestes vidéo de PRISE branchés : raccord (`video_ltx2_5_flf2v`, estimé 12–25), caméra (`video_ltx2_3_ic_lora`, estimé 15–30), élargir (`template_ltx2_3_lora_video_outpainting`, estimé 15–30), effacer (`template_ltx2_3_obscura_remova_lora_remove_object_from_video`, estimé 15–30). Graphes exportés des templates officiels ; élargir et effacer validés en pré-vol Comfy Cloud (dry run, aucun job). Confirmation du maximum avant envoi, jamais d'annulation.
 - Chaînes i18n inertes de l'ère fal (formation LoRA) retirées des quatre langues.
+
+## 2026-10-16 · Caméra maîtrisée (prévis → plan)
+
+- Inspiré de « The Disturbance Call » (ComfyUI : blockout Blender qui fixe caméra, action et timing, puis rendu vidéo). Le workflow partagé (Seedance) n'a pas pu être lu : l'import Comfy Cloud a refusé l'accès. Notre version reste open source : pas de Seedance.
+- La maquette 3D de PRISE est filmée dans le navigateur (5 s, `canvas.captureStream`) pendant que le visiteur bouge caméra et personnages. Cette prévis entre dans `video_ltx2_3_ic_lora` : MoGe en tire la profondeur, l'IC-LoRA union de LTX-2.3 la suit, une image de rendu donne le look. Format suivi (16:9 / 9:16).
+- Devis estimé 15–30 crédits, libellé « Estimé », confirmation du maximum avant envoi, jamais d'annulation. Aucun crédit dépensé, aucun job.
+
+## 2026-10-16 · Règle : un workflow Comfy dédié par fonction
+
+- Toute fonction passe par son template officiel exporté. Audit et liste des exceptions : `docs/AUDIT-WORKFLOWS-COMFY.md`, gardé par `tests/workflows-dedies.test.ts`.
+- Migrés : FLUX 3 Klein (CAST/DÉCOR) et MiniMax H3 (prise), qui partent maintenant de l'export du template au lieu d'un graphe écrit à la main. Le Finaliser est rattaché à `utility_nvidia_rtx_video_enhance` (étape Super Resolution) et exporté.
+- Le pré-vol Comfy Cloud n'était pas joignable pendant cette passe (accès MCP refusé). Les graphes migrés gardent les modèles, le sampler et les pas des rendus mesurés, mais ils n'ont pas été revalidés côté cloud.

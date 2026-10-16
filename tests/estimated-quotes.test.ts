@@ -54,3 +54,18 @@ describe("gestes vidéo de PRISE", () => {
     assert.doesNotThrow(() => videoGesteGraph({ geste: "prise-elargir", files, prompt: "", seed: 0 }));
   });
 });
+
+describe("caméra maîtrisée", () => {
+  it("feeds the maquette previs to the LTX IC-LoRA graph, in the project format", () => {
+    const files = { image_1: "look.jpg", video_1: "uttu-previs.webm" };
+    const graph = videoGesteGraph({ geste: "prise-previs", files, prompt: "Uttu ouvre la porte.", seed: 3, aspect: "vertical" });
+    assert.equal(graph["199"].inputs.file, "uttu-previs.webm");
+    assert.equal(graph["200"].inputs.image, "look.jpg");
+    assert.equal(graph["129:113"].inputs.value, 704);
+    assert.equal(graph["129:98"].inputs.value, 1280);
+    assert.equal(graph["692"].inputs.duration, 5);
+    assert.ok(Object.values(graph).some(node => node.class_type === "MoGeInference"));
+    const row = gesteParId("prise-previs");
+    assert.ok(row && gesteOuvert(row) && row.nature === "hypothese" && row.template === "video_ltx2_3_ic_lora");
+  });
+});

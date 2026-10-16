@@ -293,6 +293,16 @@
       "api_file": "workflows/prise/prise-camera.api.json"
     },
     {
+      "id": "prise-previs",
+      "onglet": "prise",
+      "template": "video_ltx2_3_ic_lora",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-previs.json",
+      "api_file": "workflows/prise/prise-previs.api.json"
+    },
+    {
       "id": "prise-mouvement",
       "onglet": "prise",
       "template": "video_wan_animate2",
@@ -488,6 +498,16 @@
       "sentPartner": null,
       "template_file": "workflows/finaliser/api_magnific_image_upscale_precise.json",
       "api_file": null
+    },
+    {
+      "id": "montage-finaliser",
+      "onglet": "finaliser",
+      "template": "utility_nvidia_rtx_video_enhance",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/finaliser/montage-finaliser.json",
+      "api_file": "workflows/finaliser/montage-finaliser.api.json"
     }
   ]
 }

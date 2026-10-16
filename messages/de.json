@@ -1180,6 +1180,10 @@
     "priseRemove": {
       "title": "Objekt entfernen",
       "phrase": "Ein Objekt verschwindet aus dem Video."
+    },
+    "prisePrevis": {
+      "title": "Gesteuerte Kamera",
+      "phrase": "Dein 3D-Modell legt Kamera, Handlung und Timing fest; LTX macht daraus die Einstellung."
     }
   },
   "refs": {
@@ -1383,7 +1387,7 @@
   },
   "videoGeste": {
     "title": "Video-Gesten",
-    "lead": "Übergang, Kamera, Erweitern, Entfernen: LTX, offene Gewichte. Geschätzter Preis, noch nicht an einer echten Aufnahme gemessen.",
+    "lead": "Previs, Übergang, Kamera, Erweitern, Entfernen: LTX, offene Gewichte. Geschätzter Preis, noch nicht an einer echten Aufnahme gemessen.",
     "slot": {
       "debut": "Erstes Bild",
       "fin": "Letztes Bild",
@@ -1393,7 +1397,8 @@
     "text": {
       "prise-raccord": "Was dazwischen passiert",
       "prise-camera": "Bewegung und Szene",
-      "prise-effacer": "Was entfernt werden soll"
+      "prise-effacer": "Was entfernt werden soll",
+      "prise-previs": "Was in der Einstellung zu sehen ist"
     },
     "textOptional": "Was an den Seiten erscheint (optional)",
     "quote": "Geschätzt: etwa {credits} Credits, höchstens {ceiling}.",
@@ -1404,6 +1409,16 @@
     "needFiles": "Eine Datei oder der Text fehlt.",
     "needText": "Der Text ist leer.",
     "needConfirm": "Setze das Häkchen, um zu starten.",
-    "done": "Video in Mein Studio gespeichert."
+    "done": "Video in Mein Studio gespeichert.",
+    "slotPrevis": {
+      "plan": "Look-Bild (Figur im Set)",
+      "clip": "Previs (Video des Modells)"
+    },
+    "previsLead": "Bewege Kamera und Figuren im Modell {seconds} s lang: diese Previs führt die Einstellung (Tiefe, Bildausschnitt, Timing).",
+    "previsRecord": "Modell filmen ({seconds} s)",
+    "previsRecording": "Previs läuft… {seconds} s",
+    "previsMove": "Bewege jetzt die Kamera im Modell.",
+    "previsReady": "Previs von {seconds} s bereit. Nichts wurde gesendet.",
+    "previsNoCanvas": "Das 3D-Modell lässt sich auf diesem Gerät nicht filmen: füge ein Previs-Video hinzu."
   }
 }

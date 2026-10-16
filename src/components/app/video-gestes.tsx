@@ -4,14 +4,38 @@
 // son devis estimé (jamais présenté comme mesuré), demande une confirmation du
 // maximum, puis part sur le compte de rendu. Le rendu va au bout, sans annulation.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
-import { VIDEO_GESTE_TEXT, VIDEO_GESTES, type VideoGesteId } from "@/lib/render/video-gestes";
+import { PREVIS_SECONDS, VIDEO_GESTE_TEXT, VIDEO_GESTES, type VideoGesteId } from "@/lib/render/video-gestes";
 import { casesVisibles, gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
 
-export function VideoGestes() {
+/** Films the 3D maquette canvas for the previs. The visitor moves the camera while it records. */
+async function recordMaquette(seconds: number, onTick: (left: number) => void): Promise<File | null> {
+  const canvas = document.querySelector<HTMLCanvasElement>("canvas.u-maquette-canvas");
+  if (!canvas || typeof canvas.captureStream !== "function" || typeof MediaRecorder === "undefined") return null;
+  const type = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4"].find(item => MediaRecorder.isTypeSupported(item));
+  if (!type) return null;
+  const stream = canvas.captureStream(25);
+  const recorder = new MediaRecorder(stream, { mimeType: type });
+  const chunks: Blob[] = [];
+  recorder.ondataavailable = event => { if (event.data.size > 0) chunks.push(event.data); };
+  const done = new Promise<void>(resolve => { recorder.onstop = () => resolve(); });
+  recorder.start(250);
+  for (let left = seconds; left > 0; left--) {
+    onTick(left);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  recorder.stop();
+  await done;
+  stream.getTracks().forEach(track => track.stop());
+  onTick(0);
+  const ext = type.startsWith("video/mp4") ? "mp4" : "webm";
+  return new File(chunks, `uttu-previs.${ext}`, { type: type.split(";")[0] });
+}
+
+export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" | "vertical" }) {
   const { t } = useI18n();
   const { prefs, connected, creating, runVideoGeste } = useStudio();
   const rows = VIDEO_GESTES.flatMap(id => {
@@ -24,19 +48,38 @@ export function VideoGestes() {
   const [confirmed, setConfirmed] = useState(false);
   const [stage, setStage] = useState<{ stage: FinaliseStage; seconds?: number } | null>(null);
   const [outcome, setOutcome] = useState<FinaliseOutcome | null>(null);
+  const [recording, setRecording] = useState(0);
+  const [previsUrl, setPrevisUrl] = useState("");
+  const [previsNote, setPrevisNote] = useState("");
+  const recordingRef = useRef(false);
   const row = rows.find(item => item.id === picked) ?? rows[0];
   if (!row || row.credits === null || row.high === null) return null;
   const geste = row.id as VideoGesteId;
   const cases = casesVisibles(row);
   const needText = VIDEO_GESTE_TEXT[geste];
   const missing = cases.some(item => !files[item.id]) || (needText && !text.trim());
-  const busy = stage !== null;
+  const busy = stage !== null || recording > 0;
   const can = connected && confirmed && !missing && !busy && !creating;
   const why = !connected ? t("videoGeste.needLink") : missing ? t("videoGeste.needFiles") : !confirmed ? t("videoGeste.needConfirm") : "";
+
+  async function previs() {
+    if (recordingRef.current) return;
+    recordingRef.current = true;
+    setPrevisNote("");
+    const file = await recordMaquette(PREVIS_SECONDS, setRecording);
+    recordingRef.current = false;
+    setRecording(0);
+    if (!file) { setPrevisNote(t("videoGeste.previsNoCanvas")); return; }
+    setFiles(current => ({ ...current, video_1: file }));
+    setPrevisUrl(URL.createObjectURL(file));
+    setPrevisNote(t("videoGeste.previsReady", { seconds: String(PREVIS_SECONDS) }));
+  }
 
   function choose(id: VideoGesteId) {
     setPicked(id);
     setFiles({});
+    setPrevisUrl("");
+    setPrevisNote("");
     setConfirmed(false);
     setOutcome(null);
   }
@@ -45,7 +88,7 @@ export function VideoGestes() {
     if (!can) return;
     setOutcome(null);
     setStage({ stage: "envoi" });
-    const result = await runVideoGeste({ geste, files, prompt: text, confirmed, onStage: (next, seconds) => setStage({ stage: next, seconds }) });
+    const result = await runVideoGeste({ geste, files, prompt: text, confirmed, aspect, onStage: (next, seconds) => setStage({ stage: next, seconds }) });
     setStage(null);
     setConfirmed(false);
     setOutcome(result);
@@ -58,8 +101,17 @@ export function VideoGestes() {
       {rows.map(item => <button key={item.id} type="button" className="u-chip" data-video-geste={item.id} aria-pressed={item.id === row.id} disabled={busy} aria-describedby={busy ? "u-video-busy" : undefined} onClick={() => choose(item.id as VideoGesteId)}>{t(`gestes.${item.clef}.title`)}</button>)}
     </div>
     <p>{t(`gestes.${row.clef}.phrase`)}</p>
+    {geste === "prise-previs" && <div className="u-previs" data-previs="">
+      <p className="u-small">{t("videoGeste.previsLead", { seconds: String(PREVIS_SECONDS) })}</p>
+      <button type="button" className="u-chip" data-previs-record="" disabled={busy} aria-describedby={busy ? "u-video-busy" : undefined} onClick={() => void previs()}>
+        {recording > 0 ? t("videoGeste.previsRecording", { seconds: String(recording) }) : t("videoGeste.previsRecord", { seconds: String(PREVIS_SECONDS) })}
+      </button>
+      {recording > 0 && <p className="u-small" id="u-video-busy" aria-live="polite">{t("videoGeste.previsMove")}</p>}
+      {previsNote && <p className="u-small" aria-live="polite">{previsNote}</p>}
+      {previsUrl && <video className="u-previs-clip" src={previsUrl} muted loop autoPlay playsInline />}
+    </div>}
     {cases.map(item => <label key={item.id} className="u-field u-video-file">
-      <span className="u-label">{t(`videoGeste.slot.${item.role}`)}</span>
+      <span className="u-label">{t(geste === "prise-previs" ? `videoGeste.slotPrevis.${item.role}` : `videoGeste.slot.${item.role}`)}</span>
       <input type="file" accept={item.media === "video" ? "video/*" : "image/*"} disabled={busy} onChange={event => {
         const file = event.target.files?.[0];
         setFiles(current => {

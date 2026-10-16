@@ -139,6 +139,7 @@ export interface VideoGesteRun {
   files: Record<string, File>;
   prompt: string;
   confirmed: boolean;
+  aspect?: "horizontal" | "vertical";
   onStage(stage: FinaliseStage, seconds?: number): void;
 }
 
@@ -700,7 +701,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         const ext = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : slot.media === "video" ? ".mp4" : ".jpg";
         names[slot.slot] = await client.upload(file, `uttu-${geste}-${slot.slot}${ext}`);
       }
-      const graph = videoGesteGraph({ geste, files: names, prompt: input.prompt, seed: crypto.getRandomValues(new Uint32Array(1))[0] });
+      const graph = videoGesteGraph({ geste, files: names, prompt: input.prompt, aspect: input.aspect, seed: crypto.getRandomValues(new Uint32Array(1))[0] });
       const jobId = await client.submit(graph, crypto.randomUUID());
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
         if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");

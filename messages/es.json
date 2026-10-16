@@ -1180,6 +1180,10 @@
     "priseRemove": {
       "title": "Borrar un objeto",
       "phrase": "Un objeto desaparece del vídeo."
+    },
+    "prisePrevis": {
+      "title": "Cámara dirigida",
+      "phrase": "Tu maqueta 3D fija la cámara, la acción y el ritmo; LTX la convierte en plano."
     }
   },
   "refs": {
@@ -1383,7 +1387,7 @@
   },
   "videoGeste": {
     "title": "Gestos de vídeo",
-    "lead": "Enlace, cámara, ampliar, borrar: LTX, pesos abiertos. Presupuesto estimado, aún no medido en una toma real.",
+    "lead": "Previs, enlace, cámara, ampliar, borrar: LTX, pesos abiertos. Presupuesto estimado, aún no medido en una toma real.",
     "slot": {
       "debut": "Primera imagen",
       "fin": "Última imagen",
@@ -1393,7 +1397,8 @@
     "text": {
       "prise-raccord": "Lo que pasa entre las dos",
       "prise-camera": "El movimiento y la escena",
-      "prise-effacer": "Lo que hay que borrar"
+      "prise-effacer": "Lo que hay que borrar",
+      "prise-previs": "Lo que se ve en el plano"
     },
     "textOptional": "Lo que aparece a los lados (opcional)",
     "quote": "Estimado: unos {credits} créditos, como máximo {ceiling}.",
@@ -1404,6 +1409,16 @@
     "needFiles": "No hay archivo o texto.",
     "needText": "El texto está vacío.",
     "needConfirm": "Marca la confirmación para lanzar.",
-    "done": "Vídeo guardado en Mi estudio."
+    "done": "Vídeo guardado en Mi estudio.",
+    "slotPrevis": {
+      "plan": "Imagen de aspecto (personaje en el decorado)",
+      "clip": "Previs (vídeo de la maqueta)"
+    },
+    "previsLead": "Mueve la cámara y los personajes en la maqueta durante {seconds} s: esta previs guía el plano (profundidad, encuadre, ritmo).",
+    "previsRecord": "Grabar la maqueta ({seconds} s)",
+    "previsRecording": "Grabando previs… {seconds} s",
+    "previsMove": "Mueve ahora la cámara en la maqueta.",
+    "previsReady": "Previs de {seconds} s lista. No se ha enviado nada.",
+    "previsNoCanvas": "La maqueta 3D no se puede grabar en este dispositivo: añade un vídeo de previs."
   }
 }
