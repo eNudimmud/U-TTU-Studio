@@ -19,7 +19,6 @@ describe("lexique français", () => {
       "Lieux",
       "Ce lieu se rouvre avec sa caméra.",
       "Tes prises",
-      "Personnage (fichier)",
       "Fichier",
       "Références",
       "CAST",

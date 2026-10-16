@@ -268,9 +268,9 @@
       "template": "video_ltx2_5_flf2v",
       "partner": false,
       "partnerNodes": [],
-      "sentPartner": null,
+      "sentPartner": false,
       "template_file": "workflows/prise/prise-raccord.json",
-      "api_file": null
+      "api_file": "workflows/prise/prise-raccord.api.json"
     },
     {
       "id": "prise-prolonger",
@@ -288,9 +288,9 @@
       "template": "video_ltx2_3_ic_lora",
       "partner": false,
       "partnerNodes": [],
-      "sentPartner": null,
+      "sentPartner": false,
       "template_file": "workflows/prise/prise-camera.json",
-      "api_file": null
+      "api_file": "workflows/prise/prise-camera.api.json"
     },
     {
       "id": "prise-mouvement",
@@ -330,9 +330,9 @@
       "template": "template_ltx2_3_lora_video_outpainting",
       "partner": false,
       "partnerNodes": [],
-      "sentPartner": null,
+      "sentPartner": false,
       "template_file": "workflows/prise/prise-elargir.json",
-      "api_file": null
+      "api_file": "workflows/prise/prise-elargir.api.json"
     },
     {
       "id": "prise-effacer",
@@ -340,9 +340,9 @@
       "template": "template_ltx2_3_obscura_remova_lora_remove_object_from_video",
       "partner": false,
       "partnerNodes": [],
-      "sentPartner": null,
+      "sentPartner": false,
       "template_file": "workflows/prise/prise-effacer.json",
-      "api_file": null
+      "api_file": "workflows/prise/prise-effacer.api.json"
     },
     {
       "id": "mont-voix",

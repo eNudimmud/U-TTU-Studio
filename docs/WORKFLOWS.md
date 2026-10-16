@@ -8,7 +8,7 @@ Moteurs (concours Comfy « Open Source Higgsfield ») : **FLUX 3 Image Klein** (
 
 `ouvert` : le studio a déjà un graphe et un devis, le bouton Créer peut partir après confirmation. `fermé` : la carte reste, Créer reste éteint, rien ne part.
 
-Les coûts marqués hypothèse ne sont pas une mesure. Mesurés : la prise MiniMax H3 R2V (environ 4 crédits, plafond 6) et les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109). FLUX 3 Image : 14 crédits par image lus avec `estimate_credits` le 2026-10-16. La prise LTX-2.5 n’a pas encore de mesure : Tourner reste éteint sur ce moteur tant qu’une prise réelle n’a pas été lue (« Pas encore mesuré »).
+Les coûts marqués hypothèse ne sont pas une mesure. Mesurés : la prise MiniMax H3 R2V (environ 4 crédits, plafond 6) et les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109). FLUX 3 Image : 14 crédits par image lus avec `estimate_credits` le 2026-10-16. La prise LTX-2.5 et les gestes vidéo (raccord, caméra, élargir, effacer) n’ont pas encore de mesure : leur devis est affiché « Estimé » (jamais « mesuré »), avec confirmation du maximum ; le maximum estimé sert de plafond face au solde.
 
 ## CAST
 
@@ -45,17 +45,17 @@ Les coûts marqués hypothèse ne sont pas une mesure. Mesurés : la prise MiniM
 
 | Geste | Carte | Template | Devis | État |
 | --- | --- | --- | --- | --- |
-| prise-plan | Personnage dans le décor | `video_ltx2_5_i2v` | 12 / 25, hypothèse | ouvert, premier, open weights |
+| prise-plan | Personnage dans le décor | `video_ltx2_5_i2v` | 12 / 25, estimé | ouvert, premier, open weights |
 | prise-plan-h3 | Plan, second moteur | `video_minimax_h3_r2v` | 4 / 6, mesuré | ouvert, premier, open weights |
 | prise-image | Image vers plan | `video_minimax_h3_i2v` | non mesuré | fermé, open weights |
-| prise-raccord | Raccord | `video_ltx2_5_flf2v` | non mesuré | fermé, premier, open weights |
+| prise-raccord | Raccord | `video_ltx2_5_flf2v` | 12 / 25, estimé | ouvert, premier, open weights |
 | prise-prolonger | Prolonger | `video_minimax_h3_i2v_continuation` | non mesuré | fermé, premier, open weights |
-| prise-camera | Caméra | `video_ltx2_3_ic_lora` | non mesuré | fermé, open weights |
+| prise-camera | Caméra | `video_ltx2_3_ic_lora` | 15 / 30, estimé | ouvert, open weights |
 | prise-mouvement | Transfert de mouvement | `video_wan_animate2` | non mesuré | fermé, open weights |
 | prise-levres | Lèvres | `video_ltx2_3_ia2v` | non mesuré | fermé, open weights |
 | prise-vidu | Autre plan, références | `api_vidu_q4_preview_r2v` | 100 / 150, hypothèse | fermé, nœud partenaire |
-| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | non mesuré | fermé, open weights |
-| prise-effacer | Effacer un objet | `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | non mesuré | fermé, open weights |
+| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | 15 / 30, estimé | ouvert, open weights |
+| prise-effacer | Effacer un objet | `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | 15 / 30, estimé | ouvert, open weights |
 
 ## MONTAGE / SON
 

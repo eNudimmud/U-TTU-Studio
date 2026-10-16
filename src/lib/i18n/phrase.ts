@@ -41,8 +41,6 @@ const EXACT: Record<string, string> = {
   "Ce ZIP ne contient pas de studio à ajouter.": "runtime.zipEmpty",
   "Une vue manque dans mon studio.": "runtime.viewMissing",
   "Le lieu est dans mon studio. Ce fichier n’est pas un volume : le Blender du lieu reste le modèle 3D.": "runtime.placeFiled",
-  "La formation du lieu n’a pas abouti.": "runtime.placeTrainFailed",
-  "Image bâtie depuis le LoRA du lieu. Le fichier Blender reste le modèle 3D.": "runtime.stillBuilt",
   "L’image du lieu n’a pas abouti.": "runtime.placeImageFailed",
   "Clip illisible sur cet appareil.": "runtime.clipUnreadable",
   "Clip trop lourd : 300 Mo au plus.": "runtime.clipHeavy",
@@ -104,6 +102,22 @@ function phraseInner(t: PhraseFn, line: string, depth: number): string {
 
 const PATTERNS: Pattern[] = [
   {
+    re: /^Estimé : environ (\S+) à (\S+) crédits\. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage\.$/,
+    apply: (t, match) => t("runtime.estimateQuote", { amount: match[1], high: match[2] }),
+  },
+  {
+    re: /^Solde trop bas : (\S+) crédits\. Estimé : environ (\S+) à (\S+) crédits\. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage\.$/,
+    apply: (t, match) => t("runtime.estimateLow", { have: match[1], amount: match[2], high: match[3] }),
+  },
+  {
+    re: /^Solde illisible\. Rien ne part sans lire le compte qui paiera\. Estimé : environ (\S+) à (\S+) crédits\. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage\.$/,
+    apply: (t, match) => t("runtime.estimateUnread", { amount: match[1], high: match[2] }),
+  },
+  {
+    re: /^Solde vide sur ton compte de rendu\. Estimé : environ (\S+) à (\S+) crédits\. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage\.$/,
+    apply: (t, match) => t("runtime.estimateEmpty", { amount: match[1], high: match[2] }),
+  },
+  {
     re: /^la plus chère de tes (\d+) dernières prises à ce réglage$/,
     apply: (t, match) => t("runtime.basisSeveral", { count: match[1] }),
   },
@@ -144,10 +158,6 @@ const PATTERNS: Pattern[] = [
     apply: (t, match) => t("runtime.exampleRender", { rate: match[1] }),
   },
   {
-    re: /^Exemple · (.+) pour (\d+) pas, tarif publié le (.+)\. Rien n’est débité ici\.$/,
-    apply: (t, match) => t("runtime.exampleTrain", { amount: match[1], steps: match[2], date: match[3] }),
-  },
-  {
     re: /^Exemple pour (\d+) s : (.+) crédit par seconde de calcul, publié le (.+)\. 1 \$ = (\d+) crédits\. Le chiffre de cette prise se lit après Relier\. Rien n’est débité ici\.$/,
     apply: (t, match) => t("runtime.exampleComfyTake", { seconds: match[1], rate: match[2], date: match[3], credits: match[4] }),
   },
@@ -158,10 +168,6 @@ const PATTERNS: Pattern[] = [
   {
     re: /^Exemple · (.+)$/,
     apply: (t, match) => t("runtime.exampleAmount", { amount: match[1] }),
-  },
-  {
-    re: /^Formation : (.+) pour (\d+) pas\.$/,
-    apply: (t, match) => t("runtime.trainQuote", { amount: match[1], steps: match[2] }),
   },
   {
     re: /^Le trajet est déjà rendu\. Le personnage : (.+)\.$/,

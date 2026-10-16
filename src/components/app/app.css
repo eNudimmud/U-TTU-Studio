@@ -1046,3 +1046,9 @@
 .u-place-tag { position: absolute; left: 3px; bottom: 3px; padding: 1px 5px; border-radius: 6px; background: rgba(0, 0, 0, .72); color: var(--u-gold); font-style: normal; font-size: .62rem; letter-spacing: .04em; text-transform: uppercase; }
 .u-gallery-hidden { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; font-size: .85rem; color: var(--u-gold-soft); }
 .u-gallery-hidden button { flex: none; white-space: nowrap; min-height: 44px; padding: 0 14px; border: 1px solid var(--u-gold); border-radius: 22px; background: transparent; color: var(--u-gold); }
+
+/* Gestes vidéo de PRISE : même grammaire que Finaliser, cibles de 44 px. */
+.u-video-gestes { display: grid; gap: 12px; margin-top: 24px; padding: 16px; border: 1px solid var(--u-line); border-radius: 14px; }
+.u-video-gestes .u-chip, .u-video-gestes .u-primary, .u-video-gestes .u-final-confirm { min-height: 44px; }
+.u-video-file input[type="file"] { min-height: 44px; color: var(--u-muted); }
+.u-video-done video { width: 100%; max-height: 360px; border-radius: 10px; background: #000; }

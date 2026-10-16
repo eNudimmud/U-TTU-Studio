@@ -22,7 +22,6 @@
     "credits": "credits",
     "opening": "Opening my studio…",
     "takeRunning": "take in progress",
-    "trainRunning": "training in progress",
     "sceneRunning": "scene in progress",
     "renderCredits": "Render account credits"
   },
@@ -61,14 +60,6 @@
     "take-done": "The take is here. One gesture sets it on a shot.",
     "take-filed": "The take is in the sequence. One gesture plays it.",
     "take-double": "This character holds from one take to the next. The photos hold the rest.",
-    "lora-name": "Name the character. Later takes hold that one.",
-    "lora-photos": "Two photos of this character. They go with the clips.",
-    "lora-clips": "Ten clips of the character, from three to thirty seconds.",
-    "lora-connect": "Connect the account that will pay the training. The studio takes nothing.",
-    "lora-ready": "The price is here, before your gesture. Nothing leaves without it.",
-    "lora-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
-    "lora-running": "I am learning this character. It takes time: come back later.",
-    "lora-done": "The character is in my studio. Choose them on the take.",
     "sphere-empty": "Your takes will come to rest here.",
     "project-name": "Atelier is written. One gesture creates the project.",
     "understood": "Understood",
@@ -117,22 +108,15 @@
       "label": "References",
       "detail": "The photos in my studio go out with every take.",
       "sound": "The sound is in the take."
-    },
-    "lora": {
-      "label": "Character (trained)",
-      "detail": "The file in my studio holds the character.",
-      "sound": "Sound is not a setting of this file."
     }
   },
   "path": {
     "references": {
       "title": "References",
-      "body": "At least two photos, three at most, a name. Two traits, if you have them. Nothing to train. Each « {engine} » take pays the render account, at the price read when you shoot.",
       "action": "Hold the photos"
     },
     "fichier": {
-      "title": "Trained file",
-      "body": "Ten clips. A file is trained, once. {price} 2000 steps cost twice 1000. « {engine} » takes reload this file, and are paid separately."
+      "title": "Trained file"
     },
     "aria": "Two ways to create a character"
   },
@@ -155,7 +139,6 @@
   "look": {
     "kicker": "Character · References",
     "title": "Up to three photos.",
-    "lead": "Two are enough, three hold. No training. These photos go with every « {engine} » take. The render account pays the take, at the price read then. Nothing is charged here.",
     "photos": "Photos of the references",
     "name": "Name",
     "traits": "What does not change",
@@ -168,7 +151,6 @@
     "aName": "A name",
     "twoTraits": "Two traits",
     "reset": "Reset these references",
-    "stay": "Takes, locations and trained characters stay.",
     "missingOne": "Missing {what}.",
     "missingMany": "Missing {list} and {last}.",
     "gapPhotos": "two photos",
@@ -207,11 +189,6 @@
     "thePlaceBody": "It stays. You reopen it: same name, same layout, same path. You can hold several.",
     "blenderBody": "It renders the empty location, {frames} images along the path. The character is not in this file.",
     "theCharacterBody": "It is the file in my studio. It enters only the filmed path, after these images.",
-    "formed": "This location, trained",
-    "formedPrice": "Training: {amount}.",
-    "formedUnread": "The training price is read before the gesture.",
-    "formedFile": "File in my studio.",
-    "formedTail": "This file is not a volume. The 3D stays the Blender file.",
     "thePrice": "The price",
     "thePriceBody": "Both quotes are read before the gesture. Nothing leaves without confirmation.",
     "plan": "Layout",
@@ -232,13 +209,10 @@
     "noBlenderKey": "No Blender key. The render does not leave, and no image is invented.",
     "changeKey": "Change the Blender key",
     "whereKey": "Where to find the key",
-    "viewsLabel": "Views of the location · {count}/{min} to train it",
     "views": "Views of the location",
     "stills": "Images of the location",
-    "training": "Training the location…",
     "addView": "Add a view",
     "reset": "Reset this location",
-    "resetStay": "Other locations, takes and trained characters stay.",
     "remove": "Remove this location",
     "setAndTake": "Set this place, then the take"
   },
@@ -320,10 +294,6 @@
       "label": "Connect Blender",
       "missing": "The Blender key is missing, on this device."
     },
-    "role": {
-      "label": "Train the character",
-      "missing": "A trained character is missing."
-    },
     "film": {
       "label": "Film this path"
     },
@@ -392,7 +362,6 @@
     "stayTakes": "Takes already shot stay.",
     "gapPhotos": "Two photos and a name are missing.",
     "gapScene": "A location is missing.",
-    "gapFile": "The Character (trained) engine is waiting for a trained file.",
     "hintFile": "A character file is missing.",
     "hintBlocked": "The price or the balance will not let the take leave.",
     "defaultLine": "The character is in the place."
@@ -408,7 +377,6 @@
   "run": {
     "start": "Preparing",
     "upload": "Sending images · {done}/{total}",
-    "lora": "Sending the character",
     "submit": "Queuing",
     "queuePos": "In queue · {position}",
     "queue": "In queue on your account",
@@ -416,45 +384,6 @@
     "render": "Shooting · {clock}",
     "fetch": "The take is coming back",
     "measure": "Reading the charge"
-  },
-  "lora": {
-    "kicker": "01 · Character",
-    "twoWays": "Two ways.",
-    "trainTitle": "Train a character.",
-    "long": "It takes time. You can leave and come back: the file joins my studio.",
-    "filed": "The character is in my studio.",
-    "shootWith": "Shoot with this character",
-    "sendTitle": "What you send",
-    "send": "At least ten video clips of this character, thirty at most. Each lasts from 3 to 30 seconds: a clear face, a little movement. mp4, mov, mkv or avi. Photos in place of clips are refused.",
-    "photosTitle": "The photos",
-    "photos": "At least two, four at most, of this character. They go with every clip. They do not learn in place of the clips.",
-    "willTitle": "What it will do",
-    "will": "On the take, « {engine} » reloads this file. Later takes hold the same character.",
-    "wontTitle": "What it will not do",
-    "wont": "The location, the clothes and the gesture come from the images and your line. « {engine} » does not load this file.",
-    "name": "Character name",
-    "photosLabel": "Photos of the character",
-    "copy": "Reuse the photos and the traits",
-    "clips": "Clips",
-    "clip": "Clip {index} · {seconds} s",
-    "removeClip": "Remove clip {index}",
-    "addClips": "Add clips",
-    "learning": "Training length",
-    "steps": "{count} steps",
-    "stepsHint": "1000 steps for a first file. 2000 steps hold it better, and cost twice as much.",
-    "reset": "Reset this character",
-    "resetStay": "Files already trained stay.",
-    "pass": "{steps} steps",
-    "placeFallback": "Location",
-    "fileFallback": "the file",
-    "formedPlaces": "Trained locations"
-  },
-  "train": {
-    "pack": "Preparing the clips",
-    "upload": "Sending the clips",
-    "train": "Training · {clock}",
-    "fetch": "The file is coming back",
-    "credits": "Top up the account that pays, then run again. The balance, at the top, shows what remains."
   },
   "fiche": {
     "kicker": "Sheets",
@@ -482,17 +411,7 @@
         "The duration and the format"
       ]
     },
-    "former": {
-      "name": "Train a character",
-      "sentence": "Clips become a file. Later takes reload it.",
-      "inputs": [
-        "A name",
-        "Two photos",
-        "{clips} clips"
-      ]
-    },
     "lieu": {
-      "name": "Train a location",
       "sentence": "The views of the location become an image file. It is not a volume.",
       "inputs": [
         "A named location",
@@ -591,7 +510,6 @@
     "obsidian": "To go from the phone to the computer, and back: export the ZIP on the device you are leaving, carry that file yourself, then import it on the other device. No server copies it. To read it alongside, open this folder in Obsidian. Files are added. A take or a character already here stays.",
     "referencePhotos": "Photos of the references",
     "clips": "Clips",
-    "doubles": "Trained files",
     "usageVolatile": " · The browser may clear this storage: export or link a folder.",
     "usageHeld": " · Storage protected.",
     "usageOnDevice": "{amount} MB on this device",
@@ -621,8 +539,6 @@
     "nothing": "Nothing leaves without this gesture. The studio takes nothing.",
     "relierTitle": "Connect",
     "referencesPays": "It pays « {engine} » takes.",
-    "confirmTrain": "Train this character?",
-    "trainDebit": "Train · the quote is read first",
     "confirmFilm": "Film this path?",
     "filmBody": "Blender renders the empty location, along the path. The character is the file in my studio: it enters only the filmed path. If no image comes back, none is shown.",
     "filmDebit": "Film · charge on my account",
@@ -630,15 +546,11 @@
     "blenderIntro": "Farpy runs Blender, off your device. Create an account, add credit, then a job key. It starts with farpy_agent_. An account key does not start the render.",
     "jobKey": "Job key",
     "keyStays": "The key stays on this device. It does not enter my studio. Pasting the key charges nothing: the quote is read at the first film.",
-    "confirmPlace": "Train this location?",
     "views": "Views",
     "styleSteps": "1000 steps · style",
     "price": "Price",
-    "placeTrainBody": "The H3 trainer refuses stills alone. This location goes through the image trainer already here, in style, with no face mask. The file stays in my studio. It does not become a volume: the location’s Blender file stays the 3D model, and it does not enter the H3 take.",
-    "placeTrainDebit": "Train this location · the quote is read first",
     "confirmStill": "Generate a still of this location?",
     "placeFile": "Location file, in my studio",
-    "stillBody": "The new still reloads this file. The 3D model of the location stays the Blender file, not this LoRA.",
     "buildDebit": "Generate still · the quote is read first",
     "shot": "Filmed",
     "debit": "Charge",
@@ -759,8 +671,6 @@
     "zipEmpty": "This ZIP has no studio to add.",
     "viewMissing": "A view is missing from my studio.",
     "placeFiled": "The location is in my studio. This file is not a volume: the location’s Blender file stays the 3D model.",
-    "placeTrainFailed": "Location training did not finish.",
-    "stillBuilt": "Still generated from the location LoRA. The Blender file stays the 3D model.",
     "placeImageFailed": "The location image did not finish.",
     "clipUnreadable": "Clip unreadable on this device.",
     "clipHeavy": "Clip too heavy: 300 MB at most.",
@@ -772,16 +682,12 @@
     "basisOne": "your take of {date} at this setting",
     "aboutCredits": "About {amount} credits, measured on {basis}.",
     "balanceLow": "Balance too low: {have} credits. About {need} are needed, measured on {basis}.",
-    "thisTraining": "This training",
     "thisTake": "This take",
-    "thisTrainingLower": "this training",
     "thisTakeLower": "this take",
     "exampleRender": "Sample · {rate} credit per second of compute, on the render account. Nothing is charged here.",
-    "exampleTrain": "Sample · {amount} for {steps} steps, tariff published on {date}. Nothing is charged here.",
     "exampleComfyTake": "Sample for {seconds} s: {rate} credit per second of compute, published on {date}. 1 $ = {credits} credits. This take’s figure is read after Connect. Nothing is charged here.",
     "exampleRate": "Sample · {rate} credit/s",
     "exampleAmount": "Sample · {amount}",
-    "trainQuote": "Training: {amount} for {steps} steps.",
     "pathReady": "The path is already rendered. The character: {amount}.",
     "oneImage": "1 image",
     "nImages": "{count} images",
@@ -796,7 +702,11 @@
     "clipLong": "Clip too long: {max} s at most.",
     "importedOne": "Added to my studio: {count} file. Takes and characters already here stay.",
     "importedMany": "Added to my studio: {count} files. Takes and characters already here stay.",
-    "folderCopied": "{count} files copied into « {name} ». The folder follows the studio until it closes."
+    "folderCopied": "{count} files copied into « {name} ». The folder follows the studio until it closes.",
+    "estimateQuote": "Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
+    "estimateLow": "Balance too low: {have} credits. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
+    "estimateUnread": "Balance unreadable. Nothing leaves without reading the account that pays. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
+    "estimateEmpty": "Your render account is empty. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet."
   },
   "cinema": {
     "kicker": "Apart",
@@ -878,7 +788,6 @@
     "drawerCost": "Quote detail",
     "drawerProfile": "Profile {profile}",
     "closeDrawer": "Close",
-    "trainFile": "Train a file",
     "cameraPath": "Set path",
     "cinema": "Camera moves",
     "decorQuai": "The quay at night",
@@ -1082,17 +991,13 @@
       "decorWiden": "Soon: the price is not checked yet.",
       "decorVolume": "Soon: the price is not checked yet.",
       "priseStill": "Soon: the price is not checked yet.",
-      "priseBridge": "Soon: the price is not checked yet.",
       "priseExtend": "Soon: the price is not checked yet.",
-      "priseCamera": "Soon: the price is not checked yet.",
       "priseMotion": "Soon: the price is not checked yet.",
       "priseLips": "Soon: the price is not checked yet.",
       "priseVidu": "Soon: the price is not checked yet.",
       "montLips": "Soon: the price is not checked yet.",
       "montUpscale": "Soon: the price is not checked yet.",
-      "montFrames": "Soon: the price is not checked yet.",
-      "priseOutpaint": "Soon: price not checked yet.",
-      "priseRemove": "Soon: price not checked yet."
+      "montFrames": "Soon: the price is not checked yet."
     },
     "cat": {
       "identite": "Identity",
@@ -1475,5 +1380,30 @@
     "decor": "A real studio set. Tap it: the reference, name and gesture fill in.",
     "prise": "Uttu on the quay, already framed. Tap it: character, set, framing and action fill in.",
     "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent."
+  },
+  "videoGeste": {
+    "title": "Video gestures",
+    "lead": "Bridge, camera, widen, erase: LTX, open weights. Estimated quote, not yet measured on a real take.",
+    "slot": {
+      "debut": "First frame",
+      "fin": "Last frame",
+      "plan": "Shot picture",
+      "clip": "Shot video"
+    },
+    "text": {
+      "prise-raccord": "What happens in between",
+      "prise-camera": "The move and the scene",
+      "prise-effacer": "What to erase"
+    },
+    "textOptional": "What appears on the sides (optional)",
+    "quote": "Estimated: about {credits} credits, at most {ceiling}.",
+    "estimate": "An estimate, not a measure: no billed real take for this gesture yet.",
+    "confirm": "I confirm: at most {ceiling} credits on my account (estimated).",
+    "go": "Run for about {credits} credits (estimated)",
+    "needLink": "Link your render account (Comfy) to run.",
+    "needFiles": "A file or the text is missing.",
+    "needText": "The text is empty.",
+    "needConfirm": "Tick the confirmation to run.",
+    "done": "Video saved in My studio."
   }
 }

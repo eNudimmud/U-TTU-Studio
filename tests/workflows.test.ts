@@ -58,7 +58,7 @@ describe("registre des gestes", () => {
     assert.ok(open.includes("mont-musique"));
     assert.equal(open.includes("cast-angle"), false);
     assert.equal(open.includes("decor-elargir"), false);
-    assert.equal(open.includes("prise-raccord"), false);
+    for (const id of ["prise-raccord", "prise-camera", "prise-elargir", "prise-effacer"]) assert.ok(open.includes(id), id);
     assert.equal(open.includes("prise-vidu"), false);
     assert.equal(open.includes("mont-agrandir"), false);
   });

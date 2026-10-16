@@ -25,6 +25,7 @@ import { ExempleDepart } from "./exemple-depart";
 import { FormatSwitch, useFormat } from "./format-switch";
 import { MaquetteView } from "./maquette-view";
 import { useStudio } from "./studio-session";
+import { VideoGestes } from "./video-gestes";
 
 type Seed = "vide" | "compose" | "final";
 
@@ -685,6 +686,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {!input.previousKept && input.enchainer && <p className="u-why">Le plan précédent n'est pas encore gardé.</p>}
         <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>Imposer l'image de fin</button>
       </details>
+      <VideoGestes />
     </div>
 
     <aside className="u-prise-dock" aria-label="Ce que l'app va faire">

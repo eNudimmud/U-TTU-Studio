@@ -29,6 +29,7 @@ import { posePlan } from "@/lib/ergonomie";
 import { type Balance } from "@/lib/credits";
 import { finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
+import { isVideoGeste, VIDEO_GESTE_TEXT, videoGesteGraph } from "@/lib/render/video-gestes";
 import { createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
 import { learnTakeCost } from "@/lib/render/landed-cost";
 import { quotesToRecords } from "@/lib/render/measured-quote";
@@ -97,6 +98,7 @@ export interface StudioSession {
   prefs: StudioPrefs;
   setPrefs(next: Partial<StudioPrefs>): void;
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
+  runVideoGeste(input: VideoGesteRun): Promise<FinaliseOutcome>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
   duplicateCast(id: string): Promise<void>;
@@ -129,6 +131,15 @@ export interface StudioSession {
   saveLieu(input: { name: string; note: string; quartier?: string }): Promise<string | null>;
   saveLieuPhoto(input: { name: string; note: string; quartier?: string; photo: { id: string; author: string; credit: string; blob: Blob } }): Promise<string | null>;
   sendToMontage(input: { planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }): Promise<void>;
+}
+
+/** One PRISE video gesture (raccord, caméra, élargir, effacer). Same gate as a take: confirmed quote, balance over the ceiling. */
+export interface VideoGesteRun {
+  geste: string;
+  files: Record<string, File>;
+  prompt: string;
+  confirmed: boolean;
+  onStage(stage: FinaliseStage, seconds?: number): void;
 }
 
 export type FinaliseStage = "envoi" | "file" | "calcul" | "retour" | "mesure";
@@ -656,6 +667,52 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const vault = store();
       const slug = await ensureActiveProject(vault);
       const path = `Projets/${slug}/Assets/${finalFileId(input.name, input.choice.resolution, new Date())}.mp4`;
+      await writeBlob(vault, path, result.video);
+      await reload();
+      return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
+    } catch (error) {
+      const message = error instanceof Error && error.message ? error.message : t("create.failed");
+      return { ok: false, message };
+    } finally {
+      setCreating(false);
+    }
+  }, [client, refreshBalance, reload, store, t]);
+
+  // Gestes vidéo de PRISE. Devis estimé, confirmé, plafond couvert par le solde. Jamais d'annulation.
+  const runVideoGeste = useCallback(async (input: VideoGesteRun): Promise<FinaliseOutcome> => {
+    const row = gesteParId(input.geste);
+    if (!row || row.still !== "video" || !gesteOuvert(row) || !isVideoGeste(row.id) || row.credits === null || row.high === null) {
+      return { ok: false, message: t(row?.raison ?? "gestes.unwired") };
+    }
+    const geste = row.id;
+    if (!spendAllowed(row.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
+    if (VIDEO_GESTE_TEXT[geste] && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
+    if (row.slots.some(slot => !input.files[slot.slot])) return { ok: false, message: t("videoGeste.needFiles") };
+    if (!client) return { ok: false, message: t("create.needLink") };
+    const fresh = await refreshBalance();
+    if (!creationAllowed(true, fresh?.credits ?? null, row.high)) return { ok: false, message: t("create.needCeiling") };
+    setCreating(true);
+    try {
+      input.onStage("envoi");
+      const names: Record<string, string> = {};
+      for (const slot of row.slots) {
+        const file = input.files[slot.slot];
+        const ext = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : slot.media === "video" ? ".mp4" : ".jpg";
+        names[slot.slot] = await client.upload(file, `uttu-${geste}-${slot.slot}${ext}`);
+      }
+      const graph = videoGesteGraph({ geste, files: names, prompt: input.prompt, seed: crypto.getRandomValues(new Uint32Array(1))[0] });
+      const jobId = await client.submit(graph, crypto.randomUUID());
+      const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
+        if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
+        else if (event.stage === "render") input.onStage("calcul", event.seconds);
+        else if (event.stage === "fetch") input.onStage("retour");
+        else if (event.stage === "measure") input.onStage("mesure");
+      });
+      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+      const vault = store();
+      const slug = await ensureActiveProject(vault);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const path = `Projets/${slug}/Assets/${geste}-${stamp}.mp4`;
       await writeBlob(vault, path, result.video);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
@@ -1221,7 +1278,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     requestRun, confirmRun, cancelRun, resetRun, resumeRun, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast, createDecor, createStem, finaliseMontage, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast, createDecor, createStem, finaliseMontage, runVideoGeste, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,

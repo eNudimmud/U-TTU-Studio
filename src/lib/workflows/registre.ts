@@ -32,7 +32,7 @@ export interface Geste {
   nature: NatureCout;
   premier: boolean;
   /** Graph already in the studio. `prise` is the measured take. Null stays closed. */
-  still: StillKindName | "prise" | "voix" | "effet" | "musique" | null;
+  still: StillKindName | "prise" | "video" | "voix" | "effet" | "musique" | null;
   minRefs: number;
   /** i18n key. One line, shown when the gesture stays under Bientôt. */
   raison?: string;
@@ -270,8 +270,8 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-raccord", onglet: "prise", categorie: "raccord", clef: "priseBridge",
     fournit: ["photos", "texte"], slots: [{ role: "debut", slot: "image_1" }, { role: "fin", slot: "image_2" }],
-    template: "video_ltx2_5_flf2v", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 2, consigne: "", raison: "gestes.raisons.priseBridge",
+    template: "video_ltx2_5_flf2v", credits: 12, high: 25, nature: "hypothese",
+    premier: true, still: "video", minRefs: 2, consigne: "",
   }),
   geste({
     id: "prise-prolonger", onglet: "prise", categorie: "raccord", clef: "priseExtend",
@@ -282,8 +282,8 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-camera", onglet: "prise", categorie: "mouvement", clef: "priseCamera",
     fournit: ["photo", "video"], slots: [{ role: "plan", slot: "image_1" }, { role: "clip", slot: "video_1", media: "video" }],
-    template: "video_ltx2_3_ic_lora", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseCamera",
+    template: "video_ltx2_3_ic_lora", credits: 15, high: 30, nature: "hypothese",
+    premier: false, still: "video", minRefs: 2, consigne: "",
   }),
   geste({
     id: "prise-mouvement", onglet: "prise", categorie: "mouvement", clef: "priseMotion",
@@ -306,14 +306,14 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-elargir", onglet: "prise", categorie: "vfx", clef: "priseOutpaint",
     fournit: ["video"], slots: [{ role: "clip", slot: "video_1", media: "video" }],
-    template: "template_ltx2_3_lora_video_outpainting", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseOutpaint",
+    template: "template_ltx2_3_lora_video_outpainting", credits: 15, high: 30, nature: "hypothese",
+    premier: false, still: "video", minRefs: 1, consigne: "",
   }),
   geste({
     id: "prise-effacer", onglet: "prise", categorie: "vfx", clef: "priseRemove",
     fournit: ["video", "texte"], slots: [{ role: "clip", slot: "video_1", media: "video" }],
-    template: "template_ltx2_3_obscura_remova_lora_remove_object_from_video", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseRemove",
+    template: "template_ltx2_3_obscura_remova_lora_remove_object_from_video", credits: 15, high: 30, nature: "hypothese",
+    premier: false, still: "video", minRefs: 1, consigne: "",
   }),
   geste({
     id: "mont-voix", onglet: "montage", categorie: "son", clef: "montVoice",
