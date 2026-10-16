@@ -13,7 +13,10 @@
 | #107 `712271e`, [CI 38727049394](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38727049394) | 343 réussis, 1 ignoré | Réussis | **5 réussis, 9 échecs** : personnage absent de la maquette, AAC non encodable, sélection galerie mobile et glissement panorama |
 | #104 après R10 `75e9ed2`, [CI 38818150540](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38818150540) | 332 réussis, 1 ignoré | Réussis | **10 réussis**, Chrome ordinateur/mobile, 39,7 s |
 | #107 après R10 `e3ceee8`, [CI 38818233890](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38818233890) | **344 réussis, 1 ignoré**, 0 échec (345 tests, 87 suites) | **Réussis** | **16 réussis**, Chrome ordinateur/mobile, 1,3 min |
+| #104 R10b `e82a4e5`, [CI 38883330542](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38883330542) | 331 réussis, 1 échec, 1 ignoré | Non exécutés après l’échec | Une assertion propre à #107 avait été incluse par erreur dans #104 ; rétablie dans son périmètre, contrôle de confirmation conservé |
 | #107 `d48c7d3`, [CI 38818748589](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38818748589) | 344 réussis, 1 ignoré | Réussis | **16 réussis**, 1,4 min ; décor d’exemple non transmis bloqué avant confirmation |
+| #107 R10b `3a92f01`, [CI 38883387105](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38883387105) | **344 réussis, 1 ignoré** | **Réussis** | **16 réussis**, 1,3 min ; indicateurs CAST/DÉCOR/PRISE et disparition de l’alerte de récupération contrôlés |
+| #104 R10b `73ec49f`, [CI 38883673887](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38883673887) | **332 réussis, 1 ignoré** | **Réussis** | **10 réussis**, Chrome ordinateur/mobile |
 
 Le test ignoré est le rendu Blender : le binaire attendu n’est pas disponible. Il ne constitue pas un succès Farpy. La suite contient de nombreux contrôles de chaînes de code en plus des tests comportementaux. Leur nombre brut n’est pas un indicateur suffisant de fonctionnement réel.
 
@@ -28,7 +31,9 @@ Les quatre MP4 de la CI `38818233890` ont été téléchargés puis analysés in
 | Image importée → storyboard | H.264, 540×960, 12 images/s, 5,000 s vidéo ; AAC stéréo 48 kHz | 121 594 / 122 021 octets ; piste audio de 5,035 s (padding codec) |
 | Deux vidéos importées | H.264, 960×540, 12 images/s, 6,000 s vidéo ; AAC stéréo 48 kHz | 147 502 / 147 787 octets ; piste audio de 6,037 s |
 
-Les images de la CI ont également été ouvertes pour inspection visuelle. Elles montrent le montage, les deux clips et l’interface d’export dans les deux formats d’écran. Elles ont révélé deux incohérences textuelles supplémentaires : états CAST/DÉCOR « Vide » après import et notification de récupération restée affichée après sauvegarde. Les corrections et leurs assertions sont dans la révision suivante, qui intègre aussi R10b. Ces fichiers prouvent l’export local ; ils ne prouvent aucune génération payante réelle.
+Les images de la CI ont également été ouvertes pour inspection visuelle. Elles montrent le montage, les deux clips et l’interface d’export dans les deux formats d’écran. Elles ont révélé deux incohérences textuelles supplémentaires : états CAST/DÉCOR « Vide » après import et notification de récupération restée affichée après sauvegarde. Les corrections et leurs assertions sont dans la révision suivante, qui intègre aussi R10b. La CI R10b `38883387105` a ensuite passé les mêmes contrôles, y compris les nouveaux indicateurs. Son archive a été vérifiée par SHA-256 puis ses quatre MP4 analysés : [relevé ffprobe](exports-ci-38883387105.json).
+
+Deux résultats et deux captures de cette révision sont conservés dans le dépôt : [storyboard vertical MP4](preuves/storyboard-vertical.mp4), [montage de deux clips MP4](preuves/montage-deux-clips.mp4), [capture mobile](preuves/export-mobile.png), [capture ordinateur](preuves/montage-desktop.png). Ce sont des médias de test issus des ressources existantes du dépôt. Ils prouvent l’export local ; ils ne prouvent aucune génération payante réelle.
 
 ## Scénarios ajoutés
 

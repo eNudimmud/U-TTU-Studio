@@ -1,0 +1,116 @@
+{
+  "commit": "3a92f01ba3107f62fa02fd4c3fb105c1d88bebf1",
+  "run": 38883387105,
+  "artifact": 12038024496,
+  "archive_sha256": "58ff64afb911c7eec096d6d01ba85af102564d0e48df9c2d552144d5054a9fc6",
+  "files": [
+    {
+      "file": "production-local-deux-vidé-55534--six-secondes-→-MP4-lisible-desktop/two-clips.mp4",
+      "sha256": "dcabfa161bc1cd0be3546266996f9287a4d31c865a24cc731688eed1dd177373",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 960,
+          "height": 540,
+          "r_frame_rate": "12/1",
+          "duration": "6.000000"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0",
+          "duration": "6.037333"
+        }
+      ],
+      "format": {
+        "duration": "6.037333",
+        "size": "155764"
+      }
+    },
+    {
+      "file": "production-local-deux-vidé-55534--six-secondes-→-MP4-lisible-mobile/two-clips.mp4",
+      "sha256": "9f18d7e9cdbae68ac2f15bb2c2d90b0019f95abd5f35652b551ac63d1b99eab2",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 960,
+          "height": 540,
+          "r_frame_rate": "12/1",
+          "duration": "6.000000"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0",
+          "duration": "6.037333"
+        }
+      ],
+      "format": {
+        "duration": "6.037333",
+        "size": "155496"
+      }
+    },
+    {
+      "file": "production-local-import-gr-e0e7c-e-→-vrai-MP4-et-réouverture-desktop/export-local.mp4",
+      "sha256": "6c39282858685a082da3680eda3c65252dc63ff512832cddb7b1fe674f9975cd",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 540,
+          "height": 960,
+          "r_frame_rate": "12/1",
+          "duration": "5.000000"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0",
+          "duration": "5.034667"
+        }
+      ],
+      "format": {
+        "duration": "5.034667",
+        "size": "121711"
+      }
+    },
+    {
+      "file": "production-local-import-gr-e0e7c-e-→-vrai-MP4-et-réouverture-mobile/export-local.mp4",
+      "sha256": "d7d1ae716de7544a45bc887bdb48d3d64654bbb6cf91af8b52f6822099acb9bb",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 540,
+          "height": 960,
+          "r_frame_rate": "12/1",
+          "duration": "5.000000"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0",
+          "duration": "5.034667"
+        }
+      ],
+      "format": {
+        "duration": "5.034667",
+        "size": "122033"
+      }
+    }
+  ]
+}

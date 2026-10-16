@@ -2,6 +2,17 @@
 
 Le parcours local possède des éléments réels réutilisables, mais le critère de réussite complet ne peut pas encore être certifié en production. Les corrections sont proposées en brouillon ; aucune fusion, aucun déploiement manuel de production, aucun rendu payant pendant cet audit.
 
+## Verdict par niveau de preuve
+
+| État | Fonctions et portée |
+| --- | --- |
+| **Opérationnel sur le build testé** | Imports gratuits CAST/DÉCOR/vidéo, préparation et conservation d’un plan, assemblage de deux clips, export MP4 H.264/AAC et réouverture dans le même profil Chrome. Les fichiers ont réellement été encodés, téléchargés et analysés. |
+| **Partiel** | Panoramax : disponibilité publique constatée, adaptateurs et repli corrigés, tests réseau simulés. Comfy : graphes, confirmation et reprise vérifiés par contrat simulé, sans nouvelle preuve de génération réelle. Dossier Obsidian : protection contre les conflits, résolution encore manuelle. |
+| **Bloquant pour certifier la production** | Les correctifs ne sont pas fusionnés ni contrôlés sur le déploiement de production. Le parcours avec une génération réellement payée nécessite une autorisation et un budget explicites. L’aperçu Vercel est protégé. |
+| **Présent mais dormant** | Entraînement LoRA, voies fal.ai et Farpy historiques : code conservé, hors du parcours actif. Leur existence et leurs anciens tests ne valent pas validation. |
+
+Les limites de l’export (60 s, 12 images/s), des appareils testés et du stockage navigateur sont détaillées ci-dessous et dans [validation.md](validation.md). Aucun de ces verdicts n’assimile un écran de démonstration à une génération réelle.
+
 ## Périmètre et versions
 
 - Point de départ : main `338d0150ddc700831e22ec90d8638309032a63de`.

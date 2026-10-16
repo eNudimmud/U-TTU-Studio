@@ -100,7 +100,7 @@ Une planche « après » pour CAST, générée sur le compte Comfy Cloud de JD a
 `@mediabunny/aac-encoder` **1.61.0**, paquet non modifié, licence **MPL-2.0**, auteur Vanilagy. Il fournit un encodeur AAC-LC WebAssembly basé sur libavcodec/FFmpeg quand le navigateur ne propose pas cet encodeur. Le calcul et le média restent dans l’onglet ; le paquet est servi avec l’application, sans appel de génération cloud.
 
 - [Sources et instructions de compilation](https://github.com/Vanilagy/mediabunny/tree/v1.61.0/packages/aac-encoder).
-- [Licence distribuée](../../public/licenses/mediabunny-aac-encoder-MPL-2.0.txt).
+- [Licence distribuée](../public/licenses/mediabunny-aac-encoder-MPL-2.0.txt).
 - [Documentation officielle](https://mediabunny.dev/guide/extensions/aac-encoder).
 
 Les dépendances et leur version exacte sont conservées dans `package-lock.json`.
