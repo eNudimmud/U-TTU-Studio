@@ -154,7 +154,7 @@ describe("galerie CAST et DÉCOR", () => {
     assert.doesNotMatch(cast + decor, /fetch\(|submit_workflow|run_template|partner_generate|estimate_credits/);
     assert.match(read("src/components/app/stage-screens.tsx"), /create\.needLink/);
     const board = read("src/components/app/prise-stage.tsx");
-    assert.match(board, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
+    assert.match(board, /requestRun\(\)/);
     assert.doesNotMatch(board, /confirmRun\(/);
   });
 
