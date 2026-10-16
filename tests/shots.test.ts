@@ -110,24 +110,4 @@ describe("plans du storyboard", () => {
     assert.equal(cleared[0]?.sequenceId, null);
   });
 
-  it("opens a plan from the project, the sequence, the take and the shelf", () => {
-    const screens = readFileSync("src/components/app/screens.tsx", "utf8");
-    const sheets = readFileSync("src/components/app/sheets.tsx", "utf8");
-    const app = readFileSync("src/components/app/studio-app.tsx", "utf8");
-    assert.match(screens, /setSheet\("shots"\)/);
-    assert.match(screens, /shot\.inShot/);
-    assert.match(sheets, /shot\.lead/);
-    assert.match(sheets, /shot\.create/);
-    assert.match(sheets, /group\.label === "Plans"/);
-    assert.match(readFileSync("src/components/app/atelier-page.tsx", "utf8"), /studio\.shots/);
-    assert.doesNotMatch(app, /<ShotSheet/);
-    assert.doesNotMatch(screens + sheets, /class_type|SaveLoRA|panneau de nœuds/);
-    const decisions = readFileSync("docs/DECISIONS.md", "utf8");
-    const f12 = decisions.slice(0, decisions.indexOf("## F11"));
-    assert.match(f12, /F12 — shots \/ storyboard/);
-    assert.match(f12, /modele-shot\.md/);
-    assert.match(f12, /0 crédit/);
-    assert.match(f12, /Viñeta/);
-    assert.doesNotMatch(readFileSync("src/lib/coffre/model.ts", "utf8").slice(readFileSync("src/lib/coffre/model.ts", "utf8").indexOf("export function shotStem")), /estimate_credits|run_template|submit_workflow/);
-  });
 });

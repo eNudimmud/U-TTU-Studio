@@ -19,7 +19,7 @@ import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import { Close, Expand, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
 import { useStudio } from "./studio-session";
-import { gesteOuvert, gesteParId } from "@/lib/workflows/registre";
+import { gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
 import { FINAL_MAX_SECONDS, MASTER, finalQuote, masterSize, type FinalChoice, type FinalNettoyage, type FinalResolution } from "@/lib/montage/finaliser";
 import type { FinaliseStage } from "./studio-session";
 
@@ -101,7 +101,7 @@ function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: strin
 export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => void }) {
   const { t } = useI18n();
   const { locale } = useLocaleSwitch();
-  const { ready, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip } = useStudio();
+  const { ready, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs } = useStudio();
   const [finChoice, setFinChoice] = useState<FinalChoice>({ resolution: "1080p", nettoyer: "aucun" });
   const [finConfirm, setFinConfirm] = useState(false);
   const [finPhase, setFinPhase] = useState<FinalPhase>({ phase: "idle" });
@@ -744,7 +744,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         const ids = binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
         const wired = ids.flatMap(id => {
           const row = gesteParId(id);
-          return row && gesteOuvert(row) ? [row] : [];
+          return row && gesteOuvert(row) && gesteVisible(row, prefs) ? [row] : [];
         });
         return <>
           {wired.map(row => <button key={row.id} type="button" className="u-secondary" onClick={() => {

@@ -41,7 +41,6 @@ describe("registre des gestes", () => {
     assert.deepEqual(mapped, [
       { slot: "image_1", refId: "a" },
       { slot: "image_2", refId: "b" },
-      { slot: "image_3", refId: "c" },
     ]);
     const place = REGISTRE.find(item => item.id === "decor-photo");
     assert.ok(place);
@@ -67,9 +66,10 @@ describe("registre des gestes", () => {
   it("shows the measured sheet price and a required outfit slot", () => {
     const sheet = REGISTRE.find(item => item.id === "cast-planche");
     assert.ok(sheet);
-    assert.equal(sheet.credits, 71);
-    assert.equal(sheet.high, 100);
-    assert.equal(sheet.nature, "mesure");
+    assert.equal(sheet.template, "api_bfl_flux3_image_edit");
+    assert.equal(sheet.credits, 28);
+    assert.equal(sheet.high, 42);
+    assert.equal(sheet.nature, "hypothese");
     const wardrobe = REGISTRE.find(item => item.id === "cast-tenue");
     assert.ok(wardrobe);
     assert.equal(wardrobe.minRefs, 2);
@@ -97,17 +97,17 @@ describe("registre des gestes", () => {
 
   it("sends a second photo to the second image slot", () => {
     const graph = stillGraph({ kind: "photo-cast", prompt: "Même personne.", images: ["a.jpg", "b.jpg"], seed: 1 });
-    const still = graph.still?.inputs as Record<string, unknown>;
-    assert.deepEqual(still["model.images.image_1"], ["load", 0]);
-    assert.deepEqual(still["model.images.image_2"], ["load2", 0]);
+    const refs = graph.klein_refs?.inputs as Record<string, unknown>;
+    assert.deepEqual(refs["images.image0"], ["load", 0]);
+    assert.deepEqual(refs["images.image1"], ["load2", 0]);
     assert.equal(graph.load2?.inputs.image, "b.jpg");
   });
 
   it("draws one face box per image the graph accepts", () => {
     const row = REGISTRE.find(item => item.id === "cast-photos");
     assert.ok(row);
-    assert.deepEqual(casesVisibles(row).map(item => item.id), ["image_1", "image_2", "image_3"]);
-    assert.deepEqual(casesVisibles(row).map(item => item.role), ["visage", "visage", "visage"]);
+    assert.deepEqual(casesVisibles(row).map(item => item.id), ["image_1", "image_2"]);
+    assert.deepEqual(casesVisibles(row).map(item => item.role), ["visage", "visage"]);
     assert.equal(casesVisibles(row).length, row.slots.length);
   });
 });

@@ -77,7 +77,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage } = useStudio();
+  const { ready, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage, prefs, setPrefs } = useStudio();
   const { t } = useI18n();
   const { format } = useFormat();
   const [seed, setSeed] = useState<Seed>("vide");
@@ -634,6 +634,15 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           })}
         </div>
         {maquette.figures.length < 2 && <p className="u-why" id="u-why-paire">{t("r7.pairWhy")}</p>}
+      </Row>
+
+      <Row label={t("stage.engine.label")}>
+        <div className="u-choice-row u-engine" data-engine={prefs.engine}>
+          {(["ltx", "h3"] as const).map(engine => (
+            <button key={engine} type="button" className="u-chip" aria-pressed={prefs.engine === engine} onClick={() => setPrefs({ engine })}>{t(`stage.engine.${engine}`)}</button>
+          ))}
+        </div>
+        <p className="u-engine-hint">{t(prefs.engine === "ltx" ? "stage.engine.ltxHint" : "stage.engine.h3Hint")}</p>
       </Row>
 
       <Row label="Durée">

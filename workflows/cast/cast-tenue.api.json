@@ -1,0 +1,153 @@
+{
+  "load": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-1.jpg"
+    },
+    "_meta": {
+      "title": "Photo 1"
+    }
+  },
+  "load2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-2.jpg"
+    },
+    "_meta": {
+      "title": "Photo 2"
+    }
+  },
+  "klein_unet": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux3_image_klein_base_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "FLUX 3 Klein"
+    }
+  },
+  "klein_clip": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_4b_int8_convrot.safetensors",
+      "type": "flux3",
+      "device": "default"
+    }
+  },
+  "klein_vae": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    }
+  },
+  "klein_positive": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "<texte du visiteur>\n\nGarde le visage. Change seulement la tenue ou la coiffure demandée.\n\nThe same fictional person as the reference images. Keep the face. No text.",
+      "clip": [
+        "klein_clip",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Texte"
+    }
+  },
+  "klein_negative": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "",
+      "clip": [
+        "klein_clip",
+        0
+      ]
+    }
+  },
+  "klein_refs": {
+    "class_type": "ReferenceMultiLatent",
+    "inputs": {
+      "resolution": "resize",
+      "resolution.megapixels": 1,
+      "positive": [
+        "klein_positive",
+        0
+      ],
+      "negative": [
+        "klein_negative",
+        0
+      ],
+      "vae": [
+        "klein_vae",
+        0
+      ],
+      "images.image0": [
+        "load",
+        0
+      ],
+      "images.image1": [
+        "load2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Références"
+    }
+  },
+  "klein_sampler": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 0,
+      "steps": 50,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "klein_unet",
+        0
+      ],
+      "positive": [
+        "klein_refs",
+        0
+      ],
+      "negative": [
+        "klein_refs",
+        1
+      ],
+      "latent_image": [
+        "klein_refs",
+        2
+      ]
+    }
+  },
+  "klein_decode": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "klein_sampler",
+        0
+      ],
+      "vae": [
+        "klein_vae",
+        0
+      ]
+    }
+  },
+  "save": {
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "images": [
+        "klein_decode",
+        0
+      ],
+      "filename_prefix": "uttu-still",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB"
+    },
+    "_meta": {
+      "title": "Enregistrer"
+    }
+  }
+}

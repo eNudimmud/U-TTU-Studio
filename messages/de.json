@@ -889,7 +889,14 @@
     "decorCouloir": "Ein Gang",
     "incomplete": "Unvollständig",
     "creditsShort": "Credits",
-    "photoPlaceName": "Foto des Orts"
+    "photoPlaceName": "Foto des Orts",
+    "engine": {
+      "label": "Modell der Einstellung",
+      "ltx": "LTX-2.5 (Standard)",
+      "h3": "MiniMax H3",
+      "ltxHint": "FLUX 3 Klein setzt die Figur ins Set, dann animiert LTX-2.5. Open Weights.",
+      "h3Hint": "Bis zu neun Referenzen. Open Weights."
+    }
   },
   "create": {
     "castLead": "Erschaffe die Figur, dann nutze sie wieder.",
@@ -1083,7 +1090,9 @@
       "priseVidu": "Bald: der Preis ist noch nicht geprüft.",
       "montLips": "Bald: der Preis ist noch nicht geprüft.",
       "montUpscale": "Bald: der Preis ist noch nicht geprüft.",
-      "montFrames": "Bald: der Preis ist noch nicht geprüft."
+      "montFrames": "Bald: der Preis ist noch nicht geprüft.",
+      "priseOutpaint": "Bald: Preis noch nicht geprüft.",
+      "priseRemove": "Bald: Preis noch nicht geprüft."
     },
     "cat": {
       "identite": "Identität",
@@ -1095,7 +1104,8 @@
       "raccord": "Anschluss",
       "mouvement": "Bewegung",
       "son": "Ton",
-      "image": "Bild"
+      "image": "Bild",
+      "vfx": "Effekte"
     },
     "fournit": {
       "texte": "ein Text",
@@ -1227,6 +1237,44 @@
       "title": "Weicher",
       "phrase": "Mehr Bilder zwischen den Bildern.",
       "quiet": "Weicher"
+    },
+    "options": {
+      "title": "Modelle",
+      "openWeights": "Nur Open Weights",
+      "openWeightsHint": "Blendet Gesten mit kostenpflichtigem Partnerdienst aus.",
+      "nano": "Nano Banana (optional)"
+    },
+    "castRefs": {
+      "title": "Mehrere Referenzen",
+      "phrase": "Gesicht, Outfit und Stil, bis zu fünf Fotos."
+    },
+    "castTextNano": {
+      "title": "Text (Nano Banana)",
+      "phrase": "Eine fiktive Person, mit dem anderen Modell."
+    },
+    "castPhotosNano": {
+      "title": "Fotos (Nano Banana)",
+      "phrase": "Das Gesicht deiner Fotos, mit dem anderen Modell."
+    },
+    "decorTextNano": {
+      "title": "Text (Nano Banana)",
+      "phrase": "Ein Ort, mit dem anderen Modell."
+    },
+    "decorPhotoNano": {
+      "title": "Foto (Nano Banana)",
+      "phrase": "Ein Ort aus einem Foto, mit dem anderen Modell."
+    },
+    "prisePlanH3": {
+      "title": "Einstellung, zweites Modell",
+      "phrase": "Bis zu neun Referenzen, Preis schon gemessen."
+    },
+    "priseOutpaint": {
+      "title": "Einstellung erweitern",
+      "phrase": "Der Bildausschnitt öffnet sich seitlich."
+    },
+    "priseRemove": {
+      "title": "Objekt entfernen",
+      "phrase": "Ein Objekt verschwindet aus dem Video."
     }
   },
   "refs": {

@@ -1,0 +1,127 @@
+{
+  "klein_unet": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux3_image_klein_base_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "FLUX 3 Klein"
+    }
+  },
+  "klein_clip": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_4b_int8_convrot.safetensors",
+      "type": "flux3",
+      "device": "default"
+    }
+  },
+  "klein_vae": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    }
+  },
+  "klein_positive": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "<texte du visiteur>\n\nUne personne fictive. Face, trois-quarts, profil, en pied. Fond neutre. Pas de texte.\n\nOne fictional person, character sheet: front face, three-quarter, profile, full body. Neutral background. No text.",
+      "clip": [
+        "klein_clip",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Texte"
+    }
+  },
+  "klein_negative": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "",
+      "clip": [
+        "klein_clip",
+        0
+      ]
+    }
+  },
+  "klein_size": {
+    "class_type": "ResolutionSelector",
+    "inputs": {
+      "aspect_ratio": "3:4 (Portrait Standard)",
+      "megapixels": 1,
+      "multiple": 16
+    }
+  },
+  "klein_latent": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": [
+        "klein_size",
+        0
+      ],
+      "height": [
+        "klein_size",
+        1
+      ],
+      "batch_size": 1
+    }
+  },
+  "klein_sampler": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 0,
+      "steps": 50,
+      "cfg": 3.5,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "klein_unet",
+        0
+      ],
+      "positive": [
+        "klein_positive",
+        0
+      ],
+      "negative": [
+        "klein_negative",
+        0
+      ],
+      "latent_image": [
+        "klein_latent",
+        0
+      ]
+    }
+  },
+  "klein_decode": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "klein_sampler",
+        0
+      ],
+      "vae": [
+        "klein_vae",
+        0
+      ]
+    }
+  },
+  "save": {
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "images": [
+        "klein_decode",
+        0
+      ],
+      "filename_prefix": "uttu-still",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB"
+    },
+    "_meta": {
+      "title": "Enregistrer"
+    }
+  }
+}

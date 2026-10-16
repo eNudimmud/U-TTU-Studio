@@ -10,47 +10,50 @@ export interface CreationQuote {
   kind: "hypothese" | "mesure";
 }
 
-/** One Nano Banana 2.1 still, prompted as a view sheet. About 12 credits an image. */
+/**
+ * One FLUX 3 Image Klein still (open weights, GPU time only).
+ * Klein runs measured 2.6 to 4 credits on 2026-10-15 (0.27 credit a GPU-second).
+ */
 export const CAST_TEXT_QUOTE: CreationQuote = {
-  credits: 12,
-  high: 18,
-  template: "api_nano_banana_2_1_t2i",
-  kind: "hypothese",
+  credits: 4,
+  high: 6,
+  template: "image_flux3_klein_t2i",
+  kind: "mesure",
 };
 
-/** One Nano Banana 2.1 edit from face photos. */
+/** One FLUX 3 Klein reference edit from face photos. Same files as text-to-image. */
 export const CAST_PHOTO_QUOTE: CreationQuote = {
-  credits: 12,
-  high: 18,
-  template: "api_nano_banana_2_1_image_edit",
+  credits: 4,
+  high: 6,
+  template: "image_flux3_klein_image_edit",
   kind: "hypothese",
 };
 
 /**
- * The view sheet: two GeminiImage2 stills at 2K, then a stitch.
- * Measured 70.74 (35.41 + 35.33) on 2026-10-08. The screen shows 71. Ceiling 100.
+ * The view sheet: two FLUX 3 Image (partner) edits at 1K, then a stitch.
+ * estimate_credits read 14 credits a FLUX 3 Image edit on 2026-10-16. Not measured.
  */
 export const CAST_SHEET_QUOTE: CreationQuote = {
-  credits: 71,
-  high: 100,
-  template: "templates-character_sheet",
+  credits: 28,
+  high: 42,
+  template: "api_bfl_flux3_image_edit",
+  kind: "hypothese",
+};
+
+/** One FLUX 3 Klein cinema still. Measured 2.6 to 4 credits (DÉCOR examples, #109). */
+export const DECOR_TEXT_QUOTE: CreationQuote = {
+  credits: 4,
+  high: 6,
+  template: "image_flux3_klein_t2i",
   kind: "mesure",
 };
 
-/** One Nano Banana 2.1 cinema still. */
-export const DECOR_TEXT_QUOTE: CreationQuote = {
-  credits: 12,
-  high: 18,
-  template: "api_nano_banana_2_1_t2i",
-  kind: "hypothese",
-};
-
-/** One Nano Banana 2.1 edit of a place photo. */
+/** One FLUX 3 Klein edit of a place photo. */
 export const DECOR_PHOTO_QUOTE: CreationQuote = {
-  credits: 12,
-  high: 18,
-  template: "api_nano_banana_2_1_image_edit",
-  kind: "hypothese",
+  credits: 4,
+  high: 6,
+  template: "image_flux3_klein_image_edit",
+  kind: "mesure",
 };
 
 /** The button stays off until the account is linked and the balance covers the ceiling. */

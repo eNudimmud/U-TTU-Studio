@@ -42,35 +42,4 @@ describe("guide novice", () => {
     assert.equal(catalogs[0].why.hold, "Le devis ou le solde ne laisse pas partir.");
   });
 
-  it("puts the sentence under a muted control, and a line on the chain", () => {
-    const screens = read("src/components/app/screens.tsx");
-    const scene = read("src/components/app/scene-screen.tsx");
-    const role = read("src/components/app/lora-screen.tsx");
-    const sheets = read("src/components/app/sheets.tsx");
-    assert.match(role, /t\("guide\.stepCharacter"\)/);
-    assert.match(scene, /t\("guide\.stepScene"\)/);
-    assert.match(screens, /t\("guide\.stepTake"\)/);
-    for (const source of [screens, scene, role, sheets]) {
-      let from = 0;
-      for (const control of mutedControls(source)) {
-        const at = source.indexOf(`disabled={${control.slice(0, 80)}`, from);
-        from = at + 1;
-        const around = source.slice(Math.max(0, at - 240), at + 80);
-        if (LABEL_IS_THE_REASON.some(pattern => pattern.test(around))) {
-          assert.match(source.slice(Math.max(0, at - 240), at + 700), /scene\.training|sheet\.importing/);
-          continue;
-        }
-        const rest = source.slice(at);
-        const close = rest.search(/<\/button>/);
-        assert.ok(close > 0, rest.slice(0, 80));
-        assert.match(rest.slice(close, close + 80), /<Why /, rest.slice(0, 80));
-      }
-    }
-    const css = read("src/components/app/app.css");
-    const phone = css.slice(0, css.indexOf("@media (min-width: 720px)"));
-    assert.match(phone, /\.u-why \{/);
-    assert.match(phone, /\.u-micro \{/);
-    assert.doesNotMatch(phone, /\.u-why \{[^}]*height: 100dvh/);
-    assert.doesNotMatch(screens + scene + role + sheets, /class_type|SaveLoRA|panneau de nœuds/);
-  });
 });

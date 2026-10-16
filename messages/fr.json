@@ -889,7 +889,14 @@
     "decorCouloir": "Un couloir",
     "incomplete": "Incomplet",
     "creditsShort": "Crédits",
-    "photoPlaceName": "Photo de lieu"
+    "photoPlaceName": "Photo de lieu",
+    "engine": {
+      "label": "Moteur du plan",
+      "ltx": "LTX-2.5 (défaut)",
+      "h3": "MiniMax H3",
+      "ltxHint": "FLUX 3 Klein pose le personnage dans le décor, puis LTX-2.5 l’anime. Open weights.",
+      "h3Hint": "Jusqu’à neuf références. Open weights."
+    }
   },
   "create": {
     "castLead": "Crée ton personnage, puis réutilise-le.",
@@ -1083,7 +1090,9 @@
       "priseVidu": "Bientôt : prix pas encore vérifié.",
       "montLips": "Bientôt : prix pas encore vérifié.",
       "montUpscale": "Bientôt : prix pas encore vérifié.",
-      "montFrames": "Bientôt : prix pas encore vérifié."
+      "montFrames": "Bientôt : prix pas encore vérifié.",
+      "priseOutpaint": "Bientôt : prix pas encore vérifié.",
+      "priseRemove": "Bientôt : prix pas encore vérifié."
     },
     "cat": {
       "identite": "Identité",
@@ -1095,7 +1104,8 @@
       "raccord": "Raccord",
       "mouvement": "Mouvement",
       "son": "Son",
-      "image": "Image"
+      "image": "Image",
+      "vfx": "Effets"
     },
     "fournit": {
       "texte": "un texte",
@@ -1227,6 +1237,44 @@
       "title": "Fluidifier",
       "phrase": "Plus d’images entre les images.",
       "quiet": "Fluidifier"
+    },
+    "options": {
+      "title": "Moteurs",
+      "openWeights": "Open weights seulement",
+      "openWeightsHint": "Cache les gestes qui passent par un service partenaire payant.",
+      "nano": "Nano Banana (option)"
+    },
+    "castRefs": {
+      "title": "Plusieurs références",
+      "phrase": "Visage, tenue et style, jusqu’à cinq photos."
+    },
+    "castTextNano": {
+      "title": "Texte (Nano Banana)",
+      "phrase": "Une personne fictive, avec l’autre moteur."
+    },
+    "castPhotosNano": {
+      "title": "Photos (Nano Banana)",
+      "phrase": "Le visage de tes photos, avec l’autre moteur."
+    },
+    "decorTextNano": {
+      "title": "Texte (Nano Banana)",
+      "phrase": "Un lieu, avec l’autre moteur."
+    },
+    "decorPhotoNano": {
+      "title": "Photo (Nano Banana)",
+      "phrase": "Le lieu d’une photo, avec l’autre moteur."
+    },
+    "prisePlanH3": {
+      "title": "Plan, second moteur",
+      "phrase": "Jusqu’à neuf références, prix déjà mesuré."
+    },
+    "priseOutpaint": {
+      "title": "Élargir le plan",
+      "phrase": "Le cadre de la vidéo s’ouvre sur les côtés."
+    },
+    "priseRemove": {
+      "title": "Effacer un objet",
+      "phrase": "Un objet disparaît de la vidéo."
     }
   },
   "refs": {

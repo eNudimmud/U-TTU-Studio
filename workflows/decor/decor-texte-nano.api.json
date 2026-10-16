@@ -1,0 +1,36 @@
+{
+  "still": {
+    "class_type": "GeminiNanoBanana2V2",
+    "inputs": {
+      "prompt": "<texte du visiteur>\n\nPlan cinéma 16:9, sans personne. Pas de texte.\n\nCinema still, 16:9, empty of people. No text.",
+      "model": "Gemini Nano Banana 2.1",
+      "model.aspect_ratio": "16:9",
+      "model.resolution": "1K",
+      "model.thinking_level": "MEDIUM",
+      "seed": 0,
+      "response_modalities": "IMAGE",
+      "system_prompt": "You are an expert image-generation engine. You must ALWAYS produce an image. Interpret the text as visual directions. No letters in the image.",
+      "temperature": 1,
+      "top_p": 0.95
+    },
+    "_meta": {
+      "title": "Décor"
+    }
+  },
+  "save": {
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "images": [
+        "still",
+        0
+      ],
+      "filename_prefix": "uttu-still",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB"
+    },
+    "_meta": {
+      "title": "Enregistrer"
+    }
+  }
+}

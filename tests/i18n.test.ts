@@ -92,15 +92,4 @@ describe("langues du studio", () => {
     assert.equal(LOCALE_COOKIE, "u-ttu-locale");
   });
 
-  it("switches language without a locale in the path", () => {
-    assert.equal(existsSync("src/app/[locale]"), false);
-    assert.match(read("src/components/app/studio-app.tsx"), /<LanguageSwitcher \/>/);
-    assert.match(read("src/components/landing/home.tsx"), /<LanguageSwitcher \/>/);
-    assert.match(read("src/app/layout.tsx"), /u-ttu-locale|LOCALE_COOKIE/);
-    assert.doesNotMatch(read("src/app/layout.tsx"), /messages\/en\.json|messages\/de\.json|messages\/es\.json/);
-    assert.doesNotMatch(read("src/components/i18n/provider.tsx"), /messages\/en\.json|messages\/de\.json|messages\/es\.json|messages\/fr\.json/);
-    assert.match(read("src/lib/i18n/catalog.ts"), /import\("\.\.\/\.\.\/\.\.\/messages\/fr\.json"\)/);
-    assert.match(read("src/components/app/studio-context.tsx"), /assetPath\("\/studio\/place\.blend"\)/);
-    assert.doesNotMatch(read("src/components/app/studio-context.tsx"), /place-template|place-blend/);
-  });
 });

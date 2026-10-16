@@ -19,8 +19,8 @@ describe("sons branchés", () => {
     assert.equal(music.stem?.inputs.duration, 30);
     assert.equal(musicQuote().credits, 16);
     assert.equal(musicQuote().high, 24);
-    assert.equal(CAST_SHEET_QUOTE.credits, 71);
-    assert.equal(CAST_SHEET_QUOTE.kind, "mesure");
+    assert.equal(CAST_SHEET_QUOTE.credits, 28);
+    assert.equal(CAST_SHEET_QUOTE.kind, "hypothese");
   });
 
   it("reads an audio file from a mock job", async () => {

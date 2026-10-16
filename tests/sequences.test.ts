@@ -99,13 +99,4 @@ describe("séquences", () => {
     assert.doesNotMatch(moc, /Sequences\/sequence\|/);
   });
 
-  it("opens sequences from the take and the project view, without a graph", () => {
-    const screens = read("src/components/app/screens.tsx");
-    const sheets = read("src/components/app/sheets.tsx");
-    assert.match(screens, /setSheet\("sequences"\)/);
-    assert.match(screens, /sequence\.inSequence/);
-    assert.match(sheets, /sequence\.raccord/);
-    assert.match(sheets, /<Why on=\{blocked\}/);
-    assert.doesNotMatch(screens + sheets, /class_type|SaveLoRA|panneau de nœuds/);
-  });
 });

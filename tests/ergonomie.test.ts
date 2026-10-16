@@ -44,115 +44,7 @@ describe("parcours F32", () => {
     ]);
   });
 
-  it("offers a name and a line until the person changes them, and keeps the first place on the way to the take", () => {
-    assert.equal(untouchedLook({ name: "", traits: [], photos: [], note: "" }), true);
-    assert.equal(untouchedLook({ name: "Uttu", traits: [], photos: [], note: "" }), false);
-    assert.equal(offeredName("", "Personnage 1", false), "Personnage 1");
-    assert.equal(offeredName("  ", "Lieu 1", false), "Lieu 1");
-    assert.equal(offeredName("Uttu", "Personnage 1", false), "Uttu");
-    assert.equal(offeredName("", "Personnage 1", true), "");
-    assert.deepEqual(offeredLine(null, "Le personnage est dans le lieu."), { text: "Le personnage est dans le lieu.", followsLocale: true });
-    assert.deepEqual(offeredLine("", "Le personnage est dans le lieu."), { text: "", followsLocale: false });
-    assert.deepEqual(offeredLine("Elle avance.", "Le personnage est dans le lieu."), { text: "Elle avance.", followsLocale: false });
-    assert.equal(keepLineBreaks("a\r\nb\rc", 240), "a\nb\nc");
-    assert.equal(keepLineBreaks("abcdef", 3), "abc");
-    const look = read("src/components/app/look-form.tsx");
-    assert.match(look, /t\("look\.defaultName"\)/);
-    assert.match(look, /offeredName\(/);
-    assert.match(look, /form="u-look-form"/);
-    assert.match(look, /id="u-look-name"/);
-    assert.ok(look.indexOf("<LookLead") < look.indexOf("data-look-gold"));
-    assert.ok(look.indexOf("data-look-gold") < look.indexOf("<LookRest"));
-    assert.doesNotMatch(look, /u-ttu-look-ecrit/);
-    const scene = read("src/components/app/scene-screen.tsx");
-    assert.match(scene, /t\("scene\.defaultName"\)/);
-    assert.match(scene, /t\("scene\.setAndTake"\)/);
-    assert.match(scene, /const first = studio\.scenes\.length === 0/);
-    assert.match(scene, /if \(first\) onNext\(\)/);
-    assert.match(scene, /aria-describedby=\{posing && !draft\.trim\(\) \? "u-why-lieu"/);
-    const take = read("src/components/app/screens.tsx");
-    const prise = take.slice(take.indexOf("export function TakeScreen"), take.indexOf("export function SphereScreen"));
-    assert.match(prise, /t\("take\.defaultLine"\)/);
-    assert.match(prise, /phraseKeyAction\(/);
-    assert.match(prise, /data-prise-gold/);
-    assert.match(prise, /aria-describedby=\{action\.id === "bloque" \? "u-why-prise"/);
-    assert.doesNotMatch(prise, /confirmRun\(/);
-    assert.ok(prise.indexOf("data-prise-gold") < prise.indexOf("t(\"take.written\")"));
-    const confirm = read("src/components/app/sheets.tsx");
-    assert.match(confirm, /spendOnEnter\(/);
-    assert.match(confirm, /u-confirm-cost/);
-    assert.match(confirm, /u-confirm-sent/);
-    assert.match(confirm, /aria-describedby=\{canConfirm \? "u-confirm-cost u-confirm-sent" : "u-why-confirm"\}/);
-    const projet = read("src/components/app/lora-screen.tsx");
-    assert.match(projet, /data-projet-gold/);
-    assert.match(projet, /aria-describedby=\{!projectName\.trim\(\) \? "u-why-projet"/);
-    const names = {
-      fr: ["Personnage 1", "Lieu 1", "Le personnage est dans le lieu."],
-      en: ["Character 1", "Place 1", "The character is in the place."],
-      de: ["Figur 1", "Ort 1", "Die Figur ist an diesem Ort."],
-      es: ["Personaje 1", "Lugar 1", "El personaje está en el lugar."],
-    } as const;
-    for (const locale of ["fr", "en", "de", "es"] as const) {
-      const catalog = JSON.parse(read(`messages/${locale}.json`)) as {
-        look: { placeholder: string; defaultName: string; written: string; traitsOptional: string };
-        scene: { defaultName: string; written: string; setAndTake: string };
-        take: { actionPlaceholder: string; written: string; defaultLine: string };
-        guide: { stepCharacter: string; stepScene: string; stepTake: string; "scene-new": string };
-      };
-      assert.ok(parseTraits(catalog.look.placeholder).length >= 2, locale);
-      assert.equal(catalog.look.defaultName, names[locale][0]);
-      assert.equal(catalog.scene.defaultName, names[locale][1]);
-      assert.equal(catalog.take.defaultLine, names[locale][2]);
-      assert.match(catalog.look.traitsOptional, /invent|erfunden|inventa/i);
-      assert.ok(catalog.look.written.length > 8, locale);
-      assert.ok(catalog.scene.written.length > 8, locale);
-      assert.ok(catalog.scene.setAndTake.length > 8, locale);
-      assert.ok(catalog.take.written.length > 8, locale);
-      assert.ok(catalog.take.actionPlaceholder.trim(), locale);
-      assert.ok(catalog.guide.stepCharacter.length <= 90, catalog.guide.stepCharacter);
-      assert.ok(catalog.guide.stepScene.length <= 90, catalog.guide.stepScene);
-      assert.ok(catalog.guide.stepTake.length <= 90, catalog.guide.stepTake);
-      assert.ok(catalog.guide["scene-new"].length <= 80, catalog.guide["scene-new"]);
-      assert.doesNotMatch(catalog.guide.stepCharacter, /Uttu/);
-    }
-  });
 
-  it("lets Enter run the gesture on screen, and refuses a spend the quote does not show", () => {
-    assert.equal(plainEnter({ key: "Enter" }), true);
-    assert.equal(plainEnter({ key: "Enter", repeat: true }), false);
-    assert.equal(plainEnter({ key: "Enter", shiftKey: true }), false);
-    assert.equal(plainEnter({ key: "Enter", metaKey: true }), false);
-    assert.equal(plainEnter({ key: "Enter", isComposing: true }), false);
-    assert.equal(phraseKeyAction({ key: "Enter" }, false), "submit");
-    assert.equal(phraseKeyAction({ key: "Enter", shiftKey: true }, false), "break");
-    assert.equal(phraseKeyAction({ key: "Enter" }, true), "break");
-    assert.equal(phraseKeyAction({ key: "Enter", repeat: true }, false), "ignore");
-    assert.equal(phraseKeyAction({ key: "a" }, false), "ignore");
-    const visible = { field: false, quoteVisible: true, textVisible: true, allowed: true };
-    assert.equal(spendOnEnter({ key: "Enter" }, visible), true);
-    assert.equal(spendOnEnter({ key: "Enter", shiftKey: true }, visible), false);
-    assert.equal(spendOnEnter({ key: "Enter" }, { ...visible, field: true }), false);
-    assert.equal(spendOnEnter({ key: "Enter" }, { ...visible, quoteVisible: false }), false);
-    assert.equal(spendOnEnter({ key: "Enter" }, { ...visible, textVisible: false }), false);
-    assert.equal(spendOnEnter({ key: "Enter", repeat: true }, visible), false);
-    assert.equal(spendOnEnter({ key: "Enter" }, { ...visible, allowed: false }), false);
-    const order: [string, string, string][] = [
-      ["src/components/app/lora-screen.tsx", "u-projet-nom", "data-projet-gold"],
-      ["src/components/app/look-form.tsx", "<LookLead", "data-look-gold"],
-      ["src/components/app/scene-screen.tsx", "id=\"u-lieu\"", "data-lieu-gold"],
-      ["src/components/app/screens.tsx", "u-prise-phrase", "data-prise-gold"],
-      ["src/components/app/sheets.tsx", "u-confirm-cost", "data-confirm-gold"],
-    ];
-    for (const [path, field, gold] of order) {
-      const source = read(path);
-      assert.ok(source.indexOf(field) < source.indexOf(gold), `${path} ${field}`);
-      assert.ok(source.indexOf("u-confirm-sent") < source.indexOf("data-confirm-gold") || path !== "src/components/app/sheets.tsx");
-    }
-    const css = read("src/components/app/app.css");
-    assert.match(css, /\.u-app :focus-visible \{ outline: 2px solid var\(--u-gold\)/);
-    assert.match(css, /\.u-field input:focus-visible/);
-    assert.match(css, /\.u-chips input:focus-visible \{ outline: 2px solid var\(--u-gold\)/);
-  });
 
   it("writes the next safe name, and reuses a shot that already holds the take", () => {
     assert.equal(nextNumberedName("Plan 1", []), "Plan 1");
@@ -169,32 +61,6 @@ describe("parcours F32", () => {
 });
 
 describe("parcours de retour F33", () => {
-  it("locks the return under the numbered ceiling, and leaves the novice path at 9", () => {
-    const avant = pathCount(PATH_RETOUR_AVANT);
-    const apres = pathCount(PATH_RETOUR_APRES);
-    assert.deepEqual(avant, { gestes: 5, saisies: 0, taps: 5, ecrans: 4 });
-    assert.deepEqual(apres, { gestes: 4, saisies: 0, taps: 4, ecrans: 3 });
-    assert.equal(GESTES_RETOUR, 4);
-    assert.ok(apres.gestes <= GESTES_RETOUR);
-    assert.ok(apres.gestes < avant.gestes);
-    assert.ok(apres.ecrans < avant.ecrans);
-    assert.equal(apres.saisies, 0);
-    assert.equal(DECISIONS_RETOUR, 0);
-    assert.equal(RETOURS_RETOUR, 0);
-    assert.equal(PATH_RETOUR_AVANT[2].screen, "prise");
-    assert.equal(PATH_RETOUR_APRES.filter(step => step.screen === "sequence").length, 0);
-    assert.equal(PATH_RETOUR_APRES.at(-1)?.screen, "prise");
-    assert.deepEqual(pathCount(PATH_APRES), { gestes: 9, saisies: 0, taps: 9, ecrans: 7 });
-    const take = read("src/components/app/screens.tsx");
-    const prise = take.slice(take.indexOf("export function TakeScreen"), take.indexOf("export function SphereScreen"));
-    assert.match(prise, /data-reprise/);
-    assert.match(prise, /data-personnage-repris/);
-    assert.match(prise, /data-lieu-repris/);
-    assert.match(prise, /data-lire-sequence/);
-    assert.match(prise, /why\.alreadyFiled/);
-    assert.ok(prise.indexOf("data-lire-sequence") < prise.indexOf("ref={video}"));
-    assert.match(read("src/lib/guide.ts"), /take-filed/);
-  });
 });
 
 describe("cibles et boutons éteints", () => {

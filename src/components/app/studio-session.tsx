@@ -38,6 +38,7 @@ import { sessionTokens } from "@/lib/render/session";
 import { settleLandedTake } from "@/lib/render/settle-take";
 import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
+import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 
@@ -93,6 +94,8 @@ export interface StudioSession {
   createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
   createDecor(input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; files?: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
   createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
+  prefs: StudioPrefs;
+  setPrefs(next: Partial<StudioPrefs>): void;
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
@@ -413,7 +416,16 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   const cast = demoOn && current.cast.length === 0 ? DEMO_CAST : current.cast;
   const decor = demoOn && current.scenes.length === 0 ? DEMO_DECOR : current.scenes.map(decorFromScene);
-  const settings = DEFAULT_TAKE;
+  const [prefs, setPrefsState] = useState<StudioPrefs>(DEFAULT_PREFS);
+  useEffect(() => { setPrefsState(readPrefs(localStorage)); }, []);
+  const setPrefs = useCallback((next: Partial<StudioPrefs>) => {
+    setPrefsState(prev => {
+      const merged = { ...prev, ...next };
+      savePrefs(localStorage, merged);
+      return merged;
+    });
+  }, []);
+  const settings = useMemo<TakeSettings>(() => ({ ...DEFAULT_TAKE, engine: prefs.engine }), [prefs.engine]);
   const takeQuote = resolveTakeQuote(takeProfile(settings), quotesToRecords(current.quotes));
   const gate = priseGate(balance, takeQuote);
 
@@ -456,7 +468,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const name = cleanCardName(input.name);
     if (!name) return false;
     if (!row && input.source === "photos" && (input.files.length < 2 || input.files.length > 3)) return false;
-    if (row && (input.files.length < row.minRefs || input.files.length > 3)) return false;
+    if (row && (input.files.length < row.minRefs || input.files.length > Math.max(3, row.slots.length))) return false;
     if ((!row && input.source === "texte" || row?.still === "texte-cast") && !input.prompt.trim()) return false;
     const fresh = await refreshBalance();
     if (!creationAllowed(true, fresh?.credits ?? null, quote.high)) {
@@ -475,8 +487,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     try {
       const result = await runStill(client, {
         kind,
+        template: quote.template,
         prompt: sent,
-        pictures: input.files.slice(0, 3).map((file, index) => ({ blob: file, name: `uttu-${index + 1}.jpg` })),
+        pictures: input.files.slice(0, row ? Math.max(3, row.slots.length) : 3).map((file, index) => ({ blob: file, name: `uttu-${index + 1}.jpg` })),
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
         clientId: crypto.randomUUID(),
         balanceBefore: fresh?.credits ?? 0,
@@ -547,6 +560,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     try {
       const result = await runStill(client, {
         kind,
+        template: quote.template,
         prompt: sent,
         pictures: pictures.map((file, index) => ({ blob: file, name: `uttu-lieu-${index + 1}.jpg` })),
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
@@ -1203,6 +1217,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [reload, store]);
 
   const value: StudioSession = {
+    prefs, setPrefs,
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     requestRun, confirmRun, cancelRun, resetRun, resumeRun, refreshBalance, connectKey, sessionLinked, disconnect,

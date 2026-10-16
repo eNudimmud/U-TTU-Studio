@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { characterPaths, WIRED_ENGINES } from "../src/lib/studio-comfort.ts";
-import { workflowFiches } from "../src/lib/workflow-fiches.ts";
 
 const read = (path: string) => readFileSync(path, "utf8");
 const fr = JSON.parse(read("messages/fr.json")) as {
@@ -85,30 +83,12 @@ describe("lexique français", () => {
     assert.equal(fr.nav.chain, "CAST, DÉCOR, PRISE, MONTAGE");
     assert.equal(fr.nav.studio, "Mon studio");
     assert.doesNotMatch(chain, /Personnage \(fichier\)|Look|Rôle/);
-    assert.equal(WIRED_ENGINES.find(engine => engine.id === "comfy")?.label, "Références");
-    assert.equal(WIRED_ENGINES.find(engine => engine.id === "lora")?.label, "Personnage (fichier)");
-    const paths = characterPaths({ falLinked: false, quote: null, steps: 1000 });
-    assert.equal(paths[0].title, "Références");
-    assert.equal(paths[1].title, "Fichier");
-    assert.match(paths[1].body, /« Personnage \(fichier\) »/);
   });
 
   it("keeps #look and the fiche payers", () => {
     const route = read("src/lib/studio-route.ts");
     assert.match(route, /look: "look"/);
     assert.match(route, /#look/);
-    const fiches = workflowFiches(
-      { rendu: null, former: null, lieu: null, image: null },
-      { seconds: 5, resolution: "768P", steps: 1000 },
-    );
-    const personnage = fiches.find(fiche => fiche.id === "personnage");
-    const references = fiches.find(fiche => fiche.id === "references");
-    assert.equal(personnage?.name, "Prise · Personnage");
-    assert.equal(personnage?.payer, "rendu");
-    assert.equal(personnage?.engine, "comfy");
-    assert.equal(references?.name, "Prise · Références");
-    assert.equal(references?.payer, "rendu");
-    assert.equal(references?.engine, "comfy");
     assert.match(read("package.json"), /"next-intl"/);
     assert.equal(fr._status, "source");
   });

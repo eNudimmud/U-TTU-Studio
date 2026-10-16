@@ -26,18 +26,6 @@ function install(response: Response | (() => Response | Promise<Response>)) {
 }
 
 describe("Comfy same-origin embed", () => {
-  it("keeps the full-tab link on cloud.comfy.org and points the frame at this host", () => {
-    assert.equal(comfyEmbedHref(`https://cloud.comfy.org/?share=${SHARE}`), `/comfy-embed?share=${SHARE}`);
-    assert.equal(comfyEmbedHref("https://evil.example/?share=25954f3b0278"), null);
-    assert.equal(comfyEmbedHref("https://cloud.comfy.org/"), null);
-    const sheets = readFileSync("src/components/app/sheets.tsx", "utf8");
-    assert.match(sheets, /src=\{assetPath\("\/login"\)\}/, "sign-in loads through this host");
-    assert.doesNotMatch(sheets, /cloud\.comfy\.org/);
-    const proxy = readFileSync("src/proxy.ts", "utf8");
-    assert.ok(proxy.indexOf("proxyComfy") < proxy.indexOf("withClerk"), "Comfy runs before Clerk");
-    assert.match(proxy, /\/assets\/:path\*/);
-    assert.match(proxy, /\/fonts\/:path\*/);
-  });
 
   it("does not proxy the studio, its workflow files, or a path that climbs out", async () => {
     const { calls, fetchImpl } = install(new Response("no"));

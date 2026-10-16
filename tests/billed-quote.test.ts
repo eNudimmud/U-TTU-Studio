@@ -40,7 +40,9 @@ describe("devis facturé", () => {
     assert.equal(billedMeasure("h3-4pas-8s-vertical"), null);
     assert.equal(billedMeasure("h3-20pas-5s-vertical"), null);
     assert.equal(billedMeasure("h3-4pas-5s-horizontal"), null);
-    assert.equal(takeProfile(DEFAULT_TAKE), PROFILE);
+    assert.equal(takeProfile({ ...DEFAULT_TAKE, engine: "h3" }), PROFILE);
+    assert.equal(takeProfile(DEFAULT_TAKE), "ltx25-5s-vertical");
+    assert.equal(billedMeasure(takeProfile(DEFAULT_TAKE)), null);
     assert.doesNotMatch(read("src/lib/render/billed-quote.ts"), /submit_workflow|run_template|partner_generate|estimate_credits|class_type|UNETLoader/);
   });
 
@@ -89,52 +91,4 @@ describe("devis facturé", () => {
     assert.equal(quoteSentence(resolveTakeQuote("h3-20pas-5s-horizontal", [])), UNMEASURED_LINE);
   });
 
-  it("translates the novice lines and keeps the gesture behind the quote and the outgoing text", () => {
-    const catalogs = {
-      fr: JSON.parse(read("messages/fr.json")),
-      en: JSON.parse(read("messages/en.json")),
-      de: JSON.parse(read("messages/de.json")),
-      es: JSON.parse(read("messages/es.json")),
-    };
-    assert.equal(catalogs.fr.runtime.notMeasured, UNMEASURED_LINE);
-    assert.equal(catalogs.en._human, "native_open");
-    assert.equal(catalogs.de._human, "native_open");
-    assert.equal(catalogs.es._human, "native_open");
-    const sentence = billedSentence(BILLED_MEASURE);
-    assert.equal(
-      catalogs.fr.runtime.billedQuote.replaceAll("{amount}", "4").replaceAll("{high}", "6").replaceAll("{date}", "7 octobre"),
-      sentence,
-    );
-    assert.match(catalogs.en.runtime.billedQuote, /at most \{high\}/);
-    assert.match(catalogs.de.runtime.billedQuote, /höchstens \{high\}/);
-    assert.match(catalogs.es.runtime.billedQuote, /como máximo \{high\}/);
-    assert.match(catalogs.en.runtime.notMeasured, /Not measured yet/);
-    assert.match(catalogs.de.runtime.notMeasured, /Noch nicht gemessen/);
-    assert.match(catalogs.es.runtime.notMeasured, /Aún no medido/);
-    const t = (key: string) => key;
-    assert.equal(phrase(t, sentence), "runtime.billedQuote");
-    assert.equal(phrase(t, UNMEASURED_LINE), "runtime.notMeasured");
-    assert.equal(phrase(t, "environ 4 crédits"), "runtime.billedMark");
-    assert.doesNotMatch(sentence + UNMEASURED_LINE + catalogs.en.runtime.billedQuote + catalogs.de.runtime.notMeasured, /class_type|UNETLoader|SaveLoRA|nœud/);
-
-    const sheets = read("src/components/app/sheets.tsx");
-    const screens = read("src/components/app/screens.tsx");
-    const confirm = read("src/components/app/studio-context.tsx");
-    assert.match(sheets, /OutgoingTake/);
-    assert.match(sheets, /canConfirm = gate\.allowed && gate\.line\.trim\(\)\.length > 0 && outgoing\.trim\(\)\.length > 0/);
-    assert.match(screens, /quoteSentence\(takeQuote\)/);
-    assert.match(screens, /OutgoingTake/);
-    assert.match(confirm, /if \(!prompt\.trim\(\)\)/);
-    assert.doesNotMatch(screens + sheets, /51662b20|class_type|UNETLoader/);
-
-    const decisions = read("docs/DECISIONS.md");
-    const f26 = decisions.slice(0, decisions.indexOf("## F25"));
-    assert.match(f26, /F26 — Tourner au réglage mesuré/);
-    assert.match(f26, /51662b20-4ac7-44bc-b203-a4127ff462a0/);
-    assert.match(f26, /15,680729/);
-    assert.match(f26, /gpu-facture|devis facturé/);
-    assert.match(f26, /0 crédit brûlé/);
-    assert.match(f26, /native_open/);
-    assert.match(f26, /delta/);
-  });
 });

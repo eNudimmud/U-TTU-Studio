@@ -889,7 +889,14 @@
     "decorCouloir": "A corridor",
     "incomplete": "Incomplete",
     "creditsShort": "Credits",
-    "photoPlaceName": "Place photo"
+    "photoPlaceName": "Place photo",
+    "engine": {
+      "label": "Shot engine",
+      "ltx": "LTX-2.5 (default)",
+      "h3": "MiniMax H3",
+      "ltxHint": "FLUX 3 Klein places the character in the set, then LTX-2.5 animates it. Open weights.",
+      "h3Hint": "Up to nine references. Open weights."
+    }
   },
   "create": {
     "castLead": "Create your character, then reuse them.",
@@ -1083,7 +1090,9 @@
       "priseVidu": "Soon: the price is not checked yet.",
       "montLips": "Soon: the price is not checked yet.",
       "montUpscale": "Soon: the price is not checked yet.",
-      "montFrames": "Soon: the price is not checked yet."
+      "montFrames": "Soon: the price is not checked yet.",
+      "priseOutpaint": "Soon: price not checked yet.",
+      "priseRemove": "Soon: price not checked yet."
     },
     "cat": {
       "identite": "Identity",
@@ -1095,7 +1104,8 @@
       "raccord": "Bridge",
       "mouvement": "Motion",
       "son": "Sound",
-      "image": "Picture"
+      "image": "Picture",
+      "vfx": "Effects"
     },
     "fournit": {
       "texte": "text",
@@ -1227,6 +1237,44 @@
       "title": "Smooth",
       "phrase": "More frames between the frames.",
       "quiet": "Smooth"
+    },
+    "options": {
+      "title": "Engines",
+      "openWeights": "Open weights only",
+      "openWeightsHint": "Hides gestures that use a paid partner service.",
+      "nano": "Nano Banana (optional)"
+    },
+    "castRefs": {
+      "title": "Several references",
+      "phrase": "Face, outfit and style, up to five photos."
+    },
+    "castTextNano": {
+      "title": "Text (Nano Banana)",
+      "phrase": "A fictional person, with the other engine."
+    },
+    "castPhotosNano": {
+      "title": "Photos (Nano Banana)",
+      "phrase": "The face from your photos, with the other engine."
+    },
+    "decorTextNano": {
+      "title": "Text (Nano Banana)",
+      "phrase": "A place, with the other engine."
+    },
+    "decorPhotoNano": {
+      "title": "Photo (Nano Banana)",
+      "phrase": "A place from a photo, with the other engine."
+    },
+    "prisePlanH3": {
+      "title": "Shot, second engine",
+      "phrase": "Up to nine references, price already measured."
+    },
+    "priseOutpaint": {
+      "title": "Widen the shot",
+      "phrase": "The video frame opens on the sides."
+    },
+    "priseRemove": {
+      "title": "Remove an object",
+      "phrase": "An object disappears from the video."
     }
   },
   "refs": {

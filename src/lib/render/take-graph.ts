@@ -27,13 +27,24 @@ export type TakeSeconds = (typeof TAKE_SECONDS)[number];
 export type TakeQuality = keyof typeof TAKE_STEPS;
 export type TakeAspect = keyof typeof TAKE_ASPECTS;
 
+/** Shot engine. LTX-2.5 is the default; MiniMax H3 stays selectable. */
+export const TAKE_ENGINES = ["ltx", "h3"] as const;
+export type TakeEngine = (typeof TAKE_ENGINES)[number];
+export const TAKE_ENGINE_TEMPLATE: Record<TakeEngine, string> = { ltx: "video_ltx2_5_i2v", h3: "video_minimax_h3_r2v" };
+
 export interface TakeSettings {
   seconds: TakeSeconds;
   quality: TakeQuality;
   aspect: TakeAspect;
+  /** Missing on settings saved before LTX: those were H3 takes. */
+  engine?: TakeEngine;
 }
 
-export const DEFAULT_TAKE: TakeSettings = { seconds: 5, quality: "rapide", aspect: "vertical" };
+export const DEFAULT_TAKE: TakeSettings = { seconds: 5, quality: "rapide", aspect: "vertical", engine: "ltx" };
+
+export function takeEngine(settings: Pick<TakeSettings, "engine">): TakeEngine {
+  return settings.engine === "ltx" ? "ltx" : "h3";
+}
 
 export interface TakeGraphInput extends TakeSettings {
   prompt: string;
@@ -54,6 +65,7 @@ export function takeFrames(seconds: number): number {
 
 /** Same profile, same cost: what calibration is keyed on. */
 export function takeProfile(settings: TakeSettings): string {
+  if (takeEngine(settings) === "ltx") return `ltx25-${settings.seconds}s-${settings.aspect}`;
   return `h3-${TAKE_STEPS[settings.quality]}pas-${settings.seconds}s-${settings.aspect}`;
 }
 

@@ -1,0 +1,97 @@
+{
+  "load": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-1.jpg"
+    },
+    "_meta": {
+      "title": "Photo 1"
+    }
+  },
+  "load2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-2.jpg"
+    },
+    "_meta": {
+      "title": "Photo 2"
+    }
+  },
+  "load3": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-3.jpg"
+    },
+    "_meta": {
+      "title": "Photo 3"
+    }
+  },
+  "load4": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-4.jpg"
+    },
+    "_meta": {
+      "title": "Photo 4"
+    }
+  },
+  "load5": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-5.jpg"
+    },
+    "_meta": {
+      "title": "Photo 5"
+    }
+  },
+  "still": {
+    "class_type": "Flux3ImageNode",
+    "inputs": {
+      "prompt": "<texte du visiteur>\n\nMême personne que les photos. Visage reconnaissable. Fond simple. Pas de texte.\n\nThe same fictional person as the reference images. Keep the face. No text.",
+      "aspect_ratio": "3:4",
+      "resolution": "1K",
+      "grounding": false,
+      "safety_tolerance": 2,
+      "seed": 0,
+      "images.image_1": [
+        "load",
+        0
+      ],
+      "images.image_2": [
+        "load2",
+        0
+      ],
+      "images.image_3": [
+        "load3",
+        0
+      ],
+      "images.image_4": [
+        "load4",
+        0
+      ],
+      "images.image_5": [
+        "load5",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "FLUX 3 Image"
+    }
+  },
+  "save": {
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "images": [
+        "still",
+        0
+      ],
+      "filename_prefix": "uttu-still",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB"
+    },
+    "_meta": {
+      "title": "Enregistrer"
+    }
+  }
+}

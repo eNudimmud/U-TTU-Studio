@@ -824,3 +824,9 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 ## Archive — offre A (tuée)
 
 La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une direction légère mensuelle. JD l’a tuée le 2026-09-24. Tout son contenu a été retiré du site : comparaison, grille PASS / FAIL d’U*TTU, tarifs, Sanctuaire, formulaire de brief. Le code reste consultable dans l’historique git (`9fca7e5` et antérieurs). Le portrait canonique d’U*TTU fourni par JD reste utilisé dans le hero, légendé comme référence du studio ([VISUAL-CANON.md](VISUAL-CANON.md)).
+
+## 2026-10-16 · Concours Comfy « Open Source Higgsfield » : FLUX 3, LTX, open weights
+
+- **Décision (JD) :** on soumet le studio complet. LTX-2.5 devient le moteur de prise par défaut (FLUX 3 Klein compose la première image à partir du personnage et du décor, dans le même graphe), MiniMax H3 reste sélectionnable. FLUX 3 Image Klein fait les images de CAST et DÉCOR ; FLUX 3 Image (partenaire) prend plusieurs références et la planche. Nano Banana reste une option, éteinte par défaut. « Open weights seulement » cache tout geste à nœud partenaire.
+- **Fait :** licence MIT ; un workflow Comfy par geste dans `workflows/` (template officiel + graphe API exact), `workflows/index.json`, test de cohérence avec le registre ; `scripts/export-workflows.mjs`, `scripts/run-local.mjs` ; README EN/FR. Le code fal mort est retiré (`src/lib/fal*`, `src/lib/lora/` sauf `dataset.ts`, l’ancien arbre `studio-context`, `workers/fal-proxy/`, tests associés). Les graphes Klein + LTX passent le `dry_run` Comfy Cloud (0 crédit, aucun job).
+- **Pas fait :** 0 crédit. La prise LTX-2.5 n’a pas de mesure : Tourner reste éteint sur ce moteur (« Pas encore mesuré ») jusqu’à une prise réelle validée par JD. Les gestes raccord LTX, caméra IC-LoRA, élargir et effacer (VFX) sont exportés mais restent sous Bientôt.

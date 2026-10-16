@@ -1,67 +1,73 @@
 # Gestes du studio
 
-Un geste est une carte. Le template Comfy reste derrière. Les identifiants ci-dessous sont ceux du catalogue officiel lu le 2026-10-08 (`docs/TEMPLATES-COMFY.md` et les fichiers de catalogue joints). Rien d’autre n’est cité.
+Un geste est une carte. Le template Comfy reste derrière. Chaque geste a son fichier dans `workflows/<onglet>/<id>.json` (le template officiel, à ouvrir dans ComfyUI) et, s’il est branché, `workflows/<onglet>/<id>.api.json` (le graphe exact que le studio envoie). `workflows/index.json` dit lequel passe par un nœud partenaire. Régénérer : `node --experimental-strip-types scripts/export-workflows.mjs`.
+
+Moteurs (concours Comfy « Open Source Higgsfield ») : **FLUX 3 Image Klein** (open weights) pour les images de CAST et DÉCOR, **FLUX 3 Image** (nœud partenaire) pour plusieurs références et la planche, **LTX-2.5** pour la prise par défaut, **MiniMax H3** en second moteur. Nano Banana reste une option, éteinte par défaut. « Open weights seulement » cache tout geste à nœud partenaire.
 
 `premier` : visible tout de suite. Les autres sont derrière « Plus de gestes ».
 
 `ouvert` : le studio a déjà un graphe et un devis, le bouton Créer peut partir après confirmation. `fermé` : la carte reste, Créer reste éteint, rien ne part.
 
-Les coûts marqués hypothèse ne sont pas une mesure de ce tour. Deux coûts sont mesurés : la prise MiniMax H3 R2V, environ 4 crédits, plafond 6, et la planche `templates-character_sheet`, 70,74 crédits lus le 2026-10-08, affichés 71, plafond 100.
+Les coûts marqués hypothèse ne sont pas une mesure. Mesurés : la prise MiniMax H3 R2V (environ 4 crédits, plafond 6) et les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109). FLUX 3 Image : 14 crédits par image lus avec `estimate_credits` le 2026-10-16. La prise LTX-2.5 n’a pas encore de mesure : Tourner reste éteint sur ce moteur tant qu’une prise réelle n’a pas été lue (« Pas encore mesuré »).
 
 ## CAST
 
 | Geste | Carte | Template | Devis | État |
 | --- | --- | --- | --- | --- |
-| cast-photos | Depuis des photos | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert, premier |
-| cast-planche | Planche de vues | `templates-character_sheet` | 71 / 100, mesuré (70,74) | ouvert, premier |
-| cast-texte | Depuis un texte | `api_nano_banana_2_1_t2i` | 12 / 18, hypothèse | ouvert, premier |
-| cast-tenue | Tenue ou coiffure | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert, premier. Cases Visage et Tenue, les deux exigées |
-| cast-angle | Autre angle | `templates-1_click_multiple_character_angles-v1.0` | non mesuré | fermé. Qwen local, aucun nœud payant |
-| cast-expressions | Expression | `templates_liveportrait.app` | non mesuré | fermé. LivePortrait local, cases Visage et Clip |
-| cast-eclair | Rééclairer | `template_character_portrait_relighting` | non mesuré | fermé |
-| cast-agrandir | Agrandir | `utility_seedvr2_3b_int8_upscale_image` | non mesuré | fermé |
-| cast-volume | Volume | `api_hunyuan3d_image_to_model` | non mesuré | fermé |
-
-Slots CAST : `cast-photos` dessine les trois cases Visage que le graphe envoie, `image_1`, `image_2`, `image_3`. `cast-tenue` envoie visage et tenue vers `image_1` et `image_2`. `cast-planche` envoie le visage vers `image_1`.
+| cast-photos | Depuis des photos | `image_flux3_klein_image_edit` | 4 / 6, hypothèse | ouvert, premier, open weights |
+| cast-planche | Planche de vues | `api_bfl_flux3_image_edit` | 28 / 42, hypothèse | ouvert, premier, nœud partenaire |
+| cast-texte | Depuis un texte | `image_flux3_klein_t2i` | 4 / 6, mesuré | ouvert, premier, open weights |
+| cast-refs | Plusieurs références | `api_bfl_flux3_image_edit` | 14 / 21, hypothèse | ouvert, nœud partenaire |
+| cast-texte-nano | Texte (Nano Banana) | `api_nano_banana_2_1_t2i` | 12 / 18, hypothèse | ouvert, nœud partenaire, option Nano Banana, éteinte par défaut |
+| cast-photos-nano | Photos (Nano Banana) | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert, nœud partenaire, option Nano Banana, éteinte par défaut |
+| cast-tenue | Tenue ou coiffure | `image_flux3_klein_image_edit` | 4 / 6, hypothèse | ouvert, premier, open weights |
+| cast-angle | Autre angle | `templates-1_click_multiple_character_angles-v1.0` | non mesuré | fermé, open weights |
+| cast-expressions | Expression | `templates_liveportrait.app` | non mesuré | fermé, open weights |
+| cast-eclair | Rééclairer | `template_character_portrait_relighting` | non mesuré | fermé, nœud partenaire |
+| cast-agrandir | Agrandir | `utility_seedvr2_3b_int8_upscale_image` | non mesuré | fermé, open weights |
+| cast-volume | Volume | `api_hunyuan3d_image_to_model` | non mesuré | fermé, nœud partenaire |
 
 ## DÉCOR
 
 | Geste | Carte | Template | Devis | État |
 | --- | --- | --- | --- | --- |
-| decor-texte | Depuis un texte | `api_nano_banana_2_1_t2i` | 12 / 18, hypothèse | ouvert, premier |
-| decor-photo | Depuis une photo | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert, premier |
-| decor-heure | Heure et météo | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert, premier |
-| decor-angles | Autres angles | `templates-1_click_multiple_scene_angles-v1.0` | non mesuré | fermé, premier. Qwen local, aucun nœud payant |
-| decor-elargir | Élargir le cadre | `template_sirolim_any_aspect_ratio_nb2` | non mesuré | fermé. Un `GeminiNanoBanana2` en 4K. Ce palier n’est pas mesuré. Case Lieu |
-| decor-objet | Objet | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert |
-| decor-volume | Volume du lieu | `3d_pixal3d_trellis2_image_to_model` | non mesuré | fermé |
-
-Le lieu part du rôle `lieu` vers `image_1`.
+| decor-texte | Depuis un texte | `image_flux3_klein_t2i` | 4 / 6, mesuré | ouvert, premier, open weights |
+| decor-photo | Depuis une photo | `image_flux3_klein_image_edit` | 4 / 6, mesuré | ouvert, premier, open weights |
+| decor-texte-nano | Texte (Nano Banana) | `api_nano_banana_2_1_t2i` | 12 / 18, hypothèse | ouvert, nœud partenaire, option Nano Banana, éteinte par défaut |
+| decor-photo-nano | Photo (Nano Banana) | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert, nœud partenaire, option Nano Banana, éteinte par défaut |
+| decor-heure | Heure et météo | `image_flux3_klein_image_edit` | 4 / 6, hypothèse | ouvert, premier, open weights |
+| decor-angles | Autres angles | `templates-1_click_multiple_scene_angles-v1.0` | non mesuré | fermé, premier, open weights |
+| decor-elargir | Élargir le cadre | `template_sirolim_any_aspect_ratio_nb2` | non mesuré | fermé, nœud partenaire, option Nano Banana, éteinte par défaut |
+| decor-objet | Objet | `api_bfl_flux3_image_edit` | 14 / 21, hypothèse | ouvert, nœud partenaire |
+| decor-volume | Volume du lieu | `3d_pixal3d_trellis2_image_to_model` | non mesuré | fermé, open weights |
 
 ## PRISE
 
 | Geste | Carte | Template | Devis | État |
 | --- | --- | --- | --- | --- |
-| prise-plan | Personnage dans le décor | `video_minimax_h3_r2v` | 4 / 6, mesuré | ouvert, premier |
-| prise-image | Image vers plan | `video_minimax_h3_i2v` | non mesuré | fermé, premier |
-| prise-raccord | Raccord | `video_minimax_h3_multiframe_reference` | non mesuré | fermé, premier. Graphes locaux, pas le profil mesuré. Cases Début et Fin |
-| prise-prolonger | Prolonger | `video_minimax_h3_i2v_continuation` | non mesuré | fermé, premier. Première image, pas le profil mesuré. Case Plan |
-| prise-camera | Caméra | `video_minimax_h3_fun_controlnet_union` | non mesuré | fermé. ControlNet local. Case Plan (vidéo) |
-| prise-mouvement | Transfert de mouvement | `video_wan_animate2` | non mesuré | fermé |
-| prise-levres | Lèvres | `video_ltx2_3_ia2v` | non mesuré | fermé. LTX local, sans nœud payant. Cases Visage et Voix |
-| prise-vidu | Autre plan, références | `api_vidu_q4_preview_r2v` | 100 / 150, hypothèse de la note de chaîne | fermé |
-
-`prise-plan` est le chemin déjà mesuré. Les autres cartes ne lancent rien.
+| prise-plan | Personnage dans le décor | `video_ltx2_5_i2v` | 12 / 25, hypothèse | ouvert, premier, open weights |
+| prise-plan-h3 | Plan, second moteur | `video_minimax_h3_r2v` | 4 / 6, mesuré | ouvert, premier, open weights |
+| prise-image | Image vers plan | `video_minimax_h3_i2v` | non mesuré | fermé, open weights |
+| prise-raccord | Raccord | `video_ltx2_5_flf2v` | non mesuré | fermé, premier, open weights |
+| prise-prolonger | Prolonger | `video_minimax_h3_i2v_continuation` | non mesuré | fermé, premier, open weights |
+| prise-camera | Caméra | `video_ltx2_3_ic_lora` | non mesuré | fermé, open weights |
+| prise-mouvement | Transfert de mouvement | `video_wan_animate2` | non mesuré | fermé, open weights |
+| prise-levres | Lèvres | `video_ltx2_3_ia2v` | non mesuré | fermé, open weights |
+| prise-vidu | Autre plan, références | `api_vidu_q4_preview_r2v` | 100 / 150, hypothèse | fermé, nœud partenaire |
+| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | non mesuré | fermé, open weights |
+| prise-effacer | Effacer un objet | `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | non mesuré | fermé, open weights |
 
 ## MONTAGE / SON
 
 | Geste | Carte | Template | Devis | État |
 | --- | --- | --- | --- | --- |
-| mont-voix | Voix | `api_elevenlabs_v4_text_to_speech` | 24,14 / 36,21 pour 1 000 caractères, hypothèse | ouvert, premier. Nœud `ElevenLabsTextToSpeech`, modèle eleven_v4 |
-| mont-effet | Effet sonore | `api_elevenlabs_text_to_sound_effects` | 2,46 / 3,69 pour 5 s, hypothèse | ouvert, premier. Nœud `ElevenLabsTextToSoundEffects`, 5 s |
-| mont-musique | Musique | `api_sonilo_t2m` | 16 / 24 pour 30 s, hypothèse | ouvert, premier. Nœud `SoniloTextToMusic`, durée envoyée 30 s (l’exemple du catalogue est à 60 s) |
-| mont-levres | Synchro labiale | `video_ltx2_3_ia2v` | non mesuré | fermé, premier. LTX local. Cases Plan et Voix |
-| mont-agrandir | Agrandir la vidéo | `utility_seedvr2_3b_int8_upscale_video` | non mesuré | fermé. SeedVR local. Case Plan |
-| mont-fluide | Fluidifier | `utility_video_frame_interpolation` | non mesuré | fermé |
+| mont-voix | Voix | `api_elevenlabs_v4_text_to_speech` | 24,14 / 36,21, hypothèse | ouvert, premier, nœud partenaire |
+| mont-effet | Effet sonore | `api_elevenlabs_text_to_sound_effects` | 2,46 / 3,69, hypothèse | ouvert, premier, nœud partenaire |
+| mont-musique | Musique | `api_sonilo_t2m` | 16 / 24, hypothèse | ouvert, premier, nœud partenaire |
+| mont-levres | Synchro labiale | `video_ltx2_3_ia2v` | non mesuré | fermé, premier, open weights |
+| mont-agrandir | Agrandir la vidéo | `utility_seedvr2_3b_int8_upscale_video` | non mesuré | fermé, open weights |
+| mont-fluide | Fluidifier | `utility_video_frame_interpolation` | non mesuré | fermé, open weights |
 
-La voix, l’effet et la musique ouvrent une feuille. Le devis est une hypothèse lue dans la note de chaîne du 2026-10-08, pas une mesure de ce tour. Créer part sur le compte du visiteur après cette feuille, si le solde couvre le plafond. Les gestes sans devis restent sous Bientôt, avec une ligne qui dit pourquoi.
+## Finaliser
+
+Finaliser agrandit et rend plus net ce qui existe déjà. Il ne refait jamais la prise ni l’image. Ses templates sont exportés dans `workflows/finaliser/`.
