@@ -4,7 +4,7 @@
 // son devis estimé (jamais présenté comme mesuré), demande une confirmation du
 // maximum, puis part sur le compte de rendu. Le rendu va au bout, sans annulation.
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { PREVIS_SECONDS, VIDEO_GESTE_TEXT, VIDEO_GESTES, type VideoGesteId } from "@/lib/render/video-gestes";
@@ -18,26 +18,35 @@ async function recordMaquette(seconds: number, onTick: (left: number) => void): 
   const type = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4"].find(item => MediaRecorder.isTypeSupported(item));
   if (!type) return null;
   const stream = canvas.captureStream(25);
-  const recorder = new MediaRecorder(stream, { mimeType: type });
   const chunks: Blob[] = [];
-  recorder.ondataavailable = event => { if (event.data.size > 0) chunks.push(event.data); };
-  const done = new Promise<void>(resolve => { recorder.onstop = () => resolve(); });
-  recorder.start(250);
-  for (let left = seconds; left > 0; left--) {
-    onTick(left);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let tick: ReturnType<typeof setInterval> | undefined;
+  try {
+    const recorder = new MediaRecorder(stream, { mimeType: type });
+    recorder.ondataavailable = event => { if (event.data.size > 0) chunks.push(event.data); };
+    await new Promise<void>((resolve, reject) => {
+      recorder.onstop = () => resolve();
+      recorder.onerror = () => reject(new Error('Recording failed'));
+      recorder.start(250);
+      let left = seconds;
+      onTick(left);
+      tick = setInterval(() => onTick(Math.max(0, --left)), 1000);
+      timer = setTimeout(() => { if (recorder.state !== 'inactive') recorder.stop(); }, seconds * 1000);
+    });
+  } finally {
+    clearTimeout(timer);
+    clearInterval(tick);
+    stream.getTracks().forEach(track => track.stop());
+    onTick(0);
   }
-  recorder.stop();
-  await done;
-  stream.getTracks().forEach(track => track.stop());
-  onTick(0);
+  if (!chunks.length) return null;
   const ext = type.startsWith("video/mp4") ? "mp4" : "webm";
   return new File(chunks, `uttu-previs.${ext}`, { type: type.split(";")[0] });
 }
 
 export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" | "vertical" }) {
   const { t } = useI18n();
-  const { prefs, connected, creating, runVideoGeste } = useStudio();
+  const { prefs, connected, creating, runVideoGeste, holdClip } = useStudio();
   const rows = VIDEO_GESTES.flatMap(id => {
     const row = gesteParId(id);
     return row && gesteOuvert(row) && gesteVisible(row, prefs) ? [row] : [];
@@ -52,6 +61,9 @@ export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" |
   const [previsUrl, setPrevisUrl] = useState("");
   const [previsNote, setPrevisNote] = useState("");
   const recordingRef = useRef(false);
+  useEffect(() => () => { if (previsUrl) URL.revokeObjectURL(previsUrl); }, [previsUrl]);
+  useEffect(() => () => { if (outcome?.ok) URL.revokeObjectURL(outcome.url); }, [outcome]);
+  useEffect(() => setConfirmed(false), [aspect]);
   const row = rows.find(item => item.id === picked) ?? rows[0];
   if (!row || row.credits === null || row.high === null) return null;
   const geste = row.id as VideoGesteId;
@@ -66,13 +78,15 @@ export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" |
     if (recordingRef.current) return;
     recordingRef.current = true;
     setPrevisNote("");
-    const file = await recordMaquette(PREVIS_SECONDS, setRecording);
-    recordingRef.current = false;
-    setRecording(0);
-    if (!file) { setPrevisNote(t("videoGeste.previsNoCanvas")); return; }
-    setFiles(current => ({ ...current, video_1: file }));
-    setPrevisUrl(URL.createObjectURL(file));
-    setPrevisNote(t("videoGeste.previsReady", { seconds: String(PREVIS_SECONDS) }));
+    setConfirmed(false);
+    try {
+      const file = await recordMaquette(PREVIS_SECONDS, setRecording);
+      if (!file) { setPrevisNote(t("videoGeste.previsNoCanvas")); return; }
+      setFiles(current => ({ ...current, video_1: file }));
+      setPrevisUrl(URL.createObjectURL(file));
+      setPrevisNote(t("videoGeste.previsReady", { seconds: String(PREVIS_SECONDS) }));
+    } catch { setPrevisNote(t("videoGeste.previsNoCanvas")); }
+    finally { recordingRef.current = false; setRecording(0); }
   }
 
   function choose(id: VideoGesteId) {
@@ -113,6 +127,7 @@ export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" |
     {cases.map(item => <label key={item.id} className="u-field u-video-file">
       <span className="u-label">{t(geste === "prise-previs" ? `videoGeste.slotPrevis.${item.role}` : `videoGeste.slot.${item.role}`)}</span>
       <input type="file" accept={item.media === "video" ? "video/*" : "image/*"} disabled={busy} onChange={event => {
+        setConfirmed(false);
         const file = event.target.files?.[0];
         setFiles(current => {
           const next = { ...current };
@@ -123,11 +138,12 @@ export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" |
     </label>)}
     <label className="u-field">
       <span className="u-label">{t(needText ? `videoGeste.text.${geste}` : "videoGeste.textOptional")}</span>
-      <textarea rows={2} value={text} maxLength={600} disabled={busy} onChange={event => setText(event.target.value)} />
+      <textarea rows={2} value={text} maxLength={600} disabled={busy} onChange={event => { setText(event.target.value); setConfirmed(false); }} />
     </label>
     <div className="u-final-quote" data-video-quote="estime">
       <p className="u-cost">{t("videoGeste.quote", { credits: formatCredits(row.credits), ceiling: formatCredits(row.high) })}</p>
       <p className="u-small">{t("videoGeste.estimate")}</p>
+      <p className="u-small">{t("safety.estimate")}</p>
     </div>
     <button type="button" role="checkbox" className="u-final-confirm" aria-checked={confirmed} disabled={busy} aria-describedby={busy ? "u-video-busy" : undefined} onClick={() => setConfirmed(current => !current)}>
       <span className="u-final-box" aria-hidden="true">{confirmed ? "✓" : ""}</span>
@@ -139,7 +155,7 @@ export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" |
     {why && !busy && <p className="u-why" id="u-video-why">{why}</p>}
     {stage && <p className="u-small" id="u-video-busy" aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
     {outcome && (outcome.ok
-      ? <div className="u-video-done"><video src={outcome.url} controls playsInline /><p className="u-small">{t("videoGeste.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p></div>
+      ? <div className="u-video-done"><video src={outcome.url} controls playsInline /><p className="u-small">{t("videoGeste.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p><button type="button" className="u-chip" onClick={() => { holdClip({ source: outcome.path, label: t(`gestes.${row.clef}.title`), kind: "video" }); window.location.hash = "montage"; }}>{t("assets.toMontage")}</button></div>
       : <p className="u-why" role="alert">{outcome.message}</p>)}
   </section>;
 }

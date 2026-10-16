@@ -53,21 +53,34 @@ function request<T>(run: (store: IDBObjectStore) => IDBRequest<T>, mode: IDBTran
       if (!open.result.objectStoreNames.contains("files")) open.result.createObjectStore("files", { keyPath: "path" });
     };
     open.onerror = () => reject(open.error ?? new Error("Mon studio est fermé."));
+    open.onblocked = () => reject(new Error("Fermez les autres onglets du studio puis réessayez la sauvegarde."));
     open.onsuccess = () => {
       const db = open.result;
-      const tx = db.transaction("files", mode);
-      const req = run(tx.objectStore("files"));
-      req.onsuccess = () => {
-        const value = req.result;
+      try {
+        const tx = db.transaction("files", mode);
+        let value: T;
+        const fail = () => {
+          db.close();
+          reject(tx.error ?? new Error("Sauvegarde interrompue. Vérifiez l’espace disponible puis réessayez."));
+        };
+        // A request can succeed and its transaction still abort (quota, shutdown).
+        // Only a committed transaction is a successful save.
+        tx.onabort = fail;
+        tx.onerror = fail;
         tx.oncomplete = () => {
           db.close();
           resolve(value);
         };
-      };
-      req.onerror = () => {
+        const req = run(tx.objectStore("files"));
+        req.onsuccess = () => { value = req.result; };
+        req.onerror = () => {
+          db.close();
+          reject(req.error ?? new Error("Mon studio est illisible."));
+        };
+      } catch (error) {
         db.close();
-        reject(req.error ?? new Error("Mon studio est illisible."));
-      };
+        reject(error);
+      }
     };
   });
 }
@@ -90,4 +103,12 @@ export function idbVault(name = "uttu-coffre"): VaultStore {
       await request(store => store.delete(path), "readwrite", name);
     },
   };
+}
+
+/** Remove media only after every remaining note/cut has stopped referencing it. */
+export async function removeUnreferenced(store: VaultStore, paths: readonly string[]): Promise<void> {
+  const notes = (await store.list()).filter(entry => entry.text !== undefined);
+  for (const path of new Set(paths)) {
+    if (!notes.some(entry => entry.text?.includes(path))) await store.remove(path);
+  }
 }

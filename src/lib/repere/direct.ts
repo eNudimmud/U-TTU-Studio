@@ -3,13 +3,35 @@
 // Mapillary is asked only when a free client token is present.
 
 import { mapillaryImagesUrl, mapillaryToken, parseMapillary } from "./mapillary.ts";
-import { chaineRue, panoramaxByIdUrl, panoramaxSearchUrl, parsePanoramax, RUE_RAYON, type PhotoRue } from "./panoramax.ts";
+import { chaineRue, panoramaxByIdUrl, panoramaxSearchUrl, parsePanoramax, parseInstanceHosts, RUE_RAYON, type PhotoRue } from "./panoramax.ts";
 import { parsePhoton, photonUrl } from "./photon.ts";
 import {
   OVERPASS, overpassQuery, parseOverpass, plafondBatiments, streetStand,
   type Quartier,
 } from "./quartier.ts";
 import type { LieuTrouve } from "./lieu.ts";
+
+export function publicFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  return fetch(url, { ...init, credentials: "omit", signal: init.signal ?? AbortSignal.timeout(12_000) });
+}
+
+let hostsPending: Promise<Set<string>> | null = null;
+async function instanceHosts(): Promise<Set<string>> {
+  const cached = readPublicCache<string[]>("panoramax-instances");
+  if (cached) return new Set(cached);
+  if (hostsPending) return hostsPending;
+  hostsPending = (async () => {
+    try {
+      const response = await publicFetch("https://api.panoramax.xyz/api/instances");
+      if (!response.ok) return new Set<string>();
+      const hosts = parseInstanceHosts(await response.json());
+      writePublicCache("panoramax-instances", hosts);
+      return new Set(hosts);
+    } catch { return new Set<string>(); }
+    finally { hostsPending = null; }
+  })();
+  return hostsPending;
+}
 
 const TTL = 10 * 60 * 1000;
 const GAP = 1000;
@@ -54,7 +76,7 @@ export async function chercherNom(query: string): Promise<LieuTrouve | "rate" | 
   const cached = readPublicCache<LieuTrouve>(key);
   if (cached) return cached;
   if (!takePublicSlot("photon")) return "rate";
-  const response = await fetch(photonUrl(query), { headers: { Accept: "application/json" } });
+  const response = await publicFetch(photonUrl(query), { headers: { Accept: "application/json" } });
   if (!response.ok) return null;
   const found = parsePhoton(await response.json());
   if (found) writePublicCache(key, found);
@@ -73,7 +95,7 @@ export async function chargerQuartier(
   const cached = readPublicCache<Quartier>(key);
   if (cached) return { ...cached, name: place.name, heading, tilt };
   if (!takePublicSlot("overpass")) return "rate";
-  const response = await fetch(OVERPASS, {
+  const response = await publicFetch(OVERPASS, {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
     body: `data=${encodeURIComponent(overpassQuery(place.lat, place.lon, rayon))}`,
@@ -105,9 +127,9 @@ export async function chargerPhoto(id: string): Promise<PhotoRue | "rate" | null
   if (cached) return cached;
   if (!takePublicSlot("panoramax")) return "rate";
   try {
-    const response = await fetch(panoramaxByIdUrl(id), { headers: { Accept: "application/json" } });
+    const response = await publicFetch(panoramaxByIdUrl(id), { headers: { Accept: "application/json" } });
     if (!response.ok) return null;
-    const photo = parsePanoramax(await response.json())[0] ?? null;
+    const photo = parsePanoramax(await response.json(), await instanceHosts())[0] ?? null;
     if (photo) writePublicCache(key, photo);
     return photo;
   } catch {
@@ -115,16 +137,18 @@ export async function chargerPhoto(id: string): Promise<PhotoRue | "rate" | null
   }
 }
 
-export async function chargerPhotos(lat: number, lon: number): Promise<{ photos: PhotoRue[]; start: number; mapillary: "off" | "ok" | "fail" } | "rate"> {
+export interface PhotoSearch { photos: PhotoRue[]; start: number; mapillary: "off" | "ok" | "fail"; panoramax: "ok" | "fail"; radius: number }
+
+export async function chargerPhotos(lat: number, lon: number, radius = RUE_RAYON): Promise<PhotoSearch | "rate"> {
   const token = mapillaryToken();
-  const key = `photos:${lat.toFixed(4)},${lon.toFixed(4)},${RUE_RAYON},${token ? "m" : "p"}`;
-  const cached = readPublicCache<{ photos: PhotoRue[]; start: number; mapillary: "off" | "ok" | "fail" }>(key);
+  const key = `photos-v2:${lat.toFixed(4)},${lon.toFixed(4)},${radius},${token ? "m" : "p"}`;
+  const cached = readPublicCache<PhotoSearch>(key);
   if (cached) return cached;
   if (!takePublicSlot("panoramax")) return "rate";
   let panoramax: PhotoRue[] | null = null;
   try {
-    const response = await fetch(panoramaxSearchUrl(lat, lon, RUE_RAYON, 20), { headers: { Accept: "application/json" } });
-    panoramax = response.ok ? parsePanoramax(await response.json()) : null;
+    const response = await publicFetch(panoramaxSearchUrl(lat, lon, radius, 20), { headers: { Accept: "application/json" } });
+    panoramax = response.ok ? parsePanoramax(await response.json(), await instanceHosts()) : null;
   } catch {
     panoramax = null;
   }
@@ -133,7 +157,7 @@ export async function chargerPhotos(lat: number, lon: number): Promise<{ photos:
   if (token && (panoramax?.length ?? 0) === 0) {
     if (!takePublicSlot("mapillary")) return "rate";
     try {
-      const response = await fetch(mapillaryImagesUrl(lat, lon, 6), {
+      const response = await publicFetch(mapillaryImagesUrl(lat, lon, 8, radius), {
         headers: { Accept: "application/json", Authorization: `OAuth ${token}` },
       });
       if (!response.ok) mapillaryState = "fail";
@@ -142,14 +166,16 @@ export async function chargerPhotos(lat: number, lon: number): Promise<{ photos:
           id: item.id,
           author: item.author,
           thumb: item.thumb,
-          view: item.thumb,
+          view: item.view,
           source: "mapillary" as const,
-          license: "CC BY-SA",
-          tour: false,
-          lat,
-          lon,
-          heading: 0,
-          fov: null,
+          license: "CC-BY-SA-4.0",
+          licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+          sourceUrl: `https://www.mapillary.com/app/?pKey=${item.id}&focus=photo`,
+          tour: /equirectangular|spherical/i.test(item.camera),
+          lat: item.lat,
+          lon: item.lon,
+          heading: item.heading,
+          fov: /equirectangular|spherical/i.test(item.camera) ? 360 : null,
           next: null,
           prev: null,
         }));
@@ -161,8 +187,7 @@ export async function chargerPhotos(lat: number, lon: number): Promise<{ photos:
   const chain = chaineRue(panoramax ?? [], lat, lon);
   const photos = chain.photos.length > 0 ? chain.photos : mapillary;
   const start = chain.photos.length > 0 ? chain.start : 0;
-  if (panoramax === null && photos.length === 0) return { photos: [], start: 0, mapillary: mapillaryState };
-  const body = { photos, start, mapillary: mapillaryState };
-  writePublicCache(key, body);
+  const body: PhotoSearch = { photos, start, mapillary: mapillaryState, panoramax: panoramax === null ? "fail" : "ok", radius };
+  if (panoramax !== null && mapillaryState !== "fail") writePublicCache(key, body);
   return body;
 }

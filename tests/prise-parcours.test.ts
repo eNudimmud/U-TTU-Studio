@@ -8,4 +8,14 @@ import { describe, it } from "node:test";
 // that used to be proved in the browser: the stage asks, the sheet spends.
 
 describe("parcours CAST DÉCOR PRISE", () => {
+  it("sends the selected engine and keeps payment in the explicit confirmation", () => {
+    const prise = readFileSync("src/components/app/prise-stage.tsx", "utf8");
+    assert.match(prise, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
+    assert.match(prise, /engine: prefs\.engine/);
+    assert.doesNotMatch(prise, /confirmRun\(/);
+    const confirm = readFileSync("src/components/app/studio-frames.tsx", "utf8");
+    assert.match(confirm, /confirmRun\(/);
+    assert.match(confirm, /data-confirm-gold/);
+    assert.match(confirm, /disabled=\{!canConfirm\}/);
+  });
 });

@@ -287,7 +287,7 @@ describe("écran PRISE", () => {
     assert.match(source, /Essai rapide/);
     assert.match(source, /Finaliser au montage/);
     assert.match(source, /Texte envoyé/);
-    assert.match(source, /requestRun\(\)/);
+    assert.match(source, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
     assert.doesNotMatch(source, /confirmRun\(|GestePicker|Bientôt|prise-plan|run_template|submit_workflow|partner_generate|estimate_credits|fal\.ai/);
     assert.match(source, /FormatSwitch/);
     assert.match(readFileSync("src/components/app/app.css", "utf8"), /@media \(min-width: 1024px\)[\s\S]*u-prise-dock/);

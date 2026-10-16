@@ -10,6 +10,8 @@ import { COFFRE_ROOT, parseLora, parseTake, writeBlob, writeMap, writeText } fro
 import { ACTIVE_FILE } from "./project.ts";
 import { cleanPath, type VaultStore } from "./store.ts";
 import { readZip } from "../zip.ts";
+import { readCastNote } from "../creation/fiche.ts";
+import { readAssetNote } from "../creation/assets.ts";
 
 export interface CoffreMerge {
   written: number;
@@ -65,6 +67,7 @@ function blobType(path: string): string {
     mkv: "video/x-matroska",
     avi: "video/avi",
     glb: "model/gltf-binary",
+    wav: "audio/wav", mp3: "audio/mpeg", m4a: "audio/mp4", ogg: "audio/ogg",
   };
   return types[ext] ?? "application/octet-stream";
 }
@@ -75,6 +78,17 @@ function noteId(path: string): string {
 }
 
 function acceptNote(path: string, text: string, future: ReadonlySet<string>): boolean {
+  const fields = readFrontmatter(text).fields;
+  // Current CAST and imported-media notes are not legacy LoRA/take records.
+  if (/\/Cast\/.+\.md$/.test(path) && fields.type === "cast" && !fields.media) {
+    const cast = readCastNote(noteId(path), text);
+    const refs = cast ? [...cast.photos, ...(cast.sheet ? [cast.sheet] : [])] : [];
+    return Boolean(cast && refs.length && refs.every(ref => future.has(ref)));
+  }
+  if (typeof fields.media === "string" && /\/(Cast|Decors|Prises|Sons|Assets)\/.+\.md$/.test(path)) {
+    const asset = readAssetNote(noteId(path), text);
+    return Boolean(asset?.media && future.has(asset.media));
+  }
   const prise = /(?:^prises\/|\/Prises\/)([A-Za-z0-9-]+)\.md$/.exec(path);
   if (prise) {
     const parsed = parseTake(prise[1], text);

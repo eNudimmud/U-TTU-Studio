@@ -127,14 +127,14 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       </dl>
       <div className="u-card-actions">
         {onUseRef && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
-        {onPrise && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
+        {onPrise && (current.kind === "personnage" || current.kind === "decor") && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
         {onMontage && <button type="button" onClick={() => onMontage(current)}>{t("assets.toMontage")}</button>}
-        {onRename && !current.preview && <button type="button" onClick={() => { const next = window.prompt(t("create.rename"), current.name); if (next) onRename(current, next); }}>{t("create.rename")}</button>}
-        {onDuplicate && !current.preview && <button type="button" onClick={() => onDuplicate(current)}>{t("create.duplicate")}</button>}
-        {onDelete && !current.preview && (armed === current.id
+        {onRename && (current.kind === "personnage" || current.kind === "decor") && !current.preview && <button type="button" onClick={() => { const next = window.prompt(t("create.rename"), current.name); if (next) onRename(current, next); }}>{t("create.rename")}</button>}
+        {onDuplicate && (current.kind === "personnage" || current.kind === "decor") && !current.preview && <button type="button" onClick={() => onDuplicate(current)}>{t("create.duplicate")}</button>}
+        {onDelete && (current.kind === "personnage" || current.kind === "decor") && !current.preview && (armed === current.id
           ? <button type="button" onClick={() => { onDelete(current); setArmed(null); setOpen(null); }}>{t("create.deleteYes")}</button>
           : <button type="button" onClick={() => setArmed(current.id)}>{t("create.delete")}</button>)}
-        {onCopy && projects.map(project => <button key={project.slug} type="button" onClick={() => onCopy(current, project.slug)}>{t("create.copyProject", { name: project.name })}</button>)}
+        {onCopy && (current.kind === "personnage" || current.kind === "decor") && projects.map(project => <button key={project.slug} type="button" onClick={() => onCopy(current, project.slug)}>{t("create.copyProject", { name: project.name })}</button>)}
         <button type="button" onClick={() => setOpen(null)}>{t("assets.close")}</button>
       </div>
     </article>}

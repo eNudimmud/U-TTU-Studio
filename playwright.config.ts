@@ -11,8 +11,10 @@ export default defineConfig({
   retries: ci ? 1 : 0,
   use: {
     baseURL: "http://127.0.0.1:3000",
-    channel: "chrome",
+    channel: process.env.PLAYWRIGHT_CHANNEL || "chromium",
     locale: "fr-FR",
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
   },
   webServer: {
     command: ci ? "npm start -- --port 3000" : "npm run dev -- --hostname 127.0.0.1 --port 3000",
@@ -23,5 +25,9 @@ export default defineConfig({
   projects: [
     { name: "desktop", use: { viewport: { width: 1280, height: 800 } } },
     { name: "mobile", use: { viewport: { width: 390, height: 844 } } },
+    ...(["firefox", "webkit"] as const).flatMap(browserName => [
+      { name: `${browserName}-desktop`, testMatch: /reliability-ux\.spec\.ts/, use: { browserName, channel: undefined, viewport: { width: 1280, height: 800 } } },
+      { name: `${browserName}-mobile`, testMatch: /reliability-ux\.spec\.ts/, use: { browserName, channel: undefined, viewport: { width: 390, height: 844 } } },
+    ]),
   ],
 });

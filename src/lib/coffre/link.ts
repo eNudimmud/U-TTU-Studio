@@ -60,14 +60,14 @@ export async function mirrorAll(store: VaultStore, root: DirectoryHandle): Promi
 }
 
 /** A store that writes through to the linked folder while it is linked. */
-export function linkedStore(store: VaultStore, folder: () => DirectoryHandle | null): VaultStore {
+export function linkedStore(store: VaultStore, folder: () => DirectoryHandle | null, onMirrorError: (error: unknown) => void = () => {}): VaultStore {
   return {
     list: () => store.list(),
     get: path => store.get(path),
     async put(entry) {
       await store.put(entry);
       const root = folder();
-      if (root) await mirrorEntry(root, entry).catch(() => {});
+      if (root) await mirrorEntry(root, entry).catch(onMirrorError);
     },
     async remove(path) {
       await store.remove(path);

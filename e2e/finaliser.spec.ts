@@ -26,10 +26,10 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mon stud
   await page.route(/\/api\/upload\/image$/, route => { uploads += 1; return route.fulfill({ json: { name: "uttu-montage.mp4", subfolder: "" } }); });
   await page.route(/\/api\/prompt$/, route => {
     graphs.push(JSON.parse(route.request().postData() ?? "{}").prompt);
-    return route.fulfill({ json: { prompt_id: "job-r8", number: 1, node_errors: {} } });
+    return route.fulfill({ json: { prompt_id: "job-r8-audit", number: 1, node_errors: {} } });
   });
   await page.route(/\/api\/queue$/, route => { cancels += 1; return route.fulfill({ json: {} }); });
-  await page.route(/\/api\/job\/job-r8\/status$/, route => {
+  await page.route(/\/api\/job\/job-r8-audit\/status$/, route => {
     polls += 1;
     if (release) {
       balanceCents -= 2; // ≈ 4 crédits
@@ -37,7 +37,7 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mon stud
     }
     return route.fulfill({ json: { status: polls < 2 ? "pending" : "in_progress" } });
   });
-  await page.route(/\/api\/jobs\/job-r8$/, route => route.fulfill({ json: {
+  await page.route(/\/api\/jobs\/job-r8-audit$/, route => route.fulfill({ json: {
     status: "success",
     execution_start_time: 1_760_000_000_000,
     execution_end_time: 1_760_000_016_000,
@@ -47,6 +47,7 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mon stud
 
   await page.goto("/studio");
   await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
+  await page.locator("[data-partir-exemple=montage]").click();
   const open = page.locator("[data-finaliser-open]");
   await expect(open).toBeEnabled();
   const box = await open.boundingBox();
@@ -55,7 +56,7 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mon stud
 
   const sheet = page.getByRole("dialog", { name: "Finaliser le montage" });
   await expect(sheet).toBeVisible();
-  await expect(sheet.locator("[data-final-quote='mesure']")).toContainText(/Environ 4,1 crédits, maximum 6,5/);
+  await expect(sheet.locator("[data-final-quote='mesure']")).toContainText(/Environ 4,1 crédits ; réserve conseillée : 6,5/);
   const go = sheet.locator("[data-final-go]");
   await expect(go).toBeDisabled();
   await expect(sheet.locator("#u-why-final-go")).toHaveText("Coche la confirmation pour lancer.");
@@ -107,7 +108,7 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mon stud
       request.onerror = () => resolve([]);
     };
   }));
-  expect(saved.some(key => /\/Assets\/.*-final-1080p-\d+\.mp4$/.test(key))).toBe(true);
+  expect(saved.some(key => /\/Assets\/.*-final-1080p-\d+-[a-f0-9]+\.mp4$/.test(key))).toBe(true);
   await page.goto("/mon-studio");
   const card = page.getByText(/final 1080p/i).first();
   await expect(card).toBeVisible();

@@ -132,7 +132,7 @@ describe("timeline", () => {
   });
 
   it("keeps the example out of the vault until it is written, then restores it", async () => {
-    const fresh = chooseEdit({ saved: [], sequences: [], shots: [], takes: [] });
+    const fresh = chooseEdit({ demo: true, saved: [], sequences: [], shots: [], takes: [] });
     assert.equal(fresh.stored, false);
     assert.equal(fresh.edit.id, "exemple");
     assert.equal(fresh.edit.video.length, 3);

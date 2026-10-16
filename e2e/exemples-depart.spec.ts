@@ -42,6 +42,8 @@ test("Partir de cet exemple remplit CAST, DÉCOR, PRISE et MONTAGE sans rien dé
   await expect(priseCard).toHaveCount(0);
 
   await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
+  await expect(page.locator("[data-depart=montage]")).toBeVisible();
+  await page.locator("[data-partir-exemple=montage]").click();
   await expect(page.locator("[data-montage=exemple]")).toBeVisible();
   expect(spent).toEqual([]);
 });
