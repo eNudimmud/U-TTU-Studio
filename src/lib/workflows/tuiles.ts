@@ -3,7 +3,7 @@ import type { RoleRef } from "./registre.ts";
 /** House still used as the tile picture. Not an “after” render. */
 const FICHIER: Record<string, string> = {
   "cast-photos": "/exemples/cast-uttu.webp",
-  "cast-planche": "/exemples/cast-coursiere.webp",
+  "cast-planche": "/exemples/cast-uttu-planche.webp",
   "cast-texte": "/exemples/cast-vieil-homme.webp",
   "cast-tenue": "/exemples/cast-dj.webp",
   "cast-angle": "/exemples/cast-coursiere.webp",

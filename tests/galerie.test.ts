@@ -154,7 +154,7 @@ describe("galerie CAST et DÉCOR", () => {
     assert.doesNotMatch(cast + decor, /fetch\(|submit_workflow|run_template|partner_generate|estimate_credits/);
     assert.match(read("src/components/app/stage-screens.tsx"), /create\.needLink/);
     const board = read("src/components/app/prise-stage.tsx");
-    assert.match(board, /requestRun\(\)/);
+    assert.match(board, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
     assert.doesNotMatch(board, /confirmRun\(/);
   });
 
@@ -191,7 +191,7 @@ describe("galerie CAST et DÉCOR", () => {
     const places = manifest.items.filter(item => item.kind === "decor");
     const people = manifest.items.filter(item => item.kind === "cast");
     assert.deepEqual(places.map(item => item.id), decor);
-    assert.deepEqual(people.map(item => item.id), ["cast-uttu", "cast-coursiere", "cast-vieil-homme", "cast-dj"]);
+    assert.deepEqual(people.map(item => item.id), ["cast-uttu", "cast-coursiere", "cast-vieil-homme", "cast-dj", "cast-uttu-planche"]);
     for (const item of manifest.items) {
       assert.equal(item.statut, "maison");
       assert.equal(existsSync(item.file.replace(/^\//, "public/")), true, item.file);
@@ -209,10 +209,12 @@ describe("galerie CAST et DÉCOR", () => {
     assert.equal(existsSync("public/exemples/decor-quai-nuit.jpg"), false);
     assert.equal(existsSync("public/exemples/cast-guide.webp"), false);
     const maison = "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud";
+    const klein = "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud";
+    const nbp = "Rendu maison U*TTU, généré avec Nano Banana Pro via Comfy Cloud";
     for (const item of manifest.items) {
       if (item.id === "cast-uttu") continue;
       assert.equal(item.statut, "maison");
-      assert.equal(item.license, maison);
+      assert.ok(item.license === maison || item.license === klein || item.license === nbp, item.id);
       assert.equal(item.file.endsWith(".webp"), true, item.file);
     }
   });
