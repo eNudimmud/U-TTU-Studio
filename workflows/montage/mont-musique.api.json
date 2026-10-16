@@ -1,0 +1,28 @@
+{
+  "stem": {
+    "class_type": "SoniloTextToMusic",
+    "inputs": {
+      "prompt": "<texte du visiteur>",
+      "duration": 30,
+      "seed": 0
+    },
+    "_meta": {
+      "title": "Musique"
+    }
+  },
+  "save": {
+    "class_type": "SaveAudioAdvanced",
+    "inputs": {
+      "audio": [
+        "stem",
+        0
+      ],
+      "filename_prefix": "uttu-musique",
+      "format": "mp3",
+      "format.quality": "V0"
+    },
+    "_meta": {
+      "title": "Enregistrer"
+    }
+  }
+}

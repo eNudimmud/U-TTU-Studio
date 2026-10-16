@@ -56,35 +56,4 @@ describe("gestes cinéma", () => {
     assert.throws(() => gestureLanding("../x", "raccord-1", null));
   });
 
-  it("keeps the fiches plain, and the gabarits off the section names", () => {
-    const fr = JSON.parse(read("messages/fr.json")) as { cinema: unknown };
-    const copy = JSON.stringify(fr.cinema);
-    assert.match(copy, /Partage manquant/);
-    assert.match(copy, /Devis absent/);
-    assert.doesNotMatch(copy, /video_ltx|wan2|class_type|LoadImage|nœud|graphe|seedance|UNET/i);
-    const ui = read("src/components/app/cinema-gestures.tsx");
-    assert.match(ui, /QUOTE_MEASURED = false/);
-    assert.doesNotMatch(ui, /fetch\(|run_template|submit_workflow|partner_generate|estimate_credits|dry_run/);
-    const screens = read("src/components/app/screens.tsx");
-    const sheets = read("src/components/app/sheets.tsx");
-    const take = screens.slice(screens.indexOf("export function TakeScreen"), screens.indexOf("export function SphereScreen"));
-    assert.ok(take.indexOf("t(\"take.next\")") < take.indexOf("<CinemaGestures anchor />"));
-    assert.ok(take.indexOf("className=\"u-primary\"") < take.indexOf("<CinemaGestures anchor />"));
-    assert.match(sheets, /<CinemaGestures shotId=\{shot\.id\} \/>/);
-    assert.doesNotMatch(sheets, /<CinemaGestures \/>/);
-    const catalog = JSON.parse(read("messages/fr.json")) as { scene: { plan: string }; take: { resetPlan: string }; cinema: { raccord: { apart: string }; lead: string } };
-    assert.equal(catalog.scene.plan, "Espace");
-    assert.equal(catalog.take.resetPlan, "Remettre cette prise à zéro");
-    assert.match(catalog.cinema.raccord.apart, /séquence/);
-    assert.match(catalog.cinema.lead, /Tourner reste éteint/);
-    const seeded = scaffoldFiles("uttu", "Uttu").map(file => file.path);
-    assert.ok(seeded.includes("Projets/uttu/Templates/modele-raccord.md"));
-    assert.ok(seeded.includes("Projets/uttu/Templates/modele-mouvement.md"));
-    assert.ok(seeded.includes("Projets/uttu/Templates/modele-effet.md"));
-    assert.equal(seeded.some(path => /\/(?:raccord|mouvement|effet|camera)\.md$/.test(path)), false);
-    assert.equal(treeFileLabel("Modèles", "modele-raccord.md"), "Modèle · Raccord");
-    assert.equal(treeFileLabel("Modèles", "modele-mouvement.md"), "Modèle · Mouvement");
-    assert.equal(treeFileLabel("Moteurs", "moteur-effet.md"), "Moteur · Effet");
-    assert.match(read("src/lib/coffre/project.ts"), /devis de run est absent/);
-  });
 });

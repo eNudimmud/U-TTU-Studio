@@ -22,7 +22,7 @@ export interface SlotImage {
 export interface Geste {
   id: string;
   onglet: Onglet;
-  categorie: "identite" | "apparence" | "finition" | "lieu" | "variante" | "plan" | "raccord" | "mouvement" | "son" | "image";
+  categorie: "identite" | "apparence" | "finition" | "lieu" | "variante" | "plan" | "raccord" | "mouvement" | "vfx" | "son" | "image";
   clef: string;
   fournit: readonly Fourniture[];
   slots: readonly SlotImage[];
@@ -32,16 +32,33 @@ export interface Geste {
   nature: NatureCout;
   premier: boolean;
   /** Graph already in the studio. `prise` is the measured take. Null stays closed. */
-  still: StillKindName | "prise" | "voix" | "effet" | "musique" | null;
+  still: StillKindName | "prise" | "video" | "mesh" | "voix" | "effet" | "musique" | null;
   minRefs: number;
   /** i18n key. One line, shown when the gesture stays under Bientôt. */
   raison?: string;
   /** Appended to the visitor text inside the graph. Studio words, not a model setting. */
   consigne: string;
+  /** The graph runs a partner (paid API) node. Hidden under Open Weights Only. Checked against workflows/index.json. */
+  partenaire: boolean;
+  /** Off by default. Shown only when the visitor turns that option on. */
+  option?: "nano";
+}
+
+export interface FiltreGestes {
+  openWeightsOnly?: boolean;
+  nanoBanana?: boolean;
 }
 
 /** Ids read in the official catalogs or in docs/TEMPLATES-COMFY.md. Nothing else is allowed. */
 export const TEMPLATES_OFFICIELS = [
+  "image_flux3_klein_t2i",
+  "image_flux3_klein_image_edit",
+  "api_bfl_flux3_image_edit",
+  "video_ltx2_5_i2v",
+  "video_ltx2_5_flf2v",
+  "video_ltx2_3_ic_lora",
+  "template_ltx2_3_lora_video_outpainting",
+  "template_ltx2_3_obscura_remova_lora_remove_object_from_video",
   "api_nano_banana_2_1_t2i",
   "api_nano_banana_2_1_image_edit",
   "templates-character_sheet",
@@ -53,6 +70,7 @@ export const TEMPLATES_OFFICIELS = [
   "templates-1_click_multiple_scene_angles-v1.0",
   "template_sirolim_any_aspect_ratio_nb2",
   "3d_pixal3d_trellis2_image_to_model",
+  "3d_hunyuan3d-v2.1",
   "video_minimax_h3_r2v",
   "video_minimax_h3_i2v",
   "video_minimax_h3_multiframe_reference",
@@ -70,11 +88,21 @@ export const TEMPLATES_OFFICIELS = [
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
 
-function geste(row: Geste): Geste {
-  if (!KNOWN.has(row.template)) throw new Error(`Template absent du catalogue : ${row.template}`);
-  return row;
+/** Templates whose graph holds a partner node without an api_ prefix. Read in workflows/index.json. */
+const PARTENAIRES_SANS_PREFIXE = new Set<string>(["templates-character_sheet", "template_sirolim_any_aspect_ratio_nb2", "template_character_portrait_relighting"]);
+
+export function templatePartenaire(template: string): boolean {
+  return template.startsWith("api_") || PARTENAIRES_SANS_PREFIXE.has(template);
 }
 
+function geste(row: Omit<Geste, "partenaire"> & { partenaire?: boolean }): Geste {
+  if (!KNOWN.has(row.template)) throw new Error(`Template absent du catalogue : ${row.template}`);
+  return { ...row, partenaire: row.partenaire ?? templatePartenaire(row.template) };
+}
+
+const KLEIN_T2I = "image_flux3_klein_t2i";
+const KLEIN_EDIT = "image_flux3_klein_image_edit";
+const FLUX3_API = "api_bfl_flux3_image_edit";
 const FACE = (slot: string): SlotImage => ({ role: "visage", slot });
 const TENUE = (slot: string): SlotImage => ({ role: "tenue", slot });
 const STYLE = (slot: string): SlotImage => ({ role: "style", slot });
@@ -83,29 +111,50 @@ const LIEU = (slot: string): SlotImage => ({ role: "lieu", slot });
 export const REGISTRE: readonly Geste[] = [
   geste({
     id: "cast-photos", onglet: "cast", categorie: "identite", clef: "castPhotos",
-    fournit: ["photos"], slots: [FACE("image_1"), FACE("image_2"), FACE("image_3")],
-    template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
+    fournit: ["photos"], slots: [FACE("image_1"), FACE("image_2")],
+    template: KLEIN_EDIT, credits: 4, high: 6, nature: "hypothese",
     premier: true, still: "photo-cast", minRefs: 1,
     consigne: "Même personne que les photos. Visage reconnaissable. Fond simple. Pas de texte.",
   }),
   geste({
     id: "cast-planche", onglet: "cast", categorie: "identite", clef: "castSheet",
     fournit: ["photo"], slots: [FACE("image_1")],
-    template: "templates-character_sheet", credits: 71, high: 100, nature: "mesure",
+    template: FLUX3_API, credits: 28, high: 42, nature: "hypothese",
     premier: true, still: "planche", minRefs: 1,
     consigne: "Planche : face, trois-quarts, profil, dos. Même personne.",
   }),
   geste({
     id: "cast-texte", onglet: "cast", categorie: "identite", clef: "castText",
     fournit: ["texte"], slots: [],
-    template: "api_nano_banana_2_1_t2i", credits: 12, high: 18, nature: "hypothese",
+    template: KLEIN_T2I, credits: 4, high: 6, nature: "mesure",
     premier: true, still: "texte-cast", minRefs: 0,
     consigne: "Une personne fictive. Face, trois-quarts, profil, en pied. Fond neutre. Pas de texte.",
   }),
   geste({
+    id: "cast-refs", onglet: "cast", categorie: "identite", clef: "castRefs",
+    fournit: ["photos"], slots: [FACE("image_1"), FACE("image_2"), FACE("image_3"), TENUE("image_4"), STYLE("image_5")],
+    template: FLUX3_API, credits: 14, high: 21, nature: "hypothese",
+    premier: false, still: "photo-cast", minRefs: 2,
+    consigne: "Même personne que les photos. Visage reconnaissable. Fond simple. Pas de texte.",
+  }),
+  geste({
+    id: "cast-texte-nano", onglet: "cast", categorie: "identite", clef: "castTextNano",
+    fournit: ["texte"], slots: [],
+    template: "api_nano_banana_2_1_t2i", credits: 12, high: 18, nature: "hypothese",
+    premier: false, still: "texte-cast", minRefs: 0, option: "nano",
+    consigne: "Une personne fictive. Face, trois-quarts, profil, en pied. Fond neutre. Pas de texte.",
+  }),
+  geste({
+    id: "cast-photos-nano", onglet: "cast", categorie: "identite", clef: "castPhotosNano",
+    fournit: ["photos"], slots: [FACE("image_1"), FACE("image_2"), FACE("image_3")],
+    template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
+    premier: false, still: "photo-cast", minRefs: 1, option: "nano",
+    consigne: "Même personne que les photos. Visage reconnaissable. Fond simple. Pas de texte.",
+  }),
+  geste({
     id: "cast-tenue", onglet: "cast", categorie: "apparence", clef: "castWardrobe",
     fournit: ["photos"], slots: [FACE("image_1"), TENUE("image_2")],
-    template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
+    template: KLEIN_EDIT, credits: 4, high: 6, nature: "hypothese",
     premier: true, still: "photo-cast", minRefs: 2,
     consigne: "Garde le visage. Change seulement la tenue ou la coiffure demandée.",
   }),
@@ -142,21 +191,35 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "decor-texte", onglet: "decor", categorie: "lieu", clef: "decorText",
     fournit: ["texte"], slots: [],
-    template: "api_nano_banana_2_1_t2i", credits: 12, high: 18, nature: "hypothese",
+    template: KLEIN_T2I, credits: 4, high: 6, nature: "mesure",
     premier: true, still: "texte-decor", minRefs: 0,
     consigne: "Plan cinéma 16:9, sans personne. Pas de texte.",
   }),
   geste({
     id: "decor-photo", onglet: "decor", categorie: "lieu", clef: "decorPhoto",
     fournit: ["photo"], slots: [LIEU("image_1")],
-    template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
+    template: KLEIN_EDIT, credits: 4, high: 6, nature: "mesure",
     premier: true, still: "photo-decor", minRefs: 1,
+    consigne: "Même lieu que la photo. 16:9, sans personne. Pas de texte.",
+  }),
+  geste({
+    id: "decor-texte-nano", onglet: "decor", categorie: "lieu", clef: "decorTextNano",
+    fournit: ["texte"], slots: [],
+    template: "api_nano_banana_2_1_t2i", credits: 12, high: 18, nature: "hypothese",
+    premier: false, still: "texte-decor", minRefs: 0, option: "nano",
+    consigne: "Plan cinéma 16:9, sans personne. Pas de texte.",
+  }),
+  geste({
+    id: "decor-photo-nano", onglet: "decor", categorie: "lieu", clef: "decorPhotoNano",
+    fournit: ["photo"], slots: [LIEU("image_1")],
+    template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
+    premier: false, still: "photo-decor", minRefs: 1, option: "nano",
     consigne: "Même lieu que la photo. 16:9, sans personne. Pas de texte.",
   }),
   geste({
     id: "decor-heure", onglet: "decor", categorie: "variante", clef: "decorTime",
     fournit: ["photo", "texte"], slots: [LIEU("image_1")],
-    template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
+    template: KLEIN_EDIT, credits: 4, high: 6, nature: "hypothese",
     premier: true, still: "photo-decor", minRefs: 1,
     consigne: "Même lieu. Change l’heure, la météo ou la saison. Sans personne.",
   }),
@@ -170,12 +233,12 @@ export const REGISTRE: readonly Geste[] = [
     id: "decor-elargir", onglet: "decor", categorie: "finition", clef: "decorWiden",
     fournit: ["photo"], slots: [LIEU("image_1")],
     template: "template_sirolim_any_aspect_ratio_nb2", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.decorWiden",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.decorWiden", option: "nano",
   }),
   geste({
     id: "decor-objet", onglet: "decor", categorie: "variante", clef: "decorObject",
-    fournit: ["photo", "texte"], slots: [LIEU("image_1")],
-    template: "api_nano_banana_2_1_image_edit", credits: 12, high: 18, nature: "hypothese",
+    fournit: ["photo", "texte"], slots: [LIEU("image_1"), { role: "style", slot: "image_2" }],
+    template: FLUX3_API, credits: 14, high: 21, nature: "hypothese",
     premier: false, still: "photo-decor", minRefs: 1,
     consigne: "Même lieu. Enlève ou ajoute seulement ce que le texte demande. Sans personne.",
   }),
@@ -188,6 +251,13 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-plan", onglet: "prise", categorie: "plan", clef: "prisePlan",
     fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
+    template: "video_ltx2_5_i2v", credits: 12, high: 25, nature: "hypothese",
+    premier: true, still: "prise", minRefs: 0,
+    consigne: "",
+  }),
+  geste({
+    id: "prise-plan-h3", onglet: "prise", categorie: "plan", clef: "prisePlanH3",
+    fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
     template: "video_minimax_h3_r2v", credits: 4, high: 6, nature: "mesure",
     premier: true, still: "prise", minRefs: 0,
     consigne: "",
@@ -196,25 +266,43 @@ export const REGISTRE: readonly Geste[] = [
     id: "prise-image", onglet: "prise", categorie: "plan", clef: "priseStill",
     fournit: ["photo", "texte"], slots: [LIEU("image_1")],
     template: "video_minimax_h3_i2v", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseStill",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseStill",
   }),
   geste({
     id: "prise-raccord", onglet: "prise", categorie: "raccord", clef: "priseBridge",
     fournit: ["photos", "texte"], slots: [{ role: "debut", slot: "image_1" }, { role: "fin", slot: "image_2" }],
-    template: "video_minimax_h3_multiframe_reference", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 2, consigne: "", raison: "gestes.raisons.priseBridge",
+    template: "video_ltx2_5_flf2v", credits: 12, high: 25, nature: "hypothese",
+    premier: true, still: "video", minRefs: 2, consigne: "",
   }),
   geste({
     id: "prise-prolonger", onglet: "prise", categorie: "raccord", clef: "priseExtend",
     fournit: ["photo", "texte"], slots: [{ role: "plan", slot: "image_1" }],
     template: "video_minimax_h3_i2v_continuation", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseExtend",
+    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseExtend",
   }),
   geste({
     id: "prise-camera", onglet: "prise", categorie: "mouvement", clef: "priseCamera",
-    fournit: ["video"], slots: [{ role: "plan", slot: "video_1", media: "video" }],
-    template: "video_minimax_h3_fun_controlnet_union", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseCamera",
+    fournit: ["photo", "video"], slots: [{ role: "plan", slot: "image_1" }, { role: "clip", slot: "video_1", media: "video" }],
+    template: "video_ltx2_3_ic_lora", credits: 15, high: 30, nature: "hypothese",
+    premier: false, still: "video", minRefs: 2, consigne: "",
+  }),
+  geste({
+    id: "prise-previs", onglet: "prise", categorie: "mouvement", clef: "prisePrevis",
+    fournit: ["photo", "video", "texte"], slots: [{ role: "plan", slot: "image_1" }, { role: "clip", slot: "video_1", media: "video" }],
+    template: "video_ltx2_3_ic_lora", credits: 15, high: 30, nature: "hypothese",
+    premier: true, still: "video", minRefs: 2, consigne: "",
+  }),
+  geste({
+    id: "prise-volume-perso", onglet: "prise", categorie: "image", clef: "priseVolumePerso",
+    fournit: ["photo"], slots: [FACE("image_1")],
+    template: "3d_hunyuan3d-v2.1", credits: 8, high: 16, nature: "hypothese",
+    premier: false, still: "mesh", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "prise-volume-objet", onglet: "prise", categorie: "image", clef: "priseVolumeObjet",
+    fournit: ["photo"], slots: [LIEU("image_1")],
+    template: "3d_pixal3d_trellis2_image_to_model", credits: 15, high: 30, nature: "hypothese",
+    premier: false, still: "mesh", minRefs: 1, consigne: "",
   }),
   geste({
     id: "prise-mouvement", onglet: "prise", categorie: "mouvement", clef: "priseMotion",
@@ -233,6 +321,18 @@ export const REGISTRE: readonly Geste[] = [
     fournit: ["photos", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
     template: "api_vidu_q4_preview_r2v", credits: 100, high: 150, nature: "hypothese",
     premier: false, still: null, minRefs: 2, consigne: "", raison: "gestes.raisons.priseVidu",
+  }),
+  geste({
+    id: "prise-elargir", onglet: "prise", categorie: "vfx", clef: "priseOutpaint",
+    fournit: ["video"], slots: [{ role: "clip", slot: "video_1", media: "video" }],
+    template: "template_ltx2_3_lora_video_outpainting", credits: 15, high: 30, nature: "hypothese",
+    premier: false, still: "video", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "prise-effacer", onglet: "prise", categorie: "vfx", clef: "priseRemove",
+    fournit: ["video", "texte"], slots: [{ role: "clip", slot: "video_1", media: "video" }],
+    template: "template_ltx2_3_obscura_remova_lora_remove_object_from_video", credits: 15, high: 30, nature: "hypothese",
+    premier: false, still: "video", minRefs: 1, consigne: "",
   }),
   geste({
     id: "mont-voix", onglet: "montage", categorie: "son", clef: "montVoice",
@@ -276,8 +376,15 @@ export function gesteParId(id: string): Geste | null {
   return REGISTRE.find(item => item.id === id) ?? null;
 }
 
-export function gestesOnglet(onglet: Onglet): { premiers: Geste[]; suite: Geste[] } {
-  const rows = REGISTRE.filter(item => item.onglet === onglet);
+/** What a visitor sees with these options. Nano Banana is off unless asked; Open Weights Only drops partner nodes. */
+export function gesteVisible(row: Geste, filtre: FiltreGestes = {}): boolean {
+  if (row.option === "nano" && !filtre.nanoBanana) return false;
+  if (filtre.openWeightsOnly && row.partenaire) return false;
+  return true;
+}
+
+export function gestesOnglet(onglet: Onglet, filtre: FiltreGestes = {}): { premiers: Geste[]; suite: Geste[] } {
+  const rows = REGISTRE.filter(item => item.onglet === onglet && gesteVisible(item, filtre));
   return { premiers: rows.filter(item => item.premier), suite: rows.filter(item => !item.premier) };
 }
 

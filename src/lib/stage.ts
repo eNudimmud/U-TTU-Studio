@@ -48,5 +48,6 @@ export function priseNext(input: {
 export function quotedCredits(quote: TakeQuote): number | null {
   if (quote.source === "balance") return quote.credits;
   if (quote.source === "billed") return quote.measure.credits;
+  if (quote.source === "estimated") return quote.estimate.credits;
   return null;
 }

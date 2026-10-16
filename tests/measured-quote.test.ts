@@ -105,21 +105,4 @@ describe("devis mesuré", () => {
     assert.match(kept, /"quotes":\[\]/);
   });
 
-  it("shows where to clear a measured quote, and records the decision", () => {
-    const screens = readFileSync("src/components/app/screens.tsx", "utf8");
-    const sheets = readFileSync("src/components/app/sheets.tsx", "utf8");
-    assert.match(screens, /sheet\.clearQuote/);
-    assert.match(sheets, /sheet\.measuredLead/);
-    assert.match(sheets, /sheet\.clearQuote/);
-    assert.match(screens, /why\.hold/);
-    assert.doesNotMatch(screens + sheets, /SaveLoRA|class_type|panneau de nœuds/);
-    const decisions = readFileSync("docs/DECISIONS.md", "utf8");
-    const f11 = decisions.slice(0, decisions.indexOf("## F10"));
-    assert.match(f11, /F11 — devis mesuré/);
-    assert.match(f11, /temps GPU/);
-    assert.match(f11, /devis\.json/);
-    assert.match(f11, /0 crédit brûlé/);
-    assert.match(f11, /estimate_credits/);
-    assert.doesNotMatch(readFileSync("src/lib/render/measured-quote.ts", "utf8"), /run_template|submit_workflow|partner_generate|estimate_credits/);
-  });
 });

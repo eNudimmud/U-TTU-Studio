@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { assetPath } from "@/lib/site";
 import { illustrationGeste } from "@/lib/workflows/tuiles";
-import { REGISTRE, gesteOuvert, type Geste, type Onglet } from "@/lib/workflows/registre";
+import { REGISTRE, gesteOuvert, gesteVisible, type Geste, type Onglet } from "@/lib/workflows/registre";
+import { useStudio } from "./studio-session";
 
 function Tile({ item, selected, example, onChange, onExample, onStart }: {
   item: Geste;
@@ -56,7 +57,8 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
   examples?: readonly string[];
 }) {
   const { t } = useI18n();
-  const mine = REGISTRE.filter(item => item.onglet === onglet);
+  const { prefs, setPrefs } = useStudio();
+  const mine = REGISTRE.filter(item => item.onglet === onglet && gesteVisible(item, prefs));
   const open = mine.filter(gesteOuvert);
   const soon = mine.filter(item => !gesteOuvert(item));
   const premiers = open.filter(item => item.premier);
@@ -69,6 +71,9 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
   const soonGroups = groupsOf(soon);
 
   useEffect(() => {
+    if (!mine.some(item => item.id === value) && visible[0]) onChange(visible[0].id);
+  }, [prefs.openWeightsOnly, prefs.nanoBanana, onglet]);
+  useEffect(() => {
     if (soon.some(item => item.id === value) || folded.some(item => item.id === value)) setMore(true);
   }, [value, onglet]);
   useEffect(() => {
@@ -76,6 +81,7 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
   }, [value, more]);
 
   return <div className="u-gestes">
+    <ModelOptions openWeightsOnly={prefs.openWeightsOnly} nanoBanana={prefs.nanoBanana} onChange={setPrefs} />
     <p className="u-label" id="u-gestes-label">{t("gestes.ask")}</p>
     <div className="u-tile-scroll" role="listbox" aria-labelledby="u-gestes-label">
       {visible.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} onStart={onStart} />)}
@@ -99,4 +105,24 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
       </div>}
     </>}
   </div>;
+}
+
+/** Two device options. Open Weights Only hides partner nodes; Nano Banana is off by default. */
+export function ModelOptions({ openWeightsOnly, nanoBanana, onChange }: {
+  openWeightsOnly: boolean;
+  nanoBanana: boolean;
+  onChange(next: { openWeightsOnly?: boolean; nanoBanana?: boolean }): void;
+}) {
+  const { t } = useI18n();
+  return <fieldset className="u-model-options">
+    <legend className="u-label">{t("gestes.options.title")}</legend>
+    <label className="u-toggle" title={t("gestes.options.openWeightsHint")}>
+      <input type="checkbox" checked={openWeightsOnly} onChange={event => onChange({ openWeightsOnly: event.target.checked })} />
+      <span>{t("gestes.options.openWeights")}</span>
+    </label>
+    <label className="u-toggle">
+      <input type="checkbox" checked={nanoBanana} disabled={openWeightsOnly} onChange={event => onChange({ nanoBanana: event.target.checked })} />
+      <span>{t("gestes.options.nano")}</span>
+    </label>
+  </fieldset>;
 }

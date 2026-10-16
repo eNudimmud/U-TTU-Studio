@@ -31,6 +31,7 @@ export type TakeCostView =
 export function announcedFromQuote(quote: TakeQuote): AnnouncedQuote | null {
   if (quote.source === "balance") return { credits: quote.credits, high: null };
   if (quote.source === "billed") return { credits: quote.measure.credits, high: quote.measure.creditsHigh };
+  if (quote.source === "estimated") return { credits: quote.estimate.credits, high: quote.estimate.creditsHigh };
   return null;
 }
 

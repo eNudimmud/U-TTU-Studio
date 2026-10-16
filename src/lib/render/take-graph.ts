@@ -1,7 +1,8 @@
-// The take, as the API graph Comfy Cloud runs: MiniMax H3 reference-to-video,
-// the same models and sampler as the official template `video_minimax_h3_r2v`,
-// without its switches. Up to nine reference pictures, in connection order:
+// The take, as the API graph Comfy Cloud runs: the official template
+// `video_minimax_h3_r2v` (h3-base.ts), switches kept. Up to nine reference pictures, in connection order:
 // <Picture 1> is the first photo of the look.
+
+import { H3_R2V_BASE } from "./h3-base.ts";
 
 export const TAKE_MODELS = {
   unet: "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
@@ -27,13 +28,24 @@ export type TakeSeconds = (typeof TAKE_SECONDS)[number];
 export type TakeQuality = keyof typeof TAKE_STEPS;
 export type TakeAspect = keyof typeof TAKE_ASPECTS;
 
+/** Shot engine. LTX-2.5 is the default; MiniMax H3 stays selectable. */
+export const TAKE_ENGINES = ["ltx", "h3"] as const;
+export type TakeEngine = (typeof TAKE_ENGINES)[number];
+export const TAKE_ENGINE_TEMPLATE: Record<TakeEngine, string> = { ltx: "video_ltx2_5_i2v", h3: "video_minimax_h3_r2v" };
+
 export interface TakeSettings {
   seconds: TakeSeconds;
   quality: TakeQuality;
   aspect: TakeAspect;
+  /** Missing on settings saved before LTX: those were H3 takes. */
+  engine?: TakeEngine;
 }
 
-export const DEFAULT_TAKE: TakeSettings = { seconds: 5, quality: "rapide", aspect: "vertical" };
+export const DEFAULT_TAKE: TakeSettings = { seconds: 5, quality: "rapide", aspect: "vertical", engine: "ltx" };
+
+export function takeEngine(settings: Pick<TakeSettings, "engine">): TakeEngine {
+  return settings.engine === "ltx" ? "ltx" : "h3";
+}
 
 export interface TakeGraphInput extends TakeSettings {
   prompt: string;
@@ -54,6 +66,7 @@ export function takeFrames(seconds: number): number {
 
 /** Same profile, same cost: what calibration is keyed on. */
 export function takeProfile(settings: TakeSettings): string {
+  if (takeEngine(settings) === "ltx") return `ltx25-${settings.seconds}s-${settings.aspect}`;
   return `h3-${TAKE_STEPS[settings.quality]}pas-${settings.seconds}s-${settings.aspect}`;
 }
 
@@ -62,53 +75,25 @@ export function takeGraph(input: TakeGraphInput): ApiGraph {
   if (pictures.length === 0) throw new Error("Au moins une photo des références.");
   const prompt = input.prompt.trim();
   if (!prompt) throw new Error("Le plan est vide.");
-  const steps = TAKE_STEPS[input.quality];
-  const turbo = input.quality === "rapide";
   const seed = Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0;
-  const link = (id: string, slot = 0): Link => [id, slot];
-  const model: Link = turbo ? link("lora") : link("unet");
-
-  const graph: ApiGraph = {
-    unet: { class_type: "UNETLoader", inputs: { unet_name: TAKE_MODELS.unet, weight_dtype: "default" } },
-    clip: { class_type: "CLIPLoader", inputs: { clip_name: TAKE_MODELS.clip, type: "minimax", device: "default" } },
-    video_vae: { class_type: "VAELoader", inputs: { vae_name: TAKE_MODELS.videoVae } },
-    audio_vae: { class_type: "VAELoader", inputs: { vae_name: TAKE_MODELS.audioVae } },
-    size: { class_type: "ResolutionSelector", inputs: { aspect_ratio: TAKE_ASPECTS[input.aspect], megapixels: TAKE_MEGAPIXELS, multiple: 32 } },
-  };
-  if (turbo) {
-    graph.lora = { class_type: "LoraLoaderModelOnly", inputs: { model: link("unet"), lora_name: TAKE_MODELS.turboLora, strength_model: 1 } };
-  }
-  const refs: Record<string, Link> = {};
+  // The official template, as exported (h3-base.ts). Only text, pictures, length, frame, turbo switch and seed change.
+  const graph: ApiGraph = structuredClone(H3_R2V_BASE);
+  graph["138"].inputs.value = prompt;
+  graph["132"].inputs.value = input.seconds;
+  graph["146"].inputs.value = input.quality === "rapide";
+  graph["143"].inputs.value = TAKE_STEPS.fine;
+  graph["144"].inputs.value = TAKE_STEPS.rapide;
+  graph["115"].inputs.aspect_ratio = TAKE_ASPECTS[input.aspect];
+  graph["115"].inputs.megapixels = TAKE_MEGAPIXELS;
+  graph["129"].inputs.noise_seed = seed;
+  graph["130"].inputs.fps = TAKE_FPS;
+  graph["92"].inputs.filename_prefix = TAKE_OUTPUT_PREFIX;
+  graph["92"].inputs.format = "mp4";
+  graph["92"].inputs["format.codec"] = "h264";
   pictures.forEach((name, index) => {
     const id = `picture_${index + 1}`;
     graph[id] = { class_type: "LoadImage", inputs: { image: name }, _meta: { title: `Picture ${index + 1}` } };
-    refs[`ref_images.ref_image_${index}`] = link(id);
+    graph["136"].inputs[`ref_images.ref_image_${index}`] = [id, 0];
   });
-  graph.take = {
-    class_type: "MiniMaxH3ReferenceToVideo",
-    inputs: {
-      clip: link("clip"),
-      prompt,
-      width: link("size", 0),
-      height: link("size", 1),
-      length: takeFrames(input.seconds),
-      ref_image_size: "match",
-      vae: link("video_vae"),
-      audio_vae: link("audio_vae"),
-      ...refs,
-    },
-  };
-  graph.sampler = { class_type: "KSamplerSelect", inputs: { sampler_name: "res_multistep" } };
-  graph.sigmas = { class_type: "BasicScheduler", inputs: { model: link("unet"), scheduler: "simple", steps, denoise: 1 } };
-  graph.noise = { class_type: "RandomNoise", inputs: { noise_seed: seed } };
-  graph.guider = { class_type: "BasicGuider", inputs: { model, conditioning: link("take", 0) } };
-  graph.render = {
-    class_type: "SamplerCustomAdvanced",
-    inputs: { noise: link("noise"), guider: link("guider"), sampler: link("sampler"), sigmas: link("sigmas"), latent_image: link("take", 1) },
-  };
-  graph.frames = { class_type: "VAEDecode", inputs: { samples: link("render"), vae: link("video_vae") } };
-  graph.sound = { class_type: "VAEDecodeAudio", inputs: { samples: link("render"), vae: link("audio_vae") } };
-  graph.video = { class_type: "CreateVideo", inputs: { images: link("frames"), audio: link("sound"), fps: TAKE_FPS, bit_depth: 8 } };
-  graph.save = { class_type: "SaveVideo", inputs: { video: link("video"), filename_prefix: TAKE_OUTPUT_PREFIX, format: "mp4", "format.codec": "h264" } };
   return graph;
 }

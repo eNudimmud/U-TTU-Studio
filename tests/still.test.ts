@@ -54,19 +54,28 @@ describe("rendu CAST et DÉCOR", () => {
   });
 
   it("builds the text, photo and sheet graphs without calling out", () => {
+    // FLUX 3 Image Klein by default (open weights).
     const text = stillGraph({ kind: "texte-cast", prompt: "Uttu", images: [], seed: 1 });
-    assert.equal(text.still?.class_type, "GeminiNanoBanana2V2");
+    assert.equal(text["klein_18:1"]?.inputs.unet_name, "flux3_image_klein_base_int8_convrot.safetensors");
+    assert.equal(text["klein_18:7"]?.inputs.steps, 50);
     assert.equal(text.save?.class_type, "SaveImageAdvanced");
+    assert.deepEqual(text.save?.inputs.images, ["klein_decode", 0]);
     const place = stillGraph({ kind: "texte-decor", prompt: "Un quai", images: [], seed: 2 });
-    assert.equal(place.still?.inputs["model.aspect_ratio"], "16:9");
+    assert.equal(place.klein_19?.inputs.aspect_ratio, "16:9 (Widescreen)");
     const edit = stillGraph({ kind: "photo-decor", prompt: "Le même lieu", images: ["lieu.png"], seed: 3 });
     assert.equal(edit.load?.class_type, "LoadImage");
-    assert.deepEqual(edit.still?.inputs["model.images.image_1"], ["load", 0]);
-    const sheet = stillGraph({ kind: "planche", prompt: "La coursière", images: ["face.png"], seed: 4 });
-    assert.equal(sheet.close?.class_type, "GeminiImage2Node");
-    assert.equal(sheet.close?.inputs.resolution, "2K");
-    assert.equal(sheet.body?.class_type, "GeminiImage2Node");
-    assert.equal(sheet.body?.inputs.resolution, "2K");
+    assert.deepEqual(edit.klein_17?.inputs["images.image0"], ["load", 0]);
+    // Nano Banana stays available as an option.
+    const nano = stillGraph({ kind: "texte-decor", prompt: "Un quai", images: [], seed: 2, template: "api_nano_banana_2_1_t2i" });
+    assert.equal(nano.still?.class_type, "GeminiNanoBanana2V2");
+    assert.equal(nano.still?.inputs["model.aspect_ratio"], "16:9");
+    // FLUX 3 Image (partner) for several references and the sheet.
+    const multi = stillGraph({ kind: "photo-cast", prompt: "Uttu", images: ["a.png", "b.png", "c.png"], seed: 5, template: "api_bfl_flux3_image_edit" });
+    assert.equal(multi.still?.class_type, "Flux3ImageNode");
+    assert.deepEqual(multi.still?.inputs["images.image_3"], ["load3", 0]);
+    const sheet = stillGraph({ kind: "planche", prompt: "La coursière", images: ["face.png"], seed: 4, template: "api_bfl_flux3_image_edit" });
+    assert.equal(sheet.close?.class_type, "Flux3ImageNode");
+    assert.equal(sheet.body?.class_type, "Flux3ImageNode");
     assert.equal(sheet.stitch?.class_type, "ImageStitch");
     assert.equal(sheet.save?.inputs.filename_prefix, "uttu-planche");
   });
@@ -85,6 +94,6 @@ describe("rendu CAST et DÉCOR", () => {
     assert.equal(result.jobId, "job-1");
     assert.equal(result.costCredits, 12);
     assert.equal(result.image, png);
-    assert.equal(fake.graph()?.still?.class_type, "GeminiNanoBanana2V2");
+    assert.equal(fake.graph()?.["klein_18:1"]?.class_type, "UNETLoader");
   });
 });

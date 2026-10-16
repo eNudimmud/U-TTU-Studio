@@ -1046,3 +1046,24 @@
 .u-place-tag { position: absolute; left: 3px; bottom: 3px; padding: 1px 5px; border-radius: 6px; background: rgba(0, 0, 0, .72); color: var(--u-gold); font-style: normal; font-size: .62rem; letter-spacing: .04em; text-transform: uppercase; }
 .u-gallery-hidden { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; font-size: .85rem; color: var(--u-gold-soft); }
 .u-gallery-hidden button { flex: none; white-space: nowrap; min-height: 44px; padding: 0 14px; border: 1px solid var(--u-gold); border-radius: 22px; background: transparent; color: var(--u-gold); }
+
+/* Gestes vidéo de PRISE : même grammaire que Finaliser, cibles de 44 px. */
+.u-video-gestes { display: grid; gap: 12px; margin-top: 24px; padding: 16px; border: 1px solid var(--u-line); border-radius: 14px; }
+.u-video-gestes .u-chip, .u-video-gestes .u-primary, .u-video-gestes .u-final-confirm { min-height: 44px; }
+.u-video-file input[type="file"] { min-height: 44px; color: var(--u-muted); }
+.u-video-done video { width: 100%; max-height: 360px; border-radius: 10px; background: #000; }
+.u-previs { display: grid; gap: 8px; }
+.u-previs-clip { width: 100%; max-height: 220px; border-radius: 10px; background: #000; }
+
+/* Prévis au doigt */
+.u-previs-panel { display: grid; gap: 14px; margin-top: 12px; padding: 14px; border: 1px solid var(--u-line-strong); border-radius: 14px; background: #100e0c; }
+.u-previs-block { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--u-line); }
+.u-previs-block:first-of-type { border-top: 0; padding-top: 0; }
+.u-file-chip { position: relative; cursor: pointer; }
+.u-file-chip input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.u-previs-time { display: grid; gap: 4px; }
+.u-previs-time input[type="range"] { min-height: 44px; accent-color: var(--u-gold); }
+.u-keys { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.u-keys li { display: inline-flex; align-items: center; gap: 6px; padding-left: 10px; border: 1px solid var(--u-gold); border-radius: 999px; color: var(--u-gold); }
+.u-keys .u-chip { min-width: 44px; justify-content: center; }
+.u-previs-film { justify-self: start; border-color: var(--u-gold); color: var(--u-gold); }

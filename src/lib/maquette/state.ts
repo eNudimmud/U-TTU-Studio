@@ -28,12 +28,18 @@ export interface Orbit {
 }
 
 export interface Frame {
+  props?: import("./scene.ts").Prop[];
+  path?: import("./scene.ts").Keyframe[];
   figures: Figure[];
   orbit: Orbit;
   tuile: TuileId;
 }
 
 export interface MaquetteState extends Frame {
+  /** Previs props: primitives or an imported GLB. */
+  props?: import("./scene.ts").Prop[];
+  /** Camera keyframes of the previs, sorted by time. */
+  path?: import("./scene.ts").Keyframe[];
   lockPose: boolean;
   lockCam: boolean;
   past: Frame[];
@@ -72,13 +78,15 @@ function clamp(value: number, min: number, max: number): number {
 
 function frameOf(state: MaquetteState): Frame {
   return {
+    ...(state.props ? { props: state.props.map(item => ({ ...item })) } : {}),
+    ...(state.path ? { path: state.path.map(item => ({ t: item.t, orbit: { ...item.orbit } })) } : {}),
     figures: state.figures.map(item => ({ ...item })),
     orbit: { ...state.orbit },
     tuile: state.tuile,
   };
 }
 
-function remember(state: MaquetteState): MaquetteState {
+export function remember(state: MaquetteState): MaquetteState {
   return { ...state, past: [...state.past, frameOf(state)].slice(-30) };
 }
 

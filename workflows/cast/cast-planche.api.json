@@ -1,0 +1,83 @@
+{
+  "load": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-1.jpg"
+    },
+    "_meta": {
+      "title": "Photo 1"
+    }
+  },
+  "close": {
+    "class_type": "Flux3ImageNode",
+    "inputs": {
+      "prompt": "<texte du visiteur>\n\nPlanche : face, trois-quarts, profil, dos. Même personne.\n\nClose-up turnaround of this fictional person from image 1: front, three-quarter, profile. Plain background. No text.",
+      "aspect_ratio": "9:16",
+      "resolution": "1K",
+      "grounding": false,
+      "safety_tolerance": 2,
+      "seed": 0,
+      "images.image_1": [
+        "load",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Visage"
+    }
+  },
+  "body": {
+    "class_type": "Flux3ImageNode",
+    "inputs": {
+      "prompt": "<texte du visiteur>\n\nPlanche : face, trois-quarts, profil, dos. Même personne.\n\nFull-body turnaround of this fictional person from image 1: front, three-quarter, profile, back. Plain background. No text.",
+      "aspect_ratio": "16:9",
+      "resolution": "1K",
+      "grounding": false,
+      "safety_tolerance": 2,
+      "seed": 1,
+      "images.image_1": [
+        "load",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Corps"
+    }
+  },
+  "stitch": {
+    "class_type": "ImageStitch",
+    "inputs": {
+      "image1": [
+        "close",
+        0
+      ],
+      "image2": [
+        "body",
+        0
+      ],
+      "direction": "right",
+      "match_image_size": true,
+      "spacing_width": 0,
+      "spacing_color": "white"
+    },
+    "_meta": {
+      "title": "Planche"
+    }
+  },
+  "save": {
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "images": [
+        "stitch",
+        0
+      ],
+      "filename_prefix": "uttu-planche",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB"
+    },
+    "_meta": {
+      "title": "Enregistrer la planche"
+    }
+  }
+}

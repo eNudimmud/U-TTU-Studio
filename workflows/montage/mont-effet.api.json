@@ -1,0 +1,31 @@
+{
+  "stem": {
+    "class_type": "ElevenLabsTextToSoundEffects",
+    "inputs": {
+      "text": "<texte du visiteur>",
+      "model": "eleven_sfx_v2",
+      "model.duration": 5,
+      "model.loop": false,
+      "model.prompt_influence": 0.3,
+      "output_format": "mp3_44100_192"
+    },
+    "_meta": {
+      "title": "Effet"
+    }
+  },
+  "save": {
+    "class_type": "SaveAudioAdvanced",
+    "inputs": {
+      "audio": [
+        "stem",
+        0
+      ],
+      "filename_prefix": "uttu-effet",
+      "format": "mp3",
+      "format.quality": "V0"
+    },
+    "_meta": {
+      "title": "Enregistrer"
+    }
+  }
+}

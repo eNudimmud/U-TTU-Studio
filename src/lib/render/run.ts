@@ -5,7 +5,14 @@
 
 import { measuredCost } from "../credits.ts";
 import { executionSeconds, jobStage, RenderError, videoOutput, type RenderClient } from "./client.ts";
-import { takeGraph, type TakeSettings } from "./take-graph.ts";
+import { ltxTakeGraph } from "./ltx-graph.ts";
+import { takeEngine, takeGraph, type ApiGraph, type TakeSettings } from "./take-graph.ts";
+
+/** The graph for the chosen engine. Same pictures, same text. */
+export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number): ApiGraph {
+  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect });
+  return takeGraph({ ...settings, prompt, pictures, seed });
+}
 
 export interface TakeRunInput {
   pictures: readonly { blob: Blob; name: string }[];
@@ -64,7 +71,7 @@ export async function submitTake(
   onEvent({ stage: "upload", done: input.pictures.length, total: input.pictures.length });
   if (signal?.aborted) throw new RenderError("cancelled", "Prise annulée avant l’envoi.");
   onEvent({ stage: "submit" });
-  const graph = takeGraph({ ...input.settings, prompt: input.prompt, pictures: names, seed: input.seed });
+  const graph = takeGraphFor(input.settings, input.prompt, names, input.seed);
   return client.submit(graph, input.clientId);
 }
 

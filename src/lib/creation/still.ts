@@ -3,14 +3,27 @@
 
 import { measuredCost } from "../credits.ts";
 import { imageOutput, jobStage, RenderError, type JobDetail, type OutputRef, type RenderClient } from "../render/client.ts";
+import { kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
 import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
 
 export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche";
 
+/** Which graph family builds the still. Read from the gesture's template. */
+export type StillEngine = "klein" | "flux3" | "nano";
+
+export function stillEngine(template: string | undefined): StillEngine {
+  if (!template || template.startsWith("image_flux3_klein")) return "klein";
+  if (template.startsWith("api_bfl_flux3")) return "flux3";
+  if (template.startsWith("api_nano_banana") || template === "templates-character_sheet") return "nano";
+  return "klein";
+}
+
 export interface StillRunInput {
   kind: StillKind;
+  /** The gesture template. FLUX 3 Klein when absent. */
+  template?: string;
   prompt: string;
   pictures: readonly { blob: Blob; name: string }[];
   seed: number;
@@ -64,11 +77,78 @@ function save(id: string, from: string, prefix: string): ApiGraph[string] {
   };
 }
 
+const SUFFIX: Record<StillKind, string> = {
+  "texte-cast": "One fictional person, character sheet: front face, three-quarter, profile, full body. Neutral background. No text.",
+  "texte-decor": "Cinema still, 16:9, empty of people. No text.",
+  "photo-cast": "The same fictional person as the reference images. Keep the face. No text.",
+  "photo-decor": "Cinema still, 16:9, the same place as the reference image, empty of people. No text.",
+  planche: "",
+};
+
+function aspectOf(kind: StillKind): KleinAspect {
+  return kind === "texte-decor" || kind === "photo-decor" ? "16:9" : "3:4";
+}
+
+function needsPhoto(kind: StillKind, images: readonly string[]): void {
+  if (kind === "texte-cast" || kind === "texte-decor" || images[0]) return;
+  throw new Error(kind === "photo-decor" ? "Le décor part d’une photo." : kind === "planche" ? "La planche part d’une photo." : "Le personnage part d’une photo.");
+}
+
+function loads(graph: ApiGraph, images: readonly string[], max: number): [string, number][] {
+  return images.slice(0, max).map((image, index) => {
+    const id = index === 0 ? "load" : `load${index + 1}`;
+    graph[id] = { class_type: "LoadImage", inputs: { image }, _meta: { title: `Photo ${index + 1}` } };
+    return [id, 0];
+  });
+}
+
+/** FLUX 3 Image Klein (open weights). Edits take up to four references. */
+function kleinStill(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number }): ApiGraph {
+  const kind = input.kind === "planche" ? "photo-cast" : input.kind;
+  needsPhoto(input.kind, input.images);
+  const graph: ApiGraph = {};
+  const refs = kind === "texte-cast" || kind === "texte-decor" ? [] : loads(graph, input.images, 4);
+  const sheet = input.kind === "planche" ? "Turnaround of this fictional person: front, three-quarter, profile, back, full body, side by side. Plain background. No text." : SUFFIX[kind];
+  Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: `${input.prompt}\n\n${sheet}`, seed: input.seed, aspect: aspectOf(kind), images: refs }));
+  graph.save = save(input.kind === "planche" ? "planche" : "save", "klein_decode", input.kind === "planche" ? "uttu-planche" : "uttu-still");
+  return graph;
+}
+
+/** FLUX 3 Image (partner node). Up to ten references; the studio sends five. */
+function flux3Still(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number }): ApiGraph {
+  needsPhoto(input.kind, input.images);
+  const graph: ApiGraph = {};
+  const refs = loads(graph, input.images, 5);
+  const images: Record<string, [string, number]> = {};
+  refs.forEach((link, index) => { images[`images.image_${index + 1}`] = link; });
+  const node = (prompt: string, seed: number, aspect: string) => ({
+    class_type: "Flux3ImageNode",
+    inputs: { prompt, aspect_ratio: aspect, resolution: "1K", grounding: false, safety_tolerance: 2, seed, ...images },
+  });
+  if (input.kind === "planche") {
+    graph.close = { ...node(`${input.prompt}\n\nClose-up turnaround of this fictional person from image 1: front, three-quarter, profile. Plain background. No text.`, input.seed, "9:16"), _meta: { title: "Visage" } };
+    graph.body = { ...node(`${input.prompt}\n\nFull-body turnaround of this fictional person from image 1: front, three-quarter, profile, back. Plain background. No text.`, input.seed + 1, "16:9"), _meta: { title: "Corps" } };
+    graph.stitch = {
+      class_type: "ImageStitch",
+      inputs: { image1: ["close", 0], image2: ["body", 0], direction: "right", match_image_size: true, spacing_width: 0, spacing_color: "white" },
+      _meta: { title: "Planche" },
+    };
+    graph.save = save("planche", "stitch", "uttu-planche");
+    return graph;
+  }
+  graph.still = { ...node(`${input.prompt}\n\n${SUFFIX[input.kind]}`, input.seed, aspectOf(input.kind)), _meta: { title: "FLUX 3 Image" } };
+  graph.save = save("save", "still", "uttu-still");
+  return graph;
+}
+
 /** The API graph for one template. `images` are already uploaded input names. */
-export function stillGraph(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number }): ApiGraph {
+export function stillGraph(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number; template?: string }): ApiGraph {
   const prompt = input.prompt.trim();
   if (!prompt) throw new Error("Le texte est vide.");
   const seed = seedOf(input.seed);
+  const engine = stillEngine(input.template);
+  if (engine === "klein") return kleinStill({ ...input, prompt, seed });
+  if (engine === "flux3") return flux3Still({ ...input, prompt, seed });
   if (input.kind === "planche") {
     const image = input.images[0];
     if (!image) throw new Error("La planche part d’une photo.");
@@ -209,7 +289,7 @@ export async function runStill(client: RenderClient, input: StillRunInput, optio
     names.push(await client.upload(picture.blob, picture.name));
   }
   if (options.signal?.aborted) throw new RenderError("cancelled", "Rendu annulé avant l’envoi.");
-  const graph = stillGraph({ kind: input.kind, prompt: input.prompt, images: names, seed: input.seed });
+  const graph = stillGraph({ kind: input.kind, prompt: input.prompt, images: names, seed: input.seed, template: input.template });
   const jobId = await client.submit(graph, input.clientId);
   const started = now();
   for (;;) {

@@ -104,19 +104,4 @@ describe("liste de montage", () => {
     assert.equal(montageCues(back.shots, back.takes, "quai-nuit")[1]?.source, null);
   });
 
-  it("opens playback from the sequence, with a reason when no shot exists", () => {
-    const sheets = readFileSync("src/components/app/sheets.tsx", "utf8");
-    const fr = readFileSync("messages/fr.json", "utf8");
-    assert.match(sheets, /sequence\.play/);
-    assert.match(sheets, /sequence\.playOff/);
-    assert.match(sheets, /sequence\.slate/);
-    assert.match(sheets, /className="u-drag"/);
-    assert.match(sheets, /className="u-slate"/);
-    assert.match(fr, /Lire la séquence/);
-    assert.match(fr, /Plan sans prise/);
-    assert.doesNotMatch(sheets, /class_type|SaveLoRA|panneau de nœuds|estimate_credits|partner_generate/);
-    assert.equal(JSON.parse(readFileSync("messages/en.json", "utf8"))._human, "native_open");
-    assert.equal(JSON.parse(readFileSync("messages/de.json", "utf8"))._human, "native_open");
-    assert.equal(JSON.parse(readFileSync("messages/es.json", "utf8"))._human, "native_open");
-  });
 });

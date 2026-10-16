@@ -824,3 +824,27 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 ## Archive — offre A (tuée)
 
 La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une direction légère mensuelle. JD l’a tuée le 2026-09-24. Tout son contenu a été retiré du site : comparaison, grille PASS / FAIL d’U*TTU, tarifs, Sanctuaire, formulaire de brief. Le code reste consultable dans l’historique git (`9fca7e5` et antérieurs). Le portrait canonique d’U*TTU fourni par JD reste utilisé dans le hero, légendé comme référence du studio ([VISUAL-CANON.md](VISUAL-CANON.md)).
+
+## 2026-10-16 · Concours Comfy « Open Source Higgsfield » : FLUX 3, LTX, open weights
+
+- **Décision (JD) :** on soumet le studio complet. LTX-2.5 devient le moteur de prise par défaut (FLUX 3 Klein compose la première image à partir du personnage et du décor, dans le même graphe), MiniMax H3 reste sélectionnable. FLUX 3 Image Klein fait les images de CAST et DÉCOR ; FLUX 3 Image (partenaire) prend plusieurs références et la planche. Nano Banana reste une option, éteinte par défaut. « Open weights seulement » cache tout geste à nœud partenaire.
+- **Fait :** licence MIT ; un workflow Comfy par geste dans `workflows/` (template officiel + graphe API exact), `workflows/index.json`, test de cohérence avec le registre ; `scripts/export-workflows.mjs`, `scripts/run-local.mjs` ; README EN/FR. Le code fal mort est retiré (`src/lib/fal*`, `src/lib/lora/` sauf `dataset.ts`, l’ancien arbre `studio-context`, `workers/fal-proxy/`, tests associés). Les graphes Klein + LTX passent le `dry_run` Comfy Cloud (0 crédit, aucun job).
+- **Pas fait :** 0 crédit. La prise LTX-2.5 n’a pas de mesure : Tourner reste éteint sur ce moteur (« Pas encore mesuré ») jusqu’à une prise réelle validée par JD. Les gestes raccord LTX, caméra IC-LoRA, élargir et effacer (VFX) sont exportés mais restent sous Bientôt.
+
+## 2026-10-16 · Devis LTX estimé, gestes vidéo branchés
+
+- Plus de crédits Comfy : aucune prise de calibrage. La prise LTX-2.5 affiche un devis **estimé** (12 à 25 crédits pour 5 s, proportionnel à la durée), toujours libellé « Estimé », jamais « mesuré ». Le devis précède toujours la dépense ; le maximum estimé sert de plafond face au solde.
+- Gestes vidéo de PRISE branchés : raccord (`video_ltx2_5_flf2v`, estimé 12–25), caméra (`video_ltx2_3_ic_lora`, estimé 15–30), élargir (`template_ltx2_3_lora_video_outpainting`, estimé 15–30), effacer (`template_ltx2_3_obscura_remova_lora_remove_object_from_video`, estimé 15–30). Graphes exportés des templates officiels ; élargir et effacer validés en pré-vol Comfy Cloud (dry run, aucun job). Confirmation du maximum avant envoi, jamais d'annulation.
+- Chaînes i18n inertes de l'ère fal (formation LoRA) retirées des quatre langues.
+
+## 2026-10-16 · Caméra maîtrisée (prévis → plan)
+
+- Inspiré de « The Disturbance Call » (ComfyUI : blockout Blender qui fixe caméra, action et timing, puis rendu vidéo). Le workflow partagé (Seedance) n'a pas pu être lu : l'import Comfy Cloud a refusé l'accès. Notre version reste open source : pas de Seedance.
+- La maquette 3D de PRISE est filmée dans le navigateur (5 s, `canvas.captureStream`) pendant que le visiteur bouge caméra et personnages. Cette prévis entre dans `video_ltx2_3_ic_lora` : MoGe en tire la profondeur, l'IC-LoRA union de LTX-2.3 la suit, une image de rendu donne le look. Format suivi (16:9 / 9:16).
+- Devis estimé 15–30 crédits, libellé « Estimé », confirmation du maximum avant envoi, jamais d'annulation. Aucun crédit dépensé, aucun job.
+
+## 2026-10-16 · Règle : un workflow Comfy dédié par fonction
+
+- Toute fonction passe par son template officiel exporté. Audit et liste des exceptions : `docs/AUDIT-WORKFLOWS-COMFY.md`, gardé par `tests/workflows-dedies.test.ts`.
+- Migrés : FLUX 3 Klein (CAST/DÉCOR) et MiniMax H3 (prise), qui partent maintenant de l'export du template au lieu d'un graphe écrit à la main. Le Finaliser est rattaché à `utility_nvidia_rtx_video_enhance` (étape Super Resolution) et exporté.
+- Le pré-vol Comfy Cloud n'était pas joignable pendant cette passe (accès MCP refusé). Les graphes migrés gardent les modèles, le sampler et les pas des rendus mesurés, mais ils n'ont pas été revalidés côté cloud.

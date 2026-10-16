@@ -2,14 +2,14 @@
   "name": "u-ttu-studio",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "next build --webpack",
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --no-warnings --test \"tests/**/*.test.ts\"",
-    "test:e2e": "playwright test",
-    "fal:smoke": "node scripts/fal-smoke.mjs"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@clerk/localizations": "^4.20.0",

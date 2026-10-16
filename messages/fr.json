@@ -22,7 +22,6 @@
     "credits": "crédits",
     "opening": "Ouverture de mon studio…",
     "takeRunning": "prise en cours",
-    "trainRunning": "formation en cours",
     "sceneRunning": "scène en cours",
     "renderCredits": "Crédits du compte de rendu"
   },
@@ -61,14 +60,6 @@
     "take-done": "La prise est là. Un geste la pose dans un plan.",
     "take-filed": "La prise est dans la séquence. Un geste la lit.",
     "take-double": "Ce personnage tient d’une prise à l’autre. Les photos tiennent le reste.",
-    "lora-name": "Nomme le personnage. C’est lui que les prises suivantes tiennent.",
-    "lora-photos": "Deux photos de ce personnage. Elles accompagnent les clips.",
-    "lora-clips": "Dix clips du personnage, de trois à trente secondes.",
-    "lora-connect": "Relie le compte qui paiera la formation. Le studio n’encaisse rien.",
-    "lora-ready": "Le prix est là, avant ton geste. Rien ne part sans lui.",
-    "lora-memory": "Bible, style, lexique, prompts : vides, ou les tiens. Rien n’est inventé.",
-    "lora-running": "J’apprends ce personnage. C’est long : reviens plus tard.",
-    "lora-done": "Le personnage est dans mon studio. Choisis-le dans La prise.",
     "sphere-empty": "Tes prises viendront se poser ici.",
     "project-name": "Atelier est écrit. Un geste crée le projet.",
     "understood": "Compris",
@@ -117,22 +108,15 @@
       "label": "Références",
       "detail": "Les photos de mon studio partent à chaque prise.",
       "sound": "Le son est dans la prise."
-    },
-    "lora": {
-      "label": "Personnage (fichier)",
-      "detail": "Le fichier de mon studio tient le personnage.",
-      "sound": "Le son n’est pas un réglage de ce fichier."
     }
   },
   "path": {
     "references": {
       "title": "Références",
-      "body": "Deux photos au moins, trois au plus, un nom. Deux traits, si tu en as. Rien à former. Chaque prise « {engine} » paie le compte de rendu, au prix lu au moment de tourner.",
       "action": "Tenir les photos"
     },
     "fichier": {
-      "title": "Fichier",
-      "body": "Dix clips. On forme un fichier, une fois. {price} 2000 pas coûtent le double de 1000. Les prises « {engine} » rechargent ce fichier, et se paient à part."
+      "title": "Fichier"
     },
     "aria": "Deux façons de créer un personnage"
   },
@@ -155,7 +139,6 @@
   "look": {
     "kicker": "Personnage · Références",
     "title": "Jusqu’à trois photos.",
-    "lead": "Deux suffisent, trois tiennent. Pas de formation. Ces photos partent avec chaque prise « {engine} ». Le compte de rendu paie la prise, au prix lu à ce moment. Ici, rien n’est débité.",
     "photos": "Photos des références",
     "name": "Nom",
     "traits": "Ce qui ne change pas",
@@ -168,7 +151,6 @@
     "aName": "Un nom",
     "twoTraits": "Deux traits",
     "reset": "Remettre ces références",
-    "stay": "Les prises, les lieux et les personnages formés restent.",
     "missingOne": "Il manque {what}.",
     "missingMany": "Il manque {list} et {last}.",
     "gapPhotos": "deux photos",
@@ -207,11 +189,6 @@
     "thePlaceBody": "Il reste. Tu le rouvres : même nom, même espace, même trajet. Tu peux en tenir plusieurs.",
     "blenderBody": "Il rend le lieu vide, {frames} images le long du trajet. Le personnage n’est pas dans ce fichier.",
     "theCharacterBody": "C’est le fichier de mon studio. Il n’entre que dans le trajet filmé, après ces images.",
-    "formed": "Ce lieu, formé",
-    "formedPrice": "Formation : {amount}.",
-    "formedUnread": "Le prix de formation se lit avant le geste.",
-    "formedFile": "Fichier dans mon studio.",
-    "formedTail": "Ce fichier n’est pas un volume. Le 3D reste le Blender.",
     "thePrice": "Le prix",
     "thePriceBody": "Les deux devis sont lus avant le geste. Rien ne part sans confirmation.",
     "plan": "Espace",
@@ -232,13 +209,10 @@
     "noBlenderKey": "Aucune clé Blender. Le rendu ne part pas, et aucune image n’est inventée.",
     "changeKey": "Changer la clé Blender",
     "whereKey": "Où trouver la clé",
-    "viewsLabel": "Vues du lieu · {count}/{min} pour le former",
     "views": "Vues du lieu",
     "stills": "Images du lieu",
-    "training": "Formation du lieu…",
     "addView": "Ajouter une vue",
     "reset": "Remettre ce lieu à zéro",
-    "resetStay": "Les autres lieux, les prises et les personnages formés restent.",
     "remove": "Retirer ce lieu",
     "setAndTake": "Poser ce lieu, puis la prise"
   },
@@ -320,10 +294,6 @@
       "label": "Relier Blender",
       "missing": "Il manque la clé Blender, sur cet appareil."
     },
-    "role": {
-      "label": "Former le personnage",
-      "missing": "Il manque un personnage formé."
-    },
     "film": {
       "label": "Filmer ce trajet"
     },
@@ -392,7 +362,6 @@
     "stayTakes": "Les prises déjà tournées restent.",
     "gapPhotos": "Il manque deux photos et un nom.",
     "gapScene": "Il manque un lieu.",
-    "gapFile": "Le moteur Personnage (fichier) attend un fichier formé.",
     "hintFile": "Il manque un fichier de personnage.",
     "hintBlocked": "Le prix ou le solde ne laisse pas partir la prise.",
     "defaultLine": "Le personnage est dans le lieu."
@@ -408,7 +377,6 @@
   "run": {
     "start": "Préparation",
     "upload": "Envoi des images · {done}/{total}",
-    "lora": "Envoi du personnage",
     "submit": "Mise en file",
     "queuePos": "En file · {position}",
     "queue": "En file sur ton compte",
@@ -416,45 +384,6 @@
     "render": "Tournage · {clock}",
     "fetch": "La prise revient",
     "measure": "Lecture du débit"
-  },
-  "lora": {
-    "kicker": "01 · Personnage",
-    "twoWays": "Deux façons.",
-    "trainTitle": "Former un personnage.",
-    "long": "C’est long. Tu peux quitter et revenir : le fichier rejoint mon studio.",
-    "filed": "Le personnage est dans mon studio.",
-    "shootWith": "Tourner avec ce personnage",
-    "sendTitle": "Ce que tu envoies",
-    "send": "Dix clips vidéo de ce personnage au moins, trente au plus. Chacun dure de 3 à 30 secondes : visage net, un peu de mouvement. mp4, mov, mkv ou avi. Des photos à la place des clips sont refusées.",
-    "photosTitle": "Les photos",
-    "photos": "Deux au moins, quatre au plus, de ce personnage. Elles accompagnent chaque clip. Elles n’apprennent pas à la place des clips.",
-    "willTitle": "Ce qu’il fera",
-    "will": "Dans La prise, « {engine} » recharge ce fichier. Les prises suivantes tiennent le même personnage.",
-    "wontTitle": "Ce qu’il ne fera pas",
-    "wont": "Le lieu, les vêtements et le geste viennent des images et de ta phrase. « {engine} » ne charge pas ce fichier.",
-    "name": "Nom du personnage",
-    "photosLabel": "Photos du personnage",
-    "copy": "Reprendre les photos et les traits",
-    "clips": "Clips",
-    "clip": "Clip {index} · {seconds} s",
-    "removeClip": "Retirer le clip {index}",
-    "addClips": "Ajouter des clips",
-    "learning": "Apprentissage",
-    "steps": "{count} pas",
-    "stepsHint": "1000 pas pour un premier fichier. 2000 pas le tiennent mieux, et coûtent le double.",
-    "reset": "Remettre ce personnage à zéro",
-    "resetStay": "Les fichiers déjà formés restent.",
-    "pass": "{steps} pas",
-    "placeFallback": "Lieu",
-    "fileFallback": "le fichier",
-    "formedPlaces": "Lieux formés"
-  },
-  "train": {
-    "pack": "Préparation des clips",
-    "upload": "Envoi des clips",
-    "train": "Formation · {clock}",
-    "fetch": "Le fichier revient",
-    "credits": "Recharge le compte qui paie, puis relance. Le solde, en haut, montre ce qui reste."
   },
   "fiche": {
     "kicker": "Fiches",
@@ -482,17 +411,7 @@
         "La durée et le format"
       ]
     },
-    "former": {
-      "name": "Former un personnage",
-      "sentence": "Des clips deviennent un fichier. Les prises suivantes le rechargent.",
-      "inputs": [
-        "Un nom",
-        "Deux photos",
-        "{clips} clips"
-      ]
-    },
     "lieu": {
-      "name": "Former un lieu",
       "sentence": "Les vues du lieu deviennent un fichier d’images. Ce n’est pas un volume.",
       "inputs": [
         "Un lieu nommé",
@@ -591,7 +510,6 @@
     "obsidian": "Pour passer du téléphone à l’ordinateur, et revenir : exporte le ZIP sur l’appareil de départ, emporte ce fichier toi-même, puis importe-le sur l’autre appareil. Aucun serveur ne le copie. Pour le lire à côté, ouvre ce dossier dans Obsidian. Les fichiers s’ajoutent. Une prise ou un personnage déjà ici reste.",
     "referencePhotos": "Photos des références",
     "clips": "Clips",
-    "doubles": "Personnages formés",
     "usageVolatile": " · Le navigateur peut vider ce stockage : exporte ou relie un dossier.",
     "usageHeld": " · Stockage protégé.",
     "usageOnDevice": "{amount} Mo sur cet appareil",
@@ -621,8 +539,6 @@
     "nothing": "Rien ne part sans ce geste. Le studio n’encaisse rien.",
     "relierTitle": "Relier",
     "referencesPays": "Il paie les prises « {engine} ».",
-    "confirmTrain": "Former ce personnage ?",
-    "trainDebit": "Former · le devis se lit avant",
     "confirmFilm": "Filmer ce trajet ?",
     "filmBody": "Blender rend le lieu vide, le long du trajet. Le personnage est le fichier de mon studio : il n’entre que dans le trajet filmé. S’il ne revient pas d’image, aucune n’est affichée.",
     "filmDebit": "Filmer · débit sur mon compte",
@@ -630,15 +546,11 @@
     "blenderIntro": "Farpy fait tourner Blender, hors de ton appareil. Crée un compte, ajoute du crédit, puis une clé de job. Elle commence par farpy_agent_. Une clé de compte ne lance pas le rendu.",
     "jobKey": "Clé de job",
     "keyStays": "La clé reste sur cet appareil. Elle n’entre pas dans mon studio. Coller la clé ne débite rien : le devis est lu au premier film.",
-    "confirmPlace": "Former ce lieu ?",
     "views": "Vues",
     "styleSteps": "1000 pas · style",
     "price": "Prix",
-    "placeTrainBody": "L’entraîneur H3 refuse des images seules. Ce lieu passe par l’entraîneur d’images déjà là, en style, sans masque de visage. Le fichier reste dans mon studio. Il ne devient pas un volume : le Blender du lieu reste le modèle 3D, et il n’entre pas dans la prise H3.",
-    "placeTrainDebit": "Former ce lieu · le devis se lit avant",
     "confirmStill": "Bâtir une image de ce lieu ?",
     "placeFile": "Fichier du lieu, dans mon studio",
-    "stillBody": "L’image neuve recharge ce fichier. Le modèle 3D du lieu reste le fichier Blender, pas ce LoRA.",
     "buildDebit": "Bâtir · le devis se lit avant",
     "shot": "Tournée",
     "debit": "Débit",
@@ -759,8 +671,6 @@
     "zipEmpty": "Ce ZIP ne contient pas de studio à ajouter.",
     "viewMissing": "Une vue manque dans mon studio.",
     "placeFiled": "Le lieu est dans mon studio. Ce fichier n’est pas un volume : le Blender du lieu reste le modèle 3D.",
-    "placeTrainFailed": "La formation du lieu n’a pas abouti.",
-    "stillBuilt": "Image bâtie depuis le LoRA du lieu. Le fichier Blender reste le modèle 3D.",
     "placeImageFailed": "L’image du lieu n’a pas abouti.",
     "clipUnreadable": "Clip illisible sur cet appareil.",
     "clipHeavy": "Clip trop lourd : 300 Mo au plus.",
@@ -772,16 +682,12 @@
     "basisOne": "ta prise du {date} à ce réglage",
     "aboutCredits": "Environ {amount} crédits, mesuré sur {basis}.",
     "balanceLow": "Solde trop bas : {have} crédits. Il en faut environ {need}, mesuré sur {basis}.",
-    "thisTraining": "Cette formation",
     "thisTake": "Cette prise",
-    "thisTrainingLower": "cette formation",
     "thisTakeLower": "cette prise",
     "exampleRender": "Exemple · {rate} crédit par seconde de calcul, sur le compte de rendu. Rien n’est débité ici.",
-    "exampleTrain": "Exemple · {amount} pour {steps} pas, tarif publié le {date}. Rien n’est débité ici.",
     "exampleComfyTake": "Exemple pour {seconds} s : {rate} crédit par seconde de calcul, publié le {date}. 1 $ = {credits} crédits. Le chiffre de cette prise se lit après Relier. Rien n’est débité ici.",
     "exampleRate": "Exemple · {rate} crédit/s",
     "exampleAmount": "Exemple · {amount}",
-    "trainQuote": "Formation : {amount} pour {steps} pas.",
     "pathReady": "Le trajet est déjà rendu. Le personnage : {amount}.",
     "oneImage": "1 image",
     "nImages": "{count} images",
@@ -796,7 +702,11 @@
     "clipLong": "Clip trop long : {max} s au plus.",
     "importedOne": "Ajouté à mon studio : {count} fichier. Les prises et les personnages déjà ici restent.",
     "importedMany": "Ajouté à mon studio : {count} fichiers. Les prises et les personnages déjà ici restent.",
-    "folderCopied": "{count} fichiers copiés dans « {name} ». Le dossier suit le studio jusqu’à la fermeture."
+    "folderCopied": "{count} fichiers copiés dans « {name} ». Le dossier suit le studio jusqu’à la fermeture.",
+    "estimateQuote": "Estimé : environ {amount} à {high} crédits. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage.",
+    "estimateLow": "Solde trop bas : {have} crédits. Estimé : environ {amount} à {high} crédits. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage.",
+    "estimateUnread": "Solde illisible. Rien ne part sans lire le compte qui paiera. Estimé : environ {amount} à {high} crédits. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage.",
+    "estimateEmpty": "Solde vide sur ton compte de rendu. Estimé : environ {amount} à {high} crédits. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage."
   },
   "cinema": {
     "kicker": "À part",
@@ -878,7 +788,6 @@
     "drawerCost": "Détail du devis",
     "drawerProfile": "Profil {profile}",
     "closeDrawer": "Fermer",
-    "trainFile": "Former un fichier",
     "cameraPath": "Trajet du décor",
     "cinema": "Gestes de caméra",
     "decorQuai": "Le quai, la nuit",
@@ -889,7 +798,14 @@
     "decorCouloir": "Un couloir",
     "incomplete": "Incomplet",
     "creditsShort": "Crédits",
-    "photoPlaceName": "Photo de lieu"
+    "photoPlaceName": "Photo de lieu",
+    "engine": {
+      "label": "Moteur du plan",
+      "ltx": "LTX-2.5 (défaut)",
+      "h3": "MiniMax H3",
+      "ltxHint": "FLUX 3 Klein pose le personnage dans le décor, puis LTX-2.5 l’anime. Open weights.",
+      "h3Hint": "Jusqu’à neuf références. Open weights."
+    }
   },
   "create": {
     "castLead": "Crée ton personnage, puis réutilise-le.",
@@ -1075,9 +991,7 @@
       "decorWiden": "Bientôt : prix pas encore vérifié.",
       "decorVolume": "Bientôt : prix pas encore vérifié.",
       "priseStill": "Bientôt : prix pas encore vérifié.",
-      "priseBridge": "Bientôt : prix pas encore vérifié.",
       "priseExtend": "Bientôt : prix pas encore vérifié.",
-      "priseCamera": "Bientôt : prix pas encore vérifié.",
       "priseMotion": "Bientôt : prix pas encore vérifié.",
       "priseLips": "Bientôt : prix pas encore vérifié.",
       "priseVidu": "Bientôt : prix pas encore vérifié.",
@@ -1095,7 +1009,8 @@
       "raccord": "Raccord",
       "mouvement": "Mouvement",
       "son": "Son",
-      "image": "Image"
+      "image": "Image",
+      "vfx": "Effets"
     },
     "fournit": {
       "texte": "un texte",
@@ -1227,6 +1142,56 @@
       "title": "Fluidifier",
       "phrase": "Plus d’images entre les images.",
       "quiet": "Fluidifier"
+    },
+    "options": {
+      "title": "Moteurs",
+      "openWeights": "Open weights seulement",
+      "openWeightsHint": "Cache les gestes qui passent par un service partenaire payant.",
+      "nano": "Nano Banana (option)"
+    },
+    "castRefs": {
+      "title": "Plusieurs références",
+      "phrase": "Visage, tenue et style, jusqu’à cinq photos."
+    },
+    "castTextNano": {
+      "title": "Texte (Nano Banana)",
+      "phrase": "Une personne fictive, avec l’autre moteur."
+    },
+    "castPhotosNano": {
+      "title": "Photos (Nano Banana)",
+      "phrase": "Le visage de tes photos, avec l’autre moteur."
+    },
+    "decorTextNano": {
+      "title": "Texte (Nano Banana)",
+      "phrase": "Un lieu, avec l’autre moteur."
+    },
+    "decorPhotoNano": {
+      "title": "Photo (Nano Banana)",
+      "phrase": "Le lieu d’une photo, avec l’autre moteur."
+    },
+    "prisePlanH3": {
+      "title": "Plan, second moteur",
+      "phrase": "Jusqu’à neuf références, prix déjà mesuré."
+    },
+    "priseOutpaint": {
+      "title": "Élargir le plan",
+      "phrase": "Le cadre de la vidéo s’ouvre sur les côtés."
+    },
+    "priseRemove": {
+      "title": "Effacer un objet",
+      "phrase": "Un objet disparaît de la vidéo."
+    },
+    "prisePrevis": {
+      "title": "Caméra maîtrisée",
+      "phrase": "Ta maquette 3D fixe la caméra, l’action et le timing ; LTX en fait le plan."
+    },
+    "priseVolumePerso": {
+      "title": "Personnage en 3D",
+      "phrase": "Un portrait CAST devient un mannequin 3D avec Hunyuan3D 2.1, poids ouverts."
+    },
+    "priseVolumeObjet": {
+      "title": "Objet ou décor en 3D",
+      "phrase": "Une photo devient un objet ou un morceau de décor en 3D avec TRELLIS.2, poids ouverts."
     }
   },
   "refs": {
@@ -1427,5 +1392,95 @@
     "decor": "Un vrai décor du studio. Touche-le : la référence, le nom et le geste se remplissent.",
     "prise": "Uttu sur le quai, déjà cadrée. Touche-la : personnage, décor, cadrage et action se remplissent.",
     "montage": "Trois plans, une voix et une musique. Touche-le : le montage se remplit, rien n’est envoyé."
+  },
+  "videoGeste": {
+    "title": "Gestes vidéo",
+    "lead": "Prévis, raccord, caméra, élargir, effacer : LTX, poids ouverts. Devis estimé, jamais encore mesuré sur une vraie prise.",
+    "slot": {
+      "debut": "Première image",
+      "fin": "Dernière image",
+      "plan": "Image du plan",
+      "clip": "Vidéo du plan"
+    },
+    "text": {
+      "prise-raccord": "Ce qui se passe entre les deux",
+      "prise-camera": "Le mouvement et la scène",
+      "prise-effacer": "Ce qu'il faut effacer",
+      "prise-previs": "Ce que l’on voit dans le plan"
+    },
+    "textOptional": "Ce qui apparaît sur les côtés (facultatif)",
+    "quote": "Estimé : environ {credits} crédits, maximum {ceiling}.",
+    "estimate": "Estimation, pas une mesure : aucune prise réelle facturée pour ce geste.",
+    "confirm": "Je confirme : maximum {ceiling} crédits sur mon compte (estimé).",
+    "go": "Lancer pour environ {credits} crédits (estimé)",
+    "needLink": "Relie ton compte de rendu (Comfy) pour lancer.",
+    "needFiles": "Il manque un fichier ou le texte.",
+    "needText": "Le texte est vide.",
+    "needConfirm": "Coche la confirmation pour lancer.",
+    "done": "Vidéo enregistrée dans Mon studio.",
+    "slotPrevis": {
+      "plan": "Image de rendu (personnage dans le décor)",
+      "clip": "Prévis (vidéo de la maquette)"
+    },
+    "previsLead": "Bouge la caméra et les personnages dans la maquette pendant {seconds} s : cette prévis guide le plan (profondeur, cadre, rythme).",
+    "previsRecord": "Filmer la maquette ({seconds} s)",
+    "previsRecording": "Prévis en cours… {seconds} s",
+    "previsMove": "Bouge la caméra dans la maquette maintenant.",
+    "previsReady": "Prévis de {seconds} s prête. Rien n’est parti.",
+    "previsNoCanvas": "La maquette 3D n’est pas filmable sur cet appareil : ajoute une vidéo de prévis."
+  },
+  "previs": {
+    "title": "Prévis au doigt",
+    "touch": "Un doigt : tourner la caméra, ou déplacer une personne, un objet. Deux doigts : pincer pour rapprocher.",
+    "agent": {
+      "label": "Phrase → scène",
+      "placeholder": "Uttu et Kael dans une ruelle la nuit, une voiture, deux lampadaires, travelling avant",
+      "go": "Composer la scène",
+      "why": "Écris une phrase : qui, quels objets, quel mouvement.",
+      "people": "{n} personnage(s)",
+      "props": "objets : {list}",
+      "done": "Compris : {list}. Annuler revient à la scène d’avant.",
+      "none": "Rien reconnu. Essaie : « deux personnages, une table, la caméra tourne autour »."
+    },
+    "props": "Objets",
+    "glb": "Importer un .glb",
+    "glbNote": "Un .glb reste sur ton appareil. Il est allégé pour le téléphone.",
+    "propsFull": "{max} objets au plus.",
+    "prop": {
+      "caisse": "Caisse",
+      "mur": "Mur",
+      "voiture": "Voiture",
+      "arbre": "Arbre",
+      "lampadaire": "Lampadaire",
+      "table": "Table",
+      "glb": "Modèle 3D"
+    },
+    "move": {
+      "avant": "travelling avant",
+      "arriere": "travelling arrière",
+      "tour": "tour autour",
+      "pano": "panoramique",
+      "plongee": "plongée",
+      "fixe": "plan fixe"
+    },
+    "path": "Trajet caméra ({seconds} s)",
+    "pathLead": "Cadre au doigt, choisis l’instant, ajoute un point-clé. La caméra glisse d’un point à l’autre.",
+    "keyAt": "Point-clé à {t} s",
+    "addKey": "＋ Point-clé ici",
+    "clearPath": "Effacer le trajet",
+    "removeKey": "Retirer le point-clé à {t} s",
+    "noPath": "Pas encore de point-clé : la prévis suivra tes gestes.",
+    "film": "Filmer la prévis ({seconds} s)",
+    "filmPath": "La caméra suit tes points-clés ; le clip part dans Caméra maîtrisée.",
+    "filmFree": "Bouge la caméra pendant le film ; le clip part dans Caméra maîtrisée.",
+    "mesh": {
+      "title": "Générer en 3D",
+      "photo": "Photo de départ",
+      "needPhoto": "Ajoute une photo.",
+      "estimate": "Devis estimé, jamais encore mesuré. Workflow Comfy officiel, rien ne part sans ta confirmation.",
+      "go": "Générer en 3D · {credits} estimés",
+      "done": "Modèle ajouté à la maquette."
+    },
+    "keysFull": "{max} points-clés au plus."
   }
 }

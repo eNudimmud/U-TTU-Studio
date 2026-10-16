@@ -22,7 +22,6 @@
     "credits": "Credits",
     "opening": "Mein Studio wird geöffnet…",
     "takeRunning": "Take läuft",
-    "trainRunning": "Training läuft",
     "sceneRunning": "Szene läuft",
     "renderCredits": "Credits des Render-Kontos"
   },
@@ -61,14 +60,6 @@
     "take-done": "Der Take ist da. Eine Geste setzt ihn in einen Shot.",
     "take-filed": "Der Take liegt in der Sequenz. Eine Geste liest ihn.",
     "take-double": "Diese Figur hält von Take zu Take. Die Fotos halten den Rest.",
-    "lora-name": "Benenne die Figur. Die nächsten Takes halten sie.",
-    "lora-photos": "Zwei Fotos dieser Figur. Sie begleiten die Clips.",
-    "lora-clips": "Zehn Clips der Figur, von drei bis dreißig Sekunden.",
-    "lora-connect": "Verbinde das Konto, das das Training zahlt. Das Studio kassiert nichts.",
-    "lora-ready": "Der Preis steht hier, vor deiner Geste. Nichts geht ohne ihn.",
-    "lora-memory": "Bibel, Stil, Lexikon, Prompts: leer oder deine. Nichts ist erfunden.",
-    "lora-running": "Ich lerne diese Figur. Das dauert: komm später zurück.",
-    "lora-done": "Die Figur ist in « Mein Studio ». Wähle sie im Take.",
     "sphere-empty": "Deine Takes kommen hier zur Ruhe.",
     "project-name": "Atelier steht schon da. Eine Geste legt das Projekt an.",
     "understood": "Verstanden",
@@ -117,22 +108,15 @@
       "label": "Referenzen",
       "detail": "Die Fotos in « Mein Studio » gehen mit jedem Take.",
       "sound": "Der Ton ist im Take."
-    },
-    "lora": {
-      "label": "Figur (Datei)",
-      "detail": "Die Datei in « Mein Studio » hält die Figur.",
-      "sound": "Ton ist keine Einstellung dieser Datei."
     }
   },
   "path": {
     "references": {
       "title": "Referenzen",
-      "body": "Mindestens zwei Fotos, höchstens drei, ein Name. Zwei Züge, wenn du sie hast. Nichts zu trainieren. Jeder « {engine} »-Take zahlt das Render-Konto, zum Preis beim Drehen.",
       "action": "Fotos halten"
     },
     "fichier": {
-      "title": "Datei",
-      "body": "Zehn Clips. Eine Datei wird einmal trainiert. {price} 2000 Schritte kosten das Doppelte von 1000. « {engine} »-Takes laden diese Datei neu und werden extra bezahlt."
+      "title": "Datei"
     },
     "aria": "Zwei Wege, eine Figur zu schaffen"
   },
@@ -155,7 +139,6 @@
   "look": {
     "kicker": "Figur · Referenzen",
     "title": "Bis zu drei Fotos.",
-    "lead": "Zwei reichen, drei halten. Kein Training. Diese Fotos gehen mit jedem « {engine} »-Take. Das Render-Konto zahlt den Take, zum dann gelesenen Preis. Hier wird nichts abgebucht.",
     "photos": "Fotos der Referenzen",
     "name": "Name",
     "traits": "Was sich nicht ändert",
@@ -168,7 +151,6 @@
     "aName": "Ein Name",
     "twoTraits": "Zwei Züge",
     "reset": "Diese Referenzen zurücksetzen",
-    "stay": "Takes, Drehorte und trainierte Figuren bleiben.",
     "missingOne": "Es fehlt {what}.",
     "missingMany": "Es fehlen {list} und {last}.",
     "gapPhotos": "zwei Fotos",
@@ -207,11 +189,6 @@
     "thePlaceBody": "Er bleibt. Du öffnest ihn wieder: gleicher Name, gleicher Raumplan, gleicher Weg. Du kannst mehrere halten.",
     "blenderBody": "Er rendert den leeren Drehort, {frames} Bilder entlang des Wegs. Die Figur ist nicht in dieser Datei.",
     "theCharacterBody": "Es ist die Datei in « Mein Studio ». Sie tritt nur in den gefilmten Weg ein, nach diesen Bildern.",
-    "formed": "Dieser Drehort, trainiert",
-    "formedPrice": "Training: {amount}.",
-    "formedUnread": "Der Trainingspreis wird vor der Geste gelesen.",
-    "formedFile": "Datei in « Mein Studio ».",
-    "formedTail": "Diese Datei ist kein Volumen. Das 3D bleibt die Blender-Datei.",
     "thePrice": "Der Preis",
     "thePriceBody": "Beide Kalkulationen werden vor der Geste gelesen. Nichts geht ohne Bestätigung.",
     "plan": "Raumplan",
@@ -232,13 +209,10 @@
     "noBlenderKey": "Kein Blender-Schlüssel. Der Render geht nicht, und kein Bild wird erfunden.",
     "changeKey": "Blender-Schlüssel ändern",
     "whereKey": "Wo der Schlüssel liegt",
-    "viewsLabel": "Ansichten des Drehorts · {count}/{min} zum Trainieren",
     "views": "Ansichten des Drehorts",
     "stills": "Bilder des Drehorts",
-    "training": "Drehort wird trainiert…",
     "addView": "Eine Ansicht hinzufügen",
     "reset": "Diesen Drehort zurücksetzen",
-    "resetStay": "Andere Drehorte, Takes und trainierte Figuren bleiben.",
     "remove": "Diesen Drehort entfernen",
     "setAndTake": "Diesen Ort setzen, dann der Take"
   },
@@ -320,10 +294,6 @@
       "label": "Blender verbinden",
       "missing": "Der Blender-Schlüssel fehlt, auf diesem Gerät."
     },
-    "role": {
-      "label": "Figur trainieren",
-      "missing": "Eine trainierte Figur fehlt."
-    },
     "film": {
       "label": "Diesen Weg filmen"
     },
@@ -392,7 +362,6 @@
     "stayTakes": "Schon gedrehte Takes bleiben.",
     "gapPhotos": "Zwei Fotos und ein Name fehlen.",
     "gapScene": "Ein Drehort fehlt.",
-    "gapFile": "Der Motor Figur (Datei) wartet auf eine trainierte Datei.",
     "hintFile": "Eine Figur-Datei fehlt.",
     "hintBlocked": "Preis oder Guthaben lässt den Take nicht gehen.",
     "defaultLine": "Die Figur ist an diesem Ort."
@@ -408,7 +377,6 @@
   "run": {
     "start": "Vorbereitung",
     "upload": "Bilder werden gesendet · {done}/{total}",
-    "lora": "Figur wird gesendet",
     "submit": "In die Warteschlange",
     "queuePos": "In der Warteschlange · {position}",
     "queue": "In der Warteschlange auf deinem Konto",
@@ -416,45 +384,6 @@
     "render": "Drehen · {clock}",
     "fetch": "Der Take kommt zurück",
     "measure": "Abbuchung wird gelesen"
-  },
-  "lora": {
-    "kicker": "01 · Figur",
-    "twoWays": "Zwei Wege.",
-    "trainTitle": "Eine Figur trainieren.",
-    "long": "Das dauert. Du kannst gehen und zurückkommen: die Datei kommt in « Mein Studio ».",
-    "filed": "Die Figur ist in « Mein Studio ».",
-    "shootWith": "Mit dieser Figur drehen",
-    "sendTitle": "Was du sendest",
-    "send": "Mindestens zehn Videoclips dieser Figur, höchstens dreißig. Jeder dauert 3 bis 30 Sekunden: klares Gesicht, etwas Bewegung. mp4, mov, mkv oder avi. Fotos statt Clips werden abgelehnt.",
-    "photosTitle": "Die Fotos",
-    "photos": "Mindestens zwei, höchstens vier, von dieser Figur. Sie begleiten jeden Clip. Sie lernen nicht anstelle der Clips.",
-    "willTitle": "Was sie tun wird",
-    "will": "Im Take lädt « {engine} » diese Datei neu. Die nächsten Takes halten dieselbe Figur.",
-    "wontTitle": "Was sie nicht tun wird",
-    "wont": "Drehort, Kleidung und Geste kommen aus den Bildern und deinem Satz. « {engine} » lädt diese Datei nicht.",
-    "name": "Name der Figur",
-    "photosLabel": "Fotos der Figur",
-    "copy": "Fotos und Züge übernehmen",
-    "clips": "Clips",
-    "clip": "Clip {index} · {seconds} s",
-    "removeClip": "Clip {index} entfernen",
-    "addClips": "Clips hinzufügen",
-    "learning": "Training",
-    "steps": "{count} Schritte",
-    "stepsHint": "1000 Schritte für eine erste Datei. 2000 Schritte halten sie besser und kosten das Doppelte.",
-    "reset": "Diese Figur zurücksetzen",
-    "resetStay": "Schon trainierte Dateien bleiben.",
-    "pass": "{steps} Schritte",
-    "placeFallback": "Drehort",
-    "fileFallback": "die Datei",
-    "formedPlaces": "Trainierte Drehorte"
-  },
-  "train": {
-    "pack": "Clips werden vorbereitet",
-    "upload": "Clips werden gesendet",
-    "train": "Training · {clock}",
-    "fetch": "Die Datei kommt zurück",
-    "credits": "Lade das Konto auf, das zahlt, dann starte erneut. Das Guthaben oben zeigt, was bleibt."
   },
   "fiche": {
     "kicker": "Karten",
@@ -482,17 +411,7 @@
         "Dauer und Format"
       ]
     },
-    "former": {
-      "name": "Eine Figur trainieren",
-      "sentence": "Clips werden eine Datei. Die nächsten Takes laden sie neu.",
-      "inputs": [
-        "Ein Name",
-        "Zwei Fotos",
-        "{clips} Clips"
-      ]
-    },
     "lieu": {
-      "name": "Einen Drehort trainieren",
       "sentence": "Die Ansichten des Drehorts werden eine Bilddatei. Das ist kein Volumen.",
       "inputs": [
         "Ein benannter Drehort",
@@ -591,7 +510,6 @@
     "obsidian": "Vom Telefon zum Computer, und zurück: exportiere das ZIP auf dem Gerät, das du verlässt, nimm die Datei selbst mit, dann importiere sie auf dem anderen Gerät. Kein Server kopiert sie. Zum Lesen daneben, öffne diesen Ordner in Obsidian. Dateien kommen hinzu. Ein Take oder eine Figur, die schon hier ist, bleibt.",
     "referencePhotos": "Fotos der Referenzen",
     "clips": "Clips",
-    "doubles": "Dateien",
     "usageVolatile": " · Der Browser kann diesen Speicher leeren: exportiere oder verbinde einen Ordner.",
     "usageHeld": " · Speicher geschützt.",
     "usageOnDevice": "{amount} MB auf diesem Gerät",
@@ -621,8 +539,6 @@
     "nothing": "Nichts geht ohne diese Geste. Das Studio kassiert nichts.",
     "relierTitle": "Verbinden",
     "referencesPays": "Es zahlt « {engine} »-Takes.",
-    "confirmTrain": "Diese Figur trainieren?",
-    "trainDebit": "Trainieren · die Kalkulation wird zuerst gelesen",
     "confirmFilm": "Diesen Weg filmen?",
     "filmBody": "Blender rendert den leeren Drehort, entlang des Wegs. Die Figur ist die Datei in « Mein Studio »: sie tritt nur in den gefilmten Weg. Kommt kein Bild zurück, wird keins gezeigt.",
     "filmDebit": "Filmen · Abbuchung auf meinem Konto",
@@ -630,15 +546,11 @@
     "blenderIntro": "Farpy lässt Blender laufen, außerhalb deines Geräts. Erstelle ein Konto, füge Guthaben hinzu, dann einen Job-Schlüssel. Er beginnt mit farpy_agent_. Ein Kontoschlüssel startet den Render nicht.",
     "jobKey": "Job-Schlüssel",
     "keyStays": "Der Schlüssel bleibt auf diesem Gerät. Er tritt nicht in « Mein Studio » ein. Den Schlüssel einzufügen bucht nichts ab: die Kalkulation wird beim ersten Film gelesen.",
-    "confirmPlace": "Diesen Drehort trainieren?",
     "views": "Ansichten",
     "styleSteps": "1000 Schritte · Stil",
     "price": "Preis",
-    "placeTrainBody": "Der H3-Trainer lehnt Einzelbilder ab. Dieser Drehort geht durch den Bildtrainer, der schon hier ist, im Stil, ohne Gesichtsmaske. Die Datei bleibt in « Mein Studio ». Sie wird kein Volumen: die Blender-Datei des Drehorts bleibt das 3D-Modell und tritt nicht in den H3-Take.",
-    "placeTrainDebit": "Diesen Drehort trainieren · die Kalkulation wird zuerst gelesen",
     "confirmStill": "Ein Bild dieses Drehorts erzeugen?",
     "placeFile": "Datei des Drehorts, in « Mein Studio »",
-    "stillBody": "Das neue Bild lädt diese Datei neu. Das 3D-Modell des Drehorts bleibt die Blender-Datei, nicht dieses LoRA.",
     "buildDebit": "Bild erzeugen · die Kalkulation wird zuerst gelesen",
     "shot": "Gedreht",
     "debit": "Abbuchung",
@@ -759,8 +671,6 @@
     "zipEmpty": "Dieses ZIP enthält kein Studio zum Hinzufügen.",
     "viewMissing": "Eine Ansicht fehlt in « Mein Studio ».",
     "placeFiled": "Der Drehort ist in « Mein Studio ». Diese Datei ist kein Volumen: die Blender-Datei des Drehorts bleibt das 3D-Modell.",
-    "placeTrainFailed": "Das Training des Drehorts ist nicht gelungen.",
-    "stillBuilt": "Bild erzeugt aus dem LoRA des Drehorts. Die Blender-Datei bleibt das 3D-Modell.",
     "placeImageFailed": "Das Bild des Drehorts ist nicht gelungen.",
     "clipUnreadable": "Clip unlesbar auf diesem Gerät.",
     "clipHeavy": "Clip zu schwer: höchstens 300 MB.",
@@ -772,16 +682,12 @@
     "basisOne": "dein Take vom {date} bei dieser Einstellung",
     "aboutCredits": "Etwa {amount} Credits, gemessen an {basis}.",
     "balanceLow": "Guthaben zu niedrig: {have} Credits. Es braucht etwa {need}, gemessen an {basis}.",
-    "thisTraining": "Dieses Training",
     "thisTake": "Dieser Take",
-    "thisTrainingLower": "dieses Training",
     "thisTakeLower": "dieser Take",
     "exampleRender": "Beispiel · {rate} Credit pro Sekunde Rechnung, auf dem Render-Konto. Hier wird nichts abgebucht.",
-    "exampleTrain": "Beispiel · {amount} für {steps} Schritte, Tarif veröffentlicht am {date}. Hier wird nichts abgebucht.",
     "exampleComfyTake": "Beispiel für {seconds} s: {rate} Credit pro Sekunde Rechnung, veröffentlicht am {date}. 1 $ = {credits} Credits. Die Zahl dieses Takes wird nach Verbinden gelesen. Hier wird nichts abgebucht.",
     "exampleRate": "Beispiel · {rate} Credit/s",
     "exampleAmount": "Beispiel · {amount}",
-    "trainQuote": "Training: {amount} für {steps} Schritte.",
     "pathReady": "Der Weg ist schon gerendert. Die Figur: {amount}.",
     "oneImage": "1 Bild",
     "nImages": "{count} Bilder",
@@ -796,7 +702,11 @@
     "clipLong": "Clip zu lang: höchstens {max} s.",
     "importedOne": "Zu « Mein Studio » hinzugefügt: {count} Datei. Takes und Figuren, die schon hier sind, bleiben.",
     "importedMany": "Zu « Mein Studio » hinzugefügt: {count} Dateien. Takes und Figuren, die schon hier sind, bleiben.",
-    "folderCopied": "{count} Dateien nach « {name} » kopiert. Der Ordner folgt dem Studio bis zum Schließen."
+    "folderCopied": "{count} Dateien nach « {name} » kopiert. Der Ordner folgt dem Studio bis zum Schließen.",
+    "estimateQuote": "Geschätzt: etwa {amount} bis {high} Credits. Eine Schätzung, keine Messung: noch keine abgerechnete echte Aufnahme für diese Einstellung.",
+    "estimateLow": "Guthaben zu niedrig: {have} Credits. Geschätzt: etwa {amount} bis {high} Credits. Eine Schätzung, keine Messung: noch keine abgerechnete echte Aufnahme für diese Einstellung.",
+    "estimateUnread": "Guthaben nicht lesbar. Nichts geht raus, ohne das zahlende Konto zu lesen. Geschätzt: etwa {amount} bis {high} Credits. Eine Schätzung, keine Messung: noch keine abgerechnete echte Aufnahme für diese Einstellung.",
+    "estimateEmpty": "Dein Render-Konto ist leer. Geschätzt: etwa {amount} bis {high} Credits. Eine Schätzung, keine Messung: noch keine abgerechnete echte Aufnahme für diese Einstellung."
   },
   "cinema": {
     "kicker": "Extra",
@@ -878,7 +788,6 @@
     "drawerCost": "Detail der Kalkulation",
     "drawerProfile": "Profil {profile}",
     "closeDrawer": "Schliessen",
-    "trainFile": "Eine Datei trainieren",
     "cameraPath": "Weg der Kulisse",
     "cinema": "Kamerabewegungen",
     "decorQuai": "Der Kai bei Nacht",
@@ -889,7 +798,14 @@
     "decorCouloir": "Ein Gang",
     "incomplete": "Unvollständig",
     "creditsShort": "Credits",
-    "photoPlaceName": "Foto des Orts"
+    "photoPlaceName": "Foto des Orts",
+    "engine": {
+      "label": "Modell der Einstellung",
+      "ltx": "LTX-2.5 (Standard)",
+      "h3": "MiniMax H3",
+      "ltxHint": "FLUX 3 Klein setzt die Figur ins Set, dann animiert LTX-2.5. Open Weights.",
+      "h3Hint": "Bis zu neun Referenzen. Open Weights."
+    }
   },
   "create": {
     "castLead": "Erschaffe die Figur, dann nutze sie wieder.",
@@ -1075,9 +991,7 @@
       "decorWiden": "Bald: der Preis ist noch nicht geprüft.",
       "decorVolume": "Bald: der Preis ist noch nicht geprüft.",
       "priseStill": "Bald: der Preis ist noch nicht geprüft.",
-      "priseBridge": "Bald: der Preis ist noch nicht geprüft.",
       "priseExtend": "Bald: der Preis ist noch nicht geprüft.",
-      "priseCamera": "Bald: der Preis ist noch nicht geprüft.",
       "priseMotion": "Bald: der Preis ist noch nicht geprüft.",
       "priseLips": "Bald: der Preis ist noch nicht geprüft.",
       "priseVidu": "Bald: der Preis ist noch nicht geprüft.",
@@ -1095,7 +1009,8 @@
       "raccord": "Anschluss",
       "mouvement": "Bewegung",
       "son": "Ton",
-      "image": "Bild"
+      "image": "Bild",
+      "vfx": "Effekte"
     },
     "fournit": {
       "texte": "ein Text",
@@ -1227,6 +1142,56 @@
       "title": "Weicher",
       "phrase": "Mehr Bilder zwischen den Bildern.",
       "quiet": "Weicher"
+    },
+    "options": {
+      "title": "Modelle",
+      "openWeights": "Nur Open Weights",
+      "openWeightsHint": "Blendet Gesten mit kostenpflichtigem Partnerdienst aus.",
+      "nano": "Nano Banana (optional)"
+    },
+    "castRefs": {
+      "title": "Mehrere Referenzen",
+      "phrase": "Gesicht, Outfit und Stil, bis zu fünf Fotos."
+    },
+    "castTextNano": {
+      "title": "Text (Nano Banana)",
+      "phrase": "Eine fiktive Person, mit dem anderen Modell."
+    },
+    "castPhotosNano": {
+      "title": "Fotos (Nano Banana)",
+      "phrase": "Das Gesicht deiner Fotos, mit dem anderen Modell."
+    },
+    "decorTextNano": {
+      "title": "Text (Nano Banana)",
+      "phrase": "Ein Ort, mit dem anderen Modell."
+    },
+    "decorPhotoNano": {
+      "title": "Foto (Nano Banana)",
+      "phrase": "Ein Ort aus einem Foto, mit dem anderen Modell."
+    },
+    "prisePlanH3": {
+      "title": "Einstellung, zweites Modell",
+      "phrase": "Bis zu neun Referenzen, Preis schon gemessen."
+    },
+    "priseOutpaint": {
+      "title": "Einstellung erweitern",
+      "phrase": "Der Bildausschnitt öffnet sich seitlich."
+    },
+    "priseRemove": {
+      "title": "Objekt entfernen",
+      "phrase": "Ein Objekt verschwindet aus dem Video."
+    },
+    "prisePrevis": {
+      "title": "Gesteuerte Kamera",
+      "phrase": "Dein 3D-Modell legt Kamera, Handlung und Timing fest; LTX macht daraus die Einstellung."
+    },
+    "priseVolumePerso": {
+      "title": "Figur in 3D",
+      "phrase": "Ein CAST-Porträt wird mit Hunyuan3D 2.1 zur 3D-Puppe, offene Gewichte."
+    },
+    "priseVolumeObjet": {
+      "title": "Objekt oder Kulisse in 3D",
+      "phrase": "Ein Foto wird mit TRELLIS.2 zum 3D-Objekt oder Kulissenteil, offene Gewichte."
     }
   },
   "refs": {
@@ -1427,5 +1392,95 @@
     "decor": "Eine echte Studio-Kulisse. Tippe darauf: Referenz, Name und Geste werden ausgefüllt.",
     "prise": "Uttu am Kai, schon gerahmt. Tippe darauf: Figur, Kulisse, Bildausschnitt und Handlung werden ausgefüllt.",
     "montage": "Drei Einstellungen, eine Stimme und Musik. Tippe darauf: der Schnitt wird gefüllt, nichts wird gesendet."
+  },
+  "videoGeste": {
+    "title": "Video-Gesten",
+    "lead": "Previs, Übergang, Kamera, Erweitern, Entfernen: LTX, offene Gewichte. Geschätzter Preis, noch nicht an einer echten Aufnahme gemessen.",
+    "slot": {
+      "debut": "Erstes Bild",
+      "fin": "Letztes Bild",
+      "plan": "Bild der Einstellung",
+      "clip": "Video der Einstellung"
+    },
+    "text": {
+      "prise-raccord": "Was dazwischen passiert",
+      "prise-camera": "Bewegung und Szene",
+      "prise-effacer": "Was entfernt werden soll",
+      "prise-previs": "Was in der Einstellung zu sehen ist"
+    },
+    "textOptional": "Was an den Seiten erscheint (optional)",
+    "quote": "Geschätzt: etwa {credits} Credits, höchstens {ceiling}.",
+    "estimate": "Eine Schätzung, keine Messung: noch keine abgerechnete echte Aufnahme für diese Geste.",
+    "confirm": "Ich bestätige: höchstens {ceiling} Credits auf meinem Konto (geschätzt).",
+    "go": "Für etwa {credits} Credits starten (geschätzt)",
+    "needLink": "Verbinde dein Render-Konto (Comfy), um zu starten.",
+    "needFiles": "Eine Datei oder der Text fehlt.",
+    "needText": "Der Text ist leer.",
+    "needConfirm": "Setze das Häkchen, um zu starten.",
+    "done": "Video in Mein Studio gespeichert.",
+    "slotPrevis": {
+      "plan": "Look-Bild (Figur im Set)",
+      "clip": "Previs (Video des Modells)"
+    },
+    "previsLead": "Bewege Kamera und Figuren im Modell {seconds} s lang: diese Previs führt die Einstellung (Tiefe, Bildausschnitt, Timing).",
+    "previsRecord": "Modell filmen ({seconds} s)",
+    "previsRecording": "Previs läuft… {seconds} s",
+    "previsMove": "Bewege jetzt die Kamera im Modell.",
+    "previsReady": "Previs von {seconds} s bereit. Nichts wurde gesendet.",
+    "previsNoCanvas": "Das 3D-Modell lässt sich auf diesem Gerät nicht filmen: füge ein Previs-Video hinzu."
+  },
+  "previs": {
+    "title": "Previs mit dem Finger",
+    "touch": "Ein Finger: Kamera drehen oder eine Person, ein Objekt verschieben. Zwei Finger: zusammenziehen, um näher zu kommen.",
+    "agent": {
+      "label": "Satz → Szene",
+      "placeholder": "Uttu und Kael in einer Gasse bei Nacht, ein Auto, zwei Laternen, Fahrt näher",
+      "go": "Szene aufbauen",
+      "why": "Schreib einen Satz: wer, welche Objekte, welche Bewegung.",
+      "people": "{n} Figur(en)",
+      "props": "Objekte: {list}",
+      "done": "Verstanden: {list}. Rückgängig holt die vorige Szene zurück.",
+      "none": "Nichts erkannt. Versuch: „zwei Personen, ein Tisch, die Kamera kreist herum“."
+    },
+    "props": "Objekte",
+    "glb": ".glb importieren",
+    "glbNote": "Eine .glb bleibt auf deinem Gerät. Sie wird fürs Handy erleichtert.",
+    "propsFull": "Höchstens {max} Objekte.",
+    "prop": {
+      "caisse": "Kiste",
+      "mur": "Wand",
+      "voiture": "Auto",
+      "arbre": "Baum",
+      "lampadaire": "Laterne",
+      "table": "Tisch",
+      "glb": "3D-Modell"
+    },
+    "move": {
+      "avant": "Fahrt nach vorn",
+      "arriere": "Rückfahrt",
+      "tour": "Kreisfahrt",
+      "pano": "Schwenk",
+      "plongee": "Vogelperspektive",
+      "fixe": "feste Kamera"
+    },
+    "path": "Kamerafahrt ({seconds} s)",
+    "pathLead": "Mit dem Finger kadrieren, den Moment wählen, einen Keyframe setzen. Die Kamera gleitet von einem zum nächsten.",
+    "keyAt": "Keyframe bei {t} s",
+    "addKey": "＋ Keyframe hier",
+    "clearPath": "Fahrt löschen",
+    "removeKey": "Keyframe bei {t} s entfernen",
+    "noPath": "Noch kein Keyframe: die Previs folgt deinen Gesten.",
+    "film": "Previs filmen ({seconds} s)",
+    "filmPath": "Die Kamera folgt deinen Keyframes; der Clip geht an Gesteuerte Kamera.",
+    "filmFree": "Beweg die Kamera beim Filmen; der Clip geht an Gesteuerte Kamera.",
+    "mesh": {
+      "title": "In 3D erzeugen",
+      "photo": "Ausgangsfoto",
+      "needPhoto": "Füge ein Foto hinzu.",
+      "estimate": "Eine Schätzung, noch nie gemessen. Offizieller Comfy-Workflow; nichts läuft ohne deine Bestätigung.",
+      "go": "In 3D erzeugen · {credits} geschätzt",
+      "done": "Modell zur Maquette hinzugefügt."
+    },
+    "keysFull": "Höchstens {max} Keyframes."
   }
 }

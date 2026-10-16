@@ -1,0 +1,533 @@
+{
+  "source": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates",
+  "exported": "2026-10-16",
+  "workflows": [
+    {
+      "id": "cast-photos",
+      "onglet": "cast",
+      "template": "image_flux3_klein_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/cast/cast-photos.json",
+      "api_file": "workflows/cast/cast-photos.api.json"
+    },
+    {
+      "id": "cast-planche",
+      "onglet": "cast",
+      "template": "api_bfl_flux3_image_edit",
+      "partner": true,
+      "partnerNodes": [
+        "Flux3ImageNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/cast/cast-planche.json",
+      "api_file": "workflows/cast/cast-planche.api.json"
+    },
+    {
+      "id": "cast-texte",
+      "onglet": "cast",
+      "template": "image_flux3_klein_t2i",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/cast/cast-texte.json",
+      "api_file": "workflows/cast/cast-texte.api.json"
+    },
+    {
+      "id": "cast-refs",
+      "onglet": "cast",
+      "template": "api_bfl_flux3_image_edit",
+      "partner": true,
+      "partnerNodes": [
+        "Flux3ImageNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/cast/cast-refs.json",
+      "api_file": "workflows/cast/cast-refs.api.json"
+    },
+    {
+      "id": "cast-texte-nano",
+      "onglet": "cast",
+      "template": "api_nano_banana_2_1_t2i",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiNanoBanana2V2"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/cast/cast-texte-nano.json",
+      "api_file": "workflows/cast/cast-texte-nano.api.json"
+    },
+    {
+      "id": "cast-photos-nano",
+      "onglet": "cast",
+      "template": "api_nano_banana_2_1_image_edit",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiNanoBanana2V2"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/cast/cast-photos-nano.json",
+      "api_file": "workflows/cast/cast-photos-nano.api.json"
+    },
+    {
+      "id": "cast-tenue",
+      "onglet": "cast",
+      "template": "image_flux3_klein_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/cast/cast-tenue.json",
+      "api_file": "workflows/cast/cast-tenue.api.json"
+    },
+    {
+      "id": "cast-angle",
+      "onglet": "cast",
+      "template": "templates-1_click_multiple_character_angles-v1.0",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/cast/cast-angle.json",
+      "api_file": null
+    },
+    {
+      "id": "cast-expressions",
+      "onglet": "cast",
+      "template": "templates_liveportrait.app",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/cast/cast-expressions.json",
+      "api_file": null
+    },
+    {
+      "id": "cast-eclair",
+      "onglet": "cast",
+      "template": "template_character_portrait_relighting",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiImage2Node"
+      ],
+      "sentPartner": null,
+      "template_file": "workflows/cast/cast-eclair.json",
+      "api_file": null
+    },
+    {
+      "id": "cast-agrandir",
+      "onglet": "cast",
+      "template": "utility_seedvr2_3b_int8_upscale_image",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/cast/cast-agrandir.json",
+      "api_file": null
+    },
+    {
+      "id": "cast-volume",
+      "onglet": "cast",
+      "template": "api_hunyuan3d_image_to_model",
+      "partner": true,
+      "partnerNodes": [
+        "TencentImageToModelNode"
+      ],
+      "sentPartner": null,
+      "template_file": "workflows/cast/cast-volume.json",
+      "api_file": null
+    },
+    {
+      "id": "decor-texte",
+      "onglet": "decor",
+      "template": "image_flux3_klein_t2i",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/decor/decor-texte.json",
+      "api_file": "workflows/decor/decor-texte.api.json"
+    },
+    {
+      "id": "decor-photo",
+      "onglet": "decor",
+      "template": "image_flux3_klein_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/decor/decor-photo.json",
+      "api_file": "workflows/decor/decor-photo.api.json"
+    },
+    {
+      "id": "decor-texte-nano",
+      "onglet": "decor",
+      "template": "api_nano_banana_2_1_t2i",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiNanoBanana2V2"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/decor/decor-texte-nano.json",
+      "api_file": "workflows/decor/decor-texte-nano.api.json"
+    },
+    {
+      "id": "decor-photo-nano",
+      "onglet": "decor",
+      "template": "api_nano_banana_2_1_image_edit",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiNanoBanana2V2"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/decor/decor-photo-nano.json",
+      "api_file": "workflows/decor/decor-photo-nano.api.json"
+    },
+    {
+      "id": "decor-heure",
+      "onglet": "decor",
+      "template": "image_flux3_klein_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/decor/decor-heure.json",
+      "api_file": "workflows/decor/decor-heure.api.json"
+    },
+    {
+      "id": "decor-angles",
+      "onglet": "decor",
+      "template": "templates-1_click_multiple_scene_angles-v1.0",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/decor/decor-angles.json",
+      "api_file": null
+    },
+    {
+      "id": "decor-elargir",
+      "onglet": "decor",
+      "template": "template_sirolim_any_aspect_ratio_nb2",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiNanoBanana2"
+      ],
+      "sentPartner": null,
+      "template_file": "workflows/decor/decor-elargir.json",
+      "api_file": null
+    },
+    {
+      "id": "decor-objet",
+      "onglet": "decor",
+      "template": "api_bfl_flux3_image_edit",
+      "partner": true,
+      "partnerNodes": [
+        "Flux3ImageNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/decor/decor-objet.json",
+      "api_file": "workflows/decor/decor-objet.api.json"
+    },
+    {
+      "id": "decor-volume",
+      "onglet": "decor",
+      "template": "3d_pixal3d_trellis2_image_to_model",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/decor/decor-volume.json",
+      "api_file": null
+    },
+    {
+      "id": "prise-plan",
+      "onglet": "prise",
+      "template": "video_ltx2_5_i2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-plan.json",
+      "api_file": "workflows/prise/prise-plan.api.json"
+    },
+    {
+      "id": "prise-plan-h3",
+      "onglet": "prise",
+      "template": "video_minimax_h3_r2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-plan-h3.json",
+      "api_file": "workflows/prise/prise-plan-h3.api.json"
+    },
+    {
+      "id": "prise-image",
+      "onglet": "prise",
+      "template": "video_minimax_h3_i2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/prise/prise-image.json",
+      "api_file": null
+    },
+    {
+      "id": "prise-raccord",
+      "onglet": "prise",
+      "template": "video_ltx2_5_flf2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-raccord.json",
+      "api_file": "workflows/prise/prise-raccord.api.json"
+    },
+    {
+      "id": "prise-prolonger",
+      "onglet": "prise",
+      "template": "video_minimax_h3_i2v_continuation",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/prise/prise-prolonger.json",
+      "api_file": null
+    },
+    {
+      "id": "prise-camera",
+      "onglet": "prise",
+      "template": "video_ltx2_3_ic_lora",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-camera.json",
+      "api_file": "workflows/prise/prise-camera.api.json"
+    },
+    {
+      "id": "prise-previs",
+      "onglet": "prise",
+      "template": "video_ltx2_3_ic_lora",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-previs.json",
+      "api_file": "workflows/prise/prise-previs.api.json"
+    },
+    {
+      "id": "prise-volume-perso",
+      "onglet": "prise",
+      "template": "3d_hunyuan3d-v2.1",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-volume-perso.json",
+      "api_file": "workflows/prise/prise-volume-perso.api.json"
+    },
+    {
+      "id": "prise-volume-objet",
+      "onglet": "prise",
+      "template": "3d_pixal3d_trellis2_image_to_model",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-volume-objet.json",
+      "api_file": "workflows/prise/prise-volume-objet.api.json"
+    },
+    {
+      "id": "prise-mouvement",
+      "onglet": "prise",
+      "template": "video_wan_animate2",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/prise/prise-mouvement.json",
+      "api_file": null
+    },
+    {
+      "id": "prise-levres",
+      "onglet": "prise",
+      "template": "video_ltx2_3_ia2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/prise/prise-levres.json",
+      "api_file": null
+    },
+    {
+      "id": "prise-vidu",
+      "onglet": "prise",
+      "template": "api_vidu_q4_preview_r2v",
+      "partner": true,
+      "partnerNodes": [
+        "Vidu4ReferenceVideoNode"
+      ],
+      "sentPartner": null,
+      "template_file": "workflows/prise/prise-vidu.json",
+      "api_file": null
+    },
+    {
+      "id": "prise-elargir",
+      "onglet": "prise",
+      "template": "template_ltx2_3_lora_video_outpainting",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-elargir.json",
+      "api_file": "workflows/prise/prise-elargir.api.json"
+    },
+    {
+      "id": "prise-effacer",
+      "onglet": "prise",
+      "template": "template_ltx2_3_obscura_remova_lora_remove_object_from_video",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-effacer.json",
+      "api_file": "workflows/prise/prise-effacer.api.json"
+    },
+    {
+      "id": "mont-voix",
+      "onglet": "montage",
+      "template": "api_elevenlabs_v4_text_to_speech",
+      "partner": true,
+      "partnerNodes": [
+        "ElevenLabsTextToSpeech",
+        "ElevenLabsInstantVoiceClone"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/montage/mont-voix.json",
+      "api_file": "workflows/montage/mont-voix.api.json"
+    },
+    {
+      "id": "mont-effet",
+      "onglet": "montage",
+      "template": "api_elevenlabs_text_to_sound_effects",
+      "partner": true,
+      "partnerNodes": [
+        "ElevenLabsTextToSoundEffects"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/montage/mont-effet.json",
+      "api_file": "workflows/montage/mont-effet.api.json"
+    },
+    {
+      "id": "mont-musique",
+      "onglet": "montage",
+      "template": "api_sonilo_t2m",
+      "partner": true,
+      "partnerNodes": [
+        "SoniloTextToMusic"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/montage/mont-musique.json",
+      "api_file": "workflows/montage/mont-musique.api.json"
+    },
+    {
+      "id": "mont-levres",
+      "onglet": "montage",
+      "template": "video_ltx2_3_ia2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/montage/mont-levres.json",
+      "api_file": null
+    },
+    {
+      "id": "mont-agrandir",
+      "onglet": "montage",
+      "template": "utility_seedvr2_3b_int8_upscale_video",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/montage/mont-agrandir.json",
+      "api_file": null
+    },
+    {
+      "id": "mont-fluide",
+      "onglet": "montage",
+      "template": "utility_video_frame_interpolation",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/montage/mont-fluide.json",
+      "api_file": null
+    },
+    {
+      "id": "api_bytedance_vcube_video_enhance",
+      "onglet": "finaliser",
+      "template": "api_bytedance_vcube_video_enhance",
+      "partner": true,
+      "partnerNodes": [
+        "ByteDanceVideoEnhanceNode"
+      ],
+      "sentPartner": null,
+      "template_file": "workflows/finaliser/api_bytedance_vcube_video_enhance.json",
+      "api_file": null
+    },
+    {
+      "id": "api_wavespeed_flshvsr_video_upscale",
+      "onglet": "finaliser",
+      "template": "api_wavespeed_flshvsr_video_upscale",
+      "partner": true,
+      "partnerNodes": [
+        "WavespeedFlashVSRNode"
+      ],
+      "sentPartner": null,
+      "template_file": "workflows/finaliser/api_wavespeed_flshvsr_video_upscale.json",
+      "api_file": null
+    },
+    {
+      "id": "utility_seedvr2_3b_int8_upscale_video",
+      "onglet": "finaliser",
+      "template": "utility_seedvr2_3b_int8_upscale_video",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/finaliser/utility_seedvr2_3b_int8_upscale_video.json",
+      "api_file": null
+    },
+    {
+      "id": "utility_video_frame_interpolation",
+      "onglet": "finaliser",
+      "template": "utility_video_frame_interpolation",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/finaliser/utility_video_frame_interpolation.json",
+      "api_file": null
+    },
+    {
+      "id": "utility_seedvr2_7b_int8_upscale_image",
+      "onglet": "finaliser",
+      "template": "utility_seedvr2_7b_int8_upscale_image",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/finaliser/utility_seedvr2_7b_int8_upscale_image.json",
+      "api_file": null
+    },
+    {
+      "id": "api_wavespeed_seedvr2_ai_image_fix",
+      "onglet": "finaliser",
+      "template": "api_wavespeed_seedvr2_ai_image_fix",
+      "partner": true,
+      "partnerNodes": [
+        "WavespeedImageUpscaleNode"
+      ],
+      "sentPartner": null,
+      "template_file": "workflows/finaliser/api_wavespeed_seedvr2_ai_image_fix.json",
+      "api_file": null
+    },
+    {
+      "id": "api_magnific_image_upscale_precise",
+      "onglet": "finaliser",
+      "template": "api_magnific_image_upscale_precise",
+      "partner": true,
+      "partnerNodes": [
+        "MagnificImageUpscalerPreciseV2Node"
+      ],
+      "sentPartner": null,
+      "template_file": "workflows/finaliser/api_magnific_image_upscale_precise.json",
+      "api_file": null
+    },
+    {
+      "id": "montage-finaliser",
+      "onglet": "finaliser",
+      "template": "utility_nvidia_rtx_video_enhance",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/finaliser/montage-finaliser.json",
+      "api_file": "workflows/finaliser/montage-finaliser.api.json"
+    }
+  ]
+}

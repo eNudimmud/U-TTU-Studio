@@ -1,10 +1,14 @@
 // Finaliser : une seule passe Nvidia RTX Video Super Resolution sur tout le
+// (l'étape Super Resolution du template officiel `utility_nvidia_rtx_video_enhance`,
+// sans HDR ni génération d'images ; exportée dans workflows/finaliser/montage-finaliser.*)
 // montage fini, sur le compte Comfy du visiteur. Rien n'est régénéré : la passe
 // agrandit et nettoie les images déjà montées, le son et la cadence restent.
 // Mesuré le 14 octobre 2026 en 1080p : 4,1 crédits pour 5 s, 4,5 pour 30 s.
 // Presque tout vient du démarrage (≈ 4 crédits), chaque seconde coûte très peu.
 
 import type { ApiGraph } from "../render/take-graph.ts";
+
+export const FINAL_TEMPLATE = "utility_nvidia_rtx_video_enhance";
 
 export type FinalResolution = "1080p" | "4k";
 export type FinalNettoyage = "aucun" | "bruit" | "flou";

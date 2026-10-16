@@ -35,7 +35,29 @@ export const UNMEASURED_LINE = "Pas encore mesuré. Cette durée, cette qualité
 export type TakeQuote =
   | { source: "balance"; credits: number; at: string; runs: number }
   | { source: "billed"; measure: BilledMeasure }
+  | { source: "estimated"; estimate: TakeEstimate }
   | { source: "unmeasured" };
+
+/** An estimate is a hypothesis, never a measure. Shown as « estimé », with its high bound as the gate. */
+export interface TakeEstimate {
+  profile: string;
+  credits: number;
+  creditsHigh: number;
+}
+
+/** LTX-2.5 i2v on Comfy Cloud: no billed take yet. 12–25 credits for 5 s, scaled by duration. */
+export const LTX_ESTIMATE_5S = { credits: 12, creditsHigh: 25 } as const;
+
+export function estimatedTake(profile: string): TakeEstimate | null {
+  const match = /^ltx25-(\d+)s-/.exec(profile);
+  if (!match) return null;
+  const factor = Number(match[1]) / 5;
+  return { profile, credits: Math.round(LTX_ESTIMATE_5S.credits * factor), creditsHigh: Math.round(LTX_ESTIMATE_5S.creditsHigh * factor) };
+}
+
+export function estimateSentence(estimate: Pick<TakeEstimate, "credits" | "creditsHigh">): string {
+  return `Estimé : environ ${formatCredits(estimate.credits)} à ${formatCredits(estimate.creditsHigh)} crédits. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage.`;
+}
 
 /** The billed record for this exact profile, or nothing. No other profile is invented. */
 export function billedMeasure(profile: string): BilledMeasure | null {
@@ -51,6 +73,8 @@ export function resolveTakeQuote(profile: string, records: readonly CostRecord[]
   if (delta.state === "measured") return { source: "balance", credits: delta.credits, at: delta.at, runs: delta.runs };
   const measure = billedMeasure(profile);
   if (measure) return { source: "billed", measure };
+  const estimate = estimatedTake(profile);
+  if (estimate) return { source: "estimated", estimate };
   return { source: "unmeasured" };
 }
 
@@ -61,6 +85,7 @@ export function quoteSentence(quote: TakeQuote): string {
     const claim = { state: "measured" as const, credits: quote.credits, at: quote.at, runs: quote.runs };
     return `Environ ${formatCredits(quote.credits)} crédits, mesuré sur ${claimBasis(claim)}.`;
   }
+  if (quote.source === "estimated") return estimateSentence(quote.estimate);
   return UNMEASURED_LINE;
 }
 
@@ -74,10 +99,11 @@ export function priseGate(balance: Balance | null, quote: TakeQuote): RunGate {
     return runGate(balance, { state: "measured", credits: quote.credits, at: quote.at, runs: quote.runs });
   }
   if (quote.source === "unmeasured") return { allowed: false, tone: "block", line: UNMEASURED_LINE };
-  const sentence = billedSentence(quote.measure);
+  const sentence = quote.source === "estimated" ? estimateSentence(quote.estimate) : billedSentence(quote.measure);
+  const high = quote.source === "estimated" ? quote.estimate.creditsHigh : quote.measure.creditsHigh;
   if (!balance) return { allowed: false, tone: "block", line: `Solde illisible. Rien ne part sans lire le compte qui paiera. ${sentence}` };
   if (balance.credits <= 0) return { allowed: false, tone: "block", line: `Solde vide sur ton compte de rendu. ${sentence}` };
-  if (balance.credits < quote.measure.creditsHigh) {
+  if (balance.credits < high) {
     return { allowed: false, tone: "block", line: `Solde trop bas : ${formatCredits(balance.credits)} crédits. ${sentence}` };
   }
   return { allowed: true, tone: "ok", line: sentence };
