@@ -13,6 +13,7 @@ async function importCast(page: Page) {
   await page.goto('/studio#personnage');
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Alice.webp', mimeType: 'image/webp', buffer: image });
   await expect(page.locator('[data-depart=cast]')).toHaveCount(0);
+  await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
 }
 async function readVault(page: Page) {
   return page.evaluate(() => new Promise<{ path: string; text?: string; bytes?: number }[]>((resolve, reject) => {
@@ -36,6 +37,7 @@ test('import gratuit → plan conservé → montage → vrai MP4 et réouverture
   await page.getByRole('navigation').getByRole('button', { name: 'DÉCOR' }).click();
   await page.getByLabel('Importer un décor', { exact: true }).setInputFiles({ name: 'Quai.webp', mimeType: 'image/webp', buffer: image });
   await expect(page.locator('[data-depart=decor]')).toHaveCount(0);
+  await expect(page.getByRole('navigation').getByRole('button', { name: 'DÉCOR' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1');
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
@@ -51,6 +53,7 @@ test('import gratuit → plan conservé → montage → vrai MP4 et réouverture
   const download = await downloaded;
   const path = info.outputPath('export-local.mp4');
   await download.saveAs(path);
+  await expect(page.locator('[data-export]')).toHaveAttribute('data-export', 'done');
   const media = new Input({ source: new BlobSource(new Blob([readFileSync(path)])), formats: ALL_FORMATS });
   try {
     const track = await media.getPrimaryVideoTrack();
@@ -109,6 +112,8 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   done = true;
   await page.reload();
   await expect(page.locator('.u-prise video[controls]')).toBeVisible({ timeout: 60000 });
+  await expect(page.getByRole('navigation').getByRole('button', { name: 'PRISE' })).toContainText('Prêt');
+  await expect(page.getByText('Un rendu attend sa récupération. Ouvrez Crédits puis Récupérer le rendu.')).toHaveCount(0);
   const entries = await readVault(page);
   expect(entries.filter(entry => /\/Prises\/.*\.mp4$/.test(entry.path)).map(entry => entry.bytes)).toEqual([video.length]);
   expect(entries.filter(entry => /\/Prises\/.*\.md$/.test(entry.path))).toHaveLength(1);
@@ -151,6 +156,7 @@ test('deux vidéos importées → montage de six secondes → MP4 lisible', asyn
   await page.locator('[data-export-gold]').click();
   const path = info.outputPath('two-clips.mp4');
   await (await downloaded).saveAs(path);
+  await expect(page.locator('[data-export]')).toHaveAttribute('data-export', 'done');
   const bytes = readFileSync(path);
   const media = new Input({ source: new BlobSource(new Blob([bytes])), formats: ALL_FORMATS });
   try {

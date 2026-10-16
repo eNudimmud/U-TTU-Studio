@@ -398,6 +398,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
       await reload();
       setRun({ phase: "done", takeId: id });
+      setNotice("Prise enregistrée dans son projet. Vous pouvez la retrouver et l’ajouter au montage.");
     } catch (error) {
       const failure = error instanceof RenderError ? error : new RenderError("failed", error instanceof Error ? error.message : "La prise n’a pas abouti.");
       // Keep the receipt on timeout, download and disk errors. Recovery is read-only.

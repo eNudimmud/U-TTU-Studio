@@ -104,3 +104,9 @@ Une planche « après » pour CAST, générée sur le compte Comfy Cloud de JD a
 - [Documentation officielle](https://mediabunny.dev/guide/extensions/aac-encoder).
 
 Les dépendances et leur version exacte sont conservées dans `package-lock.json`.
+
+## Mise à jour utilisateur R10b — 16 octobre 2026
+
+La PR #109 remplace les quatre décors `decor-quai-nuit`, `decor-rue-pluie`, `decor-toit-aube` et `decor-gare`, et ajoute `cast-uttu-planche.webp`. Les fichiers sont conservés tels quels dans les branches d’audit. Leur source déclarée dans le manifeste v4 est FLUX 3 Image Klein via Comfy Cloud pour les décors, et Nano Banana Pro pour la planche d’Uttu (badge NEUKO retouché par l’auteur). Ces indications proviennent de la mise à jour utilisateur ; aucun nouveau rendu ni paiement n’a été effectué par l’audit.
+
+Le [manifeste courant](../public/exemples/manifest.json) fait foi pour ces fichiers ; le tableau Seedream ci-dessus décrit leur version historique.

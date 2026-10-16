@@ -5,7 +5,7 @@ Le parcours local possède des éléments réels réutilisables, mais le critèr
 ## Périmètre et versions
 
 - Point de départ : main `338d0150ddc700831e22ec90d8638309032a63de`.
-- Mise à jour de l’utilisateur intégrée : R8 « Finaliser » (`105043a6`, PR #105) et R9 « Partir de cet exemple » (`2e4f4d38`, PR #106). R10 « Galerie sans cartes vides » (PR #108) intégré ensuite. Main relu : `01b4f40c52dadb17db839715bc171b700f7e911e`.
+- Mise à jour de l’utilisateur intégrée : R8 « Finaliser » (`105043a6`, PR #105) et R9 « Partir de cet exemple » (`2e4f4d38`, PR #106). R10 « Galerie sans cartes vides » (PR #108) intégré ensuite. R10b (PR #109) intégré le 16 octobre : quatre décors et planche d’Uttu conservés sans retouche. Main relu : `3079a0bc62597f5b4ab43900ce53f19ed1989176`.
 - [PR #104](https://github.com/eNudimmud/U-TTU-Studio/pull/104) : cartographie, dépendances réseau, licences, repli photo.
 - [PR #107](https://github.com/eNudimmud/U-TTU-Studio/pull/107) : imports, données, soumissions, reprise, prise réelle et montage. PR empilée sur #104 pour isoler la revue.
 - Application publique contrôlée : `https://u-ttu-studio.vercel.app/studio`. Les ajouts R9 sont visibles ; le SHA du déploiement n’est pas exposé dans la page et n’est donc pas attesté par son apparence.

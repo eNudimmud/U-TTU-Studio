@@ -18,12 +18,13 @@ export const DEMO_CAST: CastCard[] = [
   demoCast("demo-dj", "DJ", "Un DJ, planche de vues, personnage fictif.", "/exemples/cast-dj.webp", "2026-10-08T12:07:00.000Z"),
 ];
 
-// Only the three house renders that hold up at full size. The flat room, the
-// roof and the corridor were dropped (R10): they did not make anyone want to use them.
+// Four house renders, FLUX 3 Image Klein via Comfy Cloud (R10b). The flat room and
+// the corridor were dropped: they did not make anyone want to use them.
 export const DEMO_DECOR: DecorCard[] = [
   { id: "demo-quai", name: "Le quai, la nuit", prompt: "Un quai la nuit, eau noire, lumières lointaines, sans personne.", sheet: null, preview: "/exemples/decor-quai-nuit.webp", status: "pret" },
   { id: "demo-gare", name: "Un hall de gare", prompt: "Un hall de gare, vide, lumière froide, sans personne.", sheet: null, preview: "/exemples/decor-gare.webp", status: "pret" },
   { id: "demo-pluie", name: "Sous la pluie", prompt: "Une rue sous la pluie, lumières floues, sans personne.", sheet: null, preview: "/exemples/decor-rue-pluie.webp", status: "pret" },
+  { id: "demo-toit", name: "Les toits à l’aube", prompt: "Des toits de zinc à l’aube, brume dorée, sans personne.", sheet: null, preview: "/exemples/decor-toit-aube.webp", status: "pret" },
 ];
 
 export const DEMO_DECOR_QUOTE = DECOR_TEXT_QUOTE.credits;

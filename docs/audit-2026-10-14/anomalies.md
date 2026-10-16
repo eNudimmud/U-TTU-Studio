@@ -44,4 +44,6 @@ P0 : perte de données, dépense involontaire ou parcours principal bloqué. P1 
 | A37 | P1 | Décor d’exemple R10 affiché mais absent des références réellement envoyées | Génération bloquée avec explication tant que ce décor n’est pas enregistré ; contrôle répété avant soumission |
 | A38 | P2 | Test mobile clique Galerie avant qu’elle soit visible ; glissement panorama cible une zone masquée après changement de mise en page | Tests attendent un contrôle interactif et un point stable ; assertions conservées |
 
+| A39 | P1 | Les captures de la CI montrent « Vide » malgré les imports et une alerte de récupération après succès | Indicateurs fondés sur les médias/plans réellement présents ; confirmation de sauvegarde remplace l’alerte ; assertions navigateur ajoutées |
+
 Les codes P0 corrigés restent des corrections à valider, et non une preuve qu’aucun autre défaut P0 ne peut exister. Aucun service payant ne doit être lancé pour vérifier ces lignes sans accord préalable.

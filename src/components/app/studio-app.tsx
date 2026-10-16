@@ -30,7 +30,7 @@ export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
 function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, cast, decor, pickedCast, pickedDecor, line, loadMontages, studio: vault } = studio;
+  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, cast, decor, line, loadMontages, studio: vault } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
   const [cutReady, setCutReady] = useState<boolean | null>(null);
 
@@ -48,9 +48,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     return () => window.removeEventListener("hashchange", apply);
   }, []);
 
-  const castOk = cast.length > 0 && Boolean(pickedCast);
-  const decorOk = decor.length > 0 && Boolean(pickedDecor);
-  const priseOk = priseReady({ cast: castOk, decor: decorOk, line });
+  const castOk = cast.some(card => Boolean(card.sheet || card.preview || card.photos.length));
+  const decorOk = decor.some(card => Boolean(card.sheet || card.preview || card.geste === "repere"));
+  const priseOk = vault.takes.length > 0 || vault.shots.some(shot => Boolean(shot.composeur)) || priseReady({ cast: castOk, decor: decorOk, line });
   const tab: Tab = asked ?? "lora";
   const section: "lora" | "scene" | "prise" | "montage" = tab === "scene" || tab === "prise" || tab === "montage" ? tab : "lora";
 
@@ -129,7 +129,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     lora: castOk,
     scene: decorOk,
     prise: priseOk,
-    montage: cutReady !== false,
+    montage: cutReady === true,
   };
   const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
 

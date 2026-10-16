@@ -13,11 +13,22 @@
 | #107 `712271e`, [CI 38727049394](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38727049394) | 343 réussis, 1 ignoré | Réussis | **5 réussis, 9 échecs** : personnage absent de la maquette, AAC non encodable, sélection galerie mobile et glissement panorama |
 | #104 après R10 `75e9ed2`, [CI 38818150540](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38818150540) | 332 réussis, 1 ignoré | Réussis | **10 réussis**, Chrome ordinateur/mobile, 39,7 s |
 | #107 après R10 `e3ceee8`, [CI 38818233890](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38818233890) | **344 réussis, 1 ignoré**, 0 échec (345 tests, 87 suites) | **Réussis** | **16 réussis**, Chrome ordinateur/mobile, 1,3 min |
-| Protection complémentaire : décor d’exemple absent des références | Même suite locale réussie | Types réussis | Nouvelle CI de la révision finale à confirmer |
+| #107 `d48c7d3`, [CI 38818748589](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38818748589) | 344 réussis, 1 ignoré | Réussis | **16 réussis**, 1,4 min ; décor d’exemple non transmis bloqué avant confirmation |
 
 Le test ignoré est le rendu Blender : le binaire attendu n’est pas disponible. Il ne constitue pas un succès Farpy. La suite contient de nombreux contrôles de chaînes de code en plus des tests comportementaux. Leur nombre brut n’est pas un indicateur suffisant de fonctionnement réel.
 
 La restriction de lancement locale est `socket() failed: Operation not permitted`. Aucun contournement n’a été tenté ; l’exécution dans les runners GitHub reste une preuve distincte. Chrome est utilisé en CI pour vérifier les codecs MP4, avec traces/captures d’échec et fichiers exportés conservés sept jours comme artefacts.
+
+## Fichiers effectivement produits et inspectés
+
+Les quatre MP4 de la CI `38818233890` ont été téléchargés puis analysés indépendamment avec `ffprobe`. Le ZIP correspond à l’empreinte SHA-256 publiée par GitHub (`b4cafcdee609ac421011d159851557c4eba7a1695d64fb8aa7b5b8171aa80ee1`). Le détail reproductible est dans [exports-ci-38818233890.json](exports-ci-38818233890.json).
+
+| Parcours | Sortie ordinateur et mobile | Observation |
+| --- | --- | --- |
+| Image importée → storyboard | H.264, 540×960, 12 images/s, 5,000 s vidéo ; AAC stéréo 48 kHz | 121 594 / 122 021 octets ; piste audio de 5,035 s (padding codec) |
+| Deux vidéos importées | H.264, 960×540, 12 images/s, 6,000 s vidéo ; AAC stéréo 48 kHz | 147 502 / 147 787 octets ; piste audio de 6,037 s |
+
+Les images de la CI ont également été ouvertes pour inspection visuelle. Elles montrent le montage, les deux clips et l’interface d’export dans les deux formats d’écran. Elles ont révélé deux incohérences textuelles supplémentaires : états CAST/DÉCOR « Vide » après import et notification de récupération restée affichée après sauvegarde. Les corrections et leurs assertions sont dans la révision suivante, qui intègre aussi R10b. Ces fichiers prouvent l’export local ; ils ne prouvent aucune génération payante réelle.
 
 ## Scénarios ajoutés
 
@@ -80,8 +91,8 @@ Ces contrôles manuels ont été faits dans un navigateur distant de bureau. Les
 | Choisir/créer un décor | Import et repérage partiellement vérifiés ; génération cloud non répétée |
 | Composer/générer une vraie prise | Composition persistée ; orchestration testée avec contrat simulé ; nouvelle vraie génération bloquée par absence d’autorisation de dépense |
 | Enregistrer plusieurs prises | Code ciblé et tests de persistance ; plusieurs générations réelles à effectuer |
-| Assembler au montage | Parcours réels d’import/export couverts par la nouvelle CI ; résultat à lire par version |
-| Exporter une vidéo exploitable | À certifier uniquement sur les MP4 téléchargés avec succès ; limites de format/longueur explicites |
+| Assembler au montage | Deux vidéos assemblées, exportées et décodées dans les deux tailles Chrome ; CI réussie |
+| Exporter une vidéo exploitable | Quatre MP4 téléchargés et analysés : H.264/AAC, 5/6 s ; limites 12 fps et 60 s conservées |
 | Retrouver le projet après fermeture | Fermeture/réouverture de page couverte ; arrêt système/éviction non validés |
 
 Le critère global ne sera déclaré satisfait qu’après validation du parcours complet sur le déploiement cible et une génération réelle explicitement autorisée. Les tests non payants apportent des preuves utiles, sans se substituer à cette étape.
