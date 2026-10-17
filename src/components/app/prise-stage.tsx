@@ -732,6 +732,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
       <details className="u-fold u-avance" data-avance-prise="" open={advanced} onToggle={event => setAdvanced(event.currentTarget.open)}>
         <summary>{t("p0.advanced")}</summary>
+        {!demo && withTake === 0 && canMonter && <button type="button" className="u-secondary" data-envoyer-montage="" data-image-fixe="" onClick={() => void monter()}>{t("p0.monterStill")}</button>}
         {/* P2 · maquette 3D (prévis) : hors du niveau débutant. */}
         <div className="u-maquette-avance" data-maquette-avance="">
       <MaquetteView

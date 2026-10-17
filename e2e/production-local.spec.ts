@@ -43,6 +43,8 @@ test('import gratuit → plan conservé → montage → vrai MP4 et réouverture
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Alice traverse le quai audit');
   await expect.poll(async () => (await readVault(page)).some(entry => /\/Shots\//.test(entry.path) && entry.text?.includes('Alice traverse le quai audit'))).toBe(true);
+  // Free still-image path: kept, but behind « Avancé » (not the novice default).
+  await page.locator('[data-avance-prise] > summary').click();
   await page.locator('[data-envoyer-montage]').click();
   await expect(page.locator('[data-montage]')).toHaveAttribute('data-montage', 'projet');
   await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
