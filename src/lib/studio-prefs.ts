@@ -8,10 +8,12 @@ export interface StudioPrefs {
   openWeightsOnly: boolean;
   nanoBanana: boolean;
   engine: TakeEngine;
+  /** True once the engine was picked by hand in Avancé; otherwise PRISE chooses from the intention. */
+  engineManual: boolean;
 }
 
 export const PREFS_KEY = "u-ttu-moteurs";
-export const DEFAULT_PREFS: StudioPrefs = { openWeightsOnly: false, nanoBanana: false, engine: "ltx" };
+export const DEFAULT_PREFS: StudioPrefs = { openWeightsOnly: false, nanoBanana: false, engine: "ltx", engineManual: false };
 
 export function readPrefs(storage: Pick<Storage, "getItem"> | null): StudioPrefs {
   try {
@@ -21,6 +23,7 @@ export function readPrefs(storage: Pick<Storage, "getItem"> | null): StudioPrefs
       openWeightsOnly: data.openWeightsOnly === true,
       nanoBanana: data.nanoBanana === true,
       engine: data.engine === "h3" ? "h3" : "ltx",
+      engineManual: data.engineManual === true,
     };
   } catch {
     return { ...DEFAULT_PREFS };

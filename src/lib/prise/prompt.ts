@@ -63,7 +63,15 @@ export function cameraEnglish(move: keyof typeof CAMERA_EN): string {
   return CAMERA_EN[move];
 }
 
-export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | "son">, extra?: { cadre?: string }): BuiltPrompt {
+export interface PromptExtra {
+  cadre?: string;
+  /** Lines from the intention planner and the production memory (identity, state, ambiance, rotation, raccord). */
+  lines?: readonly string[];
+  /** Camera picked on the intention chip. Undefined: the user's words, then the tile. Null: no camera line. */
+  camera?: CameraMove | null;
+}
+
+export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | "son">, extra?: PromptExtra): BuiltPrompt {
   const grammar = referenceGrammar(decision.graph);
   const refs: string[] = [];
   const names = plan.castNames.slice(0, 3);
@@ -82,7 +90,8 @@ export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | 
     ? `In ${place}${plan.decorNote.trim() ? `, ${plan.decorNote.trim()}` : ""}.`
     : "";
   // The user's camera words win; "static, locked-off" is never added on their behalf.
-  const camera = cameraChoice(plan.action, plan.camera);
+  const chosen = cameraChoice(plan.action, plan.camera);
+  const camera = extra?.camera === undefined ? chosen : { ...chosen, move: extra.camera };
   const lines = [
     `[références]  ${refs.join(", ") || "aucune"}`,
     `[cadrage]     ${CADRAGE_EN[plan.cadrage]}, ${plan.format}.`,
@@ -91,6 +100,7 @@ export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | 
     `[timeline]    [0s-${setupLabel}s] ${who} stands still and breathes.`,
     `              [${setupLabel}s-${plan.duree}s] ${who} ${actionEn(plan.action)}.`,
   ];
+  for (const line of extra?.lines ?? []) if (line.trim()) lines.push(line.trim());
   if (extra?.cadre?.trim()) lines.push(`[maquette]    ${extra.cadre.trim()}`);
   if (decision.son && plan.paroles === "replique" && plan.replique.trim()) {
     const said = plan.replique.trim().replace(/"/g, "");

@@ -1196,3 +1196,36 @@
 .u-montage-status { margin: 0 0 8px; padding-left: 18px; }
 @keyframes u-status-in { from { transform: translateY(3px); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .u-inline-status { animation: none; } }
+
+/* P1 · intention chips, U*TTU's line, continuity, production memory.
+   Existing tokens only (no new colours or ornaments) so the coming re-theme applies as is. */
+.u-intent-hint { margin: 6px 2px 0; color: var(--u-muted); font-size: 13px; line-height: 1.35; }
+.u-intent { margin-top: 10px; display: grid; gap: 8px; }
+.u-intent-head { margin: 0; }
+.u-intent-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.u-ichip { position: relative; display: inline-grid; align-content: center; gap: 2px; min-height: 44px; min-width: 64px; max-width: 100%; padding: 4px 12px; border: 1px solid var(--u-line-strong); border-radius: 12px; background: var(--u-char); color: var(--u-text); text-align: left; font: inherit; font-size: 14px; cursor: pointer; }
+.u-ichip small { font-size: 11px; color: var(--u-muted); }
+.u-ichip b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.u-ichip.is-empty { border-style: dashed; color: var(--u-muted); }
+.u-ichip.is-unknown { border-color: var(--u-fail); }
+.u-ichip-select select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
+.u-uttu { padding: 8px 0 0; }
+.u-uttu-who { margin: 0 0 2px; font-size: 11px; color: var(--u-muted); }
+.u-uttu-line { margin: 0; color: var(--u-text); font-size: 14px; line-height: 1.4; }
+.u-uttu-flag { margin: 4px 0 0; color: var(--u-fail); font-size: 13px; line-height: 1.35; }
+.u-continuity { margin-top: 8px; display: grid; gap: 6px; }
+.u-cont-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.u-cont-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 12px; border: 1px dashed var(--u-line-strong); border-radius: 999px; color: var(--u-muted); font-size: 13px; }
+.u-cont-chip.is-on { border-style: solid; color: var(--u-text); }
+.u-cont-change { min-height: 44px; }
+.u-cont-form { flex-basis: 100%; display: grid; gap: 6px; }
+.u-cont-form input { min-height: 44px; }
+.u-cont-actions { display: flex; gap: 10px; align-items: center; }
+.u-cont-actions .u-link { min-height: 44px; }
+.u-memoire section { margin-top: 10px; }
+.u-memoire-list, .u-memoire-seq { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.u-memoire-list li { display: grid; gap: 2px; padding: 6px 0; border-bottom: 1px solid var(--u-line); font-size: 14px; }
+.u-memoire-list small, .u-memoire-empty, .u-memoire-note, .u-memoire-text { color: var(--u-muted); font-size: 13px; }
+.u-memoire-seq { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.u-memoire-seq li { padding: 6px 8px; border: 1px solid var(--u-line); border-radius: 8px; font-size: 13px; }
+.u-memoire-seq li[aria-current="true"] { border-color: var(--u-line-strong); color: var(--u-text); }

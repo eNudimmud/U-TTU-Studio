@@ -1736,5 +1736,96 @@
       "stepNow": "Step {n}/7 · {label}"
     },
     "stillEmpty": "Choose who and where: the preview appears here."
+  },
+  "p1": {
+    "hint": "One sentence is enough: who, where, what happens, the camera, the mood.",
+    "chips": "What I understood",
+    "chip": {
+      "who": "Who",
+      "where": "Where",
+      "camera": "Camera",
+      "ambiance": "Mood",
+      "duration": "Length",
+      "format": "Format",
+      "none": "—",
+      "unknown": "Unknown",
+      "drop": "Remove mood {label}",
+      "cameraWords": "From your words",
+      "cameraFree": "Free",
+      "degrees": "{move} · {degrees}°",
+      "sec": "{n} s",
+      "unknownGo": "“{word}”: add in CAST"
+    },
+    "say": {
+      "engineH3Refs": "{count} references are needed and LTX takes {max}: switching to H3.",
+      "engineH3Cast": "{count} characters in the shot: switching to H3, built for several identities.",
+      "engineManual": "Engine picked by hand in Advanced: {engine}.",
+      "refsDropped": "Beyond {max} references, {count} are left out.",
+      "missingRef": "No photo for {name}: their look may change.",
+      "missingDecorRef": "No picture for the place {name}: the set will follow your words.",
+      "orbitDegreesWho": "{degrees}° rotation around {name}.",
+      "orbitDegrees": "{degrees}° camera rotation.",
+      "orbitWho": "The camera turns around {name}.",
+      "orbit": "The camera turns around the scene.",
+      "ltxMoveNotExact": "LTX does not guarantee this move to the inch.",
+      "camera": {
+        "fixe": "Static camera.",
+        "travelling-avant": "Slow dolly in.",
+        "travelling-arriere": "Slow dolly out.",
+        "panoramique": "Slow pan.",
+        "suivi": "The camera follows the character.",
+        "orbite": "The camera turns around the subject.",
+        "epaule": "Handheld camera, slight shake."
+      },
+      "identitySheet": "I keep {name}'s look with their turnaround sheet.",
+      "identityPhoto": "I keep {name}'s look from their photo.",
+      "stateKept": "{name} keeps “{state}” since {code}.",
+      "continuityLight": "I keep their look and the lighting of the previous shot.",
+      "keyframeKlein": "Klein first builds the start frame from {count} references, then LTX animates it.",
+      "ambiance": "Mood: {label}.",
+      "durationClamped": "{asked} s asked: the take lasts {seconds} s (5 or 8 s).",
+      "unknownName": "I don't know “{word}”: add it in CAST or SET, or fix the word.",
+      "noWho": "Nobody is named: choose who plays in Who."
+    },
+    "uttu": "U*TTU",
+    "fiab": {
+      "ambiance": "Mood",
+      "continuity": "Continuity",
+      "engine": "Engine",
+      "engineAuto": "{engine} · chosen by U*TTU",
+      "engineHand": "{engine} · picked by hand",
+      "resolution": "Resolution (estimated)",
+      "graph": "Comfy template",
+      "refs": "References",
+      "identity": "Identity",
+      "identityplanche": "turnaround sheet",
+      "identityphoto": "photo",
+      "identityaucune": "no reference"
+    },
+    "cont": {
+      "chip": "✓ {name} · {state} · since {code}",
+      "none": "{name} · no state",
+      "change": "Change state",
+      "set": "Set a state",
+      "label": "New state for {name} from {code}",
+      "ph": "e.g. hunter outfit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "aria": "Continuity"
+    },
+    "mem": {
+      "title": "Production memory",
+      "canon": "Canon",
+      "characters": "Characters",
+      "places": "Places",
+      "sequences": "Sequences",
+      "empty": "empty slot",
+      "noState": "no state",
+      "states": "States",
+      "shots": "{count, plural, =0 {no shot} one {# shot} other {# shots}}",
+      "history": "History",
+      "saved": "Memory saved in My studio (.uttu/memoire.json and Memoire/)."
+    },
+    "engineAuto": "Auto"
   }
 }

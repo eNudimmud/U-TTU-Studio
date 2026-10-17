@@ -34,6 +34,13 @@ import { useStudio } from "./studio-session";
 import { VideoGestes, type PrevisClip } from "./video-gestes";
 import { PrevisPanel } from "./previs-panel";
 import { recordMaquette } from "@/lib/maquette/record";
+import { resolveIntention, type KnownName } from "@/lib/intention/resolve";
+import { planIntention, uttuLine, type Say } from "@/lib/intention/plan";
+import { CAMERAS, type CameraMove } from "@/lib/prise/copy";
+import {
+  MEMOIRE_FILE, bindCards, changeState, findCharacter, findEnvironment, inherit, memoryJson, memoryMarkdown, migrateMemory, parseMemory, recordEvent, shotCode, syncShots,
+  type ProductionMemory,
+} from "@/lib/memoire/model";
 import { PATH_SECONDS, moveProp } from "@/lib/maquette/scene";
 
 type Seed = "vide" | "compose" | "final";
@@ -82,7 +89,15 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
   const [advanced, setAdvanced] = useState(false);
-  const { format } = useFormat();
+  const { format, setFormat } = useFormat();
+  // P1 · production memory and intention overrides (per plan, this session).
+  const [memory, setMemory] = useState<ProductionMemory | null>(null);
+  const [cameraPick, setCameraPick] = useState<Record<string, CameraMove | "none">>({});
+  const [ambianceOff, setAmbianceOff] = useState<Record<string, boolean>>({});
+  const [stateEdit, setStateEdit] = useState<string | null>(null);
+  const [stateDraft, setStateDraft] = useState("");
+  const memoryProject = useRef<string | null>(null);
+  const memorySave = useRef<number>(0);
   const [seed, setSeed] = useState<Seed>("vide");
   const [drafts, setDrafts] = useState<Draft[]>(() => [blank("plan-01", "Plan 01", "16:9")]);
   const [currentId, setCurrentId] = useState("plan-01");
@@ -279,6 +294,46 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (planId) setViewed(map => ({ ...map, [planId]: run.takeId }));
   }, [run, studio.shots]);
 
+  // Production memory: read once per project (or migrated from CAST, DÉCOR and the plans), then kept in step.
+  useEffect(() => {
+    const project = studio.project;
+    if (!ready || demo || !project || booted.current !== project || memoryProject.current === project) return;
+    memoryProject.current = project;
+    setMemory(null);
+    // Not tied to the effect's lifetime: drafts and cards change while the file is read; only a project switch drops the result.
+    void readProjectFile(MEMOIRE_FILE).then(text => {
+      if (memoryProject.current !== project) return;
+      const stored = parseMemory(text);
+      setMemory(stored ?? migrateMemory({ title: project, cast, decor: studio.scenes.map(scene => ({ id: scene.id, name: scene.name, stills: scene.stills })), plans: drafts.map(item => ({ id: item.id, action: item.input.action })) }));
+    }).catch(() => { if (memoryProject.current === project) memoryProject.current = null; });
+  }, [ready, demo, studio.project, readProjectFile, cast, studio.scenes, drafts]);
+  const planOrder = drafts.map(item => `${item.id}:${item.input.action.slice(0, 400)}`).join("|");
+  const cardKey = `${cast.map(card => `${card.id}:${card.name}`).join(",")}|${studio.scenes.map(scene => `${scene.id}:${scene.name}`).join(",")}`;
+  useEffect(() => {
+    if (!memory) return;
+    const next = bindCards(syncShots(memory, drafts.map(item => ({ id: item.id, action: item.input.action }))), cast, studio.scenes.map(scene => ({ id: scene.id, name: scene.name, stills: scene.stills })));
+    if (memoryJson(next) !== memoryJson(memory)) setMemory(next);
+  }, [memory, planOrder, cardKey]);
+  useEffect(() => {
+    if (!memory || demo || !studio.project || memoryProject.current !== studio.project) return;
+    window.clearTimeout(memorySave.current);
+    const project = studio.project;
+    memorySave.current = window.setTimeout(() => {
+      void (async () => {
+        await writeProjectFile(MEMOIRE_FILE, memoryJson(memory));
+        for (const file of memoryMarkdown(memory, project)) await writeProjectFile(file.file, file.text);
+      })().catch(error => setNotice(error instanceof Error ? error.message : String(error)));
+    }, 600);
+    return () => window.clearTimeout(memorySave.current);
+  }, [memory]);
+  // A landed take is history.
+  useEffect(() => {
+    if (run.phase !== "done" || !memory) return;
+    const planId = studio.shots.find(shot => shot.takeIds.includes(run.takeId))?.id;
+    if (!planId || memory.history.some(event => event.text.includes(run.takeId))) return;
+    setMemory(recordEvent(memory, { at: new Date().toISOString(), kind: "generation", shot: shotCode(memory, planId), text: `${run.takeId} · ${drafts.find(item => item.id === planId)?.input.action.slice(0, 200) ?? ""}` }));
+  }, [run, studio.shots]);
+
   function patch(partial: Partial<PlanInput>) {
     const next = drafts.map(item => item.id === draft.id ? { ...item, input: { ...input, ...partial, format } } : item);
     setDrafts(next);
@@ -297,6 +352,16 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     : placeCleared
       ? null
       : places.find(place => place.id === pickedDecor) ?? mine[0] ?? null;
+  // P1 · the sentence, read against CAST/DÉCOR names and the memory's aliases.
+  const knownCast: KnownName[] = people.map(person => {
+    const character = memory ? findCharacter(memory, { id: person.id, name: person.name }) : null;
+    return { id: person.id, name: person.name, aliases: character ? [character.name, ...character.aliases] : [] };
+  });
+  const knownDecor: KnownName[] = places.map(place => {
+    const environment = memory ? findEnvironment(memory, { id: place.id, name: place.name }) : null;
+    return { id: place.id, name: place.name, aliases: environment ? [environment.name, ...environment.aliases] : [] };
+  });
+  const resolved = resolveIntention(draft.input.action, { cast: knownCast, decor: knownDecor });
   const input: PlanInput = {
     ...draft.input,
     format,
@@ -306,24 +371,47 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     decorId: shownPlace?.id ?? null,
     decorName: shownPlace?.name ?? "",
     decorNote: shownPlace?.note ?? "",
-    cadrage: tuileById(maquette.tuile).cadrage,
+    cadrage: resolved.cadrage?.value ?? tuileById(maquette.tuile).cadrage,
     camera: tuileById(maquette.tuile).camera,
     speakerName: draft.input.speakerName || maquette.figures[0]?.name || "",
     previousKept: Boolean(previous && (previous.kept || previous.finalised)),
     hasKeptTake: draft.kept || draft.finalised,
   };
+  function intentionFor(text: string, planId: string, plan: PlanInput) {
+    const read = text === draft.input.action ? resolved : resolveIntention(text, { cast: knownCast, decor: knownDecor });
+    const names = plan.castIds.map(id => ({ id, name: people.find(person => person.id === id)?.name ?? id }));
+    const inherited = memory ? inherit(memory, planId, names) : [];
+    const scene = studio.scenes.find(item => item.id === plan.decorId) ?? null;
+    const prev = drafts[drafts.findIndex(item => item.id === planId) - 1] ?? (planId === draft.id ? null : draft);
+    const decided = planIntention(read, {
+      cast: plan.castIds.map(id => {
+        const card = cast.find(item => item.id === id);
+        return { id, name: card?.name ?? people.find(person => person.id === id)?.name ?? id, sheet: card?.sheet ?? null, photos: card?.photos ?? [] };
+      }),
+      decor: plan.decorId ? { id: plan.decorId, name: plan.decorName || scene?.name || "", stills: scene?.stills ?? [places.find(place => place.id === plan.decorId)?.src ?? ""].filter(Boolean) } : null,
+      inherited,
+      engineOverride: prefs.engineManual ? prefs.engine : null,
+      previousInPlace: Boolean(prev && (prev.kept || prev.finalised || prev.hasTake) && prev.input.decorId && prev.input.decorId === plan.decorId),
+      format: plan.format,
+    });
+    const pick = cameraPick[planId];
+    const lines = ambianceOff[planId] ? decided.promptLines.filter(line => !line.startsWith("[ambiance]")) : decided.promptLines;
+    return { read, inherited, decided, extra: { lines, camera: pick === undefined ? undefined : pick === "none" ? null : pick } };
+  }
+  const intention = intentionFor(draft.input.action, draft.id, input);
+  const engine = intention.decided.engine;
   const intent = primaryIntent(input);
   const cardDecision = decide(input, intent);
   const essai = decide(input, "essai");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
   const showFinal = draft.finalised;
   const cadre = [captureLine(maquette, tuileById(maquette.tuile).prompt), quartier ? t("r7.rue") : ""].filter(Boolean).join(" ");
-  const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision, { cadre });
+  const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision, { cadre, ...intention.extra });
   const tip = astuce(maquette);
   const tileLabels = TUILES.map(item => ({ id: item.id, label: t(`r7.tuile.${item.id}`) }));
   const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
   // One quote per take, from the plan's own engine, format and length. LTX is estimated in 16:9 and 9:16.
-  const planSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine: prefs.engine };
+  const planSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine };
   const planQuote = resolveTakeQuote(takeProfile(planSettings), quotesToRecords(studio.quotes));
   const quoted = planQuote.source !== "unmeasured";
   const realRefs = input.castIds.length <= 3 && input.castIds.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
@@ -335,7 +423,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const canGenerate = !demo && !creating && !busy && quoted && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
   const generateReason = demo ? t("p0.why.demo")
     : busy ? t("p0.why.busy")
-    : !quoted ? t(prefs.engine === "h3" ? "p0.why.h3Format" : "p0.why.noQuote")
+    : !quoted ? t(engine === "h3" ? "p0.why.h3Format" : "p0.why.noQuote")
     : !realRefs ? t("p0.why.refs")
     : !savedDecor ? t("p0.why.decorExample")
     : t("p0.why.nothing");
@@ -348,20 +436,34 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       : choice.source === "tuile" ? t("p0.camera.fromTile", { move }) : t("p0.camera.free");
     return { label: t("p0.fiab.sentCamera"), value, flag: Boolean(choice.overridden) };
   }
-  function resumeFor(plan: PlanInput): SentLine[] {
-    return [
+  function sayIt(item: Say): string {
+    return t(`p1.say.${item.key}`, item.vars ?? {});
+  }
+  function resumeFor(plan: PlanInput, planId = draft.id): SentLine[] {
+    const { read, inherited, decided } = intentionFor(plan.action, planId, plan);
+    const rows: SentLine[] = [
       { label: t("p0.fiab.sentCast"), value: plan.castNames.join(", ") || "—" },
       { label: t("p0.fiab.sentDecor"), value: plan.decorName || "—" },
       { label: t("p0.fiab.sentWords"), value: plan.action.trim() || "—" },
       cameraLine(plan),
     ];
+    if (read.ambiance.length && !ambianceOff[planId]) rows.push({ label: t("p1.fiab.ambiance"), value: read.ambiance.map(item => item.label).join(", ") });
+    const kept = inherited.filter(row => row.state).map(row => `${row.name} · ${row.state!.label} (${row.state!.fromCode || "?"})`);
+    if (kept.length) rows.push({ label: t("p1.fiab.continuity"), value: kept.join(" ; ") });
+    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: decided.engine === "h3" ? "MiniMax H3" : "LTX-2.5" }) });
+    if (read.unknown.length) rows.push({ label: t("p1.chip.unknown"), value: read.unknown.join(", "), flag: true });
+    return rows;
+  }
+  function changeFor(plan: PlanInput, planId = draft.id): string {
+    const { decided } = intentionFor(plan.action, planId, plan);
+    return [t("p0.fiab.changePrise"), ...decided.warnings.map(sayIt)].join(" ");
   }
 
   async function generate() {
     if (!canGenerate) return;
     try {
       await persist(drafts.map(item => item.id === draft.id ? { ...item, input } : item));
-      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre }).text, settings: planSettings, resume: resumeFor(input), change: t("p0.fiab.changePrise") });
+      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre, ...intention.extra }).text, settings: planSettings, resume: resumeFor(input), change: changeFor(input), extraRefs: intention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path) });
     } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
@@ -384,7 +486,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       setCurrentId(id);
       setNextAction("");
       await persist(next, id);
-      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre }).text, settings: planSettings, resume: resumeFor(nextInput), change: t("p0.fiab.changePrise") });
+      const nextIntention = intentionFor(nextInput.action, id, nextInput);
+      const nextSettings: TakeSettings = { ...planSettings, engine: nextIntention.decided.engine };
+      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre, ...nextIntention.extra }).text, settings: nextSettings, resume: resumeFor(nextInput, id), change: changeFor(nextInput, id), extraRefs: nextIntention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path) });
     } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
@@ -484,19 +588,53 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     });
   }
 
+  /** The sentence names who, where, how long, which format: the plan follows. Nothing named → nothing changes. */
+  function fromSentence(action: string): Partial<PlanInput> {
+    const read = resolveIntention(action, { cast: knownCast, decor: knownDecor });
+    const partial: Partial<PlanInput> = {};
+    const ids = read.who.map(item => item.id).filter(id => people.some(person => person.id === id)).slice(0, MAX_FIGURES);
+    if (ids.length && !maquette.lockPose && ids.join(",") !== maquette.figures.map(figure => figure.id).join(",")) {
+      setMaquette(state => {
+        let next = state;
+        for (const figure of state.figures) if (!ids.includes(figure.id)) next = removeFigure(next, figure.id);
+        for (const id of ids) {
+          const person = people.find(item => item.id === id);
+          if (person && !next.figures.some(figure => figure.id === id) && canAddFigure(next)) next = addFigure(next, { id: person.id, name: person.name });
+        }
+        return next;
+      });
+      partial.castIds = ids;
+    }
+    if (read.where && read.where.id !== (draft.input.decorId ?? shownPlace?.id ?? null)) {
+      setPlaceCleared(false);
+      partial.decorId = read.where.id;
+    }
+    if (read.duration && read.duration.seconds !== draft.input.duree) partial.duree = read.duration.seconds;
+    if (read.format && read.format.value !== format) setFormat(read.format.value);
+    return partial;
+  }
+
   function onAction(action: string) {
     const id = tuileInText(action, knownLabels);
+    const named = fromSentence(action);
     if (id && tuileNeedsPair(id) && maquette.figures.length < 2) {
-      patch({ action });
+      patch({ ...named, action });
       return;
     }
     if (id && id !== maquette.tuile) {
       const preset = tuileById(id);
       setMaquette(state => applyTuile(state, id));
-      patch({ action, cadrage: preset.cadrage, camera: preset.camera });
+      patch({ ...named, action, cadrage: preset.cadrage, camera: preset.camera });
       return;
     }
-    patch({ action });
+    patch({ ...named, action });
+  }
+
+  function saveState(characterId: string) {
+    if (!memory || !stateDraft.trim()) return;
+    setMemory(changeState(memory, characterId, draft.id, stateDraft, new Date().toISOString()));
+    setStateEdit(null);
+    setStateDraft("");
   }
 
   function placeFigure(next: MaquetteState) {
@@ -719,8 +857,55 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
       <Row className="u-scene-row" label={t("r7.cequi")}>
         <label className="u-field">
-          <textarea aria-label={t("r7.cequi")} value={input.action} rows={3} maxLength={ACTION_MAX} placeholder={t("p0.actionPh")} onChange={event => onAction(event.target.value)} />
+          <textarea aria-label={t("r7.cequi")} aria-describedby="u-intent-hint" value={input.action} rows={3} maxLength={ACTION_MAX} placeholder={t("p0.actionPh")} onChange={event => onAction(event.target.value)} />
         </label>
+        <p className="u-intent-hint" id="u-intent-hint">{t("p1.hint")}</p>
+        {input.action.trim() && <IntentionChips
+          names={maquette.figures.map(figure => figure.name)}
+          place={shownPlace?.name ?? ""}
+          camera={(() => {
+            const pick = cameraPick[draft.id];
+            const move = pick === undefined ? (intention.read.camera.move ?? cameraChoice(input.action, input.camera).move) : pick === "none" ? null : pick;
+            const label = move ? t(`p0.camera.move.${move}`) : t("p1.chip.cameraFree");
+            return { value: pick ?? "auto", label: move === "orbite" && intention.read.camera.degrees && pick === undefined ? t("p1.chip.degrees", { move: label, degrees: intention.read.camera.degrees }) : label, autoLabel: t("p1.chip.cameraWords") };
+          })()}
+          moves={CAMERAS.map(move => ({ move, label: t(`p0.camera.move.${move}`) }))}
+          ambiance={ambianceOff[draft.id] ? [] : intention.read.ambiance.map(item => item.label)}
+          duree={input.duree}
+          unknown={intention.read.unknown}
+          line={uttuLine(intention.decided).line.map(sayIt)}
+          flags={uttuLine(intention.decided).flags.map(sayIt)}
+          t={t}
+          onWho={() => document.querySelector<HTMLElement>(".u-who-row button")?.focus()}
+          onWhere={() => document.querySelector<HTMLElement>(".u-where button")?.focus()}
+          onCamera={value => setCameraPick(map => {
+            const next = { ...map };
+            if (value === "auto") delete next[draft.id];
+            else next[draft.id] = value as CameraMove | "none";
+            return next;
+          })}
+          onDropAmbiance={() => setAmbianceOff(map => ({ ...map, [draft.id]: true }))}
+          onDuree={seconds => patch({ duree: seconds })}
+          onUnknown={goCast}
+        />}
+        {!demo && memory && intention.inherited.length > 0 && <div className="u-continuity" role="group" aria-label={t("p1.cont.aria")} data-continuite="">
+          {intention.inherited.map(row => {
+            const code = shotCode(memory, draft.id) || `A-${String(index + 1).padStart(2, "0")}`;
+            return <div className="u-cont-row" key={row.characterId} data-cont={row.name} data-etat={row.state?.label ?? ""}>
+              <span className={row.state ? "u-cont-chip is-on" : "u-cont-chip"}>{row.state ? t("p1.cont.chip", { name: row.name, state: row.state.label, code: row.state.fromCode || code }) : t("p1.cont.none", { name: row.name })}</span>
+              {stateEdit !== row.characterId && <button type="button" className="u-link u-cont-change" data-changer-etat={row.name} onClick={() => { setStateEdit(row.characterId); setStateDraft(""); }}>{row.state ? t("p1.cont.change") : t("p1.cont.set")}</button>}
+              {stateEdit === row.characterId && <form className="u-cont-form" onSubmit={event => { event.preventDefault(); saveState(row.characterId); }}>
+                <label className="u-field"><span className="u-label">{t("p1.cont.label", { name: row.name, code })}</span>
+                  <input value={stateDraft} maxLength={120} placeholder={t("p1.cont.ph")} autoFocus onChange={event => setStateDraft(event.target.value)} />
+                </label>
+                <span className="u-cont-actions">
+                  <button type="submit" className="u-secondary">{t("p1.cont.save")}</button>
+                  <button type="button" className="u-link" onClick={() => setStateEdit(null)}>{t("p1.cont.cancel")}</button>
+                </span>
+              </form>}
+            </div>;
+          })}
+        </div>}
         <div className="u-choice-row u-actions">
           {ACTION_EXAMPLES.map((example, at) => {
             const words = t(`p0.action.${at}`);
@@ -794,12 +979,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {maquette.figures.length < 2 && <p className="u-why" id="u-why-paire">{t("r7.pairWhy")}</p>}
       </Row>
         <Row label={t("stage.engine.label")}>
-          <div className="u-choice-row u-engine" data-engine={prefs.engine}>
-            {(["ltx", "h3"] as const).map(engine => (
-              <button key={engine} type="button" className="u-chip" aria-pressed={prefs.engine === engine} onClick={() => setPrefs({ engine })}>{t(`stage.engine.${engine}`)}</button>
+          <div className="u-choice-row u-engine" data-engine={engine} data-engine-mode={prefs.engineManual ? "main" : "auto"}>
+            <button type="button" className="u-chip" data-engine-auto="" aria-pressed={!prefs.engineManual} onClick={() => setPrefs({ engineManual: false })}>{t("p1.engineAuto")} · {intention.decided.auto === "h3" ? "H3" : "LTX"}</button>
+            {(["ltx", "h3"] as const).map(item => (
+              <button key={item} type="button" className="u-chip" aria-pressed={prefs.engineManual && prefs.engine === item} onClick={() => setPrefs({ engine: item, engineManual: true })}>{t(`stage.engine.${item}`)}</button>
             ))}
           </div>
-          <p className="u-engine-hint">{t(prefs.engine === "ltx" ? "stage.engine.ltxHint" : "stage.engine.h3Hint")}</p>
+          <p className="u-engine-hint">{t(engine === "ltx" ? "stage.engine.ltxHint" : "stage.engine.h3Hint")}</p>
         </Row>
 
         <Row label={t("p0.duration")}>
@@ -842,6 +1028,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </details>
         <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} />
         <VideoGestes aspect={format === "9:16" ? "vertical" : "horizontal"} previs={previsClip} previsLeft={previsLeft} onRecordPrevis={() => void filmPrevis()} />
+        {!demo && memory && <MemoirePanel memory={memory} planId={draft.id} t={t} />}
       </details>
     </div>
 
@@ -859,8 +1046,15 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           failure={failure || undefined}
           where={where || undefined}
           sent={resumeFor(input)}
-          technical={[{ label: t("p0.fiab.sentEngine"), value: `${t(prefs.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx")} · ${input.duree} s · ${input.format}` }, { label: t("p0.fiab.sentRaw"), value: prompt.text }]}
-          change={t("p0.fiab.changePrise")}
+          technical={[
+            { label: t("p0.fiab.sentEngine"), value: `${t(engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx")} · ${input.duree} s · ${input.format}` },
+            { label: t("p1.fiab.graph"), value: intention.decided.template },
+            { label: t("p1.fiab.resolution"), value: `≈ ${intention.decided.resolution}` },
+            { label: t("p1.fiab.refs"), value: intention.decided.refs.map(ref => `${ref.owner} (${ref.kind})`).join(", ") || "—" },
+            { label: t("p1.fiab.identity"), value: t(`p1.fiab.identity${intention.decided.identity}`) },
+            { label: t("p0.fiab.sentRaw"), value: prompt.text },
+          ]}
+          change={changeFor(input)}
         >
           {failedHere && <div className="u-card-actions">
             <button type="button" className="u-secondary" data-recuperer="" onClick={resumeRun}>{t("p0.recover")}</button>
@@ -970,3 +1164,73 @@ function AddPlaceIcon() {
   </svg>;
 }
 
+
+
+type T = (key: string, values?: Record<string, string | number>) => string;
+
+/** Understood items, as editable chips: Qui, Où, Caméra, Ambiance, Durée, then unknown words. And U*TTU's line. */
+function IntentionChips(props: {
+  names: string[]; place: string;
+  camera: { value: string; label: string; autoLabel: string };
+  moves: { move: CameraMove; label: string }[];
+  ambiance: string[]; duree: 5 | 8; unknown: string[]; line: string[]; flags: string[]; t: T;
+  onWho(): void; onWhere(): void; onCamera(value: string): void; onDropAmbiance(): void; onDuree(seconds: 5 | 8): void; onUnknown(): void;
+}) {
+  const { t } = props;
+  return <div className="u-intent" data-intention="">
+    <p className="u-label u-intent-head">{t("p1.chips")}</p>
+    <div className="u-intent-chips">
+      <button type="button" className={props.names.length ? "u-ichip" : "u-ichip is-empty"} data-chip="qui" onClick={props.onWho}><small>{t("p1.chip.who")}</small><b>{props.names.join(", ") || t("p1.chip.none")}</b></button>
+      <button type="button" className={props.place ? "u-ichip" : "u-ichip is-empty"} data-chip="ou" onClick={props.onWhere}><small>{t("p1.chip.where")}</small><b>{props.place || t("p1.chip.none")}</b></button>
+      <label className="u-ichip u-ichip-select" data-chip="camera"><small>{t("p1.chip.camera")}</small><b aria-hidden="true">{props.camera.label}</b>
+        <select aria-label={t("p1.chip.camera")} value={props.camera.value} onChange={event => props.onCamera(event.target.value)}>
+          <option value="auto">{props.camera.autoLabel}</option>
+          {props.moves.map(item => <option key={item.move} value={item.move}>{item.label}</option>)}
+          <option value="none">{t("p1.chip.cameraFree")}</option>
+        </select>
+      </label>
+      {props.ambiance.length
+        ? <button type="button" className="u-ichip" data-chip="ambiance" aria-label={t("p1.chip.drop", { label: props.ambiance.join(", ") })} onClick={props.onDropAmbiance}><small>{t("p1.chip.ambiance")}</small><b>{props.ambiance.join(", ")} <span aria-hidden="true">×</span></b></button>
+        : <span className="u-ichip is-empty" data-chip="ambiance"><small>{t("p1.chip.ambiance")}</small><b>{t("p1.chip.none")}</b></span>}
+      <label className="u-ichip u-ichip-select" data-chip="duree"><small>{t("p1.chip.duration")}</small><b aria-hidden="true">{t("p1.chip.sec", { n: props.duree })}</b>
+        <select aria-label={t("p1.chip.duration")} value={props.duree} onChange={event => props.onDuree(event.target.value === "8" ? 8 : 5)}>
+          <option value="5">{t("p1.chip.sec", { n: 5 })}</option>
+          <option value="8">{t("p1.chip.sec", { n: 8 })}</option>
+        </select>
+      </label>
+      {props.unknown.map(word => <button key={word} type="button" className="u-ichip is-unknown" data-chip="inconnu" aria-label={t("p1.chip.unknownGo", { word })} onClick={props.onUnknown}><small>{t("p1.chip.unknown")}</small><b>{word}</b></button>)}
+    </div>
+    {(props.line.length > 0 || props.flags.length > 0) && <div className="u-uttu" data-uttu-dit="">
+      <div>
+        <p className="u-uttu-who">{t("p1.uttu")}</p>
+        {props.line.length > 0 && <p className="u-uttu-line">{props.line.join(" ")}</p>}
+        {props.flags.map(flag => <p key={flag} className="u-uttu-flag">{flag}</p>)}
+      </div>
+    </div>}
+  </div>;
+}
+
+/** Avancé › Mémoire de production: canon, characters and their dated states, places, sequences A–F. */
+function MemoirePanel({ memory, planId, t }: { memory: ProductionMemory; planId: string; t: T }) {
+  return <details className="u-fold u-memoire" data-memoire="">
+    <summary>{t("p1.mem.title")}</summary>
+    {(memory.canon.name || memory.canon.text) && <section><p className="u-label">{t("p1.mem.canon")}</p><p className="u-memoire-text"><b>{memory.canon.name}</b> {memory.canon.text}</p></section>}
+    <section><p className="u-label">{t("p1.mem.characters")}</p>
+      <ul className="u-memoire-list">{memory.characters.map(item => {
+        const states = memory.states.filter(state => state.characterId === item.id);
+        return <li key={item.id} data-memoire-perso={item.name}>
+          <b>{item.name}</b>{item.aliases.length ? <small> · {item.aliases.join(", ")}</small> : null}
+          {item.identity ? <span>{item.identity}</span> : !item.refs.length && !item.castId ? <span className="u-memoire-empty">{t("p1.mem.empty")}</span> : null}
+          <small>{t("p1.mem.states")} : {states.map(state => `${state.fromCode || "?"} ${state.label}`).join(" · ") || t("p1.mem.noState")}</small>
+        </li>;
+      })}</ul>
+    </section>
+    <section><p className="u-label">{t("p1.mem.places")}</p>
+      <ul className="u-memoire-list">{memory.environments.map(item => <li key={item.id}><b>{item.name}</b>{!item.refs.length && !item.decorId && <span className="u-memoire-empty">{t("p1.mem.empty")}</span>}</li>)}</ul>
+    </section>
+    <section><p className="u-label">{t("p1.mem.sequences")}</p>
+      <ul className="u-memoire-seq">{memory.sequences.map(sequence => <li key={sequence.code} aria-current={sequence.shots.some(shot => shot.planId === planId) ? "true" : undefined}><b>{sequence.code}</b> {t("p1.mem.shots", { count: sequence.shots.length })}</li>)}</ul>
+    </section>
+    <p className="u-memoire-note">{t("p1.mem.saved")}</p>
+  </details>;
+}

@@ -1736,5 +1736,96 @@
       "stepNow": "Schritt {n}/7 · {label}"
     },
     "stillEmpty": "Wähle wer und wo: Die Vorschau erscheint hier."
+  },
+  "p1": {
+    "hint": "Ein Satz genügt: wer, wo, was passiert, die Kamera, die Stimmung.",
+    "chips": "Was ich verstanden habe",
+    "chip": {
+      "who": "Wer",
+      "where": "Wo",
+      "camera": "Kamera",
+      "ambiance": "Stimmung",
+      "duration": "Dauer",
+      "format": "Format",
+      "none": "—",
+      "unknown": "Unbekannt",
+      "drop": "Stimmung {label} entfernen",
+      "cameraWords": "Nach Ihren Worten",
+      "cameraFree": "Frei",
+      "degrees": "{move} · {degrees}°",
+      "sec": "{n} s",
+      "unknownGo": "„{word}“: in Besetzung hinzufügen"
+    },
+    "say": {
+      "engineH3Refs": "Es braucht {count} Referenzen, LTX nimmt {max}: ich wechsle zu H3.",
+      "engineH3Cast": "{count} Figuren im Bild: ich wechsle zu H3, gebaut für mehrere Identitäten.",
+      "engineManual": "Engine von Hand in Erweitert gewählt: {engine}.",
+      "refsDropped": "Über {max} Referenzen hinaus bleiben {count} außen vor.",
+      "missingRef": "Kein Foto von {name}: das Aussehen kann sich ändern.",
+      "missingDecorRef": "Kein Bild vom Ort {name}: das Set folgt Ihren Worten.",
+      "orbitDegreesWho": "Drehung um {degrees}° um {name}.",
+      "orbitDegrees": "Kameradrehung um {degrees}°.",
+      "orbitWho": "Die Kamera kreist um {name}.",
+      "orbit": "Die Kamera kreist um die Szene.",
+      "ltxMoveNotExact": "LTX garantiert diese Bewegung nicht auf den Zentimeter.",
+      "camera": {
+        "fixe": "Feste Kamera.",
+        "travelling-avant": "Langsame Ranfahrt.",
+        "travelling-arriere": "Langsame Rückfahrt.",
+        "panoramique": "Langsamer Schwenk.",
+        "suivi": "Die Kamera folgt der Figur.",
+        "orbite": "Die Kamera kreist um das Motiv.",
+        "epaule": "Handkamera, leichtes Wackeln."
+      },
+      "identitySheet": "Ich halte das Aussehen von {name} mit dem Ansichtsblatt.",
+      "identityPhoto": "Ich halte das Aussehen von {name} nach dem Foto.",
+      "stateKept": "{name} behält „{state}“ seit {code}.",
+      "continuityLight": "Ich behalte Aussehen und Licht der vorigen Einstellung.",
+      "keyframeKlein": "Klein baut zuerst das Startbild aus {count} Referenzen, dann animiert LTX es.",
+      "ambiance": "Stimmung: {label}.",
+      "durationClamped": "{asked} s verlangt: die Aufnahme dauert {seconds} s (5 oder 8 s).",
+      "unknownName": "„{word}“ kenne ich nicht: in Besetzung oder Kulisse hinzufügen oder das Wort korrigieren.",
+      "noWho": "Niemand ist genannt: wählen Sie unter Wer, wer spielt."
+    },
+    "uttu": "U*TTU",
+    "fiab": {
+      "ambiance": "Stimmung",
+      "continuity": "Kontinuität",
+      "engine": "Engine",
+      "engineAuto": "{engine} · von U*TTU gewählt",
+      "engineHand": "{engine} · von Hand gewählt",
+      "resolution": "Auflösung (geschätzt)",
+      "graph": "Comfy-Vorlage",
+      "refs": "Referenzen",
+      "identity": "Identität",
+      "identityplanche": "Ansichtsblatt",
+      "identityphoto": "Foto",
+      "identityaucune": "keine Referenz"
+    },
+    "cont": {
+      "chip": "✓ {name} · {state} · seit {code}",
+      "none": "{name} · kein Zustand",
+      "change": "Zustand ändern",
+      "set": "Zustand festlegen",
+      "label": "Neuer Zustand für {name} ab {code}",
+      "ph": "z. B. Jägerkleidung",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "aria": "Kontinuität"
+    },
+    "mem": {
+      "title": "Produktionsgedächtnis",
+      "canon": "Kanon",
+      "characters": "Figuren",
+      "places": "Orte",
+      "sequences": "Sequenzen",
+      "empty": "leeres Feld",
+      "noState": "kein Zustand",
+      "states": "Zustände",
+      "shots": "{count, plural, =0 {keine Einstellung} one {# Einstellung} other {# Einstellungen}}",
+      "history": "Verlauf",
+      "saved": "Gedächtnis in Mein Studio gespeichert (.uttu/memoire.json und Memoire/)."
+    },
+    "engineAuto": "Auto"
   }
 }
