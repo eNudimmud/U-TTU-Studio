@@ -39,8 +39,8 @@
     "yourPlace": "Eine Kulisse",
     "theVideo": "Das Video",
     "quiet": "Das Studio verkauft nichts. Der Render wird auf deinem Cloud-Konto bezahlt.",
-    "alt": "U*TTU: schwarze Kapuze, Gesicht mit feinen goldenen Linien, dunkler Grund.",
-    "caption": "U*TTU · sie führt dich im Studio",
+    "alt": "Studio-Vorschau: die Einstellungsliste, die Vorschau der Einstellung und der Drehen-Knopf mit geschätzten Kosten.",
+    "caption": "Das Studio · eine Einstellung, ihre Vorschau, ihre Kosten",
     "contact": "Studio kontaktieren ↗"
   },
   "guide": {
@@ -1787,12 +1787,12 @@
       "unknownName": "„{word}“ kenne ich nicht: in Besetzung oder Kulisse hinzufügen oder das Wort korrigieren.",
       "noWho": "Niemand ist genannt: wählen Sie unter Wer, wer spielt."
     },
-    "uttu": "U*TTU",
+    "uttu": "Studio-Assistent",
     "fiab": {
       "ambiance": "Stimmung",
       "continuity": "Kontinuität",
       "engine": "Engine",
-      "engineAuto": "{engine} · von U*TTU gewählt",
+      "engineAuto": "{engine} · vom Studio gewählt",
       "engineHand": "{engine} · von Hand gewählt",
       "resolution": "Auflösung (geschätzt)",
       "graph": "Comfy-Vorlage",

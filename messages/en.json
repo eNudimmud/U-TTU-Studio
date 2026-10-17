@@ -39,8 +39,8 @@
     "yourPlace": "A set",
     "theVideo": "The video",
     "quiet": "The studio sells nothing. The render is paid on your cloud account.",
-    "alt": "U*TTU: black hood, face marked with fine gold lines, dark ground.",
-    "caption": "U*TTU · she guides you in the studio",
+    "alt": "Studio preview: the shot list, the shot preview and the Shoot button with its estimated cost.",
+    "caption": "The studio · a shot, its preview, its cost",
     "contact": "Contact the studio ↗"
   },
   "guide": {
@@ -1787,12 +1787,12 @@
       "unknownName": "I don't know “{word}”: add it in CAST or SET, or fix the word.",
       "noWho": "Nobody is named: choose who plays in Who."
     },
-    "uttu": "U*TTU",
+    "uttu": "Studio assistant",
     "fiab": {
       "ambiance": "Mood",
       "continuity": "Continuity",
       "engine": "Engine",
-      "engineAuto": "{engine} · chosen by U*TTU",
+      "engineAuto": "{engine} · chosen by the studio",
       "engineHand": "{engine} · picked by hand",
       "resolution": "Resolution (estimated)",
       "graph": "Comfy template",

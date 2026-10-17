@@ -13,6 +13,7 @@ import { studioTarget, type StudioTargetKind } from "@/lib/coffre/target";
 import { ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
+import { Brand } from "@/components/brand";
 
 type Kind = "personnage" | "lieu" | "prise" | "sequence" | "note";
 type Filter = "tout" | Kind;
@@ -99,7 +100,7 @@ function AtelierFrame() {
 
   return <div className="u-app">
     <header className="u-top">
-      <a className="u-mark" href={assetPath("/studio#personnage")} aria-label="U*TTU Studio">U<em>*</em>TTU</a>
+      <Brand className="u-mark" href={assetPath("/studio#personnage")} />
       <div className="u-top-tools">
         <a className="u-coffre" href={assetPath("/mon-studio")} aria-label={t("nav.studio")} aria-current="page"><Coffre /><span className="u-tool-label">{t("nav.studio")}</span></a>
         <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })}>

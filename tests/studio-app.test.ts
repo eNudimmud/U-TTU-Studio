@@ -43,6 +43,7 @@ describe("le studio, une app", () => {
     const app = manifest();
     assert.equal(app.display, "standalone");
     assert.equal(app.start_url, "/studio");
-    assert.equal(app.theme_color, "#0B0A09");
+    assert.equal(app.theme_color, "#0F0F11");
+    assert.ok(app.icons?.some(icon => icon.purpose === "maskable"));
   });
 });

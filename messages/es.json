@@ -39,8 +39,8 @@
     "yourPlace": "Un decorado",
     "theVideo": "El vídeo",
     "quiet": "El estudio no vende nada. El render se paga en tu cuenta cloud.",
-    "alt": "U*TTU: capucha negra, rostro marcado con finas líneas doradas, fondo oscuro.",
-    "caption": "U*TTU · ella te guía en el estudio",
+    "alt": "Vista del estudio: la lista de planos, la vista previa del plano y el botón Rodar con su coste estimado.",
+    "caption": "El estudio · un plano, su vista previa, su coste",
     "contact": "Contactar el estudio ↗"
   },
   "guide": {
@@ -1787,12 +1787,12 @@
       "unknownName": "No conozco «{word}»: añádalo en Reparto o Decorado, o corrija la palabra.",
       "noWho": "No se nombra a nadie: elija quién actúa en Quién."
     },
-    "uttu": "U*TTU",
+    "uttu": "Asistente del estudio",
     "fiab": {
       "ambiance": "Ambiente",
       "continuity": "Continuidad",
       "engine": "Motor",
-      "engineAuto": "{engine} · elegido por U*TTU",
+      "engineAuto": "{engine} · elegido por el estudio",
       "engineHand": "{engine} · elegido a mano",
       "resolution": "Resolución (estimada)",
       "graph": "Plantilla Comfy",

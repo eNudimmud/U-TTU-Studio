@@ -204,11 +204,11 @@ export function galleryColumns(width: number): number {
 }
 
 const CYCLE = [
-  { kind: "personnage" as const, file: "/exemples/cast-uttu.webp", title: "Uttu" },
-  { kind: "personnage" as const, file: "/exemples/cast-uttu-planche.webp", title: "Uttu, planche" },
   { kind: "personnage" as const, file: "/exemples/cast-coursiere.webp", title: "La coursière" },
   { kind: "personnage" as const, file: "/exemples/cast-vieil-homme.webp", title: "Le vieil homme" },
   { kind: "personnage" as const, file: "/exemples/cast-dj.webp", title: "DJ" },
+  { kind: "personnage" as const, file: "/exemples/cast-uttu.webp", title: "Uttu" },
+  { kind: "personnage" as const, file: "/exemples/cast-uttu-planche.webp", title: "Uttu, planche" },
   { kind: "decor" as const, file: "/exemples/decor-quai-nuit.webp", title: "Le quai" },
   { kind: "decor" as const, file: "/exemples/decor-rue-pluie.webp", title: "La pluie" },
   { kind: "decor" as const, file: "/exemples/decor-gare.webp", title: "La gare" },

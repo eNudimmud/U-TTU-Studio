@@ -16,7 +16,7 @@ export interface Depart {
 export const DEPARTS: Record<Etape, Depart> = {
   cast: { etape: "cast", image: "/exemples/apres-cast-photos.webp", geste: "cast-photos", titre: "Uttu" },
   decor: { etape: "decor", image: "/exemples/apres-decor-photo.webp", geste: "decor-photo", titre: "Le quai, la nuit" },
-  prise: { etape: "prise", image: "/images/uttu-canon-portrait.webp", geste: "", titre: "Uttu sur le quai" },
+  prise: { etape: "prise", image: "/exemples/decor-quai-nuit.webp", geste: "", titre: "Uttu sur le quai" },
   montage: { etape: "montage", image: "/exemples/decor-quai-nuit.webp", geste: "", titre: "Le clip d’exemple" },
 };
 
