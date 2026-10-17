@@ -25,7 +25,7 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
   previsLeft?: number;
 }) {
   const { t } = useI18n();
-  const { prefs, connected, creating, runVideoGeste } = useStudio();
+  const { prefs, connected, creating, runVideoGeste, holdClip } = useStudio();
   const rows = VIDEO_GESTES.flatMap(id => {
     const row = gesteParId(id);
     return row && gesteOuvert(row) && gesteVisible(row, prefs) ? [row] : [];
@@ -41,6 +41,9 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
   const [previsUrl, setPrevisUrl] = useState("");
   const [previsNote, setPrevisNote] = useState("");
   const recordingRef = useRef(false);
+  useEffect(() => () => { if (previsUrl) URL.revokeObjectURL(previsUrl); }, [previsUrl]);
+  useEffect(() => () => { if (outcome?.ok) URL.revokeObjectURL(outcome.url); }, [outcome]);
+  useEffect(() => setConfirmed(false), [aspect]);
   const clipRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     if (!sent) return;
@@ -70,13 +73,15 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
     if (recordingRef.current) return;
     recordingRef.current = true;
     setPrevisNote("");
-    const file = await recordMaquette(PREVIS_SECONDS, setRecording);
-    recordingRef.current = false;
-    setRecording(0);
-    if (!file) { setPrevisNote(t("videoGeste.previsNoCanvas")); return; }
-    setFiles(current => ({ ...current, video_1: file }));
-    setPrevisUrl(URL.createObjectURL(file));
-    setPrevisNote(t("videoGeste.previsReady", { seconds: String(PREVIS_SECONDS) }));
+    setConfirmed(false);
+    try {
+      const file = await recordMaquette(PREVIS_SECONDS, setRecording);
+      if (!file) { setPrevisNote(t("videoGeste.previsNoCanvas")); return; }
+      setFiles(current => ({ ...current, video_1: file }));
+      setPrevisUrl(URL.createObjectURL(file));
+      setPrevisNote(t("videoGeste.previsReady", { seconds: String(PREVIS_SECONDS) }));
+    } catch { setPrevisNote(t("videoGeste.previsNoCanvas")); }
+    finally { recordingRef.current = false; setRecording(0); }
   }
 
   function choose(id: VideoGesteId) {
@@ -117,6 +122,7 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
     {cases.filter(item => !(geste === "prise-previs" && item.id === "video_1" && previsUrl)).map(item => <label key={item.id} className="u-field u-video-file">
       <span className="u-label">{t(geste === "prise-previs" ? `videoGeste.slotPrevis.${item.role}` : `videoGeste.slot.${item.role}`)}</span>
       <input type="file" accept={item.media === "video" ? "video/*" : "image/*"} disabled={busy} onChange={event => {
+        setConfirmed(false);
         const file = event.target.files?.[0];
         setFiles(current => {
           const next = { ...current };
@@ -127,11 +133,12 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
     </label>)}
     <label className="u-field">
       <span className="u-label">{t(needText ? `videoGeste.text.${geste}` : "videoGeste.textOptional")}</span>
-      <textarea rows={2} value={text} maxLength={600} disabled={busy} onChange={event => setText(event.target.value)} />
+      <textarea aria-label={t(needText ? `videoGeste.text.${geste}` : "videoGeste.textOptional")} rows={2} value={text} maxLength={600} disabled={busy} onChange={event => { setText(event.target.value); setConfirmed(false); }} />
     </label>
     <div className="u-final-quote" data-video-quote="estime">
       <p className="u-cost">{t("videoGeste.quote", { credits: formatCredits(row.credits), ceiling: formatCredits(row.high) })}</p>
       <p className="u-small">{t("videoGeste.estimate")}</p>
+      <p className="u-small">{t("safety.estimate")}</p>
     </div>
     <button type="button" role="checkbox" className="u-final-confirm" aria-checked={confirmed} disabled={busy} aria-describedby={busy ? "u-video-busy" : undefined} onClick={() => setConfirmed(current => !current)}>
       <span className="u-final-box" aria-hidden="true">{confirmed ? "✓" : ""}</span>
@@ -143,7 +150,7 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
     {why && !busy && <p className="u-why" id="u-video-why">{why}</p>}
     {stage && <p className="u-small" id="u-video-busy" aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
     {outcome && (outcome.ok
-      ? <div className="u-video-done"><video src={outcome.url} controls playsInline /><p className="u-small">{t("videoGeste.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p></div>
+      ? <div className="u-video-done"><video src={outcome.url} controls playsInline /><p className="u-small">{t("videoGeste.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p><button type="button" className="u-chip" onClick={() => { holdClip({ source: outcome.path, label: t(`gestes.${row.clef}.title`), kind: "video" }); window.location.hash = "montage"; }}>{t("assets.toMontage")}</button></div>
       : <p className="u-why" role="alert">{outcome.message}</p>)}
   </section>;
 }

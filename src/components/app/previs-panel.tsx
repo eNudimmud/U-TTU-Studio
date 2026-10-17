@@ -4,7 +4,7 @@
 // import .glb, trajet caméra par points-clés minutés, et « Générer en 3D » sur les
 // templates Comfy officiels (Hunyuan3D 2.1, TRELLIS.2), devis estimé avant toute dépense.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { composeScene } from "@/lib/maquette/phrase-scene";
@@ -26,7 +26,11 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
   onRecord(): void;
 }) {
   const { t } = useI18n();
-  const { connected, creating, runMeshGeste } = useStudio();
+  const { connected, creating, runMeshGeste, saveModel, loose, studio } = useStudio();
+  const activeProject = useRef(studio.project);
+  activeProject.current = studio.project;
+  const importing = useRef(false);
+  const models = loose.filter(item => /\.(glb|gltf)$/i.test(item.media));
   const [phrase, setPhrase] = useState("");
   const [understood, setUnderstood] = useState("");
   const [keyTime, setKeyTime] = useState(0);
@@ -55,20 +59,30 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
     setKeyTime(nextKeyTime(result.state.path));
   }
 
-  function importGlb(file: File | undefined) {
-    if (!file || fullProps) return;
-    setState(current => addProp(current, "glb", { name: file.name.replace(/\.(glb|gltf)$/i, ""), url: URL.createObjectURL(file), x: 0, z: -1.5 }));
+  async function importGlb(file: File | undefined) {
+    if (!file || fullProps || importing.current) return;
+    importing.current = true;
+    const project = studio.project;
+    try {
+      const source = await saveModel(file);
+      if (project && activeProject.current !== project) return;
+      setState(current => addProp(current, "glb", { name: file.name.replace(/\.(glb|gltf)$/i, ""), source, x: 0, z: -1.5 }));
+    } catch (error) { setMeshNote(error instanceof Error ? (error.message.startsWith("previs.") ? t(error.message) : error.message) : t("create.failed")); }
+    finally { importing.current = false; }
   }
 
   async function generate() {
-    if (!photo || !confirmed || creating || !row) return;
+    if (!photo || !confirmed || creating || stage || fullProps || !row) return;
+    const project = studio.project;
     setMeshNote("");
     setStage({ stage: "envoi" });
     const result = await runMeshGeste({ geste: engine, file: photo, confirmed, onStage: (next, seconds) => setStage({ stage: next, seconds }) });
     setStage(null);
     setConfirmed(false);
     if (!result.ok) { setMeshNote(result.message); return; }
-    setState(current => addProp(current, "glb", { name: t(`gestes.${row.clef}.title`), url: result.url, x: 0, z: -1.2 }));
+    URL.revokeObjectURL(result.url);
+    if (project && activeProject.current !== project) return;
+    setState(current => addProp(current, "glb", { name: t(`gestes.${row.clef}.title`), source: result.path, x: 0, z: -1.2 }));
     setMeshNote(`${t("previs.mesh.done")} ${result.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(result.cost) })}`);
   }
 
@@ -82,7 +96,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
     <div className="u-previs-block" data-phrase-scene="">
       <label className="u-field">
         <span className="u-label">{t("previs.agent.label")}</span>
-        <textarea rows={2} maxLength={300} value={phrase} placeholder={t("previs.agent.placeholder")} disabled={busy} onChange={event => setPhrase(event.target.value)} />
+        <textarea aria-label={t("previs.agent.label")} rows={2} maxLength={300} value={phrase} placeholder={t("previs.agent.placeholder")} disabled={busy} onChange={event => setPhrase(event.target.value)} />
       </label>
       <button type="button" className="u-chip" data-composer="" disabled={busy || !phrase.trim()} aria-describedby={busy ? "u-previs-busy" : !phrase.trim() ? "u-why-phrase" : undefined} onClick={compose}>{t("previs.agent.go")}</button>
       {!phrase.trim() && <p className="u-why" id="u-why-phrase">{t("previs.agent.why")}</p>}
@@ -95,7 +109,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
         {KINDS.map(kind => <button key={kind} type="button" className="u-chip" data-add-prop={kind} disabled={busy || fullProps} aria-describedby={busy ? "u-previs-busy" : fullProps ? "u-why-props" : undefined} onClick={() => setState(current => addProp(current, kind, { name: t(`previs.prop.${kind}`) }))}>＋ {t(`previs.prop.${kind}`)}</button>)}
         <label className="u-chip u-file-chip" data-import-glb="">
           {t("previs.glb")}
-          <input type="file" accept=".glb,.gltf,model/gltf-binary" disabled={busy || fullProps} onChange={event => { importGlb(event.target.files?.[0]); event.target.value = ""; }} />
+          <input type="file" accept=".glb,.gltf,model/gltf-binary" disabled={busy || fullProps} onChange={event => { void importGlb(event.target.files?.[0]); event.target.value = ""; }} />
         </label>
       </div>
       {fullProps && <p className="u-why" id="u-why-props">{t("previs.propsFull", { max: String(MAX_PROPS) })}</p>}
@@ -106,6 +120,13 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
         </li>)}
       </ul>}
       <p className="u-small">{t("previs.glbNote")}</p>
+      {models.length > 0 && <label className="u-field">
+        <span className="u-label">{t("previs.savedModels")}</span>
+        <select aria-label={t("previs.savedModels")} value="" disabled={busy || fullProps} onChange={event => {
+          const model = models.find(item => item.media === event.target.value);
+          if (model) setState(current => addProp(current, "glb", { name: model.name, source: model.media }));
+        }}><option value="">{t("previs.chooseModel")}</option>{models.map(model => <option key={model.media} value={model.media}>{model.name}</option>)}</select>
+      </label>}
     </div>
 
     <div className="u-previs-block" data-trajet="">
@@ -138,9 +159,10 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
         {MESH_GESTES.map(id => { const item = gesteParId(id); return item && <button key={id} type="button" className="u-chip" data-mesh={id} aria-pressed={engine === id} disabled={Boolean(stage)} aria-describedby={stage ? "u-mesh-busy" : undefined} onClick={() => { setEngine(id); setConfirmed(false); }}>{t(`gestes.${item.clef}.title`)}</button>; })}
       </div>
       {row && <p className="u-small">{t(`gestes.${row.clef}.phrase`)}</p>}
+      {engine === "prise-volume-perso" && <p className="u-small">{t("previs.hunyuanTerms")} <a href="https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">{t("previs.modelTerms")}</a></p>}
       <label className="u-field u-video-file">
         <span className="u-label">{t("previs.mesh.photo")}</span>
-        <input type="file" accept="image/*" disabled={Boolean(stage)} onChange={event => setPhoto(event.target.files?.[0] ?? null)} />
+        <input type="file" accept="image/*" disabled={Boolean(stage)} onChange={event => { setPhoto(event.target.files?.[0] ?? null); setConfirmed(false); }} />
       </label>
       {row && row.credits !== null && row.high !== null && <>
         <div className="u-final-quote" data-mesh-quote="estime">

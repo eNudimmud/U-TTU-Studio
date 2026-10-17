@@ -12,4 +12,6 @@ next-env.d.ts
 .dev.vars*
 .wrangler/
 fal-smoke-out/
+artifacts/
 test-results/
+playwright-report/

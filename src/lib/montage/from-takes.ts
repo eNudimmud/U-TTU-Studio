@@ -3,7 +3,7 @@
 import { montageCues, type MontageCue } from "../coffre/montage.ts";
 import type { Shot } from "../coffre/model.ts";
 import { exempleEdit } from "./exemple.ts";
-import type { Edit, VideoClip } from "./edit.ts";
+import { emptyEdit, type Edit, type VideoClip } from "./edit.ts";
 
 type TakeCue = Parameters<typeof montageCues>[1][number];
 
@@ -46,14 +46,23 @@ export function editFromShots(
 
 /**
  * A saved cut wins. Otherwise the first sequence that already has a take.
- * With nothing filed, the example plays and stays out of the vault.
+ * With nothing filed, the cut stays empty. Examples require explicit demo mode.
  */
 export function chooseEdit(input: {
+  requestedId?: string | null;
+  demo?: boolean;
   saved: readonly Edit[];
   sequences: readonly { id: string; name: string }[];
   shots: readonly Shot[];
   takes: readonly TakeCue[];
 }): { edit: Edit; stored: boolean } {
+  if (input.requestedId) {
+    const saved = input.saved.find(edit => edit.id === input.requestedId);
+    if (saved) return { edit: saved, stored: true };
+    const sequence = input.sequences.find(item => item.id === input.requestedId);
+    if (sequence) return { edit: editFromShots(sequence, input.shots, input.takes), stored: false };
+    throw new Error('sequence-missing');
+  }
   for (const sequence of input.sequences) {
     const cues = montageCues(input.shots, input.takes, sequence.id);
     if (!cues.some(cue => cue.takeId)) continue;
@@ -63,5 +72,5 @@ export function chooseEdit(input: {
   }
   const filed = input.saved[0];
   if (filed) return { edit: filed, stored: true };
-  return { edit: exempleEdit(), stored: false };
+  return { edit: input.demo ? exempleEdit() : emptyEdit("suite", "Séquence"), stored: false };
 }

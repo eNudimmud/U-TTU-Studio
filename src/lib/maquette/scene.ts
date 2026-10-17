@@ -21,6 +21,8 @@ export interface Prop {
   yaw: number;
   /** Object URL of an imported GLB. Never uploaded. */
   url?: string;
+  /** Durable vault file. The URL is resolved again for each browser session. */
+  source?: string;
 }
 
 export interface Keyframe {
@@ -33,7 +35,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export function addProp(state: MaquetteState, kind: PropKind, extra: { name?: string; url?: string; x?: number; z?: number; yaw?: number } = {}): MaquetteState {
+export function addProp(state: MaquetteState, kind: PropKind, extra: { name?: string; url?: string; source?: string; x?: number; z?: number; yaw?: number } = {}): MaquetteState {
   const props = state.props ?? [];
   if (props.length >= MAX_PROPS) return state;
   let n = 1;
@@ -46,6 +48,7 @@ export function addProp(state: MaquetteState, kind: PropKind, extra: { name?: st
     z: clamp(extra.z ?? -1.5, -FLOOR, FLOOR),
     yaw: extra.yaw ?? 0,
     ...(extra.url ? { url: extra.url } : {}),
+    ...(extra.source ? { source: extra.source } : {}),
   };
   return { ...state, props: [...props, prop] };
 }

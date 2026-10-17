@@ -11,15 +11,16 @@ export function placeLandedTake(
   takeId: string,
   sequences: readonly Sequence[],
   shots: readonly Shot[],
+  planId?: string,
 ): { sequences: Sequence[]; shots: Shot[] } {
   return {
     sequences: sequences.map(sequence => (
-      sequence.links.some(link => link.takeId === takeId)
+      (planId && !shots.some(shot => shot.id === planId && shot.sequenceId === sequence.id)) || sequence.links.some(link => link.takeId === takeId)
         ? sequence
         : { ...sequence, links: normalizeLinks([...sequence.links, { takeId, raccord: "" }]) }
     )),
     shots: shots.map(shot => (
-      shot.takeIds.includes(takeId)
+      (planId && shot.id !== planId) || shot.takeIds.includes(takeId)
         ? shot
         : { ...shot, takeIds: normalizeTakeIds([...shot.takeIds, takeId]) }
     )),
@@ -55,8 +56,9 @@ export async function settleLandedTake(
   shots: readonly Shot[],
   takes: readonly Take[],
   loras: readonly Lora[] = [],
+  planId?: string,
 ): Promise<{ sequences: Sequence[]; shots: Shot[] }> {
-  const placed = placeLandedTake(take.id, sequences, shots);
+  const placed = placeLandedTake(take.id, sequences, shots, planId);
   for (const sequence of placed.sequences) {
     const previous = sequences.find(item => item.id === sequence.id);
     if (previous && sameSequence(previous, sequence)) continue;

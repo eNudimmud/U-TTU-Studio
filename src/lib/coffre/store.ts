@@ -53,41 +53,107 @@ function request<T>(run: (store: IDBObjectStore) => IDBRequest<T>, mode: IDBTran
       if (!open.result.objectStoreNames.contains("files")) open.result.createObjectStore("files", { keyPath: "path" });
     };
     open.onerror = () => reject(open.error ?? new Error("Mon studio est fermé."));
+    open.onblocked = () => reject(new Error("Fermez les autres onglets du studio puis réessayez la sauvegarde."));
     open.onsuccess = () => {
       const db = open.result;
-      const tx = db.transaction("files", mode);
-      const req = run(tx.objectStore("files"));
-      req.onsuccess = () => {
-        const value = req.result;
+      try {
+        const tx = db.transaction("files", mode);
+        let value: T;
+        const fail = () => {
+          db.close();
+          reject(tx.error ?? new Error("Sauvegarde interrompue. Vérifiez l’espace disponible puis réessayez."));
+        };
+        // A request can succeed and its transaction still abort (quota, shutdown).
+        // Only a committed transaction is a successful save.
+        tx.onabort = fail;
+        tx.onerror = fail;
         tx.oncomplete = () => {
           db.close();
           resolve(value);
         };
-      };
-      req.onerror = () => {
+        const req = run(tx.objectStore("files"));
+        req.onsuccess = () => { value = req.result; };
+        req.onerror = () => {
+          db.close();
+          reject(req.error ?? new Error("Mon studio est illisible."));
+        };
+      } catch (error) {
         db.close();
-        reject(req.error ?? new Error("Mon studio est illisible."));
-      };
+        reject(error);
+      }
     };
   });
 }
 
+/** A stored row: a Blob when the browser accepts one, otherwise its bytes. */
+export interface VaultRow {
+  path: string;
+  text?: string;
+  blob?: Blob;
+  bytes?: ArrayBuffer;
+  type?: string;
+  updatedAt: number;
+}
+
+/**
+ * WebKit refuses Blob/File values in IndexedDB in private browsing, in some
+ * in-app browsers and in ephemeral sessions ("Error preparing Blob/File data
+ * to be stored in object store"). The same file then goes in as plain bytes.
+ */
+export async function bytesRow(entry: VaultEntry & { path: string }): Promise<VaultRow> {
+  if (!entry.blob) return entry;
+  const { blob, ...rest } = entry;
+  return { ...rest, bytes: await blob.arrayBuffer(), type: blob.type };
+}
+
+/** Reads either row shape back as a vault entry with a Blob. */
+export function entryFromRow(row: VaultRow): VaultEntry {
+  if (row.blob || !row.bytes) {
+    const { bytes: _bytes, type: _type, ...entry } = row;
+    return entry;
+  }
+  const { bytes, type, ...entry } = row;
+  return { ...entry, blob: new Blob([bytes], { type: type ?? "" }) };
+}
+
 export function idbVault(name = "uttu-coffre"): VaultStore {
+  // Once WebKit has refused one Blob, every later file goes straight in as bytes.
+  let blobsRefused = false;
   return {
     async list() {
-      const rows = await request(store => store.getAll() as IDBRequest<VaultEntry[]>, "readonly", name);
-      return rows.sort((a, b) => a.path.localeCompare(b.path));
+      const rows = await request(store => store.getAll() as IDBRequest<VaultRow[]>, "readonly", name);
+      return rows.map(entryFromRow).sort((a, b) => a.path.localeCompare(b.path));
     },
     async get(path) {
-      return (await request(store => store.get(path) as IDBRequest<VaultEntry | undefined>, "readonly", name)) ?? null;
+      const row = await request(store => store.get(path) as IDBRequest<VaultRow | undefined>, "readonly", name);
+      return row ? entryFromRow(row) : null;
     },
     async put(entry) {
       const path = cleanPath(entry.path);
       if (!path) throw new Error(`Chemin refusé : ${entry.path}`);
-      await request(store => store.put({ ...entry, path }), "readwrite", name);
+      const row = { ...entry, path };
+      if (!row.blob || !blobsRefused) {
+        try {
+          await request(store => store.put(row), "readwrite", name);
+          return;
+        } catch (error) {
+          if (!row.blob) throw error;
+        }
+      }
+      const fallback = await bytesRow(row);
+      await request(store => store.put(fallback), "readwrite", name);
+      blobsRefused = true;
     },
     async remove(path) {
       await request(store => store.delete(path), "readwrite", name);
     },
   };
+}
+
+/** Remove media only after every remaining note/cut has stopped referencing it. */
+export async function removeUnreferenced(store: VaultStore, paths: readonly string[]): Promise<void> {
+  const notes = (await store.list()).filter(entry => entry.text !== undefined);
+  for (const path of new Set(paths)) {
+    if (!notes.some(entry => entry.text?.includes(path))) await store.remove(path);
+  }
 }

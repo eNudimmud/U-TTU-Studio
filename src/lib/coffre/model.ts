@@ -35,7 +35,7 @@ import {
   ACTIVE_FILE, DEFAULT_PROJECT_NAME, SECTION_FILE_MOVES, clipVaultPath, isLegacyPath, legacyDestination, projectPath, projectSlug, projectSlugsFrom, projectTitle, projectTree, relocateText, rewriteSectionLinks, rolePhotoPath, rootMoc, scaffoldFiles, vaultMedia,
   type ProjectCard, type TreeFolder,
 } from "./project.ts";
-import { cleanPath, type VaultEntry, type VaultStore } from "./store.ts";
+import { cleanPath, removeUnreferenced, type VaultEntry, type VaultStore } from "./store.ts";
 
 export const COFFRE_ROOT = "U-TTU-Studio";
 export const LOOK_PHOTOS_MAX = 3;
@@ -1154,11 +1154,9 @@ export async function writeScene(store: VaultStore, scene: Scene): Promise<void>
 
 export async function removeScene(store: VaultStore, scene: Scene): Promise<void> {
   const slug = await ensureActiveProject(store);
-  for (const path of [...scene.stills, ...scene.frames, ...(scene.views ?? [])]) await store.remove(path);
-  if (scene.previzFile) await store.remove(scene.previzFile);
-  if (scene.render && !scene.frames.includes(scene.render)) await store.remove(scene.render);
   await store.remove(projectPath(slug, `Lieux/${scene.id}.md`));
   await store.remove(projectPath(slug, `Decors/${scene.id}.md`));
+  await removeUnreferenced(store, [...scene.stills, ...scene.frames, ...(scene.views ?? []), ...(scene.previzFile ? [scene.previzFile] : []), ...(scene.render ? [scene.render] : [])]);
   await writeMap(store);
 }
 

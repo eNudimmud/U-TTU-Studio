@@ -94,3 +94,19 @@ Une planche « après » pour CAST, générée sur le compte Comfy Cloud de JD a
 - **Session :** 90,48 (cinq Nano Banana + essais) + 70,74 = **161,22** (plafond 160 dépassé de 1,22 : devis 68, mesure 70,74). Un seul run, pas d’annulation.
 - **Qualité :** même personne que la coursière (taches de rousseur, cheveux bouclés, imper jaune, sac olive) sur 4 vues corps + grille de close-ups. Identité stable. Pas de texte.
 
+
+## Export AAC local — ajout de fiabilité
+
+`@mediabunny/aac-encoder` **1.61.0**, paquet non modifié, licence **MPL-2.0**, auteur Vanilagy. Il fournit un encodeur AAC-LC WebAssembly basé sur libavcodec/FFmpeg quand le navigateur ne propose pas cet encodeur. Le calcul et le média restent dans l’onglet ; le paquet est servi avec l’application, sans appel de génération cloud.
+
+- [Sources et instructions de compilation](https://github.com/Vanilagy/mediabunny/tree/v1.61.0/packages/aac-encoder).
+- [Licence distribuée](../public/licenses/mediabunny-aac-encoder-MPL-2.0.txt).
+- [Documentation officielle](https://mediabunny.dev/guide/extensions/aac-encoder).
+
+Les dépendances et leur version exacte sont conservées dans `package-lock.json`.
+
+## Mise à jour utilisateur R10b — 16 octobre 2026
+
+La PR #109 remplace les quatre décors `decor-quai-nuit`, `decor-rue-pluie`, `decor-toit-aube` et `decor-gare`, et ajoute `cast-uttu-planche.webp`. Les fichiers sont conservés tels quels dans les branches d’audit. Leur source déclarée dans le manifeste v4 est FLUX 3 Image Klein via Comfy Cloud pour les décors, et Nano Banana Pro pour la planche d’Uttu (badge NEUKO retouché par l’auteur). Ces indications proviennent de la mise à jour utilisateur ; aucun nouveau rendu ni paiement n’a été effectué par l’audit.
+
+Le [manifeste courant](../public/exemples/manifest.json) fait foi pour ces fichiers ; le tableau Seedream ci-dessus décrit leur version historique.

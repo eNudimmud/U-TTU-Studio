@@ -73,6 +73,7 @@ describe("client du compte de rendu", () => {
     for (const status of ["success", "completed"]) assert.equal(jobStage(status), "done");
     for (const status of ["error", "non_retryable_error", "failed", "lost"]) assert.equal(jobStage(status), "failed");
     assert.equal(jobStage("cancelled"), "cancelled");
+    assert.equal(jobStage("cancel_requested"), "render", "a request is not a confirmed terminal state");
     assert.deepEqual(videoOutput({ save: { images: [{ filename: "uttu/prise_00001_.mp4", subfolder: "", type: "output" }], animated: [true] } }), { filename: "uttu/prise_00001_.mp4", subfolder: "", type: "output" });
     assert.deepEqual(videoOutput({ save: { video: [{ filename: "prise.webm" }] } }), { filename: "prise.webm", subfolder: "", type: "output" });
     assert.equal(videoOutput({ save: { images: [{ filename: "still.png" }] } }), null);

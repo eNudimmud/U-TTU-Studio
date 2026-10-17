@@ -2,6 +2,7 @@
 
 import { assetFromCast, assetFromDecor, type AssetRecord } from "@/lib/creation/assets";
 import { assetPath } from "@/lib/site";
+import { studioTarget } from "@/lib/coffre/target";
 import { cleanCardName } from "@/lib/creation/gallery";
 import { AssetGallery } from "./asset-gallery";
 import { useStudio } from "./studio-session";
@@ -57,20 +58,30 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout" }: {
     projects={studio.projects.filter(item => item.slug !== studio.project)}
     onRefresh={() => void refreshStudio()}
     onEmptyDecor={() => { window.location.hash = "scene"; }}
-    onImport={files => void importAssets(files)}
+    onImport={files => void importAssets(files, defaultFilter === "personnage" || defaultFilter === "decor" ? defaultFilter : undefined)}
     onUseRef={useRef}
     onPrise={asset => {
+      if (!window.location.pathname.endsWith('/studio')) {
+        window.location.href = assetPath(studioTarget(asset.kind === 'decor' ? 'lieu' : asset.kind === 'personnage' ? 'personnage' : 'prise', asset.id, studio.project));
+        return;
+      }
       if (asset.kind === "decor") void pickDecor(asset.id);
       else if (asset.kind === "personnage") void pickCast(asset.id);
       window.location.hash = "prise";
     }}
     onMontage={asset => {
-      const source = asset.preview ? assetPath(asset.preview) : sourceOf(asset, media);
+      if (!window.location.pathname.endsWith('/studio')) {
+        window.location.href = assetPath(studioTarget('asset', asset.id, studio.project));
+        return;
+      }
+      const take = studio.takes.find(item => item.id === asset.id);
+      const source = take?.video || (asset.preview ? assetPath(asset.preview) : asset.media);
       if (!source) return;
       holdClip({
         source,
         label: asset.name,
-        kind: asset.kind === "son" ? "audio" : asset.kind === "plan" ? "video" : "image",
+        kind: asset.kind === "son" ? "audio" : /\.(mp4|webm|mov)$/i.test(source) ? "video" : "image",
+        seconds: take?.settings.seconds,
       });
       window.location.hash = "montage";
     }}

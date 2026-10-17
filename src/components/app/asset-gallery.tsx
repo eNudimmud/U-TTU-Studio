@@ -63,6 +63,8 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     }
   }, [assets]);
 
+  const isModel = (card: AssetRecord) => /\.(glb|gltf)$/i.test(card.media);
+  const isAudio = (card: AssetRecord) => /\.(wav|mp3|m4a|ogg)$/i.test(card.media);
   const isVideo = (card: AssetRecord) => /\.(mp4|webm|mov)$/i.test(card.media || card.preview || "");
   const srcOf = (card: AssetRecord) => card.preview ? assetPath(card.preview) : (card.media && media[card.media]) || "";
   // R10: a card with no file behind it (a décor named but never rendered) is not an asset yet.
@@ -115,7 +117,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     </div>}
     {picked.length > 0 && <p className="u-small">{t("assets.selected", { count: picked.length })}</p>}
     {current && <article className="u-detail u-asset-detail">
-      {srcOf(current) ? (isVideo(current) ? <video src={srcOf(current)} controls playsInline preload="metadata" /> : <img src={srcOf(current)} alt="" />) : <KindMark kind={markOf(current.kind)} />}
+      {isModel(current) ? <a href={srcOf(current)} download={current.media.split("/").pop()}>{t("previs.downloadModel")}</a> : isAudio(current) ? <audio src={srcOf(current)} controls /> : srcOf(current) ? (isVideo(current) ? <video src={srcOf(current)} controls playsInline preload="metadata" /> : <img src={srcOf(current)} alt="" />) : <KindMark kind={markOf(current.kind)} />}
       <h3>{current.name}</h3>
       {current.prompt && <p>{current.prompt}</p>}
       <dl>
@@ -126,15 +128,16 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         <div><dt>{t("assets.path")}</dt><dd>{current.media || current.preview || t("assets.none")}</dd></div>
       </dl>
       <div className="u-card-actions">
-        {onUseRef && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
-        {onPrise && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
-        {onMontage && <button type="button" onClick={() => onMontage(current)}>{t("assets.toMontage")}</button>}
-        {onRename && !current.preview && <button type="button" onClick={() => { const next = window.prompt(t("create.rename"), current.name); if (next) onRename(current, next); }}>{t("create.rename")}</button>}
-        {onDuplicate && !current.preview && <button type="button" onClick={() => onDuplicate(current)}>{t("create.duplicate")}</button>}
-        {onDelete && !current.preview && (armed === current.id
+        {isVideo(current) && !current.preview && <a href={srcOf(current)} download={current.media.split("/").pop()}>{t("previs.downloadClip")}</a>}
+        {onUseRef && !isModel(current) && !isAudio(current) && !isVideo(current) && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
+        {onPrise && (current.kind === "personnage" || current.kind === "decor") && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
+        {onMontage && !isModel(current) && <button type="button" onClick={() => onMontage(current)}>{t("assets.toMontage")}</button>}
+        {onRename && (current.kind === "personnage" || current.kind === "decor") && !current.preview && <button type="button" onClick={() => { const next = window.prompt(t("create.rename"), current.name); if (next) onRename(current, next); }}>{t("create.rename")}</button>}
+        {onDuplicate && (current.kind === "personnage" || current.kind === "decor") && !current.preview && <button type="button" onClick={() => onDuplicate(current)}>{t("create.duplicate")}</button>}
+        {onDelete && (current.kind === "personnage" || current.kind === "decor") && !current.preview && (armed === current.id
           ? <button type="button" onClick={() => { onDelete(current); setArmed(null); setOpen(null); }}>{t("create.deleteYes")}</button>
           : <button type="button" onClick={() => setArmed(current.id)}>{t("create.delete")}</button>)}
-        {onCopy && projects.map(project => <button key={project.slug} type="button" onClick={() => onCopy(current, project.slug)}>{t("create.copyProject", { name: project.name })}</button>)}
+        {onCopy && (current.kind === "personnage" || current.kind === "decor") && projects.map(project => <button key={project.slug} type="button" onClick={() => onCopy(current, project.slug)}>{t("create.copyProject", { name: project.name })}</button>)}
         <button type="button" onClick={() => setOpen(null)}>{t("assets.close")}</button>
       </div>
     </article>}
@@ -154,7 +157,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
             if (selecting) { toggle(card.id); return; }
             setOpen(card.id);
           }}>
-            <span className="u-thumb">{src ? (isVideo(card) ? <video src={`${src}#t=0.1`} muted playsInline preload="metadata" aria-hidden="true" /> : <img src={src} alt="" />) : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}</span>
+            <span className="u-thumb">{isModel(card) ? <span className="u-card-blank">3D</span> : isAudio(card) ? <KindMark kind="sequence" /> : src ? (isVideo(card) ? <video src={`${src}#t=0.1`} muted playsInline preload="metadata" aria-hidden="true" /> : <img src={src} alt="" />) : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}</span>
           </button>
           <span className="u-asset-name">{card.name}</span>
           <button type="button" className="u-asset-check" aria-pressed={selected} aria-label={t("assets.select")} onPointerDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); toggle(card.id); }}>

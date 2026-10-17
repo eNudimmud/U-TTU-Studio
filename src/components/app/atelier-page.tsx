@@ -8,6 +8,8 @@ import { assetPath } from "@/lib/site";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Coffre, KindMark } from "./glyphs";
 import { ProjectGallery } from "./project-gallery";
+import { StorageStatus } from "./storage-status";
+import { studioTarget, type StudioTargetKind } from "@/lib/coffre/target";
 import { ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
@@ -32,15 +34,6 @@ const FILTERS: { id: Filter; key: "atelier.all" | "atelier.characters" | "atelie
   { id: "sequence", key: "atelier.sequences" },
   { id: "note", key: "atelier.notes" },
 ];
-
-function studioHref(demo: boolean, kind: Kind, id: string): string {
-  const params = new URLSearchParams();
-  if (demo) params.set("demo", "1");
-  if (kind === "personnage") params.set("cast", id);
-  if (kind === "lieu") params.set("decor", id);
-  const query = params.toString();
-  return assetPath(`/studio${query ? `?${query}` : ""}#prise`);
-}
 
 export function AtelierPage() {
   return <StudioProvider><AtelierFrame /></StudioProvider>;
@@ -74,6 +67,7 @@ function AtelierFrame() {
   const projects = studio.projects.length > 0 ? studio.projects : (showDemo ? [{ slug: "atelier", name: "Atelier" }] : []);
 
   const rows = useMemo(() => {
+    const studioHref = (demo: boolean, kind: StudioTargetKind, id: string) => assetPath(studioTarget(kind, id, studio.project, demo));
     const list: Row[] = [];
     for (const card of cast) {
       const image = card.preview ? assetPath(card.preview) : (card.sheet && media[card.sheet]) || (card.photos[0] && media[card.photos[0]]) || "";
@@ -87,7 +81,7 @@ function AtelierFrame() {
     for (const take of takes) list.push({ id: take.id, kind: "prise", name: take.name, text: "", image: take.image, href: studioHref(showDemo, "prise", take.id) });
     const sequences = studio.sequences.length > 0 ? studio.sequences.map(item => ({ id: item.id, name: item.name })) : (showDemo ? DEMO_SEQUENCES : []);
     for (const item of sequences) list.push({ id: item.id, kind: "sequence", name: item.name, text: "", image: "", href: studioHref(showDemo, "sequence", item.id) });
-    for (const shot of studio.shots) list.push({ id: shot.id, kind: "sequence", name: shot.name, text: shot.note, image: "", href: studioHref(false, "sequence", shot.id) });
+    for (const shot of studio.shots) list.push({ id: shot.id, kind: "sequence", name: shot.name, text: shot.note, image: "", href: studioHref(false, "plan", shot.id) });
     const notes = memoryFilled(studio.memory)
       ? [
           ...(["bible", "style", "lexique", "prompts"] as const).filter(kind => studio.memory[kind].trim()).map(kind => ({ id: kind, name: t(`memory.${kind}`), text: studio.memory[kind] })),
@@ -96,7 +90,7 @@ function AtelierFrame() {
       : (showDemo ? DEMO_NOTES.map(note => ({ id: note.id, name: note.label, text: note.text })) : []);
     for (const note of notes) list.push({ id: note.id, kind: "note", name: note.name, text: note.text, image: "", href: null });
     return list;
-  }, [cast, decor, media, showDemo, studio.memory, studio.sequences, studio.shots, studio.takes, t]);
+  }, [cast, decor, media, showDemo, studio.project, studio.memory, studio.sequences, studio.shots, studio.takes, t]);
 
   const needle = query.trim().toLowerCase();
   const shown = rows.filter(row => (filter === "tout" || row.kind === filter) && (!needle || `${row.name} ${row.text}`.toLowerCase().includes(needle)));
@@ -126,6 +120,7 @@ function AtelierFrame() {
           <p>{t("atelier.linkExplain")}</p>
           <p id="u-why-lien">{t("atelier.linkMissing")}</p>
           <p className="u-small">{t("atelier.stays")}</p>
+          <StorageStatus />
           {folderMode === "on" && folderName && <p>{t("atelier.linked", { name: folderName })} {t("atelier.auto")}</p>}
           {linkable ? <button type="button" className="u-primary" onClick={() => void (folderMode === "ask" || folderMode === "on" ? allowLinkedFolder() : linkFolder())}>{folderMode === "ask" || folderMode === "on" ? t("atelier.askAgain") : t("atelier.linkFolder")}</button> : <button type="button" className="u-primary" disabled aria-describedby="u-why-lien">{t("atelier.linkFolder")}</button>}
           <div className="u-row">

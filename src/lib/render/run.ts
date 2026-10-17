@@ -5,11 +5,18 @@
 
 import { measuredCost } from "../credits.ts";
 import { executionSeconds, jobStage, RenderError, videoOutput, type RenderClient } from "./client.ts";
-import { ltxTakeGraph } from "./ltx-graph.ts";
-import { takeEngine, takeGraph, type ApiGraph, type TakeSettings } from "./take-graph.ts";
+import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
+import { TAKE_PICTURES_MAX, takeEngine, takeGraph, type ApiGraph, type TakeSettings } from "./take-graph.ts";
+
+export function referenceLimit(settings: TakeSettings): number { return takeEngine(settings) === "ltx" ? LTX_REFS_MAX : TAKE_PICTURES_MAX; }
+
+function checkReferences(settings: TakeSettings, count: number): void {
+  if (count > referenceLimit(settings)) throw new RenderError("invalid", `Ce moteur accepte au plus ${referenceLimit(settings)} images de référence. Réduisez les références avant de générer.`);
+}
 
 /** The graph for the chosen engine. Same pictures, same text. */
 export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number): ApiGraph {
+  checkReferences(settings, pictures.length);
   if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect });
   return takeGraph({ ...settings, prompt, pictures, seed });
 }
@@ -62,6 +69,7 @@ export async function submitTake(
   onEvent: (event: TakeRunEvent) => void,
   signal?: AbortSignal,
 ): Promise<string> {
+  checkReferences(input.settings, input.pictures.length);
   const names: string[] = [];
   for (const [index, picture] of input.pictures.entries()) {
     if (signal?.aborted) throw new RenderError("cancelled", "Prise annulée avant l’envoi.");

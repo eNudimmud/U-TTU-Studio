@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/provider";
 import { useEffect, useRef, useState } from "react";
 import { MAX_PIXEL_RATIO, RADIUS_MIN, uprightRotation, type MaquetteState } from "@/lib/maquette/state";
 import { PATH_SECONDS, decimation, orbitAt, type Prop } from "@/lib/maquette/scene";
@@ -35,6 +36,8 @@ function canWebGL(): boolean {
 }
 
 export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier = null, onMove, onOrbit, onPinch, onMoveProp, playFrom = null, onPlayTick }: Props) {
+  const { t } = useI18n();
+  const [modelError, setModelError] = useState("");
   const host = useRef<HTMLDivElement>(null);
   const stateRef = useRef(state);
   const moveRef = useRef(onMove);
@@ -261,7 +264,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
           holder.userData.triangles = Math.round(triangles);
           host.current?.parentElement?.parentElement?.setAttribute("data-triangles", String(Math.round(triangles)));
           paint();
-        }).catch(() => { holder.add(primitive("caisse")); paint(); });
+        }).catch(() => { if (!dead) setModelError(prop.name); });
       }
 
       function syncProps() {
@@ -485,6 +488,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
   const layout = state.figures.map(figure => `${figure.id}@${figure.x.toFixed(2)},${figure.z.toFixed(2)}`).join(" ");
   const rue = quartier && standsInStreet(quartier) ? "1" : "0";
   return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile} data-figures={state.figures.length} data-layout={layout} data-props={props} data-keys={state.path?.length ?? 0} data-playing={playFrom !== null ? "1" : undefined} data-quartier={quartier ? "1" : "0"} data-batiments={quartier?.buildings.length ?? 0} data-rue={rue}>
+    {modelError && <p role="alert" className="u-small">{t("previs.modelFailed", { name: modelError })}</p>}
     <div
       className="u-maquette-stage"
       style={backdrop ? { backgroundImage: `linear-gradient(180deg, rgba(11,10,9,.25), rgba(11,10,9,.72)), url(${backdrop})` } : undefined}

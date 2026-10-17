@@ -133,7 +133,7 @@ describe("prise rangée après Tourner", () => {
     assert.equal(missed.stored, false);
     assert.equal(missed.quotes.length, 0);
     assert.equal(missed.gate.allowed, true);
-    assert.match(missed.gate.line, /Environ 4 crédits, au plus 6/);
+    assert.match(missed.gate.line, /Environ 4 crédits, réserve conseillée 6/);
 
     const other = priseGate({ credits: 9000, readAt: 1 }, resolveTakeQuote(takeProfile({ seconds: 8, quality: "rapide", aspect: "vertical" }), quotesToRecords(cold.quotes)));
     assert.equal(other.allowed, false);

@@ -44,7 +44,11 @@ export function saveRenderLink(storage: Pick<Storage, "setItem" | "removeItem"> 
 
 /** What the app needs to finish a take that was queued before a reload. */
 export interface InFlight {
+  /** A manually identified job cannot be priced from an old balance difference. */
+  manualRecovery?: boolean;
   jobId: string;
+  project?: string;
+  planId?: string;
   at: string;
   sceneId: string | null;
   sceneName: string;
@@ -61,7 +65,10 @@ export function readInFlight(storage: Pick<Storage, "getItem"> | null): InFlight
     if (typeof data.balanceBefore !== "number" || typeof data.at !== "string" || !data.settings) return null;
     return {
       jobId: data.jobId,
+      ...(typeof data.project === "string" && /^[a-z0-9-]+$/.test(data.project) ? { project: data.project } : {}),
+      ...(typeof data.planId === "string" && /^[a-z0-9-]+$/.test(data.planId) ? { planId: data.planId } : {}),
       at: data.at,
+      ...(data.manualRecovery === true ? { manualRecovery: true } : {}),
       sceneId: typeof data.sceneId === "string" ? data.sceneId : null,
       sceneName: typeof data.sceneName === "string" ? data.sceneName : "",
       line: typeof data.line === "string" ? data.line : "",
@@ -75,9 +82,7 @@ export function readInFlight(storage: Pick<Storage, "getItem"> | null): InFlight
 }
 
 export function saveInFlight(storage: Pick<Storage, "setItem" | "removeItem"> | null, value: InFlight | null): void {
-  try {
-    if (!storage) return;
-    if (value) storage.setItem(IN_FLIGHT_KEY, JSON.stringify(value));
-    else storage.removeItem(IN_FLIGHT_KEY);
-  } catch {}
+  if (!storage) throw new Error("Le navigateur ne peut pas conserver le reçu du rendu.");
+  if (value) storage.setItem(IN_FLIGHT_KEY, JSON.stringify(value));
+  else storage.removeItem(IN_FLIGHT_KEY);
 }

@@ -52,7 +52,7 @@ export function planJson(input: PlanInput, extra: { etat?: PlanEtat; before?: st
     etat: extra.etat ?? "vide",
     avant: extra.before ?? "",
     apres: extra.after ?? "",
-    qui: input.castIds.slice(0, 3),
+    qui: input.castIds.slice(0, 12),
     ou: input.decorId,
     cadrage: input.cadrage,
     action: input.action,
@@ -100,7 +100,7 @@ export function planFromJson(source: string | null | undefined, fallback: PlanIn
     const imageCle = data.imageCle === "proposee" || data.imageCle === "validee" ? data.imageCle : "aucune";
     return {
       ...fallback,
-      castIds: Array.isArray(data.qui) ? data.qui.filter((item): item is string => typeof item === "string").slice(0, 3) : [],
+      castIds: Array.isArray(data.qui) ? data.qui.filter((item): item is string => typeof item === "string").slice(0, 12) : [],
       decorId: typeof data.ou === "string" && data.ou ? data.ou : null,
       cadrage,
       action: typeof data.action === "string" ? data.action.slice(0, 240) : "",

@@ -23,9 +23,9 @@ Every render runs on the visitor's own Comfy account through the documented **Co
 | PRISE | **MiniMax H3** reference-to-video, second engine | `video_minimax_h3_r2v` | open |
 | PRISE (video gestures) | **Directed camera** (previs-to-picture: the studio's 3D maquette is filmed in the browser, MoGe depth + LTX-2.3 IC-LoRA union control render the shot), LTX-2.5 first/last frame bridge, LTX-2.3 IC-LoRA camera, LTX-2.3 video outpainting and object removal (VFX / re-shoot) | `video_ltx2_5_flf2v`, `video_ltx2_3_ic_lora`, `template_ltx2_3_lora_video_outpainting`, `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | open |
 | MONTAGE | voice, sound effect, music | ElevenLabs, Sonilo partner templates | partner |
-| Finalize | NVIDIA RTX Video Super Resolution on the whole edit, optional denoise/deblur (never regenerates) | `utility_nvidia_rtx_video_enhance` (Super Resolution stage) | open |
+| Finalize | NVIDIA RTX Video Super Resolution on the whole edit, optional denoise/deblur (never regenerates) | `utility_nvidia_rtx_video_enhance` (Super Resolution stage) | see NVIDIA license; not verified for Open Weights Only |
 
-Nano Banana stays available as an **option, off by default** (toggle « Nano Banana (option) »). **Open weights only** hides every gesture whose graph contains a partner node. Both toggles sit above the gesture cards; the PRISE tab has an engine switch (LTX-2.5 default / MiniMax H3).
+Nano Banana stays available as an **option, off by default** (toggle « Nano Banana (option) »). **Open weights only** hides partner gestures and rejects them again before submission. RTX finalization is unavailable in that mode until its model license is verified; local MP4 export remains available. Both toggles sit above the gesture cards; the PRISE tab has an engine switch (LTX-2.5 default / MiniMax H3).
 
 ### Workflows
 
@@ -42,7 +42,7 @@ Regenerate: `node --experimental-strip-types scripts/export-workflows.mjs` (read
 Requirements: Node ≥ 22.
 
 ```bash
-npm install
+npm ci
 npm run dev          # http://localhost:3000/studio
 npm test             # unit tests
 npm run build
@@ -77,7 +77,7 @@ Version 2 keeps the phone as a light three.js editor and lets an agent drive a h
 
 ### Spending rules
 
-A quote is shown before every spend; Create/Shoot stays off when the balance does not cover the ceiling. LTX-2.5 takes and the video gestures have no measured take yet: their quote is labelled « Estimé » / estimated (never shown as measured), the visitor confirms the estimated maximum, and the balance must cover it. Running jobs are never cancelled by the studio on its own. Finalize only upscales/restores.
+A quote is shown before every spend; Create/Shoot stays off when the balance does not cover the required reserve (not a guaranteed billing cap). LTX-2.5 takes and the video gestures have no measured take yet: their quote is labelled « Estimé » / estimated (never shown as measured), the visitor confirms the estimate and its uncertainty, and the balance must cover the reserve. Running jobs are never cancelled by the studio on its own. Finalize only upscales/restores.
 
 ### Credits
 
@@ -94,7 +94,7 @@ Chaque rendu part sur le compte Comfy du visiteur par l’**API Comfy Cloud** do
 - **CAST et DÉCOR :** FLUX 3 Image Klein (open weights) par défaut ; FLUX 3 Image (nœud partenaire) pour plusieurs références et la planche ; Nano Banana en option, éteinte par défaut.
 - **PRISE :** LTX-2.5 par défaut (FLUX 3 Klein compose la première image à partir du personnage et du décor, puis LTX-2.5 l’anime, dans un seul graphe) ; MiniMax H3 en second moteur. Gestes vidéo : caméra maîtrisée (la maquette 3D filmée dans le navigateur sert de prévis ; profondeur MoGe + IC-LoRA LTX-2.3 rendent le plan), raccord LTX-2.5, caméra LTX-2.3 IC-LoRA, élargir le plan et effacer un objet (VFX, re-shoot).
 - **MONTAGE :** voix, effet, musique (partenaires) ; Finaliser : RTX Video Super Resolution (étape du template `utility_nvidia_rtx_video_enhance`), sans jamais refaire le rendu.
-- **Open weights seulement :** cache tous les gestes à nœud partenaire.
+- **Open weights seulement :** cache les gestes partenaires et les refuse avant envoi. La finalisation RTX, non vérifiée pour ce mode, reste fermée ; l’export MP4 local reste disponible.
 
 ### Workflows
 
@@ -103,7 +103,7 @@ Un fichier par geste dans `workflows/<onglet>/` : le template officiel (`.json`,
 ### Lancer en local
 
 ```bash
-npm install && npm run dev   # http://localhost:3000/studio
+npm ci && npm run dev   # http://localhost:3000/studio
 ```
 
 Avec ton propre ComfyUI (open weights, sans crédit) : lance ComfyUI, ouvre un `workflows/…/*.json`, ou envoie le graphe exact du studio avec `node scripts/run-local.mjs <graphe.api.json> --text "…" --image nom=fichier`.
@@ -120,4 +120,12 @@ La v2 garde le téléphone comme éditeur three.js léger et laisse un agent pil
 
 ### Règles de dépense
 
-Un devis avant chaque dépense. La prise LTX-2.5 et les gestes vidéo n’ont pas encore de mesure : le devis est affiché « Estimé » (jamais « mesuré »), tu confirmes le maximum estimé et le solde doit le couvrir. Finaliser agrandit et rend net, ne régénère jamais.
+Un devis avant chaque dépense. La prise LTX-2.5 et les gestes vidéo n’ont pas encore de mesure : le devis est affiché « Estimé » (jamais « mesuré »), tu confirmes l’estimation et son incertitude ; le solde doit couvrir la réserve annoncée, qui ne garantit pas un plafond facturé. Finaliser agrandit et rend net, ne régénère jamais.
+
+## Validation et sauvegardes / Validation and backups
+
+La branche concours ne vaut pas validation de production. [Audit et intégration](docs/audit-2026-10-14/integration-concours.md) : preuves réelles, contrats simulés et opérations encore non validées sont distincts. Aucun appel payant effectué par cet audit.
+
+Les projets restent dans le navigateur. Mon studio permet de demander sa protection contre l’éviction et d’exporter une copie ZIP indépendante. La protection ne survit pas à un effacement volontaire des données. Export local MP4 H.264/AAC : jusqu’à 60 s, 960×540 ou 540×960 à 12 images/s ; encodeur AAC local de secours.
+
+Projects are stored in the browser. Request storage protection and download an independent ZIP backup from My Studio. Clearing browser data still removes local projects. Local MP4 export: H.264/AAC, up to 60 s, 960×540 or 540×960 at 12 fps, with a local AAC fallback encoder. Real cloud generation and physical-device validation remain separate acceptance steps.

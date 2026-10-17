@@ -130,7 +130,7 @@ describe("statut du montage", () => {
   it("reads the clips on screen, including the example bed", () => {
     assert.equal(editHasClips(exempleEdit()), true);
     assert.equal(editHasClips(emptyEdit("vide", "Vide")), false);
-    const shown = chooseEdit({ saved: [], sequences: [], shots: [], takes: [] });
+    const shown = chooseEdit({ demo: true, saved: [], sequences: [], shots: [], takes: [] });
     assert.equal(editHasClips(shown.edit), true);
     assert.equal(editHasClips(chooseEdit({ saved: [emptyEdit("seq", "Vide")], sequences: [], shots: [], takes: [] }).edit), false);
   });

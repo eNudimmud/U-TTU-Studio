@@ -18,6 +18,7 @@ import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/mon
 import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import { Close, Expand, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
+import { useFormat } from "./format-switch";
 import { useStudio } from "./studio-session";
 import { gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
 import { FINAL_MAX_SECONDS, MASTER, finalQuote, masterSize, type FinalChoice, type FinalNettoyage, type FinalResolution } from "@/lib/montage/finaliser";
@@ -85,7 +86,7 @@ function rulerStep(px: number): number {
   return 5;
 }
 
-function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: string } }[]): "16/9" | "9/16" {
+function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: string } }[], fallback: "16:9" | "9:16" = "16:9"): "16/9" | "9/16" {
   let vertical = false;
   let horizontal = false;
   for (const clip of edit.video) {
@@ -95,17 +96,21 @@ function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: strin
     if (aspect === "horizontal") horizontal = true;
   }
   if (vertical && !horizontal) return "9/16";
-  return "16/9";
+  return !horizontal && fallback === "9:16" ? "9/16" : "16/9";
 }
 
 export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => void }) {
   const { t } = useI18n();
+  const { format } = useFormat();
   const { locale } = useLocaleSwitch();
-  const { ready, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs } = useStudio();
+  const { ready, demo, setNotice, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs } = useStudio();
+  const [loadedProject, setLoadedProject] = useState<string | null>(null);
+  const projectRef = useRef(studio.project);
+  projectRef.current = studio.project;
   const [finChoice, setFinChoice] = useState<FinalChoice>({ resolution: "1080p", nettoyer: "aucun" });
   const [finConfirm, setFinConfirm] = useState(false);
   const [finPhase, setFinPhase] = useState<FinalPhase>({ phase: "idle" });
-  const [history, setHistory] = useState<History<Edit>>(() => historyOf(exempleEdit()));
+  const [history, setHistory] = useState<History<Edit>>(() => historyOf(demo ? exempleEdit() : emptyEdit("suite", "Séquence")));
   const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [px, setPx] = useState(48);
@@ -113,6 +118,8 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const [trimming, setTrimming] = useState<"start" | "end" | null>(null);
   const [stem, setStem] = useState<AudioTrackId | null>(null);
   const [script, setScript] = useState("");
+  const exporting = useRef(false);
+  const [exportError, setExportError] = useState("");
   const [exportPhase, setExportPhase] = useState<ExportPhase>({ phase: "idle" });
   const [panel, setPanel] = useState<Panel>(null);
   const [menuAt, setMenuAt] = useState<{ top: number; left: number } | null>(null);
@@ -213,9 +220,11 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   }
 
   async function persist(current: Edit) {
-    const saved = await saveMontage(current, files.current);
-    boot.current = saved.slug;
-    if (historyRef.current.present === current) show({ ...historyRef.current, present: saved.edit });
+    try {
+      const saved = await saveMontage(current, { ...files.current });
+      boot.current = saved.slug;
+      if (historyRef.current.present === current) show({ ...historyRef.current, present: saved.edit });
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Le montage n’a pas pu être sauvegardé. Gardez cet onglet ouvert."); }
   }
 
   function commitFrom(base: History<Edit>, next: Edit) {
@@ -233,19 +242,21 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     void loadMontages().then(saved => {
       if (gone || boot.current !== key) return;
       const choice = chooseEdit({
-        saved,
+        requestedId: new URLSearchParams(window.location.search).get("sequence"),
+        demo, saved,
         sequences: studio.sequences,
         shots: studio.shots,
         takes: studio.takes,
       });
       cutLive.current = true;
+      setLoadedProject(key);
       onFilled?.(editHasClips(choice.edit));
       show(historyOf(choice.edit));
       timeRef.current = 0;
       setTime(0);
-    });
+    }).catch(() => { if (!gone) setNotice(t("safety.sequenceMissing")); });
     return () => { gone = true; };
-  }, [ready, studio.project, loadMontages, onFilled]);
+  }, [ready, demo, studio.project, loadMontages, onFilled]);
 
   useEffect(() => {
     if (!cutLive.current) return;
@@ -282,24 +293,33 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   }, []);
 
   useEffect(() => {
-    if (!pendingClip) return;
-    const id = `plan-${crypto.randomUUID()}`;
-    if (pendingClip.kind === "audio") {
-      const clip: AudioClip = {
-        id, track: "effets", source: pendingClip.source, label: pendingClip.label, media: 5, start: 0, end: 5,
-        at: snapped(timeRef.current), volume: 0.8, fadeIn: 0, fadeOut: 0,
-      };
-      commitFrom(historyRef.current, addAudio(historyRef.current.present, clip));
-    } else {
-      const clip: VideoClip = {
-        id, kind: pendingClip.kind === "image" ? "image" : "video", source: pendingClip.source, label: pendingClip.label,
-        media: 5, start: 0, end: 5, takeId: null,
-      };
-      commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
-    }
-    setSelected(id);
+    if (!pendingClip || loadedProject !== (studio.project ?? "")) return;
+    const origin = studio.project;
+    const pending = pendingClip;
     holdClip(null);
-  }, [pendingClip, holdClip]);
+    void (async () => {
+      let seconds = pending.seconds ?? 5;
+      if (pending.kind !== "image" && !pending.seconds) {
+        const element = document.createElement(pending.kind === "video" ? "video" : "audio");
+        try {
+          seconds = await new Promise<number>((resolve, reject) => {
+            const timer = window.setTimeout(() => reject(new Error("Lecture du média trop longue.")), 15000);
+            element.onloadedmetadata = () => { clearTimeout(timer); Number.isFinite(element.duration) && element.duration > 0 ? resolve(element.duration) : reject(new Error("Durée du média illisible.")); };
+            element.onerror = () => { clearTimeout(timer); reject(new Error("Média impossible à lire.")); };
+            element.src = urlOfRef.current(pending.source);
+          });
+        } finally { element.removeAttribute("src"); element.load(); }
+      }
+      if (origin !== projectRef.current) throw new Error("Le projet a changé. Le média reste dans sa galerie ; ajoutez-le à nouveau au montage souhaité.");
+      const id = `plan-${crypto.randomUUID()}`;
+      if (pending.kind === "audio") {
+        commitFrom(historyRef.current, addAudio(historyRef.current.present, { id, track: "effets", source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, at: snapped(timeRef.current), volume: 0.8, fadeIn: 0, fadeOut: 0 }));
+      } else {
+        commitFrom(historyRef.current, appendVideo(historyRef.current.present, { id, kind: pending.kind, source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, takeId: null }));
+      }
+      setSelected(id);
+    })().catch(error => setNotice(error.message));
+  }, [pendingClip, holdClip, loadedProject, studio.project]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -574,7 +594,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const finBusy = finPhase.phase === "prepare" || finPhase.phase === "run";
   const finQuote = finalQuote(duration, finChoice);
   const num = (value: number) => comma ? String(value).replace(".", ",") : String(value);
-  const finOpenWhy = duration <= 0 ? t("finaliser.empty") : duration > FINAL_MAX_SECONDS ? t("finaliser.long") : "";
+  const finOpenWhy = prefs.openWeightsOnly ? t("safety.finalBlocked") : duration <= 0 ? t("finaliser.empty") : duration > FINAL_MAX_SECONDS ? t("finaliser.long") : "";
   const finGoWhy = finOpenWhy || (finBusy ? t("finaliser.busy")
     : !finQuote ? t("finaliser.noQuote")
     : !connected ? t("finaliser.needLink")
@@ -595,12 +615,16 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   function runExport() {
     const current = historyRef.current.present;
     const plan = exportEstimate(editDuration(current));
-    if (!plan || !exportAllowed(plan.seconds) || exportPhase.phase === "run") return;
+    if (!plan || !exportAllowed(plan.seconds) || exporting.current) return;
+    exporting.current = true;
+    setExportError("");
     setPanel("export");
     setExportPhase({ phase: "run", done: 0, total: plan.frames });
+    const sources = new Map([...current.video, ...current.audio].flatMap(clip => clip.source ? [[clip.source, urlOfRef.current(clip.source)] as const] : []));
     void exportMp4({
       edit: current,
-      urlOf: source => urlOfRef.current(source),
+      urlOf: source => sources.get(source) ?? "",
+      vertical: projectRatio(current, studio.takes, format) === "9/16",
       onProgress: (done, total) => setExportPhase({ phase: "run", done, total }),
     }).then(blob => {
       const url = URL.createObjectURL(blob);
@@ -608,35 +632,42 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       link.href = url;
       link.download = `${current.name || "montage"}.mp4`;
       link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60000);
       setExportPhase({ phase: "done", bytes: blob.size });
-    }).catch(() => setExportPhase({ phase: "fail" }));
+    }).catch(error => { setExportError(error instanceof Error ? error.message : "Export interrompu."); setExportPhase({ phase: "fail" }); }).finally(() => { exporting.current = false; });
   }
 
   function runFinal() {
     const current = historyRef.current.present;
     const seconds = editDuration(current);
     const quote = finalQuote(seconds, finChoice);
-    if (!quote || finGoWhy) return;
-    const ratio = projectRatio(current, studio.takes);
+    if (!quote || finGoWhy || exporting.current || !studio.project) return;
+    exporting.current = true;
+    const project = studio.project;
+    const sources = new Map([...current.video, ...current.audio].flatMap(clip => clip.source ? [[clip.source, urlOfRef.current(clip.source)] as const] : []));
+    const choice = { ...finChoice };
+    const confirmed = finConfirm;
+    const ratio = projectRatio(current, studio.takes, format);
     const size = masterSize(ratio);
     setFinPhase({ phase: "prepare", done: 0, total: Math.max(1, Math.round(seconds * MASTER.fps)) });
     void exportMp4({
       edit: current,
-      urlOf: source => urlOfRef.current(source),
+      urlOf: source => sources.get(source) ?? "",
       onProgress: (done, total) => setFinPhase({ phase: "prepare", done, total }),
       size: { ...size, fps: MASTER.fps, quality: "high" },
     }).then(video => finaliseMontage({
+      project,
       video,
       name: current.name,
       seconds,
       ratio,
-      choice: finChoice,
-      confirmed: finConfirm,
+      choice,
+      confirmed,
       onStage: (stage, elapsed) => setFinPhase({ phase: "run", stage, seconds: elapsed ?? 0 }),
     })).then(outcome => {
       setFinConfirm(false);
       setFinPhase(outcome.ok ? { phase: "done", url: outcome.url, path: outcome.path, cost: outcome.cost } : { phase: "fail", message: outcome.message });
-    }).catch(error => setFinPhase({ phase: "fail", message: error instanceof Error ? error.message : "" }));
+    }).catch(error => setFinPhase({ phase: "fail", message: error instanceof Error ? error.message : "" })).finally(() => { exporting.current = false; });
   }
 
   function thumbOf(clip: VideoClip): string {
@@ -1001,7 +1032,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         <button type="button" className="u-primary" data-export-gold="" disabled={!canExport} aria-describedby={!canExport ? "u-why-export-go" : undefined} onClick={runExport}>{t("montage.export")}</button>
         {!canExport && <Why on id="u-why-export-go" text={exportWhy} />}
         {exportPhase.phase === "run" && <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={exportPhase.total} aria-valuenow={exportPhase.done}><span style={{ width: `${exportPhase.total ? (100 * exportPhase.done) / exportPhase.total : 0}%` }} /></div>}
-        {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")}</p>}
+        {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")} {exportError}</p>}
         {exportPhase.phase === "done" && <p className="u-small">{t("montage.exportDone")}</p>}
       </div>
     </div>}

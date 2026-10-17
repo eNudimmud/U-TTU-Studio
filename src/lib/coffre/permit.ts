@@ -1,6 +1,7 @@
 // The visitor's own folder, remembered in this browser. Nothing is uploaded.
 
-import { cleanPath, type VaultStore } from "./store.ts";
+import { type VaultStore } from "./store.ts";
+import { vaultPathFromZip } from "./import.ts";
 import type { DirectoryHandle } from "./link.ts";
 
 type Permission = "granted" | "denied" | "prompt";
@@ -102,11 +103,20 @@ export async function readFolder(root: DirectoryHandle, store: VaultStore, prefi
     if (retiredSegment(name) || name.endsWith(".key")) continue;
     const path = prefix ? `${prefix}/${name}` : name;
     if (handle.kind === "file") {
-      const clean = cleanPath(path);
+      const clean = vaultPathFromZip(path);
       const fileHandle = handle as FileHandle;
       if (!clean || !fileHandle.getFile) continue;
       const file = await fileHandle.getFile();
       const text = /\.(md|json|txt)$/i.test(name);
+      const existing = await store.get(clean);
+      if (existing) {
+        const local = new Uint8Array(await (existing.blob ?? new Blob([existing.text ?? ""])).arrayBuffer());
+        const incoming = new Uint8Array(await file.arrayBuffer());
+        if (local.length !== incoming.length || local.some((byte, i) => byte !== incoming[i])) {
+          throw new Error(`Deux versions différentes de ${clean}. La synchronisation est suspendue pour conserver les deux versions. Exportez le coffre avant de les rapprocher.`);
+        }
+        continue;
+      }
       await store.put({ path: clean, text: text ? await file.text() : undefined, blob: text ? undefined : file, updatedAt: file.lastModified });
       count += 1;
       continue;

@@ -7,12 +7,14 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 20_000 },
   fullyParallel: false,
-  workers: 1,
+  workers: ci ? 2 : 1,
   retries: ci ? 1 : 0,
   use: {
     baseURL: "http://127.0.0.1:3000",
-    channel: "chrome",
     locale: "fr-FR",
+    actionTimeout: 20_000,
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
   },
   webServer: {
     command: ci ? "npm start -- --port 3000" : "npm run dev -- --hostname 127.0.0.1 --port 3000",
@@ -21,7 +23,11 @@ export default defineConfig({
     timeout: 180_000,
   },
   projects: [
-    { name: "desktop", use: { viewport: { width: 1280, height: 800 } } },
-    { name: "mobile", use: { viewport: { width: 390, height: 844 } } },
+    { name: "desktop", use: { channel: process.env.PLAYWRIGHT_CHANNEL || "chromium", viewport: { width: 1280, height: 800 } } },
+    { name: "mobile", use: { channel: process.env.PLAYWRIGHT_CHANNEL || "chromium", viewport: { width: 390, height: 844 } } },
+    ...(["firefox", "webkit"] as const).flatMap(browserName => [
+      { name: `${browserName}-desktop`, testMatch: /reliability-ux\.spec\.ts/, use: { browserName, viewport: { width: 1280, height: 800 } } },
+      { name: `${browserName}-mobile`, testMatch: /reliability-ux\.spec\.ts/, use: { browserName, viewport: { width: 390, height: 844 } } },
+    ]),
   ],
 });

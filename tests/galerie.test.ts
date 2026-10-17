@@ -8,7 +8,7 @@ import { DEMO_CAST, DEMO_DECOR } from "../src/lib/creation/demo.ts";
 import { spendAllowed } from "../src/lib/creation/quotes.ts";
 import { memoryVault } from "../src/lib/coffre/store.ts";
 
-const BRAND = /fal(?!se|lback)/i;
+const BRAND = /\bfal(?:\.ai)?\b/i;
 const read = (path: string) => readFileSync(path, "utf8");
 
 function stripComments(source: string): string {
@@ -154,7 +154,7 @@ describe("galerie CAST et DÉCOR", () => {
     assert.doesNotMatch(cast + decor, /fetch\(|submit_workflow|run_template|partner_generate|estimate_credits/);
     assert.match(read("src/components/app/stage-screens.tsx"), /create\.needLink/);
     const board = read("src/components/app/prise-stage.tsx");
-    assert.match(board, /requestRun\(\)/);
+    assert.match(board, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
     assert.doesNotMatch(board, /confirmRun\(/);
   });
 

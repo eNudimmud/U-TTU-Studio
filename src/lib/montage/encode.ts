@@ -4,9 +4,11 @@ import { editDuration, fadeMix, mediaTime, mixInto, mixSpans, playSpan, type Edi
 import { EXPORT_FPS, EXPORT_HEIGHT, EXPORT_WIDTH } from "./export-plan.ts";
 
 const SAMPLE_RATE = 48_000;
+let aacFallback: Promise<void> | null = null;
 
 export interface ExportInput {
   edit: Edit;
+  vertical?: boolean;
   urlOf(source: string): string;
   onProgress(done: number, total: number): void;
   /** Taille et cadence du fichier. Par défaut, l'export léger du téléphone. */
@@ -27,28 +29,45 @@ function contain(
   ctx.drawImage(source, (box.width - width) / 2, (box.height - height) / 2, width, height);
 }
 
-async function loadImage(url: string): Promise<HTMLImageElement | null> {
-  if (!url) return null;
+async function loadImage(url: string): Promise<HTMLImageElement> {
+  if (!url) throw new Error("Une image du montage manque.");
   const image = new Image();
   image.decoding = "async";
-  const done = new Promise<boolean>(resolve => {
-    image.onload = () => resolve(true);
-    image.onerror = () => resolve(false);
+  await new Promise<void>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error("L’image ne répond pas.")), 15000);
+    image.onload = () => { clearTimeout(timer); resolve(); };
+    image.onerror = () => { clearTimeout(timer); reject(new Error("Une image est illisible.")); };
+    image.src = url;
   });
-  image.src = url;
-  return (await done) ? image : null;
+  return image;
 }
 
-function seekTo(video: HTMLVideoElement, time: number): Promise<void> {
-  if (Math.abs(video.currentTime - time) < 0.04) return Promise.resolve();
-  return new Promise(resolve => {
-    const finish = () => {
-      video.removeEventListener("seeked", finish);
-      resolve();
-    };
+export function seekTo(video: HTMLVideoElement, time: number): Promise<void> {
+  const target = Math.max(0, Math.min(time, video.duration - 0.001));
+  if (Math.abs(video.currentTime - target) < 0.001 && video.readyState >= 2) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const cleanup = () => { clearTimeout(timer); video.removeEventListener("seeked", finish); video.removeEventListener("error", fail); };
+    const finish = () => { cleanup(); resolve(); };
+    const fail = () => { cleanup(); reject(new Error("Une image de la vidéo ne peut pas être lue.")); };
+    const timer = window.setTimeout(fail, 15000);
     video.addEventListener("seeked", finish);
-    video.currentTime = time;
+    video.addEventListener("error", fail);
+    video.currentTime = target;
   });
+}
+
+async function loadVideo(url: string): Promise<HTMLVideoElement> {
+  if (!url) throw new Error("Une vidéo du montage manque.");
+  const video = document.createElement("video");
+  video.muted = true;
+  video.playsInline = true;
+  await new Promise<void>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error("La vidéo ne répond pas.")), 15000);
+    video.onloadeddata = () => { clearTimeout(timer); resolve(); };
+    video.onerror = () => { clearTimeout(timer); reject(new Error("Une vidéo est illisible.")); };
+    video.src = url;
+  });
+  return video;
 }
 
 async function mixAudio(edit: Edit, urlOf: (source: string) => string, seconds: number): Promise<AudioBuffer> {
@@ -58,11 +77,12 @@ async function mixAudio(edit: Edit, urlOf: (source: string) => string, seconds: 
     const mixed = ctx.createBuffer(2, length, SAMPLE_RATE);
     for (const span of mixSpans(edit)) {
       const url = urlOf(span.source);
-      if (!url) continue;
+      if (!url) throw new Error("Un média sonore du montage manque.");
+      const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+      if (!response.ok) throw new Error("Un média sonore est inaccessible.");
+      const bytes = await response.arrayBuffer();
       try {
-        const response = await fetch(url);
-        if (!response.ok) continue;
-        const decoded = await ctx.decodeAudioData((await response.arrayBuffer()).slice(0));
+        const decoded = await ctx.decodeAudioData(bytes.slice(0));
         for (let channel = 0; channel < 2; channel += 1) {
           const sourceChannel = Math.min(channel, decoded.numberOfChannels - 1);
           mixInto(mixed.getChannelData(channel), decoded.getChannelData(sourceChannel), {
@@ -78,7 +98,13 @@ async function mixAudio(edit: Edit, urlOf: (source: string) => string, seconds: 
           });
         }
       } catch {
-        // A still, or a video without an audio track, adds silence.
+        // Distinguish an actually silent video from a broken audio decoder.
+        const explicitSound = edit.audio.some(clip => clip.source === span.source);
+        if (explicitSound) throw new Error("Une piste son est illisible. Corrigez-la avant l’export.");
+        const mb = await import("mediabunny");
+        const input = new mb.Input({ source: new mb.BlobSource(new Blob([bytes])), formats: mb.ALL_FORMATS });
+        try { if (await input.getPrimaryAudioTrack()) throw new Error("Le son de cette vidéo ne peut pas être décodé dans ce navigateur."); }
+        finally { input.dispose(); }
       }
     }
     return mixed;
@@ -92,15 +118,23 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
   const seconds = editDuration(input.edit);
   if (!(seconds > 0)) throw new Error("empty");
   const mediabunny = await import("mediabunny");
-  const width = input.size?.width ?? EXPORT_WIDTH;
-  const height = input.size?.height ?? EXPORT_HEIGHT;
+  const width = input.size?.width ?? (input.vertical ? EXPORT_HEIGHT : EXPORT_WIDTH);
+  const height = input.size?.height ?? (input.vertical ? EXPORT_WIDTH : EXPORT_HEIGHT);
   const fps = input.size?.fps ?? EXPORT_FPS;
   const format = new mediabunny.Mp4OutputFormat();
   const quality = input.size?.quality === "high" ? mediabunny.QUALITY_HIGH : mediabunny.QUALITY_LOW;
-  // H.264 and AAC come first in mediabunny’s lists. A browser without them still writes MP4 with the next codec it can encode.
-  const videoCodec = await mediabunny.getFirstEncodableVideoCodec(format.getSupportedVideoCodecs(), { width, height, quality });
-  const audioCodec = await mediabunny.getFirstEncodableAudioCodec(format.getSupportedAudioCodecs(), { numberOfChannels: 2, sampleRate: SAMPLE_RATE, quality });
-  if (!videoCodec || !audioCodec) throw new Error("unsupported");
+  // Require broadly interoperable MP4 codecs; never silently change the output contract.
+  const videoCodec = await mediabunny.getFirstEncodableVideoCodec(["avc"], { width, height, quality });
+  const audioConfig = { numberOfChannels: 2, sampleRate: SAMPLE_RATE, quality };
+  let audioCodec = await mediabunny.getFirstEncodableAudioCodec(["aac"], audioConfig);
+  if (!audioCodec) {
+    // Some browsers decode AAC but cannot encode it. This optional WASM encoder
+    // runs locally and is loaded only for an export that needs it.
+    aacFallback ??= import("@mediabunny/aac-encoder").then(({ registerAacEncoder }) => registerAacEncoder());
+    await aacFallback;
+    audioCodec = await mediabunny.getFirstEncodableAudioCodec(["aac"], audioConfig);
+  }
+  if (!videoCodec || !audioCodec) throw new Error("Ce navigateur ne peut pas encoder le MP4 H.264/AAC. Essayez Chrome récent sur ordinateur.");
 
   const frames = Math.max(1, Math.round(seconds * fps));
   const frameDuration = 1 / fps;
@@ -108,7 +142,7 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
   for (const clip of input.edit.video) {
     if (clip.kind !== "image" || !clip.source || images.has(clip.source)) continue;
     const image = await loadImage(input.urlOf(clip.source));
-    if (image) images.set(clip.source, image);
+    images.set(clip.source, image);
   }
   const mixed = await mixAudio(input.edit, input.urlOf, seconds);
 
@@ -117,10 +151,26 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
   canvas.height = height;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("canvas");
-  const video = document.createElement("video");
-  video.muted = true;
-  video.playsInline = true;
-  let videoSourceUrl = "";
+  const videos = new Map<string, HTMLVideoElement>();
+  async function drawClip(clip: Edit["video"][number], local: number) {
+    if (clip.kind === "slate") {
+      ctx!.fillStyle = "#c9a46a";
+      ctx!.font = "600 42px sans-serif";
+      ctx!.fillText(clip.label || "", 48, height / 2);
+      return;
+    }
+    if (!clip.source) throw new Error("Un plan ne contient aucun média.");
+    if (clip.kind === "image") {
+      const image = images.get(clip.source);
+      if (!image) throw new Error("Une image du montage manque.");
+      contain(ctx!, canvas, image, image.naturalWidth, image.naturalHeight);
+    } else {
+      let video = videos.get(clip.source);
+      if (!video) { video = await loadVideo(input.urlOf(clip.source)); videos.set(clip.source, video); }
+      await seekTo(video, mediaTime(clip, local));
+      contain(ctx!, canvas, video, video.videoWidth, video.videoHeight);
+    }
+  }
 
   const target = new mediabunny.BufferTarget();
   const output = new mediabunny.Output({ format, target });
@@ -142,28 +192,7 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
         const length = playSpan(clip);
         if (time < cursor + length) {
           const local = time - cursor;
-          if (clip.kind === "image" && clip.source) {
-            const image = images.get(clip.source);
-            if (image) contain(ctx, canvas, image, image.naturalWidth, image.naturalHeight);
-          } else if (clip.kind === "video" && clip.source) {
-            const url = input.urlOf(clip.source);
-            if (url && videoSourceUrl !== url) {
-              video.src = url;
-              videoSourceUrl = url;
-              await new Promise<void>(resolve => {
-                video.onloadeddata = () => resolve();
-                video.onerror = () => resolve();
-              });
-            }
-            if (video.readyState >= 2) {
-              await seekTo(video, mediaTime(clip, local));
-              contain(ctx, canvas, video, video.videoWidth, video.videoHeight);
-            }
-          } else {
-            ctx.fillStyle = "#c9a46a";
-            ctx.font = "600 42px sans-serif";
-            ctx.fillText(clip.label || "", 48, height / 2);
-          }
+          await drawClip(clip, local);
           if (clip.title) {
             ctx.fillStyle = "rgba(0,0,0,.55)";
             ctx.fillRect(0, height - 72, width, 72);
@@ -176,12 +205,7 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
             const next = input.edit.video[index + 1];
             ctx.save();
             ctx.globalAlpha = mix.mix;
-            const nextImage = next?.kind === "image" && next.source ? images.get(next.source) : undefined;
-            if (nextImage) contain(ctx, canvas, nextImage, nextImage.naturalWidth, nextImage.naturalHeight);
-            else {
-              ctx.fillStyle = "#0b0a09";
-              ctx.fillRect(0, 0, width, height);
-            }
+            if (next) await drawClip(next, 0);
             ctx.restore();
           }
           drawn = true;
@@ -196,8 +220,7 @@ export async function exportMp4(input: ExportInput): Promise<Blob> {
     await sound.add(mixed);
     await output.finalize();
   } finally {
-    video.removeAttribute("src");
-    video.load();
+    for (const video of videos.values()) { video.removeAttribute("src"); video.load(); }
   }
   const buffer = target.buffer;
   if (!buffer) throw new Error("empty");
