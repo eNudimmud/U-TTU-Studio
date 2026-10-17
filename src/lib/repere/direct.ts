@@ -2,7 +2,8 @@
 // OpenFreeMap is the map style. Photon finds a name. Overpass draws the block. Panoramax brings the street.
 // Mapillary is asked only when a free client token is present.
 
-import { mapillaryImagesUrl, mapillaryToken, parseMapillary } from "./mapillary.ts";
+import { mapillaryImageUrl, mapillaryImagesUrl, mapillaryTileUrl, mapillaryToken, nearestImageIds, parseMapillary, tilesAround, type RuePhoto } from "./mapillary.ts";
+import { maybeGunzip, readTilePoints, tileOf } from "./mvt.ts";
 import { chaineRue, panoramaxByIdUrl, panoramaxSearchUrl, parsePanoramax, parseInstanceHosts, RUE_RAYON, type PhotoRue } from "./panoramax.ts";
 import { parsePhoton, photonUrl } from "./photon.ts";
 import {
@@ -137,11 +138,48 @@ export async function chargerPhoto(id: string): Promise<PhotoRue | "rate" | null
   }
 }
 
+/**
+ * Mapillary images near a point. The bbox search first; when it answers empty
+ * (it often does, even in dense places), the coverage tiles give the image ids
+ * and each id is read alone. null when nothing could be asked.
+ */
+export async function mapillaryNear(lat: number, lon: number, radius: number, token: string, fetcher: typeof publicFetch = publicFetch): Promise<RuePhoto[] | null> {
+  const headers = { Accept: "application/json", Authorization: `OAuth ${token}` };
+  let failed = 0;
+  try {
+    const response = await fetcher(mapillaryImagesUrl(lat, lon, 8, radius), { headers });
+    if (response.ok) {
+      const photos = parseMapillary(await response.json());
+      if (photos.length > 0) return photos;
+    } else failed++;
+  } catch { failed++; }
+  const points: { id: string; lat: number; lon: number }[] = [];
+  let tilesOk = 0;
+  for (const tile of tilesAround(lat, lon, radius, tileOf)) {
+    try {
+      const response = await fetcher(mapillaryTileUrl(tile.z, tile.x, tile.y, token));
+      if (!response.ok) continue;
+      tilesOk++;
+      const bytes = await maybeGunzip(new Uint8Array(await response.arrayBuffer()));
+      points.push(...readTilePoints(bytes, "image", tile.z, tile.x, tile.y));
+    } catch { /* one bad tile does not hide the others */ }
+  }
+  if (tilesOk === 0) return failed > 0 ? null : [];
+  const ids = nearestImageIds(points, lat, lon, radius, 6);
+  const rows = await Promise.all(ids.map(async id => {
+    try {
+      const response = await fetcher(mapillaryImageUrl(id), { headers });
+      return response.ok ? await response.json() : null;
+    } catch { return null; }
+  }));
+  return parseMapillary({ data: rows.filter(Boolean) });
+}
+
 export interface PhotoSearch { photos: PhotoRue[]; start: number; mapillary: "off" | "ok" | "fail"; panoramax: "ok" | "fail"; radius: number }
 
 export async function chargerPhotos(lat: number, lon: number, radius = RUE_RAYON): Promise<PhotoSearch | "rate"> {
   const token = mapillaryToken();
-  const key = `photos-v2:${lat.toFixed(4)},${lon.toFixed(4)},${radius},${token ? "m" : "p"}`;
+  const key = `photos-v3:${lat.toFixed(4)},${lon.toFixed(4)},${radius},${token ? "m" : "p"}`;
   const cached = readPublicCache<PhotoSearch>(key);
   if (cached) return cached;
   if (!takePublicSlot("panoramax")) return "rate";
@@ -157,12 +195,10 @@ export async function chargerPhotos(lat: number, lon: number, radius = RUE_RAYON
   if (token && (panoramax?.length ?? 0) === 0) {
     if (!takePublicSlot("mapillary")) return "rate";
     try {
-      const response = await publicFetch(mapillaryImagesUrl(lat, lon, 8, radius), {
-        headers: { Accept: "application/json", Authorization: `OAuth ${token}` },
-      });
-      if (!response.ok) mapillaryState = "fail";
+      const found = await mapillaryNear(lat, lon, radius, token);
+      if (found === null) mapillaryState = "fail";
       else {
-        mapillary = parseMapillary(await response.json()).map(item => ({
+        mapillary = found.map(item => ({
           id: item.id,
           author: item.author,
           thumb: item.thumb,
