@@ -5,7 +5,7 @@ import { Arrow } from "@/components/glyph";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { assetPath, contactEmail } from "@/lib/site";
 import { LegacyStudioHash } from "./legacy-hash";
-import { Brand } from "@/components/brand";
+import { Brand, BrandLockup } from "@/components/brand";
 
 const STUDIO_HREF = assetPath("/studio");
 
@@ -21,7 +21,7 @@ export function HomeLanding() {
     <LegacyStudioHash />
     <header className="landing-header">
       <div className="landing-bar">
-        <Brand href={assetPath("/")} label={t("landing.home")} />
+        <Brand href={assetPath("/")} label={t("landing.home")} desktop={64} />
         <div className="landing-tools">
           <LanguageSwitcher />
           <a className="button button-outline landing-header-cta" href={STUDIO_HREF}>{t("landing.enter")} <Arrow /></a>
@@ -31,6 +31,7 @@ export function HomeLanding() {
     <main id="contenu" className="landing-main" tabIndex={-1}>
       <section className="landing-splash" aria-labelledby="landing-title">
         <div className="landing-copy">
+          <BrandLockup className="landing-lockup" />
           <h1 id="landing-title">{t("landing.before")}<em>{t("landing.em")}</em></h1>
           <div className="landing-sheet">
             <ol className="landing-pills" aria-label={t("landing.pills")}>
@@ -47,13 +48,15 @@ export function HomeLanding() {
           </div>
         </div>
         <figure className="landing-still">
+          <div className="landing-still-frame">
           <Image
-            src={assetPath("/images/studio-apercu.webp")}
+            src={assetPath("/images/studio-apercu-v2.webp")}
             alt={t("landing.alt")}
             fill
             preload
-            sizes="(max-width: 899px) 100vw, 42vw"
+            sizes="(max-width: 899px) 100vw, 640px"
           />
+          </div>
           <figcaption>{t("landing.caption")}</figcaption>
         </figure>
       </section>
