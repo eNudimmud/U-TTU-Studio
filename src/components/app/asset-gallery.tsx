@@ -128,6 +128,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         <div><dt>{t("assets.path")}</dt><dd>{current.media || current.preview || t("assets.none")}</dd></div>
       </dl>
       <div className="u-card-actions">
+        {isVideo(current) && !current.preview && <a href={srcOf(current)} download={current.media.split("/").pop()}>{t("previs.downloadClip")}</a>}
         {onUseRef && !isModel(current) && !isAudio(current) && !isVideo(current) && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
         {onPrise && (current.kind === "personnage" || current.kind === "decor") && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
         {onMontage && !isModel(current) && <button type="button" onClick={() => onMontage(current)}>{t("assets.toMontage")}</button>}

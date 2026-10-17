@@ -952,7 +952,7 @@
     "linkFolder": "Vincular mi carpeta de Obsidian",
     "linkExplain": "En Chrome o Edge, en un ordenador, elige la carpeta. El estudio guarda ahí las fichas y las imágenes.",
     "linkMissing": "Safari, Firefox y el teléfono no dan esta carpeta. El estudio se queda en este aparato. Puedes exportar o importar.",
-    "export": "Exportar a Obsidian",
+    "export": "Exportar mi estudio",
     "import": "Importar desde Obsidian",
     "importFolder": "Importar una carpeta",
     "linked": "Carpeta vinculada: {name}",
@@ -1487,7 +1487,13 @@
     "savedModels": "Modelos 3D guardados",
     "chooseModel": "Añadir un modelo guardado…",
     "downloadModel": "Descargar el modelo 3D",
-    "modelFailed": "No se puede mostrar «{name}». El archivo sigue disponible en Mi estudio."
+    "modelFailed": "No se puede mostrar «{name}». El archivo sigue disponible en Mi estudio.",
+    "localClip": "Previsualización local",
+    "localClipNote": "Grabación gratuita de la escena previa; no es una toma generada.",
+    "savedClip": "Previsualización guardada en Mi estudio.",
+    "downloadClip": "Descargar el vídeo",
+    "modelTerms": "Leer la licencia del modelo",
+    "hunyuanTerms": "Hunyuan3D 2.1 tiene condiciones específicas: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo."
   },
   "recovery": {
     "title": "Recuperar un renderizado",
@@ -1527,6 +1533,7 @@
     "low": "Queda poco espacio. Exporta una copia antes de añadir archivos grandes.",
     "protect": "Proteger el almacenamiento local",
     "asking": "Solicitando protección…",
+    "pending": "El navegador sigue esperando su respuesta. Revise su solicitud de permiso; ya puede exportar una copia.",
     "backup": "Esta protección no sustituye una copia de seguridad. «Exportar mi estudio» guarda una copia independiente; borrar los datos del navegador sigue eliminando los proyectos locales."
   },
   "audit": {

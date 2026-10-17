@@ -74,4 +74,10 @@ Les validations de cette passe sont consignées dans [integration-concours.md](i
 | A52 | P1 | Une erreur de modèle produit une caisse factice | Erreur explicite ; fichier téléchargeable ; aucune substitution silencieuse |
 | A53 | P1 | Première CI #111 : dialogue natif laisse Tab sortir ; Firefox/WebKit héritent du canal Chrome | Bouclage clavier explicite, canal propre à Chromium ; assertions maintenues |
 
-La prévis filmée non encore envoyée reste temporaire ; les modèles et scènes sont persistés. Les limites de ressources/éviction sur appareil physique restent à vérifier.
+| A54 | P0 | Prévis filmée uniquement dans la mémoire de la page, perdue si fermeture avant envoi | Fichier et fiche persistés avant utilisation cloud ; téléchargement et réutilisation locale ; test réel MediaRecorder préparé |
+| A55 | P1 | Permission de persistance Firefox sans réponse laisse « Demande en cours » indéfiniment | Attente bornée, état pending distinct du refus, demandes dédupliquées ; tests unitaires attente/accord tardif |
+| A56 | P1 | Libellés vidéo/3D changent selon le contenu du contrôle | Noms accessibles explicites et stables ; assertions exactes maintenues |
+| A57 | P1 | Import initial WebKit non pris en compte dans les huit parcours CI | Import désactivé jusqu’au coffre prêt ; attente explicite dans les tests ; cause/validation navigateur à confirmer |
+| A58 | P1 | Hunyuan3D présenté comme poids ouverts sans préciser les restrictions de sa licence | Restrictions et lien officiel affichés avant confirmation ; qualification fournisseur/concours encore ouverte |
+
+La CI de référence reste rouge (16/40). Les correctifs ci-dessus nécessitent une nouvelle preuve navigateur. Les limites de ressources/éviction sur appareil physique restent à vérifier.

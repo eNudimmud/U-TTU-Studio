@@ -82,7 +82,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, gate: productionGate, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, pickCast, pickDecor, run, cancelRun, sendToMontage, prefs, setPrefs } = useStudio();
+  const { ready, demo, gate: productionGate, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendToMontage, prefs, setPrefs } = useStudio();
   const { t } = useI18n();
   const { format } = useFormat();
   const [seed, setSeed] = useState<Seed>("vide");
@@ -111,9 +111,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (keyed) setPlayFrom(performance.now());
     try {
       const file = await recordMaquette(PATH_SECONDS, setPrevisLeft);
-      if (file) setPrevisClip({ file, at: Date.now() });
+      if (file) {
+        await savePrevis(file);
+        setPrevisClip({ file, at: Date.now() });
+        setNotice(t("previs.savedClip"));
+      }
       else setNotice(t("videoGeste.previsNoCanvas"));
-    } catch { setNotice(t("videoGeste.previsNoCanvas")); }
+    } catch (error) { setNotice(error instanceof Error ? error.message : t("videoGeste.previsNoCanvas")); }
     finally {
       setPlayFrom(null);
       setPrevisLeft(0);

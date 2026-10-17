@@ -133,7 +133,7 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
     </label>)}
     <label className="u-field">
       <span className="u-label">{t(needText ? `videoGeste.text.${geste}` : "videoGeste.textOptional")}</span>
-      <textarea rows={2} value={text} maxLength={600} disabled={busy} onChange={event => { setText(event.target.value); setConfirmed(false); }} />
+      <textarea aria-label={t(needText ? `videoGeste.text.${geste}` : "videoGeste.textOptional")} rows={2} value={text} maxLength={600} disabled={busy} onChange={event => { setText(event.target.value); setConfirmed(false); }} />
     </label>
     <div className="u-final-quote" data-video-quote="estime">
       <p className="u-cost">{t("videoGeste.quote", { credits: formatCredits(row.credits), ceiling: formatCredits(row.high) })}</p>

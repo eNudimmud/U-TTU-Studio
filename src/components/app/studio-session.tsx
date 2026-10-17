@@ -134,6 +134,7 @@ export interface StudioSession {
   selectProject(slug: string): Promise<void>;
   outgoing(): string;
   saveModel(file: File): Promise<string>;
+  savePrevis(file: File): Promise<string>;
   readProjectFile(file: string): Promise<string | undefined>;
   writeProjectFile(file: string, text: string): Promise<void>;
   saveShot(shot: Shot): Promise<void>;
@@ -1398,6 +1399,18 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     return path;
   }, [current.project, reload, store]);
 
+  const savePrevis = useCallback(async (file: File) => {
+    const slug = current.project ?? await ensureActiveProject(store());
+    const vault = projectVault(store(), slug);
+    const id = `previs-${crypto.randomUUID()}`;
+    const path = `Projets/${slug}/Assets/${id}.${file.type === "video/mp4" ? "mp4" : "webm"}`;
+    const note = `Projets/${slug}/Assets/${id}.md`;
+    await writeBlob(vault, path, file);
+    await writeText(vault, note, assetNote({ id, kind: "plan", name: t("previs.localClip"), at: new Date().toISOString(), prompt: t("previs.localClipNote"), geste: "", template: "", refs: [], devis: 0, cout: 0, media: path, note, preview: null, loose: false }));
+    await reload();
+    return path;
+  }, [current.project, reload, store, t]);
+
   const readProjectFile = useCallback(async (file: string) => {
     const slug = current.project;
     if (!slug) return undefined;
@@ -1531,7 +1544,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,
-    saveModel, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, sendToMontage,
+    saveModel, savePrevis, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, sendToMontage,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

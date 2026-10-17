@@ -7,11 +7,12 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 20_000 },
   fullyParallel: false,
-  workers: 1,
+  workers: ci ? 2 : 1,
   retries: ci ? 1 : 0,
   use: {
     baseURL: "http://127.0.0.1:3000",
     locale: "fr-FR",
+    actionTimeout: 20_000,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

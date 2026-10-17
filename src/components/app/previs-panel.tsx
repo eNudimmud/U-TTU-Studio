@@ -96,7 +96,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
     <div className="u-previs-block" data-phrase-scene="">
       <label className="u-field">
         <span className="u-label">{t("previs.agent.label")}</span>
-        <textarea rows={2} maxLength={300} value={phrase} placeholder={t("previs.agent.placeholder")} disabled={busy} onChange={event => setPhrase(event.target.value)} />
+        <textarea aria-label={t("previs.agent.label")} rows={2} maxLength={300} value={phrase} placeholder={t("previs.agent.placeholder")} disabled={busy} onChange={event => setPhrase(event.target.value)} />
       </label>
       <button type="button" className="u-chip" data-composer="" disabled={busy || !phrase.trim()} aria-describedby={busy ? "u-previs-busy" : !phrase.trim() ? "u-why-phrase" : undefined} onClick={compose}>{t("previs.agent.go")}</button>
       {!phrase.trim() && <p className="u-why" id="u-why-phrase">{t("previs.agent.why")}</p>}
@@ -122,7 +122,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
       <p className="u-small">{t("previs.glbNote")}</p>
       {models.length > 0 && <label className="u-field">
         <span className="u-label">{t("previs.savedModels")}</span>
-        <select value="" disabled={busy || fullProps} onChange={event => {
+        <select aria-label={t("previs.savedModels")} value="" disabled={busy || fullProps} onChange={event => {
           const model = models.find(item => item.media === event.target.value);
           if (model) setState(current => addProp(current, "glb", { name: model.name, source: model.media }));
         }}><option value="">{t("previs.chooseModel")}</option>{models.map(model => <option key={model.media} value={model.media}>{model.name}</option>)}</select>
@@ -159,6 +159,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
         {MESH_GESTES.map(id => { const item = gesteParId(id); return item && <button key={id} type="button" className="u-chip" data-mesh={id} aria-pressed={engine === id} disabled={Boolean(stage)} aria-describedby={stage ? "u-mesh-busy" : undefined} onClick={() => { setEngine(id); setConfirmed(false); }}>{t(`gestes.${item.clef}.title`)}</button>; })}
       </div>
       {row && <p className="u-small">{t(`gestes.${row.clef}.phrase`)}</p>}
+      {engine === "prise-volume-perso" && <p className="u-small">{t("previs.hunyuanTerms")} <a href="https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">{t("previs.modelTerms")}</a></p>}
       <label className="u-field u-video-file">
         <span className="u-label">{t("previs.mesh.photo")}</span>
         <input type="file" accept="image/*" disabled={Boolean(stage)} onChange={event => { setPhoto(event.target.files?.[0] ?? null); setConfirmed(false); }} />

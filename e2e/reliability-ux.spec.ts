@@ -34,6 +34,7 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await page.route(/\/api\/jobs\/video-recovery-123$/, route => route.fulfill({ json: { status: 'success', outputs: { save: { images: [{ filename: 'raccord.mp4', subfolder: '', type: 'output' }] } } } }));
   await page.route(/\/api\/view\?/, route => route.fulfill({ contentType: 'video/mp4', body: video }));
   await page.goto('/studio#personnage');
+  await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
@@ -73,6 +74,7 @@ test('stockage réel, import conservé après fermeture et confirmation accessib
   const paid: string[] = [];
   await context.route(/\/api\/(prompt|upload|queue)/, route => { paid.push(route.request().url()); return route.abort(); });
   await page.goto('/studio#personnage');
+  await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait-archive.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   const credits = page.locator('header .u-credit');
@@ -107,7 +109,7 @@ test('stockage réel, import conservé après fermeture et confirmation accessib
   await page.close();
   const reopened = await context.newPage();
   await reopened.goto('/mon-studio');
-  await expect(reopened.locator('.u-gallery > article').filter({ hasText: 'Portrait-archive' })).toHaveCount(1);
+  await expect(reopened.locator('.u-asset-grid article[data-kind="personnage"]').filter({ hasText: 'Portrait-archive' })).toHaveCount(1);
   await reopened.screenshot({ path: info.outputPath('storage-reopened.png'), fullPage: true });
   expect(paid).toEqual([]);
 });
@@ -123,6 +125,7 @@ test('contrat simulé : identifier un envoi ambigu ne crée jamais un autre rend
   await page.route(/\/api\/jobs\/existing-job-123$/, route => route.fulfill({ json: { status: 'success', outputs: { save: { images: [{ filename: 'recovered.webp', subfolder: '', type: 'output' }] } } } }));
   await page.route(/\/api\/view\?/, route => route.fulfill({ contentType: 'image/webp', body: portrait }));
   await page.goto('/studio#personnage');
+  await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Initial.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.evaluate(async key => {
@@ -142,7 +145,7 @@ test('contrat simulé : identifier un envoi ambigu ne crée jamais un autre rend
   await expect.poll(async () => page.evaluate(() => localStorage.getItem('u-ttu-operation'))).toBeNull();
   await page.keyboard.press('Escape');
   await page.goto('/mon-studio');
-  await expect(page.locator('.u-gallery > article').filter({ hasText: 'Portrait récupéré' })).toHaveCount(1);
+  await expect(page.locator('.u-asset-grid article[data-kind="personnage"]').filter({ hasText: 'Portrait récupéré' })).toHaveCount(1);
   await page.screenshot({ path: info.outputPath('reconciled.png'), fullPage: true });
   expect(posts).toBe(0);
 });
@@ -165,6 +168,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await context.route(/\/api\/jobs\/mesh-recovery-123$/, route => route.fulfill({ json: { status: 'success', outputs: { save: { '3d': [{ filename: 'mesh.glb', subfolder: '', type: 'output' }] } } } }));
   await context.route(/\/api\/view\?/, route => route.fulfill({ contentType: 'model/gltf-binary', body: glb }));
   await page.goto('/studio#personnage');
+  await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();

@@ -952,7 +952,7 @@
     "linkFolder": "Meinen Obsidian-Ordner verbinden",
     "linkExplain": "Auf Chrome oder Edge, am Computer, wähle den Ordner. Das Studio legt Notizen und Bilder dort ab.",
     "linkMissing": "Safari, Firefox und das Telefon geben diesen Ordner nicht. Das Studio bleibt auf diesem Gerät. Du kannst exportieren oder importieren.",
-    "export": "Nach Obsidian exportieren",
+    "export": "Mein Studio exportieren",
     "import": "Aus Obsidian importieren",
     "importFolder": "Einen Ordner importieren",
     "linked": "Verbundener Ordner: {name}",
@@ -1487,7 +1487,13 @@
     "savedModels": "Gespeicherte 3D-Modelle",
     "chooseModel": "Gespeichertes Modell hinzufügen…",
     "downloadModel": "3D-Modell herunterladen",
-    "modelFailed": "„{name}“ kann nicht angezeigt werden. Die Datei bleibt in Mein Studio verfügbar."
+    "modelFailed": "„{name}“ kann nicht angezeigt werden. Die Datei bleibt in Mein Studio verfügbar.",
+    "localClip": "Lokale Vorschau",
+    "localClipNote": "Kostenlose Aufnahme der Szenenvorschau; kein generierter Take.",
+    "savedClip": "Vorschau in Mein Studio gespeichert.",
+    "downloadClip": "Video herunterladen",
+    "modelTerms": "Modelllizenz lesen",
+    "hunyuanTerms": "Für Hunyuan3D 2.1 gelten besondere Bedingungen: Die Community-Lizenz schließt die EU, das Vereinigte Königreich und Südkorea aus. Kläre die geltenden Rechte vor der Nutzung mit deinem Anbieter."
   },
   "recovery": {
     "title": "Renderauftrag wiederfinden",
@@ -1527,6 +1533,7 @@
     "low": "Der Speicher wird knapp. Exportieren Sie eine Sicherung, bevor Sie große Dateien hinzufügen.",
     "protect": "Lokalen Speicher schützen",
     "asking": "Schutz wird angefragt…",
+    "pending": "Der Browser wartet noch auf Ihre Antwort. Prüfen Sie seine Berechtigungsanfrage; eine Sicherung können Sie bereits exportieren.",
     "backup": "Dieser Schutz ersetzt keine Sicherung. „Mein Studio exportieren“ erstellt eine unabhängige Kopie. Das Löschen der Browserdaten entfernt weiterhin lokale Projekte."
   },
   "audit": {

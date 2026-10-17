@@ -952,7 +952,7 @@
     "linkFolder": "Link my Obsidian folder",
     "linkExplain": "On Chrome or Edge, on a computer, choose the folder. The studio files the notes and the pictures there.",
     "linkMissing": "Safari, Firefox and the phone do not give this folder. The studio stays on this device. You can export or import.",
-    "export": "Export to Obsidian",
+    "export": "Export my studio",
     "import": "Import from Obsidian",
     "importFolder": "Import a folder",
     "linked": "Linked folder: {name}",
@@ -1487,7 +1487,13 @@
     "savedModels": "Saved 3D models",
     "chooseModel": "Add a saved model…",
     "downloadModel": "Download the 3D model",
-    "modelFailed": "Unable to display “{name}”. The file remains available in My studio."
+    "modelFailed": "Unable to display “{name}”. The file remains available in My studio.",
+    "localClip": "Local preview",
+    "localClipNote": "Free recording of the scene preview; this is not a generated take.",
+    "savedClip": "Preview saved in My studio.",
+    "downloadClip": "Download the video",
+    "modelTerms": "Read the model license",
+    "hunyuanTerms": "Hunyuan3D 2.1 has specific terms: its community license excludes the EU, the UK and South Korea. Check applicable rights with your provider before use."
   },
   "recovery": {
     "title": "Recover a render",
@@ -1527,6 +1533,7 @@
     "low": "Storage is running low. Export a backup before adding large files.",
     "protect": "Protect local storage",
     "asking": "Requesting protection…",
+    "pending": "The browser is still waiting for your answer. Check its permission prompt; you can already export a backup.",
     "backup": "This protection is not a backup. “Export my studio” keeps an independent copy; clearing browser data still deletes local projects."
   },
   "audit": {

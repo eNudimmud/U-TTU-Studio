@@ -952,7 +952,7 @@
     "linkFolder": "Relier mon coffre Obsidian",
     "linkExplain": "Sur Chrome ou Edge, sur un ordinateur, choisis le dossier du coffre. Le studio y range les fiches et les images.",
     "linkMissing": "Safari, Firefox et le téléphone ne donnent pas ce dossier. Le studio reste sur cet appareil. Tu peux exporter ou importer.",
-    "export": "Exporter vers Obsidian",
+    "export": "Exporter mon studio",
     "import": "Importer depuis Obsidian",
     "importFolder": "Importer un dossier",
     "linked": "Dossier relié : {name}",
@@ -1487,7 +1487,13 @@
     "savedModels": "Modèles 3D enregistrés",
     "chooseModel": "Ajouter un modèle enregistré…",
     "downloadModel": "Télécharger le modèle 3D",
-    "modelFailed": "Impossible d’afficher « {name} ». Le fichier reste disponible dans Mon studio."
+    "modelFailed": "Impossible d’afficher « {name} ». Le fichier reste disponible dans Mon studio.",
+    "localClip": "Prévisualisation locale",
+    "localClipNote": "Enregistrement gratuit de la maquette ; ce n’est pas une prise générée.",
+    "savedClip": "Prévisualisation enregistrée dans Mon studio.",
+    "downloadClip": "Télécharger la vidéo",
+    "modelTerms": "Lire la licence du modèle",
+    "hunyuanTerms": "Hunyuan3D 2.1 a des conditions particulières : sa licence communautaire exclut l’Union européenne, le Royaume-Uni et la Corée du Sud. Vérifiez les droits applicables avec votre fournisseur avant utilisation."
   },
   "recovery": {
     "title": "Retrouver un rendu",
@@ -1527,6 +1533,7 @@
     "low": "L’espace disponible devient faible. Exportez une copie avant d’ajouter de gros fichiers.",
     "protect": "Protéger le stockage local",
     "asking": "Demande en cours…",
+    "pending": "Le navigateur attend encore votre réponse. Vérifiez sa demande de permission ; vous pouvez déjà exporter une copie.",
     "backup": "Cette protection ne remplace pas une sauvegarde. « Exporter mon studio » conserve une copie indépendante ; effacer les données du navigateur supprime toujours les projets locaux."
   },
   "audit": {
