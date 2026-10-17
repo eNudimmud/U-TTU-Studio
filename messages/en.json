@@ -1620,7 +1620,7 @@
     "nextPh": "Same character, same set. Write what comes next.",
     "plans": "Shots",
     "addPlan": "＋ Shot",
-    "sequenceSum": "Sequence: {time} / {count} shot(s)",
+    "sequenceSum": "Sequence: {time} · {count, plural, one {# shot} other {# shots}}",
     "preview": "Preview",
     "planN": "Shot {n}",
     "who": "Who?",

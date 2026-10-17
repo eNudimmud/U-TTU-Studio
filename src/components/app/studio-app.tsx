@@ -163,7 +163,8 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
           : <CastStage onDecor={() => go("scene")} />}
       </>}
     </main>
-    {notice && <p className="u-toast" role="status" onClick={() => setNotice("")}>{say(notice)}</p>}
+    {/* PRISE and MONTAGE show the notice inline (near the action / under the header); the floating toast stays for other tabs and over sheets. */}
+    {notice && !((section === "prise" || section === "montage") && !studio.sheet) && <p className="u-toast" role="status" onClick={() => setNotice("")}>{say(notice)}</p>}
     {sheet === "credits" && <CreditSheet />}
     {sheet === "connect" && <ConnectSheet />}
     {sheet === "confirm" && <ConfirmTake />}

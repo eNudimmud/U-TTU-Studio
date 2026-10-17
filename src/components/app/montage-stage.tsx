@@ -104,7 +104,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const { t, say } = useI18n();
   const { format } = useFormat();
   const { locale } = useLocaleSwitch();
-  const { ready, demo, setNotice, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs } = useStudio();
+  const { ready, demo, notice, setNotice, sheet, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs } = useStudio();
   const [loadedProject, setLoadedProject] = useState<string | null>(null);
   const projectRef = useRef(studio.project);
   projectRef.current = studio.project;
@@ -760,6 +760,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </span>
       </span>
     </header>
+    {notice && !sheet && <p className="u-inline-status u-montage-status" role="status" data-statut-inline="" onClick={() => setNotice("")}>{say(notice)}</p>}
     <div className="u-capcut">
     <aside className="u-chutier" data-open={binOpen || undefined} aria-label={t("montage.bin")}>
       <div className="u-bin-handle" aria-hidden="true" onPointerDown={event => {

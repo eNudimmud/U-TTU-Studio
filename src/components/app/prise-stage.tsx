@@ -77,7 +77,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet } = useStudio();
+  const { ready, demo, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet } = useStudio();
   const { t, say } = useI18n();
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
@@ -876,6 +876,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </label>}
 
       <div className="u-prise-actions" data-action={gold.mark}>
+        {notice && !sheet && <p className="u-inline-status" role="status" data-statut-inline="" onClick={() => setNotice("")}>{say(notice)}</p>}
         {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
         {/* Phone: the card is out of view, so the single estimate rides with the action (CSS shows one of the two). */}
         {(gold.mark === "tourner" || gold.mark === "suivant") && <p className="u-prise-quote u-bar-quote">{estimate}</p>}

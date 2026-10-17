@@ -1620,7 +1620,7 @@
     "nextPh": "Gleiche Figur, gleiche Kulisse. Schreiben Sie, wie es weitergeht.",
     "plans": "Einstellungen",
     "addPlan": "＋ Einstellung",
-    "sequenceSum": "Sequenz: {time} / {count} Einstellung(en)",
+    "sequenceSum": "Sequenz: {time} · {count, plural, one {# Einstellung} other {# Einstellungen}}",
     "preview": "Vorschau",
     "planN": "Einstellung {n}",
     "who": "Wer?",

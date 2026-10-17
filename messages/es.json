@@ -1620,7 +1620,7 @@
     "nextPh": "Mismo personaje, mismo decorado. Escribe lo que sigue.",
     "plans": "Planos",
     "addPlan": "＋ Plano",
-    "sequenceSum": "Secuencia: {time} / {count} plano(s)",
+    "sequenceSum": "Secuencia: {time} · {count, plural, one {# plano} other {# planos}}",
     "preview": "Vista previa",
     "planN": "Plano {n}",
     "who": "¿Quién?",
