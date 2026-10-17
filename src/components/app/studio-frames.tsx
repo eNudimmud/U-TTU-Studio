@@ -18,7 +18,18 @@ function Frame({ title, onClose, children }: { title: string; onClose(): void; c
     return () => { node?.close(); if (previous?.isConnected) previous.focus(); };
   }, []);
   return <div className="u-overlay">
-    <dialog ref={dialog} className="u-sheet u-native-sheet" aria-labelledby="u-sheet-title" onCancel={event => { event.preventDefault(); onClose(); }}>
+    <dialog ref={dialog} className="u-sheet u-native-sheet" aria-labelledby="u-sheet-title" onCancel={event => { event.preventDefault(); onClose(); }} onKeyDown={event => {
+      if (event.key !== "Tab") return;
+      const items = [...event.currentTarget.querySelectorAll<HTMLElement>('button, a[href], input, select, textarea, [tabindex]')]
+        .filter(node => node.tabIndex >= 0 && !node.matches(':disabled, [hidden]') && node.getClientRects().length > 0);
+      const first = items[0], last = items[items.length - 1];
+      if (!first) { event.preventDefault(); return; }
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === event.currentTarget)) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
+      }
+    }}>
       <header className="u-sheet-head">
         <h2 id="u-sheet-title">{title}</h2>
         <button type="button" className="u-icon" onClick={onClose} aria-label={t("verb.close")}><Close /></button>

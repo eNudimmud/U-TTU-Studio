@@ -94,10 +94,10 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1');
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Alice tend la main audit');
-  await expect(page.locator('[data-engine]')).toHaveAttribute('data-engine', 'ltx');
+  await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'ltx');
   expect(posts).toBe(0); // The default LTX quote is estimated; only confirmation may submit.
-  await page.locator('[data-engine]').getByRole('button', { name: /MiniMax H3/ }).click();
-  await expect(page.locator('[data-engine]')).toHaveAttribute('data-engine', 'h3');
+  await page.locator('.u-engine[data-engine]').getByRole('button', { name: /MiniMax H3/ }).click();
+  await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'h3');
   // R10 examples remain previews: never charge for a take that silently omits its selected decor.
   const example = page.getByRole('button', { name: /^Exemple Le quai, la nuit$/i });
   await example.click();

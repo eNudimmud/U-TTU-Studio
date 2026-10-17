@@ -5,6 +5,7 @@ import { stillGraph, type StillKind } from "../creation/still.ts";
 import { stemGraph, type StemKind } from "../creation/stem.ts";
 import { ltxTakeGraph } from "../render/ltx-graph.ts";
 import { isVideoGeste, videoGesteGraph } from "../render/video-gestes.ts";
+import { isMeshGeste, meshGesteGraph } from "../render/mesh-gestes.ts";
 import { DEFAULT_TAKE, takeGraph, type ApiGraph } from "../render/take-graph.ts";
 import { REGISTRE, type Geste } from "./registre.ts";
 
@@ -24,6 +25,7 @@ export function graphForGeste(row: Geste): ApiGraph | null {
     const files = Object.fromEntries(row.slots.map((slot, index) => [slot.slot, slot.media === "video" ? "uttu-plan.mp4" : `uttu-${index + 1}.jpg`]));
     return videoGesteGraph({ geste: row.id, files, prompt: PROMPT, seed: 0 });
   }
+  if (row.still === "mesh") return isMeshGeste(row.id) ? meshGesteGraph({ geste: row.id, image: "uttu-1.jpg", seed: 0 }) : null;
   if (row.still === "voix" || row.still === "effet" || row.still === "musique") {
     return stemGraph({ kind: row.still as StemKind, text: PROMPT, seed: 0 });
   }

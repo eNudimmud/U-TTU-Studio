@@ -1184,6 +1184,14 @@
     "prisePrevis": {
       "title": "Directed camera",
       "phrase": "Your 3D maquette sets camera, action and timing; LTX turns it into the shot."
+    },
+    "priseVolumePerso": {
+      "title": "Character in 3D",
+      "phrase": "A CAST portrait becomes a 3D mannequin with Hunyuan3D 2.1, open weights."
+    },
+    "priseVolumeObjet": {
+      "title": "Prop or set in 3D",
+      "phrase": "A photo becomes a 3D prop or set piece with TRELLIS.2, open weights."
     }
   },
   "refs": {
@@ -1421,14 +1429,83 @@
     "previsReady": "{seconds} s previs ready. Nothing was sent.",
     "previsNoCanvas": "The 3D maquette can't be filmed on this device: add a previs video."
   },
-  "audit": {
-    "mapillaryFail": "Mapillary is unavailable. Panoramax results remain available.",
-    "source": "View source",
-    "licenseMissing": "Author or licence missing: this photo cannot be saved as a reference.",
-    "photosEmpty": "No photos found within {radius} m.",
-    "expand": "Search within {radius} m",
-    "retry": "Retry",
-    "flatPhoto": "Full photo: the panoramic viewer is unavailable in this browser."
+  "previs": {
+    "title": "Previs by touch",
+    "touch": "One finger: orbit the camera, or move a person or a prop. Two fingers: pinch to get closer.",
+    "agent": {
+      "label": "Sentence → scene",
+      "placeholder": "Uttu and Kael in an alley at night, a car, two streetlights, push in",
+      "go": "Lay out the scene",
+      "why": "Write one sentence: who, which props, which move.",
+      "people": "{n} character(s)",
+      "props": "props: {list}",
+      "done": "Understood: {list}. Undo brings back the previous scene.",
+      "none": "Nothing recognised. Try: “two characters, a table, the camera circles around”."
+    },
+    "props": "Props",
+    "glb": "Import a .glb",
+    "glbNote": "The model and embedded textures stay in your vault and ZIP backups. A light model works better on phones.",
+    "propsFull": "{max} props at most.",
+    "prop": {
+      "caisse": "Crate",
+      "mur": "Wall",
+      "voiture": "Car",
+      "arbre": "Tree",
+      "lampadaire": "Streetlight",
+      "table": "Table",
+      "glb": "3D model"
+    },
+    "move": {
+      "avant": "push in",
+      "arriere": "pull back",
+      "tour": "orbit",
+      "pano": "pan",
+      "plongee": "high angle",
+      "fixe": "static shot"
+    },
+    "path": "Camera path ({seconds} s)",
+    "pathLead": "Frame with your finger, pick the moment, add a keyframe. The camera glides from one to the next.",
+    "keyAt": "Keyframe at {t} s",
+    "addKey": "＋ Keyframe here",
+    "clearPath": "Clear the path",
+    "removeKey": "Remove the keyframe at {t} s",
+    "noPath": "No keyframe yet: the previs follows your gestures.",
+    "film": "Film the previs ({seconds} s)",
+    "filmPath": "The camera follows your keyframes; the clip goes to Directed camera.",
+    "filmFree": "Move the camera while filming; the clip goes to Directed camera.",
+    "mesh": {
+      "title": "Generate in 3D",
+      "photo": "Source photo",
+      "needPhoto": "Add a photo.",
+      "estimate": "Estimated quote, never measured yet. Official Comfy workflow; nothing runs without your confirmation.",
+      "go": "Generate in 3D · {credits} estimated",
+      "done": "Model added to the maquette."
+    },
+    "keysFull": "{max} keyframes at most.",
+    "invalidModel": "This file is not a readable GLB or glTF 2.0 model.",
+    "externalModel": "This model needs separate files. Export a GLB with embedded textures, then import it.",
+    "savedModels": "Saved 3D models",
+    "chooseModel": "Add a saved model…",
+    "downloadModel": "Download the 3D model",
+    "modelFailed": "Unable to display “{name}”. The file remains available in My studio."
+  },
+  "recovery": {
+    "title": "Recover a render",
+    "export": "Save the receipt",
+    "ambiguous": "The submission response was lost. The render may have been charged. Check the result in the same Comfy account and copy its identifier below. No new submission will be made.",
+    "history": "Open my Comfy account",
+    "id": "Recovered render identifier",
+    "confirm": "I checked that this render matches the project, content and date shown.",
+    "identify": "Recover this existing render",
+    "resume": "Recover the render",
+    "connect": "Connect the account that submitted the render.",
+    "busy": "Another operation is running, or this browser cannot safely recover the render.",
+    "noSpend": "Retrieves an existing submission without generating again.",
+    "invalid": "Check the identifier and confirm that the render matches this receipt.",
+    "changed": "The receipt changed or already has an identifier. Check its state before continuing.",
+    "account": "Reconnect the account that submitted this render.",
+    "failed": "Recovery is unavailable right now. The receipt is preserved.",
+    "corrupt": "The receipt cannot be read. Keep this browser’s data and check your Comfy history."
   },
   "safety": {
     "modelBlocked": "Your model choices disable this action. No render was submitted.",
@@ -1452,22 +1529,13 @@
     "asking": "Requesting protection…",
     "backup": "This protection is not a backup. “Export my studio” keeps an independent copy; clearing browser data still deletes local projects."
   },
-  "recovery": {
-    "title": "Recover a render",
-    "export": "Save the receipt",
-    "ambiguous": "The submission response was lost. The render may have been charged. Check the result in the same Comfy account and copy its identifier below. No new submission will be made.",
-    "history": "Open my Comfy account",
-    "id": "Recovered render identifier",
-    "confirm": "I checked that this render matches the project, content and date shown.",
-    "identify": "Recover this existing render",
-    "resume": "Recover the render",
-    "connect": "Connect the account that submitted the render.",
-    "busy": "Another operation is running, or this browser cannot safely recover the render.",
-    "noSpend": "Retrieves an existing submission without generating again.",
-    "invalid": "Check the identifier and confirm that the render matches this receipt.",
-    "changed": "The receipt changed or already has an identifier. Check its state before continuing.",
-    "account": "Reconnect the account that submitted this render.",
-    "failed": "Recovery is unavailable right now. The receipt is preserved.",
-    "corrupt": "The receipt cannot be read. Keep this browser’s data and check your Comfy history."
+  "audit": {
+    "mapillaryFail": "Mapillary is unavailable. Panoramax results remain available.",
+    "source": "View source",
+    "licenseMissing": "Author or licence missing: this photo cannot be saved as a reference.",
+    "photosEmpty": "No photos found within {radius} m.",
+    "expand": "Search within {radius} m",
+    "retry": "Retry",
+    "flatPhoto": "Full photo: the panoramic viewer is unavailable in this browser."
   }
 }

@@ -1184,6 +1184,14 @@
     "prisePrevis": {
       "title": "Caméra maîtrisée",
       "phrase": "Ta maquette 3D fixe la caméra, l’action et le timing ; LTX en fait le plan."
+    },
+    "priseVolumePerso": {
+      "title": "Personnage en 3D",
+      "phrase": "Un portrait CAST devient un mannequin 3D avec Hunyuan3D 2.1, poids ouverts."
+    },
+    "priseVolumeObjet": {
+      "title": "Objet ou décor en 3D",
+      "phrase": "Une photo devient un objet ou un morceau de décor en 3D avec TRELLIS.2, poids ouverts."
     }
   },
   "refs": {
@@ -1421,14 +1429,83 @@
     "previsReady": "Prévis de {seconds} s prête. Rien n’est parti.",
     "previsNoCanvas": "La maquette 3D n’est pas filmable sur cet appareil : ajoute une vidéo de prévis."
   },
-  "audit": {
-    "mapillaryFail": "Mapillary ne répond pas. Les résultats Panoramax restent disponibles.",
-    "source": "Voir la source",
-    "licenseMissing": "Auteur ou licence incomplet : cette photo ne peut pas être ajoutée aux références.",
-    "photosEmpty": "Aucune photo disponible dans les {radius} m recherchés.",
-    "expand": "Chercher dans un rayon de {radius} m",
-    "retry": "Réessayer",
-    "flatPhoto": "Photo entière : la vue panoramique est indisponible dans ce navigateur."
+  "previs": {
+    "title": "Prévis au doigt",
+    "touch": "Un doigt : tourner la caméra, ou déplacer une personne, un objet. Deux doigts : pincer pour rapprocher.",
+    "agent": {
+      "label": "Phrase → scène",
+      "placeholder": "Uttu et Kael dans une ruelle la nuit, une voiture, deux lampadaires, travelling avant",
+      "go": "Composer la scène",
+      "why": "Écris une phrase : qui, quels objets, quel mouvement.",
+      "people": "{n} personnage(s)",
+      "props": "objets : {list}",
+      "done": "Compris : {list}. Annuler revient à la scène d’avant.",
+      "none": "Rien reconnu. Essaie : « deux personnages, une table, la caméra tourne autour »."
+    },
+    "props": "Objets",
+    "glb": "Importer un .glb",
+    "glbNote": "Le modèle et ses textures intégrées restent dans votre coffre et dans vos sauvegardes ZIP. Un modèle léger convient mieux au téléphone.",
+    "propsFull": "{max} objets au plus.",
+    "prop": {
+      "caisse": "Caisse",
+      "mur": "Mur",
+      "voiture": "Voiture",
+      "arbre": "Arbre",
+      "lampadaire": "Lampadaire",
+      "table": "Table",
+      "glb": "Modèle 3D"
+    },
+    "move": {
+      "avant": "travelling avant",
+      "arriere": "travelling arrière",
+      "tour": "tour autour",
+      "pano": "panoramique",
+      "plongee": "plongée",
+      "fixe": "plan fixe"
+    },
+    "path": "Trajet caméra ({seconds} s)",
+    "pathLead": "Cadre au doigt, choisis l’instant, ajoute un point-clé. La caméra glisse d’un point à l’autre.",
+    "keyAt": "Point-clé à {t} s",
+    "addKey": "＋ Point-clé ici",
+    "clearPath": "Effacer le trajet",
+    "removeKey": "Retirer le point-clé à {t} s",
+    "noPath": "Pas encore de point-clé : la prévis suivra tes gestes.",
+    "film": "Filmer la prévis ({seconds} s)",
+    "filmPath": "La caméra suit tes points-clés ; le clip part dans Caméra maîtrisée.",
+    "filmFree": "Bouge la caméra pendant le film ; le clip part dans Caméra maîtrisée.",
+    "mesh": {
+      "title": "Générer en 3D",
+      "photo": "Photo de départ",
+      "needPhoto": "Ajoute une photo.",
+      "estimate": "Devis estimé, jamais encore mesuré. Workflow Comfy officiel, rien ne part sans ta confirmation.",
+      "go": "Générer en 3D · {credits} estimés",
+      "done": "Modèle ajouté à la maquette."
+    },
+    "keysFull": "{max} points-clés au plus.",
+    "invalidModel": "Ce fichier n’est pas un modèle GLB ou glTF 2.0 lisible.",
+    "externalModel": "Ce modèle dépend de fichiers séparés. Exportez un GLB avec les textures intégrées, puis importez-le.",
+    "savedModels": "Modèles 3D enregistrés",
+    "chooseModel": "Ajouter un modèle enregistré…",
+    "downloadModel": "Télécharger le modèle 3D",
+    "modelFailed": "Impossible d’afficher « {name} ». Le fichier reste disponible dans Mon studio."
+  },
+  "recovery": {
+    "title": "Retrouver un rendu",
+    "export": "Enregistrer le reçu",
+    "ambiguous": "La réponse de l’envoi a été perdue. Le rendu a peut-être été facturé. Consultez le même compte Comfy, vérifiez le résultat et copiez son identifiant ci-dessous. Aucun nouvel envoi ne sera lancé.",
+    "history": "Ouvrir mon compte Comfy",
+    "id": "Identifiant du rendu retrouvé",
+    "confirm": "J’ai vérifié que ce rendu correspond au projet, au contenu et à la date indiqués.",
+    "identify": "Récupérer ce rendu existant",
+    "resume": "Récupérer le rendu",
+    "connect": "Connectez le compte utilisé pour le rendu.",
+    "busy": "Une opération est déjà en cours, ou ce navigateur ne permet pas de sécuriser la récupération.",
+    "noSpend": "Récupère un envoi existant, sans nouvelle génération.",
+    "invalid": "Vérifiez l’identifiant et confirmez que le rendu correspond à ce reçu.",
+    "changed": "Le reçu a changé ou possède déjà un identifiant. Relisez son état avant de continuer.",
+    "account": "Reconnectez le compte qui a envoyé ce rendu.",
+    "failed": "Récupération impossible pour le moment. Le reçu est conservé.",
+    "corrupt": "Le reçu est illisible. Conservez les données de ce navigateur et vérifiez votre historique Comfy."
   },
   "safety": {
     "modelBlocked": "Ce geste est désactivé par vos choix de modèles. Aucun rendu envoyé.",
@@ -1452,22 +1529,13 @@
     "asking": "Demande en cours…",
     "backup": "Cette protection ne remplace pas une sauvegarde. « Exporter mon studio » conserve une copie indépendante ; effacer les données du navigateur supprime toujours les projets locaux."
   },
-  "recovery": {
-    "title": "Retrouver un rendu",
-    "export": "Enregistrer le reçu",
-    "ambiguous": "La réponse de l’envoi a été perdue. Le rendu a peut-être été facturé. Consultez le même compte Comfy, vérifiez le résultat et copiez son identifiant ci-dessous. Aucun nouvel envoi ne sera lancé.",
-    "history": "Ouvrir mon compte Comfy",
-    "id": "Identifiant du rendu retrouvé",
-    "confirm": "J’ai vérifié que ce rendu correspond au projet, au contenu et à la date indiqués.",
-    "identify": "Récupérer ce rendu existant",
-    "resume": "Récupérer le rendu",
-    "connect": "Connectez le compte utilisé pour le rendu.",
-    "busy": "Une opération est déjà en cours, ou ce navigateur ne permet pas de sécuriser la récupération.",
-    "noSpend": "Récupère un envoi existant, sans nouvelle génération.",
-    "invalid": "Vérifiez l’identifiant et confirmez que le rendu correspond à ce reçu.",
-    "changed": "Le reçu a changé ou possède déjà un identifiant. Relisez son état avant de continuer.",
-    "account": "Reconnectez le compte qui a envoyé ce rendu.",
-    "failed": "Récupération impossible pour le moment. Le reçu est conservé.",
-    "corrupt": "Le reçu est illisible. Conservez les données de ce navigateur et vérifiez votre historique Comfy."
+  "audit": {
+    "mapillaryFail": "Mapillary ne répond pas. Les résultats Panoramax restent disponibles.",
+    "source": "Voir la source",
+    "licenseMissing": "Auteur ou licence incomplet : cette photo ne peut pas être ajoutée aux références.",
+    "photosEmpty": "Aucune photo disponible dans les {radius} m recherchés.",
+    "expand": "Chercher dans un rayon de {radius} m",
+    "retry": "Réessayer",
+    "flatPhoto": "Photo entière : la vue panoramique est indisponible dans ce navigateur."
   }
 }

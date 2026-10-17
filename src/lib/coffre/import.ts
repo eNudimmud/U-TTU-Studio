@@ -66,7 +66,7 @@ function blobType(path: string): string {
     mov: "video/quicktime",
     mkv: "video/x-matroska",
     avi: "video/avi",
-    glb: "model/gltf-binary",
+    glb: "model/gltf-binary", gltf: "model/gltf+json",
     wav: "audio/wav", mp3: "audio/mpeg", m4a: "audio/mp4", ogg: "audio/ogg",
   };
   return types[ext] ?? "application/octet-stream";

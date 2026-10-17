@@ -32,7 +32,7 @@ export interface Geste {
   nature: NatureCout;
   premier: boolean;
   /** Graph already in the studio. `prise` is the measured take. Null stays closed. */
-  still: StillKindName | "prise" | "video" | "voix" | "effet" | "musique" | null;
+  still: StillKindName | "prise" | "video" | "mesh" | "voix" | "effet" | "musique" | null;
   minRefs: number;
   /** i18n key. One line, shown when the gesture stays under Bientôt. */
   raison?: string;
@@ -70,6 +70,7 @@ export const TEMPLATES_OFFICIELS = [
   "templates-1_click_multiple_scene_angles-v1.0",
   "template_sirolim_any_aspect_ratio_nb2",
   "3d_pixal3d_trellis2_image_to_model",
+  "3d_hunyuan3d-v2.1",
   "video_minimax_h3_r2v",
   "video_minimax_h3_i2v",
   "video_minimax_h3_multiframe_reference",
@@ -290,6 +291,18 @@ export const REGISTRE: readonly Geste[] = [
     fournit: ["photo", "video", "texte"], slots: [{ role: "plan", slot: "image_1" }, { role: "clip", slot: "video_1", media: "video" }],
     template: "video_ltx2_3_ic_lora", credits: 15, high: 30, nature: "hypothese",
     premier: true, still: "video", minRefs: 2, consigne: "",
+  }),
+  geste({
+    id: "prise-volume-perso", onglet: "prise", categorie: "image", clef: "priseVolumePerso",
+    fournit: ["photo"], slots: [FACE("image_1")],
+    template: "3d_hunyuan3d-v2.1", credits: 8, high: 16, nature: "hypothese",
+    premier: false, still: "mesh", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "prise-volume-objet", onglet: "prise", categorie: "image", clef: "priseVolumeObjet",
+    fournit: ["photo"], slots: [LIEU("image_1")],
+    template: "3d_pixal3d_trellis2_image_to_model", credits: 15, high: 30, nature: "hypothese",
+    premier: false, still: "mesh", minRefs: 1, consigne: "",
   }),
   geste({
     id: "prise-mouvement", onglet: "prise", categorie: "mouvement", clef: "priseMotion",

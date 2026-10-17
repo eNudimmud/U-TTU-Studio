@@ -11,7 +11,6 @@ export default defineConfig({
   retries: ci ? 1 : 0,
   use: {
     baseURL: "http://127.0.0.1:3000",
-    channel: process.env.PLAYWRIGHT_CHANNEL || "chromium",
     locale: "fr-FR",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
@@ -23,11 +22,11 @@ export default defineConfig({
     timeout: 180_000,
   },
   projects: [
-    { name: "desktop", use: { viewport: { width: 1280, height: 800 } } },
-    { name: "mobile", use: { viewport: { width: 390, height: 844 } } },
+    { name: "desktop", use: { channel: process.env.PLAYWRIGHT_CHANNEL || "chromium", viewport: { width: 1280, height: 800 } } },
+    { name: "mobile", use: { channel: process.env.PLAYWRIGHT_CHANNEL || "chromium", viewport: { width: 390, height: 844 } } },
     ...(["firefox", "webkit"] as const).flatMap(browserName => [
-      { name: `${browserName}-desktop`, testMatch: /reliability-ux\.spec\.ts/, use: { browserName, channel: undefined, viewport: { width: 1280, height: 800 } } },
-      { name: `${browserName}-mobile`, testMatch: /reliability-ux\.spec\.ts/, use: { browserName, channel: undefined, viewport: { width: 390, height: 844 } } },
+      { name: `${browserName}-desktop`, testMatch: /reliability-ux\.spec\.ts/, use: { browserName, viewport: { width: 1280, height: 800 } } },
+      { name: `${browserName}-mobile`, testMatch: /reliability-ux\.spec\.ts/, use: { browserName, viewport: { width: 390, height: 844 } } },
     ]),
   ],
 });

@@ -63,3 +63,15 @@ Les codes P0 corrigés restent des corrections à valider, et non une preuve qu�
 | A48 | P2 | Renommer/supprimer proposés sur des médias sans gestionnaire effectif | Actions limitées aux types réellement pris en charge |
 
 Les validations de cette passe sont consignées dans [integration-concours.md](integration-concours.md). Aucun rendu réel supplémentaire ni déploiement de production n’est attesté.
+
+## Intégration de main après fusion de #110 — 17 octobre
+
+| ID | Niveau | Défaut confirmé | Correction / limite |
+| --- | --- | --- | --- |
+| A49 | P0 | Nouveau rendu 3D soumis directement, sans reçu ni verrou et projet choisi au retour | Reçu avant POST, verrou commun, UUID, sources et projet figés, reprise du GLB existant |
+| A50 | P0 | Import 3D stocké seulement sous URL Blob ; modèle disparu après fermeture | Fichier et fiche dans le coffre, référence durable, ZIP, liste des modèles réutilisables |
+| A51 | P1 | Confirmation 3D conservée après remplacement de la photo | Confirmation annulée à chaque changement |
+| A52 | P1 | Une erreur de modèle produit une caisse factice | Erreur explicite ; fichier téléchargeable ; aucune substitution silencieuse |
+| A53 | P1 | Première CI #111 : dialogue natif laisse Tab sortir ; Firefox/WebKit héritent du canal Chrome | Bouclage clavier explicite, canal propre à Chromium ; assertions maintenues |
+
+La prévis filmée non encore envoyée reste temporaire ; les modèles et scènes sont persistés. Les limites de ressources/éviction sur appareil physique restent à vérifier.

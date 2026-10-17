@@ -11,40 +11,19 @@ import { PREVIS_SECONDS, VIDEO_GESTE_TEXT, VIDEO_GESTES, type VideoGesteId } fro
 import { casesVisibles, gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
 
-/** Films the 3D maquette canvas for the previs. The visitor moves the camera while it records. */
-async function recordMaquette(seconds: number, onTick: (left: number) => void): Promise<File | null> {
-  const canvas = document.querySelector<HTMLCanvasElement>("canvas.u-maquette-canvas");
-  if (!canvas || typeof canvas.captureStream !== "function" || typeof MediaRecorder === "undefined") return null;
-  const type = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4"].find(item => MediaRecorder.isTypeSupported(item));
-  if (!type) return null;
-  const stream = canvas.captureStream(25);
-  const chunks: Blob[] = [];
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  let tick: ReturnType<typeof setInterval> | undefined;
-  try {
-    const recorder = new MediaRecorder(stream, { mimeType: type });
-    recorder.ondataavailable = event => { if (event.data.size > 0) chunks.push(event.data); };
-    await new Promise<void>((resolve, reject) => {
-      recorder.onstop = () => resolve();
-      recorder.onerror = () => reject(new Error('Recording failed'));
-      recorder.start(250);
-      let left = seconds;
-      onTick(left);
-      tick = setInterval(() => onTick(Math.max(0, --left)), 1000);
-      timer = setTimeout(() => { if (recorder.state !== 'inactive') recorder.stop(); }, seconds * 1000);
-    });
-  } finally {
-    clearTimeout(timer);
-    clearInterval(tick);
-    stream.getTracks().forEach(track => track.stop());
-    onTick(0);
-  }
-  if (!chunks.length) return null;
-  const ext = type.startsWith("video/mp4") ? "mp4" : "webm";
-  return new File(chunks, `uttu-previs.${ext}`, { type: type.split(";")[0] });
-}
+import { recordMaquette } from "@/lib/maquette/record";
 
-export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" | "vertical" }) {
+export interface PrevisClip { file: File; at: number }
+
+export function VideoGestes({ aspect = "horizontal", previs: sent = null, onRecordPrevis, previsLeft = 0 }: {
+  aspect?: "horizontal" | "vertical";
+  /** A previs filmed in the maquette above. It lands straight in Caméra maîtrisée. */
+  previs?: PrevisClip | null;
+  /** Films the maquette along its camera path. Without it, the canvas is filmed as it moves. */
+  onRecordPrevis?(): void;
+  /** Seconds left while the maquette films, from the panel above. */
+  previsLeft?: number;
+}) {
   const { t } = useI18n();
   const { prefs, connected, creating, runVideoGeste, holdClip } = useStudio();
   const rows = VIDEO_GESTES.flatMap(id => {
@@ -57,13 +36,28 @@ export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" |
   const [confirmed, setConfirmed] = useState(false);
   const [stage, setStage] = useState<{ stage: FinaliseStage; seconds?: number } | null>(null);
   const [outcome, setOutcome] = useState<FinaliseOutcome | null>(null);
-  const [recording, setRecording] = useState(0);
+  const [ownRecording, setRecording] = useState(0);
+  const recording = Math.max(ownRecording, previsLeft);
   const [previsUrl, setPrevisUrl] = useState("");
   const [previsNote, setPrevisNote] = useState("");
   const recordingRef = useRef(false);
   useEffect(() => () => { if (previsUrl) URL.revokeObjectURL(previsUrl); }, [previsUrl]);
   useEffect(() => () => { if (outcome?.ok) URL.revokeObjectURL(outcome.url); }, [outcome]);
   useEffect(() => setConfirmed(false), [aspect]);
+  const clipRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (!sent) return;
+    setPicked("prise-previs");
+    setConfirmed(false);
+    setOutcome(null);
+    setFiles(current => ({ ...current, video_1: sent.file }));
+    setPrevisUrl(URL.createObjectURL(sent.file));
+    setPrevisNote(t("videoGeste.previsReady", { seconds: String(PREVIS_SECONDS) }));
+  }, [sent?.at]);
+  useEffect(() => {
+    // After a recording the clip must be on screen, not the top of the block (mobile 390).
+    if (previsUrl) requestAnimationFrame(() => clipRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }));
+  }, [previsUrl]);
   const row = rows.find(item => item.id === picked) ?? rows[0];
   if (!row || row.credits === null || row.high === null) return null;
   const geste = row.id as VideoGesteId;
@@ -75,6 +69,7 @@ export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" |
   const why = !connected ? t("videoGeste.needLink") : missing ? t("videoGeste.needFiles") : !confirmed ? t("videoGeste.needConfirm") : "";
 
   async function previs() {
+    if (onRecordPrevis) { onRecordPrevis(); return; }
     if (recordingRef.current) return;
     recordingRef.current = true;
     setPrevisNote("");
@@ -122,9 +117,9 @@ export function VideoGestes({ aspect = "horizontal" }: { aspect?: "horizontal" |
       </button>
       {recording > 0 && <p className="u-small" id="u-video-busy" aria-live="polite">{t("videoGeste.previsMove")}</p>}
       {previsNote && <p className="u-small" aria-live="polite">{previsNote}</p>}
-      {previsUrl && <video className="u-previs-clip" src={previsUrl} muted loop autoPlay playsInline />}
+      {previsUrl && <video ref={clipRef} className="u-previs-clip" data-previs-clip="" src={previsUrl} muted loop autoPlay playsInline />}
     </div>}
-    {cases.map(item => <label key={item.id} className="u-field u-video-file">
+    {cases.filter(item => !(geste === "prise-previs" && item.id === "video_1" && previsUrl)).map(item => <label key={item.id} className="u-field u-video-file">
       <span className="u-label">{t(geste === "prise-previs" ? `videoGeste.slotPrevis.${item.role}` : `videoGeste.slot.${item.role}`)}</span>
       <input type="file" accept={item.media === "video" ? "video/*" : "image/*"} disabled={busy} onChange={event => {
         setConfirmed(false);

@@ -1,14 +1,14 @@
-# Audit — intégration de la version concours, 16 octobre 2026
+# Audit — intégration de la version concours, 17 octobre 2026
 
-Cette livraison poursuit la mission complète. Elle rapproche les correctifs des PR #104/#107 et la version concours de JD, sans fusionner ni remplacer sa branche. Le résultat n'est pas encore une certification de production.
+Cette livraison poursuit la mission complète. Elle rapproche les correctifs des PR #104/#107 et la version concours de JD, en conservant sa version désormais fusionnée dans main par JD. Le résultat n'est pas encore une certification de production.
 
 ## Versions et limites de preuve
 
-- Main relu : `3079a0bc62597f5b4ab43900ce53f19ed1989176`.
-- Version concours intégrée : PR #110, `3dabc5f853aa8f11335572034973d45db182be18`, incluant les devis LTX estimés, les gestes vidéo, la prévis et les migrations de graphes du 16 octobre.
+- Main relu : `5f87e6784bd75478e750c3070a2da0a747dd6c8b`.
+- Version concours intégrée : PR #110 fusionnée par JD, tête `57142cbd5e40ce34f5616beba985799fa45e97e5`, incluant les devis LTX estimés, gestes vidéo, prévis mobile, objets, import GLB, trajet caméra, génération Hunyuan3D/TRELLIS.2 et suppression du workflow de déploiement fal.
 - Corrections précédentes : #104 `73ec49ffa2bc0ee6af31c09ac426b57c051b892c` et #107 `332b05ce47035297b325f0056267b8871b2e87ad`.
-- Branche de revue : `audit/hackathon-integration-20261016`, base `concours/ltx-flux3-open-source`.
-- Zéro nouveau rendu payant, zéro entraînement, aucun secret copié dans les rapports, aucune fusion sur main, aucune publication sociale ni inscription au concours.
+- Branche de revue : `audit/hackathon-integration-20261016`, PR #111, base `main` après intégration du squash #110.
+- Zéro nouveau rendu payant, zéro entraînement, aucun secret copié dans les rapports, aucune fusion effectuée par cet audit sur main, aucune publication sociale ni inscription au concours.
 
 Les documents [rapport](rapport.md), [matrice](matrice.md), [anomalies](anomalies.md), [cartographie](cartographie.md) et [validation](validation.md) conservent l'inventaire et les preuves antérieures. Cette note décrit les changements de périmètre et les nouveaux résultats. Les mesures H3/Klein historiques ne prouvent pas la validation des graphes migrés.
 
@@ -27,7 +27,8 @@ La suppression du code dormant fal/LoRA/Farpy provient de la PR #110. L'intégra
 5. **Moteur, références et préférences.** Le moteur réellement envoyé suit celui du plan confirmé. Une sélection trop grande est refusée avant upload (LTX : 4 références ; H3 : 9), au lieu d'omettre silencieusement un décor. Les restrictions de modèle sont revérifiées dans les gestionnaires d'envoi. `cancel_requested` reste un travail en cours, pas un résultat terminal libérant le reçu.
 6. **Confirmation et accessibilité.** Dialogues natifs avec confinement du clavier, Échap et restitution du focus. Toute modification des fichiers, du texte ou du format d'un geste vidéo annule son ancienne confirmation. La prévis libère ses pistes et signale une erreur d'enregistrement ; ses URL temporaires sont libérées. Les actions de renommage/suppression sans gestionnaire effectif ne sont plus proposées sur les cartes vidéo/audio.
 7. **Coût honnête et export.** Réserve conseillée et prix final non garanti sont explicités. Finaliser utilise RTX Super Resolution ; les templates SeedVR2 ne sont pas présentés comme le bouton actif. RTX reste fermé dans le mode « Open weights seulement » tant que la qualification de ses poids n'est pas vérifiée. Export local H.264/AAC maintenu, avec encodeur AAC de secours local.
-8. **Exécution ComfyUI locale.** Le lanceur refuse un modèle partenaire sans option explicite, vérifie les réponses HTTP, borne l'attente, utilise un nom unique sans écrasement et réinjecte le nom/sous-dossier réellement renvoyé par l'upload. Une erreur ne déclenche aucune nouvelle soumission automatique. Aucun ComfyUI réel n'a été lancé pour ces tests.
+9. **Prévis et modèles 3D.** Les fichiers GLB/glTF autonomes sont conservés avec leur fiche, inclus dans les sauvegardes et réutilisables depuis une liste. Les scènes gardent le chemin du fichier, pas une URL Blob expirante ; caméra et objets sont validés à la lecture. Les modèles nécessitant des fichiers externes sont refusés avec explication. Une erreur de lecture ne devient plus une caisse fictive. La génération 3D emploie le reçu/verrou commun, garde ses sources et son projet, et se récupère sans resoumission. Changer la photo annule le consentement. Le prix reste une estimation.
+10. **Exécution ComfyUI locale.** Le lanceur refuse un modèle partenaire sans option explicite, vérifie les réponses HTTP, borne l'attente, utilise un nom unique sans écrasement et réinjecte le nom/sous-dossier réellement renvoyé par l'upload. Une erreur ne déclenche aucune nouvelle soumission automatique. Aucun ComfyUI réel n'a été lancé pour ces tests.
 
 Le dépôt officiel des nœuds NVIDIA indique une licence Apache-2.0 pour l'extension et une dépendance aux bindings NVIDIA VFX. Cela ne constitue pas une attestation que tous les poids utilisés satisfont la catégorie du concours : <https://github.com/Comfy-Org/ComfyUI_Nvidia_VFX_Nodes>. Aucune désactivation de RTX en mode ordinaire.
 
@@ -40,8 +41,9 @@ Le dépôt officiel des nœuds NVIDIA indique une licence Apache-2.0 pour l'exte
 | DÉCOR cartes et photos | Correctifs #104 conservés, attribution et refus si droits incomplets | Panoramax public observé auparavant ; Mapillary authentifié et couverture géographique restent à vérifier |
 | Maquette / préparation / plans | Sauvegarde du texte, du cadre, des personnages et du décor | Local ; fidélité spatiale du rendu non démontrée |
 | PRISE LTX/H3 | Moteur exact, références, estimation ou mesure historique, verrou et journal | Contrats simulés ; aucune nouvelle génération réellement facturée |
+| Modèles 3D / prévis mobile | Import, sauvegarde, ZIP, liste de réutilisation, caméra ; contrat de reprise | Générations Hunyuan3D/TRELLIS.2 réelles et performances téléphone non validées |
 | Gestes vidéo / prévis | Enregistrement navigateur, graphe, consentement renouvelé, reçu et montage | Rendu MoGe/IC-LoRA, raccord, VFX et qualité non validés auprès du fournisseur |
-| MONTAGE et plusieurs clips | Import de vraies vidéos, ordre, coupe, son et sauvegarde | Export réel Chrome déjà démontré sur #107 ; nouvelle intégration à vérifier en CI |
+| MONTAGE et plusieurs clips | Import de vraies vidéos, ordre, coupe, son et sauvegarde | Exports réels Chrome réussis dans la première CI #111 ; nouvelle base main à vérifier |
 | EXPORT local | H.264/AAC, 60 s max, 960×540 ou 540×960, 12 images/s | Ne vaut pas export professionnel universel ; autres codecs/appareils non attestés |
 | Finaliser RTX | Préparation master, consentement, reçu et récupération | Vrai 1080p/4K, son et tarifs actuels non validés ; restriction du mode Open Weights |
 | Voix / musique / effets | Confirmation et conservation ; restriction partenaires | Génération et droits du fournisseur non vérifiés en réel |
@@ -52,13 +54,11 @@ Le dépôt officiel des nœuds NVIDIA indique une licence Apache-2.0 pour l'exte
 
 ## Tests exécutés et tests préparés
 
-État local avant publication de la PR d'intégration :
-
-- `npm test` : **265 tests, 264 réussis, 1 ignoré, 0 échec**, 75 suites. Le total diffère de #107 car la branche concours supprime les tests de modules retirés ; aucun test actif n'a été supprimé pour obtenir ce résultat.
-- `npm run typecheck` : succès.
-- `npm run build` : succès, compilation serveur et 10 pages ; sans clés Clerk.
-- Lanceur local : vrai script exécuté en sous-processus avec transport fetch simulé ; vérification du refus partenaire avant upload et de l'absence d'écrasement. Ce n'est pas une validation d'un serveur ComfyUI.
-- Playwright préparé : parcours Chrome complets sur deux tailles ; reprise, stockage et clavier sur Firefox/WebKit, également sur deux tailles. Les doubles clics et retours cloud sont interceptés. Les téléchargements et décodages vidéo locaux utilisent de vrais octets de médias du dépôt. **Résultats de cette nouvelle CI encore à joindre ; ils ne sont pas déduits des tests unitaires.**
+- Intégration initiale `d20b847` : **264 réussis, 1 ignoré**, types/build réussis. [CI 38970043433](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/38970043433) : **14 tests navigateur réussis, 20 échoués**. Douze échecs venaient du canal Chrome transmis à Firefox/WebKit ; six de sélecteurs devenus ambigus ; deux révélaient une vraie sortie du focus hors du dialogue. Aucune assertion supprimée : configuration et sélecteurs précisés, bouclage Tab/Shift+Tab ajouté.
+- Les exports réels de cette CI sont présents dans l’artefact `12075619483`, SHA-256 de l’archive `8b727ea9074e710ba3444e4539783ec607851c93780b87d06c21f3f9905e9fa3` : storyboard et montage de deux clips, ordinateur/mobile. Ils utilisent des médias locaux de fixture ; aucun rendu génératif n’a été effectué.
+- Nouvelle base main du 17 octobre : **274 tests Node, 273 réussis, 1 ignoré, 0 échec**, 77 suites. `npm run typecheck` et `npm run build` réussissent localement. Une première passe avait détecté un terme allemand non canonique ; texte corrigé et suite complète relancée.
+- Playwright : **40 scénarios préparés**, Chrome ordinateur/mobile et quatre scénarios de fiabilité sur Firefox/WebKit aux deux tailles. Le nouveau cas 3D vérifie l’import, la persistance de scène, l’invalidation de consentement, le double clic, le reçu, sa récupération simulée, la réutilisation et le téléchargement exact après fermeture. Résultat de cette nouvelle CI encore en attente.
+- Les transports cloud sont interceptés et utilisent des clés factices. Exports, IndexedDB, demandes de persistance et téléchargements sont réels. Les tests du lanceur exécutent le vrai script avec fetch simulé, sans serveur ComfyUI réel.
 
 L'environnement local avait refusé le lancement du navigateur (`socket() failed: Operation not permitted`). Pas de contournement : les parcours sont exécutés dans GitHub Actions. Une émulation 390×844 n'est pas un test sur téléphone physique ; WebKit Playwright n'est pas une certification Safari/iOS.
 
@@ -67,7 +67,7 @@ L'environnement local avait refusé le lancement du navigateur (`socket() failed
 1. Relire le build d'intégration dans un aperçu Vercel accessible, puis autoriser sa fusion après revue. Les PR #104/#107 restent des brouillons ; éviter une double fusion aveugle de ces mêmes correctifs.
 2. Refaire le parcours réel sur le déploiement résultant et relever son SHA. Le site public actuel ne prouve pas que ces correctifs y sont déployés.
 3. Avec autorisation et budget explicitement définis : produire un CAST et un DÉCOR, au moins deux prises LTX/H3, les assembler, exporter et rouvrir le projet. Mesurer coûts, qualité, identité, synchronisation audio et reprise sur le même compte.
-4. Valider séparément prévis/IC-LoRA, raccord, élargissement, effacement, partenaires audio et finalisation RTX. Un graphe exporté ou un dry-run rapporté ne prouve pas un résultat facturé exploitable.
+4. Valider séparément prévis/IC-LoRA, raccord, élargissement, effacement, partenaires audio, génération 3D Hunyuan3D/TRELLIS.2 et finalisation RTX. Un graphe exporté ou un dry-run rapporté ne prouve pas un résultat facturé exploitable.
 5. Tester Mapillary avec un jeton autorisé, d'autres villes Panoramax, et vérifier les droits de chaque référence retenue. Aucune licence ne doit être déduite d'une simple disponibilité réseau.
 6. Tester un téléphone Android et un iPhone physiques, fermeture complète du navigateur, manque d'espace, permissions de dossier et sauvegarde/restauration indépendante.
 7. Qualifier les licences des modèles pour la catégorie choisie, produire une démo de deux minutes maximum et fournir les éléments de soumission. Aucune publication n'est faite par cet audit.

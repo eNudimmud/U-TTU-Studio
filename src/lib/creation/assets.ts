@@ -26,7 +26,7 @@ const FROM_FOLDER: Record<string, AssetKind> = {
   Assets: "importe",
 };
 
-const MEDIA = /\.(png|jpe?g|webp|gif|mp4|webm|mov|wav|mp3|m4a|ogg)$/i;
+const MEDIA = /\.(png|jpe?g|webp|gif|mp4|webm|mov|wav|mp3|m4a|ogg|glb|gltf)$/i;
 
 export interface AssetRecord {
   id: string;

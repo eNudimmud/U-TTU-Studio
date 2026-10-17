@@ -51,6 +51,8 @@ Les coûts marqués hypothèse ne sont pas une mesure. Mesurés : la prise MiniM
 | prise-raccord | Raccord | `video_ltx2_5_flf2v` | 12 / 25, estimé | ouvert, premier, open weights |
 | prise-prolonger | Prolonger | `video_minimax_h3_i2v_continuation` | non mesuré | fermé, open weights |
 | prise-previs | Caméra maîtrisée (prévis maquette 3D → plan) | `video_ltx2_3_ic_lora` | 15 / 30, estimé | ouvert, premier, open weights |
+| prise-volume-perso | Personnage en 3D (portrait → mannequin GLB de la maquette) | `3d_hunyuan3d-v2.1` | 8 / 16, estimé | ouvert dans la maquette, open weights |
+| prise-volume-objet | Objet ou décor en 3D (photo → GLB, 40 000 faces pour mobile) | `3d_pixal3d_trellis2_image_to_model` | 15 / 30, estimé | ouvert dans la maquette, open weights |
 | prise-camera | Caméra | `video_ltx2_3_ic_lora` | 15 / 30, estimé | ouvert, open weights |
 | prise-mouvement | Transfert de mouvement | `video_wan_animate2` | non mesuré | fermé, open weights |
 | prise-levres | Lèvres | `video_ltx2_3_ia2v` | non mesuré | fermé, open weights |

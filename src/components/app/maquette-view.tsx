@@ -1,7 +1,9 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/provider";
 import { useEffect, useRef, useState } from "react";
-import { MAX_PIXEL_RATIO, uprightRotation, type MaquetteState } from "@/lib/maquette/state";
+import { MAX_PIXEL_RATIO, RADIUS_MIN, uprightRotation, type MaquetteState } from "@/lib/maquette/state";
+import { PATH_SECONDS, decimation, orbitAt, type Prop } from "@/lib/maquette/scene";
 import { sampleRelief, standsInStreet, type Quartier } from "@/lib/repere/quartier";
 import { drawQuartier } from "./quartier-draw";
 
@@ -15,6 +17,11 @@ interface Props {
   onMove(id: string, x: number, z: number): void;
   onOrbit(dx: number, dy: number): void;
   onPinch(previous: number, distance: number): void;
+  onMoveProp?(id: string, x: number, z: number): void;
+  /** performance.now() when the camera path started playing, or null. */
+  playFrom?: number | null;
+  /** Called on every played frame with the elapsed seconds; at the end with PATH_SECONDS. */
+  onPlayTick?(seconds: number): void;
 }
 
 type Mode = "webgl" | "plat";
@@ -28,7 +35,9 @@ function canWebGL(): boolean {
   }
 }
 
-export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier = null, onMove, onOrbit, onPinch }: Props) {
+export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier = null, onMove, onOrbit, onPinch, onMoveProp, playFrom = null, onPlayTick }: Props) {
+  const { t } = useI18n();
+  const [modelError, setModelError] = useState("");
   const host = useRef<HTMLDivElement>(null);
   const stateRef = useRef(state);
   const moveRef = useRef(onMove);
@@ -40,6 +49,12 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
   orbitRef.current = onOrbit;
   pinchRef.current = onPinch;
   quartierRef.current = quartier;
+  const movePropRef = useRef(onMoveProp);
+  movePropRef.current = onMoveProp;
+  const playRef = useRef<number | null>(playFrom);
+  playRef.current = playFrom;
+  const tickRef = useRef(onPlayTick);
+  tickRef.current = onPlayTick;
   const [mode, setMode] = useState<Mode>("webgl");
 
   useEffect(() => {
@@ -195,6 +210,93 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         }
       }
 
+      const propGroups = new Map<string, THREE.Object3D>();
+      const propKey = new Map<string, string>();
+      const mobile = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+      const propMaterial = new THREE.MeshStandardMaterial({ color: 0x8a7a5a, roughness: 0.8 });
+      const lampMaterial = new THREE.MeshStandardMaterial({ color: 0xd4af37, emissive: 0x6a5410, roughness: 0.5 });
+      materials.push(propMaterial, lampMaterial);
+
+      function primitive(kind: Prop["kind"]): THREE.Group {
+        const group = new THREE.Group();
+        const add = (geometry: THREE.BufferGeometry, x: number, y: number, z: number, material: THREE.Material = propMaterial) => {
+          geometries.push(geometry);
+          const mesh = new THREE.Mesh(geometry, material);
+          mesh.position.set(x, y, z);
+          group.add(mesh);
+        };
+        if (kind === "caisse") add(new THREE.BoxGeometry(0.8, 0.8, 0.8), 0, 0.4, 0);
+        else if (kind === "mur") add(new THREE.BoxGeometry(6, 2.6, 0.25), 0, 1.3, 0);
+        else if (kind === "voiture") { add(new THREE.BoxGeometry(4, 0.8, 1.8), 0, 0.6, 0); add(new THREE.BoxGeometry(2.2, 0.7, 1.6), -0.2, 1.35, 0); }
+        else if (kind === "arbre") { add(new THREE.CylinderGeometry(0.14, 0.2, 1.8, 8), 0, 0.9, 0); add(new THREE.SphereGeometry(0.9, 12, 10), 0, 2.3, 0); }
+        else if (kind === "lampadaire") { add(new THREE.CylinderGeometry(0.06, 0.08, 3.4, 8), 0, 1.7, 0); add(new THREE.SphereGeometry(0.2, 10, 8), 0, 3.5, 0, lampMaterial); }
+        else if (kind === "table") { add(new THREE.BoxGeometry(1.6, 0.08, 0.9), 0, 0.76, 0); add(new THREE.CylinderGeometry(0.08, 0.1, 0.72, 8), 0, 0.36, 0); }
+        return group;
+      }
+
+      function loadGlb(prop: Prop, holder: THREE.Group) {
+        if (!prop.url) return;
+        void import("three/examples/jsm/loaders/GLTFLoader.js").then(async ({ GLTFLoader }) => {
+          const gltf = await new GLTFLoader().loadAsync(prop.url!);
+          if (dead) return;
+          const { SimplifyModifier } = await import("three/examples/jsm/modifiers/SimplifyModifier.js");
+          const simplify = new SimplifyModifier();
+          let triangles = 0;
+          gltf.scene.traverse(child => {
+            if (!(child instanceof THREE.Mesh)) return;
+            const geometry = child.geometry as THREE.BufferGeometry;
+            const count = geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3;
+            const cut = decimation(count, geometry.attributes.position.count, mobile);
+            if (cut > 0) {
+              try { child.geometry = simplify.modify(geometry, cut); geometry.dispose(); } catch { /* keep the original */ }
+            }
+            geometries.push(child.geometry);
+            const drawn = child.geometry as THREE.BufferGeometry;
+            triangles += drawn.index ? drawn.index.count / 3 : drawn.attributes.position.count / 3;
+          });
+          // Stand it on the floor, about a person high, whatever its units.
+          const box = new THREE.Box3().setFromObject(gltf.scene);
+          const size = box.getSize(new THREE.Vector3());
+          const scale = 2.2 / Math.max(0.001, size.y, size.x * 0.6, size.z * 0.6);
+          gltf.scene.scale.setScalar(scale);
+          gltf.scene.position.set(-((box.min.x + box.max.x) / 2) * scale, -box.min.y * scale, -((box.min.z + box.max.z) / 2) * scale);
+          holder.add(gltf.scene);
+          holder.userData.triangles = Math.round(triangles);
+          host.current?.parentElement?.parentElement?.setAttribute("data-triangles", String(Math.round(triangles)));
+          paint();
+        }).catch(() => { if (!dead) setModelError(prop.name); });
+      }
+
+      function syncProps() {
+        const current = stateRef.current.props ?? [];
+        const alive = new Set(current.map(item => item.id));
+        for (const [id, group] of propGroups) {
+          if (alive.has(id)) continue;
+          scene.remove(group);
+          propGroups.delete(id);
+          propKey.delete(id);
+        }
+        for (const prop of current) {
+          const key = `${prop.kind}|${prop.url ?? ""}`;
+          let group = propGroups.get(prop.id);
+          if (!group || propKey.get(prop.id) !== key) {
+            if (group) scene.remove(group);
+            const holder = prop.kind === "glb" ? new THREE.Group() : primitive(prop.kind);
+            if (prop.kind === "glb") loadGlb(prop, holder);
+            holder.name = prop.id;
+            holder.userData.prop = true;
+            group = holder;
+            propGroups.set(prop.id, group);
+            propKey.set(prop.id, key);
+            scene.add(group);
+          }
+          group.traverse(child => { child.userData.root = group; });
+          const spot = worldOf(prop.x, prop.z);
+          group.position.set(spot.x, spot.y, spot.z);
+          group.rotation.set(0, prop.yaw, 0);
+        }
+      }
+
       function nameSprite(name: string, color: string) {
         const canvas = document.createElement("canvas");
         canvas.width = 512;
@@ -224,14 +326,16 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       }
 
       function frameCamera() {
-        const orbit = stateRef.current.orbit;
+        const started = playRef.current;
+        const orbit = started === null ? stateRef.current.orbit : orbitAt(stateRef.current.path ?? [], (performance.now() - started) / 1000, stateRef.current.orbit);
         const place = quartierRef.current;
         const origin = worldOf(0, 0);
         const span = stateRef.current.figures.reduce((max, figure) => Math.max(max, Math.abs(figure.x), Math.abs(figure.z)), 0);
         const aspect = Math.max(0.75, camera.aspect || 1);
         const needed = (span + 1.2) / (Math.tan((20 * Math.PI) / 180) * aspect);
         // Close tiles stay above the distance that keeps head, name and feet inside the stage.
-        const radius = Math.max(orbit.radius, 6.6, needed);
+        const guided = playRef.current !== null || (stateRef.current.path?.length ?? 0) > 0;
+        const radius = guided ? Math.max(orbit.radius, RADIUS_MIN) : Math.max(orbit.radius, 6.6, needed);
         const targetY = origin.y + 1.25;
         camera.far = place ? 250 : 100;
         camera.updateProjectionMatrix();
@@ -253,6 +357,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         camera.updateProjectionMatrix();
         syncBlock();
         syncFigures();
+        syncProps();
         frameCamera();
         renderer.render(scene, camera);
       }
@@ -261,6 +366,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
       const pointers = new Map<number, { x: number; y: number }>();
       let dragId: string | null = null;
+      let dragProp = false;
       let last: { x: number; y: number } | null = null;
       let pinchDistance = 0;
 
@@ -282,9 +388,10 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
           return;
         }
         raycaster.setFromCamera(ndc(event), camera);
-        const hit = raycaster.intersectObjects([...groups.values()], true)[0];
-        const root = hit?.object.userData.root as THREE.Group | undefined;
-        dragId = root && !stateRef.current.lockPose ? root.name : null;
+        const hit = raycaster.intersectObjects([...groups.values(), ...propGroups.values()], true)[0];
+        const root = hit?.object.userData.root as THREE.Object3D | undefined;
+        dragId = root && !stateRef.current.lockPose && playRef.current === null ? root.name : null;
+        dragProp = Boolean(root?.userData.prop);
         last = { x: event.clientX, y: event.clientY };
       }
       function onMove(event: PointerEvent) {
@@ -306,12 +413,13 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
             const ox = place?.stand.x ?? 0;
             const oz = place?.stand.z ?? 0;
             const scale = place ? 1.6 : 1;
-            moveRef.current(dragId, (point.x - ox) / scale, (point.z - oz) / scale);
+            if (dragProp) movePropRef.current?.(dragId, (point.x - ox) / scale, (point.z - oz) / scale);
+            else moveRef.current(dragId, (point.x - ox) / scale, (point.z - oz) / scale);
           }
           paint();
           return;
         }
-        if (last && !stateRef.current.lockCam) {
+        if (last && !stateRef.current.lockCam && playRef.current === null) {
           orbitRef.current(event.clientX - last.x, event.clientY - last.y);
           paint();
         }
@@ -340,11 +448,22 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       const observer = new ResizeObserver(() => paint());
       observer.observe(host.current);
       paint();
-      const watch = window.setInterval(paint, 200);
+      const watch = window.setInterval(() => { if (playRef.current === null) paint(); }, 200);
+      let frame = 0;
+      const loop = () => {
+        frame = requestAnimationFrame(loop);
+        const started = playRef.current;
+        if (started === null) return;
+        const seconds = (performance.now() - started) / 1000;
+        paint();
+        tickRef.current?.(Math.min(PATH_SECONDS, seconds));
+      };
+      frame = requestAnimationFrame(loop);
 
       stop = () => {
         dropBlock();
         window.clearInterval(watch);
+        cancelAnimationFrame(frame);
         observer.disconnect();
         canvas.removeEventListener("pointerdown", onDown);
         canvas.removeEventListener("pointermove", onMove);
@@ -365,9 +484,11 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
     };
   }, [mode]);
 
+  const props = (state.props ?? []).map(prop => `${prop.id}@${prop.x.toFixed(2)},${prop.z.toFixed(2)}`).join(" ");
   const layout = state.figures.map(figure => `${figure.id}@${figure.x.toFixed(2)},${figure.z.toFixed(2)}`).join(" ");
   const rue = quartier && standsInStreet(quartier) ? "1" : "0";
-  return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile} data-figures={state.figures.length} data-layout={layout} data-quartier={quartier ? "1" : "0"} data-batiments={quartier?.buildings.length ?? 0} data-rue={rue}>
+  return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile} data-figures={state.figures.length} data-layout={layout} data-props={props} data-keys={state.path?.length ?? 0} data-playing={playFrom !== null ? "1" : undefined} data-quartier={quartier ? "1" : "0"} data-batiments={quartier?.buildings.length ?? 0} data-rue={rue}>
+    {modelError && <p role="alert" className="u-small">{t("previs.modelFailed", { name: modelError })}</p>}
     <div
       className="u-maquette-stage"
       style={backdrop ? { backgroundImage: `linear-gradient(180deg, rgba(11,10,9,.25), rgba(11,10,9,.72)), url(${backdrop})` } : undefined}
