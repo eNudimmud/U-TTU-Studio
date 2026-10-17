@@ -1603,7 +1603,7 @@
     "running": "Renderizando…",
     "runningWhy": "Puedes escribir el plano siguiente mientras tanto. No se envía nada más.",
     "monter": "Montar la secuencia ({count, plural, one {# plano} other {# planos}})",
-    "monterStill": "Añadir la imagen al montaje",
+    "monterStill": "Enviar la imagen fija al montaje",
     "montageFailed": "Envío al montaje interrumpido.",
     "saveFailed": "No se pudo guardar el plano.",
     "keep": "★ Quedarme con esta toma",
@@ -1734,6 +1734,7 @@
       "whereTakeNext": "La toma llega a TOMA, en su plano, sin sobrescribir una toma guardada. Si se cierra la pestaña, «Recuperar el render» la encuentra.",
       "technical": "Ver el detalle técnico",
       "stepNow": "Paso {n}/7 · {label}"
-    }
+    },
+    "stillEmpty": "Elige quién y dónde: la vista previa aparece aquí."
   }
 }

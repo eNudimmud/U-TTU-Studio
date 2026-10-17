@@ -1603,7 +1603,7 @@
     "running": "Wird gerendert…",
     "runningWhy": "Sie können inzwischen die nächste Einstellung schreiben. Sonst wird nichts gesendet.",
     "monter": "Sequenz schneiden ({count, plural, one {# Einstellung} other {# Einstellungen}})",
-    "monterStill": "Bild zum Schnitt hinzufügen",
+    "monterStill": "Standbild in den Schnitt senden",
     "montageFailed": "Übergabe an den Schnitt unterbrochen.",
     "saveFailed": "Die Einstellung konnte nicht gespeichert werden.",
     "keep": "★ Diesen Take behalten",
@@ -1734,6 +1734,7 @@
       "whereTakeNext": "Der Take landet in TAKE auf seiner Einstellung, ohne einen behaltenen Take zu überschreiben. Schließt der Tab, findet „Rendering abholen“ ihn wieder.",
       "technical": "Technische Details ansehen",
       "stepNow": "Schritt {n}/7 · {label}"
-    }
+    },
+    "stillEmpty": "Wähle wer und wo: Die Vorschau erscheint hier."
   }
 }

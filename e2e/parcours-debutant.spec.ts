@@ -116,6 +116,10 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await expect(page.locator('.u-prise-quote:visible')).toHaveCount(1);
   await expect(page.locator('.u-prise-quote:visible')).toContainText('Estimé');
   await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
+  // Default PRISE: no 3D maquette, no still-image shortcut.
+  await expect(page.locator('[data-maquette]')).toBeHidden();
+  await expect(page.locator('[data-prise-still]')).toBeVisible();
+  await expect(page.locator('.u-prise-actions .u-secondary')).toHaveCount(0);
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Enki marche sur le quai, caméra à l\'épaule');
   const gold = page.locator('.u-prise-actions .u-primary');
   if (mobile) await reachable(gold);

@@ -1603,7 +1603,7 @@
     "running": "Rendu en cours…",
     "runningWhy": "Vous pouvez écrire le plan suivant pendant ce temps. Rien d’autre ne part.",
     "monter": "Monter la séquence ({count, plural, one {# plan} other {# plans}})",
-    "monterStill": "Ajouter l’image au montage",
+    "monterStill": "Envoyer l’image fixe au montage",
     "montageFailed": "Envoi au montage interrompu.",
     "saveFailed": "Sauvegarde du plan impossible.",
     "keep": "★ Garder cette prise",
@@ -1734,6 +1734,7 @@
       "whereTakeNext": "La prise arrive dans PRISE, sur son plan, sans écraser une prise gardée. Si l’onglet se ferme, « Récupérer le rendu » la retrouve.",
       "technical": "Voir le détail technique",
       "stepNow": "Étape {n}/7 · {label}"
-    }
+    },
+    "stillEmpty": "Choisissez qui et où : l’aperçu apparaît ici."
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { framePoster } from "@/lib/montage/poster";
 import { maquetteJson, readMaquette } from "@/lib/maquette/persistence";
 import { assetPath } from "@/lib/site";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
@@ -522,6 +523,18 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       || people.find(person => person.id === plan.castIds[0])?.src
       || "";
   }
+  // Takes without a poster: first decoded frame for the plan strip (local, cached).
+  const [frames, setFrames] = useState<Record<string, string>>({});
+  const frameKey = sequence.map(entry => entry.take && !(entry.take.poster && media[entry.take.poster]) && media[entry.take.video] ? entry.take.id : "").join("|");
+  useEffect(() => {
+    let gone = false;
+    for (const entry of sequence) {
+      const take = entry.take;
+      if (!take || (take.poster && media[take.poster]) || frames[take.id] || !media[take.video]) continue;
+      void framePoster(media[take.video]).then(image => { if (!gone && image) setFrames(map => ({ ...map, [take.id]: image })); });
+    }
+    return () => { gone = true; };
+  }, [frameKey]);
   const canMonter = !sending && (withTake > 0 || Boolean(stillOf(input)));
   async function monter() {
     if (!canMonter) return;
@@ -580,9 +593,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   let second: Action | null = null;
   if (demo) { gold = { label: t("p0.tourner"), enabled: false, reason: t("p0.why.demo"), onClick() {}, mark: "tourner" }; second = monterAction; }
   else if (busy) { gold = { label: t("p0.running"), enabled: false, reason: runningHere ? t("p0.runningWhy") : t("p0.why.busy"), onClick() {}, mark: "attente" }; second = withTake > 0 ? monterAction : null; }
-  else if (showNext) { gold = { label: t("p0.tournerSuivant", { n: String(nextNumber).padStart(2, "0") }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber).padStart(2, "0") }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = monterAction; }
+  else if (showNext) { gold = { label: t("p0.tournerSuivant", { n: String(nextNumber).padStart(2, "0") }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber).padStart(2, "0") }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
   else if (versions.length > 0) gold = monterAction;
-  else { gold = { label: t("p0.tourner"), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = canMonter ? monterAction : null; }
+  // Default level: no still-image shortcut. MONTAGE gets takes; the example (demo) keeps its still.
+  else { gold = { label: t("p0.tourner"), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
   const reasonText = gold.enabled ? "" : gold.reason;
 
   return <section className="u-stage u-prise" data-section="prise" data-prise-ready={ready ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
@@ -591,8 +605,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <div className="u-prise-film">
         {drafts.map((item, at) => {
           const mark = etatOf(item);
-          const poster = sequence[at]?.take?.poster;
-          const thumb = item.before || (poster && media[poster]) || "";
+          const take = sequence[at]?.take;
+          const poster = take?.poster;
+          const thumb = item.before || (poster && media[poster]) || (take ? frames[take.id] : "") || "";
           const word = planWord(item);
           return <button
             key={item.id}
@@ -639,44 +654,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </div>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
-        : <MaquetteView
-          state={{ ...maquette, props: maquette.props?.map(prop => ({ ...prop, url: prop.source ? media[prop.source] : undefined })) }}
-          backdrop={quartier ? "" : (shownPlace?.src || "")}
-          placeName={shownPlace?.name || ""}
-          quartier={quartier}
-          badge={t(`r7.tuile.${maquette.tuile}`)}
-          hint={t("r7.hint")}
-          onMove={(id, x, z) => setMaquette(state => moveFigure(state, id, x, z))}
-          onOrbit={(dx, dy) => setMaquette(state => orbitDrag(state, dx, dy))}
-          onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
-          onMoveProp={(id, x, z) => setMaquette(state => moveProp(state, id, x, z))}
-          playFrom={playFrom}
-        />}
-      <div className="u-maquette-tools">
-        <button type="button" className="u-lock" aria-pressed={maquette.lockPose} onClick={() => setMaquette(state => toggleLock(state, "pose"))}>{maquette.lockPose ? "🔒" : "🔓"} {t("r7.pose")}</button>
-        <button type="button" className="u-lock" aria-pressed={maquette.lockCam} onClick={() => setMaquette(state => toggleLock(state, "cam"))}>{maquette.lockCam ? "🔒" : "🔓"} {t("r7.cam")}</button>
-        <button type="button" data-autre-essai="" onClick={() => setMaquette(state => autreEssai(state))}>🎲 {t("r7.essai")} <small>{t("r7.gratuit")}</small></button>
-        <button type="button" disabled={maquette.past.length === 0} aria-describedby={maquette.past.length === 0 ? "u-why-annuler" : undefined} onClick={() => setMaquette(state => undoMaquette(state))}>{t("r7.annuler")}</button>
-        <button type="button" data-add-person="" disabled={!canAddFigure(maquette)} aria-describedby={!canAddFigure(maquette) ? "u-why-cap" : undefined} onClick={() => setPicker(open => !open)}>{t("r7.add")}</button>
-      </div>
-      {maquette.past.length === 0 && <p className="u-why" id="u-why-annuler">{t("r7.annulerOff")}</p>}
-      {!canAddFigure(maquette) && <p className="u-why" id="u-why-cap">{t("r7.addOff", { max: MAX_FIGURES })}</p>}
-      {picker && canAddFigure(maquette) && <div className="u-picker" data-personnage-picker="">
-        {people.filter(person => !maquette.figures.some(figure => figure.id === person.id)).map(person => (
-          <button key={person.id} type="button" data-pick={person.id} onClick={() => placeFigure(addFigure(maquette, { id: person.id, name: person.name }))}>{person.name}</button>
-        ))}
-        <button type="button" data-pick="neutre" onClick={() => placeFigure(addNeutral(maquette, t("r7.neutralName")))}>{t("r7.neutral")}</button>
-        <button type="button" onClick={() => setPicker(false)}>{t("verb.cancel")}</button>
-      </div>}
-      <ul className="u-figure-row">
-        {maquette.figures.map(figure => <li key={figure.id}>
-          <span className="u-figure-name"><i className="u-swatch" style={{ background: figure.color }} aria-hidden="true" />{figure.name}</span>
-          <button type="button" className="u-chip" data-tourner={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.turnName", { name: figure.name })} onClick={() => setMaquette(state => yawFigure(state, figure.id, Math.PI / 4))}>{t("r7.turn")}</button>
-          <button type="button" className="u-chip" data-retirer={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.removeName", { name: figure.name })} onClick={() => placeFigure(removeFigure(maquette, figure.id))}>{t("r7.remove")}</button>
-        </li>)}
-      </ul>
-      {maquette.lockPose && <p className="u-why" id="u-why-pose">{t("r7.poseLock")}</p>}
-      <p className="u-why" data-astuce={tip.id}>{t(`r7.astuce.${tip.id}`, { name: tip.name })}</p>
+        : !landed && <figure className="u-prise-still" data-prise-still="" data-ratio={format === "9:16" ? "9/16" : "16/9"}>
+          {shownPlace?.src ? <img src={shownPlace.src} alt="" /> : <span className="u-prise-still-empty" aria-hidden="true" />}
+          <figcaption>{[maquette.figures.map(figure => figure.name).join(", "), shownPlace?.name].filter(Boolean).join(" · ") || t("p0.stillEmpty")}</figcaption>
+        </figure>}
     </div>
     </div>
 
@@ -748,6 +729,50 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </div>
       </Row>
 
+
+      <details className="u-fold u-avance" data-avance-prise="" open={advanced} onToggle={event => setAdvanced(event.currentTarget.open)}>
+        <summary>{t("p0.advanced")}</summary>
+        {/* P2 · maquette 3D (prévis) : hors du niveau débutant. */}
+        <div className="u-maquette-avance" data-maquette-avance="">
+      <MaquetteView
+          state={{ ...maquette, props: maquette.props?.map(prop => ({ ...prop, url: prop.source ? media[prop.source] : undefined })) }}
+          backdrop={quartier ? "" : (shownPlace?.src || "")}
+          placeName={shownPlace?.name || ""}
+          quartier={quartier}
+          badge={t(`r7.tuile.${maquette.tuile}`)}
+          hint={t("r7.hint")}
+          onMove={(id, x, z) => setMaquette(state => moveFigure(state, id, x, z))}
+          onOrbit={(dx, dy) => setMaquette(state => orbitDrag(state, dx, dy))}
+          onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
+          onMoveProp={(id, x, z) => setMaquette(state => moveProp(state, id, x, z))}
+          playFrom={playFrom}
+        />
+      <div className="u-maquette-tools">
+        <button type="button" className="u-lock" aria-pressed={maquette.lockPose} onClick={() => setMaquette(state => toggleLock(state, "pose"))}>{maquette.lockPose ? "🔒" : "🔓"} {t("r7.pose")}</button>
+        <button type="button" className="u-lock" aria-pressed={maquette.lockCam} onClick={() => setMaquette(state => toggleLock(state, "cam"))}>{maquette.lockCam ? "🔒" : "🔓"} {t("r7.cam")}</button>
+        <button type="button" data-autre-essai="" onClick={() => setMaquette(state => autreEssai(state))}>🎲 {t("r7.essai")} <small>{t("r7.gratuit")}</small></button>
+        <button type="button" disabled={maquette.past.length === 0} aria-describedby={maquette.past.length === 0 ? "u-why-annuler" : undefined} onClick={() => setMaquette(state => undoMaquette(state))}>{t("r7.annuler")}</button>
+        <button type="button" data-add-person="" disabled={!canAddFigure(maquette)} aria-describedby={!canAddFigure(maquette) ? "u-why-cap" : undefined} onClick={() => setPicker(open => !open)}>{t("r7.add")}</button>
+      </div>
+      {maquette.past.length === 0 && <p className="u-why" id="u-why-annuler">{t("r7.annulerOff")}</p>}
+      {!canAddFigure(maquette) && <p className="u-why" id="u-why-cap">{t("r7.addOff", { max: MAX_FIGURES })}</p>}
+      {picker && canAddFigure(maquette) && <div className="u-picker" data-personnage-picker="">
+        {people.filter(person => !maquette.figures.some(figure => figure.id === person.id)).map(person => (
+          <button key={person.id} type="button" data-pick={person.id} onClick={() => placeFigure(addFigure(maquette, { id: person.id, name: person.name }))}>{person.name}</button>
+        ))}
+        <button type="button" data-pick="neutre" onClick={() => placeFigure(addNeutral(maquette, t("r7.neutralName")))}>{t("r7.neutral")}</button>
+        <button type="button" onClick={() => setPicker(false)}>{t("verb.cancel")}</button>
+      </div>}
+      <ul className="u-figure-row">
+        {maquette.figures.map(figure => <li key={figure.id}>
+          <span className="u-figure-name"><i className="u-swatch" style={{ background: figure.color }} aria-hidden="true" />{figure.name}</span>
+          <button type="button" className="u-chip" data-tourner={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.turnName", { name: figure.name })} onClick={() => setMaquette(state => yawFigure(state, figure.id, Math.PI / 4))}>{t("r7.turn")}</button>
+          <button type="button" className="u-chip" data-retirer={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.removeName", { name: figure.name })} onClick={() => placeFigure(removeFigure(maquette, figure.id))}>{t("r7.remove")}</button>
+        </li>)}
+      </ul>
+      {maquette.lockPose && <p className="u-why" id="u-why-pose">{t("r7.poseLock")}</p>}
+      <p className="u-why" data-astuce={tip.id}>{t(`r7.astuce.${tip.id}`, { name: tip.name })}</p>
+        </div>
       <Row className="u-tuiles-row" label={t("r7.tuiles")}>
         <div className="u-tuiles" data-tuiles="">
           {TUILES.map(item => {
@@ -767,9 +792,6 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </div>
         {maquette.figures.length < 2 && <p className="u-why" id="u-why-paire">{t("r7.pairWhy")}</p>}
       </Row>
-
-      <details className="u-fold u-avance" data-avance-prise="" open={advanced} onToggle={event => setAdvanced(event.currentTarget.open)}>
-        <summary>{t("p0.advanced")}</summary>
         <Row label={t("stage.engine.label")}>
           <div className="u-choice-row u-engine" data-engine={prefs.engine}>
             {(["ltx", "h3"] as const).map(engine => (

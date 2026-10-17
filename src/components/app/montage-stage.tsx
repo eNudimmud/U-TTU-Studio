@@ -18,6 +18,7 @@ import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/mon
 import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import { Close, Expand, Face, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
+import { framePoster } from "@/lib/montage/poster";
 import { useFormat } from "./format-switch";
 import { useStudio } from "./studio-session";
 import { gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
@@ -591,6 +592,22 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const nextShot = mix ? edit.video[mix.index + 1] : null;
   const nextUrl = nextShot?.kind === "image" && nextShot.source ? urlOf(nextShot.source) : "";
   const filled = edit.video.length + edit.audio.length > 0;
+  // Takes without a poster get their first decoded frame, so clips are never black squares.
+  const [posters, setPosters] = useState<Record<string, string>>({});
+  const posterKey = edit.video.filter(clip => clip.kind === "video" && clip.source).map(clip => clip.source).join("|");
+  useEffect(() => {
+    let gone = false;
+    for (const clip of historyRef.current.present.video) {
+      if (clip.kind !== "video" || !clip.source || posters[clip.source]) continue;
+      const poster = clip.takeId ? studio.takes.find(take => take.id === clip.takeId)?.poster : "";
+      if (poster && urlOfRef.current(poster)) continue; // a real poster file is already readable
+      const source = clip.source;
+      const url = urlOfRef.current(source);
+      if (!url) continue;
+      void framePoster(url).then(image => { if (!gone && image) setPosters(map => ({ ...map, [source]: image })); });
+    }
+    return () => { gone = true; };
+  }, [posterKey, media, studio.takes]);
   const montageState = filled ? (edit.id === EXEMPLE_ID ? "exemple" : "projet") : "vide";
   const size = estimate ? (estimate.bytes >= 1_000_000
     ? t("montage.sizeMb", { amount: (estimate.bytes / 1_000_000).toFixed(1).replace(".", comma ? "," : ".") })
@@ -679,9 +696,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
 
   function thumbOf(clip: VideoClip): string {
     if (clip.kind === "image" && clip.source) return urlOf(clip.source);
-    if (!clip.takeId) return "";
+    if (!clip.takeId) return clip.source ? posters[clip.source] ?? "" : "";
     const poster = studio.takes.find(take => take.id === clip.takeId)?.poster;
-    return poster ? urlOf(poster) : "";
+    return (poster && urlOf(poster)) || (clip.source ? posters[clip.source] ?? "" : "");
   }
 
   function renderVideoClip(clip: VideoClip, index: number, origin: number) {

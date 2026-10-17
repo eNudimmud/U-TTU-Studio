@@ -233,6 +233,12 @@ async function posterOf(video: Blob): Promise<Blob | null> {
     });
     element.src = url;
     if (!(await loaded)) return null;
+    // loadeddata alone often has no painted frame yet (black poster on Safari / headless): seek, then draw.
+    await new Promise<void>(resolve => {
+      const timer = window.setTimeout(resolve, 2000);
+      element.onseeked = () => { window.clearTimeout(timer); resolve(); };
+      element.currentTime = Math.min(0.1, (element.duration || 1) / 10);
+    });
     const canvas = document.createElement("canvas");
     canvas.width = element.videoWidth || 720;
     canvas.height = element.videoHeight || 1280;
