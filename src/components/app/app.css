@@ -1072,3 +1072,130 @@
 .u-keys li { display: inline-flex; align-items: center; gap: 6px; padding-left: 10px; border: 1px solid var(--u-gold); border-radius: 999px; color: var(--u-gold); }
 .u-keys .u-chip { min-width: 44px; justify-content: center; }
 .u-previs-film { justify-self: start; border-color: var(--u-gold); color: var(--u-gold); }
+
+/* P0 · Carte de fiabilité : sept étapes, un seul devis, échec en clair. */
+.u-fiab { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--u-line-strong); border-radius: 14px; background: #100e0c; }
+.u-fiab-steps { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; margin: 0; padding: 0; list-style: none; }
+.u-fiab-steps li { display: grid; justify-items: center; gap: 2px; min-width: 0; color: var(--u-muted); }
+.u-fiab-dot { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--u-line-strong); border-radius: 50%; font: 650 11px/1 var(--font-body); }
+.u-fiab-word { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; line-height: 1.2; }
+.u-fiab-steps li[data-etat="fait"] { color: var(--u-gold-soft); }
+.u-fiab-steps li[data-etat="fait"] .u-fiab-dot { background: var(--u-gold); border-color: var(--u-gold); color: #11100e; }
+.u-fiab-steps li[aria-current="step"] .u-fiab-dot { border-color: var(--u-gold); box-shadow: 0 0 0 3px rgba(201, 164, 106, .2); color: var(--u-gold-soft); }
+.u-fiab-steps li[data-etat="echec"] .u-fiab-dot, .u-fiab-steps li[data-etat="bloque"] .u-fiab-dot { border-color: #d27a5c; color: #f0b39c; }
+.u-fiab-estimate { margin: 0; color: var(--u-gold-soft); font-size: 14px; line-height: 1.35; }
+.u-fiab-fail { margin: 0; padding: 8px; border-radius: 10px; background: rgba(210, 122, 92, .14); color: #f6d3c5; font-size: 14px; line-height: 1.35; }
+.u-fiab-where { margin: 0; color: var(--u-text); font-size: 13px; line-height: 1.35; }
+.u-fiab-more summary { display: flex; align-items: center; min-height: 44px; color: var(--u-gold-soft); cursor: pointer; }
+.u-fiab-sent { display: grid; gap: 4px; margin: 0; }
+.u-fiab-sent div { display: grid; grid-template-columns: minmax(84px, auto) minmax(0, 1fr); gap: 8px; font-size: 13px; line-height: 1.35; }
+.u-fiab-sent div[data-flag] { padding: 4px 6px; border: 1px solid var(--u-gold); border-radius: 8px; }
+.u-fiab-sent dt { color: var(--u-muted); }
+.u-fiab-sent dd { margin: 0; overflow-wrap: anywhere; }
+.u-fiab-change { margin: 0; color: var(--u-muted); font-size: 13px; line-height: 1.35; }
+.u-avance > summary, .u-fold > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.u-avance { border-top: 1px solid var(--u-line); padding-top: 4px; }
+.u-versions { display: flex; flex-wrap: wrap; gap: 6px; }
+.u-versions button { min-width: 44px; min-height: 44px; padding: 6px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: #121110; color: inherit; }
+.u-versions button[aria-pressed="true"] { border-color: var(--u-gold); color: var(--u-gold-soft); }
+.u-take-view { display: grid; gap: 6px; }
+.u-take-view video { width: 100%; max-height: 360px; border-radius: 12px; background: #000; }
+.u-next-plan { display: grid; gap: 6px; padding: 8px; border: 1px dashed var(--u-gold); border-radius: 12px; }
+/* Mobile: the action stays reachable above the CAST·DÉCOR·PRISE·MONTAGE bar, without scrolling. */
+@media (max-width: 799px) {
+  .u-stage.u-prise { padding-bottom: calc(200px + var(--u-safe)); }
+  .u-prise-dock .u-prise-actions { position: fixed; z-index: 45; left: 0; right: 0; bottom: calc(64px + var(--u-safe)); display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; background: rgba(11, 10, 9, .97); border-top: 1px solid var(--u-line-strong); box-shadow: 0 -10px 24px #000; }
+  .u-prise-dock .u-prise-actions .u-primary { flex: 1 1 60%; width: auto; }
+  .u-prise-dock .u-prise-actions .u-secondary { flex: 1 1 30%; width: auto; }
+  .u-prise-dock .u-prise-actions .u-why, .u-prise-dock .u-prise-actions .u-bar-quote { flex: 1 1 100%; margin: 0; font-size: 12px; line-height: 1.3; }
+  .u-desk .u-create-bar { position: fixed; z-index: 45; left: 0; right: 0; bottom: calc(64px + var(--u-safe)); margin: 0; padding: 8px 10px; background: rgba(11, 10, 9, .97); border-top: 1px solid var(--u-line-strong); box-shadow: 0 -10px 24px #000; max-height: 70dvh; overflow: auto; }
+  .u-desk .u-create-bar .u-why { font-size: 12px; }
+  .u-desk { padding-bottom: calc(150px + var(--u-safe)); }
+}
+
+/* ── P0 v2 · finitions (390 / 360) ───────────────────────────── */
+/* Sheets are opaque, on a solid backdrop; the confirm action stays pinned at the bottom. */
+.u-overlay { background: rgba(5, 4, 3, .9); }
+.u-native-sheet::backdrop { background: rgba(5, 4, 3, .9); }
+.u-sheet { background: #121110; animation-name: u-up-solid; overscroll-behavior: contain; }
+@keyframes u-up-solid { from { transform: translateY(24px); } to { transform: none; } }
+.u-sheet-actions { position: sticky; z-index: 2; bottom: calc(-18px - var(--u-safe)); display: grid; gap: 4px; margin: 12px -18px calc(-18px - var(--u-safe)); padding: 10px 18px calc(10px + var(--u-safe)); background: #121110; border-top: 1px solid var(--u-line); box-shadow: 0 -12px 20px rgba(0, 0, 0, .55); }
+.u-sheet-actions .u-link { min-height: 44px; }
+.u-create-bar .u-card .u-sheet-actions { bottom: -8px; margin: 10px -12px -8px; padding: 10px 12px; background: #141210; }
+.u-create-bar .u-fiab .u-cost { display: block; }
+/* Seven dots, one spelled-out step: never truncated. */
+.u-fiab-protocol { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.u-fiab-steps { display: flex; gap: 4px; grid-template-columns: none; }
+.u-fiab-steps li { display: block; }
+.u-fiab-dot { width: 24px; height: 24px; }
+.u-fiab-now { margin: 0; color: var(--u-gold-soft); font: 650 12px/1.2 var(--font-body); letter-spacing: .02em; }
+.u-fiab-sent div { grid-template-columns: minmax(78px, 30%) minmax(0, 1fr); }
+.u-fiab-tech { margin-top: 6px; border-top: 1px solid var(--u-line); }
+.u-fiab-tech summary { display: flex; align-items: center; min-height: 44px; color: var(--u-muted); font-size: 13px; cursor: pointer; }
+.u-fiab-tech code { font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--u-muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Toast: tap to close; on phones it sits above the action bar and the tab bar, never over the header. */
+.u-toast { cursor: pointer; text-align: center; }
+@media (max-width: 799px) {
+  .u-toast { top: auto; bottom: calc(64px + var(--u-safe) + 10px); width: calc(100% - 24px); max-width: 520px; border-radius: 14px; font-size: 13px; line-height: 1.35; }
+  body:has(.u-prise-dock .u-prise-actions) .u-toast { bottom: calc(64px + var(--u-safe) + 150px); }
+  body:has(.u-desk .u-create-bar) .u-toast { bottom: calc(64px + var(--u-safe) + 120px); }
+}
+/* MONTAGE toolbar and track heads at 390 / 360. */
+@media (max-width: 480px) {
+  .u-toolrow-main .u-tool span { max-width: 100%; white-space: normal; text-align: center; line-height: 1.05; overflow-wrap: anywhere; }
+  .u-track-mark { width: 54px; height: auto; gap: 1px; overflow: hidden; }
+  .u-track-word { display: block; max-width: 52px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 9px/1.1 var(--font-body); }
+}
+@media (max-width: 799px) {
+  /* The stage scrolls (overflow: auto) and would clip a full-bleed timeline: keep it inside, framed. */
+  .u-stage.u-montage .u-tl { width: 100%; margin-inline: 0; border-inline: 1px solid var(--u-line); border-radius: 12px; }
+  body:has(.u-stage.u-montage) .u-toast { top: calc(232px + var(--u-safe-top, 0px)); bottom: auto; }
+}
+@media (max-width: 480px) {
+  .u-stage.u-montage .u-montage-bar { gap: 8px; }
+  .u-stage.u-montage .u-montage-bar h1 { font-size: 24px; }
+  .u-stage.u-montage .u-montage-bar .u-export { min-width: 44px; padding-inline: 12px; font-size: 14px; white-space: nowrap; }
+  .u-stage.u-montage .u-montage-bar > :last-child { display: flex; gap: 6px; flex: none; }
+  .u-ruler span:first-child { margin-left: 16px; }
+}
+@media (min-width: 800px) {
+  /* Over the centred project name in the top bar: it never hides a control or the preview. */
+  .u-toast { top: 6px; max-width: min(520px, calc(100% - 560px)); padding: 8px 14px; border-radius: 12px; z-index: 60; font-size: 13px; line-height: 1.3; }
+}
+@media (max-width: 799px) {
+  /* Short phones (360×740): the preview keeps its 16:9 size instead of shrinking to a strip; the stage scrolls. */
+  .u-capcut-player { flex: none; min-height: 0; max-height: none; }
+  .u-capcut-player .u-monitor, .u-capcut-player .u-stage-frame { flex: none; }
+  .u-capcut-player .u-stage-frame { justify-content: center; }
+  .u-capcut-player .u-viewer[data-ratio="16/9"] { width: auto; max-width: 100%; height: min(18dvh, calc((100vw - 36px) * 9 / 16)); aspect-ratio: 16 / 9; margin-inline: auto; }
+  .u-capcut-player .u-viewer[data-ratio="9/16"] { width: auto; height: min(30dvh, 300px); max-height: none; margin-inline: auto; }
+  /* All three sound tracks stay on screen at 390×844 with the larger preview. */
+  .u-app[data-studio="montage"] .u-track-row.is-audio, .u-app[data-studio="montage"] .u-track-row.is-audio .u-track { min-height: 68px; }
+  .u-app[data-studio="montage"] .u-track-row.is-audio .u-track-head { gap: 0; }
+  .u-stage.u-montage .u-montage-bar { flex-wrap: wrap; row-gap: 6px; }
+}
+@media (max-width: 380px) {
+  .u-stage.u-montage .u-montage-bar h1 { font-size: 20px; }
+  .u-stage.u-montage .u-montage-bar .u-export { padding-inline: 10px; font-size: 13px; }
+  .u-toolrow-main .u-tool { font-size: 9px; }
+  .u-toolrow-main .u-tool span { overflow-wrap: normal; word-break: normal; }
+}
+.u-fiab-change { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--u-line); }
+/* PRISE default preview: the chosen décor, framed, with who · where. No 3D at the default level. */
+.u-prise-still { position: relative; margin: 0; overflow: hidden; border: 1px solid var(--u-line-strong); border-radius: 14px; background: #0b0a09; }
+.u-prise-still[data-ratio="16/9"] { aspect-ratio: 16 / 9; }
+.u-prise-still[data-ratio="9/16"] { aspect-ratio: 9 / 16; max-height: 60dvh; margin-inline: auto; }
+.u-prise-still img, .u-prise-still-empty { display: block; width: 100%; height: 100%; object-fit: cover; }
+.u-prise-still-empty { background: radial-gradient(circle at 50% 40%, #1d1a15, #0b0a09 70%); }
+.u-prise-still figcaption { position: absolute; left: 10px; right: 10px; bottom: 10px; padding: 6px 10px; border-radius: 10px; background: rgba(11, 10, 9, .78); color: var(--u-gold-soft); font-size: 13px; line-height: 1.3; }
+.u-maquette-avance { display: grid; gap: 8px; margin-bottom: 8px; }
+
+/* #113 quick-fix: in PRISE and MONTAGE the notice is a quiet status line, not a toast over the work. */
+.u-inline-status { margin: 0 0 6px; padding: 4px 2px 4px 18px; position: relative; color: var(--u-gold-soft); font: 500 12.5px/1.35 var(--font-body); cursor: pointer; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; animation: u-status-in .18s ease-out; }
+.u-inline-status::before { content: ""; position: absolute; left: 4px; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--u-gold); }
+.u-montage-status { margin: 0 0 8px; padding-left: 18px; }
+@keyframes u-status-in { from { transform: translateY(3px); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .u-inline-status { animation: none; } }
+
+/* Sequence summary: "· 3 plans" wraps in the narrow desktop strip instead of being clipped. */
+.u-plan-sum { white-space: normal; }

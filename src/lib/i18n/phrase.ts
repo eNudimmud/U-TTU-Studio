@@ -1,7 +1,9 @@
 type PhraseFn = (key: string, values?: Record<string, string | number>) => string;
 
 const EXACT: Record<string, string> = {
-  "Ce navigateur ne peut pas encoder le MP4 H.264/AAC. Essayez Chrome récent sur ordinateur.": "runtimeSafe.encodeMp4",
+  "Ce navigateur ne sait écrire aucune vidéo (ni WebCodecs, ni enregistrement). Mettez à jour le navigateur du téléphone (Safari 16.4 ou plus, Chrome Android), puis relancez l’export : le montage est gardé.": "runtimeSafe.encodeMp4",
+  "Ce navigateur ne peut pas écrire le fichier maître H.264. Exportez d’abord le montage (il marche sur ce téléphone), ou relancez Finaliser depuis un navigateur à jour.": "runtimeSafe.encodeMaster",
+  "L’enregistrement de la vidéo est vide. Relancez l’export en gardant cet onglet ouvert.": "runtimeSafe.recordEmpty",
   "Ce navigateur ne peut pas sécuriser les envois simultanés. Utilisez un navigateur récent.": "runtimeSafe.lockUnsupported",
   "Cette prise n’est plus disponible dans le projet.": "runtimeSafe.takeGone",
   "Chaque personnage doit avoir une référence enregistrée. Retirez les silhouettes neutres avant de générer.": "runtimeSafe.castNeedsRef",
@@ -20,6 +22,7 @@ const EXACT: Record<string, string> = {
   "Le navigateur ne peut pas conserver le reçu du rendu.": "runtimeSafe.receiptStorage",
   "Le projet a changé. Le média reste dans sa galerie ; ajoutez-le à nouveau au montage souhaité.": "runtimeSafe.projectChanged",
   "Le son de cette vidéo ne peut pas être décodé dans ce navigateur.": "runtimeSafe.audioDecode",
+  "Le son d’au moins une prise ne se lit pas dans ce navigateur : la vidéo est exportée sans ce son.": "runtimeSafe.soundSkipped",
   "Lecture du média trop longue.": "runtimeSafe.mediaSlow",
   "L’envoi a été interrompu sans reçu. Il peut avoir été facturé. Vérifiez l’historique Comfy avant toute nouvelle génération ; ne supprimez pas les données de ce navigateur.": "runtimeSafe.sendNoReceipt",
   "L’image de storyboard est illisible.": "runtimeSafe.storyboardImage",

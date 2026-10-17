@@ -15,6 +15,8 @@ export interface StoredPlan {
   graph: string;
   pourquoi: string;
   takeIds: string[];
+  /** Kept (validated) take id, or "". */
+  garde?: string;
   imageCle: string;
   imageFin: string;
   finalVideo: string;
@@ -47,9 +49,11 @@ export function finalPath(path: string): string {
   return `${dir}${file.slice(0, dot)}-final${file.slice(dot)}`;
 }
 
-export function planJson(input: PlanInput, extra: { etat?: PlanEtat; before?: string; after?: string } = {}): string {
+export function planJson(input: PlanInput, extra: { etat?: PlanEtat; before?: string; after?: string; garde?: string } = {}): string {
   return JSON.stringify({
     etat: extra.etat ?? "vide",
+    // The take marked « Garder ». New takes never replace it; they are kept as versions.
+    garde: extra.garde ?? "",
     avant: extra.before ?? "",
     apres: extra.after ?? "",
     qui: input.castIds.slice(0, 12),
@@ -71,8 +75,8 @@ export function planJson(input: PlanInput, extra: { etat?: PlanEtat; before?: st
   });
 }
 
-export function planStateFromJson(source: string | null | undefined): { etat: PlanEtat; before: string; after: string } {
-  const empty = { etat: "vide" as PlanEtat, before: "", after: "" };
+export function planStateFromJson(source: string | null | undefined): { etat: PlanEtat; before: string; after: string; garde: string } {
+  const empty = { etat: "vide" as PlanEtat, before: "", after: "", garde: "" };
   if (!source) return empty;
   try {
     const data = JSON.parse(source) as Record<string, unknown>;
@@ -83,6 +87,7 @@ export function planStateFromJson(source: string | null | undefined): { etat: Pl
       etat,
       before: typeof data.avant === "string" ? data.avant : "",
       after: typeof data.apres === "string" ? data.apres : "",
+      garde: typeof data.garde === "string" && /^[a-z0-9-]{1,80}$/i.test(data.garde) ? data.garde : "",
     };
   } catch {
     return empty;
@@ -152,7 +157,7 @@ export function planMarkdown(plan: StoredPlan): string {
     prises: plan.takeIds,
     graphe: plan.graph,
     pourquoi: plan.pourquoi,
-    composeur: planJson(plan.input, { etat: plan.etat, before: plan.imageCle, after: plan.finalVideo }),
+    composeur: planJson(plan.input, { etat: plan.etat, before: plan.imageCle, after: plan.finalVideo, garde: plan.garde ?? "" }),
     image_cle: plan.imageCle,
     image_fin: plan.imageFin,
     final: plan.finalVideo,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { framePoster } from "@/lib/montage/poster";
 import { maquetteJson, readMaquette } from "@/lib/maquette/persistence";
 import { assetPath } from "@/lib/site";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
@@ -9,11 +10,15 @@ import {
   addFigure, addNeutral, applyTuile, astuce, autreEssai, canAddFigure, captureLine, initialMaquette, MAX_FIGURES, moveFigure, orbitDrag, pinch, removeFigure, scenePhrase, seedLead, toggleLock, undoMaquette, yawFigure,
   type MaquetteState,
 } from "@/lib/maquette/state";
-import {
-  ACTION_EXAMPLES, ACTION_MAX,
-  DUREE_DIX, ETAT_LABEL, PAS_MESURE,
-  type PlanEtat,
-} from "@/lib/prise/copy";
+import { ACTION_EXAMPLES, ACTION_MAX, type PlanEtat } from "@/lib/prise/copy";
+import { cameraChoice } from "@/lib/prise/camera-words";
+import { mergeTakeIds, planVersions, sequenceTakes, shownTake, takeIdsFromShotNote } from "@/lib/prise/versions";
+import { protocole } from "@/lib/fiabilite";
+import { resolveTakeQuote } from "@/lib/render/billed-quote";
+import { quotesToRecords } from "@/lib/render/measured-quote";
+import { takeProfile, type TakeSettings } from "@/lib/render/take-graph";
+import { FiabiliteCard, type SentLine } from "./fiabilite-card";
+import { quoteWords } from "./studio-frames";
 import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/decision";
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
@@ -42,22 +47,12 @@ interface Draft {
   hasTake: boolean;
   before: string;
   after: string;
-}
-
-interface ClickAction {
-  label: string;
-  price: string;
-  enabled: boolean;
-  reason: string;
-  onClick(): void;
+  /** The take marked « Garder ». Other takes stay as versions. */
+  garde: string;
 }
 
 function fr(value: number): string {
   return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(value);
-}
-
-function priceOf(quote: number | null): string {
-  return quote === null ? "" : ` · ${fr(quote)}`;
 }
 
 function clock(seconds: number): string {
@@ -82,8 +77,11 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, gate: productionGate, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendToMontage, prefs, setPrefs } = useStudio();
-  const { t } = useI18n();
+  const { ready, demo, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet } = useStudio();
+  const { t, say } = useI18n();
+  const [viewed, setViewed] = useState<Record<string, string>>({});
+  const [nextAction, setNextAction] = useState("");
+  const [advanced, setAdvanced] = useState(false);
   const { format } = useFormat();
   const [seed, setSeed] = useState<Seed>("vide");
   const [drafts, setDrafts] = useState<Draft[]>(() => [blank("plan-01", "Plan 01", "16:9")]);
@@ -92,8 +90,6 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [panel, setPanel] = useState(false);
   const [mediaKind, setMediaKind] = useState<FinalMedia>("video");
   const [finaliser, setFinaliser] = useState<FinaliserInput>(finaliserDefaults("video", 5));
-  const [details, setDetails] = useState(false);
-  const [textOpen, setTextOpen] = useState(false);
   const [ask, setAsk] = useState<"composer" | null>(null);
   const [maquette, setMaquette] = useState<MaquetteState>(() => initialMaquette());
   const [sending, setSending] = useState(false);
@@ -265,9 +261,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   }, [previewPlaceId, readProjectFile]);
   const previous = index > 0 ? drafts[index - 1] : null;
   const takeIds = studio.shots.find(shot => shot.id === draft?.id)?.takeIds ?? [];
+  // Every take of the plan is a version. The newest is shown when it lands; « Garder » marks the one for the cut.
+  const versions = planVersions(takeIds, studio.takes);
   const requestedTake = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("take");
-  const landed = studio.takes.find(take => take.id === requestedTake && (takeIds.includes(take.id) || !studio.shots.some(shot => shot.takeIds.includes(take.id))))
-    ?? studio.takes.find(take => takeIds.includes(take.id)) ?? null;
+  const landed = shownTake(versions, viewed[draft?.id ?? ""] ?? requestedTake);
   useEffect(() => {
     setDrafts(list => list.map(item => {
       const ids = studio.shots.find(shot => shot.id === item.id)?.takeIds ?? [];
@@ -275,6 +272,12 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       return hasTake === item.hasTake ? item : { ...item, hasTake };
     }));
   }, [studio.shots, studio.takes]);
+  // A take that just landed is shown at once, even if another version was open.
+  useEffect(() => {
+    if (run.phase !== "done") return;
+    const planId = studio.shots.find(shot => shot.takeIds.includes(run.takeId))?.id;
+    if (planId) setViewed(map => ({ ...map, [planId]: run.takeId }));
+  }, [run, studio.shots]);
 
   function patch(partial: Partial<PlanInput>) {
     const next = drafts.map(item => item.id === draft.id ? { ...item, input: { ...input, ...partial, format } } : item);
@@ -311,9 +314,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   };
   const intent = primaryIntent(input);
   const cardDecision = decide(input, intent);
-  const composer = { ...decide(input, "composer"), enabled: false, reason: "La composition d’image clé n’est pas encore raccordée. Utilisez Générer une prise." };
   const essai = decide(input, "essai");
-  const tourner = decide(input, "tourner");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
   const showFinal = draft.finalised;
   const cadre = [captureLine(maquette, tuileById(maquette.tuile).prompt), quartier ? t("r7.rue") : ""].filter(Boolean).join(" ");
@@ -321,65 +322,90 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const tip = astuce(maquette);
   const tileLabels = TUILES.map(item => ({ id: item.id, label: t(`r7.tuile.${item.id}`) }));
   const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
-  const etat = etatOf(draft);
-  const measuredProfile = input.format === "9:16" && input.duree === 5;
+  // One quote per take, from the plan's own engine, format and length. LTX is estimated in 16:9 and 9:16.
+  const planSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine: prefs.engine };
+  const planQuote = resolveTakeQuote(takeProfile(planSettings), quotesToRecords(studio.quotes));
+  const quoted = planQuote.source !== "unmeasured";
   const realRefs = input.castIds.length <= 3 && input.castIds.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
   const savedDecor = !input.decorId || studio.scenes.some(scene => scene.id === input.decorId);
-  const canGenerate = !demo && !creating && run.phase !== "running" && measuredProfile && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
-  const generateReason = demo ? "La démonstration n’envoie aucun rendu."
-    : !measuredProfile ? "Le profil actuellement chiffré est 5 s en 9:16. Choisissez ce format pour générer."
-    : !realRefs ? "Utilisez au plus trois personnages enregistrés ; les silhouettes neutres servent à préparer le cadre."
-    : !savedDecor ? "Ce décor d’exemple sert à préparer le cadre. Importez ou créez votre décor dans DÉCOR pour le transmettre au rendu."
-    : "Choisissez au moins un personnage ou une image de décor enregistrée.";
+  const runPlan = pendingTake?.planId ?? null;
+  const busy = run.phase === "running";
+  const runningHere = busy && (!runPlan || runPlan === draft.id);
+  const failedHere = run.phase === "error" && (!runPlan || runPlan === draft.id);
+  const canGenerate = !demo && !creating && !busy && quoted && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
+  const generateReason = demo ? t("p0.why.demo")
+    : busy ? t("p0.why.busy")
+    : !quoted ? t(prefs.engine === "h3" ? "p0.why.h3Format" : "p0.why.noQuote")
+    : !realRefs ? t("p0.why.refs")
+    : !savedDecor ? t("p0.why.decorExample")
+    : t("p0.why.nothing");
+
+  function cameraLine(plan: PlanInput): SentLine {
+    const choice = cameraChoice(plan.action, plan.camera);
+    const move = choice.move ? t(`p0.camera.move.${choice.move}`) : "";
+    const value = choice.source === "texte"
+      ? t("p0.camera.fromText", { words: choice.words, move })
+      : choice.source === "tuile" ? t("p0.camera.fromTile", { move }) : t("p0.camera.free");
+    return { label: t("p0.fiab.sentCamera"), value, flag: Boolean(choice.overridden) };
+  }
+  function resumeFor(plan: PlanInput): SentLine[] {
+    return [
+      { label: t("p0.fiab.sentCast"), value: plan.castNames.join(", ") || "—" },
+      { label: t("p0.fiab.sentDecor"), value: plan.decorName || "—" },
+      { label: t("p0.fiab.sentWords"), value: plan.action.trim() || "—" },
+      cameraLine(plan),
+    ];
+  }
+
   async function generate() {
     if (!canGenerate) return;
     try {
       await persist(drafts.map(item => item.id === draft.id ? { ...item, input } : item));
-      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre }).text, settings: { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine: prefs.engine } });
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Sauvegarde du plan impossible."); }
+      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre }).text, settings: planSettings, resume: resumeFor(input), change: t("p0.fiab.changePrise") });
+    } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
+  }
+
+  // « Tourner le plan suivant »: one tap creates the next plan with the same cast, décor and staging, then asks once.
+  const isLast = index === drafts.length - 1;
+  const showNext = !demo && isLast && (versions.length > 0 || runningHere) && drafts.length < 12;
+  const nextNumber = drafts.length + 1;
+  const canNext = canGenerate && nextAction.trim().length > 0;
+  async function tournerSuivant() {
+    if (!canNext) return;
+    let n = nextNumber;
+    while (drafts.some(item => item.id === `plan-${String(n).padStart(2, "0")}`)) n += 1;
+    const id = `plan-${String(n).padStart(2, "0")}`;
+    const nextInput: PlanInput = { ...input, action: nextAction.trim().slice(0, ACTION_MAX), imageCle: "aucune", enchainer: false, imageFin: false, hasKeptTake: false, previousKept: Boolean(draft.kept) };
+    const item: Draft = { ...blank(id, `Plan ${String(n).padStart(2, "0")}`, format), input: nextInput };
+    const next = [...drafts, item];
+    try {
+      await writeProjectFile(`.uttu/maquette-${id}.json`, maquetteJson(maquette));
+      setDrafts(next);
+      setCurrentId(id);
+      setNextAction("");
+      await persist(next, id);
+      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre }).text, settings: planSettings, resume: resumeFor(nextInput), change: t("p0.fiab.changePrise") });
+    } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
   function planWord(item: Draft): string {
     const mark = etatOf(item);
-    if (mark !== "vide") return ETAT_LABEL[mark];
+    if (mark !== "vide") return t(`p0.etat.${mark}`);
     const live = item.id === draft.id;
     const filled = Boolean(item.input.action.trim() || item.input.castIds.length > 0 || item.input.decorId)
       || (live && (maquette.figures.length > 0 || Boolean(shownPlace)));
-    return filled ? t("r7.enPlace") : ETAT_LABEL.vide;
+    return filled ? t("r7.enPlace") : t("p0.etat.vide");
   }
   const total = drafts.reduce((sum, item) => sum + item.input.duree, 0);
-  const planLabel = `Plan ${String(index + 1).padStart(2, "0")}`;
-
-  let gold: ClickAction & { composer: boolean };
-  let extra: ClickAction | null = null;
-  if (etat === "image-cle") {
-    gold = { label: "Garder ce cadre", price: "", enabled: true, reason: "", composer: false, onClick: () => patch({ imageCle: "validee" }) };
-    extra = { label: "Refaire", price: priceOf(composer.quote), enabled: composer.enabled, reason: composer.reason, onClick: () => { if (composer.enabled) setAsk("composer"); } };
-  } else if (etat === "validee") {
-    gold = { label: "Tourner", price: priceOf(tourner.quote), enabled: tourner.enabled, reason: tourner.reason, composer: false, onClick: () => {} };
-  } else if (etat === "prise") {
-    gold = { label: "★ Garder", price: "", enabled: true, reason: "", composer: false, onClick: keep };
-    extra = { label: "Autre prise", price: "", enabled: canGenerate, reason: generateReason, onClick: () => void generate() };
-  } else if (etat === "gardee" || etat === "finalisee") {
-    // Finaliser se fait une seule fois, sur tout le montage (R8). La prise gardée y part.
-    gold = { label: FINAL_LABEL, price: "", enabled: true, reason: "", composer: false, onClick: () => void envoyer() };
-    extra = { label: "Autre prise", price: "", enabled: canGenerate, reason: generateReason, onClick: () => void generate() };
-  } else {
-    gold = { label: "Composer l'image", price: "", enabled: composer.enabled, reason: composer.reason, composer: true, onClick: () => { if (composer.enabled) setAsk("composer"); } };
-    extra = { label: "Essai rapide", price: "", enabled: essai.enabled, reason: essai.reason, onClick: () => { void generate(); } };
-  }
-  if (!demo && etat !== "prise" && etat !== "gardee" && etat !== "finalisee") {
-    gold = { label: "Générer une prise", price: "", enabled: canGenerate, reason: generateReason, composer: false, onClick: () => void generate() };
-    extra = { label: "Composer l’image clé", price: "", enabled: false, reason: composer.reason, onClick() {} };
-  }
-  const reasonText = gold.enabled ? "" : gold.reason;
-  const extraReason = extra && !extra.enabled && extra.reason && extra.reason !== reasonText ? extra.reason : "";
+  const planLabel = t("p0.planN", { n: String(index + 1).padStart(2, "0") });
 
   async function persist(next: Draft[], focus = draft.id) {
     const shot = next.find(item => item.id === focus);
     if (!shot) return;
     const ordre = next.findIndex(item => item.id === focus);
     const decision = decide({ ...shot.input, format }, primaryIntent({ ...shot.input, format }));
+    // A late save must never drop a take that landed meanwhile: merge with the note on disk.
+    const onDisk = takeIdsFromShotNote(await readProjectFile(`Shots/${shot.id}.md`).catch(() => undefined));
     const record: StoredPlan = {
       id: shot.id,
       name: shot.name,
@@ -388,7 +414,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       input: { ...shot.input, format },
       graph: decision.graph ?? "",
       pourquoi: decision.pourquoi,
-      takeIds: studio.shots.find(item => item.id === shot.id)?.takeIds ?? [],
+      takeIds: mergeTakeIds(studio.shots.find(item => item.id === shot.id)?.takeIds ?? [], onDisk),
+      garde: shot.garde,
       imageCle: shot.before,
       imageFin: "",
       finalVideo: shot.finalised ? shot.after : "",
@@ -488,71 +515,99 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     });
   }
 
-  async function envoyer() {
-    if (sending) return;
-    setSending(true);
-    const still = places.find(place => place.id === input.decorId)?.src
-      || people.find(person => person.id === input.castIds[0])?.src
+  // « Monter la séquence »: every plan goes to the cut in order, with its kept take (else its newest take).
+  const sequence = sequenceTakes(drafts.map(item => ({ id: item.id, garde: item.garde })), studio.shots, studio.takes);
+  const withTake = sequence.filter(entry => entry.take).length;
+  function stillOf(plan: PlanInput): string {
+    return places.find(place => place.id === plan.decorId)?.src
+      || people.find(person => person.id === plan.castIds[0])?.src
       || "";
+  }
+  // Takes without a poster: first decoded frame for the plan strip (local, cached).
+  const [frames, setFrames] = useState<Record<string, string>>({});
+  const frameKey = sequence.map(entry => entry.take && !(entry.take.poster && media[entry.take.poster]) && media[entry.take.video] ? entry.take.id : "").join("|");
+  useEffect(() => {
+    let gone = false;
+    for (const entry of sequence) {
+      const take = entry.take;
+      if (!take || (take.poster && media[take.poster]) || frames[take.id] || !media[take.video]) continue;
+      void framePoster(media[take.video]).then(image => { if (!gone && image) setFrames(map => ({ ...map, [take.id]: image })); });
+    }
+    return () => { gone = true; };
+  }, [frameKey]);
+  const canMonter = !sending && (withTake > 0 || Boolean(stillOf(input)));
+  async function monter() {
+    if (!canMonter) return;
+    setSending(true);
     try {
-      await sendToMontage({
-        takeId: landed?.id,
-        planId: draft.id,
-        label: draft.input.action.trim() || t(`r7.tuile.${maquette.tuile}`),
-        seconds: input.duree,
-        aspect: input.format === "9:16" ? "vertical" : "horizontal",
-        still,
-        prompt: prompt.text,
-        sceneName: input.decorName,
-        composeur: planJson(input, { etat: etatOf(draft), before: draft.before, after: draft.after }),
-      });
+      const live = drafts.map(item => item.id === draft.id ? { ...item, input } : item);
+      await persist(live);
+      await sendSequence(live.map((item, at) => {
+        const entry = sequence[at];
+        const plan = item.input;
+        return {
+          takeId: entry?.take?.id,
+          planId: item.id,
+          label: plan.action.trim() || item.name || t(`r7.tuile.${maquette.tuile}`),
+          seconds: plan.duree,
+          aspect: plan.format === "9:16" ? "vertical" as const : "horizontal" as const,
+          still: entry?.take ? "" : stillOf(plan),
+          prompt: item.id === draft.id ? prompt.text : "",
+          sceneName: places.find(place => place.id === plan.decorId)?.name ?? "",
+          composeur: planJson(plan, { etat: etatOf(item), before: item.before, after: item.after, garde: item.garde }),
+        };
+      }));
       onMontage();
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Envoi au montage interrompu.");
+      setNotice(error instanceof Error ? error.message : t("p0.montageFailed"));
     } finally {
       setSending(false);
     }
   }
 
-  function keep() {
-    if (!(draft.hasTake || draft.kept || draft.finalised)) return;
-    const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true } : item);
+  function keep(takeId: string) {
+    const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true, garde: takeId } : item);
     setDrafts(next);
-    setPanel(true);
-    setFinaliser(finaliserDefaults("video", input.duree));
     void persist(next).catch(error => setNotice(error.message));
   }
 
-  const card = showFinal
-    ? {
-      titre: "Finaliser",
-      mots: fin.sentence,
-      pourquoi: fin.sentence,
-      quote: fin.quote,
-      cap: fin.cap,
-      statut: fin.statut,
-      graph: fin.graph,
-      enabled: fin.enabled,
-      reason: fin.reason,
-    }
-    : cardDecision;
-  const statusWord = t(card.statut === "mesure" ? "create.statusMeasured" : card.statut === "hypothese" ? "create.statusHypothesis" : "create.statusUnknown");
-  const ceiling = card.cap === null
-    ? ""
-    : ` · ${t(card.statut === "mesure" ? "create.ceilingMeasured" : "create.ceilingHyp", { high: fr(card.cap) })}`;
-  const quoteLine = !demo ? (measuredProfile ? productionGate.line : "Ce format n’est pas encore chiffré ; aucun envoi.") : card.quote === null
-    ? t("create.quoteUnknown")
-    : `${t("create.quoteLead", { quote: fr(card.quote), status: statusWord })}${ceiling}`;
-  const sameAsMots = Boolean(reasonText) && reasonText === card.mots;
-  const sameAsPourquoi = Boolean(reasonText) && reasonText === card.pourquoi;
+  // Demo keeps its illustrative quote; production shows the plan's own single estimate.
+  const statusWord = t(cardDecision.statut === "mesure" ? "create.statusMeasured" : cardDecision.statut === "hypothese" ? "create.statusHypothesis" : "create.statusUnknown");
+  const estimate = demo
+    ? (cardDecision.quote === null ? t("create.quoteUnknown") : t("create.quoteLead", { quote: fr(cardDecision.quote), status: statusWord }))
+    : quoteWords(t, planQuote);
+  const states = protocole(runningHere
+    ? { prepared: true, checked: true, quoted: true, running: true }
+    : failedHere
+      ? { prepared: true, checked: true, quoted: true, failed: true }
+      : landed
+        ? { prepared: true, checked: true, quoted: true, landed: true, archived: true }
+        : { prepared: Boolean(input.castIds.length || shownPlace), checked: canGenerate, quoted: quoted && !demo, confirming: sheet === "confirm" && runPlan === draft.id });
+  const versionIndex = landed ? versions.findIndex(take => take.id === landed.id) + 1 : 0;
+  const where = landed ? t("p0.fiab.whereTake", { plan: planLabel, n: versionIndex, total: versions.length }) : "";
+  const failure = failedHere && run.phase === "error" ? say(run.message) : "";
+
+  type Action = { label: string; enabled: boolean; reason: string; onClick(): void; mark: string };
+  const monterAction: Action = { label: withTake > 0 ? t("p0.monter", { count: withTake }) : t("p0.monterStill"), enabled: canMonter, reason: "", onClick: () => void monter(), mark: "monter" };
+  let gold: Action;
+  let second: Action | null = null;
+  if (demo) { gold = { label: t("p0.tourner"), enabled: false, reason: t("p0.why.demo"), onClick() {}, mark: "tourner" }; second = monterAction; }
+  else if (busy) { gold = { label: t("p0.running"), enabled: false, reason: runningHere ? t("p0.runningWhy") : t("p0.why.busy"), onClick() {}, mark: "attente" }; second = withTake > 0 ? monterAction : null; }
+  else if (showNext) { gold = { label: t("p0.tournerSuivant", { n: String(nextNumber).padStart(2, "0") }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber).padStart(2, "0") }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
+  else if (versions.length > 0) gold = monterAction;
+  // Default level: no still-image shortcut. MONTAGE gets takes; the example (demo) keeps its still.
+  else { gold = { label: t("p0.tourner"), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
+  const reasonText = gold.enabled ? "" : gold.reason;
 
   return <section className="u-stage u-prise" data-section="prise" data-prise-ready={ready ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
-    <aside className="u-prise-strip" aria-label="Plans">
-      <p className="u-label">Plans</p>
+    <aside className="u-prise-strip" aria-label={t("p0.plans")}>
+      <p className="u-label">{t("p0.plans")}</p>
       <div className="u-prise-film">
         {drafts.map((item, at) => {
           const mark = etatOf(item);
-          const thumb = item.before || "";
+          const take = sequence[at]?.take;
+          const poster = take?.poster;
+          const thumb = item.before || (poster && media[poster]) || (take ? frames[take.id] : "") || "";
           const word = planWord(item);
           return <button
             key={item.id}
@@ -561,6 +616,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
             draggable
             aria-current={item.id === draft.id ? "true" : undefined}
             data-etat={mark}
+            data-plan={item.id}
             onDragStart={() => setDragId(item.id)}
             onDragOver={event => event.preventDefault()}
             onDrop={() => dropOn(item.id)}
@@ -572,23 +628,114 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
             <span className="u-plan-time">{item.input.duree} s</span>
           </button>;
         })}
-        <button type="button" className="u-plan-add" onClick={addPlan}>＋ Plan</button>
+        <button type="button" className="u-plan-add" onClick={addPlan}>{t("p0.addPlan")}</button>
       </div>
-      <p className="u-plan-sum">Séquence : {clock(total)} / {drafts.length} {drafts.length > 1 ? "plans" : "plan"}</p>
+      <p className="u-plan-sum">{t("p0.sequenceSum", { time: clock(total), count: drafts.length })}</p>
     </aside>
 
     <div className="u-prise-side">
     <div className="u-prise-preview">
-      <p className="u-label">Aperçu</p>
-      {run.phase === "running" && <div className="u-card u-run" role="status">
+      <p className="u-label">{t("p0.preview")}</p>
+      {runningHere && <div className="u-card u-run" role="status">
         <p className="u-run-label">{t("job.running")}</p>
         <button type="button" className="u-link" onClick={cancelRun}>{t("verb.cancel")}</button>
       </div>}
-      {run.phase === "error" && <div role="alert"><p>{run.message}</p><button type="button" className="u-secondary" onClick={resumeRun}>Récupérer le rendu</button></div>}
-      {landed && media[landed.video] && <div><p>Prise enregistrée · {landed.settings.seconds} s</p><video controls playsInline src={media[landed.video]} style={{ width: "100%", maxHeight: 360 }} /></div>}
+      {landed && media[landed.video] && <div className="u-take-view" data-take-view={landed.id} data-versions={versions.length}>
+        <p className="u-label">{t("p0.takeOf", { n: versionIndex, total: versions.length })}{draft.garde === landed.id ? ` · ${t("p0.kept")}` : ""}</p>
+        <video controls playsInline src={media[landed.video]} />
+        {versions.length > 1 && <div className="u-versions" role="group" aria-label={t("p0.versions")}>
+          {versions.map((take, at) => <button key={take.id} type="button" data-version={take.id} aria-pressed={take.id === landed.id} onClick={() => setViewed(map => ({ ...map, [draft.id]: take.id }))}>{t("p0.versionN", { n: at + 1 })}{take.id === draft.garde ? " ★" : ""}</button>)}
+        </div>}
+        <div className="u-card-actions">
+          <button type="button" className="u-secondary" data-garder="" aria-pressed={draft.garde === landed.id} onClick={() => keep(landed.id)}>{draft.garde === landed.id ? t("p0.keptBtn") : t("p0.keep")}</button>
+          <button type="button" className="u-secondary" data-autre-prise="" disabled={!canGenerate} aria-describedby={!canGenerate ? "u-why-autre" : undefined} onClick={() => void generate()}>{t("p0.another")}</button>
+        </div>
+        {!canGenerate && <p className="u-why" id="u-why-autre">{generateReason}</p>}
+      </div>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
-        : <MaquetteView
+        : !landed && <figure className="u-prise-still" data-prise-still="" data-ratio={format === "9:16" ? "9/16" : "16/9"}>
+          {shownPlace?.src ? <img src={shownPlace.src} alt="" /> : <span className="u-prise-still-empty" aria-hidden="true" />}
+          <figcaption>{[maquette.figures.map(figure => figure.name).join(", "), shownPlace?.name].filter(Boolean).join(" · ") || t("p0.stillEmpty")}</figcaption>
+        </figure>}
+    </div>
+    </div>
+
+    <div className="u-prise-rail">
+    <div className="u-prise-work">
+      <header className="u-prise-head">
+        <div className="u-prise-title">
+          <h1 id="u-title" tabIndex={-1}>{planLabel}</h1>
+          <FormatSwitch />
+        </div>
+        <p className="u-plan-etat">{planWord(draft)}</p>
+      </header>
+      {montrerDepart({ mesAssets: cast.length + decor.length + studio.shots.filter(shot => shot.composeur).length, rempli: seed !== "vide" }) && <ExempleDepart etape="prise" onStart={partirExemple} />}
+
+      <Row className="u-who-row" label={t("p0.who")}>
+        <div className="u-choice-row u-who">
+          {maquette.figures.map(figure => {
+            const person = people.find(item => item.id === figure.id);
+            const locked = maquette.lockPose;
+            return <button key={figure.id} type="button" className="u-avatar" aria-pressed={true} disabled={locked} aria-describedby={locked ? "u-why-pose" : undefined} onClick={() => onWho(figure.id)}>
+              <span className="u-avatar-face" style={{ boxShadow: `inset 0 0 0 3px ${figure.color}` }}>{person?.src ? <img src={person.src} alt="" /> : <i style={{ background: figure.color }} />}</span>
+              <span>{figure.name}</span>
+            </button>;
+          })}
+          {people.filter(person => !maquette.figures.some(figure => figure.id === person.id)).map(person => {
+            const blocked = !canAddFigure(maquette);
+            return <button key={person.id} type="button" className="u-avatar" aria-pressed={false} disabled={blocked} aria-describedby={blocked ? "u-why-cap" : undefined} onClick={() => onWho(person.id)}>
+              <span className="u-avatar-face">{person.src ? <img src={person.src} alt="" /> : <i />}</span>
+              <span>{person.name}</span>
+            </button>;
+          })}
+          <button type="button" className="u-avatar u-add-tile" onClick={goCast}>
+            <span className="u-avatar-face is-empty" aria-hidden="true"><AddPersonIcon /></span>
+            <span>{t("p0.addPerson")}</span>
+          </button>
+        </div>
+      </Row>
+
+      <Row label={t("p0.where")}>
+        {mine.length === 0 && <button type="button" className="u-where-empty" onClick={goDecor} data-ou-vide="">
+          <span className="u-place-face is-empty" aria-hidden="true"><AddPlaceIcon /></span>
+          <span><strong>{t("p0.firstPlace")}</strong><small>{t("p0.firstPlaceHint")}</small></span>
+        </button>}
+        {mine.length === 0 && places.length > 0 && <p className="u-where-note">{t("p0.orExample")}</p>}
+        <div className="u-choice-row u-where" data-ou-count={places.length} data-ou-source={mine.length > 0 ? "mes-decors" : "exemples"}>
+          {places.map(place => {
+            const on = shownPlace?.id === place.id;
+            return <button key={place.id} type="button" className="u-place" aria-pressed={on} aria-label={place.exemple ? `${t("p0.example")} ${place.name}` : place.name} onClick={() => choosePlace(place.id)}>
+              <span className="u-place-face">{place.src ? <img src={place.src} alt="" /> : <i />}{place.exemple && <em className="u-place-tag">{t("p0.example")}</em>}</span>
+              <span>{place.name}</span>
+            </button>;
+          })}
+          {mine.length > 0 && <button type="button" className="u-place u-add-tile" onClick={goDecor}>
+            <span className="u-place-face is-empty" aria-hidden="true"><AddPlaceIcon /></span>
+            <span>{t("p0.addPlace")}</span>
+          </button>}
+        </div>
+      </Row>
+
+      <Row className="u-scene-row" label={t("r7.cequi")}>
+        <label className="u-field">
+          <textarea aria-label={t("r7.cequi")} value={input.action} rows={3} maxLength={ACTION_MAX} placeholder={t("p0.actionPh")} onChange={event => onAction(event.target.value)} />
+        </label>
+        <div className="u-choice-row u-actions">
+          {ACTION_EXAMPLES.map((example, at) => {
+            const words = t(`p0.action.${at}`);
+            return <button key={example} type="button" className="u-chip" aria-pressed={input.action === words} onClick={() => onAction(words)}>{words}</button>;
+          })}
+        </div>
+      </Row>
+
+
+      <details className="u-fold u-avance" data-avance-prise="" open={advanced} onToggle={event => setAdvanced(event.currentTarget.open)}>
+        <summary>{t("p0.advanced")}</summary>
+        {!demo && withTake === 0 && canMonter && <button type="button" className="u-secondary" data-envoyer-montage="" data-image-fixe="" onClick={() => void monter()}>{t("p0.monterStill")}</button>}
+        {/* P2 · maquette 3D (prévis) : hors du niveau débutant. */}
+        <div className="u-maquette-avance" data-maquette-avance="">
+      <MaquetteView
           state={{ ...maquette, props: maquette.props?.map(prop => ({ ...prop, url: prop.source ? media[prop.source] : undefined })) }}
           backdrop={quartier ? "" : (shownPlace?.src || "")}
           placeName={shownPlace?.name || ""}
@@ -600,7 +747,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
           onMoveProp={(id, x, z) => setMaquette(state => moveProp(state, id, x, z))}
           playFrom={playFrom}
-        />}
+        />
       <div className="u-maquette-tools">
         <button type="button" className="u-lock" aria-pressed={maquette.lockPose} onClick={() => setMaquette(state => toggleLock(state, "pose"))}>{maquette.lockPose ? "🔒" : "🔓"} {t("r7.pose")}</button>
         <button type="button" className="u-lock" aria-pressed={maquette.lockCam} onClick={() => setMaquette(state => toggleLock(state, "cam"))}>{maquette.lockCam ? "🔒" : "🔓"} {t("r7.cam")}</button>
@@ -625,80 +772,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </li>)}
       </ul>
       {maquette.lockPose && <p className="u-why" id="u-why-pose">{t("r7.poseLock")}</p>}
-      <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} />
       <p className="u-why" data-astuce={tip.id}>{t(`r7.astuce.${tip.id}`, { name: tip.name })}</p>
-      <button type="button" className="u-link" data-lire-sequence="" data-envoyer-montage="" disabled={sending || (!landed && !shownPlace?.src && !people.some(person => input.castIds.includes(person.id) && person.src))} aria-describedby={sending ? "u-why-envoyer" : undefined} onClick={() => void envoyer()}>{landed ? "Envoyer la prise au montage" : "Ajouter l’image au montage"}</button>
-      {sending && <p className="u-why" id="u-why-envoyer">{t("nav.opening")}</p>}
-    </div>
-    </div>
-
-    <div className="u-prise-rail">
-    <div className="u-prise-work">
-      <header className="u-prise-head">
-        <div className="u-prise-title">
-          <h1 id="u-title" tabIndex={-1}>{planLabel}</h1>
-          <FormatSwitch />
         </div>
-        <p className="u-plan-etat">{planWord(draft)}</p>
-      </header>
-      {montrerDepart({ mesAssets: cast.length + decor.length + studio.shots.filter(shot => shot.composeur).length, rempli: seed !== "vide" }) && <ExempleDepart etape="prise" onStart={partirExemple} />}
-
-      <Row className="u-who-row" label="Qui ?">
-        <div className="u-choice-row u-who">
-          {maquette.figures.map(figure => {
-            const person = people.find(item => item.id === figure.id);
-            const locked = maquette.lockPose;
-            return <button key={figure.id} type="button" className="u-avatar" aria-pressed={true} disabled={locked} aria-describedby={locked ? "u-why-pose" : undefined} onClick={() => onWho(figure.id)}>
-              <span className="u-avatar-face" style={{ boxShadow: `inset 0 0 0 3px ${figure.color}` }}>{person?.src ? <img src={person.src} alt="" /> : <i style={{ background: figure.color }} />}</span>
-              <span>{figure.name}</span>
-            </button>;
-          })}
-          {people.filter(person => !maquette.figures.some(figure => figure.id === person.id)).map(person => {
-            const blocked = !canAddFigure(maquette);
-            return <button key={person.id} type="button" className="u-avatar" aria-pressed={false} disabled={blocked} aria-describedby={blocked ? "u-why-cap" : undefined} onClick={() => onWho(person.id)}>
-              <span className="u-avatar-face">{person.src ? <img src={person.src} alt="" /> : <i />}</span>
-              <span>{person.name}</span>
-            </button>;
-          })}
-          <button type="button" className="u-avatar u-add-tile" onClick={goCast}>
-            <span className="u-avatar-face is-empty" aria-hidden="true"><AddPersonIcon /></span>
-            <span>Ajouter un personnage</span>
-          </button>
-        </div>
-      </Row>
-
-      <Row label="Où ?">
-        {mine.length === 0 && <button type="button" className="u-where-empty" onClick={goDecor} data-ou-vide="">
-          <span className="u-place-face is-empty" aria-hidden="true"><AddPlaceIcon /></span>
-          <span><strong>Crée ton premier lieu</strong><small>Dans DÉCOR, depuis un texte ou une photo de rue. Il apparaîtra ici.</small></span>
-        </button>}
-        {mine.length === 0 && places.length > 0 && <p className="u-where-note">Ou pars d’un exemple :</p>}
-        <div className="u-choice-row u-where" data-ou-count={places.length} data-ou-source={mine.length > 0 ? "mes-decors" : "exemples"}>
-          {places.map(place => {
-            const on = shownPlace?.id === place.id;
-            return <button key={place.id} type="button" className="u-place" aria-pressed={on} onClick={() => choosePlace(place.id)}>
-              <span className="u-place-face">{place.src ? <img src={place.src} alt="" /> : <i />}{place.exemple && <em className="u-place-tag">Exemple</em>}</span>
-              <span>{place.name}</span>
-            </button>;
-          })}
-          {mine.length > 0 && <button type="button" className="u-place u-add-tile" onClick={goDecor}>
-            <span className="u-place-face is-empty" aria-hidden="true"><AddPlaceIcon /></span>
-            <span>Ajouter un lieu</span>
-          </button>}
-        </div>
-      </Row>
-
-      <Row className="u-scene-row" label={t("r7.cequi")}>
-        <label className="u-field">
-          <textarea aria-label={t("r7.cequi")} value={input.action} rows={3} maxLength={ACTION_MAX} placeholder={ACTION_PLACEHOLDER} onChange={event => onAction(event.target.value)} />
-        </label>
-        <div className="u-choice-row u-actions">
-          {ACTION_EXAMPLES.map(example => (
-            <button key={example} type="button" className="u-chip" aria-pressed={input.action === example} onClick={() => onAction(example)}>{example}</button>
-          ))}
-        </div>
-      </Row>
-
       <Row className="u-tuiles-row" label={t("r7.tuiles")}>
         <div className="u-tuiles" data-tuiles="">
           {TUILES.map(item => {
@@ -718,88 +793,96 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </div>
         {maquette.figures.length < 2 && <p className="u-why" id="u-why-paire">{t("r7.pairWhy")}</p>}
       </Row>
-
-      <Row label={t("stage.engine.label")}>
-        <div className="u-choice-row u-engine" data-engine={prefs.engine}>
-          {(["ltx", "h3"] as const).map(engine => (
-            <button key={engine} type="button" className="u-chip" aria-pressed={prefs.engine === engine} onClick={() => setPrefs({ engine })}>{t(`stage.engine.${engine}`)}</button>
-          ))}
-        </div>
-        <p className="u-engine-hint">{t(prefs.engine === "ltx" ? "stage.engine.ltxHint" : "stage.engine.h3Hint")}</p>
-      </Row>
-
-      <Row label="Durée">
-        <div className="u-choice-row u-duree">
-          {([5, 8] as const).map(seconds => (
-            <button key={seconds} type="button" className="u-chip" aria-pressed={input.duree === seconds} onClick={() => patch({ duree: seconds })}>{seconds} s</button>
-          ))}
-          <button type="button" className="u-chip" disabled aria-describedby="u-why-dix">10 s</button>
-        </div>
-        <p className="u-why" id="u-why-dix">{DUREE_DIX}</p>
-      </Row>
-
-      <details className="u-fold">
-        <summary>Paroles · {input.paroles === "aucune" ? "Aucune" : input.paroles === "voix-off" ? "Voix off" : "Réplique"}</summary>
-        <div className="u-choice-row">
-          {(["aucune", "replique", "voix-off"] as const).map(mode => (
-            <button key={mode} type="button" className="u-chip" aria-pressed={input.paroles === mode} onClick={() => patch({ paroles: mode })}>
-              {mode === "aucune" ? "Aucune" : mode === "replique" ? "Réplique" : "Voix off"}
-            </button>
-          ))}
-        </div>
-        {input.paroles === "replique" && <>
-          <div className="u-choice-row">
-            {input.castIds.map(id => {
-              const person = people.find(item => item.id === id);
-              if (!person) return null;
-              return <button key={id} type="button" className="u-chip" aria-pressed={input.speakerName === person.name || (!input.speakerName && input.castIds[0] === id)} onClick={() => patch({ speakerName: person.name })}>{person.name}</button>;
-            })}
+        <Row label={t("stage.engine.label")}>
+          <div className="u-choice-row u-engine" data-engine={prefs.engine}>
+            {(["ltx", "h3"] as const).map(engine => (
+              <button key={engine} type="button" className="u-chip" aria-pressed={prefs.engine === engine} onClick={() => setPrefs({ engine })}>{t(`stage.engine.${engine}`)}</button>
+            ))}
           </div>
-          <label className="u-field">
-            <span className="u-label">La phrase</span>
-            <textarea value={input.replique} rows={1} maxLength={ACTION_MAX} onChange={event => patch({ replique: event.target.value })} />
-          </label>
-        </>}
-      </details>
+          <p className="u-engine-hint">{t(prefs.engine === "ltx" ? "stage.engine.ltxHint" : "stage.engine.h3Hint")}</p>
+        </Row>
 
-      <details className="u-fold">
-        <summary>Enchaîner · {input.enchainer ? "oui" : "non"}</summary>
-        <button type="button" className="u-chip" aria-pressed={input.enchainer} onClick={() => patch({ enchainer: !input.enchainer })}>Commencer là où le plan précédent s'arrête</button>
-        {!input.previousKept && input.enchainer && <p className="u-why">Le plan précédent n'est pas encore gardé.</p>}
-        <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>Imposer l'image de fin</button>
+        <Row label={t("p0.duration")}>
+          <div className="u-choice-row u-duree">
+            {([5, 8] as const).map(seconds => (
+              <button key={seconds} type="button" className="u-chip" aria-pressed={input.duree === seconds} onClick={() => patch({ duree: seconds })}>{seconds} s</button>
+            ))}
+          </div>
+        </Row>
+
+        <details className="u-fold">
+          <summary>{t("p0.speech")} · {t(`p0.paroles.${input.paroles}`)}</summary>
+          <div className="u-choice-row">
+            {(["aucune", "replique", "voix-off"] as const).map(mode => (
+              <button key={mode} type="button" className="u-chip" aria-pressed={input.paroles === mode} onClick={() => patch({ paroles: mode })}>
+                {t(`p0.paroles.${mode}`)}
+              </button>
+            ))}
+          </div>
+          {input.paroles === "replique" && <>
+            <div className="u-choice-row">
+              {input.castIds.map(id => {
+                const person = people.find(item => item.id === id);
+                if (!person) return null;
+                return <button key={id} type="button" className="u-chip" aria-pressed={input.speakerName === person.name || (!input.speakerName && input.castIds[0] === id)} onClick={() => patch({ speakerName: person.name })}>{person.name}</button>;
+              })}
+            </div>
+            <label className="u-field">
+              <span className="u-label">{t("p0.line")}</span>
+              <textarea value={input.replique} rows={1} maxLength={ACTION_MAX} onChange={event => patch({ replique: event.target.value })} />
+            </label>
+          </>}
+        </details>
+
+        <details className="u-fold">
+          <summary>{t("p0.chain")} · {t(input.enchainer ? "p0.yes" : "p0.no")}</summary>
+          <button type="button" className="u-chip" aria-pressed={input.enchainer} onClick={() => patch({ enchainer: !input.enchainer })}>{t("p0.chainStart")}</button>
+          {!input.previousKept && input.enchainer && <p className="u-why">{t("p0.chainNotKept")}</p>}
+          <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>{t("p0.chainEnd")}</button>
+        </details>
+        <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} />
+        <VideoGestes aspect={format === "9:16" ? "vertical" : "horizontal"} previs={previsClip} previsLeft={previsLeft} onRecordPrevis={() => void filmPrevis()} />
       </details>
-      <VideoGestes aspect={format === "9:16" ? "vertical" : "horizontal"} previs={previsClip} previsLeft={previsLeft} onRecordPrevis={() => void filmPrevis()} />
     </div>
 
-    <aside className="u-prise-dock" aria-label="Ce que l'app va faire">
+    <aside className="u-prise-dock" aria-label={t("p0.fiab.title")}>
       <div className="u-prise-card" id="u-prise-card" data-row={showFinal ? "final" : cardDecision.row}>
-        <p className="u-label">Ce que l'app va faire</p>
         <p className="u-prise-brief" data-lire-maquette="">
           <span>{t("r7.lireCast")} : {maquette.figures.map(figure => figure.name).join(", ") || "—"}</span>
           <span>{t("r7.lireLieu")} : {shownPlace?.name || "—"}{quartier ? ` · ${t("r7.rue")}` : ""}</span>
           <span>{t("r7.lireCadrage")} : {t(`r7.tuile.${maquette.tuile}`)}</span>
         </p>
-        <h2>{!demo ? "Générer une prise" : card.titre || "En attente"}</h2>
-        {demo && card.mots && !sameAsMots && <p>{card.mots}</p>}
-        {demo && card.pourquoi && card.pourquoi !== card.mots && !sameAsPourquoi && <p>{card.pourquoi}</p>}
-        <p className="u-prise-quote">{quoteLine}</p>
-        <button type="button" className="u-link" aria-expanded={details} onClick={() => setDetails(open => !open)}>Détails</button>
-        {details && <div className="u-prise-details">
-          {card.graph && <p>Graphe : {card.graph}</p>}
-          {showFinal && fin.graphs.filter(item => !item.choisi).map(item => <p key={item.id}>{item.role} : {item.note}</p>)}
-          <button type="button" className="u-link" aria-expanded={textOpen} onClick={() => setTextOpen(open => !open)}>Texte envoyé</button>
-          {textOpen && <textarea className="u-prise-prompt" readOnly value={prompt.text} aria-label="Texte envoyé" />}
-        </div>}
+        <FiabiliteCard
+          states={states}
+          estimate={estimate}
+          estimateClass="u-prise-quote"
+          failure={failure || undefined}
+          where={where || undefined}
+          sent={resumeFor(input)}
+          technical={[{ label: t("p0.fiab.sentEngine"), value: `${t(prefs.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx")} · ${input.duree} s · ${input.format}` }, { label: t("p0.fiab.sentRaw"), value: prompt.text }]}
+          change={t("p0.fiab.changePrise")}
+        >
+          {failedHere && <div className="u-card-actions">
+            <button type="button" className="u-secondary" data-recuperer="" onClick={resumeRun}>{t("p0.recover")}</button>
+            <button type="button" className="u-secondary" data-relancer="" disabled={!canGenerate} aria-describedby={!canGenerate ? "u-why-relancer" : undefined} onClick={() => void generate()}>{t("p0.relaunch")}</button>
+          </div>}
+          {failedHere && !canGenerate && <p className="u-why" id="u-why-relancer">{generateReason}</p>}
+        </FiabiliteCard>
       </div>
 
+      {showNext && <label className="u-next-plan" data-plan-suivant="">
+        <span className="u-label">{t("p0.nextLabel", { n: String(nextNumber).padStart(2, "0") })}</span>
+        <textarea aria-label={t("p0.nextAria")} value={nextAction} rows={2} maxLength={ACTION_MAX} placeholder={t("p0.nextPh")} onChange={event => setNextAction(event.target.value)} />
+      </label>}
 
-      <div className="u-prise-actions">
-        <p className="u-prise-quote u-bar-quote">{quoteLine}</p>
+      <div className="u-prise-actions" data-action={gold.mark}>
+        {notice && !sheet && <p className="u-inline-status" role="status" data-statut-inline="" onClick={() => setNotice("")}>{say(notice)}</p>}
         {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
-        <button type="button" className="u-primary" data-composer-gold={gold.composer ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}{gold.price}</button>
-        {ask === "composer" && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
-        {extra && <button type="button" className="u-secondary" disabled={!extra.enabled} aria-describedby={!extra.enabled && extra.reason ? (extra.reason === reasonText ? "u-prise-reason" : "u-prise-extra") : undefined} onClick={extra.onClick}>{extra.label}{extra.price}</button>}
-        {extraReason && <p className="u-why" id="u-prise-extra">{extraReason}</p>}
+        {/* Phone: the card is out of view, so the single estimate rides with the action (CSS shows one of the two). */}
+        {(gold.mark === "tourner" || gold.mark === "suivant") && <p className="u-prise-quote u-bar-quote">{estimate}</p>}
+        <button type="button" className="u-primary" data-tourner-gold={gold.mark} data-envoyer-montage={gold.mark === "monter" ? "" : undefined} data-lire-sequence={gold.mark === "monter" ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}</button>
+        {second && <button type="button" className="u-secondary" data-envoyer-montage={second.mark === "monter" ? "" : undefined} data-lire-sequence={second.mark === "monter" ? "" : undefined} disabled={!second.enabled} aria-describedby={!second.enabled ? "u-prise-second" : undefined} onClick={second.onClick}>{second.label}</button>}
+        {second && !second.enabled && <p className="u-why" id="u-prise-second">{sending ? t("nav.opening") : second.reason}</p>}
       </div>
     </aside>
     </div>
@@ -807,10 +890,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   </section>;
 }
 
-const ACTION_PLACEHOLDER = "reste immobile, respire";
-
 function blank(id: string, name: string, format: PlanInput["format"]): Draft {
-  return { id, name, input: emptyPlan(format), kept: false, finalised: false, hasTake: false, before: "", after: "" };
+  return { id, name, input: emptyPlan(format), kept: false, finalised: false, hasTake: false, before: "", after: "", garde: "" };
 }
 
 function demoDraft(seed: "compose" | "final", format: PlanInput["format"]): Draft {
@@ -833,9 +914,10 @@ function demoDraft(seed: "compose" | "final", format: PlanInput["format"]): Draf
       hasTake: true,
       before: quai,
       after: quai,
+      garde: "",
     };
   }
-  return { id: "plan-03", name: "Plan 03", input, kept: false, finalised: false, hasTake: false, before: "", after: "" };
+  return { id: "plan-03", name: "Plan 03", input, kept: false, finalised: false, hasTake: false, before: "", after: "", garde: "" };
 }
 
 function draftFromShot(shot: Shot, format: PlanInput["format"]): Draft {
@@ -845,11 +927,12 @@ function draftFromShot(shot: Shot, format: PlanInput["format"]): Draft {
     id: shot.id,
     name: shot.name || shot.id,
     input,
-    kept: state.etat === "gardee" || state.etat === "finalisee",
+    kept: state.etat === "gardee" || state.etat === "finalisee" || Boolean(state.garde),
     finalised: state.etat === "finalisee",
     hasTake: state.etat === "prise" || state.etat === "gardee" || state.etat === "finalisee" || shot.takeIds.length > 0,
     before: state.before,
     after: state.after,
+    garde: state.garde,
   };
 }
 
@@ -861,14 +944,15 @@ function Row({ label, children, className = "" }: { label: string; children: Rea
 }
 
 function Compare({ before, after, ratio }: { before: string; after: string; ratio: string }) {
+  const { t } = useI18n();
   const [pos, setPos] = useState(58);
   return <div className="u-compare">
-    <p className="u-compare-legend"><span>Avant</span><span>Après</span></p>
+    <p className="u-compare-legend"><span>{t("p0.before")}</span><span>{t("p0.after")}</span></p>
     <div className="u-prise-frame" data-ratio={ratio}>
-      <img src={after} alt="Après" />
-      <img className="u-compare-soft" src={before} alt="Avant" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} />
+      <img src={after} alt={t("p0.after")} />
+      <img className="u-compare-soft" src={before} alt={t("p0.before")} style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} />
     </div>
-    <input type="range" min={0} max={100} value={pos} aria-label="Comparer avant et après" onChange={event => setPos(Number(event.target.value))} />
+    <input type="range" min={0} max={100} value={pos} aria-label={t("p0.compare")} onChange={event => setPos(Number(event.target.value))} />
   </div>;
 }
 
@@ -886,4 +970,3 @@ function AddPlaceIcon() {
   </svg>;
 }
 
-const FINAL_LABEL = "Finaliser au montage";

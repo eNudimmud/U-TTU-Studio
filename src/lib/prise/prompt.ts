@@ -3,6 +3,7 @@
 
 import { ACTION_EXAMPLES, ACTION_STILL, type Cadrage, type CameraMove } from "./copy.ts";
 import { GRAPH, type Decision, type PlanInput } from "./decision.ts";
+import { cameraChoice } from "./camera-words.ts";
 
 const CADRAGE_EN: Record<Cadrage, string> = {
   large: "wide shot, full figure",
@@ -57,6 +58,11 @@ export interface BuiltPrompt {
   grammar: ReferenceGrammar;
 }
 
+/** English camera line for a move, used by the prompt and shown in the card. */
+export function cameraEnglish(move: keyof typeof CAMERA_EN): string {
+  return CAMERA_EN[move];
+}
+
 export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | "son">, extra?: { cadre?: string }): BuiltPrompt {
   const grammar = referenceGrammar(decision.graph);
   const refs: string[] = [];
@@ -75,11 +81,13 @@ export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | 
   const placeLine = place
     ? `In ${place}${plan.decorNote.trim() ? `, ${plan.decorNote.trim()}` : ""}.`
     : "";
+  // The user's camera words win; "static, locked-off" is never added on their behalf.
+  const camera = cameraChoice(plan.action, plan.camera);
   const lines = [
     `[références]  ${refs.join(", ") || "aucune"}`,
     `[cadrage]     ${CADRAGE_EN[plan.cadrage]}, ${plan.format}.`,
     placeLine ? `[lieu]        ${placeLine}` : "",
-    `[caméra]      ${CAMERA_EN[plan.camera]}.`,
+    camera.move ? `[caméra]      ${CAMERA_EN[camera.move]}.` : "",
     `[timeline]    [0s-${setupLabel}s] ${who} stands still and breathes.`,
     `              [${setupLabel}s-${plan.duree}s] ${who} ${actionEn(plan.action)}.`,
   ];
