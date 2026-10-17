@@ -1196,3 +1196,6 @@
 .u-montage-status { margin: 0 0 8px; padding-left: 18px; }
 @keyframes u-status-in { from { transform: translateY(3px); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .u-inline-status { animation: none; } }
+
+/* Sequence summary: "· 3 plans" wraps in the narrow desktop strip instead of being clipped. */
+.u-plan-sum { white-space: normal; }
