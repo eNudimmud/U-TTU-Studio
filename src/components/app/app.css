@@ -938,6 +938,10 @@
 .u-quartier { position: relative; border-color: var(--u-gold); background: #14110c; touch-action: none; }
 .u-quartier-canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .u-repere-map .maplibregl-ctrl button { width: 44px; height: 44px; }
+.u-repere-couv { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.u-repere-couv button { min-height: 44px; }
+.u-repere-couv button[aria-pressed="true"] { background: var(--u-gold); color: #000; border-color: var(--u-gold); }
+.u-repere-couv p { margin: 0; flex: 1 1 200px; }
 .u-repere-credit { margin: 0; color: var(--u-gold-soft); font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; white-space: normal; }
 .u-photos { display: grid; gap: 8px; min-width: 0; }
 .u-photos-lieu { grid-template-columns: minmax(0, 1fr); }
@@ -1072,3 +1076,11 @@
 .u-keys li { display: inline-flex; align-items: center; gap: 6px; padding-left: 10px; border: 1px solid var(--u-gold); border-radius: 999px; color: var(--u-gold); }
 .u-keys .u-chip { min-width: 44px; justify-content: center; }
 .u-previs-film { justify-self: start; border-color: var(--u-gold); color: var(--u-gold); }
+
+/* Composer l'image clé (PRISE) */
+.u-keyframe { margin: 0 0 12px; display: grid; gap: 6px; }
+.u-keyframe img { width: 100%; max-height: 420px; object-fit: contain; border: 1px solid var(--u-gold); border-radius: 12px; background: #000; }
+.u-keyframe figcaption { color: var(--u-gold-soft); }
+.u-keyframe-confirm { display: grid; gap: 8px; border: 1px solid var(--u-gold); }
+.u-keyframe-actions { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+.u-keyframe-actions button { min-height: 44px; }

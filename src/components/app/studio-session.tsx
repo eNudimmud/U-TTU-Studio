@@ -107,6 +107,7 @@ export interface StudioSession {
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   runVideoGeste(input: VideoGesteRun): Promise<FinaliseOutcome>;
   runMeshGeste(input: MeshGesteRun): Promise<FinaliseOutcome>;
+  composeKeyframe(input: KeyframeRun): Promise<FinaliseOutcome>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
   duplicateCast(id: string): Promise<void>;
@@ -150,6 +151,19 @@ export interface TakeRequest {
   line: string;
   prompt: string;
   settings: TakeSettings;
+  /** Vault path of the kept key frame. When set it is the only picture: LTX starts the shot on it. */
+  firstFrame?: string;
+}
+
+/** « Composer l'image clé »: one Klein edit from the plan's cast and décor. Confirmed quote, receipt, recovery. */
+export interface KeyframeRun {
+  planId: string;
+  castIds: string[];
+  decorId: string | null;
+  line: string;
+  prompt: string;
+  aspect: "9:16" | "16:9";
+  confirmed: boolean;
 }
 
 /** One PRISE video gesture (raccord, caméra, élargir, effacer). Same gate as a take: confirmed quote, balance over the ceiling. */
@@ -871,6 +885,65 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
   }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
 
+  // « Composer l'image clé » de PRISE : FLUX 3 Klein (poids ouverts) avec le cast puis le décor.
+  // Devis estimé, confirmé, plafond couvert, reçu avant l'envoi, récupération. Jamais d'annulation.
+  const composeKeyframe = useCallback(async (input: KeyframeRun): Promise<FinaliseOutcome> => {
+    const row = gesteParId("prise-image");
+    if (!row || (row.still !== "plan-cle" && row.still !== "plan-cle-169") || !gesteOuvert(row) || row.credits === null || row.high === null) {
+      return { ok: false, message: t("gestes.unwired") };
+    }
+    if (!gesteVisible(row, prefs) || (prefs.openWeightsOnly && templatePartenaire(row.template))) return { ok: false, message: t("safety.modelBlocked") };
+    if (!spendAllowed(row.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
+    if (!client) return { ok: false, message: t("create.needLink") };
+    const held = studioRef.current;
+    const people = input.castIds.flatMap(id => held?.cast.find(item => item.id === id) ?? []);
+    const place = held?.scenes.find(item => item.id === input.decorId) ?? null;
+    const placePicture = place ? place.render || place.stills[0] || place.views[0] || "" : "";
+    if (people.length === 0 || people.length !== input.castIds.length || !placePicture) return { ok: false, message: t("keyframe.needRefs") };
+    const castPictures = people.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)).slice(0, 3);
+    if (castPictures.length !== Math.min(3, people.length)) return { ok: false, message: t("keyframe.needRefs") };
+    const refs = [...castPictures, placePicture];
+    const fresh = await refreshBalance();
+    if (!creationAllowed(true, fresh?.credits ?? null, row.high)) return { ok: false, message: t("create.needCeiling") };
+    setCreating(true);
+    try {
+      const slug = await ensureActiveProject(store());
+      const vault = projectVault(store(), slug);
+      const pictures: { blob: Blob; name: string }[] = [];
+      for (const [index, path] of refs.entries()) {
+        const entry = await vault.get(path);
+        if (!entry?.blob) return { ok: false, message: t("create.noPicture") };
+        pictures.push({ blob: entry.blob, name: index === refs.length - 1 ? "uttu-lieu.png" : `uttu-personnage-${index + 1}.png` });
+      }
+      const at = new Date().toISOString();
+      const id = `${slugify(input.planId) || "plan"}-cle-${Date.now().toString(36)}`;
+      const name = t("keyframe.name", { plan: input.planId });
+      const prompt = [input.prompt.trim(), row.consigne].filter(Boolean).join("\n\n");
+      const receipt: PendingRender = { version: 1, kind: "still", geste: row.id, project: slug, id, name, prompt: input.line.trim(), at, account: await fingerprint(), refs, template: row.template, quote: row.credits, balanceBefore: fresh?.credits ?? 0, jobId: null };
+      const result = await runStill(recoverableClient(client, localStorage, receipt), {
+        kind: input.aspect === "16:9" ? "plan-cle-169" : "plan-cle",
+        template: row.template,
+        prompt,
+        pictures,
+        seed: crypto.getRandomValues(new Uint32Array(1))[0],
+        clientId: crypto.randomUUID(),
+        balanceBefore: fresh?.credits ?? 0,
+      });
+      const paths = assetPaths(slug, "plan", id, "png");
+      await writeBlob(vault, paths.media, result.image);
+      await writeText(vault, paths.note, assetNote({ id, kind: "plan", name, at, prompt: input.line.trim(), geste: row.id, template: row.template, refs, devis: row.credits, cout: result.costCredits, media: paths.media, note: paths.note, preview: null, loose: false }));
+      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+      clearPending(localStorage, result.jobId);
+      await reload();
+      return { ok: true, path: paths.media, url: mediaRef.current[paths.media] ?? "", cost: result.costCredits };
+    } catch (error) {
+      const failure = error instanceof RenderError ? error : new RenderError("failed", error instanceof Error ? error.message : t("create.failed"));
+      return { ok: false, message: failure.message || t("create.failed") };
+    } finally {
+      setCreating(false);
+    }
+  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+
   // « Générer en 3D » de la maquette. Même règle : devis estimé, confirmé, plafond couvert. Jamais d'annulation.
   const runMeshGeste = useCallback(async (input: MeshGesteRun): Promise<FinaliseOutcome> => {
     const row = gesteParId(input.geste);
@@ -1065,7 +1138,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const selected = pendingTake ? pendingTake.castIds.flatMap(id => held?.cast.find(item => item.id === id) ? [held.cast.find(item => item.id === id)!] : []) : held?.cast.filter(item => item.id === pickedCast) ?? [];
     if (pendingTake && selected.length !== pendingTake.castIds.length) { setNotice("Chaque personnage doit avoir une référence enregistrée. Retirez les silhouettes neutres avant de générer."); return; }
     const photos = selected.length ? selected.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)) : (pendingTake ? [] : held?.look.photos ?? []);
-    const paths = referencePaths(photos, place, Infinity);
+    const firstFrame = pendingTake?.firstFrame ?? "";
+    const paths = firstFrame ? [firstFrame] : referencePaths(photos, place, Infinity);
     if (paths.length > referenceLimit(settings)) { setNotice(t("safety.referencesMax", { max: referenceLimit(settings) })); return; }
     const prompt = outgoing();
     if (!prompt.trim()) {
@@ -1094,7 +1168,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     try {
       const at = new Date().toISOString();
       const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
-      const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: referencePaths(photos, place), template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
+      const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: firstFrame ? [firstFrame] : referencePaths(photos, place), template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
         pictures, prompt, settings, seed: crypto.getRandomValues(new Uint32Array(1))[0], clientId: crypto.randomUUID(),
       }, event => setRun({ phase: "running", event }), abort.current.signal);
@@ -1167,7 +1241,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         const blob = await client.file(ref);
         if (receipt.kind === "mesh") await modelExtension(blob, ref.filename);
         const ext = ref.filename.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || (receipt.kind === "son" ? "mp3" : "png");
-        const kind = receipt.kind === "cast" ? "personnage" : receipt.kind === "decor" ? "decor" : isVideo ? "plan" : receipt.kind === "mesh" ? "importe" : "son";
+        const kind = receipt.kind === "cast" ? "personnage" : receipt.kind === "decor" ? "decor" : isVideo || receipt.kind === "still" ? "plan" : receipt.kind === "mesh" ? "importe" : "son";
         const paths = isVideo ? { media: `Projets/${receipt.project}/Assets/${receipt.id}.${ext}`, note: `Projets/${receipt.project}/Assets/${receipt.id}.md` } : assetPaths(receipt.project, kind, receipt.id, ext);
         await writeBlob(vault, paths.media, blob);
         if (receipt.kind === "cast") {
@@ -1175,7 +1249,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         } else if (receipt.kind === "decor") {
           await writeScene(vault, { ...emptySceneDraft(), id: receipt.id, name: receipt.name, note: receipt.prompt, prompt: receipt.prompt, render: paths.media, stills: [paths.media], views: receipt.refs, home: "Decors", template: receipt.template, devis: receipt.quote, cout: null });
         } else {
-          await writeText(vault, paths.note, assetNote({ id: receipt.id, kind: isVideo ? "plan" : receipt.kind === "mesh" ? "importe" : "son", name: receipt.name, at: receipt.at, prompt: receipt.prompt, geste: receipt.geste ?? "", template: receipt.template, refs: receipt.refs, devis: receipt.quote, cout: null, media: paths.media, note: paths.note, preview: null, loose: false }));
+          await writeText(vault, paths.note, assetNote({ id: receipt.id, kind: isVideo || receipt.kind === "still" ? "plan" : receipt.kind === "mesh" ? "importe" : "son", name: receipt.name, at: receipt.at, prompt: receipt.prompt, geste: receipt.geste ?? "", template: receipt.template, refs: receipt.refs, devis: receipt.quote, cout: null, media: paths.media, note: paths.note, preview: null, loose: false }));
         }
         clearPending(localStorage, receipt.jobId);
         await reload();
@@ -1540,7 +1614,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast: input => paid(() => createCast(input), false), createDecor: input => paid(() => createDecor(input), false), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast: input => paid(() => createCast(input), false), createDecor: input => paid(() => createDecor(input), false), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), composeKeyframe: input => paid(() => composeKeyframe(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,

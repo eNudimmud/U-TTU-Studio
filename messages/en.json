@@ -1346,7 +1346,12 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Photo added to the references.",
     "photosBusy": "Loading photos.",
-    "reacMontage": "Silent reaction"
+    "reacMontage": "Silent reaction",
+    "couverture": "Show where photos exist",
+    "couvertureOn": "Gold lines: streets already photographed on Panoramax. Tap a line to go there.",
+    "couvertureOnBoth": "Gold lines: Panoramax. Light dashes: Mapillary. Tap a line to go there.",
+    "couvertureOff": "Shows streets already photographed (Panoramax, free).",
+    "couvertureFail": "The photo layer could not be shown. The map still works."
   },
   "finaliser": {
     "open": "Finalise",
@@ -1440,7 +1445,10 @@
       "people": "{n} character(s)",
       "props": "props: {list}",
       "done": "Understood: {list}. Undo brings back the previous scene.",
-      "none": "Nothing recognised. Try: “two characters, a table, the camera circles around”."
+      "none": "Nothing recognised. Try: “two characters, a table, the camera circles around”.",
+      "meters": "of {n} m",
+      "degrees": "of {n}°",
+      "clamped": "the maquette limits this move to its size; the render follows this path, no further"
     },
     "props": "Props",
     "glb": "Import a .glb",
@@ -1461,7 +1469,8 @@
       "tour": "orbit",
       "pano": "pan",
       "plongee": "high angle",
-      "fixe": "static shot"
+      "fixe": "static shot",
+      "contre": "low angle"
     },
     "path": "Camera path ({seconds} s)",
     "pathLead": "Frame with your finger, pick the moment, add a keyframe. The camera glides from one to the next.",
@@ -1587,5 +1596,27 @@
     "videoUnreadable": "A video is unreadable.",
     "twoVersions": "Two different versions of {name}. Sync is paused to keep both versions. Export my studio before reconciling them.",
     "sentNoReceipt": "Render {job} was sent, but its receipt could not be saved. Keep this ID and check your disk space. Do not restart the generation."
+  },
+  "keyframe": {
+    "demo": "The demo sends no render. Import your character and your set to compose the key frame.",
+    "needCast": "Place at least one saved character (three at most) to compose the key frame.",
+    "needDecor": "Choose a set saved in SET: the key frame starts from the character and the set.",
+    "needRefs": "The key frame needs a saved picture for each character and for the set.",
+    "busy": "A send is already running. Wait for it to come back.",
+    "price": "estimated {credits} credits",
+    "confirmTitle": "Compose the key frame",
+    "confirmQuote": "Estimated: {credits} credits, ceiling {high}. FLUX 3 Klein (open weights) on your Comfy account. The real cost shows after the result.",
+    "confirmRefs": "References sent: {cast} · set {decor}.",
+    "confirmSend": "Confirm and compose",
+    "name": "Key frame · {plan}",
+    "done": "Key frame saved in Takes. Cost: {cost}. Keep this frame to make it the first image of the take.",
+    "costPending": "check it in your account",
+    "keep": "Keep this frame",
+    "redo": "Redo the key frame",
+    "generateFrom": "Generate the take from the key frame",
+    "alt": "Key frame of the shot",
+    "missing": "The key frame is no longer in this browser. Redo it or generate a take.",
+    "proposed": "Key frame proposed. Keep this frame or redo it.",
+    "kept": "Frame kept: the LTX take will start from this image."
   }
 }

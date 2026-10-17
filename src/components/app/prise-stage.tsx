@@ -30,6 +30,7 @@ import { VideoGestes, type PrevisClip } from "./video-gestes";
 import { PrevisPanel } from "./previs-panel";
 import { recordMaquette } from "@/lib/maquette/record";
 import { PATH_SECONDS, moveProp } from "@/lib/maquette/scene";
+import { gesteParId } from "@/lib/workflows/registre";
 
 type Seed = "vide" | "compose" | "final";
 
@@ -82,7 +83,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, gate: productionGate, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendToMontage, prefs, setPrefs } = useStudio();
+  const { ready, demo, gate: productionGate, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, composeKeyframe, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendToMontage, prefs, setPrefs } = useStudio();
   const { t } = useI18n();
   const { format } = useFormat();
   const [seed, setSeed] = useState<Seed>("vide");
@@ -95,6 +96,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [details, setDetails] = useState(false);
   const [textOpen, setTextOpen] = useState(false);
   const [ask, setAsk] = useState<"composer" | null>(null);
+  const [composing, setComposing] = useState(false);
+  const composingRef = useRef(false);
   const [maquette, setMaquette] = useState<MaquetteState>(() => initialMaquette());
   const [sending, setSending] = useState(false);
   const [picker, setPicker] = useState(false);
@@ -309,9 +312,29 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     previousKept: Boolean(previous && (previous.kept || previous.finalised)),
     hasKeptTake: draft.kept || draft.finalised,
   };
+  function realRefsFor(ids: string[]): boolean {
+    return ids.length <= 3 && ids.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
+  }
+  function savedDecorFor(id: string | null): boolean {
+    return Boolean(id) && studio.scenes.some(scene => scene.id === id);
+  }
   const intent = primaryIntent(input);
   const cardDecision = decide(input, intent);
-  const composer = { ...decide(input, "composer"), enabled: false, reason: "La composition d’image clé n’est pas encore raccordée. Utilisez Générer une prise." };
+  const composer = { ...decide(input, "composer"), enabled: false, reason: t("keyframe.demo") };
+  // « Composer l'image clé »: FLUX 3 Klein from the plan's cast and décor, the LTX first frame afterwards.
+  const keyRow = gesteParId("prise-image");
+  const keyQuote = keyRow?.credits ?? null;
+  const keyHigh = keyRow?.high ?? null;
+  const keyAspect: "9:16" | "16:9" = input.format === "9:16" ? "9:16" : "16:9";
+  const keySrc = srcOf(draft.before, media);
+  const canCompose = !demo && !creating && !composing && run.phase !== "running" && keyQuote !== null && realRefsFor(input.castIds) && input.castIds.length > 0 && Boolean(input.decorId) && savedDecorFor(input.decorId);
+  const composeReason = demo ? t("keyframe.demo")
+    : keyQuote === null ? t("gestes.unwired")
+    : input.castIds.length === 0 || !realRefsFor(input.castIds) ? t("keyframe.needCast")
+    : !input.decorId || !savedDecorFor(input.decorId) ? t("keyframe.needDecor")
+    : creating || composing || run.phase === "running" ? t("keyframe.busy")
+    : "";
+  const keyPrice = keyQuote === null ? "" : ` · ${t("keyframe.price", { credits: fr(keyQuote) })}`;
   const essai = decide(input, "essai");
   const tourner = decide(input, "tourner");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
@@ -323,20 +346,39 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
   const etat = etatOf(draft);
   const measuredProfile = input.format === "9:16" && input.duree === 5;
-  const realRefs = input.castIds.length <= 3 && input.castIds.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
-  const savedDecor = !input.decorId || studio.scenes.some(scene => scene.id === input.decorId);
+  const realRefs = realRefsFor(input.castIds);
+  const savedDecor = !input.decorId || savedDecorFor(input.decorId);
   const canGenerate = !demo && !creating && run.phase !== "running" && measuredProfile && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
   const generateReason = demo ? "La démonstration n’envoie aucun rendu."
     : !measuredProfile ? "Le profil actuellement chiffré est 5 s en 9:16. Choisissez ce format pour générer."
     : !realRefs ? "Utilisez au plus trois personnages enregistrés ; les silhouettes neutres servent à préparer le cadre."
     : !savedDecor ? "Ce décor d’exemple sert à préparer le cadre. Importez ou créez votre décor dans DÉCOR pour le transmettre au rendu."
     : "Choisissez au moins un personnage ou une image de décor enregistrée.";
-  async function generate() {
+  async function generate(fromKey = false) {
     if (!canGenerate) return;
+    const firstFrame = fromKey && draft.before && !/^(blob:|https?:|\/)/.test(draft.before) ? draft.before : undefined;
     try {
       await persist(drafts.map(item => item.id === draft.id ? { ...item, input } : item));
-      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre }).text, settings: { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine: prefs.engine } });
+      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre }).text, settings: { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine: prefs.engine }, firstFrame });
     } catch (error) { setNotice(error instanceof Error ? error.message : "Sauvegarde du plan impossible."); }
+  }
+
+  // Second tap of the confirmation: the only path that sends a key frame.
+  async function composeNow() {
+    if (!canCompose || composingRef.current) return;
+    composingRef.current = true;
+    setComposing(true);
+    try {
+      await persist(drafts.map(item => item.id === draft.id ? { ...item, input } : item));
+      const outcome = await composeKeyframe({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre }).text, aspect: keyAspect, confirmed: true });
+      setAsk(null);
+      if (!outcome.ok) { setNotice(outcome.message); return; }
+      const next = drafts.map(item => item.id === draft.id ? { ...item, before: outcome.path, input: { ...input, imageCle: "proposee" as const } } : item);
+      setDrafts(next);
+      await persist(next);
+      setNotice(t("keyframe.done", { cost: outcome.cost === null ? t("keyframe.costPending") : fr(outcome.cost) }));
+    } catch (error) { setNotice(error instanceof Error ? error.message : t("create.failed")); }
+    finally { composingRef.current = false; setComposing(false); }
   }
 
   function planWord(item: Draft): string {
@@ -368,9 +410,15 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     gold = { label: "Composer l'image", price: "", enabled: composer.enabled, reason: composer.reason, composer: true, onClick: () => { if (composer.enabled) setAsk("composer"); } };
     extra = { label: "Essai rapide", price: "", enabled: essai.enabled, reason: essai.reason, onClick: () => { void generate(); } };
   }
-  if (!demo && etat !== "prise" && etat !== "gardee" && etat !== "finalisee") {
+  if (!demo && etat === "image-cle" && draft.before) {
+    gold = { label: t("keyframe.keep"), price: "", enabled: true, reason: "", composer: false, onClick: () => patch({ imageCle: "validee" }) };
+    extra = { label: t("keyframe.redo"), price: keyPrice, enabled: canCompose, reason: composeReason, onClick: () => { if (canCompose) setAsk("composer"); } };
+  } else if (!demo && etat === "validee" && draft.before) {
+    gold = { label: t("keyframe.generateFrom"), price: "", enabled: canGenerate, reason: generateReason, composer: false, onClick: () => void generate(true) };
+    extra = { label: t("keyframe.redo"), price: keyPrice, enabled: canCompose, reason: composeReason, onClick: () => { if (canCompose) setAsk("composer"); } };
+  } else if (!demo && etat !== "prise" && etat !== "gardee" && etat !== "finalisee") {
     gold = { label: "Générer une prise", price: "", enabled: canGenerate, reason: generateReason, composer: false, onClick: () => void generate() };
-    extra = { label: "Composer l’image clé", price: "", enabled: false, reason: composer.reason, onClick() {} };
+    extra = { label: "Composer l’image clé", price: keyPrice, enabled: canCompose, reason: composeReason, onClick: () => { if (canCompose) setAsk("composer"); } };
   }
   const reasonText = gold.enabled ? "" : gold.reason;
   const extraReason = extra && !extra.enabled && extra.reason && extra.reason !== reasonText ? extra.reason : "";
@@ -552,7 +600,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <div className="u-prise-film">
         {drafts.map((item, at) => {
           const mark = etatOf(item);
-          const thumb = item.before || "";
+          const thumb = srcOf(item.before, media);
           const word = planWord(item);
           return <button
             key={item.id}
@@ -586,6 +634,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </div>}
       {run.phase === "error" && <div role="alert"><p>{run.message}</p><button type="button" className="u-secondary" onClick={resumeRun}>Récupérer le rendu</button></div>}
       {landed && media[landed.video] && <div><p>Prise enregistrée · {landed.settings.seconds} s</p><video controls playsInline src={media[landed.video]} style={{ width: "100%", maxHeight: 360 }} /></div>}
+      {!demo && !draft.finalised && draft.before && (etat === "image-cle" || etat === "validee") && <figure className="u-keyframe" data-keyframe={etat}>
+        {keySrc ? <img src={keySrc} alt={t("keyframe.alt")} data-ratio={format} /> : <p className="u-small">{t("keyframe.missing")}</p>}
+        <figcaption className="u-small">{etat === "validee" ? t("keyframe.kept") : t("keyframe.proposed")}</figcaption>
+      </figure>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
         : <MaquetteView
@@ -797,7 +849,16 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <p className="u-prise-quote u-bar-quote">{quoteLine}</p>
         {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
         <button type="button" className="u-primary" data-composer-gold={gold.composer ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}{gold.price}</button>
-        {ask === "composer" && <p className="u-why" id="u-why-branch">L'envoi de l'image clé n'est pas branché dans cette version. Rien ne part.</p>}
+        {ask === "composer" && demo && <p className="u-why" id="u-why-branch">{t("keyframe.demo")}</p>}
+        {ask === "composer" && !demo && <div className="u-card u-keyframe-confirm" role="group" aria-label={t("keyframe.confirmTitle")} data-keyframe-confirm="">
+          <p className="u-label">{t("keyframe.confirmTitle")}</p>
+          <p className="u-prise-quote">{t("keyframe.confirmQuote", { credits: fr(keyQuote ?? 0), high: fr(keyHigh ?? 0) })}</p>
+          <p className="u-small">{t("keyframe.confirmRefs", { cast: input.castNames.join(", ") || "—", decor: input.decorName || "—" })}</p>
+          <div className="u-keyframe-actions">
+            <button type="button" className="u-primary" data-keyframe-send="" disabled={!canCompose} onClick={() => void composeNow()}>{t("keyframe.confirmSend")}</button>
+            <button type="button" className="u-secondary" disabled={composing} onClick={() => setAsk(null)}>{t("verb.cancel")}</button>
+          </div>
+        </div>}
         {extra && <button type="button" className="u-secondary" disabled={!extra.enabled} aria-describedby={!extra.enabled && extra.reason ? (extra.reason === reasonText ? "u-prise-reason" : "u-prise-extra") : undefined} onClick={extra.onClick}>{extra.label}{extra.price}</button>}
         {extraReason && <p className="u-why" id="u-prise-extra">{extraReason}</p>}
       </div>
@@ -805,6 +866,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     </div>
 
   </section>;
+}
+
+/** A plan's key frame is a vault path (generated) or a public URL (examples). */
+function srcOf(path: string, media: Record<string, string>): string {
+  if (!path) return "";
+  if (/^(blob:|https?:|data:|\/)/.test(path)) return path;
+  return media[path] ?? "";
 }
 
 const ACTION_PLACEHOLDER = "reste immobile, respire";

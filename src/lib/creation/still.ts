@@ -6,9 +6,10 @@ import { imageOutput, jobStage, RenderError, type JobDetail, type OutputRef, typ
 import { kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
-import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
+import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE, KEYFRAME_QUOTE } from "./quotes.ts";
 
-export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche";
+/** « plan-cle »: the take's key frame, composed from the cast and the décor, later the LTX first frame. */
+export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche" | "plan-cle" | "plan-cle-169";
 
 /** Which graph family builds the still. Read from the gesture's template. */
 export type StillEngine = "klein" | "flux3" | "nano";
@@ -54,6 +55,7 @@ const sleepDefault = (ms: number) => new Promise<void>(resolve => setTimeout(res
 
 export function quoteForKind(kind: StillKind): CreationQuote {
   if (kind === "planche") return CAST_SHEET_QUOTE;
+  if (kind === "plan-cle" || kind === "plan-cle-169") return KEYFRAME_QUOTE;
   if (kind === "photo-decor") return DECOR_PHOTO_QUOTE;
   if (kind === "texte-decor") return DECOR_TEXT_QUOTE;
   return CAST_TEXT_QUOTE;
@@ -77,21 +79,27 @@ function save(id: string, from: string, prefix: string): ApiGraph[string] {
   };
 }
 
+const KEYFRAME_SUFFIX = "First frame of a film shot. The person or people from the first images stand in the place from the last image. Keep each face, the clothes and the place. Cinematic light. No text.";
+
 const SUFFIX: Record<StillKind, string> = {
   "texte-cast": "One fictional person, character sheet: front face, three-quarter, profile, full body. Neutral background. No text.",
   "texte-decor": "Cinema still, 16:9, empty of people. No text.",
   "photo-cast": "The same fictional person as the reference images. Keep the face. No text.",
   "photo-decor": "Cinema still, 16:9, the same place as the reference image, empty of people. No text.",
   planche: "",
+  // The edit graph keeps the first reference's size: the framing is asked in words, LTX fits the frame to the take.
+  "plan-cle": `${KEYFRAME_SUFFIX} Vertical 9:16 framing.`,
+  "plan-cle-169": `${KEYFRAME_SUFFIX} Horizontal 16:9 framing.`,
 };
 
 function aspectOf(kind: StillKind): KleinAspect {
-  return kind === "texte-decor" || kind === "photo-decor" ? "16:9" : "3:4";
+  if (kind === "plan-cle") return "9:16";
+  return kind === "texte-decor" || kind === "photo-decor" || kind === "plan-cle-169" ? "16:9" : "3:4";
 }
 
 function needsPhoto(kind: StillKind, images: readonly string[]): void {
   if (kind === "texte-cast" || kind === "texte-decor" || images[0]) return;
-  throw new Error(kind === "photo-decor" ? "Le décor part d’une photo." : kind === "planche" ? "La planche part d’une photo." : "Le personnage part d’une photo.");
+  throw new Error(kind === "plan-cle" || kind === "plan-cle-169" ? "L’image clé part du personnage et du décor." : kind === "photo-decor" ? "Le décor part d’une photo." : kind === "planche" ? "La planche part d’une photo." : "Le personnage part d’une photo.");
 }
 
 function loads(graph: ApiGraph, images: readonly string[], max: number): [string, number][] {

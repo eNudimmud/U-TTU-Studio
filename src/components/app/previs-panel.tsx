@@ -53,7 +53,8 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
     const bits = [
       r.people !== null || r.names.length ? t("previs.agent.people", { n: String(result.state.figures.length) }) : "",
       r.props.length ? t("previs.agent.props", { list: r.props.map(kind => t(`previs.prop.${kind}`)).join(", ") }) : "",
-      r.move ? t(`previs.move.${r.move}`) : "",
+      r.move ? [t(`previs.move.${r.move}`), result.camera.meters !== null ? t("previs.agent.meters", { n: String(result.camera.meters) }) : "", result.camera.degrees !== null ? t("previs.agent.degrees", { n: String(result.camera.degrees) }) : ""].filter(Boolean).join(" ") : "",
+      result.camera.clamped ? t("previs.agent.clamped") : "",
     ].filter(Boolean);
     setUnderstood(bits.length ? t("previs.agent.done", { list: bits.join(" · ") }) : t("previs.agent.none"));
     setKeyTime(nextKeyTime(result.state.path));
