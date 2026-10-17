@@ -60,6 +60,10 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(page.getByText("Enregistré dans Mon studio.")).toBeVisible();
 
   await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
+  // The 3D maquette (P2) lives in « Avancé », closed by default.
+  await expect(page.locator("[data-avance-prise]")).not.toHaveAttribute("open", "");
+  await expect(page.locator("[data-prise-still]")).toBeVisible();
+  await page.locator("[data-avance-prise] > summary").click();
   const stage = page.locator("[data-maquette]");
   await expect(stage).toBeVisible();
   await expect(stage).toHaveAttribute("data-quartier", "1");

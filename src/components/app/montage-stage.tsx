@@ -9,7 +9,7 @@ import {
   type AudioClip, type AudioTrackId, type Edit, type History, type VideoClip,
 } from "@/lib/montage/edit";
 import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
-import { exportMp4 } from "@/lib/montage/encode";
+import { exportExtension, exportMp4 } from "@/lib/montage/encode";
 import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
 import { montrerDepart } from "@/lib/creation/depart";
 import { ExempleDepart } from "./exemple-depart";
@@ -17,7 +17,8 @@ import { chooseEdit, editFromShots, editHasClips } from "@/lib/montage/from-take
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
-import { Close, Expand, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
+import { Close, Expand, Face, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
+import { framePoster } from "@/lib/montage/poster";
 import { useFormat } from "./format-switch";
 import { useStudio } from "./studio-session";
 import { gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
@@ -100,7 +101,7 @@ function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: strin
 }
 
 export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => void }) {
-  const { t } = useI18n();
+  const { t, say } = useI18n();
   const { format } = useFormat();
   const { locale } = useLocaleSwitch();
   const { ready, demo, setNotice, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs } = useStudio();
@@ -120,6 +121,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const [script, setScript] = useState("");
   const exporting = useRef(false);
   const [exportError, setExportError] = useState("");
+  const [exportWarn, setExportWarn] = useState("");
   const [exportPhase, setExportPhase] = useState<ExportPhase>({ phase: "idle" });
   const [panel, setPanel] = useState<Panel>(null);
   const [menuAt, setMenuAt] = useState<{ top: number; left: number } | null>(null);
@@ -239,8 +241,10 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     if (boot.current === key) return;
     boot.current = key;
     let gone = false;
+    let settled = false;
     void loadMontages().then(saved => {
       if (gone || boot.current !== key) return;
+      settled = true;
       const choice = chooseEdit({
         requestedId: new URLSearchParams(window.location.search).get("sequence"),
         demo, saved,
@@ -255,7 +259,8 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       timeRef.current = 0;
       setTime(0);
     }).catch(() => { if (!gone) setNotice(t("safety.sequenceMissing")); });
-    return () => { gone = true; };
+    // A re-run before the cut arrived (session reload, demo flag) must load it again, never keep an empty cut.
+    return () => { gone = true; if (!settled && boot.current === key) boot.current = null; };
   }, [ready, demo, studio.project, loadMontages, onFilled]);
 
   useEffect(() => {
@@ -587,6 +592,22 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const nextShot = mix ? edit.video[mix.index + 1] : null;
   const nextUrl = nextShot?.kind === "image" && nextShot.source ? urlOf(nextShot.source) : "";
   const filled = edit.video.length + edit.audio.length > 0;
+  // Takes without a poster get their first decoded frame, so clips are never black squares.
+  const [posters, setPosters] = useState<Record<string, string>>({});
+  const posterKey = edit.video.filter(clip => clip.kind === "video" && clip.source).map(clip => clip.source).join("|");
+  useEffect(() => {
+    let gone = false;
+    for (const clip of historyRef.current.present.video) {
+      if (clip.kind !== "video" || !clip.source || posters[clip.source]) continue;
+      const poster = clip.takeId ? studio.takes.find(take => take.id === clip.takeId)?.poster : "";
+      if (poster && urlOfRef.current(poster)) continue; // a real poster file is already readable
+      const source = clip.source;
+      const url = urlOfRef.current(source);
+      if (!url) continue;
+      void framePoster(url).then(image => { if (!gone && image) setPosters(map => ({ ...map, [source]: image })); });
+    }
+    return () => { gone = true; };
+  }, [posterKey, media, studio.takes]);
   const montageState = filled ? (edit.id === EXEMPLE_ID ? "exemple" : "projet") : "vide";
   const size = estimate ? (estimate.bytes >= 1_000_000
     ? t("montage.sizeMb", { amount: (estimate.bytes / 1_000_000).toFixed(1).replace(".", comma ? "," : ".") })
@@ -618,6 +639,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     if (!plan || !exportAllowed(plan.seconds) || exporting.current) return;
     exporting.current = true;
     setExportError("");
+    setExportWarn("");
     setPanel("export");
     setExportPhase({ phase: "run", done: 0, total: plan.frames });
     const sources = new Map([...current.video, ...current.audio].flatMap(clip => clip.source ? [[clip.source, urlOfRef.current(clip.source)] as const] : []));
@@ -626,11 +648,12 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       urlOf: source => sources.get(source) ?? "",
       vertical: projectRatio(current, studio.takes, format) === "9/16",
       onProgress: (done, total) => setExportPhase({ phase: "run", done, total }),
+      onWarning: message => setExportWarn(message),
     }).then(blob => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${current.name || "montage"}.mp4`;
+      link.download = `${current.name || "montage"}.${exportExtension(blob)}`;
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 60000);
       setExportPhase({ phase: "done", bytes: blob.size });
@@ -655,6 +678,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       urlOf: source => sources.get(source) ?? "",
       onProgress: (done, total) => setFinPhase({ phase: "prepare", done, total }),
       size: { ...size, fps: MASTER.fps, quality: "high" },
+      strict: true,
     }).then(video => finaliseMontage({
       project,
       video,
@@ -672,9 +696,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
 
   function thumbOf(clip: VideoClip): string {
     if (clip.kind === "image" && clip.source) return urlOf(clip.source);
-    if (!clip.takeId) return "";
+    if (!clip.takeId) return clip.source ? posters[clip.source] ?? "" : "";
     const poster = studio.takes.find(take => take.id === clip.takeId)?.poster;
-    return poster ? urlOf(poster) : "";
+    return (poster && urlOf(poster)) || (clip.source ? posters[clip.source] ?? "" : "");
   }
 
   function renderVideoClip(clip: VideoClip, index: number, origin: number) {
@@ -727,7 +751,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </div>
       <span className="u-bar-actions">
       <span className="u-tool-slot">
-        <button type="button" className="u-export" data-export-open="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => setPanel("export")}>{t("montage.exportShort")}</button>
+        <button type="button" className="u-export" data-export-open="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => { if (canExport) runExport(); else setPanel("export"); }}>{t("montage.exportShort")}</button>
         {exportBlocked && <span className="u-tip" id="u-why-export" role="tooltip">{exportWhy}</span>}
       </span>
       <span className="u-tool-slot">
@@ -866,7 +890,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           const clip: VideoClip = { id, kind: "slate", source: null, label: t("r7.reacMontage"), media: 2, start: 0, end: 2, takeId: null, title: t("r7.reacMontage") };
           commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
           setSelected(id);
-        }}><span>{t("r7.reacMontage")}</span></button>
+        }}><Face /><span>{t("r7.reacMontage")}</span></button>
         <button type="button" className="u-tool u-bin-toggle" aria-pressed={binOpen} onClick={() => setBinOpen(current => !current)}><Film /><span>{t("montage.bin")}</span></button>
       </div>
       <div className="u-toolrow-zoom">
@@ -1032,8 +1056,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         <button type="button" className="u-primary" data-export-gold="" disabled={!canExport} aria-describedby={!canExport ? "u-why-export-go" : undefined} onClick={runExport}>{t("montage.export")}</button>
         {!canExport && <Why on id="u-why-export-go" text={exportWhy} />}
         {exportPhase.phase === "run" && <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={exportPhase.total} aria-valuenow={exportPhase.done}><span style={{ width: `${exportPhase.total ? (100 * exportPhase.done) / exportPhase.total : 0}%` }} /></div>}
-        {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")} {exportError}</p>}
+        {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")} {say(exportError)}</p>}
         {exportPhase.phase === "done" && <p className="u-small">{t("montage.exportDone")}</p>}
+        {exportPhase.phase === "done" && exportWarn && <p className="u-why" data-export-warn="">{say(exportWarn)}</p>}
       </div>
     </div>}
     {panel === "finaliser" && <div className="u-overlay" role="presentation" onClick={event => { if (event.target === event.currentTarget && !finBusy) setPanel(null); }}>

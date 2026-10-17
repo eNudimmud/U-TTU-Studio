@@ -43,13 +43,15 @@ test('import gratuit → plan conservé → montage → vrai MP4 et réouverture
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Alice traverse le quai audit');
   await expect.poll(async () => (await readVault(page)).some(entry => /\/Shots\//.test(entry.path) && entry.text?.includes('Alice traverse le quai audit'))).toBe(true);
+  // Free still-image path: kept, but behind « Avancé » (not the novice default).
+  await page.locator('[data-avance-prise] > summary').click();
   await page.locator('[data-envoyer-montage]').click();
   await expect(page.locator('[data-montage]')).toHaveAttribute('data-montage', 'projet');
   await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
   expect((await readVault(page)).filter(entry => /\/Prises\/.*\.md$/.test(entry.path))).toHaveLength(0); // an image is not a generated take
-  await page.locator('[data-export-open]').click();
+  // One tap: the header button exports straight away when the cut can be written.
   const downloaded = page.waitForEvent('download');
-  await page.locator('[data-export-gold]').click();
+  await page.locator('[data-export-open]').click();
   const download = await downloaded;
   const path = info.outputPath('export-local.mp4');
   await download.saveAs(path);
@@ -94,6 +96,9 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1');
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Alice tend la main audit');
+  // Engines live in « Avancé »: the novice never meets them.
+  await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
+  await page.locator('[data-avance-prise] > summary').click();
   await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'ltx');
   expect(posts).toBe(0); // The default LTX quote is estimated; only confirmation may submit.
   await page.locator('.u-engine[data-engine]').getByRole('button', { name: /MiniMax H3/ }).click();
@@ -101,10 +106,10 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   // R10 examples remain previews: never charge for a take that silently omits its selected decor.
   const example = page.getByRole('button', { name: /^Exemple Le quai, la nuit$/i });
   await example.click();
-  await expect(page.getByRole('button', { name: 'Générer une prise', exact: true })).toBeDisabled();
+  await expect(page.locator('[data-tourner-gold]')).toBeDisabled();
   expect(posts).toBe(0);
   await example.click();
-  await page.getByRole('button', { name: 'Générer une prise', exact: true }).click();
+  await page.locator('[data-tourner-gold]').click();
   await expect(page.locator('[data-confirm-gold]')).toBeEnabled();
   expect(posts).toBe(0);
   await page.locator('[data-confirm-gold]').evaluate((button: HTMLButtonElement) => { button.click(); button.click(); });
@@ -155,9 +160,9 @@ test('deux vidéos importées → montage de six secondes → MP4 lisible', asyn
   await page.getByRole('button', { name: 'ClipB', exact: true }).click();
   await page.getByRole('button', { name: 'Ajouter au montage', exact: true }).click();
   await expect(page.locator('.u-clip.is-video')).toHaveCount(2);
-  await page.locator('[data-export-open]').click();
+  // One tap: the header button exports straight away when the cut can be written.
   const downloaded = page.waitForEvent('download');
-  await page.locator('[data-export-gold]').click();
+  await page.locator('[data-export-open]').click();
   const path = info.outputPath('two-clips.mp4');
   await (await downloaded).saveAs(path);
   await expect(page.locator('[data-export]')).toHaveAttribute('data-export', 'done');

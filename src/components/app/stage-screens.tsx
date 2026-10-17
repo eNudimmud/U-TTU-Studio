@@ -6,7 +6,9 @@ import { DEPARTS, montrerDepart } from "@/lib/creation/depart";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { creationAllowed, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
-import { casesVisibles, gesteOuvert, gesteParId, mapReferences, type Onglet, type RoleRef } from "@/lib/workflows/registre";
+import { casesVisibles, gesteOuvert, gesteParId, gesteVisible, mapReferences, type Geste, type Onglet, type RoleRef } from "@/lib/workflows/registre";
+import { protocole } from "@/lib/fiabilite";
+import { FiabiliteCard } from "./fiabilite-card";
 import { APRES_PAR_GESTE, EXEMPLE_PAR_GESTE } from "@/lib/workflows/tuiles";
 import { useI18n } from "@/components/i18n/provider";
 import { Arrow } from "./glyphs";
@@ -102,27 +104,63 @@ function placeAsset(gesteId: string, refs: LocalRef[], asset: AssetRecord, url: 
   ];
 }
 
-function CreateConfirm({ title, amount, high, onCancel, onYes }: { title: string; amount: number; high: number; onCancel(): void; onYes(): void }) {
+function CreateConfirm({ title, amount, high, row, name, prompt, refs, onCancel, onYes }: { title: string; amount: number; high: number; row: Geste; name: string; prompt: string; refs: number; onCancel(): void; onYes(): void }) {
   const { t } = useI18n();
   const { creating } = useStudio();
   const open = !creating && spendAllowed(amount, true);
+  const states = protocole({ prepared: true, checked: true, quoted: true, confirming: !creating, running: creating });
   return <div className="u-card" role="dialog" aria-labelledby="u-create-title">
     <h2 id="u-create-title">{title}</h2>
     <p>{t("create.confirmBody")}</p>
-    <p className="u-cost is-ok" id="u-create-cost">{t("create.estimate", { amount, high })}</p>
-    <button type="button" className="u-primary" disabled={!open} aria-describedby="u-create-cost" onClick={onYes}>{t("verb.lancer")}</button>
-    <button type="button" className="u-link" onClick={onCancel}>{t("verb.cancel")}</button>
+    <FiabiliteCard
+      states={states}
+      estimate={t("create.estimate", { amount, high })}
+      estimateId="u-create-cost"
+      sent={[
+        { label: t("p0.fiab.sentWhat"), value: name || "—" },
+        { label: t("p0.fiab.sentRefs"), value: refs > 0 ? t("p0.fiab.refsCount", { count: refs }) : t("p0.fiab.refsNone") },
+        { label: t("p0.fiab.sentPrompt"), value: prompt.trim() || "—" },
+      ]}
+      technical={[{ label: t("p0.fiab.sentEngine"), value: engineName(t, row.template) }]}
+      change={t(row.onglet === "cast" ? "p0.fiab.changeCast" : "p0.fiab.changeDecor")}
+      where={t("p0.fiab.whereAsset")}
+    />
+    <div className="u-sheet-actions">
+      <button type="button" className="u-primary" disabled={!open} aria-describedby="u-create-cost" data-create-confirm="" onClick={onYes}>{t("verb.lancer")}</button>
+      <button type="button" className="u-link" onClick={onCancel}>{t("verb.cancel")}</button>
+    </div>
   </div>;
+}
+
+/** Plain engine name for the reliability card. */
+function engineName(t: (key: string, values?: Record<string, string | number>) => string, template: string | null | undefined): string {
+  const id = template ?? "";
+  const open = t("p0.engine.open");
+  const partner = t("p0.engine.partner");
+  if (/klein/i.test(id)) return `FLUX 3 Klein · ${open}`;
+  if (/bfl|flux3/i.test(id)) return `FLUX 3 · ${partner}`;
+  if (/nano/i.test(id)) return `Nano Banana · ${partner}`;
+  if (/ltx/i.test(id)) return `LTX-2.5 · ${open}`;
+  if (/h3|minimax/i.test(id)) return `MiniMax H3 · ${open}`;
+  return id || "Comfy";
 }
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
   const { t } = useI18n();
-  const { ready: vaultReady, media, createCast, connected, balance, creating, importAssets, cast } = useStudio();
-  const [gesteId, setGesteId] = useState("cast-photos");
+  const { ready: vaultReady, media, createCast, connected, balance, creating, importAssets, cast, prefs } = useStudio();
+  const [gesteId, setGesteIdState] = useState("cast-photos");
+  const [touched, setTouched] = useState(false);
+  const setGesteId = (id: string) => { setTouched(true); setGesteIdState(id); };
   useEffect(() => {
     const asked = gesteFromQuery("cast", "");
-    if (asked) setGesteId(asked);
+    if (asked) setGesteIdState(asked);
   }, []);
+  /** A description without photos means « depuis un texte »: no tile to find first. */
+  function describe(text: string) {
+    setPrompt(text);
+    const texte = gesteParId("cast-texte");
+    if (!touched && refs.length === 0 && text.trim() && texte && gesteOuvert(texte) && gesteVisible(texte, prefs)) setGesteIdState("cast-texte");
+  }
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [refs, setRefs] = useState<LocalRef[]>([]);
@@ -209,7 +247,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <p className="u-label">01</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.character")}</h1>
       <p className="u-lead">{t("create.castLead")}</p>
-      <label className="u-secondary">Importer un personnage · gratuit<input className="sr-only" type="file" accept="image/*" aria-label="Importer un personnage" disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "personnage"); event.target.value = ""; }} /></label>
+      <label className="u-secondary">{t("p0.importCast")}<input className="sr-only" type="file" accept="image/*" aria-label={t("p0.importCastAria")} disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "personnage"); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
       {depart && <ExempleDepart etape="cast" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.cast.geste)} />}
@@ -220,14 +258,14 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       </label>
       <label className="u-field">
         <span className="u-label">{t("create.prompt")}</span>
-        <textarea value={prompt} rows={3} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => setPrompt(event.target.value)} />
+        <textarea value={prompt} rows={3} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => describe(event.target.value)} />
       </label>
       {!depart && (apres || preview) && <div className="u-result-frame" data-ratio="3/4">
         <img src={apres || preview} alt="" />
       </div>}
     </div>
     <div className="u-create-bar">
-      {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+      {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
         <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
           {amount !== null ? t("create.castButton", { amount }) : t("create.castButtonClosed")} <Arrow />
         </button>
@@ -242,12 +280,32 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { ready: vaultReady, media, createDecor, connected, balance, creating, importAssets, saveLieu, saveLieuPhoto, decor } = useStudio();
-  const [gesteId, setGesteId] = useState("decor-photo");
+  const { ready: vaultReady, media, createDecor, connected, balance, creating, importAssets, saveLieu, saveLieuPhoto, decor, prefs } = useStudio();
+  const [gesteId, setGesteIdState] = useState("decor-photo");
+  const [touched, setTouched] = useState(false);
+  const setGesteId = (id: string) => { setTouched(true); setGesteIdState(id); };
   useEffect(() => {
     const asked = gesteFromQuery("decor", "");
-    if (asked) setGesteId(asked);
+    if (asked) setGesteIdState(asked);
   }, []);
+  function texteRow(): Geste | null {
+    const texte = gesteParId("decor-texte");
+    return texte && gesteOuvert(texte) && gesteVisible(texte, prefs) ? texte : null;
+  }
+  function describe(text: string) {
+    setPrompt(text);
+    if (!touched && refs.length === 0 && text.trim() && texteRow()) setGesteIdState("decor-texte");
+  }
+  /** One tap on a suggestion fills the décor and opens the single confirmation when it can be paid. */
+  function suggest(text: string) {
+    const texte = refs.length === 0 ? texteRow() : null;
+    setPrompt(text);
+    if (!name.trim()) setName(text);
+    if (!texte) return;
+    setGesteIdState(texte.id);
+    const payable = texte.credits !== null && texte.high !== null && creationAllowed(connected, balance?.credits ?? null, texte.high) && !creating;
+    if (payable) setAsk(true);
+  }
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [refs, setRefs] = useState<LocalRef[]>([]);
@@ -315,7 +373,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <p className="u-label">02</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.scene")}</h1>
       <p className="u-lead">{t("create.decorLead")}</p>
-      <label className="u-secondary">Importer un décor · gratuit<input className="sr-only" type="file" accept="image/*" aria-label="Importer un décor" disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "decor"); event.target.value = ""; }} /></label>
+      <label className="u-secondary">{t("p0.importDecor")}<input className="sr-only" type="file" accept="image/*" aria-label={t("p0.importDecorAria")} disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "decor"); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
       {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
@@ -334,18 +392,18 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       </label>
       <p className="u-label">{t("create.suggestions")}</p>
       <div className="u-suggest">
-        {SUGGESTIONS.map(key => <button key={key} type="button" onClick={() => { setPrompt(t(key)); if (!name.trim()) setName(t(key)); }}>{t(key)}</button>)}
+        {SUGGESTIONS.map(key => <button key={key} type="button" data-suggestion={key} onClick={() => suggest(t(key))}>{t(key)}</button>)}
       </div>
       <label className="u-field">
         <span className="u-label">{t("create.prompt")}</span>
-        <textarea value={prompt} rows={3} maxLength={800} onChange={event => setPrompt(event.target.value)} />
+        <textarea value={prompt} rows={3} maxLength={800} onChange={event => describe(event.target.value)} />
       </label>
       {!depart && (apres || preview) && <div className="u-result-frame">
         <img src={apres || preview} alt="" />
       </div>}
     </div>
     <div className="u-create-bar">
-      {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+      {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
         <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>
           {amount !== null ? t("create.decorButton", { amount }) : t("create.decorButtonClosed")} <Arrow />
         </button>
