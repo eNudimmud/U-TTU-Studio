@@ -81,3 +81,5 @@ Les validations de cette passe sont consignées dans [integration-concours.md](i
 | A58 | P1 | Hunyuan3D présenté comme poids ouverts sans préciser les restrictions de sa licence | Restrictions et lien officiel affichés avant confirmation ; qualification fournisseur/concours encore ouverte |
 
 La CI de référence reste rouge (16/40). Les correctifs ci-dessus nécessitent une nouvelle preuve navigateur. Les limites de ressources/éviction sur appareil physique restent à vérifier.
+
+| A49 | P0 | WebKit (Safari privé, navigateurs intégrés aux apps, sessions éphémères) refuse un Blob/File dans IndexedDB : « Error preparing Blob/File data to be stored in object store ». Aucun import ni rendu n’était enregistré ; CAST restait « Vide » | Le coffre réessaie la même écriture en octets (ArrayBuffer + type) et relit les deux formes en Blob ; test unitaire, quatre parcours WebKit de la CI |
