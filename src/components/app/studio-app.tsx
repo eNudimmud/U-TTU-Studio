@@ -163,7 +163,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
           : <CastStage onDecor={() => go("scene")} />}
       </>}
     </main>
-    {notice && <p className="u-toast" role="status">{say(notice)}</p>}
+    {notice && <p className="u-toast" role="status" onClick={() => setNotice("")}>{say(notice)}</p>}
     {sheet === "credits" && <CreditSheet />}
     {sheet === "connect" && <ConnectSheet />}
     {sheet === "confirm" && <ConfirmTake />}

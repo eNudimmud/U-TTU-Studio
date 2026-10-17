@@ -1602,7 +1602,7 @@
     "tournerSuivant": "Rodar el plano {n}",
     "running": "Renderizando…",
     "runningWhy": "Puedes escribir el plano siguiente mientras tanto. No se envía nada más.",
-    "monter": "Montar la secuencia ({count} planos)",
+    "monter": "Montar la secuencia ({count, plural, one {# plano} other {# planos}})",
     "monterStill": "Añadir la imagen al montaje",
     "montageFailed": "Envío al montaje interrumpido.",
     "saveFailed": "No se pudo guardar el plano.",
@@ -1719,7 +1719,7 @@
       "changeDecor": "la luz y los detalles pueden alejarse de tu texto; el decorado se añade junto a los demás, nada se reemplaza.",
       "sentWhat": "Nombre",
       "sentRefs": "Referencias",
-      "refsCount": "{count} imagen(es)",
+      "refsCount": "{count, plural, one {# imagen} other {# imágenes}}",
       "refsNone": "ninguna imagen, solo texto",
       "sentPrompt": "Tu texto",
       "sentEngine": "Motor",
@@ -1728,10 +1728,12 @@
       "sentWords": "Tus palabras",
       "sentCamera": "Cámara",
       "sentRaw": "Texto exacto enviado",
-      "castCount": "{count} personaje(s)",
+      "castCount": "{count, plural, one {# personaje} other {# personajes}}",
       "whereAsset": "Resultado: guardado en Mi estudio y propuesto aquí. Si falla, nada se reemplaza y el mensaje dice por qué.",
       "whereTake": "Guardada en {plan} · toma {n} de {total} (Mi estudio › Tomas). Las demás versiones se quedan.",
-      "whereTakeNext": "La toma llega a TOMA, en su plano, sin sobrescribir una toma guardada. Si se cierra la pestaña, «Recuperar el render» la encuentra."
+      "whereTakeNext": "La toma llega a TOMA, en su plano, sin sobrescribir una toma guardada. Si se cierra la pestaña, «Recuperar el render» la encuentra.",
+      "technical": "Ver el detalle técnico",
+      "stepNow": "Paso {n}/7 · {label}"
     }
   }
 }

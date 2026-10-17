@@ -1602,7 +1602,7 @@
     "tournerSuivant": "Tourner le plan {n}",
     "running": "Rendu en cours…",
     "runningWhy": "Vous pouvez écrire le plan suivant pendant ce temps. Rien d’autre ne part.",
-    "monter": "Monter la séquence ({count} plans)",
+    "monter": "Monter la séquence ({count, plural, one {# plan} other {# plans}})",
     "monterStill": "Ajouter l’image au montage",
     "montageFailed": "Envoi au montage interrompu.",
     "saveFailed": "Sauvegarde du plan impossible.",
@@ -1671,7 +1671,7 @@
     },
     "camera": {
       "free": "libre : rien n’est imposé au moteur (aucun mot caméra dans votre texte)",
-      "fromText": "« {words} » lu dans votre texte → {move}",
+      "fromText": "« {words} » lu dans votre texte → {move}",
       "fromTile": "{move}, demandé par le langage de cinéaste choisi",
       "move": {
         "fixe": "caméra fixe",
@@ -1719,7 +1719,7 @@
       "changeDecor": "la lumière et les détails peuvent s’écarter de votre texte ; le décor est ajouté à côté des autres, rien n’est remplacé.",
       "sentWhat": "Nom",
       "sentRefs": "Références",
-      "refsCount": "{count} image(s)",
+      "refsCount": "{count, plural, one {# image} other {# images}}",
       "refsNone": "aucune image, texte seul",
       "sentPrompt": "Votre texte",
       "sentEngine": "Moteur",
@@ -1728,10 +1728,12 @@
       "sentWords": "Vos mots",
       "sentCamera": "Caméra",
       "sentRaw": "Texte exact envoyé",
-      "castCount": "{count} personnage(s)",
+      "castCount": "{count, plural, one {# personnage} other {# personnages}}",
       "whereAsset": "Résultat : rangé dans Mon studio et proposé ici. En cas d’échec, rien n’est remplacé et le message dit pourquoi.",
       "whereTake": "Rangée dans {plan} · prise {n} sur {total} (Mon studio › Prises). Les autres versions restent.",
-      "whereTakeNext": "La prise arrive dans PRISE, sur son plan, sans écraser une prise gardée. Si l’onglet se ferme, « Récupérer le rendu » la retrouve."
+      "whereTakeNext": "La prise arrive dans PRISE, sur son plan, sans écraser une prise gardée. Si l’onglet se ferme, « Récupérer le rendu » la retrouve.",
+      "technical": "Voir le détail technique",
+      "stepNow": "Étape {n}/7 · {label}"
     }
   }
 }

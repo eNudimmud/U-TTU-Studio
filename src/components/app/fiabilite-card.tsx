@@ -17,17 +17,24 @@ export interface SentLine {
 export function ProtocolStrip({ states }: { states: Record<Etape, EtapeEtat> }) {
   const { t } = useI18n();
   const current = etapeCourante(states);
-  return <ol className="u-fiab-steps" aria-label={t("p0.fiab.title")} data-etape-courante={current ?? "fini"}>
-    {ETAPES.map((step, index) => <li key={step} data-etape={step} data-etat={states[step]} aria-current={step === current ? "step" : undefined}>
-      <span className="u-fiab-dot" aria-hidden="true">{states[step] === "fait" ? "✓" : states[step] === "echec" ? "!" : index + 1}</span>
-      <span className="u-fiab-word">{t(`p0.fiab.${step}`)}</span>
-    </li>)}
-  </ol>;
+  // Seven dots never truncate on a 360 px phone; only the current step is spelled out.
+  const at = current ? ETAPES.indexOf(current) : ETAPES.length - 1;
+  return <div className="u-fiab-protocol">
+    <ol className="u-fiab-steps" aria-label={t("p0.fiab.title")} data-etape-courante={current ?? "fini"}>
+      {ETAPES.map((step, index) => <li key={step} data-etape={step} data-etat={states[step]} aria-current={step === current ? "step" : undefined} title={t(`p0.fiab.${step}`)}>
+        <span className="u-fiab-dot" aria-hidden="true">{states[step] === "fait" ? "✓" : states[step] === "echec" ? "!" : index + 1}</span>
+        <span className="sr-only">{t(`p0.fiab.${step}`)}</span>
+      </li>)}
+    </ol>
+    <p className="u-fiab-now" aria-hidden="true">{t("p0.fiab.stepNow", { n: at + 1, label: t(`p0.fiab.${ETAPES[at]}`) })}</p>
+  </div>;
 }
 
-export function FiabiliteCard({ states, sent, change, estimate, estimateId, estimateClass = "", failure, where, open, children }: {
+export function FiabiliteCard({ states, sent, technical = [], change, estimate, estimateId, estimateClass = "", failure, where, open, children }: {
   states: Record<Etape, EtapeEtat>;
   sent: SentLine[];
+  /** Engine and exact prompt: folded behind « Voir le détail technique », never at the default level. */
+  technical?: SentLine[];
   change: string;
   estimate: string;
   estimateId?: string;
@@ -50,6 +57,12 @@ export function FiabiliteCard({ states, sent, change, estimate, estimateId, esti
         {sent.map(line => <div key={line.label} data-flag={line.flag || undefined}><dt>{line.label}</dt><dd>{line.value}</dd></div>)}
       </dl>
       <p className="u-fiab-change"><strong>{t("p0.fiab.changeTitle")}</strong> {change}</p>
+      {technical.length > 0 && <details className="u-fiab-tech u-avance" data-detail-technique="">
+        <summary>{t("p0.fiab.technical")}</summary>
+        <dl className="u-fiab-sent">
+          {technical.map(line => <div key={line.label}><dt>{line.label}</dt><dd><code>{line.value}</code></dd></div>)}
+        </dl>
+      </details>}
     </details>
     {children}
   </section>;

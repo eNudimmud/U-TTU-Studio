@@ -88,14 +88,17 @@ export function ConfirmTake() {
       estimate={quoteWords(t, takeQuote)}
       estimateId="u-confirm-cost"
       failure={blockReason || undefined}
-      sent={[...(pendingTake?.resume ?? []), { label: t("p0.fiab.sentEngine"), value: `${engine} · ${format}` }, { label: t("p0.fiab.sentRaw"), value: text }]}
+      sent={pendingTake?.resume ?? []}
+      technical={[{ label: t("p0.fiab.sentEngine"), value: `${engine} · ${format}` }, { label: t("p0.fiab.sentRaw"), value: text }]}
       change={pendingTake?.change || t("p0.fiab.changePrise")}
       where={t("p0.fiab.whereTakeNext")}
       open
     />
     <p className="sr-only" id="u-confirm-sent">{text}</p>
-    <button type="button" className="u-primary" data-confirm-gold="" disabled={!canConfirm} aria-describedby="u-confirm-cost u-confirm-sent" onClick={() => void confirmRun()}>{t("p0.confirmGo")}</button>
-    <button type="button" className="u-link" onClick={() => setSheet(null)}>{t("verb.cancel")}</button>
+    <div className="u-sheet-actions">
+      <button type="button" className="u-primary" data-confirm-gold="" disabled={!canConfirm} aria-describedby="u-confirm-cost u-confirm-sent" onClick={() => void confirmRun()}>{t("p0.confirmGo")}</button>
+      <button type="button" className="u-link" onClick={() => setSheet(null)}>{t("verb.cancel")}</button>
+    </div>
   </Frame>;
 }
 

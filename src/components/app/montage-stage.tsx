@@ -17,7 +17,7 @@ import { chooseEdit, editFromShots, editHasClips } from "@/lib/montage/from-take
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
-import { Close, Expand, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
+import { Close, Expand, Face, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
 import { useFormat } from "./format-switch";
 import { useStudio } from "./studio-session";
 import { gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
@@ -873,7 +873,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           const clip: VideoClip = { id, kind: "slate", source: null, label: t("r7.reacMontage"), media: 2, start: 0, end: 2, takeId: null, title: t("r7.reacMontage") };
           commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
           setSelected(id);
-        }}><span>{t("r7.reacMontage")}</span></button>
+        }}><Face /><span>{t("r7.reacMontage")}</span></button>
         <button type="button" className="u-tool u-bin-toggle" aria-pressed={binOpen} onClick={() => setBinOpen(current => !current)}><Film /><span>{t("montage.bin")}</span></button>
       </div>
       <div className="u-toolrow-zoom">

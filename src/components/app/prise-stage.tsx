@@ -835,7 +835,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           estimateClass="u-prise-quote"
           failure={failure || undefined}
           where={where || undefined}
-          sent={[...resumeFor(input), { label: t("p0.fiab.sentEngine"), value: `${t(prefs.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx")} · ${input.duree} s · ${input.format}` }, { label: t("p0.fiab.sentRaw"), value: prompt.text }]}
+          sent={resumeFor(input)}
+          technical={[{ label: t("p0.fiab.sentEngine"), value: `${t(prefs.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx")} · ${input.duree} s · ${input.format}` }, { label: t("p0.fiab.sentRaw"), value: prompt.text }]}
           change={t("p0.fiab.changePrise")}
         >
           {failedHere && <div className="u-card-actions">

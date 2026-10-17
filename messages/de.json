@@ -1602,7 +1602,7 @@
     "tournerSuivant": "Einstellung {n} drehen",
     "running": "Wird gerendert…",
     "runningWhy": "Sie können inzwischen die nächste Einstellung schreiben. Sonst wird nichts gesendet.",
-    "monter": "Sequenz schneiden ({count} Einstellungen)",
+    "monter": "Sequenz schneiden ({count, plural, one {# Einstellung} other {# Einstellungen}})",
     "monterStill": "Bild zum Schnitt hinzufügen",
     "montageFailed": "Übergabe an den Schnitt unterbrochen.",
     "saveFailed": "Die Einstellung konnte nicht gespeichert werden.",
@@ -1719,7 +1719,7 @@
       "changeDecor": "Licht und Details können von Ihrem Text abweichen; die Kulisse kommt zu den anderen hinzu, nichts wird ersetzt.",
       "sentWhat": "Name",
       "sentRefs": "Referenzen",
-      "refsCount": "{count} Bild(er)",
+      "refsCount": "{count, plural, one {# Bild} other {# Bilder}}",
       "refsNone": "kein Bild, nur Text",
       "sentPrompt": "Ihr Text",
       "sentEngine": "Engine",
@@ -1728,10 +1728,12 @@
       "sentWords": "Ihre Worte",
       "sentCamera": "Kamera",
       "sentRaw": "Genau gesendeter Text",
-      "castCount": "{count} Figur(en)",
+      "castCount": "{count, plural, one {# Figur} other {# Figuren}}",
       "whereAsset": "Ergebnis: in Mein Studio abgelegt und hier angeboten. Bei einem Fehler wird nichts ersetzt und die Meldung sagt warum.",
       "whereTake": "Abgelegt in {plan} · Take {n} von {total} (Mein Studio › Takes). Andere Versionen bleiben.",
-      "whereTakeNext": "Der Take landet in TAKE auf seiner Einstellung, ohne einen behaltenen Take zu überschreiben. Schließt der Tab, findet „Rendering abholen“ ihn wieder."
+      "whereTakeNext": "Der Take landet in TAKE auf seiner Einstellung, ohne einen behaltenen Take zu überschreiben. Schließt der Tab, findet „Rendering abholen“ ihn wieder.",
+      "technical": "Technische Details ansehen",
+      "stepNow": "Schritt {n}/7 · {label}"
     }
   }
 }

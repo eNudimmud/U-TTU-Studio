@@ -19,6 +19,7 @@ export const ZoomOut = ({ className }: GlyphProps) => <svg {...base} className={
 export const ZoomIn = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4M11 8.5v5M8.5 11h5" /></svg>;
 export const Film = ({ className }: GlyphProps) => <svg {...base} className={className}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4" /></svg>;
 export const Mic = ({ className }: GlyphProps) => <svg {...base} className={className}><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M6 11a6 6 0 0 0 12 0M12 17v4" /></svg>;
+export const Face = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="12" cy="12" r="8" /><path d="M9 10h.01M15 10h.01M9 15h6" /></svg>;
 export const Spark = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8z" /></svg>;
 export const Music = ({ className }: GlyphProps) => <svg {...base} className={className}><path d="M9 18V6l10-2v12" /><circle cx="7" cy="18" r="2.2" /><circle cx="17" cy="16" r="2.2" /></svg>;
 export const More = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="6" cy="12" r="1.2" fill="currentColor" /><circle cx="12" cy="12" r="1.2" fill="currentColor" /><circle cx="18" cy="12" r="1.2" fill="currentColor" /></svg>;

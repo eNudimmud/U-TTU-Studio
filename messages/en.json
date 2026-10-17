@@ -1602,7 +1602,7 @@
     "tournerSuivant": "Shoot shot {n}",
     "running": "Rendering…",
     "runningWhy": "You can write the next shot meanwhile. Nothing else is sent.",
-    "monter": "Edit the sequence ({count} shots)",
+    "monter": "Edit the sequence ({count, plural, one {# shot} other {# shots}})",
     "monterStill": "Add the image to the edit",
     "montageFailed": "Sending to the edit was interrupted.",
     "saveFailed": "The shot could not be saved.",
@@ -1719,7 +1719,7 @@
       "changeDecor": "light and details may drift from your text; the set is added next to the others, nothing is replaced.",
       "sentWhat": "Name",
       "sentRefs": "References",
-      "refsCount": "{count} image(s)",
+      "refsCount": "{count, plural, one {# image} other {# images}}",
       "refsNone": "no image, text only",
       "sentPrompt": "Your text",
       "sentEngine": "Engine",
@@ -1728,10 +1728,12 @@
       "sentWords": "Your words",
       "sentCamera": "Camera",
       "sentRaw": "Exact text sent",
-      "castCount": "{count} character(s)",
+      "castCount": "{count, plural, one {# character} other {# characters}}",
       "whereAsset": "Result: filed in My studio and offered here. If it fails, nothing is replaced and the message says why.",
       "whereTake": "Filed in {plan} · take {n} of {total} (My studio › Takes). Other versions stay.",
-      "whereTakeNext": "The take lands in TAKE, on its shot, without overwriting a kept take. If the tab closes, “Recover the render” finds it again."
+      "whereTakeNext": "The take lands in TAKE, on its shot, without overwriting a kept take. If the tab closes, “Recover the render” finds it again.",
+      "technical": "See the technical detail",
+      "stepNow": "Step {n}/7 · {label}"
     }
   }
 }

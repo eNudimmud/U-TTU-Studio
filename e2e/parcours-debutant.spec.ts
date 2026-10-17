@@ -60,7 +60,10 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   if (process.env.P0_DEBUG) page.on('pageerror', error => console.log('[pageerror]', error.message));
   const shots = process.env.P0_SHOTS_DIR;
   if (shots) mkdirSync(shots, { recursive: true });
-  const mobile = (page.viewportSize()?.width ?? 1280) < 800;
+  if (process.env.P0_WIDTH) await page.setViewportSize({ width: Number(process.env.P0_WIDTH), height: Number(process.env.P0_HEIGHT || 780) });
+  const width = page.viewportSize()?.width ?? 1280;
+  const mobile = width < 800;
+  const prefix = `${process.env.P0_SHOTS_PREFIX || 'p0-v2'}-${mobile ? 'm' : 'd'}${width}`;
   let taps = 0;
   let shot = 0;
   async function tap(target: Locator) {
@@ -71,8 +74,9 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   async function snap(name: string) {
     shot += 1;
     const file = `${String(shot).padStart(2, '0')}-${name}.png`;
+    await page.waitForTimeout(350); // let sheets finish sliding in
     await page.screenshot({ path: info.outputPath(file) });
-    if (shots && mobile) await page.screenshot({ path: join(shots, `p0-apres-m390-${file}`) });
+    if (shots) await page.screenshot({ path: join(shots, `${prefix}-${file}`) });
   }
   async function reachable(target: Locator) {
     // Mobile 390: the action is on screen without scrolling.
@@ -119,6 +123,10 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await tap(gold);
   const sheet = page.locator('[data-confirm-gold]');
   await expect(page.locator('dialog [data-fiabilite]')).toContainText('caméra à l’épaule');
+  // Plain words by default; the English prompt stays folded behind « Voir le détail technique ».
+  await expect(page.locator('dialog [data-detail-technique]')).not.toHaveAttribute('open', '');
+  await expect(page.locator('dialog [data-detail-technique] code').first()).toBeHidden();
+  if (mobile) await reachable(sheet);
   await snap('prise-confirmation');
   await tap(sheet);
   await expect(page.locator('[data-take-view] video')).toBeVisible({ timeout: 60_000 });

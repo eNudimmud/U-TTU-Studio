@@ -120,13 +120,15 @@ function CreateConfirm({ title, amount, high, row, name, prompt, refs, onCancel,
         { label: t("p0.fiab.sentWhat"), value: name || "—" },
         { label: t("p0.fiab.sentRefs"), value: refs > 0 ? t("p0.fiab.refsCount", { count: refs }) : t("p0.fiab.refsNone") },
         { label: t("p0.fiab.sentPrompt"), value: prompt.trim() || "—" },
-        { label: t("p0.fiab.sentEngine"), value: engineName(t, row.template) },
       ]}
+      technical={[{ label: t("p0.fiab.sentEngine"), value: engineName(t, row.template) }]}
       change={t(row.onglet === "cast" ? "p0.fiab.changeCast" : "p0.fiab.changeDecor")}
       where={t("p0.fiab.whereAsset")}
     />
-    <button type="button" className="u-primary" disabled={!open} aria-describedby="u-create-cost" data-create-confirm="" onClick={onYes}>{t("verb.lancer")}</button>
-    <button type="button" className="u-link" onClick={onCancel}>{t("verb.cancel")}</button>
+    <div className="u-sheet-actions">
+      <button type="button" className="u-primary" disabled={!open} aria-describedby="u-create-cost" data-create-confirm="" onClick={onYes}>{t("verb.lancer")}</button>
+      <button type="button" className="u-link" onClick={onCancel}>{t("verb.cancel")}</button>
+    </div>
   </div>;
 }
 
