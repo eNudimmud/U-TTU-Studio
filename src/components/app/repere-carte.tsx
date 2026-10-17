@@ -7,7 +7,8 @@ import { guideQuote } from "@/lib/prise/guide";
 import { parseFichier } from "@/lib/repere/fichier";
 import { chargerPhoto, chargerPhotos, chargerQuartier, chercherNom } from "@/lib/repere/direct";
 import { fixtureQuartier } from "@/lib/repere/fixture";
-import { fixturePhotos } from "@/lib/repere/mapillary";
+import { fixturePhotos, mapillaryToken } from "@/lib/repere/mapillary";
+import { applyCouverture, couverture, type CouvertureMap } from "@/lib/repere/couverture";
 import { RUE_RAYON, distanceMeters, reusablePhoto, photoSourceUrl, photoLicenseUrl, type PhotoRue } from "@/lib/repere/panoramax";
 import {
   LIEUX_EXEMPLE, OSM_CREDIT, OPENFREEMAP_STYLE, lieuNote, pitchFor, zoomFor,
@@ -39,7 +40,10 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
   const { t } = useI18n();
   const { demo } = useStudio();
   const host = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<{ easeTo(options: object): void; remove(): void; resize(): void } | null>(null);
+  const mapRef = useRef<({ easeTo(options: object): void; remove(): void; resize(): void; isStyleLoaded(): boolean | void; once(event: string, run: () => void): void } & CouvertureMap) | null>(null);
+  const [couv, setCouv] = useState(false);
+  const couvRef = useRef(false);
+  const overlay = useRef(couverture(mapillaryToken()));
   const markerRef = useRef<{ setLngLat(center: [number, number]): void } | null>(null);
   const loadRef = useRef<(next: LieuTrouve, heading?: number, tilt?: number, wide?: boolean) => Promise<void>>(async () => {});
   const [query, setQuery] = useState("");
@@ -91,6 +95,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
         const lon = event.lngLat.lng;
         void loadRef.current({ name: `${lat.toFixed(4)}, ${lon.toFixed(4)}`, lat, lon }, 0, 0);
       });
+      map.on("load", () => { if (couvRef.current) paintCouverture(map, true); });
       mapRef.current = map;
       remove = () => map.remove();
     }).catch(() => { setNote(t("r7.introuvable")); });
@@ -101,6 +106,19 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       markerRef.current = null;
     };
   }, [t]);
+
+  function paintCouverture(map: CouvertureMap & { isStyleLoaded(): boolean | void; once(event: string, run: () => void): void }, on: boolean) {
+    const run = () => { try { applyCouverture(map, on, overlay.current); } catch { setNote(t("r7.couvertureFail")); } };
+    if (map.isStyleLoaded()) run();
+    else map.once("load", run);
+  }
+
+  function toggleCouverture() {
+    const next = !couvRef.current;
+    couvRef.current = next;
+    setCouv(next);
+    if (mapRef.current) paintCouverture(mapRef.current, next);
+  }
 
   const photo = photos[index] ?? null;
   const rueOpen = photoState === "ready" && Boolean(photo);
@@ -346,7 +364,11 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
       </label>
     </div>
     <p className="u-label">{t("r7.pasCarte")}</p>
-    <p className="u-repere-credit">{OSM_CREDIT} · {t("r7.creditMap")} · {t("r7.creditPhoton")}{quartier ? ` · ${t("r7.creditBatiments")}` : ""}</p>
+    <div className="u-repere-couv">
+      <button type="button" className="u-secondary" data-couverture={couv ? "on" : "off"} aria-pressed={couv} aria-describedby="u-couv-note" onClick={toggleCouverture}>{t("r7.couverture")}</button>
+      <p className="u-small" id="u-couv-note">{couv ? t(overlay.current.mapillary ? "r7.couvertureOnBoth" : "r7.couvertureOn") : t("r7.couvertureOff")}</p>
+    </div>
+    <p className="u-repere-credit">{OSM_CREDIT} · {t("r7.creditMap")} · {t("r7.creditPhoton")}{quartier ? ` · ${t("r7.creditBatiments")}` : ""}{couv ? ` · ${overlay.current.credits.join(" · ")}` : ""}</p>
     <div className={rue ? "u-rue-frame" : "u-map-slot"}>
       <div className={rue ? "u-repere-map is-mini" : "u-repere-map"} data-pas="1" ref={host} />
     {photoState === "load" && <p className="u-small" id="u-why-search">{t("r7.photosBusy")}</p>}

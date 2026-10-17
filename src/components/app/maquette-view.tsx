@@ -22,6 +22,10 @@ interface Props {
   playFrom?: number | null;
   /** Called on every played frame with the elapsed seconds; at the end with PATH_SECONDS. */
   onPlayTick?(seconds: number): void;
+  /** « Lire le trajet »: plays the camera path once. */
+  onPlay?(): void;
+  /** What the last sentence did, shown over the stage instead of the hint. */
+  caption?: string;
 }
 
 type Mode = "webgl" | "plat";
@@ -35,7 +39,7 @@ function canWebGL(): boolean {
   }
 }
 
-export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier = null, onMove, onOrbit, onPinch, onMoveProp, playFrom = null, onPlayTick }: Props) {
+export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier = null, onMove, onOrbit, onPinch, onMoveProp, playFrom = null, onPlayTick, onPlay, caption = "" }: Props) {
   const { t } = useI18n();
   const [modelError, setModelError] = useState("");
   const host = useRef<HTMLDivElement>(null);
@@ -56,6 +60,12 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
   const tickRef = useRef(onPlayTick);
   tickRef.current = onPlayTick;
   const [mode, setMode] = useState<Mode>("webgl");
+  const paintRef = useRef<() => void>(() => {});
+  const photoRef = useRef<HTMLImageElement>(null);
+  const backdropRef = useRef(backdrop);
+  backdropRef.current = backdrop;
+  // Repaint as soon as the scene changes (a composed sentence must show at once).
+  useEffect(() => { paintRef.current(); }, [state, backdrop, quartier]);
 
   useEffect(() => {
     const node = host.current;
@@ -71,6 +81,8 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
       renderer.setPixelRatio(Math.min(MAX_PIXEL_RATIO, window.devicePixelRatio || 1));
       renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       const canvas = renderer.domElement;
       canvas.className = "u-maquette-canvas";
       host.current.replaceChildren(canvas);
@@ -80,6 +92,15 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       scene.add(new THREE.HemisphereLight(0xfff1d0, 0x201810, 1.1));
       const sun = new THREE.DirectionalLight(0xffe0a0, 1.2);
       sun.position.set(4, 8, 5);
+      sun.castShadow = true;
+      sun.shadow.mapSize.set(1024, 1024);
+      sun.shadow.camera.left = -8;
+      sun.shadow.camera.right = 8;
+      sun.shadow.camera.top = 8;
+      sun.shadow.camera.bottom = -8;
+      sun.shadow.camera.near = 1;
+      sun.shadow.camera.far = 30;
+      sun.shadow.radius = 4;
       scene.add(sun);
       const floor = new THREE.Mesh(
         new THREE.CircleGeometry(12, 48),
@@ -87,8 +108,18 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       );
       floor.rotation.x = -Math.PI / 2;
       floor.name = "floor";
+      floor.receiveShadow = true;
       scene.add(floor);
+      // Over a décor photo the floor is invisible: it only catches the shadows, so the figures stand on the photo's ground.
+      const catcherMaterial = new THREE.ShadowMaterial({ opacity: 0.5 });
+      const catcher = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), catcherMaterial);
+      catcher.rotation.x = -Math.PI / 2;
+      catcher.position.y = 0.002;
+      catcher.receiveShadow = true;
+      scene.add(catcher);
       const grid = new THREE.GridHelper(16, 16, 0x5a4a2a, 0x3a3122);
+      const gridMaterial = grid.material as THREE.LineBasicMaterial;
+      gridMaterial.transparent = true;
       scene.add(grid);
       let blockKey = "";
       let dropBlock = () => {};
@@ -105,8 +136,11 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       function syncBlock() {
         const place = quartierRef.current;
         const key = place ? `${place.lat.toFixed(5)}|${place.lon.toFixed(5)}|${place.buildings.length}|${place.streets.length}|${place.relief?.n ?? 0}` : "";
-        floor.visible = !place;
+        const photo = !place && Boolean(backdropRef.current);
+        floor.visible = !place && !photo;
+        catcher.visible = !place;
         grid.visible = !place;
+        gridMaterial.opacity = photo ? 0.18 : 1;
         if (key !== blockKey) {
           blockKey = key;
           dropBlock();
@@ -137,6 +171,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
           geometries.push(geometry);
           const mesh = new THREE.Mesh(geometry, material);
           mesh.position.set(x, y, 0);
+          mesh.castShadow = true;
           mesh.userData.root = group;
           group.add(mesh);
         };
@@ -153,19 +188,50 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         right.position.set(-0.24, 1.24, 0);
         left.userData.arm = true;
         right.userData.arm = true;
+        left.castShadow = true;
+        right.castShadow = true;
         group.add(left, right);
+        // Facing cue: a dark visor where the eyes are, and an arrow on the ground in front.
+        const visorMaterial = new THREE.MeshStandardMaterial({ color: 0x0b0a09, roughness: 0.3, metalness: 0.2 });
+        materials.push(visorMaterial);
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.08, 0.06), visorMaterial);
+        geometries.push(visor.geometry);
+        visor.position.set(0, 2.0, 0.19);
+        group.add(visor);
+        const arrowShape = new THREE.Shape();
+        arrowShape.moveTo(0, 0.95);
+        arrowShape.lineTo(0.22, 0.55);
+        arrowShape.lineTo(-0.22, 0.55);
+        arrowShape.closePath();
+        const arrowMaterial = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
+        materials.push(arrowMaterial);
+        const arrow = new THREE.Mesh(new THREE.ShapeGeometry(arrowShape), arrowMaterial);
+        geometries.push(arrow.geometry);
+        arrow.rotation.x = Math.PI / 2; // shape +y becomes +z: in front of the figure
+        arrow.position.y = 0.015;
+        arrow.userData.tint = true;
+        group.add(arrow);
+        const ringMaterial = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85, side: THREE.DoubleSide });
+        materials.push(ringMaterial);
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.36, 0.44, 32), ringMaterial);
+        geometries.push(ring.geometry);
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.y = 0.012;
+        ring.userData.tint = true;
+        group.add(ring);
         add(new THREE.CapsuleGeometry(0.09, 0.78, 3, 6), 0.48, -0.1);
         add(new THREE.CapsuleGeometry(0.09, 0.78, 3, 6), 0.48, 0.1);
         const shadow = new THREE.Mesh(
-          new THREE.CircleGeometry(0.42, 20),
-          new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 }),
+          new THREE.CircleGeometry(0.34, 24),
+          new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.55, depthWrite: false }),
         );
         geometries.push(shadow.geometry);
         materials.push(shadow.material);
         shadow.rotation.x = -Math.PI / 2;
         shadow.position.y = 0.02;
         group.add(shadow);
-        group.scale.setScalar(1.2);
+        // About 1.75 m from the ground to the top of the head, like a person on the quay.
+        group.scale.setScalar(0.81);
         group.traverse(child => { child.userData.root = group; });
         return group;
       }
@@ -191,9 +257,16 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
             const material = mesh.material;
             if (!Array.isArray(material) && material instanceof THREE.MeshStandardMaterial) material.color.set(figure.color);
           }
+          for (const child of group.children) {
+            if (child.userData.tint && child instanceof THREE.Mesh && child.material instanceof THREE.MeshBasicMaterial) child.material.color.set(figure.color);
+          }
           const spot = worldOf(figure.x, figure.z);
           group.position.set(spot.x, spot.y, spot.z);
-          const stand = uprightRotation(figure.yaw);
+          // « Regard caméra »: everyone turns to the lens, on every frame of the path.
+          const facing = stateRef.current.tuile === "regard"
+            ? Math.atan2(camera.position.x - spot.x, camera.position.z - spot.z)
+            : figure.yaw;
+          const stand = uprightRotation(facing);
           group.rotation.set(stand.x, stand.y, stand.z);
           group.traverse(child => {
             if (child.userData.arm) child.rotation.z = figure.pose * (child.position.x < 0 ? 1 : -1);
@@ -317,17 +390,19 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
         materials.push(material);
         const sprite = new THREE.Sprite(material);
-        sprite.position.set(0, 2.42, 0);
-        sprite.scale.set(1.15, 0.29, 1);
+        sprite.position.set(0, 2.5, 0);
+        sprite.scale.set(1.3, 0.33, 1);
         sprite.userData.kind = "name";
         sprite.userData.label = name;
         sprite.userData.tint = color;
         return sprite;
       }
 
+      let turned = 0;
       function frameCamera() {
         const started = playRef.current;
         const orbit = started === null ? stateRef.current.orbit : orbitAt(stateRef.current.path ?? [], (performance.now() - started) / 1000, stateRef.current.orbit);
+        turned = Math.abs(orbit.theta - ((stateRef.current.path ?? [])[0]?.orbit.theta ?? stateRef.current.orbit.theta));
         const place = quartierRef.current;
         const origin = worldOf(0, 0);
         const span = stateRef.current.figures.reduce((max, figure) => Math.max(max, Math.abs(figure.x), Math.abs(figure.z)), 0);
@@ -356,10 +431,38 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         camera.aspect = width / Math.max(1, height);
         camera.updateProjectionMatrix();
         syncBlock();
+        frameCamera();
         syncFigures();
         syncProps();
-        frameCamera();
+        alignPhoto(width, height);
         renderer.render(scene, camera);
+      }
+      paintRef.current = () => paint();
+
+      // The décor photo slides so its horizon (assumed at half height, an eye-level shot)
+      // sits on the 3D horizon. A steep plongée leaves the photo and fades it.
+      function alignPhoto(width: number, height: number) {
+        const stage = host.current?.closest(".u-maquette-stage");
+        const photo = photoRef.current;
+        const pitchDown = Math.atan2(camera.position.y - (worldOf(0, 0).y + 1.25), Math.hypot(camera.position.x - worldOf(0, 0).x, camera.position.z - worldOf(0, 0).z));
+        const ndc = Math.tan(pitchDown) / Math.tan((camera.fov * Math.PI) / 360);
+        const horizon = 0.5 - ndc / 2;
+        stage?.setAttribute("data-horizon", String(Math.round(horizon * 100)));
+        if (!photo || !photo.naturalWidth || quartierRef.current) return;
+        const scale = Math.max(width / photo.naturalWidth, height / photo.naturalHeight) * 1.3;
+        const w = photo.naturalWidth * scale;
+        const h = photo.naturalHeight * scale;
+        const top = Math.min(0, Math.max(height - h, horizon * height - h / 2));
+        photo.style.width = `${w}px`;
+        photo.style.height = `${h}px`;
+        photo.style.left = `${(width - w) / 2}px`;
+        photo.style.top = `${top}px`;
+        const off = Math.abs(horizon * height - (top + h / 2)) / height;
+        // A photo is one point of view: once the camera turns away from it, it fades and the floor grid takes over.
+        const away = turned > 0.35;
+        photo.style.opacity = away || horizon < -0.1 || horizon > 1.1 ? "0.25" : off > 0.08 ? "0.6" : "1";
+        gridMaterial.opacity = away ? 0.6 : 0.18;
+        stage?.setAttribute("data-photo-match", off <= 0.08 && !away ? "1" : "0");
       }
 
       const raycaster = new THREE.Raycaster();
@@ -489,18 +592,62 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
   const rue = quartier && standsInStreet(quartier) ? "1" : "0";
   return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile} data-figures={state.figures.length} data-layout={layout} data-props={props} data-keys={state.path?.length ?? 0} data-playing={playFrom !== null ? "1" : undefined} data-quartier={quartier ? "1" : "0"} data-batiments={quartier?.buildings.length ?? 0} data-rue={rue}>
     {modelError && <p role="alert" className="u-small">{t("previs.modelFailed", { name: modelError })}</p>}
-    <div
-      className="u-maquette-stage"
-      style={backdrop ? { backgroundImage: `linear-gradient(180deg, rgba(11,10,9,.25), rgba(11,10,9,.72)), url(${backdrop})` } : undefined}
-    >
+    <div className="u-maquette-stage" data-photo={backdrop ? "1" : "0"}>
+      <div className="u-maquette-view">
+      {backdrop && <img ref={photoRef} className="u-maquette-photo" src={backdrop} alt="" onLoad={() => paintRef.current()} />}
       <div className="u-maquette-gl" ref={host} />
       {mode === "plat" && <Plat state={state} onMove={onMove} onOrbit={onOrbit} onPinch={onPinch} />}
       <p className="u-maquette-badge">{badge}</p>
       <p className="u-maquette-names">{state.figures.map((figure, index) => <span key={figure.id} style={{ color: figure.color }}>{index > 0 ? " · " : ""}{figure.name}</span>)}</p>
       {placeName && <p className="u-maquette-place">{placeName}</p>}
-      <p className="u-maquette-hint">{hint}</p>
+      <MiniPlan state={state} playFrom={playFrom} />
+      </div>
+      {/* The bar sits under the picture: nothing covers the feet or the frame. */}
+      <div className="u-maquette-bar">
+        {caption ? <p className="u-maquette-hint u-maquette-caption" role="status" data-maquette-caption="">{caption}</p> : <p className="u-maquette-hint" id="u-why-trajet">{hint}</p>}
+        {onPlay && <button type="button" className="u-maquette-play" data-lire-trajet="" disabled={(state.path?.length ?? 0) < 2 || playFrom !== null} aria-describedby={(state.path?.length ?? 0) < 2 && !caption ? "u-why-trajet" : undefined} onClick={onPlay}>{playFrom !== null ? t("previs.playing") : t("previs.play")}</button>}
+      </div>
     </div>
   </div>;
+}
+
+/**
+ * Top view, as a previs artist draws it: figures as coloured dots with their
+ * facing, the camera path as a gold line with its keyframes, the camera now.
+ */
+function MiniPlan({ state, playFrom }: { state: MaquetteState; playFrom: number | null }) {
+  const { t } = useI18n();
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    if (playFrom === null) { setNow(0); return; }
+    let frame = 0;
+    const loop = () => { setNow(Math.min(PATH_SECONDS, (performance.now() - playFrom) / 1000)); frame = requestAnimationFrame(loop); };
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
+  }, [playFrom]);
+  const path = state.path ?? [];
+  const where = (orbit: { theta: number; phi: number; radius: number }) => ({ x: orbit.radius * Math.sin(orbit.phi) * Math.sin(orbit.theta), z: orbit.radius * Math.sin(orbit.phi) * Math.cos(orbit.theta) });
+  const samples = path.length > 1 ? Array.from({ length: 33 }, (_, index) => where(orbitAt(path, (PATH_SECONDS * index) / 32, state.orbit))) : [];
+  const cam = where(playFrom !== null && path.length > 1 ? orbitAt(path, now, state.orbit) : path.length > 0 ? path[0].orbit : state.orbit);
+  const extent = Math.max(4, ...samples.map(p => Math.max(Math.abs(p.x), Math.abs(p.z))), Math.abs(cam.x), Math.abs(cam.z), ...state.figures.map(f => Math.max(Math.abs(f.x), Math.abs(f.z)))) + 1;
+  const angle = Math.atan2(-cam.x, -cam.z);
+  const fov = 0.35;
+  const reach = Math.hypot(cam.x, cam.z) * 0.9;
+  const ray = (a: number) => `${cam.x + Math.sin(a) * reach},${cam.z + Math.cos(a) * reach}`;
+  return <svg className="u-miniplan" viewBox={`${-extent} ${-extent} ${extent * 2} ${extent * 2}`} role="img" aria-label={t("previs.plan")} data-miniplan={path.length} data-cam={`${cam.x.toFixed(1)},${cam.z.toFixed(1)}`}>
+    <rect x={-extent} y={-extent} width={extent * 2} height={extent * 2} fill="rgba(11,10,9,.82)" />
+    <polygon points={`${cam.x},${cam.z} ${ray(angle - fov)} ${ray(angle + fov)}`} fill="rgba(201,164,106,.18)" />
+    {samples.length > 1 && <polyline points={samples.map(p => `${p.x},${p.z}`).join(" ")} fill="none" stroke="#c9a46a" strokeWidth={extent / 16} strokeDasharray={`${extent / 9} ${extent / 18}`} />}
+    {path.map(key => { const p = where(key.orbit); return <circle key={key.t} cx={p.x} cy={p.z} r={extent / 11} fill="#c9a46a" stroke="#000" strokeWidth={extent / 40} />; })}
+    {state.figures.map(figure => {
+      const facing = state.tuile === "regard" ? Math.atan2(cam.x - figure.x, cam.z - figure.z) : figure.yaw;
+      return <g key={figure.id}>
+        <line x1={figure.x} y1={figure.z} x2={figure.x + Math.sin(facing) * extent / 4} y2={figure.z + Math.cos(facing) * extent / 4} stroke={figure.color} strokeWidth={extent / 18} />
+        <circle cx={figure.x} cy={figure.z} r={extent / 8} fill={figure.color} stroke="#000" strokeWidth={extent / 40} />
+      </g>;
+    })}
+    <circle cx={cam.x} cy={cam.z} r={extent / 9} fill="#f3e3a1" stroke="#000" strokeWidth={extent / 40} />
+  </svg>;
 }
 
 function Plat({ state, onMove, onOrbit, onPinch }: { state: MaquetteState; onMove: Props["onMove"]; onOrbit: Props["onOrbit"]; onPinch: Props["onPinch"] }) {

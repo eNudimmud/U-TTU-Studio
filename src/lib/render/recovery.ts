@@ -9,7 +9,7 @@ export const PENDING_RENDER_KEY = 'u-ttu-operation';
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 export interface PendingRender {
   version: 1;
-  kind: 'cast' | 'decor' | 'son' | 'take' | 'final' | 'video' | 'mesh';
+  kind: 'cast' | 'decor' | 'son' | 'take' | 'final' | 'video' | 'mesh' | 'still';
   geste?: string;
   project: string;
   id: string;
@@ -30,7 +30,7 @@ export function readPending(storage: Pick<Storage, 'getItem'>): PendingRender | 
   if (!raw) return null;
   // Corrupt receipts are not treated as permission to submit a second job.
   const data = JSON.parse(raw) as PendingRender;
-  if (data.version !== 1 || !['cast', 'decor', 'son', 'take', 'final', 'video', 'mesh'].includes(data.kind)
+  if (data.version !== 1 || !['cast', 'decor', 'son', 'take', 'final', 'video', 'mesh', 'still'].includes(data.kind)
     || !/^[a-z0-9-]+$/.test(data.project) || !/^[a-z0-9-]+$/.test(data.id)
     || (data.jobId !== null && !/^[a-zA-Z0-9-]{8,64}$/.test(data.jobId))) throw new Error('Le reçu de rendu est illisible. Conservez les données du navigateur et vérifiez votre compte de rendu.');
   return data;

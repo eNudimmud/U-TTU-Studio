@@ -10,7 +10,7 @@ export type Onglet = (typeof ONGLET)[number];
 
 export type Fourniture = "texte" | "photo" | "photos" | "asset" | "video" | "audio";
 export type NatureCout = "mesure" | "hypothese" | "non-mesure";
-export type StillKindName = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche";
+export type StillKindName = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche" | "plan-cle" | "plan-cle-169";
 
 export interface SlotImage {
   role: RoleRef;
@@ -264,9 +264,10 @@ export const REGISTRE: readonly Geste[] = [
   }),
   geste({
     id: "prise-image", onglet: "prise", categorie: "plan", clef: "priseStill",
-    fournit: ["photo", "texte"], slots: [LIEU("image_1")],
-    template: "video_minimax_h3_i2v", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.priseStill",
+    fournit: ["asset", "photo", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
+    template: KLEIN_EDIT, credits: 4, high: 6, nature: "hypothese",
+    premier: false, still: "plan-cle", minRefs: 2,
+    consigne: "Première image du plan : le personnage dans ce décor. Garde le visage, les vêtements et le lieu.",
   }),
   geste({
     id: "prise-raccord", onglet: "prise", categorie: "raccord", clef: "priseBridge",

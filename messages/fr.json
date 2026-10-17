@@ -1346,7 +1346,12 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Photo ajoutée aux références.",
     "photosBusy": "Chargement des photos.",
-    "reacMontage": "Réaction muette"
+    "reacMontage": "Réaction muette",
+    "couverture": "Voir où il y a des photos",
+    "couvertureOn": "Traits dorés : rues déjà photographiées sur Panoramax. Touchez un trait pour y aller.",
+    "couvertureOnBoth": "Traits dorés : Panoramax. Pointillés clairs : Mapillary. Touchez un trait pour y aller.",
+    "couvertureOff": "Affiche les rues déjà photographiées (Panoramax, gratuit).",
+    "couvertureFail": "La couche des photos n’a pas pu s’afficher. La carte reste utilisable."
   },
   "finaliser": {
     "open": "Finaliser",
@@ -1440,7 +1445,11 @@
       "people": "{n} personnage(s)",
       "props": "objets : {list}",
       "done": "Compris : {list}. Annuler revient à la scène d’avant.",
-      "none": "Rien reconnu. Essaie : « deux personnages, une table, la caméra tourne autour »."
+      "none": "Rien reconnu. Essaie : « deux personnages, une table, la caméra tourne autour ».",
+      "meters": "de {n} m",
+      "degrees": "de {n}°",
+      "clamped": "la maquette limite ce mouvement à sa taille ; le rendu suivra ce trajet, pas plus",
+      "missing": "il manque {n} personnage(s) dans CAST : ajoutez-les pour les placer"
     },
     "props": "Objets",
     "glb": "Importer un .glb",
@@ -1461,7 +1470,8 @@
       "tour": "tour autour",
       "pano": "panoramique",
       "plongee": "plongée",
-      "fixe": "plan fixe"
+      "fixe": "plan fixe",
+      "contre": "contre-plongée"
     },
     "path": "Trajet caméra ({seconds} s)",
     "pathLead": "Cadre au doigt, choisis l’instant, ajoute un point-clé. La caméra glisse d’un point à l’autre.",
@@ -1493,7 +1503,10 @@
     "savedClip": "Prévisualisation enregistrée dans Mon studio.",
     "downloadClip": "Télécharger la vidéo",
     "modelTerms": "Lire la licence du modèle",
-    "hunyuanTerms": "Hunyuan3D 2.1 a des conditions particulières : sa licence communautaire exclut l’Union européenne, le Royaume-Uni et la Corée du Sud. Vérifiez les droits applicables avec votre fournisseur avant utilisation."
+    "hunyuanTerms": "Hunyuan3D 2.1 a des conditions particulières : sa licence communautaire exclut l’Union européenne, le Royaume-Uni et la Corée du Sud. Vérifiez les droits applicables avec votre fournisseur avant utilisation.",
+    "play": "▶ Lire le trajet",
+    "playing": "Lecture du trajet…",
+    "plan": "Vue de dessus : personnages, trajet caméra et caméra"
   },
   "recovery": {
     "title": "Retrouver un rendu",
@@ -1587,5 +1600,27 @@
     "videoUnreadable": "Une vidéo est illisible.",
     "twoVersions": "Deux versions différentes de {name}. La synchronisation est suspendue pour conserver les deux versions. Exportez le coffre avant de les rapprocher.",
     "sentNoReceipt": "Le rendu {job} a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conservez cet identifiant et vérifiez votre espace disque. Ne relancez pas la génération."
+  },
+  "keyframe": {
+    "demo": "La démonstration n’envoie aucun rendu. Importez votre personnage et votre décor pour composer l’image clé.",
+    "needCast": "Placez au moins un personnage enregistré (trois au plus) pour composer l’image clé.",
+    "needDecor": "Choisissez un décor enregistré dans DÉCOR : l’image clé part du personnage et du décor.",
+    "needRefs": "L’image clé a besoin d’une image enregistrée pour chaque personnage et pour le décor.",
+    "busy": "Un envoi est déjà en cours. Attendez son retour.",
+    "price": "estimé {credits} crédits",
+    "confirmTitle": "Composer l’image clé",
+    "confirmQuote": "Estimé : {credits} crédits, plafond {high}. FLUX 3 Klein (poids ouverts) sur votre compte Comfy. Le coût réel s’affiche après le retour.",
+    "confirmRefs": "Références envoyées : {cast} · décor {decor}.",
+    "confirmSend": "Confirmer et composer",
+    "name": "Image clé · {plan}",
+    "done": "Image clé enregistrée dans Prises. Coût : {cost}. Gardez ce cadre pour en faire la première image de la prise.",
+    "costPending": "à vérifier dans votre compte",
+    "keep": "Garder ce cadre",
+    "redo": "Refaire l’image clé",
+    "generateFrom": "Générer la prise depuis l’image clé",
+    "alt": "Image clé du plan",
+    "missing": "L’image clé n’est plus dans ce navigateur. Refaites-la ou générez une prise.",
+    "proposed": "Image clé proposée. Gardez ce cadre ou refaites-le.",
+    "kept": "Cadre gardé : la prise LTX partira de cette image."
   }
 }

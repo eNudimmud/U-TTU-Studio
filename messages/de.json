@@ -1346,7 +1346,12 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Foto zu den Referenzen gelegt.",
     "photosBusy": "Fotos werden geladen.",
-    "reacMontage": "Stumme Reaktion"
+    "reacMontage": "Stumme Reaktion",
+    "couverture": "Zeigen, wo es Fotos gibt",
+    "couvertureOn": "Goldene Linien: bereits fotografierte Straßen auf Panoramax. Tippen Sie auf eine Linie, um hinzugehen.",
+    "couvertureOnBoth": "Goldene Linien: Panoramax. Helle Striche: Mapillary. Tippen Sie auf eine Linie, um hinzugehen.",
+    "couvertureOff": "Zeigt bereits fotografierte Straßen (Panoramax, kostenlos).",
+    "couvertureFail": "Die Fotoebene konnte nicht angezeigt werden. Die Karte bleibt nutzbar."
   },
   "finaliser": {
     "open": "Finalisieren",
@@ -1440,7 +1445,11 @@
       "people": "{n} Figur(en)",
       "props": "Objekte: {list}",
       "done": "Verstanden: {list}. Rückgängig holt die vorige Szene zurück.",
-      "none": "Nichts erkannt. Versuch: „zwei Personen, ein Tisch, die Kamera kreist herum“."
+      "none": "Nichts erkannt. Versuch: „zwei Personen, ein Tisch, die Kamera kreist herum“.",
+      "meters": "um {n} m",
+      "degrees": "um {n}°",
+      "clamped": "die Maquette begrenzt diese Bewegung auf ihre Größe; der Render folgt diesem Weg, nicht weiter",
+      "missing": "{n} Figur(en) fehlen in CAST: fügen Sie sie hinzu, um sie zu platzieren"
     },
     "props": "Objekte",
     "glb": ".glb importieren",
@@ -1461,7 +1470,8 @@
       "tour": "Kreisfahrt",
       "pano": "Schwenk",
       "plongee": "Vogelperspektive",
-      "fixe": "feste Kamera"
+      "fixe": "feste Kamera",
+      "contre": "Untersicht"
     },
     "path": "Kamerafahrt ({seconds} s)",
     "pathLead": "Mit dem Finger kadrieren, den Moment wählen, einen Keyframe setzen. Die Kamera gleitet von einem zum nächsten.",
@@ -1493,7 +1503,10 @@
     "savedClip": "Vorschau in Mein Studio gespeichert.",
     "downloadClip": "Video herunterladen",
     "modelTerms": "Modelllizenz lesen",
-    "hunyuanTerms": "Für Hunyuan3D 2.1 gelten besondere Bedingungen: Die Community-Lizenz schließt die EU, das Vereinigte Königreich und Südkorea aus. Kläre die geltenden Rechte vor der Nutzung mit deinem Anbieter."
+    "hunyuanTerms": "Für Hunyuan3D 2.1 gelten besondere Bedingungen: Die Community-Lizenz schließt die EU, das Vereinigte Königreich und Südkorea aus. Kläre die geltenden Rechte vor der Nutzung mit deinem Anbieter.",
+    "play": "▶ Weg abspielen",
+    "playing": "Weg wird abgespielt…",
+    "plan": "Draufsicht: Figuren, Kameraweg und Kamera"
   },
   "recovery": {
     "title": "Renderauftrag wiederfinden",
@@ -1587,5 +1600,27 @@
     "videoUnreadable": "Ein Video ist nicht lesbar.",
     "twoVersions": "Zwei verschiedene Versionen von {name}. Die Synchronisierung ist angehalten, damit beide Versionen erhalten bleiben. Exportiere Mein Studio, bevor du sie zusammenführst.",
     "sentNoReceipt": "Der Renderauftrag {job} wurde gesendet, aber sein Beleg konnte nicht gespeichert werden. Bewahre diese Kennung auf und prüfe den Speicherplatz. Starte die Generierung nicht neu."
+  },
+  "keyframe": {
+    "demo": "Die Demo sendet kein Rendering. Importieren Sie Ihre Figur und Ihr Set, um das Schlüsselbild zu komponieren.",
+    "needCast": "Platzieren Sie mindestens eine gespeicherte Figur (höchstens drei), um das Schlüsselbild zu komponieren.",
+    "needDecor": "Wählen Sie ein gespeichertes Set: Das Schlüsselbild entsteht aus Figur und Set.",
+    "needRefs": "Das Schlüsselbild braucht ein gespeichertes Bild für jede Figur und für das Set.",
+    "busy": "Ein Versand läuft bereits. Warten Sie auf das Ergebnis.",
+    "price": "geschätzt {credits} Credits",
+    "confirmTitle": "Schlüsselbild komponieren",
+    "confirmQuote": "Geschätzt: {credits} Credits, Obergrenze {high}. FLUX 3 Klein (offene Gewichte) auf Ihrem Comfy-Konto. Die echten Kosten erscheinen nach dem Ergebnis.",
+    "confirmRefs": "Gesendete Referenzen: {cast} · Set {decor}.",
+    "confirmSend": "Bestätigen und komponieren",
+    "name": "Schlüsselbild · {plan}",
+    "done": "Schlüsselbild in Aufnahmen gespeichert. Kosten: {cost}. Behalten Sie diesen Ausschnitt als erstes Bild der Aufnahme.",
+    "costPending": "in Ihrem Konto prüfen",
+    "keep": "Diesen Ausschnitt behalten",
+    "redo": "Schlüsselbild neu machen",
+    "generateFrom": "Aufnahme aus dem Schlüsselbild erzeugen",
+    "alt": "Schlüsselbild der Einstellung",
+    "missing": "Das Schlüsselbild ist nicht mehr in diesem Browser. Machen Sie es neu oder erzeugen Sie eine Aufnahme.",
+    "proposed": "Schlüsselbild vorgeschlagen. Behalten oder neu machen.",
+    "kept": "Ausschnitt behalten: Die LTX-Aufnahme beginnt mit diesem Bild."
   }
 }

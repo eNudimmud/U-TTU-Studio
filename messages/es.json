@@ -1346,7 +1346,12 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Foto añadida a las referencias.",
     "photosBusy": "Cargando fotos.",
-    "reacMontage": "Reacción muda"
+    "reacMontage": "Reacción muda",
+    "couverture": "Ver dónde hay fotos",
+    "couvertureOn": "Líneas doradas: calles ya fotografiadas en Panoramax. Toque una línea para ir.",
+    "couvertureOnBoth": "Líneas doradas: Panoramax. Trazos claros: Mapillary. Toque una línea para ir.",
+    "couvertureOff": "Muestra las calles ya fotografiadas (Panoramax, gratis).",
+    "couvertureFail": "No se pudo mostrar la capa de fotos. El mapa sigue funcionando."
   },
   "finaliser": {
     "open": "Finalizar",
@@ -1440,7 +1445,11 @@
       "people": "{n} personaje(s)",
       "props": "objetos: {list}",
       "done": "Entendido: {list}. Deshacer vuelve a la escena anterior.",
-      "none": "No reconocí nada. Prueba: «dos personajes, una mesa, la cámara gira alrededor»."
+      "none": "No reconocí nada. Prueba: «dos personajes, una mesa, la cámara gira alrededor».",
+      "meters": "de {n} m",
+      "degrees": "de {n}°",
+      "clamped": "la maqueta limita este movimiento a su tamaño; el render sigue este trayecto, no más",
+      "missing": "faltan {n} personaje(s) en CAST: añádalos para colocarlos"
     },
     "props": "Objetos",
     "glb": "Importar un .glb",
@@ -1461,7 +1470,8 @@
       "tour": "giro alrededor",
       "pano": "paneo",
       "plongee": "picado",
-      "fixe": "plano fijo"
+      "fixe": "plano fijo",
+      "contre": "contrapicado"
     },
     "path": "Trayecto de cámara ({seconds} s)",
     "pathLead": "Encuadra con el dedo, elige el instante, añade un punto clave. La cámara se desliza de uno a otro.",
@@ -1493,7 +1503,10 @@
     "savedClip": "Previsualización guardada en Mi estudio.",
     "downloadClip": "Descargar el vídeo",
     "modelTerms": "Leer la licencia del modelo",
-    "hunyuanTerms": "Hunyuan3D 2.1 tiene condiciones específicas: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo."
+    "hunyuanTerms": "Hunyuan3D 2.1 tiene condiciones específicas: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo.",
+    "play": "▶ Reproducir el trayecto",
+    "playing": "Reproduciendo el trayecto…",
+    "plan": "Vista cenital: personajes, trayecto de cámara y cámara"
   },
   "recovery": {
     "title": "Recuperar un renderizado",
@@ -1587,5 +1600,27 @@
     "videoUnreadable": "Un vídeo es ilegible.",
     "twoVersions": "Dos versiones distintas de {name}. La sincronización está en pausa para conservar ambas. Exporta Mi estudio antes de unificarlas.",
     "sentNoReceipt": "El renderizado {job} se envió, pero su recibo no se pudo guardar. Conserva este identificador y revisa el espacio en disco. No relances la generación."
+  },
+  "keyframe": {
+    "demo": "La demostración no envía ningún render. Importe su personaje y su decorado para componer la imagen clave.",
+    "needCast": "Coloque al menos un personaje guardado (tres como máximo) para componer la imagen clave.",
+    "needDecor": "Elija un decorado guardado: la imagen clave parte del personaje y del decorado.",
+    "needRefs": "La imagen clave necesita una imagen guardada de cada personaje y del decorado.",
+    "busy": "Ya hay un envío en curso. Espere a que vuelva.",
+    "price": "estimado {credits} créditos",
+    "confirmTitle": "Componer la imagen clave",
+    "confirmQuote": "Estimado: {credits} créditos, tope {high}. FLUX 3 Klein (pesos abiertos) en su cuenta Comfy. El coste real aparece tras el resultado.",
+    "confirmRefs": "Referencias enviadas: {cast} · decorado {decor}.",
+    "confirmSend": "Confirmar y componer",
+    "name": "Imagen clave · {plan}",
+    "done": "Imagen clave guardada en Tomas. Coste: {cost}. Conserve este encuadre para que sea la primera imagen de la toma.",
+    "costPending": "a comprobar en su cuenta",
+    "keep": "Conservar este encuadre",
+    "redo": "Rehacer la imagen clave",
+    "generateFrom": "Generar la toma desde la imagen clave",
+    "alt": "Imagen clave del plano",
+    "missing": "La imagen clave ya no está en este navegador. Rehágala o genere una toma.",
+    "proposed": "Imagen clave propuesta. Conserve este encuadre o rehágalo.",
+    "kept": "Encuadre conservado: la toma LTX partirá de esta imagen."
   }
 }

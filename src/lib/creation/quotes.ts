@@ -56,6 +56,18 @@ export const DECOR_PHOTO_QUOTE: CreationQuote = {
   kind: "mesure",
 };
 
+/**
+ * The take's key frame: one FLUX 3 Klein edit with up to four references
+ * (cast + décor). Same graph family as DECOR_PHOTO_QUOTE, never measured with
+ * four references: an estimate.
+ */
+export const KEYFRAME_QUOTE: CreationQuote = {
+  credits: 4,
+  high: 6,
+  template: "image_flux3_klein_image_edit",
+  kind: "hypothese",
+};
+
 /** The button stays off until the account is linked and the balance covers the ceiling. */
 export function creationAllowed(connected: boolean, credits: number | null, high: number): boolean {
   return connected === true && typeof credits === "number" && Number.isFinite(credits) && Number.isFinite(high) && high > 0 && credits >= high;

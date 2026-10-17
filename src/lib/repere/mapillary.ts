@@ -27,6 +27,47 @@ export function mapillaryImagesUrl(lat: number, lon: number, limit: number, radi
   return `${MAPILLARY}/images?${params}`;
 }
 
+export const MAPILLARY_TILE_ZOOM = 14;
+const IMAGE_FIELDS = "id,thumb_256_url,thumb_1024_url,creator,camera_type,geometry,compass_angle";
+
+/** Coverage vector tile (layer "image" at zoom 14). The bbox search can come back empty; the tiles do not. */
+export function mapillaryTileUrl(z: number, x: number, y: number, token: string): string {
+  return `https://tiles.mapillary.com/maps/vtp/mly1_public/2/${z}/${x}/${y}?access_token=${encodeURIComponent(token)}`;
+}
+
+export function mapillaryImageUrl(id: string): string {
+  if (!/^\d{1,30}$/.test(id)) throw new Error("Identifiant Mapillary invalide.");
+  return `${MAPILLARY}/${id}?fields=${IMAGE_FIELDS}`;
+}
+
+/** The z14 tiles covering a radius around the point (four at most). */
+export function tilesAround(lat: number, lon: number, radius: number, tileOf: (lat: number, lon: number, z: number) => { x: number; y: number }): { z: number; x: number; y: number }[] {
+  const metres = Math.min(1500, Math.max(10, radius));
+  const dy = metres / 110_540;
+  const dx = metres / (111_320 * Math.max(0.01, Math.cos(lat * Math.PI / 180)));
+  const seen = new Map<string, { z: number; x: number; y: number }>();
+  for (const [a, b] of [[lat - dy, lon - dx], [lat - dy, lon + dx], [lat + dy, lon - dx], [lat + dy, lon + dx]]) {
+    const tile = tileOf(Math.max(-85, Math.min(85, a)), Math.max(-180, Math.min(179.9999, b)), MAPILLARY_TILE_ZOOM);
+    seen.set(`${tile.x}/${tile.y}`, { z: MAPILLARY_TILE_ZOOM, ...tile });
+  }
+  return [...seen.values()].slice(0, 4);
+}
+
+/** Image ids from tile points, nearest first, within the radius. */
+export function nearestImageIds(points: readonly { id: string; lat: number; lon: number }[], lat: number, lon: number, radius: number, limit = 8): string[] {
+  const near = (a: { lat: number; lon: number }) => {
+    const x = (a.lon - lon) * 111_320 * Math.cos(lat * Math.PI / 180);
+    const y = (a.lat - lat) * 110_540;
+    return Math.hypot(x, y);
+  };
+  const ids = new Set<string>();
+  for (const point of points.filter(item => /^\d{1,30}$/.test(item.id)).map(item => ({ item, d: near(item) })).filter(entry => entry.d <= radius).sort((a, b) => a.d - b.d)) {
+    ids.add(point.item.id);
+    if (ids.size >= limit) break;
+  }
+  return [...ids];
+}
+
 export function mapillaryToken(): string {
   return (process.env.NEXT_PUBLIC_MAPILLARY_TOKEN ?? "").trim();
 }
