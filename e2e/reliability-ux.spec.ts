@@ -173,6 +173,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
+  await page.locator('[data-avance-prise] > summary').click(); // keyframes and 3D imports live in « Avancé »
   await page.locator('[data-import-glb] input').setInputFiles({ name: 'Triangle.gltf', mimeType: 'model/gltf+json', buffer: source });
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(1);
   await page.locator('[data-add-key]').click();
@@ -182,6 +183,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await page.reload();
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(1);
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-keys', '1');
+  await page.locator('[data-avance-prise] > summary').click();
   const panel = page.locator('[data-generer-3d]');
   const photo = panel.locator('input[type=file]');
   await photo.setInputFiles({ name: 'photo.webp', mimeType: 'image/webp', buffer: portrait });
@@ -199,6 +201,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   done = true;
   await page.reload();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('u-ttu-operation'))).toBeNull();
+  await page.locator('[data-avance-prise] > summary').click();
   const saved = page.getByLabel('Modèles 3D enregistrés', { exact: true });
   await expect(saved.locator('option')).toHaveCount(3);
   await saved.selectOption({ index: 2 });

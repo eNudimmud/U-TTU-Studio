@@ -172,13 +172,17 @@ export async function exportMp4(input: ExportInput & { strict?: boolean }): Prom
     ? await mediabunny.getFirstEncodableVideoCodec(input.strict ? ["avc"] : [...MP4_VIDEO_CODECS], { width, height, quality }).catch(() => null)
     : null;
   const audioConfig = { numberOfChannels: 2, sampleRate: SAMPLE_RATE, quality };
-  let audioCodec = videoCodec ? await mediabunny.getFirstEncodableAudioCodec(["aac", "opus"], audioConfig).catch(() => null) : null;
+  // AAC first (plays everywhere), natively or with the local WASM encoder; Opus only if both are missing.
+  let audioCodec = videoCodec ? await mediabunny.getFirstEncodableAudioCodec(["aac"], audioConfig).catch(() => null) : null;
   if (videoCodec && !audioCodec) {
     // Some browsers decode AAC but cannot encode it. This optional WASM encoder
     // runs locally and is loaded only for an export that needs it.
-    aacFallback ??= import("@mediabunny/aac-encoder").then(({ registerAacEncoder }) => registerAacEncoder());
-    await aacFallback;
-    audioCodec = await mediabunny.getFirstEncodableAudioCodec(["aac"], audioConfig);
+    try {
+      aacFallback ??= import("@mediabunny/aac-encoder").then(({ registerAacEncoder }) => registerAacEncoder());
+      await aacFallback;
+      audioCodec = await mediabunny.getFirstEncodableAudioCodec(["aac"], audioConfig);
+    } catch { aacFallback = null; }
+    if (!audioCodec && !input.strict) audioCodec = await mediabunny.getFirstEncodableAudioCodec(["opus"], audioConfig).catch(() => null);
   }
   const route = chooseExportRoute({ video: videoCodec, audio: audioCodec, recorder: recorderTypes(), strict: input.strict });
   if (route.kind === "none") throw new Error(input.strict ? "Ce navigateur ne peut pas écrire le fichier maître H.264. Exportez d’abord le montage (il marche sur ce téléphone), ou relancez Finaliser depuis un navigateur à jour." : EXPORT_IMPOSSIBLE);

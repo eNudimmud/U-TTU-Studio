@@ -578,7 +578,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const monterAction: Action = { label: withTake > 0 ? t("p0.monter", { count: withTake }) : t("p0.monterStill"), enabled: canMonter, reason: "", onClick: () => void monter(), mark: "monter" };
   let gold: Action;
   let second: Action | null = null;
-  if (demo) gold = { label: t("p0.tourner"), enabled: false, reason: t("p0.why.demo"), onClick() {}, mark: "tourner" };
+  if (demo) { gold = { label: t("p0.tourner"), enabled: false, reason: t("p0.why.demo"), onClick() {}, mark: "tourner" }; second = monterAction; }
   else if (busy) { gold = { label: t("p0.running"), enabled: false, reason: runningHere ? t("p0.runningWhy") : t("p0.why.busy"), onClick() {}, mark: "attente" }; second = withTake > 0 ? monterAction : null; }
   else if (showNext) { gold = { label: t("p0.tournerSuivant", { n: String(nextNumber).padStart(2, "0") }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber).padStart(2, "0") }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = monterAction; }
   else if (versions.length > 0) gold = monterAction;
