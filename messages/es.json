@@ -1448,7 +1448,8 @@
       "none": "No reconocí nada. Prueba: «dos personajes, una mesa, la cámara gira alrededor».",
       "meters": "de {n} m",
       "degrees": "de {n}°",
-      "clamped": "la maqueta limita este movimiento a su tamaño; el render sigue este trayecto, no más"
+      "clamped": "la maqueta limita este movimiento a su tamaño; el render sigue este trayecto, no más",
+      "missing": "faltan {n} personaje(s) en CAST: añádalos para colocarlos"
     },
     "props": "Objetos",
     "glb": "Importar un .glb",
@@ -1502,7 +1503,10 @@
     "savedClip": "Previsualización guardada en Mi estudio.",
     "downloadClip": "Descargar el vídeo",
     "modelTerms": "Leer la licencia del modelo",
-    "hunyuanTerms": "Hunyuan3D 2.1 tiene condiciones específicas: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo."
+    "hunyuanTerms": "Hunyuan3D 2.1 tiene condiciones específicas: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo.",
+    "play": "▶ Reproducir el trayecto",
+    "playing": "Reproduciendo el trayecto…",
+    "plan": "Vista cenital: personajes, trayecto de cámara y cámara"
   },
   "recovery": {
     "title": "Recuperar un renderizado",

@@ -59,8 +59,10 @@ describe('camera intents', () => {
   });
 
   it('writes the path into the maquette in one undo step', () => {
-    const { state, camera } = composeScene(initialMaquette(), 'deux personnages, travelling arrière de 5 m');
+    const { state, camera } = composeScene(initialMaquette(), 'deux personnages, travelling arrière de 5 m', [{ id: 'uttu', name: 'Uttu' }, { id: 'kael', name: 'Kael' }]);
     assert.equal(state.figures.length, 2);
+    assert.deepEqual(state.figures.map(item => item.name).sort(), ['Kael', 'Uttu']);
+    assert.notEqual(state.figures[0].color, state.figures[1].color);
     assert.deepEqual(state.path, camera.path);
     assert.deepEqual(state.orbit, camera.path[0].orbit);
   });

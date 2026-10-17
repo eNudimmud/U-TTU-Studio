@@ -10,27 +10,51 @@ async function offline(page: Page) {
   await page.route(/overpass|nominatim|photon|mapillary/, route => route.abort());
 }
 
-test('phrase → caméra : travelling arrière de 5 m et contre-plongée posent un trajet', async ({ page }, info) => {
+test('phrase → caméra : deux vrais personnages, trajet dessiné et joué, vue 3D à l’écran', async ({ page }, info) => {
   const spent: string[] = [];
   await page.route(/\/api\/(prompt|upload|queue)|fal\.ai|comfy\.cloud/, route => { spent.push(route.request().url()); return route.abort(); });
   await offline(page);
   await page.route(/panoramax|tiles\.openfreemap/, route => route.abort());
   await page.goto('/studio?demo=1#prise');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
+  const stage = page.locator('[data-maquette]');
   await expect(page.locator('canvas.u-maquette-canvas')).toBeVisible();
   const phrase = page.getByLabel('Phrase → scène', { exact: true });
   await phrase.fill('Deux personnages, travelling arrière de 5 m.');
   await page.locator('[data-composer]').click();
-  await expect(page.locator('[data-maquette]')).toHaveAttribute('data-keys', '2');
-  await expect(page.getByText(/travelling arrière de 5 m/i).last()).toBeVisible();
-  await page.getByText(/travelling arrière de 5 m/i).last().scrollIntoViewIfNeeded();
-  await page.screenshot({ path: info.outputPath('camera-intention.png'), fullPage: false });
+  // Two real CAST members, distinct colours, never the neutral placeholder.
+  await expect(stage).toHaveAttribute('data-figures', '2');
+  await expect(page.locator('.u-maquette-names')).not.toContainText('Personnage');
+  const colours = await page.locator('.u-maquette-names span').evaluateAll(spans => spans.map(span => (span as HTMLElement).style.color));
+  expect(new Set(colours).size).toBe(2);
+  await expect(stage).toHaveAttribute('data-keys', '2');
+  // The 3D view comes on screen with what was understood, and the path plays once.
+  await expect(page.locator('.u-maquette-stage')).toBeInViewport({ ratio: 0.9 });
+  await expect(page.locator('[data-maquette-caption]')).toContainText('travelling arrière de 5 m');
+  await expect(page.locator('[data-miniplan="2"]')).toBeVisible();
+  await expect(stage).toHaveAttribute('data-playing', '1');
+  const before = await page.locator('[data-miniplan]').getAttribute('data-cam');
+  await page.waitForTimeout(2500);
+  await page.screenshot({ path: info.outputPath('v2-trajet-lecture.png'), fullPage: false });
+  expect(await page.locator('[data-miniplan]').getAttribute('data-cam')).not.toBe(before);
+  await expect(stage).not.toHaveAttribute('data-playing', '1', { timeout: 8000 });
+  // Regard caméra: horizon matched to the décor photo, replay on demand (44 px).
+  await expect(stage).toHaveAttribute('data-tuile', 'regard');
+  await expect(page.locator('.u-maquette-stage')).toHaveAttribute('data-photo-match', '1');
+  const play = page.locator('[data-lire-trajet]');
+  await expect(play).toBeEnabled();
+  expect((await play.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await page.screenshot({ path: info.outputPath('v2-regard-camera.png'), fullPage: false });
+  await play.click();
+  await expect(stage).toHaveAttribute('data-playing', '1');
   await phrase.fill('Uttu seule, contre-plongée.');
   await page.locator('[data-composer]').click();
-  await expect(page.getByText(/contre-plongée/i).last()).toBeVisible();
+  await expect(page.locator('[data-maquette-caption]')).toContainText('contre-plongée');
   await phrase.fill('La caméra tourne autour de 270° vers la gauche.');
   await page.locator('[data-composer]').click();
-  await expect(page.locator('[data-maquette]')).toHaveAttribute('data-keys', '4');
+  await expect(stage).toHaveAttribute('data-keys', '4');
+  await page.waitForTimeout(1800);
+  await page.screenshot({ path: info.outputPath('v2-tour-270.png'), fullPage: false });
   expect(spent).toEqual([]);
 });
 

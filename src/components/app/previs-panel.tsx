@@ -16,7 +16,7 @@ import { useStudio, type FinaliseStage } from "./studio-session";
 
 const KINDS: PropKind[] = ["caisse", "mur", "voiture", "arbre", "lampadaire", "table"];
 
-export function PrevisPanel({ state, setState, cast, neutralName, recording, onRecord }: {
+export function PrevisPanel({ state, setState, cast, neutralName, recording, onRecord, onComposed }: {
   state: MaquetteState;
   setState(update: (state: MaquetteState) => MaquetteState): void;
   cast: readonly CastBody[];
@@ -24,6 +24,8 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
   /** Seconds left while the previs films; 0 when idle. */
   recording: number;
   onRecord(): void;
+  /** After « Composer la scène »: what was understood, and whether there is a path to play. */
+  onComposed?(caption: string, hasPath: boolean): void;
 }) {
   const { t } = useI18n();
   const { connected, creating, runMeshGeste, saveModel, loose, studio } = useStudio();
@@ -55,8 +57,11 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
       r.props.length ? t("previs.agent.props", { list: r.props.map(kind => t(`previs.prop.${kind}`)).join(", ") }) : "",
       r.move ? [t(`previs.move.${r.move}`), result.camera.meters !== null ? t("previs.agent.meters", { n: String(result.camera.meters) }) : "", result.camera.degrees !== null ? t("previs.agent.degrees", { n: String(result.camera.degrees) }) : ""].filter(Boolean).join(" ") : "",
       result.camera.clamped ? t("previs.agent.clamped") : "",
+      result.missing > 0 ? t("previs.agent.missing", { n: String(result.missing) }) : "",
     ].filter(Boolean);
-    setUnderstood(bits.length ? t("previs.agent.done", { list: bits.join(" · ") }) : t("previs.agent.none"));
+    const said = bits.length ? t("previs.agent.done", { list: bits.join(" · ") }) : t("previs.agent.none");
+    setUnderstood(said);
+    onComposed?.(said, (result.state.path?.length ?? 0) > 1);
     setKeyTime(nextKeyTime(result.state.path));
   }
 

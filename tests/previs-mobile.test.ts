@@ -39,8 +39,11 @@ describe("previs mobile", () => {
 
   it("lays out the scene in one undo step", () => {
     const start = initialMaquette(CAST);
-    const { state } = composeScene(start, "trois personnages autour d'une table, la caméra tourne autour", CAST, "Personnage");
-    assert.equal(state.figures.length, 3);
+    const { state, missing } = composeScene(start, "trois personnages autour d'une table, la caméra tourne autour", CAST, "Personnage");
+    // Only real CAST members: two in the cast, the third is reported, not invented.
+    assert.equal(state.figures.length, 2);
+    assert.equal(missing, 1);
+    assert.ok(state.figures.every(item => !item.id.startsWith("neutre-")));
     assert.equal(state.figures[0].id, "uttu");
     assert.deepEqual(state.props?.map(item => item.kind), ["table"]);
     assert.equal(state.path?.length, 3);

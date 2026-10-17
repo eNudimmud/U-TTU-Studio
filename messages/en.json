@@ -1448,7 +1448,8 @@
       "none": "Nothing recognised. Try: “two characters, a table, the camera circles around”.",
       "meters": "of {n} m",
       "degrees": "of {n}°",
-      "clamped": "the maquette limits this move to its size; the render follows this path, no further"
+      "clamped": "the maquette limits this move to its size; the render follows this path, no further",
+      "missing": "{n} character(s) missing from CAST: add them to place them"
     },
     "props": "Props",
     "glb": "Import a .glb",
@@ -1502,7 +1503,10 @@
     "savedClip": "Preview saved in My studio.",
     "downloadClip": "Download the video",
     "modelTerms": "Read the model license",
-    "hunyuanTerms": "Hunyuan3D 2.1 has specific terms: its community license excludes the EU, the UK and South Korea. Check applicable rights with your provider before use."
+    "hunyuanTerms": "Hunyuan3D 2.1 has specific terms: its community license excludes the EU, the UK and South Korea. Check applicable rights with your provider before use.",
+    "play": "▶ Play the path",
+    "playing": "Playing the path…",
+    "plan": "Top view: characters, camera path and camera"
   },
   "recovery": {
     "title": "Recover a render",

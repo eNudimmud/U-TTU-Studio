@@ -105,6 +105,37 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [previsLeft, setPrevisLeft] = useState(0);
   const [previsClip, setPrevisClip] = useState<PrevisClip | null>(null);
   const filming = useRef(false);
+  const [caption, setCaption] = useState("");
+  const playTimer = useRef(0);
+  const captionTimer = useRef(0);
+  const maquetteBox = useRef<HTMLDivElement>(null);
+
+  // « Lire le trajet »: one pass of the camera path in the 3D view, nothing recorded.
+  function playPath() {
+    if (filming.current || (maquette.path?.length ?? 0) < 2) return;
+    window.clearTimeout(playTimer.current);
+    setPlayFrom(performance.now());
+    playTimer.current = window.setTimeout(() => { if (!filming.current) setPlayFrom(null); }, PATH_SECONDS * 1000 + 150);
+  }
+  useEffect(() => () => { window.clearTimeout(playTimer.current); window.clearTimeout(captionTimer.current); }, []);
+
+  // After a sentence the 3D view comes on screen (a phone shows it above the text), then the path plays once.
+  function composed(text: string, hasPath: boolean) {
+    setCaption(text);
+    window.clearTimeout(captionTimer.current);
+    captionTimer.current = window.setTimeout(() => setCaption(""), 15_000);
+    const box = maquetteBox.current;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const target = box?.querySelector(".u-maquette-stage") ?? box;
+    target?.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+    if (hasPath && !filming.current) {
+      window.clearTimeout(playTimer.current);
+      playTimer.current = window.setTimeout(() => {
+        setPlayFrom(performance.now());
+        playTimer.current = window.setTimeout(() => { if (!filming.current) setPlayFrom(null); }, PATH_SECONDS * 1000 + 150);
+      }, reduced ? 0 : 450);
+    }
+  }
 
   // Films 5 s of the maquette, along the camera path when there is one, and hands the clip to Caméra maîtrisée.
   async function filmPrevis() {
@@ -626,7 +657,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     </aside>
 
     <div className="u-prise-side">
-    <div className="u-prise-preview">
+    <div className="u-prise-preview" ref={maquetteBox}>
       <p className="u-label">Aperçu</p>
       {run.phase === "running" && <div className="u-card u-run" role="status">
         <p className="u-run-label">{t("job.running")}</p>
@@ -652,6 +683,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
           onMoveProp={(id, x, z) => setMaquette(state => moveProp(state, id, x, z))}
           playFrom={playFrom}
+          onPlay={playPath}
+          caption={caption}
         />}
       <div className="u-maquette-tools">
         <button type="button" className="u-lock" aria-pressed={maquette.lockPose} onClick={() => setMaquette(state => toggleLock(state, "pose"))}>{maquette.lockPose ? "🔒" : "🔓"} {t("r7.pose")}</button>
@@ -677,7 +710,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </li>)}
       </ul>
       {maquette.lockPose && <p className="u-why" id="u-why-pose">{t("r7.poseLock")}</p>}
-      <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} />
+      <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} onComposed={composed} />
       <p className="u-why" data-astuce={tip.id}>{t(`r7.astuce.${tip.id}`, { name: tip.name })}</p>
       <button type="button" className="u-link" data-lire-sequence="" data-envoyer-montage="" disabled={sending || (!landed && !shownPlace?.src && !people.some(person => input.castIds.includes(person.id) && person.src))} aria-describedby={sending ? "u-why-envoyer" : undefined} onClick={() => void envoyer()}>{landed ? "Envoyer la prise au montage" : "Ajouter l’image au montage"}</button>
       {sending && <p className="u-why" id="u-why-envoyer">{t("nav.opening")}</p>}

@@ -1084,3 +1084,26 @@
 .u-keyframe-confirm { display: grid; gap: 8px; border: 1px solid var(--u-gold); }
 .u-keyframe-actions { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
 .u-keyframe-actions button { min-height: 44px; }
+
+/* Maquette v2: photo aligned on the 3D horizon, top view, path playback, bar under the picture */
+.u-prise-preview { scroll-margin-top: 72px; }
+.u-maquette-stage { display: flex; flex-direction: column; }
+.u-maquette-view { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.u-maquette-photo { position: absolute; z-index: 0; max-width: none; pointer-events: none; user-select: none; filter: brightness(.82) saturate(.9); transition: opacity .2s ease; }
+.u-maquette-gl { z-index: 1; }
+.u-miniplan { position: absolute; z-index: 2; right: 8px; top: 34px; width: 112px; height: 112px; border: 1px solid var(--u-gold); border-radius: 10px; pointer-events: none; }
+.u-maquette-bar { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #0b0a09; border-top: 1px solid rgba(201, 164, 106, .35); }
+.u-maquette-bar .u-maquette-hint { position: static; flex: 1 1 auto; min-width: 0; max-width: none; padding: 0; background: none; border: 0; }
+.u-maquette-play { flex: none; min-width: 44px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--u-gold); border-radius: 12px; background: rgba(11, 10, 9, .9); color: var(--u-gold-soft); font: 650 13px/1.2 var(--font-body); }
+.u-maquette-play:not(:disabled) { background: var(--u-gold); color: #11100e; }
+.u-maquette-play:disabled { opacity: .75; }
+.u-maquette-caption { color: #f3e6c8 !important; }
+@media (max-width: 799px) {
+  .u-maquette-stage { height: 380px; }
+  .u-miniplan { top: 8px; width: 76px; height: 76px; }
+  .u-maquette-place { top: 64px; right: auto; left: 8px; max-width: 60%; text-align: left; }
+  .u-maquette-bar .u-maquette-hint { font-size: 12px; }
+}
+@media (min-width: 1024px) {
+  .u-maquette-stage { height: min(52dvh, 420px); }
+}

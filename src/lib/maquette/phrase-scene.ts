@@ -2,7 +2,7 @@
 // English, German or Spanish and lays out the maquette with the mannequins and
 // props it already has. No language model, no network, no credit.
 
-import { RADIUS_MAX, RADIUS_MIN, addFigure, addNeutral, linePositions, remember, type CastBody, type MaquetteState, type Orbit } from "./state.ts";
+import { RADIUS_MAX, RADIUS_MIN, addFigure, linePositions, remember, type CastBody, type MaquetteState, type Orbit } from "./state.ts";
 import { MAX_KEYS, PATH_SECONDS, addProp, type Keyframe, type PropKind } from "./scene.ts";
 import { applyTuile } from "./state.ts";
 
@@ -159,21 +159,32 @@ export function pathFor(move: CameraMove | null, from: Orbit): Keyframe[] {
   return cameraPlan({ move, meters: null, degrees: null, side: null }, from).path;
 }
 
-/** Lays the maquette out from the sentence. One undo step brings the old scene back. */
-export function composeScene(state: MaquetteState, phrase: string, cast: readonly CastBody[] = [], neutralName = "Personnage"): { state: MaquetteState; reading: SceneReading; camera: CameraPlan } {
+/**
+ * Lays the maquette out from the sentence. One undo step brings the old scene back.
+ * Only real CAST members are placed: « deux personnages » takes the named ones,
+ * then the cast in order. A missing person is reported, never invented.
+ */
+export function composeScene(state: MaquetteState, phrase: string, cast: readonly CastBody[] = [], _neutralName = "Personnage"): { state: MaquetteState; reading: SceneReading; camera: CameraPlan; missing: number } {
   const reading = readPhrase(phrase, cast);
   let next: MaquetteState = { ...remember(state) };
   const past = next.past;
+  let missing = 0;
   if (reading.people !== null || reading.names.length > 0) {
     const want = Math.max(reading.people ?? 0, reading.names.length);
     const lead = state.figures[0];
-    const chosen = reading.names.length > 0 ? reading.names : lead ? [lead.id] : [];
+    const real = cast.filter(item => item.id && item.name.trim() && !item.id.startsWith("neutre-"));
+    const order = [
+      ...reading.names,
+      ...(lead && !lead.id.startsWith("neutre-") ? [lead.id] : []),
+      ...real.map(item => item.id),
+    ].filter((id, index, list) => list.indexOf(id) === index);
     next = { ...next, figures: [] };
-    for (const id of chosen.slice(0, want)) {
-      const person = cast.find(item => item.id === id) ?? (lead && lead.id === id ? { id, name: lead.name } : null);
+    for (const id of order) {
+      if (next.figures.length >= want) break;
+      const person = real.find(item => item.id === id) ?? (lead && lead.id === id ? { id, name: lead.name } : null);
       if (person) next = addFigure(next, person);
     }
-    while (next.figures.length < want) next = addNeutral(next, neutralName);
+    missing = Math.max(0, want - next.figures.length);
     const spots = linePositions(next.figures.length);
     next = { ...next, figures: next.figures.map((item, index) => ({ ...item, ...spots[index], yaw: next.figures.length === 2 ? (index === 0 ? Math.PI / 2.5 : -Math.PI / 2.5) : 0 })) };
   }
@@ -188,5 +199,5 @@ export function composeScene(state: MaquetteState, phrase: string, cast: readonl
   if (next.figures.length >= 2 && reading.move === null && next.tuile === "regard") next = applyTuile(next, "taille");
   const camera = cameraPlan(reading, next.orbit);
   if (camera.path.length > 0) next = { ...next, path: camera.path, orbit: { ...camera.path[0].orbit } };
-  return { state: { ...next, past }, reading, camera };
+  return { state: { ...next, past }, reading, camera, missing };
 }

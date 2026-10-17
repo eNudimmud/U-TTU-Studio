@@ -1448,7 +1448,8 @@
       "none": "Rien reconnu. Essaie : « deux personnages, une table, la caméra tourne autour ».",
       "meters": "de {n} m",
       "degrees": "de {n}°",
-      "clamped": "la maquette limite ce mouvement à sa taille ; le rendu suivra ce trajet, pas plus"
+      "clamped": "la maquette limite ce mouvement à sa taille ; le rendu suivra ce trajet, pas plus",
+      "missing": "il manque {n} personnage(s) dans CAST : ajoutez-les pour les placer"
     },
     "props": "Objets",
     "glb": "Importer un .glb",
@@ -1502,7 +1503,10 @@
     "savedClip": "Prévisualisation enregistrée dans Mon studio.",
     "downloadClip": "Télécharger la vidéo",
     "modelTerms": "Lire la licence du modèle",
-    "hunyuanTerms": "Hunyuan3D 2.1 a des conditions particulières : sa licence communautaire exclut l’Union européenne, le Royaume-Uni et la Corée du Sud. Vérifiez les droits applicables avec votre fournisseur avant utilisation."
+    "hunyuanTerms": "Hunyuan3D 2.1 a des conditions particulières : sa licence communautaire exclut l’Union européenne, le Royaume-Uni et la Corée du Sud. Vérifiez les droits applicables avec votre fournisseur avant utilisation.",
+    "play": "▶ Lire le trajet",
+    "playing": "Lecture du trajet…",
+    "plan": "Vue de dessus : personnages, trajet caméra et caméra"
   },
   "recovery": {
     "title": "Retrouver un rendu",

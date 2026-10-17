@@ -1448,7 +1448,8 @@
       "none": "Nichts erkannt. Versuch: „zwei Personen, ein Tisch, die Kamera kreist herum“.",
       "meters": "um {n} m",
       "degrees": "um {n}°",
-      "clamped": "die Maquette begrenzt diese Bewegung auf ihre Größe; der Render folgt diesem Weg, nicht weiter"
+      "clamped": "die Maquette begrenzt diese Bewegung auf ihre Größe; der Render folgt diesem Weg, nicht weiter",
+      "missing": "{n} Figur(en) fehlen in CAST: fügen Sie sie hinzu, um sie zu platzieren"
     },
     "props": "Objekte",
     "glb": ".glb importieren",
@@ -1502,7 +1503,10 @@
     "savedClip": "Vorschau in Mein Studio gespeichert.",
     "downloadClip": "Video herunterladen",
     "modelTerms": "Modelllizenz lesen",
-    "hunyuanTerms": "Für Hunyuan3D 2.1 gelten besondere Bedingungen: Die Community-Lizenz schließt die EU, das Vereinigte Königreich und Südkorea aus. Kläre die geltenden Rechte vor der Nutzung mit deinem Anbieter."
+    "hunyuanTerms": "Für Hunyuan3D 2.1 gelten besondere Bedingungen: Die Community-Lizenz schließt die EU, das Vereinigte Königreich und Südkorea aus. Kläre die geltenden Rechte vor der Nutzung mit deinem Anbieter.",
+    "play": "▶ Weg abspielen",
+    "playing": "Weg wird abgespielt…",
+    "plan": "Draufsicht: Figuren, Kameraweg und Kamera"
   },
   "recovery": {
     "title": "Renderauftrag wiederfinden",
