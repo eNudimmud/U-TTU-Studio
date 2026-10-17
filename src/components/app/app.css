@@ -1229,5 +1229,3 @@
 .u-memoire-seq { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .u-memoire-seq li { padding: 6px 8px; border: 1px solid var(--u-line); border-radius: 8px; font-size: 13px; }
 .u-memoire-seq li[aria-current="true"] { border-color: var(--u-line-strong); color: var(--u-text); }
-/* Sequence summary: "· 3 plans" wraps in the narrow desktop strip instead of being clipped. */
-.u-plan-sum { white-space: normal; }
