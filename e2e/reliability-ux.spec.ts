@@ -38,6 +38,7 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
+  await page.locator('[data-avance-prise] > summary').click(); // video gestures live in « Avancé »
   const panel = page.locator('[data-video-gestes]');
   await panel.locator('[data-video-geste="prise-raccord"]').click();
   for (const label of ['Première image', 'Dernière image']) await panel.getByLabel(label, { exact: true }).setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });

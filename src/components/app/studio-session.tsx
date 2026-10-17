@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
-import { placeStoryboard } from "@/lib/montage/arrivee";
+import { orderSequence, placeStoryboard } from "@/lib/montage/arrivee";
 import type { Edit } from "@/lib/montage/edit";
 import { assetPath } from "@/lib/site";
 import { assetNote, assetPaths, importNotes, looseAssets, type AssetRecord } from "@/lib/creation/assets";
@@ -140,8 +140,12 @@ export interface StudioSession {
   saveShot(shot: Shot): Promise<void>;
   saveLieu(input: { name: string; note: string; quartier?: string }): Promise<string | null>;
   saveLieuPhoto(input: { name: string; note: string; quartier?: string; photo: { id: string; author: string; credit: string; blob: Blob } }): Promise<string | null>;
-  sendToMontage(input: { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }): Promise<void>;
+  sendToMontage(input: MontageInput): Promise<void>;
+  /** Puts every plan on the cut, in plan order: kept take, else newest take, else its still. */
+  sendSequence(inputs: MontageInput[]): Promise<number>;
 }
+
+export interface MontageInput { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }
 
 export interface TakeRequest {
   planId: string;
@@ -150,6 +154,10 @@ export interface TakeRequest {
   line: string;
   prompt: string;
   settings: TakeSettings;
+  /** What the reliability card shows in the single confirmation (refs, words, camera, engine). */
+  resume?: { label: string; value: string; flag?: boolean }[];
+  /** What may change in the character or décor, in plain words. */
+  change?: string;
 }
 
 /** One PRISE video gesture (raccord, caméra, élargir, effacer). Same gate as a take: confirmed quote, balance over the ceiling. */
@@ -1497,16 +1505,13 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     return sceneId;
   }, [reload, saveLieu, store]);
 
-  const sendToMontage = useCallback(async (input: { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }) => {
-    await saves.current;
-    const slug = await ensureActiveProject(store());
-    const vault = projectVault(store(), slug);
-    const held = await loadStudio(vault);
+  /** Copies one plan's media into the project and returns the clip it becomes. Shared by single and sequence sends. */
+  const prepareMontageClip = useCallback(async (vault: VaultStore, slug: string, held: Studio, input: MontageInput) => {
     const planId = input.planId.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40) || "plan";
     const take = input.takeId ? held.takes.find(item => item.id === input.takeId) : null;
     if (input.takeId && !take) throw new Error("Cette prise n’est plus disponible dans le projet.");
     let source = take?.video ?? "";
-    let clipId = take?.id ?? `storyboard-${crypto.randomUUID()}`;
+    const clipId = take?.id ?? `storyboard-${crypto.randomUUID()}`;
     if (take) {
       if (!(await vault.get(take.video))?.blob) throw new Error("Le fichier de la prise manque. Récupérez-le avant le montage.");
     } else {
@@ -1521,6 +1526,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await writeText(vault, paths.note, assetNote({ id: clipId, kind: "importe", name: `Storyboard · ${input.label}`.slice(0, 80), at: new Date().toISOString(), prompt: input.prompt, geste: "storyboard", template: "", refs: [], devis: null, cout: 0, media: source, note: paths.note, preview: null, loose: false }));
     }
     const seconds = take?.settings.seconds ?? input.seconds;
+    return { planId, take, source, clipId, seconds, label: take ? take.line : `Storyboard · ${input.label}` };
+  }, []);
+
+  const sendToMontage = useCallback(async (input: MontageInput) => {
+    await saves.current;
+    const slug = await ensureActiveProject(store());
+    const vault = projectVault(store(), slug);
+    const held = await loadStudio(vault);
+    const { planId, take, source, clipId, seconds, label } = await prepareMontageClip(vault, slug, held, input);
     const previous = held.shots.find(shot => shot.id === planId);
     const sequence = held.sequences.find(item => item.id === previous?.sequenceId) ?? held.sequences[0] ?? { id: "suite", name: "Séquence", links: [] };
     if (take && !sequence.links.some(link => link.takeId === take.id)) sequence.links = [...sequence.links, { takeId: take.id, raccord: "" }];
@@ -1530,10 +1544,39 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const existing = saved.find(edit => edit.id === sequence.id);
     const base: Edit = existing ?? { id: sequence.id, name: sequence.name, video: [], audio: [] };
     if (!base.video.some(clip => clip.source === source)) {
-      await writeMontageEdit(vault, placeStoryboard(base, { id: clipId, label: take ? take.line : `Storyboard · ${input.label}`, seconds, source }, demoOn && !existing), {});
+      await writeMontageEdit(vault, placeStoryboard(base, { id: clipId, label, seconds, source }, demoOn && !existing), {});
     }
     await reload();
-  }, [demoOn, reload, store]);
+  }, [demoOn, prepareMontageClip, reload, store]);
+
+  const sendSequence = useCallback(async (inputs: MontageInput[]) => {
+    await saves.current;
+    const slug = await ensureActiveProject(store());
+    const vault = projectVault(store(), slug);
+    const held = await loadStudio(vault);
+    const sequence = held.sequences[0] ?? { id: "suite", name: "Séquence", links: [] };
+    const clips: { id: string; label: string; seconds: number; source: string }[] = [];
+    const takeOrder: string[] = [];
+    for (const [ordre, input] of inputs.entries()) {
+      if (!input.takeId && !input.still) continue;
+      const prepared = await prepareMontageClip(vault, slug, held, input);
+      clips.push({ id: prepared.clipId, label: prepared.label, seconds: prepared.seconds, source: prepared.source });
+      if (prepared.take) takeOrder.push(prepared.take.id);
+      const previous = held.shots.find(shot => shot.id === prepared.planId);
+      await writeShot(vault, { id: prepared.planId, name: input.label.slice(0, 80) || prepared.planId, sequenceId: sequence.id, takeIds: [...new Set([...(previous?.takeIds ?? []), ...(prepared.take ? [prepared.take.id] : [])])], note: previous?.note ?? "", ordre, composeur: input.composeur }, held.takes, sequence.name);
+    }
+    if (clips.length === 0) throw new Error("Choisissez une image enregistrée ou générez une prise avant le montage.");
+    // The sequence note follows the plan order; links to other takes stay after.
+    const others = sequence.links.filter(link => !takeOrder.includes(link.takeId));
+    sequence.links = [...takeOrder.map(takeId => sequence.links.find(link => link.takeId === takeId) ?? { takeId, raccord: "" }), ...others];
+    await writeSequence(vault, sequence, held.takes);
+    const saved = await readMontages(vault, slug);
+    const existing = saved.find(edit => edit.id === sequence.id);
+    const base: Edit = existing ?? { id: sequence.id, name: sequence.name, video: [], audio: [] };
+    await writeMontageEdit(vault, orderSequence(base, clips, demoOn && !existing), {});
+    await reload();
+    return clips.length;
+  }, [demoOn, prepareMontageClip, reload, store]);
 
   const value: StudioSession = {
     prefs, setPrefs,
@@ -1544,7 +1587,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,
-    saveModel, savePrevis, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, sendToMontage,
+    saveModel, savePrevis, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, sendToMontage, sendSequence,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

@@ -9,7 +9,7 @@ import {
   type AudioClip, type AudioTrackId, type Edit, type History, type VideoClip,
 } from "@/lib/montage/edit";
 import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
-import { exportMp4 } from "@/lib/montage/encode";
+import { exportExtension, exportMp4 } from "@/lib/montage/encode";
 import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
 import { montrerDepart } from "@/lib/creation/depart";
 import { ExempleDepart } from "./exemple-depart";
@@ -100,7 +100,7 @@ function projectRatio(edit: Edit, takes: { id: string; settings: { aspect: strin
 }
 
 export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => void }) {
-  const { t } = useI18n();
+  const { t, say } = useI18n();
   const { format } = useFormat();
   const { locale } = useLocaleSwitch();
   const { ready, demo, setNotice, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs } = useStudio();
@@ -120,6 +120,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const [script, setScript] = useState("");
   const exporting = useRef(false);
   const [exportError, setExportError] = useState("");
+  const [exportWarn, setExportWarn] = useState("");
   const [exportPhase, setExportPhase] = useState<ExportPhase>({ phase: "idle" });
   const [panel, setPanel] = useState<Panel>(null);
   const [menuAt, setMenuAt] = useState<{ top: number; left: number } | null>(null);
@@ -239,8 +240,10 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     if (boot.current === key) return;
     boot.current = key;
     let gone = false;
+    let settled = false;
     void loadMontages().then(saved => {
       if (gone || boot.current !== key) return;
+      settled = true;
       const choice = chooseEdit({
         requestedId: new URLSearchParams(window.location.search).get("sequence"),
         demo, saved,
@@ -255,7 +258,8 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       timeRef.current = 0;
       setTime(0);
     }).catch(() => { if (!gone) setNotice(t("safety.sequenceMissing")); });
-    return () => { gone = true; };
+    // A re-run before the cut arrived (session reload, demo flag) must load it again, never keep an empty cut.
+    return () => { gone = true; if (!settled && boot.current === key) boot.current = null; };
   }, [ready, demo, studio.project, loadMontages, onFilled]);
 
   useEffect(() => {
@@ -618,6 +622,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     if (!plan || !exportAllowed(plan.seconds) || exporting.current) return;
     exporting.current = true;
     setExportError("");
+    setExportWarn("");
     setPanel("export");
     setExportPhase({ phase: "run", done: 0, total: plan.frames });
     const sources = new Map([...current.video, ...current.audio].flatMap(clip => clip.source ? [[clip.source, urlOfRef.current(clip.source)] as const] : []));
@@ -626,11 +631,12 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       urlOf: source => sources.get(source) ?? "",
       vertical: projectRatio(current, studio.takes, format) === "9/16",
       onProgress: (done, total) => setExportPhase({ phase: "run", done, total }),
+      onWarning: message => setExportWarn(message),
     }).then(blob => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${current.name || "montage"}.mp4`;
+      link.download = `${current.name || "montage"}.${exportExtension(blob)}`;
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 60000);
       setExportPhase({ phase: "done", bytes: blob.size });
@@ -655,6 +661,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       urlOf: source => sources.get(source) ?? "",
       onProgress: (done, total) => setFinPhase({ phase: "prepare", done, total }),
       size: { ...size, fps: MASTER.fps, quality: "high" },
+      strict: true,
     }).then(video => finaliseMontage({
       project,
       video,
@@ -727,7 +734,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </div>
       <span className="u-bar-actions">
       <span className="u-tool-slot">
-        <button type="button" className="u-export" data-export-open="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => setPanel("export")}>{t("montage.exportShort")}</button>
+        <button type="button" className="u-export" data-export-open="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => { if (canExport) runExport(); else setPanel("export"); }}>{t("montage.exportShort")}</button>
         {exportBlocked && <span className="u-tip" id="u-why-export" role="tooltip">{exportWhy}</span>}
       </span>
       <span className="u-tool-slot">
@@ -1032,8 +1039,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         <button type="button" className="u-primary" data-export-gold="" disabled={!canExport} aria-describedby={!canExport ? "u-why-export-go" : undefined} onClick={runExport}>{t("montage.export")}</button>
         {!canExport && <Why on id="u-why-export-go" text={exportWhy} />}
         {exportPhase.phase === "run" && <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={exportPhase.total} aria-valuenow={exportPhase.done}><span style={{ width: `${exportPhase.total ? (100 * exportPhase.done) / exportPhase.total : 0}%` }} /></div>}
-        {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")} {exportError}</p>}
+        {exportPhase.phase === "fail" && <p className="u-why">{t("montage.exportFail")} {say(exportError)}</p>}
         {exportPhase.phase === "done" && <p className="u-small">{t("montage.exportDone")}</p>}
+        {exportPhase.phase === "done" && exportWarn && <p className="u-why" data-export-warn="">{say(exportWarn)}</p>}
       </div>
     </div>}
     {panel === "finaliser" && <div className="u-overlay" role="presentation" onClick={event => { if (event.target === event.currentTarget && !finBusy) setPanel(null); }}>

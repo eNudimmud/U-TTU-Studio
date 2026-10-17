@@ -58,9 +58,9 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
 }) {
   const { t } = useI18n();
   const { prefs, setPrefs } = useStudio();
-  const mine = REGISTRE.filter(item => item.onglet === onglet && gesteVisible(item, prefs));
-  const open = mine.filter(gesteOuvert);
-  const soon = mine.filter(item => !gesteOuvert(item));
+  // Closed gestures are not shown at all: a novice only sees what really runs.
+  const mine = REGISTRE.filter(item => item.onglet === onglet && gesteVisible(item, prefs) && gesteOuvert(item));
+  const open = mine;
   const premiers = open.filter(item => item.premier);
   const extras = open.filter(item => !item.premier);
   const visible = (premiers.length >= 4 ? premiers : [...premiers, ...extras]).slice(0, 4);
@@ -68,42 +68,33 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
   const [more, setMore] = useState(false);
   const known = new Set(examples);
   const foldedGroups = groupsOf(folded);
-  const soonGroups = groupsOf(soon);
 
   useEffect(() => {
     if (!mine.some(item => item.id === value) && visible[0]) onChange(visible[0].id);
   }, [prefs.openWeightsOnly, prefs.nanoBanana, onglet]);
   useEffect(() => {
-    if (soon.some(item => item.id === value) || folded.some(item => item.id === value)) setMore(true);
+    if (folded.some(item => item.id === value)) setMore(true);
   }, [value, onglet]);
   useEffect(() => {
     document.querySelector(`[data-geste="${value}"]`)?.scrollIntoView({ block: "nearest" });
   }, [value, more]);
 
   return <div className="u-gestes">
-    <ModelOptions openWeightsOnly={prefs.openWeightsOnly} nanoBanana={prefs.nanoBanana} onChange={setPrefs} />
     <p className="u-label" id="u-gestes-label">{t("gestes.ask")}</p>
     <div className="u-tile-scroll" role="listbox" aria-labelledby="u-gestes-label">
       {visible.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} onStart={onStart} />)}
     </div>
-    {(folded.length > 0 || soon.length > 0) && <button type="button" className="u-link" aria-expanded={more} onClick={() => setMore(current => !current)}>{more ? t("gestes.less") : t("gestes.more")}</button>}
-    {more && <>
-      {foldedGroups.map(group => <div key={group.categorie} className="u-geste-group">
-        {foldedGroups.length > 1 && <p className="u-label">{t(`gestes.cat.${group.categorie}`)}</p>}
-        <div className="u-tile-scroll" role="listbox">
-          {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} onStart={onStart} />)}
-        </div>
-      </div>)}
-      {soon.length > 0 && <div className="u-soon">
-        <p className="u-label">{t("gestes.soon")}</p>
-        {soonGroups.map(group => <div key={group.categorie} className="u-geste-group">
-          {soonGroups.length > 1 && <p className="u-label">{t(`gestes.cat.${group.categorie}`)}</p>}
-          <div className="u-tile-scroll" role="listbox" aria-label={t("gestes.soon")}>
-            {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={false} onChange={onChange} onExample={onExample} onStart={onStart} />)}
-          </div>
-        </div>)}
-      </div>}
-    </>}
+    {folded.length > 0 && <button type="button" className="u-link" aria-expanded={more} onClick={() => setMore(current => !current)}>{more ? t("gestes.less") : t("gestes.more")}</button>}
+    {more && foldedGroups.map(group => <div key={group.categorie} className="u-geste-group">
+      {foldedGroups.length > 1 && <p className="u-label">{t(`gestes.cat.${group.categorie}`)}</p>}
+      <div className="u-tile-scroll" role="listbox">
+        {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} onStart={onStart} />)}
+      </div>
+    </div>)}
+    <details className="u-fold u-avance" data-avance="">
+      <summary>{t("p0.advanced")}</summary>
+      <ModelOptions openWeightsOnly={prefs.openWeightsOnly} nanoBanana={prefs.nanoBanana} onChange={setPrefs} />
+    </details>
   </div>;
 }
 

@@ -12,6 +12,7 @@ test('prévis réelle : filmer le canvas, retrouver le clip et le télécharger 
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
   await expect(page.locator('canvas.u-maquette-canvas')).toBeVisible();
+  await page.locator('[data-avance-prise] > summary').click(); // the prévis tools live in « Avancé »
   await page.getByLabel('Phrase → scène', { exact: true }).fill('Deux personnages autour d’une table, la caméra tourne autour.');
   await page.locator('[data-composer]').click();
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-keys', '3');

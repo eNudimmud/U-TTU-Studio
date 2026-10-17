@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
-import { quoteSentence } from "@/lib/render/billed-quote";
+import { quoteSentence, type TakeQuote } from "@/lib/render/billed-quote";
+import { protocole } from "@/lib/fiabilite";
+import { FiabiliteCard } from "./fiabilite-card";
 import { Close } from "./glyphs";
 import { useStudio } from "./studio-session";
 import { RecoveryPanel } from "./recovery-panel";
@@ -71,15 +73,47 @@ export function ConnectSheet() {
 
 export function ConfirmTake() {
   const { t } = useI18n();
-  const { setSheet, gate, outgoing, confirmRun, creating, pendingTake } = useStudio();
+  const { setSheet, gate, outgoing, confirmRun, creating, pendingTake, takeQuote, balance } = useStudio();
   const text = outgoing();
   const canConfirm = !creating && gate.allowed && gate.line.trim().length > 0 && text.trim().length > 0;
+  const settings = pendingTake?.settings;
+  const engine = settings ? t(settings.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx") : "";
+  const format = settings ? `${settings.seconds} s · ${settings.aspect === "vertical" ? "9:16" : "16:9"}` : "";
+  const states = protocole({ prepared: true, checked: true, quoted: takeQuote.source !== "unmeasured", confirming: !creating, running: creating });
+  const blockReason = gate.allowed ? "" : gateReason(t, takeQuote, balance?.credits ?? null);
   return <Frame title={t("sheet.confirmTitle")} onClose={() => setSheet(null)}>
-    {pendingTake && <p>{pendingTake.settings.seconds} s · {pendingTake.settings.aspect === "vertical" ? "9:16" : "16:9"} · {pendingTake.castIds.length} personnage(s)</p>}
-    <p className="u-small">{t("safety.estimate")}</p>
-    <p className="u-cost" id="u-confirm-cost">{gate.line}</p>
-    <p className="u-small" id="u-confirm-sent">{text}</p>
-    <button type="button" className="u-primary" data-confirm-gold="" disabled={!canConfirm} aria-describedby="u-confirm-cost u-confirm-sent" onClick={() => void confirmRun()}>{t("stage.generate")}</button>
+    {pendingTake && <p>{format} · {t("p0.fiab.castCount", { count: pendingTake.castIds.length })}</p>}
+    <FiabiliteCard
+      states={states}
+      estimate={quoteWords(t, takeQuote)}
+      estimateId="u-confirm-cost"
+      failure={blockReason || undefined}
+      sent={[...(pendingTake?.resume ?? []), { label: t("p0.fiab.sentEngine"), value: `${engine} · ${format}` }, { label: t("p0.fiab.sentRaw"), value: text }]}
+      change={pendingTake?.change || t("p0.fiab.changePrise")}
+      where={t("p0.fiab.whereTakeNext")}
+      open
+    />
+    <p className="sr-only" id="u-confirm-sent">{text}</p>
+    <button type="button" className="u-primary" data-confirm-gold="" disabled={!canConfirm} aria-describedby="u-confirm-cost u-confirm-sent" onClick={() => void confirmRun()}>{t("p0.confirmGo")}</button>
     <button type="button" className="u-link" onClick={() => setSheet(null)}>{t("verb.cancel")}</button>
   </Frame>;
+}
+
+type Translate = (key: string, values?: Record<string, string | number>) => string;
+
+/** The single estimate, in the user's language, always labelled estimé or mesuré. */
+export function quoteWords(t: Translate, quote: TakeQuote): string {
+  if (quote.source === "estimated") return t("p0.quote.estimated", { low: formatCredits(quote.estimate.credits), high: formatCredits(quote.estimate.creditsHigh) });
+  if (quote.source === "billed") return t("p0.quote.measured", { credits: formatCredits(quote.measure.credits), high: formatCredits(quote.measure.creditsHigh) });
+  if (quote.source === "balance") return t("p0.quote.measuredBalance", { credits: formatCredits(quote.credits) });
+  return t("p0.quote.none");
+}
+
+/** Why the gate is closed, in plain words. */
+export function gateReason(t: Translate, quote: TakeQuote, credits: number | null): string {
+  if (quote.source === "unmeasured") return t("p0.quote.none");
+  const high = quote.source === "estimated" ? quote.estimate.creditsHigh : quote.source === "billed" ? quote.measure.creditsHigh : quote.credits;
+  if (credits === null) return t("p0.gate.noBalance");
+  if (credits < high) return t("p0.gate.low", { credits: formatCredits(credits), high: formatCredits(high) });
+  return "";
 }

@@ -11,10 +11,10 @@ describe("retour sur PRISE", () => {
     assert.equal(GESTES_RETOUR, 4);
     const prise = readFileSync("src/components/app/prise-stage.tsx", "utf8");
     assert.match(prise, /data-lire-sequence/);
-    assert.match(prise, /★ Garder/);
-    assert.match(prise, /Finaliser au montage/);
+    assert.match(prise, /data-garder/);
     assert.match(prise, /data-envoyer-montage/);
-    assert.match(prise, /Envoyer la prise au montage/);
-    assert.ok(prise.indexOf("data-lire-sequence") < prise.indexOf("Finaliser au montage"));
+    // P0: the sequence goes to the cut in plan order, kept take first, never a still for a plan that has a take.
+    assert.match(prise, /sendSequence\(/);
+    assert.match(prise, /still: entry\?\.take \? "" : stillOf\(plan\)/);
   });
 });

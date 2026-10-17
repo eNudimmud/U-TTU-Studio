@@ -282,11 +282,10 @@ describe("mémoire du plan", () => {
 describe("écran PRISE", () => {
   it("composes plans and does not spend or show the old gesture list", () => {
     const source = readFileSync("src/components/app/prise-stage.tsx", "utf8");
-    assert.match(source, /Ce que l'app va faire/);
-    assert.match(source, /Composer l'image/);
-    assert.match(source, /Essai rapide/);
-    assert.match(source, /Finaliser au montage/);
-    assert.match(source, /Texte envoyé/);
+    // P0: one reliability card, one estimate, one confirmation; the exact text stays readable in the card.
+    assert.match(source, /FiabiliteCard/);
+    assert.match(source, /p0\.fiab\.sentRaw/);
+    assert.match(source, /data-avance-prise/);
     assert.match(source, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
     assert.doesNotMatch(source, /confirmRun\(|GestePicker|Bientôt|prise-plan|run_template|submit_workflow|partner_generate|estimate_credits|fal\.ai/);
     assert.match(source, /FormatSwitch/);
