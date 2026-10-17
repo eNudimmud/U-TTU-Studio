@@ -6,6 +6,7 @@ import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { assetPath, contactEmail } from "@/lib/site";
 import { LegacyStudioHash } from "./legacy-hash";
 import { Brand, BrandLockup } from "@/components/brand";
+import { PoweredBy } from "@/components/powered-by";
 
 const STUDIO_HREF = assetPath("/studio");
 
@@ -63,6 +64,7 @@ export function HomeLanding() {
     </main>
     <footer className="studio-footer landing-footer">
       <span>U*TTU Studio · THE BLOC · SUISSE</span>
+      <PoweredBy />
       <a href={`mailto:${contactEmail}`}>{t("landing.contact")}</a>
     </footer>
   </div>;

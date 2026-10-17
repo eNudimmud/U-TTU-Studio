@@ -91,6 +91,12 @@ fieldset { min-width: 0; margin: 0; }
 .brand-name .brand-studio { font-weight: 500; color: var(--fg-2); margin-left: 6px; }
 .studio-footer { border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 20px; padding-block: 16px; font-size: 11px; color: var(--muted); }
 .studio-footer a { display: inline-flex; align-items: center; min-height: 44px; color: var(--fg); }
+/* « Propulsé par ComfyUI »: official Comfy logomark as provided (Comfy Yellow #F2FF59 is its only colour), quiet grey text. */
+.comfy-logomark { display: block; flex: none; }
+.comfy-badge { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding-inline: 2px 4px; color: var(--fg-2); font: 500 12px/1.2 var(--font-mono); letter-spacing: .02em; white-space: nowrap; }
+.comfy-badge:hover, .studio-footer .comfy-badge:hover { color: var(--fg); }
+.studio-footer .comfy-badge { color: var(--fg-2); }
+.comfy-badge .comfy-logomark { margin-inline: -3px 0; }
 .loading-panel { padding: 32px; color: var(--muted); }
 
 /* Sign-in, sign-up and the optional account page. */
