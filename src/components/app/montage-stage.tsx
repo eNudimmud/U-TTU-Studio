@@ -851,14 +851,6 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         </>;
       })()}
       </div>
-      {(() => {
-        const ids = binTab === "medias" ? [] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
-        const names = ids.flatMap(id => {
-          const row = gesteParId(id);
-          return row && !gesteOuvert(row) ? [t(`gestes.${row.clef}.quiet`)] : [];
-        });
-        return names.length > 0 ? <p className="u-bin-quiet">{t("gestes.soonQuiet", { names: names.join(", ") })}</p> : null;
-      })()}
       {!wide && <OutilsStrip onglet="montage" />}
       <button type="button" className="u-secondary u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.close")}</button>
     </aside>

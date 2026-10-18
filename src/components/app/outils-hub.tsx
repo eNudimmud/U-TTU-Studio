@@ -16,7 +16,7 @@ import { assetPath } from "@/lib/site";
 import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
-import { EtEnsuite } from "./et-ensuite";
+import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
 import { StudioHome, openStudioTool } from "./studio-entry";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
 
@@ -213,7 +213,7 @@ function Fold({ step, label, children }: { step: string; label: string; children
 
 export function ToolPanel({ outil: asked }: { outil: Outil }) {
   const { t } = useI18n();
-  const { connected, creating, runOutil, balance, setSheet, prefs } = useStudio();
+  const { connected, creating, runOutil, balance, setSheet, prefs, media } = useStudio();
   const [modelId, setModelId] = useState(asked.id);
   const outil = outilParId(modelId) ?? asked;
   const [inputs, setInputs] = useState<Partial<Record<Entree, Picked | null>>>({});
@@ -236,6 +236,36 @@ export function ToolPanel({ outil: asked }: { outil: Outil }) {
   const sending = useRef(false);
 
   useEffect(() => { setModelId(asked.id); setAsk(false); }, [asked.id]);
+  useEffect(() => {
+    function apply() {
+      let saved: HandedSource | null = null;
+      try {
+        const raw = sessionStorage.getItem(SOURCE_KEY);
+        if (!raw) return;
+        saved = JSON.parse(raw) as HandedSource;
+      } catch { return; }
+      if (!saved || (saved.kind !== "image" && saved.kind !== "video")) {
+        try { sessionStorage.removeItem(SOURCE_KEY); } catch { /* ignore */ }
+        return;
+      }
+      const slot: Entree | null = saved.kind === "video" && outil.entrees.includes("video") ? "video"
+        : saved.kind === "image" && outil.entrees.includes("image") ? "image"
+        : null;
+      if (!slot) {
+        try { sessionStorage.removeItem(SOURCE_KEY); } catch { /* ignore */ }
+        return;
+      }
+      const url = (saved.path && media[saved.path]) || (saved.url && !saved.url.startsWith("blob:") ? saved.url : "");
+      if (!url) return;
+      try { sessionStorage.removeItem(SOURCE_KEY); } catch { /* ignore */ }
+      const placed = saved;
+      setInputs(current => ({ ...current, [slot]: { url, name: placed.name || "creation", path: placed.path } }));
+      if ((placed.aspect === "horizontal" || placed.aspect === "vertical") && outil.reglages?.includes("aspect")) setAspect(placed.aspect);
+    }
+    apply();
+    window.addEventListener("u-ttu-source", apply);
+    return () => window.removeEventListener("u-ttu-source", apply);
+  }, [outil.id, outil.entrees, outil.reglages, media]);
   useEffect(() => {
     if (outil.texte === "aucun") return;
     try {

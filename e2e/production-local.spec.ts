@@ -102,7 +102,7 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   await page.locator('[data-avance-toggle=rendu]').click();
   await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'ltx');
   expect(posts).toBe(0); // The default LTX quote is estimated; only confirmation may submit.
-  await page.locator('.u-engine[data-engine]').getByRole('button', { name: /MiniMax H3/ }).click();
+  await page.locator('.u-engine[data-engine]').getByRole('button', { name: /Jusqu’à neuf images/ }).click();
   await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'h3');
   // R10 examples remain previews: never charge for a take that silently omits its selected decor.
   const example = page.getByRole('button', { name: /^Exemple Le quai, la nuit$/i });

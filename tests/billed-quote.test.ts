@@ -50,18 +50,17 @@ describe("devis facturé", () => {
     const open = priseGate({ credits: 100, readAt: 1 }, resolveTakeQuote(PROFILE, []));
     assert.equal(open.allowed, true);
     assert.equal(open.tone, "ok");
-    assert.match(open.line, /Environ 4 crédits, réserve conseillée 6/);
-    assert.match(open.line, /prise réelle le 7 octobre/);
-    assert.match(open.line, /temps GPU facturé, une seule mesure, modèles déjà chargés/);
-    assert.match(open.line, /une première prise à froid peut coûter un peu plus/);
-    assert.doesNotMatch(open.line, /51662|class_type|UNET|nœud/);
+    assert.match(open.line, /Environ 4 crédits, estimé d’après une prise du 7 octobre/);
+    assert.match(open.line, /Le prix final peut varier/);
+    assert.doesNotMatch(open.line, /réserve|GPU|51662|class_type|UNET|nœud/);
 
     const ceiling = priseGate({ credits: 6, readAt: 1 }, resolveTakeQuote(PROFILE, []));
     assert.equal(ceiling.allowed, true);
     const short = priseGate({ credits: 5, readAt: 1 }, resolveTakeQuote(PROFILE, []));
     assert.equal(short.allowed, false);
     assert.match(short.line, /Solde trop bas/);
-    assert.match(short.line, /réserve conseillée 6/);
+    assert.match(short.line, /Environ 4 crédits/);
+    assert.doesNotMatch(short.line, /réserve/);
     assert.equal(priseGate({ credits: 0, readAt: 1 }, resolveTakeQuote(PROFILE, [])).allowed, false);
     assert.equal(priseGate(null, resolveTakeQuote(PROFILE, [])).allowed, false);
     assert.match(priseGate(null, resolveTakeQuote(PROFILE, [])).line, /Environ 4 crédits/);

@@ -452,7 +452,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (read.ambiance.length && !ambianceOff[planId]) rows.push({ label: t("p1.fiab.ambiance"), value: read.ambiance.map(item => item.label).join(", ") });
     const kept = inherited.filter(row => row.state).map(row => `${row.name} · ${row.state!.label} (${row.state!.fromCode || "?"})`);
     if (kept.length) rows.push({ label: t("p1.fiab.continuity"), value: kept.join(" ; ") });
-    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: decided.engine === "h3" ? "MiniMax H3" : "LTX-2.5" }) });
+    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: t(decided.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx") }) });
     if (read.unknown.length) rows.push({ label: t("p1.chip.unknown"), value: read.unknown.join(", "), flag: true });
     return rows;
   }
@@ -1058,7 +1058,6 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           sent={resumeFor(input)}
           technical={[
             { label: t("p0.fiab.sentEngine"), value: `${t(engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx")} · ${input.duree} s · ${input.format}` },
-            { label: t("p1.fiab.graph"), value: intention.decided.template },
             { label: t("p1.fiab.resolution"), value: `≈ ${intention.decided.resolution}` },
             { label: t("p1.fiab.refs"), value: intention.decided.refs.map(ref => `${ref.owner} (${ref.kind})`).join(", ") || "—" },
             { label: t("p1.fiab.identity"), value: t(`p1.fiab.identity${intention.decided.identity}`) },

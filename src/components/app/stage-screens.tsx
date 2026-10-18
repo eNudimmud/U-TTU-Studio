@@ -139,12 +139,10 @@ function engineName(t: (key: string, values?: Record<string, string | number>) =
   const id = template ?? "";
   const open = t("p0.engine.open");
   const partner = t("p0.engine.partner");
-  if (/klein/i.test(id)) return `FLUX 3 Klein · ${open}`;
-  if (/bfl|flux3/i.test(id)) return `FLUX 3 · ${partner}`;
   if (/nano/i.test(id)) return `${t("p0.engine.versatile")} · ${partner}`;
-  if (/ltx/i.test(id)) return `LTX-2.5 · ${open}`;
-  if (/h3|minimax/i.test(id)) return `MiniMax H3 · ${open}`;
-  return id || "Comfy";
+  if (/klein/i.test(id) || /ltx/i.test(id) || /h3|minimax/i.test(id)) return open;
+  if (/bfl|flux3|ideogram|openai|kling|seedance|eleven|tripo|meshy|hunyuan|grok|vidu|bria/i.test(id)) return partner;
+  return open;
 }
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
@@ -181,9 +179,6 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const missingTenue = casesVisibles(row).some(item => item.role === "tenue" && !refs.some(ref => ref.caseId === item.id));
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : missingTenue ? t("gestes.needOutfit") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
   const preview = refs.find(ref => ref.url)?.url ?? "";
-  const ceiling = amount !== null && high !== null
-    ? t(row.nature === "mesure" ? "create.ceilingMeasured" : "create.ceilingHyp", { high })
-    : "";
 
 
 
@@ -264,7 +259,6 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => { if (!connected) { setSheet("connect"); return; } setAsk(true); }}>
           {amount !== null ? t("create.castButton", { amount }) : t("create.castButtonClosed")} <Arrow />
         </button>
-        {ceiling && <p className="u-ceiling">{ceiling}</p>}
         <Why on={blocked} id="u-why-cast" text={why} />
         {blocked && <ConnectLink />}
       </>}
@@ -321,7 +315,6 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
   const depart = montrerDepart({ mesAssets: decor.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
-  const ceiling = amount !== null && high !== null ? t("create.ceilingHyp", { high }) : "";
 
 
 
@@ -408,7 +401,6 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => { if (!connected) { setSheet("connect"); return; } setAsk(true); }}>
           {amount !== null ? t("create.decorButton", { amount }) : t("create.decorButtonClosed")} <Arrow />
         </button>
-        {ceiling && <p className="u-ceiling">{ceiling}</p>}
         <Why on={blocked} id="u-why-decor" text={why} />
         {blocked && <ConnectLink />}
       </>}

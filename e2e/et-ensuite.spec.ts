@@ -15,7 +15,7 @@ async function watch(page: Page) {
 
 const types = (graph: Graph | undefined) => Object.values(graph ?? {}).map(node => node.class_type);
 
-test("asset : menu 44 px, devis estimé sur le bouton, Détourer archive un nouvel asset", async ({ page }) => {
+test("asset : menu 44 px, un coût, Détourer ouvre la page outil avec l’image", async ({ page }) => {
   await simulateComfy(page);
   const seen = await watch(page);
   await page.goto("/mon-studio?galerie=4&detail=1");
@@ -26,55 +26,49 @@ test("asset : menu 44 px, devis estimé sur le bouton, Détourer archive un nouv
   const toggle = detail.locator("[data-suite-toggle]");
   await expect(toggle).toHaveText(/Et ensuite \?/);
   expect((await toggle.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
-  // Open by default: the next step is visible without a click.
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  const suite = detail.locator(".u-suite");
+  await expect(suite).not.toContainText(/réserve|bientôt|graphe|nœud|open weights|poids ouverts/i);
   const items = detail.locator("[data-suite-item]");
   await expect(items).toHaveCount(7);
-  for (const item of await items.all()) expect((await item.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
-  await expect(detail.locator("[data-suite-item=suite-detourer]")).toContainText("estimé");
-
-  await detail.locator("[data-suite-item=suite-detourer]").click();
-  const panel = detail.locator("[data-suite-panel=suite-detourer]");
-  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 2 cr. estimé · réserve 4");
-  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 2 cr. estimé · réserve 4");
-  const go = panel.locator("[data-suite-go]");
-  await expect(go).toContainText("≈ 2 cr.");
-  await expect(go).toBeDisabled();
-  await expect(panel.locator(".u-why")).toHaveText("Coche la confirmation pour lancer.");
-  await expect(panel.locator("[data-etape-courante]")).toHaveAttribute("data-etape-courante", "confirmer");
-  await panel.locator("[data-suite-confirm]").click();
-  await expect(go).toBeEnabled();
-  await go.click();
-  await expect(panel.locator("[data-suite-done]")).toBeVisible({ timeout: 60_000 });
-  await expect(panel.locator("[data-suite-done] img")).toBeVisible();
-  await expect(panel.locator("[data-etape-courante]")).toHaveAttribute("data-etape-courante", "fini");
-  expect(types(seen.graphs.at(-1))).toEqual(expect.arrayContaining(["RemoveBackground", "JoinImageWithAlpha", "SaveImage"]));
+  for (const item of await items.all()) {
+    expect((await item.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+    await expect(item).toContainText(/≈ [\d,]+ cr\./);
+    await expect(item).not.toContainText(/estimé|réserve/i);
+  }
+  const link = detail.locator("[data-suite-item=suite-detourer]");
+  await expect(link).toHaveAttribute("href", /#outils\/ret-detourer/);
+  await expect(link).toContainText("Détourer");
+  await expect(link).toContainText("≈ 2 cr.");
+  await link.click();
+  await expect(page).toHaveURL(/\/studio#outils\/ret-detourer/);
+  const panel = page.locator("[data-tool-panel=ret-detourer]");
+  await expect(panel).toBeVisible();
+  await expect(panel.locator("[data-outil-input=image] img")).toBeVisible();
+  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 2 cr.");
+  await expect(panel).not.toContainText(/réserve|bientôt|graphe/i);
+  expect(seen.graphs).toHaveLength(0);
   expect(seen.cancels()).toBe(0);
-  await expect(original).toHaveAttribute("src", before ?? "");
+  await page.goto("/mon-studio?galerie=4&detail=1");
+  await expect(page.locator(".u-asset-detail > img")).toHaveAttribute("src", before ?? "");
 });
 
-test("asset : un rendu raté laisse l'original intact", async ({ page }) => {
+test("asset : Modifier ouvre la page outil, l’original n’est pas envoyé", async ({ page }) => {
   await simulateComfy(page);
   const seen = await watch(page);
-  await page.route(/\/api\/job\/([^/]+)\/status$/, route => route.fulfill({ json: { status: "failed" } }));
-  await page.route(/\/api\/jobs\/([^/?]+)$/, route => route.fulfill({ json: { status: "failed", execution_error: { exception_message: "simulé" } } }));
   await page.goto("/mon-studio?galerie=4&detail=1&suite=suite-modifier");
-  const detail = page.locator(".u-asset-detail");
-  const original = detail.locator(":scope > img");
-  const before = await original.getAttribute("src");
-  const panel = detail.locator("[data-suite-panel=suite-modifier]");
-  await expect(panel).toBeVisible();
-  await panel.locator("textarea").fill("Une écharpe rouge.");
-  await panel.locator("[data-suite-confirm]").click();
-  await panel.locator("[data-suite-go]").click();
-  await expect(panel.locator("[data-suite-fail]")).toContainText("L’original reste intact.", { timeout: 60_000 });
-  await expect(panel.locator("[data-etape=controler]")).toHaveAttribute("data-etat", "echec");
-  await expect(original).toHaveAttribute("src", before ?? "");
-  expect(types(seen.graphs.at(-1))).toEqual(expect.arrayContaining(["ReferenceMultiLatent", "SaveImage"]));
-  expect(seen.cancels()).toBe(0);
+  const link = page.locator(".u-asset-detail [data-suite-item=suite-modifier]");
+  await expect(link).toHaveAttribute("aria-current", "true");
+  await link.click();
+  await expect(page).toHaveURL(/\/studio#outils\/ret-modifier/);
+  const panel = page.locator("[data-tool-panel=ret-modifier]");
+  await expect(panel.locator("[data-outil-input=image] img")).toBeVisible();
+  await expect(panel.locator("textarea")).toBeVisible();
+  await expect(panel).not.toContainText(/réserve|Coche la confirmation/i);
+  expect(seen.graphs).toHaveLength(0);
 });
 
-test("prise importée : Finaliser poids ouverts, fluidifier en option, devis par tranche de 5 s", async ({ page }) => {
+test("prise importée : trois actions, chacune vers sa page, un coût", async ({ page }) => {
   await simulateComfy(page);
   const seen = await watch(page);
   await page.goto("/mon-studio");
@@ -85,23 +79,21 @@ test("prise importée : Finaliser poids ouverts, fluidifier en option, devis par
   const detail = page.locator(".u-asset-detail");
   await expect(detail.locator("[data-suite-toggle]")).toHaveAttribute("aria-expanded", "true");
   await expect(detail.locator("[data-suite-item]")).toHaveCount(3);
-  await detail.locator("[data-suite-item=suite-finaliser-video]").click();
-  const panel = detail.locator("[data-suite-panel=suite-finaliser-video]");
-  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 8 cr. estimé · réserve 16");
-  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 8 cr. estimé · réserve 16");
-  await panel.locator("[data-suite-fluide]").click();
-  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 10 cr. estimé · réserve 20");
-  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 10 cr. estimé · réserve 20");
-  await panel.locator("[data-suite-confirm]").click();
-  await panel.locator("[data-suite-go]").click();
-  await expect(panel.locator("[data-suite-done] video")).toBeVisible({ timeout: 60_000 });
-  const sent = types(seen.graphs.at(-1));
-  expect(sent).toEqual(expect.arrayContaining(["SeedVR2Conditioning", "FrameInterpolate", "SaveVideo"]));
-  expect(sent).not.toContain("RTXVideoSuperResolution");
-  expect(seen.cancels()).toBe(0);
+  const finish = detail.locator("[data-suite-item=suite-finaliser-video]");
+  await expect(finish).toHaveAttribute("href", /#outils\/vid-finaliser/);
+  await expect(finish).toContainText("≈ 8 cr.");
+  await expect(detail.locator("[data-suite-item=suite-fluidifier]")).toHaveAttribute("href", /#outils\/vid-fluidifier/);
+  await expect(detail.locator(".u-suite")).not.toContainText(/réserve|estimé/i);
+  await finish.click();
+  await expect(page).toHaveURL(/\/studio#outils\/vid-finaliser/);
+  const panel = page.locator("[data-tool-panel=vid-finaliser]");
+  await expect(panel.locator("[data-outil-input=video] video")).toBeVisible({ timeout: 30_000 });
+  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 8 cr.");
+  await expect(panel).not.toContainText(/réserve/i);
+  expect(seen.graphs).toHaveLength(0);
 });
 
-test("MONTAGE : avec Poids ouverts seulement, Finaliser passe par SeedVR2 au lieu d'être bloqué", async ({ page }) => {
+test("MONTAGE : avec les modèles du studio seulement, Finaliser restaure au lieu d'être bloqué", async ({ page }) => {
   await simulateComfy(page);
   const seen = await watch(page);
   await page.addInitScript(() => localStorage.setItem("u-ttu-moteurs", JSON.stringify({ openWeightsOnly: true, nanoBanana: false, engine: "ltx", engineManual: false })));

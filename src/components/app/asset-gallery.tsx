@@ -159,7 +159,6 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         <div><dt>{t("assets.refs")}</dt><dd>{current.refs.length > 0 ? current.refs.join(", ") : t("assets.none")}</dd></div>
         <div><dt>{t("assets.cost")}</dt><dd>{current.cout !== null ? t("assets.credits", { amount: current.cout }) : current.devis !== null ? t("assets.estimate", { amount: current.devis }) : t("assets.none")}</dd></div>
         <div><dt>{t("assets.date")}</dt><dd>{current.at || t("assets.none")}</dd></div>
-        <div><dt>{t("assets.path")}</dt><dd>{current.media || current.preview || t("assets.none")}</dd></div>
       </dl>
       {type && <p className="u-label u-item-label">{t("creations.use")}</p>}
       <div className="u-card-actions" data-item-use="">

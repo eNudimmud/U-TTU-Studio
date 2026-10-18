@@ -1353,11 +1353,11 @@
 .u-suite-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; padding: 10px 14px; border: 1px solid var(--u-line-strong); border-radius: var(--radius-control); background: var(--surface-2); color: var(--fg); font-weight: 600; text-align: left; }
 .u-suite-toggle[aria-expanded="true"] { border-color: var(--accent); }
 .u-suite-toggle:hover { background: var(--hover); }
-.u-suite-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
-.u-suite-item { display: grid; gap: 2px; align-content: center; min-height: 52px; padding: 8px 12px; border: 1px solid var(--u-line); border-radius: var(--radius-control); background: var(--surface); color: var(--fg); text-align: left; }
+.u-suite-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr)); gap: 8px; min-width: 0; }
+.u-suite-item { display: grid; gap: 2px; align-content: center; min-height: 52px; min-width: 0; padding: 8px 12px; border: 1px solid var(--u-line); border-radius: var(--radius-control); background: var(--surface); color: inherit; text-align: left; text-decoration: none; }
 .u-suite-item:hover { background: var(--hover); }
 .u-suite-item[aria-pressed="true"] { border-color: var(--accent); background: var(--selected); }
-.u-suite-name { font-size: 15px; line-height: 1.25; }
+.u-suite-name { font-size: 15px; line-height: 1.25; overflow-wrap: anywhere; }
 .u-suite-cost { font-size: 12px; color: var(--fg-2); font-variant-numeric: tabular-nums; }
 .u-suite-panel { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--u-line-strong); border-radius: var(--radius-card); background: var(--surface); }
 .u-suite-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -1370,7 +1370,7 @@
 .u-suite-done { display: grid; gap: 8px; }
 .u-suite-done img, .u-suite-done video { width: 100%; max-height: 320px; object-fit: contain; border-radius: var(--radius-thumb); border: 1px solid var(--u-line); background: repeating-conic-gradient(#202024 0% 25%, #18181b 0% 50%) 50% / 16px 16px; }
 .u-suite .u-final-confirm { min-height: 44px; }
-@media (max-width: 420px) { .u-suite-menu { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 420px) { .u-suite-menu { grid-template-columns: 1fr; } }
 .u-suite-file { min-height: 44px; display: inline-flex; align-items: center; justify-content: flex-start; max-width: 100%; }
 .u-suite-file > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
