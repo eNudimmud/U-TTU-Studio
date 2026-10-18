@@ -228,12 +228,13 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   expect(posts).toBe(1);
 });
 
-// « Avancé » then its « Prévis » group, each opened only if closed and awaited (WebKit toggles a nested <details> late).
+// « Avancé », then its « Prévis » group (a real button with aria-expanded), each opened only if closed.
 async function openPrevis(page: Page) {
-  for (const selector of ['[data-avance-prise]', '[data-avance-group=previs]']) {
-    const fold = page.locator(selector);
-    await expect(fold).toBeVisible();
-    if (await fold.getAttribute('open') === null) await fold.locator('> summary').click();
-    await expect(fold).toHaveAttribute('open', '');
-  }
+  const avance = page.locator('[data-avance-prise]');
+  await expect(avance).toBeVisible();
+  if (await avance.getAttribute('open') === null) await avance.locator('> summary').click();
+  await expect(avance).toHaveAttribute('open', '');
+  const toggle = page.locator('[data-avance-toggle=previs]');
+  if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
 }

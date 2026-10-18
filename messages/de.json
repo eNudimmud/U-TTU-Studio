@@ -2150,7 +2150,7 @@
       "objet": "Objekt",
       "perso": "Figur"
     },
-    "confirm": "Ich bestätige eine Reserve von {ceiling} Cr.; der Endpreis kann abweichen.",
+    "confirm": "Ich bestätige: ≈ {credits} Cr. geschätzt · Reserve {ceiling}. Der Endpreis kann abweichen.",
     "link": "Konto verbinden",
     "needInput": "Füge {what} hinzu, um zu starten.",
     "needConsent": "Bestätige, dass du diese Stimme nutzen darfst.",
@@ -2417,6 +2417,7 @@
         "line": "Deine Figur übernimmt die Bewegung eines Videos."
       }
     },
-    "latest": "Neueste Ergebnisse"
+    "latest": "Neueste Ergebnisse",
+    "reserve": "· Reserve {ceiling}"
   }
 }

@@ -35,8 +35,8 @@ test("asset : menu 44 px, devis estimé sur le bouton, Détourer archive un nouv
 
   await detail.locator("[data-suite-item=suite-detourer]").click();
   const panel = detail.locator("[data-suite-panel=suite-detourer]");
-  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 2 cr. estimé");
-  await expect(panel.locator("[data-suite-confirm]")).toContainText("réserve de 4 cr.");
+  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 2 cr. estimé · réserve 4");
+  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 2 cr. estimé · réserve 4");
   const go = panel.locator("[data-suite-go]");
   await expect(go).toContainText("≈ 2 cr.");
   await expect(go).toBeDisabled();
@@ -87,11 +87,11 @@ test("prise importée : Finaliser poids ouverts, fluidifier en option, devis par
   await expect(detail.locator("[data-suite-item]")).toHaveCount(3);
   await detail.locator("[data-suite-item=suite-finaliser-video]").click();
   const panel = detail.locator("[data-suite-panel=suite-finaliser-video]");
-  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 8 cr. estimé");
-  await expect(panel.locator("[data-suite-confirm]")).toContainText("réserve de 16 cr.");
+  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 8 cr. estimé · réserve 16");
+  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 8 cr. estimé · réserve 16");
   await panel.locator("[data-suite-fluide]").click();
-  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 10 cr. estimé");
-  await expect(panel.locator("[data-suite-confirm]")).toContainText("réserve de 20 cr.");
+  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 10 cr. estimé · réserve 20");
+  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 10 cr. estimé · réserve 20");
   await panel.locator("[data-suite-confirm]").click();
   await panel.locator("[data-suite-go]").click();
   await expect(panel.locator("[data-suite-done] video")).toBeVisible({ timeout: 60_000 });

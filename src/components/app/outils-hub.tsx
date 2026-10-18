@@ -346,11 +346,11 @@ export function ToolPanel({ outil }: { outil: Outil }) {
     </details>}
     <button type="button" role="checkbox" className="u-final-confirm" aria-checked={confirmed} data-tool-confirm="" {...lock} onClick={() => setConfirmed(value => !value)}>
       <span className="u-final-box" aria-hidden="true">{confirmed ? "✓" : ""}</span>
-      <span>{t("outils.confirm", { ceiling: formatCredits(quote?.high ?? 0) })}</span>
+      <span>{t("outils.confirm", { credits: formatCredits(quote?.credits ?? 0), ceiling: formatCredits(quote?.high ?? 0) })}</span>
     </button>
     <button type="button" className="u-tool-go" data-tool-go="" disabled={!can} aria-describedby={busy ? busyId : why ? whyId : undefined} onClick={() => void launch()}>
       <span>{action}</span>
-      {quote && <span className="u-tool-go-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })} <small>{t("outils.estimate")}</small></span>}
+      {quote && <span className="u-tool-go-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })} <small>{t("outils.estimate")}</small> <small className="u-tool-go-reserve">{t("outils.reserve", { ceiling: formatCredits(quote.high) })}</small></span>}
     </button>
     {why && !busy && <p className="u-why" id={whyId} data-tool-why="">{why}{!connected && etat.kind === "pret" && !missingInput && !missingText ? <> <button type="button" className="u-link" data-tool-link="" onClick={() => setSheet("connect")}>{t("outils.link")}</button></> : null}</p>}
     {!connected && (missingInput || missingText) && !busy && <p className="u-small" data-tool-link-hint="">{t("videoGeste.needLink")} <button type="button" className="u-link" data-tool-link="" onClick={() => setSheet("connect")}>{t("outils.link")}</button></p>}

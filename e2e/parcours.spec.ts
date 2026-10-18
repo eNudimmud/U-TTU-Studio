@@ -51,7 +51,7 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(page.locator("[data-avance-prise]")).not.toHaveAttribute("open", "");
   await expect(page.locator("[data-prise-still]")).toBeVisible();
   await page.locator("[data-avance-prise] > summary").click();
-  await page.locator("[data-avance-group=maquette] > summary").click();
+  await page.locator("[data-avance-toggle=maquette]").click();
   const stage = page.locator("[data-maquette]");
   await expect(stage).toBeVisible();
   await expect(stage).toHaveAttribute("data-quartier", "1");

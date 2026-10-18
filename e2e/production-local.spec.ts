@@ -99,7 +99,7 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   // Engines live in « Avancé »: the novice never meets them.
   await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
   await page.locator('[data-avance-prise] > summary').click();
-  await page.locator('[data-avance-group=rendu] > summary').click();
+  await page.locator('[data-avance-toggle=rendu]').click();
   await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'ltx');
   expect(posts).toBe(0); // The default LTX quote is estimated; only confirmation may submit.
   await page.locator('.u-engine[data-engine]').getByRole('button', { name: /MiniMax H3/ }).click();

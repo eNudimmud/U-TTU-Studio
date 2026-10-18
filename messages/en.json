@@ -2150,7 +2150,7 @@
       "objet": "Object",
       "perso": "Character"
     },
-    "confirm": "I confirm a {ceiling} cr. reserve; the final price may vary.",
+    "confirm": "I confirm: ≈ {credits} cr. estimated · reserve {ceiling}. The final price may vary.",
     "link": "Link my account",
     "needInput": "Add {what} to start.",
     "needConsent": "Confirm you may use this voice.",
@@ -2417,6 +2417,7 @@
         "line": "Your character repeats a video’s moves."
       }
     },
-    "latest": "Latest results"
+    "latest": "Latest results",
+    "reserve": "· reserve {ceiling}"
   }
 }

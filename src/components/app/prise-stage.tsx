@@ -923,8 +923,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <summary>{t("p0.advanced")}</summary>
         {!demo && withTake === 0 && canMonter && <button type="button" className="u-secondary" data-envoyer-montage="" data-image-fixe="" onClick={() => void monter()}>{t("p0.monterStill")}</button>}
         {/* AVANCÉ is short collapsed groups; the gestures that do not need the maquette live in Outils. */}
-        <details className="u-fold u-avance-group" data-avance-group="maquette">
-        <summary>{t("p0.groups.maquette")}</summary>
+        <AvanceGroup id="maquette" title={t("p0.groups.maquette")}>
         <div className="u-maquette-avance" data-maquette-avance="">
       <MaquetteView
           state={{ ...maquette, props: maquette.props?.map(prop => ({ ...prop, url: prop.source ? media[prop.source] : undefined })) }}
@@ -984,9 +983,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         </div>
         {maquette.figures.length < 2 && <p className="u-why" id="u-why-paire">{t("r7.pairWhy")}</p>}
       </Row>
-        </details>
-        <details className="u-fold u-avance-group" data-avance-group="rendu">
-        <summary>{t("p0.groups.rendu")}</summary>
+        </AvanceGroup>
+        <AvanceGroup id="rendu" title={t("p0.groups.rendu")}>
         <Row label={t("stage.engine.label")}>
           <div className="u-choice-row u-engine" data-engine={engine} data-engine-mode={prefs.engineManual ? "main" : "auto"}>
             <button type="button" className="u-chip" data-engine-auto="" aria-pressed={!prefs.engineManual} onClick={() => setPrefs({ engineManual: false })}>{t("p1.engineAuto")} · {intention.decided.auto === "h3" ? "H3" : "LTX"}</button>
@@ -1004,7 +1002,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
             ))}
           </div>
         </Row>
-        </details>
+        </AvanceGroup>
 
         <details className="u-fold">
           <summary>{t("p0.speech")} · {t(`p0.paroles.${input.paroles}`)}</summary>
@@ -1036,11 +1034,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           {!input.previousKept && input.enchainer && <p className="u-why">{t("p0.chainNotKept")}</p>}
           <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>{t("p0.chainEnd")}</button>
         </details>
-        <details className="u-fold u-avance-group" data-avance-group="previs">
-        <summary>{t("p0.groups.previs")}</summary>
+        <AvanceGroup id="previs" title={t("p0.groups.previs")}>
         <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} />
         <VideoGestes aspect={format === "9:16" ? "vertical" : "horizontal"} previs={previsClip} previsLeft={previsLeft} onRecordPrevis={() => void filmPrevis()} only={["prise-previs", "prise-camera"]} />
-        </details>
+        </AvanceGroup>
         {!demo && memory && <MemoirePanel memory={memory} planId={draft.id} t={t} />}
       </details>
     </div>
@@ -1246,4 +1243,15 @@ function MemoirePanel({ memory, planId, t }: { memory: ProductionMemory; planId:
     </section>
     <p className="u-memoire-note">{t("p1.mem.saved")}</p>
   </details>;
+}
+
+// One AVANCÉ group: a real button (aria-expanded) instead of a nested <summary>, which Safari did not toggle on tap.
+// The content stays mounted while closed so the maquette, the engine choice and the prévis keep their state.
+function AvanceGroup({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const bodyId = `u-avance-${id}`;
+  return <section className="u-fold u-avance-group" data-avance-group={id} data-open={open ? "" : undefined}>
+    <button type="button" className="u-fold-head" data-avance-toggle={id} aria-expanded={open} aria-controls={bodyId} onClick={event => { setOpen(current => !current); event.currentTarget.scrollIntoView({ block: "nearest" }); }}>{title}</button>
+    <div id={bodyId} className="u-avance-body" hidden={!open}>{children}</div>
+  </section>;
 }

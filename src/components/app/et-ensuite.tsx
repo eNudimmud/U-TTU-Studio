@@ -179,11 +179,11 @@ function SuitePanel({ tool, source, onPrise, onClose }: { tool: Outil; source: S
     </label>}
     <button type="button" role="checkbox" className="u-final-confirm" aria-checked={confirmed} data-suite-confirm="" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => setConfirmed(value => !value)}>
       <span className="u-final-box" aria-hidden="true">{confirmed ? "✓" : ""}</span>
-      <span>{t("outils.confirm", { ceiling: formatCredits(quote?.high ?? 0) })}</span>
+      <span>{t("outils.confirm", { credits: formatCredits(quote?.credits ?? 0), ceiling: formatCredits(quote?.high ?? 0) })}</span>
     </button>
     <button type="button" className="u-tool-go" data-suite-go="" disabled={!can} aria-describedby={busy ? busyId : why ? `${titleId}-why` : undefined} onClick={() => void launch()}>
       <span>{t(`suite.tools.${tool}.title`)}</span>
-      {quote && <span className="u-tool-go-cost" data-suite-quote="estime">{t("outils.cost", { credits: formatCredits(quote.credits) })} <small>{t("outils.estimate")}</small></span>}
+      {quote && <span className="u-tool-go-cost" data-suite-quote="estime">{t("outils.cost", { credits: formatCredits(quote.credits) })} <small>{t("outils.estimate")}</small> <small className="u-tool-go-reserve">{t("outils.reserve", { ceiling: formatCredits(quote.high) })}</small></span>}
     </button>
     {why && !busy && <p className="u-why" id={`${titleId}-why`}>{why}</p>}
     {why && !busy && <ConnectLink />}
