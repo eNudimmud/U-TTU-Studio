@@ -31,6 +31,7 @@ import { ExempleDepart } from "./exemple-depart";
 import { FormatSwitch, useFormat } from "./format-switch";
 import { MaquetteView } from "./maquette-view";
 import { useStudio } from "./studio-session";
+import { EtEnsuite } from "./et-ensuite";
 import { VideoGestes, type PrevisClip } from "./video-gestes";
 import { PrevisPanel } from "./previs-panel";
 import { recordMaquette } from "@/lib/maquette/record";
@@ -789,6 +790,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           <button type="button" className="u-secondary" data-autre-prise="" disabled={!canGenerate} aria-describedby={!canGenerate ? "u-why-autre" : undefined} onClick={() => void generate()}>{t("p0.another")}</button>
         </div>
         {!canGenerate && <p className="u-why" id="u-why-autre">{generateReason}</p>}
+        <EtEnsuite source={{ kind: "video", url: media[landed.video], name: landed.id, path: landed.video, aspect: format === "9:16" ? "vertical" : "horizontal" }} />
       </div>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />

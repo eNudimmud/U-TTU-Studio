@@ -987,19 +987,19 @@
       "castAngle": "Soon: the price is not checked yet.",
       "castExpression": "Soon: the price is not checked yet.",
       "castLight": "Soon: the price is not checked yet.",
-      "castUpscale": "Soon: the price is not checked yet.",
+      "castUpscale": "In “What next?”: open an image or a take.",
       "castVolume": "Soon: the price is not checked yet.",
       "decorAngles": "Soon: the price is not checked yet.",
       "decorWiden": "Soon: the price is not checked yet.",
       "decorVolume": "Soon: the price is not checked yet.",
-      "priseStill": "Soon: the price is not checked yet.",
-      "priseExtend": "Soon: the price is not checked yet.",
+      "priseStill": "In “What next?”: open an image or a take.",
+      "priseExtend": "In “What next?”: open an image or a take.",
       "priseMotion": "Soon: the price is not checked yet.",
-      "priseLips": "Soon: the price is not checked yet.",
+      "priseLips": "In “What next?”: open an image or a take.",
       "priseVidu": "Soon: the price is not checked yet.",
       "montLips": "Soon: the price is not checked yet.",
-      "montUpscale": "Soon: the price is not checked yet.",
-      "montFrames": "Soon: the price is not checked yet."
+      "montUpscale": "In “What next?”: open an image or a take.",
+      "montFrames": "In “What next?”: open an image or a take."
     },
     "cat": {
       "identite": "Identity",
@@ -1194,6 +1194,51 @@
     "priseVolumeObjet": {
       "title": "Prop or set in 3D",
       "phrase": "A photo becomes a 3D prop or set piece with TRELLIS.2, open weights."
+    },
+    "suiteModifier": {
+      "title": "Edit",
+      "phrase": "Change one detail in one sentence. The rest of the image stays.",
+      "quiet": "Edit"
+    },
+    "suiteFinaliserImage": {
+      "title": "Finish",
+      "phrase": "Sharper and twice as large. The image is restored, never redone.",
+      "quiet": "Finish"
+    },
+    "suiteDetourer": {
+      "title": "Cut out",
+      "phrase": "Removes the background. A transparent PNG, ready for a set.",
+      "quiet": "Cut out"
+    },
+    "suiteElargir": {
+      "title": "Extend",
+      "phrase": "Widens the frame and invents what lies around it.",
+      "quiet": "Extend"
+    },
+    "suiteAnimer": {
+      "title": "Animate",
+      "phrase": "The image becomes a 5-second shot, with sound.",
+      "quiet": "Animate"
+    },
+    "suiteFinaliserVideo": {
+      "title": "Finish",
+      "phrase": "Restores the take in 1080p, without changing the motion. Nothing is redone.",
+      "quiet": "Finish"
+    },
+    "suiteFluidifier": {
+      "title": "Smooth",
+      "phrase": "Adds in-between frames: the motion gets smoother.",
+      "quiet": "Smooth"
+    },
+    "suiteProlonger": {
+      "title": "Continue",
+      "phrase": "5 more seconds, from the take’s last frame.",
+      "quiet": "Continue"
+    },
+    "suiteParler": {
+      "title": "Make it talk",
+      "phrase": "The character speaks the chosen voice, lips in sync (5 s).",
+      "quiet": "Make it talk"
     }
   },
   "refs": {
@@ -1385,7 +1430,8 @@
     "again": "Finalise differently",
     "fail": "Finalising did not work: {message}",
     "close": "Close",
-    "download": "Download"
+    "download": "Download",
+    "openLead": "Open weights: the cut is restored in 1080p, never redone. Estimated per 5-second block."
   },
   "depart": {
     "label": "Example — make it yours",
@@ -1962,5 +2008,79 @@
       "open": "Open a place file (KML, KMZ, GeoJSON)",
       "off": "This file has no readable point. Try a KML, KMZ or GeoJSON with a place."
     }
+  },
+  "suite": {
+    "title": "What next?",
+    "chip": "≈ {credits} cr. estimated",
+    "quote": "Estimated: about {credits} credits, suggested reserve {ceiling}. Not measured on a real render yet.",
+    "safe": "The result is added to My studio. The original is never replaced.",
+    "go": "Run · ≈ {credits} credits (estimated)",
+    "done": "Saved in My studio, next to the original.",
+    "intact": "The original is untouched.",
+    "optional": "(optional)",
+    "needVoice": "Add a voice (audio file).",
+    "noFrame": "The take’s last frame could not be read on this device. Nothing was sent.",
+    "emptyResult": "The render came back empty. The original is untouched.",
+    "toPrise": "Open in the take",
+    "fluide": "Also smooth (in-between frames, estimated on top)",
+    "voice": "Voice (first 5 seconds)",
+    "side": "Where to widen",
+    "sides": {
+      "cotes": "Sides",
+      "haut-bas": "Top and bottom",
+      "tout": "All around"
+    },
+    "mesh": {
+      "objet": "Object or set",
+      "perso": "Character"
+    },
+    "tools": {
+      "suite-modifier": {
+        "title": "Edit",
+        "phrase": "Change one detail in one sentence. The rest of the image stays.",
+        "text": "What changes"
+      },
+      "suite-finaliser-image": {
+        "title": "Finish",
+        "phrase": "Sharper and twice as large. The image is restored, never redone."
+      },
+      "suite-detourer": {
+        "title": "Cut out",
+        "phrase": "Removes the background. A transparent PNG, ready for a set."
+      },
+      "suite-elargir": {
+        "title": "Extend",
+        "phrase": "Widens the frame and invents what lies around it.",
+        "text": "What appears around"
+      },
+      "suite-3d": {
+        "title": "Turn into 3D",
+        "phrase": "A light 3D model from the image, for the mock-up."
+      },
+      "suite-animer": {
+        "title": "Animate",
+        "phrase": "The image becomes a 5-second shot, with sound.",
+        "text": "What moves"
+      },
+      "suite-parler": {
+        "title": "Make it talk",
+        "phrase": "The character speaks the chosen voice, lips in sync (5 s).",
+        "text": "The scene and the tone"
+      },
+      "suite-finaliser-video": {
+        "title": "Finish",
+        "phrase": "Restores the take in 1080p, without changing the motion. Nothing is redone."
+      },
+      "suite-fluidifier": {
+        "title": "Smooth",
+        "phrase": "Adds in-between frames: the motion gets smoother."
+      },
+      "suite-prolonger": {
+        "title": "Continue",
+        "phrase": "5 more seconds, from the take’s last frame.",
+        "text": "What happens next"
+      }
+    },
+    "voicePick": "Choose an audio file"
   }
 }

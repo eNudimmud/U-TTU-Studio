@@ -1,6 +1,6 @@
 {
   "source": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates",
-  "exported": "2026-10-16",
+  "exported": "2026-10-18",
   "workflows": [
     {
       "id": "cast-photos",
@@ -440,6 +440,96 @@
       "sentPartner": null,
       "template_file": "workflows/montage/mont-fluide.json",
       "api_file": null
+    },
+    {
+      "id": "suite-modifier",
+      "onglet": "suite",
+      "template": "image_flux3_klein_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-modifier.json",
+      "api_file": "workflows/suite/suite-modifier.api.json"
+    },
+    {
+      "id": "suite-finaliser-image",
+      "onglet": "suite",
+      "template": "utility_seedvr2_3b_int8_upscale_image",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-finaliser-image.json",
+      "api_file": "workflows/suite/suite-finaliser-image.api.json"
+    },
+    {
+      "id": "suite-detourer",
+      "onglet": "suite",
+      "template": "utility_birefnet_remove_background",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-detourer.json",
+      "api_file": "workflows/suite/suite-detourer.api.json"
+    },
+    {
+      "id": "suite-elargir",
+      "onglet": "suite",
+      "template": "templates_doc_workbox_klein_9b_image_extend",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-elargir.json",
+      "api_file": "workflows/suite/suite-elargir.api.json"
+    },
+    {
+      "id": "suite-animer",
+      "onglet": "suite",
+      "template": "video_minimax_h3_i2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-animer.json",
+      "api_file": "workflows/suite/suite-animer.api.json"
+    },
+    {
+      "id": "suite-finaliser-video",
+      "onglet": "suite",
+      "template": "utility_seedvr2_3b_int8_upscale_video",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-finaliser-video.json",
+      "api_file": "workflows/suite/suite-finaliser-video.api.json"
+    },
+    {
+      "id": "suite-fluidifier",
+      "onglet": "suite",
+      "template": "utility_video_frame_interpolation",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-fluidifier.json",
+      "api_file": "workflows/suite/suite-fluidifier.api.json"
+    },
+    {
+      "id": "suite-prolonger",
+      "onglet": "suite",
+      "template": "video_minimax_h3_i2v_continuation",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-prolonger.json",
+      "api_file": "workflows/suite/suite-prolonger.api.json"
+    },
+    {
+      "id": "suite-parler",
+      "onglet": "suite",
+      "template": "video_ltx2_3_ia2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/suite/suite-parler.json",
+      "api_file": "workflows/suite/suite-parler.api.json"
     },
     {
       "id": "api_bytedance_vcube_video_enhance",

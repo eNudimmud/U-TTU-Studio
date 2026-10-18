@@ -22,6 +22,7 @@ const ADDED: Record<string, string> = {
   SaveImageAdvanced: "la sortie image du studio (nom de fichier stable)",
   ImageStitch: "planche : deux passes FLUX 3 cousues côte à côte",
   ImageFromBatch: "élargir : la première image du clip remplace une seconde photo",
+  SaveImage: "détourer : le template n'a qu'un aperçu ; le PNG transparent doit être enregistré (demande JD)",
 };
 /** prise-plan chains two official templates: Klein edit makes the first frame, LTX-2.5 animates it. */
 const CHAINED: Record<string, string> = { "prise-plan": "workflows/cast/cast-photos.json" };
