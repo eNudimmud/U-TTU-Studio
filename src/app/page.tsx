@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import { HomeLanding } from "@/components/landing/home";
-import { siteDescription, siteTitle } from "@/lib/site";
+import { routeMetadata } from "@/lib/route-meta";
 
-export const metadata: Metadata = {
-  title: siteTitle,
-  description: siteDescription,
-};
+export const metadata: Metadata = routeMetadata("accueil");
 
 export default function Home() {
   return <HomeLanding />;

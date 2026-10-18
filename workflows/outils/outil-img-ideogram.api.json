@@ -1,0 +1,32 @@
+{
+  "1": {
+    "inputs": {
+      "model": "ideogram-4.5",
+      "model.prompt": "<texte du visiteur>",
+      "model.size": "auto",
+      "model.quality": "medium",
+      "model.magic_prompt": "auto",
+      "model.seed": 0
+    },
+    "class_type": "IdeogramTextToImageApi",
+    "_meta": {
+      "title": "Ideogram 4.5 Text to Image"
+    }
+  },
+  "5": {
+    "inputs": {
+      "filename_prefix": "uttu-img-ideogram",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB",
+      "images": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "SaveImageAdvanced",
+    "_meta": {
+      "title": "Save Image (Advanced)"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+[
+  { "id": "accueil", "path": "/", "title": "U*TTU Studio — Ton personnage, en vidéo", "ogTitle": "Ton personnage, en vidéo.", "kicker": "Studio vidéo open source", "description": "Personnage, décor, plans et montage. Le coût est affiché avant chaque rendu." },
+  { "id": "studio", "path": "/studio", "title": "Le studio — U*TTU Studio", "ogTitle": "Le studio.", "kicker": "CAST · DÉCOR · PRISE · MONTAGE", "description": "Deux photos, un décor, une action, et 57 outils. La vidéo se génère sur ton compte, le devis s’affiche avant." },
+  { "id": "creations", "path": "/mon-studio", "title": "Mes créations — U*TTU Studio", "ogTitle": "Mes créations.", "kicker": "Une seule bibliothèque", "description": "Images, vidéos, 3D, sons, personnages, lieux et prises, rangés sur ton appareil." },
+  { "id": "compte", "path": "/compte", "title": "Mon compte — U*TTU Studio", "ogTitle": "Mon compte.", "kicker": "U*TTU Studio", "description": "Ton compte de rendu, tes crédits et la liaison du studio. Rien n’est débité sans ta confirmation." },
+  { "id": "connexion", "path": "/sign-in", "title": "Se connecter — U*TTU Studio", "ogTitle": "Se connecter.", "kicker": "U*TTU Studio", "description": "Retrouve ton studio et ton compte de rendu." },
+  { "id": "inscription", "path": "/sign-up", "title": "Créer un compte — U*TTU Studio", "ogTitle": "Créer un compte.", "kicker": "U*TTU Studio", "description": "Un compte pour relier ton rendu. Le studio, lui, reste sur ton appareil." }
+]

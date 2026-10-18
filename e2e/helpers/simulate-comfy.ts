@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
 // Comfy Cloud, simulated: same contract as the novice spec. Nothing leaves, nothing is spent.
-const still = readFileSync('public/exemples/cast-uttu.webp');
+const still = readFileSync('public/exemples/cast-dj.webp');
 const video = readFileSync('e2e/fixtures/prise-5s-vp9.mp4');
 
 type Job = { kind: 'image' | 'video'; at: number; still: Buffer };

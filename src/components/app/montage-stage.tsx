@@ -1,5 +1,7 @@
 "use client";
 
+import { OutilsStrip } from "./outils-hub";
+import { ConnectLink } from "./connect-link";
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { assetPath } from "@/lib/site";
 import {
@@ -139,6 +141,15 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const [gesteId, setGesteId] = useState("mont-voix");
   const [binTab, setBinTab] = useState<"medias" | AudioTrackId>("medias");
   const [binOpen, setBinOpen] = useState(false);
+  // MONTAGE's family tools: inside the Chutier on a phone, in their own row under the timeline on a wide screen.
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setWide(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
   const [speedOpen, setSpeedOpen] = useState(false);
   const [titleOpen, setTitleOpen] = useState(false);
   const selectedRef = useRef<string | null>(null);
@@ -749,6 +760,21 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const step = rulerStep(px);
   for (let mark = 0; mark <= Math.max(duration, step) + 1e-6; mark += step) ticks.push(Number(mark.toFixed(3)));
 
+  // Menus close on Escape and on a tap outside, without an invisible layer that would swallow the tabs.
+  const menuOpen = panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique";
+  useEffect(() => {
+    if (!menuOpen) return;
+    const key = (event: KeyboardEvent) => { if (event.key === "Escape") setPanel(null); };
+    const down = (event: PointerEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest(".u-popover, [data-menu-toggle]")) return;
+      setPanel(null);
+    };
+    window.addEventListener("keydown", key);
+    document.addEventListener("pointerdown", down, true);
+    return () => { window.removeEventListener("keydown", key); document.removeEventListener("pointerdown", down, true); };
+  }, [menuOpen]);
+
   function openPanel(next: Panel, event: ReactMouseEvent | ReactPointerEvent) {
     placeMenu(event);
     setPanel(current => current === next ? null : next);
@@ -766,7 +792,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         {exportBlocked && <span className="u-tip" id="u-why-export" role="tooltip">{exportWhy}</span>}
       </span>
       <span className="u-tool-slot">
-        <button type="button" className="u-export u-final-open" data-finaliser-open="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} onClick={() => setPanel("finaliser")}><Spark />{t("finaliser.open")}</button>
+        <button type="button" className="u-export u-final-open" data-finaliser-open="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} aria-label={t("finaliser.open")} onClick={() => setPanel("finaliser")}><Spark /><span className="u-long-label">{t("finaliser.open")}</span><span className="u-short-label" aria-hidden="true">{t("finaliser.openShort")}</span></button>
         {finOpenWhy && !finBusy && <span className="u-tip" id="u-why-final" role="tooltip">{finOpenWhy}</span>}
       </span>
       </span>
@@ -832,6 +858,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         });
         return names.length > 0 ? <p className="u-bin-quiet">{t("gestes.soonQuiet", { names: names.join(", ") })}</p> : null;
       })()}
+      {!wide && <OutilsStrip onglet="montage" />}
       <button type="button" className="u-secondary u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.close")}</button>
     </aside>
     <div className="u-capcut-player">
@@ -896,7 +923,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           <Tool id="u-why-split" off={!splitOk} reason={t("montage.splitOff")} label={t("montage.split")} glyph={<Split />} onClick={() => commitFrom(historyRef.current, splitVideo(historyRef.current.present, timeRef.current, `plan-${crypto.randomUUID()}`))} />
           <Tool id="u-why-delete" off={!selectedClip} reason={t("montage.deleteOff")} label={t("montage.delete")} glyph={<Trash />} onClick={() => { if (!selected) return; commitFrom(historyRef.current, deleteClip(historyRef.current.present, selected)); setSelected(null); }} />
         </>}
-        <button type="button" className="u-tool" aria-label={t("montage.more")} aria-expanded={panel === "more" || panel === "confirm"} onClick={event => openPanel("more", event)}><More /><span>{t("montage.more")}</span></button>
+        <button type="button" className="u-tool" data-menu-toggle="" aria-label={t("montage.more")} aria-expanded={panel === "more" || panel === "confirm"} onClick={event => openPanel("more", event)}><More /><span>{t("montage.more")}</span></button>
         <button type="button" className="u-tool" data-reac="" onClick={() => {
           const id = `plan-reac-${crypto.randomUUID()}`;
           const clip: VideoClip = { id, kind: "slate", source: null, label: t("r7.reacMontage"), media: 2, start: 0, end: 2, takeId: null, title: t("r7.reacMontage") };
@@ -945,7 +972,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         }}>
           <div className="u-track-head">
             <span className="u-track-mark" title={t("montage.video")} aria-label={t("montage.video")}><Film /></span>
-            {unusedTakes.length > 0 && <button type="button" className="u-track-add" aria-label={t("montage.addOnTrack", { track: t("montage.video") })} onClick={event => openPanel("video", event)}><Plus /></button>}
+            {unusedTakes.length > 0 && <button type="button" className="u-track-add" data-menu-toggle="" aria-label={t("montage.addOnTrack", { track: t("montage.video") })} onClick={event => openPanel("video", event)}><Plus /></button>}
           </div>
           <div className="u-track">{videoNodes}</div>
         </div>
@@ -958,9 +985,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           }}>
             <div className="u-track-head">
               <span className="u-track-mark" title={trackName(track)} aria-label={trackName(track)}>{track === "voix" ? <Mic /> : track === "effets" ? <Spark /> : <Music />}<span className="u-track-word">{trackName(track)}</span></span>
-              <button type="button" className="u-track-add" aria-label={t("montage.addOnTrack", { track: trackName(track) })} onClick={event => openPanel(track, event)}><Plus /></button>
+              <button type="button" className="u-track-add" data-menu-toggle="" aria-label={t("montage.addOnTrack", { track: trackName(track) })} onClick={event => openPanel(track, event)}><Plus /></button>
             </div>
-            <div className="u-track" data-track-lane={track}>{clips.map(renderAudioClip)}{clips.length === 0 && <span className="u-track-empty">{trackName(track)}</span>}</div>
+            <div className="u-track" data-track-lane={track}>{clips.map(renderAudioClip)}{clips.length === 0 && <span className="u-track-empty">{t("montage.dropFile")}</span>}</div>
           </div>;
         })}
       </div>
@@ -978,15 +1005,18 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </label>
     </div>}
     </div>
+    {wide && <div className="u-montage-outils"><OutilsStrip onglet="montage" /></div>}
     </div>
     {(panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique") && menuAt && <>
-      <button type="button" className="u-menu-back" aria-label={t("verb.cancel")} onClick={() => setPanel(null)} />
       <div className="u-popover" role="menu" style={{ top: menuAt.top, left: menuAt.left }}>
         {panel === "more" && <>
-          <p className="u-small">{t("montage.shortcutHelp")}</p>
+          <button type="button" data-more-outils="" onClick={() => { setPanel(null); window.location.hash = "outils"; }}>{t("outils.seeAll")}</button>
+          <button type="button" data-more-export="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => { if (canExport) { setPanel(null); runExport(); } else setPanel("export"); }}>{t("montage.exportShort")}</button>
+          <button type="button" data-more-finaliser="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} onClick={() => setPanel("finaliser")}>{t("finaliser.open")}</button>
           {filled
             ? <button type="button" onClick={() => setPanel("confirm")}>{t("montage.clear")}</button>
             : <button type="button" onClick={() => { commitFrom(historyRef.current, exempleEdit()); setPanel(null); }}>{t("montage.openExample")}</button>}
+          <details className="u-more-keys"><summary>{t("montage.shortcuts")}</summary><p className="u-small">{t("montage.shortcutHelp")}</p></details>
         </>}
         {panel === "confirm" && <>
           <p>{t("montage.clearAsk")}</p>
@@ -1011,11 +1041,13 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         {panel === "voix" && <>
           <button type="button" disabled={!connected} aria-describedby={!connected ? "u-why-voice" : undefined} onClick={() => { setStem("voix"); setScript(""); setPanel(null); }}>{t("montage.addVoice")}</button>
           {!connected && <Why on id="u-why-voice" text={t("montage.needLink")} />}
+          <ConnectLink />
           <p className="u-small">{voice ? t("montage.voiceQuote", { amount: voice.credits, high: voice.high, count: Math.max(script.trim().length, 1) }) : t("montage.voiceRate")}</p>
         </>}
         {panel === "effets" && <>
           <button type="button" disabled={!connected} aria-describedby={!connected ? "u-why-sfx" : undefined} onClick={() => { setStem("effets"); setPanel(null); }}>{t("montage.addSfx")}</button>
           {!connected && <Why on id="u-why-sfx" text={t("montage.needLink")} />}
+          <ConnectLink />
           <p className="u-small">{effect ? t("montage.sfxQuote", { amount: effect.credits, high: effect.high, seconds: SFX_DEFAULT_SECONDS }) : t("montage.sfxRate")}</p>
           {studio.takes.slice(0, 6).map(take => <button key={take.id} type="button" onClick={() => { addTakeSound(take, "effets"); setPanel(null); }}>{t("montage.fromTake", { name: take.line || take.id })}</button>)}
         </>}
@@ -1052,6 +1084,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
               });
             }}>{stem === "voix" ? t("montage.createVoice") : stem === "musique" ? t("montage.createMusic") : t("montage.createSfx")}</button>
             <Why on={blocked} id="u-why-create" text={why} />
+            <ConnectLink />
           </>;
         })()}
         <button type="button" className="u-link" onClick={() => setStem(null)}>{t("verb.cancel")}</button>
@@ -1109,6 +1142,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           </button>}
           <button type="button" className="u-primary" data-final-go="" disabled={Boolean(finGoWhy)} aria-describedby={finGoWhy ? "u-why-final-go" : undefined} onClick={runFinal}>{t("finaliser.go", { credits: num(finQuote?.credits ?? 0) })}</button>
           <Why on={Boolean(finGoWhy)} id="u-why-final-go" text={finGoWhy} />
+          <ConnectLink />
           {finPhase.phase === "fail" && <p className="u-why" role="alert">{t("finaliser.fail", { message: finPhase.message })}</p>}
         </>}
         {finPhase.phase === "prepare" && <>

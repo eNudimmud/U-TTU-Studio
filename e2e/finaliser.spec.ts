@@ -11,7 +11,7 @@ async function shot(page: Page, name: string, project: string) {
   await page.screenshot({ path: `${SHOTS}/${project}-${name}.png` });
 }
 
-test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mon studio", async ({ page }, info) => {
+test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mes créations", async ({ page }, info) => {
   const project = info.project.name;
   let balanceCents = 50_000;
   let release = false;
@@ -80,7 +80,7 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mon stud
   await shot(page, "4-en-cours", project);
   release = true;
 
-  await expect(sheet.getByRole("status")).toHaveText("Montage finalisé, enregistré dans Mon studio.", { timeout: 60_000 });
+  await expect(sheet.getByRole("status")).toHaveText("Montage finalisé, enregistré dans Mes créations.", { timeout: 60_000 });
   await expect(sheet.locator("video.u-final-video")).toBeVisible();
   await page.waitForFunction(() => {
     const video = document.querySelector<HTMLVideoElement>("video.u-final-video");

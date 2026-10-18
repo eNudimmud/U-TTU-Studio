@@ -25,7 +25,10 @@ function markOf(kind: AssetKind): MarkKind {
   return "note";
 }
 
-export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh, onImport, onRename, onDuplicate, onDelete, onCopy, onUseRef, onPrise, onMontage, onEmptyDecor, projects = [] }: {
+/** Mes créations type tabs: what each tab keeps. */
+export type LibraryType = "tout" | "images" | "videos" | "3d" | "sons" | "personnages" | "lieux" | "prises";
+
+export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh, onImport, onRename, onDuplicate, onDelete, onCopy, onUseRef, onPrise, onMontage, onEmptyDecor, projects = [], type, dense = false, sort = "recent", title }: {
   assets: AssetRecord[];
   media: Record<string, string>;
   defaultFilter?: AssetFilter;
@@ -40,6 +43,11 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
   onMontage?(asset: AssetRecord): void;
   onEmptyDecor?(): void;
   projects?: { slug: string; name: string }[];
+  /** Set by Mes créations: its type tabs replace the kind filter row. */
+  type?: LibraryType;
+  dense?: boolean;
+  sort?: "recent" | "nom";
+  title?: string;
 }) {
   const { t } = useI18n();
   const [filter, setFilter] = useState<AssetFilter>(defaultFilter);
@@ -61,6 +69,8 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     setPreview(extra);
     const outil = params.get("suite");
     if (outil) setSuiteInitial(outil as Parameters<typeof EtEnsuite>[0]["initial"]);
+    const item = params.get("item");
+    if (item && [...extra, ...assets].some(card => card.id === item)) setOpen(item);
     if (params.get("detail") === "1") {
       const first = extra[0] ?? assets[0];
       if (first) setOpen(first.id);
@@ -74,8 +84,26 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
   // R10: a card with no file behind it (a décor named but never rendered) is not an asset yet.
   // It stays in DÉCOR; the gallery only shows what can be seen or heard.
   const visible = useMemo(() => [...assets, ...preview].filter(card => srcOf(card)), [assets, preview, media]);
-  const hidden = assets.filter(card => card.kind === "decor" && card.geste !== "repere" && !srcOf(card)).length;
-  const rows = useMemo(() => filterAssets(visible, filter, query), [visible, filter, query]);
+  // Only a real place waiting for its image counts: one with a description to create from.
+  // Empty drafts and demo cards never trigger « … attend dans DÉCOR » on an empty studio.
+  const hidden = assets.filter(card => card.kind === "decor" && card.geste !== "repere" && !card.id.startsWith("demo-") && card.prompt.trim().length > 0 && !srcOf(card)).length;
+  const rows = useMemo(() => {
+    const kept = type ? visible.filter(card => ofType(card, type)) : filterAssets(visible, filter, "");
+    const found = filterAssets(kept, "tout", query);
+    return sort === "nom" ? [...found].sort((a, b) => a.name.localeCompare(b.name)) : type ? [...found].sort((a, b) => (b.at || "").localeCompare(a.at || "")) : found;
+  }, [visible, filter, query, type, sort]);
+
+  function ofType(card: AssetRecord, wanted: LibraryType): boolean {
+    if (wanted === "tout") return true;
+    if (wanted === "personnages") return card.kind === "personnage";
+    if (wanted === "lieux") return card.kind === "decor";
+    if (wanted === "prises") return card.kind === "plan";
+    if (card.kind === "personnage" || card.kind === "decor" || card.kind === "plan") return false;
+    if (wanted === "3d") return isModel(card);
+    if (wanted === "sons") return isAudio(card) || card.kind === "son";
+    if (wanted === "videos") return isVideo(card);
+    return !isModel(card) && !isAudio(card) && !isVideo(card) && card.kind !== "son";
+  }
   const current = rows.find(item => item.id === open) ?? null;
 
   function toggle(id: string) {
@@ -99,13 +127,13 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
 
   return <section className="u-assets" data-selecting={selecting || undefined} aria-labelledby="u-assets-title">
     <div className="u-assets-bar">
-      <h2 id="u-assets-title" className="u-label">{t("create.gallery")}</h2>
+      <h2 id="u-assets-title" className="u-label">{title ?? t("create.gallery")}</h2>
       <p className="u-assets-count" data-asset-count={rows.length}>{t("assets.count", { count: rows.length })}</p>
       <button type="button" className="u-assets-select" aria-pressed={selecting} onClick={() => setSelecting(current => !current)}>{t("assets.select")}</button>
     </div>
-    <div className="u-filter" role="group" aria-label={t("assets.search")}>
+    {!type && <div className="u-filter" role="group" aria-label={t("assets.search")}>
       {FILTERS.map(item => <button key={item.id} type="button" aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{t(item.key)}</button>)}
-    </div>
+    </div>}
     <div className="u-assets-tools">
       <button type="button" className="u-icon" aria-pressed={searchOpen} aria-label={t("assets.search")} onClick={() => setSearchOpen(current => !current)}><Search /></button>
       {searchOpen && <input className="u-search" value={query} placeholder={t("assets.search")} aria-label={t("assets.search")} onChange={event => setQuery(event.target.value)} />}
@@ -116,8 +144,8 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       {onRefresh && <button type="button" className="u-icon" aria-label={t("assets.refresh")} onClick={onRefresh}><Refresh /></button>}
     </div>
     {hidden > 0 && onEmptyDecor && <div className="u-gallery-hidden" data-sans-image={hidden}>
-      <span>{hidden === 1 ? "1 lieu sans image attend dans DÉCOR." : `${hidden} lieux sans image attendent dans DÉCOR.`}</span>
-      <button type="button" onClick={onEmptyDecor}>Les créer</button>
+      <span>{hidden === 1 ? t("assets.sansImageOne") : t("assets.sansImageMany", { count: hidden })}</span>
+      <button type="button" onClick={onEmptyDecor}>{t("assets.sansImageGo")}</button>
     </div>}
     {picked.length > 0 && <p className="u-small">{t("assets.selected", { count: picked.length })}</p>}
     {current && <article className="u-detail u-asset-detail">
@@ -131,7 +159,8 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         <div><dt>{t("assets.date")}</dt><dd>{current.at || t("assets.none")}</dd></div>
         <div><dt>{t("assets.path")}</dt><dd>{current.media || current.preview || t("assets.none")}</dd></div>
       </dl>
-      <div className="u-card-actions">
+      {type && <p className="u-label u-item-label">{t("creations.use")}</p>}
+      <div className="u-card-actions" data-item-use="">
         {isVideo(current) && !current.preview && <a href={srcOf(current)} download={current.media.split("/").pop()}>{t("previs.downloadClip")}</a>}
         {onUseRef && !isModel(current) && !isAudio(current) && !isVideo(current) && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
         {onPrise && (current.kind === "personnage" || current.kind === "decor") && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
@@ -148,9 +177,11 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         source={{ kind: isVideo(current) ? "video" : "image", url: srcOf(current), name: current.id, path: current.preview ? undefined : current.media || undefined }}
         onPrise={onPrise && (current.kind === "personnage" || current.kind === "decor") ? () => onPrise(current) : undefined}
         initial={suiteInitial}
+        defaultOpen
+        grouped={Boolean(type)}
       />}
     </article>}
-    {rows.length === 0 ? <p className="u-small">{t("assets.empty")}</p> : <div className="u-gallery u-asset-grid">
+    {rows.length === 0 ? <p className="u-small" data-assets-empty="">{type && type !== "tout" ? t("creations.empty") : t("assets.empty")}</p> : <div className="u-gallery u-asset-grid" data-density={dense ? "dense" : undefined}>
       {rows.map(card => {
         const src = srcOf(card);
         const selected = picked.includes(card.id);

@@ -1,21 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { formatCredits } from "@/lib/credits";
 import { liftDelta } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
 import { chooseEdit, editHasClips } from "@/lib/montage/from-takes";
 import { priseReady } from "@/lib/stage";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
-import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
-import { Coffre } from "./glyphs";
+import { useI18n } from "@/components/i18n/provider";
 import { MontageStage } from "./montage-stage";
 import { FormatProvider } from "./format-switch";
 import { CastStage, DecorStage, PriseStage } from "./stage-screens";
+import { outilFromHash, OutilsHub } from "./outils-hub";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
-import { Brand } from "@/components/brand";
+import { StudioSplash } from "./splash";
+import { TopBar } from "./top-bar";
+import { AssistantPanel } from "./assistant-panel";
 
 const STEPS: { id: "lora" | "scene" | "prise" | "montage"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" }[] = [
   { id: "lora", key: "nav.character" },
@@ -31,9 +32,10 @@ export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
 function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, cast, decor, line, loadMontages, studio: vault } = studio;
+  const { ready, sheet, notice, setNotice, run, cast, decor, line, loadMontages, studio: vault } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
   const [cutReady, setCutReady] = useState<boolean | null>(null);
+  const [outil, setOutil] = useState<string | null>(null);
 
   useEffect(() => {
     const apply = () => {
@@ -43,6 +45,11 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
         return;
       }
       if (place) setAsked(place);
+      setOutil(place === "outils" ? outilFromHash(window.location.hash) : null);
+      if (place === "outils") {
+        window.scrollTo({ top: 0, behavior: "instant" });
+        requestAnimationFrame(() => (document.getElementById("u-title") ?? document.querySelector<HTMLElement>("[data-tool-panel] h1"))?.focus({ preventScroll: true }));
+      }
     };
     apply();
     window.addEventListener("hashchange", apply);
@@ -53,11 +60,12 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const decorOk = decor.some(card => Boolean(card.sheet || card.preview || card.geste === "repere"));
   const priseOk = vault.takes.length > 0 || vault.shots.some(shot => Boolean(shot.composeur)) || priseReady({ cast: castOk, decor: decorOk, line });
   const tab: Tab = asked ?? "lora";
-  const section: "lora" | "scene" | "prise" | "montage" = tab === "scene" || tab === "prise" || tab === "montage" ? tab : "lora";
+  const section: "lora" | "scene" | "prise" | "montage" | "outils" = tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
 
   const go = useCallback((next: Tab) => {
     const shown: Tab = next === "look" || next === "fiches" || next === "sphere" ? "lora" : next;
     setAsked(shown);
+    setOutil(null);
     const hash = TAB_HASH[shown];
     const url = `${window.location.pathname}${window.location.search}#${hash}`;
     if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== url) window.history.pushState(null, "", url);
@@ -132,23 +140,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     prise: priseOk,
     montage: cutReady === true,
   };
-  const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
 
   return <FormatProvider><div className="u-app" data-studio={section}>
-    <header className="u-top">
-      <Brand className="u-mark" href={assetPath("/studio#personnage")} />
-      <div className="u-top-project">
-        {vault.projectName && <p className="u-project-name">{vault.projectName}</p>}
-      </div>
-      <div className="u-top-tools">
-        <a className="u-coffre" href={assetPath("/mon-studio")} aria-label={t("nav.studio")}><Coffre /><span className="u-tool-label">{t("nav.studio")}</span></a>
-        <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })}>
-          <span className="u-tool-full">{t("sheet.walletTitle")}</span>
-          <span className="u-tool-short">{t("stage.creditsShort")}</span>
-        </button>
-        <LanguageSwitcher />
-      </div>
-    </header>
+    <TopBar place={section === "montage" ? "montage" : section === "outils" ? "creer" : "realiser"} />
     <nav className="u-chain" aria-label={t("nav.chain")}>
       {STEPS.map(step => <button key={step.id} type="button" aria-current={section === step.id ? "page" : undefined} data-state={marks[step.id] ? "pret" : "vide"} onClick={() => go(step.id)}>
         <span>{t(step.key)}</span>
@@ -157,8 +151,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       </button>)}
     </nav>
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
-      {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p> : <>
-        {section === "scene" ? <DecorStage onPrise={() => go("prise")} />
+      {!ready ? <StudioSplash /> : <>
+        {section === "outils" ? <OutilsHub tool={outil} />
+          : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
           : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
           : section === "montage" ? <MontageStage onFilled={setCutReady} />
           : <CastStage onDecor={() => go("scene")} />}
@@ -166,6 +161,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     </main>
     {/* PRISE and MONTAGE show the notice inline (near the action / under the header); the floating toast stays for other tabs and over sheets. */}
     {notice && !((section === "prise" || section === "montage") && !studio.sheet) && <p className="u-toast" role="status" onClick={() => setNotice("")}>{say(notice)}</p>}
+    <AssistantPanel />
     {sheet === "credits" && <CreditSheet />}
     {sheet === "connect" && <ConnectSheet />}
     {sheet === "confirm" && <ConfirmTake />}

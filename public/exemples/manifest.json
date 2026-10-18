@@ -75,18 +75,6 @@
       "licenseUrl": ""
     },
     {
-      "id": "cast-uttu",
-      "file": "/exemples/cast-uttu.webp",
-      "kind": "cast",
-      "aspect": "portrait",
-      "statut": "maison",
-      "title": "Uttu",
-      "prompt": "Une femme au manteau sombre, regard calme.",
-      "source": "public/images/uttu-canon-portrait.webp",
-      "license": "Personnage fictif du dépôt",
-      "licenseUrl": ""
-    },
-    {
       "id": "cast-coursiere",
       "file": "/exemples/cast-coursiere.webp",
       "kind": "cast",
@@ -120,18 +108,6 @@
       "prompt": "Un DJ, planche de vues, personnage fictif.",
       "source": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
       "license": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
-      "licenseUrl": ""
-    },
-    {
-      "id": "cast-uttu-planche",
-      "file": "/exemples/cast-uttu-planche.webp",
-      "kind": "cast",
-      "aspect": "21:9",
-      "statut": "maison",
-      "title": "Uttu, planche de vues (face, trois-quarts, dos)",
-      "prompt": "Turnaround face / trois-quarts / dos depuis la fiche officielle d’Uttu (2 références : fiche officielle + mise en page). Badge « NEUKO » retouché à la main.",
-      "source": "Rendu maison U*TTU, généré avec Nano Banana Pro (Gemini 3 Pro Image) via Comfy Cloud, 62,59 crédits, 4K 21:9 ; badge NEUKO retouché",
-      "license": "Rendu maison U*TTU, généré avec Nano Banana Pro via Comfy Cloud",
       "licenseUrl": ""
     }
   ]

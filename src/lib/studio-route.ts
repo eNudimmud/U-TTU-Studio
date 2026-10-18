@@ -2,7 +2,7 @@
 // Old links still land: #creer and #look open the photos, #lora and #rôle
 // open Personnage, #plateau and #decor the scene, #take the take.
 
-export type Tab = "look" | "lora" | "scene" | "prise" | "montage" | "sphere" | "fiches";
+export type Tab = "look" | "lora" | "scene" | "prise" | "montage" | "sphere" | "fiches" | "outils";
 
 const ALIASES: Record<string, Tab> = {
   look: "look", photos: "look", creer: "look", créer: "look", style: "look", identite: "look", identité: "look",
@@ -12,6 +12,7 @@ const ALIASES: Record<string, Tab> = {
   montage: "montage", monter: "montage", edit: "montage",
   sphere: "sphere", sphère: "sphere", bibliotheque: "sphere", bibliothèque: "sphere",
   fiches: "fiches", fiche: "fiches",
+  outils: "outils", outil: "outils", tools: "outils", werkzeuge: "outils", herramientas: "outils",
 };
 
 /** Hash written when the adherent opens a place from the chain. */
@@ -23,11 +24,12 @@ export const TAB_HASH: Record<Tab, string> = {
   montage: "montage",
   sphere: "sphere",
   fiches: "fiches",
+  outils: "outils",
 };
 
 /** The place a link asks for, or null when it asks for none. */
 export function tabFromLocation(hash: string, search: string): Tab | "compte" | null {
-  const raw = decodeURIComponent(hash.replace(/^#/, "").split(/[?&]/)[0] ?? "").trim().toLowerCase();
+  const raw = decodeURIComponent(hash.replace(/^#/, "").split(/[?&/]/)[0] ?? "").trim().toLowerCase();
   if (raw === "compte") return "compte";
   if (raw && ALIASES[raw]) return ALIASES[raw];
   const step = new URLSearchParams(search).get("step")?.trim().toLowerCase() ?? "";

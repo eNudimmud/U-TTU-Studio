@@ -1,5 +1,7 @@
 "use client";
 
+import { OutilsEntry, OutilsStrip } from "./outils-hub";
+import { ConnectLink } from "./connect-link";
 import { useEffect, useState, type ReactNode } from "react";
 import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
 import { DEPARTS, montrerDepart } from "@/lib/creation/depart";
@@ -179,18 +181,11 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const missingTenue = casesVisibles(row).some(item => item.role === "tenue" && !refs.some(ref => ref.caseId === item.id));
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : missingTenue ? t("gestes.needOutfit") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
   const preview = refs.find(ref => ref.url)?.url ?? "";
-  const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
-  const depart = montrerDepart({ mesAssets: cast.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
   const ceiling = amount !== null && high !== null
     ? t(row.nature === "mesure" ? "create.ceilingMeasured" : "create.ceilingHyp", { high })
     : "";
 
 
-  function voirExemple(geste: string) {
-    setGesteId(geste);
-    setGalleryOpen(false);
-    requestAnimationFrame(() => document.querySelector(".u-depart, .u-result-frame")?.scrollIntoView({ block: "center", behavior: "smooth" }));
-  }
 
   async function loadExemple(geste: string) {
     const pair = EXEMPLE_PAR_GESTE[geste];
@@ -237,7 +232,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     section="cast"
     galleryOpen={galleryOpen}
     onGallery={setGalleryOpen}
-    gestures={<GestePicker onglet="cast" value={gesteId} onChange={setGesteId} examples={["cast-photos", "cast-planche", "cast-texte"]} onExample={voirExemple} onStart={id => void loadExemple(id)} />}
+    gestures={<GestePicker onglet="cast" value={gesteId} onChange={setGesteId} examples={["cast-photos", "cast-planche", "cast-texte"]} onStart={id => void loadExemple(id)} />}
     gallery={<ProjectGallery defaultFilter="personnage" onUseRef={asset => {
       const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
       setRefs(list => placeAsset(gesteId, list, asset, url));
@@ -250,7 +245,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <label className="u-secondary">{t("p0.importCast")}<input className="sr-only" type="file" accept="image/*" aria-label={t("p0.importCastAria")} disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "personnage"); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
-      {depart && <ExempleDepart etape="cast" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.cast.geste)} />}
+      <OutilsEntry />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>
@@ -260,9 +255,10 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         <span className="u-label">{t("create.prompt")}</span>
         <textarea value={prompt} rows={3} maxLength={800} placeholder={t("create.castPromptPh")} onChange={event => describe(event.target.value)} />
       </label>
-      {!depart && (apres || preview) && <div className="u-result-frame" data-ratio="3/4">
-        <img src={apres || preview} alt="" />
+      {preview && <div className="u-result-frame" data-ratio="3/4">
+        <img src={preview} alt="" />
       </div>}
+      <OutilsStrip onglet="cast" />
     </div>
     <div className="u-create-bar">
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
@@ -271,6 +267,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         </button>
         {ceiling && <p className="u-ceiling">{ceiling}</p>}
         <Why on={blocked} id="u-why-cast" text={why} />
+        {blocked && <ConnectLink />}
       </>}
     </div>
   </Desk>;
@@ -328,11 +325,6 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const ceiling = amount !== null && high !== null ? t("create.ceilingHyp", { high }) : "";
 
 
-  function voirExemple(geste: string) {
-    setGesteId(geste);
-    setGalleryOpen(false);
-    requestAnimationFrame(() => document.querySelector(".u-depart, .u-result-frame")?.scrollIntoView({ block: "center", behavior: "smooth" }));
-  }
 
   async function loadExemple(geste: string) {
     const pair = EXEMPLE_PAR_GESTE[geste];
@@ -363,7 +355,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     section="decor"
     galleryOpen={galleryOpen}
     onGallery={setGalleryOpen}
-    gestures={<GestePicker onglet="decor" value={gesteId} onChange={setGesteId} examples={["decor-photo", "decor-heure", "decor-texte"]} onExample={voirExemple} onStart={id => void loadExemple(id)} />}
+    gestures={<GestePicker onglet="decor" value={gesteId} onChange={setGesteId} examples={["decor-photo", "decor-heure", "decor-texte"]} onStart={id => void loadExemple(id)} />}
     gallery={<ProjectGallery defaultFilter="decor" onUseRef={asset => {
       const url = asset.preview ? assetPath(asset.preview) : (asset.media && media[asset.media]) || "";
       setRefs(list => placeAsset(gesteId, list, asset, url));
@@ -410,6 +402,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       {!depart && (apres || preview) && <div className="u-result-frame">
         <img src={apres || preview} alt="" />
       </div>}
+      <OutilsStrip onglet="decor" />
     </div>
     <div className="u-create-bar">
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
@@ -418,6 +411,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         </button>
         {ceiling && <p className="u-ceiling">{ceiling}</p>}
         <Why on={blocked} id="u-why-decor" text={why} />
+        {blocked && <ConnectLink />}
       </>}
     </div>
   </Desk>;

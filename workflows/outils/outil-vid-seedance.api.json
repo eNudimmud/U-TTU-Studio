@@ -1,0 +1,50 @@
+{
+  "12": {
+    "inputs": {
+      "image": "uttu-1.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "16": {
+    "inputs": {
+      "filename_prefix": "video/uttu-vid-seedance",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "24",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save Video"
+    }
+  },
+  "24": {
+    "inputs": {
+      "model": "Seedance 2.5",
+      "model.prompt": "<texte du visiteur>",
+      "model.resolution": "720p",
+      "model.ratio": "adaptive",
+      "model.duration": 5,
+      "model.generate_audio": true,
+      "model.task_type": "reference",
+      "model.output_format": "mp4",
+      "model.auto_downscale": true,
+      "model.auto_upscale": false,
+      "model.reference_images.image_1": [
+        "12",
+        0
+      ],
+      "seed": 0,
+      "watermark": false
+    },
+    "class_type": "ByteDance2ReferenceNodeV2",
+    "_meta": {
+      "title": "ByteDance Seedance 2.5 Reference to Video"
+    }
+  }
+}

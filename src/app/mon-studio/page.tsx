@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
 import { AtelierPage } from "@/components/app/atelier-page";
-import { siteOrigin } from "@/lib/site";
+import { routeMetadata } from "@/lib/route-meta";
 
-export const metadata: Metadata = {
-  title: "Mon studio — U*TTU",
-  description: "Personnages, lieux, prises et notes, sur cet appareil.",
-  robots: { index: false },
-  ...(siteOrigin ? { alternates: { canonical: `${siteOrigin}/mon-studio` } } : {}),
-};
+export const metadata: Metadata = routeMetadata("creations", { robots: { index: false } });
 
 export default function MonStudioPage() {
   return <AtelierPage />;

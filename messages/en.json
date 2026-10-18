@@ -17,7 +17,7 @@
     "chain": "Cast, set, take, edit",
     "sphere": "Sphere",
     "sheets": "Sheets",
-    "studio": "My studio",
+    "studio": "My creations",
     "connect": "Connect",
     "credits": "credits",
     "opening": "Opening my studio…",
@@ -39,7 +39,7 @@
     "yourPlace": "A set",
     "theVideo": "The video",
     "quiet": "The studio sells nothing. The render is paid on your cloud account.",
-    "alt": "Studio preview: the shot list, the shot preview and the Shoot button with its estimated cost.",
+    "alt": "Studio preview: shot 01 on the quay at night, the characters, the sentence “The courier walks along the quay, handheld camera”, what the studio understood and the assistant’s note.",
     "caption": "The studio · a shot, its preview, its cost",
     "contact": "Contact the studio ↗",
     "poweredBy": "Powered by ComfyUI",
@@ -108,7 +108,7 @@
   "engine": {
     "comfy": {
       "label": "References",
-      "detail": "The photos in my studio go out with every take.",
+      "detail": "The photos in my creations go out with every take.",
       "sound": "The sound is in the take."
     }
   },
@@ -134,9 +134,9 @@
     "cast": "Cast",
     "places": "Set",
     "takes": "Take",
-    "noCharacter": "No character in my studio",
-    "noPlace": "No location in my studio",
-    "noTake": "No take in my studio"
+    "noCharacter": "No character in my creations",
+    "noPlace": "No location in my creations",
+    "noTake": "No take in my creations"
   },
   "look": {
     "kicker": "Character · References",
@@ -190,7 +190,7 @@
     "thePlace": "The location",
     "thePlaceBody": "It stays. You reopen it: same name, same layout, same path. You can hold several.",
     "blenderBody": "It renders the empty location, {frames} images along the path. The character is not in this file.",
-    "theCharacterBody": "It is the file in my studio. It enters only the filmed path, after these images.",
+    "theCharacterBody": "It is the file in my creations. It enters only the filmed path, after these images.",
     "thePrice": "The price",
     "thePriceBody": "Both quotes are read before the gesture. Nothing leaves without confirmation.",
     "plan": "Layout",
@@ -258,7 +258,7 @@
     "drag": "Move {name}",
     "dragHandle": "Move",
     "end": "End of the sequence.",
-    "listNote": "The edit list is in My studio, next to the sequence. No film is assembled.",
+    "listNote": "The edit list is in My creations, next to the sequence. No film is assembled.",
     "listFile": "Edit list · {name}"
   },
   "shot": {
@@ -317,7 +317,7 @@
     "characterHeld": "{name} is back for this take.",
     "runningRender": "Your render account is computing.",
     "stay": "You can stay here or come back later: the take joins my studio.",
-    "inSphere": "This take is in the sphere and in my studio.",
+    "inSphere": "This take is in the sphere and in my creations.",
     "debitedRender": "Charged: {amount} credits, read on your balance.",
     "debitHiddenRender": "Charge not yet visible on your balance.",
     "filed": "Filed in this project.",
@@ -395,7 +395,7 @@
     "noSend": "Nothing leaves from here. A take’s text is read on the take, before Shoot.",
     "references": {
       "name": "Take · References",
-      "sentence": "The photos in my studio become a take, with the sound.",
+      "sentence": "The photos in my creations become a take, with the sound.",
       "inputs": [
         "Two photos, a name. Two traits, if you have them.",
         "A location",
@@ -405,7 +405,7 @@
     },
     "personnage": {
       "name": "Take · Character",
-      "sentence": "The photos in my studio hold the character, from one take to the next, with the sound.",
+      "sentence": "The photos in my creations hold the character, from one take to the next, with the sound.",
       "inputs": [
         "The character photos",
         "A location",
@@ -434,7 +434,7 @@
     "opening": "Opening the account…",
     "kicker": "Account · optional",
     "title": "The studio does not need one.",
-    "body": "Your references, your locations and your takes live in my studio, on your device. The compute runs on your render account. This U*TTU account keeps none of that.",
+    "body": "Your references, your locations and your takes live in my creations, on your device. The compute runs on your render account. This U*TTU account keeps none of that.",
     "closed": "U*TTU accounts are closed for now.",
     "signIn": "Sign in",
     "signUp": "Create an account",
@@ -542,7 +542,7 @@
     "relierTitle": "Connect",
     "referencesPays": "It pays « {engine} » takes.",
     "confirmFilm": "Film this path?",
-    "filmBody": "Blender renders the empty location, along the path. The character is the file in my studio: it enters only the filmed path. If no image comes back, none is shown.",
+    "filmBody": "Blender renders the empty location, along the path. The character is the file in my creations: it enters only the filmed path. If no image comes back, none is shown.",
     "filmDebit": "Film · charge on my account",
     "blenderLinked": "The job key is on this device. It goes only to Farpy, when you film.",
     "blenderIntro": "Farpy runs Blender, off your device. Create an account, add credit, then a job key. It starts with farpy_agent_. An account key does not start the render.",
@@ -552,12 +552,12 @@
     "styleSteps": "1000 steps · style",
     "price": "Price",
     "confirmStill": "Generate a still of this location?",
-    "placeFile": "Location file, in my studio",
+    "placeFile": "Location file, in my creations",
     "buildDebit": "Generate still · the quote is read first",
     "shot": "Filmed",
     "debit": "Charge",
     "compute": "Compute",
-    "removeFromStudio": "Remove from my studio",
+    "removeFromStudio": "Remove from my creations",
     "file": "Trained file",
     "reread": "Read the balance again",
     "session": "Session already open",
@@ -568,7 +568,7 @@
   "memory": {
     "title": "This project",
     "lead": "Bible, style, lexicon and prompts of {name}. Nothing is sent from here.",
-    "noProject": "No current project. Create it in My studio. Nothing is invented here.",
+    "noProject": "No current project. Create it in My creations. Nothing is invented here.",
     "open": "Bible, style, lexicon, prompts",
     "bible": "Bible",
     "style": "Style",
@@ -656,23 +656,23 @@
     "imageUnread": "An image could not be read.",
     "viewUnread": "A view could not be read.",
     "missingCharacterFile": "A character file is missing.",
-    "characterFileMissing": "The character file is missing from my studio.",
-    "referencePhotosMissing": "The reference photos are missing from my studio.",
-    "filmedStillMissing": "The filmed image is missing from my studio.",
+    "characterFileMissing": "The character file is missing from my creations.",
+    "referencePhotosMissing": "The reference photos are missing from my creations.",
+    "filmedStillMissing": "The filmed image is missing from my creations.",
     "planFilmed": "The path is filmed. Blender rendered the empty location. The character is in the take.",
     "characterNotOnPath": "The character is not on the path.",
-    "pathImageMissing": "A path image is missing from my studio.",
+    "pathImageMissing": "A path image is missing from my creations.",
     "placeRenderedResume": "The location is rendered. The character follow resumes. Nothing is sent again.",
     "placeEmptyNext": "The location is rendered, empty. The next gesture films the character.",
     "followStopped": "Follow stopped here. If the render has already left, it continues on your account.",
     "filmFailed": "The filming did not finish.",
     "clipsMaxNotice": "Thirty clips at most.",
     "clipType": "This clip is not an mp4, mov, mkv or avi video.",
-    "clipOrPhotoMissing": "A clip or a photo is missing from my studio.",
+    "clipOrPhotoMissing": "A clip or a photo is missing from my creations.",
     "zipClosed": "This ZIP does not open.",
     "zipEmpty": "This ZIP has no studio to add.",
-    "viewMissing": "A view is missing from my studio.",
-    "placeFiled": "The location is in my studio. This file is not a volume: the location’s Blender file stays the 3D model.",
+    "viewMissing": "A view is missing from my creations.",
+    "placeFiled": "The location is in my creations. This file is not a volume: the location’s Blender file stays the 3D model.",
     "placeImageFailed": "The location image did not finish.",
     "clipUnreadable": "Clip unreadable on this device.",
     "clipHeavy": "Clip too heavy: 300 MB at most.",
@@ -702,8 +702,8 @@
     "clipsCeiling": "{max} clips at most.",
     "clipShort": "Clip too short: at least {min} s.",
     "clipLong": "Clip too long: {max} s at most.",
-    "importedOne": "Added to my studio: {count} file. Takes and characters already here stay.",
-    "importedMany": "Added to my studio: {count} files. Takes and characters already here stay.",
+    "importedOne": "Added to my creations: {count} file. Takes and characters already here stay.",
+    "importedMany": "Added to my creations: {count} files. Takes and characters already here stay.",
     "folderCopied": "{count} files copied into « {name} ». The folder follows the studio until it closes.",
     "estimateQuote": "Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
     "estimateLow": "Balance too low: {have} credits. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
@@ -818,11 +818,11 @@
     "castPromptPh": "A woman in a dark coat, a calm look.",
     "views": "Front, three-quarter, profile, full length.",
     "name": "Name",
-    "castButton": "Create the character · about {amount} credits",
-    "decorButton": "Create the set · about {amount} credits",
+    "castButton": "Create the character · ≈ {amount} cr. estimated",
+    "decorButton": "Create the location · ≈ {amount} cr. estimated",
     "castButtonClosed": "Create the character",
     "decorButtonClosed": "Create the set",
-    "ceilingHyp": "Recommended reserve: {high} credits (estimate).",
+    "ceilingHyp": "Reserve: {high} cr.",
     "ceilingMeasured": "Recommended reserve: {high} credits (measured).",
     "quoteLead": "Quote: {quote} · {status}",
     "quoteUnknown": "Quote: unknown",
@@ -890,14 +890,14 @@
     "voiceLead": "A voice from a text. The quote is a hypothesis.",
     "sfxLead": "A sound effect from a text. The quote is a hypothesis.",
     "musicLead": "Thirty seconds of music from a text. The quote is a hypothesis.",
-    "musicQuote": "Hypothesis · about {amount} credits for {seconds} seconds. Recommended reserve: {high} credits (estimate).",
+    "musicQuote": "≈ {amount} cr. estimated for {seconds} s · reserve {high} cr.",
     "musicRate": "Hypothesis · about 16 credits for 30 seconds.",
     "createMusic": "Create the music",
     "addMusic": "Add music",
     "needScript": "Write the text.",
-    "voiceQuote": "Hypothesis · about {amount} credits for {count} characters. Recommended reserve: {high} credits (estimate).",
+    "voiceQuote": "≈ {amount} cr. estimated for {count} characters · reserve {high} cr.",
     "voiceRate": "Hypothesis · about 24.1 credits per 1,000 characters.",
-    "sfxQuote": "Hypothesis · about {amount} credits for {seconds} seconds. Recommended reserve: {high} credits (estimate).",
+    "sfxQuote": "≈ {amount} cr. estimated for {seconds} s · reserve {high} cr.",
     "sfxRate": "Hypothesis · about 29.5 credits per minute.",
     "createOff": "The quote is not measured. Nothing is sent.",
     "createVoice": "Create the voice",
@@ -922,7 +922,7 @@
     "playhead": "Playhead",
     "fromTake": "Place {name} on effects",
     "addTake": "Add {name}",
-    "savedHint": "Shot length: {time}. The edit is written in My studio.",
+    "savedHint": "Shot length: {time}. The edit is written in My creations.",
     "exportShort": "Export",
     "more": "More",
     "clearAsk": "Clear this edit? The shots and sounds leave the timeline.",
@@ -965,7 +965,8 @@
     "stays": "Nothing leaves this device. The studio keeps nothing.",
     "auto": "What you create in the studio is filed here on its own.",
     "projects": "Projects",
-    "close": "Close"
+    "close": "Close",
+    "vaultTitle": "Your Obsidian folder"
   },
   "gestes": {
     "ask": "What do you want to do?",
@@ -1201,7 +1202,7 @@
       "quiet": "Edit"
     },
     "suiteFinaliserImage": {
-      "title": "Finish",
+      "title": "Enhance image",
       "phrase": "Sharper and twice as large. The image is restored, never redone.",
       "quiet": "Finish"
     },
@@ -1221,7 +1222,7 @@
       "quiet": "Animate"
     },
     "suiteFinaliserVideo": {
-      "title": "Finish",
+      "title": "Enhance video",
       "phrase": "Restores the take in 1080p, without changing the motion. Nothing is redone.",
       "quiet": "Finish"
     },
@@ -1287,7 +1288,10 @@
     "empty": "No asset.",
     "none": "—",
     "credits": "{amount} credits",
-    "estimate": "Quote {amount}"
+    "estimate": "Quote {amount}",
+    "sansImageOne": "1 place without an image is waiting in Set.",
+    "sansImageMany": "{count} places without an image are waiting in Set.",
+    "sansImageGo": "Create them"
   },
   "r7": {
     "maquette": "Free sketch",
@@ -1353,7 +1357,7 @@
     "habillerWhy": "estimate to measure",
     "habillerQuote": "Quote before sending: ≈ {credits} credits (hypothesis, estimate to measure)",
     "credit": "© OpenStreetMap contributors, ODbL",
-    "saved": "Saved in My studio.",
+    "saved": "Saved in My creations.",
     "rate": "One search at a time.",
     "introuvable": "This place was not found.",
     "garderLieu": "Keep this place",
@@ -1396,7 +1400,7 @@
     "reacMontage": "Silent reaction"
   },
   "finaliser": {
-    "open": "Finalise",
+    "open": "Finish the edit",
     "title": "Finalise the edit",
     "lead": "One pass over the whole edit: more resolution and sharpness. Nothing is remade; sound and timing stay.",
     "resolution": "Resolution",
@@ -1424,21 +1428,22 @@
     "retour": "Fetching the video…",
     "mesure": "Reading the real cost…",
     "keepOpen": "Keep this tab open. The render runs to the end; it is never cancelled.",
-    "done": "Edit finalised, saved in My studio.",
+    "done": "Edit finalised, saved in My creations.",
     "cost": "Real cost: {credits} credits.",
     "costUnknown": "Real cost not readable on the balance yet.",
     "again": "Finalise differently",
     "fail": "Finalising did not work: {message}",
     "close": "Close",
     "download": "Download",
-    "openLead": "Open weights: the cut is restored in 1080p, never redone. Estimated per 5-second block."
+    "openLead": "Open weights: the cut is restored in 1080p, never redone. Estimated per 5-second block.",
+    "openShort": "Finish"
   },
   "depart": {
     "label": "Example — make it yours",
     "aria": "Start from the example {title}",
     "cast": "A real studio result. Tap it: photo, name and text fill in, you only change them.",
     "decor": "A real studio set. Tap it: the reference, name and gesture fill in.",
-    "prise": "Uttu on the quay, already framed. Tap it: character, set, framing and action fill in.",
+    "prise": "The courier on the quay, already framed. Tap it: character, set, framing and action fill in.",
     "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent."
   },
   "videoGeste": {
@@ -1465,7 +1470,7 @@
     "needFiles": "A file or the text is missing.",
     "needText": "The text is empty.",
     "needConfirm": "Tick the confirmation to run.",
-    "done": "Video saved in My studio.",
+    "done": "Video saved in My creations.",
     "slotPrevis": {
       "plan": "Look picture (character in the set)",
       "clip": "Previs (maquette video)"
@@ -1482,7 +1487,7 @@
     "touch": "One finger: orbit the camera, or move a person or a prop. Two fingers: pinch to get closer.",
     "agent": {
       "label": "Sentence → scene",
-      "placeholder": "Uttu and Kael in an alley at night, a car, two streetlights, push in",
+      "placeholder": "The courier and the old man in an alley at night, a car, two streetlights, push in",
       "go": "Lay out the scene",
       "why": "Write one sentence: who, which props, which move.",
       "people": "{n} character(s)",
@@ -1535,10 +1540,10 @@
     "savedModels": "Saved 3D models",
     "chooseModel": "Add a saved model…",
     "downloadModel": "Download the 3D model",
-    "modelFailed": "Unable to display “{name}”. The file remains available in My studio.",
+    "modelFailed": "Unable to display “{name}”. The file remains available in My creations.",
     "localClip": "Local preview",
     "localClipNote": "Free recording of the scene preview; this is not a generated take.",
-    "savedClip": "Preview saved in My studio.",
+    "savedClip": "Preview saved in My creations.",
     "downloadClip": "Download the video",
     "modelTerms": "Read the model license",
     "hunyuanTerms": "Hunyuan3D 2.1 has specific terms: its community license excludes the EU, the UK and South Korea. Check applicable rights with your provider before use."
@@ -1742,7 +1747,7 @@
       "nextWords": "Write what happens in shot {n}."
     },
     "quote": {
-      "estimated": "Estimated: {low} to {high} credits (an estimate, not a measurement).",
+      "estimated": "≈ {low} to {high} cr. estimated",
       "measured": "Measured: about {credits} credits, keep {high} (one real billed take).",
       "measuredBalance": "Measured on your takes: about {credits} credits.",
       "none": "No quote yet for this setting. Nothing is sent."
@@ -1777,14 +1782,19 @@
       "sentCamera": "Camera",
       "sentRaw": "Exact text sent",
       "castCount": "{count, plural, one {# character} other {# characters}}",
-      "whereAsset": "Result: filed in My studio and offered here. If it fails, nothing is replaced and the message says why.",
+      "whereAsset": "Result: filed in My creations and offered here. If it fails, nothing is replaced and the message says why.",
       "whereTake": "Filed in {plan} · take {n} of {total} (My studio › Takes). Other versions stay.",
       "whereTakeNext": "The take lands in TAKE, on its shot, without overwriting a kept take. If the tab closes, “Recover the render” finds it again.",
       "via": "Rendered on Comfy Cloud",
       "technical": "See the technical detail",
       "stepNow": "Step {n}/7 · {label}"
     },
-    "stillEmpty": "Choose who and where: the preview appears here."
+    "stillEmpty": "Choose who and where: the preview appears here.",
+    "groups": {
+      "maquette": "3D layout and framing",
+      "rendu": "Engine and length",
+      "previs": "Filmed previs"
+    }
   },
   "p1": {
     "hint": "One sentence is enough: who, where, what happens, the camera, the mood.",
@@ -1873,12 +1883,12 @@
       "states": "States",
       "shots": "{count, plural, =0 {no shot} one {# shot} other {# shots}}",
       "history": "History",
-      "saved": "Memory saved in My studio (.uttu/memoire.json and Memoire/)."
+      "saved": "Memory saved in My creations (.uttu/memoire.json and Memoire/)."
     },
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Scout a location",
+    "entryTitle": "Free 3D scouting",
     "entryLead": "A 3D city anywhere in the world, with real roofs in Switzerland and free street photos. Frame, pick the light, capture. Free, no credits.",
     "open": "Scout a location",
     "close": "Close scouting",
@@ -1960,7 +1970,7 @@
     "captureOff": "Pick a place first.",
     "captureWait": "Wait until the city is built.",
     "captureFail": "The capture could not be saved. Try again.",
-    "captured": "Framing kept in My studio, under DÉCOR: colour, depth and lines, with the camera and the credits. It is placed in the references.",
+    "captured": "Framing kept in My creations, under DÉCOR: colour, depth and lines, with the camera and the credits. It is placed in the references.",
     "quote": "To turn it into a set: ≈ {credits} credits, estimated (cap {high}). Nothing runs without your confirmation.",
     "again": "Another framing",
     "use": "See it in DÉCOR",
@@ -2015,7 +2025,7 @@
     "quote": "Estimated: about {credits} credits, suggested reserve {ceiling}. Not measured on a real render yet.",
     "safe": "The result is added to My studio. The original is never replaced.",
     "go": "Run · ≈ {credits} credits (estimated)",
-    "done": "Saved in My studio, next to the original.",
+    "done": "Saved in My creations, next to the original.",
     "intact": "The original is untouched.",
     "optional": "(optional)",
     "needVoice": "Add a voice (audio file).",
@@ -2041,7 +2051,7 @@
         "text": "What changes"
       },
       "suite-finaliser-image": {
-        "title": "Finish",
+        "title": "Enhance image",
         "phrase": "Sharper and twice as large. The image is restored, never redone."
       },
       "suite-detourer": {
@@ -2068,7 +2078,7 @@
         "text": "The scene and the tone"
       },
       "suite-finaliser-video": {
-        "title": "Finish",
+        "title": "Enhance video",
         "phrase": "Restores the take in 1080p, without changing the motion. Nothing is redone."
       },
       "suite-fluidifier": {
@@ -2082,5 +2092,464 @@
       }
     },
     "voicePick": "Choose an audio file"
+  },
+  "outils": {
+    "title": "Tools",
+    "entry": "What do you want to make?",
+    "entryLead": "{n} Comfy tools, grouped by family.",
+    "search": "Search tools",
+    "all": "All",
+    "fam": {
+      "creer": "Create",
+      "retoucher": "Retouch",
+      "video": "Video",
+      "3d": "3D",
+      "son": "Sound"
+    },
+    "sous": {
+      "image": "Image",
+      "video": "Video",
+      "3d": "3D",
+      "son": "Sound",
+      "texte": "Text"
+    },
+    "open": "Open",
+    "partner": "Partner",
+    "soon": "Soon",
+    "estimate": "estimated",
+    "cost": "≈ {credits} cr.",
+    "perBlock": "per 5 s",
+    "partnerPrice": "Partner price ≈ {credits} cr.",
+    "hidden": {
+      "nano": "Hidden: turn it on in your model settings.",
+      "openWeights": "Hidden: you chose “open weights only”."
+    },
+    "count": "{n} tools",
+    "none": "No tool matches.",
+    "back": "All tools",
+    "input": "Input",
+    "pick": "Choose or drop",
+    "replace": "Replace",
+    "sample": "Free sample",
+    "fromStudio": "From My studio",
+    "kind": {
+      "image": "an image",
+      "image2": "a second image (optional)",
+      "video": "a video",
+      "audio": "a sound"
+    },
+    "prompt": "Prompt",
+    "refs": "References",
+    "settings": "Settings",
+    "format": "Format",
+    "aspect": {
+      "horizontal": "Landscape",
+      "vertical": "Portrait"
+    },
+    "mesh": {
+      "objet": "Object",
+      "perso": "Character"
+    },
+    "confirm": "I confirm: ≈ {credits} cr. estimated · reserve {ceiling}. The final price may vary.",
+    "link": "Link my account",
+    "needInput": "Add {what} to start.",
+    "needConsent": "Confirm you may use this voice.",
+    "consent": "I may use this voice (mine or with written consent).",
+    "do": {
+      "image": "Create the image",
+      "video": "Create the video",
+      "audio": "Create the sound",
+      "mesh": "Create the 3D model"
+    },
+    "results": "Results",
+    "resultsEmpty": "Your results land here, with “What next?” open.",
+    "filter": {
+      "tout": "All",
+      "image": "Images",
+      "video": "Videos",
+      "audio": "Sounds",
+      "mesh": "3D"
+    },
+    "tabTools": "Tools for this tab",
+    "seeAll": "See all tools",
+    "openTool": "Open",
+    "download": "Download",
+    "busy": "A render is running.",
+    "why": {
+      "multi": "The multi-keyframe model needs a graph the studio cannot build yet.",
+      "h3Audio": "Timing a shot to sound needs an audio setting not yet checked.",
+      "entree3d": "It first needs a 3D model as input, not supported yet.",
+      "splat": "The studio cannot display a 3D splat yet.",
+      "clone": "Changing a voice awaits a dedicated consent flow.",
+      "texte": "The result is text; the studio only stores media for now.",
+      "masque": "It first needs a brush to paint the area to erase.",
+      "svg": "The studio cannot store or show an SVG file yet."
+    },
+    "t": {
+      "img-klein": {
+        "title": "Quick image",
+        "line": "An image from text, in seconds."
+      },
+      "img-qwen": {
+        "title": "Detailed image",
+        "line": "An image faithful to a long prompt, readable text included."
+      },
+      "img-flux3": {
+        "title": "High-quality image",
+        "line": "A polished image from text."
+      },
+      "img-ideogram": {
+        "title": "Image with lettering",
+        "line": "Posters, titles, readable type."
+      },
+      "img-gpt": {
+        "title": "Prompt-following image",
+        "line": "Follows a detailed prompt closely."
+      },
+      "img-seedream": {
+        "title": "Photo image",
+        "line": "Photographic look from text."
+      },
+      "img-nano": {
+        "title": "Versatile image",
+        "line": "An image from text, partner model."
+      },
+      "img-refs": {
+        "title": "Image from references",
+        "line": "A new image guided by one or two pictures."
+      },
+      "img-360": {
+        "title": "360° panorama",
+        "line": "A whole place as an equirectangular image."
+      },
+      "img-croquis": {
+        "title": "Sketch to image",
+        "line": "Keeps the layout of a sketch or a pose."
+      },
+      "vid-ltx-image": {
+        "title": "Video from an image",
+        "line": "A 5 s shot starting from your pictures."
+      },
+      "vid-texte": {
+        "title": "Video from text",
+        "line": "A 5 s shot described in words."
+      },
+      "vid-raccord": {
+        "title": "Start → end link",
+        "line": "Joins two pictures with one motion."
+      },
+      "vid-h3-refs": {
+        "title": "Reference-true video",
+        "line": "Keeps characters and place consistent."
+      },
+      "vid-multi": {
+        "title": "Several keyframes",
+        "line": "A video passing through several pictures."
+      },
+      "vid-h3-audio": {
+        "title": "Video on a sound",
+        "line": "A shot timed to a voice or music."
+      },
+      "vid-kling": {
+        "title": "Cinematic video with sound",
+        "line": "A polished shot, generated sound included."
+      },
+      "vid-seedance": {
+        "title": "Reference video",
+        "line": "A shot very faithful to your picture."
+      },
+      "vid-wan": {
+        "title": "Animate an image (open)",
+        "line": "A picture comes alive, open weights."
+      },
+      "vid-vidu": {
+        "title": "Multi-reference video",
+        "line": "A shot combining two pictures."
+      },
+      "vid-h3max": {
+        "title": "High-definition video",
+        "line": "A sharp, steady shot from one picture."
+      },
+      "3d-ouvert": {
+        "title": "Image → 3D (open)",
+        "line": "An object or character in 3D, open weights."
+      },
+      "3d-tripo": {
+        "title": "Image → detailed 3D",
+        "line": "A clean textured 3D model."
+      },
+      "3d-hunyuan": {
+        "title": "Image → 3D materials",
+        "line": "A model with realistic materials."
+      },
+      "3d-meshy": {
+        "title": "Image → game-ready 3D",
+        "line": "A model ready for a game or scene."
+      },
+      "3d-uv": {
+        "title": "Unwrap UVs",
+        "line": "Prepares a 3D model for texturing."
+      },
+      "3d-parties": {
+        "title": "Split into parts",
+        "line": "Cuts a 3D model into pieces."
+      },
+      "3d-monde": {
+        "title": "3D world",
+        "line": "A whole place as a 3D splat."
+      },
+      "son-voix-ouverte": {
+        "title": "Voice (open)",
+        "line": "Reads your text in the voice of a clip you provide."
+      },
+      "son-voix": {
+        "title": "Voice",
+        "line": "A natural voice-over from text."
+      },
+      "son-dialogue": {
+        "title": "Dialogue",
+        "line": "Two voices answering each other, one line each."
+      },
+      "son-musique-ouverte": {
+        "title": "Music (open)",
+        "line": "30 s of music described in words, open weights."
+      },
+      "son-musique": {
+        "title": "Music",
+        "line": "Music described in words."
+      },
+      "son-bruitage-ouvert": {
+        "title": "Sound effect (open)",
+        "line": "10 s of ambience or effect, open weights."
+      },
+      "son-bruitage": {
+        "title": "Sound effect",
+        "line": "A sound effect described in words."
+      },
+      "son-clone": {
+        "title": "Change voice",
+        "line": "Re-says a clip in another voice."
+      },
+      "son-transcrire": {
+        "title": "Transcribe",
+        "line": "Writes down what is said in a sound."
+      },
+      "son-musique-video": {
+        "title": "Music for a video",
+        "line": "Music that follows your shot."
+      },
+      "txt-decrire": {
+        "title": "Describe an image",
+        "line": "Writes a prompt from a picture."
+      },
+      "ret-modifier": {
+        "title": "Edit",
+        "line": "Changes what you describe, keeps the rest."
+      },
+      "ret-finaliser": {
+        "title": "Enhance an image",
+        "line": "Sharper and twice as large, nothing redrawn.",
+        "tags": "finish upscale sharpen"
+      },
+      "ret-elargir": {
+        "title": "Extend",
+        "line": "Widens the frame and fills the edge."
+      },
+      "ret-detourer": {
+        "title": "Remove background",
+        "line": "Removes the background, transparent PNG."
+      },
+      "ret-gommer": {
+        "title": "Erase an area",
+        "line": "Erases or replaces a painted area."
+      },
+      "ret-vectoriser": {
+        "title": "Vectorize",
+        "line": "Turns an image into SVG."
+      },
+      "ret-eclairer": {
+        "title": "Relight",
+        "line": "Same portrait, new lighting."
+      },
+      "vid-animer": {
+        "title": "Animate an image",
+        "line": "5 s of motion from one picture."
+      },
+      "vid-prolonger": {
+        "title": "Extend a shot",
+        "line": "5 more seconds from the last frame."
+      },
+      "vid-parler": {
+        "title": "Make it talk",
+        "line": "A picture and a voice become a talking shot."
+      },
+      "vid-finaliser": {
+        "title": "Enhance a video",
+        "line": "Brings a shot to 1080p without redoing it.",
+        "tags": "finish upscale sharpen"
+      },
+      "vid-prolonger-grok": {
+        "title": "Extend with a prompt",
+        "line": "Continues a shot following your text."
+      },
+      "vid-recadrer": {
+        "title": "Extend a video frame",
+        "line": "Widens a shot’s frame."
+      },
+      "vid-detourer": {
+        "title": "Remove video background",
+        "line": "Removes a shot’s background."
+      },
+      "vid-levres": {
+        "title": "Lip sync",
+        "line": "Matches the mouth to a new voice."
+      },
+      "vid-effacer": {
+        "title": "Remove an object",
+        "line": "Removes what you name from a shot."
+      },
+      "vid-fluidifier": {
+        "title": "Smooth motion",
+        "line": "Doubles the frames for softer motion."
+      },
+      "vid-mouvement": {
+        "title": "Copy a motion",
+        "line": "Your character repeats a video’s moves."
+      }
+    },
+    "latest": "Latest results",
+    "reserve": "· reserve {ceiling}"
+  },
+  "top": {
+    "nav": "Studio navigation",
+    "home": "Home",
+    "create": "Create",
+    "make": "Direct",
+    "edit": "Edit",
+    "creations": "My creations",
+    "menu": "Menu",
+    "close": "Close the menu",
+    "search": "Search",
+    "searchAria": "Search a tool or a creation (Ctrl K)",
+    "searchPlaceholder": "A tool, a creation…",
+    "paletteTools": "Tools",
+    "paletteNone": "No creation matches.",
+    "paletteEmpty": "Your creations will show here.",
+    "apps": "Get started",
+    "app": {
+      "perso": {
+        "title": "A consistent character",
+        "line": "Photo or text, then its turnaround sheet."
+      },
+      "lieu": {
+        "title": "Scout a place in 3D",
+        "line": "Free, on the map."
+      },
+      "plan": {
+        "title": "A 5 s shot",
+        "line": "Character, place, one sentence."
+      },
+      "parler": {
+        "title": "Make a picture talk",
+        "line": "A picture and a voice."
+      },
+      "montage": {
+        "title": "Finish an edit",
+        "line": "Your shots, sound, export."
+      }
+    }
+  },
+  "projects": {
+    "label": "Project",
+    "none": "No project",
+    "switchAria": "Current project: {name}. Switch or create a project",
+    "empty": "No project yet: it is made with your first character, or here.",
+    "new": "New project",
+    "placeholder": "Project name",
+    "create": "Create the project",
+    "needName": "Give the project a name.",
+    "vault": "Obsidian and export"
+  },
+  "taches": {
+    "title": "Recent tasks",
+    "aria": "Recent tasks: {running} running, {failed} failed",
+    "empty": "No task yet.",
+    "state": {
+      "running": "Running",
+      "done": "Done",
+      "failed": "Failed",
+      "interrupted": "Interrupted: the render comes back by itself if Comfy finished it"
+    },
+    "relaunch": "Relaunch (new quote)",
+    "clear": "Clear history",
+    "rule": "Nothing restarts without your confirmation; a failure never destroys a validated asset.",
+    "cast": "Create a character",
+    "decor": "Create a location",
+    "take": "Take",
+    "tool": "Tool"
+  },
+  "assistant": {
+    "title": "Studio assistant",
+    "short": "Assistant",
+    "toggle": "Show or hide the studio assistant",
+    "close": "Close the assistant",
+    "nextTitle": "Next step",
+    "go": "Go",
+    "ask": "What do you want to do?",
+    "placeholder": "e.g. make my character talk",
+    "none": "No tool matches: try another word.",
+    "local": "The assistant reads your project on this device; it sends nothing and spends nothing.",
+    "next": {
+      "cast": "Start with your character.",
+      "decor": "Add a place.",
+      "prise": "Shoot a first shot.",
+      "montage": "Put your shots together."
+    }
+  },
+  "creations": {
+    "all": "See all",
+    "title": "My creations",
+    "type": {
+      "tout": "All",
+      "images": "Images",
+      "videos": "Videos",
+      "3d": "3D",
+      "sons": "Sounds",
+      "personnages": "Characters",
+      "lieux": "Places",
+      "prises": "Takes"
+    },
+    "types": "Creation types",
+    "density": "Density",
+    "dense": "Compact",
+    "large": "Roomy",
+    "use": "Use",
+    "convert": "Convert",
+    "retouch": "Retouch",
+    "empty": "Nothing of this type yet.",
+    "sort": "Sort",
+    "sorts": {
+      "recent": "Recent",
+      "nom": "Name"
+    },
+    "noSuite": "Convert and Retouch open on an image or a video.",
+    "inTool": "Open in a tool"
+  },
+  "toolswitch": {
+    "change": "Switch tool",
+    "recent": "Recent"
+  },
+  "status": {
+    "introuvable": {
+      "title": "This page does not exist.",
+      "lead": "The link may be old. Your studio and your creations stay on this device."
+    },
+    "erreur": {
+      "title": "This page stopped.",
+      "lead": "Nothing is lost: what is saved stays on this device. Try again, or start from the studio."
+    },
+    "retry": "Try again",
+    "studio": "Open the studio",
+    "home": "Home"
   }
 }

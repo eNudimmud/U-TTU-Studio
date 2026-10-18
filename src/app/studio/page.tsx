@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
 import { StudioApp } from "@/components/app/studio-app";
-import { siteOrigin, studioDescription, studioTitle } from "@/lib/site";
+import { routeMetadata } from "@/lib/route-meta";
 import { tabFromLocation, type Tab } from "@/lib/studio-route";
 
-export const metadata: Metadata = {
-  title: studioTitle,
-  description: studioDescription,
-  ...(siteOrigin
-    ? {
-        alternates: { canonical: `${siteOrigin}/studio` },
-        openGraph: { url: `${siteOrigin}/studio`, title: studioTitle, description: studioDescription },
-      }
-    : {}),
-};
+export const metadata: Metadata = routeMetadata("studio");
 
 export default async function StudioPage({ searchParams }: { searchParams: Promise<{ step?: string | string[] }> }) {
   const params = await searchParams;

@@ -1,10 +1,10 @@
 "use client";
 
-import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
+import { useI18n } from "@/components/i18n/provider";
 import { clerkClientEnabled } from "@/lib/clerk-config";
 import { STUDIO_PATH } from "@/lib/account";
 import { assetPath } from "@/lib/site";
-import { Brand } from "@/components/brand";
+import { StudioShell } from "@/components/app/studio-shell";
 
 export function AuthScreen({ screen, children }: {
   screen: "signIn" | "signUp";
@@ -12,9 +12,7 @@ export function AuthScreen({ screen, children }: {
 }) {
   const { t } = useI18n();
   const enabled = clerkClientEnabled();
-  return <main id="contenu" className="auth-page">
-    <Brand href={assetPath(STUDIO_PATH)} />
-    <LanguageSwitcher />
+  return <StudioShell place="compte" className="auth-page">
     <header className="auth-copy">
       <p className="eyebrow">{t(`auth.${screen}.kicker`)}</p>
       <h1>{t(`auth.${screen}.title`)}</h1>
@@ -22,5 +20,5 @@ export function AuthScreen({ screen, children }: {
     </header>
     {enabled ? children : <p className="auth-hold">{t("auth.offline")}</p>}
     <a className="text-button" href={assetPath(STUDIO_PATH)}>{t("account.back")}</a>
-  </main>;
+  </StudioShell>;
 }

@@ -1,0 +1,42 @@
+{
+  "1": {
+    "inputs": {
+      "file": "uttu-plan.mp4"
+    },
+    "class_type": "LoadVideo",
+    "_meta": {
+      "title": "Load Video"
+    }
+  },
+  "2": {
+    "inputs": {
+      "prompt": "<texte du visiteur>",
+      "model": "grok-imagine-video",
+      "model.duration": 6,
+      "seed": 0,
+      "video": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "GrokVideoExtendNode",
+    "_meta": {
+      "title": "Grok Video Extend"
+    }
+  },
+  "3": {
+    "inputs": {
+      "filename_prefix": "video/uttu-vid-prolonger-grok",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save Video"
+    }
+  }
+}

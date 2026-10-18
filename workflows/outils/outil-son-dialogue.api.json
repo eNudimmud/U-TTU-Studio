@@ -1,0 +1,60 @@
+{
+  "211": {
+    "inputs": {
+      "voice": "Roger (male, american)"
+    },
+    "class_type": "ElevenLabsVoiceSelector",
+    "_meta": {
+      "title": "ElevenLabs Voice Selector"
+    }
+  },
+  "218": {
+    "inputs": {
+      "stability": 0.5,
+      "apply_text_normalization": "auto",
+      "model": "eleven_v4",
+      "inputs": "2",
+      "language_code": "",
+      "seed": 0,
+      "output_format": "mp3_44100_192",
+      "inputs.text1": "<réplique 1>",
+      "inputs.voice1": [
+        "211",
+        0
+      ],
+      "inputs.text2": "<réplique 2>",
+      "inputs.voice2": [
+        "219",
+        0
+      ]
+    },
+    "class_type": "ElevenLabsTextToDialogue",
+    "_meta": {
+      "title": "ElevenLabs Text to Dialogue"
+    }
+  },
+  "219": {
+    "inputs": {
+      "voice": "Laura (female, american)"
+    },
+    "class_type": "ElevenLabsVoiceSelector",
+    "_meta": {
+      "title": "ElevenLabs Voice Selector"
+    }
+  },
+  "220": {
+    "inputs": {
+      "filename_prefix": "audio/uttu-son-dialogue",
+      "format": "mp3",
+      "format.quality": "V0",
+      "audio": [
+        "218",
+        0
+      ]
+    },
+    "class_type": "SaveAudioAdvanced",
+    "_meta": {
+      "title": "Save Audio (Advanced)"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "1": {
+    "inputs": {
+      "prompt": "<texte du visiteur>",
+      "aspect_ratio": "auto",
+      "resolution": "1K",
+      "grounding": true,
+      "safety_tolerance": 4,
+      "seed": 0
+    },
+    "class_type": "Flux3ImageNode",
+    "_meta": {
+      "title": "Flux 3 Image"
+    }
+  },
+  "2": {
+    "inputs": {
+      "filename_prefix": "uttu-img-flux3",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB",
+      "images": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "SaveImageAdvanced",
+    "_meta": {
+      "title": "Save Image (Advanced)"
+    }
+  }
+}

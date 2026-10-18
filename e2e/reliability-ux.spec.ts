@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { openCreations, openToolsHub } from './helpers/top-bar';
 
-const portrait = readFileSync('public/exemples/cast-uttu.webp');
+const portrait = readFileSync('public/exemples/cast-dj.webp');
 
 async function savedScene(page: Page) {
   return page.evaluate(() => new Promise<{ props: number; keys: number }>((resolve, reject) => {
@@ -20,7 +21,7 @@ async function savedScene(page: Page) {
   }));
 }
 
-test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et ajout au montage depuis Mon studio', async ({ page }, info) => {
+test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et ajout au montage depuis Mes créations', async ({ page }, info) => {
   const video = readFileSync('e2e/fixtures/final-1080p.mp4');
   let posts = 0;
   let done = false;
@@ -37,21 +38,23 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
-  await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
-  await page.locator('[data-avance-prise] > summary').click(); // video gestures live in « Avancé »
-  const panel = page.locator('[data-video-gestes]');
-  await panel.locator('[data-video-geste="prise-raccord"]').click();
-  for (const label of ['Première image', 'Dernière image']) await panel.getByLabel(label, { exact: true }).setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });
-  const prompt = panel.getByLabel('Ce qui se passe entre les deux', { exact: true });
+  // Raccord now lives in the « Outils » hub, one click from the top bar, in the single tool panel.
+  await openToolsHub(page);
+  await page.locator('[data-outil="vid-raccord"]').click();
+  const panel = page.locator('[data-tool-panel="vid-raccord"]');
+  await panel.locator('[data-outil-input="image"] input[type=file]').setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });
+  await panel.locator('[data-tool-step="references"] > summary').click();
+  await panel.locator('[data-outil-input="image2"] input[type=file]').setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });
+  const prompt = panel.locator('[data-tool-step="consigne"] textarea');
   await prompt.fill('Raccord audit');
-  await expect(panel.locator('[data-video-go]')).toBeDisabled();
-  const consent = panel.getByRole('checkbox');
+  await expect(panel.locator('[data-tool-go]')).toBeDisabled();
+  const consent = panel.locator('[data-tool-confirm]');
   await consent.click();
   await prompt.fill('Raccord audit confirmé');
   await expect(consent).toHaveAttribute('aria-checked', 'false');
   await consent.click();
   expect(posts).toBe(0);
-  await panel.locator('[data-video-go]').evaluate((button: HTMLButtonElement) => { button.click(); button.click(); });
+  await panel.locator('[data-tool-go]').evaluate((button: HTMLButtonElement) => { button.click(); button.click(); });
   await expect.poll(() => posts).toBe(1);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('u-ttu-operation') || '{}').jobId)).toBe('video-recovery-123');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('u-ttu-operation') || '{}').kind)).toBe('video');
@@ -93,7 +96,7 @@ test('stockage réel, import conservé après fermeture et confirmation accessib
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(credits).toBeFocused();
-  await page.getByRole('link', { name: 'Mon studio', exact: true }).click();
+  await openCreations(page);
   const status = page.locator('[data-storage]');
   await expect(status).not.toHaveAttribute('data-storage', 'loading');
   if (await page.getByRole('button', { name: 'Protéger le stockage local', exact: true }).isVisible()) {
@@ -173,7 +176,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
-  await page.locator('[data-avance-prise] > summary').click(); // keyframes and 3D imports live in « Avancé »
+  await openPrevis(page); // keyframes and 3D imports live in « Avancé » › Prévis filmée
   await page.locator('[data-import-glb] input').setInputFiles({ name: 'Triangle.gltf', mimeType: 'model/gltf+json', buffer: source });
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(1);
   await page.locator('[data-add-key]').click();
@@ -183,7 +186,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await page.reload();
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(1);
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-keys', '1');
-  await page.locator('[data-avance-prise] > summary').click();
+  await openPrevis(page);
   const panel = page.locator('[data-generer-3d]');
   const photo = panel.locator('input[type=file]');
   await photo.setInputFiles({ name: 'photo.webp', mimeType: 'image/webp', buffer: portrait });
@@ -201,14 +204,14 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   done = true;
   await page.reload();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('u-ttu-operation'))).toBeNull();
-  await page.locator('[data-avance-prise] > summary').click();
+  await openPrevis(page);
   const saved = page.getByLabel('Modèles 3D enregistrés', { exact: true });
   await expect(saved.locator('option')).toHaveCount(3);
   await saved.selectOption({ index: 2 });
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(2);
   await expect.poll(() => savedScene(page)).toEqual({ props: 2, keys: 1 });
   // Explicit navigation flushes the current scene before closing this document.
-  await page.getByRole('link', { name: 'Mon studio', exact: true }).click();
+  await openCreations(page);
   await page.close();
   const reopened = await context.newPage();
   await reopened.goto('/studio#prise');
@@ -225,3 +228,14 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   expect(readFileSync(path)).toEqual(source);
   expect(posts).toBe(1);
 });
+
+// « Avancé », then its « Prévis » group (a real button with aria-expanded), each opened only if closed.
+async function openPrevis(page: Page) {
+  const avance = page.locator('[data-avance-prise]');
+  await expect(avance).toBeVisible();
+  if (await avance.getAttribute('open') === null) await avance.locator('> summary').click();
+  await expect(avance).toHaveAttribute('open', '');
+  const toggle = page.locator('[data-avance-toggle=previs]');
+  if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+}

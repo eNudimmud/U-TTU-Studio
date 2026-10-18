@@ -9,17 +9,17 @@ test("Partir de cet exemple remplit CAST, DÉCOR, PRISE et MONTAGE sans rien dé
 
   await page.goto("/studio#personnage");
   await expect(page.getByRole("heading", { name: "CAST" })).toBeVisible();
-  const castCard = page.locator("[data-depart=cast]");
-  await expect(castCard).toBeVisible();
-  await expect(castCard).toContainText("Exemple — refais-le");
+  // CAST has no separate example card any more: the tile's own « Partir de cet exemple » fills it.
+  await expect(page.locator("[data-depart=cast]")).toHaveCount(0);
+  await expect(page.locator("[data-voir-exemple]")).toHaveCount(0);
   const narrow = (page.viewportSize()?.width ?? 1280) < 800;
+  if (narrow) await page.getByRole("button", { name: "Que veux-tu faire ?" }).click().catch(() => undefined);
   const start = page.locator("[data-partir-exemple='cast-photos']");
   await expect(start).toHaveText("Partir de cet exemple");
   const box = await start.boundingBox();
   expect(box!.height).toBeGreaterThanOrEqual(44);
-  await castCard.locator("[data-partir-exemple=cast]").click();
-  await expect(page.getByLabel("Nom")).toHaveValue("Uttu");
-  await expect(castCard).toHaveCount(0);
+  await start.click();
+  await expect(page.getByLabel("Nom")).toHaveValue("La coursière");
   await expect(page.locator(".u-desk-scroll textarea")).not.toHaveValue("");
 
   // Tile button fills a different gesture in one tap.

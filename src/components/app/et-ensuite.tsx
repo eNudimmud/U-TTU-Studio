@@ -5,6 +5,7 @@
 // of the reserve, then runs on the visitor's Comfy account. The result is a new asset:
 // the asset it starts from is only read, so a failed run never touches it. No cancel.
 
+import { ConnectLink } from "./connect-link";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
@@ -32,20 +33,30 @@ const IMAGE_TOOLS: Outil[] = ["suite-modifier", "suite-finaliser-image", "suite-
 const VIDEO_TOOLS: Outil[] = ["suite-finaliser-video", "suite-fluidifier", "suite-prolonger"];
 const MESH = { perso: "prise-volume-perso", objet: "prise-volume-objet" } as const;
 
-export function EtEnsuite({ source, onPrise, initial = null }: {
+/** Item sheet split: what turns the asset into another medium, and what refines it in place. */
+export const SUITE_CONVERTIR: Outil[] = ["suite-3d", "suite-animer", "suite-parler", "suite-prolonger", "suite-fluidifier"];
+export const SUITE_RETOUCHER: Outil[] = ["suite-modifier", "suite-finaliser-image", "suite-detourer", "suite-elargir", "suite-finaliser-video"];
+
+export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false, only, grouped = false }: {
   source: SuiteSource;
   /** Animer: also offer to open the image in PRISE. */
   onPrise?(): void;
   /** Opens straight on one tool (screenshots, deep links). */
   initial?: Outil | null;
+  /** Results show the menu open, visible without opening a detail panel. */
+  defaultOpen?: boolean;
+  /** Keeps only these tools (item sheet: Convertir or Retoucher). */
+  only?: Outil[];
+  /** Item sheet: the same tools, under « Convertir » then « Retoucher ». */
+  grouped?: boolean;
 }) {
   const { t } = useI18n();
   const { prefs } = useStudio();
-  const [open, setOpen] = useState(initial !== null);
+  const [open, setOpen] = useState(initial !== null || defaultOpen);
   const [tool, setTool] = useState<Outil | null>(initial);
   const menuId = useId();
-  useEffect(() => { setTool(initial); setOpen(initial !== null); }, [source.url]);
-  const tools = (source.kind === "image" ? IMAGE_TOOLS : VIDEO_TOOLS).filter(id => {
+  useEffect(() => { setTool(initial); setOpen(initial !== null || defaultOpen); }, [source.url]);
+  const tools = (source.kind === "image" ? IMAGE_TOOLS : VIDEO_TOOLS).filter(id => !only || only.includes(id)).filter(id => {
     const row = gesteParId(id === "suite-3d" ? MESH.objet : id);
     return row && gesteOuvert(row) && gesteVisible(row, prefs);
   });
@@ -56,15 +67,18 @@ export function EtEnsuite({ source, onPrise, initial = null }: {
       <span>{t("suite.title")}</span><span aria-hidden="true">{open ? "−" : "+"}</span>
     </button>
     {open && <div id={menuId} className="u-suite-menu" role="group" aria-label={t("suite.title")}>
-      {tools.map(id => {
-        const quote = id === "suite-3d" ? null : suiteQuote(id);
-        const mesh = id === "suite-3d" ? gesteParId(MESH.objet) : null;
-        const credits = quote?.credits ?? mesh?.credits ?? null;
-        return <button key={id} type="button" className="u-suite-item" data-suite-item={id} aria-pressed={tool === id} onClick={() => setTool(current => current === id ? null : id)}>
-          <span className="u-suite-name">{t(`suite.tools.${id}.title`)}</span>
-          {credits !== null && <span className="u-suite-cost">{t("suite.chip", { credits: formatCredits(credits) })}</span>}
-        </button>;
-      })}
+      {(grouped ? [["convert", tools.filter(id => SUITE_CONVERTIR.includes(id))], ["retouch", tools.filter(id => SUITE_RETOUCHER.includes(id))]] as const : [["", tools]] as const).map(([group, list]) => list.length === 0 ? null : <div key={group || "all"} className="u-suite-group" data-suite-group={group || undefined}>
+        {group && <p className="u-label">{t(group === "convert" ? "creations.convert" : "creations.retouch")}</p>}
+        {list.map(id => {
+          const quote = id === "suite-3d" ? null : suiteQuote(id);
+          const mesh = id === "suite-3d" ? gesteParId(MESH.objet) : null;
+          const credits = quote?.credits ?? mesh?.credits ?? null;
+          return <button key={id} type="button" className="u-suite-item" data-suite-item={id} aria-pressed={tool === id} onClick={() => setTool(current => current === id ? null : id)}>
+            <span className="u-suite-name">{t(`suite.tools.${id}.title`)}</span>
+            {credits !== null && <span className="u-suite-cost">{t("suite.chip", { credits: formatCredits(credits) })}</span>}
+          </button>;
+        })}
+      </div>)}
     </div>}
     {open && tool && <SuitePanel key={`${tool}-${source.url}`} tool={tool} source={source} onPrise={onPrise} onClose={() => setTool(null)} />}
   </section>;
@@ -174,18 +188,16 @@ function SuitePanel({ tool, source, onPrise, onClose }: { tool: Outil; source: S
       <span className="u-label">{t(`suite.tools.${tool}.text`)}{texte === "facultatif" ? ` ${t("suite.optional")}` : ""}</span>
       <textarea rows={2} value={text} maxLength={600} disabled={busy} aria-describedby={busy ? busyId : undefined} onChange={event => { setText(event.target.value); reset(); }} />
     </label>}
-    {quote && <div className="u-final-quote" data-suite-quote="estime">
-      <p className="u-cost">{t("suite.quote", { credits: formatCredits(quote.credits), ceiling: formatCredits(quote.high) })}</p>
-      <p className="u-small">{t("suite.safe")}</p>
-    </div>}
     <button type="button" role="checkbox" className="u-final-confirm" aria-checked={confirmed} data-suite-confirm="" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => setConfirmed(value => !value)}>
       <span className="u-final-box" aria-hidden="true">{confirmed ? "✓" : ""}</span>
-      <span>{t("videoGeste.confirm", { ceiling: formatCredits(quote?.high ?? 0) })}</span>
+      <span>{t("outils.confirm", { credits: formatCredits(quote?.credits ?? 0), ceiling: formatCredits(quote?.high ?? 0) })}</span>
     </button>
-    <button type="button" className="u-suite-go" data-suite-go="" disabled={!can} aria-describedby={busy ? busyId : why ? `${titleId}-why` : undefined} onClick={() => void launch()}>
-      {t("suite.go", { credits: formatCredits(quote?.credits ?? 0) })}
+    <button type="button" className="u-tool-go" data-suite-go="" disabled={!can} aria-describedby={busy ? busyId : why ? `${titleId}-why` : undefined} onClick={() => void launch()}>
+      <span>{t(`suite.tools.${tool}.title`)}</span>
+      {quote && <span className="u-tool-go-cost" data-suite-quote="estime">{t("outils.cost", { credits: formatCredits(quote.credits) })} <small>{t("outils.estimate")}</small> <small className="u-tool-go-reserve">{t("outils.reserve", { ceiling: formatCredits(quote.high) })}</small></span>}
     </button>
     {why && !busy && <p className="u-why" id={`${titleId}-why`}>{why}</p>}
+    {why && !busy && <ConnectLink />}
     {tool === "suite-animer" && onPrise && <button type="button" className="u-secondary u-suite-prise" data-suite-prise="" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={onPrise}>{t("suite.toPrise")}</button>}
     {stage && <p className="u-small" id={busyId} aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
     {outcome && (outcome.ok

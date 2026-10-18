@@ -132,8 +132,12 @@ export function SlotBoard({ geste, refs, onChange, onGallery }: {
 
   return <div className="u-slots">
     <div className="u-refslots">
-      {cases.map(item => {
+      {cases.map((item, index) => {
         const filled = refs.find(ref => ref.caseId === item.id) ?? null;
+        // Two slots with the same role read « Visage » and « Visage 2 (facultatif) », never twice the same word.
+        const same = cases.filter(other => other.role === item.role);
+        const rank = same.indexOf(item);
+        const label = same.length > 1 && rank > 0 ? `${t(`refs.${item.role}`)} ${rank + 1}${index >= geste.minRefs ? ` ${t("suite.optional")}` : ""}` : t(`refs.${item.role}`);
         const media = item.media;
         const inputId = `${base}-${item.id}-file`;
         const cameraId = `${base}-${item.id}-cam`;
@@ -154,9 +158,9 @@ export function SlotBoard({ geste, refs, onChange, onGallery }: {
             addFile(item.id, item.role, media, event.dataTransfer.files[0]);
           }}
         >
-          {filled?.url && media === "video" ? <video src={filled.url} muted playsInline /> : filled?.url && media === "audio" ? <span className="u-refslot-audio">{filled.name}</span> : filled?.url ? <img src={filled.url} alt="" /> : <button type="button" className="u-refslot-add" aria-expanded={menu === item.id} aria-label={t(`refs.${item.role}`)} onClick={() => setMenu(current => current === item.id ? null : item.id)}>
+          {filled?.url && media === "video" ? <video src={filled.url} muted playsInline /> : filled?.url && media === "audio" ? <span className="u-refslot-audio">{filled.name}</span> : filled?.url ? <img src={filled.url} alt="" /> : <button type="button" className="u-refslot-add" aria-expanded={menu === item.id} aria-label={label} onClick={() => setMenu(current => current === item.id ? null : item.id)}>
             <Plus />
-            <span>{t(`refs.${item.role}`)}</span>
+            <span>{label}</span>
           </button>}
           {filled && <button type="button" className="u-refslot-x" aria-label={t("refs.remove")} onClick={() => onChange(refs.filter(ref => ref.caseId !== item.id))}><Close /></button>}
           {!filled && menu === item.id && <div className="u-refslot-menu" role="menu">

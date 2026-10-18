@@ -26,7 +26,8 @@ test("asset : menu 44 px, devis estimé sur le bouton, Détourer archive un nouv
   const toggle = detail.locator("[data-suite-toggle]");
   await expect(toggle).toHaveText(/Et ensuite \?/);
   expect((await toggle.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
-  await toggle.click();
+  // Open by default: the next step is visible without a click.
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
   const items = detail.locator("[data-suite-item]");
   await expect(items).toHaveCount(7);
   for (const item of await items.all()) expect((await item.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
@@ -34,9 +35,10 @@ test("asset : menu 44 px, devis estimé sur le bouton, Détourer archive un nouv
 
   await detail.locator("[data-suite-item=suite-detourer]").click();
   const panel = detail.locator("[data-suite-panel=suite-detourer]");
-  await expect(panel.locator("[data-suite-quote=estime]")).toContainText("Estimé : environ 2 crédits, réserve conseillée 4");
+  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 2 cr. estimé · réserve 4");
+  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 2 cr. estimé · réserve 4");
   const go = panel.locator("[data-suite-go]");
-  await expect(go).toHaveText("Lancer · ≈ 2 crédits (estimé)");
+  await expect(go).toContainText("≈ 2 cr.");
   await expect(go).toBeDisabled();
   await expect(panel.locator(".u-why")).toHaveText("Coche la confirmation pour lancer.");
   await expect(panel.locator("[data-etape-courante]")).toHaveAttribute("data-etape-courante", "confirmer");
@@ -81,14 +83,15 @@ test("prise importée : Finaliser poids ouverts, fluidifier en option, devis par
   await expect(card).toBeVisible({ timeout: 30_000 });
   await card.locator(".u-pick").click();
   const detail = page.locator(".u-asset-detail");
-  await detail.locator("[data-suite-toggle]").click();
+  await expect(detail.locator("[data-suite-toggle]")).toHaveAttribute("aria-expanded", "true");
   await expect(detail.locator("[data-suite-item]")).toHaveCount(3);
   await detail.locator("[data-suite-item=suite-finaliser-video]").click();
   const panel = detail.locator("[data-suite-panel=suite-finaliser-video]");
-  await expect(panel.locator("[data-suite-quote=estime]")).toContainText("environ 8 crédits, réserve conseillée 16");
+  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 8 cr. estimé · réserve 16");
+  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 8 cr. estimé · réserve 16");
   await panel.locator("[data-suite-fluide]").click();
-  await expect(panel.locator("[data-suite-quote=estime]")).toContainText("environ 10 crédits, réserve conseillée 20");
-  await expect(panel.locator("[data-suite-go]")).toHaveText("Lancer · ≈ 10 crédits (estimé)");
+  await expect(panel.locator("[data-suite-quote=estime]")).toHaveText("≈ 10 cr. estimé · réserve 20");
+  await expect(panel.locator("[data-suite-confirm]")).toContainText("≈ 10 cr. estimé · réserve 20");
   await panel.locator("[data-suite-confirm]").click();
   await panel.locator("[data-suite-go]").click();
   await expect(panel.locator("[data-suite-done] video")).toBeVisible({ timeout: 60_000 });

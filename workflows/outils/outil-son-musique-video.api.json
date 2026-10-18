@@ -1,0 +1,40 @@
+{
+  "703": {
+    "inputs": {
+      "prompt": "<texte du visiteur>",
+      "seed": 0,
+      "video": [
+        "705",
+        0
+      ]
+    },
+    "class_type": "SoniloVideoToMusic",
+    "_meta": {
+      "title": "Sonilo Video to Music"
+    }
+  },
+  "705": {
+    "inputs": {
+      "file": "uttu-plan.mp4"
+    },
+    "class_type": "LoadVideo",
+    "_meta": {
+      "title": "Load Video"
+    }
+  },
+  "728": {
+    "inputs": {
+      "filename_prefix": "audio/uttu-son-musique-video",
+      "format": "mp3",
+      "format.quality": "V0",
+      "audio": [
+        "703",
+        0
+      ]
+    },
+    "class_type": "SaveAudioAdvanced",
+    "_meta": {
+      "title": "Save Audio (Advanced)"
+    }
+  }
+}

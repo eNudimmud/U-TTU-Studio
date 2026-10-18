@@ -63,7 +63,7 @@ export function HomeLanding() {
       </section>
     </main>
     <footer className="studio-footer landing-footer">
-      <span>U*TTU Studio · THE BLOC · SUISSE</span>
+      <span>U*TTU Studio</span>
       <PoweredBy />
       <a href={`mailto:${contactEmail}`}>{t("landing.contact")}</a>
     </footer>

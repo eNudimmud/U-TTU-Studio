@@ -1,4 +1,4 @@
-// « Exemple — refais-le » : one real Uttu result per step, and the gesture it refills.
+// « Exemple — refais-le » : one real house result per step, and the gesture it refills.
 // Only house files already in public/. Nothing here spends or calls Comfy.
 
 export type Etape = "cast" | "decor" | "prise" | "montage";
@@ -14,9 +14,9 @@ export interface Depart {
 }
 
 export const DEPARTS: Record<Etape, Depart> = {
-  cast: { etape: "cast", image: "/exemples/apres-cast-photos.webp", geste: "cast-photos", titre: "Uttu" },
+  cast: { etape: "cast", image: "/exemples/cast-dj.webp", geste: "cast-photos", titre: "DJ" },
   decor: { etape: "decor", image: "/exemples/apres-decor-photo.webp", geste: "decor-photo", titre: "Le quai, la nuit" },
-  prise: { etape: "prise", image: "/exemples/decor-quai-nuit.webp", geste: "", titre: "Uttu sur le quai" },
+  prise: { etape: "prise", image: "/exemples/decor-quai-nuit.webp", geste: "", titre: "La coursière sur le quai" },
   montage: { etape: "montage", image: "/exemples/decor-quai-nuit.webp", geste: "", titre: "Le clip d’exemple" },
 };
 

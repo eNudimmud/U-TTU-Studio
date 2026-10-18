@@ -1,15 +1,16 @@
 "use client";
 
 import { UserButton, useUser } from "@clerk/nextjs";
-import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
+import { useI18n } from "@/components/i18n/provider";
 import { ACCOUNT_SIGN_IN_PATH, ACCOUNT_SIGN_UP_PATH, STUDIO_PATH } from "@/lib/account";
 import { clerkClientEnabled } from "@/lib/clerk-config";
 import { assetPath } from "@/lib/site";
-import { Brand } from "@/components/brand";
+import { StudioShell } from "@/components/app/studio-shell";
 
 export function AccountPage() {
-  if (!clerkClientEnabled()) return <AccountBody phase="unconfigured" />;
-  return <AccountSession />;
+  return <StudioShell place="compte" className="auth-page account-page">
+    {clerkClientEnabled() ? <AccountSession /> : <AccountBody phase="unconfigured" />}
+  </StudioShell>;
 }
 
 function AccountSession() {
@@ -22,9 +23,7 @@ function AccountSession() {
 
 function AccountBody({ phase, name, email }: { phase: "unconfigured" | "signed-out" | "signed-in"; name?: string; email?: string | null }) {
   const { t } = useI18n();
-  return <main id="contenu" className="auth-page account-page">
-    <Brand href={assetPath(STUDIO_PATH)} />
-    <LanguageSwitcher />
+  return <>
     <header className="auth-copy">
       <p className="eyebrow">{t("account.kicker")}</p>
       <h1>{t("account.title")}</h1>
@@ -44,5 +43,5 @@ function AccountBody({ phase, name, email }: { phase: "unconfigured" | "signed-o
       <UserButton />
     </div>}
     <a className="text-button" href={assetPath(STUDIO_PATH)}>{t("account.back")}</a>
-  </main>;
+  </>;
 }

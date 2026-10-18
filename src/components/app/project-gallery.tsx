@@ -4,7 +4,7 @@ import { assetFromCast, assetFromDecor, type AssetRecord } from "@/lib/creation/
 import { assetPath } from "@/lib/site";
 import { studioTarget } from "@/lib/coffre/target";
 import { cleanCardName } from "@/lib/creation/gallery";
-import { AssetGallery } from "./asset-gallery";
+import { AssetGallery, type LibraryType } from "./asset-gallery";
 import { useStudio } from "./studio-session";
 
 function sourceOf(asset: AssetRecord, media: Record<string, string>): string {
@@ -12,8 +12,12 @@ function sourceOf(asset: AssetRecord, media: Record<string, string>): string {
   return asset.media && media[asset.media] ? asset.media : "";
 }
 
-export function ProjectGallery({ onUseRef, defaultFilter = "tout" }: {
+export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, sort, title }: {
   onUseRef?(asset: AssetRecord): void;
+  type?: LibraryType;
+  dense?: boolean;
+  sort?: "recent" | "nom";
+  title?: string;
   defaultFilter?: "tout" | "personnage" | "decor" | "plan" | "son" | "importe";
 }) {
   const session = useStudio();
@@ -55,6 +59,10 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout" }: {
     assets={assets}
     media={media}
     defaultFilter={defaultFilter}
+    type={type}
+    dense={dense}
+    sort={sort}
+    title={title}
     projects={studio.projects.filter(item => item.slug !== studio.project)}
     onRefresh={() => void refreshStudio()}
     onEmptyDecor={() => { window.location.hash = "scene"; }}

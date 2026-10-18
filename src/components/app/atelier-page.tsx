@@ -1,40 +1,33 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { formatCredits } from "@/lib/credits";
-import { DEMO_NOTES, DEMO_SEQUENCES, DEMO_TAKES } from "@/lib/creation/demo";
+import { DEMO_NOTES, DEMO_SEQUENCES } from "@/lib/creation/demo";
 import { memoryFilled } from "@/lib/coffre/memory";
 import { assetPath } from "@/lib/site";
-import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
-import { Coffre, KindMark } from "./glyphs";
+import { useI18n } from "@/components/i18n/provider";
 import { ProjectGallery } from "./project-gallery";
 import { StorageStatus } from "./storage-status";
 import { studioTarget, type StudioTargetKind } from "@/lib/coffre/target";
 import { ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
-import { Brand } from "@/components/brand";
+import { StudioSplash } from "./splash";
+import { CREATION_TYPES, TopBar, type CreationType } from "./top-bar";
+import { AssistantPanel } from "./assistant-panel";
 
-type Kind = "personnage" | "lieu" | "prise" | "sequence" | "note";
-type Filter = "tout" | Kind;
+type Tab = "tout" | CreationType | "notes";
 
-interface Row {
+/** Project pages that are not files: sequences, shots and notes. */
+interface Note {
   id: string;
-  kind: Kind;
+  kind: "sequence" | "note";
   name: string;
   text: string;
-  image: string;
   href: string | null;
 }
 
-const FILTERS: { id: Filter; key: "atelier.all" | "atelier.characters" | "atelier.places" | "atelier.takes" | "atelier.sequences" | "atelier.notes" }[] = [
-  { id: "tout", key: "atelier.all" },
-  { id: "personnage", key: "atelier.characters" },
-  { id: "lieu", key: "atelier.places" },
-  { id: "prise", key: "atelier.takes" },
-  { id: "sequence", key: "atelier.sequences" },
-  { id: "note", key: "atelier.notes" },
-];
+const TABS: Tab[] = ["tout", ...CREATION_TYPES, "notes"];
+const DENSITY = "u-ttu-creations-densite";
 
 export function AtelierPage() {
   return <StudioProvider><AtelierFrame /></StudioProvider>;
@@ -44,13 +37,38 @@ function AtelierFrame() {
   const { t, say } = useI18n();
   const session = useStudio();
   const {
-    ready, demo, studio, media, cast, decor, notice, setNotice, sheet, setSheet,
-    connected, balance, balanceNote, folderMode, folderName,
-    exportCoffre, importCoffre, importFiles, linkFolder, allowLinkedFolder, selectProject,
+    ready, demo, studio, cast, notice, setNotice, sheet,
+    folderMode, folderName,
+    exportCoffre, importCoffre, importFiles, linkFolder, allowLinkedFolder,
   } = session;
-  const [filter, setFilter] = useState<Filter>("tout");
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Tab>("tout");
+  const [dense, setDense] = useState(false);
+  const [sort, setSort] = useState<"recent" | "nom">("recent");
+
+  useEffect(() => {
+    const read = () => {
+      const params = new URLSearchParams(window.location.search);
+      const type = params.get("type");
+      setFilter(type && (TABS as string[]).includes(type) ? type as Tab : "tout");
+    };
+    read();
+    try { setDense(window.localStorage.getItem(DENSITY) === "dense"); } catch { /* default */ }
+    window.addEventListener("popstate", read);
+    return () => window.removeEventListener("popstate", read);
+  }, []);
+
+  function pickTab(next: Tab) {
+    setFilter(next);
+    const url = new URL(window.location.href);
+    if (next === "tout") url.searchParams.delete("type"); else url.searchParams.set("type", next);
+    url.searchParams.delete("item");
+    window.history.replaceState(null, "", url);
+  }
+
+  function pickDensity(next: boolean) {
+    setDense(next);
+    try { window.localStorage.setItem(DENSITY, next ? "dense" : "large"); } catch { /* memory only */ }
+  }
 
   useEffect(() => {
     if (window.location.hash !== "#coffre") return;
@@ -63,61 +81,65 @@ function AtelierFrame() {
     return () => window.clearTimeout(timer);
   }, [notice, setNotice]);
 
-  const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
   const showDemo = demo && cast.some(card => card.id.startsWith("demo-"));
-  const projects = studio.projects.length > 0 ? studio.projects : (showDemo ? [{ slug: "atelier", name: "Atelier" }] : []);
 
-  const rows = useMemo(() => {
+  const notes = useMemo(() => {
     const studioHref = (demo: boolean, kind: StudioTargetKind, id: string) => assetPath(studioTarget(kind, id, studio.project, demo));
-    const list: Row[] = [];
-    for (const card of cast) {
-      const image = card.preview ? assetPath(card.preview) : (card.sheet && media[card.sheet]) || (card.photos[0] && media[card.photos[0]]) || "";
-      list.push({ id: card.id, kind: "personnage", name: card.name, text: card.prompt, image, href: studioHref(showDemo, "personnage", card.id) });
-    }
-    for (const card of decor) {
-      const image = card.preview ? assetPath(card.preview) : (card.sheet && media[card.sheet]) || "";
-      list.push({ id: card.id, kind: "lieu", name: card.name, text: card.prompt, image, href: studioHref(showDemo, "lieu", card.id) });
-    }
-    const takes = studio.takes.length > 0 ? studio.takes.map(take => ({ id: take.id, name: take.line, image: take.poster ? media[take.poster] ?? "" : "" })) : (showDemo ? DEMO_TAKES.map(take => ({ ...take, image: "" })) : []);
-    for (const take of takes) list.push({ id: take.id, kind: "prise", name: take.name, text: "", image: take.image, href: studioHref(showDemo, "prise", take.id) });
+    const list: Note[] = [];
     const sequences = studio.sequences.length > 0 ? studio.sequences.map(item => ({ id: item.id, name: item.name })) : (showDemo ? DEMO_SEQUENCES : []);
-    for (const item of sequences) list.push({ id: item.id, kind: "sequence", name: item.name, text: "", image: "", href: studioHref(showDemo, "sequence", item.id) });
-    for (const shot of studio.shots) list.push({ id: shot.id, kind: "sequence", name: shot.name, text: shot.note, image: "", href: studioHref(false, "plan", shot.id) });
-    const notes = memoryFilled(studio.memory)
+    for (const item of sequences) list.push({ id: item.id, kind: "sequence", name: item.name, text: t("atelier.sequences"), href: studioHref(showDemo, "sequence", item.id) });
+    for (const shot of studio.shots) list.push({ id: shot.id, kind: "sequence", name: shot.name, text: shot.note, href: studioHref(false, "plan", shot.id) });
+    const memory = memoryFilled(studio.memory)
       ? [
           ...(["bible", "style", "lexique", "prompts"] as const).filter(kind => studio.memory[kind].trim()).map(kind => ({ id: kind, name: t(`memory.${kind}`), text: studio.memory[kind] })),
           ...studio.memory.notes.filter(note => note.text.trim()).map(note => ({ id: note.file, name: note.file, text: note.text })),
         ]
       : (showDemo ? DEMO_NOTES.map(note => ({ id: note.id, name: note.label, text: note.text })) : []);
-    for (const note of notes) list.push({ id: note.id, kind: "note", name: note.name, text: note.text, image: "", href: null });
+    for (const note of memory) list.push({ id: note.id, kind: "note", name: note.name, text: note.text, href: null });
     return list;
-  }, [cast, decor, media, showDemo, studio.project, studio.memory, studio.sequences, studio.shots, studio.takes, t]);
+  }, [showDemo, studio.project, studio.memory, studio.sequences, studio.shots, t]);
+  const shownNotes = filter === "notes" || filter === "tout" ? notes : filter === "prises" ? notes.filter(note => note.kind === "sequence") : [];
 
-  const needle = query.trim().toLowerCase();
-  const shown = rows.filter(row => (filter === "tout" || row.kind === filter) && (!needle || `${row.name} ${row.text}`.toLowerCase().includes(needle)));
-  const current = shown.find(row => `${row.kind}:${row.id}` === open) ?? null;
   const linkable = folderMode !== "unsupported";
 
   return <div className="u-app">
-    <header className="u-top">
-      <Brand className="u-mark" href={assetPath("/studio#personnage")} />
-      <div className="u-top-tools">
-        <a className="u-coffre" href={assetPath("/mon-studio")} aria-label={t("nav.studio")} aria-current="page"><Coffre /><span className="u-tool-label">{t("nav.studio")}</span></a>
-        <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })}>
-          <span className="u-tool-full">{t("sheet.walletTitle")}</span>
-          <span className="u-tool-short">{t("stage.creditsShort")}</span>
-        </button>
-        <LanguageSwitcher />
-      </div>
-    </header>
+    <TopBar place="creations" />
     <main id="contenu" className="u-main" tabIndex={-1}>
-      <section className="u-stage" aria-labelledby="u-title">
+      <section className="u-stage u-library" aria-labelledby="u-title">
         <header className="u-head">
-          <h1 id="u-title" tabIndex={-1}>{t("nav.studio")}</h1>
+          <h1 id="u-title" tabIndex={-1}>{t("creations.title")}</h1>
           <p className="u-lead">{t("atelier.lead")}</p>
         </header>
+        <nav className="u-lib-tabs" aria-label={t("creations.types")}>
+          {TABS.map(id => <button key={id} type="button" className="u-lib-tab" aria-pressed={filter === id} data-creations-tab={id} onClick={() => pickTab(id)}>
+            {id === "notes" ? t("atelier.notes") : t(`creations.type.${id}`)}
+          </button>)}
+        </nav>
+        <div className="u-lib-tools">
+          <div className="u-choice-row" role="group" aria-label={t("creations.sort")}>
+            {(["recent", "nom"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={sort === id} data-creations-sort={id} onClick={() => setSort(id)}>{t(`creations.sorts.${id}`)}</button>)}
+          </div>
+          <div className="u-choice-row" role="group" aria-label={t("creations.density")}>
+            <button type="button" className="u-chip" aria-pressed={!dense} data-creations-density="large" onClick={() => pickDensity(false)}>{t("creations.large")}</button>
+            <button type="button" className="u-chip" aria-pressed={dense} data-creations-density="dense" onClick={() => pickDensity(true)}>{t("creations.dense")}</button>
+          </div>
+        </div>
+        <div id="galerie">
+          {!ready ? <StudioSplash /> : <>
+            {filter !== "notes" && <ProjectGallery type={filter} dense={dense} sort={sort} title={filter === "tout" ? t("creations.title") : t(`creations.type.${filter}`)} />}
+            {shownNotes.length > 0 && <section className="u-lib-notes" aria-label={t("atelier.notes")}>
+              <h2 className="u-label">{filter === "prises" ? t("atelier.sequences") : `${t("atelier.sequences")} · ${t("atelier.notes")}`}</h2>
+              {shownNotes.map(note => <article key={`${note.kind}:${note.id}`} className="u-lib-note" data-note={note.id}>
+                <strong>{note.name}</strong>
+                {note.text && <small className="u-small">{note.text.length > 160 ? `${note.text.slice(0, 160)}…` : note.text}</small>}
+                {note.href && <a href={note.href}>{t("atelier.reuse")}</a>}
+              </article>)}
+            </section>}
+            {filter === "notes" && shownNotes.length === 0 && <p className="u-small" data-creations-empty="">{t("creations.empty")}</p>}
+          </>}
+        </div>
         <section className="u-lien" id="coffre" aria-labelledby="u-coffre-title">
-          <h2 id="u-coffre-title">{t("atelier.linkFolder")}</h2>
+          <h2 id="u-coffre-title">{t("atelier.vaultTitle")}</h2>
           <p>{t("atelier.linkExplain")}</p>
           <p id="u-why-lien">{t("atelier.linkMissing")}</p>
           <p className="u-small">{t("atelier.stays")}</p>
@@ -134,47 +156,12 @@ function AtelierFrame() {
             </label>
           </div>
         </section>
-        <div className="u-atelier-grid">
-          <aside>
-            <p className="u-label">{t("atelier.projects")}</p>
-            <div className="u-modes" role="radiogroup" aria-label={t("atelier.projects")}>
-              {projects.map(project => <button key={project.slug} type="button" role="radio" aria-checked={studio.project === project.slug || (showDemo && studio.projects.length === 0)} onClick={() => { if (studio.projects.some(item => item.slug === project.slug)) void selectProject(project.slug); }}>{project.name}</button>)}
-            </div>
-            <div className="u-filter" role="group" aria-label={t("atelier.search")}>
-              {FILTERS.map(item => <button key={item.id} type="button" aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{t(item.key)}</button>)}
-            </div>
-            <label className="u-field">
-              <span className="u-label">{t("atelier.search")}</span>
-              <input className="u-search" value={query} onChange={event => setQuery(event.target.value)} />
-            </label>
-          </aside>
-          <div id="galerie">
-            {current && <article className="u-detail">
-              <h2>{current.name}</h2>
-              {current.text && <p>{current.text}</p>}
-              <div className="u-card-actions">
-                {current.href && <a className="u-link" href={current.href}>{t("atelier.reuse")}</a>}
-                <button type="button" className="u-link" onClick={() => setOpen(null)}>{t("atelier.close")}</button>
-              </div>
-            </article>}
-            {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p> : shown.length === 0 ? <p className="u-small">{t("atelier.empty")}</p> : <div className="u-gallery">
-              {shown.map(row => <article key={`${row.kind}:${row.id}`} className="u-card-lg">
-                {row.image ? <img src={row.image} alt="" /> : <KindMark kind={row.kind} />}
-                <strong>{row.name}</strong>
-                <small>{t(FILTERS.find(item => item.id === row.kind)?.key ?? "atelier.all")}</small>
-                <div className="u-card-actions">
-                  <button type="button" className="u-link" onClick={() => setOpen(`${row.kind}:${row.id}`)}>{t("atelier.open")}</button>
-                  {row.href && <a className="u-link" href={row.href}>{t("atelier.reuse")}</a>}
-                </div>
-              </article>)}
-            </div>}
-            <ProjectGallery />
-          </div>
-        </div>
       </section>
     </main>
     {notice && <p className="u-toast" role="status">{say(notice)}</p>}
+    <AssistantPanel />
     {sheet === "credits" && <CreditSheet />}
     {sheet === "connect" && <ConnectSheet />}
   </div>;
 }
+

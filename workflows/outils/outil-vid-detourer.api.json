@@ -1,0 +1,40 @@
+{
+  "2": {
+    "inputs": {
+      "background_color": "Black",
+      "seed": 0,
+      "video": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "BriaRemoveVideoBackground",
+    "_meta": {
+      "title": "Bria Remove Video Background"
+    }
+  },
+  "4": {
+    "inputs": {
+      "file": "uttu-plan.mp4"
+    },
+    "class_type": "LoadVideo",
+    "_meta": {
+      "title": "Load Video"
+    }
+  },
+  "5": {
+    "inputs": {
+      "filename_prefix": "video/uttu-vid-detourer",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save Video"
+    }
+  }
+}

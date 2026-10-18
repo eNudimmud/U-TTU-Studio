@@ -4,6 +4,7 @@
 // son devis estimé (jamais présenté comme mesuré), demande une confirmation du
 // maximum, puis part sur le compte de rendu. Le rendu va au bout, sans annulation.
 
+import { ConnectLink } from "./connect-link";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
@@ -15,7 +16,7 @@ import { recordMaquette } from "@/lib/maquette/record";
 
 export interface PrevisClip { file: File; at: number }
 
-export function VideoGestes({ aspect = "horizontal", previs: sent = null, onRecordPrevis, previsLeft = 0 }: {
+export function VideoGestes({ aspect = "horizontal", previs: sent = null, onRecordPrevis, previsLeft = 0, only }: {
   aspect?: "horizontal" | "vertical";
   /** A previs filmed in the maquette above. It lands straight in Caméra maîtrisée. */
   previs?: PrevisClip | null;
@@ -23,14 +24,16 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
   onRecordPrevis?(): void;
   /** Seconds left while the maquette films, from the panel above. */
   previsLeft?: number;
+  /** Only these gestures (PRISE keeps the ones that start from the prévis; the others live in Outils). */
+  only?: readonly VideoGesteId[];
 }) {
   const { t } = useI18n();
   const { prefs, connected, creating, runVideoGeste, holdClip } = useStudio();
-  const rows = VIDEO_GESTES.flatMap(id => {
+  const rows = VIDEO_GESTES.filter(id => !only || only.includes(id)).flatMap(id => {
     const row = gesteParId(id);
     return row && gesteOuvert(row) && gesteVisible(row, prefs) ? [row] : [];
   });
-  const [picked, setPicked] = useState<VideoGesteId>(VIDEO_GESTES[0]);
+  const [picked, setPicked] = useState<VideoGesteId>(only?.[0] ?? VIDEO_GESTES[0]);
   const [files, setFiles] = useState<Record<string, File>>({});
   const [text, setText] = useState("");
   const [confirmed, setConfirmed] = useState(false);
@@ -148,6 +151,7 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
       {t("videoGeste.go", { credits: formatCredits(row.credits) })}
     </button>
     {why && !busy && <p className="u-why" id="u-video-why">{why}</p>}
+    {why && !busy && <ConnectLink />}
     {stage && <p className="u-small" id="u-video-busy" aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
     {outcome && (outcome.ok
       ? <div className="u-video-done"><video src={outcome.url} controls playsInline /><p className="u-small">{t("videoGeste.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p><button type="button" className="u-chip" onClick={() => { holdClip({ source: outcome.path, label: t(`gestes.${row.clef}.title`), kind: "video" }); window.location.hash = "montage"; }}>{t("assets.toMontage")}</button></div>

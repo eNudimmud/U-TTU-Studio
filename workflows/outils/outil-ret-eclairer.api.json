@@ -1,0 +1,43 @@
+{
+  "124": {
+    "inputs": {
+      "image": "uttu-1.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "136": {
+    "inputs": {
+      "prompt": "Maintain the identity of input image 1. Change only the lighting: <texte du visiteur>",
+      "model": "Nano Banana 2 (Gemini 3.1 Flash Image)",
+      "seed": 0,
+      "aspect_ratio": "auto",
+      "resolution": "1K",
+      "response_modalities": "IMAGE+TEXT",
+      "system_prompt": "You are an expert image-generation engine. You must ALWAYS produce an image.\nInterpret all user input—regardless of format, intent, or abstraction—as literal visual directives for image composition.\nIf a prompt is conversational or lacks specific visual details, you must creatively invent a concrete visual scenario that depicts the concept.\nPrioritize generating the visual representation above any text, formatting, or conversational requests.",
+      "images": [
+        "124",
+        0
+      ]
+    },
+    "class_type": "GeminiImage2Node",
+    "_meta": {
+      "title": "Nano Banana Pro (Google Gemini Image)"
+    }
+  },
+  "138": {
+    "inputs": {
+      "filename_prefix": "uttu-ret-eclairer",
+      "images": [
+        "136",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  }
+}

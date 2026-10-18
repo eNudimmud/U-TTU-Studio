@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { ALL_FORMATS, BlobSource, Input } from 'mediabunny';
 
-const image = readFileSync('public/exemples/cast-uttu.webp');
+const image = readFileSync('public/exemples/cast-dj.webp');
 const video = readFileSync('e2e/fixtures/final-1080p.mp4');
 const paid = /\/api\/(prompt|upload|queue)|fal\.ai|comfy\.cloud/;
 
@@ -99,6 +99,7 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   // Engines live in « Avancé »: the novice never meets them.
   await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
   await page.locator('[data-avance-prise] > summary').click();
+  await page.locator('[data-avance-toggle=rendu]').click();
   await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'ltx');
   expect(posts).toBe(0); // The default LTX quote is estimated; only confirmation may submit.
   await page.locator('.u-engine[data-engine]').getByRole('button', { name: /MiniMax H3/ }).click();
