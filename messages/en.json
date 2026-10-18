@@ -1148,28 +1148,28 @@
     },
     "options": {
       "title": "Engines",
-      "openWeights": "Open weights only",
-      "openWeightsHint": "Hides gestures that use a paid partner service.",
-      "nano": "Nano Banana (optional)"
+      "openWeights": "Studio models only",
+      "openWeightsHint": "Hides gestures that use a paid outside service.",
+      "nano": "Versatile model (optional)"
     },
     "castRefs": {
       "title": "Several references",
       "phrase": "Face, outfit and style, up to five photos."
     },
     "castTextNano": {
-      "title": "Text (Nano Banana)",
+      "title": "Text (versatile model)",
       "phrase": "A fictional person, with the other engine."
     },
     "castPhotosNano": {
-      "title": "Photos (Nano Banana)",
+      "title": "Photos (versatile model)",
       "phrase": "The face from your photos, with the other engine."
     },
     "decorTextNano": {
-      "title": "Text (Nano Banana)",
+      "title": "Place (versatile model)",
       "phrase": "A place, with the other engine."
     },
     "decorPhotoNano": {
-      "title": "Photo (Nano Banana)",
+      "title": "Photo (versatile model)",
       "phrase": "A place from a photo, with the other engine."
     },
     "prisePlanH3": {
@@ -1336,7 +1336,7 @@
       "tailleHint": "Both, to the waist",
       "contre": "Shot / reverse",
       "contreHint": "Follow whoever speaks",
-      "reac": "Silent reaction",
+      "reac": "Silence",
       "reacHint": "Close-up on the listener",
       "impact": "Impact zoom",
       "impactHint": "For a shock",
@@ -1397,7 +1397,7 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Photo added to the references.",
     "photosBusy": "Loading photos.",
-    "reacMontage": "Silent reaction"
+    "reacMontage": "Silence"
   },
   "finaliser": {
     "open": "Finish the edit",
@@ -1698,8 +1698,9 @@
     "after": "After",
     "compare": "Compare before and after",
     "engine": {
-      "open": "open weights",
-      "partner": "paid partner service"
+      "open": "studio model",
+      "partner": "outside service",
+      "versatile": "versatile model"
     },
     "paroles": {
       "aucune": "None",
@@ -1765,7 +1766,7 @@
       "executer": "Run",
       "controler": "Review",
       "archiver": "File",
-      "sentTitle": "What goes to the engine",
+      "sentTitle": "What is sent",
       "changeTitle": "What may change:",
       "changePrise": "the engine may change the face, outfit or set from one take to the next, and does not guarantee the motion. Keep the best one: the others stay as versions, nothing is overwritten.",
       "changeCast": "the face and outfit may drift from your photos; the character is added only after the result, nothing is replaced.",
@@ -2122,7 +2123,7 @@
     "partnerPrice": "Partner price ≈ {credits} cr.",
     "hidden": {
       "nano": "Hidden: turn it on in your model settings.",
-      "openWeights": "Hidden: you chose “open weights only”."
+      "openWeights": "Hidden: you chose studio models only."
     },
     "count": "{n} tools",
     "none": "No tool matches.",
@@ -2259,8 +2260,8 @@
         "line": "A shot very faithful to your picture."
       },
       "vid-wan": {
-        "title": "Animate an image (open)",
-        "line": "A picture comes alive, open weights."
+        "title": "Animate an image",
+        "line": "A picture comes alive."
       },
       "vid-vidu": {
         "title": "Multi-reference video",
@@ -2271,8 +2272,8 @@
         "line": "A sharp, steady shot from one picture."
       },
       "3d-ouvert": {
-        "title": "Image → 3D (open)",
-        "line": "An object or character in 3D, open weights."
+        "title": "Image to volume",
+        "line": "An object or a character in 3D."
       },
       "3d-tripo": {
         "title": "Image → detailed 3D",
@@ -2299,7 +2300,7 @@
         "line": "A whole place as a 3D splat."
       },
       "son-voix-ouverte": {
-        "title": "Voice (open)",
+        "title": "Voice",
         "line": "Reads your text in the voice of a clip you provide."
       },
       "son-voix": {
@@ -2311,16 +2312,16 @@
         "line": "Two voices answering each other, one line each."
       },
       "son-musique-ouverte": {
-        "title": "Music (open)",
-        "line": "30 s of music described in words, open weights."
+        "title": "Music",
+        "line": "Music described in words."
       },
       "son-musique": {
         "title": "Music",
         "line": "Music described in words."
       },
       "son-bruitage-ouvert": {
-        "title": "Sound effect (open)",
-        "line": "10 s of ambience or effect, open weights."
+        "title": "Sound effect",
+        "line": "An ambience or an effect."
       },
       "son-bruitage": {
         "title": "Sound effect",
@@ -2347,7 +2348,7 @@
         "line": "Changes what you describe, keeps the rest."
       },
       "ret-finaliser": {
-        "title": "Enhance an image",
+        "title": "Larger and sharper",
         "line": "Sharper and twice as large, nothing redrawn.",
         "tags": "finish upscale sharpen"
       },
@@ -2384,8 +2385,8 @@
         "line": "A picture and a voice become a talking shot."
       },
       "vid-finaliser": {
-        "title": "Enhance a video",
-        "line": "Brings a shot to 1080p without redoing it.",
+        "title": "Enlarge a video",
+        "line": "Makes a shot larger, without redrawing it.",
         "tags": "finish upscale sharpen"
       },
       "vid-prolonger-grok": {
@@ -2418,7 +2419,33 @@
       }
     },
     "latest": "Latest results",
-    "reserve": "· reserve {ceiling}"
+    "reserve": "· reserve {ceiling}",
+    "modelName": {
+      "vid-wan": "Simple motion",
+      "vid-ltx-image": "From your pictures",
+      "vid-animer": "Short motion",
+      "vid-kling": "Cinema, with sound",
+      "vid-seedance": "Very faithful to the picture",
+      "vid-h3max": "Sharper",
+      "vid-prolonger": "A few more seconds",
+      "vid-prolonger-grok": "From your instruction",
+      "3d-ouvert": "Simple volume",
+      "3d-tripo": "Detailed volume",
+      "3d-hunyuan": "Volume with materials",
+      "3d-meshy": "Volume for a game",
+      "son-voix-ouverte": "From a clip",
+      "son-voix": "From the text",
+      "son-musique-ouverte": "Simple music",
+      "son-musique": "Polished music",
+      "son-bruitage-ouvert": "Simple effect",
+      "son-bruitage": "Polished effect"
+    },
+    "model": "Model",
+    "modelChange": "Change model",
+    "confirmTitle": "Run this render?",
+    "confirmBody": "About {credits} cr., estimated. The final price may vary.",
+    "confirmYes": "Confirm",
+    "confirmNo": "Cancel"
   },
   "top": {
     "nav": "Studio navigation",
@@ -2457,7 +2484,8 @@
         "title": "Finish an edit",
         "line": "Your shots, sound, export."
       }
-    }
+    },
+    "film": "Film"
   },
   "projects": {
     "label": "Project",
@@ -2533,11 +2561,15 @@
       "nom": "Name"
     },
     "noSuite": "Convert and Retouch open on an image or a video.",
-    "inTool": "Open in a tool"
+    "inTool": "Open in a tool",
+    "settings": "Library settings",
+    "search": "Search a creation",
+    "emptyCta": "Create something"
   },
   "toolswitch": {
     "change": "Switch tool",
-    "recent": "Recent"
+    "recent": "Recent",
+    "family": "Same family"
   },
   "status": {
     "introuvable": {
@@ -2551,5 +2583,18 @@
     "retry": "Try again",
     "studio": "Open the studio",
     "home": "Home"
+  },
+  "entry": {
+    "linkTitle": "To run a render, link your Comfy account.",
+    "link": "Link",
+    "promptPh": "Describe an image, a video, or a film…",
+    "go": "Continue",
+    "chip": {
+      "portrait": "A calm portrait",
+      "anim": "Animate a portrait",
+      "film": "A short film"
+    },
+    "film": "Make a film",
+    "filmLine": "Character, place, shot, then the edit."
   }
 }

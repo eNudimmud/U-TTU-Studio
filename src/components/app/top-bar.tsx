@@ -1,25 +1,24 @@
 "use client";
 
-// One top bar for every studio page (studio, Mes créations, compte):
-// Accueil · Créer ▾ · Réaliser · Montage · Mes créations ▾ | recherche (Ctrl K) · tâches · assistant · crédits · langue.
-// Below 1024 px the same items live in one drawer. Menus open on click, close on Escape or a click outside.
+// One top bar for every studio page:
+// logo · Accueil · Créer ▾ · Film ▾ · Mes créations ▾ | search · account and credits · language menu.
+// The project switcher lives only in Film. Below 1024 px the same items live in one drawer.
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatCredits } from "@/lib/credits";
 import { assetPath } from "@/lib/site";
 import { studioTarget } from "@/lib/coffre/target";
-import { FAMILLES, OUTILS, cherche, outilEtat, type Outil } from "@/lib/outils/catalogue";
+import { FAMILLES, cherche, colonnes, familleVitrine, outilsPublics, type Outil } from "@/lib/outils/catalogue";
 import { clearTasks, listTasks, subscribeTasks, type Task } from "@/lib/tasks";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Brand } from "@/components/brand";
 import { useStudio } from "./studio-session";
-import { toggleAssistant, useAssistantOpen } from "./assistant-panel";
+import { toggleAssistant } from "./assistant-panel";
 
 
 const ICON = { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
 const SearchIcon = () => <svg {...ICON}><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>;
 const BellIcon = () => <svg {...ICON}><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" /><path d="M10 20.5a2 2 0 0 0 4 0" /></svg>;
-const SparkIcon = () => <svg {...ICON}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.5 2.5M15.2 15.2l2.5 2.5M6.3 17.7l2.5-2.5M15.2 8.8l2.5-2.5" /></svg>;
 const MenuIcon = () => <svg {...ICON}><path d="M4 7h16M4 12h16M4 17h16" /></svg>;
 const CloseIcon = () => <svg {...ICON}><path d="M6 6l12 12M18 6 6 18" /></svg>;
 
@@ -28,12 +27,11 @@ export type Place = "accueil" | "creer" | "realiser" | "montage" | "creations" |
 export const CREATION_TYPES = ["images", "videos", "3d", "sons", "personnages", "lieux", "prises"] as const;
 export type CreationType = (typeof CREATION_TYPES)[number];
 
-const APPS: { id: string; href: string }[] = [
-  { id: "perso", href: "/studio#personnage" },
-  { id: "lieu", href: "/studio#scene" },
-  { id: "plan", href: "/studio#prise" },
-  { id: "parler", href: "/studio#outils/vid-parler" },
-  { id: "montage", href: "/studio#montage" },
+const FILM: { id: string; href: string; label: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" }[] = [
+  { id: "cast", href: "/studio#personnage", label: "nav.character" },
+  { id: "decor", href: "/studio#scene", label: "nav.scene" },
+  { id: "prise", href: "/studio#prise", label: "nav.take" },
+  { id: "montage", href: "/studio#montage", label: "nav.edit" },
 ];
 
 /** Closes a popover on Escape and on a press outside `root`. */
@@ -78,8 +76,8 @@ export function TopBar({ place }: { place: Place }) {
   return <>
     <header className="u-top u-topbar" data-topbar="">
       <div className="u-top-left">
-        <Brand className="u-mark" href={assetPath("/studio#personnage")} />
-        <ProjectSwitcher />
+        <Brand className="u-mark" href={assetPath("/studio")} />
+        {(place === "realiser" || place === "montage") && <ProjectSwitcher />}
       </div>
       <nav className="u-top-nav" aria-label={t("top.nav")}>
         <MainNav place={place} />
@@ -88,24 +86,23 @@ export function TopBar({ place }: { place: Place }) {
         <button type="button" className="u-top-icon u-top-search" data-top-search="" aria-label={t("top.searchAria")} onClick={() => setPalette(true)}>
           <SearchIcon /><span className="u-tool-label">{t("top.search")}</span><kbd className="u-kbd">Ctrl K</kbd>
         </button>
-        <TasksBell />
-        <AssistantToggle />
         <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })}>
-          <span className="u-tool-full">{t("sheet.walletTitle")}</span>
-          <span className="u-tool-short">{t("stage.creditsShort")}</span>
+          <span className="u-tool-full">{connected && balance ? `${t("sheet.walletTitle")} · ${formatCredits(balance.credits)}` : t("sheet.walletTitle")}</span>
+          <span className="u-tool-short">{connected && balance ? formatCredits(balance.credits) : t("stage.creditsShort")}</span>
         </button>
-        <span className="u-top-lang"><LanguageSwitcher /></span>
+        <LangMenu />
         <button type="button" className="u-top-icon u-burger" data-top-burger="" aria-expanded={drawer} aria-controls="u-drawer" aria-label={t("top.menu")} onClick={() => setDrawer(true)}><MenuIcon /></button>
       </div>
     </header>
     {drawer && <div className="u-drawer-scrim" onClick={() => setDrawer(false)}>
       <aside id="u-drawer" className="u-drawer" data-drawer="" role="dialog" aria-modal="true" aria-label={t("top.menu")} onClick={event => event.stopPropagation()}>
         <div className="u-drawer-head">
-          <ProjectSwitcher inDrawer />
+          {(place === "realiser" || place === "montage") && <ProjectSwitcher inDrawer />}
           <button type="button" className="u-top-icon" aria-label={t("top.close")} onClick={() => setDrawer(false)}><CloseIcon /></button>
         </div>
         <nav aria-label={t("top.nav")} className="u-drawer-nav"><MainNav place={place} drawer onPick={() => setDrawer(false)} /></nav>
         <div className="u-drawer-foot">
+          <TasksBell />
           <button type="button" className="u-secondary" data-drawer-assistant="" onClick={() => { setDrawer(false); toggleAssistant(true); }}>{t("assistant.title")}</button>
           <LanguageSwitcher />
         </div>
@@ -121,8 +118,7 @@ function MainNav({ place, drawer = false, onPick }: { place: Place; drawer?: boo
   return <ul className="u-top-links" role="list">
     <li><a href={assetPath("/")} onClick={onPick} aria-current={current("accueil")}>{t("top.home")}</a></li>
     <li><Dropdown id="creer" label={t("top.create")} current={place === "creer"} drawer={drawer}>{close => <CreerMenu onPick={() => { close(); onPick?.(); }} />}</Dropdown></li>
-    <li><a href={assetPath("/studio#personnage")} onClick={onPick} aria-current={current("realiser")} data-top-realiser="">{t("top.make")}</a></li>
-    <li><a href={assetPath("/studio#montage")} onClick={onPick} aria-current={current("montage")}>{t("top.edit")}</a></li>
+    <li><Dropdown id="film" label={t("top.film")} current={place === "realiser" || place === "montage"} drawer={drawer}>{close => <FilmMenu onPick={() => { close(); onPick?.(); }} />}</Dropdown></li>
     <li><Dropdown id="creations" label={t("top.creations")} current={place === "creations"} drawer={drawer}>{close => <CreationsMenu onPick={() => { close(); onPick?.(); }} />}</Dropdown></li>
   </ul>;
 }
@@ -141,35 +137,37 @@ function Dropdown({ id, label, current, drawer, children }: { id: string; label:
   </div>;
 }
 
+function FilmMenu({ onPick }: { onPick(): void }) {
+  const { t } = useI18n();
+  return <ul className="u-dd-list" role="list" data-film-menu="">
+    {FILM.map(item => <li key={item.id}><a href={assetPath(item.href)} onClick={onPick} data-film={item.id}>{t(item.label)}</a></li>)}
+  </ul>;
+}
+
 function CreerMenu({ onPick }: { onPick(): void }) {
   const { t } = useI18n();
   const { prefs } = useStudio();
-  const visible = OUTILS.filter(item => outilEtat(item, prefs).kind !== "masque");
+  const cards = outilsPublics(prefs);
   return <div className="u-mega" data-creer-menu="">
     <div className="u-mega-cols">
-      {FAMILLES.map(fam => <section key={fam} className="u-mega-col" aria-label={t(`outils.fam.${fam}`)}>
-        <h2>{t(`outils.fam.${fam}`)}</h2>
-        <ul role="list">
-          {visible.filter(item => item.famille === fam).map(item => <li key={item.id}><MegaItem outil={item} onPick={onPick} /></li>)}
-        </ul>
-      </section>)}
+      {FAMILLES.flatMap(fam => {
+        const items = cards.filter(item => familleVitrine(item) === fam);
+        return colonnes(items, 8).map((col, index) => <section key={`${fam}-${index}`} className="u-mega-col" aria-label={index === 0 ? t(`outils.fam.${fam}`) : undefined}>
+          <h2>{index === 0 ? t(`outils.fam.${fam}`) : "\u00a0"}</h2>
+          <ul role="list">
+            {col.map(item => <li key={item.id}><MegaItem outil={item} onPick={onPick} /></li>)}
+          </ul>
+        </section>);
+      })}
     </div>
-    <div className="u-mega-apps">
-      <h2>{t("top.apps")}</h2>
-      <ul role="list">
-        {APPS.map(app => <li key={app.id}><a href={assetPath(app.href)} onClick={onPick} data-app={app.id}><strong>{t(`top.app.${app.id}.title`)}</strong><span>{t(`top.app.${app.id}.line`)}</span></a></li>)}
-      </ul>
-      <a className="u-secondary u-mega-all" href={assetPath("/studio#outils")} onClick={onPick} data-top-outils="">{t("outils.seeAll")}</a>
-    </div>
+    <a className="u-secondary u-mega-all" href={assetPath("/studio#outils")} onClick={onPick} data-top-outils="">{t("outils.seeAll")}</a>
   </div>;
 }
 
 function MegaItem({ outil, onPick }: { outil: Outil; onPick(): void }) {
   const { t } = useI18n();
-  const { prefs } = useStudio();
-  const soon = outilEtat(outil, prefs).kind !== "pret";
-  return <a className="u-mega-item" href={assetPath(`/studio#outils/${outil.id}`)} onClick={onPick} data-mega-outil={outil.id} data-soon={soon ? "" : undefined}>
-    <strong>{t(`outils.t.${outil.id}.title`)}{soon && <small className="u-mega-soon">{t("outils.soon")}</small>}</strong>
+  return <a className="u-mega-item" href={assetPath(`/studio#outils/${outil.id}`)} onClick={onPick} data-mega-outil={outil.id}>
+    <strong>{t(`outils.t.${outil.id}.title`)}</strong>
     <span>{t(`outils.t.${outil.id}.line`)}</span>
   </a>;
 }
@@ -251,12 +249,17 @@ function TasksBell() {
   </div>;
 }
 
-function AssistantToggle() {
+function LangMenu() {
   const { t } = useI18n();
-  const open = useAssistantOpen();
-  return <button type="button" className="u-top-icon u-top-assistant" data-top-assistant="" aria-pressed={open} aria-label={t("assistant.toggle")} onClick={() => toggleAssistant()}>
-    <SparkIcon /><span className="u-tool-label">{t("assistant.short")}</span>
-  </button>;
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  const close = useMemo(() => () => setOpen(false), []);
+  useDismiss(open, close, root);
+  return <div className="u-dd u-top-lang" ref={root} data-lang-menu="">
+    <button type="button" className="u-top-icon" aria-expanded={open} aria-controls={menuId} aria-label={t("lang.label")} data-top-lang="" onClick={() => setOpen(value => !value)}>Aa</button>
+    <div id={menuId} className="u-dd-panel u-lang-panel" hidden={!open}><LanguageSwitcher /></div>
+  </div>;
 }
 
 /** Ctrl K: tools and my creations in one list. */
@@ -272,7 +275,7 @@ function SearchPalette({ onClose }: { onClose(): void }) {
     return () => document.removeEventListener("keydown", key);
   }, [onClose]);
   const needle = query.trim();
-  const tools = OUTILS.filter(item => outilEtat(item, prefs).kind !== "masque" && (!needle || cherche(`${t(`outils.t.${item.id}.title`)} ${t(`outils.t.${item.id}.line`)} ${t(`outils.fam.${item.famille}`)}`, needle))).slice(0, needle ? 8 : 6);
+  const tools = outilsPublics(prefs).filter(item => !needle || cherche(`${t(`outils.t.${item.id}.title`)} ${t(`outils.t.${item.id}.line`)} ${t(`outils.fam.${familleVitrine(item)}`)}`, needle)).slice(0, needle ? 8 : 6);
   const mine = [
     ...cast.map(card => ({ id: `c-${card.id}`, name: card.name, kind: t("creations.type.personnages"), href: studioTarget("personnage", card.id, studio.project, demo) })),
     ...decor.map(card => ({ id: `d-${card.id}`, name: card.name, kind: t("creations.type.lieux"), href: studioTarget("lieu", card.id, studio.project, demo) })),

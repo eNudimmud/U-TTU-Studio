@@ -9,6 +9,7 @@ import { FiabiliteCard } from "./fiabilite-card";
 import { Close } from "./glyphs";
 import { useStudio } from "./studio-session";
 import { RecoveryPanel } from "./recovery-panel";
+import { toggleAssistant } from "./assistant-panel";
 
 function Frame({ title, onClose, children }: { title: string; onClose(): void; children: React.ReactNode }) {
   const { t } = useI18n();
@@ -50,6 +51,7 @@ export function CreditSheet() {
     <p className="u-small">{quoteSentence(takeQuote)}</p>
     <RecoveryPanel />
     <div className="u-card-actions">
+      <button type="button" className="u-link" data-sheet-assistant="" onClick={() => { setSheet(null); toggleAssistant(true); }}>{t("assistant.title")}</button>
       <button type="button" className="u-link" onClick={() => void refreshBalance()}>{t("sheet.reread")}</button>
       {connected ? <button type="button" className="u-link" onClick={() => void disconnect()}>{t("sheet.unlinkRender")}</button> : <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("stage.connectComfy")}</button>}
     </div>

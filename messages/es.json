@@ -1148,28 +1148,28 @@
     },
     "options": {
       "title": "Motores",
-      "openWeights": "Solo open weights",
-      "openWeightsHint": "Oculta los gestos que usan un servicio asociado de pago.",
-      "nano": "Nano Banana (opcional)"
+      "openWeights": "Solo modelos del estudio",
+      "openWeightsHint": "Oculta los gestos que pasan por un servicio externo de pago.",
+      "nano": "Modelo versátil (opción)"
     },
     "castRefs": {
       "title": "Varias referencias",
       "phrase": "Cara, ropa y estilo, hasta cinco fotos."
     },
     "castTextNano": {
-      "title": "Texto (Nano Banana)",
+      "title": "Texto (modelo versátil)",
       "phrase": "Una persona ficticia, con el otro motor."
     },
     "castPhotosNano": {
-      "title": "Fotos (Nano Banana)",
+      "title": "Fotos (modelo versátil)",
       "phrase": "La cara de tus fotos, con el otro motor."
     },
     "decorTextNano": {
-      "title": "Texto (Nano Banana)",
+      "title": "Lugar (modelo versátil)",
       "phrase": "Un lugar, con el otro motor."
     },
     "decorPhotoNano": {
-      "title": "Foto (Nano Banana)",
+      "title": "Foto (modelo versátil)",
       "phrase": "Un lugar de una foto, con el otro motor."
     },
     "prisePlanH3": {
@@ -1336,7 +1336,7 @@
       "tailleHint": "Los dos, a la cintura",
       "contre": "Campo / contracampo",
       "contreHint": "Seguimos a quien habla",
-      "reac": "Reacción muda",
+      "reac": "Silencio",
       "reacHint": "Primer plano de quien escucha",
       "impact": "Zoom de impacto",
       "impactHint": "Para un golpe",
@@ -1397,7 +1397,7 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Foto añadida a las referencias.",
     "photosBusy": "Cargando fotos.",
-    "reacMontage": "Reacción muda"
+    "reacMontage": "Silencio"
   },
   "finaliser": {
     "open": "Finalizar el montaje",
@@ -1698,8 +1698,9 @@
     "after": "Después",
     "compare": "Comparar antes y después",
     "engine": {
-      "open": "pesos abiertos",
-      "partner": "servicio asociado de pago"
+      "open": "modelo del estudio",
+      "partner": "servicio externo",
+      "versatile": "modelo versátil"
     },
     "paroles": {
       "aucune": "Ninguno",
@@ -1765,7 +1766,7 @@
       "executer": "Ejecutar",
       "controler": "Controlar",
       "archiver": "Archivar",
-      "sentTitle": "Lo que va al motor",
+      "sentTitle": "Lo que se envía",
       "changeTitle": "Lo que puede cambiar:",
       "changePrise": "el motor puede cambiar la cara, la ropa o el decorado de una toma a otra y no garantiza el movimiento. Quédate con la mejor: las demás quedan como versiones, nada se sobrescribe.",
       "changeCast": "la cara y la ropa pueden alejarse de tus fotos; el personaje se añade solo tras el resultado, nada se reemplaza.",
@@ -2122,7 +2123,7 @@
     "partnerPrice": "Precio socio ≈ {credits} cr.",
     "hidden": {
       "nano": "Oculto: actívalo en tus ajustes de modelos.",
-      "openWeights": "Oculto: elegiste «solo pesos abiertos»."
+      "openWeights": "Oculto: elegiste solo los modelos del estudio."
     },
     "count": "{n} herramientas",
     "none": "Ninguna herramienta coincide.",
@@ -2259,8 +2260,8 @@
         "line": "Un plano muy fiel a tu imagen."
       },
       "vid-wan": {
-        "title": "Animar una imagen (abierto)",
-        "line": "Una imagen cobra vida, pesos abiertos."
+        "title": "Animar una imagen",
+        "line": "Una imagen cobra vida."
       },
       "vid-vidu": {
         "title": "Vídeo con varias referencias",
@@ -2271,8 +2272,8 @@
         "line": "Un plano nítido y estable desde una imagen."
       },
       "3d-ouvert": {
-        "title": "Imagen → 3D (abierto)",
-        "line": "Un objeto o personaje en 3D, pesos abiertos."
+        "title": "Imagen en volumen",
+        "line": "Un objeto o un personaje en 3D."
       },
       "3d-tripo": {
         "title": "Imagen → 3D detallado",
@@ -2299,8 +2300,8 @@
         "line": "Un lugar entero en nube de puntos 3D."
       },
       "son-voix-ouverte": {
-        "title": "Voz (abierto)",
-        "line": "Lee tu texto con la voz de un clip que aportas."
+        "title": "Voz",
+        "line": "Lee tu texto con la voz de un fragmento que das."
       },
       "son-voix": {
         "title": "Voz",
@@ -2311,16 +2312,16 @@
         "line": "Dos voces que se responden, una réplica por línea."
       },
       "son-musique-ouverte": {
-        "title": "Música (abierto)",
-        "line": "30 s de música descrita con palabras, pesos abiertos."
+        "title": "Música",
+        "line": "Una música descrita con palabras."
       },
       "son-musique": {
         "title": "Música",
         "line": "Una música descrita con palabras."
       },
       "son-bruitage-ouvert": {
-        "title": "Efecto de sonido (abierto)",
-        "line": "10 s de ambiente o efecto, pesos abiertos."
+        "title": "Efecto de sonido",
+        "line": "Un ambiente o un efecto."
       },
       "son-bruitage": {
         "title": "Efecto de sonido",
@@ -2347,7 +2348,7 @@
         "line": "Cambia lo que describes, conserva el resto."
       },
       "ret-finaliser": {
-        "title": "Mejorar una imagen",
+        "title": "Más grande y nítida",
         "line": "Más nítida y el doble de grande, sin rehacer nada.",
         "tags": "finalizar reescalar nitidez"
       },
@@ -2384,8 +2385,8 @@
         "line": "Una imagen y una voz se vuelven un plano hablado."
       },
       "vid-finaliser": {
-        "title": "Mejorar un vídeo",
-        "line": "Lleva un plano a 1080p sin rehacerlo.",
+        "title": "Agrandar un vídeo",
+        "line": "Hace un plano más grande, sin rehacerlo.",
         "tags": "finalizar reescalar nitidez"
       },
       "vid-prolonger-grok": {
@@ -2418,7 +2419,33 @@
       }
     },
     "latest": "Últimos resultados",
-    "reserve": "· reserva {ceiling}"
+    "reserve": "· reserva {ceiling}",
+    "modelName": {
+      "vid-wan": "Movimiento simple",
+      "vid-ltx-image": "Desde tus imágenes",
+      "vid-animer": "Movimiento corto",
+      "vid-kling": "Cine, con sonido",
+      "vid-seedance": "Muy fiel a la imagen",
+      "vid-h3max": "Más nítido",
+      "vid-prolonger": "Unos segundos más",
+      "vid-prolonger-grok": "Según tu consigna",
+      "3d-ouvert": "Volumen simple",
+      "3d-tripo": "Volumen detallado",
+      "3d-hunyuan": "Volumen con materiales",
+      "3d-meshy": "Volumen para un juego",
+      "son-voix-ouverte": "A partir de un fragmento",
+      "son-voix": "A partir del texto",
+      "son-musique-ouverte": "Música simple",
+      "son-musique": "Música cuidada",
+      "son-bruitage-ouvert": "Efecto simple",
+      "son-bruitage": "Efecto cuidado"
+    },
+    "model": "Modelo",
+    "modelChange": "Cambiar de modelo",
+    "confirmTitle": "¿Lanzar este render?",
+    "confirmBody": "Unos {credits} cr., estimado. El precio final puede variar.",
+    "confirmYes": "Confirmar",
+    "confirmNo": "Cancelar"
   },
   "top": {
     "nav": "Navegación del estudio",
@@ -2457,7 +2484,8 @@
         "title": "Terminar un montaje",
         "line": "Tus planos, el sonido, la exportación."
       }
-    }
+    },
+    "film": "Película"
   },
   "projects": {
     "label": "Proyecto",
@@ -2533,11 +2561,15 @@
       "nom": "Nombre"
     },
     "noSuite": "Convertir y Retocar se abren sobre una imagen o un vídeo.",
-    "inTool": "Abrir en una herramienta"
+    "inTool": "Abrir en una herramienta",
+    "settings": "Ajustes de la biblioteca",
+    "search": "Buscar una creación",
+    "emptyCta": "Crear algo"
   },
   "toolswitch": {
     "change": "Cambiar de herramienta",
-    "recent": "Recientes"
+    "recent": "Recientes",
+    "family": "Misma familia"
   },
   "status": {
     "introuvable": {
@@ -2551,5 +2583,18 @@
     "retry": "Reintentar",
     "studio": "Abrir el estudio",
     "home": "Inicio"
+  },
+  "entry": {
+    "linkTitle": "Para lanzar un render, vincula tu cuenta Comfy.",
+    "link": "Vincular",
+    "promptPh": "Describe una imagen, un vídeo o una película…",
+    "go": "Continuar",
+    "chip": {
+      "portrait": "Un retrato, mirada calma",
+      "anim": "Animar un retrato",
+      "film": "Un cortometraje"
+    },
+    "film": "Hacer una película",
+    "filmLine": "Personaje, lugar, plano y montaje."
   }
 }

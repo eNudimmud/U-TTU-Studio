@@ -1,6 +1,6 @@
 "use client";
 
-import { OutilsEntry, OutilsStrip } from "./outils-hub";
+import { OutilsStrip } from "./outils-hub";
 import { ConnectLink } from "./connect-link";
 import { useEffect, useState, type ReactNode } from "react";
 import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
@@ -141,7 +141,7 @@ function engineName(t: (key: string, values?: Record<string, string | number>) =
   const partner = t("p0.engine.partner");
   if (/klein/i.test(id)) return `FLUX 3 Klein · ${open}`;
   if (/bfl|flux3/i.test(id)) return `FLUX 3 · ${partner}`;
-  if (/nano/i.test(id)) return `Nano Banana · ${partner}`;
+  if (/nano/i.test(id)) return `${t("p0.engine.versatile")} · ${partner}`;
   if (/ltx/i.test(id)) return `LTX-2.5 · ${open}`;
   if (/h3|minimax/i.test(id)) return `MiniMax H3 · ${open}`;
   return id || "Comfy";
@@ -149,7 +149,7 @@ function engineName(t: (key: string, values?: Record<string, string | number>) =
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
   const { t } = useI18n();
-  const { ready: vaultReady, media, createCast, connected, balance, creating, importAssets, cast, prefs } = useStudio();
+  const { ready: vaultReady, media, createCast, connected, balance, creating, importAssets, cast, prefs, setSheet } = useStudio();
   const [gesteId, setGesteIdState] = useState("cast-photos");
   const [touched, setTouched] = useState(false);
   const setGesteId = (id: string) => { setTouched(true); setGesteIdState(id); };
@@ -177,7 +177,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const textOnly = row.still === "texte-cast";
   const ready = name.trim().length > 0 && mapped >= row.minRefs && (!textOnly || prompt.trim().length > 0);
   const covered = opened && amount !== null && high !== null && creationAllowed(connected, balance?.credits ?? null, high);
-  const blocked = !covered || !ready || creating;
+  const blocked = !opened || !ready || creating || (connected && !covered);
   const missingTenue = casesVisibles(row).some(item => item.role === "tenue" && !refs.some(ref => ref.caseId === item.id));
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : missingTenue ? t("gestes.needOutfit") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
   const preview = refs.find(ref => ref.url)?.url ?? "";
@@ -245,7 +245,6 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <label className="u-secondary">{t("p0.importCast")}<input className="sr-only" type="file" accept="image/*" aria-label={t("p0.importCastAria")} disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "personnage"); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
-      <OutilsEntry />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>
@@ -262,7 +261,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     </div>
     <div className="u-create-bar">
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
-        <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => setAsk(true)}>
+        <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => { if (!connected) { setSheet("connect"); return; } setAsk(true); }}>
           {amount !== null ? t("create.castButton", { amount }) : t("create.castButtonClosed")} <Arrow />
         </button>
         {ceiling && <p className="u-ceiling">{ceiling}</p>}
@@ -277,7 +276,7 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { ready: vaultReady, media, createDecor, connected, balance, creating, importAssets, saveLieuPhoto, saveLieuCapture, decor, prefs } = useStudio();
+  const { ready: vaultReady, media, createDecor, connected, balance, creating, importAssets, saveLieuPhoto, saveLieuCapture, decor, prefs, setSheet } = useStudio();
   const [gesteId, setGesteIdState] = useState("decor-photo");
   const [touched, setTouched] = useState(false);
   const setGesteId = (id: string) => { setTouched(true); setGesteIdState(id); };
@@ -317,7 +316,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const textOnly = row.still === "texte-decor";
   const ready = name.trim().length > 0 && mapped >= row.minRefs && (!textOnly || prompt.trim().length > 0);
   const covered = opened && amount !== null && high !== null && creationAllowed(connected, balance?.credits ?? null, high);
-  const blocked = !covered || !ready || creating;
+  const blocked = !opened || !ready || creating || (connected && !covered);
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
@@ -406,7 +405,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     </div>
     <div className="u-create-bar">
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
-        <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => setAsk(true)}>
+        <button type="button" className="u-primary" data-decor-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-decor" : undefined} onClick={() => { if (!connected) { setSheet("connect"); return; } setAsk(true); }}>
           {amount !== null ? t("create.decorButton", { amount }) : t("create.decorButtonClosed")} <Arrow />
         </button>
         {ceiling && <p className="u-ceiling">{ceiling}</p>}

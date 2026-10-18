@@ -26,7 +26,7 @@ export const TUILES: readonly TuilePreset[] = [
   { id: "large", label: "Plan large", hint: "Tout le décor", prompt: "wide shot, the whole set", cadrage: "large", camera: "fixe", theta: 0.2, phi: 1.25, radius: 11, pair: false },
   { id: "taille", label: "Plan taille", hint: "Les deux, à la taille", prompt: "waist-up framing", cadrage: "americain", camera: "fixe", theta: 0.35, phi: 1.35, radius: 6.5, pair: true },
   { id: "contre", label: "Champ / contrechamp", hint: "On suit qui parle", prompt: "over-the-shoulder, following whoever speaks", cadrage: "epaule", camera: "panoramique", theta: -0.9, phi: 1.4, radius: 4, pair: true },
-  { id: "reac", label: "Réaction muette", hint: "Gros plan sur qui écoute", prompt: "silent close-up on the listener", cadrage: "gros", camera: "fixe", theta: 2.6, phi: 1.45, radius: 3, pair: true },
+  { id: "reac", label: "Silence", hint: "Gros plan sur qui écoute", prompt: "silent close-up on the listener", cadrage: "gros", camera: "fixe", theta: 2.6, phi: 1.45, radius: 3, pair: true },
   { id: "impact", label: "Zoom d'impact", hint: "Pour un choc", prompt: "impact push-in", cadrage: "gros", camera: "travelling-avant", theta: 0, phi: 1.5, radius: 2.6, pair: false },
   { id: "regard", label: "Regard caméra", hint: "Il nous fixe", prompt: "looks straight into the lens", cadrage: "gros", camera: "fixe", theta: 0, phi: 1.5, radius: 4, pair: false },
 ];
