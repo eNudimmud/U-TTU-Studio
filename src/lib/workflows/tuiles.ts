@@ -2,12 +2,12 @@ import type { RoleRef } from "./registre.ts";
 
 /** House still used as the tile picture. Not an “after” render. */
 const FICHIER: Record<string, string> = {
-  "cast-photos": "/exemples/cast-uttu.webp",
-  "cast-planche": "/exemples/cast-uttu-planche.webp",
+  "cast-photos": "/exemples/cast-dj.webp",
+  "cast-planche": "/exemples/apres-cast-planche.webp",
   "cast-texte": "/exemples/cast-vieil-homme.webp",
   "cast-tenue": "/exemples/cast-dj.webp",
   "cast-angle": "/exemples/cast-coursiere.webp",
-  "cast-expressions": "/exemples/cast-uttu.webp",
+  "cast-expressions": "/exemples/cast-coursiere.webp",
   "cast-eclair": "/exemples/cast-dj.webp",
   "cast-agrandir": "/exemples/cast-vieil-homme.webp",
   "cast-volume": "/exemples/cast-coursiere.webp",
@@ -24,7 +24,7 @@ const FICHIER: Record<string, string> = {
   "prise-prolonger": "/exemples/decor-gare.webp",
   "prise-camera": "/exemples/decor-toit-aube.webp",
   "prise-mouvement": "/exemples/cast-coursiere.webp",
-  "prise-levres": "/exemples/cast-uttu.webp",
+  "prise-levres": "/exemples/cast-dj.webp",
   "prise-vidu": "/exemples/decor-rue-pluie.webp",
 };
 

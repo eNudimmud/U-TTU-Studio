@@ -4,6 +4,7 @@ import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { clerkClientEnabled } from "@/lib/clerk-config";
 import { STUDIO_PATH } from "@/lib/account";
 import { assetPath } from "@/lib/site";
+import { Brand } from "@/components/brand";
 
 export function AuthScreen({ screen, children }: {
   screen: "signIn" | "signUp";
@@ -12,7 +13,7 @@ export function AuthScreen({ screen, children }: {
   const { t } = useI18n();
   const enabled = clerkClientEnabled();
   return <main id="contenu" className="auth-page">
-    <a href={assetPath(STUDIO_PATH)} className="wordmark" aria-label="U*TTU Studio">U<span className="wordmark-star">*</span>TTU<span className="wordmark-studio">STUDIO</span></a>
+    <Brand href={assetPath(STUDIO_PATH)} />
     <LanguageSwitcher />
     <header className="auth-copy">
       <p className="eyebrow">{t(`auth.${screen}.kicker`)}</p>

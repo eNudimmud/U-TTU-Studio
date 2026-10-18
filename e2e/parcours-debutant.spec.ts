@@ -7,7 +7,7 @@ import { ALL_FORMATS, BlobSource, Input } from 'mediabunny';
 // and exports a short sequence, with no outside help, on phone and desktop. Comfy is simulated:
 // this proves the orchestration and the tap count, never the quality of a paid model.
 
-const still = readFileSync('public/exemples/cast-uttu.webp');
+const still = readFileSync('public/exemples/cast-coursiere.webp');
 const decorStill = readFileSync('public/exemples/decor-quai-nuit.webp');
 // VP9 + Opus: decodable by Chromium, Chrome and the CI alike.
 const video = readFileSync('e2e/fixtures/prise-5s-vp9.mp4');
@@ -93,7 +93,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await snap('cast');
 
   // 1 · CAST: a name, a description, Créer, Lancer.
-  await page.getByRole('textbox', { name: 'Nom' }).fill('Enki');
+  await page.getByRole('textbox', { name: 'Nom' }).fill('Léa');
   await page.getByRole('textbox', { name: 'Texte', exact: true }).fill('Une femme de trente ans, manteau rouge, cheveux courts.');
   const castGold = page.locator('[data-cast-gold]');
   if (mobile) await reachable(castGold);
@@ -120,7 +120,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await expect(page.locator('[data-maquette]')).toBeHidden();
   await expect(page.locator('[data-prise-still]')).toBeVisible();
   await expect(page.locator('.u-prise-actions .u-secondary')).toHaveCount(0);
-  await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Enki marche sur le quai, caméra à l\'épaule');
+  await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Léa marche sur le quai, caméra à l\'épaule');
   const gold = page.locator('.u-prise-actions .u-primary');
   if (mobile) await reachable(gold);
   await snap('prise-plan-1');
@@ -139,7 +139,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   expect(takePrompt).not.toMatch(/static camera|locked-off/);
   await snap('prise-1-arrivee');
 
-  for (const [plan, words] of [['02', 'Enki se retourne vers la mer'], ['03', 'Enki regarde au loin, le vent dans le manteau']] as const) {
+  for (const [plan, words] of [['02', 'Léa se retourne vers la mer'], ['03', 'Léa regarde au loin, le vent dans le manteau']] as const) {
     await page.getByRole('textbox', { name: 'Plan suivant : ce qui se passe' }).fill(words);
     await expect(gold).toHaveText(`Tourner le plan ${plan}`);
     if (mobile) await reachable(gold);

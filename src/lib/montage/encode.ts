@@ -208,7 +208,7 @@ export async function exportMp4(input: ExportInput & { strict?: boolean }): Prom
   const videos = new Map<string, HTMLVideoElement>();
   async function drawClip(clip: Edit["video"][number], local: number) {
     if (clip.kind === "slate") {
-      ctx!.fillStyle = "#c9a46a";
+      ctx!.fillStyle = "#ededf0";
       ctx!.font = "600 42px sans-serif";
       ctx!.fillText(clip.label || "", 48, height / 2);
       return;
@@ -226,7 +226,7 @@ export async function exportMp4(input: ExportInput & { strict?: boolean }): Prom
     }
   }
   async function drawAt(time: number) {
-    ctx!.fillStyle = "#0b0a09";
+    ctx!.fillStyle = "#0f0f11";
     ctx!.fillRect(0, 0, width, height);
     let cursor = 0;
     for (let index = 0; index < input.edit.video.length; index += 1) {
@@ -237,7 +237,7 @@ export async function exportMp4(input: ExportInput & { strict?: boolean }): Prom
         if (clip.title) {
           ctx!.fillStyle = "rgba(0,0,0,.55)";
           ctx!.fillRect(0, height - 72, width, 72);
-          ctx!.fillStyle = "#f4efe6";
+          ctx!.fillStyle = "#ededf0";
           ctx!.font = "600 28px sans-serif";
           ctx!.fillText(clip.title, 24, height - 28);
         }

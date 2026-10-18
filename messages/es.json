@@ -39,9 +39,11 @@
     "yourPlace": "Un decorado",
     "theVideo": "El vídeo",
     "quiet": "El estudio no vende nada. El render se paga en tu cuenta cloud.",
-    "alt": "U*TTU: capucha negra, rostro marcado con finas líneas doradas, fondo oscuro.",
-    "caption": "U*TTU · ella te guía en el estudio",
-    "contact": "Contactar el estudio ↗"
+    "alt": "Vista del estudio: la lista de planos, la vista previa del plano y el botón Rodar con su coste estimado.",
+    "caption": "El estudio · un plano, su vista previa, su coste",
+    "contact": "Contactar el estudio ↗",
+    "poweredBy": "Con tecnología de ComfyUI",
+    "poweredByLabel": "Con tecnología de ComfyUI — comfy.org, pestaña nueva"
   },
   "guide": {
     "look-photos": "Dos fotos, tres como máximo. De frente, luego tres cuartos. Yo tejo el resto.",
@@ -1732,6 +1734,7 @@
       "whereAsset": "Resultado: guardado en Mi estudio y propuesto aquí. Si falla, nada se reemplaza y el mensaje dice por qué.",
       "whereTake": "Guardada en {plan} · toma {n} de {total} (Mi estudio › Tomas). Las demás versiones se quedan.",
       "whereTakeNext": "La toma llega a TOMA, en su plano, sin sobrescribir una toma guardada. Si se cierra la pestaña, «Recuperar el render» la encuentra.",
+      "via": "Renderizado en Comfy Cloud",
       "technical": "Ver el detalle técnico",
       "stepNow": "Paso {n}/7 · {label}"
     },
@@ -1787,12 +1790,12 @@
       "unknownName": "No conozco «{word}»: añádalo en Reparto o Decorado, o corrija la palabra.",
       "noWho": "No se nombra a nadie: elija quién actúa en Quién."
     },
-    "uttu": "U*TTU",
+    "uttu": "Asistente del estudio",
     "fiab": {
       "ambiance": "Ambiente",
       "continuity": "Continuidad",
       "engine": "Motor",
-      "engineAuto": "{engine} · elegido por U*TTU",
+      "engineAuto": "{engine} · elegido por el estudio",
       "engineHand": "{engine} · elegido a mano",
       "resolution": "Resolución (estimada)",
       "graph": "Plantilla Comfy",

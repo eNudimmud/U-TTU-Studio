@@ -15,6 +15,7 @@ import { CastStage, DecorStage, PriseStage } from "./stage-screens";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
+import { Brand } from "@/components/brand";
 
 const STEPS: { id: "lora" | "scene" | "prise" | "montage"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" }[] = [
   { id: "lora", key: "nav.character" },
@@ -135,7 +136,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
 
   return <FormatProvider><div className="u-app" data-studio={section}>
     <header className="u-top">
-      <a className="u-mark" href={assetPath("/studio#personnage")} aria-label="U*TTU Studio">U<em>*</em>TTU</a>
+      <Brand className="u-mark" href={assetPath("/studio#personnage")} />
       <div className="u-top-project">
         {vault.projectName && <p className="u-project-name">{vault.projectName}</p>}
       </div>

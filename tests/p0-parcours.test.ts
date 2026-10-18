@@ -19,7 +19,7 @@ const read = (path: string) => readFileSync(path, "utf8");
 
 describe("P0 · caméra : les mots de l'utilisateur gagnent", () => {
   it("reads camera words in FR, EN, DE and ES", () => {
-    assert.equal(cameraFromWords("Enki marche, caméra à l'épaule")?.move, "epaule");
+    assert.equal(cameraFromWords("Léa marche, caméra à l'épaule")?.move, "epaule");
     assert.equal(cameraFromWords("handheld, she runs")?.move, "epaule");
     assert.equal(cameraFromWords("Handkamera, sie läuft")?.move, "epaule");
     assert.equal(cameraFromWords("cámara al hombro")?.move, "epaule");
@@ -30,24 +30,24 @@ describe("P0 · caméra : les mots de l'utilisateur gagnent", () => {
   });
 
   it("never adds « static camera, locked-off » on the user's behalf", () => {
-    const plan = { ...emptyPlan("16:9"), castIds: ["a"], castNames: ["Enki"], castPlanche: [false], action: "Enki marche vers la mer", camera: "fixe" as const };
+    const plan = { ...emptyPlan("16:9"), castIds: ["a"], castNames: ["Léa"], castPlanche: [false], action: "Léa marche vers la mer", camera: "fixe" as const };
     const free = buildPrompt(plan, { graph: "video_ltx2_5_i2v", son: false }).text;
     assert.doesNotMatch(free, /static camera|locked-off/);
     assert.doesNotMatch(free, /\[caméra\]/);
-    const said = buildPrompt({ ...plan, action: "Enki marche, caméra à l'épaule" }, { graph: "video_ltx2_5_i2v", son: false }).text;
+    const said = buildPrompt({ ...plan, action: "Léa marche, caméra à l'épaule" }, { graph: "video_ltx2_5_i2v", son: false }).text;
     assert.match(said, /\[caméra\]\s+handheld camera/);
     assert.doesNotMatch(said, /static camera|locked-off/);
-    const fixed = buildPrompt({ ...plan, action: "Plan fixe sur Enki" }, { graph: "video_ltx2_5_i2v", son: false }).text;
+    const fixed = buildPrompt({ ...plan, action: "Plan fixe sur Léa" }, { graph: "video_ltx2_5_i2v", son: false }).text;
     assert.match(fixed, /static camera, locked-off/);
   });
 
   it("keeps a moving tile, and flags it when the text says otherwise", () => {
-    assert.deepEqual(cameraChoice("Enki regarde", "travelling-avant"), { move: "travelling-avant", source: "tuile", words: "", overridden: null });
+    assert.deepEqual(cameraChoice("Léa regarde", "travelling-avant"), { move: "travelling-avant", source: "tuile", words: "", overridden: null });
     const over = cameraChoice("caméra à l'épaule", "travelling-avant");
     assert.equal(over.move, "epaule");
     assert.equal(over.source, "texte");
     assert.equal(over.overridden, "travelling-avant");
-    assert.equal(cameraChoice("Enki regarde", "fixe").source, "libre");
+    assert.equal(cameraChoice("Léa regarde", "fixe").source, "libre");
   });
 });
 

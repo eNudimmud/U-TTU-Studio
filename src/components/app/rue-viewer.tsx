@@ -54,19 +54,19 @@ export const RueViewer = forwardRef<RueHandle, Props>(function RueViewer({ photo
     const height = Math.max(2, Math.round(canvas.clientHeight * 2));
     canvas.width = width;
     canvas.height = height;
-    ctx.fillStyle = "#1a1714";
+    ctx.fillStyle = "#17171a";
     ctx.fillRect(0, 0, width, height);
     ctx.fillStyle = "#6e8ea8";
     ctx.fillRect(0, 0, width, height * 0.46);
     const shift = (cap % 360) / 360 * width;
-    ctx.fillStyle = "#3a342c";
+    ctx.fillStyle = "#2a2a30";
     for (let index = 0; index < 8; index += 1) {
       const x = ((index * (width / 6) - shift) % width + width) % width;
       ctx.fillRect(x, height * 0.18, width / 10, height * 0.32);
     }
-    ctx.fillStyle = "#5c5348";
+    ctx.fillStyle = "#3a3a41";
     ctx.fillRect(0, height * 0.55, width, height * 0.45);
-    ctx.fillStyle = "#e8d3ad";
+    ctx.fillStyle = "#ededf0";
     ctx.font = "32px sans-serif";
     ctx.fillText(photo.author, 24, 56);
   }, [demo, photo, cap]);

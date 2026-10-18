@@ -5,6 +5,7 @@
 
 import type { ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
+import { ComfyLogomark } from "@/components/powered-by";
 import { ETAPES, etapeCourante, type Etape, type EtapeEtat } from "@/lib/fiabilite";
 
 export interface SentLine {
@@ -51,6 +52,7 @@ export function FiabiliteCard({ states, sent, technical = [], change, estimate, 
     <p className={`u-fiab-estimate u-cost is-ok ${estimateClass}`.trim()} id={estimateId} data-fiab-estimate="">{estimate}</p>
     {failure && <p className="u-fiab-fail" role="alert" data-fiab-echec="">{failure}</p>}
     {where && <p className="u-fiab-where" data-fiab-archive="">{where}</p>}
+    <p className="u-fiab-via" data-fiab-via=""><ComfyLogomark size={22} /><span>{t("p0.fiab.via")}</span></p>
     <details className="u-fiab-more" open={open}>
       <summary>{t("p0.fiab.sentTitle")}</summary>
       <dl className="u-fiab-sent">

@@ -5,6 +5,7 @@ import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { ACCOUNT_SIGN_IN_PATH, ACCOUNT_SIGN_UP_PATH, STUDIO_PATH } from "@/lib/account";
 import { clerkClientEnabled } from "@/lib/clerk-config";
 import { assetPath } from "@/lib/site";
+import { Brand } from "@/components/brand";
 
 export function AccountPage() {
   if (!clerkClientEnabled()) return <AccountBody phase="unconfigured" />;
@@ -22,7 +23,7 @@ function AccountSession() {
 function AccountBody({ phase, name, email }: { phase: "unconfigured" | "signed-out" | "signed-in"; name?: string; email?: string | null }) {
   const { t } = useI18n();
   return <main id="contenu" className="auth-page account-page">
-    <a href={assetPath(STUDIO_PATH)} className="wordmark" aria-label="U*TTU Studio">U<span className="wordmark-star">*</span>TTU<span className="wordmark-studio">STUDIO</span></a>
+    <Brand href={assetPath(STUDIO_PATH)} />
     <LanguageSwitcher />
     <header className="auth-copy">
       <p className="eyebrow">{t("account.kicker")}</p>

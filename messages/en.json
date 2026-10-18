@@ -39,9 +39,11 @@
     "yourPlace": "A set",
     "theVideo": "The video",
     "quiet": "The studio sells nothing. The render is paid on your cloud account.",
-    "alt": "U*TTU: black hood, face marked with fine gold lines, dark ground.",
-    "caption": "U*TTU · she guides you in the studio",
-    "contact": "Contact the studio ↗"
+    "alt": "Studio preview: the shot list, the shot preview and the Shoot button with its estimated cost.",
+    "caption": "The studio · a shot, its preview, its cost",
+    "contact": "Contact the studio ↗",
+    "poweredBy": "Powered by ComfyUI",
+    "poweredByLabel": "Powered by ComfyUI — comfy.org, new tab"
   },
   "guide": {
     "look-photos": "Two photos, three at most. Front, then three-quarter. I weave the rest.",
@@ -1732,6 +1734,7 @@
       "whereAsset": "Result: filed in My studio and offered here. If it fails, nothing is replaced and the message says why.",
       "whereTake": "Filed in {plan} · take {n} of {total} (My studio › Takes). Other versions stay.",
       "whereTakeNext": "The take lands in TAKE, on its shot, without overwriting a kept take. If the tab closes, “Recover the render” finds it again.",
+      "via": "Rendered on Comfy Cloud",
       "technical": "See the technical detail",
       "stepNow": "Step {n}/7 · {label}"
     },
@@ -1787,12 +1790,12 @@
       "unknownName": "I don't know “{word}”: add it in CAST or SET, or fix the word.",
       "noWho": "Nobody is named: choose who plays in Who."
     },
-    "uttu": "U*TTU",
+    "uttu": "Studio assistant",
     "fiab": {
       "ambiance": "Mood",
       "continuity": "Continuity",
       "engine": "Engine",
-      "engineAuto": "{engine} · chosen by U*TTU",
+      "engineAuto": "{engine} · chosen by the studio",
       "engineHand": "{engine} · picked by hand",
       "resolution": "Resolution (estimated)",
       "graph": "Comfy template",

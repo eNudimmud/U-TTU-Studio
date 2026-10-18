@@ -5,6 +5,8 @@ import { Arrow } from "@/components/glyph";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { assetPath, contactEmail } from "@/lib/site";
 import { LegacyStudioHash } from "./legacy-hash";
+import { Brand, BrandLockup } from "@/components/brand";
+import { PoweredBy } from "@/components/powered-by";
 
 const STUDIO_HREF = assetPath("/studio");
 
@@ -20,7 +22,7 @@ export function HomeLanding() {
     <LegacyStudioHash />
     <header className="landing-header">
       <div className="landing-bar">
-        <a href={assetPath("/")} className="wordmark" aria-label={t("landing.home")}>U<span className="wordmark-star">*</span>TTU<span className="wordmark-studio">STUDIO</span></a>
+        <Brand href={assetPath("/")} label={t("landing.home")} desktop={64} />
         <div className="landing-tools">
           <LanguageSwitcher />
           <a className="button button-outline landing-header-cta" href={STUDIO_HREF}>{t("landing.enter")} <Arrow /></a>
@@ -30,6 +32,7 @@ export function HomeLanding() {
     <main id="contenu" className="landing-main" tabIndex={-1}>
       <section className="landing-splash" aria-labelledby="landing-title">
         <div className="landing-copy">
+          <BrandLockup className="landing-lockup" />
           <h1 id="landing-title">{t("landing.before")}<em>{t("landing.em")}</em></h1>
           <div className="landing-sheet">
             <ol className="landing-pills" aria-label={t("landing.pills")}>
@@ -46,19 +49,22 @@ export function HomeLanding() {
           </div>
         </div>
         <figure className="landing-still">
+          <div className="landing-still-frame">
           <Image
-            src={assetPath("/images/uttu-canon-portrait.webp")}
+            src={assetPath("/images/studio-apercu-v2.webp")}
             alt={t("landing.alt")}
             fill
             preload
-            sizes="(max-width: 899px) 100vw, 42vw"
+            sizes="(max-width: 899px) 100vw, 640px"
           />
+          </div>
           <figcaption>{t("landing.caption")}</figcaption>
         </figure>
       </section>
     </main>
     <footer className="studio-footer landing-footer">
-      <span><span className="iii">iii</span> THE BLOC · SUISSE</span>
+      <span>U*TTU Studio · THE BLOC · SUISSE</span>
+      <PoweredBy />
       <a href={`mailto:${contactEmail}`}>{t("landing.contact")}</a>
     </footer>
   </div>;

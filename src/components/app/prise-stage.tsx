@@ -1168,7 +1168,7 @@ function AddPlaceIcon() {
 
 type T = (key: string, values?: Record<string, string | number>) => string;
 
-/** Understood items, as editable chips: Qui, Où, Caméra, Ambiance, Durée, then unknown words. And U*TTU's line. */
+/** Understood items, as editable chips: Qui, Où, Caméra, Ambiance, Durée, then unknown words. And the studio assistant's line. */
 function IntentionChips(props: {
   names: string[]; place: string;
   camera: { value: string; label: string; autoLabel: string };
@@ -1202,7 +1202,7 @@ function IntentionChips(props: {
     </div>
     {(props.line.length > 0 || props.flags.length > 0) && <div className="u-uttu" data-uttu-dit="">
       <div>
-        <p className="u-uttu-who">{t("p1.uttu")}</p>
+        <p className="u-uttu-who"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></svg>{t("p1.uttu")}</p>
         {props.line.length > 0 && <p className="u-uttu-line">{props.line.join(" ")}</p>}
         {props.flags.map(flag => <p key={flag} className="u-uttu-flag">{flag}</p>)}
       </div>

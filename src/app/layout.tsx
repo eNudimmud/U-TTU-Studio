@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import "@fontsource-variable/syne";
-import "@fontsource-variable/manrope";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
 import "./globals.css";
 import { LocaleProvider, SkipLink } from "@/components/i18n/provider";
 import { loadCatalog } from "@/lib/i18n/catalog";
@@ -31,13 +31,12 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [{ url: socialImage, width: 1200, height: 630, alt: copy.title }],
     },
     twitter: { card: "summary_large_image", title: copy.title, description: copy.description, images: [socialImage] },
-    icons: { icon: assetPath("/icon.svg") },
-    appleWebApp: { capable: true, title: "U*TTU", statusBarStyle: "black-translucent" },
+        appleWebApp: { capable: true, title: "U*TTU", statusBarStyle: "black-translucent" },
   };
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0B0A09",
+  themeColor: "#0F0F11",
   colorScheme: "dark",
   viewportFit: "cover",
   interactiveWidget: "resizes-content",

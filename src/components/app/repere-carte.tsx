@@ -82,7 +82,7 @@ export function RepereCarte({ onSave, onPhoto }: Props) {
         pitch: pitchFor("debout"),
       });
       map.addControl(new maplibre.NavigationControl({ showCompass: false }), "top-left");
-      const marker = new maplibre.Marker({ color: "#d4af37" })
+      const marker = new maplibre.Marker({ color: "#c9a75b" })
         .setLngLat([LIEUX_EXEMPLE[0].lon, LIEUX_EXEMPLE[0].lat])
         .addTo(map);
       markerRef.current = marker;

@@ -1,0 +1,96 @@
+{
+  "mark": {
+    "box_in_source": [
+      282,
+      159,
+      983,
+      801
+    ],
+    "content_box": [
+      310,
+      187,
+      955,
+      773
+    ],
+    "size": [
+      701,
+      642
+    ],
+    "alpha_on_outer_half_padding": 0,
+    "ink_outside_crop": 0.0,
+    "recomposite_max_diff": 15.0,
+    "recomposite_mean_diff": 0.77
+  },
+  "lockup": {
+    "box_in_source": [
+      270,
+      147,
+      995,
+      1069
+    ],
+    "content_box": [
+      310,
+      187,
+      955,
+      1029
+    ],
+    "size": [
+      725,
+      922
+    ],
+    "alpha_on_outer_half_padding": 0,
+    "ink_outside_crop": 0.0,
+    "recomposite_max_diff": 17.0,
+    "recomposite_mean_diff": 0.745
+  },
+  "files": {
+    "uttu-mark-h48.png": [
+      52,
+      48
+    ],
+    "uttu-mark-h48@2x.png": [
+      105,
+      96
+    ],
+    "uttu-mark-h48@3x.png": [
+      157,
+      144
+    ],
+    "uttu-mark-h56.png": [
+      61,
+      56
+    ],
+    "uttu-mark-h56@2x.png": [
+      122,
+      112
+    ],
+    "uttu-mark-h56@3x.png": [
+      183,
+      168
+    ],
+    "uttu-mark-h64.png": [
+      70,
+      64
+    ],
+    "uttu-mark-h64@2x.png": [
+      140,
+      128
+    ],
+    "uttu-mark-h64@3x.png": [
+      210,
+      192
+    ],
+    "uttu-logo-h180.png": [
+      142,
+      180
+    ],
+    "uttu-logo-h180@2x.png": [
+      283,
+      360
+    ],
+    "uttu-logo-h180@3x.png": [
+      425,
+      540
+    ]
+  }
+}
