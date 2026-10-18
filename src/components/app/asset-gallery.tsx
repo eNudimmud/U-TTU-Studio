@@ -5,6 +5,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { filterAssets, previewAssets, type AssetFilter, type AssetKind, type AssetRecord } from "@/lib/creation/assets";
 import { gesteParId } from "@/lib/workflows/registre";
 import { assetPath } from "@/lib/site";
+import { EtEnsuite } from "./et-ensuite";
 import { Check, KindMark, Refresh, Search, Share, type MarkKind } from "./glyphs";
 
 const FILTERS: { id: AssetFilter; key: string }[] = [
@@ -49,6 +50,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
   const [searchOpen, setSearchOpen] = useState(false);
   const [armed, setArmed] = useState<string | null>(null);
   const [preview, setPreview] = useState<AssetRecord[]>([]);
+  const [suiteInitial, setSuiteInitial] = useState<Parameters<typeof EtEnsuite>[0]["initial"]>(null);
   const hold = useRef<number | null>(null);
   const held = useRef(false);
 
@@ -57,6 +59,8 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     const asked = params.get("galerie");
     const extra = asked ? previewAssets(Math.max(32, Number(asked) || 32)) : [];
     setPreview(extra);
+    const outil = params.get("suite");
+    if (outil) setSuiteInitial(outil as Parameters<typeof EtEnsuite>[0]["initial"]);
     if (params.get("detail") === "1") {
       const first = extra[0] ?? assets[0];
       if (first) setOpen(first.id);
@@ -140,6 +144,11 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         {onCopy && (current.kind === "personnage" || current.kind === "decor") && projects.map(project => <button key={project.slug} type="button" onClick={() => onCopy(current, project.slug)}>{t("create.copyProject", { name: project.name })}</button>)}
         <button type="button" onClick={() => setOpen(null)}>{t("assets.close")}</button>
       </div>
+      {!isModel(current) && !isAudio(current) && srcOf(current) && <EtEnsuite
+        source={{ kind: isVideo(current) ? "video" : "image", url: srcOf(current), name: current.id, path: current.preview ? undefined : current.media || undefined }}
+        onPrise={onPrise && (current.kind === "personnage" || current.kind === "decor") ? () => onPrise(current) : undefined}
+        initial={suiteInitial}
+      />}
     </article>}
     {rows.length === 0 ? <p className="u-small">{t("assets.empty")}</p> : <div className="u-gallery u-asset-grid">
       {rows.map(card => {

@@ -987,19 +987,19 @@
       "castAngle": "Bientôt : prix pas encore vérifié.",
       "castExpression": "Bientôt : prix pas encore vérifié.",
       "castLight": "Bientôt : prix pas encore vérifié.",
-      "castUpscale": "Bientôt : prix pas encore vérifié.",
+      "castUpscale": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
       "castVolume": "Bientôt : prix pas encore vérifié.",
       "decorAngles": "Bientôt : prix pas encore vérifié.",
       "decorWiden": "Bientôt : prix pas encore vérifié.",
       "decorVolume": "Bientôt : prix pas encore vérifié.",
-      "priseStill": "Bientôt : prix pas encore vérifié.",
-      "priseExtend": "Bientôt : prix pas encore vérifié.",
+      "priseStill": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
+      "priseExtend": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
       "priseMotion": "Bientôt : prix pas encore vérifié.",
-      "priseLips": "Bientôt : prix pas encore vérifié.",
+      "priseLips": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
       "priseVidu": "Bientôt : prix pas encore vérifié.",
       "montLips": "Bientôt : prix pas encore vérifié.",
-      "montUpscale": "Bientôt : prix pas encore vérifié.",
-      "montFrames": "Bientôt : prix pas encore vérifié."
+      "montUpscale": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
+      "montFrames": "Dans « Et ensuite ? » : ouvre une image ou une prise."
     },
     "cat": {
       "identite": "Identité",
@@ -1194,6 +1194,51 @@
     "priseVolumeObjet": {
       "title": "Objet ou décor en 3D",
       "phrase": "Une photo devient un objet ou un morceau de décor en 3D avec TRELLIS.2, poids ouverts."
+    },
+    "suiteModifier": {
+      "title": "Modifier",
+      "phrase": "Change un détail en une phrase. Le reste de l’image ne bouge pas.",
+      "quiet": "Modifier"
+    },
+    "suiteFinaliserImage": {
+      "title": "Finaliser",
+      "phrase": "Plus net et deux fois plus grand. L’image est restaurée, jamais refaite.",
+      "quiet": "Finaliser"
+    },
+    "suiteDetourer": {
+      "title": "Détourer",
+      "phrase": "Retire le fond. Un PNG transparent, prêt pour un décor.",
+      "quiet": "Détourer"
+    },
+    "suiteElargir": {
+      "title": "Élargir",
+      "phrase": "Agrandit le cadre et invente ce qu’il y a autour.",
+      "quiet": "Élargir"
+    },
+    "suiteAnimer": {
+      "title": "Animer",
+      "phrase": "L’image devient un plan de 5 secondes, avec son.",
+      "quiet": "Animer"
+    },
+    "suiteFinaliserVideo": {
+      "title": "Finaliser",
+      "phrase": "Restaure la prise en 1080p, sans changer le mouvement. Rien n’est refait.",
+      "quiet": "Finaliser"
+    },
+    "suiteFluidifier": {
+      "title": "Fluidifier",
+      "phrase": "Ajoute des images intermédiaires : le mouvement devient plus fluide.",
+      "quiet": "Fluidifier"
+    },
+    "suiteProlonger": {
+      "title": "Prolonger",
+      "phrase": "5 secondes de plus, à partir de la dernière image de la prise.",
+      "quiet": "Prolonger"
+    },
+    "suiteParler": {
+      "title": "Faire parler",
+      "phrase": "Le personnage dit la voix choisie, lèvres synchronisées (5 s).",
+      "quiet": "Faire parler"
     }
   },
   "refs": {
@@ -1385,7 +1430,8 @@
     "again": "Finaliser autrement",
     "fail": "La finalisation n'a pas abouti : {message}",
     "close": "Fermer",
-    "download": "Télécharger"
+    "download": "Télécharger",
+    "openLead": "Poids ouverts : la prise est restaurée en 1080p, sans être refaite. Estimé par tranche de 5 s."
   },
   "depart": {
     "label": "Exemple — refais-le",
@@ -1962,5 +2008,79 @@
       "open": "Ouvrir un fichier de lieu (KML, KMZ, GeoJSON)",
       "off": "Ce fichier ne contient pas de point lisible. Essaie un KML, KMZ ou GeoJSON avec un lieu."
     }
+  },
+  "suite": {
+    "title": "Et ensuite ?",
+    "chip": "≈ {credits} cr. estimé",
+    "quote": "Estimé : environ {credits} crédits, réserve conseillée {ceiling}. Pas encore mesuré sur un vrai rendu.",
+    "safe": "Le résultat s’ajoute à Mon studio. L’original n’est jamais remplacé.",
+    "go": "Lancer · ≈ {credits} crédits (estimé)",
+    "done": "Enregistré dans Mon studio, à côté de l’original.",
+    "intact": "L’original reste intact.",
+    "optional": "(facultatif)",
+    "needVoice": "Ajoute une voix (fichier audio).",
+    "noFrame": "La dernière image de la prise n’a pas pu être lue sur cet appareil. Rien n’est parti.",
+    "emptyResult": "Le rendu est revenu vide. L’original reste intact.",
+    "toPrise": "Ouvrir dans PRISE",
+    "fluide": "Fluidifier aussi (images intermédiaires, estimé en plus)",
+    "voice": "Voix (5 premières secondes)",
+    "side": "Où élargir",
+    "sides": {
+      "cotes": "Côtés",
+      "haut-bas": "Haut et bas",
+      "tout": "Tout autour"
+    },
+    "mesh": {
+      "objet": "Objet ou décor",
+      "perso": "Personnage"
+    },
+    "tools": {
+      "suite-modifier": {
+        "title": "Modifier",
+        "phrase": "Change un détail en une phrase. Le reste de l’image ne bouge pas.",
+        "text": "Ce qui change"
+      },
+      "suite-finaliser-image": {
+        "title": "Finaliser",
+        "phrase": "Plus net et deux fois plus grand. L’image est restaurée, jamais refaite."
+      },
+      "suite-detourer": {
+        "title": "Détourer",
+        "phrase": "Retire le fond. Un PNG transparent, prêt pour un décor."
+      },
+      "suite-elargir": {
+        "title": "Élargir",
+        "phrase": "Agrandit le cadre et invente ce qu’il y a autour.",
+        "text": "Ce qui apparaît autour"
+      },
+      "suite-3d": {
+        "title": "Passer en 3D",
+        "phrase": "Un modèle 3D léger à partir de l’image, pour la maquette."
+      },
+      "suite-animer": {
+        "title": "Animer",
+        "phrase": "L’image devient un plan de 5 secondes, avec son.",
+        "text": "Ce qui bouge"
+      },
+      "suite-parler": {
+        "title": "Faire parler",
+        "phrase": "Le personnage dit la voix choisie, lèvres synchronisées (5 s).",
+        "text": "La scène et le ton"
+      },
+      "suite-finaliser-video": {
+        "title": "Finaliser",
+        "phrase": "Restaure la prise en 1080p, sans changer le mouvement. Rien n’est refait."
+      },
+      "suite-fluidifier": {
+        "title": "Fluidifier",
+        "phrase": "Ajoute des images intermédiaires : le mouvement devient plus fluide."
+      },
+      "suite-prolonger": {
+        "title": "Prolonger",
+        "phrase": "5 secondes de plus, à partir de la dernière image de la prise.",
+        "text": "Ce qui se passe ensuite"
+      }
+    },
+    "voicePick": "Choisir un fichier audio"
   }
 }

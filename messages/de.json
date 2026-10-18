@@ -987,19 +987,19 @@
       "castAngle": "Bald: der Preis ist noch nicht geprüft.",
       "castExpression": "Bald: der Preis ist noch nicht geprüft.",
       "castLight": "Bald: der Preis ist noch nicht geprüft.",
-      "castUpscale": "Bald: der Preis ist noch nicht geprüft.",
+      "castUpscale": "In „Und jetzt?“: öffne ein Bild oder eine Aufnahme.",
       "castVolume": "Bald: der Preis ist noch nicht geprüft.",
       "decorAngles": "Bald: der Preis ist noch nicht geprüft.",
       "decorWiden": "Bald: der Preis ist noch nicht geprüft.",
       "decorVolume": "Bald: der Preis ist noch nicht geprüft.",
-      "priseStill": "Bald: der Preis ist noch nicht geprüft.",
-      "priseExtend": "Bald: der Preis ist noch nicht geprüft.",
+      "priseStill": "In „Und jetzt?“: öffne ein Bild oder eine Aufnahme.",
+      "priseExtend": "In „Und jetzt?“: öffne ein Bild oder eine Aufnahme.",
       "priseMotion": "Bald: der Preis ist noch nicht geprüft.",
-      "priseLips": "Bald: der Preis ist noch nicht geprüft.",
+      "priseLips": "In „Und jetzt?“: öffne ein Bild oder eine Aufnahme.",
       "priseVidu": "Bald: der Preis ist noch nicht geprüft.",
       "montLips": "Bald: der Preis ist noch nicht geprüft.",
-      "montUpscale": "Bald: der Preis ist noch nicht geprüft.",
-      "montFrames": "Bald: der Preis ist noch nicht geprüft."
+      "montUpscale": "In „Und jetzt?“: öffne ein Bild oder eine Aufnahme.",
+      "montFrames": "In „Und jetzt?“: öffne ein Bild oder eine Aufnahme."
     },
     "cat": {
       "identite": "Identität",
@@ -1194,6 +1194,51 @@
     "priseVolumeObjet": {
       "title": "Objekt oder Kulisse in 3D",
       "phrase": "Ein Foto wird mit TRELLIS.2 zum 3D-Objekt oder Kulissenteil, offene Gewichte."
+    },
+    "suiteModifier": {
+      "title": "Ändern",
+      "phrase": "Ändere ein Detail mit einem Satz. Der Rest des Bildes bleibt.",
+      "quiet": "Ändern"
+    },
+    "suiteFinaliserImage": {
+      "title": "Fertigstellen",
+      "phrase": "Schärfer und doppelt so groß. Das Bild wird restauriert, nie neu gemacht.",
+      "quiet": "Fertigstellen"
+    },
+    "suiteDetourer": {
+      "title": "Freistellen",
+      "phrase": "Entfernt den Hintergrund. Ein transparentes PNG, bereit für ein Set.",
+      "quiet": "Freistellen"
+    },
+    "suiteElargir": {
+      "title": "Erweitern",
+      "phrase": "Vergrößert den Bildausschnitt und erfindet, was darum liegt.",
+      "quiet": "Erweitern"
+    },
+    "suiteAnimer": {
+      "title": "Animieren",
+      "phrase": "Das Bild wird zu einer 5-Sekunden-Einstellung, mit Ton.",
+      "quiet": "Animieren"
+    },
+    "suiteFinaliserVideo": {
+      "title": "Fertigstellen",
+      "phrase": "Restauriert die Aufnahme in 1080p, ohne die Bewegung zu ändern. Nichts wird neu gemacht.",
+      "quiet": "Fertigstellen"
+    },
+    "suiteFluidifier": {
+      "title": "Flüssiger",
+      "phrase": "Fügt Zwischenbilder ein: die Bewegung wird flüssiger.",
+      "quiet": "Flüssiger"
+    },
+    "suiteProlonger": {
+      "title": "Fortsetzen",
+      "phrase": "5 Sekunden mehr, ab dem letzten Bild der Aufnahme.",
+      "quiet": "Fortsetzen"
+    },
+    "suiteParler": {
+      "title": "Sprechen lassen",
+      "phrase": "Die Figur spricht die gewählte Stimme, lippensynchron (5 s).",
+      "quiet": "Sprechen lassen"
     }
   },
   "refs": {
@@ -1385,7 +1430,8 @@
     "again": "Anders finalisieren",
     "fail": "Finalisieren hat nicht geklappt: {message}",
     "close": "Schließen",
-    "download": "Herunterladen"
+    "download": "Herunterladen",
+    "openLead": "Offene Gewichte: der Schnitt wird in 1080p restauriert, nie neu gemacht. Geschätzt pro 5-Sekunden-Block."
   },
   "depart": {
     "label": "Beispiel — mach es nach",
@@ -1962,5 +2008,79 @@
       "open": "Ortsdatei öffnen (KML, KMZ, GeoJSON)",
       "off": "Diese Datei enthält keinen lesbaren Punkt. Versuche KML, KMZ oder GeoJSON mit einem Ort."
     }
+  },
+  "suite": {
+    "title": "Und jetzt?",
+    "chip": "≈ {credits} Cr. geschätzt",
+    "quote": "Geschätzt: etwa {credits} Credits, empfohlene Reserve {ceiling}. Noch nicht an einem echten Render gemessen.",
+    "safe": "Das Ergebnis kommt zu Mein Studio dazu. Das Original wird nie ersetzt.",
+    "go": "Starten · ≈ {credits} Credits (geschätzt)",
+    "done": "In Mein Studio gespeichert, neben dem Original.",
+    "intact": "Das Original bleibt unverändert.",
+    "optional": "(optional)",
+    "needVoice": "Füge eine Stimme hinzu (Audiodatei).",
+    "noFrame": "Das letzte Bild der Aufnahme ließ sich auf diesem Gerät nicht lesen. Nichts wurde gesendet.",
+    "emptyResult": "Der Render kam leer zurück. Das Original bleibt unverändert.",
+    "toPrise": "In der Aufnahme öffnen",
+    "fluide": "Auch flüssiger machen (Zwischenbilder, zusätzlich geschätzt)",
+    "voice": "Stimme (erste 5 Sekunden)",
+    "side": "Wo erweitern",
+    "sides": {
+      "cotes": "Seiten",
+      "haut-bas": "Oben und unten",
+      "tout": "Rundherum"
+    },
+    "mesh": {
+      "objet": "Objekt oder Set",
+      "perso": "Figur"
+    },
+    "tools": {
+      "suite-modifier": {
+        "title": "Ändern",
+        "phrase": "Ändere ein Detail mit einem Satz. Der Rest des Bildes bleibt.",
+        "text": "Was sich ändert"
+      },
+      "suite-finaliser-image": {
+        "title": "Fertigstellen",
+        "phrase": "Schärfer und doppelt so groß. Das Bild wird restauriert, nie neu gemacht."
+      },
+      "suite-detourer": {
+        "title": "Freistellen",
+        "phrase": "Entfernt den Hintergrund. Ein transparentes PNG, bereit für ein Set."
+      },
+      "suite-elargir": {
+        "title": "Erweitern",
+        "phrase": "Vergrößert den Bildausschnitt und erfindet, was darum liegt.",
+        "text": "Was rundherum erscheint"
+      },
+      "suite-3d": {
+        "title": "In 3D umwandeln",
+        "phrase": "Ein leichtes 3D-Modell aus dem Bild, für das Modell."
+      },
+      "suite-animer": {
+        "title": "Animieren",
+        "phrase": "Das Bild wird zu einer 5-Sekunden-Einstellung, mit Ton.",
+        "text": "Was sich bewegt"
+      },
+      "suite-parler": {
+        "title": "Sprechen lassen",
+        "phrase": "Die Figur spricht die gewählte Stimme, lippensynchron (5 s).",
+        "text": "Szene und Ton"
+      },
+      "suite-finaliser-video": {
+        "title": "Fertigstellen",
+        "phrase": "Restauriert die Aufnahme in 1080p, ohne die Bewegung zu ändern. Nichts wird neu gemacht."
+      },
+      "suite-fluidifier": {
+        "title": "Flüssiger",
+        "phrase": "Fügt Zwischenbilder ein: die Bewegung wird flüssiger."
+      },
+      "suite-prolonger": {
+        "title": "Fortsetzen",
+        "phrase": "5 Sekunden mehr, ab dem letzten Bild der Aufnahme.",
+        "text": "Was danach passiert"
+      }
+    },
+    "voicePick": "Audiodatei wählen"
   }
 }

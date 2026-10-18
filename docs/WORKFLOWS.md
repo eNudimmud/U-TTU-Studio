@@ -71,6 +71,24 @@ Les coûts marqués hypothèse ne sont pas une mesure. Mesurés : la prise MiniM
 | mont-agrandir | Agrandir la vidéo | `utility_seedvr2_3b_int8_upscale_video` | non mesuré | fermé, open weights |
 | mont-fluide | Fluidifier | `utility_video_frame_interpolation` | non mesuré | fermé, open weights |
 
+## ET ENSUITE ?
+
+Menu « Et ensuite ? » sur un asset (panneau de détail de Mon studio) et sur une prise de PRISE. Chaque outil est un template officiel, poids ouverts, converti en API par Comfy Cloud puis élagué (aperçus retirés) : `src/lib/suite/base.ts`. Le résultat est un nouvel asset, l’original n’est que lu. Devis estimés, jamais encore mesurés ; ils s’affichent « estimé » sur le bouton.
+
+| Geste | Carte | Template | Devis | État |
+| --- | --- | --- | --- | --- |
+| suite-modifier | Modifier (texte libre) | `image_flux3_klein_image_edit` | 4 / 6, estimé | ouvert, open weights |
+| suite-finaliser-image | Finaliser une image (restaure ×2, ne refait rien) | `utility_seedvr2_3b_int8_upscale_image` | 2 / 4, estimé | ouvert, open weights |
+| suite-detourer | Détourer (PNG transparent ; SaveImage ajouté au template) | `utility_birefnet_remove_background` | 2 / 4, estimé | ouvert, open weights |
+| suite-elargir | Élargir le cadre (Flux.2 Klein 9B) | `templates_doc_workbox_klein_9b_image_extend` | 2 / 4, estimé | ouvert, open weights |
+| suite-animer | Animer une image (5 s) | `video_minimax_h3_i2v` | 4 / 8, estimé | ouvert, open weights |
+| suite-finaliser-video | Finaliser une prise ou le montage (1080p, + fluidifier en option) | `utility_seedvr2_3b_int8_upscale_video` | 8 / 16 par 5 s, estimé | ouvert, open weights |
+| suite-fluidifier | Fluidifier (images intermédiaires ×2) | `utility_video_frame_interpolation` | 2 / 4 par 5 s, estimé | ouvert, open weights |
+| suite-prolonger | Prolonger (depuis la dernière image, 5 s) | `video_minimax_h3_i2v_continuation` | 4 / 8, estimé | ouvert, open weights |
+| suite-parler | Faire parler (image + voix, 5 s) | `video_ltx2_3_ia2v` | 12 / 25, estimé | ouvert, open weights |
+
+« Passer en 3D » reprend `prise-volume-objet` et `prise-volume-perso` (mêmes graphes que la maquette). Avec « Poids ouverts seulement », Finaliser du MONTAGE passe par `suite-finaliser-video` au lieu de RTX.
+
 ## Finaliser
 
 Finaliser agrandit et rend plus net ce qui existe déjà. Il ne refait jamais la prise ni l’image. Ses templates sont exportés dans `workflows/finaliser/`.

@@ -30,12 +30,14 @@ import { projectPath } from "@/lib/coffre/project";
 import { idbVault, removeUnreferenced, type VaultStore } from "@/lib/coffre/store";
 import { posePlan } from "@/lib/ergonomie";
 import { type Balance } from "@/lib/credits";
-import { finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
+import { FINAL_MAX_SECONDS, finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
 import { audioOutput, videoOutput, meshOutput, jobStage, createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
 import { isVideoGeste, VIDEO_GESTE_TEXT, videoGesteGraph } from "@/lib/render/video-gestes";
 import { importModel, modelExtension } from "@/lib/maquette/files";
 import { isMeshGeste, meshGesteGraph, runMesh } from "@/lib/render/mesh-gestes";
+import { isSuiteGeste, SUITE_SORTIE, SUITE_SOURCE, SUITE_TEXTE, suiteGraph, type Elargir } from "@/lib/suite/graphs";
+import { suiteQuote } from "@/lib/suite/quote";
 import { learnTakeCost } from "@/lib/render/landed-cost";
 import { quotesToRecords } from "@/lib/render/measured-quote";
 import { referencePaths } from "@/lib/render/references";
@@ -60,6 +62,15 @@ export type RunState =
 export type FolderMode = "unsupported" | "off" | "ask" | "on";
 
 const LINE_KEY = "u-ttu-plan";
+
+/** A voice file's extension, from its type, else its name. */
+function audioExtension(file: File): string {
+  const byType: Record<string, string> = { "audio/mpeg": "mp3", "audio/mp3": "mp3", "audio/wav": "wav", "audio/x-wav": "wav", "audio/wave": "wav", "audio/mp4": "m4a", "audio/x-m4a": "m4a", "audio/aac": "m4a", "audio/ogg": "ogg", "audio/flac": "flac", "audio/webm": "webm" };
+  const known = byType[file.type];
+  if (known) return known;
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return /^(mp3|wav|m4a|ogg|flac|webm|opus)$/.test(ext) ? ext : "mp3";
+}
 const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO = /\.(mp4|webm|mov)$/i;
 
@@ -108,6 +119,8 @@ export interface StudioSession {
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   runVideoGeste(input: VideoGesteRun): Promise<FinaliseOutcome>;
   runMeshGeste(input: MeshGesteRun): Promise<FinaliseOutcome>;
+  /** « Et ensuite ? » : one tool on an asset or a take. The source is never overwritten. */
+  runSuite(input: SuiteRun): Promise<FinaliseOutcome>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
   duplicateCast(id: string): Promise<void>;
@@ -194,6 +207,24 @@ export interface MeshGesteRun {
   onStage(stage: FinaliseStage, seconds?: number): void;
 }
 
+export interface SuiteRun {
+  geste: string;
+  /** The image or video the tool starts from. For Prolonger, the take's last frame. */
+  source: File;
+  /** Faire parler: the voice. */
+  audio?: File;
+  prompt: string;
+  confirmed: boolean;
+  aspect?: "horizontal" | "vertical";
+  elargir?: Elargir;
+  fluidifier?: boolean;
+  /** Length of the source video, for the estimate of Finaliser and Fluidifier. */
+  seconds?: number;
+  /** Vault path of the validated asset it starts from. Read only, written in the note. */
+  from?: string;
+  onStage(stage: FinaliseStage, seconds?: number): void;
+}
+
 export type FinaliseStage = "envoi" | "file" | "calcul" | "retour" | "mesure";
 
 export interface FinaliseInput {
@@ -204,6 +235,8 @@ export interface FinaliseInput {
   ratio: FinalRatio;
   choice: FinalChoice;
   confirmed: boolean;
+  /** Open weights: add in-between frames in the same pass (SeedVR2 path only). */
+  fluidifier?: boolean;
   onStage(stage: FinaliseStage, seconds?: number): void;
 }
 
@@ -809,8 +842,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   // Finaliser : une passe sur le montage entier. Jamais d'annulation : le job va au bout.
   const finaliseMontage = useCallback(async (input: FinaliseInput): Promise<FinaliseOutcome> => {
-    if (prefs.openWeightsOnly) return { ok: false, message: t("safety.finalBlocked") };
-    const quote = finalQuote(input.seconds, input.choice);
+    // Open Weights Only: the same Finaliser runs on SeedVR2 (open weights) instead of RTX.
+    const open = prefs.openWeightsOnly;
+    const openQuote = open && input.seconds > 0 && input.seconds <= FINAL_MAX_SECONDS ? suiteQuote("suite-finaliser-video", { seconds: input.seconds, fluidifier: input.fluidifier }) : null;
+    const quote = open ? (openQuote ? { credits: openQuote.credits, ceiling: openQuote.high } : null) : finalQuote(input.seconds, input.choice);
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
     if (!client) return { ok: false, message: t("create.needLink") };
     const fresh = await refreshBalance();
@@ -821,10 +856,13 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const vault = projectVault(store(), slug);
       const at = new Date().toISOString();
       const id = `${finalFileId(input.name, input.choice.resolution, new Date(at))}-${crypto.randomUUID().slice(0, 8)}`;
-      const receipt: PendingRender = { version: 1, kind: "final", project: slug, id, name: `${input.name} — final ${input.choice.resolution}`, prompt: JSON.stringify({ seconds: input.seconds, ratio: input.ratio, choice: input.choice }), at, account: await fingerprint(), refs: [], template: "RTXVideoSuperResolution", quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
+      const template = open ? "utility_seedvr2_3b_int8_upscale_video" : "RTXVideoSuperResolution";
+      const receipt: PendingRender = { version: 1, kind: "final", project: slug, id, name: `${input.name} — final ${open ? "1080p" : input.choice.resolution}`, prompt: JSON.stringify({ seconds: input.seconds, ratio: input.ratio, choice: input.choice, open, fluidifier: Boolean(input.fluidifier) }), at, account: await fingerprint(), refs: [], template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
       input.onStage("envoi");
       const file = await client.upload(input.video, "uttu-montage.mp4");
-      const graph = finalGraph({ file, ratio: input.ratio, ...input.choice });
+      const graph = open
+        ? suiteGraph({ geste: "suite-finaliser-video", files: { source: file }, prompt: "", seed: crypto.getRandomValues(new Uint32Array(1))[0], seconds: input.seconds, fluidifier: input.fluidifier })
+        : finalGraph({ file, ratio: input.ratio, ...input.choice });
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
         if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
@@ -939,6 +977,74 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       clearPending(localStorage, result.jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.mesh), cost: result.costCredits };
+    } catch (error) {
+      const message = error instanceof Error && error.message ? error.message : t("create.failed");
+      return { ok: false, message };
+    } finally {
+      setCreating(false);
+    }
+  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+
+  // « Et ensuite ? ». Préparer → Vérifier → Estimer → Confirmer → Exécuter → Contrôler → Archiver.
+  // The result is a new asset; the asset it starts from is only read. Jamais d'annulation.
+  const runSuite = useCallback(async (input: SuiteRun): Promise<FinaliseOutcome> => {
+    const row = gesteParId(input.geste);
+    if (!row || row.still !== "suite" || !gesteOuvert(row) || !isSuiteGeste(row.id)) return { ok: false, message: t(row?.raison ?? "gestes.unwired") };
+    const geste = row.id;
+    if (!gesteVisible(row, prefs)) return { ok: false, message: t("safety.modelBlocked") };
+    const quote = suiteQuote(geste, { seconds: input.seconds, fluidifier: input.fluidifier });
+    if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
+    if (SUITE_TEXTE[geste] === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
+    // Prolonger starts from the take's last frame (an image); the others from their own media.
+    const wants = geste === "suite-prolonger" ? "image" : SUITE_SOURCE[geste];
+    if (!input.source || !input.source.type.startsWith(`${wants}/`)) return { ok: false, message: t("videoGeste.needFiles") };
+    if (geste === "suite-parler" && !input.audio) return { ok: false, message: t("videoGeste.needFiles") };
+    if (!client) return { ok: false, message: t("create.needLink") };
+    const fresh = await refreshBalance();
+    if (!creationAllowed(true, fresh?.credits ?? null, quote.high)) return { ok: false, message: t("create.needCeiling") };
+    setCreating(true);
+    try {
+      const slug = await ensureActiveProject(store());
+      const vault = projectVault(store(), slug);
+      const at = new Date().toISOString();
+      const id = `${geste}-${crypto.randomUUID()}`;
+      const name = t(`gestes.${row.clef}.title`);
+      input.onStage("envoi");
+      const refs: string[] = [];
+      if (input.from) refs.push(input.from);
+      if (!input.from || geste === "suite-prolonger") {
+        const copy = `Projets/${slug}/Assets/${id}-source.${extensionFor(input.source.type)}`;
+        await writeBlob(vault, copy, input.source);
+        refs.push(copy);
+      }
+      const source = await client.upload(input.source, `${id}-source.${extensionFor(input.source.type)}`);
+      let audio: string | undefined;
+      if (input.audio) {
+        const voiceExt = audioExtension(input.audio);
+        const voice = `Projets/${slug}/Assets/${id}-voix.${voiceExt}`;
+        await writeBlob(vault, voice, input.audio);
+        refs.push(voice);
+        audio = await client.upload(input.audio, `${id}-voix.${voiceExt}`);
+      }
+      const graph = suiteGraph({ geste, files: { source, audio }, prompt: input.prompt, seed: crypto.getRandomValues(new Uint32Array(1))[0], aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds });
+      const still = SUITE_SORTIE[geste] === "image";
+      const receipt: PendingRender = { version: 1, kind: still ? "image" : "video", geste, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
+      const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
+        if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
+        else if (event.stage === "render") input.onStage("calcul", event.seconds);
+        else if (event.stage === "fetch") input.onStage("retour");
+        else if (event.stage === "measure") input.onStage("mesure");
+      }, { output: still ? "image" : "video" });
+      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+      if (!result.video.size) throw new RenderError("failed", t("suite.emptyResult"));
+      const ext = still ? "png" : "mp4";
+      const path = `Projets/${slug}/Assets/${id}.${ext}`;
+      await writeBlob(vault, path, result.video);
+      await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: still ? "importe" : "plan", name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
+      clearPending(localStorage, jobId);
+      await reload();
+      return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
       const message = error instanceof Error && error.message ? error.message : t("create.failed");
       return { ok: false, message };
@@ -1193,20 +1299,21 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         if (stage !== "done") { setNotice("Le cloud travaille encore. Réessayez Récupérer le rendu dans quelques instants. Aucun nouvel envoi."); return; }
         const detail = await client.job(receipt.jobId);
         const isVideo = receipt.kind === "final" || receipt.kind === "video";
+        const isImage = receipt.kind === "image";
         const ref = receipt.kind === "mesh" ? meshOutput(detail.outputs) : receipt.kind === "son" ? audioOutput(detail.outputs) : isVideo ? videoOutput(detail.outputs) : stillOutput(detail.outputs);
         if (!ref) throw new Error("Le cloud annonce la fin mais le fichier manque. Le reçu est conservé.");
         const blob = await client.file(ref);
         if (receipt.kind === "mesh") await modelExtension(blob, ref.filename);
         const ext = ref.filename.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || (receipt.kind === "son" ? "mp3" : "png");
-        const kind = receipt.kind === "cast" ? "personnage" : receipt.kind === "decor" ? "decor" : isVideo ? "plan" : receipt.kind === "mesh" ? "importe" : "son";
-        const paths = isVideo ? { media: `Projets/${receipt.project}/Assets/${receipt.id}.${ext}`, note: `Projets/${receipt.project}/Assets/${receipt.id}.md` } : assetPaths(receipt.project, kind, receipt.id, ext);
+        const kind = receipt.kind === "cast" ? "personnage" : receipt.kind === "decor" ? "decor" : isVideo ? "plan" : receipt.kind === "mesh" || isImage ? "importe" : "son";
+        const paths = isVideo || isImage ? { media: `Projets/${receipt.project}/Assets/${receipt.id}.${ext}`, note: `Projets/${receipt.project}/Assets/${receipt.id}.md` } : assetPaths(receipt.project, kind, receipt.id, ext);
         await writeBlob(vault, paths.media, blob);
         if (receipt.kind === "cast") {
           await writeText(vault, paths.note, castNote({ id: receipt.id, name: receipt.name, at: receipt.at, prompt: receipt.prompt, source: receipt.refs.length ? "photos" : "texte", photos: receipt.refs, sheet: paths.media, template: receipt.template, quote: receipt.quote, cost: null, project: receipt.project }));
         } else if (receipt.kind === "decor") {
           await writeScene(vault, { ...emptySceneDraft(), id: receipt.id, name: receipt.name, note: receipt.prompt, prompt: receipt.prompt, render: paths.media, stills: [paths.media], views: receipt.refs, home: "Decors", template: receipt.template, devis: receipt.quote, cout: null });
         } else {
-          await writeText(vault, paths.note, assetNote({ id: receipt.id, kind: isVideo ? "plan" : receipt.kind === "mesh" ? "importe" : "son", name: receipt.name, at: receipt.at, prompt: receipt.prompt, geste: receipt.geste ?? "", template: receipt.template, refs: receipt.refs, devis: receipt.quote, cout: null, media: paths.media, note: paths.note, preview: null, loose: false }));
+          await writeText(vault, paths.note, assetNote({ id: receipt.id, kind: isVideo ? "plan" : receipt.kind === "mesh" || isImage ? "importe" : "son", name: receipt.name, at: receipt.at, prompt: receipt.prompt, geste: receipt.geste ?? "", template: receipt.template, refs: receipt.refs, devis: receipt.quote, cout: null, media: paths.media, note: paths.note, preview: null, loose: false }));
         }
         clearPending(localStorage, receipt.jobId);
         await reload();
@@ -1633,7 +1740,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast: input => paid(() => createCast(input), false), createDecor: input => paid(() => createDecor(input), false), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast: input => paid(() => createCast(input), false), createDecor: input => paid(() => createDecor(input), false), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,

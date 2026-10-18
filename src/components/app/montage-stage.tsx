@@ -22,6 +22,7 @@ import { framePoster } from "@/lib/montage/poster";
 import { useFormat } from "./format-switch";
 import { useStudio } from "./studio-session";
 import { gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
+import { suiteQuote } from "@/lib/suite/quote";
 import { FINAL_MAX_SECONDS, MASTER, finalQuote, masterSize, type FinalChoice, type FinalNettoyage, type FinalResolution } from "@/lib/montage/finaliser";
 import type { FinaliseStage } from "./studio-session";
 
@@ -110,6 +111,15 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   projectRef.current = studio.project;
   const [finChoice, setFinChoice] = useState<FinalChoice>({ resolution: "1080p", nettoyer: "aucun" });
   const [finConfirm, setFinConfirm] = useState(false);
+  const [finFluide, setFinFluide] = useState(false);
+  // Open Weights Only: the Finaliser runs on SeedVR2 (open weights) instead of RTX. Same rules.
+  const finOpen = prefs.openWeightsOnly;
+  const quoteFinal = (seconds: number) => {
+    if (!finOpen) return finalQuote(seconds, finChoice);
+    if (!(seconds > 0) || seconds > FINAL_MAX_SECONDS) return null;
+    const open = suiteQuote("suite-finaliser-video", { seconds, fluidifier: finFluide });
+    return open ? { credits: open.credits, ceiling: open.high, kind: "estimation" as const } : null;
+  };
   const [finPhase, setFinPhase] = useState<FinalPhase>({ phase: "idle" });
   const [history, setHistory] = useState<History<Edit>>(() => historyOf(demo ? exempleEdit() : emptyEdit("suite", "Séquence")));
   const [time, setTime] = useState(0);
@@ -613,9 +623,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     ? t("montage.sizeMb", { amount: (estimate.bytes / 1_000_000).toFixed(1).replace(".", comma ? "," : ".") })
     : t("montage.sizeKb", { amount: String(Math.max(1, Math.round(estimate.bytes / 1000))) })) : "";
   const finBusy = finPhase.phase === "prepare" || finPhase.phase === "run";
-  const finQuote = finalQuote(duration, finChoice);
+  const finQuote = quoteFinal(duration);
   const num = (value: number) => comma ? String(value).replace(".", ",") : String(value);
-  const finOpenWhy = prefs.openWeightsOnly ? t("safety.finalBlocked") : duration <= 0 ? t("finaliser.empty") : duration > FINAL_MAX_SECONDS ? t("finaliser.long") : "";
+  const finOpenWhy = duration <= 0 ? t("finaliser.empty") : duration > FINAL_MAX_SECONDS ? t("finaliser.long") : "";
   const finGoWhy = finOpenWhy || (finBusy ? t("finaliser.busy")
     : !finQuote ? t("finaliser.noQuote")
     : !connected ? t("finaliser.needLink")
@@ -663,7 +673,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   function runFinal() {
     const current = historyRef.current.present;
     const seconds = editDuration(current);
-    const quote = finalQuote(seconds, finChoice);
+    const quote = quoteFinal(seconds);
     if (!quote || finGoWhy || exporting.current || !studio.project) return;
     exporting.current = true;
     const project = studio.project;
@@ -687,6 +697,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       ratio,
       choice,
       confirmed,
+      fluidifier: finOpen && finFluide,
       onStage: (stage, elapsed) => setFinPhase({ phase: "run", stage, seconds: elapsed ?? 0 }),
     })).then(outcome => {
       setFinConfirm(false);
@@ -797,7 +808,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         </button>)}
       </div>}
       {(() => {
-        const ids = binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
+        const ids = binTab === "medias" ? [] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
         const wired = ids.flatMap(id => {
           const row = gesteParId(id);
           return row && gesteOuvert(row) && gesteVisible(row, prefs) ? [row] : [];
@@ -814,7 +825,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       })()}
       </div>
       {(() => {
-        const ids = binTab === "medias" ? ["mont-agrandir", "mont-fluide"] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
+        const ids = binTab === "medias" ? [] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
         const names = ids.flatMap(id => {
           const row = gesteParId(id);
           return row && !gesteOuvert(row) ? [t(`gestes.${row.clef}.quiet`)] : [];
@@ -1071,6 +1082,14 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         {finBusy && <span className="sr-only" id="u-why-final-close">{t("finaliser.keepOpen")}</span>}
         {(finPhase.phase === "idle" || finPhase.phase === "fail") && <>
           <p className="u-small">{t("finaliser.lead")}</p>
+          {finOpen && <>
+            <p className="u-small" data-final-open="">{t("finaliser.openLead")}</p>
+            <button type="button" role="checkbox" className="u-final-confirm" data-final-fluide="" aria-checked={finFluide} onClick={() => { setFinFluide(current => !current); setFinConfirm(false); }}>
+              <span className="u-final-box" aria-hidden="true">{finFluide ? "✓" : ""}</span>
+              <span>{t("suite.fluide")}</span>
+            </button>
+          </>}
+          {!finOpen && <>
           <p className="u-label">{t("finaliser.resolution")}</p>
           <div className="u-choice-row" role="group" aria-label={t("finaliser.resolution")}>
             {(["1080p", "4k"] as FinalResolution[]).map(value => <button key={value} type="button" className="u-chip" aria-pressed={finChoice.resolution === value} onClick={() => { setFinChoice(current => ({ ...current, resolution: value })); setFinConfirm(false); }}>{value === "4k" ? "4K" : "1080p"}</button>)}
@@ -1079,6 +1098,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           <div className="u-choice-row" role="group" aria-label={t("finaliser.nettoyer")}>
             {(["aucun", "bruit", "flou"] as FinalNettoyage[]).map(value => <button key={value} type="button" className="u-chip" aria-pressed={finChoice.nettoyer === value} onClick={() => { setFinChoice(current => ({ ...current, nettoyer: value })); setFinConfirm(false); }}>{t(`finaliser.${value}`)}</button>)}
           </div>
+          </>}
           {finQuote && <div className="u-final-quote" data-final-quote={finQuote.kind}>
             <p className="u-cost is-ok">{t("finaliser.quote", { credits: num(finQuote.credits), ceiling: num(finQuote.ceiling) })}</p>
             <p className="u-small">{t("finaliser.seconds", { seconds: num(Math.round(duration * 10) / 10) })} {t(finQuote.kind === "mesure" ? "finaliser.measured" : "finaliser.estimate")}</p>

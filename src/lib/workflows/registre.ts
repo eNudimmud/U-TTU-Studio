@@ -19,10 +19,13 @@ export interface SlotImage {
   media?: "image" | "video" | "audio";
 }
 
+/** « Et ensuite ? » tools live on an asset or a take, not in a tab. */
+export type OngletGeste = Onglet | "suite";
+
 export interface Geste {
   id: string;
-  onglet: Onglet;
-  categorie: "identite" | "apparence" | "finition" | "lieu" | "variante" | "plan" | "raccord" | "mouvement" | "vfx" | "son" | "image";
+  onglet: OngletGeste;
+  categorie: "identite" | "apparence" | "finition" | "lieu" | "variante" | "plan" | "raccord" | "mouvement" | "vfx" | "son" | "image" | "suite";
   clef: string;
   fournit: readonly Fourniture[];
   slots: readonly SlotImage[];
@@ -32,7 +35,7 @@ export interface Geste {
   nature: NatureCout;
   premier: boolean;
   /** Graph already in the studio. `prise` is the measured take. Null stays closed. */
-  still: StillKindName | "prise" | "video" | "mesh" | "voix" | "effet" | "musique" | null;
+  still: StillKindName | "prise" | "video" | "mesh" | "voix" | "effet" | "musique" | "suite" | null;
   minRefs: number;
   /** i18n key. One line, shown when the gesture stays under Bientôt. */
   raison?: string;
@@ -84,6 +87,8 @@ export const TEMPLATES_OFFICIELS = [
   "api_sonilo_t2m",
   "utility_seedvr2_3b_int8_upscale_video",
   "utility_video_frame_interpolation",
+  "utility_birefnet_remove_background",
+  "templates_doc_workbox_klein_9b_image_extend",
 ] as const;
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
@@ -370,6 +375,62 @@ export const REGISTRE: readonly Geste[] = [
     template: "utility_video_frame_interpolation", credits: null, high: null, nature: "non-mesure",
     premier: false, still: null, minRefs: 0, consigne: "", raison: "gestes.raisons.montFrames",
   }),
+  // « Et ensuite ? » : the next step on an asset or a take. Open weights only. Estimated,
+  // never measured yet: each estimate is shown as « estimé » with its reserve.
+  geste({
+    id: "suite-modifier", onglet: "suite", categorie: "suite", clef: "suiteModifier",
+    fournit: ["asset", "texte"], slots: [{ role: "plan", slot: "image" }],
+    template: KLEIN_EDIT, credits: 4, high: 6, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "suite-finaliser-image", onglet: "suite", categorie: "suite", clef: "suiteFinaliserImage",
+    fournit: ["asset"], slots: [{ role: "plan", slot: "image" }],
+    template: "utility_seedvr2_3b_int8_upscale_image", credits: 2, high: 4, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "suite-detourer", onglet: "suite", categorie: "suite", clef: "suiteDetourer",
+    fournit: ["asset"], slots: [{ role: "plan", slot: "image" }],
+    template: "utility_birefnet_remove_background", credits: 2, high: 4, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "suite-elargir", onglet: "suite", categorie: "suite", clef: "suiteElargir",
+    fournit: ["asset", "texte"], slots: [{ role: "plan", slot: "image" }],
+    template: "templates_doc_workbox_klein_9b_image_extend", credits: 2, high: 4, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "suite-animer", onglet: "suite", categorie: "suite", clef: "suiteAnimer",
+    fournit: ["asset", "texte"], slots: [{ role: "debut", slot: "image" }],
+    template: "video_minimax_h3_i2v", credits: 4, high: 8, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "suite-finaliser-video", onglet: "suite", categorie: "suite", clef: "suiteFinaliserVideo",
+    fournit: ["video"], slots: [{ role: "clip", slot: "video", media: "video" }],
+    template: "utility_seedvr2_3b_int8_upscale_video", credits: 8, high: 16, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "suite-fluidifier", onglet: "suite", categorie: "suite", clef: "suiteFluidifier",
+    fournit: ["video"], slots: [{ role: "clip", slot: "video", media: "video" }],
+    template: "utility_video_frame_interpolation", credits: 2, high: 4, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "suite-prolonger", onglet: "suite", categorie: "suite", clef: "suiteProlonger",
+    fournit: ["video", "texte"], slots: [{ role: "fin", slot: "image" }],
+    template: "video_minimax_h3_i2v_continuation", credits: 4, high: 8, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 1, consigne: "",
+  }),
+  geste({
+    id: "suite-parler", onglet: "suite", categorie: "suite", clef: "suiteParler",
+    fournit: ["asset", "audio", "texte"], slots: [{ role: "visage", slot: "image" }, { role: "voix", slot: "audio", media: "audio" }],
+    template: "video_ltx2_3_ia2v", credits: 12, high: 25, nature: "hypothese",
+    premier: false, still: "suite", minRefs: 2, consigne: "",
+  }),
 ];
 
 export function gesteParId(id: string): Geste | null {
@@ -381,6 +442,11 @@ export function gesteVisible(row: Geste, filtre: FiltreGestes = {}): boolean {
   if (row.option === "nano" && !filtre.nanoBanana) return false;
   if (filtre.openWeightsOnly && row.partenaire) return false;
   return true;
+}
+
+/** The « Et ensuite ? » tools a visitor sees. */
+export function gestesSuite(filtre: FiltreGestes = {}): Geste[] {
+  return REGISTRE.filter(item => item.onglet === "suite" && gesteVisible(item, filtre));
 }
 
 export function gestesOnglet(onglet: Onglet, filtre: FiltreGestes = {}): { premiers: Geste[]; suite: Geste[] } {
