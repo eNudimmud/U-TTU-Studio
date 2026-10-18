@@ -80,4 +80,13 @@ describe("hébergement", () => {
     assert.doesNotMatch(workflow, /deploy-pages/);
     assert.doesNotMatch(workflow, /GITHUB_PAGES:\s*["']true["']/);
   });
+
+  it("wears the shared studio top bar, not a page header of its own", () => {
+    for (const file of ["src/components/account/account-page.tsx", "src/components/account/auth-screen.tsx"]) {
+      const page = read(file);
+      assert.match(page, /<StudioShell place="compte"/, file);
+      assert.doesNotMatch(page, /<Brand\b|<LanguageSwitcher\b|<main\b/, file);
+    }
+    assert.match(read("src/components/app/studio-shell.tsx"), /<TopBar place=\{place\} \/>/);
+  });
 });
