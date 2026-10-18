@@ -20,12 +20,13 @@ export interface SlotImage {
 }
 
 /** « Et ensuite ? » tools live on an asset or a take, not in a tab. */
-export type OngletGeste = Onglet | "suite";
+/** The tool hub (« Outils ») runs whole templates from one panel. */
+export type OngletGeste = Onglet | "suite" | "outils";
 
 export interface Geste {
   id: string;
   onglet: OngletGeste;
-  categorie: "identite" | "apparence" | "finition" | "lieu" | "variante" | "plan" | "raccord" | "mouvement" | "vfx" | "son" | "image" | "suite";
+  categorie: "identite" | "apparence" | "finition" | "lieu" | "variante" | "plan" | "raccord" | "mouvement" | "vfx" | "son" | "image" | "suite" | "outil";
   clef: string;
   fournit: readonly Fourniture[];
   slots: readonly SlotImage[];
@@ -35,7 +36,7 @@ export interface Geste {
   nature: NatureCout;
   premier: boolean;
   /** Graph already in the studio. `prise` is the measured take. Null stays closed. */
-  still: StillKindName | "prise" | "video" | "mesh" | "voix" | "effet" | "musique" | "suite" | null;
+  still: StillKindName | "prise" | "video" | "mesh" | "voix" | "effet" | "musique" | "suite" | "outil" | null;
   minRefs: number;
   /** i18n key. One line, shown when the gesture stays under Bientôt. */
   raison?: string;
@@ -89,6 +90,37 @@ export const TEMPLATES_OFFICIELS = [
   "utility_video_frame_interpolation",
   "utility_birefnet_remove_background",
   "templates_doc_workbox_klein_9b_image_extend",
+  "image_qwen_image_2_1_t2i",
+  "api_bfl_flux3_t2i",
+  "api_ideogram_v4_5_t2i",
+  "api_openai_gpt_image_2_t2i",
+  "api_bytedance_seedream_5_0_pro_t2i",
+  "image_qwen_image_2_1_image_edit",
+  "video_ltx2_5_t2v",
+  "api_kling_v3_video",
+  "api_seedance2_5_r2v",
+  "video_wan2_2_14B_i2v",
+  "api_minimax_h3_max_r2v",
+  "api_tripo_p2_image_to_model",
+  "api_meshy7_1_image_to_model",
+  "audio-chatterbox_tts_multilingual",
+  "api_elevenlabs_v4_text_to_dialogue",
+  "audio_ace_step1_5_xl_turbo",
+  "audio_stable_audio_3_medium",
+  "template_qwen_Image_2512_360_lora",
+  "image_qwen_Image_2512_controlnet",
+  "api_grok_video_extend",
+  "api_bria_remove_video_background",
+  "api_sync_so_lip_sync_video",
+  "api_sonilo_v2m",
+  "api_hunyuan3d_model2uv",
+  "api_hunyuan3d_part",
+  "3d_triposplat_image_to_gaussian_splat",
+  "audio-chatterbox_vc",
+  "api_elevenLabs_speech_to_text",
+  "llm_qwen3vl_text_gen",
+  "image_flux.1_fill_dev_OneReward",
+  "api_quiver_arrow2_image_to_svg",
 ] as const;
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
@@ -431,6 +463,38 @@ export const REGISTRE: readonly Geste[] = [
     template: "video_ltx2_3_ia2v", credits: 12, high: 25, nature: "hypothese",
     premier: false, still: "suite", minRefs: 2, consigne: "",
   }),
+  // « Outils » : one panel per whole template, opened from the hub. Each estimate is shown
+  // « estimé »: open weights are guessed from the studio's measured neighbours, partner prices
+  // come from Comfy's estimate_credits on the template. Nothing here has been billed yet.
+  geste({ id: "outil-img-klein", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_t2i", credits: 4, high: 6, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-img-qwen", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_image_2_1_t2i", credits: 4, high: 8, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-img-flux3", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bfl_flux3_t2i", credits: 14, high: 21, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-img-ideogram", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_ideogram_v4_5_t2i", credits: 18, high: 27, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-img-gpt", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_openai_gpt_image_2_t2i", credits: 5, high: 8, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-img-seedream", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bytedance_seedream_5_0_pro_t2i", credits: 9, high: 14, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-img-nano", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_nano_banana_2_1_t2i", credits: 12, high: 18, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "", option: "nano" }),
+  geste({ id: "outil-img-refs", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_image_2_1_image_edit", credits: 4, high: 8, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-img-360", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_qwen_Image_2512_360_lora", credits: 4, high: 8, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-img-croquis", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_Image_2512_controlnet", credits: 4, high: 8, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_ltx2_5_t2v", credits: 12, high: 25, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-kling", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_kling_v3_video", credits: 177, high: 266, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-seedance", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_seedance2_5_r2v", credits: 352, high: 528, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-wan", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_wan2_2_14B_i2v", credits: 12, high: 25, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-vidu", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_vidu_q4_preview_r2v", credits: 100, high: 150, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-h3max", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_minimax_h3_max_r2v", credits: 181, high: 272, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-mouvement", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_wan_animate2", credits: 15, high: 30, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-3d-tripo", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_tripo_p2_image_to_model", credits: 232, high: 348, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-3d-hunyuan", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_hunyuan3d_image_to_model", credits: 190, high: 285, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-3d-meshy", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_meshy7_1_image_to_model", credits: 362, high: 543, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-son-voix-ouverte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio-chatterbox_tts_multilingual", credits: 2, high: 4, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-son-dialogue", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_elevenlabs_v4_text_to_dialogue", credits: 24, high: 48, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-son-musique-ouverte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_ace_step1_5_xl_turbo", credits: 4, high: 8, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-son-bruitage-ouvert", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_stable_audio_3_medium", credits: 2, high: 4, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-ret-eclairer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_character_portrait_relighting", credits: 18, high: 27, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-prolonger-grok", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_grok_video_extend", credits: 136, high: 204, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-detourer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bria_remove_video_background", credits: 55, high: 83, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-levres", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sync_so_lip_sync_video", credits: 200, high: 300, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-son-musique-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sonilo_v2m", credits: 10, high: 15, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
 ];
 
 export function gesteParId(id: string): Geste | null {

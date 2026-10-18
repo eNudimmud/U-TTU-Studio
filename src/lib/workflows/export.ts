@@ -8,6 +8,8 @@ import { isVideoGeste, videoGesteGraph } from "../render/video-gestes.ts";
 import { isMeshGeste, meshGesteGraph } from "../render/mesh-gestes.ts";
 import { DEFAULT_TAKE, takeGraph, type ApiGraph } from "../render/take-graph.ts";
 import { isSuiteGeste, suiteExample, suiteGraph } from "../suite/graphs.ts";
+import { outilParGeste } from "../outils/catalogue.ts";
+import { outilExample, outilGraph } from "../outils/graphs.ts";
 import { REGISTRE, type Geste } from "./registre.ts";
 
 const PROMPT = "<texte du visiteur>";
@@ -25,6 +27,10 @@ export function graphForGeste(row: Geste): ApiGraph | null {
     if (!isVideoGeste(row.id)) return null;
     const files = Object.fromEntries(row.slots.map((slot, index) => [slot.slot, slot.media === "video" ? "uttu-plan.mp4" : `uttu-${index + 1}.jpg`]));
     return videoGesteGraph({ geste: row.id, files, prompt: PROMPT, seed: 0 });
+  }
+  if (row.still === "outil") {
+    const outil = outilParGeste(row.id);
+    return outil ? outilGraph(outil, outilExample(outil)) : null;
   }
   if (row.still === "suite") return isSuiteGeste(row.id) ? suiteGraph(suiteExample(row.id)) : null;
   if (row.still === "mesh") return isMeshGeste(row.id) ? meshGesteGraph({ geste: row.id, image: "uttu-1.jpg", seed: 0 }) : null;

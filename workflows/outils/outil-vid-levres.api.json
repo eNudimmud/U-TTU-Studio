@@ -1,0 +1,58 @@
+{
+  "8": {
+    "inputs": {
+      "seed": 0,
+      "model": "sync-3",
+      "model.sync_mode": "bounce",
+      "model.speaker_selection": "default",
+      "model.speaker_frame": 0,
+      "model.speaker_x": 0,
+      "model.speaker_y": 0,
+      "video": [
+        "9",
+        0
+      ],
+      "audio": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "SyncLipSyncNode",
+    "_meta": {
+      "title": "sync.so Lip Sync"
+    }
+  },
+  "9": {
+    "inputs": {
+      "file": "uttu-plan.mp4"
+    },
+    "class_type": "LoadVideo",
+    "_meta": {
+      "title": "Load Video"
+    }
+  },
+  "11": {
+    "inputs": {
+      "audio": "uttu-voix.mp3"
+    },
+    "class_type": "LoadAudio",
+    "_meta": {
+      "title": "Load Audio"
+    }
+  },
+  "13": {
+    "inputs": {
+      "filename_prefix": "video/uttu-vid-levres",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save Video"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "1": {
+    "inputs": {
+      "text": "<texte du visiteur>",
+      "language": "English (en)",
+      "exaggeration": 0.5,
+      "cfg_weight": 0.5,
+      "temperature": 0.8,
+      "repetition_penalty": 2,
+      "min_p": 0.05,
+      "top_p": 1,
+      "seed": 0,
+      "use_cpu": false,
+      "keep_model_loaded": false,
+      "audio_prompt": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "FL_ChatterboxMultilingualTTS",
+    "_meta": {
+      "title": "FL Chatterbox Multilingual TTS"
+    }
+  },
+  "2": {
+    "inputs": {
+      "audio": "uttu-voix.mp3"
+    },
+    "class_type": "LoadAudio",
+    "_meta": {
+      "title": "Load Audio"
+    }
+  },
+  "3": {
+    "inputs": {
+      "filename_prefix": "audio/uttu-son-voix-ouverte",
+      "quality": "V0",
+      "audio": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "SaveAudioMP3",
+    "_meta": {
+      "title": "Save Audio (MP3) (DEPRECATED)"
+    }
+  }
+}

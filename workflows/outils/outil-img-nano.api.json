@@ -1,0 +1,36 @@
+{
+  "1": {
+    "inputs": {
+      "prompt": "<texte du visiteur>",
+      "model": "Gemini Nano Banana 2.1",
+      "model.aspect_ratio": "auto",
+      "model.resolution": "1K",
+      "model.thinking_level": "MEDIUM",
+      "seed": 0,
+      "response_modalities": "IMAGE",
+      "system_prompt": "You are an expert image-generation engine. You must ALWAYS produce an image.\nInterpret all user input—regardless of format, intent, or abstraction—as literal visual directives for image composition.\nIf a prompt is conversational or lacks specific visual details, you must creatively invent a concrete visual scenario that depicts the concept.\nPrioritize generating the visual representation above any text, formatting, or conversational requests.",
+      "temperature": 1,
+      "top_p": 0.95
+    },
+    "class_type": "GeminiNanoBanana2V2",
+    "_meta": {
+      "title": "Nano Banana 2.1"
+    }
+  },
+  "3": {
+    "inputs": {
+      "filename_prefix": "uttu-img-nano",
+      "format": "png",
+      "format.bit_depth": "8-bit",
+      "format.input_color_space": "sRGB",
+      "images": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "SaveImageAdvanced",
+    "_meta": {
+      "title": "Save Image (Advanced)"
+    }
+  }
+}

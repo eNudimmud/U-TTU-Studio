@@ -1,0 +1,59 @@
+{
+  "6": {
+    "inputs": {
+      "filename_prefix": "video/uttu-vid-vidu",
+      "format": "auto",
+      "format.codec": "auto",
+      "codec": "auto",
+      "video": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save Video"
+    }
+  },
+  "9": {
+    "inputs": {
+      "model": "Vidu Q4 Preview",
+      "model.prompt": "<texte du visiteur>",
+      "model.aspect_ratio": "16:9",
+      "model.resolution": "720p",
+      "model.duration": 5,
+      "model.audio": true,
+      "model.seed": 0,
+      "model.reference_images.image_1": [
+        "11",
+        0
+      ],
+      "model.reference_images.image_2": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "Vidu4ReferenceVideoNode",
+    "_meta": {
+      "title": "Vidu Q4 Reference-to-Video Generation"
+    }
+  },
+  "10": {
+    "inputs": {
+      "image": "uttu-2.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "11": {
+    "inputs": {
+      "image": "uttu-1.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  }
+}

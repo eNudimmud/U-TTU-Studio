@@ -1,0 +1,47 @@
+{
+  "1": {
+    "inputs": {
+      "image": "uttu-1.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "2": {
+    "inputs": {
+      "filename_prefix": "video/uttu-vid-kling",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save Video"
+    }
+  },
+  "3": {
+    "inputs": {
+      "multi_shot": "disabled",
+      "generate_audio": true,
+      "model": "kling-v3",
+      "model.resolution": "1080p",
+      "model.aspect_ratio": "16:9",
+      "start_frame": [
+        "1",
+        0
+      ],
+      "seed": 0,
+      "multi_shot.prompt": "<texte du visiteur>",
+      "multi_shot.negative_prompt": "",
+      "multi_shot.duration": 5
+    },
+    "class_type": "KlingVideoNode",
+    "_meta": {
+      "title": "Kling 3.0 Video"
+    }
+  }
+}

@@ -532,6 +532,332 @@
       "api_file": "workflows/suite/suite-parler.api.json"
     },
     {
+      "id": "outil-img-klein",
+      "onglet": "outils",
+      "template": "image_flux3_klein_t2i",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-img-klein.json",
+      "api_file": "workflows/outils/outil-img-klein.api.json"
+    },
+    {
+      "id": "outil-img-qwen",
+      "onglet": "outils",
+      "template": "image_qwen_image_2_1_t2i",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-img-qwen.json",
+      "api_file": "workflows/outils/outil-img-qwen.api.json"
+    },
+    {
+      "id": "outil-img-flux3",
+      "onglet": "outils",
+      "template": "api_bfl_flux3_t2i",
+      "partner": true,
+      "partnerNodes": [
+        "Flux3ImageNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-img-flux3.json",
+      "api_file": "workflows/outils/outil-img-flux3.api.json"
+    },
+    {
+      "id": "outil-img-ideogram",
+      "onglet": "outils",
+      "template": "api_ideogram_v4_5_t2i",
+      "partner": true,
+      "partnerNodes": [
+        "IdeogramTextToImageApi"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-img-ideogram.json",
+      "api_file": "workflows/outils/outil-img-ideogram.api.json"
+    },
+    {
+      "id": "outil-img-gpt",
+      "onglet": "outils",
+      "template": "api_openai_gpt_image_2_t2i",
+      "partner": true,
+      "partnerNodes": [
+        "OpenAIGPTImageNodeV2"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-img-gpt.json",
+      "api_file": "workflows/outils/outil-img-gpt.api.json"
+    },
+    {
+      "id": "outil-img-seedream",
+      "onglet": "outils",
+      "template": "api_bytedance_seedream_5_0_pro_t2i",
+      "partner": true,
+      "partnerNodes": [
+        "ByteDanceSeedreamNodeV3"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-img-seedream.json",
+      "api_file": "workflows/outils/outil-img-seedream.api.json"
+    },
+    {
+      "id": "outil-img-nano",
+      "onglet": "outils",
+      "template": "api_nano_banana_2_1_t2i",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiNanoBanana2V2"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-img-nano.json",
+      "api_file": "workflows/outils/outil-img-nano.api.json"
+    },
+    {
+      "id": "outil-img-refs",
+      "onglet": "outils",
+      "template": "image_qwen_image_2_1_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-img-refs.json",
+      "api_file": "workflows/outils/outil-img-refs.api.json"
+    },
+    {
+      "id": "outil-img-360",
+      "onglet": "outils",
+      "template": "template_qwen_Image_2512_360_lora",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-img-360.json",
+      "api_file": "workflows/outils/outil-img-360.api.json"
+    },
+    {
+      "id": "outil-img-croquis",
+      "onglet": "outils",
+      "template": "image_qwen_Image_2512_controlnet",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-img-croquis.json",
+      "api_file": "workflows/outils/outil-img-croquis.api.json"
+    },
+    {
+      "id": "outil-vid-texte",
+      "onglet": "outils",
+      "template": "video_ltx2_5_t2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-texte.json",
+      "api_file": "workflows/outils/outil-vid-texte.api.json"
+    },
+    {
+      "id": "outil-vid-kling",
+      "onglet": "outils",
+      "template": "api_kling_v3_video",
+      "partner": true,
+      "partnerNodes": [
+        "KlingVideoNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-kling.json",
+      "api_file": "workflows/outils/outil-vid-kling.api.json"
+    },
+    {
+      "id": "outil-vid-seedance",
+      "onglet": "outils",
+      "template": "api_seedance2_5_r2v",
+      "partner": true,
+      "partnerNodes": [
+        "ByteDance2ReferenceNodeV2"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-seedance.json",
+      "api_file": "workflows/outils/outil-vid-seedance.api.json"
+    },
+    {
+      "id": "outil-vid-wan",
+      "onglet": "outils",
+      "template": "video_wan2_2_14B_i2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-wan.json",
+      "api_file": "workflows/outils/outil-vid-wan.api.json"
+    },
+    {
+      "id": "outil-vid-vidu",
+      "onglet": "outils",
+      "template": "api_vidu_q4_preview_r2v",
+      "partner": true,
+      "partnerNodes": [
+        "Vidu4ReferenceVideoNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-vidu.json",
+      "api_file": "workflows/outils/outil-vid-vidu.api.json"
+    },
+    {
+      "id": "outil-vid-h3max",
+      "onglet": "outils",
+      "template": "api_minimax_h3_max_r2v",
+      "partner": true,
+      "partnerNodes": [
+        "MinimaxHailuo03ReferenceNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-h3max.json",
+      "api_file": "workflows/outils/outil-vid-h3max.api.json"
+    },
+    {
+      "id": "outil-vid-mouvement",
+      "onglet": "outils",
+      "template": "video_wan_animate2",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-mouvement.json",
+      "api_file": "workflows/outils/outil-vid-mouvement.api.json"
+    },
+    {
+      "id": "outil-3d-tripo",
+      "onglet": "outils",
+      "template": "api_tripo_p2_image_to_model",
+      "partner": true,
+      "partnerNodes": [
+        "TripoPSeriesImageToModelNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-3d-tripo.json",
+      "api_file": "workflows/outils/outil-3d-tripo.api.json"
+    },
+    {
+      "id": "outil-3d-hunyuan",
+      "onglet": "outils",
+      "template": "api_hunyuan3d_image_to_model",
+      "partner": true,
+      "partnerNodes": [
+        "TencentImageToModelNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-3d-hunyuan.json",
+      "api_file": "workflows/outils/outil-3d-hunyuan.api.json"
+    },
+    {
+      "id": "outil-3d-meshy",
+      "onglet": "outils",
+      "template": "api_meshy7_1_image_to_model",
+      "partner": true,
+      "partnerNodes": [
+        "MeshyImageToModelNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-3d-meshy.json",
+      "api_file": "workflows/outils/outil-3d-meshy.api.json"
+    },
+    {
+      "id": "outil-son-voix-ouverte",
+      "onglet": "outils",
+      "template": "audio-chatterbox_tts_multilingual",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-son-voix-ouverte.json",
+      "api_file": "workflows/outils/outil-son-voix-ouverte.api.json"
+    },
+    {
+      "id": "outil-son-dialogue",
+      "onglet": "outils",
+      "template": "api_elevenlabs_v4_text_to_dialogue",
+      "partner": true,
+      "partnerNodes": [
+        "ElevenLabsTextToDialogue"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-son-dialogue.json",
+      "api_file": "workflows/outils/outil-son-dialogue.api.json"
+    },
+    {
+      "id": "outil-son-musique-ouverte",
+      "onglet": "outils",
+      "template": "audio_ace_step1_5_xl_turbo",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-son-musique-ouverte.json",
+      "api_file": "workflows/outils/outil-son-musique-ouverte.api.json"
+    },
+    {
+      "id": "outil-son-bruitage-ouvert",
+      "onglet": "outils",
+      "template": "audio_stable_audio_3_medium",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-son-bruitage-ouvert.json",
+      "api_file": "workflows/outils/outil-son-bruitage-ouvert.api.json"
+    },
+    {
+      "id": "outil-ret-eclairer",
+      "onglet": "outils",
+      "template": "template_character_portrait_relighting",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiImage2Node"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-ret-eclairer.json",
+      "api_file": "workflows/outils/outil-ret-eclairer.api.json"
+    },
+    {
+      "id": "outil-vid-prolonger-grok",
+      "onglet": "outils",
+      "template": "api_grok_video_extend",
+      "partner": true,
+      "partnerNodes": [
+        "GrokVideoExtendNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-prolonger-grok.json",
+      "api_file": "workflows/outils/outil-vid-prolonger-grok.api.json"
+    },
+    {
+      "id": "outil-vid-detourer",
+      "onglet": "outils",
+      "template": "api_bria_remove_video_background",
+      "partner": true,
+      "partnerNodes": [
+        "BriaRemoveVideoBackground"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-detourer.json",
+      "api_file": "workflows/outils/outil-vid-detourer.api.json"
+    },
+    {
+      "id": "outil-vid-levres",
+      "onglet": "outils",
+      "template": "api_sync_so_lip_sync_video",
+      "partner": true,
+      "partnerNodes": [
+        "SyncLipSyncNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-levres.json",
+      "api_file": "workflows/outils/outil-vid-levres.api.json"
+    },
+    {
+      "id": "outil-son-musique-video",
+      "onglet": "outils",
+      "template": "api_sonilo_v2m",
+      "partner": true,
+      "partnerNodes": [
+        "SoniloVideoToMusic"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-son-musique-video.json",
+      "api_file": "workflows/outils/outil-son-musique-video.api.json"
+    },
+    {
       "id": "api_bytedance_vcube_video_enhance",
       "onglet": "finaliser",
       "template": "api_bytedance_vcube_video_enhance",

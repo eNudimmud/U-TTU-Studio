@@ -1,0 +1,42 @@
+{
+  "1": {
+    "inputs": {
+      "image": "uttu-1.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "2": {
+    "inputs": {
+      "model": "3.1",
+      "face_count": 500000,
+      "generate_type": "Normal",
+      "generate_type.pbr": true,
+      "seed": 0,
+      "image": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "TencentImageToModelNode",
+    "_meta": {
+      "title": "Hunyuan3D: Image(s) to Model"
+    }
+  },
+  "13": {
+    "inputs": {
+      "filename_prefix": "3d/uttu-3d-hunyuan",
+      "image": "",
+      "mesh": [
+        "2",
+        1
+      ]
+    },
+    "class_type": "SaveGLB",
+    "_meta": {
+      "title": "Save 3D Model"
+    }
+  }
+}

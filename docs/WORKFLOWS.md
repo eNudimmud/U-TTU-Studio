@@ -89,6 +89,55 @@ Menu « Et ensuite ? » sur un asset (panneau de détail de Mon studio) et sur u
 
 « Passer en 3D » reprend `prise-volume-objet` et `prise-volume-perso` (mêmes graphes que la maquette). Avec « Poids ouverts seulement », Finaliser du MONTAGE passe par `suite-finaliser-video` au lieu de RTX.
 
+## OUTILS
+
+Le hub « Outils » (barre du haut de /studio et de Mon studio) range chaque outil de la carte Scenario ↔ Comfy qui a un template officiel. Les lignes `outil-*` ci-dessous sont les graphes ajoutés par le hub : template officiel converti en API par Comfy Cloud (stockage seulement, aucun run), élagué (aperçus retirés), puis seules les entrées du visiteur sont remplacées (`src/lib/outils/generique.ts`, `src/lib/outils/base.ts`). Les autres cartes du hub réutilisent les gestes déjà branchés plus haut. Devis estimés, jamais mesurés.
+
+| Geste | Template | Devis | État |
+| --- | --- | --- | --- |
+| outil-img-klein | `image_flux3_klein_t2i` | 4 / 6, estimé | ouvert, open weights |
+| outil-img-qwen | `image_qwen_image_2_1_t2i` | 4 / 8, estimé | ouvert, open weights |
+| outil-img-flux3 | `api_bfl_flux3_t2i` | 14 / 21, estimé | partenaire |
+| outil-img-ideogram | `api_ideogram_v4_5_t2i` | 18 / 27, estimé | partenaire |
+| outil-img-gpt | `api_openai_gpt_image_2_t2i` | 5 / 8, estimé | partenaire |
+| outil-img-seedream | `api_bytedance_seedream_5_0_pro_t2i` | 9 / 14, estimé | partenaire |
+| outil-img-nano | `api_nano_banana_2_1_t2i` | 12 / 18, estimé | partenaire |
+| outil-img-refs | `image_qwen_image_2_1_image_edit` | 4 / 8, estimé | ouvert, open weights |
+| outil-img-360 | `template_qwen_Image_2512_360_lora` | 4 / 8, estimé | ouvert, open weights |
+| outil-img-croquis | `image_qwen_Image_2512_controlnet` | 4 / 8, estimé | ouvert, open weights |
+| outil-vid-texte | `video_ltx2_5_t2v` | 12 / 25, estimé | ouvert, open weights |
+| outil-vid-kling | `api_kling_v3_video` | 177 / 266, estimé | partenaire |
+| outil-vid-seedance | `api_seedance2_5_r2v` | 352 / 528, estimé | partenaire |
+| outil-vid-wan | `video_wan2_2_14B_i2v` | 12 / 25, estimé | ouvert, open weights |
+| outil-vid-vidu | `api_vidu_q4_preview_r2v` | 100 / 150, estimé | partenaire |
+| outil-vid-h3max | `api_minimax_h3_max_r2v` | 181 / 272, estimé | partenaire |
+| outil-vid-mouvement | `video_wan_animate2` | 15 / 30, estimé | ouvert, open weights |
+| outil-3d-tripo | `api_tripo_p2_image_to_model` | 232 / 348, estimé | partenaire |
+| outil-3d-hunyuan | `api_hunyuan3d_image_to_model` | 190 / 285, estimé | partenaire |
+| outil-3d-meshy | `api_meshy7_1_image_to_model` | 362 / 543, estimé | partenaire |
+| outil-son-voix-ouverte | `audio-chatterbox_tts_multilingual` | 2 / 4, estimé | ouvert, open weights |
+| outil-son-dialogue | `api_elevenlabs_v4_text_to_dialogue` | 24 / 48, estimé | partenaire |
+| outil-son-musique-ouverte | `audio_ace_step1_5_xl_turbo` | 4 / 8, estimé | ouvert, open weights |
+| outil-son-bruitage-ouvert | `audio_stable_audio_3_medium` | 2 / 4, estimé | ouvert, open weights |
+| outil-ret-eclairer | `template_character_portrait_relighting` | 18 / 27, estimé | partenaire |
+| outil-vid-prolonger-grok | `api_grok_video_extend` | 136 / 204, estimé | partenaire |
+| outil-vid-detourer | `api_bria_remove_video_background` | 55 / 83 par 5 s, estimé | partenaire |
+| outil-vid-levres | `api_sync_so_lip_sync_video` | 200 / 300 par 5 s, estimé | partenaire |
+| outil-son-musique-video | `api_sonilo_v2m` | 10 / 15 par 5 s, estimé | partenaire |
+
+Cartes « bientôt » (template officiel repéré, pas encore branché, raison affichée sur la carte) :
+
+- vid-multi — `video_minimax_h3_multiframe_reference` — multi
+- vid-h3-audio — `video_minimax_h3_r2v` — h3Audio
+- 3d-uv — `api_hunyuan3d_model2uv` — entree3d
+- 3d-parties — `api_hunyuan3d_part` — entree3d
+- 3d-monde — `3d_triposplat_image_to_gaussian_splat` — splat
+- son-clone — `audio-chatterbox_vc` — clone
+- son-transcrire — `api_elevenLabs_speech_to_text` — texte
+- txt-decrire — `llm_qwen3vl_text_gen` — texte
+- ret-gommer — `image_flux.1_fill_dev_OneReward` — masque
+- ret-vectoriser — `api_quiver_arrow2_image_to_svg` — svg
+
 ## Finaliser
 
 Finaliser agrandit et rend plus net ce qui existe déjà. Il ne refait jamais la prise ni l’image. Ses templates sont exportés dans `workflows/finaliser/`.
