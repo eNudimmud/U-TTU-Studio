@@ -140,6 +140,8 @@ export function looseAssets(paths: readonly string[], project: string | null): A
     if (!parsed) continue;
     // Street photos are listed from their asset note, with the author and the licence.
     if (parsed.kind === "decor" && /-mly-/.test(parsed.id)) continue;
+    // 3D repérage captures belong to their DÉCOR card (colour, depth, lines).
+    if (parsed.kind === "decor" && /-3d-/.test(parsed.id)) continue;
     const name = cleanCardName(parsed.id.replace(/-/g, " ")) || parsed.id;
     out.push({
       id: parsed.id,

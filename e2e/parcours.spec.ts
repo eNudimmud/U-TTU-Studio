@@ -1,4 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
+
+test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] } });
+const TILE = readFileSync("e2e/fixtures/reperage-tile.pbf");
+const TERRAIN = readFileSync("e2e/fixtures/reperage-terrain.png");
 
 test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   const spent: string[] = [];
@@ -6,9 +11,15 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   page.on("request", request => {
     const url = request.url();
     if (/fal\.ai|comfy\.cloud|api\.comfy|partner_generate|run_template/i.test(url)) spent.push(url);
-    if (/overpass-api\.de|nominatim\.openstreetmap\.org|photon\.komoot\.io|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net|panoramax|overturemaps/i.test(url)) upstream.push(url);
+    if (/overpass-api\.de|nominatim\.openstreetmap\.org|photon\.komoot\.io|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net|panoramax|overturemaps/i.test(url)) upstream.push(url);
   });
   await page.route(/overpass-api\.de|nominatim\.openstreetmap\.org|photon\.komoot\.io|elevation-tiles-prod|earth\.google\.com|maps\.google\.|google\.com\/maps|goo\.gl|maps\.app|mapillary\.com|fbcdn\.net|panoramax|overturemaps/i, route => route.abort());
+
+  // The 3D repérage reads local fixtures; Swiss roofs and aerial photos are refused (OSM volumes then).
+  await page.route(/geo\.admin\.ch/, route => route.abort("blockedbyclient"));
+  await page.route("https://tiles.openfreemap.org/planet", route => route.fulfill({ json: { tiles: ["https://tiles.openfreemap.org/planet/fixture/{z}/{x}/{y}.pbf"], maxzoom: 14 }, headers: { "access-control-allow-origin": "*" } }));
+  await page.route("https://tiles.openfreemap.org/planet/fixture/**", route => route.fulfill({ body: TILE, contentType: "application/x-protobuf", headers: { "access-control-allow-origin": "*" } }));
+  await page.route("https://s3.amazonaws.com/elevation-tiles-prod/terrarium/**", route => route.fulfill({ body: TERRAIN, contentType: "image/png", headers: { "access-control-allow-origin": "*" } }));
 
   await page.goto("/studio?demo=1#personnage");
   await expect(page.getByRole("heading", { name: "CAST" })).toBeVisible();
@@ -16,48 +27,24 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   if (await gallery.isVisible()) await gallery.click();
   await expect(page.getByText("Uttu").first()).toBeVisible();
 
+  // DÉCOR has one location tool: the 3D repérage. Tiles and relief are local fixtures here.
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
-  await expect(page.getByText("© contributeurs OpenStreetMap, ODbL")).toBeVisible();
-  await expect(page.getByText("OpenFreeMap")).toBeVisible();
-  await expect(page.getByText("1. Touche un point sur la carte.")).toBeVisible();
-  await page.locator(".maplibregl-canvas").click({ position: { x: 220, y: 140 } });
-  await expect(page.locator("[data-pas='1']")).toBeVisible();
-  await expect(page.locator("[data-rue-vue]")).toBeVisible();
-  const narrow = (page.viewportSize()?.width ?? 1280) < 800;
-  if (narrow) await page.getByRole("button", { name: "Quitter la vue" }).click();
-  await page.getByRole("button", { name: "Montmartre", exact: true }).click();
-  await expect(page.getByText("2. Dans la rue")).toBeVisible();
-  const view = page.locator("[data-rue-vue]");
-  const canvas = page.locator(".u-rue-canvas");
-  await canvas.waitFor();
-  // Hover waits for a stable, hittable point after the map changes layout.
-  await canvas.hover();
-  const angleBefore = await view.getAttribute("data-cap");
-  const viewBox = await canvas.boundingBox();
-  expect(viewBox).toBeTruthy();
-  const center = { x: viewBox!.x + viewBox!.width / 2, y: viewBox!.y + viewBox!.height / 2 };
-  await page.mouse.move(center.x, center.y);
-  await page.mouse.down();
-  await page.mouse.move(center.x + 100, center.y, { steps: 10 });
-  await page.mouse.up();
-  await expect(view).not.toHaveAttribute("data-cap", angleBefore ?? "");
-  await expect(page.locator("[data-photos=fixture]")).toBeVisible();
-  await expect(view).toHaveAttribute("data-photo", "fixture-ada");
-  const credit = page.locator("[data-rue-credit]");
-  await expect(credit).toContainText("Panoramax");
-  await expect(credit).toContainText("CC BY-SA");
-  await expect(credit).toContainText("Ada Rue");
-  await page.locator("[data-prendre-vue]").click();
-  const added = page.locator("[data-photo-ajoute]");
-  await expect(added).toContainText("Photo ajoutée aux références.");
-  await expect(added).toContainText("CC BY-SA");
-  const creer = page.locator("[data-creer-decor]");
-  await expect(creer).toBeDisabled();
-  await expect(page.locator("#u-why-creer")).toContainText("démo");
-  await expect(page.locator("[data-pas='3']")).toContainText("13");
-  await expect(page.locator("[data-pas='3']")).toHaveAttribute("data-choisies", "1");
-  await page.getByRole("button", { name: "Garder ce lieu" }).click();
-  await expect(page.getByText("Enregistré dans Mon studio.")).toBeVisible();
+  await expect(page.locator("[data-rep3d-entry]")).toHaveCount(1);
+  await expect(page.locator("[data-repere-2d], .maplibregl-canvas")).toHaveCount(0);
+  await page.locator("[data-rep3d-open]").click();
+  const sheet = page.getByRole("dialog", { name: "Repérage 3D" });
+  await sheet.getByRole("button", { name: /Lausanne/ }).first().click();
+  await expect(sheet).toHaveAttribute("data-rep3d-state", "ready", { timeout: 30_000 });
+  await expect(page.locator("[data-rep3d-credit]")).toContainText("© contributeurs OpenStreetMap");
+  await expect(page.locator("[data-rep3d-credit]")).toContainText("OpenFreeMap");
+  await page.locator("[data-rep3d-capture]").click();
+  await expect(page.locator("[data-capture-done]")).toBeVisible({ timeout: 20_000 });
+  // The block around the view goes with the capture, for PRISE's maquette.
+  expect(Number(await page.locator("[data-capture-done]").getAttribute("data-rep3d-block"))).toBeGreaterThan(0);
+  await expect(page.locator("[data-rep3d-quote]")).toContainText("estimés");
+  await expect(page.getByText(/≈ 13 crédits/)).toHaveCount(0);
+  await page.locator("[data-rep3d-use]").click();
+  await expect(sheet).toBeHidden();
 
   await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
   // The 3D maquette (P2) lives in « Avancé », closed by default.
@@ -92,7 +79,7 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(brief).toContainText("Uttu");
   await expect(brief).toContainText("Personnage");
   await expect(brief).toContainText("La coursière");
-  await expect(brief).toContainText("Montmartre");
+  await expect(brief).toContainText("Lausanne");
   await expect(brief).toContainText("Regard caméra");
   await expect(page.locator(".u-who")).toContainText("Uttu");
   await expect(page.locator(".u-who")).toContainText("Personnage");
