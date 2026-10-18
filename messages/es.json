@@ -322,9 +322,9 @@
     "debitHiddenRender": "Cargo aún no visible en tu saldo.",
     "filed": "Guardada en este proyecto.",
     "announcedReal": "Presupuesto anunciado: {announced} créditos. Coste real leído: {real} créditos.",
-    "announcedHigh": "Presupuesto anunciado: {announced} créditos, reserva recomendada {high}. Coste real leído: {real} créditos.",
+    "announcedHigh": "Presupuesto anunciado: {announced} créditos. Coste real leído: {real} créditos.",
     "announcedUnread": "Presupuesto anunciado: {announced} créditos. Coste real no leído.",
-    "announcedUnreadHigh": "Presupuesto anunciado: {announced} créditos, reserva recomendada {high}. Coste real no leído.",
+    "announcedUnreadHigh": "Presupuesto anunciado: {announced} créditos. Coste real no leído.",
     "overQuote": "El coste real supera el presupuesto anunciado.",
     "calc": " Cálculo: {clock}.",
     "new": "Nueva toma",
@@ -633,10 +633,10 @@
     "notMeasured": "Aún no medido. Esta duración, esta calidad o este formato no tiene una toma real. Nada sale.",
     "notMeasuredShort": "aún no medido",
     "billedMark": "unos {amount} créditos",
-    "billedQuote": "Unos {amount} créditos, reserva recomendada {high}, medido en una toma real el {date} (tiempo de GPU facturado, una sola medición, modelos ya cargados: una primera toma en frío puede costar un poco más).",
-    "billedLow": "Saldo demasiado bajo: {have} créditos. Unos {amount} créditos, reserva recomendada {high}, medido en una toma real el {date} (tiempo de GPU facturado, una sola medición, modelos ya cargados: una primera toma en frío puede costar un poco más).",
-    "billedUnread": "Saldo ilegible. Nada sale sin leer la cuenta que pagará. Unos {amount} créditos, reserva recomendada {high}, medido en una toma real el {date} (tiempo de GPU facturado, una sola medición, modelos ya cargados: una primera toma en frío puede costar un poco más).",
-    "billedEmpty": "Saldo vacío en tu cuenta de render. Unos {amount} créditos, reserva recomendada {high}, medido en una toma real el {date} (tiempo de GPU facturado, una sola medición, modelos ya cargados: una primera toma en frío puede costar un poco más).",
+    "billedQuote": "Unos {amount} créditos, estimado a partir de un plano del {date}. El precio final puede variar.",
+    "billedLow": "Saldo demasiado bajo: {have} créditos. Unos {amount} créditos, estimado a partir de un plano del {date}. El precio final puede variar.",
+    "billedUnread": "Saldo ilegible. No se envía nada sin leer la cuenta que pagará. Unos {amount} créditos, estimado a partir de un plano del {date}. El precio final puede variar.",
+    "billedEmpty": "Saldo vacío en tu cuenta de render. Unos {amount} créditos, estimado a partir de un plano del {date}. El precio final puede variar.",
     "characterPriceUnread": "El precio del personaje no está leído. Nada sale.",
     "bothPricesUnread": "Los dos precios no están leídos. Nada sale.",
     "quoteUnread": "El presupuesto aún no está leído. Nada sale.",
@@ -802,11 +802,11 @@
     "creditsShort": "Créditos",
     "photoPlaceName": "Foto del lugar",
     "engine": {
-      "label": "Motor del plano",
-      "ltx": "LTX-2.5 (predeterminado)",
-      "h3": "MiniMax H3",
-      "ltxHint": "FLUX 3 Klein coloca al personaje en el decorado y LTX-2.5 lo anima. Open weights.",
-      "h3Hint": "Hasta nueve referencias. Open weights."
+      "label": "Estilo del plano",
+      "ltx": "Movimiento simple",
+      "h3": "Hasta nueve imágenes",
+      "ltxHint": "El personaje se coloca en el decorado y el plano cobra vida.",
+      "h3Hint": "Hasta nueve imágenes de referencia."
     }
   },
   "create": {
@@ -818,12 +818,12 @@
     "castPromptPh": "Una mujer con abrigo oscuro, mirada calma.",
     "views": "Frente, tres cuartos, perfil, de cuerpo entero.",
     "name": "Nombre",
-    "castButton": "Crear el personaje · ≈ {amount} cr. estimado",
-    "decorButton": "Crear el decorado · ≈ {amount} cr. estimado",
+    "castButton": "Crear el personaje · ≈ {amount} cr.",
+    "decorButton": "Crear el decorado · ≈ {amount} cr.",
     "castButtonClosed": "Crear el personaje",
     "decorButtonClosed": "Crear el decorado",
-    "ceilingHyp": "Reserva: {high} cr.",
-    "ceilingMeasured": "Reserva recomendada: {high} créditos (medido).",
+    "ceilingHyp": "Estimación: {high} cr.",
+    "ceilingMeasured": "Medido: {high} cr.",
     "quoteLead": "Presupuesto: {quote} · {status}",
     "quoteUnknown": "Presupuesto: desconocido",
     "statusMeasured": "medido",
@@ -831,9 +831,9 @@
     "statusUnknown": "desconocido",
     "confirmTitle": "¿Crear ahora?",
     "confirmBody": "El presupuesto está aquí. Nada sale sin este gesto.",
-    "estimate": "Unos {amount} créditos. Reserva recomendada: {high} créditos (estimación). No se cobra antes de confirmar.",
+    "estimate": "Unos {amount} cr., estimado. El precio final puede variar.",
     "needLink": "Conecta tu cuenta de render para crear.",
-    "needCeiling": "El saldo no cubre el máximo.",
+    "needCeiling": "El saldo no cubre esta estimación.",
     "filed": "El render está guardado.",
     "running": "El render está en curso.",
     "failed": "El render no terminó. No se guardó nada.",
@@ -887,19 +887,19 @@
     "addVoice": "Añadir una voz",
     "addSfx": "Añadir un efecto de sonido",
     "needLink": "Vincula tu cuenta de render para crear.",
-    "voiceLead": "Una voz a partir de un texto. El presupuesto es una hipótesis.",
-    "sfxLead": "Un efecto de sonido a partir de un texto. El presupuesto es una hipótesis.",
-    "musicLead": "Treinta segundos de música a partir de un texto. El presupuesto es una hipótesis.",
-    "musicQuote": "≈ {amount} cr. estimado para {seconds} s · reserva {high} cr.",
-    "musicRate": "Hipótesis · unos 16 créditos para 30 segundos.",
+    "voiceLead": "Una voz a partir de un texto.",
+    "sfxLead": "Un efecto de sonido a partir de un texto.",
+    "musicLead": "Treinta segundos de música a partir de un texto.",
+    "musicQuote": "≈ {amount} cr. para {seconds} s",
+    "musicRate": "≈ 16 cr. para 30 segundos.",
     "createMusic": "Crear la música",
     "addMusic": "Añadir música",
     "needScript": "Escribe el texto.",
-    "voiceQuote": "≈ {amount} cr. estimado para {count} caracteres · reserva {high} cr.",
-    "voiceRate": "Hipótesis · unos 24,1 créditos por 1 000 caracteres.",
-    "sfxQuote": "≈ {amount} cr. estimado para {seconds} s · reserva {high} cr.",
-    "sfxRate": "Hipótesis · unos 29,5 créditos por minuto.",
-    "createOff": "El presupuesto no está medido. No sale nada.",
+    "voiceQuote": "≈ {amount} cr. para {count} caracteres",
+    "voiceRate": "≈ 24,1 cr. por 1 000 caracteres.",
+    "sfxQuote": "≈ {amount} cr. para {seconds} s",
+    "sfxRate": "≈ 29,5 cr. por minuto.",
+    "createOff": "Aún no hay precio para esto. No se envía nada.",
     "createVoice": "Crear la voz",
     "createSfx": "Crear el efecto",
     "script": "Texto",
@@ -970,18 +970,18 @@
   },
   "gestes": {
     "ask": "¿Qué quieres hacer?",
-    "more": "Más gestos",
-    "less": "Menos gestos",
+    "more": "Más herramientas",
+    "less": "Menos herramientas",
     "soon": "Pronto",
     "soonQuiet": "Pronto · {names}",
     "seeExample": "Ver un ejemplo",
     "startExample": "Empezar con este ejemplo",
-    "cost": "Unos {amount} créditos. Reserva recomendada: {high} créditos (estimación).",
-    "costMeasured": "Unos {amount} créditos. Reserva recomendada: {high} créditos (medido).",
+    "cost": "Unos {amount} cr., estimado. El precio final puede variar.",
+    "costMeasured": "Medido: unos {amount} cr.",
     "costUnknown": "Presupuesto no medido. No sale nada.",
     "need": "Se necesita: {list}",
     "exampleSoon": "Ejemplo por llegar",
-    "unwired": "Este gesto aún no está conectado. No sale nada.",
+    "unwired": "Esta herramienta aún no está disponible. No se envía nada.",
     "needRefs": "No hay referencia.",
     "needOutfit": "La foto de la ropa no está.",
     "raisons": {
@@ -1147,29 +1147,29 @@
       "quiet": "Suavizar"
     },
     "options": {
-      "title": "Motores",
-      "openWeights": "Solo open weights",
-      "openWeightsHint": "Oculta los gestos que usan un servicio asociado de pago.",
-      "nano": "Nano Banana (opcional)"
+      "title": "Modelos",
+      "openWeights": "Solo modelos del estudio",
+      "openWeightsHint": "Oculta las herramientas que pasan por un servicio externo de pago.",
+      "nano": "Modelo versátil (opción)"
     },
     "castRefs": {
       "title": "Varias referencias",
       "phrase": "Cara, ropa y estilo, hasta cinco fotos."
     },
     "castTextNano": {
-      "title": "Texto (Nano Banana)",
+      "title": "Texto (modelo versátil)",
       "phrase": "Una persona ficticia, con el otro motor."
     },
     "castPhotosNano": {
-      "title": "Fotos (Nano Banana)",
+      "title": "Fotos (modelo versátil)",
       "phrase": "La cara de tus fotos, con el otro motor."
     },
     "decorTextNano": {
-      "title": "Texto (Nano Banana)",
+      "title": "Lugar (modelo versátil)",
       "phrase": "Un lugar, con el otro motor."
     },
     "decorPhotoNano": {
-      "title": "Foto (Nano Banana)",
+      "title": "Foto (modelo versátil)",
       "phrase": "Un lugar de una foto, con el otro motor."
     },
     "prisePlanH3": {
@@ -1186,15 +1186,15 @@
     },
     "prisePrevis": {
       "title": "Cámara dirigida",
-      "phrase": "Tu maqueta 3D fija la cámara, la acción y el ritmo; LTX la convierte en plano."
+      "phrase": "La maqueta fija la cámara, la acción y el ritmo, y luego se rueda el plano."
     },
     "priseVolumePerso": {
       "title": "Personaje en 3D",
-      "phrase": "Un retrato de CAST se vuelve un maniquí 3D con Hunyuan3D 2.1, pesos abiertos."
+      "phrase": "Un retrato se convierte en un personaje en volumen."
     },
     "priseVolumeObjet": {
       "title": "Objeto o decorado en 3D",
-      "phrase": "Una foto se vuelve un objeto o una pieza de decorado en 3D con TRELLIS.2, pesos abiertos."
+      "phrase": "Una foto se convierte en un objeto o un trozo de decorado en volumen."
     },
     "suiteModifier": {
       "title": "Modificar",
@@ -1208,7 +1208,7 @@
     },
     "suiteDetourer": {
       "title": "Recortar",
-      "phrase": "Quita el fondo. Un PNG transparente, listo para un decorado.",
+      "phrase": "Quita el fondo. Una imagen transparente, lista para un decorado.",
       "quiet": "Recortar"
     },
     "suiteElargir": {
@@ -1277,7 +1277,7 @@
     "toMontage": "Añadir al montaje",
     "close": "Cerrar",
     "path": "Ruta",
-    "geste": "Gesto",
+    "geste": "Origen",
     "cost": "Coste",
     "date": "Fecha",
     "refs": "Referencias",
@@ -1336,7 +1336,7 @@
       "tailleHint": "Los dos, a la cintura",
       "contre": "Campo / contracampo",
       "contreHint": "Seguimos a quien habla",
-      "reac": "Reacción muda",
+      "reac": "Silencio",
       "reacHint": "Primer plano de quien escucha",
       "impact": "Zoom de impacto",
       "impactHint": "Para un golpe",
@@ -1397,7 +1397,7 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Foto añadida a las referencias.",
     "photosBusy": "Cargando fotos.",
-    "reacMontage": "Reacción muda"
+    "reacMontage": "Silencio"
   },
   "finaliser": {
     "open": "Finalizar el montaje",
@@ -1408,23 +1408,23 @@
     "aucun": "Nada",
     "bruit": "Ruido",
     "flou": "Desenfoque",
-    "quote": "Unos {credits} créditos; reserva recomendada: {ceiling}.",
+    "quote": "≈ {credits} cr.",
     "measured": "Medido en una pasada real.",
     "estimate": "Estimación, aún sin medir.",
     "seconds": "Montaje de {seconds} s.",
-    "confirm": "Confirmo el coste estimado. La reserva de {ceiling} créditos no garantiza el coste final.",
-    "go": "Finalizar por unos {credits} créditos",
+    "confirm": "Confirmo esta estimación. El precio final puede variar.",
+    "go": "Finalizar · ≈ {credits} cr.",
     "empty": "El montaje está vacío: añade al menos un plano.",
     "long": "El montaje supera los 60 s: córtalo antes de finalizar.",
     "needLink": "Conecta tu cuenta de render (Comfy) para finalizar.",
-    "needConfirm": "Marca la confirmación para lanzar.",
-    "needCeiling": "El saldo no cubre el reserva de {ceiling} créditos.",
+    "needConfirm": "Confirma para empezar.",
+    "needCeiling": "El saldo no cubre esta estimación.",
     "busy": "Ya hay una finalización en curso.",
     "noQuote": "No hay presupuesto para este montaje.",
     "prepare": "Preparando el montaje en esta pestaña…",
     "envoi": "Enviando el montaje…",
     "file": "En cola en tu cuenta…",
-    "calcul": "Ampliando ({seconds} s)…",
+    "calcul": "Se agranda ({seconds} s)…",
     "retour": "Recuperando el vídeo…",
     "mesure": "Leyendo el coste real…",
     "keepOpen": "Deja esta pestaña abierta. El render llega hasta el final; nunca se cancela.",
@@ -1435,7 +1435,7 @@
     "fail": "La finalización no salió: {message}",
     "close": "Cerrar",
     "download": "Descargar",
-    "openLead": "Pesos abiertos: el montaje se restaura en 1080p, sin rehacerse. Estimado por bloques de 5 s.",
+    "openLead": "El vídeo se restaura más grande, sin rehacerse. Estimado por tramos de 5 segundos.",
     "openShort": "Finalizar"
   },
   "depart": {
@@ -1447,8 +1447,8 @@
     "montage": "Tres planos, una voz y música. Tócalo: el montaje se rellena, no se envía nada."
   },
   "videoGeste": {
-    "title": "Gestos de vídeo",
-    "lead": "Previs, enlace, cámara, ampliar, borrar: LTX, pesos abiertos. Presupuesto estimado, aún no medido en una toma real.",
+    "title": "Desde la maqueta",
+    "lead": "Desde la maqueta o una imagen. El precio es una estimación.",
     "slot": {
       "debut": "Primera imagen",
       "fin": "Última imagen",
@@ -1462,14 +1462,14 @@
       "prise-previs": "Lo que se ve en el plano"
     },
     "textOptional": "Lo que aparece a los lados (opcional)",
-    "quote": "Estimado: unos {credits} créditos, reserva recomendada {ceiling}.",
-    "estimate": "Una estimación, no una medida: aún no hay una toma real facturada para este gesto.",
-    "confirm": "Confirmo esta estimación y una reserva de {ceiling} créditos; el precio final puede ser mayor.",
-    "go": "Lanzar por unos {credits} créditos (estimado)",
+    "quote": "≈ {credits} cr.",
+    "estimate": "El precio final puede variar.",
+    "confirm": "Confirmo esta estimación. El precio final puede variar.",
+    "go": "Empezar · ≈ {credits} cr.",
     "needLink": "Vincula tu cuenta de render (Comfy) para lanzar.",
     "needFiles": "No hay archivo o texto.",
     "needText": "El texto está vacío.",
-    "needConfirm": "Marca la confirmación para lanzar.",
+    "needConfirm": "Confirma para empezar.",
     "done": "Vídeo guardado en Mis creaciones.",
     "slotPrevis": {
       "plan": "Imagen de aspecto (personaje en el decorado)",
@@ -1546,7 +1546,7 @@
     "savedClip": "Previsualización guardada en Mis creaciones.",
     "downloadClip": "Descargar el vídeo",
     "modelTerms": "Leer la licencia del modelo",
-    "hunyuanTerms": "Hunyuan3D 2.1 tiene condiciones específicas: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo."
+    "hunyuanTerms": "Este volumen tiene condiciones particulares: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo."
   },
   "recovery": {
     "title": "Recuperar un renderizado",
@@ -1567,12 +1567,12 @@
     "corrupt": "No se puede leer el recibo. Conserva los datos del navegador y revisa tu historial de Comfy."
   },
   "safety": {
-    "modelBlocked": "Tu selección de modelos desactiva esta acción. No se envió ningún renderizado.",
-    "finalBlocked": "La finalización utiliza RTX actualmente. Aún no está conectada una versión verificada con pesos abiertos. La exportación MP4 local sigue disponible.",
-    "estimate": "El precio es una estimación. El proveedor no garantiza un límite de facturación.",
+    "modelBlocked": "Esta herramienta está oculta por tus elecciones de modelos. No se envía nada.",
+    "finalBlocked": "Este acabado aún no está disponible. Exportar el vídeo sigue siendo posible.",
+    "estimate": "El precio es una estimación. El precio final puede variar.",
     "projectMissing": "Este proyecto no está en este dispositivo. Importa su copia de seguridad.",
     "sequenceMissing": "Esta secuencia no está en el proyecto. No se abrió otro montaje en su lugar.",
-    "referencesMax": "Este motor admite como máximo {max} imágenes de referencia. Reduce las referencias antes de generar.",
+    "referencesMax": "Este estilo acepta como máximo {max} imágenes. Redúcelas antes de empezar.",
     "assetMissing": "Este archivo no se encuentra en el proyecto solicitado."
   },
   "storage": {
@@ -1698,8 +1698,9 @@
     "after": "Después",
     "compare": "Comparar antes y después",
     "engine": {
-      "open": "pesos abiertos",
-      "partner": "servicio asociado de pago"
+      "open": "modelo del estudio",
+      "partner": "servicio externo",
+      "versatile": "modelo versátil"
     },
     "paroles": {
       "aucune": "Ninguno",
@@ -1723,9 +1724,9 @@
       "5": "baja la mirada"
     },
     "camera": {
-      "free": "libre: no se impone nada al motor (ninguna palabra de cámara en tu texto)",
+      "free": "libre: no se impone nada",
       "fromText": "«{words}» leído en tu texto → {move}",
-      "fromTile": "{move}, pedido por el lenguaje de cine elegido",
+      "fromTile": "{move}, según el movimiento elegido",
       "move": {
         "fixe": "cámara fija",
         "travelling-avant": "travelling hacia delante",
@@ -1739,7 +1740,7 @@
     "why": {
       "demo": "La demostración no envía ningún render.",
       "busy": "Hay un render en curso. Espera a que termine para lanzar otro.",
-      "h3Format": "MiniMax H3 solo tiene presupuesto en 9:16 · 5 s. Cambia a 9:16 o vuelve a LTX en Avanzado.",
+      "h3Format": "Este estilo solo tiene precio en vertical, 5 segundos. Pasa a vertical o vuelve al estilo simple en Avanzado.",
       "noQuote": "Este ajuste aún no tiene presupuesto. No se envía nada.",
       "refs": "Usa como máximo tres personajes guardados; las siluetas neutras solo sirven para preparar el encuadre.",
       "decorExample": "Este decorado de ejemplo solo sirve para encuadrar. Crea o importa tu decorado en DECORADO para enviarlo.",
@@ -1747,14 +1748,14 @@
       "nextWords": "Escribe qué pasa en el plano {n}."
     },
     "quote": {
-      "estimated": "≈ {low} a {high} cr. estimado",
-      "measured": "Medido: unos {credits} créditos, reserva {high} (una toma real facturada).",
+      "estimated": "≈ {low} cr. estimados",
+      "measured": "Medido: unos {credits} cr.",
       "measuredBalance": "Medido en tus tomas: unos {credits} créditos.",
       "none": "Aún no hay presupuesto para este ajuste. No se envía nada."
     },
     "gate": {
       "noBalance": "Saldo ilegible: no se envía nada sin leer la cuenta que paga.",
-      "low": "Saldo demasiado bajo: {credits} créditos, se necesitan {high} de reserva."
+      "low": "Saldo demasiado bajo: {credits} cr. Hacen falta unos {high}."
     },
     "fiab": {
       "title": "Fiabilidad de la operación",
@@ -1765,7 +1766,7 @@
       "executer": "Ejecutar",
       "controler": "Controlar",
       "archiver": "Archivar",
-      "sentTitle": "Lo que va al motor",
+      "sentTitle": "Lo que se envía",
       "changeTitle": "Lo que puede cambiar:",
       "changePrise": "el motor puede cambiar la cara, la ropa o el decorado de una toma a otra y no garantiza el movimiento. Quédate con la mejor: las demás quedan como versiones, nada se sobrescribe.",
       "changeCast": "la cara y la ropa pueden alejarse de tus fotos; el personaje se añade solo tras el resultado, nada se reemplaza.",
@@ -1775,7 +1776,7 @@
       "refsCount": "{count, plural, one {# imagen} other {# imágenes}}",
       "refsNone": "ninguna imagen, solo texto",
       "sentPrompt": "Tu texto",
-      "sentEngine": "Motor",
+      "sentEngine": "Estilo",
       "sentCast": "Personajes",
       "sentDecor": "Decorado",
       "sentWords": "Tus palabras",
@@ -1792,7 +1793,7 @@
     "stillEmpty": "Elige quién y dónde: la vista previa aparece aquí.",
     "groups": {
       "maquette": "Maqueta 3D y encuadre",
-      "rendu": "Motor y duración",
+      "rendu": "Estilo y duración",
       "previs": "Previs filmada"
     }
   },
@@ -1816,9 +1817,9 @@
       "unknownGo": "«{word}»: añadir en Reparto"
     },
     "say": {
-      "engineH3Refs": "Hacen falta {count} referencias y LTX admite {max}: paso a H3.",
-      "engineH3Cast": "{count} personajes en el plano: paso a H3, hecho para varias identidades.",
-      "engineManual": "Motor elegido a mano en Avanzado: {engine}.",
+      "engineH3Refs": "Hay {count} imágenes, y este estilo solo admite {max}: paso al otro estilo.",
+      "engineH3Cast": "{count} personajes en el plano: paso al estilo hecho para varias caras.",
+      "engineManual": "Estilo elegido a mano en Avanzado: {engine}.",
       "refsDropped": "Más allá de {max} referencias, {count} quedan fuera.",
       "missingRef": "No hay foto de {name}: su aspecto puede cambiar.",
       "missingDecorRef": "No hay imagen del lugar {name}: el decorado seguirá sus palabras.",
@@ -1826,7 +1827,7 @@
       "orbitDegrees": "Rotación de {degrees}° de la cámara.",
       "orbitWho": "La cámara gira alrededor de {name}.",
       "orbit": "La cámara gira alrededor de la escena.",
-      "ltxMoveNotExact": "LTX no garantiza este movimiento al centímetro.",
+      "ltxMoveNotExact": "Este estilo no garantiza este movimiento al centímetro.",
       "camera": {
         "fixe": "Cámara fija.",
         "travelling-avant": "Travelling hacia delante, lento.",
@@ -1840,7 +1841,7 @@
       "identityPhoto": "Conservo el aspecto de {name} según su foto.",
       "stateKept": "{name} mantiene «{state}» desde {code}.",
       "continuityLight": "Conservo su aspecto y la luz del plano anterior.",
-      "keyframeKlein": "Klein compone primero la imagen inicial con {count} referencias y luego LTX la anima.",
+      "keyframeKlein": "La imagen de partida se compone primero con {count} referencias, y luego el plano cobra vida.",
       "ambiance": "Ambiente: {label}.",
       "durationClamped": "{asked} s pedidos: la toma dura {seconds} s (5 u 8 s).",
       "unknownName": "No conozco «{word}»: añádalo en Reparto o Decorado, o corrija la palabra.",
@@ -1850,7 +1851,7 @@
     "fiab": {
       "ambiance": "Ambiente",
       "continuity": "Continuidad",
-      "engine": "Motor",
+      "engine": "Estilo",
       "engineAuto": "{engine} · elegido por el estudio",
       "engineHand": "{engine} · elegido a mano",
       "resolution": "Resolución (estimada)",
@@ -2021,8 +2022,8 @@
   },
   "suite": {
     "title": "¿Y ahora?",
-    "chip": "≈ {credits} cr. estimado",
-    "quote": "Estimado: unos {credits} créditos, reserva aconsejada {ceiling}. Aún no medido en un render real.",
+    "chip": "≈ {credits} cr.",
+    "quote": "Unos {credits} cr., estimado. El precio final puede variar.",
     "safe": "El resultado se añade a Mi estudio. El original nunca se reemplaza.",
     "go": "Lanzar · ≈ {credits} créditos (estimado)",
     "done": "Guardado en Mis creaciones, junto al original.",
@@ -2031,8 +2032,8 @@
     "needVoice": "Añade una voz (archivo de audio).",
     "noFrame": "No se pudo leer el último fotograma de la toma en este dispositivo. No se envió nada.",
     "emptyResult": "El render volvió vacío. El original queda intacto.",
-    "toPrise": "Abrir en la toma",
-    "fluide": "Suavizar también (fotogramas intermedios, estimado aparte)",
+    "toPrise": "Abrir en un plano",
+    "fluide": "Hacer el movimiento más suave",
     "voice": "Voz (primeros 5 segundos)",
     "side": "Dónde ampliar",
     "sides": {
@@ -2056,7 +2057,7 @@
       },
       "suite-detourer": {
         "title": "Recortar",
-        "phrase": "Quita el fondo. Un PNG transparente, listo para un decorado."
+        "phrase": "Quita el fondo. Una imagen transparente, lista para un decorado."
       },
       "suite-elargir": {
         "title": "Ampliar",
@@ -2122,7 +2123,7 @@
     "partnerPrice": "Precio socio ≈ {credits} cr.",
     "hidden": {
       "nano": "Oculto: actívalo en tus ajustes de modelos.",
-      "openWeights": "Oculto: elegiste «solo pesos abiertos»."
+      "openWeights": "Oculto: elegiste solo los modelos del estudio."
     },
     "count": "{n} herramientas",
     "none": "Ninguna herramienta coincide.",
@@ -2150,7 +2151,7 @@
       "objet": "Objeto",
       "perso": "Personaje"
     },
-    "confirm": "Confirmo: ≈ {credits} cr. estimado · reserva {ceiling}. El precio final puede variar.",
+    "confirm": "Confirmo: unos {credits} cr. El precio final puede variar.",
     "link": "Vincular mi cuenta",
     "needInput": "Añade {what} para lanzar.",
     "needConsent": "Confirma que puedes usar esta voz.",
@@ -2176,14 +2177,14 @@
     "download": "Descargar",
     "busy": "Hay un cálculo en curso.",
     "why": {
-      "multi": "El modelo de varios fotogramas clave necesita un grafo que el estudio aún no construye.",
-      "h3Audio": "Ajustar un plano a un sonido necesita un ajuste de audio aún no verificado.",
-      "entree3d": "Primero hay que poder aportar un modelo 3D como entrada.",
-      "splat": "El estudio aún no puede mostrar una nube de puntos 3D.",
-      "clone": "Cambiar de voz espera un flujo de consentimiento propio.",
-      "texte": "El resultado es texto; el estudio solo guarda medios por ahora.",
-      "masque": "Primero hace falta un pincel para pintar la zona.",
-      "svg": "El estudio aún no puede guardar ni mostrar un archivo SVG."
+      "multi": "Esta herramienta aún no está disponible.",
+      "h3Audio": "Un plano ajustado a un sonido aún no está disponible.",
+      "entree3d": "Soltar un volumen 3D aún no es posible.",
+      "splat": "Mostrar este tipo de volumen 3D aún no es posible.",
+      "clone": "Cambiar de voz aún no está disponible.",
+      "texte": "El estudio guarda imágenes, vídeos y sonidos, todavía no un texto solo.",
+      "masque": "Pintar la zona a borrar aún no es posible.",
+      "svg": "Este formato de dibujo aún no se acepta."
     },
     "t": {
       "img-klein": {
@@ -2259,8 +2260,8 @@
         "line": "Un plano muy fiel a tu imagen."
       },
       "vid-wan": {
-        "title": "Animar una imagen (abierto)",
-        "line": "Una imagen cobra vida, pesos abiertos."
+        "title": "Animar una imagen",
+        "line": "Una imagen cobra vida."
       },
       "vid-vidu": {
         "title": "Vídeo con varias referencias",
@@ -2271,8 +2272,8 @@
         "line": "Un plano nítido y estable desde una imagen."
       },
       "3d-ouvert": {
-        "title": "Imagen → 3D (abierto)",
-        "line": "Un objeto o personaje en 3D, pesos abiertos."
+        "title": "Imagen en volumen",
+        "line": "Un objeto o un personaje en 3D."
       },
       "3d-tripo": {
         "title": "Imagen → 3D detallado",
@@ -2299,8 +2300,8 @@
         "line": "Un lugar entero en nube de puntos 3D."
       },
       "son-voix-ouverte": {
-        "title": "Voz (abierto)",
-        "line": "Lee tu texto con la voz de un clip que aportas."
+        "title": "Voz",
+        "line": "Lee tu texto con la voz de un fragmento que das."
       },
       "son-voix": {
         "title": "Voz",
@@ -2311,16 +2312,16 @@
         "line": "Dos voces que se responden, una réplica por línea."
       },
       "son-musique-ouverte": {
-        "title": "Música (abierto)",
-        "line": "30 s de música descrita con palabras, pesos abiertos."
+        "title": "Música",
+        "line": "Una música descrita con palabras."
       },
       "son-musique": {
         "title": "Música",
         "line": "Una música descrita con palabras."
       },
       "son-bruitage-ouvert": {
-        "title": "Efecto de sonido (abierto)",
-        "line": "10 s de ambiente o efecto, pesos abiertos."
+        "title": "Efecto de sonido",
+        "line": "Un ambiente o un efecto."
       },
       "son-bruitage": {
         "title": "Efecto de sonido",
@@ -2347,7 +2348,7 @@
         "line": "Cambia lo que describes, conserva el resto."
       },
       "ret-finaliser": {
-        "title": "Mejorar una imagen",
+        "title": "Más grande y nítida",
         "line": "Más nítida y el doble de grande, sin rehacer nada.",
         "tags": "finalizar reescalar nitidez"
       },
@@ -2357,7 +2358,7 @@
       },
       "ret-detourer": {
         "title": "Quitar fondo",
-        "line": "Quita el fondo, PNG transparente."
+        "line": "Quita el fondo, imagen transparente."
       },
       "ret-gommer": {
         "title": "Borrar una zona",
@@ -2384,8 +2385,8 @@
         "line": "Una imagen y una voz se vuelven un plano hablado."
       },
       "vid-finaliser": {
-        "title": "Mejorar un vídeo",
-        "line": "Lleva un plano a 1080p sin rehacerlo.",
+        "title": "Agrandar un vídeo",
+        "line": "Hace un plano más grande, sin rehacerlo.",
         "tags": "finalizar reescalar nitidez"
       },
       "vid-prolonger-grok": {
@@ -2418,7 +2419,33 @@
       }
     },
     "latest": "Últimos resultados",
-    "reserve": "· reserva {ceiling}"
+    "reserve": "",
+    "modelName": {
+      "vid-wan": "Movimiento simple",
+      "vid-ltx-image": "Desde tus imágenes",
+      "vid-animer": "Movimiento corto",
+      "vid-kling": "Cine, con sonido",
+      "vid-seedance": "Muy fiel a la imagen",
+      "vid-h3max": "Más nítido",
+      "vid-prolonger": "Unos segundos más",
+      "vid-prolonger-grok": "Según tu consigna",
+      "3d-ouvert": "Volumen simple",
+      "3d-tripo": "Volumen detallado",
+      "3d-hunyuan": "Volumen con materiales",
+      "3d-meshy": "Volumen para un juego",
+      "son-voix-ouverte": "A partir de un fragmento",
+      "son-voix": "A partir del texto",
+      "son-musique-ouverte": "Música simple",
+      "son-musique": "Música cuidada",
+      "son-bruitage-ouvert": "Efecto simple",
+      "son-bruitage": "Efecto cuidado"
+    },
+    "model": "Modelo",
+    "modelChange": "Cambiar de modelo",
+    "confirmTitle": "¿Lanzar este render?",
+    "confirmBody": "Unos {credits} cr., estimado. El precio final puede variar.",
+    "confirmYes": "Confirmar",
+    "confirmNo": "Cancelar"
   },
   "top": {
     "nav": "Navegación del estudio",
@@ -2457,7 +2484,8 @@
         "title": "Terminar un montaje",
         "line": "Tus planos, el sonido, la exportación."
       }
-    }
+    },
+    "film": "Película"
   },
   "projects": {
     "label": "Proyecto",
@@ -2533,11 +2561,15 @@
       "nom": "Nombre"
     },
     "noSuite": "Convertir y Retocar se abren sobre una imagen o un vídeo.",
-    "inTool": "Abrir en una herramienta"
+    "inTool": "Abrir en una herramienta",
+    "settings": "Ajustes de la biblioteca",
+    "search": "Buscar una creación",
+    "emptyCta": "Crear algo"
   },
   "toolswitch": {
     "change": "Cambiar de herramienta",
-    "recent": "Recientes"
+    "recent": "Recientes",
+    "family": "Misma familia"
   },
   "status": {
     "introuvable": {
@@ -2551,5 +2583,18 @@
     "retry": "Reintentar",
     "studio": "Abrir el estudio",
     "home": "Inicio"
+  },
+  "entry": {
+    "linkTitle": "Para lanzar un render, vincula tu cuenta Comfy.",
+    "link": "Vincular",
+    "promptPh": "Describe una imagen, un vídeo o una película…",
+    "go": "Continuar",
+    "chip": {
+      "portrait": "Un retrato, mirada calma",
+      "anim": "Animar un retrato",
+      "film": "Un cortometraje"
+    },
+    "film": "Hacer una película",
+    "filmLine": "Personaje, lugar, plano y montaje."
   }
 }

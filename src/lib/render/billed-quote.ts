@@ -90,7 +90,7 @@ export function quoteSentence(quote: TakeQuote): string {
 }
 
 export function billedSentence(measure: BilledMeasure): string {
-  return `Environ ${formatCredits(measure.credits)} crédits, réserve conseillée ${formatCredits(measure.creditsHigh)}, mesuré sur une prise réelle le ${measure.displayDay} (temps GPU facturé, une seule mesure, modèles déjà chargés : une première prise à froid peut coûter un peu plus).`;
+  return `Environ ${formatCredits(measure.credits)} crédits, estimé d’après une prise du ${measure.displayDay}. Le prix final peut varier.`;
 }
 
 /** Tourner stays off unless this quote is a number and the balance covers it. */

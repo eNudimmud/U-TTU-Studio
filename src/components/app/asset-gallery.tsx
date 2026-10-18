@@ -9,11 +9,11 @@ import { EtEnsuite } from "./et-ensuite";
 import { Check, KindMark, Refresh, Search, Share, type MarkKind } from "./glyphs";
 
 const FILTERS: { id: AssetFilter; key: string }[] = [
-  { id: "tout", key: "assets.all" },
-  { id: "personnage", key: "assets.personnages" },
-  { id: "decor", key: "assets.decors" },
-  { id: "plan", key: "assets.plans" },
-  { id: "son", key: "assets.sons" },
+  { id: "tout", key: "creations.type.tout" },
+  { id: "personnage", key: "creations.type.personnages" },
+  { id: "decor", key: "creations.type.lieux" },
+  { id: "plan", key: "creations.type.prises" },
+  { id: "son", key: "creations.type.sons" },
   { id: "importe", key: "assets.importes" },
 ];
 
@@ -135,8 +135,10 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       {FILTERS.map(item => <button key={item.id} type="button" aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{t(item.key)}</button>)}
     </div>}
     <div className="u-assets-tools">
-      <button type="button" className="u-icon" aria-pressed={searchOpen} aria-label={t("assets.search")} onClick={() => setSearchOpen(current => !current)}><Search /></button>
-      {searchOpen && <input className="u-search" value={query} placeholder={t("assets.search")} aria-label={t("assets.search")} onChange={event => setQuery(event.target.value)} />}
+      {type ? <input className="u-search" data-creations-search="" value={query} placeholder={t("creations.search")} aria-label={t("creations.search")} onChange={event => setQuery(event.target.value)} /> : <>
+        <button type="button" className="u-icon" aria-pressed={searchOpen} aria-label={t("assets.search")} onClick={() => setSearchOpen(current => !current)}><Search /></button>
+        {searchOpen && <input className="u-search" value={query} placeholder={t("assets.search")} aria-label={t("assets.search")} onChange={event => setQuery(event.target.value)} />}
+      </>}
       {onImport && <label className="u-icon" aria-label={t("assets.import")}>
         <Share />
         <input className="sr-only" type="file" accept="image/*,video/*,audio/*" multiple onChange={event => { const files = [...(event.target.files ?? [])]; event.target.value = ""; if (files.length) onImport(files); }} />
@@ -157,7 +159,6 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         <div><dt>{t("assets.refs")}</dt><dd>{current.refs.length > 0 ? current.refs.join(", ") : t("assets.none")}</dd></div>
         <div><dt>{t("assets.cost")}</dt><dd>{current.cout !== null ? t("assets.credits", { amount: current.cout }) : current.devis !== null ? t("assets.estimate", { amount: current.devis }) : t("assets.none")}</dd></div>
         <div><dt>{t("assets.date")}</dt><dd>{current.at || t("assets.none")}</dd></div>
-        <div><dt>{t("assets.path")}</dt><dd>{current.media || current.preview || t("assets.none")}</dd></div>
       </dl>
       {type && <p className="u-label u-item-label">{t("creations.use")}</p>}
       <div className="u-card-actions" data-item-use="">
@@ -181,7 +182,10 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         grouped={Boolean(type)}
       />}
     </article>}
-    {rows.length === 0 ? <p className="u-small" data-assets-empty="">{type && type !== "tout" ? t("creations.empty") : t("assets.empty")}</p> : <div className="u-gallery u-asset-grid" data-density={dense ? "dense" : undefined}>
+    {rows.length === 0 ? <div className="u-empty" data-assets-empty="" data-creations-empty="">
+      <p>{type ? t("creations.empty") : t("assets.empty")}</p>
+      {type && <a className="u-primary" href={assetPath("/studio")}>{t("creations.emptyCta")}</a>}
+    </div> : <div className="u-gallery u-asset-grid" data-density={dense ? "dense" : undefined}>
       {rows.map(card => {
         const src = srcOf(card);
         const selected = picked.includes(card.id);

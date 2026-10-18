@@ -102,7 +102,7 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   await page.locator('[data-avance-toggle=rendu]').click();
   await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'ltx');
   expect(posts).toBe(0); // The default LTX quote is estimated; only confirmation may submit.
-  await page.locator('.u-engine[data-engine]').getByRole('button', { name: /MiniMax H3/ }).click();
+  await page.locator('.u-engine[data-engine]').getByRole('button', { name: /Jusqu’à neuf images/ }).click();
   await expect(page.locator('.u-engine[data-engine]')).toHaveAttribute('data-engine', 'h3');
   // R10 examples remain previews: never charge for a take that silently omits its selected decor.
   const example = page.getByRole('button', { name: /^Exemple Le quai, la nuit$/i });
@@ -147,7 +147,7 @@ test('deux vidéos importées → montage de six secondes → MP4 lisible', asyn
     { name: 'ClipA.mp4', mimeType: 'video/mp4', buffer: video },
     { name: 'ClipB.mp4', mimeType: 'video/mp4', buffer: video },
   ]);
-  await page.locator('.u-filter').getByRole('button', { name: 'Plans', exact: true }).click();
+  await page.locator('.u-filter').getByRole('button', { name: 'Prises', exact: true }).click();
   await expect(page.locator('.u-pick')).toHaveCount(2);
   await page.getByRole('button', { name: 'ClipA', exact: true }).click();
   await page.getByRole('button', { name: 'Ajouter au montage', exact: true }).click();
@@ -157,7 +157,7 @@ test('deux vidéos importées → montage de six secondes → MP4 lisible', asyn
     await gallery.click();
     await expect(gallery).toHaveAttribute('aria-pressed', 'true');
   }
-  await page.locator('.u-filter').getByRole('button', { name: 'Plans', exact: true }).click();
+  await page.locator('.u-filter').getByRole('button', { name: 'Prises', exact: true }).click();
   await page.getByRole('button', { name: 'ClipB', exact: true }).click();
   await page.getByRole('button', { name: 'Ajouter au montage', exact: true }).click();
   await expect(page.locator('.u-clip.is-video')).toHaveCount(2);

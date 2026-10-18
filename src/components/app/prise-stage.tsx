@@ -86,7 +86,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet } = useStudio();
+  const { ready, demo, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
   const { t, say } = useI18n();
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
@@ -101,7 +101,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const memoryProject = useRef<string | null>(null);
   const memorySave = useRef<number>(0);
   const [seed, setSeed] = useState<Seed>("vide");
-  const [drafts, setDrafts] = useState<Draft[]>(() => [blank("plan-01", "Plan 01", "16:9")]);
+  const [drafts, setDrafts] = useState<Draft[]>(() => [blank("plan-01", "Plan 1", "16:9")]);
   const [currentId, setCurrentId] = useState("plan-01");
   const [dragId, setDragId] = useState<string | null>(null);
   const [panel, setPanel] = useState(false);
@@ -185,7 +185,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     const targetTake = target.get("take");
     const targetPlan = target.get("plan") ?? studio.shots.find(shot => shot.takeIds.includes(targetTake ?? ""))?.id;
     const stored = studio.shots.filter(shot => shot.composeur || shot.id === targetPlan);
-    if (stored.length === 0) { setDrafts([blank("plan-01", "Plan 01", format)]); setCurrentId("plan-01"); return; }
+    if (stored.length === 0) { setDrafts([blank("plan-01", "Plan 1", format)]); setCurrentId("plan-01"); return; }
     const next = stored
       .slice()
       .sort((a, b) => a.ordre - b.ordre)
@@ -452,7 +452,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (read.ambiance.length && !ambianceOff[planId]) rows.push({ label: t("p1.fiab.ambiance"), value: read.ambiance.map(item => item.label).join(", ") });
     const kept = inherited.filter(row => row.state).map(row => `${row.name} · ${row.state!.label} (${row.state!.fromCode || "?"})`);
     if (kept.length) rows.push({ label: t("p1.fiab.continuity"), value: kept.join(" ; ") });
-    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: decided.engine === "h3" ? "MiniMax H3" : "LTX-2.5" }) });
+    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: t(decided.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx") }) });
     if (read.unknown.length) rows.push({ label: t("p1.chip.unknown"), value: read.unknown.join(", "), flag: true });
     return rows;
   }
@@ -480,7 +480,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     while (drafts.some(item => item.id === `plan-${String(n).padStart(2, "0")}`)) n += 1;
     const id = `plan-${String(n).padStart(2, "0")}`;
     const nextInput: PlanInput = { ...input, action: nextAction.trim().slice(0, ACTION_MAX), imageCle: "aucune", enchainer: false, imageFin: false, hasKeptTake: false, previousKept: Boolean(draft.kept) };
-    const item: Draft = { ...blank(id, `Plan ${String(n).padStart(2, "0")}`, format), input: nextInput };
+    const item: Draft = { ...blank(id, `Plan ${n}`, format), input: nextInput };
     const next = [...drafts, item];
     try {
       await writeProjectFile(`.uttu/maquette-${id}.json`, maquetteJson(maquette));
@@ -503,7 +503,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return filled ? t("r7.enPlace") : t("p0.etat.vide");
   }
   const total = drafts.reduce((sum, item) => sum + item.input.duree, 0);
-  const planLabel = t("p0.planN", { n: String(index + 1).padStart(2, "0") });
+  const planLabel = t("p0.planN", { n: String(index + 1) });
 
   async function persist(next: Draft[], focus = draft.id) {
     const shot = next.find(item => item.id === focus);
@@ -532,7 +532,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   function addPlan() {
     const n = drafts.length + 1;
     const id = `plan-${String(n).padStart(2, "0")}`;
-    const next = [...drafts, blank(id, `Plan ${String(n).padStart(2, "0")}`, format)];
+    const next = [...drafts, blank(id, `Plan ${n}`, format)];
     setDrafts(next);
     setCurrentId(id);
     setPanel(false);
@@ -733,7 +733,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   let second: Action | null = null;
   if (demo) { gold = { label: t("p0.tourner"), enabled: false, reason: t("p0.why.demo"), onClick() {}, mark: "tourner" }; second = monterAction; }
   else if (busy) { gold = { label: t("p0.running"), enabled: false, reason: runningHere ? t("p0.runningWhy") : t("p0.why.busy"), onClick() {}, mark: "attente" }; second = withTake > 0 ? monterAction : null; }
-  else if (showNext) { gold = { label: t("p0.tournerSuivant", { n: String(nextNumber).padStart(2, "0") }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber).padStart(2, "0") }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
+  else if (showNext) { gold = { label: t("p0.tournerSuivant", { n: String(nextNumber) }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber) }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
   else if (versions.length > 0) gold = monterAction;
   // Default level: no still-image shortcut. MONTAGE gets takes; the example (demo) keeps its still.
   else { gold = { label: t("p0.tourner"), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
@@ -762,7 +762,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
             onDrop={() => dropOn(item.id)}
             onClick={() => { setCurrentId(item.id); setPanel(item.finalised || item.kept); setAsk(null); }}
           >
-            <span className="u-plan-num">{String(at + 1).padStart(2, "0")}</span>
+            <span className="u-plan-num">{String(at + 1)}</span>
             <span className={thumb ? "u-plan-thumb" : "u-plan-thumb is-empty"}>{thumb ? <img src={thumb} alt="" /> : null}</span>
             <span className="u-plan-etat">{word}</span>
             <span className="u-plan-time">{item.input.duree} s</span>
@@ -1058,7 +1058,6 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           sent={resumeFor(input)}
           technical={[
             { label: t("p0.fiab.sentEngine"), value: `${t(engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx")} · ${input.duree} s · ${input.format}` },
-            { label: t("p1.fiab.graph"), value: intention.decided.template },
             { label: t("p1.fiab.resolution"), value: `≈ ${intention.decided.resolution}` },
             { label: t("p1.fiab.refs"), value: intention.decided.refs.map(ref => `${ref.owner} (${ref.kind})`).join(", ") || "—" },
             { label: t("p1.fiab.identity"), value: t(`p1.fiab.identity${intention.decided.identity}`) },
@@ -1075,7 +1074,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </div>
 
       {showNext && <label className="u-next-plan" data-plan-suivant="">
-        <span className="u-label">{t("p0.nextLabel", { n: String(nextNumber).padStart(2, "0") })}</span>
+        <span className="u-label">{t("p0.nextLabel", { n: String(nextNumber) })}</span>
         <textarea aria-label={t("p0.nextAria")} value={nextAction} rows={2} maxLength={ACTION_MAX} placeholder={t("p0.nextPh")} onChange={event => setNextAction(event.target.value)} />
       </label>}
 
@@ -1084,7 +1083,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}
         {/* Phone: the card is out of view, so the single estimate rides with the action (CSS shows one of the two). */}
         {(gold.mark === "tourner" || gold.mark === "suivant") && <p className="u-prise-quote u-bar-quote">{estimate}</p>}
-        <button type="button" className="u-primary" data-tourner-gold={gold.mark} data-envoyer-montage={gold.mark === "monter" ? "" : undefined} data-lire-sequence={gold.mark === "monter" ? "" : undefined} disabled={!gold.enabled} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={gold.onClick}>{gold.label}</button>
+        <button type="button" className="u-primary" data-tourner-gold={gold.mark} data-envoyer-montage={gold.mark === "monter" ? "" : undefined} data-lire-sequence={gold.mark === "monter" ? "" : undefined} disabled={!gold.enabled && (connected || demo || gold.mark === "attente" || gold.mark === "monter")} aria-describedby={reasonText ? "u-prise-reason" : undefined} onClick={() => { if (!connected && !demo && gold.mark !== "attente" && gold.mark !== "monter") { setSheet("connect"); return; } gold.onClick(); }}>{gold.label}</button>
         {second && <button type="button" className="u-secondary" data-envoyer-montage={second.mark === "monter" ? "" : undefined} data-lire-sequence={second.mark === "monter" ? "" : undefined} disabled={!second.enabled} aria-describedby={!second.enabled ? "u-prise-second" : undefined} onClick={second.onClick}>{second.label}</button>}
         {second && !second.enabled && <p className="u-why" id="u-prise-second">{sending ? t("nav.opening") : second.reason}</p>}
       </div>

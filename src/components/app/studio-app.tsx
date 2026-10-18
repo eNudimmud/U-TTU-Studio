@@ -59,7 +59,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const castOk = cast.some(card => Boolean(card.sheet || card.preview || card.photos.length));
   const decorOk = decor.some(card => Boolean(card.sheet || card.preview || card.geste === "repere"));
   const priseOk = vault.takes.length > 0 || vault.shots.some(shot => Boolean(shot.composeur)) || priseReady({ cast: castOk, decor: decorOk, line });
-  const tab: Tab = asked ?? "lora";
+  const tab: Tab = asked ?? "outils";
   const section: "lora" | "scene" | "prise" | "montage" | "outils" = tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
 
   const go = useCallback((next: Tab) => {
@@ -143,13 +143,13 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
 
   return <FormatProvider><div className="u-app" data-studio={section}>
     <TopBar place={section === "montage" ? "montage" : section === "outils" ? "creer" : "realiser"} />
-    <nav className="u-chain" aria-label={t("nav.chain")}>
+    {section !== "outils" && <nav className="u-chain" aria-label={t("nav.chain")}>
       {STEPS.map(step => <button key={step.id} type="button" aria-current={section === step.id ? "page" : undefined} data-state={marks[step.id] ? "pret" : "vide"} onClick={() => go(step.id)}>
         <span>{t(step.key)}</span>
         <small>{marks[step.id] ? t("stage.ready") : t("stage.empty")}</small>
         {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
       </button>)}
-    </nav>
+    </nav>}
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
       {!ready ? <StudioSplash /> : <>
         {section === "outils" ? <OutilsHub tool={outil} />

@@ -1,21 +1,17 @@
 "use client";
 
-// « Et ensuite ? » : the next step on an asset or a take, in one tap. Each tool shows its
-// estimate on the button (« estimé », never presented as measured), asks one confirmation
-// of the reserve, then runs on the visitor's Comfy account. The result is a new asset:
-// the asset it starts from is only read, so a failed run never touches it. No cancel.
+// « Et ensuite ? » : the next step on an image or a take. Each action opens the real tool
+// page of the public grid, with the file already in place and one estimated cost on the
+// label. Nothing runs from this panel. The original file is only read.
 
-import { ConnectLink } from "./connect-link";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
-import { protocole } from "@/lib/fiabilite";
-import { SUITE_SORTIE, SUITE_SOURCE, SUITE_TEXTE, type Elargir, type SuiteGeste } from "@/lib/suite/graphs";
-import { lastFrame, sourceFile, videoSeconds } from "@/lib/suite/media";
-import { suiteQuote } from "@/lib/suite/quote";
-import { gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
-import { ProtocolStrip } from "./fiabilite-card";
-import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
+import { outilParId, outilsPublics } from "@/lib/outils/catalogue";
+import { outilQuote } from "@/lib/outils/graphs";
+import { assetPath } from "@/lib/site";
+import { videoSeconds } from "@/lib/suite/media";
+import { useStudio } from "./studio-session";
 
 export interface SuiteSource {
   kind: "image" | "video";
@@ -27,21 +23,57 @@ export interface SuiteSource {
   aspect?: "horizontal" | "vertical";
 }
 
-type Outil = SuiteGeste | "suite-3d";
+type Outil = "suite-modifier" | "suite-finaliser-image" | "suite-detourer" | "suite-elargir" | "suite-3d" | "suite-animer" | "suite-parler" | "suite-finaliser-video" | "suite-fluidifier" | "suite-prolonger";
 
 const IMAGE_TOOLS: Outil[] = ["suite-modifier", "suite-finaliser-image", "suite-detourer", "suite-elargir", "suite-3d", "suite-animer", "suite-parler"];
 const VIDEO_TOOLS: Outil[] = ["suite-finaliser-video", "suite-fluidifier", "suite-prolonger"];
-const MESH = { perso: "prise-volume-perso", objet: "prise-volume-objet" } as const;
+
+/** The public tool page each action opens. */
+export const SUITE_PAGE: Record<Outil, string> = {
+  "suite-modifier": "ret-modifier",
+  "suite-finaliser-image": "ret-finaliser",
+  "suite-detourer": "ret-detourer",
+  "suite-elargir": "ret-elargir",
+  "suite-3d": "3d-ouvert",
+  "suite-animer": "vid-wan",
+  "suite-parler": "vid-parler",
+  "suite-finaliser-video": "vid-finaliser",
+  "suite-fluidifier": "vid-fluidifier",
+  "suite-prolonger": "vid-prolonger",
+};
 
 /** Item sheet split: what turns the asset into another medium, and what refines it in place. */
 export const SUITE_CONVERTIR: Outil[] = ["suite-3d", "suite-animer", "suite-parler", "suite-prolonger", "suite-fluidifier"];
 export const SUITE_RETOUCHER: Outil[] = ["suite-modifier", "suite-finaliser-image", "suite-detourer", "suite-elargir", "suite-finaliser-video"];
 
+export const SOURCE_KEY = "u-ttu-source";
+
+export interface HandedSource {
+  url: string;
+  name: string;
+  path?: string;
+  kind: "image" | "video";
+  aspect?: "horizontal" | "vertical";
+}
+
+/** Remember the open file so the tool page can place it. A blob URL does not survive the navigation. */
+export function rememberSource(source: SuiteSource) {
+  const payload: HandedSource = {
+    url: source.url.startsWith("blob:") ? "" : source.url,
+    name: source.name,
+    path: source.path,
+    kind: source.kind,
+    aspect: source.aspect,
+  };
+  try { sessionStorage.setItem(SOURCE_KEY, JSON.stringify(payload)); } catch { /* the tool still opens */ }
+  window.dispatchEvent(new Event("u-ttu-source"));
+}
+
 export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false, only, grouped = false }: {
   source: SuiteSource;
-  /** Animer: also offer to open the image in PRISE. */
+  /** Animer: also offer to open the image in a shot. */
   onPrise?(): void;
-  /** Opens straight on one tool (screenshots, deep links). */
+  /** Deep link: marks that action, without opening a second panel. */
   initial?: Outil | null;
   /** Results show the menu open, visible without opening a detail panel. */
   defaultOpen?: boolean;
@@ -53,13 +85,17 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
   const { t } = useI18n();
   const { prefs } = useStudio();
   const [open, setOpen] = useState(initial !== null || defaultOpen);
-  const [tool, setTool] = useState<Outil | null>(initial);
+  const [seconds, setSeconds] = useState<number | null>(null);
   const menuId = useId();
-  useEffect(() => { setTool(initial); setOpen(initial !== null || defaultOpen); }, [source.url]);
-  const tools = (source.kind === "image" ? IMAGE_TOOLS : VIDEO_TOOLS).filter(id => !only || only.includes(id)).filter(id => {
-    const row = gesteParId(id === "suite-3d" ? MESH.objet : id);
-    return row && gesteOuvert(row) && gesteVisible(row, prefs);
-  });
+  const pages = new Set(outilsPublics(prefs).map(item => item.id));
+  useEffect(() => { setOpen(initial !== null || defaultOpen); }, [source.url, initial, defaultOpen]);
+  useEffect(() => {
+    if (source.kind !== "video") return;
+    let gone = false;
+    void videoSeconds(source.url).then(value => { if (!gone) setSeconds(value); });
+    return () => { gone = true; };
+  }, [source.url, source.kind]);
+  const tools = (source.kind === "image" ? IMAGE_TOOLS : VIDEO_TOOLS).filter(id => !only || only.includes(id)).filter(id => pages.has(SUITE_PAGE[id]));
   if (!source.url || tools.length === 0) return null;
 
   return <section className="u-suite" data-et-ensuite={source.kind} aria-label={t("suite.title")}>
@@ -70,142 +106,16 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
       {(grouped ? [["convert", tools.filter(id => SUITE_CONVERTIR.includes(id))], ["retouch", tools.filter(id => SUITE_RETOUCHER.includes(id))]] as const : [["", tools]] as const).map(([group, list]) => list.length === 0 ? null : <div key={group || "all"} className="u-suite-group" data-suite-group={group || undefined}>
         {group && <p className="u-label">{t(group === "convert" ? "creations.convert" : "creations.retouch")}</p>}
         {list.map(id => {
-          const quote = id === "suite-3d" ? null : suiteQuote(id);
-          const mesh = id === "suite-3d" ? gesteParId(MESH.objet) : null;
-          const credits = quote?.credits ?? mesh?.credits ?? null;
-          return <button key={id} type="button" className="u-suite-item" data-suite-item={id} aria-pressed={tool === id} onClick={() => setTool(current => current === id ? null : id)}>
-            <span className="u-suite-name">{t(`suite.tools.${id}.title`)}</span>
-            {credits !== null && <span className="u-suite-cost">{t("suite.chip", { credits: formatCredits(credits) })}</span>}
-          </button>;
+          const page = SUITE_PAGE[id];
+          const outil = outilParId(page);
+          const quote = outil ? outilQuote(outil, { seconds: seconds ?? undefined }) : null;
+          return <a key={id} className="u-suite-item" data-suite-item={id} href={assetPath(`/studio#outils/${page}`)} aria-current={initial === id ? "true" : undefined} onClick={() => rememberSource(source)}>
+            <span className="u-suite-name">{t(`outils.t.${page}.title`)}</span>
+            {quote && <span className="u-suite-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })}</span>}
+          </a>;
         })}
       </div>)}
+      {onPrise && <button type="button" className="u-secondary u-suite-prise" data-suite-prise="" onClick={onPrise}>{t("suite.toPrise")}</button>}
     </div>}
-    {open && tool && <SuitePanel key={`${tool}-${source.url}`} tool={tool} source={source} onPrise={onPrise} onClose={() => setTool(null)} />}
-  </section>;
-}
-
-function SuitePanel({ tool, source, onPrise, onClose }: { tool: Outil; source: SuiteSource; onPrise?(): void; onClose(): void }) {
-  const { t } = useI18n();
-  const { connected, creating, runSuite, runMeshGeste, holdClip, balance } = useStudio();
-  const [text, setText] = useState("");
-  const [audio, setAudio] = useState<File | null>(null);
-  const [side, setSide] = useState<Elargir>("cotes");
-  const [fluide, setFluide] = useState(false);
-  const [mesh, setMesh] = useState<keyof typeof MESH>("objet");
-  const [seconds, setSeconds] = useState<number | null>(null);
-  const [confirmed, setConfirmed] = useState(false);
-  const [stage, setStage] = useState<{ stage: FinaliseStage; seconds?: number } | null>(null);
-  const [outcome, setOutcome] = useState<FinaliseOutcome | null>(null);
-  const titleId = useId();
-  const busyId = `${titleId}-busy`;
-  useEffect(() => {
-    if (source.kind !== "video") return;
-    let gone = false;
-    void videoSeconds(source.url).then(value => { if (!gone) setSeconds(value); });
-    return () => { gone = true; };
-  }, [source.url, source.kind]);
-  useEffect(() => () => { if (outcome?.ok) URL.revokeObjectURL(outcome.url); }, [outcome]);
-
-  const is3d = tool === "suite-3d";
-  const meshRow = gesteParId(MESH[mesh]);
-  const quote = useMemo(() => is3d
-    ? (meshRow && meshRow.credits !== null && meshRow.high !== null ? { credits: meshRow.credits, high: meshRow.high } : null)
-    : suiteQuote(tool, { seconds: seconds ?? undefined, fluidifier: fluide }), [is3d, meshRow, tool, seconds, fluide]);
-  const texte = is3d ? "aucun" : SUITE_TEXTE[tool];
-  const sortie = is3d ? "mesh" : SUITE_SORTIE[tool];
-  const busy = stage !== null;
-  const missing = (texte === "requis" && !text.trim()) || (tool === "suite-parler" && !audio);
-  const lowBalance = Boolean(quote && balance && balance.credits < quote.high);
-  const can = connected && confirmed && !missing && !busy && !creating && Boolean(quote) && !lowBalance;
-  const why = !connected ? t("videoGeste.needLink")
-    : missing ? t(tool === "suite-parler" && !audio ? "suite.needVoice" : "videoGeste.needText")
-    : lowBalance && quote ? t("finaliser.needCeiling", { ceiling: formatCredits(quote.high) })
-    : !confirmed ? t("videoGeste.needConfirm") : "";
-  const states = protocole({
-    prepared: !missing,
-    checked: connected && !lowBalance,
-    quoted: Boolean(quote),
-    confirming: confirmed,
-    running: busy,
-    failed: outcome?.ok === false,
-    landed: outcome?.ok === true,
-    archived: outcome?.ok === true,
-  });
-
-  function reset() { setConfirmed(false); setOutcome(null); }
-
-  async function launch() {
-    if (!can || !quote) return;
-    setOutcome(null);
-    setStage({ stage: "envoi" });
-    const onStage = (next: FinaliseStage, at?: number) => setStage({ stage: next, seconds: at });
-    try {
-      let result: FinaliseOutcome;
-      if (is3d) {
-        const file = await sourceFile(source.url, source.name, "image");
-        result = await runMeshGeste({ geste: MESH[mesh], file, confirmed, onStage });
-      } else {
-        const fromVideo = SUITE_SOURCE[tool] === "video";
-        const file = tool === "suite-prolonger" ? await lastFrame(source.url, source.name) : await sourceFile(source.url, source.name, fromVideo ? "video" : "image");
-        result = file
-          ? await runSuite({ geste: tool, source: file, audio: audio ?? undefined, prompt: text, confirmed, aspect: source.aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, from: source.path, onStage })
-          : { ok: false, message: t("suite.noFrame") };
-      }
-      setOutcome(result);
-    } catch (error) {
-      setOutcome({ ok: false, message: error instanceof Error && error.message ? error.message : t("create.failed") });
-    } finally {
-      setStage(null);
-      setConfirmed(false);
-    }
-  }
-
-  return <section className="u-suite-panel" data-suite-panel={tool} aria-labelledby={titleId}>
-    <header className="u-suite-head">
-      <h3 id={titleId}>{t(`suite.tools.${tool}.title`)}</h3>
-      <button type="button" className="u-suite-close" aria-label={t("finaliser.close")} disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={onClose}>×</button>
-    </header>
-    <p className="u-small">{t(`suite.tools.${tool}.phrase`)}</p>
-    <ProtocolStrip states={states} />
-    {tool === "suite-elargir" && <div className="u-choice-row" role="group" aria-label={t("suite.side")}>
-      {(["cotes", "haut-bas", "tout"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={side === id} data-suite-side={id} disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => { setSide(id); reset(); }}>{t(`suite.sides.${id}`)}</button>)}
-    </div>}
-    {is3d && <div className="u-choice-row" role="group" aria-label={t("suite.tools.suite-3d.title")}>
-      {(["objet", "perso"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={mesh === id} data-suite-mesh={id} disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => { setMesh(id); reset(); }}>{t(`suite.mesh.${id}`)}</button>)}
-    </div>}
-    {tool === "suite-finaliser-video" && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={fluide} data-suite-fluide="" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => { setFluide(value => !value); reset(); }}>
-      <span className="u-final-box" aria-hidden="true">{fluide ? "✓" : ""}</span>
-      <span>{t("suite.fluide")}</span>
-    </button>}
-    {tool === "suite-parler" && <label className="u-field u-video-file">
-      <span className="u-label">{t("suite.voice")}</span>
-      <span className="u-chip u-file-chip u-suite-file" data-suite-voice="">
-        <span>{audio ? audio.name : t("suite.voicePick")}</span>
-        <input type="file" accept="audio/*" disabled={busy} aria-describedby={busy ? busyId : undefined} onChange={event => { setAudio(event.target.files?.[0] ?? null); reset(); }} />
-      </span>
-    </label>}
-    {texte !== "aucun" && <label className="u-field">
-      <span className="u-label">{t(`suite.tools.${tool}.text`)}{texte === "facultatif" ? ` ${t("suite.optional")}` : ""}</span>
-      <textarea rows={2} value={text} maxLength={600} disabled={busy} aria-describedby={busy ? busyId : undefined} onChange={event => { setText(event.target.value); reset(); }} />
-    </label>}
-    <button type="button" role="checkbox" className="u-final-confirm" aria-checked={confirmed} data-suite-confirm="" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => setConfirmed(value => !value)}>
-      <span className="u-final-box" aria-hidden="true">{confirmed ? "✓" : ""}</span>
-      <span>{t("outils.confirm", { credits: formatCredits(quote?.credits ?? 0), ceiling: formatCredits(quote?.high ?? 0) })}</span>
-    </button>
-    <button type="button" className="u-tool-go" data-suite-go="" disabled={!can} aria-describedby={busy ? busyId : why ? `${titleId}-why` : undefined} onClick={() => void launch()}>
-      <span>{t(`suite.tools.${tool}.title`)}</span>
-      {quote && <span className="u-tool-go-cost" data-suite-quote="estime">{t("outils.cost", { credits: formatCredits(quote.credits) })} <small>{t("outils.estimate")}</small> <small className="u-tool-go-reserve">{t("outils.reserve", { ceiling: formatCredits(quote.high) })}</small></span>}
-    </button>
-    {why && !busy && <p className="u-why" id={`${titleId}-why`}>{why}</p>}
-    {why && !busy && <ConnectLink />}
-    {tool === "suite-animer" && onPrise && <button type="button" className="u-secondary u-suite-prise" data-suite-prise="" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={onPrise}>{t("suite.toPrise")}</button>}
-    {stage && <p className="u-small" id={busyId} aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
-    {outcome && (outcome.ok
-      ? <div className="u-suite-done" data-suite-done="">
-        {sortie === "image" ? <img src={outcome.url} alt="" /> : sortie === "video" ? <video src={outcome.url} controls playsInline /> : <a href={outcome.url} download>{t("previs.downloadModel")}</a>}
-        <p className="u-small">{t("suite.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p>
-        {sortie === "video" && <button type="button" className="u-chip" onClick={() => { holdClip({ source: outcome.path, label: t(`suite.tools.${tool}.title`), kind: "video" }); window.location.hash = "montage"; }}>{t("assets.toMontage")}</button>}
-      </div>
-      : <p className="u-why" role="alert" data-suite-fail="">{outcome.message} {t("suite.intact")}</p>)}
   </section>;
 }

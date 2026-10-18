@@ -43,18 +43,13 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await page.locator('[data-outil="vid-raccord"]').click();
   const panel = page.locator('[data-tool-panel="vid-raccord"]');
   await panel.locator('[data-outil-input="image"] input[type=file]').setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });
-  await panel.locator('[data-tool-step="references"] > summary').click();
+  await panel.locator('[data-tool-step="references"] > button').click();
   await panel.locator('[data-outil-input="image2"] input[type=file]').setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });
   const prompt = panel.locator('[data-tool-step="consigne"] textarea');
-  await prompt.fill('Raccord audit');
-  await expect(panel.locator('[data-tool-go]')).toBeDisabled();
-  const consent = panel.locator('[data-tool-confirm]');
-  await consent.click();
   await prompt.fill('Raccord audit confirmé');
-  await expect(consent).toHaveAttribute('aria-checked', 'false');
-  await consent.click();
   expect(posts).toBe(0);
-  await panel.locator('[data-tool-go]').evaluate((button: HTMLButtonElement) => { button.click(); button.click(); });
+  await panel.locator('[data-tool-go]').click();
+  await panel.locator('[data-tool-confirm]').evaluate((button: HTMLButtonElement) => { button.click(); button.click(); });
   await expect.poll(() => posts).toBe(1);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('u-ttu-operation') || '{}').jobId)).toBe('video-recovery-123');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('u-ttu-operation') || '{}').kind)).toBe('video');
@@ -105,6 +100,7 @@ test('stockage réel, import conservé après fermeture et confirmation accessib
   }
   const browserProtection = await page.evaluate(async () => navigator.storage?.persisted ? await navigator.storage.persisted() : null);
   await expect(status).toHaveAttribute('data-storage', browserProtection === null ? 'unsupported' : browserProtection ? 'persistent' : 'best-effort');
+  await page.locator('[data-library-settings]').click();
   const zip = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Exporter mon studio', exact: true }).click();
   const path = info.outputPath('studio-backup.zip');

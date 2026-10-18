@@ -44,6 +44,7 @@ function AtelierFrame() {
   const [filter, setFilter] = useState<Tab>("tout");
   const [dense, setDense] = useState(false);
   const [sort, setSort] = useState<"recent" | "nom">("recent");
+  const [settings, setSettings] = useState(false);
 
   useEffect(() => {
     const read = () => {
@@ -72,6 +73,7 @@ function AtelierFrame() {
 
   useEffect(() => {
     if (window.location.hash !== "#coffre") return;
+    setSettings(true);
     document.getElementById("coffre")?.scrollIntoView({ block: "start" });
   }, [ready]);
 
@@ -108,7 +110,6 @@ function AtelierFrame() {
       <section className="u-stage u-library" aria-labelledby="u-title">
         <header className="u-head">
           <h1 id="u-title" tabIndex={-1}>{t("creations.title")}</h1>
-          <p className="u-lead">{t("atelier.lead")}</p>
         </header>
         <nav className="u-lib-tabs" aria-label={t("creations.types")}>
           {TABS.map(id => <button key={id} type="button" className="u-lib-tab" aria-pressed={filter === id} data-creations-tab={id} onClick={() => pickTab(id)}>
@@ -138,22 +139,25 @@ function AtelierFrame() {
             {filter === "notes" && shownNotes.length === 0 && <p className="u-small" data-creations-empty="">{t("creations.empty")}</p>}
           </>}
         </div>
-        <section className="u-lien" id="coffre" aria-labelledby="u-coffre-title">
-          <h2 id="u-coffre-title">{t("atelier.vaultTitle")}</h2>
-          <p>{t("atelier.linkExplain")}</p>
-          <p id="u-why-lien">{t("atelier.linkMissing")}</p>
-          <p className="u-small">{t("atelier.stays")}</p>
-          <StorageStatus />
-          {folderMode === "on" && folderName && <p>{t("atelier.linked", { name: folderName })} {t("atelier.auto")}</p>}
-          {linkable ? <button type="button" className="u-primary" onClick={() => void (folderMode === "ask" || folderMode === "on" ? allowLinkedFolder() : linkFolder())}>{folderMode === "ask" || folderMode === "on" ? t("atelier.askAgain") : t("atelier.linkFolder")}</button> : <button type="button" className="u-primary" disabled aria-describedby="u-why-lien">{t("atelier.linkFolder")}</button>}
-          <div className="u-row">
-            <button type="button" className="u-secondary" onClick={() => void exportCoffre()}>{t("atelier.export")}</button>
-            <label className="u-secondary">{t("atelier.import")}
-              <input className="sr-only" type="file" accept=".zip,application/zip" aria-label={t("atelier.import")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void importCoffre(file); }} />
-            </label>
-            <label className="u-secondary">{t("atelier.importFolder")}
-              <input className="sr-only" type="file" multiple aria-label={t("atelier.importFolder")} ref={node => { node?.setAttribute("webkitdirectory", ""); node?.setAttribute("directory", ""); }} onChange={event => { const files = [...(event.target.files ?? [])]; event.target.value = ""; if (files.length) void importFiles(files); }} />
-            </label>
+        <section className="u-lien u-fold" id="coffre" aria-labelledby="u-coffre-title">
+          <h2 id="u-coffre-title" className="sr-only">{t("creations.settings")}</h2>
+          <button type="button" className="u-fold-head" data-library-settings="" aria-expanded={settings} aria-controls="u-coffre-body" onClick={() => setSettings(value => !value)}>{t("creations.settings")}</button>
+          <div id="u-coffre-body" className="u-avance-body" hidden={!settings}>
+            <p>{t("atelier.linkExplain")}</p>
+            <p id="u-why-lien">{t("atelier.linkMissing")}</p>
+            <p className="u-small">{t("atelier.stays")}</p>
+            <StorageStatus />
+            {folderMode === "on" && folderName && <p>{t("atelier.linked", { name: folderName })} {t("atelier.auto")}</p>}
+            {linkable ? <button type="button" className="u-primary" onClick={() => void (folderMode === "ask" || folderMode === "on" ? allowLinkedFolder() : linkFolder())}>{folderMode === "ask" || folderMode === "on" ? t("atelier.askAgain") : t("atelier.linkFolder")}</button> : <button type="button" className="u-primary" disabled aria-describedby="u-why-lien">{t("atelier.linkFolder")}</button>}
+            <div className="u-row">
+              <button type="button" className="u-secondary" onClick={() => void exportCoffre()}>{t("atelier.export")}</button>
+              <label className="u-secondary">{t("atelier.import")}
+                <input className="sr-only" type="file" accept=".zip,application/zip" aria-label={t("atelier.import")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void importCoffre(file); }} />
+              </label>
+              <label className="u-secondary">{t("atelier.importFolder")}
+                <input className="sr-only" type="file" multiple aria-label={t("atelier.importFolder")} ref={node => { node?.setAttribute("webkitdirectory", ""); node?.setAttribute("directory", ""); }} onChange={event => { const files = [...(event.target.files ?? [])]; event.target.value = ""; if (files.length) void importFiles(files); }} />
+              </label>
+            </div>
           </div>
         </section>
       </section>

@@ -9,7 +9,7 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
   await expect(page.locator("[data-topbar]")).toBeVisible();
   await openToolsHub(page);
   await expect(page).toHaveURL(/#outils$/);
-  await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(57);
+  await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(34);
 
   await page.keyboard.press("Control+k");
   const palette = page.locator("[data-palette]");
@@ -45,7 +45,7 @@ test("carte d'outil : récents et « Voir tous les outils » sans quitter le pan
 });
 
 test("sélecteur de projet : créer un projet en un geste, il devient le projet en cours", async ({ page }) => {
-  await page.goto("/mon-studio");
+  await page.goto("/studio#personnage");
   const burger = page.locator("[data-top-burger]");
   if (await burger.isVisible()) await burger.click();
   const switcher = page.locator("[data-project-switcher]").filter({ visible: true }).first();

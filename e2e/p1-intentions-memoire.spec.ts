@@ -83,18 +83,18 @@ test('mémoire de production · 3 plans : A-02 et A-03 héritent de la tenue, A-
   await gold.click();
   await expect(page.locator('dialog [data-fiabilite]')).toContainText('Léa · tenue de chasseur (A-01)');
   await page.locator('[data-confirm-gold]').click();
-  await expect(page.locator('#u-title')).toHaveText('Plan 02');
+  await expect(page.locator('#u-title')).toHaveText('Plan 2');
   await expect(page.locator('[data-take-view] video')).toBeVisible({ timeout: 60_000 });
   expect(comfy.prompts.filter(item => item.kind === 'video').at(-1)?.text ?? '').toContain('Léa: tenue de chasseur');
   await expect(cont).toContainText('✓ Léa · tenue de chasseur · depuis A-01');
 
   // A-03: inherits, then the outfit changes from this shot on.
   await page.locator('.u-plan-add').click();
-  await expect(page.locator('#u-title')).toHaveText('Plan 03');
+  await expect(page.locator('#u-title')).toHaveText('Plan 3');
   await text.fill("La caméra tourne autour de Léa à 90°, dans le laboratoire");
   await expect(cont).toContainText('✓ Léa · tenue de chasseur · depuis A-01');
   await expect(page.locator('[data-uttu-dit]')).toContainText('Rotation de 90° autour de Léa.');
-  await expect(page.locator('[data-uttu-dit]')).toContainText('LTX ne garantit pas ce mouvement au centimètre.');
+  await expect(page.locator('[data-uttu-dit]')).toContainText('Ce style ne garantit pas ce mouvement au centimètre.');
   await cont.locator('[data-changer-etat]').click();
   await cont.locator('input').fill('combinaison de labo');
   await cont.getByRole('button', { name: 'Enregistrer' }).click();

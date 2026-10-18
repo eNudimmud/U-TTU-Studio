@@ -137,7 +137,7 @@ describe("P1 · choix moteur, références, assistant", () => {
     const { line, flags } = uttuLine(plan);
     const text = line.map(item => fill(at(fr, `p1.say.${item.key}`), item.vars)).join(" ");
     assert.ok(text.startsWith("Rotation de 90° autour d’Élise. Je conserve son apparence et l’éclairage du plan précédent."), text);
-    assert.ok(flags.some(item => fill(at(fr, `p1.say.${item.key}`), item.vars) === "LTX ne garantit pas ce mouvement au centimètre."));
+    assert.ok(flags.some(item => fill(at(fr, `p1.say.${item.key}`), item.vars) === "Ce style ne garantit pas ce mouvement au centimètre."));
     assert.equal(deName("MALO"), "de MALO");
   });
 

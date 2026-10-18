@@ -116,9 +116,8 @@ describe("prise rangée après Tourner", () => {
     assert.equal(cold.stored, true);
     assert.equal(cold.quotes[0]?.credits, 6);
     assert.equal(cold.gate.allowed, false);
-    assert.match(cold.gate.line, /Solde trop bas/);
-    assert.match(cold.gate.line, /6/);
-    assert.doesNotMatch(cold.gate.line, /class_type|nœud/);
+    assert.match(cold.gate.line, /Solde trop bas : 2 crédits\. Il en faut environ 6/);
+    assert.doesNotMatch(cold.gate.line, /réserve|class_type|nœud/);
 
     const covered = learnTakeCost({ profile: PROFILE, quotes: [], before: 100, after: 88, at: AT, balance: 88 });
     assert.equal(covered.real, 12);
@@ -133,7 +132,8 @@ describe("prise rangée après Tourner", () => {
     assert.equal(missed.stored, false);
     assert.equal(missed.quotes.length, 0);
     assert.equal(missed.gate.allowed, true);
-    assert.match(missed.gate.line, /Environ 4 crédits, réserve conseillée 6/);
+    assert.match(missed.gate.line, /Environ 4 crédits, estimé d’après une prise du/);
+    assert.doesNotMatch(missed.gate.line, /réserve/);
 
     const other = priseGate({ credits: 9000, readAt: 1 }, resolveTakeQuote(takeProfile({ seconds: 8, quality: "rapide", aspect: "vertical" }), quotesToRecords(cold.quotes)));
     assert.equal(other.allowed, false);

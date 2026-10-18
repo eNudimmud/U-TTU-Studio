@@ -87,7 +87,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
     expect(box!.y).toBeGreaterThanOrEqual(0);
   }
 
-  await page.goto('/studio');
+  await page.goto('/studio#personnage');
   await expect(page.getByRole('heading', { name: 'CAST' })).toBeVisible();
   await expect(page.locator('[data-soon="true"]')).toHaveCount(0);
   await snap('cast');
@@ -110,11 +110,11 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await expect(page.locator('[data-fiabilite]')).toBeVisible();
   await tap(page.locator('[data-create-confirm]'));
 
-  // 3 · PRISE in the default 16:9, LTX estimated quote, the user's camera words kept.
+  // 3 · PRISE in the default 16:9, one estimated cost, the user's camera words kept.
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1', { timeout: 30_000 });
   await expect(page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '16:9', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.u-prise-quote:visible')).toHaveCount(1);
-  await expect(page.locator('.u-prise-quote:visible')).toContainText('estimé');
+  await expect(page.locator('.u-prise-quote:visible')).toHaveText(/≈ [\d,]+ cr\. estimés/);
   await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
   // Default PRISE: no 3D maquette, no still-image shortcut.
   await expect(page.locator('[data-maquette]')).toBeHidden();
@@ -139,7 +139,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   expect(takePrompt).not.toMatch(/static camera|locked-off/);
   await snap('prise-1-arrivee');
 
-  for (const [plan, words] of [['02', 'Léa se retourne vers la mer'], ['03', 'Léa regarde au loin, le vent dans le manteau']] as const) {
+  for (const [plan, words] of [['2', 'Léa se retourne vers la mer'], ['3', 'Léa regarde au loin, le vent dans le manteau']] as const) {
     await page.getByRole('textbox', { name: 'Plan suivant : ce qui se passe' }).fill(words);
     await expect(gold).toHaveText(`Tourner le plan ${plan}`);
     if (mobile) await reachable(gold);
@@ -149,7 +149,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
     await expect(page.locator('[data-take-view] video')).toBeVisible({ timeout: 60_000 });
   }
   await expect(page.locator('.u-plan-card')).toHaveCount(3);
-  await expect(page.locator('[data-fiab-archive]')).toContainText('Plan 03');
+  await expect(page.locator('[data-fiab-archive]')).toContainText('Plan 3');
   await snap('prise-3-plans');
 
   // 4 · MONTAGE: the three takes as video clips, in order, then one tap to export.

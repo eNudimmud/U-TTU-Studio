@@ -168,3 +168,75 @@ export function cherche(text: string, needle: string): boolean {
   const hay = fold(text);
   return words.every(word => hay.includes(word));
 }
+
+/**
+ * One intent, several models. The key is the card the visitor sees.
+ * The first id is the open-weight default; the others are choices inside the tool.
+ */
+export const INTENT_MODELES: Record<string, readonly string[]> = {
+  "vid-wan": ["vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max"],
+  "vid-prolonger": ["vid-prolonger", "vid-prolonger-grok"],
+  "3d-ouvert": ["3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy"],
+  "son-voix-ouverte": ["son-voix-ouverte", "son-voix"],
+  "son-musique-ouverte": ["son-musique-ouverte", "son-musique"],
+  "son-bruitage-ouvert": ["son-bruitage-ouvert", "son-bruitage"],
+};
+
+const VARIANTE = new Map<string, string>();
+for (const [head, ids] of Object.entries(INTENT_MODELES)) for (const id of ids) VARIANTE.set(id, head);
+
+/** The public card of a tool. A variant points at its open-weight default. */
+export function intentDe(id: string): string {
+  return VARIANTE.get(id) ?? id;
+}
+
+/** Where the card sits in the grid and the Créer menu. Video, 3D and sound leave « Créer ». */
+export function familleVitrine(outil: Outil): Famille {
+  if (outil.sous === "video") return "video";
+  if (outil.sous === "3d") return "3d";
+  if (outil.sous === "son") return "son";
+  return outil.famille;
+}
+
+/** Ready models of one intent, open-weight first. Unwired tools are absent. */
+export function modelesIntent(id: string, filtre: FiltreGestes = {}): Outil[] {
+  const head = intentDe(id);
+  const order = INTENT_MODELES[head] ?? [head];
+  return order.flatMap(item => {
+    const outil = outilParId(item);
+    return outil && outilEtat(outil, filtre).kind === "pret" ? [outil] : [];
+  });
+}
+
+/**
+ * What menus, the grid and search list: one card per intent.
+ * The ten unwired tools stay in `OUTILS` and never appear here.
+ */
+export function outilsPublics(filtre: FiltreGestes = {}): Outil[] {
+  const seen = new Set<string>();
+  const out: Outil[] = [];
+  for (const item of OUTILS) {
+    const head = intentDe(item.id);
+    if (seen.has(head)) continue;
+    seen.add(head);
+    const models = modelesIntent(head, filtre);
+    if (models[0]) out.push(models[0]);
+  }
+  return out;
+}
+
+/** A tab's tools, from the same public cards (a card shows if any of its models belongs to the tab). */
+export function outilsPublicsOnglet(onglet: Onglet, filtre: FiltreGestes = {}): Outil[] {
+  const onTab = new Set(OUTILS.filter(item => item.onglets.includes(onglet)).map(item => item.id));
+  return outilsPublics(filtre).filter(item => {
+    const ids = INTENT_MODELES[intentDe(item.id)] ?? [item.id];
+    return ids.some(id => onTab.has(id));
+  });
+}
+
+/** Splits a family so a column stays short (about eight names). */
+export function colonnes<T>(items: readonly T[], size = 8): T[][] {
+  const cols: T[][] = [];
+  for (let index = 0; index < items.length; index += size) cols.push(items.slice(index, index + size));
+  return cols;
+}

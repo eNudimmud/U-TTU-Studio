@@ -34,7 +34,8 @@ function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
 }
 
 function Tool({ id, off, reason, label, glyph, onClick }: { id: string; off: boolean; reason: string; label: string; glyph: ReactNode; onClick: () => void }) {
-  return <span className="u-tool-slot">
+  const [tip, setTip] = useState(false);
+  return <span className="u-tool-slot" data-tip={tip ? "" : undefined} onPointerEnter={() => setTip(true)} onPointerLeave={() => setTip(false)} onClick={() => { if (off) setTip(value => !value); }}>
     <button type="button" className="u-tool" disabled={off} aria-describedby={off ? id : undefined} aria-label={label} onClick={onClick}>{glyph}<span>{label}</span></button>
     {off && <span className="u-tip" id={id} role="tooltip">{reason}</span>}
   </span>;
@@ -850,14 +851,6 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         </>;
       })()}
       </div>
-      {(() => {
-        const ids = binTab === "medias" ? [] : binTab === "voix" ? ["mont-voix", "mont-levres"] : binTab === "effets" ? ["mont-effet"] : ["mont-musique"];
-        const names = ids.flatMap(id => {
-          const row = gesteParId(id);
-          return row && !gesteOuvert(row) ? [t(`gestes.${row.clef}.quiet`)] : [];
-        });
-        return names.length > 0 ? <p className="u-bin-quiet">{t("gestes.soonQuiet", { names: names.join(", ") })}</p> : null;
-      })()}
       {!wide && <OutilsStrip onglet="montage" />}
       <button type="button" className="u-secondary u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.close")}</button>
     </aside>

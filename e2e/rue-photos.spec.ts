@@ -45,7 +45,7 @@ for (const flat of [false, true]) test(`la recherche par nom atteint les photos 
   // Nothing else leaves the machine: map tiles, relief and Swiss roofs are refused, photos still come.
   await page.route(/tiles\.openfreemap\.org|elevation-tiles-prod|geo\.admin\.ch/, route => route.abort("blockedbyclient"));
 
-  await page.goto("/studio");
+  await page.goto("/studio#personnage");
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
   await page.locator("[data-rep3d-open]").click();
   const sheet = page.getByRole("dialog", { name: "Repérage 3D" });

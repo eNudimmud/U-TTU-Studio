@@ -45,7 +45,7 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mes cré
   } }));
   await page.route(/\/api\/view\?/, route => route.fulfill({ status: 200, contentType: "video/mp4", body: VIDEO }));
 
-  await page.goto("/studio");
+  await page.goto("/studio#personnage");
   await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
   await page.locator("[data-partir-exemple=montage]").click();
   const open = page.locator("[data-finaliser-open]");
@@ -56,10 +56,11 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mes cré
 
   const sheet = page.getByRole("dialog", { name: "Finaliser le montage" });
   await expect(sheet).toBeVisible();
-  await expect(sheet.locator("[data-final-quote='mesure']")).toContainText(/Environ 4,1 crédits ; réserve conseillée : 6,5/);
+  await expect(sheet.locator("[data-final-quote='mesure']")).toContainText(/≈ 4,1 cr\./);
+  await expect(sheet.locator("[data-final-quote='mesure']")).not.toContainText(/réserve/i);
   const go = sheet.locator("[data-final-go]");
   await expect(go).toBeDisabled();
-  await expect(sheet.locator("#u-why-final-go")).toHaveText("Coche la confirmation pour lancer.");
+  await expect(sheet.locator("#u-why-final-go")).toHaveText("Confirme pour lancer.");
 
   await sheet.getByRole("button", { name: "4K" }).click();
   await expect(sheet.locator("[data-final-quote='estimation']")).toContainText("Estimation, pas encore mesurée.");
