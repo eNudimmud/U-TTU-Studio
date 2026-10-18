@@ -5,6 +5,12 @@
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+import { assetPath } from "@/lib/site";
+import { classifyTwo, readTwo, tiltFor, type Finger, type TwoMode, type TwoReading } from "@/lib/repere3d/gesture";
+import { gltfToLocal, heightOffset, keepSwiss, soberColor, splitB3dm, swissContents, swissRadius, swissTileCap, type SwissBuilding } from "@/lib/repere3d/swiss-buildings";
+import { plafondBatiments, rayonFor, streetStand, type Quartier } from "@/lib/repere/quartier";
 import { BUILDING_Z, DEM_Z, SWISS_Z, LocalFrame, headingOf, inSwitzerland, tileOrigin, tileSize, tilesAround, type TileId } from "@/lib/repere3d/geo";
 import { OPENFREEMAP_TILEJSON, decodeTile, parseTileJson, tileUrl, type Area, type Building, type Road, type TileShapes } from "@/lib/repere3d/osm-tiles";
 import { decodeTerrarium, makeSampler, terrariumUrl, type HeightTile } from "@/lib/repere3d/terrain";
@@ -24,8 +30,12 @@ export interface ViewInfo {
   street: boolean;
 }
 
+export type RoofState = "off" | "loading" | "ready" | "fail";
+
 export interface EngineEvents {
   onView?(view: ViewInfo): void;
+  /** Real Swiss buildings (swissBUILDINGS3D): state and how many replaced the OSM volumes. */
+  onRoofs?(state: RoofState, count: number): void;
 }
 
 export interface CaptureResult {
@@ -50,6 +60,33 @@ const EYE = 1.7;
 const FRAME_ASPECT = CAPTURE_W / CAPTURE_H;
 
 let tileTemplate: Promise<string | null> | null = null;
+const swissJson = new Map<string, Promise<unknown>>();
+const swissBytes = new Map<string, ArrayBuffer>();
+let gltfLoader: GLTFLoader | null = null;
+
+function swissLoader(): GLTFLoader {
+  if (!gltfLoader) {
+    const draco = new DRACOLoader();
+    draco.setDecoderPath(assetPath("/draco/"));
+    draco.setWorkerLimit(2);
+    gltfLoader = new GLTFLoader();
+    gltfLoader.setDRACOLoader(draco);
+  }
+  return gltfLoader;
+}
+
+function getSwissJson(url: string, signal: AbortSignal): Promise<unknown> {
+  let hit = swissJson.get(url);
+  if (!hit) {
+    hit = fetch(url, { credentials: "omit", signal }).then(response => {
+      if (!response.ok) throw new HttpError(response.status);
+      return response.json();
+    });
+    hit.catch(() => swissJson.delete(url));
+    swissJson.set(url, hit);
+  }
+  return hit;
+}
 const shapeCache = new Map<string, TileShapes>();
 const demCache = new Map<string, HeightTile>();
 
@@ -223,7 +260,7 @@ export class Reperage3D {
     groundVolumes: new THREE.MeshLambertMaterial({ color: 0xd8d8d6 }),
     groundTrait: new THREE.MeshBasicMaterial({ color: 0xffffff }),
     groundOmbres: new THREE.MeshLambertMaterial({ color: 0xffffff }),
-    buildCarte: new THREE.MeshLambertMaterial({ color: 0xe9e3d8, side: THREE.DoubleSide }),
+    buildCarte: new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide }),
     buildVolumes: new THREE.MeshLambertMaterial({ color: 0xc4c4c2, side: THREE.DoubleSide }),
     buildTrait: new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }),
     buildOmbres: new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide }),
@@ -276,6 +313,10 @@ export class Reperage3D {
     this.controls.addEventListener("change", () => this.requestRender());
     this.controls.addEventListener("end", () => this.emitView());
 
+    canvas.addEventListener("pointerdown", this.onFinger);
+    canvas.addEventListener("pointermove", this.onFingerMove);
+    for (const kind of ["pointerup", "pointercancel"] as const) canvas.addEventListener(kind, this.onFingerUp);
+
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(host);
     this.resize();
@@ -288,6 +329,50 @@ export class Reperage3D {
       target.depthTexture.type = THREE.UnsignedIntType;
     }
     return target;
+  }
+
+  private fingers = new Map<number, Finger>();
+  private two: { start: { a: Finger; b: Finger }; mode: TwoMode; last: TwoReading | null } | null = null;
+
+  private readonly onFinger = (event: PointerEvent) => {
+    if (event.pointerType !== "touch") return;
+    this.fingers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (this.fingers.size === 2) {
+      const [a, b] = [...this.fingers.values()];
+      this.two = { start: { a: { ...a }, b: { ...b } }, mode: "none", last: null };
+    } else this.two = null;
+  };
+
+  private readonly onFingerMove = (event: PointerEvent) => {
+    if (event.pointerType !== "touch" || !this.fingers.has(event.pointerId)) return;
+    this.fingers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const two = this.two;
+    if (!two || this.fingers.size !== 2) return;
+    const [a, b] = [...this.fingers.values()];
+    const reading = readTwo(two.start, a, b);
+    if (two.mode === "none") {
+      two.mode = classifyTwo(reading);
+      if (two.mode === "none") return;
+      two.last = reading;
+      return;
+    }
+    const last = two.last ?? reading;
+    two.last = reading;
+    if (two.mode === "rotate") this.orbit(-(reading.twist - last.twist), 0);
+    else if (two.mode === "tilt") this.orbit(0, tiltFor(reading.drag - last.drag, this.host.clientHeight));
+    else this.dolly(last.pinch / Math.max(0.01, reading.pinch));
+  };
+
+  private readonly onFingerUp = (event: PointerEvent) => {
+    if (event.pointerType !== "touch") return;
+    this.fingers.delete(event.pointerId);
+    if (this.two && this.two.mode !== "none") this.emitView();
+    this.two = null;
+  };
+
+  /** Which two-finger gesture is running, for tests and the hint. */
+  twoMode(): TwoMode {
+    return this.two?.mode ?? "none";
   }
 
   private setStreetControls(street: boolean) {
@@ -303,8 +388,9 @@ export class Reperage3D {
       ? { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: THREE.MOUSE.ROTATE }
       : { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
     c.touches = street
-      ? { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.ROTATE }
-      : { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
+      ? { ONE: THREE.TOUCH.ROTATE, TWO: -1 as unknown as THREE.TOUCH }
+      // Two fingers are read by twoStart/twoMove: one meaning at a time (rotate, tilt or zoom).
+      : { ONE: THREE.TOUCH.PAN, TWO: -1 as unknown as THREE.TOUCH };
   }
 
   /** The visible stage is wider or taller than the 16:9 capture frame. */
@@ -487,6 +573,11 @@ export class Reperage3D {
 
   /** Orbit buttons: degrees of azimuth and of tilt. */
   nudge(rotate: number, tilt: number) {
+    this.orbit(rotate, tilt);
+    this.emitView();
+  }
+
+  private orbit(rotate: number, tilt: number) {
     const t = this.controls.target;
     const offset = this.camera.position.clone().sub(t);
     const s = new THREE.Spherical().setFromVector3(offset);
@@ -503,10 +594,14 @@ export class Reperage3D {
       this.camera.position.copy(t).add(new THREE.Vector3().setFromSpherical(s));
     }
     this.controls.update();
-    this.emitView();
   }
 
   zoom(factor: number) {
+    this.dolly(factor);
+    this.emitView();
+  }
+
+  private dolly(factor: number) {
     if (this.street) {
       this.setFov(Math.max(15, Math.min(90, this.fov * factor)));
       return;
@@ -517,7 +612,6 @@ export class Reperage3D {
     offset.setLength(len);
     this.camera.position.copy(t).add(offset);
     this.controls.update();
-    this.emitView();
   }
 
   /** Step forward or back in street view, in metres. */
@@ -678,6 +772,9 @@ export class Reperage3D {
     this.swiss = inSwitzerland(place.lat, place.lon);
     this.photoState = "none";
     this.sources = new Set<SourceId>(["osm"]);
+    this.swissList = [];
+    this.swissRoofs = "off";
+    this.swissJob = null;
     const frame = this.frame;
     if (typeof navigator !== "undefined" && navigator.onLine === false) return { state: "offline", buildings: 0, sources: [] };
     let rate = false;
@@ -744,6 +841,7 @@ export class Reperage3D {
     } else failed += 1;
     if (signal.aborted) return { state: "idle", buildings: 0, sources: [] };
     this.shapes = { areas, roads };
+    this.osmList = buildings;
     this.build(buildings);
     this.controls.target.set(0, this.ground_y(0, 0), 0);
     if (this.insideBuilding(0, 0)) {
@@ -756,6 +854,9 @@ export class Reperage3D {
     this.applyLook();
     this.requestRender();
     const sources = [...this.sources];
+    // Real Swiss roofs arrive after the OSM city: the view is usable at once, then refines.
+    if (this.swiss && this.buildingCount > 0) this.swissJob = this.loadSwiss(place, signal);
+    else this.options.events?.onRoofs?.("off", 0);
     if (rate && buildings.length === 0) return { state: "rate", buildings: 0, sources };
     if (!url || (failed > 0 && buildings.length === 0 && heights.length === 0)) {
       const offline = typeof navigator !== "undefined" && navigator.onLine === false;
@@ -784,10 +885,9 @@ export class Reperage3D {
   }
 
   private build(list: Building[]) {
-    for (const mesh of [this.ground, this.buildings]) {
-      if (!mesh) continue;
-      this.scene.remove(mesh);
-      mesh.geometry.dispose();
+    if (this.ground) {
+      this.scene.remove(this.ground);
+      this.ground.geometry.dispose();
     }
     for (const key of ["map", "plan", "ink", "photo"] as const) {
       this.textures[key]?.dispose();
@@ -824,16 +924,173 @@ export class Reperage3D {
     this.ground = ground;
     this.scene.add(ground);
 
+    this.osmSorted = sorted;
+    this.buildMesh();
+  }
+
+  private osmList: Building[] = [];
+  private osmSorted: Building[] = [];
+  private swissList: SwissBuilding[] = [];
+  private swissRoofs: RoofState = "off";
+  private swissJob: Promise<void> | null = null;
+
+  /** One merged mesh: swissBUILDINGS3D inside its radius when loaded, OSM volumes elsewhere. */
+  private buildMesh() {
+    if (this.buildings) {
+      this.scene.remove(this.buildings);
+      this.buildings.geometry.dispose();
+    }
     const positions: number[] = [];
-    for (const b of sorted) this.extrude(b, positions);
+    const colors: number[] = [];
+    const swissR = swissRadius(this.options.mobile);
+    const swissOn = this.swissList.length > 0;
+    const osmColor = new THREE.Color(0xe9e3d8);
+    for (const b of this.osmSorted) {
+      if (swissOn) {
+        let cx = 0, cz = 0;
+        const n = Math.max(1, b.outer.length - 1);
+        for (let i = 0; i < n; i += 1) { cx += b.outer[i][0]; cz += b.outer[i][1]; }
+        if (keepSwiss({ cx: cx / n, cz: cz / n }, swissR)) continue;
+      }
+      const from = positions.length;
+      this.extrude(b, positions);
+      for (let i = from; i < positions.length; i += 3) colors.push(osmColor.r, osmColor.g, osmColor.b);
+    }
+    for (const b of this.swissList) {
+      positions.push(...b.positions);
+      colors.push(...b.colors);
+    }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
     geometry.computeVertexNormals();
-    const mesh = new THREE.Mesh(geometry, this.materials.buildTrait);
+    const m = this.materials;
+    const mesh = new THREE.Mesh(geometry, { carte: m.buildCarte, volumes: m.buildVolumes, trait: m.buildTrait, ombres: m.buildOmbres }[this.look]);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     this.buildings = mesh;
     this.scene.add(mesh);
+  }
+
+  private async loadSwiss(place: { lat: number; lon: number }, signal: AbortSignal): Promise<void> {
+    const frame = this.frame;
+    if (!frame) return;
+    this.swissRoofs = "loading";
+    this.options.events?.onRoofs?.("loading", 0);
+    const mobile = this.options.mobile;
+    const radius = swissRadius(mobile);
+    try {
+      const contents = await swissContents(place.lat, place.lon, radius + 60, url => getSwissJson(url, signal), swissTileCap(mobile));
+      const loader = swissLoader();
+      const list: SwissBuilding[] = [];
+      let next = 0;
+      const worker = async () => {
+        while (next < contents.length && !signal.aborted) {
+          const item = contents[next++];
+          try {
+            let bytes = swissBytes.get(item.url);
+            if (!bytes) {
+              const response = await fetch(item.url, { credentials: "omit", signal });
+              if (!response.ok) throw new HttpError(response.status);
+              bytes = await response.arrayBuffer();
+              if (swissBytes.size > 400) swissBytes.delete(swissBytes.keys().next().value as string);
+              swissBytes.set(item.url, bytes);
+            }
+            list.push(...await decodeSwiss(loader, bytes, frame));
+          } catch (error) {
+            if (signal.aborted) return;
+            if (error instanceof HttpError && error.status === 429) throw error;
+          }
+        }
+      };
+      await Promise.all(Array.from({ length: 6 }, worker));
+      if (signal.aborted || frame !== this.frame) return;
+      const offset = heightOffset(list, (x, z) => this.ground_y(x, z));
+      const kept = offset === null ? [] : list.filter(b => keepSwiss(b, radius));
+      if (kept.length === 0) throw new Error("empty");
+      for (const b of kept) {
+        for (let i = 1; i < b.positions.length; i += 3) b.positions[i] -= offset!;
+        b.minY -= offset!;
+      }
+      this.swissList = kept;
+      this.swissRoofs = "ready";
+      this.sources.add("swissbuildings");
+      this.buildMesh();
+      this.applyLook();
+      this.requestRender();
+      this.options.events?.onRoofs?.("ready", kept.length);
+      this.emitView();
+    } catch {
+      if (signal.aborted || frame !== this.frame) return;
+      this.swissRoofs = "fail";
+      this.options.events?.onRoofs?.("fail", 0);
+    }
+  }
+
+  roofs(): { state: RoofState; count: number } {
+    return { state: this.swissRoofs, count: this.swissList.length };
+  }
+
+  /**
+   * The block around the view, in the format PRISE's maquette reads (Lieux/<id>.quartier.json).
+   * OSM footprints and streets, relief samples relative to the centre.
+   */
+  quartier(name: string): Quartier | null {
+    if (!this.frame) return null;
+    const mobile = this.options.mobile;
+    const radius = rayonFor(mobile, false);
+    const centre = this.street ? this.camera.position : this.controls.target;
+    const cx = centre.x, cz = centre.z;
+    const ll = this.frame.toLonLat(cx, cz);
+    const r2 = (n: number) => Math.round(n * 100) / 100;
+    const ranked = this.osmSorted
+      .map(b => ({ b, d: Math.min(...b.outer.map(([x, z]) => Math.hypot(x - cx, z - cz))) }))
+      .sort((a, b) => a.d - b.d);
+    // A view over a square or a park still gets its nearest block, up to twice the radius.
+    const reach = ranked.some(item => item.d < radius) ? radius : radius * 2;
+    const near = ranked
+      .filter(item => item.d < reach)
+      .slice(0, plafondBatiments(mobile))
+      .map(item => ({ ring: item.b.outer.map(([x, z]) => [r2(x - cx), r2(z - cz)] as [number, number]), height: Math.round(item.b.height * 10) / 10 }));
+    const width: Record<Road["kind"], number> = { major: 12, minor: 7, path: 2.5, rail: 3 };
+    const segmentNear = (line: [number, number][]) => line.some(([ax, az], i) => {
+      const next = line[i + 1];
+      if (!next) return Math.hypot(ax - cx, az - cz) < reach * 1.2;
+      const [bx, bz] = next;
+      const vx = bx - ax, vz = bz - az;
+      const len2 = vx * vx + vz * vz || 1;
+      const t = Math.max(0, Math.min(1, ((cx - ax) * vx + (cz - az) * vz) / len2));
+      return Math.hypot(ax + vx * t - cx, az + vz * t - cz) < reach * 1.2;
+    });
+    const streets = this.shapes.roads
+      .filter(road => road.kind !== "rail" && segmentNear(road.line))
+      .slice(0, 80)
+      .map(road => ({ points: road.line.map(([x, z]) => [r2(x - cx), r2(z - cz)] as [number, number]), width: width[road.kind] }));
+    const n = 17;
+    const span = reach * 2;
+    const g0 = this.ground_y(cx, cz);
+    const samples: number[] = [];
+    for (let j = 0; j < n; j += 1) {
+      for (let i = 0; i < n; i += 1) {
+        const x = cx + (i / (n - 1) - 0.5) * span;
+        const z = cz + (j / (n - 1) - 0.5) * span;
+        samples.push(Math.round((this.ground_y(x, z) - g0) * 10) / 10);
+      }
+    }
+    const view = this.view();
+    const stand = this.street ? { x: 0, z: 0 } : streetStand(streets);
+    return {
+      name: name.slice(0, 80),
+      lat: Math.round(ll.lat * 1e6) / 1e6,
+      lon: Math.round(ll.lon * 1e6) / 1e6,
+      heading: Math.round(view.heading),
+      tilt: Math.round(view.pitch),
+      stand,
+      buildings: near,
+      streets,
+      relief: { n, span, samples },
+      source: "osm",
+    };
   }
 
   private extrude(b: Building, out: number[]) {
@@ -999,6 +1256,8 @@ export class Reperage3D {
   }
 
   async capture(): Promise<CaptureResult> {
+    // Real roofs on the way: wait a little, never forever.
+    if (this.swissJob && this.swissRoofs === "loading") await Promise.race([this.swissJob, new Promise(resolve => setTimeout(resolve, 8000))]);
     const w = CAPTURE_W;
     const h = CAPTURE_H;
     const cam = this.camera.clone();
@@ -1043,6 +1302,10 @@ export class Reperage3D {
     this.abort?.abort();
     cancelAnimationFrame(this.raf);
     this.resizeObserver.disconnect();
+    const canvas = this.renderer.domElement;
+    canvas.removeEventListener("pointerdown", this.onFinger);
+    canvas.removeEventListener("pointermove", this.onFingerMove);
+    for (const kind of ["pointerup", "pointercancel"] as const) canvas.removeEventListener(kind, this.onFingerUp);
     this.controls.dispose();
     for (const mesh of [this.ground, this.buildings]) mesh?.geometry.dispose();
     for (const texture of Object.values(this.textures)) texture?.dispose();
@@ -1054,6 +1317,53 @@ export class Reperage3D {
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
+}
+
+/** One b3dm to buildings in the local frame. Triangles are grouped by batch id (one building each). */
+async function decodeSwiss(loader: GLTFLoader, bytes: ArrayBuffer, frame: LocalFrame): Promise<SwissBuilding[]> {
+  const parts = splitB3dm(bytes);
+  if (!parts) return [];
+  const gltf = await loader.parseAsync(parts.glb, "");
+  gltf.scene.updateMatrixWorld(true);
+  const byBatch = new Map<number, SwissBuilding & { n: number }>();
+  const v = new THREE.Vector3();
+  gltf.scene.traverse(object => {
+    const mesh = object as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const geometry = mesh.geometry as THREE.BufferGeometry;
+    const pos = geometry.getAttribute("position");
+    if (!pos) return;
+    const index = geometry.getIndex();
+    const batch = geometry.getAttribute("_batchid");
+    const material = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material) as THREE.MeshStandardMaterial;
+    const base = material?.color ?? new THREE.Color(0.8, 0.8, 0.8);
+    const [r, g, b] = soberColor(base.r, base.g, base.b);
+    const local = new Float64Array(pos.count * 3);
+    for (let i = 0; i < pos.count; i += 1) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld);
+      const p = gltfToLocal(v.x, v.y, v.z, parts.rtc, frame);
+      local[i * 3] = p[0]; local[i * 3 + 1] = p[1]; local[i * 3 + 2] = p[2];
+    }
+    const count = index ? index.count : pos.count;
+    for (let t = 0; t + 2 < count; t += 3) {
+      const ids = index ? [index.getX(t), index.getX(t + 1), index.getX(t + 2)] : [t, t + 1, t + 2];
+      const id = batch ? Math.round(batch.getX(ids[0])) : 0;
+      let item = byBatch.get(id);
+      if (!item) {
+        item = { positions: [], colors: [], minY: Infinity, cx: 0, cz: 0, n: 0 };
+        byBatch.set(id, item);
+      }
+      for (const k of ids) {
+        const x = local[k * 3], y = local[k * 3 + 1], z = local[k * 3 + 2];
+        item.positions.push(x, y, z);
+        item.colors.push(r, g, b);
+        if (y < item.minY) item.minY = y;
+        item.cx += x; item.cz += z; item.n += 1;
+      }
+    }
+    geometry.dispose();
+  });
+  return [...byBatch.values()].map(({ n, ...rest }) => ({ ...rest, cx: rest.cx / Math.max(1, n), cz: rest.cz / Math.max(1, n) }));
 }
 
 export function webglAvailable(): boolean {

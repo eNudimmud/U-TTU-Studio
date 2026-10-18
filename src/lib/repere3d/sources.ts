@@ -2,7 +2,7 @@
 // No Google data anywhere: the Google Maps Platform terms forbid capture and AI use
 // (docs: /workspace/concours/STREETVIEW-CONDITIONS.md, copied in docs/reperage-3d.md).
 
-export type SourceId = "osm" | "openfreemap" | "terrain" | "swisstopo";
+export type SourceId = "osm" | "openfreemap" | "terrain" | "swisstopo" | "swissbuildings";
 
 export interface SourceInfo {
   id: SourceId;
@@ -36,9 +36,15 @@ export const SOURCES: Record<SourceId, SourceInfo> = {
     licence: "OGD swisstopo (usage libre, source obligatoire)",
     url: "https://www.swisstopo.admin.ch/fr/conditions-utilisation-geodonnees-et-geoservices-gratuit",
   },
+  swissbuildings: {
+    id: "swissbuildings",
+    short: "Bâtiments : swissBUILDINGS3D © swisstopo",
+    licence: "OGD swisstopo (usage libre, source obligatoire)",
+    url: "https://www.swisstopo.admin.ch/fr/modele-du-territoire-swissbuildings3d-2-0",
+  },
 };
 
-export const SOURCE_ORDER: readonly SourceId[] = ["osm", "openfreemap", "terrain", "swisstopo"];
+export const SOURCE_ORDER: readonly SourceId[] = ["osm", "openfreemap", "terrain", "swisstopo", "swissbuildings"];
 
 /** Full Terrain Tiles credit, as required by tilezen/joerd docs/attribution.md (hosted service). */
 export const TERRAIN_FULL = [

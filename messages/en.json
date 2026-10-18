@@ -1833,7 +1833,7 @@
   },
   "rep3d": {
     "entryTitle": "Scout a location",
-    "entryLead": "A 3D city, anywhere in the world. Frame it, pick the light, capture. Free, no credits.",
+    "entryLead": "A 3D city anywhere in the world, with real roofs in Switzerland and free street photos. Frame, pick the light, capture. Free, no credits.",
     "open": "Scout a location",
     "close": "Close scouting",
     "title": "3D scouting",
@@ -1849,8 +1849,7 @@
     "camera": "Camera",
     "frame": "Captured frame 16:9",
     "buildings": "{count} buildings",
-    "noGoogle": "Open data only: OpenStreetMap, open terrain, swisstopo in Switzerland. No Google data.",
-    "carte2d": "2D map and street photos",
+    "noGoogle": "Open data only: OpenStreetMap, open relief, swisstopo in Switzerland (real roofs, aerial photo). No Google data.",
     "search": {
       "go": "Search",
       "empty": "No place found. Try another name or coordinates (46.52, 6.63).",
@@ -1864,7 +1863,7 @@
       "rate": "Too many requests at once. Wait a few seconds and try again.",
       "fail": "The map data did not answer. Try again in a moment.",
       "empty": "No OpenStreetMap buildings here. The terrain stays visible.",
-      "nogl": "This browser can't show 3D (WebGL). The street photo is still available, and the 2D map below."
+      "nogl": "This browser can't show 3D (WebGL). The street photo and opening a place file are still available."
     },
     "look": {
       "carte": "Photo map",
@@ -1906,7 +1905,7 @@
       "back": "Step back"
     },
     "hint": {
-      "touch": "1 finger: move · pinch: zoom · 2 fingers: rotate and tilt",
+      "touch": "1 finger: move · pinch: zoom · twist 2 fingers: rotate · 2 fingers up or down: tilt",
       "mouse": "Drag: move · right-click or Shift + drag: rotate and tilt · wheel: zoom",
       "street": "Drag to look around. The arrows walk."
     },
@@ -1916,7 +1915,7 @@
     "captureWait": "Wait until the city is built.",
     "captureFail": "The capture could not be saved. Try again.",
     "captured": "Framing kept in My studio, under DÉCOR: colour, depth and lines, with the camera and the credits. It is placed in the references.",
-    "quote": "To turn it into a set: ≈ {credits} credits (cap {high}). Nothing runs without your confirmation.",
+    "quote": "To turn it into a set: ≈ {credits} credits, estimated (cap {high}). Nothing runs without your confirmation.",
     "again": "Another framing",
     "use": "See it in DÉCOR",
     "viewLine": "Heading {heading}° · tilt {pitch}° · {focal} mm · camera at {height} m",
@@ -1937,12 +1936,31 @@
       "added": "Photo added to references, with author and licence.",
       "source": "Source",
       "licence": "Licence not identified: this photo stays visible but can't be copied.",
-      "alt": "Street photo by {author}"
+      "alt": "Street photo by {author}",
+      "prev": "Previous photo",
+      "next": "Next photo",
+      "count": "{index} / {count}",
+      "wider": "Search up to {radius} m",
+      "around": "Enlarge",
+      "around360": "Look around (360°)",
+      "aroundOff": "Back to thumbnail",
+      "framed": "Framed view",
+      "whole": "Whole photo",
+      "demo": "Demo mode: no street photo search."
     },
     "why": {
       "place": "Search for a place first: the settings turn on next.",
       "line": "No lines in Photo map.",
       "tone": "Only in Lines + shadows."
+    },
+    "roofs": {
+      "loading": "Loading real swisstopo roofs…",
+      "ready": "Real roofs, swissBUILDINGS3D: {count} buildings",
+      "fail": "Real roofs unavailable: OpenStreetMap volumes instead."
+    },
+    "file": {
+      "open": "Open a place file (KML, KMZ, GeoJSON)",
+      "off": "This file has no readable point. Try a KML, KMZ or GeoJSON with a place."
     }
   }
 }

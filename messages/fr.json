@@ -1833,7 +1833,7 @@
   },
   "rep3d": {
     "entryTitle": "Repérer un lieu",
-    "entryLead": "Une ville en 3D, partout dans le monde. Cadre, choisis la lumière, capture. Gratuit, aucun crédit.",
+    "entryLead": "Une ville en 3D partout dans le monde, avec les vrais toits en Suisse et des photos de rue libres. Cadre, choisis la lumière, capture. Gratuit, aucun crédit.",
     "open": "Repérer un lieu",
     "close": "Fermer le repérage",
     "title": "Repérage 3D",
@@ -1849,8 +1849,7 @@
     "camera": "Caméra",
     "frame": "Cadre capturé 16:9",
     "buildings": "{count} bâtiments",
-    "noGoogle": "Données ouvertes uniquement : OpenStreetMap, relief libre, swisstopo en Suisse. Aucune donnée Google.",
-    "carte2d": "Carte 2D et photos de rue",
+    "noGoogle": "Données ouvertes uniquement : OpenStreetMap, relief libre, swisstopo en Suisse (toits réels, photo aérienne). Aucune donnée Google.",
     "search": {
       "go": "Chercher",
       "empty": "Aucun lieu trouvé. Essaie un autre nom ou des coordonnées (46.52, 6.63).",
@@ -1864,7 +1863,7 @@
       "rate": "Trop de demandes d’un coup. Attends quelques secondes et réessaie.",
       "fail": "Les données de la carte n’ont pas répondu. Réessaie dans un instant.",
       "empty": "Pas de bâtiments OpenStreetMap ici. Le relief reste visible.",
-      "nogl": "Ce navigateur n’affiche pas la 3D (WebGL). La photo de rue reste disponible, et la carte 2D plus bas."
+      "nogl": "Ce navigateur n’affiche pas la 3D (WebGL). La photo de rue et l’ouverture d’un fichier de lieu restent disponibles."
     },
     "look": {
       "carte": "Photo-carte",
@@ -1906,7 +1905,7 @@
       "back": "Reculer"
     },
     "hint": {
-      "touch": "1 doigt : déplacer · pincer : zoomer · 2 doigts : tourner et incliner",
+      "touch": "1 doigt : déplacer · pincer : zoomer · tourner 2 doigts : pivoter · 2 doigts vers le haut ou le bas : incliner",
       "mouse": "Glisser : déplacer · clic droit ou Maj + glisser : tourner et incliner · molette : zoomer",
       "street": "Glisse pour regarder autour. Les flèches avancent."
     },
@@ -1916,7 +1915,7 @@
     "captureWait": "Attends que la ville soit construite.",
     "captureFail": "La capture n’a pas pu être gardée. Réessaie.",
     "captured": "Cadrage gardé dans Mon studio, en DÉCOR : couleur, profondeur et traits, avec la caméra et les crédits. Il est placé dans les références.",
-    "quote": "Pour en faire un décor : ≈ {credits} crédits (plafond {high}). Rien n’est lancé sans ta confirmation.",
+    "quote": "Pour en faire un décor : ≈ {credits} crédits estimés (plafond {high}). Rien n’est lancé sans ta confirmation.",
     "again": "Autre cadrage",
     "use": "Voir dans DÉCOR",
     "viewLine": "Cap {heading}° · inclinaison {pitch}° · {focal} mm · caméra à {height} m",
@@ -1937,12 +1936,31 @@
       "added": "Photo ajoutée aux références, avec l’auteur et la licence.",
       "source": "Source",
       "licence": "Licence non identifiée : cette photo reste visible mais ne peut pas être copiée.",
-      "alt": "Photo de rue de {author}"
+      "alt": "Photo de rue de {author}",
+      "prev": "Photo précédente",
+      "next": "Photo suivante",
+      "count": "{index} / {count}",
+      "wider": "Chercher jusqu’à {radius} m",
+      "around": "Agrandir",
+      "around360": "Regarder autour (360°)",
+      "aroundOff": "Revenir à la vignette",
+      "framed": "Vue recadrée",
+      "whole": "Photo entière",
+      "demo": "Mode démo : pas de recherche de photo de rue."
     },
     "why": {
       "place": "Cherchez un lieu d’abord : les réglages s’allument ensuite.",
       "line": "Pas de trait en Photo-carte.",
       "tone": "Seulement en Trait + ombres."
+    },
+    "roofs": {
+      "loading": "Toits réels swisstopo en chargement…",
+      "ready": "Toits réels swissBUILDINGS3D : {count} bâtiments",
+      "fail": "Toits réels indisponibles : volumes OpenStreetMap à la place."
+    },
+    "file": {
+      "open": "Ouvrir un fichier de lieu (KML, KMZ, GeoJSON)",
+      "off": "Ce fichier ne contient pas de point lisible. Essaie un KML, KMZ ou GeoJSON avec un lieu."
     }
   }
 }

@@ -118,16 +118,18 @@ describe("quartier", () => {
   it("asks the free public servers from the browser, and keeps a short cache", () => {
     const route = readFileSync(new URL("../src/app/api/repere/route.ts", import.meta.url), "utf8");
     const direct = readFileSync(new URL("../src/lib/repere/direct.ts", import.meta.url), "utf8");
-    const client = readFileSync(new URL("../src/components/app/repere-carte.tsx", import.meta.url), "utf8");
+    // The single location tool: the 3D repérage sheet (the old 2D map was folded into it).
+    const client = readFileSync(new URL("../src/components/app/reperage/reperage-3d.tsx", import.meta.url), "utf8");
     assert.match(direct, /overpass-api\.de|OVERPASS/);
     assert.match(direct, /photonUrl/);
     assert.match(direct, /panoramaxSearchUrl/);
     assert.match(direct, /takePublicSlot/);
     assert.doesNotMatch(route, /overpass-api|photon\.komoot|panoramax|mapillary|overturemaps|elevation-tiles/);
     assert.doesNotMatch(client, /\/api\/repere|googleapis|streetview|mt\.google|khms|overturemaps/);
-    assert.match(client, /data-garder-lieu/);
-    assert.match(client, /fixtureQuartier/);
-    assert.match(client, /data-creer-decor/);
+    assert.match(client, /data-rep3d-capture/);
+    assert.match(client, /data-rep3d-file/);
+    assert.match(client, /quartier:/);
+    assert.doesNotMatch(client, /habillerQuote|guideQuote/);
     assert.equal(takePublicSlot("test-pace", 1_000), true);
     assert.equal(takePublicSlot("test-pace", 1_500), false);
     assert.equal(takePublicSlot("test-pace", 2_100), true);

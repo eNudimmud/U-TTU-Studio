@@ -15,7 +15,6 @@ import { Arrow } from "./glyphs";
 import { ExempleDepart } from "./exemple-depart";
 import { GestePicker } from "./geste-picker";
 import { ProjectGallery } from "./project-gallery";
-import { RepereCarte } from "./repere-carte";
 import { ReperageEntry } from "./reperage/reperage-entry";
 import { lieuNote } from "@/lib/repere/lieu";
 import { SlotBoard, type LocalRef } from "./references";
@@ -281,7 +280,7 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { ready: vaultReady, media, createDecor, connected, balance, creating, importAssets, saveLieu, saveLieuPhoto, saveLieuCapture, decor, prefs } = useStudio();
+  const { ready: vaultReady, media, createDecor, connected, balance, creating, importAssets, saveLieuPhoto, saveLieuCapture, decor, prefs } = useStudio();
   const [gesteId, setGesteIdState] = useState("decor-photo");
   const [touched, setTouched] = useState(false);
   const setGesteId = (id: string) => { setTouched(true); setGesteIdState(id); };
@@ -395,17 +394,6 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
           return true;
         }}
       />
-      <details className="u-repere-2d" data-repere-2d="" open>
-        <summary>{t("rep3d.carte2d")}</summary>
-        <RepereCarte
-          onSave={async (place, regard, autour, quartier) => { await saveLieu({ name: place.name, note: lieuNote(place, regard, autour), quartier }); }}
-          onPhoto={async (place, regard, autour, quartier, photo) => {
-            const id = await saveLieuPhoto({ name: place.name, note: lieuNote(place, regard, autour), quartier, photo });
-            if (!id) return;
-            setRefs(list => placePhoto(gesteId, list, photo));
-          }}
-        />
-      </details>
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>

@@ -5,14 +5,18 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
+import { useStudio } from "../studio-session";
 import { buildCaptureMeta, captureNote, focalFor, type CaptureMeta } from "@/lib/repere3d/capture";
 import { createGeocoder, type GeocodeResult, type Lieu3d } from "@/lib/repere3d/geocode";
 import { SOURCES, TERRAIN_FULL, attributionLine, type SourceId } from "@/lib/repere3d/sources";
 import { DEFAULT_SETTINGS, FRAMINGS, LIMITS, LOOKS, clampSetting, loadRadius, pixelRatioCap, type Framing, type Look } from "@/lib/repere3d/styles";
 import { SUN_PRESETS, sunPreset, type Sun, type SunPreset } from "@/lib/repere3d/sun";
 import { chargerPhotos } from "@/lib/repere/direct";
+import { parseFichier } from "@/lib/repere/fichier";
 import { RUE_RAYON, distanceMeters, photoLicenseUrl, photoSourceUrl, reusablePhoto, type PhotoRue } from "@/lib/repere/panoramax";
-import type { CaptureResult, LoadState, Reperage3D as Engine, ViewInfo } from "./engine";
+import dynamic from "next/dynamic";
+import type { RueHandle } from "../rue-viewer";
+import type { CaptureResult, LoadState, Reperage3D as Engine, RoofState, ViewInfo } from "./engine";
 
 export interface CaptureSaved {
   sceneId: string;
@@ -30,11 +34,24 @@ export interface StreetPhotoFile {
 
 interface Props {
   onClose(): void;
-  onCapture(input: { name: string; note: string; color: Blob; depth: Blob; lines: Blob; meta(files: { color: string; depth: string; lines: string }): { json: string; note: string } }): Promise<{ sceneId: string } | null>;
+  onCapture(input: CaptureInput): Promise<{ sceneId: string } | null>;
   onCaptured(saved: CaptureSaved): void;
   onStreetPhoto(place: { name: string; lat: number; lon: number }, photo: StreetPhotoFile): Promise<boolean>;
   quote: { credits: number | null; high: number | null };
 }
+
+export interface CaptureInput {
+  name: string;
+  note: string;
+  color: Blob;
+  depth: Blob;
+  lines: Blob;
+  /** The block around the view, for PRISE's maquette (JSON, Quartier format). */
+  quartier?: string;
+  meta(files: { color: string; depth: string; lines: string }): { json: string; note: string };
+}
+
+const RueViewer = dynamic(() => import("../rue-viewer").then(module => module.RueViewer), { ssr: false, loading: () => <div className="u-rue-stage" role="status" /> });
 
 export const EXEMPLES_3D: readonly Lieu3d[] = [
   { name: "Lausanne", detail: "Vaud, Suisse", lat: 46.5206, lon: 6.6326 },
@@ -44,11 +61,13 @@ export const EXEMPLES_3D: readonly Lieu3d[] = [
 ];
 
 type Phase = "search" | "loading" | LoadState | "nogl";
-type RueState = "idle" | "load" | "ready" | "none" | "rate" | "fail";
+type RueState = "idle" | "load" | "ready" | "none" | "rate" | "fail" | "demo";
+const RUE_PLUS_LOIN = 1000;
 
 export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto, quote }: Props) {
   const { t } = useI18n();
   const { locale } = useLocaleSwitch();
+  const { demo } = useStudio();
   const stage = useRef<HTMLDivElement>(null);
   const engine = useRef<Engine | null>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -71,9 +90,14 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   const [street, setStreet] = useState(false);
   const [view, setView] = useState<ViewInfo | null>(null);
   const [capturing, setCapturing] = useState(false);
-  const [captured, setCaptured] = useState<{ meta: CaptureMeta; urls: { color: string; depth: string; lines: string } } | null>(null);
+  const [captured, setCaptured] = useState<{ meta: CaptureMeta; urls: { color: string; depth: string; lines: string }; block: number } | null>(null);
   const [captureNoteText, setCaptureNoteText] = useState("");
-  const [rue, setRue] = useState<{ state: RueState; photo: PhotoRue | null }>({ state: "idle", photo: null });
+  const [rue, setRue] = useState<{ state: RueState; photos: PhotoRue[]; index: number; radius: number }>({ state: "idle", photos: [], index: 0, radius: RUE_RAYON });
+  const [roofs, setRoofs] = useState<{ state: RoofState; count: number }>({ state: "off", count: 0 });
+  const [fileNote, setFileNote] = useState("");
+  const [around, setAround] = useState(false);
+  const [aroundCap, setAroundCap] = useState(0);
+  const rueView = useRef<RueHandle>(null);
   const [rueNote, setRueNote] = useState("");
   const [rueSaving, setRueSaving] = useState(false);
   const [coarse, setCoarse] = useState(false);
@@ -110,7 +134,13 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       engine.current = new module.Reperage3D(host, {
         mobile,
         pixelRatio: pixelRatioCap(mobile, window.devicePixelRatio),
-        events: { onView: next => { setView(next); if (engine.current) setSources(engine.current.usedSources()); } },
+        events: {
+          onView: next => { setView(next); if (engine.current) setSources(engine.current.usedSources()); },
+          onRoofs: (state, count) => {
+            setRoofs({ state, count });
+            if (engine.current) setSources(engine.current.usedSources());
+          },
+        },
       });
     } catch {
       return null;
@@ -128,6 +158,8 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
     setPhase("loading");
     setStreet(false);
     setFraming("moyen");
+    setRoofs({ state: "off", count: 0 });
+    setFileNote("");
     const lit = preset === "manuel" ? sun : sunPreset(preset, next.lat);
     setSun(lit);
     const e = await ensureEngine();
@@ -154,16 +186,39 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ensureEngine, fov, line, look, preset, sun, tone]);
 
-  async function findRue(next: Lieu3d) {
-    setRue({ state: "load", photo: null });
+  async function findRue(next: Lieu3d, radius = RUE_RAYON) {
+    // The demo never calls the street photo servers.
+    if (demo) { setRue({ state: "demo", photos: [], index: 0, radius }); return; }
+    setRue({ state: "load", photos: [], index: 0, radius });
     setRueNote("");
+    setAround(false);
     try {
-      const found = await chargerPhotos(next.lat, next.lon, RUE_RAYON);
-      if (found === "rate") { setRue({ state: "rate", photo: null }); return; }
-      const photo = found.photos[found.start] ?? found.photos[0] ?? null;
-      setRue({ state: photo ? "ready" : found.panoramax === "fail" ? "fail" : "none", photo });
+      const found = await chargerPhotos(next.lat, next.lon, radius);
+      if (found === "rate") { setRue({ state: "rate", photos: [], index: 0, radius }); return; }
+      const photos = found.photos.slice(0, 24);
+      const index = Math.max(0, Math.min(photos.length - 1, found.start));
+      setRue({ state: photos.length ? "ready" : found.panoramax === "fail" ? "fail" : "none", photos, index, radius });
     } catch {
-      setRue({ state: "fail", photo: null });
+      setRue({ state: "fail", photos: [], index: 0, radius });
+    }
+  }
+
+  function stepRue(dir: -1 | 1) {
+    setRueNote("");
+    setAround(false);
+    setRue(current => ({ ...current, index: Math.max(0, Math.min(current.photos.length - 1, current.index + dir)) }));
+  }
+
+  async function openFile(file: File | null) {
+    if (!file) return;
+    setFileNote("");
+    try {
+      const point = await parseFichier(file.name, new Uint8Array(await file.arrayBuffer()));
+      if (!point) { setFileNote(t("rep3d.file.off")); return; }
+      setQuery(point.name);
+      void open({ name: point.name.slice(0, 80), detail: file.name.slice(0, 60), lat: point.lat, lon: point.lon });
+    } catch {
+      setFileNote(t("rep3d.file.off"));
     }
   }
 
@@ -242,9 +297,11 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       const shot: CaptureResult = await e.capture();
       const name = `${place.name} · ${t(`rep3d.look.${look}`)}`.slice(0, 40);
       let metaOut: CaptureMeta | null = null;
+      const block = e.quartier(place.name);
       const saved = await onCapture({
         name,
         note: "",
+        quartier: block && block.buildings.length + block.streets.length > 0 ? JSON.stringify(block) : undefined,
         color: shot.color,
         depth: shot.depth,
         lines: shot.lines,
@@ -268,7 +325,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
         setCaptureNoteText(t("rep3d.captureFail"));
         return;
       }
-      setCaptured({ meta, urls: { color: URL.createObjectURL(shot.color), depth: URL.createObjectURL(shot.depth), lines: URL.createObjectURL(shot.lines) } });
+      setCaptured({ meta, urls: { color: URL.createObjectURL(shot.color), depth: URL.createObjectURL(shot.depth), lines: URL.createObjectURL(shot.lines) }, block: block ? block.buildings.length + block.streets.length : 0 });
       onCaptured({ sceneId: saved.sceneId, name, color: shot.color, credit: meta.credit });
     } catch {
       setCaptureNoteText(t("rep3d.captureFail"));
@@ -278,16 +335,21 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   }
 
   async function addRue() {
-    const photo = rue.photo;
+    const photo = rue.photos[rue.index] ?? null;
     if (!photo || !place || rueSaving || !reusablePhoto(photo)) return;
     setRueSaving(true);
     setRueNote("");
     try {
-      const response = await fetch(photo.view || photo.thumb, { credentials: "omit" });
-      const type = response.headers.get("content-type") ?? "";
-      if (!response.ok || !type.startsWith("image/")) throw new Error("photo");
-      const blob = await response.blob();
-      const credit = `${rueCredit(photo)}. ${photo.sourceUrl || photoSourceUrl(photo)} — ${photo.licenseUrl || photoLicenseUrl(photo.license)}`;
+      // Looking around in 360°: keep the framed view. Otherwise the whole photo.
+      const framed = around ? await rueView.current?.capture() ?? null : null;
+      let blob = framed;
+      if (!blob) {
+        const response = await fetch(photo.view || photo.thumb, { credentials: "omit" });
+        const type = response.headers.get("content-type") ?? "";
+        if (!response.ok || !type.startsWith("image/")) throw new Error("photo");
+        blob = await response.blob();
+      }
+      const credit = `${rueCredit(photo)}. ${framed ? t("rep3d.rue.framed") : t("rep3d.rue.whole")}. ${photo.sourceUrl || photoSourceUrl(photo)} — ${photo.licenseUrl || photoLicenseUrl(photo.license)}`;
       const ok = await onStreetPhoto(place, { id: photo.id, author: photo.author, credit, blob });
       setRueNote(ok ? t("rep3d.rue.added") : t("rep3d.rue.fail"));
     } catch {
@@ -302,13 +364,14 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   }
 
   const ready = phase === "ready" || phase === "empty";
+  const photo = rue.photos[rue.index] ?? null;
   const loading = phase === "loading";
   const credit = attributionLine(sources);
   const focal = focalFor(fov);
   const hint = street ? t("rep3d.hint.street") : coarse ? t("rep3d.hint.touch") : t("rep3d.hint.mouse");
   const problem = phase === "offline" || phase === "rate" || phase === "fail" || phase === "nogl";
 
-  return <div className="u-rep3d" role="dialog" aria-modal="true" aria-labelledby="u-rep3d-title" data-rep3d-state={phase} data-look={look} data-street={street ? "1" : "0"}>
+  return <div className="u-rep3d" role="dialog" aria-modal="true" aria-labelledby="u-rep3d-title" data-rep3d-state={phase} data-rep3d-roofs={roofs.state} data-look={look} data-street={street ? "1" : "0"}>
     <header className="u-rep3d-top">
       <button type="button" className="u-rep3d-close" aria-label={t("rep3d.close")} onClick={onClose}>×</button>
       <h2 id="u-rep3d-title" className="u-rep3d-title">{t("rep3d.title")}</h2>
@@ -334,6 +397,8 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
             <div className="u-rep3d-chips" aria-label={t("rep3d.tryThese")}>
               {EXEMPLES_3D.map(item => <button key={item.name} type="button" onClick={() => { setQuery(item.name); void open(item); }}>{item.name}<span>{item.detail}</span></button>)}
             </div>
+            <FilePick label={t("rep3d.file.open")} onFile={file => void openFile(file)} />
+            {fileNote && <p className="u-small" role="status">{fileNote}</p>}
             <p className="u-small">{t("rep3d.noGoogle")}</p>
           </div>}
           {place && ready && <div className="u-rep3d-frame" aria-hidden="true"><span>{t("rep3d.frame")}</span></div>}
@@ -343,7 +408,11 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
             {phase !== "nogl" && place && <button type="button" className="u-secondary" onClick={() => void open(place)}>{t("rep3d.retry")}</button>}
           </div>}
           {phase === "empty" && <p className="u-rep3d-flag" role="status">{t("rep3d.state.empty")}</p>}
-          {ready && <div className="u-rep3d-pad" aria-label={t("rep3d.camera")} role="group">
+          {ready && roofs.state === "loading" && <p className="u-rep3d-flag is-soft" role="status" data-rep3d-roofs-loading="">{t("rep3d.roofs.loading")}</p>}
+
+          {place && <p className="u-rep3d-credit" data-rep3d-credit="">{credit}</p>}
+        </div>
+          {ready && <div className="u-rep3d-pad" data-rep3d-pad="" aria-label={t("rep3d.camera")} role="group">
             <button type="button" aria-label={t("rep3d.btn.left")} onClick={() => engine.current?.nudge(-20, 0)}>↺</button>
             <button type="button" aria-label={t("rep3d.btn.right")} onClick={() => engine.current?.nudge(20, 0)}>↻</button>
             <button type="button" aria-label={t("rep3d.btn.up")} onClick={() => engine.current?.nudge(0, 8)}>▲</button>
@@ -358,15 +427,16 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
                 <button type="button" aria-label={t("rep3d.btn.out")} onClick={() => engine.current?.zoom(1.33)}>−</button>
               </>}
           </div>}
-          {place && <p className="u-rep3d-credit" data-rep3d-credit="">{credit}</p>}
-        </div>
         {ready && <p className="u-rep3d-hint">{hint}</p>}
       </div>
       <aside className="u-rep3d-side">
         {place && <p className="u-rep3d-place" data-rep3d-place="">
           <b>{place.name}</b>
           <span>{place.detail ? `${place.detail} · ` : ""}{place.lat.toFixed(4)}, {place.lon.toFixed(4)}{ready ? ` · ${t("rep3d.buildings", { count })}` : ""}</span>
+          {ready && roofs.state !== "off" && <span className="u-rep3d-roofs" data-rep3d-roofs={roofs.state}>{t(`rep3d.roofs.${roofs.state}`, { count: roofs.count })}</span>}
         </p>}
+        {place && <FilePick label={t("rep3d.file.open")} small onFile={file => void openFile(file)} />}
+        {place && fileNote && <p className="u-small" role="status">{fileNote}</p>}
         {!ready && <p className="u-rep3d-why" id="u-rep3d-why-set">{t("rep3d.why.place")}</p>}
         <fieldset className="u-rep3d-group" disabled={!ready} aria-describedby={ready ? undefined : "u-rep3d-why-set"}>
           <legend>{t("rep3d.lookLabel")}</legend>
@@ -401,14 +471,26 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
           <p className="u-label">{t("rep3d.rue.title")}</p>
           {rue.state === "idle" && <p className="u-small">{t("rep3d.rue.idle")}</p>}
           {rue.state === "load" && <p className="u-small" role="status">{t("rep3d.rue.load")}</p>}
-          {rue.state === "none" && <p className="u-small">{t("rep3d.rue.none", { radius: RUE_RAYON })}</p>}
+          {rue.state === "none" && <p className="u-small">{t("rep3d.rue.none", { radius: rue.radius })}</p>}
           {rue.state === "rate" && <p className="u-small">{t("rep3d.state.rate")}</p>}
+          {rue.state === "demo" && <p className="u-small">{t("rep3d.rue.demo")}</p>}
           {rue.state === "fail" && <p className="u-small">{t("rep3d.rue.fail")}</p>}
-          {rue.state === "ready" && rue.photo && place && <div className="u-rep3d-rue-card">
-            {rue.photo.thumb ? <img src={rue.photo.thumb} alt={t("rep3d.rue.alt", { author: rue.photo.author })} loading="lazy" referrerPolicy="no-referrer" /> : <span className="u-rep3d-rue-blank" />}
-            <p className="u-small" data-rep3d-rue-credit="">{rueCredit(rue.photo)} · {Math.round(distanceMeters(place.lat, place.lon, rue.photo.lat, rue.photo.lon))} m · <a href={rue.photo.sourceUrl || photoSourceUrl(rue.photo)} target="_blank" rel="noreferrer noopener">{t("rep3d.rue.source")}</a></p>
-            <button type="button" className="u-secondary" disabled={rueSaving || !reusablePhoto(rue.photo)} aria-describedby={!reusablePhoto(rue.photo) ? "u-rep3d-rue-why" : undefined} onClick={() => void addRue()}>{t("rep3d.rue.add")}</button>
-            {!reusablePhoto(rue.photo) && <p className="u-why" id="u-rep3d-rue-why">{t("rep3d.rue.licence")}</p>}
+          {(rue.state === "none" || rue.state === "fail") && place && rue.radius < RUE_PLUS_LOIN && <button type="button" className="u-secondary" data-rep3d-rue-wider="" onClick={() => void findRue(place, RUE_PLUS_LOIN)}>{t("rep3d.rue.wider", { radius: RUE_PLUS_LOIN })}</button>}
+          {rue.state === "ready" && photo && place && <div className="u-rep3d-rue-card" data-rep3d-rue-index={rue.index} data-rep3d-rue-count={rue.photos.length}>
+            {around
+              ? <RueViewer ref={rueView} photo={photo} demo={false} cap={aroundCap} onCap={setAroundCap} onFail={() => setRueNote(t("rep3d.rue.fail"))} />
+              : photo.thumb ? <img src={photo.thumb} alt={t("rep3d.rue.alt", { author: photo.author })} loading="lazy" referrerPolicy="no-referrer" /> : <span className="u-rep3d-rue-blank" />}
+            <p className="u-small" data-rep3d-rue-credit="">{rueCredit(photo)} · {Math.round(distanceMeters(place.lat, place.lon, photo.lat, photo.lon))} m · <a href={photo.sourceUrl || photoSourceUrl(photo)} target="_blank" rel="noreferrer noopener">{t("rep3d.rue.source")}</a></p>
+            <div className="u-rep3d-rue-bar">
+              {rue.photos.length > 1 && <>
+                <button type="button" className="u-secondary" data-rep3d-rue-prev="" disabled={rue.index === 0} aria-describedby="u-rep3d-rue-pos" aria-label={t("rep3d.rue.prev")} onClick={() => stepRue(-1)}>‹</button>
+                <span className="u-small" id="u-rep3d-rue-pos" aria-live="polite">{t("rep3d.rue.count", { index: rue.index + 1, count: rue.photos.length })}</span>
+                <button type="button" className="u-secondary" data-rep3d-rue-next="" disabled={rue.index >= rue.photos.length - 1} aria-describedby="u-rep3d-rue-pos" aria-label={t("rep3d.rue.next")} onClick={() => stepRue(1)}>›</button>
+              </>}
+              {photo.view && <button type="button" className="u-secondary" data-rep3d-rue-around="" aria-pressed={around} onClick={() => setAround(value => !value)}>{around ? t("rep3d.rue.aroundOff") : photo.tour ? t("rep3d.rue.around360") : t("rep3d.rue.around")}</button>}
+              <button type="button" className="u-secondary" data-rep3d-rue-add="" disabled={rueSaving || !reusablePhoto(photo)} aria-describedby={!reusablePhoto(photo) ? "u-rep3d-rue-why" : undefined} onClick={() => void addRue()}>{t("rep3d.rue.add")}</button>
+            </div>
+            {!reusablePhoto(photo) && <p className="u-why" id="u-rep3d-rue-why">{t("rep3d.rue.licence")}</p>}
           </div>}
           {rueNote && <p className="u-small" role="status" data-rep3d-rue-note="">{rueNote}</p>}
         </section>
@@ -423,7 +505,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       </aside>
     </div>
     <footer className="u-rep3d-bar">
-      {captured ? <div className="u-rep3d-done" role="status" data-capture-done="">
+      {captured ? <div className="u-rep3d-done" role="status" data-capture-done="" data-rep3d-block={captured.block}>
         <div className="u-rep3d-thumbs">
           <figure><img src={captured.urls.color} alt="" /><figcaption>{t("rep3d.out.color")}</figcaption></figure>
           <figure><img src={captured.urls.depth} alt="" /><figcaption>{t("rep3d.out.depth")}</figcaption></figure>
@@ -445,6 +527,13 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       </>}
     </footer>
   </div>;
+}
+
+function FilePick({ label, small, onFile }: { label: string; small?: boolean; onFile(file: File | null): void }) {
+  return <label className={small ? "u-rep3d-file is-small" : "u-rep3d-file"} data-rep3d-file="">
+    {label}
+    <input className="sr-only" type="file" accept=".kml,.kmz,.geojson,.json,application/geo+json,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz" onChange={event => { onFile(event.target.files?.[0] ?? null); event.target.value = ""; }} />
+  </label>;
 }
 
 function Slider({ id, label, value, min, max, step, shown, why, disabled, onChange }: { id: string; label: string; value: number; min: number; max: number; step: number; shown: string; why?: string; disabled?: boolean; onChange(value: number): void }) {

@@ -154,6 +154,8 @@ export interface LieuCaptureInput {
   color: Blob;
   depth: Blob;
   lines: Blob;
+  /** The block around the view, written as Lieux/<id>.quartier.json for PRISE's maquette. */
+  quartier?: string;
   /** Builds the camera card (JSON) and the plain note once the file names are known. */
   meta(files: { color: string; depth: string; lines: string }): { json: string; note: string };
 }
@@ -1543,6 +1545,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await writeBlob(vault, lines, input.lines);
     const card = input.meta({ color, depth, lines });
     await writeText(vault, projectPath(slug, `Lieux/${files.meta}`), card.json);
+    if (input.quartier) await writeText(vault, projectPath(slug, `Lieux/${id}.quartier.json`), input.quartier);
     const note = (card.note || input.note).replace(/\s+/g, " ").trim().slice(0, 900);
     const scene: Scene = { ...emptySceneDraft(), id, name, note, prompt: note, home: "Lieux", geste: "repere", source: "photo", stills: [color], views: [color, depth, lines] };
     await writeScene(vault, scene);

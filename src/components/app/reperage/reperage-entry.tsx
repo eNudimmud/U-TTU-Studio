@@ -5,13 +5,13 @@
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
-import type { CaptureSaved, StreetPhotoFile } from "./reperage-3d";
+import type { CaptureInput, CaptureSaved, StreetPhotoFile } from "./reperage-3d";
 
 const Sheet = dynamic(() => import("./reperage-3d").then(module => module.Reperage3DSheet), { ssr: false, loading: () => <div className="u-rep3d is-boot" role="status" /> });
 
 interface Props {
   quote: { credits: number | null; high: number | null };
-  onCapture(input: { name: string; note: string; color: Blob; depth: Blob; lines: Blob; meta(files: { color: string; depth: string; lines: string }): { json: string; note: string } }): Promise<{ sceneId: string } | null>;
+  onCapture(input: CaptureInput): Promise<{ sceneId: string } | null>;
   onCaptured(saved: CaptureSaved): void;
   onStreetPhoto(place: { name: string; lat: number; lon: number }, photo: StreetPhotoFile): Promise<boolean>;
 }
