@@ -175,8 +175,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
-  await page.locator('[data-avance-prise] > summary').click(); // keyframes and 3D imports live in « Avancé » › Prévis filmée
-  await page.locator('[data-avance-group=previs] > summary').click();
+  await openPrevis(page); // keyframes and 3D imports live in « Avancé » › Prévis filmée
   await page.locator('[data-import-glb] input').setInputFiles({ name: 'Triangle.gltf', mimeType: 'model/gltf+json', buffer: source });
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(1);
   await page.locator('[data-add-key]').click();
@@ -186,8 +185,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await page.reload();
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(1);
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-keys', '1');
-  await page.locator('[data-avance-prise] > summary').click();
-  await page.locator('[data-avance-group=previs] > summary').click();
+  await openPrevis(page);
   const panel = page.locator('[data-generer-3d]');
   const photo = panel.locator('input[type=file]');
   await photo.setInputFiles({ name: 'photo.webp', mimeType: 'image/webp', buffer: portrait });
@@ -205,8 +203,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   done = true;
   await page.reload();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('u-ttu-operation'))).toBeNull();
-  await page.locator('[data-avance-prise] > summary').click();
-  await page.locator('[data-avance-group=previs] > summary').click();
+  await openPrevis(page);
   const saved = page.getByLabel('Modèles 3D enregistrés', { exact: true });
   await expect(saved.locator('option')).toHaveCount(3);
   await saved.selectOption({ index: 2 });
@@ -230,3 +227,13 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   expect(readFileSync(path)).toEqual(source);
   expect(posts).toBe(1);
 });
+
+// « Avancé » then its « Prévis » group, each opened only if closed and awaited (WebKit toggles a nested <details> late).
+async function openPrevis(page: Page) {
+  for (const selector of ['[data-avance-prise]', '[data-avance-group=previs]']) {
+    const fold = page.locator(selector);
+    await expect(fold).toBeVisible();
+    if (await fold.getAttribute('open') === null) await fold.locator('> summary').click();
+    await expect(fold).toHaveAttribute('open', '');
+  }
+}

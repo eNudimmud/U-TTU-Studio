@@ -134,8 +134,8 @@
 .u-fold { border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); }
 .u-fold summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 12px 14px; list-style: none; font: 600 11px/1.4 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--u-muted); }
 .u-fold summary::-webkit-details-marker { display: none; }
-.u-fold summary::after { content: "+"; font-size: 16px; line-height: 1; }
-.u-fold[open] summary::after { content: "–"; }
+.u-fold > summary::after { content: "+"; font-size: 16px; line-height: 1; }
+.u-fold[open] > summary::after { content: "–"; }
 .u-fold .u-facts { padding: 0 10px 12px; }
 .u-projet { gap: 12px; }
 .u-projet-prises { display: grid; gap: 2px; margin: 4px 0 0; padding: 0; list-style: none; }
@@ -864,7 +864,7 @@
 @media (max-width: 1023px) {
   .u-top:has(.u-project-name) { flex-wrap: wrap; }
   .u-top:has(.u-project-name) .u-top-project { flex: 1 1 100%; order: 3; }
-  .u-stage.u-prise { padding-bottom: calc(88px + var(--u-safe)); }
+  .u-stage.u-prise { padding-bottom: calc(168px + var(--u-safe)); } /* the end of AVANCÉ scrolls clear of the quote + Tourner bar */
   .u-prise-strip { order: 1; }
   .u-prise-preview { order: 2; }
   .u-prise-work { order: 3; }

@@ -1747,7 +1747,7 @@
       "nextWords": "Schreiben Sie, was in Einstellung {n} passiert."
     },
     "quote": {
-      "estimated": "Geschätzt: {low} bis {high} Credits (Schätzung, keine Messung).",
+      "estimated": "≈ {low} bis {high} Cr. geschätzt",
       "measured": "Gemessen: etwa {credits} Credits, Reserve {high} (ein echter abgerechneter Take).",
       "measuredBalance": "Gemessen an Ihren Takes: etwa {credits} Credits.",
       "none": "Noch kein Kostenvoranschlag für diese Einstellung. Nichts wird gesendet."
