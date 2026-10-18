@@ -28,7 +28,6 @@ function Tile({ item, selected, example, onChange, onExample, onStart }: {
     </button>
     {!open && item.raison && <p className="u-tile-why">{t(item.raison)}</p>}
     {example && (onExample || onStart) && <div className="u-tile-examples">
-      {onExample && <button type="button" className="u-link" data-voir-exemple={item.id} onClick={() => onExample(item.id)}>{t("gestes.seeExample")}</button>}
       {onStart && <button type="button" className="u-link u-start" data-partir-exemple={item.id} onClick={() => onStart(item.id)}>{t("gestes.startExample")}</button>}
     </div>}
   </article>;

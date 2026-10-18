@@ -101,7 +101,9 @@ function AtelierFrame() {
   return <div className="u-app">
     <header className="u-top">
       <Brand className="u-mark" href={assetPath("/studio#personnage")} />
+      <div className="u-top-project" />
       <div className="u-top-tools">
+        <a className="u-outils-top" href={assetPath("/studio#outils")} aria-label={t("outils.title")} data-top-outils=""><span aria-hidden="true">✦</span><span className="u-tool-label">{t("outils.title")}</span></a>
         <a className="u-coffre" href={assetPath("/mon-studio")} aria-label={t("nav.studio")} aria-current="page"><Coffre /><span className="u-tool-label">{t("nav.studio")}</span></a>
         <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })}>
           <span className="u-tool-full">{t("sheet.walletTitle")}</span>
@@ -117,7 +119,7 @@ function AtelierFrame() {
           <p className="u-lead">{t("atelier.lead")}</p>
         </header>
         <section className="u-lien" id="coffre" aria-labelledby="u-coffre-title">
-          <h2 id="u-coffre-title">{t("atelier.linkFolder")}</h2>
+          <h2 id="u-coffre-title">{t("atelier.vaultTitle")}</h2>
           <p>{t("atelier.linkExplain")}</p>
           <p id="u-why-lien">{t("atelier.linkMissing")}</p>
           <p className="u-small">{t("atelier.stays")}</p>

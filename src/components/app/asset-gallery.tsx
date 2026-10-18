@@ -74,7 +74,9 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
   // R10: a card with no file behind it (a décor named but never rendered) is not an asset yet.
   // It stays in DÉCOR; the gallery only shows what can be seen or heard.
   const visible = useMemo(() => [...assets, ...preview].filter(card => srcOf(card)), [assets, preview, media]);
-  const hidden = assets.filter(card => card.kind === "decor" && card.geste !== "repere" && !srcOf(card)).length;
+  // Only a real place waiting for its image counts: one with a description to create from.
+  // Empty drafts and demo cards never trigger « … attend dans DÉCOR » on an empty studio.
+  const hidden = assets.filter(card => card.kind === "decor" && card.geste !== "repere" && !card.id.startsWith("demo-") && card.prompt.trim().length > 0 && !srcOf(card)).length;
   const rows = useMemo(() => filterAssets(visible, filter, query), [visible, filter, query]);
   const current = rows.find(item => item.id === open) ?? null;
 
@@ -116,8 +118,8 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       {onRefresh && <button type="button" className="u-icon" aria-label={t("assets.refresh")} onClick={onRefresh}><Refresh /></button>}
     </div>
     {hidden > 0 && onEmptyDecor && <div className="u-gallery-hidden" data-sans-image={hidden}>
-      <span>{hidden === 1 ? "1 lieu sans image attend dans DÉCOR." : `${hidden} lieux sans image attendent dans DÉCOR.`}</span>
-      <button type="button" onClick={onEmptyDecor}>Les créer</button>
+      <span>{hidden === 1 ? t("assets.sansImageOne") : t("assets.sansImageMany", { count: hidden })}</span>
+      <button type="button" onClick={onEmptyDecor}>{t("assets.sansImageGo")}</button>
     </div>}
     {picked.length > 0 && <p className="u-small">{t("assets.selected", { count: picked.length })}</p>}
     {current && <article className="u-detail u-asset-detail">

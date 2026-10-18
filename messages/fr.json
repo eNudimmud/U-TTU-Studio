@@ -965,7 +965,8 @@
     "stays": "Rien ne quitte cet appareil. Le studio ne garde rien.",
     "auto": "Les créations du studio se rangent ici toutes seules.",
     "projects": "Projets",
-    "close": "Fermer"
+    "close": "Fermer",
+    "vaultTitle": "Ton coffre Obsidian"
   },
   "gestes": {
     "ask": "Que veux-tu faire ?",
@@ -1201,7 +1202,7 @@
       "quiet": "Modifier"
     },
     "suiteFinaliserImage": {
-      "title": "Finaliser",
+      "title": "Améliorer l’image",
       "phrase": "Plus net et deux fois plus grand. L’image est restaurée, jamais refaite.",
       "quiet": "Finaliser"
     },
@@ -1221,7 +1222,7 @@
       "quiet": "Animer"
     },
     "suiteFinaliserVideo": {
-      "title": "Finaliser",
+      "title": "Améliorer la vidéo",
       "phrase": "Restaure la prise en 1080p, sans changer le mouvement. Rien n’est refait.",
       "quiet": "Finaliser"
     },
@@ -1287,7 +1288,10 @@
     "empty": "Aucun asset.",
     "none": "—",
     "credits": "{amount} crédits",
-    "estimate": "Devis {amount}"
+    "estimate": "Devis {amount}",
+    "sansImageOne": "1 lieu sans image attend dans DÉCOR.",
+    "sansImageMany": "{count} lieux sans image attendent dans DÉCOR.",
+    "sansImageGo": "Les créer"
   },
   "r7": {
     "maquette": "Maquette gratuite",
@@ -1396,7 +1400,7 @@
     "reacMontage": "Réaction muette"
   },
   "finaliser": {
-    "open": "Finaliser",
+    "open": "Finaliser le montage",
     "title": "Finaliser le montage",
     "lead": "Une seule passe sur tout le montage : plus de résolution et de netteté. Rien n'est refait, le son et le rythme restent.",
     "resolution": "Résolution",
@@ -1878,7 +1882,7 @@
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Repérer un lieu",
+    "entryTitle": "Repérage 3D gratuit",
     "entryLead": "Une ville en 3D partout dans le monde, avec les vrais toits en Suisse et des photos de rue libres. Cadre, choisis la lumière, capture. Gratuit, aucun crédit.",
     "open": "Repérer un lieu",
     "close": "Fermer le repérage",
@@ -2041,7 +2045,7 @@
         "text": "Ce qui change"
       },
       "suite-finaliser-image": {
-        "title": "Finaliser",
+        "title": "Améliorer l’image",
         "phrase": "Plus net et deux fois plus grand. L’image est restaurée, jamais refaite."
       },
       "suite-detourer": {
@@ -2068,7 +2072,7 @@
         "text": "La scène et le ton"
       },
       "suite-finaliser-video": {
-        "title": "Finaliser",
+        "title": "Améliorer la vidéo",
         "phrase": "Restaure la prise en 1080p, sans changer le mouvement. Rien n’est refait."
       },
       "suite-fluidifier": {

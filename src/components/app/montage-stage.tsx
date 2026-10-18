@@ -749,6 +749,21 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const step = rulerStep(px);
   for (let mark = 0; mark <= Math.max(duration, step) + 1e-6; mark += step) ticks.push(Number(mark.toFixed(3)));
 
+  // Menus close on Escape and on a tap outside, without an invisible layer that would swallow the tabs.
+  const menuOpen = panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique";
+  useEffect(() => {
+    if (!menuOpen) return;
+    const key = (event: KeyboardEvent) => { if (event.key === "Escape") setPanel(null); };
+    const down = (event: PointerEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest(".u-popover, [data-menu-toggle]")) return;
+      setPanel(null);
+    };
+    window.addEventListener("keydown", key);
+    document.addEventListener("pointerdown", down, true);
+    return () => { window.removeEventListener("keydown", key); document.removeEventListener("pointerdown", down, true); };
+  }, [menuOpen]);
+
   function openPanel(next: Panel, event: ReactMouseEvent | ReactPointerEvent) {
     placeMenu(event);
     setPanel(current => current === next ? null : next);
@@ -896,7 +911,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           <Tool id="u-why-split" off={!splitOk} reason={t("montage.splitOff")} label={t("montage.split")} glyph={<Split />} onClick={() => commitFrom(historyRef.current, splitVideo(historyRef.current.present, timeRef.current, `plan-${crypto.randomUUID()}`))} />
           <Tool id="u-why-delete" off={!selectedClip} reason={t("montage.deleteOff")} label={t("montage.delete")} glyph={<Trash />} onClick={() => { if (!selected) return; commitFrom(historyRef.current, deleteClip(historyRef.current.present, selected)); setSelected(null); }} />
         </>}
-        <button type="button" className="u-tool" aria-label={t("montage.more")} aria-expanded={panel === "more" || panel === "confirm"} onClick={event => openPanel("more", event)}><More /><span>{t("montage.more")}</span></button>
+        <button type="button" className="u-tool" data-menu-toggle="" aria-label={t("montage.more")} aria-expanded={panel === "more" || panel === "confirm"} onClick={event => openPanel("more", event)}><More /><span>{t("montage.more")}</span></button>
         <button type="button" className="u-tool" data-reac="" onClick={() => {
           const id = `plan-reac-${crypto.randomUUID()}`;
           const clip: VideoClip = { id, kind: "slate", source: null, label: t("r7.reacMontage"), media: 2, start: 0, end: 2, takeId: null, title: t("r7.reacMontage") };
@@ -945,7 +960,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         }}>
           <div className="u-track-head">
             <span className="u-track-mark" title={t("montage.video")} aria-label={t("montage.video")}><Film /></span>
-            {unusedTakes.length > 0 && <button type="button" className="u-track-add" aria-label={t("montage.addOnTrack", { track: t("montage.video") })} onClick={event => openPanel("video", event)}><Plus /></button>}
+            {unusedTakes.length > 0 && <button type="button" className="u-track-add" data-menu-toggle="" aria-label={t("montage.addOnTrack", { track: t("montage.video") })} onClick={event => openPanel("video", event)}><Plus /></button>}
           </div>
           <div className="u-track">{videoNodes}</div>
         </div>
@@ -958,9 +973,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           }}>
             <div className="u-track-head">
               <span className="u-track-mark" title={trackName(track)} aria-label={trackName(track)}>{track === "voix" ? <Mic /> : track === "effets" ? <Spark /> : <Music />}<span className="u-track-word">{trackName(track)}</span></span>
-              <button type="button" className="u-track-add" aria-label={t("montage.addOnTrack", { track: trackName(track) })} onClick={event => openPanel(track, event)}><Plus /></button>
+              <button type="button" className="u-track-add" data-menu-toggle="" aria-label={t("montage.addOnTrack", { track: trackName(track) })} onClick={event => openPanel(track, event)}><Plus /></button>
             </div>
-            <div className="u-track" data-track-lane={track}>{clips.map(renderAudioClip)}{clips.length === 0 && <span className="u-track-empty">{trackName(track)}</span>}</div>
+            <div className="u-track" data-track-lane={track}>{clips.map(renderAudioClip)}{clips.length === 0 && <span className="u-track-empty">{t("montage.dropFile")}</span>}</div>
           </div>;
         })}
       </div>
@@ -980,13 +995,15 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     </div>
     </div>
     {(panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique") && menuAt && <>
-      <button type="button" className="u-menu-back" aria-label={t("verb.cancel")} onClick={() => setPanel(null)} />
       <div className="u-popover" role="menu" style={{ top: menuAt.top, left: menuAt.left }}>
         {panel === "more" && <>
-          <p className="u-small">{t("montage.shortcutHelp")}</p>
+          <button type="button" data-more-outils="" onClick={() => { setPanel(null); window.location.hash = "outils"; }}>{t("outils.seeAll")}</button>
+          <button type="button" data-more-export="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => { if (canExport) { setPanel(null); runExport(); } else setPanel("export"); }}>{t("montage.exportShort")}</button>
+          <button type="button" data-more-finaliser="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} onClick={() => setPanel("finaliser")}>{t("finaliser.open")}</button>
           {filled
             ? <button type="button" onClick={() => setPanel("confirm")}>{t("montage.clear")}</button>
             : <button type="button" onClick={() => { commitFrom(historyRef.current, exempleEdit()); setPanel(null); }}>{t("montage.openExample")}</button>}
+          <details className="u-more-keys"><summary>{t("montage.shortcuts")}</summary><p className="u-small">{t("montage.shortcutHelp")}</p></details>
         </>}
         {panel === "confirm" && <>
           <p>{t("montage.clearAsk")}</p>

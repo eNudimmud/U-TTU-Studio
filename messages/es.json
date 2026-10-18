@@ -965,7 +965,8 @@
     "stays": "Nada sale de este aparato. El estudio no guarda nada.",
     "auto": "Lo que creas en el estudio se guarda aquí solo.",
     "projects": "Proyectos",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "vaultTitle": "Tu carpeta de Obsidian"
   },
   "gestes": {
     "ask": "¿Qué quieres hacer?",
@@ -1201,7 +1202,7 @@
       "quiet": "Modificar"
     },
     "suiteFinaliserImage": {
-      "title": "Finalizar",
+      "title": "Mejorar la imagen",
       "phrase": "Más nítida y el doble de grande. La imagen se restaura, nunca se rehace.",
       "quiet": "Finalizar"
     },
@@ -1221,7 +1222,7 @@
       "quiet": "Animar"
     },
     "suiteFinaliserVideo": {
-      "title": "Finalizar",
+      "title": "Mejorar el vídeo",
       "phrase": "Restaura la toma en 1080p, sin cambiar el movimiento. Nada se rehace.",
       "quiet": "Finalizar"
     },
@@ -1287,7 +1288,10 @@
     "empty": "Ningún asset.",
     "none": "—",
     "credits": "{amount} créditos",
-    "estimate": "Presupuesto {amount}"
+    "estimate": "Presupuesto {amount}",
+    "sansImageOne": "1 lugar sin imagen espera en Decorado.",
+    "sansImageMany": "{count} lugares sin imagen esperan en Decorado.",
+    "sansImageGo": "Crearlos"
   },
   "r7": {
     "maquette": "Boceto gratis",
@@ -1396,7 +1400,7 @@
     "reacMontage": "Reacción muda"
   },
   "finaliser": {
-    "open": "Finalizar",
+    "open": "Finalizar el montaje",
     "title": "Finalizar el montaje",
     "lead": "Una sola pasada sobre todo el montaje: más resolución y nitidez. No se rehace nada; el sonido y el ritmo se mantienen.",
     "resolution": "Resolución",
@@ -1878,7 +1882,7 @@
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Localizar un lugar",
+    "entryTitle": "Localización 3D gratis",
     "entryLead": "Una ciudad en 3D en cualquier lugar del mundo, con tejados reales en Suiza y fotos de calle libres. Encuadra, elige la luz, captura. Gratis, sin créditos.",
     "open": "Localizar un lugar",
     "close": "Cerrar la localización",
@@ -2041,7 +2045,7 @@
         "text": "Qué cambia"
       },
       "suite-finaliser-image": {
-        "title": "Finalizar",
+        "title": "Mejorar la imagen",
         "phrase": "Más nítida y el doble de grande. La imagen se restaura, nunca se rehace."
       },
       "suite-detourer": {
@@ -2068,7 +2072,7 @@
         "text": "La escena y el tono"
       },
       "suite-finaliser-video": {
-        "title": "Finalizar",
+        "title": "Mejorar el vídeo",
         "phrase": "Restaura la toma en 1080p, sin cambiar el movimiento. Nada se rehace."
       },
       "suite-fluidifier": {

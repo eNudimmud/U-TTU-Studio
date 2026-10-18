@@ -965,7 +965,8 @@
     "stays": "Nichts verlässt dieses Gerät. Das Studio behält nichts.",
     "auto": "Was du im Studio erstellst, wird hier von selbst abgelegt.",
     "projects": "Projekte",
-    "close": "Schließen"
+    "close": "Schließen",
+    "vaultTitle": "Dein Obsidian-Ordner"
   },
   "gestes": {
     "ask": "Was willst du tun?",
@@ -1201,7 +1202,7 @@
       "quiet": "Ändern"
     },
     "suiteFinaliserImage": {
-      "title": "Fertigstellen",
+      "title": "Bild verbessern",
       "phrase": "Schärfer und doppelt so groß. Das Bild wird restauriert, nie neu gemacht.",
       "quiet": "Fertigstellen"
     },
@@ -1221,7 +1222,7 @@
       "quiet": "Animieren"
     },
     "suiteFinaliserVideo": {
-      "title": "Fertigstellen",
+      "title": "Video verbessern",
       "phrase": "Restauriert die Aufnahme in 1080p, ohne die Bewegung zu ändern. Nichts wird neu gemacht.",
       "quiet": "Fertigstellen"
     },
@@ -1287,7 +1288,10 @@
     "empty": "Kein Asset.",
     "none": "—",
     "credits": "{amount} Credits",
-    "estimate": "Kalkulation {amount}"
+    "estimate": "Kalkulation {amount}",
+    "sansImageOne": "1 Ort ohne Bild wartet in Kulisse.",
+    "sansImageMany": "{count} Orte ohne Bild warten in Kulisse.",
+    "sansImageGo": "Erstellen"
   },
   "r7": {
     "maquette": "Kostenlose Skizze",
@@ -1396,7 +1400,7 @@
     "reacMontage": "Stumme Reaktion"
   },
   "finaliser": {
-    "open": "Finalisieren",
+    "open": "Schnitt fertigstellen",
     "title": "Schnitt finalisieren",
     "lead": "Ein Durchgang über den ganzen Schnitt: mehr Auflösung und Schärfe. Nichts wird neu erzeugt, Ton und Rhythmus bleiben.",
     "resolution": "Auflösung",
@@ -1878,7 +1882,7 @@
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Ort erkunden",
+    "entryTitle": "Kostenlose 3D-Motivsuche",
     "entryLead": "Eine 3D-Stadt überall auf der Welt, mit echten Dächern in der Schweiz und freien Strassenfotos. Rahmen, Licht wählen, aufnehmen. Kostenlos, keine Credits.",
     "open": "Ort erkunden",
     "close": "Erkundung schliessen",
@@ -2041,7 +2045,7 @@
         "text": "Was sich ändert"
       },
       "suite-finaliser-image": {
-        "title": "Fertigstellen",
+        "title": "Bild verbessern",
         "phrase": "Schärfer und doppelt so groß. Das Bild wird restauriert, nie neu gemacht."
       },
       "suite-detourer": {
@@ -2068,7 +2072,7 @@
         "text": "Szene und Ton"
       },
       "suite-finaliser-video": {
-        "title": "Fertigstellen",
+        "title": "Video verbessern",
         "phrase": "Restauriert die Aufnahme in 1080p, ohne die Bewegung zu ändern. Nichts wird neu gemacht."
       },
       "suite-fluidifier": {

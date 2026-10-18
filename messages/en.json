@@ -965,7 +965,8 @@
     "stays": "Nothing leaves this device. The studio keeps nothing.",
     "auto": "What you create in the studio is filed here on its own.",
     "projects": "Projects",
-    "close": "Close"
+    "close": "Close",
+    "vaultTitle": "Your Obsidian folder"
   },
   "gestes": {
     "ask": "What do you want to do?",
@@ -1201,7 +1202,7 @@
       "quiet": "Edit"
     },
     "suiteFinaliserImage": {
-      "title": "Finish",
+      "title": "Enhance image",
       "phrase": "Sharper and twice as large. The image is restored, never redone.",
       "quiet": "Finish"
     },
@@ -1221,7 +1222,7 @@
       "quiet": "Animate"
     },
     "suiteFinaliserVideo": {
-      "title": "Finish",
+      "title": "Enhance video",
       "phrase": "Restores the take in 1080p, without changing the motion. Nothing is redone.",
       "quiet": "Finish"
     },
@@ -1287,7 +1288,10 @@
     "empty": "No asset.",
     "none": "—",
     "credits": "{amount} credits",
-    "estimate": "Quote {amount}"
+    "estimate": "Quote {amount}",
+    "sansImageOne": "1 place without an image is waiting in Set.",
+    "sansImageMany": "{count} places without an image are waiting in Set.",
+    "sansImageGo": "Create them"
   },
   "r7": {
     "maquette": "Free sketch",
@@ -1396,7 +1400,7 @@
     "reacMontage": "Silent reaction"
   },
   "finaliser": {
-    "open": "Finalise",
+    "open": "Finish the edit",
     "title": "Finalise the edit",
     "lead": "One pass over the whole edit: more resolution and sharpness. Nothing is remade; sound and timing stay.",
     "resolution": "Resolution",
@@ -1878,7 +1882,7 @@
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Scout a location",
+    "entryTitle": "Free 3D scouting",
     "entryLead": "A 3D city anywhere in the world, with real roofs in Switzerland and free street photos. Frame, pick the light, capture. Free, no credits.",
     "open": "Scout a location",
     "close": "Close scouting",
@@ -2041,7 +2045,7 @@
         "text": "What changes"
       },
       "suite-finaliser-image": {
-        "title": "Finish",
+        "title": "Enhance image",
         "phrase": "Sharper and twice as large. The image is restored, never redone."
       },
       "suite-detourer": {
@@ -2068,7 +2072,7 @@
         "text": "The scene and the tone"
       },
       "suite-finaliser-video": {
-        "title": "Finish",
+        "title": "Enhance video",
         "phrase": "Restores the take in 1080p, without changing the motion. Nothing is redone."
       },
       "suite-fluidifier": {

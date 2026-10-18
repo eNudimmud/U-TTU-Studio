@@ -1387,7 +1387,7 @@
 .u-outils-families { flex-wrap: wrap; }
 .u-outils-family h2, .u-outils-strip-head h2 { margin: 8px 0; font: 600 12px/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
 .u-outils-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
-.u-outil-card { display: grid; align-content: start; gap: 6px; min-height: 108px; padding: 12px 14px; border: 1px solid var(--u-line); border-radius: var(--radius-card); background: var(--surface); color: var(--fg); text-align: left; font: inherit; }
+.u-outil-card { display: grid; align-content: start; gap: 6px; min-height: 96px; padding: 12px 14px; border: 1px solid var(--u-line); border-radius: var(--radius-card); background: var(--surface); color: var(--fg); text-align: left; font: inherit; }
 button.u-outil-card { cursor: pointer; }
 button.u-outil-card:hover { border-color: var(--line-strong); background: var(--surface-2); }
 button.u-outil-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -1446,3 +1446,5 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--accent); outline-of
 .u-tool-result-name { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .u-tool-result .u-suite { margin-top: 4px; padding-top: 8px; }
 @media (max-width: 420px) { .u-outils-grid { grid-template-columns: 1fr; } .u-tool-results-list { grid-template-columns: 1fr; } }
+@media (max-width: 420px) { .u-outil-card { min-height: 0; } }
+.u-more-keys > summary { display: flex; align-items: center; min-height: 44px; padding: 0 10px; cursor: pointer; color: var(--fg-2); font-size: 13px; }
