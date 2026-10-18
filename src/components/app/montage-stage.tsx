@@ -141,6 +141,15 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const [gesteId, setGesteId] = useState("mont-voix");
   const [binTab, setBinTab] = useState<"medias" | AudioTrackId>("medias");
   const [binOpen, setBinOpen] = useState(false);
+  // MONTAGE's family tools: inside the Chutier on a phone, in their own row under the timeline on a wide screen.
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setWide(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
   const [speedOpen, setSpeedOpen] = useState(false);
   const [titleOpen, setTitleOpen] = useState(false);
   const selectedRef = useRef<string | null>(null);
@@ -849,7 +858,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         });
         return names.length > 0 ? <p className="u-bin-quiet">{t("gestes.soonQuiet", { names: names.join(", ") })}</p> : null;
       })()}
-      <OutilsStrip onglet="montage" />
+      {!wide && <OutilsStrip onglet="montage" />}
       <button type="button" className="u-secondary u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.close")}</button>
     </aside>
     <div className="u-capcut-player">
@@ -996,6 +1005,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </label>
     </div>}
     </div>
+    {wide && <div className="u-montage-outils"><OutilsStrip onglet="montage" /></div>}
     </div>
     {(panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique") && menuAt && <>
       <div className="u-popover" role="menu" style={{ top: menuAt.top, left: menuAt.left }}>

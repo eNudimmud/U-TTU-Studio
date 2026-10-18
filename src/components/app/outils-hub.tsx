@@ -85,8 +85,10 @@ export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: b
   if (list.length === 0) return null;
   return <details className="u-outils-strip" data-outils-onglet={onglet} open={open || undefined}>
     <summary><span>{t("outils.tabTools")}</span><span className="u-small">{t("outils.count", { n: String(list.length) })}</span></summary>
-    <div className="u-outils-grid">{list.map(item => <OutilCard key={item.id} outil={item} />)}</div>
-    <button type="button" className="u-secondary" data-outils-all="" onClick={() => openTool(null)}>{t("outils.seeAll")}</button>
+    <div className="u-outils-strip-body">
+      <div className="u-outils-grid">{list.map(item => <OutilCard key={item.id} outil={item} />)}</div>
+      <button type="button" className="u-secondary" data-outils-all="" onClick={() => openTool(null)}>{t("outils.seeAll")}</button>
+    </div>
   </details>;
 }
 
