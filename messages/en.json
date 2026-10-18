@@ -1435,7 +1435,8 @@
     "fail": "Finalising did not work: {message}",
     "close": "Close",
     "download": "Download",
-    "openLead": "Open weights: the cut is restored in 1080p, never redone. Estimated per 5-second block."
+    "openLead": "Open weights: the cut is restored in 1080p, never redone. Estimated per 5-second block.",
+    "openShort": "Finish"
   },
   "depart": {
     "label": "Example — make it yours",

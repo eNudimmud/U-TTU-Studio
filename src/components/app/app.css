@@ -1371,9 +1371,13 @@
 .u-suite-file > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* « Outils » : hub, one tool panel, results with « Et ensuite ? » open. */
-.u-top-project { flex: 1 1 auto; min-width: 0; overflow: hidden; }
+.u-top-project { min-width: 0; overflow: hidden; }
 .u-top-project .u-project-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.u-mark, .u-top-tools { flex: 0 0 auto; }
+@media (min-width: 800px) {
+  /* The right side (Outils, Mon studio, credits, language) never leaves the screen: the project name shrinks first. */
+  .u-top-project { flex: 1 1 auto; }
+  .u-mark, .u-top-tools { flex: 0 0 auto; }
+}
 .u-outils-top { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; min-width: 44px; justify-content: center; padding: 8px 10px; border: 1px solid transparent; border-radius: var(--radius-control); background: transparent; color: var(--fg-2); }
 .u-outils-top span:last-child { font: 600 11px/1 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
 .u-outils-top:hover { background: var(--hover); color: var(--fg); }
@@ -1453,3 +1457,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--accent); outline-of
 @media (max-width: 420px) { .u-outil-card { min-height: 0; } }
 .u-more-keys > summary { display: flex; align-items: center; min-height: 44px; padding: 0 10px; cursor: pointer; color: var(--fg-2); font-size: 13px; }
 .u-connect-link { justify-self: start; min-height: 44px; padding: 0 2px; font-size: 13px; }
+
+/* MONTAGE: the full « Finaliser le montage » label on wide screens, the short one where the bar would wrap. */
+.u-short-label { display: none; }
+@media (max-width: 479px) {
+  .u-final-open .u-long-label { display: none; }
+  .u-final-open .u-short-label { display: inline; }
+}

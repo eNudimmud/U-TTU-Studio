@@ -6,7 +6,7 @@
 // next to the panel and each one shows « Et ensuite ? » open. A tool that is not wired yet
 // says « bientôt » and why; there is never a button that does nothing. No cancel.
 
-import { useEffect, useId, useMemo, useState, type DragEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type DragEvent } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { formatCredits } from "@/lib/credits";
@@ -227,6 +227,8 @@ export function ToolPanel({ outil }: { outil: Outil }) {
   const busyId = `${titleId}-busy`;
   const whyId = `${titleId}-why`;
   const etat = outilEtat(outil, prefs);
+  // Two taps in the same frame never send two jobs.
+  const sending = useRef(false);
 
   const main = outil.entrees.filter(item => item !== "image2");
   const refs = outil.entrees.filter(item => item === "image2");
@@ -262,7 +264,8 @@ export function ToolPanel({ outil }: { outil: Outil }) {
   function reset() { setConfirmed(false); setOutcome(null); }
 
   async function launch() {
-    if (!can || !quote) return;
+    if (!can || !quote || sending.current) return;
+    sending.current = true;
     setOutcome(null);
     setStage({ stage: "envoi" });
     const onStage = (next: FinaliseStage, at?: number) => setStage({ stage: next, seconds: at });
@@ -294,6 +297,7 @@ export function ToolPanel({ outil }: { outil: Outil }) {
     } catch (error) {
       setOutcome({ ok: false, message: error instanceof Error && error.message ? error.message : t("create.failed") });
     } finally {
+      sending.current = false;
       setStage(null);
       setConfirmed(false);
     }

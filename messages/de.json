@@ -1435,7 +1435,8 @@
     "fail": "Finalisieren hat nicht geklappt: {message}",
     "close": "Schließen",
     "download": "Herunterladen",
-    "openLead": "Offene Gewichte: der Schnitt wird in 1080p restauriert, nie neu gemacht. Geschätzt pro 5-Sekunden-Block."
+    "openLead": "Offene Gewichte: der Schnitt wird in 1080p restauriert, nie neu gemacht. Geschätzt pro 5-Sekunden-Block.",
+    "openShort": "Fertigstellen"
   },
   "depart": {
     "label": "Beispiel — mach es nach",

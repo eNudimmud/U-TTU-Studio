@@ -783,7 +783,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         {exportBlocked && <span className="u-tip" id="u-why-export" role="tooltip">{exportWhy}</span>}
       </span>
       <span className="u-tool-slot">
-        <button type="button" className="u-export u-final-open" data-finaliser-open="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} onClick={() => setPanel("finaliser")}><Spark />{t("finaliser.open")}</button>
+        <button type="button" className="u-export u-final-open" data-finaliser-open="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} aria-label={t("finaliser.open")} onClick={() => setPanel("finaliser")}><Spark /><span className="u-long-label">{t("finaliser.open")}</span><span className="u-short-label" aria-hidden="true">{t("finaliser.openShort")}</span></button>
         {finOpenWhy && !finBusy && <span className="u-tip" id="u-why-final" role="tooltip">{finOpenWhy}</span>}
       </span>
       </span>

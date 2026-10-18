@@ -1435,7 +1435,8 @@
     "fail": "La finalización no salió: {message}",
     "close": "Cerrar",
     "download": "Descargar",
-    "openLead": "Pesos abiertos: el montaje se restaura en 1080p, sin rehacerse. Estimado por bloques de 5 s."
+    "openLead": "Pesos abiertos: el montaje se restaura en 1080p, sin rehacerse. Estimado por bloques de 5 s.",
+    "openShort": "Finalizar"
   },
   "depart": {
     "label": "Ejemplo — rehazlo",

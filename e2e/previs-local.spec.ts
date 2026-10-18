@@ -11,7 +11,9 @@ test('prévis réelle : filmer le canvas, retrouver le clip et le télécharger 
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles('public/exemples/cast-uttu.webp');
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
-  await page.locator('[data-avance-prise] > summary').click(); // the maquette and prévis tools live in « Avancé »
+  await page.locator('[data-avance-prise] > summary').click(); // the maquette and prévis tools live in « Avancé », in short groups
+  await page.locator('[data-avance-group=maquette] > summary').click();
+  await page.locator('[data-avance-group=previs] > summary').click();
   await expect(page.locator('canvas.u-maquette-canvas')).toBeVisible();
   await page.getByLabel('Phrase → scène', { exact: true }).fill('Deux personnages autour d’une table, la caméra tourne autour.');
   await page.locator('[data-composer]').click();

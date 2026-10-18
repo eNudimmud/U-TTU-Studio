@@ -1435,7 +1435,8 @@
     "fail": "La finalisation n'a pas abouti : {message}",
     "close": "Fermer",
     "download": "Télécharger",
-    "openLead": "Poids ouverts : la prise est restaurée en 1080p, sans être refaite. Estimé par tranche de 5 s."
+    "openLead": "Poids ouverts : la prise est restaurée en 1080p, sans être refaite. Estimé par tranche de 5 s.",
+    "openShort": "Finaliser"
   },
   "depart": {
     "label": "Exemple — refais-le",
