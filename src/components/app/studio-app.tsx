@@ -14,6 +14,7 @@ import { outilFromHash, OutilsHub } from "./outils-hub";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
+import { StudioSplash } from "./splash";
 import { TopBar } from "./top-bar";
 import { AssistantPanel } from "./assistant-panel";
 
@@ -150,7 +151,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       </button>)}
     </nav>
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
-      {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p> : <>
+      {!ready ? <StudioSplash /> : <>
         {section === "outils" ? <OutilsHub tool={outil} />
           : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
           : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />

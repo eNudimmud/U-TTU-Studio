@@ -25,7 +25,7 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "CAST" })).toBeVisible();
   const gallery = page.getByRole("button", { name: "Galerie", exact: true });
   if (await gallery.isVisible()) await gallery.click();
-  await expect(page.getByText("Uttu").first()).toBeVisible();
+  await expect(page.getByText("La coursière").first()).toBeVisible();
 
   // DÉCOR has one location tool: the 3D repérage. Tiles and relief are local fixtures here.
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
@@ -57,7 +57,7 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(stage).toHaveAttribute("data-quartier", "1");
   await expect(stage).toHaveAttribute("data-figures", "1");
   const names = page.locator(".u-maquette-names");
-  await expect(names).toHaveText("Uttu");
+  await expect(names).toHaveText("La coursière");
   await expect(page.locator("[data-tuile=contre]")).toBeDisabled();
   await expect(page.locator("#u-why-paire")).toContainText("deux personnages");
   await page.locator("[data-add-person]").click();
@@ -66,9 +66,9 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(names).toContainText("Personnage");
   await expect(page.locator("[data-tuile=contre]")).toBeEnabled();
   await page.locator("[data-add-person]").click();
-  await page.locator("[data-pick=demo-coursiere]").click();
+  await page.locator("[data-pick=demo-vieil-homme]").click();
   await expect(stage).toHaveAttribute("data-figures", "3");
-  await expect(names).toContainText("La coursière");
+  await expect(names).toContainText("Le vieil homme");
   const spread = await stage.getAttribute("data-layout");
   const xs = [...String(spread).matchAll(/@(-?\d+\.\d+),(-?\d+\.\d+)/g)].map(match => [Number(match[1]), Number(match[2])]);
   expect(xs).toHaveLength(3);
@@ -77,12 +77,12 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   expect(ordered[2] - ordered[1]).toBeGreaterThan(1.2);
   for (const point of xs) expect(Math.abs(point[1])).toBeLessThan(0.05);
   const brief = page.locator("[data-lire-maquette]");
-  await expect(brief).toContainText("Uttu");
+  await expect(brief).toContainText("Le vieil homme");
   await expect(brief).toContainText("Personnage");
   await expect(brief).toContainText("La coursière");
   await expect(brief).toContainText("Lausanne");
   await expect(brief).toContainText("Regard caméra");
-  await expect(page.locator(".u-who")).toContainText("Uttu");
+  await expect(page.locator(".u-who")).toContainText("La coursière");
   await expect(page.locator(".u-who")).toContainText("Personnage");
   await expect(page.locator(".u-prise-head .u-plan-etat")).toHaveText("En place");
   await expect(page.locator(".u-plan-card[aria-current='true'] .u-plan-etat")).toHaveText("En place");

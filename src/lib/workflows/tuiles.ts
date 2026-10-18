@@ -44,7 +44,7 @@ export const EXEMPLE_PAR_GESTE: Record<string, { id: string; role: RoleRef }> = 
 
 /** After still for “Voir un exemple”. Missing file → UI shows « Exemple à venir ». */
 export const APRES_PAR_GESTE: Record<string, string> = {
-  "cast-photos": "/exemples/apres-cast-photos.webp",
+  "cast-photos": "/exemples/cast-dj.webp",
   "cast-planche": "/exemples/apres-cast-planche.webp",
   "cast-texte": "/exemples/apres-cast-texte.webp",
   "decor-photo": "/exemples/apres-decor-photo.webp",

@@ -1443,7 +1443,7 @@
     "aria": "Mit dem Beispiel {title} starten",
     "cast": "Ein echtes Studio-Ergebnis. Tippe darauf: Foto, Name und Text werden ausgefüllt.",
     "decor": "Eine echte Studio-Kulisse. Tippe darauf: Referenz, Name und Geste werden ausgefüllt.",
-    "prise": "Uttu am Kai, schon gerahmt. Tippe darauf: Figur, Kulisse, Bildausschnitt und Handlung werden ausgefüllt.",
+    "prise": "Die Kurierin am Kai, schon gerahmt. Tippe darauf: Figur, Kulisse, Bildausschnitt und Handlung werden ausgefüllt.",
     "montage": "Drei Einstellungen, eine Stimme und Musik. Tippe darauf: der Schnitt wird gefüllt, nichts wird gesendet."
   },
   "videoGeste": {
@@ -1487,7 +1487,7 @@
     "touch": "Ein Finger: Kamera drehen oder eine Person, ein Objekt verschieben. Zwei Finger: zusammenziehen, um näher zu kommen.",
     "agent": {
       "label": "Satz → Szene",
-      "placeholder": "Uttu und Kael in einer Gasse bei Nacht, ein Auto, zwei Laternen, Fahrt näher",
+      "placeholder": "Die Kurierin und der alte Mann in einer Gasse bei Nacht, ein Auto, zwei Laternen, Fahrt näher",
       "go": "Szene aufbauen",
       "why": "Schreib einen Satz: wer, welche Objekte, welche Bewegung.",
       "people": "{n} Figur(en)",
@@ -2538,5 +2538,18 @@
   "toolswitch": {
     "change": "Werkzeug wechseln",
     "recent": "Zuletzt"
+  },
+  "status": {
+    "introuvable": {
+      "title": "Diese Seite gibt es nicht.",
+      "lead": "Der Link ist vielleicht alt. Dein Studio und deine Kreationen bleiben auf diesem Gerät."
+    },
+    "erreur": {
+      "title": "Diese Seite hat angehalten.",
+      "lead": "Nichts ist verloren: Gespeichertes bleibt auf diesem Gerät. Versuch es noch einmal oder starte im Studio."
+    },
+    "retry": "Erneut versuchen",
+    "studio": "Studio öffnen",
+    "home": "Start"
   }
 }

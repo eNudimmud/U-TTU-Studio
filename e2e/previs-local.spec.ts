@@ -9,7 +9,7 @@ test('prévis réelle : filmer le canvas, retrouver le clip et le télécharger 
   await context.route(/overpass|nominatim|photon|panoramax|mapillary|tiles\.openfreemap/, route => route.abort());
   await page.goto('/studio#personnage');
   await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
-  await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles('public/exemples/cast-uttu.webp');
+  await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles('public/exemples/cast-dj.webp');
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
   await page.locator('[data-avance-prise] > summary').click(); // the maquette and prévis tools live in « Avancé », in short groups

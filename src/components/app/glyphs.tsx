@@ -29,8 +29,6 @@ export const Check = ({ className }: GlyphProps) => <svg {...base} className={cl
 /** The vault: a box tied with one thread. */
 export const Coffre = ({ className }: GlyphProps) => <svg {...base} className={className}><rect x="3.5" y="6.5" width="17" height="13" rx="2" /><path d="M3.5 10.5h17M12 10.5v4" /></svg>;
 
-/** Sphère: a web seen from its centre. */
-export const Web = ({ className }: GlyphProps) => <svg {...base} className={className}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.5" /><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6L6 18" /></svg>;
 
 export const Iii = ({ className }: GlyphProps) => <svg width="22" height="20" viewBox="0 0 22 20" className={className} aria-hidden="true" fill="currentColor"><rect x="2" y="7" width="3.4" height="11" /><rect x="9.3" y="7" width="3.4" height="11" /><rect x="16.6" y="7" width="3.4" height="11" /><rect x="2" y="1.5" width="3.4" height="3.4" /><rect x="9.3" y="1.5" width="3.4" height="3.4" /><rect x="16.6" y="1.5" width="3.4" height="3.4" /></svg>;
 

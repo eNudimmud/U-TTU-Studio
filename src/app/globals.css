@@ -22,7 +22,7 @@
   --accent: #c9a75b;
   --accent-hover: #d6b66e;
   --on-accent: #17130a;
-  --link: #8ab4ff;
+  --link: var(--accent);
   --ok: #5ccb8f;
   --danger: #ff8577;
   --hover: rgba(255, 255, 255, .05);
@@ -188,3 +188,15 @@ fieldset { min-width: 0; margin: 0; }
 .u-engine button { min-height: 44px; min-width: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--control); background: transparent; color: var(--fg); }
 .u-engine button[aria-pressed="true"] { background: var(--selected); color: var(--fg); border-color: var(--fg); }
 .u-engine-hint { font-size: 13px; color: var(--fg-2); margin: 0 0 8px; }
+
+/* 404, error: graphite, JD's full logo, one sentence, one way back. */
+.status-page { min-height: 100dvh; display: grid; grid-template-rows: 1fr auto; background: var(--bg); color: var(--fg); }
+.status-main { display: grid; justify-items: center; align-content: center; gap: 12px; padding: 48px 20px; text-align: center; outline: none; }
+.status-lockup { width: auto; height: 144px; margin-bottom: 12px; }
+.status-code { margin: 0; font-family: var(--font-mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .2em; color: var(--accent); }
+.status-main h1 { margin: 0; font-size: clamp(24px, 4vw, 34px); line-height: 1.2; }
+.status-lead { margin: 0; max-width: 42ch; color: var(--fg-2); }
+.status-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 12px; }
+.status-actions .button { min-height: 48px; }
+.status-footer { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px; padding: 16px 20px 24px; border-top: 1px solid var(--line); color: var(--fg-2); font-size: 13px; }
+@media (min-width: 800px) { .status-lockup { height: 180px; } }

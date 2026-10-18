@@ -11,6 +11,7 @@ import { studioTarget, type StudioTargetKind } from "@/lib/coffre/target";
 import { ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
+import { StudioSplash } from "./splash";
 import { CREATION_TYPES, TopBar, type CreationType } from "./top-bar";
 import { AssistantPanel } from "./assistant-panel";
 
@@ -124,7 +125,7 @@ function AtelierFrame() {
           </div>
         </div>
         <div id="galerie">
-          {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p> : <>
+          {!ready ? <StudioSplash /> : <>
             {filter !== "notes" && <ProjectGallery type={filter} dense={dense} sort={sort} title={filter === "tout" ? t("creations.title") : t(`creations.type.${filter}`)} />}
             {shownNotes.length > 0 && <section className="u-lib-notes" aria-label={t("atelier.notes")}>
               <h2 className="u-label">{filter === "prises" ? t("atelier.sequences") : `${t("atelier.sequences")} · ${t("atelier.notes")}`}</h2>

@@ -161,10 +161,10 @@ describe("galerie CAST et DÉCOR", () => {
   it("sends a gallery card into PRISE and keeps a 44px target", () => {
     const coursiere = DEMO_CAST.find(card => card.preview?.endsWith("/cast-coursiere.webp"));
     assert.equal(coursiere?.name, "La coursière");
-    assert.equal(DEMO_CAST.find(card => card.name === "Uttu")?.preview?.endsWith("/cast-uttu.webp"), true);
-    assert.equal(DEMO_CAST.some(card => card.name === "Uttu" && card.preview?.includes("coursiere")), false);
-    const picked = prisePick({ castId: "demo-uttu", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR });
-    assert.equal(picked.who?.name, "Uttu");
+    // No personal lore in the examples: the house cast only (DA, PR #118).
+    assert.equal(DEMO_CAST.some(card => card.name === "Uttu" || card.preview?.includes("uttu")), false);
+    const picked = prisePick({ castId: "demo-coursiere", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR });
+    assert.equal(picked.who?.name, "La coursière");
     assert.equal(picked.where?.name, "Le quai, la nuit");
     assert.equal(picked.ready, true);
     assert.equal(prisePick({ castId: "absent", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR }).ready, false);
@@ -191,7 +191,7 @@ describe("galerie CAST et DÉCOR", () => {
     const places = manifest.items.filter(item => item.kind === "decor");
     const people = manifest.items.filter(item => item.kind === "cast");
     assert.deepEqual(places.map(item => item.id), decor);
-    assert.deepEqual(people.map(item => item.id), ["cast-uttu", "cast-coursiere", "cast-vieil-homme", "cast-dj", "cast-uttu-planche"]);
+    assert.deepEqual(people.map(item => item.id), ["cast-coursiere", "cast-vieil-homme", "cast-dj"]);
     for (const item of manifest.items) {
       assert.equal(item.statut, "maison");
       assert.equal(existsSync(item.file.replace(/^\//, "public/")), true, item.file);
@@ -212,7 +212,6 @@ describe("galerie CAST et DÉCOR", () => {
     const klein = "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud";
     const nbp = "Rendu maison U*TTU, généré avec Nano Banana Pro via Comfy Cloud";
     for (const item of manifest.items) {
-      if (item.id === "cast-uttu") continue;
       assert.equal(item.statut, "maison");
       assert.ok(item.license === maison || item.license === klein || item.license === nbp, item.id);
       assert.equal(item.file.endsWith(".webp"), true, item.file);

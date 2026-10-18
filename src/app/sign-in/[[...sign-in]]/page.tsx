@@ -4,8 +4,9 @@ import { ClerkScope } from "@/components/account/clerk-scope";
 import { ACCOUNT_PATH, ACCOUNT_SIGN_IN_PATH, ACCOUNT_SIGN_UP_PATH } from "@/lib/account";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { assetPath } from "@/lib/site";
+import { routeMetadata } from "@/lib/route-meta";
 
-export const metadata = { title: "Se connecter — U*TTU Studio" };
+export const metadata = routeMetadata("connexion");
 
 export default function SignInPage() {
   return <ClerkScope>

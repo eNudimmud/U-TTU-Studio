@@ -1443,7 +1443,7 @@
     "aria": "Empezar con el ejemplo {title}",
     "cast": "Un resultado real del estudio. Tócalo: foto, nombre y texto se rellenan.",
     "decor": "Un decorado real del estudio. Tócalo: la referencia, el nombre y el gesto se rellenan.",
-    "prise": "Uttu en el muelle, ya encuadrada. Tócala: personaje, decorado, encuadre y acción se rellenan.",
+    "prise": "La mensajera en el muelle, ya encuadrada. Tócala: personaje, decorado, encuadre y acción se rellenan.",
     "montage": "Tres planos, una voz y música. Tócalo: el montaje se rellena, no se envía nada."
   },
   "videoGeste": {
@@ -1487,7 +1487,7 @@
     "touch": "Un dedo: girar la cámara, o mover a una persona o un objeto. Dos dedos: pellizca para acercarte.",
     "agent": {
       "label": "Frase → escena",
-      "placeholder": "Uttu y Kael en un callejón de noche, un coche, dos farolas, acercamiento",
+      "placeholder": "La mensajera y el anciano en un callejón de noche, un coche, dos farolas, acercamiento",
       "go": "Componer la escena",
       "why": "Escribe una frase: quién, qué objetos, qué movimiento.",
       "people": "{n} personaje(s)",
@@ -2538,5 +2538,18 @@
   "toolswitch": {
     "change": "Cambiar de herramienta",
     "recent": "Recientes"
+  },
+  "status": {
+    "introuvable": {
+      "title": "Esta página no existe.",
+      "lead": "Puede que el enlace sea antiguo. Tu estudio y tus creaciones siguen en este dispositivo."
+    },
+    "erreur": {
+      "title": "Esta página se ha detenido.",
+      "lead": "No se pierde nada: lo guardado sigue en este dispositivo. Vuelve a intentarlo o empieza desde el estudio."
+    },
+    "retry": "Reintentar",
+    "studio": "Abrir el estudio",
+    "home": "Inicio"
   }
 }

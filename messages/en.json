@@ -1443,7 +1443,7 @@
     "aria": "Start from the example {title}",
     "cast": "A real studio result. Tap it: photo, name and text fill in, you only change them.",
     "decor": "A real studio set. Tap it: the reference, name and gesture fill in.",
-    "prise": "Uttu on the quay, already framed. Tap it: character, set, framing and action fill in.",
+    "prise": "The courier on the quay, already framed. Tap it: character, set, framing and action fill in.",
     "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent."
   },
   "videoGeste": {
@@ -1487,7 +1487,7 @@
     "touch": "One finger: orbit the camera, or move a person or a prop. Two fingers: pinch to get closer.",
     "agent": {
       "label": "Sentence → scene",
-      "placeholder": "Uttu and Kael in an alley at night, a car, two streetlights, push in",
+      "placeholder": "The courier and the old man in an alley at night, a car, two streetlights, push in",
       "go": "Lay out the scene",
       "why": "Write one sentence: who, which props, which move.",
       "people": "{n} character(s)",
@@ -2538,5 +2538,18 @@
   "toolswitch": {
     "change": "Switch tool",
     "recent": "Recent"
+  },
+  "status": {
+    "introuvable": {
+      "title": "This page does not exist.",
+      "lead": "The link may be old. Your studio and your creations stay on this device."
+    },
+    "erreur": {
+      "title": "This page stopped.",
+      "lead": "Nothing is lost: what is saved stays on this device. Try again, or start from the studio."
+    },
+    "retry": "Try again",
+    "studio": "Open the studio",
+    "home": "Home"
   }
 }

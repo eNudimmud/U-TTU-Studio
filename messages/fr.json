@@ -1443,7 +1443,7 @@
     "aria": "Partir de l’exemple {title}",
     "cast": "Un vrai résultat du studio. Touche-le : photo, nom et texte se remplissent, tu n’as plus qu’à changer.",
     "decor": "Un vrai décor du studio. Touche-le : la référence, le nom et le geste se remplissent.",
-    "prise": "Uttu sur le quai, déjà cadrée. Touche-la : personnage, décor, cadrage et action se remplissent.",
+    "prise": "La coursière sur le quai, déjà cadrée. Touche-la : personnage, décor, cadrage et action se remplissent.",
     "montage": "Trois plans, une voix et une musique. Touche-le : le montage se remplit, rien n’est envoyé."
   },
   "videoGeste": {
@@ -1487,7 +1487,7 @@
     "touch": "Un doigt : tourner la caméra, ou déplacer une personne, un objet. Deux doigts : pincer pour rapprocher.",
     "agent": {
       "label": "Phrase → scène",
-      "placeholder": "Uttu et Kael dans une ruelle la nuit, une voiture, deux lampadaires, travelling avant",
+      "placeholder": "La coursière et le vieil homme dans une ruelle la nuit, une voiture, deux lampadaires, travelling avant",
       "go": "Composer la scène",
       "why": "Écris une phrase : qui, quels objets, quel mouvement.",
       "people": "{n} personnage(s)",
@@ -2538,5 +2538,18 @@
   "toolswitch": {
     "change": "Changer d'outil",
     "recent": "Récents"
+  },
+  "status": {
+    "introuvable": {
+      "title": "Cette page n’existe pas.",
+      "lead": "Le lien est peut-être ancien. Ton studio et tes créations restent sur cet appareil."
+    },
+    "erreur": {
+      "title": "Cette page s’est arrêtée.",
+      "lead": "Rien n’est perdu : ce qui est enregistré reste sur cet appareil. Réessaie, ou repars du studio."
+    },
+    "retry": "Réessayer",
+    "studio": "Ouvrir le studio",
+    "home": "Accueil"
   }
 }

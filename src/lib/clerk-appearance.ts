@@ -23,6 +23,6 @@ export const clerkAppearance = {
     headerTitle: { fontFamily: '"Geist Variable", system-ui, sans-serif', fontWeight: 600 },
     socialButtonsBlockButton: { borderRadius: "10px" },
     formButtonPrimary: { borderRadius: "10px", color: "#17130a" },
-    footerActionLink: { color: "#8ab4ff" },
+    footerActionLink: { color: "#C9A75B" },
   },
 };

@@ -5,7 +5,3 @@ const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/
 const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
 export const siteOrigin = configuredOrigin || (vercelHost ? `https://${vercelHost}` : undefined);
 export const socialImage = siteOrigin ? `${siteOrigin}/og.jpg` : assetPath("/og.jpg");
-export const siteTitle = "U*TTU Studio — Ton personnage, en vidéo";
-export const siteDescription = "Cast, décor, prise. Tu ajoutes les photos, tu choisis le lieu, tu génères la vidéo sur ton compte.";
-export const studioTitle = "Studio — U*TTU";
-export const studioDescription = "Deux photos, un décor, une action. La vidéo se génère sur ton compte. Le devis est affiché avant.";

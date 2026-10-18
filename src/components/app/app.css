@@ -1631,3 +1631,12 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--accent); outline-of
 
 .u-library .u-asset-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 .u-library .u-asset-grid[data-density="dense"] { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+
+/* Opening: JD's full logo, one line, a thin accent bar. */
+.u-splash { display: grid; justify-items: center; gap: 14px; padding: 56px 16px; color: var(--u-muted); text-align: center; }
+.u-splash-lockup { width: auto; height: 120px; }
+.u-splash p { margin: 0; font-size: 14px; }
+.u-splash-bar { position: relative; width: 120px; height: 2px; overflow: hidden; border-radius: 2px; background: var(--u-line); }
+.u-splash-bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 40%; background: var(--accent); animation: u-splash 1.4s ease-in-out infinite; }
+@keyframes u-splash { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+@media (prefers-reduced-motion: reduce) { .u-splash-bar::after { animation: none; width: 100%; opacity: .5; } }

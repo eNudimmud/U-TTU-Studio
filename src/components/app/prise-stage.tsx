@@ -194,7 +194,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setCurrentId(next.find(item => item.id === targetPlan)?.id ?? next[0]?.id ?? "plan-01");
   }, [ready, format, studio.project, studio.shots]);
 
-  /** Same fill as ?prise=compose: Uttu and La coursière on the quay, framing, camera and action set. */
+  /** Same fill as ?prise=compose: La coursière and Le vieil homme on the quay, framing, camera and action set. */
   function partirExemple() {
     const next = demoDraft("compose", format);
     seeded.current = false;
@@ -1100,7 +1100,7 @@ function blank(id: string, name: string, format: PlanInput["format"]): Draft {
 
 function demoDraft(seed: "compose" | "final", format: PlanInput["format"]): Draft {
   const input = emptyPlan(format);
-  input.castIds = ["demo-uttu", "demo-coursiere"];
+  input.castIds = ["demo-coursiere", "demo-vieil-homme"];
   input.decorId = "demo-quai";
   input.cadrage = "moyen";
   input.camera = "travelling-avant";

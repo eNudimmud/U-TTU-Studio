@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { openCreations, openToolsHub } from './helpers/top-bar';
 
-const portrait = readFileSync('public/exemples/cast-uttu.webp');
+const portrait = readFileSync('public/exemples/cast-dj.webp');
 
 async function savedScene(page: Page) {
   return page.evaluate(() => new Promise<{ props: number; keys: number }>((resolve, reject) => {

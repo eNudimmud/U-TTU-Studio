@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { ALL_FORMATS, BlobSource, Input } from 'mediabunny';
 
-const image = readFileSync('public/exemples/cast-uttu.webp');
+const image = readFileSync('public/exemples/cast-dj.webp');
 const video = readFileSync('e2e/fixtures/final-1080p.mp4');
 const paid = /\/api\/(prompt|upload|queue)|fal\.ai|comfy\.cloud/;
 
