@@ -12,6 +12,7 @@ import { castNote } from "@/lib/creation/fiche";
 import { runStem, type StemKind } from "@/lib/creation/stem";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { gesteOuvert, gesteParId, gesteVisible, templatePartenaire, type RoleRef } from "@/lib/workflows/registre";
+import { captureFiles } from "@/lib/repere3d/capture";
 import { cleanCardName, copyCast, decorFromScene, renameById, type CastCard, type DecorCard } from "@/lib/creation/gallery";
 import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
 import { stillOutput, runStill } from "@/lib/creation/still";
@@ -140,9 +141,21 @@ export interface StudioSession {
   saveShot(shot: Shot): Promise<void>;
   saveLieu(input: { name: string; note: string; quartier?: string }): Promise<string | null>;
   saveLieuPhoto(input: { name: string; note: string; quartier?: string; photo: { id: string; author: string; credit: string; blob: Blob } }): Promise<string | null>;
+  /** 3D repérage: one framing becomes its own DÉCOR card, colour first, then depth, lines and the camera card. */
+  saveLieuCapture(input: LieuCaptureInput): Promise<{ sceneId: string; color: string } | null>;
   sendToMontage(input: MontageInput): Promise<void>;
   /** Puts every plan on the cut, in plan order: kept take, else newest take, else its still. */
   sendSequence(inputs: MontageInput[]): Promise<number>;
+}
+
+export interface LieuCaptureInput {
+  name: string;
+  note: string;
+  color: Blob;
+  depth: Blob;
+  lines: Blob;
+  /** Builds the camera card (JSON) and the plain note once the file names are known. */
+  meta(files: { color: string; depth: string; lines: string }): { json: string; note: string };
 }
 
 export interface MontageInput { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }
@@ -1513,6 +1526,32 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     return sceneId;
   }, [reload, saveLieu, store]);
 
+  const saveLieuCapture = useCallback(async (input: LieuCaptureInput) => {
+    const name = cleanCardName(input.name);
+    if (!name || input.color.size < 32) return null;
+    const vault = store();
+    const slug = await ensureActiveProject(vault);
+    const held = studioRef.current ?? await loadStudio(vault);
+    const id = uniqueId(slugify(name) || "cadrage", held.scenes.map(scene => scene.id));
+    const stamp = new Date().toISOString().replace(/[^0-9]/g, "").slice(2, 14);
+    const files = captureFiles(id, stamp);
+    const color = projectPath(slug, `Lieux/${files.color}`);
+    const depth = projectPath(slug, `Lieux/${files.depth}`);
+    const lines = projectPath(slug, `Lieux/${files.lines}`);
+    await writeBlob(vault, color, input.color);
+    await writeBlob(vault, depth, input.depth);
+    await writeBlob(vault, lines, input.lines);
+    const card = input.meta({ color, depth, lines });
+    await writeText(vault, projectPath(slug, `Lieux/${files.meta}`), card.json);
+    const note = (card.note || input.note).replace(/\s+/g, " ").trim().slice(0, 900);
+    const scene: Scene = { ...emptySceneDraft(), id, name, note, prompt: note, home: "Lieux", geste: "repere", source: "photo", stills: [color], views: [color, depth, lines] };
+    await writeScene(vault, scene);
+    await writeState(vault, id);
+    await reload();
+    setPickedDecor(id);
+    return { sceneId: id, color };
+  }, [reload, store]);
+
   /** Copies one plan's media into the project and returns the clip it becomes. Shared by single and sequence sends. */
   const prepareMontageClip = useCallback(async (vault: VaultStore, slug: string, held: Studio, input: MontageInput) => {
     const planId = input.planId.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40) || "plan";
@@ -1595,7 +1634,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,
-    saveModel, savePrevis, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, sendToMontage, sendSequence,
+    saveModel, savePrevis, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

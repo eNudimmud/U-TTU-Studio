@@ -1830,5 +1830,119 @@
       "saved": "Mémoire enregistrée dans Mon studio (.uttu/memoire.json et Memoire/)."
     },
     "engineAuto": "Auto"
+  },
+  "rep3d": {
+    "entryTitle": "Repérer un lieu",
+    "entryLead": "Une ville en 3D, partout dans le monde. Cadre, choisis la lumière, capture. Gratuit, aucun crédit.",
+    "open": "Repérer un lieu",
+    "close": "Fermer le repérage",
+    "title": "Repérage 3D",
+    "searchLabel": "Lieu, adresse ou coordonnées",
+    "searchPh": "Lausanne, Shibuya, 46.52, 6.63…",
+    "searchWhy": "Écris au moins deux lettres.",
+    "searching": "Recherche…",
+    "results": "Résultats",
+    "tryThese": "Exemples de lieux",
+    "empty": "Cherche un lieu ou touche un exemple. La ville se construit en quelques secondes.",
+    "loading": "Construction de la ville en 3D…",
+    "retry": "Réessayer",
+    "camera": "Caméra",
+    "frame": "Cadre capturé 16:9",
+    "buildings": "{count} bâtiments",
+    "noGoogle": "Données ouvertes uniquement : OpenStreetMap, relief libre, swisstopo en Suisse. Aucune donnée Google.",
+    "carte2d": "Carte 2D et photos de rue",
+    "search": {
+      "go": "Chercher",
+      "empty": "Aucun lieu trouvé. Essaie un autre nom ou des coordonnées (46.52, 6.63).",
+      "rate": "Une recherche par seconde. Attends un instant et réessaie.",
+      "short": "Ce lien court ne se lit pas. Ouvre-le, puis colle le lien long ou les coordonnées.",
+      "offline": "Pas de réseau. Reconnecte-toi puis réessaie.",
+      "fail": "La recherche n’a pas répondu. Réessaie dans un instant."
+    },
+    "state": {
+      "offline": "Pas de réseau. Reconnecte-toi puis réessaie.",
+      "rate": "Trop de demandes d’un coup. Attends quelques secondes et réessaie.",
+      "fail": "Les données de la carte n’ont pas répondu. Réessaie dans un instant.",
+      "empty": "Pas de bâtiments OpenStreetMap ici. Le relief reste visible.",
+      "nogl": "Ce navigateur n’affiche pas la 3D (WebGL). La photo de rue reste disponible, et la carte 2D plus bas."
+    },
+    "look": {
+      "carte": "Photo-carte",
+      "volumes": "Volumes",
+      "trait": "Trait",
+      "ombres": "Trait + ombres"
+    },
+    "lookLabel": "Style",
+    "framingLabel": "Cadrage",
+    "framing": {
+      "large": "Plan large",
+      "moyen": "Plan moyen",
+      "contre": "Contre-plongée"
+    },
+    "street": "Vue rue",
+    "lightLabel": "Lumière",
+    "light": {
+      "matin": "Matin",
+      "midi": "Midi",
+      "soir": "Soir"
+    },
+    "reglages": "Réglages",
+    "set": {
+      "azimuth": "Soleil, direction",
+      "altitude": "Soleil, hauteur",
+      "fov": "Objectif",
+      "focal": "{focal} mm",
+      "line": "Trait",
+      "tone": "Trame des ombres"
+    },
+    "btn": {
+      "left": "Tourner à gauche",
+      "right": "Tourner à droite",
+      "up": "Incliner vers le haut",
+      "down": "Incliner vers le bas",
+      "in": "Rapprocher",
+      "out": "Éloigner",
+      "forward": "Avancer",
+      "back": "Reculer"
+    },
+    "hint": {
+      "touch": "1 doigt : déplacer · pincer : zoomer · 2 doigts : tourner et incliner",
+      "mouse": "Glisser : déplacer · clic droit ou Maj + glisser : tourner et incliner · molette : zoomer",
+      "street": "Glisse pour regarder autour. Les flèches avancent."
+    },
+    "capture": "Capturer ce cadrage",
+    "capturing": "Capture…",
+    "captureOff": "Choisis d’abord un lieu.",
+    "captureWait": "Attends que la ville soit construite.",
+    "captureFail": "La capture n’a pas pu être gardée. Réessaie.",
+    "captured": "Cadrage gardé dans Mon studio, en DÉCOR : couleur, profondeur et traits, avec la caméra et les crédits. Il est placé dans les références.",
+    "quote": "Pour en faire un décor : ≈ {credits} crédits (plafond {high}). Rien n’est lancé sans ta confirmation.",
+    "again": "Autre cadrage",
+    "use": "Voir dans DÉCOR",
+    "viewLine": "Cap {heading}° · inclinaison {pitch}° · {focal} mm · caméra à {height} m",
+    "out": {
+      "color": "Couleur",
+      "depth": "Profondeur",
+      "lines": "Traits"
+    },
+    "sources": "Sources et licences",
+    "terrainFull": "Relief, crédits complets :",
+    "rue": {
+      "title": "Photo de rue au même endroit",
+      "idle": "Elle apparaît après le choix d’un lieu.",
+      "load": "Recherche d’une photo de rue libre…",
+      "none": "Pas de photo de rue libre à moins de {radius} m.",
+      "fail": "Les photos de rue n’ont pas répondu.",
+      "add": "Ajouter aux références",
+      "added": "Photo ajoutée aux références, avec l’auteur et la licence.",
+      "source": "Source",
+      "licence": "Licence non identifiée : cette photo reste visible mais ne peut pas être copiée.",
+      "alt": "Photo de rue de {author}"
+    },
+    "why": {
+      "place": "Cherchez un lieu d’abord : les réglages s’allument ensuite.",
+      "line": "Pas de trait en Photo-carte.",
+      "tone": "Seulement en Trait + ombres."
+    }
   }
 }

@@ -1830,5 +1830,119 @@
       "saved": "Gedächtnis in Mein Studio gespeichert (.uttu/memoire.json und Memoire/)."
     },
     "engineAuto": "Auto"
+  },
+  "rep3d": {
+    "entryTitle": "Ort erkunden",
+    "entryLead": "Eine Stadt in 3D, überall auf der Welt. Ausschnitt wählen, Licht wählen, festhalten. Gratis, keine Credits.",
+    "open": "Ort erkunden",
+    "close": "Erkundung schliessen",
+    "title": "3D-Erkundung",
+    "searchLabel": "Ort, Adresse oder Koordinaten",
+    "searchPh": "Lausanne, Shibuya, 46.52, 6.63…",
+    "searchWhy": "Mindestens zwei Buchstaben eingeben.",
+    "searching": "Suche…",
+    "results": "Ergebnisse",
+    "tryThese": "Beispielorte",
+    "empty": "Suche einen Ort oder tippe auf ein Beispiel. Die Stadt entsteht in wenigen Sekunden.",
+    "loading": "Die Stadt wird in 3D gebaut…",
+    "retry": "Erneut versuchen",
+    "camera": "Kamera",
+    "frame": "Erfasster Ausschnitt 16:9",
+    "buildings": "{count} Gebäude",
+    "noGoogle": "Nur offene Daten: OpenStreetMap, offenes Relief, swisstopo in der Schweiz. Keine Google-Daten.",
+    "carte2d": "2D-Karte und Strassenfotos",
+    "search": {
+      "go": "Suchen",
+      "empty": "Kein Ort gefunden. Versuche einen anderen Namen oder Koordinaten (46.52, 6.63).",
+      "rate": "Eine Suche pro Sekunde. Kurz warten und erneut versuchen.",
+      "short": "Dieser Kurzlink lässt sich nicht lesen. Öffne ihn und füge den langen Link oder die Koordinaten ein.",
+      "offline": "Kein Netz. Verbinde dich und versuche es erneut.",
+      "fail": "Die Suche hat nicht geantwortet. Gleich erneut versuchen."
+    },
+    "state": {
+      "offline": "Kein Netz. Verbinde dich und versuche es erneut.",
+      "rate": "Zu viele Anfragen auf einmal. Einige Sekunden warten und erneut versuchen.",
+      "fail": "Die Kartendaten haben nicht geantwortet. Gleich erneut versuchen.",
+      "empty": "Hier gibt es keine OpenStreetMap-Gebäude. Das Relief bleibt sichtbar.",
+      "nogl": "Dieser Browser zeigt kein 3D (WebGL). Das Strassenfoto bleibt verfügbar, ebenso die 2D-Karte unten."
+    },
+    "look": {
+      "carte": "Fotokarte",
+      "volumes": "Volumen",
+      "trait": "Linie",
+      "ombres": "Linie + Schatten"
+    },
+    "lookLabel": "Stil",
+    "framingLabel": "Einstellung",
+    "framing": {
+      "large": "Totale",
+      "moyen": "Halbtotale",
+      "contre": "Untersicht"
+    },
+    "street": "Strassenansicht",
+    "lightLabel": "Licht",
+    "light": {
+      "matin": "Morgen",
+      "midi": "Mittag",
+      "soir": "Abend"
+    },
+    "reglages": "Einstellungen",
+    "set": {
+      "azimuth": "Sonne, Richtung",
+      "altitude": "Sonne, Höhe",
+      "fov": "Objektiv",
+      "focal": "{focal} mm",
+      "line": "Linie",
+      "tone": "Raster der Schatten"
+    },
+    "btn": {
+      "left": "Nach links drehen",
+      "right": "Nach rechts drehen",
+      "up": "Nach oben neigen",
+      "down": "Nach unten neigen",
+      "in": "Näher",
+      "out": "Weiter weg",
+      "forward": "Vorwärts",
+      "back": "Zurück"
+    },
+    "hint": {
+      "touch": "1 Finger: verschieben · zwei Finger zusammen: zoomen · 2 Finger: drehen und neigen",
+      "mouse": "Ziehen: verschieben · Rechtsklick oder Umschalt + Ziehen: drehen und neigen · Mausrad: zoomen",
+      "street": "Ziehen, um sich umzusehen. Die Pfeile gehen vorwärts."
+    },
+    "capture": "Diesen Ausschnitt festhalten",
+    "capturing": "Wird erfasst…",
+    "captureOff": "Wähle zuerst einen Ort.",
+    "captureWait": "Warte, bis die Stadt gebaut ist.",
+    "captureFail": "Die Aufnahme konnte nicht gespeichert werden. Erneut versuchen.",
+    "captured": "Ausschnitt in Mein Studio unter DÉCOR gespeichert: Farbe, Tiefe und Linien, mit Kamera und Quellen. Er liegt in den Referenzen.",
+    "quote": "Daraus ein Set machen: ≈ {credits} Credits (Obergrenze {high}). Ohne deine Bestätigung startet nichts.",
+    "again": "Anderer Ausschnitt",
+    "use": "In DÉCOR ansehen",
+    "viewLine": "Kurs {heading}° · Neigung {pitch}° · {focal} mm · Kamera auf {height} m",
+    "out": {
+      "color": "Farbe",
+      "depth": "Tiefe",
+      "lines": "Linien"
+    },
+    "sources": "Quellen und Lizenzen",
+    "terrainFull": "Relief, vollständige Quellen:",
+    "rue": {
+      "title": "Strassenfoto am selben Ort",
+      "idle": "Es erscheint, sobald ein Ort gewählt ist.",
+      "load": "Suche nach einem freien Strassenfoto…",
+      "none": "Kein freies Strassenfoto im Umkreis von {radius} m.",
+      "fail": "Die Strassenfotos haben nicht geantwortet.",
+      "add": "Zu den Referenzen",
+      "added": "Foto mit Autor und Lizenz zu den Referenzen hinzugefügt.",
+      "source": "Quelle",
+      "licence": "Lizenz nicht erkannt: Das Foto bleibt sichtbar, kann aber nicht kopiert werden.",
+      "alt": "Strassenfoto von {author}"
+    },
+    "why": {
+      "place": "Suchen Sie zuerst einen Ort: Danach werden die Einstellungen aktiv.",
+      "line": "Keine Linien bei Fotokarte.",
+      "tone": "Nur bei Linien + Schatten."
+    }
   }
 }

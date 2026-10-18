@@ -16,6 +16,7 @@ import { ExempleDepart } from "./exemple-depart";
 import { GestePicker } from "./geste-picker";
 import { ProjectGallery } from "./project-gallery";
 import { RepereCarte } from "./repere-carte";
+import { ReperageEntry } from "./reperage/reperage-entry";
 import { lieuNote } from "@/lib/repere/lieu";
 import { SlotBoard, type LocalRef } from "./references";
 import { useStudio } from "./studio-session";
@@ -280,7 +281,7 @@ const SUGGESTIONS = ["create.suggestQuai", "create.suggestPluie", "create.sugges
 
 export function DecorStage({ onPrise }: { onPrise(): void }) {
   const { t } = useI18n();
-  const { ready: vaultReady, media, createDecor, connected, balance, creating, importAssets, saveLieu, saveLieuPhoto, decor, prefs } = useStudio();
+  const { ready: vaultReady, media, createDecor, connected, balance, creating, importAssets, saveLieu, saveLieuPhoto, saveLieuCapture, decor, prefs } = useStudio();
   const [gesteId, setGesteIdState] = useState("decor-photo");
   const [touched, setTouched] = useState(false);
   const setGesteId = (id: string) => { setTouched(true); setGesteIdState(id); };
@@ -377,14 +378,34 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     </header>
     <div className="u-desk-scroll">
       {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
-      <RepereCarte
-        onSave={async (place, regard, autour, quartier) => { await saveLieu({ name: place.name, note: lieuNote(place, regard, autour), quartier }); }}
-        onPhoto={async (place, regard, autour, quartier, photo) => {
-          const id = await saveLieuPhoto({ name: place.name, note: lieuNote(place, regard, autour), quartier, photo });
-          if (!id) return;
+      <ReperageEntry
+        quote={{ credits: gesteParId("decor-photo")?.credits ?? null, high: gesteParId("decor-photo")?.high ?? null }}
+        onCapture={input => saveLieuCapture(input)}
+        onCaptured={saved => {
+          // A capture is a place photo: it goes in the first free place slot, ready for the décor quote.
+          const target = row.slots.length > 0 ? gesteId : "decor-photo";
+          if (target !== gesteId) setGesteIdState(target);
+          setRefs(list => placePhoto(target, list, { id: saved.sceneId, credit: saved.name, blob: saved.color }));
+          setName(current => current.trim() ? current : saved.name);
+        }}
+        onStreetPhoto={async (place, photo) => {
+          const id = await saveLieuPhoto({ name: place.name, note: lieuNote(place, "debout", false), photo });
+          if (!id) return false;
           setRefs(list => placePhoto(gesteId, list, photo));
+          return true;
         }}
       />
+      <details className="u-repere-2d" data-repere-2d="" open>
+        <summary>{t("rep3d.carte2d")}</summary>
+        <RepereCarte
+          onSave={async (place, regard, autour, quartier) => { await saveLieu({ name: place.name, note: lieuNote(place, regard, autour), quartier }); }}
+          onPhoto={async (place, regard, autour, quartier, photo) => {
+            const id = await saveLieuPhoto({ name: place.name, note: lieuNote(place, regard, autour), quartier, photo });
+            if (!id) return;
+            setRefs(list => placePhoto(gesteId, list, photo));
+          }}
+        />
+      </details>
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>
