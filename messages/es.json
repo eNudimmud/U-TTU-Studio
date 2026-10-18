@@ -2082,5 +2082,328 @@
       }
     },
     "voicePick": "Elegir un archivo de audio"
+  },
+  "outils": {
+    "title": "Herramientas",
+    "entry": "¿Qué quieres crear?",
+    "entryLead": "{n} herramientas Comfy, por familia.",
+    "search": "Buscar herramienta",
+    "all": "Todo",
+    "fam": {
+      "creer": "Crear",
+      "retoucher": "Retocar",
+      "video": "Vídeo",
+      "3d": "3D",
+      "son": "Sonido"
+    },
+    "sous": {
+      "image": "Imagen",
+      "video": "Vídeo",
+      "3d": "3D",
+      "son": "Sonido",
+      "texte": "Texto"
+    },
+    "open": "Abierto",
+    "partner": "Socio",
+    "soon": "Pronto",
+    "estimate": "estimado",
+    "cost": "≈ {credits} cr.",
+    "perBlock": "por 5 s",
+    "partnerPrice": "Precio socio ≈ {credits} cr.",
+    "hidden": {
+      "nano": "Oculto: actívalo en tus ajustes de modelos.",
+      "openWeights": "Oculto: elegiste «solo pesos abiertos»."
+    },
+    "count": "{n} herramientas",
+    "none": "Ninguna herramienta coincide.",
+    "back": "Todas las herramientas",
+    "input": "Entrada",
+    "pick": "Elegir o soltar",
+    "replace": "Sustituir",
+    "sample": "Ejemplo gratis",
+    "fromStudio": "Desde Mi estudio",
+    "kind": {
+      "image": "una imagen",
+      "image2": "una segunda imagen (opcional)",
+      "video": "un vídeo",
+      "audio": "un sonido"
+    },
+    "prompt": "Consigna",
+    "refs": "Referencias",
+    "settings": "Ajustes",
+    "format": "Formato",
+    "aspect": {
+      "horizontal": "Horizontal",
+      "vertical": "Vertical"
+    },
+    "mesh": {
+      "objet": "Objeto",
+      "perso": "Personaje"
+    },
+    "confirm": "Confirmo una reserva de {ceiling} cr.; el precio final puede variar.",
+    "link": "Vincular mi cuenta",
+    "needInput": "Añade {what} para lanzar.",
+    "needConsent": "Confirma que puedes usar esta voz.",
+    "consent": "Puedo usar esta voz (la mía o con permiso escrito).",
+    "do": {
+      "image": "Crear la imagen",
+      "video": "Crear el vídeo",
+      "audio": "Crear el sonido",
+      "mesh": "Crear el modelo 3D"
+    },
+    "results": "Resultados",
+    "resultsEmpty": "Tus resultados llegan aquí, con «¿Y después?» abierto.",
+    "filter": {
+      "tout": "Todo",
+      "image": "Imágenes",
+      "video": "Vídeos",
+      "audio": "Sonidos",
+      "mesh": "3D"
+    },
+    "tabTools": "Herramientas de esta pestaña",
+    "seeAll": "Ver todas las herramientas",
+    "openTool": "Abrir",
+    "download": "Descargar",
+    "busy": "Hay un cálculo en curso.",
+    "why": {
+      "multi": "El modelo de varios fotogramas clave necesita un grafo que el estudio aún no construye.",
+      "h3Audio": "Ajustar un plano a un sonido necesita un ajuste de audio aún no verificado.",
+      "entree3d": "Primero hay que poder aportar un modelo 3D como entrada.",
+      "splat": "El estudio aún no puede mostrar una nube de puntos 3D.",
+      "clone": "Cambiar de voz espera un flujo de consentimiento propio.",
+      "texte": "El resultado es texto; el estudio solo guarda medios por ahora.",
+      "masque": "Primero hace falta un pincel para pintar la zona.",
+      "svg": "El estudio aún no puede guardar ni mostrar un archivo SVG."
+    },
+    "t": {
+      "img-klein": {
+        "title": "Imagen rápida",
+        "line": "Una imagen a partir de un texto, en segundos."
+      },
+      "img-qwen": {
+        "title": "Imagen detallada",
+        "line": "Una imagen fiel a un texto largo, con texto legible."
+      },
+      "img-flux3": {
+        "title": "Imagen de alta calidad",
+        "line": "Una imagen cuidada a partir de un texto."
+      },
+      "img-ideogram": {
+        "title": "Imagen con texto",
+        "line": "Carteles, títulos, tipografía legible."
+      },
+      "img-gpt": {
+        "title": "Imagen fiel a la consigna",
+        "line": "Sigue de cerca una consigna detallada."
+      },
+      "img-seedream": {
+        "title": "Imagen fotográfica",
+        "line": "Aspecto fotográfico a partir de un texto."
+      },
+      "img-nano": {
+        "title": "Imagen versátil",
+        "line": "Una imagen a partir de un texto, modelo socio."
+      },
+      "img-refs": {
+        "title": "Imagen con referencias",
+        "line": "Una imagen nueva guiada por una o dos imágenes."
+      },
+      "img-360": {
+        "title": "Panorama 360°",
+        "line": "Un lugar entero en imagen equirrectangular."
+      },
+      "img-croquis": {
+        "title": "Del boceto a la imagen",
+        "line": "Conserva la composición de un boceto o una pose."
+      },
+      "vid-ltx-image": {
+        "title": "Vídeo desde una imagen",
+        "line": "Un plano de 5 s a partir de tus imágenes."
+      },
+      "vid-texte": {
+        "title": "Vídeo desde un texto",
+        "line": "Un plano de 5 s descrito con palabras."
+      },
+      "vid-raccord": {
+        "title": "Enlace inicio → fin",
+        "line": "Une dos imágenes con un movimiento."
+      },
+      "vid-h3-refs": {
+        "title": "Vídeo fiel a referencias",
+        "line": "Mantiene personajes y lugar coherentes."
+      },
+      "vid-multi": {
+        "title": "Varios fotogramas clave",
+        "line": "Un vídeo que pasa por varias imágenes."
+      },
+      "vid-h3-audio": {
+        "title": "Vídeo sobre un sonido",
+        "line": "Un plano ajustado a una voz o música."
+      },
+      "vid-kling": {
+        "title": "Vídeo cine con sonido",
+        "line": "Un plano cuidado, con sonido generado."
+      },
+      "vid-seedance": {
+        "title": "Vídeo de referencia",
+        "line": "Un plano muy fiel a tu imagen."
+      },
+      "vid-wan": {
+        "title": "Animar una imagen (abierto)",
+        "line": "Una imagen cobra vida, pesos abiertos."
+      },
+      "vid-vidu": {
+        "title": "Vídeo con varias referencias",
+        "line": "Un plano que combina dos imágenes."
+      },
+      "vid-h3max": {
+        "title": "Vídeo de alta definición",
+        "line": "Un plano nítido y estable desde una imagen."
+      },
+      "3d-ouvert": {
+        "title": "Imagen → 3D (abierto)",
+        "line": "Un objeto o personaje en 3D, pesos abiertos."
+      },
+      "3d-tripo": {
+        "title": "Imagen → 3D detallado",
+        "line": "Un modelo 3D limpio y texturizado."
+      },
+      "3d-hunyuan": {
+        "title": "Imagen → 3D con materiales",
+        "line": "Un modelo con materiales realistas."
+      },
+      "3d-meshy": {
+        "title": "Imagen → 3D para juegos",
+        "line": "Un modelo listo para juego o escena."
+      },
+      "3d-uv": {
+        "title": "Desplegar UV",
+        "line": "Prepara un modelo 3D para texturizar."
+      },
+      "3d-parties": {
+        "title": "Separar en partes",
+        "line": "Divide un modelo 3D en piezas."
+      },
+      "3d-monde": {
+        "title": "Mundo 3D",
+        "line": "Un lugar entero en nube de puntos 3D."
+      },
+      "son-voix-ouverte": {
+        "title": "Voz (abierto)",
+        "line": "Lee tu texto con la voz de un clip que aportas."
+      },
+      "son-voix": {
+        "title": "Voz",
+        "line": "Una voz en off natural a partir de un texto."
+      },
+      "son-dialogue": {
+        "title": "Diálogo",
+        "line": "Dos voces que se responden, una réplica por línea."
+      },
+      "son-musique-ouverte": {
+        "title": "Música (abierto)",
+        "line": "30 s de música descrita con palabras, pesos abiertos."
+      },
+      "son-musique": {
+        "title": "Música",
+        "line": "Una música descrita con palabras."
+      },
+      "son-bruitage-ouvert": {
+        "title": "Efecto de sonido (abierto)",
+        "line": "10 s de ambiente o efecto, pesos abiertos."
+      },
+      "son-bruitage": {
+        "title": "Efecto de sonido",
+        "line": "Un efecto de sonido descrito con palabras."
+      },
+      "son-clone": {
+        "title": "Cambiar de voz",
+        "line": "Repite un clip con otra voz."
+      },
+      "son-transcrire": {
+        "title": "Transcribir",
+        "line": "Escribe lo que se dice en un sonido."
+      },
+      "son-musique-video": {
+        "title": "Música para un vídeo",
+        "line": "Una música que sigue tu plano."
+      },
+      "txt-decrire": {
+        "title": "Describir una imagen",
+        "line": "Redacta una consigna a partir de una imagen."
+      },
+      "ret-modifier": {
+        "title": "Modificar",
+        "line": "Cambia lo que describes, conserva el resto."
+      },
+      "ret-finaliser": {
+        "title": "Mejorar una imagen",
+        "line": "Más nítida y el doble de grande, sin rehacer nada."
+      },
+      "ret-elargir": {
+        "title": "Ampliar",
+        "line": "Agranda el encuadre e inventa el borde."
+      },
+      "ret-detourer": {
+        "title": "Quitar fondo",
+        "line": "Quita el fondo, PNG transparente."
+      },
+      "ret-gommer": {
+        "title": "Borrar una zona",
+        "line": "Borra o sustituye una zona pintada."
+      },
+      "ret-vectoriser": {
+        "title": "Vectorizar",
+        "line": "Convierte una imagen en SVG."
+      },
+      "ret-eclairer": {
+        "title": "Cambiar la luz",
+        "line": "Mismo retrato, nueva iluminación."
+      },
+      "vid-animer": {
+        "title": "Animar una imagen",
+        "line": "5 s de movimiento desde una imagen."
+      },
+      "vid-prolonger": {
+        "title": "Prolongar",
+        "line": "5 s más desde la última imagen."
+      },
+      "vid-parler": {
+        "title": "Hacer hablar",
+        "line": "Una imagen y una voz se vuelven un plano hablado."
+      },
+      "vid-finaliser": {
+        "title": "Mejorar un vídeo",
+        "line": "Lleva un plano a 1080p sin rehacerlo."
+      },
+      "vid-prolonger-grok": {
+        "title": "Prolongar con consigna",
+        "line": "Continúa un plano según tu texto."
+      },
+      "vid-recadrer": {
+        "title": "Ampliar un vídeo",
+        "line": "Agranda el encuadre de un plano."
+      },
+      "vid-detourer": {
+        "title": "Quitar fondo de vídeo",
+        "line": "Quita el fondo de un plano."
+      },
+      "vid-levres": {
+        "title": "Sincronizar labios",
+        "line": "Ajusta la boca a una nueva voz."
+      },
+      "vid-effacer": {
+        "title": "Borrar un objeto",
+        "line": "Quita de un plano lo que nombras."
+      },
+      "vid-fluidifier": {
+        "title": "Suavizar",
+        "line": "Duplica los fotogramas para un movimiento más suave."
+      },
+      "vid-mouvement": {
+        "title": "Copiar un movimiento",
+        "line": "Tu personaje repite los gestos de un vídeo."
+      }
+    }
   }
 }

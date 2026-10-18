@@ -32,19 +32,21 @@ const IMAGE_TOOLS: Outil[] = ["suite-modifier", "suite-finaliser-image", "suite-
 const VIDEO_TOOLS: Outil[] = ["suite-finaliser-video", "suite-fluidifier", "suite-prolonger"];
 const MESH = { perso: "prise-volume-perso", objet: "prise-volume-objet" } as const;
 
-export function EtEnsuite({ source, onPrise, initial = null }: {
+export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false }: {
   source: SuiteSource;
   /** Animer: also offer to open the image in PRISE. */
   onPrise?(): void;
   /** Opens straight on one tool (screenshots, deep links). */
   initial?: Outil | null;
+  /** Results show the menu open, visible without opening a detail panel. */
+  defaultOpen?: boolean;
 }) {
   const { t } = useI18n();
   const { prefs } = useStudio();
-  const [open, setOpen] = useState(initial !== null);
+  const [open, setOpen] = useState(initial !== null || defaultOpen);
   const [tool, setTool] = useState<Outil | null>(initial);
   const menuId = useId();
-  useEffect(() => { setTool(initial); setOpen(initial !== null); }, [source.url]);
+  useEffect(() => { setTool(initial); setOpen(initial !== null || defaultOpen); }, [source.url]);
   const tools = (source.kind === "image" ? IMAGE_TOOLS : VIDEO_TOOLS).filter(id => {
     const row = gesteParId(id === "suite-3d" ? MESH.objet : id);
     return row && gesteOuvert(row) && gesteVisible(row, prefs);

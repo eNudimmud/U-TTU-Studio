@@ -2082,5 +2082,328 @@
       }
     },
     "voicePick": "Choisir un fichier audio"
+  },
+  "outils": {
+    "title": "Outils",
+    "entry": "Que veux-tu créer ?",
+    "entryLead": "{n} outils Comfy, rangés par famille.",
+    "search": "Chercher un outil",
+    "all": "Tout",
+    "fam": {
+      "creer": "Créer",
+      "retoucher": "Retoucher",
+      "video": "Vidéo",
+      "3d": "3D",
+      "son": "Son"
+    },
+    "sous": {
+      "image": "Image",
+      "video": "Vidéo",
+      "3d": "3D",
+      "son": "Son",
+      "texte": "Texte"
+    },
+    "open": "Ouvert",
+    "partner": "Partenaire",
+    "soon": "Bientôt",
+    "estimate": "estimé",
+    "cost": "≈ {credits} cr.",
+    "perBlock": "par 5 s",
+    "partnerPrice": "Prix partenaire ≈ {credits} cr.",
+    "hidden": {
+      "nano": "Masqué : à activer dans tes réglages de modèles.",
+      "openWeights": "Masqué : tu as choisi « poids ouverts seulement »."
+    },
+    "count": "{n} outils",
+    "none": "Aucun outil ne correspond.",
+    "back": "Tous les outils",
+    "input": "Entrée",
+    "pick": "Choisir ou déposer",
+    "replace": "Remplacer",
+    "sample": "Exemple gratuit",
+    "fromStudio": "Depuis Mon studio",
+    "kind": {
+      "image": "une image",
+      "image2": "une deuxième image (facultatif)",
+      "video": "une vidéo",
+      "audio": "un son"
+    },
+    "prompt": "Consigne",
+    "refs": "Références",
+    "settings": "Réglages",
+    "format": "Format",
+    "aspect": {
+      "horizontal": "Horizontal",
+      "vertical": "Vertical"
+    },
+    "mesh": {
+      "objet": "Objet",
+      "perso": "Personnage"
+    },
+    "confirm": "Je confirme une réserve de {ceiling} cr. ; le prix final peut varier.",
+    "link": "Relier mon compte",
+    "needInput": "Ajoute {what} pour lancer.",
+    "needConsent": "Confirme que tu as le droit d’utiliser cette voix.",
+    "consent": "J’ai le droit d’utiliser cette voix (la mienne ou avec accord écrit).",
+    "do": {
+      "image": "Créer l’image",
+      "video": "Créer la vidéo",
+      "audio": "Créer le son",
+      "mesh": "Créer le volume 3D"
+    },
+    "results": "Résultats",
+    "resultsEmpty": "Tes résultats arrivent ici, avec « Et ensuite ? » ouvert.",
+    "filter": {
+      "tout": "Tout",
+      "image": "Images",
+      "video": "Vidéos",
+      "audio": "Sons",
+      "mesh": "3D"
+    },
+    "tabTools": "Outils de cet onglet",
+    "seeAll": "Voir tous les outils",
+    "openTool": "Ouvrir",
+    "download": "Télécharger",
+    "busy": "Un calcul est en cours.",
+    "why": {
+      "multi": "Le modèle à images clés multiples demande un graphe que le studio ne sait pas encore construire.",
+      "h3Audio": "Le plan calé sur un son demande un réglage audio pas encore vérifié.",
+      "entree3d": "Il faut d’abord pouvoir déposer un modèle 3D comme entrée.",
+      "splat": "Le studio ne sait pas encore afficher un nuage de points 3D.",
+      "clone": "Changer de voix attend un parcours de consentement dédié.",
+      "texte": "Le résultat est du texte : le studio ne sait encore ranger que des médias.",
+      "masque": "Il faut d’abord un pinceau pour peindre la zone à gommer.",
+      "svg": "Le studio ne sait pas encore ranger ni afficher un fichier SVG."
+    },
+    "t": {
+      "img-klein": {
+        "title": "Image rapide",
+        "line": "Une image à partir d’un texte, en quelques secondes."
+      },
+      "img-qwen": {
+        "title": "Image détaillée",
+        "line": "Une image fidèle à un texte long, texte lisible compris."
+      },
+      "img-flux3": {
+        "title": "Image haute qualité",
+        "line": "Une image soignée à partir d’un texte."
+      },
+      "img-ideogram": {
+        "title": "Image avec texte",
+        "line": "Affiches, titres, typographie lisible."
+      },
+      "img-gpt": {
+        "title": "Image qui suit la consigne",
+        "line": "Respecte de près une consigne détaillée."
+      },
+      "img-seedream": {
+        "title": "Image photo",
+        "line": "Rendu photographique à partir d’un texte."
+      },
+      "img-nano": {
+        "title": "Image polyvalente",
+        "line": "Une image à partir d’un texte, modèle partenaire."
+      },
+      "img-refs": {
+        "title": "Image avec références",
+        "line": "Une image nouvelle guidée par une ou deux images."
+      },
+      "img-360": {
+        "title": "Panorama 360°",
+        "line": "Un lieu entier en image équirectangulaire."
+      },
+      "img-croquis": {
+        "title": "Du croquis à l’image",
+        "line": "Garde la composition d’une esquisse ou d’une pose."
+      },
+      "vid-ltx-image": {
+        "title": "Vidéo depuis une image",
+        "line": "Un plan de 5 s qui part de tes images."
+      },
+      "vid-texte": {
+        "title": "Vidéo depuis un texte",
+        "line": "Un plan de 5 s décrit en mots."
+      },
+      "vid-raccord": {
+        "title": "Raccord début → fin",
+        "line": "Relie deux images par un mouvement."
+      },
+      "vid-h3-refs": {
+        "title": "Vidéo fidèle aux références",
+        "line": "Garde personnages et lieu d’une image à l’autre."
+      },
+      "vid-multi": {
+        "title": "Plusieurs images clés",
+        "line": "Une vidéo qui passe par plusieurs images."
+      },
+      "vid-h3-audio": {
+        "title": "Vidéo sur un son",
+        "line": "Un plan calé sur une voix ou une musique."
+      },
+      "vid-kling": {
+        "title": "Vidéo cinéma avec son",
+        "line": "Un plan soigné, son généré inclus."
+      },
+      "vid-seedance": {
+        "title": "Vidéo de référence",
+        "line": "Un plan très fidèle à ton image."
+      },
+      "vid-wan": {
+        "title": "Animer une image (ouvert)",
+        "line": "Une image qui prend vie, poids ouverts."
+      },
+      "vid-vidu": {
+        "title": "Vidéo à références multiples",
+        "line": "Un plan qui combine deux images."
+      },
+      "vid-h3max": {
+        "title": "Vidéo haute définition",
+        "line": "Un plan net et stable depuis une image."
+      },
+      "3d-ouvert": {
+        "title": "Image → 3D (ouvert)",
+        "line": "Un objet ou un personnage en volume, poids ouverts."
+      },
+      "3d-tripo": {
+        "title": "Image → 3D détaillé",
+        "line": "Un modèle 3D texturé et propre."
+      },
+      "3d-hunyuan": {
+        "title": "Image → 3D matières",
+        "line": "Un volume avec matières réalistes."
+      },
+      "3d-meshy": {
+        "title": "Image → 3D jeu",
+        "line": "Un modèle prêt pour un jeu ou une scène."
+      },
+      "3d-uv": {
+        "title": "Déplier les UV",
+        "line": "Prépare un modèle 3D à la texture."
+      },
+      "3d-parties": {
+        "title": "Séparer en parties",
+        "line": "Découpe un modèle 3D en pièces."
+      },
+      "3d-monde": {
+        "title": "Monde 3D",
+        "line": "Un lieu entier en nuage de points 3D."
+      },
+      "son-voix-ouverte": {
+        "title": "Voix (ouvert)",
+        "line": "Lit ton texte avec la voix d’un extrait que tu fournis."
+      },
+      "son-voix": {
+        "title": "Voix",
+        "line": "Une voix off naturelle à partir d’un texte."
+      },
+      "son-dialogue": {
+        "title": "Dialogue",
+        "line": "Deux voix qui se répondent, une réplique par ligne."
+      },
+      "son-musique-ouverte": {
+        "title": "Musique (ouvert)",
+        "line": "30 s de musique décrite en mots, poids ouverts."
+      },
+      "son-musique": {
+        "title": "Musique",
+        "line": "Une musique décrite en mots."
+      },
+      "son-bruitage-ouvert": {
+        "title": "Bruitage (ouvert)",
+        "line": "10 s de son d’ambiance ou d’effet, poids ouverts."
+      },
+      "son-bruitage": {
+        "title": "Bruitage",
+        "line": "Un effet sonore décrit en mots."
+      },
+      "son-clone": {
+        "title": "Changer de voix",
+        "line": "Redit un extrait avec une autre voix."
+      },
+      "son-transcrire": {
+        "title": "Transcrire",
+        "line": "Écrit ce qui est dit dans un son."
+      },
+      "son-musique-video": {
+        "title": "Musique pour une vidéo",
+        "line": "Une musique qui suit le rythme de ton plan."
+      },
+      "txt-decrire": {
+        "title": "Décrire une image",
+        "line": "Rédige une consigne à partir d’une image."
+      },
+      "ret-modifier": {
+        "title": "Modifier",
+        "line": "Change ce que tu décris, garde le reste."
+      },
+      "ret-finaliser": {
+        "title": "Améliorer une image",
+        "line": "Plus nette et deux fois plus grande, sans rien refaire."
+      },
+      "ret-elargir": {
+        "title": "Élargir",
+        "line": "Agrandit le cadre et invente le bord."
+      },
+      "ret-detourer": {
+        "title": "Détourer",
+        "line": "Retire le fond, PNG transparent."
+      },
+      "ret-gommer": {
+        "title": "Gommer une zone",
+        "line": "Efface ou remplace une zone peinte."
+      },
+      "ret-vectoriser": {
+        "title": "Vectoriser",
+        "line": "Transforme une image en SVG."
+      },
+      "ret-eclairer": {
+        "title": "Changer la lumière",
+        "line": "Même portrait, nouvel éclairage."
+      },
+      "vid-animer": {
+        "title": "Animer une image",
+        "line": "5 s de mouvement depuis une image."
+      },
+      "vid-prolonger": {
+        "title": "Prolonger",
+        "line": "5 s de plus depuis la dernière image."
+      },
+      "vid-parler": {
+        "title": "Faire parler",
+        "line": "Une image et une voix deviennent un plan parlant."
+      },
+      "vid-finaliser": {
+        "title": "Améliorer une vidéo",
+        "line": "Passe un plan en 1080p sans le refaire."
+      },
+      "vid-prolonger-grok": {
+        "title": "Prolonger avec consigne",
+        "line": "Continue un plan selon ton texte."
+      },
+      "vid-recadrer": {
+        "title": "Élargir une vidéo",
+        "line": "Agrandit le cadre d’un plan."
+      },
+      "vid-detourer": {
+        "title": "Détourer une vidéo",
+        "line": "Retire le fond d’un plan."
+      },
+      "vid-levres": {
+        "title": "Synchroniser les lèvres",
+        "line": "Cale la bouche sur une nouvelle voix."
+      },
+      "vid-effacer": {
+        "title": "Effacer un objet",
+        "line": "Retire ce que tu nommes d’un plan."
+      },
+      "vid-fluidifier": {
+        "title": "Fluidifier",
+        "line": "Double les images pour un mouvement plus doux."
+      },
+      "vid-mouvement": {
+        "title": "Copier un mouvement",
+        "line": "Ton personnage reprend les gestes d’une vidéo."
+      }
+    }
   }
 }

@@ -2082,5 +2082,328 @@
       }
     },
     "voicePick": "Choose an audio file"
+  },
+  "outils": {
+    "title": "Tools",
+    "entry": "What do you want to make?",
+    "entryLead": "{n} Comfy tools, grouped by family.",
+    "search": "Search tools",
+    "all": "All",
+    "fam": {
+      "creer": "Create",
+      "retoucher": "Retouch",
+      "video": "Video",
+      "3d": "3D",
+      "son": "Sound"
+    },
+    "sous": {
+      "image": "Image",
+      "video": "Video",
+      "3d": "3D",
+      "son": "Sound",
+      "texte": "Text"
+    },
+    "open": "Open",
+    "partner": "Partner",
+    "soon": "Soon",
+    "estimate": "estimated",
+    "cost": "≈ {credits} cr.",
+    "perBlock": "per 5 s",
+    "partnerPrice": "Partner price ≈ {credits} cr.",
+    "hidden": {
+      "nano": "Hidden: turn it on in your model settings.",
+      "openWeights": "Hidden: you chose “open weights only”."
+    },
+    "count": "{n} tools",
+    "none": "No tool matches.",
+    "back": "All tools",
+    "input": "Input",
+    "pick": "Choose or drop",
+    "replace": "Replace",
+    "sample": "Free sample",
+    "fromStudio": "From My studio",
+    "kind": {
+      "image": "an image",
+      "image2": "a second image (optional)",
+      "video": "a video",
+      "audio": "a sound"
+    },
+    "prompt": "Prompt",
+    "refs": "References",
+    "settings": "Settings",
+    "format": "Format",
+    "aspect": {
+      "horizontal": "Landscape",
+      "vertical": "Portrait"
+    },
+    "mesh": {
+      "objet": "Object",
+      "perso": "Character"
+    },
+    "confirm": "I confirm a {ceiling} cr. reserve; the final price may vary.",
+    "link": "Link my account",
+    "needInput": "Add {what} to start.",
+    "needConsent": "Confirm you may use this voice.",
+    "consent": "I may use this voice (mine or with written consent).",
+    "do": {
+      "image": "Create the image",
+      "video": "Create the video",
+      "audio": "Create the sound",
+      "mesh": "Create the 3D model"
+    },
+    "results": "Results",
+    "resultsEmpty": "Your results land here, with “What next?” open.",
+    "filter": {
+      "tout": "All",
+      "image": "Images",
+      "video": "Videos",
+      "audio": "Sounds",
+      "mesh": "3D"
+    },
+    "tabTools": "Tools for this tab",
+    "seeAll": "See all tools",
+    "openTool": "Open",
+    "download": "Download",
+    "busy": "A render is running.",
+    "why": {
+      "multi": "The multi-keyframe model needs a graph the studio cannot build yet.",
+      "h3Audio": "Timing a shot to sound needs an audio setting not yet checked.",
+      "entree3d": "It first needs a 3D model as input, not supported yet.",
+      "splat": "The studio cannot display a 3D splat yet.",
+      "clone": "Changing a voice awaits a dedicated consent flow.",
+      "texte": "The result is text; the studio only stores media for now.",
+      "masque": "It first needs a brush to paint the area to erase.",
+      "svg": "The studio cannot store or show an SVG file yet."
+    },
+    "t": {
+      "img-klein": {
+        "title": "Quick image",
+        "line": "An image from text, in seconds."
+      },
+      "img-qwen": {
+        "title": "Detailed image",
+        "line": "An image faithful to a long prompt, readable text included."
+      },
+      "img-flux3": {
+        "title": "High-quality image",
+        "line": "A polished image from text."
+      },
+      "img-ideogram": {
+        "title": "Image with lettering",
+        "line": "Posters, titles, readable type."
+      },
+      "img-gpt": {
+        "title": "Prompt-following image",
+        "line": "Follows a detailed prompt closely."
+      },
+      "img-seedream": {
+        "title": "Photo image",
+        "line": "Photographic look from text."
+      },
+      "img-nano": {
+        "title": "Versatile image",
+        "line": "An image from text, partner model."
+      },
+      "img-refs": {
+        "title": "Image from references",
+        "line": "A new image guided by one or two pictures."
+      },
+      "img-360": {
+        "title": "360° panorama",
+        "line": "A whole place as an equirectangular image."
+      },
+      "img-croquis": {
+        "title": "Sketch to image",
+        "line": "Keeps the layout of a sketch or a pose."
+      },
+      "vid-ltx-image": {
+        "title": "Video from an image",
+        "line": "A 5 s shot starting from your pictures."
+      },
+      "vid-texte": {
+        "title": "Video from text",
+        "line": "A 5 s shot described in words."
+      },
+      "vid-raccord": {
+        "title": "Start → end link",
+        "line": "Joins two pictures with one motion."
+      },
+      "vid-h3-refs": {
+        "title": "Reference-true video",
+        "line": "Keeps characters and place consistent."
+      },
+      "vid-multi": {
+        "title": "Several keyframes",
+        "line": "A video passing through several pictures."
+      },
+      "vid-h3-audio": {
+        "title": "Video on a sound",
+        "line": "A shot timed to a voice or music."
+      },
+      "vid-kling": {
+        "title": "Cinematic video with sound",
+        "line": "A polished shot, generated sound included."
+      },
+      "vid-seedance": {
+        "title": "Reference video",
+        "line": "A shot very faithful to your picture."
+      },
+      "vid-wan": {
+        "title": "Animate an image (open)",
+        "line": "A picture comes alive, open weights."
+      },
+      "vid-vidu": {
+        "title": "Multi-reference video",
+        "line": "A shot combining two pictures."
+      },
+      "vid-h3max": {
+        "title": "High-definition video",
+        "line": "A sharp, steady shot from one picture."
+      },
+      "3d-ouvert": {
+        "title": "Image → 3D (open)",
+        "line": "An object or character in 3D, open weights."
+      },
+      "3d-tripo": {
+        "title": "Image → detailed 3D",
+        "line": "A clean textured 3D model."
+      },
+      "3d-hunyuan": {
+        "title": "Image → 3D materials",
+        "line": "A model with realistic materials."
+      },
+      "3d-meshy": {
+        "title": "Image → game-ready 3D",
+        "line": "A model ready for a game or scene."
+      },
+      "3d-uv": {
+        "title": "Unwrap UVs",
+        "line": "Prepares a 3D model for texturing."
+      },
+      "3d-parties": {
+        "title": "Split into parts",
+        "line": "Cuts a 3D model into pieces."
+      },
+      "3d-monde": {
+        "title": "3D world",
+        "line": "A whole place as a 3D splat."
+      },
+      "son-voix-ouverte": {
+        "title": "Voice (open)",
+        "line": "Reads your text in the voice of a clip you provide."
+      },
+      "son-voix": {
+        "title": "Voice",
+        "line": "A natural voice-over from text."
+      },
+      "son-dialogue": {
+        "title": "Dialogue",
+        "line": "Two voices answering each other, one line each."
+      },
+      "son-musique-ouverte": {
+        "title": "Music (open)",
+        "line": "30 s of music described in words, open weights."
+      },
+      "son-musique": {
+        "title": "Music",
+        "line": "Music described in words."
+      },
+      "son-bruitage-ouvert": {
+        "title": "Sound effect (open)",
+        "line": "10 s of ambience or effect, open weights."
+      },
+      "son-bruitage": {
+        "title": "Sound effect",
+        "line": "A sound effect described in words."
+      },
+      "son-clone": {
+        "title": "Change voice",
+        "line": "Re-says a clip in another voice."
+      },
+      "son-transcrire": {
+        "title": "Transcribe",
+        "line": "Writes down what is said in a sound."
+      },
+      "son-musique-video": {
+        "title": "Music for a video",
+        "line": "Music that follows your shot."
+      },
+      "txt-decrire": {
+        "title": "Describe an image",
+        "line": "Writes a prompt from a picture."
+      },
+      "ret-modifier": {
+        "title": "Edit",
+        "line": "Changes what you describe, keeps the rest."
+      },
+      "ret-finaliser": {
+        "title": "Enhance an image",
+        "line": "Sharper and twice as large, nothing redrawn."
+      },
+      "ret-elargir": {
+        "title": "Extend",
+        "line": "Widens the frame and fills the edge."
+      },
+      "ret-detourer": {
+        "title": "Remove background",
+        "line": "Removes the background, transparent PNG."
+      },
+      "ret-gommer": {
+        "title": "Erase an area",
+        "line": "Erases or replaces a painted area."
+      },
+      "ret-vectoriser": {
+        "title": "Vectorize",
+        "line": "Turns an image into SVG."
+      },
+      "ret-eclairer": {
+        "title": "Relight",
+        "line": "Same portrait, new lighting."
+      },
+      "vid-animer": {
+        "title": "Animate an image",
+        "line": "5 s of motion from one picture."
+      },
+      "vid-prolonger": {
+        "title": "Extend a shot",
+        "line": "5 more seconds from the last frame."
+      },
+      "vid-parler": {
+        "title": "Make it talk",
+        "line": "A picture and a voice become a talking shot."
+      },
+      "vid-finaliser": {
+        "title": "Enhance a video",
+        "line": "Brings a shot to 1080p without redoing it."
+      },
+      "vid-prolonger-grok": {
+        "title": "Extend with a prompt",
+        "line": "Continues a shot following your text."
+      },
+      "vid-recadrer": {
+        "title": "Extend a video frame",
+        "line": "Widens a shot’s frame."
+      },
+      "vid-detourer": {
+        "title": "Remove video background",
+        "line": "Removes a shot’s background."
+      },
+      "vid-levres": {
+        "title": "Lip sync",
+        "line": "Matches the mouth to a new voice."
+      },
+      "vid-effacer": {
+        "title": "Remove an object",
+        "line": "Removes what you name from a shot."
+      },
+      "vid-fluidifier": {
+        "title": "Smooth motion",
+        "line": "Doubles the frames for softer motion."
+      },
+      "vid-mouvement": {
+        "title": "Copy a motion",
+        "line": "Your character repeats a video’s moves."
+      }
+    }
   }
 }

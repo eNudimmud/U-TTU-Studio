@@ -12,6 +12,7 @@ import { Coffre } from "./glyphs";
 import { MontageStage } from "./montage-stage";
 import { FormatProvider } from "./format-switch";
 import { CastStage, DecorStage, PriseStage } from "./stage-screens";
+import { outilFromHash, OutilsHub } from "./outils-hub";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
@@ -34,6 +35,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const { ready, sheet, setSheet, connected, balance, balanceNote, notice, setNotice, run, cast, decor, line, loadMontages, studio: vault } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
   const [cutReady, setCutReady] = useState<boolean | null>(null);
+  const [outil, setOutil] = useState<string | null>(null);
 
   useEffect(() => {
     const apply = () => {
@@ -43,6 +45,11 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
         return;
       }
       if (place) setAsked(place);
+      setOutil(place === "outils" ? outilFromHash(window.location.hash) : null);
+      if (place === "outils") {
+        window.scrollTo({ top: 0, behavior: "instant" });
+        requestAnimationFrame(() => (document.getElementById("u-title") ?? document.querySelector<HTMLElement>("[data-tool-panel] h1"))?.focus({ preventScroll: true }));
+      }
     };
     apply();
     window.addEventListener("hashchange", apply);
@@ -53,11 +60,12 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const decorOk = decor.some(card => Boolean(card.sheet || card.preview || card.geste === "repere"));
   const priseOk = vault.takes.length > 0 || vault.shots.some(shot => Boolean(shot.composeur)) || priseReady({ cast: castOk, decor: decorOk, line });
   const tab: Tab = asked ?? "lora";
-  const section: "lora" | "scene" | "prise" | "montage" = tab === "scene" || tab === "prise" || tab === "montage" ? tab : "lora";
+  const section: "lora" | "scene" | "prise" | "montage" | "outils" = tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
 
   const go = useCallback((next: Tab) => {
     const shown: Tab = next === "look" || next === "fiches" || next === "sphere" ? "lora" : next;
     setAsked(shown);
+    setOutil(null);
     const hash = TAB_HASH[shown];
     const url = `${window.location.pathname}${window.location.search}#${hash}`;
     if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== url) window.history.pushState(null, "", url);
@@ -141,6 +149,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
         {vault.projectName && <p className="u-project-name">{vault.projectName}</p>}
       </div>
       <div className="u-top-tools">
+        <button type="button" className="u-outils-top" aria-label={t("outils.title")} aria-current={section === "outils" ? "page" : undefined} data-top-outils="" onClick={() => go("outils")}><span aria-hidden="true">✦</span><span className="u-tool-label">{t("outils.title")}</span></button>
         <a className="u-coffre" href={assetPath("/mon-studio")} aria-label={t("nav.studio")}><Coffre /><span className="u-tool-label">{t("nav.studio")}</span></a>
         <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })}>
           <span className="u-tool-full">{t("sheet.walletTitle")}</span>
@@ -158,7 +167,8 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     </nav>
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
       {!ready ? <p className="u-loading" role="status">{t("nav.opening")}</p> : <>
-        {section === "scene" ? <DecorStage onPrise={() => go("prise")} />
+        {section === "outils" ? <OutilsHub tool={outil} />
+          : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
           : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
           : section === "montage" ? <MontageStage onFilled={setCutReady} />
           : <CastStage onDecor={() => go("scene")} />}
