@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { cherche, dansFamille, FAMILLES, OUTILS, outilEtat, outilParGeste, outilRow, outilsOnglet } from "../src/lib/outils/catalogue.ts";
+import { cherche, dansFamille, FAMILLES, INTENT_MODELES, OUTILS, intentDe, modelesIntent, outilEtat, outilParGeste, outilRow, outilsOnglet, outilsPublics } from "../src/lib/outils/catalogue.ts";
+import { routePrompt } from "../src/lib/outils/route.ts";
 import { OUTIL_BASES } from "../src/lib/outils/base.ts";
 import { outilExample, outilGraph, outilQuote } from "../src/lib/outils/graphs.ts";
 import { gesteOuvert, TEMPLATES_OFFICIELS } from "../src/lib/workflows/registre.ts";
@@ -96,6 +97,37 @@ describe("hub Outils", () => {
       }
       for (const famille of FAMILLES) assert.ok(messages.outils.fam[famille], `${lang} ${famille}`);
     }
+  });
+
+  it("publishes one card per intent and hides the ten unwired tools", () => {
+    const cards = outilsPublics();
+    assert.equal(cards.length, 34);
+    const ids = cards.map(item => item.id);
+    assert.equal(new Set(ids).size, ids.length);
+    assert.ok(cards.length < OUTILS.length);
+    assert.equal(cards.filter(item => item.bientot).length, 0);
+    for (const soon of OUTILS.filter(item => item.bientot)) assert.equal(cards.some(item => item.id === soon.id), false, soon.id);
+    assert.equal(intentDe("vid-kling"), "vid-wan");
+    assert.equal(intentDe("vid-animer"), "vid-wan");
+    assert.equal(intentDe("vid-ltx-image"), "vid-wan");
+    assert.equal(modelesIntent("vid-kling")[0]?.id, "vid-wan");
+    assert.equal(intentDe("3d-meshy"), "3d-ouvert");
+    assert.equal(intentDe("son-voix"), "son-voix-ouverte");
+    assert.equal(intentDe("vid-prolonger-grok"), "vid-prolonger");
+    assert.equal(cards.filter(item => item.id === "vid-wan").length, 1);
+    assert.equal(cards.some(item => item.id === "vid-kling"), false);
+    assert.equal(Object.values(INTENT_MODELES).flat().length, 6 + 2 + 4 + 2 + 2 + 2);
+    // Nano stays off unless the visitor asks for it; the open card is still there.
+    assert.equal(cards.some(item => item.id === "img-nano"), false);
+    assert.equal(outilsPublics({ nanoBanana: true }).some(item => item.id === "img-nano"), true);
+  });
+
+  it("routes a free prompt to a still, a video tool, or the film", () => {
+    assert.deepEqual(routePrompt("Une femme au manteau sombre, regard calme."), { kind: "outil", id: "img-klein" });
+    assert.deepEqual(routePrompt("Animer un portrait : elle se tourne vers la caméra."), { kind: "outil", id: "vid-wan" });
+    assert.deepEqual(routePrompt("Une vidéo d'un chat qui dort."), { kind: "outil", id: "vid-texte" });
+    assert.deepEqual(routePrompt("Un court film : un personnage, un lieu, un plan."), { kind: "film" });
+    assert.deepEqual(routePrompt("A short film: a character and a place."), { kind: "film" });
   });
 
   it("never names a model in a « bientôt » reason", () => {
