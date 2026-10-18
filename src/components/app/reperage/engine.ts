@@ -565,20 +565,36 @@ export class Reperage3D {
   }
 
   /** Raise the camera until no building stands between it and the target (Manhattan, Shibuya). */
+  /**
+   * A camera spot that sees the target: try the asked pose, then small turns, a closer distance and a
+   * little more height, before ever going steeper than 60°. Never a top-down map by surprise.
+   */
   private clearPose(t: THREE.Vector3, forward: THREE.Vector3, elevation: number, distance: number): THREE.Vector3 {
     const ray = new THREE.Raycaster();
-    let pos = new THREE.Vector3();
-    for (let el = elevation; el <= 80; el += 7) {
+    const from = t.clone().add(new THREE.Vector3(0, 2, 0));
+    const base = Math.atan2(forward.x, -forward.z);
+    const at = (el: number, turn: number, dist: number) => {
       const rad = el * Math.PI / 180;
-      pos = new THREE.Vector3(t.x - forward.x * Math.cos(rad) * distance, t.y + Math.sin(rad) * distance, t.z - forward.z * Math.cos(rad) * distance);
-      if (!this.buildings) return pos;
-      const dir = pos.clone().sub(t);
-      const len = dir.length();
-      ray.set(t.clone().add(new THREE.Vector3(0, 2, 0)), dir.normalize());
-      ray.far = len;
-      if (ray.intersectObject(this.buildings, false).length === 0) return pos;
+      const h = base + turn * Math.PI / 180;
+      return new THREE.Vector3(t.x - Math.sin(h) * Math.cos(rad) * dist, t.y + Math.sin(rad) * dist, t.z + Math.cos(h) * Math.cos(rad) * dist);
+    };
+    const first = at(elevation, 0, distance);
+    if (!this.buildings) return first;
+    const clear = (pos: THREE.Vector3) => {
+      const dir = pos.clone().sub(from);
+      ray.set(from, dir.clone().normalize());
+      ray.far = dir.length();
+      return ray.intersectObject(this.buildings!, false).length === 0;
+    };
+    for (const el of [elevation, elevation + 8, elevation + 16, elevation + 24].filter(value => value <= 60)) {
+      for (const turn of [0, 30, -30, 60, -60]) {
+        for (const dist of [distance, distance * 0.65]) {
+          const pos = at(el, turn, dist);
+          if (clear(pos)) return pos;
+        }
+      }
     }
-    return pos;
+    return at(Math.min(60, elevation + 24), 0, distance);
   }
 
   frameShot(framing: Framing) {
