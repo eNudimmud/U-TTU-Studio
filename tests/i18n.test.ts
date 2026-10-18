@@ -20,9 +20,9 @@ describe("langues du studio", () => {
     assert.equal(catalogs.en._status, "reviewed_calques");
     assert.equal(catalogs.de._status, "reviewed");
     assert.equal(catalogs.es._status, "reviewed");
-    assert.equal(catalogs.en.nav.studio, "My studio");
-    assert.equal(catalogs.de.nav.studio, "Mein Studio");
-    assert.equal(catalogs.es.nav.studio, "Mi estudio");
+    assert.equal(catalogs.en.nav.studio, "My creations");
+    assert.equal(catalogs.de.nav.studio, "Meine Kreationen");
+    assert.equal(catalogs.es.nav.studio, "Mis creaciones");
     assert.equal(catalogs.de.nav.character, "Besetzung");
     assert.equal(catalogs.de.nav.scene, "Kulisse");
     assert.equal(catalogs.de.nav.take, "Take");

@@ -17,7 +17,7 @@
     "chain": "Reparto, decorado, toma, montaje",
     "sphere": "Esfera",
     "sheets": "Fichas",
-    "studio": "Mi estudio",
+    "studio": "Mis creaciones",
     "connect": "Vincular",
     "credits": "créditos",
     "opening": "Abriendo mi estudio…",
@@ -108,7 +108,7 @@
   "engine": {
     "comfy": {
       "label": "Referencias",
-      "detail": "Las fotos de mi estudio salen con cada toma.",
+      "detail": "Las fotos de mis creaciones salen con cada toma.",
       "sound": "El sonido está en la toma."
     }
   },
@@ -134,9 +134,9 @@
     "cast": "Reparto",
     "places": "Decorado",
     "takes": "Toma",
-    "noCharacter": "Ningún personaje en mi estudio",
-    "noPlace": "Ninguna localización en mi estudio",
-    "noTake": "Ninguna toma en mi estudio"
+    "noCharacter": "Ningún personaje en mis creaciones",
+    "noPlace": "Ninguna localización en mis creaciones",
+    "noTake": "Ninguna toma en mis creaciones"
   },
   "look": {
     "kicker": "Personaje · Referencias",
@@ -190,7 +190,7 @@
     "thePlace": "La localización",
     "thePlaceBody": "Queda. La reabres: mismo nombre, mismo plano de espacio, mismo recorrido. Puedes sostener varias.",
     "blenderBody": "Renderiza la localización vacía, {frames} imágenes a lo largo del recorrido. El personaje no está en este archivo.",
-    "theCharacterBody": "Es el archivo de mi estudio. Solo entra en el recorrido filmado, después de estas imágenes.",
+    "theCharacterBody": "Es el archivo de mis creaciones. Solo entra en el recorrido filmado, después de estas imágenes.",
     "thePrice": "El precio",
     "thePriceBody": "Los dos presupuestos se leen antes del gesto. Nada sale sin confirmación.",
     "plan": "Plano de espacio",
@@ -258,7 +258,7 @@
     "drag": "Mover {name}",
     "dragHandle": "Mover",
     "end": "Fin de la secuencia.",
-    "listNote": "La lista de montaje está en Mi estudio, junto a la secuencia. Ninguna película se ensambla.",
+    "listNote": "La lista de montaje está en Mis creaciones, junto a la secuencia. Ninguna película se ensambla.",
     "listFile": "Lista de montaje · {name}"
   },
   "shot": {
@@ -316,8 +316,8 @@
     "repriseHeld": "De vuelta. Nada que volver a escribir.",
     "characterHeld": "{name} vuelve para esta toma.",
     "runningRender": "Tu cuenta de render calcula.",
-    "stay": "Puedes quedarte o volver más tarde: la toma llega a mi estudio.",
-    "inSphere": "Esta toma está en la esfera y en mi estudio.",
+    "stay": "Puedes quedarte o volver más tarde: la toma llega a mis creaciones.",
+    "inSphere": "Esta toma está en la esfera y en mis creaciones.",
     "debitedRender": "Cargo: {amount} créditos, leído en tu saldo.",
     "debitHiddenRender": "Cargo aún no visible en tu saldo.",
     "filed": "Guardada en este proyecto.",
@@ -395,7 +395,7 @@
     "noSend": "De aquí no sale nada. El texto de una toma se lee en la toma, antes de Rodar.",
     "references": {
       "name": "Toma · Referencias",
-      "sentence": "Las fotos de mi estudio se vuelven una toma, con el sonido.",
+      "sentence": "Las fotos de mis creaciones se vuelven una toma, con el sonido.",
       "inputs": [
         "Dos fotos, un nombre. Dos rasgos, si los tienes.",
         "Una localización",
@@ -405,7 +405,7 @@
     },
     "personnage": {
       "name": "Toma · Personaje",
-      "sentence": "Las fotos de mi estudio sostienen el personaje, de una toma a la otra, con el sonido.",
+      "sentence": "Las fotos de mis creaciones sostienen el personaje, de una toma a la otra, con el sonido.",
       "inputs": [
         "Las fotos del personaje",
         "Una localización",
@@ -434,7 +434,7 @@
     "opening": "Abriendo la cuenta…",
     "kicker": "Cuenta · opcional",
     "title": "El estudio no la necesita.",
-    "body": "Tus referencias, tus localizaciones y tus tomas viven en mi estudio, en tu aparato. El cálculo corre en tu cuenta de render. Esta cuenta U*TTU no guarda nada de eso.",
+    "body": "Tus referencias, tus localizaciones y tus tomas viven en mis creaciones, en tu aparato. El cálculo corre en tu cuenta de render. Esta cuenta U*TTU no guarda nada de eso.",
     "closed": "Las cuentas U*TTU están cerradas por ahora.",
     "signIn": "Entrar",
     "signUp": "Crear una cuenta",
@@ -523,7 +523,7 @@
     "linkedFolder": "Vinculado a « {name} »",
     "linkObsidian": "Vincular mi carpeta de Obsidian",
     "phoneZip": "En el ordenador, Chrome o Edge escriben en la carpeta elegida. En el teléfono, lleva el ZIP al ordenador, luego el ZIP de vuelta. Ningún servidor.",
-    "keysOut": "Las claves quedan fuera de mi estudio.",
+    "keysOut": "Las claves quedan fuera de mis creaciones.",
     "optionalAccount": "Cuenta U*TTU, opcional",
     "guideOff": "Apagar la guía",
     "confirmShoot": "¿Rodar esta toma?",
@@ -542,22 +542,22 @@
     "relierTitle": "Vincular",
     "referencesPays": "Paga las tomas « {engine} ».",
     "confirmFilm": "¿Filmar este recorrido?",
-    "filmBody": "Blender renderiza la localización vacía, a lo largo del recorrido. El personaje es el archivo de mi estudio: solo entra en el recorrido filmado. Si no vuelve ninguna imagen, no se muestra ninguna.",
+    "filmBody": "Blender renderiza la localización vacía, a lo largo del recorrido. El personaje es el archivo de mis creaciones: solo entra en el recorrido filmado. Si no vuelve ninguna imagen, no se muestra ninguna.",
     "filmDebit": "Filmar · cargo en mi cuenta",
     "blenderLinked": "La clave de trabajo está en este aparato. Solo va a Farpy, cuando filmas.",
     "blenderIntro": "Farpy hace correr Blender, fuera de tu aparato. Crea una cuenta, añade crédito, luego una clave de trabajo. Empieza por farpy_agent_. Una clave de cuenta no lanza el render.",
     "jobKey": "Clave de trabajo",
-    "keyStays": "La clave se queda en este aparato. No entra en mi estudio. Pegar la clave no carga nada: el presupuesto se lee en el primer filme.",
+    "keyStays": "La clave se queda en este aparato. No entra en mis creaciones. Pegar la clave no carga nada: el presupuesto se lee en el primer filme.",
     "views": "Vistas",
     "styleSteps": "1000 pasos · estilo",
     "price": "Precio",
     "confirmStill": "¿Generar una imagen de esta localización?",
-    "placeFile": "Archivo de la localización, en mi estudio",
+    "placeFile": "Archivo de la localización, en mis creaciones",
     "buildDebit": "Generar imagen · el presupuesto se lee antes",
     "shot": "Rodada",
     "debit": "Cargo",
     "compute": "Cálculo",
-    "removeFromStudio": "Retirar de mi estudio",
+    "removeFromStudio": "Retirar de mis creaciones",
     "file": "Archivo",
     "reread": "Volver a leer el saldo",
     "session": "Sesión ya abierta",
@@ -568,7 +568,7 @@
   "memory": {
     "title": "Este proyecto",
     "lead": "Biblia, estilo, léxico y prompts de {name}. De aquí no sale nada.",
-    "noProject": "Ningún proyecto en curso. Créalo en Mi estudio. Aquí no se inventa nada.",
+    "noProject": "Ningún proyecto en curso. Créalo en Mis creaciones. Aquí no se inventa nada.",
     "open": "Biblia, estilo, léxico, prompts",
     "bible": "Biblia",
     "style": "Estilo",
@@ -656,23 +656,23 @@
     "imageUnread": "Una imagen no se ha podido leer.",
     "viewUnread": "Una vista no se ha podido leer.",
     "missingCharacterFile": "No está un archivo de personaje.",
-    "characterFileMissing": "El archivo del personaje no está en mi estudio.",
-    "referencePhotosMissing": "Las fotos de las referencias no están en mi estudio.",
-    "filmedStillMissing": "La imagen filmada no está en mi estudio.",
+    "characterFileMissing": "El archivo del personaje no está en mis creaciones.",
+    "referencePhotosMissing": "Las fotos de las referencias no están en mis creaciones.",
+    "filmedStillMissing": "La imagen filmada no está en mis creaciones.",
     "planFilmed": "El recorrido está filmado. Blender ha renderizado la localización vacía. El personaje está en la toma.",
     "characterNotOnPath": "El personaje no está en el recorrido.",
-    "pathImageMissing": "No está una imagen del recorrido en mi estudio.",
+    "pathImageMissing": "No está una imagen del recorrido en mis creaciones.",
     "placeRenderedResume": "La localización está renderizada. El seguimiento del personaje retoma. Nada se reenvía.",
     "placeEmptyNext": "La localización está renderizada, vacía. El siguiente gesto filma el personaje.",
     "followStopped": "Seguimiento parado aquí. Si el render ya ha salido, continúa en tu cuenta.",
     "filmFailed": "El filme no ha llegado.",
     "clipsMaxNotice": "Treinta clips como máximo.",
     "clipType": "Este clip no es un vídeo mp4, mov, mkv o avi.",
-    "clipOrPhotoMissing": "Un clip o una foto no está en mi estudio.",
+    "clipOrPhotoMissing": "Un clip o una foto no está en mis creaciones.",
     "zipClosed": "Este ZIP no se abre.",
     "zipEmpty": "Este ZIP no contiene un estudio que añadir.",
-    "viewMissing": "Una vista no está en mi estudio.",
-    "placeFiled": "La localización está en mi estudio. Este archivo no es un volumen: el archivo Blender de la localización sigue siendo el modelo 3D.",
+    "viewMissing": "Una vista no está en mis creaciones.",
+    "placeFiled": "La localización está en mis creaciones. Este archivo no es un volumen: el archivo Blender de la localización sigue siendo el modelo 3D.",
     "placeImageFailed": "La imagen de la localización no ha llegado.",
     "clipUnreadable": "Clip ilegible en este aparato.",
     "clipHeavy": "Clip demasiado pesado: 300 MB como máximo.",
@@ -702,8 +702,8 @@
     "clipsCeiling": "{max} clips como máximo.",
     "clipShort": "Clip demasiado corto: al menos {min} s.",
     "clipLong": "Clip demasiado largo: {max} s como máximo.",
-    "importedOne": "Añadido a mi estudio: {count} archivo. Las tomas y los personajes que ya están aquí se quedan.",
-    "importedMany": "Añadido a mi estudio: {count} archivos. Las tomas y los personajes que ya están aquí se quedan.",
+    "importedOne": "Añadido a mis creaciones: {count} archivo. Las tomas y los personajes que ya están aquí se quedan.",
+    "importedMany": "Añadido a mis creaciones: {count} archivos. Las tomas y los personajes que ya están aquí se quedan.",
     "folderCopied": "{count} archivos copiados en « {name} ». La carpeta sigue al estudio hasta el cierre.",
     "estimateQuote": "Estimado: unos {amount} a {high} créditos. Una estimación, no una medida: aún no hay una toma real facturada con este ajuste.",
     "estimateLow": "Saldo demasiado bajo: {have} créditos. Estimado: unos {amount} a {high} créditos. Una estimación, no una medida: aún no hay una toma real facturada con este ajuste.",
@@ -922,7 +922,7 @@
     "playhead": "Cabezal",
     "fromTake": "Poner {name} en los efectos",
     "addTake": "Añadir {name}",
-    "savedHint": "Duración de los planos: {time}. El montaje se escribe en Mi estudio.",
+    "savedHint": "Duración de los planos: {time}. El montaje se escribe en Mis creaciones.",
     "exportShort": "Exportar",
     "more": "Más",
     "clearAsk": "¿Vaciar este montaje? Los planos y los sonidos salen de la línea de tiempo.",
@@ -1357,7 +1357,7 @@
     "habillerWhy": "estimación por medir",
     "habillerQuote": "Presupuesto antes de enviar: ≈ {credits} créditos (hipótesis, estimación por medir)",
     "credit": "© colaboradores de OpenStreetMap, ODbL",
-    "saved": "Guardado en Mi estudio.",
+    "saved": "Guardado en Mis creaciones.",
     "rate": "Una búsqueda cada vez.",
     "introuvable": "Este lugar no se ha encontrado.",
     "garderLieu": "Guardar este lugar",
@@ -1428,7 +1428,7 @@
     "retour": "Recuperando el vídeo…",
     "mesure": "Leyendo el coste real…",
     "keepOpen": "Deja esta pestaña abierta. El render llega hasta el final; nunca se cancela.",
-    "done": "Montaje finalizado, guardado en Mi estudio.",
+    "done": "Montaje finalizado, guardado en Mis creaciones.",
     "cost": "Coste real: {credits} créditos.",
     "costUnknown": "El coste real aún no se lee en el saldo.",
     "again": "Finalizar de otra forma",
@@ -1470,7 +1470,7 @@
     "needFiles": "No hay archivo o texto.",
     "needText": "El texto está vacío.",
     "needConfirm": "Marca la confirmación para lanzar.",
-    "done": "Vídeo guardado en Mi estudio.",
+    "done": "Vídeo guardado en Mis creaciones.",
     "slotPrevis": {
       "plan": "Imagen de aspecto (personaje en el decorado)",
       "clip": "Previs (vídeo de la maqueta)"
@@ -1540,10 +1540,10 @@
     "savedModels": "Modelos 3D guardados",
     "chooseModel": "Añadir un modelo guardado…",
     "downloadModel": "Descargar el modelo 3D",
-    "modelFailed": "No se puede mostrar «{name}». El archivo sigue disponible en Mi estudio.",
+    "modelFailed": "No se puede mostrar «{name}». El archivo sigue disponible en Mis creaciones.",
     "localClip": "Previsualización local",
     "localClipNote": "Grabación gratuita de la escena previa; no es una toma generada.",
-    "savedClip": "Previsualización guardada en Mi estudio.",
+    "savedClip": "Previsualización guardada en Mis creaciones.",
     "downloadClip": "Descargar el vídeo",
     "modelTerms": "Leer la licencia del modelo",
     "hunyuanTerms": "Hunyuan3D 2.1 tiene condiciones específicas: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo."
@@ -1782,7 +1782,7 @@
       "sentCamera": "Cámara",
       "sentRaw": "Texto exacto enviado",
       "castCount": "{count, plural, one {# personaje} other {# personajes}}",
-      "whereAsset": "Resultado: guardado en Mi estudio y propuesto aquí. Si falla, nada se reemplaza y el mensaje dice por qué.",
+      "whereAsset": "Resultado: guardado en Mis creaciones y propuesto aquí. Si falla, nada se reemplaza y el mensaje dice por qué.",
       "whereTake": "Guardada en {plan} · toma {n} de {total} (Mi estudio › Tomas). Las demás versiones se quedan.",
       "whereTakeNext": "La toma llega a TOMA, en su plano, sin sobrescribir una toma guardada. Si se cierra la pestaña, «Recuperar el render» la encuentra.",
       "via": "Renderizado en Comfy Cloud",
@@ -1883,7 +1883,7 @@
       "states": "Estados",
       "shots": "{count, plural, =0 {ningún plano} one {# plano} other {# planos}}",
       "history": "Historial",
-      "saved": "Memoria guardada en Mi estudio (.uttu/memoire.json y Memoire/)."
+      "saved": "Memoria guardada en Mis creaciones (.uttu/memoire.json y Memoire/)."
     },
     "engineAuto": "Auto"
   },
@@ -1970,7 +1970,7 @@
     "captureOff": "Primero elige un lugar.",
     "captureWait": "Espera a que la ciudad esté construida.",
     "captureFail": "No se pudo guardar la captura. Inténtalo de nuevo.",
-    "captured": "Encuadre guardado en Mi estudio, en DÉCOR: color, profundidad y líneas, con la cámara y los créditos. Está colocado en las referencias.",
+    "captured": "Encuadre guardado en Mis creaciones, en DÉCOR: color, profundidad y líneas, con la cámara y los créditos. Está colocado en las referencias.",
     "quote": "Para convertirlo en decorado: ≈ {credits} créditos estimados (tope {high}). Nada se lanza sin tu confirmación.",
     "again": "Otro encuadre",
     "use": "Ver en DÉCOR",
@@ -2025,7 +2025,7 @@
     "quote": "Estimado: unos {credits} créditos, reserva aconsejada {ceiling}. Aún no medido en un render real.",
     "safe": "El resultado se añade a Mi estudio. El original nunca se reemplaza.",
     "go": "Lanzar · ≈ {credits} créditos (estimado)",
-    "done": "Guardado en Mi estudio, junto al original.",
+    "done": "Guardado en Mis creaciones, junto al original.",
     "intact": "El original queda intacto.",
     "optional": "(opcional)",
     "needVoice": "Añade una voz (archivo de audio).",
@@ -2419,5 +2419,124 @@
     },
     "latest": "Últimos resultados",
     "reserve": "· reserva {ceiling}"
+  },
+  "top": {
+    "nav": "Navegación del estudio",
+    "home": "Inicio",
+    "create": "Crear",
+    "make": "Realizar",
+    "edit": "Montaje",
+    "creations": "Mis creaciones",
+    "menu": "Menú",
+    "close": "Cerrar el menú",
+    "search": "Buscar",
+    "searchAria": "Buscar una herramienta o una creación (Ctrl K)",
+    "searchPlaceholder": "Una herramienta, una creación…",
+    "paletteTools": "Herramientas",
+    "paletteNone": "Ninguna creación coincide.",
+    "paletteEmpty": "Tus creaciones aparecerán aquí.",
+    "apps": "Para empezar",
+    "app": {
+      "perso": {
+        "title": "Un personaje coherente",
+        "line": "Foto o texto, luego su hoja de vistas."
+      },
+      "lieu": {
+        "title": "Explorar un lugar en 3D",
+        "line": "Gratis, en el mapa."
+      },
+      "plan": {
+        "title": "Un plano de 5 s",
+        "line": "Personaje, lugar, una frase."
+      },
+      "parler": {
+        "title": "Hacer hablar una imagen",
+        "line": "Una imagen y una voz."
+      },
+      "montage": {
+        "title": "Terminar un montaje",
+        "line": "Tus planos, el sonido, la exportación."
+      }
+    }
+  },
+  "projects": {
+    "label": "Proyecto",
+    "none": "Ningún proyecto",
+    "switchAria": "Proyecto actual: {name}. Cambiar o crear un proyecto",
+    "empty": "Aún no hay proyecto: se crea con tu primer personaje, o aquí.",
+    "new": "Nuevo proyecto",
+    "placeholder": "Nombre del proyecto",
+    "create": "Crear el proyecto",
+    "needName": "Ponle un nombre al proyecto.",
+    "vault": "Obsidian y exportación"
+  },
+  "taches": {
+    "title": "Tareas recientes",
+    "aria": "Tareas recientes: {running} en curso, {failed} fallidas",
+    "empty": "Aún no hay tareas.",
+    "state": {
+      "running": "En curso",
+      "done": "Terminada",
+      "failed": "Fallida",
+      "interrupted": "Interrumpida: el render vuelve solo si Comfy lo terminó"
+    },
+    "relaunch": "Relanzar (nuevo presupuesto)",
+    "clear": "Borrar el historial",
+    "rule": "Nada se relanza sin tu confirmación; un fallo nunca destruye un asset validado.",
+    "cast": "Crear un personaje",
+    "decor": "Crear un decorado",
+    "take": "Toma",
+    "tool": "Herramienta"
+  },
+  "assistant": {
+    "title": "Asistente del estudio",
+    "short": "Asistente",
+    "toggle": "Mostrar u ocultar el asistente del estudio",
+    "close": "Cerrar el asistente",
+    "nextTitle": "Siguiente paso",
+    "go": "Ir",
+    "ask": "¿Qué quieres hacer?",
+    "placeholder": "p. ej. hacer hablar a mi personaje",
+    "none": "Ninguna herramienta coincide: prueba otra palabra.",
+    "local": "El asistente lee tu proyecto en este dispositivo; no envía nada ni gasta nada.",
+    "next": {
+      "cast": "Empieza por tu personaje.",
+      "decor": "Añade un lugar.",
+      "prise": "Rueda un primer plano.",
+      "montage": "Monta tus planos."
+    }
+  },
+  "creations": {
+    "all": "Ver todo",
+    "title": "Mis creaciones",
+    "type": {
+      "tout": "Todo",
+      "images": "Imágenes",
+      "videos": "Vídeos",
+      "3d": "3D",
+      "sons": "Sonidos",
+      "personnages": "Personajes",
+      "lieux": "Lugares",
+      "prises": "Tomas"
+    },
+    "types": "Tipos de creaciones",
+    "density": "Densidad",
+    "dense": "Compacta",
+    "large": "Amplia",
+    "use": "Usar",
+    "convert": "Convertir",
+    "retouch": "Retocar",
+    "empty": "Nada de este tipo por ahora.",
+    "sort": "Ordenar",
+    "sorts": {
+      "recent": "Recientes",
+      "nom": "Nombre"
+    },
+    "noSuite": "Convertir y Retocar se abren sobre una imagen o un vídeo.",
+    "inTool": "Abrir en una herramienta"
+  },
+  "toolswitch": {
+    "change": "Cambiar de herramienta",
+    "recent": "Recientes"
   }
 }

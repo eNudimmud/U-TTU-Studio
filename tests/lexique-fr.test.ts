@@ -29,8 +29,8 @@ describe("lexique français", () => {
       "Mes crédits",
       "Connecter mon compte Comfy",
       "Moteur",
-      "Mon studio",
-      "Les photos des références manquent dans mon studio.",
+      "Mes créations",
+      "Les photos des références manquent dans mes créations.",
       "Au moins une photo des références.",
       "Tes références, tes lieux et tes prises",
       "Modèle · Prise",
@@ -80,7 +80,7 @@ describe("lexique français", () => {
     assert.equal(fr.nav.take, "PRISE");
     assert.equal(fr.nav.edit, "MONTAGE");
     assert.equal(fr.nav.chain, "CAST, DÉCOR, PRISE, MONTAGE");
-    assert.equal(fr.nav.studio, "Mon studio");
+    assert.equal(fr.nav.studio, "Mes créations");
     assert.doesNotMatch(chain, /Personnage \(fichier\)|Look|Rôle/);
   });
 

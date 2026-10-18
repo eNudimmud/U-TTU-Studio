@@ -33,7 +33,11 @@ const IMAGE_TOOLS: Outil[] = ["suite-modifier", "suite-finaliser-image", "suite-
 const VIDEO_TOOLS: Outil[] = ["suite-finaliser-video", "suite-fluidifier", "suite-prolonger"];
 const MESH = { perso: "prise-volume-perso", objet: "prise-volume-objet" } as const;
 
-export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false }: {
+/** Item sheet split: what turns the asset into another medium, and what refines it in place. */
+export const SUITE_CONVERTIR: Outil[] = ["suite-3d", "suite-animer", "suite-parler", "suite-prolonger", "suite-fluidifier"];
+export const SUITE_RETOUCHER: Outil[] = ["suite-modifier", "suite-finaliser-image", "suite-detourer", "suite-elargir", "suite-finaliser-video"];
+
+export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false, only, grouped = false }: {
   source: SuiteSource;
   /** Animer: also offer to open the image in PRISE. */
   onPrise?(): void;
@@ -41,6 +45,10 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
   initial?: Outil | null;
   /** Results show the menu open, visible without opening a detail panel. */
   defaultOpen?: boolean;
+  /** Keeps only these tools (item sheet: Convertir or Retoucher). */
+  only?: Outil[];
+  /** Item sheet: the same tools, under « Convertir » then « Retoucher ». */
+  grouped?: boolean;
 }) {
   const { t } = useI18n();
   const { prefs } = useStudio();
@@ -48,7 +56,7 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
   const [tool, setTool] = useState<Outil | null>(initial);
   const menuId = useId();
   useEffect(() => { setTool(initial); setOpen(initial !== null || defaultOpen); }, [source.url]);
-  const tools = (source.kind === "image" ? IMAGE_TOOLS : VIDEO_TOOLS).filter(id => {
+  const tools = (source.kind === "image" ? IMAGE_TOOLS : VIDEO_TOOLS).filter(id => !only || only.includes(id)).filter(id => {
     const row = gesteParId(id === "suite-3d" ? MESH.objet : id);
     return row && gesteOuvert(row) && gesteVisible(row, prefs);
   });
@@ -59,15 +67,18 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
       <span>{t("suite.title")}</span><span aria-hidden="true">{open ? "−" : "+"}</span>
     </button>
     {open && <div id={menuId} className="u-suite-menu" role="group" aria-label={t("suite.title")}>
-      {tools.map(id => {
-        const quote = id === "suite-3d" ? null : suiteQuote(id);
-        const mesh = id === "suite-3d" ? gesteParId(MESH.objet) : null;
-        const credits = quote?.credits ?? mesh?.credits ?? null;
-        return <button key={id} type="button" className="u-suite-item" data-suite-item={id} aria-pressed={tool === id} onClick={() => setTool(current => current === id ? null : id)}>
-          <span className="u-suite-name">{t(`suite.tools.${id}.title`)}</span>
-          {credits !== null && <span className="u-suite-cost">{t("suite.chip", { credits: formatCredits(credits) })}</span>}
-        </button>;
-      })}
+      {(grouped ? [["convert", tools.filter(id => SUITE_CONVERTIR.includes(id))], ["retouch", tools.filter(id => SUITE_RETOUCHER.includes(id))]] as const : [["", tools]] as const).map(([group, list]) => list.length === 0 ? null : <div key={group || "all"} className="u-suite-group" data-suite-group={group || undefined}>
+        {group && <p className="u-label">{t(group === "convert" ? "creations.convert" : "creations.retouch")}</p>}
+        {list.map(id => {
+          const quote = id === "suite-3d" ? null : suiteQuote(id);
+          const mesh = id === "suite-3d" ? gesteParId(MESH.objet) : null;
+          const credits = quote?.credits ?? mesh?.credits ?? null;
+          return <button key={id} type="button" className="u-suite-item" data-suite-item={id} aria-pressed={tool === id} onClick={() => setTool(current => current === id ? null : id)}>
+            <span className="u-suite-name">{t(`suite.tools.${id}.title`)}</span>
+            {credits !== null && <span className="u-suite-cost">{t("suite.chip", { credits: formatCredits(credits) })}</span>}
+          </button>;
+        })}
+      </div>)}
     </div>}
     {open && tool && <SuitePanel key={`${tool}-${source.url}`} tool={tool} source={source} onPrise={onPrise} onClose={() => setTool(null)} />}
   </section>;

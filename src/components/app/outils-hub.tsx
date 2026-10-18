@@ -162,7 +162,7 @@ function kindOfAsset(asset: AssetRecord, media: Record<string, string>): "image"
   return media[path] ? "image" : null;
 }
 
-function useResultAssets(): { asset: AssetRecord; url: string; kind: "image" | "video" | "audio" | "mesh" }[] {
+export function useResultAssets(): { asset: AssetRecord; url: string; kind: "image" | "video" | "audio" | "mesh" }[] {
   const { loose, media, studio } = useStudio();
   return useMemo(() => {
     const takes: AssetRecord[] = studio.takes.map(take => ({ id: take.id, kind: "plan", name: take.line || take.id, at: take.at, prompt: take.prompt, geste: "prise-plan", template: "", refs: [], devis: take.announcedCredits, cout: take.costCredits, media: take.video, note: "", preview: null, loose: false }));
@@ -311,6 +311,7 @@ export function ToolPanel({ outil }: { outil: Outil }) {
     <header className="u-tool-head">
       <h1 id={titleId} tabIndex={-1}>{t(`outils.t.${outil.id}.title`)}</h1>
       <span className="u-outil-badge" data-partner={outilPartenaire(outil) ? "" : undefined}>{t(outilPartenaire(outil) ? "outils.partner" : "outils.open")}</span>
+      <ToolSwitch current={outil.id} />
     </header>
     <p className="u-small">{t(`outils.t.${outil.id}.line`)}</p>
     <ProtocolStrip states={states} />
@@ -383,4 +384,48 @@ export function OutilResults({ sortie, limit = 12, title, hideEmpty = false }: {
       </article>)}
     </div>}
   </section>;
+}
+
+const RECENTS = "u-ttu-outils-recents";
+
+/** Remembers the last tools opened (newest first, five at most). */
+function useRecents(current: string): string[] {
+  const [list, setList] = useState<string[]>([]);
+  useEffect(() => {
+    let saved: string[] = [];
+    try { saved = JSON.parse(window.localStorage.getItem(RECENTS) ?? "[]") as string[]; } catch { saved = []; }
+    const next = [current, ...saved.filter(id => id !== current && outilParId(id))].slice(0, 6);
+    try { window.localStorage.setItem(RECENTS, JSON.stringify(next)); } catch { /* memory only */ }
+    setList(next.filter(id => id !== current));
+  }, [current]);
+  return list;
+}
+
+/** The tool card's switch: recent tools and « Voir tous les outils », without leaving the panel. */
+function ToolSwitch({ current }: { current: string }) {
+  const { t } = useI18n();
+  const recents = useRecents(current);
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  useEffect(() => {
+    if (!open) return;
+    const key = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    const press = (event: PointerEvent) => { if (root.current && !root.current.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener("keydown", key);
+    document.addEventListener("pointerdown", press, true);
+    return () => { document.removeEventListener("keydown", key); document.removeEventListener("pointerdown", press, true); };
+  }, [open]);
+  return <div className="u-tool-switch" ref={root} data-tool-switch="">
+    <button type="button" className="u-chip" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(value => !value)}>{t("toolswitch.change")} <span aria-hidden="true">▾</span></button>
+    <div id={menuId} className="u-tool-switch-panel" hidden={!open}>
+      {recents.length > 0 && <>
+        <p className="u-label">{t("toolswitch.recent")}</p>
+        <ul role="list" className="u-dd-list">
+          {recents.map(id => <li key={id}><button type="button" data-recent-outil={id} onClick={() => { setOpen(false); openTool(id); }}>{t(`outils.t.${id}.title`)}</button></li>)}
+        </ul>
+      </>}
+      <button type="button" className="u-secondary" data-switch-all="" onClick={() => { setOpen(false); openTool(null); }}>{t("outils.seeAll")}</button>
+    </div>
+  </div>;
 }

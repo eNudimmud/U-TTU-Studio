@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { ALL_FORMATS, BlobSource, Input } from 'mediabunny';
+import { openCreations } from './helpers/top-bar';
 
 test('prévis réelle : filmer le canvas, retrouver le clip et le télécharger après fermeture', async ({ page, context }, info) => {
   const spent: string[] = [];
@@ -19,11 +20,11 @@ test('prévis réelle : filmer le canvas, retrouver le clip et le télécharger 
   await page.locator('[data-composer]').click();
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-keys', '3');
   await page.locator('[data-filmer-previs]').click();
-  await expect(page.getByText('Prévisualisation enregistrée dans Mon studio.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Prévisualisation enregistrée dans Mes créations.', { exact: true })).toBeVisible();
   const preview = page.locator('[data-previs-clip]');
   await expect(preview).toBeVisible();
   await expect.poll(() => preview.evaluate((video: HTMLVideoElement) => video.videoWidth)).toBeGreaterThan(0);
-  await page.getByRole('link', { name: 'Mon studio', exact: true }).click();
+  await openCreations(page);
   await expect(page.locator('.u-asset-grid article').filter({ hasText: 'Prévisualisation locale' })).toHaveCount(1);
   await page.close();
   const reopened = await context.newPage();

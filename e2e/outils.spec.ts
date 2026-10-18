@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { simulateComfy } from "./helpers/simulate-comfy";
+import { openToolsHub } from "./helpers/top-bar";
 
 // « Outils » : the hub, one panel for every tool, results with « Et ensuite ? » open.
 // Comfy is simulated: nothing leaves, nothing is spent, nothing is cancelled.
@@ -17,7 +18,7 @@ async function watch(page: Page) {
 test("hub : un clic depuis la barre du haut, 57 outils par famille, recherche et filtres, « bientôt » sans bouton", async ({ page }) => {
   await page.goto("/studio#personnage");
   await expect(page.locator("[data-outils-entry]")).toBeVisible();
-  await page.locator("[data-top-outils]").click();
+  await openToolsHub(page);
   await expect(page).toHaveURL(/#outils$/);
   const hub = page.locator("[data-outils-hub]");
   await expect(hub.getByRole("heading", { name: "Que veux-tu créer ?" })).toBeVisible();
@@ -73,7 +74,7 @@ test("panneau unique : entrée, exemple gratuit, bouton nommé d'après l'action
   expect(seen.cancels()).toBe(0);
 });
 
-test("outil ouvert depuis un texte : le template officiel entier part, le résultat arrive dans Mon studio", async ({ page }) => {
+test("outil ouvert depuis un texte : le template officiel entier part, le résultat arrive dans Mes créations", async ({ page }) => {
   await simulateComfy(page);
   const seen = await watch(page);
   await page.goto("/studio#outils/img-qwen");
@@ -89,8 +90,19 @@ test("outil ouvert depuis un texte : le template officiel entier part, le résul
   expect(JSON.stringify(graph)).toContain("Une gare la nuit");
   expect(JSON.stringify(graph)).toContain("9:16");
   expect(seen.cancels()).toBe(0);
-  await page.goto("/mon-studio");
-  await expect(page.locator(".u-tool-results [data-result]").first()).toBeVisible();
+  // Mes créations: one library, the Images tab keeps it; its sheet reuses « Et ensuite ? » under Convertir / Retoucher.
+  await page.goto("/mon-studio?type=images");
+  await expect(page.locator("[data-creations-tab=images]")).toHaveAttribute("aria-pressed", "true");
+  const card = page.locator(".u-asset-grid article").first();
+  await expect(card).toBeVisible();
+  await card.locator(".u-pick").click();
+  const sheet = page.locator(".u-asset-detail");
+  await expect(sheet.locator("[data-item-use]")).toBeVisible();
+  await expect(sheet.locator("[data-suite-group=convert] [data-suite-item]").first()).toBeVisible();
+  await expect(sheet.locator("[data-suite-group=retouch] [data-suite-item]").first()).toBeVisible();
+  await page.locator("[data-creations-tab=videos]").click();
+  await expect(page).toHaveURL(/type=videos/);
+  await expect(page.locator(".u-asset-grid article")).toHaveCount(0);
 });
 
 test("sans compte relié : la raison et le lien « Relier mon compte » sont à côté du bouton éteint", async ({ page }) => {

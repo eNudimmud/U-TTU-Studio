@@ -1,5 +1,6 @@
 "use client";
 
+import { tracked } from "@/lib/tasks";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { orderSequence, placeStoryboard } from "@/lib/montage/arrivee";
@@ -21,7 +22,7 @@ import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip, vaultPathFromZip } from "@/lib/coffre/import";
 import { folderLinkSupported, linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
-  emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, sceneMarkdown, selectProject as chooseProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
+  emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, sceneMarkdown, selectProject as chooseProject, createProject as makeProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
   writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
   type Scene, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
@@ -38,7 +39,7 @@ import { importModel, modelExtension } from "@/lib/maquette/files";
 import { isMeshGeste, meshGesteGraph, runMesh } from "@/lib/render/mesh-gestes";
 import { isSuiteGeste, SUITE_SORTIE, SUITE_SOURCE, SUITE_TEXTE, suiteGraph, type Elargir } from "@/lib/suite/graphs";
 import { suiteQuote } from "@/lib/suite/quote";
-import { outilParId, outilRow } from "@/lib/outils/catalogue";
+import { outilParGeste, outilParId, outilRow } from "@/lib/outils/catalogue";
 import { outilGraph, outilQuote } from "@/lib/outils/graphs";
 import { learnTakeCost } from "@/lib/render/landed-cost";
 import { quotesToRecords } from "@/lib/render/measured-quote";
@@ -149,6 +150,8 @@ export interface StudioSession {
   linkFolder(): Promise<void>;
   allowLinkedFolder(): Promise<void>;
   selectProject(slug: string): Promise<void>;
+  /** A new project folder (Projets/<slug>/), made the active one. */
+  createProject(name: string): Promise<void>;
   outgoing(): string;
   saveModel(file: File): Promise<string>;
   savePrevis(file: File): Promise<string>;
@@ -261,6 +264,8 @@ export interface FinaliseInput {
   fluidifier?: boolean;
   onStage(stage: FinaliseStage, seconds?: number): void;
 }
+
+const judgeOutcome = (outcome: FinaliseOutcome) => outcome.ok ? { ok: true } : { ok: false, reason: outcome.message };
 
 export type FinaliseOutcome =
   | { ok: true; path: string; url: string; cost: number | null }
@@ -1587,6 +1592,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     setSheet(null);
   }, [reload, store]);
 
+  const createProject = useCallback(async (name: string) => {
+    await makeProject(store(), name);
+    const next = await reload();
+    setPickedCast(next.cast[0]?.id ?? null);
+    setPickedDecor(next.currentScene);
+    setPendingTake(null);
+    setSheet(null);
+  }, [reload, store]);
+
   const importAssets = useCallback(async (files: File[], as?: "personnage" | "decor") => {
     try {
       const count = await importMedia(store(), files, as);
@@ -1834,10 +1848,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast: input => paid(() => createCast(input), false), createDecor: input => paid(() => createDecor(input), false), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runOutil: input => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast: input => tracked({ tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => tracked({ tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
-    linkFolder, allowLinkedFolder, selectProject, outgoing,
+    linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
     saveModel, savePrevis, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
   };
 

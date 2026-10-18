@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { openCreations, openToolsHub } from './helpers/top-bar';
 
 const portrait = readFileSync('public/exemples/cast-uttu.webp');
 
@@ -20,7 +21,7 @@ async function savedScene(page: Page) {
   }));
 }
 
-test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et ajout au montage depuis Mon studio', async ({ page }, info) => {
+test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et ajout au montage depuis Mes créations', async ({ page }, info) => {
   const video = readFileSync('e2e/fixtures/final-1080p.mp4');
   let posts = 0;
   let done = false;
@@ -38,7 +39,7 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
   // Raccord now lives in the « Outils » hub, one click from the top bar, in the single tool panel.
-  await page.locator('[data-top-outils]').click();
+  await openToolsHub(page);
   await page.locator('[data-outil="vid-raccord"]').click();
   const panel = page.locator('[data-tool-panel="vid-raccord"]');
   await panel.locator('[data-outil-input="image"] input[type=file]').setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });
@@ -95,7 +96,7 @@ test('stockage réel, import conservé après fermeture et confirmation accessib
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(credits).toBeFocused();
-  await page.getByRole('link', { name: 'Mon studio', exact: true }).click();
+  await openCreations(page);
   const status = page.locator('[data-storage]');
   await expect(status).not.toHaveAttribute('data-storage', 'loading');
   if (await page.getByRole('button', { name: 'Protéger le stockage local', exact: true }).isVisible()) {
@@ -210,7 +211,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(2);
   await expect.poll(() => savedScene(page)).toEqual({ props: 2, keys: 1 });
   // Explicit navigation flushes the current scene before closing this document.
-  await page.getByRole('link', { name: 'Mon studio', exact: true }).click();
+  await openCreations(page);
   await page.close();
   const reopened = await context.newPage();
   await reopened.goto('/studio#prise');
