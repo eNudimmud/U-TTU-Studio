@@ -4,7 +4,7 @@
 // so a take queued before a reload can be picked up again.
 
 import { measuredCost } from "../credits.ts";
-import { executionSeconds, imageOutput, jobStage, RenderError, videoOutput, type RenderClient } from "./client.ts";
+import { audioOutput, executionSeconds, imageOutput, jobStage, meshOutput, RenderError, videoOutput, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
 import { TAKE_PICTURES_MAX, takeEngine, takeGraph, type ApiGraph, type TakeSettings } from "./take-graph.ts";
 
@@ -59,7 +59,7 @@ export interface TakeRunOptions {
   networkTries?: number;
   signal?: AbortSignal;
   /** What the job saves. A take is a video; « Et ensuite ? » image tools save a still. */
-  output?: "video" | "image";
+  output?: "video" | "image" | "audio" | "mesh";
 }
 
 const defaultSleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -138,9 +138,10 @@ export async function followTake(
 
   onEvent({ stage: "fetch", jobId });
   const detail = await client.job(jobId);
-  const still = options.output === "image";
-  const ref = still ? imageOutput(detail.outputs) : videoOutput(detail.outputs);
-  if (!ref) throw new RenderError("failed", still ? "Le rendu est fini, mais aucune image n’est sortie." : "La prise est finie, mais aucune vidéo n’est sortie.");
+  const kind = options.output ?? "video";
+  const ref = kind === "image" ? imageOutput(detail.outputs) : kind === "audio" ? audioOutput(detail.outputs) : kind === "mesh" ? meshOutput(detail.outputs) : videoOutput(detail.outputs);
+  const missing = { image: "aucune image", audio: "aucun son", mesh: "aucun volume 3D", video: "aucune vidéo" }[kind];
+  if (!ref) throw new RenderError("failed", `Le rendu est fini, mais ${missing} n’est sorti${kind === "image" || kind === "video" ? "e" : ""}.`);
   const video = await client.file(ref);
 
   onEvent({ stage: "measure", jobId });

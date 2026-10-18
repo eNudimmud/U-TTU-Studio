@@ -38,6 +38,8 @@ import { importModel, modelExtension } from "@/lib/maquette/files";
 import { isMeshGeste, meshGesteGraph, runMesh } from "@/lib/render/mesh-gestes";
 import { isSuiteGeste, SUITE_SORTIE, SUITE_SOURCE, SUITE_TEXTE, suiteGraph, type Elargir } from "@/lib/suite/graphs";
 import { suiteQuote } from "@/lib/suite/quote";
+import { outilParId, outilRow } from "@/lib/outils/catalogue";
+import { outilGraph, outilQuote } from "@/lib/outils/graphs";
 import { learnTakeCost } from "@/lib/render/landed-cost";
 import { quotesToRecords } from "@/lib/render/measured-quote";
 import { referencePaths } from "@/lib/render/references";
@@ -121,6 +123,7 @@ export interface StudioSession {
   runMeshGeste(input: MeshGesteRun): Promise<FinaliseOutcome>;
   /** « Et ensuite ? » : one tool on an asset or a take. The source is never overwritten. */
   runSuite(input: SuiteRun): Promise<FinaliseOutcome>;
+  runOutil(input: OutilRun): Promise<FinaliseOutcome>;
   renameCast(id: string, name: string): Promise<void>;
   renameDecor(id: string, name: string): Promise<void>;
   duplicateCast(id: string): Promise<void>;
@@ -221,6 +224,25 @@ export interface SuiteRun {
   /** Length of the source video, for the estimate of Finaliser and Fluidifier. */
   seconds?: number;
   /** Vault path of the validated asset it starts from. Read only, written in the note. */
+  from?: string;
+  onStage(stage: FinaliseStage, seconds?: number): void;
+}
+
+export interface OutilRun {
+  outil: string;
+  /** Images in slot order (the second one is optional). Prolonger: the take's last frame. */
+  images: File[];
+  video?: File;
+  audio?: File;
+  prompt: string;
+  confirmed: boolean;
+  aspect?: "horizontal" | "vertical";
+  elargir?: Elargir;
+  fluidifier?: boolean;
+  seconds?: number;
+  mesh?: "objet" | "perso";
+  /** The visitor may use the voice they upload. */
+  consent?: boolean;
   from?: string;
   onStage(stage: FinaliseStage, seconds?: number): void;
 }
@@ -1053,6 +1075,78 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
   }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
 
+  // Hub tools: the same seven steps. « Et ensuite ? » rows go through runSuite; the others are
+  // built by outilGraph and land in Mon studio as a new asset. Jamais d'annulation.
+  const runOutil = useCallback(async (input: OutilRun): Promise<FinaliseOutcome> => {
+    const outil = outilParId(input.outil);
+    const row = outil ? outilRow(outil) : undefined;
+    if (!outil || !row || !outil.moteur || outil.bientot) return { ok: false, message: t(outil?.bientot ? `outils.why.${outil.bientot}` : "gestes.unwired") };
+    if (!gesteVisible(row, prefs)) return { ok: false, message: t("safety.modelBlocked") };
+    if (outil.moteur.kind === "suite") {
+      const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.video : input.images[0];
+      if (!source) return { ok: false, message: t("videoGeste.needFiles") };
+      return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage });
+    }
+    const quote = outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh });
+    if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
+    if (outil.texte === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
+    if (outil.entrees.includes("image") && !input.images[0]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };
+    if (outil.entrees.includes("video") && !input.video?.type.startsWith("video/")) return { ok: false, message: t("videoGeste.needFiles") };
+    if (outil.entrees.includes("audio") && !input.audio?.type.startsWith("audio/")) return { ok: false, message: t("videoGeste.needFiles") };
+    if (outil.consentement && input.audio && !input.consent) return { ok: false, message: t("outils.needConsent") };
+    if (!client) return { ok: false, message: t("create.needLink") };
+    const fresh = await refreshBalance();
+    if (!creationAllowed(true, fresh?.credits ?? null, quote.high)) return { ok: false, message: t("create.needCeiling") };
+    setCreating(true);
+    try {
+      const slug = await ensureActiveProject(store());
+      const vault = projectVault(store(), slug);
+      const at = new Date().toISOString();
+      const id = `${outil.id}-${crypto.randomUUID()}`;
+      const name = t(`outils.t.${outil.id}.title`);
+      input.onStage("envoi");
+      const refs: string[] = input.from ? [input.from] : [];
+      const send = async (file: File, label: string) => {
+        const ext = file.type.startsWith("audio/") ? audioExtension(file) : extensionFor(file.type);
+        if (!input.from) {
+          const copy = `Projets/${slug}/Assets/${id}-${label}.${ext}`;
+          await writeBlob(vault, copy, file);
+          refs.push(copy);
+        }
+        return client.upload(file, `${id}-${label}.${ext}`);
+      };
+      const images: string[] = [];
+      for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
+      const video = input.video ? await send(input.video, "video") : undefined;
+      const audio = input.audio ? await send(input.audio, "son") : undefined;
+      const graph = outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: crypto.getRandomValues(new Uint32Array(1))[0], aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh });
+      const sortie = outil.sortie;
+      const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
+      const receipt: PendingRender = { version: 1, kind, geste: row.id, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
+      const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
+        if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
+        else if (event.stage === "render") input.onStage("calcul", event.seconds);
+        else if (event.stage === "fetch") input.onStage("retour");
+        else if (event.stage === "measure") input.onStage("mesure");
+      }, { output: sortie });
+      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+      if (!result.video.size) throw new RenderError("failed", t("suite.emptyResult"));
+      const ext = sortie === "image" ? "png" : sortie === "video" ? "mp4" : sortie === "mesh" ? await modelExtension(result.video, "model.glb") : (result.video.type.includes("wav") ? "wav" : result.video.type.includes("flac") ? "flac" : "mp3");
+      const path = `Projets/${slug}/Assets/${id}.${ext}`;
+      await writeBlob(vault, path, result.video);
+      await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: sortie === "video" ? "plan" : sortie === "audio" ? "son" : "importe", name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
+      clearPending(localStorage, jobId);
+      await reload();
+      return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
+    } catch (error) {
+      const message = error instanceof Error && error.message ? error.message : t("create.failed");
+      return { ok: false, message };
+    } finally {
+      setCreating(false);
+    }
+  }, [client, fingerprint, prefs, refreshBalance, reload, runSuite, store, t]);
+
   const rewriteCast = useCallback(async (cards: CastCard[]) => {
     const vault = store();
     const slug = current.project ?? await ensureActiveProject(vault);
@@ -1740,7 +1834,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast: input => paid(() => createCast(input), false), createDecor: input => paid(() => createDecor(input), false), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast: input => paid(() => createCast(input), false), createDecor: input => paid(() => createDecor(input), false), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runOutil: input => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, outgoing,
