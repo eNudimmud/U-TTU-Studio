@@ -6,19 +6,18 @@
 // next to the panel and each one shows « Et ensuite ? » open. A tool that is not wired yet
 // says « bientôt » and why; there is never a button that does nothing. No cancel.
 
-import { useEffect, useId, useMemo, useRef, useState, type DragEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { formatCredits } from "@/lib/credits";
-import { protocole } from "@/lib/fiabilite";
-import { cherche, dansFamille, FAMILLES, OUTILS, outilEtat, outilParId, outilPartenaire, outilsOnglet, type Entree, type Famille, type Outil, type Sortie } from "@/lib/outils/catalogue";
+import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
 import { outilQuote } from "@/lib/outils/graphs";
 import { assetPath } from "@/lib/site";
 import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite } from "./et-ensuite";
-import { ProtocolStrip } from "./fiabilite-card";
+import { StudioHome, openStudioTool } from "./studio-entry";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
 
 export const SAMPLES: Record<Entree, { url: string; name: string }> = {
@@ -37,118 +36,68 @@ export function outilFromHash(hash: string): string | null {
 }
 
 function openTool(id: string | null) {
-  const hash = id ? `#outils/${id}` : "#outils";
-  if (window.location.pathname.endsWith("/studio")) {
-    if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
-    window.dispatchEvent(new HashChangeEvent("hashchange"));
-  } else {
-    window.location.href = assetPath(`/studio${hash}`);
-  }
+  if (window.location.pathname.endsWith("/studio")) openStudioTool(id);
+  else window.location.href = assetPath(`/studio${id ? `#outils/${id}` : "#outils"}`);
 }
 
-function QuoteLine({ outil }: { outil: Outil }) {
-  const { t } = useI18n();
-  const quote = outilQuote(outil);
-  const price = quote?.credits ?? outil.prix ?? null;
-  if (price === null) return null;
-  return <span className="u-outil-cost">
-    {quote ? t("outils.cost", { credits: formatCredits(price) }) : t("outils.partnerPrice", { credits: formatCredits(price) })}
-    {outil.parTranche ? ` ${t("outils.perBlock")}` : ""} <small>{t("outils.estimate")}</small>
-  </span>;
+function titreCarte(t: (key: string) => string, id: string) {
+  return t(`outils.t.${intentDe(id)}.title`);
+}
+
+function ligneCarte(t: (key: string) => string, id: string) {
+  return t(`outils.t.${intentDe(id)}.line`);
+}
+
+const NAMED_MODELS = new Set(["vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage"]);
+
+function nomModele(t: (key: string) => string, id: string) {
+  return NAMED_MODELS.has(id) ? t(`outils.modelName.${id}`) : t(`outils.t.${id}.title`);
 }
 
 export function OutilCard({ outil }: { outil: Outil }) {
   const { t } = useI18n();
-  const { prefs } = useStudio();
-  const etat = outilEtat(outil, prefs);
-  const partner = outilPartenaire(outil);
-  const badge = <span className="u-outil-badge" data-partner={partner ? "" : undefined}>{t(partner ? "outils.partner" : "outils.open")}</span>;
-  const body = <>
-    <span className="u-outil-top"><span className="u-outil-name">{t(`outils.t.${outil.id}.title`)}</span>{badge}</span>
-    <span className="u-outil-line">{t(`outils.t.${outil.id}.line`)}</span>
-    <QuoteLine outil={outil} />
-  </>;
-  if (etat.kind === "pret") {
-    return <button type="button" className="u-outil-card" data-outil={outil.id} data-etat="pret" onClick={() => openTool(outil.id)}>{body}</button>;
-  }
-  const reason = etat.kind === "masque" ? t(`outils.hidden.${etat.raison}`) : etat.raison === "unwired" ? t("gestes.unwired") : t(`outils.why.${etat.raison}`);
-  return <article className="u-outil-card" data-outil={outil.id} data-etat={etat.kind} aria-label={`${t(`outils.t.${outil.id}.title`)} · ${t("outils.soon")}`}>
-    {body}
-    <span className="u-outil-soon"><strong>{etat.kind === "masque" ? t("outils.partner") : t("outils.soon")}</strong> · {reason}</span>
-  </article>;
+  return <button type="button" className="u-outil-card" data-outil={outil.id} data-etat="pret" onClick={() => openTool(outil.id)}>
+    <span className="u-outil-name">{titreCarte(t, outil.id)}</span>
+    <span className="u-outil-line">{ligneCarte(t, outil.id)}</span>
+  </button>;
 }
 
-/** One tab's own tools, from the same hub data, folded so the tab stays short. */
+/** One tab's own tools, from the same public cards, folded so the tab stays short. */
 export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: boolean }) {
   const { t } = useI18n();
-  const list = outilsOnglet(onglet);
+  const { prefs } = useStudio();
+  const [opened, setOpened] = useState(open);
+  const list = outilsPublicsOnglet(onglet, prefs);
+  const panelId = useId();
   if (list.length === 0) return null;
-  return <details className="u-outils-strip" data-outils-onglet={onglet} open={open || undefined}>
-    <summary><span>{t("outils.tabTools")}</span><span className="u-small">{t("outils.count", { n: String(list.length) })}</span></summary>
-    <div className="u-outils-strip-body">
+  return <div className="u-outils-strip" data-outils-onglet={onglet}>
+    <button type="button" className="u-fold-head" aria-expanded={opened} aria-controls={panelId} onClick={() => setOpened(value => !value)}>
+      <span>{t("outils.tabTools")}</span><span className="u-small">{t("outils.count", { n: String(list.length) })}</span>
+    </button>
+    <div id={panelId} className="u-outils-strip-body" hidden={!opened}>
       <div className="u-outils-grid">{list.map(item => <OutilCard key={item.id} outil={item} />)}</div>
       <button type="button" className="u-secondary" data-outils-all="" onClick={() => openTool(null)}>{t("outils.seeAll")}</button>
     </div>
-  </details>;
-}
-
-/** « Que veux-tu créer ? » on the studio home: one click to the hub. */
-export function OutilsEntry() {
-  const { t } = useI18n();
-  const ready = OUTILS.length;
-  return <button type="button" className="u-outils-entry" data-outils-entry="" onClick={() => openTool(null)}>
-    <span className="u-outils-entry-title">{t("outils.entry")}</span>
-    <span className="u-small">{t("outils.entryLead", { n: String(ready) })}</span>
-  </button>;
+  </div>;
 }
 
 export function OutilsHub({ tool }: { tool: string | null }) {
   const { t } = useI18n();
-  const [query, setQuery] = useState("");
-  const [famille, setFamille] = useState<Famille | "tout">("tout");
+  const { connected, setSheet } = useStudio();
   const outil = tool ? outilParId(tool) : null;
-  const searchId = useId();
-  // Search aliases (e.g. « finaliser » finds « Améliorer la vidéo »); only some tools carry them.
-  const tags = (id: string) => (t.has(`outils.t.${id}.tags`) ? t(`outils.t.${id}.tags`) : "");
-
-  const list = useMemo(() => OUTILS.filter(item => dansFamille(item, famille) && (!query.trim() || cherche(`${t(`outils.t.${item.id}.title`)} ${t(`outils.t.${item.id}.line`)} ${t(`outils.fam.${item.famille}`)} ${t(`outils.sous.${item.sous}`)} ${tags(item.id)}`, query))), [famille, query, t]);
-
-  if (outil) {
-    return <div className="u-outils-work" data-outils-tool={outil.id}>
-      <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(null)}>← {t("outils.back")}</button>
-      <div className="u-outils-split">
-        <ToolPanel key={outil.id} outil={outil} />
-        <OutilResults key={`resultats-${outil.id}`} sortie={outil.sortie} />
-      </div>
-    </div>;
-  }
-
-  return <section className="u-outils" data-outils-hub="" aria-labelledby="u-title">
-    <header className="u-outils-head">
-      <h1 id="u-title" tabIndex={-1}>{t("outils.entry")}</h1>
-      <p className="u-small">{t("outils.entryLead", { n: String(OUTILS.length) })}</p>
-    </header>
-    <div className="u-outils-tools">
-      <label className="u-field u-outils-search" htmlFor={searchId}>
-        <span className="u-label">{t("outils.search")}</span>
-        <input id={searchId} type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t("outils.search")} data-outils-search="" />
-      </label>
-      <div className="u-choice-row u-outils-families" role="group" aria-label={t("outils.title")}>
-        {(["tout", ...FAMILLES] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={famille === id} data-outils-famille={id} onClick={() => setFamille(id)}>
-          {id === "tout" ? t("outils.all") : t(`outils.fam.${id}`)}
-        </button>)}
-      </div>
+  if (!outil || outil.bientot) return <StudioHome />;
+  const head = intentDe(outil.id);
+  return <div className="u-outils-work" data-outils-tool={head}>
+    {!connected && <p className="u-entry-link" data-entry-link="">
+      <span>{t("entry.linkTitle")}</span>
+      <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
+    </p>}
+    <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(null)}>← {t("outils.back")}</button>
+    <div className="u-outils-split">
+      <ToolPanel key={head} outil={outil} />
+      <OutilResults key={`resultats-${head}`} sortie={outil.sortie} />
     </div>
-    <p className="u-small" aria-live="polite" data-outils-count={list.length}>{list.length ? t("outils.count", { n: String(list.length) }) : t("outils.none")}</p>
-    {(famille === "tout" ? FAMILLES : [famille]).map(fam => {
-      const items = list.filter(item => famille === "tout" ? item.famille === fam : true);
-      if (!items.length) return null;
-      return <section key={fam} className="u-outils-family" data-outils-section={fam}>
-        <h2>{t(`outils.fam.${fam}`)}</h2>
-        <div className="u-outils-grid">{items.map(item => <OutilCard key={item.id} outil={item} />)}</div>
-      </section>;
-    })}
-  </section>;
+  </div>;
 }
 
 interface Picked { url: string; name: string; file?: File; path?: string; aspect?: "horizontal" | "vertical" }
@@ -193,7 +142,7 @@ function InputSlot({ entree, value, busy, busyId, onChange }: { entree: Entree; 
   return <div className="u-outil-input" data-outil-input={entree} data-over={over ? "" : undefined} onDragOver={event => { event.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)} onDrop={drop}>
     <span className="u-label" id={`${id}-label`}>{t(`outils.kind.${entree}`)}</span>
     {value && <div className="u-outil-preview">
-      {want === "image" ? <img src={value.url} alt="" /> : want === "video" ? <video src={value.url} muted playsInline controls /> : <audio src={value.url} controls />}
+      {want === "image" ? <img src={value.url} alt="" /> : want === "video" ? <video src={value.url} muted playsInline controls preload="metadata" /> : <audio src={value.url} controls />}
       <span className="u-small">{value.name}</span>
     </div>}
     <div className="u-outil-input-actions">
@@ -213,9 +162,60 @@ function InputSlot({ entree, value, busy, busyId, onChange }: { entree: Entree; 
   </div>;
 }
 
-export function ToolPanel({ outil }: { outil: Outil }) {
+const MODELS = "u-ttu-modeles-recents";
+
+function ModelMenu({ current, onPick }: { current: string; onPick(id: string): void }) {
+  const { t } = useI18n();
+  const { prefs } = useStudio();
+  const models = modelesIntent(current, prefs);
+  const modelKey = models.map(item => item.id).join(" ");
+  const [open, setOpen] = useState(false);
+  const [recent, setRecent] = useState<string[]>([]);
+  const root = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  useEffect(() => {
+    const ids = modelKey.split(" ").filter(Boolean);
+    let saved: string[] = [];
+    try { saved = JSON.parse(window.localStorage.getItem(MODELS) ?? "[]") as string[]; } catch { saved = []; }
+    const next = [current, ...saved.filter(id => id !== current && ids.includes(id))].slice(0, 5);
+    try { window.localStorage.setItem(MODELS, JSON.stringify(next)); } catch { /* memory only */ }
+    setRecent(next.filter(id => id !== current && ids.includes(id)));
+  }, [current, modelKey]);
+  useEffect(() => {
+    if (!open) return;
+    const key = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    const press = (event: PointerEvent) => { if (root.current && !root.current.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener("keydown", key);
+    document.addEventListener("pointerdown", press, true);
+    return () => { document.removeEventListener("keydown", key); document.removeEventListener("pointerdown", press, true); };
+  }, [open]);
+  if (models.length < 2) return null;
+  const ordered = [...recent.map(id => models.find(item => item.id === id)).filter((item): item is Outil => Boolean(item)), ...models.filter(item => !recent.includes(item.id))];
+  return <div className="u-model-menu" ref={root} data-model-menu="">
+    <button type="button" className="u-chip" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(value => !value)}>{t("outils.modelChange")} <span aria-hidden="true">▾</span></button>
+    <div id={menuId} className="u-model-panel" hidden={!open}>
+      {recent.length > 0 && <p className="u-label">{t("toolswitch.recent")}</p>}
+      <ul role="list" className="u-dd-list">
+        {ordered.map(item => <li key={item.id}><button type="button" aria-current={item.id === current ? "true" : undefined} data-model={item.id} onClick={() => { setOpen(false); onPick(item.id); }}>{nomModele(t, item.id)}</button></li>)}
+      </ul>
+    </div>
+  </div>;
+}
+
+function Fold({ step, label, children }: { step: string; label: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  return <div className="u-tool-fold" data-tool-step={step}>
+    <button type="button" className="u-fold-head" aria-expanded={open} aria-controls={id} onClick={() => setOpen(value => !value)}>{label}</button>
+    <div id={id} hidden={!open}>{children}</div>
+  </div>;
+}
+
+export function ToolPanel({ outil: asked }: { outil: Outil }) {
   const { t } = useI18n();
   const { connected, creating, runOutil, balance, setSheet, prefs } = useStudio();
+  const [modelId, setModelId] = useState(asked.id);
+  const outil = outilParId(modelId) ?? asked;
   const [inputs, setInputs] = useState<Partial<Record<Entree, Picked | null>>>({});
   const [text, setText] = useState("");
   const [aspect, setAspect] = useState<"horizontal" | "vertical">("horizontal");
@@ -224,15 +224,27 @@ export function ToolPanel({ outil }: { outil: Outil }) {
   const [mesh, setMesh] = useState<"objet" | "perso">("objet");
   const [consent, setConsent] = useState(false);
   const [seconds, setSeconds] = useState<number | null>(null);
-  const [confirmed, setConfirmed] = useState(false);
+  const [ask, setAsk] = useState(false);
+  const [why, setWhy] = useState("");
   const [stage, setStage] = useState<{ stage: FinaliseStage; seconds?: number } | null>(null);
   const [outcome, setOutcome] = useState<FinaliseOutcome | null>(null);
   const titleId = useId();
   const busyId = `${titleId}-busy`;
   const whyId = `${titleId}-why`;
+  const askId = `${titleId}-ask`;
   const etat = outilEtat(outil, prefs);
-  // Two taps in the same frame never send two jobs.
   const sending = useRef(false);
+
+  useEffect(() => { setModelId(asked.id); setAsk(false); }, [asked.id]);
+  useEffect(() => {
+    if (outil.texte === "aucun") return;
+    try {
+      const saved = sessionStorage.getItem("u-ttu-consigne");
+      if (!saved) return;
+      sessionStorage.removeItem("u-ttu-consigne");
+      setText(saved);
+    } catch { /* the field stays empty */ }
+  }, [outil.id, outil.texte]);
 
   const main = outil.entrees.filter(item => item !== "image2");
   const refs = outil.entrees.filter(item => item === "image2");
@@ -251,25 +263,36 @@ export function ToolPanel({ outil }: { outil: Outil }) {
   const missingText = outil.texte === "requis" && !text.trim();
   const needConsent = Boolean(outil.consentement && inputs.audio && !consent);
   const lowBalance = Boolean(quote && balance && balance.credits < quote.high);
-  const can = etat.kind === "pret" && connected && confirmed && !missingInput && !missingText && !needConsent && !busy && !creating && Boolean(quote) && !lowBalance;
-  const why = etat.kind !== "pret" ? t("gestes.unwired")
-    : missingInput ? t("outils.needInput", { what: t(`outils.kind.${missingInput}`) })
-    : missingText ? t("videoGeste.needText")
-    : needConsent ? t("outils.needConsent")
-    : !connected ? t("videoGeste.needLink")
-    : lowBalance && quote ? t("finaliser.needCeiling", { ceiling: formatCredits(quote.high) })
-    : !confirmed ? t("videoGeste.needConfirm")
-    : creating ? t("outils.busy") : "";
-  const states = protocole({ prepared: !missingInput && !missingText && !needConsent, checked: connected && !lowBalance, quoted: Boolean(quote), confirming: confirmed, running: busy, failed: outcome?.ok === false, landed: outcome?.ok === true, archived: outcome?.ok === true });
-  const action = outil.entrees.length === 0 || outil.famille === "3d" ? t(`outils.do.${outil.sortie}`) : t(`outils.t.${outil.id}.title`);
+  const action = outil.entrees.length === 0 || outil.famille === "3d" ? t(`outils.do.${outil.sortie}`) : titreCarte(t, outil.id);
   const lock = { disabled: busy, "aria-describedby": busy ? busyId : undefined };
 
-  function set(entree: Entree, next: Picked | null) { setInputs(current => ({ ...current, [entree]: next })); setConfirmed(false); setOutcome(null); }
-  function reset() { setConfirmed(false); setOutcome(null); }
+  function set(entree: Entree, next: Picked | null) { setInputs(current => ({ ...current, [entree]: next })); setAsk(false); setOutcome(null); setWhy(""); }
+  function reset() { setAsk(false); setOutcome(null); setWhy(""); }
+  function pickModel(id: string) {
+    setAsk(false);
+    if (intentDe(id) !== intentDe(outil.id)) { openTool(id); return; }
+    setModelId(id);
+    const hash = `#outils/${id}`;
+    if (window.location.hash !== hash) window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
+  }
+
+  function press() {
+    if (busy || creating) return;
+    if (!connected) { setSheet("connect"); return; }
+    if (etat.kind !== "pret") { setWhy(t("gestes.unwired")); return; }
+    if (missingInput) { setWhy(t("outils.needInput", { what: t(`outils.kind.${missingInput}`) })); return; }
+    if (missingText) { setWhy(t("videoGeste.needText")); return; }
+    if (needConsent) { setWhy(t("outils.needConsent")); return; }
+    if (!quote) return;
+    if (lowBalance) { setWhy(t("finaliser.needCeiling", { ceiling: formatCredits(quote.high) })); return; }
+    setWhy("");
+    setAsk(true);
+  }
 
   async function launch() {
-    if (!can || !quote || sending.current) return;
+    if (!quote || sending.current || busy) return;
     sending.current = true;
+    setAsk(false);
     setOutcome(null);
     setStage({ stage: "envoi" });
     const onStage = (next: FinaliseStage, at?: number) => setStage({ stage: next, seconds: at });
@@ -296,25 +319,27 @@ export function ToolPanel({ outil }: { outil: Outil }) {
         if (file) images.push(file);
       }
       const from = inputs.image?.path ?? inputs.video?.path;
-      const result = await runOutil({ outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, consent, from, onStage });
+      const result = await runOutil({ outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, consent, from, onStage });
       setOutcome(result);
     } catch (error) {
       setOutcome({ ok: false, message: error instanceof Error && error.message ? error.message : t("create.failed") });
     } finally {
       sending.current = false;
       setStage(null);
-      setConfirmed(false);
     }
   }
 
-  return <section className="u-tool-panel" data-tool-panel={outil.id} aria-labelledby={titleId}>
+  return <section className="u-tool-panel" data-tool-panel={intentDe(outil.id)} data-tool-model={outil.id} aria-labelledby={titleId}>
     <header className="u-tool-head">
-      <h1 id={titleId} tabIndex={-1}>{t(`outils.t.${outil.id}.title`)}</h1>
-      <span className="u-outil-badge" data-partner={outilPartenaire(outil) ? "" : undefined}>{t(outilPartenaire(outil) ? "outils.partner" : "outils.open")}</span>
+      <h1 id={titleId} tabIndex={-1}>{titreCarte(t, outil.id)}</h1>
       <ToolSwitch current={outil.id} />
     </header>
-    <p className="u-small">{t(`outils.t.${outil.id}.line`)}</p>
-    <ProtocolStrip states={states} />
+    <p className="u-small">{ligneCarte(t, outil.id)}</p>
+    <div className="u-tool-step u-model-card" data-tool-step="modele">
+      <span className="u-label">{t("outils.model")}</span>
+      <strong data-model-current="">{nomModele(t, outil.id)}</strong>
+      <ModelMenu current={outil.id} onPick={pickModel} />
+    </div>
     {main.length > 0 && <fieldset className="u-tool-step" data-tool-step="entree">
       <legend className="u-label">{t("outils.input")}</legend>
       {main.map(entree => <InputSlot key={entree} entree={entree} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
@@ -326,12 +351,10 @@ export function ToolPanel({ outil }: { outil: Outil }) {
       <span className="u-label">{t("outils.prompt")}{outil.texte === "facultatif" ? ` ${t("suite.optional")}` : ""}</span>
       <textarea rows={3} value={text} maxLength={1200} {...lock} onChange={event => { setText(event.target.value); reset(); }} />
     </label>}
-    {refs.length > 0 && <details className="u-tool-fold" data-tool-step="references">
-      <summary>{t("outils.refs")}</summary>
+    {refs.length > 0 && <Fold step="references" label={t("outils.refs")}>
       {refs.map(entree => <InputSlot key={entree} entree={entree} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
-    </details>}
-    {reglages.length > 0 && <details className="u-tool-fold" data-tool-step="reglages">
-      <summary>{t("outils.settings")}</summary>
+    </Fold>}
+    {reglages.length > 0 && <Fold step="reglages" label={t("outils.settings")}>
       {reglages.includes("aspect") && <div className="u-choice-row" role="group" aria-label={t("outils.format")}>
         {(["horizontal", "vertical"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={aspect === id} data-tool-aspect={id} {...lock} onClick={() => { setAspect(id); reset(); }}>{t(`outils.aspect.${id}`)}</button>)}
       </div>}
@@ -344,24 +367,40 @@ export function ToolPanel({ outil }: { outil: Outil }) {
       {reglages.includes("fluide") && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={fluide} data-tool-fluide="" {...lock} onClick={() => { setFluide(value => !value); reset(); }}>
         <span className="u-final-box" aria-hidden="true">{fluide ? "✓" : ""}</span><span>{t("suite.fluide")}</span>
       </button>}
-    </details>}
-    <button type="button" role="checkbox" className="u-final-confirm" aria-checked={confirmed} data-tool-confirm="" {...lock} onClick={() => setConfirmed(value => !value)}>
-      <span className="u-final-box" aria-hidden="true">{confirmed ? "✓" : ""}</span>
-      <span>{t("outils.confirm", { credits: formatCredits(quote?.credits ?? 0), ceiling: formatCredits(quote?.high ?? 0) })}</span>
-    </button>
-    <button type="button" className="u-tool-go" data-tool-go="" disabled={!can} aria-describedby={busy ? busyId : why ? whyId : undefined} onClick={() => void launch()}>
+    </Fold>}
+    <button type="button" className="u-tool-go" data-tool-go="" aria-disabled={busy || undefined} aria-describedby={busy ? busyId : why ? whyId : undefined} onClick={press}>
       <span>{action}</span>
-      {quote && <span className="u-tool-go-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })} <small>{t("outils.estimate")}</small> <small className="u-tool-go-reserve">{t("outils.reserve", { ceiling: formatCredits(quote.high) })}</small></span>}
+      {quote && <span className="u-tool-go-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })}</span>}
     </button>
-    {why && !busy && <p className="u-why" id={whyId} data-tool-why="">{why}{!connected && etat.kind === "pret" && !missingInput && !missingText ? <> <button type="button" className="u-link" data-tool-link="" onClick={() => setSheet("connect")}>{t("outils.link")}</button></> : null}</p>}
-    {!connected && (missingInput || missingText) && !busy && <p className="u-small" data-tool-link-hint="">{t("videoGeste.needLink")} <button type="button" className="u-link" data-tool-link="" onClick={() => setSheet("connect")}>{t("outils.link")}</button></p>}
+    {why && !busy && <p className="u-why" id={whyId} data-tool-why="">{why}</p>}
     {stage && <p className="u-small" id={busyId} aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
     {outcome && !outcome.ok && <p className="u-why" role="alert" data-tool-fail="">{outcome.message} {t("suite.intact")}</p>}
     {outcome?.ok && <p className="u-small" data-tool-done="">{t("suite.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p>}
+    {ask && quote && <div className="u-confirm-layer">
+      <div role="dialog" aria-modal="true" aria-labelledby={askId} className="u-confirm" data-tool-ask="">
+        <h2 id={askId}>{t("outils.confirmTitle")}</h2>
+        <p>{t("outils.confirmBody", { credits: formatCredits(quote.credits) })}</p>
+        <div className="u-confirm-actions">
+          <button type="button" className="u-primary" data-tool-confirm="" onClick={() => void launch()}>{t("outils.confirmYes")}</button>
+          <button type="button" className="u-link" data-tool-cancel="" onClick={() => setAsk(false)}>{t("outils.confirmNo")}</button>
+        </div>
+      </div>
+    </div>}
   </section>;
 }
 
 type Filtre = "tout" | Sortie;
+
+/** A still shows at once. Video waits for a tap, so WebKit does not decode a clip during navigation. */
+function ResultMedia({ kind, url, name }: { kind: "image" | "video" | "audio" | "mesh"; url: string; name: string }) {
+  const { t } = useI18n();
+  const [play, setPlay] = useState(false);
+  if (kind === "image") return <img src={url} alt={name} />;
+  if (kind === "audio") return <audio src={url} controls />;
+  if (kind === "mesh") return <a className="u-chip" href={url} download>{t("outils.download")}</a>;
+  if (!play) return <button type="button" className="u-result-play" onClick={() => setPlay(true)}>{t("montage.play")}</button>;
+  return <video src={url} controls playsInline muted preload="metadata" />;
+}
 
 export function OutilResults({ sortie, limit = 12, title, hideEmpty = false }: { sortie?: Sortie; limit?: number; title?: string; hideEmpty?: boolean }) {
   const { t } = useI18n();
@@ -378,7 +417,7 @@ export function OutilResults({ sortie, limit = 12, title, hideEmpty = false }: {
     </header>
     {shown.length === 0 ? <p className="u-small" data-results-empty="">{t("outils.resultsEmpty")}</p> : <div className="u-tool-results-list">
       {shown.map(({ asset, url, kind }) => <article key={asset.id} className="u-tool-result" data-result={asset.id}>
-        {kind === "image" ? <img src={url} alt={asset.name} /> : kind === "video" ? <video src={url} controls playsInline muted /> : kind === "audio" ? <audio src={url} controls /> : <a className="u-chip" href={url} download>{t("outils.download")}</a>}
+        <ResultMedia kind={kind} url={url} name={asset.name} />
         <p className="u-small u-tool-result-name">{asset.name}</p>
         {(kind === "image" || kind === "video") && <EtEnsuite source={{ kind, url, name: asset.name, path: asset.media || undefined }} defaultOpen />}
       </article>)}
@@ -404,7 +443,10 @@ function useRecents(current: string): string[] {
 /** The tool card's switch: recent tools and « Voir tous les outils », without leaving the panel. */
 function ToolSwitch({ current }: { current: string }) {
   const { t } = useI18n();
+  const { prefs } = useStudio();
   const recents = useRecents(current);
+  const here = outilParId(current);
+  const family = here ? outilsPublics(prefs).filter(item => familleVitrine(item) === familleVitrine(here) && intentDe(item.id) !== intentDe(current)).slice(0, 8) : [];
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const menuId = useId();
@@ -422,7 +464,13 @@ function ToolSwitch({ current }: { current: string }) {
       {recents.length > 0 && <>
         <p className="u-label">{t("toolswitch.recent")}</p>
         <ul role="list" className="u-dd-list">
-          {recents.map(id => <li key={id}><button type="button" data-recent-outil={id} onClick={() => { setOpen(false); openTool(id); }}>{t(`outils.t.${id}.title`)}</button></li>)}
+          {recents.map(id => <li key={id}><button type="button" data-recent-outil={id} onClick={() => { setOpen(false); openTool(id); }}>{titreCarte(t, id)}</button></li>)}
+        </ul>
+      </>}
+      {family.length > 0 && <>
+        <p className="u-label">{t("toolswitch.family")}</p>
+        <ul role="list" className="u-dd-list">
+          {family.map(item => <li key={item.id}><button type="button" data-family-outil={item.id} onClick={() => { setOpen(false); openTool(item.id); }}>{titreCarte(t, item.id)}</button></li>)}
         </ul>
       </>}
       <button type="button" className="u-secondary" data-switch-all="" onClick={() => { setOpen(false); openTool(null); }}>{t("outils.seeAll")}</button>
