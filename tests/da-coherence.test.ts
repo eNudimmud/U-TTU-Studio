@@ -41,17 +41,25 @@ describe("DA et logo partout", () => {
     assert.match(css, /--accent: #c9a75b/i);
     assert.match(css, /--link: var\(--accent\)/);
     assert.doesNotMatch(css + read("src/components/app/app.css") + read("src/lib/clerk-appearance.ts"), /#8ab4ff/i);
-    assert.doesNotMatch(read("src/components/app/glyphs.tsx"), /export const Web\b/);
+    assert.doesNotMatch(read("src/components/app/glyphs.tsx"), /export const (Web|Iii)\b/);
   });
 
   it("publie icônes, manifeste et aperçus de lien depuis le logo de JD", () => {
-    for (const icon of ["src/app/favicon.ico", "src/app/icon0.svg", "src/app/icon1.png", "src/app/icon2.png", "src/app/icon3.png", "src/app/apple-icon.png", "public/brand/icon-192.png", "public/brand/icon-512.png", "public/brand/icon-maskable-512.png"]) {
+    for (const icon of ["src/app/favicon.ico", "src/app/icon0.svg", "src/app/icon1.png", "src/app/icon2.png", "src/app/icon3.png", "src/app/apple-icon.png", "public/brand/icon-v3-192.png", "public/brand/icon-v3-512.png", "public/brand/icon-v3-maskable-512.png"]) {
+      assert.equal(existsSync(icon), true, icon);
+    }
+    for (const old of ["public/brand/icon-192.png", "public/brand/icon-512.png", "public/brand/icon-maskable-512.png"]) {
+      assert.equal(existsSync(old), false, old);
+    }
+    for (const icon of [] as string[]) {
       assert.equal(existsSync(icon), true, icon);
     }
     assert.match(read("src/app/icon0.svg"), /<image [^>]*href="data:image\/png;base64,/);
     assert.doesNotMatch(read("src/app/icon0.svg"), /<path|<circle|<line/);
     const manifest = read("src/app/manifest.ts");
     assert.match(manifest, /purpose: "maskable"/);
+    assert.match(manifest, /icon-\$\{V\}-maskable-512\.png/);
+    assert.match(manifest, /background_color: "#0F0F11"/);
     assert.match(manifest, /theme_color: "#0F0F11"/);
     const routes = JSON.parse(read("src/lib/route-meta.json")) as { id: string; path: string; title: string; description: string }[];
     assert.deepEqual(routes.map(route => route.path), ["/", "/studio", "/mon-studio", "/compte", "/sign-in", "/sign-up"]);

@@ -73,23 +73,7 @@ for base, img, heights in [("uttu-mark", mark, (48, 56, 64)), ("uttu-logo", lock
             out.save(os.path.join(OUT, name), optimize=True)
             made[name] = out.size
 
-# Icons: the mark as is, on graphite. Thin at small sizes; that is JD's line.
-G = (15, 15, 17, 255)
-def icon(size, scale):
-    c = Image.new("RGBA", (size, size), G)
-    target = round(size * scale)
-    pre = mark.convert("RGBa")
-    w, h = (target, round(target * mark.height / mark.width)) if mark.width >= mark.height else (round(target * mark.width / mark.height), target)
-    t = pre.resize((w, h), Image.LANCZOS).convert("RGBA")
-    c.alpha_composite(t, ((size - w) // 2, (size - h) // 2))
-    return c.convert("RGB")
-icon(512, .80).save(os.path.join(OUT, "icon-512.png"), optimize=True)
-icon(192, .80).save(os.path.join(OUT, "icon-192.png"), optimize=True)
-icon(512, .62).save(os.path.join(OUT, "icon-maskable-512.png"), optimize=True)   # inside the 80 % safe zone
-icon(180, .80).save(os.path.join(APP, "apple-icon.png"), optimize=True)
-icon(64, .92).save(os.path.join(APP, "icon.png"), optimize=True)
-ico = [icon(s, .94) for s in (16, 32, 48)]
-ico[2].save(os.path.join(APP, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)], append_images=ico[:2])
+# Icons (manifest, apple-touch, favicon, SVG tab icon): scripts/brand/make_icons.py, versioned names.
 
 # Proof: nothing cut, nothing changed.
 def proof(img, box, pad, label):

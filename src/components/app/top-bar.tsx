@@ -3,6 +3,7 @@
 // One top bar for every studio page:
 // logo · Accueil · Créer ▾ · Film ▾ · Mes créations ▾ | search · account and credits · language menu.
 // The project switcher lives only in Film. Below 1024 px the same items live in one drawer.
+// The rail (from 768 px) and the bottom bar (phones) come with it: see studio-nav.tsx.
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatCredits } from "@/lib/credits";
@@ -14,6 +15,7 @@ import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Brand } from "@/components/brand";
 import { useStudio } from "./studio-session";
 import { toggleAssistant } from "./assistant-panel";
+import { StudioRail, StudioTabs, useTopHeight } from "./studio-nav";
 
 
 const ICON = { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
@@ -57,6 +59,7 @@ export function TopBar({ place }: { place: Place }) {
   const { connected, balance, balanceNote, setSheet } = useStudio();
   const [drawer, setDrawer] = useState(false);
   const [palette, setPalette] = useState(false);
+  useTopHeight();
   const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
 
   useEffect(() => {
@@ -108,6 +111,8 @@ export function TopBar({ place }: { place: Place }) {
         </div>
       </aside>
     </div>}
+    <StudioRail place={place} onSearch={() => setPalette(true)} />
+    <StudioTabs place={place} />
     {palette && <SearchPalette onClose={() => setPalette(false)} />}
   </>;
 }

@@ -39,6 +39,6 @@ Typographie : Syne (titres) et Manrope (texte), auto-hébergées, SIL OFL. Les �
 
 Le portrait canonique fourni par JD (`1000034598.png` → `public/images/uttu-canon-portrait.webp`, SHA-256 `574c8a45b35caf876ad25b881e357137e613e5b87b11660e644b891882a0c8df`) est converti en WebP sans retouche, cadré en CSS. Ce n’est pas un résultat de rendu.
 
-La carte OG (`public/og.jpg`, 1200 × 630) est typographique : aucun personnage, aucune génération. Source : [og-card.html](og-card.html), rendue par Chrome headless.
+La carte OG (`public/og.jpg` et `public/og/*.jpg`, 1200 × 630) porte le logo entier de JD sur fond Obsidian #0F0F11, le titre de la page à côté : aucun personnage, aucune génération. Source : `scripts/brand/make_meta.py`. Icônes d’app, d’onglet et d’écran d’accueil : `scripts/brand/make_icons.py` (noms versionnés, zone sûre pour les masques ronds et squircle).
 
 Le mouvement reste discret et se coupe avec `prefers-reduced-motion`.

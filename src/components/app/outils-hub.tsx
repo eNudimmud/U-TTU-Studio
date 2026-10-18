@@ -17,7 +17,9 @@ import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/m
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
-import { StudioHome, openStudioTool } from "./studio-entry";
+import { CardThumb, StudioHome, openStudioTool } from "./studio-entry";
+import { ReperageTool } from "./reperage/reperage-tool";
+import { REPERAGE_ID } from "@/lib/outils/vignettes";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
 
 export const SAMPLES: Record<Entree, { url: string; name: string }> = {
@@ -57,6 +59,7 @@ function nomModele(t: (key: string) => string, id: string) {
 export function OutilCard({ outil }: { outil: Outil }) {
   const { t } = useI18n();
   return <button type="button" className="u-outil-card" data-outil={outil.id} data-etat="pret" onClick={() => openTool(outil.id)}>
+    <CardThumb id={outil.id} fam={familleVitrine(outil)} />
     <span className="u-outil-name">{titreCarte(t, outil.id)}</span>
     <span className="u-outil-line">{ligneCarte(t, outil.id)}</span>
   </button>;
@@ -84,6 +87,7 @@ export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: b
 export function OutilsHub({ tool }: { tool: string | null }) {
   const { t } = useI18n();
   const { connected, setSheet } = useStudio();
+  if (tool === REPERAGE_ID) return <ReperageTool onBack={() => openTool(null)} />;
   const outil = tool ? outilParId(tool) : null;
   if (!outil || outil.bientot) return <StudioHome />;
   const head = intentDe(outil.id);

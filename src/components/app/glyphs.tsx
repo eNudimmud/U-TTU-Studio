@@ -30,7 +30,6 @@ export const Check = ({ className }: GlyphProps) => <svg {...base} className={cl
 export const Coffre = ({ className }: GlyphProps) => <svg {...base} className={className}><rect x="3.5" y="6.5" width="17" height="13" rx="2" /><path d="M3.5 10.5h17M12 10.5v4" /></svg>;
 
 
-export const Iii = ({ className }: GlyphProps) => <svg width="22" height="20" viewBox="0 0 22 20" className={className} aria-hidden="true" fill="currentColor"><rect x="2" y="7" width="3.4" height="11" /><rect x="9.3" y="7" width="3.4" height="11" /><rect x="16.6" y="7" width="3.4" height="11" /><rect x="2" y="1.5" width="3.4" height="3.4" /><rect x="9.3" y="1.5" width="3.4" height="3.4" /><rect x="16.6" y="1.5" width="3.4" height="3.4" /></svg>;
 
 export type MarkKind = "personnage" | "lieu" | "prise" | "sequence" | "note";
 

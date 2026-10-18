@@ -41,7 +41,7 @@ function note(line) {
     box = document.createElement("div");
     box.id = "uttu-media-note";
     box.setAttribute("role", "status");
-    box.style.cssText = "position:fixed;z-index:2147483647;left:8px;right:8px;bottom:72px;padding:8px 10px;border-radius:8px;background:#3a1010;color:#fff;font:600 12px/1.35 sans-serif";
+    box.style.cssText = "position:fixed;z-index:2147483647;left:8px;right:8px;bottom:72px;padding:8px 10px;border-radius:8px;background:#2a1a19;color:#ededf0;border:1px solid #ff8577;font:600 12px/1.35 sans-serif";
     body.appendChild(box);
   }
   const count = Number(box.dataset.count || 0) + 1;
@@ -60,7 +60,7 @@ function runNote(line) {
     box = document.createElement("div");
     box.id = "uttu-run-note";
     box.setAttribute("role", "status");
-    box.style.cssText = "position:fixed;z-index:2147483646;left:8px;right:8px;bottom:128px;max-height:28vh;overflow:auto;padding:8px 10px;border-radius:8px;background:#1c1408;color:#fff;font:600 12px/1.35 sans-serif";
+    box.style.cssText = "position:fixed;z-index:2147483646;left:8px;right:8px;bottom:128px;max-height:28vh;overflow:auto;padding:8px 10px;border-radius:8px;background:#1f1f23;color:#ededf0;border:1px solid #3a3a41;font:600 12px/1.35 sans-serif";
     body.appendChild(box);
   }
   if (box.textContent !== line) box.textContent = line;
@@ -206,29 +206,29 @@ function gateAsk(label, decision) {
     wrap.setAttribute("role", "dialog");
     wrap.setAttribute("aria-modal", "true");
     wrap.setAttribute("aria-labelledby", "uttu-gate-title");
-    wrap.style.cssText = "position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:rgba(10,10,11,.74);font:500 14px/1.5 system-ui,-apple-system,sans-serif;color:#f1ede6";
+    wrap.style.cssText = "position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:rgba(15,15,17,.78);font:500 14px/1.5 'Geist Variable',system-ui,-apple-system,sans-serif;color:#ededf0";
     const card = document.createElement("div");
-    card.style.cssText = "width:min(420px,calc(100% - 32px));background:#111112;border:1px solid #c4a574;border-radius:10px;padding:20px 20px 16px;box-shadow:0 24px 64px rgba(0,0,0,.6)";
+    card.style.cssText = "width:min(420px,calc(100% - 32px));background:#17171a;border:1px solid #3a3a41;border-radius:12px;padding:20px 20px 16px";
     const title = document.createElement("h2");
     title.id = "uttu-gate-title";
     title.textContent = "Lancer ce rendu ?";
-    title.style.cssText = "margin:0 0 10px;font:600 20px/1.2 system-ui,-apple-system,sans-serif;color:#f1ede6";
+    title.style.cssText = "margin:0 0 10px;font:600 20px/1.2 'Geist Variable',system-ui,-apple-system,sans-serif;color:#ededf0";
     card.appendChild(title);
-    gateLine(card, label, "color:#e6cfa7");
-    gateLine(card, decision.line, decision.tone === "block" ? "color:#df9390" : "color:#e6cfa7");
-    gateLine(card, "Rien ne part sans ce clic. Le studio n’encaisse rien.", "color:#a8a6a2;font-size:12px;margin-top:4px");
+    gateLine(card, label, "color:#ededf0");
+    gateLine(card, decision.line, decision.tone === "block" ? "color:#ff8577" : "color:#ededf0");
+    gateLine(card, "Rien ne part sans ce clic. Le studio n’encaisse rien.", "color:#a0a0ab;font-size:12px;margin-top:4px");
     const actions = document.createElement("div");
     actions.style.cssText = "display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap";
     const cancel = document.createElement("button");
     cancel.type = "button";
     cancel.textContent = "Annuler";
-    cancel.style.cssText = "min-height:44px;padding:10px 18px;border:1px solid #8a7554;background:transparent;color:#f1ede6;border-radius:6px;font:600 14px system-ui,sans-serif;cursor:pointer";
+    cancel.style.cssText = "min-height:44px;padding:10px 18px;border:1px solid #6a6a74;background:transparent;color:#ededf0;border-radius:10px;font:600 14px 'Geist Variable',system-ui,sans-serif;cursor:pointer";
     const launch = document.createElement("button");
     launch.type = "button";
     launch.id = "uttu-gate-launch";
     launch.textContent = "Lancer";
     launch.disabled = !decision.allow;
-    launch.style.cssText = "min-height:44px;padding:10px 18px;border:1px solid #c4a574;background:#c4a574;color:#11100f;border-radius:6px;font:650 14px system-ui,sans-serif;cursor:pointer" + (decision.allow ? "" : ";opacity:.45;cursor:not-allowed");
+    launch.style.cssText = "min-height:44px;padding:10px 18px;border:1px solid #c9a75b;background:#c9a75b;color:#17130a;border-radius:10px;font:600 14px 'Geist Variable',system-ui,sans-serif;cursor:pointer" + (decision.allow ? "" : ";opacity:.45;cursor:not-allowed");
     actions.appendChild(cancel);
     actions.appendChild(launch);
     card.appendChild(actions);

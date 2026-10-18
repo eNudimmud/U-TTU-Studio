@@ -23,7 +23,8 @@
     "opening": "Mein Studio wird geöffnet…",
     "takeRunning": "Take läuft",
     "sceneRunning": "Szene läuft",
-    "renderCredits": "Credits des Render-Kontos"
+    "renderCredits": "Credits des Render-Kontos",
+    "rail": "Studio-Werkzeuge"
   },
   "project": {
     "lead": "Der Name steht schon da: {name}. Eine Geste legt das Projekt an. Du kannst ihn ändern."
@@ -818,8 +819,8 @@
     "castPromptPh": "Eine Frau im dunklen Mantel, ruhiger Blick.",
     "views": "Vorne, Dreiviertel, Profil, ganz.",
     "name": "Name",
-    "castButton": "Figur erstellen · ≈ {amount} Cr.",
-    "decorButton": "Ort erstellen · ≈ {amount} Cr.",
+    "castButton": "Figur erstellen · ≈ {amount} Cr. geschätzt",
+    "decorButton": "Ort erstellen · ≈ {amount} Cr. geschätzt",
     "castButtonClosed": "Figur erstellen",
     "decorButtonClosed": "Kulisse erstellen",
     "ceilingHyp": "Schätzung: {high} Cr.",
@@ -1408,12 +1409,12 @@
     "aucun": "Keine",
     "bruit": "Rauschen",
     "flou": "Unschärfe",
-    "quote": "≈ {credits} Cr.",
+    "quote": "≈ {credits} Cr. geschätzt",
     "measured": "An einem echten Durchgang gemessen.",
     "estimate": "Schätzung, noch nicht gemessen.",
     "seconds": "Schnitt von {seconds} s.",
     "confirm": "Ich bestätige diese Schätzung. Der Endpreis kann abweichen.",
-    "go": "Fertigstellen · ≈ {credits} Cr.",
+    "go": "Fertigstellen · ≈ {credits} Cr. geschätzt",
     "empty": "Der Schnitt ist leer: füge mindestens eine Einstellung hinzu.",
     "long": "Der Schnitt ist länger als 60 s: kürze ihn vorher.",
     "needLink": "Verbinde dein Render-Konto (Comfy), um zu finalisieren.",
@@ -1462,10 +1463,10 @@
       "prise-previs": "Was in der Einstellung zu sehen ist"
     },
     "textOptional": "Was an den Seiten erscheint (optional)",
-    "quote": "≈ {credits} Cr.",
+    "quote": "≈ {credits} Cr. geschätzt",
     "estimate": "Der Endpreis kann abweichen.",
     "confirm": "Ich bestätige diese Schätzung. Der Endpreis kann abweichen.",
-    "go": "Starten · ≈ {credits} Cr.",
+    "go": "Starten · ≈ {credits} Cr. geschätzt",
     "needLink": "Verbinde dein Render-Konto (Comfy), um zu starten.",
     "needFiles": "Eine Datei oder der Text fehlt.",
     "needText": "Der Text ist leer.",
@@ -2018,11 +2019,18 @@
     "file": {
       "open": "Ortsdatei öffnen (KML, KMZ, GeoJSON)",
       "off": "Diese Datei enthält keinen lesbaren Punkt. Versuche KML, KMZ oder GeoJSON mit einem Ort."
-    }
+    },
+    "free": "kostenlos",
+    "stepPick": "Wähle einen Ort: eine Adresse, Koordinaten oder ein Beispiel.",
+    "stepLook": "Sieh ihn in 3D oder auf der Strasse mit freien Fotos.",
+    "stepKeep": "Nimm den Ausschnitt auf: Er landet in Meine Werke und bei den Referenzen der Kulisse.",
+    "kept": "Gespeicherte Aufnahmen: {n}",
+    "keptNone": "Erkunden und Aufnehmen kostet nichts.",
+    "toDecor": "Eine Kulisse aus meinen Aufnahmen machen"
   },
   "suite": {
     "title": "Und jetzt?",
-    "chip": "≈ {credits} Cr.",
+    "chip": "≈ {credits} Cr. geschätzt",
     "quote": "Etwa {credits} Cr., geschätzt. Der Endpreis kann abweichen.",
     "safe": "Das Ergebnis kommt zu Mein Studio dazu. Das Original wird nie ersetzt.",
     "go": "Starten · ≈ {credits} Credits (geschätzt)",
@@ -2118,9 +2126,9 @@
     "partner": "Partner",
     "soon": "Bald",
     "estimate": "geschätzt",
-    "cost": "≈ {credits} Cr.",
+    "cost": "≈ {credits} Cr. geschätzt",
     "perBlock": "pro 5 s",
-    "partnerPrice": "Partnerpreis ≈ {credits} Cr.",
+    "partnerPrice": "Partnerpreis ≈ {credits} Cr. geschätzt",
     "hidden": {
       "nano": "Ausgeblendet: in den Modell-Einstellungen aktivieren.",
       "openWeights": "Ausgeblendet: du hast nur Studiomodelle gewählt."
@@ -2416,6 +2424,10 @@
       "vid-mouvement": {
         "title": "Bewegung übertragen",
         "line": "Deine Figur übernimmt die Bewegung eines Videos."
+      },
+      "reperage": {
+        "title": "Ort erkunden",
+        "line": "Wähle einen Punkt auf der Weltkarte, sieh ihn in 3D oder auf Strassenhöhe, behalte deine Aufnahmen für die Kulisse."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2445,7 +2457,11 @@
     "confirmTitle": "Dieses Rendering starten?",
     "confirmBody": "Etwa {credits} Cr., geschätzt. Der Endpreis kann variieren.",
     "confirmYes": "Bestätigen",
-    "confirmNo": "Abbrechen"
+    "confirmNo": "Abbrechen",
+    "entryKey": "machen",
+    "costEst": "≈ {credits} Cr. geschätzt",
+    "rowAll": "Alle ansehen",
+    "rowLess": "Weniger"
   },
   "top": {
     "nav": "Studio-Navigation",
@@ -2595,6 +2611,7 @@
       "film": "Ein Kurzfilm"
     },
     "film": "Einen Film machen",
-    "filmLine": "Figur, Ort, Einstellung, dann der Schnitt."
+    "filmLine": "Figur, Ort, Einstellung, dann der Schnitt.",
+    "uttuAlt": "Uttu, die Figur des Studios"
   }
 }
