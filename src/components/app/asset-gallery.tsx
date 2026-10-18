@@ -150,6 +150,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
         source={{ kind: isVideo(current) ? "video" : "image", url: srcOf(current), name: current.id, path: current.preview ? undefined : current.media || undefined }}
         onPrise={onPrise && (current.kind === "personnage" || current.kind === "decor") ? () => onPrise(current) : undefined}
         initial={suiteInitial}
+        defaultOpen
       />}
     </article>}
     {rows.length === 0 ? <p className="u-small">{t("assets.empty")}</p> : <div className="u-gallery u-asset-grid">

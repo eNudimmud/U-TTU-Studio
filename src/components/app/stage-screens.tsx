@@ -1,5 +1,7 @@
 "use client";
 
+import { OutilsEntry, OutilsStrip } from "./outils-hub";
+import { ConnectLink } from "./connect-link";
 import { useEffect, useState, type ReactNode } from "react";
 import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
 import { DEPARTS, montrerDepart } from "@/lib/creation/depart";
@@ -243,6 +245,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <label className="u-secondary">{t("p0.importCast")}<input className="sr-only" type="file" accept="image/*" aria-label={t("p0.importCastAria")} disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "personnage"); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
+      <OutilsEntry />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>
@@ -255,6 +258,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       {preview && <div className="u-result-frame" data-ratio="3/4">
         <img src={preview} alt="" />
       </div>}
+      <OutilsStrip onglet="cast" />
     </div>
     <div className="u-create-bar">
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
@@ -263,6 +267,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         </button>
         {ceiling && <p className="u-ceiling">{ceiling}</p>}
         <Why on={blocked} id="u-why-cast" text={why} />
+        {blocked && <ConnectLink />}
       </>}
     </div>
   </Desk>;
@@ -397,6 +402,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       {!depart && (apres || preview) && <div className="u-result-frame">
         <img src={apres || preview} alt="" />
       </div>}
+      <OutilsStrip onglet="decor" />
     </div>
     <div className="u-create-bar">
       {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
@@ -405,6 +411,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         </button>
         {ceiling && <p className="u-ceiling">{ceiling}</p>}
         <Why on={blocked} id="u-why-decor" text={why} />
+        {blocked && <ConnectLink />}
       </>}
     </div>
   </Desk>;

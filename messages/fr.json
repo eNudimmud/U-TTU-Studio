@@ -1788,7 +1788,12 @@
       "technical": "Voir le détail technique",
       "stepNow": "Étape {n}/7 · {label}"
     },
-    "stillEmpty": "Choisissez qui et où : l’aperçu apparaît ici."
+    "stillEmpty": "Choisissez qui et où : l’aperçu apparaît ici.",
+    "groups": {
+      "maquette": "Maquette 3D et cadrage",
+      "rendu": "Moteur et durée",
+      "previs": "Prévis filmée"
+    }
   },
   "p1": {
     "hint": "Une phrase suffit : qui, où, ce qui se passe, la caméra, l’ambiance.",
@@ -2408,6 +2413,7 @@
         "title": "Copier un mouvement",
         "line": "Ton personnage reprend les gestes d’une vidéo."
       }
-    }
+    },
+    "latest": "Derniers résultats"
   }
 }

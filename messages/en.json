@@ -1788,7 +1788,12 @@
       "technical": "See the technical detail",
       "stepNow": "Step {n}/7 · {label}"
     },
-    "stillEmpty": "Choose who and where: the preview appears here."
+    "stillEmpty": "Choose who and where: the preview appears here.",
+    "groups": {
+      "maquette": "3D layout and framing",
+      "rendu": "Engine and length",
+      "previs": "Filmed previs"
+    }
   },
   "p1": {
     "hint": "One sentence is enough: who, where, what happens, the camera, the mood.",
@@ -2408,6 +2413,7 @@
         "title": "Copy a motion",
         "line": "Your character repeats a video’s moves."
       }
-    }
+    },
+    "latest": "Latest results"
   }
 }

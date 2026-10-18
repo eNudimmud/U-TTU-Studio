@@ -1,5 +1,7 @@
 "use client";
 
+import { OutilsStrip } from "./outils-hub";
+import { ConnectLink } from "./connect-link";
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { assetPath } from "@/lib/site";
 import {
@@ -847,6 +849,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         });
         return names.length > 0 ? <p className="u-bin-quiet">{t("gestes.soonQuiet", { names: names.join(", ") })}</p> : null;
       })()}
+      <OutilsStrip onglet="montage" />
       <button type="button" className="u-secondary u-bin-close" onClick={() => setBinOpen(false)}>{t("verb.close")}</button>
     </aside>
     <div className="u-capcut-player">
@@ -1028,11 +1031,13 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         {panel === "voix" && <>
           <button type="button" disabled={!connected} aria-describedby={!connected ? "u-why-voice" : undefined} onClick={() => { setStem("voix"); setScript(""); setPanel(null); }}>{t("montage.addVoice")}</button>
           {!connected && <Why on id="u-why-voice" text={t("montage.needLink")} />}
+          <ConnectLink />
           <p className="u-small">{voice ? t("montage.voiceQuote", { amount: voice.credits, high: voice.high, count: Math.max(script.trim().length, 1) }) : t("montage.voiceRate")}</p>
         </>}
         {panel === "effets" && <>
           <button type="button" disabled={!connected} aria-describedby={!connected ? "u-why-sfx" : undefined} onClick={() => { setStem("effets"); setPanel(null); }}>{t("montage.addSfx")}</button>
           {!connected && <Why on id="u-why-sfx" text={t("montage.needLink")} />}
+          <ConnectLink />
           <p className="u-small">{effect ? t("montage.sfxQuote", { amount: effect.credits, high: effect.high, seconds: SFX_DEFAULT_SECONDS }) : t("montage.sfxRate")}</p>
           {studio.takes.slice(0, 6).map(take => <button key={take.id} type="button" onClick={() => { addTakeSound(take, "effets"); setPanel(null); }}>{t("montage.fromTake", { name: take.line || take.id })}</button>)}
         </>}
@@ -1069,6 +1074,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
               });
             }}>{stem === "voix" ? t("montage.createVoice") : stem === "musique" ? t("montage.createMusic") : t("montage.createSfx")}</button>
             <Why on={blocked} id="u-why-create" text={why} />
+            <ConnectLink />
           </>;
         })()}
         <button type="button" className="u-link" onClick={() => setStem(null)}>{t("verb.cancel")}</button>
@@ -1126,6 +1132,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           </button>}
           <button type="button" className="u-primary" data-final-go="" disabled={Boolean(finGoWhy)} aria-describedby={finGoWhy ? "u-why-final-go" : undefined} onClick={runFinal}>{t("finaliser.go", { credits: num(finQuote?.credits ?? 0) })}</button>
           <Why on={Boolean(finGoWhy)} id="u-why-final-go" text={finGoWhy} />
+          <ConnectLink />
           {finPhase.phase === "fail" && <p className="u-why" role="alert">{t("finaliser.fail", { message: finPhase.message })}</p>}
         </>}
         {finPhase.phase === "prepare" && <>

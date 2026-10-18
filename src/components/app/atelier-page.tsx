@@ -1,5 +1,6 @@
 "use client";
 
+import { OutilResults } from "./outils-hub";
 import { useEffect, useMemo, useState } from "react";
 import { formatCredits } from "@/lib/credits";
 import { DEMO_NOTES, DEMO_SEQUENCES, DEMO_TAKES } from "@/lib/creation/demo";
@@ -136,6 +137,7 @@ function AtelierFrame() {
             </label>
           </div>
         </section>
+        <OutilResults limit={4} title={t("outils.latest")} hideEmpty />
         <div className="u-atelier-grid">
           <aside>
             <p className="u-label">{t("atelier.projects")}</p>

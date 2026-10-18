@@ -1788,7 +1788,12 @@
       "technical": "Ver el detalle técnico",
       "stepNow": "Paso {n}/7 · {label}"
     },
-    "stillEmpty": "Elige quién y dónde: la vista previa aparece aquí."
+    "stillEmpty": "Elige quién y dónde: la vista previa aparece aquí.",
+    "groups": {
+      "maquette": "Maqueta 3D y encuadre",
+      "rendu": "Motor y duración",
+      "previs": "Previs filmada"
+    }
   },
   "p1": {
     "hint": "Basta una frase: quién, dónde, qué pasa, la cámara, el ambiente.",
@@ -2408,6 +2413,7 @@
         "title": "Copiar un movimiento",
         "line": "Tu personaje repite los gestos de un vídeo."
       }
-    }
+    },
+    "latest": "Últimos resultados"
   }
 }

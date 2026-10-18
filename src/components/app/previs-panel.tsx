@@ -4,6 +4,7 @@
 // import .glb, trajet caméra par points-clés minutés, et « Générer en 3D » sur les
 // templates Comfy officiels (Hunyuan3D 2.1, TRELLIS.2), devis estimé avant toute dépense.
 
+import { ConnectLink } from "./connect-link";
 import { useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
@@ -176,6 +177,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
         <button type="button" className="u-secondary" data-mesh-go="" disabled={!can3d} aria-describedby={why3d ? "u-why-mesh" : undefined} onClick={() => void generate()}>{t("previs.mesh.go", { credits: formatCredits(row.credits) })}</button>
       </>}
       {why3d && !stage && <p className="u-why" id="u-why-mesh">{why3d}</p>}
+      {why3d && !stage && <ConnectLink />}
       {stage && <p className="u-small" id="u-mesh-busy" aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
       {meshNote && <p className="u-small" role="status">{meshNote}</p>}
     </div>

@@ -5,6 +5,7 @@
 // of the reserve, then runs on the visitor's Comfy account. The result is a new asset:
 // the asset it starts from is only read, so a failed run never touches it. No cancel.
 
+import { ConnectLink } from "./connect-link";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
@@ -176,18 +177,16 @@ function SuitePanel({ tool, source, onPrise, onClose }: { tool: Outil; source: S
       <span className="u-label">{t(`suite.tools.${tool}.text`)}{texte === "facultatif" ? ` ${t("suite.optional")}` : ""}</span>
       <textarea rows={2} value={text} maxLength={600} disabled={busy} aria-describedby={busy ? busyId : undefined} onChange={event => { setText(event.target.value); reset(); }} />
     </label>}
-    {quote && <div className="u-final-quote" data-suite-quote="estime">
-      <p className="u-cost">{t("suite.quote", { credits: formatCredits(quote.credits), ceiling: formatCredits(quote.high) })}</p>
-      <p className="u-small">{t("suite.safe")}</p>
-    </div>}
     <button type="button" role="checkbox" className="u-final-confirm" aria-checked={confirmed} data-suite-confirm="" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => setConfirmed(value => !value)}>
       <span className="u-final-box" aria-hidden="true">{confirmed ? "✓" : ""}</span>
-      <span>{t("videoGeste.confirm", { ceiling: formatCredits(quote?.high ?? 0) })}</span>
+      <span>{t("outils.confirm", { ceiling: formatCredits(quote?.high ?? 0) })}</span>
     </button>
-    <button type="button" className="u-suite-go" data-suite-go="" disabled={!can} aria-describedby={busy ? busyId : why ? `${titleId}-why` : undefined} onClick={() => void launch()}>
-      {t("suite.go", { credits: formatCredits(quote?.credits ?? 0) })}
+    <button type="button" className="u-tool-go" data-suite-go="" disabled={!can} aria-describedby={busy ? busyId : why ? `${titleId}-why` : undefined} onClick={() => void launch()}>
+      <span>{t(`suite.tools.${tool}.title`)}</span>
+      {quote && <span className="u-tool-go-cost" data-suite-quote="estime">{t("outils.cost", { credits: formatCredits(quote.credits) })} <small>{t("outils.estimate")}</small></span>}
     </button>
     {why && !busy && <p className="u-why" id={`${titleId}-why`}>{why}</p>}
+    {why && !busy && <ConnectLink />}
     {tool === "suite-animer" && onPrise && <button type="button" className="u-secondary u-suite-prise" data-suite-prise="" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={onPrise}>{t("suite.toPrise")}</button>}
     {stage && <p className="u-small" id={busyId} aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
     {outcome && (outcome.ok

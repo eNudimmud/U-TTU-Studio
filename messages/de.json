@@ -1788,7 +1788,12 @@
       "technical": "Technische Details ansehen",
       "stepNow": "Schritt {n}/7 · {label}"
     },
-    "stillEmpty": "Wähle wer und wo: Die Vorschau erscheint hier."
+    "stillEmpty": "Wähle wer und wo: Die Vorschau erscheint hier.",
+    "groups": {
+      "maquette": "3D-Modell und Bildausschnitt",
+      "rendu": "Modell und Dauer",
+      "previs": "Gefilmte Previs"
+    }
   },
   "p1": {
     "hint": "Ein Satz genügt: wer, wo, was passiert, die Kamera, die Stimmung.",
@@ -2408,6 +2413,7 @@
         "title": "Bewegung übertragen",
         "line": "Deine Figur übernimmt die Bewegung eines Videos."
       }
-    }
+    },
+    "latest": "Neueste Ergebnisse"
   }
 }

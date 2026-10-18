@@ -6,7 +6,7 @@
 // next to the panel and each one shows « Et ensuite ? » open. A tool that is not wired yet
 // says « bientôt » and why; there is never a button that does nothing. No cancel.
 
-import { useEffect, useId, useMemo, useRef, useState, type DragEvent } from "react";
+import { useEffect, useId, useMemo, useState, type DragEvent } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { formatCredits } from "@/lib/credits";
@@ -78,18 +78,16 @@ export function OutilCard({ outil }: { outil: Outil }) {
   </article>;
 }
 
-/** One tab's own tools, from the same hub data. */
-export function OutilsStrip({ onglet }: { onglet: Onglet }) {
+/** One tab's own tools, from the same hub data, folded so the tab stays short. */
+export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: boolean }) {
   const { t } = useI18n();
   const list = outilsOnglet(onglet);
   if (list.length === 0) return null;
-  return <section className="u-outils-strip" data-outils-onglet={onglet} aria-label={t("outils.tabTools")}>
-    <header className="u-outils-strip-head">
-      <h2>{t("outils.tabTools")}</h2>
-      <button type="button" className="u-secondary" data-outils-all="" onClick={() => openTool(null)}>{t("outils.seeAll")}</button>
-    </header>
+  return <details className="u-outils-strip" data-outils-onglet={onglet} open={open || undefined}>
+    <summary><span>{t("outils.tabTools")}</span><span className="u-small">{t("outils.count", { n: String(list.length) })}</span></summary>
     <div className="u-outils-grid">{list.map(item => <OutilCard key={item.id} outil={item} />)}</div>
-  </section>;
+    <button type="button" className="u-secondary" data-outils-all="" onClick={() => openTool(null)}>{t("outils.seeAll")}</button>
+  </details>;
 }
 
 /** « Que veux-tu créer ? » on the studio home: one click to the hub. */
@@ -171,7 +169,7 @@ function useResultAssets(): { asset: AssetRecord; url: string; kind: "image" | "
   }, [loose, media, studio.takes]);
 }
 
-function InputSlot({ entree, value, busy, onChange }: { entree: Entree; value: Picked | null; busy: boolean; onChange(next: Picked | null): void }) {
+function InputSlot({ entree, value, busy, busyId, onChange }: { entree: Entree; value: Picked | null; busy: boolean; busyId: string; onChange(next: Picked | null): void }) {
   const { t } = useI18n();
   const id = useId();
   const [over, setOver] = useState(false);
@@ -197,10 +195,10 @@ function InputSlot({ entree, value, busy, onChange }: { entree: Entree; value: P
     <div className="u-outil-input-actions">
       <label className="u-chip u-file-chip" data-outil-file={entree}>
         <span>{value ? t("outils.replace") : t("outils.pick")}</span>
-        <input type="file" accept={accept} disabled={busy} aria-labelledby={`${id}-label`} onChange={event => take(event.target.files?.[0] ?? undefined)} />
+        <input type="file" accept={accept} disabled={busy} aria-labelledby={`${id}-label`} aria-describedby={busy ? busyId : undefined} onChange={event => take(event.target.files?.[0] ?? undefined)} />
       </label>
-      <button type="button" className="u-chip" data-outil-sample={entree} disabled={busy} onClick={() => onChange({ url: assetPath(SAMPLES[entree].url), name: SAMPLES[entree].name })}>{t("outils.sample")}</button>
-      {own.length > 0 && <button type="button" className="u-chip" aria-expanded={studioOpen} data-outil-studio={entree} disabled={busy} onClick={() => setStudioOpen(open => !open)}>{t("outils.fromStudio")}</button>}
+      <button type="button" className="u-chip" data-outil-sample={entree} disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => onChange({ url: assetPath(SAMPLES[entree].url), name: SAMPLES[entree].name })}>{t("outils.sample")}</button>
+      {own.length > 0 && <button type="button" className="u-chip" aria-expanded={studioOpen} data-outil-studio={entree} disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => setStudioOpen(open => !open)}>{t("outils.fromStudio")}</button>}
     </div>
     {studioOpen && <div className="u-outil-own" role="group" aria-label={t("outils.fromStudio")}>
       {own.map(item => <button key={item.asset.id} type="button" className="u-outil-own-item" onClick={() => { onChange({ url: item.url, name: item.asset.name, path: item.asset.media || undefined }); setStudioOpen(false); }}>
@@ -310,7 +308,7 @@ export function ToolPanel({ outil }: { outil: Outil }) {
     <ProtocolStrip states={states} />
     {main.length > 0 && <fieldset className="u-tool-step" data-tool-step="entree">
       <legend className="u-label">{t("outils.input")}</legend>
-      {main.map(entree => <InputSlot key={entree} entree={entree} value={inputs[entree] ?? null} busy={busy} onChange={next => set(entree, next)} />)}
+      {main.map(entree => <InputSlot key={entree} entree={entree} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
       {outil.consentement && inputs.audio && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={consent} data-tool-consent="" {...lock} onClick={() => { setConsent(value => !value); reset(); }}>
         <span className="u-final-box" aria-hidden="true">{consent ? "✓" : ""}</span><span>{t("outils.consent")}</span>
       </button>}
@@ -321,7 +319,7 @@ export function ToolPanel({ outil }: { outil: Outil }) {
     </label>}
     {refs.length > 0 && <details className="u-tool-fold" data-tool-step="references">
       <summary>{t("outils.refs")}</summary>
-      {refs.map(entree => <InputSlot key={entree} entree={entree} value={inputs[entree] ?? null} busy={busy} onChange={next => set(entree, next)} />)}
+      {refs.map(entree => <InputSlot key={entree} entree={entree} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
     </details>}
     {reglages.length > 0 && <details className="u-tool-fold" data-tool-step="reglages">
       <summary>{t("outils.settings")}</summary>
@@ -356,20 +354,20 @@ export function ToolPanel({ outil }: { outil: Outil }) {
 
 type Filtre = "tout" | Sortie;
 
-export function OutilResults({ sortie }: { sortie?: Sortie }) {
+export function OutilResults({ sortie, limit = 12, title, hideEmpty = false }: { sortie?: Sortie; limit?: number; title?: string; hideEmpty?: boolean }) {
   const { t } = useI18n();
   const all = useResultAssets();
   const [filtre, setFiltre] = useState<Filtre>(sortie ?? "tout");
-  const shown = all.filter(item => filtre === "tout" || item.kind === filtre).slice(0, 12);
-  const listRef = useRef<HTMLDivElement>(null);
+  const shown = all.filter(item => filtre === "tout" || item.kind === filtre).slice(0, limit);
+  if (hideEmpty && all.length === 0) return null;
   return <section className="u-tool-results" data-tool-results="" aria-label={t("outils.results")}>
     <header className="u-tool-results-head">
-      <h2>{t("outils.results")}</h2>
+      <h2>{title ?? t("outils.results")}</h2>
       <div className="u-choice-row" role="group" aria-label={t("outils.results")}>
         {(["tout", "image", "video", "audio", "mesh"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={filtre === id} data-results-filter={id} onClick={() => setFiltre(id)}>{t(`outils.filter.${id}`)}</button>)}
       </div>
     </header>
-    {shown.length === 0 ? <p className="u-small" data-results-empty="">{t("outils.resultsEmpty")}</p> : <div className="u-tool-results-list" ref={listRef}>
+    {shown.length === 0 ? <p className="u-small" data-results-empty="">{t("outils.resultsEmpty")}</p> : <div className="u-tool-results-list">
       {shown.map(({ asset, url, kind }) => <article key={asset.id} className="u-tool-result" data-result={asset.id}>
         {kind === "image" ? <img src={url} alt={asset.name} /> : kind === "video" ? <video src={url} controls playsInline muted /> : kind === "audio" ? <audio src={url} controls /> : <a className="u-chip" href={url} download>{t("outils.download")}</a>}
         <p className="u-small u-tool-result-name">{asset.name}</p>
