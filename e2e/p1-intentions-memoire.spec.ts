@@ -94,7 +94,7 @@ test('mémoire de production · 3 plans : A-02 et A-03 héritent de la tenue, A-
   await text.fill("La caméra tourne autour de Léa à 90°, dans le laboratoire");
   await expect(cont).toContainText('✓ Léa · tenue de chasseur · depuis A-01');
   await expect(page.locator('[data-uttu-dit]')).toContainText('Rotation de 90° autour de Léa.');
-  await expect(page.locator('[data-uttu-dit]')).toContainText('LTX ne garantit pas ce mouvement au centimètre.');
+  await expect(page.locator('[data-uttu-dit]')).toContainText('Ce style ne garantit pas ce mouvement au centimètre.');
   await cont.locator('[data-changer-etat]').click();
   await cont.locator('input').fill('combinaison de labo');
   await cont.getByRole('button', { name: 'Enregistrer' }).click();

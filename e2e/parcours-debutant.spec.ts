@@ -110,11 +110,11 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await expect(page.locator('[data-fiabilite]')).toBeVisible();
   await tap(page.locator('[data-create-confirm]'));
 
-  // 3 · PRISE in the default 16:9, LTX estimated quote, the user's camera words kept.
+  // 3 · PRISE in the default 16:9, one estimated cost, the user's camera words kept.
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1', { timeout: 30_000 });
   await expect(page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '16:9', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.u-prise-quote:visible')).toHaveCount(1);
-  await expect(page.locator('.u-prise-quote:visible')).toContainText('estimé');
+  await expect(page.locator('.u-prise-quote:visible')).toHaveText(/≈ [\d,]+ cr\./);
   await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
   // Default PRISE: no 3D maquette, no still-image shortcut.
   await expect(page.locator('[data-maquette]')).toBeHidden();
