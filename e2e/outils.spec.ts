@@ -118,3 +118,14 @@ test("MONTAGE : le menu Plus se ferme avec Échap et ne bloque plus les onglets"
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
   await expect(page.getByRole("heading", { name: "DÉCOR" })).toBeVisible();
 });
+
+test('passer d’un outil à l’autre : un seul panneau à la fois, filtre des résultats propre à l’outil', async ({ page }) => {
+  await page.goto('/studio#outils/img-klein');
+  await expect(page.locator('[data-tool-panel]')).toHaveCount(1);
+  await page.evaluate(() => { location.hash = 'outils/vid-parler'; });
+  await expect(page.locator('[data-tool-panel="vid-parler"]')).toBeVisible();
+  await page.evaluate(() => { location.hash = 'outils/img-klein'; });
+  await expect(page.locator('[data-tool-panel]')).toHaveCount(1);
+  await expect(page.locator('[data-tool-panel="img-klein"] [data-tool-step=consigne] textarea')).toHaveCount(1);
+  await expect(page.locator('[data-results-filter="image"]')).toHaveAttribute('aria-pressed', 'true');
+});

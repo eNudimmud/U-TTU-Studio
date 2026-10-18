@@ -116,7 +116,7 @@ export function OutilsHub({ tool }: { tool: string | null }) {
       <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(null)}>← {t("outils.back")}</button>
       <div className="u-outils-split">
         <ToolPanel key={outil.id} outil={outil} />
-        <OutilResults key={outil.id} sortie={outil.sortie} />
+        <OutilResults key={`resultats-${outil.id}`} sortie={outil.sortie} />
       </div>
     </div>;
   }
