@@ -2348,7 +2348,8 @@
       },
       "ret-finaliser": {
         "title": "Mejorar una imagen",
-        "line": "Más nítida y el doble de grande, sin rehacer nada."
+        "line": "Más nítida y el doble de grande, sin rehacer nada.",
+        "tags": "finalizar reescalar nitidez"
       },
       "ret-elargir": {
         "title": "Ampliar",
@@ -2384,7 +2385,8 @@
       },
       "vid-finaliser": {
         "title": "Mejorar un vídeo",
-        "line": "Lleva un plano a 1080p sin rehacerlo."
+        "line": "Lleva un plano a 1080p sin rehacerlo.",
+        "tags": "finalizar reescalar nitidez"
       },
       "vid-prolonger-grok": {
         "title": "Prolongar con consigna",

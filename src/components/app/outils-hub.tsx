@@ -106,15 +106,17 @@ export function OutilsHub({ tool }: { tool: string | null }) {
   const [famille, setFamille] = useState<Famille | "tout">("tout");
   const outil = tool ? outilParId(tool) : null;
   const searchId = useId();
+  // Search aliases (e.g. « finaliser » finds « Améliorer la vidéo »); only some tools carry them.
+  const tags = (id: string) => (t.has(`outils.t.${id}.tags`) ? t(`outils.t.${id}.tags`) : "");
 
-  const list = useMemo(() => OUTILS.filter(item => dansFamille(item, famille) && (!query.trim() || cherche(`${t(`outils.t.${item.id}.title`)} ${t(`outils.t.${item.id}.line`)} ${t(`outils.fam.${item.famille}`)}`, query))), [famille, query, t]);
+  const list = useMemo(() => OUTILS.filter(item => dansFamille(item, famille) && (!query.trim() || cherche(`${t(`outils.t.${item.id}.title`)} ${t(`outils.t.${item.id}.line`)} ${t(`outils.fam.${item.famille}`)} ${t(`outils.sous.${item.sous}`)} ${tags(item.id)}`, query))), [famille, query, t]);
 
   if (outil) {
     return <div className="u-outils-work" data-outils-tool={outil.id}>
       <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(null)}>← {t("outils.back")}</button>
       <div className="u-outils-split">
         <ToolPanel key={outil.id} outil={outil} />
-        <OutilResults sortie={outil.sortie} />
+        <OutilResults key={outil.id} sortie={outil.sortie} />
       </div>
     </div>;
   }

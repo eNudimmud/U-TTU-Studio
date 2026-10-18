@@ -1464,3 +1464,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--accent); outline-of
   .u-final-open .u-long-label { display: none; }
   .u-final-open .u-short-label { display: inline; }
 }
+/* MONTAGE on a wide screen: the bin column scrolls, so its family tools stay reachable under the media. */
+@media (min-width: 1024px) {
+  .u-capcut .u-chutier, .u-capcut .u-chutier[data-open="true"] { overflow-y: auto; }
+  .u-capcut .u-bin-body { flex: 0 0 auto; min-height: 120px; }
+  .u-capcut .u-chutier .u-outils-strip { flex: none; margin: 4px 0; padding: 0 8px; }
+  .u-capcut .u-chutier .u-outils-strip > summary { font-size: 13px; }
+}

@@ -2348,7 +2348,8 @@
       },
       "ret-finaliser": {
         "title": "Enhance an image",
-        "line": "Sharper and twice as large, nothing redrawn."
+        "line": "Sharper and twice as large, nothing redrawn.",
+        "tags": "finish upscale sharpen"
       },
       "ret-elargir": {
         "title": "Extend",
@@ -2384,7 +2385,8 @@
       },
       "vid-finaliser": {
         "title": "Enhance a video",
-        "line": "Brings a shot to 1080p without redoing it."
+        "line": "Brings a shot to 1080p without redoing it.",
+        "tags": "finish upscale sharpen"
       },
       "vid-prolonger-grok": {
         "title": "Extend with a prompt",

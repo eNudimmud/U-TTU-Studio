@@ -2348,7 +2348,8 @@
       },
       "ret-finaliser": {
         "title": "Bild verbessern",
-        "line": "Schärfer und doppelt so groß, nichts neu gemalt."
+        "line": "Schärfer und doppelt so groß, nichts neu gemalt.",
+        "tags": "fertigstellen hochskalieren schärfen"
       },
       "ret-elargir": {
         "title": "Erweitern",
@@ -2384,7 +2385,8 @@
       },
       "vid-finaliser": {
         "title": "Video verbessern",
-        "line": "Bringt eine Einstellung auf 1080p, ohne Neuberechnung."
+        "line": "Bringt eine Einstellung auf 1080p, ohne Neuberechnung.",
+        "tags": "fertigstellen hochskalieren schärfen"
       },
       "vid-prolonger-grok": {
         "title": "Verlängern mit Anweisung",

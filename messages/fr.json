@@ -2348,7 +2348,8 @@
       },
       "ret-finaliser": {
         "title": "Améliorer une image",
-        "line": "Plus nette et deux fois plus grande, sans rien refaire."
+        "line": "Plus nette et deux fois plus grande, sans rien refaire.",
+        "tags": "finaliser upscale netteté agrandir"
       },
       "ret-elargir": {
         "title": "Élargir",
@@ -2384,7 +2385,8 @@
       },
       "vid-finaliser": {
         "title": "Améliorer une vidéo",
-        "line": "Passe un plan en 1080p sans le refaire."
+        "line": "Passe un plan en 1080p sans le refaire.",
+        "tags": "finaliser upscale netteté"
       },
       "vid-prolonger-grok": {
         "title": "Prolonger avec consigne",
