@@ -1748,7 +1748,7 @@
       "nextWords": "Write what happens in shot {n}."
     },
     "quote": {
-      "estimated": "≈ {low} cr.",
+      "estimated": "≈ {low} cr. estimated",
       "measured": "Measured: about {credits} cr.",
       "measuredBalance": "Measured on your takes: about {credits} credits.",
       "none": "No quote yet for this setting. Nothing is sent."

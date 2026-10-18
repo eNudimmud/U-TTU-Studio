@@ -1748,7 +1748,7 @@
       "nextWords": "Écrivez ce qui se passe dans le plan {n}."
     },
     "quote": {
-      "estimated": "≈ {low} cr.",
+      "estimated": "≈ {low} cr. estimés",
       "measured": "Mesuré : environ {credits} cr.",
       "measuredBalance": "Mesuré sur vos prises : environ {credits} crédits.",
       "none": "Pas encore de devis pour ce réglage. Rien ne part."

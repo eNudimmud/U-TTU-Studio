@@ -114,7 +114,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1', { timeout: 30_000 });
   await expect(page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '16:9', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.u-prise-quote:visible')).toHaveCount(1);
-  await expect(page.locator('.u-prise-quote:visible')).toHaveText(/≈ [\d,]+ cr\./);
+  await expect(page.locator('.u-prise-quote:visible')).toHaveText(/≈ [\d,]+ cr\. estimés/);
   await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
   // Default PRISE: no 3D maquette, no still-image shortcut.
   await expect(page.locator('[data-maquette]')).toBeHidden();
