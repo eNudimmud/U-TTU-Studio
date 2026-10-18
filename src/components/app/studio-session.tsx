@@ -158,6 +158,8 @@ export interface TakeRequest {
   resume?: { label: string; value: string; flag?: boolean }[];
   /** What may change in the character or décor, in plain words. */
   change?: string;
+  /** Vault paths of state references inherited from the production memory, after the character sheets. */
+  extraRefs?: string[];
 }
 
 /** One PRISE video gesture (raccord, caméra, élargir, effacer). Same gate as a take: confirmed quote, balance over the ceiling. */
@@ -1078,7 +1080,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (pendingTake?.decorId && !place) { setNotice("Le décor choisi n’est pas enregistré dans ce projet. Enregistrez-le dans DÉCOR avant de générer."); return; }
     const selected = pendingTake ? pendingTake.castIds.flatMap(id => held?.cast.find(item => item.id === id) ? [held.cast.find(item => item.id === id)!] : []) : held?.cast.filter(item => item.id === pickedCast) ?? [];
     if (pendingTake && selected.length !== pendingTake.castIds.length) { setNotice("Chaque personnage doit avoir une référence enregistrée. Retirez les silhouettes neutres avant de générer."); return; }
-    const photos = selected.length ? selected.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)) : (pendingTake ? [] : held?.look.photos ?? []);
+    const photos = [...(selected.length ? selected.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)) : (pendingTake ? [] : held?.look.photos ?? [])), ...(pendingTake?.extraRefs ?? []).filter(path => path.startsWith("Projets/"))];
     const paths = referencePaths(photos, place, Infinity);
     if (paths.length > referenceLimit(settings)) { setNotice(t("safety.referencesMax", { max: referenceLimit(settings) })); return; }
     const prompt = outgoing();
