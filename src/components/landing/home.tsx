@@ -51,7 +51,7 @@ export function HomeLanding() {
         <figure className="landing-still">
           <div className="landing-still-frame">
           <Image
-            src={assetPath("/images/studio-apercu-v2.webp")}
+            src={assetPath("/images/studio-apercu-v3.webp")}
             alt={t("landing.alt")}
             fill
             preload

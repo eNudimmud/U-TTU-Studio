@@ -33,8 +33,9 @@ test("asset : menu 44 px, un coût, Détourer ouvre la page outil avec l’image
   await expect(items).toHaveCount(7);
   for (const item of await items.all()) {
     expect((await item.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
-    await expect(item).toContainText(/≈ [\d,]+ cr\./);
-    await expect(item).not.toContainText(/estimé|réserve/i);
+    // One cost per item, always said as an estimate.
+    await expect(item).toContainText(/≈ [\d,]+ cr\. estimés/);
+    await expect(item).not.toContainText(/réserve/i);
   }
   const link = detail.locator("[data-suite-item=suite-detourer]");
   await expect(link).toHaveAttribute("href", /#outils\/ret-detourer/);
@@ -83,7 +84,7 @@ test("prise importée : trois actions, chacune vers sa page, un coût", async ({
   await expect(finish).toHaveAttribute("href", /#outils\/vid-finaliser/);
   await expect(finish).toContainText("≈ 8 cr.");
   await expect(detail.locator("[data-suite-item=suite-fluidifier]")).toHaveAttribute("href", /#outils\/vid-fluidifier/);
-  await expect(detail.locator(".u-suite")).not.toContainText(/réserve|estimé/i);
+  await expect(detail.locator(".u-suite")).not.toContainText(/réserve/i);
   await finish.click();
   await expect(page).toHaveURL(/\/studio#outils\/vid-finaliser/);
   const panel = page.locator("[data-tool-panel=vid-finaliser]");

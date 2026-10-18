@@ -2,11 +2,23 @@ import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
+import localFont from "next/font/local";
 import "./globals.css";
 import { LocaleProvider, SkipLink } from "@/components/i18n/provider";
 import { loadCatalog } from "@/lib/i18n/catalog";
 import { htmlLang, readLocaleValue, type Locale } from "@/lib/i18n/config";
 import { assetPath, siteOrigin, socialImage } from "@/lib/site";
+
+/* Instrument Serif (OFL, src/app/fonts/InstrumentSerif-OFL.txt): one display title per screen, never body text. */
+const display = localFont({
+  src: [
+    { path: "./fonts/InstrumentSerif-Regular.woff", weight: "400", style: "normal" },
+    { path: "./fonts/InstrumentSerif-Italic.woff", weight: "400", style: "italic" },
+  ],
+  variable: "--font-instrument",
+  display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
+});
 
 const ogLocale: Record<Locale, string> = { fr: "fr_CH", en: "en_GB", de: "de_DE", es: "es_ES" };
 
@@ -45,5 +57,5 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await requestLocale();
   const messages = await loadCatalog(locale);
-  return <html lang={htmlLang(locale)}><body><LocaleProvider initial={locale} messages={messages}><SkipLink />{children}</LocaleProvider></body></html>;
+  return <html lang={htmlLang(locale)} className={display.variable}><body><LocaleProvider initial={locale} messages={messages}><SkipLink />{children}</LocaleProvider></body></html>;
 }

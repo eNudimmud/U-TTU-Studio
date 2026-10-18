@@ -23,7 +23,8 @@
     "opening": "Opening my studio…",
     "takeRunning": "take in progress",
     "sceneRunning": "scene in progress",
-    "renderCredits": "Render account credits"
+    "renderCredits": "Render account credits",
+    "rail": "Studio tools"
   },
   "project": {
     "lead": "The name is already written: {name}. One gesture creates the project. You can change it."
@@ -818,8 +819,8 @@
     "castPromptPh": "A woman in a dark coat, a calm look.",
     "views": "Front, three-quarter, profile, full length.",
     "name": "Name",
-    "castButton": "Create the character · ≈ {amount} cr.",
-    "decorButton": "Create the location · ≈ {amount} cr.",
+    "castButton": "Create the character · ≈ {amount} cr. estimated",
+    "decorButton": "Create the location · ≈ {amount} cr. estimated",
     "castButtonClosed": "Create the character",
     "decorButtonClosed": "Create the set",
     "ceilingHyp": "Estimate: {high} cr.",
@@ -1408,12 +1409,12 @@
     "aucun": "None",
     "bruit": "Noise",
     "flou": "Blur",
-    "quote": "≈ {credits} cr.",
+    "quote": "≈ {credits} cr. estimated",
     "measured": "Measured on a real pass.",
     "estimate": "Estimate, not measured yet.",
     "seconds": "{seconds} s edit.",
     "confirm": "I confirm this estimate. The final price may vary.",
-    "go": "Finish · ≈ {credits} cr.",
+    "go": "Finish · ≈ {credits} cr. estimated",
     "empty": "The edit is empty: add at least one shot.",
     "long": "The edit is longer than 60 s: trim it before finalising.",
     "needLink": "Link your render account (Comfy) to finalise.",
@@ -1462,10 +1463,10 @@
       "prise-previs": "What we see in the shot"
     },
     "textOptional": "What appears on the sides (optional)",
-    "quote": "≈ {credits} cr.",
+    "quote": "≈ {credits} cr. estimated",
     "estimate": "The final price may vary.",
     "confirm": "I confirm this estimate. The final price may vary.",
-    "go": "Start · ≈ {credits} cr.",
+    "go": "Start · ≈ {credits} cr. estimated",
     "needLink": "Link your render account (Comfy) to run.",
     "needFiles": "A file or the text is missing.",
     "needText": "The text is empty.",
@@ -2018,11 +2019,18 @@
     "file": {
       "open": "Open a place file (KML, KMZ, GeoJSON)",
       "off": "This file has no readable point. Try a KML, KMZ or GeoJSON with a place."
-    }
+    },
+    "free": "free",
+    "stepPick": "Pick a place: an address, coordinates or an example.",
+    "stepLook": "See it in 3D, or standing in the street with free photos.",
+    "stepKeep": "Capture the frame: it goes to My creations and the set's references.",
+    "kept": "Captures kept: {n}",
+    "keptNone": "Exploring and capturing cost nothing.",
+    "toDecor": "Make a set from my captures"
   },
   "suite": {
     "title": "What next?",
-    "chip": "≈ {credits} cr.",
+    "chip": "≈ {credits} cr. estimated",
     "quote": "About {credits} cr., estimated. The final price may vary.",
     "safe": "The result is added to My studio. The original is never replaced.",
     "go": "Run · ≈ {credits} credits (estimated)",
@@ -2118,9 +2126,9 @@
     "partner": "Partner",
     "soon": "Soon",
     "estimate": "estimated",
-    "cost": "≈ {credits} cr.",
+    "cost": "≈ {credits} cr. estimated",
     "perBlock": "per 5 s",
-    "partnerPrice": "Partner price ≈ {credits} cr.",
+    "partnerPrice": "Partner price ≈ {credits} cr. estimated",
     "hidden": {
       "nano": "Hidden: turn it on in your model settings.",
       "openWeights": "Hidden: you chose studio models only."
@@ -2416,6 +2424,10 @@
       "vid-mouvement": {
         "title": "Copy a motion",
         "line": "Your character repeats a video’s moves."
+      },
+      "reperage": {
+        "title": "Scout a location",
+        "line": "Pick a point on the world map, see it in 3D or at street level, keep your captures for the set."
       }
     },
     "latest": "Latest results",
@@ -2445,7 +2457,11 @@
     "confirmTitle": "Run this render?",
     "confirmBody": "About {credits} cr., estimated. The final price may vary.",
     "confirmYes": "Confirm",
-    "confirmNo": "Cancel"
+    "confirmNo": "Cancel",
+    "entryKey": "make",
+    "costEst": "≈ {credits} cr. estimated",
+    "rowAll": "See all",
+    "rowLess": "Show less"
   },
   "top": {
     "nav": "Studio navigation",
@@ -2595,6 +2611,7 @@
       "film": "A short film"
     },
     "film": "Make a film",
-    "filmLine": "Character, place, shot, then the edit."
+    "filmLine": "Character, place, shot, then the edit.",
+    "uttuAlt": "Uttu, the studio's character"
   }
 }

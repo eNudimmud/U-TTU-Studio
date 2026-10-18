@@ -4,16 +4,19 @@
   --color-ink: var(--bg);
   --color-gold: var(--accent);
   --font-sans: "Geist Variable", system-ui, sans-serif;
-  --font-display: "Geist Variable", system-ui, sans-serif;
+  --font-display: var(--font-instrument), Georgia, "Times New Roman", serif;
 }
 
-/* DA sobre (style Comfy) : graphite neutre, un seul accent doré pris dans le
-   logo de JD (#C9A75B), réservé à l'action principale et à l'étape en cours.
-   Le motif de toile n'existe que dans le logo. */
+/* DA « Obsidian Aureate » (docs/DESIGN.md) : surfaces obsidienne, la profondeur vient des
+   nuances de surface et des filets, jamais d'ombres. Un seul accent doré pris dans le logo
+   de JD (#C9A75B) : une action principale par écran, plus de petites étiquettes et un mot-clé
+   dans le titre. Geist pour le texte, Geist Mono pour les coûts et étiquettes, Instrument
+   Serif pour un seul titre par écran. Le motif de toile n'existe que dans le logo. */
 :root {
   --bg: #0f0f11;
   --surface: #17171a;
   --surface-2: #1f1f23;
+  --surface-3: #26262b;
   --line: #26262b;
   --line-strong: #3a3a41;
   --control: #6a6a74;
@@ -41,6 +44,7 @@
   --line-gold: var(--line-strong);
   --font-body: "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-heading: "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-title: var(--font-instrument), Georgia, "Times New Roman", serif;
   --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: dark;
 }
@@ -61,6 +65,10 @@ a, button, input, textarea, select, summary { outline-offset: 4px; }
 h1, h2, h3, h4, p { margin: 0; }
 h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 600; letter-spacing: -.02em; text-wrap: balance; }
 h1:focus, h2:focus { outline: none; }
+/* The one display title of a screen: Instrument Serif, white, with at most one gold key word. */
+.u-display { font-family: var(--font-title); font-weight: 400; letter-spacing: -.01em; line-height: 1.04; }
+.u-display em, .u-key { font-style: italic; color: var(--accent); }
+.u-cost-est { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 img { display: block; }
 svg { flex-shrink: 0; }
 [hidden] { display: none !important; }
@@ -89,7 +97,7 @@ fieldset { min-width: 0; margin: 0; }
 .brand-name { font: 600 17px/1 var(--font-heading); letter-spacing: -.01em; white-space: nowrap; }
 .brand-name .brand-star { color: var(--accent); margin-inline: 1px; }
 .brand-name .brand-studio { font-weight: 500; color: var(--fg-2); margin-left: 6px; }
-.studio-footer { border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 20px; padding-block: 16px; font-size: 11px; color: var(--muted); }
+.studio-footer { border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 20px; padding-block: 16px; font-size: 12px; color: var(--muted); }
 .studio-footer a { display: inline-flex; align-items: center; min-height: 44px; color: var(--fg); }
 /* « Propulsé par ComfyUI »: official Comfy logomark as provided (Comfy Yellow #F2FF59 is its only colour), quiet grey text. */
 .comfy-logomark { display: block; flex: none; }
@@ -100,10 +108,10 @@ fieldset { min-width: 0; margin: 0; }
 .loading-panel { padding: 32px; color: var(--muted); }
 
 /* Sign-in, sign-up and the optional account page. */
-.auth-page { min-height: 100vh; display: grid; align-content: center; justify-items: center; gap: 28px; padding: 48px 20px 72px; text-align: center; }
-.u-main.auth-page { min-height: calc(100dvh - 64px); align-content: start; padding: clamp(32px, 8vh, 96px) 20px calc(72px + env(safe-area-inset-bottom, 0px)); }
+.auth-page { min-height: 100dvh; display: grid; align-content: center; justify-items: center; gap: 28px; padding: 48px 20px 72px; text-align: center; }
+.u-main.auth-page { min-height: calc(100dvh - 64px); align-content: start; padding: clamp(32px, 8dvh, 96px) 20px calc(72px + env(safe-area-inset-bottom, 0px)); }
 .auth-copy { display: grid; gap: 8px; max-width: 28rem; }
-.auth-copy h1 { font-size: clamp(32px, 5vw, 48px); letter-spacing: -.025em; line-height: 1.08; }
+.auth-copy h1 { font-family: var(--font-title); font-weight: 400; font-size: clamp(36px, 6vw, 56px); letter-spacing: -.01em; line-height: 1.04; }
 .auth-copy p:last-child { color: var(--muted); font-size: 16px; }
 .auth-hold { font: 500 12px/1.4 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--fg-2); }
 .account-actions { display: flex; flex-direction: column; align-items: stretch; gap: 12px; width: min(100%, 28rem); }
@@ -120,9 +128,10 @@ fieldset { min-width: 0; margin: 0; }
 }
 
 /* Landing — one line, three steps, one door. Mobile first. */
-.landing { min-height: 100svh; display: flex; flex-direction: column; }
-.landing-header { position: sticky; top: 0; z-index: 20; background: rgba(15, 15, 17, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-.landing-bar, .landing-main, .landing-footer { width: min(1120px, calc(100% - 32px)); margin-inline: auto; }
+.landing { min-height: 100dvh; display: flex; flex-direction: column; }
+.landing-header { position: sticky; top: 0; z-index: 20; padding-top: env(safe-area-inset-top, 0px); background: var(--bg); border-bottom: 1px solid var(--line); }
+.landing-bar, .landing-main, .landing-footer { width: min(1120px, calc(100% - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))); margin-inline: auto; }
+.landing-footer { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
 .landing-bar { min-height: 64px; display: flex; align-items: center; gap: 16px; }
 .landing-tools { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .landing-header-cta { display: none; margin-left: 0; }
@@ -136,8 +145,8 @@ fieldset { min-width: 0; margin: 0; }
 .landing-main:focus { outline: none; }
 .landing-splash { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 12px 0 18px; }
 .landing-copy { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-.landing-splash h1 { font-size: clamp(32px, 8.4vw, 44px); line-height: 1.08; letter-spacing: -.025em; font-weight: 600; max-width: 14em; }
-.landing-splash h1 em { font-style: normal; color: var(--fg-2); }
+.landing-splash h1 { font-family: var(--font-title); font-size: clamp(36px, 9.6vw, 52px); line-height: 1.04; letter-spacing: -.01em; font-weight: 400; max-width: 14em; }
+.landing-splash h1 em { font-style: italic; color: var(--accent); }
 .landing-sheet { display: flex; flex-direction: column; gap: 16px; }
 .landing-pills { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .landing-pills li { min-height: 92px; height: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-card); padding: 10px 8px 12px; display: flex; flex-direction: column; gap: 2px; }
@@ -158,7 +167,7 @@ fieldset { min-width: 0; margin: 0; }
   .landing-bar, .landing-main, .landing-footer { width: min(1120px, calc(100% - 64px)); }
   .landing-cta-row { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 16px; }
   .landing-cta-row .button { width: auto; }
-  .landing-splash h1 { font-size: clamp(36px, 4.6vw, 56px); max-width: none; }
+  .landing-splash h1 { font-size: clamp(44px, 5.4vw, 72px); max-width: none; }
   .landing-pills { gap: 12px; }
   .landing-pills li { padding: 14px 16px 16px; }
 }
@@ -195,7 +204,7 @@ fieldset { min-width: 0; margin: 0; }
 .status-main { display: grid; justify-items: center; align-content: center; gap: 12px; padding: 48px 20px; text-align: center; outline: none; }
 .status-lockup { width: auto; height: 144px; margin-bottom: 12px; }
 .status-code { margin: 0; font-family: var(--font-mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .2em; color: var(--accent); }
-.status-main h1 { margin: 0; font-size: clamp(24px, 4vw, 34px); line-height: 1.2; }
+.status-main h1 { margin: 0; font-family: var(--font-title); font-weight: 400; font-size: clamp(32px, 5vw, 48px); line-height: 1.1; letter-spacing: -.01em; }
 .status-lead { margin: 0; max-width: 42ch; color: var(--fg-2); }
 .status-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 12px; }
 .status-actions .button { min-height: 48px; }

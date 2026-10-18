@@ -1,4 +1,4 @@
-"""Tab icons and link previews from JD's logo (public/brand/uttu-mark.png, uttu-logo.png).
+"""Link previews from JD's logo (public/brand/uttu-mark.png, uttu-logo.png).
 
 Same rules as make_assets.py: the logo is only scaled (premultiplied Lanczos) and padded on
 graphite #0F0F11. Never cropped, never thickened, never redrawn. The SVG icon wraps the scaled
@@ -6,15 +6,15 @@ PNG as is (no tracing). Text on the previews is set beside the logo, never over 
 Run: python3 scripts/brand/make_meta.py
 """
 from PIL import Image, ImageDraw, ImageFont
-import base64, io, json, os
+import json, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BRAND = os.path.join(ROOT, "public/brand")
 APP = os.path.join(ROOT, "src/app")
 OG = os.path.join(ROOT, "public/og")
-G = (15, 15, 17)
-FG = (242, 240, 234)
-MUTED = (163, 161, 156)
+G = (15, 15, 17)        # Obsidian --bg #0F0F11
+FG = (237, 237, 240)     # --fg
+MUTED = (160, 160, 171)  # --fg-2
 ACCENT = (201, 167, 91)
 FONT = os.environ.get("GEIST_TTF", "/usr/share/fonts/truetype/sand-box/google/Geist/Geist-VariableFont_wght.ttf")
 
@@ -33,13 +33,7 @@ def icon(size, scale):
     c.alpha_composite(m, ((size - m.width) // 2, (size - m.height) // 2))
     return c.convert("RGB")
 
-# Tab icons: PNG 16/32/48 next to favicon.ico, and an SVG that wraps the 256 px PNG.
-for i, s in enumerate((16, 32, 48), start=1):
-    icon(s, .94).save(os.path.join(APP, f"icon{i}.png"), optimize=True)
-buf = io.BytesIO(); icon(256, .9).save(buf, "PNG", optimize=True)
-svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">'
-       f'<image width="256" height="256" href="data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}"/></svg>\n')
-open(os.path.join(APP, "icon0.svg"), "w").write(svg)
+# Tab icons: scripts/brand/make_icons.py.
 
 def font(size, weight):
     f = ImageFont.truetype(FONT, size)

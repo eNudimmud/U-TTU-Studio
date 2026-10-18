@@ -23,7 +23,8 @@
     "opening": "Ouverture de mon studio…",
     "takeRunning": "prise en cours",
     "sceneRunning": "scène en cours",
-    "renderCredits": "Crédits du compte de rendu"
+    "renderCredits": "Crédits du compte de rendu",
+    "rail": "Outils du studio"
   },
   "project": {
     "lead": "Le nom est déjà écrit : {name}. Un geste crée le projet. Tu peux le changer."
@@ -818,8 +819,8 @@
     "castPromptPh": "Une femme au manteau sombre, regard calme.",
     "views": "Face, trois-quarts, profil, en pied.",
     "name": "Nom",
-    "castButton": "Créer le personnage · ≈ {amount} cr.",
-    "decorButton": "Créer le décor · ≈ {amount} cr.",
+    "castButton": "Créer le personnage · ≈ {amount} cr. estimés",
+    "decorButton": "Créer le décor · ≈ {amount} cr. estimés",
     "castButtonClosed": "Créer le personnage",
     "decorButtonClosed": "Créer le décor",
     "ceilingHyp": "Estimation : {high} cr.",
@@ -1408,12 +1409,12 @@
     "aucun": "Aucun",
     "bruit": "Bruit",
     "flou": "Flou",
-    "quote": "≈ {credits} cr.",
+    "quote": "≈ {credits} cr. estimés",
     "measured": "Mesuré sur une vraie passe.",
     "estimate": "Estimation, pas encore mesurée.",
     "seconds": "Montage de {seconds} s.",
     "confirm": "Je confirme cette estimation. Le prix final peut varier.",
-    "go": "Finaliser · ≈ {credits} cr.",
+    "go": "Finaliser · ≈ {credits} cr. estimés",
     "empty": "Le montage est vide : ajoute au moins un plan.",
     "long": "Le montage dépasse 60 s : coupe-le avant de finaliser.",
     "needLink": "Relie ton compte de rendu (Comfy) pour finaliser.",
@@ -1462,10 +1463,10 @@
       "prise-previs": "Ce que l’on voit dans le plan"
     },
     "textOptional": "Ce qui apparaît sur les côtés (facultatif)",
-    "quote": "≈ {credits} cr.",
+    "quote": "≈ {credits} cr. estimés",
     "estimate": "Le prix final peut varier.",
     "confirm": "Je confirme cette estimation. Le prix final peut varier.",
-    "go": "Lancer · ≈ {credits} cr.",
+    "go": "Lancer · ≈ {credits} cr. estimés",
     "needLink": "Relie ton compte de rendu (Comfy) pour lancer.",
     "needFiles": "Il manque un fichier ou le texte.",
     "needText": "Le texte est vide.",
@@ -2018,11 +2019,18 @@
     "file": {
       "open": "Ouvrir un fichier de lieu (KML, KMZ, GeoJSON)",
       "off": "Ce fichier ne contient pas de point lisible. Essaie un KML, KMZ ou GeoJSON avec un lieu."
-    }
+    },
+    "free": "gratuit",
+    "stepPick": "Choisis un lieu : une adresse, des coordonnées ou un exemple.",
+    "stepLook": "Regarde-le en 3D, ou debout dans la rue avec les photos libres.",
+    "stepKeep": "Capture le cadre : il rejoint Mes créations et les références du décor.",
+    "kept": "Captures gardées : {n}",
+    "keptNone": "Explorer et capturer ne coûte rien.",
+    "toDecor": "Faire un décor avec mes captures"
   },
   "suite": {
     "title": "Et ensuite ?",
-    "chip": "≈ {credits} cr.",
+    "chip": "≈ {credits} cr. estimés",
     "quote": "Environ {credits} cr., estimé. Le prix final peut varier.",
     "safe": "Le résultat s’ajoute à Mon studio. L’original n’est jamais remplacé.",
     "go": "Lancer · ≈ {credits} crédits (estimé)",
@@ -2118,9 +2126,9 @@
     "partner": "Partenaire",
     "soon": "Bientôt",
     "estimate": "estimé",
-    "cost": "≈ {credits} cr.",
+    "cost": "≈ {credits} cr. estimés",
     "perBlock": "par 5 s",
-    "partnerPrice": "Prix partenaire ≈ {credits} cr.",
+    "partnerPrice": "Prix partenaire ≈ {credits} cr. estimés",
     "hidden": {
       "nano": "Masqué : à activer dans tes réglages de modèles.",
       "openWeights": "Masqué : tu as choisi les modèles du studio seulement."
@@ -2416,6 +2424,10 @@
       "vid-mouvement": {
         "title": "Copier un mouvement",
         "line": "Ton personnage reprend les gestes d’une vidéo."
+      },
+      "reperage": {
+        "title": "Repérer un lieu",
+        "line": "Choisis un point sur la carte du monde, vois-le en 3D ou au niveau de la rue, garde tes captures pour le décor."
       }
     },
     "latest": "Derniers résultats",
@@ -2445,7 +2457,11 @@
     "confirmTitle": "Lancer ce rendu ?",
     "confirmBody": "Environ {credits} cr., estimé. Le prix final peut varier.",
     "confirmYes": "Confirmer",
-    "confirmNo": "Annuler"
+    "confirmNo": "Annuler",
+    "entryKey": "créer",
+    "costEst": "≈ {credits} cr. estimés",
+    "rowAll": "Tout voir",
+    "rowLess": "Réduire"
   },
   "top": {
     "nav": "Navigation du studio",
@@ -2595,6 +2611,7 @@
       "film": "Un court film"
     },
     "film": "Réaliser un film",
-    "filmLine": "Personnage, lieu, plan, puis montage."
+    "filmLine": "Personnage, lieu, plan, puis montage.",
+    "uttuAlt": "Uttu, le personnage du studio"
   }
 }
