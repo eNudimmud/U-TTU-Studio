@@ -1862,3 +1862,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 }
 /* Stacked hero (below 900 px): Uttu in a band, never taller than a third of a short screen. */
 @media (max-width: 899px) { .u-hero-uttu { aspect-ratio: auto; height: clamp(160px, min(52vw, 36dvh), 380px); } }
+/* Repérage sheet: « Capturer ce cadrage » is the one gold action; the search button stays neutral. */
+.u-rep3d-search .u-primary { background: var(--surface-2); color: var(--fg); border: 1px solid var(--line-strong); }
+.u-rep3d-search .u-primary:hover:not(:disabled) { background: var(--surface-3); }
