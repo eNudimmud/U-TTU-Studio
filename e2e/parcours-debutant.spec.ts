@@ -87,7 +87,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
     expect(box!.y).toBeGreaterThanOrEqual(0);
   }
 
-  await page.goto('/studio');
+  await page.goto('/studio#personnage');
   await expect(page.getByRole('heading', { name: 'CAST' })).toBeVisible();
   await expect(page.locator('[data-soon="true"]')).toHaveCount(0);
   await snap('cast');
@@ -139,7 +139,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   expect(takePrompt).not.toMatch(/static camera|locked-off/);
   await snap('prise-1-arrivee');
 
-  for (const [plan, words] of [['02', 'Léa se retourne vers la mer'], ['03', 'Léa regarde au loin, le vent dans le manteau']] as const) {
+  for (const [plan, words] of [['2', 'Léa se retourne vers la mer'], ['3', 'Léa regarde au loin, le vent dans le manteau']] as const) {
     await page.getByRole('textbox', { name: 'Plan suivant : ce qui se passe' }).fill(words);
     await expect(gold).toHaveText(`Tourner le plan ${plan}`);
     if (mobile) await reachable(gold);
@@ -149,7 +149,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
     await expect(page.locator('[data-take-view] video')).toBeVisible({ timeout: 60_000 });
   }
   await expect(page.locator('.u-plan-card')).toHaveCount(3);
-  await expect(page.locator('[data-fiab-archive]')).toContainText('Plan 03');
+  await expect(page.locator('[data-fiab-archive]')).toContainText('Plan 3');
   await snap('prise-3-plans');
 
   // 4 · MONTAGE: the three takes as video clips, in order, then one tap to export.

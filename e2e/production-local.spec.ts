@@ -147,7 +147,7 @@ test('deux vidéos importées → montage de six secondes → MP4 lisible', asyn
     { name: 'ClipA.mp4', mimeType: 'video/mp4', buffer: video },
     { name: 'ClipB.mp4', mimeType: 'video/mp4', buffer: video },
   ]);
-  await page.locator('.u-filter').getByRole('button', { name: 'Plans', exact: true }).click();
+  await page.locator('.u-filter').getByRole('button', { name: 'Prises', exact: true }).click();
   await expect(page.locator('.u-pick')).toHaveCount(2);
   await page.getByRole('button', { name: 'ClipA', exact: true }).click();
   await page.getByRole('button', { name: 'Ajouter au montage', exact: true }).click();
@@ -157,7 +157,7 @@ test('deux vidéos importées → montage de six secondes → MP4 lisible', asyn
     await gallery.click();
     await expect(gallery).toHaveAttribute('aria-pressed', 'true');
   }
-  await page.locator('.u-filter').getByRole('button', { name: 'Plans', exact: true }).click();
+  await page.locator('.u-filter').getByRole('button', { name: 'Prises', exact: true }).click();
   await page.getByRole('button', { name: 'ClipB', exact: true }).click();
   await page.getByRole('button', { name: 'Ajouter au montage', exact: true }).click();
   await expect(page.locator('.u-clip.is-video')).toHaveCount(2);

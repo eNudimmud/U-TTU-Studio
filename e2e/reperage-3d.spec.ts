@@ -30,7 +30,7 @@ async function offline(page: Page) {
 }
 
 async function openSheet(page: Page) {
-  await page.goto("/studio");
+  await page.goto("/studio#personnage");
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
   await page.locator("[data-rep3d-open]").click();
   const sheet = page.getByRole("dialog", { name: "Repérage 3D" });

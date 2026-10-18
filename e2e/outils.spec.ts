@@ -15,34 +15,29 @@ async function watch(page: Page) {
   return { graphs, cancels: () => cancels };
 }
 
-test("hub : un clic depuis la barre du haut, 57 outils par famille, recherche et filtres, « bientôt » sans bouton", async ({ page }) => {
-  await page.goto("/studio#personnage");
-  await expect(page.locator("[data-outils-entry]")).toBeVisible();
-  await openToolsHub(page);
-  await expect(page).toHaveURL(/#outils$/);
-  const hub = page.locator("[data-outils-hub]");
+test("hub : un clic depuis la barre du haut, une carte par intention, recherche, bientôt absent", async ({ page }) => {
+  await page.goto("/studio");
+  const hub = page.locator("[data-studio-entry]");
   await expect(hub.getByRole("heading", { name: "Que veux-tu créer ?" })).toBeVisible();
-  await expect(hub.locator("[data-outil]")).toHaveCount(57);
-  // Every tool shows on an empty studio; a tool that is not wired is an article with its reason, never a button.
-  await expect(hub.locator("button[data-outil]")).toHaveCount(46);
-  await expect(hub.locator("article[data-outil][data-etat=bientot]")).toHaveCount(10);
-  await expect(hub.locator("[data-outil=ret-gommer]")).toContainText("Bientôt");
+  await expect(hub.locator("[data-outil]")).toHaveCount(34);
+  await expect(hub.locator("article[data-outil][data-etat=bientot]")).toHaveCount(0);
+  await expect(hub.locator("[data-outil=ret-gommer]")).toHaveCount(0);
+  await expect(hub.locator("[data-outil=vid-kling]")).toHaveCount(0);
+  await expect(hub.locator("[data-outil=vid-wan]")).toContainText("Animer une image");
   for (const card of (await hub.locator("button[data-outil]").all()).slice(0, 6)) expect((await card.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-  await expect(hub.locator("[data-outil=img-klein]")).toContainText("estimé");
-  await expect(hub.locator("[data-outil=vid-kling]")).toContainText("Partenaire");
-
-  await hub.locator("[data-outils-famille=retoucher]").click();
-  await expect(hub.locator("[data-outils-section]")).toHaveCount(1);
-  await expect(hub.locator("[data-outil=ret-detourer]")).toBeVisible();
-  await expect(hub.locator("[data-outil=img-klein]")).toHaveCount(0);
-  await hub.locator("[data-outils-famille=tout]").click();
   await hub.locator("[data-outils-search]").fill("detourer");
   await expect(hub.locator("[data-outil]")).toHaveCount(2);
 
-  // Each tab lists its own tools from the same data, folded.
-  await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
-  await expect(page.locator("[data-outils-onglet=decor]")).toHaveCount(1);
-  await expect(page.locator("[data-outils-onglet=decor]")).not.toHaveAttribute("open", "");
+  await page.goto("/studio#personnage");
+  await openToolsHub(page);
+  await expect(page).toHaveURL(/#outils$/);
+  const burger = page.locator("[data-top-burger]");
+  if (await burger.isVisible()) await burger.click();
+  await page.locator("[data-top-menu=film]").filter({ visible: true }).first().click();
+  await page.locator("[data-film=decor]").filter({ visible: true }).first().click();
+  const strip = page.locator("[data-outils-onglet=decor]");
+  await expect(strip).toHaveCount(1);
+  await expect(strip.locator("> button")).toHaveAttribute("aria-expanded", "false");
 });
 
 test("panneau unique : entrée, exemple gratuit, bouton nommé d'après l'action, résultat avec « Et ensuite ? » ouvert", async ({ page }) => {
@@ -52,19 +47,19 @@ test("panneau unique : entrée, exemple gratuit, bouton nommé d'après l'action
   const panel = page.locator("[data-tool-panel=ret-detourer]");
   await expect(panel).toBeVisible();
   const steps = await panel.locator("[data-tool-step]").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-tool-step")));
-  expect(steps).toEqual(["entree"]);
+  expect(steps[0]).toBe("modele");
+  expect(steps).toContain("entree");
+  expect(steps).not.toContain("protocole");
   const go = panel.locator("[data-tool-go]");
   await expect(go).toContainText("Détourer");
   await expect(go).toContainText("≈ 2 cr.");
-  await expect(go).toBeDisabled();
-  await expect(panel.locator("[data-tool-why]")).toHaveText("Ajoute une image pour lancer.");
+  await expect(go).toBeEnabled();
   await panel.locator("[data-outil-sample=image]").click();
   await expect(panel.locator("[data-outil-input=image] img")).toBeVisible();
-  await expect(panel.locator("[data-tool-why]")).toHaveText("Coche la confirmation pour lancer.");
-  await panel.locator("[data-tool-confirm]").click();
-  await expect(go).toBeEnabled();
   expect((await go.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await go.click();
+  await expect(panel.locator("[data-tool-ask]")).toBeVisible();
+  await panel.locator("[data-tool-confirm]").click();
   await expect(panel.locator("[data-tool-done]")).toBeVisible({ timeout: 60_000 });
   const results = page.locator("[data-tool-results]");
   await expect(results.locator("[data-result]").first()).toBeVisible();
@@ -80,10 +75,10 @@ test("outil ouvert depuis un texte : le template officiel entier part, le résul
   await page.goto("/studio#outils/img-qwen");
   const panel = page.locator("[data-tool-panel=img-qwen]");
   await panel.getByLabel("Consigne", { exact: true }).fill("Une gare la nuit, néons dorés, pluie fine.");
-  await panel.locator("[data-tool-step=reglages] > summary").click();
+  await panel.locator("[data-tool-step=reglages] > button").click();
   await panel.locator("[data-tool-aspect=vertical]").click();
-  await panel.locator("[data-tool-confirm]").click();
   await panel.locator("[data-tool-go]").click();
+  await panel.locator("[data-tool-confirm]").click();
   await expect(panel.locator("[data-tool-done]")).toBeVisible({ timeout: 60_000 });
   const graph = seen.graphs.at(-1) ?? {};
   expect(Object.values(graph).map(node => node.class_type).some(type => /^SaveImage/.test(type))).toBe(true);
@@ -109,11 +104,20 @@ test("sans compte relié : la raison et le lien « Relier mon compte » sont à 
   await page.goto("/studio#outils/img-klein");
   const panel = page.locator("[data-tool-panel=img-klein]");
   await panel.getByLabel("Consigne", { exact: true }).fill("Un toit au lever du jour.");
-  await panel.locator("[data-tool-confirm]").click();
-  await expect(panel.locator("[data-tool-go]")).toBeDisabled();
-  await expect(panel.locator("[data-tool-why]")).toContainText("Relie ton compte");
-  await panel.locator("[data-tool-link]").first().click();
+  await expect(page.locator("[data-entry-link]")).toBeVisible();
+  await panel.locator("[data-tool-go]").click();
   await expect(page.getByRole("dialog")).toBeVisible();
+});
+
+test("entrée : une phrase part vers le bon outil, le film ouvre CAST", async ({ page }) => {
+  await page.goto("/studio");
+  await page.locator("[data-entry-chip=anim]").click();
+  await expect(page).toHaveURL(/#outils\/vid-wan$/);
+  await expect(page.locator("[data-tool-panel=vid-wan] [data-tool-step=consigne] textarea")).toHaveValue(/Animer/);
+  await page.goto("/studio");
+  await page.locator("[data-entry-film]").click();
+  await expect(page).toHaveURL(/#personnage$/);
+  await expect(page.locator(".u-chain")).toBeVisible();
 });
 
 test("MONTAGE : le menu Plus se ferme avec Échap et ne bloque plus les onglets", async ({ page }) => {

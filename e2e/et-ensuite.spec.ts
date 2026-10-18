@@ -105,7 +105,7 @@ test("MONTAGE : avec Poids ouverts seulement, Finaliser passe par SeedVR2 au lie
   await simulateComfy(page);
   const seen = await watch(page);
   await page.addInitScript(() => localStorage.setItem("u-ttu-moteurs", JSON.stringify({ openWeightsOnly: true, nanoBanana: false, engine: "ltx", engineManual: false })));
-  await page.goto("/studio");
+  await page.goto("/studio#personnage");
   await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
   await page.locator("[data-partir-exemple=montage]").click();
   const open = page.locator("[data-finaliser-open]");

@@ -45,7 +45,7 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mes cré
   } }));
   await page.route(/\/api\/view\?/, route => route.fulfill({ status: 200, contentType: "video/mp4", body: VIDEO }));
 
-  await page.goto("/studio");
+  await page.goto("/studio#personnage");
   await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
   await page.locator("[data-partir-exemple=montage]").click();
   const open = page.locator("[data-finaliser-open]");
