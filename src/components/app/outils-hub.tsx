@@ -17,6 +17,7 @@ import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/m
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
+import { resolveStudioHandoff } from "@/lib/agent/handoff";
 import { CardThumb, StudioHome, openStudioTool } from "./studio-entry";
 import { ReperageTool } from "./reperage/reperage-tool";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
@@ -259,7 +260,7 @@ export function ToolPanel({ outil: asked }: { outil: Outil }) {
         try { sessionStorage.removeItem(SOURCE_KEY); } catch { /* ignore */ }
         return;
       }
-      const url = (saved.path && media[saved.path]) || (saved.url && !saved.url.startsWith("blob:") ? saved.url : "");
+      const url = resolveStudioHandoff(saved, media);
       if (!url) return;
       try { sessionStorage.removeItem(SOURCE_KEY); } catch { /* ignore */ }
       const placed = saved;
