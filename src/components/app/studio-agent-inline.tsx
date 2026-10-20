@@ -18,7 +18,8 @@ export function StudioAgentInline({ source, onPrepare }: { source: SuiteSource; 
   const [request, setRequest] = useState("");
   const [submitted, setSubmitted] = useState("");
   const snapshot = studioAgentSnapshot(prefs);
-  const decision = decideStudioRequest(submitted, snapshot.capabilities, source.kind === "image" && source.url ? { id: source.path ?? source.name, kind: "image" } : undefined);
+  const sourceId = source.path || (source.url && !source.url.startsWith("blob:") ? source.url : undefined);
+  const decision = decideStudioRequest(submitted, snapshot.capabilities, source.kind === "image" && sourceId ? { id: sourceId, kind: "image" } : undefined);
   return <div className="u-agent-inline" data-studio-agent="">
     <button type="button" className="u-secondary" aria-expanded={open} onClick={() => setOpen(value => !value)}>
       Assistant U*TTU
