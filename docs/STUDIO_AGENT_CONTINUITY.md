@@ -39,3 +39,9 @@ Do not merge or claim end-to-end validation until tests and browser flows are ac
 - `src/lib/agent/source.ts` guards temporary preview URLs; `rememberSource` uses `safeHandoffUrl` for all « Et ensuite ? » actions. A vault path is retained when present. **Vault rehydration is not yet proven**.
 - CI for commit `f44f397` completed successfully; newer commits require separate verification. No real Android browser E2E or paid Comfy generation has been performed.
 - Next: inspect actual Studio tool intake/rehydration, prove persistent source path resolves, then pin and import agent planner without duplication; keep draft PRs.
+
+## Release readiness checkpoint — 2026-10-20
+- The tool hub now calls `resolveStudioHandoff(saved, media)`: a vault path resolves through the Studio session's hydrated `media` index; no path is mistaken for a URL. Missing vault assets remain pending until hydration.
+- Agent repository now exposes a package entry point on its feature branch; its package and CI packaging verification must pass before consuming a pinned commit from the Studio.
+- **Not done:** dependency pin and lockfile, Studio import of independent planner, Android browser E2E, user-facing localization, complete end-to-end BiRefNet run.
+- **Do not merge yet.** Confirm both CI pipelines, then pin the package with a reproducible lockfile, remove duplicated planner code, and validate tool confirmation and asset persistence on a mobile browser.
