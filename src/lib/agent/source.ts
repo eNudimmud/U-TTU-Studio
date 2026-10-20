@@ -1,0 +1,9 @@
+/**
+ * Only persistable Studio references may be handed across tool navigation.
+ * Blob URLs are scoped to a document and are deliberately erased by rememberSource.
+ */
+export function agentSourceId(source: { url: string; path?: string }): string | undefined {
+  if (source.path?.trim()) return source.path;
+  if (!source.url || source.url.startsWith("blob:")) return undefined;
+  return source.url;
+}
