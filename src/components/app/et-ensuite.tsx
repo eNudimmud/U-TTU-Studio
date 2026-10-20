@@ -12,6 +12,7 @@ import { outilQuote } from "@/lib/outils/graphs";
 import { assetPath } from "@/lib/site";
 import { videoSeconds } from "@/lib/suite/media";
 import { useStudio } from "./studio-session";
+import { StudioAgentInline } from "./studio-agent-inline";
 
 export interface SuiteSource {
   kind: "image" | "video";
@@ -115,6 +116,7 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
           </a>;
         })}
       </div>)}
+      <StudioAgentInline source={source} onPrepare={() => rememberSource(source)} />
       {onPrise && <button type="button" className="u-secondary u-suite-prise" data-suite-prise="" onClick={onPrise}>{t("suite.toPrise")}</button>}
     </div>}
   </section>;
