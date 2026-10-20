@@ -28,7 +28,7 @@ export function StudioAgentInline({ source, onPrepare }: { source: SuiteSource; 
       Assistant U*TTU
     </button>
     {open && <div className="u-agent-inline-body">
-      <label htmlFor={inputId}>Que veux-tu faire avec cette image ?</label>
+      <label htmlFor={inputId}>{source.kind === "image" ? "Que veux-tu faire avec cette image ?" : "Que veux-tu faire avec cette vidéo ?"}</label>
       <form onSubmit={event => { event.preventDefault(); setSubmitted(request.trim()); }}>
         <input id={inputId} aria-label="Demande à U*TTU" value={request}
           onChange={event => setRequest(event.target.value)} maxLength={500}
