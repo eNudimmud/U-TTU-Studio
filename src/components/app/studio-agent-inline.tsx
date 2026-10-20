@@ -10,14 +10,14 @@ import { assetPath } from "@/lib/site";
 import { outilParId, outilsPublics } from "@/lib/outils/catalogue";
 import { studioAgentSnapshot } from "@/lib/agent/capabilities";
 import { useStudio } from "./studio-session";
-import { rememberSource, type SuiteSource } from "./et-ensuite";
+type SuiteSource = { kind: "image" | "video"; url: string; name: string; path?: string; aspect?: "horizontal" | "vertical" };
 
 function wantsCutout(message: string): boolean {
   const text = message.normalize("NFKC").toLocaleLowerCase("fr");
   return /(?:d[eé]tour(?:e|er|age)|supprim(?:e|er) (?:le |l['’])?(?:fond|arri[eè]re.plan)|enl[eè]v(?:e|er) (?:le |l['’])?(?:fond|arri[eè]re.plan)|remove (?:the )?background|cut ?out)/u.test(text);
 }
 
-export function StudioAgentInline({ source }: { source: SuiteSource }) {
+export function StudioAgentInline({ source, onPrepare }: { source: SuiteSource; onPrepare: () => void }) {
   const { prefs } = useStudio();
   const [open, setOpen] = useState(false);
   const [request, setRequest] = useState("");
@@ -46,7 +46,7 @@ export function StudioAgentInline({ source }: { source: SuiteSource }) {
           <div>
             <p>Détourage BiRefNet prêt à préparer. Aucun crédit ne sera dépensé ici.</p>
             <a className="u-secondary" href={assetPath("/studio#outils/ret-detourer")}
-              onClick={() => rememberSource(source)}>
+              onClick={onPrepare}>
               Ouvrir l'outil et vérifier le devis
             </a>
           </div>}
