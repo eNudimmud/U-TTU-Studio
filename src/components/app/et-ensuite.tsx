@@ -13,6 +13,7 @@ import { assetPath } from "@/lib/site";
 import { videoSeconds } from "@/lib/suite/media";
 import { useStudio } from "./studio-session";
 import { StudioAgentInline } from "./studio-agent-inline";
+import { safeHandoffUrl } from "@/lib/agent/source";
 
 export interface SuiteSource {
   kind: "image" | "video";
@@ -60,7 +61,7 @@ export interface HandedSource {
 /** Remember the open file so the tool page can place it. A blob URL does not survive the navigation. */
 export function rememberSource(source: SuiteSource) {
   const payload: HandedSource = {
-    url: source.url.startsWith("blob:") ? "" : source.url,
+    url: safeHandoffUrl(source.url),
     name: source.name,
     path: source.path,
     kind: source.kind,
