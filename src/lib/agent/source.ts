@@ -4,8 +4,7 @@
  */
 export function agentSourceId(source: { url: string; path?: string }): string | undefined {
   if (source.path?.trim()) return source.path;
-  if (!source.url || /^(?:blob|data|filesystem|javascript):/i.test(source.url)) return undefined;
-  return source.url;
+  return safeHandoffUrl(source.url) || undefined;
 }
 
 /** Serialize a handoff without carrying document-scoped preview URLs. */
