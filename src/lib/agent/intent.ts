@@ -1,12 +1,8 @@
-/**
- * Pure intent routing shared by the Studio's inline UI.
- * Must stay compatible with the independent Studio Agent planner.
- * No network or execution side effects.
- */
+/** Compatibility intent probe, backed by the independent Agent planner. */
+import { planStudioRequest } from "./kernel/planner.ts";
 export type StudioIntent = "suite-detourer" | "unrecognized";
-
+const probe = { id: "suite-detourer", label: "Détourer", description: "BiRefNet", enabled: true, inputKinds: ["image"] as const, outputKind: "image" as const, requiresPrompt: false };
 export function routeStudioIntent(message: string): StudioIntent {
-  const text = message.normalize("NFKC").toLocaleLowerCase("fr").trim();
-  const cutout = /(?:d[eé]tour(?:e|er|age)|supprim(?:e|er) (?:le |l['’])?(?:fond|arri[eè]re.plan)|enl[eè]v(?:e|er) (?:le |l['’])?(?:fond|arri[eè]re.plan)|remove (?:the )?background|cut ?out)/u.test(text);
-  return cutout ? "suite-detourer" : "unrecognized";
+  const decision = planStudioRequest(message, { capabilities: [probe], selectedAsset: { id: "probe", kind: "image" } });
+  return decision.kind === "propose" ? decision.capabilityId as StudioIntent : "unrecognized";
 }
