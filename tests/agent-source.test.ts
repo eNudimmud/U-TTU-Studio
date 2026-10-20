@@ -12,3 +12,8 @@ test("allows persistable URLs and rejects empty references", () => {
   assert.equal(agentSourceId({ url: "/assets/sample.png" }), "/assets/sample.png");
   assert.equal(agentSourceId({ url: "" }), undefined);
 });
+
+test("rejects data and filesystem previews as durable references", () => {
+  assert.equal(agentSourceId({ url: "data:image/png;base64,AAAA" }), undefined);
+  assert.equal(agentSourceId({ url: "filesystem:https://studio.example/temporary/image" }), undefined);
+});
