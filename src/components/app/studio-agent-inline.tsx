@@ -9,13 +9,9 @@ import { useState } from "react";
 import { assetPath } from "@/lib/site";
 import { outilParId, outilsPublics } from "@/lib/outils/catalogue";
 import { studioAgentSnapshot } from "@/lib/agent/capabilities";
+import { routeStudioIntent } from "@/lib/agent/intent";
 import { useStudio } from "./studio-session";
 type SuiteSource = { kind: "image" | "video"; url: string; name: string; path?: string; aspect?: "horizontal" | "vertical" };
-
-function wantsCutout(message: string): boolean {
-  const text = message.normalize("NFKC").toLocaleLowerCase("fr");
-  return /(?:d[eé]tour(?:e|er|age)|supprim(?:e|er) (?:le |l['’])?(?:fond|arri[eè]re.plan)|enl[eè]v(?:e|er) (?:le |l['’])?(?:fond|arri[eè]re.plan)|remove (?:the )?background|cut ?out)/u.test(text);
-}
 
 export function StudioAgentInline({ source, onPrepare }: { source: SuiteSource; onPrepare: () => void }) {
   const { prefs } = useStudio();
@@ -27,7 +23,7 @@ export function StudioAgentInline({ source, onPrepare }: { source: SuiteSource; 
   const tool = outilParId("ret-detourer");
   const accessible = Boolean(capability?.enabled && tool && outilsPublics(prefs).some(item => item.id === tool.id));
   const eligible = accessible && source.kind === "image" && Boolean(source.url);
-  const matched = wantsCutout(submitted);
+  const matched = routeStudioIntent(submitted) === "suite-detourer";
   return <div className="u-agent-inline" data-studio-agent="">
     <button type="button" className="u-secondary" aria-expanded={open} onClick={() => setOpen(value => !value)}>
       Assistant U*TTU
