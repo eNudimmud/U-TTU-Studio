@@ -7,7 +7,6 @@
  */
 import { useState } from "react";
 import { assetPath } from "@/lib/site";
-import { outilParId, outilsPublics } from "@/lib/outils/catalogue";
 import { studioAgentSnapshot } from "@/lib/agent/capabilities";
 import { decideStudioRequest } from "@/lib/agent/decision";
 import { useStudio } from "./studio-session";
@@ -19,12 +18,7 @@ export function StudioAgentInline({ source, onPrepare }: { source: SuiteSource; 
   const [request, setRequest] = useState("");
   const [submitted, setSubmitted] = useState("");
   const snapshot = studioAgentSnapshot(prefs);
-  const capability = snapshot.capabilities.find(item => item.id === "suite-detourer");
-  const tool = outilParId("ret-detourer");
-  const accessible = Boolean(capability?.enabled && tool && outilsPublics(prefs).some(item => item.id === tool.id));
-  const eligible = accessible && source.kind === "image" && Boolean(source.url);
   const decision = decideStudioRequest(submitted, snapshot.capabilities, source.kind === "image" && source.url ? { id: source.path ?? source.name, kind: "image" } : undefined);
-  const matched = decision.kind !== "unrecognized";
   return <div className="u-agent-inline" data-studio-agent="">
     <button type="button" className="u-secondary" aria-expanded={open} onClick={() => setOpen(value => !value)}>
       Assistant U*TTU
