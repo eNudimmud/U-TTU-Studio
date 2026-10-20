@@ -38,7 +38,7 @@ export function StudioAgentInline({ source, onPrepare }: { source: SuiteSource; 
         <input id="uttu-agent-intent" aria-label="Demande à U*TTU" value={request}
           onChange={event => setRequest(event.target.value)} maxLength={500}
           placeholder="Ex. Détoure cette image" />
-        <button type="submit" className="u-secondary" disabled={!request.trim()}>Proposer</button>
+        <button type="submit" className="u-secondary">Proposer</button>
       </form>
       {submitted && <div role="status">
         {!matched ? <p>Je ne peux pas encore préparer cette opération. Utilise les outils du Studio.</p> :
