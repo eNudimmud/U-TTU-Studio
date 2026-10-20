@@ -7,3 +7,8 @@ export function agentSourceId(source: { url: string; path?: string }): string | 
   if (!source.url || /^(?:blob|data|filesystem|javascript):/i.test(source.url)) return undefined;
   return source.url;
 }
+
+/** Serialize a handoff without carrying document-scoped preview URLs. */
+export function safeHandoffUrl(url: string): string {
+  return /^(?:blob|data|filesystem|javascript):/i.test(url) ? "" : url;
+}
