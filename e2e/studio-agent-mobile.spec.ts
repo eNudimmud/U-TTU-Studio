@@ -20,4 +20,7 @@ test("mobile agent proposes cutout without spending credits, preserving image an
   await expect(panel.locator("[data-outil-input=image] img")).toBeVisible();
   await expect(panel.locator("[data-tool-go]")).toContainText(/≈.*cr/);
   expect(prompts).toBe(0);
+  await panel.locator("[data-tool-go]").click();
+  await expect(panel.locator("[data-tool-ask]")).toBeVisible();
+  expect(prompts).toBe(0);
 });
