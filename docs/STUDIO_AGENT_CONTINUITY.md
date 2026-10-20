@@ -45,3 +45,11 @@ Do not merge or claim end-to-end validation until tests and browser flows are ac
 - Agent repository now exposes a package entry point on its feature branch; its package and CI packaging verification must pass before consuming a pinned commit from the Studio.
 - **Not done:** dependency pin and lockfile, Studio import of independent planner, Android browser E2E, user-facing localization, complete end-to-end BiRefNet run.
 - **Do not merge yet.** Confirm both CI pipelines, then pin the package with a reproducible lockfile, remove duplicated planner code, and validate tool confirmation and asset persistence on a mobile browser.
+
+## Four-gate validation tracker — 2026-10-20
+1. **Pinned package + lockfile — OPEN.** Agent package now has exports and npm-pack CI, but the Studio has not installed a SHA-pinned dependency; avoid claiming integration until the Studio lockfile and Next transpilation are validated.
+2. **Remove duplicated planner — OPEN.** Studio still uses `decideStudioRequest` and `routeStudioIntent`; conformance fixtures match, but runtime import is not yet shared.
+3. **Android browser E2E — OPEN.** Playwright mobile viewport exists in the Studio config, but no agent-specific browser test has completed; physical Android has not been tested.
+4. **Source + quote + confirmation — PARTIAL.** Source handoff uses the existing vault `media` map and `resolveStudioHandoff`; the assistant now requires the source to resolve before proposing. The actual tool hub owns quoting and consent, but no complete browser/generation test has yet demonstrated this path.
+
+Never merge or deploy based on these partial checks alone. CI run 39468124684 was still running when this tracker was written.
