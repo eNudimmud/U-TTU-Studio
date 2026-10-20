@@ -9,6 +9,7 @@ import { useState } from "react";
 import { assetPath } from "@/lib/site";
 import { studioAgentSnapshot } from "@/lib/agent/capabilities";
 import { decideStudioRequest } from "@/lib/agent/decision";
+import { agentSourceId } from "@/lib/agent/source";
 import { useStudio } from "./studio-session";
 type SuiteSource = { kind: "image" | "video"; url: string; name: string; path?: string; aspect?: "horizontal" | "vertical" };
 
@@ -18,7 +19,7 @@ export function StudioAgentInline({ source, onPrepare }: { source: SuiteSource; 
   const [request, setRequest] = useState("");
   const [submitted, setSubmitted] = useState("");
   const snapshot = studioAgentSnapshot(prefs);
-  const sourceId = source.path || (source.url && !source.url.startsWith("blob:") ? source.url : undefined);
+  const sourceId = agentSourceId(source);
   const decision = decideStudioRequest(submitted, snapshot.capabilities, source.kind === "image" && sourceId ? { id: sourceId, kind: "image" } : undefined);
   return <div className="u-agent-inline" data-studio-agent="">
     <button type="button" className="u-secondary" aria-expanded={open} onClick={() => setOpen(value => !value)}>
