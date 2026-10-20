@@ -31,3 +31,11 @@
 
 ## Non-negotiable
 Do not merge or claim end-to-end validation until tests and browser flows are actually verified. Never spend Comfy credits or alter U*TTU Core.
+
+## Progress update — 2026-10-20
+- Pure Studio intent router: `src/lib/agent/intent.ts`; pure decision contract: `src/lib/agent/decision.ts`.
+- Studio and standalone agent share a mirrored intent conformance corpus (`tests/agent-conformance.test.ts` and `tests/conformance.test.ts`). These are **mirrored tests**, not a shared runtime package.
+- `StudioAgentInline` gates the tool link on `decision.kind === "propose"`; React input IDs are generated with `useId`.
+- `src/lib/agent/source.ts` guards temporary preview URLs; `rememberSource` uses `safeHandoffUrl` for all « Et ensuite ? » actions. A vault path is retained when present. **Vault rehydration is not yet proven**.
+- CI for commit `f44f397` completed successfully; newer commits require separate verification. No real Android browser E2E or paid Comfy generation has been performed.
+- Next: inspect actual Studio tool intake/rehydration, prove persistent source path resolves, then pin and import agent planner without duplication; keep draft PRs.
