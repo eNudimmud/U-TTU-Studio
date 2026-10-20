@@ -53,3 +53,15 @@ Do not merge or claim end-to-end validation until tests and browser flows are ac
 4. **Source + quote + confirmation — PARTIAL.** Source handoff uses the existing vault `media` map and `resolveStudioHandoff`; the assistant now requires the source to resolve before proposing. The actual tool hub owns quoting and consent, but no complete browser/generation test has yet demonstrated this path.
 
 Never merge or deploy based on these partial checks alone. CI run 39468124684 was still running when this tracker was written.
+
+## Scope correction: full-Studio agent (2026-10-20)
+The BiRefNet cutout flow is only an integration smoke test, **not the product scope**.
+
+Implemented: `src/lib/agent/studio-map.ts` derives a read-only, status-aware inventory from `OUTILS` and `REGISTRE`, spanning CAST, DÉCOR, PRISE, MONTAGE and cross-cutting tools. It exposes required media, output kind, prompt requirement, template and quote hints where available. Tests ensure coverage and prohibit marking unwired tools ready.
+
+Remaining work before claiming a full Studio agent:
+- Expose **non-generation** capabilities: LoRA training and character identity, map/street-view location scouting, timeline editing, local vault and project persistence, exports, job recovery and settings. These need separate typed adapters, not fake Comfy templates.
+- Implement multi-turn conversational planning and clarification with explicit selected project/assets and user-approved plan steps. Keep the existing Comfy-specialist U*TTU agent separate.
+- Implement safe navigation/selection adapters for each area, validate required inputs and capabilities at execution time, and preserve explicit quote + consent gates.
+- Extend Android E2E coverage across CAST → DÉCOR → PRISE → MONTAGE → export and project reopen; check privacy, retries, billing and cancellation.
+- Confirm CI and physical-device testing before release. No live paid generation without approval.
