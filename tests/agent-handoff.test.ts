@@ -14,3 +14,9 @@ test("falls back to a durable URL and rejects unsafe previews", () => {
   assert.equal(resolveStudioHandoff({ url: "/assets/image.png", kind: "image", name: "image.png" }, {}), "/assets/image.png");
   assert.equal(resolveStudioHandoff({ url: "data:image/png;base64,AAAA", kind: "image", name: "image.png" }, {}), undefined);
 });
+
+test("waits for vault hydration instead of treating a path as a URL", () => {
+  const source = { url: "", path: "assets/late.png", kind: "image" as const, name: "late.png" };
+  assert.equal(resolveStudioHandoff(source, {}), undefined);
+  assert.equal(resolveStudioHandoff(source, { "assets/late.png": "blob:https://studio.example/hydrated" }), "blob:https://studio.example/hydrated");
+});
