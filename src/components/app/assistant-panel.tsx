@@ -168,7 +168,7 @@ export function AssistantPanel() {
       {!conversation.messages.length && <p>{t('agent.welcome')}</p>}
     </div>
     <form onSubmit={e => { e.preventDefault(); void send(); }}>
-      <label className="u-field"><span className="u-label">{t('assistant.ask')}</span><textarea value={query} maxLength={2000} rows={3} onChange={e => { setQuery(e.target.value); setModelConfirm(false); }} placeholder={t('agent.placeholder')} data-assistant-input="" /></label>
+      <label className="u-field"><span className="u-label">{t('assistant.ask')}</span><textarea value={query} maxLength={2000} rows={3} disabled={busy || !session.ready || Boolean(project && loaded !== project)} aria-describedby="u-agent-guidance" onChange={e => { setQuery(e.target.value); setModelConfirm(false); }} placeholder={t('agent.placeholder')} data-assistant-input="" /></label>
       <div className="u-agent-actions"><button className="u-primary" data-agent-send="" aria-describedby="u-agent-guidance" disabled={busy || !query.trim() || loaded !== project || !project}>{t('agent.send')}</button><button type="button" className="u-secondary" onClick={() => { setLibrary(v => !v); setMediaQuery(''); }}>{t('media.title')}</button></div>
     </form>
     {hinted.length > 0 && <ul className="u-assistant-list">{hinted.map(op => op && <li key={op.id}><a href={assetPath(op.href!)} data-assistant-outil={op.toolId}>{op.label}</a></li>)}</ul>}

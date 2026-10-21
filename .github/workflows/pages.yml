@@ -42,8 +42,10 @@ jobs:
         run: npm run typecheck
       - name: Build serveur, sans clés Clerk
         run: npm run build
-      - name: Parcours CAST, DÉCOR, PRISE, MONTAGE
-        run: npx playwright test
+      - name: Parcours Agent et médiathèque hybride
+        run: npx playwright test e2e/studio-agent-production.spec.ts e2e/media-hybrid.spec.ts
+      - name: Parcours CAST, DÉCOR, PRISE, MONTAGE et non-régression
+        run: npx playwright test --grep-invert 'agent: project|hybrid library:'
 
       - name: Preuves navigateur et exports
         if: always()
