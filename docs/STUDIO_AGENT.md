@@ -10,7 +10,7 @@ The Studio orchestrator complements the existing U*TTU Core ComfyUI specialist. 
 | Context provider | `context.ts`, project media catalogue | Current project, opaque resource IDs, selected references and saved results; no arbitrary file access or Comfy credentials. |
 | Conversation manager | pinned kernel `production.ts`, `assistant-panel.tsx` | Bounded history, clarifications, selection, dependencies and project-scoped restoration. |
 | Production planner | pinned independent Agent kernel | Ordered plans, live capability validation, interruptions and explicit result approval. |
-| Execution bridge | `execution.ts`, `use-agent-draft.ts` | Fill existing forms, prepare saved shot drafts, send selected takes to the existing montage writer, initiate local backup and guide navigation. |
+| Execution bridge | `execution.ts`, `use-agent-draft.ts` | Fill existing forms, prepare saved shot drafts, send selected takes and downloaded image/video/audio assets to the existing montage writer, initiate local backup and guide navigation. |
 | Job supervision | existing render recovery and task registry | Follow the original job, recover after interruption, stop local monitoring and explicitly confirm remote cancellation. Never resubmit an ambiguous paid request. |
 | Validation | kernel checks, module quotes/consent, media transport | Validate project/resources/catalogue, financial confirmation, account scope, stable media identities and download bounds. |
 
@@ -27,6 +27,8 @@ For real-location scouting the agent opens the existing repérage interface. The
 ## Persistence and hybrid library
 
 The conversation and plan, one pending form handoff, and export receipts are project files under `.uttu/`. The hybrid media catalogue is additive; existing media and notes stay readable. The assistant searches names, characters, locations, current-week creations, approved versions and known missing remote media. It can propose a sequence classification and select an explicitly downloaded asset for reuse in existing modules.
+
+Downloaded library media can be assembled on the native timeline after explicit preparation. Their durations are read from the local cache; a stable clip ID prevents duplicate insertion when a saved handoff is replayed. User trims and audio levels are preserved. The handoff is cleared only after the existing montage writer confirms persistence. A missing remote asset remains reusable when its local copy is available.
 
 Generated outputs retain job/workflow provenance, source-asset relations and remote IDs when actually provided or resolved. A temporary signed URL is not an identity. Account identity, expiration, pagination, on-demand caching, source precedence and the cross-device backend proposal are specified in [HYBRID_MEDIA.md](HYBRID_MEDIA.md).
 

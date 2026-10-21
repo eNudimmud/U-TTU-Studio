@@ -1519,7 +1519,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   useEffect(() => {
     if (!ready || !client) return;
-    try { if (readPending(localStorage) || readInFlight(localStorage)) resumeRun(); }
+    try {
+      const receipt = readPending(localStorage);
+      // An ambiguous submission has no job to poll. Its explicit identification
+      // must not race an automatic attempt holding the same operation lock.
+      if (receipt?.jobId || (!receipt && readInFlight(localStorage))) resumeRun();
+    }
     catch (error) { setNotice(error instanceof Error ? error.message : "Reçu illisible."); }
   }, [ready, client, resumeRun]);
 

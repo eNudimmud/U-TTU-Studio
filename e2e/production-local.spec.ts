@@ -50,7 +50,7 @@ test('import gratuit → plan conservé → montage → vrai MP4 et réouverture
   await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
   expect((await readVault(page)).filter(entry => /\/Prises\/.*\.md$/.test(entry.path))).toHaveLength(0); // an image is not a generated take
   // One tap: the header button exports straight away when the cut can be written.
-  const downloaded = page.waitForEvent('download');
+  const downloaded = page.waitForEvent('download', { timeout: 60_000 });
   await page.locator('[data-export-open]').click();
   const download = await downloaded;
   const path = info.outputPath('export-local.mp4');
@@ -162,7 +162,9 @@ test('deux vidéos importées → montage de six secondes → MP4 lisible', asyn
   await page.getByRole('button', { name: 'Ajouter au montage', exact: true }).click();
   await expect(page.locator('.u-clip.is-video')).toHaveCount(2);
   // One tap: the header button exports straight away when the cut can be written.
-  const downloaded = page.waitForEvent('download');
+  // Frame-by-frame browser encoding can exceed the 20 s action timeout on a
+  // shared runner. Keep a bounded export budget and still decode both clips below.
+  const downloaded = page.waitForEvent('download', { timeout: 60_000 });
   await page.locator('[data-export-open]').click();
   const path = info.outputPath('two-clips.mp4');
   await (await downloaded).saveAs(path);

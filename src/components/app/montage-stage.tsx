@@ -27,6 +27,8 @@ import { gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre"
 import { suiteQuote } from "@/lib/suite/quote";
 import { FINAL_MAX_SECONDS, MASTER, finalQuote, masterSize, type FinalChoice, type FinalNettoyage, type FinalResolution } from "@/lib/montage/finaliser";
 import type { FinaliseStage } from "./studio-session";
+import { useAgentDraft } from "./use-agent-draft";
+import { appendAgentMedia, localMediaDuration, type TimedResource } from "@/lib/agent/montage";
 
 function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
   if (!on || !text) return null;
@@ -256,6 +258,36 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     show(committed);
     if (committed !== base) void persist(committed.present);
   }
+
+  useAgentDraft(op => op.adapter === "montage", async (draft, resources) => {
+    const origin = studio.project;
+    const additions: TimedResource[] = [];
+    try {
+      for (const resource of resources) {
+        if (resource.role !== "asset" || !["image", "video", "audio"].includes(resource.kind)) continue;
+        const seconds = resource.kind === "image" ? 5
+          : await localMediaDuration(resource.kind as "video" | "audio", urlOfRef.current(resource.path));
+        additions.push({ ...resource, seconds });
+      }
+      if (projectRef.current !== origin || draft.projectId !== origin) throw new Error("Le projet a changé. Rouvrez le projet d’origine pour reprendre le montage.");
+      const base = historyRef.current;
+      const next = appendAgentMedia(base.present, draft, additions);
+      if (next === base.present) return;
+      show(commit(base, next));
+      try {
+        const saved = await saveMontage(next, { ...files.current });
+        if (projectRef.current !== origin) return;
+        boot.current = saved.slug;
+        if (historyRef.current.present === next) show({ ...historyRef.current, present: saved.edit });
+      } catch (error) {
+        if (projectRef.current === origin && historyRef.current.present === next) show(base);
+        throw error;
+      }
+    } catch (error) {
+      if (projectRef.current === origin) setNotice(error instanceof Error ? error.message : "Le montage n’a pas pu être sauvegardé.");
+      throw error; // Retain the handoff until the existing vault confirms its save.
+    }
+  }, loadedProject === (studio.project ?? "") && !demo);
 
   useEffect(() => {
     if (!ready) return;

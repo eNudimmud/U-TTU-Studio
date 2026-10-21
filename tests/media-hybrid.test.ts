@@ -77,6 +77,14 @@ test('media transport uses GET-only same-origin endpoints, caps downloads, and n
  for(const r of requests){assert.ok(r.url.startsWith('/api/'));assert.equal(r.init?.redirect,'error');assert.equal(r.init?.method,undefined);assert.equal(new Headers(r.init?.headers).get('x-api-key'),'comfy-secret');}
  await assert.rejects(client.content('../private'),/invalid/);
 });
+test('portable manifests reject output traversal and retain only stable project relations',()=>{
+ const catalog=mergeRemote(emptyCatalog('film'),account,[row]);
+ catalog.assets[0].relations=['https://storage.invalid/temporary','local:Projets/other/Cast/private.png','local:Projets/film/Cast/alice.png'];
+ assert.deepEqual(parseCatalog(JSON.stringify(catalog),'film').assets[0].relations,['local:Projets/film/Cast/alice.png']);
+ for(const output of [{filename:'../private.png',subfolder:'',type:'output'},{filename:'safe.png',subfolder:'../private',type:'output'},{filename:'safe.png',subfolder:'',type:'arbitrary'}]){
+  catalog.assets[0].remote!.output=output;assert.throws(()=>parseCatalog(JSON.stringify(catalog),'film'));
+ }
+});
 test('scope remains opaque and key-specific when v1 user exposes only status',async()=>{
  const a=createRenderClient({auth:{kind:'key',key:'secret-a'}});const b=createRenderClient({auth:{kind:'key',key:'secret-b'}});
  const scopeA=await accountScope({status:'active'},await renderCredentialScope(a));const scopeB=await accountScope({status:'active'},await renderCredentialScope(b));assert.notEqual(scopeA,scopeB);assert.match(scopeA,/^[a-f0-9]{64}$/);await assert.rejects(accountScope({status:'active'}));

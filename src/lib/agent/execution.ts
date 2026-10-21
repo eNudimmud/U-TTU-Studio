@@ -51,7 +51,11 @@ export async function prepareStep(session: StudioSession, context: ProductionCon
     const takes = selected.filter(r => r.role === "take").flatMap(r => session.studio.takes.find(t => `take:${t.id}` === r.id) ?? []);
     if (takes.length) {
       await session.sendSequence(takes.map(take => ({ takeId: take.id, planId: session.studio.shots.find(s => s.takeIds.includes(take.id))?.id ?? `agent-${take.id}`, label: take.line, seconds: take.settings.seconds, aspect: take.settings.aspect === "vertical" ? "vertical" : "horizontal", still: take.poster ? session.media[take.poster] : "", prompt: take.prompt, sceneName: take.sceneName, composeur: "" })));
-      return { state: "done", results: takes.map(t => `take:${t.id}`), href: op.href };
+      // Downloaded library media are inserted by the mounted timeline, after it
+      // has loaded this saved cut. Keep the step prepared until that save exists.
+      if (!selected.some(r => r.role === "asset" && ["image", "video", "audio"].includes(r.kind))) {
+        return { state: "done", results: takes.map(t => `take:${t.id}`), href: op.href };
+      }
     }
   }
   if (op.adapter === "backup") {
