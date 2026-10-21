@@ -1,4 +1,3 @@
-/** Vendored verbatim from Uttu-studio-AGENT/src/contracts.ts at d8474e39042c355dfe1029a531f88895ba45f9e6. */
 /** Capability metadata supplied by Studio; never a grant to execute. */
 export interface StudioCapability {
   id: string;
@@ -9,8 +8,15 @@ export interface StudioCapability {
   outputKind: "image" | "video" | "audio" | "text";
   requiresPrompt: boolean;
 }
-export interface StudioAsset { id: string; kind: "image" | "video" | "audio"; }
-export interface StudioContext { capabilities: readonly StudioCapability[]; selectedAsset?: StudioAsset; }
+export interface StudioAsset {
+  /** Opaque Studio-owned reference, not a file path or blob URL. */
+  id: string;
+  kind: "image" | "video" | "audio";
+}
+export interface StudioContext {
+  capabilities: readonly StudioCapability[];
+  selectedAsset?: StudioAsset;
+}
 export type AgentDecision =
   | { kind: "propose"; capabilityId: string; assetId: string; message: string }
   | { kind: "missing_asset"; message: string }

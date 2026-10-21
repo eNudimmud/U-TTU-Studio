@@ -15,3 +15,5 @@ fal-smoke-out/
 artifacts/
 test-results/
 playwright-report/
+.next-agent/
+.next-agentbuild/

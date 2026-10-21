@@ -5,6 +5,7 @@
 export type TaskState = "running" | "done" | "failed" | "interrupted";
 
 export interface Task {
+  project?: string;
   id: string;
   /** Hub tool id when the task came from a tool (used by « Relancer »). */
   tool: string | null;
@@ -42,9 +43,9 @@ function write(next: Task[]) {
 
 export function listTasks(): Task[] { return read(); }
 
-export function startTask(input: { tool: string | null; label: string; plain?: boolean }): string {
+export function startTask(input: { tool: string | null; label: string; plain?: boolean; project?: string }): string {
   const id = `t-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
-  write([{ id, tool: input.tool, label: input.label, plain: input.plain, state: "running", reason: "", at: Date.now(), ended: null }, ...read()]);
+  write([{ id, project: input.project, tool: input.tool, label: input.label, plain: input.plain, state: "running", reason: "", at: Date.now(), ended: null }, ...read()]);
   return id;
 }
 
@@ -60,7 +61,7 @@ export function subscribeTasks(listener: Listener): () => void {
 }
 
 /** Wraps one paid call: the task is « running » while it lasts, then « done » or « failed » with the studio's reason. */
-export async function tracked<T>(input: { tool: string | null; label: string; plain?: boolean }, run: () => Promise<T>, judge: (value: T) => { ok: boolean; reason?: string }): Promise<T> {
+export async function tracked<T>(input: { tool: string | null; label: string; plain?: boolean; project?: string }, run: () => Promise<T>, judge: (value: T) => { ok: boolean; reason?: string }): Promise<T> {
   const id = startTask(input);
   try {
     const value = await run();

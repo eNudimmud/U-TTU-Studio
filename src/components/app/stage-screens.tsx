@@ -1,5 +1,6 @@
 "use client";
 
+import { useAgentDraft } from "./use-agent-draft";
 import { OutilsStrip } from "./outils-hub";
 import { ConnectLink } from "./connect-link";
 import { useEffect, useState, type ReactNode } from "react";
@@ -166,6 +167,18 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const [refs, setRefs] = useState<LocalRef[]>([]);
   const [ask, setAsk] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  useAgentDraft(op => op.area === "cast" && !op.toolId, (draft, resources, op) => {
+    const images = resources.filter(r => r.kind === "image");
+    const target = op.gestureId ?? (images.length ? "cast-photos" : "cast-texte");
+    const slots = casesVisibles(gesteParId(target)!);
+    setGesteIdState(target);
+    setTouched(true);
+    setAsk(false);
+    setPrompt(draft.prompt);
+    if (images[0]) setName(images[0].name);
+    setRefs(images.slice(0, slots.length).map((r, i) => ({ id: r.id, role: slots[i].role, caseId: slots[i].id, name: r.name, url: media[r.path], file: null, assetId: null })));
+    if (op.id === "local:scout") window.dispatchEvent(new CustomEvent("u-ttu-agent-scout", { detail: draft.prompt }));
+  });
   const house = EXEMPLES_CAST;
   const row = gesteParId(gesteId) ?? gesteParId("cast-photos")!;
   const opened = gesteOuvert(row);
@@ -301,6 +314,18 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const [refs, setRefs] = useState<LocalRef[]>([]);
   const [ask, setAsk] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  useAgentDraft(op => op.area === "decor" && !op.toolId, (draft, resources, op) => {
+    const images = resources.filter(r => r.kind === "image");
+    const target = op.gestureId ?? (images.length ? "decor-photo" : "decor-texte");
+    const slots = casesVisibles(gesteParId(target)!);
+    setGesteIdState(target);
+    setTouched(true);
+    setAsk(false);
+    setPrompt(draft.prompt);
+    if (images[0]) setName(images[0].name);
+    setRefs(images.slice(0, slots.length).map((r, i) => ({ id: r.id, role: slots[i].role, caseId: slots[i].id, name: r.name, url: media[r.path], file: null, assetId: null })));
+    if (op.id === "local:scout") window.dispatchEvent(new CustomEvent("u-ttu-agent-scout", { detail: draft.prompt }));
+  });
   const house = EXEMPLES_DECOR;
   const row = gesteParId(gesteId) ?? gesteParId("decor-photo")!;
   const opened = gesteOuvert(row);

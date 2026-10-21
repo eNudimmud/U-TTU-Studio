@@ -1,5 +1,6 @@
 "use client";
 
+import { useAgentDraft } from "./use-agent-draft";
 import { OutilsStrip } from "./outils-hub";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { framePoster } from "@/lib/montage/poster";
@@ -115,6 +116,11 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [previsLeft, setPrevisLeft] = useState(0);
   const [previsClip, setPrevisClip] = useState<PrevisClip | null>(null);
   const filming = useRef(false);
+  useAgentDraft(op => op.id === "local:take", (draft) => {
+    setDrafts(list => list.map(item => item.id === currentId ? { ...item, input: { ...item.input, action: draft.prompt.slice(0, 240) } } : item));
+    setAsk(null);
+  });
+
 
   // Films 5 s of the maquette, along the camera path when there is one, and hands the clip to Caméra maîtrisée.
   async function filmPrevis() {

@@ -90,3 +90,15 @@ export async function accountFingerprint(value: string): Promise<string> {
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
   return Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('');
 }
+
+/** Cancel only the exact existing receipt after a distinct, explicit confirmation. */
+export async function cancelPendingJob(storage: StorageLike, client: Pick<RenderClient, 'cancel'>, account: string, jobId: string, confirmed: boolean): Promise<void> {
+  if (!confirmed) throw new Error('recovery.confirm');
+  const snapshot = storage.getItem(PENDING_RENDER_KEY);
+  const pending = readPending(storage);
+  if (!pending?.jobId || pending.jobId !== jobId) throw new Error('recovery.changed');
+  if (pending.account !== account) throw new Error('recovery.account');
+  if (storage.getItem(PENDING_RENDER_KEY) !== snapshot) throw new Error('recovery.changed');
+  await client.cancel(jobId);
+  // The cloud may finish before the cancellation. Keep the receipt until status confirms the outcome.
+}

@@ -1,5 +1,18 @@
 # U*TTU Studio Agent — continuity / next work
 
+## Current checkpoint — 2026-10-21 (supersedes older status sections below)
+
+- Studio PR #121 remains draft. Its original head `2270e8e` passed Actions run `39471129593`. New changes require a fresh full browser run.
+- Agent PR #1 was already merged before this session. Continued work on the requested branch is now draft PR [#2](https://github.com/eNudimmud/Uttu-studio-AGENT/pull/2), commit `335cc3abff58990f91a7606ddb9ca90f97655d1b`; Actions `39582974289` passed (17 tests and typecheck).
+- The Studio vendors the four exact kernel sources with SHA-256 integrity checks in `src/lib/agent/kernel/source.json`. Production planning, bounded project conversation history, clarifications, dependencies, restoration and an optional allowlisted Jev interpreter are implemented in that independent kernel.
+- The global assistant discovers catalogue operations plus explicit native adapters for CAST, DÉCOR, real-location scouting, shot drafts, PRISE, timeline, export, backup, projects and recovery. Preparing forms never submits a paid generation. The existing module owns its quote and explicit confirmation. A prepared step requires new saved evidence and user approval; shot drafts, timeline handoff and ZIP initiation have their own local receipts.
+- Conversation/plan/selection and prepared handoff persist as project files. Interrupted jobs retain the existing durable render receipt. Remote cancellation has a separate confirmation and keeps the receipt until status is reconciled. U*TTU Core identity and repository are unchanged; no authenticated Core connection or exportable LoRA training is invented.
+- The additive hybrid media index stores stable local/remote identities, provenance, project organization, availability and optional cache. Read-only Comfy inventory import, explicit availability checks, resumable pagination, demand downloads, account isolation, classification and portable manifests are wired into Mon studio and the assistant. See [HYBRID_MEDIA.md](HYBRID_MEDIA.md) for the verified APIs and architecture decision.
+- Comfy is not a guaranteed permanent archive. IndexedDB is the local cache/session/project state; Obsidian remains an optional export. There is no automatic cross-device metadata backend: the minimal versioned-manifest proposal requires a hosting/budget decision before implementation. Current transfer uses manifest + local-media ZIP.
+- Local verification: 415 tests, 414 passed, one existing skip; TypeScript passed. A production Next build passed before the last recovery refinements and is repeated in CI. Chromium execution is denied by this workspace's socket policy; no local browser pass is claimed. New Playwright scenarios cover a complete film and hybrid-library lifecycle on desktop/mobile using simulated Comfy, without paid calls. Their CI result is still pending at this checkpoint.
+- Local conversational matching supports French/English catalogue intents; unknown requests ask for clarification. Jev is off by default, uses a separate in-memory BYOK key and explicit consent for each potentially billable request. No provider call was made here, so real-model quality and real-account Cloud permissions remain unvalidated.
+- Do not merge or deploy until final CI and review. Physical Android, a real connected Comfy account, optional model quality and the chosen metadata backend remain separate release checks.
+
 ## Project identity
 - Companion repository: https://github.com/eNudimmud/Uttu-studio-AGENT (PR #1).
 - Studio repository: https://github.com/eNudimmud/U-TTU-Studio (PR #121).

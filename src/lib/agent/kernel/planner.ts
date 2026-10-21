@@ -1,4 +1,3 @@
-/** Pinned source from Uttu-studio-AGENT commit d8474e39042c355dfe1029a531f88895ba45f9e6. */
 import type { AgentDecision, StudioContext } from "./contracts.ts";
 
 /** Pure, deterministic first intent adapter. Never executes or incurs charges. */

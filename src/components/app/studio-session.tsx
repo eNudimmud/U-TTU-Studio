@@ -51,7 +51,7 @@ import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderL
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
-import { accountFingerprint, bindPendingJob, clearPending, readPending, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
+import { accountFingerprint, bindPendingJob, cancelPendingJob, clearPending, readPending, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 
 export type SheetName = null | "credits" | "confirm" | "connect";
@@ -77,7 +77,20 @@ function audioExtension(file: File): string {
 const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO = /\.(mp4|webm|mov)$/i;
 
+import { renderCredentialScope } from "@/lib/render/client";
+import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
+import { createMediaClient } from "@/lib/media/cloud";
+import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
+
 export interface StudioSession {
+  catalog: MediaCatalog | null;
+  syncMedia(more?: boolean): Promise<void>;
+  verifyMedia(ids: string[]): Promise<void>;
+  cacheMedia(id: string): Promise<string>;
+  previewMedia(id: string): Promise<Blob>;
+  classifyMedia(ids: string[], patch: Partial<MediaAsset['organization']>): Promise<void>;
+  importManifest(text: string): Promise<void>;
+
   ready: boolean;
   demo: boolean;
   studio: Studio;
@@ -105,6 +118,7 @@ export interface StudioSession {
   pendingTake: TakeRequest | null;
   confirmRun(): Promise<void>;
   cancelRun(): void;
+  cancelRemoteJob(jobId: string, confirmed: boolean): Promise<void>;
   resetRun(): void;
   resumeRun(): void;
   identifyPendingJob(jobId: string, confirmed: boolean): Promise<string | null>;
@@ -363,6 +377,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [folderMode, setFolderMode] = useState<FolderMode>("off");
   const [folderName, setFolderName] = useState<string | null>(null);
   const [demoOn, setDemoOn] = useState(demo);
+  const [catalog, setCatalog] = useState<MediaCatalog | null>(null);
   const [loose, setLoose] = useState<AssetRecord[]>([]);
   const [pendingRef, setPendingRef] = useState<HeldRef | null>(null);
   const [pendingClip, setPendingClip] = useState<HeldClip | null>(null);
@@ -397,6 +412,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (take.poster) wanted.add(take.poster);
     }
     for (const entry of await vault.list()) {
+      if (next.project && entry.path.startsWith("Projets/") && !entry.path.startsWith(`Projets/${next.project}/`)) continue;
       if (/\/Sequences\/[^/]+\.(wav|mp3|m4a|ogg|webm|mp4)$/i.test(entry.path)) wanted.add(entry.path);
       if (/\/(?:Cast|Decors|Lieux|Prises|Sons|Assets)\/[^/]+\.(png|jpe?g|webp|gif|mp4|webm|mov|wav|mp3|m4a|ogg|glb|gltf)$/i.test(entry.path)) wanted.add(entry.path);
     }
@@ -418,6 +434,14 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const vault = store();
     const next = await loadStudio(vault);
     setStudio(next);
+    try {
+      const labels: Parameters<typeof discoverLocal>[2] = {};
+      for (const card of next.cast) for (const path of [card.sheet, ...card.photos]) if (path) labels[path] = { name: card.name, character: card.name, createdAt: card.at, workflowId: card.template };
+      for (const scene of next.scenes) for (const path of [scene.render, ...scene.stills, ...scene.views]) if (path) labels[path] = { name: scene.name, decor: scene.name, workflowId: scene.template };
+      for (const take of next.takes) if (take.video) { const shot = next.shots.find(s => s.takeIds.includes(take.id)); labels[take.video] = { name: take.line || take.id, createdAt: take.at, jobId: take.jobId, workflowId: take.profile, decor: take.sceneName, sequence: shot?.sequenceId ?? '', take: take.id }; }
+      setCatalog(next.project ? await discoverLocal(vault, next.project, labels) : null);
+    }
+    catch { setCatalog(null); setNotice("L’index des médias est illisible. Les fichiers d’origine sont conservés ; exportez le coffre avant réparation."); }
     const entries = await vault.list();
     const paths = entries.map(entry => entry.path);
     const noted = await importNotes(async path => (await vault.get(path))?.text, paths, next.project);
@@ -438,6 +462,65 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   const activeClient = useRef(client);
   activeClient.current = client;
+  const mediaClient = useMemo(() => link.mode === "key" ? createMediaClient({ kind: "key", key: link.key }) : link.mode === "session" ? createMediaClient({ kind: "session", token: () => tokens.token() }) : null, [link, tokens]);
+  const mediaScope = useCallback(async () => {
+    const project = studioRef.current?.project;
+    if (!client || !mediaClient || !project) throw new Error("media.auth");
+    const account = await accountScope(await client.user(), await renderCredentialScope(client));
+    const scope = { project, account, current: () => activeClient.current === client && studioRef.current?.project === project };
+    if (!scope.current()) throw new Error("media.changed");
+    return { scope, render: client, cloud: mediaClient };
+  }, [client, mediaClient, link]);
+  const syncMedia = useCallback(async (more = false) => {
+    const { scope, cloud } = await mediaScope();
+    const current = await readCatalog(store(), scope.project);
+    const offset = more ? current.sync[scope.account]?.offset ?? 0 : 0;
+    const next = await syncPage(store(), scope, cloud, offset);
+    if (scope.current()) setCatalog(next);
+  }, [mediaScope, store]);
+  const checkMedia = useCallback(async (ids: string[]) => {
+    const { scope, cloud } = await mediaScope();
+    try { const next = await verifyMedia(store(), scope, cloud, ids); if (scope.current()) setCatalog(next); }
+    finally { if (scope.current()) setCatalog(await readCatalog(store(), scope.project)); }
+  }, [mediaScope, store]);
+  const fetchMedia = useCallback(async (id: string) => {
+    const { scope, cloud, render } = await mediaScope();
+    try {
+      const path = await cacheMedia(store(), scope, cloud, render, id);
+      if (scope.current()) await reload();
+      return path;
+    } finally { if (scope.current()) setCatalog(await readCatalog(store(), scope.project)); }
+  }, [mediaScope, reload, store]);
+  const previewMedia = useCallback(async (id: string) => {
+    const { scope, cloud } = await mediaScope();
+    const asset = (await readCatalog(store(), scope.project)).assets.find(a => a.id === id);
+    if (asset?.remote?.account !== scope.account || !asset.remote.previewId) throw new Error("media.preview");
+    const blob = await cloud.content(asset.remote.previewId, 2 * 1024 * 1024);
+    if (!scope.current() || !blob.type.startsWith("image/")) throw new Error("media.changed");
+    return blob;
+  }, [mediaScope, store]);
+  const classifyMedia = useCallback(async (ids: string[], patch: Partial<MediaAsset['organization']>) => {
+    const project = studioRef.current?.project;
+    if (!project) throw new Error("media.project");
+    const next = await updateCatalog(store(), project, c => classify(c, ids, patch));
+    if (studioRef.current?.project === project) setCatalog(next);
+  }, [store]);
+  const importManifest = useCallback(async (text: string) => {
+    const project = studioRef.current?.project;
+    if (!project) throw new Error("media.project");
+    const incoming = parseCatalog(text, project);
+    const next = await updateCatalog(store(), project, current => ({ ...current, assets: [...current.assets, ...incoming.assets.filter(a => !current.assets.some(b => b.id === a.id || (a.remote?.assetId && b.remote?.assetId === a.remote.assetId && b.remote.account === a.remote.account))) ] }));
+    if (studioRef.current?.project === project) setCatalog(next);
+  }, [store]);
+  const completePending = useCallback(async (render: RenderClient, jobId: string) => {
+    const receipt = readPending(localStorage);
+    if (receipt?.jobId === jobId) {
+      // Preserve the receipt until both legacy files and the hybrid index are durable.
+      const account = await accountScope(await render.user(), await renderCredentialScope(render));
+      await registerRender(store(), receipt, await render.job(jobId), account);
+    }
+    clearPending(localStorage, jobId);
+  }, [store]);
   const fingerprint = useCallback(async () => accountFingerprint(link.mode === "key" ? link.key : JSON.stringify(await client?.user())), [client, link]);
 
   // Synchronous guard before any await, plus an origin-wide Web Lock for tabs.
@@ -514,7 +597,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       take.announcedHigh = learned.announced?.high ?? null;
       const takes = [take, ...current.takes.filter(item => item.id !== id)];
       await settleLandedTake(vault, take, current.sequences, current.shots, takes, current.loras, flight.planId);
-      clearPending(localStorage, flight.jobId);
+      await completePending(renderClient, flight.jobId);
       saveInFlight(localStorage, null);
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
       await reload();
@@ -528,7 +611,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       abort.current = null;
       following.current = null;
     }
-  }, [reload, store]);
+  }, [completePending, reload, store]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -720,7 +803,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       }));
       await writeLook(vault, { ...held.look, name, photos: [sheet, ...photos].slice(0, 3) });
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
-      clearPending(localStorage, result.jobId);
+      await completePending(client, result.jobId);
       await reload();
       setPickedCast(id);
       setNotice(t("create.filed"));
@@ -732,7 +815,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   const createDecor = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; files?: File[]; confirmed: boolean; geste?: string }) => {
     const row = input.geste ? gesteParId(input.geste) : null;
@@ -801,7 +884,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await writeScene(vault, scene);
       await writeState(vault, id);
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
-      clearPending(localStorage, result.jobId);
+      await completePending(client, result.jobId);
       await reload();
       setPickedDecor(id);
       setNotice(t("create.filed"));
@@ -813,7 +896,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   const createStem = useCallback(async (input: { geste: string; text: string; confirmed: boolean }) => {
     const row = gesteParId(input.geste);
@@ -855,7 +938,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const paths = assetPaths(slug, "son", id, "mp3");
       await writeBlob(vault, paths.media, result.audio);
       await writeText(vault, paths.note, assetNote({ id, kind: "son", name: receipt.name, at: receipt.at, prompt: text, geste: input.geste, template: row.template, refs: [], devis: quote.credits, cout: result.costCredits, media: paths.media, note: paths.note, preview: null, loose: false }));
-      clearPending(localStorage, result.jobId);
+      await completePending(client, result.jobId);
       await reload();
       return new File([result.audio], result.filename, { type: result.audio.type || "audio/mpeg" });
     } catch (error) {
@@ -865,7 +948,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // Finaliser : une passe sur le montage entier. Jamais d'annulation : le job va au bout.
   const finaliseMontage = useCallback(async (input: FinaliseInput): Promise<FinaliseOutcome> => {
@@ -901,7 +984,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const path = `Projets/${slug}/Assets/${id}.mp4`;
       await writeBlob(vault, path, result.video);
       await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: receipt.prompt, geste: "mont-final", template: receipt.template, refs: [], devis: quote.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
-      clearPending(localStorage, jobId);
+      await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
@@ -910,7 +993,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // Gestes vidéo de PRISE. Devis estimé, confirmé, plafond couvert par le solde. Jamais d'annulation.
   const runVideoGeste = useCallback(async (input: VideoGesteRun): Promise<FinaliseOutcome> => {
@@ -956,7 +1039,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const path = `Projets/${slug}/Assets/${id}.mp4`;
       await writeBlob(vault, path, result.video);
       await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: input.prompt, geste, template: row.template, refs, devis: row.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
-      clearPending(localStorage, jobId);
+      await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
@@ -965,7 +1048,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // « Générer en 3D » de la maquette. Même règle : devis estimé, confirmé, plafond couvert. Jamais d'annulation.
   const runMeshGeste = useCallback(async (input: MeshGesteRun): Promise<FinaliseOutcome> => {
@@ -1001,7 +1084,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await modelExtension(result.mesh, path);
       await writeBlob(vault, path, result.mesh);
       await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: "importe", name, at, prompt: "", geste: row.id, template: row.template, refs, devis: row.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
-      clearPending(localStorage, result.jobId);
+      await completePending(client, result.jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.mesh), cost: result.costCredits };
     } catch (error) {
@@ -1010,7 +1093,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // « Et ensuite ? ». Préparer → Vérifier → Estimer → Confirmer → Exécuter → Contrôler → Archiver.
   // The result is a new asset; the asset it starts from is only read. Jamais d'annulation.
@@ -1069,7 +1152,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const path = `Projets/${slug}/Assets/${id}.${ext}`;
       await writeBlob(vault, path, result.video);
       await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: still ? "importe" : "plan", name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
-      clearPending(localStorage, jobId);
+      await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
@@ -1078,7 +1161,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // Hub tools: the same seven steps. « Et ensuite ? » rows go through runSuite; the others are
   // built by outilGraph and land in Mon studio as a new asset. Jamais d'annulation.
@@ -1141,7 +1224,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const path = `Projets/${slug}/Assets/${id}.${ext}`;
       await writeBlob(vault, path, result.video);
       await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: sortie === "video" ? "plan" : sortie === "audio" ? "son" : "importe", name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
-      clearPending(localStorage, jobId);
+      await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
@@ -1150,7 +1233,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, fingerprint, prefs, refreshBalance, reload, runSuite, store, t]);
+  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, runSuite, store, t]);
 
   const rewriteCast = useCallback(async (cards: CastCard[]) => {
     const vault = store();
@@ -1342,7 +1425,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       setRun({ phase: "error", code: failure.code, message: failure.message, detail: failure.detail });
       abort.current = null;
     }
-  }, [client, fingerprint, finish, line, outgoing, pendingTake, pickedCast, pickedDecor, refreshBalance, run.phase, settings, store, t]);
+  }, [client, completePending, fingerprint, finish, line, outgoing, pendingTake, pickedCast, pickedDecor, refreshBalance, run.phase, settings, store, t]);
+
+  const cancelRemoteJob = useCallback(async (jobId: string, confirmed: boolean) => {
+    if (!confirmed || !client) throw new Error("recovery.confirm");
+    const account = await fingerprint();
+    if (activeClient.current !== client) throw new Error("recovery.account");
+    await cancelPendingJob(localStorage, client, account, jobId, confirmed);
+    setNotice("Demande d’annulation envoyée. Le reçu est conservé jusqu’à confirmation du statut par Comfy.");
+  }, [client, fingerprint]);
 
   const cancelRun = useCallback(() => {
     abort.current?.abort();
@@ -1365,7 +1456,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const message = error instanceof Error ? error.message : "recovery.failed";
       return message.startsWith("recovery.") ? t(message) : message;
     } finally { paidBusy.current = false; setCreating(false); }
-  }, [client, fingerprint, t]);
+  }, [client, completePending, fingerprint, t]);
 
   const resumeRun = useCallback(() => {
     if (!client || paidBusy.current || following.current) return;
@@ -1414,7 +1505,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         } else {
           await writeText(vault, paths.note, assetNote({ id: receipt.id, kind: isVideo ? "plan" : receipt.kind === "mesh" || isImage ? "importe" : "son", name: receipt.name, at: receipt.at, prompt: receipt.prompt, geste: receipt.geste ?? "", template: receipt.template, refs: receipt.refs, devis: receipt.quote, cout: null, media: paths.media, note: paths.note, preview: null, loose: false }));
         }
-        clearPending(localStorage, receipt.jobId);
+        await completePending(client, receipt.jobId);
         await reload();
         setNotice("Rendu récupéré dans son projet d’origine. Le coût reste à vérifier dans votre compte.");
       };
@@ -1424,7 +1515,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         await recover();
       });
     })().catch(error => setNotice(error instanceof Error ? error.message : "Récupération impossible pour le moment.")).finally(() => { paidBusy.current = false; setCreating(false); });
-  }, [client, fingerprint, finish, reload, store]);
+  }, [client, completePending, fingerprint, finish, reload, store]);
 
   useEffect(() => {
     if (!ready || !client) return;
@@ -1491,6 +1582,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [reload, store, t]);
 
   const exportCoffre = useCallback(async () => {
+    await saves.current;
     const data = await coffreZip(store());
     const bytes = data.slice().buffer;
     const url = URL.createObjectURL(new Blob([bytes], { type: "application/zip" }));
@@ -1584,6 +1676,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [reload, store]);
 
   const selectProject = useCallback(async (slug: string) => {
+    await saves.current;
     await chooseProject(store(), slug);
     const next = await reload();
     setPickedCast(next.cast[0]?.id ?? null);
@@ -1593,6 +1686,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [reload, store]);
 
   const createProject = useCallback(async (name: string) => {
+    await saves.current;
     await makeProject(store(), name);
     const next = await reload();
     setPickedCast(next.cast[0]?.id ?? null);
@@ -1844,11 +1938,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [demoOn, prepareMontageClip, reload, store]);
 
   const value: StudioSession = {
+    catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
     prefs, setPrefs,
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
-    pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast: input => tracked({ tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => tracked({ tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, cancelRemoteJob, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
+    loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
