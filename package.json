@@ -19,9 +19,9 @@
     "@mapbox/vector-tile": "^3.0.0",
     "@mediabunny/aac-encoder": "1.61.0",
     "@photo-sphere-viewer/core": "^5.15.1",
-    "maplibre-gl": "^4.7.1",
+    "maplibre-gl": "6.4.1",
     "mediabunny": "^1.61.3",
-    "next": "16.3.6",
+    "next": "16.3.8",
     "next-intl": "^4.14.9",
     "pbf": "^5.1.2",
     "react": "19.3.0",
@@ -30,13 +30,13 @@
     "wavesurfer.js": "^7.9.8"
   },
   "devDependencies": {
-    "@playwright/test": "^1.51.1",
+    "@playwright/test": "1.55.1",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.160.0",
-    "puppeteer-core": "^24.43.1",
+    "puppeteer-core": "25.15.0",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.9.0"
   },
