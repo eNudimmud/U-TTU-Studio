@@ -1,5 +1,17 @@
 # Contrôles de livraison — C micro
 
+## Agent et médiathèque hybride — 21 octobre 2026
+
+Branche `feat/studio-agent-capability-export`, PR #121 ; noyau Agent `335cc3a`, PR Agent #2. La CI de l'Agent a passé 17 tests. Aucun appel payant réel, aucune fusion, aucune mise en production.
+
+- **Local :** 416 tests Studio (415 réussis, un test existant ignoré), TypeScript et build Next 16.3.8 réussis. Chromium local est bloqué par la politique de sockets de l'environnement ; les validations navigateur utilisent GitHub Actions.
+- **Navigateur :** le run `39585345450` a passé 104 cas et révélé deux échecs dans le nouveau parcours complet. La médiathèque hybride a passé desktop et mobile : import des métadonnées sans téléchargement automatique, dédoublonnage, classement, cache à la demande, sélection agent, réouverture et perte du média distant avec copie locale conservée. Le run `39625667190` a atteint l'export MP4 du film simulé avant d'identifier le dialogue resté ouvert dans le test. Les corrections de saisie/selection et du test sont reprises dans les checks suivants de la PR ; consulter leur verdict avant fusion.
+- **Simulation :** génération Comfy, inventaire, récupération distante, expiration et erreurs réseau utilisent des mocks. IndexedDB, navigation, formulaires, sauvegarde ZIP et encodage vidéo local sont réels dans le navigateur. La suite exige un unique envoi simulé après devis/confirmation, puis la conservation du plan à huit étapes après réouverture.
+- **Sécurité :** tests de confirmation avant appel modèle/annulation, portée de compte/projet, traversée de chemins, suppression des URL temporaires du manifeste, secrets absents du contexte modèle, redirection média sans transfert d'identifiants, écritures concurrentes et intégrité du noyau partagé.
+- **Dépendances :** Next 16.3.8, MapLibre 6.4.1, Sharp 0.35.5, source-map-js 1.2.2, Playwright 1.55.1 et Puppeteer Core 25.15.0. `npm audit --json` ne signale plus de vulnérabilité. Correctifs principaux : [Next](https://github.com/advisories/GHSA-cjq9-62q9-8jv4), [MapLibre](https://github.com/advisories/GHSA-jrc7-96c5-q579), [Sharp](https://github.com/advisories/GHSA-wq5f-xc86-pv6w). Les versions n'activent aucun service supplémentaire.
+- **Pièces jointes CI :** le quota GitHub Actions est atteint. L'envoi d'artefacts est facultatif et émet son propre avertissement ; tous les tests/typecheck/build restent bloquants. Aucun ancien artefact n'a été supprimé pour cette livraison.
+- **Encore distinct :** Android physique, permissions effectives et durée de conservation du compte Comfy réel, qualité de Jev réel, backend de métadonnées multiappareil proposé mais non activé. Voir `HYBRID_MEDIA.md` et `STUDIO_AGENT.md`.
+
 ## Trajet, personnage, liaison, LoRA de lieu — 4 octobre 2026
 
 Branche `cursor/film-path-character-386f`. Aucun job Farpy, aucun job fal, aucun job Comfy, aucun LoRA formé : **0 $ dépensé**. La marche part d’un profil Chrome vide, sur le build de production (`127.0.0.1:3462`). Aucune requête vers Farpy, fal, `/api/prompt` ou `/api/upload`.

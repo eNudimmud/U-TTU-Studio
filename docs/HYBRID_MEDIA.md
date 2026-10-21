@@ -33,3 +33,19 @@ Proposition minimale pour une synchronisation automatique future : stockage de m
 ### Portée du compte
 
 `/api/user` ne garantit dans sa spécification v1 qu’un champ de statut. Si un identifiant utilisateur est réellement retourné, le catalogue utilise son empreinte. Avec une clé API et sans cet identifiant, il utilise une empreinte de la clé : même clé, même portée ; une rotation de clé ne fusionne pas silencieusement les comptes. La clé elle-même n’est jamais persistée dans le catalogue. Une session sans identité stable est refusée pour la synchronisation plutôt que partagée entre utilisateurs sur la base d’un simple statut identique. Cette limite doit être vérifiée avec le compte réel avant activation.
+
+## Proposition concrète à valider : métadonnées partagées
+
+Option minimale : **Postgres Neon Free**, appelé uniquement par les routes serveur Vercel existantes, sous l'identité du compte Studio Clerk. L'identité Comfy ne devient pas une autorisation d'accès aux projets Studio. Il faudra vérifier/configurer les clés et sessions Clerk réelles : leur présence dans le code ne prouve pas qu'elles fonctionnent sur l'instance de production.
+
+Au 21 octobre 2026, [les conditions officielles Neon](https://neon.com/docs/introduction/plans) indiquent 0 USD/mois, 1 Go de stockage par projet Neon, 100 CU-heures/mois et 5 Go de transfert public par projet. [La page tarifaire](https://neon.com/pricing) indique qu'aucune carte n'est requise. Au dépassement des quotas gratuits, les opérations sont suspendues/refusées ; aucun passage payant automatique ne doit être activé. Ces limites sont à revérifier lors de l'activation. Le plan Vercel et Clerk déjà choisi conserve ses propres limites.
+
+Contrat proposé, non activé :
+
+- Table `studio_projects(owner_id, project_id, revision, manifest, updated_at)` et historique borné. Le serveur dérive `owner_id` d'une session Clerk validée ; il ne fait jamais confiance au propriétaire déclaré par le client. Toutes les requêtes imposent ce propriétaire, avec défense supplémentaire par politiques Postgres.
+- `GET /studio-projects/{id}` et `PUT` conditionnel avec révision/ETag. Un conflit rend `409` et garde les deux versions pour résolution ; aucune écriture silencieuse par le dernier appareil. L'import local reste possible si le serveur est indisponible.
+- Uniquement manifestes et notes de projet autorisés (organisation, plans, conversation). Pas de médias binaires, clés, cookies ou URL signées. Taille initiale plafonnée à 1 Mio par manifeste et quotas par propriétaire ; pagination ou découpage à prévoir pour de très gros projets.
+- Migrations versionnées, export JSON indépendant, journal de synchronisation local et reprise idempotente. Les modifications locales restent en attente tant que le serveur n'a pas confirmé la révision.
+- Tests à exiger avant activation : deux appareils, deux propriétaires, accès croisé refusé, collision de révision, déconnexion, quota, restauration d'une version et absence de secrets dans les manifestes.
+
+Aucun compte Neon, aucune base, aucune variable d'environnement ni abonnement n'a été créé. Cette proposition attend la validation de l'hébergement et de l'usage de l'identité Studio avant implémentation.

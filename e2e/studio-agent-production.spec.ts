@@ -44,6 +44,7 @@ test('agent: project → CAST → DÉCOR → PRISE → MONTAGE → export → ba
  await prepare(page,'local:export');
  const exported=page.waitForEvent('download');await page.locator('[data-export-open]').click();const film=await exported;await film.saveAs(info.outputPath('agent-film.mp4'));
  await expect(page.locator('[data-export]')).toHaveAttribute('data-export','done');
+ await page.getByRole('dialog',{name:'Exporter',exact:true}).getByRole('button',{name:'Annuler',exact:true}).click();
  await approve(page,'local:export');
  const archived=page.waitForEvent('download');await prepare(page,'local:backup');const zip=await archived;await zip.saveAs(info.outputPath('agent-backup.zip'));
  await expect(page.locator('[data-agent-step="local:backup"]')).toHaveAttribute('data-state','done');

@@ -109,7 +109,13 @@ export async function updateCatalog(store: VaultStore, project: string, change: 
 /** Additive migration: originals and existing organization are never replaced. */
 export async function discoverLocal(store: VaultStore, project: string, labels: Record<string, { name: string; character?: string; decor?: string; createdAt?: string; jobId?: string; workflowId?: string; sequence?: string; take?: string }> = {}): Promise<MediaCatalog> {
   const files = (await store.list()).filter(e => e.blob && e.path.startsWith(`Projets/${project}/`) && mediaKind(e.path, e.blob.type) !== 'other');
-  return updateCatalog(store, project, c => ({ ...c, assets: [...c.assets, ...files.filter(e => !c.assets.some(a => a.localPath === e.path)).map(e => {
+  return updateCatalog(store, project, c => ({ ...c, assets: [...c.assets.map(a => {
+    const label = a.localPath ? labels[a.localPath] : undefined;
+    if (!label) return a;
+    // Backfill provenance after the original module saves its note; never replace a user's classification.
+    return { ...a, jobId: a.jobId ?? label.jobId ?? null, workflowId: a.workflowId ?? label.workflowId ?? null,
+      organization: { ...a.organization, character: a.organization.character || label.character || '', decor: a.organization.decor || label.decor || '', sequence: a.organization.sequence || label.sequence || '', take: a.organization.take || label.take || '' } };
+  }), ...files.filter(e => !c.assets.some(a => a.localPath === e.path)).map(e => {
     const label = labels[e.path]; const base = localAsset(project, e.path, label?.name, label?.createdAt ?? new Date(e.updatedAt).toISOString());
     return { ...base, jobId: label?.jobId ?? null, workflowId: label?.workflowId ?? null, organization: { ...base.organization, character: label?.character ?? '', decor: label?.decor ?? '', sequence: label?.sequence ?? '', take: label?.take ?? '' }, technical: { mime: e.blob!.type, bytes: e.blob!.size } };
   })] }));
@@ -126,13 +132,27 @@ export async function registerRender(store: VaultStore, receipt: PendingRender, 
   const candidates = entries.filter(e => e.blob && e.path.startsWith(`Projets/${receipt.project}/`) && e.path.split('/').pop()?.startsWith(`${receipt.id}.`));
   await updateCatalog(store, receipt.project, c => {
     let next = c;
+    const parents: string[] = [];
+    for (const path of receipt.refs) {
+      if (!cleanPath(path) || !path.startsWith(`Projets/${receipt.project}/`)) continue;
+      let parent = next.assets.find(a => a.localPath === path);
+      if (!parent) {
+        const entry = entries.find(e => e.path === path && e.blob);
+        if (!entry || mediaKind(path, entry.blob!.type) === 'other') continue;
+        parent = { ...localAsset(receipt.project, path), technical: { mime: entry.blob!.type, bytes: entry.blob!.size } };
+        next = { ...next, assets: [...next.assets, parent] };
+      }
+      parents.push(parent.id);
+    }
     const linkedKinds = new Set<MediaKind>();
     for (const [i, ref] of refs.entries()) {
       const kind = mediaKind(ref.filename);
       const file = linkedKinds.has(kind) ? undefined : candidates.find(e => mediaKind(e.path, e.blob?.type) === kind);
       if (file) linkedKinds.add(kind);
       const existing = next.assets.find(a => a.remote?.account === account && ((ref.assetId && a.remote.assetId === ref.assetId) || (a.jobId === receipt.jobId && a.remote.output?.filename === ref.filename))) ?? next.assets.find(a => file && a.localPath === file.path && !a.remote);
-      const asset: MediaAsset = { ...(existing ?? localAsset(receipt.project, file?.path ?? `Projets/${receipt.project}/Assets/${receipt.id}.${i}`)), id: existing?.id ?? `render:${receipt.jobId}:${i}`, project: receipt.project, name: receipt.name, kind, createdAt: receipt.at, localPath: file?.path ?? existing?.localPath ?? null, workflowId: receipt.template, jobId: receipt.jobId, remote: { account, assetId: ref.assetId, output: { filename: ref.filename, subfolder: ref.subfolder, type: ref.type }, availability: 'available', checkedAt: new Date().toISOString(), expiresAt: null, hash: null, previewId: null }, technical: { mime: file?.blob?.type ?? '', bytes: file?.blob?.size ?? null }, cost: null, organization: existing?.organization ?? { ...organization(), character: receipt.kind === 'cast' ? receipt.name : '', decor: receipt.kind === 'decor' ? receipt.name : '' }, relations: existing?.relations ?? [] };
+      const now = new Date().toISOString();
+      const remote: NonNullable<MediaAsset['remote']> = { account, assetId: ref.assetId ?? existing?.remote?.assetId ?? null, output: { filename: ref.filename, subfolder: ref.subfolder, type: ref.type }, availability: existing?.remote?.expiresAt && existing.remote.expiresAt <= now ? 'expired' : 'available', checkedAt: now, expiresAt: existing?.remote?.expiresAt ?? null, hash: existing?.remote?.hash ?? null, previewId: existing?.remote?.previewId ?? null };
+      const asset: MediaAsset = { ...(existing ?? localAsset(receipt.project, file?.path ?? `Projets/${receipt.project}/Assets/${receipt.id}.${i}`)), id: existing?.id ?? `render:${receipt.jobId}:${i}`, project: receipt.project, name: receipt.name, kind, createdAt: receipt.at, localPath: file?.path ?? existing?.localPath ?? null, workflowId: receipt.template, jobId: receipt.jobId, remote, technical: { mime: file?.blob?.type ?? existing?.technical.mime ?? '', bytes: file?.blob?.size ?? existing?.technical.bytes ?? null }, cost: null, organization: existing?.organization ?? { ...organization(), character: receipt.kind === 'cast' ? receipt.name : '', decor: receipt.kind === 'decor' ? receipt.name : '', take: receipt.kind === 'take' ? receipt.id : '' }, relations: [...new Set([...(existing?.relations ?? []), ...parents])].slice(0,100) };
       next = { ...next, assets: [...next.assets.filter(a => a.id !== asset.id), asset] };
     }
     return next;

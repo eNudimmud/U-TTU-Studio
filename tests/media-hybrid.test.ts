@@ -112,3 +112,19 @@ test('remote cancellation requires confirmation and exact receipt/account, prese
  await assert.rejects(cancelPendingJob(storage,{cancel:async()=>{throw Error('offline');}},account,receipt.jobId!,true),/offline/);assert.ok(data.has(PENDING_RENDER_KEY));
  await cancelPendingJob(storage,client,account,receipt.jobId!,true);assert.equal(calls,1);assert.equal(data.get(PENDING_RENDER_KEY),JSON.stringify(receipt));
 });
+
+test('render recovery preserves resolved remote identity, links source assets, and backfills only missing organization',async()=>{
+ const store=memoryVault();const source='Projets/film/Cast/reference.png';const output='Projets/film/Prises/take-1.mp4';
+ await store.put({path:source,blob:new Blob(['image'],{type:'image/png'}),updatedAt:1});await store.put({path:output,blob:new Blob(['video'],{type:'video/mp4'}),updatedAt:2});
+ const receipt:PendingRender={version:1,kind:'take',project:'film',id:'take-1',name:'Laboratoire',at:'2026-10-21T00:00:00Z',account,refs:[source,'Projets/other/Cast/private.png'],template:'real-template',quote:2,balanceBefore:100,jobId:'job-12345678',prompt:'Alice'};
+ const detail={status:'success',outputs:{save:{images:[{filename:'take.mp4',subfolder:'',type:'output'}]}}};
+ await registerRender(store,receipt,detail,account);
+ await updateCatalog(store,'film',c=>mergeRemote(c,account,[parseRemoteAsset({...raw,name:'take.mp4',mime_type:'video/mp4'})]));
+ let catalog=await readCatalog(store,'film');const outputId=catalog.assets.find(a=>a.localPath===output)!.id;
+ await updateCatalog(store,'film',c=>classify(c,[outputId],{sequence:'F',character:'Alice'}));
+ await registerRender(store,receipt,detail,account);
+ catalog=await discoverLocal(store,'film',{[output]:{name:'Laboratoire',sequence:'G',decor:'Labo réel',take:'take-1'}});
+ const asset=catalog.assets.find(a=>a.id===outputId)!;
+ assert.equal(catalog.assets.length,2);assert.equal(asset.remote!.assetId,uuid);assert.deepEqual(asset.relations,[`local:${source}`]);
+ assert.equal(asset.organization.sequence,'F');assert.equal(asset.organization.character,'Alice');assert.equal(asset.organization.decor,'Labo réel');assert.equal(asset.organization.take,'take-1');
+});

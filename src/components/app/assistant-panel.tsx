@@ -89,10 +89,18 @@ export function AssistantPanel() {
     const select = (event: Event) => { const d = (event as CustomEvent<{ project: string; path: string }>).detail; if (d?.project === latest.current.studio.project && typeof d.path === 'string') setSelectedPath(d.path); };
     window.addEventListener(MEDIA_SELECT_EVENT, select); return () => window.removeEventListener(MEDIA_SELECT_EVENT, select);
   }, []);
-  const commit = useCallback(async (next: Conversation) => {
+  const commit = useCallback(async (next: Conversation, optimistic = false) => {
     if (latest.current.studio.project !== next.projectId) throw new Error('project');
     const captured = latest.current;
-    await captured.writeProjectFile(FILE, JSON.stringify(next));
+    const previous = liveConversation.current;
+    // A controlled checkbox must reflect the tap immediately while its durable write runs.
+    // Only selections use this; completion receipts still wait for successful persistence.
+    if (optimistic) { liveConversation.current = next; setConversation(next); }
+    try { await captured.writeProjectFile(FILE, JSON.stringify(next)); }
+    catch (error) {
+      if (optimistic && latest.current.studio.project === next.projectId) { liveConversation.current = previous; setConversation(previous); }
+      throw error;
+    }
     if (latest.current.studio.project === next.projectId) { liveConversation.current = next; setConversation(next); }
   }, []);
   async function work(fn: () => Promise<void>) {
@@ -105,7 +113,7 @@ export function AssistantPanel() {
     const resource = projectResources(session).find(r => r.path === selectedPath);
     if (!resource) return;
     setSelectedPath('');
-    void work(() => commit({ ...liveConversation.current, selectedIds: [...new Set([...liveConversation.current.selectedIds, resource.id])].slice(0, 20) }));
+    void work(() => commit({ ...liveConversation.current, selectedIds: [...new Set([...liveConversation.current.selectedIds, resource.id])].slice(0, 20) }, true));
   }, [selectedPath, session.media, loaded, project]);
 
   async function send() {
@@ -174,7 +182,7 @@ export function AssistantPanel() {
     {hinted.length > 0 && <ul className="u-assistant-list">{hinted.map(op => op && <li key={op.id}><a href={assetPath(op.href!)} data-assistant-outil={op.toolId}>{op.label}</a></li>)}</ul>}
     <details><summary>{t('agent.model')}</summary><p className="u-small">{t('agent.modelHelp')}</p><label className="u-field">{t('agent.modelKey')}<input type="password" autoComplete="off" value={modelKey} onChange={e => { setModelKey(e.target.value); setModelConfirm(false); }} /></label><p className="u-small">{t('agent.modelScope')}</p><label className="u-media-name"><input type="checkbox" checked={modelConfirm} onChange={e => setModelConfirm(e.target.checked)} />{t('agent.modelConsent')}</label><button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !modelConfirm || modelKey.length < 10 || !query.trim() || loaded !== project} onClick={() => void sendSemantic()}>{t('agent.modelSend')}</button></details>
     {error && <p role="alert">{error}</p>}
-    {resources.length > 0 && <details><summary>{t('agent.references')} ({conversation.selectedIds.length})</summary><div className="u-agent-resources">{resources.map(r => <label key={r.id}><input type="checkbox" disabled={busy || !r.available || loaded !== project} checked={conversation.selectedIds.includes(r.id)} onChange={e => { const checked = e.target.checked; void work(() => commit({ ...liveConversation.current, selectedIds: checked ? [...new Set([...liveConversation.current.selectedIds, r.id])].slice(0, 20) : liveConversation.current.selectedIds.filter(id => id !== r.id) })); }} />{r.name} · {t(`media.kinds.${r.kind}`)}{!r.available && ` · ${t('media.uncached')}`}</label>)}</div></details>}
+    {resources.length > 0 && <details><summary>{t('agent.references')} ({conversation.selectedIds.length})</summary><div className="u-agent-resources">{resources.map(r => <label key={r.id}><input type="checkbox" disabled={busy || !r.available || loaded !== project} checked={conversation.selectedIds.includes(r.id)} onChange={e => { const checked = e.target.checked; void work(() => commit({ ...liveConversation.current, selectedIds: checked ? [...new Set([...liveConversation.current.selectedIds, r.id])].slice(0, 20) : liveConversation.current.selectedIds.filter(id => id !== r.id) }, true)); }} />{r.name} · {t(`media.kinds.${r.kind}`)}{!r.available && ` · ${t('media.uncached')}`}</label>)}</div></details>}
     {plan && <section data-agent-plan=""><h3>{t('agent.plan')}</h3><ol className="u-agent-plan">{plan.steps.map(step => {
       const op = operations.find(o => o.id === step.operationId);
       const results = (context.evidence[op?.evidenceKey ?? ''] ?? []).filter(id => !step.baseline.includes(id));
