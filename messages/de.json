@@ -2674,8 +2674,7 @@
       "export": "Film exportieren",
       "backup": "Projekt sichern",
       "projects": "Projekt wieder öffnen",
-      "jobs": "Render verfolgen oder wiederaufnehmen",
-      "core": "U*TTU Core Expertise — Verbindung nicht verfügbar"
+      "jobs": "Render verfolgen oder wiederaufnehmen"
     },
     "model": "Optionale KI-Interpretation · Jev",
     "modelHelp": "Standardmäßig deaktiviert. Jev schlägt nur Katalogoptionen vor. Das Modell kann keine Workflows oder Generierungen ausführen.",
@@ -2685,7 +2684,43 @@
     "modelSend": "Diese KI-Anfrage bestätigen",
     "modelError": "Die Anfrage wurde nicht abgeschlossen und möglicherweise berechnet. Keine automatische Wiederholung.",
     "modelUncertain": "Die KI-Entscheidung ist unsicher oder liegt außerhalb des Katalogs. Präzisiere deine Anfrage oder verwende den lokalen Modus.",
-    "guidance": "Wähle ein Projekt und beschreibe deine Absicht. Schritte benötigen ihre Referenzen und das vorherige Ergebnis; beim Speichern pausieren Aktionen."
+    "guidance": "Wähle ein Projekt und beschreibe deine Absicht. Schritte benötigen ihre Referenzen und das vorherige Ergebnis; beim Speichern pausieren Aktionen.",
+    "reply": {
+      "preserved": "Dein Plan bleibt erhalten. Prüf den nächsten Schritt unten.",
+      "complete": "Der Plan ist fertig. Was möchtest du als Nächstes vorbereiten?",
+      "which": "Welchen Teil möchtest du vorbereiten: Figur, Kulisse, Take, Schnitt, Ton oder Export? Dein aktueller Plan bleibt erhalten.",
+      "describe": "Beschreib das Motiv, die Handlung oder die Stimmung, die dieser Plan behalten soll.",
+      "plan": "Hier sind die vorgeschlagenen Schritte. Einen Schritt vorzubereiten erlaubt keine kostenpflichtige Generierung. Prüf jedes Ergebnis, bevor du weitermachst."
+    },
+    "descriptions": {
+      "cast": "Fotos, Referenzen, Identität und Figurenblatt",
+      "lora": "Exportierbares Training ist noch nicht angebunden. Nutz die Referenzen und Blätter aus Cast.",
+      "decor": "Fotoreferenzen, Gestaltung und Stimmigkeit des Schauplatzes",
+      "scout": "Karte, Panoramax/Mapillary-Straßenansichten je nach Abdeckung, Fotoimport und 3D-Erfassung",
+      "shots": "Entwürfe von Einstellungen zu den gewählten Figuren und Kulissen anlegen",
+      "take": "Workflow wählen und den Kostenvoranschlag in Take prüfen, bevor du bestätigst",
+      "montage": "Schnitt der ausgewählten Videos: Timeline, Übergänge und Tonspuren",
+      "export": "Lokaler MP4-Export im Schnitt; die Browserunterstützung wird beim Export geprüft",
+      "backup": "ZIP-Export deines Ordners mit Projekten, Medien, Gesprächen und Plänen",
+      "projects": "Wähl ein bestehendes Projekt oder importier eine Sicherung in Mein Studio",
+      "jobs": "Einen bestehenden Job abrufen; nie automatisch neu senden"
+    },
+    "inline": {
+      "title": "U*TTU-Assistent",
+      "askImage": "Was möchtest du mit diesem Bild machen?",
+      "askVideo": "Was möchtest du mit diesem Video machen?",
+      "aria": "Frag U*TTU",
+      "placeholder": "Z. B. Stell dieses Bild frei",
+      "propose": "Vorschlagen",
+      "notAccessible": "Dieses Bild ist im Studio noch nicht verfügbar. Speicher es in deinem Ordner oder warte, bis es geladen ist, bevor du das Werkzeug wechselst.",
+      "ready": "BiRefNet-Freistellung bereit zur Vorbereitung. Hier werden keine Credits ausgegeben.",
+      "open": "Werkzeug öffnen und Kostenvoranschlag prüfen",
+      "decision": {
+        "unrecognized": "Sag genauer, welche kreative Aktion du im Studio machen möchtest.",
+        "unavailable": "Freistellen ist im Studio gerade nicht verfügbar.",
+        "missing_asset": "Wähl ein Bild zum Freistellen."
+      }
+    }
   },
   "media": {
     "title": "Mediathek",

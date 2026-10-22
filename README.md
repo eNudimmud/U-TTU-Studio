@@ -32,6 +32,10 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 4. Every paid button shows its quote first (« ≈ X cr. estimated », or measured when it has been measured). A confirmation is required, and the balance must cover the reserve. Suggested 5-run path: CAST « From a text » (≈ 4 cr.), SET « From a text » (≈ 4 cr.), TAKE with the default LTX engine (≈ 12–25 cr. estimated), then EDIT and Finalize.
 5. Nothing is ever cancelled on Comfy by the studio. If you stop waiting, the job keeps running on your Comfy account and lands in My creations.
 6. To run without Comfy Cloud: see « Run locally » below (`scripts/run-local.mjs` with your own ComfyUI, open weights).
+7. **Studio assistant.** Open it with **My credits → Studio assistant** (on a phone: menu ☰ → Studio assistant). Create a project first (the name stays in your browser), then write what you want to make, in FR, EN, DE or ES, e.g. « Prepare a character, then a set, then edit the takes ». It answers with a production plan and opens each step in the right module.
+   - No language model and no key: it works on local rules in your browser and costs 0 credits.
+   - Preparing a step spends nothing. Only a render, confirmed in its module after the quote, needs your Comfy account.
+   - The optional AI interpretation layer (Jev) is disabled in this build.
 
 **FR**
 
@@ -41,6 +45,10 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 4. Chaque bouton payant montre d’abord son devis (« ≈ X cr. estimés », ou mesuré quand il l’a été). Une confirmation est demandée et le solde doit couvrir la réserve. Parcours conseillé en 5 rendus : CAST « Depuis un texte » (≈ 4 cr.), DÉCOR « Depuis un texte » (≈ 4 cr.), PRISE avec le moteur LTX par défaut (≈ 12–25 cr. estimés), puis MONTAGE et Finaliser.
 5. Le studio n’annule jamais un job chez Comfy. Si tu arrêtes d’attendre, le rendu continue sur ton compte et arrive dans Mes créations.
 6. Sans Comfy Cloud : voir « Lancer en local » plus bas (`scripts/run-local.mjs` avec ton propre ComfyUI, open weights).
+7. **Assistant du studio.** Ouvre-le par **Crédits → Assistant du studio** (sur téléphone : menu ☰ → Assistant du studio). Crée d’abord un projet (le nom reste dans ton navigateur), puis écris ce que tu veux faire, en FR, EN, DE ou ES, par ex. « Prépare un personnage, puis un décor, puis monte les prises ». Il répond par un plan de production et ouvre chaque étape dans le bon module.
+   - Aucun modèle de langage ni clé : il marche avec des règles locales dans ton navigateur et coûte 0 crédit.
+   - Préparer une étape ne dépense rien. Seul un rendu, confirmé dans son module après le devis, demande ton compte Comfy.
+   - La couche facultative d’interprétation par IA (Jev) est désactivée dans cette version.
 
 ## What is measured, and what is not / Ce qui est mesuré, et ce qui ne l’est pas
 

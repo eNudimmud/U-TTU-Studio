@@ -1879,7 +1879,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-agent textarea { resize:vertical; }
 .u-agent-actions { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
 .u-agent-actions button,.u-agent summary,.u-media-library summary { min-height:44px; }
-.u-agent-messages { display:grid; gap:10px; max-height:34dvh; overflow:auto; }
+.u-agent-messages { display:grid; gap:10px; flex:0 0 auto; max-height:34dvh; overflow:auto; } /* flex child of a scrolling column: never shrink to 0 */
 .u-agent-messages p { margin:0; padding:12px; border:1px solid var(--u-line,#444); border-radius:12px; overflow-wrap:anywhere; }
 .u-agent-messages p[data-role=user] { margin-left:20px; background:#c9a75b14; }
 .u-agent-messages strong,.u-agent-messages span { display:block; }

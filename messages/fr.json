@@ -2674,8 +2674,7 @@
       "export": "Exporter le film",
       "backup": "Sauvegarder le projet",
       "projects": "Rouvrir un projet",
-      "jobs": "Suivre ou récupérer un rendu",
-      "core": "Expertise U*TTU Core — connexion indisponible"
+      "jobs": "Suivre ou récupérer un rendu"
     },
     "model": "Interprétation IA facultative · Jev",
     "modelHelp": "Option désactivée par défaut. Jev propose uniquement des choix dans le catalogue. Aucun workflow ni génération n’est exécuté par le modèle.",
@@ -2685,7 +2684,43 @@
     "modelSend": "Confirmer cet appel IA",
     "modelError": "L’appel n’a pas abouti. Il peut avoir été facturé. Aucun nouvel envoi automatique.",
     "modelUncertain": "La décision IA est trop incertaine ou hors catalogue. Précise ta demande ou utilise le mode local.",
-    "guidance": "Choisis un projet et saisis ton intention. Les étapes attendent leurs références et le résultat précédent ; pendant une sauvegarde, les actions sont suspendues."
+    "guidance": "Choisis un projet et saisis ton intention. Les étapes attendent leurs références et le résultat précédent ; pendant une sauvegarde, les actions sont suspendues.",
+    "reply": {
+      "preserved": "Le plan est conservé. Vérifie la prochaine étape ci-dessous.",
+      "complete": "Le plan est terminé. Que veux-tu préparer ensuite ?",
+      "which": "Quelle partie veux-tu préparer : personnage, décor, prise, montage, son ou export ? Ton plan actuel est conservé.",
+      "describe": "Décris le sujet, l’action ou l’ambiance à conserver dans ce plan.",
+      "plan": "Voici les étapes proposées. Préparer une étape n’autorise aucune génération payante. Valide chaque résultat avant de continuer."
+    },
+    "descriptions": {
+      "cast": "Photos, références, identité et planche de personnage",
+      "lora": "L’entraînement exportable n’est pas branché. Utilise les références et planches de CAST.",
+      "decor": "Références photographiques, création et cohérence du lieu",
+      "scout": "Carte, vues de rue Panoramax/Mapillary selon couverture, import de photos et capture 3D",
+      "shots": "Créer des brouillons de plans liés aux personnages et décors choisis",
+      "take": "Choisir le workflow et vérifier le devis dans PRISE avant confirmation",
+      "montage": "Montage des vidéos sélectionnées, timeline, transitions et pistes sonores",
+      "export": "Export local MP4 dans MONTAGE ; compatibilité du navigateur vérifiée à l’export",
+      "backup": "Export ZIP du coffre avec projets, médias, conversations et plans",
+      "projects": "Sélection d’un projet existant ou import d’une sauvegarde dans Mon studio",
+      "jobs": "Récupération d’un job existant ; jamais de renvoi automatique"
+    },
+    "inline": {
+      "title": "Assistant U*TTU",
+      "askImage": "Que veux-tu faire avec cette image ?",
+      "askVideo": "Que veux-tu faire avec cette vidéo ?",
+      "aria": "Demande à U*TTU",
+      "placeholder": "Ex. Détoure cette image",
+      "propose": "Proposer",
+      "notAccessible": "Cette image n’est pas encore accessible dans le Studio. Enregistre-la dans le coffre ou attends son chargement avant de changer d’outil.",
+      "ready": "Détourage BiRefNet prêt à préparer. Aucun crédit ne sera dépensé ici.",
+      "open": "Ouvrir l’outil et vérifier le devis",
+      "decision": {
+        "unrecognized": "Précise l’opération créative à réaliser dans le Studio.",
+        "unavailable": "Le détourage n’est pas disponible dans le Studio actuellement.",
+        "missing_asset": "Sélectionne une image à détourer."
+      }
+    }
   },
   "media": {
     "title": "Médiathèque",

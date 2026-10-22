@@ -24,7 +24,6 @@ const natives: StudioAction[] = [
   { id: "local:backup", area: "coffre", label: "Sauvegarder le projet", description: "Export ZIP du coffre avec projets, médias, conversations et plans", adapter: "backup", evidenceKey: "backup", status: "ready", inputKinds: [], outputKind: "zip", requiresPrompt: false },
   { id: "local:projects", area: "projets", label: "Rouvrir un projet", description: "Sélection d’un projet existant ou import d’une sauvegarde dans Mon studio", href: "/mon-studio", adapter: "projects", evidenceKey: "projects", status: "ready", inputKinds: [], outputKind: "project", requiresPrompt: false },
   { id: "local:jobs", area: "outils", label: "Suivre ou récupérer un rendu", description: "Récupération d’un job existant ; jamais de renvoi automatique", adapter: "jobs", evidenceKey: "jobs", status: "ready", inputKinds: [], outputKind: "job", requiresPrompt: false },
-  { id: "local:core", area: "outils", label: "Expertise U*TTU Core", description: "Profil Hermes/Comfy indépendant. Aucun endpoint Core authentifié n’est configuré dans le Studio.", adapter: "navigate", evidenceKey: "core", status: "disabled", reason: "core", inputKinds: [], outputKind: "advice", requiresPrompt: false },
 ];
 
 export function studioActionRegistry(filters: FiltreGestes = {}, translate?: (key: string) => string): StudioAction[] {
@@ -38,5 +37,5 @@ export function studioActionRegistry(filters: FiltreGestes = {}, translate?: (ke
       inputKinds: op.inputKinds.filter(kind => kind !== "image2"), evidenceKey: toolId ? `tool:${toolId}` : op.area,
     };
   });
-  return [...natives.map(op => ({ ...op, label: translate ? translate(`agent.operations.${op.id.slice(6)}`) : op.label })), ...actions];
+  return [...natives.map(op => ({ ...op, label: translate ? translate(`agent.operations.${op.id.slice(6)}`) : op.label, description: translate ? translate(`agent.descriptions.${op.id.slice(6)}`) : op.description })), ...actions];
 }

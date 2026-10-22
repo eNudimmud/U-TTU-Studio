@@ -3,7 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { assetPath } from '@/lib/site';
 import { useI18n, useLocaleSwitch } from '@/components/i18n/provider';
 import { SEMANTIC_MODEL_ENABLED } from '@/lib/agent/semantic-flag';
-import { emptyConversation, productionTurn, refreshPlan, updateStep, restoreConversation, interpretLocally, type Conversation, type ProductionStep } from '@/lib/agent/kernel/production';
+import { emptyConversation, refreshPlan, updateStep, restoreConversation, type Conversation, type ProductionStep } from '@/lib/agent/kernel/production';
+import { agentLocale, interpretAgentRequest, localizedTurn, MEDIA_CLASSIFY, MEDIA_SEARCH } from '@/lib/agent/language';
 import { productionContext, projectResources } from '@/lib/agent/context';
 import { studioActionRegistry } from '@/lib/agent/registry';
 import { AGENT_EVENT, prepareStep } from '@/lib/agent/execution';
@@ -30,7 +31,8 @@ export function useAssistantOpen(): boolean {
 }
 export function AssistantPanel() {
   const { t } = useI18n();
-  const { locale } = useLocaleSwitch();
+  const { locale: uiLocale } = useLocaleSwitch();
+  const locale = agentLocale(uiLocale);
   const session = useStudio();
   const open = useAssistantOpen();
   const project = session.studio.project ?? '';
@@ -118,13 +120,14 @@ export function AssistantPanel() {
   async function send() {
     const value = query.trim(); if (!value || !project || loaded !== project) return;
     await work(async () => {
-      const search = /retrouve|montre|recherche|quels fichiers|derni[eè]re image|find|show|missing|class(e|er)/i.test(value);
+      const search = MEDIA_SEARCH.test(value);
       if (search) {
-        setLibrary(true); setMediaQuery(/class(e|er)/i.test(value) ? '' : value);
-        setProposedSequence(/class(e|er)/i.test(value) ? /s[eé]quence\s+([A-Za-z0-9-]{1,40})/i.exec(value)?.[1] ?? '' : '');
+        const classify = MEDIA_CLASSIFY.test(value);
+        setLibrary(true); setMediaQuery(classify ? '' : value);
+        setProposedSequence(classify ? /(?:s[eé]quence|sequenz|secuencia)\s+([A-Za-z0-9-]{1,40})/i.exec(value)?.[1] ?? '' : '');
         const response = t('agent.mediaReply');
         await commit({ ...liveConversation.current, messages: [...liveConversation.current.messages, { role: 'user', text: value.slice(0, 2000), at: Date.now() }, { role: 'assistant', text: response, at: Date.now() }].slice(-40) as Conversation['messages'] });
-      } else await commit(productionTurn(liveConversation.current, value, contextRef.current, { language: locale === 'fr' ? 'fr' : 'en' }));
+      } else await commit(localizedTurn(liveConversation.current, value, contextRef.current, locale, t));
       setQuery('');
     });
   }
@@ -138,7 +141,7 @@ export function AssistantPanel() {
       if (!interpretation) { setError(t('agent.modelUncertain')); return; }
       // Revalidate the provider proposal against this tab's live preferences/catalogue.
       if (latest.current.studio.project !== project || !Array.isArray(interpretation.operationIds) || !interpretation.operationIds.every((id: string) => contextRef.current.operations.some(op => op.id === id))) throw new Error('model');
-      await commit(productionTurn(liveConversation.current, message, contextRef.current, { interpretation, language: locale === 'fr' ? 'fr' : 'en' })); setQuery('');
+      await commit(localizedTurn(liveConversation.current, message, contextRef.current, locale, t, interpretation)); setQuery('');
     });
   }
   async function prepare(step: ProductionStep) {
@@ -164,7 +167,7 @@ export function AssistantPanel() {
     void work(() => commit({ ...liveConversation.current, plan: updateStep(plan, step.id, { state: 'done', results: [...results] }) }));
   }
   if (!open) return null;
-  const hinted = interpretLocally(query, context).map(id => operations.find(op => op.id === id)).filter(op => op?.toolId && op.status === 'ready');
+  const hinted = interpretAgentRequest(query, context, locale).map(id => operations.find(op => op.id === id)).filter(op => op?.toolId && op.status === 'ready');
   return <aside className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
     <header className="u-assistant-head"><h2 id="u-assistant-title">{t('assistant.title')}</h2><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
     <p className="u-small" id="u-agent-guidance">{t('agent.guidance')}</p>

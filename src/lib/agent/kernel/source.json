@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/eNudimmud/Uttu-studio-AGENT",
-  "commit": "335cc3abff58990f91a7606ddb9ca90f97655d1b",
+  "commit": "56b9fe4887f2a6f70c876da72ead7b7b36a90496",
   "files": {
     "contracts.ts": "4a64224e330002a829d0afe937e4d806d22c95ea4c37673030eb16fc9ab907d9",
     "planner.ts": "913b6ade7fac55b38d6527223493cf37dd6721c5c1e86a3e044506c6baec6b56",
