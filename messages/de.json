@@ -2502,7 +2502,8 @@
         "line": "Deine Einstellungen, Ton, Export."
       }
     },
-    "film": "Film"
+    "film": "Film",
+    "creationsShort": "Werke"
   },
   "projects": {
     "label": "Projekt",
@@ -2736,6 +2737,8 @@
       "missing": "Auf Comfy nicht verfügbar",
       "expired": "Gemeldetes Ablaufdatum überschritten"
     },
-    "guidance": "Wähle ein Projekt. Wähle Medien zum Prüfen oder Zuordnen aus und fülle mindestens ein Zuordnungsfeld aus. Aktionen warten, bis die Synchronisierung abgeschlossen ist."
+    "guidance": "Wähle ein Projekt. Wähle Medien zum Prüfen oder Zuordnen aus und fülle mindestens ein Zuordnungsfeld aus. Aktionen warten, bis die Synchronisierung abgeschlossen ist.",
+    "lead": "Ihre Comfy-Werke, nach Projekt geordnet.",
+    "helpTitle": "Wie funktioniert das?"
   }
 }

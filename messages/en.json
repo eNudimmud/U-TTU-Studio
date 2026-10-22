@@ -2502,7 +2502,8 @@
         "line": "Your shots, sound, export."
       }
     },
-    "film": "Film"
+    "film": "Film",
+    "creationsShort": "Creations"
   },
   "projects": {
     "label": "Project",
@@ -2736,6 +2737,8 @@
       "missing": "Unavailable on Comfy",
       "expired": "Reported expiry passed"
     },
-    "guidance": "Choose a project. Select media before checking or classifying; enter at least one classification field. Actions wait for synchronization to finish."
+    "guidance": "Choose a project. Select media before checking or classifying; enter at least one classification field. Actions wait for synchronization to finish.",
+    "lead": "Your Comfy creations, organized by project.",
+    "helpTitle": "How does it work?"
   }
 }

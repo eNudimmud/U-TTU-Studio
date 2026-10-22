@@ -2502,7 +2502,8 @@
         "line": "Tus planos, el sonido, la exportación."
       }
     },
-    "film": "Película"
+    "film": "Película",
+    "creationsShort": "Creaciones"
   },
   "projects": {
     "label": "Proyecto",
@@ -2736,6 +2737,8 @@
       "missing": "No disponible en Comfy",
       "expired": "Fecha de caducidad superada"
     },
-    "guidance": "Elige un proyecto. Selecciona archivos antes de verificarlos o clasificarlos y rellena al menos un campo de clasificación. Las acciones esperan a que termine la sincronización."
+    "guidance": "Elige un proyecto. Selecciona archivos antes de verificarlos o clasificarlos y rellena al menos un campo de clasificación. Las acciones esperan a que termine la sincronización.",
+    "lead": "Tus creaciones de Comfy, ordenadas por proyecto.",
+    "helpTitle": "¿Cómo funciona?"
   }
 }

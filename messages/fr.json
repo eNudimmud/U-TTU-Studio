@@ -2502,7 +2502,8 @@
         "line": "Tes plans, le son, l'export."
       }
     },
-    "film": "Film"
+    "film": "Film",
+    "creationsShort": "Créations"
   },
   "projects": {
     "label": "Projet",
@@ -2736,6 +2737,8 @@
       "missing": "Indisponible sur Comfy",
       "expired": "Expiration annoncée dépassée"
     },
-    "guidance": "Choisissez un projet. Sélectionnez les médias avant de vérifier ou classer ; renseignez au moins un champ de classement. Les actions attendent la fin de la synchronisation."
+    "guidance": "Choisissez un projet. Sélectionnez les médias avant de vérifier ou classer ; renseignez au moins un champ de classement. Les actions attendent la fin de la synchronisation.",
+    "lead": "Vos créations Comfy, rangées par projet.",
+    "helpTitle": "Comment ça marche ?"
   }
 }

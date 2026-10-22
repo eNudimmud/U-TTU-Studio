@@ -49,7 +49,8 @@ export function MediaLibrary({ compact = false, initialQuery = '', proposedSeque
   }
   return <section className={`u-media-library${compact ? ' is-compact' : ''}`} id={compact ? undefined : 'mediatheque'} aria-label={t('media.title')} data-media-library="">
     {!compact && <h2>{t('media.title')}</h2>}
-    <p className="u-small">{t('media.help')}</p><p className="u-small" id={guidanceId}>{t('media.guidance')}</p>
+    <p className="u-small">{t('media.lead')}</p>
+    <details className="u-media-help"><summary>{t('media.helpTitle')}</summary><p className="u-small">{t('media.help')}</p><p className="u-small" id={guidanceId}>{t('media.guidance')}</p></details>
     <div className="u-agent-actions">
       <button type="button" className="u-secondary" data-media-sync="" aria-describedby={guidanceId} disabled={busy || !session.studio.project} onClick={() => void work(() => session.syncMedia())}>{t('media.sync')}</button>
       {Object.values(session.catalog?.sync ?? {}).some(c => c.hasMore) && <button type="button" className="u-secondary" aria-describedby={guidanceId} disabled={busy} onClick={() => void work(() => session.syncMedia(true))}>{t('media.more')}</button>}

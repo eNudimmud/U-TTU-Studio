@@ -1600,15 +1600,17 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-empty .u-primary { min-height: 44px; display: inline-flex; align-items: center; }
 .u-drawer-foot { display: grid; gap: 8px; }
 .u-drawer-foot .u-secondary { min-height: 44px; }
-/* Assistant docked on the right, on every page; the page makes room for it from 1280 px. */
+/* Assistant on the right, on every page. From 1600 px the page makes room for it;
+   below, it floats over the page (closable) so CAST, the gallery and the stages are never squeezed or cut. */
 .u-assistant { position: fixed; z-index: 45; top: 64px; right: 0; bottom: 0; width: 320px; display: flex; flex-direction: column; gap: 12px; padding: 14px; border-left: 1px solid var(--u-line); background: var(--bg); overflow-y: auto; }
 .u-assistant-head { display: flex; align-items: center; justify-content: space-between; }
 .u-assistant-head h2 { margin: 0; font-size: 15px; }
 .u-assistant-next { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--u-line); border-radius: 12px; }
 .u-assistant-next p { margin: 0; }
 .u-assistant-next .u-secondary { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-@media (min-width: 1280px) { html[data-assistant] .u-app > :not(.u-topbar):not(.u-assistant):not(.u-sheet-backdrop) { margin-right: 320px; } }
-@media (max-width: 1279px) { .u-assistant { top: 56px; z-index: 65; width: min(360px, 100vw); box-shadow: none; border-left: 1px solid var(--line); } }
+@media (min-width: 1600px) { html[data-assistant] .u-app > :not(.u-topbar):not(.u-assistant):not(.u-sheet-backdrop) { margin-right: 320px; } }
+@media (max-width: 1599px) { .u-assistant { top: 56px; z-index: 65; width: min(360px, 100vw); box-shadow: -24px 0 48px rgb(0 0 0 / .45); border-left: 1px solid var(--line); } }
+@media (max-width: 1023px) { .u-assistant { box-shadow: none; } }
 @media (max-width: 1023px) {
   .u-topbar { grid-template-columns: minmax(0, 1fr) auto; }
   .u-top-nav, .u-top-left .u-proj, .u-top-assistant, .u-top-lang, .u-kbd { display: none; }
@@ -1705,6 +1707,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   :root { --u-tabs-h: calc(64px + env(safe-area-inset-bottom, 0px)); }
   .u-tabs { position: fixed; z-index: 55; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 4px max(4px, env(safe-area-inset-right, 0px)) calc(4px + env(safe-area-inset-bottom, 0px)) max(4px, env(safe-area-inset-left, 0px)); background: var(--bg); border-top: 1px solid var(--line); }
   .u-tabs a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; min-height: 56px; padding: 4px 2px; border-radius: 10px; color: var(--fg-2); font: 500 12px/1.15 var(--font-body); text-align: center; overflow-wrap: anywhere; }
+  .u-tabs a span { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .u-tabs a[aria-current="page"] { color: var(--fg); background: var(--surface); }
   .u-tabs a[aria-current="page"] svg { color: var(--accent); }
   /* The film steps move under the top bar; the bars that sat on them now sit on the tabs. */
@@ -1893,3 +1896,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-agent-fields { display:grid; gap:10px; padding:8px 0; }
 .u-agent-fields label { display:grid; gap:6px; }
 @media(max-width:600px) { .u-agent { width:100%; max-width:100%; top:56px; } .u-agent-actions>* { max-width:100%; } }
+
+/* Médiathèque: one line visible, the rest folded. Summary keeps a 44 px target. */
+.u-media-help > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--fg-2); font-size: 14px; }
+.u-media-help > summary { list-style: none; gap: 8px; }
+.u-media-help > summary::-webkit-details-marker { display: none; }
+.u-media-help > summary::before { content: "+"; display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1px solid var(--u-line); border-radius: 50%; font-size: 13px; line-height: 1; }
+.u-media-help[open] > summary::before { content: "−"; }
