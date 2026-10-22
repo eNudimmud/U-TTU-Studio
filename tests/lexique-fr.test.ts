@@ -32,7 +32,6 @@ describe("lexique français", () => {
       "Mes créations",
       "Les photos des références manquent dans mes créations.",
       "Au moins une photo des références.",
-      "Tes références, tes lieux et tes prises",
       "Modèle · Prise",
     ]) {
       assert.ok(copy.includes(line), line);

@@ -322,7 +322,6 @@
 .u-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .u-tabs button { min-height: 44px; border: 1px solid var(--u-line); border-radius: 12px; background: transparent; color: var(--u-muted); }
 .u-tabs button[aria-selected="true"] { border-color: var(--fg); color: var(--fg); background: var(--selected); }
-.u-signin { width: 100%; height: min(68dvh, 680px); border: 1px solid var(--u-line); border-radius: 12px; background: var(--bg); }
 .u-wallets { display: grid; gap: 12px; }
 .u-wallet { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--u-line); border-radius: 12px; background: rgba(255, 255, 255, 0.022); }
 .u-wallet[data-state="read"] > strong { font: 650 40px/1 var(--font-heading); letter-spacing: -.025em; color: var(--u-gold-soft); font-variant-numeric: tabular-nums; }

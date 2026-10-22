@@ -40,12 +40,9 @@ function clientFiles(): string[] {
     "src/app/page.tsx",
     "src/app/studio/page.tsx",
     "src/app/mon-studio/page.tsx",
-    "src/app/compte/page.tsx",
     "src/app/manifest.ts",
     "src/app/sitemap.ts",
     "src/app/robots.ts",
-    "src/app/sign-in/[[...sign-in]]/page.tsx",
-    "src/app/sign-up/[[...sign-up]]/page.tsx",
   ];
   const seen = new Set<string>();
   const queue = [...roots];

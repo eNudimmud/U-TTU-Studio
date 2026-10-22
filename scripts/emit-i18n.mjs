@@ -403,25 +403,6 @@ row("publish.publish", "Publier", "Publish", "Veröffentlichen", "Publicar");
 row("publish.publishX", "Publier sur X", "Publish on X", "Auf X veröffentlichen", "Publicar en X");
 row("publish.save", "Enregistrer la vidéo", "Save the video", "Video speichern", "Guardar el vídeo");
 
-row("account.opening", "Ouverture du compte…", "Opening the account…", "Konto wird geöffnet…", "Abriendo la cuenta…");
-row("account.kicker", "Compte · facultatif", "Account · optional", "Konto · freiwillig", "Cuenta · opcional");
-row("account.title", `Le studio n${Q}en a pas besoin.`, "The studio does not need one.", "Das Studio braucht keins.", "El estudio no la necesita.");
-row("account.body", "Tes références, tes lieux et tes prises vivent dans mon studio, sur ton appareil. Le calcul tourne sur ton compte de rendu. Ce compte U*TTU ne garde rien de tout ça.", "Your references, your locations and your takes live in my studio, on your device. The compute runs on your render account. This U*TTU account keeps none of that.", "Deine Referenzen, deine Drehorte und deine Takes leben in « Mein Studio », auf deinem Gerät. Die Rechnung läuft auf deinem Render-Konto. Dieses U*TTU-Konto behält davon nichts.", "Tus referencias, tus localizaciones y tus tomas viven en mi estudio, en tu aparato. El cálculo corre en tu cuenta de render. Esta cuenta U*TTU no guarda nada de eso.");
-row("account.closed", `Comptes U*TTU fermés pour l${Q}instant.`, "U*TTU accounts are closed for now.", "U*TTU-Konten sind vorerst geschlossen.", "Las cuentas U*TTU están cerradas por ahora.");
-row("account.signIn", "Se connecter", "Sign in", "Anmelden", "Entrar");
-row("account.signUp", "Créer un compte", "Create an account", "Konto erstellen", "Crear una cuenta");
-row("account.profile", "Profil", "Profile", "Profil", "Perfil");
-row("account.noEmail", "Aucune adresse visible.", "No address visible.", "Keine Adresse sichtbar.", "Ninguna dirección visible.");
-row("account.back", "Retour au studio", "Back to the studio", "Zurück zum Studio", "Volver al estudio");
-row("account.open", "Compte ouvert", "Account open", "Konto offen", "Cuenta abierta");
-row("auth.signIn.kicker", "Compte", "Account", "Konto", "Cuenta");
-row("auth.signIn.title", "Se connecter.", "Sign in.", "Anmelden.", "Entrar.");
-row("auth.signIn.note", "Google ou GitHub. Mon studio, lui, reste sur ta machine.", "Google or GitHub. My studio stays on your machine.", "Google oder GitHub. Mein Studio bleibt auf deinem Gerät.", "Google o GitHub. Mi estudio se queda en tu máquina.");
-row("auth.signUp.kicker", "Compte", "Account", "Konto", "Cuenta");
-row("auth.signUp.title", "Créer un compte.", "Create an account.", "Konto erstellen.", "Crear una cuenta.");
-row("auth.signUp.note", `Google ou GitHub. Le studio, lui, n${Q}attend pas cette page.`, "Google or GitHub. The studio does not wait for this page.", "Google oder GitHub. Das Studio wartet nicht auf diese Seite.", "Google o GitHub. El estudio no espera esta página.");
-row("auth.closed", `Comptes U*TTU fermés pour l${Q}instant. Le studio reste ouvert, sans compte.`, "U*TTU accounts are closed for now. The studio stays open, without an account.", "U*TTU-Konten sind vorerst geschlossen. Das Studio bleibt offen, ohne Konto.", "Las cuentas U*TTU están cerradas por ahora. El estudio sigue abierto, sin cuenta.");
-row("auth.offline", "Hors ligne", "Offline", "Offline", "Sin conexión");
 
 row("sheet.renderTitle", "Ton compte de rendu", "Your render account", "Dein Render-Konto", "Tu cuenta de render");
 row("sheet.linkedKey", "par clé", "by key", "per Schlüssel", "por clave");

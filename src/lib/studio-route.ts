@@ -28,9 +28,8 @@ export const TAB_HASH: Record<Tab, string> = {
 };
 
 /** The place a link asks for, or null when it asks for none. */
-export function tabFromLocation(hash: string, search: string): Tab | "compte" | null {
+export function tabFromLocation(hash: string, search: string): Tab | null {
   const raw = decodeURIComponent(hash.replace(/^#/, "").split(/[?&/]/)[0] ?? "").trim().toLowerCase();
-  if (raw === "compte") return "compte";
   if (raw && ALIASES[raw]) return ALIASES[raw];
   const step = new URLSearchParams(search).get("step")?.trim().toLowerCase() ?? "";
   return ALIASES[step] ?? null;

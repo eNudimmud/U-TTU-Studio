@@ -40,10 +40,6 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   useEffect(() => {
     const apply = () => {
       const place = tabFromLocation(window.location.hash, window.location.search);
-      if (place === "compte") {
-        window.location.replace(assetPath("/compte"));
-        return;
-      }
       if (place) setAsked(place);
       setOutil(place === "outils" ? outilFromHash(window.location.hash) : null);
       if (place === "outils") {

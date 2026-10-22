@@ -40,7 +40,7 @@ describe("DA et logo partout", () => {
     const css = read("src/app/globals.css");
     assert.match(css, /--accent: #c9a75b/i);
     assert.match(css, /--link: var\(--accent\)/);
-    assert.doesNotMatch(css + read("src/components/app/app.css") + read("src/lib/clerk-appearance.ts"), /#8ab4ff/i);
+    assert.doesNotMatch(css + read("src/components/app/app.css"), /#8ab4ff/i);
     assert.doesNotMatch(read("src/components/app/glyphs.tsx"), /export const (Web|Iii)\b/);
   });
 
@@ -65,14 +65,14 @@ describe("DA et logo partout", () => {
     assert.match(manifest, /background_color: "#0F0F11"/);
     assert.match(manifest, /theme_color: "#0F0F11"/);
     const routes = JSON.parse(read("src/lib/route-meta.json")) as { id: string; path: string; title: string; description: string }[];
-    assert.deepEqual(routes.map(route => route.path), ["/", "/studio", "/mon-studio", "/compte", "/sign-in", "/sign-up"]);
+    assert.deepEqual(routes.map(route => route.path), ["/", "/studio", "/mon-studio"]);
     for (const route of routes) {
       assert.match(route.title, /U\*TTU Studio/, route.id);
       assert.ok(route.description.length > 20 && route.description.length < 200, route.id);
       assert.deepEqual(jpegSize(`public/og/${route.id}.jpg`), [1200, 630], route.id);
     }
     assert.deepEqual(jpegSize("public/og.jpg"), [1200, 630]);
-    for (const page of ["src/app/page.tsx", "src/app/studio/page.tsx", "src/app/mon-studio/page.tsx", "src/app/compte/page.tsx"]) {
+    for (const page of ["src/app/page.tsx", "src/app/studio/page.tsx", "src/app/mon-studio/page.tsx"]) {
       assert.match(read(page), /routeMetadata\("/, page);
     }
   });

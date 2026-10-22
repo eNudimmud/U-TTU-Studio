@@ -3,7 +3,7 @@ import ROUTES from "./route-meta.json";
 import { assetPath, siteOrigin } from "./site";
 
 /** One entry per public route: FR title and description, and its 1200×630 preview (scripts/brand/make_meta.py). */
-export type RouteId = "accueil" | "studio" | "creations" | "compte" | "connexion" | "inscription";
+export type RouteId = "accueil" | "studio" | "creations";
 
 const LOCALES = ["en_GB", "de_DE", "es_ES"];
 

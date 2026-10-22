@@ -432,33 +432,6 @@
     "publishX": "Publish on X",
     "save": "Save the video"
   },
-  "account": {
-    "opening": "Opening the account…",
-    "kicker": "Account · optional",
-    "title": "The studio does not need one.",
-    "body": "Your references, your locations and your takes live in my creations, on your device. The compute runs on your render account. This U*TTU account keeps none of that.",
-    "closed": "U*TTU accounts are closed for now.",
-    "signIn": "Sign in",
-    "signUp": "Create an account",
-    "profile": "Profile",
-    "noEmail": "No address visible.",
-    "back": "Back to the studio",
-    "open": "Account open"
-  },
-  "auth": {
-    "signIn": {
-      "kicker": "Account",
-      "title": "Sign in.",
-      "note": "Google or GitHub. My studio stays on your machine."
-    },
-    "signUp": {
-      "kicker": "Account",
-      "title": "Create an account.",
-      "note": "Google or GitHub. The studio does not wait for this page."
-    },
-    "closed": "U*TTU accounts are closed for now. The studio stays open, without an account.",
-    "offline": "Offline"
-  },
   "sheet": {
     "renderTitle": "Your render account",
     "linkedKey": "by key",

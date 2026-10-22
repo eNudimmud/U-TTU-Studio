@@ -28,7 +28,7 @@ Ce document fixe l’étoile du nord. Les sections datées en dessous sont gard�
 
 ## Fait — ce qui existe déjà
 
-- **Fait :** deux apps Comfy sont au catalogue (« Former mon look », « Tester un prompt »). Le coffre Obsidian local existe ([VAULT.md](VAULT.md)). Sphère tient des fiches de lieu, sans rendu vidéo. Clerk ouvre Compte sans bloquer Créer ([AUTH.md](AUTH.md)).
+- **Fait :** deux apps Comfy sont au catalogue (« Former mon look », « Tester un prompt »). Le coffre Obsidian local existe ([VAULT.md](VAULT.md)). Sphère tient des fiches de lieu, sans rendu vidéo. Clerk ouvrait Compte sans bloquer Créer (retiré le 22 octobre 2026, voir DECISIONS.md).
 - **Fait :** la direction artistique reste celle de [VISUAL-CANON.md](VISUAL-CANON.md). Noir, anthracite, bronze, or ancien. Pas de bleu néon.
 
 ## Décision — tourner dans un monde
