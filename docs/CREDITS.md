@@ -16,7 +16,7 @@ Les vignettes de DÉCOR sont des fichiers SVG dessinés pour ce studio, dans `pu
 
 - **Source :** dessin original du dépôt. Pas une photo, pas un export d’un service d’image.
 - **Licence :** même dépôt que le code. Aucune licence tierce.
-- **Outil :** tracés SVG écrits à la main. Aucune image générée par une IA payante. Aucun crédit Comfy, fal ou Higgsfield.
+- **Outil :** tracés SVG écrits à la main. Aucune image générée par une IA payante. Aucun crédit Comfy ni Higgsfield.
 
 Quai, Rue et Pièce restent les trois espaces déjà stockés (`previz` : `quai`, `rue`, `piece`). Toit, gare et couloir sont des images seulement : ils ne créent pas un nouvel espace dans le coffre.
 

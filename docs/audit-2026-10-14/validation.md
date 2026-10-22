@@ -1,6 +1,5 @@
 # Validation — preuves et limites
 
-> Version historique #104/#107. Pour la branche concours #110 et les nouveaux correctifs, lire [l’intégration concours](integration-concours.md). Les fonctions LoRA/fal/Farpy et les règles LTX décrites ci-dessous ont changé dans cette branche.
 
 État relevé le 16 octobre 2026. Aucun appel payant réel effectué par cet audit. Les appels cloud des suites automatisées utilisent des réponses simulées et des clés factices. Le fichier MP4 de fixture est un vrai média local de trois secondes (H.264 1920×1080, AAC), pas le produit d’une génération exécutée pendant cette mission.
 
@@ -83,7 +82,6 @@ Ces contrôles manuels ont été faits dans un navigateur distant de bureau. Les
 3. Reprise d’un vrai job après perte réseau, quota disque ou fermeture du navigateur ; récupération de chaque type de média, y compris finalisation.
 4. Cas ambigu où le fournisseur accepte un POST sans que le studio reçoive le numéro ; réconciliation manuelle nécessaire.
 5. Finalisation R8 1080p puis 4K/nettoyage : qualité, durée, synchronisation sonore, coût à froid et taille du fichier.
-6. Entraînement LoRA H3 et Flux, réutilisation fal, rendu Blender/Farpy : anciennes bibliothèques dormantes, non réactivées ni testées à distance.
 7. Mapillary authentifié et couverture réelle sur plusieurs régions ; Panoramax sur plusieurs instances, capture et attribution exportées.
 8. Authentification Comfy par session, expiration des jetons, compatibilité des relais après changement fournisseur ; limites de confiance du code tiers même origine.
 9. Safari/iOS, Firefox, Chrome Android réel, accessibilité avec lecteur d’écran, export proche de 60 s sous pression mémoire et mode PWA.

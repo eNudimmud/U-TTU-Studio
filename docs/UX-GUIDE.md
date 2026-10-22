@@ -11,11 +11,9 @@ Le site présentait une longue introduction, le formulaire, tous les contrôles 
 - Introduction courte, vocabulaire expliqué et exemple de prompt annoté.
 - Tri image par image, vignettes de navigation et filtres par décision.
 - Résumé du lot avec prochaine action ; rapport, coaching et diagnostics repliables.
-- Réglages avancés, tests comparatifs et fal accessibles à la demande.
 - Composants, traitements d’images et styles de préparation différés jusqu’à leur utilisation.
 - Session conservée lors des changements d’étape. Un ZIP devenu périmé ne permet plus de confirmer le test ; une modification du lot invalide la confirmation de son test. Les confirmations de lancement/réception sont remises à zéro si les réglages changent.
 
-Le gate, les workflows, la confidentialité, les coûts estimés et le statut HOLD restent applicables. Aucun entraînement ni appel fal réel n’a été exécuté.
 
 ## Vérifications réalisées
 
@@ -23,7 +21,6 @@ Le gate, les workflows, la confidentialité, les coûts estimés et le statut HO
 | --- | --- |
 | `npm test` | 77 tests, 17 suites, 0 échec |
 | `npm run typecheck` | Réussi |
-| Build export GitHub Pages | Réussi avec `/U-TTU-Studio` et proxy fal vide |
 | Rendu React côté serveur avec les fixtures du gate | 15 vignettes, une fiche éditable, confirmations finales présentes |
 | Rendu React du ZIP périmé | Confirmation du test désactivée et décochée ; activée avec un ZIP à jour |
 | Rendu React du résumé | État prêt et rapport détaillé replié |
@@ -53,8 +50,6 @@ Avant fusion :
 2. Naviguer au clavier, revenir au tutoriel puis à la préparation : focus sur le titre et champs conservés.
 3. Importer un lot synthétique : filtrer, sélectionner, garder/rejeter, changer les légendes ; vérifier qu’une seule fiche est éditable.
 4. Amener le gate au PASS, exporter, naviguer, puis modifier une légende : le ZIP devient périmé et la confirmation du test redevient à faire.
-5. Vérifier le résumé des coûts, la limite du plan et l’accès aux outils avancés ; fal reste désactivé sans proxy.
-6. Vérifier l’absence de requêtes vers Comfy/fal avant le clic explicite correspondant. Ne lancer aucun run payant pour cette revue.
 
 ## Référence pédagogique
 

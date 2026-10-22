@@ -1,6 +1,5 @@
 # Matrice de fonctionnement
 
-> Version historique #104/#107. Pour la branche concours #110 et les nouveaux correctifs, lire [l’intégration concours](integration-concours.md). Les fonctions LoRA/fal/Farpy et les règles LTX décrites ci-dessous ont changé dans cette branche.
 
 État du code proposé dans #104/#107, pas une déclaration de mise en production. « Local » signifie résultat sans service payant ; « contrat » signifie fournisseur simulé. Les résultats exécutés et les SHA correspondants sont dans [validation.md](validation.md).
 
@@ -11,7 +10,6 @@
 | CAST texte / photo / planche | `creation/still.ts`, `studio-session.tsx` | Graphes réels, confirmation, stockage et journal de reprise ; contrats testés | Génération réelle, qualité d’identité et facture |
 | CAST édition, copie, suppression | `creation/fiche.ts`, session | Réutilisation active ; médias partagés conservés | Scénarios simultanés dans plusieurs onglets |
 | CAST LoRA H3 | `lora/train.ts`, `lora/take.ts`, ancien `studio-context.tsx` | Bibliothèque et tests présents ; absente du parcours actif | Entraînement, récupération, qualité, reprise et prix actuels |
-| Gate dataset historique | `gate/`, `fal-bootstrap.ts` | Règles locales et ZIP testés ; ancien parcours | Ne pas présenter comme étape obligatoire actuelle |
 | DÉCOR import | `creation/import-media.ts`, `coffre/model.ts` | Décor conservé et réutilisable, fichiers originaux conservés | Téléphones physiques |
 | DÉCOR génération / transformation | `creation/still.ts`, registre des gestes | Branché pour gestes avec graphe et devis ; opérations inactives restent fermées | Images, facture et règles du modèle réel |
 | Exemples R9/R10 | `exemple-depart.tsx`, `creation/depart.ts` | Remplissent formulaires ; pas de dépense implicite. Décors PRISE non enregistrés : prévisualisation, génération fermée avec explication | Régression après déploiement |

@@ -30,7 +30,6 @@ Date : 2026-10-08. Prod lue : https://u-ttu-studio.vercel.app. Rien n’est merg
 - Quatre gestes visibles par onglet, le reste derrière « Plus de gestes ». Pas de mur de templates.
 - Un geste sans graphe déjà dans le studio, ou sans devis, reste à l’écran et Créer reste éteint. La raison est écrite.
 - Sans compte de rendu, Créer dit « Relie ton compte de rendu pour créer. »
-- On ne réimporte pas le code fal. On ne lance aucun rendu.
 - Les exemples ne sont plus un remplissage de texte.
 
 ## Ce qui reste amateur

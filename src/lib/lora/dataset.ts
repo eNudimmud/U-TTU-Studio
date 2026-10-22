@@ -1,5 +1,5 @@
 // What the H3 trainer learns from: short video clips of one character, with
-// that character's photos as each clip's reference images. fal refuses
+// that character's photos as each clip's reference images. the trainer refuses
 // image-only and mixed archives, so the photos ride along as `clipNN.ref_N.jpg`.
 
 export const CLIPS_MIN = 10;

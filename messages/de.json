@@ -1446,7 +1446,13 @@
     "cast": "Ein echtes Studio-Ergebnis. Tippe darauf: Foto, Name und Text werden ausgefüllt.",
     "decor": "Eine echte Studio-Kulisse. Tippe darauf: Referenz, Name und Geste werden ausgefüllt.",
     "prise": "Die Kurierin am Kai, schon gerahmt. Tippe darauf: Figur, Kulisse, Bildausschnitt und Handlung werden ausgefüllt.",
-    "montage": "Drei Einstellungen, eine Stimme und Musik. Tippe darauf: der Schnitt wird gefüllt, nichts wird gesendet."
+    "montage": "Drei Einstellungen, eine Stimme und Musik. Tippe darauf: der Schnitt wird gefüllt, nichts wird gesendet.",
+    "titles": {
+      "cast": "DJ",
+      "decor": "Der Kai bei Nacht",
+      "prise": "Die Kurierin am Kai",
+      "montage": "Der Beispielclip"
+    }
   },
   "videoGeste": {
     "title": "Aus der Skizze",

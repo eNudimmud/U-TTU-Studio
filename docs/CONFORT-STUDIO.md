@@ -26,7 +26,7 @@
 - **Décision :** pas d’inspection, pas de collecte, pas de clonage d’un site ou d’une API tiers.
 - **Décision :** pas de fiche visiteur. Clerk reste hors de `/` et de `/studio`.
 - **Décision :** pas d’achat automatique, pas de publication automatique, pas de débit sans le geste qui confirme.
-- **Décision :** les clés (`u-ttu-fal`, `u-ttu-blender`, `u-ttu-rendu`) restent sur l’appareil. Jamais dans le coffre.
+- **Décision :** les clés (`u-ttu-blender`, `u-ttu-rendu`) restent sur l’appareil. Jamais dans le coffre.
 - **Décision :** un fichier Flux de lieu ne se branche pas sur le graphe H3 de la prise. Ce fichier fait des images. Il n’est pas un volume.
 
 ## Écart — mesuré sur ce dépôt
@@ -34,8 +34,6 @@
 - **Fait (6 octobre, suite) :** la chaîne affichée est Personnage → Scène → Prise. Personnage est `#personnage`, `#lora`, `#rôle`. Les photos et les traits restent une feuille, `#photos` et les anciens `#look`, `#creer`. Ce n’est pas le premier pas.
 - **Fait :** les personnages formés sont des fichiers du coffre (`kind` personnage, ou absent pour les fichiers d’avant). Sur Rôle, la liste « Au coffre » mélange personnages et lieux. Sur La prise, les noms n’apparaissent que si le moteur est déjà « Personnage ».
 - **Fait :** les lieux persistent : nom, note, plan, trajet de caméra, vues, images. L’étagère est sur Scène. La prise montre le lieu ouvert, pas l’étagère. Changer de décor oblige à quitter la prise.
-- **Fait :** deux moteurs de prise sont branchés. `comfy` : références H3, compte de rendu. `lora` : personnage H3 chez fal, fichier du coffre. Le contrôle s’appelle « Cohérence », pas « Moteur ».
-- **Fait :** le LoRA de lieu passe par `fal-ai/flux-lora-fast-training`, puis `fal-ai/flux-lora` pour une image. `take-graph.ts` ne porte pas `flux-lora`. Ce n’est pas un troisième moteur de prise.
 - **Écart :** il manque, sur La prise, le choix du qui et du où avant le geste or. Il manque un refus net d’un moteur qui n’est pas branché, au lieu d’un libellé qui cache les deux seuls chemins.
 
 ## Cette livraison
@@ -50,4 +48,3 @@
 - **Écart :** la caméra se règle sur Scène. La prise la rouvre, elle ne la déplace pas.
 - **Écart :** pas de portrait de distribution séparé des photos du rôle. Le nom recharge le fichier.
 - **Écart :** pas de moteur Seedance, pas de Flux sur la prise, pas de volume 3D issu du LoRA de lieu.
-- **Écart :** cette livraison ne forme rien et ne tourne rien. Aucun appel payant fal, Comfy ou Farpy.

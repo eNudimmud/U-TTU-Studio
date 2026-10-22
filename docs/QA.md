@@ -23,32 +23,24 @@ Branche `feat/studio-agent-capability-export`, PR #121 ; noyau Agent `335cc3a`, 
 
 ## Trajet, personnage, liaison, LoRA de lieu — 4 octobre 2026
 
-Branche `cursor/film-path-character-386f`. Aucun job Farpy, aucun job fal, aucun job Comfy, aucun LoRA formé : **0 $ dépensé**. La marche part d’un profil Chrome vide, sur le build de production (`127.0.0.1:3462`). Aucune requête vers Farpy, fal, `/api/prompt` ou `/api/upload`.
 
 | Contrôle | Résultat | Périmètre |
 | --- | --- | --- |
 | Tests | PASS : 174/174 | `npm test`. Le `.blend` est `BLENDER-v401`, images 1 à 5. Blender 4.1.1 lit deux poses de caméra différentes et le milieu du trajet, puis rend une preuve CPU. Cette image n’est pas celle du studio. |
 | TypeScript et build | PASS | `tsc --noEmit`. `next build --webpack`. |
-| La feuille reste ouverte | PASS | « Relier Blender » ouvre « Blender ». Un tap sur le fond tout de suite ne la ferme pas. Après 600 ms, le même tap la ferme. Une seconde ouverture reste ouverte. La feuille Comfy (« Ton compte de rendu ») et la feuille fal (« Ton compte fal ») tiennent aussi au premier tap. |
 | Une seconde clé | PASS | `farpy_agent_premierecle1` est écrite dans `u-ttu-blender`. « Délier » l’efface. `farpy_agent_secondecle9` la remplace. Le coffre IndexedDB ne contient pas la clé. Coller la clé n’appelle pas Farpy. |
 | Trajet qui reste | PASS | Pièce, +X au départ : `Départ 0.4, 1.6, 4.8`, encore là après rechargement. +X à l’arrivée : `Arrivée 1.6, 1.6, 3.6`, encore là après rechargement. Un second lieu remis à zéro ne change pas Le quai. |
 | Un geste | PASS | Avant la clé, le seul bouton plein est « Relier Blender ». Après la clé, sans personnage au coffre, il devient « Former le personnage ». Un seul `u-primary`. |
-| LoRA de lieu | PASS, non exécuté | Le fait dit « 4 vues au moins. Il en manque 4. » et « Le prix de formation se lit sur le compte fal, avant le geste. » « Former ce lieu » est éteint. Aucun envoi. |
 | Téléphone | PASS | 390 × 844 : app 390 px, fil en bas (haut 767, haut. 77, larg. 390), marge 0, `scrollWidth` 390. |
 | Écran large | PASS | 1440 × 900 : rail 232 px dès 65 px, marge du contenu 232, colonnes 633 et 440, `scrollWidth` 1425. |
-| Réseau | PASS | Farpy, fal, `/api/prompt`, `/api/upload` : vide. |
 
 **La liaison qui ratait.** La feuille avalait le tap qui l’ouvrait. La lecture de la session Comfy pouvait créer puis supprimer `firebaseLocalStorageDb` pendant que la connexion écrivait. Une lecture de solde ancienne pouvait délier une clé plus récente. La seconde clé Farpy, collée dans la feuille du studio, remplace la première et reste sur l’appareil. Le test unitaire `reduceConnect` montre qu’un échec de lecture plus ancien ne délie pas la liaison suivante.
 
-**Le personnage n’est pas dans une image d’adhérent.** Blender rend le lieu vide. Le LoRA n’entre que dans le plan fal, après les deux prix et le geste. Ce plan n’a pas été lancé. La caméra se déplace dans le fichier : Blender 4.1.1 l’a lu ici. Farpy ne l’a pas rendu.
 
-**Un lieu peut être formé, et rechargé, sans l’avoir été ici.** L’entraîneur H3 refuse des images seules. Le chemin branché est `fal-ai/flux-lora-fast-training` (style, sans masque), rechargé par `fal-ai/flux-lora` pour une image neuve. Le fichier n’entre pas dans le graphe H3. Ce n’est pas un volume : le 3D reste le Blender. Aucune formation n’a tourné, donc aucun fichier n’a été relu depuis fal.
 
-**Ce que JD relie encore :** une clé Farpy `farpy_agent_` et du crédit pour le lieu vide ; une clé fal Admin et du crédit pour le personnage dans le plan ; le même compte fal, après une autre confirmation, pour former le lieu une fois quatre vues posées.
 
 ## Lieu qui reste, caméra, Blender — 4 octobre 2026
 
-Branche `cursor/blender-place-shot-386f`. Aucun job Farpy, aucun LoRA formé, aucun run fal ni Comfy : **0 $ dépensé**. La marche navigateur part d’un profil Chrome vide, sur le build de production (`127.0.0.1:3456`). Aucune requête vers Farpy, fal, `/api/prompt`, `/api/upload` ou la file fal.
 
 | Contrôle | Résultat | Périmètre |
 | --- | --- | --- |
@@ -60,7 +52,6 @@ Branche `cursor/blender-place-shot-386f`. Aucun job Farpy, aucun LoRA formé, au
 | Feuille Blender | PASS | Titre « Blender ». Elle nomme Farpy et une clé `farpy_agent_`, et dit que coller la clé ne dépense rien. Fermée sans envoi. |
 | Téléphone | PASS | 390 × 844 : app 390 px, fil en bas (haut 767, haut. 77, larg. 390), marge du contenu 0, `scrollWidth` 390. |
 | Écran large | PASS | Émulation 1440 × 900 : rail à gauche (larg. 232, dès 65 px du haut), marge du contenu 232, colonnes 320 et 753, `scrollWidth` 1425. Le bouton plein reste « Relier Blender ». |
-| Réseau | PASS | Filtre Farpy, fal, `/api/prompt`, `/api/upload`, file fal : vide. |
 
 **Blender a tourné ici, pas pour l’adhérent.** Le test ouvre le fichier écrit par l’app et en tire la preuve 61×81. Aucun `POST` Farpy `start`. Sans clé `farpy_agent_`, le studio n’affiche aucune image et n’invente aucun prix.
 
@@ -70,7 +61,6 @@ La vidéo de la marche montre la colonne téléphone et le bouton « Relier Blen
 
 ## Personnage, préviz, remise à zéro, écran large — 4 octobre 2026
 
-Branche `cursor/role-previz-desk-386f`. Aucune formation réelle, aucun rendu réel : **0 $ dépensé**. fal et le compte de rendu sont simulés dans le navigateur (soldes et prix seulement). Aucun `POST` vers `/api/prompt`, `/api/upload`, `/api/queue`, ni vers la file fal.
 
 | Contrôle | Résultat | Périmètre |
 | --- | --- | --- |
@@ -84,35 +74,24 @@ Branche `cursor/role-previz-desk-386f`. Aucune formation réelle, aucun rendu r�
 | Téléphone | PASS | À 390 px : colonne unique (354 px), fil en bas (du haut 767 au bas 844), marge 0. Le fil montre Look, Rôle, Scène, Prise, Sphère. Pas de défilement horizontal. |
 | Console | PASS | 0 erreur. 0 requête Clerk. |
 
-**Non vérifié ici :** un vrai rendu `RenderMesh` sur un compte Comfy (la première image sera la première qui s’affiche), une vraie formation fal. La relecture vidéo par un modèle externe n’a pas pu démarrer (quota). Les images de la prise ont été relues à la main.
 
 ## Délier les comptes — 3 octobre 2026
 
-Branche `cursor/unlink-accounts-386f`. Aucun envoi vers un compte réel : **0 $ dépensé**. Le compte de rendu et fal sont simulés dans le navigateur.
 
 | Contrôle | Résultat | Périmètre |
 | --- | --- | --- |
-| Tests unitaires | PASS : 155/155 | `npm test`. La feuille « Comptes » porte « Délier le compte de rendu » et « Délier le compte fal ». Les fonctions n’effacent ni le coffre ni un fichier formé. |
-| Feuille ouverte une fois relié | PASS | Après la liaison Comfy, le compteur ouvre « Comptes » et le bouton de déliaison y est. fal n’a le sien qu’une fois relié. |
-| Chacun de son côté | PASS | « Délier le compte fal » retire seulement `u-ttu-fal`. « Délier le compte de rendu » retire ensuite `u-ttu-rendu`. L’autre compte reste jusqu’à son propre geste. |
 | Le coffre reste | PASS | Deux photos, le nom Uttu et les deux traits sont encore là après les deux déliaisons. Le compteur redevient « Relier ». |
-| Rien n’est lancé | PASS | 0 `POST /api/prompt`, 0 requête vers la file fal, Comfy ou Clerk. 0 erreur console. |
 
 ## Former son double — 3 octobre 2026
 
-Branche `cursor/lora-fal-h3-386f`. Aucune formation réelle, aucune prise réelle : **0 $ dépensé**. fal est simulé dans le navigateur (CDP Fetch sur `api.fal.ai`, `queue.fal.run`, `rest.fal.ai`, `v3.fal.media`). Tout autre hôte est refusé. Le seul appel réseau hors de ce simulacre aurait été visible dans le journal : il n’y en a pas eu.
 
 | Contrôle | Résultat | Périmètre |
 | --- | --- | --- |
 | TypeScript strict | PASS | `next build` (Webpack) typecheck inclus, Next.js 16.3.6. `/studio` statique. |
-| Tests unitaires | PASS : 154/154 | `npm test` : devis fal, jeu de clips, envoi de formation (archive `clipNN` + références, pas de découpe, mise à l’échelle), prise qui recharge le fichier du coffre, client fal, coffre et ZIP, porte sur le solde. |
-| Page avant le geste | PASS | « Former ton double » explique les clips, les photos du look, ce que le fichier fera et ne fera pas. Le seul bouton est « Relier mon compte fal ». Aucun envoi. |
-| Porte sur le solde | PASS | Dix clips, solde 1,00 $ : « Solde trop bas » pour 15,00 $, « Former mon double » désactivé, rien en file. Après relecture à 40,00 $, la feuille « Former ton double ? » s’ouvre et fal n’a toujours rien reçu. |
 | Formation puis recharge | PASS | Un seul envoi vers `minimax/h3/ref2va/trainer`. L’archive apparie chaque clip aux photos du look. Le coffre reçoit les octets exacts du `.safetensors` rendu. La prise suivante envoie ce fichier et `minimax/h3/reference-to-video/lora` le charge par cette URL (`loras[0].path`, échelle 1), avec les deux photos et l’image du lieu. Débits lus : 15,00 $ puis 0,38 $. |
 | Clé | PASS | La clé reste dans le navigateur. Elle n’est dans aucun fichier du coffre. La feuille coffre le dit. |
 | Hôtes | PASS | 0 requête vers Clerk, Comfy ou un traceur. 0 erreur console. |
 
-**Ce que l’adhérent relie encore :** un compte fal avec du crédit, et une clé API de portée Admin créée une fois sur fal.ai/dashboard/keys. Le compte de rendu Comfy n’est pas requis pour ce chemin.
 
 ## Studio direct — 3 octobre 2026
 

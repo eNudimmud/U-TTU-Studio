@@ -32,8 +32,6 @@ Cette section remplace, pour l’écran, les décisions plus bas qui la contredi
 
 - **Décision (dépassée le 4 octobre 2026) :** une page à part, `#lora`. Le fil du bas porte maintenant Rôle, entre Look et Scène. On n’y entre plus depuis Ton style. Détail : [DECISIONS.md](DECISIONS.md).
 - **Décision :** avant tout geste payant, la page dit quatre choses : les clips (vidéo, dix au moins, trois à trente secondes), les photos du look (références, pas le cours), ce que le fichier fera dans La prise, ce qu’il ne fera pas. Le prix du jour est sur la ligne de coût. U*TTU reste une phrase en haut de page. Elle ne couvre pas le bouton.
-- **Décision :** une action pleine. « Relier mon compte fal » tant que le compte n’est pas là, puis « Former mon double · X $ ». Le bouton s’éteint si les clips ne tiennent pas, ou si le solde est illisible, vide, ou sous le devis. La feuille « Former · débit sur mon compte fal » est le seul envoi.
-- **Décision :** dans La prise, « Visage » choisit « Références » (compte de rendu, comme avant) ou « Ton double » (le fichier du coffre, compte fal). Le compteur du haut suit ce choix.
 - **Décision :** l’accueil ne change pas et ne nomme pas ce moteur.
 
 ## Décision — l’écran d’accueil
@@ -45,7 +43,6 @@ Cette section remplace, pour l’écran, les décisions plus bas qui la contredi
 
 ## Décision — pas de jargon au premier plan
 
-- **Décision :** l’accueil ne nomme pas les moteurs. Interdits dans le texte visible de `/` : Seedance, Comfy, fal, LoRA, Flux, Blender, Night City.
 - **Décision :** la correspondance, pour la doc.
 
 | Geste | Sur la pastille | Dans le shell, aujourd’hui | Nom technique, doc ou aide seulement |
@@ -67,7 +64,6 @@ Cette section remplace, pour l’écran, les décisions plus bas qui la contredi
 ## Décision — le studio
 
 - **Décision :** `/studio` est l’appli. Il s’ouvre sur Ton style. Le premier mot est « Dépose tes photos. » Le dépôt est le clic. Le statut « Look tenu » est sur cet écran. La suite dit qu’elle s’ouvre après. Le rappel « Avant un long entraînement » est replié : il ne précède pas le dépôt.
-- **Décision :** les libellés du premier écran sont du français de tous les jours. LoRA, fal, Comfy, gate et PASS ne sont pas sur ce premier écran. Ils restent dans Expert, le rail, et les tiroirs.
 - **Décision :** trois gestes d’abord : Ton style, Ta scène, La prise. Ta scène reçoit le monde (images, suites, notes). La prise montre monde → look tenu → prise courte, et charge la page du tournage quand les deux sont prêts. Rien n’est envoyé avant le lancement dans le cadre. Compte est dans « Plus ». Pas de mur.
 - **Décision :** le mot-symbole ramène à Ton style (`#look`). `#creer` ouvre la même surface. « Accueil » ramène à `/`.
 - **Décision :** `/#creer`, `/#compte` et les autres hash de mode reconduisent vers `/studio` avec le même hash. Les retours Clerk déjà posés continuent d’atterrir au bon endroit.

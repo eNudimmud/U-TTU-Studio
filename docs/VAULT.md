@@ -31,7 +31,7 @@ U-TTU-Studio/
     .uttu/devis.json             devis mesuré : la baisse entre deux soldes
 ```
 
-Les fiches sont du Markdown avec frontmatter : `type`, `projet`, `statut`, `updated`, et `moteur` (`comfy`, `fal` ou `demo`) plus `gesture` quand le geste existe. Une prise garde aussi `lora`, `resolution`, `cout_usd`, `cout_source`. Le moteur `fal` d’une prise est le moteur interne `lora`. Une fiche de fichier porte `declencheur`, `fichier`, `sha256`, `pas`, `rang`, `entraineur`, `requete`. Les images et la vidéo sont liées en `![[…]]`. `MOC.md` liste les projets. `_MOC.md` relie le personnage, les lieux, les prises, la bible et le journal de ce projet. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
+Les fiches sont du Markdown avec frontmatter : `type`, `projet`, `statut`, `updated`, et `moteur` (`comfy` ou `demo`) plus `gesture` quand le geste existe. Une prise garde aussi `lora`, `resolution`, `cout_usd`, `cout_source`. Une fiche de fichier porte `declencheur`, `fichier`, `sha256`, `pas`, `rang`, `entraineur`, `requete`. Les images et la vidéo sont liées en `![[…]]`. `MOC.md` liste les projets. `_MOC.md` relie le personnage, les lieux, les prises, la bible et le journal de ce projet. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
 
 Un ZIP ancien (`CANON.md`, `scenes/`, `prises/`, `loras/`) est rangé dans un projet à l’import. Un fichier déjà présent n’est pas écrasé.
 

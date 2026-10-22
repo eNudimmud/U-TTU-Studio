@@ -1608,7 +1608,11 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-assistant-next { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--u-line); border-radius: 12px; }
 .u-assistant-next p { margin: 0; }
 .u-assistant-next .u-secondary { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-@media (min-width: 1600px) { html[data-assistant] .u-app > :not(.u-topbar):not(.u-assistant):not(.u-sheet-backdrop) { margin-right: 320px; } }
+@media (min-width: 1600px) {
+  html[data-assistant] .u-app > :not(.u-topbar):not(.u-assistant):not(.u-sheet-backdrop) { margin-right: 320px; }
+  /* The main column must give the room back: without this it keeps its content width and slides under the panel. */
+  html[data-assistant] .u-app > .u-main { flex: 1 1 0; width: auto; min-width: 0; }
+}
 @media (max-width: 1599px) { .u-assistant { top: 56px; z-index: 65; width: min(360px, 100vw); box-shadow: -24px 0 48px rgb(0 0 0 / .45); border-left: 1px solid var(--line); } }
 @media (max-width: 1023px) { .u-assistant { box-shadow: none; } }
 @media (max-width: 1023px) {

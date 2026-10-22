@@ -1,6 +1,5 @@
 # Audit technique U*TTU Studio — 16 octobre 2026
 
-> Version historique #104/#107. Pour la branche concours #110 et les nouveaux correctifs, lire [l’intégration concours](integration-concours.md). Les fonctions LoRA/fal/Farpy et les règles LTX décrites ci-dessous ont changé dans cette branche.
 
 Le parcours local possède des éléments réels réutilisables, mais le critère de réussite complet ne peut pas encore être certifié en production. Les corrections sont proposées en brouillon ; aucune fusion, aucun déploiement manuel de production, aucun rendu payant pendant cet audit.
 
@@ -11,7 +10,6 @@ Le parcours local possède des éléments réels réutilisables, mais le critèr
 | **Opérationnel sur le build testé** | Imports gratuits CAST/DÉCOR/vidéo, préparation et conservation d’un plan, assemblage de deux clips, export MP4 H.264/AAC et réouverture dans le même profil Chrome. Les fichiers ont réellement été encodés, téléchargés et analysés. |
 | **Partiel** | Panoramax : disponibilité publique constatée, adaptateurs et repli corrigés, tests réseau simulés. Comfy : graphes, confirmation et reprise vérifiés par contrat simulé, sans nouvelle preuve de génération réelle. Dossier Obsidian : protection contre les conflits, résolution encore manuelle. |
 | **Bloquant pour certifier la production** | Les correctifs ne sont pas fusionnés ni contrôlés sur le déploiement de production. Le parcours avec une génération réellement payée nécessite une autorisation et un budget explicites. L’aperçu Vercel est protégé. |
-| **Présent mais dormant** | Entraînement LoRA, voies fal.ai et Farpy historiques : code conservé, hors du parcours actif. Leur existence et leurs anciens tests ne valent pas validation. |
 
 Les limites de l’export (60 s, 12 images/s), des appareils testés et du stockage navigateur sont détaillées ci-dessous et dans [validation.md](validation.md). Aucun de ces verdicts n’assimile un écran de démonstration à une génération réelle.
 
@@ -29,13 +27,11 @@ L’inspection porte sur les chemins actifs, leurs dépendances, les anciens con
 
 Next.js 16.3.6 sert `/studio`, `/mon-studio` et les relais nécessaires. `studio-app.tsx` monte `StudioProvider` de `studio-session.tsx`. Les vues actives sont `stage-screens.tsx` pour CAST/DÉCOR, `prise-stage.tsx` et `montage-stage.tsx`. Les données suivent `coffre/`, les images `creation/`, les vidéos `render/`, les exports `montage/`.
 
-Un second contrôleur volumineux, `studio-context.tsx`, conserve l’ancien parcours LoRA, fal et Farpy. Son existence et ses tests ne prouvent pas son accessibilité depuis le studio actuel. Aucun de ces modules n’a été supprimé pour simplifier artificiellement l’audit.
 
 ### CAST
 
 Les gestes actifs produisent une image/planche par Comfy. Les graphes locaux contiennent les références, les prompts et les nœuds d’enregistrement. Les exemples R9 remplissent le formulaire ; ils ne lancent pas de rendu. Les imports ajoutés au parcours gratuit produisent une fiche de personnage et conservent les octets du média. Les identifiants uniques empêchent l’écrasement lorsque deux fichiers portent le même nom. Les copies et suppressions conservent les médias encore référencés ailleurs.
 
-L’entraînement H3 historique prépare un ZIP de clips et références, appelle `minimax/h3/ref2va/trainer`, suit la file fal, contrôle le fichier safetensors et conserve les coûts disponibles. La réutilisation LoRA a son propre code. Ce chemin reste **dormant dans la navigation actuelle**, sans validation distante ni nouvelle preuve d’identité. Le réactiver constituerait un lot séparé après stabilisation du parcours actuel.
 
 ### DÉCOR et repérage
 
@@ -92,7 +88,6 @@ Limites : les clés persistées dans localStorage sont lisibles par le JavaScrip
 | README : trois gestes, LoRA directement accessible | Navigation actuelle à quatre espaces ; ancien contrôleur distinct. Description historique signalée. |
 | README : aucune vraie prise jamais exécutée | Contredit par la mesure H3 du 7 octobre dans `docs/mesures/` ; aucune nouvelle prise payante pendant cet audit. |
 | R7 : envoi d’une image comme prise, voix/musique d’exemple par défaut | Comportement confirmé dans le code, corrigé pour ne pas confondre storyboard, exemples et production. |
-| QA : PASS LoRA/fal/Farpy | Rapports historiques majoritairement simulés ou explicitement « non exécuté ». Pas une validation de l’interface actuelle ni de l’API actuelle. |
 | VAULT : stockage persistant demandé, lecture du dossier puis réécriture | Appel non confirmé dans le contrôleur actuel ; risque de divergence de dossier corrigé sans écrasement. |
 | R8 : 4,1/4,5 crédits pour 5/30 s en 1080p | Mesures déclarées dans le code de la mise à jour, non répétées ici. 4K/nettoyage restent estimés. |
 | CI verte | Valide les assertions exécutées. Les assertions lexicales et mocks ne prouvent pas un rendu payant réel. |

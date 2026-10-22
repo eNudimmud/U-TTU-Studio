@@ -1446,7 +1446,13 @@
     "cast": "A real studio result. Tap it: photo, name and text fill in, you only change them.",
     "decor": "A real studio set. Tap it: the reference, name and gesture fill in.",
     "prise": "The courier on the quay, already framed. Tap it: character, set, framing and action fill in.",
-    "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent."
+    "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent.",
+    "titles": {
+      "cast": "DJ",
+      "decor": "The quay at night",
+      "prise": "The courier on the quay",
+      "montage": "The example clip"
+    }
   },
   "videoGeste": {
     "title": "From the mock-up",
