@@ -779,3 +779,9 @@ La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une 
 - Toute fonction passe par son template officiel exporté. Audit et liste des exceptions : `docs/AUDIT-WORKFLOWS-COMFY.md`, gardé par `tests/workflows-dedies.test.ts`.
 - Migrés : FLUX 3 Klein (CAST/DÉCOR) et MiniMax H3 (prise), qui partent maintenant de l'export du template au lieu d'un graphe écrit à la main. Le Finaliser est rattaché à `utility_nvidia_rtx_video_enhance` (étape Super Resolution) et exporté.
 - Le pré-vol Comfy Cloud n'était pas joignable pendant cette passe (accès MCP refusé). Les graphes migrés gardent les modèles, le sampler et les pas des rendus mesurés, mais ils n'ont pas été revalidés côté cloud.
+
+## 2026-10-22 · Clerk retiré
+
+- Aucun lien de l’interface ne menait à `/compte`, `/sign-in` ni `/sign-up`, et le studio ne lit jamais de session. Le studio, Mon studio, le coffre Obsidian et la clé Comfy n’en dépendent pas.
+- Retirés : les trois pages, `src/components/account/`, `clerk-config`, `clerk-appearance`, `account.ts`, `studio-shell.tsx`, les paquets `@clerk/*`, `docs/AUTH.md`, les lignes Clerk de `.env.example`. `src/proxy.ts` reste : il sert les médias Comfy.
+- Les anciens liens `#compte` mènent au studio. Les clés Clerk éventuellement posées sur Vercel ne servent plus.

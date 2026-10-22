@@ -432,33 +432,6 @@
     "publishX": "Publier sur X",
     "save": "Enregistrer la vidéo"
   },
-  "account": {
-    "opening": "Ouverture du compte…",
-    "kicker": "Compte · facultatif",
-    "title": "Le studio n’en a pas besoin.",
-    "body": "Tes références, tes lieux et tes prises vivent dans mes créations, sur ton appareil. Le calcul tourne sur ton compte de rendu. Ce compte U*TTU ne garde rien de tout ça.",
-    "closed": "Comptes U*TTU fermés pour l’instant.",
-    "signIn": "Se connecter",
-    "signUp": "Créer un compte",
-    "profile": "Profil",
-    "noEmail": "Aucune adresse visible.",
-    "back": "Retour au studio",
-    "open": "Compte ouvert"
-  },
-  "auth": {
-    "signIn": {
-      "kicker": "Compte",
-      "title": "Se connecter.",
-      "note": "Google ou GitHub. Mon studio, lui, reste sur ta machine."
-    },
-    "signUp": {
-      "kicker": "Compte",
-      "title": "Créer un compte.",
-      "note": "Google ou GitHub. Le studio, lui, n’attend pas cette page."
-    },
-    "closed": "Comptes U*TTU fermés pour l’instant. Le studio reste ouvert, sans compte.",
-    "offline": "Hors ligne"
-  },
   "sheet": {
     "renderTitle": "Ton compte de rendu",
     "linkedKey": "par clé",

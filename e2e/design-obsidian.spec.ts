@@ -26,7 +26,6 @@ const PAGES = [
   { id: "prise", url: "/studio#prise", ready: "#u-title" },
   { id: "montage", url: "/studio#montage", ready: "#u-title" },
   { id: "creations", url: "/mon-studio", ready: "#u-title" },
-  { id: "compte", url: "/compte", ready: "h1" },
   { id: "accueil", url: "/", ready: "h1" },
 ];
 

@@ -432,33 +432,6 @@
     "publishX": "Auf X veröffentlichen",
     "save": "Video speichern"
   },
-  "account": {
-    "opening": "Konto wird geöffnet…",
-    "kicker": "Konto · freiwillig",
-    "title": "Das Studio braucht keins.",
-    "body": "Deine Referenzen, deine Drehorte und deine Takes leben in « Meine Kreationen », auf deinem Gerät. Die Rechnung läuft auf deinem Render-Konto. Dieses U*TTU-Konto behält davon nichts.",
-    "closed": "U*TTU-Konten sind vorerst geschlossen.",
-    "signIn": "Anmelden",
-    "signUp": "Konto erstellen",
-    "profile": "Profil",
-    "noEmail": "Keine Adresse sichtbar.",
-    "back": "Zurück zum Studio",
-    "open": "Konto offen"
-  },
-  "auth": {
-    "signIn": {
-      "kicker": "Konto",
-      "title": "Anmelden.",
-      "note": "Google oder GitHub. Mein Studio bleibt auf deinem Gerät."
-    },
-    "signUp": {
-      "kicker": "Konto",
-      "title": "Konto erstellen.",
-      "note": "Google oder GitHub. Das Studio wartet nicht auf diese Seite."
-    },
-    "closed": "U*TTU-Konten sind vorerst geschlossen. Das Studio bleibt offen, ohne Konto.",
-    "offline": "Offline"
-  },
   "sheet": {
     "renderTitle": "Dein Render-Konto",
     "linkedKey": "per Schlüssel",

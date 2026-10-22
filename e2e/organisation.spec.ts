@@ -67,24 +67,3 @@ test("Mes créations : onglets par type dans l'adresse, densité gardée", async
   await expect(page.locator("#coffre")).toBeVisible();
 });
 
-test("Mon compte et connexion : la même barre du haut que le studio, tiroir sur téléphone", async ({ page }) => {
-  for (const path of ["/compte", "/sign-in"]) {
-    await page.goto(path);
-    const bar = page.locator("[data-topbar]");
-    await expect(bar).toBeVisible();
-    await expect(bar.locator(".u-mark")).toBeVisible();
-    await expect(page.locator("h1")).toBeVisible();
-    const burger = page.locator("[data-top-burger]");
-    if (await burger.isVisible()) {
-      const box = await burger.boundingBox();
-      expect(box!.height).toBeGreaterThanOrEqual(44);
-      await burger.click();
-      await expect(page.locator("[data-drawer] [data-top-menu=creer]")).toBeVisible();
-      await page.keyboard.press("Escape");
-      await expect(page.locator("[data-drawer]")).toHaveCount(0);
-    } else {
-      await expect(bar.locator("[data-top-menu=creer]")).toBeVisible();
-      await expect(bar.locator("[data-top-search]")).toBeVisible();
-    }
-  }
-});

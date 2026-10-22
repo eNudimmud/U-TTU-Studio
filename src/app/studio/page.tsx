@@ -9,6 +9,6 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
   const params = await searchParams;
   const raw = Array.isArray(params.step) ? params.step[0] : params.step;
   const asked = tabFromLocation("", raw ? `?${new URLSearchParams({ step: raw })}` : "");
-  const initialTab: Tab | null = asked && asked !== "compte" ? asked : null;
+  const initialTab: Tab | null = asked;
   return <StudioApp initialTab={initialTab} />;
 }

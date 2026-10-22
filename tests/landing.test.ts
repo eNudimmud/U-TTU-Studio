@@ -26,6 +26,6 @@ describe("accueil", () => {
     assert.match(home, /assetPath\("\/studio"\)/);
     assert.doesNotMatch(`${page}\n${home}`, JARGON);
     assert.match(page, /HomeLanding/);
-    assert.match(readFileSync("src/components/landing/legacy-hash.tsx", "utf8"), /ACCOUNT_PATH/);
+    assert.match(readFileSync("src/components/landing/legacy-hash.tsx", "utf8"), /raw === "compte"\) window\.location\.replace\(assetPath\("\/studio"\)\)/);
   });
 });

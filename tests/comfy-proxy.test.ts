@@ -178,7 +178,7 @@ describe("Comfy same-origin embed", () => {
     assert.equal(login?.headers.get("content-type"), null);
   });
 
-  it("forwards the Comfy media cookie and the bearer token, not the Clerk session", async () => {
+  it("forwards the Comfy media cookie and the bearer token, not other session cookies", async () => {
     const { calls, fetchImpl } = install(new Response(JSON.stringify({ ok: true }), { headers: { "content-type": "application/json" } }));
     const response = await proxyComfy(new Request(`${STUDIO}/api/view?filename=ComfyUI_00002_.png&type=output&subfolder=`, {
       headers: {

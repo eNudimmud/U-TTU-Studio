@@ -24,7 +24,7 @@ const BellIcon = () => <svg {...ICON}><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-
 const MenuIcon = () => <svg {...ICON}><path d="M4 7h16M4 12h16M4 17h16" /></svg>;
 const CloseIcon = () => <svg {...ICON}><path d="M6 6l12 12M18 6 6 18" /></svg>;
 
-export type Place = "accueil" | "creer" | "realiser" | "montage" | "creations" | "compte";
+export type Place = "accueil" | "creer" | "realiser" | "montage" | "creations";
 
 export const CREATION_TYPES = ["images", "videos", "3d", "sons", "personnages", "lieux", "prises"] as const;
 export type CreationType = (typeof CREATION_TYPES)[number];

@@ -432,33 +432,6 @@
     "publishX": "Publicar en X",
     "save": "Guardar el vídeo"
   },
-  "account": {
-    "opening": "Abriendo la cuenta…",
-    "kicker": "Cuenta · opcional",
-    "title": "El estudio no la necesita.",
-    "body": "Tus referencias, tus localizaciones y tus tomas viven en mis creaciones, en tu aparato. El cálculo corre en tu cuenta de render. Esta cuenta U*TTU no guarda nada de eso.",
-    "closed": "Las cuentas U*TTU están cerradas por ahora.",
-    "signIn": "Entrar",
-    "signUp": "Crear una cuenta",
-    "profile": "Perfil",
-    "noEmail": "Ninguna dirección visible.",
-    "back": "Volver al estudio",
-    "open": "Cuenta abierta"
-  },
-  "auth": {
-    "signIn": {
-      "kicker": "Cuenta",
-      "title": "Entrar.",
-      "note": "Google o GitHub. Mi estudio se queda en tu máquina."
-    },
-    "signUp": {
-      "kicker": "Cuenta",
-      "title": "Crear una cuenta.",
-      "note": "Google o GitHub. El estudio no espera esta página."
-    },
-    "closed": "Las cuentas U*TTU están cerradas por ahora. El estudio sigue abierto, sin cuenta.",
-    "offline": "Sin conexión"
-  },
   "sheet": {
     "renderTitle": "Tu cuenta de render",
     "linkedKey": "por clave",
