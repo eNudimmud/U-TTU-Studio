@@ -2514,7 +2514,7 @@
     "tool": "Werkzeug"
   },
   "assistant": {
-    "title": "Studio-Assistent",
+    "title": "U*TTU",
     "short": "Assistent",
     "toggle": "Studio-Assistent ein- oder ausblenden",
     "close": "Assistent schließen",
@@ -2529,7 +2529,9 @@
       "decor": "Füge einen Ort hinzu.",
       "prise": "Dreh eine erste Einstellung.",
       "montage": "Füge deine Einstellungen zusammen."
-    }
+    },
+    "subtitle": "Dein Produktionsassistent",
+    "openAria": "U*TTU öffnen, deinen Produktionsassistenten"
   },
   "creations": {
     "all": "Alles ansehen",
@@ -2679,7 +2681,7 @@
       "jobs": "Einen bestehenden Job abrufen; nie automatisch neu senden"
     },
     "inline": {
-      "title": "U*TTU-Assistent",
+      "title": "U*TTU · Dein Produktionsassistent",
       "askImage": "Was möchtest du mit diesem Bild machen?",
       "askVideo": "Was möchtest du mit diesem Video machen?",
       "aria": "Frag U*TTU",

@@ -2514,7 +2514,7 @@
     "tool": "Tool"
   },
   "assistant": {
-    "title": "Studio assistant",
+    "title": "U*TTU",
     "short": "Assistant",
     "toggle": "Show or hide the studio assistant",
     "close": "Close the assistant",
@@ -2529,7 +2529,9 @@
       "decor": "Add a place.",
       "prise": "Shoot a first shot.",
       "montage": "Put your shots together."
-    }
+    },
+    "subtitle": "Your production assistant",
+    "openAria": "Open U*TTU, your production assistant"
   },
   "creations": {
     "all": "See all",
@@ -2679,7 +2681,7 @@
       "jobs": "Recover an existing job; never resent automatically"
     },
     "inline": {
-      "title": "U*TTU assistant",
+      "title": "U*TTU · Your production assistant",
       "askImage": "What do you want to do with this image?",
       "askVideo": "What do you want to do with this video?",
       "aria": "Ask U*TTU",

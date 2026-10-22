@@ -1909,3 +1909,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 
 /* « Ouvrir mes projets » in the assistant: a 44 px touch target, not a 20 px text line. */
 .u-assistant [data-assistant-next] { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Assistant U*TTU : toujours visible dans la barre du haut, à toutes les tailles. */
+.u-uttu { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: var(--radius-control); background: transparent; color: var(--accent); font-weight: 600; letter-spacing: .04em; white-space: nowrap; cursor: pointer; }
+.u-uttu:hover, .u-uttu[aria-expanded="true"] { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.u-uttu:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 420px) { .u-uttu { padding-inline: 8px; font-size: 13px; } }
+.u-assistant-sub { margin: 2px 0 0; color: var(--muted); }

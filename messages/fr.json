@@ -2514,7 +2514,7 @@
     "tool": "Outil"
   },
   "assistant": {
-    "title": "Assistant du studio",
+    "title": "U*TTU",
     "short": "Assistant",
     "toggle": "Afficher ou masquer l'assistant du studio",
     "close": "Fermer l'assistant",
@@ -2529,7 +2529,9 @@
       "decor": "Ajoute un lieu.",
       "prise": "Tourne un premier plan.",
       "montage": "Assemble tes plans."
-    }
+    },
+    "subtitle": "Ton assistant de production",
+    "openAria": "Ouvrir U*TTU, ton assistant de production"
   },
   "creations": {
     "all": "Tout voir",
@@ -2679,7 +2681,7 @@
       "jobs": "Récupération d’un job existant ; jamais de renvoi automatique"
     },
     "inline": {
-      "title": "Assistant U*TTU",
+      "title": "U*TTU · Ton assistant de production",
       "askImage": "Que veux-tu faire avec cette image ?",
       "askVideo": "Que veux-tu faire avec cette vidéo ?",
       "aria": "Demande à U*TTU",

@@ -9,7 +9,7 @@ test("mobile agent proposes cutout without spending credits, preserving image an
   await page.goto("/mon-studio?galerie=4&detail=1");
   const detail = page.locator(".u-asset-detail");
   await expect(detail.locator(":scope > img")).toBeVisible();
-  await detail.getByRole("button", { name: "Assistant U*TTU" }).click();
+  await detail.getByRole("button", { name: /^U\*TTU · Ton assistant/ }).click();
   await detail.getByRole("textbox", { name: "Demande à U*TTU" }).fill("Détoure cette image");
   await detail.getByRole("button", { name: "Proposer" }).click();
   const prepare = detail.getByRole("link", { name: "Ouvrir l’outil et vérifier le devis" });

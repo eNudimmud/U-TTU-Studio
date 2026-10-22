@@ -17,14 +17,7 @@ export const openToolsHub = (page: Page) => viaTopBar(page, "creer", "[data-top-
 /** « Mes créations », all types. */
 export const openCreations = (page: Page) => viaTopBar(page, "creations", "[data-top-creations]");
 
-/** Opens the docked assistant: the drawer on a phone, the account sheet on a wide screen. */
+/** Opens the docked assistant from the always-visible « U*TTU » button of the top bar. */
 export async function openAssistant(page: Page) {
-  const burger = page.locator("[data-top-burger]");
-  if (await burger.isVisible()) {
-    await burger.click();
-    await page.locator("[data-drawer-assistant]").click();
-    return;
-  }
-  await page.locator("header .u-credit").click();
-  await page.locator("[data-sheet-assistant]").click();
+  await page.locator("[data-top-uttu]").click();
 }

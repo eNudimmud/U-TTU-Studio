@@ -168,8 +168,8 @@ export function AssistantPanel() {
   }
   if (!open) return null;
   const hinted = interpretAgentRequest(query, context, locale).map(id => operations.find(op => op.id === id)).filter(op => op?.toolId && op.status === 'ready');
-  return <aside className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
-    <header className="u-assistant-head"><h2 id="u-assistant-title">{t('assistant.title')}</h2><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
+  return <aside id="u-assistant" className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
+    <header className="u-assistant-head"><div><h2 id="u-assistant-title">{t('assistant.title')}</h2><p className="u-small u-assistant-sub">{t('assistant.subtitle')}</p></div><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
     <p className="u-small" id="u-agent-guidance">{t('agent.guidance')}</p>
     <p className="u-label">{session.studio.projectName || t('agent.noProject')}</p>
     {!project && <form onSubmit={e => { e.preventDefault(); void work(() => session.createProject(projectName)); }}><label className="u-field">{t('agent.projectName')}<input value={projectName} maxLength={80} onChange={e => setProjectName(e.target.value)} /></label><button className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !projectName.trim()}>{t('agent.createProject')}</button></form>}

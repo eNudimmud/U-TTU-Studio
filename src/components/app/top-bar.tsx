@@ -14,7 +14,7 @@ import { clearTasks, listTasks, subscribeTasks, type Task } from "@/lib/tasks";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
 import { Brand } from "@/components/brand";
 import { useStudio } from "./studio-session";
-import { toggleAssistant } from "./assistant-panel";
+import { toggleAssistant, useAssistantOpen } from "./assistant-panel";
 import { StudioRail, StudioTabs, useTopHeight } from "./studio-nav";
 
 
@@ -57,6 +57,7 @@ function useTasks(): Task[] {
 export function TopBar({ place }: { place: Place }) {
   const { t, say } = useI18n();
   const { connected, balance, balanceNote, setSheet } = useStudio();
+  const assistantOpen = useAssistantOpen();
   const [drawer, setDrawer] = useState(false);
   const [palette, setPalette] = useState(false);
   useTopHeight();
@@ -89,6 +90,7 @@ export function TopBar({ place }: { place: Place }) {
         <button type="button" className="u-top-icon u-top-search" data-top-search="" aria-label={t("top.searchAria")} onClick={() => setPalette(true)}>
           <SearchIcon /><span className="u-tool-label">{t("top.search")}</span><kbd className="u-kbd">Ctrl K</kbd>
         </button>
+        <button type="button" className="u-uttu" data-top-uttu="" aria-expanded={assistantOpen} aria-controls="u-assistant" aria-label={t("assistant.openAria")} onClick={() => toggleAssistant(!assistantOpen)}>U*TTU</button>
         <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })}>
           <span className="u-tool-full">{connected && balance ? `${t("sheet.walletTitle")} · ${formatCredits(balance.credits)}` : t("sheet.walletTitle")}</span>
           <span className="u-tool-short">{connected && balance ? formatCredits(balance.credits) : t("stage.creditsShort")}</span>
