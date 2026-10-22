@@ -784,7 +784,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <p className="u-label">{t("p0.preview")}</p>
       {runningHere && <div className="u-card u-run" role="status">
         <p className="u-run-label">{t("job.running")}</p>
-        <button type="button" className="u-link" onClick={cancelRun}>{t("verb.cancel")}</button>
+        <button type="button" className="u-link" onClick={cancelRun}>{t("job.stopWaiting")}</button>
       </div>}
       {landed && media[landed.video] && <div className="u-take-view" data-take-view={landed.id} data-versions={versions.length}>
         <p className="u-label">{t("p0.takeOf", { n: versionIndex, total: versions.length })}{draft.garde === landed.id ? ` · ${t("p0.kept")}` : ""}</p>

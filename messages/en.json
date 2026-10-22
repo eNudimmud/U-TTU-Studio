@@ -375,7 +375,8 @@
     "outputs": "Outputs",
     "latest": "Latest output",
     "empty": "No output for this gesture.",
-    "lead": "The latest output of this gesture is here. The sphere stays the shelf."
+    "lead": "The latest output of this gesture is here. The sphere stays the shelf.",
+    "stopWaiting": "Stop waiting here (the take continues on Comfy)"
   },
   "run": {
     "start": "Preparing",

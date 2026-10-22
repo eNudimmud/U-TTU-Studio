@@ -375,7 +375,8 @@
     "outputs": "Ausgaben",
     "latest": "Letzte Ausgabe",
     "empty": "Keine Ausgabe für diese Geste.",
-    "lead": "Die letzte Ausgabe dieser Geste ist hier. Die Sphäre bleibt das Regal."
+    "lead": "Die letzte Ausgabe dieser Geste ist hier. Die Sphäre bleibt das Regal.",
+    "stopWaiting": "Hier nicht mehr warten (die Aufnahme läuft bei Comfy weiter)"
   },
   "run": {
     "start": "Vorbereitung",

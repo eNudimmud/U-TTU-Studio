@@ -375,7 +375,8 @@
     "outputs": "Sorties",
     "latest": "Dernière sortie",
     "empty": "Aucune sortie pour ce geste.",
-    "lead": "La dernière sortie de ce geste est ici. La sphère reste l’étagère."
+    "lead": "La dernière sortie de ce geste est ici. La sphère reste l’étagère.",
+    "stopWaiting": "Arrêter d’attendre ici (la prise continue chez Comfy)"
   },
   "run": {
     "start": "Préparation",

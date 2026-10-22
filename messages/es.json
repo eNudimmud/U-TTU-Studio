@@ -375,7 +375,8 @@
     "outputs": "Salidas",
     "latest": "Última salida",
     "empty": "Ninguna salida para este gesto.",
-    "lead": "La última salida de este gesto está aquí. La esfera sigue siendo la estantería."
+    "lead": "La última salida de este gesto está aquí. La esfera sigue siendo la estantería.",
+    "stopWaiting": "Dejar de esperar aquí (la toma sigue en Comfy)"
   },
   "run": {
     "start": "Preparación",

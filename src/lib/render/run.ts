@@ -106,8 +106,8 @@ export async function followTake(
   let misses = 0;
   for (;;) {
     if (options.signal?.aborted) {
-      await client.cancel(jobId).catch(() => {});
-      throw new RenderError("cancelled", "Prise annulée. Le temps déjà calculé peut être débité.");
+      // Never cancel a Comfy job: stop waiting here only. The job keeps running in the cloud.
+      throw new RenderError("cancelled", "Suivi arrêté sur cet appareil. La prise continue chez Comfy ; son résultat se récupère plus tard (Récupérer le rendu, ou la médiathèque).");
     }
     if (now() - started > timeoutMs) throw new RenderError("timeout", "La prise dépasse la durée permise.");
     let status: string;

@@ -316,15 +316,7 @@ export function createRenderClient(options: RenderClientOptions) {
       if (!response.ok || type.includes("json") || type.startsWith("text/")) throw new RenderError("network", `Vidéo illisible (${response.status}).`);
       return response.blob();
     },
-
-    async cancel(jobId: string): Promise<void> {
-      const response = await call("/api/queue", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ delete: [jobId] }),
-      });
-      if (!response.ok) throw new RenderError("network", "Annulation non confirmée par Comfy. Vérifiez le rendu avant de réessayer.");
-    },
+    // No cancel(): the studio never cancels a Comfy job. Interrupting only stops waiting locally.
   };
   credentialScopes.set(client, async () => {
     let identity: string;

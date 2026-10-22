@@ -301,6 +301,7 @@ row("take.calc", " Calcul : {clock}.", " Compute: {clock}.", " Rechnung: {clock}
 row("take.new", "Nouvelle prise", "New take", "Neuer Take", "Nueva toma");
 row("take.soft", `Ça n${Q}a pas abouti.`, "It did not land.", "Es ist nicht zustande gekommen.", "No ha salido.");
 row("job.running", "En cours", "In progress", "Läuft", "En curso");
+row("job.stopWaiting", `Arrêter d${Q}attendre ici (la prise continue chez Comfy)`, "Stop waiting here (the take continues on Comfy)", "Hier nicht mehr warten (die Aufnahme läuft bei Comfy weiter)", "Dejar de esperar aquí (la toma sigue en Comfy)");
 row("job.done", "Abouti", "Landed", "Zustande gekommen", "Ha salido");
 row("job.outputs", "Sorties", "Outputs", "Ausgaben", "Salidas");
 row("job.latest", "Dernière sortie", "Latest output", "Letzte Ausgabe", "Última salida");

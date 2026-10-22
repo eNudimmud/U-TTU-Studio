@@ -145,13 +145,13 @@ describe("une prise sans quitter le studio", () => {
     await assert.rejects(() => followTake(down, "job-0123456789", 5001, () => {}, { sleep: async () => {} }), (error: unknown) => error instanceof RenderError && error.code === "network");
   });
 
-  it("stops on a cloud failure and on a cancel, and cancels the job it queued", async () => {
+  it("stops on a cloud failure, and on an interruption stops waiting without cancelling the Comfy job", async () => {
     const failing = scriptedCloud(["executing", "error"], [2370]);
     await assert.rejects(() => followTake(failing.client, "job-0123456789", 5001, () => {}, { sleep: async () => {} }), (error: unknown) => error instanceof RenderError && error.code === "failed");
     const cancelled = scriptedCloud(["executing"], [2370]);
     const controller = new AbortController();
     controller.abort();
     await assert.rejects(() => followTake(cancelled.client, "job-0123456789", 5001, () => {}, { sleep: async () => {}, signal: controller.signal }), (error: unknown) => error instanceof RenderError && error.code === "cancelled");
-    assert.ok(cancelled.calls.some(call => call.url === "/api/queue" && JSON.parse(String(call.body)).delete[0] === "job-0123456789"));
+    assert.equal(cancelled.calls.some(call => call.url === "/api/queue"), false);
   });
 });

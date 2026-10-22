@@ -117,8 +117,8 @@ export async function runStem(client: RenderClient, input: StemRunInput, options
   const started = now();
   for (;;) {
     if (options.signal?.aborted) {
-      await client.cancel(jobId).catch(() => {});
-      throw new RenderError("cancelled", "Rendu annulé.");
+      // Never cancel a Comfy job: stop waiting here only. The job keeps running in the cloud.
+      throw new RenderError("cancelled", "Suivi arrêté sur cet appareil. Le rendu continue chez Comfy ; son résultat se récupère plus tard depuis la médiathèque.");
     }
     if (now() - started > timeoutMs) throw new RenderError("timeout", "Le rendu dépasse la durée permise.");
     const status = await client.status(jobId);
