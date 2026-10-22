@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { assetPath } from '@/lib/site';
 import { useI18n, useLocaleSwitch } from '@/components/i18n/provider';
+import { SEMANTIC_MODEL_ENABLED } from '@/lib/agent/semantic-flag';
 import { emptyConversation, productionTurn, refreshPlan, updateStep, restoreConversation, interpretLocally, type Conversation, type ProductionStep } from '@/lib/agent/kernel/production';
 import { productionContext, projectResources } from '@/lib/agent/context';
 import { studioActionRegistry } from '@/lib/agent/registry';
@@ -128,7 +129,7 @@ export function AssistantPanel() {
     });
   }
   async function sendSemantic() {
-    if (!modelConfirm || !modelKey || !query.trim() || loaded !== project) return;
+    if (!SEMANTIC_MODEL_ENABLED || !modelConfirm || !modelKey || !query.trim() || loaded !== project) return;
     const message = query.trim(); setModelConfirm(false);
     await work(async () => {
       const response = await fetch(assetPath('/studio-agent/interpret'), { method: 'POST', headers: { 'content-type': 'application/json', 'x-typesafe-key': modelKey, 'x-studio-model-confirmed': 'yes' }, body: JSON.stringify({ message, project, name: context.projectName, conversation: JSON.stringify(liveConversation.current), resources: context.resources.filter(r => context.selectedIds.includes(r.id)) }) });
@@ -178,7 +179,7 @@ export function AssistantPanel() {
       <div className="u-agent-actions"><button className="u-primary" data-agent-send="" aria-describedby="u-agent-guidance" disabled={busy || !query.trim() || loaded !== project || !project}>{t('agent.send')}</button><button type="button" className="u-secondary" onClick={() => { setLibrary(v => !v); setMediaQuery(''); }}>{t('media.title')}</button></div>
     </form>
     {hinted.length > 0 && <ul className="u-assistant-list">{hinted.map(op => op && <li key={op.id}><a href={assetPath(op.href!)} data-assistant-outil={op.toolId}>{op.label}</a></li>)}</ul>}
-    <details><summary>{t('agent.model')}</summary><p className="u-small">{t('agent.modelHelp')}</p><label className="u-field">{t('agent.modelKey')}<input type="password" autoComplete="off" value={modelKey} onChange={e => { setModelKey(e.target.value); setModelConfirm(false); }} /></label><p className="u-small">{t('agent.modelScope')}</p><label className="u-media-name"><input type="checkbox" checked={modelConfirm} onChange={e => setModelConfirm(e.target.checked)} />{t('agent.modelConsent')}</label><button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !modelConfirm || modelKey.length < 10 || !query.trim() || loaded !== project} onClick={() => void sendSemantic()}>{t('agent.modelSend')}</button></details>
+    {SEMANTIC_MODEL_ENABLED && <details><summary>{t('agent.model')}</summary><p className="u-small">{t('agent.modelHelp')}</p><label className="u-field">{t('agent.modelKey')}<input type="password" autoComplete="off" value={modelKey} onChange={e => { setModelKey(e.target.value); setModelConfirm(false); }} /></label><p className="u-small">{t('agent.modelScope')}</p><label className="u-media-name"><input type="checkbox" checked={modelConfirm} onChange={e => setModelConfirm(e.target.checked)} />{t('agent.modelConsent')}</label><button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !modelConfirm || modelKey.length < 10 || !query.trim() || loaded !== project} onClick={() => void sendSemantic()}>{t('agent.modelSend')}</button></details>}
     {error && <p role="alert">{error}</p>}
     {resources.length > 0 && <details><summary>{t('agent.references')} ({conversation.selectedIds.length})</summary><div className="u-agent-resources">{resources.map(r => <label key={r.id}><input type="checkbox" disabled={busy || !r.available || loaded !== project} checked={conversation.selectedIds.includes(r.id)} onChange={e => { const checked = e.target.checked; void work(() => commit({ ...liveConversation.current, selectedIds: checked ? [...new Set([...liveConversation.current.selectedIds, r.id])].slice(0, 20) : liveConversation.current.selectedIds.filter(id => id !== r.id) }, true)); }} />{r.name} · {t(`media.kinds.${r.kind}`)}{!r.available && ` · ${t('media.uncached')}`}</label>)}</div></details>}
     {plan && <section data-agent-plan=""><h3>{t('agent.plan')}</h3><ol className="u-agent-plan">{plan.steps.map(step => {

@@ -32,7 +32,6 @@ P0 : perte de données, dépense involontaire ou parcours principal bloqué. P1 
 | A26 | P1 | Persistance navigateur non demandée dans le contrôleur actuel ; risque d’éviction | Statut réel, demande explicite et quota ajoutés ; refus explicite, ZIP indépendant toujours nécessaire |
 | A27 | P1 | Revue manuelle de l’aperçu Vercel bloquée par authentification | Ouvert : aucune protection désactivée ; tests CI exécutés sur le build |
 | A28 | P1 | Limites 60 s, 12 fps et dépendance encodeurs du navigateur | Limite produit documentée ; non assimilée à un export professionnel universel |
-| A29 | P1 | LoRA/fal/Farpy hors du parcours actif | Partiel/dormant documenté ; ne pas afficher comme opérationnel ni réactiver sans validation |
 | A30 | P1 | Clés locales accessibles au JavaScript même origine ; ancien relais Comfy présent | Risque résiduel à auditer avant réactivation de la connexion intégrée |
 | A31 | P2 | Certaines nouvelles erreurs françaises dans les autres langues | Ouvert : compléter traduction et tests linguistiques après stabilisation |
 | A32 | P2 | Aucun test sur téléphone physique ni Safari/Firefox | Ouvert : les deux tailles Chrome ne remplacent pas ces appareils |

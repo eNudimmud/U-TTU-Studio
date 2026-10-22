@@ -5,7 +5,6 @@ Cette livraison poursuit la mission complète. Elle rapproche les correctifs des
 ## Versions et limites de preuve
 
 - Main relu : `5f87e6784bd75478e750c3070a2da0a747dd6c8b`.
-- Version concours intégrée : PR #110 fusionnée par JD, tête `57142cbd5e40ce34f5616beba985799fa45e97e5`, incluant les devis LTX estimés, gestes vidéo, prévis mobile, objets, import GLB, trajet caméra, génération Hunyuan3D/TRELLIS.2 et suppression du workflow de déploiement fal.
 - Corrections précédentes : #104 `73ec49ffa2bc0ee6af31c09ac426b57c051b892c` et #107 `332b05ce47035297b325f0056267b8871b2e87ad`.
 - Branche de revue : `audit/hackathon-integration-20261016`, PR #111, base `main` après intégration du squash #110.
 - Zéro nouveau rendu payant, zéro entraînement, aucun secret copié dans les rapports, aucune fusion effectuée par cet audit sur main, aucune publication sociale ni inscription au concours.
@@ -16,7 +15,6 @@ Les documents [rapport](rapport.md), [matrice](matrice.md), [anomalies](anomalie
 
 Les quatre espaces, l'identité visuelle, les exemples R10b et les workflows dédiés sont conservés. LTX reste le moteur par défaut, H3 sélectionnable ; les gestes raccord, caméra, prévis, élargir et effacer restent présents. Les estimations LTX ajoutées par JD sont conservées comme estimations, sans les transformer en mesures.
 
-La suppression du code dormant fal/LoRA/Farpy provient de la PR #110. L'intégration conserve cette décision ; elle ne réintroduit pas les anciens contrôleurs. Leur audit historique reste lisible, mais ils ne constituent plus des fonctions livrées par cette version. La préparation locale de jeux de données restante ne prouve pas un entraînement opérationnel.
 
 ## Corrections supplémentaires
 
@@ -50,7 +48,6 @@ Le dépôt officiel des nœuds NVIDIA indique une licence Apache-2.0 pour l'exte
 | Reprise / coûts | Ambiguïté conservée ; lecture d'un job existant, coût inconnu explicite | Sans identifiant retrouvé, l'envoi reste bloqué ; vérification manuelle du compte nécessaire |
 | IndexedDB / Obsidian / sauvegardes | Fin de transaction, protection demandée, ZIP, conflit de dossier refusé | Permission réelle de dossier, éviction OS, plantage appareil et gros ZIP à compléter |
 | Mobile / accessibilité / langues | Tailles 1280×800 et 390×844 ; clavier ; nouveaux textes FR/EN/DE/ES | Des erreurs historiques restent françaises ; pas de téléphone physique ni audit lecteur d'écran |
-| LoRA / fal / Farpy historiques | Inventaire antérieur disponible | Retirés par la branche concours ; non livrés, non certifiés |
 
 ## Tests exécutés et tests préparés
 

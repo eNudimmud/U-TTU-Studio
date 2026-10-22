@@ -1446,7 +1446,13 @@
     "cast": "Un resultado real del estudio. Tócalo: foto, nombre y texto se rellenan.",
     "decor": "Un decorado real del estudio. Tócalo: la referencia, el nombre y el gesto se rellenan.",
     "prise": "La mensajera en el muelle, ya encuadrada. Tócala: personaje, decorado, encuadre y acción se rellenan.",
-    "montage": "Tres planos, una voz y música. Tócalo: el montaje se rellena, no se envía nada."
+    "montage": "Tres planos, una voz y música. Tócalo: el montaje se rellena, no se envía nada.",
+    "titles": {
+      "cast": "DJ",
+      "decor": "El muelle de noche",
+      "prise": "La mensajera en el muelle",
+      "montage": "El clip de ejemplo"
+    }
   },
   "videoGeste": {
     "title": "Desde la maqueta",

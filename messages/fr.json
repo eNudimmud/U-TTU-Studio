@@ -1446,7 +1446,13 @@
     "cast": "Un vrai résultat du studio. Touche-le : photo, nom et texte se remplissent, tu n’as plus qu’à changer.",
     "decor": "Un vrai décor du studio. Touche-le : la référence, le nom et le geste se remplissent.",
     "prise": "La coursière sur le quai, déjà cadrée. Touche-la : personnage, décor, cadrage et action se remplissent.",
-    "montage": "Trois plans, une voix et une musique. Touche-le : le montage se remplit, rien n’est envoyé."
+    "montage": "Trois plans, une voix et une musique. Touche-le : le montage se remplit, rien n’est envoyé.",
+    "titles": {
+      "cast": "DJ",
+      "decor": "Le quai, la nuit",
+      "prise": "La coursière sur le quai",
+      "montage": "Le clip d’exemple"
+    }
   },
   "videoGeste": {
     "title": "Depuis la maquette",

@@ -6,6 +6,60 @@
 
 Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Languages: FR (source), EN, DE, ES.
 
+<p>
+<img src="docs/screenshots/readme-entree-1280.jpg" width="49%" alt="Entry, 1280 px">
+<img src="docs/screenshots/readme-cast-1280.jpg" width="49%" alt="CAST, 1280 px">
+</p>
+<p>
+<img src="docs/screenshots/readme-prise-1280.jpg" width="49%" alt="TAKE, 1280 px">
+<img src="docs/screenshots/readme-outils-1280.jpg" width="49%" alt="Comfy tools, 1280 px">
+</p>
+<p>
+<img src="docs/screenshots/readme-entree-390.jpg" width="32%" alt="Entry, 390 px">
+<img src="docs/screenshots/readme-cast-390.jpg" width="32%" alt="CAST, 390 px">
+<img src="docs/screenshots/readme-mes-creations-390.jpg" width="32%" alt="My creations, 390 px">
+</p>
+
+<sub>Real screenshots of the studio (production build, English, 1280 px and 390 px, 22 October 2026). No account linked, so no render is shown.</sub>
+
+## For the jury / Pour le jury
+
+**EN**
+
+1. Open <https://u-ttu-studio.vercel.app/studio> on a computer or a phone. **AA** (top right) switches the language: FR, EN, DE or ES.
+2. Everything that costs nothing works without an account: browse the tools, open an example (« Start from this example »), build a 3D previs in TAKE, edit in EDIT, export the project.
+3. **To render, link your own Comfy account.** Press **Credits**, then **Connect the render account**. Either sign in to Comfy Cloud inside the sheet, or choose **I have a key** and paste a Comfy Cloud API key (created at [platform.comfy.org/profile/api-keys](https://platform.comfy.org/profile/api-keys); a paid Comfy Cloud plan is needed). The key stays in your browser. The studio has no server-side key and no account of its own.
+4. Every paid button shows its quote first (« ≈ X cr. estimated », or measured when it has been measured). A confirmation is required, and the balance must cover the reserve. Suggested 5-run path: CAST « From a text » (≈ 4 cr.), SET « From a text » (≈ 4 cr.), TAKE with the default LTX engine (≈ 12–25 cr. estimated), then EDIT and Finalize.
+5. Nothing is ever cancelled on Comfy by the studio. If you stop waiting, the job keeps running on your Comfy account and lands in My creations.
+6. To run without Comfy Cloud: see « Run locally » below (`scripts/run-local.mjs` with your own ComfyUI, open weights).
+
+**FR**
+
+1. Ouvre <https://u-ttu-studio.vercel.app/studio> sur ordinateur ou téléphone. **AA** (en haut à droite) change la langue : FR, EN, DE ou ES.
+2. Tout ce qui ne coûte rien marche sans compte : parcourir les outils, ouvrir un exemple (« Partir de cet exemple »), composer une prévis 3D dans PRISE, monter dans MONTAGE, exporter le projet.
+3. **Pour rendre, relie ton propre compte Comfy.** Touche **Crédits**, puis **Relier le compte de rendu**. Connecte-toi à Comfy Cloud dans la feuille, ou choisis **J’ai une clé** et colle une clé API Comfy Cloud (créée sur [platform.comfy.org/profile/api-keys](https://platform.comfy.org/profile/api-keys) ; un abonnement Comfy Cloud payant est nécessaire). La clé reste dans ton navigateur. Le studio n’a ni clé côté serveur ni compte à lui.
+4. Chaque bouton payant montre d’abord son devis (« ≈ X cr. estimés », ou mesuré quand il l’a été). Une confirmation est demandée et le solde doit couvrir la réserve. Parcours conseillé en 5 rendus : CAST « Depuis un texte » (≈ 4 cr.), DÉCOR « Depuis un texte » (≈ 4 cr.), PRISE avec le moteur LTX par défaut (≈ 12–25 cr. estimés), puis MONTAGE et Finaliser.
+5. Le studio n’annule jamais un job chez Comfy. Si tu arrêtes d’attendre, le rendu continue sur ton compte et arrive dans Mes créations.
+6. Sans Comfy Cloud : voir « Lancer en local » plus bas (`scripts/run-local.mjs` avec ton propre ComfyUI, open weights).
+
+## What is measured, and what is not / Ce qui est mesuré, et ce qui ne l’est pas
+
+**EN** — The registry lists 79 gestures. **4 have a real measured run**: CAST and SET from a text (`image_flux3_klein_t2i`, about 4 credits), SET from a photo (`image_flux3_klein_image_edit`, about 4), and the MiniMax H3 take (`video_minimax_h3_r2v`, 4.3). Every other gesture is wired and tested against a simulated Comfy, and its quote is labelled « estimated ». **LTX is the default video engine in the code, but no LTX take has been rendered yet**: the first ones wait for credits.
+
+The example images in `public/exemples/` say how they were made:
+- The SET stills (quay, rainy street, rooftop, station) were rendered with **FLUX 3 Image Klein** (open weights) via Comfy Cloud.
+- Three CAST portraits and two sets were rendered with **Seedream 4.5** (partner) via Comfy Cloud.
+- The six « after » examples (`apres-*.webp`) were rendered on 8 October 2026, **before Klein became the default**, with **Nano Banana 2.1** and the `templates-character_sheet` template (Gemini, partner). They are kept as they are, with their measured cost in `public/exemples/A-GENERER.json`, and will be re-rendered with Klein.
+- `public/exemples/outils/plan-exemple.mp4` (3 s) is a sample clip to try the video tools, **not** a render from a video model.
+
+**FR** — Le registre compte 79 gestes. **4 ont un vrai rendu mesuré** : CAST et DÉCOR depuis un texte (`image_flux3_klein_t2i`, environ 4 crédits), DÉCOR depuis une photo (`image_flux3_klein_image_edit`, environ 4), et la prise MiniMax H3 (`video_minimax_h3_r2v`, 4,3). Les autres gestes sont branchés et testés contre un Comfy simulé ; leur devis est marqué « estimé ». **LTX est le moteur vidéo par défaut dans le code, mais aucune prise LTX n’a encore été rendue** : les premières attendent des crédits.
+
+Les images d’exemple de `public/exemples/` disent comment elles ont été faites :
+- Les décors (quai, rue sous la pluie, toit, gare) sont rendus en **FLUX 3 Image Klein** (open weights) via Comfy Cloud.
+- Trois portraits CAST et deux décors sont rendus en **Seedream 4.5** (partenaire) via Comfy Cloud.
+- Les six exemples « après » (`apres-*.webp`) datent du 8 octobre 2026, **avant que Klein devienne le défaut** : **Nano Banana 2.1** et le template `templates-character_sheet` (Gemini, partenaire). Ils restent tels quels, avec leur coût mesuré dans `public/exemples/A-GENERER.json`, et seront refaits en Klein.
+- `public/exemples/outils/plan-exemple.mp4` (3 s) est un clip pour essayer les outils vidéo, **pas** un rendu d’un modèle vidéo.
+
 ---
 
 ## English

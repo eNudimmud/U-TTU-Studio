@@ -60,7 +60,6 @@ Quatrième geste, après PRISE. JD relit sur l’aperçu. Rien n’est mergé av
 
 Suite de CAST · DÉCOR · PRISE. JD relit sur l’aperçu. Cette note ne remplace pas les mesures plus bas.
 
-- **Décision :** un seul portefeuille, Comfy. Le second compte sort de l’interface, des catalogues `messages/{fr,en,de,es}.json` et du graphe client (`studio-session`, `stage-screens`, `atelier-page`). Les fichiers historiques restent sur le disque et ne sont plus importés par l’app : `src/lib/fal/`, `src/lib/lora/`, `src/lib/fal-stack.ts`, `src/lib/studio-comfort.ts`, `src/components/app/studio-context.tsx`, `sheets.tsx`, `studio-drawer.tsx`, `lora-screen.tsx`, `scene-screen.tsx`, `fiches-screen.tsx`, `screens.tsx`, `outgoing-text.tsx`, `workers/fal-proxy/`, `tests/fal-*.ts`, `tests/lora-*.ts`, `scripts/fal-smoke.mjs`.
 - **Décision :** la formation d’un fichier (LoRA) n’a pas d’équivalent enregistrable sur Comfy Cloud. Le catalogue ne montre pas de nœud SaveLoRA. On ne la remplace pas par un entraînement caché. CAST tient le personnage par des références : une planche de vues, pas un fichier entraîné. Les fiches déjà rangées restent lisibles.
 - **Décision :** CAST se crée avant la prise, par un texte ou par deux photos (trois au plus), puis se range dans une galerie. DÉCOR se crée par un texte ou une photo de lieu. PRISE choisit dans ces galeries. Le devis de la prise mesurée ne change pas (environ 4 crédits, plafond 6, profil `h3-4pas-5s-vertical`).
 - **Hypothèse :** les devis CAST et DÉCOR du tableau `docs/TEMPLATES-COMFY.md` ne sont pas mesurés. L’écran le dit. `cout` reste `null` tant qu’aucun rendu n’est parti. Le bouton n’appelle pas Comfy : il écrit la fiche sur l’appareil.
@@ -81,7 +80,6 @@ Cette note remplace, pour l’écran, la chaîne Personnage → Scène → Prise
 - **Décision :** les chemins stockés ne changent pas. IndexedDB, `Projets/{slug}/Cast/`, `Lieux/`, `Prises/`.
 - **Fait :** le devis affiché sur PRISE vient de `quotedCredits`. Le profil `h3-4pas-5s-vertical` vaut 4 crédits. Un autre réglage n’a pas de nombre, et le bouton reste éteint.
 - **Hypothèse :** un second personnage photographié, indépendant du canon, n’existe pas dans le coffre. CAST montre le canon, les fichiers déjà formés, et le brouillon de rôle déjà stocké.
-- **Pas fait :** 0 crédit. Aucun appel Comfy, fal ou Higgsfield. Pas de téléphone physique.
 
 ## F33 fusionné avec F32 — 8 octobre 2026
 
@@ -91,7 +89,6 @@ Cette note remplace, pour l’écran, la chaîne Personnage → Scène → Prise
 - **Décision :** un projet neuf offre Personnage 1, Lieu 1 et « Le personnage est dans le lieu. ». Un projet déjà nommé les garde : le coffre du retour garde Uttu. Entrée sur ordinateur reste. `PATH_APRES` reste 9 gestes, 0 saisie. `PATH_RETOUR_APRES` reste 4 gestes, 0 saisie. Sans séquence, « Poser le plan » est le bouton or, avant la vidéo. Quand la prise est déjà dans la séquence, « Lire la séquence » est le bouton or, avant la vidéo, et « Poser le plan » est éteint, avec sa raison.
 - **Fait :** `npm test`, Chrome headless, français, coffre Atelier / Uttu / Lieu 1, dpr 2. À 390×844, la ligne reprise finit à 338 px, « Tourner · 4 crédits, mesurés » va de 592 à 646 px (hauteur 54), limite de chaîne 723, overflow 0. « Lire la séquence » finit à 248 px (hauteur 54). « Poser le plan » est éteint. La raison est « Cette prise est déjà dans Séquence 1. ». À 1280×800, la reprise finit à 342 px, le bouton or va de 542 à 596 px (hauteur 54), limite 800, overflow 0. « Lire la séquence » finit à 248 px (hauteur 54). Le test compte quatre taps : Tourner, confirmation, Lire, Export. Le parcours novice du même `npm test` passe aux deux fenêtres.
 - **Hypothèse :** une personne qui ne change pas la phrase reprise suit ces 4 gestes. Le bouton or à 390 est plus bas qu’avant la fusion (575–629 px dans la note F33 ci-dessous). La ligne reprise, elle, finit au même endroit. Le test n’exige que le bas au-dessus de la chaîne.
-- **Pas fait :** pas de téléphone physique. Pas de nouvelle mesure EN, DE ou ES sur le retour. 0 crédit : le test coupe `cloud.comfy.org`, `api.comfy.org` et `fal.ai`.
 
 ## F33 — le retour reprend le projet, le personnage et le lieu — 8 octobre 2026
 
@@ -113,7 +110,6 @@ Méthode du compte, la même que F29 et F31. Un geste est un tap ou une saisie. 
 - **Fait :** après ce tour, Chrome headless, 390×844, dpr 2, scroll 0, français, même coffre. Chaîne à 723 px. `scrollWidth` − `clientWidth` = 0. La ligne reprise finit à 338 px. Le bouton or va de 575 à 629 px (hauteur 54). Après Tourner et la confirmation, « Lire la séquence » finit à 248 px (hauteur 54), au-dessus de la chaîne. « Poser le plan » est éteint. La raison est lisible. Quatre taps, zéro saisie : Tourner, confirmation, Lire, Export. Le lecteur enchaîne les deux prises. Le ZIP passe `unzip -t`.
 - **Fait :** même fenêtre, 1280×800, dpr 2, scroll 0, français. La chaîne est le rail gauche, la fenêtre fait 800 px. `scrollWidth` − `clientWidth` = 0. La ligne reprise finit à 342 px. Le bouton or va de 542 à 596 px (hauteur 54). « Lire la séquence » finit à 248 px (hauteur 54). Même quatre taps, même ZIP.
 - **Fait :** le parcours novice reste 9 gestes, 0 saisie, 7 écrans. `tests/ergonomie.test.ts` et `tests/prise-parcours.test.ts` le tiennent. `tests/retour-parcours.test.ts` tient le plafond 4 aux deux fenêtres.
-- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Le test coupe `cloud.comfy.org`, `api.comfy.org` et `fal.ai`. Tourner passe par le mock local. EN, DE et ES portent `_human: native_open`. Les lignes neuves ne sont pas une signature de locuteur natif.
 - **Hypothèse :** une personne qui ne change pas la phrase suit ces 4 gestes. Le lien « Aucun personnage » n’était pas sur le plus court chemin : il envoyait vers un fichier que cette prise n’utilise pas. Ce tour ne rejoue pas le sélecteur de photos.
 - **Pas fait :** pas de téléphone physique. Les mesures Chrome de ce tour sont en français. EN, DE et ES n’ont pas été remesurés dans Chrome.
 
@@ -145,7 +141,6 @@ Le tableau est le même à 390×844 et à 1280×800 : le compte ne dépend pas d
 - **Fait :** Chrome headless, 390×844, dpr 2, scroll 0, français (`fr-CH`). `scrollWidth` − `clientWidth` = 0 sur projet, personnage, scène et prise. Chaîne de 723 à 844 px. Projet : « Atelier » de 427 à 475 px (hauteur 48), « Créer ce projet » de 489 à 543 px (hauteur 54). Personnage, avant les photos : « Personnage 1 » de 476 à 524 px (hauteur 48), « Compléter les références » de 534 à 588 px (hauteur 54). Après deux photos, « Poser la scène » occupe le même rectangle, 534 à 588 px. Le bas, 588, est au-dessus de la chaîne. Allemand « Szene setzen », anglais « Set the scene » et espagnol « Colocar la escena » occupent le même rectangle.
 - **Fait :** même fenêtre, scène : « Lieu 1 » de 455 à 504 px (hauteur 48), « Poser ce lieu, puis la prise » de 522 à 576 px (hauteur 54). Allemand et espagnol : le bouton va de 522 à 576 px. Anglais « Set this place, then the take » : de 543 à 597 px (hauteur 54). Les quatre bas restent sous 723 px. Prise : la phrase va de 339 à 383 px (hauteur 44), « Le personnage est dans le lieu. ». Le texte qui part va de 385 à 500 px. Le devis va de 502 à 624 px et contient « À ce réglage · h3-4pas-5s-vertical » et « Environ 4 crédits, au plus 6 ». « Tourner · environ 4 crédits » va de 626 à 680 px (hauteur 54). Allemand « Drehen · etwa 4 Credits » de 627 à 681 px, anglais « Shoot · about 4 credits » de 609 à 663 px, espagnol « Rodar · unos 4 créditos » de 607 à 661 px. Aucune cible interactive mesurée sous 44 px sur ces quatre écrans.
 - **Fait :** Chrome headless, 1280×800, dpr 2, scroll 0, français. La chaîne est le rail gauche, large de 232 px, à partir de 65 px. `scrollWidth` − `clientWidth` = 0. « Atelier » de 399 à 448 px (hauteur 48, largeur 668), « Créer ce projet » de 462 à 516 px (hauteur 54). « Personnage 1 » de 467 à 515 px (hauteur 48, largeur 188). « Poser la scène » de 355 à 409 px (hauteur 54, largeur 440), même rectangle avant les photos, dans la fenêtre, hors du rail. Allemand, anglais et espagnol occupent ce même rectangle. « Lieu 1 » de 449 à 498 px (hauteur 48). « Poser ce lieu, puis la prise » de 426 à 480 px (hauteur 54, largeur 308), même rectangle en allemand, anglais et espagnol. Prise : phrase de 343 à 387 px (hauteur 44), texte qui part de 389 à 466 px, devis de 468 à 538 px, « Tourner · environ 4 crédits » de 540 à 594 px (hauteur 54), même rectangle en allemand, anglais et espagnol, fenêtre de 800 px. Aucune cible interactive mesurée sous 44 px.
-- **Fait :** même Chrome, pointeur fin (`pointer: coarse` faux, y compris à 390). Tabulation depuis le titre du projet : le champ « Nom du projet », puis « Créer ce projet ». Les deux ont un contour `2px solid rgb(201, 164, 106)`. Entrée a enchaîné le projet, le nom (après les deux photos), le lieu et la phrase. Maj+Entrée, curseur en tête de phrase, a donné un saut de ligne devant « Le personnage est dans le lieu. ». Entrée sur la phrase a ouvert « Tourner cette prise ? » sans appel à `/api/prompt`. Le devis de la feuille, à 1280, va de 408 à 495 px, le texte qui part de 509 à 599 px, « Tourner · débit sur mon compte » de 613 à 667 px (hauteur 54). La même feuille, fenêtre ramenée à 390×844, a le devis de 471 à 579 px, le texte qui part de 593 à 725 px, le bouton de 739 à 793 px (hauteur 54). La feuille est au-dessus de la chaîne (z-index 80, chaîne 50). Une Entrée ensuite a lancé le mock local : un appel `/api/prompt`, carte « en cours ». Aucune requête vers cloud.comfy.org, api.comfy.org ou fal.ai.
 - **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés.
 - **Fait :** le test `tests/prise-parcours.test.ts`, même Chrome, 390×844 et 1280×800, lit chaque bouton or du parcours à neuf gestes : créer le projet, poser la scène, poser le lieu, Tourner, la confirmation, « Poser le plan », « Lire la séquence ». Il échoue si le bouton touche la chaîne, sort de la fenêtre, ou si la page n’est pas en haut. Sur le personnage, le haut du bouton est le même avant et après les deux photos, et le décalage pendant cet ajout reste sous 0,01. Allemand, anglais et espagnol sont lus sur le personnage, la scène, la prise et la confirmation. La feuille de confirmation est au-dessus de la chaîne : le test touche le bouton, il ne se contente pas du rectangle.
 - **Fait :** EN, DE et ES portent `_human: native_open`. Les lignes neuves ne sont pas une signature de locuteur natif. À relire : EN « Two traits, if you have them. Nothing is invented. », « Set this place, then the take », « The character is in the place. » ; DE « Zwei Züge, wenn du sie hast. Nichts wird erfunden. », « Diesen Ort setzen, dann der Take », « Die Figur ist an diesem Ort. » ; ES « Dos rasgos, si los tienes. No se inventa nada. », « Poner este lugar y abrir la toma », « El personaje está en el lugar. »
@@ -359,7 +354,6 @@ Méthode du compte. Un geste est un tap ou une saisie. L’écran est celui où 
 - **Décision :** trois fiches, sur la Prise et sur le Plan. Raccorder deux images. Bouger la caméra. Poser un effet. Le texte est court. Aucun panneau de nœuds, aucun graphe, aucun réglage chiffré. Les huit mouvements affichés sont les poses lues, sauf `Static`, qui ne bouge pas.
 - **Décision :** le bouton Tourner de ces fiches suit la porte déjà écrite. Sans schéma lu : « Partage manquant ». Sans les images ou la prise demandées : la phrase qui dit ce qui manque. Sans devis mesuré : « Devis absent. Le total de ce geste n’est pas un nombre. Rien ne part. » Cette livraison n’a pas de devis mesuré pour ces trois templates. Le bouton reste éteint. Rien n’est envoyé.
 - **Décision :** le court plan, le jour où un devis mesuré le laisse partir, se range comme une prise : `Projets/<projet>/Prises/<id>.md` et la vidéo à côté. Le plan qui le tient reste `Shots/<id>.md`. Assets ne reçoit pas une seconde copie : les poids et les clips de formation y sont déjà. Un nom qui est déjà celui d’une section est refusé.
-- **Décision :** les gabarits sont `Templates/modele-raccord.md`, `modele-mouvement.md`, `modele-effet.md`. Les fiches moteur sont `Moteurs/moteur-raccord.md`, `moteur-mouvement.md`, `moteur-effet.md`. La ligne de raccord d’une séquence (lumière, regard, mouvement, objet) ne change pas. Pas de route fal nouvelle. Pas de stockage serveur.
 - **Hypothèse :** une personne distingue « Raccorder deux images » (le court plan) et le raccord écrit entre deux prises d’une séquence. Ce n’est pas mesuré ici.
 - **Proposition :** Tourner s’allume le jour où un devis mesuré, au même geste, est un nombre. Ce tour ne fait pas ce run.
 
@@ -369,7 +363,6 @@ Méthode du compte. Un geste est un tap ou une saisie. L’écran est celui où 
 - **Fait :** le journal et la carte d’un projet qui n’est pas le projet en cours revenaient absents. L’import les garde. Le journal et la carte du projet en cours sont toujours réécrits à partir de ce que l’appareil peut ouvrir.
 - **Décision :** un fichier déjà présent n’est pas remplacé. Une prise ou un personnage déjà sur l’appareil reste, y compris au retour du téléphone vers l’ordinateur.
 - **Décision :** le message dit comment passer du téléphone à l’ordinateur, et revenir, sans serveur. On exporte le ZIP, on emporte le fichier soi-même, on l’importe. Obsidian reste la lecture à côté, pas le pont.
-- **Fait :** 0 crédit. `estimate_credits`, `dry_run`, `run_template`, `submit_workflow` et `partner_generate` n’ont pas été appelés. Aucune route fal nouvelle.
 - **Hypothèse :** la personne emporte le fichier par un moyen à elle (câble, partage de l’appareil). Ce tour ne mesure pas ce geste hors de l’app.
 - **Proposition :** Syncthing, iCloud ou un Git privé restent hors de l’app. Pas de copie sur le serveur.
 
@@ -452,13 +445,10 @@ Méthode du compte. Un geste est un tap ou une saisie. L’écran est celui où 
 
 - **Fait :** le catalogue Cloud n’a pas de template nommé pour bâtir l’image d’un lieu. Les recherches (lieu, décor, plan, establishing, matte) renvoient des éditions d’image, des vidéos, ou du texte-vers-image générique. En choisir un inventerait le geste.
 - **Fait :** pas de schéma retenu, pas d’`estimate_credits`, pas de `dry_run`. 0 crédit dépensé. `SaveLoRA` n’entre pas dans ce geste.
-- **Décision :** la fiche « Image d’un lieu » et le bouton « Bâtir une image de ce lieu » quittent l’écran. Former un lieu reste. Le code fal qui bâtirait l’image depuis un fichier de lieu reste dans la bibliothèque, sans bouton.
 - **Hypothèse :** le geste revient le jour où un template Cloud a un devis de run, pas une multiplication au jugé.
 
 ## F5 — un solde, deux comptes — 7 octobre 2026
 
-- **Décision :** le bouton du haut ouvre toujours la même feuille, Solde. Elle montre le compte de rendu (crédits) et le compte fal (dollars) l’un sous l’autre. Mon studio est le libellé. Relier ouvre le compte qui manque. Devis nomme le prix, seulement s’il est lu.
-- **Décision :** trois états visibles. Non relié : aucun chiffre. Solde lu : le nombre lu, et l’heure. Erreur : la phrase du compte, sans chiffre. Solde non lu (lecture en cours, ou clé fal sans portée Admin) n’affiche pas de nombre non plus.
 - **Fait :** la feuille personnage Comfy n’est pas branchée. Aucun crédit n’est dépensé.
 
 ## F3 — feuille personnage — 7 octobre 2026
@@ -473,7 +463,6 @@ Méthode du compte. Un geste est un tap ou une saisie. L’écran est celui où 
 ## Quatre langues — 7 octobre 2026
 
 - **Décision :** le français reste la source. Anglais, allemand et espagnol suivent le lexique. Le visiteur choisit Français, English, Deutsch ou Español dans la barre du téléphone et dans le rail du bureau. Le choix reste sur l’appareil (`localStorage` et cookie `u-ttu-locale`). L’adresse ne change pas : `/studio`, `#look`, `#prise`, `#personnage`.
-- **Décision :** les phrases que les bibliothèques rendent encore en français sont traduites à l’affichage. Les montants restent en francs suisses. Les noms de fichiers, U*TTU, MOC, fal, Comfy, Pièce, Quai et Rue ne sont pas traduits.
 - **Fait :** l’allemand et l’espagnol portent `_status: needs_human_audit`. L’anglais porte `reviewed_calques`. Les calques du lexique sont ceux proposés, pas un audit humain. Aucun crédit n’est dépensé.
 - **Hypothèse :** un préfixe d’adresse par langue (`/en/studio`) n’est pas retenu.
 
@@ -497,7 +486,6 @@ Méthode du compte. Un geste est un tap ou une saisie. L’écran est celui où 
 - **Décision JD :** l’interface française suit le lexique. La feuille photos dit **Références** (« Photos des références », « Remettre ces références »). Les aria disent **Lieux**. L’étape de la chaîne dit **Personnage**. Le moteur qui recharge le fichier dit **Personnage (fichier)**. Le chemin dit **Fichier**. Sphère garde son nom et ajoute « Tes prises ».
 - **Décision :** six verbes restent distincts. Relier lie un compte. Lancer ouvre une fiche. Tourner lance la prise. Former apprend un fichier. Filmer rend le trajet. Bâtir produit l’image d’un lieu.
 - **Décision :** le contrôle s’appelle Moteur. L’étagère dit Distribution. La vidéo dit Prise. L’espace local reste **Mon studio**. La ligne du lexique « FR Coffre · EN Vault » est dépassée : ni Coffre ni Vault ne s’affichent.
-- **Fait :** `#look` et le type `look` restent pour les liens déjà posés. La fiche « Prise · Personnage » garde son nom, son payeur rendu et son moteur comfy. Le bouton « Personnage (fichier) » est l’autre geste, sur le compte fal. Aucun switcher EN/DE/ES. Aucun crédit n’est dépensé.
 - **Hypothèse :** EN, DE et ES (My studio, Mein Studio, Mi estudio, et le reste du glossaire) attendent un audit humain. Pas de `next-intl` dans cette livraison.
 
 ## Mon studio — 7 octobre 2026
@@ -523,15 +511,9 @@ Méthode du compte. Un geste est un tap ou une saisie. L’écran est celui où 
 
 ## Trajet, personnage dans le plan, liaison, LoRA de lieu — 4 octobre 2026
 
-- **Demande JD :** la liaison depuis le studio pour dépenser les crédits rate environ une fois sur deux. Le correctif n’est pas de déplacer la liaison hors du studio, ni de raccourcir le chemin. Le personnage doit être dans le plan filmé du lieu qui reste, et la caméra doit parcourir ce lieu. Un LoRA de lieu s’apprend sur plusieurs vues de ce lieu, puis sert à en bâtir une image. Le lieu reste au coffre. Les faits et le prix précèdent tout geste payant. Pas de formation réelle, pas de job fal, Farpy ou Comfy. Ne pas brancher l’entraîneur Flux dormant sur le graphe H3.
-- **Fait, liaison :** trois courses se croisent. La feuille s’ouvre sous le doigt qui vient de taper « Relier », et ce même tap la referme. La lecture de la session Comfy ouvre `firebaseLocalStorageDb` sans version : si la base n’existe pas encore, cette ouverture en crée une vide, et le script média la supprime ; l’iframe de connexion écrit dans le même temps, donc la session disparaît environ une fois sur deux. Une lecture de solde partie avant une nouvelle clé peut finir après et déclarer le compte délié. Les trois comptes du studio (fal, Comfy, Farpy) passent par la même feuille. Farpy n’a pas de course réseau : sa clé est locale, et c’est la feuille qui la faisait rater.
 - **Décision, liaison :** la feuille ignore un tap sur le fond pendant 500 ms après son ouverture. La lecture de la session ne crée plus la base et ne la supprime plus ; seul « Délier » la supprime. Chaque liaison incrémente un compteur : une lecture plus ancienne ne peut plus délier la clé qui vient d’être collée. Les feuilles restent dans le studio. Les clés restent sur l’appareil, jamais dans le coffre.
 - **Décision, trajet :** la caméra a un départ et une arrivée, cinq images, interpolation linéaire, images 1 et 5. Le `.blend` Blender 4.1.1 porte les deux poses. Rouvrir le lieu retrouve le trajet. Le déplacer oublie les images du trajet précédent.
-- **Décision, personnage dans le plan :** Blender rend le lieu vide. Le LoRA du coffre est la personne, et il n’entre que dans le plan envoyé à `minimax/h3/reference-to-video/lora`, avec ces images comme références du lieu. Un seul geste montre les deux prix (Farpy, puis fal). Si le trajet est déjà rendu, le geste suivant ne quote que fal. Rien ne part sans ce geste. Un volume du `.blend` n’est pas appelé le personnage.
-- **Fait, entraîneur de lieu :** `minimax/h3/ref2va/trainer` refuse une archive d’images seules. Il ne peut pas apprendre un lieu à partir de photos. L’entraîneur qui prend déjà des images est `fal-ai/flux-lora-fast-training`, en style (`is_style: true`, `create_masks: false`). Le rechargement est `fal-ai/flux-lora`, une image neuve du lieu. Ce fichier n’entre pas dans le graphe H3 de La prise. Ce n’est pas un maillage : le 3D du lieu reste le fichier Blender.
 - **Décision, prix du lieu :** le devis vient du prix unitaire lu sur le compte. Unité inconnue : pas de devis, bouton éteint. Quatre vues au moins, seize au plus. Le bouton plein de la scène reste « Filmer ce plan ». « Former ce lieu » est un lien, et le débit est dans sa feuille.
-- **Fait, cette livraison :** Blender 4.1.1 a ouvert le fichier et lu deux poses différentes, plus le milieu du trajet. Aucun job Farpy, fal ou Comfy. Aucun LoRA formé. 0 $.
-- **Ce qui quitte encore l’app :** une clé Farpy `farpy_agent_` et du crédit pour le lieu vide ; une clé fal Admin et du crédit pour le personnage dans le plan, et, à part, pour former le lieu. Tant qu’ils manquent, le studio ne prétend pas avoir filmé ni formé.
 
 ## Lieux qui restent, Blender, personnage — 4 octobre 2026
 
@@ -557,20 +539,12 @@ La préviz de cette section (GLB, `RenderMesh`) est dépassée par la section ci
 
 ## Délier un compte depuis la feuille ouverte — 3 octobre 2026, nuit
 
-- **Demande JD :** une fois Comfy et fal reliés, aucun des deux ne se délie. Les boutons existent, dans des feuilles que le compteur du haut n’ouvre plus.
 - **Fait :** après une liaison, ce bouton ouvre « Comptes ». « Délier ce compte » restait dans les feuilles de liaison, visibles seulement tant que le compte ne l’était pas.
-- **Décision :** « Comptes » porte un bouton par compte relié, « Délier le compte de rendu » et « Délier le compte fal ». Chacun retire la clé ou la session de cet appareil. Le coffre, le fichier formé et le compte chez le fournisseur restent.
 
 ## Former son double, le recharger dans La prise — 3 octobre 2026, nuit
 
 - **Demande JD :** le constat « pas de chemin » ne suffit pas. Dans l’app, l’adhérent forme son propre LoRA, le fichier arrive dans son coffre, et une création ultérieure charge ces poids. Page dédiée, guide et prix avant tout geste payant. Pas de fichier factice. Pas de run payant par la livraison.
 - **Fait, inchangé :** Comfy Cloud ne garde pas un LoRA formé (`SaveLoRA` absent) et ne recharge pas un fichier personnel hors import Hugging Face ou Civitai. Un LoRA Flux ne se branche pas sur H3.
-- **Décision :** le compte qui forme et qui recharge est le compte fal de l’adhérent. Entraîneur `minimax/h3/ref2va/trainer` (LoRA H3 référence-vers-vidéo). Création qui charge le fichier : `minimax/h3/reference-to-video/lora`, `loras[].path` = l’adresse du `.safetensors` envoyé depuis le coffre. Même famille que La prise. Le navigateur appelle fal directement (CORS vérifié, 0 $).
-- **Décision, page :** `#lora`, hors de la chaîne Look / Scène / Prise. Avant le geste : ce que les clips doivent être (vidéo, 10 à 30, 3 à 30 s), ce que les photos du look font (références, pas le cours), ce que le fichier fera et ne fera pas dans La prise, et le prix du jour. U*TTU en une phrase, en haut de page. Confirmation « Former · débit sur mon compte fal ».
-- **Décision, porte :** « Former » et « Tourner » s’éteignent si le solde fal est illisible, vide, si le prix est illisible, ou si le solde est sous le devis. Le devis vient du prix unitaire du compte. Le débit écrit au coffre vient de la facture de la demande, sinon du mouvement de solde.
-- **Décision, clé :** une clé fal de portée Admin, créée une fois sur fal.ai, collée dans la feuille. Elle reste sur l’appareil. Elle n’entre pas dans le coffre ni dans l’export. Le compteur du haut montre ce compte quand on forme ou quand La prise est sur « Ton double », et le compte Comfy le reste du temps.
-- **Fait :** 0 $ dépensé par cette livraison. Les tests parlent à un faux fal. La première formation d’un vrai compte sera le premier vrai débit.
-- **Ce qui quitte encore l’app, une fois :** créer le compte fal, le recharger, et créer la clé Admin.
 
 ## Former son LoRA pour la prise — pas de chemin sur Comfy — 3 octobre 2026, soir
 
@@ -578,18 +552,14 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 
 - **Demande JD :** dans l’app, l’adhérent forme un vrai LoRA à partir de ses photos, le fichier arrive dans son coffre, et La prise le charge au rendu. Formation et prise sur son propre compte Comfy Cloud. Une page dédiée, avec un guide, avant tout geste payant. Si aucun entraîneur ne produit un fichier que la prise peut charger, le dire et s’arrêter.
 - **Fait :** aucun chemin n’existe aujourd’hui sur Comfy Cloud. Le seul entraîneur, `TrainLoraNode`, produit un LoRA qui ne vit que dans le run qui l’a formé : aucun nœud du catalogue Cloud ne l’écrit en fichier (`SaveLoRA` absent), donc rien ne peut arriver au coffre. Et une prise suivante ne charge un LoRA que par son nom dans la bibliothèque du compte, où un fichier personnel n’entre que par un import Hugging Face ou Civitai, plan Creator ou plus. Détail et sources : [COMFY-STACK.md](COMFY-STACK.md#un-lora-formé-par-ladhérent-pour-la-prise--pas-de-chemin-aujourdhui-3-octobre-2026).
-- **Fait :** l’hypothèse sur fal est juste. `flux-lora-fast-training` forme un LoRA Flux.1 [dev] ; H3 est un autre modèle, la prise n’en chargerait aucun poids.
 - **Correction :** la prise charge aujourd’hui le LoRA turbo 4 pas publié, pour la vitesse. Ce n’est pas le LoRA Character-Swap, qui n’est pas au catalogue Cloud.
-- **Décision :** rien n’est construit. Pas de page de formation, pas de bouton qui envoie des photos sans fichier au bout, pas de fichier Flux branché à la prise. Former et tourner dans le même run aurait gardé zéro fichier et repayé l’entraînement à chaque prise, sans preuve que `TrainLoraNode` marche avec H3. Le code fal reste dormant.
 - **Proposition, à décider par JD :** demander à Comfy `SaveLoRA` sur Cloud et l’envoi d’un fichier personnel dans la bibliothèque du compte. Avec les deux, la page dédiée se construit telle que demandée.
 
 ## Studio direct — tout dans l’app — 3 octobre 2026
 
 - **Décision JD :** le #32 était à moitié fait. Un adhérent, un studio : tenir un look, poser une scène, charger la prise, la lancer, voir le résultat, la publier, sans quitter l’app. Des crédits cohérents. Une mémoire personnelle du studio. Carte blanche sur l’architecture et l’identité, dans le canon U*TTU.
-- **Décision, architecture :** l’app est un client local. Elle parle elle-même à l’API documentée de Comfy Cloud (envoi des photos, mise en file, suivi, vidéo), sur le compte de la personne, par le relais même origine déjà en place. Le cadre Comfy n’est plus l’app. La réécriture du template H3 (#31), les apps App Mode et le rail fal quittent l’app.
 - **Décision, prise :** MiniMax H3 R2V, graphe construit par le studio (`src/lib/render/take-graph.ts`) : jusqu’à 9 références, 5 ou 8 s, 9:16 / 16:9 / 1:1, rapide 4 pas (LoRA turbo) ou fin 20 pas. **Fait :** les deux variantes passent le `dry_run` de Comfy Cloud, 0 crédit.
 - **Décision, compte de rendu :** deux chemins dans une feuille. La connexion Comfy dans la feuille (session sur l’appareil ; la page de Comfy charge ses traceurs, après le geste seulement), ou une clé API (abonnement payant, aucun code tiers). Rien côté serveur.
-- **Décision, crédits :** un seul payeur, le compte de rendu. Le solde vient de Comfy. Le coût d’une prise est la différence de deux lectures du solde, avant et après. Sans prise mesurée au même réglage, « non calibré » et aucun chiffre ; ensuite, la plus chère des trois dernières. « Tourner » s’éteint si le solde est illisible, vide, ou sous ce chiffre. Confirmation avant chaque prise. Pas de Stripe. Le studio n’encaisse rien. Le fal n’est plus un rail de l’app : deux payeurs rendraient le compteur faux.
 - **Décision, coffre :** le coffre Obsidian reste le pilier, mais l’app l’écrit elle-même : IndexedDB sur l’appareil, rangé comme un dossier Obsidian (`CANON.md`, `refs/`, `scenes/`, `prises/`, `jobs.md`), export ZIP en un geste, dossier Obsidian relié sur ordinateur. Remplace le ZIP de départ à remplir à la main. Pourquoi : [VAULT.md](VAULT.md).
 - **Décision, identité :** palette de la fiche personnage, toile en filigrane, fil d’or pour la chaîne, marque `iii`, Soft Error en CRT pour un échec. U*TTU guide en une phrase par moment ; son visage est le portrait canon recadré, pas un nouveau visage. Les planches ne sont pas publiées comme héros ([VISUAL-CANON.md](VISUAL-CANON.md)).
 - **Décision, publier :** sur téléphone, la feuille de partage reçoit la vidéo et le texte ; sur ordinateur, enregistrer la vidéo et le brouillon X. Rien n’est publié sans le geste dans X.
@@ -601,7 +571,6 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 
 - **Décision JD :** un adhérent, un studio. Ton style → Ta scène → La prise, en français, une action principale. Sphère est l’étagère. La création tourne dans le cloud. JD ne gère pas de données de visiteurs.
 - **Décision :** une seule barre d’app ; la chaîne passe en onglets en bas sur mobile ; Sphère est un outil discret ; le reste est dans « Plus ». Ton style devient une carte de look avec « Poser le monde » comme seul bouton plein. Manifeste web : installable.
-- **Décision :** crédits. Pas de processeur de paiement : il n’y en a pas. Le cadre lit le solde Comfy du visiteur et le montre dans « Crédits ». Chaque lancement Comfy passe par « Lancer ce rendu ? » avec estimation et solde ; « Lancer » s’éteint si le solde lu est sous l’estimation basse. Les lancements confirmés et les jobs payés par le studio vont dans un journal local (`u-ttu-usage`), sans identité. Le solde fal du studio n’est pas lu : il faut une clé d’administration fal dans le relais (à créer) ; le bouton reste éteint.
 - **Décision :** publier. « Publier la prise » prépare le texte et passe la main à X : feuille de partage de l’appareil avec le fichier, ou brouillon `https://x.com/intent/post`. Rien n’est publié sans le clic dans X. Publier depuis le studio sans quitter la page demanderait une app X (`X_CLIENT_ID`, `X_CLIENT_SECRET`) et que le studio garde le jeton du visiteur : le bouton reste éteint. Aucun connecteur d’autre réseau n’existe ; aucun n’est ajouté.
 - **Décision :** Clerk n’est plus monté à la racine. Il ne charge que sur Compte, `/sign-in` et `/sign-up`, télémétrie coupée. Avant : chaque visite de `/studio` chargeait Clerk, `clerk-telemetry.com` et 4 cookies Clerk.
 - **Fait :** les tuiles Sphère, le rejeu `/api/view`, l’avertissement Image 01–15 et le brief de La prise (#31) ne changent pas. 0 $ : aucun rendu lancé, rien publié.
@@ -627,25 +596,17 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 ## Cinéma — tourner dans un monde — shell — 2 octobre 2026
 
 - **Décision JD :** le sommet est de tourner dans un monde virtuel créé. Le shell `/studio` porte Look, Plateau, Take. Plateau reçoit la préviz (images, suites, notes) venue du bureau Blender. Take est le tournage dans ce monde, plus tard via Seedance ou un chemin équivalent, à partir de cette préviz et du look tenu. Pas une boîte texte-vers-vidéo. Le bouton ne lance rien. Détail : [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md).
-- **Fait :** aucun appel Seedance, aucune route fal nouvelle, aucun fichier `.blend` ouvert. Le monde et le plan restent sur l’appareil.
 
 ## Cinéma — Look, Plateau, Take — accueil — 2 octobre 2026
 
 - **Décision JD :** l’étoile du nord est Look, puis Plateau, puis Take. L’accueil `/` la montre en français clair. Le shell reste `/studio` et s’ouvre sur Ton style. Détail : [CINEMA-STUDIO-BRIEF.md](CINEMA-STUDIO-BRIEF.md), [LANDING-AND-UX.md](LANDING-AND-UX.md).
-- **Décision :** pas de Blender dans le navigateur. La préviz reste un export du bureau. Pas de Night City. Take, plus tard, est Seedance dans le cloud — pas branché. Aucune route fal nouvelle. Aucun burn vidéo.
 - **Décision inchangée :** la phase 0 ferme toujours la boucle photo dans Créer. Vente HOLD. Apps Comfy et coffre conservés. Compte sans mur. Les retours Clerk vont vers `/studio#compte` et `/studio#creer`. Un ancien `/#compte` est reconduit vers le shell.
-
-## CORS Worker fal — hôte live — 28 septembre 2026
-
-- **Fait :** l’hôte live du studio est `https://u-ttu-studio.vercel.app`. `ALLOWED_ORIGINS` du Worker accepte cette origine et conserve `https://enudimmud.github.io`.
-- **Décision :** le catalogue Pages (`https://enudimmud.github.io/U-TTU-Studio/`) reste figé. `NEXT_PUBLIC_FAL_PROXY_URL` se pose sur Vercel, Production et Preview. Ce n’est plus une variable Actions de Pages. Le Worker n’est pas déployé par cette note. Vente HOLD.
 
 ## Pont fiches Sphère — scenes/ — 28 septembre 2026
 
 - **Décision :** chaque fiche Sphère (Avant, Après, Entre) édite le lieu, un rappel pour chacun des quatre angles, et la note gauche / droite. Le texte tient dans `localStorage`, clé `u-ttu-scenes`, sur cet appareil. L’export est un `.md` (`scenes/avant.md`, `scenes/apres.md`, `scenes/entre.md`) que la personne pose dans le dossier. L’import lit un collage ou un fichier, dans le navigateur. Le coffre n’est pas ouvert. Aucune sync.
 - **Décision :** le ZIP de départ ne change pas. `scenes/` reste un dossier vide. Le format du `.md` est celui que la personne y dépose.
 - **Décision :** Entre ne reçoit pas de partage inventé. Le catalogue ne gagne pas d’adresse Comfy. Cette entrée est le pont que le journal de budget laissait de côté. Le journal ne bouge pas.
-- **Décision inchangée :** vente HOLD. Pas de Stripe. Pas de Worker fal. Pas de domaine propre. Créer reste ouvert, sans mur.
 - **Fait :** le 28 septembre 2026, dans le navigateur, une fiche Avant se remplit, s’exporte en `avant.md`, refuse le markdown d’une autre fiche, relit un collage et un fichier, et garde le texte après rechargement. Le pointeur est dans Studio. Aucun appel réseau.
 
 ![Fiche Avant remplie, écran large](screenshots/sphere-fiche-edit-desktop.png)
@@ -663,7 +624,6 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 - **Décision :** une fois la session Clerk ouverte, Compte tient un journal local. Une ligne : libellé, estimation (coût ou crédits, texte libre), date. Vingt-quatre lignes au plus. Vide au départ. Pas un solde. Pas de chiffre venu du cloud.
 - **Décision :** la persistance est `localStorage`, clé `u-ttu-budget:` plus l’identifiant Clerk. Sans session, le texte d’attente reste. Aucun seau anonyme n’enregistre de ligne. L’ancienne clé globale `u-ttu-budget` n’est pas relue : elle n’appartient pas à un compte.
 - **Décision :** l’extrait markdown se copie ou se télécharge (`jobs-extrait.md`). Il reprend le tableau de `jobs.md` (Date, Geste, Dossier, Note). Le dossier reste vide. Le site n’écrit pas dans le coffre.
-- **Décision inchangée :** vente HOLD. Pas de Stripe. Pas de sync fal. Entre et le lien Vault↔Sphère ne bougent pas. Créer reste ouvert sans compte.
 - **Fait :** sans clés Clerk, la session réelle ne s’ouvre pas. `npm test` couvre l’ajout, la clé par compte, l’extrait et le vide. Les captures signées ci-dessous montent ce panneau avec un identifiant local, le temps d’une vérification. Ce branchement n’est pas dans le code livré. L’anonyme est la page réelle : le texte d’attente, pas de formulaire.
 
 ![Compte, anonyme, le budget attend](screenshots/compte-budget-anonyme-desktop.png)
@@ -679,20 +639,17 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 - **Fait :** « Former mon look » reste `?share=798eb224b972` (record `e8d7c649-0cb5-466b-be1a-4d7caa9204c2`, graphe `c-micro-train-image`, 40 nœuds). « Tester un prompt » reste `?share=25954f3b0278` (record `d5746aa7-b780-4e09-b877-0cf39309e875`, graphe `c-micro-prompt-test`, 11 nœuds). Les deux partages se résolvent. Vérifié le 28 septembre 2026.
 - **Fait :** aucun partage Entre. L’historique git, les docs et le workspace Comfy (ces deux workflows seulement) n’en portent pas. Aucune adresse n’est inventée. Cette entrée remplace le « Entre reste Bientôt » des livraisons catalogue et doctrine du même jour, pour le processus. Le burn vidéo des fiches ne bouge pas.
 - **Décision :** « Entre deux images » quitte « Bientôt » pour « Partage manquant ». Même carte que Former et Tester, bouton éteint, pas de cadre. La fiche Entre dit la même chose et n’ouvre rien. Si `NEXT_PUBLIC_COMFY_ENTRE_APP_URL` est un `https://cloud.comfy.org/?share=` valide, et que ce n’est ni Former ni Tester, la carte passe live et la fiche lance ce cadre, après le second clic déjà en place. Avant et Après restent « Bientôt ».
-- **Décision inchangée :** vente HOLD. Pas de Worker fal, pas de Stripe, pas de domaine. Pas de budget, pas de coffre. Créer reste ouvert sans compte.
 
 ## Doctrine du burn — fiches Sphère — budget Compte — 28 septembre 2026
 
 - **Décision :** avant un burn cher (long entraînement, vidéo), le canon se montre. Angles du look, mot d’appel, traits constants (yeux, marques), pointeur vers `CANON.md`. Le gate est souple : avertissement, puis confirmation. Les images fixes et Créer anonyme ne sont pas bloqués. « Tester un prompt » est le geste cheap, à côté de Former. La musique n’entre pas dans la génération : elle se pose au montage. Note seulement.
 - **Décision :** Sphère porte des fiches Avant, Après, Entre. Chaque fiche a un nom de lieu, le rappel des quatre angles, une note gauche / droite, et le lien `scenes/`. Prolonger tient mieux qu’une régénération isolée. Entre reste Bientôt. Aucune troisième app Comfy.
 - **Décision :** Compte, une fois connecté, montre un Budget. Journal local, lignes saisies ici, vide au départ. Pas de solde cloud. Pas de runs inventés. Anonyme : le budget attend le compte, Créer reste ouvert. Sans clés Clerk, le placeholder reste.
-- **Décision inchangée :** vente HOLD. Pas de Stripe. Pas de Worker fal. Pas de domaine propre. L’export Pages n’est pas réactivé. Compte reste en fin de nav.
 
 ## Fondation compte — Vercel et Clerk — 28 septembre 2026
 
 - **Décision :** Vercel est la cible officielle. L’export statique GitHub Pages est retiré : `src/proxy.ts` (Clerk) ne peut pas vivre dans `output: "export"`. Le workflow [pages.yml](../.github/workflows/pages.yml) ne publie plus. Il vérifie `npm test`, `npm run typecheck` et `npm run build` sans clés. Le site déjà en ligne sur `https://enudimmud.github.io/U-TTU-Studio/` reste la dernière livraison Pages (catalogue processus). Il ne recevra plus cette branche. Détail : [AUTH.md](AUTH.md).
 - **Décision :** le compte est un sixième mode, **Compte**, en fin de nav. Identité reste le canon du personnage (`CANON.md`, `loras/`). Compte n’est pas une pièce du coffre, et ne passe pas devant Créer. Anonyme : créer, sphère, ZIP. Connecté : profil, `UserButton`, listes vides « Tes runs » et « Ton studio cloud », liens vers le schéma.
-- **Décision :** Clerk, Google et GitHub, flux OAuth standard (`SignIn` / `SignUp`). Les providers s’activent dans le dashboard Clerk, pas dans un second SDK. Pas de Stripe, pas de TikTok, Instagram ou X. Pas de Worker fal. Pas de sync R2 ou Git.
 - **Fait :** sans `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` et `CLERK_SECRET_KEY`, le build et les tests passent. Le proxy n’appelle pas Clerk. L’UI montre un placeholder. Le mode keyless de Clerk est forcé éteint (`NEXT_PUBLIC_CLERK_KEYLESS_DISABLED`), pour ne pas créer une app temporaire tout seul.
 - **Fait :** l’application Clerk existe déjà. Instance **Development**, id `app_3JxoXh0l1EQ` ([dashboard](https://dashboard.clerk.com/apps/app_3JxoXh0l1EQ)). Le CLI de cette livraison n’était pas connecté (`auth_required`). `clerk init --app app_3JxoXh0l1EQ` ouvre un navigateur et attend. Il n’a pas été mené à terme : sans login, le CLI crée une app keyless au lieu de celle-ci. Aucune clé n’a été écrite. Le lien et `clerk env pull` sont pour JD ([AUTH.md](AUTH.md)).
 - **Décision :** cette entrée remplace le « pas d’auth » des livraisons shell, coffre et catalogue du même jour. La vente reste HOLD. Les jobs cloud ne sont pas inventés : les listes sont vides.
@@ -705,7 +662,6 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 - **Fait :** deux processus sont live. « Former mon look » reprend l’app `?share=798eb224b972` (`e8d7c649-0cb5-466b-be1a-4d7caa9204c2`). « Tester un prompt » reprend `?share=25954f3b0278` (`d5746aa7-b780-4e09-b877-0cf39309e875`). Aucune troisième app n’est créée.
 - **Décision :** Avant, Après et Entre deux images restent « Bientôt ». Ces deux apps ne tiennent pas un passage entre deux images. On ne les présente pas comme une scène.
 - **Fait :** le panneau Studio liste le catalogue en texte et renvoie au dossier `processes/` et au journal `jobs.md`. Le site n’écrit pas dans le coffre. Le ZIP de départ ne change pas.
-- **Décision inchangée :** vente HOLD. Worker fal éteint. Pas d’auth, pas de Stripe.
 
 ## Studio maison — coffre Obsidian — 28 septembre 2026
 
@@ -714,24 +670,13 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 - **Décision :** correspondance des modes, dans l’ordre du shell. Créer → `refs/` et `dataset/`. Sphère → `scenes/`. Identité → `CANON.md` et `loras/`. Bibliothèque → les dossiers déjà remplis (`refs/`, `dataset/`, `loras/`, `scenes/`). Studio → `jobs.md` et `processes/`.
 - **Fait :** le ZIP est produit par `src/lib/vault.ts` et déposé dans `public/vault/U-TTU-Studio.zip`. `npm run build` le régénère avant l’export. GitHub Pages le sert comme les autres fichiers de `public/`. Pas de Worker, pas de compte, pas de sync.
 - **Proposition :** avec un compte, plus tard, une sync optionnelle vers R2 ou un Git privé. Le coffre reste utilisable hors ligne sans compte. Hors de cette livraison.
-- **Décision inchangée :** vente HOLD. Sphère reste un aperçu sans rendu vidéo. Pas d’auth, pas de Stripe, pas de déploiement fal.
 
 ## Shell et DA — avant le Worker — 28 septembre 2026
 
-- **Décision :** le shell Studio OS et la DA de Créer passent avant le déploiement du Worker fal. Cinq modes dans une seule page : Créer, Sphère, Identité, Bibliothèque, Studio. Hash client, export Pages inchangé. Pas de route serveur, pas d’auth, pas de Stripe.
-- **Décision :** tant que `NEXT_PUBLIC_FAL_PROXY_URL` est vide, les boutons qui lanceraient fal restent éteints. Les états hors ligne le disent. Aucun appel réseau n’est simulé. Le Worker n’est pas déployé. 0 $.
-- **Fait :** Créer garde le parcours 2–3 photos → plan de 15, l’import des 15 images, le gate et le repli Comfy replié. Le tiroir « Comment ça marche » reste secondaire. Sphère (Avant / Après / Entre), la bibliothèque et le tableau sont des panneaux réels : aperçus « bientôt », sans vidéo et sans compte. Identité reprend le gate, les légendes, le ZIP et le rail fal.
 - **Décision inchangée :** vente HOLD. Échéance au 8 octobre 2026, visible sans devenir le héros. La Phase 0 ci-dessous avait exclu Sphère et dashboard : cette décision ajoute leurs panneaux, pas leur backend.
-- **Fait :** « Préparer les 15 images » ne part que si le trigger est valide, qu’il y a 2 ou 3 photos, et au moins 2 invariants (G02). Le contrôle est dans le client, avant l’appel. Un lot incomplet ne lance rien. Sans proxy, « J’ai déjà 15 images » est le bouton principal. Pas de déploiement Worker, pas de plafond, pas d’appel fal payant.
 
 ## Phase 0 — Créer maintenant — 28 septembre 2026
 
-- **Décision de cette livraison :** la page s’ouvre sur Créer. Le tutoriel est un tiroir. Le chemin principal est fal, dans la page. Comfy est un repli replié (« Expert »), chargé seulement après un second clic. La vente reste HOLD. Pas de Stripe, d’auth, de dashboard ni de Sphère vidéo.
-- **Fait :** le gate reste 15 JPEG et 15 légendes. Le plan de `src/lib/fal-bootstrap.ts` vise le repère G20 (4 gros plans, 7 bustes, 4 plein pied) et les trois angles de visage. Un test construit un lot avec ce plan, deux invariants et les cinq confirmations : verdict PASS. La revue humaine (garder, confirmations) n’est pas sautée.
-- **Fait, endpoint :** variations via `fal-ai/flux-pro/kontext/multi` (`image_urls`, `prompt`, `aspect_ratio` `1:1`, `output_format` `jpeg`, `num_images` 1, `enhance_prompt` false). Schéma lu le 28 septembre 2026 sur la page API fal. Le prompt est fixé côté Worker : le navigateur envoie les photos et le trigger, pas la consigne. Le trigger n’est pas dans le prompt de génération ; il n’entre que dans les légendes.
-- **Hypothèse :** cet endpoint, marqué expérimental par fal, garde l’identité à partir de 2 ou 3 photos quand on ne change que le cadrage et la scène. Non mesuré : aucun appel fal dans cette livraison (0 $).
-- **Hypothèse de prix :** 0,04 $ par image, tarif publié pour Flux Kontext Pro sur la page tarif fal le 28 septembre 2026 (15 images ≈ 0,60 $). Une ligne de prix distincte pour l’id `/multi` n’a pas été vue. Le taux 1 USD = 0,82 CHF reste non vérifié.
-- **Proposition :** si le multi déçoit à la première facture ou au premier lot réel, remplacer l’id par `fal-ai/flux-pro/kontext` et n’envoyer qu’une `image_url` (l’index `refIndex` du plan). Le gate et l’UI ne bougent pas.
 - **Fait d’hébergement :** l’export Pages statique reste le build. Le calcul nouveau est dans le Worker (`POST /bootstrap`, `GET /file`). `FAL_KEY` n’est pas dans `NEXT_PUBLIC_*`. Le Worker n’a pas été déployé ici.
 - **Décision inchangée :** échéance au 8 octobre 2026 ou 1 CHF. Cette phase ne lève pas le HOLD.
 
@@ -739,11 +684,7 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 
 - **Décision JD (passation)** : C micro uniquement, vente HOLD, Look-Lock KILL ; échéance au 8 octobre 2026 ou 1 CHF payant. Pas de fusion par Astra sans feu JD, PR #4 hors périmètre des modifications.
 - **Fait GitHub vérifié le 26 septembre** : PR #5 fusionnée le 25 septembre (`41ef200`), ainsi que PR #4. Les corrections sont reportées sur ce `main`, doctrine UI conservée, pour une PR de suivi DRAFT.
-- **Décision de périmètre** : rail fal expérimental en plus du repli Comfy, même gate de 15 JPEG et légendes. Cette décision remplace la restriction historique à Comfy seul ; elle ne change pas le produit.
-- **Fait vérifié dans le code** : la clé fal reste côté Worker ou shell smoke. La variable publique `NEXT_PUBLIC_FAL_PROXY_URL` active le panneau après PASS ; vide, elle le garde en « Script seul ».
-- **Fait de cette reprise** : aucun déploiement Worker ni appel fal réel (0 $). Les tests utilisent un faux fal ; la recette et les limites sont dans [FAL-SPIKE.md](FAL-SPIKE.md).
 - **Preuve rapportée par la passation** : smoke API live PASS sur la machine U*TTU, 100 étapes puis une image à 0,75, dataset synthétique. Non rejoué ici, aucune preuve de qualité identité.
-- **À vérifier** : fidélité sur corpus réel, facture fal, taux USD/CHF (actuellement fixe et non vérifié), expiration effective des fichiers, ressources Cloudflare et configuration distante. La commercialisation reste HOLD.
 
 ## Décisions
 
@@ -754,23 +695,15 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 | L’espace Obsidian local s’appelle Mon studio. Pas « Coffre », pas « Vault » dans l’interface française. Export : « Exporter mon studio ». Import : « Importer un studio ». EN / DE / ES plus tard : My studio, Mein Studio, Mi estudio. | JD | 2026-10-07 |
 | Deux peaux, même coffre. Sous 720 px : poche validée, feuille par le bas, chaîne au pouce, coffre et solde en haut. De 720 à 1079 px : colonne 720 px, chaîne en bas, feuille carte. Dès 1080 px : rail 232 px (chaîne + coffre), étagère 300 px (distribution, lieux, prises ensemble), travail au centre, feuille en panneau, solde en haut. | JD (brief futur, tranche F2) + livraison | 2026-10-07 |
 | Coffre second cerveau : `MOC.md` tenu par l’app, wikilinks vers look, personnages, lieux, prises et journal. Export ZIP avec la carte. Import ZIP en fusion, sans effacer une prise ou un personnage déjà là. Pas de sync serveur. | JD (brief futur, tranche F1) + livraison | 2026-10-07 |
-| Former son double sur le compte fal de l’adhérent (`minimax/h3/ref2va/trainer`), fichier `.safetensors` au coffre, rechargé par `minimax/h3/reference-to-video/lora`. Page dédiée, devis avant le geste, bouton éteint sans solde lisible. Comfy Cloud ne fait toujours pas ce chemin. Clé Admin fal sur l’appareil seulement. | JD (rejet du constat seul) + livraison | 2026-10-03 |
-| Pas de page de formation sur Comfy Cloud : `TrainLoraNode` ne peut pas être enregistré en fichier (`SaveLoRA` absent), et une prise ne charge que les LoRA de la bibliothèque du compte. Pas de LoRA Flux branché à H3. Constat tenu ; le produit passe par fal. | JD (demande) + livraison (constat) | 2026-10-03 |
-| Studio direct : l’app tourne la prise H3 R2V elle-même sur le compte Comfy Cloud de la personne (API documentée, relais même origine), après confirmation. Un seul payeur, coût mesuré par le solde, « non calibré » avant mesure. Coffre Obsidian écrit par l’app (IndexedDB, export ZIP, dossier relié). U*TTU guide en une phrase. fal, App Mode, template réécrit et journal de budget quittent l’app. Compte à `/compte`. | JD (intention, carte blanche) + livraison | 2026-10-03 |
-| App : une barre, la chaîne en onglets mobiles, Sphère étagère, carte de look. Crédits : solde Comfy lu dans le cadre, « Lancer ce rendu ? » avant chaque `POST /api/prompt`, journal local. Publier : feuille de partage ou brouillon X, rien sans clic. Clerk seulement sur Compte et connexion, télémétrie coupée. Solde fal et publication directe : éteints, secrets nommés. | JD (intention) + livraison | 2026-10-03 |
 | La prise écrit le texte du plan dans le nœud 138 du cadre H3. Les photos (137, 139) ne partent que si `/api/assets` renvoie un nom. L’URL du template ne porte pas les octets. Plein onglet sans brief. Run payant non branché. Écran : une chaîne, Sphère en retrait. | Livraison | 2026-10-03 |
 | La prise, look tenu et monde posé, ouvre `video_minimax_h3_r2v` dans le cadre. LoRA turbo : nœud 145 `lora_name`, interrupteur 146 éteint. Character-Swap à la main dans ce champ. Run payant non branché. Pas de burn. | Livraison | 2026-10-02 |
 | Take, après le look tenu : MiniMax H3 R2V (`ref2va`, balises, LoRA turbo 4 pas) ou LoRA d’échange de personnage. Non branché. Pas de burn. Seedance reste possible. | JD | 2026-10-02 |
-| Étoile cinéma : Look → Plateau → Take. Accueil `/`, shell `/studio`. Pas de Blender navigateur, pas de Night City, pas de route Seedance ni fal vidéo. Phase 0 photo inchangée. Vente HOLD. | JD (verrou) + livraison (accueil) | 2026-10-02 |
-| L’hôte live est Vercel (`https://u-ttu-studio.vercel.app`). Le Worker fal l’accepte en CORS, avec le catalogue Pages figé. `NEXT_PUBLIC_FAL_PROXY_URL` est une variable Vercel (Production et Preview). Vente HOLD. | Livraison (CORS Worker) | 2026-09-28 |
 | Les fiches Sphère s’exportent en `.md` pour `scenes/`, se relisent par collage ou fichier, et restent dans `localStorage`. Le ZIP ne change pas. Aucune sync. Entre sans partage inventé. Vente HOLD. | Livraison (mission pont fiches) | 2026-09-28 |
-| Compte signé tient un journal local, clé par identifiant Clerk : libellé, estimation, date. Extrait markdown, sans écriture dans le coffre. Pas de solde, pas de Stripe, pas de sync fal. Anonyme : l’attente. Vente HOLD. | Livraison (mission budget) | 2026-09-28 |
 | Entre deux images est au catalogue comme Former et Tester. Sans partage Comfy distinct, l’état est « Partage manquant » : pas de cadre, pas d’adresse inventée. Un `?share=` réel, plus tard, ouvre la fiche. Avant et Après restent Bientôt. Vente HOLD. | Livraison (mission Entre) | 2026-09-28 |
 | Le burn cher attend le canon, avec avertissement et confirmation. Les fixes restent ouvertes. Sphère tient les fiches de lieu. Compte note un budget local, vide, sans solde cloud. Entre reste Bientôt. Vente HOLD. | Livraison (mission doctrine) | 2026-09-28 |
 | Vercel est la cible. Clerk (Google + GitHub) ouvre le mode Compte, sans mur devant Créer. Sans clés : placeholder, build vert. Pages n’est plus publié. Pas de Stripe, pas de sync, pas de jobs cloud. Vente HOLD. | Livraison (mission compte) | 2026-09-28 |
 | Les apps Comfy sont un catalogue de processus. Interim : embed App Mode au clic, avec consentement. API dans le domaine, plus tard. Sphère tient les cartes. Entre deux images reste « Bientôt ». Vente HOLD. | Livraison (mission catalogue) | 2026-09-28 |
 | Le mode Studio est la maison du coffre Obsidian : schéma canon, ZIP de départ, hors ligne. Pas de sync, pas de compte. Sphère reste sans vidéo. Vente HOLD. | Livraison (mission vault) | 2026-09-28 |
-| Shell à cinq modes et DA Créer avant le Worker fal. Proxy vide : boutons fal éteints, pas de réseau simulé. Sphère, bibliothèque et tableau en panneaux « bientôt ». Vente HOLD. | Livraison (mission shell) | 2026-09-28 |
 | Tuer A (Look-Lock, forfait DA et ZIP-juge) : retrait du site, de la nav, des métadonnées et de la carte OG, sans route d’archive. | JD (mission) | 2026-09-24 |
 | C micro est l’unique offre : dataset propre → LoRA → 1 image. | JD (mission) | 2026-09-24 |
 | Date de kill au 2026-10-08, ou 1 client payant avant. | JD (mission) | 2026-09-24 |
@@ -828,14 +761,12 @@ La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une 
 ## 2026-10-16 · Concours Comfy « Open Source Higgsfield » : FLUX 3, LTX, open weights
 
 - **Décision (JD) :** on soumet le studio complet. LTX-2.5 devient le moteur de prise par défaut (FLUX 3 Klein compose la première image à partir du personnage et du décor, dans le même graphe), MiniMax H3 reste sélectionnable. FLUX 3 Image Klein fait les images de CAST et DÉCOR ; FLUX 3 Image (partenaire) prend plusieurs références et la planche. Nano Banana reste une option, éteinte par défaut. « Open weights seulement » cache tout geste à nœud partenaire.
-- **Fait :** licence MIT ; un workflow Comfy par geste dans `workflows/` (template officiel + graphe API exact), `workflows/index.json`, test de cohérence avec le registre ; `scripts/export-workflows.mjs`, `scripts/run-local.mjs` ; README EN/FR. Le code fal mort est retiré (`src/lib/fal*`, `src/lib/lora/` sauf `dataset.ts`, l’ancien arbre `studio-context`, `workers/fal-proxy/`, tests associés). Les graphes Klein + LTX passent le `dry_run` Comfy Cloud (0 crédit, aucun job).
 - **Pas fait :** 0 crédit. La prise LTX-2.5 n’a pas de mesure : Tourner reste éteint sur ce moteur (« Pas encore mesuré ») jusqu’à une prise réelle validée par JD. Les gestes raccord LTX, caméra IC-LoRA, élargir et effacer (VFX) sont exportés mais restent sous Bientôt.
 
 ## 2026-10-16 · Devis LTX estimé, gestes vidéo branchés
 
 - Plus de crédits Comfy : aucune prise de calibrage. La prise LTX-2.5 affiche un devis **estimé** (12 à 25 crédits pour 5 s, proportionnel à la durée), toujours libellé « Estimé », jamais « mesuré ». Le devis précède toujours la dépense ; le maximum estimé sert de plafond face au solde.
 - Gestes vidéo de PRISE branchés : raccord (`video_ltx2_5_flf2v`, estimé 12–25), caméra (`video_ltx2_3_ic_lora`, estimé 15–30), élargir (`template_ltx2_3_lora_video_outpainting`, estimé 15–30), effacer (`template_ltx2_3_obscura_remova_lora_remove_object_from_video`, estimé 15–30). Graphes exportés des templates officiels ; élargir et effacer validés en pré-vol Comfy Cloud (dry run, aucun job). Confirmation du maximum avant envoi, jamais d'annulation.
-- Chaînes i18n inertes de l'ère fal (formation LoRA) retirées des quatre langues.
 
 ## 2026-10-16 · Caméra maîtrisée (prévis → plan)
 
