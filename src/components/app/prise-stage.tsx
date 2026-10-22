@@ -80,6 +80,12 @@ function etatOf(draft: Draft): PlanEtat {
   return "vide";
 }
 
+// The house examples carry a French name in demo.ts; on screen they follow the locale.
+const DEMO_IDS = new Set([...DEMO_CAST, ...DEMO_DECOR].map(card => card.id));
+function demoName(t: (key: string) => string, id: string, name: string): string {
+  return DEMO_IDS.has(id) ? t(`demoNames.${id}`) : name;
+}
+
 function personSrc(preview: string | null | undefined, sheet: string | null | undefined, media: Record<string, string>): string {
   if (preview) return assetPath(preview);
   if (sheet && media[sheet]) return media[sheet];
@@ -215,11 +221,11 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     const cards = cast.length > 0 ? cast : seed === "vide" ? [] : DEMO_CAST;
     return cards.map(card => ({
       id: card.id,
-      name: card.name,
+      name: demoName(t, card.id, card.name),
       planche: Boolean(card.sheet && card.template),
       src: personSrc(card.preview, card.sheet, media),
     }));
-  }, [cast, media, seed]);
+  }, [cast, media, seed, t]);
 
   // Only décors the user made: with pixels, or a real place kept from repérage.
   // A name-only scene has nothing to film.
@@ -236,8 +242,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     .filter(place => place.src || place.repere), [decor, media]);
   const places = useMemo(() => {
     if (mine.length > 0) return mine;
-    return DEMO_DECOR.map(card => ({ id: card.id, name: card.name, note: card.prompt, src: card.preview ? assetPath(card.preview) : "", exemple: true, repere: false }));
-  }, [mine]);
+    return DEMO_DECOR.map(card => ({ id: card.id, name: demoName(t, card.id, card.name), note: card.prompt, src: card.preview ? assetPath(card.preview) : "", exemple: true, repere: false }));
+  }, [mine, t]);
 
   const castKey = `${drafts.find(item => item.id === currentId)?.input.castIds.join(",") ?? ""}|${people.map(person => `${person.id}:${person.name}`).join(",")}`;
   useEffect(() => {

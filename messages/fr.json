@@ -2746,5 +2746,14 @@
     "guidance": "Choisissez un projet. Sélectionnez les médias avant de vérifier ou classer ; renseignez au moins un champ de classement. Les actions attendent la fin de la synchronisation.",
     "lead": "Vos créations Comfy, rangées par projet.",
     "helpTitle": "Comment ça marche ?"
+  },
+  "demoNames": {
+    "demo-coursiere": "La coursière",
+    "demo-vieil-homme": "Le vieil homme",
+    "demo-dj": "DJ",
+    "demo-quai": "Le quai, la nuit",
+    "demo-gare": "Un hall de gare",
+    "demo-pluie": "Sous la pluie",
+    "demo-toit": "Les toits à l’aube"
   }
 }

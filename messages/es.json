@@ -2746,5 +2746,14 @@
     "guidance": "Elige un proyecto. Selecciona archivos antes de verificarlos o clasificarlos y rellena al menos un campo de clasificación. Las acciones esperan a que termine la sincronización.",
     "lead": "Tus creaciones de Comfy, ordenadas por proyecto.",
     "helpTitle": "¿Cómo funciona?"
+  },
+  "demoNames": {
+    "demo-coursiere": "La mensajera",
+    "demo-vieil-homme": "El anciano",
+    "demo-dj": "DJ",
+    "demo-quai": "El muelle de noche",
+    "demo-gare": "Un vestíbulo de estación",
+    "demo-pluie": "Bajo la lluvia",
+    "demo-toit": "Tejados al amanecer"
   }
 }

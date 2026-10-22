@@ -62,7 +62,7 @@
 .u-credit { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--u-line-strong); border-radius: var(--radius-control); background: transparent; }
 .u-credit strong { font: 600 14px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--fg); }
 .u-credit span { font: 600 12px/1 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--u-muted); }
-.u-icon { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--fg-2); transition: background .15s var(--ease), color .15s var(--ease); }
+.u-icon { display: inline-grid; place-items: center; flex: 0 0 auto; width: 44px; height: 44px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--fg-2); transition: background .15s var(--ease), color .15s var(--ease); }
 .u-icon:hover { background: var(--hover); color: var(--fg); }
 .u-coffre { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 10px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--fg-2); }
 .u-coffre span { font: 600 12px/1 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
@@ -103,7 +103,7 @@
 .u-chips input { flex: 1 1 140px; min-width: 0; min-height: 44px; padding: 6px 4px; border: 0; background: transparent; }
 .u-chips input:focus { outline: none; }
 .u-chips input:focus-visible { outline: 2px solid var(--u-gold); outline-offset: 2px; }
-.u-chip { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 4px 10px 4px 12px; border: 1px solid var(--u-line-strong); border-radius: 999px; background: rgba(255, 255, 255, 0.044); color: var(--u-gold-soft); font-size: 14px; }
+.u-chip { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px; min-width: 44px; padding: 4px 10px 4px 12px; border: 1px solid var(--u-line-strong); border-radius: 999px; background: rgba(255, 255, 255, 0.044); color: var(--u-gold-soft); font-size: 14px; }
 .u-chip svg { width: 14px; height: 14px; opacity: .7; }
 
 .u-marks { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; padding: 0; list-style: none; }
@@ -1907,3 +1907,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-media-help > summary::-webkit-details-marker { display: none; }
 .u-media-help > summary::before { content: "+"; display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1px solid var(--u-line); border-radius: 50%; font-size: 13px; line-height: 1; }
 .u-media-help[open] > summary::before { content: "−"; }
+
+/* « Ouvrir mes projets » in the assistant: a 44 px touch target, not a 20 px text line. */
+.u-assistant [data-assistant-next] { display: inline-flex; align-items: center; min-height: 44px; }

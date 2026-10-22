@@ -2746,5 +2746,14 @@
     "guidance": "Wähle ein Projekt. Wähle Medien zum Prüfen oder Zuordnen aus und fülle mindestens ein Zuordnungsfeld aus. Aktionen warten, bis die Synchronisierung abgeschlossen ist.",
     "lead": "Ihre Comfy-Werke, nach Projekt geordnet.",
     "helpTitle": "Wie funktioniert das?"
+  },
+  "demoNames": {
+    "demo-coursiere": "Die Kurierin",
+    "demo-vieil-homme": "Der alte Mann",
+    "demo-dj": "DJ",
+    "demo-quai": "Der Kai bei Nacht",
+    "demo-gare": "Eine Bahnhofshalle",
+    "demo-pluie": "Im Regen",
+    "demo-toit": "Dächer im Morgengrauen"
   }
 }

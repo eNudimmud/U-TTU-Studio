@@ -2746,5 +2746,14 @@
     "guidance": "Choose a project. Select media before checking or classifying; enter at least one classification field. Actions wait for synchronization to finish.",
     "lead": "Your Comfy creations, organized by project.",
     "helpTitle": "How does it work?"
+  },
+  "demoNames": {
+    "demo-coursiere": "The courier",
+    "demo-vieil-homme": "The old man",
+    "demo-dj": "DJ",
+    "demo-quai": "The quay at night",
+    "demo-gare": "A station hall",
+    "demo-pluie": "In the rain",
+    "demo-toit": "Rooftops at dawn"
   }
 }
