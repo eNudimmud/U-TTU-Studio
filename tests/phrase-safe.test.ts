@@ -15,7 +15,7 @@ test('reliability errors from the libraries are translated in every language', (
   for (const code of ['en', 'de', 'es']) {
     for (const key of Object.keys(catalogs.fr.runtimeSafe)) assert.equal(typeof catalogs[code].runtimeSafe[key], 'string', `${code}.${key}`);
   }
-  assert.equal(phrase(tr('en'), 'Sauvegarde interrompue. Vérifiez l’espace disponible puis réessayez.'), 'Save interrupted. Check the available space, then try again.');
+  assert.equal(phrase(tr('en'), 'Sauvegarde interrompue. Vérifie l’espace disponible puis réessaie.'), 'Save interrupted. Check the available space, then try again.');
   assert.equal(phrase(tr('fr'), fr[0]), fr[0]);
-  assert.match(phrase(tr('de'), 'Le rendu job-42 a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conservez cet identifiant et vérifiez votre espace disque. Ne relancez pas la génération.'), /job-42/);
+  assert.match(phrase(tr('de'), 'Le rendu job-42 a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conserve cet identifiant et vérifie ton espace disque. Ne relance pas la génération.'), /job-42/);
 });

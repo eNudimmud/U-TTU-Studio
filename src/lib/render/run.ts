@@ -11,7 +11,7 @@ import { TAKE_PICTURES_MAX, takeEngine, takeGraph, type ApiGraph, type TakeSetti
 export function referenceLimit(settings: TakeSettings): number { return takeEngine(settings) === "ltx" ? LTX_REFS_MAX : TAKE_PICTURES_MAX; }
 
 function checkReferences(settings: TakeSettings, count: number): void {
-  if (count > referenceLimit(settings)) throw new RenderError("invalid", `Ce moteur accepte au plus ${referenceLimit(settings)} images de référence. Réduisez les références avant de générer.`);
+  if (count > referenceLimit(settings)) throw new RenderError("invalid", `Ce moteur accepte au plus ${referenceLimit(settings)} images de référence. Réduis les références avant de générer.`);
 }
 
 /** The graph for the chosen engine. Same pictures, same text. */

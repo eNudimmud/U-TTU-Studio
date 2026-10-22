@@ -250,7 +250,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       const saved = await saveMontage(current, { ...files.current });
       boot.current = saved.slug;
       if (historyRef.current.present === current) show({ ...historyRef.current, present: saved.edit });
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Le montage n’a pas pu être sauvegardé. Gardez cet onglet ouvert."); }
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Le montage n’a pas pu être sauvegardé. Garde cet onglet ouvert."); }
   }
 
   function commitFrom(base: History<Edit>, next: Edit) {
@@ -269,7 +269,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           : await localMediaDuration(resource.kind as "video" | "audio", urlOfRef.current(resource.path));
         additions.push({ ...resource, seconds });
       }
-      if (projectRef.current !== origin || draft.projectId !== origin) throw new Error("Le projet a changé. Rouvrez le projet d’origine pour reprendre le montage.");
+      if (projectRef.current !== origin || draft.projectId !== origin) throw new Error("Le projet a changé. Rouvre le projet d’origine pour reprendre le montage.");
       const base = historyRef.current;
       const next = appendAgentMedia(base.present, draft, additions);
       if (next === base.present) return;
@@ -369,7 +369,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           });
         } finally { element.removeAttribute("src"); element.load(); }
       }
-      if (origin !== projectRef.current) throw new Error("Le projet a changé. Le média reste dans sa galerie ; ajoutez-le à nouveau au montage souhaité.");
+      if (origin !== projectRef.current) throw new Error("Le projet a changé. Le média reste dans sa galerie ; ajoute-le à nouveau au montage souhaité.");
       const id = `plan-${crypto.randomUUID()}`;
       if (pending.kind === "audio") {
         commitFrom(historyRef.current, addAudio(historyRef.current.present, { id, track: "effets", source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, at: snapped(timeRef.current), volume: 0.8, fadeIn: 0, fadeOut: 0 }));

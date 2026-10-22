@@ -386,7 +386,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     baseRef.current = base;
     return linkedStore(base, () => folderRef.current, () => {
       setFolderMode("ask");
-      setNotice("Enregistré dans ce navigateur. La copie vers le dossier lié a échoué : reconnectez-le pour synchroniser.");
+      setNotice("Enregistré dans ce navigateur. La copie vers le dossier lié a échoué : reconnecte-le pour synchroniser.");
     });
   }, []);
 
@@ -440,7 +440,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const take of next.takes) if (take.video) { const shot = next.shots.find(s => s.takeIds.includes(take.id)); labels[take.video] = { name: take.line || take.id, createdAt: take.at, jobId: take.jobId, workflowId: take.profile, decor: take.sceneName, sequence: shot?.sequenceId ?? '', take: take.id }; }
       setCatalog(next.project ? await discoverLocal(vault, next.project, labels) : null);
     }
-    catch { setCatalog(null); setNotice("L’index des médias est illisible. Les fichiers d’origine sont conservés ; exportez le coffre avant réparation."); }
+    catch { setCatalog(null); setNotice("L’index des médias est illisible. Les fichiers d’origine sont conservés ; exporte le coffre avant réparation."); }
     const entries = await vault.list();
     const paths = entries.map(entry => entry.path);
     const noted = await importNotes(async path => (await vault.get(path))?.text, paths, next.project);
@@ -528,10 +528,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     paidBusy.current = true;
     setCreating(true);
     try {
-      if (!navigator.locks) throw new Error("Ce navigateur ne peut pas sécuriser les envois simultanés. Utilisez un navigateur récent.");
+      if (!navigator.locks) throw new Error("Ce navigateur ne peut pas sécuriser les envois simultanés. Utilise un navigateur récent.");
       return await navigator.locks.request("uttu-paid-render", { ifAvailable: true }, async lock => {
         if (!lock) throw new Error("Un rendu est déjà suivi dans un autre onglet.");
-        if (readPending(localStorage) || readInFlight(localStorage)) throw new Error("Un rendu attend sa récupération. Ouvrez Crédits puis Récupérer le rendu avant un nouvel envoi.");
+        if (readPending(localStorage) || readInFlight(localStorage)) throw new Error("Un rendu attend sa récupération. Ouvre Crédits puis Récupérer le rendu avant un nouvel envoi.");
         return work();
       });
     } catch (error) {
@@ -601,7 +601,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
       await reload();
       setRun({ phase: "done", takeId: id });
-      setNotice("Prise enregistrée dans son projet. Vous pouvez la retrouver et l’ajouter au montage.");
+      setNotice("Prise enregistrée dans son projet. Tu peux la retrouver et l’ajouter au montage.");
     } catch (error) {
       const failure = error instanceof RenderError ? error : new RenderError("failed", error instanceof Error ? error.message : "La prise n’a pas abouti.");
       // Keep the receipt on timeout, download and disk errors. Recovery is read-only.
@@ -675,7 +675,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (!decor && next.currentScene) setPickedDecor(next.currentScene);
       setReady(true);
       const flight = client ? readInFlight(localStorage) : null;
-      if (flight) setNotice("Un rendu attend sa récupération. Ouvrez Crédits puis Récupérer le rendu.");
+      if (flight) setNotice("Un rendu attend sa récupération. Ouvre Crédits puis Récupérer le rendu.");
     })();
     return () => { gone = true; };
   }, [client, finish, reload]);
@@ -1379,9 +1379,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
     const held = studioRef.current;
     const place = held?.scenes.find(item => item.id === (pendingTake ? pendingTake.decorId : pickedDecor)) ?? null;
-    if (pendingTake?.decorId && !place) { setNotice("Le décor choisi n’est pas enregistré dans ce projet. Enregistrez-le dans DÉCOR avant de générer."); return; }
+    if (pendingTake?.decorId && !place) { setNotice("Le décor choisi n’est pas enregistré dans ce projet. Enregistre-le dans DÉCOR avant de générer."); return; }
     const selected = pendingTake ? pendingTake.castIds.flatMap(id => held?.cast.find(item => item.id === id) ? [held.cast.find(item => item.id === id)!] : []) : held?.cast.filter(item => item.id === pickedCast) ?? [];
-    if (pendingTake && selected.length !== pendingTake.castIds.length) { setNotice("Chaque personnage doit avoir une référence enregistrée. Retirez les silhouettes neutres avant de générer."); return; }
+    if (pendingTake && selected.length !== pendingTake.castIds.length) { setNotice("Chaque personnage doit avoir une référence enregistrée. Retire les silhouettes neutres avant de générer."); return; }
     const photos = [...(selected.length ? selected.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)) : (pendingTake ? [] : held?.look.photos ?? [])), ...(pendingTake?.extraRefs ?? []).filter(path => path.startsWith("Projets/"))];
     const paths = referencePaths(photos, place, Infinity);
     if (paths.length > referenceLimit(settings)) { setNotice(t("safety.referencesMax", { max: referenceLimit(settings) })); return; }
@@ -1462,22 +1462,22 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           else setNotice("Aucun rendu en attente sur cet appareil.");
           return;
         }
-        if (receipt.account !== await fingerprint()) throw new Error("Reconnectez le compte qui a envoyé ce rendu pour le récupérer.");
-        if (!receipt.jobId) throw new Error("L’envoi a été interrompu sans reçu. Il peut avoir été facturé. Vérifiez l’historique Comfy avant toute nouvelle génération ; ne supprimez pas les données de ce navigateur.");
+        if (receipt.account !== await fingerprint()) throw new Error("Reconnecte le compte qui a envoyé ce rendu pour le récupérer.");
+        if (!receipt.jobId) throw new Error("L’envoi a été interrompu sans reçu. Il peut avoir été facturé. Vérifie l’historique Comfy avant toute nouvelle génération ; ne supprime pas les données de ce navigateur.");
         const stage = jobStage(await client.status(receipt.jobId));
         const vault = projectVault(store(), receipt.project);
         if (stage === "failed" || stage === "cancelled") {
           await writeText(vault, projectPath(receipt.project, `.uttu/${receipt.id}.json`), JSON.stringify({ ...receipt, account: undefined, terminal: stage }));
           clearPending(localStorage, receipt.jobId);
           if (legacy?.jobId === receipt.jobId) saveInFlight(localStorage, null);
-          setNotice("Le cloud confirme que ce rendu est terminé sans résultat. Vous pouvez préparer un nouvel envoi avec confirmation.");
+          setNotice("Le cloud confirme que ce rendu est terminé sans résultat. Tu peux préparer un nouvel envoi avec confirmation.");
           return;
         }
         if (receipt.kind === "take" && receipt.flight) {
           await finish({ ...receipt.flight, jobId: receipt.jobId }, client);
           return;
         }
-        if (stage !== "done") { setNotice("Le cloud travaille encore. Réessayez Récupérer le rendu dans quelques instants. Aucun nouvel envoi."); return; }
+        if (stage !== "done") { setNotice("Le cloud travaille encore. Réessaie Récupérer le rendu dans quelques instants. Aucun nouvel envoi."); return; }
         const detail = await client.job(receipt.jobId);
         const isVideo = receipt.kind === "final" || receipt.kind === "video";
         const isImage = receipt.kind === "image";
@@ -1498,7 +1498,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         }
         await completePending(client, receipt.jobId);
         await reload();
-        setNotice("Rendu récupéré dans son projet d’origine. Le coût reste à vérifier dans votre compte.");
+        setNotice("Rendu récupéré dans son projet d’origine. Le coût reste à vérifier dans ton compte.");
       };
       if (!navigator.locks) throw new Error("La récupération nécessite un navigateur récent.");
       await navigator.locks.request("uttu-paid-render", { ifAvailable: true }, async lock => {
@@ -1868,9 +1868,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     let source = take?.video ?? "";
     const clipId = take?.id ?? `storyboard-${crypto.randomUUID()}`;
     if (take) {
-      if (!(await vault.get(take.video))?.blob) throw new Error("Le fichier de la prise manque. Récupérez-le avant le montage.");
+      if (!(await vault.get(take.video))?.blob) throw new Error("Le fichier de la prise manque. Récupère-le avant le montage.");
     } else {
-      if (!input.still) throw new Error("Choisissez une image enregistrée ou générez une prise avant le montage.");
+      if (!input.still) throw new Error("Choisis une image enregistrée ou génère une prise avant le montage.");
       const response = await fetch(input.still.startsWith("/") ? assetPath(input.still) : input.still);
       if (!response.ok) throw new Error("Impossible de lire l’image. Rien n’a été ajouté au montage.");
       const blob = await response.blob();
@@ -1920,7 +1920,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const previous = held.shots.find(shot => shot.id === prepared.planId);
       await writeShot(vault, { id: prepared.planId, name: input.label.slice(0, 80) || prepared.planId, sequenceId: sequence.id, takeIds: [...new Set([...(previous?.takeIds ?? []), ...(prepared.take ? [prepared.take.id] : [])])], note: previous?.note ?? "", ordre, composeur: input.composeur }, held.takes, sequence.name);
     }
-    if (clips.length === 0) throw new Error("Choisissez une image enregistrée ou générez une prise avant le montage.");
+    if (clips.length === 0) throw new Error("Choisis une image enregistrée ou génère une prise avant le montage.");
     // The sequence note follows the plan order; links to other takes stay after.
     const others = sequence.links.filter(link => !takeOrder.includes(link.takeId));
     sequence.links = [...takeOrder.map(takeId => sequence.links.find(link => link.takeId === takeId) ?? { takeId, raccord: "" }), ...others];
@@ -1939,7 +1939,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
-    loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifie le message du studio et récupère le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,

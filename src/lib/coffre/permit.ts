@@ -113,7 +113,7 @@ export async function readFolder(root: DirectoryHandle, store: VaultStore, prefi
         const local = new Uint8Array(await (existing.blob ?? new Blob([existing.text ?? ""])).arrayBuffer());
         const incoming = new Uint8Array(await file.arrayBuffer());
         if (local.length !== incoming.length || local.some((byte, i) => byte !== incoming[i])) {
-          throw new Error(`Deux versions différentes de ${clean}. La synchronisation est suspendue pour conserver les deux versions. Exportez le coffre avant de les rapprocher.`);
+          throw new Error(`Deux versions différentes de ${clean}. La synchronisation est suspendue pour conserver les deux versions. Exporte le coffre avant de les rapprocher.`);
         }
         continue;
       }

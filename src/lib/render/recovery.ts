@@ -32,7 +32,7 @@ export function readPending(storage: Pick<Storage, 'getItem'>): PendingRender | 
   const data = JSON.parse(raw) as PendingRender;
   if (data.version !== 1 || !['cast', 'decor', 'son', 'take', 'final', 'video', 'mesh', 'image'].includes(data.kind)
     || !/^[a-z0-9-]+$/.test(data.project) || !/^[a-z0-9-]+$/.test(data.id)
-    || (data.jobId !== null && !/^[a-zA-Z0-9-]{8,64}$/.test(data.jobId))) throw new Error('Le reçu de rendu est illisible. Conservez les données du navigateur et vérifiez votre compte de rendu.');
+    || (data.jobId !== null && !/^[a-zA-Z0-9-]{8,64}$/.test(data.jobId))) throw new Error('Le reçu de rendu est illisible. Conserve les données du navigateur et vérifie ton compte de rendu.');
   return data;
 }
 
@@ -70,7 +70,7 @@ export function recoverableClient(client: RenderClient, storage: StorageLike, re
       throw error;
     }
     try { storage.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...receipt, jobId })); }
-    catch { throw new Error(`Le rendu ${jobId} a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conservez cet identifiant et vérifiez votre espace disque. Ne relancez pas la génération.`); }
+    catch { throw new Error(`Le rendu ${jobId} a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conserve cet identifiant et vérifie ton espace disque. Ne relance pas la génération.`); }
     return jobId;
   } };
 }

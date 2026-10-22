@@ -1594,7 +1594,7 @@
     "low": "Queda poco espacio. Exporta una copia antes de añadir archivos grandes.",
     "protect": "Proteger el almacenamiento local",
     "asking": "Solicitando protección…",
-    "pending": "El navegador sigue esperando su respuesta. Revise su solicitud de permiso; ya puede exportar una copia.",
+    "pending": "El navegador sigue esperando tu respuesta. Revisa su solicitud de permiso; ya puedes exportar una copia.",
     "backup": "Esta protección no sustituye una copia de seguridad. «Exportar mi estudio» guarda una copia independiente; borrar los datos del navegador sigue eliminando los proyectos locales."
   },
   "audit": {
@@ -1818,7 +1818,7 @@
       "none": "—",
       "unknown": "Desconocido",
       "drop": "Quitar el ambiente {label}",
-      "cameraWords": "Según sus palabras",
+      "cameraWords": "Según tus palabras",
       "cameraFree": "Libre",
       "degrees": "{move} · {degrees}°",
       "sec": "{n} s",
@@ -1830,7 +1830,7 @@
       "engineManual": "Estilo elegido a mano en Avanzado: {engine}.",
       "refsDropped": "Más allá de {max} referencias, {count} quedan fuera.",
       "missingRef": "No hay foto de {name}: su aspecto puede cambiar.",
-      "missingDecorRef": "No hay imagen del lugar {name}: el decorado seguirá sus palabras.",
+      "missingDecorRef": "No hay imagen del lugar {name}: el decorado seguirá tus palabras.",
       "orbitDegreesWho": "Rotación de {degrees}° alrededor de {name}.",
       "orbitDegrees": "Rotación de {degrees}° de la cámara.",
       "orbitWho": "La cámara gira alrededor de {name}.",

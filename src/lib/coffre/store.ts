@@ -53,7 +53,7 @@ function request<T>(run: (store: IDBObjectStore) => IDBRequest<T>, mode: IDBTran
       if (!open.result.objectStoreNames.contains("files")) open.result.createObjectStore("files", { keyPath: "path" });
     };
     open.onerror = () => reject(open.error ?? new Error("Mon studio est fermé."));
-    open.onblocked = () => reject(new Error("Fermez les autres onglets du studio puis réessayez la sauvegarde."));
+    open.onblocked = () => reject(new Error("Ferme les autres onglets du studio puis réessaie la sauvegarde."));
     open.onsuccess = () => {
       const db = open.result;
       try {
@@ -61,7 +61,7 @@ function request<T>(run: (store: IDBObjectStore) => IDBRequest<T>, mode: IDBTran
         let value: T;
         const fail = () => {
           db.close();
-          reject(tx.error ?? new Error("Sauvegarde interrompue. Vérifiez l’espace disponible puis réessayez."));
+          reject(tx.error ?? new Error("Sauvegarde interrompue. Vérifie l’espace disponible puis réessaie."));
         };
         // A request can succeed and its transaction still abort (quota, shutdown).
         // Only a committed transaction is a successful save.
