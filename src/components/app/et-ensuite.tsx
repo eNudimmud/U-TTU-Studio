@@ -12,6 +12,8 @@ import { outilQuote } from "@/lib/outils/graphs";
 import { assetPath } from "@/lib/site";
 import { videoSeconds } from "@/lib/suite/media";
 import { useStudio } from "./studio-session";
+import { StudioAgentInline } from "./studio-agent-inline";
+import { safeHandoffUrl } from "@/lib/agent/source";
 
 export interface SuiteSource {
   kind: "image" | "video";
@@ -59,7 +61,7 @@ export interface HandedSource {
 /** Remember the open file so the tool page can place it. A blob URL does not survive the navigation. */
 export function rememberSource(source: SuiteSource) {
   const payload: HandedSource = {
-    url: source.url.startsWith("blob:") ? "" : source.url,
+    url: safeHandoffUrl(source.url),
     name: source.name,
     path: source.path,
     kind: source.kind,
@@ -115,6 +117,7 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
           </a>;
         })}
       </div>)}
+      <StudioAgentInline source={source} onPrepare={() => rememberSource(source)} />
       {onPrise && <button type="button" className="u-secondary u-suite-prise" data-suite-prise="" onClick={onPrise}>{t("suite.toPrise")}</button>}
     </div>}
   </section>;

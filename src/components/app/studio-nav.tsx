@@ -115,14 +115,14 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
 
 export function StudioTabs({ place }: { place: Place }) {
   const { t } = useI18n();
-  const tabs: { id: string; href: string; label: string; icon: Parameters<typeof FamilyIcon>[0]["fam"]; on: boolean }[] = [
+  const tabs: { id: string; href: string; label: string; full?: string; icon: Parameters<typeof FamilyIcon>[0]["fam"]; on: boolean }[] = [
     { id: "accueil", href: "/", label: t("top.home"), icon: "home", on: place === "accueil" },
     { id: "creer", href: "/studio#outils", label: t("top.create"), icon: "creer", on: place === "creer" },
     { id: "film", href: "/studio#personnage", label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" },
-    { id: "creations", href: "/mon-studio", label: t("top.creations"), icon: "creations", on: place === "creations" },
+    { id: "creations", href: "/mon-studio", label: t("top.creationsShort"), full: t("top.creations"), icon: "creations", on: place === "creations" },
   ];
   return <nav className="u-tabs" aria-label={t("top.nav")} data-tabs="">
-    {tabs.map(tab => <a key={tab.id} href={assetPath(tab.href)} data-tab={tab.id} aria-current={tab.on ? "page" : undefined}>
+    {tabs.map(tab => <a key={tab.id} href={assetPath(tab.href)} data-tab={tab.id} aria-label={tab.full} aria-current={tab.on ? "page" : undefined}>
       <FamilyIcon fam={tab.icon} /><span>{tab.label}</span>
     </a>)}
   </nav>;

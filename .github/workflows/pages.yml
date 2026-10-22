@@ -42,11 +42,28 @@ jobs:
         run: npm run typecheck
       - name: Build serveur, sans clés Clerk
         run: npm run build
-      - name: Parcours CAST, DÉCOR, PRISE, MONTAGE
-        run: npx playwright test
+      - name: Parcours Agent et médiathèque hybride
+        run: npx playwright test e2e/studio-agent-production.spec.ts e2e/media-hybrid.spec.ts --output=test-results/agent
+      - name: Parcours CAST, DÉCOR, PRISE, MONTAGE et non-régression
+        run: >-
+          npx playwright test --grep-invert 'agent: project|hybrid library:' --output=test-results/regression
+
+      - name: Diagnostic des parcours en échec
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for path in sorted(Path('test-results').rglob('error-context.md')):
+              print(f'::group::{path}')
+              print(path.read_text()[:18000])
+              print('::endgroup::')
+          PY
 
       - name: Preuves navigateur et exports
         if: always()
+        # Test/build gates above remain strict. A full GitHub artifact quota must
+        # not turn a successful verification into a failed application check.
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results

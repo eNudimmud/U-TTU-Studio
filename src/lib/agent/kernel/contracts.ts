@@ -1,0 +1,24 @@
+/** Capability metadata supplied by Studio; never a grant to execute. */
+export interface StudioCapability {
+  id: string;
+  label: string;
+  description: string;
+  enabled: boolean;
+  inputKinds: readonly ("image" | "video" | "audio" | "text")[];
+  outputKind: "image" | "video" | "audio" | "text";
+  requiresPrompt: boolean;
+}
+export interface StudioAsset {
+  /** Opaque Studio-owned reference, not a file path or blob URL. */
+  id: string;
+  kind: "image" | "video" | "audio";
+}
+export interface StudioContext {
+  capabilities: readonly StudioCapability[];
+  selectedAsset?: StudioAsset;
+}
+export type AgentDecision =
+  | { kind: "propose"; capabilityId: string; assetId: string; message: string }
+  | { kind: "missing_asset"; message: string }
+  | { kind: "unavailable"; message: string }
+  | { kind: "unrecognized"; message: string };

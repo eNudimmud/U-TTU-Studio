@@ -37,7 +37,7 @@ Tout passe par le relais même origine du studio ([`src/lib/comfy-proxy.ts`](../
 | Suivre | `GET /api/job/{id}/status` toutes les 3 s : en file, préparation, calcul, puis `success` / `completed`, ou `error`, `failed`, `lost`, `cancelled`. 35 min au plus. |
 | Lire le résultat | `GET /api/jobs/{id}` : sorties, horodatages d’exécution, `execution_error` |
 | Rapatrier la vidéo | `GET /api/view?filename&subfolder&type` : Comfy répond 302 vers une URL signée, le relais la suit et rend les octets sur le domaine du studio. Un 404 est rejoué comme avant (sous-dossier joint, puis recherche d’asset). |
-| Annuler | `POST /api/queue` `{ delete: [id] }` |
+| Annuler | Jamais. Le studio arrête seulement d’attendre ; le job continue chez Comfy et se récupère plus tard. |
 
 Authentification : `X-API-Key` (clé créée sur `platform.comfy.org`, abonnement payant) ou `Authorization: Bearer` avec le jeton Firebase de la session ouverte dans la feuille « Me connecter ici ». Le jeton est rafraîchi comme le fait le SDK web (`securetoken.googleapis.com`), avec une marge de 60 s.
 

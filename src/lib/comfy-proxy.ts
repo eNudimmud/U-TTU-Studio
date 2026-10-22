@@ -271,6 +271,7 @@ function workerMediaPath(pathname: string): boolean {
   return pathname === "/api/view"
     || pathname === "/api/viewvideo"
     || pathname.startsWith("/api/assets/")
+    || /^\/api\/v2\/assets\/[0-9a-f-]+(?:\/content)?$/i.test(pathname)
     || pathname.startsWith("/api/s/");
 }
 

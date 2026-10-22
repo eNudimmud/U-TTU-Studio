@@ -1,5 +1,26 @@
 # Contrôles de livraison — C micro
 
+## Vérification complémentaire — 22 octobre 2026
+
+Le commit `e99eaed` a passé la CI complète [39673039202](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/39673039202) : 420 tests unitaires/intégration réussis, un ignoré, TypeScript et build réussis. Les six parcours Agent/médiathèque desktop/mobile passent au premier essai, y compris les médias image/vidéo/audio téléchargés puis réouverts dans MONTAGE. La non-régression compte 101 réussites directes, une réussite après reprise (ZIP Firefox desktop, délai de téléchargement) et 14 cas déjà ignorés. Soit 108 parcours réussis au total, dont un après reprise. Les générations, inventaires et contenus distants sont simulés ; la timeline, le coffre et les exports locaux utilisent le navigateur réel.
+
+Une dernière correction traite la sélection modifiée pendant une étape de montage déjà préparée : identités de clips indépendantes de l’ordre de sélection, conservation des anciens clips et de la preuve attendant validation. Elle ajoute un test unitaire (422 au total, 421 réussis, un ignoré) et étend le parcours image/son existant pour vérifier l’absence de doublon après une nouvelle préparation. Son verdict navigateur est à lire dans les checks suivants de la PR. Aucun changement du noyau Agent ni de l’identité Core.
+
+Le quota d’artefacts GitHub a empêché l’archivage des captures du run réussi. Les logs de tests restent disponibles. Android physique, permissions réelles Comfy et qualité du modèle optionnel restent à valider. Aucun crédit n’a été consommé et aucun déploiement n’a été effectué.
+
+## Agent et médiathèque hybride — 21 octobre 2026
+
+Branche `feat/studio-agent-capability-export`, PR #121 ; noyau Agent `335cc3a`, PR Agent #2. La CI de l'Agent a passé 17 tests. Aucun appel payant réel, aucune fusion, aucune mise en production.
+
+- **Local :** 421 tests Studio (420 réussis, un test existant ignoré), TypeScript et build Next 16.3.8 réussis. Chromium local est bloqué par la politique de sockets de l'environnement ; les validations navigateur utilisent GitHub Actions.
+- **Navigateur :** le run `39585345450` a passé 104 cas et révélé deux échecs dans le nouveau parcours complet. La médiathèque hybride a passé desktop et mobile : import des métadonnées sans téléchargement automatique, dédoublonnage, classement, cache à la demande, sélection agent, réouverture et perte du média distant avec copie locale conservée. Le run `39625667190` a atteint l'export MP4 du film simulé avant d'identifier le dialogue resté ouvert dans le test. Les corrections de saisie/selection et du test sont reprises dans les checks suivants de la PR ; consulter leur verdict avant fusion.
+- **Suivi navigateur :** le run `39627367290` passe les quatre cas Agent/médiathèque desktop/mobile, dont le film complet, MP4, ZIP et réouverture. Il échoue encore sur le délai de téléchargement de l’export de deux vidéos ; deux cas Firefox de récupération ambiguë réussissent après reprise. Le correctif attend désormais jusqu’à 60 secondes pour l’encodage, conserve les assertions de durée/codec et décode les deux prises. La récupération automatique ignore les reçus sans identifiant de job. Les nouveaux cas vérifient aussi l’insertion durable des images, vidéos et sons de la bibliothèque dans la timeline : consulter le verdict suivant avant fusion.
+- **Simulation :** génération Comfy, inventaire, récupération distante, expiration et erreurs réseau utilisent des mocks. IndexedDB, navigation, formulaires, sauvegarde ZIP et encodage vidéo local sont réels dans le navigateur. La suite exige un unique envoi simulé après devis/confirmation, puis la conservation du plan à huit étapes après réouverture.
+- **Sécurité :** tests de confirmation avant appel modèle/annulation, portée de compte/projet, traversée de chemins, suppression des URL temporaires du manifeste, secrets absents du contexte modèle, redirection média sans transfert d'identifiants, écritures concurrentes et intégrité du noyau partagé.
+- **Dépendances :** Next 16.3.8, MapLibre 6.4.1, Sharp 0.35.5, source-map-js 1.2.2, Playwright 1.55.1 et Puppeteer Core 25.15.0. `npm audit --json` ne signale plus de vulnérabilité. Correctifs principaux : [Next](https://github.com/advisories/GHSA-cjq9-62q9-8jv4), [MapLibre](https://github.com/advisories/GHSA-jrc7-96c5-q579), [Sharp](https://github.com/advisories/GHSA-wq5f-xc86-pv6w). Les versions n'activent aucun service supplémentaire.
+- **Pièces jointes CI :** le quota GitHub Actions est atteint. L'envoi d'artefacts est facultatif et émet son propre avertissement ; tous les tests/typecheck/build restent bloquants. Aucun ancien artefact n'a été supprimé pour cette livraison.
+- **Encore distinct :** Android physique, permissions effectives et durée de conservation du compte Comfy réel, qualité de Jev réel. Pas de backend de métadonnées : continuité par la médiathèque Comfy et le manifeste exporté. Voir `HYBRID_MEDIA.md` et `STUDIO_AGENT.md`.
+
 ## Trajet, personnage, liaison, LoRA de lieu — 4 octobre 2026
 
 Branche `cursor/film-path-character-386f`. Aucun job Farpy, aucun job fal, aucun job Comfy, aucun LoRA formé : **0 $ dépensé**. La marche part d’un profil Chrome vide, sur le build de production (`127.0.0.1:3462`). Aucune requête vers Farpy, fal, `/api/prompt` ou `/api/upload`.

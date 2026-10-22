@@ -204,6 +204,10 @@ function errorLines(body: unknown): string[] {
   return lines.slice(0, 6);
 }
 
+const credentialScopes = new WeakMap<object, () => Promise<string | undefined>>();
+/** Opaque account partition only. Call after authenticating with user(); never exposes credentials. */
+export async function renderCredentialScope(client: object): Promise<string | undefined> { return credentialScopes.get(client)?.(); }
+
 export function createRenderClient(options: RenderClientOptions) {
   const doFetch: typeof fetch = options.fetch ?? ((input, init) => fetch(input, init));
   const relay = (options.relay ?? "").replace(/\/+$/, "");
@@ -239,7 +243,7 @@ export function createRenderClient(options: RenderClientOptions) {
     }
   }
 
-  return {
+  const client = {
     async user(): Promise<Record<string, unknown>> {
       const response = await call("/api/user");
       if (!response.ok) throw new RenderError("auth", "Compte de rendu introuvable.");
@@ -312,15 +316,25 @@ export function createRenderClient(options: RenderClientOptions) {
       if (!response.ok || type.includes("json") || type.startsWith("text/")) throw new RenderError("network", `Vidéo illisible (${response.status}).`);
       return response.blob();
     },
-
-    async cancel(jobId: string): Promise<void> {
-      await call("/api/queue", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ delete: [jobId] }),
-      });
-    },
+    // No cancel(): the studio never cancels a Comfy job. Interrupting only stops waiting locally.
   };
+  credentialScopes.set(client, async () => {
+    let identity: string;
+    if (options.auth.kind === "key") identity = options.auth.key;
+    else {
+      const token = await options.auth.token();
+      try {
+        const payload = token?.split(".")[1];
+        if (!payload) return undefined;
+        const data = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+        if (typeof data.sub !== "string" || !data.sub || data.sub.length > 200) return undefined;
+        identity = `session:${data.iss ?? "comfy"}:${data.sub}`;
+      } catch { return undefined; }
+    }
+    const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(identity));
+    return Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, "0")).join("");
+  });
+  return client;
 }
 
 export type RenderClient = ReturnType<typeof createRenderClient>;

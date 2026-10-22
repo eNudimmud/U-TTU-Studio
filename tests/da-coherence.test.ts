@@ -24,11 +24,11 @@ function jpegSize(path: string): [number, number] {
 
 describe("DA et logo partout", () => {
   it("garde la personnalisation hors de l'app (pas de lore)", () => {
-    const app = [...files("src"), "messages/fr.json", "messages/en.json", "messages/de.json", "messages/es.json"]
-      .filter(path => /\.(tsx?|css|json)$/.test(path) && !path.endsWith("place-template.ts"));
+    const app = [...files("src"), ...files("tests"), ...files("e2e"), "messages/fr.json", "messages/en.json", "messages/de.json", "messages/es.json"]
+      .filter(path => /\.(tsx?|css|json)$/.test(path) && !path.endsWith("place-template.ts") && !path.endsWith("da-coherence.test.ts"));
     for (const path of app) {
       const text = read(path);
-      assert.doesNotMatch(text, /THE BLOC|THE BREACH|NEUKOAI|\bNABU\b|\bENKI\b/, path);
+      assert.doesNotMatch(text, /THE BLOC|THE BREACH|NEUKOAI|\bN\\?\*?ABU\b|\bE\\?\*?NKI\b/, path);
     }
     assert.doesNotMatch(read("src/lib/creation/demo.ts"), /demo-uttu|cast-uttu/);
     for (const gone of ["public/exemples/cast-uttu.webp", "public/exemples/cast-uttu-planche.webp", "public/exemples/apres-cast-photos.webp", "public/images/uttu-canon-portrait.webp", "public/images/uttu-guide-face.webp"]) {
@@ -48,6 +48,9 @@ describe("DA et logo partout", () => {
     for (const icon of ["src/app/favicon.ico", "src/app/icon0.svg", "src/app/icon1.png", "src/app/icon2.png", "src/app/icon3.png", "src/app/apple-icon.png", "public/brand/icon-v3-192.png", "public/brand/icon-v3-512.png", "public/brand/icon-v3-maskable-512.png"]) {
       assert.equal(existsSync(icon), true, icon);
     }
+    const ico = readFileSync("src/app/favicon.ico");
+    const sizes = Array.from({ length: ico.readUInt16LE(4) }, (_, i) => ico[6 + 16 * i] || 256).sort((a, b) => a - b);
+    assert.deepEqual(sizes, [16, 32, 48], "favicon.ico garde 16, 32 et 48 px");
     for (const old of ["public/brand/icon-192.png", "public/brand/icon-512.png", "public/brand/icon-maskable-512.png"]) {
       assert.equal(existsSync(old), false, old);
     }

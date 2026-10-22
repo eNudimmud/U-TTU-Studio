@@ -6,6 +6,7 @@
 // next to the panel and each one shows « Et ensuite ? » open. A tool that is not wired yet
 // says « bientôt » and why; there is never a button that does nothing. No cancel.
 
+import { useAgentDraft } from "./use-agent-draft";
 import { useEffect, useId, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import type { AssetRecord } from "@/lib/creation/assets";
@@ -17,6 +18,7 @@ import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/m
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
+import { resolveStudioHandoff } from "@/lib/agent/handoff";
 import { CardThumb, StudioHome, openStudioTool } from "./studio-entry";
 import { ReperageTool } from "./reperage/reperage-tool";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
@@ -238,6 +240,22 @@ export function ToolPanel({ outil: asked }: { outil: Outil }) {
   const askId = `${titleId}-ask`;
   const etat = outilEtat(outil, prefs);
   const sending = useRef(false);
+  useAgentDraft(op => op.toolId === outil.id, (draft, resources) => {
+    const remaining = [...resources];
+    const placed: Partial<Record<Entree, Picked | null>> = {};
+    for (const slot of outil.entrees) {
+      const i = remaining.findIndex(r => r.kind === (slot === "image2" ? "image" : slot));
+      if (i < 0) continue;
+      const [r] = remaining.splice(i, 1);
+      placed[slot] = { url: media[r.path], path: r.path, name: r.name };
+    }
+    setInputs(placed);
+    setText(outil.texte === "aucun" ? "" : draft.prompt);
+    setConsent(false);
+    setAsk(false);
+    setOutcome(null);
+  });
+
 
   useEffect(() => { setModelId(asked.id); setAsk(false); }, [asked.id]);
   useEffect(() => {
@@ -259,7 +277,7 @@ export function ToolPanel({ outil: asked }: { outil: Outil }) {
         try { sessionStorage.removeItem(SOURCE_KEY); } catch { /* ignore */ }
         return;
       }
-      const url = (saved.path && media[saved.path]) || (saved.url && !saved.url.startsWith("blob:") ? saved.url : "");
+      const url = resolveStudioHandoff(saved, media);
       if (!url) return;
       try { sessionStorage.removeItem(SOURCE_KEY); } catch { /* ignore */ }
       const placed = saved;

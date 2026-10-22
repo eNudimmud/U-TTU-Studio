@@ -3,7 +3,7 @@
 // The single DÉCOR entry to the 3D repérage. The sheet and three.js load on the first tap.
 
 import dynamic from "next/dynamic";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import type { CaptureInput, CaptureSaved, StreetPhotoFile } from "./reperage-3d";
 
@@ -20,6 +20,12 @@ export function ReperageEntry({ quote, onCapture, onCaptured, onStreetPhoto }: P
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
+  useEffect(() => {
+    const openFromAgent = () => setOpen(true);
+    window.addEventListener("u-ttu-agent-scout", openFromAgent);
+    return () => window.removeEventListener("u-ttu-agent-scout", openFromAgent);
+  }, []);
+
   return <section className="u-rep3d-entry" aria-labelledby="u-rep3d-entry-title" data-rep3d-entry="">
     <div>
       <p className="u-label" id="u-rep3d-entry-title">{t("rep3d.entryTitle")}</p>
