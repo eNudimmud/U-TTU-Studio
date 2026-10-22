@@ -30,7 +30,7 @@ The conversation and plan, one pending form handoff, and export receipts are pro
 
 Downloaded library media can be assembled on the native timeline after explicit preparation. Their durations are read from the local cache; a stable clip ID prevents duplicate insertion when a saved handoff is replayed. User trims and audio levels are preserved. The handoff is cleared only after the existing montage writer confirms persistence. A missing remote asset remains reusable when its local copy is available.
 
-Generated outputs retain job/workflow provenance, source-asset relations and remote IDs when actually provided or resolved. A temporary signed URL is not an identity. Account identity, expiration, pagination, on-demand caching, source precedence and the cross-device backend proposal are specified in [HYBRID_MEDIA.md](HYBRID_MEDIA.md).
+Generated outputs retain job/workflow provenance, source-asset relations and remote IDs when actually provided or resolved. A temporary signed URL is not an identity. Account identity, expiration, pagination, on-demand caching, source precedence and the storage roles (Comfy Cloud, Studio, IndexedDB, Obsidian) are specified in [HYBRID_MEDIA.md](HYBRID_MEDIA.md).
 
 A ZIP contains the local vault, including conversation and project organization. Uncached remote files must be downloaded first for a complete media archive. The local MP4 export is downloaded by the browser; that final downloaded file is not automatically copied back into the vault. Remote availability and local project metadata have different authorities. There is currently no automatic cross-device project metadata service.
 

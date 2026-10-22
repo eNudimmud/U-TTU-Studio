@@ -2736,39 +2736,5 @@
       "expired": "Expiration annoncée dépassée"
     },
     "guidance": "Choisissez un projet. Sélectionnez les médias avant de vérifier ou classer ; renseignez au moins un champ de classement. Les actions attendent la fin de la synchronisation."
-  },
-  "sync": {
-    "title": "Synchroniser mes projets",
-    "help": "Facultatif. Seules les notes du projet (texte, classement, plans) vont sur votre compte U*TTU. Les images, vidéos et sons restent sur cet appareil et chez Comfy. Rien ne part sans votre clic.",
-    "deviceOn": "Activer sur cet appareil",
-    "deviceOff": "Désactiver sur cet appareil",
-    "loading": "Ouverture du compte…",
-    "signedOut": "Connectez-vous à votre compte U*TTU pour synchroniser ce projet.",
-    "signIn": "Se connecter",
-    "run": "Synchroniser ce projet",
-    "busy": "Synchronisation en cours…",
-    "revision": "version",
-    "outcome": {
-      "same": "Déjà à jour",
-      "pushed": "Envoyé sur le compte",
-      "pulled": "Récupéré depuis le compte"
-    },
-    "conflict": "Ce projet a changé ici et sur un autre appareil. Rien n’a été écrasé.",
-    "conflictHelp": "Avant de prendre la version du compte, une copie de vos notes est gardée dans .uttu/sync-backup.json. Les notes absentes du compte restent sur cet appareil.",
-    "keepServer": "Prendre la version du compte",
-    "keepDevice": "Garder celle de cet appareil",
-    "skipped": "Notes gardées sur cet appareil seulement (lien signé ou clé détectés) :",
-    "failed": "La synchronisation n’a pas abouti. Vos notes locales sont intactes.",
-    "auth": "Session expirée. Reconnectez-vous puis réessayez.",
-    "disabled": "La synchronisation n’est pas activée sur ce déploiement.",
-    "server": "Le serveur ne répond pas. Vos notes locales sont intactes.",
-    "size": "Ce projet dépasse 1 Mo de notes. Exportez-le en ZIP à la place.",
-    "quota": "Limite de 100 projets synchronisés atteinte.",
-    "refused": "Le serveur a refusé ces notes (clé ou lien signé).",
-    "project": "Ouvrez un projet d’abord.",
-    "file": "Le serveur a refusé ces notes (clé ou lien signé).",
-    "shape": "Le serveur a refusé ces notes (clé ou lien signé).",
-    "secret": "Le serveur a refusé ces notes (clé ou lien signé).",
-    "ready": "Un clic envoie ou récupère les notes du projet ouvert. Pendant une synchronisation, les boutons attendent."
   }
 }

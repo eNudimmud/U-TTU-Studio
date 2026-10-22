@@ -2736,39 +2736,5 @@
       "expired": "Reported expiry passed"
     },
     "guidance": "Choose a project. Select media before checking or classifying; enter at least one classification field. Actions wait for synchronization to finish."
-  },
-  "sync": {
-    "title": "Sync my projects",
-    "help": "Optional. Only the project notes (text, organisation, plans) go to your U*TTU account. Images, videos and sounds stay on this device and on Comfy. Nothing leaves without your click.",
-    "deviceOn": "Turn on for this device",
-    "deviceOff": "Turn off for this device",
-    "loading": "Opening your account…",
-    "signedOut": "Sign in to your U*TTU account to sync this project.",
-    "signIn": "Sign in",
-    "run": "Sync this project",
-    "busy": "Syncing…",
-    "revision": "version",
-    "outcome": {
-      "same": "Already up to date",
-      "pushed": "Sent to your account",
-      "pulled": "Fetched from your account"
-    },
-    "conflict": "This project changed here and on another device. Nothing was overwritten.",
-    "conflictHelp": "Before taking the account version, a copy of your notes is kept in .uttu/sync-backup.json. Notes missing from the account stay on this device.",
-    "keepServer": "Take the account version",
-    "keepDevice": "Keep this device's version",
-    "skipped": "Notes kept on this device only (signed link or key detected):",
-    "failed": "Sync did not complete. Your local notes are untouched.",
-    "auth": "Session expired. Sign in again and retry.",
-    "disabled": "Sync is not enabled on this deployment.",
-    "server": "The server is not responding. Your local notes are untouched.",
-    "size": "This project has more than 1 MB of notes. Export it as a ZIP instead.",
-    "quota": "Limit of 100 synced projects reached.",
-    "refused": "The server refused these notes (key or signed link).",
-    "project": "Open a project first.",
-    "file": "The server refused these notes (key or signed link).",
-    "shape": "The server refused these notes (key or signed link).",
-    "secret": "The server refused these notes (key or signed link).",
-    "ready": "One click sends or fetches the open project's notes. While a sync runs, the buttons wait."
   }
 }

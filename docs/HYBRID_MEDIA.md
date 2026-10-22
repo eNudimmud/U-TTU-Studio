@@ -24,28 +24,15 @@ Comfy fait autorité sur ses identifiants et la disponibilité distante. Studio 
 
 Le cache est alimenté à la demande pour les imports distants. Les fichiers déjà téléchargés et les résultats générés restent conservés comme avant. La synchronisation ne lance aucun job et n’efface aucun asset distant. Les secrets ne font pas partie des modèles de données, des exports ou du contexte agent.
 
-## Continuité entre appareils — proposition préalable
+## Rôles retenus (décision de JD, 22 octobre 2026)
 
-La découverte du même compte retrouve ses assets, mais ne reconstruit pas automatiquement le classement Studio. Un manifeste JSON exportable indépendamment des blobs permet de transporter ce classement ; un ZIP reste nécessaire pour les médias locaux. Obsidian reste une archive documentaire optionnelle.
+- **Comfy Cloud = stockage** des créations du compte (images, vidéos, sons), retrouvées par l’inventaire `/api/assets`.
+- **U\*TTU Studio = organisation** : projets, classement, relations, plans de l’agent, dans `.uttu/media-index.json`.
+- **IndexedDB = cache** local et état de session ; téléchargement à la demande.
+- **Obsidian = export optionnel** : archive documentaire portable du coffre.
 
-Proposition minimale pour une synchronisation automatique future : stockage de manifestes versionnés derrière l’identité utilisateur déjà authentifiée, avec contrôle d’accès par propriétaire, révision conditionnelle (ETag/CAS), historique de versions et quotas. Une petite base SQL/KV persistante suffit ; les vidéos restent chez Comfy. Il faut choisir l’hébergement, vérifier son budget et valider ce service avant activation. Ne pas détourner `user_metadata` Comfy en base de projets sans garantie documentée de concurrence et de sauvegarde. Aucun backend persistant nouveau n’est activé dans cette livraison.
+Pas de base serveur de projets ni de compte supplémentaire. Pour changer d’appareil : resynchroniser la médiathèque depuis le même compte Comfy (les créations reviennent), puis importer le manifeste JSON exporté (le classement revient) ; un ZIP reste nécessaire pour les médias uniquement locaux.
 
 ### Portée du compte
 
 `/api/user` ne garantit dans sa spécification v1 qu’un champ de statut. Si un identifiant utilisateur est réellement retourné, le catalogue utilise son empreinte. Avec une clé API et sans cet identifiant, il utilise une empreinte de la clé : même clé, même portée ; une rotation de clé ne fusionne pas silencieusement les comptes. La clé elle-même n’est jamais persistée dans le catalogue. Une session sans identité stable est refusée pour la synchronisation plutôt que partagée entre utilisateurs sur la base d’un simple statut identique. Cette limite doit être vérifiée avec le compte réel avant activation.
-
-## Proposition concrète à valider : métadonnées partagées
-
-Option minimale : **Postgres Neon Free**, appelé uniquement par les routes serveur Vercel existantes, sous l'identité du compte Studio Clerk. L'identité Comfy ne devient pas une autorisation d'accès aux projets Studio. Il faudra vérifier/configurer les clés et sessions Clerk réelles : leur présence dans le code ne prouve pas qu'elles fonctionnent sur l'instance de production.
-
-Au 21 octobre 2026, [les conditions officielles Neon](https://neon.com/docs/introduction/plans) indiquent 0 USD/mois, 1 Go de stockage par projet Neon, 100 CU-heures/mois et 5 Go de transfert public par projet. [La page tarifaire](https://neon.com/pricing) indique qu'aucune carte n'est requise. Au dépassement des quotas gratuits, les opérations sont suspendues/refusées ; aucun passage payant automatique ne doit être activé. Ces limites sont à revérifier lors de l'activation. Le plan Vercel et Clerk déjà choisi conserve ses propres limites.
-
-Contrat proposé, non activé :
-
-- Table `studio_projects(owner_id, project_id, revision, manifest, updated_at)` et historique borné. Le serveur dérive `owner_id` d'une session Clerk validée ; il ne fait jamais confiance au propriétaire déclaré par le client. Toutes les requêtes imposent ce propriétaire, avec défense supplémentaire par politiques Postgres.
-- `GET /studio-projects/{id}` et `PUT` conditionnel avec révision/ETag. Un conflit rend `409` et garde les deux versions pour résolution ; aucune écriture silencieuse par le dernier appareil. L'import local reste possible si le serveur est indisponible.
-- Uniquement manifestes et notes de projet autorisés (organisation, plans, conversation). Pas de médias binaires, clés, cookies ou URL signées. Taille initiale plafonnée à 1 Mio par manifeste et quotas par propriétaire ; pagination ou découpage à prévoir pour de très gros projets.
-- Migrations versionnées, export JSON indépendant, journal de synchronisation local et reprise idempotente. Les modifications locales restent en attente tant que le serveur n'a pas confirmé la révision.
-- Tests à exiger avant activation : deux appareils, deux propriétaires, accès croisé refusé, collision de révision, déconnexion, quota, restauration d'une version et absence de secrets dans les manifestes.
-
-Validé par JD le 22 octobre 2026 et implémenté, **éteint par défaut** : voir `PROJECT_SYNC.md`. Aucun compte Neon, aucune base, aucune variable d'environnement ni abonnement n'a été créé ; sans variables le studio reste local.

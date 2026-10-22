@@ -2736,39 +2736,5 @@
       "expired": "Fecha de caducidad superada"
     },
     "guidance": "Elige un proyecto. Selecciona archivos antes de verificarlos o clasificarlos y rellena al menos un campo de clasificación. Las acciones esperan a que termine la sincronización."
-  },
-  "sync": {
-    "title": "Sincronizar mis proyectos",
-    "help": "Opcional. Solo las notas del proyecto (texto, organización, planes) van a tu cuenta U*TTU. Las imágenes, vídeos y sonidos se quedan en este dispositivo y en Comfy. Nada sale sin tu clic.",
-    "deviceOn": "Activar en este dispositivo",
-    "deviceOff": "Desactivar en este dispositivo",
-    "loading": "Abriendo la cuenta…",
-    "signedOut": "Inicia sesión en tu cuenta U*TTU para sincronizar este proyecto.",
-    "signIn": "Iniciar sesión",
-    "run": "Sincronizar este proyecto",
-    "busy": "Sincronizando…",
-    "revision": "versión",
-    "outcome": {
-      "same": "Ya está al día",
-      "pushed": "Enviado a la cuenta",
-      "pulled": "Recuperado de la cuenta"
-    },
-    "conflict": "Este proyecto cambió aquí y en otro dispositivo. No se sobrescribió nada.",
-    "conflictHelp": "Antes de tomar la versión de la cuenta, se guarda una copia de tus notas en .uttu/sync-backup.json. Las notas que faltan en la cuenta se quedan en este dispositivo.",
-    "keepServer": "Tomar la versión de la cuenta",
-    "keepDevice": "Conservar la de este dispositivo",
-    "skipped": "Notas guardadas solo en este dispositivo (enlace firmado o clave detectados):",
-    "failed": "La sincronización no se completó. Tus notas locales están intactas.",
-    "auth": "Sesión caducada. Vuelve a iniciar sesión e inténtalo de nuevo.",
-    "disabled": "La sincronización no está activada en este despliegue.",
-    "server": "El servidor no responde. Tus notas locales están intactas.",
-    "size": "Este proyecto supera 1 MB de notas. Expórtalo como ZIP.",
-    "quota": "Se alcanzó el límite de 100 proyectos sincronizados.",
-    "refused": "El servidor rechazó estas notas (clave o enlace firmado).",
-    "project": "Abre un proyecto primero.",
-    "file": "El servidor rechazó estas notas (clave o enlace firmado).",
-    "shape": "El servidor rechazó estas notas (clave o enlace firmado).",
-    "secret": "El servidor rechazó estas notas (clave o enlace firmado).",
-    "ready": "Un clic envía o recupera las notas del proyecto abierto. Durante una sincronización, los botones esperan."
   }
 }

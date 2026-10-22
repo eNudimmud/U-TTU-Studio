@@ -14,7 +14,6 @@ import "./app.css";
 import { StudioSplash } from "./splash";
 import { CREATION_TYPES, TopBar, type CreationType } from "./top-bar";
 import { MediaLibrary } from "./media-library";
-import { ProjectSync } from "./project-sync";
 import { AssistantPanel } from "./assistant-panel";
 
 type Tab = "tout" | CreationType | "notes";
@@ -142,7 +141,6 @@ function AtelierFrame() {
           </>}
         </div>
         <MediaLibrary />
-        <ProjectSync />
         <section className="u-lien u-fold" id="coffre" aria-labelledby="u-coffre-title">
           <h2 id="u-coffre-title" className="sr-only">{t("creations.settings")}</h2>
           <button type="button" className="u-fold-head" data-library-settings="" aria-expanded={settings} aria-controls="u-coffre-body" onClick={() => setSettings(value => !value)}>{t("creations.settings")}</button>

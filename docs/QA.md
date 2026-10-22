@@ -19,7 +19,7 @@ Branche `feat/studio-agent-capability-export`, PR #121 ; noyau Agent `335cc3a`, 
 - **Sécurité :** tests de confirmation avant appel modèle/annulation, portée de compte/projet, traversée de chemins, suppression des URL temporaires du manifeste, secrets absents du contexte modèle, redirection média sans transfert d'identifiants, écritures concurrentes et intégrité du noyau partagé.
 - **Dépendances :** Next 16.3.8, MapLibre 6.4.1, Sharp 0.35.5, source-map-js 1.2.2, Playwright 1.55.1 et Puppeteer Core 25.15.0. `npm audit --json` ne signale plus de vulnérabilité. Correctifs principaux : [Next](https://github.com/advisories/GHSA-cjq9-62q9-8jv4), [MapLibre](https://github.com/advisories/GHSA-jrc7-96c5-q579), [Sharp](https://github.com/advisories/GHSA-wq5f-xc86-pv6w). Les versions n'activent aucun service supplémentaire.
 - **Pièces jointes CI :** le quota GitHub Actions est atteint. L'envoi d'artefacts est facultatif et émet son propre avertissement ; tous les tests/typecheck/build restent bloquants. Aucun ancien artefact n'a été supprimé pour cette livraison.
-- **Encore distinct :** Android physique, permissions effectives et durée de conservation du compte Comfy réel, qualité de Jev réel, backend de métadonnées multiappareil proposé mais non activé. Voir `HYBRID_MEDIA.md` et `STUDIO_AGENT.md`.
+- **Encore distinct :** Android physique, permissions effectives et durée de conservation du compte Comfy réel, qualité de Jev réel. Pas de backend de métadonnées : continuité par la médiathèque Comfy et le manifeste exporté. Voir `HYBRID_MEDIA.md` et `STUDIO_AGENT.md`.
 
 ## Trajet, personnage, liaison, LoRA de lieu — 4 octobre 2026
 

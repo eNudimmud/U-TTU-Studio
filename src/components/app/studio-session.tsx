@@ -81,7 +81,6 @@ import { renderCredentialScope } from "@/lib/render/client";
 import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
 import { createMediaClient } from "@/lib/media/cloud";
 import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
-import { applyManifest, collectManifest, type ProjectManifest } from "@/lib/sync/manifest";
 
 export interface StudioSession {
   catalog: MediaCatalog | null;
@@ -91,10 +90,6 @@ export interface StudioSession {
   previewMedia(id: string): Promise<Blob>;
   classifyMedia(ids: string[], patch: Partial<MediaAsset['organization']>): Promise<void>;
   importManifest(text: string): Promise<void>;
-  /** Text notes of the open project, for the optional account sync. Media never leave. */
-  projectNotes(): Promise<{ manifest: ProjectManifest; skipped: string[] }>;
-  /** Writes synced notes into the open project. Keeps a recovery copy, deletes nothing. */
-  applyProjectNotes(manifest: ProjectManifest): Promise<number>;
 
   ready: boolean;
   demo: boolean;
@@ -515,11 +510,6 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const incoming = parseCatalog(text, project);
     const next = await updateCatalog(store(), project, current => ({ ...current, assets: [...current.assets, ...incoming.assets.filter(a => !current.assets.some(b => b.id === a.id || (a.remote?.assetId && b.remote?.assetId === a.remote.assetId && b.remote.account === a.remote.account))) ] }));
     if (studioRef.current?.project === project) setCatalog(next);
-  }, [store]);
-  const projectNotes = useCallback(async () => {
-    const slug = studioRef.current?.project;
-    if (!slug) throw new Error("sync.project");
-    return collectManifest(store(), slug);
   }, [store]);
   const completePending = useCallback(async (render: RenderClient, jobId: string) => {
     const receipt = readPending(localStorage);
@@ -1757,15 +1747,6 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     return path;
   }, [current.project, reload, store, t]);
 
-  const applyProjectNotes = useCallback(async (manifest: ProjectManifest) => {
-    if (studioRef.current?.project !== manifest.project) throw new Error("sync.project");
-    const next = saves.current.catch(() => {}).then(() => applyManifest(store(), manifest));
-    saves.current = next;
-    const written = await next;
-    await reload();
-    return written;
-  }, [reload, store]);
-
   const readProjectFile = useCallback(async (file: string) => {
     const slug = current.project;
     if (!slug) return undefined;
@@ -1953,7 +1934,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [demoOn, prepareMontageClip, reload, store]);
 
   const value: StudioSession = {
-    catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest, projectNotes, applyProjectNotes,
+    catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
     prefs, setPrefs,
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,

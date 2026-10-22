@@ -25,7 +25,7 @@ Sans les deux clés, `npm test`, `npm run typecheck` et `npm run build` passent.
 - `/compte` — « Le studio n’en a pas besoin. » Sans clés : « Comptes U*TTU fermés pour l’instant. » Anonyme : « Se connecter », « Créer un compte ». Connecté : profil et `UserButton`. Le compte ne lit pas le coffre et n’y écrit pas. L’ancien journal de budget local est retiré : le coût réel de chaque prise est dans le coffre (`jobs.md`).
 - Après connexion ou inscription, retour vers `/compte`. Un ancien lien `/studio#compte` ou `/#compte` est reconduit vers `/compte`.
 
-Pas de Stripe. Pas de jobs cloud. Pas de sync du coffre ; seule la synchro facultative des notes de projet (`PROJECT_SYNC.md`) utilise la session Clerk, et seulement si elle est activée.
+Pas de Stripe. Pas de jobs cloud. Pas de sync du coffre.
 
 ## Development et Production
 
