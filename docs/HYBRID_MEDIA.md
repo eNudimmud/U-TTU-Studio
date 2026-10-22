@@ -48,4 +48,4 @@ Contrat proposé, non activé :
 - Migrations versionnées, export JSON indépendant, journal de synchronisation local et reprise idempotente. Les modifications locales restent en attente tant que le serveur n'a pas confirmé la révision.
 - Tests à exiger avant activation : deux appareils, deux propriétaires, accès croisé refusé, collision de révision, déconnexion, quota, restauration d'une version et absence de secrets dans les manifestes.
 
-Aucun compte Neon, aucune base, aucune variable d'environnement ni abonnement n'a été créé. Cette proposition attend la validation de l'hébergement et de l'usage de l'identité Studio avant implémentation.
+Validé par JD le 22 octobre 2026 et implémenté, **éteint par défaut** : voir `PROJECT_SYNC.md`. Aucun compte Neon, aucune base, aucune variable d'environnement ni abonnement n'a été créé ; sans variables le studio reste local.

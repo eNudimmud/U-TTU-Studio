@@ -2736,5 +2736,39 @@
       "expired": "Gemeldetes Ablaufdatum überschritten"
     },
     "guidance": "Wähle ein Projekt. Wähle Medien zum Prüfen oder Zuordnen aus und fülle mindestens ein Zuordnungsfeld aus. Aktionen warten, bis die Synchronisierung abgeschlossen ist."
+  },
+  "sync": {
+    "title": "Meine Projekte synchronisieren",
+    "help": "Optional. Nur die Projektnotizen (Text, Ordnung, Pläne) gehen in Ihr U*TTU-Konto. Bilder, Videos und Töne bleiben auf diesem Gerät und bei Comfy. Nichts geht ohne Ihren Klick hinaus.",
+    "deviceOn": "Auf diesem Gerät einschalten",
+    "deviceOff": "Auf diesem Gerät ausschalten",
+    "loading": "Konto wird geöffnet …",
+    "signedOut": "Melden Sie sich in Ihrem U*TTU-Konto an, um dieses Projekt zu synchronisieren.",
+    "signIn": "Anmelden",
+    "run": "Dieses Projekt synchronisieren",
+    "busy": "Synchronisierung läuft …",
+    "revision": "Version",
+    "outcome": {
+      "same": "Bereits aktuell",
+      "pushed": "Ans Konto gesendet",
+      "pulled": "Vom Konto geholt"
+    },
+    "conflict": "Dieses Projekt wurde hier und auf einem anderen Gerät geändert. Nichts wurde überschrieben.",
+    "conflictHelp": "Bevor die Kontoversion übernommen wird, bleibt eine Kopie Ihrer Notizen in .uttu/sync-backup.json. Notizen, die im Konto fehlen, bleiben auf diesem Gerät.",
+    "keepServer": "Kontoversion übernehmen",
+    "keepDevice": "Version dieses Geräts behalten",
+    "skipped": "Nur auf diesem Gerät behaltene Notizen (signierter Link oder Schlüssel erkannt):",
+    "failed": "Die Synchronisierung ist fehlgeschlagen. Ihre lokalen Notizen sind unverändert.",
+    "auth": "Sitzung abgelaufen. Melden Sie sich erneut an und versuchen Sie es noch einmal.",
+    "disabled": "Die Synchronisierung ist in dieser Bereitstellung nicht aktiviert.",
+    "server": "Der Server antwortet nicht. Ihre lokalen Notizen sind unverändert.",
+    "size": "Dieses Projekt hat mehr als 1 MB Notizen. Exportieren Sie es stattdessen als ZIP.",
+    "quota": "Grenze von 100 synchronisierten Projekten erreicht.",
+    "refused": "Der Server hat diese Notizen abgelehnt (Schlüssel oder signierter Link).",
+    "project": "Öffnen Sie zuerst ein Projekt.",
+    "file": "Der Server hat diese Notizen abgelehnt (Schlüssel oder signierter Link).",
+    "shape": "Der Server hat diese Notizen abgelehnt (Schlüssel oder signierter Link).",
+    "secret": "Der Server hat diese Notizen abgelehnt (Schlüssel oder signierter Link).",
+    "ready": "Ein Klick sendet oder holt die Notizen des offenen Projekts. Während einer Synchronisierung warten die Schaltflächen."
   }
 }
