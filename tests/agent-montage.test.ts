@@ -23,11 +23,23 @@ test('library image, video and audio enter existing timeline tracks using durabl
 
 test('replaying an interrupted handoff preserves user trims, levels and clip count', () => {
   let edit = appendAgentMedia(emptyEdit('suite', 'Film'), draft, resources);
-  edit = trimVideo(edit, 'agent-plan-1-0', 'end', 2);
-  edit = setAudioLevels(edit, 'agent-plan-1-2', { volume: 0.3 });
+  edit = trimVideo(edit, edit.video[0].id, 'end', 2);
+  edit = setAudioLevels(edit, edit.audio[0].id, { volume: 0.3 });
   assert.equal(appendAgentMedia(edit, draft, [...resources].reverse()), edit);
   assert.equal(edit.video[0].end, 2);
   assert.equal(edit.audio[0].volume, 0.3);
+});
+
+test('changing selection within a prepared step cannot reuse another clip identity or duplicate a legacy clip', () => {
+  const first = appendAgentMedia(emptyEdit('suite', 'Film'), { ...draft, resourceIds: ['asset:photo'] }, [resources[0]]);
+  // Earlier branch versions used an index; its user trim must survive migration.
+  const legacy = { ...first, video: [{ ...first.video[0], id: 'agent-plan-1-0', end: 2 }] };
+  const changed = { ...draft, resourceIds: ['asset:clip', 'asset:photo', 'asset:sound'] };
+  const next = appendAgentMedia(legacy, changed, [resources[1], resources[0], resources[2]]);
+  assert.equal(next.video.length, 2);assert.equal(next.audio.length, 1);
+  assert.equal(next.video[0].id, 'agent-plan-1-0');assert.equal(next.video[0].end, 2);
+  assert.equal(new Set([...next.video, ...next.audio].map(c => c.id)).size, 3);
+  assert.equal(appendAgentMedia(next, { ...draft, resourceIds: ['asset:sound'] }, [resources[2]]), next);
 });
 
 test('timeline handoff rejects unavailable, foreign, unselected and unmeasurable media', () => {

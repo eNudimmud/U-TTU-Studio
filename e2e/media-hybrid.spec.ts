@@ -81,6 +81,14 @@ test('hybrid library: selected cloud video and audio persist on the native timel
  await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);
  await openAssistant(page);
  const step=panel.locator('[data-agent-step="local:montage"]');
+ // Changing selection while this step is prepared must not duplicate its sound
+ // or discard the evidence awaiting approval from the first preparation.
+ await panel.getByText(/Références sélectionnées/).click();
+ await panel.getByRole('checkbox',{name:/Plan laboratoire/}).uncheck();
+ await step.locator('[data-agent-prepare]').click();
+ await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
+ await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);
+ await openAssistant(page);
  await expect(step.locator('[data-agent-accept]')).toBeEnabled();
  await step.locator('[data-agent-accept]').click();await expect(step).toHaveAttribute('data-state','done');
  await page.reload();await expect(page.locator('.u-clip.is-video')).toHaveCount(1);await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);

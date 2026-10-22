@@ -149,7 +149,7 @@ export function AssistantPanel() {
       const selected = { ...step, state: step.reason === "resource" ? "ready" as const : step.state, resourceIds: [...contextRef.current.selectedIds] };
       const bound = { ...plan, steps: plan.steps.map(s => s.id === step.id ? selected : s) };
       const op = operations.find(op => op.id === step.operationId)!;
-      const baseline = [...(contextRef.current.evidence[op.evidenceKey] ?? [])];
+      const baseline = step.state === 'prepared' ? [...step.baseline] : [...(contextRef.current.evidence[op.evidenceKey] ?? [])];
       await commit({ ...liveConversation.current, plan: updateStep(bound, step.id, { state: 'prepared', baseline }) });
       const result = await prepareStep(session, contextRef.current, bound, selected);
       await commit({ ...liveConversation.current, plan: updateStep(bound, step.id, { state: result.state, baseline, results: result.results }) });

@@ -10,7 +10,6 @@ export function useAgentDraft(accepts: (op: StudioAction) => boolean, apply: (dr
   const studio = useStudio();
   const latest = useRef({ studio, accepts, apply });
   latest.current = { studio, accepts, apply };
-  const consumed = useRef("");
   const busy = useRef(false);
   useEffect(() => {
     if (!enabled) return;
@@ -23,7 +22,7 @@ export function useAgentDraft(accepts: (op: StudioAction) => boolean, apply: (dr
         const ops = studioActionRegistry(s.prefs);
         const snapshot = await s.readProjectFile(AGENT_DRAFT_FILE);
         const draft = parseAgentDraft(snapshot, productionContext(s, ops, []));
-        if (gone || latest.current.studio.studio.project !== s.studio.project || !draft || consumed.current === `${draft.projectId}:${draft.stepId}`) return;
+        if (gone || latest.current.studio.studio.project !== s.studio.project || !draft) return;
         const op = ops.find(op => op.id === draft.operationId)!;
         if (!accepts(op)) return;
         // Apply while this module is mounted; a later mount may safely refill the same draft.
@@ -33,7 +32,6 @@ export function useAgentDraft(accepts: (op: StudioAction) => boolean, apply: (dr
         const current = await s.readProjectFile(AGENT_DRAFT_FILE);
         if (current !== snapshot || latest.current.studio.studio.project !== s.studio.project) return;
         await s.writeProjectFile(AGENT_DRAFT_FILE, "");
-        consumed.current = `${draft.projectId}:${draft.stepId}`;
       } catch { /* Keep the draft for a later attempt; no request is submitted. */ }
       finally {
         busy.current = false;

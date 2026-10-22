@@ -1,5 +1,13 @@
 # Contrôles de livraison — C micro
 
+## Vérification complémentaire — 22 octobre 2026
+
+Le commit `e99eaed` a passé la CI complète [39673039202](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/39673039202) : 420 tests unitaires/intégration réussis, un ignoré, TypeScript et build réussis. Les six parcours Agent/médiathèque desktop/mobile passent au premier essai, y compris les médias image/vidéo/audio téléchargés puis réouverts dans MONTAGE. La non-régression compte 101 réussites directes, une réussite après reprise (ZIP Firefox desktop, délai de téléchargement) et 14 cas déjà ignorés. Soit 108 parcours réussis au total, dont un après reprise. Les générations, inventaires et contenus distants sont simulés ; la timeline, le coffre et les exports locaux utilisent le navigateur réel.
+
+Une dernière correction traite la sélection modifiée pendant une étape de montage déjà préparée : identités de clips indépendantes de l’ordre de sélection, conservation des anciens clips et de la preuve attendant validation. Elle ajoute un test unitaire (422 au total, 421 réussis, un ignoré) et étend le parcours image/son existant pour vérifier l’absence de doublon après une nouvelle préparation. Son verdict navigateur est à lire dans les checks suivants de la PR. Aucun changement du noyau Agent ni de l’identité Core.
+
+Le quota d’artefacts GitHub a empêché l’archivage des captures du run réussi. Les logs de tests restent disponibles. Android physique, permissions réelles Comfy et qualité du modèle optionnel restent à valider. Aucun crédit n’a été consommé et aucun déploiement n’a été effectué.
+
 ## Agent et médiathèque hybride — 21 octobre 2026
 
 Branche `feat/studio-agent-capability-export`, PR #121 ; noyau Agent `335cc3a`, PR Agent #2. La CI de l'Agent a passé 17 tests. Aucun appel payant réel, aucune fusion, aucune mise en production.

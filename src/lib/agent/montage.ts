@@ -15,7 +15,11 @@ export function appendAgentMedia(edit: Edit, draft: AgentDraft, resources: Timed
       || !resource.path.startsWith(`Projets/${draft.projectId}/`)
       || resource.path.includes("\\") || resource.path.split("/").some(part => !part || part === "." || part === "..")
       || !Number.isFinite(resource.seconds) || resource.seconds <= 0) throw new Error("resource");
-    const id = `agent-${draft.stepId}-${index}`;
+    // Selection order can change when the user prepares the same step again.
+    // Reuse earlier index-based IDs by source, then use an injective resource ID.
+    const previous = [...next.video, ...next.audio].find(clip => clip.id.startsWith(`agent-${draft.stepId}-`) && clip.source === resource.path);
+    const identity = Array.from(new TextEncoder().encode(resource.id), byte => byte.toString(16).padStart(2, "0")).join("");
+    const id = previous?.id ?? `agent-${draft.stepId}-${identity}`;
     const clip = { id, source: resource.path, label: resource.name, media: resource.seconds, start: 0, end: resource.seconds };
     if (resource.kind === "audio") {
       next = addAudio(next, { ...clip, track: "effets", at: 0, volume: 0.8, fadeIn: 0, fadeOut: 0 });
