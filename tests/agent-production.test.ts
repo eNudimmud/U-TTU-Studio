@@ -14,9 +14,9 @@ function session() {
  const s={studio,cast:[],decor:[],loose:[],media:{},prefs:{},readProjectFile:async(p:string)=>files.get(p),writeProjectFile:async(p:string,t:string)=>{files.set(p,t);},refreshStudio:async()=>{},exportCoffre:async()=>{},setSheet:()=>{},sendSequence:async()=>0,createCast:async()=>{requests++;},runOutil:async()=>{requests++;}} as unknown as StudioSession;
  return {s,files,requests:()=>requests};
 }
-test('registry covers every Studio area and leaves unsupported Core/LoRA disabled',()=>{
+test('registry covers every Studio area, keeps LoRA disabled and exposes no Core operation',()=>{
  const ops=studioActionRegistry();for(const area of ['cast','decor','prise','montage','outils','coffre','projets'])assert.ok(ops.some(op=>op.area===area));
- assert.equal(ops.find(op=>op.id==='local:lora')!.status,'disabled');assert.equal(ops.find(op=>op.id==='local:core')!.status,'disabled');
+ assert.equal(ops.find(op=>op.id==='local:lora')!.status,'disabled');assert.equal(ops.find(op=>op.id==='local:core'),undefined);
  assert.ok(ops.filter(op=>op.id.startsWith('tool:')&&op.status==='ready').every(op=>op.href&&op.toolId));
 });
 test('bridge prepares three linked drafts idempotently with zero paid method calls',async()=>{

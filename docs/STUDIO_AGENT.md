@@ -1,6 +1,6 @@
 # U*TTU Studio Agent
 
-The Studio orchestrator complements the existing U*TTU Core ComfyUI specialist. It does not replace Core's persona, knowledge or canonical vault. The original BiRefNet bridge remains an integration smoke test; it is not the scope of the global assistant.
+The Studio assistant prepares a production plan from the visitor's request and hands each step to the existing Studio module. It runs locally in the browser: no language model, no key and no credit is needed to talk to it. The original BiRefNet bridge remains an integration smoke test; it is not the scope of the global assistant.
 
 ## Responsibilities and boundaries
 
@@ -11,18 +11,18 @@ The Studio orchestrator complements the existing U*TTU Core ComfyUI specialist. 
 | Conversation manager | pinned kernel `production.ts`, `assistant-panel.tsx` | Bounded history, clarifications, selection, dependencies and project-scoped restoration. |
 | Production planner | pinned independent Agent kernel | Ordered plans, live capability validation, interruptions and explicit result approval. |
 | Execution bridge | `execution.ts`, `use-agent-draft.ts` | Fill existing forms, prepare saved shot drafts, send selected takes and downloaded image/video/audio assets to the existing montage writer, initiate local backup and guide navigation. |
-| Job supervision | existing render recovery and task registry | Follow the original job, recover after interruption, stop local monitoring and explicitly confirm remote cancellation. Never resubmit an ambiguous paid request. |
+| Job supervision | existing render recovery and task registry | Follow the original job and recover it after an interruption. There is no cancellation path: a job sent to Comfy is never cancelled by the Studio or the assistant (`tests/no-comfy-cancel.test.ts`). Never resubmit an ambiguous paid request. |
 | Validation | kernel checks, module quotes/consent, media transport | Validate project/resources/catalogue, financial confirmation, account scope, stable media identities and download bounds. |
 
-The four vendored kernel files are byte-for-byte copies of Agent commit `335cc3abff58990f91a7606ddb9ca90f97655d1b`. `kernel/source.json` records SHA-256 digests, checked by a unit test. Changes to these files start in the independent Agent repository, pass its tests, and are repinned here. No network dependency is fetched at runtime.
+The four vendored kernel files are byte-for-byte copies of Agent commit `56b9fe4887f2a6f70c876da72ead7b7b36a90496` (merge of Agent PR #2). `kernel/source.json` records SHA-256 digests, checked by a unit test. Changes to these files start in the independent Agent repository, pass its tests, and are repinned here. No network dependency is fetched at runtime.
 
 ## Production flow
 
-Open **Assistant du studio** through the Studio menu. Select or create a project, describe the intention, and choose its references. Local interpretation supports a conservative set of French/English catalogue intentions and asks for clarification when the request is unknown. A complete-film request proposes CAST → DÉCOR → shot drafts → PRISE → MONTAGE → export → backup → reopen.
+Open **Assistant du studio** through the Studio menu. Select or create a project, describe the intention, and choose its references. Local interpretation supports a conservative set of catalogue intentions in French, English, German and Spanish and asks for clarification when the request is unknown. The kernel itself reads French/English keywords; `src/lib/agent/language.ts` rewrites German and Spanish requests (and French conjugations such as « monte ») into those keywords and answers from the active catalogue, with tutoiement (tu / du / tú). A complete-film request proposes CAST → DÉCOR → shot drafts → PRISE → MONTAGE → export → backup → reopen.
 
 Preparing a generation step fills the corresponding Studio form. The user still chooses its workflow/settings, reviews its real quote and explicitly confirms execution in that module. Preparation alone is never marked as a generated result. The user approves newly saved evidence before continuing. Native preparation of shot drafts, montage handoff and ZIP initiation produces local receipts; it is not evidence of a paid generation.
 
-For real-location scouting the agent opens the existing repérage interface. The user searches the place and chooses available photography/3D capture there. Street imagery depends on provider coverage. Exportable LoRA training and an authenticated Core delegation endpoint remain **unavailable**. No invented workflow stands in for either capability.
+For real-location scouting the agent opens the existing repérage interface. The user searches the place and chooses available photography/3D capture there. Street imagery depends on provider coverage. Exportable LoRA training remains **unavailable**. No invented workflow stands in for it.
 
 ## Persistence and hybrid library
 
@@ -34,7 +34,10 @@ Generated outputs retain job/workflow provenance, source-asset relations and rem
 
 A ZIP contains the local vault, including conversation and project organization. Uncached remote files must be downloaded first for a complete media archive. The local MP4 export is downloaded by the browser; that final downloaded file is not automatically copied back into the vault. Remote availability and local project metadata have different authorities. There is currently no automatic cross-device project metadata service.
 
-## Optional Jev interpretation
+## Optional Jev interpretation (disabled)
+
+For the contest build the semantic layer is switched off (`SEMANTIC_MODEL_ENABLED = false` in `src/lib/agent/semantic-flag.ts`); `/studio-agent/interpret` answers 404 and the panel shows no key field. The description below documents the code path kept for later.
+
 
 Jev uses TypeSafe System One typed choice questions over an allowlist of catalogue IDs, not executable text or workflow JSON. The route `/studio-agent/interpret` validates origin, request size, a separate TypeSafe key and an explicit per-request confirmation before calling the provider. The key stays in tab memory; it is not written to project files. The context contains the request, eight recent messages, project name, previous step states and selected resource names; it contains no Comfy credential or media bytes.
 
@@ -44,4 +47,4 @@ The model is off by default. Each potentially billable request needs consent. Th
 
 Run `npm test`, `npm run typecheck`, `npm run build` and `npx playwright test`. The CI runs full-agent and hybrid-library scenarios first, then the rest of the browser regression suite. Financial operations in these scenarios are mocked. Local rendering/export, IndexedDB and ZIP creation run in the actual browser. Mobile viewport coverage is not physical-Android certification.
 
-See [QA.md](QA.md), [continuity](STUDIO_AGENT_CONTINUITY.md) and the latest checks on PR #121. A local socket restriction prevents Chromium launch in the coding workspace; GitHub Actions supplies the browser environment. The GitHub artifact quota can prevent attachment upload; this is reported separately from strict test/build gates. No paid call, merge or production deployment is authorized by a green test suite.
+See [QA.md](QA.md) and [continuity](STUDIO_AGENT_CONTINUITY.md). The GitHub artifact quota can prevent attachment upload; this is reported separately from strict test/build gates. No paid call is authorized by a green test suite.

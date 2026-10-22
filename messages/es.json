@@ -2674,8 +2674,7 @@
       "export": "Exportar la película",
       "backup": "Guardar una copia del proyecto",
       "projects": "Volver a abrir un proyecto",
-      "jobs": "Seguir o recuperar un render",
-      "core": "Conocimientos de U*TTU Core — conexión no disponible"
+      "jobs": "Seguir o recuperar un render"
     },
     "model": "Interpretación IA opcional · Jev",
     "modelHelp": "Desactivada por defecto. Jev solo propone opciones del catálogo. El modelo no puede ejecutar workflows ni generaciones.",
@@ -2685,7 +2684,43 @@
     "modelSend": "Confirmar esta consulta IA",
     "modelError": "La consulta no se completó y podría haberse cobrado. No se reintenta automáticamente.",
     "modelUncertain": "La decisión de la IA es incierta o está fuera del catálogo. Aclara tu petición o usa el modo local.",
-    "guidance": "Elige un proyecto y describe tu intención. Cada paso necesita sus referencias y el resultado anterior; las acciones se pausan al guardar."
+    "guidance": "Elige un proyecto y describe tu intención. Cada paso necesita sus referencias y el resultado anterior; las acciones se pausan al guardar.",
+    "reply": {
+      "preserved": "Tu plan se conserva. Revisa el siguiente paso abajo.",
+      "complete": "El plan está terminado. ¿Qué quieres preparar ahora?",
+      "which": "¿Qué parte quieres preparar: personaje, decorado, toma, montaje, sonido o exportación? Tu plan actual se conserva.",
+      "describe": "Describe el sujeto, la acción o el ambiente que quieres mantener en este plan.",
+      "plan": "Estos son los pasos propuestos. Preparar un paso no autoriza ninguna generación de pago. Revisa cada resultado antes de continuar."
+    },
+    "descriptions": {
+      "cast": "Fotos, referencias, identidad y hoja de personaje",
+      "lora": "El entrenamiento exportable aún no está conectado. Usa las referencias y hojas de Cast.",
+      "decor": "Referencias fotográficas, creación y coherencia del lugar",
+      "scout": "Mapa, vistas de calle Panoramax/Mapillary según cobertura, importación de fotos y captura 3D",
+      "shots": "Crear borradores de planos vinculados a los personajes y decorados elegidos",
+      "take": "Elige el workflow y revisa el presupuesto en Toma antes de confirmar",
+      "montage": "Montaje de los vídeos seleccionados: línea de tiempo, transiciones y pistas de sonido",
+      "export": "Exportación MP4 local en Montaje; la compatibilidad del navegador se comprueba al exportar",
+      "backup": "Exportación ZIP de tu carpeta con proyectos, medios, conversaciones y planes",
+      "projects": "Elige un proyecto existente o importa una copia de seguridad en Mi estudio",
+      "jobs": "Recupera un trabajo existente; nunca se reenvía automáticamente"
+    },
+    "inline": {
+      "title": "Asistente U*TTU",
+      "askImage": "¿Qué quieres hacer con esta imagen?",
+      "askVideo": "¿Qué quieres hacer con este vídeo?",
+      "aria": "Pregunta a U*TTU",
+      "placeholder": "Ej. Recorta esta imagen",
+      "propose": "Proponer",
+      "notAccessible": "Esta imagen aún no está disponible en el Studio. Guárdala en tu carpeta o espera a que cargue antes de cambiar de herramienta.",
+      "ready": "Recorte BiRefNet listo para preparar. Aquí no se gasta ningún crédito.",
+      "open": "Abre la herramienta y revisa el presupuesto",
+      "decision": {
+        "unrecognized": "Indica qué operación creativa quieres hacer en el Studio.",
+        "unavailable": "El recorte no está disponible en el Studio ahora mismo.",
+        "missing_asset": "Selecciona una imagen para recortar."
+      }
+    }
   },
   "media": {
     "title": "Biblioteca multimedia",

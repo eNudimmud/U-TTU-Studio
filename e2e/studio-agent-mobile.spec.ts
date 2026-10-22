@@ -12,7 +12,7 @@ test("mobile agent proposes cutout without spending credits, preserving image an
   await detail.getByRole("button", { name: "Assistant U*TTU" }).click();
   await detail.getByRole("textbox", { name: "Demande à U*TTU" }).fill("Détoure cette image");
   await detail.getByRole("button", { name: "Proposer" }).click();
-  const prepare = detail.getByRole("link", { name: "Ouvrir l'outil et vérifier le devis" });
+  const prepare = detail.getByRole("link", { name: "Ouvrir l’outil et vérifier le devis" });
   await expect(prepare).toBeVisible();
   await prepare.click();
   await expect(page).toHaveURL(/\/studio#outils\/ret-detourer/);

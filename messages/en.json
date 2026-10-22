@@ -2674,8 +2674,7 @@
       "export": "Export the film",
       "backup": "Back up the project",
       "projects": "Reopen a project",
-      "jobs": "Follow or recover a render",
-      "core": "U*TTU Core expertise — connection unavailable"
+      "jobs": "Follow or recover a render"
     },
     "model": "Optional AI interpretation · Jev",
     "modelHelp": "Off by default. Jev only proposes catalogue choices. The model cannot execute workflows or generations.",
@@ -2685,7 +2684,43 @@
     "modelSend": "Confirm this AI call",
     "modelError": "The call did not complete and may have been charged. No automatic retry.",
     "modelUncertain": "The AI decision is uncertain or outside the catalogue. Clarify your request or use local mode.",
-    "guidance": "Choose a project and enter your intention. Steps require their references and the previous result; actions pause while saving."
+    "guidance": "Choose a project and enter your intention. Steps require their references and the previous result; actions pause while saving.",
+    "reply": {
+      "preserved": "Your plan is preserved. Review the next step below.",
+      "complete": "The plan is complete. What would you like to prepare next?",
+      "which": "Which part should we prepare: character, location, shot, edit, audio or export? Your current plan is preserved.",
+      "describe": "Describe the subject, action or atmosphere to keep in this plan.",
+      "plan": "Here is the proposed sequence. Preparing a step does not authorize a paid generation. Review each result before continuing."
+    },
+    "descriptions": {
+      "cast": "Photos, references, identity and character sheet",
+      "lora": "Exportable training is not wired yet. Use the references and sheets from Cast.",
+      "decor": "Photo references, creation and consistency of the location",
+      "scout": "Map, Panoramax/Mapillary street views where covered, photo import and 3D capture",
+      "shots": "Create draft shots linked to the chosen characters and sets",
+      "take": "Choose the workflow and check the quote in Take before confirming",
+      "montage": "Edit the selected videos: timeline, transitions and sound tracks",
+      "export": "Local MP4 export in Edit; browser support is checked at export",
+      "backup": "ZIP export of your folder with projects, media, conversations and plans",
+      "projects": "Pick an existing project or import a backup in My studio",
+      "jobs": "Recover an existing job; never resent automatically"
+    },
+    "inline": {
+      "title": "U*TTU assistant",
+      "askImage": "What do you want to do with this image?",
+      "askVideo": "What do you want to do with this video?",
+      "aria": "Ask U*TTU",
+      "placeholder": "E.g. Cut out this image",
+      "propose": "Suggest",
+      "notAccessible": "This image is not available in the Studio yet. Save it to your folder or wait for it to load before switching tools.",
+      "ready": "BiRefNet cutout ready to prepare. No credits are spent here.",
+      "open": "Open the tool and check the quote",
+      "decision": {
+        "unrecognized": "Say which creative operation to run in the Studio.",
+        "unavailable": "Cutout is not available in the Studio right now.",
+        "missing_asset": "Select an image to cut out."
+      }
+    }
   },
   "media": {
     "title": "Media library",
