@@ -2763,5 +2763,205 @@
     "demo-gare": "A station hall",
     "demo-pluie": "In the rain",
     "demo-toit": "Rooftops at dawn"
+  },
+  "uttu": {
+    "title": "U*TTU",
+    "sub": "Your studio guide · free, no AI model",
+    "button": "U*TTU",
+    "openAria": "Open or close U*TTU, your studio guide",
+    "welcome": "Hi, I’m Uttu. I help you get started, answer your questions about the studio and estimate what your renders cost. Everything happens on this device: I send nothing and spend nothing.",
+    "ask": "Your question for Uttu",
+    "placeholder": "e.g. How much for 3 portraits + 2 LTX takes?",
+    "send": "Send",
+    "you": "You",
+    "me": "Uttu",
+    "loading": "Uttu is opening its studio sheet…",
+    "loadError": "I can’t read my studio sheet. Reload the page to try again.",
+    "log": "Conversation with Uttu",
+    "suggest": "Question ideas",
+    "suggestions": {
+      "start": "How do I start?",
+      "cost": "How much for 3 portraits + 2 LTX takes?",
+      "free": "What is free?",
+      "cancel": "Can I cancel a render?"
+    },
+    "notFound": "I can’t answer that from my local sheet, and I’d rather say so than make something up. Try other words, or look at the guide and the estimator below. A fuller Comfy agent, running on your Comfy account, is in the works.",
+    "planHint": "That sounds like an action to prepare in your project. I’m passing it to the production plan below: check it, then tap “Prepare my plan”.",
+    "planButton": "Go to the production plan",
+    "seeAlso": "See also:",
+    "open": "Open",
+    "docFrom": "In the repository docs ({file}):",
+    "version": "Studio sheet · version {version}",
+    "guide": {
+      "title": "Get started · 4 steps",
+      "lead": "To run a render, the studio goes through your Comfy Cloud account. Here is the path, in order.",
+      "done": "Done",
+      "connected": "Your Comfy account is linked: you can run renders, always after the quote.",
+      "account": {
+        "title": "Create your Comfy Cloud account",
+        "body": "You sign up on Comfy’s site, not here.",
+        "link": "Open Comfy Cloud"
+      },
+      "plan": {
+        "title": "Pick a paid subscription",
+        "body": "Studio renders go through the Comfy Cloud API. According to Comfy’s pricing page, API access is included in paid subscriptions, from Standard up; the free tier is not enough. Prices are on that page: check them there.",
+        "link": "See Comfy Cloud pricing"
+      },
+      "credits": {
+        "title": "Keep credits on your account",
+        "body": "Every subscription includes credits. You can buy more at any time on your Comfy account (Settings → Plans & Credits). The studio sells nothing."
+      },
+      "key": {
+        "title": "Paste your API key here",
+        "body": "Create a key on platform.comfy.org (API Keys → + New) and copy it right away: it is shown only once. It stays on this device.",
+        "link": "Create an API key",
+        "button": "Connect my Comfy account"
+      }
+    },
+    "sim": {
+      "title": "Estimate a cost",
+      "lead": "Pick gestures: I add them up with the studio’s cost table.",
+      "pick": "Gesture",
+      "qty": "How many",
+      "add": "Add",
+      "remove": "Remove {name}",
+      "clear": "Clear all",
+      "empty": "Add a gesture to see the estimate.",
+      "line": "{qty} × {name}: {low}–{high} cr.",
+      "total": "≈ {low}–{high} cr. estimated",
+      "perBlock": "Some tools count per 5 s block of source: this total is for one block.",
+      "unknown": "I didn’t recognise: {list}.",
+      "note": "Estimate from the studio’s table, not a quote: the exact quote shows in the tool before you confirm. Nothing leaves from here.",
+      "reply": "Here is the estimate, from the studio’s cost table:"
+    },
+    "plan": {
+      "title": "Production plan",
+      "lead": "For an action in your project, the plan breaks the work into steps and opens the right module."
+    },
+    "tabs": {
+      "cast": "Your characters: from text or photos, then their sheet of views.",
+      "decor": "Your places: from text or a photo, time of day, weather, an object.",
+      "prise": "Your video shots: a character in a set, a bridge, a camera move.",
+      "montage": "You assemble your takes, add voice, music and effects, then export.",
+      "outils": "All the studio’s Comfy tools, by family: image, retouch, video, 3D, sound.",
+      "projets": "My creations: reopen a project or import a backup."
+    },
+    "faq": {
+      "start": {
+        "q": "How do I start?",
+        "k": "start begin first steps sign up getting started works guide",
+        "a": "To run a render you need a Comfy Cloud account with a paid subscription, credits, and your API key pasted into the studio. The “Get started” guide below shows the 4 steps."
+      },
+      "free": {
+        "q": "What is free?",
+        "k": "free pay paid money without paying trial",
+        "a": "Uttu, the estimator, touring the studio and scouting a place on the map are free. Image, video, sound and 3D renders run on your Comfy Cloud account and are paid in Comfy credits. The studio charges nothing."
+      },
+      "subscription": {
+        "q": "Do I need a Comfy subscription?",
+        "k": "subscription standard plan tier pricing price monthly api",
+        "a": "Yes, to run renders: they go through the Comfy Cloud API. According to Comfy’s pricing page, API access is included in paid subscriptions, from Standard up; the free tier is not enough. Prices are on comfy.org/cloud/pricing: check them there, I don’t make any up."
+      },
+      "credits": {
+        "q": "How do I buy credits?",
+        "k": "buy credits top up balance recharge",
+        "a": "Every Comfy Cloud subscription includes credits, and you can buy more at any time on your Comfy account (Settings → Plans & Credits). The studio doesn’t sell credits; your balance shows under “My credits” once your account is linked."
+      },
+      "key": {
+        "q": "Where do I paste my API key?",
+        "k": "api key paste link connect account token",
+        "a": "Create a key on platform.comfy.org (API Keys → + New) and copy it right away: it is shown only once. Then tap “Connect my Comfy account” in the guide below and paste it."
+      },
+      "keySafe": {
+        "q": "Is my key safe?",
+        "k": "safe security key server share leak stolen",
+        "a": "Your key stays on this device; the studio doesn’t keep it on a server. Don’t share it with anyone. If it leaks, delete it on platform.comfy.org and create a new one."
+      },
+      "cost": {
+        "q": "How much does a render cost?",
+        "k": "cost price how much credits expensive estimate",
+        "a": "Every tool shows its estimate before the gesture, in “cr. estimated”. For a total, write for example “3 portraits + 2 LTX takes”, or open the estimator below."
+      },
+      "estimate": {
+        "q": "What does “estimated” mean?",
+        "k": "estimated measured quote exact difference hypothesis",
+        "a": "“Estimated” comes from the studio’s table, not yet measured on a real render. “Measured” comes from a render already billed. The exact quote shows in the tool, before you confirm."
+      },
+      "cancel": {
+        "q": "Can I cancel a render?",
+        "k": "cancel stop abort render job sent interrupt",
+        "a": "Once a render is sent to Comfy, the studio never cancels it. If the page closes, “Recover the render” reads the job already sent, without starting a new one. A new render always needs its quote and your confirmation."
+      },
+      "fail": {
+        "q": "My render failed, what now?",
+        "k": "failed failure error broken stuck render recover",
+        "a": "Open “Jobs and recovery” in the production plan: it shows the job’s state. Recovering reads the job already sent. Starting a new render always needs a new quote and your confirmation."
+      },
+      "tabs": {
+        "q": "How is the studio organised?",
+        "k": "tabs steps organisation sections cast set take edit",
+        "a": "The studio follows four steps: Cast (your characters), Set (your places), Take (your video shots) and Edit (you assemble and export). “Tools” gathers every Comfy tool by family."
+      },
+      "projects": {
+        "q": "Where are my projects?",
+        "k": "projects backup storage files saved device zip export",
+        "a": "Your projects are saved in this browser, on this device. You reopen them from “My creations”. Remember to download a backup: the browser can erase its data when space runs low."
+      },
+      "local": {
+        "q": "How does Uttu work?",
+        "k": "uttu works model ai intelligence local offline sends",
+        "a": "I run in your browser with no AI model: I search a studio sheet built at every release. I send nothing and spend nothing."
+      },
+      "who": {
+        "q": "Who are you?",
+        "k": "who are you introduce name uttu",
+        "a": "I’m Uttu, the U*TTU studio guide. I explain the steps, answer common questions and estimate costs. For an action in your project, I hand over to the production plan."
+      },
+      "agent": {
+        "q": "Is a fuller agent coming?",
+        "k": "agent paid comfy fuller free conversation future soon",
+        "a": "Yes: a fuller Comfy agent, able to understand free-form requests, is in the works. It will run on your Comfy account, and its cost will show before each send. Until then I stay free and local."
+      },
+      "openWeights": {
+        "q": "What are open models?",
+        "k": "open weights open partner proprietary hidden option settings",
+        "a": "A “partner” tool calls a paid proprietary model through Comfy. In your model settings you can keep only open models: partner tools are then hidden."
+      },
+      "language": {
+        "q": "How do I change the language?",
+        "k": "language change english german spanish french",
+        "a": "The language selector is in the top bar: français, English, Deutsch, español."
+      },
+      "hello": {
+        "q": "Hello",
+        "k": "hi hello hey help",
+        "a": "Hi! Ask me a question about the studio, or ask me for a cost, for example “3 portraits + 2 LTX takes”."
+      },
+      "version": {
+        "q": "Which version?",
+        "k": "version commit update",
+        "a": "My sheet matches version {version} of the studio."
+      }
+    },
+    "alias": {
+      "cast-texte": "portrait, character, face, character text",
+      "cast-photos": "character photo, portrait photo",
+      "cast-planche": "sheet, sheet of views, character sheet",
+      "cast-tenue": "outfit, hairstyle",
+      "decor-texte": "set, place, location",
+      "decor-photo": "set photo, place photo, location photo",
+      "decor-heure": "time of day, weather",
+      "prise-plan": "take, ltx take, shot, ltx shot, ltx, video shot, video, videos",
+      "prise-plan-h3": "h3 take, h3 shot, h3",
+      "prise-camera": "camera, camera move",
+      "mont-voix": "voice, voice over",
+      "mont-musique": "music",
+      "mont-effet": "sound effect, sfx",
+      "suite-detourer": "cutout, remove background",
+      "suite-animer": "animate, animation",
+      "suite-parler": "make talk, talking",
+      "img-klein": "image, quick image",
+      "3d-ouvert": "3d, 3d object"
+    }
   }
 }

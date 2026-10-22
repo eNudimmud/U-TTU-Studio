@@ -1909,3 +1909,42 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 
 /* « Ouvrir mes projets » in the assistant: a 44 px touch target, not a 20 px text line. */
 .u-assistant [data-assistant-next] { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* U*TTU — free guide (no model). Obsidian Aureate: obsidian ground, one gold accent, 44 px targets. */
+.u-uttu { display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px; padding:8px 12px; border:1px solid var(--accent); border-radius:var(--radius-control); background:transparent; color:var(--accent); font-weight:600; letter-spacing:.04em; white-space:nowrap; cursor:pointer; }
+.u-uttu:hover, .u-uttu[aria-expanded="true"] { background:var(--accent); color:var(--on-accent); }
+.u-uttu:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+@media (max-width:420px) { .u-uttu { padding-inline:8px; font-size:13px; } }
+.u-assistant-head { align-items:flex-start; gap:8px; }
+.u-assistant-head h2 { color:var(--accent); letter-spacing:.06em; font-size:17px; }
+.u-assistant-sub { margin:2px 0 0; }
+.u-uttu-free { display:grid; gap:10px; }
+.u-uttu-log { display:grid; gap:8px; max-height:38dvh; overflow:auto; padding:2px; }
+.u-uttu-log article { display:grid; gap:6px; padding:10px 12px; border:1px solid var(--u-line); border-radius:12px; overflow-wrap:anywhere; }
+.u-uttu-log article[data-role=assistant] { border-left:2px solid var(--accent); }
+.u-uttu-log article[data-role=user] { margin-left:20px; background:#c9a75b14; }
+.u-uttu-log article strong { font-size:12px; letter-spacing:.06em; color:var(--fg-2); }
+.u-uttu-log article p { margin:0; white-space:pre-wrap; }
+.u-uttu-suggest { display:flex; flex-wrap:wrap; gap:6px; }
+.u-uttu-suggest .u-chip { font-size:13px; text-align:left; }
+.u-uttu-ask { display:grid; gap:8px; }
+.u-uttu-ask textarea { min-height:64px; }
+.u-uttu-ask .u-primary, .u-uttu-acts > *, .u-uttu-pick .u-secondary, .u-uttu-go { min-height:44px; display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; border-radius:var(--radius-control); text-decoration:none; }
+.u-uttu-go { justify-content:flex-start; padding-inline:0; color:var(--link); }
+.u-uttu-acts { display:flex; flex-wrap:wrap; gap:6px; }
+.u-uttu-card { border:1px solid var(--u-line); border-radius:12px; padding:0 12px; }
+.u-uttu-card > summary { min-height:44px; display:flex; align-items:center; font-weight:600; cursor:pointer; }
+.u-uttu-card[open] { padding-bottom:12px; }
+.u-uttu-steps { display:grid; gap:10px; margin:0; padding-left:22px; list-style:decimal outside; }
+.u-uttu-steps li::marker { color:var(--accent); font-weight:600; }
+.u-uttu-steps p { margin:4px 0 6px; }
+.u-uttu-done, .u-uttu-ok { color:var(--accent); }
+.u-uttu-pick { display:grid; grid-template-columns:1fr 84px; gap:8px; align-items:end; }
+.u-uttu-pick .u-field:first-child { grid-column:1 / -1; }
+.u-uttu-pick select, .u-uttu-pick input { min-height:44px; width:100%; }
+.u-uttu-picks { display:grid; gap:4px; margin:10px 0 0; padding:0; list-style:none; }
+.u-uttu-picks li { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.u-uttu-sim ul { margin:0; padding-left:18px; }
+.u-uttu-total { margin:8px 0 4px; font-weight:600; color:var(--accent); }
+.u-uttu-version { margin:0; opacity:.7; }
+.u-uttu-plan-title { margin:8px 0 0; padding-top:12px; border-top:1px solid var(--u-line); font-size:15px; }

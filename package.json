@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "build": "next build --webpack",
+    "knowledge": "node --experimental-strip-types --no-warnings scripts/agent-knowledge.mjs",
+    "build": "npm run knowledge && next build --webpack",
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --no-warnings --test \"tests/**/*.test.ts\"",

@@ -2763,5 +2763,205 @@
     "demo-gare": "Eine Bahnhofshalle",
     "demo-pluie": "Im Regen",
     "demo-toit": "Dächer im Morgengrauen"
+  },
+  "uttu": {
+    "title": "U*TTU",
+    "sub": "Dein Studio-Guide · kostenlos, ohne KI-Modell",
+    "button": "U*TTU",
+    "openAria": "U*TTU, deinen Studio-Guide, öffnen oder schließen",
+    "welcome": "Hallo, ich bin Uttu. Ich helfe dir beim Einstieg, beantworte deine Fragen zum Studio und schätze, was deine Renders kosten. Alles passiert auf diesem Gerät: Ich sende nichts und gebe nichts aus.",
+    "ask": "Deine Frage an Uttu",
+    "placeholder": "z. B. Was kosten 3 Porträts + 2 LTX-Takes?",
+    "send": "Senden",
+    "you": "Du",
+    "me": "Uttu",
+    "loading": "Uttu öffnet sein Studio-Blatt…",
+    "loadError": "Ich kann mein Studio-Blatt nicht lesen. Lade die Seite neu, um es noch einmal zu versuchen.",
+    "log": "Gespräch mit Uttu",
+    "suggest": "Ideen für Fragen",
+    "suggestions": {
+      "start": "Wie fange ich an?",
+      "cost": "Was kosten 3 Porträts + 2 LTX-Takes?",
+      "free": "Was ist kostenlos?",
+      "cancel": "Kann ich einen Render abbrechen?"
+    },
+    "notFound": "Darauf kann ich mit meinem lokalen Blatt nicht antworten, und ich sage dir das lieber, als etwas zu erfinden. Versuch andere Wörter oder schau dir unten den Guide und den Kostenrechner an. Ein umfassenderer Comfy-Agent, der über dein Comfy-Konto läuft, ist in Vorbereitung.",
+    "planHint": "Das klingt nach einer Aktion für dein Projekt. Ich gebe sie an den Produktionsplan unten weiter: Prüf sie und tipp dann auf „Meinen Plan vorbereiten“.",
+    "planButton": "Zum Produktionsplan",
+    "seeAlso": "Siehe auch:",
+    "open": "Öffnen",
+    "docFrom": "In der Doku des Repositorys ({file}):",
+    "version": "Studio-Blatt · Version {version}",
+    "guide": {
+      "title": "Einstieg · 4 Schritte",
+      "lead": "Für einen Render nutzt das Studio dein Comfy-Cloud-Konto. Hier ist der Weg, der Reihe nach.",
+      "done": "Erledigt",
+      "connected": "Dein Comfy-Konto ist verbunden: Du kannst Renders starten, immer nach der Kalkulation.",
+      "account": {
+        "title": "Leg dein Comfy-Cloud-Konto an",
+        "body": "Die Anmeldung läuft auf der Website von Comfy, nicht hier.",
+        "link": "Comfy Cloud öffnen"
+      },
+      "plan": {
+        "title": "Wähl ein kostenpflichtiges Abo",
+        "body": "Die Renders des Studios laufen über die API von Comfy Cloud. Laut der Preisseite von Comfy ist der API-Zugang in den kostenpflichtigen Abos enthalten, ab Standard; die kostenlose Stufe reicht nicht. Die Preise stehen auf dieser Seite: Prüf sie dort.",
+        "link": "Preise von Comfy Cloud ansehen"
+      },
+      "credits": {
+        "title": "Halte Credits auf deinem Konto",
+        "body": "Jedes Abo enthält Credits. Du kannst jederzeit in deinem Comfy-Konto nachkaufen (Settings → Plans & Credits). Das Studio verkauft nichts."
+      },
+      "key": {
+        "title": "Füg hier deinen API-Schlüssel ein",
+        "body": "Erstell einen Schlüssel auf platform.comfy.org (API Keys → + New) und kopier ihn sofort: Er wird nur einmal angezeigt. Er bleibt auf diesem Gerät.",
+        "link": "API-Schlüssel erstellen",
+        "button": "Mein Comfy-Konto verbinden"
+      }
+    },
+    "sim": {
+      "title": "Kosten schätzen",
+      "lead": "Wähl Gesten: Ich rechne mit der Kostentabelle des Studios zusammen.",
+      "pick": "Geste",
+      "qty": "Wie viele",
+      "add": "Hinzufügen",
+      "remove": "{name} entfernen",
+      "clear": "Alles löschen",
+      "empty": "Füg eine Geste hinzu, um die Schätzung zu sehen.",
+      "line": "{qty} × {name}: {low}–{high} cr.",
+      "total": "≈ {low}–{high} cr. geschätzt",
+      "perBlock": "Manche Werkzeuge rechnen pro 5-s-Abschnitt der Quelle: Diese Summe gilt für einen Abschnitt.",
+      "unknown": "Nicht erkannt: {list}.",
+      "note": "Schätzung aus der Tabelle des Studios, keine Kalkulation: Die genaue Kalkulation siehst du im Werkzeug, bevor du bestätigst. Von hier geht nichts raus.",
+      "reply": "Hier ist die Schätzung, aus der Kostentabelle des Studios:"
+    },
+    "plan": {
+      "title": "Produktionsplan",
+      "lead": "Für eine Aktion in deinem Projekt teilt der Plan die Arbeit in Schritte und öffnet das richtige Modul."
+    },
+    "tabs": {
+      "cast": "Deine Figuren: aus Text oder Fotos, dann ihr Ansichtenblatt.",
+      "decor": "Deine Orte: aus Text oder einem Foto, Tageszeit, Wetter, ein Objekt.",
+      "prise": "Deine Videoeinstellungen: eine Figur in einer Kulisse, ein Anschluss, eine Kamerafahrt.",
+      "montage": "Du fügst deine Takes zusammen, ergänzt Stimme, Musik und Effekte und exportierst.",
+      "outils": "Alle Comfy-Werkzeuge des Studios nach Familie: Bild, Retusche, Video, 3D, Ton.",
+      "projets": "Meine Kreationen: Öffne ein Projekt erneut oder importiere eine Sicherung."
+    },
+    "faq": {
+      "start": {
+        "q": "Wie fange ich an?",
+        "k": "anfangen starten einstieg erste schritte anmelden funktioniert guide",
+        "a": "Für einen Render brauchst du ein Comfy-Cloud-Konto mit kostenpflichtigem Abo, Credits und deinen API-Schlüssel im Studio. Der Guide „Einstieg“ unten zeigt dir die 4 Schritte."
+      },
+      "free": {
+        "q": "Was ist kostenlos?",
+        "k": "kostenlos gratis bezahlen zahlen geld test",
+        "a": "Uttu, der Kostenrechner, der Rundgang durchs Studio und das Erkunden eines Orts auf der Karte sind kostenlos. Bild-, Video-, Ton- und 3D-Renders laufen über dein Comfy-Cloud-Konto und werden mit Comfy-Credits bezahlt. Das Studio kassiert nichts."
+      },
+      "subscription": {
+        "q": "Brauche ich ein Comfy-Abo?",
+        "k": "abo abonnement standard tarif preise preis monatlich api",
+        "a": "Ja, für Renders: Sie laufen über die API von Comfy Cloud. Laut der Preisseite von Comfy ist der API-Zugang in den kostenpflichtigen Abos enthalten, ab Standard; die kostenlose Stufe reicht nicht. Die Preise stehen auf comfy.org/cloud/pricing: Prüf sie dort, ich erfinde keine."
+      },
+      "credits": {
+        "q": "Wie kaufe ich Credits?",
+        "k": "kaufen credits aufladen guthaben nachkaufen",
+        "a": "Jedes Comfy-Cloud-Abo enthält Credits, und du kannst jederzeit in deinem Comfy-Konto nachkaufen (Settings → Plans & Credits). Das Studio verkauft keine Credits; dein Guthaben steht unter „Meine Credits“, sobald dein Konto verbunden ist."
+      },
+      "key": {
+        "q": "Wo füge ich meinen API-Schlüssel ein?",
+        "k": "api schlüssel einfügen verbinden konto token",
+        "a": "Erstell einen Schlüssel auf platform.comfy.org (API Keys → + New) und kopier ihn sofort: Er wird nur einmal angezeigt. Tipp dann im Guide unten auf „Mein Comfy-Konto verbinden“ und füg ihn ein."
+      },
+      "keySafe": {
+        "q": "Ist mein Schlüssel sicher?",
+        "k": "sicher sicherheit schlüssel server teilen leck gestohlen",
+        "a": "Dein Schlüssel bleibt auf diesem Gerät; das Studio speichert ihn nicht auf einem Server. Teil ihn mit niemandem. Wenn er bekannt wird, lösch ihn auf platform.comfy.org und erstell einen neuen."
+      },
+      "cost": {
+        "q": "Was kostet ein Render?",
+        "k": "kosten kostet preis wie viel credits teuer schätzung",
+        "a": "Jedes Werkzeug zeigt seine Schätzung vor der Geste, in „cr. geschätzt“. Für eine Summe schreib mir zum Beispiel „3 Porträts + 2 LTX-Takes“ oder öffne den Kostenrechner unten."
+      },
+      "estimate": {
+        "q": "Was heißt „geschätzt“?",
+        "k": "geschätzt gemessen kalkulation genau unterschied",
+        "a": "„Geschätzt“ kommt aus der Tabelle des Studios, noch nicht an einem echten Render gemessen. „Gemessen“ kommt von einem bereits abgerechneten Render. Die genaue Kalkulation siehst du im Werkzeug, bevor du bestätigst."
+      },
+      "cancel": {
+        "q": "Kann ich einen Render abbrechen?",
+        "k": "abbrechen stoppen anhalten render auftrag gesendet",
+        "a": "Sobald ein Render an Comfy gesendet ist, bricht das Studio ihn nie ab. Schließt sich die Seite, liest „Render wiederaufnehmen“ den bereits gesendeten Auftrag, ohne einen neuen zu starten. Ein neuer Render braucht immer seine Kalkulation und deine Bestätigung."
+      },
+      "fail": {
+        "q": "Mein Render ist fehlgeschlagen, was nun?",
+        "k": "fehlgeschlagen fehler kaputt hängt render wiederaufnehmen",
+        "a": "Öffne „Aufträge und Wiederaufnahme“ im Produktionsplan: Dort siehst du den Stand des Auftrags. Wiederaufnehmen liest den bereits gesendeten Auftrag. Ein neuer Render braucht immer eine neue Kalkulation und deine Bestätigung."
+      },
+      "tabs": {
+        "q": "Wie ist das Studio aufgebaut?",
+        "k": "reiter schritte aufbau bereiche besetzung kulisse take schnitt",
+        "a": "Das Studio folgt vier Schritten: Besetzung (deine Figuren), Kulisse (deine Orte), Take (deine Videoeinstellungen) und Schnitt (du fügst zusammen und exportierst). „Werkzeuge“ sammelt alle Comfy-Werkzeuge nach Familie."
+      },
+      "projects": {
+        "q": "Wo sind meine Projekte?",
+        "k": "projekte sicherung speicher dateien gespeichert gerät zip export",
+        "a": "Deine Projekte werden in diesem Browser auf diesem Gerät gespeichert. Du öffnest sie über „Meine Kreationen“. Lade eine Sicherung herunter: Der Browser kann seine Daten löschen, wenn der Platz knapp wird."
+      },
+      "local": {
+        "q": "Wie funktioniert Uttu?",
+        "k": "uttu funktioniert modell ki intelligenz lokal offline sendet",
+        "a": "Ich laufe in deinem Browser, ohne KI-Modell: Ich suche in einem Studio-Blatt, das bei jeder Veröffentlichung erstellt wird. Ich sende nichts und gebe nichts aus."
+      },
+      "who": {
+        "q": "Wer bist du?",
+        "k": "wer bist vorstellen name uttu",
+        "a": "Ich bin Uttu, der Guide des U*TTU Studios. Ich erkläre die Schritte, beantworte häufige Fragen und schätze Kosten. Für eine Aktion in deinem Projekt übergebe ich an den Produktionsplan."
+      },
+      "agent": {
+        "q": "Kommt ein umfassenderer Agent?",
+        "k": "agent kostenpflichtig comfy umfassend freie unterhaltung zukunft bald",
+        "a": "Ja: Ein umfassenderer Comfy-Agent, der freie Anfragen versteht, ist in Vorbereitung. Er läuft über dein Comfy-Konto, und seine Kosten werden vor jedem Senden angezeigt. Bis dahin bleibe ich kostenlos und lokal."
+      },
+      "openWeights": {
+        "q": "Was sind offene Modelle?",
+        "k": "open weights offen partner proprietär ausgeblendet option einstellungen",
+        "a": "Ein „Partner“-Werkzeug ruft über Comfy ein kostenpflichtiges proprietäres Modell auf. In deinen Modelleinstellungen kannst du nur offene Modelle behalten: Partner-Werkzeuge werden dann ausgeblendet."
+      },
+      "language": {
+        "q": "Wie ändere ich die Sprache?",
+        "k": "sprache ändern englisch deutsch spanisch französisch",
+        "a": "Die Sprachauswahl ist oben in der Leiste: français, English, Deutsch, español."
+      },
+      "hello": {
+        "q": "Hallo",
+        "k": "hallo hi servus grüezi hilfe",
+        "a": "Hallo! Stell mir eine Frage zum Studio oder frag mich nach Kosten, zum Beispiel „3 Porträts + 2 LTX-Takes“."
+      },
+      "version": {
+        "q": "Welche Version?",
+        "k": "version commit aktualisierung",
+        "a": "Mein Blatt entspricht Version {version} des Studios."
+      }
+    },
+    "alias": {
+      "cast-texte": "porträt, figur, gesicht, figur text",
+      "cast-photos": "figur foto, porträt foto",
+      "cast-planche": "ansichtenblatt, blatt",
+      "cast-tenue": "outfit, frisur",
+      "decor-texte": "kulisse, ort",
+      "decor-photo": "kulisse foto, ort foto",
+      "decor-heure": "tageszeit, wetter",
+      "prise-plan": "take, ltx take, einstellung, ltx, videoeinstellung, video, videos",
+      "prise-plan-h3": "h3 take, h3",
+      "prise-camera": "kamera, kamerafahrt",
+      "mont-voix": "stimme, sprecher",
+      "mont-musique": "musik",
+      "mont-effet": "soundeffekt, geräusch",
+      "suite-detourer": "freistellen",
+      "suite-animer": "animieren, animation",
+      "suite-parler": "sprechen lassen",
+      "img-klein": "bild, schnelles bild",
+      "3d-ouvert": "3d, 3d objekt"
+    }
   }
 }
