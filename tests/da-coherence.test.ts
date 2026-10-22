@@ -48,6 +48,9 @@ describe("DA et logo partout", () => {
     for (const icon of ["src/app/favicon.ico", "src/app/icon0.svg", "src/app/icon1.png", "src/app/icon2.png", "src/app/icon3.png", "src/app/apple-icon.png", "public/brand/icon-v3-192.png", "public/brand/icon-v3-512.png", "public/brand/icon-v3-maskable-512.png"]) {
       assert.equal(existsSync(icon), true, icon);
     }
+    const ico = readFileSync("src/app/favicon.ico");
+    const sizes = Array.from({ length: ico.readUInt16LE(4) }, (_, i) => ico[6 + 16 * i] || 256).sort((a, b) => a - b);
+    assert.deepEqual(sizes, [16, 32, 48], "favicon.ico garde 16, 32 et 48 px");
     for (const old of ["public/brand/icon-192.png", "public/brand/icon-512.png", "public/brand/icon-maskable-512.png"]) {
       assert.equal(existsSync(old), false, old);
     }
