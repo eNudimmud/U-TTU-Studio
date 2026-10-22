@@ -105,7 +105,7 @@ async function mixAudio(edit: Edit, urlOf: (source: string) => string, seconds: 
       } catch {
         // Distinguish an actually silent video from a broken audio decoder.
         const explicitSound = edit.audio.some(clip => clip.source === span.source);
-        if (explicitSound) throw new Error("Une piste son est illisible. Corrigez-la avant l’export.");
+        if (explicitSound) throw new Error("Une piste son est illisible. Corrige-la avant l’export.");
         const mb = await import("mediabunny");
         const input = new mb.Input({ source: new mb.BlobSource(new Blob([bytes])), formats: mb.ALL_FORMATS });
         let sound = false;
@@ -146,7 +146,7 @@ export function exportExtension(blob: Blob): "mp4" | "webm" {
   return blob.type.includes("webm") ? "webm" : "mp4";
 }
 
-export const EXPORT_IMPOSSIBLE = "Ce navigateur ne sait écrire aucune vidéo (ni WebCodecs, ni enregistrement). Mettez à jour le navigateur du téléphone (Safari 16.4 ou plus, Chrome Android), puis relancez l’export : le montage est gardé.";
+export const EXPORT_IMPOSSIBLE = "Ce navigateur ne sait écrire aucune vidéo (ni WebCodecs, ni enregistrement). Mets à jour le navigateur du téléphone (Safari 16.4 ou plus, Chrome Android), puis relance l’export : le montage est gardé.";
 
 function recorderTypes(): string[] {
   if (typeof MediaRecorder === "undefined" || typeof MediaRecorder.isTypeSupported !== "function") return [];
@@ -185,7 +185,7 @@ export async function exportMp4(input: ExportInput & { strict?: boolean }): Prom
     if (!audioCodec && !input.strict) audioCodec = await mediabunny.getFirstEncodableAudioCodec(["opus"], audioConfig).catch(() => null);
   }
   const route = chooseExportRoute({ video: videoCodec, audio: audioCodec, recorder: recorderTypes(), strict: input.strict });
-  if (route.kind === "none") throw new Error(input.strict ? "Ce navigateur ne peut pas écrire le fichier maître H.264. Exportez d’abord le montage (il marche sur ce téléphone), ou relancez Finaliser depuis un navigateur à jour." : EXPORT_IMPOSSIBLE);
+  if (route.kind === "none") throw new Error(input.strict ? "Ce navigateur ne peut pas écrire le fichier maître H.264. Exporte d’abord le montage (il marche sur ce téléphone), ou relance Finaliser depuis un navigateur à jour." : EXPORT_IMPOSSIBLE);
 
   const frames = Math.max(1, Math.round(seconds * fps));
   const frameDuration = 1 / fps;
@@ -316,6 +316,6 @@ async function recordRealtime(job: { canvas: HTMLCanvasElement; drawAt(time: num
   }
   const type = job.mime.split(";")[0];
   const blob = new Blob(chunks, { type });
-  if (!blob.size) throw new Error("L’enregistrement de la vidéo est vide. Relancez l’export en gardant cet onglet ouvert.");
+  if (!blob.size) throw new Error("L’enregistrement de la vidéo est vide. Relance l’export en gardant cet onglet ouvert.");
   return blob;
 }

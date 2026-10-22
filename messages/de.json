@@ -1559,26 +1559,26 @@
   "recovery": {
     "title": "Renderauftrag wiederfinden",
     "export": "Beleg speichern",
-    "ambiguous": "Die Antwort auf das Senden ging verloren. Der Auftrag könnte berechnet worden sein. Prüfen Sie das Ergebnis im selben Comfy-Konto und kopieren Sie seine Kennung hierher. Es wird kein neuer Auftrag gesendet.",
+    "ambiguous": "Die Antwort auf das Senden ging verloren. Der Auftrag könnte berechnet worden sein. Prüfe das Ergebnis im selben Comfy-Konto und kopiere seine Kennung hierher. Es wird kein neuer Auftrag gesendet.",
     "history": "Mein Comfy-Konto öffnen",
     "id": "Kennung des gefundenen Renderauftrags",
     "confirm": "Ich habe geprüft, dass dieser Auftrag zum angezeigten Projekt, Inhalt und Datum gehört.",
     "identify": "Diesen bestehenden Auftrag abrufen",
     "resume": "Renderauftrag abrufen",
-    "connect": "Verbinden Sie das Konto, das den Auftrag gesendet hat.",
+    "connect": "Verbinde das Konto, das den Auftrag gesendet hat.",
     "busy": "Eine andere Aktion läuft, oder dieser Browser kann den Auftrag nicht sicher abrufen.",
     "noSpend": "Ruft einen bestehenden Auftrag ab, ohne erneut zu generieren.",
-    "invalid": "Prüfen Sie die Kennung und bestätigen Sie, dass der Auftrag zum Beleg gehört.",
-    "changed": "Der Beleg wurde geändert oder hat bereits eine Kennung. Prüfen Sie seinen Zustand.",
-    "account": "Verbinden Sie erneut das Konto, das diesen Auftrag gesendet hat.",
+    "invalid": "Prüfe die Kennung und bestätige, dass der Auftrag zum Beleg gehört.",
+    "changed": "Der Beleg wurde geändert oder hat bereits eine Kennung. Prüfe seinen Zustand.",
+    "account": "Verbinde erneut das Konto, das diesen Auftrag gesendet hat.",
     "failed": "Der Abruf ist derzeit nicht möglich. Der Beleg bleibt erhalten.",
-    "corrupt": "Der Beleg ist nicht lesbar. Behalten Sie die Browserdaten und prüfen Sie Ihren Comfy-Verlauf."
+    "corrupt": "Der Beleg ist nicht lesbar. Behalte die Browserdaten und prüfe deinen Comfy-Verlauf."
   },
   "safety": {
     "modelBlocked": "Dieses Werkzeug ist durch deine Modellwahl ausgeblendet. Es wird nichts gesendet.",
     "finalBlocked": "Diese Endbearbeitung ist noch nicht verfügbar. Der Videoexport bleibt möglich.",
     "estimate": "Der Preis ist eine Schätzung. Der Endpreis kann abweichen.",
-    "projectMissing": "Dieses Projekt ist nicht auf diesem Gerät. Importieren Sie seine Sicherung.",
+    "projectMissing": "Dieses Projekt ist nicht auf diesem Gerät. Importiere seine Sicherung.",
     "sequenceMissing": "Diese Sequenz fehlt im Projekt. Es wurde kein anderer Schnitt stattdessen geöffnet.",
     "referencesMax": "Dieser Stil nimmt höchstens {max} Bilder. Verringere sie vor dem Start.",
     "assetMissing": "Dieses Medium fehlt im angeforderten Projekt."
@@ -1586,15 +1586,15 @@
   "storage": {
     "title": "Meine Projekte behalten",
     "persistent": "Dieser Browser hat den Schutz vor automatischer Datenlöschung gewährt.",
-    "best-effort": "Ihre Projekte sind hier gespeichert. Bei Platzmangel kann der Browser sie jedoch löschen.",
+    "best-effort": "Deine Projekte sind hier gespeichert. Bei Platzmangel kann der Browser sie jedoch löschen.",
     "unsupported": "Dieser Browser kann keinen Schutz vor automatischer Datenlöschung bestätigen.",
     "unknown": "Der Speicherschutz kann derzeit nicht geprüft werden.",
     "loading": "Speicher wird geprüft…",
-    "refused": "Der Browser hat den Schutz nicht gewährt. Laden Sie eine Kopie Ihres Studios herunter.",
-    "low": "Der Speicher wird knapp. Exportieren Sie eine Sicherung, bevor Sie große Dateien hinzufügen.",
+    "refused": "Der Browser hat den Schutz nicht gewährt. Lade eine Kopie deines Studios herunter.",
+    "low": "Der Speicher wird knapp. Exportiere eine Sicherung, bevor du große Dateien hinzufügst.",
     "protect": "Lokalen Speicher schützen",
     "asking": "Schutz wird angefragt…",
-    "pending": "Der Browser wartet noch auf Ihre Antwort. Prüfen Sie seine Berechtigungsanfrage; eine Sicherung können Sie bereits exportieren.",
+    "pending": "Der Browser wartet noch auf deine Antwort. Prüfe seine Berechtigungsanfrage; eine Sicherung kannst du bereits exportieren.",
     "backup": "Dieser Schutz ersetzt keine Sicherung. „Mein Studio exportieren“ erstellt eine unabhängige Kopie. Das Löschen der Browserdaten entfernt weiterhin lokale Projekte."
   },
   "audit": {
@@ -1607,7 +1607,7 @@
     "flatPhoto": "Ganzes Foto: Die Panoramaansicht ist in diesem Browser nicht verfügbar."
   },
   "runtimeSafe": {
-    "encodeMp4": "Dieser Browser kann kein Video schreiben (weder WebCodecs noch Aufnahme). Aktualisieren Sie den Browser des Telefons (Safari 16.4 oder neuer, Chrome Android) und exportieren Sie erneut: der Schnitt bleibt erhalten.",
+    "encodeMp4": "Dieser Browser kann kein Video schreiben (weder WebCodecs noch Aufnahme). Aktualisiere den Browser des Telefons (Safari 16.4 oder neuer, Chrome Android) und exportiere erneut: der Schnitt bleibt erhalten.",
     "lockUnsupported": "Dieser Browser kann gleichzeitige Sendungen nicht absichern. Nutze einen aktuellen Browser.",
     "takeGone": "Dieser Take ist im Projekt nicht mehr verfügbar.",
     "castNeedsRef": "Jede Figur braucht eine gespeicherte Referenz. Entferne die neutralen Silhouetten vor dem Generieren.",
@@ -1648,8 +1648,8 @@
     "videoUnreadable": "Ein Video ist nicht lesbar.",
     "twoVersions": "Zwei verschiedene Versionen von {name}. Die Synchronisierung ist angehalten, damit beide Versionen erhalten bleiben. Exportiere Mein Studio, bevor du sie zusammenführst.",
     "sentNoReceipt": "Der Renderauftrag {job} wurde gesendet, aber sein Beleg konnte nicht gespeichert werden. Bewahre diese Kennung auf und prüfe den Speicherplatz. Starte die Generierung nicht neu.",
-    "encodeMaster": "Dieser Browser kann die H.264-Masterdatei nicht schreiben. Exportieren Sie zuerst den Schnitt (das geht auf diesem Telefon) oder starten Sie Fertigstellen erneut in einem aktuellen Browser.",
-    "recordEmpty": "Die Videoaufnahme ist leer. Exportieren Sie erneut und lassen Sie diesen Tab geöffnet.",
+    "encodeMaster": "Dieser Browser kann die H.264-Masterdatei nicht schreiben. Exportiere zuerst den Schnitt (das geht auf diesem Telefon) oder starte Fertigstellen erneut in einem aktuellen Browser.",
+    "recordEmpty": "Die Videoaufnahme ist leer. Exportiere erneut und lass diesen Tab geöffnet.",
     "soundSkipped": "Dieser Browser kann den Ton mindestens einer Aufnahme nicht lesen: Das Video wird ohne diesen Ton exportiert."
   },
   "p0": {
@@ -1662,7 +1662,7 @@
     "tourner": "Drehen",
     "tournerSuivant": "Einstellung {n} drehen",
     "running": "Wird gerendert…",
-    "runningWhy": "Sie können inzwischen die nächste Einstellung schreiben. Sonst wird nichts gesendet.",
+    "runningWhy": "Du kannst inzwischen die nächste Einstellung schreiben. Sonst wird nichts gesendet.",
     "monter": "Sequenz schneiden ({count, plural, one {# Einstellung} other {# Einstellungen}})",
     "monterStill": "Standbild in den Schnitt senden",
     "montageFailed": "Übergabe an den Schnitt unterbrochen.",
@@ -1678,7 +1678,7 @@
     "relaunch": "Neu starten · neuer Kostenvoranschlag",
     "nextLabel": "Einstellung {n} · was passiert",
     "nextAria": "Nächste Einstellung: was passiert",
-    "nextPh": "Gleiche Figur, gleiche Kulisse. Schreiben Sie, wie es weitergeht.",
+    "nextPh": "Gleiche Figur, gleiche Kulisse. Schreib, wie es weitergeht.",
     "plans": "Einstellungen",
     "addPlan": "＋ Einstellung",
     "sequenceSum": "Sequenz: {time} · {count, plural, one {# Einstellung} other {# Einstellungen}}",
@@ -1733,7 +1733,7 @@
     },
     "camera": {
       "free": "frei: nichts wird vorgegeben",
-      "fromText": "„{words}“ aus Ihrem Text gelesen → {move}",
+      "fromText": "„{words}“ aus deinem Text gelesen → {move}",
       "fromTile": "{move}, nach der gewählten Bewegung",
       "move": {
         "fixe": "feste Kamera",
@@ -1747,18 +1747,18 @@
     },
     "why": {
       "demo": "Die Demo sendet kein Rendering.",
-      "busy": "Ein Rendering läuft. Warten Sie, bis es fertig ist.",
+      "busy": "Ein Rendering läuft. Warte, bis es fertig ist.",
       "h3Format": "Dieser Stil hat nur im Hochformat, 5 Sekunden, einen Preis. Wechsle ins Hochformat oder zurück zum einfachen Stil unter Erweitert.",
       "noQuote": "Für diese Einstellung gibt es noch keinen Kostenvoranschlag. Nichts wird gesendet.",
       "refs": "Höchstens drei gespeicherte Figuren; neutrale Figuren dienen nur zum Einrichten.",
-      "decorExample": "Diese Beispielkulisse dient nur zum Einrichten. Erstellen oder importieren Sie Ihre Kulisse unter KULISSE.",
-      "nothing": "Wählen Sie mindestens eine gespeicherte Figur oder Kulisse.",
-      "nextWords": "Schreiben Sie, was in Einstellung {n} passiert."
+      "decorExample": "Diese Beispielkulisse dient nur zum Einrichten. Erstelle oder importiere deine Kulisse unter KULISSE.",
+      "nothing": "Wähle mindestens eine gespeicherte Figur oder Kulisse.",
+      "nextWords": "Schreib, was in Einstellung {n} passiert."
     },
     "quote": {
       "estimated": "≈ {low} Cr. geschätzt",
       "measured": "Gemessen: etwa {credits} Cr.",
-      "measuredBalance": "Gemessen an Ihren Takes: etwa {credits} Credits.",
+      "measuredBalance": "Gemessen an deinen Takes: etwa {credits} Credits.",
       "none": "Noch kein Kostenvoranschlag für diese Einstellung. Nichts wird gesendet."
     },
     "gate": {
@@ -1776,18 +1776,18 @@
       "archiver": "Archivieren",
       "sentTitle": "Was gesendet wird",
       "changeTitle": "Was sich ändern kann:",
-      "changePrise": "die Engine kann Gesicht, Kleidung oder Kulisse von Take zu Take verändern und garantiert die Bewegung nicht. Behalten Sie den besten: die anderen bleiben als Versionen, nichts wird überschrieben.",
-      "changeCast": "Gesicht und Kleidung können von Ihren Fotos abweichen; die Figur wird erst nach dem Ergebnis hinzugefügt, nichts wird ersetzt.",
-      "changeDecor": "Licht und Details können von Ihrem Text abweichen; die Kulisse kommt zu den anderen hinzu, nichts wird ersetzt.",
+      "changePrise": "die Engine kann Gesicht, Kleidung oder Kulisse von Take zu Take verändern und garantiert die Bewegung nicht. Behalte den besten: die anderen bleiben als Versionen, nichts wird überschrieben.",
+      "changeCast": "Gesicht und Kleidung können von deinen Fotos abweichen; die Figur wird erst nach dem Ergebnis hinzugefügt, nichts wird ersetzt.",
+      "changeDecor": "Licht und Details können von deinem Text abweichen; die Kulisse kommt zu den anderen hinzu, nichts wird ersetzt.",
       "sentWhat": "Name",
       "sentRefs": "Referenzen",
       "refsCount": "{count, plural, one {# Bild} other {# Bilder}}",
       "refsNone": "kein Bild, nur Text",
-      "sentPrompt": "Ihr Text",
+      "sentPrompt": "Dein Text",
       "sentEngine": "Stil",
       "sentCast": "Figuren",
       "sentDecor": "Kulisse",
-      "sentWords": "Ihre Worte",
+      "sentWords": "Deine Worte",
       "sentCamera": "Kamera",
       "sentRaw": "Genau gesendeter Text",
       "castCount": "{count, plural, one {# Figur} other {# Figuren}}",
@@ -1818,7 +1818,7 @@
       "none": "—",
       "unknown": "Unbekannt",
       "drop": "Stimmung {label} entfernen",
-      "cameraWords": "Nach Ihren Worten",
+      "cameraWords": "Nach deinen Worten",
       "cameraFree": "Frei",
       "degrees": "{move} · {degrees}°",
       "sec": "{n} s",
@@ -1830,7 +1830,7 @@
       "engineManual": "Stil von Hand unter Erweitert gewählt: {engine}.",
       "refsDropped": "Über {max} Referenzen hinaus bleiben {count} außen vor.",
       "missingRef": "Kein Foto von {name}: das Aussehen kann sich ändern.",
-      "missingDecorRef": "Kein Bild vom Ort {name}: das Set folgt Ihren Worten.",
+      "missingDecorRef": "Kein Bild vom Ort {name}: das Set folgt deinen Worten.",
       "orbitDegreesWho": "Drehung um {degrees}° um {name}.",
       "orbitDegrees": "Kameradrehung um {degrees}°.",
       "orbitWho": "Die Kamera kreist um {name}.",
@@ -1853,7 +1853,7 @@
       "ambiance": "Stimmung: {label}.",
       "durationClamped": "{asked} s verlangt: die Aufnahme dauert {seconds} s (5 oder 8 s).",
       "unknownName": "„{word}“ kenne ich nicht: in Besetzung oder Kulisse hinzufügen oder das Wort korrigieren.",
-      "noWho": "Niemand ist genannt: wählen Sie unter Wer, wer spielt."
+      "noWho": "Niemand ist genannt: wähle unter Wer, wer spielt."
     },
     "uttu": "Studio-Assistent",
     "fiab": {
@@ -2014,7 +2014,7 @@
       "demo": "Demo-Modus: keine Suche nach Strassenfotos."
     },
     "why": {
-      "place": "Suchen Sie zuerst einen Ort: Danach werden die Einstellungen aktiv.",
+      "place": "Such zuerst einen Ort: Danach werden die Einstellungen aktiv.",
       "line": "Keine Linien bei Fotokarte.",
       "tone": "Nur bei Linien + Schatten."
     },
@@ -2744,7 +2744,7 @@
       "expired": "Gemeldetes Ablaufdatum überschritten"
     },
     "guidance": "Wähle ein Projekt. Wähle Medien zum Prüfen oder Zuordnen aus und fülle mindestens ein Zuordnungsfeld aus. Aktionen warten, bis die Synchronisierung abgeschlossen ist.",
-    "lead": "Ihre Comfy-Werke, nach Projekt geordnet.",
+    "lead": "Deine Comfy-Werke, nach Projekt geordnet.",
     "helpTitle": "Wie funktioniert das?"
   },
   "demoNames": {

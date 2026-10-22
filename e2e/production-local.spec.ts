@@ -123,7 +123,7 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   await page.reload();
   await expect(page.locator('.u-prise video[controls]')).toBeVisible({ timeout: 60000 });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'PRISE' })).toContainText('Prêt');
-  await expect(page.getByText('Un rendu attend sa récupération. Ouvrez Crédits puis Récupérer le rendu.')).toHaveCount(0);
+  await expect(page.getByText('Un rendu attend sa récupération. Ouvre Crédits puis Récupérer le rendu.')).toHaveCount(0);
   const entries = await readVault(page);
   expect(entries.filter(entry => /\/Prises\/.*\.mp4$/.test(entry.path)).map(entry => entry.bytes)).toEqual([video.length]);
   expect(entries.filter(entry => /\/Prises\/.*\.md$/.test(entry.path))).toHaveLength(1);
