@@ -2634,7 +2634,6 @@
     "jobs": "Trabajos y recuperación",
     "jobsHelp": "La recuperación sigue el trabajo existente. Una nueva generación siempre exige presupuesto y confirmación.",
     "recover": "Recuperar el render",
-    "stopWatching": "Detener el seguimiento local",
     "projects": "Abrir mis proyectos",
     "local": "Modo local: intenciones limitadas al catálogo en francés e inglés. Preparar no inicia una generación de pago ni una consulta al modelo.",
     "storageError": "No se pudo restaurar esta conversación. El archivo existente se ha conservado.",
@@ -2678,11 +2677,7 @@
     "modelSend": "Confirmar esta consulta IA",
     "modelError": "La consulta no se completó y podría haberse cobrado. No se reintenta automáticamente.",
     "modelUncertain": "La decisión de la IA es incierta o está fuera del catálogo. Aclara tu petición o usa el modo local.",
-    "guidance": "Elige un proyecto y describe tu intención. Cada paso necesita sus referencias y el resultado anterior; las acciones se pausan al guardar.",
-    "cancelRemote": "Cancelar el render remoto",
-    "cancelRemoteHelp": "¿Cancelar este trabajo? Los créditos ya consumidos podrían cobrarse igualmente.",
-    "cancelRemoteConfirm": "Confirmar la cancelación en Comfy",
-    "keepJob": "Mantener el render"
+    "guidance": "Elige un proyecto y describe tu intención. Cada paso necesita sus referencias y el resultado anterior; las acciones se pausan al guardar."
   },
   "media": {
     "title": "Biblioteca multimedia",

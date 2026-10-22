@@ -2634,7 +2634,6 @@
     "jobs": "Aufträge und Wiederaufnahme",
     "jobsHelp": "Die Wiederaufnahme verfolgt den bestehenden Auftrag. Eine neue Generierung braucht immer eine Kostenschätzung und Bestätigung.",
     "recover": "Render wiederaufnehmen",
-    "stopWatching": "Lokale Überwachung beenden",
     "projects": "Meine Projekte öffnen",
     "local": "Lokaler Modus: begrenzte Katalogabsichten auf Französisch und Englisch. Die Vorbereitung löst keine kostenpflichtige Generierung oder Modellanfrage aus.",
     "storageError": "Dieses Gespräch konnte nicht wiederhergestellt werden. Die vorhandene Datei bleibt erhalten.",
@@ -2678,11 +2677,7 @@
     "modelSend": "Diese KI-Anfrage bestätigen",
     "modelError": "Die Anfrage wurde nicht abgeschlossen und möglicherweise berechnet. Keine automatische Wiederholung.",
     "modelUncertain": "Die KI-Entscheidung ist unsicher oder liegt außerhalb des Katalogs. Präzisiere deine Anfrage oder verwende den lokalen Modus.",
-    "guidance": "Wähle ein Projekt und beschreibe deine Absicht. Schritte benötigen ihre Referenzen und das vorherige Ergebnis; beim Speichern pausieren Aktionen.",
-    "cancelRemote": "Cloudrender abbrechen",
-    "cancelRemoteHelp": "Diesen Auftrag abbrechen? Bereits verbrauchte Credits können trotzdem berechnet werden.",
-    "cancelRemoteConfirm": "Abbruch bei Comfy bestätigen",
-    "keepJob": "Render beibehalten"
+    "guidance": "Wähle ein Projekt und beschreibe deine Absicht. Schritte benötigen ihre Referenzen und das vorherige Ergebnis; beim Speichern pausieren Aktionen."
   },
   "media": {
     "title": "Mediathek",

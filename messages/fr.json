@@ -2634,7 +2634,6 @@
     "jobs": "Rendus et récupération",
     "jobsHelp": "Récupérer consulte le job déjà envoyé. Une nouvelle génération nécessite toujours son devis et sa confirmation.",
     "recover": "Récupérer le rendu",
-    "stopWatching": "Arrêter le suivi local",
     "projects": "Ouvrir mes projets",
     "local": "Mode local : reconnaissance limitée aux intentions du catalogue. Aucune génération payante ni transmission au modèle pendant la préparation.",
     "storageError": "Impossible de relire la conversation. Le fichier existant est conservé.",
@@ -2678,11 +2677,7 @@
     "modelSend": "Confirmer cet appel IA",
     "modelError": "L’appel n’a pas abouti. Il peut avoir été facturé. Aucun nouvel envoi automatique.",
     "modelUncertain": "La décision IA est trop incertaine ou hors catalogue. Précisez votre demande ou utilisez le mode local.",
-    "guidance": "Choisissez un projet et saisissez votre intention. Les étapes attendent leurs références et le résultat précédent ; pendant une sauvegarde, les actions sont suspendues.",
-    "cancelRemote": "Annuler le rendu distant",
-    "cancelRemoteHelp": "Confirmer l’annulation de ce job ? Les crédits déjà consommés peuvent rester facturés.",
-    "cancelRemoteConfirm": "Confirmer l’annulation sur Comfy",
-    "keepJob": "Garder le rendu"
+    "guidance": "Choisissez un projet et saisissez votre intention. Les étapes attendent leurs références et le résultat précédent ; pendant une sauvegarde, les actions sont suspendues."
   },
   "media": {
     "title": "Médiathèque",

@@ -2634,7 +2634,6 @@
     "jobs": "Jobs and recovery",
     "jobsHelp": "Recovery follows the existing job. A new generation always requires its quote and confirmation.",
     "recover": "Recover the render",
-    "stopWatching": "Stop local monitoring",
     "projects": "Open my projects",
     "local": "Local mode: limited to catalogue intentions. Preparation makes no paid generation or model request.",
     "storageError": "Could not restore this conversation. The existing file was preserved.",
@@ -2678,11 +2677,7 @@
     "modelSend": "Confirm this AI call",
     "modelError": "The call did not complete and may have been charged. No automatic retry.",
     "modelUncertain": "The AI decision is uncertain or outside the catalogue. Clarify your request or use local mode.",
-    "guidance": "Choose a project and enter your intention. Steps require their references and the previous result; actions pause while saving.",
-    "cancelRemote": "Cancel the remote render",
-    "cancelRemoteHelp": "Cancel this job? Credits already consumed may still be charged.",
-    "cancelRemoteConfirm": "Confirm cancellation on Comfy",
-    "keepJob": "Keep the render"
+    "guidance": "Choose a project and enter your intention. Steps require their references and the previous result; actions pause while saving."
   },
   "media": {
     "title": "Media library",

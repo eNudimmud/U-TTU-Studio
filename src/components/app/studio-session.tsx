@@ -51,7 +51,7 @@ import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderL
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
-import { accountFingerprint, bindPendingJob, cancelPendingJob, clearPending, readPending, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
+import { accountFingerprint, bindPendingJob, clearPending, readPending, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 
 export type SheetName = null | "credits" | "confirm" | "connect";
@@ -118,7 +118,6 @@ export interface StudioSession {
   pendingTake: TakeRequest | null;
   confirmRun(): Promise<void>;
   cancelRun(): void;
-  cancelRemoteJob(jobId: string, confirmed: boolean): Promise<void>;
   resetRun(): void;
   resumeRun(): void;
   identifyPendingJob(jobId: string, confirmed: boolean): Promise<string | null>;
@@ -1427,14 +1426,6 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
   }, [client, completePending, fingerprint, finish, line, outgoing, pendingTake, pickedCast, pickedDecor, refreshBalance, run.phase, settings, store, t]);
 
-  const cancelRemoteJob = useCallback(async (jobId: string, confirmed: boolean) => {
-    if (!confirmed || !client) throw new Error("recovery.confirm");
-    const account = await fingerprint();
-    if (activeClient.current !== client) throw new Error("recovery.account");
-    await cancelPendingJob(localStorage, client, account, jobId, confirmed);
-    setNotice("Demande d’annulation envoyée. Le reçu est conservé jusqu’à confirmation du statut par Comfy.");
-  }, [client, fingerprint]);
-
   const cancelRun = useCallback(() => {
     abort.current?.abort();
   }, []);
@@ -1947,7 +1938,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     prefs, setPrefs,
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
-    pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, cancelRemoteJob, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
+    pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifiez le message du studio et récupérez le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,

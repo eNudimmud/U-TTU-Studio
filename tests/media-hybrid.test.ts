@@ -5,7 +5,7 @@ import { accountScope, discoverLocal, emptyCatalog, mergeRemote, parseCatalog, p
 import { cacheMedia, classify, syncPage, verifyMedia } from '../src/lib/media/sync.ts';
 import { createMediaClient, MediaError, type MediaClient } from '../src/lib/media/cloud.ts';
 import { createRenderClient, renderCredentialScope } from '../src/lib/render/client.ts';
-import { cancelPendingJob, PENDING_RENDER_KEY, type PendingRender } from '../src/lib/render/recovery.ts';
+import { PENDING_RENDER_KEY, type PendingRender } from '../src/lib/render/recovery.ts';
 const uuid = '12345678-1234-4234-8234-123456789abc';
 const account = 'a'.repeat(64);
 const raw = { id: uuid, name:'E*NKI.png', mime_type:'image/png', size: 3, created_at:'2026-10-20T12:00:00Z', prompt_id:'job-12345678', preview_url:'https://storage.example/signed?secret=temporary' };
@@ -110,15 +110,9 @@ test('multiple render outputs keep distinct identities and only the saved output
  assert.notEqual(second,third);assert.equal(await (await store.get(second))!.blob!.text(),'second.png');assert.equal(await (await store.get(third))!.blob!.text(),'third.png');
 });
 
-test('remote cancellation requires confirmation and exact receipt/account, preserves recovery on failure or success',async()=>{
- const receipt:PendingRender={version:1,kind:'cast',project:'film',id:'alice',name:'Alice',at:'2026-10-21T00:00:00Z',account,refs:[],template:'real-template',quote:2,balanceBefore:100,jobId:'job-12345678',prompt:'Alice'};
- const data=new Map([[PENDING_RENDER_KEY,JSON.stringify(receipt)]]);const storage={getItem:(key:string)=>data.get(key)??null,setItem:(key:string,value:string)=>{data.set(key,value);},removeItem:(key:string)=>{data.delete(key);}};
- let calls=0;const client={cancel:async()=>{calls++;}};
- await assert.rejects(cancelPendingJob(storage,client,account,receipt.jobId!,false),/confirm/);
- await assert.rejects(cancelPendingJob(storage,client,'wrong-account',receipt.jobId!,true),/account/);
- await assert.rejects(cancelPendingJob(storage,client,account,'another-job',true),/changed/);assert.equal(calls,0);
- await assert.rejects(cancelPendingJob(storage,{cancel:async()=>{throw Error('offline');}},account,receipt.jobId!,true),/offline/);assert.ok(data.has(PENDING_RENDER_KEY));
- await cancelPendingJob(storage,client,account,receipt.jobId!,true);assert.equal(calls,1);assert.equal(data.get(PENDING_RENDER_KEY),JSON.stringify(receipt));
+test('the studio exposes no remote Comfy cancellation path; recovery keeps the receipt',async()=>{
+ const recovery=await import('../src/lib/render/recovery.ts');
+ assert.equal('cancelPendingJob' in recovery,false);
 });
 
 test('render recovery preserves resolved remote identity, links source assets, and backfills only missing organization',async()=>{

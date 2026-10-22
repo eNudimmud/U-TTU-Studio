@@ -6,7 +6,6 @@ import { emptyConversation, productionTurn, refreshPlan, updateStep, restoreConv
 import { productionContext, projectResources } from '@/lib/agent/context';
 import { studioActionRegistry } from '@/lib/agent/registry';
 import { AGENT_EVENT, prepareStep } from '@/lib/agent/execution';
-import { readPending } from '@/lib/render/recovery';
 import { listTasks, subscribeTasks, type Task } from '@/lib/tasks';
 import type { Edit } from '@/lib/montage/edit';
 import { useStudio } from './studio-session';
@@ -36,7 +35,6 @@ export function AssistantPanel() {
   const project = session.studio.project ?? '';
   const [conversation, setConversation] = useState<Conversation>(() => emptyConversation(''));
   const liveConversation = useRef(conversation); liveConversation.current = conversation;
-  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [modelKey, setModelKey] = useState('');
   const [modelConfirm, setModelConfirm] = useState(false);
   const [query, setQuery] = useState('');
@@ -63,7 +61,7 @@ export function AssistantPanel() {
   useEffect(() => { setTasks(listTasks()); return subscribeTasks(setTasks); }, []);
   useEffect(() => {
     let gone = false;
-    setLoaded(''); setError(''); setEdits([]); setReceipts({ projects: [opened.current] }); setQuery(''); setSelectedPath(''); setCancelTarget(null); setModelConfirm(false);
+    setLoaded(''); setError(''); setEdits([]); setReceipts({ projects: [opened.current] }); setQuery(''); setSelectedPath(''); setModelConfirm(false);
     if (!session.ready || !project) { setConversation(emptyConversation(project)); return; }
     void (async () => {
       try {
@@ -197,7 +195,7 @@ export function AssistantPanel() {
         </div>{step.state === 'prepared' && !results.length && <p className="u-small">{t('agent.waitResult')}</p>}
       </li>;
     })}</ol></section>}
-    <details><summary>{t('agent.jobs')}</summary><p className="u-small">{t('agent.jobsHelp')}</p>{tasks.filter(task => task.project === project).slice(0,5).map(task => <p key={task.id}>{task.plain ? task.label : t(task.label)} · {t(`agent.states.${task.state}`)}{task.reason && ` — ${task.reason}`}</p>)}<button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={session.creating || session.run.phase === 'running'} onClick={() => session.resumeRun()}>{t('agent.recover')}</button><button type="button" className="u-secondary" onClick={() => { try { setCancelTarget(readPending(localStorage)?.jobId ?? null); } catch { setError(t('agent.actionError')); } }}>{t('agent.cancelRemote')}</button>{cancelTarget && <div role="group" aria-label={t('agent.cancelRemote')}><p>{t('agent.cancelRemoteHelp')} <code>{cancelTarget}</code></p><button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy} onClick={() => void work(async () => { await session.cancelRemoteJob(cancelTarget, true); setCancelTarget(null); })}>{t('agent.cancelRemoteConfirm')}</button><button type="button" className="u-secondary" onClick={() => setCancelTarget(null)}>{t('agent.keepJob')}</button></div>}{session.run.phase === 'running' && <button type="button" className="u-secondary" onClick={() => session.cancelRun()}>{t('agent.stopWatching')}</button>}</details>
+    <details><summary>{t('agent.jobs')}</summary><p className="u-small">{t('agent.jobsHelp')}</p>{tasks.filter(task => task.project === project).slice(0,5).map(task => <p key={task.id}>{task.plain ? task.label : t(task.label)} · {t(`agent.states.${task.state}`)}{task.reason && ` — ${task.reason}`}</p>)}<button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={session.creating || session.run.phase === 'running'} onClick={() => session.resumeRun()}>{t('agent.recover')}</button></details>
     {library && <MediaLibrary compact initialQuery={mediaQuery} proposedSequence={proposedSequence} selectedPaths={resources.filter(r => conversation.selectedIds.includes(r.id)).map(r => r.path)} />}
     <a className="u-small" data-assistant-next="" href={assetPath('/mon-studio')}>{t('agent.projects')}</a>
     <p className="u-small">{t('agent.local')}</p>
