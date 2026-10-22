@@ -24,11 +24,11 @@ function jpegSize(path: string): [number, number] {
 
 describe("DA et logo partout", () => {
   it("garde la personnalisation hors de l'app (pas de lore)", () => {
-    const app = [...files("src"), "messages/fr.json", "messages/en.json", "messages/de.json", "messages/es.json"]
-      .filter(path => /\.(tsx?|css|json)$/.test(path) && !path.endsWith("place-template.ts"));
+    const app = [...files("src"), ...files("tests"), ...files("e2e"), "messages/fr.json", "messages/en.json", "messages/de.json", "messages/es.json"]
+      .filter(path => /\.(tsx?|css|json)$/.test(path) && !path.endsWith("place-template.ts") && !path.endsWith("da-coherence.test.ts"));
     for (const path of app) {
       const text = read(path);
-      assert.doesNotMatch(text, /THE BLOC|THE BREACH|NEUKOAI|\bNABU\b|\bENKI\b/, path);
+      assert.doesNotMatch(text, /THE BLOC|THE BREACH|NEUKOAI|\bN\\?\*?ABU\b|\bE\\?\*?NKI\b/, path);
     }
     assert.doesNotMatch(read("src/lib/creation/demo.ts"), /demo-uttu|cast-uttu/);
     for (const gone of ["public/exemples/cast-uttu.webp", "public/exemples/cast-uttu-planche.webp", "public/exemples/apres-cast-photos.webp", "public/images/uttu-canon-portrait.webp", "public/images/uttu-guide-face.webp"]) {

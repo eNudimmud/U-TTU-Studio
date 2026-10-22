@@ -8,7 +8,7 @@ import { createRenderClient, renderCredentialScope } from '../src/lib/render/cli
 import { PENDING_RENDER_KEY, type PendingRender } from '../src/lib/render/recovery.ts';
 const uuid = '12345678-1234-4234-8234-123456789abc';
 const account = 'a'.repeat(64);
-const raw = { id: uuid, name:'E*NKI.png', mime_type:'image/png', size: 3, created_at:'2026-10-20T12:00:00Z', prompt_id:'job-12345678', preview_url:'https://storage.example/signed?secret=temporary' };
+const raw = { id: uuid, name:'uttu-portrait.png', mime_type:'image/png', size: 3, created_at:'2026-10-20T12:00:00Z', prompt_id:'job-12345678', preview_url:'https://storage.example/signed?secret=temporary' };
 const row = parseRemoteAsset(raw);
 const scope = { project:'film', account, current: () => true };
 const cloud = (extra: Partial<MediaClient> = {}): MediaClient => ({ list: async () => ({ assets:[row],hasMore:false,nextOffset:1 }), detail: async () => row, content: async () => new Blob(['png'],{type:'image/png'}), ...extra });
@@ -22,11 +22,11 @@ test('imports metadata without media downloads, deduplicates, and preserves loca
  const store=memoryVault(); let downloads=0;
  await syncPage(store,scope,cloud({content:async()=>{downloads++;throw Error();}}));
  const before=await readCatalog(store,'film');
- await updateCatalog(store,'film',c=>classify(c,[before.assets[0].id],{sequence:'F',character:'E*NKI',validated:true}));
+ await updateCatalog(store,'film',c=>classify(c,[before.assets[0].id],{sequence:'F',character:'Uttu',validated:true}));
  await syncPage(store,scope,cloud()); const after=await readCatalog(store,'film');
  assert.equal(after.assets.length,1);assert.equal(downloads,0); assert.equal(after.assets[0].organization.sequence,'F'); assert.equal(after.assets[0].localPath,null);
  assert.doesNotMatch(JSON.stringify(after),/temporary|preview_url|secret/);
- assert.equal(searchMedia(after.assets,'Retrouve toutes les images E*NKI cette semaine',new Date('2026-10-21')).length,1);
+ assert.equal(searchMedia(after.assets,'Retrouve toutes les images Uttu cette semaine',new Date('2026-10-21')).length,1);
 });
 test('resumes a saved cursor; absence from a partial page never marks a remote deletion',async()=>{
  const store=memoryVault();await syncPage(store,scope,cloud({list:async()=>({assets:[row],hasMore:true,nextOffset:50})}));
@@ -40,7 +40,7 @@ test('cache download resolves stable identity afresh, creates a reusable project
  const render={file:async()=>{throw Error('unexpected legacy call');}};
  const path=await cacheMedia(store,scope,client,render,id);
  assert.equal(path,await cacheMedia(store,scope,client,render,id)); assert.equal(calls,1);assert.equal(await (await store.get(path))!.blob!.text(),'png');
- assert.match((await store.get(path.replace('.png','.md')))!.text!,/E\*NKI/);
+ assert.match((await store.get(path.replace('.png','.md')))!.text!,/uttu-portrait/);
  const manifest=parseCatalog(JSON.stringify(await readCatalog(store,'film')),'film');assert.equal(manifest.assets[0].localPath,path);
 });
 test('distinguishes missing from offline; preserves organization and cached bytes',async()=>{
@@ -60,7 +60,7 @@ test('aborts on account/project switch and never mixes another account with the 
 test('simulated generation registers job/output and local file before clearing a recovery receipt',async()=>{
  const store=memoryVault();await store.put({path:'Projets/film/Cast/alice.png',blob:new Blob(['png'],{type:'image/png'}),updatedAt:1});
  const receipt:PendingRender={version:1,kind:'cast',project:'film',id:'alice',name:'Alice',at:'2026-10-21T00:00:00Z',account,refs:[],template:'real-template',quote:2,balanceBefore:100,jobId:'job-12345678',prompt:'Alice'};
- const detail={status:'success',outputs:{save:{images:[{filename:'E*NKI.png',subfolder:'',type:'output'}]}}};
+ const detail={status:'success',outputs:{save:{images:[{filename:'uttu-portrait.png',subfolder:'',type:'output'}]}}};
  await registerRender(store,receipt,detail,account);await registerRender(store,receipt,detail,account);
  let c=await readCatalog(store,'film');assert.equal(c.assets.length,1);assert.equal(c.assets[0].localPath,'Projets/film/Cast/alice.png');assert.equal(c.assets[0].cost,null);
  c=mergeRemote(c,account,[row]);assert.equal(c.assets.length,1);assert.equal(c.assets[0].remote!.assetId,uuid);assert.equal(c.assets[0].organization.character,'Alice');
@@ -94,9 +94,9 @@ test('concurrent metadata writers preserve both changes even through different v
  const store=memoryVault();await syncPage(store,scope,cloud());const id=(await readCatalog(store,'film')).assets[0].id;
  await Promise.all([
    updateCatalog({...store},'film',c=>classify(c,[id],{sequence:'F'})),
-   updateCatalog({...store},'film',c=>classify(c,[id],{character:'E*NKI'})),
+   updateCatalog({...store},'film',c=>classify(c,[id],{character:'Uttu'})),
  ]);
- const asset=(await readCatalog(store,'film')).assets[0];assert.equal(asset.organization.sequence,'F');assert.equal(asset.organization.character,'E*NKI');
+ const asset=(await readCatalog(store,'film')).assets[0];assert.equal(asset.organization.sequence,'F');assert.equal(asset.organization.character,'Uttu');
 });
 
 test('multiple render outputs keep distinct identities and only the saved output is cached',async()=>{

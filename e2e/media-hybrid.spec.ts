@@ -10,7 +10,7 @@ test('hybrid library: metadata only, dedup, classification, lazy download, reope
  await page.route(/\/api\/user$/,r=>r.fulfill({json:{id:'library-test'}}));
  await page.route(/\/api\/billing\//,r=>r.fulfill({json:{summary:{balance:{amount_micros:1000000}}}}));
  await page.route(/\/api\/prompt|\/api\/upload|\/api\/queue/,r=>{posts++;return r.abort();});
- const row={id,name:'E*NKI laboratoire.webp',mime_type:'image/webp',size:image.length,created_at:'2026-10-21T00:00:00Z',preview_url:'https://expired.invalid/temporary'};
+ const row={id,name:'decor-laboratoire.webp',mime_type:'image/webp',size:image.length,created_at:'2026-10-21T00:00:00Z',preview_url:'https://expired.invalid/temporary'};
  await page.route(/\/api\/assets\?/,r=>r.fulfill({json:{assets:[row],has_more:false,total:1}}));
  await page.route(new RegExp(`/api/assets/${id}$`),r=>r.fulfill(missing?{status:404,json:{}}:{json:row}));
  await page.route(new RegExp(`/api/v2/assets/${id}$`),r=>r.fulfill({json:{...row,content_type:'image/webp',size_bytes:image.length,url:'https://expired.invalid/old',url_expires_at:'2020-01-01T00:00:00Z'}}));
