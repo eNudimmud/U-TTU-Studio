@@ -2766,7 +2766,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Dein Studio-Guide · kostenlos, ohne KI-Modell",
+    "sub": "Dein Studio-Guide · standardmäßig kostenlos, Comfy-Agent optional",
     "button": "U*TTU",
     "openAria": "U*TTU, deinen Studio-Guide, öffnen oder schließen",
     "welcome": "Hallo, ich bin Uttu. Ich helfe dir beim Einstieg, beantworte deine Fragen zum Studio und schätze, was deine Renders kosten. Alles passiert auf diesem Gerät: Ich sende nichts und gebe nichts aus.",
@@ -2785,7 +2785,7 @@
       "free": "Was ist kostenlos?",
       "cancel": "Kann ich einen Render abbrechen?"
     },
-    "notFound": "Darauf kann ich mit meinem lokalen Blatt nicht antworten, und ich sage dir das lieber, als etwas zu erfinden. Versuch andere Wörter oder schau dir unten den Guide und den Kostenrechner an. Ein umfassenderer Comfy-Agent, der über dein Comfy-Konto läuft, ist in Vorbereitung.",
+    "notFound": "Darauf kann ich mit meinem lokalen Blatt nicht antworten, und ich sage dir das lieber, als etwas zu erfinden. Versuch andere Wörter oder schau dir unten den Guide und den Kostenrechner an. Mit verbundenem Comfy-Konto kannst du auch in den Comfy-Agent-Modus wechseln, bezahlt von deinem Konto.",
     "planHint": "Das klingt nach einer Aktion für dein Projekt. Ich gebe sie an den Produktionsplan unten weiter: Prüf sie und tipp dann auf „Meinen Plan vorbereiten“.",
     "planButton": "Zum Produktionsplan",
     "seeAlso": "Siehe auch:",
@@ -2918,9 +2918,9 @@
         "a": "Ich bin Uttu, der Guide des U*TTU Studios. Ich erkläre die Schritte, beantworte häufige Fragen und schätze Kosten. Für eine Aktion in deinem Projekt übergebe ich an den Produktionsplan."
       },
       "agent": {
-        "q": "Kommt ein umfassenderer Agent?",
+        "q": "Gibt es einen umfassenderen Agenten?",
         "k": "agent kostenpflichtig comfy umfassend freie unterhaltung zukunft bald",
-        "a": "Ja: Ein umfassenderer Comfy-Agent, der freie Anfragen versteht, ist in Vorbereitung. Er läuft über dein Comfy-Konto, und seine Kosten werden vor jedem Senden angezeigt. Bis dahin bleibe ich kostenlos und lokal."
+        "a": "Ja: Der Comfy-Agent-Modus versteht freie Anfragen. Er läuft über dein verbundenes Comfy-Konto, jede Nachricht zahlt dein Konto, und die geschätzten Kosten erscheinen vor dem ersten Senden. Der Agent startet nichts: Er schlägt eine Aktion vor, du klickst. Ohne verbundenes Konto bleibe ich kostenlos und lokal."
       },
       "openWeights": {
         "q": "Was sind offene Modelle?",
@@ -2962,6 +2962,38 @@
       "suite-parler": "sprechen lassen",
       "img-klein": "bild, schnelles bild",
       "3d-ouvert": "3d, 3d objekt"
+    },
+    "comfy": {
+      "mode": "U*TTU-Modus",
+      "free": "Kostenlos · ohne Modell",
+      "paid": "Comfy-Agent · ≈ {cost} Cr. geschätzt pro Nachricht",
+      "paidNote": "Comfy-Agent aktiv: Jede Nachricht läuft über dein Comfy-Konto (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert deinen Schlüssel nicht. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
+      "invite": "Lust auf einen Agenten, der in eigenen Worten antwortet? Verbinde dein Comfy-Konto: Jede Nachricht kostet höchstens ≈ {cost} Cr. geschätzt, bezahlt von deinem Konto. Ohne verbundenes Konto bleibt U*TTU kostenlos.",
+      "inviteButton": "Mein Comfy-Konto verbinden",
+      "gateTitle": "Vor deiner ersten kostenpflichtigen Nachricht",
+      "gateBody": "Jede Nachricht an den Comfy-Agenten wird deinem Comfy-Konto berechnet: höchstens ≈ {cost} Cr. geschätzt, oft weniger. Der Agent startet kein Rendering: Er schlägt eine Aktion vor, du klickst, und der übliche Kostenvoranschlag erscheint vor jeder Ausgabe. Deine Zustimmung gilt für diese Sitzung.",
+      "accept": "Einverstanden, senden",
+      "decline": "Kostenlos bleiben",
+      "thinking": "U*TTU denkt auf deinem Comfy-Konto nach …",
+      "send": "Senden (kostenpflichtig)",
+      "spent": "≈ {cost} Cr. geschätzt für diese Nachricht",
+      "spentMax": "höchstens ≈ {cost} Cr. geschätzt für diese Nachricht",
+      "local": "Vom Studio berechnet, ohne kostenpflichtigen Aufruf.",
+      "openTool": "Werkzeug {name} öffnen",
+      "toolCost": "≈ {low}–{high} Cr. geschätzt pro Start",
+      "counter": "{n}/{max} Zeichen",
+      "errors": {
+        "auth": "Dein Comfy-Konto lehnt die Verbindung ab. Verbinde es erneut (API-Schlüssel oder Comfy-Anmeldung) und sende deine Nachricht noch einmal.",
+        "credits": "Nicht genug Credits auf deinem Comfy-Konto. Lade es bei Comfy Cloud auf und versuche es erneut. Es wurde nichts gestartet.",
+        "subscription": "Dein Comfy-Konto hat keinen Zugriff auf dieses Modell: Prüfe dein Comfy-Cloud-Abo. Der kostenlose Modus bleibt verfügbar.",
+        "busy": "Comfy ist für dein Konto gerade stark ausgelastet. Warte ein paar Sekunden und sende deine Nachricht erneut.",
+        "invalid": "Diese Nachricht konnte nicht verarbeitet werden. Kürze sie oder formuliere sie um.",
+        "refused": "Das Modell hat diese Nachricht nicht beantwortet. Formuliere sie um oder wechsle in den kostenlosen Modus.",
+        "network": "Comfy antwortet nicht. Prüfe deine Verbindung und versuche es erneut; der kostenlose Modus funktioniert offline.",
+        "timeout": "Comfy hat zu lange gebraucht. Versuche es gleich noch einmal.",
+        "failed": "Der Comfy-Agent konnte nicht antworten. Versuche es erneut oder wechsle in den kostenlosen Modus."
+      },
+      "welcome": "Comfy-Agent-Modus: Ich antworte in eigenen Worten, nur auf Grundlage des Studio-Blatts, und jede Nachricht zahlt dein Comfy-Konto. Ich starte nichts: Ich schlage eine Aktion vor, du klickst."
     }
   }
 }

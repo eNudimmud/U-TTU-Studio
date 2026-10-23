@@ -2766,7 +2766,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Ton guide du studio · gratuit, sans modèle d’IA",
+    "sub": "Ton guide du studio · gratuit par défaut, agent Comfy en option",
     "button": "U*TTU",
     "openAria": "Ouvrir ou fermer U*TTU, ton guide du studio",
     "welcome": "Salut, je suis Uttu. Je t’aide à démarrer, je réponds à tes questions sur le studio et j’estime le coût de tes rendus. Tout se passe sur cet appareil : je n’envoie rien et je ne dépense rien.",
@@ -2785,7 +2785,7 @@
       "free": "Qu’est-ce qui est gratuit ?",
       "cancel": "Peut-on annuler un rendu ?"
     },
-    "notFound": "Je ne sais pas répondre à ça avec ma fiche locale, et je préfère te le dire plutôt qu’inventer. Essaie d’autres mots, ou regarde le guide et l’estimateur ci-dessous. Un agent Comfy plus complet, qui passera par ton compte Comfy, est en préparation.",
+    "notFound": "Je ne sais pas répondre à ça avec ma fiche locale, et je préfère te le dire plutôt qu’inventer. Essaie d’autres mots, ou regarde le guide et l’estimateur ci-dessous. Avec un compte Comfy relié, tu peux aussi passer en mode agent Comfy, payé par ton compte.",
     "planHint": "Ça ressemble à une action à préparer dans ton projet. Je la passe au plan de production ci-dessous : vérifie-la, puis touche « Préparer mon plan ».",
     "planButton": "Passer au plan de production",
     "seeAlso": "Voir aussi :",
@@ -2918,9 +2918,9 @@
         "a": "Je suis Uttu, le guide du studio U*TTU. Je t’explique les étapes, je réponds aux questions courantes et j’estime les coûts. Pour une action dans ton projet, je passe la main au plan de production."
       },
       "agent": {
-        "q": "Un agent plus complet arrive-t-il ?",
+        "q": "Existe-t-il un agent plus complet ?",
         "k": "agent payant comfy complet conversation libre futur bientôt",
-        "a": "Oui : un agent Comfy plus complet, qui comprendra des demandes libres, est en préparation. Il passera par ton compte Comfy, et son coût sera affiché avant chaque envoi. En attendant, je reste gratuit et local."
+        "a": "Oui : le mode Agent Comfy comprend des demandes libres. Il fonctionne avec ton compte Comfy relié, chaque message est payé par ton compte, et son coût estimé s’affiche avant le premier envoi. L’agent ne lance rien : il te propose une action, tu cliques. Sans compte relié, je reste gratuit et local."
       },
       "openWeights": {
         "q": "Que sont les modèles ouverts ?",
@@ -2962,6 +2962,38 @@
       "suite-parler": "faire parler",
       "img-klein": "image, image rapide",
       "3d-ouvert": "3d, objet 3d"
+    },
+    "comfy": {
+      "mode": "Mode de U*TTU",
+      "free": "Gratuit · sans modèle",
+      "paid": "Agent Comfy · ≈ {cost} cr. estimés par message",
+      "paidNote": "Agent Comfy actif : chaque message passe par ton compte Comfy (GPT-5 Nano via Comfy Router). Le studio ne paie rien et ne garde pas ta clé. L’agent ne lance rien : c’est toi qui cliques, après le devis habituel.",
+      "invite": "Envie d’un agent qui répond avec ses mots ? Relie ton compte Comfy : chaque message coûte ≈ {cost} cr. estimés au plus, payés par ton compte. Sans compte relié, U*TTU reste gratuit.",
+      "inviteButton": "Relier mon compte Comfy",
+      "gateTitle": "Avant ton premier message payant",
+      "gateBody": "Chaque message à l’agent Comfy est facturé sur ton compte Comfy : ≈ {cost} cr. estimés au plus, souvent moins. L’agent ne lance aucun rendu : il te propose une action, tu cliques, et le devis habituel s’affiche avant toute dépense. Ton accord vaut pour cette session.",
+      "accept": "J’accepte, envoyer",
+      "decline": "Rester en gratuit",
+      "thinking": "U*TTU réfléchit sur ton compte Comfy…",
+      "send": "Envoyer (payant)",
+      "spent": "≈ {cost} cr. estimés pour ce message",
+      "spentMax": "≈ {cost} cr. estimés au plus pour ce message",
+      "local": "Calculé par le studio, sans appel payant.",
+      "openTool": "Ouvrir l’outil {name}",
+      "toolCost": "≈ {low}–{high} cr. estimés par lancement",
+      "counter": "{n}/{max} caractères",
+      "errors": {
+        "auth": "Ton compte Comfy refuse la connexion. Relie-le à nouveau (clé API ou connexion Comfy), puis renvoie ton message.",
+        "credits": "Crédits insuffisants sur ton compte Comfy. Recharge-le sur Comfy Cloud, puis réessaie. Rien n’a été lancé.",
+        "subscription": "Ton compte Comfy n’a pas accès à ce modèle : vérifie ton abonnement Comfy Cloud. En attendant, le mode gratuit reste là.",
+        "busy": "Comfy est très sollicité pour ton compte en ce moment. Patiente quelques secondes et renvoie ton message.",
+        "invalid": "Ce message n’a pas pu être traité. Raccourcis-le ou reformule-le.",
+        "refused": "Le modèle a refusé de répondre à ce message. Reformule-le, ou passe en mode gratuit.",
+        "network": "Comfy ne répond pas. Vérifie ta connexion et réessaie ; le mode gratuit fonctionne hors ligne.",
+        "timeout": "Comfy a mis trop de temps à répondre. Réessaie dans un instant.",
+        "failed": "L’agent Comfy n’a pas pu répondre. Réessaie, ou passe en mode gratuit."
+      },
+      "welcome": "Mode agent Comfy : je réponds avec mes mots, à partir de la fiche du studio seulement, et chaque message est payé par ton compte Comfy. Je ne lance rien : je te propose une action, tu cliques."
     }
   }
 }

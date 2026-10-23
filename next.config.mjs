@@ -19,6 +19,8 @@ const nextConfig = {
   basePath,
   images: { formats: ["image/avif", "image/webp"] },
   transpilePackages: ["three", "maplibre-gl"],
+  // The paid agent route reads the knowledge pack built by `npm run knowledge`.
+  outputFileTracingIncludes: { "/studio-agent/chat": ["./public/agent/knowledge.json"] },
   async headers() {
     return [{ source: "/comfy-media-sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }, { key: "Service-Worker-Allowed", value: "/" }] }];
   },
