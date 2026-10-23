@@ -111,62 +111,13 @@ fieldset { min-width: 0; margin: 0; }
   .studio-footer { gap: 24px; padding-block: 24px; font-size: 12px; }
 }
 
-/* Landing — one line, three steps, one door. Mobile first. */
-.landing { min-height: 100dvh; display: flex; flex-direction: column; }
-.landing-header { position: sticky; top: 0; z-index: 20; padding-top: env(safe-area-inset-top, 0px); background: var(--bg); border-bottom: 1px solid var(--line); }
-.landing-bar, .landing-main, .landing-footer { width: min(1120px, calc(100% - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))); margin-inline: auto; }
-.landing-footer { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
-.landing-bar { min-height: 64px; display: flex; align-items: center; gap: 16px; }
-.landing-tools { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-.landing-header-cta { display: none; margin-left: 0; }
+/* Language picker (home bar and studio). 44 px target. */
 .u-lang select {
   min-height: 44px; max-width: 8.5rem; padding: 0 10px;
   border: 1px solid var(--control); border-radius: var(--radius-control); background: var(--bg);
   color: var(--fg); font: 500 13px/1 var(--font-mono);
 }
 .u-lang-rail { display: none; }
-.landing-main { flex: 1; display: flex; flex-direction: column; }
-.landing-main:focus { outline: none; }
-.landing-splash { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 12px 0 18px; }
-.landing-copy { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-.landing-splash h1 { font-family: var(--font-title); font-size: clamp(36px, 9.6vw, 52px); line-height: 1.04; letter-spacing: -.01em; font-weight: 400; max-width: 14em; }
-.landing-splash h1 em { font-style: italic; color: var(--accent); }
-.landing-sheet { display: flex; flex-direction: column; gap: 16px; }
-.landing-pills { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.landing-pills li { min-height: 92px; height: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-card); padding: 10px 8px 12px; display: flex; flex-direction: column; gap: 2px; }
-.step-index { font-family: var(--font-mono); font-size: 12px; letter-spacing: .02em; color: var(--fg-2); }
-.landing-pills strong { font-family: var(--font-heading); font-weight: 600; font-size: clamp(12px, 3.3vw, 20px); letter-spacing: -.01em; line-height: 1.15; white-space: nowrap; }
-@media (max-width: 380px) { .landing-pills li { padding-inline: 6px; } }
-.step-plain { margin-top: auto; color: var(--fg-2); font-size: 13px; line-height: 1.3; }
-.landing-cta-row { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
-.landing-cta-row .button { width: 100%; }
-.landing-quiet { font-size: 14px; color: var(--fg-2); }
-.landing-still { order: -1; margin: 0; flex: none; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; background: var(--surface); padding: 8px 8px 0; }
-.landing-still-frame { position: relative; aspect-ratio: 11 / 8; border-radius: var(--radius-thumb); overflow: hidden; }
-.landing-still-frame img { object-fit: contain; object-position: center; }
-.landing-still figcaption { flex: none; padding: 8px 6px 10px; color: var(--fg-2); font: 500 12px/1.4 var(--font-mono); letter-spacing: .02em; }
-.landing-lockup { display: none; }
-@media (min-width: 720px) {
-  .landing-header-cta { display: inline-flex; width: auto; }
-  .landing-bar, .landing-main, .landing-footer { width: min(1120px, calc(100% - 64px)); }
-  .landing-cta-row { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 16px; }
-  .landing-cta-row .button { width: auto; }
-  .landing-splash h1 { font-size: clamp(44px, 5.4vw, 72px); max-width: none; }
-  .landing-pills { gap: 12px; }
-  .landing-pills li { padding: 14px 16px 16px; }
-}
-@media (min-width: 800px) { .landing-bar { min-height: 80px; } }
-@media (min-width: 900px) {
-  /* Content-sized hero, centred: no stretched column, no empty band under the title. */
-  .landing-splash { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: center; column-gap: 56px; padding: 40px 0; }
-  .landing-copy { justify-content: center; gap: 28px; }
-  .landing-lockup { display: block; align-self: flex-start; height: 180px; width: auto; max-width: none; margin-left: -10px; }
-  .landing-splash h1 { max-width: 11em; }
-  .landing-pills li { padding: 14px 12px 16px; }
-  .landing-pills strong { font-size: clamp(15px, 1.4vw, 19px); }
-  .landing-still { order: 0; width: 100%; padding: 10px 10px 0; }
-}
-@media (min-width: 900px) and (max-height: 780px) { .landing-lockup { display: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *:before, *:after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
