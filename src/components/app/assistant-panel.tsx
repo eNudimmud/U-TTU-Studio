@@ -12,6 +12,7 @@ import { listTasks, subscribeTasks, type Task } from '@/lib/tasks';
 import type { Edit } from '@/lib/montage/edit';
 import { useStudio } from './studio-session';
 import { MediaLibrary, MEDIA_SELECT_EVENT } from './media-library';
+import { UttuFree } from './uttu-free';
 
 const KEY = 'u-ttu-assistant';
 const FILE = '.uttu/agent-conversation.json';
@@ -60,6 +61,12 @@ export function AssistantPanel() {
   const plan = conversation.plan ? refreshPlan(conversation.plan, context) : null;
   const resources = projectResources(session);
   const latest = useRef(session); latest.current = session;
+  const kernelInput = useRef<HTMLTextAreaElement>(null);
+  const handToPlan = useCallback((text: string) => {
+    setQuery(text.slice(0, 2000)); setModelConfirm(false);
+    requestAnimationFrame(() => { const node = kernelInput.current; if (!node) return; node.scrollIntoView({ block: 'center', behavior: 'smooth' }); node.focus({ preventScroll: true }); });
+  }, []);
+  const isAction = useCallback((text: string) => interpretAgentRequest(text, contextRef.current, locale).length > 0, [locale]);
   useEffect(() => { document.documentElement.toggleAttribute('data-assistant', open); return () => document.documentElement.removeAttribute('data-assistant'); }, [open]);
   useEffect(() => { setTasks(listTasks()); return subscribeTasks(setTasks); }, []);
   useEffect(() => {
@@ -168,8 +175,11 @@ export function AssistantPanel() {
   }
   if (!open) return null;
   const hinted = interpretAgentRequest(query, context, locale).map(id => operations.find(op => op.id === id)).filter(op => op?.toolId && op.status === 'ready');
-  return <aside className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
-    <header className="u-assistant-head"><h2 id="u-assistant-title">{t('assistant.title')}</h2><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
+  return <aside id="u-assistant" className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
+    <header className="u-assistant-head"><div><h2 id="u-assistant-title">{t('uttu.title')}</h2><p className="u-small u-assistant-sub">{t('uttu.sub')}</p></div><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
+    <UttuFree locale={locale} isAction={isAction} onPlan={handToPlan} />
+    <h3 className="u-uttu-plan-title" data-agent-kernel="">{t('uttu.plan.title')}</h3>
+    <p className="u-small">{t('uttu.plan.lead')}</p>
     <p className="u-small" id="u-agent-guidance">{t('agent.guidance')}</p>
     <p className="u-label">{session.studio.projectName || t('agent.noProject')}</p>
     {!project && <form onSubmit={e => { e.preventDefault(); void work(() => session.createProject(projectName)); }}><label className="u-field">{t('agent.projectName')}<input value={projectName} maxLength={80} onChange={e => setProjectName(e.target.value)} /></label><button className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !projectName.trim()}>{t('agent.createProject')}</button></form>}
@@ -178,7 +188,7 @@ export function AssistantPanel() {
       {!conversation.messages.length && <p>{t('agent.welcome')}</p>}
     </div>
     <form onSubmit={e => { e.preventDefault(); void send(); }}>
-      <label className="u-field"><span className="u-label">{t('assistant.ask')}</span><textarea value={query} maxLength={2000} rows={3} disabled={busy || !session.ready || Boolean(project && loaded !== project)} aria-describedby="u-agent-guidance" onChange={e => { setQuery(e.target.value); setModelConfirm(false); }} placeholder={t('agent.placeholder')} data-assistant-input="" /></label>
+      <label className="u-field"><span className="u-label">{t('assistant.ask')}</span><textarea ref={kernelInput} value={query} maxLength={2000} rows={3} disabled={busy || !session.ready || Boolean(project && loaded !== project)} aria-describedby="u-agent-guidance" onChange={e => { setQuery(e.target.value); setModelConfirm(false); }} placeholder={t('agent.placeholder')} data-assistant-input="" /></label>
       <div className="u-agent-actions"><button className="u-primary" data-agent-send="" aria-describedby="u-agent-guidance" disabled={busy || !query.trim() || loaded !== project || !project}>{t('agent.send')}</button><button type="button" className="u-secondary" onClick={() => { setLibrary(v => !v); setMediaQuery(''); }}>{t('media.title')}</button></div>
     </form>
     {hinted.length > 0 && <ul className="u-assistant-list">{hinted.map(op => op && <li key={op.id}><a href={assetPath(op.href!)} data-assistant-outil={op.toolId}>{op.label}</a></li>)}</ul>}
