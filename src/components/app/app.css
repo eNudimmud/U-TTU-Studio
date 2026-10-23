@@ -1682,7 +1682,11 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-splash-bar { position: relative; width: 120px; height: 2px; overflow: hidden; border-radius: 2px; background: var(--u-line); }
 .u-splash-bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 40%; background: var(--accent); animation: u-splash 1.4s ease-in-out infinite; }
 @keyframes u-splash { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
-@media (prefers-reduced-motion: reduce) { .u-splash-bar::after { animation: none; width: 100%; opacity: .5; } }
+.u-splash-kicker { font: 500 12px/1.5 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--accent) !important; max-width: 34ch; }
+.u-splash-skel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: min(720px, 100%); margin-top: 18px; }
+.u-splash-skel span { display: block; aspect-ratio: 4 / 3; border: 1px solid var(--line); border-radius: var(--radius-card); background: linear-gradient(100deg, var(--surface) 30%, var(--surface-2) 50%, var(--surface) 70%) 0 0 / 300% 100%; animation: u-skel 1.6s ease-in-out infinite; }
+@keyframes u-skel { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .u-splash-bar::after { animation: none; width: 100%; opacity: .5; } .u-splash-skel span { animation: none; } }
 
 /* ───────────────────────── Obsidian Aureate (docs/DESIGN.md) ─────────────────────────
    Depth from surface shades and 1 px lines only, no shadows. One gold surface per screen.

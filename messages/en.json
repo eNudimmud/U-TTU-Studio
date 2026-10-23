@@ -6,8 +6,8 @@
   },
   "skip": "Skip to content",
   "meta": {
-    "title": "U*TTU Studio — Your character, on video",
-    "description": "Cast, set, take, edit. Two photos, a place, a video on your account."
+    "title": "U*TTU Studio — Open-source AI film studio on ComfyUI",
+    "description": "Direct your shot in 3D on your phone, LTX films it. Open source (MIT), a quote before every credit, renders on your own Comfy Cloud account."
   },
   "nav": {
     "character": "Cast",
@@ -32,19 +32,29 @@
   "landing": {
     "home": "U*TTU Studio — Home",
     "enter": "Enter the studio",
-    "before": "Put your character in a scene, ",
-    "em": "on video.",
+    "before": "Direct your shot in 3D on your phone. ",
+    "em": "LTX films it.",
     "pills": "Four gestures",
     "theCut": "The cut",
     "twoWays": "2 photos",
     "yourPlace": "A set",
-    "theVideo": "The video",
-    "quiet": "The studio sells nothing. The render is paid on your cloud account.",
-    "alt": "Studio preview: shot 01 on the quay at night, the characters, the sentence “The courier walks along the quay, handheld camera”, what the studio understood and the assistant’s note.",
-    "caption": "The studio · a shot, its preview, its cost",
+    "theVideo": "3D previs → LTX",
+    "quiet": "The studio sells nothing. Renders are paid on your Comfy Cloud account.",
+    "alt": "The studio's 3D mock-up: two characters around a table, placed with a finger before the take.",
+    "caption": "Your 3D mock-up · LTX follows this camera move",
     "contact": "Contact the studio ↗",
     "poweredBy": "Powered by ComfyUI",
-    "poweredByLabel": "Powered by ComfyUI — comfy.org, new tab"
+    "poweredByLabel": "Powered by ComfyUI — comfy.org, new tab",
+    "kicker": "Open-source AI film studio on ComfyUI",
+    "sub": "Open source (MIT). You see a quote before any credit is spent, and renders run on your own Comfy Cloud account.",
+    "tryFree": "Try free (0 credits)",
+    "tryFreeNote": "Getting-started guide, cost simulator and example renders, no account needed.",
+    "stepFinger": "Your finger sets the camera",
+    "stepQuote": "Quote first: ≈ 12–25 cr. estimated",
+    "stepFilm": "LTX films the shot",
+    "examples": "Example renders, made on Comfy Cloud",
+    "exCast": "Character",
+    "exSet": "Set"
   },
   "guide": {
     "look-photos": "Two photos, three at most. Front, then three-quarter. I weave the rest.",

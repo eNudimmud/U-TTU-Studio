@@ -6,8 +6,8 @@
   },
   "skip": "Ir al contenido",
   "meta": {
-    "title": "U*TTU Studio — Tu personaje, en vídeo",
-    "description": "Reparto, decorado, toma, montaje. Dos fotos, un lugar, un vídeo en tu cuenta."
+    "title": "U*TTU Studio — Estudio de cine IA de código abierto en ComfyUI",
+    "description": "Dirige tu plano en 3D en tu móvil y LTX lo rueda. Código abierto (MIT), un presupuesto antes de cada crédito, renders en tu propia cuenta de Comfy Cloud."
   },
   "nav": {
     "character": "Reparto",
@@ -32,19 +32,29 @@
   "landing": {
     "home": "U*TTU Studio — Inicio",
     "enter": "Entrar al estudio",
-    "before": "Haz girar a tu personaje, ",
-    "em": "en vídeo.",
+    "before": "Dirige tu plano en 3D en tu móvil. ",
+    "em": "LTX lo rueda.",
     "pills": "Cuatro gestos",
     "theCut": "El corte",
     "twoWays": "2 fotos",
     "yourPlace": "Un decorado",
-    "theVideo": "El vídeo",
-    "quiet": "El estudio no vende nada. El render se paga en tu cuenta cloud.",
-    "alt": "Vista del estudio: el plano 01 en el muelle de noche, los personajes, la frase «La mensajera camina por el muelle, cámara al hombro», lo que el estudio entendió y la nota del asistente.",
-    "caption": "El estudio · un plano, su vista previa, su coste",
+    "theVideo": "Previs 3D → LTX",
+    "quiet": "El estudio no vende nada. Los renders se pagan en tu cuenta de Comfy Cloud.",
+    "alt": "La maqueta 3D del estudio: dos personajes alrededor de una mesa, colocados con el dedo antes de la toma.",
+    "caption": "Tu maqueta 3D · LTX sigue este movimiento de cámara",
     "contact": "Contactar el estudio ↗",
     "poweredBy": "Con tecnología de ComfyUI",
-    "poweredByLabel": "Con tecnología de ComfyUI — comfy.org, pestaña nueva"
+    "poweredByLabel": "Con tecnología de ComfyUI — comfy.org, pestaña nueva",
+    "kicker": "Estudio de cine IA de código abierto en ComfyUI",
+    "sub": "Código abierto (MIT). Ves un presupuesto antes de gastar cualquier crédito, y los renders corren en tu propia cuenta de Comfy Cloud.",
+    "tryFree": "Probar gratis (0 créditos)",
+    "tryFreeNote": "Guía de inicio, simulador de costes y renders de ejemplo, sin cuenta.",
+    "stepFinger": "Tu dedo coloca la cámara",
+    "stepQuote": "Presupuesto antes: ≈ 12–25 cr. estimados",
+    "stepFilm": "LTX rueda el plano",
+    "examples": "Renders de ejemplo, hechos en Comfy Cloud",
+    "exCast": "Personaje",
+    "exSet": "Decorado"
   },
   "guide": {
     "look-photos": "Dos fotos, tres como máximo. De frente, luego tres cuartos. Yo tejo el resto.",

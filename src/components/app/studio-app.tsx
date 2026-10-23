@@ -16,7 +16,7 @@ import { StudioProvider, useStudio } from "./studio-session";
 import "./app.css";
 import { StudioSplash } from "./splash";
 import { TopBar } from "./top-bar";
-import { AssistantPanel } from "./assistant-panel";
+import { AssistantPanel, toggleAssistant } from "./assistant-panel";
 
 const STEPS: { id: "lora" | "scene" | "prise" | "montage"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" }[] = [
   { id: "lora", key: "nav.character" },
@@ -48,6 +48,13 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       }
     };
     apply();
+    // « Try free (0 credits) » on the home page lands here with ?uttu=1: open the free U*TTU guide once, then drop the flag.
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("uttu") === "1") {
+      url.searchParams.delete("uttu");
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+      toggleAssistant(true);
+    }
     window.addEventListener("hashchange", apply);
     return () => window.removeEventListener("hashchange", apply);
   }, []);

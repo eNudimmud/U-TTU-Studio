@@ -6,8 +6,8 @@
   },
   "skip": "Zum Inhalt",
   "meta": {
-    "title": "U*TTU Studio — Deine Figur, als Video",
-    "description": "Besetzung, Kulisse, Take, Schnitt. Zwei Fotos, ein Ort, ein Video auf deinem Konto."
+    "title": "U*TTU Studio — Open-Source-KI-Filmstudio auf ComfyUI",
+    "description": "Inszeniere deine Einstellung in 3D auf deinem Handy, LTX dreht sie. Open Source (MIT), ein Kostenvoranschlag vor jedem Credit, Renders auf deinem eigenen Comfy-Cloud-Konto."
   },
   "nav": {
     "character": "Besetzung",
@@ -32,19 +32,29 @@
   "landing": {
     "home": "U*TTU Studio — Start",
     "enter": "Studio öffnen",
-    "before": "Dreh deine Figur in einer Szene, ",
-    "em": "als Video.",
+    "before": "Inszeniere deine Einstellung in 3D auf deinem Handy. ",
+    "em": "LTX dreht sie.",
     "pills": "Vier Gesten",
     "theCut": "Der Schnitt",
     "twoWays": "2 Fotos",
     "yourPlace": "Eine Kulisse",
-    "theVideo": "Das Video",
-    "quiet": "Das Studio verkauft nichts. Der Render wird auf deinem Cloud-Konto bezahlt.",
-    "alt": "Studio-Vorschau: Einstellung 01 am Kai bei Nacht, die Figuren, der Satz „Die Kurierin geht den Kai entlang, Handkamera“, was das Studio verstanden hat, und der Hinweis des Assistenten.",
-    "caption": "Das Studio · eine Einstellung, ihre Vorschau, ihre Kosten",
+    "theVideo": "3D-Previs → LTX",
+    "quiet": "Das Studio verkauft nichts. Renders bezahlst du auf deinem Comfy-Cloud-Konto.",
+    "alt": "Das 3D-Modell des Studios: zwei Figuren an einem Tisch, vor dem Take mit dem Finger platziert.",
+    "caption": "Dein 3D-Modell · LTX folgt dieser Kamerafahrt",
     "contact": "Studio kontaktieren ↗",
     "poweredBy": "Powered by ComfyUI",
-    "poweredByLabel": "Powered by ComfyUI — comfy.org, neuer Tab"
+    "poweredByLabel": "Powered by ComfyUI — comfy.org, neuer Tab",
+    "kicker": "Open-Source-KI-Filmstudio auf ComfyUI",
+    "sub": "Open Source (MIT). Du siehst vor jedem Credit einen Kostenvoranschlag, und die Renders laufen auf deinem eigenen Comfy-Cloud-Konto.",
+    "tryFree": "Kostenlos testen (0 Credits)",
+    "tryFreeNote": "Einstiegsguide, Kostenrechner und Beispiel-Renders, ohne Konto.",
+    "stepFinger": "Dein Finger setzt die Kamera",
+    "stepQuote": "Erst die Schätzung: ≈ 12–25 cr. geschätzt",
+    "stepFilm": "LTX dreht die Einstellung",
+    "examples": "Beispiel-Renders, erstellt auf Comfy Cloud",
+    "exCast": "Figur",
+    "exSet": "Kulisse"
   },
   "guide": {
     "look-photos": "Zwei Fotos, höchstens drei. Frontal, dann Dreiviertel. Den Rest webe ich.",

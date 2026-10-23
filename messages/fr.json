@@ -6,8 +6,8 @@
   },
   "skip": "Aller au contenu",
   "meta": {
-    "title": "U*TTU Studio — Ton personnage, en vidéo",
-    "description": "Cast, décor, prise, montage. Deux photos, un lieu, une vidéo sur ton compte."
+    "title": "U*TTU Studio — Studio de cinéma IA open source sur ComfyUI",
+    "description": "Mets en scène ton plan en 3D sur ton téléphone, LTX le tourne. Open source (MIT), devis avant chaque crédit, rendus sur ton compte Comfy Cloud."
   },
   "nav": {
     "character": "CAST",
@@ -32,19 +32,29 @@
   "landing": {
     "home": "U*TTU Studio — Accueil",
     "enter": "Entrer dans le studio",
-    "before": "Fais tourner ton personnage, ",
-    "em": "en vidéo.",
+    "before": "Mets en scène ton plan en 3D sur ton téléphone. ",
+    "em": "LTX le tourne.",
     "pills": "Quatre gestes",
     "theCut": "Le film",
     "twoWays": "2 photos",
     "yourPlace": "Un décor",
-    "theVideo": "La vidéo",
-    "quiet": "Le studio ne vend rien. Le rendu se paie sur ton compte cloud.",
-    "alt": "Aperçu du studio : le plan 01 sur le quai la nuit, les personnages, la phrase « La coursière marche sur le quai, caméra à l’épaule », ce que le studio a compris et la note de l’assistant.",
-    "caption": "Le studio · un plan, son aperçu, son coût",
+    "theVideo": "Prévis 3D → LTX",
+    "quiet": "Le studio ne vend rien. Le rendu se paie sur ton compte Comfy Cloud.",
+    "alt": "Maquette 3D du studio : deux personnages autour d’une table, posés au doigt avant la prise.",
+    "caption": "Ta maquette 3D · LTX suit ce mouvement de caméra",
     "contact": "Contacter le studio ↗",
     "poweredBy": "Propulsé par ComfyUI",
-    "poweredByLabel": "Propulsé par ComfyUI — comfy.org, nouvel onglet"
+    "poweredByLabel": "Propulsé par ComfyUI — comfy.org, nouvel onglet",
+    "kicker": "Studio de cinéma IA open source sur ComfyUI",
+    "sub": "Open source (MIT). Tu vois un devis avant chaque crédit dépensé, et les rendus tournent sur ton propre compte Comfy Cloud.",
+    "tryFree": "Essayer gratuitement (0 crédit)",
+    "tryFreeNote": "Guide de démarrage, simulateur de coûts et rendus d’exemple, sans compte.",
+    "stepFinger": "Ton doigt place la caméra",
+    "stepQuote": "Devis avant : ≈ 12–25 cr. estimés",
+    "stepFilm": "LTX tourne le plan",
+    "examples": "Rendus d’exemple, faits sur Comfy Cloud",
+    "exCast": "Personnage",
+    "exSet": "Décor"
   },
   "guide": {
     "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",

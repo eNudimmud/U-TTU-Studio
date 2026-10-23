@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import localFont from "next/font/local";
 import "./globals.css";
 import { LocaleProvider, SkipLink } from "@/components/i18n/provider";
 import { loadCatalog } from "@/lib/i18n/catalog";
-import { htmlLang, readLocaleValue, type Locale } from "@/lib/i18n/config";
+import { htmlLang, type Locale } from "@/lib/i18n/config";
+import { requestLocale } from "@/lib/i18n/server";
 import { assetPath, siteOrigin, socialImage } from "@/lib/site";
 
 /* Instrument Serif (OFL, src/app/fonts/InstrumentSerif-OFL.txt): one display title per screen, never body text. */
@@ -21,11 +21,6 @@ const display = localFont({
 });
 
 const ogLocale: Record<Locale, string> = { fr: "fr_CH", en: "en_GB", de: "de_DE", es: "es_ES" };
-
-async function requestLocale(): Promise<Locale> {
-  const jar = await cookies();
-  return readLocaleValue(jar.get("u-ttu-locale")?.value);
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await requestLocale();
