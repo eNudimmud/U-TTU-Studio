@@ -125,14 +125,15 @@ Le repérage 3D et la carte affichent des données ouvertes. Elles ne sont pas g
 | Recherche d’un lieu | [Photon (komoot)](https://photon.komoot.io) | Géocodage sur les données © OpenStreetMap (ODbL) |
 | Photos de rue | [Panoramax](https://panoramax.fr) | Licence et auteur de chaque photo affichés ; seules les licences ouvertes identifiées (CC0, CC-BY, CC-BY-SA, etalab-2.0) peuvent être copiées dans un projet |
 
-Les mêmes mentions sont listées dans `src/lib/repere3d/sources.ts`, affichées sur la carte du studio et enregistrées avec chaque capture. La capture `scripts/brand/vignettes-sources/reperage-trait.webp` (Romainmôtier, rendu « Trait + ombres ») montre ces données : elle hérite des mêmes mentions.
+Les mêmes mentions sont listées dans `src/lib/repere3d/sources.ts`, affichées sur la carte du studio et enregistrées avec chaque capture.
 
-## Vignettes des outils (2026-10-23)
+## Vignettes des outils (2026-10-23, v2)
 
-Les 37 vignettes de `public/exemples/vignettes/` sont composées par `scripts/brand/make_vignettes.py` (Pillow + ffmpeg, 640×400 webp). Aucune image n’est générée et aucun crédit n’est dépensé. Le script ne lit que des fichiers du dépôt.
+Les 37 vignettes de `public/exemples/vignettes/` sont des illustrations générées avec Grok Imagine (images, et quatre clips vidéo pour « Animer une image », « Vidéo depuis un texte », « Faire parler » et « Synchroniser les lèvres »), puis composées par `scripts/brand/make_vignettes.py` (Pillow, numpy, OpenCV, ffmpeg). Aucun crédit Comfy n’est dépensé. Les sources sont dans `scripts/brand/vignettes-sources/`.
 
-- **Rendu réel du modèle de la carte :** `img-klein` (`decor-gare`, FLUX 3 Image Klein), `img-seedream` (`decor-piece`, Seedream 4.5), `img-nano` (`apres-decor-texte`, Nano Banana 2.1), `ret-modifier` (vrai couple Comfy : `avant-decor-heure` → `apres-decor-heure`, Nano Banana 2.1 edit).
-- **Capture réelle du studio :** `reperage` (repérage 3D, données ci-dessus) et `maquette` (maquette PRISE, deux silhouettes sur le décor du quai).
-- **Signe, en attente d’un rendu :** toutes les autres cartes montrent l’entrée réelle (texte, photo, son, clip) et un signe doré de ce que fait l’outil (cadre, ▶ + barre de temps, cadre pointillé, forme d’onde). Elles ne montrent aucun résultat qu’un modèle n’a pas produit. Les formes d’onde sont dessinées, pas extraites d’un son généré.
-- `scripts/brand/vignettes-sources/avant-decor-heure.webp` est la version de `decor-rue-pluie.webp` d’avant #109 (Seedream 4.5), l’entrée réelle de `apres-decor-heure`.
+- **Ce sont des illustrations de ce que fait l’outil, pas des rendus du modèle de la carte.** Les avant/après (croquis → image, modifier, lumière, effacer, maquette → rendu) sont des paires d’illustrations ; « Effacer un objet » est retouché à la main dans le script (l’objet remplacé par le sable voisin).
+- Les détourages (« Détourer », « Détourer une vidéo ») sont calculés par le script (GrabCut sur fond uni), pas par le modèle de la carte.
+- Les formes d’onde, barres d’égaliseur, barres de temps et le squelette de pose sont dessinés.
+- Uttu apparaît sur « Image polyvalente », « Image avec références », « Vidéo fidèle aux références », « Faire parler » et « Copier un mouvement », d’après son portrait officiel.
+- 640×400 webp et 1280×800 `@2x.webp` pour chaque carte ; 23 cartes ont aussi une boucle muette de 3 à 4 s (`.webm` VP9 + `.mp4` H.264, moins de 400 Ko), dont l’image fixe est l’affiche et le repli « mouvement réduit ».
 - `public/exemples/outils/plan-exemple.mp4` est un mouvement de caméra sur une image fixe, pas un rendu d’un modèle vidéo : ses images servent seulement d’entrée (clip donné).

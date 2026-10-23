@@ -5,12 +5,12 @@
 // « Créer », the rail and search. One gold surface: « Continuer ». No cost on the cards; the
 // estimate sits under the prompt, for the tool the sentence goes to.
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { FAMILLES, cherche, familleVitrine, intentDe, outilParId, outilRow, outilsPublics, type Famille, type Outil } from "@/lib/outils/catalogue";
 import { routePrompt } from "@/lib/outils/route";
-import { MAQUETTE_HASH, MAQUETTE_ID, REPERAGE_ID, UTTU_PORTRAIT, UTTU_PORTRAIT_HD, UTTU_PORTRAIT_WIDE, UTTU_PORTRAIT_WIDE_HD, vignette } from "@/lib/outils/vignettes";
+import { MAQUETTE_HASH, MAQUETTE_ID, REPERAGE_ID, UTTU_PORTRAIT, UTTU_PORTRAIT_HD, UTTU_PORTRAIT_WIDE, UTTU_PORTRAIT_WIDE_HD, vignette, vignette2x, vignetteAnimee } from "@/lib/outils/vignettes";
 import { assetPath } from "@/lib/site";
 import { FamilyIcon, scrollToFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
@@ -163,10 +163,51 @@ function Family({ fam, items, scout, maquette }: { fam: Famille; items: Outil[];
 }
 
 /** The thumbnail of a card: a real house render, or a quiet wave for sound. */
+// One observer for every animated card: a loop plays only while its card is on screen.
+let loopObserver: IntersectionObserver | null = null;
+function observeLoop(video: HTMLVideoElement): () => void {
+  if (typeof IntersectionObserver === "undefined") return () => {};
+  loopObserver ??= new IntersectionObserver(entries => {
+    for (const e of entries) {
+      const v = e.target as HTMLVideoElement;
+      if (e.isIntersecting) { if (v.preload !== "auto") v.preload = "auto"; v.play().catch(() => {}); }
+      else v.pause();
+    }
+  }, { rootMargin: "120px 0px", threshold: 0.25 });
+  loopObserver.observe(video);
+  return () => { loopObserver?.unobserve(video); video.pause(); };
+}
+
+/** True unless the visitor asked for reduced motion (then the still poster stays). */
+function useMotionOk(): boolean {
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setOk(!mq.matches);
+    sync(); mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+  return ok;
+}
+
+function CardLoop({ webm, mp4, poster }: { webm: string; mp4: string; poster: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [on, setOn] = useState(false);
+  useEffect(() => (ref.current ? observeLoop(ref.current) : undefined), []);
+  return <video ref={ref} className="u-outil-loop" data-on={on ? "" : undefined} muted loop playsInline preload="none"
+    poster={poster} width={640} height={400} disablePictureInPicture onPlaying={() => setOn(true)}>
+    <source src={webm} type="video/webm" />
+    <source src={mp4} type="video/mp4" />
+  </video>;
+}
+
 export function CardThumb({ id, fam }: { id: string; fam: Famille | "reperage" | "maquette" }) {
-  const src = vignette(intentDe(id));
+  const key = intentDe(id);
+  const src = vignette(key), src2x = vignette2x(key), loop = vignetteAnimee(key);
+  const motion = useMotionOk();
   return <span className="u-outil-thumb" aria-hidden="true">
-    {src ? <img src={assetPath(src)} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
+    {src ? <img src={assetPath(src)} srcSet={src2x ? `${assetPath(src)} 1x, ${assetPath(src2x)} 2x` : undefined} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
+    {src && loop && motion ? <CardLoop webm={assetPath(loop.webm)} mp4={assetPath(loop.mp4)} poster={assetPath(src)} /> : null}
   </span>;
 }
 

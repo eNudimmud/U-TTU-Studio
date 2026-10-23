@@ -1,646 +1,432 @@
-"""U*TTU — tool card thumbnails, « ce que tu donnes → ce que tu obtiens » (0 credit, nothing generated).
-
-Run from the repo root:  python3 scripts/brand/make_vignettes.py [id ...]
-Needs Pillow and ffmpeg. Writes public/exemples/vignettes/<id>.webp (640x400, ~20-50 KB).
-
-Sources, all already in the repo:
-  - public/exemples/*.webp        house renders made on Comfy Cloud (see docs/CREDITS.md for model per file)
-  - public/exemples/outils/plan-exemple.mp4   the sample clip (a camera push on a still, NOT a video-model render)
-  - public/images/uttu-portrait.webp          the canon Uttu portrait
-  - scripts/brand/vignettes-sources/*.webp    real captures of the studio (repérage 3D « Trait », maquette PRISE)
-                                              and avant-decor-heure.webp = git 3079a0b^:public/exemples/decor-rue-pluie.webp,
-                                              the true input of apres-decor-heure (replaced in #109)
-
-Honesty rule: the big picture is a real output of the card's own model only where we have one
-(img-klein, img-seedream, img-nano, ret-modifier, reperage, maquette). Every other card shows its real
-INPUT plus a gold sign of what the tool does (viewfinder, ▶ + timeline, dashed frame, waveform…), never a
-fake result. Those cards wait for real Comfy renders (see SOURCES_A_VENIR below).
-
-Style: result fills the frame with dark edges (#0f0f11); the input sits bottom-left, gold edge + gold arrow;
-retouch = before | after wipe; gold is the only accent; no words in the image.
-Drawn at 2x then downscaled (anti-aliasing)."""
-import io, math, random, subprocess, sys
+#!/usr/bin/env python3
+"""U*TTU Studio tool thumbnails v2: one premium series from generated stills (Imagine), 0 Comfy credit.
+Stills: 640x400 + 1280x800 webp. Animated: 640x400 webm (VP9) + mp4 (H.264), 3 s silent loops, poster = still.
+Needs Pillow, numpy, opencv-python (cut-out masks) and ffmpeg (libvpx-vp9, libx264).
+Usage: python3 scripts/brand/make_vignettes.py scripts/brand/vignettes-sources public/exemples/vignettes [ids...]"""
+import math, os, subprocess, sys
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageOps
 
-EX = Path("public/exemples")
-SRC = Path("scripts/brand/vignettes-sources")
-OUT = EX / "vignettes"
-S = 2
-W, H = 640 * S, 400 * S
-GOLD = (201, 167, 91)
-GOLD_HI = (226, 196, 128)
-BG = (15, 15, 17)
-CARD = (24, 24, 28)
-PAPER = (236, 233, 226)
-INSET = (22 * S, H - 146 * S, 212 * S, H - 24 * S)          # bottom-left input card
-CHIP = (214 * S, H - 85 * S)                                  # gold arrow, right edge of the input
-CLIP = EX / "outils/plan-exemple.mp4"
+SRC = Path(sys.argv[1]); OUT = Path(sys.argv[2]); ONLY = set(sys.argv[3:])
+OUT.mkdir(parents=True, exist_ok=True)
+GOLD = (214, 178, 102); GOLD_HI = (240, 210, 140); INK = (12, 12, 14)
+FPS, DUR = 24, 3.0
+NF = int(FPS * DUR)
 
-# Cards whose picture stays a sign until a real Comfy render of that very tool exists.
-SOURCES_A_VENIR = {
-    "img-qwen", "img-flux3", "img-ideogram", "img-gpt", "img-refs", "img-360", "img-croquis",
-    "ret-finaliser", "ret-elargir", "ret-detourer", "ret-eclairer",
-    "vid-wan", "vid-texte", "vid-raccord", "vid-h3-refs", "vid-vidu", "vid-prolonger", "vid-parler", "vid-finaliser",
-    "vid-recadrer", "vid-detourer", "vid-levres", "vid-effacer", "vid-fluidifier", "vid-mouvement",
-    "3d-ouvert", "son-voix-ouverte", "son-dialogue", "son-musique-ouverte", "son-bruitage-ouvert", "son-musique-video",
-}
+def src(name):
+    for ext in (".webp", ".jpg", ".png"):
+        p = SRC / f"{name}{ext}"
+        if p.exists(): return Image.open(p).convert("RGB")
+    raise FileNotFoundError(name)
 
-# ── sources ────────────────────────────────────────────────────────────────
-def img(name):
-    path = SRC / name if (SRC / name).exists() else EX / name
-    if name.startswith("images/"):
-        path = Path("public") / name
-    return Image.open(path).convert("RGB")
+def lift(im, target=0.50):
+    """Brighten dark stills so they read on the dark UI (never dark, unreadable pictures)."""
+    a = np.asarray(im).astype(np.float32) / 255
+    lum = (a @ np.array([.2126, .7152, .0722])).mean()
+    if lum < target:
+        g = math.log(target) / math.log(max(lum, 1e-3))
+        a = np.clip(a ** max(g, .55), 0, 1)
+    return Image.fromarray((a * 255).round().astype(np.uint8))
 
-_frames = {}
-def frame(at):
-    if at not in _frames:
-        raw = subprocess.check_output(["ffmpeg", "-loglevel", "error", "-ss", str(at), "-i", str(CLIP), "-frames:v", "1", "-f", "image2pipe", "-vcodec", "png", "-"])
-        _frames[at] = Image.open(io.BytesIO(raw)).convert("RGB")
-    return _frames[at]
+def fit(im, W, H, fx=.5, fy=.5, zoom=1.0):
+    """Cover-crop to WxH, focus point (fx, fy) in 0..1, optional zoom."""
+    w, h = im.size; s = max(W / w, H / h) * zoom
+    nw, nh = w * s, h * s
+    x = min(max(fx * nw - W / 2, 0), nw - W); y = min(max(fy * nh - H / 2, 0), nh - H)
+    return im.resize((max(W, round(nw)), max(H, round(nh))), Image.LANCZOS).crop((round(x), round(y), round(x) + W, round(y) + H))
 
-def crop_box(im, box):
-    """box in 0..1 of the source: (x0, y0, x1, y1)."""
+def vignette_shade(im, k=.28):
+    """Soft bottom/edge shade so overlays read; keeps the centre bright."""
+    W, H = im.size
+    y = np.linspace(0, 1, H)[:, None]; x = np.linspace(-1, 1, W)[None, :]
+    m = 1 - k * (np.clip((y - .62) / .38, 0, 1) ** 1.6) - .10 * (x ** 4)
+    a = np.asarray(im).astype(np.float32) * m[..., None]
+    return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
+
+def rr(d, box, r, **kw): d.rounded_rectangle(box, r, **kw)
+
+def inset(base, im, box, s, fx=.5, fy=.5):
     x0, y0, x1, y1 = box
-    return im.crop((round(x0 * im.width), round(y0 * im.height), round(x1 * im.width), round(y1 * im.height)))
+    th = fit(im, x1 - x0, y1 - y0, fx, fy)
+    m = Image.new("L", th.size, 0); rr(ImageDraw.Draw(m), (0, 0, th.size[0] - 1, th.size[1] - 1), 6 * s, fill=255)
+    sh = Image.new("L", base.size, 0); rr(ImageDraw.Draw(sh), (x0 - 2 * s, y0 + 3 * s, x1 + 2 * s, y1 + 6 * s), 8 * s, fill=150)
+    sh = sh.filter(ImageFilter.GaussianBlur(6 * s)); base.paste(Image.new("RGB", base.size, INK), (0, 0), sh)
+    base.paste(th, (x0, y0), m)
+    rr(ImageDraw.Draw(base), (x0, y0, x1 - 1, y1 - 1), 6 * s, outline=GOLD, width=max(1, round(1.5 * s)))
 
-def cover(im, w, h, cx=.5, cy=.5, zoom=1.0):
-    r = max(w / im.width, h / im.height) * zoom
-    im = im.resize((max(w, round(im.width * r)), max(h, round(im.height * r))), Image.LANCZOS)
-    x = min(max(round(cx * im.width - w / 2), 0), im.width - w)
-    y = min(max(round(cy * im.height - h / 2), 0), im.height - h)
-    return im.crop((x, y, x + w, y + h))
+def divider(im, x, s):
+    d = ImageDraw.Draw(im); W, H = im.size
+    d.rectangle((x - s, 0, x + s - 1, H), fill=(250, 240, 220))
+    r = 13 * s; cy = H // 2
+    d.ellipse((x - r, cy - r, x + r, cy + r), fill=(250, 244, 230), outline=GOLD, width=2 * s)
+    for sgn in (-1, 1):
+        cx = x + sgn * 5 * s
+        d.polygon([(cx, cy - 4 * s), (cx, cy + 4 * s), (cx + sgn * 4 * s, cy)], fill=(40, 34, 24))
 
-def sketch(im):
-    """The repérage « Trait » capture as a pencil drawing: dark lines on paper."""
-    g = ImageOps.grayscale(im)
-    g = ImageEnhance.Contrast(g).enhance(1.4)
-    return ImageOps.colorize(g, black=(40, 38, 44), white=PAPER)
+def wipe(a, b, t):
+    """Before a (left) / after b (right); split at t in 0..1."""
+    W, H = a.size; x = round(W * t)
+    out = a.copy(); out.paste(b.crop((x, 0, W, H)), (x, 0)); return out, x
 
-# ── drawing helpers ────────────────────────────────────────────────────────
-def vignetting(im, strength=.55):
-    m = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(m).ellipse((-W * .25, -H * .35, W * 1.25, H * 1.35), fill=255)
-    m = m.filter(ImageFilter.GaussianBlur(W * .12))
-    return Image.composite(im, Image.blend(im, Image.new("RGB", (W, H), BG), strength), m)
+def checker(W, H, s, c1=(46, 46, 52), c2=(30, 30, 34)):
+    q = 14 * s; yy, xx = np.mgrid[0:H, 0:W]
+    m = ((xx // q + yy // q) % 2).astype(bool)
+    a = np.where(m[..., None], np.array(c1, np.uint8), np.array(c2, np.uint8))
+    return Image.fromarray(a.astype(np.uint8))
 
-def background(im, cx=.5, cy=.5, zoom=1.0, bright=1.0, sat=1.0, strength=.4):
-    im = cover(im, W, H, cx, cy, zoom)
-    if bright != 1: im = ImageEnhance.Brightness(im).enhance(bright)
-    if sat != 1: im = ImageEnhance.Color(im).enhance(sat)
-    return vignetting(im, strength).convert("RGBA")
+def cutout_mask(im):
+    """Subject mask on a plain light studio backdrop (GrabCut seeded by colour distance)."""
+    import cv2
+    a = np.asarray(im); h, w = a.shape[:2]
+    border = np.concatenate([a[:8].reshape(-1, 3), a[-8:].reshape(-1, 3), a[:, :8].reshape(-1, 3), a[:, -8:].reshape(-1, 3)])
+    bg = np.median(border, 0)
+    dist = np.linalg.norm(a.astype(np.float32) - bg, axis=2)
+    mask = np.full((h, w), cv2.GC_PR_BGD, np.uint8)
+    mask[dist > 38] = cv2.GC_PR_FGD; mask[dist > 70] = cv2.GC_FGD; mask[dist < 10] = cv2.GC_BGD
+    bgm, fgm = np.zeros((1, 65)), np.zeros((1, 65))
+    cv2.grabCut(cv2.cvtColor(a, cv2.COLOR_RGB2BGR), mask, None, bgm, fgm, 4, cv2.GC_INIT_WITH_MASK)
+    m = np.where((mask == cv2.GC_FGD) | (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(m)
+    if n > 1:
+        keep = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA]); m = np.where(lab == keep, 255, 0).astype(np.uint8)
+    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+    m = cv2.erode(m, np.ones((3, 3), np.uint8), iterations=2)
+    alpha = cv2.GaussianBlur(m, (0, 0), 1.4).astype(np.float32) / 255
+    # inside the soft edge, pixels that are close to the backdrop colour become transparent (hair gaps)
+    band = cv2.distanceTransform(m, cv2.DIST_L2, 5) < 28  # outer 28 px of the subject (hair gaps, fly-aways)
+    soft = np.clip((dist - 16) / 40, 0, 1) ** .8
+    alpha = np.where(band, np.minimum(alpha, soft), alpha)
+    # colour decontamination: remove the backdrop spill from semi-transparent pixels
+    A = alpha[..., None]; F = (a.astype(np.float32) - (1 - A) * bg) / np.maximum(A, .45)
+    F = np.where(A > .02, np.minimum(np.clip(F, 0, 255), a), a)  # light backdrop: removing spill can only darken
+    return Image.fromarray((alpha * 255).astype(np.uint8)), Image.fromarray(F.astype(np.uint8))
 
-def stage():
-    """Dark studio floor for cards that have no result picture yet: soft light + faint grid."""
-    im = Image.new("RGB", (W, H), BG)
-    d = ImageDraw.Draw(im)
-    for x in range(0, W, 40 * S): d.line((x, 0, x, H), fill=(22, 22, 26), width=S)
-    for y in range(0, H, 40 * S): d.line((0, y, W, y), fill=(22, 22, 26), width=S)
-    glow = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(glow).ellipse((W * .25, H * .0, W * 1.05, H * .95), fill=255)
-    glow = glow.filter(ImageFilter.GaussianBlur(90 * S))
-    im = Image.composite(Image.new("RGB", (W, H), (34, 33, 38)), im, glow)
-    return vignetting(im, .5).convert("RGBA")
+def wave_env(n, seed, kind="voice"):
+    r = np.random.default_rng(seed); x = np.arange(n)
+    if kind == "voice":
+        env = np.abs(np.sin(x / 3.1)) * .55 + .45 * r.random(n)
+        gaps = (np.sin(x / 9.5 + seed) > .75); env[gaps] *= .18
+    elif kind == "music":
+        env = .55 + .35 * np.sin(x / 2.2) * np.sin(x / 7.0 + seed) + .1 * r.random(n)
+    elif kind == "fx":
+        env = .08 + .06 * r.random(n)
+        for p in r.choice(n, max(3, n // 9), replace=False): env[p:p + 4] += np.array([1, .7, .4, .2])[:len(env[p:p + 4])]
+    return np.clip(env, .06, 1)
 
-def rounded(size, r):
-    m = Image.new("L", size, 0)
-    ImageDraw.Draw(m).rounded_rectangle((0, 0, size[0] - 1, size[1] - 1), r, fill=255)
-    return m
-
-def shadow(base, box, r, blur=18, alpha=150):
-    sh = Image.new("RGBA", base.size, (0, 0, 0, 0))
-    ImageDraw.Draw(sh).rounded_rectangle(box, r, fill=(0, 0, 0, alpha))
-    base.alpha_composite(sh.filter(ImageFilter.GaussianBlur(blur)))
-
-def paste_card(base, im, box, r=10 * S, border=GOLD, bw=2 * S, fit=True):
-    x0, y0, x1, y1 = [round(v) for v in box]
-    shadow(base, (x0 + 4, y0 + 8, x1 + 4, y1 + 8), r)
-    card = (cover(im, x1 - x0, y1 - y0) if fit else im.resize((x1 - x0, y1 - y0), Image.LANCZOS)).convert("RGBA")
-    base.paste(card, (x0, y0), rounded(card.size, r))
-    if border: ImageDraw.Draw(base).rounded_rectangle((x0, y0, x1, y1), r, outline=border, width=bw)
-
-def photo(im):
-    """An image given as input: a photo with a white margin."""
-    return ImageOps.expand(cover(im, 360, 226), border=12, fill=PAPER)
-
-def arrow_chip(base, cx, cy, rad=20 * S, direction="right"):
-    d = ImageDraw.Draw(base)
-    d.ellipse((cx - rad, cy - rad, cx + rad, cy + rad), fill=GOLD)
-    a = rad * .42
-    if direction == "right":
-        d.line([(cx - a * 1.1, cy), (cx + a * .9, cy)], fill=BG, width=4 * S)
-        d.line([(cx - a * .1, cy - a), (cx + a * .9, cy), (cx - a * .1, cy + a)], fill=BG, width=4 * S, joint="curve")
-    else:  # ‹ › handle of a wipe
-        for s in (-1, 1):
-            d.line([(cx + s * a * .3, cy - a), (cx + s * a * 1.15, cy), (cx + s * a * .3, cy + a)], fill=BG, width=4 * S, joint="curve")
-
-def given(base, im, box=INSET, chip=CHIP):
-    paste_card(base, im, box)
-    if chip: arrow_chip(base, *chip)
-
-def lines_glyph(size=(190 * S, 122 * S), shares=(1, .82, .58), first_gold=True):
-    """A written consigne without words: grey lines, the first in gold."""
-    w, h = size
-    im = Image.new("RGB", size, CARD)
-    d = ImageDraw.Draw(im)
-    lh = h / (len(shares) + 1.6)
-    th = max(2 * S, min(4 * S, lh * .16))
-    for i, share in enumerate(shares):
-        y = lh * (1 + i) + lh * .2
-        d.rounded_rectangle((w * .14, y - th, w * .14 + w * .72 * share, y + th), th, fill=GOLD if (i == 0 and first_gold) else (200, 200, 208))
-    return im
-
-def paragraph_glyph():
-    return lines_glyph(shares=(.7, 1, .96, 1, .9, .98, .62))
-
-def checklist_glyph(size=(190 * S, 122 * S)):
-    w, h = size
-    im = Image.new("RGB", size, CARD)
-    d = ImageDraw.Draw(im)
-    for i, share in enumerate((.9, .7, .8)):
-        y = h * (.26 + i * .25)
-        d.line([(w * .13, y), (w * .17, y + 6 * S), (w * .25, y - 7 * S)], fill=GOLD, width=3 * S, joint="curve")
-        d.rounded_rectangle((w * .32, y - 4 * S, w * .32 + w * .56 * share, y + 4 * S), 4 * S, fill=(200, 200, 208))
-    return im
-
-def wave_glyph(size=(190 * S, 122 * S), seed=4, col=GOLD):
-    im = Image.new("RGB", size, CARD)
-    waveform(im, (size[0] * .12, size[1] * .5, size[0] * .88), size[1] * .3, n=22, seed=seed, col=col, glow=False)
-    return im
-
-def strip_glyph(frames, size=(190 * S, 122 * S)):
-    """A video given as input: three frames on a film strip."""
-    w, h = size
-    im = Image.new("RGB", size, (8, 8, 10))
-    d = ImageDraw.Draw(im)
-    fw = (w - 16 * S) / 3
-    for i, f in enumerate(frames):
-        x = round(4 * S + i * (fw + 4 * S))
-        im.paste(cover(f, round(fw), round(h * .62)), (x, round(h * .19)))
-    for x in range(6 * S, w, 14 * S):
-        d.rounded_rectangle((x, 5 * S, x + 7 * S, 13 * S), 2 * S, fill=(70, 70, 78))
-        d.rounded_rectangle((x, h - 13 * S, x + 7 * S, h - 5 * S), 2 * S, fill=(70, 70, 78))
-    return im
-
-def map_glyph(size=(190 * S, 122 * S)):
-    w, h = size
-    tile = Image.new("RGB", size, (22, 22, 26))
-    td = ImageDraw.Draw(tile)
-    rng = random.Random(3)
-    for _ in range(9):
-        y = rng.randint(0, h); td.line((0, y, w, y + rng.randint(-60, 60) * S), fill=(60, 60, 68), width=rng.choice([2, 3, 5]) * S)
-    for _ in range(7):
-        x = rng.randint(0, w); td.line((x, 0, x + rng.randint(-60, 60) * S, h), fill=(60, 60, 68), width=rng.choice([2, 3]) * S)
-    td.ellipse((w * .5 - 10 * S, h * .5 - 10 * S, w * .5 + 10 * S, h * .5 + 10 * S), fill=GOLD)
-    return tile
-
-def waveform(base, span, amp_max, n=74, seed=7, col=GOLD, glow=True, regular=False, env=None):
-    x0, cy, x1 = span
-    layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
-    d = ImageDraw.Draw(layer)
-    rng = random.Random(seed)
-    step = (x1 - x0) / n
+def waveform(im, box, env, s, phase=0.0, color=GOLD, played=None, bar=3, gap=2):
+    d = ImageDraw.Draw(im); x0, y0, x1, y1 = box; cy = (y0 + y1) / 2; hh = (y1 - y0) / 2
+    step = (bar + gap) * s; n = int((x1 - x0) // step)
     for i in range(n):
-        t = i / (n - 1)
-        e = env(t) if env else .35 + .65 * math.sin(math.pi * min(1, t * 1.15)) ** .6
-        a = e * ((.7 + .3 * math.sin(t * 40)) if regular else (.45 + .55 * rng.random())) * amp_max
-        x = x0 + i * step
-        d.rounded_rectangle((x, cy - a, x + step * .52, cy + a), max(1, int(step * .26)), fill=col + (235,))
-    if base.mode != "RGBA":
-        base.paste(layer, (0, 0), layer); return
-    if glow: base.alpha_composite(layer.filter(ImageFilter.GaussianBlur(10 * S)))
-    base.alpha_composite(layer)
+        v = env[int(i + phase) % len(env)]
+        x = x0 + i * step; c = color
+        if played is not None and x > x0 + played * (x1 - x0): c = (235, 228, 214)
+        d.rounded_rectangle((x, cy - v * hh, x + bar * s, cy + v * hh), radius=bar * s // 2, fill=c)
 
-def viewfinder(base, box, col=GOLD, arm=34 * S, w=4 * S):
-    """The frame the result will fill: four gold corners."""
-    x0, y0, x1, y1 = box
-    d = ImageDraw.Draw(base)
-    for (x, y, sx, sy) in ((x0, y0, 1, 1), (x1, y0, -1, 1), (x0, y1, 1, -1), (x1, y1, -1, -1)):
-        d.line([(x, y + sy * arm), (x, y), (x + sx * arm, y)], fill=col, width=w, joint="curve")
-
-def dashed_rect(base, box, col=GOLD, w=3 * S, dash=14 * S, gap=10 * S):
-    x0, y0, x1, y1 = box
-    d = ImageDraw.Draw(base)
-    for (a, b, horiz, fixed) in ((x0, x1, True, y0), (x0, x1, True, y1), (y0, y1, False, x0), (y0, y1, False, x1)):
-        p = a
-        while p < b:
-            q = min(p + dash, b)
-            d.line((p, fixed, q, fixed) if horiz else (fixed, p, fixed, q), fill=col, width=w)
-            p = q + gap
-
-def dashed_ellipse(base, box, col=GOLD, w=3 * S, n=40):
-    x0, y0, x1, y1 = box
-    cx, cy, rx, ry = (x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0) / 2, (y1 - y0) / 2
-    d = ImageDraw.Draw(base)
+def eq_bars(im, box, t, s, n=18, seed=3):
+    d = ImageDraw.Draw(im); x0, y0, x1, y1 = box; r = np.random.default_rng(seed)
+    ph = r.random(n) * 6.28; fr = 1.5 + r.random(n) * 2.5; w = (x1 - x0) / n
     for i in range(n):
-        if i % 2: continue
-        a0, a1 = 2 * math.pi * i / n, 2 * math.pi * (i + 1) / n
-        pts = [(cx + rx * math.cos(a0 + (a1 - a0) * k / 6), cy + ry * math.sin(a0 + (a1 - a0) * k / 6)) for k in range(7)]
-        d.line(pts, fill=col, width=w)
+        v = .25 + .75 * abs(math.sin(ph[i] + 2 * math.pi * t * fr[i] / 1.0 * (DUR / 3)))
+        v = .25 + .75 * (.5 + .5 * math.sin(ph[i] + 2 * math.pi * round(fr[i]) * t))
+        bx = x0 + i * w
+        d.rounded_rectangle((bx + w * .18, y1 - v * (y1 - y0), bx + w * .82, y1), radius=max(1, int(w * .2)), fill=GOLD)
 
-def hatch(base, box, col=(201, 167, 91, 60), step=16 * S):
-    x0, y0, x1, y1 = [round(v) for v in box]
-    layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
-    d = ImageDraw.Draw(layer)
-    for k in range(-(y1 - y0), x1 - x0, step):
-        d.line((x0 + k, y1, x0 + k + (y1 - y0), y0), fill=col, width=2 * S)
-    m = Image.new("L", base.size, 0)
-    ImageDraw.Draw(m).rectangle((x0, y0, x1, y1), fill=255)
-    base.paste(Image.alpha_composite(base, layer), (0, 0), m)
+def scrim(im, y0, k=.62):
+    """Dark gradient band at the bottom for waveforms/timeline legibility."""
+    W, H = im.size; a = np.asarray(im).astype(np.float32)
+    y = np.arange(H)[:, None]; m = np.clip((y - y0) / (H - y0), 0, 1) ** 1.2 * k
+    a = a * (1 - m[..., None]) + np.array(INK) * m[..., None]
+    return Image.fromarray(a.astype(np.uint8))
 
-def checker(size, cell=18 * S):
-    im = Image.new("RGB", size, (40, 40, 46))
-    d = ImageDraw.Draw(im)
-    for y in range(0, size[1], cell):
-        for x in range(0, size[0], cell):
-            if (x // cell + y // cell) % 2: d.rectangle((x, y, x + cell - 1, y + cell - 1), fill=(58, 58, 66))
+def timeline(im, s, t, marks=()):
+    d = ImageDraw.Draw(im); W, H = im.size; y = H - 16 * s; x0, x1 = 18 * s, W - 18 * s
+    d.rounded_rectangle((x0, y - s, x1, y + s), s, fill=(255, 255, 255, 90) if im.mode == "RGBA" else (120, 116, 108))
+    xe = x0 + (x1 - x0) * t
+    d.rounded_rectangle((x0, y - s, xe, y + s), s, fill=GOLD)
+    d.ellipse((xe - 5 * s, y - 5 * s, xe + 5 * s, y + 5 * s), fill=GOLD_HI)
+    for m in marks:
+        xm = x0 + (x1 - x0) * m; d.rectangle((xm - s, y - 7 * s, xm + s, y + 7 * s), fill=(250, 244, 230))
+
+def dashed_rect(im, box, s, color=GOLD, dash=8, w=2):
+    d = ImageDraw.Draw(im); x0, y0, x1, y1 = box; L = dash * s
+    for x in range(int(x0), int(x1), 2 * L):
+        d.line((x, y0, min(x + L, x1), y0), fill=color, width=w * s); d.line((x, y1, min(x + L, x1), y1), fill=color, width=w * s)
+    for y in range(int(y0), int(y1), 2 * L):
+        d.line((x0, y, x0, min(y + L, y1)), fill=color, width=w * s); d.line((x1, y, x1, min(y + L, y1)), fill=color, width=w * s)
+
+def chip(im, xy, text, s):
+    from PIL import ImageFont
+    f = ImageFont.truetype("/usr/share/fonts/truetype/sand-box/google/Inter/Inter-VariableFont_opsz,wght.ttf", 15 * s)
+    try: f.set_variation_by_axes([14, 650])
+    except Exception: pass
+    d = ImageDraw.Draw(im); x, y = xy; tw = d.textlength(text, font=f)
+    rr(d, (x, y, x + tw + 20 * s, y + 26 * s), 13 * s, fill=(14, 14, 16), outline=GOLD, width=max(1, s))
+    d.text((x + 10 * s, y + 4 * s), text, font=f, fill=GOLD_HI)
+
+def ease(t): return t * t * (3 - 2 * t)
+def pingpong(t, hold=.18):
+    """0→1→0 over the loop with holds at both ends (wipes)."""
+    u = (t % 1.0)
+    if u < hold / 2 or u > 1 - hold / 2: return 0.0 if (u < .25 or u > .75) else 1.0
+    a = (u - hold / 2) / (1 - hold)
+    return ease(min(1, max(0, (1 - abs(2 * a - 1)) * 1.6)))
+
+# ---------------------------------------------------------------- per-tool recipes
+# Each recipe: frame(W, H, s, t) -> Image ; t in [0,1) loop phase ; still = frame(..., t=None)
+R = {}
+def tool(id, animated=False):
+    def deco(fn): R[id] = (fn, animated); return fn
+    return deco
+
+def plain(name, fx=.5, fy=.5, target=.48):
+    return lambda W, H, s, t: vignette_shade(fit(lift(src(name), target), W, H, fx, fy), .18)
+
+R["img-klein"] = (plain("img-klein", .45), False)
+R["img-qwen"] = (plain("img-qwen"), False)
+R["img-flux3"] = (plain("img-flux3"), False)
+R["img-ideogram"] = (lambda W, H, s, t: fit(src("img-ideogram"), W, H, .5, .3), False)
+R["img-gpt"] = (plain("img-gpt"), False)
+R["img-seedream"] = (plain("img-seedream", .44, .35), False)
+R["img-nano"] = (plain("img-nano", .42, .3, .46), False)
+R["fluid"] = None
+
+@tool("img-refs")
+def _(W, H, s, t):
+    im = vignette_shade(fit(lift(src("img-refs")), W, H, .62, .5), .3)
+    h = 84 * s; w = round(h * 1.0); y = H - h - 14 * s
+    inset(im, src("ref-uttu-portrait"), (14 * s, y, 14 * s + w, y + h), s, .62, .38)
+    inset(im, src("ref-canyon"), (22 * s + w, y, 22 * s + 2 * w, y + h), s, .7, .5)
     return im
 
-def play(base, cx=None, cy=None, r=34 * S, timeline=True, at=.62, t0=246 * S):
-    """The video sign: ▶ and a timeline bar along the bottom."""
-    cx = int(W * .66) if cx is None else cx
-    cy = int(H * .44) if cy is None else cy
-    d = ImageDraw.Draw(base)
-    d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(15, 15, 17, 160), outline=GOLD, width=2 * S)
-    d.polygon([(cx - r * .3, cy - r * .45), (cx + r * .5, cy), (cx - r * .3, cy + r * .45)], fill=GOLD)
-    if timeline:
-        y = H - 26 * S
-        d.rounded_rectangle((t0, y - 3 * S, W - 28 * S, y + 3 * S), 3 * S, fill=(255, 255, 255, 70))
-        px = t0 + int((W - 28 * S - t0) * at)
-        d.rounded_rectangle((t0, y - 3 * S, px, y + 3 * S), 3 * S, fill=GOLD)
-        d.ellipse((px - 8 * S, y - 8 * S, px + 8 * S, y + 8 * S), fill=GOLD_HI)
+@tool("img-360", True)
+def _(W, H, s, t):
+    pano = lift(src("img-360"), .5); pw, ph = pano.size
+    sc = H / ph; pano = pano.resize((round(pw * sc), H), Image.LANCZOS); pw = pano.size[0]
+    strip = Image.new("RGB", (pw * 2, H)); strip.paste(pano, (0, 0)); strip.paste(ImageOps.mirror(pano), (pw, 0))
+    off = 0 if t is None else round(t * pw)
+    # soft seam: mirrored tiling keeps the loop continuous
+    im = strip.crop((off, 0, off + W, H)) if off + W <= 2 * pw else strip.crop((0, 0, W, H))
+    im = vignette_shade(im, .22); chip(im, (14 * s, 14 * s), "360°", s); return im
 
-def picture_mark(base, box, col=GOLD):
-    """An image placeholder (sun + hills) inside a viewfinder: « une image ici »."""
-    x0, y0, x1, y1 = box
-    w, h = x1 - x0, y1 - y0
-    d = ImageDraw.Draw(base)
-    r = min(w, h) * .1
-    d.ellipse((x0 + w * .66 - r, y0 + h * .26 - r, x0 + w * .66 + r, y0 + h * .26 + r), fill=col)
-    d.polygon([(x0 + w * .08, y0 + h * .86), (x0 + w * .38, y0 + h * .4), (x0 + w * .56, y0 + h * .66), (x0 + w * .68, y0 + h * .52), (x0 + w * .92, y0 + h * .86)], outline=col, width=5 * S)
+def pair_wipe(a_name, b_name, fx=.5, fy=.5, pos=.5, ta=.48, tb=.48, prep_a=None):
+    def fn(W, H, s, t):
+        a = fit(lift(src(a_name), ta), W, H, fx, fy); b = fit(lift(src(b_name), tb), W, H, fx, fy)
+        if prep_a: a = prep_a(a, s)
+        k = pos if t is None else .12 + .76 * pingpong(t)
+        im, x = wipe(a, b, k); divider(im, x, s); return im
+    return fn
 
-def sparkle(base, cx, cy, r, col=GOLD_HI):
-    d = ImageDraw.Draw(base)
-    k = r * .22
-    d.polygon([(cx, cy - r), (cx + k, cy - k), (cx + r, cy), (cx + k, cy + k), (cx, cy + r), (cx - k, cy + k), (cx - r, cy), (cx - k, cy - k)], fill=col)
+R["img-croquis"] = (pair_wipe("img-croquis-avant", "img-croquis-final", ta=.0, tb=.5), True)
+R["ret-modifier"] = (pair_wipe("ret-modifier-avant", "ret-modifier-apres", .55), True)
+R["ret-eclairer"] = (pair_wipe("ret-eclairer-avant", "ret-eclairer-apres", .5, .35), True)
+R["maquette"] = (pair_wipe("maquette-blockout", "maquette-rendu", ta=.0), True)
+R["vid-effacer"] = (pair_wipe("vid-effacer-avant", "vid-effacer-apres", .5, .6, ta=.0, tb=.0), True)
 
-def font(size):
-    for path in ("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", "/usr/share/fonts/dejavu/DejaVuSerif-Bold.ttf", "/Library/Fonts/Georgia Bold.ttf", "C:/Windows/Fonts/georgiab.ttf"):
-        if Path(path).exists(): return ImageFont.truetype(path, size)
-    return ImageFont.load_default(size)
+def degrade(a, s):
+    W, H = a.size; small = a.resize((W // (9 * 1), H // (9 * 1)), Image.BILINEAR).resize((W, H), Image.NEAREST)
+    return small.filter(ImageFilter.GaussianBlur(1.0 * s))
+R["ret-finaliser"] = (pair_wipe("ret-finaliser", "ret-finaliser", .45, ta=.5, prep_a=degrade), True)
+R["vid-finaliser"] = (pair_wipe("vid-finaliser", "vid-finaliser", .6, .4, ta=.5, prep_a=degrade), True)
 
-def finish(base, name):
-    im = base.convert("RGB").resize((W // S, H // S), Image.LANCZOS)
-    im.save(OUT / f"{name}.webp", quality=82, method=6)
-    print(f"{name:22s} {(OUT / f'{name}.webp').stat().st_size // 1024:3d} KB{'  (sign, waits for a render)' if name in SOURCES_A_VENIR else ''}")
+def expand(name, fx=.5, fy=.5, frac=(.42, .52), vertical=False):
+    def fn(W, H, s, t):
+        full = fit(lift(src(name)), W, H, fx, fy)
+        if vertical: fw, fh = round(H * 9 / 16), H
+        else: fw, fh = round(W * frac[0]), round(H * frac[1])
+        k = 1.0 if t is None else pingpong(t, .30)
+        cw, ch = fw + (W - fw) * k, fh + (H - fh) * k
+        x0, y0 = (W - cw) / 2, (H - ch) / 2
+        dark = ImageEnhance.Brightness(full).enhance(.22).filter(ImageFilter.GaussianBlur(3 * s))
+        dark = Image.blend(dark, full, .0)
+        im = Image.blend(dark, full, .0 if t is not None else 1.0) if t is not None else full.copy()
+        if t is not None:
+            im = dark.copy(); im.paste(full.crop((round(x0), round(y0), round(x0 + cw), round(y0 + ch))), (round(x0), round(y0)))
+        bx = ((W - fw) / 2, (H - fh) / 2, (W + fw) / 2, (H + fh) / 2)
+        dashed_rect(im, bx, s); return im
+    return fn
+R["ret-elargir"] = (expand("ret-elargir", .5, .5, (.36, .44)), True)
+R["vid-recadrer"] = (expand("vid-recadrer", .5, .45, vertical=True), True)
 
-VF = (250 * S, 46 * S, W - 40 * S, H - 64 * S)   # viewfinder for cards without a result yet
+def cutout(name, fx=.5, fy=.5):
+    cache = {}
+    def fn(W, H, s, t):
+        key = (W, H)
+        if key not in cache:
+            full = src(name); m, fg = cutout_mask(full)
+            cache[key] = (fit(full, W, H, fx, fy), fit(m.convert("RGB"), W, H, fx, fy).convert("L"), fit(fg, W, H, fx, fy))
+        im0, m, fg = cache[key]
+        cut = checker(W, H, s); cut.paste(fg, (0, 0), m)
+        k = .5 if t is None else .12 + .76 * pingpong(t)
+        im, x = wipe(im0, cut, k); divider(im, x, s); return im
+    return fn
+R["ret-detourer"] = (cutout("ret-detourer", .5, .3), True)
+R["vid-detourer"] = (cutout("vid-detourer", .5, .45), True)
 
-# ── CRÉER ──────────────────────────────────────────────────────────────────
-def t2i_real(name, src, cx=.5, cy=.5, zoom=1.0):
-    """Text → image with a real render of that very model (file name or an already-cropped Image)."""
-    base = background(src if isinstance(src, Image.Image) else img(src), cx, cy, zoom, strength=.35)
-    given(base, lines_glyph())
-    finish(base, name)
+def video_clip(name, fx=.5, fy=.5):
+    frames = {}
+    def fn(W, H, s, t):
+        p = SRC / f"{name}.mp4"
+        if (W, H) not in frames:
+            raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(p), "-vf", f"fps={FPS}", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
+            pr = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v", "-show_entries", "stream=width,height", "-of", "csv=p=0", str(p)], capture_output=True, text=True).stdout.strip().splitlines()[0].split(",")
+            vw, vh = int(pr[0]), int(pr[1]); n = len(raw) // (vw * vh * 3)
+            frames[(W, H)] = [Image.frombytes("RGB", (vw, vh), raw[i * vw * vh * 3:(i + 1) * vw * vh * 3]) for i in range(n)]
+        fr = frames[(W, H)]; n = len(fr)
+        if t is None: im = fit(lift(src(name)), W, H, fx, fy)
+        else:
+            # seamless loop: last 0.6 s cross-fades into the first frames
+            L = min(n, NF); xf = int(.6 * FPS); i = int(t * L)
+            a = fr[i]
+            if i >= L - xf: a = Image.blend(fr[i], fr[i - (L - xf)], (i - (L - xf)) / xf)
+            im = fit(lift(a), W, H, fx, fy)
+        im = scrim(im, int(H * .72), .5); timeline(im, s, .35 if t is None else t); return im
+    return fn
+R["vid-wan"] = (video_clip("vid-wan", .45), True)
+R["vid-texte"] = (video_clip("vid-texte"), True)
 
-def t2i_sign(name, glyph, mark):
-    base = stage()
-    viewfinder(base, VF)
-    mark(base)
-    given(base, glyph)
-    finish(base, name)
+def still_video(name, fx=.5, fy=.5, prog=.4, extra=None, target=.48):
+    def fn(W, H, s, t):
+        im = fit(lift(src(name), target), W, H, fx, fy); im = scrim(im, int(H * .7), .55)
+        if extra: extra(im, W, H, s)
+        timeline(im, s, prog); return im
+    return fn
 
-def mark_picture(base): picture_mark(base, (300 * S, 80 * S, W - 80 * S, H - 96 * S))
+def refs_extra(*refs):
+    def ex(im, W, H, s):
+        h = 74 * s; x = 14 * s; y = H - h - 32 * s
+        for nm, fx, fy, zz in refs:
+            r = src(nm)
+            if zz: r = fit(r, r.size[0], r.size[1], fx, fy, zz)
+            inset(im, r, (x, y, x + h, y + h), s, fx, fy); x += h + 8 * s
+    return ex
+R["vid-h3-refs"] = (still_video("vid-h3-refs", .5, .35, extra=refs_extra(("ref-uttu-portrait", .62, .38, 0))), False)
+R["vid-vidu"] = (still_video("vid-vidu", .5, .35, extra=refs_extra(("vid-vidu", .33, .2, 3.2), ("vid-vidu", .6, .72, 3.0), ("ref-mars", .5, .5, 0))), False)
+R["vid-fluidifier"] = (still_video("vid-fluidifier", .5, .45), False)
+R["3d-ouvert"] = (plain("3d-ouvert", .5, .5), False)
+R["reperage"] = (plain("reperage", .5, .45), False)
 
-def mark_detailed(base):
-    picture_mark(base, (300 * S, 66 * S, W - 80 * S, H - 160 * S))
-    d = ImageDraw.Draw(base)
-    for i, share in enumerate((1, .86, .66)):   # legible text inside the picture
-        y = H - 140 * S + i * 22 * S
-        d.rounded_rectangle((300 * S, y, 300 * S + 260 * S * share, y + 9 * S), 5 * S, fill=(200, 200, 208))
+@tool("vid-mouvement")
+def _(W, H, s, t):
+    im = fit(lift(src("vid-mouvement"), .46), W, H, .62, .5); im = scrim(im, int(H * .7), .5)
+    # pose stick figure (the motion to copy), traced from the still, drawn in an inset
+    P = {"head": (672, 82), "neck": (672, 140), "ls": (612, 158), "rs": (742, 150), "le": (565, 200), "lw": (528, 148),
+         "re": (800, 212), "rw": (836, 262), "lh": (640, 270), "rh": (705, 268), "lk": (562, 372), "la": (552, 492),
+         "rk": (760, 400), "ra": (800, 525)}
+    h = 96 * s; w = 96 * s; x0, y0 = 14 * s, H - h - 32 * s
+    box = Image.new("RGB", (w, h), (18, 18, 20)); d = ImageDraw.Draw(box)
+    xs = [p[0] for p in P.values()]; ys = [p[1] for p in P.values()]
+    sc = min((w - 20 * s) / (max(xs) - min(xs)), (h - 20 * s) / (max(ys) - min(ys)))
+    cx, cy = (max(xs) + min(xs)) / 2, (max(ys) + min(ys)) / 2
+    q = {k: (w / 2 + (v[0] - cx) * sc, h / 2 + (v[1] - cy) * sc) for k, v in P.items()}
+    for a, b in [("neck", "ls"), ("neck", "rs"), ("ls", "le"), ("le", "lw"), ("rs", "re"), ("re", "rw"), ("neck", "lh"), ("neck", "rh"), ("lh", "rh"),
+                 ("lh", "lk"), ("lk", "la"), ("rh", "rk"), ("rk", "ra")]:
+        d.line((*q[a], *q[b]), fill=GOLD, width=3 * s)
+    for k, (x, y) in q.items():
+        r = (7 if k == "head" else 2.6) * s; d.ellipse((x - r, y - r, x + r, y + r), fill=GOLD_HI if k != "head" else None, outline=GOLD, width=2 * s)
+    inset(im, box, (x0, y0, x0 + w, y0 + h), s)
+    ImageDraw.Draw(im).line((x0 + w + 8 * s, y0 + h / 2, x0 + w + 24 * s, y0 + h / 2), fill=GOLD, width=2 * s)
+    timeline(im, s, .4); return im
 
-def mark_quality(base):
-    mark_picture(base)
-    sparkle(base, 300 * S, 92 * S, 26 * S)
-    sparkle(base, 338 * S, 136 * S, 13 * S)
+@tool("vid-raccord", True)
+def _(W, H, s, t):
+    a = fit(lift(src("vid-raccord-debut")), W, H); b = fit(lift(src("vid-raccord-fin")), W, H)
+    k = .5 if t is None else pingpong(t, .3)
+    im = Image.blend(a, b, k) if t is not None else wipe(a, b, .5)[0]
+    im = scrim(im, int(H * .7), .5)
+    th = 58 * s; y = H - th - 30 * s
+    inset(im, src("vid-raccord-debut"), (14 * s, y, 14 * s + round(th * 1.6), y + th), s)
+    inset(im, src("vid-raccord-fin"), (W - 14 * s - round(th * 1.6), y, W - 14 * s, y + th), s)
+    if t is None: divider(im, W // 2, s)
+    timeline(im, s, .5 if t is None else k, marks=(0, 1)); return im
 
-def mark_letters(base):
-    d = ImageDraw.Draw(base)
-    f = font(190 * S)
-    cx, cy = (VF[0] + VF[2]) / 2, (VF[1] + VF[3]) / 2
-    d.text((cx, cy + 6 * S), "Aa", font=f, fill=GOLD, anchor="mm")
-    d.rounded_rectangle((cx - 120 * S, VF[3] - 44 * S, cx + 120 * S, VF[3] - 36 * S), 4 * S, fill=(200, 200, 208, 200))
+@tool("vid-prolonger", True)
+def _(W, H, s, t):
+    z = 1.0 if t is None else 1.0 + .10 * t
+    im = fit(lift(src("vid-prolonger")), W, H, .45, .5, z); im = scrim(im, int(H * .7), .55)
+    d = ImageDraw.Draw(im); y = H - 16 * s; x0, x1 = 18 * s, W - 18 * s; xm = x0 + (x1 - x0) * .55
+    p = .82 if t is None else .25 + .73 * t
+    d.rounded_rectangle((x0, y - s, x1, y + s), s, fill=(120, 116, 108))
+    d.rounded_rectangle((x0, y - s, x0 + (x1 - x0) * min(p, .55), y + s), s, fill=(235, 228, 214))
+    if p > .55: d.rounded_rectangle((xm, y - 2 * s, x0 + (x1 - x0) * p, y + 2 * s), 2 * s, fill=GOLD)
+    d.rectangle((xm - s, y - 8 * s, xm + s, y + 8 * s), fill=(250, 244, 230))
+    xe = x0 + (x1 - x0) * p; d.ellipse((xe - 5 * s, y - 5 * s, xe + 5 * s, y + 5 * s), fill=GOLD_HI)
+    return im
 
-def mark_checked(base):
-    mark_picture(base)
-    d = ImageDraw.Draw(base)
-    cx, cy, r = 300 * S, 96 * S, 26 * S
-    d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=GOLD)
-    d.line([(cx - r * .45, cy), (cx - r * .1, cy + r * .38), (cx + r * .5, cy - r * .38)], fill=BG, width=4 * S, joint="curve")
+def clip_frames(name):
+    p = SRC / f"{name}.mp4"
+    pr = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v", "-show_entries", "stream=width,height", "-of", "csv=p=0", str(p)], capture_output=True, text=True).stdout.strip().splitlines()[0].split(",")
+    vw, vh = int(pr[0]), int(pr[1])
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(p), "-vf", f"fps={FPS}", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
+    return [Image.frombytes("RGB", (vw, vh), raw[i * vw * vh * 3:(i + 1) * vw * vh * 3]) for i in range(len(raw) // (vw * vh * 3))]
 
-def img_refs():
-    base = stage()
-    viewfinder(base, VF)
-    mark_picture(base)
-    paste_card(base, photo(crop_box(img("cast-coursiere.webp"), (.02, .05, .24, .95))), (22 * S, 40 * S, 150 * S, 230 * S), r=8 * S)
-    given(base, photo(img("decor-rue-pluie.webp")))
-    finish(base, "img-refs")
+def talk(name, fx, fy, side="left", seed=1, target=.5, kind="voice", clip=None):
+    env = wave_env(400, seed, kind); cache = {}
+    def fn(W, H, s, t):
+        if t is None or clip is None: base = src(name)
+        else:
+            if "f" not in cache: cache["f"] = clip_frames(clip)
+            fr = cache["f"]; base = fr[int(t * (len(fr) - 1))]
+        im = fit(lift(base, target), W, H, fx, fy); im = scrim(im, int(H * .55), .72)
+        ph = 0 if t is None else t * 60
+        waveform(im, (18 * s, H - 70 * s, W - 18 * s, H - 18 * s), env, s, ph)
+        return im
+    return fn
+R["vid-parler"] = (talk("vid-parler", .62, .35, seed=4, target=.5, clip="vid-parler-clip"), True)
+R["vid-levres"] = (talk("vid-levres", .35, .35, seed=9, clip="vid-levres-clip"), True)
+R["son-voix-ouverte"] = (talk("son-voix", .4, .45, seed=2), True)
+R["son-bruitage-ouvert"] = (talk("son-bruitage", .5, .45, seed=5, target=.46, kind="fx"), True)
 
-def img_360():
-    base = stage()
-    d = ImageDraw.Draw(base)
-    x0, y0, x1, y1 = VF
-    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-    for k in range(1, 6):                      # equirectangular meridians
-        a = (x1 - x0) / 2 * k / 5.4
-        d.arc((cx - a, y0 + 14 * S, cx + a, y1 - 14 * S), 0, 360, fill=GOLD + (120 + 20 * k,), width=2 * S)
-    for k in (-2, -1, 0, 1, 2):                # parallels
-        y = cy + k * (y1 - y0) * .18
-        d.line((x0 + 20 * S, y, x1 - 20 * S, y), fill=GOLD + (150,), width=2 * S)
-    d.line((cx, y0 + 14 * S, cx, y1 - 14 * S), fill=GOLD, width=3 * S)
-    viewfinder(base, VF)
-    given(base, lines_glyph())
-    finish(base, "img-360")
+@tool("son-dialogue", True)
+def _(W, H, s, t):
+    im = fit(lift(src("son-dialogue")), W, H, .5, .4); im = scrim(im, int(H * .55), .72)
+    e1 = wave_env(400, 11); e2 = wave_env(400, 12)
+    turn = 0 if t is None else (t * 2) % 2
+    n = (W - 36 * s) // (5 * s); mid = 18 * s + (W - 36 * s) / 2
+    w1 = e1.copy(); w2 = e2.copy()
+    ph = 0 if t is None else t * 60
+    # two speakers: gold = left speaker, ivory = right speaker; they take turns
+    a1 = 1.0 if t is None or turn < 1 else .25; a2 = .35 if t is None else (1.0 if turn >= 1 else .25)
+    waveform(im, (18 * s, H - 66 * s, mid - 6 * s, H - 20 * s), w1 * a1, s, ph)
+    waveform(im, (mid + 6 * s, H - 66 * s, W - 18 * s, H - 20 * s), w2 * a2, s, ph + 7, color=(240, 232, 216))
+    return im
 
-def img_croquis():
-    base = stage()
-    sk = sketch(img("reperage-trait.webp"))
-    inner = cover(sk, VF[2] - VF[0] - 40 * S, VF[3] - VF[1] - 40 * S)
-    lines = ImageOps.invert(ImageOps.grayscale(inner)).point(lambda v: min(255, int(v * 1.4)))
-    layer = Image.new("RGBA", inner.size, GOLD + (0,))
-    layer.putalpha(lines.point(lambda v: int(v * .55)))
-    base.alpha_composite(layer, (VF[0] + 20 * S, VF[1] + 20 * S))
-    viewfinder(base, VF)
-    given(base, sk)
-    finish(base, "img-croquis")
+@tool("son-musique-ouverte", True)
+def _(W, H, s, t):
+    im = fit(lift(src("son-musique"), .5), W, H, .5, .45); im = scrim(im, int(H * .5), .72)
+    eq_bars(im, (18 * s, H - 84 * s, W - 18 * s, H - 18 * s), 0.13 if t is None else t, s, n=22); return im
 
-# ── RETOUCHER ──────────────────────────────────────────────────────────────
-def ret_modifier():
-    """Real Comfy pair: the rain street (Seedream 4.5, version before #109) → same street at dawn (Nano Banana 2.1 edit)."""
-    before = ImageEnhance.Brightness(cover(img("avant-decor-heure.webp"), W, H, .5, .55)).enhance(.92)
-    after = cover(img("apres-decor-heure.webp"), W, H, .5, .55)
-    split = int(W * .46)
-    base = after.copy()
-    base.paste(before.crop((0, 0, split, H)), (0, 0))
-    base = vignetting(base, .35).convert("RGBA")
-    ImageDraw.Draw(base).rectangle((split - S, 0, split + S, H), fill=GOLD)
-    arrow_chip(base, split, H // 2, rad=32 * S, direction="wipe")
-    finish(base, "ret-modifier")
+@tool("son-musique-video", True)
+def _(W, H, s, t):
+    im = fit(lift(src("son-musique-video")), W, H, .4, .45); im = scrim(im, int(H * .55), .7)
+    eq_bars(im, (18 * s, H - 70 * s, W - 18 * s, H - 26 * s), 0.21 if t is None else t, s, n=26, seed=8)
+    timeline(im, s, .45 if t is None else t); return im
 
-def ret_finaliser():
-    base = stage()
-    face = crop_box(img("cast-vieil-homme.webp"), (.02, .1, .2, .55))
-    small = (40 * S, 150 * S, 260 * S, 360 * S)
-    big = (40 * S, 40 * S, 600 * S, 360 * S)
-    dashed_rect(base, big)
-    d = ImageDraw.Draw(base)
-    for (ax, ay) in ((600 * S, 40 * S),):     # « ×2 » arrow from the small corner to the big one
-        d.line([(272 * S, 138 * S), (ax - 18 * S, ay + 18 * S)], fill=GOLD, width=4 * S)
-        d.polygon([(ax - 8 * S, ay + 8 * S), (ax - 40 * S, ay + 14 * S), (ax - 14 * S, ay + 40 * S)], fill=GOLD)
-    paste_card(base, face, small)
-    finish(base, "ret-finaliser")
+# ---------------------------------------------------------------- render
+def save_still(id, fn):
+    for (W, H, s, suf) in ((640, 400, 1, ""), (1280, 800, 2, "@2x")):
+        im = fn(W, H, s, None)
+        im.save(OUT / f"{id}{suf}.webp", "WEBP", quality=82 if s == 1 else 76, method=6)
 
-def ret_elargir():
-    base = stage()
-    hatch(base, (30 * S, 30 * S, W - 30 * S, H - 30 * S))
-    inner = (150 * S, 92 * S, W - 150 * S, H - 92 * S)
-    paste_card(base, img("decor-toit-aube.webp"), inner, r=4 * S, border=None)
-    dashed_rect(base, (30 * S, 30 * S, W - 30 * S, H - 30 * S))
-    d = ImageDraw.Draw(base)
-    for (x, y, dx, dy) in ((inner[0] - 14 * S, H // 2, -1, 0), (inner[2] + 14 * S, H // 2, 1, 0), (W // 2, inner[1] - 14 * S, 0, -1), (W // 2, inner[3] + 14 * S, 0, 1)):
-        d.line((x, y, x + dx * 60 * S, y + dy * 36 * S), fill=GOLD, width=4 * S)
-        tx, ty = x + dx * 72 * S, y + dy * 46 * S
-        d.polygon([(tx, ty), (tx - dx * 14 * S - dy * 10 * S, ty - dy * 14 * S - dx * 10 * S), (tx - dx * 14 * S + dy * 10 * S, ty - dy * 14 * S + dx * 10 * S)], fill=GOLD)
-    finish(base, "ret-elargir")
+NF_BY = {"vid-parler": 96, "vid-levres": 96}  # 4 s generated talking clips (first frame = last frame)
+VP9_CRF = {"vid-wan": 46, "vid-texte": 46}
+X264_CRF = {"vid-wan": 29, "vid-texte": 28}
 
-def cutout_sign(base, im, ell):
-    """Checkerboard (transparent) around a dashed gold ellipse on the subject — the cut is not drawn."""
-    ch = checker((W, H)).convert("RGBA")
-    m = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(m).ellipse(ell, fill=255)
-    base.paste(ch, (0, 0), ImageOps.invert(m).point(lambda v: int(v * .78)))
-    dashed_ellipse(base, ell)
-
-def ret_detourer():
-    base = background(crop_box(img("cast-dj.webp"), (.78, .02, .98, .7)), .5, .2, strength=.25)
-    cutout_sign(base, None, (W * .2, H * .02, W * .8, H * 1.3))
-    finish(base, "ret-detourer")
-
-def ret_eclairer():
-    base = background(crop_box(img("cast-vieil-homme.webp"), (0, .02, .2, .6)), .5, .45, bright=.8, strength=.35)
-    d = ImageDraw.Draw(base)
-    cx, cy, r = W - 108 * S, 104 * S, 30 * S                 # gold light source + rays
-    d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=GOLD)
-    for k in range(10):
-        a = 2 * math.pi * k / 10
-        d.line((cx + math.cos(a) * r * 1.5, cy + math.sin(a) * r * 1.5, cx + math.cos(a) * r * 2.2, cy + math.sin(a) * r * 2.2), fill=GOLD, width=4 * S)
-    d.arc((W * .18, H * .02, W - 60 * S, H * 1.3), 200, 330, fill=GOLD + (150,), width=3 * S)   # the light's path
-    finish(base, "ret-eclairer")
-
-# ── VIDÉO ──────────────────────────────────────────────────────────────────
-def vid_still(name, src, inset_im, cx=.5, cy=.5, **kw):
-    """Image(s) → shot: the given picture fills the frame, ▶ + timeline say « it will move »."""
-    base = background(src, cx, cy, bright=.85, strength=.35)
-    play(base, **kw)
-    if inset_im is not None: given(base, inset_im)
-    return base
-
-def vid_wan():
-    still = img("decor-quai-nuit.webp")
-    finish(vid_still("vid-wan", still, photo(still)), "vid-wan")
-
-def vid_texte():
-    base = stage()
-    viewfinder(base, VF)
-    play(base, cx=(VF[0] + VF[2]) // 2, cy=(VF[1] + VF[3]) // 2)
-    given(base, lines_glyph())
-    finish(base, "vid-texte")
-
-def vid_raccord():
-    base = stage()
-    a, b = (40 * S, 70 * S, 290 * S, 226 * S), (350 * S, 70 * S, 600 * S, 226 * S)
-    paste_card(base, img("decor-rue-pluie.webp"), a)
-    paste_card(base, img("apres-decor-heure.webp"), b)
-    d = ImageDraw.Draw(base)
-    d.arc((165 * S, 120 * S, 475 * S, 340 * S), 20, 160, fill=GOLD, width=5 * S)
-    arrow_chip(base, 320 * S, 330 * S)
-    play(base, cx=W // 2, cy=148 * S, r=28 * S, t0=40 * S)
-    finish(base, "vid-raccord")
-
-def refs_video(name, refs):
-    base = stage()
-    viewfinder(base, VF)
-    play(base, cx=(VF[0] + VF[2]) // 2, cy=(VF[1] + VF[3]) // 2)
-    y = 40 * S
-    for im in refs[:-1]:
-        paste_card(base, photo(im), (22 * S, y, 150 * S, y + 96 * S), r=8 * S)
-        y += 108 * S
-    given(base, photo(refs[-1]))
-    finish(base, name)
-
-def vid_prolonger():
-    base = stage()
-    fw, fh, y = 132 * S, 84 * S, 140 * S
-    for i, at in enumerate((0, 1, 2, 2.9)):
-        paste_card(base, frame(at), (24 * S + i * (fw + 8 * S), y, 24 * S + i * (fw + 8 * S) + fw, y + fh), r=6 * S, border=None)
-    x = 24 * S + 4 * (fw + 8 * S)
-    for k in range(2):
-        dashed_rect(base, (x + k * (fw + 8 * S), y, x + k * (fw + 8 * S) + fw, y + fh), w=2 * S)
-    arrow_chip(base, x - 4 * S, y + fh // 2)
-    play(base, cx=W // 2, cy=72 * S, r=26 * S, t0=40 * S, at=.7)
-    finish(base, "vid-prolonger")
-
-def vid_parler():
-    face = crop_box(img("cast-vieil-homme.webp"), (0, .02, .2, .6))
-    base = vid_still("vid-parler", face, None, cy=.4)
-    waveform(base, (300 * S, 300 * S, W - 40 * S), 26 * S, n=40, seed=11)
-    paste_card(base, photo(face), (22 * S, 40 * S, 150 * S, 136 * S), r=8 * S)
-    given(base, wave_glyph())
-    finish(base, "vid-parler")
-
-def vid_finaliser():
-    base = stage()
-    dashed_rect(base, (40 * S, 40 * S, 600 * S, 360 * S))
-    play(base, cx=440 * S, cy=150 * S)
-    d = ImageDraw.Draw(base)
-    d.line([(272 * S, 228 * S), (582 * S, 58 * S)], fill=GOLD, width=4 * S)
-    d.polygon([(592 * S, 48 * S), (560 * S, 54 * S), (586 * S, 80 * S)], fill=GOLD)
-    paste_card(base, frame(1.5), (40 * S, 220 * S, 264 * S, 360 * S))
-    finish(base, "vid-finaliser")
-
-def vid_recadrer():
-    base = stage()
-    hatch(base, (40 * S, 40 * S, W - 40 * S, H - 40 * S))
-    tall = (W // 2 - 90 * S, 40 * S, W // 2 + 90 * S, H - 40 * S)
-    paste_card(base, cover(frame(1.5), 180, 320, .55), tall, r=4 * S, border=None)
-    dashed_rect(base, (40 * S, 40 * S, W - 40 * S, H - 40 * S))
-    ImageDraw.Draw(base).rectangle(tall, outline=GOLD, width=3 * S)
-    play(base, cx=W // 2, cy=H // 2, r=28 * S, timeline=False)
-    finish(base, "vid-recadrer")
-
-def vid_detourer():
-    base = background(frame(1.5), .5, .5, strength=.3)
-    cutout_sign(base, None, (W * .06, H * .3, W * .5, H * 1.1))
-    play(base, cx=int(W * .74), cy=int(H * .4))
-    finish(base, "vid-detourer")
-
-def vid_levres():
-    face = crop_box(img("cast-vieil-homme.webp"), (0, .02, .2, .6))
-    base = background(face, .5, .4, bright=.85, strength=.35)
-    dashed_ellipse(base, (W * .42, H * .5, W * .62, H * .66))       # the mouth
-    play(base, cx=int(W * .8), cy=int(H * .3), r=28 * S)
-    given(base, wave_glyph(seed=21))
-    finish(base, "vid-levres")
-
-def vid_effacer():
-    base = background(frame(1.5), .5, .5, strength=.3)
-    dashed_ellipse(base, (W * .1, H * .38, W * .42, H * .98))        # the object to remove: the bollard
-    play(base, cx=int(W * .7), cy=int(H * .4))
-    finish(base, "vid-effacer")
-
-def vid_fluidifier():
-    base = stage()
-    for i, (at, alpha) in enumerate(((0, .35), (1.4, .6), (2.9, 1))):
-        box = (50 * S + i * 70 * S, 60 * S + i * 30 * S, 50 * S + i * 70 * S + 380 * S, 60 * S + i * 30 * S + 238 * S)
-        layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
-        paste_card(layer, frame(at), box, r=6 * S, border=GOLD if i == 2 else None)
-        layer.putalpha(layer.getchannel("A").point(lambda v: int(v * alpha)))
-        base.alpha_composite(layer)
-    play(base, cx=int(W * .62), cy=int(H * .55), r=28 * S, timeline=False)
-    finish(base, "vid-fluidifier")
-
-def vid_mouvement():
-    hero = crop_box(img("cast-coursiere.webp"), (.0, .02, .25, .98))
-    base = background(hero, .5, .35, bright=.75, strength=.4)
-    d = ImageDraw.Draw(base)
-    for k, a in enumerate((.6, .8, 1)):            # motion arcs
-        d.arc((W * .52, H * .12 + k * 22 * S, W * .98, H * .7 + k * 22 * S), 230, 330, fill=GOLD + (int(255 * a),), width=4 * S)
-    play(base, cx=int(W * .8), cy=int(H * .62), r=28 * S)
-    given(base, strip_glyph([frame(0), frame(1.4), frame(2.9)]))
-    finish(base, "vid-mouvement")
-
-# ── 3D ─────────────────────────────────────────────────────────────────────
-def troisd_ouvert():
-    base = stage()
-    d = ImageDraw.Draw(base)
-    cx, cy = 430 * S, 196 * S
-    for k in range(6):                         # wire sphere: meridians + parallels
-        rx = 120 * S * abs(math.cos(math.pi * k / 6))
-        d.ellipse((cx - rx, cy - 120 * S, cx + rx, cy + 120 * S), outline=GOLD + (200,), width=2 * S)
-    for k in (-2, -1, 0, 1, 2):
-        y = cy + k * 44 * S
-        rx = math.sqrt(max(0, (120 * S) ** 2 - (k * 44 * S) ** 2))
-        d.ellipse((cx - rx, y - rx * .18, cx + rx, y + rx * .18), outline=GOLD + (150,), width=2 * S)
-    d.ellipse((cx - 170 * S, 318 * S, cx + 170 * S, 362 * S), outline=GOLD, width=3 * S)   # turntable
-    d.arc((cx - 190 * S, 300 * S, cx + 190 * S, 380 * S), 20, 70, fill=GOLD, width=4 * S)
-    given(base, photo(cover(img("images/uttu-portrait.webp"), 600, 380, .5, .3)))
-    finish(base, "3d-ouvert")
-
-def reperage():
-    view = ImageOps.colorize(ImageOps.grayscale(ImageOps.invert(img("reperage-trait.webp"))), black=BG, white=(214, 208, 196), mid=(92, 90, 96))
-    base = background(view, .5, .5, 1.08, strength=.45)
-    d = ImageDraw.Draw(base)
-    px, py, r = int(W * .5), int(H * .44), 26 * S
-    d.ellipse((px - 46 * S, py + 30 * S, px + 46 * S, py + 50 * S), outline=GOLD + (170,), width=2 * S)
-    d.polygon([(px - r * .82, py - r * .2), (px, py + 40 * S), (px + r * .82, py - r * .2)], fill=GOLD)
-    d.ellipse((px - r, py - r * 1.8, px + r, py + r * .2), fill=GOLD)
-    d.ellipse((px - r * .38, py - r * 1.18, px + r * .38, py - r * .42), fill=BG)
-    given(base, map_glyph())
-    finish(base, "reperage")
-
-def maquette():
-    """Real capture of the PRISE maquette (two stand-ins on the quay décor); the gold corners = the camera frame."""
-    base = background(img("maquette.webp"), .5, .5, strength=.3)
-    viewfinder(base, (150 * S, 40 * S, W - 150 * S, H - 40 * S))
-    finish(base, "maquette")
-
-# ── SON ────────────────────────────────────────────────────────────────────
-def sound(name, src, glyph, **wave):
-    base = background(src, .5, .5, bright=.42, strength=.5)
-    waveform(base, (150 * S, int(H * .42), W - 34 * S), 112 * S, **wave)
-    given(base, glyph)
-    finish(base, name)
-
-def son_dialogue():
-    base = background(img("decor-piece.webp"), .5, .5, bright=.42, strength=.5)
-    waveform(base, (150 * S, int(H * .3), W - 34 * S), 62 * S, n=60, seed=3, env=lambda t: 1 if (t * 4) % 2 < 1 else .08)
-    waveform(base, (150 * S, int(H * .58), W - 34 * S), 62 * S, n=60, seed=5, col=(200, 200, 208), env=lambda t: .08 if (t * 4) % 2 < 1 else 1)
-    given(base, lines_glyph(shares=(.8, .6, .9, .5)))
-    finish(base, "son-dialogue")
-
-def son_musique_video():
-    base = background(frame(1.5), .5, .5, bright=.45, strength=.5)
-    waveform(base, (150 * S, int(H * .42), W - 34 * S), 100 * S, regular=True, env=lambda t: .5 + .5 * abs(math.sin(t * math.pi * 6)))
-    given(base, strip_glyph([frame(0), frame(1.4), frame(2.9)]))
-    finish(base, "son-musique-video")
-
-CARDS = {
-    "img-klein": lambda: t2i_real("img-klein", "decor-gare.webp"),
-    "img-qwen": lambda: t2i_sign("img-qwen", paragraph_glyph(), mark_detailed),
-    "img-flux3": lambda: t2i_sign("img-flux3", lines_glyph(), mark_quality),
-    "img-ideogram": lambda: t2i_sign("img-ideogram", lines_glyph(shares=(.5, 1, .7)), mark_letters),
-    "img-gpt": lambda: t2i_sign("img-gpt", checklist_glyph(), mark_checked),
-    "img-seedream": lambda: t2i_real("img-seedream", "decor-piece.webp", .6, .5),
-    "img-nano": lambda: t2i_real("img-nano", "apres-decor-texte.webp"),
-    "img-refs": img_refs, "img-360": img_360, "img-croquis": img_croquis,
-    "ret-modifier": ret_modifier, "ret-finaliser": ret_finaliser, "ret-elargir": ret_elargir,
-    "ret-detourer": ret_detourer, "ret-eclairer": ret_eclairer,
-    "vid-wan": vid_wan, "vid-texte": vid_texte, "vid-raccord": vid_raccord,
-    "vid-h3-refs": lambda: refs_video("vid-h3-refs", [crop_box(img("cast-coursiere.webp"), (.02, .05, .24, .95)), img("decor-quai-nuit.webp")]),
-    "vid-vidu": lambda: refs_video("vid-vidu", [img("decor-gare.webp"), crop_box(img("cast-dj.webp"), (0, 0, .3, .7))]),
-    "vid-prolonger": vid_prolonger, "vid-parler": vid_parler, "vid-finaliser": vid_finaliser,
-    "vid-recadrer": vid_recadrer, "vid-detourer": vid_detourer, "vid-levres": vid_levres,
-    "vid-effacer": vid_effacer, "vid-fluidifier": vid_fluidifier, "vid-mouvement": vid_mouvement,
-    "3d-ouvert": troisd_ouvert, "reperage": reperage, "maquette": maquette,
-    "son-voix-ouverte": lambda: sound("son-voix-ouverte", crop_box(img("cast-vieil-homme.webp"), (0, 0, .26, .9)), lines_glyph(), seed=9, env=lambda t: .3 + .7 * abs(math.sin(t * math.pi * 3.2))),
-    "son-dialogue": son_dialogue,
-    "son-musique-ouverte": lambda: sound("son-musique-ouverte", img("decor-toit-aube.webp"), lines_glyph(), regular=True, env=lambda t: .45 + .55 * math.sin(math.pi * t) ** 2),
-    "son-bruitage-ouvert": lambda: sound("son-bruitage-ouvert", img("decor-rue-pluie.webp"), lines_glyph(), seed=7),
-    "son-musique-video": son_musique_video,
-}
+def save_anim(id, fn):
+    W, H = 640, 400
+    tmp = OUT / f".{id}.rgb"
+    with open(tmp, "wb") as f:
+        nf = NF_BY.get(id, NF)
+        for i in range(nf): f.write(fn(W, H, 1, i / nf).tobytes())
+    base = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", str(tmp)]
+    subprocess.run(base + ["-c:v", "libvpx-vp9", "-b:v", "0", "-crf", str(VP9_CRF.get(id, 38)), "-row-mt", "1", "-deadline", "good", "-cpu-used", "2", "-pix_fmt", "yuv420p", "-an", str(OUT / f"{id}.webm")], check=True)
+    subprocess.run(base + ["-c:v", "libx264", "-preset", "slow", "-crf", str(X264_CRF.get(id, 27)), "-profile:v", "main", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", str(OUT / f"{id}.mp4")], check=True)
+    tmp.unlink()
 
 if __name__ == "__main__":
-    OUT.mkdir(parents=True, exist_ok=True)
-    for name in (sys.argv[1:] or CARDS):
-        CARDS[name]()
+    for id, v in R.items():
+        if v is None or (ONLY and id not in ONLY): continue
+        fn, anim = v
+        save_still(id, fn)
+        if anim: save_anim(id, fn)
+        print(id, "anim" if anim else "still", flush=True)
