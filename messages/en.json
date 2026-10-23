@@ -2537,6 +2537,10 @@
       "reperage": {
         "title": "Scout a location",
         "line": "Pick a point on the world map, see it in 3D or at street level, keep your captures for the set."
+      },
+      "maquette": {
+        "title": "3D layout and framing",
+        "line": "Place your characters with a finger, pick the camera angle, then shoot the take. Free until the render."
       }
     },
     "latest": "Latest results",

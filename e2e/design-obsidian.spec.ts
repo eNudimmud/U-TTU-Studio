@@ -88,6 +88,25 @@ test.describe("toutes les tailles d'écran", () => {
   }
 });
 
+test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvre la maquette de PRISE", async ({ page }) => {
+  await page.goto("/studio#outils");
+  const entry = page.locator("[data-studio-entry]");
+  await expect(entry.locator("[data-outils-count]")).toHaveText("36 outils");
+  const cards = entry.locator(".u-outil-card");
+  await expect(cards).toHaveCount(36);
+  await expect(entry.locator(".u-outil-card .u-outil-glyph")).toHaveCount(0);
+  const card = entry.locator('[data-outils-section="3d"] [data-outil-maquette]');
+  await expect(card).toContainText("Maquette 3D et cadrage");
+  await expect(card).toContainText("gratuit");
+  await expect(card.locator(".u-outil-thumb img")).toHaveAttribute("src", /\/exemples\/vignettes\/maquette\.webp$/);
+  expect((await card.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await card.click();
+  await expect(page).toHaveURL(/#prise\/maquette$/);
+  await expect(page.locator('[data-avance-toggle="maquette"]')).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator('[data-avance-group="maquette"] canvas')).toBeVisible();
+  await expect(page.locator('[data-avance-group="maquette"]')).toBeInViewport();
+});
+
 test("entrée : le portrait d'Uttu, la porte du film, une rangée par famille avec vignettes réelles", async ({ page }) => {
   await page.goto("/studio#outils");
   const entry = page.locator("[data-studio-entry]");

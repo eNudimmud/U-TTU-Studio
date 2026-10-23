@@ -1,21 +1,50 @@
-// One real thumbnail per tool card: a 16:10 crop of a house render already in public/exemples
-// (scripts/brand/make_vignettes.py). Sound tools have no picture; their card draws a quiet wave.
-// Nothing here is generated for the card, and the golden web never appears outside the logo.
+// One thumbnail per tool card, 16:10: 640x400 webp plus a 1280x800 @2x, composed by
+// scripts/brand/make_vignettes.py from illustrations generated with Grok Imagine (sources in
+// scripts/brand/vignettes-sources). Each card shows what the tool does: before/after wipes,
+// cut-outs on a checkerboard, a timeline, a waveform. Where motion says it better, the card also has
+// a silent 3 to 4 s loop (webm + mp4); the still stays its poster and the reduced-motion fallback.
 
 const VIGNETTES = new Set([
-  "img-klein", "img-qwen", "img-flux3", "img-ideogram", "img-gpt", "img-seedream", "img-refs", "img-360", "img-croquis",
+  "img-klein", "img-qwen", "img-flux3", "img-ideogram", "img-gpt", "img-seedream", "img-nano", "img-refs", "img-360", "img-croquis",
   "ret-modifier", "ret-finaliser", "ret-elargir", "ret-detourer", "ret-eclairer",
   "vid-wan", "vid-texte", "vid-raccord", "vid-h3-refs", "vid-vidu", "vid-prolonger", "vid-parler", "vid-finaliser",
   "vid-recadrer", "vid-detourer", "vid-levres", "vid-effacer", "vid-fluidifier", "vid-mouvement",
-  "3d-ouvert", "reperage",
+  "3d-ouvert", "reperage", "maquette",
+  "son-voix-ouverte", "son-dialogue", "son-musique-ouverte", "son-bruitage-ouvert", "son-musique-video",
 ]);
 
 /** The « Repérer un lieu » card: free 3D scouting, opened from the rail and the 3D row. */
 export const REPERAGE_ID = "reperage";
 
-/** Public path of a tool's thumbnail, or null (sound, or a tool without a render yet). */
+/** The « Maquette 3D et cadrage » card: the free PRISE maquette, opened from the 3D row. */
+export const MAQUETTE_ID = "maquette";
+
+/** Hash that opens PRISE with its maquette unfolded. */
+export const MAQUETTE_HASH = "#prise/maquette";
+
+/** Cards whose thumbnail also has a silent loop. */
+const ANIMEES = new Set([
+  "img-360", "img-croquis",
+  "ret-modifier", "ret-finaliser", "ret-elargir", "ret-detourer", "ret-eclairer",
+  "vid-wan", "vid-texte", "vid-raccord", "vid-prolonger", "vid-parler", "vid-finaliser",
+  "vid-recadrer", "vid-detourer", "vid-levres", "vid-effacer",
+  "maquette",
+  "son-voix-ouverte", "son-dialogue", "son-musique-ouverte", "son-bruitage-ouvert", "son-musique-video",
+]);
+
+/** Public path of a tool's thumbnail, or null (a tool without a thumbnail yet). */
 export function vignette(id: string): string | null {
   return VIGNETTES.has(id) ? `/exemples/vignettes/${id}.webp` : null;
+}
+
+/** The same thumbnail at 1280x800, for dense screens. */
+export function vignette2x(id: string): string | null {
+  return VIGNETTES.has(id) ? `/exemples/vignettes/${id}@2x.webp` : null;
+}
+
+/** The card's silent loop (webm first, mp4 for Safari), or null for a still card. */
+export function vignetteAnimee(id: string): { webm: string; mp4: string } | null {
+  return ANIMEES.has(id) ? { webm: `/exemples/vignettes/${id}.webm`, mp4: `/exemples/vignettes/${id}.mp4` } : null;
 }
 
 /** Uttu, the studio's character: the canon portrait, cropped so only she is in frame. */

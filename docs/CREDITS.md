@@ -110,3 +110,30 @@ Les dépendances et leur version exacte sont conservées dans `package-lock.json
 La PR #109 remplace les quatre décors `decor-quai-nuit`, `decor-rue-pluie`, `decor-toit-aube` et `decor-gare`, et ajoute `cast-uttu-planche.webp`. Les fichiers sont conservés tels quels dans les branches d’audit. Leur source déclarée dans le manifeste v4 est FLUX 3 Image Klein via Comfy Cloud pour les décors, et Nano Banana Pro pour la planche d’Uttu (badge NEUKO retouché par l’auteur). Ces indications proviennent de la mise à jour utilisateur ; aucun nouveau rendu ni paiement n’a été effectué par l’audit.
 
 Le [manifeste courant](../public/exemples/manifest.json) fait foi pour ces fichiers ; le tableau Seedream ci-dessus décrit leur version historique.
+
+## Données cartographiques — Repérer un lieu
+
+Le repérage 3D et la carte affichent des données ouvertes. Elles ne sont pas générées et ne coûtent aucun crédit.
+
+| Donnée | Source | Licence / mention |
+| --- | --- | --- |
+| Rues, bâtiments, noms de lieux | [OpenStreetMap](https://www.openstreetmap.org/copyright) | © les contributeurs d’OpenStreetMap, [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) |
+| Tuiles vectorielles | [OpenFreeMap](https://openfreemap.org) | OpenFreeMap · © OpenMapTiles ; tuiles BSD-3 / CC-BY 4.0 (schéma OpenMapTiles), données © OpenStreetMap |
+| Relief | [Terrain Tiles (Mapzen, AWS Open Data)](https://registry.opendata.aws/terrain-tiles/) | Sources ouvertes (USGS SRTM / GMTED / 3DEP, Copernicus EU-DEM, NOAA ETOPO1 et autres) : [mentions complètes](https://github.com/tilezen/joerd/blob/master/docs/attribution.md) |
+| Données suisses | [swisstopo](https://www.swisstopo.admin.ch/fr/conditions-utilisation-geodonnees-et-geoservices-gratuit) | © swisstopo, OGD (usage libre, source obligatoire) |
+| Bâtiments 3D en Suisse | [swissBUILDINGS3D](https://www.swisstopo.admin.ch/fr/modele-du-territoire-swissbuildings3d-2-0) | Bâtiments : swissBUILDINGS3D © swisstopo, OGD (usage libre, source obligatoire) |
+| Recherche d’un lieu | [Photon (komoot)](https://photon.komoot.io) | Géocodage sur les données © OpenStreetMap (ODbL) |
+| Photos de rue | [Panoramax](https://panoramax.fr) | Licence et auteur de chaque photo affichés ; seules les licences ouvertes identifiées (CC0, CC-BY, CC-BY-SA, etalab-2.0) peuvent être copiées dans un projet |
+
+Les mêmes mentions sont listées dans `src/lib/repere3d/sources.ts`, affichées sur la carte du studio et enregistrées avec chaque capture.
+
+## Vignettes des outils (2026-10-23, v2)
+
+Les 37 vignettes de `public/exemples/vignettes/` sont des illustrations générées avec Grok Imagine (images, et quatre clips vidéo pour « Animer une image », « Vidéo depuis un texte », « Faire parler » et « Synchroniser les lèvres »), puis composées par `scripts/brand/make_vignettes.py` (Pillow, numpy, OpenCV, ffmpeg). Aucun crédit Comfy n’est dépensé. Les sources sont dans `scripts/brand/vignettes-sources/`.
+
+- **Ce sont des illustrations de ce que fait l’outil, pas des rendus du modèle de la carte.** Les avant/après (croquis → image, modifier, lumière, effacer, maquette → rendu) sont des paires d’illustrations ; « Effacer un objet » est retouché à la main dans le script (l’objet remplacé par le sable voisin).
+- Les détourages (« Détourer », « Détourer une vidéo ») sont calculés par le script (GrabCut sur fond uni), pas par le modèle de la carte.
+- Les formes d’onde, barres d’égaliseur, barres de temps et le squelette de pose sont dessinés.
+- Uttu apparaît sur « Image polyvalente », « Image avec références », « Vidéo fidèle aux références », « Faire parler » et « Copier un mouvement », d’après son portrait officiel.
+- 640×400 webp et 1280×800 `@2x.webp` pour chaque carte ; 23 cartes ont aussi une boucle muette de 3 à 4 s (`.webm` VP9 + `.mp4` H.264, moins de 400 Ko), dont l’image fixe est l’affiche et le repli « mouvement réduit ».
+- `public/exemples/outils/plan-exemple.mp4` est un mouvement de caméra sur une image fixe, pas un rendu d’un modèle vidéo : ses images servent seulement d’entrée (clip donné).

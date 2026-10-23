@@ -2537,6 +2537,10 @@
       "reperage": {
         "title": "Repérer un lieu",
         "line": "Choisis un point sur la carte du monde, vois-le en 3D ou au niveau de la rue, garde tes captures pour le décor."
+      },
+      "maquette": {
+        "title": "Maquette 3D et cadrage",
+        "line": "Place tes personnages au doigt, choisis l'angle de caméra, puis tourne le plan. Gratuit jusqu'au rendu."
       }
     },
     "latest": "Derniers résultats",

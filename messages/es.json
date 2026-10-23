@@ -2537,6 +2537,10 @@
       "reperage": {
         "title": "Localizar un lugar",
         "line": "Elige un punto en el mapa del mundo, míralo en 3D o a pie de calle, guarda tus capturas para el decorado."
+      },
+      "maquette": {
+        "title": "Maqueta 3D y encuadre",
+        "line": "Coloca tus personajes con el dedo, elige el ángulo de cámara y luego rueda el plano. Gratis hasta el render."
       }
     },
     "latest": "Últimos resultados",
