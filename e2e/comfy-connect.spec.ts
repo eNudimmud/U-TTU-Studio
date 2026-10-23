@@ -55,8 +55,18 @@ test('Se connecter avec Comfy: opens the proxied login, then links the Comfy ses
   const popup = await popupPromise;
   expect(new URL(popup.url()).pathname).toBe('/cloud/login');
   await expect(dialog.locator('[data-connect-waiting]')).toBeVisible();
-  // Comfy's login writes its session in this origin's IndexedDB (same origin as the popup).
-  await popup.evaluate(() => new Promise<void>((resolve, reject) => {
+  // Comfy's login (Firebase persistence [browserLocal, indexedDB, session]) writes its user
+  // in this origin's localStorage, from the popup. The opener sees it and links by itself.
+  await popup.evaluate(() => localStorage.setItem('firebase:authUser:AIzaTest_key-1:[DEFAULT]', JSON.stringify({ uid: 'u1', apiKey: 'AIzaTest_key-1', stsTokenManager: { refreshToken: 'r1', accessToken: 'jwt.test', expirationTime: Date.now() + 3_600_000 } })));
+  await expect(page.locator('dialog.u-native-sheet[open]')).toHaveCount(0, { timeout: 15_000 });
+  expect(await page.evaluate(() => localStorage.getItem('u-ttu-rendu'))).toContain('session');
+  await expect.poll(() => popup.isClosed()).toBe(true);
+});
+
+test('an older Comfy session kept in IndexedDB still links', async ({ page }) => {
+  await page.route(/\/api\/user(\?|$)/, r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(USER) }));
+  const dialog = await openSheet(page);
+  await page.evaluate(() => new Promise<void>((resolve, reject) => {
     const open = indexedDB.open('firebaseLocalStorageDb', 1);
     open.onupgradeneeded = () => open.result.createObjectStore('firebaseLocalStorage', { keyPath: 'fbase_key' });
     open.onerror = () => reject(open.error);
@@ -66,8 +76,24 @@ test('Se connecter avec Comfy: opens the proxied login, then links the Comfy ses
       tx.oncomplete = () => { open.result.close(); resolve(); };
     };
   }));
-  await expect(page.locator('dialog.u-native-sheet[open]')).toHaveCount(0, { timeout: 15_000 });
+  await dialog.getByRole('button', { name: 'Session déjà ouverte' }).click();
+  await expect(page.locator('dialog.u-native-sheet[open]')).toHaveCount(0);
   expect(await page.evaluate(() => localStorage.getItem('u-ttu-rendu'))).toContain('session');
+});
+
+test('the Comfy window closed without signing in: the sheet says so and points to the key', async ({ page, context }) => {
+  await context.route(/\/cloud\/login/, r => r.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>Comfy login (mock)</title><p>login</p>' }));
+  const dialog = await openSheet(page);
+  const popupPromise = context.waitForEvent('page');
+  await dialog.locator('[data-connect-login]').click();
+  const popup = await popupPromise;
+  await expect(dialog.locator('[data-connect-waiting]')).toBeVisible();
+  await popup.close();
+  const error = dialog.locator('[data-connect-error]');
+  await expect(error).toContainText('La fenêtre Comfy s’est fermée', { timeout: 10_000 });
+  await expect(error).toBeInViewport();
+  await expect(dialog.locator('[data-connect-waiting]')).toHaveCount(0);
+  await expect(page.locator('dialog.u-native-sheet[open]')).toHaveCount(1);
 });
 
 test('no Comfy session yet: the old « Session déjà ouverte » link explains what to do', async ({ page }) => {

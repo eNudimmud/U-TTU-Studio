@@ -788,8 +788,16 @@ La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une 
 
 ## 2026-10-23 — Connexion Comfy : la page de connexion de Comfy d'abord, la clé en secours
 
-- « Se connecter avec Comfy » ouvre la vraie page de connexion de Comfy (`/cloud/login`), servie sur l'origine du studio par `src/proxy.ts`. Comfy y range sa session dans l'IndexedDB de cette origine ; `src/lib/render/session.ts` la lit (garde-fous `link-epoch`) et l'envoie en Bearer par le relais. La fiche guette cette session toute seule (focus + toutes les 2 s) et se relie sans clé.
+- « Se connecter avec Comfy » ouvre la vraie page de connexion de Comfy (`/cloud/login`), servie sur l'origine du studio par `src/proxy.ts`. Comfy y range sa session dans le localStorage de cette origine (voir correctif ci-dessous) ; `src/lib/render/session.ts` la lit (garde-fous `link-epoch`) et l'envoie en Bearer par le relais. La fiche guette cette session toute seule (focus + toutes les 2 s) et se relie sans clé.
 - Avant : cette connexion n'était possible que dans la Sphère intégrée, retirée par la refonte compacte (708fbe9). « Session déjà ouverte » ne trouvait donc jamais rien pour un nouveau visiteur.
 - OAuth « Sign in with Comfy » testé le 23.10 : `cloud.comfy.org/oauth/register` refuse `https://u-ttu-studio.vercel.app` (client natif : « must be http loopback or a reverse-DNS custom scheme » ; client web : « host is not in the configured allowlist »). Aucun client créé. Il faudrait que Comfy ajoute l'hôte à sa liste.
 - Clé API en secours : lien direct `platform.comfy.org/profile/api-keys?onboarding=router`, « Coller ma clé », validation dès qu'une clé `comfyui-` est collée, messages distincts (refusée, abonnement, crédits, réseau).
 - Fragilité connue : la connexion dépend du front Comfy servi par le proxy et de `vercel.app` dans les domaines autorisés du Firebase de Comfy (vérifié le 23.10).
+
+## 2026-10-23 — Correctif : la connexion Comfy ne remontait pas au studio
+
+- Constat (JD sur l'aperçu) : la fenêtre Comfy s'ouvre, la connexion réussit, le studio reste « non relié ».
+- Cause : le front Comfy actuel initialise Firebase avec la persistance `[browserLocal, indexedDB, browserSession]` (`createFirebaseIdentity`, fichier `api-*.js` du front Comfy). L'utilisateur est donc écrit dans le **localStorage** (`firebase:authUser:<apiKey>:[DEFAULT]`), et Firebase déplace toute copie IndexedDB vers le localStorage puis l'efface d'IndexedDB. `session.ts` ne lisait que l'IndexedDB `firebaseLocalStorageDb` : il ne trouvait jamais rien. Preuve reproductible sans compte : `concours/connexion-comfy/fix/probe/persistence-probe.mjs` (un faux utilisateur posé en IndexedDB se retrouve en localStorage après chargement de `/cloud/login` via le proxy). Le test e2e passait parce qu'il écrivait lui-même en IndexedDB.
+- Correctif : `session.ts` lit d'abord le localStorage (`storedUsersIn`), puis l'IndexedDB (anciens fronts) ; la déconnexion efface les deux. La fiche réagit à l'événement `storage` (immédiat), garde le minuteur et le focus, ferme la fenêtre Comfy dès que la session est trouvée, et dit clairement « La fenêtre Comfy s'est fermée sans que je trouve ta connexion » si la fenêtre se ferme sans session (plus d'échec silencieux).
+- Le domaine n'est pas en cause : sur `u-ttu-studio.vercel.app`, Google et GitHub ouvrent bien leur fenêtre via `dreamboothy.firebaseapp.com` (pas d'erreur `unauthorized-domain`), et après connexion Comfy reste sur l'origine du studio (`/cloud/user-check`).
+

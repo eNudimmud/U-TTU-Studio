@@ -10,6 +10,7 @@ import { Close } from "./glyphs";
 import { useStudio } from "./studio-session";
 import { RecoveryPanel } from "./recovery-panel";
 import { toggleAssistant } from "./assistant-panel";
+import { isSessionStorageKey } from "@/lib/render/session";
 import { COMFY_KEYS_URL, COMFY_LOGIN_PATH, COMFY_PRICING_URL, COMFY_SIGNUP_URL, SESSION_POLL_MS, clipboardKey, findComfyKey, needsPricing } from "@/lib/render/connect";
 
 function Frame({ title, onClose, children }: { title: string; onClose(): void; children: React.ReactNode }) {
@@ -79,30 +80,40 @@ export function ConnectSheet() {
   };
   const submit = (value: string) => { setKey(value); void run(() => connectKey(value)); };
 
-  // While Comfy's login tab is open, look for the session it writes on this origin.
+  // While Comfy's login tab is open, look for the session it writes on this origin
+  // (localStorage, see session.ts). A storage event wakes the check at once; the timer
+  // and focus cover browsers that drop it. A tab closed without a session says so.
   useEffect(() => {
     if (!waiting) return;
     let alive = true;
     const started = Date.now();
+    const stop = (message: string) => { alive = false; setWaiting(false); loginTab.current = null; setError(message); };
     const check = async () => {
       if (!alive || polling.current) return;
-      if (Date.now() - started > 15 * 60_000) { setWaiting(false); return; }
       polling.current = true;
       try {
-        if (await sessionLinked()) { alive = false; try { loginTab.current?.close(); } catch {} }
+        const tab = loginTab.current;
+        let closed = false;
+        try { closed = Boolean(tab?.closed); } catch { closed = false; }
+        if (await sessionLinked()) { alive = false; try { tab?.close(); } catch {} return; }
+        if (closed) stop(t("sheet.loginClosed"));
+        else if (Date.now() - started > 15 * 60_000) stop(t("sheet.loginMissing"));
       } finally { polling.current = false; }
     };
     const timer = window.setInterval(() => void check(), SESSION_POLL_MS);
     const onFocus = () => void check();
+    const onStorage = (event: StorageEvent) => { if (isSessionStorageKey(event.key)) void check(); };
     window.addEventListener("focus", onFocus);
+    window.addEventListener("storage", onStorage);
     document.addEventListener("visibilitychange", onFocus);
-    return () => { alive = false; window.clearInterval(timer); window.removeEventListener("focus", onFocus); document.removeEventListener("visibilitychange", onFocus); };
-  }, [waiting, sessionLinked]);
+    return () => { alive = false; window.clearInterval(timer); window.removeEventListener("focus", onFocus); window.removeEventListener("storage", onStorage); document.removeEventListener("visibilitychange", onFocus); };
+  }, [waiting, sessionLinked, t]);
 
   const openLogin = (event: React.MouseEvent<HTMLAnchorElement>) => {
     setError("");
     const tab = window.open(COMFY_LOGIN_PATH, "uttu-comfy-login", "popup,width=520,height=760");
-    if (tab) { event.preventDefault(); loginTab.current = tab; }
+    loginTab.current = tab;
+    if (tab) event.preventDefault();
     setWaiting(true);
   };
   const pasteFromClipboard = async () => {

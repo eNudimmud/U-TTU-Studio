@@ -547,6 +547,7 @@
     "loginHint": "La página de inicio de sesión de Comfy se abre al lado: Google, GitHub o correo, y el registro si aún no tienes cuenta. Inicia sesión y vuelve aquí: el estudio se conecta solo.",
     "loginWaiting": "Espero a que inicies sesión en la página de Comfy…",
     "loginStop": "Dejar de esperar",
+    "loginClosed": "La ventana de Comfy se cerró sin que encontrara tu sesión. Vuelve a probar « Iniciar sesión con Comfy » o pega una clave API.",
     "loginMissing": "No encuentro ninguna sesión de Comfy en este estudio. Toca « Iniciar sesión con Comfy » o pega una clave API.",
     "orKey": "O con una clave API de Comfy",
     "keyStep1": "Abre tu página de claves de Comfy, toca « + New » y llámala U*TTU.",
