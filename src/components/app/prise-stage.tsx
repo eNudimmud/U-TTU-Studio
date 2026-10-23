@@ -185,7 +185,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setPlaceCleared(false);
     const asked = new URLSearchParams(window.location.search).get("prise");
     if (asked === "compose" || asked === "final") {
-      const next = demoDraft(asked, format);
+      const next = demoDraft(asked, format, t("p0.action.1"));
       setSeed(asked);
       setDrafts([next]);
       setCurrentId(next.id);
@@ -204,11 +204,11 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       .map(shot => draftFromShot(shot, format));
     setDrafts(next);
     setCurrentId(next.find(item => item.id === targetPlan)?.id ?? next[0]?.id ?? "plan-01");
-  }, [ready, format, studio.project, studio.shots]);
+  }, [ready, format, studio.project, studio.shots, t]);
 
   /** Same fill as ?prise=compose: La coursière and Le vieil homme on the quay, framing, camera and action set. */
   function partirExemple() {
-    const next = demoDraft("compose", format);
+    const next = demoDraft("compose", format, t("p0.action.1"));
     seeded.current = false;
     setSeed("compose");
     setDrafts([next]);
@@ -1109,13 +1109,14 @@ function blank(id: string, name: string, format: PlanInput["format"]): Draft {
   return { id, name, input: emptyPlan(format), kept: false, finalised: false, hasTake: false, before: "", after: "", garde: "" };
 }
 
-function demoDraft(seed: "compose" | "final", format: PlanInput["format"]): Draft {
+/** `action` is the example line in the visitor's language (« se retourne », « turns around »…). */
+function demoDraft(seed: "compose" | "final", format: PlanInput["format"], action: string): Draft {
   const input = emptyPlan(format);
   input.castIds = ["demo-coursiere", "demo-vieil-homme"];
   input.decorId = "demo-quai";
   input.cadrage = "moyen";
   input.camera = "travelling-avant";
-  input.action = "se retourne";
+  input.action = action;
   input.duree = 5;
   const quai = assetPath("/exemples/decor-quai-nuit.webp");
   if (seed === "final") {

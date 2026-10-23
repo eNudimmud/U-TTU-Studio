@@ -32,29 +32,122 @@
   "landing": {
     "home": "U*TTU Studio — Accueil",
     "enter": "Entrer dans le studio",
-    "before": "Mets en scène ton plan en 3D sur ton téléphone. ",
-    "em": "LTX le tourne.",
-    "pills": "Quatre gestes",
-    "theCut": "Le film",
-    "twoWays": "2 photos",
-    "yourPlace": "Un décor",
-    "theVideo": "Prévis 3D → LTX",
-    "quiet": "Le studio ne vend rien. Le rendu se paie sur ton compte Comfy Cloud.",
-    "alt": "Maquette 3D du studio : deux personnages autour d’une table, posés au doigt avant la prise.",
-    "caption": "Ta maquette 3D · LTX suit ce mouvement de caméra",
-    "contact": "Contacter le studio ↗",
     "poweredBy": "Propulsé par ComfyUI",
     "poweredByLabel": "Propulsé par ComfyUI — comfy.org, nouvel onglet",
     "kicker": "Studio de cinéma IA open source sur ComfyUI",
-    "sub": "Open source (MIT). Tu vois un devis avant chaque crédit dépensé, et les rendus tournent sur ton propre compte Comfy Cloud.",
-    "tryFree": "Essayer gratuitement (0 crédit)",
-    "tryFreeNote": "Guide de démarrage, simulateur de coûts et rendus d’exemple, sans compte.",
-    "stepFinger": "Ton doigt place la caméra",
-    "stepQuote": "Devis avant : ≈ 12–25 cr. estimés",
-    "stepFilm": "LTX tourne le plan",
-    "examples": "Rendus d’exemple, faits sur Comfy Cloud",
-    "exCast": "Personnage",
-    "exSet": "Décor"
+    "contact": "Contacter le studio ↗",
+    "tryFree": "Essayer gratuitement · 0 crédit"
+  },
+  "accueil": {
+    "kicker": "Open source · MIT · sur ComfyUI",
+    "h1": "Ton <em>studio de cinéma</em> IA, open source, sur ComfyUI.",
+    "sub": "Crée tes personnages et tes décors, repère un vrai lieu, mets ton plan en scène en 3D, puis tourne et monte ton film.",
+    "sub2": "Tout passe par ton propre compte Comfy, avec un devis avant chaque crédit.",
+    "caps": {
+      "0": "Un personnage",
+      "1": "Un gros plan",
+      "2": "Un décor, une lumière",
+      "3": "Un village, à l’aube",
+      "4": "Repère un vrai lieu"
+    },
+    "pause": "Mettre le diaporama en pause",
+    "play": "Relancer le diaporama",
+    "showEyebrow": "Ce que tu peux créer",
+    "showTitle": "Tes personnages, tes décors, <em>tes plans</em>.",
+    "showLead": "Un personnage qui garde son visage d’un plan à l’autre, un décor tiré d’un texte ou d’une photo, un vrai lieu repéré sur la carte. Le tout avec les modèles de ComfyUI.",
+    "g1Tag": "CAST",
+    "g1": "Un personnage, le même d’un plan à l’autre.",
+    "g1Alt": "Gros plan d’Uttu, capuche et veines dorées",
+    "g2Tag": "DÉCOR · PRISE",
+    "g2": "Un décor, une lumière, un mouvement.",
+    "g2Alt": "Un coursier en veste jaune dans une gare abandonnée, rayons de lumière",
+    "g3Tag": "REPÉRAGE",
+    "g3": "Un vrai lieu, vu du ciel.",
+    "g3Alt": "Village du Jura et son abbaye romane à l’aube, dans la brume",
+    "fine": "Images d’inspiration, créées pour cette page.",
+    "flowTitle": "Un film, cinq onglets",
+    "flow": {
+      "cast": {
+        "name": "CAST",
+        "body": "Tes personnages, les mêmes d’un plan à l’autre."
+      },
+      "decor": {
+        "name": "DÉCOR",
+        "body": "Un texte, une photo ou la carte."
+      },
+      "prise": {
+        "name": "PRISE",
+        "body": "Mets en scène, tourne 5 s."
+      },
+      "montage": {
+        "name": "MONTAGE",
+        "body": "Plans, voix, musique."
+      },
+      "finaliser": {
+        "name": "FINALISER",
+        "body": "Plus net, sans tout refaire."
+      }
+    },
+    "toolsTitle": "Ce que tu ne trouves <em>qu’ici</em>.",
+    "toolsLead": "Deux outils de tournage gratuits, qui tournent dans ton navigateur. Le rendu ne vient qu’ensuite, et seulement si tu le confirmes.",
+    "inStudio": "Dans le studio",
+    "mapTag": "Repérage · 0 crédit",
+    "mapTitle": "Repère un vrai lieu, n’importe où.",
+    "mapBody": "Tape une ville ou une adresse : elle se construit en 3D à partir de données ouvertes. Tourne autour, choisis l’heure et le style, puis capture ton cadrage.",
+    "mapSpecs": {
+      "0": "OpenStreetMap",
+      "1": "vrais toits swisstopo en Suisse",
+      "2": "matin · midi · soir"
+    },
+    "mapAlt": "Village du Jura à l’aube, vu du ciel",
+    "stageTag": "Mise en scène 3D · 0 crédit",
+    "stageTitle": "Mets ton plan en scène, au doigt.",
+    "stageBody": "Une phrase place tes personnages devant ton décor. Glisse-les, tourne la caméra, filme ta prévis.",
+    "stageSpecs": {
+      "0": "glisser pour placer",
+      "1": "pincer pour zoomer",
+      "2": "garder la pose ou la caméra"
+    },
+    "stageAlt": "Uttu sur un quai, la nuit, sous la pluie",
+    "ltxTag": "Prévis → prise",
+    "ltxTitle": "Ta prévis devient le plan.",
+    "ltxBody": "Filme ta maquette ; LTX tourne la prise avec le même mouvement de caméra. Devis d’abord : ≈ 15–30 cr. estimés.",
+    "capTag": "Capture → DÉCOR",
+    "capTitle": "Couleur, profondeur et traits, en un clic.",
+    "capBody": "Ton cadrage repart dans DÉCOR pour guider le rendu.",
+    "capAlt": "Capture d’un cadrage : couleur, profondeur, traits",
+    "capParts": {
+      "0": "Couleur",
+      "1": "Profondeur",
+      "2": "Traits"
+    },
+    "alsoTitle": "Aussi dans le studio",
+    "also": {
+      "guide": {
+        "name": "U*TTU, ton guide",
+        "body": "Gratuit et local ; agent Comfy en option, payé par ton compte."
+      },
+      "studio": {
+        "name": "Mon studio",
+        "body": "Tes projets en Markdown, lisibles dans Obsidian."
+      },
+      "quote": {
+        "name": "Un devis avant chaque crédit",
+        "body": "Chaque bouton payant annonce son coût et attend ton accord."
+      },
+      "langs": {
+        "name": "4 langues",
+        "body": "Français, English, Deutsch, Español."
+      }
+    },
+    "endTitle": "Entre, et tourne ton <em>premier plan</em>.",
+    "trust": {
+      "0": "Open source, licence MIT",
+      "1": "Ton compte Comfy, aucune clé gardée chez nous",
+      "2": "Rien ne part sans ta confirmation"
+    },
+    "foot": "U*TTU Studio · open source (MIT)",
+    "attrib": "Carte : © contributeurs OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo"
   },
   "guide": {
     "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",

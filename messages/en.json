@@ -32,29 +32,122 @@
   "landing": {
     "home": "U*TTU Studio — Home",
     "enter": "Enter the studio",
-    "before": "Direct your shot in 3D on your phone. ",
-    "em": "LTX films it.",
-    "pills": "Four gestures",
-    "theCut": "The cut",
-    "twoWays": "2 photos",
-    "yourPlace": "A set",
-    "theVideo": "3D previs → LTX",
-    "quiet": "The studio sells nothing. Renders are paid on your Comfy Cloud account.",
-    "alt": "The studio's 3D mock-up: two characters around a table, placed with a finger before the take.",
-    "caption": "Your 3D mock-up · LTX follows this camera move",
-    "contact": "Contact the studio ↗",
     "poweredBy": "Powered by ComfyUI",
     "poweredByLabel": "Powered by ComfyUI — comfy.org, new tab",
     "kicker": "Open-source AI film studio on ComfyUI",
-    "sub": "Open source (MIT). You see a quote before any credit is spent, and renders run on your own Comfy Cloud account.",
-    "tryFree": "Try free (0 credits)",
-    "tryFreeNote": "Getting-started guide, cost simulator and example renders, no account needed.",
-    "stepFinger": "Your finger sets the camera",
-    "stepQuote": "Quote first: ≈ 12–25 cr. estimated",
-    "stepFilm": "LTX films the shot",
-    "examples": "Example renders, made on Comfy Cloud",
-    "exCast": "Character",
-    "exSet": "Set"
+    "contact": "Contact the studio ↗",
+    "tryFree": "Try free · 0 credits"
+  },
+  "accueil": {
+    "kicker": "Open source · MIT · on ComfyUI",
+    "h1": "Your AI <em>film studio</em>, open source, on ComfyUI.",
+    "sub": "Create your characters and sets, scout a real place, stage your shot in 3D, then shoot and cut your film.",
+    "sub2": "Everything runs on your own Comfy account, with a quote before every credit.",
+    "caps": {
+      "0": "A character",
+      "1": "A close-up",
+      "2": "A set, a light",
+      "3": "A village at dawn",
+      "4": "Scout a real place"
+    },
+    "pause": "Pause the slideshow",
+    "play": "Play the slideshow",
+    "showEyebrow": "What you can create",
+    "showTitle": "Your characters, your sets, <em>your shots</em>.",
+    "showLead": "A character who keeps the same face from shot to shot, a set made from a text or a photo, a real place scouted on the map. All with ComfyUI models.",
+    "g1Tag": "CAST",
+    "g1": "One character, the same in every shot.",
+    "g1Alt": "Close-up of Uttu, hooded, with golden veins",
+    "g2Tag": "SET · TAKE",
+    "g2": "A set, a light, a move.",
+    "g2Alt": "A courier in a yellow jacket in an abandoned station, rays of light",
+    "g3Tag": "SCOUTING",
+    "g3": "A real place, seen from above.",
+    "g3Alt": "A Jura village and its Romanesque abbey at dawn, in the mist",
+    "fine": "Inspiration images, made for this page.",
+    "flowTitle": "One film, five tabs",
+    "flow": {
+      "cast": {
+        "name": "CAST",
+        "body": "Your characters, the same in every shot."
+      },
+      "decor": {
+        "name": "SET",
+        "body": "From a text, a photo or the map."
+      },
+      "prise": {
+        "name": "TAKE",
+        "body": "Stage it, shoot 5 s."
+      },
+      "montage": {
+        "name": "EDIT",
+        "body": "Shots, voice, music."
+      },
+      "finaliser": {
+        "name": "FINALISE",
+        "body": "Sharper, without remaking it."
+      }
+    },
+    "toolsTitle": "What you’ll only find <em>here</em>.",
+    "toolsLead": "Two free filmmaking tools, running in your browser. Rendering only comes after, and only when you confirm it.",
+    "inStudio": "In the studio",
+    "mapTag": "Scouting · 0 credits",
+    "mapTitle": "Scout a real place, anywhere.",
+    "mapBody": "Type a city or an address: it builds in 3D from open data. Fly around it, pick the time of day and the style, then capture your framing.",
+    "mapSpecs": {
+      "0": "OpenStreetMap",
+      "1": "real swisstopo roofs in Switzerland",
+      "2": "morning · noon · evening"
+    },
+    "mapAlt": "A Jura village at dawn, seen from above",
+    "stageTag": "3D staging · 0 credits",
+    "stageTitle": "Stage your shot, with a finger.",
+    "stageBody": "One sentence places your characters in front of your set. Drag them, turn the camera, film your previs.",
+    "stageSpecs": {
+      "0": "drag to place",
+      "1": "pinch to zoom",
+      "2": "keep the pose or the camera"
+    },
+    "stageAlt": "Uttu on a quay at night, in the rain",
+    "ltxTag": "Previs → take",
+    "ltxTitle": "Your previs becomes the shot.",
+    "ltxBody": "Film your mock-up; LTX shoots the take with the same camera move. Quote first: ≈ 15–30 cr. estimated.",
+    "capTag": "Capture → Set",
+    "capTitle": "Colour, depth and lines, in one click.",
+    "capBody": "Your framing goes back to Set to guide the render.",
+    "capAlt": "A captured framing: colour, depth, lines",
+    "capParts": {
+      "0": "Colour",
+      "1": "Depth",
+      "2": "Lines"
+    },
+    "alsoTitle": "Also in the studio",
+    "also": {
+      "guide": {
+        "name": "U*TTU, your guide",
+        "body": "Free and local; optional Comfy agent, paid by your account."
+      },
+      "studio": {
+        "name": "My studio",
+        "body": "Your projects in Markdown, readable in Obsidian."
+      },
+      "quote": {
+        "name": "A quote before every credit",
+        "body": "Every paid button shows its cost and waits for your OK."
+      },
+      "langs": {
+        "name": "4 languages",
+        "body": "Français, English, Deutsch, Español."
+      }
+    },
+    "endTitle": "Come in, and shoot your <em>first shot</em>.",
+    "trust": {
+      "0": "Open source, MIT licence",
+      "1": "Your own Comfy account, no key kept by us",
+      "2": "Nothing runs without your confirmation"
+    },
+    "foot": "U*TTU Studio · open source (MIT)",
+    "attrib": "Map: © OpenStreetMap contributors · OpenFreeMap · Terrain Tiles · © swisstopo"
   },
   "guide": {
     "look-photos": "Two photos, three at most. Front, then three-quarter. I weave the rest.",
@@ -1988,10 +2081,10 @@
     "captureOff": "Pick a place first.",
     "captureWait": "Wait until the city is built.",
     "captureFail": "The capture could not be saved. Try again.",
-    "captured": "Framing kept in My creations, under DÉCOR: colour, depth and lines, with the camera and the credits. It is placed in the references.",
+    "captured": "Framing kept in My creations, under Set: colour, depth and lines, with the camera and the credits. It is placed in the references.",
     "quote": "To turn it into a set: ≈ {credits} credits, estimated (cap {high}). Nothing runs without your confirmation.",
     "again": "Another framing",
-    "use": "See it in DÉCOR",
+    "use": "See it in Set",
     "viewLine": "Heading {heading}° · tilt {pitch}° · {focal} mm · camera at {height} m",
     "out": {
       "color": "Colour",

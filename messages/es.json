@@ -32,29 +32,122 @@
   "landing": {
     "home": "U*TTU Studio — Inicio",
     "enter": "Entrar al estudio",
-    "before": "Dirige tu plano en 3D en tu móvil. ",
-    "em": "LTX lo rueda.",
-    "pills": "Cuatro gestos",
-    "theCut": "El corte",
-    "twoWays": "2 fotos",
-    "yourPlace": "Un decorado",
-    "theVideo": "Previs 3D → LTX",
-    "quiet": "El estudio no vende nada. Los renders se pagan en tu cuenta de Comfy Cloud.",
-    "alt": "La maqueta 3D del estudio: dos personajes alrededor de una mesa, colocados con el dedo antes de la toma.",
-    "caption": "Tu maqueta 3D · LTX sigue este movimiento de cámara",
-    "contact": "Contactar el estudio ↗",
     "poweredBy": "Con tecnología de ComfyUI",
     "poweredByLabel": "Con tecnología de ComfyUI — comfy.org, pestaña nueva",
     "kicker": "Estudio de cine IA de código abierto en ComfyUI",
-    "sub": "Código abierto (MIT). Ves un presupuesto antes de gastar cualquier crédito, y los renders corren en tu propia cuenta de Comfy Cloud.",
-    "tryFree": "Probar gratis (0 créditos)",
-    "tryFreeNote": "Guía de inicio, simulador de costes y renders de ejemplo, sin cuenta.",
-    "stepFinger": "Tu dedo coloca la cámara",
-    "stepQuote": "Presupuesto antes: ≈ 12–25 cr. estimados",
-    "stepFilm": "LTX rueda el plano",
-    "examples": "Renders de ejemplo, hechos en Comfy Cloud",
-    "exCast": "Personaje",
-    "exSet": "Decorado"
+    "contact": "Contactar el estudio ↗",
+    "tryFree": "Probar gratis · 0 créditos"
+  },
+  "accueil": {
+    "kicker": "Código abierto · MIT · en ComfyUI",
+    "h1": "Tu <em>estudio de cine</em> IA, de código abierto, en ComfyUI.",
+    "sub": "Crea tus personajes y tus decorados, localiza un lugar real, pon en escena tu plano en 3D, y luego rueda y monta tu película.",
+    "sub2": "Todo pasa por tu propia cuenta de Comfy, con un presupuesto antes de cada crédito.",
+    "caps": {
+      "0": "Un personaje",
+      "1": "Un primer plano",
+      "2": "Un decorado, una luz",
+      "3": "Un pueblo al amanecer",
+      "4": "Localiza un lugar real"
+    },
+    "pause": "Pausar la presentación",
+    "play": "Reanudar la presentación",
+    "showEyebrow": "Lo que puedes crear",
+    "showTitle": "Tus personajes, tus decorados, <em>tus planos</em>.",
+    "showLead": "Un personaje que conserva su cara de un plano a otro, un decorado a partir de un texto o una foto, un lugar real localizado en el mapa. Todo con los modelos de ComfyUI.",
+    "g1Tag": "REPARTO",
+    "g1": "Un personaje, el mismo en cada plano.",
+    "g1Alt": "Primer plano de Uttu, con capucha y venas doradas",
+    "g2Tag": "DECORADO · TOMA",
+    "g2": "Un decorado, una luz, un movimiento.",
+    "g2Alt": "Un mensajero con chaqueta amarilla en una estación abandonada, rayos de luz",
+    "g3Tag": "LOCALIZACIÓN",
+    "g3": "Un lugar real, visto desde el cielo.",
+    "g3Alt": "Un pueblo del Jura y su abadía románica al amanecer, entre la niebla",
+    "fine": "Imágenes de inspiración, creadas para esta página.",
+    "flowTitle": "Una película, cinco pestañas",
+    "flow": {
+      "cast": {
+        "name": "REPARTO",
+        "body": "Tus personajes, los mismos en cada plano."
+      },
+      "decor": {
+        "name": "DECORADO",
+        "body": "Un texto, una foto o el mapa."
+      },
+      "prise": {
+        "name": "TOMA",
+        "body": "Pon en escena, rueda 5 s."
+      },
+      "montage": {
+        "name": "MONTAJE",
+        "body": "Planos, voz, música."
+      },
+      "finaliser": {
+        "name": "FINALIZAR",
+        "body": "Más nítido, sin rehacerlo todo."
+      }
+    },
+    "toolsTitle": "Lo que solo encuentras <em>aquí</em>.",
+    "toolsLead": "Dos herramientas de rodaje gratuitas, que funcionan en tu navegador. El render llega después, y solo si lo confirmas.",
+    "inStudio": "En el estudio",
+    "mapTag": "Localización · 0 créditos",
+    "mapTitle": "Localiza un lugar real, donde sea.",
+    "mapBody": "Escribe una ciudad o una dirección: se construye en 3D a partir de datos abiertos. Gira a su alrededor, elige la hora y el estilo, y captura tu encuadre.",
+    "mapSpecs": {
+      "0": "OpenStreetMap",
+      "1": "tejados reales de swisstopo en Suiza",
+      "2": "mañana · mediodía · tarde"
+    },
+    "mapAlt": "Un pueblo del Jura al amanecer, visto desde el cielo",
+    "stageTag": "Puesta en escena 3D · 0 créditos",
+    "stageTitle": "Pon en escena tu plano, con el dedo.",
+    "stageBody": "Una frase coloca a tus personajes delante de tu decorado. Arrástralos, gira la cámara, graba tu previs.",
+    "stageSpecs": {
+      "0": "arrastrar para colocar",
+      "1": "pellizcar para hacer zoom",
+      "2": "mantener la pose o la cámara"
+    },
+    "stageAlt": "Uttu en un andén, de noche, bajo la lluvia",
+    "ltxTag": "Previs → toma",
+    "ltxTitle": "Tu previs se convierte en el plano.",
+    "ltxBody": "Graba tu maqueta; LTX rueda la toma con el mismo movimiento de cámara. Primero el presupuesto: ≈ 15–30 cr. estimados.",
+    "capTag": "Captura → Decorado",
+    "capTitle": "Color, profundidad y trazos, en un clic.",
+    "capBody": "Tu encuadre vuelve a Decorado para guiar el render.",
+    "capAlt": "Un encuadre capturado: color, profundidad, trazos",
+    "capParts": {
+      "0": "Color",
+      "1": "Profundidad",
+      "2": "Trazos"
+    },
+    "alsoTitle": "También en el estudio",
+    "also": {
+      "guide": {
+        "name": "U*TTU, tu guía",
+        "body": "Gratis y local; agente Comfy opcional, pagado con tu cuenta."
+      },
+      "studio": {
+        "name": "Mi estudio",
+        "body": "Tus proyectos en Markdown, legibles en Obsidian."
+      },
+      "quote": {
+        "name": "Un presupuesto antes de cada crédito",
+        "body": "Cada botón de pago muestra su coste y espera tu OK."
+      },
+      "langs": {
+        "name": "4 idiomas",
+        "body": "Français, English, Deutsch, Español."
+      }
+    },
+    "endTitle": "Entra, y rueda tu <em>primer plano</em>.",
+    "trust": {
+      "0": "Código abierto, licencia MIT",
+      "1": "Tu cuenta de Comfy, no guardamos ninguna clave",
+      "2": "Nada se lanza sin tu confirmación"
+    },
+    "foot": "U*TTU Studio · código abierto (MIT)",
+    "attrib": "Mapa: © colaboradores de OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo"
   },
   "guide": {
     "look-photos": "Dos fotos, tres como máximo. De frente, luego tres cuartos. Yo tejo el resto.",
@@ -1988,10 +2081,10 @@
     "captureOff": "Primero elige un lugar.",
     "captureWait": "Espera a que la ciudad esté construida.",
     "captureFail": "No se pudo guardar la captura. Inténtalo de nuevo.",
-    "captured": "Encuadre guardado en Mis creaciones, en DÉCOR: color, profundidad y líneas, con la cámara y los créditos. Está colocado en las referencias.",
+    "captured": "Encuadre guardado en Mis creaciones, en Decorado: color, profundidad y líneas, con la cámara y los créditos. Está colocado en las referencias.",
     "quote": "Para convertirlo en decorado: ≈ {credits} créditos estimados (tope {high}). Nada se lanza sin tu confirmación.",
     "again": "Otro encuadre",
-    "use": "Ver en DÉCOR",
+    "use": "Ver en Decorado",
     "viewLine": "Rumbo {heading}° · inclinación {pitch}° · {focal} mm · cámara a {height} m",
     "out": {
       "color": "Color",
