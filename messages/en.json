@@ -2792,7 +2792,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Your studio guide · free, no AI model",
+    "sub": "Your studio guide · free by default, Comfy agent optional",
     "button": "U*TTU",
     "openAria": "Open or close U*TTU, your studio guide",
     "welcome": "Hi, I’m Uttu. I help you get started, answer your questions about the studio and estimate what your renders cost. Everything happens on this device: I send nothing and spend nothing.",
@@ -2811,7 +2811,7 @@
       "free": "What is free?",
       "cancel": "Can I cancel a render?"
     },
-    "notFound": "I can’t answer that from my local sheet, and I’d rather say so than make something up. Try other words, or look at the guide and the estimator below. A fuller Comfy agent, running on your Comfy account, is in the works.",
+    "notFound": "I can’t answer that from my local sheet, and I’d rather say so than make something up. Try other words, or look at the guide and the estimator below. With a linked Comfy account, you can also switch to Comfy agent mode, paid by your account.",
     "planHint": "That sounds like an action to prepare in your project. I’m passing it to the production plan below: check it, then tap “Prepare my plan”.",
     "planButton": "Go to the production plan",
     "seeAlso": "See also:",
@@ -2944,9 +2944,9 @@
         "a": "I’m Uttu, the U*TTU studio guide. I explain the steps, answer common questions and estimate costs. For an action in your project, I hand over to the production plan."
       },
       "agent": {
-        "q": "Is a fuller agent coming?",
+        "q": "Is there a fuller agent?",
         "k": "agent paid comfy fuller free conversation future soon",
-        "a": "Yes: a fuller Comfy agent, able to understand free-form requests, is in the works. It will run on your Comfy account, and its cost will show before each send. Until then I stay free and local."
+        "a": "Yes: Comfy agent mode understands free-form requests. It runs on your linked Comfy account, each message is paid by your account, and its estimated cost shows before the first send. The agent launches nothing: it suggests an action, you click. Without a linked account, I stay free and local."
       },
       "openWeights": {
         "q": "What are open models?",
@@ -2988,6 +2988,39 @@
       "suite-parler": "make talk, talking",
       "img-klein": "image, quick image",
       "3d-ouvert": "3d, 3d object"
+    },
+    "comfy": {
+      "mode": "U*TTU mode",
+      "free": "Free · no model",
+      "paid": "Comfy agent · ≈ {cost} cr. estimated per message",
+      "paidNote": "Comfy agent on: each message goes through your Comfy account (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps no key. The agent launches nothing: you click, after the usual quote.",
+      "paidNoteSession": "Comfy agent on: each message goes through your Comfy sign-in (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps nothing of your account on its servers: your Comfy session stays in this browser. The agent launches nothing: you click, after the usual quote.",
+      "invite": "Want an agent that answers in its own words? Link your Comfy account: each message costs ≈ {cost} cr. estimated at most, paid by your account. Without a linked account, U*TTU stays free.",
+      "inviteButton": "Link my Comfy account",
+      "gateTitle": "Before your first paid message",
+      "gateBody": "Each message to the Comfy agent is billed to your Comfy account: ≈ {cost} cr. estimated at most, often less. The agent launches no render: it suggests an action, you click, and the usual quote shows before any spend. Your consent lasts for this session.",
+      "accept": "I accept, send",
+      "decline": "Stay free",
+      "thinking": "U*TTU is thinking on your Comfy account…",
+      "send": "Send (paid)",
+      "spent": "≈ {cost} cr. estimated for this message",
+      "spentMax": "≈ {cost} cr. estimated at most for this message",
+      "local": "Computed by the studio, no paid call.",
+      "openTool": "Open the {name} tool",
+      "toolCost": "≈ {low}–{high} cr. estimated per run",
+      "counter": "{n}/{max} characters",
+      "errors": {
+        "auth": "Your Comfy account refuses the connection. Link it again (API key or Comfy sign-in), then resend your message.",
+        "credits": "Not enough credits on your Comfy account. Top it up on Comfy Cloud, then try again. Nothing was launched.",
+        "subscription": "Your Comfy account has no access to this model: check your Comfy Cloud subscription. Free mode is still here meanwhile.",
+        "busy": "Comfy is very busy for your account right now. Wait a few seconds and resend your message.",
+        "invalid": "This message could not be processed. Shorten it or rephrase it.",
+        "refused": "The model declined to answer this message. Rephrase it, or switch to free mode.",
+        "network": "Comfy is not answering. Check your connection and try again; free mode works offline.",
+        "timeout": "Comfy took too long to answer. Try again in a moment.",
+        "failed": "The Comfy agent could not answer. Try again, or switch to free mode."
+      },
+      "welcome": "Comfy agent mode: I answer in my own words, from the studio sheet only, and each message is paid by your Comfy account. I launch nothing: I suggest an action, you click."
     }
   }
 }

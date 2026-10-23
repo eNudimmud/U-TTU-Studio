@@ -2792,7 +2792,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Tu guía del estudio · gratis, sin modelo de IA",
+    "sub": "Tu guía del estudio · gratis por defecto, agente Comfy opcional",
     "button": "U*TTU",
     "openAria": "Abrir o cerrar U*TTU, tu guía del estudio",
     "welcome": "Hola, soy Uttu. Te ayudo a empezar, respondo tus preguntas sobre el estudio y estimo lo que cuestan tus renders. Todo pasa en este dispositivo: no envío nada y no gasto nada.",
@@ -2811,7 +2811,7 @@
       "free": "¿Qué es gratis?",
       "cancel": "¿Puedo cancelar un render?"
     },
-    "notFound": "No sé responder a eso con mi ficha local, y prefiero decírtelo antes que inventar. Prueba con otras palabras, o mira la guía y el estimador de abajo. Se está preparando un agente Comfy más completo, que funcionará con tu cuenta Comfy.",
+    "notFound": "No sé responder a eso con mi ficha local, y prefiero decírtelo antes que inventar. Prueba con otras palabras, o mira la guía y el estimador de abajo. Con una cuenta Comfy vinculada, también puedes pasar al modo Agente Comfy, pagado por tu cuenta.",
     "planHint": "Eso parece una acción para preparar en tu proyecto. La paso al plan de producción de abajo: revísala y luego toca «Preparar mi plan».",
     "planButton": "Ir al plan de producción",
     "seeAlso": "Ver también:",
@@ -2944,9 +2944,9 @@
         "a": "Soy Uttu, el guía del estudio U*TTU. Te explico los pasos, respondo las preguntas frecuentes y estimo costes. Para una acción en tu proyecto, paso el testigo al plan de producción."
       },
       "agent": {
-        "q": "¿Llega un agente más completo?",
+        "q": "¿Hay un agente más completo?",
         "k": "agente pago comfy completo conversación libre futuro pronto",
-        "a": "Sí: se está preparando un agente Comfy más completo, que entenderá peticiones libres. Funcionará con tu cuenta Comfy, y su coste se mostrará antes de cada envío. Mientras tanto sigo siendo gratis y local."
+        "a": "Sí: el modo Agente Comfy entiende peticiones libres. Funciona con tu cuenta Comfy vinculada, cada mensaje lo paga tu cuenta y su coste estimado se muestra antes del primer envío. El agente no lanza nada: te propone una acción y tú haces clic. Sin cuenta vinculada, sigo siendo gratis y local."
       },
       "openWeights": {
         "q": "¿Qué son los modelos abiertos?",
@@ -2988,6 +2988,39 @@
       "suite-parler": "hacer hablar",
       "img-klein": "imagen, imagen rapida",
       "3d-ouvert": "3d, objeto 3d"
+    },
+    "comfy": {
+      "mode": "Modo de U*TTU",
+      "free": "Gratis · sin modelo",
+      "paid": "Agente Comfy · ≈ {cost} cr. estimados por mensaje",
+      "paidNote": "Agente Comfy activo: cada mensaje pasa por tu cuenta Comfy (GPT-5 Nano vía Comfy Router). El estudio no paga nada y no guarda tu clave. El agente no lanza nada: tú haces clic, tras el presupuesto habitual.",
+      "paidNoteSession": "Agente Comfy activo: cada mensaje pasa por tu sesión de Comfy (GPT-5 Nano vía Comfy Router). El estudio no paga nada y no guarda nada de tu cuenta en sus servidores: tu sesión de Comfy se queda en este navegador. El agente no lanza nada: tú haces clic, tras el presupuesto habitual.",
+      "invite": "¿Quieres un agente que responda con sus palabras? Vincula tu cuenta Comfy: cada mensaje cuesta como mucho ≈ {cost} cr. estimados, pagados por tu cuenta. Sin cuenta vinculada, U*TTU sigue gratis.",
+      "inviteButton": "Vincular mi cuenta Comfy",
+      "gateTitle": "Antes de tu primer mensaje de pago",
+      "gateBody": "Cada mensaje al agente Comfy se cobra en tu cuenta Comfy: como mucho ≈ {cost} cr. estimados, a menudo menos. El agente no lanza ningún render: te propone una acción, tú haces clic y el presupuesto habitual aparece antes de cualquier gasto. Tu acuerdo vale para esta sesión.",
+      "accept": "Acepto, enviar",
+      "decline": "Seguir gratis",
+      "thinking": "U*TTU está pensando en tu cuenta Comfy…",
+      "send": "Enviar (de pago)",
+      "spent": "≈ {cost} cr. estimados para este mensaje",
+      "spentMax": "como mucho ≈ {cost} cr. estimados para este mensaje",
+      "local": "Calculado por el estudio, sin llamada de pago.",
+      "openTool": "Abrir la herramienta {name}",
+      "toolCost": "≈ {low}–{high} cr. estimados por lanzamiento",
+      "counter": "{n}/{max} caracteres",
+      "errors": {
+        "auth": "Tu cuenta Comfy rechaza la conexión. Vincúlala de nuevo (clave API o acceso Comfy) y vuelve a enviar tu mensaje.",
+        "credits": "No hay créditos suficientes en tu cuenta Comfy. Recárgala en Comfy Cloud y vuelve a intentarlo. No se lanzó nada.",
+        "subscription": "Tu cuenta Comfy no tiene acceso a este modelo: revisa tu suscripción de Comfy Cloud. Mientras tanto, el modo gratis sigue aquí.",
+        "busy": "Comfy está muy ocupado para tu cuenta ahora mismo. Espera unos segundos y vuelve a enviar tu mensaje.",
+        "invalid": "No se pudo procesar este mensaje. Acórtalo o reformúlalo.",
+        "refused": "El modelo no quiso responder a este mensaje. Reformúlalo o pasa al modo gratis.",
+        "network": "Comfy no responde. Revisa tu conexión y vuelve a intentarlo; el modo gratis funciona sin conexión.",
+        "timeout": "Comfy tardó demasiado en responder. Vuelve a intentarlo en un momento.",
+        "failed": "El agente Comfy no pudo responder. Vuelve a intentarlo o pasa al modo gratis."
+      },
+      "welcome": "Modo agente Comfy: respondo con mis palabras, solo a partir de la ficha del estudio, y cada mensaje lo paga tu cuenta Comfy. No lanzo nada: te propongo una acción y tú haces clic."
     }
   }
 }

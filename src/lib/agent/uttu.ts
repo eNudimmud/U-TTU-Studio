@@ -317,6 +317,9 @@ export function simulateText(k: Knowledge, locale: UttuLocale, text: string): Si
   return simulate(picks, unknown.filter(Boolean));
 }
 
+/** The visitor asks about a price (« combien », "cost", « Kosten »…), not only names items. */
+export const asksCost = (text: string) => COST_WORDS.test(fold(text));
+
 export function formatCr(locale: UttuLocale, value: number): string {
   return new Intl.NumberFormat(locale === "en" ? "en-GB" : locale, { maximumFractionDigits: 1 }).format(value);
 }
