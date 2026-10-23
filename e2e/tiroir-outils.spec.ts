@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// The burger drawer (below 1024 px): the tool list scrolls on its own, the footer
+// The burger drawer (below 1024 px), on the left: the tool list scrolls on its own, the footer
 // (tasks, U*TTU, language) stays pinned at the bottom and never covers a tool,
 // and a family is one list with no empty heading gap.
 
@@ -32,6 +32,7 @@ for (const [width, height] of SIZES) {
           lastClear: items.at(-1)!.bottom <= foot.top,
           targets: [...root.querySelectorAll("a, button, select")].map(item => item.getBoundingClientRect()).filter(r => r.width && r.height).every(r => r.height >= 44 && r.width >= 44),
           overflow: document.documentElement.scrollWidth > innerWidth,
+          onLeft: Math.abs(drawerBox.left) <= 1 && drawerBox.right < innerWidth - 1,
         };
       }, pos);
       expect(result.scrolls).toBe(true);
@@ -40,6 +41,7 @@ for (const [width, height] of SIZES) {
       if (pos === "bottom") expect(result.lastClear).toBe(true);
       expect(result.targets).toBe(true);
       expect(result.overflow).toBe(false);
+      expect(result.onLeft).toBe(true);
     }
     for (const sel of ["[data-top-tasks]", "[data-drawer-assistant]", ".u-drawer-foot select"]) await expect(drawer.locator(sel)).toBeInViewport({ ratio: 1 });
   });

@@ -1575,8 +1575,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-palette-body a, .u-assistant-list a { display: grid; gap: 2px; min-height: 44px; padding: 8px 10px; border-radius: 10px; color: var(--fg); text-decoration: none; }
 .u-palette-body a:hover, .u-palette-body a:focus-visible, .u-assistant-list a:hover { background: var(--hover); outline: none; }
 .u-palette-body a span, .u-assistant-list a span { font-size: 12px; color: var(--fg-2); }
-/* Drawer (below 1024 px): fixed head, the list scrolls on its own, the footer stays pinned at the bottom and never covers the list. */
-.u-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: min(360px, 92vw); height: 100%; display: flex; flex-direction: column; background: var(--bg); border-left: 1px solid var(--u-line); overflow: hidden; }
+/* Drawer (below 1024 px), on the left: fixed head, the list scrolls on its own, the footer stays pinned at the bottom and never covers the list. */
+.u-drawer { position: absolute; top: 0; left: 0; right: auto; bottom: 0; width: min(360px, 92vw); height: 100%; display: flex; flex-direction: column; background: var(--bg); border-right: 1px solid var(--u-line); overflow: hidden; animation: u-drawer-in .22s ease-out both; }
+@keyframes u-drawer-in { from { transform: translateX(-100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .u-drawer { animation: none; } }
 .u-drawer-head { flex: 0 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 12px 12px 4px; }
 .u-drawer-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 4px 12px 32px; scroll-padding-bottom: 32px; }
 .u-drawer-head .u-proj { flex: 1 1 auto; }
