@@ -98,6 +98,18 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
   const [advanced, setAdvanced] = useState(false);
+  // « Maquette 3D et cadrage » (the 3D row of Outils) lands on #prise/maquette: unfold AVANCÉ and the maquette.
+  const [maquetteAsk, setMaquetteAsk] = useState(0);
+  useEffect(() => {
+    const apply = () => {
+      if (!/^#prise\/maquette\b/.test(window.location.hash)) return;
+      setAdvanced(true);
+      setMaquetteAsk(value => value + 1);
+    };
+    apply();
+    window.addEventListener("hashchange", apply);
+    return () => window.removeEventListener("hashchange", apply);
+  }, []);
   const { format, setFormat } = useFormat();
   // P1 · production memory and intention overrides (per plan, this session).
   const [memory, setMemory] = useState<ProductionMemory | null>(null);
@@ -935,7 +947,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <summary>{t("p0.advanced")}</summary>
         {!demo && withTake === 0 && canMonter && <button type="button" className="u-secondary" data-envoyer-montage="" data-image-fixe="" onClick={() => void monter()}>{t("p0.monterStill")}</button>}
         {/* AVANCÉ is short collapsed groups; the gestures that do not need the maquette live in Outils. */}
-        <AvanceGroup id="maquette" title={t("p0.groups.maquette")}>
+        <AvanceGroup id="maquette" title={t("p0.groups.maquette")} ask={maquetteAsk}>
         <div className="u-maquette-avance" data-maquette-avance="">
       <MaquetteView
           state={{ ...maquette, props: maquette.props?.map(prop => ({ ...prop, url: prop.source ? media[prop.source] : undefined })) }}
@@ -1258,10 +1270,17 @@ function MemoirePanel({ memory, planId, t }: { memory: ProductionMemory; planId:
 
 // One AVANCÉ group: a real button (aria-expanded) instead of a nested <summary>, which Safari did not toggle on tap.
 // The content stays mounted while closed so the maquette, the engine choice and the prévis keep their state.
-function AvanceGroup({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+function AvanceGroup({ id, title, children, ask = 0 }: { id: string; title: string; children: ReactNode; ask?: number }) {
   const [open, setOpen] = useState(false);
   const bodyId = `u-avance-${id}`;
-  return <section className="u-fold u-avance-group" data-avance-group={id} data-open={open ? "" : undefined}>
+  const groupRef = useRef<HTMLElement>(null);
+  // A link asked for this group: open it and bring it into view.
+  useEffect(() => {
+    if (!ask) return;
+    setOpen(true);
+    requestAnimationFrame(() => groupRef.current?.scrollIntoView({ block: "start" }));
+  }, [ask]);
+  return <section ref={groupRef} className="u-fold u-avance-group" data-avance-group={id} data-open={open ? "" : undefined}>
     <button type="button" className="u-fold-head" data-avance-toggle={id} aria-expanded={open} aria-controls={bodyId} onClick={event => { setOpen(current => !current); event.currentTarget.scrollIntoView({ block: "nearest" }); }}>{title}</button>
     <div id={bodyId} className="u-avance-body" hidden={!open}>{children}</div>
   </section>;

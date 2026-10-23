@@ -10,7 +10,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { FAMILLES, cherche, familleVitrine, intentDe, outilParId, outilRow, outilsPublics, type Famille, type Outil } from "@/lib/outils/catalogue";
 import { routePrompt } from "@/lib/outils/route";
-import { REPERAGE_ID, UTTU_PORTRAIT, UTTU_PORTRAIT_WIDE, vignette } from "@/lib/outils/vignettes";
+import { MAQUETTE_HASH, MAQUETTE_ID, REPERAGE_ID, UTTU_PORTRAIT, UTTU_PORTRAIT_WIDE, vignette } from "@/lib/outils/vignettes";
 import { assetPath } from "@/lib/site";
 import { FamilyIcon, scrollToFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
@@ -25,6 +25,12 @@ export function openStudioTool(id: string | null) {
 
 function rememberPrompt(text: string) {
   try { sessionStorage.setItem("u-ttu-consigne", text); } catch { /* the tool still opens */ }
+}
+
+/** Opens PRISE with its maquette unfolded (free until the take is filmed). */
+export function openMaquette() {
+  if (window.location.hash !== MAQUETTE_HASH) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${MAQUETTE_HASH}`);
+  window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
 
 export function goFilm() {
@@ -83,7 +89,8 @@ export function StudioHome() {
   const needle = query.trim();
   const shown = cards.filter(item => !needle || cherche(`${titre(t, item.id)} ${ligne(t, item.id)} ${t(`outils.fam.${familleVitrine(item)}`)}`, query));
   const scout = !needle || cherche(`${t(`outils.t.${REPERAGE_ID}.title`)} ${t(`outils.t.${REPERAGE_ID}.line`)} ${t("outils.fam.3d")}`, query);
-  const total = shown.length + (scout ? 1 : 0);
+  const maquette = !needle || cherche(`${t(`outils.t.${MAQUETTE_ID}.title`)} ${t(`outils.t.${MAQUETTE_ID}.line`)} ${t("outils.fam.3d")}`, query);
+  const total = shown.length + (scout ? 1 : 0) + (maquette ? 1 : 0);
   const quote = routeQuote(t, text);
 
   return <section className="u-entry" data-studio-entry="" data-outils-hub="" aria-labelledby="u-title">
@@ -132,33 +139,34 @@ export function StudioHome() {
       </label>
       <p className="eyebrow" aria-live="polite" data-outils-count={shown.length}>{total ? t("outils.count", { n: String(total) }) : t("outils.none")}</p>
     </div>
-    {FAMILLES.map(fam => <Family key={fam} fam={fam} items={shown.filter(item => familleVitrine(item) === fam)} scout={fam === "3d" && scout} />)}
+    {FAMILLES.map(fam => <Family key={fam} fam={fam} items={shown.filter(item => familleVitrine(item) === fam)} scout={fam === "3d" && scout} maquette={fam === "3d" && maquette} />)}
   </section>;
 }
 
-function Family({ fam, items, scout }: { fam: Famille; items: Outil[]; scout: boolean }) {
+function Family({ fam, items, scout, maquette }: { fam: Famille; items: Outil[]; scout: boolean; maquette: boolean }) {
   const { t } = useI18n();
   const [all, setAll] = useState(false);
   const rowId = useId();
-  const count = items.length + (scout ? 1 : 0);
+  const count = items.length + (scout ? 1 : 0) + (maquette ? 1 : 0);
   if (count === 0) return null;
   return <section className="u-outils-family" data-outils-section={fam} aria-labelledby={`${rowId}-h`}>
     <div className="u-family-head">
       <h2 id={`${rowId}-h`} tabIndex={-1}>{t(`outils.fam.${fam}`)} <span className="u-family-n">{count}</span></h2>
-      {count > 3 && <button type="button" className="u-family-all" aria-expanded={all} aria-controls={rowId} data-family-all={fam} onClick={() => setAll(value => !value)}>{all ? t("outils.rowLess") : t("outils.rowAll")}</button>}
+      {count > 2 && <button type="button" className="u-family-all" aria-expanded={all} aria-controls={rowId} data-family-all={fam} onClick={() => setAll(value => !value)}>{all ? t("outils.rowLess") : t("outils.rowAll")}</button>}
     </div>
     <div id={rowId} className="u-outils-row" data-all={all ? "" : undefined}>
       {items.map(item => <ToolCard key={item.id} outil={item} />)}
+      {maquette && <MaquetteCard />}
       {scout && <ScoutCard />}
     </div>
   </section>;
 }
 
 /** The thumbnail of a card: a real house render, or a quiet wave for sound. */
-export function CardThumb({ id, fam }: { id: string; fam: Famille | "reperage" }) {
+export function CardThumb({ id, fam }: { id: string; fam: Famille | "reperage" | "maquette" }) {
   const src = vignette(intentDe(id));
   return <span className="u-outil-thumb" aria-hidden="true">
-    {src ? <img src={assetPath(src)} alt="" width={480} height={300} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam} /></span>}
+    {src ? <img src={assetPath(src)} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
   </span>;
 }
 
@@ -184,6 +192,16 @@ function ScoutCard() {
     <CardThumb id={REPERAGE_ID} fam="reperage" />
     <span className="u-outil-name">{t(`outils.t.${REPERAGE_ID}.title`)}</span>
     <span className="u-outil-line">{t(`outils.t.${REPERAGE_ID}.line`)}</span>
+    <span className="u-outil-cost u-cost-est">{t("rep3d.free")}</span>
+  </button>;
+}
+
+function MaquetteCard() {
+  const { t } = useI18n();
+  return <button type="button" className="u-outil-card" data-outil-maquette="" data-etat="pret" onClick={openMaquette}>
+    <CardThumb id={MAQUETTE_ID} fam="maquette" />
+    <span className="u-outil-name">{t(`outils.t.${MAQUETTE_ID}.title`)}</span>
+    <span className="u-outil-line">{t(`outils.t.${MAQUETTE_ID}.line`)}</span>
     <span className="u-outil-cost u-cost-est">{t("rep3d.free")}</span>
   </button>;
 }

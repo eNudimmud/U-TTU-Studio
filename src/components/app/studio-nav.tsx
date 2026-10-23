@@ -73,7 +73,7 @@ function useCounts() {
   return useMemo(() => {
     const counts = Object.fromEntries(FAMILLES.map(fam => [fam, 0])) as Record<Famille, number>;
     for (const item of outilsPublics(prefs)) counts[familleVitrine(item)] += 1;
-    counts["3d"] += 1; // « Repérer un lieu » sits in the 3D row.
+    counts["3d"] += 2; // « Maquette 3D et cadrage » and « Repérer un lieu » sit in the 3D row.
     return counts;
   }, [prefs]);
 }

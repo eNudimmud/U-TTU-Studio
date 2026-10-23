@@ -110,3 +110,29 @@ Les dépendances et leur version exacte sont conservées dans `package-lock.json
 La PR #109 remplace les quatre décors `decor-quai-nuit`, `decor-rue-pluie`, `decor-toit-aube` et `decor-gare`, et ajoute `cast-uttu-planche.webp`. Les fichiers sont conservés tels quels dans les branches d’audit. Leur source déclarée dans le manifeste v4 est FLUX 3 Image Klein via Comfy Cloud pour les décors, et Nano Banana Pro pour la planche d’Uttu (badge NEUKO retouché par l’auteur). Ces indications proviennent de la mise à jour utilisateur ; aucun nouveau rendu ni paiement n’a été effectué par l’audit.
 
 Le [manifeste courant](../public/exemples/manifest.json) fait foi pour ces fichiers ; le tableau Seedream ci-dessus décrit leur version historique.
+
+## Données cartographiques — Repérer un lieu
+
+Le repérage 3D et la carte affichent des données ouvertes. Elles ne sont pas générées et ne coûtent aucun crédit.
+
+| Donnée | Source | Licence / mention |
+| --- | --- | --- |
+| Rues, bâtiments, noms de lieux | [OpenStreetMap](https://www.openstreetmap.org/copyright) | © les contributeurs d’OpenStreetMap, [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) |
+| Tuiles vectorielles | [OpenFreeMap](https://openfreemap.org) | OpenFreeMap · © OpenMapTiles ; tuiles BSD-3 / CC-BY 4.0 (schéma OpenMapTiles), données © OpenStreetMap |
+| Relief | [Terrain Tiles (Mapzen, AWS Open Data)](https://registry.opendata.aws/terrain-tiles/) | Sources ouvertes (USGS SRTM / GMTED / 3DEP, Copernicus EU-DEM, NOAA ETOPO1 et autres) : [mentions complètes](https://github.com/tilezen/joerd/blob/master/docs/attribution.md) |
+| Données suisses | [swisstopo](https://www.swisstopo.admin.ch/fr/conditions-utilisation-geodonnees-et-geoservices-gratuit) | © swisstopo, OGD (usage libre, source obligatoire) |
+| Bâtiments 3D en Suisse | [swissBUILDINGS3D](https://www.swisstopo.admin.ch/fr/modele-du-territoire-swissbuildings3d-2-0) | Bâtiments : swissBUILDINGS3D © swisstopo, OGD (usage libre, source obligatoire) |
+| Recherche d’un lieu | [Photon (komoot)](https://photon.komoot.io) | Géocodage sur les données © OpenStreetMap (ODbL) |
+| Photos de rue | [Panoramax](https://panoramax.fr) | Licence et auteur de chaque photo affichés ; seules les licences ouvertes identifiées (CC0, CC-BY, CC-BY-SA, etalab-2.0) peuvent être copiées dans un projet |
+
+Les mêmes mentions sont listées dans `src/lib/repere3d/sources.ts`, affichées sur la carte du studio et enregistrées avec chaque capture. La capture `scripts/brand/vignettes-sources/reperage-trait.webp` (Romainmôtier, rendu « Trait + ombres ») montre ces données : elle hérite des mêmes mentions.
+
+## Vignettes des outils (2026-10-23)
+
+Les 37 vignettes de `public/exemples/vignettes/` sont composées par `scripts/brand/make_vignettes.py` (Pillow + ffmpeg, 640×400 webp). Aucune image n’est générée et aucun crédit n’est dépensé. Le script ne lit que des fichiers du dépôt.
+
+- **Rendu réel du modèle de la carte :** `img-klein` (`decor-gare`, FLUX 3 Image Klein), `img-seedream` (`decor-piece`, Seedream 4.5), `img-nano` (`apres-decor-texte`, Nano Banana 2.1), `ret-modifier` (vrai couple Comfy : `avant-decor-heure` → `apres-decor-heure`, Nano Banana 2.1 edit).
+- **Capture réelle du studio :** `reperage` (repérage 3D, données ci-dessus) et `maquette` (maquette PRISE, deux silhouettes sur le décor du quai).
+- **Signe, en attente d’un rendu :** toutes les autres cartes montrent l’entrée réelle (texte, photo, son, clip) et un signe doré de ce que fait l’outil (cadre, ▶ + barre de temps, cadre pointillé, forme d’onde). Elles ne montrent aucun résultat qu’un modèle n’a pas produit. Les formes d’onde sont dessinées, pas extraites d’un son généré.
+- `scripts/brand/vignettes-sources/avant-decor-heure.webp` est la version de `decor-rue-pluie.webp` d’avant #109 (Seedream 4.5), l’entrée réelle de `apres-decor-heure`.
+- `public/exemples/outils/plan-exemple.mp4` est un mouvement de caméra sur une image fixe, pas un rendu d’un modèle vidéo : ses images servent seulement d’entrée (clip donné).

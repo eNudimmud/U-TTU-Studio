@@ -2434,6 +2434,10 @@
       "reperage": {
         "title": "Ort erkunden",
         "line": "Wähle einen Punkt auf der Weltkarte, sieh ihn in 3D oder auf Strassenhöhe, behalte deine Aufnahmen für die Kulisse."
+      },
+      "maquette": {
+        "title": "3D-Modell und Bildausschnitt",
+        "line": "Stell deine Figuren mit dem Finger auf, wähl den Kamerawinkel und dreh dann die Einstellung. Kostenlos bis zum Rendern."
       }
     },
     "latest": "Neueste Ergebnisse",

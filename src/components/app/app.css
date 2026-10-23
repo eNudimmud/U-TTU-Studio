@@ -1430,7 +1430,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-outils-strip[open] { padding-bottom: 12px; }
 .u-outils-strip-body { display: grid; gap: 8px; }
 .u-outils-strip-body > .u-secondary { width: auto; justify-self: start; min-height: 44px; margin-top: 8px; }
-.u-avance-group { margin: 8px 0; }
+.u-avance-group { margin: 8px 0; scroll-margin-top: 76px; }
 .u-outils-strip-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .u-outils-strip-head .u-secondary { width: auto; min-height: 44px; }
 .u-outils-work { display: grid; gap: 12px; max-width: 1280px; margin: 0 auto; width: 100%; }
