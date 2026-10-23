@@ -785,3 +785,11 @@ La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une 
 - Aucun lien de l’interface ne menait à `/compte`, `/sign-in` ni `/sign-up`, et le studio ne lit jamais de session. Le studio, Mon studio, le coffre Obsidian et la clé Comfy n’en dépendent pas.
 - Retirés : les trois pages, `src/components/account/`, `clerk-config`, `clerk-appearance`, `account.ts`, `studio-shell.tsx`, les paquets `@clerk/*`, `docs/AUTH.md`, les lignes Clerk de `.env.example`. `src/proxy.ts` reste : il sert les médias Comfy.
 - Les anciens liens `#compte` mènent au studio. Les clés Clerk éventuellement posées sur Vercel ne servent plus.
+
+## 2026-10-23 — Connexion Comfy : la page de connexion de Comfy d'abord, la clé en secours
+
+- « Se connecter avec Comfy » ouvre la vraie page de connexion de Comfy (`/cloud/login`), servie sur l'origine du studio par `src/proxy.ts`. Comfy y range sa session dans l'IndexedDB de cette origine ; `src/lib/render/session.ts` la lit (garde-fous `link-epoch`) et l'envoie en Bearer par le relais. La fiche guette cette session toute seule (focus + toutes les 2 s) et se relie sans clé.
+- Avant : cette connexion n'était possible que dans la Sphère intégrée, retirée par la refonte compacte (708fbe9). « Session déjà ouverte » ne trouvait donc jamais rien pour un nouveau visiteur.
+- OAuth « Sign in with Comfy » testé le 23.10 : `cloud.comfy.org/oauth/register` refuse `https://u-ttu-studio.vercel.app` (client natif : « must be http loopback or a reverse-DNS custom scheme » ; client web : « host is not in the configured allowlist »). Aucun client créé. Il faudrait que Comfy ajoute l'hôte à sa liste.
+- Clé API en secours : lien direct `platform.comfy.org/profile/api-keys?onboarding=router`, « Coller ma clé », validation dès qu'une clé `comfyui-` est collée, messages distincts (refusée, abonnement, crédits, réseau).
+- Fragilité connue : la connexion dépend du front Comfy servi par le proxy et de `vercel.app` dans les domaines autorisés du Firebase de Comfy (vérifié le 23.10).

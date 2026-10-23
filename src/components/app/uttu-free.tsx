@@ -12,7 +12,7 @@ const LOG_KEY = "u-ttu-uttu-log";
 const label = (item: SimItem) => item.kind === "gesture" ? `${item.group} · ${item.title}` : item.title;
 const COMFY_CLOUD = "https://cloud.comfy.org/";
 const COMFY_PRICING = "https://www.comfy.org/cloud/pricing";
-const COMFY_KEYS = "https://platform.comfy.org/login";
+const COMFY_KEYS = "https://platform.comfy.org/profile/api-keys?onboarding=router";
 
 let cache: Promise<Knowledge> | null = null;
 function loadKnowledge(): Promise<Knowledge> {

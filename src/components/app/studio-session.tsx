@@ -78,6 +78,7 @@ const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO = /\.(mp4|webm|mov)$/i;
 
 import { renderCredentialScope } from "@/lib/render/client";
+import { connectMessage } from "@/lib/render/connect";
 import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
 import { createMediaClient } from "@/lib/media/cloud";
 import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
@@ -1526,9 +1527,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     try {
       await candidate.user();
     } catch (error) {
-      if (error instanceof RenderError && error.code === "auth") return t("sheet.keyRefused");
-      if (error instanceof RenderError && error.code === "network") return t("sheet.keyNetwork");
-      return t("sheet.keyUnchecked");
+      return t(`sheet.${connectMessage(error instanceof RenderError ? error.code : null)}`);
     }
     const next: RenderLink = { mode: "key", key };
     saveRenderLink(localStorage, next);

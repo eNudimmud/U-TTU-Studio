@@ -1951,6 +1951,26 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 /* Fenêtre « Connecter mon compte Comfy » : l'erreur s'affiche dans la fenêtre, sous « Relier ». */
 .u-connect-error { margin: 10px 0 0; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--danger, #e06c5a) 60%, transparent); border-radius: var(--radius-control); color: var(--danger, #e06c5a); background: color-mix(in srgb, var(--danger, #e06c5a) 10%, transparent); }
 .u-connect-error[hidden] { display: none; }
+/* « Connecter mon compte Comfy » : connexion Comfy d'abord, clé en secours. Cibles de 44 px minimum. */
+.u-connect-block { display: grid; gap: 8px; margin-top: 12px; }
+.u-connect-block .u-small { margin: 0; }
+.u-connect-key { padding-top: 12px; border-top: 1px solid var(--u-line); }
+.u-connect-or { margin: 0; font-size: 15px; color: var(--fg); }
+.u-connect-wait { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; color: var(--accent); font-size: 14px; }
+.u-connect-steps { display: grid; gap: 6px; margin: 0; padding-left: 22px; list-style: decimal outside; font-size: 14px; }
+.u-connect-steps li::marker { color: var(--accent); font-weight: 600; }
+.u-connect-out { display: inline-flex; align-items: center; min-height: 44px; color: var(--link); text-decoration: none; }
+.u-connect-form { display: grid; gap: 8px; }
+.u-connect-input { display: flex; gap: 6px; align-items: stretch; }
+.u-connect-input input { flex: 1; min-width: 0; min-height: 44px; }
+.u-connect-eye { min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid var(--control); border-radius: var(--radius-control); background: transparent; color: var(--fg); font-size: 13px; cursor: pointer; }
+.u-connect-eye[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.u-connect-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.u-connect-actions > * { min-height: 44px; }
+@media (max-width: 360px) { .u-connect-actions { grid-template-columns: 1fr; } }
+.u-connect-error a { color: inherit; font-weight: 600; }
+.u-connect-links { display: grid; gap: 0; margin: 10px 0 0; padding: 0; list-style: none; font-size: 14px; }
+.u-connect-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--link); text-decoration: none; }
 /* Sur écran large, les fenêtres sont centrées et défilent au lieu d'être coupées en bas. */
 @media (min-width: 721px) { .u-native-sheet { inset: 0; margin: auto; max-height: min(88dvh, calc(100dvh - 32px)); overflow-y: auto; } }
 @media (max-width: 720px) { .u-native-sheet { max-height: calc(100dvh - 16px); overflow-y: auto; } }

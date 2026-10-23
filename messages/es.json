@@ -542,7 +542,28 @@
     "keyRefused": "Comfy no reconoce esta clave. Revísala y vuelve a intentarlo.",
     "keyNetwork": "Comfy no responde. Revisa tu conexión a internet y vuelve a intentarlo.",
     "keyUnchecked": "Comfy no ha podido comprobar esta clave. Vuelve a intentarlo en un momento.",
-    "sessionExpired": "Tu sesión de Comfy ha caducado. Vuelve a conectarte."
+    "sessionExpired": "Tu sesión de Comfy ha caducado. Vuelve a conectarte.",
+    "loginButton": "Iniciar sesión con Comfy",
+    "loginHint": "La página de inicio de sesión de Comfy se abre al lado: Google, GitHub o correo, y el registro si aún no tienes cuenta. Inicia sesión y vuelve aquí: el estudio se conecta solo.",
+    "loginWaiting": "Espero a que inicies sesión en la página de Comfy…",
+    "loginStop": "Dejar de esperar",
+    "loginMissing": "No encuentro ninguna sesión de Comfy en este estudio. Toca « Iniciar sesión con Comfy » o pega una clave API.",
+    "orKey": "O con una clave API de Comfy",
+    "keyStep1": "Abre tu página de claves de Comfy, toca « + New » y llámala U*TTU.",
+    "keyOpen": "Abrir mi página de claves",
+    "keyStep2": "Copia la clave (empieza por comfyui-) y pégala aquí: la compruebo enseguida. Se queda en este dispositivo.",
+    "pasteButton": "Pegar mi clave",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "showKey": "Mostrar la clave",
+    "hideKey": "Ocultar la clave",
+    "noAccount": "¿Aún no tienes cuenta? Créala en Comfy Cloud",
+    "subscriptionNote": "La API de Comfy necesita una suscripción de pago: ver precios",
+    "pricingLink": "Ver los precios de Comfy Cloud",
+    "keySubscription": "Comfy reconoce tu cuenta, pero no tiene una suscripción activa para la API. Elige un plan de pago y vuelve a intentarlo.",
+    "keyCredits": "Comfy reconoce tu cuenta, pero ya no le quedan créditos. Recárgala en Comfy Cloud y vuelve a intentarlo.",
+    "clipboardDenied": "Tu navegador no ha dado acceso al portapapeles. Pega la clave en el campo (mantén pulsado y luego Pegar).",
+    "clipboardEmpty": "No encuentro ninguna clave de Comfy en tu portapapeles. Cópiala en tu página de claves y vuelve a intentarlo."
   },
   "memory": {
     "title": "Este proyecto",
@@ -2816,9 +2837,9 @@
         "body": "Cada suscripción incluye créditos. Puedes comprar más cuando quieras en tu cuenta Comfy (Settings → Plans & Credits). El estudio no vende nada."
       },
       "key": {
-        "title": "Pega aquí tu clave API",
-        "body": "Crea una clave en platform.comfy.org (API Keys → + New) y cópiala enseguida: solo se muestra una vez. Se queda en este dispositivo.",
-        "link": "Crear una clave API",
+        "title": "Conecta tu cuenta de Comfy",
+        "body": "Lo más sencillo: « Iniciar sesión con Comfy », sin clave que copiar. Si no, crea una clave en tu página de claves de Comfy (+ New, llámala U*TTU) y pégala aquí: se queda en este dispositivo.",
+        "link": "Abrir mi página de claves",
         "button": "Conectar mi cuenta Comfy"
       }
     },

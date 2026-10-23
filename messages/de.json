@@ -542,7 +542,28 @@
     "keyRefused": "Comfy erkennt diesen Schlüssel nicht. Prüf ihn und versuch es noch einmal.",
     "keyNetwork": "Comfy antwortet nicht. Prüf deine Internetverbindung und versuch es noch einmal.",
     "keyUnchecked": "Comfy konnte diesen Schlüssel nicht prüfen. Versuch es gleich noch einmal.",
-    "sessionExpired": "Deine Comfy-Sitzung ist abgelaufen. Melde dich erneut an."
+    "sessionExpired": "Deine Comfy-Sitzung ist abgelaufen. Melde dich erneut an.",
+    "loginButton": "Mit Comfy anmelden",
+    "loginHint": "Die Anmeldeseite von Comfy öffnet sich daneben: Google, GitHub oder E-Mail, und die Registrierung, falls du noch kein Konto hast. Melde dich an und komm dann hierher zurück: Das Studio verbindet sich von selbst.",
+    "loginWaiting": "Ich warte auf deine Anmeldung auf der Comfy-Seite…",
+    "loginStop": "Nicht mehr warten",
+    "loginMissing": "Ich finde keine Comfy-Sitzung in diesem Studio. Tippe auf « Mit Comfy anmelden » oder füge einen API-Schlüssel ein.",
+    "orKey": "Oder mit einem Comfy-API-Schlüssel",
+    "keyStep1": "Öffne deine Comfy-Schlüsselseite, tippe auf « + New » und nenne ihn U*TTU.",
+    "keyOpen": "Meine Schlüsselseite öffnen",
+    "keyStep2": "Kopiere den Schlüssel (er beginnt mit comfyui-) und füge ihn hier ein: Ich prüfe ihn sofort. Er bleibt auf diesem Gerät.",
+    "pasteButton": "Schlüssel einfügen",
+    "show": "Zeigen",
+    "hide": "Verbergen",
+    "showKey": "Schlüssel zeigen",
+    "hideKey": "Schlüssel verbergen",
+    "noAccount": "Noch kein Konto? Erstelle es auf Comfy Cloud",
+    "subscriptionNote": "Die Comfy-API braucht ein kostenpflichtiges Abo: Preise ansehen",
+    "pricingLink": "Comfy-Cloud-Preise ansehen",
+    "keySubscription": "Comfy erkennt dein Konto, aber es hat kein aktives Abo für die API. Wähle ein kostenpflichtiges Abo und versuch es dann erneut.",
+    "keyCredits": "Comfy erkennt dein Konto, aber es hat keine Credits mehr. Lade es auf Comfy Cloud auf und versuch es dann erneut.",
+    "clipboardDenied": "Dein Browser hat den Zugriff auf die Zwischenablage nicht erlaubt. Füge den Schlüssel ins Feld ein (lange drücken, dann Einfügen).",
+    "clipboardEmpty": "Ich finde keinen Comfy-Schlüssel in deiner Zwischenablage. Kopiere ihn auf deiner Schlüsselseite und versuch es dann erneut."
   },
   "memory": {
     "title": "Dieses Projekt",
@@ -2816,9 +2837,9 @@
         "body": "Jedes Abo enthält Credits. Du kannst jederzeit in deinem Comfy-Konto nachkaufen (Settings → Plans & Credits). Das Studio verkauft nichts."
       },
       "key": {
-        "title": "Füg hier deinen API-Schlüssel ein",
-        "body": "Erstell einen Schlüssel auf platform.comfy.org (API Keys → + New) und kopier ihn sofort: Er wird nur einmal angezeigt. Er bleibt auf diesem Gerät.",
-        "link": "API-Schlüssel erstellen",
+        "title": "Verbinde dein Comfy-Konto",
+        "body": "Am einfachsten: « Mit Comfy anmelden », ohne Schlüssel zum Kopieren. Sonst erstelle einen Schlüssel auf deiner Comfy-Schlüsselseite (+ New, nenne ihn U*TTU) und füge ihn hier ein: Er bleibt auf diesem Gerät.",
+        "link": "Meine Schlüsselseite öffnen",
         "button": "Mein Comfy-Konto verbinden"
       }
     },
