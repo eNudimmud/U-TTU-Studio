@@ -124,7 +124,7 @@ function MainNav({ place, drawer = false, onPick }: { place: Place; drawer?: boo
   const current = (here: Place) => place === here ? "page" as const : undefined;
   return <ul className="u-top-links" role="list">
     <li><a href={assetPath("/")} onClick={onPick} aria-current={current("accueil")}>{t("top.home")}</a></li>
-    <li><Dropdown id="creer" label={t("top.create")} current={place === "creer"} drawer={drawer}>{close => <CreerMenu onPick={() => { close(); onPick?.(); }} />}</Dropdown></li>
+    <li><Dropdown id="creer" label={t("top.create")} current={place === "creer"} drawer={drawer}>{close => <CreerMenu drawer={drawer} onPick={() => { close(); onPick?.(); }} />}</Dropdown></li>
     <li><Dropdown id="film" label={t("top.film")} current={place === "realiser" || place === "montage"} drawer={drawer}>{close => <FilmMenu onPick={() => { close(); onPick?.(); }} />}</Dropdown></li>
     <li><Dropdown id="creations" label={t("top.creations")} current={place === "creations"} drawer={drawer}>{close => <CreationsMenu onPick={() => { close(); onPick?.(); }} />}</Dropdown></li>
   </ul>;
@@ -151,7 +151,7 @@ function FilmMenu({ onPick }: { onPick(): void }) {
   </ul>;
 }
 
-function CreerMenu({ onPick }: { onPick(): void }) {
+function CreerMenu({ onPick, drawer = false }: { onPick(): void; drawer?: boolean }) {
   const { t } = useI18n();
   const { prefs } = useStudio();
   const cards = outilsPublics(prefs);
@@ -159,7 +159,8 @@ function CreerMenu({ onPick }: { onPick(): void }) {
     <div className="u-mega-cols">
       {FAMILLES.flatMap(fam => {
         const items = cards.filter(item => familleVitrine(item) === fam);
-        return colonnes(items, 8).map((col, index) => <section key={`${fam}-${index}`} className="u-mega-col" aria-label={index === 0 ? t(`outils.fam.${fam}`) : undefined}>
+        // In the drawer a family is one list: split columns would leave an empty heading gap.
+        return colonnes(items, drawer ? Math.max(items.length, 1) : 8).map((col, index) => <section key={`${fam}-${index}`} className="u-mega-col" aria-label={index === 0 ? t(`outils.fam.${fam}`) : undefined}>
           <h2>{index === 0 ? t(`outils.fam.${fam}`) : "\u00a0"}</h2>
           <ul role="list">
             {col.map(item => <li key={item.id}><MegaItem outil={item} onPick={onPick} /></li>)}

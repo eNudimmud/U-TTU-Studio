@@ -19,5 +19,8 @@ export function vignette(id: string): string | null {
 }
 
 /** Uttu, the studio's character: the canon portrait, cropped so only she is in frame. */
+// Uttu, HD portrait v2 (2026-10-23): 600 × 900 and 960 × 1440 upright, 600 × 375 and 1200 × 750 wide.
 export const UTTU_PORTRAIT = "/images/uttu-portrait.webp";
+export const UTTU_PORTRAIT_HD = "/images/uttu-portrait-960.webp";
 export const UTTU_PORTRAIT_WIDE = "/images/uttu-portrait-large.webp";
+export const UTTU_PORTRAIT_WIDE_HD = "/images/uttu-portrait-large-1200.webp";

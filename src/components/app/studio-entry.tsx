@@ -10,7 +10,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { FAMILLES, cherche, familleVitrine, intentDe, outilParId, outilRow, outilsPublics, type Famille, type Outil } from "@/lib/outils/catalogue";
 import { routePrompt } from "@/lib/outils/route";
-import { REPERAGE_ID, UTTU_PORTRAIT, UTTU_PORTRAIT_WIDE, vignette } from "@/lib/outils/vignettes";
+import { REPERAGE_ID, UTTU_PORTRAIT, UTTU_PORTRAIT_HD, UTTU_PORTRAIT_WIDE, UTTU_PORTRAIT_WIDE_HD, vignette } from "@/lib/outils/vignettes";
 import { assetPath } from "@/lib/site";
 import { FamilyIcon, scrollToFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
@@ -111,8 +111,8 @@ export function StudioHome() {
       </header>
       <figure className="u-hero-uttu" data-entry-uttu="">
         <picture>
-          <source media="(max-width: 899px)" srcSet={assetPath(UTTU_PORTRAIT_WIDE)} width={600} height={375} />
-          <img src={assetPath(UTTU_PORTRAIT)} alt={t("entry.uttuAlt")} width={600} height={900} decoding="async" fetchPriority="high" />
+          <source media="(max-width: 899px)" srcSet={`${assetPath(UTTU_PORTRAIT_WIDE)} 600w, ${assetPath(UTTU_PORTRAIT_WIDE_HD)} 1200w`} sizes="100vw" width={600} height={375} />
+          <img src={assetPath(UTTU_PORTRAIT)} srcSet={`${assetPath(UTTU_PORTRAIT)} 600w, ${assetPath(UTTU_PORTRAIT_HD)} 960w`} sizes="(min-width: 900px) 420px, 100vw" alt={t("entry.uttuAlt")} width={600} height={900} decoding="async" fetchPriority="high" />
         </picture>
         <figcaption>Uttu</figcaption>
       </figure>

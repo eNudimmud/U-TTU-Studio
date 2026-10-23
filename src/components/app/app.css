@@ -46,7 +46,6 @@
 .u-mark { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: var(--fg); }
 .u-top-tools { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .u-tool-short { display: none; }
-.u-drawer-lang { display: none; }
 @media (max-width: 799px) {
   .u-top { flex-wrap: nowrap; gap: 8px; padding: 6px 10px; min-height: 56px; }
   .u-mark { gap: 6px; flex: 0 0 auto; }
@@ -57,7 +56,6 @@
   .u-tool-label, .u-tool-full { display: none; }
   .u-tool-short { display: inline; letter-spacing: .04em; }
   .u-coffre, .u-credit { min-width: 44px; justify-content: center; padding-inline: 10px; }
-  .u-drawer-lang { display: block; }
 }
 .u-credit { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--u-line-strong); border-radius: var(--radius-control); background: transparent; }
 .u-credit strong { font: 600 14px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--fg); }
@@ -365,7 +363,6 @@
   .u-head h1 { font-size: 44px; }
   .u-board { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
   .u-prise-grid { grid-template-columns: minmax(180px, 280px) minmax(0, 1fr); align-items: start; }
-  .u-drawer-panel { width: min(460px, 100%); margin-left: auto; height: 100%; max-height: 100%; border-radius: 0; border-left: 1px solid var(--u-line); }
   .u-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .u-plateau { display: none; }
   .u-rail-coffre { display: none; }
@@ -401,11 +398,6 @@
 .u-person, .u-place { display: grid; gap: 10px; align-content: start; padding: 12px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); }
 .u-place[data-selected="true"] { border-color: var(--u-gold); }
 .u-pick-row small { color: var(--u-sand); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
-.u-drawer { position: fixed; inset: 0; z-index: 70; display: flex; }
-.u-drawer-back { flex: 1 1 auto; min-width: 0; min-height: 44px; border: 0; background: rgba(15, 15, 17, .62); }
-.u-drawer-panel { width: 100%; height: 100%; overflow: auto; padding: 16px 18px calc(24px + var(--u-safe)); background: var(--surface); border-left: 1px solid var(--u-line); }
-.u-drawer-body { display: grid; gap: 22px; }
-.u-drawer-body h3 { margin: 0; }
 .u-decor-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .u-decor-card { position: relative; display: grid; gap: 8px; align-content: start; padding: 8px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); }
 .u-decor-card[data-selected="true"] { border-color: var(--u-gold); box-shadow: inset 0 0 0 1px var(--u-gold); }
@@ -1583,8 +1575,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-palette-body a, .u-assistant-list a { display: grid; gap: 2px; min-height: 44px; padding: 8px 10px; border-radius: 10px; color: var(--fg); text-decoration: none; }
 .u-palette-body a:hover, .u-palette-body a:focus-visible, .u-assistant-list a:hover { background: var(--hover); outline: none; }
 .u-palette-body a span, .u-assistant-list a span { font-size: 12px; color: var(--fg-2); }
-.u-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: min(360px, 92vw); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 8px; padding: 12px; background: var(--bg); border-left: 1px solid var(--u-line); overflow-y: auto; }
-.u-drawer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+/* Drawer (below 1024 px): fixed head, the list scrolls on its own, the footer stays pinned at the bottom and never covers the list. */
+.u-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: min(360px, 92vw); height: 100%; display: flex; flex-direction: column; background: var(--bg); border-left: 1px solid var(--u-line); overflow: hidden; }
+.u-drawer-head { flex: 0 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 12px 12px 4px; }
+.u-drawer-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 4px 12px 32px; scroll-padding-bottom: 32px; }
 .u-drawer-head .u-proj { flex: 1 1 auto; }
 .u-drawer-nav .u-top-links { flex-direction: column; align-items: stretch; }
 .u-drawer-nav .u-top-links > li > a, .u-drawer-nav .u-dd-toggle { width: 100%; justify-content: space-between; font-size: 16px; }
@@ -1597,8 +1591,13 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-lien.u-fold .u-avance-body { display: grid; gap: 10px; padding-bottom: 12px; }
 .u-lien.u-fold .u-avance-body[hidden] { display: none; }
 .u-empty .u-primary { min-height: 44px; display: inline-flex; align-items: center; }
-.u-drawer-foot { display: grid; gap: 8px; }
-.u-drawer-foot .u-secondary { min-height: 44px; }
+.u-drawer-foot { flex: 0 0 auto; position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 10px 12px calc(10px + var(--u-safe)); border-top: 1px solid var(--u-line); background: var(--surface); }
+.u-drawer-foot .u-secondary { flex: 1 1 auto; min-width: 0; min-height: 44px; }
+.u-drawer-foot .u-tasks { flex: 0 0 auto; }
+.u-drawer-foot .u-tasks .u-top-icon { min-width: 44px; min-height: 44px; }
+.u-drawer-foot .u-tasks .u-tool-label { display: none; }
+.u-drawer-foot .u-lang { flex: 0 0 auto; }
+.u-drawer-foot .u-tasks-panel { top: auto; bottom: calc(100% + 8px); left: 0; right: auto; width: min(336px, calc(92vw - 24px)); max-height: 60dvh; }
 /* Assistant on the right, on every page. From 1600 px the page makes room for it;
    below, it floats over the page (closable) so CAST, the gallery and the stages are never squeezed or cut. */
 .u-assistant { position: fixed; z-index: 45; top: 64px; right: 0; bottom: 0; width: 320px; display: flex; flex-direction: column; gap: 12px; padding: 14px; border-left: 1px solid var(--u-line); background: var(--bg); overflow-y: auto; }
