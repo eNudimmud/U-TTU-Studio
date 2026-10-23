@@ -42,7 +42,7 @@ function readLog(): Turn[] {
 
 export function UttuFree({ locale, isAction, onPlan }: { locale: UttuLocale; isAction(text: string): boolean; onPlan(text: string): void }) {
   const { t } = useI18n();
-  const { connected, setSheet, agentAuth } = useStudio();
+  const { connected, setSheet, agentAuth, linkMode } = useStudio();
   const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
   const [failed, setFailed] = useState(false);
   const [log, setLog] = useState<Turn[]>([]);
@@ -169,7 +169,7 @@ export function UttuFree({ locale, isAction, onPlan }: { locale: UttuLocale; isA
       <p className="u-small">{t("uttu.comfy.invite", { cost })}</p>
       <button type="button" className="u-secondary" data-uttu-invite-connect="" onClick={() => setSheet("connect")}>{t("uttu.comfy.inviteButton")}</button>
     </div>}
-    {comfy && <p className="u-small" data-uttu-paid-note="">{t("uttu.comfy.paidNote")}</p>}
+    {comfy && <p className="u-small" data-uttu-paid-note="">{t(linkMode === "session" ? "uttu.comfy.paidNoteSession" : "uttu.comfy.paidNote")}</p>}
     {comfy && held !== null && <div className="u-uttu-gate" ref={gateRef} role="alertdialog" aria-labelledby="u-uttu-gate-title" data-uttu-gate="">
       <strong id="u-uttu-gate-title">{t("uttu.comfy.gateTitle")}</strong>
       <p className="u-small">{t("uttu.comfy.gateBody", { cost })}</p>

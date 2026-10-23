@@ -2993,6 +2993,7 @@
       "free": "Free · no model",
       "paid": "Comfy agent · ≈ {cost} cr. estimated per message",
       "paidNote": "Comfy agent on: each message goes through your Comfy account (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps no key. The agent launches nothing: you click, after the usual quote.",
+      "paidNoteSession": "Comfy agent on: each message goes through your Comfy sign-in (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps nothing of your account on its servers: your Comfy session stays in this browser. The agent launches nothing: you click, after the usual quote.",
       "invite": "Want an agent that answers in its own words? Link your Comfy account: each message costs ≈ {cost} cr. estimated at most, paid by your account. Without a linked account, U*TTU stays free.",
       "inviteButton": "Link my Comfy account",
       "gateTitle": "Before your first paid message",

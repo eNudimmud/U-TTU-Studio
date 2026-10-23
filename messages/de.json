@@ -2993,6 +2993,7 @@
       "free": "Kostenlos · ohne Modell",
       "paid": "Comfy-Agent · ≈ {cost} Cr. geschätzt pro Nachricht",
       "paidNote": "Comfy-Agent aktiv: Jede Nachricht läuft über dein Comfy-Konto (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert deinen Schlüssel nicht. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
+      "paidNoteSession": "Comfy-Agent aktiv: Jede Nachricht läuft über deine Comfy-Anmeldung (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert nichts von deinem Konto auf seinen Servern: Deine Comfy-Sitzung bleibt in diesem Browser. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
       "invite": "Lust auf einen Agenten, der in eigenen Worten antwortet? Verbinde dein Comfy-Konto: Jede Nachricht kostet höchstens ≈ {cost} Cr. geschätzt, bezahlt von deinem Konto. Ohne verbundenes Konto bleibt U*TTU kostenlos.",
       "inviteButton": "Mein Comfy-Konto verbinden",
       "gateTitle": "Vor deiner ersten kostenpflichtigen Nachricht",

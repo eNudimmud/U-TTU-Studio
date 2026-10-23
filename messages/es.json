@@ -2993,6 +2993,7 @@
       "free": "Gratis · sin modelo",
       "paid": "Agente Comfy · ≈ {cost} cr. estimados por mensaje",
       "paidNote": "Agente Comfy activo: cada mensaje pasa por tu cuenta Comfy (GPT-5 Nano vía Comfy Router). El estudio no paga nada y no guarda tu clave. El agente no lanza nada: tú haces clic, tras el presupuesto habitual.",
+      "paidNoteSession": "Agente Comfy activo: cada mensaje pasa por tu sesión de Comfy (GPT-5 Nano vía Comfy Router). El estudio no paga nada y no guarda nada de tu cuenta en sus servidores: tu sesión de Comfy se queda en este navegador. El agente no lanza nada: tú haces clic, tras el presupuesto habitual.",
       "invite": "¿Quieres un agente que responda con sus palabras? Vincula tu cuenta Comfy: cada mensaje cuesta como mucho ≈ {cost} cr. estimados, pagados por tu cuenta. Sin cuenta vinculada, U*TTU sigue gratis.",
       "inviteButton": "Vincular mi cuenta Comfy",
       "gateTitle": "Antes de tu primer mensaje de pago",

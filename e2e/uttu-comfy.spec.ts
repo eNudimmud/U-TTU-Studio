@@ -55,6 +55,7 @@ for (const viewport of VIEWPORTS) {
     await paid.click();
     await expect(paid).toHaveAttribute("aria-pressed", "true");
     await expect(panel.locator("[data-uttu-paid-note]")).toBeVisible();
+    await expect(panel.locator("[data-uttu-paid-note]")).toContainText("ne garde pas ta clé");
 
     const input = panel.locator("[data-uttu-input]");
     await input.fill("Je veux trois prises de la scène du quai");
@@ -162,4 +163,27 @@ test("Agent Comfy parle allemand avec du", async ({ page }, testInfo) => {
   await expect(lastReply(panel)).toContainText("Verbinde zuerst");
   await expect(lastReply(panel).locator("[data-uttu-spent]")).toHaveText("höchstens ≈ 0,16 Cr. geschätzt für diese Nachricht");
   expect(calls[0].postDataJSON().locale).toBe("de");
+});
+
+test("Agent Comfy relié par la connexion Comfy (sans clé) : la note ne parle pas de clé, l'appel part en Bearer", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Desktop only");
+  await simulateComfy(page);
+  // Linked through « Se connecter avec Comfy »: Comfy's Firebase user sits in this origin's localStorage.
+  await page.addInitScript(() => {
+    localStorage.setItem("u-ttu-rendu", JSON.stringify({ mode: "session" }));
+    localStorage.setItem("firebase:authUser:AIzaTest_key-1:[DEFAULT]", JSON.stringify({ uid: "u1", apiKey: "AIzaTest_key-1", stsTokenManager: { refreshToken: "r1", accessToken: "jwt.test", expirationTime: Date.now() + 3_600_000 } }));
+    window.sessionStorage.setItem("u-ttu-uttu-comfy-ok", "1");
+  });
+  const calls = await mockChat(page, [{ json: { reply: "Bienvenue sur le studio.", action: { kind: "none", tool: null, request: null }, credits: 0.03, measured: true } }]);
+  const panel = await openPanel(page);
+  await panel.locator("[data-uttu-mode-pick=comfy]").click();
+  const note = panel.locator("[data-uttu-paid-note]");
+  await expect(note).toContainText("ta connexion Comfy");
+  await expect(note).not.toContainText("clé");
+  await panel.locator("[data-uttu-input]").fill("Bonjour");
+  await panel.locator("[data-uttu-send]").click();
+  await expect(lastReply(panel)).toContainText("Bienvenue");
+  expect(calls.length).toBe(1);
+  expect(calls[0].headers()["authorization"]).toBe("Bearer jwt.test");
+  expect(calls[0].headers()["x-api-key"]).toBeUndefined();
 });
