@@ -6,8 +6,8 @@
   },
   "skip": "Zum Inhalt",
   "meta": {
-    "title": "U*TTU Studio — Deine Figur, als Video",
-    "description": "Besetzung, Kulisse, Take, Schnitt. Zwei Fotos, ein Ort, ein Video auf deinem Konto."
+    "title": "U*TTU Studio — Open-Source-KI-Filmstudio auf ComfyUI",
+    "description": "Inszeniere deine Einstellung in 3D auf deinem Handy, LTX dreht sie. Open Source (MIT), ein Kostenvoranschlag vor jedem Credit, Renders auf deinem eigenen Comfy-Cloud-Konto."
   },
   "nav": {
     "character": "Besetzung",
@@ -32,19 +32,122 @@
   "landing": {
     "home": "U*TTU Studio — Start",
     "enter": "Studio öffnen",
-    "before": "Dreh deine Figur in einer Szene, ",
-    "em": "als Video.",
-    "pills": "Vier Gesten",
-    "theCut": "Der Schnitt",
-    "twoWays": "2 Fotos",
-    "yourPlace": "Eine Kulisse",
-    "theVideo": "Das Video",
-    "quiet": "Das Studio verkauft nichts. Der Render wird auf deinem Cloud-Konto bezahlt.",
-    "alt": "Studio-Vorschau: Einstellung 01 am Kai bei Nacht, die Figuren, der Satz „Die Kurierin geht den Kai entlang, Handkamera“, was das Studio verstanden hat, und der Hinweis des Assistenten.",
-    "caption": "Das Studio · eine Einstellung, ihre Vorschau, ihre Kosten",
-    "contact": "Studio kontaktieren ↗",
     "poweredBy": "Powered by ComfyUI",
-    "poweredByLabel": "Powered by ComfyUI — comfy.org, neuer Tab"
+    "poweredByLabel": "Powered by ComfyUI — comfy.org, neuer Tab",
+    "kicker": "Open-Source-KI-Filmstudio auf ComfyUI",
+    "contact": "Studio kontaktieren ↗",
+    "tryFree": "Kostenlos testen · 0 Credits"
+  },
+  "accueil": {
+    "kicker": "Open Source · MIT · auf ComfyUI",
+    "h1": "Dein KI-<em>Filmstudio</em>, Open Source, auf ComfyUI.",
+    "sub": "Erschaffe deine Figuren und Kulissen, erkunde einen echten Ort, inszeniere deine Einstellung in 3D, dann dreh und schneide deinen Film.",
+    "sub2": "Alles läuft über dein eigenes Comfy-Konto, mit einer Kalkulation vor jedem Credit.",
+    "caps": {
+      "0": "Eine Figur",
+      "1": "Eine Nahaufnahme",
+      "2": "Eine Kulisse, ein Licht",
+      "3": "Ein Dorf im Morgengrauen",
+      "4": "Erkunde einen echten Ort"
+    },
+    "pause": "Diashow anhalten",
+    "play": "Diashow fortsetzen",
+    "showEyebrow": "Was du erschaffen kannst",
+    "showTitle": "Deine Figuren, deine Kulissen, <em>deine Einstellungen</em>.",
+    "showLead": "Eine Figur, die ihr Gesicht von Einstellung zu Einstellung behält, eine Kulisse aus einem Text oder einem Foto, ein echter Ort, auf der Karte erkundet. Alles mit den Modellen von ComfyUI.",
+    "g1Tag": "BESETZUNG",
+    "g1": "Eine Figur, dieselbe in jeder Einstellung.",
+    "g1Alt": "Nahaufnahme von Uttu, mit Kapuze und goldenen Adern",
+    "g2Tag": "KULISSE · TAKE",
+    "g2": "Eine Kulisse, ein Licht, eine Bewegung.",
+    "g2Alt": "Ein Kurier in gelber Jacke in einem verlassenen Bahnhof, Lichtstrahlen",
+    "g3Tag": "ERKUNDUNG",
+    "g3": "Ein echter Ort, von oben gesehen.",
+    "g3Alt": "Ein Juradorf mit seiner romanischen Abtei im Morgengrauen, im Nebel",
+    "fine": "Inspirationsbilder, für diese Seite erstellt.",
+    "flowTitle": "Ein Film, fünf Tabs",
+    "flow": {
+      "cast": {
+        "name": "BESETZUNG",
+        "body": "Deine Figuren, dieselben in jeder Einstellung."
+      },
+      "decor": {
+        "name": "KULISSE",
+        "body": "Aus einem Text, einem Foto oder der Karte."
+      },
+      "prise": {
+        "name": "TAKE",
+        "body": "Inszenieren, 5 s drehen."
+      },
+      "montage": {
+        "name": "SCHNITT",
+        "body": "Einstellungen, Stimme, Musik."
+      },
+      "finaliser": {
+        "name": "FINALISIEREN",
+        "body": "Schärfer, ohne alles neu zu machen."
+      }
+    },
+    "toolsTitle": "Was du nur <em>hier</em> findest.",
+    "toolsLead": "Zwei kostenlose Drehwerkzeuge, die in deinem Browser laufen. Das Rendern kommt erst danach, und nur, wenn du es bestätigst.",
+    "inStudio": "Im Studio",
+    "mapTag": "Erkundung · 0 Credits",
+    "mapTitle": "Erkunde einen echten Ort, überall.",
+    "mapBody": "Gib eine Stadt oder eine Adresse ein: Sie entsteht in 3D aus offenen Daten. Flieg um sie herum, wähl Tageszeit und Stil, dann halte deinen Ausschnitt fest.",
+    "mapSpecs": {
+      "0": "OpenStreetMap",
+      "1": "echte swisstopo-Dächer in der Schweiz",
+      "2": "Morgen · Mittag · Abend"
+    },
+    "mapAlt": "Ein Juradorf im Morgengrauen, von oben gesehen",
+    "stageTag": "3D-Inszenierung · 0 Credits",
+    "stageTitle": "Inszeniere deine Einstellung, mit dem Finger.",
+    "stageBody": "Ein Satz stellt deine Figuren vor deine Kulisse. Verschieb sie, dreh die Kamera, film deine Previs.",
+    "stageSpecs": {
+      "0": "ziehen zum Platzieren",
+      "1": "aufziehen zum Zoomen",
+      "2": "Pose oder Kamera behalten"
+    },
+    "stageAlt": "Uttu nachts auf einem Bahnsteig, im Regen",
+    "ltxTag": "Previs → Take",
+    "ltxTitle": "Deine Previs wird zur Einstellung.",
+    "ltxBody": "Film dein 3D-Modell; LTX dreht den Take mit derselben Kamerabewegung. Erst die Kalkulation: ≈ 15–30 Cr. geschätzt.",
+    "capTag": "Aufnahme → Kulisse",
+    "capTitle": "Farbe, Tiefe und Linien, mit einem Klick.",
+    "capBody": "Dein Ausschnitt geht zurück in die Kulisse und lenkt das Rendern.",
+    "capAlt": "Ein festgehaltener Ausschnitt: Farbe, Tiefe, Linien",
+    "capParts": {
+      "0": "Farbe",
+      "1": "Tiefe",
+      "2": "Linien"
+    },
+    "alsoTitle": "Außerdem im Studio",
+    "also": {
+      "guide": {
+        "name": "U*TTU, dein Guide",
+        "body": "Kostenlos und lokal; Comfy-Agent optional, bezahlt über dein Konto."
+      },
+      "studio": {
+        "name": "Mein Studio",
+        "body": "Deine Projekte in Markdown, lesbar in Obsidian."
+      },
+      "quote": {
+        "name": "Eine Kalkulation vor jedem Credit",
+        "body": "Jeder kostenpflichtige Button nennt seinen Preis und wartet auf dein OK."
+      },
+      "langs": {
+        "name": "4 Sprachen",
+        "body": "Français, English, Deutsch, Español."
+      }
+    },
+    "endTitle": "Komm rein und dreh deine <em>erste Einstellung</em>.",
+    "trust": {
+      "0": "Open Source, MIT-Lizenz",
+      "1": "Dein Comfy-Konto, bei uns wird kein Schlüssel gespeichert",
+      "2": "Nichts läuft ohne deine Bestätigung"
+    },
+    "foot": "U*TTU Studio · Open Source (MIT)",
+    "attrib": "Karte: © OpenStreetMap-Mitwirkende · OpenFreeMap · Terrain Tiles · © swisstopo"
   },
   "guide": {
     "look-photos": "Zwei Fotos, höchstens drei. Frontal, dann Dreiviertel. Den Rest webe ich.",
@@ -1978,10 +2081,10 @@
     "captureOff": "Wähle zuerst einen Ort.",
     "captureWait": "Warte, bis die Stadt gebaut ist.",
     "captureFail": "Die Aufnahme konnte nicht gespeichert werden. Erneut versuchen.",
-    "captured": "Ausschnitt in Meine Kreationen unter DÉCOR gespeichert: Farbe, Tiefe und Linien, mit Kamera und Quellen. Er liegt in den Referenzen.",
+    "captured": "Ausschnitt in Meine Kreationen unter Kulisse gespeichert: Farbe, Tiefe und Linien, mit Kamera und Quellen. Er liegt in den Referenzen.",
     "quote": "Daraus ein Set machen: ≈ {credits} Credits, geschätzt (Obergrenze {high}). Ohne deine Bestätigung startet nichts.",
     "again": "Anderer Ausschnitt",
-    "use": "In DÉCOR ansehen",
+    "use": "In Kulisse ansehen",
     "viewLine": "Kurs {heading}° · Neigung {pitch}° · {focal} mm · Kamera auf {height} m",
     "out": {
       "color": "Farbe",
