@@ -1,7 +1,7 @@
 // « Connecter mon compte Comfy » : the two ways in, both on Comfy's side.
 // 1. Comfy's own login page, served on the studio origin by src/proxy.ts. Comfy
-//    stores its session in this origin's IndexedDB; session.ts reads it and
-//    sends it as Bearer through the relay. No key to copy.
+//    stores its Firebase user in this origin's localStorage (IndexedDB on older
+//    builds); session.ts reads both and sends it as Bearer. No key to copy.
 // 2. A Comfy API key, pasted once. It stays on this device.
 // Comfy's OAuth server only accepts allowlisted web hosts (see docs/DECISIONS.md),
 // so there is no third-party « Sign in with Comfy » redirect to use yet.

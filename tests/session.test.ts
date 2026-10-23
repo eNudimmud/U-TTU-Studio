@@ -61,3 +61,25 @@ describe("session du compte de rendu", () => {
     assert.equal(readInFlight(storage), null);
   });
 });
+
+describe("session Comfy dans localStorage (Comfy : persistance [browserLocal, indexedDB, session])", () => {
+  function area(entries: Record<string, string>) {
+    const keys = Object.keys(entries);
+    return { length: keys.length, key: (i: number) => keys[i] ?? null, getItem: (k: string) => entries[k] ?? null };
+  }
+  it("finds the Firebase user Comfy writes in localStorage, and skips anything else", async () => {
+    const { storedUsersIn, isSessionStorageKey } = await import("../src/lib/render/session.ts");
+    const user = { uid: "u", apiKey: "AIzaSyExample_123", stsTokenManager: { accessToken: "id.token.sig", refreshToken: "refresh-1", expirationTime: 1_900_000_000_000 } };
+    const rows = storedUsersIn(area({
+      "Comfy.Settings": "{}",
+      "firebase:authUser:AIzaSyExample_123:[DEFAULT]": JSON.stringify(user),
+      "firebase:authUser:broken:[DEFAULT]": "{not json",
+    }));
+    assert.equal(rows.length, 1);
+    assert.equal(readFirebaseUser(rows[0])?.refreshToken, "refresh-1");
+    assert.deepEqual(storedUsersIn(null), []);
+    assert.equal(isSessionStorageKey("firebase:authUser:AIzaSyExample_123:[DEFAULT]"), true);
+    assert.equal(isSessionStorageKey(null), true);
+    assert.equal(isSessionStorageKey("u-ttu-rendu"), false);
+  });
+});

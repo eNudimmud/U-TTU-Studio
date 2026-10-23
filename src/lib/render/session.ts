@@ -1,7 +1,10 @@
-// The adherent's Comfy session, when they signed in inside the studio's
-// connect sheet. Comfy's own web app keeps it in this origin's IndexedDB and
-// refreshes it the same way. Nothing here leaves the browser except the
-// token, sent to the renderer through the relay.
+// The adherent's Comfy session, when they signed in through Comfy's login page
+// served on this origin (src/proxy.ts). Comfy's web app initialises Firebase with
+// persistence [browserLocal, indexedDB, browserSession]: the user lands in this
+// origin's localStorage under `firebase:authUser:<apiKey>:[DEFAULT]`, and Firebase
+// moves any IndexedDB copy there too (then deletes it from IndexedDB). Older
+// Comfy builds used IndexedDB first, so both places are read, localStorage first.
+// Nothing here leaves the browser except the token, sent to Comfy as Bearer.
 
 export interface FirebaseUser {
   apiKey: string;
@@ -18,6 +21,33 @@ export interface TokenSource {
 
 import { authDatabasePlan } from "../link-epoch.ts";
 const MARGIN_MS = 60_000;
+/** Key prefix Firebase uses for a signed-in user, in localStorage and in IndexedDB. */
+export const FIREBASE_USER_PREFIX = "firebase:authUser:";
+
+type KeyedStorage = Pick<Storage, "length" | "key" | "getItem">;
+
+/** Firebase users kept in a Web Storage area (localStorage), parsed. Broken rows are skipped. */
+export function storedUsersIn(storage: KeyedStorage | null | undefined): unknown[] {
+  const rows: unknown[] = [];
+  if (!storage) return rows;
+  try {
+    for (let index = 0; index < storage.length; index++) {
+      const key = storage.key(index);
+      if (!key || !key.startsWith(FIREBASE_USER_PREFIX)) continue;
+      try { rows.push(JSON.parse(storage.getItem(key) ?? "null")); } catch { /* not a user record */ }
+    }
+  } catch { /* storage blocked */ }
+  return rows;
+}
+
+/** True when a storage event is Comfy writing or removing its signed-in user. */
+export function isSessionStorageKey(key: string | null): boolean {
+  return key === null || key.startsWith(FIREBASE_USER_PREFIX);
+}
+
+function localArea(): Storage | null {
+  try { return typeof localStorage === "undefined" ? null : localStorage; } catch { return null; }
+}
 const SECURE_TOKEN = "https://securetoken.googleapis.com/v1/token";
 
 /** A Firebase user record, as the web SDK stores it. Anything else is not a session. */
@@ -56,8 +86,13 @@ export async function refreshIdToken(user: FirebaseUser, fetchImpl: typeof fetch
   }
 }
 
-function readStoredUsers(): Promise<unknown[]> {
+async function readStoredUsers(): Promise<unknown[]> {
+  return [...storedUsersIn(localArea()), ...await readIndexedDbUsers()];
+}
+
+function readIndexedDbUsers(): Promise<unknown[]> {
   return new Promise(resolve => {
+    if (typeof indexedDB === "undefined") { resolve([]); return; }
     const finish = (rows: unknown[]) => resolve(rows);
     const openExisting = () => {
       try {
@@ -105,7 +140,16 @@ function readStoredUsers(): Promise<unknown[]> {
 
 /** Signing out of the studio removes the session Comfy stored on this origin. */
 function clearStoredUsers(): Promise<void> {
+  const area = localArea();
+  if (area) {
+    try {
+      const keys: string[] = [];
+      for (let index = 0; index < area.length; index++) { const key = area.key(index); if (key?.startsWith(FIREBASE_USER_PREFIX)) keys.push(key); }
+      for (const key of keys) area.removeItem(key);
+    } catch { /* storage blocked */ }
+  }
   return new Promise(resolve => {
+    if (typeof indexedDB === "undefined") { resolve(); return; }
     try {
       const request = indexedDB.deleteDatabase("firebaseLocalStorageDb");
       request.onsuccess = () => resolve();

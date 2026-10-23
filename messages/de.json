@@ -547,6 +547,7 @@
     "loginHint": "Die Anmeldeseite von Comfy öffnet sich daneben: Google, GitHub oder E-Mail, und die Registrierung, falls du noch kein Konto hast. Melde dich an und komm dann hierher zurück: Das Studio verbindet sich von selbst.",
     "loginWaiting": "Ich warte auf deine Anmeldung auf der Comfy-Seite…",
     "loginStop": "Nicht mehr warten",
+    "loginClosed": "Das Comfy-Fenster wurde geschlossen, ohne dass ich deine Anmeldung gefunden habe. Versuch « Mit Comfy anmelden » noch einmal oder füge einen API-Schlüssel ein.",
     "loginMissing": "Ich finde keine Comfy-Sitzung in diesem Studio. Tippe auf « Mit Comfy anmelden » oder füge einen API-Schlüssel ein.",
     "orKey": "Oder mit einem Comfy-API-Schlüssel",
     "keyStep1": "Öffne deine Comfy-Schlüsselseite, tippe auf « + New » und nenne ihn U*TTU.",

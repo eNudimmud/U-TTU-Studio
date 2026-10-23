@@ -547,6 +547,7 @@
     "loginHint": "La page de connexion de Comfy s’ouvre à côté : Google, GitHub ou e-mail, et l’inscription si tu n’as pas encore de compte. Connecte-toi, puis reviens ici : le studio se relie tout seul.",
     "loginWaiting": "J’attends ta connexion sur la page Comfy…",
     "loginStop": "Ne plus attendre",
+    "loginClosed": "La fenêtre Comfy s’est fermée sans que je trouve ta connexion. Réessaie « Se connecter avec Comfy », ou colle une clé API.",
     "loginMissing": "Je ne trouve pas de session Comfy sur ce studio. Clique sur « Se connecter avec Comfy », ou colle une clé API.",
     "orKey": "Ou avec une clé API Comfy",
     "keyStep1": "Ouvre ta page de clés Comfy, clique sur « + New » et nomme-la U*TTU.",

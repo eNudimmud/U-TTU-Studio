@@ -547,6 +547,7 @@
     "loginHint": "Comfy’s sign-in page opens alongside: Google, GitHub or email, and sign-up if you don’t have an account yet. Sign in, then come back here: the studio links itself.",
     "loginWaiting": "Waiting for you to sign in on the Comfy page…",
     "loginStop": "Stop waiting",
+    "loginClosed": "The Comfy window closed and I didn’t find your sign-in. Try « Sign in with Comfy » again, or paste an API key.",
     "loginMissing": "I can’t find a Comfy session on this studio. Tap « Sign in with Comfy », or paste an API key.",
     "orKey": "Or with a Comfy API key",
     "keyStep1": "Open your Comfy keys page, tap « + New » and name it U*TTU.",
