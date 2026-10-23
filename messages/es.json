@@ -538,7 +538,11 @@
     "session": "Sesión ya abierta",
     "connectLead": "El render se paga en tu cuenta Comfy. De aquí no sale nada.",
     "confirmTitle": "¿Generar el vídeo?",
-    "keyInvalid": "Esta clave no se abre."
+    "keyInvalid": "Esta clave no tiene el formato correcto. Pega tu clave API de Comfy Cloud completa.",
+    "keyRefused": "Comfy no reconoce esta clave. Revísala y vuelve a intentarlo.",
+    "keyNetwork": "Comfy no responde. Revisa tu conexión a internet y vuelve a intentarlo.",
+    "keyUnchecked": "Comfy no ha podido comprobar esta clave. Vuelve a intentarlo en un momento.",
+    "sessionExpired": "Tu sesión de Comfy ha caducado. Vuelve a conectarte."
   },
   "memory": {
     "title": "Este proyecto",

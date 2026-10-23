@@ -538,7 +538,11 @@
     "session": "Session already open",
     "connectLead": "Rendering is paid on your Comfy account. Nothing leaves from here.",
     "confirmTitle": "Generate the video?",
-    "keyInvalid": "This key does not open."
+    "keyInvalid": "This key doesn’t have the right format. Paste your full Comfy Cloud API key.",
+    "keyRefused": "Comfy doesn’t recognise this key. Check it and try again.",
+    "keyNetwork": "Comfy isn’t responding. Check your internet connection and try again.",
+    "keyUnchecked": "Comfy couldn’t check this key. Try again in a moment.",
+    "sessionExpired": "Your Comfy session has expired. Sign in again."
   },
   "memory": {
     "title": "This project",

@@ -60,16 +60,26 @@ export function CreditSheet() {
 
 export function ConnectSheet() {
   const { t } = useI18n();
-  const { setSheet, connectKey, sessionLinked, setNotice } = useStudio();
+  const { setSheet, connectKey, sessionLinked } = useStudio();
   const [key, setKey] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => { if (error) errorRef.current?.scrollIntoView({ block: "nearest" }); }, [error]);
+  const run = async (attempt: () => Promise<string | null>) => {
+    setBusy(true); setError("");
+    try { const failure = await attempt(); if (failure) setError(failure); }
+    finally { setBusy(false); }
+  };
   return <Frame title={t("stage.connectComfy")} onClose={() => setSheet(null)}>
     <p>{t("sheet.connectLead")}</p>
-    <button type="button" className="u-primary" onClick={() => void sessionLinked().then(ok => { if (!ok) setNotice(t("create.sessionMissing")); })}>{t("sheet.session")}</button>
+    <button type="button" className="u-primary" disabled={busy} onClick={() => void run(async () => (await sessionLinked()) ? null : t("create.sessionMissing"))}>{t("sheet.session")}</button>
     <label className="u-field">
       <span className="u-label">{t("sheet.keyLabel")}</span>
-      <input type="password" value={key} autoComplete="off" spellCheck={false} onChange={event => setKey(event.target.value)} />
+      <input type="password" value={key} autoComplete="off" spellCheck={false} aria-invalid={error ? true : undefined} aria-describedby={error ? "u-connect-error" : undefined} onChange={event => { setKey(event.target.value); if (error) setError(""); }} />
     </label>
-    <button type="button" className="u-secondary" onClick={() => void connectKey(key).then(error => { if (error) setNotice(error); })}>{t("verb.relier")}</button>
+    <button type="button" className="u-secondary" disabled={busy} onClick={() => void run(() => connectKey(key))}>{t("verb.relier")}</button>
+    <p ref={errorRef} id="u-connect-error" className="u-connect-error" role="alert" data-connect-error="" hidden={!error}>{error}</p>
   </Frame>;
 }
 

@@ -538,7 +538,11 @@
     "session": "Sitzung schon offen",
     "connectLead": "Das Rendern wird auf deinem Comfy-Konto bezahlt. Hier geht nichts raus.",
     "confirmTitle": "Das Video erzeugen?",
-    "keyInvalid": "Dieser Schlüssel öffnet sich nicht."
+    "keyInvalid": "Dieser Schlüssel hat nicht das richtige Format. Füge deinen vollständigen Comfy-Cloud-API-Schlüssel ein.",
+    "keyRefused": "Comfy erkennt diesen Schlüssel nicht. Prüf ihn und versuch es noch einmal.",
+    "keyNetwork": "Comfy antwortet nicht. Prüf deine Internetverbindung und versuch es noch einmal.",
+    "keyUnchecked": "Comfy konnte diesen Schlüssel nicht prüfen. Versuch es gleich noch einmal.",
+    "sessionExpired": "Deine Comfy-Sitzung ist abgelaufen. Melde dich erneut an."
   },
   "memory": {
     "title": "Dieses Projekt",

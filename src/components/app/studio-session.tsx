@@ -1526,7 +1526,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     try {
       await candidate.user();
     } catch (error) {
-      return error instanceof Error ? error.message : t("sheet.keyInvalid");
+      if (error instanceof RenderError && error.code === "auth") return t("sheet.keyRefused");
+      if (error instanceof RenderError && error.code === "network") return t("sheet.keyNetwork");
+      return t("sheet.keyUnchecked");
     }
     const next: RenderLink = { mode: "key", key };
     saveRenderLink(localStorage, next);
