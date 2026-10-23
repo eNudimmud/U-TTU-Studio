@@ -538,7 +538,33 @@
     "session": "Session déjà ouverte",
     "connectLead": "Le rendu se paie sur ton compte Comfy. Rien ne part d’ici.",
     "confirmTitle": "Générer la vidéo ?",
-    "keyInvalid": "Cette clé ne s’ouvre pas."
+    "keyInvalid": "Cette clé n’a pas le bon format. Colle la clé API Comfy Cloud complète.",
+    "keyRefused": "Cette clé n’est pas reconnue par Comfy. Vérifie-la et réessaie.",
+    "keyNetwork": "Comfy ne répond pas. Vérifie ta connexion internet et réessaie.",
+    "keyUnchecked": "Comfy n’a pas pu vérifier cette clé. Réessaie dans un instant.",
+    "sessionExpired": "Ta session Comfy a expiré. Reconnecte-toi.",
+    "loginButton": "Se connecter avec Comfy",
+    "loginHint": "La page de connexion de Comfy s’ouvre à côté : Google, GitHub ou e-mail, et l’inscription si tu n’as pas encore de compte. Connecte-toi, puis reviens ici : le studio se relie tout seul.",
+    "loginWaiting": "J’attends ta connexion sur la page Comfy…",
+    "loginStop": "Ne plus attendre",
+    "loginClosed": "La fenêtre Comfy s’est fermée sans que je trouve ta connexion. Réessaie « Se connecter avec Comfy », ou colle une clé API.",
+    "loginMissing": "Je ne trouve pas de session Comfy sur ce studio. Clique sur « Se connecter avec Comfy », ou colle une clé API.",
+    "orKey": "Ou avec une clé API Comfy",
+    "keyStep1": "Ouvre ta page de clés Comfy, clique sur « + New » et nomme-la U*TTU.",
+    "keyOpen": "Ouvrir ma page de clés",
+    "keyStep2": "Copie la clé (elle commence par comfyui-) et colle-la ici : je la vérifie tout de suite. Elle reste sur cet appareil.",
+    "pasteButton": "Coller ma clé",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "showKey": "Afficher la clé",
+    "hideKey": "Masquer la clé",
+    "noAccount": "Pas encore de compte ? Crée-le sur Comfy Cloud",
+    "subscriptionNote": "L’API de Comfy demande un abonnement payant : voir les tarifs",
+    "pricingLink": "Voir les tarifs Comfy Cloud",
+    "keySubscription": "Comfy reconnaît ton compte, mais il n’a pas d’abonnement actif pour l’API. Choisis un abonnement payant, puis réessaie.",
+    "keyCredits": "Comfy reconnaît ton compte, mais il n’a plus de crédits. Recharge-le sur Comfy Cloud, puis réessaie.",
+    "clipboardDenied": "Ton navigateur n’a pas donné accès au presse-papiers. Colle la clé dans le champ (appui long, puis Coller).",
+    "clipboardEmpty": "Je ne trouve pas de clé Comfy dans ton presse-papiers. Copie-la sur ta page de clés, puis réessaie."
   },
   "memory": {
     "title": "Ce projet",
@@ -2812,9 +2838,9 @@
         "body": "Chaque abonnement inclut des crédits. Tu peux en racheter à tout moment sur ton compte Comfy (Settings → Plans & Credits). Le studio ne vend rien."
       },
       "key": {
-        "title": "Colle ta clé API ici",
-        "body": "Crée une clé sur platform.comfy.org (API Keys → + New) et copie-la tout de suite : elle ne s’affiche qu’une fois. Elle reste sur cet appareil.",
-        "link": "Créer une clé API",
+        "title": "Relie ton compte Comfy",
+        "body": "Le plus simple : « Se connecter avec Comfy », sans clé à copier. Sinon, crée une clé sur ta page de clés Comfy (+ New, nomme-la U*TTU) et colle-la ici : elle reste sur cet appareil.",
+        "link": "Ouvrir ma page de clés",
         "button": "Connecter mon compte Comfy"
       }
     },

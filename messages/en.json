@@ -538,7 +538,33 @@
     "session": "Session already open",
     "connectLead": "Rendering is paid on your Comfy account. Nothing leaves from here.",
     "confirmTitle": "Generate the video?",
-    "keyInvalid": "This key does not open."
+    "keyInvalid": "This key doesn’t have the right format. Paste your full Comfy Cloud API key.",
+    "keyRefused": "Comfy doesn’t recognise this key. Check it and try again.",
+    "keyNetwork": "Comfy isn’t responding. Check your internet connection and try again.",
+    "keyUnchecked": "Comfy couldn’t check this key. Try again in a moment.",
+    "sessionExpired": "Your Comfy session has expired. Sign in again.",
+    "loginButton": "Sign in with Comfy",
+    "loginHint": "Comfy’s sign-in page opens alongside: Google, GitHub or email, and sign-up if you don’t have an account yet. Sign in, then come back here: the studio links itself.",
+    "loginWaiting": "Waiting for you to sign in on the Comfy page…",
+    "loginStop": "Stop waiting",
+    "loginClosed": "The Comfy window closed and I didn’t find your sign-in. Try « Sign in with Comfy » again, or paste an API key.",
+    "loginMissing": "I can’t find a Comfy session on this studio. Tap « Sign in with Comfy », or paste an API key.",
+    "orKey": "Or with a Comfy API key",
+    "keyStep1": "Open your Comfy keys page, tap « + New » and name it U*TTU.",
+    "keyOpen": "Open my keys page",
+    "keyStep2": "Copy the key (it starts with comfyui-) and paste it here: I check it right away. It stays on this device.",
+    "pasteButton": "Paste my key",
+    "show": "Show",
+    "hide": "Hide",
+    "showKey": "Show the key",
+    "hideKey": "Hide the key",
+    "noAccount": "No account yet? Create one on Comfy Cloud",
+    "subscriptionNote": "Comfy’s API needs a paid subscription: see pricing",
+    "pricingLink": "See Comfy Cloud pricing",
+    "keySubscription": "Comfy recognises your account, but it has no active subscription for the API. Pick a paid plan, then try again.",
+    "keyCredits": "Comfy recognises your account, but it has no credits left. Top it up on Comfy Cloud, then try again.",
+    "clipboardDenied": "Your browser didn’t allow clipboard access. Paste the key into the field (long press, then Paste).",
+    "clipboardEmpty": "I can’t find a Comfy key in your clipboard. Copy it from your keys page, then try again."
   },
   "memory": {
     "title": "This project",
@@ -2812,9 +2838,9 @@
         "body": "Every subscription includes credits. You can buy more at any time on your Comfy account (Settings → Plans & Credits). The studio sells nothing."
       },
       "key": {
-        "title": "Paste your API key here",
-        "body": "Create a key on platform.comfy.org (API Keys → + New) and copy it right away: it is shown only once. It stays on this device.",
-        "link": "Create an API key",
+        "title": "Link your Comfy account",
+        "body": "The easiest way: « Sign in with Comfy », no key to copy. Otherwise, create a key on your Comfy keys page (+ New, name it U*TTU) and paste it here: it stays on this device.",
+        "link": "Open my keys page",
         "button": "Connect my Comfy account"
       }
     },

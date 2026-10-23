@@ -204,6 +204,18 @@ function errorLines(body: unknown): string[] {
   return lines.slice(0, 6);
 }
 
+/**
+ * The headers Comfy expects for this link: `X-API-Key` for a pasted key, `Authorization: Bearer`
+ * for a Comfy session (refreshed by the token source). Null when nothing usable is linked.
+ * Shared by the renderer and any studio feature that calls Comfy for the visitor. Never stored.
+ */
+export async function getComfyAuthHeaders(auth: RenderAuth | null): Promise<Record<string, string> | null> {
+  if (!auth) return null;
+  if (auth.kind === "key") return auth.key ? { "x-api-key": auth.key } : null;
+  const token = await auth.token();
+  return token ? { authorization: `Bearer ${token}` } : null;
+}
+
 const credentialScopes = new WeakMap<object, () => Promise<string | undefined>>();
 /** Opaque account partition only. Call after authenticating with user(); never exposes credentials. */
 export async function renderCredentialScope(client: object): Promise<string | undefined> { return credentialScopes.get(client)?.(); }
@@ -214,10 +226,9 @@ export function createRenderClient(options: RenderClientOptions) {
   const balanceUrl = options.balanceUrl ?? BALANCE_URL;
 
   async function authHeaders(): Promise<Record<string, string>> {
-    if (options.auth.kind === "key") return { "x-api-key": options.auth.key };
-    const token = await options.auth.token();
-    if (!token) throw new RenderError("auth", "Compte de rendu non connecté.");
-    return { authorization: `Bearer ${token}` };
+    const headers = await getComfyAuthHeaders(options.auth);
+    if (!headers) throw new RenderError("auth", "Compte de rendu non connecté.");
+    return headers;
   }
 
   async function call(path: string, init: RequestInit = {}): Promise<Response> {

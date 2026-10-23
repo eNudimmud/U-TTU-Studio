@@ -10,6 +10,8 @@ import { Close } from "./glyphs";
 import { useStudio } from "./studio-session";
 import { RecoveryPanel } from "./recovery-panel";
 import { toggleAssistant } from "./assistant-panel";
+import { isSessionStorageKey } from "@/lib/render/session";
+import { COMFY_KEYS_URL, COMFY_LOGIN_PATH, COMFY_PRICING_URL, COMFY_SIGNUP_URL, SESSION_POLL_MS, clipboardKey, findComfyKey, needsPricing } from "@/lib/render/connect";
 
 function Frame({ title, onClose, children }: { title: string; onClose(): void; children: React.ReactNode }) {
   const { t } = useI18n();
@@ -60,17 +62,118 @@ export function CreditSheet() {
 
 export function ConnectSheet() {
   const { t } = useI18n();
-  const { setSheet, connectKey, sessionLinked, setNotice } = useStudio();
+  const { setSheet, connectKey, sessionLinked } = useStudio();
   const [key, setKey] = useState("");
+  const [show, setShow] = useState(false);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [waiting, setWaiting] = useState(false);
+  const errorRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const loginTab = useRef<Window | null>(null);
+  const polling = useRef(false);
+  useEffect(() => { if (error) errorRef.current?.scrollIntoView({ block: "nearest" }); }, [error]);
+  const run = async (attempt: () => Promise<string | null>) => {
+    setBusy(true); setError("");
+    try { const failure = await attempt(); if (failure) setError(failure); }
+    finally { setBusy(false); }
+  };
+  const submit = (value: string) => { setKey(value); void run(() => connectKey(value)); };
+
+  // While Comfy's login tab is open, look for the session it writes on this origin
+  // (localStorage, see session.ts). A storage event wakes the check at once; the timer
+  // and focus cover browsers that drop it. A tab closed without a session says so.
+  useEffect(() => {
+    if (!waiting) return;
+    let alive = true;
+    const started = Date.now();
+    const stop = (message: string) => { alive = false; setWaiting(false); loginTab.current = null; setError(message); };
+    const check = async () => {
+      if (!alive || polling.current) return;
+      polling.current = true;
+      try {
+        const tab = loginTab.current;
+        let closed = false;
+        try { closed = Boolean(tab?.closed); } catch { closed = false; }
+        if (await sessionLinked()) { alive = false; try { tab?.close(); } catch {} return; }
+        if (closed) stop(t("sheet.loginClosed"));
+        else if (Date.now() - started > 15 * 60_000) stop(t("sheet.loginMissing"));
+      } finally { polling.current = false; }
+    };
+    const timer = window.setInterval(() => void check(), SESSION_POLL_MS);
+    const onFocus = () => void check();
+    const onStorage = (event: StorageEvent) => { if (isSessionStorageKey(event.key)) void check(); };
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("storage", onStorage);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => { alive = false; window.clearInterval(timer); window.removeEventListener("focus", onFocus); window.removeEventListener("storage", onStorage); document.removeEventListener("visibilitychange", onFocus); };
+  }, [waiting, sessionLinked, t]);
+
+  const openLogin = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    setError("");
+    const tab = window.open(COMFY_LOGIN_PATH, "uttu-comfy-login", "popup,width=520,height=760");
+    loginTab.current = tab;
+    if (tab) event.preventDefault();
+    setWaiting(true);
+  };
+  const pasteFromClipboard = async () => {
+    setError("");
+    let text = "";
+    try { text = await navigator.clipboard.readText(); }
+    catch { setError(t("sheet.clipboardDenied")); inputRef.current?.focus(); return; }
+    const found = clipboardKey(text);
+    if (found.kind === "none") { setError(t("sheet.clipboardEmpty")); return; }
+    if (found.kind === "comfy") submit(found.key);
+    else { setKey(found.key); inputRef.current?.focus(); }
+  };
+  const errorKey = error ? Object.entries(CONNECT_MESSAGES(t)).find(([, text]) => text === error)?.[0] ?? "" : "";
+
   return <Frame title={t("stage.connectComfy")} onClose={() => setSheet(null)}>
     <p>{t("sheet.connectLead")}</p>
-    <button type="button" className="u-primary" onClick={() => void sessionLinked().then(ok => { if (!ok) setNotice(t("create.sessionMissing")); })}>{t("sheet.session")}</button>
-    <label className="u-field">
-      <span className="u-label">{t("sheet.keyLabel")}</span>
-      <input type="password" value={key} autoComplete="off" spellCheck={false} onChange={event => setKey(event.target.value)} />
-    </label>
-    <button type="button" className="u-secondary" onClick={() => void connectKey(key).then(error => { if (error) setNotice(error); })}>{t("verb.relier")}</button>
+    <section className="u-connect-block" aria-labelledby="u-connect-login">
+      <h3 id="u-connect-login" className="sr-only">{t("sheet.loginButton")}</h3>
+      <a className="u-primary u-connect-login" data-connect-login="" href={COMFY_LOGIN_PATH} target="_blank" rel="opener" onClick={openLogin}>{t("sheet.loginButton")}</a>
+      <p className="u-small">{t("sheet.loginHint")}</p>
+      {waiting && <p className="u-connect-wait" role="status" data-connect-waiting="">{t("sheet.loginWaiting")} <button type="button" className="u-link" onClick={() => setWaiting(false)}>{t("sheet.loginStop")}</button></p>}
+    </section>
+    <section className="u-connect-block u-connect-key" aria-labelledby="u-connect-key-title">
+      <h3 id="u-connect-key-title" className="u-connect-or">{t("sheet.orKey")}</h3>
+      <ol className="u-connect-steps">
+        <li>{t("sheet.keyStep1")} <a className="u-connect-out" data-connect-keys="" href={COMFY_KEYS_URL} target="_blank" rel="noopener noreferrer">{t("sheet.keyOpen")} ↗</a></li>
+        <li>{t("sheet.keyStep2")}</li>
+      </ol>
+      <form className="u-connect-form" onSubmit={event => { event.preventDefault(); if (!busy) submit(key); }}>
+        <label className="u-field">
+          <span className="u-label">{t("sheet.keyLabel")}</span>
+          <span className="u-connect-input">
+            <input ref={inputRef} type={show ? "text" : "password"} value={key} placeholder="comfyui-…" autoComplete="off" autoCapitalize="off" spellCheck={false} enterKeyHint="go"
+              aria-invalid={error ? true : undefined} aria-describedby={error ? "u-connect-error" : undefined}
+              onPaste={event => { const found = findComfyKey(event.clipboardData.getData("text")); if (found) { event.preventDefault(); submit(found); } }}
+              onChange={event => { setKey(event.target.value); if (error) setError(""); }} />
+            <button type="button" className="u-connect-eye" aria-pressed={show} aria-label={t(show ? "sheet.hideKey" : "sheet.showKey")} onClick={() => setShow(value => !value)}>{t(show ? "sheet.hide" : "sheet.show")}</button>
+          </span>
+        </label>
+        <div className="u-connect-actions">
+          <button type="button" className="u-secondary" data-connect-paste="" disabled={busy} onClick={() => void pasteFromClipboard()}>{t("sheet.pasteButton")}</button>
+          <button type="submit" className="u-secondary" disabled={busy}>{busy ? t("sheet.checking") : t("verb.relier")}</button>
+        </div>
+      </form>
+    </section>
+    <div ref={errorRef} id="u-connect-error" className="u-connect-error" role="alert" data-connect-error="" data-connect-code={errorKey || undefined} hidden={!error}>
+      <span>{error}</span>
+      {errorKey && needsPricing(errorKey) && <> <a href={COMFY_PRICING_URL} target="_blank" rel="noopener noreferrer">{t("sheet.pricingLink")} ↗</a></>}
+    </div>
+    <ul className="u-connect-links">
+      <li><a href={COMFY_SIGNUP_URL} target="_blank" rel="noopener noreferrer">{t("sheet.noAccount")} ↗</a></li>
+      <li><a href={COMFY_PRICING_URL} target="_blank" rel="noopener noreferrer" data-connect-pricing="">{t("sheet.subscriptionNote")} ↗</a></li>
+      <li><button type="button" className="u-link" onClick={() => busy || void run(async () => (await sessionLinked()) ? null : t("sheet.loginMissing"))}>{t("sheet.session")}</button></li>
+    </ul>
   </Frame>;
+}
+
+/** Message key for each connect error text, so the sheet can add the right link. */
+function CONNECT_MESSAGES(t: (key: string) => string): Record<string, string> {
+  return Object.fromEntries(["keyInvalid", "keyRefused", "keySubscription", "keyCredits", "keyNetwork", "keyUnchecked"].map(key => [key, t(`sheet.${key}`)]));
 }
 
 export function ConfirmTake() {
