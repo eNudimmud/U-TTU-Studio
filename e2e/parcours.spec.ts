@@ -32,16 +32,23 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(page.locator("[data-rep3d-entry]")).toHaveCount(1);
   await expect(page.locator("[data-repere-2d], .maplibregl-canvas")).toHaveCount(0);
   await page.locator("[data-rep3d-open]").click();
-  const sheet = page.getByRole("dialog", { name: "Repérage 3D" });
-  await sheet.getByRole("button", { name: /Lausanne/ }).first().click();
+  const sheet = page.getByRole("dialog", { name: "Un vrai lieu en décor" });
+  // Coordinates skip the geocoder: nothing leaves the machine.
+  const search = sheet.getByRole("searchbox", { name: "Une adresse, une place, une ville" });
+  await search.fill("46.5206, 6.6326");
+  await search.press("Enter");
   await expect(sheet).toHaveAttribute("data-rep3d-state", "ready", { timeout: 30_000 });
+  await page.locator("[data-rep3d-credits]").click();
   await expect(page.locator("[data-rep3d-credit]")).toContainText("© contributeurs OpenStreetMap");
   await expect(page.locator("[data-rep3d-credit]")).toContainText("OpenFreeMap");
+  await page.keyboard.press("Escape");
   await page.locator("[data-rep3d-capture]").click();
   await expect(page.locator("[data-capture-done]")).toBeVisible({ timeout: 20_000 });
   // The block around the view goes with the capture, for PRISE's maquette.
   expect(Number(await page.locator("[data-capture-done]").getAttribute("data-rep3d-block"))).toBeGreaterThan(0);
-  await expect(page.locator("[data-rep3d-create]")).toContainText("cr. estimés");
+  // The demo never calls the street photo servers: the visitor adds a photo before anything is created.
+  await expect(page.locator("[data-rep3d-none]")).toBeVisible();
+  await expect(page.locator("[data-rep3d-create]")).toBeDisabled();
   await expect(page.getByText(/≈ 13 crédits/)).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(sheet).toBeHidden();
@@ -80,7 +87,8 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(brief).toContainText("Le vieil homme");
   await expect(brief).toContainText("Personnage");
   await expect(brief).toContainText("La coursière");
-  await expect(brief).toContainText("Lausanne");
+  // Coordinates name the place « Lieu »; the décor name carries the 3D view.
+  await expect(brief).toContainText("Lieu · Vue 3D");
   await expect(brief).toContainText("Regard caméra");
   await expect(page.locator(".u-who")).toContainText("La coursière");
   await expect(page.locator(".u-who")).toContainText("Personnage");

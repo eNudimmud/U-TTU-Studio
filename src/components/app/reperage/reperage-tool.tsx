@@ -45,12 +45,11 @@ export function ReperageTool({ onBack }: { onBack(): void }) {
           <li>{t("rep3d.stepKeep")}</li>
         </ol>
         <button type="button" className="u-primary" data-rep3d-open="" onClick={() => setOpen(true)}>{t("rep3d.open")}</button>
-        <p className="u-small">{t("rep3d.noGoogle")}</p>
       </div>
     </section>
     <section className="u-scout-next" aria-label={t("nav.scene")}>
       <p className="u-small" data-reperage-kept={kept}>{kept > 0 ? t("rep3d.kept", { n: String(kept) }) : t("rep3d.keptNone")}</p>
-      <p className="u-small" data-reperage-decor="">{t("rep3d.toolQuote")} <span className="u-cost-est">{t("outils.costEst", { credits: formatCredits(low.credits) })}</span></p>
+      <p className="u-small" data-reperage-decor="">{t("rep3d.toolQuote")} <span className="u-cost-est">{t("rep3d.quote", { credits: formatCredits(low.credits) })}</span></p>
     </section>
     {open && <Sheet
       onClose={close}

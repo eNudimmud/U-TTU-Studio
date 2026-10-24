@@ -1999,231 +1999,148 @@
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Free 3D scouting",
-    "entryLead": "Find a real place, frame it in 3D, add 1 to 3 street photos: Comfy turns it into a set that keeps your frame. Place and frame are free.",
-    "open": "Scout a location",
-    "close": "Close scouting",
-    "title": "3D scouting",
-    "searchLabel": "Place, address or coordinates",
-    "searchPh": "Lausanne, Shibuya, 46.52, 6.63…",
+    "entryTitle": "A real place as your set",
+    "entryLead": "Pick a place and a 3D view. With street photos, Comfy turns it into your set.",
+    "open": "Pick a place",
+    "free": "free",
+    "cardCost": "Free 3D view",
+    "toolLine": "A real place becomes your set: a free 3D view, plus street photos.",
+    "stepPick": "Where? Type an address or a city.",
+    "stepLook": "Your view: turn the 3D and keep the view. It's free.",
+    "stepKeep": "Create: Comfy blends your view and the photos into one set image.",
+    "toolQuote": "Creating the set next:",
+    "kept": "Views kept: {n}",
+    "keptNone": "Picking a view costs nothing.",
+    "cadre": "3D view",
+    "title": "A real place as your set",
+    "close": "Close",
+    "back": "Back",
+    "steps": {
+      "label": "Step {n} of 3",
+      "ou": "Where?",
+      "vue": "Your view",
+      "creer": "Create"
+    },
+    "s1": {
+      "title": "Turn a real place into a",
+      "titleEm": "set",
+      "q": "Where?"
+    },
+    "eq": {
+      "view": "3D view",
+      "photos": "Photos of the place",
+      "decor": "Your set",
+      "note": "Example illustration, made outside Comfy"
+    },
+    "searchLabel": "An address, a square, a city",
     "searchWhy": "Type at least two letters.",
     "searching": "Searching…",
-    "results": "Results",
-    "tryThese": "Example places",
-    "empty": "Search for a place or tap an example. The city builds in a few seconds.",
-    "loading": "Building the city in 3D…",
-    "retry": "Try again",
-    "camera": "Camera",
-    "frame": "Captured frame 16:9",
-    "buildings": "{count} buildings",
-    "noGoogle": "Open data only: OpenStreetMap, open relief, swisstopo in Switzerland (real roofs, aerial photo). No Google data.",
+    "results": "Places found",
     "search": {
       "go": "Search",
-      "empty": "No place found. Try another name or coordinates (46.52, 6.63).",
+      "empty": "No place found. Try another name.",
       "rate": "One search per second. Wait a moment and try again.",
-      "short": "This short link can't be read. Open it, then paste the long link or the coordinates.",
-      "offline": "No network. Reconnect and try again.",
-      "fail": "The search did not answer. Try again in a moment."
-    },
-    "state": {
-      "offline": "No network. Reconnect and try again.",
-      "rate": "Too many requests at once. Wait a few seconds and try again.",
-      "fail": "The map data did not answer. Try again in a moment.",
-      "empty": "No OpenStreetMap buildings here. The terrain stays visible.",
-      "nogl": "This browser can't show 3D (WebGL). The street photo and opening a place file are still available."
-    },
-    "look": {
-      "carte": "Photo map",
-      "volumes": "Volumes",
-      "trait": "Line",
-      "ombres": "Line + shadows"
-    },
-    "lookLabel": "Style",
-    "framingLabel": "Framing",
-    "framing": {
-      "large": "Wide shot",
-      "moyen": "Medium shot",
-      "contre": "Low angle"
-    },
-    "street": "Eye level",
-    "lightLabel": "Light",
-    "light": {
-      "matin": "Morning",
-      "midi": "Noon",
-      "soir": "Evening"
-    },
-    "reglages": "More settings · style, angle, sun, lens",
-    "set": {
-      "azimuth": "Sun, direction",
-      "altitude": "Sun, height",
-      "fov": "Lens",
-      "focal": "{focal} mm",
-      "line": "Line",
-      "tone": "Shadow screentone"
-    },
-    "btn": {
-      "left": "Turn left",
-      "right": "Turn right",
-      "up": "Tilt up",
-      "down": "Tilt down",
-      "in": "Move closer",
-      "out": "Move away",
-      "forward": "Step forward",
-      "back": "Step back"
-    },
-    "hint": {
-      "touch": "1 finger: move · pinch: zoom · twist 2 fingers: rotate · 2 fingers up or down: tilt",
-      "mouse": "Drag: move · right-click or Shift + drag: rotate and tilt · wheel: zoom",
-      "street": "Drag to look around. The arrows walk."
-    },
-    "capture": "Keep this frame · free",
-    "capturing": "Capturing…",
-    "captureOff": "Pick a place first.",
-    "captureWait": "Wait until the city is built.",
-    "captureFail": "The capture could not be saved. Try again.",
-    "captured": "Kept for free in My creations › Places (colour, depth, lines, camera and credits).",
-    "quote": "To make a set from it: ≈ {credits} cr. estimated (cap {high}). Nothing runs without your confirmation.",
-    "again": "Another framing",
-    "use": "See in Set",
-    "viewLine": "Heading {heading}° · tilt {pitch}° · {focal} mm · camera at {height} m",
-    "out": {
-      "color": "Colour",
-      "depth": "Depth",
-      "lines": "Lines"
-    },
-    "sources": "Sources and licences",
-    "terrainFull": "Terrain, full credits:",
-    "rue": {
-      "title": "Street photo at the same spot",
-      "idle": "It appears once a place is chosen.",
-      "load": "Looking for an open street photo…",
-      "none": "No open street photo within {radius} m.",
-      "fail": "Street photos did not answer.",
-      "add": "Add to reference photos",
-      "added": "Photo added to reference photos ({n}/{max}), with author and licence.",
-      "source": "Source",
-      "licence": "Licence not identified: this photo stays visible but can't be copied.",
-      "alt": "Street photo by {author}",
-      "prev": "Previous photo",
-      "next": "Next photo",
-      "count": "{index} / {count}",
-      "wider": "Search up to {radius} m",
-      "around": "Enlarge",
-      "around360": "Look around (360°)",
-      "aroundOff": "Back to thumbnail",
-      "framed": "Framed view",
-      "whole": "Whole photo",
-      "demo": "Demo mode: no street photo search."
-    },
-    "why": {
-      "place": "Search for a place first: the settings turn on next.",
-      "line": "No lines in Photo map.",
-      "tone": "Only in Lines + shadows."
-    },
-    "roofs": {
-      "loading": "Loading real swisstopo roofs…",
-      "ready": "Real roofs, swissBUILDINGS3D: {count} buildings",
-      "fail": "Real roofs unavailable: OpenStreetMap volumes instead."
+      "short": "This short link can't be read. Open it, then paste the long link.",
+      "offline": "No network. Reconnect, then try again.",
+      "fail": "The search didn't answer. Try again in a moment."
     },
     "file": {
-      "open": "Open a place file (KML, KMZ, GeoJSON)",
-      "off": "This file has no readable point. Try a KML, KMZ or GeoJSON with a place."
+      "open": "Open a place file (KML, GeoJSON)",
+      "off": "This file has no readable place."
     },
-    "free": "free",
-    "stepPick": "Place: an address, coordinates or an example.",
-    "stepLook": "Frame: in the 3D city or a street photo. “Keep this frame” is free.",
-    "stepKeep": "Set: your frame + 1 to 3 photos. Comfy keeps the angle and takes the photos' look.",
-    "kept": "Captures kept: {n}",
-    "keptNone": "Exploring and capturing cost nothing.",
-    "toDecor": "Make a set from my captures",
-    "cadre": "3D frame",
-    "toolQuote": "Place and frame are free. The set costs from",
-    "steps": {
-      "label": "Steps",
-      "lieu": "Place",
-      "cadre": "Frame",
-      "decor": "Set",
-      "why": "A step opens once the previous one is done: a place, then a kept frame."
+    "s2": {
+      "title": "Pick your view",
+      "hint": "Drag to turn",
+      "presets": "View height",
+      "go": "Keep this view"
     },
-    "stepWhy": "Pick a place to continue.",
-    "src": {
-      "label": "View",
-      "d3": "3D city",
-      "rue": "Street photo"
+    "p": {
+      "large": "From above",
+      "moyen": "Mid-height",
+      "sol": "Street level"
     },
-    "changePlace": "Change place",
-    "rueTip": "{count} street photos here: tap “Street photo” to add some to your set.",
-    "angleLabel": "Angle",
-    "lookSent": "Comfy always gets your frame as Volumes or Photo map: lines alone give a drawing.",
-    "base": {
-      "title": "Your 3D frame = fixed base",
-      "line": "The angle, volumes and camera stay put.",
-      "change": "Reframe",
-      "alt": "Kept 3D frame: {name}"
+    "capturing": "One moment…",
+    "loading": "Building the city in 3D…",
+    "retry": "Try again",
+    "captureFail": "The view couldn't be kept. Try again.",
+    "state": {
+      "offline": "No network. Reconnect, then try again.",
+      "rate": "Too many requests at once. Wait a few seconds and try again.",
+      "fail": "The map didn't answer. Try again in a moment.",
+      "empty": "No buildings here. Try another place.",
+      "nogl": "This browser can't show 3D. Try another browser."
     },
-    "refs": {
-      "label": "Reference photos",
-      "hint": "1 photo is enough. 2 or 3 photos of the same place = a more faithful look.",
-      "remove": "Remove photo {n}",
-      "alt": "Image {n}: {name}",
-      "full": "Already {max} photos: remove one to add another."
+    "creditsBtn": "Map and photo credits",
+    "cr": {
+      "title": "Credits",
+      "map": "Map and buildings:",
+      "photos": "Street photos:",
+      "noGoogle": "Open data only, no Google data.",
+      "close": "Close"
     },
-    "pick": {
-      "rue": "Street, here",
-      "mes": "My creations",
-      "import": "Import",
-      "mesEmpty": "Nothing in My creations yet.",
-      "fail": "This image can't be read. Try another."
-    },
-    "kind": {
-      "cadre": "3D frame",
-      "decor": "Set"
+    "s3": {
+      "title": "Create your set",
+      "view": "Your view",
+      "rue": "{n} street photos taken here",
+      "rue1": "1 street photo taken here",
+      "mix": "{n} photos of the place",
+      "mix1": "1 photo of the place",
+      "loadPhotos": "Looking for street photos nearby…",
+      "none": "Add a photo of the place to create the set.",
+      "change": "Change photos",
+      "add": "Add photos",
+      "options": "Options",
+      "mood": "Mood",
+      "name": "Name",
+      "go": "Create the set"
     },
     "ambiance": {
-      "label": "Mood (optional)",
       "photos": "Like the photos",
       "nuit": "Night",
       "pluie": "Rain",
       "aube": "Dawn"
     },
-    "decorName": "Set name",
-    "more": "More settings · strict frame, detail",
     "strict": {
-      "label": "Frame fidelity",
-      "normal": "Normal",
-      "strict": "Strict · + ≈ 4 cr. estimated",
-      "soon": "Coming soon: the depth pass isn't wired yet."
+      "label": "Strict frame",
+      "soon": "soon"
     },
-    "detail": "A detail? (optional)",
-    "detailPh": "e.g. wet cobbles, lit signs",
-    "sameplace": "Comfy keeps your frame's angle and takes your photos' look. No people, no text.",
-    "make": {
-      "button": "Create the set · ≈ {credits} cr. estimated",
-      "needPhoto": "Add at least one photo of the place.",
-      "needName": "Give the set a name.",
-      "fail": "The set wasn't created. Your frame and photos are still here."
+    "quote": "≈ {credits} credits estimated",
+    "refs": {
+      "alt": "Photo {n}: {name}"
+    },
+    "pk": {
+      "title": "Pick up to {max} photos",
+      "import": "Import",
+      "mine": "My images",
+      "ok": "OK",
+      "none": "No free street photo nearby. Import your own.",
+      "fail": "This image can't be read. Try another.",
+      "alt": "Street photo by {author}"
     },
     "ask": {
-      "title": "Create now?",
-      "line": "Frame + {photos} photo(s) · ≈ {credits} cr. estimated, cap {high} cr. Comfy render in 1 pass, about 20 s.",
+      "title": "Create this set?",
+      "line": "≈ {credits} credits estimated, {high} credits at most. About 20 seconds.",
+      "connect": "Connect your Comfy account first: the set is made with your Comfy credits.",
+      "low": "Your Comfy balance is too low for this set ({high} credits at most).",
       "cancel": "Cancel",
       "yes": "Yes, create"
     },
-    "made": {
-      "title": "Set created and kept",
-      "free": "free",
-      "line": "“{name}” is in Set and already picked for Take.",
-      "cost": "Cost read from your Comfy balance: {cost} cr. (estimated ≈ {quote} cr.)",
-      "costUnknown": "Real cost not read from your balance yet (estimated ≈ {quote} cr.)",
-      "again": "Other photos",
-      "prise": "Use in Take"
+    "making": "Comfy is making your set…",
+    "make": {
+      "fail": "The set wasn't created. Your view and photos are still here."
+    },
+    "s4": {
+      "title": "Your set is ready",
+      "saved": "It's saved in your sets.",
+      "again": "Redo",
+      "go": "Use in a shot"
     },
     "example": {
       "tag": "Example",
       "place": "Place Saint-François, Lausanne",
       "a": "3D view",
       "b": "Street photo",
-      "c": "Result",
+      "c": "Your set",
       "note": "Example illustration, made outside Comfy. It is not a Comfy render."
     }
   },
@@ -2626,7 +2543,7 @@
       },
       "reperage": {
         "title": "Scout a location",
-        "line": "Pick a point on the world map, see it in 3D or at street level, keep your captures for the set."
+        "line": "A real place becomes your set: a free 3D view, plus street photos."
       },
       "maquette": {
         "title": "3D layout and framing",

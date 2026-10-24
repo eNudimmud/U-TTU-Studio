@@ -386,11 +386,12 @@ export class Reperage3D {
     c.maxPolarAngle = street ? Math.PI - 0.15 : Math.PI / 2 - 0.02;
     c.mouseButtons = street
       ? { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: THREE.MOUSE.ROTATE }
-      : { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+      // « Fais glisser pour tourner »: a plain drag turns around the place; right button moves it.
+      : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     c.touches = street
       ? { ONE: THREE.TOUCH.ROTATE, TWO: -1 as unknown as THREE.TOUCH }
       // Two fingers are read by twoStart/twoMove: one meaning at a time (rotate, tilt or zoom).
-      : { ONE: THREE.TOUCH.PAN, TWO: -1 as unknown as THREE.TOUCH };
+      : { ONE: THREE.TOUCH.ROTATE, TWO: -1 as unknown as THREE.TOUCH };
   }
 
   /** The visible stage is wider or taller than the 16:9 capture frame. */
@@ -707,7 +708,18 @@ export class Reperage3D {
         const gap = (a: number) => Math.abs(((a - heading + 540) % 360) - 180);
         look = gap(spot.dir) <= gap(back) ? spot.dir : back;
       }
-      this.setStreet(true, { at: new THREE.Vector3(spot.x, 0, spot.z), heading: look, lookUp: pose.lookUp });
+      // Step back down the street (staying on it): the place sits ahead, between façades.
+      let at = new THREE.Vector3(spot.x, 0, spot.z);
+      const back = pose.back ?? 0;
+      if (back > 0) {
+        const lh = look * Math.PI / 180;
+        const r = this.radius * 0.9;
+        const bx = Math.max(-r, Math.min(r, spot.x - Math.sin(lh) * back));
+        const bz = Math.max(-r, Math.min(r, spot.z + Math.cos(lh) * back));
+        const snapped = this.streetSpot(bx, bz);
+        if (!this.insideBuilding(snapped.x, snapped.z) && Math.hypot(snapped.x - bx, snapped.z - bz) < back) at = new THREE.Vector3(snapped.x, 0, snapped.z);
+      }
+      this.setStreet(true, { at, heading: look, lookUp: pose.lookUp, eye: pose.eye });
     } else {
       if (this.street) this.setStreet(false);
       this.controls.target.copy(t);
@@ -719,7 +731,7 @@ export class Reperage3D {
     this.emitView();
   }
 
-  setStreet(on: boolean, at?: { at: THREE.Vector3; heading: number; lookUp: number }) {
+  setStreet(on: boolean, at?: { at: THREE.Vector3; heading: number; lookUp: number; eye?: number }) {
     const heading = at?.heading ?? this.heading();
     const h = heading * Math.PI / 180;
     const forward = new THREE.Vector3(Math.sin(h), 0, -Math.cos(h));
@@ -730,7 +742,7 @@ export class Reperage3D {
         const found = this.streetSpot(t.x, t.z);
         spot = new THREE.Vector3(found.x, 0, found.z);
       }
-      const eye = new THREE.Vector3(spot.x, this.ground_y(spot.x, spot.z) + EYE, spot.z);
+      const eye = new THREE.Vector3(spot.x, this.ground_y(spot.x, spot.z) + (at?.eye ?? EYE), spot.z);
       const up = (at?.lookUp ?? 4) * Math.PI / 180;
       const dir = forward.clone().multiplyScalar(Math.cos(up)).add(new THREE.Vector3(0, Math.sin(up), 0)).multiplyScalar(0.03);
       this.street = true;
