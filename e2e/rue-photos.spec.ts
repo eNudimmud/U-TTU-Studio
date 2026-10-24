@@ -52,6 +52,12 @@ for (const flat of [false, true]) test(`la recherche par nom atteint les photos 
   const lieu = sheet.getByRole("searchbox", { name: "Lieu, adresse ou coordonnées" });
   await lieu.fill("Rue test Paris");
   await lieu.press("Enter");
+  // Street photos sit on the same view as the 3D city: one toggle.
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "2");
+  const toggle = page.locator("[data-rep3d-src-pick=rue]");
+  await expect(toggle).toContainText("· 2");
+  await toggle.click();
+  await expect(sheet).toHaveAttribute("data-rep3d-src", "rue");
   const card = page.locator("[data-rep3d-rue-count]");
   await expect(card).toBeVisible();
   await expect(card).toHaveAttribute("data-rep3d-rue-count", "2");
@@ -78,5 +84,5 @@ for (const flat of [false, true]) test(`la recherche par nom atteint les photos 
     expect(box!.height, sel).toBeGreaterThanOrEqual(44);
   }
   await page.locator("[data-rep3d-rue-add]").click();
-  await expect(page.locator("[data-rep3d-rue-note]")).toContainText("Photo ajoutée aux références");
+  await expect(page.locator("[data-rep3d-rue-note]")).toContainText("Photo ajoutée aux photos de référence (1/3)");
 });

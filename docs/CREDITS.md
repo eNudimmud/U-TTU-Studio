@@ -127,6 +127,18 @@ Le repérage 3D et la carte affichent des données ouvertes. Elles ne sont pas g
 
 Les mêmes mentions sont listées dans `src/lib/repere3d/sources.ts`, affichées sur la carte du studio et enregistrées avec chaque capture.
 
+## Exemple du repérage — Place Saint-François, Lausanne (2026-10-24)
+
+Trois images dans `public/exemples/reperage/`, montrées dans la fiche « Repérer un lieu » (Outils et DÉCOR). Chaque affichage porte la mention « Illustration d’exemple, faite hors Comfy » en FR/EN/DE/ES.
+
+| Fichier | Ce que c’est | Source et licence |
+| --- | --- | --- |
+| `sf-vue3d.webp` | Cadre 3D sorti du repérage du studio | Données © les contributeurs d’OpenStreetMap (ODbL 1.0), tuiles OpenFreeMap / OpenMapTiles, bâtiments swissBUILDINGS3D © swisstopo (OGD) |
+| `sf-rue.webp` | Photo de rue recadrée (960×540) | Panoramax, © jo2sm, [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/), 31.10.2024. Photo `0f13a6f6-fe7a-48cf-be24-09ff5144b107`, séquence `67184522-eb44-4243-8270-6f64996ca64d` ([API](https://api.panoramax.xyz/api/collections/67184522-eb44-4243-8270-6f64996ca64d/items/0f13a6f6-fe7a-48cf-be24-09ff5144b107)). Auteur retrouvé par comparaison visuelle avec les photos Panoramax du lieu (toutes de jo2sm dans un rayon de ~100 m) : à confirmer avant diffusion large. Le recadrage reste sous CC-BY-SA-4.0. |
+| `sf-exemple.webp` | Résultat d’exemple | Illustration faite hors Comfy (test gratuit, pas un rendu Comfy), à partir des deux images ci-dessus ; partagée sous CC-BY-SA-4.0 par prudence, car elle dérive de la photo de jo2sm |
+
+Les photos de rue ajoutées par le visiteur comme références d’un décor gardent leur auteur et leur licence Panoramax (CC0, CC-BY, CC-BY-SA, etalab-2.0) dans Mes créations › Lieux. Une photo CC-BY-SA rend le décor qui en dérive partageable dans les mêmes conditions : garde la mention avec le décor.
+
 ## Vignettes des outils (2026-10-23, v2)
 
 Les 37 vignettes de `public/exemples/vignettes/` sont des illustrations générées avec Grok Imagine (images, et quatre clips vidéo pour « Animer une image », « Vidéo depuis un texte », « Faire parler » et « Synchroniser les lèvres »), puis composées par `scripts/brand/make_vignettes.py` (Pillow, numpy, OpenCV, ffmpeg). Aucun crédit Comfy n’est dépensé. Les sources sont dans `scripts/brand/vignettes-sources/`.

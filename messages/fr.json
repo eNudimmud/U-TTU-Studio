@@ -2000,7 +2000,7 @@
   },
   "rep3d": {
     "entryTitle": "Repérage 3D gratuit",
-    "entryLead": "Une ville en 3D partout dans le monde, avec les vrais toits en Suisse et des photos de rue libres. Cadre, choisis la lumière, capture. Gratuit, aucun crédit.",
+    "entryLead": "Cherche un lieu réel, cadre-le en 3D, ajoute 1 à 3 photos de rue : Comfy en fait un décor qui garde ton cadre. Lieu et cadre sont gratuits.",
     "open": "Repérer un lieu",
     "close": "Fermer le repérage",
     "title": "Repérage 3D",
@@ -2045,14 +2045,14 @@
       "moyen": "Plan moyen",
       "contre": "Contre-plongée"
     },
-    "street": "Vue rue",
+    "street": "À hauteur d'homme",
     "lightLabel": "Lumière",
     "light": {
       "matin": "Matin",
       "midi": "Midi",
       "soir": "Soir"
     },
-    "reglages": "Réglages",
+    "reglages": "Plus de réglages · style, angle, soleil, objectif",
     "set": {
       "azimuth": "Soleil, direction",
       "altitude": "Soleil, hauteur",
@@ -2076,13 +2076,13 @@
       "mouse": "Glisser : déplacer · clic droit ou Maj + glisser : tourner et incliner · molette : zoomer",
       "street": "Glisse pour regarder autour. Les flèches avancent."
     },
-    "capture": "Capturer ce cadrage",
+    "capture": "Garder ce cadre · gratuit",
     "capturing": "Capture…",
     "captureOff": "Choisis d’abord un lieu.",
     "captureWait": "Attends que la ville soit construite.",
     "captureFail": "La capture n’a pas pu être gardée. Réessaie.",
-    "captured": "Cadrage gardé dans Mes créations, en DÉCOR : couleur, profondeur et traits, avec la caméra et les crédits. Il est placé dans les références.",
-    "quote": "Pour en faire un décor : ≈ {credits} crédits estimés (plafond {high}). Rien n’est lancé sans ta confirmation.",
+    "captured": "Gardé gratuitement dans Mes créations › Lieux (couleur, profondeur, traits, caméra et crédits).",
+    "quote": "Pour en faire un décor : ≈ {credits} cr. estimés (plafond {high}). Rien n'est lancé sans ta confirmation.",
     "again": "Autre cadrage",
     "use": "Voir dans DÉCOR",
     "viewLine": "Cap {heading}° · inclinaison {pitch}° · {focal} mm · caméra à {height} m",
@@ -2099,8 +2099,8 @@
       "load": "Recherche d’une photo de rue libre…",
       "none": "Pas de photo de rue libre à moins de {radius} m.",
       "fail": "Les photos de rue n’ont pas répondu.",
-      "add": "Ajouter aux références",
-      "added": "Photo ajoutée aux références, avec l’auteur et la licence.",
+      "add": "Ajouter aux photos de référence",
+      "added": "Photo ajoutée aux photos de référence ({n}/{max}), avec l'auteur et la licence.",
       "source": "Source",
       "licence": "Licence non identifiée : cette photo reste visible mais ne peut pas être copiée.",
       "alt": "Photo de rue de {author}",
@@ -2130,12 +2130,102 @@
       "off": "Ce fichier ne contient pas de point lisible. Essaie un KML, KMZ ou GeoJSON avec un lieu."
     },
     "free": "gratuit",
-    "stepPick": "Choisis un lieu : une adresse, des coordonnées ou un exemple.",
-    "stepLook": "Regarde-le en 3D, ou debout dans la rue avec les photos libres.",
-    "stepKeep": "Capture le cadre : il rejoint Mes créations et les références du décor.",
+    "stepPick": "Lieu : une adresse, des coordonnées ou un exemple.",
+    "stepLook": "Cadre : en ville 3D ou en photo de rue. « Garder ce cadre » est gratuit.",
+    "stepKeep": "Décor : ton cadre + 1 à 3 photos. Comfy garde l'angle et prend l'aspect des photos.",
     "kept": "Captures gardées : {n}",
     "keptNone": "Explorer et capturer ne coûte rien.",
-    "toDecor": "Faire un décor avec mes captures"
+    "toDecor": "Faire un décor avec mes captures",
+    "cadre": "Cadre 3D",
+    "toolQuote": "Lieu et cadre sont gratuits. Le décor coûte à partir de",
+    "steps": {
+      "label": "Étapes",
+      "lieu": "Lieu",
+      "cadre": "Cadre",
+      "decor": "Décor",
+      "why": "Une étape s'ouvre quand la précédente est faite : un lieu, puis un cadre gardé."
+    },
+    "stepWhy": "Choisis un lieu pour continuer.",
+    "src": {
+      "label": "Vue",
+      "d3": "Ville 3D",
+      "rue": "Photo de rue"
+    },
+    "changePlace": "Changer de lieu",
+    "rueTip": "{count} photos de rue ici : touche « Photo de rue » pour en ajouter à ton décor.",
+    "angleLabel": "Angle",
+    "lookSent": "Comfy reçoit toujours ton cadre en Volumes ou Photo-carte : les traits seuls donnent un dessin.",
+    "base": {
+      "title": "Ton cadre 3D = base fixe",
+      "line": "L'angle de vue, les volumes et la caméra ne bougent pas.",
+      "change": "Recadrer",
+      "alt": "Cadre 3D gardé : {name}"
+    },
+    "refs": {
+      "label": "Photos de référence",
+      "hint": "1 photo suffit. 2 ou 3 photos du même lieu = un aspect plus fidèle.",
+      "remove": "Retirer la photo {n}",
+      "alt": "Image {n} : {name}",
+      "full": "Déjà {max} photos : retire-en une pour en ajouter."
+    },
+    "pick": {
+      "rue": "Rue ici",
+      "mes": "Mes créations",
+      "import": "Importer",
+      "mesEmpty": "Rien dans Mes créations pour l'instant.",
+      "fail": "Cette image ne se lit pas. Essaie une autre."
+    },
+    "kind": {
+      "cadre": "Cadre 3D",
+      "decor": "Décor"
+    },
+    "ambiance": {
+      "label": "Ambiance (facultatif)",
+      "photos": "Comme les photos",
+      "nuit": "Nuit",
+      "pluie": "Pluie",
+      "aube": "Aube"
+    },
+    "decorName": "Nom du décor",
+    "more": "Plus de réglages · cadre strict, détail",
+    "strict": {
+      "label": "Respect du cadre",
+      "normal": "Normal",
+      "strict": "Strict · + ≈ 4 cr. estimés",
+      "soon": "Bientôt : la passe de profondeur n'est pas encore branchée."
+    },
+    "detail": "Un détail ? (facultatif)",
+    "detailPh": "ex. pavés mouillés, enseignes allumées",
+    "sameplace": "Comfy garde l'angle de ton cadre et prend l'aspect de tes photos. Sans personne ni texte.",
+    "make": {
+      "button": "Créer le décor · ≈ {credits} cr. estimés",
+      "needPhoto": "Ajoute au moins une photo du lieu.",
+      "needName": "Donne un nom au décor.",
+      "fail": "Le décor n'a pas été créé. Ton cadre et tes photos sont toujours là."
+    },
+    "ask": {
+      "title": "Créer maintenant ?",
+      "line": "Cadre + {photos} photo(s) · ≈ {credits} cr. estimés, plafond {high} cr. Rendu Comfy en 1 passe, environ 20 s.",
+      "cancel": "Annuler",
+      "yes": "Oui, créer"
+    },
+    "made": {
+      "title": "Décor créé et gardé",
+      "free": "gratuit",
+      "line": "« {name} » est dans DÉCOR et déjà choisi pour PRISE.",
+      "cost": "Coût lu sur ton solde Comfy : {cost} cr. (estimé ≈ {quote} cr.)",
+      "costUnknown": "Coût réel pas encore lu sur ton solde (estimé ≈ {quote} cr.)",
+      "again": "Autres photos",
+      "prise": "Utiliser dans PRISE"
+    },
+    "example": {
+      "tag": "Exemple",
+      "place": "Place Saint-François, Lausanne",
+      "a": "Vue 3D",
+      "b": "Photo de rue",
+      "c": "Résultat",
+      "note": "Illustration d'exemple, faite hors Comfy. Ce n'est pas un rendu Comfy."
+    }
   },
   "suite": {
     "title": "Et ensuite ?",

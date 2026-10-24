@@ -2000,7 +2000,7 @@
   },
   "rep3d": {
     "entryTitle": "Kostenlose 3D-Motivsuche",
-    "entryLead": "Eine 3D-Stadt überall auf der Welt, mit echten Dächern in der Schweiz und freien Strassenfotos. Rahmen, Licht wählen, aufnehmen. Kostenlos, keine Credits.",
+    "entryLead": "Such einen echten Ort, rahme ihn in 3D, füg 1 bis 3 Straßenfotos hinzu: Comfy macht daraus eine Kulisse, die deinen Rahmen behält. Ort und Rahmen sind gratis.",
     "open": "Ort erkunden",
     "close": "Erkundung schliessen",
     "title": "3D-Erkundung",
@@ -2045,14 +2045,14 @@
       "moyen": "Halbtotale",
       "contre": "Untersicht"
     },
-    "street": "Strassenansicht",
+    "street": "Augenhöhe",
     "lightLabel": "Licht",
     "light": {
       "matin": "Morgen",
       "midi": "Mittag",
       "soir": "Abend"
     },
-    "reglages": "Einstellungen",
+    "reglages": "Mehr Einstellungen · Stil, Winkel, Sonne, Objektiv",
     "set": {
       "azimuth": "Sonne, Richtung",
       "altitude": "Sonne, Höhe",
@@ -2076,15 +2076,15 @@
       "mouse": "Ziehen: verschieben · Rechtsklick oder Umschalt + Ziehen: drehen und neigen · Mausrad: zoomen",
       "street": "Ziehen, um sich umzusehen. Die Pfeile gehen vorwärts."
     },
-    "capture": "Diesen Ausschnitt festhalten",
+    "capture": "Rahmen behalten · gratis",
     "capturing": "Wird erfasst…",
     "captureOff": "Wähle zuerst einen Ort.",
     "captureWait": "Warte, bis die Stadt gebaut ist.",
     "captureFail": "Die Aufnahme konnte nicht gespeichert werden. Erneut versuchen.",
-    "captured": "Ausschnitt in Meine Kreationen unter Kulisse gespeichert: Farbe, Tiefe und Linien, mit Kamera und Quellen. Er liegt in den Referenzen.",
-    "quote": "Daraus ein Set machen: ≈ {credits} Credits, geschätzt (Obergrenze {high}). Ohne deine Bestätigung startet nichts.",
+    "captured": "Gratis gespeichert in Meine Kreationen › Orte (Farbe, Tiefe, Linien, Kamera und Credits).",
+    "quote": "Daraus eine Kulisse machen: ≈ {credits} Cr. geschätzt (Obergrenze {high}). Nichts startet ohne deine Bestätigung.",
     "again": "Anderer Ausschnitt",
-    "use": "In Kulisse ansehen",
+    "use": "In SET ansehen",
     "viewLine": "Kurs {heading}° · Neigung {pitch}° · {focal} mm · Kamera auf {height} m",
     "out": {
       "color": "Farbe",
@@ -2099,8 +2099,8 @@
       "load": "Suche nach einem freien Strassenfoto…",
       "none": "Kein freies Strassenfoto im Umkreis von {radius} m.",
       "fail": "Die Strassenfotos haben nicht geantwortet.",
-      "add": "Zu den Referenzen",
-      "added": "Foto mit Autor und Lizenz zu den Referenzen hinzugefügt.",
+      "add": "Zu den Referenzfotos",
+      "added": "Foto zu den Referenzfotos hinzugefügt ({n}/{max}), mit Autor und Lizenz.",
       "source": "Quelle",
       "licence": "Lizenz nicht erkannt: Das Foto bleibt sichtbar, kann aber nicht kopiert werden.",
       "alt": "Strassenfoto von {author}",
@@ -2130,12 +2130,102 @@
       "off": "Diese Datei enthält keinen lesbaren Punkt. Versuche KML, KMZ oder GeoJSON mit einem Ort."
     },
     "free": "kostenlos",
-    "stepPick": "Wähle einen Ort: eine Adresse, Koordinaten oder ein Beispiel.",
-    "stepLook": "Sieh ihn in 3D oder auf der Strasse mit freien Fotos.",
-    "stepKeep": "Nimm den Ausschnitt auf: Er landet in Meine Werke und bei den Referenzen der Kulisse.",
+    "stepPick": "Ort: eine Adresse, Koordinaten oder ein Beispiel.",
+    "stepLook": "Rahmen: in der 3D-Stadt oder im Straßenfoto. „Rahmen behalten“ ist gratis.",
+    "stepKeep": "Kulisse: dein Rahmen + 1 bis 3 Fotos. Comfy behält den Winkel und übernimmt den Look der Fotos.",
     "kept": "Gespeicherte Aufnahmen: {n}",
     "keptNone": "Erkunden und Aufnehmen kostet nichts.",
-    "toDecor": "Eine Kulisse aus meinen Aufnahmen machen"
+    "toDecor": "Eine Kulisse aus meinen Aufnahmen machen",
+    "cadre": "3D-Rahmen",
+    "toolQuote": "Ort und Rahmen sind gratis. Die Kulisse kostet ab",
+    "steps": {
+      "label": "Schritte",
+      "lieu": "Ort",
+      "cadre": "Rahmen",
+      "decor": "Kulisse",
+      "why": "Ein Schritt öffnet sich, wenn der vorige erledigt ist: ein Ort, dann ein behaltener Rahmen."
+    },
+    "stepWhy": "Wähl einen Ort, um weiterzumachen.",
+    "src": {
+      "label": "Ansicht",
+      "d3": "3D-Stadt",
+      "rue": "Straßenfoto"
+    },
+    "changePlace": "Ort ändern",
+    "rueTip": "{count} Straßenfotos hier: Tipp auf „Straßenfoto“, um welche zu deiner Kulisse hinzuzufügen.",
+    "angleLabel": "Winkel",
+    "lookSent": "Comfy bekommt deinen Rahmen immer als Volumen oder Fotokarte: Nur Linien ergeben eine Zeichnung.",
+    "base": {
+      "title": "Dein 3D-Rahmen = feste Basis",
+      "line": "Blickwinkel, Volumen und Kamera bleiben fix.",
+      "change": "Neu rahmen",
+      "alt": "Gespeicherter 3D-Rahmen: {name}"
+    },
+    "refs": {
+      "label": "Referenzfotos",
+      "hint": "1 Foto reicht. 2 oder 3 Fotos vom selben Ort = ein treuerer Look.",
+      "remove": "Foto {n} entfernen",
+      "alt": "Bild {n}: {name}",
+      "full": "Schon {max} Fotos: Entfern eins, um ein anderes hinzuzufügen."
+    },
+    "pick": {
+      "rue": "Straße, hier",
+      "mes": "Meine Kreationen",
+      "import": "Importieren",
+      "mesEmpty": "Noch nichts in Meine Kreationen.",
+      "fail": "Dieses Bild lässt sich nicht lesen. Versuch ein anderes."
+    },
+    "kind": {
+      "cadre": "3D-Rahmen",
+      "decor": "Kulisse"
+    },
+    "ambiance": {
+      "label": "Stimmung (optional)",
+      "photos": "Wie die Fotos",
+      "nuit": "Nacht",
+      "pluie": "Regen",
+      "aube": "Morgengrauen"
+    },
+    "decorName": "Name der Kulisse",
+    "more": "Mehr Einstellungen · strenger Rahmen, Detail",
+    "strict": {
+      "label": "Rahmentreue",
+      "normal": "Normal",
+      "strict": "Streng · + ≈ 4 Cr. geschätzt",
+      "soon": "Bald: Der Tiefendurchgang ist noch nicht angeschlossen."
+    },
+    "detail": "Ein Detail? (optional)",
+    "detailPh": "z. B. nasses Pflaster, beleuchtete Schilder",
+    "sameplace": "Comfy behält den Winkel deines Rahmens und übernimmt den Look deiner Fotos. Ohne Personen, ohne Text.",
+    "make": {
+      "button": "Kulisse erstellen · ≈ {credits} Cr. geschätzt",
+      "needPhoto": "Füg mindestens ein Foto vom Ort hinzu.",
+      "needName": "Gib der Kulisse einen Namen.",
+      "fail": "Die Kulisse wurde nicht erstellt. Dein Rahmen und deine Fotos sind noch da."
+    },
+    "ask": {
+      "title": "Jetzt erstellen?",
+      "line": "Rahmen + {photos} Foto(s) · ≈ {credits} Cr. geschätzt, Obergrenze {high} Cr. Comfy-Render in 1 Durchgang, etwa 20 s.",
+      "cancel": "Abbrechen",
+      "yes": "Ja, erstellen"
+    },
+    "made": {
+      "title": "Kulisse erstellt und gespeichert",
+      "free": "gratis",
+      "line": "„{name}“ ist in Kulisse und schon für Take gewählt.",
+      "cost": "Kosten laut deinem Comfy-Guthaben: {cost} Cr. (geschätzt ≈ {quote} Cr.)",
+      "costUnknown": "Echte Kosten noch nicht vom Guthaben gelesen (geschätzt ≈ {quote} Cr.)",
+      "again": "Andere Fotos",
+      "prise": "Im Take nutzen"
+    },
+    "example": {
+      "tag": "Beispiel",
+      "place": "Place Saint-François, Lausanne",
+      "a": "3D-Ansicht",
+      "b": "Straßenfoto",
+      "c": "Ergebnis",
+      "note": "Beispiel-Illustration, außerhalb von Comfy erstellt. Kein Comfy-Render."
+    }
   },
   "suite": {
     "title": "Und jetzt?",

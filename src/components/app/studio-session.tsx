@@ -17,6 +17,8 @@ import { captureFiles } from "@/lib/repere3d/capture";
 import { cleanCardName, copyCast, decorFromScene, renameById, type CastCard, type DecorCard } from "@/lib/creation/gallery";
 import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
 import { stillOutput, runStill } from "@/lib/creation/still";
+import { cadreQuote } from "@/lib/creation/decor-cadre";
+import { KLEIN_REFS_MAX } from "@/lib/render/klein-graph";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
 import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip, vaultPathFromZip } from "@/lib/coffre/import";
@@ -83,6 +85,20 @@ import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog
 import { createMediaClient } from "@/lib/media/cloud";
 import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
 
+export interface DecorInput {
+  name: string;
+  prompt: string;
+  source: "texte" | "photo";
+  file: File | null;
+  files?: File[];
+  confirmed: boolean;
+  geste?: string;
+  /** Décor from a kept 3D frame: `files[0]` is the frame, then `photos` reference photos (1–3). */
+  cadre?: { photos: number };
+  /** Called once the décor is filed in DÉCOR. */
+  onFiled?(filed: { id: string; name: string; cost: number | null; quote: number; image: Blob }): void;
+}
+
 export interface StudioSession {
   catalog: MediaCatalog | null;
   syncMedia(more?: boolean): Promise<void>;
@@ -133,7 +149,7 @@ export interface StudioSession {
   creating: boolean;
   loose: AssetRecord[];
   createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
-  createDecor(input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; files?: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
+  createDecor(input: DecorInput): Promise<boolean>;
   createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
   prefs: StudioPrefs;
   setPrefs(next: Partial<StudioPrefs>): void;
@@ -821,13 +837,17 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
   }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
 
-  const createDecor = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photo"; file: File | null; files?: File[]; confirmed: boolean; geste?: string }) => {
+  const createDecor = useCallback(async (input: DecorInput) => {
     const row = input.geste ? gesteParId(input.geste) : null;
     const opened = !row || (gesteOuvert(row) && row.onglet === "decor");
-    const pictures = (input.files && input.files.length > 0 ? input.files : input.file ? [input.file] : []).slice(0, 3);
-    const quote = row && row.credits !== null && row.high !== null
+    // From a kept 3D frame: the frame plus one to three photos, quoted by photo count.
+    const cadre = input.cadre ? cadreQuote(input.cadre.photos) : null;
+    if (input.cadre && !cadre) return false;
+    const pictures = (input.files && input.files.length > 0 ? input.files : input.file ? [input.file] : []).slice(0, cadre ? KLEIN_REFS_MAX : 3);
+    if (cadre && pictures.length !== input.cadre!.photos + 1) return false;
+    const quote = cadre ?? (row && row.credits !== null && row.high !== null
       ? { credits: row.credits, high: row.high, template: row.template }
-      : quoteForDecor(input.source);
+      : quoteForDecor(input.source));
     if (!spendAllowed(quote.credits, input.confirmed)) return false;
     if (!opened || (input.geste && !row)) {
       setNotice(t("gestes.unwired"));
@@ -855,10 +875,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const vault = projectVault(store(), slug);
     const held = studioRef.current ?? await loadStudio(vault);
     const id = uniqueId(slugify(name), held.scenes.map(scene => scene.id));
-    const kind = row?.still === "photo-decor" || row?.still === "texte-decor"
-      ? row.still
-      : input.source === "photo" ? "photo-decor" : "texte-decor";
-    const sent = [input.prompt.trim(), row?.consigne ?? ""].filter(Boolean).join("\n\n");
+    const kind = cadre ? "cadre-decor" as const
+      : row?.still === "photo-decor" || row?.still === "texte-decor"
+        ? row.still
+        : input.source === "photo" ? "photo-decor" : "texte-decor";
+    const sent = cadre ? input.prompt.trim() : [input.prompt.trim(), row?.consigne ?? ""].filter(Boolean).join("\n\n");
     setCreating(true);
     try {
       const refs: string[] = [];
@@ -872,7 +893,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         kind,
         template: quote.template,
         prompt: sent,
-        pictures: pictures.map((file, index) => ({ blob: file, name: `uttu-lieu-${index + 1}.jpg` })),
+        pictures: pictures.map((file, index) => ({ blob: file, name: cadre && index === 0 ? "uttu-cadre-3d.png" : `uttu-lieu-${index + 1}.jpg` })),
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
         clientId: crypto.randomUUID(),
         balanceBefore: fresh?.credits ?? 0,
@@ -883,7 +904,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         ...emptySceneDraft(),
         id, name, note: input.prompt.trim(), stills: [sheet], render: sheet,
         prompt: input.prompt.trim(), template: quote.template, devis: quote.credits, cout: result.costCredits, home: "Decors", source: input.source,
-        geste: row?.id,
+        geste: cadre ? "decor-cadre" : row?.id,
       };
       await writeScene(vault, scene);
       await writeState(vault, id);
@@ -892,6 +913,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       setPickedDecor(id);
       setNotice(t("create.filed"));
+      input.onFiled?.({ id, name, cost: result.costCredits, quote: quote.credits, image: result.image });
       return true;
     } catch (error) {
       const failure = error instanceof RenderError ? error : new RenderError("failed", error instanceof Error ? error.message : t("create.failed"));

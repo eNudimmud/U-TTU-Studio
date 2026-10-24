@@ -42,12 +42,18 @@ test("repérage 3D : chercher, styler, capturer, retrouver le lieu en DÉCOR et 
   const outside = await offline(page);
   const sheet = await openSheet(page);
   await expect(sheet).toHaveAttribute("data-rep3d-state", "search");
-  // Disabled settings say why.
-  await expect(page.locator("#u-rep3d-why-set")).toBeVisible();
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "1");
+  // Steps 2 and 3 stay shut until there is a place, then a kept frame; the bar says why.
+  await expect(page.locator("[data-rep3d-step-tab='2']")).toBeDisabled();
+  await expect(page.locator("[data-rep3d-step-tab='3']")).toBeDisabled();
+  await expect(page.locator("[data-rep3d-step-why]")).toBeVisible();
   const search = sheet.getByRole("searchbox", { name: "Lieu, adresse ou coordonnées" });
   await search.fill("Place d'essai");
   await search.press("Enter");
   await expect(sheet).toHaveAttribute("data-rep3d-state", "ready", { timeout: 20_000 });
+  // Picking a place moves on to « Cadre » by itself.
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "2");
+  await expect(page.locator("[data-rep3d-step-tab='2']")).toHaveAttribute("aria-current", "step");
   await expect(page.locator("[data-rep3d-place]")).toContainText("Place d'essai");
   await expect(page.locator("[data-rep3d-place]")).toContainText(/\d+ bâtiments/);
   const credit = page.locator("[data-rep3d-credit]");
@@ -109,6 +115,9 @@ test("repérage 3D : chercher, styler, capturer, retrouver le lieu en DÉCOR et 
   const tilted = await read();
   expect(Math.abs(((tilted.cap - turned.cap + 540) % 360) - 180)).toBeLessThanOrEqual(1);
 
+  // The sheet opens in Volumes: the look Comfy reads best as image 1.
+  await expect(sheet).toHaveAttribute("data-look", "volumes");
+  await page.locator("[data-reglages] > summary").click();
   for (const look of ["carte", "volumes", "ombres", "trait"]) {
     await page.locator(`[data-look-pick=${look}]`).click();
     await expect(sheet).toHaveAttribute("data-look", look);
@@ -123,7 +132,6 @@ test("repérage 3D : chercher, styler, capturer, retrouver le lieu en DÉCOR et 
   await page.locator("[data-sun=soir]").click();
   await expect(page.locator("[data-sun=soir]")).toHaveAttribute("aria-pressed", "true");
 
-  await page.locator("[data-reglages] > summary").click();
   const fov = page.locator("#u-rep3d-fov");
   await expect(fov).toBeEnabled();
   await fov.fill("60");
@@ -137,16 +145,31 @@ test("repérage 3D : chercher, styler, capturer, retrouver le lieu en DÉCOR et 
   }
 
   await page.locator("[data-rep3d-capture]").click();
+  // Step 3: the kept frame is the fixed base; no photo yet, so nothing can be created.
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
   const done = page.locator("[data-capture-done]");
-  await expect(done).toBeVisible({ timeout: 20_000 });
-  await expect(done.locator("img")).toHaveCount(3);
-  await expect(page.locator("[data-rep3d-quote]")).toContainText("4");
-  await page.locator("[data-rep3d-use]").click();
+  await expect(done).toBeVisible();
+  await expect(done.locator("img")).toHaveCount(1);
+  await expect(done).toContainText("Mes créations › Lieux");
+  await expect(page.locator("[data-rep3d-refs]")).toHaveAttribute("data-rep3d-refs", "0");
+  await expect(page.locator("[data-rep3d-example-note]")).toContainText("faite hors Comfy");
+  const create = page.locator("[data-rep3d-create]");
+  await expect(create).toBeDisabled();
+  await expect(create).toContainText("≈ 4 cr. estimés");
+  await expect(page.locator("#u-rep3d-make-why")).toContainText("Ajoute au moins une photo");
+  await expect(page.locator("[data-rep3d-name]")).toHaveValue("Place d'essai");
+  await page.locator("[data-rep3d-more] > summary").click();
+  await expect(page.locator("[data-strict=strict]")).toBeDisabled();
+  await expect(page.locator("#u-rep3d-strict-why")).toContainText("Bientôt");
+  for (const sel of ["[data-rep3d-pick=rue]", "[data-rep3d-pick=mes]", "[data-rep3d-pick=import]", "[data-ambiance=nuit]", "[data-rep3d-reframe]"]) {
+    const box = await page.locator(sel).boundingBox();
+    expect(box!.height, sel).toBeGreaterThanOrEqual(44);
+  }
+  await page.getByRole("button", { name: "Fermer le repérage" }).click();
   await expect(sheet).toBeHidden();
 
-  // The colour capture now sits in the décor photo slot; nothing ran.
-  await expect(page.locator("[data-slot] img").first()).toBeVisible();
-  const name = "Place d'essai · Trait";
+  // The frame is a free capture, filed as a place: PRISE lists it, named as a 3D frame.
+  const name = "Place d'essai · Cadre 3D";
   await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
   const where = page.locator("[data-ou-source=mes-decors]");
   await expect(where).toBeVisible();
@@ -189,4 +212,91 @@ test("repérage 3D : géocodeur limité, réponse calme et nouvel essai", async 
   await search.fill("40.758, -73.9855");
   await search.press("Enter");
   await expect(sheet).toHaveAttribute("data-rep3d-state", "ready", { timeout: 20_000 });
+});
+
+// Step 3 with Comfy simulated: nothing leaves the machine and nothing is spent.
+async function fakeComfy(page: Page) {
+  const graphs: Record<string, { class_type: string; inputs: Record<string, unknown> }>[] = [];
+  const uploads: string[] = [];
+  await page.addInitScript(() => localStorage.setItem("u-ttu-rendu", JSON.stringify({ mode: "key", key: "audit-fake-key-0123456789" })));
+  await page.route(/\/api\/user$/, route => route.fulfill({ json: { id: "reperage" } }));
+  await page.route(/\/api\/billing\/usage\/timeseries|customers\/balance/, route => route.fulfill({ json: { summary: { balance: { amount_micros: 500_000_000 } } } }));
+  await page.route(/\/api\/upload\/image$/, route => {
+    const body = route.request().postDataBuffer()?.toString("latin1") ?? "";
+    uploads.push(/filename="([^"]+)"/.exec(body)?.[1] ?? "?");
+    return route.fulfill({ json: { name: `entree-${uploads.length}.png` } });
+  });
+  await page.route(/\/api\/prompt$/, route => {
+    graphs.push(route.request().postDataJSON()?.prompt ?? {});
+    return route.fulfill({ json: { prompt_id: `cadre-job-${graphs.length}`, node_errors: {} } });
+  });
+  await page.route(/\/api\/job\/[^/]+\/status$/, route => route.fulfill({ json: { status: "success" } }));
+  await page.route(/\/api\/jobs\/[^/?]+$/, route => route.fulfill({ json: { status: "success", outputs: { save: { images: [{ filename: "cadre.webp", subfolder: "", type: "output" }] } } } }));
+  await page.route(/\/api\/view\?/, route => route.fulfill({ contentType: "image/webp", body: readFileSync("public/exemples/reperage/sf-exemple.webp") }));
+  return { graphs, uploads };
+}
+
+test("repérage 3D, étape Décor : cadre + 2 photos, un seul rendu Klein confirmé, puis PRISE", async ({ page }) => {
+  const outside = await offline(page);
+  const comfy = await fakeComfy(page);
+  const sheet = await openSheet(page);
+  const search = sheet.getByRole("searchbox", { name: "Lieu, adresse ou coordonnées" });
+  await search.fill("Place d'essai");
+  await search.press("Enter");
+  await expect(sheet).toHaveAttribute("data-rep3d-state", "ready", { timeout: 20_000 });
+  await page.locator("[data-rep3d-capture]").click();
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
+
+  // Two photos from the device: the button quote follows the count, nothing runs yet.
+  const pick = page.locator("[data-rep3d-pick=import] input[type=file]");
+  await pick.setInputFiles("public/og.jpg");
+  await expect(page.locator("[data-rep3d-refs]")).toHaveAttribute("data-rep3d-refs", "1");
+  await expect(page.locator("[data-rep3d-create]")).toContainText("≈ 4 cr. estimés");
+  await pick.setInputFiles("public/exemples/reperage/sf-rue.webp");
+  await expect(page.locator("[data-rep3d-refs]")).toHaveAttribute("data-rep3d-refs", "2");
+  const create = page.locator("[data-rep3d-create]");
+  await expect(create).toContainText("≈ 5 cr. estimés");
+  // Remove one, add it back: the close target is 44 px.
+  const remove = page.locator("[data-rep3d-photo-remove='1']");
+  const x = await remove.boundingBox();
+  expect(x!.width).toBeGreaterThanOrEqual(44);
+  expect(x!.height).toBeGreaterThanOrEqual(44);
+  await remove.click();
+  await expect(page.locator("[data-rep3d-refs]")).toHaveAttribute("data-rep3d-refs", "1");
+  await pick.setInputFiles("public/exemples/reperage/sf-rue.webp");
+  await expect(page.locator("[data-rep3d-refs]")).toHaveAttribute("data-rep3d-refs", "2");
+  await page.locator("[data-ambiance=nuit]").click();
+  await page.locator("[data-rep3d-name]").fill("Saint-François nuit");
+  await expect(create).toBeEnabled();
+  expect(comfy.graphs).toHaveLength(0);
+
+  // Confirmation: estimate and ceiling, then one Klein edit.
+  await create.click();
+  await expect(page.locator("[data-rep3d-quote]")).toContainText("≈ 5 cr. estimés, plafond 9 cr.");
+  await page.locator("[data-rep3d-yes]").click();
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "4", { timeout: 30_000 });
+  await expect(page.locator("[data-rep3d-made]")).toBeVisible();
+  await expect(page.locator("[data-rep3d-made-line]")).toContainText("Saint-François nuit");
+  await expect(page.locator(".u-rep3d-pair figcaption").first()).toContainText("Cadre 3D · gratuit");
+
+  expect(comfy.graphs).toHaveLength(1);
+  const graph = comfy.graphs[0];
+  const loads = Object.entries(graph).filter(([, node]) => node.class_type === "LoadImage");
+  expect(loads.map(([id]) => id)).toEqual(["load", "load2", "load3"]);
+  expect(loads[0][1].inputs.image).toBe("entree-1.png");
+  expect(comfy.uploads[0]).toBe("uttu-cadre-3d.png");
+  expect(comfy.uploads).toHaveLength(3);
+  const text = String(Object.values(graph).find(node => node.class_type === "PrimitiveStringMultiline" && String(node.inputs.value).startsWith("Image 1"))?.inputs.value ?? "");
+  expect(text).toContain("keep its exact camera position");
+  expect(text).toContain("images 2 to 3");
+  expect(text).toContain("No people");
+  expect(text).toContain("Night");
+
+  // « Utiliser dans PRISE » closes the sheet with the new décor already chosen.
+  await page.locator("[data-rep3d-to-prise]").click();
+  await expect(sheet).toBeHidden();
+  const place = page.locator("[data-ou-source=mes-decors]").getByRole("button", { name: "Saint-François nuit" });
+  await expect(place).toBeVisible();
+  await expect(place).toHaveAttribute("aria-pressed", "true");
+  expect(outside.filter(url => !/\/api\//.test(url))).toEqual([]);
 });

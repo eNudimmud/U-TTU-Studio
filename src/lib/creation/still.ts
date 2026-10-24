@@ -3,12 +3,13 @@
 
 import { measuredCost } from "../credits.ts";
 import { imageOutput, jobStage, RenderError, type JobDetail, type OutputRef, type RenderClient } from "../render/client.ts";
-import { kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
+import { KLEIN_REFS_MAX, kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
 import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
 
-export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche";
+/** `cadre-decor`: image 1 is a kept 3D frame, images 2–4 are photos of the place (decor-cadre.ts). */
+export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche" | "cadre-decor";
 
 /** Which graph family builds the still. Read from the gesture's template. */
 export type StillEngine = "klein" | "flux3" | "nano";
@@ -54,7 +55,7 @@ const sleepDefault = (ms: number) => new Promise<void>(resolve => setTimeout(res
 
 export function quoteForKind(kind: StillKind): CreationQuote {
   if (kind === "planche") return CAST_SHEET_QUOTE;
-  if (kind === "photo-decor") return DECOR_PHOTO_QUOTE;
+  if (kind === "photo-decor" || kind === "cadre-decor") return DECOR_PHOTO_QUOTE;
   if (kind === "texte-decor") return DECOR_TEXT_QUOTE;
   return CAST_TEXT_QUOTE;
 }
@@ -83,13 +84,20 @@ const SUFFIX: Record<StillKind, string> = {
   "photo-cast": "The same fictional person as the reference images. Keep the face. No text.",
   "photo-decor": "Cinema still, 16:9, the same place as the reference image, empty of people. No text.",
   planche: "",
+  // The whole instruction is in the visitor prompt (cadrePrompt): nothing to add.
+  "cadre-decor": "",
 };
 
 function aspectOf(kind: StillKind): KleinAspect {
-  return kind === "texte-decor" || kind === "photo-decor" ? "16:9" : "3:4";
+  return kind === "texte-decor" || kind === "photo-decor" || kind === "cadre-decor" ? "16:9" : "3:4";
 }
 
 function needsPhoto(kind: StillKind, images: readonly string[]): void {
+  if (kind === "cadre-decor") {
+    if (!images[0]) throw new Error("Le décor part d’un cadre 3D gardé.");
+    if (!images[1]) throw new Error("Ajoute au moins une photo du lieu.");
+    return;
+  }
   if (kind === "texte-cast" || kind === "texte-decor" || images[0]) return;
   throw new Error(kind === "photo-decor" ? "Le décor part d’une photo." : kind === "planche" ? "La planche part d’une photo." : "Le personnage part d’une photo.");
 }
@@ -107,9 +115,13 @@ function kleinStill(input: { kind: StillKind; prompt: string; images: readonly s
   const kind = input.kind === "planche" ? "photo-cast" : input.kind;
   needsPhoto(input.kind, input.images);
   const graph: ApiGraph = {};
-  const refs = kind === "texte-cast" || kind === "texte-decor" ? [] : loads(graph, input.images, 4);
+  const refs = kind === "texte-cast" || kind === "texte-decor" ? [] : loads(graph, input.images, KLEIN_REFS_MAX);
+  if (kind === "cadre-decor") {
+    graph.load._meta = { title: "Cadre 3D (base fixe)" };
+    refs.slice(1).forEach(([id], index) => { graph[id]._meta = { title: `Photo du lieu ${index + 1}` }; });
+  }
   const sheet = input.kind === "planche" ? "Turnaround of this fictional person: front, three-quarter, profile, back, full body, side by side. Plain background. No text." : SUFFIX[kind];
-  Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: `${input.prompt}\n\n${sheet}`, seed: input.seed, aspect: aspectOf(kind), images: refs }));
+  Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: sheet ? `${input.prompt}\n\n${sheet}` : input.prompt, seed: input.seed, aspect: aspectOf(kind), images: refs }));
   graph.save = save(input.kind === "planche" ? "planche" : "save", "klein_decode", input.kind === "planche" ? "uttu-planche" : "uttu-still");
   return graph;
 }
@@ -148,6 +160,7 @@ export function stillGraph(input: { kind: StillKind; prompt: string; images: rea
   const seed = seedOf(input.seed);
   const engine = stillEngine(input.template);
   if (engine === "klein") return kleinStill({ ...input, prompt, seed });
+  if (input.kind === "cadre-decor") throw new Error("Le décor depuis un cadre passe par FLUX 3 Klein.");
   if (engine === "flux3") return flux3Still({ ...input, prompt, seed });
   if (input.kind === "planche") {
     const image = input.images[0];

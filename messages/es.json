@@ -2000,7 +2000,7 @@
   },
   "rep3d": {
     "entryTitle": "Localización 3D gratis",
-    "entryLead": "Una ciudad en 3D en cualquier lugar del mundo, con tejados reales en Suiza y fotos de calle libres. Encuadra, elige la luz, captura. Gratis, sin créditos.",
+    "entryLead": "Busca un lugar real, encuádralo en 3D, añade de 1 a 3 fotos de calle: Comfy lo convierte en un decorado que conserva tu encuadre. Lugar y encuadre son gratis.",
     "open": "Localizar un lugar",
     "close": "Cerrar la localización",
     "title": "Localización 3D",
@@ -2045,14 +2045,14 @@
       "moyen": "Plano medio",
       "contre": "Contrapicado"
     },
-    "street": "Vista de calle",
+    "street": "A pie de calle",
     "lightLabel": "Luz",
     "light": {
       "matin": "Mañana",
       "midi": "Mediodía",
       "soir": "Tarde"
     },
-    "reglages": "Ajustes",
+    "reglages": "Más ajustes · estilo, ángulo, sol, objetivo",
     "set": {
       "azimuth": "Sol, dirección",
       "altitude": "Sol, altura",
@@ -2076,13 +2076,13 @@
       "mouse": "Arrastrar: mover · clic derecho o Mayús + arrastrar: girar e inclinar · rueda: zoom",
       "street": "Arrastra para mirar alrededor. Las flechas avanzan."
     },
-    "capture": "Capturar este encuadre",
+    "capture": "Guardar este encuadre · gratis",
     "capturing": "Capturando…",
     "captureOff": "Primero elige un lugar.",
     "captureWait": "Espera a que la ciudad esté construida.",
     "captureFail": "No se pudo guardar la captura. Inténtalo de nuevo.",
-    "captured": "Encuadre guardado en Mis creaciones, en Decorado: color, profundidad y líneas, con la cámara y los créditos. Está colocado en las referencias.",
-    "quote": "Para convertirlo en decorado: ≈ {credits} créditos estimados (tope {high}). Nada se lanza sin tu confirmación.",
+    "captured": "Guardado gratis en Mis creaciones › Lugares (color, profundidad, trazos, cámara y créditos).",
+    "quote": "Para hacer un decorado: ≈ {credits} cr. estimados (tope {high}). Nada se lanza sin tu confirmación.",
     "again": "Otro encuadre",
     "use": "Ver en Decorado",
     "viewLine": "Rumbo {heading}° · inclinación {pitch}° · {focal} mm · cámara a {height} m",
@@ -2099,8 +2099,8 @@
       "load": "Buscando una foto de calle libre…",
       "none": "No hay foto de calle libre a menos de {radius} m.",
       "fail": "Las fotos de calle no respondieron.",
-      "add": "Añadir a las referencias",
-      "added": "Foto añadida a las referencias, con autor y licencia.",
+      "add": "Añadir a las fotos de referencia",
+      "added": "Foto añadida a las fotos de referencia ({n}/{max}), con autor y licencia.",
       "source": "Fuente",
       "licence": "Licencia no identificada: la foto sigue visible pero no se puede copiar.",
       "alt": "Foto de calle de {author}",
@@ -2130,12 +2130,102 @@
       "off": "Este archivo no contiene un punto legible. Prueba un KML, KMZ o GeoJSON con un lugar."
     },
     "free": "gratis",
-    "stepPick": "Elige un lugar: una dirección, coordenadas o un ejemplo.",
-    "stepLook": "Míralo en 3D, o de pie en la calle con fotos libres.",
-    "stepKeep": "Captura el encuadre: va a Mis creaciones y a las referencias del decorado.",
+    "stepPick": "Lugar: una dirección, coordenadas o un ejemplo.",
+    "stepLook": "Encuadre: en la ciudad 3D o en foto de calle. «Guardar este encuadre» es gratis.",
+    "stepKeep": "Decorado: tu encuadre + 1 a 3 fotos. Comfy conserva el ángulo y toma el aspecto de las fotos.",
     "kept": "Capturas guardadas: {n}",
     "keptNone": "Explorar y capturar no cuesta nada.",
-    "toDecor": "Hacer un decorado con mis capturas"
+    "toDecor": "Hacer un decorado con mis capturas",
+    "cadre": "Encuadre 3D",
+    "toolQuote": "Lugar y encuadre son gratis. El decorado cuesta desde",
+    "steps": {
+      "label": "Pasos",
+      "lieu": "Lugar",
+      "cadre": "Encuadre",
+      "decor": "Decorado",
+      "why": "Un paso se abre cuando el anterior está hecho: un lugar, luego un encuadre guardado."
+    },
+    "stepWhy": "Elige un lugar para continuar.",
+    "src": {
+      "label": "Vista",
+      "d3": "Ciudad 3D",
+      "rue": "Foto de calle"
+    },
+    "changePlace": "Cambiar de lugar",
+    "rueTip": "{count} fotos de calle aquí: toca «Foto de calle» para añadir alguna a tu decorado.",
+    "angleLabel": "Ángulo",
+    "lookSent": "Comfy recibe siempre tu encuadre en Volúmenes o Foto-mapa: solo trazos dan un dibujo.",
+    "base": {
+      "title": "Tu encuadre 3D = base fija",
+      "line": "El ángulo, los volúmenes y la cámara no se mueven.",
+      "change": "Reencuadrar",
+      "alt": "Encuadre 3D guardado: {name}"
+    },
+    "refs": {
+      "label": "Fotos de referencia",
+      "hint": "Basta 1 foto. 2 o 3 fotos del mismo lugar = un aspecto más fiel.",
+      "remove": "Quitar la foto {n}",
+      "alt": "Imagen {n}: {name}",
+      "full": "Ya hay {max} fotos: quita una para añadir otra."
+    },
+    "pick": {
+      "rue": "Calle, aquí",
+      "mes": "Mis creaciones",
+      "import": "Importar",
+      "mesEmpty": "Todavía no hay nada en Mis creaciones.",
+      "fail": "Esta imagen no se puede leer. Prueba otra."
+    },
+    "kind": {
+      "cadre": "Encuadre 3D",
+      "decor": "Decorado"
+    },
+    "ambiance": {
+      "label": "Ambiente (opcional)",
+      "photos": "Como las fotos",
+      "nuit": "Noche",
+      "pluie": "Lluvia",
+      "aube": "Amanecer"
+    },
+    "decorName": "Nombre del decorado",
+    "more": "Más ajustes · encuadre estricto, detalle",
+    "strict": {
+      "label": "Fidelidad al encuadre",
+      "normal": "Normal",
+      "strict": "Estricta · + ≈ 4 cr. estimados",
+      "soon": "Pronto: la pasada de profundidad aún no está conectada."
+    },
+    "detail": "¿Un detalle? (opcional)",
+    "detailPh": "p. ej. adoquines mojados, letreros encendidos",
+    "sameplace": "Comfy conserva el ángulo de tu encuadre y toma el aspecto de tus fotos. Sin personas ni texto.",
+    "make": {
+      "button": "Crear el decorado · ≈ {credits} cr. estimados",
+      "needPhoto": "Añade al menos una foto del lugar.",
+      "needName": "Ponle un nombre al decorado.",
+      "fail": "El decorado no se creó. Tu encuadre y tus fotos siguen aquí."
+    },
+    "ask": {
+      "title": "¿Crear ahora?",
+      "line": "Encuadre + {photos} foto(s) · ≈ {credits} cr. estimados, tope {high} cr. Render de Comfy en 1 pasada, unos 20 s.",
+      "cancel": "Cancelar",
+      "yes": "Sí, crear"
+    },
+    "made": {
+      "title": "Decorado creado y guardado",
+      "free": "gratis",
+      "line": "«{name}» está en Decorado y ya elegido para Toma.",
+      "cost": "Coste leído en tu saldo Comfy: {cost} cr. (estimado ≈ {quote} cr.)",
+      "costUnknown": "Coste real aún no leído en tu saldo (estimado ≈ {quote} cr.)",
+      "again": "Otras fotos",
+      "prise": "Usar en Toma"
+    },
+    "example": {
+      "tag": "Ejemplo",
+      "place": "Place Saint-François, Lausana",
+      "a": "Vista 3D",
+      "b": "Foto de calle",
+      "c": "Resultado",
+      "note": "Ilustración de ejemplo, hecha fuera de Comfy. No es un render de Comfy."
+    }
   },
   "suite": {
     "title": "¿Y ahora?",

@@ -2000,7 +2000,7 @@
   },
   "rep3d": {
     "entryTitle": "Free 3D scouting",
-    "entryLead": "A 3D city anywhere in the world, with real roofs in Switzerland and free street photos. Frame, pick the light, capture. Free, no credits.",
+    "entryLead": "Find a real place, frame it in 3D, add 1 to 3 street photos: Comfy turns it into a set that keeps your frame. Place and frame are free.",
     "open": "Scout a location",
     "close": "Close scouting",
     "title": "3D scouting",
@@ -2045,14 +2045,14 @@
       "moyen": "Medium shot",
       "contre": "Low angle"
     },
-    "street": "Street view",
+    "street": "Eye level",
     "lightLabel": "Light",
     "light": {
       "matin": "Morning",
       "midi": "Noon",
       "soir": "Evening"
     },
-    "reglages": "Settings",
+    "reglages": "More settings · style, angle, sun, lens",
     "set": {
       "azimuth": "Sun, direction",
       "altitude": "Sun, height",
@@ -2076,15 +2076,15 @@
       "mouse": "Drag: move · right-click or Shift + drag: rotate and tilt · wheel: zoom",
       "street": "Drag to look around. The arrows walk."
     },
-    "capture": "Capture this framing",
+    "capture": "Keep this frame · free",
     "capturing": "Capturing…",
     "captureOff": "Pick a place first.",
     "captureWait": "Wait until the city is built.",
     "captureFail": "The capture could not be saved. Try again.",
-    "captured": "Framing kept in My creations, under Set: colour, depth and lines, with the camera and the credits. It is placed in the references.",
-    "quote": "To turn it into a set: ≈ {credits} credits, estimated (cap {high}). Nothing runs without your confirmation.",
+    "captured": "Kept for free in My creations › Places (colour, depth, lines, camera and credits).",
+    "quote": "To make a set from it: ≈ {credits} cr. estimated (cap {high}). Nothing runs without your confirmation.",
     "again": "Another framing",
-    "use": "See it in Set",
+    "use": "See in Set",
     "viewLine": "Heading {heading}° · tilt {pitch}° · {focal} mm · camera at {height} m",
     "out": {
       "color": "Colour",
@@ -2099,8 +2099,8 @@
       "load": "Looking for an open street photo…",
       "none": "No open street photo within {radius} m.",
       "fail": "Street photos did not answer.",
-      "add": "Add to references",
-      "added": "Photo added to references, with author and licence.",
+      "add": "Add to reference photos",
+      "added": "Photo added to reference photos ({n}/{max}), with author and licence.",
       "source": "Source",
       "licence": "Licence not identified: this photo stays visible but can't be copied.",
       "alt": "Street photo by {author}",
@@ -2130,12 +2130,102 @@
       "off": "This file has no readable point. Try a KML, KMZ or GeoJSON with a place."
     },
     "free": "free",
-    "stepPick": "Pick a place: an address, coordinates or an example.",
-    "stepLook": "See it in 3D, or standing in the street with free photos.",
-    "stepKeep": "Capture the frame: it goes to My creations and the set's references.",
+    "stepPick": "Place: an address, coordinates or an example.",
+    "stepLook": "Frame: in the 3D city or a street photo. “Keep this frame” is free.",
+    "stepKeep": "Set: your frame + 1 to 3 photos. Comfy keeps the angle and takes the photos' look.",
     "kept": "Captures kept: {n}",
     "keptNone": "Exploring and capturing cost nothing.",
-    "toDecor": "Make a set from my captures"
+    "toDecor": "Make a set from my captures",
+    "cadre": "3D frame",
+    "toolQuote": "Place and frame are free. The set costs from",
+    "steps": {
+      "label": "Steps",
+      "lieu": "Place",
+      "cadre": "Frame",
+      "decor": "Set",
+      "why": "A step opens once the previous one is done: a place, then a kept frame."
+    },
+    "stepWhy": "Pick a place to continue.",
+    "src": {
+      "label": "View",
+      "d3": "3D city",
+      "rue": "Street photo"
+    },
+    "changePlace": "Change place",
+    "rueTip": "{count} street photos here: tap “Street photo” to add some to your set.",
+    "angleLabel": "Angle",
+    "lookSent": "Comfy always gets your frame as Volumes or Photo map: lines alone give a drawing.",
+    "base": {
+      "title": "Your 3D frame = fixed base",
+      "line": "The angle, volumes and camera stay put.",
+      "change": "Reframe",
+      "alt": "Kept 3D frame: {name}"
+    },
+    "refs": {
+      "label": "Reference photos",
+      "hint": "1 photo is enough. 2 or 3 photos of the same place = a more faithful look.",
+      "remove": "Remove photo {n}",
+      "alt": "Image {n}: {name}",
+      "full": "Already {max} photos: remove one to add another."
+    },
+    "pick": {
+      "rue": "Street, here",
+      "mes": "My creations",
+      "import": "Import",
+      "mesEmpty": "Nothing in My creations yet.",
+      "fail": "This image can't be read. Try another."
+    },
+    "kind": {
+      "cadre": "3D frame",
+      "decor": "Set"
+    },
+    "ambiance": {
+      "label": "Mood (optional)",
+      "photos": "Like the photos",
+      "nuit": "Night",
+      "pluie": "Rain",
+      "aube": "Dawn"
+    },
+    "decorName": "Set name",
+    "more": "More settings · strict frame, detail",
+    "strict": {
+      "label": "Frame fidelity",
+      "normal": "Normal",
+      "strict": "Strict · + ≈ 4 cr. estimated",
+      "soon": "Coming soon: the depth pass isn't wired yet."
+    },
+    "detail": "A detail? (optional)",
+    "detailPh": "e.g. wet cobbles, lit signs",
+    "sameplace": "Comfy keeps your frame's angle and takes your photos' look. No people, no text.",
+    "make": {
+      "button": "Create the set · ≈ {credits} cr. estimated",
+      "needPhoto": "Add at least one photo of the place.",
+      "needName": "Give the set a name.",
+      "fail": "The set wasn't created. Your frame and photos are still here."
+    },
+    "ask": {
+      "title": "Create now?",
+      "line": "Frame + {photos} photo(s) · ≈ {credits} cr. estimated, cap {high} cr. Comfy render in 1 pass, about 20 s.",
+      "cancel": "Cancel",
+      "yes": "Yes, create"
+    },
+    "made": {
+      "title": "Set created and kept",
+      "free": "free",
+      "line": "“{name}” is in Set and already picked for Take.",
+      "cost": "Cost read from your Comfy balance: {cost} cr. (estimated ≈ {quote} cr.)",
+      "costUnknown": "Real cost not read from your balance yet (estimated ≈ {quote} cr.)",
+      "again": "Other photos",
+      "prise": "Use in Take"
+    },
+    "example": {
+      "tag": "Example",
+      "place": "Place Saint-François, Lausanne",
+      "a": "3D view",
+      "b": "Street photo",
+      "c": "Result",
+      "note": "Example illustration, made outside Comfy. It is not a Comfy render."
+    }
   },
   "suite": {
     "title": "What next?",

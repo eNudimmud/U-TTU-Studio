@@ -30,7 +30,9 @@ test("s'ouvre depuis le rail (ou la rangée 3D sur téléphone) et la carte se c
   await expect(page).toHaveURL(/#outils\/reperage$/);
   const tool = page.locator("[data-reperage-tool]");
   await expect(tool.locator("h1")).toHaveText("Repérer un lieu");
-  await expect(tool.locator("[data-reperage-decor]")).toContainText("cr. estimés");
+  await expect(tool.locator("[data-reperage-decor]")).toContainText("≈ 4 cr. estimés");
+  await expect(tool.locator("[data-rep3d-example-note]")).toContainText("faite hors Comfy");
+  await expect(tool.locator("[data-reperage-kept]")).toHaveAttribute("data-reperage-kept", "0");
   await tool.locator("[data-rep3d-open]").click();
   const sheet = page.getByRole("dialog", { name: "Repérage 3D" });
   await expect(sheet).toBeVisible();
@@ -43,4 +45,12 @@ test("s'ouvre depuis le rail (ou la rangée 3D sur téléphone) et la carte se c
   await expect(canvas).toBeVisible();
   const box = await canvas.boundingBox();
   expect(box!.width).toBeGreaterThan(200);
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "2");
+  // Keeping the frame is free: it lands in Mes créations › Lieux and opens the Décor step.
+  await page.locator("[data-rep3d-capture]").click();
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
+  await expect(page.locator("[data-capture-done]")).toContainText("Mes créations › Lieux");
+  await page.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
+  await expect(tool.locator("[data-reperage-kept]")).toHaveAttribute("data-reperage-kept", "1");
 });
