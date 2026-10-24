@@ -1999,143 +1999,150 @@
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Kostenlose 3D-Motivsuche",
-    "entryLead": "Eine 3D-Stadt überall auf der Welt, mit echten Dächern in der Schweiz und freien Strassenfotos. Rahmen, Licht wählen, aufnehmen. Kostenlos, keine Credits.",
-    "open": "Ort erkunden",
-    "close": "Erkundung schliessen",
-    "title": "3D-Erkundung",
-    "searchLabel": "Ort, Adresse oder Koordinaten",
-    "searchPh": "Lausanne, Shibuya, 46.52, 6.63…",
-    "searchWhy": "Mindestens zwei Buchstaben eingeben.",
+    "entryTitle": "Ein echter Ort als Kulisse",
+    "entryLead": "Wähl einen Ort und eine 3D-Ansicht. Mit Straßenfotos macht Comfy daraus deine Kulisse.",
+    "open": "Ort wählen",
+    "free": "kostenlos",
+    "cardCost": "3D-Ansicht kostenlos",
+    "toolLine": "Ein echter Ort wird deine Kulisse: eine kostenlose 3D-Ansicht plus Straßenfotos.",
+    "stepPick": "Wo? Gib eine Adresse oder eine Stadt ein.",
+    "stepLook": "Deine Ansicht: dreh die 3D und behalte sie. Kostenlos.",
+    "stepKeep": "Erstellen: Comfy mischt deine Ansicht und die Fotos zu einem Kulissenbild.",
+    "toolQuote": "Danach die Kulisse erstellen:",
+    "kept": "Behaltene Ansichten: {n}",
+    "keptNone": "Eine Ansicht wählen kostet nichts.",
+    "cadre": "3D-Ansicht",
+    "title": "Ein echter Ort als Kulisse",
+    "close": "Schließen",
+    "back": "Zurück",
+    "steps": {
+      "label": "Schritt {n} von 3",
+      "ou": "Wo?",
+      "vue": "Deine Ansicht",
+      "creer": "Erstellen"
+    },
+    "s1": {
+      "title": "Mach aus einem echten Ort eine",
+      "titleEm": "Kulisse",
+      "q": "Wo?"
+    },
+    "eq": {
+      "view": "3D-Ansicht",
+      "photos": "Fotos vom Ort",
+      "decor": "Deine Kulisse",
+      "note": "Beispielbild, außerhalb von Comfy erstellt"
+    },
+    "searchLabel": "Eine Adresse, ein Platz, eine Stadt",
+    "searchWhy": "Gib mindestens zwei Buchstaben ein.",
     "searching": "Suche…",
-    "results": "Ergebnisse",
-    "tryThese": "Beispielorte",
-    "empty": "Suche einen Ort oder tippe auf ein Beispiel. Die Stadt entsteht in wenigen Sekunden.",
-    "loading": "Die Stadt wird in 3D gebaut…",
-    "retry": "Erneut versuchen",
-    "camera": "Kamera",
-    "frame": "Erfasster Ausschnitt 16:9",
-    "buildings": "{count} Gebäude",
-    "noGoogle": "Nur offene Daten: OpenStreetMap, freies Relief, swisstopo in der Schweiz (echte Dächer, Luftbild). Keine Google-Daten.",
+    "results": "Gefundene Orte",
     "search": {
       "go": "Suchen",
-      "empty": "Kein Ort gefunden. Versuche einen anderen Namen oder Koordinaten (46.52, 6.63).",
-      "rate": "Eine Suche pro Sekunde. Kurz warten und erneut versuchen.",
-      "short": "Dieser Kurzlink lässt sich nicht lesen. Öffne ihn und füge den langen Link oder die Koordinaten ein.",
-      "offline": "Kein Netz. Verbinde dich und versuche es erneut.",
-      "fail": "Die Suche hat nicht geantwortet. Gleich erneut versuchen."
-    },
-    "state": {
-      "offline": "Kein Netz. Verbinde dich und versuche es erneut.",
-      "rate": "Zu viele Anfragen auf einmal. Einige Sekunden warten und erneut versuchen.",
-      "fail": "Die Kartendaten haben nicht geantwortet. Gleich erneut versuchen.",
-      "empty": "Hier gibt es keine OpenStreetMap-Gebäude. Das Relief bleibt sichtbar.",
-      "nogl": "Dieser Browser zeigt kein 3D (WebGL). Das Strassenfoto und das Öffnen einer Ortsdatei bleiben verfügbar."
-    },
-    "look": {
-      "carte": "Fotokarte",
-      "volumes": "Volumen",
-      "trait": "Linie",
-      "ombres": "Linie + Schatten"
-    },
-    "lookLabel": "Stil",
-    "framingLabel": "Einstellung",
-    "framing": {
-      "large": "Totale",
-      "moyen": "Halbtotale",
-      "contre": "Untersicht"
-    },
-    "street": "Strassenansicht",
-    "lightLabel": "Licht",
-    "light": {
-      "matin": "Morgen",
-      "midi": "Mittag",
-      "soir": "Abend"
-    },
-    "reglages": "Einstellungen",
-    "set": {
-      "azimuth": "Sonne, Richtung",
-      "altitude": "Sonne, Höhe",
-      "fov": "Objektiv",
-      "focal": "{focal} mm",
-      "line": "Linie",
-      "tone": "Raster der Schatten"
-    },
-    "btn": {
-      "left": "Nach links drehen",
-      "right": "Nach rechts drehen",
-      "up": "Nach oben neigen",
-      "down": "Nach unten neigen",
-      "in": "Näher",
-      "out": "Weiter weg",
-      "forward": "Vorwärts",
-      "back": "Zurück"
-    },
-    "hint": {
-      "touch": "1 Finger: verschieben · zusammenziehen: zoomen · 2 Finger drehen: schwenken · 2 Finger hoch oder runter: neigen",
-      "mouse": "Ziehen: verschieben · Rechtsklick oder Umschalt + Ziehen: drehen und neigen · Mausrad: zoomen",
-      "street": "Ziehen, um sich umzusehen. Die Pfeile gehen vorwärts."
-    },
-    "capture": "Diesen Ausschnitt festhalten",
-    "capturing": "Wird erfasst…",
-    "captureOff": "Wähle zuerst einen Ort.",
-    "captureWait": "Warte, bis die Stadt gebaut ist.",
-    "captureFail": "Die Aufnahme konnte nicht gespeichert werden. Erneut versuchen.",
-    "captured": "Ausschnitt in Meine Kreationen unter Kulisse gespeichert: Farbe, Tiefe und Linien, mit Kamera und Quellen. Er liegt in den Referenzen.",
-    "quote": "Daraus ein Set machen: ≈ {credits} Credits, geschätzt (Obergrenze {high}). Ohne deine Bestätigung startet nichts.",
-    "again": "Anderer Ausschnitt",
-    "use": "In Kulisse ansehen",
-    "viewLine": "Kurs {heading}° · Neigung {pitch}° · {focal} mm · Kamera auf {height} m",
-    "out": {
-      "color": "Farbe",
-      "depth": "Tiefe",
-      "lines": "Linien"
-    },
-    "sources": "Quellen und Lizenzen",
-    "terrainFull": "Relief, vollständige Quellen:",
-    "rue": {
-      "title": "Strassenfoto am selben Ort",
-      "idle": "Es erscheint, sobald ein Ort gewählt ist.",
-      "load": "Suche nach einem freien Strassenfoto…",
-      "none": "Kein freies Strassenfoto im Umkreis von {radius} m.",
-      "fail": "Die Strassenfotos haben nicht geantwortet.",
-      "add": "Zu den Referenzen",
-      "added": "Foto mit Autor und Lizenz zu den Referenzen hinzugefügt.",
-      "source": "Quelle",
-      "licence": "Lizenz nicht erkannt: Das Foto bleibt sichtbar, kann aber nicht kopiert werden.",
-      "alt": "Strassenfoto von {author}",
-      "prev": "Vorheriges Foto",
-      "next": "Nächstes Foto",
-      "count": "{index} / {count}",
-      "wider": "Bis {radius} m suchen",
-      "around": "Vergrössern",
-      "around360": "Umsehen (360°)",
-      "aroundOff": "Zurück zur Vorschau",
-      "framed": "Zugeschnittene Ansicht",
-      "whole": "Ganzes Foto",
-      "demo": "Demo-Modus: keine Suche nach Strassenfotos."
-    },
-    "why": {
-      "place": "Such zuerst einen Ort: Danach werden die Einstellungen aktiv.",
-      "line": "Keine Linien bei Fotokarte.",
-      "tone": "Nur bei Linien + Schatten."
-    },
-    "roofs": {
-      "loading": "Echte swisstopo-Dächer werden geladen…",
-      "ready": "Echte Dächer, swissBUILDINGS3D: {count} Gebäude",
-      "fail": "Echte Dächer nicht verfügbar: stattdessen OpenStreetMap-Volumen."
+      "empty": "Kein Ort gefunden. Versuch einen anderen Namen.",
+      "rate": "Eine Suche pro Sekunde. Warte kurz und versuch es nochmal.",
+      "short": "Dieser Kurzlink ist nicht lesbar. Öffne ihn und füge den langen Link ein.",
+      "offline": "Kein Netz. Verbinde dich neu und versuch es nochmal.",
+      "fail": "Die Suche hat nicht geantwortet. Versuch es gleich nochmal."
     },
     "file": {
-      "open": "Ortsdatei öffnen (KML, KMZ, GeoJSON)",
-      "off": "Diese Datei enthält keinen lesbaren Punkt. Versuche KML, KMZ oder GeoJSON mit einem Ort."
+      "open": "Ortsdatei öffnen (KML, GeoJSON)",
+      "off": "Diese Datei enthält keinen lesbaren Ort."
     },
-    "free": "kostenlos",
-    "stepPick": "Wähle einen Ort: eine Adresse, Koordinaten oder ein Beispiel.",
-    "stepLook": "Sieh ihn in 3D oder auf der Strasse mit freien Fotos.",
-    "stepKeep": "Nimm den Ausschnitt auf: Er landet in Meine Werke und bei den Referenzen der Kulisse.",
-    "kept": "Gespeicherte Aufnahmen: {n}",
-    "keptNone": "Erkunden und Aufnehmen kostet nichts.",
-    "toDecor": "Eine Kulisse aus meinen Aufnahmen machen"
+    "s2": {
+      "title": "Wähl deine Ansicht",
+      "hint": "Zum Drehen ziehen",
+      "presets": "Höhe der Ansicht",
+      "go": "Diese Ansicht nehmen"
+    },
+    "p": {
+      "large": "Von oben",
+      "moyen": "Halbe Höhe",
+      "sol": "Am Boden"
+    },
+    "capturing": "Einen Moment…",
+    "loading": "Die Stadt wird in 3D gebaut…",
+    "retry": "Nochmal versuchen",
+    "captureFail": "Die Ansicht konnte nicht behalten werden. Versuch es nochmal.",
+    "state": {
+      "offline": "Kein Netz. Verbinde dich neu und versuch es nochmal.",
+      "rate": "Zu viele Anfragen auf einmal. Warte ein paar Sekunden und versuch es nochmal.",
+      "fail": "Die Karte hat nicht geantwortet. Versuch es gleich nochmal.",
+      "empty": "Hier gibt es keine Gebäude. Versuch einen anderen Ort.",
+      "nogl": "Dieser Browser zeigt kein 3D. Versuch einen anderen Browser."
+    },
+    "creditsBtn": "Quellen für Karte und Fotos",
+    "cr": {
+      "title": "Quellen",
+      "map": "Karte und Gebäude:",
+      "photos": "Straßenfotos:",
+      "noGoogle": "Nur offene Daten, keine Google-Daten.",
+      "close": "Schließen"
+    },
+    "s3": {
+      "title": "Erstell deine Kulisse",
+      "view": "Deine Ansicht",
+      "rue": "{n} Straßenfotos von hier",
+      "rue1": "1 Straßenfoto von hier",
+      "mix": "{n} Fotos vom Ort",
+      "mix1": "1 Foto vom Ort",
+      "loadPhotos": "Wir suchen Straßenfotos in der Nähe…",
+      "none": "Füg ein Foto vom Ort hinzu, um die Kulisse zu erstellen.",
+      "change": "Fotos ändern",
+      "add": "Fotos hinzufügen",
+      "options": "Optionen",
+      "mood": "Stimmung",
+      "name": "Name",
+      "go": "Kulisse erstellen"
+    },
+    "ambiance": {
+      "photos": "Wie auf den Fotos",
+      "nuit": "Nacht",
+      "pluie": "Regen",
+      "aube": "Morgengrauen"
+    },
+    "strict": {
+      "label": "Strenger Rahmen",
+      "soon": "bald"
+    },
+    "quote": "≈ {credits} Credits geschätzt",
+    "refs": {
+      "alt": "Foto {n}: {name}"
+    },
+    "pk": {
+      "title": "Wähl bis zu {max} Fotos",
+      "import": "Importieren",
+      "mine": "Meine Bilder",
+      "ok": "OK",
+      "none": "Kein freies Straßenfoto in der Nähe. Importier dein eigenes.",
+      "fail": "Dieses Bild ist nicht lesbar. Versuch ein anderes.",
+      "alt": "Straßenfoto von {author}"
+    },
+    "ask": {
+      "title": "Diese Kulisse erstellen?",
+      "line": "≈ {credits} Credits geschätzt, höchstens {high} Credits. Etwa 20 Sekunden.",
+      "connect": "Verbinde zuerst dein Comfy-Konto: Die Kulisse entsteht mit deinen Comfy-Credits.",
+      "low": "Dein Comfy-Guthaben reicht nicht für diese Kulisse (höchstens {high} Credits).",
+      "cancel": "Abbrechen",
+      "yes": "Ja, erstellen"
+    },
+    "making": "Comfy erstellt deine Kulisse…",
+    "make": {
+      "fail": "Die Kulisse wurde nicht erstellt. Deine Ansicht und Fotos sind noch da."
+    },
+    "s4": {
+      "title": "Deine Kulisse ist fertig",
+      "saved": "Sie ist bei deinen Kulissen gespeichert.",
+      "again": "Nochmal",
+      "go": "In einer Einstellung nutzen"
+    },
+    "example": {
+      "tag": "Beispiel",
+      "place": "Place Saint-François, Lausanne",
+      "a": "3D-Ansicht",
+      "b": "Straßenfoto",
+      "c": "Deine Kulisse",
+      "note": "Beispielbild, außerhalb von Comfy erstellt. Kein Comfy-Rendering."
+    }
   },
   "suite": {
     "title": "Und jetzt?",
@@ -2536,7 +2543,7 @@
       },
       "reperage": {
         "title": "Ort erkunden",
-        "line": "Wähle einen Punkt auf der Weltkarte, sieh ihn in 3D oder auf Strassenhöhe, behalte deine Aufnahmen für die Kulisse."
+        "line": "Ein echter Ort wird deine Kulisse: eine kostenlose 3D-Ansicht plus Straßenfotos."
       },
       "maquette": {
         "title": "3D-Modell und Bildausschnitt",

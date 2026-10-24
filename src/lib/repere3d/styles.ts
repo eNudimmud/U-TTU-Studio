@@ -1,10 +1,12 @@
-// The four looks and the three framings. Defaults mean a novice never opens « Réglages ».
+// The looks and the three view heights. The repérage sheet shows one base look only (Volumes);
+// the others stay for the PRISE maquette and old captures.
 
 export type Look = "carte" | "volumes" | "trait" | "ombres";
 export const LOOKS: readonly Look[] = ["carte", "volumes", "trait", "ombres"];
 
-export type Framing = "large" | "moyen" | "contre";
-export const FRAMINGS: readonly Framing[] = ["large", "moyen", "contre"];
+/** « De haut », « Mi-hauteur », « Au sol ». */
+export type Framing = "large" | "moyen" | "sol";
+export const FRAMINGS: readonly Framing[] = ["large", "moyen", "sol"];
 
 export interface Settings {
   look: Look;
@@ -13,7 +15,7 @@ export interface Settings {
   tone: number;
 }
 
-export const DEFAULT_SETTINGS: Settings = { look: "trait", fov: 45, line: 1, tone: .4 };
+export const DEFAULT_SETTINGS: Settings = { look: "volumes", fov: 45, line: 1, tone: .4 };
 
 export interface FramingPose {
   /** Metres from the target. */
@@ -25,12 +27,18 @@ export interface FramingPose {
   /** For street poses: degrees the camera looks up. */
   lookUp: number;
   fov: number;
+  /** For street poses: eye height in metres above the ground. */
+  eye?: number;
+  /** For street poses: metres to step back along the street, so the place sits ahead, not a wall. */
+  back?: number;
 }
 
 export const FRAMING_POSES: Record<Framing, FramingPose> = {
   large: { distance: 520, elevation: 38, street: false, lookUp: 0, fov: 45 },
   moyen: { distance: 170, elevation: 22, street: false, lookUp: 0, fov: 45 },
-  contre: { distance: 0, elevation: 0, street: true, lookUp: 24, fov: 62 },
+  // Au sol: a little above head height, stepped back down the street, looking almost level.
+  // At 1.7 m looking 24° up the frame was mostly grey walls.
+  sol: { distance: 0, elevation: 0, street: true, lookUp: 5, fov: 62, eye: 4.5, back: 28 },
 };
 
 export const LIMITS = {
