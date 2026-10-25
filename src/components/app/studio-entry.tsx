@@ -233,7 +233,7 @@ function ScoutCard() {
     <CardThumb id={REPERAGE_ID} fam="reperage" />
     <span className="u-outil-name">{t(`outils.t.${REPERAGE_ID}.title`)}</span>
     <span className="u-outil-line">{t(`outils.t.${REPERAGE_ID}.line`)}</span>
-    <span className="u-outil-cost u-cost-est">{t("rep3d.free")}</span>
+    <span className="u-outil-cost u-cost-est">{t("rep3d.cardCost")}</span>
   </button>;
 }
 

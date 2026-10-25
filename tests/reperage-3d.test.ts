@@ -225,10 +225,20 @@ describe("3D repérage · tuiles OSM", () => {
   });
 });
 
+describe("3D repérage · « Au sol »", () => {
+  it("stands a little above head height, stepped back, looking almost level, so the place is not a grey wall", () => {
+    const pose = FRAMING_POSES.sol;
+    assert.ok((pose.eye ?? 0) > 1.7 && (pose.eye ?? 0) <= 8);
+    assert.ok((pose.back ?? 0) >= 10);
+    assert.ok(pose.lookUp <= 10);
+  });
+});
+
 describe("3D repérage · réglages par défaut", () => {
   it("lets a novice start without any slider", () => {
-    assert.equal(DEFAULT_SETTINGS.look, "trait");
-    assert.equal(FRAMING_POSES.contre.street, true);
+    // One base look in the sheet: Volumes.
+    assert.equal(DEFAULT_SETTINGS.look, "volumes");
+    assert.equal(FRAMING_POSES.sol.street, true);
     assert.equal(clampSetting("fov", 500), 90);
     assert.equal(clampSetting("altitude", Number.NaN), 5);
     assert.ok(loadRadius(true) < loadRadius(false));

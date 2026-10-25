@@ -82,19 +82,6 @@ async function filesFor(gesteId: string, refs: LocalRef[]): Promise<File[]> {
   return files;
 }
 
-function placePhoto(gesteId: string, refs: LocalRef[], photo: { id: string; credit: string; blob: Blob }): LocalRef[] {
-  const row = gesteParId(gesteId);
-  if (!row) return refs;
-  const cases = casesVisibles(row);
-  const target = cases.find(item => !refs.some(ref => ref.caseId === item.id)) ?? cases[0];
-  if (!target) return refs;
-  const file = new File([photo.blob], `${photo.id}.png`, { type: photo.blob.type || "image/png" });
-  return [
-    ...refs.filter(ref => ref.caseId !== target.id),
-    { id: `ref-${photo.id}-${target.id}`, role: target.role, caseId: target.id, name: photo.credit.slice(0, 40), url: URL.createObjectURL(file), file, assetId: null },
-  ];
-}
-
 function placeAsset(gesteId: string, refs: LocalRef[], asset: AssetRecord, url: string): LocalRef[] {
   const row = gesteParId(gesteId);
   if (!row) return refs;
@@ -387,21 +374,12 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     <div className="u-desk-scroll">
       {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
       <ReperageEntry
-        quote={{ credits: gesteParId("decor-photo")?.credits ?? null, high: gesteParId("decor-photo")?.high ?? null }}
         onCapture={input => saveLieuCapture(input)}
-        onCaptured={saved => {
-          // A capture is a place photo: it goes in the first free place slot, ready for the décor quote.
-          const target = row.slots.length > 0 ? gesteId : "decor-photo";
-          if (target !== gesteId) setGesteIdState(target);
-          setRefs(list => placePhoto(target, list, { id: saved.sceneId, credit: saved.name, blob: saved.color }));
-          setName(current => current.trim() ? current : saved.name);
-        }}
-        onStreetPhoto={async (place, photo) => {
-          const id = await saveLieuPhoto({ name: place.name, note: lieuNote(place, "debout", false), photo });
-          if (!id) return false;
-          setRefs(list => placePhoto(gesteId, list, photo));
-          return true;
-        }}
+        // The kept frame is filed in Mes créations › Lieux and becomes the sheet's fixed base (step 3).
+        onCaptured={() => undefined}
+        onStreetPhoto={async (place, photo) => Boolean(await saveLieuPhoto({ name: place.name, note: lieuNote(place, "debout", false), photo }))}
+        onPrise={onPrise}
+        onDecor={() => setGalleryOpen(true)}
       />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">

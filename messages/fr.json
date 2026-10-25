@@ -1999,143 +1999,150 @@
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Repérage 3D gratuit",
-    "entryLead": "Une ville en 3D partout dans le monde, avec les vrais toits en Suisse et des photos de rue libres. Cadre, choisis la lumière, capture. Gratuit, aucun crédit.",
-    "open": "Repérer un lieu",
-    "close": "Fermer le repérage",
-    "title": "Repérage 3D",
-    "searchLabel": "Lieu, adresse ou coordonnées",
-    "searchPh": "Lausanne, Shibuya, 46.52, 6.63…",
+    "entryTitle": "Un vrai lieu en décor",
+    "entryLead": "Choisis un lieu et une vue 3D. Avec des photos de la rue, Comfy en fait ton décor.",
+    "open": "Choisir un lieu",
+    "free": "gratuit",
+    "cardCost": "Vue 3D gratuite",
+    "toolLine": "Un vrai lieu devient ton décor : une vue 3D gratuite, plus des photos de la rue.",
+    "stepPick": "Où ? Tape une adresse ou une ville.",
+    "stepLook": "Ta vue : tourne la 3D et garde la vue. C'est gratuit.",
+    "stepKeep": "Créer : Comfy mélange ta vue et les photos en une image de décor.",
+    "toolQuote": "Créer le décor ensuite :",
+    "kept": "Vues gardées : {n}",
+    "keptNone": "Choisir une vue ne coûte rien.",
+    "cadre": "Vue 3D",
+    "title": "Un vrai lieu en décor",
+    "close": "Fermer",
+    "back": "Retour",
+    "steps": {
+      "label": "Étape {n} sur 3",
+      "ou": "Où ?",
+      "vue": "Ta vue",
+      "creer": "Créer"
+    },
+    "s1": {
+      "title": "Transforme un vrai lieu en",
+      "titleEm": "décor",
+      "q": "Où ?"
+    },
+    "eq": {
+      "view": "Vue 3D",
+      "photos": "Photos du lieu",
+      "decor": "Ton décor",
+      "note": "Illustration d'exemple, faite hors Comfy"
+    },
+    "searchLabel": "Une adresse, une place, une ville",
     "searchWhy": "Écris au moins deux lettres.",
     "searching": "Recherche…",
-    "results": "Résultats",
-    "tryThese": "Exemples de lieux",
-    "empty": "Cherche un lieu ou touche un exemple. La ville se construit en quelques secondes.",
-    "loading": "Construction de la ville en 3D…",
-    "retry": "Réessayer",
-    "camera": "Caméra",
-    "frame": "Cadre capturé 16:9",
-    "buildings": "{count} bâtiments",
-    "noGoogle": "Données ouvertes uniquement : OpenStreetMap, relief libre, swisstopo en Suisse (toits réels, photo aérienne). Aucune donnée Google.",
+    "results": "Lieux trouvés",
     "search": {
       "go": "Chercher",
-      "empty": "Aucun lieu trouvé. Essaie un autre nom ou des coordonnées (46.52, 6.63).",
+      "empty": "Aucun lieu trouvé. Essaie un autre nom.",
       "rate": "Une recherche par seconde. Attends un instant et réessaie.",
-      "short": "Ce lien court ne se lit pas. Ouvre-le, puis colle le lien long ou les coordonnées.",
+      "short": "Ce lien court ne se lit pas. Ouvre-le, puis colle le lien long.",
       "offline": "Pas de réseau. Reconnecte-toi puis réessaie.",
       "fail": "La recherche n’a pas répondu. Réessaie dans un instant."
     },
+    "file": {
+      "open": "Ouvrir un fichier de lieu (KML, GeoJSON)",
+      "off": "Ce fichier ne contient pas de lieu lisible."
+    },
+    "s2": {
+      "title": "Choisis ta vue",
+      "hint": "Fais glisser pour tourner",
+      "presets": "Hauteur de la vue",
+      "go": "Garder cette vue"
+    },
+    "p": {
+      "large": "De haut",
+      "moyen": "Mi-hauteur",
+      "sol": "Au sol"
+    },
+    "capturing": "Un instant…",
+    "loading": "Construction de la ville en 3D…",
+    "retry": "Réessayer",
+    "captureFail": "La vue n’a pas pu être gardée. Réessaie.",
     "state": {
       "offline": "Pas de réseau. Reconnecte-toi puis réessaie.",
       "rate": "Trop de demandes d’un coup. Attends quelques secondes et réessaie.",
-      "fail": "Les données de la carte n’ont pas répondu. Réessaie dans un instant.",
-      "empty": "Pas de bâtiments OpenStreetMap ici. Le relief reste visible.",
-      "nogl": "Ce navigateur n’affiche pas la 3D (WebGL). La photo de rue et l’ouverture d’un fichier de lieu restent disponibles."
+      "fail": "La carte n’a pas répondu. Réessaie dans un instant.",
+      "empty": "Pas de bâtiments ici. Essaie un autre lieu.",
+      "nogl": "Ce navigateur n’affiche pas la 3D. Essaie avec un autre navigateur."
     },
-    "look": {
-      "carte": "Photo-carte",
-      "volumes": "Volumes",
-      "trait": "Trait",
-      "ombres": "Trait + ombres"
+    "creditsBtn": "Crédits de la carte et des photos",
+    "cr": {
+      "title": "Crédits",
+      "map": "Carte et bâtiments :",
+      "photos": "Photos de rue :",
+      "noGoogle": "Données ouvertes uniquement, aucune donnée Google.",
+      "close": "Fermer"
     },
-    "lookLabel": "Style",
-    "framingLabel": "Cadrage",
-    "framing": {
-      "large": "Plan large",
-      "moyen": "Plan moyen",
-      "contre": "Contre-plongée"
+    "s3": {
+      "title": "Crée ton décor",
+      "view": "Ta vue",
+      "rue": "{n} photos de rue prises ici",
+      "rue1": "1 photo de rue prise ici",
+      "mix": "{n} photos du lieu",
+      "mix1": "1 photo du lieu",
+      "loadPhotos": "On cherche des photos de rue près d'ici…",
+      "none": "Ajoute une photo du lieu pour créer le décor.",
+      "change": "Changer les photos",
+      "add": "Ajouter des photos",
+      "options": "Options",
+      "mood": "Ambiance",
+      "name": "Nom",
+      "go": "Créer le décor"
     },
-    "street": "Vue rue",
-    "lightLabel": "Lumière",
-    "light": {
-      "matin": "Matin",
-      "midi": "Midi",
-      "soir": "Soir"
+    "ambiance": {
+      "photos": "Comme les photos",
+      "nuit": "Nuit",
+      "pluie": "Pluie",
+      "aube": "Aube"
     },
-    "reglages": "Réglages",
-    "set": {
-      "azimuth": "Soleil, direction",
-      "altitude": "Soleil, hauteur",
-      "fov": "Objectif",
-      "focal": "{focal} mm",
-      "line": "Trait",
-      "tone": "Trame des ombres"
+    "strict": {
+      "label": "Cadre strict",
+      "soon": "bientôt"
     },
-    "btn": {
-      "left": "Tourner à gauche",
-      "right": "Tourner à droite",
-      "up": "Incliner vers le haut",
-      "down": "Incliner vers le bas",
-      "in": "Rapprocher",
-      "out": "Éloigner",
-      "forward": "Avancer",
-      "back": "Reculer"
+    "quote": "≈ {credits} crédits estimés",
+    "refs": {
+      "alt": "Photo {n} : {name}"
     },
-    "hint": {
-      "touch": "1 doigt : déplacer · pincer : zoomer · tourner 2 doigts : pivoter · 2 doigts vers le haut ou le bas : incliner",
-      "mouse": "Glisser : déplacer · clic droit ou Maj + glisser : tourner et incliner · molette : zoomer",
-      "street": "Glisse pour regarder autour. Les flèches avancent."
+    "pk": {
+      "title": "Choisis jusqu'à {max} photos",
+      "import": "Importer",
+      "mine": "Mes images",
+      "ok": "OK",
+      "none": "Pas de photo de rue libre près d'ici. Importe la tienne.",
+      "fail": "Cette image ne se lit pas. Essaie une autre.",
+      "alt": "Photo de rue de {author}"
     },
-    "capture": "Capturer ce cadrage",
-    "capturing": "Capture…",
-    "captureOff": "Choisis d’abord un lieu.",
-    "captureWait": "Attends que la ville soit construite.",
-    "captureFail": "La capture n’a pas pu être gardée. Réessaie.",
-    "captured": "Cadrage gardé dans Mes créations, en DÉCOR : couleur, profondeur et traits, avec la caméra et les crédits. Il est placé dans les références.",
-    "quote": "Pour en faire un décor : ≈ {credits} crédits estimés (plafond {high}). Rien n’est lancé sans ta confirmation.",
-    "again": "Autre cadrage",
-    "use": "Voir dans DÉCOR",
-    "viewLine": "Cap {heading}° · inclinaison {pitch}° · {focal} mm · caméra à {height} m",
-    "out": {
-      "color": "Couleur",
-      "depth": "Profondeur",
-      "lines": "Traits"
+    "ask": {
+      "title": "Créer ce décor ?",
+      "line": "≈ {credits} crédits estimés, {high} crédits au plus. Environ 20 secondes.",
+      "connect": "Relie d'abord ton compte Comfy : le décor se crée avec tes crédits Comfy.",
+      "low": "Ton solde Comfy est trop bas pour ce décor ({high} crédits au plus).",
+      "cancel": "Annuler",
+      "yes": "Oui, créer"
     },
-    "sources": "Sources et licences",
-    "terrainFull": "Relief, crédits complets :",
-    "rue": {
-      "title": "Photo de rue au même endroit",
-      "idle": "Elle apparaît après le choix d’un lieu.",
-      "load": "Recherche d’une photo de rue libre…",
-      "none": "Pas de photo de rue libre à moins de {radius} m.",
-      "fail": "Les photos de rue n’ont pas répondu.",
-      "add": "Ajouter aux références",
-      "added": "Photo ajoutée aux références, avec l’auteur et la licence.",
-      "source": "Source",
-      "licence": "Licence non identifiée : cette photo reste visible mais ne peut pas être copiée.",
-      "alt": "Photo de rue de {author}",
-      "prev": "Photo précédente",
-      "next": "Photo suivante",
-      "count": "{index} / {count}",
-      "wider": "Chercher jusqu’à {radius} m",
-      "around": "Agrandir",
-      "around360": "Regarder autour (360°)",
-      "aroundOff": "Revenir à la vignette",
-      "framed": "Vue recadrée",
-      "whole": "Photo entière",
-      "demo": "Mode démo : pas de recherche de photo de rue."
+    "making": "Comfy crée ton décor…",
+    "make": {
+      "fail": "Le décor n'a pas été créé. Ta vue et tes photos sont toujours là."
     },
-    "why": {
-      "place": "Cherche un lieu d’abord : les réglages s’allument ensuite.",
-      "line": "Pas de trait en Photo-carte.",
-      "tone": "Seulement en Trait + ombres."
+    "s4": {
+      "title": "Ton décor est prêt",
+      "saved": "Il est enregistré dans tes décors.",
+      "again": "Refaire",
+      "go": "Utiliser dans un plan"
     },
-    "roofs": {
-      "loading": "Toits réels swisstopo en chargement…",
-      "ready": "Toits réels swissBUILDINGS3D : {count} bâtiments",
-      "fail": "Toits réels indisponibles : volumes OpenStreetMap à la place."
-    },
-    "file": {
-      "open": "Ouvrir un fichier de lieu (KML, KMZ, GeoJSON)",
-      "off": "Ce fichier ne contient pas de point lisible. Essaie un KML, KMZ ou GeoJSON avec un lieu."
-    },
-    "free": "gratuit",
-    "stepPick": "Choisis un lieu : une adresse, des coordonnées ou un exemple.",
-    "stepLook": "Regarde-le en 3D, ou debout dans la rue avec les photos libres.",
-    "stepKeep": "Capture le cadre : il rejoint Mes créations et les références du décor.",
-    "kept": "Captures gardées : {n}",
-    "keptNone": "Explorer et capturer ne coûte rien.",
-    "toDecor": "Faire un décor avec mes captures"
+    "example": {
+      "tag": "Exemple",
+      "place": "Place Saint-François, Lausanne",
+      "a": "Vue 3D",
+      "b": "Photo de rue",
+      "c": "Ton décor",
+      "note": "Illustration d'exemple, faite hors Comfy. Ce n'est pas un rendu Comfy."
+    }
   },
   "suite": {
     "title": "Et ensuite ?",
@@ -2536,7 +2543,7 @@
       },
       "reperage": {
         "title": "Repérer un lieu",
-        "line": "Choisis un point sur la carte du monde, vois-le en 3D ou au niveau de la rue, garde tes captures pour le décor."
+        "line": "Un vrai lieu devient ton décor : une vue 3D gratuite, plus des photos de la rue."
       },
       "maquette": {
         "title": "Maquette 3D et cadrage",

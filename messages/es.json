@@ -1999,143 +1999,150 @@
     "engineAuto": "Auto"
   },
   "rep3d": {
-    "entryTitle": "Localización 3D gratis",
-    "entryLead": "Una ciudad en 3D en cualquier lugar del mundo, con tejados reales en Suiza y fotos de calle libres. Encuadra, elige la luz, captura. Gratis, sin créditos.",
-    "open": "Localizar un lugar",
-    "close": "Cerrar la localización",
-    "title": "Localización 3D",
-    "searchLabel": "Lugar, dirección o coordenadas",
-    "searchPh": "Lausana, Shibuya, 46.52, 6.63…",
+    "entryTitle": "Un lugar real como decorado",
+    "entryLead": "Elige un lugar y una vista 3D. Con fotos de la calle, Comfy lo convierte en tu decorado.",
+    "open": "Elegir un lugar",
+    "free": "gratis",
+    "cardCost": "Vista 3D gratis",
+    "toolLine": "Un lugar real se convierte en tu decorado: una vista 3D gratis y fotos de la calle.",
+    "stepPick": "¿Dónde? Escribe una dirección o una ciudad.",
+    "stepLook": "Tu vista: gira el 3D y quédate la vista. Es gratis.",
+    "stepKeep": "Crear: Comfy mezcla tu vista y las fotos en una imagen de decorado.",
+    "toolQuote": "Crear el decorado después:",
+    "kept": "Vistas guardadas: {n}",
+    "keptNone": "Elegir una vista no cuesta nada.",
+    "cadre": "Vista 3D",
+    "title": "Un lugar real como decorado",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "steps": {
+      "label": "Paso {n} de 3",
+      "ou": "¿Dónde?",
+      "vue": "Tu vista",
+      "creer": "Crear"
+    },
+    "s1": {
+      "title": "Convierte un lugar real en un",
+      "titleEm": "decorado",
+      "q": "¿Dónde?"
+    },
+    "eq": {
+      "view": "Vista 3D",
+      "photos": "Fotos del lugar",
+      "decor": "Tu decorado",
+      "note": "Ilustración de ejemplo, hecha fuera de Comfy"
+    },
+    "searchLabel": "Una dirección, una plaza, una ciudad",
     "searchWhy": "Escribe al menos dos letras.",
     "searching": "Buscando…",
-    "results": "Resultados",
-    "tryThese": "Lugares de ejemplo",
-    "empty": "Busca un lugar o toca un ejemplo. La ciudad se construye en unos segundos.",
-    "loading": "Construyendo la ciudad en 3D…",
-    "retry": "Reintentar",
-    "camera": "Cámara",
-    "frame": "Encuadre capturado 16:9",
-    "buildings": "{count} edificios",
-    "noGoogle": "Solo datos abiertos: OpenStreetMap, relieve libre, swisstopo en Suiza (tejados reales, foto aérea). Ningún dato de Google.",
+    "results": "Lugares encontrados",
     "search": {
       "go": "Buscar",
-      "empty": "No se encontró ningún lugar. Prueba otro nombre o coordenadas (46.52, 6.63).",
+      "empty": "Ningún lugar encontrado. Prueba otro nombre.",
       "rate": "Una búsqueda por segundo. Espera un momento y vuelve a intentarlo.",
-      "short": "Este enlace corto no se puede leer. Ábrelo y pega el enlace largo o las coordenadas.",
+      "short": "Este enlace corto no se puede leer. Ábrelo y pega el enlace largo.",
       "offline": "Sin red. Vuelve a conectarte e inténtalo de nuevo.",
       "fail": "La búsqueda no respondió. Inténtalo de nuevo en un momento."
     },
+    "file": {
+      "open": "Abrir un archivo de lugar (KML, GeoJSON)",
+      "off": "Este archivo no contiene un lugar legible."
+    },
+    "s2": {
+      "title": "Elige tu vista",
+      "hint": "Arrastra para girar",
+      "presets": "Altura de la vista",
+      "go": "Quedarme esta vista"
+    },
+    "p": {
+      "large": "Desde arriba",
+      "moyen": "Media altura",
+      "sol": "A pie de calle"
+    },
+    "capturing": "Un momento…",
+    "loading": "Construyendo la ciudad en 3D…",
+    "retry": "Reintentar",
+    "captureFail": "No se pudo guardar la vista. Inténtalo de nuevo.",
     "state": {
       "offline": "Sin red. Vuelve a conectarte e inténtalo de nuevo.",
-      "rate": "Demasiadas peticiones a la vez. Espera unos segundos y vuelve a intentarlo.",
-      "fail": "Los datos del mapa no respondieron. Inténtalo de nuevo en un momento.",
-      "empty": "Aquí no hay edificios de OpenStreetMap. El relieve sigue visible.",
-      "nogl": "Este navegador no muestra 3D (WebGL). La foto de calle y abrir un archivo de lugar siguen disponibles."
+      "rate": "Demasiadas solicitudes a la vez. Espera unos segundos e inténtalo de nuevo.",
+      "fail": "El mapa no respondió. Inténtalo de nuevo en un momento.",
+      "empty": "Aquí no hay edificios. Prueba otro lugar.",
+      "nogl": "Este navegador no muestra 3D. Prueba con otro navegador."
     },
-    "look": {
-      "carte": "Foto-mapa",
-      "volumes": "Volúmenes",
-      "trait": "Línea",
-      "ombres": "Línea + sombras"
+    "creditsBtn": "Créditos del mapa y de las fotos",
+    "cr": {
+      "title": "Créditos",
+      "map": "Mapa y edificios:",
+      "photos": "Fotos de calle:",
+      "noGoogle": "Solo datos abiertos, ningún dato de Google.",
+      "close": "Cerrar"
     },
-    "lookLabel": "Estilo",
-    "framingLabel": "Encuadre",
-    "framing": {
-      "large": "Plano general",
-      "moyen": "Plano medio",
-      "contre": "Contrapicado"
+    "s3": {
+      "title": "Crea tu decorado",
+      "view": "Tu vista",
+      "rue": "{n} fotos de calle tomadas aquí",
+      "rue1": "1 foto de calle tomada aquí",
+      "mix": "{n} fotos del lugar",
+      "mix1": "1 foto del lugar",
+      "loadPhotos": "Buscando fotos de calle cerca…",
+      "none": "Añade una foto del lugar para crear el decorado.",
+      "change": "Cambiar las fotos",
+      "add": "Añadir fotos",
+      "options": "Opciones",
+      "mood": "Ambiente",
+      "name": "Nombre",
+      "go": "Crear el decorado"
     },
-    "street": "Vista de calle",
-    "lightLabel": "Luz",
-    "light": {
-      "matin": "Mañana",
-      "midi": "Mediodía",
-      "soir": "Tarde"
+    "ambiance": {
+      "photos": "Como las fotos",
+      "nuit": "Noche",
+      "pluie": "Lluvia",
+      "aube": "Amanecer"
     },
-    "reglages": "Ajustes",
-    "set": {
-      "azimuth": "Sol, dirección",
-      "altitude": "Sol, altura",
-      "fov": "Objetivo",
-      "focal": "{focal} mm",
-      "line": "Línea",
-      "tone": "Trama de las sombras"
+    "strict": {
+      "label": "Encuadre estricto",
+      "soon": "pronto"
     },
-    "btn": {
-      "left": "Girar a la izquierda",
-      "right": "Girar a la derecha",
-      "up": "Inclinar hacia arriba",
-      "down": "Inclinar hacia abajo",
-      "in": "Acercar",
-      "out": "Alejar",
-      "forward": "Avanzar",
-      "back": "Retroceder"
+    "quote": "≈ {credits} créditos estimados",
+    "refs": {
+      "alt": "Foto {n}: {name}"
     },
-    "hint": {
-      "touch": "1 dedo: mover · pellizcar: zoom · girar 2 dedos: rotar · 2 dedos arriba o abajo: inclinar",
-      "mouse": "Arrastrar: mover · clic derecho o Mayús + arrastrar: girar e inclinar · rueda: zoom",
-      "street": "Arrastra para mirar alrededor. Las flechas avanzan."
+    "pk": {
+      "title": "Elige hasta {max} fotos",
+      "import": "Importar",
+      "mine": "Mis imágenes",
+      "ok": "OK",
+      "none": "No hay fotos de calle libres cerca. Importa la tuya.",
+      "fail": "Esta imagen no se puede leer. Prueba otra.",
+      "alt": "Foto de calle de {author}"
     },
-    "capture": "Capturar este encuadre",
-    "capturing": "Capturando…",
-    "captureOff": "Primero elige un lugar.",
-    "captureWait": "Espera a que la ciudad esté construida.",
-    "captureFail": "No se pudo guardar la captura. Inténtalo de nuevo.",
-    "captured": "Encuadre guardado en Mis creaciones, en Decorado: color, profundidad y líneas, con la cámara y los créditos. Está colocado en las referencias.",
-    "quote": "Para convertirlo en decorado: ≈ {credits} créditos estimados (tope {high}). Nada se lanza sin tu confirmación.",
-    "again": "Otro encuadre",
-    "use": "Ver en Decorado",
-    "viewLine": "Rumbo {heading}° · inclinación {pitch}° · {focal} mm · cámara a {height} m",
-    "out": {
-      "color": "Color",
-      "depth": "Profundidad",
-      "lines": "Líneas"
+    "ask": {
+      "title": "¿Crear este decorado?",
+      "line": "≈ {credits} créditos estimados, {high} créditos como máximo. Unos 20 segundos.",
+      "connect": "Vincula primero tu cuenta de Comfy: el decorado se crea con tus créditos de Comfy.",
+      "low": "Tu saldo de Comfy es demasiado bajo para este decorado ({high} créditos como máximo).",
+      "cancel": "Cancelar",
+      "yes": "Sí, crear"
     },
-    "sources": "Fuentes y licencias",
-    "terrainFull": "Relieve, créditos completos:",
-    "rue": {
-      "title": "Foto de calle en el mismo sitio",
-      "idle": "Aparece al elegir un lugar.",
-      "load": "Buscando una foto de calle libre…",
-      "none": "No hay foto de calle libre a menos de {radius} m.",
-      "fail": "Las fotos de calle no respondieron.",
-      "add": "Añadir a las referencias",
-      "added": "Foto añadida a las referencias, con autor y licencia.",
-      "source": "Fuente",
-      "licence": "Licencia no identificada: la foto sigue visible pero no se puede copiar.",
-      "alt": "Foto de calle de {author}",
-      "prev": "Foto anterior",
-      "next": "Foto siguiente",
-      "count": "{index} / {count}",
-      "wider": "Buscar hasta {radius} m",
-      "around": "Ampliar",
-      "around360": "Mirar alrededor (360°)",
-      "aroundOff": "Volver a la miniatura",
-      "framed": "Vista recortada",
-      "whole": "Foto completa",
-      "demo": "Modo demo: sin búsqueda de fotos de calle."
+    "making": "Comfy está creando tu decorado…",
+    "make": {
+      "fail": "El decorado no se creó. Tu vista y tus fotos siguen aquí."
     },
-    "why": {
-      "place": "Busca primero un lugar: después se activan los ajustes.",
-      "line": "Sin trazo en Foto-mapa.",
-      "tone": "Solo en Trazo + sombras."
+    "s4": {
+      "title": "Tu decorado está listo",
+      "saved": "Está guardado en tus decorados.",
+      "again": "Rehacer",
+      "go": "Usar en un plano"
     },
-    "roofs": {
-      "loading": "Cargando tejados reales de swisstopo…",
-      "ready": "Tejados reales swissBUILDINGS3D: {count} edificios",
-      "fail": "Tejados reales no disponibles: volúmenes de OpenStreetMap en su lugar."
-    },
-    "file": {
-      "open": "Abrir un archivo de lugar (KML, KMZ, GeoJSON)",
-      "off": "Este archivo no contiene un punto legible. Prueba un KML, KMZ o GeoJSON con un lugar."
-    },
-    "free": "gratis",
-    "stepPick": "Elige un lugar: una dirección, coordenadas o un ejemplo.",
-    "stepLook": "Míralo en 3D, o de pie en la calle con fotos libres.",
-    "stepKeep": "Captura el encuadre: va a Mis creaciones y a las referencias del decorado.",
-    "kept": "Capturas guardadas: {n}",
-    "keptNone": "Explorar y capturar no cuesta nada.",
-    "toDecor": "Hacer un decorado con mis capturas"
+    "example": {
+      "tag": "Ejemplo",
+      "place": "Place Saint-François, Lausana",
+      "a": "Vista 3D",
+      "b": "Foto de calle",
+      "c": "Tu decorado",
+      "note": "Ilustración de ejemplo, hecha fuera de Comfy. No es un render de Comfy."
+    }
   },
   "suite": {
     "title": "¿Y ahora?",
@@ -2536,7 +2543,7 @@
       },
       "reperage": {
         "title": "Localizar un lugar",
-        "line": "Elige un punto en el mapa del mundo, míralo en 3D o a pie de calle, guarda tus capturas para el decorado."
+        "line": "Un lugar real se convierte en tu decorado: una vista 3D gratis y fotos de la calle."
       },
       "maquette": {
         "title": "Maqueta 3D y encuadre",
