@@ -48,11 +48,19 @@ export interface TakeEstimate {
 /** LTX-2.5 i2v on Comfy Cloud: no billed take yet. 12–25 credits for 5 s, scaled by duration. */
 export const LTX_ESTIMATE_5S = { credits: 12, creditsHigh: 25 } as const;
 
+/**
+ * LTX-2.5 Aperçu (first pass only, about 480p). An estimate, not a measure: about half of
+ * the two-pass take. TODO(mesure): one real 5 s Aperçu take, read on the balance, replaces
+ * this pair. Nothing in the code spends to measure it.
+ */
+export const LTX_APERCU_ESTIMATE_5S = { credits: 6, creditsHigh: 12 } as const;
+
 export function estimatedTake(profile: string): TakeEstimate | null {
-  const match = /^ltx25-(\d+)s-/.exec(profile);
+  const match = /^ltx25-(apercu-)?(\d+)s-/.exec(profile);
   if (!match) return null;
-  const factor = Number(match[1]) / 5;
-  return { profile, credits: Math.round(LTX_ESTIMATE_5S.credits * factor), creditsHigh: Math.round(LTX_ESTIMATE_5S.creditsHigh * factor) };
+  const base = match[1] ? LTX_APERCU_ESTIMATE_5S : LTX_ESTIMATE_5S;
+  const factor = Number(match[2]) / 5;
+  return { profile, credits: Math.round(base.credits * factor), creditsHigh: Math.round(base.creditsHigh * factor) };
 }
 
 export function estimateSentence(estimate: Pick<TakeEstimate, "credits" | "creditsHigh">): string {

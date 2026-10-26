@@ -33,18 +33,39 @@ export const TAKE_ENGINES = ["ltx", "h3"] as const;
 export type TakeEngine = (typeof TAKE_ENGINES)[number];
 export const TAKE_ENGINE_TEMPLATE: Record<TakeEngine, string> = { ltx: "video_ltx2_5_i2v", h3: "video_minimax_h3_r2v" };
 
+/**
+ * LTX only. « finale » is today's two passes (half size, latent ×2, refine).
+ * « apercu » keeps the first pass only, about 480p, same seed: cheaper to try,
+ * finalised later by an upscale (Finaliser), never re-rendered.
+ */
+export const TAKE_RENDUS = ["apercu", "finale"] as const;
+export type TakeRendu = (typeof TAKE_RENDUS)[number];
+export const DEFAULT_RENDU: TakeRendu = "finale";
+
 export interface TakeSettings {
   seconds: TakeSeconds;
   quality: TakeQuality;
   aspect: TakeAspect;
   /** Missing on settings saved before LTX: those were H3 takes. */
   engine?: TakeEngine;
+  /** Missing means « finale » (every take before the option). */
+  rendu?: TakeRendu;
 }
 
 export const DEFAULT_TAKE: TakeSettings = { seconds: 5, quality: "rapide", aspect: "vertical", engine: "ltx" };
 
 export function takeEngine(settings: Pick<TakeSettings, "engine">): TakeEngine {
   return settings.engine === "ltx" ? "ltx" : "h3";
+}
+
+/** Aperçu exists for LTX only. H3 is always one take at its own size. */
+export function takeRendu(settings: Pick<TakeSettings, "engine" | "rendu">): TakeRendu {
+  return takeEngine(settings) === "ltx" && settings.rendu === "apercu" ? "apercu" : "finale";
+}
+
+/** A take profile made with Aperçu. Its cost is kept apart from « finale ». */
+export function isApercuProfile(profile: string): boolean {
+  return /^ltx25-apercu-/.test(profile);
 }
 
 export interface TakeGraphInput extends TakeSettings {
@@ -66,7 +87,10 @@ export function takeFrames(seconds: number): number {
 
 /** Same profile, same cost: what calibration is keyed on. */
 export function takeProfile(settings: TakeSettings): string {
-  if (takeEngine(settings) === "ltx") return `ltx25-${settings.seconds}s-${settings.aspect}`;
+  if (takeEngine(settings) === "ltx") {
+    const apercu = takeRendu(settings) === "apercu" ? "apercu-" : "";
+    return `ltx25-${apercu}${settings.seconds}s-${settings.aspect}`;
+  }
   return `h3-${TAKE_STEPS[settings.quality]}pas-${settings.seconds}s-${settings.aspect}`;
 }
 
