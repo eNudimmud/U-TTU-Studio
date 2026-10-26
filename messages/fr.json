@@ -1046,7 +1046,8 @@
     "shortcutHelp": "Espace lecture. S scinde. Suppr retire. Ctrl+Z annule, Ctrl+Y rétablit. Flèches : une image.",
     "snap": "Aimanté",
     "exportQuality": "Export rapide : {height}p, {fps} images par seconde, {max} s au plus.",
-    "exportBetter": "Plus net : Finaliser"
+    "exportBetter": "Plus net : Finaliser",
+    "exportQualityShort": "{height}p · {fps} images/s · {max} s max"
   },
   "atelier": {
     "lead": "Tout ce que tu as créé, sur cet appareil.",

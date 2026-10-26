@@ -1046,7 +1046,8 @@
     "shortcutHelp": "Espacio reproduce. S corta. Supr quita. Ctrl+Z deshace, Ctrl+Y rehace. Flechas: una imagen.",
     "snap": "Imanado",
     "exportQuality": "Exportación rápida: {height}p, {fps} imágenes por segundo, {max} s como máximo.",
-    "exportBetter": "Más nítido: Finalizar"
+    "exportBetter": "Más nítido: Finalizar",
+    "exportQualityShort": "{height}p · {fps} imágenes/s · {max} s máx."
   },
   "atelier": {
     "lead": "Todo lo que creaste, en este aparato.",

@@ -2129,3 +2129,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-export-quality { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; margin: 0 0 4px; font-size: 13px; line-height: 1.35; color: var(--u-muted); }
 .u-export-quality .u-text-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--u-gold-soft); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 @media (max-height: 480px) { .u-export-quality .u-text-link { min-height: 44px; } }
+@media (max-width: 600px) {
+  .u-export-quality { flex-wrap: nowrap; gap: 0 6px; margin: -4px 0 0; font-size: 12px; line-height: 1.2; white-space: nowrap; }
+  .u-export-quality .u-long-label { display: none; }
+  .u-export-quality .u-short-label { display: inline; overflow: hidden; text-overflow: ellipsis; }
+  /* Same 44 px target, folded into the line so the timeline keeps its height. */
+  .u-export-quality .u-text-link { margin: -13px 0; flex: none; }
+}

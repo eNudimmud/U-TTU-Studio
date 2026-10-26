@@ -1046,7 +1046,8 @@
     "shortcutHelp": "Leertaste spielt. S teilt. Entf entfernt. Strg+Z macht rückgängig, Strg+Y stellt wieder her. Pfeile: ein Bild.",
     "snap": "Eingerastet",
     "exportQuality": "Schnellexport: {height}p, {fps} Bilder pro Sekunde, höchstens {max} s.",
-    "exportBetter": "Schärfer: Finalisieren"
+    "exportBetter": "Schärfer: Finalisieren",
+    "exportQualityShort": "{height}p · {fps} Bilder/s · max. {max} s"
   },
   "atelier": {
     "lead": "Alles, was du erstellt hast, auf diesem Gerät.",

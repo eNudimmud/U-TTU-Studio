@@ -85,7 +85,7 @@ test('Aperçu en option : devis, premier passage seul, étiquettes et Finaliser 
   await expect(clips.nth(0).locator('.u-clip-tier')).toHaveText('Aperçu');
   await expect(clips.nth(1).locator('.u-clip-tier')).toHaveText('Qualité finale');
   // Export quality, said before exporting, with the way to Finaliser.
-  await expect(page.locator('[data-export-quality]')).toContainText('Export rapide : 540p, 12 images par seconde, 60 s au plus.');
+  await expect(page.locator('[data-export-quality] :is(.u-long-label, .u-short-label):visible')).toHaveText(/^(Export rapide : 540p, 12 images par seconde, 60 s au plus\.|540p · 12 images\/s · 60 s max)$/);
   const better = page.locator('[data-export-better]');
   expect((await better.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
   await shots(page, 'montage-export-qualite', '[data-export-quality]');

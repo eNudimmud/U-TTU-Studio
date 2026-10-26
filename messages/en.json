@@ -1046,7 +1046,8 @@
     "shortcutHelp": "Space plays. S splits. Delete removes. Ctrl+Z undoes, Ctrl+Y redoes. Arrows: one frame.",
     "snap": "Snapped",
     "exportQuality": "Quick export: {height}p, {fps} frames per second, {max} s at most.",
-    "exportBetter": "Sharper: Finalise"
+    "exportBetter": "Sharper: Finalise",
+    "exportQualityShort": "{height}p · {fps} frames/s · {max} s max"
   },
   "atelier": {
     "lead": "Everything you created, on this device.",

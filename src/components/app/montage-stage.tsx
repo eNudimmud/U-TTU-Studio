@@ -852,7 +852,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </span>
       </span>
     </header>
-    <p className="u-export-quality" data-export-quality="">{t("montage.exportQuality", { height: num(EXPORT_HEIGHT), fps: num(EXPORT_FPS), max: num(EXPORT_MAX_SECONDS) })} {!finBusy && !finOpenWhy && <button type="button" className="u-text-link" data-export-better="" onClick={() => openFinal(null)}>{t("montage.exportBetter")}</button>}</p>
+    <p className="u-export-quality" data-export-quality=""><span className="u-long-label">{t("montage.exportQuality", { height: num(EXPORT_HEIGHT), fps: num(EXPORT_FPS), max: num(EXPORT_MAX_SECONDS) })}</span><span className="u-short-label">{t("montage.exportQualityShort", { height: num(EXPORT_HEIGHT), fps: num(EXPORT_FPS), max: num(EXPORT_MAX_SECONDS) })}</span> {!finBusy && !finOpenWhy && <button type="button" className="u-text-link" data-export-better="" onClick={() => openFinal(null)}>{t("montage.exportBetter")}</button>}</p>
     {notice && !sheet && <p className="u-inline-status u-montage-status" role="status" data-statut-inline="" onClick={() => setNotice("")}>{say(notice)}</p>}
     <div className="u-capcut">
     <aside className="u-chutier" data-open={binOpen || undefined} aria-label={t("montage.bin")}>
