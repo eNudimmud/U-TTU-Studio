@@ -1016,7 +1016,9 @@
     "exportLong": "Soixante secondes au plus dans le navigateur.",
     "exportRun": "Écriture du MP4…",
     "exportFail": "L’export n’a pas abouti.",
-    "exportDone": "Le MP4 est sur cet appareil. Rien n’a été envoyé.",
+    "exportStopped": "Export interrompu.",
+    "exportName": "Film exporté",
+    "exportDone": "Le MP4 est sur cet appareil et dans Mes créations. Rien n’a été envoyé.",
     "sizeMb": "{amount} Mo",
     "sizeKb": "{amount} Ko",
     "slate": "Plan sans prise",
@@ -1123,7 +1125,7 @@
       "texte": "un texte",
       "photo": "une photo",
       "photos": "plusieurs photos",
-      "asset": "un asset",
+      "asset": "une image, une vidéo ou un son",
       "video": "une vidéo",
       "audio": "un son"
     },
@@ -1348,7 +1350,7 @@
   },
   "refs": {
     "title": "Références",
-    "lead": "Une photo, plusieurs, ou un asset du studio.",
+    "lead": "Une photo, plusieurs, ou une image du studio.",
     "drop": "Déposer des photos",
     "camera": "Appareil photo",
     "gallery": "Depuis la galerie",
@@ -1356,7 +1358,7 @@
     "role": "Rôle",
     "empty": "Aucune référence.",
     "emptySlot": "Vide",
-    "help": "Glisse un asset de la galerie ou dépose une photo.",
+    "help": "Glisse une image de la galerie ou dépose une photo.",
     "visage": "Visage",
     "tenue": "Tenue",
     "style": "Style",
@@ -1368,7 +1370,7 @@
     "clip": "Clip"
   },
   "assets": {
-    "count": "{count} assets",
+    "count": "{count, plural, one {# création} other {# créations}}",
     "search": "Chercher",
     "all": "Tout",
     "personnages": "Personnages",
@@ -1389,7 +1391,7 @@
     "refresh": "Actualiser",
     "select": "Sélectionner",
     "selected": "{count} sélectionnés",
-    "empty": "Aucun asset.",
+    "empty": "Aucune image, vidéo ou son.",
     "none": "—",
     "credits": "{amount} crédits",
     "estimate": "Devis {amount}",
@@ -2000,7 +2002,7 @@
   },
   "rep3d": {
     "entryTitle": "Un vrai lieu en décor",
-    "entryLead": "Choisis un lieu et une vue 3D. Avec des photos de la rue, Comfy en fait ton décor.",
+    "entryLead": "Choisis un lieu et une vue 3D : Comfy en fait ton décor. Tu peux préciser avec un texte ou des photos.",
     "open": "Choisir un lieu",
     "free": "gratuit",
     "cardCost": "Vue 3D gratuite",
@@ -2293,7 +2295,9 @@
       "image": "une image",
       "image2": "une deuxième image (facultatif)",
       "video": "une vidéo",
-      "audio": "un son"
+      "audio": "un son",
+      "start": "une image de départ",
+      "end": "une image d’arrivée"
     },
     "prompt": "Consigne",
     "refs": "Références",
@@ -2606,7 +2610,11 @@
     "entryKey": "créer",
     "costEst": "≈ {credits} cr. estimés",
     "rowAll": "Tout voir",
-    "rowLess": "Réduire"
+    "rowLess": "Réduire",
+    "slot": {
+      "start": "Image de départ",
+      "end": "Image d’arrivée"
+    }
   },
   "top": {
     "nav": "Navigation du studio",
@@ -2672,7 +2680,7 @@
     },
     "relaunch": "Relancer (nouveau devis)",
     "clear": "Effacer l'historique",
-    "rule": "Rien ne repart sans ta confirmation ; un échec ne détruit jamais un asset validé.",
+    "rule": "Rien ne repart sans ta confirmation ; un échec ne détruit jamais une image, une vidéo ou un son que tu as gardé.",
     "cast": "Créer un personnage",
     "decor": "Créer un décor",
     "take": "Prise",
@@ -3015,7 +3023,7 @@
       "start": {
         "q": "Comment commencer ?",
         "k": "commencer démarrer début premier pas inscription débuter marche fonctionne guide",
-        "a": "Pour lancer un rendu, il te faut un compte Comfy Cloud avec un abonnement payant, des crédits, et ta clé API collée dans le studio. Le guide « Bien démarrer » ci-dessous te montre les 4 étapes."
+        "a": "Choisis un outil, ou commence par CAST pour créer ton personnage. Pour lancer un rendu, touche « Se connecter avec Comfy » : le rendu passe par ton compte Comfy Cloud, et chaque bouton t’annonce ≈ combien de crédits il coûte avant de partir. Le guide « Bien démarrer » ci-dessous te montre les 4 étapes."
       },
       "free": {
         "q": "Qu’est-ce qui est gratuit ?",

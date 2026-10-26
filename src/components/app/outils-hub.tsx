@@ -14,6 +14,7 @@ import type { AssetRecord } from "@/lib/creation/assets";
 import { formatCredits } from "@/lib/credits";
 import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
 import { outilQuote } from "@/lib/outils/graphs";
+import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
 import { assetPath } from "@/lib/site";
 import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
 import type { Elargir } from "@/lib/suite/graphs";
@@ -134,7 +135,7 @@ export function useResultAssets(): { asset: AssetRecord; url: string; kind: "ima
   }, [loose, media, studio.takes]);
 }
 
-function InputSlot({ entree, value, busy, busyId, onChange }: { entree: Entree; value: Picked | null; busy: boolean; busyId: string; onChange(next: Picked | null): void }) {
+function InputSlot({ entree, label, value, busy, busyId, onChange }: { entree: Entree; label?: string; value: Picked | null; busy: boolean; busyId: string; onChange(next: Picked | null): void }) {
   const { t } = useI18n();
   const id = useId();
   const [over, setOver] = useState(false);
@@ -152,7 +153,7 @@ function InputSlot({ entree, value, busy, busyId, onChange }: { entree: Entree; 
     if (!busy) take(event.dataTransfer.files?.[0]);
   }
   return <div className="u-outil-input" data-outil-input={entree} data-over={over ? "" : undefined} onDragOver={event => { event.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)} onDrop={drop}>
-    <span className="u-label" id={`${id}-label`}>{t(`outils.kind.${entree}`)}</span>
+    <span className="u-label" id={`${id}-label`}>{label ?? t(`outils.kind.${entree}`)}</span>
     {value && <div className="u-outil-preview">
       {want === "image" ? <img src={value.url} alt="" /> : want === "video" ? <video src={value.url} muted playsInline controls preload="metadata" /> : <audio src={value.url} controls />}
       <span className="u-small">{value.name}</span>
@@ -228,12 +229,18 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
   const { connected, creating, runOutil, balance, setSheet, prefs, media } = useStudio();
   const [modelId, setModelId] = useState(asked.id);
   const outil = outilParId(modelId) ?? asked;
-  const [inputs, setInputs] = useState<Partial<Record<Entree, Picked | null>>>({});
-  const [text, setText] = useState("");
-  const [aspect, setAspect] = useState<"horizontal" | "vertical">("horizontal");
-  const [side, setSide] = useState<Elargir>("cotes");
-  const [fluide, setFluide] = useState(false);
-  const [mesh, setMesh] = useState<"objet" | "perso">("objet");
+  // The form you left here comes back as it was: pictures, text and settings (never the consent box).
+  const draftKey = intentDe(asked.id);
+  const [draft] = useState(() => loadDraft(draftKey, path => media[path]));
+  const [inputs, setInputs] = useState<Partial<Record<Entree, Picked | null>>>(() => (draft?.inputs ?? {}) as Partial<Record<Entree, Picked | null>>);
+  const [text, setText] = useState(draft?.text ?? "");
+  const [aspect, setAspect] = useState<"horizontal" | "vertical">(draft?.aspect ?? "horizontal");
+  const [side, setSide] = useState<Elargir>((draft?.side as Elargir | undefined) ?? "cotes");
+  const [fluide, setFluide] = useState(draft?.fluide ?? false);
+  const [mesh, setMesh] = useState<"objet" | "perso">(draft?.mesh ?? "objet");
+  useEffect(() => {
+    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh });
+  }, [draftKey, inputs, text, aspect, side, fluide, mesh]);
   const [consent, setConsent] = useState(false);
   const [seconds, setSeconds] = useState<number | null>(null);
   const [ask, setAsk] = useState(false);
@@ -304,8 +311,11 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
     } catch { /* the field stays empty */ }
   }, [outil.id, outil.texte]);
 
-  const main = outil.entrees.filter(item => item !== "image2");
-  const refs = outil.entrees.filter(item => item === "image2");
+  // A bridge (start and end frames) needs both pictures: two visible slots, « départ » and « arrivée ».
+  const bridge = outil.template.endsWith("_flf2v");
+  const main = bridge ? outil.entrees : outil.entrees.filter(item => item !== "image2");
+  const refs = bridge ? [] : outil.entrees.filter(item => item === "image2");
+  const slotName = (entree: Entree) => bridge && entree === "image" ? "start" : bridge && entree === "image2" ? "end" : entree;
   const reglages = [...(outil.reglages ?? []), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
   const video = inputs.video;
   useEffect(() => {
@@ -338,7 +348,7 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
     if (busy || creating) return;
     if (!connected) { setSheet("connect"); return; }
     if (etat.kind !== "pret") { setWhy(t("gestes.unwired")); return; }
-    if (missingInput) { setWhy(t("outils.needInput", { what: t(`outils.kind.${missingInput}`) })); return; }
+    if (missingInput) { setWhy(t("outils.needInput", { what: t(`outils.kind.${slotName(missingInput)}`) })); return; }
     if (missingText) { setWhy(t("videoGeste.needText")); return; }
     if (needConsent) { setWhy(t("outils.needConsent")); return; }
     if (!quote) return;
@@ -402,7 +412,7 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
     </div>
     {main.length > 0 && <fieldset className="u-tool-step" data-tool-step="entree">
       <legend className="u-label">{t("outils.input")}</legend>
-      {main.map(entree => <InputSlot key={entree} entree={entree} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
+      {main.map(entree => <InputSlot key={entree} entree={entree} label={bridge ? t(`outils.slot.${slotName(entree)}`) : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
       {outil.consentement && inputs.audio && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={consent} data-tool-consent="" {...lock} onClick={() => { setConsent(value => !value); reset(); }}>
         <span className="u-final-box" aria-hidden="true">{consent ? "✓" : ""}</span><span>{t("outils.consent")}</span>
       </button>}

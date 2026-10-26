@@ -1016,7 +1016,9 @@
     "exportLong": "Höchstens sechzig Sekunden im Browser.",
     "exportRun": "MP4 wird geschrieben…",
     "exportFail": "Der Export ist nicht fertig geworden.",
-    "exportDone": "Das MP4 liegt auf diesem Gerät. Nichts wurde gesendet.",
+    "exportStopped": "Export abgebrochen.",
+    "exportName": "Exportierter Film",
+    "exportDone": "Das MP4 liegt auf diesem Gerät und in Meine Kreationen. Nichts wurde gesendet.",
     "sizeMb": "{amount} MB",
     "sizeKb": "{amount} KB",
     "slate": "Einstellung ohne Take",
@@ -1123,7 +1125,7 @@
       "texte": "ein Text",
       "photo": "ein Foto",
       "photos": "mehrere Fotos",
-      "asset": "ein Asset",
+      "asset": "ein Bild, ein Video oder ein Ton",
       "video": "ein Video",
       "audio": "ein Ton"
     },
@@ -1348,7 +1350,7 @@
   },
   "refs": {
     "title": "Referenzen",
-    "lead": "Ein Foto, mehrere, oder ein Studio-Asset.",
+    "lead": "Ein Foto, mehrere, oder ein Bild aus dem Studio.",
     "drop": "Fotos ablegen",
     "camera": "Kamera",
     "gallery": "Aus der Galerie",
@@ -1356,7 +1358,7 @@
     "role": "Rolle",
     "empty": "Keine Referenz.",
     "emptySlot": "Leer",
-    "help": "Zieh ein Asset aus der Galerie, oder leg ein Foto ab.",
+    "help": "Zieh ein Bild aus der Galerie, oder leg ein Foto ab.",
     "visage": "Gesicht",
     "tenue": "Kleidung",
     "style": "Stil",
@@ -1368,7 +1370,7 @@
     "clip": "Clip"
   },
   "assets": {
-    "count": "{count} Assets",
+    "count": "{count, plural, one {# Kreation} other {# Kreationen}}",
     "search": "Suchen",
     "all": "Alles",
     "personnages": "Personen",
@@ -1389,7 +1391,7 @@
     "refresh": "Aktualisieren",
     "select": "Wählen",
     "selected": "{count} gewählt",
-    "empty": "Kein Asset.",
+    "empty": "Kein Bild, Video oder Ton.",
     "none": "—",
     "credits": "{amount} Credits",
     "estimate": "Kalkulation {amount}",
@@ -2000,7 +2002,7 @@
   },
   "rep3d": {
     "entryTitle": "Ein echter Ort als Kulisse",
-    "entryLead": "Wähl einen Ort und eine 3D-Ansicht. Mit Straßenfotos macht Comfy daraus deine Kulisse.",
+    "entryLead": "Wähl einen Ort und eine 3D-Ansicht: Comfy macht daraus deine Kulisse. Mit einem Text oder Fotos kannst du sie verfeinern.",
     "open": "Ort wählen",
     "free": "kostenlos",
     "cardCost": "3D-Ansicht kostenlos",
@@ -2293,7 +2295,9 @@
       "image": "ein Bild",
       "image2": "ein zweites Bild (optional)",
       "video": "ein Video",
-      "audio": "einen Ton"
+      "audio": "einen Ton",
+      "start": "ein Startbild",
+      "end": "ein Endbild"
     },
     "prompt": "Anweisung",
     "refs": "Referenzen",
@@ -2606,7 +2610,11 @@
     "entryKey": "machen",
     "costEst": "≈ {credits} Cr. geschätzt",
     "rowAll": "Alle ansehen",
-    "rowLess": "Weniger"
+    "rowLess": "Weniger",
+    "slot": {
+      "start": "Startbild",
+      "end": "Endbild"
+    }
   },
   "top": {
     "nav": "Studio-Navigation",
@@ -2672,7 +2680,7 @@
     },
     "relaunch": "Neu starten (neue Kalkulation)",
     "clear": "Verlauf löschen",
-    "rule": "Nichts startet ohne deine Bestätigung neu; ein Fehler zerstört nie ein bestätigtes Asset.",
+    "rule": "Nichts startet ohne deine Bestätigung neu; ein Fehler zerstört nie ein Bild, Video oder einen Ton, den du behalten hast.",
     "cast": "Figur erstellen",
     "decor": "Ort erstellen",
     "take": "Take",
@@ -3015,7 +3023,7 @@
       "start": {
         "q": "Wie fange ich an?",
         "k": "anfangen starten einstieg erste schritte anmelden funktioniert guide",
-        "a": "Für einen Render brauchst du ein Comfy-Cloud-Konto mit kostenpflichtigem Abo, Credits und deinen API-Schlüssel im Studio. Der Guide „Einstieg“ unten zeigt dir die 4 Schritte."
+        "a": "Wähl ein Werkzeug, oder fang mit CAST an, um deine Figur zu erstellen. Für einen Render tippst du auf „Mit Comfy anmelden“: Der Render läuft über dein Comfy-Cloud-Konto, und jeder Button sagt dir vorher, ≈ wie viele Credits er kostet. Der Guide „Einstieg“ unten zeigt dir die 4 Schritte."
       },
       "free": {
         "q": "Was ist kostenlos?",

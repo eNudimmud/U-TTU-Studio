@@ -1016,7 +1016,9 @@
     "exportLong": "Sixty seconds at most in the browser.",
     "exportRun": "Writing the MP4…",
     "exportFail": "The export did not finish.",
-    "exportDone": "The MP4 is on this device. Nothing was sent.",
+    "exportStopped": "Export interrupted.",
+    "exportName": "Exported film",
+    "exportDone": "The MP4 is on this device and in My creations. Nothing was sent.",
     "sizeMb": "{amount} MB",
     "sizeKb": "{amount} KB",
     "slate": "Shot without a take",
@@ -1123,7 +1125,7 @@
       "texte": "text",
       "photo": "one photo",
       "photos": "several photos",
-      "asset": "an asset",
+      "asset": "an image, a video or a sound",
       "video": "a video",
       "audio": "a sound"
     },
@@ -1348,7 +1350,7 @@
   },
   "refs": {
     "title": "References",
-    "lead": "One photo, several, or a studio asset.",
+    "lead": "One photo, several, or a studio image.",
     "drop": "Drop photos",
     "camera": "Camera",
     "gallery": "From the gallery",
@@ -1356,7 +1358,7 @@
     "role": "Role",
     "empty": "No reference.",
     "emptySlot": "Empty",
-    "help": "Drag an asset from the gallery, or drop a photo.",
+    "help": "Drag an image from the gallery, or drop a photo.",
     "visage": "Face",
     "tenue": "Outfit",
     "style": "Style",
@@ -1368,7 +1370,7 @@
     "clip": "Clip"
   },
   "assets": {
-    "count": "{count} assets",
+    "count": "{count, plural, one {# creation} other {# creations}}",
     "search": "Search",
     "all": "All",
     "personnages": "People",
@@ -1389,7 +1391,7 @@
     "refresh": "Refresh",
     "select": "Select",
     "selected": "{count} selected",
-    "empty": "No asset.",
+    "empty": "No image, video or sound.",
     "none": "—",
     "credits": "{amount} credits",
     "estimate": "Quote {amount}",
@@ -2000,7 +2002,7 @@
   },
   "rep3d": {
     "entryTitle": "A real place as your set",
-    "entryLead": "Pick a place and a 3D view. With street photos, Comfy turns it into your set.",
+    "entryLead": "Pick a place and a 3D view: Comfy turns it into your set. You can refine it with text or photos.",
     "open": "Pick a place",
     "free": "free",
     "cardCost": "Free 3D view",
@@ -2293,7 +2295,9 @@
       "image": "an image",
       "image2": "a second image (optional)",
       "video": "a video",
-      "audio": "a sound"
+      "audio": "a sound",
+      "start": "a start image",
+      "end": "an end image"
     },
     "prompt": "Prompt",
     "refs": "References",
@@ -2606,7 +2610,11 @@
     "entryKey": "make",
     "costEst": "≈ {credits} cr. estimated",
     "rowAll": "See all",
-    "rowLess": "Show less"
+    "rowLess": "Show less",
+    "slot": {
+      "start": "Start image",
+      "end": "End image"
+    }
   },
   "top": {
     "nav": "Studio navigation",
@@ -2672,7 +2680,7 @@
     },
     "relaunch": "Relaunch (new quote)",
     "clear": "Clear history",
-    "rule": "Nothing restarts without your confirmation; a failure never destroys a validated asset.",
+    "rule": "Nothing restarts without your confirmation; a failure never destroys an image, video or sound you kept.",
     "cast": "Create a character",
     "decor": "Create a location",
     "take": "Take",
@@ -3015,7 +3023,7 @@
       "start": {
         "q": "How do I start?",
         "k": "start begin first steps sign up getting started works guide",
-        "a": "To run a render you need a Comfy Cloud account with a paid subscription, credits, and your API key pasted into the studio. The “Get started” guide below shows the 4 steps."
+        "a": "Pick a tool, or start with CAST to create your character. To run a render, tap “Sign in with Comfy”: the render runs on your Comfy Cloud account, and every button tells you ≈ how many credits it costs before it starts. The “Get started” guide below shows the 4 steps."
       },
       "free": {
         "q": "What is free?",

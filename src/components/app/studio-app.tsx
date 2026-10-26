@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { liftDelta } from "@/lib/mobile-band";
+import { liftDelta, openBand } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
 import { chooseEdit, editHasClips } from "@/lib/montage/from-takes";
 import { priseReady } from "@/lib/stage";
@@ -88,20 +88,32 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     const lift = () => {
       const el = document.activeElement;
       if (!(el instanceof HTMLElement) || !el.matches("input, textarea, select") || !el.closest(".u-app")) return;
-      const chain = document.querySelector(".u-chain")?.getBoundingClientRect();
-      const header = document.querySelector(".u-top")?.getBoundingClientRect();
       const viewport = window.visualViewport;
+      const visibleTop = viewport ? viewport.offsetTop : 0;
       const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      const bandTop = (header?.bottom ?? 0) + 8;
-      const bandBottom = Math.min(chain?.top ?? visibleBottom, visibleBottom) - 12;
+      // Bars that stay on screen: the header, the chain (bottom on a phone held upright,
+      // top in MONTAGE, landscape and large screens) and the MONTAGE bar.
+      const bars = [...document.querySelectorAll<HTMLElement>(".u-top, .u-chain, .u-montage-bar")]
+        .filter(bar => !bar.contains(el) && ["fixed", "sticky"].includes(getComputedStyle(bar).position))
+        .map(bar => bar.getBoundingClientRect())
+        .map(box => ({ top: box.top, bottom: box.bottom }));
       const rect = el.getBoundingClientRect();
-      const delta = liftDelta(rect, bandTop, bandBottom);
+      const band = openBand(bars, visibleTop, visibleBottom, rect.height);
+      const delta = liftDelta(rect, band.top, band.bottom);
       if (delta === 0) return;
-      const root = document.documentElement;
-      const previous = root.style.scrollBehavior;
-      root.style.scrollBehavior = "auto";
-      window.scrollBy(0, delta);
-      root.style.scrollBehavior = previous;
+      // MONTAGE on a large screen scrolls inside its panel, not the page.
+      let box: HTMLElement | null = el.parentElement;
+      while (box && box !== document.body) {
+        const overflow = getComputedStyle(box).overflowY;
+        if ((overflow === "auto" || overflow === "scroll") && box.scrollHeight > box.clientHeight + 1) break;
+        box = box.parentElement;
+      }
+      const scroller = box && box !== document.body ? box : document.documentElement;
+      const previous = scroller.style.scrollBehavior;
+      scroller.style.scrollBehavior = "auto";
+      if (scroller === document.documentElement) window.scrollBy(0, delta);
+      else scroller.scrollBy(0, delta);
+      scroller.style.scrollBehavior = previous;
     };
     const schedule = () => {
       window.cancelAnimationFrame(frame);

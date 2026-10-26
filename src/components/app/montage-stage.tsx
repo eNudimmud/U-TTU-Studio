@@ -110,7 +110,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   const { t, say } = useI18n();
   const { format } = useFormat();
   const { locale } = useLocaleSwitch();
-  const { ready, demo, notice, setNotice, sheet, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs, writeProjectFile } = useStudio();
+  const { ready, demo, notice, setNotice, sheet, studio, media, connected, balance, creating, createStem, finaliseMontage, loadMontages, saveMontage, pendingClip, holdClip, prefs, writeProjectFile, saveExport } = useStudio();
   const [loadedProject, setLoadedProject] = useState<string | null>(null);
   const projectRef = useRef(studio.project);
   projectRef.current = studio.project;
@@ -711,8 +711,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 60000);
       await writeProjectFile(".uttu/agent-events.json", JSON.stringify({ export: `${current.id}:${Date.now()}:${blob.size}` }));
+      await saveExport(blob, current.name).catch(() => "");
       setExportPhase({ phase: "done", bytes: blob.size });
-    }).catch(error => { setExportError(error instanceof Error ? error.message : "Export interrompu."); setExportPhase({ phase: "fail" }); }).finally(() => { exporting.current = false; });
+    }).catch(error => { setExportError(error instanceof Error ? error.message : t("montage.exportStopped")); setExportPhase({ phase: "fail" }); }).finally(() => { exporting.current = false; });
   }
 
   function runFinal() {
