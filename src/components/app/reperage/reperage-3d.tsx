@@ -16,7 +16,7 @@ import { useStudio } from "../studio-session";
 import { assetPath } from "@/lib/site";
 import { RueViewer, type RueHandle } from "../rue-viewer";
 import { creationAllowed } from "@/lib/creation/quotes";
-import { CADRE_AMBIANCES, CADRE_PHOTOS_MAX, cadrePrompt, cadreQuote, type CadreAmbiance } from "@/lib/creation/decor-cadre";
+import { CADRE_AMBIANCES, CADRE_DETAIL_MAX, CADRE_PHOTOS_MAX, cadrePrompt, cadreQuote, type CadreAmbiance } from "@/lib/creation/decor-cadre";
 import { buildCaptureMeta, captureNote, type CaptureMeta } from "@/lib/repere3d/capture";
 import { lignesContexte, tagsContexte, type Contexte } from "@/lib/repere3d/contexte";
 import { createGeocoder, type GeocodeResult, type Lieu3d } from "@/lib/repere3d/geocode";
@@ -135,6 +135,8 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   const [pickNote, setPickNote] = useState("");
   const [ambiance, setAmbiance] = useState<CadreAmbiance>("photos");
   const [decorName, setDecorName] = useState("");
+  /** « Décris ce que tu veux »: the visitor's own words, sent with or without photos (decor-cadre.ts). */
+  const [wish, setWish] = useState("");
   const [modal, setModal] = useState<Modal>(null);
   const [made, setMade] = useState<{ id: string; name: string; url: string } | null>(null);
   const [makeNote, setMakeNote] = useState("");
@@ -427,7 +429,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       let filed: { id: string; name: string; image: Blob } | null = null;
       const ok = await createDecor({
         name: decorName.trim() || (place?.name ?? "").slice(0, 40),
-        prompt: cadrePrompt({ photos: blobs.length, ambiance, detail: "", contexte: contexte ? lignesContexte(contexte) : [] }),
+        prompt: cadrePrompt({ photos: blobs.length, ambiance, detail: wish, contexte: contexte ? lignesContexte(contexte) : [] }),
         source: "photo",
         file: frame,
         files,
@@ -555,21 +557,40 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
             {tags.length > 0 && <ul className="u-rv-tags" aria-label={t("rep3d.s3.tags")} data-rep3d-tags={tags.length}>
               {tags.map(tag => <li key={`${tag.kind}-${"text" in tag ? tag.text : tag.key}`} data-tag={tag.kind}>{"text" in tag ? tag.text : t(`rep3d.tag.${tag.key}`)}</li>)}
             </ul>}
-            {picked.length > 0 && <>
-              <p className="u-rv-mix-line"><b aria-hidden="true">+</b> {picked.every(item => item.kind !== "import")
-                ? picked.length === 1 ? t("rep3d.s3.rue1") : t("rep3d.s3.rue", { n: picked.length })
-                : picked.length === 1 ? t("rep3d.s3.mix1") : t("rep3d.s3.mix", { n: picked.length })}</p>
-              <ul className="u-rv-thumbs">
-                {picked.map((item, index) => <li key={item.key} data-rep3d-photo={item.kind}><img src={item.thumb} alt={t("rep3d.refs.alt", { n: index + 1, name: item.name })} referrerPolicy="no-referrer" /></li>)}
-              </ul>
-            </>}
-            <div className="u-rv-row">
-              <button type="button" className="u-rv-link" data-rep3d-change-photos="" onClick={() => setModal("picker")}>
-                {picked.length ? t("rep3d.s3.change") : t("rep3d.s3.refine")}
-                {!picked.length && <span className="u-rv-opt-tag">{t("rep3d.s3.optional")}</span>}
-              </button>
-              {rueCredits.length > 0 && <button type="button" className="u-rv-copy is-inline" aria-label={t("rep3d.creditsBtn")} onClick={() => setModal("credits")}><span aria-hidden="true">©</span></button>}
-            </div>
+            <section className="u-rv-refine" aria-labelledby="u-rv-refine-h" data-rep3d-refine="">
+              <h2 className="u-rv-refine-h" id="u-rv-refine-h">{t("rep3d.s3.refineTitle")} <span className="u-rv-opt-tag">{t("rep3d.s3.optional")}</span></h2>
+              <p className="u-rv-refine-lead">{t("rep3d.s3.refineLead")}</p>
+              <div className="u-rv-refine-card" data-rep3d-wish-card="">
+                <label className="u-rv-refine-label" htmlFor="u-rv-wish"><span aria-hidden="true">✎</span>{t("rep3d.s3.wish")}</label>
+                <textarea id="u-rv-wish" rows={2} value={wish} maxLength={CADRE_DETAIL_MAX} placeholder={t("rep3d.s3.wishHint")} data-rep3d-wish="" onChange={event => setWish(event.target.value)} />
+                <div className="u-rv-chips" role="group" aria-label={t("rep3d.s3.ideas")}>
+                  {(["couchant", "neige", "brume"] as const).map(key => {
+                    const text = t(`rep3d.s3.idea.${key}`);
+                    const parts = wish.split(",").map(part => part.trim()).filter(Boolean);
+                    const on = parts.some(part => part.toLowerCase() === text.toLowerCase());
+                    const next = on ? parts.filter(part => part.toLowerCase() !== text.toLowerCase()) : [...parts, parts.length ? text.charAt(0).toLocaleLowerCase() + text.slice(1) : text];
+                    return <button key={key} type="button" aria-pressed={on} data-rep3d-idea={key} onClick={() => setWish(next.join(", ").slice(0, CADRE_DETAIL_MAX))}>{text}</button>;
+                  })}
+                </div>
+              </div>
+              <div className="u-rv-refine-card" data-rep3d-photos-card="">
+                {picked.length > 0 && <>
+                  <p className="u-rv-mix-line"><b aria-hidden="true">+</b> {picked.every(item => item.kind !== "import")
+                    ? picked.length === 1 ? t("rep3d.s3.rue1") : t("rep3d.s3.rue", { n: picked.length })
+                    : picked.length === 1 ? t("rep3d.s3.mix1") : t("rep3d.s3.mix", { n: picked.length })}</p>
+                  <ul className="u-rv-thumbs">
+                    {picked.map((item, index) => <li key={item.key} data-rep3d-photo={item.kind}><img src={item.thumb} alt={t("rep3d.refs.alt", { n: index + 1, name: item.name })} referrerPolicy="no-referrer" /></li>)}
+                  </ul>
+                </>}
+                <div className="u-rv-row">
+                  <button type="button" className="u-rv-refine-btn" data-rep3d-change-photos="" onClick={() => setModal("picker")}>
+                    <span aria-hidden="true">{picked.length ? "↺" : "＋"}</span>
+                    <span>{picked.length ? t("rep3d.s3.change") : t("rep3d.s3.addPhotos")}{!picked.length && <small>{t("rep3d.s3.addPhotosHint")}</small>}</span>
+                  </button>
+                  {rueCredits.length > 0 && <button type="button" className="u-rv-copy is-inline" aria-label={t("rep3d.creditsBtn")} onClick={() => setModal("credits")}><span aria-hidden="true">©</span></button>}
+                </div>
+              </div>
+            </section>
             <details className="u-rv-opts" data-rep3d-more="">
               <summary>{t("rep3d.s3.options")}</summary>
               <div className="u-rv-opts-in">

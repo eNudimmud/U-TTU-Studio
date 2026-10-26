@@ -2094,9 +2094,20 @@
       "name": "Nom",
       "go": "Créer le décor",
       "lead": "Ton décor suit ta vue et ce lieu.",
-      "refine": "Préciser avec des photos",
       "optional": "facultatif",
-      "tags": "Ce que l'on sait du lieu"
+      "tags": "Ce que l'on sait du lieu",
+      "refineTitle": "Affiner",
+      "refineLead": "Un texte, des photos, ou les deux.",
+      "wish": "Décris ce que tu veux",
+      "wishHint": "Ex. : fin d’après-midi d’automne, feuilles au sol",
+      "ideas": "Idées",
+      "idea": {
+        "couchant": "Coucher de soleil",
+        "neige": "Sous la neige",
+        "brume": "Brume du matin"
+      },
+      "addPhotos": "Ajouter des photos du lieu",
+      "addPhotosHint": "Jusqu’à 3"
     },
     "ambiance": {
       "photos": "Comme les photos",
@@ -2129,7 +2140,6 @@
       "pano": "Vue 360° de ce point",
       "panoAt": "à {m} m de ta caméra",
       "panoGo": "Tourner et cadrer",
-      "credit": "Photos :",
       "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {

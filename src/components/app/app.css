@@ -1375,6 +1375,27 @@
 .u-rv-tags li { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface-2); color: var(--fg); font-size: 13px; }
 .u-rv-tags li[data-tag="zone"] { border-color: var(--accent); }
 .u-rv-opt-tag { margin-left: 8px; padding: 2px 8px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--fg-2); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-decoration: none; text-transform: uppercase; }
+/* « Affiner » (facultatif): two equal ways to steer the décor, usable together: your words and photos of the place. */
+.u-rv-refine { display: grid; gap: 10px; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--line); }
+.u-rv-refine-h { display: flex; align-items: center; margin: 0; font-size: 17px; font-weight: 600; }
+.u-rv-refine-lead { margin: -4px 0 0; color: var(--fg-2); font-size: 14px; }
+.u-rv-refine-card { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); }
+.u-rv-refine-label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.u-rv-refine-label span { color: var(--accent); }
+.u-rv-refine textarea { width: 100%; min-height: 64px; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-control); background: var(--bg); color: var(--fg); font: inherit; font-size: 16px; line-height: 1.4; resize: vertical; }
+.u-rv-refine textarea::placeholder { color: var(--fg-2); opacity: .8; }
+.u-rv-refine textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.u-rv-refine .u-rv-chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -12px; padding: 0 12px 2px; scrollbar-width: none; }
+@media (min-width: 600px) { .u-rv-refine .u-rv-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; } }
+.u-rv-refine .u-rv-chips::-webkit-scrollbar { display: none; }
+.u-rv-refine .u-rv-chips button { flex: none; background: var(--bg); white-space: nowrap; }
+.u-rv-refine .u-rv-chips button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.u-rv-refine .u-rv-chips button[aria-pressed="true"]::before { content: "✓ "; }
+.u-rv-refine-btn { display: flex; flex: 1; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px 6px 6px; border: 1px dashed var(--line-strong); border-radius: var(--radius-control); background: var(--bg); color: var(--fg); font-weight: 600; text-align: left; cursor: pointer; }
+.u-rv-refine-btn > span:first-child { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 8px; background: var(--surface-2); color: var(--accent); font-size: 20px; }
+.u-rv-refine-btn > span:last-child { display: grid; }
+.u-rv-refine-btn small { color: var(--fg-2); font-size: 13px; font-weight: 400; }
+.u-rv-refine-btn:hover { border-color: var(--accent); }
 .u-rv-pk-sub { margin: -6px 0 0; color: var(--fg-2); }
 .u-rv-pk-import { border: 1px solid var(--accent); color: var(--fg); font-size: 14px; font-weight: 600; line-height: 1.2; text-align: center; padding: 4px; }
 .u-rv-pk-import span:first-of-type { color: var(--accent); }

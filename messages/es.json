@@ -2094,9 +2094,20 @@
       "name": "Nombre",
       "go": "Crear el decorado",
       "lead": "Tu decorado sigue tu vista y este lugar.",
-      "refine": "Precisar con fotos",
       "optional": "opcional",
-      "tags": "Lo que sabemos del lugar"
+      "tags": "Lo que sabemos del lugar",
+      "refineTitle": "Afinar",
+      "refineLead": "Un texto, fotos o ambos.",
+      "wish": "Describe lo que quieres",
+      "wishHint": "Ej.: tarde de otoño, hojas en el suelo",
+      "ideas": "Ideas",
+      "idea": {
+        "couchant": "Atardecer",
+        "neige": "Bajo la nieve",
+        "brume": "Niebla matinal"
+      },
+      "addPhotos": "Añadir fotos del lugar",
+      "addPhotosHint": "Hasta 3"
     },
     "ambiance": {
       "photos": "Como las fotos",
@@ -2129,7 +2140,6 @@
       "pano": "Vista 360° de este punto",
       "panoAt": "a {m} m de tu cámara",
       "panoGo": "Girar y encuadrar",
-      "credit": "Fotos:",
       "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {
