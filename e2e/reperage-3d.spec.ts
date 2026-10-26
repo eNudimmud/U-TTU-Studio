@@ -169,9 +169,13 @@ test("lieu réel → vue : une question par écran, une vue 3D, trois hauteurs, 
   await expect(page.locator("[data-rep3d-tags] li").first()).toHaveText("Lausanne");
   await expect(page.locator("[data-rep3d-create]")).toBeEnabled();
   await expect(page.locator("[data-rep3d-create]")).toHaveText("Créer le décor · ≈ 4 crédits estimés");
-  await expect(page.locator("[data-rep3d-change-photos]")).toContainText("Préciser avec des photos");
-  await expect(page.locator("[data-rep3d-change-photos]")).toContainText("facultatif");
-  // « Préciser avec des photos »: import first, no old décor and no 3D capture in the list.
+  // « Affiner » (facultatif): your words and photos of the place, side by side, usable together.
+  await expect(page.locator("[data-rep3d-refine] h2")).toContainText("Affiner");
+  await expect(page.locator("[data-rep3d-refine] h2")).toContainText("facultatif");
+  await expect(page.getByLabel("Décris ce que tu veux")).toHaveValue("");
+  await expect(page.locator("[data-rep3d-idea]")).toHaveText(["Coucher de soleil", "Sous la neige", "Brume du matin"]);
+  await expect(page.locator("[data-rep3d-change-photos]")).toContainText("Ajouter des photos du lieu");
+  // « Ajouter des photos du lieu »: import first, no old décor and no 3D capture in the list.
   await page.locator("[data-rep3d-change-photos]").click();
   const picker = page.locator("[data-rep3d-picker]");
   await expect(picker.locator("li").first().locator("[data-rep3d-pick=import]")).toHaveCount(1);
@@ -271,7 +275,16 @@ test("crée ton décor en direct : vue + lieu, sans photo, ≈ 4 crédits, un se
   expect(await page.locator("[data-rep3d-tags] li").count()).toBeLessThanOrEqual(3);
   await page.locator("[data-rep3d-more] > summary").click();
   await expect(page.locator("[data-ambiance=photos]")).toHaveText("Lumière du jour");
-  await tall(page, ["[data-rep3d-create]", "[data-rep3d-change-photos]"]);
+  await tall(page, ["[data-rep3d-create]", "[data-rep3d-change-photos]", "[data-rep3d-idea=neige]", "[data-rep3d-wish]"]);
+  // Your words, alone or with an idea: the quote does not move.
+  await page.locator("[data-rep3d-wish]").fill("Fin d’après-midi d’automne");
+  await page.locator("[data-rep3d-idea=neige]").click();
+  await expect(page.locator("[data-rep3d-wish]")).toHaveValue("Fin d’après-midi d’automne, sous la neige");
+  await expect(page.locator("[data-rep3d-idea=neige]")).toHaveAttribute("aria-pressed", "true");
+  await page.locator("[data-rep3d-idea=brume]").click();
+  await page.locator("[data-rep3d-idea=brume]").click();
+  await expect(page.locator("[data-rep3d-wish]")).toHaveValue("Fin d’après-midi d’automne, sous la neige");
+  await expect(create).toHaveText("Créer le décor · ≈ 4 crédits estimés");
   await create.click();
   await expect(page.locator("[data-rep3d-quote]")).toHaveText("≈ 4 crédits estimés, 6 crédits au plus. Environ 20 secondes.");
   await page.locator("[data-rep3d-yes]").click();
@@ -286,10 +299,13 @@ test("crée ton décor en direct : vue + lieu, sans photo, ≈ 4 crédits, un se
   expect(text).toMatch(/about \d+ m above the ground|at a person's eye height/);
   expect(text).toContain("never raise, lower or move the camera");
   expect(text).not.toContain("image 2");
+  expect(text).toContain(`The visitor's wish, in their own words: "Fin d’après-midi d’automne, sous la neige".`);
+  expect(text).not.toContain("Natural daylight");
+  expect(text.split("\n").at(-1)).toMatch(/^Whatever the wish says, image 1's camera, framing and building volumes stay exactly the same/);
   expect(outside.filter(url => !/\/api\//.test(url))).toEqual([]);
 });
 
-test("préciser avec des photos : rien de coché d'office, 360° du point, photos variées, devis, un seul rendu Klein, puis un plan", async ({ page }) => {
+test("affiner avec des photos et un texte : rien de coché d'office, 360° du point, photos variées, devis, un seul rendu Klein, puis un plan", async ({ page }) => {
   const outside = await offline(page);
   await streetPhotos(page);
   const comfy = await fakeComfy(page);
@@ -305,7 +321,7 @@ test("préciser avec des photos : rien de coché d'office, 360° du point, photo
   const create = page.locator("[data-rep3d-create]");
   await expect(create).toHaveText("Créer le décor · ≈ 4 crédits estimés");
 
-  // « Préciser avec des photos »: the 360° of the spot, then your photo first and the open photos.
+  // « Ajouter des photos du lieu »: the 360° of the spot, then your photo first and the open photos.
   await page.locator("[data-rep3d-change-photos]").click();
   const picker = page.locator("[data-rep3d-picker]");
   await expect(picker.locator("[data-rep3d-pool=rue]")).toHaveCount(4);
@@ -340,6 +356,8 @@ test("préciser avec des photos : rien de coché d'office, 360° du point, photo
   await page.locator("[data-rep3d-more] > summary").click();
   await page.locator("[data-ambiance=nuit]").click();
   await page.locator("[data-rep3d-name]").fill("Saint-François nuit");
+  await page.locator("[data-rep3d-wish]").fill("Pavés mouillés");
+  await expect(create).toContainText("≈ 7 crédits estimés");
   expect(comfy.graphs).toHaveLength(0);
 
   // Confirmation in plain words, then one Klein edit.
@@ -365,6 +383,8 @@ test("préciser avec des photos : rien de coché d'office, 360° du point, photo
   expect(text).toContain("keep its exact camera position");
   expect(text).toContain("images 2 to 4");
   expect(text).toContain("Night");
+  expect(text).toContain(`"Pavés mouillés"`);
+  expect(text).toContain("where it differs from images 2 to 4, the wish wins");
 
   // « Utiliser dans un plan » closes the sheet with the new décor already chosen.
   await page.locator("[data-rep3d-to-prise]").click();

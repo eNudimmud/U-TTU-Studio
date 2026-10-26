@@ -2094,9 +2094,20 @@
       "name": "Name",
       "go": "Kulisse erstellen",
       "lead": "Deine Kulisse folgt deiner Ansicht und diesem Ort.",
-      "refine": "Mit Fotos verfeinern",
       "optional": "optional",
-      "tags": "Was wir über den Ort wissen"
+      "tags": "Was wir über den Ort wissen",
+      "refineTitle": "Verfeinern",
+      "refineLead": "Ein Text, Fotos oder beides.",
+      "wish": "Beschreib, was du willst",
+      "wishHint": "Z. B. später Herbstnachmittag, Laub am Boden",
+      "ideas": "Ideen",
+      "idea": {
+        "couchant": "Sonnenuntergang",
+        "neige": "Im Schnee",
+        "brume": "Morgennebel"
+      },
+      "addPhotos": "Fotos vom Ort hinzufügen",
+      "addPhotosHint": "Bis zu 3"
     },
     "ambiance": {
       "photos": "Wie auf den Fotos",
@@ -2129,7 +2140,6 @@
       "pano": "360°-Ansicht dieses Punkts",
       "panoAt": "{m} m von deiner Kamera",
       "panoGo": "Drehen und einrahmen",
-      "credit": "Fotos:",
       "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {

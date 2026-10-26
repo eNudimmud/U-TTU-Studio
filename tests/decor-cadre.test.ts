@@ -30,8 +30,21 @@ describe("décor depuis un cadre 3D", () => {
     const three = cadrePrompt({ photos: 3, ambiance: "nuit", detail: "  pavés   mouillés " });
     assert.match(three, /from images 2 to 4/);
     assert.match(three, /Night/);
-    assert.ok(three.endsWith("pavés mouillés"));
-    assert.ok(cadrePrompt({ photos: 1, ambiance: "pluie", detail: "x".repeat(400) }).split("\n").at(-1)!.length <= 240);
+    assert.match(three, /The visitor's wish, in their own words: "pavés mouillés"\./);
+    assert.match(three, /where it differs from images 2 to 4, the wish wins/);
+    assert.match(three.split("\n").at(-1)!, /^Whatever the wish says, image 1's camera, framing and building volumes stay exactly the same/);
+    assert.ok(!cadrePrompt({ photos: 1, ambiance: "pluie", detail: "x".repeat(400) }).includes("x".repeat(241)));
+  });
+
+  it("a wish without photos replaces the default daylight, keeps the frame authoritative, and quotes safely", () => {
+    const text = cadrePrompt({ photos: 0, ambiance: "photos", detail: 'Sous la neige, "lampions"' });
+    assert.doesNotMatch(text, /Natural daylight/);
+    assert.doesNotMatch(text, /image 2/);
+    assert.match(text, /"Sous la neige, 'lampions'"/);
+    assert.match(text, /mood, season, time of day, weather, materials and added elements\.$/m);
+    assert.match(text.split("\n").at(-1)!, /no people and no text\.$/);
+    assert.equal(cadreQuote(0)?.credits, 4); // the text costs nothing more: the quote only counts photos
+    assert.match(cadrePrompt({ photos: 0, ambiance: "nuit", detail: "brume" }), /Night/);
   });
 
   it("builds one Klein edit graph: the frame is image 1, then up to three photos", () => {

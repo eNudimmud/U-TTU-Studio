@@ -2094,9 +2094,20 @@
       "name": "Name",
       "go": "Create the set",
       "lead": "Your set follows your view and this place.",
-      "refine": "Refine with photos",
       "optional": "optional",
-      "tags": "What we know about the place"
+      "tags": "What we know about the place",
+      "refineTitle": "Refine",
+      "refineLead": "Some text, some photos, or both.",
+      "wish": "Describe what you want",
+      "wishHint": "E.g. late autumn afternoon, leaves on the ground",
+      "ideas": "Ideas",
+      "idea": {
+        "couchant": "Sunset",
+        "neige": "Under snow",
+        "brume": "Morning mist"
+      },
+      "addPhotos": "Add photos of the place",
+      "addPhotosHint": "Up to 3"
     },
     "ambiance": {
       "photos": "Like the photos",
@@ -2129,7 +2140,6 @@
       "pano": "360° view of this spot",
       "panoAt": "{m} m from your camera",
       "panoGo": "Turn and frame",
-      "credit": "Photos:",
       "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {
