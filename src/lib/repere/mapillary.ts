@@ -11,6 +11,8 @@ export interface RuePhoto {
   lat: number;
   lon: number;
   heading: number;
+  sequence?: string;
+  pano?: boolean;
 }
 
 export function mapillaryImagesUrl(lat: number, lon: number, limit: number, radius = 300): string {
@@ -26,6 +28,20 @@ export function mapillaryImagesUrl(lat: number, lon: number, limit: number, radi
   });
   return `${MAPILLARY}/images?${params}`;
 }
+
+export const MAPILLARY_FIELDS = "id,thumb_256_url,thumb_1024_url,thumb_2048_url,creator,camera_type,geometry,compass_angle,sequence,is_pano";
+
+/** Pictures inside an area (west, south, east, north). Mapillary caps a bbox request at 2000; the studio asks 100. */
+export function mapillaryBboxUrl(bbox: readonly [number, number, number, number], limit = 100): string {
+  const params = new URLSearchParams({
+    fields: MAPILLARY_FIELDS,
+    bbox: bbox.map(n => n.toFixed(6)).join(","),
+    limit: String(Math.min(100, Math.max(1, Math.round(limit)))),
+  });
+  return `${MAPILLARY}/images?${params}`;
+}
+
+export const MAPILLARY_ATTRIBUTION = "© Mapillary contributors, CC BY-SA";
 
 export function mapillaryToken(): string {
   return (process.env.NEXT_PUBLIC_MAPILLARY_TOKEN ?? "").trim();
@@ -60,13 +76,13 @@ export function thumbAllowed(url: string): boolean {
   return false;
 }
 
-export function parseMapillary(payload: unknown): RuePhoto[] {
+export function parseMapillary(payload: unknown, max = 8): RuePhoto[] {
   const data = payload && typeof payload === "object" && "data" in payload ? payload.data : null;
   if (!Array.isArray(data)) return [];
   const photos: RuePhoto[] = [];
   for (const row of data) {
     if (!row || typeof row !== "object") continue;
-    const item = row as { id?: unknown; thumb_256_url?: unknown; thumb_1024_url?: unknown; geometry?: { coordinates?: unknown }; compass_angle?: unknown; creator?: { username?: unknown }; camera_type?: unknown };
+    const item = row as { id?: unknown; thumb_256_url?: unknown; thumb_1024_url?: unknown; thumb_2048_url?: unknown; geometry?: { coordinates?: unknown }; compass_angle?: unknown; creator?: { username?: unknown }; camera_type?: unknown; sequence?: unknown; is_pano?: unknown };
     const id = typeof item.id === "string" || typeof item.id === "number" ? String(item.id) : "";
     if (!/^\d{1,30}$/.test(id)) continue;
     const thumb = typeof item.thumb_256_url === "string" ? item.thumb_256_url : "";
@@ -78,8 +94,12 @@ export function parseMapillary(payload: unknown): RuePhoto[] {
     if (!Array.isArray(coords) || coords.length < 2) continue;
     const lon = Number(coords[0]), lat = Number(coords[1]);
     if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) continue;
-    const view = typeof item.thumb_1024_url === "string" && thumbAllowed(item.thumb_1024_url) ? item.thumb_1024_url : thumb;
-    photos.push({ id, author, thumb, camera, view, lat, lon, heading: Number(item.compass_angle) || 0 });
+    const pano = item.is_pano === true || /equirectangular|spherical/i.test(camera);
+    // A sphere needs its widest picture to be turned; a flat shot is fine at 1024.
+    const wide = pano && typeof item.thumb_2048_url === "string" && thumbAllowed(item.thumb_2048_url) ? item.thumb_2048_url : "";
+    const view = wide || (typeof item.thumb_1024_url === "string" && thumbAllowed(item.thumb_1024_url) ? item.thumb_1024_url : thumb);
+    const sequence = typeof item.sequence === "string" && /^[A-Za-z0-9_-]{1,80}$/.test(item.sequence) ? item.sequence : "";
+    photos.push({ id, author, thumb, camera, view, lat, lon, heading: Number(item.compass_angle) || 0, ...(sequence ? { sequence } : {}), ...(pano ? { pano } : {}) });
   }
-  return photos.slice(0, 8);
+  return photos.slice(0, Math.min(100, max));
 }

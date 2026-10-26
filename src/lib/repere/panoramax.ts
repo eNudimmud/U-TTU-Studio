@@ -20,7 +20,12 @@ export interface PhotoRue {
   prev: string | null;
   sourceUrl?: string;
   licenseUrl?: string;
+  /** Panoramax collection or Mapillary sequence: pictures of one walk or drive. */
+  serie?: string;
 }
+
+/** West, south, east, north in degrees. */
+export type Bbox = [number, number, number, number];
 
 export function panoramaxSearchUrl(lat: number, lon: number, radius = RUE_RAYON, limit = 20): string {
   const capped = Math.min(20, Math.max(1, Math.round(limit)));
@@ -30,6 +35,13 @@ export function panoramaxSearchUrl(lat: number, lon: number, radius = RUE_RAYON,
     place_distance: `0-${rayon}`,
     limit: String(capped),
   });
+  return `${PANORAMAX}/search?${params}`;
+}
+
+/** Pictures taken inside an area, any direction. `pano` keeps only 360° spheres. */
+export function panoramaxBboxUrl(bbox: Bbox, limit = 100, pano = false): string {
+  const params = new URLSearchParams({ bbox: bbox.map(n => n.toFixed(6)).join(","), limit: String(Math.min(100, Math.max(1, Math.round(limit)))) });
+  if (pano) params.set("filter", "field_of_view=360");
   return `${PANORAMAX}/search?${params}`;
 }
 
@@ -132,7 +144,7 @@ function linkId(links: { rel?: unknown; href?: unknown }[] | undefined, rel: str
   return /^[0-9a-f-]{16,80}$/i.test(id) ? id : null;
 }
 
-export function parsePanoramax(payload: unknown, federatedHosts: ReadonlySet<string> = new Set()): PhotoRue[] {
+export function parsePanoramax(payload: unknown, federatedHosts: ReadonlySet<string> = new Set(), max = 20): PhotoRue[] {
   const features = payload && typeof payload === "object" && Array.isArray((payload as { features?: unknown }).features)
     ? (payload as { features: unknown[] }).features
     : [];
@@ -170,9 +182,12 @@ export function parsePanoramax(payload: unknown, federatedHosts: ReadonlySet<str
     const lon = Array.isArray(coords) ? Number(coords[0]) : Number.NaN;
     const lat = Array.isArray(coords) ? Number(coords[1]) : Number.NaN;
     const heading = Number(feature.properties?.["view:azimuth"]);
+    const collection = (feature as { collection?: unknown }).collection;
+    const serie = typeof collection === "string" && /^[0-9a-f-]{16,80}$/i.test(collection) ? `pmx:${collection}` : "";
     if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) continue;
     photos.push({
       id,
+      ...(serie ? { serie } : {}),
       author: author.slice(0, 80),
       thumb: panoramaxThumbAllowed(thumb, federatedHosts) ? thumb : view,
       view,
@@ -189,7 +204,7 @@ export function parsePanoramax(payload: unknown, federatedHosts: ReadonlySet<str
       prev: linkId(feature.links, "prev"),
     });
   }
-  return photos.slice(0, 20);
+  return photos.slice(0, Math.min(100, max));
 }
 
 /** Order the pictures of one sequence and start on the closest to the chosen point. */
@@ -217,4 +232,81 @@ export function chaineRue(photos: PhotoRue[], lat: number, lon: number): { photo
   const remaining = photos.filter(photo => !seen.has(photo.id))
     .sort((a, b) => distanceMeters(lat, lon, a.lat, a.lon) - distanceMeters(lat, lon, b.lat, b.lon));
   return { photos: [...back, closest, ...forward, ...remaining], start: back.length };
+}
+
+const M_LAT = 110_540;
+const mLon = (lat: number) => 111_320 * Math.max(0.01, Math.cos(lat * Math.PI / 180));
+
+export interface Regard { lat: number; lon: number; heading: number; /** Horizontal field of view in degrees. */ fov: number }
+
+/** The area the frame looks over: the camera and a wedge `reach` metres deep, never smaller than ±`around`. */
+export function zoneVue(view: Regard, reach = 400, around = 120): Bbox {
+  const half = Math.max(10, Math.min(80, view.fov / 2));
+  const xs = [-around, around], zs = [-around, around];
+  for (const a of [-half, -half / 2, 0, half / 2, half]) {
+    const h = (view.heading + a) * Math.PI / 180;
+    xs.push(Math.sin(h) * reach);
+    zs.push(Math.cos(h) * reach);
+  }
+  const k = mLon(view.lat);
+  return [view.lon + Math.min(...xs) / k, view.lat + Math.min(...zs) / M_LAT, view.lon + Math.max(...xs) / k, view.lat + Math.max(...zs) / M_LAT];
+}
+
+/** Is a picture taken inside the frame's wedge? Pictures right by the camera always count. */
+export function dansLaVue(view: Regard, photo: Pick<PhotoRue, "lat" | "lon">, reach = 400): boolean {
+  const x = (photo.lon - view.lon) * mLon(view.lat), z = (photo.lat - view.lat) * M_LAT;
+  const d = Math.hypot(x, z);
+  if (d < 40) return true;
+  if (d > reach) return false;
+  const bearing = Math.atan2(x, z) * 180 / Math.PI;
+  return Math.abs(((bearing - view.heading) % 360 + 540) % 360 - 180) <= view.fov / 2 + 10;
+}
+
+/**
+ * Many different pictures over the visible area, not twelve shots of one statue:
+ * one per ~`cell`-metre spot, one per series first, then other spots of a series only when far apart.
+ * Pictures in the frame's wedge come first, then the nearest. Duplicates (same id) are dropped.
+ */
+export function diversifier(photos: readonly PhotoRue[], view: Regard, max = 12, cell = 40): PhotoRue[] {
+  const seenId = new Set<string>();
+  const unique = photos.filter(photo => !seenId.has(photo.id) && seenId.add(photo.id));
+  const k = mLon(view.lat);
+  const pos = (p: PhotoRue) => ({ x: (p.lon - view.lon) * k, z: (p.lat - view.lat) * M_LAT });
+  const ranked = unique
+    .map(photo => ({ photo, inView: dansLaVue(view, photo), d: distanceMeters(view.lat, view.lon, photo.lat, photo.lon) }))
+    .sort((a, b) => Number(b.inView) - Number(a.inView) || a.d - b.d);
+  const cells = new Set<string>();
+  const series = new Map<string, { x: number; z: number }[]>();
+  const out: PhotoRue[] = [];
+  const cellOf = (p: PhotoRue) => { const { x, z } = pos(p); return `${Math.floor(x / cell)},${Math.floor(z / cell)}`; };
+  const take = (photo: PhotoRue) => {
+    out.push(photo);
+    cells.add(cellOf(photo));
+    const key = photo.serie ?? `solo:${photo.id}`;
+    series.set(key, [...(series.get(key) ?? []), pos(photo)]);
+  };
+  // Pass 1: one per series and per spot.
+  for (const { photo } of ranked) {
+    if (out.length >= max) break;
+    if (cells.has(cellOf(photo)) || (photo.serie && series.has(photo.serie))) continue;
+    take(photo);
+  }
+  // Pass 2: fill with new spots of series already used, at least two cells away from that series' picks.
+  for (const { photo } of ranked) {
+    if (out.length >= max) break;
+    if (out.includes(photo) || cells.has(cellOf(photo))) continue;
+    const here = pos(photo);
+    const near = (series.get(photo.serie ?? "") ?? []).some(p => Math.hypot(p.x - here.x, p.z - here.z) < cell * 2);
+    if (!near) take(photo);
+  }
+  return out;
+}
+
+/** The 360° sphere closest to the camera, if one stands within `max` metres. */
+export function pano360(photos: readonly PhotoRue[], lat: number, lon: number, max = 60): PhotoRue | null {
+  return photos
+    .filter(photo => photo.tour)
+    .map(photo => ({ photo, d: distanceMeters(lat, lon, photo.lat, photo.lon) }))
+    .filter(item => item.d <= max)
+    .sort((a, b) => a.d - b.d)[0]?.photo ?? null;
 }

@@ -2,8 +2,11 @@
 // OpenFreeMap is the map style. Photon finds a name. Overpass draws the block. Panoramax brings the street.
 // Mapillary is asked only when a free client token is present.
 
-import { mapillaryImagesUrl, mapillaryToken, parseMapillary } from "./mapillary.ts";
-import { chaineRue, panoramaxByIdUrl, panoramaxSearchUrl, parsePanoramax, parseInstanceHosts, RUE_RAYON, type PhotoRue } from "./panoramax.ts";
+import { mapillaryBboxUrl, mapillaryImagesUrl, mapillaryToken, parseMapillary, type RuePhoto } from "./mapillary.ts";
+import {
+  chaineRue, distanceMeters, diversifier, pano360, panoramaxBboxUrl, panoramaxByIdUrl, panoramaxSearchUrl, parsePanoramax, parseInstanceHosts, RUE_RAYON, zoneVue,
+  type PhotoRue, type Regard,
+} from "./panoramax.ts";
 import { parsePhoton, photonUrl } from "./photon.ts";
 import {
   OVERPASS, overpassQuery, parseOverpass, plafondBatiments, streetStand,
@@ -137,6 +140,29 @@ export async function chargerPhoto(id: string): Promise<PhotoRue | "rate" | null
   }
 }
 
+/** Mapillary pictures are CC BY-SA 4.0 (mapillary.com/terms). */
+export function mapillaryPhoto(item: RuePhoto): PhotoRue {
+  const tour = item.pano === true || /equirectangular|spherical/i.test(item.camera);
+  return {
+    id: item.id,
+    author: item.author,
+    thumb: item.thumb,
+    view: item.view,
+    source: "mapillary",
+    license: "CC-BY-SA-4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+    sourceUrl: `https://www.mapillary.com/app/?pKey=${item.id}&focus=photo`,
+    tour,
+    lat: item.lat,
+    lon: item.lon,
+    heading: item.heading,
+    fov: tour ? 360 : null,
+    next: null,
+    prev: null,
+    ...(item.sequence ? { serie: `mly:${item.sequence}` } : {}),
+  };
+}
+
 export interface PhotoSearch { photos: PhotoRue[]; start: number; mapillary: "off" | "ok" | "fail"; panoramax: "ok" | "fail"; radius: number }
 
 export async function chargerPhotos(lat: number, lon: number, radius = RUE_RAYON): Promise<PhotoSearch | "rate"> {
@@ -162,23 +188,7 @@ export async function chargerPhotos(lat: number, lon: number, radius = RUE_RAYON
       });
       if (!response.ok) mapillaryState = "fail";
       else {
-        mapillary = parseMapillary(await response.json()).map(item => ({
-          id: item.id,
-          author: item.author,
-          thumb: item.thumb,
-          view: item.view,
-          source: "mapillary" as const,
-          license: "CC-BY-SA-4.0",
-          licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
-          sourceUrl: `https://www.mapillary.com/app/?pKey=${item.id}&focus=photo`,
-          tour: /equirectangular|spherical/i.test(item.camera),
-          lat: item.lat,
-          lon: item.lon,
-          heading: item.heading,
-          fov: /equirectangular|spherical/i.test(item.camera) ? 360 : null,
-          next: null,
-          prev: null,
-        }));
+        mapillary = parseMapillary(await response.json()).map(mapillaryPhoto);
       }
     } catch {
       mapillaryState = "fail";
@@ -190,4 +200,86 @@ export async function chargerPhotos(lat: number, lon: number, radius = RUE_RAYON
   const body: PhotoSearch = { photos, start, mapillary: mapillaryState, panoramax: panoramax === null ? "fail" : "ok", radius };
   if (panoramax !== null && mapillaryState !== "fail") writePublicCache(key, body);
   return body;
+}
+
+const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+/** Waits for the service's one-a-second slot instead of failing: a zone search asks Panoramax twice. */
+async function slot(name: string): Promise<boolean> {
+  for (let tries = 0; tries < 4; tries += 1) {
+    if (takePublicSlot(name)) return true;
+    await pause(GAP + 50);
+  }
+  return false;
+}
+
+export interface ZoneSearch {
+  /** Up to 12 different pictures over the visible area, Panoramax and Mapillary together. */
+  photos: PhotoRue[];
+  /** The 360° sphere at the camera's spot, if one exists. */
+  pano: PhotoRue | null;
+  panoramax: "ok" | "fail";
+  mapillary: "off" | "ok" | "fail";
+}
+
+async function getJson(url: string, headers: Record<string, string> = {}): Promise<unknown | null> {
+  try {
+    const response = await publicFetch(url, { headers: { Accept: "application/json", ...headers } });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Pictures of the area the kept frame looks over, from both open sources, merged and diversified.
+ * Mapillary joins only with a free client token; without one the search is Panoramax alone.
+ */
+/** Radius of the fallback search when the view itself holds too few photos. */
+const WIDE_M = 600;
+
+/**
+ * Photos of the visible area, plus the 360° sphere of the spot. The spot is the camera, or the
+ * place pin when the camera stands back from it (the default overview camera is ~150 m away).
+ */
+export async function chargerZone(view: Regard, max = 12, pin?: { lat: number; lon: number }): Promise<ZoneSearch> {
+  const token = mapillaryToken();
+  const key = `zone-v2:${view.lat.toFixed(4)},${view.lon.toFixed(4)},${Math.round(view.heading / 10)},${Math.round(view.fov)},${pin ? `${pin.lat.toFixed(4)},${pin.lon.toFixed(4)}` : "-"},${token ? "m" : "p"}`;
+  const cached = readPublicCache<ZoneSearch>(key);
+  if (cached) return cached;
+  const bbox = zoneVue(view);
+  const near = !pin || distanceMeters(view.lat, view.lon, pin.lat, pin.lon) <= 60;
+  const centre = near ? view : { ...view, lat: pin.lat, lon: pin.lon };
+  const spot = zoneVue({ ...centre, fov: 360 }, 80, 80);
+  const hosts = await instanceHosts();
+  const flat = await slot("panoramax") ? await getJson(panoramaxBboxUrl(bbox, 100)) : null;
+  const flatPhotos = flat ? parsePanoramax(flat, hosts, 100) : [];
+  // Thin or repetitive coverage in the view (Midtown Manhattan, Saint-François): widen to the whole block around the camera.
+  // The diversifier still ranks the photos inside the view first.
+  const wide = flat && diversifier(flatPhotos, view, max).length < 6 && await slot("panoramax")
+    ? await getJson(panoramaxBboxUrl(zoneVue({ ...view, fov: 360 }, WIDE_M, WIDE_M), 100))
+    : null;
+  const spheres = await slot("panoramax") ? await getJson(panoramaxBboxUrl(spot, 20, true)) : null;
+  const fromPanoramax = [
+    ...flatPhotos,
+    ...(wide ? parsePanoramax(wide, hosts, 100) : []),
+    ...(spheres ? parsePanoramax(spheres, hosts, 20) : []),
+  ];
+  let mapillary: ZoneSearch["mapillary"] = token ? "ok" : "off";
+  let fromMapillary: PhotoRue[] = [];
+  if (token) {
+    const body = await slot("mapillary") ? await getJson(mapillaryBboxUrl(bbox, 100), { Authorization: `OAuth ${token}` }) : null;
+    if (body) fromMapillary = parseMapillary(body, 100).map(mapillaryPhoto);
+    else mapillary = "fail";
+  }
+  const all = [...fromPanoramax, ...fromMapillary];
+  const pano = pano360(all, view.lat, view.lon) ?? (near ? null : pano360(all, centre.lat, centre.lon));
+  const result: ZoneSearch = {
+    photos: diversifier(all.filter(photo => photo.id !== pano?.id), view, max),
+    pano,
+    panoramax: flat === null ? "fail" : "ok",
+    mapillary,
+  };
+  if (flat !== null && mapillary !== "fail") writePublicCache(key, result);
+  return result;
 }

@@ -10,11 +10,11 @@ function nodes(graph: ReturnType<typeof stillGraph>): [string, Node][] {
 }
 
 describe("décor depuis un cadre 3D", () => {
-  it("quotes one Klein edit per photo count, and refuses 0 or more than 3 photos", () => {
+  it("quotes one Klein edit: ≈ 4 for the frame alone (cap 6), one more per photo, and refuses more than 3 photos", () => {
     assert.equal(CADRE_PHOTOS_MAX, 3);
-    assert.deepEqual([1, 2, 3].map(n => cadreQuote(n)).map(q => [q?.credits, q?.high]), [[4, 8], [5, 9], [6, 10]]);
-    assert.equal(cadreQuote(1)?.template, "image_flux3_klein_image_edit");
-    assert.equal(cadreQuote(0), null);
+    assert.deepEqual([0, 1, 2, 3].map(n => cadreQuote(n)).map(q => [q?.credits, q?.high]), [[4, 6], [5, 7], [6, 8], [7, 9]]);
+    assert.equal(cadreQuote(0)?.template, "image_flux3_klein_image_edit");
+    assert.equal(cadreQuote(-1), null);
     assert.equal(cadreQuote(4), null);
     assert.equal(cadreQuote(1.5), null);
   });
@@ -22,7 +22,7 @@ describe("décor depuis un cadre 3D", () => {
   it("asks to keep image 1's camera and take the look of images 2 to N, with no people or text", () => {
     const one = cadrePrompt({ photos: 1, ambiance: "photos" });
     assert.match(one, /Image 1 is a 3D frame/);
-    assert.match(one, /keep its exact camera position, angle, lens, composition and building volumes/);
+    assert.match(one, /keep its exact camera position, eye level, angle, lens, composition and building volumes/);
     assert.match(one, /from image 2,/);
     assert.match(one, /16:9/);
     assert.match(one, /No people/);
@@ -48,8 +48,19 @@ describe("décor depuis un cadre 3D", () => {
     assert.equal(nodes(graph).filter(([, node]) => node.class_type === "KSampler").length, 1);
   });
 
-  it("refuses a cadre without a photo, and any engine other than Klein", () => {
-    assert.throws(() => stillGraph({ kind: "cadre-decor", prompt: "x", images: ["cadre.png"], seed: 1 }), /photo du lieu/);
+  it("direct path: no photo, the place and the view's context in the prompt, the frame as the only image", () => {
+    const text = cadrePrompt({ photos: 0, ambiance: "photos", contexte: ["The place is real: City Center, New York, United States.", "In view: Central Park (park) ahead."] });
+    assert.doesNotMatch(text, /image 2/);
+    assert.match(text, /real façades/);
+    assert.match(text, /City Center, New York/);
+    assert.match(text, /Central Park \(park\) ahead/);
+    assert.match(text, /Natural daylight/);
+    assert.doesNotMatch(text, /reference photos/);
+    const graph = stillGraph({ kind: "cadre-decor", prompt: text, images: ["cadre.png"], seed: 1 });
+    assert.deepEqual(nodes(graph).filter(([, node]) => node.class_type === "LoadImage").map(([, node]) => node.inputs.image), ["cadre.png"]);
+  });
+
+  it("refuses a cadre without the frame, and any engine other than Klein", () => {
     assert.throws(() => stillGraph({ kind: "cadre-decor", prompt: "x", images: [], seed: 1 }), /cadre 3D/);
     assert.throws(() => stillGraph({ kind: "cadre-decor", prompt: "x", images: ["cadre.png", "a.png"], seed: 1, template: "api_bfl_flux3_image" }), /Klein/);
   });
