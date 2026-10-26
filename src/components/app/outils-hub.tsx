@@ -2,8 +2,9 @@
 
 // « Outils » : every Comfy tool of the studio in one place, by family. One panel for every
 // tool, always in the same order: entrée → consigne → références (repliées) → réglages
-// (repliés) → one full-width button named after the action, with its estimate. Results sit
-// next to the panel and each one shows « Et ensuite ? » open. A tool that is not wired yet
+// (repliés) → one full-width button named after the action, with its estimate. The run just
+// made sits next to the panel as a big preview with « Et ensuite ? » open; past runs live in
+// Mes créations, never here. A tool that is not wired yet
 // says « bientôt » and why; there is never a button that does nothing. No cancel.
 
 import { useAgentDraft } from "./use-agent-draft";
@@ -87,21 +88,26 @@ export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: b
 }
 
 export function OutilsHub({ tool }: { tool: string | null }) {
-  const { t } = useI18n();
-  const { connected, setSheet } = useStudio();
   if (tool === REPERAGE_ID) return <ReperageTool onBack={() => openTool(null)} />;
   const outil = tool ? outilParId(tool) : null;
   if (!outil || outil.bientot) return <StudioHome />;
   const head = intentDe(outil.id);
+  return <OutilWork key={head} outil={outil} head={head} />;
+}
+
+function OutilWork({ outil, head }: { outil: Outil; head: string }) {
+  const { t } = useI18n();
+  const { connected, setSheet } = useStudio();
+  const [last, setLast] = useState<ToolRun | null>(null);
   return <div className="u-outils-work" data-outils-tool={head}>
     {!connected && <p className="u-entry-link" data-entry-link="">
       <span>{t("entry.linkTitle")}</span>
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
     <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(null)}>← {t("outils.back")}</button>
-    <div className="u-outils-split">
-      <ToolPanel key={head} outil={outil} />
-      <OutilResults key={`resultats-${head}`} sortie={outil.sortie} />
+    <div className="u-outils-split" data-has-result={last ? "" : undefined}>
+      <ToolPanel outil={outil} onResult={setLast} />
+      {last && <ToolResult run={last} />}
     </div>
   </div>;
 }
@@ -217,7 +223,7 @@ function Fold({ step, label, children }: { step: string; label: string; children
   </div>;
 }
 
-export function ToolPanel({ outil: asked }: { outil: Outil }) {
+export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(run: ToolRun | null): void }) {
   const { t } = useI18n();
   const { connected, creating, runOutil, balance, setSheet, prefs, media } = useStudio();
   const [modelId, setModelId] = useState(asked.id);
@@ -371,8 +377,10 @@ export function ToolPanel({ outil: asked }: { outil: Outil }) {
         if (file) images.push(file);
       }
       const from = inputs.image?.path ?? inputs.video?.path;
+      onResult?.(null);
       const result = await runOutil({ outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, consent, from, onStage });
       setOutcome(result);
+      if (result.ok) onResult?.({ url: result.url, path: result.path, kind: outil.sortie, poster: inputs.image?.url, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
     } catch (error) {
       setOutcome({ ok: false, message: error instanceof Error && error.message ? error.message : t("create.failed") });
     } finally {
@@ -441,39 +449,27 @@ export function ToolPanel({ outil: asked }: { outil: Outil }) {
   </section>;
 }
 
-type Filtre = "tout" | Sortie;
+/** The run just made in this tool: what came back, shown big, never a file name. */
+export interface ToolRun { url: string; path: string; kind: Sortie; poster?: string; aspect?: "horizontal" | "vertical" }
 
-/** A still shows at once. Video waits for a tap, so WebKit does not decode a clip during navigation. */
-function ResultMedia({ kind, url, name }: { kind: "image" | "video" | "audio" | "mesh"; url: string; name: string }) {
+/** The fresh result, big, with « Et ensuite ? » open and a way to Mes créations. Earlier runs stay in Mes créations. */
+function ToolResult({ run }: { run: ToolRun }) {
   const { t } = useI18n();
-  const [play, setPlay] = useState(false);
-  if (kind === "image") return <img src={url} alt={name} />;
-  if (kind === "audio") return <audio src={url} controls />;
-  if (kind === "mesh") return <a className="u-chip" href={url} download>{t("outils.download")}</a>;
-  if (!play) return <button type="button" className="u-result-play" onClick={() => setPlay(true)}>{t("montage.play")}</button>;
-  return <video src={url} controls playsInline muted preload="metadata" />;
-}
-
-export function OutilResults({ sortie, limit = 12, title, hideEmpty = false }: { sortie?: Sortie; limit?: number; title?: string; hideEmpty?: boolean }) {
-  const { t } = useI18n();
-  const all = useResultAssets();
-  const [filtre, setFiltre] = useState<Filtre>(sortie ?? "tout");
-  const shown = all.filter(item => filtre === "tout" || item.kind === filtre).slice(0, limit);
-  if (hideEmpty && all.length === 0) return null;
-  return <section className="u-tool-results" data-tool-results="" aria-label={t("outils.results")}>
-    <header className="u-tool-results-head">
-      <h2>{title ?? t("outils.results")}</h2>
-      <div className="u-choice-row" role="group" aria-label={t("outils.results")}>
-        {(["tout", "image", "video", "audio", "mesh"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={filtre === id} data-results-filter={id} onClick={() => setFiltre(id)}>{t(`outils.filter.${id}`)}</button>)}
-      </div>
-    </header>
-    {shown.length === 0 ? <p className="u-small" data-results-empty="">{t("outils.resultsEmpty")}</p> : <div className="u-tool-results-list">
-      {shown.map(({ asset, url, kind }) => <article key={asset.id} className="u-tool-result" data-result={asset.id}>
-        <ResultMedia kind={kind} url={url} name={asset.name} />
-        <p className="u-small u-tool-result-name">{asset.name}</p>
-        {(kind === "image" || kind === "video") && <EtEnsuite source={{ kind, url, name: asset.name, path: asset.media || undefined }} defaultOpen />}
-      </article>)}
-    </div>}
+  const root = useRef<HTMLElement>(null);
+  useEffect(() => {
+    // On a phone the result lands under the panel: bring it into view once.
+    if (window.matchMedia("(max-width: 959px)").matches) root.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [run.url]);
+  return <section ref={root} className="u-tool-result" data-tool-result={run.kind} aria-label={t("outils.result")}>
+    <h2>{t("outils.result")}</h2>
+    <div className="u-tool-result-media" data-aspect={run.aspect}>
+      {run.kind === "image" && <img src={run.url} alt={t("outils.result")} />}
+      {run.kind === "video" && <video src={run.url} controls playsInline preload="metadata" />}
+      {run.kind === "audio" && <audio src={run.url} controls />}
+      {run.kind === "mesh" && <>{run.poster && <img src={run.poster} alt="" />}<a className="u-primary" href={run.url} download>{t("outils.download")}</a></>}
+    </div>
+    {(run.kind === "image" || run.kind === "video") && <EtEnsuite source={{ kind: run.kind, url: run.url, name: t("outils.result"), path: run.path || undefined, aspect: run.aspect }} defaultOpen />}
+    <a className="u-link u-tool-result-lib" data-tool-result-lib="" href={assetPath("/mon-studio")}>{t("outils.inLibrary")}</a>
   </section>;
 }
 

@@ -2328,15 +2328,8 @@
       "audio": "Crear el sonido",
       "mesh": "Crear el modelo 3D"
     },
-    "results": "Resultados",
-    "resultsEmpty": "Tus resultados llegan aquí, con «¿Y después?» abierto.",
-    "filter": {
-      "tout": "Todo",
-      "image": "Imágenes",
-      "video": "Vídeos",
-      "audio": "Sonidos",
-      "mesh": "3D"
-    },
+    "result": "Tu creación",
+    "inLibrary": "Ver todas tus creaciones",
     "tabTools": "Herramientas de esta pestaña",
     "seeAll": "Ver todas las herramientas",
     "openTool": "Abrir",

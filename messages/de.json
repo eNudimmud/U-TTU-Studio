@@ -2328,15 +2328,8 @@
       "audio": "Ton erstellen",
       "mesh": "3D-Modell erstellen"
     },
-    "results": "Ergebnisse",
-    "resultsEmpty": "Deine Ergebnisse landen hier, mit offenem „Und dann?“.",
-    "filter": {
-      "tout": "Alle",
-      "image": "Bilder",
-      "video": "Videos",
-      "audio": "Töne",
-      "mesh": "3D"
-    },
+    "result": "Deine Kreation",
+    "inLibrary": "Alle deine Kreationen ansehen",
     "tabTools": "Werkzeuge dieses Tabs",
     "seeAll": "Alle Werkzeuge",
     "openTool": "Öffnen",
