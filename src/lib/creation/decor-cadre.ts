@@ -36,12 +36,23 @@ const AMBIANCE: Record<CadreAmbiance, string> = {
   aube: "Dawn: low warm light, long soft shadows.",
 };
 
-/** The text sent with the images. English for the model; the visitor's detail is appended as is. */
+/** Longest visitor wish kept in the prompt (the field allows the same). */
+export const CADRE_DETAIL_MAX = 240;
+
+/**
+ * The text sent with the images (Klein edit, upsampler off: this is exactly what the encoder reads).
+ * English for the model. The visitor's wish (« Décris ce que tu veux », any language) is quoted as is
+ * and scoped: it may change mood, season, time, weather, materials and add elements, never the camera
+ * or the volumes of image 1, and never bring people or text. The fidelity rule is repeated last.
+ */
 export function cadrePrompt(input: { photos: number; ambiance: CadreAmbiance; detail?: string; contexte?: readonly string[] }): string {
   const count = Math.max(0, Math.min(CADRE_PHOTOS_MAX, Math.floor(input.photos)));
-  const refs = count === 1 ? "image 2" : `images 2 to ${count + 1}`;
-  const detail = (input.detail ?? "").replace(/\s+/g, " ").trim().slice(0, 240);
-  const ambiance = input.ambiance === "photos" && count === 0 ? "Natural daylight, as on an ordinary clear day there." : AMBIANCE[input.ambiance] ?? AMBIANCE.photos;
+  const refs = count === 1 ? "image 2" : count === 2 ? "images 2 and 3" : `images 2 to ${count + 1}`;
+  const detail = (input.detail ?? "").replace(/\s+/g, " ").replace(/"/g, "'").trim().slice(0, CADRE_DETAIL_MAX);
+  // A wish replaces the default light; an ambiance chosen in Options still applies.
+  const ambiance = input.ambiance === "photos"
+    ? detail ? "" : count === 0 ? "Natural daylight, as on an ordinary clear day there." : AMBIANCE.photos
+    : AMBIANCE[input.ambiance] ?? AMBIANCE.photos;
   return [
     "Image 1 is a 3D frame of a real place: keep its exact camera position, eye level, angle, lens, composition and building volumes.",
     count === 0
@@ -50,6 +61,12 @@ export function cadrePrompt(input: { photos: number; ambiance: CadreAmbiance; de
     ...(input.contexte ?? []).map(line => line.replace(/\s+/g, " ").trim().slice(0, 320)).filter(Boolean).slice(0, 5),
     "Photorealistic cinema still, 16:9. No people. No text, no letters, no signs with words.",
     ambiance,
-    detail,
+    ...(detail ? [
+      `The visitor's wish, in their own words: "${detail}".`,
+      count === 0
+        ? "Apply it to the mood, season, time of day, weather, materials and added elements."
+        : `Apply it to the mood, season, time of day, weather, materials and added elements; where it differs from ${refs}, the wish wins.`,
+      "Whatever the wish says, image 1's camera, framing and building volumes stay exactly the same, with no people and no text.",
+    ] : []),
   ].filter(Boolean).join("\n");
 }

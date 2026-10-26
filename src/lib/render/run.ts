@@ -6,7 +6,7 @@
 import { measuredCost } from "../credits.ts";
 import { audioOutput, executionSeconds, imageOutput, jobStage, meshOutput, RenderError, videoOutput, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
-import { TAKE_PICTURES_MAX, takeEngine, takeGraph, type ApiGraph, type TakeSettings } from "./take-graph.ts";
+import { TAKE_PICTURES_MAX, takeEngine, takeGraph, takeRendu, type ApiGraph, type TakeSettings } from "./take-graph.ts";
 
 export function referenceLimit(settings: TakeSettings): number { return takeEngine(settings) === "ltx" ? LTX_REFS_MAX : TAKE_PICTURES_MAX; }
 
@@ -17,7 +17,7 @@ function checkReferences(settings: TakeSettings, count: number): void {
 /** The graph for the chosen engine. Same pictures, same text. */
 export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number): ApiGraph {
   checkReferences(settings, pictures.length);
-  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect });
+  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu" });
   return takeGraph({ ...settings, prompt, pictures, seed });
 }
 

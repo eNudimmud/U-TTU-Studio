@@ -1046,7 +1046,10 @@
     "titlePh": "Un titre sur l’image",
     "shortcuts": "Raccourcis",
     "shortcutHelp": "Espace lecture. S scinde. Suppr retire. Ctrl+Z annule, Ctrl+Y rétablit. Flèches : une image.",
-    "snap": "Aimanté"
+    "snap": "Aimanté",
+    "exportQuality": "Export rapide : {height}p, {fps} images par seconde, {max} s au plus.",
+    "exportBetter": "Plus net : Finaliser",
+    "exportQualityShort": "{height}p · {fps} images/s · {max} s max"
   },
   "atelier": {
     "lead": "Tout ce que tu as créé, sur cet appareil.",
@@ -1508,18 +1511,18 @@
   "finaliser": {
     "open": "Finaliser le montage",
     "title": "Finaliser le montage",
-    "lead": "Une seule passe sur tout le montage : plus de résolution et de netteté. Rien n'est refait, le son et le rythme restent.",
+    "lead": "Tout le film devient plus grand et plus net, en une seule fois. Rien n’est refait : le jeu, le son et le rythme restent.",
     "resolution": "Résolution",
     "nettoyer": "Nettoyer",
     "aucun": "Aucun",
     "bruit": "Bruit",
     "flou": "Flou",
-    "quote": "≈ {credits} cr. estimés",
+    "quote": "≈ {credits} crédits estimés",
     "measured": "Mesuré sur une vraie passe.",
     "estimate": "Estimation, pas encore mesurée.",
     "seconds": "Montage de {seconds} s.",
     "confirm": "Je confirme cette estimation. Le prix final peut varier.",
-    "go": "Finaliser · ≈ {credits} cr. estimés",
+    "go": "Finaliser · ≈ {credits} crédits estimés",
     "empty": "Le montage est vide : ajoute au moins un plan.",
     "long": "Le montage dépasse 60 s : coupe-le avant de finaliser.",
     "needLink": "Relie ton compte de rendu (Comfy) pour finaliser.",
@@ -1542,7 +1545,16 @@
     "close": "Fermer",
     "download": "Télécharger",
     "openLead": "La vidéo est restaurée en plus grand, sans être refaite. Estimé par tranche de 5 secondes.",
-    "openShort": "Finaliser"
+    "openShort": "Finaliser",
+    "tagApercu": "Aperçu",
+    "tagFinale": "Qualité finale",
+    "planOpen": "Finaliser ce plan",
+    "planTitle": "Finaliser ce plan",
+    "planLead": "Ce plan devient plus grand et plus net. Rien n’est refait : le jeu et le son restent. Il remplace l’aperçu dans ton montage.",
+    "summary": "{count, plural, =0 {Aucun plan en aperçu} one {# plan en aperçu} other {# plans en aperçu}} · {seconds} s",
+    "compare": "Un plan seul : ≈ {one} crédits estimés. Le montage entier revient moins cher.",
+    "planDone": "Plan finalisé : il remplace l’aperçu dans ton montage.",
+    "planSeconds": "Plan de {seconds} s."
   },
   "depart": {
     "label": "Exemple — refais-le",
@@ -1860,14 +1872,14 @@
       "nextWords": "Écris ce qui se passe dans le plan {n}."
     },
     "quote": {
-      "estimated": "≈ {low} cr. estimés",
-      "measured": "Mesuré : environ {credits} cr.",
+      "estimated": "≈ {low} crédits estimés",
+      "measured": "Mesuré : environ {credits} crédits",
       "measuredBalance": "Mesuré sur tes prises : environ {credits} crédits.",
       "none": "Pas encore de devis pour ce réglage. Rien ne part."
     },
     "gate": {
       "noBalance": "Solde illisible : rien ne part sans lire le compte qui paiera.",
-      "low": "Solde trop bas : {credits} cr. Il en faut environ {high}."
+      "low": "Solde trop bas : {credits} crédits. Il en faut environ {high}."
     },
     "fiab": {
       "title": "Fiabilité de l’opération",
@@ -1907,6 +1919,18 @@
       "maquette": "Maquette 3D et cadrage",
       "rendu": "Style et durée",
       "previs": "Prévis filmée"
+    },
+    "rendu": {
+      "label": "Qualité",
+      "apercu": "Aperçu",
+      "apercuBody": "Pour essayer. Tu finalises plus tard ce que tu gardes.",
+      "finale": "Qualité finale",
+      "finaleBody": "Prête à monter telle quelle.",
+      "quote": "≈ {credits} crédits estimés",
+      "go": "Tourner · ≈ {credits} crédits estimés",
+      "goNext": "Tourner le plan {n} · ≈ {credits} crédits estimés",
+      "keep": "Ton choix reste pour les prochains plans de ce projet.",
+      "apercuHint": "Un aperçu se finalise plus tard, seul ou avec tout le montage."
     }
   },
   "p1": {
@@ -2096,9 +2120,20 @@
       "name": "Nom",
       "go": "Créer le décor",
       "lead": "Ton décor suit ta vue et ce lieu.",
-      "refine": "Préciser avec des photos",
       "optional": "facultatif",
-      "tags": "Ce que l'on sait du lieu"
+      "tags": "Ce que l'on sait du lieu",
+      "refineTitle": "Affiner",
+      "refineLead": "Un texte, des photos, ou les deux.",
+      "wish": "Décris ce que tu veux",
+      "wishHint": "Ex. : fin d’après-midi d’automne, feuilles au sol",
+      "ideas": "Idées",
+      "idea": {
+        "couchant": "Coucher de soleil",
+        "neige": "Sous la neige",
+        "brume": "Brume du matin"
+      },
+      "addPhotos": "Ajouter des photos du lieu",
+      "addPhotosHint": "Jusqu’à 3"
     },
     "ambiance": {
       "photos": "Comme les photos",
@@ -2131,7 +2166,6 @@
       "pano": "Vue 360° de ce point",
       "panoAt": "à {m} m de ta caméra",
       "panoGo": "Tourner et cadrer",
-      "credit": "Photos :",
       "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {

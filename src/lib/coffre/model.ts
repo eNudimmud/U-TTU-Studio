@@ -22,7 +22,7 @@ import type { CastCard } from "../creation/gallery.ts";
 type LoraResolution = "480P" | "768P";
 import { journalCostLine } from "../render/landed-cost.ts";
 import { parseQuoteFile, QUOTE_FILE, quotesJson, seedQuotes, type MeasuredQuote } from "../render/measured-quote.ts";
-import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, takeProfile, type TakeSettings } from "../render/take-graph.ts";
+import { DEFAULT_TAKE, TAKE_ASPECTS, TAKE_SECONDS, TAKE_STEPS, isApercuProfile, takeProfile, type TakeSettings } from "../render/take-graph.ts";
 import type { Clip, ClipFormat, TrainingAspect } from "../lora/dataset.ts";
 import type { PlaceCamera, PrevizPlan } from "../render/previz.ts";
 import { defaultCamera, isLens } from "../render/previz.ts";
@@ -441,6 +441,7 @@ export function takeMarkdown(take: Take, projet = "", links: TakeNoteLinks = { s
     lora: take.loraId,
     duree_s: take.settings.seconds,
     qualite: take.settings.quality,
+    ...(take.settings.rendu === "apercu" ? { apercu: true } : {}),
     resolution: take.resolution,
     format: take.settings.aspect,
     profil: take.profile,
@@ -479,6 +480,7 @@ export function parseTake(id: string, source: string): Take | null {
     seconds: (TAKE_SECONDS as readonly number[]).includes(seconds ?? -1) ? seconds as TakeSettings["seconds"] : DEFAULT_TAKE.seconds,
     quality: quality in TAKE_STEPS ? quality as TakeSettings["quality"] : DEFAULT_TAKE.quality,
     aspect: aspect in TAKE_ASPECTS ? aspect as TakeSettings["aspect"] : DEFAULT_TAKE.aspect,
+    ...(String(fields.apercu) === "true" || isApercuProfile(text(fields.profil)) ? { engine: "ltx" as const, rendu: "apercu" as const } : {}),
   };
   return {
     id,

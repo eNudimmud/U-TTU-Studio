@@ -8,6 +8,11 @@ import { TAKE_ASPECTS, TAKE_OUTPUT_PREFIX, type ApiGraph, type TakeAspect, type 
 
 export const LTX_REFS_MAX = 4;
 export const LTX_MEGAPIXELS = 0.9;
+/** Aperçu: the first pass renders at the selector size instead of half of it. About 848×480. */
+export const LTX_APERCU_MEGAPIXELS = 0.4;
+
+/** The second pass of the template: latent ×2 upscaler, then a refine sampler. Aperçu drops them. */
+const SECOND_PASS = ["398:371", "398:348", "398:349", "398:340", "398:338", "398:396", "398:391", "398:341", "398:368", "398:369"] as const;
 
 const KLEIN_ASPECT = { vertical: "9:16", horizontal: "16:9", carre: "1:1" } as const;
 
@@ -17,6 +22,23 @@ export interface LtxTakeInput {
   seed: number;
   seconds: TakeSeconds;
   aspect: TakeAspect;
+  /** First pass only, about 480p. Same seed, same prompt. */
+  apercu?: boolean;
+}
+
+/**
+ * Aperçu: the first sampler's video and audio go straight to the decoders.
+ * The first pass renders at the selector size (no « a/2 »), so the output is about 480p.
+ */
+function firstPassOnly(graph: ApiGraph): void {
+  for (const id of SECOND_PASS) {
+    if (!graph[id]) throw new Error(`Nœud absent du gabarit LTX : ${id}`);
+    delete graph[id];
+  }
+  graph["398:353"].inputs.expression = "a";
+  graph["398:355"].inputs.expression = "a";
+  graph["398:374"].inputs.samples = ["398:367", 0];
+  graph["398:358"].inputs.samples = ["398:367", 1];
 }
 
 function byTitle(graph: ApiGraph, title: string): string {
@@ -38,7 +60,8 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
   graph[byTitle(graph, "Duration")].inputs.value = input.seconds;
   const size = graph["403"];
   size.inputs.aspect_ratio = TAKE_ASPECTS[input.aspect];
-  size.inputs.megapixels = LTX_MEGAPIXELS;
+  size.inputs.megapixels = input.apercu ? LTX_APERCU_MEGAPIXELS : LTX_MEGAPIXELS;
+  if (input.apercu) firstPassOnly(graph);
   for (const node of Object.values(graph)) {
     if (node.class_type === "RandomNoise") node.inputs.noise_seed = seed;
     if (node.class_type === "SaveVideo") node.inputs.filename_prefix = TAKE_OUTPUT_PREFIX;

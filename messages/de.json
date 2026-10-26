@@ -1046,7 +1046,10 @@
     "titlePh": "Ein Titel auf dem Bild",
     "shortcuts": "Kürzel",
     "shortcutHelp": "Leertaste spielt. S teilt. Entf entfernt. Strg+Z macht rückgängig, Strg+Y stellt wieder her. Pfeile: ein Bild.",
-    "snap": "Eingerastet"
+    "snap": "Eingerastet",
+    "exportQuality": "Schnellexport: {height}p, {fps} Bilder pro Sekunde, höchstens {max} s.",
+    "exportBetter": "Schärfer: Finalisieren",
+    "exportQualityShort": "{height}p · {fps} Bilder/s · max. {max} s"
   },
   "atelier": {
     "lead": "Alles, was du erstellt hast, auf diesem Gerät.",
@@ -1508,18 +1511,18 @@
   "finaliser": {
     "open": "Schnitt fertigstellen",
     "title": "Schnitt finalisieren",
-    "lead": "Ein Durchgang über den ganzen Schnitt: mehr Auflösung und Schärfe. Nichts wird neu erzeugt, Ton und Rhythmus bleiben.",
+    "lead": "Der ganze Film wird grösser und schärfer, in einem Durchgang. Nichts wird neu gemacht: Spiel, Ton und Rhythmus bleiben.",
     "resolution": "Auflösung",
     "nettoyer": "Bereinigen",
     "aucun": "Keine",
     "bruit": "Rauschen",
     "flou": "Unschärfe",
-    "quote": "≈ {credits} Cr. geschätzt",
+    "quote": "≈ {credits} Credits geschätzt",
     "measured": "An einem echten Durchgang gemessen.",
     "estimate": "Schätzung, noch nicht gemessen.",
     "seconds": "Schnitt von {seconds} s.",
     "confirm": "Ich bestätige diese Schätzung. Der Endpreis kann abweichen.",
-    "go": "Fertigstellen · ≈ {credits} Cr. geschätzt",
+    "go": "Finalisieren · ≈ {credits} Credits geschätzt",
     "empty": "Der Schnitt ist leer: füge mindestens eine Einstellung hinzu.",
     "long": "Der Schnitt ist länger als 60 s: kürze ihn vorher.",
     "needLink": "Verbinde dein Render-Konto (Comfy), um zu finalisieren.",
@@ -1542,7 +1545,16 @@
     "close": "Schließen",
     "download": "Herunterladen",
     "openLead": "Das Video wird größer wiederhergestellt, nie neu gemacht. Geschätzt je 5 Sekunden.",
-    "openShort": "Fertigstellen"
+    "openShort": "Fertigstellen",
+    "tagApercu": "Vorschau",
+    "tagFinale": "Endqualität",
+    "planOpen": "Diese Einstellung finalisieren",
+    "planTitle": "Diese Einstellung finalisieren",
+    "planLead": "Diese Einstellung wird grösser und schärfer. Nichts wird neu gemacht: Spiel und Ton bleiben. Sie ersetzt die Vorschau in deinem Schnitt.",
+    "summary": "{count, plural, =0 {Keine Einstellung als Vorschau} one {# Einstellung als Vorschau} other {# Einstellungen als Vorschau}} · {seconds} s",
+    "compare": "Eine Einstellung allein: ≈ {one} Credits geschätzt. Der ganze Schnitt kostet weniger.",
+    "planDone": "Einstellung finalisiert: Sie ersetzt die Vorschau in deinem Schnitt.",
+    "planSeconds": "Einstellung von {seconds} s."
   },
   "depart": {
     "label": "Beispiel — mach es nach",
@@ -1860,14 +1872,14 @@
       "nextWords": "Schreib, was in Einstellung {n} passiert."
     },
     "quote": {
-      "estimated": "≈ {low} Cr. geschätzt",
-      "measured": "Gemessen: etwa {credits} Cr.",
+      "estimated": "≈ {low} Credits geschätzt",
+      "measured": "Gemessen: etwa {credits} Credits",
       "measuredBalance": "Gemessen an deinen Takes: etwa {credits} Credits.",
       "none": "Noch kein Kostenvoranschlag für diese Einstellung. Nichts wird gesendet."
     },
     "gate": {
       "noBalance": "Guthaben nicht lesbar: ohne das zahlende Konto wird nichts gesendet.",
-      "low": "Guthaben zu niedrig: {credits} Cr. Es werden etwa {high} benötigt."
+      "low": "Guthaben zu niedrig: {credits} Credits. Es werden etwa {high} benötigt."
     },
     "fiab": {
       "title": "Zuverlässigkeit des Vorgangs",
@@ -1907,6 +1919,18 @@
       "maquette": "3D-Modell und Bildausschnitt",
       "rendu": "Stil und Dauer",
       "previs": "Gefilmte Previs"
+    },
+    "rendu": {
+      "label": "Qualität",
+      "apercu": "Vorschau",
+      "apercuBody": "Zum Ausprobieren. Was du behältst, finalisierst du später.",
+      "finale": "Endqualität",
+      "finaleBody": "Direkt bereit für den Schnitt.",
+      "quote": "≈ {credits} Credits geschätzt",
+      "go": "Drehen · ≈ {credits} Credits geschätzt",
+      "goNext": "Einstellung {n} drehen · ≈ {credits} Credits geschätzt",
+      "keep": "Deine Wahl bleibt für die nächsten Einstellungen dieses Projekts.",
+      "apercuHint": "Eine Vorschau wird später finalisiert, einzeln oder mit dem ganzen Schnitt."
     }
   },
   "p1": {
@@ -2096,9 +2120,20 @@
       "name": "Name",
       "go": "Kulisse erstellen",
       "lead": "Deine Kulisse folgt deiner Ansicht und diesem Ort.",
-      "refine": "Mit Fotos verfeinern",
       "optional": "optional",
-      "tags": "Was wir über den Ort wissen"
+      "tags": "Was wir über den Ort wissen",
+      "refineTitle": "Verfeinern",
+      "refineLead": "Ein Text, Fotos oder beides.",
+      "wish": "Beschreib, was du willst",
+      "wishHint": "Z. B. später Herbstnachmittag, Laub am Boden",
+      "ideas": "Ideen",
+      "idea": {
+        "couchant": "Sonnenuntergang",
+        "neige": "Im Schnee",
+        "brume": "Morgennebel"
+      },
+      "addPhotos": "Fotos vom Ort hinzufügen",
+      "addPhotosHint": "Bis zu 3"
     },
     "ambiance": {
       "photos": "Wie auf den Fotos",
@@ -2131,7 +2166,6 @@
       "pano": "360°-Ansicht dieses Punkts",
       "panoAt": "{m} m von deiner Kamera",
       "panoGo": "Drehen und einrahmen",
-      "credit": "Fotos:",
       "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {

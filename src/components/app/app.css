@@ -1375,6 +1375,27 @@
 .u-rv-tags li { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface-2); color: var(--fg); font-size: 13px; }
 .u-rv-tags li[data-tag="zone"] { border-color: var(--accent); }
 .u-rv-opt-tag { margin-left: 8px; padding: 2px 8px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--fg-2); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-decoration: none; text-transform: uppercase; }
+/* « Affiner » (facultatif): two equal ways to steer the décor, usable together: your words and photos of the place. */
+.u-rv-refine { display: grid; gap: 10px; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--line); }
+.u-rv-refine-h { display: flex; align-items: center; margin: 0; font-size: 17px; font-weight: 600; }
+.u-rv-refine-lead { margin: -4px 0 0; color: var(--fg-2); font-size: 14px; }
+.u-rv-refine-card { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); }
+.u-rv-refine-label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.u-rv-refine-label span { color: var(--accent); }
+.u-rv-refine textarea { width: 100%; min-height: 64px; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-control); background: var(--bg); color: var(--fg); font: inherit; font-size: 16px; line-height: 1.4; resize: vertical; }
+.u-rv-refine textarea::placeholder { color: var(--fg-2); opacity: .8; }
+.u-rv-refine textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.u-rv-refine .u-rv-chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -12px; padding: 0 12px 2px; scrollbar-width: none; }
+@media (min-width: 600px) { .u-rv-refine .u-rv-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; } }
+.u-rv-refine .u-rv-chips::-webkit-scrollbar { display: none; }
+.u-rv-refine .u-rv-chips button { flex: none; background: var(--bg); white-space: nowrap; }
+.u-rv-refine .u-rv-chips button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.u-rv-refine .u-rv-chips button[aria-pressed="true"]::before { content: "✓ "; }
+.u-rv-refine-btn { display: flex; flex: 1; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px 6px 6px; border: 1px dashed var(--line-strong); border-radius: var(--radius-control); background: var(--bg); color: var(--fg); font-weight: 600; text-align: left; cursor: pointer; }
+.u-rv-refine-btn > span:first-child { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 8px; background: var(--surface-2); color: var(--accent); font-size: 20px; }
+.u-rv-refine-btn > span:last-child { display: grid; }
+.u-rv-refine-btn small { color: var(--fg-2); font-size: 13px; font-weight: 400; }
+.u-rv-refine-btn:hover { border-color: var(--accent); }
 .u-rv-pk-sub { margin: -6px 0 0; color: var(--fg-2); }
 .u-rv-pk-import { border: 1px solid var(--accent); color: var(--fg); font-size: 14px; font-weight: 600; line-height: 1.2; text-align: center; padding: 4px; }
 .u-rv-pk-import span:first-of-type { color: var(--accent); }
@@ -2099,3 +2120,37 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-uttu-spent { color:var(--fg-2); margin:4px 0 0; }
 .u-uttu-tool { margin:4px 0 0; display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
 .u-uttu-count { align-self:center; color:var(--fg-2); }
+
+/* Qualité de la prise : Aperçu ou Qualité finale. Deux cartes radio, 44 px minimum. */
+.u-rendu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 12px; padding: 0; border: 0; min-inline-size: 0; }
+.u-rendu legend { grid-column: 1 / -1; padding: 0; margin-bottom: 6px; }
+.u-rendu-opt { position: relative; display: grid; gap: 4px; align-content: start; min-height: 44px; padding: 10px 12px; border: 1px solid var(--u-line); border-radius: 12px; color: var(--u-muted); cursor: pointer; }
+.u-rendu-opt:has(input:checked) { border-color: var(--u-gold); background: rgba(255, 255, 255, 0.066); color: var(--u-gold-soft); }
+.u-rendu-opt:has(input:focus-visible) { outline: 2px solid var(--u-gold); outline-offset: 2px; }
+.u-rendu-opt:has(input:disabled) { cursor: default; opacity: .6; }
+.u-rendu-opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: inherit; }
+.u-rendu-text { display: grid; gap: 2px; }
+.u-rendu-text b { font: 650 15px/1.2 var(--font-heading); color: var(--u-text); }
+.u-rendu-opt:has(input:checked) .u-rendu-text b { color: var(--u-gold-soft); }
+.u-rendu-text small { font-size: 13px; line-height: 1.3; }
+.u-rendu-quote { font: 600 12px/1.3 var(--font-mono); color: var(--u-gold-soft); }
+.u-rendu-hint { grid-column: 1 / -1; margin: 0; }
+@media (max-height: 480px) { .u-rendu-text small { display: none; } .u-rendu-opt { padding: 8px 10px; } }
+
+/* Montage : étiquette Aperçu / Qualité finale sur chaque plan. */
+.u-clip.is-video .u-clip-body > .u-clip-tier { top: 4px; right: auto; bottom: auto; left: 12px; padding: 1px 6px; border-radius: 6px; background: var(--bg); font: 600 10px/1.4 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--u-muted); }
+.u-clip.is-video .u-clip-body > .u-clip-tier[data-tier="finale"] { color: var(--u-gold-soft); border: 1px solid var(--u-gold); }
+.u-floatbar .u-final-plan { color: var(--u-gold-soft); }
+.u-final-sum { margin: 4px 0 8px; font: 600 13px/1.3 var(--font-mono); color: var(--u-gold-soft); }
+
+/* MONTAGE : la qualité de l'export, dite avant d'exporter, et le chemin vers Finaliser. */
+.u-export-quality { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; margin: 0 0 4px; font-size: 13px; line-height: 1.35; color: var(--u-muted); }
+.u-export-quality .u-text-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--u-gold-soft); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@media (max-height: 480px) { .u-export-quality .u-text-link { min-height: 44px; } }
+@media (max-width: 600px) {
+  .u-export-quality { flex-wrap: nowrap; gap: 0 6px; margin: -4px 0 0; font-size: 12px; line-height: 1.2; white-space: nowrap; }
+  .u-export-quality .u-long-label { display: none; }
+  .u-export-quality .u-short-label { display: inline; overflow: hidden; text-overflow: ellipsis; }
+  /* Same 44 px target, folded into the line so the timeline keeps its height. */
+  .u-export-quality .u-text-link { margin: -13px 0; flex: none; }
+}
