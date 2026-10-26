@@ -40,7 +40,7 @@ test("hub : un clic depuis la barre du haut, une carte par intention, recherche,
   await expect(strip.locator("> button")).toHaveAttribute("aria-expanded", "false");
 });
 
-test("panneau unique : entrée, exemple gratuit, bouton nommé d'après l'action, résultat avec « Et ensuite ? » ouvert", async ({ page }) => {
+test("panneau unique : entrée, exemple, bouton nommé d'après l'action, le résultat du jour en grand avec « Et ensuite ? » ouvert", async ({ page }) => {
   await simulateComfy(page);
   const seen = await watch(page);
   await page.goto("/studio#outils/ret-detourer");
@@ -61,10 +61,14 @@ test("panneau unique : entrée, exemple gratuit, bouton nommé d'après l'action
   await expect(panel.locator("[data-tool-ask]")).toBeVisible();
   await panel.locator("[data-tool-confirm]").click();
   await expect(panel.locator("[data-tool-done]")).toBeVisible({ timeout: 60_000 });
-  const results = page.locator("[data-tool-results]");
-  await expect(results.locator("[data-result]").first()).toBeVisible();
-  await expect(results.locator("[data-suite-toggle]").first()).toHaveAttribute("aria-expanded", "true");
-  await expect(results.locator("[data-suite-item]").first()).toBeVisible();
+  // Only the run just made shows here, big, with « Et ensuite ? » open. Past runs live in Mes créations.
+  await expect(page.locator("[data-tool-results]")).toHaveCount(0);
+  const result = page.locator("[data-tool-result=image]");
+  await expect(result.locator("img")).toBeVisible();
+  expect((await result.locator("img").boundingBox())!.width).toBeGreaterThan(200);
+  await expect(result.locator("[data-suite-toggle]")).toHaveAttribute("aria-expanded", "true");
+  await expect(result.locator("[data-suite-item]").first()).toBeVisible();
+  await expect(result.locator("[data-tool-result-lib]")).toHaveAttribute("href", /\/mon-studio$/);
   expect(Object.values(seen.graphs.at(-1) ?? {}).map(node => node.class_type)).toEqual(expect.arrayContaining(["RemoveBackground", "SaveImage"]));
   expect(seen.cancels()).toBe(0);
 });
@@ -135,7 +139,7 @@ test("MONTAGE : le menu Plus se ferme avec Échap et ne bloque plus les onglets"
   await expect(page.getByRole("heading", { name: "DÉCOR" })).toBeVisible();
 });
 
-test('passer d’un outil à l’autre : un seul panneau à la fois, filtre des résultats propre à l’outil', async ({ page }) => {
+test('passer d’un outil à l’autre : un seul panneau à la fois, plus de liste des anciens résultats', async ({ page }) => {
   await page.goto('/studio#outils/img-klein');
   await expect(page.locator('[data-tool-panel]')).toHaveCount(1);
   await page.evaluate(() => { location.hash = 'outils/vid-parler'; });
@@ -143,5 +147,5 @@ test('passer d’un outil à l’autre : un seul panneau à la fois, filtre des 
   await page.evaluate(() => { location.hash = 'outils/img-klein'; });
   await expect(page.locator('[data-tool-panel]')).toHaveCount(1);
   await expect(page.locator('[data-tool-panel="img-klein"] [data-tool-step=consigne] textarea')).toHaveCount(1);
-  await expect(page.locator('[data-results-filter="image"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-tool-results], [data-results-filter]')).toHaveCount(0);
 });

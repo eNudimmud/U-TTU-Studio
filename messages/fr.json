@@ -2318,15 +2318,8 @@
       "audio": "Créer le son",
       "mesh": "Créer le volume 3D"
     },
-    "results": "Résultats",
-    "resultsEmpty": "Tes résultats arrivent ici, avec « Et ensuite ? » ouvert.",
-    "filter": {
-      "tout": "Tout",
-      "image": "Images",
-      "video": "Vidéos",
-      "audio": "Sons",
-      "mesh": "3D"
-    },
+    "result": "Ta création",
+    "inLibrary": "Voir toutes tes créations",
     "tabTools": "Outils de cet onglet",
     "seeAll": "Voir tous les outils",
     "openTool": "Ouvrir",
