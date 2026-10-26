@@ -30,7 +30,7 @@ export function ReperageTool({ onBack }: { onBack(): void }) {
   const [open, setOpen] = useState(false);
   const [kept, setKept] = useState(0);
   const close = useCallback(() => setOpen(false), []);
-  const low = cadreQuote(1)!;
+  const low = cadreQuote(0)!;
   return <div className="u-outils-work u-scout" data-outils-tool={REPERAGE_ID} data-reperage-tool="">
     <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={onBack}>← {t("outils.back")}</button>
     <section className="u-scout-card" aria-labelledby="u-title">

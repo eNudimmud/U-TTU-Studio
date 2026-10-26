@@ -2088,17 +2088,22 @@
       "loadPhotos": "Buscando fotos de calle cerca…",
       "none": "Añade una foto del lugar para crear el decorado.",
       "change": "Cambiar las fotos",
-      "add": "Añadir fotos",
+      "add": "Precisar con fotos",
       "options": "Opciones",
       "mood": "Ambiente",
       "name": "Nombre",
-      "go": "Crear el decorado"
+      "go": "Crear el decorado",
+      "lead": "Tu decorado sigue tu vista y este lugar.",
+      "refine": "Precisar con fotos",
+      "optional": "opcional",
+      "tags": "Lo que sabemos del lugar"
     },
     "ambiance": {
       "photos": "Como las fotos",
       "nuit": "Noche",
       "pluie": "Lluvia",
-      "aube": "Amanecer"
+      "aube": "Amanecer",
+      "jour": "Luz de día"
     },
     "strict": {
       "label": "Encuadre estricto",
@@ -2109,13 +2114,23 @@
       "alt": "Foto {n}: {name}"
     },
     "pk": {
-      "title": "Elige hasta {max} fotos",
-      "import": "Importar",
+      "title": "Precisar con fotos",
+      "import": "Importa tu foto",
       "mine": "Mis imágenes",
       "ok": "OK",
-      "none": "No hay fotos de calle libres cerca. Importa la tuya.",
+      "none": "No hay fotos libres alrededor de tu vista. Importa la tuya o crea el decorado sin foto.",
       "fail": "Esta imagen no se puede leer. Prueba otra.",
-      "alt": "Foto de calle de {author}"
+      "alt": "Foto de calle de {author}",
+      "sub": "Elige las que se parecen a tu vista. Hasta {max}.",
+      "loading": "Buscamos fotos alrededor de tu vista…",
+      "dist": "{m} m",
+      "add1": "Añadir 1 foto",
+      "add": "Añadir {n} fotos",
+      "pano": "Vista 360° de este punto",
+      "panoAt": "a {m} m de tu cámara",
+      "panoGo": "Girar y encuadrar",
+      "credit": "Fotos:",
+      "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {
       "title": "¿Crear este decorado?",
@@ -2142,6 +2157,23 @@
       "b": "Foto de calle",
       "c": "Tu decorado",
       "note": "Ilustración de ejemplo, hecha fuera de Comfy. No es un render de Comfy."
+    },
+    "pano": {
+      "title": "Gira la vista y guarda el encuadre",
+      "other": "Otras",
+      "keep": "Guardar este encuadre",
+      "alt": "Vista 360° de {author}",
+      "fail": "Esta vista 360° no carga. Elige otra foto."
+    },
+    "tag": {
+      "park": "Parque",
+      "water": "Junto al agua",
+      "wood": "Bosque",
+      "grass": "Césped",
+      "sand": "Arena",
+      "tours": "Rascacielos",
+      "immeubles": "Manzanas de edificios",
+      "bas": "Edificios bajos"
     }
   },
   "suite": {

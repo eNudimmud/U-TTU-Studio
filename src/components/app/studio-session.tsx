@@ -95,6 +95,8 @@ export interface DecorInput {
   geste?: string;
   /** Décor from a kept 3D frame: `files[0]` is the frame, then `photos` reference photos (1–3). */
   cadre?: { photos: number };
+  /** Credits of the open photos sent with the frame, kept in the décor's note. */
+  credits?: string[];
   /** Called once the décor is filed in DÉCOR. */
   onFiled?(filed: { id: string; name: string; cost: number | null; quote: number; image: Blob }): void;
 }
@@ -902,7 +904,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await writeBlob(vault, sheet, result.image);
       const scene: Scene = {
         ...emptySceneDraft(),
-        id, name, note: input.prompt.trim(), stills: [sheet], render: sheet,
+        id, name, note: [input.prompt.trim(), ...(input.credits?.length ? [`Photos : ${input.credits.join(" · ")}`] : [])].join("\n\n"), stills: [sheet], render: sheet,
         prompt: input.prompt.trim(), template: quote.template, devis: quote.credits, cout: result.costCredits, home: "Decors", source: input.source,
         geste: cadre ? "decor-cadre" : row?.id,
       };

@@ -2088,17 +2088,22 @@
       "loadPhotos": "On cherche des photos de rue près d'ici…",
       "none": "Ajoute une photo du lieu pour créer le décor.",
       "change": "Changer les photos",
-      "add": "Ajouter des photos",
+      "add": "Préciser avec des photos",
       "options": "Options",
       "mood": "Ambiance",
       "name": "Nom",
-      "go": "Créer le décor"
+      "go": "Créer le décor",
+      "lead": "Ton décor suit ta vue et ce lieu.",
+      "refine": "Préciser avec des photos",
+      "optional": "facultatif",
+      "tags": "Ce que l'on sait du lieu"
     },
     "ambiance": {
       "photos": "Comme les photos",
       "nuit": "Nuit",
       "pluie": "Pluie",
-      "aube": "Aube"
+      "aube": "Aube",
+      "jour": "Lumière du jour"
     },
     "strict": {
       "label": "Cadre strict",
@@ -2109,13 +2114,23 @@
       "alt": "Photo {n} : {name}"
     },
     "pk": {
-      "title": "Choisis jusqu'à {max} photos",
-      "import": "Importer",
+      "title": "Préciser avec des photos",
+      "import": "Importer ta photo",
       "mine": "Mes images",
       "ok": "OK",
-      "none": "Pas de photo de rue libre près d'ici. Importe la tienne.",
+      "none": "Pas de photo libre autour de ta vue. Importe la tienne, ou crée le décor sans photo.",
       "fail": "Cette image ne se lit pas. Essaie une autre.",
-      "alt": "Photo de rue de {author}"
+      "alt": "Photo de rue de {author}",
+      "sub": "Prends celles qui ressemblent à ta vue. Jusqu'à {max}.",
+      "loading": "On cherche des photos autour de ta vue…",
+      "dist": "{m} m",
+      "add1": "Ajouter 1 photo",
+      "add": "Ajouter {n} photos",
+      "pano": "Vue 360° de ce point",
+      "panoAt": "à {m} m de ta caméra",
+      "panoGo": "Tourner et cadrer",
+      "credit": "Photos :",
+      "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {
       "title": "Créer ce décor ?",
@@ -2142,6 +2157,23 @@
       "b": "Photo de rue",
       "c": "Ton décor",
       "note": "Illustration d'exemple, faite hors Comfy. Ce n'est pas un rendu Comfy."
+    },
+    "pano": {
+      "title": "Tourne la vue, puis garde le cadre",
+      "other": "Autres",
+      "keep": "Garder ce cadre",
+      "alt": "Vue 360° de {author}",
+      "fail": "Cette vue 360° ne s'affiche pas. Prends une autre photo."
+    },
+    "tag": {
+      "park": "Parc",
+      "water": "Bord de l'eau",
+      "wood": "Bois",
+      "grass": "Pelouses",
+      "sand": "Sable",
+      "tours": "Gratte-ciel",
+      "immeubles": "Immeubles",
+      "bas": "Bâtiments bas"
     }
   },
   "suite": {

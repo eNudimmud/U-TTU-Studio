@@ -112,6 +112,8 @@ export const RueViewer = forwardRef<RueHandle, Props>(function RueViewer({ photo
         defaultZoomLvl: picture.tour ? 40 : 10,
         ...fov,
         panoData: frame,
+        // « Garder ce cadre » reads the canvas back: keep the last frame instead of a black one.
+        rendererParameters: { alpha: true, antialias: true, preserveDrawingBuffer: true },
       });
       viewer.addEventListener("position-updated", event => {
         const yaw = event.position.yaw;

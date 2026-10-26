@@ -8,7 +8,7 @@ import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
 import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
 
-/** `cadre-decor`: image 1 is a kept 3D frame, images 2–4 are photos of the place (decor-cadre.ts). */
+/** `cadre-decor`: image 1 is a kept 3D frame, images 2–4 are optional photos of the place (decor-cadre.ts). */
 export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche" | "cadre-decor";
 
 /** Which graph family builds the still. Read from the gesture's template. */
@@ -94,8 +94,8 @@ function aspectOf(kind: StillKind): KleinAspect {
 
 function needsPhoto(kind: StillKind, images: readonly string[]): void {
   if (kind === "cadre-decor") {
+    // The frame alone is enough: the place goes in the prompt, photos are optional.
     if (!images[0]) throw new Error("Le décor part d’un cadre 3D gardé.");
-    if (!images[1]) throw new Error("Ajoute au moins une photo du lieu.");
     return;
   }
   if (kind === "texte-cast" || kind === "texte-decor" || images[0]) return;

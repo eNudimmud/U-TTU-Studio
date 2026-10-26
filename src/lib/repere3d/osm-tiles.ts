@@ -19,7 +19,7 @@ export interface Building {
 export type RoadClass = "major" | "minor" | "path" | "rail";
 export interface Road { line: Ring; kind: RoadClass }
 export type AreaKind = "water" | "park" | "wood" | "built" | "sand" | "grass";
-export interface Area { outer: Ring; holes: Ring[]; kind: AreaKind }
+export interface Area { outer: Ring; holes: Ring[]; kind: AreaKind; /** OSM name when the tile carries one (parks, some water). */ name?: string }
 
 export interface TileShapes { buildings: Building[]; roads: Road[]; areas: Area[] }
 
@@ -186,7 +186,9 @@ export function decodeTile(bytes: Uint8Array, tile: TileId, frame: LocalFrame, r
         const ring = clipRing(polygon.outer, layer.extent);
         if (ring.length < 4) continue;
         const holes = polygon.holes.map(h => clipRing(h, layer.extent)).filter(h => h.length >= 4).map(h => h.map(map));
-        out.areas.push({ outer: ring.map(map), holes, kind });
+        const named = feature.properties["name:latin"] ?? feature.properties.name;
+        const label = typeof named === "string" && named.trim() ? named.trim().slice(0, 60) : undefined;
+        out.areas.push(label ? { outer: ring.map(map), holes, kind, name: label } : { outer: ring.map(map), holes, kind });
       }
     }
   }

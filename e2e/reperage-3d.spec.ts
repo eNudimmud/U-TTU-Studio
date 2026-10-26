@@ -23,6 +23,8 @@ async function offline(page: Page) {
   await page.route("**/photon.komoot.io/api/**", route => route.fulfill({ json: { features: [{ geometry: { coordinates: [6.6326, 46.5206] }, properties: { name: "Place d'essai", city: "Lausanne", country: "Suisse" } }] }, headers: { "access-control-allow-origin": "*" } }));
   await page.route("**/api.panoramax.xyz/api/**", route => route.fulfill({ json: { type: "FeatureCollection", features: [], instances: [] }, headers: { "access-control-allow-origin": "*" } }));
   const cors = { "access-control-allow-origin": "*" };
+  await page.route("**/commons.wikimedia.org/w/api.php**", route => route.fulfill({ json: { batchcomplete: "", query: { geosearch: [], pages: [] } }, headers: cors }));
+  await page.route("**/api.kartaview.org/**", route => route.fulfill({ json: { status: { apiCode: 600 }, result: { data: [] } }, headers: cors }));
   await page.route(`${SWISS_ROOT}tileset.json`, route => route.fulfill({ json: { asset: { version: "1.0" }, root: { boundingVolume: { region: ALL_CH }, children: [{ boundingVolume: { region: ALL_CH }, content: { uri: "fixture/tileset.json" } }] } }, headers: cors }));
   await page.route(`${SWISS_ROOT}fixture/tileset.json`, route => route.fulfill({ json: { asset: { version: "1.0" }, root: { boundingVolume: { region: ALL_CH }, children: [{ boundingVolume: { region: TILE_REGION }, geometricError: 0, content: { uri: "11/305/723.b3dm" } }] } }, headers: cors }));
   await page.route(`${SWISS_ROOT}fixture/11/305/723.b3dm`, route => route.fulfill({ body: SWISS, contentType: "application/octet-stream", headers: cors }));
@@ -56,18 +58,18 @@ async function tall(page: Page, selectors: string[]) {
   }
 }
 
-// Four reusable street photos around the place (Panoramax, CC BY-SA), the fourth the farthest.
+// Four reusable street photos spread over the place (Panoramax, CC BY-SA, ~45 m apart), and one 360° sphere at the spot.
 const PNX = "https://panoramax.openstreetmap.fr/images/";
-function pnx(n: number, dLon: number) {
+function pnx(n: number, dLon: number, fov = 70) {
   const id = `0f1e2d3c-4b5a-4968-8776-65544332211${n}`;
   const href = `${PNX}p${n}/sd.jpg`;
   return { type: "Feature", id, geometry: { type: "Point", coordinates: [6.6326 + dLon, 46.5206] }, links: [],
-    properties: { license: "CC-BY-SA-4.0", "geovisio:producer": `Ada Rue ${n}`, "view:azimuth": 90, "pers:interior_orientation": { field_of_view: 70 } },
+    properties: { license: "CC-BY-SA-4.0", "geovisio:producer": `Ada Rue ${n}`, "view:azimuth": 90, "pers:interior_orientation": { field_of_view: fov } },
     assets: { sd: { href }, thumb: { href } } };
 }
 async function streetPhotos(page: Page) {
   const jpg = readFileSync("public/og.jpg");
-  await page.route("**/api.panoramax.xyz/api/search**", route => route.fulfill({ json: { type: "FeatureCollection", features: [pnx(1, 0.0001), pnx(2, 0.0002), pnx(3, 0.0003), pnx(4, 0.0012)] }, headers: { "access-control-allow-origin": "*" } }));
+  await page.route("**/api.panoramax.xyz/api/search**", route => route.fulfill({ json: { type: "FeatureCollection", features: [pnx(1, 0.0006), pnx(2, 0.0012), pnx(3, 0.0018), pnx(4, 0.0030), pnx(5, 0.0001, 360)] }, headers: { "access-control-allow-origin": "*" } }));
   await page.route(`${PNX}**`, route => route.fulfill({ body: jpg, contentType: "image/jpeg", headers: { "access-control-allow-origin": "*" } }));
 }
 
@@ -158,14 +160,24 @@ test("lieu réel → vue : une question par écran, une vue 3D, trois hauteurs, 
   await page.locator("[data-framing=moyen]").click();
 
   await page.locator("[data-rep3d-capture]").click();
-  // Screen 3: no street photo here, so the visitor adds one; nothing can be created yet.
+  // Screen 3: no street photo here, and none is needed: view + place go straight to the décor.
   await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
   await expect(sheet.getByRole("heading", { level: 1 })).toHaveText("Crée ton décor");
   await expect(page.locator("[data-capture-done] img")).toHaveCount(1);
   await expect(page.locator("[data-rep3d-refs]")).toHaveAttribute("data-rep3d-refs", "0");
-  await expect(page.locator("[data-rep3d-none]")).toBeVisible();
-  await expect(page.locator("[data-rep3d-create]")).toBeDisabled();
-  await expect(page.locator("[data-rep3d-change-photos]")).toHaveText("Ajouter des photos");
+  await expect(page.locator("[data-rep3d-direct]")).toHaveText("Ton décor suit ta vue et ce lieu.");
+  await expect(page.locator("[data-rep3d-tags] li").first()).toHaveText("Lausanne");
+  await expect(page.locator("[data-rep3d-create]")).toBeEnabled();
+  await expect(page.locator("[data-rep3d-create]")).toHaveText("Créer le décor · ≈ 4 crédits estimés");
+  await expect(page.locator("[data-rep3d-change-photos]")).toContainText("Préciser avec des photos");
+  await expect(page.locator("[data-rep3d-change-photos]")).toContainText("facultatif");
+  // « Préciser avec des photos »: import first, no old décor and no 3D capture in the list.
+  await page.locator("[data-rep3d-change-photos]").click();
+  const picker = page.locator("[data-rep3d-picker]");
+  await expect(picker.locator("li").first().locator("[data-rep3d-pick=import]")).toHaveCount(1);
+  await expect(picker.locator("[data-rep3d-pool]")).toHaveCount(0);
+  await expect(picker.locator("[data-rep3d-rue=none]")).toBeVisible();
+  await page.locator("[data-rep3d-pick-ok]").click();
   // Options stay shut; inside, the strict frame is « bientôt ».
   await expect(page.locator("[data-rep3d-name]")).toBeHidden();
   await page.locator("[data-rep3d-more] > summary").click();
@@ -243,7 +255,41 @@ async function fakeComfy(page: Page) {
   return { graphs, uploads };
 }
 
-test("crée ton décor : vue + 3 photos de rue choisies seules, devis, un seul rendu Klein, puis un plan", async ({ page }) => {
+test("crée ton décor en direct : vue + lieu, sans photo, ≈ 4 crédits, un seul rendu Klein avec le contexte", async ({ page }) => {
+  const outside = await offline(page);
+  const comfy = await fakeComfy(page);
+  const sheet = await openSheet(page);
+  await find(page, "Place d'essai");
+  await expect(sheet).toHaveAttribute("data-rep3d-state", "ready", { timeout: 20_000 });
+  await page.locator("[data-framing=sol]").click();
+  await page.locator("[data-rep3d-capture]").click();
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
+  const create = page.locator("[data-rep3d-create]");
+  await expect(create).toHaveText("Créer le décor · ≈ 4 crédits estimés");
+  await expect(page.locator("[data-rep3d-tags] li")).toHaveCount(await page.locator("[data-rep3d-tags] li").count());
+  expect(await page.locator("[data-rep3d-tags] li").count()).toBeGreaterThanOrEqual(1);
+  expect(await page.locator("[data-rep3d-tags] li").count()).toBeLessThanOrEqual(3);
+  await page.locator("[data-rep3d-more] > summary").click();
+  await expect(page.locator("[data-ambiance=photos]")).toHaveText("Lumière du jour");
+  await tall(page, ["[data-rep3d-create]", "[data-rep3d-change-photos]"]);
+  await create.click();
+  await expect(page.locator("[data-rep3d-quote]")).toHaveText("≈ 4 crédits estimés, 6 crédits au plus. Environ 20 secondes.");
+  await page.locator("[data-rep3d-yes]").click();
+  await expect(sheet).toHaveAttribute("data-rep3d-step", "4", { timeout: 30_000 });
+  expect(comfy.graphs).toHaveLength(1);
+  const loads = Object.entries(comfy.graphs[0]).filter(([, node]) => node.class_type === "LoadImage");
+  expect(loads).toHaveLength(1);
+  expect(comfy.uploads).toEqual(["uttu-cadre-3d.png"]);
+  const text = String(Object.values(comfy.graphs[0]).find(node => node.class_type === "PrimitiveStringMultiline" && String(node.inputs.value).startsWith("Image 1"))?.inputs.value ?? "");
+  expect(text).toContain("keep its exact camera position, eye level");
+  expect(text).toContain("The place is real: Place d'essai, Lausanne, Suisse");
+  expect(text).toMatch(/about \d+ m above the ground|at a person's eye height/);
+  expect(text).toContain("never raise, lower or move the camera");
+  expect(text).not.toContain("image 2");
+  expect(outside.filter(url => !/\/api\//.test(url))).toEqual([]);
+});
+
+test("préciser avec des photos : rien de coché d'office, 360° du point, photos variées, devis, un seul rendu Klein, puis un plan", async ({ page }) => {
   const outside = await offline(page);
   await streetPhotos(page);
   const comfy = await fakeComfy(page);
@@ -253,34 +299,41 @@ test("crée ton décor : vue + 3 photos de rue choisies seules, devis, un seul r
   await page.locator("[data-rep3d-capture]").click();
   await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
 
-  // The three closest street photos are picked without asking.
+  // Nothing is ticked for you: the direct path stays ≈ 4.
   const refs = page.locator("[data-rep3d-refs]");
-  await expect(refs).toHaveAttribute("data-rep3d-refs", "3");
-  await expect(refs).toContainText("3 photos de rue prises ici");
+  await expect(refs).toHaveAttribute("data-rep3d-refs", "0");
   const create = page.locator("[data-rep3d-create]");
-  await expect(create).toHaveText("Créer le décor · ≈ 6 crédits estimés");
-  await expect(create).toBeEnabled();
+  await expect(create).toHaveText("Créer le décor · ≈ 4 crédits estimés");
 
-  // « Changer les photos »: up to 3, the closest ticked, a fourth waits; import adds your own.
+  // « Préciser avec des photos »: the 360° of the spot, then your photo first and the open photos.
   await page.locator("[data-rep3d-change-photos]").click();
   const picker = page.locator("[data-rep3d-picker]");
   await expect(picker.locator("[data-rep3d-pool=rue]")).toHaveCount(4);
-  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(3);
-  await expect(picker.locator("[data-rep3d-pool=rue]").nth(3)).toBeDisabled();
-  await picker.locator("[data-rep3d-pool=rue]").nth(2).click();
-  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(2);
+  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(0);
+  await expect(picker.locator(".u-rv-pk-dist").first()).toHaveText(/^\d+ m$/);
+  await expect(picker.locator("[data-rep3d-pk-credit]").first()).toContainText("Ada Rue");
+  await expect(picker.locator("[data-rep3d-pano]")).toBeVisible();
+  await picker.locator("[data-rep3d-pano]").click();
+  await expect(page.locator("[data-rep3d-pano-card]")).toBeVisible();
+  await tall(page, ["[data-rep3d-pano-other]", "[data-rep3d-pano-keep]"]);
+  await page.locator("[data-rep3d-pano-keep]").click();
+  await expect(picker).toBeVisible();
+  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(1);
   await expect(create).toContainText("≈ 5 crédits estimés");
+  await picker.locator("[data-rep3d-pool=rue]").nth(0).click();
   await picker.locator("[data-rep3d-pick=import] input[type=file]").setInputFiles("public/exemples/reperage/sf-rue.webp");
   await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(3);
-  await tall(page, ["[data-rep3d-pool=rue]", "[data-rep3d-pick=import]", "[data-rep3d-pick-ok]"]);
+  await expect(picker.locator("[data-rep3d-pool=rue]").nth(3)).toBeDisabled();
+  await expect(page.locator("[data-rep3d-pick-ok]")).toHaveText("Ajouter 3 photos");
+  await tall(page, ["[data-rep3d-pool=rue]", "[data-rep3d-pick=import]", "[data-rep3d-pick-ok]", "[data-rep3d-pano]"]);
   await page.locator("[data-rep3d-pick-ok]").click();
   await expect(picker).toBeHidden();
   await expect(refs).toContainText("3 photos du lieu");
-  await expect(create).toContainText("≈ 6 crédits estimés");
+  await expect(create).toContainText("≈ 7 crédits estimés");
 
   // Street photo credits stay one tap away.
   await page.locator("[data-rv-screen='3'] .u-rv-copy").click();
-  await expect(page.locator("[data-rep3d-rue-credit]")).toContainText("Ada Rue 1");
+  await expect(page.locator("[data-rep3d-rue-credit]")).toContainText("Ada Rue");
   await expect(page.locator("[data-rep3d-rue-credit]")).toContainText("CC-BY-SA-4.0");
   await page.keyboard.press("Escape");
 
@@ -291,7 +344,7 @@ test("crée ton décor : vue + 3 photos de rue choisies seules, devis, un seul r
 
   // Confirmation in plain words, then one Klein edit.
   await create.click();
-  await expect(page.locator("[data-rep3d-quote]")).toHaveText("≈ 6 crédits estimés, 10 crédits au plus. Environ 20 secondes.");
+  await expect(page.locator("[data-rep3d-quote]")).toHaveText("≈ 7 crédits estimés, 9 crédits au plus. Environ 20 secondes.");
   await page.locator("[data-rep3d-yes]").click();
   await expect(sheet).toHaveAttribute("data-rep3d-step", "4", { timeout: 30_000 });
   await expect(sheet.getByRole("heading", { level: 1 })).toHaveText("Ton décor est prêt");
