@@ -41,6 +41,7 @@ import { importModel, modelExtension } from "@/lib/maquette/files";
 import { isMeshGeste, meshGesteGraph, runMesh } from "@/lib/render/mesh-gestes";
 import { isSuiteGeste, SUITE_SORTIE, SUITE_SOURCE, SUITE_TEXTE, suiteGraph, type Elargir } from "@/lib/suite/graphs";
 import { suiteQuote } from "@/lib/suite/quote";
+import { videoSeconds } from "@/lib/suite/media";
 import { outilParGeste, outilParId, outilRow } from "@/lib/outils/catalogue";
 import { outilGraph, outilQuote } from "@/lib/outils/graphs";
 import { learnTakeCost } from "@/lib/render/landed-cost";
@@ -217,7 +218,8 @@ export interface LieuCaptureInput {
   meta(files: { color: string; depth: string; lines: string }): { json: string; note: string };
 }
 
-export interface MontageInput { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; prompt: string; sceneName: string; composeur: string }
+/** One plan for the cut: a PRISE take, a video already in the project (a tool's result), or a still. */
+export interface MontageInput { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; video?: string; prompt: string; sceneName: string; composeur: string }
 
 export interface TakeRequest {
   planId: string;
@@ -1909,9 +1911,18 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const take = input.takeId ? held.takes.find(item => item.id === input.takeId) : null;
     if (input.takeId && !take) throw new Error("Cette prise n’est plus disponible dans le projet.");
     let source = take?.video ?? "";
-    const clipId = take?.id ?? `storyboard-${crypto.randomUUID()}`;
+    let clipId = take?.id ?? `storyboard-${crypto.randomUUID()}`;
+    let measured: number | null = null;
     if (take) {
       if (!(await vault.get(take.video))?.blob) throw new Error("Le fichier de la prise manque. Récupère-le avant le montage.");
+    } else if (input.video) {
+      // A tool's video (Animer, Prolonger…): already in the project, placed like a take, with its real length.
+      const blob = (await vault.get(input.video))?.blob;
+      if (!blob?.size) throw new Error("Le fichier de la vidéo manque. Rien n’a été ajouté au montage.");
+      source = input.video;
+      clipId = input.video.split("/").pop()!.replace(/\.[a-z0-9]+$/i, "");
+      const url = URL.createObjectURL(blob);
+      try { measured = await videoSeconds(url); } finally { URL.revokeObjectURL(url); }
     } else {
       if (!input.still) throw new Error("Choisis une image enregistrée ou génère une prise avant le montage.");
       const response = await fetch(input.still.startsWith("/") ? assetPath(input.still) : input.still);
@@ -1923,8 +1934,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await writeBlob(vault, source, blob);
       await writeText(vault, paths.note, assetNote({ id: clipId, kind: "importe", name: `Storyboard · ${input.label}`.slice(0, 80), at: new Date().toISOString(), prompt: input.prompt, geste: "storyboard", template: "", refs: [], devis: null, cout: 0, media: source, note: paths.note, preview: null, loose: false }));
     }
-    const seconds = take?.settings.seconds ?? input.seconds;
-    return { planId, take, source, clipId, seconds, label: take ? take.line : `Storyboard · ${input.label}` };
+    const seconds = take?.settings.seconds ?? (measured && measured > 0 ? Math.round(measured * 100) / 100 : input.seconds);
+    return { planId, take, source, clipId, seconds, label: take ? take.line : input.video ? input.label : `Storyboard · ${input.label}` };
   }, []);
 
   const sendToMontage = useCallback(async (input: MontageInput) => {
@@ -1956,7 +1967,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const clips: { id: string; label: string; seconds: number; source: string }[] = [];
     const takeOrder: string[] = [];
     for (const [ordre, input] of inputs.entries()) {
-      if (!input.takeId && !input.still) continue;
+      if (!input.takeId && !input.still && !input.video) continue;
       const prepared = await prepareMontageClip(vault, slug, held, input);
       clips.push({ id: prepared.clipId, label: prepared.label, seconds: prepared.seconds, source: prepared.source });
       if (prepared.take) takeOrder.push(prepared.take.id);

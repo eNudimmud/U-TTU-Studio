@@ -782,7 +782,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     const width = Math.max(playSpan(clip) * px, 48);
     const thumb = thumbOf(clip);
     const tier = clipTier(clip, studio.takes);
-    return <div key={clip.id} className="u-clip is-video" data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width }}>
+    return <div key={clip.id} className="u-clip is-video" data-clip-seconds={Math.round(playSpan(clip) * 10) / 10} data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width }}>
       <button type="button" className="u-handle is-start" aria-label={t("montage.trimStart")} onPointerDown={event => onTrim(event, clip.id, "start", "video")} />
       <button type="button" className="u-clip-body" style={thumb ? { backgroundImage: `url(${thumb})` } : undefined} onPointerDown={event => { setSelected(clip.id); onReorder(event, index); }}><span>{clip.label}</span>{tier && <span className="u-clip-tier" data-tier={tier}>{t(tier === "apercu" ? "finaliser.tagApercu" : "finaliser.tagFinale")}</span>}</button>
       <button type="button" className="u-handle is-end" aria-label={t("montage.trimEnd")} onPointerDown={event => onTrim(event, clip.id, "end", "video")} />

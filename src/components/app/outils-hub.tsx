@@ -20,6 +20,7 @@ import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/m
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
+import { MontageButton } from "./montage-button";
 import { resolveStudioHandoff } from "@/lib/agent/handoff";
 import { BarreHome, CardThumb, StudioHome, openStudioTool } from "./studio-entry";
 import { ALL_TOOLS_ID } from "./creation-bar";
@@ -111,7 +112,7 @@ function OutilWork({ outil, head }: { outil: Outil; head: string }) {
     <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(ALL_TOOLS_ID)}>← {t("outils.back")}</button>
     <div className="u-outils-split" data-has-result={last ? "" : undefined}>
       <ToolPanel outil={outil} onResult={setLast} />
-      {last && <ToolResult run={last} />}
+      {last && <ToolResult run={last} label={titreCarte(t, outil.id)} />}
     </div>
   </div>;
 }
@@ -481,7 +482,7 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
 export interface ToolRun { url: string; path: string; kind: Sortie; poster?: string; aspect?: "horizontal" | "vertical" }
 
 /** The fresh result, big, with « Et ensuite ? » open and a way to Mes créations. Earlier runs stay in Mes créations. */
-function ToolResult({ run }: { run: ToolRun }) {
+function ToolResult({ run, label }: { run: ToolRun; label: string }) {
   const { t } = useI18n();
   const root = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -496,6 +497,9 @@ function ToolResult({ run }: { run: ToolRun }) {
       {run.kind === "audio" && <audio src={run.url} controls />}
       {run.kind === "mesh" && <>{run.poster && <img src={run.poster} alt="" />}<a className="u-primary" href={run.url} download>{t("outils.download")}</a></>}
     </div>
+    {run.kind === "video" && run.path && <div className="u-fil-actions" data-tool-result-actions="">
+      <MontageButton input={{ planId: "outils", label, seconds: 5, aspect: run.aspect ?? "horizontal", still: "", video: run.path, prompt: "", sceneName: "", composeur: "" }} />
+    </div>}
     {(run.kind === "image" || run.kind === "video") && <EtEnsuite source={{ kind: run.kind, url: run.url, name: t("outils.result"), path: run.path || undefined, aspect: run.aspect }} defaultOpen />}
     <a className="u-link u-tool-result-lib" data-tool-result-lib="" href={assetPath("/mon-studio")}>{t("outils.inLibrary")}</a>
   </section>;

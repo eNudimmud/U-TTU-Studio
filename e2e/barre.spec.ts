@@ -93,7 +93,7 @@ test("fil : Vidéo avec Uttu et un décor tourne la prise dans le fil, après la
   await expect(job).toHaveAttribute("data-fil-job", "done", { timeout: 60_000 });
   await expect(job.locator("[data-fil-result=video] video")).toBeVisible();
   await expect(job.locator("[data-et-ensuite=video]")).toBeVisible();
-  await expect(job.locator("[data-fil-montage]")).toBeVisible();
+  await expect(job.locator("[data-montage-add]")).toBeVisible();
   expect(comfy.prompts.map(item => item.kind)).toEqual(["video"]);
   await expect(page).toHaveURL(/\/studio#outils$/);
   expect(await smallTargets(page, "[data-fil]")).toEqual([]);
@@ -155,6 +155,15 @@ test("fil : Image avec une référence, devis puis accord, résultat et Et ensui
   await expect(anime.locator("[data-fil-result=video] video")).toBeVisible();
   expect(comfy.prompts).toHaveLength(2);
 
+  // The Wan clip goes to the montage from the thread, like a PRISE take, without leaving it.
+  const add = anime.locator("[data-montage-add]");
+  await expect(add).toHaveText("Ajouter au montage");
+  expect((await add.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await add.click();
+  await expect(anime.locator("[data-montage-done]")).toHaveText("Ajouté au montage", { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/studio$/);
+  expect(comfy.prompts).toHaveLength(2);
+
   // Cancel sends nothing.
   await bar.locator("[data-barre-mode=image]").click();
   await bar.locator("[data-barre-input]").fill("un phare sous l'orage");
@@ -175,6 +184,40 @@ test("fil : Image avec une référence, devis puis accord, résultat et Et ensui
   await expect(page.locator(".u-barre-ideas")).toBeVisible();
   await page.reload();
   await expect(page.locator("[data-fil]")).toHaveCount(0);
+
+  // On the timeline: one video clip, with the clip's own length (the fixture runs about 5 s).
+  await page.goto("/studio#montage");
+  const clip = page.locator(".u-clip.is-video");
+  await expect(clip).toHaveCount(1, { timeout: 30_000 });
+  await expect(clip).toContainText("Anime-la : la pluie tombe");
+  const seconds = Number(await clip.getAttribute("data-clip-seconds"));
+  expect(seconds).toBeGreaterThan(4);
+  expect(seconds).toBeLessThan(6);
+});
+
+test("outil Animer : le résultat vidéo part au montage depuis la page outil", async ({ page }) => {
+  test.setTimeout(120_000);
+  const comfy = await simulateComfy(page);
+  await page.goto("/studio#outils/vid-wan");
+  const panel = page.locator("[data-tool-panel=vid-wan]");
+  await panel.locator("[data-outil-input=image] input[type=file]").setInputFiles({ name: "quai.webp", mimeType: "image/webp", buffer: quai });
+  await panel.locator("[data-tool-step=consigne] textarea").fill("La pluie tombe sur le quai");
+  await panel.locator("[data-tool-go]").click();
+  await panel.locator("[data-tool-confirm]").click();
+  const result = page.locator("[data-tool-result=video]");
+  await expect(result.locator("video")).toBeVisible({ timeout: 60_000 });
+  expect(comfy.prompts.map(item => item.kind)).toEqual(["video"]);
+  const add = result.locator("[data-tool-result-actions] [data-montage-add]");
+  await expect(add).toHaveText("Ajouter au montage");
+  await add.click();
+  await expect(result.locator("[data-montage-done]")).toHaveText("Ajouté au montage", { timeout: 20_000 });
+  await expect(page).toHaveURL(/#outils\/vid-wan$/);
+  await page.goto("/studio#montage");
+  const clip = page.locator(".u-clip.is-video");
+  await expect(clip).toHaveCount(1, { timeout: 30_000 });
+  const seconds = Number(await clip.getAttribute("data-clip-seconds"));
+  expect(seconds).toBeGreaterThan(4);
+  expect(seconds).toBeLessThan(6);
 });
 
 test("fil : Agent répond dans le fil, sans rien lancer", async ({ page }) => {

@@ -29,7 +29,8 @@ import {
 import { EtEnsuite } from "./et-ensuite";
 import { fillBarre } from "./creation-bar";
 import { toggleAssistant } from "./assistant-panel";
-import { useStudio } from "./studio-session";
+import { MontageButton } from "./montage-button";
+import { useStudio, type MontageInput } from "./studio-session";
 
 const AGENT_KEY = "u-ttu-barre-fil-agent";
 
@@ -285,23 +286,18 @@ export function BarreFil({ runner }: { runner: FilRunner }) {
 
 function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
   const { t } = useI18n();
-  const { media, connected, setSheet, sendToMontage } = useStudio();
-  const [montage, setMontage] = useState<"idle" | "busy" | "done" | "error">("idle");
+  const { media, connected, setSheet } = useStudio();
   const name = toolName(t, job);
   const cost = job.quote !== null ? t("barre.cost", { credits: formatCredits(job.quote) }) : null;
   const url = job.url || (job.path ? media[job.path] : "") || "";
   const poster = job.poster ? (job.poster.startsWith("Projets/") ? media[job.poster] : job.poster) : undefined;
   const open = <a className="u-text-button u-fil-open" href={job.route.kind === "prise" ? "#prise" : `#outils/${job.route.id}`} data-fil-open="" onClick={event => { event.preventDefault(); openInTool(job); }}>{t("barre.fil.openTool")}</a>;
 
-  async function addToMontage() {
-    setMontage("busy");
-    try {
-      await sendToMontage(job.takeId
-        ? { takeId: job.takeId, planId: "barre", label: job.text.slice(0, 80), seconds: 5, aspect: job.aspect, still: "", prompt: job.text, sceneName: "", composeur: "" }
-        : { planId: "barre", label: job.text.slice(0, 80), seconds: 5, aspect: job.aspect, still: url, prompt: job.text, sceneName: "", composeur: "" });
-      setMontage("done");
-    } catch { setMontage("error"); }
-  }
+  const montage: MontageInput | null = !url ? null
+    : job.takeId ? { takeId: job.takeId, planId: "barre", label: job.text.slice(0, 80), seconds: 5, aspect: job.aspect, still: "", prompt: job.text, sceneName: "", composeur: "" }
+    : job.sortie === "video" && job.path ? { planId: "barre", label: job.text.slice(0, 80), seconds: 5, aspect: job.aspect, still: "", video: job.path, prompt: job.text, sceneName: "", composeur: "" }
+    : job.sortie === "image" ? { planId: "barre", label: job.text.slice(0, 80), seconds: 5, aspect: job.aspect, still: url, prompt: job.text, sceneName: "", composeur: "" }
+    : null;
 
   return <li className="u-fil-job" data-fil-job={job.status} data-fil-tool={job.route.kind === "prise" ? "prise" : job.route.id} data-fil-sortie={job.sortie}>
     <p className="u-fil-who">{name}{cost && <span className="u-fil-cost"> · {cost}</span>}</p>
@@ -336,11 +332,8 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
       <div className="u-fil-actions">
         {job.sortie === "image" && <button type="button" className="u-secondary" data-fil-animate="" onClick={() => fillBarre("video", t("barre.fil.animateText"))}>{t("barre.fil.animate")}</button>}
         {job.sortie === "image" && <button type="button" className="u-secondary" data-fil-modify="" onClick={() => fillBarre("image", t("barre.fil.modifyText"))}>{t("barre.fil.modify")}</button>}
-        {(job.takeId || job.sortie === "image") && url && (montage === "done"
-          ? <p className="u-small u-fil-done" data-fil-montage-done="" role="status">{t("barre.fil.inMontage")}</p>
-          : <button type="button" className="u-secondary" data-fil-montage="" aria-busy={montage === "busy"} onClick={() => { if (montage !== "busy") void addToMontage(); }}>{t("assets.toMontage")}</button>)}
+        {montage && <MontageButton input={montage} />}
       </div>
-      {montage === "error" && <p className="u-small" role="alert">{t("barre.fil.montageFailed")}</p>}
       {url && <EtEnsuite source={{ kind: job.sortie, url, name: job.text.slice(0, 60) || name, path: job.path, aspect: job.aspect }} defaultOpen />}
     </div>}
     {(job.status === "error" || job.status === "cancelled" || job.status === "interrupted") && <div className="u-fil-confirm" data-fil-stopped={job.status}>
