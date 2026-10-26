@@ -49,6 +49,14 @@ export function scrollToFamily(fam: string | null = null) {
   return true;
 }
 
+/** Opens « Tous les outils » on one family (the bar's « + › Son » uses it). */
+export function openFamily(fam: string) {
+  try { sessionStorage.setItem(FAMILY_KEY, fam); } catch { /* the list still opens */ }
+  const hash = "#outils/tous";
+  if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
+  window.dispatchEvent(new HashChangeEvent("hashchange"));
+}
+
 function pickFamily(event: React.MouseEvent, fam: string) {
   if (scrollToFamily(fam)) { event.preventDefault(); return; }
   try { sessionStorage.setItem(FAMILY_KEY, fam); } catch { /* the entry still opens */ }
@@ -89,7 +97,7 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
     <p className="u-rail-head eyebrow" aria-hidden="true">{t("outils.count", { n: String(total) })}</p>
     <ul role="list" className="u-rail-list">
       {FAMILLES.map(fam => <li key={fam}>
-        <a className="u-rail-item" href={assetPath("/studio#outils")} data-rail-fam={fam} onClick={event => pickFamily(event, fam)} aria-label={`${t(`outils.fam.${fam}`)} · ${t("outils.count", { n: String(counts[fam]) })}`}>
+        <a className="u-rail-item" href={assetPath("/studio#outils/tous")} data-rail-fam={fam} onClick={event => pickFamily(event, fam)} aria-label={`${t(`outils.fam.${fam}`)} · ${t("outils.count", { n: String(counts[fam]) })}`}>
           <FamilyIcon fam={fam} /><span className="u-rail-name">{t(`outils.fam.${fam}`)}</span><span className="u-rail-n" aria-hidden="true">{counts[fam]}</span>
         </a>
       </li>)}

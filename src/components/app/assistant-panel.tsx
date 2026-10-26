@@ -13,6 +13,7 @@ import type { Edit } from '@/lib/montage/edit';
 import { useStudio } from './studio-session';
 import { MediaLibrary, MEDIA_SELECT_EVENT } from './media-library';
 import { UttuFree } from './uttu-free';
+import { AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, isAgentHandoff, takeHandoff } from '@/lib/barre/model';
 
 const KEY = 'u-ttu-assistant';
 const FILE = '.uttu/agent-conversation.json';
@@ -66,6 +67,15 @@ export function AssistantPanel() {
     setQuery(text.slice(0, 2000)); setModelConfirm(false);
     requestAnimationFrame(() => { const node = kernelInput.current; if (!node) return; node.scrollIntoView({ block: 'center', behavior: 'smooth' }); node.focus({ preventScroll: true }); });
   }, []);
+  // Mode Agent of the creation bar: the sentence lands in this field, ready to send; nothing runs by itself.
+  // It is read once the project is loaded, so the load that clears the field never wipes it.
+  const settled = open && session.ready && !(project && loaded !== project);
+  useEffect(() => {
+    if (!settled) return;
+    const ask = () => { const text = takeHandoff(window.sessionStorage, AGENT_HANDOFF_KEY, isAgentHandoff); if (text) handToPlan(text); };
+    ask();
+    window.addEventListener(AGENT_HANDOFF_EVENT, ask); return () => window.removeEventListener(AGENT_HANDOFF_EVENT, ask);
+  }, [settled, handToPlan]);
   const isAction = useCallback((text: string) => interpretAgentRequest(text, contextRef.current, locale).length > 0, [locale]);
   useEffect(() => { document.documentElement.toggleAttribute('data-assistant', open); return () => document.documentElement.removeAttribute('data-assistant'); }, [open]);
   useEffect(() => { setTasks(listTasks()); return subscribeTasks(setTasks); }, []);

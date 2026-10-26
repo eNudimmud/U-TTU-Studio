@@ -3195,5 +3195,79 @@
       },
       "welcome": "Comfy-Agent-Modus: Ich antworte in eigenen Worten, nur auf Grundlage des Studio-Blatts, und jede Nachricht zahlt dein Comfy-Konto. Ich starte nichts: Ich schlage eine Aktion vor, du klickst."
     }
+  },
+  "barre": {
+    "title": "Was drehen wir?",
+    "titleKey": "drehen",
+    "modes": "Was du erstellst",
+    "mode": {
+      "image": "Bild",
+      "video": "Video",
+      "agent": "Agent"
+    },
+    "ph": {
+      "image": "Beschreib das Bild, das du willst",
+      "video": "Beschreib das Video, das du willst",
+      "agent": "Sag dem Agenten, was du vorhast"
+    },
+    "plus": "Anhängen",
+    "attached": "An deine Anfrage angehängt",
+    "remove": "{name} entfernen",
+    "attach": {
+      "photo": "Foto",
+      "photoLine": "Von deinem Gerät",
+      "reference": "Referenz",
+      "referenceLine": "Eine deiner Figuren oder Kulissen",
+      "lieu": "Echter Ort",
+      "lieuLine": "Eine echte Adresse, in 3D",
+      "son": "Ton",
+      "sonLine": "Stimme, Musik, Geräusche"
+    },
+    "settings": "Einstellungen",
+    "rendu": {
+      "label": "Qualität",
+      "apercu": "Vorschau",
+      "finale": "Endqualität"
+    },
+    "duree": "Länge",
+    "seconds": "{n} s",
+    "format": "Format",
+    "send": "Senden",
+    "cost": "≈ {credits} Credits geschätzt",
+    "route": "Öffnet sich in {where}, schon ausgefüllt. Nichts startet ohne dein OK.",
+    "where": {
+      "agent": "dem Assistenten"
+    },
+    "ideas": "Ideen",
+    "all": "Alle Werkzeuge",
+    "back": "Erstellen",
+    "idea": {
+      "quai": {
+        "title": "Uttu am Kai, bei Nacht",
+        "text": "Uttu geht nachts den Kai entlang. Die Kamera folgt ihr."
+      },
+      "lieu": {
+        "title": "Ein echter Ort als Kulisse"
+      },
+      "portrait": {
+        "title": "Ein Porträt, ruhiger Blick",
+        "text": "Ein Porträt, ruhiger Blick, Abendlicht."
+      }
+    },
+    "refs": {
+      "title": "Referenzen",
+      "filter": "Filtern",
+      "tout": "Alle",
+      "cast": "Figur",
+      "decor": "Kulisse",
+      "lieuReel": "echter Ort",
+      "example": "Beispiel",
+      "new": "Neue Referenz",
+      "newCast": "Neue Figur",
+      "newDecor": "Neue Kulisse",
+      "joinNone": "Nichts anhängen",
+      "joinOne": "1 Referenz anhängen",
+      "join": "{n} Referenzen anhängen"
+    }
   }
 }

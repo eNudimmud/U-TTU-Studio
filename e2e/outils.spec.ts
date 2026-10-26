@@ -16,7 +16,7 @@ async function watch(page: Page) {
 }
 
 test("hub : un clic depuis la barre du haut, une carte par intention, recherche, bientôt absent", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio#outils/tous");
   const hub = page.locator("[data-studio-entry]");
   await expect(hub.getByRole("heading", { name: "Que veux-tu créer ?" })).toBeVisible();
   await expect(hub.locator("[data-outil]")).toHaveCount(34);
@@ -30,7 +30,7 @@ test("hub : un clic depuis la barre du haut, une carte par intention, recherche,
 
   await page.goto("/studio#personnage");
   await openToolsHub(page);
-  await expect(page).toHaveURL(/#outils$/);
+  await expect(page).toHaveURL(/#outils\/tous$/);
   const burger = page.locator("[data-top-burger]");
   if (await burger.isVisible()) await burger.click();
   await page.locator("[data-top-menu=film]").filter({ visible: true }).first().click();
@@ -114,11 +114,11 @@ test("sans compte relié : la raison et le lien « Relier mon compte » sont à 
 });
 
 test("entrée : une phrase part vers le bon outil, le film ouvre CAST", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio#outils/tous");
   await page.locator("[data-entry-chip=anim]").click();
   await expect(page).toHaveURL(/#outils\/vid-wan$/);
   await expect(page.locator("[data-tool-panel=vid-wan] [data-tool-step=consigne] textarea")).toHaveValue(/Animer/);
-  await page.goto("/studio");
+  await page.goto("/studio#outils/tous");
   await page.locator("[data-entry-film]").click();
   await expect(page).toHaveURL(/#personnage$/);
   await expect(page.locator(".u-chain")).toBeVisible();

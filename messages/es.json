@@ -3195,5 +3195,79 @@
       },
       "welcome": "Modo agente Comfy: respondo con mis palabras, solo a partir de la ficha del estudio, y cada mensaje lo paga tu cuenta Comfy. No lanzo nada: te propongo una acción y tú haces clic."
     }
+  },
+  "barre": {
+    "title": "¿Qué rodamos?",
+    "titleKey": "rodamos",
+    "modes": "Lo que creas",
+    "mode": {
+      "image": "Imagen",
+      "video": "Vídeo",
+      "agent": "Agente"
+    },
+    "ph": {
+      "image": "Describe la imagen que quieres",
+      "video": "Describe el vídeo que quieres",
+      "agent": "Dile al agente lo que quieres hacer"
+    },
+    "plus": "Adjuntar",
+    "attached": "Adjunto a tu petición",
+    "remove": "Quitar {name}",
+    "attach": {
+      "photo": "Foto",
+      "photoLine": "Desde tu dispositivo",
+      "reference": "Referencia",
+      "referenceLine": "Uno de tus personajes o decorados",
+      "lieu": "Lugar real",
+      "lieuLine": "Una dirección real, en 3D",
+      "son": "Sonido",
+      "sonLine": "Voz, música, efectos"
+    },
+    "settings": "Ajustes",
+    "rendu": {
+      "label": "Calidad",
+      "apercu": "Vista previa",
+      "finale": "Calidad final"
+    },
+    "duree": "Duración",
+    "seconds": "{n} s",
+    "format": "Formato",
+    "send": "Enviar",
+    "cost": "≈ {credits} créditos estimados",
+    "route": "Se abre en {where}, ya rellenado. Nada sale sin tu OK.",
+    "where": {
+      "agent": "el asistente"
+    },
+    "ideas": "Ideas",
+    "all": "Todas las herramientas",
+    "back": "Crear",
+    "idea": {
+      "quai": {
+        "title": "Uttu en el muelle, de noche",
+        "text": "Uttu camina por el muelle de noche. La cámara la sigue."
+      },
+      "lieu": {
+        "title": "Un lugar real como decorado"
+      },
+      "portrait": {
+        "title": "Un retrato, mirada tranquila",
+        "text": "Un retrato, mirada tranquila, luz de tarde."
+      }
+    },
+    "refs": {
+      "title": "Referencias",
+      "filter": "Filtrar",
+      "tout": "Todo",
+      "cast": "Personaje",
+      "decor": "Decorado",
+      "lieuReel": "lugar real",
+      "example": "ejemplo",
+      "new": "Nueva referencia",
+      "newCast": "Nuevo personaje",
+      "newDecor": "Nuevo decorado",
+      "joinNone": "No adjuntar nada",
+      "joinOne": "Adjuntar 1 referencia",
+      "join": "Adjuntar {n} referencias"
+    }
   }
 }

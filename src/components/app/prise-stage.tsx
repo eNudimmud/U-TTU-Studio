@@ -1,6 +1,7 @@
 "use client";
 
 import { useAgentDraft } from "./use-agent-draft";
+import { PRISE_HANDOFF_KEY, isPriseHandoff, takeHandoff, type PriseHandoff } from "@/lib/barre/model";
 import { OutilsStrip } from "./outils-hub";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { framePoster } from "@/lib/montage/poster";
@@ -223,6 +224,39 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setDrafts(next);
     setCurrentId(next.find(item => item.id === targetPlan)?.id ?? next[0]?.id ?? "plan-01");
   }, [ready, format, studio.project, studio.shots, t]);
+
+  // The creation bar (mode Vidéo) hands over a sentence, the chosen references and the settings, once.
+  const [barre, setBarre] = useState<PriseHandoff | null>(null);
+  useEffect(() => {
+    if (!ready) return;
+    const handed = takeHandoff(window.sessionStorage, PRISE_HANDOFF_KEY, isPriseHandoff);
+    if (handed) setBarre(handed);
+  }, [ready]);
+  useEffect(() => {
+    if (!barre || booted.current !== (studio.project ?? "")) return;
+    const hand = barre;
+    setBarre(null);
+    if (hand.castIds.concat(hand.decorId ?? "").some(id => DEMO_IDS.has(id))) setSeed("compose");
+    if (hand.settings.format !== format) setFormat(hand.settings.format);
+    chooseRendu(hand.settings.rendu);
+    const planche = hand.castIds.map(id => { const card = cast.find(item => item.id === id); return Boolean(card?.sheet && card.template); });
+    setDrafts(list => list.map(item => item.id !== currentId ? item : {
+      ...item,
+      input: {
+        ...item.input,
+        action: hand.action || item.input.action,
+        castIds: hand.castIds.length ? hand.castIds : item.input.castIds,
+        castNames: hand.castIds.length ? hand.castNames : item.input.castNames,
+        castPlanche: hand.castIds.length ? planche : item.input.castPlanche,
+        decorId: hand.decorId ?? item.input.decorId,
+        decorName: hand.decorId ? hand.decorName : item.input.decorName,
+        duree: hand.settings.duree,
+        format: hand.settings.format,
+      },
+    }));
+    if (hand.decorId) setPlaceCleared(false);
+    setAsk(null);
+  }, [barre, currentId, studio.project]);
 
   /** Same fill as ?prise=compose: La coursière and Le vieil homme on the quay, framing, camera and action set. */
   function partirExemple() {

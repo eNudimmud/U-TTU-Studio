@@ -24,7 +24,7 @@ test("s'ouvre depuis le rail (ou la rangée 3D sur téléphone) et la carte se c
   const rail = page.locator("[data-rail]");
   if (await rail.isVisible()) await rail.locator("[data-rail-reperage]").click();
   else {
-    await page.goto("/studio#outils");
+    await page.goto("/studio#outils/tous");
     await page.locator("[data-outil-reperage]").click();
   }
   await expect(page).toHaveURL(/#outils\/reperage$/);

@@ -14,6 +14,7 @@ import { MAQUETTE_HASH, MAQUETTE_ID, REPERAGE_ID, UTTU_PORTRAIT, UTTU_PORTRAIT_H
 import { assetPath } from "@/lib/site";
 import { FamilyIcon, scrollToFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
+import { CreationBar, fillBarre } from "./creation-bar";
 
 const CHIPS = ["portrait", "anim", "film"] as const;
 
@@ -93,7 +94,8 @@ export function StudioHome() {
   const total = shown.length + (scout ? 1 : 0) + (maquette ? 1 : 0);
   const quote = routeQuote(t, text);
 
-  return <section className="u-entry" data-studio-entry="" data-outils-hub="" aria-labelledby="u-title">
+  return <section className="u-entry" data-studio-entry="" data-outils-hub="" data-tous="" aria-labelledby="u-title">
+    <button type="button" className="u-secondary u-outils-back" data-barre-back="" onClick={() => openStudioTool(null)}>← {t("barre.back")}</button>
     {!connected && <p className="u-entry-link" data-entry-link="">
       <span>{t("entry.linkTitle")}</span>
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
@@ -140,6 +142,41 @@ export function StudioHome() {
       <p className="eyebrow" aria-live="polite" data-outils-count={shown.length}>{total ? t("outils.count", { n: String(total) }) : t("outils.none")}</p>
     </div>
     {FAMILLES.map(fam => <Family key={fam} fam={fam} items={shown.filter(item => familleVitrine(item) === fam)} scout={fam === "3d" && scout} maquette={fam === "3d" && maquette} />)}
+  </section>;
+}
+
+const IDEAS = [
+  { id: "quai", mode: "video" as const, img: "/exemples/decor-quai-nuit.webp", refs: ["demo-quai"] },
+  { id: "lieu", mode: null, img: "/exemples/reperage/sf-vue3d.webp", refs: [] },
+  { id: "portrait", mode: "image" as const, img: "/exemples/cast-coursiere.webp", refs: [] },
+];
+
+/** The studio entry: one title, the creation bar, three ideas, and « Tous les outils ». */
+export function BarreHome() {
+  const { t } = useI18n();
+  const { connected, setSheet, cast } = useStudio();
+  const uttu = cast.find(card => card.name.trim().toLocaleLowerCase() === "uttu")?.id;
+  return <section className="u-entry u-barre-home" data-studio-entry="" data-barre-home="" aria-labelledby="u-title">
+    {!connected && <p className="u-entry-link" data-entry-link="">
+      <span>{t("entry.linkTitle")}</span>
+      <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
+    </p>}
+    <h1 id="u-title" className="u-display u-barre-title" tabIndex={-1}><KeyTitle text={t("barre.title")} word={t("barre.titleKey")} /></h1>
+    <CreationBar />
+    <section className="u-barre-ideas" aria-labelledby="u-ideas">
+      <div className="u-family-head"><h2 id="u-ideas">{t("barre.ideas")}</h2></div>
+      <div className="u-barre-idea-row">
+        {IDEAS.map(idea => <button key={idea.id} type="button" className="u-barre-idea" data-barre-idea={idea.id} onClick={() => {
+          if (!idea.mode) { openStudioTool(REPERAGE_ID); return; }
+          fillBarre(idea.mode, t(`barre.idea.${idea.id}.text`), idea.id === "quai" && uttu ? [uttu, ...idea.refs] : idea.refs);
+        }}>
+          <img src={assetPath(idea.img)} alt="" width={640} height={400} loading="lazy" decoding="async" />
+          <span className="u-barre-idea-kind" aria-hidden="true"><FamilyIcon fam={idea.mode === "video" ? "video" : idea.mode === "image" ? "creer" : "reperage"} /></span>
+          <strong>{t(`barre.idea.${idea.id}.title`)}</strong>
+        </button>)}
+      </div>
+    </section>
+    <a className="u-secondary u-barre-all-link" href="#outils/tous" data-barre-all-link="" onClick={event => { event.preventDefault(); openStudioTool("tous"); }}>{t("barre.all")}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
   </section>;
 }
 

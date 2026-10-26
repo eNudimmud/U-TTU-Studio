@@ -3195,5 +3195,79 @@
       },
       "welcome": "Mode agent Comfy : je réponds avec mes mots, à partir de la fiche du studio seulement, et chaque message est payé par ton compte Comfy. Je ne lance rien : je te propose une action, tu cliques."
     }
+  },
+  "barre": {
+    "title": "Qu’est-ce qu’on tourne ?",
+    "titleKey": "tourne",
+    "modes": "Ce que tu crées",
+    "mode": {
+      "image": "Image",
+      "video": "Vidéo",
+      "agent": "Agent"
+    },
+    "ph": {
+      "image": "Décris l’image à créer",
+      "video": "Décris la vidéo à créer",
+      "agent": "Dis à l’agent ce que tu veux faire"
+    },
+    "plus": "Joindre",
+    "attached": "Joint à ta demande",
+    "remove": "Retirer {name}",
+    "attach": {
+      "photo": "Photo",
+      "photoLine": "Depuis ton appareil",
+      "reference": "Référence",
+      "referenceLine": "Un personnage ou un décor à toi",
+      "lieu": "Lieu réel",
+      "lieuLine": "Une vraie adresse, en 3D",
+      "son": "Son",
+      "sonLine": "Voix, musique, bruitages"
+    },
+    "settings": "Réglages",
+    "rendu": {
+      "label": "Qualité",
+      "apercu": "Aperçu",
+      "finale": "Qualité finale"
+    },
+    "duree": "Durée",
+    "seconds": "{n} s",
+    "format": "Format",
+    "send": "Envoyer",
+    "cost": "≈ {credits} crédits estimés",
+    "route": "S’ouvre dans {where}, déjà rempli. Rien ne part sans ton accord.",
+    "where": {
+      "agent": "l’assistant"
+    },
+    "ideas": "Idées",
+    "all": "Tous les outils",
+    "back": "Créer",
+    "idea": {
+      "quai": {
+        "title": "Uttu sur le quai, la nuit",
+        "text": "Uttu marche sur le quai, la nuit. La caméra la suit."
+      },
+      "lieu": {
+        "title": "Un vrai lieu en décor"
+      },
+      "portrait": {
+        "title": "Un portrait, regard calme",
+        "text": "Un portrait, regard calme, lumière du soir."
+      }
+    },
+    "refs": {
+      "title": "Références",
+      "filter": "Filtrer",
+      "tout": "Tout",
+      "cast": "Personnage",
+      "decor": "Décor",
+      "lieuReel": "lieu réel",
+      "example": "exemple",
+      "new": "Nouvelle référence",
+      "newCast": "Nouveau personnage",
+      "newDecor": "Nouveau décor",
+      "joinNone": "Ne rien joindre",
+      "joinOne": "Joindre 1 référence",
+      "join": "Joindre {n} références"
+    }
   }
 }

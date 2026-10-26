@@ -1059,7 +1059,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     {(panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique") && menuAt && <>
       <div className="u-popover" role="menu" style={{ top: menuAt.top, left: menuAt.left }}>
         {panel === "more" && <>
-          <button type="button" data-more-outils="" onClick={() => { setPanel(null); window.location.hash = "outils"; }}>{t("outils.seeAll")}</button>
+          <button type="button" data-more-outils="" onClick={() => { setPanel(null); window.location.hash = "outils/tous"; }}>{t("outils.seeAll")}</button>
           <button type="button" data-more-export="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => { if (canExport) { setPanel(null); runExport(); } else setPanel("export"); }}>{t("montage.exportShort")}</button>
           <button type="button" data-more-finaliser="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} onClick={() => openFinal(null)}>{t("finaliser.open")}</button>
           {filled

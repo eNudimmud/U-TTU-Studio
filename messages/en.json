@@ -3195,5 +3195,79 @@
       },
       "welcome": "Comfy agent mode: I answer in my own words, from the studio sheet only, and each message is paid by your Comfy account. I launch nothing: I suggest an action, you click."
     }
+  },
+  "barre": {
+    "title": "What are we shooting?",
+    "titleKey": "shooting",
+    "modes": "What you create",
+    "mode": {
+      "image": "Image",
+      "video": "Video",
+      "agent": "Agent"
+    },
+    "ph": {
+      "image": "Describe the image to create",
+      "video": "Describe the video to create",
+      "agent": "Tell the agent what you want to do"
+    },
+    "plus": "Attach",
+    "attached": "Attached to your request",
+    "remove": "Remove {name}",
+    "attach": {
+      "photo": "Photo",
+      "photoLine": "From your device",
+      "reference": "Reference",
+      "referenceLine": "One of your characters or sets",
+      "lieu": "Real place",
+      "lieuLine": "A real address, in 3D",
+      "son": "Sound",
+      "sonLine": "Voice, music, sound effects"
+    },
+    "settings": "Settings",
+    "rendu": {
+      "label": "Quality",
+      "apercu": "Preview",
+      "finale": "Final quality"
+    },
+    "duree": "Length",
+    "seconds": "{n} s",
+    "format": "Format",
+    "send": "Send",
+    "cost": "≈ {credits} credits estimated",
+    "route": "Opens in {where}, already filled in. Nothing is sent without your OK.",
+    "where": {
+      "agent": "the assistant"
+    },
+    "ideas": "Ideas",
+    "all": "All tools",
+    "back": "Create",
+    "idea": {
+      "quai": {
+        "title": "Uttu on the quay, at night",
+        "text": "Uttu walks along the quay at night. The camera follows her."
+      },
+      "lieu": {
+        "title": "A real place as your set"
+      },
+      "portrait": {
+        "title": "A portrait, calm gaze",
+        "text": "A portrait, calm gaze, evening light."
+      }
+    },
+    "refs": {
+      "title": "References",
+      "filter": "Filter",
+      "tout": "All",
+      "cast": "Character",
+      "decor": "Set",
+      "lieuReel": "real place",
+      "example": "example",
+      "new": "New reference",
+      "newCast": "New character",
+      "newDecor": "New set",
+      "joinNone": "Attach nothing",
+      "joinOne": "Attach 1 reference",
+      "join": "Attach {n} references"
+    }
   }
 }

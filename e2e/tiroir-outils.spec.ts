@@ -47,8 +47,8 @@ for (const [width, height] of SIZES) {
   });
 }
 
-test("accueil du studio : portrait HD v2 d'Uttu, en srcset", async ({ page }) => {
-  await page.goto("/studio");
+test("tous les outils : portrait HD v2 d'Uttu, en srcset", async ({ page }) => {
+  await page.goto("/studio#outils/tous");
   const img = page.locator("[data-entry-uttu] img");
   await expect(img).toHaveAttribute("srcset", /uttu-portrait-960\.webp 960w/);
   await expect(page.locator("[data-entry-uttu] source")).toHaveAttribute("srcset", /uttu-portrait-large-1200\.webp 1200w/);
