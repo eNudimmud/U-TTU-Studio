@@ -20,7 +20,8 @@ const SIZES: { name: string; width: number; height: number }[] = [
 ];
 
 const PAGES = [
-  { id: "entree", url: "/studio#outils", ready: "[data-studio-entry]" },
+  { id: "barre", url: "/studio#outils", ready: "[data-barre]" },
+  { id: "entree", url: "/studio#outils/tous", ready: "[data-tous]" },
   { id: "outil", url: "/studio#outils/img-klein", ready: "[data-tool-panel]" },
   { id: "film", url: "/studio#personnage", ready: "#u-title" },
   { id: "prise", url: "/studio#prise", ready: "#u-title" },
@@ -89,7 +90,7 @@ test.describe("toutes les tailles d'écran", () => {
 });
 
 test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvre la maquette de PRISE", async ({ page }) => {
-  await page.goto("/studio#outils");
+  await page.goto("/studio#outils/tous");
   const entry = page.locator("[data-studio-entry]");
   await expect(entry.locator("[data-outils-count]")).toHaveText("36 outils");
   const cards = entry.locator(".u-outil-card");
@@ -97,7 +98,7 @@ test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvr
   await expect(entry.locator(".u-outil-card .u-outil-glyph")).toHaveCount(0);
   const card = entry.locator('[data-outils-section="3d"] [data-outil-maquette]');
   await expect(card).toContainText("Maquette 3D et cadrage");
-  await expect(card).toContainText("gratuit");
+  await expect(card).not.toContainText(/gratuit|\bcr\./);
   await expect(card.locator(".u-outil-thumb img")).toHaveAttribute("src", /\/exemples\/vignettes\/maquette\.webp$/);
   expect((await card.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await card.click();
@@ -108,11 +109,11 @@ test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvr
 });
 
 test("entrée : le portrait d'Uttu, la porte du film, une rangée par famille avec vignettes réelles", async ({ page }) => {
-  await page.goto("/studio#outils");
+  await page.goto("/studio#outils/tous");
   const entry = page.locator("[data-studio-entry]");
   await expect(entry.locator("[data-entry-uttu] img")).toBeVisible();
   await expect(page.locator("#u-title em")).toHaveCount(1);
-  await expect(page.locator("[data-entry-route]")).toContainText("≈ 4 cr. estimés");
+  await expect(page.locator("[data-entry-route]")).toContainText("≈ 4 crédits estimés");
   await expect(page.locator("[data-entry-film]")).toBeVisible();
   for (const fam of ["creer", "retoucher", "video", "3d", "son"]) await expect(entry.locator(`[data-outils-section="${fam}"]`)).toHaveCount(1);
   const thumbs = entry.locator('[data-outils-section="creer"] .u-outil-thumb img');

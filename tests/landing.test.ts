@@ -11,7 +11,7 @@ describe("accueil", () => {
   const css = readFileSync("src/components/landing/home.css", "utf8");
   const page = readFileSync("src/app/page.tsx", "utf8");
 
-  it("opens on the hero: JD's whole logo, the hook, a free door, the studio door and « Powered by ComfyUI »", () => {
+  it("opens on the hero: JD's whole logo, the hook, a guided door, the studio door and « Powered by ComfyUI »", () => {
     assert.match(home, /<BrandLockup className="hv-lockup" alt="U\*TTU Studio" \/>/);
     assert.match(home, /t\("accueil\.kicker"\)/);
     assert.match(home, /rich\("accueil\.h1"\)/);
@@ -53,11 +53,12 @@ describe("accueil", () => {
       assert.match(accueil.kicker, /MIT/, lang);
       assert.match(accueil.h1, /<em>.+<\/em>/, lang);
       assert.match(accueil.h1, /ComfyUI/, lang);
-      assert.match(landing.tryFree, /· 0 /, lang);
+      assert.match(landing.tryFree, /Uttu/, lang);
+      assert.doesNotMatch(landing.tryFree, /gratuit|free|kostenlos|gratis|0 cr/i, lang);
       assert.equal(Object.keys(accueil.caps).length, 5, lang);
       assert.equal(Object.keys(accueil.flow).length, 5, lang);
       assert.equal(Object.keys(accueil.trust).length, 3, lang);
-      assert.match(accueil.ltxBody, /≈ 15–30 cr\./i, lang);
+      assert.match(accueil.ltxBody, /≈ 15–30 cr[ée]dit/i, lang);
       assert.doesNotMatch(JSON.stringify(accueil), /\bfal\b/i, lang);
     }
     assert.match(catalog("de").accueil.h1, /Dein/);
@@ -65,7 +66,7 @@ describe("accueil", () => {
     assert.doesNotMatch(JSON.stringify(catalog("en").accueil), /DÉCOR|PRISE/);
   });
 
-  it("opens the free U*TTU guide when the studio is reached through « Try free »", () => {
+  it("opens the U*TTU guide when the studio is reached through « Découvrir avec Uttu »", () => {
     const app = readFileSync("src/components/app/studio-app.tsx", "utf8");
     assert.match(app, /searchParams\.get\("uttu"\) === "1"/);
     assert.match(app, /toggleAssistant\(true\)/);

@@ -20,8 +20,11 @@ import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/m
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
+import { MontageButton } from "./montage-button";
 import { resolveStudioHandoff } from "@/lib/agent/handoff";
-import { CardThumb, StudioHome, openStudioTool } from "./studio-entry";
+import { BarreHome, CardThumb, StudioHome, openStudioTool } from "./studio-entry";
+import { ALL_TOOLS_ID } from "./creation-bar";
+import { REFS_HANDOFF_KEY, isRefsHandoff, takeHandoff } from "@/lib/barre/model";
 import { ReperageTool } from "./reperage/reperage-tool";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
@@ -83,15 +86,16 @@ export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: b
     </button>
     <div id={panelId} className="u-outils-strip-body" hidden={!opened}>
       <div className="u-outils-grid">{list.map(item => <OutilCard key={item.id} outil={item} />)}</div>
-      <button type="button" className="u-secondary" data-outils-all="" onClick={() => openTool(null)}>{t("outils.seeAll")}</button>
+      <button type="button" className="u-secondary" data-outils-all="" onClick={() => openTool(ALL_TOOLS_ID)}>{t("outils.seeAll")}</button>
     </div>
   </div>;
 }
 
 export function OutilsHub({ tool }: { tool: string | null }) {
   if (tool === REPERAGE_ID) return <ReperageTool onBack={() => openTool(null)} />;
+  if (tool === ALL_TOOLS_ID) return <StudioHome />;
   const outil = tool ? outilParId(tool) : null;
-  if (!outil || outil.bientot) return <StudioHome />;
+  if (!outil || outil.bientot) return <BarreHome />;
   const head = intentDe(outil.id);
   return <OutilWork key={head} outil={outil} head={head} />;
 }
@@ -105,10 +109,10 @@ function OutilWork({ outil, head }: { outil: Outil; head: string }) {
       <span>{t("entry.linkTitle")}</span>
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
-    <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(null)}>← {t("outils.back")}</button>
+    <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(ALL_TOOLS_ID)}>← {t("outils.back")}</button>
     <div className="u-outils-split" data-has-result={last ? "" : undefined}>
       <ToolPanel outil={outil} onResult={setLast} />
-      {last && <ToolResult run={last} />}
+      {last && <ToolResult run={last} label={titreCarte(t, outil.id)} />}
     </div>
   </div>;
 }
@@ -301,6 +305,21 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
     window.addEventListener("u-ttu-source", apply);
     return () => window.removeEventListener("u-ttu-source", apply);
   }, [outil.id, outil.entrees, outil.reglages, media]);
+  // The creation bar hands its photos and references over once, in slot order (image, then image2).
+  useEffect(() => {
+    let raw: string | null = null;
+    try { raw = sessionStorage.getItem(REFS_HANDOFF_KEY); } catch { return; }
+    if (!raw || !raw.includes(`"tool":"${outil.id}"`)) return;
+    const handed = takeHandoff(sessionStorage, REFS_HANDOFF_KEY, isRefsHandoff);
+    if (!handed || handed.tool !== outil.id) return;
+    const slots = outil.entrees.filter(slot => slot === "image" || slot === "image2");
+    const placed: Partial<Record<Entree, Picked>> = {};
+    handed.images.slice(0, slots.length).forEach((item, index) => {
+      const url = item.path && media[item.path] ? media[item.path] : item.url;
+      placed[slots[index]] = { url, name: item.name, path: item.path };
+    });
+    setInputs(current => ({ ...current, ...placed }));
+  }, [outil.id, outil.entrees, media]);
   useEffect(() => {
     if (outil.texte === "aucun") return;
     try {
@@ -463,7 +482,7 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
 export interface ToolRun { url: string; path: string; kind: Sortie; poster?: string; aspect?: "horizontal" | "vertical" }
 
 /** The fresh result, big, with « Et ensuite ? » open and a way to Mes créations. Earlier runs stay in Mes créations. */
-function ToolResult({ run }: { run: ToolRun }) {
+function ToolResult({ run, label }: { run: ToolRun; label: string }) {
   const { t } = useI18n();
   const root = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -478,6 +497,9 @@ function ToolResult({ run }: { run: ToolRun }) {
       {run.kind === "audio" && <audio src={run.url} controls />}
       {run.kind === "mesh" && <>{run.poster && <img src={run.poster} alt="" />}<a className="u-primary" href={run.url} download>{t("outils.download")}</a></>}
     </div>
+    {run.kind === "video" && run.path && <div className="u-fil-actions" data-tool-result-actions="">
+      <MontageButton input={{ planId: "outils", label, seconds: 5, aspect: run.aspect ?? "horizontal", still: "", video: run.path, prompt: "", sceneName: "", composeur: "" }} />
+    </div>}
     {(run.kind === "image" || run.kind === "video") && <EtEnsuite source={{ kind: run.kind, url: run.url, name: t("outils.result"), path: run.path || undefined, aspect: run.aspect }} defaultOpen />}
     <a className="u-link u-tool-result-lib" data-tool-result-lib="" href={assetPath("/mon-studio")}>{t("outils.inLibrary")}</a>
   </section>;
@@ -531,7 +553,7 @@ function ToolSwitch({ current }: { current: string }) {
           {family.map(item => <li key={item.id}><button type="button" data-family-outil={item.id} onClick={() => { setOpen(false); openTool(item.id); }}>{titreCarte(t, item.id)}</button></li>)}
         </ul>
       </>}
-      <button type="button" className="u-secondary" data-switch-all="" onClick={() => { setOpen(false); openTool(null); }}>{t("outils.seeAll")}</button>
+      <button type="button" className="u-secondary" data-switch-all="" onClick={() => { setOpen(false); openTool(ALL_TOOLS_ID); }}>{t("outils.seeAll")}</button>
     </div>
   </div>;
 }

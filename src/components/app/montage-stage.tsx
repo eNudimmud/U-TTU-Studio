@@ -782,7 +782,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     const width = Math.max(playSpan(clip) * px, 48);
     const thumb = thumbOf(clip);
     const tier = clipTier(clip, studio.takes);
-    return <div key={clip.id} className="u-clip is-video" data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width }}>
+    return <div key={clip.id} className="u-clip is-video" data-clip-seconds={Math.round(playSpan(clip) * 10) / 10} data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width }}>
       <button type="button" className="u-handle is-start" aria-label={t("montage.trimStart")} onPointerDown={event => onTrim(event, clip.id, "start", "video")} />
       <button type="button" className="u-clip-body" style={thumb ? { backgroundImage: `url(${thumb})` } : undefined} onPointerDown={event => { setSelected(clip.id); onReorder(event, index); }}><span>{clip.label}</span>{tier && <span className="u-clip-tier" data-tier={tier}>{t(tier === "apercu" ? "finaliser.tagApercu" : "finaliser.tagFinale")}</span>}</button>
       <button type="button" className="u-handle is-end" aria-label={t("montage.trimEnd")} onPointerDown={event => onTrim(event, clip.id, "end", "video")} />
@@ -1060,7 +1060,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     {(panel === "more" || panel === "confirm" || panel === "video" || panel === "voix" || panel === "effets" || panel === "musique") && menuAt && <>
       <div className="u-popover" role="menu" style={{ top: menuAt.top, left: menuAt.left }}>
         {panel === "more" && <>
-          <button type="button" data-more-outils="" onClick={() => { setPanel(null); window.location.hash = "outils"; }}>{t("outils.seeAll")}</button>
+          <button type="button" data-more-outils="" onClick={() => { setPanel(null); window.location.hash = "outils/tous"; }}>{t("outils.seeAll")}</button>
           <button type="button" data-more-export="" disabled={exportBlocked} aria-describedby={exportBlocked ? "u-why-export" : undefined} onClick={() => { if (canExport) { setPanel(null); runExport(); } else setPanel("export"); }}>{t("montage.exportShort")}</button>
           <button type="button" data-more-finaliser="" disabled={Boolean(finOpenWhy) && !finBusy} aria-describedby={finOpenWhy && !finBusy ? "u-why-final" : undefined} onClick={() => openFinal(null)}>{t("finaliser.open")}</button>
           {filled

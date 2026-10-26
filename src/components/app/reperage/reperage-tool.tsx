@@ -36,7 +36,7 @@ export function ReperageTool({ onBack }: { onBack(): void }) {
     <section className="u-scout-card" aria-labelledby="u-title">
       <ExempleSaintFrancois />
       <div className="u-scout-copy">
-        <p className="eyebrow">{t("outils.fam.3d")} · {t("rep3d.free")}</p>
+        <p className="eyebrow">{t("outils.fam.3d")}</p>
         <h1 id="u-title" className="u-display" tabIndex={-1}>{t(`outils.t.${REPERAGE_ID}.title`)}</h1>
         <p className="u-lead">{t(`outils.t.${REPERAGE_ID}.line`)}</p>
         <ol className="u-scout-steps">

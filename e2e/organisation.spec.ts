@@ -8,7 +8,7 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
   await page.goto("/studio#personnage");
   await expect(page.locator("[data-topbar]")).toBeVisible();
   await openToolsHub(page);
-  await expect(page).toHaveURL(/#outils$/);
+  await expect(page).toHaveURL(/#outils\/tous$/);
   await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(34);
 
   await page.keyboard.press("Control+k");
@@ -41,7 +41,7 @@ test("carte d'outil : récents et « Voir tous les outils » sans quitter le pan
   const back = page.locator("[data-tool-panel=img-qwen]");
   await back.locator("[data-tool-switch] > button").click();
   await back.locator("[data-switch-all]").click();
-  await expect(page).toHaveURL(/#outils$/);
+  await expect(page).toHaveURL(/#outils\/tous$/);
 });
 
 test("sélecteur de projet : créer un projet en un geste, il devient le projet en cours", async ({ page }) => {

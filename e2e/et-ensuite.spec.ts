@@ -34,19 +34,19 @@ test("asset : menu 44 px, un coût, Détourer ouvre la page outil avec l’image
   for (const item of await items.all()) {
     expect((await item.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     // One cost per item, always said as an estimate.
-    await expect(item).toContainText(/≈ [\d,]+ cr\. estimés/);
+    await expect(item).toContainText(/≈ [\d,]+ crédits estimés/);
     await expect(item).not.toContainText(/réserve/i);
   }
   const link = detail.locator("[data-suite-item=suite-detourer]");
   await expect(link).toHaveAttribute("href", /#outils\/ret-detourer/);
   await expect(link).toContainText("Détourer");
-  await expect(link).toContainText("≈ 2 cr.");
+  await expect(link).toContainText("≈ 2 crédits");
   await link.click();
   await expect(page).toHaveURL(/\/studio#outils\/ret-detourer/);
   const panel = page.locator("[data-tool-panel=ret-detourer]");
   await expect(panel).toBeVisible();
   await expect(panel.locator("[data-outil-input=image] img")).toBeVisible();
-  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 2 cr.");
+  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 2 crédits");
   await expect(panel).not.toContainText(/réserve|bientôt|graphe/i);
   expect(seen.graphs).toHaveLength(0);
   expect(seen.cancels()).toBe(0);
@@ -82,14 +82,14 @@ test("prise importée : trois actions, chacune vers sa page, un coût", async ({
   await expect(detail.locator("[data-suite-item]")).toHaveCount(3);
   const finish = detail.locator("[data-suite-item=suite-finaliser-video]");
   await expect(finish).toHaveAttribute("href", /#outils\/vid-finaliser/);
-  await expect(finish).toContainText("≈ 8 cr.");
+  await expect(finish).toContainText("≈ 8 crédits");
   await expect(detail.locator("[data-suite-item=suite-fluidifier]")).toHaveAttribute("href", /#outils\/vid-fluidifier/);
   await expect(detail.locator(".u-suite")).not.toContainText(/réserve/i);
   await finish.click();
   await expect(page).toHaveURL(/\/studio#outils\/vid-finaliser/);
   const panel = page.locator("[data-tool-panel=vid-finaliser]");
   await expect(panel.locator("[data-outil-input=video] video")).toBeVisible({ timeout: 30_000 });
-  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 8 cr.");
+  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 8 crédits");
   await expect(panel).not.toContainText(/réserve/i);
   expect(seen.graphs).toHaveLength(0);
 });

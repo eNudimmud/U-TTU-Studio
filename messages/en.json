@@ -36,7 +36,7 @@
     "poweredByLabel": "Powered by ComfyUI — comfy.org, new tab",
     "kicker": "Open-source AI film studio on ComfyUI",
     "contact": "Contact the studio ↗",
-    "tryFree": "Try free · 0 credits"
+    "tryFree": "Discover with Uttu"
   },
   "accueil": {
     "kicker": "Open source · MIT · on ComfyUI",
@@ -89,9 +89,9 @@
       }
     },
     "toolsTitle": "What you’ll only find <em>here</em>.",
-    "toolsLead": "Two free filmmaking tools, running in your browser. Rendering only comes after, and only when you confirm it.",
+    "toolsLead": "Two filmmaking tools, running in your browser. Rendering only comes after, with the estimated credits, and only when you confirm it.",
     "inStudio": "In the studio",
-    "mapTag": "Scouting · 0 credits",
+    "mapTag": "3D scouting",
     "mapTitle": "Scout a real place, anywhere.",
     "mapBody": "Type a city or an address: it builds in 3D from open data. Fly around it, pick the time of day and the style, then capture your framing.",
     "mapSpecs": {
@@ -100,7 +100,7 @@
       "2": "morning · noon · evening"
     },
     "mapAlt": "A Jura village at dawn, seen from above",
-    "stageTag": "3D staging · 0 credits",
+    "stageTag": "3D staging",
     "stageTitle": "Stage your shot, with a finger.",
     "stageBody": "One sentence places your characters in front of your set. Drag them, turn the camera, film your previs.",
     "stageSpecs": {
@@ -111,7 +111,7 @@
     "stageAlt": "Uttu on a quay at night, in the rain",
     "ltxTag": "Previs → take",
     "ltxTitle": "Your previs becomes the shot.",
-    "ltxBody": "Film your mock-up; LTX shoots the take with the same camera move. Quote first: ≈ 15–30 cr. estimated.",
+    "ltxBody": "Film your mock-up; LTX shoots the take with the same camera move. Quote first: ≈ 15–30 credits estimated.",
     "capTag": "Capture → Set",
     "capTitle": "Colour, depth and lines, in one click.",
     "capBody": "Your framing goes back to Set to guide the render.",
@@ -125,7 +125,7 @@
     "also": {
       "guide": {
         "name": "U*TTU, your guide",
-        "body": "Free and local; optional Comfy agent, paid by your account."
+        "body": "Local, no render; optional Comfy agent, paid by your account."
       },
       "studio": {
         "name": "My studio",
@@ -922,12 +922,12 @@
     "castPromptPh": "A woman in a dark coat, a calm look.",
     "views": "Front, three-quarter, profile, full length.",
     "name": "Name",
-    "castButton": "Create the character · ≈ {amount} cr. estimated",
-    "decorButton": "Create the location · ≈ {amount} cr. estimated",
+    "castButton": "Create the character · ≈ {amount} credits estimated",
+    "decorButton": "Create the location · ≈ {amount} credits estimated",
     "castButtonClosed": "Create the character",
     "decorButtonClosed": "Create the set",
-    "ceilingHyp": "Estimate: {high} cr.",
-    "ceilingMeasured": "Measured: {high} cr.",
+    "ceilingHyp": "Estimate: {high} credits",
+    "ceilingMeasured": "Measured: {high} credits",
     "quoteLead": "Quote: {quote} · {status}",
     "quoteUnknown": "Quote: unknown",
     "statusMeasured": "measured",
@@ -935,7 +935,7 @@
     "statusUnknown": "unknown",
     "confirmTitle": "Create now?",
     "confirmBody": "The quote is here. Nothing leaves without this gesture.",
-    "estimate": "About {amount} cr., estimated. The final price may vary.",
+    "estimate": "About {amount} credits, estimated. The final price may vary.",
     "needLink": "Link your render account to create.",
     "needCeiling": "The balance does not cover this estimate.",
     "filed": "The render is filed.",
@@ -994,15 +994,15 @@
     "voiceLead": "A voice from a text.",
     "sfxLead": "A sound effect from a text.",
     "musicLead": "Thirty seconds of music from a text.",
-    "musicQuote": "≈ {amount} cr. for {seconds} s",
-    "musicRate": "≈ 16 cr. for 30 seconds.",
+    "musicQuote": "≈ {amount} credits for {seconds} s",
+    "musicRate": "≈ 16 credits for 30 seconds.",
     "createMusic": "Create the music",
     "addMusic": "Add music",
     "needScript": "Write the text.",
-    "voiceQuote": "≈ {amount} cr. for {count} characters",
-    "voiceRate": "≈ 24.1 cr. per 1,000 characters.",
-    "sfxQuote": "≈ {amount} cr. for {seconds} s",
-    "sfxRate": "≈ 29.5 cr. per minute.",
+    "voiceQuote": "≈ {amount} credits for {count} characters",
+    "voiceRate": "≈ 24.1 credits per 1,000 characters.",
+    "sfxQuote": "≈ {amount} credits for {seconds} s",
+    "sfxRate": "≈ 29.5 credits per minute.",
     "createOff": "No price for this yet. Nothing is sent.",
     "createVoice": "Create the voice",
     "createSfx": "Create the effect",
@@ -1085,8 +1085,8 @@
     "soonQuiet": "Soon · {names}",
     "seeExample": "See an example",
     "startExample": "Start from this example",
-    "cost": "About {amount} cr., estimated. The final price may vary.",
-    "costMeasured": "Measured: about {amount} cr.",
+    "cost": "About {amount} credits, estimated. The final price may vary.",
+    "costMeasured": "Measured: about {amount} credits",
     "costUnknown": "Quote not measured. Nothing is sent.",
     "need": "You need: {list}",
     "exampleSoon": "Example coming",
@@ -1403,12 +1403,12 @@
     "sansImageGo": "Create them"
   },
   "r7": {
-    "maquette": "Free sketch",
+    "maquette": "Sketch",
     "hint": "Drag a figure to move it · drag the ground to turn the camera · pinch to zoom",
     "pose": "Keep the pose",
     "cam": "Keep the camera",
     "essai": "Another try",
-    "gratuit": "free",
+    "gratuit": "no render",
     "annuler": "Undo",
     "annulerOff": "Nothing to undo.",
     "add": "+ Character",
@@ -1586,10 +1586,10 @@
       "prise-previs": "What we see in the shot"
     },
     "textOptional": "What appears on the sides (optional)",
-    "quote": "≈ {credits} cr. estimated",
+    "quote": "≈ {credits} credits estimated",
     "estimate": "The final price may vary.",
     "confirm": "I confirm this estimate. The final price may vary.",
-    "go": "Start · ≈ {credits} cr. estimated",
+    "go": "Start · ≈ {credits} credits estimated",
     "needLink": "Link your render account (Comfy) to run.",
     "needFiles": "A file or the text is missing.",
     "needText": "The text is empty.",
@@ -1655,7 +1655,7 @@
       "photo": "Source photo",
       "needPhoto": "Add a photo.",
       "estimate": "Estimated quote, never measured yet. Official Comfy workflow; nothing runs without your confirmation.",
-      "go": "Generate in 3D · {credits} estimated",
+      "go": "Generate · ≈ {credits} credits estimated",
       "done": "Model added to the maquette."
     },
     "keysFull": "{max} keyframes at most.",
@@ -1666,7 +1666,7 @@
     "downloadModel": "Download the 3D model",
     "modelFailed": "Unable to display “{name}”. The file remains available in My creations.",
     "localClip": "Local preview",
-    "localClipNote": "Free recording of the scene preview; this is not a generated take.",
+    "localClipNote": "Local recording of the scene preview; this is not a generated take.",
     "savedClip": "Preview saved in My creations.",
     "downloadClip": "Download the video",
     "modelTerms": "Read the model license",
@@ -1770,9 +1770,9 @@
   },
   "p0": {
     "advanced": "Advanced",
-    "importCast": "Import a character · free",
+    "importCast": "Import a character",
     "importCastAria": "Import a character",
-    "importDecor": "Import a set · free",
+    "importDecor": "Import a set",
     "importDecorAria": "Import a set",
     "confirmGo": "Confirm and shoot",
     "tourner": "Shoot",
@@ -1790,7 +1790,7 @@
     "takeOf": "Take {n} of {total}",
     "versions": "Versions of this shot",
     "versionN": "Take {n}",
-    "recover": "Recover the render (free)",
+    "recover": "Recover the render",
     "relaunch": "Try again · new quote",
     "nextLabel": "Shot {n} · what happens",
     "nextAria": "Next shot: what happens",
@@ -1848,7 +1848,7 @@
       "5": "lowers their eyes"
     },
     "camera": {
-      "free": "free: nothing is imposed",
+      "free": "open: nothing is set",
       "fromText": "“{words}” read in your text → {move}",
       "fromTile": "{move}, from the chosen move",
       "move": {
@@ -1947,7 +1947,7 @@
       "unknown": "Unknown",
       "drop": "Remove mood {label}",
       "cameraWords": "From your words",
-      "cameraFree": "Free",
+      "cameraFree": "Open",
       "degrees": "{move} · {degrees}°",
       "sec": "{n} s",
       "unknownGo": "“{word}”: add in CAST"
@@ -2028,11 +2028,10 @@
     "entryTitle": "A real place as your set",
     "entryLead": "Pick a place and a 3D view: Comfy turns it into your set. You can refine it with text or photos.",
     "open": "Pick a place",
-    "free": "free",
-    "cardCost": "Free 3D view",
-    "toolLine": "A real place becomes your set: a free 3D view, plus street photos.",
+    "cardCost": "3D view on the map",
+    "toolLine": "A real place becomes your set: a 3D view, plus street photos.",
     "stepPick": "Where? Type an address or a city.",
-    "stepLook": "Your view: turn the 3D and keep the view. It's free.",
+    "stepLook": "Your view: turn the 3D and keep the view. No render at this step.",
     "stepKeep": "Create: Comfy blends your view and the photos into one set image.",
     "toolQuote": "Creating the set next:",
     "kept": "Views kept: {n}",
@@ -2155,7 +2154,7 @@
       "import": "Import your photo",
       "mine": "My images",
       "ok": "OK",
-      "none": "No free photo around your view. Import your own, or create the set without a photo.",
+      "none": "No photo around your view. Import your own, or create the set without a photo.",
       "fail": "This image can't be read. Try another.",
       "alt": "Street photo by {author}",
       "sub": "Pick the ones that look like your view. Up to {max}.",
@@ -2214,8 +2213,8 @@
   },
   "suite": {
     "title": "What next?",
-    "chip": "≈ {credits} cr. estimated",
-    "quote": "About {credits} cr., estimated. The final price may vary.",
+    "chip": "≈ {credits} credits estimated",
+    "quote": "About {credits} credits, estimated. The final price may vary.",
     "safe": "The result is added to My studio. The original is never replaced.",
     "go": "Run · ≈ {credits} credits (estimated)",
     "done": "Saved in My creations, next to the original.",
@@ -2310,9 +2309,9 @@
     "partner": "Partner",
     "soon": "Soon",
     "estimate": "estimated",
-    "cost": "≈ {credits} cr. estimated",
+    "cost": "≈ {credits} credits estimated",
     "perBlock": "per 5 s",
-    "partnerPrice": "Partner price ≈ {credits} cr. estimated",
+    "partnerPrice": "Partner price ≈ {credits} credits estimated",
     "hidden": {
       "nano": "Hidden: turn it on in your model settings.",
       "openWeights": "Hidden: you chose studio models only."
@@ -2323,7 +2322,7 @@
     "input": "Input",
     "pick": "Choose or drop",
     "replace": "Replace",
-    "sample": "Free sample",
+    "sample": "See an example",
     "fromStudio": "From My studio",
     "kind": {
       "image": "an image",
@@ -2345,7 +2344,7 @@
       "objet": "Object",
       "perso": "Character"
     },
-    "confirm": "I confirm: about {credits} cr. The final price may vary.",
+    "confirm": "I confirm: about {credits} credits. The final price may vary.",
     "link": "Link my account",
     "needInput": "Add {what} to start.",
     "needConsent": "Confirm you may use this voice.",
@@ -2606,11 +2605,11 @@
       },
       "reperage": {
         "title": "Scout a location",
-        "line": "A real place becomes your set: a free 3D view, plus street photos."
+        "line": "A real place becomes your set: a 3D view, plus street photos."
       },
       "maquette": {
         "title": "3D layout and framing",
-        "line": "Place your characters with a finger, pick the camera angle, then shoot the take. Free until the render."
+        "line": "Place your characters with a finger, pick the camera angle, then shoot the take. Credits only count at the render."
       }
     },
     "latest": "Latest results",
@@ -2638,11 +2637,11 @@
     "model": "Model",
     "modelChange": "Change model",
     "confirmTitle": "Run this render?",
-    "confirmBody": "About {credits} cr., estimated. The final price may vary.",
+    "confirmBody": "About {credits} credits, estimated. The final price may vary.",
     "confirmYes": "Confirm",
     "confirmNo": "Cancel",
     "entryKey": "make",
-    "costEst": "≈ {credits} cr. estimated",
+    "costEst": "≈ {credits} credits estimated",
     "rowAll": "See all",
     "rowLess": "Show less",
     "slot": {
@@ -2673,7 +2672,7 @@
       },
       "lieu": {
         "title": "Scout a place in 3D",
-        "line": "Free, on the map."
+        "line": "On the map, in 3D."
       },
       "plan": {
         "title": "A 5 s shot",
@@ -2973,7 +2972,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Your studio guide · free by default, Comfy agent optional",
+    "sub": "Your studio guide · local by default, Comfy agent optional",
     "button": "U*TTU",
     "openAria": "Open or close U*TTU, your studio guide",
     "welcome": "Hi, I’m Uttu. I help you get started, answer your questions about the studio and estimate what your renders cost. Everything happens on this device: I send nothing and spend nothing.",
@@ -2989,7 +2988,7 @@
     "suggestions": {
       "start": "How do I start?",
       "cost": "How much for 3 portraits + 2 LTX takes?",
-      "free": "What is free?",
+      "free": "What costs credits?",
       "cancel": "Can I cancel a render?"
     },
     "notFound": "I can’t answer that from my local sheet, and I’d rather say so than make something up. Try other words, or look at the guide and the estimator below. With a linked Comfy account, you can also switch to Comfy agent mode, paid by your account.",
@@ -3010,8 +3009,8 @@
         "link": "Open Comfy Cloud"
       },
       "plan": {
-        "title": "Pick a paid subscription",
-        "body": "Studio renders go through the Comfy Cloud API. According to Comfy’s pricing page, API access is included in paid subscriptions, from Standard up; the free tier is not enough. Prices are on that page: check them there.",
+        "title": "Pick a Comfy plan with API access",
+        "body": "Studio renders go through the Comfy Cloud API. According to Comfy’s pricing page, API access is included in plans from Standard up. Prices are on that page: check them there.",
         "link": "See Comfy Cloud pricing"
       },
       "credits": {
@@ -3029,13 +3028,14 @@
       "title": "Estimate a cost",
       "lead": "Pick gestures: I add them up with the studio’s cost table.",
       "pick": "Gesture",
+      "option": "{name} · {low}–{high} credits",
       "qty": "How many",
       "add": "Add",
       "remove": "Remove {name}",
       "clear": "Clear all",
       "empty": "Add a gesture to see the estimate.",
-      "line": "{qty} × {name}: {low}–{high} cr.",
-      "total": "≈ {low}–{high} cr. estimated",
+      "line": "{qty} × {name}: {low}–{high} credits",
+      "total": "≈ {low}–{high} credits estimated",
       "perBlock": "Some tools count per 5 s block of source: this total is for one block.",
       "unknown": "I didn’t recognise: {list}.",
       "note": "Estimate from the studio’s table, not a quote: the exact quote shows in the tool before you confirm. Nothing leaves from here.",
@@ -3060,14 +3060,14 @@
         "a": "Pick a tool, or start with CAST to create your character. To run a render, tap “Sign in with Comfy”: the render runs on your Comfy Cloud account, and every button tells you ≈ how many credits it costs before it starts. The “Get started” guide below shows the 4 steps."
       },
       "free": {
-        "q": "What is free?",
+        "q": "What costs credits?",
         "k": "free pay paid money without paying trial",
-        "a": "Uttu, the estimator, touring the studio and scouting a place on the map are free. Image, video, sound and 3D renders run on your Comfy Cloud account and are paid in Comfy credits. The studio charges nothing."
+        "a": "Image, video, sound and 3D renders run on your Comfy Cloud account and are paid in Comfy credits. Uttu, the estimator, touring the studio and scouting a place on the map launch no render. The studio charges nothing."
       },
       "subscription": {
         "q": "Do I need a Comfy subscription?",
         "k": "subscription standard plan tier pricing price monthly api",
-        "a": "Yes, to run renders: they go through the Comfy Cloud API. According to Comfy’s pricing page, API access is included in paid subscriptions, from Standard up; the free tier is not enough. Prices are on comfy.org/cloud/pricing: check them there, I don’t make any up."
+        "a": "Yes, to run renders: they go through the Comfy Cloud API. According to Comfy’s pricing page, API access is included in plans from Standard up. Prices are on comfy.org/cloud/pricing: check them there, I don’t make any up."
       },
       "credits": {
         "q": "How do I buy credits?",
@@ -3087,7 +3087,7 @@
       "cost": {
         "q": "How much does a render cost?",
         "k": "cost price how much credits expensive estimate",
-        "a": "Every tool shows its estimate before the gesture, in “cr. estimated”. For a total, write for example “3 portraits + 2 LTX takes”, or open the estimator below."
+        "a": "Every tool shows its estimate before the gesture, in “credits estimated”. For a total, write for example “3 portraits + 2 LTX takes”, or open the estimator below."
       },
       "estimate": {
         "q": "What does “estimated” mean?",
@@ -3127,7 +3127,7 @@
       "agent": {
         "q": "Is there a fuller agent?",
         "k": "agent paid comfy fuller free conversation future soon",
-        "a": "Yes: Comfy agent mode understands free-form requests. It runs on your linked Comfy account, each message is paid by your account, and its estimated cost shows before the first send. The agent launches nothing: it suggests an action, you click. Without a linked account, I stay free and local."
+        "a": "Yes: Comfy agent mode understands open-ended requests. It runs on your linked Comfy account, each message is paid by your account, and its estimated cost shows before the first send. The agent launches nothing: it suggests an action, you click. Without a linked account, I stay the local guide."
       },
       "openWeights": {
         "q": "What are open models?",
@@ -3172,36 +3172,156 @@
     },
     "comfy": {
       "mode": "U*TTU mode",
-      "free": "Free · no model",
-      "paid": "Comfy agent · ≈ {cost} cr. estimated per message",
+      "free": "Local guide · no model",
+      "paid": "Comfy agent · ≈ {cost} credits estimated per message",
       "paidNote": "Comfy agent on: each message goes through your Comfy account (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps no key. The agent launches nothing: you click, after the usual quote.",
       "paidNoteSession": "Comfy agent on: each message goes through your Comfy sign-in (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps nothing of your account on its servers: your Comfy session stays in this browser. The agent launches nothing: you click, after the usual quote.",
-      "invite": "Want an agent that answers in its own words? Link your Comfy account: each message costs ≈ {cost} cr. estimated at most, paid by your account. Without a linked account, U*TTU stays free.",
+      "invite": "Want an agent that answers in its own words? Link your Comfy account: each message costs ≈ {cost} credits estimated at most, paid by your account. Without a linked account, U*TTU stays the local guide.",
       "inviteButton": "Link my Comfy account",
       "gateTitle": "Before your first paid message",
-      "gateBody": "Each message to the Comfy agent is billed to your Comfy account: ≈ {cost} cr. estimated at most, often less. The agent launches no render: it suggests an action, you click, and the usual quote shows before any spend. Your consent lasts for this session.",
+      "gateBody": "Each message to the Comfy agent is billed to your Comfy account: ≈ {cost} credits estimated at most, often less. The agent launches no render: it suggests an action, you click, and the usual quote shows before any spend. Your consent lasts for this session.",
       "accept": "I accept, send",
-      "decline": "Stay free",
+      "decline": "Stay with the local guide",
       "thinking": "U*TTU is thinking on your Comfy account…",
       "send": "Send (paid)",
-      "spent": "≈ {cost} cr. estimated for this message",
-      "spentMax": "≈ {cost} cr. estimated at most for this message",
+      "spent": "≈ {cost} credits estimated for this message",
+      "spentMax": "≈ {cost} credits estimated at most for this message",
       "local": "Computed by the studio, no paid call.",
       "openTool": "Open the {name} tool",
-      "toolCost": "≈ {low}–{high} cr. estimated per run",
+      "toolCost": "≈ {low}–{high} credits estimated per run",
       "counter": "{n}/{max} characters",
       "errors": {
         "auth": "Your Comfy account refuses the connection. Link it again (API key or Comfy sign-in), then resend your message.",
         "credits": "Not enough credits on your Comfy account. Top it up on Comfy Cloud, then try again. Nothing was launched.",
-        "subscription": "Your Comfy account has no access to this model: check your Comfy Cloud subscription. Free mode is still here meanwhile.",
+        "subscription": "Your Comfy account has no access to this model: check your Comfy Cloud subscription. The local guide is still here meanwhile.",
         "busy": "Comfy is very busy for your account right now. Wait a few seconds and resend your message.",
         "invalid": "This message could not be processed. Shorten it or rephrase it.",
-        "refused": "The model declined to answer this message. Rephrase it, or switch to free mode.",
-        "network": "Comfy is not answering. Check your connection and try again; free mode works offline.",
+        "refused": "The model declined to answer this message. Rephrase it, or switch to the local guide.",
+        "network": "Comfy is not answering. Check your connection and try again; the local guide works offline.",
         "timeout": "Comfy took too long to answer. Try again in a moment.",
-        "failed": "The Comfy agent could not answer. Try again, or switch to free mode."
+        "failed": "The Comfy agent could not answer. Try again, or switch to the local guide."
       },
       "welcome": "Comfy agent mode: I answer in my own words, from the studio sheet only, and each message is paid by your Comfy account. I launch nothing: I suggest an action, you click."
+    }
+  },
+  "barre": {
+    "title": "What are we shooting?",
+    "titleKey": "shooting",
+    "modes": "What you create",
+    "mode": {
+      "image": "Image",
+      "video": "Video",
+      "agent": "Agent"
+    },
+    "ph": {
+      "image": "Describe the image to create",
+      "video": "Describe the video to create",
+      "agent": "Tell the agent what you want to do"
+    },
+    "plus": "Attach",
+    "attached": "Attached to your request",
+    "remove": "Remove {name}",
+    "attach": {
+      "photo": "Photo",
+      "photoLine": "From your device",
+      "reference": "Reference",
+      "referenceLine": "One of your characters or sets",
+      "lieu": "Real place",
+      "lieuLine": "A real address, in 3D",
+      "son": "Sound",
+      "sonLine": "Voice, music, sound effects"
+    },
+    "settings": "Settings",
+    "rendu": {
+      "label": "Quality",
+      "apercu": "Preview",
+      "finale": "Final quality"
+    },
+    "duree": "Length",
+    "seconds": "{n} s",
+    "format": "Format",
+    "send": "Send",
+    "cost": "≈ {credits} credits estimated",
+    "route": "Opens in {where}, already filled in. Nothing is sent without your OK.",
+    "where": {
+      "agent": "the assistant",
+      "agentHere": "U*TTU",
+      "needRef": "—"
+    },
+    "ideas": "Ideas",
+    "all": "All tools",
+    "back": "Create",
+    "idea": {
+      "quai": {
+        "title": "Uttu on the quay, at night",
+        "text": "Uttu walks along the quay at night. The camera follows her."
+      },
+      "lieu": {
+        "title": "A real place as your set"
+      },
+      "portrait": {
+        "title": "A portrait, calm gaze",
+        "text": "A portrait, calm gaze, evening light."
+      }
+    },
+    "refs": {
+      "title": "References",
+      "filter": "Filter",
+      "tout": "All",
+      "cast": "Character",
+      "decor": "Set",
+      "lieuReel": "real place",
+      "example": "example",
+      "new": "New reference",
+      "newCast": "New character",
+      "newDecor": "New set",
+      "joinNone": "Attach nothing",
+      "joinOne": "Attach 1 reference",
+      "join": "Attach {n} references"
+    },
+    "routeHere": "Made right here with {where}. Nothing goes out without your OK.",
+    "routeAgent": "U*TTU answers here. Nothing starts without your OK.",
+    "routeNote": "For a video, attach a character, a location or a photo, or make an image first.",
+    "fil": {
+      "title": "Your conversation",
+      "new": "New conversation",
+      "needText": "Write what you want to make.",
+      "videoAsImage": "The last result is a video. To retouch it, open « What next? » under the video.",
+      "alreadyVideo": "The last result is already a video. Use « What next? » to extend or smooth it.",
+      "needRef": "For a video, attach a character, a location or a photo, or make an image first, then say « animate it ».",
+      "busy": "Something is already being made here. Wait for its result, then send again.",
+      "toolClosed": "This tool isn't available right now. Open it to see why.",
+      "readFailed": "An attached image couldn't be read. Nothing went out.",
+      "lastName": "Last result",
+      "agentSafe": "Nothing starts from here: every creation asks for your OK, with its estimate.",
+      "toAssistant": "Continue with the assistant",
+      "openTool": "Open in the tool",
+      "confirmLine": "Nothing goes out before your OK. The final price may vary.",
+      "needLink": "Link your Comfy account to start this creation.",
+      "go": "Start · {cost}",
+      "goNoQuote": "Start",
+      "confirmPrise": "Check the take in the confirmation window. Nothing goes out before your OK.",
+      "showConfirm": "Show the confirmation again",
+      "stage": {
+        "envoi": "Sending your request…",
+        "file": "Queued on your account…",
+        "calcul": "Creating ({seconds} s)…",
+        "retour": "Fetching the result…",
+        "mesure": "Reading the real cost…",
+        "calculStart": "Creating…"
+      },
+      "inCreations": "The file is in My creations.",
+      "saved": "Saved in My creations.",
+      "animate": "Animate here",
+      "animateText": "Animate it: ",
+      "modify": "Edit here",
+      "modifyText": "Edit it: ",
+      "inMontage": "Added to the edit",
+      "montageFailed": "Couldn't add it to the edit. Try again from My creations.",
+      "cancelled": "Cancelled. Nothing went out.",
+      "interrupted": "The page reloaded during the creation. If it finished, it's in My creations.",
+      "retry": "Try again",
+      "toCreations": "My creations"
     }
   }
 }

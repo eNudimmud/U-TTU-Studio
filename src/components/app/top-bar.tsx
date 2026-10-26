@@ -168,7 +168,7 @@ function CreerMenu({ onPick, drawer = false }: { onPick(): void; drawer?: boolea
         </section>);
       })}
     </div>
-    <a className="u-secondary u-mega-all" href={assetPath("/studio#outils")} onClick={onPick} data-top-outils="">{t("outils.seeAll")}</a>
+    <a className="u-secondary u-mega-all" href={assetPath("/studio#outils/tous")} onClick={onPick} data-top-outils="">{t("outils.seeAll")}</a>
   </div>;
 }
 

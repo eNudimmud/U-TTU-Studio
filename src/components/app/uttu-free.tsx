@@ -246,7 +246,7 @@ function Simulator({ knowledge, locale }: { knowledge: Knowledge; locale: UttuLo
     <div className="u-uttu-pick">
       <label className="u-field"><span className="u-label">{t("uttu.sim.pick")}</span>
         <select data-uttu-pick="" value={pick} onChange={e => setPick(e.target.value)}>
-          {groups.map(group => <optgroup key={group} label={group}>{items.filter(item => item.group === group).map(item => <option key={item.id} value={item.id}>{item.title} · {formatCr(locale, item.cost[0])}–{formatCr(locale, item.cost[1])} cr.</option>)}</optgroup>)}
+          {groups.map(group => <optgroup key={group} label={group}>{items.filter(item => item.group === group).map(item => <option key={item.id} value={item.id}>{t("uttu.sim.option", { name: item.title, low: formatCr(locale, item.cost[0]), high: formatCr(locale, item.cost[1]) })}</option>)}</optgroup>)}
         </select>
       </label>
       <label className="u-field u-uttu-qty"><span className="u-label">{t("uttu.sim.qty")}</span>
