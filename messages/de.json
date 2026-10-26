@@ -1044,7 +1044,9 @@
     "titlePh": "Ein Titel auf dem Bild",
     "shortcuts": "Kürzel",
     "shortcutHelp": "Leertaste spielt. S teilt. Entf entfernt. Strg+Z macht rückgängig, Strg+Y stellt wieder her. Pfeile: ein Bild.",
-    "snap": "Eingerastet"
+    "snap": "Eingerastet",
+    "exportQuality": "Schnellexport: {height}p, {fps} Bilder pro Sekunde, höchstens {max} s.",
+    "exportBetter": "Schärfer: Finalisieren"
   },
   "atelier": {
     "lead": "Alles, was du erstellt hast, auf diesem Gerät.",

@@ -1044,7 +1044,9 @@
     "titlePh": "Un título sobre la imagen",
     "shortcuts": "Atajos",
     "shortcutHelp": "Espacio reproduce. S corta. Supr quita. Ctrl+Z deshace, Ctrl+Y rehace. Flechas: una imagen.",
-    "snap": "Imanado"
+    "snap": "Imanado",
+    "exportQuality": "Exportación rápida: {height}p, {fps} imágenes por segundo, {max} s como máximo.",
+    "exportBetter": "Más nítido: Finalizar"
   },
   "atelier": {
     "lead": "Todo lo que creaste, en este aparato.",

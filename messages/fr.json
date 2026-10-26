@@ -1044,7 +1044,9 @@
     "titlePh": "Un titre sur l’image",
     "shortcuts": "Raccourcis",
     "shortcutHelp": "Espace lecture. S scinde. Suppr retire. Ctrl+Z annule, Ctrl+Y rétablit. Flèches : une image.",
-    "snap": "Aimanté"
+    "snap": "Aimanté",
+    "exportQuality": "Export rapide : {height}p, {fps} images par seconde, {max} s au plus.",
+    "exportBetter": "Plus net : Finaliser"
   },
   "atelier": {
     "lead": "Tout ce que tu as créé, sur cet appareil.",

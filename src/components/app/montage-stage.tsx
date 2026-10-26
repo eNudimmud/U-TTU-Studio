@@ -10,7 +10,7 @@ import {
   splitVideo, trimAudio, trimVideo, undo, videoAt, setAudioLevels,
   type AudioClip, type AudioTrackId, type Edit, type History, type VideoClip,
 } from "@/lib/montage/edit";
-import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
+import { EXPORT_FPS, EXPORT_HEIGHT, EXPORT_MAX_SECONDS, exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
 import { exportExtension, exportMp4 } from "@/lib/montage/encode";
 import { EXEMPLE_ID, exempleEdit } from "@/lib/montage/exemple";
 import { montrerDepart } from "@/lib/creation/depart";
@@ -852,6 +852,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </span>
       </span>
     </header>
+    <p className="u-export-quality" data-export-quality="">{t("montage.exportQuality", { height: num(EXPORT_HEIGHT), fps: num(EXPORT_FPS), max: num(EXPORT_MAX_SECONDS) })} {!finBusy && !finOpenWhy && <button type="button" className="u-text-link" data-export-better="" onClick={() => openFinal(null)}>{t("montage.exportBetter")}</button>}</p>
     {notice && !sheet && <p className="u-inline-status u-montage-status" role="status" data-statut-inline="" onClick={() => setNotice("")}>{say(notice)}</p>}
     <div className="u-capcut">
     <aside className="u-chutier" data-open={binOpen || undefined} aria-label={t("montage.bin")}>
@@ -1146,6 +1147,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         </div>
         {exportPhase.phase === "run" && <span className="sr-only" id="u-why-export-close">{t("montage.exportRun")}</span>}
         {estimate ? <p className="u-cost is-ok">{t("montage.exportAnnounce", { seconds: Math.round(estimate.seconds), size })}</p> : <p className="u-why">{t("montage.exportOff")}</p>}
+        <p className="u-small" data-export-quality-sheet="">{t("montage.exportQuality", { height: num(EXPORT_HEIGHT), fps: num(EXPORT_FPS), max: num(EXPORT_MAX_SECONDS) })}</p>
         <button type="button" className="u-primary" data-export-gold="" disabled={!canExport} aria-describedby={!canExport ? "u-why-export-go" : undefined} onClick={runExport}>{t("montage.export")}</button>
         {!canExport && <Why on id="u-why-export-go" text={exportWhy} />}
         {exportPhase.phase === "run" && <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={exportPhase.total} aria-valuenow={exportPhase.done}><span style={{ width: `${exportPhase.total ? (100 * exportPhase.done) / exportPhase.total : 0}%` }} /></div>}

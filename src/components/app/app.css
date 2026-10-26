@@ -2124,3 +2124,8 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-clip.is-video .u-clip-body > .u-clip-tier[data-tier="finale"] { color: var(--u-gold-soft); border: 1px solid var(--u-gold); }
 .u-floatbar .u-final-plan { color: var(--u-gold-soft); }
 .u-final-sum { margin: 4px 0 8px; font: 600 13px/1.3 var(--font-mono); color: var(--u-gold-soft); }
+
+/* MONTAGE : la qualité de l'export, dite avant d'exporter, et le chemin vers Finaliser. */
+.u-export-quality { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; margin: 0 0 4px; font-size: 13px; line-height: 1.35; color: var(--u-muted); }
+.u-export-quality .u-text-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--u-gold-soft); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@media (max-height: 480px) { .u-export-quality .u-text-link { min-height: 44px; } }

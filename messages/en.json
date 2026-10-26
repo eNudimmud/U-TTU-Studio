@@ -1044,7 +1044,9 @@
     "titlePh": "A title on the picture",
     "shortcuts": "Shortcuts",
     "shortcutHelp": "Space plays. S splits. Delete removes. Ctrl+Z undoes, Ctrl+Y redoes. Arrows: one frame.",
-    "snap": "Snapped"
+    "snap": "Snapped",
+    "exportQuality": "Quick export: {height}p, {fps} frames per second, {max} s at most.",
+    "exportBetter": "Sharper: Finalise"
   },
   "atelier": {
     "lead": "Everything you created, on this device.",

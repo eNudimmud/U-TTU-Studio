@@ -84,8 +84,13 @@ test('Aperçu en option : devis, premier passage seul, étiquettes et Finaliser 
   await expect(clips).toHaveCount(2, { timeout: 30_000 });
   await expect(clips.nth(0).locator('.u-clip-tier')).toHaveText('Aperçu');
   await expect(clips.nth(1).locator('.u-clip-tier')).toHaveText('Qualité finale');
+  // Export quality, said before exporting, with the way to Finaliser.
+  await expect(page.locator('[data-export-quality]')).toContainText('Export rapide : 540p, 12 images par seconde, 60 s au plus.');
+  const better = page.locator('[data-export-better]');
+  expect((await better.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+  await shots(page, 'montage-export-qualite', '[data-export-quality]');
 
-  await page.locator('[data-finaliser-open]').click();
+  await better.click();
   const whole = page.getByRole('dialog', { name: 'Finaliser le montage' });
   await expect(whole.locator('[data-final-sum]')).toContainText('1 plan en aperçu');
   await expect(whole.locator('[data-final-go]')).toContainText('crédits estimés');
