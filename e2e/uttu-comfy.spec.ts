@@ -153,7 +153,7 @@ test("Agent Comfy parle allemand avec du", async ({ page }, testInfo) => {
   const calls = await mockChat(page, [{ json: { reply: "Verbinde zuerst dein Comfy-Konto, dann wähle einen Tab.", action: { kind: "none", tool: null, request: null }, credits: 0.16, measured: false } }]);
   const panel = await openPanel(page);
   const paid = panel.locator("[data-uttu-mode-pick=comfy]");
-  await expect(paid).toHaveText("Comfy-Agent · ≈ 0,2 Cr. geschätzt pro Nachricht");
+  await expect(paid).toHaveText("Comfy-Agent · ≈ 0,2 Credits geschätzt pro Nachricht");
   await paid.click();
   await panel.locator("[data-uttu-input]").fill("Wie fange ich an?");
   await panel.locator("[data-uttu-send]").click();
@@ -161,7 +161,7 @@ test("Agent Comfy parle allemand avec du", async ({ page }, testInfo) => {
   expect(calls.length).toBe(0);
   await panel.locator("[data-uttu-accept]").click();
   await expect(lastReply(panel)).toContainText("Verbinde zuerst");
-  await expect(lastReply(panel).locator("[data-uttu-spent]")).toHaveText("höchstens ≈ 0,16 Cr. geschätzt für diese Nachricht");
+  await expect(lastReply(panel).locator("[data-uttu-spent]")).toHaveText("höchstens ≈ 0,16 Credits geschätzt für diese Nachricht");
   expect(calls[0].postDataJSON().locale).toBe("de");
 });
 
