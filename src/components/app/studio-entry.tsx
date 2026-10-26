@@ -55,7 +55,7 @@ export function KeyTitle({ text, word }: { text: string; word: string }) {
   return <>{text.slice(0, at)}<em className="u-key">{text.slice(at, at + word.length)}</em>{text.slice(at + word.length)}</>;
 }
 
-/** « ≈ X cr. estimés » for the tool a sentence goes to. */
+/** « ≈ X crédits estimés » for the tool a sentence goes to. */
 function routeQuote(t: (key: string, values?: Record<string, string>) => string, text: string) {
   const route = routePrompt(text.trim() || "image");
   if (route.kind === "film") return { name: t("entry.film"), cost: null };

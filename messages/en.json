@@ -1655,7 +1655,7 @@
       "photo": "Source photo",
       "needPhoto": "Add a photo.",
       "estimate": "Estimated quote, never measured yet. Official Comfy workflow; nothing runs without your confirmation.",
-      "go": "Generate in 3D · {credits} estimated",
+      "go": "Generate · ≈ {credits} credits estimated",
       "done": "Model added to the maquette."
     },
     "keysFull": "{max} keyframes at most.",
@@ -3028,6 +3028,7 @@
       "title": "Estimate a cost",
       "lead": "Pick gestures: I add them up with the studio’s cost table.",
       "pick": "Gesture",
+      "option": "{name} · {low}–{high} credits",
       "qty": "How many",
       "add": "Add",
       "remove": "Remove {name}",

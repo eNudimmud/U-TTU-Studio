@@ -1655,7 +1655,7 @@
       "photo": "Ausgangsfoto",
       "needPhoto": "Füge ein Foto hinzu.",
       "estimate": "Eine Schätzung, noch nie gemessen. Offizieller Comfy-Workflow; nichts läuft ohne deine Bestätigung.",
-      "go": "In 3D erzeugen · {credits} geschätzt",
+      "go": "Erzeugen · ≈ {credits} Credits geschätzt",
       "done": "Modell zur Maquette hinzugefügt."
     },
     "keysFull": "Höchstens {max} Keyframes.",
@@ -3028,6 +3028,7 @@
       "title": "Kosten schätzen",
       "lead": "Wähl Gesten: Ich rechne mit der Kostentabelle des Studios zusammen.",
       "pick": "Geste",
+      "option": "{name} · {low}–{high} Credits",
       "qty": "Wie viele",
       "add": "Hinzufügen",
       "remove": "{name} entfernen",

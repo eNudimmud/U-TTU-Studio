@@ -1655,7 +1655,7 @@
       "photo": "Foto de partida",
       "needPhoto": "Añade una foto.",
       "estimate": "Presupuesto estimado, aún nunca medido. Workflow oficial de Comfy; nada se lanza sin tu confirmación.",
-      "go": "Generar en 3D · {credits} estimados",
+      "go": "Generar · ≈ {credits} créditos estimados",
       "done": "Modelo añadido a la maqueta."
     },
     "keysFull": "{max} puntos clave como máximo.",
@@ -3028,6 +3028,7 @@
       "title": "Estimar un coste",
       "lead": "Elige gestos: los sumo con la tabla de costes del estudio.",
       "pick": "Gesto",
+      "option": "{name} · {low}–{high} créditos",
       "qty": "Cuántos",
       "add": "Añadir",
       "remove": "Quitar {name}",

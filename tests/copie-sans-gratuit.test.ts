@@ -19,9 +19,15 @@ describe("copie sans « gratuit » ni « cr. »", () => {
       const all = strings(JSON.parse(readFileSync(`messages/${lang}.json`, "utf8")), "", []);
       const hits = all.filter(([key, text]) => !ALLOWED.test(key) && BANNED.test(text)).map(([key, text]) => `${key} = ${text}`);
       assert.deepEqual(hits, []);
+      // An estimate always names its unit: « ≈ X crédits estimés », never « X estimés ».
+      const bare = all.filter(([, text]) => /\{\w+\}\s*(estim|geschätzt)/i.test(text)).map(([key, text]) => `${key} = ${text}`);
+      assert.deepEqual(bare, []);
     });
   }
   it("says credits in full when a take's cost is written to the vault", () => {
     assert.doesNotMatch(readFileSync("src/lib/coffre/model.ts", "utf8"), /\} cr\.`/);
+  });
+  it("says credits in full in Uttu's price simulator", () => {
+    assert.doesNotMatch(readFileSync("src/components/app/uttu-free.tsx", "utf8"), /\} cr\./);
   });
 });
