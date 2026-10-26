@@ -29,6 +29,8 @@ export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
   return <StudioProvider><AppFrame initialTab={initialTab ?? null} /></StudioProvider>;
 }
 
+const TYPING = "textarea, select, input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit]):not([type=reset]):not([type=color]):not([type=hidden])";
+
 function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
   const { t, say } = useI18n();
@@ -87,7 +89,8 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     let timer = 0;
     const lift = () => {
       const el = document.activeElement;
-      if (!(el instanceof HTMLElement) || !el.matches("input, textarea, select") || !el.closest(".u-app")) return;
+      // Only fields that open the keyboard: a checkbox or a file button never moves the page.
+      if (!(el instanceof HTMLElement) || !el.matches(TYPING) || !el.closest(".u-app")) return;
       const viewport = window.visualViewport;
       const visibleTop = viewport ? viewport.offsetTop : 0;
       const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
