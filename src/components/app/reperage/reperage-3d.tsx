@@ -5,7 +5,7 @@
 // Volumes view is image 1 of one Klein edit, the place and what the view shows (OSM names, heights,
 // camera, sun) go in the prompt. No photo needed. « Préciser avec des photos » is optional: your own
 // photo, the 360° sphere at the camera's spot, or up to 12 different open photos of the visible area
-// (Panoramax, and Mapillary with a token). → 4 the result, saved in the décor gallery, picked for a shot.
+// (Panoramax, Wikimedia Commons, KartaView, and Mapillary with a token), each credited under it. → 4 the result, saved in the décor gallery, picked for a shot.
 // Open data only (OpenStreetMap, Terrain Tiles, swisstopo in Switzerland). Steps 1 and 2 spend nothing.
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -26,7 +26,7 @@ import { sunPreset } from "@/lib/repere3d/sun";
 import { chargerZone } from "@/lib/repere/direct";
 import { MAPILLARY_ATTRIBUTION } from "@/lib/repere/mapillary";
 import { parseFichier } from "@/lib/repere/fichier";
-import { distanceMeters, photoLicenseUrl, photoSourceUrl, reusablePhoto, type PhotoRue } from "@/lib/repere/panoramax";
+import { creditRue, distanceMeters, photoLicenseUrl, photoSourceUrl, reusablePhoto, type PhotoRue } from "@/lib/repere/panoramax";
 import type { CaptureResult, LoadState, Reperage3D as Engine, RoofState, ViewInfo } from "./engine";
 
 export interface CaptureSaved {
@@ -126,6 +126,8 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   const [rue, setRue] = useState<{ state: RueState; photos: PhotoRue[]; pano: PhotoRue | null; mapillary: boolean }>({ state: "idle", photos: [], pano: null, mapillary: false });
   const [extra, setExtra] = useState<PoolItem[]>([]);
   const [chosen, setChosen] = useState<string[]>([]);
+  // Thumbnails a server no longer gives (old KartaView files): the tile goes away instead of an empty frame.
+  const [broken, setBroken] = useState<ReadonlySet<string>>(() => new Set());
   const [contexte, setContexte] = useState<Contexte | null>(null);
   const [panoCap, setPanoCap] = useState(0);
   const [panoNote, setPanoNote] = useState("");
@@ -213,7 +215,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       const usable = found.photos.filter(photo => reusablePhoto(photo) && (photo.view || photo.thumb)).slice(0, RUE_POOL);
       const sphere = found.pano && reusablePhoto(found.pano) && found.pano.view ? found.pano : null;
       setRue({
-        state: usable.length || sphere ? "ready" : found.panoramax === "fail" ? "fail" : "none",
+        state: usable.length || sphere ? "ready" : found.panoramax === "fail" && found.commons !== "ok" && found.kartaview !== "ok" ? "fail" : "none",
         photos: usable,
         pano: sphere,
         mapillary: [...usable, ...(sphere ? [sphere] : [])].some(photo => photo.source === "mapillary"),
@@ -355,7 +357,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   const here = captured && view ? { lat: view.lat, lon: view.lon } : place;
   const pool: PoolItem[] = [
     ...extra,
-    ...rue.photos.map(photo => ({
+    ...rue.photos.filter(photo => !broken.has(`rue-${photo.id}`)).map(photo => ({
       key: `rue-${photo.id}`,
       kind: "rue" as const,
       name: rueCredit(photo),
@@ -432,6 +434,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
         confirmed: true,
         geste: "decor-photo",
         cadre: { photos: blobs.length },
+        credits: [...new Set(picked.filter(item => item.photo).map(item => `${rueCredit(item.photo!)} (${item.photo!.sourceUrl || photoSourceUrl(item.photo!)})`))],
         onFiled: value => { filed = value; },
       });
       const done = filed as { id: string; name: string; image: Blob } | null;
@@ -453,7 +456,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   }
 
   function rueCredit(photo: PhotoRue): string {
-    return `© ${photo.author}, ${photo.source === "panoramax" ? "Panoramax" : "Mapillary"}, ${photo.license}`;
+    return creditRue(photo);
   }
 
   const ready = phase === "ready" || phase === "empty";
@@ -464,7 +467,6 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   const shownStep = step === 4 ? 3 : step;
   const rueCredits = [...new Set(picked.filter(item => item.photo).map(item => rueCredit(item.photo!)))];
   const tags = contexte ? tagsContexte(contexte) : [];
-  const shownCredits = [...new Set([...(rue.pano ? [rue.pano] : []), ...rue.photos].filter(photo => photo.source === "panoramax").map(photo => photo.author))].slice(0, 6);
   const leadIsBack = step === 2 || step === 3;
 
   const card = (id: string, title: string, body: ReactNode, foot: ReactNode, data: Record<string, string>) => <div className="u-rv-modal" onClick={event => { if (event.target === event.currentTarget) setModal(null); }}>
@@ -617,16 +619,15 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       </button>}
       <ul className="u-rv-pk" data-rep3d-pool-count={pool.length}>
         <li><label className="u-rv-pk-import" data-rep3d-pick="import"><input type="file" accept="image/*" multiple onChange={event => { importPhotos([...(event.target.files ?? [])]); event.target.value = ""; }} /><span aria-hidden="true">＋</span><span>{t("rep3d.pk.import")}</span></label></li>
-        {pool.map(item => <li key={item.key}><button type="button" aria-pressed={chosen.includes(item.key)} data-rep3d-pool={item.kind} data-source={item.photo?.source ?? ""} aria-label={item.photo ? t("rep3d.pk.alt", { author: item.photo.author }) : item.name} disabled={!chosen.includes(item.key) && chosen.length >= CADRE_PHOTOS_MAX} aria-describedby={!chosen.includes(item.key) && chosen.length >= CADRE_PHOTOS_MAX ? "u-rv-pk-sub" : undefined} onClick={() => toggle(item.key)}>
-          <img src={item.thumb} alt="" loading="lazy" referrerPolicy="no-referrer" /><i aria-hidden="true">✓</i>
+        {pool.map(item => <li key={item.key} className={item.photo ? "has-by" : undefined}><button type="button" aria-pressed={chosen.includes(item.key)} data-rep3d-pool={item.kind} data-source={item.photo?.source ?? ""} aria-label={item.photo ? t("rep3d.pk.alt", { author: item.photo.author }) : item.name} disabled={!chosen.includes(item.key) && chosen.length >= CADRE_PHOTOS_MAX} aria-describedby={!chosen.includes(item.key) && chosen.length >= CADRE_PHOTOS_MAX ? "u-rv-pk-sub" : undefined} onClick={() => toggle(item.key)}>
+          <img src={item.thumb} alt="" loading="lazy" referrerPolicy="no-referrer" onError={item.photo ? () => { setBroken(set => new Set(set).add(item.key)); setChosen(list => list.filter(key => key !== item.key)); } : undefined} /><i aria-hidden="true">✓</i>
           {item.dist !== undefined && <span className="u-rv-pk-dist" aria-hidden="true">{t("rep3d.pk.dist", { m: item.dist })}</span>}
-        </button></li>)}
+        </button>
+        {item.photo && <a className="u-rv-pk-by" data-rep3d-pk-credit="" data-source={item.photo.source} href={item.photo.sourceUrl || photoSourceUrl(item.photo)} target="_blank" rel="noopener noreferrer" title={rueCredit(item.photo)}>{rueCredit(item.photo)}</a>}
+        </li>)}
       </ul>
       {rue.state === "load" && <p className="u-rv-note" role="status" data-rep3d-rue="load">{t("rep3d.pk.loading")}</p>}
       {(rue.state === "none" || rue.state === "fail" || rue.state === "rate" || rue.state === "demo") && <p className="u-rv-note" data-rep3d-rue={rue.state}>{t("rep3d.pk.none")}</p>}
-      {(shownCredits.length > 0 || rue.mapillary) && <p className="u-rv-pk-credit" data-rep3d-pk-credit="">
-        {t("rep3d.pk.credit")} {[...shownCredits.map(author => `© ${author}, Panoramax`), ...(rue.mapillary ? [MAPILLARY_ATTRIBUTION] : [])].join(" · ")}
-      </p>}
       {pickNote && <p className="u-rv-note" role="alert">{pickNote}</p>}
     </>, <button type="button" className="u-rv-primary" data-rep3d-pick-ok="" onClick={() => setModal(null)}>{chosen.length === 0 ? t("rep3d.pk.ok") : chosen.length === 1 ? t("rep3d.pk.add1") : t("rep3d.pk.add", { n: chosen.length })}</button>, { "data-rep3d-picker": "" })}
 
@@ -634,7 +635,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       <div className="u-rv-pano" aria-label={t("rep3d.pano.alt", { author: rue.pano.author })} role="img">
         <RueViewer ref={pano} photo={rue.pano} demo={false} cap={panoCap} onCap={setPanoCap} onFail={() => setPanoNote(t("rep3d.pano.fail"))} />
       </div>
-      <p className="u-rv-pk-credit">{rueCredit(rue.pano)}</p>
+      <p className="u-rv-pk-credit"><a href={rue.pano.sourceUrl || photoSourceUrl(rue.pano)} target="_blank" rel="noopener noreferrer">{rueCredit(rue.pano)}</a></p>
       {panoNote && <p className="u-rv-note" role="alert">{panoNote}</p>}
     </>, <>
       <button type="button" className="u-rv-secondary" data-rep3d-pano-other="" onClick={() => setModal("picker")}>{t("rep3d.pano.other")}</button>

@@ -23,6 +23,8 @@ async function offline(page: Page) {
   await page.route("**/photon.komoot.io/api/**", route => route.fulfill({ json: { features: [{ geometry: { coordinates: [6.6326, 46.5206] }, properties: { name: "Place d'essai", city: "Lausanne", country: "Suisse" } }] }, headers: { "access-control-allow-origin": "*" } }));
   await page.route("**/api.panoramax.xyz/api/**", route => route.fulfill({ json: { type: "FeatureCollection", features: [], instances: [] }, headers: { "access-control-allow-origin": "*" } }));
   const cors = { "access-control-allow-origin": "*" };
+  await page.route("**/commons.wikimedia.org/w/api.php**", route => route.fulfill({ json: { batchcomplete: "", query: { geosearch: [], pages: [] } }, headers: cors }));
+  await page.route("**/api.kartaview.org/**", route => route.fulfill({ json: { status: { apiCode: 600 }, result: { data: [] } }, headers: cors }));
   await page.route(`${SWISS_ROOT}tileset.json`, route => route.fulfill({ json: { asset: { version: "1.0" }, root: { boundingVolume: { region: ALL_CH }, children: [{ boundingVolume: { region: ALL_CH }, content: { uri: "fixture/tileset.json" } }] } }, headers: cors }));
   await page.route(`${SWISS_ROOT}fixture/tileset.json`, route => route.fulfill({ json: { asset: { version: "1.0" }, root: { boundingVolume: { region: ALL_CH }, children: [{ boundingVolume: { region: TILE_REGION }, geometricError: 0, content: { uri: "11/305/723.b3dm" } }] } }, headers: cors }));
   await page.route(`${SWISS_ROOT}fixture/11/305/723.b3dm`, route => route.fulfill({ body: SWISS, contentType: "application/octet-stream", headers: cors }));
@@ -309,7 +311,7 @@ test("préciser avec des photos : rien de coché d'office, 360° du point, photo
   await expect(picker.locator("[data-rep3d-pool=rue]")).toHaveCount(4);
   await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(0);
   await expect(picker.locator(".u-rv-pk-dist").first()).toHaveText(/^\d+ m$/);
-  await expect(picker.locator("[data-rep3d-pk-credit]")).toContainText("Ada Rue");
+  await expect(picker.locator("[data-rep3d-pk-credit]").first()).toContainText("Ada Rue");
   await expect(picker.locator("[data-rep3d-pano]")).toBeVisible();
   await picker.locator("[data-rep3d-pano]").click();
   await expect(page.locator("[data-rep3d-pano-card]")).toBeVisible();

@@ -4,12 +4,15 @@ export const PANORAMAX = "https://api.panoramax.xyz/api";
 export const RUE_RAYON = 300;
 export const RUE_RAYON_MAX = 3000;
 
+/** Where an open photo comes from. Each source has its own credit line. */
+export type PhotoSource = "panoramax" | "mapillary" | "commons" | "kartaview";
+
 export interface PhotoRue {
   id: string;
   author: string;
   thumb: string;
   view: string;
-  source: "panoramax" | "mapillary";
+  source: PhotoSource;
   license: string;
   tour: boolean;
   lat: number;
@@ -20,7 +23,7 @@ export interface PhotoRue {
   prev: string | null;
   sourceUrl?: string;
   licenseUrl?: string;
-  /** Panoramax collection or Mapillary sequence: pictures of one walk or drive. */
+  /** Panoramax collection, Mapillary or KartaView sequence, or one Commons photographer: pictures of one walk or drive. */
   serie?: string;
 }
 
@@ -71,20 +74,40 @@ export function licenseLabel(raw: string): string {
 
 /** Only explicitly identified open licences may be copied into a project. */
 export function reusablePhoto(photo: Pick<PhotoRue, "license" | "author">): boolean {
-  return /^(?:CC-BY(?:-SA)?-(?:2\.0|2\.5|3\.0|4\.0)|CC0-1\.0|etalab-2\.0)$/i.test(photo.license)
+  return /^(?:CC-BY(?:-SA)?-(?:1\.0|2\.0|2\.5|3\.0|4\.0)|CC0-1\.0|PD|etalab-2\.0)$/i.test(photo.license)
     && Boolean(photo.author.trim()) && !/^(Panoramax|Mapillary)$/.test(photo.author);
 }
 
 export function photoSourceUrl(photo: Pick<PhotoRue, "source" | "id">): string {
-  return photo.source === "panoramax"
-    ? `https://api.panoramax.xyz/#pic=${encodeURIComponent(photo.id)}`
-    : `https://www.mapillary.com/app/?pKey=${encodeURIComponent(photo.id)}&focus=photo`;
+  if (photo.source === "panoramax") return `https://api.panoramax.xyz/#pic=${encodeURIComponent(photo.id)}`;
+  if (photo.source === "commons") return `https://commons.wikimedia.org/?curid=${encodeURIComponent(photo.id.replace(/^wmc-/, ""))}`;
+  if (photo.source === "kartaview") return "https://kartaview.org/";
+  return `https://www.mapillary.com/app/?pKey=${encodeURIComponent(photo.id)}&focus=photo`;
+}
+
+/** « CC-BY-SA-4.0 » → « CC BY-SA 4.0 », « PD » → « Public domain »: the way a licence is written under a photo. */
+export function licenceLisible(license: string): string {
+  const cc = /^CC-(BY(?:-SA)?)-(\d\.\d)$/i.exec(license);
+  if (cc) return `CC ${cc[1].toUpperCase()} ${cc[2]}`;
+  if (/^CC0-1\.0$/i.test(license)) return "CC0";
+  if (/^PD$/i.test(license)) return "Public domain";
+  return license;
+}
+
+export const KARTAVIEW_CREDIT = "© KartaView contributors, CC BY-SA 4.0";
+
+/** The credit written under each open photo and carried into every décor made with it. */
+export function creditRue(photo: Pick<PhotoRue, "source" | "author" | "license">): string {
+  if (photo.source === "commons") return `${photo.author} · ${licenceLisible(photo.license)} · Wikimedia Commons`;
+  if (photo.source === "kartaview") return KARTAVIEW_CREDIT;
+  return `© ${photo.author}, ${photo.source === "panoramax" ? "Panoramax" : "Mapillary"}, ${photo.license}`;
 }
 
 export function photoLicenseUrl(license: string): string {
   const cc = /^CC-(BY(?:-SA)?)-(2\.0|2\.5|3\.0|4\.0)$/i.exec(license);
   if (cc) return `https://creativecommons.org/licenses/${cc[1].toLowerCase()}/${cc[2]}/`;
   if (/^CC0-1\.0$/i.test(license)) return "https://creativecommons.org/publicdomain/zero/1.0/";
+  if (/^PD$/i.test(license)) return "https://commons.wikimedia.org/wiki/Commons:Licensing#Material_in_the_public_domain";
   if (/^etalab-2\.0$/i.test(license)) return "https://www.etalab.gouv.fr/licence-ouverte-open-licence/";
   return "";
 }
@@ -265,7 +288,7 @@ export function dansLaVue(view: Regard, photo: Pick<PhotoRue, "lat" | "lon">, re
 /**
  * Many different pictures over the visible area, not twelve shots of one statue:
  * one per ~`cell`-metre spot, one per series first, then other spots of a series only when far apart.
- * Pictures in the frame's wedge come first, then the nearest. Duplicates (same id) are dropped.
+ * Pictures in the frame's wedge come first, then the nearest; sources take turns. Duplicates (same id) are dropped.
  */
 export function diversifier(photos: readonly PhotoRue[], view: Regard, max = 12, cell = 40): PhotoRue[] {
   const seenId = new Set<string>();
@@ -285,11 +308,23 @@ export function diversifier(photos: readonly PhotoRue[], view: Regard, max = 12,
     const key = photo.serie ?? `solo:${photo.id}`;
     series.set(key, [...(series.get(key) ?? []), pos(photo)]);
   };
-  // Pass 1: one per series and per spot.
-  for (const { photo } of ranked) {
-    if (out.length >= max) break;
-    if (cells.has(cellOf(photo)) || (photo.serie && series.has(photo.serie))) continue;
-    take(photo);
+  // Pass 1: one per series and per spot, taking each source in turn so one big source does not fill the grid.
+  const bySource = new Map<string, typeof ranked>();
+  for (const item of ranked) bySource.set(item.photo.source, [...(bySource.get(item.photo.source) ?? []), item]);
+  // Street-level sources first in each turn: their frames match the camera better than Commons' snapshots.
+  const turn: PhotoSource[] = ["panoramax", "kartaview", "mapillary", "commons"];
+  const queues = [...bySource.entries()].sort((a, b) => turn.indexOf(a[0] as PhotoSource) - turn.indexOf(b[0] as PhotoSource)).map(([, queue]) => queue);
+  for (let progress = true; progress && out.length < max;) {
+    progress = false;
+    for (const queue of queues) {
+      while (queue.length && out.length < max) {
+        const { photo } = queue.shift()!;
+        if (cells.has(cellOf(photo)) || (photo.serie && series.has(photo.serie))) continue;
+        take(photo);
+        progress = true;
+        break;
+      }
+    }
   }
   // Pass 2: fill with new spots of series already used, at least two cells away from that series' picks.
   for (const { photo } of ranked) {
@@ -304,6 +339,7 @@ export function diversifier(photos: readonly PhotoRue[], view: Regard, max = 12,
 
 /** The 360° sphere closest to the camera, if one stands within `max` metres. */
 export function pano360(photos: readonly PhotoRue[], lat: number, lon: number, max = 60): PhotoRue | null {
+  // Any source may hold the sphere: Panoramax, KartaView (2:1 frames), Mapillary or Commons.
   return photos
     .filter(photo => photo.tour)
     .map(photo => ({ photo, d: distanceMeters(lat, lon, photo.lat, photo.lon) }))
