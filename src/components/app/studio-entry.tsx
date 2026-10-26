@@ -102,7 +102,7 @@ export function StudioHome() {
     </p>}
     <div className="u-hero">
       <header className="u-entry-ask">
-        <p className="eyebrow">{t("outils.entryLead", { n: String(cards.length + 1) })}</p>
+        <p className="eyebrow">{t("outils.entryLead", { n: String(cards.length + 2) })}</p>
         <h1 id="u-title" className="u-display" tabIndex={-1}><KeyTitle text={t("outils.entry")} word={t("outils.entryKey")} /></h1>
         <form className="u-entry-form" onSubmit={event => { event.preventDefault(); launch(text); }}>
           <label className="u-field" htmlFor={promptId}>

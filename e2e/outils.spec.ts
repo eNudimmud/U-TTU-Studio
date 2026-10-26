@@ -149,3 +149,33 @@ test('passer d’un outil à l’autre : un seul panneau à la fois, plus de lis
   await expect(page.locator('[data-tool-panel="img-klein"] [data-tool-step=consigne] textarea')).toHaveCount(1);
   await expect(page.locator('[data-tool-results], [data-results-filter]')).toHaveCount(0);
 });
+
+test("brouillon : le texte et l’image d’un outil sont toujours là quand on y revient", async ({ page }) => {
+  await page.goto("/studio#outils/img-klein");
+  const panel = page.locator('[data-tool-panel="img-klein"]');
+  await panel.locator("[data-tool-step=consigne] textarea").fill("un chat roux sur un toit");
+  await page.evaluate(() => { location.hash = "outils/vid-parler"; });
+  await expect(page.locator('[data-tool-panel="vid-parler"]')).toBeVisible();
+  await page.evaluate(() => { location.hash = "outils/img-klein"; });
+  await expect(panel.locator("[data-tool-step=consigne] textarea")).toHaveValue("un chat roux sur un toit");
+  await page.reload();
+  await expect(page.locator('[data-tool-panel="img-klein"] [data-tool-step=consigne] textarea')).toHaveValue("un chat roux sur un toit");
+});
+
+test("raccord : deux cases visibles, image de départ et image d’arrivée", async ({ page }) => {
+  await page.goto("/studio#outils/vid-raccord");
+  const panel = page.locator("[data-tool-panel]").first();
+  await expect(panel.locator("[data-outil-input=image]")).toBeVisible();
+  await expect(panel.locator("[data-outil-input=image2]")).toBeVisible();
+  await expect(panel.locator("[data-outil-input=image] .u-label")).toHaveText("Image de départ");
+  await expect(panel.locator("[data-outil-input=image2] .u-label")).toHaveText("Image d’arrivée");
+});
+
+test("compteur : l’annonce compte toutes les cartes affichées", async ({ page }) => {
+  await page.goto("/studio");
+  const hub = page.locator("[data-studio-entry]");
+  await expect(hub.locator("[data-outil]")).toHaveCount(34);
+  const cards = await hub.locator(".u-outils-row > .u-outil-card").count();
+  expect(cards).toBe(36);
+  await expect(hub.locator(".u-entry-ask .eyebrow")).toContainText(`${cards} outils`);
+});
