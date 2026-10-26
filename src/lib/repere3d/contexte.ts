@@ -23,7 +23,8 @@ export interface ContexteInput {
   reach?: number;
 }
 
-export interface ZoneVue { name: string; kind: AreaKind; cote: Cote; distance: number }
+/** `taille`: the largest side of the area's bounding box, in metres (Central Park beats a pond inside it). */
+export interface ZoneVue { name: string; kind: AreaKind; cote: Cote; distance: number; taille: number }
 
 export interface Contexte {
   place: string;
@@ -101,9 +102,11 @@ export function lireContexte(input: ContexteInput): Contexte {
     if (!best && !around) continue;
     kinds.add(area.kind);
     if (!area.name) continue;
-    const zone: ZoneVue = { name: area.name, kind: area.kind, cote: around ? "autour" : cote(best!.diff), distance: around ? 0 : Math.round(best!.d) };
+    const xs = area.outer.map(p => p[0]), zs = area.outer.map(p => p[1]);
+    const taille = Math.round(Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs)));
+    const zone: ZoneVue = { name: area.name, kind: area.kind, cote: around ? "autour" : cote(best!.diff), distance: around ? 0 : Math.round(best!.d), taille };
     const held = zones.get(area.name);
-    if (!held || zone.distance < held.distance) zones.set(area.name, zone);
+    if (!held || zone.distance < held.distance) zones.set(area.name, { ...zone, taille: Math.max(taille, held?.taille ?? 0) });
   }
 
   const heights: number[] = [];
@@ -122,7 +125,8 @@ export function lireContexte(input: ContexteInput): Contexte {
     place: input.place.name.trim().slice(0, 80),
     city,
     country,
-    zones: [...zones.values()].sort((a, b) => a.distance - b.distance).slice(0, 3),
+    // The three largest named areas in view, nearest first.
+    zones: [...zones.values()].sort((a, b) => b.taille - a.taille).slice(0, 3).sort((a, b) => a.distance - b.distance),
     kinds: NATURE.filter(kind => kinds.has(kind)),
     tallest,
     typical,
@@ -139,7 +143,7 @@ export function tagsContexte(c: Contexte): TagContexte[] {
   const tags: TagContexte[] = [];
   const city = c.city || (c.place && c.place.length <= 28 ? c.place : "");
   if (city) tags.push({ kind: "ville", text: city });
-  const zone = c.zones[0];
+  const zone = [...c.zones].sort((a, b) => b.taille - a.taille)[0];
   if (zone) tags.push({ kind: "zone", text: zone.name });
   else if (c.kinds[0]) tags.push({ kind: "nature", key: c.kinds[0] });
   if (c.silhouette !== "aucun") tags.push({ kind: "silhouette", key: c.silhouette });

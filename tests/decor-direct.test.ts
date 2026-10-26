@@ -18,6 +18,20 @@ function photo(id: string, dNorth: number, dEast: number, serie?: string, extra:
 describe("décor direct · ce que montre la vue", () => {
   const square = (cx: number, cz: number, r: number): [number, number][] => [[cx - r, cz - r], [cx + r, cz - r], [cx + r, cz + r], [cx - r, cz + r], [cx - r, cz - r]];
 
+  it("tags the large park, not a small sanctuary inside it that happens to be nearer", () => {
+    const c = lireContexte({
+      place: { name: "New York City Center", detail: "New York, New York, United States" },
+      camera: { x: 0, z: 0, heading: 0, pitch: 2, fov: 62, height: 1.7 },
+      areas: [
+        { outer: [[-500, -250], [0, -250], [500, -250], [500, -1200], [-500, -1200], [-500, -250]], kind: "park", name: "Central Park" },
+        { outer: square(20, -260, 40), kind: "park", name: "Hallett Nature Sanctuary" },
+      ],
+      buildings: [],
+    });
+    assert.deepEqual(c.zones.map(z => z.name).sort(), ["Central Park", "Hallett Nature Sanctuary"]);
+    assert.deepEqual(tagsContexte(c).find(tag => tag.kind === "zone"), { kind: "zone", text: "Central Park" });
+  });
+
   it("reads named parks in the frame, their side, and the skyline; ignores what is behind the camera", () => {
     // Camera looks north (-z). Central Park ahead, a park behind, towers ahead.
     const c = lireContexte({
