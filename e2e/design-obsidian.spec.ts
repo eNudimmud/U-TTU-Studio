@@ -98,7 +98,7 @@ test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvr
   await expect(entry.locator(".u-outil-card .u-outil-glyph")).toHaveCount(0);
   const card = entry.locator('[data-outils-section="3d"] [data-outil-maquette]');
   await expect(card).toContainText("Maquette 3D et cadrage");
-  await expect(card).toContainText("gratuit");
+  await expect(card).not.toContainText(/gratuit|\bcr\./);
   await expect(card.locator(".u-outil-thumb img")).toHaveAttribute("src", /\/exemples\/vignettes\/maquette\.webp$/);
   expect((await card.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await card.click();

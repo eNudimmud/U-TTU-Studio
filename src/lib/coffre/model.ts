@@ -402,7 +402,7 @@ const usd = (value: number) => `${value.toFixed(2)} $`;
 /** What a take cost, in its payer's own unit. */
 export function costLabel(take: Pick<Take, "engine" | "costCredits" | "costUsd">): string | null {
   if (take.engine === "lora") return take.costUsd === null ? null : usd(take.costUsd);
-  return take.costCredits === null ? null : `${take.costCredits} cr.`;
+  return take.costCredits === null ? null : `${take.costCredits} crédits`;
 }
 
 export interface TakeNoteLinks {

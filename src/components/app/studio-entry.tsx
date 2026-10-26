@@ -284,6 +284,5 @@ function MaquetteCard() {
     <CardThumb id={MAQUETTE_ID} fam="maquette" />
     <span className="u-outil-name">{t(`outils.t.${MAQUETTE_ID}.title`)}</span>
     <span className="u-outil-line">{t(`outils.t.${MAQUETTE_ID}.line`)}</span>
-    <span className="u-outil-cost u-cost-est">{t("rep3d.free")}</span>
   </button>;
 }

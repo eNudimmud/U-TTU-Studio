@@ -36,7 +36,7 @@
     "poweredByLabel": "Propulsé par ComfyUI — comfy.org, nouvel onglet",
     "kicker": "Studio de cinéma IA open source sur ComfyUI",
     "contact": "Contacter le studio ↗",
-    "tryFree": "Essayer gratuitement · 0 crédit"
+    "tryFree": "Découvrir avec Uttu"
   },
   "accueil": {
     "kicker": "Open source · MIT · sur ComfyUI",
@@ -89,9 +89,9 @@
       }
     },
     "toolsTitle": "Ce que tu ne trouves <em>qu’ici</em>.",
-    "toolsLead": "Deux outils de tournage gratuits, qui tournent dans ton navigateur. Le rendu ne vient qu’ensuite, et seulement si tu le confirmes.",
+    "toolsLead": "Deux outils de tournage qui tournent dans ton navigateur. Le rendu ne vient qu’ensuite, avec les crédits estimés, et seulement si tu le confirmes.",
     "inStudio": "Dans le studio",
-    "mapTag": "Repérage · 0 crédit",
+    "mapTag": "Repérage 3D",
     "mapTitle": "Repère un vrai lieu, n’importe où.",
     "mapBody": "Tape une ville ou une adresse : elle se construit en 3D à partir de données ouvertes. Tourne autour, choisis l’heure et le style, puis capture ton cadrage.",
     "mapSpecs": {
@@ -100,7 +100,7 @@
       "2": "matin · midi · soir"
     },
     "mapAlt": "Village du Jura à l’aube, vu du ciel",
-    "stageTag": "Mise en scène 3D · 0 crédit",
+    "stageTag": "Mise en scène 3D",
     "stageTitle": "Mets ton plan en scène, au doigt.",
     "stageBody": "Une phrase place tes personnages devant ton décor. Glisse-les, tourne la caméra, filme ta prévis.",
     "stageSpecs": {
@@ -111,7 +111,7 @@
     "stageAlt": "Uttu sur un quai, la nuit, sous la pluie",
     "ltxTag": "Prévis → prise",
     "ltxTitle": "Ta prévis devient le plan.",
-    "ltxBody": "Filme ta maquette ; LTX tourne la prise avec le même mouvement de caméra. Devis d’abord : ≈ 15–30 cr. estimés.",
+    "ltxBody": "Filme ta maquette ; LTX tourne la prise avec le même mouvement de caméra. Devis d’abord : ≈ 15–30 crédits estimés.",
     "capTag": "Capture → DÉCOR",
     "capTitle": "Couleur, profondeur et traits, en un clic.",
     "capBody": "Ton cadrage repart dans DÉCOR pour guider le rendu.",
@@ -125,7 +125,7 @@
     "also": {
       "guide": {
         "name": "U*TTU, ton guide",
-        "body": "Gratuit et local ; agent Comfy en option, payé par ton compte."
+        "body": "Local, sans rendu ; agent Comfy en option, payé par ton compte."
       },
       "studio": {
         "name": "Mon studio",
@@ -922,12 +922,12 @@
     "castPromptPh": "Une femme au manteau sombre, regard calme.",
     "views": "Face, trois-quarts, profil, en pied.",
     "name": "Nom",
-    "castButton": "Créer le personnage · ≈ {amount} cr. estimés",
-    "decorButton": "Créer le décor · ≈ {amount} cr. estimés",
+    "castButton": "Créer le personnage · ≈ {amount} crédits estimés",
+    "decorButton": "Créer le décor · ≈ {amount} crédits estimés",
     "castButtonClosed": "Créer le personnage",
     "decorButtonClosed": "Créer le décor",
-    "ceilingHyp": "Estimation : {high} cr.",
-    "ceilingMeasured": "Mesuré : {high} cr.",
+    "ceilingHyp": "Estimation : {high} crédits",
+    "ceilingMeasured": "Mesuré : {high} crédits",
     "quoteLead": "Devis : {quote} · {status}",
     "quoteUnknown": "Devis : inconnu",
     "statusMeasured": "mesuré",
@@ -935,7 +935,7 @@
     "statusUnknown": "inconnu",
     "confirmTitle": "Créer maintenant ?",
     "confirmBody": "Le devis est là. Rien ne part sans ce geste.",
-    "estimate": "Environ {amount} cr., estimé. Le prix final peut varier.",
+    "estimate": "Environ {amount} crédits, estimé. Le prix final peut varier.",
     "needLink": "Relie ton compte de rendu pour créer.",
     "needCeiling": "Le solde ne couvre pas cette estimation.",
     "filed": "Le rendu est rangé.",
@@ -994,15 +994,15 @@
     "voiceLead": "Une voix à partir d’un texte.",
     "sfxLead": "Un effet sonore à partir d’un texte.",
     "musicLead": "Une musique de 30 secondes à partir d’un texte.",
-    "musicQuote": "≈ {amount} cr. pour {seconds} s",
-    "musicRate": "≈ 16 cr. pour 30 secondes.",
+    "musicQuote": "≈ {amount} crédits pour {seconds} s",
+    "musicRate": "≈ 16 crédits pour 30 secondes.",
     "createMusic": "Créer la musique",
     "addMusic": "Ajouter une musique",
     "needScript": "Écris le texte.",
-    "voiceQuote": "≈ {amount} cr. pour {count} caractères",
-    "voiceRate": "≈ 24,1 cr. pour 1 000 caractères.",
-    "sfxQuote": "≈ {amount} cr. pour {seconds} s",
-    "sfxRate": "≈ 29,5 cr. par minute.",
+    "voiceQuote": "≈ {amount} crédits pour {count} caractères",
+    "voiceRate": "≈ 24,1 crédits pour 1 000 caractères.",
+    "sfxQuote": "≈ {amount} crédits pour {seconds} s",
+    "sfxRate": "≈ 29,5 crédits par minute.",
     "createOff": "Pas encore de prix pour ceci. Rien ne part.",
     "createVoice": "Créer la voix",
     "createSfx": "Créer l’effet",
@@ -1085,8 +1085,8 @@
     "soonQuiet": "Bientôt · {names}",
     "seeExample": "Voir un exemple",
     "startExample": "Partir de cet exemple",
-    "cost": "Environ {amount} cr., estimé. Le prix final peut varier.",
-    "costMeasured": "Mesuré : environ {amount} cr.",
+    "cost": "Environ {amount} crédits, estimé. Le prix final peut varier.",
+    "costMeasured": "Mesuré : environ {amount} crédits",
     "costUnknown": "Devis non mesuré. Rien ne part.",
     "need": "Il faut : {list}",
     "exampleSoon": "Exemple à venir",
@@ -1403,12 +1403,12 @@
     "sansImageGo": "Les créer"
   },
   "r7": {
-    "maquette": "Maquette gratuite",
+    "maquette": "Maquette",
     "hint": "Glisse un personnage pour le déplacer · glisse le fond pour tourner la caméra · pince pour zoomer",
     "pose": "Garder la pose",
     "cam": "Garder la caméra",
     "essai": "Autre essai",
-    "gratuit": "gratuit",
+    "gratuit": "sans rendu",
     "annuler": "Annuler",
     "annulerOff": "Rien à annuler.",
     "add": "+ Personnage",
@@ -1586,10 +1586,10 @@
       "prise-previs": "Ce que l’on voit dans le plan"
     },
     "textOptional": "Ce qui apparaît sur les côtés (facultatif)",
-    "quote": "≈ {credits} cr. estimés",
+    "quote": "≈ {credits} crédits estimés",
     "estimate": "Le prix final peut varier.",
     "confirm": "Je confirme cette estimation. Le prix final peut varier.",
-    "go": "Lancer · ≈ {credits} cr. estimés",
+    "go": "Lancer · ≈ {credits} crédits estimés",
     "needLink": "Relie ton compte de rendu (Comfy) pour lancer.",
     "needFiles": "Il manque un fichier ou le texte.",
     "needText": "Le texte est vide.",
@@ -1666,7 +1666,7 @@
     "downloadModel": "Télécharger le modèle 3D",
     "modelFailed": "Impossible d’afficher « {name} ». Le fichier reste disponible dans Mes créations.",
     "localClip": "Prévisualisation locale",
-    "localClipNote": "Enregistrement gratuit de la maquette ; ce n’est pas une prise générée.",
+    "localClipNote": "Enregistrement local de la maquette ; ce n’est pas une prise générée.",
     "savedClip": "Prévisualisation enregistrée dans Mes créations.",
     "downloadClip": "Télécharger la vidéo",
     "modelTerms": "Lire la licence du modèle",
@@ -1770,9 +1770,9 @@
   },
   "p0": {
     "advanced": "Avancé",
-    "importCast": "Importer un personnage · gratuit",
+    "importCast": "Importer un personnage",
     "importCastAria": "Importer un personnage",
-    "importDecor": "Importer un décor · gratuit",
+    "importDecor": "Importer un décor",
     "importDecorAria": "Importer un décor",
     "confirmGo": "Confirmer et tourner",
     "tourner": "Tourner",
@@ -1790,7 +1790,7 @@
     "takeOf": "Prise {n} sur {total}",
     "versions": "Versions de ce plan",
     "versionN": "Prise {n}",
-    "recover": "Récupérer le rendu (gratuit)",
+    "recover": "Récupérer le rendu",
     "relaunch": "Relancer · nouveau devis",
     "nextLabel": "Plan {n} · ce qui se passe",
     "nextAria": "Plan suivant : ce qui se passe",
@@ -2028,11 +2028,10 @@
     "entryTitle": "Un vrai lieu en décor",
     "entryLead": "Choisis un lieu et une vue 3D : Comfy en fait ton décor. Tu peux préciser avec un texte ou des photos.",
     "open": "Choisir un lieu",
-    "free": "gratuit",
-    "cardCost": "Vue 3D gratuite",
-    "toolLine": "Un vrai lieu devient ton décor : une vue 3D gratuite, plus des photos de la rue.",
+    "cardCost": "Vue 3D sur la carte",
+    "toolLine": "Un vrai lieu devient ton décor : une vue 3D, plus des photos de la rue.",
     "stepPick": "Où ? Tape une adresse ou une ville.",
-    "stepLook": "Ta vue : tourne la 3D et garde la vue. C'est gratuit.",
+    "stepLook": "Ta vue : tourne la 3D et garde la vue. Aucun rendu à ce stade.",
     "stepKeep": "Créer : Comfy mélange ta vue et les photos en une image de décor.",
     "toolQuote": "Créer le décor ensuite :",
     "kept": "Vues gardées : {n}",
@@ -2155,7 +2154,7 @@
       "import": "Importer ta photo",
       "mine": "Mes images",
       "ok": "OK",
-      "none": "Pas de photo libre autour de ta vue. Importe la tienne, ou crée le décor sans photo.",
+      "none": "Pas de photo autour de ta vue. Importe la tienne, ou crée le décor sans photo.",
       "fail": "Cette image ne se lit pas. Essaie une autre.",
       "alt": "Photo de rue de {author}",
       "sub": "Prends celles qui ressemblent à ta vue. Jusqu'à {max}.",
@@ -2215,7 +2214,7 @@
   "suite": {
     "title": "Et ensuite ?",
     "chip": "≈ {credits} crédits estimés",
-    "quote": "Environ {credits} cr., estimé. Le prix final peut varier.",
+    "quote": "Environ {credits} crédits, estimé. Le prix final peut varier.",
     "safe": "Le résultat s’ajoute à Mon studio. L’original n’est jamais remplacé.",
     "go": "Lancer · ≈ {credits} crédits (estimé)",
     "done": "Enregistré dans Mes créations, à côté de l’original.",
@@ -2312,7 +2311,7 @@
     "estimate": "estimé",
     "cost": "≈ {credits} crédits estimés",
     "perBlock": "par 5 s",
-    "partnerPrice": "Prix partenaire ≈ {credits} cr. estimés",
+    "partnerPrice": "Prix partenaire ≈ {credits} crédits estimés",
     "hidden": {
       "nano": "Masqué : à activer dans tes réglages de modèles.",
       "openWeights": "Masqué : tu as choisi les modèles du studio seulement."
@@ -2323,7 +2322,7 @@
     "input": "Entrée",
     "pick": "Choisir ou déposer",
     "replace": "Remplacer",
-    "sample": "Exemple gratuit",
+    "sample": "Voir un exemple",
     "fromStudio": "Depuis Mon studio",
     "kind": {
       "image": "une image",
@@ -2345,7 +2344,7 @@
       "objet": "Objet",
       "perso": "Personnage"
     },
-    "confirm": "Je confirme : environ {credits} cr. Le prix final peut varier.",
+    "confirm": "Je confirme : environ {credits} crédits. Le prix final peut varier.",
     "link": "Relier mon compte",
     "needInput": "Ajoute {what} pour lancer.",
     "needConsent": "Confirme que tu as le droit d’utiliser cette voix.",
@@ -2606,11 +2605,11 @@
       },
       "reperage": {
         "title": "Repérer un lieu",
-        "line": "Un vrai lieu devient ton décor : une vue 3D gratuite, plus des photos de la rue."
+        "line": "Un vrai lieu devient ton décor : une vue 3D, plus des photos de la rue."
       },
       "maquette": {
         "title": "Maquette 3D et cadrage",
-        "line": "Place tes personnages au doigt, choisis l'angle de caméra, puis tourne le plan. Gratuit jusqu'au rendu."
+        "line": "Place tes personnages au doigt, choisis l'angle de caméra, puis tourne le plan. Les crédits ne comptent qu’au rendu."
       }
     },
     "latest": "Derniers résultats",
@@ -2638,7 +2637,7 @@
     "model": "Modèle",
     "modelChange": "Changer de modèle",
     "confirmTitle": "Lancer ce rendu ?",
-    "confirmBody": "Environ {credits} cr., estimé. Le prix final peut varier.",
+    "confirmBody": "Environ {credits} crédits, estimé. Le prix final peut varier.",
     "confirmYes": "Confirmer",
     "confirmNo": "Annuler",
     "entryKey": "créer",
@@ -2673,7 +2672,7 @@
       },
       "lieu": {
         "title": "Repérer un lieu en 3D",
-        "line": "Gratuit, sur la carte."
+        "line": "Sur la carte, en 3D."
       },
       "plan": {
         "title": "Un plan de 5 s",
@@ -2973,7 +2972,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Ton guide du studio · gratuit par défaut, agent Comfy en option",
+    "sub": "Ton guide du studio · local par défaut, agent Comfy en option",
     "button": "U*TTU",
     "openAria": "Ouvrir ou fermer U*TTU, ton guide du studio",
     "welcome": "Salut, je suis Uttu. Je t’aide à démarrer, je réponds à tes questions sur le studio et j’estime le coût de tes rendus. Tout se passe sur cet appareil : je n’envoie rien et je ne dépense rien.",
@@ -2989,7 +2988,7 @@
     "suggestions": {
       "start": "Comment commencer ?",
       "cost": "Combien coûtent 3 portraits + 2 prises LTX ?",
-      "free": "Qu’est-ce qui est gratuit ?",
+      "free": "Qu’est-ce qui coûte des crédits ?",
       "cancel": "Peut-on annuler un rendu ?"
     },
     "notFound": "Je ne sais pas répondre à ça avec ma fiche locale, et je préfère te le dire plutôt qu’inventer. Essaie d’autres mots, ou regarde le guide et l’estimateur ci-dessous. Avec un compte Comfy relié, tu peux aussi passer en mode agent Comfy, payé par ton compte.",
@@ -3010,8 +3009,8 @@
         "link": "Ouvrir Comfy Cloud"
       },
       "plan": {
-        "title": "Choisis un abonnement payant",
-        "body": "Les rendus du studio passent par l’API de Comfy Cloud. D’après la page tarifs de Comfy, l’accès API est inclus dans les abonnements payants, à partir de Standard ; l’offre gratuite ne suffit pas. Les prix sont sur cette page : vérifie-les là.",
+        "title": "Choisis un abonnement Comfy avec l’API",
+        "body": "Les rendus du studio passent par l’API de Comfy Cloud. D’après la page tarifs de Comfy, l’accès API est inclus dans les abonnements à partir de Standard. Les prix sont sur cette page : vérifie-les là.",
         "link": "Voir les tarifs Comfy Cloud"
       },
       "credits": {
@@ -3034,8 +3033,8 @@
       "remove": "Retirer {name}",
       "clear": "Tout effacer",
       "empty": "Ajoute un geste pour voir l’estimation.",
-      "line": "{qty} × {name} : {low}–{high} cr.",
-      "total": "≈ {low}–{high} cr. estimés",
+      "line": "{qty} × {name} : {low}–{high} crédits",
+      "total": "≈ {low}–{high} crédits estimés",
       "perBlock": "Certains outils comptent par tranche de 5 s de source : ce total vaut pour une tranche.",
       "unknown": "Je n’ai pas reconnu : {list}.",
       "note": "Estimation tirée de la table du studio, pas un devis : le devis exact se lit dans l’outil avant que tu confirmes. Rien ne part d’ici.",
@@ -3060,14 +3059,14 @@
         "a": "Choisis un outil, ou commence par CAST pour créer ton personnage. Pour lancer un rendu, touche « Se connecter avec Comfy » : le rendu passe par ton compte Comfy Cloud, et chaque bouton t’annonce ≈ combien de crédits il coûte avant de partir. Le guide « Bien démarrer » ci-dessous te montre les 4 étapes."
       },
       "free": {
-        "q": "Qu’est-ce qui est gratuit ?",
+        "q": "Qu’est-ce qui coûte des crédits ?",
         "k": "gratuit gratuite payer payant argent sans payer essai",
-        "a": "Uttu, l’estimateur, la visite du studio et le repérage d’un lieu sur la carte sont gratuits. Les rendus d’image, de vidéo, de son et de 3D tournent sur ton compte Comfy Cloud et se paient en crédits Comfy. Le studio n’encaisse rien."
+        "a": "Les rendus d’image, de vidéo, de son et de 3D tournent sur ton compte Comfy Cloud et se paient en crédits Comfy. Uttu, l’estimateur, la visite du studio et le repérage d’un lieu sur la carte ne lancent aucun rendu. Le studio n’encaisse rien."
       },
       "subscription": {
         "q": "Faut-il un abonnement Comfy ?",
         "k": "abonnement standard plan offre tarif tarifs prix mensuel api",
-        "a": "Oui pour lancer des rendus : ils passent par l’API de Comfy Cloud. D’après la page tarifs de Comfy, l’accès API est inclus dans les abonnements payants, à partir de Standard ; l’offre gratuite ne suffit pas. Les prix sont sur comfy.org/cloud/pricing : vérifie-les là, je n’en invente pas."
+        "a": "Oui pour lancer des rendus : ils passent par l’API de Comfy Cloud. D’après la page tarifs de Comfy, l’accès API est inclus dans les abonnements à partir de Standard. Les prix sont sur comfy.org/cloud/pricing : vérifie-les là, je n’en invente pas."
       },
       "credits": {
         "q": "Comment acheter des crédits ?",
@@ -3087,7 +3086,7 @@
       "cost": {
         "q": "Combien coûte un rendu ?",
         "k": "coût coûte prix combien crédits cher estimation tarif",
-        "a": "Chaque outil affiche son estimation avant le geste, en « cr. estimés ». Pour un total, écris-moi par exemple « 3 portraits + 2 prises LTX », ou ouvre l’estimateur ci-dessous."
+        "a": "Chaque outil affiche son estimation avant le geste, en « crédits estimés ». Pour un total, écris-moi par exemple « 3 portraits + 2 prises LTX », ou ouvre l’estimateur ci-dessous."
       },
       "estimate": {
         "q": "Que veut dire « estimé » ?",
@@ -3127,7 +3126,7 @@
       "agent": {
         "q": "Existe-t-il un agent plus complet ?",
         "k": "agent payant comfy complet conversation libre futur bientôt",
-        "a": "Oui : le mode Agent Comfy comprend des demandes libres. Il fonctionne avec ton compte Comfy relié, chaque message est payé par ton compte, et son coût estimé s’affiche avant le premier envoi. L’agent ne lance rien : il te propose une action, tu cliques. Sans compte relié, je reste gratuit et local."
+        "a": "Oui : le mode Agent Comfy comprend des demandes ouvertes. Il fonctionne avec ton compte Comfy relié, chaque message est payé par ton compte, et son coût estimé s’affiche avant le premier envoi. L’agent ne lance rien : il te propose une action, tu cliques. Sans compte relié, je reste le guide local."
       },
       "openWeights": {
         "q": "Que sont les modèles ouverts ?",
@@ -3172,34 +3171,34 @@
     },
     "comfy": {
       "mode": "Mode de U*TTU",
-      "free": "Gratuit · sans modèle",
-      "paid": "Agent Comfy · ≈ {cost} cr. estimés par message",
+      "free": "Guide local · sans modèle",
+      "paid": "Agent Comfy · ≈ {cost} crédits estimés par message",
       "paidNote": "Agent Comfy actif : chaque message passe par ton compte Comfy (GPT-5 Nano via Comfy Router). Le studio ne paie rien et ne garde pas ta clé. L’agent ne lance rien : c’est toi qui cliques, après le devis habituel.",
       "paidNoteSession": "Agent Comfy actif : chaque message passe par ta connexion Comfy (GPT-5 Nano via Comfy Router). Le studio ne paie rien et ne garde rien de ton compte sur ses serveurs : ta session Comfy reste dans ce navigateur. L’agent ne lance rien : c’est toi qui cliques, après le devis habituel.",
-      "invite": "Envie d’un agent qui répond avec ses mots ? Relie ton compte Comfy : chaque message coûte ≈ {cost} cr. estimés au plus, payés par ton compte. Sans compte relié, U*TTU reste gratuit.",
+      "invite": "Envie d’un agent qui répond avec ses mots ? Relie ton compte Comfy : chaque message coûte ≈ {cost} crédits estimés au plus, payés par ton compte. Sans compte relié, U*TTU reste le guide local.",
       "inviteButton": "Relier mon compte Comfy",
       "gateTitle": "Avant ton premier message payant",
-      "gateBody": "Chaque message à l’agent Comfy est facturé sur ton compte Comfy : ≈ {cost} cr. estimés au plus, souvent moins. L’agent ne lance aucun rendu : il te propose une action, tu cliques, et le devis habituel s’affiche avant toute dépense. Ton accord vaut pour cette session.",
+      "gateBody": "Chaque message à l’agent Comfy est facturé sur ton compte Comfy : ≈ {cost} crédits estimés au plus, souvent moins. L’agent ne lance aucun rendu : il te propose une action, tu cliques, et le devis habituel s’affiche avant toute dépense. Ton accord vaut pour cette session.",
       "accept": "J’accepte, envoyer",
-      "decline": "Rester en gratuit",
+      "decline": "Rester sur le guide local",
       "thinking": "U*TTU réfléchit sur ton compte Comfy…",
       "send": "Envoyer (payant)",
-      "spent": "≈ {cost} cr. estimés pour ce message",
-      "spentMax": "≈ {cost} cr. estimés au plus pour ce message",
+      "spent": "≈ {cost} crédits estimés pour ce message",
+      "spentMax": "≈ {cost} crédits estimés au plus pour ce message",
       "local": "Calculé par le studio, sans appel payant.",
       "openTool": "Ouvrir l’outil {name}",
-      "toolCost": "≈ {low}–{high} cr. estimés par lancement",
+      "toolCost": "≈ {low}–{high} crédits estimés par lancement",
       "counter": "{n}/{max} caractères",
       "errors": {
         "auth": "Ton compte Comfy refuse la connexion. Relie-le à nouveau (clé API ou connexion Comfy), puis renvoie ton message.",
         "credits": "Crédits insuffisants sur ton compte Comfy. Recharge-le sur Comfy Cloud, puis réessaie. Rien n’a été lancé.",
-        "subscription": "Ton compte Comfy n’a pas accès à ce modèle : vérifie ton abonnement Comfy Cloud. En attendant, le mode gratuit reste là.",
+        "subscription": "Ton compte Comfy n’a pas accès à ce modèle : vérifie ton abonnement Comfy Cloud. En attendant, le guide local reste là.",
         "busy": "Comfy est très sollicité pour ton compte en ce moment. Patiente quelques secondes et renvoie ton message.",
         "invalid": "Ce message n’a pas pu être traité. Raccourcis-le ou reformule-le.",
-        "refused": "Le modèle a refusé de répondre à ce message. Reformule-le, ou passe en mode gratuit.",
-        "network": "Comfy ne répond pas. Vérifie ta connexion et réessaie ; le mode gratuit fonctionne hors ligne.",
+        "refused": "Le modèle a refusé de répondre à ce message. Reformule-le, ou passe au guide local.",
+        "network": "Comfy ne répond pas. Vérifie ta connexion et réessaie ; le guide local fonctionne hors ligne.",
         "timeout": "Comfy a mis trop de temps à répondre. Réessaie dans un instant.",
-        "failed": "L’agent Comfy n’a pas pu répondre. Réessaie, ou passe en mode gratuit."
+        "failed": "L’agent Comfy n’a pas pu répondre. Réessaie, ou passe au guide local."
       },
       "welcome": "Mode agent Comfy : je réponds avec mes mots, à partir de la fiche du studio seulement, et chaque message est payé par ton compte Comfy. Je ne lance rien : je te propose une action, tu cliques."
     }

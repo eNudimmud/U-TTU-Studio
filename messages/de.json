@@ -36,7 +36,7 @@
     "poweredByLabel": "Powered by ComfyUI — comfy.org, neuer Tab",
     "kicker": "Open-Source-KI-Filmstudio auf ComfyUI",
     "contact": "Studio kontaktieren ↗",
-    "tryFree": "Kostenlos testen · 0 Credits"
+    "tryFree": "Mit Uttu entdecken"
   },
   "accueil": {
     "kicker": "Open Source · MIT · auf ComfyUI",
@@ -89,9 +89,9 @@
       }
     },
     "toolsTitle": "Was du nur <em>hier</em> findest.",
-    "toolsLead": "Zwei kostenlose Drehwerkzeuge, die in deinem Browser laufen. Das Rendern kommt erst danach, und nur, wenn du es bestätigst.",
+    "toolsLead": "Zwei Drehwerkzeuge, die in deinem Browser laufen. Das Rendern kommt erst danach, mit den geschätzten Credits, und nur, wenn du es bestätigst.",
     "inStudio": "Im Studio",
-    "mapTag": "Erkundung · 0 Credits",
+    "mapTag": "3D-Erkundung",
     "mapTitle": "Erkunde einen echten Ort, überall.",
     "mapBody": "Gib eine Stadt oder eine Adresse ein: Sie entsteht in 3D aus offenen Daten. Flieg um sie herum, wähl Tageszeit und Stil, dann halte deinen Ausschnitt fest.",
     "mapSpecs": {
@@ -100,7 +100,7 @@
       "2": "Morgen · Mittag · Abend"
     },
     "mapAlt": "Ein Juradorf im Morgengrauen, von oben gesehen",
-    "stageTag": "3D-Inszenierung · 0 Credits",
+    "stageTag": "3D-Inszenierung",
     "stageTitle": "Inszeniere deine Einstellung, mit dem Finger.",
     "stageBody": "Ein Satz stellt deine Figuren vor deine Kulisse. Verschieb sie, dreh die Kamera, film deine Previs.",
     "stageSpecs": {
@@ -111,7 +111,7 @@
     "stageAlt": "Uttu nachts auf einem Bahnsteig, im Regen",
     "ltxTag": "Previs → Take",
     "ltxTitle": "Deine Previs wird zur Einstellung.",
-    "ltxBody": "Film dein 3D-Modell; LTX dreht den Take mit derselben Kamerabewegung. Erst die Kalkulation: ≈ 15–30 Cr. geschätzt.",
+    "ltxBody": "Film dein 3D-Modell; LTX dreht den Take mit derselben Kamerabewegung. Erst die Kalkulation: ≈ 15–30 Credits geschätzt.",
     "capTag": "Aufnahme → Kulisse",
     "capTitle": "Farbe, Tiefe und Linien, mit einem Klick.",
     "capBody": "Dein Ausschnitt geht zurück in die Kulisse und lenkt das Rendern.",
@@ -125,7 +125,7 @@
     "also": {
       "guide": {
         "name": "U*TTU, dein Guide",
-        "body": "Kostenlos und lokal; Comfy-Agent optional, bezahlt über dein Konto."
+        "body": "Lokal, ohne Rendering; Comfy-Agent optional, bezahlt über dein Konto."
       },
       "studio": {
         "name": "Mein Studio",
@@ -922,12 +922,12 @@
     "castPromptPh": "Eine Frau im dunklen Mantel, ruhiger Blick.",
     "views": "Vorne, Dreiviertel, Profil, ganz.",
     "name": "Name",
-    "castButton": "Figur erstellen · ≈ {amount} Cr. geschätzt",
-    "decorButton": "Ort erstellen · ≈ {amount} Cr. geschätzt",
+    "castButton": "Figur erstellen · ≈ {amount} Credits geschätzt",
+    "decorButton": "Ort erstellen · ≈ {amount} Credits geschätzt",
     "castButtonClosed": "Figur erstellen",
     "decorButtonClosed": "Kulisse erstellen",
-    "ceilingHyp": "Schätzung: {high} Cr.",
-    "ceilingMeasured": "Gemessen: {high} Cr.",
+    "ceilingHyp": "Schätzung: {high} Credits",
+    "ceilingMeasured": "Gemessen: {high} Credits",
     "quoteLead": "Kalkulation: {quote} · {status}",
     "quoteUnknown": "Kalkulation: unbekannt",
     "statusMeasured": "gemessen",
@@ -935,7 +935,7 @@
     "statusUnknown": "unbekannt",
     "confirmTitle": "Jetzt erstellen?",
     "confirmBody": "Die Kalkulation ist da. Ohne diese Geste geht nichts raus.",
-    "estimate": "Etwa {amount} Cr., geschätzt. Der Endpreis kann abweichen.",
+    "estimate": "Etwa {amount} Credits, geschätzt. Der Endpreis kann abweichen.",
     "needLink": "Verbinde dein Render-Konto, um zu erstellen.",
     "needCeiling": "Das Guthaben deckt diese Schätzung nicht.",
     "filed": "Das Bild ist abgelegt.",
@@ -994,15 +994,15 @@
     "voiceLead": "Eine Stimme aus einem Text.",
     "sfxLead": "Ein Geräusch aus einem Text.",
     "musicLead": "Dreißig Sekunden Musik aus einem Text.",
-    "musicQuote": "≈ {amount} Cr. für {seconds} s",
-    "musicRate": "≈ 16 Cr. für 30 Sekunden.",
+    "musicQuote": "≈ {amount} Credits für {seconds} s",
+    "musicRate": "≈ 16 Credits für 30 Sekunden.",
     "createMusic": "Musik erstellen",
     "addMusic": "Musik hinzufügen",
     "needScript": "Schreib den Text.",
-    "voiceQuote": "≈ {amount} Cr. für {count} Zeichen",
-    "voiceRate": "≈ 24,1 Cr. für 1 000 Zeichen.",
-    "sfxQuote": "≈ {amount} Cr. für {seconds} s",
-    "sfxRate": "≈ 29,5 Cr. pro Minute.",
+    "voiceQuote": "≈ {amount} Credits für {count} Zeichen",
+    "voiceRate": "≈ 24,1 Credits für 1 000 Zeichen.",
+    "sfxQuote": "≈ {amount} Credits für {seconds} s",
+    "sfxRate": "≈ 29,5 Credits pro Minute.",
     "createOff": "Dafür gibt es noch keinen Preis. Es wird nichts gesendet.",
     "createVoice": "Stimme erstellen",
     "createSfx": "Effekt erstellen",
@@ -1085,8 +1085,8 @@
     "soonQuiet": "Bald · {names}",
     "seeExample": "Ein Beispiel ansehen",
     "startExample": "Mit diesem Beispiel starten",
-    "cost": "Etwa {amount} Cr., geschätzt. Der Endpreis kann abweichen.",
-    "costMeasured": "Gemessen: etwa {amount} Cr.",
+    "cost": "Etwa {amount} Credits, geschätzt. Der Endpreis kann abweichen.",
+    "costMeasured": "Gemessen: etwa {amount} Credits",
     "costUnknown": "Nicht gemessen. Es geht nichts raus.",
     "need": "Es braucht: {list}",
     "exampleSoon": "Beispiel folgt",
@@ -1403,12 +1403,12 @@
     "sansImageGo": "Erstellen"
   },
   "r7": {
-    "maquette": "Kostenlose Skizze",
+    "maquette": "Skizze",
     "hint": "Zieh eine Figur zum Verschieben · zieh den Boden, um die Kamera zu drehen · mit zwei Fingern zoomen",
     "pose": "Haltung behalten",
     "cam": "Kamera behalten",
     "essai": "Anderer Versuch",
-    "gratuit": "kostenlos",
+    "gratuit": "ohne Rendering",
     "annuler": "Zurück",
     "annulerOff": "Nichts zurückzunehmen.",
     "add": "+ Figur",
@@ -1586,10 +1586,10 @@
       "prise-previs": "Was in der Einstellung zu sehen ist"
     },
     "textOptional": "Was an den Seiten erscheint (optional)",
-    "quote": "≈ {credits} Cr. geschätzt",
+    "quote": "≈ {credits} Credits geschätzt",
     "estimate": "Der Endpreis kann abweichen.",
     "confirm": "Ich bestätige diese Schätzung. Der Endpreis kann abweichen.",
-    "go": "Starten · ≈ {credits} Cr. geschätzt",
+    "go": "Starten · ≈ {credits} Credits geschätzt",
     "needLink": "Verbinde dein Render-Konto (Comfy), um zu starten.",
     "needFiles": "Eine Datei oder der Text fehlt.",
     "needText": "Der Text ist leer.",
@@ -1666,7 +1666,7 @@
     "downloadModel": "3D-Modell herunterladen",
     "modelFailed": "„{name}“ kann nicht angezeigt werden. Die Datei bleibt in Meine Kreationen verfügbar.",
     "localClip": "Lokale Vorschau",
-    "localClipNote": "Kostenlose Aufnahme der Szenenvorschau; kein generierter Take.",
+    "localClipNote": "Lokale Aufnahme der Szenenvorschau; kein generierter Take.",
     "savedClip": "Vorschau in Meine Kreationen gespeichert.",
     "downloadClip": "Video herunterladen",
     "modelTerms": "Modelllizenz lesen",
@@ -1770,9 +1770,9 @@
   },
   "p0": {
     "advanced": "Erweitert",
-    "importCast": "Figur importieren · kostenlos",
+    "importCast": "Figur importieren",
     "importCastAria": "Figur importieren",
-    "importDecor": "Kulisse importieren · kostenlos",
+    "importDecor": "Kulisse importieren",
     "importDecorAria": "Kulisse importieren",
     "confirmGo": "Bestätigen und drehen",
     "tourner": "Drehen",
@@ -1790,7 +1790,7 @@
     "takeOf": "Take {n} von {total}",
     "versions": "Versionen dieser Einstellung",
     "versionN": "Take {n}",
-    "recover": "Rendering abholen (kostenlos)",
+    "recover": "Rendering abholen",
     "relaunch": "Neu starten · neuer Kostenvoranschlag",
     "nextLabel": "Einstellung {n} · was passiert",
     "nextAria": "Nächste Einstellung: was passiert",
@@ -2028,11 +2028,10 @@
     "entryTitle": "Ein echter Ort als Kulisse",
     "entryLead": "Wähl einen Ort und eine 3D-Ansicht: Comfy macht daraus deine Kulisse. Mit einem Text oder Fotos kannst du sie verfeinern.",
     "open": "Ort wählen",
-    "free": "kostenlos",
-    "cardCost": "3D-Ansicht kostenlos",
-    "toolLine": "Ein echter Ort wird deine Kulisse: eine kostenlose 3D-Ansicht plus Straßenfotos.",
+    "cardCost": "3D-Ansicht auf der Karte",
+    "toolLine": "Ein echter Ort wird deine Kulisse: eine 3D-Ansicht plus Straßenfotos.",
     "stepPick": "Wo? Gib eine Adresse oder eine Stadt ein.",
-    "stepLook": "Deine Ansicht: dreh die 3D und behalte sie. Kostenlos.",
+    "stepLook": "Deine Ansicht: dreh die 3D und behalte sie. Noch kein Rendering.",
     "stepKeep": "Erstellen: Comfy mischt deine Ansicht und die Fotos zu einem Kulissenbild.",
     "toolQuote": "Danach die Kulisse erstellen:",
     "kept": "Behaltene Ansichten: {n}",
@@ -2155,7 +2154,7 @@
       "import": "Dein Foto importieren",
       "mine": "Meine Bilder",
       "ok": "OK",
-      "none": "Kein freies Foto rund um deine Ansicht. Importiere dein eigenes oder erstelle die Kulisse ohne Foto.",
+      "none": "Kein Foto rund um deine Ansicht. Importiere dein eigenes oder erstelle die Kulisse ohne Foto.",
       "fail": "Dieses Bild ist nicht lesbar. Versuch ein anderes.",
       "alt": "Straßenfoto von {author}",
       "sub": "Nimm die, die deiner Ansicht ähneln. Bis zu {max}.",
@@ -2215,7 +2214,7 @@
   "suite": {
     "title": "Und jetzt?",
     "chip": "≈ {credits} Credits geschätzt",
-    "quote": "Etwa {credits} Cr., geschätzt. Der Endpreis kann abweichen.",
+    "quote": "Etwa {credits} Credits, geschätzt. Der Endpreis kann abweichen.",
     "safe": "Das Ergebnis kommt zu Mein Studio dazu. Das Original wird nie ersetzt.",
     "go": "Starten · ≈ {credits} Credits (geschätzt)",
     "done": "In Mein Studio gespeichert, neben dem Original.",
@@ -2312,7 +2311,7 @@
     "estimate": "geschätzt",
     "cost": "≈ {credits} Credits geschätzt",
     "perBlock": "pro 5 s",
-    "partnerPrice": "Partnerpreis ≈ {credits} Cr. geschätzt",
+    "partnerPrice": "Partnerpreis ≈ {credits} Credits geschätzt",
     "hidden": {
       "nano": "Ausgeblendet: in den Modell-Einstellungen aktivieren.",
       "openWeights": "Ausgeblendet: du hast nur Studiomodelle gewählt."
@@ -2323,7 +2322,7 @@
     "input": "Eingabe",
     "pick": "Wählen oder ablegen",
     "replace": "Ersetzen",
-    "sample": "Gratis-Beispiel",
+    "sample": "Beispiel ansehen",
     "fromStudio": "Aus Mein Studio",
     "kind": {
       "image": "ein Bild",
@@ -2345,7 +2344,7 @@
       "objet": "Objekt",
       "perso": "Figur"
     },
-    "confirm": "Ich bestätige: etwa {credits} Cr. Der Endpreis kann abweichen.",
+    "confirm": "Ich bestätige: etwa {credits} Credits. Der Endpreis kann abweichen.",
     "link": "Konto verbinden",
     "needInput": "Füge {what} hinzu, um zu starten.",
     "needConsent": "Bestätige, dass du diese Stimme nutzen darfst.",
@@ -2606,11 +2605,11 @@
       },
       "reperage": {
         "title": "Ort erkunden",
-        "line": "Ein echter Ort wird deine Kulisse: eine kostenlose 3D-Ansicht plus Straßenfotos."
+        "line": "Ein echter Ort wird deine Kulisse: eine 3D-Ansicht plus Straßenfotos."
       },
       "maquette": {
         "title": "3D-Modell und Bildausschnitt",
-        "line": "Stell deine Figuren mit dem Finger auf, wähl den Kamerawinkel und dreh dann die Einstellung. Kostenlos bis zum Rendern."
+        "line": "Stell deine Figuren mit dem Finger auf, wähl den Kamerawinkel und dreh dann die Einstellung. Credits zählen erst beim Rendern."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2638,7 +2637,7 @@
     "model": "Modell",
     "modelChange": "Modell wechseln",
     "confirmTitle": "Dieses Rendering starten?",
-    "confirmBody": "Etwa {credits} Cr., geschätzt. Der Endpreis kann variieren.",
+    "confirmBody": "Etwa {credits} Credits, geschätzt. Der Endpreis kann variieren.",
     "confirmYes": "Bestätigen",
     "confirmNo": "Abbrechen",
     "entryKey": "machen",
@@ -2673,7 +2672,7 @@
       },
       "lieu": {
         "title": "Einen Ort in 3D erkunden",
-        "line": "Kostenlos, auf der Karte."
+        "line": "Auf der Karte, in 3D."
       },
       "plan": {
         "title": "Eine 5-s-Einstellung",
@@ -2973,7 +2972,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Dein Studio-Guide · standardmäßig kostenlos, Comfy-Agent optional",
+    "sub": "Dein Studio-Guide · standardmäßig lokal, Comfy-Agent optional",
     "button": "U*TTU",
     "openAria": "U*TTU, deinen Studio-Guide, öffnen oder schließen",
     "welcome": "Hallo, ich bin Uttu. Ich helfe dir beim Einstieg, beantworte deine Fragen zum Studio und schätze, was deine Renders kosten. Alles passiert auf diesem Gerät: Ich sende nichts und gebe nichts aus.",
@@ -2989,7 +2988,7 @@
     "suggestions": {
       "start": "Wie fange ich an?",
       "cost": "Was kosten 3 Porträts + 2 LTX-Takes?",
-      "free": "Was ist kostenlos?",
+      "free": "Was kostet Credits?",
       "cancel": "Kann ich einen Render abbrechen?"
     },
     "notFound": "Darauf kann ich mit meinem lokalen Blatt nicht antworten, und ich sage dir das lieber, als etwas zu erfinden. Versuch andere Wörter oder schau dir unten den Guide und den Kostenrechner an. Mit verbundenem Comfy-Konto kannst du auch in den Comfy-Agent-Modus wechseln, bezahlt von deinem Konto.",
@@ -3010,8 +3009,8 @@
         "link": "Comfy Cloud öffnen"
       },
       "plan": {
-        "title": "Wähl ein kostenpflichtiges Abo",
-        "body": "Die Renders des Studios laufen über die API von Comfy Cloud. Laut der Preisseite von Comfy ist der API-Zugang in den kostenpflichtigen Abos enthalten, ab Standard; die kostenlose Stufe reicht nicht. Die Preise stehen auf dieser Seite: Prüf sie dort.",
+        "title": "Wähl ein Comfy-Abo mit API-Zugang",
+        "body": "Die Renders des Studios laufen über die API von Comfy Cloud. Laut der Preisseite von Comfy ist der API-Zugang in den Abos ab Standard enthalten. Die Preise stehen auf dieser Seite: Prüf sie dort.",
         "link": "Preise von Comfy Cloud ansehen"
       },
       "credits": {
@@ -3034,8 +3033,8 @@
       "remove": "{name} entfernen",
       "clear": "Alles löschen",
       "empty": "Füg eine Geste hinzu, um die Schätzung zu sehen.",
-      "line": "{qty} × {name}: {low}–{high} cr.",
-      "total": "≈ {low}–{high} cr. geschätzt",
+      "line": "{qty} × {name}: {low}–{high} Credits",
+      "total": "≈ {low}–{high} Credits geschätzt",
       "perBlock": "Manche Werkzeuge rechnen pro 5-s-Abschnitt der Quelle: Diese Summe gilt für einen Abschnitt.",
       "unknown": "Nicht erkannt: {list}.",
       "note": "Schätzung aus der Tabelle des Studios, keine Kalkulation: Die genaue Kalkulation siehst du im Werkzeug, bevor du bestätigst. Von hier geht nichts raus.",
@@ -3060,14 +3059,14 @@
         "a": "Wähl ein Werkzeug, oder fang mit CAST an, um deine Figur zu erstellen. Für einen Render tippst du auf „Mit Comfy anmelden“: Der Render läuft über dein Comfy-Cloud-Konto, und jeder Button sagt dir vorher, ≈ wie viele Credits er kostet. Der Guide „Einstieg“ unten zeigt dir die 4 Schritte."
       },
       "free": {
-        "q": "Was ist kostenlos?",
+        "q": "Was kostet Credits?",
         "k": "kostenlos gratis bezahlen zahlen geld test",
-        "a": "Uttu, der Kostenrechner, der Rundgang durchs Studio und das Erkunden eines Orts auf der Karte sind kostenlos. Bild-, Video-, Ton- und 3D-Renders laufen über dein Comfy-Cloud-Konto und werden mit Comfy-Credits bezahlt. Das Studio kassiert nichts."
+        "a": "Bild-, Video-, Ton- und 3D-Renders laufen über dein Comfy-Cloud-Konto und werden mit Comfy-Credits bezahlt. Uttu, der Kostenrechner, der Rundgang durchs Studio und das Erkunden eines Orts auf der Karte starten kein Rendering. Das Studio kassiert nichts."
       },
       "subscription": {
         "q": "Brauche ich ein Comfy-Abo?",
         "k": "abo abonnement standard tarif preise preis monatlich api",
-        "a": "Ja, für Renders: Sie laufen über die API von Comfy Cloud. Laut der Preisseite von Comfy ist der API-Zugang in den kostenpflichtigen Abos enthalten, ab Standard; die kostenlose Stufe reicht nicht. Die Preise stehen auf comfy.org/cloud/pricing: Prüf sie dort, ich erfinde keine."
+        "a": "Ja, für Renders: Sie laufen über die API von Comfy Cloud. Laut der Preisseite von Comfy ist der API-Zugang in den Abos ab Standard enthalten. Die Preise stehen auf comfy.org/cloud/pricing: Prüf sie dort, ich erfinde keine."
       },
       "credits": {
         "q": "Wie kaufe ich Credits?",
@@ -3087,7 +3086,7 @@
       "cost": {
         "q": "Was kostet ein Render?",
         "k": "kosten kostet preis wie viel credits teuer schätzung",
-        "a": "Jedes Werkzeug zeigt seine Schätzung vor der Geste, in „cr. geschätzt“. Für eine Summe schreib mir zum Beispiel „3 Porträts + 2 LTX-Takes“ oder öffne den Kostenrechner unten."
+        "a": "Jedes Werkzeug zeigt seine Schätzung vor der Geste, in „Credits geschätzt“. Für eine Summe schreib mir zum Beispiel „3 Porträts + 2 LTX-Takes“ oder öffne den Kostenrechner unten."
       },
       "estimate": {
         "q": "Was heißt „geschätzt“?",
@@ -3127,7 +3126,7 @@
       "agent": {
         "q": "Gibt es einen umfassenderen Agenten?",
         "k": "agent kostenpflichtig comfy umfassend freie unterhaltung zukunft bald",
-        "a": "Ja: Der Comfy-Agent-Modus versteht freie Anfragen. Er läuft über dein verbundenes Comfy-Konto, jede Nachricht zahlt dein Konto, und die geschätzten Kosten erscheinen vor dem ersten Senden. Der Agent startet nichts: Er schlägt eine Aktion vor, du klickst. Ohne verbundenes Konto bleibe ich kostenlos und lokal."
+        "a": "Ja: Der Comfy-Agent-Modus versteht offene Anfragen. Er läuft über dein verbundenes Comfy-Konto, jede Nachricht zahlt dein Konto, und die geschätzten Kosten erscheinen vor dem ersten Senden. Der Agent startet nichts: Er schlägt eine Aktion vor, du klickst. Ohne verbundenes Konto bleibe ich der lokale Guide."
       },
       "openWeights": {
         "q": "Was sind offene Modelle?",
@@ -3172,34 +3171,34 @@
     },
     "comfy": {
       "mode": "U*TTU-Modus",
-      "free": "Kostenlos · ohne Modell",
-      "paid": "Comfy-Agent · ≈ {cost} Cr. geschätzt pro Nachricht",
+      "free": "Lokaler Guide · ohne Modell",
+      "paid": "Comfy-Agent · ≈ {cost} Credits geschätzt pro Nachricht",
       "paidNote": "Comfy-Agent aktiv: Jede Nachricht läuft über dein Comfy-Konto (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert deinen Schlüssel nicht. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
       "paidNoteSession": "Comfy-Agent aktiv: Jede Nachricht läuft über deine Comfy-Anmeldung (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert nichts von deinem Konto auf seinen Servern: Deine Comfy-Sitzung bleibt in diesem Browser. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
-      "invite": "Lust auf einen Agenten, der in eigenen Worten antwortet? Verbinde dein Comfy-Konto: Jede Nachricht kostet höchstens ≈ {cost} Cr. geschätzt, bezahlt von deinem Konto. Ohne verbundenes Konto bleibt U*TTU kostenlos.",
+      "invite": "Lust auf einen Agenten, der in eigenen Worten antwortet? Verbinde dein Comfy-Konto: Jede Nachricht kostet höchstens ≈ {cost} Credits geschätzt, bezahlt von deinem Konto. Ohne verbundenes Konto bleibt U*TTU der lokale Guide.",
       "inviteButton": "Mein Comfy-Konto verbinden",
       "gateTitle": "Vor deiner ersten kostenpflichtigen Nachricht",
-      "gateBody": "Jede Nachricht an den Comfy-Agenten wird deinem Comfy-Konto berechnet: höchstens ≈ {cost} Cr. geschätzt, oft weniger. Der Agent startet kein Rendering: Er schlägt eine Aktion vor, du klickst, und der übliche Kostenvoranschlag erscheint vor jeder Ausgabe. Deine Zustimmung gilt für diese Sitzung.",
+      "gateBody": "Jede Nachricht an den Comfy-Agenten wird deinem Comfy-Konto berechnet: höchstens ≈ {cost} Credits geschätzt, oft weniger. Der Agent startet kein Rendering: Er schlägt eine Aktion vor, du klickst, und der übliche Kostenvoranschlag erscheint vor jeder Ausgabe. Deine Zustimmung gilt für diese Sitzung.",
       "accept": "Einverstanden, senden",
-      "decline": "Kostenlos bleiben",
+      "decline": "Beim lokalen Guide bleiben",
       "thinking": "U*TTU denkt auf deinem Comfy-Konto nach …",
       "send": "Senden (kostenpflichtig)",
-      "spent": "≈ {cost} Cr. geschätzt für diese Nachricht",
-      "spentMax": "höchstens ≈ {cost} Cr. geschätzt für diese Nachricht",
+      "spent": "≈ {cost} Credits geschätzt für diese Nachricht",
+      "spentMax": "höchstens ≈ {cost} Credits geschätzt für diese Nachricht",
       "local": "Vom Studio berechnet, ohne kostenpflichtigen Aufruf.",
       "openTool": "Werkzeug {name} öffnen",
-      "toolCost": "≈ {low}–{high} Cr. geschätzt pro Start",
+      "toolCost": "≈ {low}–{high} Credits geschätzt pro Start",
       "counter": "{n}/{max} Zeichen",
       "errors": {
         "auth": "Dein Comfy-Konto lehnt die Verbindung ab. Verbinde es erneut (API-Schlüssel oder Comfy-Anmeldung) und sende deine Nachricht noch einmal.",
         "credits": "Nicht genug Credits auf deinem Comfy-Konto. Lade es bei Comfy Cloud auf und versuche es erneut. Es wurde nichts gestartet.",
-        "subscription": "Dein Comfy-Konto hat keinen Zugriff auf dieses Modell: Prüfe dein Comfy-Cloud-Abo. Der kostenlose Modus bleibt verfügbar.",
+        "subscription": "Dein Comfy-Konto hat keinen Zugriff auf dieses Modell: Prüfe dein Comfy-Cloud-Abo. Der lokale Guide bleibt verfügbar.",
         "busy": "Comfy ist für dein Konto gerade stark ausgelastet. Warte ein paar Sekunden und sende deine Nachricht erneut.",
         "invalid": "Diese Nachricht konnte nicht verarbeitet werden. Kürze sie oder formuliere sie um.",
-        "refused": "Das Modell hat diese Nachricht nicht beantwortet. Formuliere sie um oder wechsle in den kostenlosen Modus.",
-        "network": "Comfy antwortet nicht. Prüfe deine Verbindung und versuche es erneut; der kostenlose Modus funktioniert offline.",
+        "refused": "Das Modell hat diese Nachricht nicht beantwortet. Formuliere sie um oder wechsle zum lokalen Guide.",
+        "network": "Comfy antwortet nicht. Prüfe deine Verbindung und versuche es erneut; der lokale Guide funktioniert offline.",
         "timeout": "Comfy hat zu lange gebraucht. Versuche es gleich noch einmal.",
-        "failed": "Der Comfy-Agent konnte nicht antworten. Versuche es erneut oder wechsle in den kostenlosen Modus."
+        "failed": "Der Comfy-Agent konnte nicht antworten. Versuche es erneut oder wechsle zum lokalen Guide."
       },
       "welcome": "Comfy-Agent-Modus: Ich antworte in eigenen Worten, nur auf Grundlage des Studio-Blatts, und jede Nachricht zahlt dein Comfy-Konto. Ich starte nichts: Ich schlage eine Aktion vor, du klickst."
     }

@@ -10,7 +10,7 @@ const VIEWPORTS = [
 ];
 
 for (const viewport of VIEWPORTS) {
-  test(`U*TTU gratuit à ${viewport.width}×${viewport.height} : guide, FAQ et estimation sans dépense`, async ({ page }, testInfo) => {
+  test(`U*TTU guide local à ${viewport.width}×${viewport.height} : guide, FAQ et estimation sans dépense`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "Viewports are set by the test");
     await page.setViewportSize(viewport);
     await simulateComfy(page);
@@ -38,7 +38,7 @@ for (const viewport of VIEWPORTS) {
     await input.fill("Combien coûtent 3 portraits + 2 prises LTX ?");
     await panel.locator("[data-uttu-send]").click();
     const reply = panel.locator("[data-uttu-log] [data-role=assistant]").last();
-    await expect(reply.locator("[data-uttu-total]")).toContainText("cr. estimés");
+    await expect(reply.locator("[data-uttu-total]")).toContainText("crédits estimés");
     await expect(reply.locator("[data-uttu-total]")).toContainText("36–68");
 
     await input.fill("où coller ma clé ?");
@@ -65,5 +65,5 @@ test("U*TTU parle allemand avec du, et le simulateur suit la langue", async ({ p
   const panel = page.locator("[data-assistant-panel]");
   await panel.locator("[data-uttu-input]").fill("Was kosten 3 Porträts + 2 LTX-Takes?");
   await panel.locator("[data-uttu-send]").click();
-  await expect(panel.locator("[data-uttu-log] [data-role=assistant]").last().locator("[data-uttu-total]")).toContainText("cr. geschätzt");
+  await expect(panel.locator("[data-uttu-log] [data-role=assistant]").last().locator("[data-uttu-total]")).toContainText("Credits geschätzt");
 });

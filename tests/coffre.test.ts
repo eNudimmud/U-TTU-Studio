@@ -110,7 +110,7 @@ describe("coffre en markdown", () => {
     await writeBlob(store, take().poster!, new Blob(["jpg"], { type: "image/jpeg" }));
     assert.equal((await loadStudio(store)).takes[0].poster, take().poster);
     const jobs = (await store.get("Projets/atelier/Journal.md"))?.text ?? "";
-    assert.match(jobs, /\| 2026-10-03 15:30 \| \[\[Projets\/atelier\/Prises\/20261003-153000-le-quai\]\] \| Comfy \| h3-4pas-5s-vertical \| 140 \| 201 cr\. \|/);
+    assert.match(jobs, /\| 2026-10-03 15:30 \| \[\[Projets\/atelier\/Prises\/20261003-153000-le-quai\]\] \| Comfy \| h3-4pas-5s-vertical \| 140 \| 201 crédits \|/);
     const entries = await coffreEntries(store);
     const names = entries.map(entry => entry.name);
     for (const name of ["U-TTU-Studio/Projets/atelier/Cast/canon.md", "U-TTU-Studio/README.md", "U-TTU-Studio/Projets/atelier/Journal.md", "U-TTU-Studio/Projets/atelier/Refs/look-a-1.jpg", "U-TTU-Studio/Projets/atelier/Lieux/le-quai.md", "U-TTU-Studio/Projets/atelier/Prises/20261003-153000-le-quai.mp4", "U-TTU-Studio/Projets/atelier/Prises/20261003-153000-le-quai.md", "U-TTU-Studio/MOC.md"]) {

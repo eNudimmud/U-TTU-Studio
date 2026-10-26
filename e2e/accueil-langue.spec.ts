@@ -9,11 +9,11 @@ const VIEWPORTS = [
 ];
 
 const CASES = [
-  { locale: "en-US", lang: "en", kicker: "Open source · MIT · on ComfyUI", free: "Try free · 0 credits" },
-  { locale: "fr-CH", lang: "fr-CH", kicker: "Open source · MIT · sur ComfyUI", free: "Essayer gratuitement · 0 crédit" },
-  { locale: "de-DE", lang: "de", kicker: "Open Source · MIT · auf ComfyUI", free: "Kostenlos testen · 0 Credits" },
-  { locale: "es-ES", lang: "es", kicker: "Código abierto · MIT · en ComfyUI", free: "Probar gratis · 0 créditos" },
-  { locale: "ja-JP", lang: "en", kicker: "Open source · MIT · on ComfyUI", free: "Try free · 0 credits" },
+  { locale: "en-US", lang: "en", kicker: "Open source · MIT · on ComfyUI", free: "Discover with Uttu" },
+  { locale: "fr-CH", lang: "fr-CH", kicker: "Open source · MIT · sur ComfyUI", free: "Découvrir avec Uttu" },
+  { locale: "de-DE", lang: "de", kicker: "Open Source · MIT · auf ComfyUI", free: "Mit Uttu entdecken" },
+  { locale: "es-ES", lang: "es", kicker: "Código abierto · MIT · en ComfyUI", free: "Descubrir con Uttu" },
+  { locale: "ja-JP", lang: "en", kicker: "Open source · MIT · on ComfyUI", free: "Discover with Uttu" },
 ];
 
 for (const c of CASES) {
@@ -46,7 +46,7 @@ test("accueil : le choix AA reste, même si le navigateur parle une autre langue
 });
 
 for (const viewport of VIEWPORTS) {
-  test(`accueil à ${viewport.width}×${viewport.height} : accroche et porte gratuite au premier écran, 0 crédit`, async ({ browser }, testInfo) => {
+  test(`accueil à ${viewport.width}×${viewport.height} : accroche et porte Uttu au premier écran`, async ({ browser }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "Viewports are set by the test");
     const context = await browser.newContext({ locale: "en-US", viewport });
     const page = await context.newPage();

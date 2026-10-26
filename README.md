@@ -39,7 +39,7 @@ What a Cinema Studio feature becomes here: one gesture in the studio, one export
 | Forward extend | **Continue** (after a take): 5 more seconds from the last frame | [`suite/suite-prolonger`](workflows/suite/suite-prolonger.api.json) (`video_minimax_h3_i2v_continuation`) |
 | Talking characters | **Make it talk** (after a take), **Voice** (EDIT) | [`suite/suite-parler`](workflows/suite/suite-parler.api.json) (`video_ltx2_3_ia2v`), [`montage/mont-voix`](workflows/montage/mont-voix.api.json) (ElevenLabs, partner) |
 | Up to 1080p output | **Finalize** (EDIT) and **Enhance video**: upscale and restore, never regenerate | [`finaliser/montage-finaliser`](workflows/finaliser/montage-finaliser.api.json) (`utility_nvidia_rtx_video_enhance`), [`suite/suite-finaliser-video`](workflows/suite/suite-finaliser-video.api.json) (`utility_seedvr2_3b_int8_upscale_video`) |
-| AI director chat | **U\*TTU** (top bar): free local guide, FAQ and cost simulator; optional Comfy agent paid by your Comfy account | Not a workflow: Comfy Router (`gpt-5-nano`), [`src/app/studio-agent`](src/app/studio-agent) |
+| AI director chat | **U\*TTU** (top bar): local guide, FAQ and cost simulator; optional Comfy agent paid by your Comfy account | Not a workflow: Comfy Router (`gpt-5-nano`), [`src/app/studio-agent`](src/app/studio-agent) |
 
 Not reproduced: Cinema Studio's genre, era, lens, colour-grade and lighting presets, and 30-second clips.
 
@@ -48,7 +48,7 @@ Not reproduced: Cinema Studio's genre, era, lens, colour-grade and lighting pres
 **EN**
 
 1. Open <https://u-ttu-studio.vercel.app> on a computer or a phone. The page follows your browser language (FR, EN, DE or ES, English otherwise); the language menu switches it and keeps your choice.
-2. **Try free (0 credits)** opens the studio with **U\*TTU**, the free guide: getting started, FAQ and a cost simulator, all local, no account. Everything else that costs nothing works too: « Start from this example » in each tab, a 3D previs in TAKE, the timeline in EDIT, project export.
+2. **Discover with Uttu** opens the studio with **U\*TTU**, the local guide: getting started, FAQ and a cost simulator, no account. Everything that launches no render works too: « Start from this example » in each tab, a 3D previs in TAKE, the timeline in EDIT, project export.
 3. **To render, link your own Comfy account:** **Credits → Connect the render account → Sign in with Comfy**, or **I have a key** and paste a Comfy Cloud API key ([platform.comfy.org/profile/api-keys](https://platform.comfy.org/profile/api-keys); a paid Comfy Cloud plan is needed). Session and key stay in your browser; the studio has no server-side key and no account of its own.
 4. Every paid button shows its quote first (« ≈ X cr. estimated », or measured once measured) and asks for a confirmation; the balance must cover the reserve. Suggested 5-run path: CAST « From text » (≈ 4 cr.), SET « From text » (≈ 4 cr.), TAKE with the default LTX engine (≈ 12–25 cr. estimated), then EDIT and Finalize.
 5. The studio never cancels a Comfy job. If you stop waiting, the job keeps running on your account and lands in My creations.
@@ -58,7 +58,7 @@ Not reproduced: Cinema Studio's genre, era, lens, colour-grade and lighting pres
 **FR**
 
 1. Ouvre <https://u-ttu-studio.vercel.app> sur ordinateur ou téléphone. La page suit la langue de ton navigateur (FR, EN, DE ou ES, sinon l’anglais) ; le menu de langue la change et garde ton choix.
-2. **Essayer gratuitement (0 crédit)** ouvre le studio avec **U\*TTU**, le guide gratuit : premiers pas, FAQ et simulateur de coûts, tout en local, sans compte. Tout ce qui ne coûte rien marche aussi : « Partir de cet exemple » dans chaque onglet, une prévis 3D dans PRISE, la timeline de MONTAGE, l’export du projet.
+2. **Découvrir avec Uttu** ouvre le studio avec **U\*TTU**, le guide local : premiers pas, FAQ et simulateur de coûts, sans compte. Tout ce qui ne lance aucun rendu marche aussi : « Partir de cet exemple » dans chaque onglet, une prévis 3D dans PRISE, la timeline de MONTAGE, l’export du projet.
 3. **Pour rendre, relie ton propre compte Comfy :** **Crédits → Relier le compte de rendu → Se connecter avec Comfy**, ou **J’ai une clé** et colle une clé API Comfy Cloud ([platform.comfy.org/profile/api-keys](https://platform.comfy.org/profile/api-keys) ; un abonnement Comfy Cloud payant est nécessaire). Session et clé restent dans ton navigateur ; le studio n’a ni clé côté serveur ni compte à lui.
 4. Chaque bouton payant montre d’abord son devis (« ≈ X cr. estimés », ou mesuré quand il l’a été) et demande une confirmation ; le solde doit couvrir la réserve. Parcours conseillé en 5 rendus : CAST « Depuis un texte » (≈ 4 cr.), DÉCOR « Depuis un texte » (≈ 4 cr.), PRISE avec le moteur LTX par défaut (≈ 12–25 cr. estimés), puis MONTAGE et Finaliser.
 5. Le studio n’annule jamais un job chez Comfy. Si tu arrêtes d’attendre, le rendu continue sur ton compte et arrive dans Mes créations.
