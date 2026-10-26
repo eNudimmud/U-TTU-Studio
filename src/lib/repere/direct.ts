@@ -236,7 +236,7 @@ async function getJson(url: string, headers: Record<string, string> = {}): Promi
  * Mapillary joins only with a free client token; without one the search is Panoramax alone.
  */
 /** Radius of the fallback search when the view itself holds too few photos. */
-const WIDE_M = 600;
+const WIDE_M = 250;
 
 /**
  * Photos of the visible area, plus the 360° sphere of the spot. The spot is the camera, or the
@@ -257,7 +257,7 @@ export async function chargerZone(view: Regard, max = 12, pin?: { lat: number; l
   // Thin or repetitive coverage in the view (Midtown Manhattan, Saint-François): widen to the whole block around the camera.
   // The diversifier still ranks the photos inside the view first.
   const wide = flat && diversifier(flatPhotos, view, max).length < 6 && await slot("panoramax")
-    ? await getJson(panoramaxBboxUrl(zoneVue({ ...view, fov: 360 }, WIDE_M, WIDE_M), 100))
+    ? await getJson(panoramaxBboxUrl(zoneVue({ ...centre, fov: 360 }, WIDE_M, WIDE_M), 100))
     : null;
   const spheres = await slot("panoramax") ? await getJson(panoramaxBboxUrl(spot, 20, true)) : null;
   const fromPanoramax = [
