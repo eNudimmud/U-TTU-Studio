@@ -65,6 +65,7 @@ describe("photos · filtre Wikimedia Commons", () => {
     assert.equal(auteurCommons('<a href="/wiki/User:A">Americasroof</a> ( <a href="/wiki/User_talk:A">talk</a> ).'), "Americasroof");
     assert.equal(auteurCommons("Unknown author"), "");
     assert.equal(auteurCommons("User:Erdrokan"), "Erdrokan");
+    assert.equal(auteurCommons('<a href="//commons.wikimedia.org/wiki/User:Erdrokan">User:Erdrokan</a>'), "Erdrokan");
   });
 
   it("asks Commons politely: 250 m, files only, open CORS, 50 ids at most", () => {

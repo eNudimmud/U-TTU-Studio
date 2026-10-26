@@ -117,7 +117,7 @@ export function licenceCommons(short: string): string | null {
 /** Artist is HTML: links, spans, sometimes a whole table. Keep the plain name. */
 export function auteurCommons(html: string): string {
   const text = html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, "\"").replace(/&#0?39;/g, "'")
-    .replace(/\(\s*(talk|discussion|contribs?)\s*\)/gi, " ").replace(/\s+/g, " ").replace(/[\s.,;:]+$/, "").replace(/^(User|Utilisateur|Benutzer):/i, "").trim();
+    .replace(/\(\s*(talk|discussion|contribs?)\s*\)/gi, " ").replace(/\s+/g, " ").trim().replace(/[\s.,;:]+$/, "").replace(/^(User|Utilisateur|Benutzer):/i, "").trim();
   return /^(unknown|anonymous|inconnu)\b/i.test(text) ? "" : text.slice(0, 60);
 }
 
