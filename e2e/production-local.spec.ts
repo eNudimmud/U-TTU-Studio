@@ -56,6 +56,8 @@ test('import gratuit → plan conservé → montage → vrai MP4 et réouverture
   const path = info.outputPath('export-local.mp4');
   await download.saveAs(path);
   await expect(page.locator('[data-export]')).toHaveAttribute('data-export', 'done');
+  // The exported film is also kept in the project, so it shows in Mes créations.
+  await expect.poll(async () => (await readVault(page)).filter(entry => /\/Assets\/export-[^/]+\.(mp4|webm|md)$/.test(entry.path)).length).toBe(2);
   const media = new Input({ source: new BlobSource(new Blob([readFileSync(path)])), formats: ALL_FORMATS });
   try {
     const track = await media.getPrimaryVideoTrack();

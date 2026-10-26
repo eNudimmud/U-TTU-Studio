@@ -43,7 +43,8 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await page.locator('[data-outil="vid-raccord"]').click();
   const panel = page.locator('[data-tool-panel="vid-raccord"]');
   await panel.locator('[data-outil-input="image"] input[type=file]').setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });
-  await panel.locator('[data-tool-step="references"] > button').click();
+  // Both pictures of a bridge are in view: « Image de départ » and « Image d’arrivée », no fold to open.
+  await expect(panel.locator('[data-tool-step="references"]')).toHaveCount(0);
   await panel.locator('[data-outil-input="image2"] input[type=file]').setInputFiles({ name: 'image.webp', mimeType: 'image/webp', buffer: portrait });
   const prompt = panel.locator('[data-tool-step="consigne"] textarea');
   await prompt.fill('Raccord audit confirmé');

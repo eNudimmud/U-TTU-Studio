@@ -191,6 +191,8 @@ export interface StudioSession {
   outgoing(): string;
   saveModel(file: File): Promise<string>;
   savePrevis(file: File): Promise<string>;
+  /** The film just exported from MONTAGE, kept in the project so it shows in Mes créations. */
+  saveExport(film: Blob, name: string): Promise<string>;
   readProjectFile(file: string): Promise<string | undefined>;
   writeProjectFile(file: string, text: string): Promise<void>;
   saveShot(shot: Shot): Promise<void>;
@@ -1776,6 +1778,18 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     return path;
   }, [current.project, reload, store, t]);
 
+  const saveExport = useCallback(async (film: Blob, name: string) => {
+    const slug = current.project ?? await ensureActiveProject(store());
+    const vault = projectVault(store(), slug);
+    const id = `export-${crypto.randomUUID()}`;
+    const path = `Projets/${slug}/Assets/${id}.${film.type.includes("webm") ? "webm" : "mp4"}`;
+    const note = `Projets/${slug}/Assets/${id}.md`;
+    await writeBlob(vault, path, film);
+    await writeText(vault, note, assetNote({ id, kind: "plan", name: (name.trim() || t("montage.exportName")).slice(0, 80), at: new Date().toISOString(), prompt: "", geste: "", template: "", refs: [], devis: 0, cout: 0, media: path, note, preview: null, loose: false }));
+    await reload();
+    return path;
+  }, [current.project, reload, store, t]);
+
   const readProjectFile = useCallback(async (file: string) => {
     const slug = current.project;
     if (!slug) return undefined;
@@ -1976,7 +1990,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
-    saveModel, savePrevis, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
+    saveModel, savePrevis, saveExport, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
