@@ -2088,17 +2088,22 @@
       "loadPhotos": "Looking for street photos nearby…",
       "none": "Add a photo of the place to create the set.",
       "change": "Change photos",
-      "add": "Add photos",
+      "add": "Refine with photos",
       "options": "Options",
       "mood": "Mood",
       "name": "Name",
-      "go": "Create the set"
+      "go": "Create the set",
+      "lead": "Your set follows your view and this place.",
+      "refine": "Refine with photos",
+      "optional": "optional",
+      "tags": "What we know about the place"
     },
     "ambiance": {
       "photos": "Like the photos",
       "nuit": "Night",
       "pluie": "Rain",
-      "aube": "Dawn"
+      "aube": "Dawn",
+      "jour": "Daylight"
     },
     "strict": {
       "label": "Strict frame",
@@ -2109,13 +2114,23 @@
       "alt": "Photo {n}: {name}"
     },
     "pk": {
-      "title": "Pick up to {max} photos",
-      "import": "Import",
+      "title": "Refine with photos",
+      "import": "Import your photo",
       "mine": "My images",
       "ok": "OK",
-      "none": "No free street photo nearby. Import your own.",
+      "none": "No free photo around your view. Import your own, or create the set without a photo.",
       "fail": "This image can't be read. Try another.",
-      "alt": "Street photo by {author}"
+      "alt": "Street photo by {author}",
+      "sub": "Pick the ones that look like your view. Up to {max}.",
+      "loading": "Looking for photos around your view…",
+      "dist": "{m} m",
+      "add1": "Add 1 photo",
+      "add": "Add {n} photos",
+      "pano": "360° view of this spot",
+      "panoAt": "{m} m from your camera",
+      "panoGo": "Turn and frame",
+      "credit": "Photos:",
+      "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {
       "title": "Create this set?",
@@ -2142,6 +2157,23 @@
       "b": "Street photo",
       "c": "Your set",
       "note": "Example illustration, made outside Comfy. It is not a Comfy render."
+    },
+    "pano": {
+      "title": "Turn the view, then keep the frame",
+      "other": "Others",
+      "keep": "Keep this frame",
+      "alt": "360° view by {author}",
+      "fail": "This 360° view won't load. Pick another photo."
+    },
+    "tag": {
+      "park": "Park",
+      "water": "Waterfront",
+      "wood": "Woods",
+      "grass": "Lawns",
+      "sand": "Sand",
+      "tours": "Skyscrapers",
+      "immeubles": "City blocks",
+      "bas": "Low-rise"
     }
   },
   "suite": {

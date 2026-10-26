@@ -2088,17 +2088,22 @@
       "loadPhotos": "Wir suchen Straßenfotos in der Nähe…",
       "none": "Füg ein Foto vom Ort hinzu, um die Kulisse zu erstellen.",
       "change": "Fotos ändern",
-      "add": "Fotos hinzufügen",
+      "add": "Mit Fotos verfeinern",
       "options": "Optionen",
       "mood": "Stimmung",
       "name": "Name",
-      "go": "Kulisse erstellen"
+      "go": "Kulisse erstellen",
+      "lead": "Deine Kulisse folgt deiner Ansicht und diesem Ort.",
+      "refine": "Mit Fotos verfeinern",
+      "optional": "optional",
+      "tags": "Was wir über den Ort wissen"
     },
     "ambiance": {
       "photos": "Wie auf den Fotos",
       "nuit": "Nacht",
       "pluie": "Regen",
-      "aube": "Morgengrauen"
+      "aube": "Morgengrauen",
+      "jour": "Tageslicht"
     },
     "strict": {
       "label": "Strenger Rahmen",
@@ -2109,13 +2114,23 @@
       "alt": "Foto {n}: {name}"
     },
     "pk": {
-      "title": "Wähl bis zu {max} Fotos",
-      "import": "Importieren",
+      "title": "Mit Fotos verfeinern",
+      "import": "Dein Foto importieren",
       "mine": "Meine Bilder",
       "ok": "OK",
-      "none": "Kein freies Straßenfoto in der Nähe. Importier dein eigenes.",
+      "none": "Kein freies Foto rund um deine Ansicht. Importiere dein eigenes oder erstelle die Kulisse ohne Foto.",
       "fail": "Dieses Bild ist nicht lesbar. Versuch ein anderes.",
-      "alt": "Straßenfoto von {author}"
+      "alt": "Straßenfoto von {author}",
+      "sub": "Nimm die, die deiner Ansicht ähneln. Bis zu {max}.",
+      "loading": "Wir suchen Fotos rund um deine Ansicht…",
+      "dist": "{m} m",
+      "add1": "1 Foto hinzufügen",
+      "add": "{n} Fotos hinzufügen",
+      "pano": "360°-Ansicht dieses Punkts",
+      "panoAt": "{m} m von deiner Kamera",
+      "panoGo": "Drehen und einrahmen",
+      "credit": "Fotos:",
+      "mly": "© Mapillary contributors, CC BY-SA"
     },
     "ask": {
       "title": "Diese Kulisse erstellen?",
@@ -2142,6 +2157,23 @@
       "b": "Straßenfoto",
       "c": "Deine Kulisse",
       "note": "Beispielbild, außerhalb von Comfy erstellt. Kein Comfy-Rendering."
+    },
+    "pano": {
+      "title": "Dreh die Ansicht und behalte den Ausschnitt",
+      "other": "Andere",
+      "keep": "Ausschnitt behalten",
+      "alt": "360°-Ansicht von {author}",
+      "fail": "Diese 360°-Ansicht lädt nicht. Nimm ein anderes Foto."
+    },
+    "tag": {
+      "park": "Park",
+      "water": "Am Wasser",
+      "wood": "Wald",
+      "grass": "Wiesen",
+      "sand": "Sand",
+      "tours": "Wolkenkratzer",
+      "immeubles": "Wohnblöcke",
+      "bas": "Niedrige Bauten"
     }
   },
   "suite": {

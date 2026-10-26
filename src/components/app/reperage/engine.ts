@@ -18,6 +18,7 @@ import { sunVector, type Sun } from "@/lib/repere3d/sun";
 import { CAPTURE_H, CAPTURE_W } from "@/lib/repere3d/capture";
 import { FRAMING_POSES, type Framing, type Look } from "@/lib/repere3d/styles";
 import type { SourceId } from "@/lib/repere3d/sources";
+import { demiChamp, lireContexte, type Contexte } from "@/lib/repere3d/contexte";
 
 export type LoadState = "idle" | "loading" | "ready" | "empty" | "offline" | "rate" | "fail";
 
@@ -1041,6 +1042,29 @@ export class Reperage3D {
 
   roofs(): { state: RoofState; count: number } {
     return { state: this.swissRoofs, count: this.swissList.length };
+  }
+
+  /**
+   * What the frame shows, from the shapes already downloaded: named parks and water in view,
+   * building heights, camera and sun. No new request (contexte.ts).
+   */
+  contexte(place: { name: string; detail?: string }): Contexte | null {
+    if (!this.frame) return null;
+    const view = this.view();
+    const p = this.camera.position;
+    return lireContexte({
+      place,
+      camera: { x: p.x, z: p.z, heading: view.heading, pitch: view.pitch, fov: this.fov, height: view.height },
+      areas: this.shapes.areas,
+      buildings: this.osmList,
+      sun: this.sun,
+      aspect: FRAME_ASPECT,
+    });
+  }
+
+  /** Horizontal field of view of the kept frame, in degrees. */
+  champ(): number {
+    return Math.round(demiChamp(this.fov, FRAME_ASPECT) * 2);
   }
 
   /**
