@@ -2214,7 +2214,7 @@
   },
   "suite": {
     "title": "Et ensuite ?",
-    "chip": "≈ {credits} cr. estimés",
+    "chip": "≈ {credits} crédits estimés",
     "quote": "Environ {credits} cr., estimé. Le prix final peut varier.",
     "safe": "Le résultat s’ajoute à Mon studio. L’original n’est jamais remplacé.",
     "go": "Lancer · ≈ {credits} crédits (estimé)",
@@ -2310,7 +2310,7 @@
     "partner": "Partenaire",
     "soon": "Bientôt",
     "estimate": "estimé",
-    "cost": "≈ {credits} cr. estimés",
+    "cost": "≈ {credits} crédits estimés",
     "perBlock": "par 5 s",
     "partnerPrice": "Prix partenaire ≈ {credits} cr. estimés",
     "hidden": {
@@ -2642,7 +2642,7 @@
     "confirmYes": "Confirmer",
     "confirmNo": "Annuler",
     "entryKey": "créer",
-    "costEst": "≈ {credits} cr. estimés",
+    "costEst": "≈ {credits} crédits estimés",
     "rowAll": "Tout voir",
     "rowLess": "Réduire",
     "slot": {
@@ -3244,7 +3244,9 @@
     "cost": "≈ {credits} crédits estimés",
     "route": "S’ouvre dans {where}, déjà rempli. Rien ne part sans ton accord.",
     "where": {
-      "agent": "l’assistant"
+      "agent": "l’assistant",
+      "agentHere": "U*TTU",
+      "needRef": "—"
     },
     "ideas": "Idées",
     "all": "Tous les outils",
@@ -3276,6 +3278,50 @@
       "joinNone": "Ne rien joindre",
       "joinOne": "Joindre 1 référence",
       "join": "Joindre {n} références"
+    },
+    "routeHere": "Se crée ici avec {where}. Rien ne part sans ton accord.",
+    "routeAgent": "U*TTU te répond ici. Rien ne se lance sans ton accord.",
+    "routeNote": "Pour une vidéo, joins un personnage, un décor ou une photo, ou crée d'abord une image.",
+    "fil": {
+      "title": "Ta conversation",
+      "new": "Nouvelle conversation",
+      "needText": "Écris ce que tu veux créer.",
+      "videoAsImage": "Le dernier résultat est une vidéo. Pour la retoucher, ouvre « Et ensuite ? » sous la vidéo.",
+      "alreadyVideo": "Le dernier résultat est déjà une vidéo. Utilise « Et ensuite ? » pour la prolonger ou la fluidifier.",
+      "needRef": "Pour une vidéo, joins un personnage, un décor ou une photo, ou crée d'abord une image puis dis « anime-la ».",
+      "busy": "Une création est déjà en cours ici. Attends son résultat, puis relance.",
+      "toolClosed": "Cet outil n'est pas disponible pour l'instant. Ouvre-le pour voir pourquoi.",
+      "readFailed": "Une image jointe n'a pas pu être lue. Rien n'est parti.",
+      "lastName": "Dernier résultat",
+      "agentSafe": "Rien ne se lance d'ici : chaque création te demande ton accord, avec son estimation.",
+      "toAssistant": "Continuer avec l'assistant",
+      "openTool": "Ouvrir dans l'outil",
+      "confirmLine": "Rien ne part avant ton accord. Le prix final peut varier.",
+      "needLink": "Relie ton compte Comfy pour lancer cette création.",
+      "go": "Lancer · {cost}",
+      "goNoQuote": "Lancer",
+      "confirmPrise": "Vérifie la prise dans la fenêtre de confirmation. Rien ne part avant ton accord.",
+      "showConfirm": "Revoir la confirmation",
+      "stage": {
+        "envoi": "Envoi de ta demande…",
+        "file": "En file d'attente sur ton compte…",
+        "calcul": "Création en cours ({seconds} s)…",
+        "retour": "Récupération du résultat…",
+        "mesure": "Lecture du coût réel…",
+        "calculStart": "Création en cours…"
+      },
+      "inCreations": "Le fichier est dans Mes créations.",
+      "saved": "Enregistré dans Mes créations.",
+      "animate": "Animer ici",
+      "animateText": "Anime-la : ",
+      "modify": "Modifier ici",
+      "modifyText": "Modifie-la : ",
+      "inMontage": "Ajouté au montage",
+      "montageFailed": "Pas pu l'ajouter au montage. Réessaie depuis Mes créations.",
+      "cancelled": "Annulé. Rien n'est parti.",
+      "interrupted": "La page a été rechargée pendant la création. Si elle a abouti, elle est dans Mes créations.",
+      "retry": "Relancer",
+      "toCreations": "Mes créations"
     }
   }
 }

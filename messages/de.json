@@ -2214,7 +2214,7 @@
   },
   "suite": {
     "title": "Und jetzt?",
-    "chip": "≈ {credits} Cr. geschätzt",
+    "chip": "≈ {credits} Credits geschätzt",
     "quote": "Etwa {credits} Cr., geschätzt. Der Endpreis kann abweichen.",
     "safe": "Das Ergebnis kommt zu Mein Studio dazu. Das Original wird nie ersetzt.",
     "go": "Starten · ≈ {credits} Credits (geschätzt)",
@@ -2310,7 +2310,7 @@
     "partner": "Partner",
     "soon": "Bald",
     "estimate": "geschätzt",
-    "cost": "≈ {credits} Cr. geschätzt",
+    "cost": "≈ {credits} Credits geschätzt",
     "perBlock": "pro 5 s",
     "partnerPrice": "Partnerpreis ≈ {credits} Cr. geschätzt",
     "hidden": {
@@ -2642,7 +2642,7 @@
     "confirmYes": "Bestätigen",
     "confirmNo": "Abbrechen",
     "entryKey": "machen",
-    "costEst": "≈ {credits} Cr. geschätzt",
+    "costEst": "≈ {credits} Credits geschätzt",
     "rowAll": "Alle ansehen",
     "rowLess": "Weniger",
     "slot": {
@@ -3244,7 +3244,9 @@
     "cost": "≈ {credits} Credits geschätzt",
     "route": "Öffnet sich in {where}, schon ausgefüllt. Nichts startet ohne dein OK.",
     "where": {
-      "agent": "dem Assistenten"
+      "agent": "dem Assistenten",
+      "agentHere": "U*TTU",
+      "needRef": "—"
     },
     "ideas": "Ideen",
     "all": "Alle Werkzeuge",
@@ -3276,6 +3278,50 @@
       "joinNone": "Nichts anhängen",
       "joinOne": "1 Referenz anhängen",
       "join": "{n} Referenzen anhängen"
+    },
+    "routeHere": "Entsteht direkt hier mit {where}. Nichts geht ohne dein OK raus.",
+    "routeAgent": "U*TTU antwortet dir hier. Nichts startet ohne dein OK.",
+    "routeNote": "Für ein Video häng eine Figur, einen Ort oder ein Foto an, oder erstelle zuerst ein Bild.",
+    "fil": {
+      "title": "Deine Unterhaltung",
+      "new": "Neue Unterhaltung",
+      "needText": "Schreib, was du erstellen willst.",
+      "videoAsImage": "Das letzte Ergebnis ist ein Video. Zum Bearbeiten öffne « Und jetzt? » unter dem Video.",
+      "alreadyVideo": "Das letzte Ergebnis ist schon ein Video. Nutze « Und jetzt? », um es zu verlängern oder flüssiger zu machen.",
+      "needRef": "Für ein Video häng eine Figur, einen Ort oder ein Foto an, oder erstelle zuerst ein Bild und sag dann « animiere es ».",
+      "busy": "Hier entsteht schon etwas. Warte auf das Ergebnis und schick dann erneut.",
+      "toolClosed": "Dieses Werkzeug ist gerade nicht verfügbar. Öffne es, um zu sehen, warum.",
+      "readFailed": "Ein angehängtes Bild konnte nicht gelesen werden. Nichts ging raus.",
+      "lastName": "Letztes Ergebnis",
+      "agentSafe": "Von hier startet nichts: Jede Erstellung fragt nach deinem OK, mit ihrer Schätzung.",
+      "toAssistant": "Mit dem Assistenten weitermachen",
+      "openTool": "Im Werkzeug öffnen",
+      "confirmLine": "Nichts geht vor deinem OK raus. Der Endpreis kann abweichen.",
+      "needLink": "Verbinde dein Comfy-Konto, um diese Erstellung zu starten.",
+      "go": "Starten · {cost}",
+      "goNoQuote": "Starten",
+      "confirmPrise": "Prüf die Aufnahme im Bestätigungsfenster. Nichts geht vor deinem OK raus.",
+      "showConfirm": "Bestätigung erneut zeigen",
+      "stage": {
+        "envoi": "Deine Anfrage wird gesendet…",
+        "file": "In der Warteschlange deines Kontos…",
+        "calcul": "Wird erstellt ({seconds} s)…",
+        "retour": "Ergebnis wird abgeholt…",
+        "mesure": "Echte Kosten werden gelesen…",
+        "calculStart": "Wird erstellt…"
+      },
+      "inCreations": "Die Datei ist in Meine Kreationen.",
+      "saved": "In Meine Kreationen gespeichert.",
+      "animate": "Hier animieren",
+      "animateText": "Animiere es: ",
+      "modify": "Hier bearbeiten",
+      "modifyText": "Bearbeite es: ",
+      "inMontage": "Zum Schnitt hinzugefügt",
+      "montageFailed": "Konnte nicht zum Schnitt hinzugefügt werden. Versuch es über Meine Kreationen.",
+      "cancelled": "Abgebrochen. Nichts ging raus.",
+      "interrupted": "Die Seite wurde während der Erstellung neu geladen. Falls sie fertig wurde, ist sie in Meine Kreationen.",
+      "retry": "Erneut versuchen",
+      "toCreations": "Meine Kreationen"
     }
   }
 }

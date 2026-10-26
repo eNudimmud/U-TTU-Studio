@@ -2214,7 +2214,7 @@
   },
   "suite": {
     "title": "¿Y ahora?",
-    "chip": "≈ {credits} cr. estimados",
+    "chip": "≈ {credits} créditos estimados",
     "quote": "Unos {credits} cr., estimado. El precio final puede variar.",
     "safe": "El resultado se añade a Mi estudio. El original nunca se reemplaza.",
     "go": "Lanzar · ≈ {credits} créditos (estimado)",
@@ -2310,7 +2310,7 @@
     "partner": "Socio",
     "soon": "Pronto",
     "estimate": "estimado",
-    "cost": "≈ {credits} cr. estimados",
+    "cost": "≈ {credits} créditos estimados",
     "perBlock": "por 5 s",
     "partnerPrice": "Precio socio ≈ {credits} cr. estimados",
     "hidden": {
@@ -2642,7 +2642,7 @@
     "confirmYes": "Confirmar",
     "confirmNo": "Cancelar",
     "entryKey": "crear",
-    "costEst": "≈ {credits} cr. estimados",
+    "costEst": "≈ {credits} créditos estimados",
     "rowAll": "Ver todo",
     "rowLess": "Ver menos",
     "slot": {
@@ -3244,7 +3244,9 @@
     "cost": "≈ {credits} créditos estimados",
     "route": "Se abre en {where}, ya rellenado. Nada sale sin tu OK.",
     "where": {
-      "agent": "el asistente"
+      "agent": "el asistente",
+      "agentHere": "U*TTU",
+      "needRef": "—"
     },
     "ideas": "Ideas",
     "all": "Todas las herramientas",
@@ -3276,6 +3278,50 @@
       "joinNone": "No adjuntar nada",
       "joinOne": "Adjuntar 1 referencia",
       "join": "Adjuntar {n} referencias"
+    },
+    "routeHere": "Se crea aquí mismo con {where}. Nada sale sin tu permiso.",
+    "routeAgent": "U*TTU te responde aquí. Nada se lanza sin tu permiso.",
+    "routeNote": "Para un vídeo, adjunta un personaje, un decorado o una foto, o crea primero una imagen.",
+    "fil": {
+      "title": "Tu conversación",
+      "new": "Nueva conversación",
+      "needText": "Escribe lo que quieres crear.",
+      "videoAsImage": "El último resultado es un vídeo. Para retocarlo, abre « ¿Y ahora? » debajo del vídeo.",
+      "alreadyVideo": "El último resultado ya es un vídeo. Usa « ¿Y ahora? » para alargarlo o suavizarlo.",
+      "needRef": "Para un vídeo, adjunta un personaje, un decorado o una foto, o crea primero una imagen y di « anímala ».",
+      "busy": "Ya se está creando algo aquí. Espera el resultado y vuelve a enviar.",
+      "toolClosed": "Esta herramienta no está disponible ahora mismo. Ábrela para ver por qué.",
+      "readFailed": "No se pudo leer una imagen adjunta. No salió nada.",
+      "lastName": "Último resultado",
+      "agentSafe": "Nada se lanza desde aquí: cada creación te pide permiso, con su estimación.",
+      "toAssistant": "Seguir con el asistente",
+      "openTool": "Abrir en la herramienta",
+      "confirmLine": "Nada sale antes de tu permiso. El precio final puede variar.",
+      "needLink": "Conecta tu cuenta de Comfy para lanzar esta creación.",
+      "go": "Lanzar · {cost}",
+      "goNoQuote": "Lanzar",
+      "confirmPrise": "Revisa la toma en la ventana de confirmación. Nada sale antes de tu permiso.",
+      "showConfirm": "Ver la confirmación de nuevo",
+      "stage": {
+        "envoi": "Enviando tu petición…",
+        "file": "En cola en tu cuenta…",
+        "calcul": "Creando ({seconds} s)…",
+        "retour": "Recuperando el resultado…",
+        "mesure": "Leyendo el coste real…",
+        "calculStart": "Creando…"
+      },
+      "inCreations": "El archivo está en Mis creaciones.",
+      "saved": "Guardado en Mis creaciones.",
+      "animate": "Animar aquí",
+      "animateText": "Anímala: ",
+      "modify": "Editar aquí",
+      "modifyText": "Modifícala: ",
+      "inMontage": "Añadido al montaje",
+      "montageFailed": "No se pudo añadir al montaje. Inténtalo desde Mis creaciones.",
+      "cancelled": "Cancelado. No salió nada.",
+      "interrupted": "La página se recargó durante la creación. Si terminó, está en Mis creaciones.",
+      "retry": "Reintentar",
+      "toCreations": "Mis creaciones"
     }
   }
 }

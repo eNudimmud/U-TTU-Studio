@@ -25,6 +25,8 @@ import { Check, Close, Plus } from "./glyphs";
 import { toggleAssistant } from "./assistant-panel";
 import { FamilyIcon, openFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
+import type { FilSend } from "./barre-fil";
+import type { FilRef } from "@/lib/barre/thread";
 
 /** The hash of the old entry: every tool, by family. */
 export const ALL_TOOLS_ID = "tous";
@@ -70,7 +72,7 @@ export function useReferences(): BarreRef[] {
   }, [cast, decor, media, t]);
 }
 
-export function CreationBar() {
+export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void; preview?(input: FilSend): { route: string; where: string; quote: number | null } } = {}) {
   const { t } = useI18n();
   const { studio } = useStudio();
   const all = useReferences();
@@ -112,6 +114,11 @@ export function CreationBar() {
     return () => { document.removeEventListener("pointerdown", close); document.removeEventListener("keydown", close); };
   }, [menu]);
 
+  const attached: FilRef[] = mode === "agent" ? [] : [
+    ...(mode === "image" ? photos.map(photo => ({ kind: "photo" as const, id: photo.id, name: photo.name, src: photo.url })) : []),
+    ...refs.map(ref => ({ kind: ref.kind, id: ref.id, name: ref.name, src: ref.src, path: ref.path, vault: Boolean(ref.path) && !ref.id.startsWith("demo-") })),
+  ];
+  const here = preview?.({ mode, text, refs: attached, settings }) ?? null;
   const target = barreTarget(mode, text, mode === "image" ? refs : [], mode === "image" ? photos : []);
   const quote = useMemo(() => {
     if (target.kind === "outil") {
@@ -147,7 +154,8 @@ export function CreationBar() {
     else openFamily("son");
   }
 
-  const cost = quote !== null ? t("barre.cost", { credits: formatCredits(quote) }) : null;
+  const shownQuote = here ? here.quote : quote;
+  const cost = shownQuote !== null ? t("barre.cost", { credits: formatCredits(shownQuote) }) : null;
 
   function addPhotos(files: FileList | null) {
     if (!files) return;
@@ -164,6 +172,12 @@ export function CreationBar() {
   function send() {
     const value = text.trim();
     if (!value) { document.getElementById(inputId)?.focus(); return; }
+    if (onSend) {
+      // In the thread: the bubble, then the confirm and the run, without leaving the home.
+      onSend({ mode, text: value, refs: attached, settings });
+      setText(""); setRefs([]); setPhotos([]); setMenu(false); setSettingsOpen(false);
+      return;
+    }
     if (target.kind === "agent") {
       writeHandoff(window.sessionStorage, AGENT_HANDOFF_KEY, value);
       toggleAssistant(true);
@@ -231,7 +245,7 @@ export function CreationBar() {
         </button>
       </div>
     </form>
-    <p className="u-barre-route" id={routeId} data-barre-route={target.kind === "outil" ? target.id : target.kind}>{cost && <span className="u-barre-route-cost" aria-hidden="true">{cost} · </span>}{t("barre.route", { where })}</p>
+    <p className="u-barre-route" id={routeId} data-barre-route={here ? here.route : target.kind === "outil" ? target.id : target.kind}>{cost && <span className="u-barre-route-cost" aria-hidden="true">{cost} · </span>}{here ? t(here.route === "agent" ? "barre.routeAgent" : here.route === "note" ? "barre.routeNote" : "barre.routeHere", { where: here.where }) : t("barre.route", { where })}</p>
     {sheet && <ReferencesSheet all={all} picked={refs} max={mode === "image" ? MAX_REFS_IMAGE - photos.length : null} onClose={() => setSheet(false)} onJoin={next => { setRefs(next); setSheet(false); }} />}
   </>;
 }

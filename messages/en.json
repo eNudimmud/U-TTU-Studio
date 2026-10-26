@@ -2214,7 +2214,7 @@
   },
   "suite": {
     "title": "What next?",
-    "chip": "≈ {credits} cr. estimated",
+    "chip": "≈ {credits} credits estimated",
     "quote": "About {credits} cr., estimated. The final price may vary.",
     "safe": "The result is added to My studio. The original is never replaced.",
     "go": "Run · ≈ {credits} credits (estimated)",
@@ -2310,7 +2310,7 @@
     "partner": "Partner",
     "soon": "Soon",
     "estimate": "estimated",
-    "cost": "≈ {credits} cr. estimated",
+    "cost": "≈ {credits} credits estimated",
     "perBlock": "per 5 s",
     "partnerPrice": "Partner price ≈ {credits} cr. estimated",
     "hidden": {
@@ -2642,7 +2642,7 @@
     "confirmYes": "Confirm",
     "confirmNo": "Cancel",
     "entryKey": "make",
-    "costEst": "≈ {credits} cr. estimated",
+    "costEst": "≈ {credits} credits estimated",
     "rowAll": "See all",
     "rowLess": "Show less",
     "slot": {
@@ -3244,7 +3244,9 @@
     "cost": "≈ {credits} credits estimated",
     "route": "Opens in {where}, already filled in. Nothing is sent without your OK.",
     "where": {
-      "agent": "the assistant"
+      "agent": "the assistant",
+      "agentHere": "U*TTU",
+      "needRef": "—"
     },
     "ideas": "Ideas",
     "all": "All tools",
@@ -3276,6 +3278,50 @@
       "joinNone": "Attach nothing",
       "joinOne": "Attach 1 reference",
       "join": "Attach {n} references"
+    },
+    "routeHere": "Made right here with {where}. Nothing goes out without your OK.",
+    "routeAgent": "U*TTU answers here. Nothing starts without your OK.",
+    "routeNote": "For a video, attach a character, a location or a photo, or make an image first.",
+    "fil": {
+      "title": "Your conversation",
+      "new": "New conversation",
+      "needText": "Write what you want to make.",
+      "videoAsImage": "The last result is a video. To retouch it, open « What next? » under the video.",
+      "alreadyVideo": "The last result is already a video. Use « What next? » to extend or smooth it.",
+      "needRef": "For a video, attach a character, a location or a photo, or make an image first, then say « animate it ».",
+      "busy": "Something is already being made here. Wait for its result, then send again.",
+      "toolClosed": "This tool isn't available right now. Open it to see why.",
+      "readFailed": "An attached image couldn't be read. Nothing went out.",
+      "lastName": "Last result",
+      "agentSafe": "Nothing starts from here: every creation asks for your OK, with its estimate.",
+      "toAssistant": "Continue with the assistant",
+      "openTool": "Open in the tool",
+      "confirmLine": "Nothing goes out before your OK. The final price may vary.",
+      "needLink": "Link your Comfy account to start this creation.",
+      "go": "Start · {cost}",
+      "goNoQuote": "Start",
+      "confirmPrise": "Check the take in the confirmation window. Nothing goes out before your OK.",
+      "showConfirm": "Show the confirmation again",
+      "stage": {
+        "envoi": "Sending your request…",
+        "file": "Queued on your account…",
+        "calcul": "Creating ({seconds} s)…",
+        "retour": "Fetching the result…",
+        "mesure": "Reading the real cost…",
+        "calculStart": "Creating…"
+      },
+      "inCreations": "The file is in My creations.",
+      "saved": "Saved in My creations.",
+      "animate": "Animate here",
+      "animateText": "Animate it: ",
+      "modify": "Edit here",
+      "modifyText": "Edit it: ",
+      "inMontage": "Added to the edit",
+      "montageFailed": "Couldn't add it to the edit. Try again from My creations.",
+      "cancelled": "Cancelled. Nothing went out.",
+      "interrupted": "The page reloaded during the creation. If it finished, it's in My creations.",
+      "retry": "Try again",
+      "toCreations": "My creations"
     }
   }
 }

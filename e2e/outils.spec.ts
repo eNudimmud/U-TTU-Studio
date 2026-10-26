@@ -52,7 +52,7 @@ test("panneau unique : entrée, exemple, bouton nommé d'après l'action, le ré
   expect(steps).not.toContain("protocole");
   const go = panel.locator("[data-tool-go]");
   await expect(go).toContainText("Détourer");
-  await expect(go).toContainText("≈ 2 cr.");
+  await expect(go).toContainText("≈ 2 crédits");
   await expect(go).toBeEnabled();
   await panel.locator("[data-outil-sample=image]").click();
   await expect(panel.locator("[data-outil-input=image] img")).toBeVisible();

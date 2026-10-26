@@ -15,6 +15,7 @@ import { assetPath } from "@/lib/site";
 import { FamilyIcon, scrollToFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
 import { CreationBar, fillBarre } from "./creation-bar";
+import { BarreFil, useFil } from "./barre-fil";
 
 const CHIPS = ["portrait", "anim", "film"] as const;
 
@@ -156,14 +157,17 @@ export function BarreHome() {
   const { t } = useI18n();
   const { connected, setSheet, cast } = useStudio();
   const uttu = cast.find(card => card.name.trim().toLocaleLowerCase() === "uttu")?.id;
-  return <section className="u-entry u-barre-home" data-studio-entry="" data-barre-home="" aria-labelledby="u-title">
+  const runner = useFil();
+  const threaded = runner.fil.messages.length > 0;
+  return <section className="u-entry u-barre-home" data-studio-entry="" data-barre-home="" data-threaded={threaded ? "" : undefined} aria-labelledby="u-title">
     {!connected && <p className="u-entry-link" data-entry-link="">
       <span>{t("entry.linkTitle")}</span>
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
     <h1 id="u-title" className="u-display u-barre-title" tabIndex={-1}><KeyTitle text={t("barre.title")} word={t("barre.titleKey")} /></h1>
-    <CreationBar />
-    <section className="u-barre-ideas" aria-labelledby="u-ideas">
+    <BarreFil runner={runner} />
+    <CreationBar onSend={runner.send} preview={runner.preview} />
+    {!threaded && <section className="u-barre-ideas" aria-labelledby="u-ideas">
       <div className="u-family-head"><h2 id="u-ideas">{t("barre.ideas")}</h2></div>
       <div className="u-barre-idea-row">
         {IDEAS.map(idea => <button key={idea.id} type="button" className="u-barre-idea" data-barre-idea={idea.id} onClick={() => {
@@ -175,7 +179,7 @@ export function BarreHome() {
           <strong>{t(`barre.idea.${idea.id}.title`)}</strong>
         </button>)}
       </div>
-    </section>
+    </section>}
     <a className="u-secondary u-barre-all-link" href="#outils/tous" data-barre-all-link="" onClick={event => { event.preventDefault(); openStudioTool("tous"); }}>{t("barre.all")}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
   </section>;
 }
