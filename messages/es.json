@@ -1044,7 +1044,10 @@
     "titlePh": "Un título sobre la imagen",
     "shortcuts": "Atajos",
     "shortcutHelp": "Espacio reproduce. S corta. Supr quita. Ctrl+Z deshace, Ctrl+Y rehace. Flechas: una imagen.",
-    "snap": "Imanado"
+    "snap": "Imanado",
+    "exportQuality": "Exportación rápida: {height}p, {fps} imágenes por segundo, {max} s como máximo.",
+    "exportBetter": "Más nítido: Finalizar",
+    "exportQualityShort": "{height}p · {fps} imágenes/s · {max} s máx."
   },
   "atelier": {
     "lead": "Todo lo que creaste, en este aparato.",
@@ -1506,18 +1509,18 @@
   "finaliser": {
     "open": "Finalizar el montaje",
     "title": "Finalizar el montaje",
-    "lead": "Una sola pasada sobre todo el montaje: más resolución y nitidez. No se rehace nada; el sonido y el ritmo se mantienen.",
+    "lead": "Toda la película gana tamaño y nitidez, de una vez. No se rehace nada: la actuación, el sonido y el ritmo se quedan.",
     "resolution": "Resolución",
     "nettoyer": "Limpiar",
     "aucun": "Nada",
     "bruit": "Ruido",
     "flou": "Desenfoque",
-    "quote": "≈ {credits} cr. estimados",
+    "quote": "≈ {credits} créditos estimados",
     "measured": "Medido en una pasada real.",
     "estimate": "Estimación, aún sin medir.",
     "seconds": "Montaje de {seconds} s.",
     "confirm": "Confirmo esta estimación. El precio final puede variar.",
-    "go": "Finalizar · ≈ {credits} cr. estimados",
+    "go": "Finalizar · ≈ {credits} créditos estimados",
     "empty": "El montaje está vacío: añade al menos un plano.",
     "long": "El montaje supera los 60 s: córtalo antes de finalizar.",
     "needLink": "Conecta tu cuenta de render (Comfy) para finalizar.",
@@ -1540,7 +1543,16 @@
     "close": "Cerrar",
     "download": "Descargar",
     "openLead": "El vídeo se restaura más grande, sin rehacerse. Estimado por tramos de 5 segundos.",
-    "openShort": "Finalizar"
+    "openShort": "Finalizar",
+    "tagApercu": "Vista previa",
+    "tagFinale": "Calidad final",
+    "planOpen": "Finalizar este plano",
+    "planTitle": "Finalizar este plano",
+    "planLead": "Este plano gana tamaño y nitidez. No se rehace nada: la actuación y el sonido se quedan. Sustituye la vista previa en tu montaje.",
+    "summary": "{count, plural, =0 {Ningún plano en vista previa} one {# plano en vista previa} other {# planos en vista previa}} · {seconds} s",
+    "compare": "Un plano solo: ≈ {one} créditos estimados. El montaje entero sale más barato.",
+    "planDone": "Plano finalizado: sustituye la vista previa en tu montaje.",
+    "planSeconds": "Plano de {seconds} s."
   },
   "depart": {
     "label": "Ejemplo — rehazlo",
@@ -1858,14 +1870,14 @@
       "nextWords": "Escribe qué pasa en el plano {n}."
     },
     "quote": {
-      "estimated": "≈ {low} cr. estimados",
-      "measured": "Medido: unos {credits} cr.",
+      "estimated": "≈ {low} créditos estimados",
+      "measured": "Medido: unos {credits} créditos",
       "measuredBalance": "Medido en tus tomas: unos {credits} créditos.",
       "none": "Aún no hay presupuesto para este ajuste. No se envía nada."
     },
     "gate": {
       "noBalance": "Saldo ilegible: no se envía nada sin leer la cuenta que paga.",
-      "low": "Saldo demasiado bajo: {credits} cr. Hacen falta unos {high}."
+      "low": "Saldo demasiado bajo: {credits} créditos. Hacen falta unos {high}."
     },
     "fiab": {
       "title": "Fiabilidad de la operación",
@@ -1905,6 +1917,18 @@
       "maquette": "Maqueta 3D y encuadre",
       "rendu": "Estilo y duración",
       "previs": "Previs filmada"
+    },
+    "rendu": {
+      "label": "Calidad",
+      "apercu": "Vista previa",
+      "apercuBody": "Para probar. Lo que guardes lo finalizas después.",
+      "finale": "Calidad final",
+      "finaleBody": "Lista para montar tal cual.",
+      "quote": "≈ {credits} créditos estimados",
+      "go": "Rodar · ≈ {credits} créditos estimados",
+      "goNext": "Rodar el plano {n} · ≈ {credits} créditos estimados",
+      "keep": "Tu elección se queda para los próximos planos de este proyecto.",
+      "apercuHint": "Una vista previa se finaliza después, sola o con todo el montaje."
     }
   },
   "p1": {

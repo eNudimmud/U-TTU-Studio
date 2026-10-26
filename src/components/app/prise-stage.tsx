@@ -18,7 +18,9 @@ import { mergeTakeIds, planVersions, sequenceTakes, shownTake, takeIdsFromShotNo
 import { protocole } from "@/lib/fiabilite";
 import { resolveTakeQuote } from "@/lib/render/billed-quote";
 import { quotesToRecords } from "@/lib/render/measured-quote";
-import { takeProfile, type TakeSettings } from "@/lib/render/take-graph";
+import { takeProfile, type TakeRendu, type TakeSettings } from "@/lib/render/take-graph";
+import { quoteCredits, readRendu, saveRendu } from "@/lib/prise/rendu";
+import { formatCredits } from "@/lib/credits";
 import { FiabiliteCard, type SentLine } from "./fiabilite-card";
 import { quoteWords } from "./studio-frames";
 import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/decision";
@@ -126,6 +128,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [panel, setPanel] = useState(false);
   const [mediaKind, setMediaKind] = useState<FinalMedia>("video");
   const [finaliser, setFinaliser] = useState<FinaliserInput>(finaliserDefaults("video", 5));
+  const [rendu, setRenduState] = useState<TakeRendu>("finale");
+  // The quality choice is remembered per project, in this browser.
+  useEffect(() => { setRenduState(readRendu(typeof window === "undefined" ? null : window.localStorage, studio.project)); }, [studio.project]);
+  const chooseRendu = (next: TakeRendu) => { setRenduState(next); saveRendu(window.localStorage, studio.project, next); };
   const [ask, setAsk] = useState<"composer" | null>(null);
   const [maquette, setMaquette] = useState<MaquetteState>(() => initialMaquette());
   const [sending, setSending] = useState(false);
@@ -437,8 +443,16 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const tileLabels = TUILES.map(item => ({ id: item.id, label: t(`r7.tuile.${item.id}`) }));
   const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
   // One quote per take, from the plan's own engine, format and length. LTX is estimated in 16:9 and 9:16.
-  const planSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine };
+  // Aperçu (first pass only) or Qualité finale (today's two passes). LTX only; each keeps its own profile.
+  const baseSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine };
+  const planSettings: TakeSettings = engine === "ltx" && rendu === "apercu" ? { ...baseSettings, rendu: "apercu" } : baseSettings;
   const planQuote = resolveTakeQuote(takeProfile(planSettings), quotesToRecords(studio.quotes));
+  const renduQuotes = {
+    apercu: quoteCredits(resolveTakeQuote(takeProfile({ ...baseSettings, engine: "ltx", rendu: "apercu" }), quotesToRecords(studio.quotes))),
+    finale: quoteCredits(resolveTakeQuote(takeProfile({ ...baseSettings, engine: "ltx" }), quotesToRecords(studio.quotes))),
+  };
+  const planCredits = quoteCredits(planQuote);
+  const creditsWord = (value: number | null) => value === null ? "" : t("p0.rendu.quote", { credits: formatCredits(value) });
   const quoted = planQuote.source !== "unmeasured";
   const realRefs = input.castIds.length <= 3 && input.castIds.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
   const savedDecor = !input.decorId || studio.scenes.some(scene => scene.id === input.decorId);
@@ -757,10 +771,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   let second: Action | null = null;
   if (demo) { gold = { label: t("p0.tourner"), enabled: false, reason: t("p0.why.demo"), onClick() {}, mark: "tourner" }; second = monterAction; }
   else if (busy) { gold = { label: t("p0.running"), enabled: false, reason: runningHere ? t("p0.runningWhy") : t("p0.why.busy"), onClick() {}, mark: "attente" }; second = withTake > 0 ? monterAction : null; }
-  else if (showNext) { gold = { label: t("p0.tournerSuivant", { n: String(nextNumber) }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber) }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
+  else if (showNext) { gold = { label: planCredits === null ? t("p0.tournerSuivant", { n: String(nextNumber) }) : t("p0.rendu.goNext", { n: String(nextNumber), credits: formatCredits(planCredits) }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber) }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
   else if (versions.length > 0) gold = monterAction;
   // Default level: no still-image shortcut. MONTAGE gets takes; the example (demo) keeps its still.
-  else { gold = { label: t("p0.tourner"), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
+  else { gold = { label: planCredits === null ? t("p0.tourner") : t("p0.rendu.go", { credits: formatCredits(planCredits) }), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
   const reasonText = gold.enabled ? "" : gold.reason;
 
   return <section className="u-stage u-prise" data-section="prise" data-prise-ready={ready ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
@@ -1102,6 +1116,15 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <textarea aria-label={t("p0.nextAria")} value={nextAction} rows={2} maxLength={ACTION_MAX} placeholder={t("p0.nextPh")} onChange={event => setNextAction(event.target.value)} />
       </label>}
 
+      {engine === "ltx" && (gold.mark === "tourner" || gold.mark === "suivant") && <fieldset className="u-rendu" data-rendu={rendu}>
+        <legend className="u-label">{t("p0.rendu.label")}</legend>
+        {(["apercu", "finale"] as const).map(item => <label key={item} className="u-rendu-opt" data-rendu-opt={item}>
+          <input type="radio" name="u-rendu" value={item} checked={rendu === item} disabled={busy} onChange={() => chooseRendu(item)} />
+          <span className="u-rendu-text"><b>{t(`p0.rendu.${item}`)}</b><small>{t(`p0.rendu.${item}Body`)}</small></span>
+          <span className="u-rendu-quote">{creditsWord(renduQuotes[item])}</span>
+        </label>)}
+        <p className="u-small u-rendu-hint">{t(rendu === "apercu" ? "p0.rendu.apercuHint" : "p0.rendu.keep")}</p>
+      </fieldset>}
       <div className="u-prise-actions" data-action={gold.mark}>
         {notice && !sheet && <p className="u-inline-status" role="status" data-statut-inline="" onClick={() => setNotice("")}>{say(notice)}</p>}
         {reasonText && <p className="u-why" id="u-prise-reason">{reasonText}</p>}

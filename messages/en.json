@@ -1044,7 +1044,10 @@
     "titlePh": "A title on the picture",
     "shortcuts": "Shortcuts",
     "shortcutHelp": "Space plays. S splits. Delete removes. Ctrl+Z undoes, Ctrl+Y redoes. Arrows: one frame.",
-    "snap": "Snapped"
+    "snap": "Snapped",
+    "exportQuality": "Quick export: {height}p, {fps} frames per second, {max} s at most.",
+    "exportBetter": "Sharper: Finalise",
+    "exportQualityShort": "{height}p · {fps} frames/s · {max} s max"
   },
   "atelier": {
     "lead": "Everything you created, on this device.",
@@ -1506,18 +1509,18 @@
   "finaliser": {
     "open": "Finish the edit",
     "title": "Finalise the edit",
-    "lead": "One pass over the whole edit: more resolution and sharpness. Nothing is remade; sound and timing stay.",
+    "lead": "The whole film gets bigger and sharper, in one go. Nothing is remade: acting, sound and rhythm stay.",
     "resolution": "Resolution",
     "nettoyer": "Clean up",
     "aucun": "None",
     "bruit": "Noise",
     "flou": "Blur",
-    "quote": "≈ {credits} cr. estimated",
+    "quote": "≈ {credits} credits estimated",
     "measured": "Measured on a real pass.",
     "estimate": "Estimate, not measured yet.",
     "seconds": "{seconds} s edit.",
     "confirm": "I confirm this estimate. The final price may vary.",
-    "go": "Finish · ≈ {credits} cr. estimated",
+    "go": "Finalise · ≈ {credits} credits estimated",
     "empty": "The edit is empty: add at least one shot.",
     "long": "The edit is longer than 60 s: trim it before finalising.",
     "needLink": "Link your render account (Comfy) to finalise.",
@@ -1540,7 +1543,16 @@
     "close": "Close",
     "download": "Download",
     "openLead": "The video is restored larger, never remade. Estimated per 5-second block.",
-    "openShort": "Finish"
+    "openShort": "Finish",
+    "tagApercu": "Preview",
+    "tagFinale": "Final quality",
+    "planOpen": "Finalise this shot",
+    "planTitle": "Finalise this shot",
+    "planLead": "This shot gets bigger and sharper. Nothing is remade: acting and sound stay. It replaces the preview in your edit.",
+    "summary": "{count, plural, =0 {No shot in preview} one {# shot in preview} other {# shots in preview}} · {seconds} s",
+    "compare": "One shot alone: ≈ {one} credits estimated. The whole edit costs less.",
+    "planDone": "Shot finalised: it replaces the preview in your edit.",
+    "planSeconds": "{seconds} s shot."
   },
   "depart": {
     "label": "Example — make it yours",
@@ -1858,14 +1870,14 @@
       "nextWords": "Write what happens in shot {n}."
     },
     "quote": {
-      "estimated": "≈ {low} cr. estimated",
-      "measured": "Measured: about {credits} cr.",
+      "estimated": "≈ {low} credits estimated",
+      "measured": "Measured: about {credits} credits",
       "measuredBalance": "Measured on your takes: about {credits} credits.",
       "none": "No quote yet for this setting. Nothing is sent."
     },
     "gate": {
       "noBalance": "Balance unreadable: nothing is sent without reading the paying account.",
-      "low": "Balance too low: {credits} cr. About {high} are needed."
+      "low": "Balance too low: {credits} credits. About {high} are needed."
     },
     "fiab": {
       "title": "Operation reliability",
@@ -1905,6 +1917,18 @@
       "maquette": "3D layout and framing",
       "rendu": "Style and length",
       "previs": "Filmed previs"
+    },
+    "rendu": {
+      "label": "Quality",
+      "apercu": "Preview",
+      "apercuBody": "To try things out. You finalise what you keep later.",
+      "finale": "Final quality",
+      "finaleBody": "Ready to edit as is.",
+      "quote": "≈ {credits} credits estimated",
+      "go": "Shoot · ≈ {credits} credits estimated",
+      "goNext": "Shoot shot {n} · ≈ {credits} credits estimated",
+      "keep": "Your choice stays for the next shots of this project.",
+      "apercuHint": "A preview is finalised later, on its own or with the whole edit."
     }
   },
   "p1": {

@@ -56,7 +56,7 @@ test("MONTAGE : devis, confirmation, passe en cours, vidéo finale dans Mes cré
 
   const sheet = page.getByRole("dialog", { name: "Finaliser le montage" });
   await expect(sheet).toBeVisible();
-  await expect(sheet.locator("[data-final-quote='mesure']")).toContainText(/≈ 4,1 cr\./);
+  await expect(sheet.locator("[data-final-quote='mesure']")).toContainText(/≈ 4,1 crédits/);
   await expect(sheet.locator("[data-final-quote='mesure']")).not.toContainText(/réserve/i);
   const go = sheet.locator("[data-final-go]");
   await expect(go).toBeDisabled();

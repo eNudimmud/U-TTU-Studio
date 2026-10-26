@@ -114,7 +114,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1', { timeout: 30_000 });
   await expect(page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '16:9', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.u-prise-quote:visible')).toHaveCount(1);
-  await expect(page.locator('.u-prise-quote:visible')).toHaveText(/≈ [\d,]+ cr\. estimés/);
+  await expect(page.locator('.u-prise-quote:visible')).toHaveText(/≈ [\d,]+ crédits estimés/);
   await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
   // Default PRISE: no 3D maquette, no still-image shortcut.
   await expect(page.locator('[data-maquette]')).toBeHidden();
@@ -141,7 +141,7 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
 
   for (const [plan, words] of [['2', 'Léa se retourne vers la mer'], ['3', 'Léa regarde au loin, le vent dans le manteau']] as const) {
     await page.getByRole('textbox', { name: 'Plan suivant : ce qui se passe' }).fill(words);
-    await expect(gold).toHaveText(`Tourner le plan ${plan}`);
+    await expect(gold).toHaveText(new RegExp(`^Tourner le plan ${plan}( · ≈ [0-9,]+ crédits estimés)?$`));
     if (mobile) await reachable(gold);
     await tap(gold);
     await tap(page.locator('[data-confirm-gold]'));

@@ -6,7 +6,8 @@
 // Mesuré le 14 octobre 2026 en 1080p : 4,1 crédits pour 5 s, 4,5 pour 30 s.
 // Presque tout vient du démarrage (≈ 4 crédits), chaque seconde coûte très peu.
 
-import type { ApiGraph } from "../render/take-graph.ts";
+import { isApercuProfile, type ApiGraph } from "../render/take-graph.ts";
+import type { Edit, VideoClip } from "./edit.ts";
 
 export const FINAL_TEMPLATE = "utility_nvidia_rtx_video_enhance";
 
@@ -133,4 +134,37 @@ export function finalFileId(name: string, resolution: FinalResolution, at: Date)
   const stem = (name || "montage").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "montage";
   const stamp = at.toISOString().slice(0, 16).replace(/[-:T]/g, "");
   return `${stem}-final-${resolution}-${stamp}`;
+}
+
+// Aperçu / Qualité finale in the timeline. Finaliser one shot is the same RTX pass on that
+// shot alone: the file comes back bigger and sharper, never re-rendered, and replaces the
+// aperçu in the edit. Same measured graph, same quote rule as the whole edit.
+
+export type ClipTier = "apercu" | "finale";
+
+/** A file written by Finaliser (finalFileId) carries « -final-1080p- » or « -final-4k- ». */
+export function isFinalisedSource(source: string | null): boolean {
+  return Boolean(source && /-final-(?:1080p|4k)-/.test(source));
+}
+
+/** Aperçu when the clip still plays an Aperçu take; finale for any other take. Null for imports and slates. */
+export function clipTier(clip: Pick<VideoClip, "kind" | "source" | "takeId">, takes: readonly { id: string; profile: string }[]): ClipTier | null {
+  if (clip.kind !== "video") return null;
+  if (isFinalisedSource(clip.source)) return "finale";
+  if (!clip.takeId) return null;
+  const take = takes.find(item => item.id === clip.takeId);
+  if (!take) return null;
+  return isApercuProfile(take.profile) ? "apercu" : "finale";
+}
+
+/** The whole take, alone, at normal speed: what Finaliser ce plan sends. Null when the clip is not a video. */
+export function singleClipEdit(edit: Edit, clipId: string): Edit | null {
+  const clip = edit.video.find(item => item.id === clipId);
+  if (!clip || clip.kind !== "video" || !clip.source || !(clip.media > 0)) return null;
+  return { id: `${edit.id}-${clip.id}`, name: clip.label || edit.name, video: [{ id: clip.id, kind: "video", source: clip.source, label: clip.label, media: clip.media, start: 0, end: clip.media, takeId: clip.takeId }], audio: [] };
+}
+
+/** The finalised file takes the aperçu's place. Trim, speed and fade stay: the timing is the same. */
+export function replaceClipSource(edit: Edit, clipId: string, source: string): Edit {
+  return { ...edit, video: edit.video.map(clip => clip.id === clipId ? { ...clip, source } : clip) };
 }
