@@ -1533,7 +1533,7 @@
     "prepare": "Preparando el montaje en esta pestaña…",
     "envoi": "Enviando el montaje…",
     "file": "En cola en tu cuenta…",
-    "calcul": "Se agranda ({seconds} s)…",
+    "calcul": "Se agranda…",
     "retour": "Recuperando el vídeo…",
     "mesure": "Leyendo el coste real…",
     "keepOpen": "Deja esta pestaña abierta. El render llega hasta el final; nunca se cancela.",
@@ -3305,7 +3305,7 @@
       "stage": {
         "envoi": "Enviando tu petición…",
         "file": "En cola en tu cuenta…",
-        "calcul": "Creando ({seconds} s)…",
+        "calcul": "Creando…",
         "retour": "Recuperando el resultado…",
         "mesure": "Leyendo el coste real…",
         "calculStart": "Creando…"

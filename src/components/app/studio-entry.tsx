@@ -284,7 +284,7 @@ function HomeStage({ active, lastDone, busy, view, onView, media }: {
         : <img className="src" src={assetPath(active.big || active.img)} alt="" />)
     : resultNode;
 
-  const progress = busy && !resultUrl ? { label: t("barre.fil.stage.calcul", { seconds: "0" }) } : null;
+  const progress = busy && !resultUrl ? { label: t("barre.fil.stage.calcul"), typical: "still" as const } : null;
   const lab = resultUrl
     ? <>{t("shell.result")} · {active?.eng ?? "Klein"}</>
     : active
