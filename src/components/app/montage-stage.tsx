@@ -1208,7 +1208,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={finPhase.total} aria-valuenow={finPhase.done}><span style={{ width: `${(100 * finPhase.done) / finPhase.total}%` }} /></div>
           <p className="u-small">{t("finaliser.keepOpen")}</p>
         </>}
-        {finPhase.phase === "run" && <ComfyProgress label={t(`finaliser.${finPhase.stage}`, { seconds: finPhase.seconds })} elapsedSec={finPhase.seconds || finElapsed} typicalSec={typicalFor("finaliser")} note={t("finaliser.keepOpen")} marker="finaliser" />}
+        {finPhase.phase === "run" && <div data-final-stage={finPhase.stage}><ComfyProgress label={t(`finaliser.${finPhase.stage}`, { seconds: finPhase.seconds })} elapsedSec={finPhase.seconds || finElapsed} typicalSec={typicalFor("finaliser")} note={t("finaliser.keepOpen")} marker="finaliser" /></div>}
         {finPhase.phase === "done" && <>
           <p className="u-cost is-ok" role="status">{t(finScope ? "finaliser.planDone" : "finaliser.done")}</p>
           <video className="u-final-video" src={finPhase.url} controls playsInline style={{ aspectRatio: ratio === "9/16" ? "9 / 16" : "16 / 9" }} />

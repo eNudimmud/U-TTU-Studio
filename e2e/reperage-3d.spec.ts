@@ -293,15 +293,16 @@ test("crée ton décor en direct : vue + lieu, sans photo, ≈ 4 crédits, un se
   const loads = Object.entries(comfy.graphs[0]).filter(([, node]) => node.class_type === "LoadImage");
   expect(loads).toHaveLength(1);
   expect(comfy.uploads).toEqual(["uttu-cadre-3d.png"]);
-  const text = String(Object.values(comfy.graphs[0]).find(node => node.class_type === "PrimitiveStringMultiline" && String(node.inputs.value).startsWith("Image 1"))?.inputs.value ?? "");
-  expect(text).toContain("keep its exact camera position, eye level");
+  const text = String(Object.values(comfy.graphs[0]).find(node => node.class_type === "PrimitiveStringMultiline" && /Convert the entire image 1|Create a full-color|Image 1 is a grey/.test(String(node.inputs.value)))?.inputs.value ?? "");
+  // frame-first (no street photos): grey massing is image 1; camera lock lives in that paragraph.
+  expect(text).toContain("camera position, eye level");
   expect(text).toContain("The place is real: Place d'essai, Lausanne, Suisse");
   expect(text).toMatch(/about \d+ m above the ground|at a person's eye height/);
   expect(text).toContain("never raise, lower or move the camera");
   expect(text).not.toContain("image 2");
   expect(text).toContain(`The visitor's wish, in their own words: "Fin d’après-midi d’automne, sous la neige".`);
   expect(text).not.toContain("Natural daylight");
-  expect(text.split("\n").at(-1)).toMatch(/^Whatever the wish says, image 1's camera, framing and building volumes stay exactly the same/);
+  expect(text.split("\n").at(-1)).toMatch(/^Whatever the wish says, image 1's camera, framing and building layout stay exactly the same/);
   expect(outside.filter(url => !/\/api\//.test(url))).toEqual([]);
 });
 
@@ -377,14 +378,16 @@ test("affiner avec des photos et un texte : rien de coché d'office, 360° du po
   const loads = Object.entries(graph).filter(([, node]) => node.class_type === "LoadImage");
   expect(loads).toHaveLength(4);
   expect(loads[0][1].inputs.image).toBe("entree-1.png");
-  expect(comfy.uploads[0]).toBe("uttu-cadre-3d.png");
+  // photo-lines: first upload is a street photo (appearance lock), then edges, then more photos.
+  expect(comfy.uploads[0]).toMatch(/^uttu-lieu-/);
+  expect(comfy.uploads).toContain("uttu-cadre-3d.png");
   expect(comfy.uploads).toHaveLength(4);
-  const text = String(Object.values(graph).find(node => node.class_type === "PrimitiveStringMultiline" && String(node.inputs.value).startsWith("Image 1"))?.inputs.value ?? "");
-  expect(text).toContain("keep its exact camera position");
-  expect(text).toContain("images 2 to 4");
+  const text = String(Object.values(graph).find(node => node.class_type === "PrimitiveStringMultiline" && /Convert the entire image 1|Create a full-color|Image 1 is a grey/.test(String(node.inputs.value)))?.inputs.value ?? "");
+  expect(text).toContain("exact camera position, eye level");
+  expect(text).toContain("image 1 and images 3 to 4");
   expect(text).toContain("Night");
   expect(text).toContain(`"Pavés mouillés"`);
-  expect(text).toContain("where it differs from images 2 to 4, the wish wins");
+  expect(text).toContain("where it differs from image 1 and images 3 to 4, the wish wins");
 
   // « Utiliser dans un plan » closes the sheet with the new décor already chosen.
   await page.locator("[data-rep3d-to-prise]").click();
