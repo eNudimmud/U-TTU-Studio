@@ -3388,6 +3388,9 @@
     "undoRemove": "Undo remove",
     "required": "required",
     "optional": "optional",
-    "removeSlot": "Remove {name}"
+    "removeSlot": "Remove {name}",
+    "slider": "Slider",
+    "dropSource": "Your source shows here",
+    "dropSourceLead": "Add a photo, or start from an example."
   }
 }

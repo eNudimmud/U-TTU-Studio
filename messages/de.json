@@ -3388,6 +3388,9 @@
     "undoRemove": "Entfernen rückgängig",
     "required": "erforderlich",
     "optional": "optional",
-    "removeSlot": "{name} entfernen"
+    "removeSlot": "{name} entfernen",
+    "slider": "Schieberegler",
+    "dropSource": "Deine Quelle erscheint hier",
+    "dropSourceLead": "Füge ein Foto hinzu oder starte mit einem Beispiel."
   }
 }

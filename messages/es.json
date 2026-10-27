@@ -3388,6 +3388,9 @@
     "undoRemove": "Anular la eliminación",
     "required": "obligatorio",
     "optional": "opcional",
-    "removeSlot": "Quitar {name}"
+    "removeSlot": "Quitar {name}",
+    "slider": "Cursor",
+    "dropSource": "Tu fuente se muestra aquí",
+    "dropSourceLead": "Añade una foto, o parte de un ejemplo."
   }
 }

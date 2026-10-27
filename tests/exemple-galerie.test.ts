@@ -75,3 +75,24 @@ describe("accueil v2 galerie", () => {
     }
   });
 });
+
+describe("outil shell (PR B)", () => {
+  it("puts Retoucher and Finaliser on ToolShell, with compare default for Finaliser", () => {
+    const hub = readFileSync("src/components/app/outils-hub.tsx", "utf8");
+    assert.match(hub, /SHELL_COMPARE/);
+    assert.match(hub, /ret-finaliser/);
+    assert.match(hub, /ToolShell/);
+    assert.match(hub, /compare \? "compare"/);
+    const shell = readFileSync("src/components/app/tool-shell.tsx", "utf8");
+    assert.match(shell, /data-tool-wipe/);
+    assert.match(shell, /--wipe/);
+  });
+
+  it("marks DÉCOR and PRISE as on the coque", () => {
+    const decor = readFileSync("src/components/app/stage-screens.tsx", "utf8");
+    assert.match(decor, /ToolShell/);
+    assert.match(decor, /ToolStage/);
+    const prise = readFileSync("src/components/app/prise-stage.tsx", "utf8");
+    assert.match(prise, /data-prise-shell/);
+  });
+});

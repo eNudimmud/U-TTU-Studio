@@ -3388,6 +3388,9 @@
     "undoRemove": "Annuler la suppression",
     "required": "requis",
     "optional": "facultatif",
-    "removeSlot": "Retirer {name}"
+    "removeSlot": "Retirer {name}",
+    "slider": "Curseur",
+    "dropSource": "Ta source s’affiche ici",
+    "dropSourceLead": "Joins une photo, ou pars d’un exemple."
   }
 }
