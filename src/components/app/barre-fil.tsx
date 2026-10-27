@@ -14,6 +14,7 @@ import { agentLocale, interpretAgentRequest, localizedTurn } from "@/lib/agent/l
 import { productionContext } from "@/lib/agent/context";
 import { studioActionRegistry } from "@/lib/agent/registry";
 import { formatCredits } from "@/lib/credits";
+import { nearestExemple } from "@/lib/creation/exemple-galerie";
 import { outilEtat, outilParId } from "@/lib/outils/catalogue";
 import { outilQuote } from "@/lib/outils/graphs";
 import { quoteCredits } from "@/lib/prise/rendu";
@@ -291,6 +292,21 @@ export function BarreFil({ runner }: { runner: FilRunner }) {
   </section>;
 }
 
+
+function QuoteExemple({ job }: { job: FilJob }) {
+  const { t } = useI18n();
+  const mode = job.sortie === "video" ? "video" as const : "image" as const;
+  const tool = job.route.kind === "outil" ? job.route.id : "prise";
+  const hasRefs = job.route.kind === "outil"
+    ? job.route.images.length > 0
+    : job.route.cast.length > 0 || Boolean(job.route.decor);
+  const card = nearestExemple({ mode, tool, hasRefs });
+  return <div className="u-fil-quote-ex" data-fil-quote-ex="">
+    <img src={assetPath(card.thumb)} alt="" width={72} height={48} loading="lazy" decoding="async" />
+    <p><strong>{t("barre.galerie.quoteNear")}</strong><br /><small>{t(card.titleKey)} · {t(`barre.galerie.tool.${card.tool}`)} · {t("barre.cost", { credits: formatCredits(card.price) })}</small></p>
+  </div>;
+}
+
 function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
   const { t } = useI18n();
   const { media, connected, setSheet } = useStudio();
@@ -310,6 +326,7 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
     <p className="u-fil-who">{name}{cost && <span className="u-fil-cost"> · {cost}</span>}</p>
     {job.status === "confirm" && job.route.kind === "outil" && <div className="u-fil-confirm" data-fil-confirm-card="">
       <p>{t("barre.fil.confirmLine")}</p>
+      {!connected && <QuoteExemple job={job} />}
       {!connected && <p className="u-small">{t("barre.fil.needLink")}</p>}
       <div className="u-fil-actions">
         {connected

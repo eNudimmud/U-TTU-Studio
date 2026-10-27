@@ -16,6 +16,10 @@ import { FamilyIcon, scrollToFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
 import { CreationBar, fillBarre } from "./creation-bar";
 import { BarreFil, useFil } from "./barre-fil";
+import type { FilJob } from "@/lib/barre/thread";
+import { ExempleGalerieGrid, ExempleGalerieStrip } from "./exemple-galerie";
+import { ToolShell, ToolStage, type StageView } from "./tool-shell";
+import { exempleById, type ExempleCard } from "@/lib/creation/exemple-galerie";
 
 const CHIPS = ["portrait", "anim", "film"] as const;
 
@@ -146,42 +150,155 @@ export function StudioHome() {
   </section>;
 }
 
-const IDEAS = [
-  { id: "quai", mode: "video" as const, img: "/exemples/decor-quai-nuit.webp", refs: ["demo-quai"] },
-  { id: "lieu", mode: null, img: "/exemples/reperage/sf-vue3d.webp", refs: [] },
-  { id: "portrait", mode: "image" as const, img: "/exemples/cast-coursiere.webp", refs: [] },
-];
-
-/** The studio entry: one title, the creation bar, three ideas, and « Tous les outils ». */
+/** Accueil v2: stage above the bar once an example (or a result) is active; « Pars d'un exemple » gallery of real renders. */
 export function BarreHome() {
   const { t } = useI18n();
-  const { connected, setSheet, cast } = useStudio();
-  const uttu = cast.find(card => card.name.trim().toLocaleLowerCase() === "uttu")?.id;
+  const { connected, setSheet, promoteExempleRefs, media } = useStudio();
   const runner = useFil();
   const threaded = runner.fil.messages.length > 0;
-  return <section className="u-entry u-barre-home" data-studio-entry="" data-barre-home="" data-threaded={threaded ? "" : undefined} aria-labelledby="u-title">
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [stageView, setStageView] = useState<StageView>("source");
+  const [picking, setPicking] = useState(false);
+  const active = useMemo(() => activeId ? EXEMPLE_GALERIE_FIND(activeId) : null, [activeId]);
+  const lastDone = useMemo(() => {
+    for (let i = runner.fil.messages.length - 1; i >= 0; i--) {
+      const m = runner.fil.messages[i];
+      if (m.role === "job" && m.status === "done") return m;
+    }
+    return null;
+  }, [runner.fil.messages]);
+  const busy = useMemo(() => runner.fil.messages.some(m => m.role === "job" && (m.status === "running" || m.status === "confirm")), [runner.fil.messages]);
+  const showStage = Boolean(active || lastDone || busy);
+
+  async function pickExample(card: ExempleCard) {
+    if (picking) return;
+    setPicking(true);
+    setActiveId(card.id);
+    setStageView("source");
+    try {
+      const specs = card.refs.length ? card.refs : (card.before ? [card.before] : []);
+      const promoted = specs.length ? await promoteExempleRefs(specs) : [];
+      const resolved = promoted.map(p => ({ kind: p.kind, id: p.id, name: p.name, src: p.src, path: p.path }));
+      fillBarre(card.mode, t(card.textKey), promoted.map(p => p.id), resolved);
+    } catch (error) {
+      // Still fill with demo ids so the bar shows something; P0-2 promote can retry on join.
+      fillBarre(card.mode, t(card.textKey), card.refs.map(r => r.demoId));
+      console.warn(error);
+    } finally {
+      setPicking(false);
+    }
+  }
+
+  function clearExample() {
+    setActiveId(null);
+    setStageView("source");
+    fillBarre("image", "", []);
+  }
+
+  const stageNode = showStage ? <HomeStage
+    active={active}
+    lastDone={lastDone}
+    busy={busy}
+    view={stageView}
+    onView={setStageView}
+    media={media}
+  /> : null;
+
+  const barBlock = <>
+    <BarreFil runner={runner} />
+    <CreationBar onSend={runner.send} preview={runner.preview} />
+  </>;
+
+  return <section
+    className="u-entry u-barre-home"
+    data-studio-entry=""
+    data-barre-home=""
+    data-barre-v2=""
+    data-threaded={threaded || active ? "" : undefined}
+    data-has-stage={showStage ? "" : undefined}
+    aria-labelledby="u-title"
+  >
     {!connected && <p className="u-entry-link" data-entry-link="">
+      <img src={assetPath("/exemples/comfy-logomark-yellow.svg")} alt="" width={18} height={18} />
       <span>{t("entry.linkTitle")}</span>
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
-    <h1 id="u-title" className="u-display u-barre-title" tabIndex={-1}><KeyTitle text={t("barre.title")} word={t("barre.titleKey")} /></h1>
-    <BarreFil runner={runner} />
-    <CreationBar onSend={runner.send} preview={runner.preview} />
-    {!threaded && <section className="u-barre-ideas" aria-labelledby="u-ideas">
-      <div className="u-family-head"><h2 id="u-ideas">{t("barre.ideas")}</h2></div>
-      <div className="u-barre-idea-row">
-        {IDEAS.map((idea, index) => <button key={idea.id} type="button" className="u-barre-idea" data-barre-idea={idea.id} onClick={() => {
-          if (!idea.mode) { openStudioTool(REPERAGE_ID); return; }
-          fillBarre(idea.mode, t(`barre.idea.${idea.id}.text`), idea.id === "quai" && uttu ? [uttu, ...idea.refs] : idea.refs);
-        }}>
-          <img src={assetPath(idea.img)} alt="" width={640} height={400} loading={index === 0 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : undefined} decoding="async" />
-          <span className="u-barre-idea-kind" aria-hidden="true"><FamilyIcon fam={idea.mode === "video" ? "video" : idea.mode === "image" ? "creer" : "reperage"} /></span>
-          <strong>{t(`barre.idea.${idea.id}.title`)}</strong>
-        </button>)}
-      </div>
-    </section>}
-    <a className="u-secondary u-barre-all-link" href="#outils/tous" data-barre-all-link="" onClick={event => { event.preventDefault(); openStudioTool("tous"); }}>{t("barre.all")}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+    {!showStage && <h1 id="u-title" className="u-display u-barre-title" tabIndex={-1}><KeyTitle text={t("barre.title")} word={t("barre.titleKey")} /></h1>}
+    {showStage ? <ToolShell
+      stage={stageNode}
+      bar={barBlock}
+      examples={<>
+        {active && <p className="u-ex-from" data-ex-from="">{t("barre.galerie.from", { title: t(active.titleKey) })}
+          <button type="button" className="u-text-button" data-ex-clear="" onClick={clearExample}>{t("barre.galerie.clear")}</button>
+        </p>}
+        <p className="u-barre-route-line" data-ex-route="">{active
+          ? t("barre.galerie.route", { tool: t(`barre.galerie.tool.${active.tool}`) })
+          : t("barre.routeHere", { where: t("barre.galerie.tool.klein") })}</p>
+        <ExempleGalerieStrip activeId={activeId} onPick={pickExample} />
+        <a className="u-secondary u-barre-all-link" href="#outils/tous" data-barre-all-link="" onClick={event => { event.preventDefault(); openStudioTool("tous"); }}>{t("barre.all")}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+      </>}
+    /> : <>
+      {barBlock}
+      <ExempleGalerieGrid activeId={activeId} onPick={pickExample} />
+    </>}
   </section>;
+}
+
+function EXEMPLE_GALERIE_FIND(id: string): ExempleCard | null {
+  return exempleById(id) ?? null;
+}
+
+function HomeStage({ active, lastDone, busy, view, onView, media }: {
+  active: ExempleCard | null;
+  lastDone: FilJob | null;
+  busy: boolean;
+  view: StageView;
+  onView(v: StageView): void;
+  media: Record<string, string>;
+}) {
+  const { t } = useI18n();
+  // Result from a finished job replaces the source (same place).
+  const resultUrl = lastDone
+    ? (lastDone.url || (lastDone.path ? media[lastDone.path] : "") || "")
+    : "";
+  const resultNode = resultUrl
+    ? (lastDone!.sortie === "video"
+      ? <video className="src" src={resultUrl} poster={lastDone!.poster} controls playsInline muted loop preload="metadata" aria-label={lastDone!.text} />
+      : <img className="src" src={resultUrl} alt={lastDone!.text} />)
+    : active?.video
+      ? <video className="src" src={assetPath(active.video)} poster={active.poster ? assetPath(active.poster) : undefined} controls playsInline muted loop preload="metadata" aria-label={t(active.titleKey)} />
+      : active
+        ? <img className="src" src={assetPath(active.img)} alt="" />
+        : null;
+
+  const sourceNode = active
+    ? (active.mode === "video" && active.refs.length > 0
+      ? <div className="u-ex-duo" data-ex-duo="">
+          {active.refs.map(r => <figure key={r.demoId} className={r.kind === "cast" ? "p" : "d"}>
+            <img src={assetPath(r.preview)} alt="" />
+            <figcaption><small>{t(`barre.refs.${r.kind}`)}</small>{r.name}</figcaption>
+          </figure>)}
+        </div>
+      : active.before
+        ? <img className="src" src={assetPath(active.before.preview)} alt="" />
+        : <img className="src" src={assetPath(active.big || active.img)} alt="" />)
+    : resultNode;
+
+  const progress = busy && !resultUrl ? { label: t("barre.fil.stage.calcul", { seconds: "0" }) } : null;
+  const lab = resultUrl
+    ? <>{t("shell.result")} · {active?.eng ?? "Klein"}</>
+    : active
+      ? <>{active.mode === "video" ? t("barre.galerie.labSource") : active.before ? t("barre.galerie.labSource") : t("barre.galerie.labExample")} · {active.eng}</>
+      : null;
+
+  return <ToolStage
+    view={resultUrl ? view : "source"}
+    onView={resultUrl && sourceNode && resultNode ? onView : undefined}
+    source={sourceNode}
+    result={resultNode}
+    progress={progress}
+    lab={lab}
+  />;
 }
 
 function Family({ fam, items, scout, maquette }: { fam: Famille; items: Outil[]; scout: boolean; maquette: boolean }) {
