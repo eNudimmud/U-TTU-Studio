@@ -7,6 +7,7 @@
 import { ConnectLink } from "./connect-link";
 import { useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
+import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import { formatCredits } from "@/lib/credits";
 import { composeScene } from "@/lib/maquette/phrase-scene";
 import { MAX_KEYS, MAX_PROPS, PATH_SECONDS, addKeyframe, addProp, clearPath, nextKeyTime, removeKeyframe, removeProp, type PropKind } from "@/lib/maquette/scene";
@@ -39,6 +40,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
   const [photo, setPhoto] = useState<File | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [stage, setStage] = useState<{ stage: FinaliseStage; seconds?: number } | null>(null);
+  const meshElapsed = useComfyElapsed(Boolean(stage));
   const [meshNote, setMeshNote] = useState("");
   const path = state.path ?? [];
   const props = state.props ?? [];
@@ -178,7 +180,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
       </>}
       {why3d && !stage && <p className="u-why" id="u-why-mesh">{why3d}</p>}
       {why3d && !stage && <ConnectLink />}
-      {stage && <p className="u-small" id="u-mesh-busy" aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
+      {stage && <div id="u-mesh-busy"><ComfyProgress label={t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? meshElapsed) })} elapsedSec={stage.seconds ?? meshElapsed} typicalSec={typicalFor("mesh")} note={t("finaliser.keepOpen")} marker="mesh" /></div>}
       {meshNote && <p className="u-small" role="status">{meshNote}</p>}
     </div>
   </section>;

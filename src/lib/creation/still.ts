@@ -21,6 +21,8 @@ export function stillEngine(template: string | undefined): StillEngine {
   return "klein";
 }
 
+export type CadreStillLayout = "frame-first" | "photo-lines";
+
 export interface StillRunInput {
   kind: StillKind;
   /** The gesture template. FLUX 3 Klein when absent. */
@@ -30,6 +32,8 @@ export interface StillRunInput {
   seed: number;
   clientId: string;
   balanceBefore: number;
+  /** Cadre-decor only: photo-first + edges as structure when set. */
+  cadreLayout?: CadreStillLayout;
 }
 
 export interface StillRunResult {
@@ -111,14 +115,20 @@ function loads(graph: ApiGraph, images: readonly string[], max: number): [string
 }
 
 /** FLUX 3 Image Klein (open weights). Edits take up to four references. */
-function kleinStill(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number }): ApiGraph {
+function kleinStill(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number; cadreLayout?: CadreStillLayout }): ApiGraph {
   const kind = input.kind === "planche" ? "photo-cast" : input.kind;
   needsPhoto(input.kind, input.images);
   const graph: ApiGraph = {};
   const refs = kind === "texte-cast" || kind === "texte-decor" ? [] : loads(graph, input.images, KLEIN_REFS_MAX);
   if (kind === "cadre-decor") {
-    graph.load._meta = { title: "Cadre 3D (base fixe)" };
-    refs.slice(1).forEach(([id], index) => { graph[id]._meta = { title: `Photo du lieu ${index + 1}` }; });
+    if (input.cadreLayout === "photo-lines") {
+      graph.load._meta = { title: "Photo du lieu (style)" };
+      if (refs[1]) graph[refs[1][0]]._meta = { title: "Cadre 3D (lignes / structure)" };
+      refs.slice(2).forEach(([id], index) => { graph[id]._meta = { title: `Photo du lieu ${index + 2}` }; });
+    } else {
+      graph.load._meta = { title: "Cadre 3D (base fixe)" };
+      refs.slice(1).forEach(([id], index) => { graph[id]._meta = { title: `Photo du lieu ${index + 1}` }; });
+    }
   }
   const sheet = input.kind === "planche" ? "Turnaround of this fictional person: front, three-quarter, profile, back, full body, side by side. Plain background. No text." : SUFFIX[kind];
   Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: sheet ? `${input.prompt}\n\n${sheet}` : input.prompt, seed: input.seed, aspect: aspectOf(kind), images: refs }));
@@ -154,7 +164,7 @@ function flux3Still(input: { kind: StillKind; prompt: string; images: readonly s
 }
 
 /** The API graph for one template. `images` are already uploaded input names. */
-export function stillGraph(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number; template?: string }): ApiGraph {
+export function stillGraph(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number; template?: string; cadreLayout?: CadreStillLayout }): ApiGraph {
   const prompt = input.prompt.trim();
   if (!prompt) throw new Error("Le texte est vide.");
   const seed = seedOf(input.seed);
@@ -302,7 +312,7 @@ export async function runStill(client: RenderClient, input: StillRunInput, optio
     names.push(await client.upload(picture.blob, picture.name));
   }
   if (options.signal?.aborted) throw new RenderError("cancelled", "Rendu annulé avant l’envoi.");
-  const graph = stillGraph({ kind: input.kind, prompt: input.prompt, images: names, seed: input.seed, template: input.template });
+  const graph = stillGraph({ kind: input.kind, prompt: input.prompt, images: names, seed: input.seed, template: input.template, cadreLayout: input.cadreLayout });
   const jobId = await client.submit(graph, input.clientId);
   const started = now();
   for (;;) {

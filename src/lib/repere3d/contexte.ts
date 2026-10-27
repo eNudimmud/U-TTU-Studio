@@ -175,5 +175,8 @@ export function lignesContexte(c: Contexte): string[] {
   const view = [...seen, ...unnamed, sky].filter(Boolean);
   if (view.length) lines.push(`In view: ${view.join("; ")}.`);
   if (c.sun) lines.push(`Sunlight from the ${boussole(c.sun.azimuth)}, about ${Math.round(c.sun.altitude)}° above the horizon.`);
+  if (!c.kinds.includes("water") && !c.zones.some(zone => zone.kind === "water")) {
+    lines.push("No lake, sea or open water is in this frame — do not invent any.");
+  }
   return lines;
 }

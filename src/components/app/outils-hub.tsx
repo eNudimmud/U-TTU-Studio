@@ -10,6 +10,7 @@
 import { useAgentDraft } from "./use-agent-draft";
 import { useEffect, useId, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
+import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { formatCredits } from "@/lib/credits";
 import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
@@ -250,6 +251,7 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
   const [ask, setAsk] = useState(false);
   const [why, setWhy] = useState("");
   const [stage, setStage] = useState<{ stage: FinaliseStage; seconds?: number } | null>(null);
+  const outilElapsed = useComfyElapsed(Boolean(stage));
   const [outcome, setOutcome] = useState<FinaliseOutcome | null>(null);
   const titleId = useId();
   const busyId = `${titleId}-busy`;
@@ -462,7 +464,7 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
       {quote && <span className="u-tool-go-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })}</span>}
     </button>
     {why && !busy && <p className="u-why" id={whyId} data-tool-why="">{why}</p>}
-    {stage && <p className="u-small" id={busyId} aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
+    {stage && <div id={busyId}><ComfyProgress label={t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? outilElapsed) })} elapsedSec={stage.seconds ?? outilElapsed} typicalSec={typicalFor("outil")} note={t("finaliser.keepOpen")} marker="outil" /></div>}
     {outcome && !outcome.ok && <p className="u-why" role="alert" data-tool-fail="">{outcome.message} {t("suite.intact")}</p>}
     {outcome?.ok && <p className="u-small" data-tool-done="">{t("suite.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p>}
     {ask && quote && <div className="u-confirm-layer">

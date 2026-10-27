@@ -3332,5 +3332,10 @@
     "required": "requis",
     "optional": "facultatif",
     "removeSlot": "Retirer {name}"
+  },
+  "progress": {
+    "elapsed": "Écoulé {time}",
+    "elapsedRemaining": "Écoulé {elapsed} · ≈ {remaining} restantes",
+    "elapsedAlmost": "Écoulé {time} · bientôt prêt"
   }
 }

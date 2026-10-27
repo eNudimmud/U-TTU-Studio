@@ -3332,5 +3332,10 @@
     "required": "erforderlich",
     "optional": "optional",
     "removeSlot": "{name} entfernen"
+  },
+  "progress": {
+    "elapsed": "Verstrichen {time}",
+    "elapsedRemaining": "Verstrichen {elapsed} · ≈ {remaining} übrig",
+    "elapsedAlmost": "Verstrichen {time} · gleich fertig"
   }
 }

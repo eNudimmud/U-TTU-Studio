@@ -6,6 +6,7 @@
 
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
+import { ComfyProgress, useComfyElapsed, typicalFor, type TypicalWaitKey } from "./comfy-progress";
 
 export type StageView = "source" | "result" | "compare";
 
@@ -24,7 +25,7 @@ export interface ToolStageProps {
   result?: ReactNode;
   /** Compare slider: before = source, after = result (Finaliser). */
   compare?: boolean;
-  progress?: { label: string; seconds?: number } | null;
+  progress?: { label: string; seconds?: number; typical?: TypicalWaitKey | number | null } | null;
   lab?: ReactNode;
   className?: string;
 }
@@ -39,16 +40,26 @@ export function ToolStage({ view, onView, source, result, compare, progress, lab
         <div className="u-tool-compare-before">{source}</div>
         <div className="u-tool-compare-after">{result}</div>
       </div> : view === "result" ? result : source}
-      {progress && <div className="u-tool-stage-progress" role="status" data-tool-progress="">
-        <span className="u-fil-bar" aria-hidden="true"><span /></span>
-        <p>{progress.label}{typeof progress.seconds === "number" ? ` · ${progress.seconds} s` : ""}</p>
-      </div>}
+      {progress && <ToolStageProgress progress={progress} />}
     </div>
     {lab && <div className="u-tool-stage-lab">{lab}</div>}
     {onView && (source && result) && !compare && <div className="u-tool-seg" role="group" aria-label={t("shell.compare")} id={toggleId}>
       <button type="button" aria-pressed={view === "source"} data-tool-view="source" onClick={() => onView("source")}>{t("shell.source")}</button>
       <button type="button" aria-pressed={view === "result"} data-tool-view="result" onClick={() => onView("result")}>{t("shell.result")}</button>
     </div>}
+  </div>;
+}
+
+
+function ToolStageProgress({ progress }: { progress: { label: string; seconds?: number; typical?: TypicalWaitKey | number | null } }) {
+  const active = true;
+  const elapsed = useComfyElapsed(active);
+  const shown = typeof progress.seconds === "number" ? progress.seconds : elapsed;
+  const typical = typeof progress.typical === "number" ? progress.typical
+    : typeof progress.typical === "string" ? typicalFor(progress.typical)
+    : typicalFor("outil");
+  return <div className="u-tool-stage-progress" data-tool-progress="">
+    <ComfyProgress label={progress.label} elapsedSec={shown} typicalSec={typical} marker="tool-stage" />
   </div>;
 }
 

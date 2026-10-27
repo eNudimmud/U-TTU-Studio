@@ -19,6 +19,7 @@ import { chooseEdit, editFromShots, editHasClips } from "@/lib/montage/from-take
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
 import { creationAllowed } from "@/lib/creation/quotes";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
+import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import { Close, Expand, Face, Film, Mic, More, Music, Pause, Play, Plus, Redo, Spark, Split, Trash, Undo, ZoomIn, ZoomOut } from "./glyphs";
 import { framePoster } from "@/lib/montage/poster";
 import { useFormat } from "./format-switch";
@@ -672,6 +673,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     ? t("montage.sizeMb", { amount: (estimate.bytes / 1_000_000).toFixed(1).replace(".", comma ? "," : ".") })
     : t("montage.sizeKb", { amount: String(Math.max(1, Math.round(estimate.bytes / 1000))) })) : "";
   const finBusy = finPhase.phase === "prepare" || finPhase.phase === "run";
+  const finElapsed = useComfyElapsed(finBusy);
   const scopeClip = finScope ? edit.video.find(clip => clip.id === finScope) ?? null : null;
   const finSeconds = scopeClip ? scopeClip.media : duration;
   const finQuote = quoteFinal(finSeconds);
@@ -1206,11 +1208,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           <div className="u-meter" role="progressbar" aria-valuemin={0} aria-valuemax={finPhase.total} aria-valuenow={finPhase.done}><span style={{ width: `${(100 * finPhase.done) / finPhase.total}%` }} /></div>
           <p className="u-small">{t("finaliser.keepOpen")}</p>
         </>}
-        {finPhase.phase === "run" && <>
-          <p className="u-small" aria-live="polite" data-final-stage={finPhase.stage}>{t(`finaliser.${finPhase.stage}`, { seconds: finPhase.seconds })}</p>
-          <div className="u-meter is-busy" role="progressbar" aria-busy="true"><span /></div>
-          <p className="u-small">{t("finaliser.keepOpen")}</p>
-        </>}
+        {finPhase.phase === "run" && <ComfyProgress label={t(`finaliser.${finPhase.stage}`, { seconds: finPhase.seconds })} elapsedSec={finPhase.seconds || finElapsed} typicalSec={typicalFor("finaliser")} note={t("finaliser.keepOpen")} marker="finaliser" />}
         {finPhase.phase === "done" && <>
           <p className="u-cost is-ok" role="status">{t(finScope ? "finaliser.planDone" : "finaliser.done")}</p>
           <video className="u-final-video" src={finPhase.url} controls playsInline style={{ aspectRatio: ratio === "9/16" ? "9 / 16" : "16 / 9" }} />

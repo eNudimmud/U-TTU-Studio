@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
+import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import { emptyConversation, type Conversation } from "@/lib/agent/kernel/production";
 import { agentLocale, interpretAgentRequest, localizedTurn } from "@/lib/agent/language";
 import { productionContext } from "@/lib/agent/context";
@@ -324,11 +325,7 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
         <button type="button" className="u-secondary" data-fil-cancel="" onClick={() => runner.cancel(job.id)}>{t("verb.cancel")}</button>
       </div>
     </div>}
-    {job.status === "running" && <div className="u-fil-progress" role="status" data-fil-progress={job.stage ?? "envoi"}>
-      <span className="u-fil-bar" aria-hidden="true"><span /></span>
-      <p>{job.stage === "calcul" && !job.seconds ? t("barre.fil.stage.calculStart") : t(`barre.fil.stage.${job.stage ?? "envoi"}`, { seconds: String(job.seconds ?? 0) })}</p>
-      <p className="u-small">{t("finaliser.keepOpen")}</p>
-    </div>}
+    {job.status === "running" && <FilRunningProgress job={job} />}
     {job.status === "done" && <div className="u-fil-result" data-fil-result={job.sortie} data-aspect={job.aspect}>
       {url ? (job.sortie === "image"
         ? <img src={url} alt={job.text} className="u-fil-media" data-fil-media="" />
@@ -351,4 +348,25 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
     </div>}
     {open}
   </li>;
+}
+
+function FilRunningProgress({ job }: { job: FilJob }) {
+  const { t } = useI18n();
+  const elapsed = useComfyElapsed(true);
+  const shown = typeof job.seconds === "number" ? job.seconds : elapsed;
+  const label = job.stage === "calcul" && !job.seconds
+    ? t("barre.fil.stage.calculStart")
+    : t(`barre.fil.stage.${job.stage ?? "envoi"}`, { seconds: String(shown) });
+  const typicalKey = job.route.kind === "prise" ? "prise" as const
+    : job.route.kind === "outil" ? "outil" as const
+    : "still" as const;
+  return <div className="u-fil-progress" data-fil-progress={job.stage ?? "envoi"}>
+    <ComfyProgress
+      label={label}
+      elapsedSec={shown}
+      typicalSec={typicalFor(typicalKey)}
+      note={t("finaliser.keepOpen")}
+      marker="fil"
+    />
+  </div>;
 }
