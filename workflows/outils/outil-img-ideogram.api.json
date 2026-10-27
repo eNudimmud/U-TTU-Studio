@@ -3,7 +3,7 @@
     "inputs": {
       "model": "ideogram-4.5",
       "model.prompt": "<texte du visiteur>",
-      "model.size": "auto",
+      "model.size": "16:9",
       "model.quality": "medium",
       "model.magic_prompt": "auto",
       "model.seed": 0

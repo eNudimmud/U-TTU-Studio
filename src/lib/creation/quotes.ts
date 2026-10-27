@@ -56,9 +56,15 @@ export const DECOR_PHOTO_QUOTE: CreationQuote = {
   kind: "mesure",
 };
 
-/** The button stays off until the account is linked and the balance covers the ceiling. */
+/**
+ * Linked account whose known balance covers the ceiling.
+ * An unread/null balance is not "too low": never block as insufficient when the
+ * amount is unknown (header blank / transient balance read). Cloud still 402s.
+ */
 export function creationAllowed(connected: boolean, credits: number | null, high: number): boolean {
-  return connected === true && typeof credits === "number" && Number.isFinite(credits) && Number.isFinite(high) && high > 0 && credits >= high;
+  if (connected !== true || !Number.isFinite(high) || high <= 0) return false;
+  if (credits === null || !Number.isFinite(credits)) return true;
+  return credits >= high;
 }
 
 export function quoteForCast(source: "texte" | "photos"): CreationQuote {

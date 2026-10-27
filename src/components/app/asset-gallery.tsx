@@ -21,7 +21,7 @@ function markOf(kind: AssetKind): MarkKind {
   if (kind === "personnage") return "personnage";
   if (kind === "decor") return "lieu";
   if (kind === "plan") return "prise";
-  if (kind === "son") return "sequence";
+  if (kind === "son") return "son";
   return "note";
 }
 
@@ -162,13 +162,13 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       </dl>
       {type && <p className="u-label u-item-label">{t("creations.use")}</p>}
       <div className="u-card-actions" data-item-use="">
-        {isVideo(current) && !current.preview && <a href={srcOf(current)} download={current.media.split("/").pop()}>{t("previs.downloadClip")}</a>}
-        {onUseRef && !isModel(current) && !isAudio(current) && !isVideo(current) && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
+        {!current.preview && srcOf(current) && <a href={srcOf(current)} download={current.media.split("/").pop() || current.name}>{isAudio(current) || current.kind === "son" ? t("previs.downloadClip") : isVideo(current) ? t("previs.downloadClip") : isModel(current) ? t("previs.downloadModel") : t("previs.downloadClip")}</a>}
+        {onUseRef && !isModel(current) && !isAudio(current) && !isVideo(current) && current.kind !== "son" && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
         {onPrise && (current.kind === "personnage" || current.kind === "decor") && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
         {onMontage && !isModel(current) && <button type="button" onClick={() => onMontage(current)}>{t("assets.toMontage")}</button>}
         {onRename && (current.kind === "personnage" || current.kind === "decor") && !current.preview && <button type="button" onClick={() => { const next = window.prompt(t("create.rename"), current.name); if (next) onRename(current, next); }}>{t("create.rename")}</button>}
         {onDuplicate && (current.kind === "personnage" || current.kind === "decor") && !current.preview && <button type="button" onClick={() => onDuplicate(current)}>{t("create.duplicate")}</button>}
-        {onDelete && (current.kind === "personnage" || current.kind === "decor") && !current.preview && (armed === current.id
+        {onDelete && !current.preview && (armed === current.id
           ? <button type="button" onClick={() => { onDelete(current); setArmed(null); setOpen(null); }}>{t("create.deleteYes")}</button>
           : <button type="button" onClick={() => setArmed(current.id)}>{t("create.delete")}</button>)}
         {onCopy && (current.kind === "personnage" || current.kind === "decor") && projects.map(project => <button key={project.slug} type="button" onClick={() => onCopy(current, project.slug)}>{t("create.copyProject", { name: project.name })}</button>)}
@@ -201,7 +201,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
             if (selecting) { toggle(card.id); return; }
             setOpen(card.id);
           }}>
-            <span className="u-thumb">{isModel(card) ? <span className="u-card-blank">3D</span> : isAudio(card) ? <KindMark kind="sequence" /> : src ? (isVideo(card) ? <video src={`${src}#t=0.1`} muted playsInline preload="metadata" aria-hidden="true" /> : <img src={src} alt="" />) : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}</span>
+            <span className="u-thumb">{isModel(card) ? <span className="u-card-blank">3D</span> : isAudio(card) || card.kind === "son" ? <span className="u-card-blank u-card-audio" data-audio-thumb=""><KindMark kind="son" /></span> : src ? (isVideo(card) ? <video src={`${src}#t=0.1`} muted playsInline preload="metadata" aria-hidden="true" /> : <img src={src} alt="" />) : <span className="u-card-blank"><KindMark kind={markOf(card.kind)} /></span>}</span>
           </button>
           <span className="u-asset-name">{card.name}</span>
           <button type="button" className="u-asset-check" aria-pressed={selected} aria-label={t("assets.select")} onPointerDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); toggle(card.id); }}>

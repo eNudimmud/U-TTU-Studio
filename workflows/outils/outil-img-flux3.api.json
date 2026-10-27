@@ -2,7 +2,7 @@
   "1": {
     "inputs": {
       "prompt": "<texte du visiteur>",
-      "aspect_ratio": "auto",
+      "aspect_ratio": "16:9",
       "resolution": "1K",
       "grounding": true,
       "safety_tolerance": 4,

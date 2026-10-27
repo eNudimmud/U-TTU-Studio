@@ -55,8 +55,8 @@ export const OUTILS: readonly Outil[] = [
   // CRÉER · image
   { id: "img-klein", num: 1, famille: "creer", sous: "image", template: "image_flux3_klein_t2i", entrees: [], texte: "requis", sortie: "image", onglets: ["cast", "decor"], geste: "outil-img-klein", moteur: { kind: "klein" }, reglages: ["aspect"] },
   { id: "img-qwen", num: 2, famille: "creer", sous: "image", template: "image_qwen_image_2_1_t2i", entrees: [], texte: "requis", sortie: "image", onglets: ["cast", "decor"], geste: "outil-img-qwen", moteur: G, reglages: ["aspect"] },
-  { id: "img-flux3", num: 3, famille: "creer", sous: "image", template: "api_bfl_flux3_t2i", entrees: [], texte: "requis", sortie: "image", onglets: ["cast", "decor"], geste: "outil-img-flux3", moteur: G },
-  { id: "img-ideogram", num: 4, famille: "creer", sous: "image", template: "api_ideogram_v4_5_t2i", entrees: [], texte: "requis", sortie: "image", onglets: ["decor"], geste: "outil-img-ideogram", moteur: G },
+  { id: "img-flux3", num: 3, famille: "creer", sous: "image", template: "api_bfl_flux3_t2i", entrees: [], texte: "requis", sortie: "image", onglets: ["cast", "decor"], geste: "outil-img-flux3", moteur: G, reglages: ["aspect"] },
+  { id: "img-ideogram", num: 4, famille: "creer", sous: "image", template: "api_ideogram_v4_5_t2i", entrees: [], texte: "requis", sortie: "image", onglets: ["decor"], geste: "outil-img-ideogram", moteur: G, reglages: ["aspect"] },
   { id: "img-gpt", num: 5, famille: "creer", sous: "image", template: "api_openai_gpt_image_2_t2i", entrees: [], texte: "requis", sortie: "image", onglets: [], geste: "outil-img-gpt", moteur: G },
   { id: "img-seedream", num: 6, famille: "creer", sous: "image", template: "api_bytedance_seedream_5_0_pro_t2i", entrees: [], texte: "requis", sortie: "image", onglets: [], geste: "outil-img-seedream", moteur: G },
   { id: "img-nano", num: 7, famille: "creer", sous: "image", template: "api_nano_banana_2_1_t2i", entrees: [], texte: "requis", sortie: "image", onglets: [], geste: "outil-img-nano", moteur: G },

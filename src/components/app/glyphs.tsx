@@ -31,7 +31,7 @@ export const Coffre = ({ className }: GlyphProps) => <svg {...base} className={c
 
 
 
-export type MarkKind = "personnage" | "lieu" | "prise" | "sequence" | "note";
+export type MarkKind = "personnage" | "lieu" | "prise" | "sequence" | "note" | "son";
 
 /** A quiet mark for a card that has no picture yet. */
 export function KindMark({ kind }: { kind: MarkKind }) {
@@ -41,6 +41,7 @@ export function KindMark({ kind }: { kind: MarkKind }) {
       {kind === "lieu" && <><rect x="4" y="5" width="16" height="14" rx="1.5" /><path d="M4 15l4-3 3 2 3-4 6 5" /></>}
       {kind === "prise" && <><rect x="3.5" y="6" width="17" height="12" rx="1.5" /><path d="M10 9.5v5l4.5-2.5z" /></>}
       {kind === "sequence" && <path d="M5 7h14M5 12h14M5 17h9" />}
+      {kind === "son" && <path d="M4 12v0M8 8v8M12 5v14M16 8v8M20 12v0" />}
       {kind === "note" && <><path d="M7 3.5h7l4 4V20H7z" /><path d="M14 3.5V8h4M9 12h6M9 16h4" /></>}
     </svg>
   </div>;

@@ -14,7 +14,7 @@
   },
   "266": {
     "inputs": {
-      "value": "equirectangular 360 image, "
+      "value": "equirectangular 360 panorama, seamless full environment wrapping left-right, "
     },
     "class_type": "PrimitiveStringMultiline",
     "_meta": {
@@ -108,7 +108,7 @@
   },
   "238:228": {
     "inputs": {
-      "text": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有AI感。构图混乱。文字模糊，扭曲",
+      "text": "cut-out, cutout, isolated subject on white, plain white background, studio backdrop, portrait crop, product shot, low resolution, low quality, deformed limbs, deformed fingers, oversaturated, waxy skin, face without detail, overly smooth, AI look, messy composition, blurry text",
       "clip": [
         "238:219",
         0

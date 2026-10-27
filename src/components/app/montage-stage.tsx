@@ -358,7 +358,10 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     if (!pendingClip || loadedProject !== (studio.project ?? "")) return;
     const origin = studio.project;
     const pending = pendingClip;
-    holdClip(null);
+    const resolved = urlOfRef.current(pending.source);
+    // Media map fills after reload — wait one tick for the blob URL rather than failing empty.
+    if (!resolved && !pending.source.startsWith("/") && !pending.source.startsWith("local:")) return;
+    let cancelled = false;
     void (async () => {
       let seconds = pending.seconds ?? 5;
       if (pending.kind !== "image" && !pending.seconds) {
@@ -368,23 +371,27 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
             const timer = window.setTimeout(() => reject(new Error("Lecture du média trop longue.")), 15000);
             element.onloadedmetadata = () => { clearTimeout(timer); Number.isFinite(element.duration) && element.duration > 0 ? resolve(element.duration) : reject(new Error("Durée du média illisible.")); };
             element.onerror = () => { clearTimeout(timer); reject(new Error("Média impossible à lire.")); };
-            element.src = urlOfRef.current(pending.source);
+            const src = urlOfRef.current(pending.source);
+            if (!src) { clearTimeout(timer); reject(new Error("Média introuvable dans le projet.")); return; }
+            element.src = src;
           });
         } finally { element.removeAttribute("src"); element.load(); }
       }
+      if (cancelled) return;
       if (origin !== projectRef.current) throw new Error("Le projet a changé. Le média reste dans sa galerie ; ajoute-le à nouveau au montage souhaité.");
       const id = `plan-${crypto.randomUUID()}`;
       const base = historyRef.current;
       const next = pending.kind === "audio"
         ? addAudio(base.present, { id, track: "effets", source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, at: snapped(timeRef.current), volume: 0.8, fadeIn: 0, fadeOut: 0 })
         : appendVideo(base.present, { id, kind: pending.kind, source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, takeId: null });
-      // Await the vault write before the visitor (or an e2e reload) can race an empty cut.
       const committed = commit(base, next);
       show(committed);
       setSelected(id);
       if (committed !== base) await persist(committed.present);
-    })().catch(error => setNotice(error.message));
-  }, [pendingClip, holdClip, loadedProject, studio.project]);
+      holdClip(current => current && current.source === pending.source && current.label === pending.label ? null : current);
+    })().catch(error => { if (!cancelled) setNotice(error instanceof Error ? error.message : String(error)); });
+    return () => { cancelled = true; };
+  }, [pendingClip, holdClip, loadedProject, studio.project, media]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -874,9 +881,9 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </div>
       <div className="u-bin-body">
       {binTab === "medias" && <div className="u-chutier-row">
-        {edit.video.map(clip => {
+        {edit.video.filter((clip, index, all) => all.findIndex(item => item.source === clip.source) === index).map(clip => {
           const thumb = thumbOf(clip);
-          return <button key={clip.id} type="button" aria-pressed={selected === clip.id} onClick={() => setSelected(clip.id)}><span className="u-bin-thumb">{thumb ? <img src={thumb} alt="" /> : null}</span><span className="u-bin-name">{clip.label}</span></button>;
+          return <button key={clip.source || clip.id} type="button" aria-pressed={selected === clip.id} onClick={() => setSelected(clip.id)}><span className="u-bin-thumb">{thumb ? <img src={thumb} alt="" /> : null}</span><span className="u-bin-name">{clip.label}</span></button>;
         })}
         {studio.takes.map(take => {
           const poster = take.poster ? urlOf(take.poster) : "";
@@ -969,7 +976,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         </>}
         {selectedAudio && <button type="button" onClick={() => { const id = `son-${crypto.randomUUID()}`; commitFrom(historyRef.current, duplicateAudio(historyRef.current.present, selectedAudio.id, id)); setSelected(id); }}><Plus /><span>{t("montage.duplicate")}</span></button>}
         <button type="button" onClick={() => { if (!selected) return; commitFrom(historyRef.current, deleteClip(historyRef.current.present, selected)); setSelected(null); }}><Trash /><span>{t("montage.delete")}</span></button>
-        {!splitOk && selectedVideo && <span className="sr-only" id="u-why-split-bar">{t("montage.splitOff")}</span>}
+        {!splitOk && selectedVideo && <p className="u-small u-split-why" id="u-why-split-bar" data-split-why="" role="status">{t("montage.splitOff")}</p>}
       </div>}
       <div className="u-toolrow-main">
         <Tool id="u-why-undo" off={history.past.length === 0} reason={t("montage.undoOff")} label={t("montage.undo")} glyph={<Undo />} onClick={() => { const next = undo(historyRef.current); if (next !== historyRef.current) { show(next); void persist(next.present); } }} />
@@ -1011,7 +1018,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
         }} />
         <div className="u-track-row is-ruler">
           <span className="u-track-head" />
-          <div className="u-ruler" onPointerDown={event => seek(pointerTime(event.clientX))}>
+          <div className="u-ruler" onPointerDown={event => { event.preventDefault(); event.stopPropagation(); seek(pointerTime(event.clientX)); }}>
             {ticks.map(mark => <span key={mark} style={{ left: mark * px }}>{formatClock(mark)}</span>)}
           </div>
         </div>

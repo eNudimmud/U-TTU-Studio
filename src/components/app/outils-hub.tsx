@@ -114,15 +114,25 @@ function OutilWork({ outil, head }: { outil: Outil; head: string }) {
   const { connected, setSheet } = useStudio();
   const [last, setLast] = useState<ToolRun | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [busy, setBusy] = useState<{ stage: FinaliseStage; seconds: number; labelKey: string; typical: "son" | "video" | "outil" | "retoucher" } | null>(null);
   const [view, setView] = useState<StageView>(SHELL_COMPARE.has(head) ? "compare" : "result");
   const onShell = SHELL_OUTILS.has(head) || SHELL_OUTILS.has(outil.id);
   const compare = SHELL_COMPARE.has(head) || SHELL_COMPARE.has(outil.id);
+  const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setView(compare ? "compare" : "result");
     setLast(null);
     setPreview(null);
+    setBusy(null);
   }, [head, compare]);
+
+  // Opening a tool (or landing a result) brings the stage into view — never leave the result under the fold.
+  useEffect(() => {
+    const node = stageRef.current ?? document.querySelector<HTMLElement>("[data-tool-stage], [data-outils-tool]");
+    if (!node) return;
+    requestAnimationFrame(() => node.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }, [head, last?.url, preview]);
 
   const sourceNode = preview
     ? <img className="src" src={preview} alt="" />
@@ -131,14 +141,16 @@ function OutilWork({ outil, head }: { outil: Outil; head: string }) {
     ? <video className="src" src={last.url} poster={last.poster} controls playsInline muted loop preload="metadata" />
     : <img className="src" src={last.url} alt="" />) : null;
 
-  const stage = onShell ? <ToolStage
+  const progress = busy ? { label: t(busy.labelKey), seconds: busy.seconds, typical: busy.typical } : null;
+  const stage = onShell ? <div ref={stageRef}><ToolStage
     view={last ? view : "source"}
     onView={last ? setView : undefined}
     source={sourceNode}
     result={resultNode}
     compare={compare}
+    progress={progress}
     lab={last ? <>{t("shell.result")}</> : preview ? <>{t("shell.source")}</> : null}
-  /> : null;
+  /></div> : null;
 
   // Coque shows the run on the stage; keep ToolResult below so « Et ensuite ? » + Mes créations stay (PR #137 panneau unique).
   return <div className="u-outils-work" data-outils-tool={head} data-outil-shell={onShell ? "" : undefined}>
@@ -149,7 +161,7 @@ function OutilWork({ outil, head }: { outil: Outil; head: string }) {
     <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(ALL_TOOLS_ID)}>← {t("outils.back")}</button>
     {onShell ? <ToolShell
       stage={stage}
-      bar={<ToolPanel outil={outil} onResult={run => { setLast(run); if (run) setView(compare ? "compare" : "result"); }} onPreview={setPreview} />}
+      bar={<ToolPanel outil={outil} onResult={run => { setLast(run); if (run) setView(compare ? "compare" : "result"); }} onPreview={setPreview} onBusy={setBusy} />}
       examples={last ? <ToolResult run={last} label={titreCarte(t, outil.id)} /> : null}
     /> : <div className="u-outils-split" data-has-result={last ? "" : undefined}>
       <ToolPanel outil={outil} onResult={setLast} onPreview={setPreview} />
@@ -269,7 +281,7 @@ function Fold({ step, label, children }: { step: string; label: string; children
   </div>;
 }
 
-export function ToolPanel({ outil: asked, onResult, onPreview }: { outil: Outil; onResult?(run: ToolRun | null): void; onPreview?(url: string | null): void }) {
+export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil: Outil; onResult?(run: ToolRun | null): void; onPreview?(url: string | null): void; onBusy?(busy: { stage: FinaliseStage; seconds: number; labelKey: string; typical: "son" | "video" | "outil" | "retoucher" } | null): void }) {
   const { t } = useI18n();
   const { connected, creating, runOutil, balance, setSheet, prefs, media } = useStudio();
   const [modelId, setModelId] = useState(asked.id);
@@ -292,6 +304,12 @@ export function ToolPanel({ outil: asked, onResult, onPreview }: { outil: Outil;
   const [why, setWhy] = useState("");
   const [stage, setStage] = useState<{ stage: FinaliseStage; seconds?: number } | null>(null);
   const outilElapsed = useComfyElapsed(Boolean(stage));
+  const typicalKey = outil.sortie === "audio" ? "son" as const : outil.sortie === "video" ? "video" as const : outil.famille === "retoucher" ? "retoucher" as const : "outil" as const;
+  useEffect(() => {
+    if (!onBusy) return;
+    if (!stage) { onBusy(null); return; }
+    onBusy({ stage: stage.stage, seconds: outilElapsed, labelKey: `barre.fil.stage.${stage.stage}`, typical: typicalKey });
+  }, [stage, outilElapsed, onBusy, typicalKey]);
   const [outcome, setOutcome] = useState<FinaliseOutcome | null>(null);
   const titleId = useId();
   const busyId = `${titleId}-busy`;
@@ -509,12 +527,12 @@ export function ToolPanel({ outil: asked, onResult, onPreview }: { outil: Outil;
       {quote && <span className="u-tool-go-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })}</span>}
     </button>
     {why && !busy && <p className="u-why" id={whyId} data-tool-why="">{why}</p>}
-    {stage && <div id={busyId}><ComfyProgress label={t(`finaliser.${stage.stage}`)} elapsedSec={stage.seconds ?? outilElapsed} typicalSec={typicalFor("outil")} note={t("finaliser.keepOpen")} marker="outil" /></div>}
+    {stage && !onBusy && <div id={busyId} data-tool-progress-host=""><ComfyProgress label={t(`barre.fil.stage.${stage.stage}`)} elapsedSec={outilElapsed} typicalSec={typicalFor(typicalKey)} note={t("finaliser.keepOpen")} marker="outil" /></div>}{stage && onBusy && <span id={busyId} className="u-sr-only" role="status">{t(`barre.fil.stage.${stage.stage}`)}</span>}
     {outcome && !outcome.ok && <div className="u-why" role="alert" data-tool-fail="" data-fail-kind={outcome.kind ?? "other"}>
       <p>{outcome.message}{outcome.intact ? ` ${t("suite.intact")}` : ""}</p>
       {(outcome.reconnect || outcome.retry) && <p className="u-fail-actions">
         {outcome.reconnect && <button type="button" className="u-secondary" data-tool-reconnect="" onClick={() => setSheet("connect")}>{t("recovery.reconnect")}</button>}
-        {outcome.retry && <button type="button" className="u-link" data-tool-retry="" onClick={() => { setOutcome(null); void launch(); }}>{t("recovery.retry")}</button>}
+        {outcome.retry && <button type="button" className="u-link" data-tool-retry="" onClick={() => { setOutcome(null); press(); }}>{t("recovery.retry")}</button>}
       </p>}
     </div>}
     {outcome?.ok && <p className="u-small" data-tool-done="">{t("suite.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p>}

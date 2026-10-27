@@ -2,6 +2,7 @@
 // uploaded files, the visitor text, the seed, a few studio choices and the output name are
 // patched in. Pure functions: nothing here opens a network.
 
+import { seedOf } from "../seed.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import { OUTIL_BASES } from "./base.ts";
 
@@ -48,8 +49,8 @@ const RATIO = { horizontal: "16:9", vertical: "9:16" };
 /** Exact slot map per template, read in the api graph. */
 export const GENERIQUE: Readonly<Record<string, Spec>> = {
   image_qwen_image_2_1_t2i: { prompt: [["459:471", "prompt"], ["459:474", "on_false"]], seed: [["459:458", "seed"]], save: ["461", "filename_prefix"], aspect: { at: ["13", "aspect_ratio"], ...RESOLUTION }, needsText: true },
-  api_bfl_flux3_t2i: { prompt: [["1", "prompt"]], seed: [["1", "seed"]], save: ["2", "filename_prefix"], needsText: true },
-  api_ideogram_v4_5_t2i: { prompt: [["1", "model.prompt"]], seed: [["1", "model.seed"]], save: ["5", "filename_prefix"], needsText: true },
+  api_bfl_flux3_t2i: { prompt: [["1", "prompt"]], seed: [["1", "seed"]], save: ["2", "filename_prefix"], aspect: { at: ["1", "aspect_ratio"], horizontal: "16:9", vertical: "9:16" }, needsText: true },
+  api_ideogram_v4_5_t2i: { prompt: [["1", "model.prompt"]], seed: [["1", "model.seed"]], save: ["5", "filename_prefix"], aspect: { at: ["1", "model.size"], horizontal: "16:9", vertical: "9:16" }, needsText: true },
   api_openai_gpt_image_2_t2i: { prompt: [["271", "prompt"]], seed: [["271", "seed"]], save: ["269", "filename_prefix"], needsText: true },
   api_bytedance_seedream_5_0_pro_t2i: { prompt: [["3", "prompt"]], seed: [["3", "model.seed"]], save: ["2", "filename_prefix"], needsText: true },
   api_nano_banana_2_1_t2i: { prompt: [["1", "prompt"]], seed: [["1", "seed"]], save: ["3", "filename_prefix"], needsText: true },
@@ -94,7 +95,21 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
   },
   audio_ace_step1_5_xl_turbo: { prompt: [["94", "tags"]], seed: [["109", "value"]], save: ["111", "filename_prefix"], set: { "94": { lyrics: "[Instrumental]", duration: 30 }, "98": { seconds: 30 } }, needsText: true },
   audio_stable_audio_3_medium: { prompt: [["52:31", "value"]], seed: [["52:3", "seed"]], save: ["57", "filename_prefix"], set: { "52:36": { value: 10 } }, needsText: true },
-  template_qwen_Image_2512_360_lora: { prompt: [["269", "value"]], seed: [["238:230", "seed"]], save: ["60", "filename_prefix"], needsText: true },
+  template_qwen_Image_2512_360_lora: {
+    prompt: [["269", "value"]], seed: [["238:230", "seed"]], save: ["60", "filename_prefix"], needsText: true,
+    // Keep 2:1 latent; reinforce equirectangular (trigger word stays on node 266).
+    set: { "238:232": { width: 2048, height: 1024, batch_size: 1 } },
+    patch(graph, prompt) {
+      const scene = prompt.trim();
+      graph["269"].inputs.value = scene;
+      graph["266"].inputs.value = "equirectangular 360 panorama, seamless full environment wrapping left-right, ";
+      graph["238:228"].inputs.text = (
+        "cut-out, cutout, isolated subject on white, plain white background, studio backdrop, "
+        + "portrait crop, product shot, low resolution, low quality, deformed limbs, deformed fingers, "
+        + "oversaturated, waxy skin, face without detail, overly smooth, AI look, messy composition, blurry text"
+      );
+    },
+  },
   image_qwen_Image_2512_controlnet: { images: [["121", "image"]], prompt: [["86:81", "text"]], seed: [["86:3", "seed"]], save: ["60", "filename_prefix"], needsText: true },
   template_character_portrait_relighting: {
     images: [["124", "image"]], seed: [["136", "seed"]], save: ["138", "filename_prefix"], needsText: true,
@@ -144,7 +159,7 @@ export function generiqueGraph(input: GeneriqueInput): ApiGraph {
   if (spec.video) put(graph, spec.video, safeName(input.files.video, "Vidéo"));
   if (spec.audio) put(graph, spec.audio, safeName(input.files.audio, "Audio"));
   for (const at of spec.prompt ?? []) put(graph, at, prompt);
-  const seed = Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0;
+  const seed = seedOf(input.seed);
   for (const at of spec.seed ?? []) put(graph, at, seed);
   for (const [node, values] of Object.entries(spec.set ?? {})) Object.assign(graph[node].inputs, values);
   if (spec.aspect) put(graph, spec.aspect.at, spec.aspect[input.aspect ?? "horizontal"]);
