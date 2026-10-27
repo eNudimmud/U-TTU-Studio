@@ -2197,10 +2197,23 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-barre-chip-x svg { width: 22px; height: 22px; padding: 4px; border-radius: 999px; background: rgba(15, 15, 17, .82); }
 .u-barre-chip-add { display: grid; place-items: center; width: 76px; height: 76px; border: 1px dashed var(--line-strong); border-radius: 14px; background: transparent; color: var(--fg-2); cursor: pointer; }
 .u-barre-chip-add svg { width: 22px; height: 22px; }
-.u-barre-settings { display: flex; flex-wrap: wrap; gap: 8px; }
+.u-barre-settings-wrap { position: relative; flex: 0 1 auto; min-width: 0; }
+.u-barre-settings-pill { display: inline-flex; align-items: center; gap: 8px; max-width: min(220px, 42vw); min-height: 48px; padding: 0 14px 0 12px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--bg); color: var(--fg); font: 500 13px/1.2 var(--font-body); cursor: pointer; }
+.u-barre-settings-pill[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.u-barre-settings-pill svg { flex: 0 0 auto; width: 20px; height: 20px; }
+.u-barre-settings-pill span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.u-barre-settings { position: fixed; z-index: 70; top: 0; left: 0; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 8px; width: min(320px, calc(100vw - 16px)); max-height: min(70dvh, calc(100dvh - var(--u-top-h) - var(--u-tabs-h) - 24px)); padding: 10px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--surface); box-shadow: 0 18px 50px rgba(0, 0, 0, .5); overflow: auto; overscroll-behavior: contain; }
 .u-barre-seg { display: inline-flex; flex: 0 0 auto; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--bg); }
 .u-barre-seg button { min-width: 44px; min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--fg-2); font: 500 14px/1 var(--font-body); white-space: nowrap; cursor: pointer; }
 .u-barre-seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+@media (max-width: 420px) {
+  .u-barre-mode-name { display: none; }
+  .u-barre-settings-pill span { max-width: 9.5rem; }
+}
+@media (max-height: 430px), (max-width: 900px) and (max-height: 430px) {
+  .u-barre-foot { gap: 6px; }
+  .u-barre-settings-pill { max-width: min(180px, 36vw); padding-inline: 10px; }
+}
 .u-barre-route { margin: -8px 4px 0; color: var(--fg-2); font: 500 12px/1.4 var(--font-mono); }
 .u-barre-ideas { display: grid; gap: 10px; }
 .u-barre-ideas h2 { margin: 0; font: 600 17px/1.2 var(--font-body); }
