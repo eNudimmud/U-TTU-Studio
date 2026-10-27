@@ -94,7 +94,7 @@ describe("table de décision du plan", () => {
     const moving = decide(plan({ imageCle: "validee", paroles: "replique", cadrage: "gros", camera: "suivi" }), "tourner");
     assert.equal(moving.row, 7);
     assert.equal(moving.suite, "api_sync_so_lip_sync_video");
-    assert.equal(moving.pourquoi, "Les lèvres seront recalées après coup. Attention, c'est cher : ≈ 200 pour 5 s.");
+    assert.equal(moving.pourquoi, "Les lèvres seront recalées après coup. Attention, c'est cher : ≈ 280 crédits pour 5 s.");
 
     const wide = decide(plan({ imageCle: "validee", paroles: "voix-off", cadrage: "large" }), "tourner");
     assert.equal(wide.row, 8);

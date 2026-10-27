@@ -79,7 +79,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
 
   const isModel = (card: AssetRecord) => /\.(glb|gltf)$/i.test(card.media);
   const isAudio = (card: AssetRecord) => /\.(wav|mp3|m4a|ogg)$/i.test(card.media);
-  const isVideo = (card: AssetRecord) => /\.(mp4|webm|mov)$/i.test(card.media || card.preview || "");
+  const isVideo = (card: AssetRecord) => card.kind === "plan" || /\.(mp4|webm|mov)$/i.test(card.media || card.preview || "");
   const srcOf = (card: AssetRecord) => card.preview ? assetPath(card.preview) : (card.media && media[card.media]) || "";
   // R10: a card with no file behind it (a décor named but never rendered) is not an asset yet.
   // It stays in DÉCOR; the gallery only shows what can be seen or heard.

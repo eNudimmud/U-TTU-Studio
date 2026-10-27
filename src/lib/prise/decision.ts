@@ -244,7 +244,7 @@ function takeDecision(plan: PlanInput, intent: Intent): Decision {
       SCENE_GRAPH[scene],
       GRAPH.resync,
       "Réplique en mouvement",
-      "Les lèvres seront recalées après coup. Attention, c'est cher : ≈ 200 pour 5 s.",
+      "Les lèvres seront recalées après coup. Attention, c'est cher : ≈ 280 crédits pour 5 s.",
       null,
       "inconnu",
       false,

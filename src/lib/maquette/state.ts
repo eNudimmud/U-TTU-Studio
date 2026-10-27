@@ -336,8 +336,13 @@ export function captureLine(state: MaquetteState, label: string): string {
   } else if (lead) {
     who = `${lead} with ${names.slice(1).join(" and ")}`;
   }
-  // Uttu is a spider: keep the legs in any shot that is not a face-only close-up.
+  // Uttu is a spider: keep the official covered look, but make mechanical legs readable in wide frames.
   const spider = names.some(name => /uttu/i.test(name));
-  const legs = spider && shot !== "gros" && shot !== "tgp" ? " Spider legs visible." : spider ? "" : "";
+  let legs = "";
+  if (spider && (shot === "large" || shot === "americain" || shot === "plongee" || shot === "contre")) {
+    legs = " Uttu's multi-jointed mechanical spider legs clearly visible under the covered body, articulated metal limbs planted on the ground, same official design.";
+  } else if (spider && shot !== "gros" && shot !== "tgp") {
+    legs = " Mechanical spider legs visible beneath the covered body.";
+  }
   return `${who}. ${shotWords[shot]}. ${label}. Camera at ${height}.${legs}`.replace(/\s+/g, " ").trim();
 }

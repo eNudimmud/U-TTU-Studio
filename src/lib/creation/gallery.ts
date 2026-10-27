@@ -100,3 +100,47 @@ export function prisePick(input: {
 export function castAsDecorReady(card: CastCard): boolean {
   return card.status === "pret" && card.name.trim().length > 0;
 }
+
+
+
+const UUID_TAIL = /-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+const SHORT_HASH = /-[0-9a-f]{6,}$/i;
+
+function looksLikeRawId(name: string, id: string): boolean {
+  const cleaned = cleanCardName(name);
+  if (!cleaned) return true;
+  if (cleaned === id) return true;
+  const compact = cleaned.replace(/\s+/g, "-");
+  if (compact === id) return true;
+  const stripped = id.replace(UUID_TAIL, "").replace(SHORT_HASH, "");
+  if (compact === stripped || cleaned === stripped.replace(/-/g, " ")) return true;
+  // Trailing hex fragment: "ret eclairer 8c24c13f…"
+  if (/\b[0-9a-f]{6,}\b/i.test(cleaned) && /^(ret|img|vid|son|outil|suite|mont|prise)\b/i.test(cleaned)) return true;
+  return false;
+}
+
+/**
+ * Prefer a human title over a raw `{outil}-{uuid}` id fragment.
+ * `toolTitle` comes from i18n (outils.t.*.title or gestes.*.title) when available.
+ */
+export function readableAssetName(input: {
+  id: string;
+  name: string;
+  prompt?: string;
+  at?: string;
+  geste?: string;
+  toolTitle?: string;
+}): string {
+  if (!looksLikeRawId(input.name, input.id)) return cleanCardName(input.name);
+  const slug = input.id.replace(UUID_TAIL, "").replace(SHORT_HASH, "");
+  const title = cleanCardName(input.toolTitle || "") || cleanCardName(slug.replace(/-/g, " ")) || "Création";
+  const subject = cleanCardName((input.prompt || "").replace(/\s+/g, " ").slice(0, 36));
+  let stamp = "";
+  if (input.at) {
+    const when = new Date(input.at);
+    if (!Number.isNaN(when.getTime())) {
+      stamp = `${String(when.getDate()).padStart(2, "0")}/${String(when.getMonth() + 1).padStart(2, "0")} ${String(when.getHours()).padStart(2, "0")}:${String(when.getMinutes()).padStart(2, "0")}`;
+    }
+  }
+  return cleanCardName([title, subject, stamp].filter(Boolean).join(" · ")) || title;
+}

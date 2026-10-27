@@ -87,7 +87,7 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
       commitDelete(asset);
       setPending(null);
       timer.current = null;
-    }, 6000);
+    }, 8000);
   }
 
   function holdAsRef(asset: AssetRecord) {

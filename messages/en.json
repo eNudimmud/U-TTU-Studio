@@ -1509,7 +1509,19 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Photo added to the references.",
     "photosBusy": "Loading photos.",
-    "reacMontage": "Silence"
+    "reacMontage": "Silence",
+    "stillShot": "Still shot",
+    "distance": "Distance",
+    "pairTile": "Two characters",
+    "cadrage": {
+      "large": "Wide shot",
+      "americain": "Medium-long shot",
+      "moyen": "Medium shot",
+      "gros": "Close-up",
+      "tgp": "Extreme close-up",
+      "plongee": "High angle",
+      "contre": "Low angle"
+    }
   },
   "finaliser": {
     "open": "Finish the edit",

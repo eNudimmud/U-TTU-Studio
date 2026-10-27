@@ -1509,7 +1509,19 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Photo ajoutée aux références.",
     "photosBusy": "Chargement des photos.",
-    "reacMontage": "Silence"
+    "reacMontage": "Silence",
+    "stillShot": "Image fixe",
+    "distance": "Distance",
+    "pairTile": "Deux personnages",
+    "cadrage": {
+      "large": "Plan large",
+      "americain": "Plan américain",
+      "moyen": "Plan moyen",
+      "gros": "Gros plan",
+      "tgp": "Très gros plan",
+      "plongee": "Plongée",
+      "contre": "Contre-plongée"
+    }
   },
   "finaliser": {
     "open": "Finaliser le montage",

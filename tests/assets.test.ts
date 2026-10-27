@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { assetNote, filterAssets, galleryColumns, looseAssets, readAssetNote, type AssetRecord } from "../src/lib/creation/assets.ts";
+import { readableAssetName } from "../src/lib/creation/gallery.ts";
 
 function card(patch: Partial<AssetRecord> = {}): AssetRecord {
   return {
@@ -59,5 +60,19 @@ describe("galerie d’assets", () => {
     assert.equal(galleryColumns(768), 3);
     assert.equal(galleryColumns(1280), 4);
     assert.equal(galleryColumns(1440), 5);
+  });
+
+  it("derives a readable name from outil id + prompt/date instead of a UUID fragment", () => {
+    const raw = readableAssetName({
+      id: "ret-eclairer-8c24c13f-abcd-4ef0-9876-abcdef012345",
+      name: "ret eclairer 8c24c13f…",
+      prompt: "lumière douce du soir",
+      at: "2026-10-27T14:30:00.000Z",
+      toolTitle: "Éclairer",
+    });
+    assert.match(raw, /Éclairer/);
+    assert.doesNotMatch(raw, /8c24c13f/i);
+    const keep = readableAssetName({ id: "ret-eclairer-x", name: "Portrait studio · 27/10", prompt: "" });
+    assert.equal(keep, "Portrait studio · 27/10");
   });
 });

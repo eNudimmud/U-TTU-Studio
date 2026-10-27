@@ -1509,7 +1509,19 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Foto zu den Referenzen gelegt.",
     "photosBusy": "Fotos werden geladen.",
-    "reacMontage": "Stille"
+    "reacMontage": "Stille",
+    "stillShot": "Standbild",
+    "distance": "Abstand",
+    "pairTile": "Zwei Figuren",
+    "cadrage": {
+      "large": "Weitaufnahme",
+      "americain": "Amerikanische Einstellung",
+      "moyen": "Halbtotale",
+      "gros": "Nahaufnahme",
+      "tgp": "Großaufnahme",
+      "plongee": "Aufsicht",
+      "contre": "Untersicht"
+    }
   },
   "finaliser": {
     "open": "Schnitt fertigstellen",
