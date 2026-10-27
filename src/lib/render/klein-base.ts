@@ -82,7 +82,7 @@ export const KLEIN_T2I_BASE: ApiGraph = {
   },
   "18:1": {
     "inputs": {
-      "unet_name": "flux3_image_klein_base_int8_convrot.safetensors",
+      "unet_name": "flux3-image-klein-base-int8-convrot.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
@@ -431,7 +431,7 @@ export const KLEIN_EDIT_BASE: ApiGraph = {
   },
   "59": {
     "inputs": {
-      "unet_name": "flux3_image_klein_base_int8_convrot.safetensors",
+      "unet_name": "flux3-image-klein-base-int8-convrot.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",

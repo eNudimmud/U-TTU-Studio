@@ -56,7 +56,7 @@ describe("rendu CAST et DÉCOR", () => {
   it("builds the text, photo and sheet graphs without calling out", () => {
     // FLUX 3 Image Klein by default (open weights).
     const text = stillGraph({ kind: "texte-cast", prompt: "Uttu", images: [], seed: 1 });
-    assert.equal(text["klein_18:1"]?.inputs.unet_name, "flux3_image_klein_base_int8_convrot.safetensors");
+    assert.equal(text["klein_18:1"]?.inputs.unet_name, "flux3-image-klein-base-int8-convrot.safetensors");
     assert.equal(text["klein_18:7"]?.inputs.steps, 50);
     assert.equal(text.save?.class_type, "SaveImageAdvanced");
     assert.deepEqual(text.save?.inputs.images, ["klein_decode", 0]);
