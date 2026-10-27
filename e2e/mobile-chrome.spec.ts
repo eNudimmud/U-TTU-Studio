@@ -23,7 +23,8 @@ async function lastMainVisible(page: Page) {
     const nodes = [...main.querySelectorAll<HTMLElement>("a, button, h2, [data-barre-all-link]")].filter(n => n.offsetParent !== null);
     const last = nodes.at(-1);
     if (!last) return null;
-    last.scrollIntoView({ block: "end" });
+    // Instant: global scroll-behavior:smooth would leave the check mid-animation under the tabs.
+    last.scrollIntoView({ block: "end", behavior: "instant" });
     const r = last.getBoundingClientRect();
     const x = Math.round(Math.min(window.innerWidth - 4, Math.max(4, r.left + r.width / 2)));
     const y = Math.round(Math.min(window.innerHeight - 4, Math.max(4, r.top + r.height / 2)));

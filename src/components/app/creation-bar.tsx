@@ -9,6 +9,7 @@ import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "re
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
+import type { ExempleRefSpec } from "@/lib/creation/exemple-galerie";
 import { outilParId, outilRow } from "@/lib/outils/catalogue";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
 import { quoteCredits } from "@/lib/prise/rendu";
@@ -76,7 +77,7 @@ export function useReferences(): BarreRef[] {
 
 export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void; preview?(input: FilSend): { route: string; where: string; quote: number | null } } = {}) {
   const { t } = useI18n();
-  const { studio } = useStudio();
+  const { studio, promoteExempleRefs } = useStudio();
   const all = useReferences();
   const [mode, setMode] = useState<BarreMode>("image");
   const [text, setText] = useState("");
@@ -97,11 +98,12 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   // Ideas (and links from elsewhere) fill the bar through one event.
   useEffect(() => {
     const fill = (event: Event) => {
-      const d = (event as CustomEvent<{ mode: BarreMode; text: string; refs?: string[] }>).detail;
+      const d = (event as CustomEvent<{ mode: BarreMode; text: string; refs?: string[]; resolved?: BarreRef[] }>).detail;
       if (!d) return;
       setMode(d.mode);
       setText(d.text);
-      if (d.refs) setRefs(d.refs.flatMap(id => all.filter(ref => ref.id === id)));
+      if (d.resolved) setRefs(d.resolved);
+      else if (d.refs) setRefs(d.refs.flatMap(id => all.filter(ref => ref.id === id)));
       requestAnimationFrame(() => document.getElementById(inputId)?.focus());
     };
     window.addEventListener("u-ttu-barre-fill", fill);
@@ -363,7 +365,34 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
       else setRefs(list => [...list, undoChip.item as BarreRef]);
       setUndoChip(null);
     }} onGone={() => setUndoChip(null)} />}
-    {sheet && <ReferencesSheet all={all} picked={refs} max={mode === "image" ? MAX_REFS_IMAGE - photos.length : null} onClose={() => setSheet(false)} onJoin={next => { setRefs(next); setSheet(false); }} />}
+    {sheet && <ReferencesSheet all={all} picked={refs} max={mode === "image" ? MAX_REFS_IMAGE - photos.length : null} onClose={() => setSheet(false)} onJoin={async next => {
+      const demos = next.filter(ref => ref.id.startsWith("demo-") || (!ref.path && ref.src.includes("/exemples/")));
+      if (demos.length === 0) { setRefs(next); setSheet(false); return; }
+      const specs: ExempleRefSpec[] = demos.map(ref => ({
+        kind: ref.kind === "decor" ? "decor" : "cast",
+        demoId: ref.id.startsWith("demo-") ? ref.id : `demo-${ref.id}`,
+        name: ref.name,
+        preview: ref.src.replace(/^https?:\/\/[^/]+/, "") || ref.src,
+        thumb: ref.src,
+      }));
+      // Prefer known demo previews (absolute /exemples paths).
+      for (const spec of specs) {
+        const known = [...DEMO_CAST, ...DEMO_DECOR].find(card => card.id === spec.demoId);
+        if (known?.preview) { spec.preview = known.preview; spec.thumb = known.preview; }
+      }
+      try {
+        const promoted = await promoteExempleRefs(specs);
+        const byDemo = new Map(demos.map((d, i) => [d.id, promoted[i]!]));
+        const merged = next.map(ref => {
+          const p = byDemo.get(ref.id);
+          return p ? { kind: p.kind, id: p.id, name: p.name, src: p.src, path: p.path } : ref;
+        });
+        setRefs(merged);
+      } catch {
+        setRefs(next);
+      }
+      setSheet(false);
+    }} />}
   </>;
 }
 
@@ -426,7 +455,7 @@ export function ReferencesSheet({ all, picked, max, onClose, onJoin }: { all: Ba
   </div>;
 }
 
-/** Fills the bar from an idea card. */
-export function fillBarre(mode: BarreMode, text: string, refs?: string[]) {
-  window.dispatchEvent(new CustomEvent("u-ttu-barre-fill", { detail: { mode, text, refs } }));
+/** Fills the bar from an idea / gallery card. Pass `resolved` after promoting demos (P0-2). */
+export function fillBarre(mode: BarreMode, text: string, refs?: string[], resolved?: BarreRef[]) {
+  window.dispatchEvent(new CustomEvent("u-ttu-barre-fill", { detail: { mode, text, refs, resolved } }));
 }

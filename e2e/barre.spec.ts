@@ -181,7 +181,9 @@ test("fil : Image avec une référence, devis puis accord, résultat et Et ensui
   await expect(fil.locator("[data-fil-result=image] img")).toBeVisible({ timeout: 15_000 });
   await fil.locator("[data-fil-new]").click();
   await expect(fil).toHaveCount(0);
-  await expect(page.locator(".u-barre-ideas")).toBeVisible();
+  // Accueil v2: « Pars d'un exemple » gallery replaces the old idea chips.
+  await expect(page.locator("[data-ex-galerie]")).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Pars d.un exemple/i })).toBeVisible();
   await page.reload();
   await expect(page.locator("[data-fil]")).toHaveCount(0);
 

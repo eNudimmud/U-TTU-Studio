@@ -16,6 +16,7 @@ import { APRES_PAR_GESTE, EXEMPLE_PAR_GESTE } from "@/lib/workflows/tuiles";
 import { useI18n } from "@/components/i18n/provider";
 import { Arrow } from "./glyphs";
 import { ExempleDepart } from "./exemple-depart";
+import { ToolShell, ToolStage } from "./tool-shell";
 import { GestePicker } from "./geste-picker";
 import { ProjectGallery } from "./project-gallery";
 import { ReperageEntry } from "./reperage/reperage-entry";
@@ -373,6 +374,18 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     </header>
     <div className="u-desk-scroll">
       {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
+      <ToolShell
+        stage={<ToolStage
+          view="source"
+          source={preview
+            ? <img className="src" src={preview} alt="" />
+            : apres
+              ? <img className="src" src={apres} alt="" style={{ opacity: 0.55 }} />
+              : <div className="u-tool-stage-empty"><strong>{t("shell.dropSource")}</strong><p>{t("shell.dropSourceLead")}</p></div>}
+          lab={preview ? <>{t("shell.source")}</> : apres ? <>{t("barre.galerie.labExample")}</> : null}
+        />}
+        bar={null}
+      />
       <ReperageEntry
         onCapture={input => saveLieuCapture(input)}
         // The kept frame is filed in Mes créations › Lieux and becomes the sheet's fixed base (step 3).
