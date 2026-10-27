@@ -388,7 +388,7 @@ test("affiner avec des photos et un texte : auto-sélection 360° + rues, devis 
   const encode = graph["111:6"] ?? Object.values(graph).find(node => node.class_type === "CLIPTextEncode" && String(node.inputs.text ?? "").startsWith("Photorealistic"));
   const text = String(encode?.inputs.text ?? "");
   expect(text).toContain("same exact camera position and composition");
-  expect(text).toContain("Match materials, colours, weathering");
+  expect(text).toContain("Reference street photos inform STYLE ONLY: materials, colours, weathering");
   expect(text).not.toContain("image 2");
   expect(text).toContain("Night");
   expect(text).toContain(`"Pavés mouillés"`);
