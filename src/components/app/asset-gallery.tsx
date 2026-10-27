@@ -162,7 +162,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       </dl>
       {type && <p className="u-label u-item-label">{t("creations.use")}</p>}
       <div className="u-card-actions" data-item-use="">
-        {!current.preview && srcOf(current) && <a href={srcOf(current)} download={current.media.split("/").pop() || current.name}>{isAudio(current) || current.kind === "son" ? t("previs.downloadClip") : isVideo(current) ? t("previs.downloadClip") : isModel(current) ? t("previs.downloadModel") : t("previs.downloadClip")}</a>}
+        {!current.preview && !isModel(current) && srcOf(current) && <a href={srcOf(current)} download={current.media.split("/").pop() || current.name}>{t("previs.downloadClip")}</a>}
         {onUseRef && !isModel(current) && !isAudio(current) && !isVideo(current) && current.kind !== "son" && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
         {onPrise && (current.kind === "personnage" || current.kind === "decor") && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
         {onMontage && !isModel(current) && <button type="button" onClick={() => onMontage(current)}>{t("assets.toMontage")}</button>}
