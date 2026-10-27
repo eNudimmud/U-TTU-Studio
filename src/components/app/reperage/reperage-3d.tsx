@@ -17,6 +17,7 @@ import { useStudio } from "../studio-session";
 import { assetPath } from "@/lib/site";
 import { RueViewer, type RueHandle } from "../rue-viewer";
 import { creationAllowed } from "@/lib/creation/quotes";
+import { formatCredits } from "@/lib/credits";
 import { CADRE_AMBIANCES, CADRE_DETAIL_MAX, CADRE_PHOTOS_MAX, cadreImages, cadrePrompt, cadreQuote, type CadreAmbiance } from "@/lib/creation/decor-cadre";
 import { ComfyProgress, useComfyElapsed, typicalFor } from "../comfy-progress";
 import { buildCaptureMeta, captureNote, type CaptureMeta } from "@/lib/repere3d/capture";
@@ -140,7 +141,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   /** « Décris ce que tu veux »: the visitor's own words, sent with or without photos (decor-cadre.ts). */
   const [wish, setWish] = useState("");
   const [modal, setModal] = useState<Modal>(null);
-  const [made, setMade] = useState<{ id: string; name: string; url: string } | null>(null);
+  const [made, setMade] = useState<{ id: string; name: string; url: string; cost: number | null; quote: number } | null>(null);
   const [makeNote, setMakeNote] = useState("");
   const [busy, setBusy] = useState(false);
   const loadSeq = useRef(0);
@@ -230,7 +231,19 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
         if (prev.length > 0) return prev;
         const keys: string[] = [];
         if (sphere) keys.push(`pano-${sphere.id}`);
-        for (const photo of usable) {
+        // Prefer Mapillary/KartaView/Panoramax near the camera; demote Commons park titles.
+        const ordered = [...usable].sort((a, b) => {
+          const rank = (p: typeof a) => (p.source === "mapillary" ? 0 : p.source === "kartaview" ? 1 : p.source === "panoramax" ? 2 : 3);
+          const labelScore = (p: typeof a) => {
+            const label = p.label ?? "";
+            if (/\b(streets?|avenues?|boulevards?|rues?|buildings?|immeubles?|fa[cç]ades?)\b/i.test(label)) return 1;
+            if (/\b(parks?|gardens?|jardins?|lakes?|lawns?)\b/i.test(label)) return -1;
+            return 0;
+          };
+          return rank(a) - rank(b) || labelScore(b) - labelScore(a)
+            || distanceMeters(shot.lat, shot.lon, a.lat, a.lon) - distanceMeters(shot.lat, shot.lon, b.lat, b.lon);
+        });
+        for (const photo of ordered) {
           if (keys.length >= CADRE_PHOTOS_MAX) break;
           if (sphere && photo.id === sphere.id) continue;
           keys.push(`rue-${photo.id}`);
@@ -464,9 +477,9 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
         credits: [...new Set(picked.filter(item => item.photo).map(item => `${rueCredit(item.photo!)} (${item.photo!.sourceUrl || photoSourceUrl(item.photo!)})`))],
         onFiled: value => { filed = value; },
       });
-      const done = filed as { id: string; name: string; image: Blob } | null;
+      const done = filed as { id: string; name: string; image: Blob; cost: number | null; quote: number } | null;
       if (!ok || !done) { setMakeNote(t("rep3d.make.fail")); return; }
-      setMade({ id: done.id, name: done.name, url: URL.createObjectURL(done.image) });
+      setMade({ id: done.id, name: done.name, url: URL.createObjectURL(done.image), cost: done.cost, quote: done.quote });
       setStep(4);
     } catch {
       setMakeNote(t("rep3d.make.fail"));
@@ -641,6 +654,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
         <div className="u-rv-head">
           <h1 className="u-rv-display is-sm" ref={heading} tabIndex={-1}>{t("rep3d.s4.title")}</h1>
           <p className="u-rv-place" data-rep3d-saved="">{t("rep3d.s4.saved")}</p>
+          <p className="u-rv-note" data-rep3d-cost="">{made.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(made.cost) })}</p>
         </div>
         <figure className="u-rv-result"><img src={made.url} alt={made.name} /></figure>
       </section>}

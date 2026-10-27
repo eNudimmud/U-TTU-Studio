@@ -962,7 +962,8 @@
     "copied": "Copié dans l’autre projet.",
     "imported": "Ajouté : {count}",
     "noPicture": "Il manque une image pour la prise.",
-    "sessionMissing": "La session n’est pas ouverte."
+    "sessionMissing": "La session n’est pas ouverte.",
+    "deleted": "« {name} » retiré"
   },
   "montage": {
     "lead": "Les plans se suivent. La voix, les effets et la musique se posent dessous.",
@@ -1401,7 +1402,8 @@
     "estimate": "Devis {amount}",
     "sansImageOne": "1 lieu sans image attend dans DÉCOR.",
     "sansImageMany": "{count} lieux sans image attendent dans DÉCOR.",
-    "sansImageGo": "Les créer"
+    "sansImageGo": "Les créer",
+    "credit": "Crédit"
   },
   "r7": {
     "maquette": "Maquette",
@@ -1671,7 +1673,9 @@
     "savedClip": "Prévisualisation enregistrée dans Mes créations.",
     "downloadClip": "Télécharger la vidéo",
     "modelTerms": "Lire la licence du modèle",
-    "hunyuanTerms": "Ce volume a des conditions particulières : sa licence communautaire exclut l’Union européenne, le Royaume-Uni et la Corée du Sud. Vérifie les droits applicables avec ton fournisseur avant utilisation."
+    "hunyuanTerms": "Ce volume a des conditions particulières : sa licence communautaire exclut l’Union européenne, le Royaume-Uni et la Corée du Sud. Vérifie les droits applicables avec ton fournisseur avant utilisation.",
+    "downloadImage": "Télécharger l’image",
+    "downloadAudio": "Télécharger le son"
   },
   "recovery": {
     "title": "Retrouver un rendu",
@@ -1945,7 +1949,8 @@
       "goNext": "Tourner le plan {n} · ≈ {credits} crédits estimés",
       "keep": "Ton choix reste pour les prochains plans de ce projet.",
       "apercuHint": "Un aperçu se finalise plus tard, seul ou avec tout le montage."
-    }
+    },
+    "addToMontage": "Ajouter au montage"
   },
   "p1": {
     "hint": "Une phrase suffit : qui, où, ce qui se passe, la caméra, l’ambiance.",
@@ -2974,7 +2979,8 @@
     },
     "guidance": "Choisis un projet. Sélectionne les médias avant de vérifier ou classer ; renseigne au moins un champ de classement. Les actions attendent la fin de la synchronisation.",
     "lead": "Tes créations Comfy, rangées par projet.",
-    "helpTitle": "Comment ça marche ?"
+    "helpTitle": "Comment ça marche ?",
+    "cloud": "cloud"
   },
   "demoNames": {
     "demo-coursiere": "La coursière",

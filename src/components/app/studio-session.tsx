@@ -26,7 +26,7 @@ import { coffreZip } from "@/lib/coffre/export";
 import { mergeCoffreZip, vaultPathFromZip } from "@/lib/coffre/import";
 import { folderLinkSupported, linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
-  emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, sceneMarkdown, selectProject as chooseProject, createProject as makeProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
+  emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, removeTake, sceneMarkdown, selectProject as chooseProject, createProject as makeProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
   writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
   type Scene, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
@@ -1298,8 +1298,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const at = new Date().toISOString();
       const id = `${outil.id}-${crypto.randomUUID()}`;
       const when = new Date(at);
-      const stamp = `${String(when.getHours()).padStart(2, "0")}:${String(when.getMinutes()).padStart(2, "0")}`;
-      const name = `${t(`outils.t.${outil.id}.title`)} · ${stamp}`;
+      const stamp = `${String(when.getDate()).padStart(2, "0")}/${String(when.getMonth() + 1).padStart(2, "0")} ${String(when.getHours()).padStart(2, "0")}:${String(when.getMinutes()).padStart(2, "0")}:${String(when.getSeconds()).padStart(2, "0")}`;
+      const subject = (input.prompt || "").replace(/\s+/g, " ").trim().slice(0, 40);
+      const toolTitle = t(`outils.t.${outil.id}.title`);
+      const name = cleanCardName(subject ? `${toolTitle} · ${subject} · ${stamp}` : `${toolTitle} · ${stamp}`) || `${outil.id}-${stamp}`;
       input.onStage("envoi");
       const refs: string[] = input.from ? [input.from] : [];
       const send = async (file: File, label: string) => {
@@ -1463,10 +1465,21 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const deleteAsset = useCallback(async (asset: { id: string; media: string; note: string }) => {
     if (!current.project) return;
     const vault = store();
+    const take = current.takes.find(item => item.id === asset.id);
+    if (take) {
+      await removeTake(vault, take, current.takes);
+      await reload();
+      return;
+    }
     if (asset.note) await vault.remove(asset.note).catch(() => undefined);
     if (asset.media) await vault.remove(asset.media).catch(() => undefined);
+    // Loose media without a note: drop matching sidecar paths and any Assets note.
+    if (!asset.note && asset.media) {
+      const base = asset.media.replace(/\.[^.]+$/, "");
+      await vault.remove(`${base}.md`).catch(() => undefined);
+    }
     await reload();
-  }, [current.project, reload, store]);
+  }, [current.project, current.takes, reload, store]);
 
   const pickCast = useCallback(async (id: string) => {
     setPickedCast(id);
@@ -1958,11 +1971,14 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const assetId = (slugify(`${sceneId.slice(0, 12)}-${viewId}`) || `mly-${safe}`).slice(0, 40);
     const paths = assetPaths(slug, "importe", assetId, ext);
     const credit = input.photo.credit.replace(/\s+/g, " ").trim().slice(0, 1024);
+    const when = new Date();
+    const stamp = `${String(when.getDate()).padStart(2, "0")}/${String(when.getMonth() + 1).padStart(2, "0")} ${String(when.getHours()).padStart(2, "0")}:${String(when.getMinutes()).padStart(2, "0")}`;
+    const placeName = cleanCardName(input.name) || "Lieu";
     const card: AssetRecord = {
       id: assetId,
       kind: "importe",
-      name: cleanCardName(credit) || assetId,
-      at: new Date().toISOString(),
+      name: cleanCardName(`${placeName} · photo · ${stamp}`) || assetId,
+      at: when.toISOString(),
       prompt: credit,
       geste: "repere",
       template: "",

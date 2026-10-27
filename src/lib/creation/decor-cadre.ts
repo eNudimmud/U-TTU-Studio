@@ -70,12 +70,17 @@ export function cadrePrompt(input: {
 
   const style = count === 0
     ? "Invent plausible real façades, streets, ground, roofs, windows, vegetation and sky for this place — never leave flat grey, clay, plastic or low-poly surfaces."
-    : "Match materials, colours, weathering, sky and light to a real street photograph of this same place. Prefer stone, terracotta roof tiles, dormers, chimneys and paving over any CG look.";
+    : [
+      "Reference street photos inform STYLE ONLY: materials, colours, weathering, sky and light of this same place.",
+      "Do NOT copy a photo's camera angle, framing, building count, skyline, lake, park layout or any geometry that is not in the structural guide.",
+      "Prefer stone, terracotta roof tiles, dormers, chimneys and paving over any CG look.",
+    ].join(" ");
 
   return [
-    "Photorealistic elevated photograph of this real place, same exact camera position and composition as the structural guide.",
-    "The input image is a grey untextured 3D massing / clay render: keep every building silhouette, roofline, vanishing point and relative size exactly — like a depth guide — and discard its flat grey look completely.",
+    "Photorealistic photograph of this real place, same exact camera position and composition as the structural guide.",
+    "The input image is a grey untextured 3D massing / clay render: keep every building silhouette, roofline, vanishing point, relative size and ground plane exactly — like a depth guide — and discard its flat grey look completely.",
     "Completely replace every flat grey roof, wall and ground with real materials, windows, roof tiles, paving and vegetation so the result looks like a photograph taken on site, not a tinted 3D model.",
+    "Never invent, merge or remove buildings; never turn a row of tall blocks into a single house; never add a lake, sea, skyline or park that the structural guide does not already frame.",
     style,
     NO_WATER,
     ...contexte,

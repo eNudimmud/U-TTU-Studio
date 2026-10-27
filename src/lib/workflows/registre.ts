@@ -288,7 +288,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-plan", onglet: "prise", categorie: "plan", clef: "prisePlan",
     fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
-    template: "video_ltx2_5_i2v", credits: 12, high: 25, nature: "hypothese",
+    template: "video_ltx2_5_i2v", credits: 14, high: 28, nature: "hypothese",
     premier: true, still: "prise", minRefs: 0,
     consigne: "",
   }),
@@ -338,7 +338,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-volume-objet", onglet: "prise", categorie: "image", clef: "priseVolumeObjet",
     fournit: ["photo"], slots: [LIEU("image_1")],
-    template: "3d_pixal3d_trellis2_image_to_model", credits: 15, high: 30, nature: "hypothese",
+    template: "3d_pixal3d_trellis2_image_to_model", credits: 17, high: 34, nature: "hypothese",
     premier: false, still: "mesh", minRefs: 1, consigne: "",
   }),
   geste({

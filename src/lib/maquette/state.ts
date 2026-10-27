@@ -292,11 +292,40 @@ export function scenePhrase(names: readonly string[], shot: string, link = "et")
   return `${clean.slice(0, -1).join(", ")} ${link} ${clean[clean.length - 1]}, ${end}`.trim();
 }
 
+
+/** Shot size from the maquette camera: geometry wins over the tuile's label. */
+export type OrbitCadrage = "large" | "americain" | "moyen" | "gros" | "tgp" | "plongee" | "contre";
+
+export function cadrageFromOrbit(orbit: Orbit, figures: readonly Figure[] = []): OrbitCadrage {
+  const radius = orbit.radius;
+  // High / low angle when the camera is clearly tilted.
+  if (orbit.phi < 0.7) return "plongee";
+  if (orbit.phi > 1.52 && radius <= 5) return "contre";
+  // Subject far from frame centre → never claim a close-up.
+  const lead = figures[0];
+  const offCentre = lead ? Math.hypot(lead.x, lead.z) > 2.2 : false;
+  if (radius >= 9 || (offCentre && radius >= 6)) return "large";
+  if (radius >= 6.5) return "americain";
+  if (radius >= 5 || offCentre) return "moyen";
+  if (radius >= 3.4) return "gros";
+  return "tgp";
+}
+
 /** Cinema words for the request. No coordinates, no focal length, no matrix. */
 export function captureLine(state: MaquetteState, label: string): string {
   const names = state.figures.map(figure => figure.name);
   const lead = names[0];
   const height = state.orbit.phi > 1.15 ? "eye level" : "slightly above";
+  const shot = cadrageFromOrbit(state.orbit, state.figures);
+  const shotWords: Record<OrbitCadrage, string> = {
+    large: "wide shot, full figure in frame",
+    americain: "cowboy shot, mid-thigh up",
+    moyen: "medium shot, waist up",
+    gros: "close-up on the face",
+    tgp: "extreme close-up",
+    plongee: "high angle shot",
+    contre: "low angle shot",
+  };
   let who = "An empty set";
   if (lead && names.length === 1) {
     const side = lead && state.figures[0].x < -0.35 ? "on the left" : state.figures[0].x > 0.35 ? "on the right" : "near the middle";
@@ -307,5 +336,8 @@ export function captureLine(state: MaquetteState, label: string): string {
   } else if (lead) {
     who = `${lead} with ${names.slice(1).join(" and ")}`;
   }
-  return `${who}. ${label}. Camera at ${height}.`.replace(/\s+/g, " ").trim();
+  // Uttu is a spider: keep the legs in any shot that is not a face-only close-up.
+  const spider = names.some(name => /uttu/i.test(name));
+  const legs = spider && shot !== "gros" && shot !== "tgp" ? " Spider legs visible." : spider ? "" : "";
+  return `${who}. ${shotWords[shot]}. ${label}. Camera at ${height}.${legs}`.replace(/\s+/g, " ").trim();
 }

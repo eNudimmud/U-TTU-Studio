@@ -226,7 +226,7 @@ export const INSTANTX_CADRE_BASE: ApiGraph = {
         "111:37",
         0
       ],
-      "strength_model": 1
+      "strength_model": 0.7
     },
     "_meta": {
       "title": "Load LoRA"
@@ -331,7 +331,7 @@ export const INSTANTX_CADRE_BASE: ApiGraph = {
     "class_type": "KSampler",
     "inputs": {
       "cfg": 1,
-      "denoise": 1,
+      "denoise": 0.85,
       "latent_image": [
         "111:76",
         0

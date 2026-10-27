@@ -142,7 +142,9 @@ export function looseAssets(paths: readonly string[], project: string | null): A
     if (parsed.kind === "decor" && /-mly-/.test(parsed.id)) continue;
     // 3D repérage captures belong to their DÉCOR card (colour, depth, lines).
     if (parsed.kind === "decor" && /-3d-/.test(parsed.id)) continue;
-    const name = cleanCardName(parsed.id.replace(/-/g, " ")) || parsed.id;
+    // Outil / geste files use `{tool}-{uuid}`: show the tool slug, not the raw id.
+    const stripped = parsed.id.replace(/-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i, "").replace(/-[0-9a-f]{8,}$/i, "");
+    const name = cleanCardName((stripped || parsed.id).replace(/-/g, " ")) || parsed.id;
     out.push({
       id: parsed.id,
       kind: parsed.kind,

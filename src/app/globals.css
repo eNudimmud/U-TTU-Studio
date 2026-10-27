@@ -149,3 +149,24 @@ fieldset { min-width: 0; margin: 0; }
 .status-actions .button { min-height: 48px; }
 .status-footer { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px; padding: 16px 20px 24px; border-top: 1px solid var(--line); color: var(--fg-2); font-size: 13px; }
 @media (min-width: 800px) { .status-lockup { height: 180px; } }
+
+/* Interactive GLB result (Image en volume / 3D tools) */
+.u-mesh-viewer {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: min(70vh, 520px);
+  background: linear-gradient(160deg, #2a2620 0%, #141210 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  touch-action: none;
+}
+.u-mesh-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+.u-mesh-canvas:active { cursor: grabbing; }
+.u-tool-result-media[data-aspect] .u-mesh-viewer { max-height: min(70vh, 560px); }
+.u-tool-result-mesh-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.75rem; }

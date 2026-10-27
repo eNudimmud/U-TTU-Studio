@@ -962,7 +962,8 @@
     "copied": "Copied into the other project.",
     "imported": "Added: {count}",
     "noPicture": "A picture is missing for the take.",
-    "sessionMissing": "The session is not open."
+    "sessionMissing": "The session is not open.",
+    "deleted": "“{name}” removed"
   },
   "montage": {
     "lead": "The shots follow one another. Voice, effects and music sit underneath.",
@@ -1401,7 +1402,8 @@
     "estimate": "Quote {amount}",
     "sansImageOne": "1 place without an image is waiting in Set.",
     "sansImageMany": "{count} places without an image are waiting in Set.",
-    "sansImageGo": "Create them"
+    "sansImageGo": "Create them",
+    "credit": "Credit"
   },
   "r7": {
     "maquette": "Sketch",
@@ -1671,7 +1673,9 @@
     "savedClip": "Preview saved in My creations.",
     "downloadClip": "Download the video",
     "modelTerms": "Read the model license",
-    "hunyuanTerms": "This volume has specific terms: its community license excludes the EU, the UK and South Korea. Check the applicable rights with your provider before use."
+    "hunyuanTerms": "This volume has specific terms: its community license excludes the EU, the UK and South Korea. Check the applicable rights with your provider before use.",
+    "downloadImage": "Download the image",
+    "downloadAudio": "Download the audio"
   },
   "recovery": {
     "title": "Recover a render",
@@ -1945,7 +1949,8 @@
       "goNext": "Shoot shot {n} · ≈ {credits} credits estimated",
       "keep": "Your choice stays for the next shots of this project.",
       "apercuHint": "A preview is finalised later, on its own or with the whole edit."
-    }
+    },
+    "addToMontage": "Add to edit"
   },
   "p1": {
     "hint": "One sentence is enough: who, where, what happens, the camera, the mood.",
@@ -2974,7 +2979,8 @@
     },
     "guidance": "Choose a project. Select media before checking or classifying; enter at least one classification field. Actions wait for synchronization to finish.",
     "lead": "Your Comfy creations, organized by project.",
-    "helpTitle": "How does it work?"
+    "helpTitle": "How does it work?",
+    "cloud": "cloud"
   },
   "demoNames": {
     "demo-coursiere": "The courier",

@@ -10,7 +10,7 @@ import { assetPath } from "@/lib/site";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
 import { TUILES, tuileById, tuileInText, tuileNeedsPair, type TuileId } from "@/lib/cinema/tuiles";
 import {
-  addFigure, addNeutral, applyTuile, astuce, autreEssai, canAddFigure, captureLine, initialMaquette, MAX_FIGURES, moveFigure, orbitDrag, pinch, removeFigure, scenePhrase, seedLead, toggleLock, undoMaquette, yawFigure,
+  addFigure, addNeutral, applyTuile, astuce, autreEssai, canAddFigure, captureLine, cadrageFromOrbit, initialMaquette, MAX_FIGURES, moveFigure, orbitDrag, pinch, removeFigure, scenePhrase, seedLead, toggleLock, undoMaquette, yawFigure,
   type MaquetteState,
 } from "@/lib/maquette/state";
 import { ACTION_EXAMPLES, ACTION_MAX, type PlanEtat } from "@/lib/prise/copy";
@@ -439,7 +439,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     decorId: shownPlace?.id ?? null,
     decorName: shownPlace?.name ?? "",
     decorNote: shownPlace?.note ?? "",
-    cadrage: resolved.cadrage?.value ?? tuileById(maquette.tuile).cadrage,
+    // Geometry from the 3D view wins: never hardcode close-up when the camera is far.
+    cadrage: (cadrageFromOrbit(maquette.orbit, maquette.figures) as PlanInput["cadrage"]),
     camera: tuileById(maquette.tuile).camera,
     speakerName: draft.input.speakerName || maquette.figures[0]?.name || "",
     previousKept: Boolean(previous && (previous.kept || previous.finalised)),
@@ -786,6 +787,15 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     void persist(next).catch(error => setNotice(error.message));
   }
 
+  async function keepAndMontage(takeId: string) {
+    keep(takeId);
+    if (!media[studio.takes.find(take => take.id === takeId)?.video ?? ""]) {
+      setNotice(t("p0.montageWait"));
+      return;
+    }
+    await monter();
+  }
+
   // Demo keeps its illustrative quote; production shows the plan's own single estimate.
   const statusWord = t(cardDecision.statut === "mesure" ? "create.statusMeasured" : cardDecision.statut === "hypothese" ? "create.statusHypothesis" : "create.statusUnknown");
   const estimate = demo
@@ -855,22 +865,26 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <ComfyProgress label={t("job.running")} elapsedSec={priseElapsed} typicalSec={typicalFor("prise")} note={t("finaliser.keepOpen")} marker="prise" />
         <button type="button" className="u-link" onClick={cancelRun}>{t("job.stopWaiting")}</button>
       </div>}
-      {landed && media[landed.video] && <div className="u-take-view" data-take-view={landed.id} data-versions={versions.length}>
+      {landed && <div className="u-take-view" data-take-view={landed.id} data-versions={versions.length} data-media-ready={media[landed.video] ? "true" : "false"}>
         <p className="u-label">{t("p0.takeOf", { n: versionIndex, total: versions.length })}{draft.garde === landed.id ? ` · ${t("p0.kept")}` : ""}</p>
-        <video controls playsInline src={media[landed.video]} />
+        {media[landed.video]
+          ? <video controls playsInline src={media[landed.video]} />
+          : <div className="u-card u-run" role="status" data-prise-media-wait=""><ComfyProgress label={t("job.running")} elapsedSec={priseElapsed} typicalSec={typicalFor("prise")} note={t("finaliser.keepOpen")} marker="prise-wait" /></div>}
         {versions.length > 1 && <div className="u-versions" role="group" aria-label={t("p0.versions")}>
           {versions.map((take, at) => <button key={take.id} type="button" data-version={take.id} aria-pressed={take.id === landed.id} onClick={() => setViewed(map => ({ ...map, [draft.id]: take.id }))}>{t("p0.versionN", { n: at + 1 })}{take.id === draft.garde ? " ★" : ""}</button>)}
         </div>}
         <div className="u-card-actions">
           <button type="button" className="u-secondary" data-garder="" aria-pressed={draft.garde === landed.id} onClick={() => keep(landed.id)}>{draft.garde === landed.id ? t("p0.keptBtn") : t("p0.keep")}</button>
+          <button type="button" className="u-secondary" data-ajouter-montage="" disabled={!media[landed.video] || sending} aria-describedby={!media[landed.video] || sending ? "u-why-montage" : undefined} onClick={() => void keepAndMontage(landed.id)}>{t("p0.addToMontage")}</button>
           <button type="button" className="u-secondary" data-autre-prise="" disabled={!canGenerate} aria-describedby={!canGenerate ? "u-why-autre" : undefined} onClick={() => void generate()}>{t("p0.another")}</button>
         </div>
+        {(!media[landed.video] || sending) && <p className="u-why" id="u-why-montage">{sending ? t("p0.running") : t("finaliser.keepOpen")}</p>}
         {!canGenerate && <p className="u-why" id="u-why-autre">{generateReason}</p>}
-        <EtEnsuite source={{ kind: "video", url: media[landed.video], name: landed.id, path: landed.video, aspect: format === "9:16" ? "vertical" : "horizontal" }} />
+        {media[landed.video] && <EtEnsuite source={{ kind: "video", url: media[landed.video], name: landed.id, path: landed.video, aspect: format === "9:16" ? "vertical" : "horizontal" }} />}
       </div>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
-        : !landed && <ToolStage
+        : !landed && !runningHere && <ToolStage
           view="source"
           source={<figure className="u-prise-still" data-prise-still="" data-ratio={format === "9:16" ? "9/16" : "16/9"}>
             {shownPlace?.src ? <img src={shownPlace.src} alt="" /> : <span className="u-prise-still-empty" aria-hidden="true" />}
@@ -1023,7 +1037,16 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <button type="button" data-autre-essai="" onClick={() => setMaquette(state => autreEssai(state))}>🎲 {t("r7.essai")} <small>{t("r7.gratuit")}</small></button>
         <button type="button" disabled={maquette.past.length === 0} aria-describedby={maquette.past.length === 0 ? "u-why-annuler" : undefined} onClick={() => setMaquette(state => undoMaquette(state))}>{t("r7.annuler")}</button>
         <button type="button" data-add-person="" disabled={!canAddFigure(maquette)} aria-describedby={!canAddFigure(maquette) ? "u-why-cap" : undefined} onClick={() => setPicker(open => !open)}>{t("r7.add")}</button>
+        <button type="button" data-still-shot="" className="u-secondary" onClick={() => void monter()}>{t("r7.stillShot")}</button>
       </div>
+      <label className="u-maquette-distance" data-maquette-distance="">
+        <span className="u-label">{t("r7.distance")}</span>
+        <input type="range" min={25} max={140} step={1} value={Math.round(maquette.orbit.radius * 10)} aria-valuetext={t(`r7.cadrage.${cadrageFromOrbit(maquette.orbit, maquette.figures)}`)} disabled={maquette.lockCam} onChange={event => {
+          const radius = Number(event.target.value) / 10;
+          setMaquette(state => state.lockCam ? state : { ...state, orbit: { ...state.orbit, radius } });
+        }} />
+        <small>{t(`r7.cadrage.${cadrageFromOrbit(maquette.orbit, maquette.figures)}`)}</small>
+      </label>
       {maquette.past.length === 0 && <p className="u-why" id="u-why-annuler">{t("r7.annulerOff")}</p>}
       {!canAddFigure(maquette) && <p className="u-why" id="u-why-cap">{t("r7.addOff", { max: MAX_FIGURES })}</p>}
       {picker && canAddFigure(maquette) && <div className="u-picker" data-personnage-picker="">
@@ -1036,8 +1059,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       <ul className="u-figure-row">
         {maquette.figures.map(figure => <li key={figure.id}>
           <span className="u-figure-name"><i className="u-swatch" style={{ background: figure.color }} aria-hidden="true" />{figure.name}</span>
-          <button type="button" className="u-chip" data-tourner={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.turnName", { name: figure.name })} onClick={() => setMaquette(state => yawFigure(state, figure.id, Math.PI / 4))}>{t("r7.turn")}</button>
-          <button type="button" className="u-chip" data-retirer={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.removeName", { name: figure.name })} onClick={() => placeFigure(removeFigure(maquette, figure.id))}>{t("r7.remove")}</button>
+          <button type="button" className="u-chip u-figure-action" data-tourner={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.turnName", { name: figure.name })} onClick={() => setMaquette(state => yawFigure(state, figure.id, Math.PI / 4))}>{t("r7.turn")}</button>
+          <button type="button" className="u-chip u-figure-action" data-retirer={figure.id} disabled={maquette.lockPose} aria-describedby={maquette.lockPose ? "u-why-pose" : undefined} aria-label={t("r7.removeName", { name: figure.name })} onClick={() => placeFigure(removeFigure(maquette, figure.id))}>{t("r7.remove")}</button>
         </li>)}
       </ul>
       {maquette.lockPose && <p className="u-why" id="u-why-pose">{t("r7.poseLock")}</p>}
@@ -1048,7 +1071,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           {TUILES.map(item => {
             const needsPair = tuileNeedsPair(item.id) && maquette.figures.length < 2;
             const hint = needsPair
-              ? t("r7.pairShort")
+              ? t("r7.pairTile")
               : item.id === "taille" && maquette.figures.length > 2
                 ? t("r7.tuile.tailleHintMany")
                 : item.id === "regard" && maquette.figures.length > 1

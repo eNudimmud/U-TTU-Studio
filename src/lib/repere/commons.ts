@@ -73,11 +73,31 @@ const NOT_A_VIEW = new RegExp([
   "screenshots?", "satellite", "aerial", "\\baérienne", "from above", "orthophoto", "\\bcoins?\\b", "stamps?\\b", "banknotes?", "plaques? commémorative",
   "memorial plaques?", "100elles", "street (name )?signs?", "plaques? de rue", "road signs?", "\\bsignage\\b", "inscriptions?", "signatures?", "\\bfood\\b", "\\bdish(es)?\\b", "cuisine", "\\bmenu\\b", "products?\\b", "fruits?\\b", "vegetables?", "strawberr", "apricots?", "peach(es)?\\b", "black and white photographs",
   "historical images", "\\b1[89]\\d0s\\b", "19th century", "20th century photographs",
+  // events / venues that are not the street or buildings of the place
+  "\\bcircus\\b", "\\bcirque\\b", "carnivals?", "\\bfestivals?\\b", "\\bparades?\\b", "\\bfairs?\\b", "\\bfoires?\\b",
+  "\\bconcerts?\\b", "\\bstadiums?\\b", "\\bstades?\\b",
 ].join("|"), "i");
 
 /** The first word that marks a file as not a view of the place, or null. */
 export function motBruit(text: string): string | null {
   return NOT_A_VIEW.exec(text)?.[0] ?? null;
+}
+
+
+/** Words that mark a Commons file as street / building scenery (for ranking). */
+export const STREET_HINT = /\b(streets?|avenues?|boulevards?|rues?|strasse|straße|buildings?|immeubles?|fa[cç]ades?|skylines?|cityscapes?|crosswalks?|sidewalks?|trottoirs?|blocks?)\b/i;
+/** Park-only words without a street/building hint — demote for décor refs. */
+export const PARK_ONLY = /\b(parks?|gardens?|jardins?|lawns?|meadows?|lakes?|ponds?|fountains?|playgrounds?)\b/i;
+
+export function labelCommons(title: string): string {
+  return title.replace(/^File:/i, "").replace(/\.[a-z0-9]+$/i, "").replace(/_/g, " ").trim().slice(0, 120);
+}
+
+export function scoreStreetLabel(label: string | undefined): number {
+  if (!label) return 0;
+  if (STREET_HINT.test(label)) return 2;
+  if (PARK_ONLY.test(label) && !STREET_HINT.test(label)) return -2;
+  return 0;
 }
 
 /** Is this file an outdoor photo of the place? Mime, size, shape and words in its title and categories. */
@@ -202,6 +222,7 @@ export function parseCommonsInfo(payload: unknown, points: ReadonlyMap<number, C
       fov: tour ? 360 : null,
       next: null,
       prev: null,
+      label: labelCommons(point.title),
       // One photographer's set counts as one series: no six shots of the same bank front.
       serie: `wmc:${author.toLowerCase().replace(/\s+/g, " ").slice(0, 40)}`,
     });

@@ -338,7 +338,7 @@ async function chargerMapillaryZone(bbox: readonly [number, number, number, numb
 }
 
 export async function chargerZone(view: Regard, max = 12, pin?: { lat: number; lon: number }): Promise<ZoneSearch> {
-  const key = `zone-v4:${view.lat.toFixed(4)},${view.lon.toFixed(4)},${Math.round(view.heading / 10)},${Math.round(view.fov)},${pin ? `${pin.lat.toFixed(4)},${pin.lon.toFixed(4)}` : "-"}`;
+  const key = `zone-v5:${view.lat.toFixed(4)},${view.lon.toFixed(4)},${Math.round(view.heading / 10)},${Math.round(view.fov)},${pin ? `${pin.lat.toFixed(4)},${pin.lon.toFixed(4)}` : "-"}`;
   const cached = readPublicCache<ZoneSearch>(key);
   if (cached) return cached;
   const near = !pin || distanceMeters(view.lat, view.lon, pin.lat, pin.lon) <= 60;

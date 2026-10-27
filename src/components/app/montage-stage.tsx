@@ -39,7 +39,7 @@ function Why({ on, text, id }: { on: boolean; text: string; id?: string }) {
 function Tool({ id, off, reason, label, glyph, onClick }: { id: string; off: boolean; reason: string; label: string; glyph: ReactNode; onClick: () => void }) {
   const [tip, setTip] = useState(false);
   return <span className="u-tool-slot" data-tip={tip ? "" : undefined} onPointerEnter={() => setTip(true)} onPointerLeave={() => setTip(false)} onClick={() => { if (off) setTip(value => !value); }}>
-    <button type="button" className="u-tool" disabled={off} aria-describedby={off ? id : undefined} aria-label={label} onClick={onClick}>{glyph}<span>{label}</span></button>
+    <button type="button" className="u-tool" disabled={off} title={label} aria-describedby={off ? id : undefined} aria-label={label} onClick={onClick}>{glyph}<span>{label}</span></button>
     {off && <span className="u-tip" id={id} role="tooltip">{reason}</span>}
   </span>;
 }
@@ -158,6 +158,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
   }, []);
   const [speedOpen, setSpeedOpen] = useState(false);
   const [titleOpen, setTitleOpen] = useState(false);
+  const [dragInsert, setDragInsert] = useState<{ from: number; to: number } | null>(null);
   const selectedRef = useRef<string | null>(null);
   const historyRef = useRef(history);
   const timeRef = useRef(0);
@@ -526,42 +527,43 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     target.addEventListener("pointerup", up);
   }
 
+  function dropIndexAt(edit: Edit, x: number): number {
+    let cursor = 0;
+    let to = edit.video.length - 1;
+    for (let i = 0; i < edit.video.length; i += 1) {
+      const width = playSpan(edit.video[i]);
+      if (x < cursor + width / 2) { to = i; break; }
+      cursor += width;
+    }
+    return to;
+  }
+
   function onReorder(event: ReactPointerEvent, index: number) {
+    event.preventDefault();
     const base = historyRef.current;
     const originX = event.clientX;
     let moved = false;
+    let to = index;
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
     const move = (ev: PointerEvent) => {
-      if (Math.abs(ev.clientX - originX) < 8) return;
+      if (Math.abs(ev.clientX - originX) < 6) return;
       moved = true;
       edgeScroll(ev.clientX);
-      const x = pointerTime(ev.clientX);
-      let cursor = 0;
-      let to = base.present.video.length - 1;
-      for (let i = 0; i < base.present.video.length; i += 1) {
-        const width = playSpan(base.present.video[i]);
-        if (x < cursor + width / 2) { to = i; break; }
-        cursor += width;
-      }
-      show({ ...base, present: reorderVideo(base.present, index, to) });
+      to = dropIndexAt(base.present, pointerTime(ev.clientX));
+      setDragInsert({ from: index, to });
     };
-    const up = (ev: PointerEvent) => {
+    const up = () => {
       target.removeEventListener("pointermove", move);
       target.removeEventListener("pointerup", up);
-      if (!moved) return;
-      const x = pointerTime(ev.clientX);
-      let cursor = 0;
-      let to = base.present.video.length - 1;
-      for (let i = 0; i < base.present.video.length; i += 1) {
-        const width = playSpan(base.present.video[i]);
-        if (x < cursor + width / 2) { to = i; break; }
-        cursor += width;
-      }
+      target.removeEventListener("pointercancel", up);
+      setDragInsert(null);
+      if (!moved || to === index) return;
       commitFrom(base, reorderVideo(base.present, index, to));
     };
     target.addEventListener("pointermove", move);
     target.addEventListener("pointerup", up);
+    target.addEventListener("pointercancel", up);
   }
 
   function onMoveAudio(event: ReactPointerEvent, clip: AudioClip) {
@@ -794,7 +796,8 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     const width = Math.max(playSpan(clip) * px, 48);
     const thumb = thumbOf(clip);
     const tier = clipTier(clip, studio.takes);
-    return <div key={clip.id} className="u-clip is-video" data-clip-seconds={Math.round(playSpan(clip) * 10) / 10} data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width }}>
+    const dragging = dragInsert?.from === index;
+    return <div key={clip.id} className="u-clip is-video" data-dragging={dragging || undefined} data-clip-seconds={Math.round(playSpan(clip) * 10) / 10} data-selected={selected === clip.id || undefined} data-trimming={selected === clip.id ? trimming ?? undefined : undefined} style={{ left: origin * px, width, opacity: dragging ? 0.55 : undefined }}>
       <button type="button" className="u-handle is-start" aria-label={t("montage.trimStart")} onPointerDown={event => onTrim(event, clip.id, "start", "video")} />
       <button type="button" className="u-clip-body" style={thumb ? { backgroundImage: `url(${thumb})` } : undefined} onPointerDown={event => { setSelected(clip.id); onReorder(event, index); }}><span>{clip.label}</span>{tier && <span className="u-clip-tier" data-tier={tier}>{t(tier === "apercu" ? "finaliser.tagApercu" : "finaliser.tagFinale")}</span>}</button>
       <button type="button" className="u-handle is-end" aria-label={t("montage.trimEnd")} onPointerDown={event => onTrim(event, clip.id, "end", "video")} />
@@ -819,6 +822,14 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
     cursor += playSpan(clip);
     return node;
   });
+  let insertLeft: number | null = null;
+  if (dragInsert && edit.video.length > 0) {
+    let at = 0;
+    const target = Math.min(dragInsert.to, edit.video.length - 1);
+    for (let i = 0; i < target; i += 1) at += playSpan(edit.video[i]);
+    if (dragInsert.to > dragInsert.from) at += playSpan(edit.video[target]);
+    insertLeft = TRACK_LABEL_PX + at * px;
+  }
   const axis = Math.max(duration * px + 80, 280);
   const width = TRACK_LABEL_PX + axis;
   const ratio = projectRatio(edit, studio.takes);
@@ -1036,7 +1047,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
             <span className="u-track-mark" title={t("montage.video")} aria-label={t("montage.video")}><Film /></span>
             {unusedTakes.length > 0 && <button type="button" className="u-track-add" data-menu-toggle="" aria-label={t("montage.addOnTrack", { track: t("montage.video") })} onClick={event => openPanel("video", event)}><Plus /></button>}
           </div>
-          <div className="u-track">{videoNodes}</div>
+          <div className="u-track">{videoNodes}{insertLeft !== null && <span className="u-clip-insert" style={{ left: insertLeft }} aria-hidden="true" />}</div>
         </div>
         {(["voix", "effets", "musique"] as const).map(track => {
           const clips = edit.audio.filter(clip => clip.track === track);
@@ -1159,7 +1170,7 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
           <button type="button" className="u-icon" aria-label={t("verb.cancel")} disabled={exportPhase.phase === "run"} aria-describedby={exportPhase.phase === "run" ? "u-why-export-close" : undefined} onClick={() => setPanel(null)}><Close /></button>
         </div>
         {exportPhase.phase === "run" && <span className="sr-only" id="u-why-export-close">{t("montage.exportRun")}</span>}
-        {estimate ? <p className="u-cost is-ok">{t("montage.exportAnnounce", { seconds: Math.round(estimate.seconds), size })}</p> : <p className="u-why">{t("montage.exportOff")}</p>}
+        {estimate ? <p className="u-cost is-ok" data-export-seconds={estimate.seconds}>{t("montage.exportAnnounce", { seconds: Math.round(estimate.seconds * 10) / 10, size })}</p> : <p className="u-why">{t("montage.exportOff")}</p>}
         <p className="u-small" data-export-quality-sheet="">{t("montage.exportQuality", { height: num(EXPORT_HEIGHT), fps: num(EXPORT_FPS), max: num(EXPORT_MAX_SECONDS) })}</p>
         <button type="button" className="u-primary" data-export-gold="" disabled={!canExport} aria-describedby={!canExport ? "u-why-export-go" : undefined} onClick={runExport}>{t("montage.export")}</button>
         {!canExport && <Why on id="u-why-export-go" text={exportWhy} />}

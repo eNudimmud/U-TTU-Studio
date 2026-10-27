@@ -10,7 +10,7 @@ describe("devis LTX estimé", () => {
     const quote = resolveTakeQuote(takeProfile(DEFAULT_TAKE), []);
     assert.equal(quote.source, "estimated");
     const line = quoteSentence(quote);
-    assert.match(line, /^Estimé : environ 12 à 25 crédits\./);
+    assert.match(line, /^Estimé : environ 14 à 28 crédits\./);
     assert.doesNotMatch(line, /mesuré sur/);
     assert.doesNotMatch(line, /Pas encore mesuré/);
   });

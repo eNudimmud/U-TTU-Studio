@@ -22,6 +22,7 @@ import { audioSeconds, lastFrame, sourceFile, typeFromName, videoSeconds } from 
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
+import { MeshViewer } from "./mesh-viewer";
 import { MontageButton } from "./montage-button";
 import { resolveStudioHandoff } from "@/lib/agent/handoff";
 import { BarreHome, CardThumb, StudioHome, openStudioTool } from "./studio-entry";
@@ -576,6 +577,15 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   </section>;
 }
 
+
+/** Prefer a real .glb/.gltf name from the vault path (never a raw blob id). */
+function meshDownloadName(path: string, label: string): string {
+  const base = path.split("/").pop()?.trim() || "";
+  if (/\.(glb|gltf)$/i.test(base)) return base;
+  const safe = label.replace(/[^a-zA-Z0-9._\u00C0-\u024F-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "volume";
+  return `${safe}.glb`;
+}
+
 /** The run just made in this tool: what came back, shown big, never a file name. */
 export interface ToolRun { url: string; path: string; kind: Sortie; poster?: string; aspect?: "horizontal" | "vertical" }
 
@@ -593,7 +603,12 @@ function ToolResult({ run, label }: { run: ToolRun; label: string }) {
       {run.kind === "image" && <img src={run.url} alt={t("outils.result")} />}
       {run.kind === "video" && <video src={run.url} controls playsInline preload="metadata" />}
       {run.kind === "audio" && <audio src={run.url} controls />}
-      {run.kind === "mesh" && <>{run.poster && <img src={run.poster} alt="" />}<a className="u-primary" href={run.url} download>{t("outils.download")}</a></>}
+      {run.kind === "mesh" && <>
+        <MeshViewer url={run.url} label={t("outils.result")} />
+        <div className="u-tool-result-mesh-actions">
+          <a className="u-primary" href={run.url} download={meshDownloadName(run.path, label)}>{t("outils.download")}</a>
+        </div>
+      </>}
     </div>
     {run.kind === "video" && run.path && <div className="u-fil-actions" data-tool-result-actions="">
       <MontageButton input={{ planId: "outils", label, seconds: 5, aspect: run.aspect ?? "horizontal", still: "", video: run.path, prompt: "", sceneName: "", composeur: "" }} />

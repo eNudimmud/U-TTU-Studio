@@ -962,7 +962,8 @@
     "copied": "Copiado en el otro proyecto.",
     "imported": "Añadido: {count}",
     "noPicture": "No hay una imagen para la toma.",
-    "sessionMissing": "La sesión no está abierta."
+    "sessionMissing": "La sesión no está abierta.",
+    "deleted": "« {name} » eliminado"
   },
   "montage": {
     "lead": "Los planos se siguen. La voz, los efectos y la música se colocan debajo.",
@@ -1401,7 +1402,8 @@
     "estimate": "Presupuesto {amount}",
     "sansImageOne": "1 lugar sin imagen espera en Decorado.",
     "sansImageMany": "{count} lugares sin imagen esperan en Decorado.",
-    "sansImageGo": "Crearlos"
+    "sansImageGo": "Crearlos",
+    "credit": "Crédito"
   },
   "r7": {
     "maquette": "Boceto",
@@ -1671,7 +1673,9 @@
     "savedClip": "Previsualización guardada en Mis creaciones.",
     "downloadClip": "Descargar el vídeo",
     "modelTerms": "Leer la licencia del modelo",
-    "hunyuanTerms": "Este volumen tiene condiciones particulares: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo."
+    "hunyuanTerms": "Este volumen tiene condiciones particulares: su licencia comunitaria excluye la UE, el Reino Unido y Corea del Sur. Consulta los derechos aplicables con tu proveedor antes de usarlo.",
+    "downloadImage": "Descargar la imagen",
+    "downloadAudio": "Descargar el audio"
   },
   "recovery": {
     "title": "Recuperar un renderizado",
@@ -1945,7 +1949,8 @@
       "goNext": "Rodar el plano {n} · ≈ {credits} créditos estimados",
       "keep": "Tu elección se queda para los próximos planos de este proyecto.",
       "apercuHint": "Una vista previa se finaliza después, sola o con todo el montaje."
-    }
+    },
+    "addToMontage": "Añadir al montaje"
   },
   "p1": {
     "hint": "Basta una frase: quién, dónde, qué pasa, la cámara, el ambiente.",
@@ -2974,7 +2979,8 @@
     },
     "guidance": "Elige un proyecto. Selecciona archivos antes de verificarlos o clasificarlos y rellena al menos un campo de clasificación. Las acciones esperan a que termine la sincronización.",
     "lead": "Tus creaciones de Comfy, ordenadas por proyecto.",
-    "helpTitle": "¿Cómo funciona?"
+    "helpTitle": "¿Cómo funciona?",
+    "cloud": "nube"
   },
   "demoNames": {
     "demo-coursiere": "La mensajera",

@@ -189,15 +189,36 @@ const toLinear = (c: number) => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) 
  * Soften swisstopo's colours (linear in, linear out) so the look stays sober: saturated roofs get
  * deeper and closer to brick, light walls stay light, all lean a little toward a warm grey.
  */
+/** Keep hue readable for « Au sol » volumes; only tame neon tile colours. */
 export function soberColor(r: number, g: number, b: number): [number, number, number] {
   const c = [toSrgb(r), toSrgb(g), toSrgb(b)];
   const max = Math.max(...c);
   const min = Math.min(...c);
   const sat = max > 0 ? (max - min) / max : 0;
-  const f = 1 - 0.5 * sat;
-  const grey = [0.83, 0.8, 0.75];
-  const out = c.map((v, i) => Math.max(0, Math.min(1, v * f * 0.8 + grey[i] * 0.2)));
+  // Soft clamp only — previous 50% desat + grey mix made every façade beige.
+  const f = 1 - 0.2 * Math.max(0, sat - 0.55);
+  const out = c.map(v => Math.max(0.12, Math.min(0.92, v * f)));
   return [toLinear(out[0]), toLinear(out[1]), toLinear(out[2])];
+}
+
+/** Varied OSM massing colours so « Au sol » is not one flat beige canyon. */
+const OSM_PALETTE: readonly [number, number, number][] = [
+  [0.78, 0.72, 0.62], // limestone
+  [0.72, 0.58, 0.48], // brick
+  [0.62, 0.64, 0.66], // concrete
+  [0.70, 0.66, 0.58], // sandstone
+  [0.58, 0.52, 0.46], // brownstone
+  [0.76, 0.74, 0.70], // pale render
+  [0.66, 0.60, 0.52], // terracotta tone
+  [0.54, 0.56, 0.58], // slate grey
+];
+
+export function osmMassingColor(height: number, cx: number, cz: number): [number, number, number] {
+  const h = Math.max(0, height);
+  const n = Math.abs((Math.imul(Math.round(cx * 10), 374761393) ^ Math.imul(Math.round(cz * 10), 668265263) ^ Math.imul(Math.round(h), 982451653)) >>> 0);
+  const [r, g, b] = OSM_PALETTE[n % OSM_PALETTE.length]!;
+  const cool = Math.min(0.12, h / 400);
+  return [toLinear(Math.max(0.1, r - cool)), toLinear(Math.max(0.1, g - cool * 0.6)), toLinear(Math.max(0.1, b + cool * 0.2))];
 }
 
 /** Swiss buildings inside the radius, OSM outside: one seam, no double walls. */

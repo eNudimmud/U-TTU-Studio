@@ -7,6 +7,7 @@ import { attributionLine } from "../src/lib/repere3d/sources.ts";
 import {
   SWISSBUILDINGS_ROOT, ecefToGeodetic, geodeticToEcef, gltfToLocal, heightOffset, keepSwiss, radianBox, regionHits,
   safeTileUrl, splitB3dm, swissContents, swissRadius, swissTileCap,
+  osmMassingColor, soberColor,
 } from "../src/lib/repere3d/swiss-buildings.ts";
 
 describe("swissBUILDINGS3D", () => {
@@ -127,5 +128,20 @@ describe("gestes à deux doigts", () => {
   it("does not take fingers moving apart vertically for a tilt", () => {
     const reading = readTwo(start, { x: 100, y: 330 }, { x: 300, y: 270 });
     assert.notEqual(classifyTwo(reading), "tilt");
+  });
+});
+
+
+describe("Au sol massing colours", () => {
+  it("gives OSM buildings distinct hues (not one flat beige)", () => {
+    const a = osmMassingColor(12, 10, 20);
+    const b = osmMassingColor(40, -30, 50);
+    assert.notDeepEqual(a, b);
+    for (const c of [...a, ...b]) assert.ok(c > 0.05 && c < 0.95);
+  });
+
+  it("keeps more saturation than the old grey wash", () => {
+    const [r, g, b] = soberColor(0.9, 0.2, 0.2);
+    assert.ok(r > g && r > b, "red stays dominant");
   });
 });
