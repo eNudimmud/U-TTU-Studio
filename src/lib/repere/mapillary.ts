@@ -1,4 +1,5 @@
-// Mapillary is optional. A free client token may live in the browser. Without it, nothing is asked.
+// Mapillary is optional. Prefer MAPILLARY_TOKEN on the server (/api/repere/mapillary).
+// NEXT_PUBLIC_MAPILLARY_TOKEN remains a fallback. Without either, Mapillary stays off.
 
 export const MAPILLARY = "https://graph.mapillary.com";
 
@@ -43,8 +44,14 @@ export function mapillaryBboxUrl(bbox: readonly [number, number, number, number]
 
 export const MAPILLARY_ATTRIBUTION = "© Mapillary contributors, CC BY-SA";
 
+/** Optional browser-exposed token. Prefer the server MAPILLARY_TOKEN via /api/repere/mapillary. */
 export function mapillaryToken(): string {
   return (process.env.NEXT_PUBLIC_MAPILLARY_TOKEN ?? "").trim();
+}
+
+/** Server-only token. Never log or put this in a response body. */
+export function mapillaryServerToken(): string {
+  return (process.env.MAPILLARY_TOKEN ?? process.env.NEXT_PUBLIC_MAPILLARY_TOKEN ?? "").trim();
 }
 
 export function photoCredit(author: string, source: "mapillary" | "panoramax" = "mapillary", license = "CC BY-SA"): string {

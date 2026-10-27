@@ -168,12 +168,19 @@ describe("photos Mapillary", () => {
   it("stays off without a free token, and never calls a Google map API", () => {
     const lib = readFileSync(new URL("../src/lib/repere/mapillary.ts", import.meta.url), "utf8");
     const direct = readFileSync(new URL("../src/lib/repere/direct.ts", import.meta.url), "utf8");
+    const route = readFileSync(new URL("../src/app/api/repere/mapillary/route.ts", import.meta.url), "utf8");
     assert.match(lib, /NEXT_PUBLIC_MAPILLARY_TOKEN/);
+    assert.match(lib, /MAPILLARY_TOKEN/);
+    assert.match(lib, /mapillaryServerToken/);
     assert.match(lib, /graph\.mapillary\.com/);
-    assert.match(direct, /mapillaryToken\(\)/);
-    assert.match(direct, /Authorization/);
-    assert.doesNotMatch(`${lib}\n${direct}`, /maps\.googleapis|streetview|mt\.google|khms/);
+    assert.match(direct, /\/api\/repere\/mapillary/);
+    assert.match(route, /mapillaryServerToken/);
+    assert.match(route, /Authorization/);
+    assert.doesNotMatch(route, /console\.(log|info|debug|warn|error).*TOKEN|MAPILLARY_TOKEN\s*\+/);
+    assert.doesNotMatch(`${lib}\n${direct}\n${route}`, /maps\.googleapis|streetview|mt\.google|khms/);
     assert.equal((process.env.NEXT_PUBLIC_MAPILLARY_TOKEN ?? "").trim(), "");
+    // MAPILLARY_TOKEN may be present on the host; the route must never echo it.
+    assert.doesNotMatch(route, /return[\s\S]{0,80}MAPILLARY_TOKEN|json\([^)]*token/i);
   });
 
   it("keeps the street photo as a décor reference, with the author", async () => {

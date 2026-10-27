@@ -46,10 +46,11 @@ function Frame({ title, onClose, children }: { title: string; onClose(): void; c
 
 export function CreditSheet() {
   const { t, say } = useI18n();
-  const { setSheet, connected, balance, balanceNote, refreshBalance, disconnect, takeQuote } = useStudio();
+  const { ready, setSheet, connected, balance, balanceNote, refreshBalance, disconnect, takeQuote } = useStudio();
+  const creditsLoading = !ready || (connected && !balance && !balanceNote);
   return <Frame title={t("sheet.walletTitle")} onClose={() => setSheet(null)}>
     <p>{t("sheet.walletLead")}</p>
-    <p className="u-cost" data-state={connected ? "on" : "off"}>{connected && balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : connected ? say(balanceNote) : t("sheet.notLinked")}</p>
+    <p className="u-cost" data-state={creditsLoading ? "load" : connected ? "on" : "off"}>{creditsLoading ? t("sheet.balanceLoading") : connected && balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : connected ? say(balanceNote) : t("sheet.notLinked")}</p>
     <p className="u-small">{quoteSentence(takeQuote)}</p>
     <RecoveryPanel />
     <div className="u-card-actions">

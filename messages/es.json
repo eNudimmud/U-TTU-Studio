@@ -667,7 +667,8 @@
     "keySubscription": "Comfy reconoce tu cuenta, pero no tiene una suscripción activa para la API. Elige un plan de pago y vuelve a intentarlo.",
     "keyCredits": "Comfy reconoce tu cuenta, pero ya no le quedan créditos. Recárgala en Comfy Cloud y vuelve a intentarlo.",
     "clipboardDenied": "Tu navegador no ha dado acceso al portapapeles. Pega la clave en el campo (mantén pulsado y luego Pegar).",
-    "clipboardEmpty": "No encuentro ninguna clave de Comfy en tu portapapeles. Cópiala en tu página de claves y vuelve a intentarlo."
+    "clipboardEmpty": "No encuentro ninguna clave de Comfy en tu portapapeles. Cópiala en tu página de claves y vuelve a intentarlo.",
+    "balanceLoading": "leyendo el saldo…"
   },
   "memory": {
     "title": "Este proyecto",
@@ -2660,7 +2661,8 @@
     "slot": {
       "start": "Imagen de inicio",
       "end": "Imagen final"
-    }
+    },
+    "costWait": "leyendo la duración…"
   },
   "top": {
     "nav": "Navegación del estudio",

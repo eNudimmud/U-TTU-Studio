@@ -667,7 +667,8 @@
     "keySubscription": "Comfy recognises your account, but it has no active subscription for the API. Pick a paid plan, then try again.",
     "keyCredits": "Comfy recognises your account, but it has no credits left. Top it up on Comfy Cloud, then try again.",
     "clipboardDenied": "Your browser didn’t allow clipboard access. Paste the key into the field (long press, then Paste).",
-    "clipboardEmpty": "I can’t find a Comfy key in your clipboard. Copy it from your keys page, then try again."
+    "clipboardEmpty": "I can’t find a Comfy key in your clipboard. Copy it from your keys page, then try again.",
+    "balanceLoading": "reading balance…"
   },
   "memory": {
     "title": "This project",
@@ -2660,7 +2661,8 @@
     "slot": {
       "start": "Start image",
       "end": "End image"
-    }
+    },
+    "costWait": "reading duration…"
   },
   "top": {
     "nav": "Studio navigation",
