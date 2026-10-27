@@ -231,9 +231,7 @@ export function BarreHome() {
         {active && <p className="u-ex-from" data-ex-from="">{t("barre.galerie.from", { title: t(active.titleKey) })}
           <button type="button" className="u-text-button" data-ex-clear="" onClick={clearExample}>{t("barre.galerie.clear")}</button>
         </p>}
-        <p className="u-barre-route-line" data-ex-route="">{active
-          ? t("barre.galerie.route", { tool: t(`barre.galerie.tool.${active.tool}`) })
-          : t("barre.routeHere", { where: t("barre.galerie.tool.klein") })}</p>
+        {active && <p className="u-barre-route-line" data-ex-route="">{t("barre.galerie.route", { tool: t(`barre.galerie.tool.${active.tool}`) })}</p>}
         <ExempleGalerieStrip activeId={activeId} onPick={pickExample} />
         <a className="u-secondary u-barre-all-link" href="#outils/tous" data-barre-all-link="" onClick={event => { event.preventDefault(); openStudioTool("tous"); }}>{t("barre.all")}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
       </>}
@@ -284,7 +282,9 @@ function HomeStage({ active, lastDone, busy, view, onView, media }: {
         : <img className="src" src={assetPath(active.big || active.img)} alt="" />)
     : resultNode;
 
-  const progress = busy && !resultUrl ? { label: t("barre.fil.stage.calcul"), typical: "still" as const } : null;
+  // Progress lives in BarreFil (FilRunningProgress); keep the stage free of a second bar.
+  void busy;
+  const progress = null;
   const lab = resultUrl
     ? <>{t("shell.result")} · {active?.eng ?? "Klein"}</>
     : active

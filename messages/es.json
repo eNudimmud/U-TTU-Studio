@@ -645,7 +645,7 @@
     "keyRefused": "Comfy no reconoce esta clave. Revísala y vuelve a intentarlo.",
     "keyNetwork": "Comfy no responde. Revisa tu conexión a internet y vuelve a intentarlo.",
     "keyUnchecked": "Comfy no ha podido comprobar esta clave. Vuelve a intentarlo en un momento.",
-    "sessionExpired": "Tu sesión de Comfy ha caducado. Vuelve a conectarte.",
+    "sessionExpired": "Tu sesión de Comfy ha caducado (¿sesión abierta en otro sitio?). Vuelve a conectarte.",
     "loginButton": "Iniciar sesión con Comfy",
     "loginHint": "La página de inicio de sesión de Comfy se abre al lado: Google, GitHub o correo, y el registro si aún no tienes cuenta. Inicia sesión y vuelve aquí: el estudio se conecta solo.",
     "loginWaiting": "Espero a que inicies sesión en la página de Comfy…",
@@ -1687,8 +1687,14 @@
     "invalid": "Comprueba el identificador y confirma que el renderizado corresponde a este recibo.",
     "changed": "El recibo ha cambiado o ya tiene identificador. Comprueba su estado antes de continuar.",
     "account": "Vuelve a conectar la cuenta que envió este renderizado.",
-    "failed": "No se puede recuperar ahora. Se conserva el recibo.",
-    "corrupt": "No se puede leer el recibo. Conserva los datos del navegador y revisa tu historial de Comfy."
+    "failed": "No se puede recuperar este render por ahora.",
+    "corrupt": "No se puede leer el recibo. Conserva los datos del navegador y revisa tu historial de Comfy.",
+    "blocked": "Un render anterior sigue pendiente de recuperación. Abre Créditos y luego Recuperar el render.",
+    "cloudFailed": "El render falló en la nube. Revisa tu historial de Comfy por si hubo algún cargo.",
+    "sessionElsewhere": "Tu sesión de Comfy ha caducado (¿sesión abierta en otro sitio?). Vuelve a conectarte.",
+    "network": "La cuenta de render no responde. Comprueba tu conexión e inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "reconnect": "Reconectar"
   },
   "safety": {
     "modelBlocked": "Esta herramienta está oculta por tus elecciones de modelos. No se envía nada.",
@@ -1766,7 +1772,14 @@
     "sentNoReceipt": "El renderizado {job} se envió, pero su recibo no se pudo guardar. Conserva este identificador y revisa el espacio en disco. No relances la generación.",
     "encodeMaster": "Este navegador no puede escribir el archivo maestro H.264. Exporta primero el montaje (funciona en este móvil) o vuelve a lanzar Finalizar desde un navegador actualizado.",
     "recordEmpty": "La grabación del vídeo está vacía. Vuelve a exportar con esta pestaña abierta.",
-    "soundSkipped": "Este navegador no puede leer el sonido de al menos una toma: el vídeo se exporta sin ese sonido."
+    "soundSkipped": "Este navegador no puede leer el sonido de al menos una toma: el vídeo se exporta sin ese sonido.",
+    "cloudFailed": "El render falló en la nube. Revisa tu historial de Comfy por si hubo algún cargo.",
+    "sessionElsewhere": "Tu sesión de Comfy ha caducado (¿sesión abierta en otro sitio?). Vuelve a conectarte.",
+    "renderNetwork": "La cuenta de render no responde. Comprueba tu conexión e inténtalo de nuevo.",
+    "pendingBlock": "Un render anterior sigue pendiente de recuperación. Abre Créditos y luego Recuperar el render — o reintenta si la nube ya terminó sin resultado.",
+    "submitRefused": "La cuenta de render rechazó la toma. No se envió nada.",
+    "creditsLow": "Créditos insuficientes en tu cuenta de render.",
+    "subscriptionInactive": "Tu suscripción de render está inactiva, o la cola está llena."
   },
   "p0": {
     "advanced": "Avanzado",

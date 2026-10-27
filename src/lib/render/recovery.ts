@@ -1,6 +1,6 @@
 // Durable receipt for a paid submission. Never automatically submit again:
 // an interrupted POST may already have been charged upstream.
-import { RenderError, type RenderClient } from './client.ts';
+import { RenderError, jobStage, type RenderClient } from './client.ts';
 import type { InFlight } from './settings.ts';
 import { ACTIVE_FILE } from '../coffre/project.ts';
 import type { VaultStore } from '../coffre/store.ts';
@@ -64,15 +64,48 @@ export function recoverableClient(client: RenderClient, storage: StorageLike, re
     try {
       jobId = await client.submit(graph, clientId);
     } catch (error) {
-      // Explicit authentication/credit refusal precedes acceptance. Other failures are ambiguous.
-      if (error instanceof RenderError && ['auth', 'credits', 'subscription'].includes(error.code)) storage.removeItem(PENDING_RENDER_KEY);
-      // Do not clear on network/server errors: acceptance may be ambiguous.
+      // Explicit refusal before acceptance: safe to drop the blank receipt.
+      // `invalid` is a Comfy validation/API refusal with no prompt_id — nothing was queued.
+      // Network stays ambiguous: the POST may have been accepted upstream.
+      if (error instanceof RenderError && ['auth', 'credits', 'subscription', 'invalid'].includes(error.code)) storage.removeItem(PENDING_RENDER_KEY);
       throw error;
     }
     try { storage.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...receipt, jobId })); }
     catch { throw new Error(`Le rendu ${jobId} a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conserve cet identifiant et vérifie ton espace disque. Ne relance pas la génération.`); }
     return jobId;
   } };
+}
+
+
+/** Drop a receipt whose Comfy job is already terminal (failed/cancelled). Nothing left to recover. */
+export function clearTerminalPending(storage: StorageLike, jobId: string): void {
+  clearPending(storage, jobId);
+}
+
+/**
+ * If a stuck receipt points at a job that already failed or was cancelled in the cloud,
+ * drop it so a new confirmed send can proceed. Returns:
+ * - "cleared" when the receipt was removed
+ * - "blocked" when a live or finished-success job still needs recovery
+ * - "none" when there is no receipt
+ */
+export async function reconcilePendingReceipt(
+  storage: StorageLike,
+  client: Pick<RenderClient, 'status'>,
+): Promise<'none' | 'cleared' | 'blocked'> {
+  const pending = readPending(storage);
+  if (!pending) return 'none';
+  if (!pending.jobId) return 'blocked';
+  try {
+    const stage = jobStage(await client.status(pending.jobId));
+    if (stage === 'failed' || stage === 'cancelled') {
+      clearPending(storage, pending.jobId);
+      return 'cleared';
+    }
+    return 'blocked';
+  } catch {
+    return 'blocked';
+  }
 }
 
 /** A background result always returns to its original project. */

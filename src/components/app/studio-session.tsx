@@ -56,7 +56,8 @@ import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderL
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
-import { accountFingerprint, bindPendingJob, clearPending, readPending, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
+import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
+import { failView, type FailKind } from "@/lib/render/fail";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 
 export type SheetName = null | "credits" | "confirm" | "connect";
@@ -313,7 +314,7 @@ const judgeOutcome = (outcome: FinaliseOutcome) => outcome.ok ? { ok: true } : {
 
 export type FinaliseOutcome =
   | { ok: true; path: string; url: string; cost: number | null }
-  | { ok: false; message: string };
+  | { ok: false; message: string; kind?: FailKind; intact?: boolean; reconnect?: boolean; retry?: boolean };
 
 export interface HeldRef {
   id: string;
@@ -553,7 +554,25 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [store]);
   const fingerprint = useCallback(async () => accountFingerprint(link.mode === "key" ? link.key : JSON.stringify(await client?.user())), [client, link]);
 
+
+  const failOutcome = useCallback((error: unknown): Extract<FinaliseOutcome, { ok: false }> => {
+    const view = failView(error);
+    if (error instanceof RenderError && (error.code === "failed" || error.code === "cancelled")) {
+      const pending = readPending(localStorage);
+      if (pending?.jobId) clearTerminalPending(localStorage, pending.jobId);
+    }
+    if (error instanceof RenderError && error.code === "auth") {
+      setConnected(false);
+      setBalance(null);
+      setBalanceNote(view.message);
+      setSheet("connect");
+    }
+    return { ok: false, message: view.message, kind: view.kind, intact: view.intact, reconnect: view.reconnect, retry: view.retry };
+  }, []);
+
+
   // Synchronous guard before any await, plus an origin-wide Web Lock for tabs.
+  // A receipt whose Comfy job already failed/cancelled is dropped so the visitor is not stuck.
   const paid = useCallback(async <T,>(work: () => Promise<T>, refused: T): Promise<T> => {
     if (paidBusy.current || following.current) return refused;
     paidBusy.current = true;
@@ -562,14 +581,20 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (!navigator.locks) throw new Error("Ce navigateur ne peut pas sécuriser les envois simultanés. Utilise un navigateur récent.");
       return await navigator.locks.request("uttu-paid-render", { ifAvailable: true }, async lock => {
         if (!lock) throw new Error("Un rendu est déjà suivi dans un autre onglet.");
-        if (readPending(localStorage) || readInFlight(localStorage)) throw new Error("Un rendu attend sa récupération. Ouvre Crédits puis Récupérer le rendu avant un nouvel envoi.");
+        if (client) {
+          const reconciled = await reconcilePendingReceipt(localStorage, client);
+          if (reconciled === "cleared") setNotice(t("runtimeSafe.cloudNoResult"));
+        }
+        if (readPending(localStorage) || readInFlight(localStorage)) {
+          throw new Error("Un rendu précédent attend encore sa récupération. Ouvre Crédits, puis Récupérer le rendu — ou réessaie si le cloud l’a déjà terminé sans résultat.");
+        }
         return work();
       });
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Opération interrompue.");
       return refused;
     } finally { paidBusy.current = false; setCreating(false); }
-  }, []);
+  }, [client, t]);
 
   const refreshBalance = useCallback(async (): Promise<Balance | null> => {
     if (!client) {
@@ -845,7 +870,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   const createDecor = useCallback(async (input: DecorInput) => {
     const row = input.geste ? gesteParId(input.geste) : null;
@@ -946,7 +971,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   const createStem = useCallback(async (input: { geste: string; text: string; confirmed: boolean }) => {
     const row = gesteParId(input.geste);
@@ -998,7 +1023,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // Finaliser : une passe sur le montage entier. Jamais d'annulation : le job va au bout.
   const finaliseMontage = useCallback(async (input: FinaliseInput): Promise<FinaliseOutcome> => {
@@ -1038,12 +1063,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
-      const message = error instanceof Error && error.message ? error.message : t("create.failed");
-      return { ok: false, message };
+      return failOutcome(error);
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // Gestes vidéo de PRISE. Devis estimé, confirmé, plafond couvert par le solde. Jamais d'annulation.
   const runVideoGeste = useCallback(async (input: VideoGesteRun): Promise<FinaliseOutcome> => {
@@ -1093,12 +1117,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
-      const message = error instanceof Error && error.message ? error.message : t("create.failed");
-      return { ok: false, message };
+      return failOutcome(error);
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // « Générer en 3D » de la maquette. Même règle : devis estimé, confirmé, plafond couvert. Jamais d'annulation.
   const runMeshGeste = useCallback(async (input: MeshGesteRun): Promise<FinaliseOutcome> => {
@@ -1138,12 +1161,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.mesh), cost: result.costCredits };
     } catch (error) {
-      const message = error instanceof Error && error.message ? error.message : t("create.failed");
-      return { ok: false, message };
+      return failOutcome(error);
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // « Et ensuite ? ». Préparer → Vérifier → Estimer → Confirmer → Exécuter → Contrôler → Archiver.
   // The result is a new asset; the asset it starts from is only read. Jamais d'annulation.
@@ -1206,12 +1228,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
-      const message = error instanceof Error && error.message ? error.message : t("create.failed");
-      return { ok: false, message };
+      return failOutcome(error);
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   // Hub tools: the same seven steps. « Et ensuite ? » rows go through runSuite; the others are
   // built by outilGraph and land in Mon studio as a new asset. Jamais d'annulation.
@@ -1278,12 +1299,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
-      const message = error instanceof Error && error.message ? error.message : t("create.failed");
-      return { ok: false, message };
+      return failOutcome(error);
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, fingerprint, prefs, refreshBalance, reload, runSuite, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, runSuite, store, t]);
 
   const rewriteCast = useCallback(async (cards: CastCard[]) => {
     const vault = store();
@@ -2021,7 +2041,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
-    loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: "Envoi refusé : vérifie le message du studio et récupère le rendu en attente." } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.failed") } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, promoteExempleRefs, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
