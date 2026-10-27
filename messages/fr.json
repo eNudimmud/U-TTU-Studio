@@ -645,7 +645,7 @@
     "keyRefused": "Cette clé n’est pas reconnue par Comfy. Vérifie-la et réessaie.",
     "keyNetwork": "Comfy ne répond pas. Vérifie ta connexion internet et réessaie.",
     "keyUnchecked": "Comfy n’a pas pu vérifier cette clé. Réessaie dans un instant.",
-    "sessionExpired": "Ta session Comfy a expiré. Reconnecte-toi.",
+    "sessionExpired": "Ta session Comfy a expiré (connexion ouverte ailleurs ?). Reconnecte-toi.",
     "loginButton": "Se connecter avec Comfy",
     "loginHint": "La page de connexion de Comfy s’ouvre à côté : Google, GitHub ou e-mail, et l’inscription si tu n’as pas encore de compte. Connecte-toi, puis reviens ici : le studio se relie tout seul.",
     "loginWaiting": "J’attends ta connexion sur la page Comfy…",
@@ -1687,8 +1687,14 @@
     "invalid": "Vérifie l’identifiant et confirme que le rendu correspond à ce reçu.",
     "changed": "Le reçu a changé ou possède déjà un identifiant. Relis son état avant de continuer.",
     "account": "Reconnecte le compte qui a envoyé ce rendu.",
-    "failed": "Récupération impossible pour le moment. Le reçu est conservé.",
-    "corrupt": "Le reçu est illisible. Conserve les données de ce navigateur et vérifie ton historique Comfy."
+    "failed": "Impossible de récupérer ce rendu pour le moment.",
+    "corrupt": "Le reçu est illisible. Conserve les données de ce navigateur et vérifie ton historique Comfy.",
+    "blocked": "Un rendu précédent attend encore sa récupération. Ouvre Crédits, puis Récupérer le rendu.",
+    "cloudFailed": "Le rendu a échoué dans le cloud. Vérifie ton historique Comfy pour tout coût éventuel.",
+    "sessionElsewhere": "Ta session Comfy a expiré (connexion ouverte ailleurs ?). Reconnecte-toi.",
+    "network": "Le compte de rendu ne répond pas. Vérifie ta connexion, puis réessaie.",
+    "retry": "Réessayer",
+    "reconnect": "Reconnecter"
   },
   "safety": {
     "modelBlocked": "Cet outil est masqué par tes choix de modèles. Rien n’est envoyé.",
@@ -1766,7 +1772,14 @@
     "sentNoReceipt": "Le rendu {job} a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conserve cet identifiant et vérifie ton espace disque. Ne relance pas la génération.",
     "encodeMaster": "Ce navigateur ne peut pas écrire le fichier maître H.264. Exporte d’abord le montage (il marche sur ce téléphone), ou relance Finaliser depuis un navigateur à jour.",
     "recordEmpty": "L’enregistrement de la vidéo est vide. Relance l’export en gardant cet onglet ouvert.",
-    "soundSkipped": "Le son d’au moins une prise ne se lit pas dans ce navigateur : la vidéo est exportée sans ce son."
+    "soundSkipped": "Le son d’au moins une prise ne se lit pas dans ce navigateur : la vidéo est exportée sans ce son.",
+    "cloudFailed": "Le rendu a échoué dans le cloud. Vérifie ton historique Comfy pour tout coût éventuel.",
+    "sessionElsewhere": "Ta session Comfy a expiré (connexion ouverte ailleurs ?). Reconnecte-toi.",
+    "renderNetwork": "Le compte de rendu ne répond pas. Vérifie ta connexion, puis réessaie.",
+    "pendingBlock": "Un rendu précédent attend encore sa récupération. Ouvre Crédits, puis Récupérer le rendu — ou réessaie si le cloud l’a déjà terminé sans résultat.",
+    "submitRefused": "Le compte de rendu a refusé la prise. Rien n’a été envoyé.",
+    "creditsLow": "Crédits insuffisants sur ton compte de rendu.",
+    "subscriptionInactive": "Ton abonnement de rendu est inactif, ou la file est pleine."
   },
   "p0": {
     "advanced": "Avancé",

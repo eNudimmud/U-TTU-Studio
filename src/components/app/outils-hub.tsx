@@ -14,6 +14,7 @@ import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { formatCredits } from "@/lib/credits";
 import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
+import { failView } from "@/lib/render/fail";
 import { outilQuote } from "@/lib/outils/graphs";
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
 import { assetPath } from "@/lib/site";
@@ -456,7 +457,8 @@ export function ToolPanel({ outil: asked, onResult, onPreview }: { outil: Outil;
       setOutcome(result);
       if (result.ok) onResult?.({ url: result.url, path: result.path, kind: outil.sortie, poster: inputs.image?.url, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
     } catch (error) {
-      setOutcome({ ok: false, message: error instanceof Error && error.message ? error.message : t("create.failed") });
+      const view = failView(error);
+      setOutcome({ ok: false, message: view.message, kind: view.kind, intact: view.intact, reconnect: view.reconnect, retry: view.retry });
     } finally {
       sending.current = false;
       setStage(null);
@@ -508,7 +510,13 @@ export function ToolPanel({ outil: asked, onResult, onPreview }: { outil: Outil;
     </button>
     {why && !busy && <p className="u-why" id={whyId} data-tool-why="">{why}</p>}
     {stage && <div id={busyId}><ComfyProgress label={t(`finaliser.${stage.stage}`)} elapsedSec={stage.seconds ?? outilElapsed} typicalSec={typicalFor("outil")} note={t("finaliser.keepOpen")} marker="outil" /></div>}
-    {outcome && !outcome.ok && <p className="u-why" role="alert" data-tool-fail="">{outcome.message} {t("suite.intact")}</p>}
+    {outcome && !outcome.ok && <div className="u-why" role="alert" data-tool-fail="" data-fail-kind={outcome.kind ?? "other"}>
+      <p>{outcome.message}{outcome.intact ? ` ${t("suite.intact")}` : ""}</p>
+      {(outcome.reconnect || outcome.retry) && <p className="u-fail-actions">
+        {outcome.reconnect && <button type="button" className="u-secondary" data-tool-reconnect="" onClick={() => setSheet("connect")}>{t("recovery.reconnect")}</button>}
+        {outcome.retry && <button type="button" className="u-link" data-tool-retry="" onClick={() => { setOutcome(null); void launch(); }}>{t("recovery.retry")}</button>}
+      </p>}
+    </div>}
     {outcome?.ok && <p className="u-small" data-tool-done="">{t("suite.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p>}
     {ask && quote && <div className="u-confirm-layer">
       <div role="dialog" aria-modal="true" aria-labelledby={askId} className="u-confirm" data-tool-ask="">

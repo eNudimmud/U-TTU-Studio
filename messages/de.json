@@ -645,7 +645,7 @@
     "keyRefused": "Comfy erkennt diesen Schlüssel nicht. Prüf ihn und versuch es noch einmal.",
     "keyNetwork": "Comfy antwortet nicht. Prüf deine Internetverbindung und versuch es noch einmal.",
     "keyUnchecked": "Comfy konnte diesen Schlüssel nicht prüfen. Versuch es gleich noch einmal.",
-    "sessionExpired": "Deine Comfy-Sitzung ist abgelaufen. Melde dich erneut an.",
+    "sessionExpired": "Deine Comfy-Sitzung ist abgelaufen (anderswo angemeldet?). Melde dich erneut an.",
     "loginButton": "Mit Comfy anmelden",
     "loginHint": "Die Anmeldeseite von Comfy öffnet sich daneben: Google, GitHub oder E-Mail, und die Registrierung, falls du noch kein Konto hast. Melde dich an und komm dann hierher zurück: Das Studio verbindet sich von selbst.",
     "loginWaiting": "Ich warte auf deine Anmeldung auf der Comfy-Seite…",
@@ -1687,8 +1687,14 @@
     "invalid": "Prüfe die Kennung und bestätige, dass der Auftrag zum Beleg gehört.",
     "changed": "Der Beleg wurde geändert oder hat bereits eine Kennung. Prüfe seinen Zustand.",
     "account": "Verbinde erneut das Konto, das diesen Auftrag gesendet hat.",
-    "failed": "Der Abruf ist derzeit nicht möglich. Der Beleg bleibt erhalten.",
-    "corrupt": "Der Beleg ist nicht lesbar. Behalte die Browserdaten und prüfe deinen Comfy-Verlauf."
+    "failed": "Dieser Render lässt sich gerade nicht abrufen.",
+    "corrupt": "Der Beleg ist nicht lesbar. Behalte die Browserdaten und prüfe deinen Comfy-Verlauf.",
+    "blocked": "Ein früherer Render wartet noch auf den Abruf. Öffne Credits, dann Render abrufen.",
+    "cloudFailed": "Der Render ist in der Cloud fehlgeschlagen. Prüfe deine Comfy-Historie auf eventuelle Kosten.",
+    "sessionElsewhere": "Deine Comfy-Sitzung ist abgelaufen (anderswo angemeldet?). Melde dich erneut an.",
+    "network": "Das Render-Konto antwortet nicht. Prüfe deine Verbindung und versuche es erneut.",
+    "retry": "Erneut versuchen",
+    "reconnect": "Erneut verbinden"
   },
   "safety": {
     "modelBlocked": "Dieses Werkzeug ist durch deine Modellwahl ausgeblendet. Es wird nichts gesendet.",
@@ -1766,7 +1772,14 @@
     "sentNoReceipt": "Der Renderauftrag {job} wurde gesendet, aber sein Beleg konnte nicht gespeichert werden. Bewahre diese Kennung auf und prüfe den Speicherplatz. Starte die Generierung nicht neu.",
     "encodeMaster": "Dieser Browser kann die H.264-Masterdatei nicht schreiben. Exportiere zuerst den Schnitt (das geht auf diesem Telefon) oder starte Fertigstellen erneut in einem aktuellen Browser.",
     "recordEmpty": "Die Videoaufnahme ist leer. Exportiere erneut und lass diesen Tab geöffnet.",
-    "soundSkipped": "Dieser Browser kann den Ton mindestens einer Aufnahme nicht lesen: Das Video wird ohne diesen Ton exportiert."
+    "soundSkipped": "Dieser Browser kann den Ton mindestens einer Aufnahme nicht lesen: Das Video wird ohne diesen Ton exportiert.",
+    "cloudFailed": "Der Render ist in der Cloud fehlgeschlagen. Prüfe deine Comfy-Historie auf eventuelle Kosten.",
+    "sessionElsewhere": "Deine Comfy-Sitzung ist abgelaufen (anderswo angemeldet?). Melde dich erneut an.",
+    "renderNetwork": "Das Render-Konto antwortet nicht. Prüfe deine Verbindung und versuche es erneut.",
+    "pendingBlock": "Ein früherer Render wartet noch auf den Abruf. Öffne Credits, dann Render abrufen — oder versuche es erneut, wenn die Cloud schon ohne Ergebnis fertig ist.",
+    "submitRefused": "Das Render-Konto hat die Aufnahme abgelehnt. Es wurde nichts gesendet.",
+    "creditsLow": "Nicht genug Credits auf deinem Render-Konto.",
+    "subscriptionInactive": "Dein Render-Abo ist inaktiv, oder die Warteschlange ist voll."
   },
   "p0": {
     "advanced": "Erweitert",

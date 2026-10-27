@@ -645,7 +645,7 @@
     "keyRefused": "Comfy doesn’t recognise this key. Check it and try again.",
     "keyNetwork": "Comfy isn’t responding. Check your internet connection and try again.",
     "keyUnchecked": "Comfy couldn’t check this key. Try again in a moment.",
-    "sessionExpired": "Your Comfy session has expired. Sign in again.",
+    "sessionExpired": "Your Comfy session expired (signed in elsewhere?). Sign in again.",
     "loginButton": "Sign in with Comfy",
     "loginHint": "Comfy’s sign-in page opens alongside: Google, GitHub or email, and sign-up if you don’t have an account yet. Sign in, then come back here: the studio links itself.",
     "loginWaiting": "Waiting for you to sign in on the Comfy page…",
@@ -1687,8 +1687,14 @@
     "invalid": "Check the identifier and confirm that the render matches this receipt.",
     "changed": "The receipt changed or already has an identifier. Check its state before continuing.",
     "account": "Reconnect the account that submitted this render.",
-    "failed": "Recovery is unavailable right now. The receipt is preserved.",
-    "corrupt": "The receipt cannot be read. Keep this browser’s data and check your Comfy history."
+    "failed": "This render cannot be recovered right now.",
+    "corrupt": "The receipt cannot be read. Keep this browser’s data and check your Comfy history.",
+    "blocked": "A previous render is still waiting to be recovered. Open Credits, then Recover render.",
+    "cloudFailed": "The render failed in the cloud. Check your Comfy history for any charge.",
+    "sessionElsewhere": "Your Comfy session expired (signed in elsewhere?). Sign in again.",
+    "network": "The render account is not responding. Check your connection, then try again.",
+    "retry": "Try again",
+    "reconnect": "Reconnect"
   },
   "safety": {
     "modelBlocked": "This tool is hidden by your model choices. Nothing is sent.",
@@ -1766,7 +1772,14 @@
     "sentNoReceipt": "Render {job} was sent, but its receipt could not be saved. Keep this ID and check your disk space. Do not restart the generation.",
     "encodeMaster": "This browser cannot write the H.264 master file. Export the edit first (it works on this phone), or run Finish again from an up-to-date browser.",
     "recordEmpty": "The video recording is empty. Export again and keep this tab open.",
-    "soundSkipped": "This browser cannot read the sound of at least one take: the video is exported without that sound."
+    "soundSkipped": "This browser cannot read the sound of at least one take: the video is exported without that sound.",
+    "cloudFailed": "The render failed in the cloud. Check your Comfy history for any charge.",
+    "sessionElsewhere": "Your Comfy session expired (signed in elsewhere?). Sign in again.",
+    "renderNetwork": "The render account is not responding. Check your connection, then try again.",
+    "pendingBlock": "A previous render is still waiting to be recovered. Open Credits, then Recover render — or try again if the cloud already finished with no result.",
+    "submitRefused": "The render account refused the take. Nothing was sent.",
+    "creditsLow": "Not enough credits on your render account.",
+    "subscriptionInactive": "Your render subscription is inactive, or the queue is full."
   },
   "p0": {
     "advanced": "Advanced",

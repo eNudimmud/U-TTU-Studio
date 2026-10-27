@@ -6,7 +6,8 @@ import { coffreZip } from '../src/lib/coffre/export.ts';
 import { mergeCoffreZip } from '../src/lib/coffre/import.ts';
 import { createProject, loadStudio, writeText, writeBlob, type Shot } from '../src/lib/coffre/model.ts';
 import { memoryVault, removeUnreferenced } from '../src/lib/coffre/store.ts';
-import { PENDING_RENDER_KEY, readPending, clearPending, recoverableClient, projectVault, type PendingRender } from '../src/lib/render/recovery.ts';
+import { PENDING_RENDER_KEY, readPending, clearPending, clearTerminalPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from '../src/lib/render/recovery.ts';
+import { failView, failKind } from '../src/lib/render/fail.ts';
 import { RenderError, type RenderClient } from '../src/lib/render/client.ts';
 import { placeLandedTake } from '../src/lib/render/settle-take.ts';
 import { initialMaquette, addFigure, seedLead, removeFigure } from '../src/lib/maquette/state.ts';
@@ -94,6 +95,55 @@ describe('parcours de production : données et reprise', () => {
     const client = { submit: async () => { throw new RenderError('auth', 'refused'); } } as unknown as RenderClient;
     await assert.rejects(recoverableClient(client, disk, receipt).submit(graph, 'client-id'), /refused/);
     assert.equal(readPending(disk), null);
+  });
+
+  it('clears the blank receipt after an invalid Comfy refusal (nothing was queued)', async () => {
+    const disk = storage();
+    const client = { submit: async () => { throw new RenderError('invalid', 'bad graph', ['node 1 missing']); } } as unknown as RenderClient;
+    await assert.rejects(recoverableClient(client, disk, receipt).submit(graph, 'client-id'), /bad graph/);
+    assert.equal(readPending(disk), null);
+  });
+
+  it('reconcilePendingReceipt drops a receipt whose Comfy job already failed or was cancelled', async () => {
+    const disk = storage();
+    disk.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...receipt, jobId: 'dead-job-1' }));
+    const failedClient = { status: async () => 'error' } as unknown as Pick<RenderClient, 'status'>;
+    assert.equal(await reconcilePendingReceipt(disk, failedClient), 'cleared');
+    assert.equal(readPending(disk), null);
+
+    disk.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...receipt, jobId: 'dead-job-2' }));
+    const cancelledClient = { status: async () => 'cancelled' } as unknown as Pick<RenderClient, 'status'>;
+    assert.equal(await reconcilePendingReceipt(disk, cancelledClient), 'cleared');
+    assert.equal(readPending(disk), null);
+
+    disk.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...receipt, jobId: 'live-job' }));
+    const liveClient = { status: async () => 'running' } as unknown as Pick<RenderClient, 'status'>;
+    assert.equal(await reconcilePendingReceipt(disk, liveClient), 'blocked');
+    assert.ok(readPending(disk));
+
+    clearTerminalPending(disk, 'live-job');
+    assert.equal(readPending(disk), null);
+    assert.equal(await reconcilePendingReceipt(disk, liveClient), 'none');
+  });
+
+  it('failView maps auth, cloud, pending and network to distinct visitor actions', () => {
+    const auth = failView(new RenderError('auth', 'gone'));
+    assert.equal(auth.kind, 'auth');
+    assert.equal(auth.reconnect, true);
+    assert.equal(auth.intact, false);
+    assert.match(auth.message, /session Comfy|ailleurs/i);
+
+    const cloud = failView(new RenderError('failed', 'boom', ['CUDA OOM']));
+    assert.equal(cloud.kind, 'cloud');
+    assert.equal(cloud.retry, true);
+    assert.equal(cloud.intact, true);
+    assert.match(cloud.message, /cloud/i);
+    assert.match(cloud.message, /CUDA OOM/);
+
+    assert.equal(failKind(new Error('Un rendu attend sa récupération. Ouvre Crédits puis Récupérer le rendu avant un nouvel envoi.')), 'pending');
+    const net = failView(new RenderError('network', 'offline'));
+    assert.equal(net.kind, 'network');
+    assert.equal(net.retry, true);
   });
 
   it('saves a background result in the original project without switching the visible project', async () => {
