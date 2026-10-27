@@ -68,8 +68,14 @@ export function useFil(): FilRunner {
   const prise = useRef<{ id: string; saw: boolean } | null>(null);
   const update = useCallback((next: (fil: Fil) => Fil) => setFil(current => { const value = next(current); live.current = value; return value; }), []);
 
-  useEffect(() => { setFil(loadFil(window.sessionStorage)); loaded.current = true; }, []);
-  useEffect(() => { if (loaded.current) saveFil(window.sessionStorage, fil); }, [fil]);
+  useEffect(() => { setFil(loadFil(window.sessionStorage)); }, []);
+  // Skip the first save: on mount `fil` is still empty while loadFil's setState is pending.
+  // Writing that empty state would wipe sessionStorage (and Strict Mode remount would then
+  // reload nothing). After the first run we persist every change, including a real clear.
+  useEffect(() => {
+    if (!loaded.current) { loaded.current = true; return; }
+    saveFil(window.sessionStorage, fil);
+  }, [fil]);
 
   const quoteOf = useCallback((route: FilRoute): number | null => {
     if (route.kind === "outil") { const outil = outilParId(route.id); return outil ? outilQuote(outil)?.credits ?? null : null; }

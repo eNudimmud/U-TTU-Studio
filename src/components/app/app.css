@@ -1839,6 +1839,9 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 
 /* Phones: bottom bar Accueil · Créer · Film · Mes créations, above the home indicator. */
 @media (max-width: 767px) {
+  .u-barre-settings-wrap { max-width: 48px; }
+  .u-barre-settings-pill { max-width: 48px; padding: 0; justify-content: center; gap: 0; }
+  .u-barre-settings-pill span { display: none; }
   :root { --u-tabs-h: calc(64px + env(safe-area-inset-bottom, 0px)); }
   .u-tabs { position: fixed; z-index: 55; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 4px max(4px, env(safe-area-inset-right, 0px)) calc(4px + env(safe-area-inset-bottom, 0px)) max(4px, env(safe-area-inset-left, 0px)); background: var(--bg); border-top: 1px solid var(--line); }
   .u-tabs a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; min-height: 56px; padding: 4px 2px; border-radius: 10px; color: var(--fg-2); font: 500 12px/1.15 var(--font-body); text-align: center; overflow-wrap: anywhere; }
@@ -2173,7 +2176,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-barre-modes button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px; padding: 0 10px; border: 0; border-radius: 999px; background: transparent; color: var(--fg-2); font: 500 14px/1 var(--font-body); cursor: pointer; }
 .u-barre-modes button[aria-checked="true"] { background: var(--fg); color: var(--bg); }
 .u-barre-mode-name { display: none; }
-.u-barre-send { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-left: auto; min-height: 48px; min-width: 48px; padding: 0 5px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--bg); color: var(--fg-2); font: 600 13px/1.15 var(--font-body); text-align: start; cursor: pointer; }
+.u-barre-send { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-left: auto; flex: 0 0 auto; min-height: 48px; min-width: 48px; padding: 0 5px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--bg); color: var(--fg-2); font: 600 13px/1.15 var(--font-body); text-align: start; cursor: pointer; }
 .u-barre-send-cost { display: none; }
 .u-barre-route-cost { color: var(--fg); }
 .u-barre-send-arrow { flex: 0 0 auto; width: 36px; height: 36px; padding: 7px; border-radius: 999px; background: var(--surface-2); color: var(--fg); }
@@ -2197,8 +2200,8 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-barre-chip-x svg { width: 22px; height: 22px; padding: 4px; border-radius: 999px; background: rgba(15, 15, 17, .82); }
 .u-barre-chip-add { display: grid; place-items: center; width: 76px; height: 76px; border: 1px dashed var(--line-strong); border-radius: 14px; background: transparent; color: var(--fg-2); cursor: pointer; }
 .u-barre-chip-add svg { width: 22px; height: 22px; }
-.u-barre-settings-wrap { position: relative; flex: 0 1 auto; min-width: 0; }
-.u-barre-settings-pill { display: inline-flex; align-items: center; gap: 8px; max-width: min(220px, 42vw); min-height: 48px; padding: 0 14px 0 12px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--bg); color: var(--fg); font: 500 13px/1.2 var(--font-body); cursor: pointer; }
+.u-barre-settings-wrap { position: relative; flex: 0 1 auto; min-width: 0; max-width: min(200px, 38vw); }
+.u-barre-settings-pill { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-height: 48px; padding: 0 14px 0 12px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--bg); color: var(--fg); font: 500 13px/1.2 var(--font-body); cursor: pointer; }
 .u-barre-settings-pill[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
 .u-barre-settings-pill svg { flex: 0 0 auto; width: 20px; height: 20px; }
 .u-barre-settings-pill span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }

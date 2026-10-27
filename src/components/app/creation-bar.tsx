@@ -275,6 +275,8 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   }
 
   function send() {
+    setMenu(false);
+    setSettingsOpen(false);
     const value = text.trim();
     if (!value) { document.getElementById(inputId)?.focus(); return; }
     if (onSend) {
@@ -339,13 +341,13 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
           </button>
           {settingsOpen && <div id="u-barre-settings-panel" className="u-barre-settings" role="group" data-barre-settings-row="">
             <div className="u-barre-seg" role="group" aria-label={t("barre.rendu.label")}>
-              {(["apercu", "finale"] as const).map(item => <button key={item} type="button" aria-pressed={settings.rendu === item} data-barre-rendu={item} onClick={() => setSettings(s => ({ ...s, rendu: item }))}>{t(`barre.rendu.${item}`)}</button>)}
+              {(["apercu", "finale"] as const).map(item => <button key={item} type="button" aria-pressed={settings.rendu === item} data-barre-rendu={item} onClick={() => { setSettings(s => ({ ...s, rendu: item })); }}>{t(`barre.rendu.${item}`)}</button>)}
             </div>
             <div className="u-barre-seg" role="group" aria-label={t("barre.duree")}>
-              {([5, 8] as const).map(item => <button key={item} type="button" aria-pressed={settings.duree === item} data-barre-duree={item} onClick={() => setSettings(s => ({ ...s, duree: item }))}>{t("barre.seconds", { n: String(item) })}</button>)}
+              {([5, 8] as const).map(item => <button key={item} type="button" aria-pressed={settings.duree === item} data-barre-duree={item} onClick={() => { setSettings(s => ({ ...s, duree: item })); }}>{t("barre.seconds", { n: String(item) })}</button>)}
             </div>
             <div className="u-barre-seg" role="group" aria-label={t("barre.format")}>
-              {(["16:9", "9:16"] as const).map(item => <button key={item} type="button" aria-pressed={settings.format === item} data-barre-format={item} onClick={() => setSettings(s => ({ ...s, format: item }))}>{item}</button>)}
+              {(["16:9", "9:16"] as const).map(item => <button key={item} type="button" aria-pressed={settings.format === item} data-barre-format={item} onClick={() => { setSettings(s => ({ ...s, format: item })); setSettingsOpen(false); }}>{item}</button>)}
             </div>
           </div>}
         </div>}
