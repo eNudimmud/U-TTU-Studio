@@ -1508,7 +1508,10 @@
 .u-outils-top:hover { background: var(--hover); color: var(--fg); }
 .u-outils-top[aria-current="page"] { border-color: var(--fg); color: var(--fg); }
 .u-outils-top span[aria-hidden] { color: var(--fg); }
-.u-app[data-studio="outils"] .u-main { padding-bottom: 32px; }
+/* 32 px is fine once the bottom tabs are gone; on phones the tabs block needs the shared clearance. */
+@media (min-width: 768px) {
+  .u-app[data-studio="outils"] .u-main { padding-bottom: 32px; }
+}
 @media (min-width: 1024px) { .u-app[data-studio="outils"] .u-main { overflow: auto; padding: 16px 24px 32px; } }
 .u-entry { display: grid; gap: 22px; width: min(1080px, 100%); margin: 0 auto; }
 .u-entry-link { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin: 0; padding: 12px 14px; border: 1px solid var(--u-line); border-radius: 14px; }
@@ -1853,7 +1856,9 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-app .u-chain button { min-height: 48px; padding: 4px 2px; }
   .u-app[data-studio="montage"] { padding-bottom: var(--u-tabs-h); }
   .u-main { padding-bottom: calc(96px + var(--u-tabs-h)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); scroll-padding-top: calc(var(--u-top-h) + 8px); scroll-padding-bottom: calc(var(--u-tabs-h) + 12px); }
-  .u-main > *:last-child, .u-home > *:last-child, [data-barre-all-link] { scroll-margin-bottom: calc(var(--u-tabs-h) + 16px); }
+  .u-main > *:last-child, .u-home > *:last-child, [data-barre-all-link], .u-ex-galerie, .u-ex-foot, .u-ex-all, .u-ex-card { scroll-margin-bottom: calc(var(--u-tabs-h) + 16px); }
+  /* outils home: beat the desktop 32px rule's leftover on phones (gallery foot must clear tabs). */
+  .u-app[data-studio="outils"] .u-main { padding-bottom: calc(96px + var(--u-tabs-h)); }
   .u-home h2, .u-outils-section h2, [data-outils-section] { scroll-margin-top: calc(var(--u-top-h) + 12px); }
   .u-app[data-studio="montage"] .u-main { padding-bottom: 8px; }
   .u-toast { bottom: calc(var(--u-tabs-h) + 12px); top: auto; }

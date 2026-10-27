@@ -138,6 +138,7 @@ function OutilWork({ outil, head }: { outil: Outil; head: string }) {
     lab={last ? <>{t("shell.result")}</> : preview ? <>{t("shell.source")}</> : null}
   /> : null;
 
+  // Coque shows the run on the stage; keep ToolResult below so « Et ensuite ? » + Mes créations stay (PR #137 panneau unique).
   return <div className="u-outils-work" data-outils-tool={head} data-outil-shell={onShell ? "" : undefined}>
     {!connected && <p className="u-entry-link" data-entry-link="">
       <span>{t("entry.linkTitle")}</span>
@@ -147,6 +148,7 @@ function OutilWork({ outil, head }: { outil: Outil; head: string }) {
     {onShell ? <ToolShell
       stage={stage}
       bar={<ToolPanel outil={outil} onResult={run => { setLast(run); if (run) setView(compare ? "compare" : "result"); }} onPreview={setPreview} />}
+      examples={last ? <ToolResult run={last} label={titreCarte(t, outil.id)} /> : null}
     /> : <div className="u-outils-split" data-has-result={last ? "" : undefined}>
       <ToolPanel outil={outil} onResult={setLast} onPreview={setPreview} />
       {last && <ToolResult run={last} label={titreCarte(t, outil.id)} />}
