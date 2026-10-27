@@ -149,6 +149,9 @@ Les 37 vignettes de `public/exemples/vignettes/` sont des illustrations génér�
 - Uttu apparaît sur « Image polyvalente », « Image avec références », « Vidéo fidèle aux références », « Faire parler » et « Copier un mouvement », d’après son portrait officiel.
 - 640×400 webp et 1280×800 `@2x.webp` pour chaque carte ; 23 cartes ont aussi une boucle muette de 3 à 4 s (`.webm` VP9 + `.mp4` H.264, moins de 400 Ko), dont l’image fixe est l’affiche et le repli « mouvement réduit ».
 - `public/exemples/outils/plan-exemple.mp4` est un mouvement de caméra sur une image fixe, pas un rendu d’un modèle vidéo : ses images servent seulement d’entrée (clip donné).
+- Le seed vidéo du hub Outils pointe désormais sur `outils/prise-uttu-quai.mp4` (LTX, lot 2026-10-27, 9,87 crédits). `plan-exemple.mp4` reste disponible comme clip d’entrée générique.
+- La tuile « décor » du repérage 3D (`reperage-3d.tsx`) montre `apres-cadre-vue3d.webp` (Klein, 4,05). `sf-exemple.webp` reste l’illustration hors Comfy de la fiche Place Saint-François.
+- `APRES_PAR_GESTE` : `suite-modifier` → `apres-retoucher-neige.webp` (3,81), `suite-finaliser-image` → `apres-finaliser-wan.webp` (0,83). Catalogue : `public/exemples/A-GENERER.json`.
 
 
 ## Lot d’exemples — Comfy Cloud (2026-10-27, plafond 45)
