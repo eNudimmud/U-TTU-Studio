@@ -3323,5 +3323,14 @@
       "retry": "Try again",
       "toCreations": "My creations"
     }
+  },
+  "shell": {
+    "source": "Source",
+    "result": "Result",
+    "compare": "Compare",
+    "undoRemove": "Undo remove",
+    "required": "required",
+    "optional": "optional",
+    "removeSlot": "Remove {name}"
   }
 }

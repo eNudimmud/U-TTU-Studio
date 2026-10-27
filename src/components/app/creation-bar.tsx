@@ -23,6 +23,7 @@ import {
 } from "@/lib/barre/model";
 import { openBand, placeMenu } from "@/lib/mobile-band";
 import { Check, Close, Plus } from "./glyphs";
+import { UndoToast } from "./tool-shell";
 import { toggleAssistant } from "./assistant-panel";
 import { FamilyIcon, openFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
@@ -85,6 +86,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<BarreSettings>(DEFAULT_SETTINGS);
   const [sheet, setSheet] = useState(false);
+  const [undoChip, setUndoChip] = useState<{ kind: "photo" | "ref"; item: BarrePhoto | BarreRef; name: string; src: string } | null>(null);
   const inputId = useId();
   const menuId = useId();
   const routeId = useId();
@@ -261,8 +263,15 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   }
 
   function remove(kind: RefKind | "photo", id: string) {
-    if (kind === "photo") setPhotos(list => list.filter(photo => photo.id !== id));
-    else setRefs(list => list.filter(ref => !(ref.kind === kind && ref.id === id)));
+    if (kind === "photo") {
+      const item = photos.find(photo => photo.id === id);
+      if (item) setUndoChip({ kind: "photo", item, name: item.name, src: item.url });
+      setPhotos(list => list.filter(photo => photo.id !== id));
+      return;
+    }
+    const item = refs.find(ref => ref.kind === kind && ref.id === id);
+    if (item) setUndoChip({ kind: "ref", item, name: item.name, src: item.src });
+    setRefs(list => list.filter(ref => !(ref.kind === kind && ref.id === id)));
   }
 
   function send() {
@@ -347,6 +356,11 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
       </div>
     </form>
     <p className="u-barre-route" id={routeId} data-barre-route={here ? here.route : target.kind === "outil" ? target.id : target.kind}>{cost && <span className="u-barre-route-cost" aria-hidden="true">{cost} · </span>}{here ? t(here.route === "agent" ? "barre.routeAgent" : here.route === "note" ? "barre.routeNote" : "barre.routeHere", { where: here.where }) : t("barre.route", { where })}</p>
+    {undoChip && <UndoToast message={t("shell.removeSlot", { name: undoChip.name })} thumb={undoChip.src || undefined} onUndo={() => {
+      if (undoChip.kind === "photo") setPhotos(list => [...list, undoChip.item as BarrePhoto]);
+      else setRefs(list => [...list, undoChip.item as BarreRef]);
+      setUndoChip(null);
+    }} onGone={() => setUndoChip(null)} />}
     {sheet && <ReferencesSheet all={all} picked={refs} max={mode === "image" ? MAX_REFS_IMAGE - photos.length : null} onClose={() => setSheet(false)} onJoin={next => { setRefs(next); setSheet(false); }} />}
   </>;
 }
