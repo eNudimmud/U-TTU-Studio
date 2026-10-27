@@ -308,7 +308,7 @@ test("crée ton décor en direct : vue + lieu, sans photo, ≈ 5 crédits, un se
   expect(outside.filter(url => !/\/api\//.test(url))).toEqual([]);
 });
 
-test("affiner avec des photos et un texte : rien de coché d'office, 360° du point, photos variées, devis flat InstantX, puis un plan", async ({ page }) => {
+test("affiner avec des photos et un texte : auto-sélection 360° + rues, devis flat InstantX, puis un plan", async ({ page }) => {
   const outside = await offline(page);
   await streetPhotos(page);
   const comfy = await fakeComfy(page);
@@ -318,17 +318,18 @@ test("affiner avec des photos et un texte : rien de coché d'office, 360° du po
   await page.locator("[data-rep3d-capture]").click();
   await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
 
-  // Nothing is ticked for you: InstantX quote stays flat ≈ 5.
+  // Auto-pick: 360° of the spot + up to 2 diversified street photos (CADRE_PHOTOS_MAX = 3). InstantX quote stays flat ≈ 5.
   const refs = page.locator("[data-rep3d-refs]");
-  await expect(refs).toHaveAttribute("data-rep3d-refs", "0");
+  await expect(refs).toHaveAttribute("data-rep3d-refs", "3", { timeout: 20_000 });
   const create = page.locator("[data-rep3d-create]");
   await expect(create).toHaveText("Créer le décor · ≈ 5 crédits estimés");
 
-  // « Ajouter des photos du lieu »: the 360° of the spot, then your photo first and the open photos.
+  // « Ajouter des photos du lieu »: pool shows the 360° and the open photos; three already pressed.
   await page.locator("[data-rep3d-change-photos]").click();
   const picker = page.locator("[data-rep3d-picker]");
   await expect(picker.locator("[data-rep3d-pool=rue]")).toHaveCount(4);
-  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(0);
+  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(3);
+  await expect(picker.locator("[data-rep3d-pool=pano][aria-pressed=true]")).toHaveCount(1);
   await expect(picker.locator(".u-rv-pk-dist").first()).toHaveText(/^\d+ m$/);
   await expect(picker.locator("[data-rep3d-pk-credit]").first()).toContainText("Ada Rue");
   await expect(picker.locator("[data-rep3d-pano]")).toBeVisible();
@@ -337,9 +338,11 @@ test("affiner avec des photos et un texte : rien de coché d'office, 360° du po
   await tall(page, ["[data-rep3d-pano-other]", "[data-rep3d-pano-keep]"]);
   await page.locator("[data-rep3d-pano-keep]").click();
   await expect(picker).toBeVisible();
-  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(1);
+  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(3);
   await expect(create).toContainText("≈ 5 crédits estimés");
-  await picker.locator("[data-rep3d-pool=rue]").nth(0).click();
+  // Swap one auto-picked street photo for an import to exercise the file pick path.
+  await picker.locator("[data-rep3d-pool=rue][aria-pressed=true]").first().click();
+  await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(2);
   await picker.locator("[data-rep3d-pick=import] input[type=file]").setInputFiles("public/exemples/reperage/sf-rue.webp");
   await expect(picker.locator("[data-rep3d-pool][aria-pressed=true]")).toHaveCount(3);
   await expect(picker.locator("[data-rep3d-pool=rue]").nth(3)).toBeDisabled();
