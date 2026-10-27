@@ -62,7 +62,7 @@
     },
     {
       "geste": "decor-photo",
-      "template": "api_nano_banana_2_1_image_edit",
+      "template": "image_flux3_klein_image_edit",
       "entrees": [
         {
           "fichier": "/exemples/decor-quai-nuit.webp",
@@ -77,9 +77,10 @@
       "nature": "mesure",
       "sortie": "/exemples/apres-decor-photo.webp",
       "sortiePresente": true,
-      "coutMesure": 13.1,
-      "prompt_id": "b9382512-2900-47db-958b-789357c8e66b",
-      "licence": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
+      "coutMesure": 2.53,
+      "prompt_id": "e32f8dea-0231-4e04-a9f8-5de0af8d4285",
+      "licence": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "note": "Relancé 2026-10-27 (Klein). Remplace le Nano Banana 13,10 du 2026-10-08."
     },
     {
       "geste": "decor-heure",

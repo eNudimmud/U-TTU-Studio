@@ -50,7 +50,11 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--u-top-h, 64px) + 8px);
+  scroll-padding-bottom: calc(var(--u-tabs-h, 0px) + 16px);
+}
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font: inherit; border-radius: var(--radius-control); }
 button, a, summary, input, select, textarea, label { -webkit-tap-highlight-color: transparent; }

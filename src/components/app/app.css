@@ -1849,7 +1849,9 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-app:not([data-studio="montage"]) .u-chain { position: sticky; top: var(--u-top-h); bottom: auto; z-index: 36; margin: 0; border-top: 0; border-bottom: 1px solid var(--line-strong); padding: 4px max(6px, env(safe-area-inset-right, 0px)) 4px max(6px, env(safe-area-inset-left, 0px)); }
   .u-app .u-chain button { min-height: 48px; padding: 4px 2px; }
   .u-app[data-studio="montage"] { padding-bottom: var(--u-tabs-h); }
-  .u-main { padding-bottom: calc(96px + var(--u-tabs-h)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .u-main { padding-bottom: calc(96px + var(--u-tabs-h)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); scroll-padding-top: calc(var(--u-top-h) + 8px); scroll-padding-bottom: calc(var(--u-tabs-h) + 12px); }
+  .u-main > *:last-child, .u-home > *:last-child, [data-barre-all-link] { scroll-margin-bottom: calc(var(--u-tabs-h) + 16px); }
+  .u-home h2, .u-outils-section h2, [data-outils-section] { scroll-margin-top: calc(var(--u-top-h) + 12px); }
   .u-app[data-studio="montage"] .u-main { padding-bottom: 8px; }
   .u-toast { bottom: calc(var(--u-tabs-h) + 12px); top: auto; }
 }
@@ -2178,7 +2180,8 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-barre-send[data-ready] { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
 .u-barre-send[data-ready] .u-barre-send-arrow { background: rgba(23, 19, 10, .14); color: var(--on-accent); }
 .u-barre-plus-wrap { position: relative; flex: 0 0 auto; }
-.u-barre-menu { position: absolute; z-index: 30; left: 0; bottom: calc(100% + 8px); display: grid; gap: 2px; width: min(300px, 80vw); padding: 6px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--surface); box-shadow: 0 18px 50px rgba(0, 0, 0, .5); }
+.u-barre-menu { position: fixed; z-index: 70; top: 0; left: 0; display: grid; gap: 2px; width: min(300px, 80vw); max-height: min(70dvh, calc(100dvh - var(--u-top-h) - var(--u-tabs-h) - 24px)); padding: 6px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--surface); box-shadow: 0 18px 50px rgba(0, 0, 0, .5); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+.u-barre-menu[data-place="sheet"] { width: calc(100vw - 16px); border-radius: 16px 16px 12px 12px; }
 .u-barre-menu button { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 10px; border: 0; border-radius: 12px; background: transparent; color: var(--fg); text-align: start; cursor: pointer; }
 .u-barre-menu button:hover:not(:disabled), .u-barre-menu button:focus-visible { background: var(--selected); }
 .u-barre-menu button:disabled { opacity: .4; }

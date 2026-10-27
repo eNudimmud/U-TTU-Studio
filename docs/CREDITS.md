@@ -149,3 +149,20 @@ Les 37 vignettes de `public/exemples/vignettes/` sont des illustrations génér�
 - Uttu apparaît sur « Image polyvalente », « Image avec références », « Vidéo fidèle aux références », « Faire parler » et « Copier un mouvement », d’après son portrait officiel.
 - 640×400 webp et 1280×800 `@2x.webp` pour chaque carte ; 23 cartes ont aussi une boucle muette de 3 à 4 s (`.webm` VP9 + `.mp4` H.264, moins de 400 Ko), dont l’image fixe est l’affiche et le repli « mouvement réduit ».
 - `public/exemples/outils/plan-exemple.mp4` est un mouvement de caméra sur une image fixe, pas un rendu d’un modèle vidéo : ses images servent seulement d’entrée (clip donné).
+
+
+## Lot d’exemples — Comfy Cloud (2026-10-27, plafond 45)
+
+Rendus maison sur le compte Comfy Cloud de JD (accord [pt615u]). Coût réel = `gpu_seconds × 0,27325` (MESURE F26). Cumul arrêté à **40,19** crédits (Musique non lancée : reste 4,81 < 10).
+
+| Identifiant | Fichier | Moteur | Crédits (mesure) | prompt_id |
+| --- | --- | --- | --- | --- |
+| `prise-uttu-quai` | `outils/prise-uttu-quai.mp4` | `video_ltx2_5_i2v` (ltxTakeGraph, 1 ref) | 9,87 | `23b176b7-4e3f-415d-ac5c-bb5ce40b386a` |
+| `wan-gare` | `outils/wan-gare.mp4` | `video_wan2_2_14B_i2v` (LoRA 4 pas) | 8,44 | `c8d97094-bcb4-4c1f-95d4-6b0b7ff349eb` |
+| `apres-finaliser-wan` | `apres-finaliser-wan.webp` | SeedVR2 ×2 (`utility_seedvr2_3b_int8_upscale_image`) | 0,83 | `ad17b5dc-0d13-4cea-865f-09277d74de6f` |
+| `apres-retoucher-neige` | `apres-retoucher-neige.webp` | FLUX 3 Image Klein edit (`ret-modifier`) | 3,81 | `14bd97c6-82db-4798-b5e6-f8b38afb9224` |
+| `apres-decor-photo` | `apres-decor-photo.webp` | FLUX 3 Image Klein edit (`decor-photo`) — remplace le Nano Banana | 2,53 | `e32f8dea-0231-4e04-a9f8-5de0af8d4285` |
+| `apres-cadre-vue3d` | `apres-cadre-vue3d.webp` | FLUX 3 Image Klein edit (`cadre-decor`, 0 photo) | 4,05 | `59fff4c7-2961-4a9e-b3df-553b19bd0382` |
+
+- **Non remplacé :** `apres-decor-heure.webp` reste le Nano Banana du 2026-10-08. Trois essais Klein sur `decor-rue-pluie` ont produit une bouillie de couleurs (coût ~10,67, sorties rejetées). Journal : `/workspace/lot-exemples/LOG.md`.
+- **Correctif collatéral :** le checkpoint Klein sur Comfy Cloud s’appelle désormais `flux3-image-klein-base-int8-convrot.safetensors` (tirets). Wan i2v active la LoRA 4 pas et sort en 832×480 / 480×832.

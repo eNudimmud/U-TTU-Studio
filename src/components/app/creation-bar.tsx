@@ -5,7 +5,7 @@
 // bar: Send opens the real tool, already filled, with its estimate on the button. The tools,
 // their families and the old entry stay one tap away under « Tous les outils ».
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
@@ -21,6 +21,7 @@ import {
   attachFor, barreTarget, priseHandoff, settingsFor, toggleRef, writeHandoff,
   type AttachKind, type BarreMode, type BarrePhoto, type BarreRef, type BarreSettings, type RefKind,
 } from "@/lib/barre/model";
+import { openBand, placeMenu } from "@/lib/mobile-band";
 import { Check, Close, Plus } from "./glyphs";
 import { toggleAssistant } from "./assistant-panel";
 import { FamilyIcon, openFamily } from "./studio-nav";
@@ -113,6 +114,51 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
     document.addEventListener("keydown", close);
     return () => { document.removeEventListener("pointerdown", close); document.removeEventListener("keydown", close); };
   }, [menu]);
+
+  // Keep the + menu inside the visible band between the sticky header and the tab bar.
+  useLayoutEffect(() => {
+    if (!menu) return;
+    const wrap = menuRef.current;
+    const panel = wrap?.querySelector<HTMLElement>("[data-barre-menu]");
+    const btn = wrap?.querySelector<HTMLElement>("[data-barre-plus]");
+    if (!panel || !btn) return;
+    const place = () => {
+      const bars = [...document.querySelectorAll<HTMLElement>(".u-top, .u-tabs, .u-chain")]
+        .filter(bar => ["fixed", "sticky"].includes(getComputedStyle(bar).position))
+        .map(bar => {
+          const box = bar.getBoundingClientRect();
+          return { top: box.top, bottom: box.bottom };
+        });
+      const viewport = window.visualViewport;
+      const visibleTop = viewport ? viewport.offsetTop : 0;
+      const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      const band = openBand(bars, visibleTop, visibleBottom, 48);
+      panel.style.maxHeight = "none";
+      panel.style.width = "";
+      const size = { width: panel.offsetWidth, height: panel.offsetHeight };
+      const anchor = btn.getBoundingClientRect();
+      const box = placeMenu({
+        anchor: { top: anchor.top, bottom: anchor.bottom, left: anchor.left, width: anchor.width },
+        size,
+        band,
+        viewportWidth: window.innerWidth,
+      });
+      panel.style.top = `${box.top}px`;
+      panel.style.left = `${box.left}px`;
+      panel.style.width = `${box.width}px`;
+      panel.style.maxHeight = `${box.maxHeight}px`;
+      panel.dataset.place = box.place;
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.visualViewport?.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.visualViewport?.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [menu, mode]);
 
   const attached: FilRef[] = mode === "agent" ? [] : [
     ...(mode === "image" ? photos.map(photo => ({ kind: "photo" as const, id: photo.id, name: photo.name, src: photo.url })) : []),
