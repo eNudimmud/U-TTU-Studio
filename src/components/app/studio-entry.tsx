@@ -204,9 +204,19 @@ export function BarreHome() {
     media={media}
   /> : null;
 
+  // Keep CreationBar mounted across showStage flips so the prompt survives example picks.
   const barBlock = <>
     <BarreFil runner={runner} />
     <CreationBar onSend={runner.send} preview={runner.preview} />
+  </>;
+
+  const examples = <>
+    {active && <p className="u-ex-from" data-ex-from="">{t("barre.galerie.from", { title: t(active.titleKey) })}
+      <button type="button" className="u-text-button" data-ex-clear="" onClick={clearExample}>{t("barre.galerie.clear")}</button>
+    </p>}
+    {active && <p className="u-barre-route-line" data-ex-route="">{t("barre.galerie.route", { tool: t(`barre.galerie.tool.${active.tool}`) })}</p>}
+    <ExempleGalerieStrip activeId={activeId} onPick={pickExample} />
+    <a className="u-secondary u-barre-all-link" href="#outils/tous" data-barre-all-link="" onClick={event => { event.preventDefault(); openStudioTool("tous"); }}>{t("barre.all")}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
   </>;
 
   return <section
@@ -224,21 +234,9 @@ export function BarreHome() {
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
     {!showStage && <h1 id="u-title" className="u-display u-barre-title" tabIndex={-1}><KeyTitle text={t("barre.title")} word={t("barre.titleKey")} /></h1>}
-    {showStage ? <ToolShell
-      stage={stageNode}
-      bar={barBlock}
-      examples={<>
-        {active && <p className="u-ex-from" data-ex-from="">{t("barre.galerie.from", { title: t(active.titleKey) })}
-          <button type="button" className="u-text-button" data-ex-clear="" onClick={clearExample}>{t("barre.galerie.clear")}</button>
-        </p>}
-        {active && <p className="u-barre-route-line" data-ex-route="">{t("barre.galerie.route", { tool: t(`barre.galerie.tool.${active.tool}`) })}</p>}
-        <ExempleGalerieStrip activeId={activeId} onPick={pickExample} />
-        <a className="u-secondary u-barre-all-link" href="#outils/tous" data-barre-all-link="" onClick={event => { event.preventDefault(); openStudioTool("tous"); }}>{t("barre.all")}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
-      </>}
-    /> : <>
-      {barBlock}
-      <ExempleGalerieGrid activeId={activeId} onPick={pickExample} />
-    </>}
+    {showStage ? <ToolShell stage={stageNode} bar={null} examples={null} /> : null}
+    {barBlock}
+    {showStage ? examples : <ExempleGalerieGrid activeId={activeId} onPick={pickExample} />}
   </section>;
 }
 

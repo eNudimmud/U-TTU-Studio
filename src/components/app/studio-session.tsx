@@ -84,6 +84,7 @@ const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO = /\.(mp4|webm|mov)$/i;
 
 import { getComfyAuthHeaders, renderCredentialScope } from "@/lib/render/client";
+import { randomSeed } from "@/lib/seed";
 import { connectMessage } from "@/lib/render/connect";
 import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
 import { createMediaClient } from "@/lib/media/cloud";
@@ -171,6 +172,8 @@ export interface StudioSession {
   duplicateDecor(id: string): Promise<void>;
   deleteCast(id: string): Promise<void>;
   deleteDecor(id: string): Promise<void>;
+  /** Remove a Mes créations media card (son, plan, importe) and its files. */
+  deleteAsset(asset: { id: string; media: string; note: string }): Promise<void>;
   copyCastTo(id: string, slug: string): Promise<void>;
   pickCast(id: string): Promise<void>;
   pickDecor(id: string): Promise<void>;
@@ -187,7 +190,7 @@ export interface StudioSession {
   pendingRef: HeldRef | null;
   holdRef(ref: HeldRef | null): void;
   pendingClip: HeldClip | null;
-  holdClip(clip: HeldClip | null): void;
+  holdClip(clip: HeldClip | null | ((current: HeldClip | null) => HeldClip | null)): void;
   copyDecorTo(id: string, slug: string): Promise<void>;
   linkFolder(): Promise<void>;
   allowLinkedFolder(): Promise<void>;
@@ -399,8 +402,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [line, setLineState] = useState("");
   const [notice, setNotice] = useState("");
   const [sheet, setSheet] = useState<SheetName>(null);
-  const [link, setLink] = useState<RenderLink>({ mode: "none" });
-  const [connected, setConnected] = useState(false);
+  // Read the saved link on the first client paint so Film/Créer never flash « Relier mon compte ».
+  const [link, setLink] = useState<RenderLink>(() => readRenderLink(typeof window === "undefined" ? null : localStorage));
+  const [connected, setConnected] = useState(() => readRenderLink(typeof window === "undefined" ? null : localStorage).mode !== "none");
   const [balance, setBalance] = useState<Balance | null>(null);
   const [balanceNote, setBalanceNote] = useState("");
   const [run, setRun] = useState<RunState>({ phase: "idle" });
@@ -561,11 +565,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const pending = readPending(localStorage);
       if (pending?.jobId) clearTerminalPending(localStorage, pending.jobId);
     }
+    // Partner/API node Unauthorized often arrives as auth on /api/prompt while the
+    // session or key is still valid. Keep the link; the reconnect button still shows.
     if (error instanceof RenderError && error.code === "auth") {
-      setConnected(false);
-      setBalance(null);
       setBalanceNote(view.message);
-      setSheet("connect");
     }
     return { ok: false, message: view.message, kind: view.kind, intact: view.intact, reconnect: view.reconnect, retry: view.retry };
   }, []);
@@ -616,8 +619,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       return next;
     } catch (error) {
       if (activeClient.current !== client) return null;
-      setBalance(null);
-      if (error instanceof RenderError && error.code === "auth") setConnected(false);
+      if (error instanceof RenderError && error.code === "auth") {
+        setConnected(false);
+        setBalance(null);
+      }
+      // Transient balance read failure: keep the last known amount so the header
+      // stays filled and we never treat "unknown" as "too low".
       setBalanceNote(error instanceof Error ? error.message : "Solde illisible.");
       return null;
     }
@@ -844,7 +851,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         template: quote.template,
         prompt: sent,
         pictures: input.files.slice(0, row ? Math.max(3, row.slots.length) : 3).map((file, index) => ({ blob: file, name: `uttu-${index + 1}.jpg` })),
-        seed: crypto.getRandomValues(new Uint32Array(1))[0],
+        seed: randomSeed(),
         clientId: crypto.randomUUID(),
         balanceBefore: fresh?.credits ?? 0,
       });
@@ -942,7 +949,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         template: quote.template,
         prompt: sent,
         pictures: pictures.map((file, index) => ({ blob: file, name: pictureName(index) })),
-        seed: crypto.getRandomValues(new Uint32Array(1))[0],
+        seed: randomSeed(),
         clientId: crypto.randomUUID(),
         balanceBefore: fresh?.credits ?? 0,
         cadreLayout: cadre ? layout : undefined,
@@ -1005,7 +1012,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const result = await runStem(recoverableClient(client, localStorage, receipt), {
         kind,
         text,
-        seed: crypto.getRandomValues(new Uint32Array(1))[0],
+        seed: randomSeed(),
         clientId: crypto.randomUUID(),
         balanceBefore: fresh?.credits ?? 0,
       });
@@ -1046,7 +1053,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       input.onStage("envoi");
       const file = await client.upload(input.video, "uttu-montage.mp4");
       const graph = open
-        ? suiteGraph({ geste: "suite-finaliser-video", files: { source: file }, prompt: "", seed: crypto.getRandomValues(new Uint32Array(1))[0], seconds: input.seconds, fluidifier: input.fluidifier })
+        ? suiteGraph({ geste: "suite-finaliser-video", files: { source: file }, prompt: "", seed: randomSeed(), seconds: input.seconds, fluidifier: input.fluidifier })
         : finalGraph({ file, ratio: input.ratio, ...input.choice });
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
@@ -1100,7 +1107,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         refs.push(path);
         names[slot.slot] = await client.upload(file, `${id}-${slot.slot}.${ext}`);
       }
-      const graph = videoGesteGraph({ geste, files: names, prompt: input.prompt, aspect: input.aspect, seed: crypto.getRandomValues(new Uint32Array(1))[0] });
+      const graph = videoGesteGraph({ geste, files: names, prompt: input.prompt, aspect: input.aspect, seed: randomSeed() });
       const receipt: PendingRender = { version: 1, kind: "video", geste, project: slug, id, name: t(`gestes.${row.clef}.title`), prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: row.credits, balanceBefore: fresh!.credits, jobId: null };
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
@@ -1148,7 +1155,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       input.onStage("envoi");
       const ext = input.file.name.includes(".") ? input.file.name.slice(input.file.name.lastIndexOf(".")) : ".png";
       const image = await client.upload(input.file, `${id}${ext}`);
-      const graph = meshGesteGraph({ geste: row.id, image, seed: crypto.getRandomValues(new Uint32Array(1))[0] });
+      const graph = meshGesteGraph({ geste: row.id, image, seed: randomSeed() });
       const result = await runMesh(recoverableClient(client, localStorage, receipt), { graph, clientId: crypto.randomUUID(), balanceBefore: fresh?.credits ?? 0 }, {
         onStage: (stage, seconds) => input.onStage(stage, seconds),
       });
@@ -1208,7 +1215,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         refs.push(voice);
         audio = await client.upload(input.audio, `${id}-voix.${voiceExt}`);
       }
-      const graph = suiteGraph({ geste, files: { source, audio }, prompt: input.prompt, seed: crypto.getRandomValues(new Uint32Array(1))[0], aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds });
+      const graph = suiteGraph({ geste, files: { source, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds });
       const still = SUITE_SORTIE[geste] === "image";
       const receipt: PendingRender = { version: 1, kind: still ? "image" : "video", geste, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
@@ -1262,7 +1269,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const vault = projectVault(store(), slug);
       const at = new Date().toISOString();
       const id = `${outil.id}-${crypto.randomUUID()}`;
-      const name = t(`outils.t.${outil.id}.title`);
+      const when = new Date(at);
+      const stamp = `${String(when.getHours()).padStart(2, "0")}:${String(when.getMinutes()).padStart(2, "0")}`;
+      const name = `${t(`outils.t.${outil.id}.title`)} · ${stamp}`;
       input.onStage("envoi");
       const refs: string[] = input.from ? [input.from] : [];
       const send = async (file: File, label: string) => {
@@ -1278,7 +1287,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
       const video = input.video ? await send(input.video, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
-      const graph = outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: crypto.getRandomValues(new Uint32Array(1))[0], aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh });
+      const graph = outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh });
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       const receipt: PendingRender = { version: 1, kind, geste: row.id, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
@@ -1410,6 +1419,14 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await reload();
   }, [current.scenes, pickedDecor, reload, store]);
 
+  const deleteAsset = useCallback(async (asset: { id: string; media: string; note: string }) => {
+    if (!current.project) return;
+    const vault = store();
+    if (asset.note) await vault.remove(asset.note).catch(() => undefined);
+    if (asset.media) await vault.remove(asset.media).catch(() => undefined);
+    await reload();
+  }, [current.project, reload, store]);
+
   const pickCast = useCallback(async (id: string) => {
     setPickedCast(id);
     const card = current.cast.find(item => item.id === id);
@@ -1485,7 +1502,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
       const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: referencePaths(photos, place), template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
-        pictures, prompt, settings, seed: crypto.getRandomValues(new Uint32Array(1))[0], clientId: crypto.randomUUID(),
+        pictures, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(),
       }, event => setRun({ phase: "running", event }), abort.current.signal);
       const flight: InFlight = { ...flightData, jobId };
       saveInFlight(localStorage, flight);
@@ -2041,7 +2058,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
-    loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo,
+    loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, promoteExempleRefs, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,

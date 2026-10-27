@@ -21,7 +21,7 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
   defaultFilter?: "tout" | "personnage" | "decor" | "plan" | "son" | "importe";
 }) {
   const session = useStudio();
-  const { cast, decor, media, studio, loose, pickCast, pickDecor, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, copyCastTo, copyDecorTo, importAssets, refreshStudio, holdRef, holdClip } = session;
+  const { cast, decor, media, studio, loose, pickCast, pickDecor, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo, copyDecorTo, importAssets, refreshStudio, holdRef, holdClip } = session;
   const assets: AssetRecord[] = [
     ...cast.map(assetFromCast),
     ...decor.map(card => assetFromDecor(card)),
@@ -83,7 +83,8 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
         return;
       }
       const take = studio.takes.find(item => item.id === asset.id);
-      const source = take?.video || (asset.preview ? assetPath(asset.preview) : asset.media);
+      // Vault path only — a preview URL cannot be resolved by the montage urlOf/media map.
+      const source = take?.video || asset.media;
       if (!source) return;
       holdClip({
         source,
@@ -103,7 +104,8 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
     }}
     onDelete={asset => {
       if (asset.kind === "personnage") void deleteCast(asset.id);
-      if (asset.kind === "decor") void deleteDecor(asset.id);
+      else if (asset.kind === "decor") void deleteDecor(asset.id);
+      else void deleteAsset(asset);
     }}
     onCopy={(asset, slug) => {
       if (asset.kind === "personnage") void copyCastTo(asset.id, slug);

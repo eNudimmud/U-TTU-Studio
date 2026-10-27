@@ -441,6 +441,7 @@
 .u-card-blank.is-prise { background: var(--surface); }
 .u-card-blank.is-sequence { background: var(--surface); }
 .u-card-blank.is-note { background: var(--surface); }
+.u-card-blank.u-card-audio { background: var(--surface); color: var(--accent); }
 .u-decor-layout, .u-decor-form, .u-decor-examples { display: grid; gap: 12px; align-content: start; }
 .u-examples { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .u-examples button { min-height: 44px; padding: 0; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); color: inherit; text-align: left; }

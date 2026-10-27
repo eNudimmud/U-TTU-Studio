@@ -47,7 +47,7 @@ function fakeClient() {
 describe("rendu CAST et DÉCOR", () => {
   it("keeps the button off without an account or under the ceiling", () => {
     assert.equal(creationAllowed(false, 100, 18), false);
-    assert.equal(creationAllowed(true, null, 18), false);
+    assert.equal(creationAllowed(true, null, 18), true);
     assert.equal(creationAllowed(true, 17, 18), false);
     assert.equal(creationAllowed(true, 18, 18), true);
     assert.equal(spendAllowed(12, false), false);

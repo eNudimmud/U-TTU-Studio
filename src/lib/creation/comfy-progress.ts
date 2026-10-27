@@ -17,7 +17,7 @@ export const TYPICAL_WAIT_SEC = {
   "3d": 100,
   finaliser: 180,
   "montage-export": 45,
-  outil: 70,
+  outil: 105,
 } as const;
 
 export type TypicalWaitKey = keyof typeof TYPICAL_WAIT_SEC;

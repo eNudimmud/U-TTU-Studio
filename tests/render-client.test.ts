@@ -34,7 +34,11 @@ describe("client du compte de rendu", () => {
     assert.equal((upload.body as FormData).get("type"), "input");
     assert.equal(await client.submit({ a: { class_type: "SaveVideo", inputs: {} } }, "client-1"), "0f6c1b1e-8d47-4f39-9e16-5f5d0f0b9a11");
     const prompt = calls.find(call => call.url === "/api/prompt");
-    assert.deepEqual(JSON.parse(String(prompt?.body)), { prompt: { a: { class_type: "SaveVideo", inputs: {} } }, client_id: "client-1" });
+    const promptBody = JSON.parse(String(prompt?.body));
+    assert.equal(promptBody.client_id, "client-1");
+    assert.deepEqual(promptBody.prompt, { a: { class_type: "SaveVideo", inputs: {} } });
+    assert.deepEqual(promptBody.extra_data, { api_key_comfy_org: "comfyui-0123456789abcdef" });
+    assert.equal("authorization" in (promptBody.extra_data ?? {}), false);
     for (const call of calls) {
       assert.equal(call.headers.get("x-api-key"), "comfyui-0123456789abcdef");
       assert.equal(call.headers.get("authorization"), null);
@@ -49,6 +53,20 @@ describe("client du compte de rendu", () => {
     assert.equal(calls[0].headers.get("authorization"), "Bearer firebase-id-token");
     const signedOut = createRenderClient({ auth: { kind: "session", token: async () => null }, fetch: fetchImpl });
     await assert.rejects(() => signedOut.user(), (error: unknown) => error instanceof RenderError && error.code === "auth");
+  });
+
+  it("puts the session token in extra_data for partner API nodes, never in logs", async () => {
+    const { calls, fetchImpl } = fakeCloud(call => {
+      if (call.url === "/api/prompt") return json({ prompt_id: "job-session-1", number: 1, node_errors: {} });
+      return undefined;
+    });
+    const client = createRenderClient({ auth: { kind: "session", token: async () => "firebase-id-token" }, fetch: fetchImpl });
+    assert.equal(await client.submit({ a: { class_type: "SaveImage", inputs: {} } }, "client-s"), "job-session-1");
+    const prompt = calls.find(call => call.url === "/api/prompt");
+    const body = JSON.parse(String(prompt?.body));
+    assert.deepEqual(body.extra_data, { auth_token_comfy_org: "firebase-id-token" });
+    assert.equal("api_key_comfy_org" in (body.extra_data ?? {}), false);
+    assert.equal(prompt?.headers.get("authorization"), "Bearer firebase-id-token");
   });
 
   it("turns refusals into plain reasons, node by node", async () => {

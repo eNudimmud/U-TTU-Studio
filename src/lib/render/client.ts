@@ -293,10 +293,19 @@ export function createRenderClient(options: RenderClientOptions) {
     },
 
     async submit(graph: ApiGraph, clientId: string): Promise<string> {
+      // Partner/API nodes read credentials from extra_data, not only HTTP headers
+      // (Comfy Cloud: api_key_comfy_org for a key, auth_token_comfy_org for a session).
+      const extra_data: Record<string, string> = {};
+      if (options.auth.kind === "key") {
+        if (options.auth.key) extra_data.api_key_comfy_org = options.auth.key;
+      } else {
+        const token = await options.auth.token();
+        if (token) extra_data.auth_token_comfy_org = token;
+      }
       const response = await call("/api/prompt", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt: graph, client_id: clientId }),
+        body: JSON.stringify({ prompt: graph, client_id: clientId, extra_data }),
       });
       const body = await json<Record<string, unknown>>(response);
       const lines = errorLines(body);
