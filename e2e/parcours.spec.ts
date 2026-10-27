@@ -46,11 +46,11 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   await expect(page.locator("[data-capture-done]")).toBeVisible({ timeout: 20_000 });
   // The block around the view goes with the capture, for PRISE's maquette.
   expect(Number(await page.locator("[data-capture-done]").getAttribute("data-rep3d-block"))).toBeGreaterThan(0);
-  // The direct path needs no photo: the frame alone makes the décor, ≈ 4 crédits.
+  // The direct path needs no photo: the frame alone makes the décor, ≈ 5 crédits.
   await expect(page.locator("[data-rep3d-direct]")).toBeVisible();
   await expect(page.locator("[data-rep3d-refs]")).toHaveAttribute("data-rep3d-refs", "0");
   await expect(page.locator("[data-rep3d-create]")).toBeEnabled();
-  await expect(page.locator("[data-rep3d-create]")).toContainText("≈ 4 crédits estimés");
+  await expect(page.locator("[data-rep3d-create]")).toContainText("≈ 5 crédits estimés");
   await expect(page.getByText(/≈ 13 crédits/)).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(sheet).toBeHidden();

@@ -113,7 +113,7 @@ test("entrée : le portrait d'Uttu, la porte du film, une rangée par famille av
   const entry = page.locator("[data-studio-entry]");
   await expect(entry.locator("[data-entry-uttu] img")).toBeVisible();
   await expect(page.locator("#u-title em")).toHaveCount(1);
-  await expect(page.locator("[data-entry-route]")).toContainText("≈ 4 crédits estimés");
+  await expect(page.locator("[data-entry-route]")).toContainText("≈ 5 crédits estimés");
   await expect(page.locator("[data-entry-film]")).toBeVisible();
   for (const fam of ["creer", "retoucher", "video", "3d", "son"]) await expect(entry.locator(`[data-outils-section="${fam}"]`)).toHaveCount(1);
   const thumbs = entry.locator('[data-outils-section="creer"] .u-outil-thumb img');

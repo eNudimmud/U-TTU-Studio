@@ -168,7 +168,7 @@ test("lieu réel → vue : une question par écran, une vue 3D, trois hauteurs, 
   await expect(page.locator("[data-rep3d-direct]")).toHaveText("Ton décor suit ta vue et ce lieu.");
   await expect(page.locator("[data-rep3d-tags] li").first()).toHaveText("Lausanne");
   await expect(page.locator("[data-rep3d-create]")).toBeEnabled();
-  await expect(page.locator("[data-rep3d-create]")).toHaveText("Créer le décor · ≈ 4 crédits estimés");
+  await expect(page.locator("[data-rep3d-create]")).toHaveText("Créer le décor · ≈ 5 crédits estimés");
   // « Affiner » (facultatif): your words and photos of the place, side by side, usable together.
   await expect(page.locator("[data-rep3d-refine] h2")).toContainText("Affiner");
   await expect(page.locator("[data-rep3d-refine] h2")).toContainText("facultatif");
@@ -259,7 +259,7 @@ async function fakeComfy(page: Page) {
   return { graphs, uploads };
 }
 
-test("crée ton décor en direct : vue + lieu, sans photo, ≈ 4 crédits, un seul rendu Klein avec le contexte", async ({ page }) => {
+test("crée ton décor en direct : vue + lieu, sans photo, ≈ 5 crédits, un seul rendu InstantX avec le contexte", async ({ page }) => {
   const outside = await offline(page);
   const comfy = await fakeComfy(page);
   const sheet = await openSheet(page);
@@ -269,7 +269,7 @@ test("crée ton décor en direct : vue + lieu, sans photo, ≈ 4 crédits, un se
   await page.locator("[data-rep3d-capture]").click();
   await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
   const create = page.locator("[data-rep3d-create]");
-  await expect(create).toHaveText("Créer le décor · ≈ 4 crédits estimés");
+  await expect(create).toHaveText("Créer le décor · ≈ 5 crédits estimés");
   await expect(page.locator("[data-rep3d-tags] li")).toHaveCount(await page.locator("[data-rep3d-tags] li").count());
   expect(await page.locator("[data-rep3d-tags] li").count()).toBeGreaterThanOrEqual(1);
   expect(await page.locator("[data-rep3d-tags] li").count()).toBeLessThanOrEqual(3);
@@ -284,29 +284,31 @@ test("crée ton décor en direct : vue + lieu, sans photo, ≈ 4 crédits, un se
   await page.locator("[data-rep3d-idea=brume]").click();
   await page.locator("[data-rep3d-idea=brume]").click();
   await expect(page.locator("[data-rep3d-wish]")).toHaveValue("Fin d’après-midi d’automne, sous la neige");
-  await expect(create).toHaveText("Créer le décor · ≈ 4 crédits estimés");
+  await expect(create).toHaveText("Créer le décor · ≈ 5 crédits estimés");
   await create.click();
-  await expect(page.locator("[data-rep3d-quote]")).toHaveText("≈ 4 crédits estimés, 6 crédits au plus. Environ 20 secondes.");
+  await expect(page.locator("[data-rep3d-quote]")).toHaveText("≈ 5 crédits estimés, 8 crédits au plus. Environ 20 secondes.");
   await page.locator("[data-rep3d-yes]").click();
   await expect(sheet).toHaveAttribute("data-rep3d-step", "4", { timeout: 30_000 });
   expect(comfy.graphs).toHaveLength(1);
   const loads = Object.entries(comfy.graphs[0]).filter(([, node]) => node.class_type === "LoadImage");
   expect(loads).toHaveLength(1);
   expect(comfy.uploads).toEqual(["uttu-cadre-3d.png"]);
-  const text = String(Object.values(comfy.graphs[0]).find(node => node.class_type === "PrimitiveStringMultiline" && /Convert the entire image 1|Create a full-color|Image 1 is a grey/.test(String(node.inputs.value)))?.inputs.value ?? "");
-  // frame-first (no street photos): grey massing is image 1; camera lock lives in that paragraph.
-  expect(text).toContain("camera position, eye level");
+  // InstantX: positive prompt is CLIPTextEncode node 111:6 (inputs.text).
+  const encode = comfy.graphs[0]["111:6"] ?? Object.values(comfy.graphs[0]).find(node => node.class_type === "CLIPTextEncode" && String(node.inputs.text ?? "").startsWith("Photorealistic"));
+  const text = String(encode?.inputs.text ?? "");
+  expect(text).toContain("same exact camera position and composition");
+  expect(text).toContain("grey untextured 3D massing");
   expect(text).toContain("The place is real: Place d'essai, Lausanne, Suisse");
   expect(text).toMatch(/about \d+ m above the ground|at a person's eye height/);
   expect(text).toContain("never raise, lower or move the camera");
   expect(text).not.toContain("image 2");
   expect(text).toContain(`The visitor's wish, in their own words: "Fin d’après-midi d’automne, sous la neige".`);
   expect(text).not.toContain("Natural daylight");
-  expect(text.split("\n").at(-1)).toMatch(/^Whatever the wish says, image 1's camera, framing and building layout stay exactly the same/);
+  expect(text.split("\n").at(-1)).toMatch(/^Whatever the wish says, the structural guide's camera, framing and building layout stay exactly the same/);
   expect(outside.filter(url => !/\/api\//.test(url))).toEqual([]);
 });
 
-test("affiner avec des photos et un texte : rien de coché d'office, 360° du point, photos variées, devis, un seul rendu Klein, puis un plan", async ({ page }) => {
+test("affiner avec des photos et un texte : rien de coché d'office, 360° du point, photos variées, devis flat InstantX, puis un plan", async ({ page }) => {
   const outside = await offline(page);
   await streetPhotos(page);
   const comfy = await fakeComfy(page);
@@ -316,11 +318,11 @@ test("affiner avec des photos et un texte : rien de coché d'office, 360° du po
   await page.locator("[data-rep3d-capture]").click();
   await expect(sheet).toHaveAttribute("data-rep3d-step", "3", { timeout: 20_000 });
 
-  // Nothing is ticked for you: the direct path stays ≈ 4.
+  // Nothing is ticked for you: InstantX quote stays flat ≈ 5.
   const refs = page.locator("[data-rep3d-refs]");
   await expect(refs).toHaveAttribute("data-rep3d-refs", "0");
   const create = page.locator("[data-rep3d-create]");
-  await expect(create).toHaveText("Créer le décor · ≈ 4 crédits estimés");
+  await expect(create).toHaveText("Créer le décor · ≈ 5 crédits estimés");
 
   // « Ajouter des photos du lieu »: the 360° of the spot, then your photo first and the open photos.
   await page.locator("[data-rep3d-change-photos]").click();
@@ -346,7 +348,7 @@ test("affiner avec des photos et un texte : rien de coché d'office, 360° du po
   await page.locator("[data-rep3d-pick-ok]").click();
   await expect(picker).toBeHidden();
   await expect(refs).toContainText("3 photos du lieu");
-  await expect(create).toContainText("≈ 7 crédits estimés");
+  await expect(create).toContainText("≈ 5 crédits estimés");
 
   // Street photo credits stay one tap away.
   await page.locator("[data-rv-screen='3'] .u-rv-copy").click();
@@ -358,12 +360,12 @@ test("affiner avec des photos et un texte : rien de coché d'office, 360° du po
   await page.locator("[data-ambiance=nuit]").click();
   await page.locator("[data-rep3d-name]").fill("Saint-François nuit");
   await page.locator("[data-rep3d-wish]").fill("Pavés mouillés");
-  await expect(create).toContainText("≈ 7 crédits estimés");
+  await expect(create).toContainText("≈ 5 crédits estimés");
   expect(comfy.graphs).toHaveLength(0);
 
-  // Confirmation in plain words, then one Klein edit.
+  // Confirmation in plain words, then one InstantX + Lotus pass.
   await create.click();
-  await expect(page.locator("[data-rep3d-quote]")).toHaveText("≈ 7 crédits estimés, 9 crédits au plus. Environ 20 secondes.");
+  await expect(page.locator("[data-rep3d-quote]")).toHaveText("≈ 5 crédits estimés, 8 crédits au plus. Environ 20 secondes.");
   await page.locator("[data-rep3d-yes]").click();
   await expect(sheet).toHaveAttribute("data-rep3d-step", "4", { timeout: 30_000 });
   await expect(sheet.getByRole("heading", { level: 1 })).toHaveText("Ton décor est prêt");
@@ -376,18 +378,18 @@ test("affiner avec des photos et un texte : rien de coché d'office, 360° du po
   expect(comfy.graphs).toHaveLength(1);
   const graph = comfy.graphs[0];
   const loads = Object.entries(graph).filter(([, node]) => node.class_type === "LoadImage");
-  expect(loads).toHaveLength(4);
+  // InstantX + Lotus: colour frame only — street photos colour the prompt, not the graph.
+  expect(loads).toHaveLength(1);
   expect(loads[0][1].inputs.image).toBe("entree-1.png");
-  // photo-lines: first upload is a street photo (appearance lock), then edges, then more photos.
-  expect(comfy.uploads[0]).toMatch(/^uttu-lieu-/);
-  expect(comfy.uploads).toContain("uttu-cadre-3d.png");
-  expect(comfy.uploads).toHaveLength(4);
-  const text = String(Object.values(graph).find(node => node.class_type === "PrimitiveStringMultiline" && /Convert the entire image 1|Create a full-color|Image 1 is a grey/.test(String(node.inputs.value)))?.inputs.value ?? "");
-  expect(text).toContain("exact camera position, eye level");
-  expect(text).toContain("image 1 and images 3 to 4");
+  expect(comfy.uploads).toEqual(["uttu-cadre-3d.png"]);
+  const encode = graph["111:6"] ?? Object.values(graph).find(node => node.class_type === "CLIPTextEncode" && String(node.inputs.text ?? "").startsWith("Photorealistic"));
+  const text = String(encode?.inputs.text ?? "");
+  expect(text).toContain("same exact camera position and composition");
+  expect(text).toContain("Match materials, colours, weathering");
+  expect(text).not.toContain("image 2");
   expect(text).toContain("Night");
   expect(text).toContain(`"Pavés mouillés"`);
-  expect(text).toContain("where it differs from image 1 and images 3 to 4, the wish wins");
+  expect(text).toContain("structural guide's camera, framing and building layout stay exactly the same");
 
   // « Utiliser dans un plan » closes the sheet with the new décor already chosen.
   await page.locator("[data-rep3d-to-prise]").click();
