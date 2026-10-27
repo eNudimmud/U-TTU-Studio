@@ -507,7 +507,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview }: { outil: Outil;
       {quote && <span className="u-tool-go-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })}</span>}
     </button>
     {why && !busy && <p className="u-why" id={whyId} data-tool-why="">{why}</p>}
-    {stage && <div id={busyId}><ComfyProgress label={t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? outilElapsed) })} elapsedSec={stage.seconds ?? outilElapsed} typicalSec={typicalFor("outil")} note={t("finaliser.keepOpen")} marker="outil" /></div>}
+    {stage && <div id={busyId}><ComfyProgress label={t(`finaliser.${stage.stage}`)} elapsedSec={stage.seconds ?? outilElapsed} typicalSec={typicalFor("outil")} note={t("finaliser.keepOpen")} marker="outil" /></div>}
     {outcome && !outcome.ok && <p className="u-why" role="alert" data-tool-fail="">{outcome.message} {t("suite.intact")}</p>}
     {outcome?.ok && <p className="u-small" data-tool-done="">{t("suite.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p>}
     {ask && quote && <div className="u-confirm-layer">

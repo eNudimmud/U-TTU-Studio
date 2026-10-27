@@ -180,7 +180,7 @@ export function PrevisPanel({ state, setState, cast, neutralName, recording, onR
       </>}
       {why3d && !stage && <p className="u-why" id="u-why-mesh">{why3d}</p>}
       {why3d && !stage && <ConnectLink />}
-      {stage && <div id="u-mesh-busy"><ComfyProgress label={t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? meshElapsed) })} elapsedSec={stage.seconds ?? meshElapsed} typicalSec={typicalFor("mesh")} note={t("finaliser.keepOpen")} marker="mesh" /></div>}
+      {stage && <div id="u-mesh-busy"><ComfyProgress label={t(`finaliser.${stage.stage}`)} elapsedSec={stage.seconds ?? meshElapsed} typicalSec={typicalFor("mesh")} note={t("finaliser.keepOpen")} marker="mesh" /></div>}
       {meshNote && <p className="u-small" role="status">{meshNote}</p>}
     </div>
   </section>;

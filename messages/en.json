@@ -1533,7 +1533,7 @@
     "prepare": "Preparing the edit in this tab…",
     "envoi": "Sending the edit…",
     "file": "Queued on your account…",
-    "calcul": "Making it larger ({seconds} s)…",
+    "calcul": "Making it larger…",
     "retour": "Fetching the video…",
     "mesure": "Reading the real cost…",
     "keepOpen": "Keep this tab open. The render runs to the end; it is never cancelled.",
@@ -3305,7 +3305,7 @@
       "stage": {
         "envoi": "Sending your request…",
         "file": "Queued on your account…",
-        "calcul": "Creating ({seconds} s)…",
+        "calcul": "Creating…",
         "retour": "Fetching the result…",
         "mesure": "Reading the real cost…",
         "calculStart": "Creating…"

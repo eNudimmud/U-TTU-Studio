@@ -154,7 +154,7 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
     </button>
     {why && !busy && <p className="u-why" id="u-video-why">{why}</p>}
     {why && !busy && <ConnectLink />}
-    {stage && <div id="u-video-busy"><ComfyProgress label={t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? videoElapsed) })} elapsedSec={stage.seconds ?? videoElapsed} typicalSec={typicalFor("video")} note={t("finaliser.keepOpen")} marker="video" /></div>}
+    {stage && <div id="u-video-busy"><ComfyProgress label={t(`finaliser.${stage.stage}`)} elapsedSec={stage.seconds ?? videoElapsed} typicalSec={typicalFor("video")} note={t("finaliser.keepOpen")} marker="video" /></div>}
     {outcome && (outcome.ok
       ? <div className="u-video-done"><video src={outcome.url} controls playsInline /><p className="u-small">{t("videoGeste.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p><button type="button" className="u-chip" onClick={() => { holdClip({ source: outcome.path, label: t(`gestes.${row.clef}.title`), kind: "video" }); window.location.hash = "montage"; }}>{t("assets.toMontage")}</button></div>
       : <p className="u-why" role="alert">{outcome.message}</p>)}

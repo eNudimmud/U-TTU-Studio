@@ -371,9 +371,8 @@ function FilRunningProgress({ job }: { job: FilJob }) {
   const { t } = useI18n();
   const elapsed = useComfyElapsed(true);
   const shown = typeof job.seconds === "number" ? job.seconds : elapsed;
-  const label = job.stage === "calcul" && !job.seconds
-    ? t("barre.fil.stage.calculStart")
-    : t(`barre.fil.stage.${job.stage ?? "envoi"}`, { seconds: String(shown) });
+  // Stage title has no clock: ComfyProgress shows elapsed / remaining under the bar.
+  const label = t(`barre.fil.stage.${job.stage ?? "envoi"}`);
   const typicalKey = job.route.kind === "prise" ? "prise" as const
     : job.route.kind === "outil" ? "outil" as const
     : "still" as const;
