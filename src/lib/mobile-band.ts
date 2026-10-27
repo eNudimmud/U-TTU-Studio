@@ -79,8 +79,10 @@ export function placeMenu(input: {
   const below = bandBottom - (input.anchor.bottom + gap);
 
   if (above >= need && above >= below) {
-    const top = input.anchor.top - gap - need;
-    return { place: "above", top: Math.max(bandTop, top), left, maxHeight: need, width };
+    const natural = input.anchor.top - gap - need;
+    const top = Math.max(bandTop, natural);
+    const maxHeight = Math.min(need, input.anchor.top - gap - top);
+    return { place: "above", top, left, maxHeight: Math.max(48, maxHeight), width };
   }
   if (below >= need) {
     return { place: "below", top: input.anchor.bottom + gap, left, maxHeight: need, width };

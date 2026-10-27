@@ -56,12 +56,15 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 844, height: 390 }
         const r = btn.getBoundingClientRect();
         const x = Math.round(r.left + Math.min(r.width / 2, 40));
         const y = Math.round(r.top + r.height / 2);
-        const top = document.querySelector(".u-top")?.getBoundingClientRect();
-        const tabs = document.querySelector(".u-tabs")?.getBoundingClientRect();
+        const topEl = document.querySelector<HTMLElement>(".u-top");
+        const tabsEl = document.querySelector<HTMLElement>(".u-tabs");
+        const top = topEl && getComputedStyle(topEl).display !== "none" ? topEl.getBoundingClientRect() : null;
+        const tabs = tabsEl && getComputedStyle(tabsEl).display !== "none" && getComputedStyle(tabsEl).position !== "static"
+          ? tabsEl.getBoundingClientRect() : null;
         const inBand = (!top || r.top >= top.bottom - 1) && (!tabs || r.bottom <= tabs.top + 1);
         const at = document.elementFromPoint(x, y);
         const coveredByChrome = Boolean(at?.closest(".u-top, .u-tabs"));
-        return { covered: !inBand || coveredByChrome, reason: !inBand ? "oob" : coveredByChrome ? "chrome" : "ok", y, topBottom: top?.bottom, tabsTop: tabs?.top, place: document.querySelector("[data-barre-menu]")?.getAttribute("data-place") };
+        return { covered: !inBand || coveredByChrome, reason: !inBand ? "oob" : coveredByChrome ? "chrome" : "ok", y, topBottom: top?.bottom, tabsTop: tabs?.top ?? null, place: document.querySelector("[data-barre-menu]")?.getAttribute("data-place") };
       }, i);
       expect(hit, `item ${i}`).toMatchObject({ covered: false });
     }

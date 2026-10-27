@@ -2180,7 +2180,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-barre-send[data-ready] { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
 .u-barre-send[data-ready] .u-barre-send-arrow { background: rgba(23, 19, 10, .14); color: var(--on-accent); }
 .u-barre-plus-wrap { position: relative; flex: 0 0 auto; }
-.u-barre-menu { position: fixed; z-index: 70; top: 0; left: 0; display: grid; gap: 2px; width: min(300px, 80vw); max-height: min(70dvh, calc(100dvh - var(--u-top-h) - var(--u-tabs-h) - 24px)); padding: 6px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--surface); box-shadow: 0 18px 50px rgba(0, 0, 0, .5); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+.u-barre-menu { position: fixed; z-index: 80; top: 0; left: 0; display: grid; gap: 2px; width: min(300px, 80vw); max-height: min(70dvh, calc(100dvh - var(--u-top-h) - var(--u-tabs-h) - 24px)); padding: 6px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--surface); box-shadow: 0 18px 50px rgba(0, 0, 0, .5); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
 .u-barre-menu[data-place="sheet"] { width: calc(100vw - 16px); border-radius: 16px 16px 12px 12px; }
 .u-barre-menu button { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 10px; border: 0; border-radius: 12px; background: transparent; color: var(--fg); text-align: start; cursor: pointer; }
 .u-barre-menu button:hover:not(:disabled), .u-barre-menu button:focus-visible { background: var(--selected); }
@@ -2202,7 +2202,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-barre-settings-pill[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
 .u-barre-settings-pill svg { flex: 0 0 auto; width: 20px; height: 20px; }
 .u-barre-settings-pill span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.u-barre-settings { position: fixed; z-index: 70; top: 0; left: 0; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 8px; width: min(320px, calc(100vw - 16px)); max-height: min(70dvh, calc(100dvh - var(--u-top-h) - var(--u-tabs-h) - 24px)); padding: 10px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--surface); box-shadow: 0 18px 50px rgba(0, 0, 0, .5); overflow: auto; overscroll-behavior: contain; }
+.u-barre-settings { position: fixed; z-index: 80; top: 0; left: 0; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 8px; width: min(320px, calc(100vw - 16px)); max-height: min(70dvh, calc(100dvh - var(--u-top-h) - var(--u-tabs-h) - 24px)); padding: 10px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--surface); box-shadow: 0 18px 50px rgba(0, 0, 0, .5); overflow: auto; overscroll-behavior: contain; }
 .u-barre-seg { display: inline-flex; flex: 0 0 auto; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--bg); }
 .u-barre-seg button { min-width: 44px; min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--fg-2); font: 500 14px/1 var(--font-body); white-space: nowrap; cursor: pointer; }
 .u-barre-seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
