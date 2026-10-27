@@ -64,7 +64,10 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await page.locator('.u-asset-detail').getByRole('button', { name: 'Ajouter au montage', exact: true }).click();
   await expect(page).toHaveURL(/\/studio\?project=atelier#montage$/);
   await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
+  // Nav badge flips once the cut is filled; vault write is awaited in montage-stage.
+  await expect(page.getByRole('button', { name: /MONTAGE/ })).not.toContainText('Vide');
   await page.reload();
+  await expect(page.getByRole('region', { name: 'MONTAGE' })).toBeVisible();
   await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
   await page.screenshot({ path: info.outputPath('video-recovered-montage.png'), fullPage: true });
   expect(posts).toBe(1);
