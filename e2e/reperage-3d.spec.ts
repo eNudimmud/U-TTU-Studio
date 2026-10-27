@@ -378,9 +378,9 @@ test("affiner avec des photos et un texte : rien de coché d'office, 360° du po
   const loads = Object.entries(graph).filter(([, node]) => node.class_type === "LoadImage");
   expect(loads).toHaveLength(4);
   expect(loads[0][1].inputs.image).toBe("entree-1.png");
-  // photo-lines: first upload is a street photo (appearance lock), then edges, then more photos.
+  // photo-lines: first upload is a street photo (appearance lock), then edges (lines), then more photos.
   expect(comfy.uploads[0]).toMatch(/^uttu-lieu-/);
-  expect(comfy.uploads).toContain("uttu-cadre-3d.png");
+  expect(comfy.uploads).toContain("uttu-cadre-lines.png");
   expect(comfy.uploads).toHaveLength(4);
   const text = String(Object.values(graph).find(node => node.class_type === "PrimitiveStringMultiline" && /Convert the entire image 1|Create a full-color|Image 1 is a grey/.test(String(node.inputs.value)))?.inputs.value ?? "");
   expect(text).toContain("exact camera position, eye level");
