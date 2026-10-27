@@ -892,16 +892,20 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       </div>
       <div className="u-bin-body">
       {binTab === "medias" && <div className="u-chutier-row">
-        {edit.video.filter((clip, index, all) => all.findIndex(item => item.source === clip.source) === index).map(clip => {
+        {edit.video.filter((clip, index, all) => {
+          // One card per take id (or per source when the clip has no take).
+          if (clip.takeId) return all.findIndex(item => item.takeId === clip.takeId) === index;
+          return all.findIndex(item => item.source === clip.source && !item.takeId) === index;
+        }).map(clip => {
           const thumb = thumbOf(clip);
-          return <button key={clip.source || clip.id} type="button" aria-pressed={selected === clip.id} onClick={() => setSelected(clip.id)}><span className="u-bin-thumb">{thumb ? <img src={thumb} alt="" /> : null}</span><span className="u-bin-name">{clip.label}</span></button>;
+          return <button key={clip.takeId || clip.source || clip.id} type="button" aria-pressed={selected === clip.id} onClick={() => setSelected(clip.id)}><span className="u-bin-thumb">{thumb ? <img src={thumb} alt="" /> : null}</span><span className="u-bin-name">{clip.label}</span></button>;
         })}
-        {studio.takes.map(take => {
+        {unusedTakes.map(take => {
           const poster = take.poster ? urlOf(take.poster) : "";
           return <button key={take.id} type="button" draggable onDragStart={event => event.dataTransfer.setData("application/x-uttu-take", take.id)} onClick={() => {
             const seconds = take.settings.seconds > 0 ? take.settings.seconds : 1;
             const clip: VideoClip = { id: `plan-${take.id}`, kind: "video", source: take.video, label: take.line || take.id, media: seconds, start: 0, end: seconds, takeId: take.id };
-            if (edit.video.some(item => item.id === clip.id)) { setSelected(clip.id); return; }
+            if (edit.video.some(item => item.takeId === take.id || item.id === clip.id)) { setSelected(edit.video.find(item => item.takeId === take.id)?.id ?? clip.id); return; }
             commitFrom(historyRef.current, appendVideo(historyRef.current.present, clip));
             setSelected(clip.id);
           }}><span className="u-bin-thumb">{poster ? <img src={poster} alt="" /> : null}</span><span className="u-bin-name">{take.line || take.id}</span></button>;

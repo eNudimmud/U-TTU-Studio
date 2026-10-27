@@ -39,6 +39,8 @@ describe("décor depuis un cadre 3D", () => {
     assert.match(one, /empty of people/);
     assert.match(one, /No text/);
     assert.match(one, /no clay|no untextured massing/);
+    assert.match(one, /façade|facade|windows|cornices/i);
+    assert.match(one, /blocky voxel maze|checkerboard/);
     // Photos never addressed as image N — they are not uploaded.
     assert.doesNotMatch(one, /image 2/);
     assert.doesNotMatch(one, /from image 1/);
@@ -126,12 +128,15 @@ describe("décor depuis un cadre 3D", () => {
   it("routes cadre-decor to InstantX even when the template string is absent", () => {
     const graph = stillGraph({ kind: "cadre-decor", prompt: cadrePrompt({ photos: 0, ambiance: "photos" }), images: ["cadre.png"], seed: 1 });
     assert.ok(nodes(graph).some(([, node]) => node.class_type === "ControlNetLoader"));
+    const neg = nodes(graph).find(([id]) => id === "111:7");
+    assert.ok(neg);
+    assert.match(String(neg[1].inputs.text), /blocky|voxel|maze/i);
   });
 
   it("direct path: place context in the prompt, the frame as the only image", () => {
     const text = cadrePrompt({ photos: 0, ambiance: "photos", contexte: ["The place is real: City Center, New York, United States.", "In view: Central Park (park) ahead."] });
     assert.doesNotMatch(text, /image 2/);
-    assert.match(text, /Invent plausible real façades/);
+    assert.match(text, /continuous row of realistic street façades/);
     assert.match(text, /City Center, New York/);
     assert.match(text, /Central Park \(park\) ahead/);
     assert.match(text, /Natural daylight/);

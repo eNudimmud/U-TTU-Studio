@@ -493,7 +493,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-ret-eclairer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_character_portrait_relighting", credits: 18, high: 27, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-prolonger-grok", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_grok_video_extend", credits: 136, high: 204, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-detourer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bria_remove_video_background", credits: 55, high: 83, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
-  geste({ id: "outil-vid-levres", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sync_so_lip_sync_video", credits: 200, high: 300, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "outil-vid-levres", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sync_so_lip_sync_video", credits: 280, high: 420, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 278 crédits pour ~5 s → registre 280 / high 420
   geste({ id: "outil-son-musique-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sonilo_v2m", credits: 10, high: 15, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
 ];
 

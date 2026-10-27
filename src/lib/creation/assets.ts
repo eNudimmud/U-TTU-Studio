@@ -2,7 +2,7 @@
 // Loose files dropped in the Obsidian folder become cards after a refresh.
 
 import { readFrontmatter, list, num, text, withFrontmatter } from "../coffre/markdown.ts";
-import { cleanCardName, type CastCard, type DecorCard } from "./gallery.ts";
+import { cleanCardName, readableAssetName, type CastCard, type DecorCard } from "./gallery.ts";
 
 export const ASSET_KINDS = ["personnage", "decor", "plan", "son", "importe"] as const;
 export type AssetKind = (typeof ASSET_KINDS)[number];
@@ -89,7 +89,7 @@ export function readAssetNote(id: string, source: string, fallbackMedia = ""): A
             ? "importe"
             : null;
   if (!kind) return null;
-  const name = cleanCardName(text(fields.nom)) || id;
+  const name = readableAssetName({ id, name: cleanCardName(text(fields.nom)) || id, prompt: text(fields.prompt) || text(fields.consigne), at: text(fields.date), geste: text(fields.geste) });
   const media = text(fields.media) || text(fields.sheet) || text(fields.rendu) || fallbackMedia;
   return {
     id,
@@ -142,9 +142,8 @@ export function looseAssets(paths: readonly string[], project: string | null): A
     if (parsed.kind === "decor" && /-mly-/.test(parsed.id)) continue;
     // 3D repérage captures belong to their DÉCOR card (colour, depth, lines).
     if (parsed.kind === "decor" && /-3d-/.test(parsed.id)) continue;
-    // Outil / geste files use `{tool}-{uuid}`: show the tool slug, not the raw id.
-    const stripped = parsed.id.replace(/-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i, "").replace(/-[0-9a-f]{8,}$/i, "");
-    const name = cleanCardName((stripped || parsed.id).replace(/-/g, " ")) || parsed.id;
+    // Outil / geste files use `{tool}-{uuid}`: derive a readable title, never a bare UUID fragment.
+    const name = readableAssetName({ id: parsed.id, name: parsed.id });
     out.push({
       id: parsed.id,
       kind: parsed.kind,

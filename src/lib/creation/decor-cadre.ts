@@ -50,6 +50,9 @@ export const CADRE_DETAIL_MAX = 240;
 
 const NO_WATER = "Do not invent a lake, sea or open water unless the structural guide clearly frames one.";
 
+/** Negative CLIP text for InstantX cadre — keep geometry control in the positive prompt. */
+export const CADRE_NEGATIVE = "blocky, voxel, maze, low-poly, clay render, untextured massing, checkerboard façades, abstract cubes, plastic CG, metallic CG, cartoon buildings";
+
 /**
  * Text sent with the single 3D colour frame (InstantX ControlNet).
  * English for the model. Photos are never addressed as "image N" — they are not uploaded.
@@ -69,11 +72,11 @@ export function cadrePrompt(input: {
   const contexte = (input.contexte ?? []).map(line => line.replace(/\s+/g, " ").trim().slice(0, 320)).filter(Boolean).slice(0, 5);
 
   const style = count === 0
-    ? "Invent plausible real façades, streets, ground, roofs, windows, vegetation and sky for this place — never leave flat grey, clay, plastic or low-poly surfaces."
+    ? "Invent a continuous row of realistic street façades with distinct windows, cornices, gutters, doorways and weathered materials for this place — never leave flat grey, clay, plastic, blocky, voxel or low-poly surfaces."
     : [
       "Reference street photos inform STYLE ONLY: materials, colours, weathering, sky and light of this same place.",
       "Do NOT copy a photo's camera angle, framing, building count, skyline, lake, park layout or any geometry that is not in the structural guide.",
-      "Prefer stone, terracotta roof tiles, dormers, chimneys and paving over any CG look.",
+      "Dress each building as a continuous realistic façade row: readable windows, cornices, gutters, door frames and the materials seen in the photos — stone, brick, stucco, terracotta roof tiles, dormers, chimneys and paving — never a chaotic checkerboard of abstract blocks.",
     ].join(" ");
 
   return [
@@ -84,7 +87,7 @@ export function cadrePrompt(input: {
     style,
     NO_WATER,
     ...contexte,
-    "Full-color outdoor photograph, 16:9, empty of people. No text, no letters, no signs with words, no 3D-render look, no low-poly, no clay, no untextured massing, no metallic CG look.",
+    "Full-color outdoor photograph, 16:9, empty of people. No text, no letters, no signs with words, no 3D-render look, no low-poly, no clay, no untextured massing, no metallic CG look, no blocky voxel maze, no checkerboard of abstract cubes.",
     ambiance,
     ...(detail ? [
       `The visitor's wish, in their own words: "${detail}".`,

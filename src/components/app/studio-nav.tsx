@@ -124,7 +124,7 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
 export function StudioTabs({ place }: { place: Place }) {
   const { t } = useI18n();
   const tabs: { id: string; href: string; label: string; full?: string; icon: Parameters<typeof FamilyIcon>[0]["fam"]; on: boolean }[] = [
-    { id: "accueil", href: "/", label: t("top.home"), icon: "home", on: place === "accueil" },
+    { id: "accueil", href: "/studio", label: t("top.home"), icon: "home", on: place === "accueil" },
     { id: "creer", href: "/studio#outils", label: t("top.create"), icon: "creer", on: place === "creer" },
     { id: "film", href: "/studio#personnage", label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" },
     { id: "creations", href: "/mon-studio", label: t("top.creationsShort"), full: t("top.creations"), icon: "creations", on: place === "creations" },

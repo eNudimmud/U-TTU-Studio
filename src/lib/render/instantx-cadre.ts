@@ -6,6 +6,9 @@ import type { ApiGraph } from "./take-graph.ts";
 
 export { INSTANTX_CADRE_TEMPLATE };
 
+/** Avoid blocky/voxel façades while the positive prompt keeps geometry control. */
+const CADRE_NEGATIVE = "blocky, voxel, maze, low-poly, clay render, untextured massing, checkerboard façades, abstract cubes, plastic CG, metallic CG, cartoon buildings";
+
 /**
  * Clone the InstantX base and patch the frame name, the positive prompt and the seed.
  * The decoded save is node `60` (SaveImageAdvanced → uttu-still).
@@ -19,6 +22,7 @@ export function instantxCadreGraph(input: { image: string; prompt: string; seed:
   const graph = structuredClone(INSTANTX_CADRE_BASE);
   graph["71"].inputs.image = image;
   graph["111:6"].inputs.text = prompt;
+  graph["111:7"].inputs.text = CADRE_NEGATIVE;
   graph["111:3"].inputs.seed = seed;
   return graph;
 }

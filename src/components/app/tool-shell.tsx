@@ -4,7 +4,7 @@
 // a compact bar, and an « Annuler la suppression » toast. Tools declare slots and suites;
 // the shell stays the same (see maquette-galerie/OUTILS.md).
 
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useEffect, useRef, useId, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { ComfyProgress, useComfyElapsed, typicalFor, type TypicalWaitKey } from "./comfy-progress";
 
@@ -95,8 +95,8 @@ export function ShellSlots({ slots, onAdd, onRemove }: {
   </ul>;
 }
 
-/** Toast with undo for a removed slot/chip. Auto-dismisses after `ms`. */
-export function UndoToast({ message, thumb, onUndo, onGone, ms = 6000 }: {
+/** Toast with undo for a removed slot/chip. Auto-dismisses after `ms` (≥ 8 s); pauses on hover/focus. */
+export function UndoToast({ message, thumb, onUndo, onGone, ms = 8000 }: {
   message: string;
   thumb?: string;
   onUndo(): void;
@@ -104,11 +104,58 @@ export function UndoToast({ message, thumb, onUndo, onGone, ms = 6000 }: {
   ms?: number;
 }) {
   const { t } = useI18n();
+  const hold = Math.max(8000, ms);
+  const onGoneRef = useRef(onGone);
+  onGoneRef.current = onGone;
+  const leftRef = useRef(hold);
+  const startedRef = useRef(0);
+  const timerRef = useRef<number | null>(null);
+  const pausedRef = useRef(false);
+
+  const clear = () => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const arm = () => {
+    clear();
+    startedRef.current = Date.now();
+    timerRef.current = window.setTimeout(() => onGoneRef.current?.(), leftRef.current);
+  };
+
   useEffect(() => {
-    const timer = window.setTimeout(() => onGone?.(), ms);
-    return () => window.clearTimeout(timer);
-  }, [ms, onGone]);
-  return <div className="u-undo-toast" role="status" data-undo-toast="">
+    leftRef.current = hold;
+    pausedRef.current = false;
+    arm();
+    return clear;
+  }, [hold, message]);
+
+  const pause = () => {
+    if (pausedRef.current) return;
+    pausedRef.current = true;
+    if (timerRef.current !== null) {
+      leftRef.current = Math.max(0, leftRef.current - (Date.now() - startedRef.current));
+      clear();
+    }
+  };
+
+  const resume = () => {
+    if (!pausedRef.current) return;
+    pausedRef.current = false;
+    arm();
+  };
+
+  return <div
+    className="u-undo-toast"
+    role="status"
+    data-undo-toast=""
+    onPointerEnter={pause}
+    onPointerLeave={resume}
+    onFocus={pause}
+    onBlur={resume}
+  >
     {thumb && <img src={thumb} alt="" width={36} height={36} />}
     <p>{message}</p>
     <button type="button" data-undo-toast-undo="" onClick={() => { onUndo(); onGone?.(); }}>{t("shell.undoRemove")}</button>

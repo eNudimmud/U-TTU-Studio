@@ -54,6 +54,8 @@ describe("tuiles et maquette", () => {
     assert.match(line, /Uttu alone/);
     assert.match(line, /waist-up framing/);
     assert.doesNotMatch(line, /facing|matrix|focal|\d+mm|theta|phi/i);
+    const wide = captureLine({ ...initialMaquette(), orbit: { ...initialMaquette().orbit, radius: 10 } }, "full street");
+    assert.match(wide, /mechanical spider legs/i);
     const pair = captureLine(far, "waist-up framing");
     assert.match(pair, /facing Kael/);
   });
