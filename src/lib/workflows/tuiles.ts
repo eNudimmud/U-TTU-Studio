@@ -50,4 +50,6 @@ export const APRES_PAR_GESTE: Record<string, string> = {
   "decor-photo": "/exemples/apres-decor-photo.webp",
   "decor-heure": "/exemples/apres-decor-heure.webp",
   "decor-texte": "/exemples/apres-decor-texte.webp",
+  "suite-modifier": "/exemples/apres-retoucher-neige.webp",
+  "suite-finaliser-image": "/exemples/apres-finaliser-wan.webp",
 };

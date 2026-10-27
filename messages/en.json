@@ -2035,7 +2035,7 @@
     "stepKeep": "Create: Comfy blends your view and the photos into one set image.",
     "toolQuote": "Creating the set next:",
     "kept": "Views kept: {n}",
-    "keptNone": "Picking a view costs nothing.",
+    "keptNone": "Your view is ready. The décor is created next, with a credit quote.",
     "cadre": "3D view",
     "title": "A real place as your set",
     "close": "Close",
@@ -3323,5 +3323,14 @@
       "retry": "Try again",
       "toCreations": "My creations"
     }
+  },
+  "shell": {
+    "source": "Source",
+    "result": "Result",
+    "compare": "Compare",
+    "undoRemove": "Undo remove",
+    "required": "required",
+    "optional": "optional",
+    "removeSlot": "Remove {name}"
   }
 }

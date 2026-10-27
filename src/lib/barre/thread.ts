@@ -126,7 +126,8 @@ export type Plan =
 /**
  * Where one send goes, inside the thread.
  * Image: Klein (text only), Modifier (one picture), Références (two). Vidéo: PRISE when every
- * reference is kept in the project; otherwise Animer (Wan) on one picture. Agent: a reply.
+ * reference is kept in the project; otherwise Animer (Wan) on one picture; text only goes to
+ * « Vidéo depuis un texte » (vid-texte). Agent: a reply.
  */
 export function planSend(input: { mode: BarreMode; text: string; refs: FilRef[]; last: FilJob | null; lastName: string; settings: BarreSettings }): Plan {
   const { mode, text, settings } = input;
@@ -154,7 +155,7 @@ export function planSend(input: { mode: BarreMode; text: string; refs: FilRef[];
   }
   const first = [...photos, ...pictured].find(ref => ref.src);
   if (first) return { kind: "run", route: { kind: "outil", id: "vid-wan", images: [first] }, sortie: "video", refs: [first] };
-  return { kind: "note", key: "barre.fil.needRef" };
+  return { kind: "run", route: { kind: "outil", id: "vid-texte", images: [] }, sortie: "video", refs: [] };
 }
 
 /** PRISE's own settings and prompt for a take sent from the thread (decision.ts → buildPrompt). */

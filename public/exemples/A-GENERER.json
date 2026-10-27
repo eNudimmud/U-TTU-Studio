@@ -1,5 +1,5 @@
 {
-  "note": "Six « après » rendus le 2026-10-08 via Comfy Cloud (mesure billing). Cinq Nano Banana 2.1 + cast-planche templates-character_sheet (70,74). Session planche : 90,48 + 70,74 = 161,22 (plafond 160 légèrement dépassé de 1,22 — devis 68, mesure 70,74).",
+  "note": "Après 2026-10-08 (Nano Banana + planche) + lot 2026-10-27 (Klein/Wan/LTX/SeedVR2, plafond 45, cumul 40,19). decor-heure reste Nano Banana (Klein échoué 3× sur decor-rue-pluie). decor-photo relancé en Klein (2,53).",
   "licenceEntree": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud",
   "items": [
     {
@@ -62,7 +62,7 @@
     },
     {
       "geste": "decor-photo",
-      "template": "api_nano_banana_2_1_image_edit",
+      "template": "image_flux3_klein_image_edit",
       "entrees": [
         {
           "fichier": "/exemples/decor-quai-nuit.webp",
@@ -77,9 +77,10 @@
       "nature": "mesure",
       "sortie": "/exemples/apres-decor-photo.webp",
       "sortiePresente": true,
-      "coutMesure": 13.1,
-      "prompt_id": "b9382512-2900-47db-958b-789357c8e66b",
-      "licence": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
+      "coutMesure": 2.53,
+      "prompt_id": "e32f8dea-0231-4e04-a9f8-5de0af8d4285",
+      "licence": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "note": "Relancé 2026-10-27 (Klein). Remplace le Nano Banana 13,10 du 2026-10-08."
     },
     {
       "geste": "decor-heure",
@@ -116,6 +117,116 @@
       "coutMesure": 11.87,
       "prompt_id": "4ca1188f-4f73-435e-a42b-65f258a19e8e",
       "licence": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
+    },
+    {
+      "geste": "suite-modifier",
+      "template": "image_flux3_klein_image_edit",
+      "entrees": [
+        {
+          "fichier": "/exemples/decor-toit-aube.webp",
+          "role": "lieu",
+          "licence": "Rendu maison U*TTU, généré avec Seedream 4.5 via Comfy Cloud"
+        }
+      ],
+      "prompt": "Même lieu. Neige sur les toits, ciel hivernal. Sans personne. Pas de texte.",
+      "resolution": "1K",
+      "coutEstime": 4,
+      "plafond": 6,
+      "nature": "mesure",
+      "sortie": "/exemples/apres-retoucher-neige.webp",
+      "sortiePresente": true,
+      "coutMesure": 3.81,
+      "prompt_id": "14bd97c6-82db-4798-b5e6-f8b38afb9224",
+      "licence": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "note": "Lot 2026-10-27 (ret-modifier / suite-modifier)."
+    },
+    {
+      "geste": "suite-finaliser-image",
+      "template": "utility_seedvr2_3b_int8_upscale_image",
+      "entrees": [
+        {
+          "fichier": "/exemples/outils/wan-gare-poster.jpg",
+          "role": "image",
+          "licence": "Rendu maison U*TTU, généré avec Wan 2.2 14B i2v via Comfy Cloud"
+        }
+      ],
+      "prompt": "",
+      "resolution": "×2",
+      "coutEstime": 2,
+      "plafond": 4,
+      "nature": "mesure",
+      "sortie": "/exemples/apres-finaliser-wan.webp",
+      "sortiePresente": true,
+      "coutMesure": 0.83,
+      "prompt_id": "ad17b5dc-0d13-4cea-865f-09277d74de6f",
+      "licence": "Rendu maison U*TTU, généré avec SeedVR2 3B int8 via Comfy Cloud",
+      "note": "Lot 2026-10-27 : upscale ×2 d’une frame Wan (832×480 → 1664×960)."
+    },
+    {
+      "geste": "cadre-decor",
+      "template": "image_flux3_klein_image_edit",
+      "entrees": [
+        {
+          "fichier": "/exemples/reperage/sf-vue3d.webp",
+          "role": "cadre",
+          "licence": "Données © OpenStreetMap (ODbL), tuiles OpenFreeMap / OpenMapTiles, bâtiments swissBUILDINGS3D © swisstopo (OGD)"
+        }
+      ],
+      "prompt": "Même lieu, ambiance nuit. Volumes tenus, textures photo. Sans personne. Pas de texte.",
+      "resolution": "1K",
+      "coutEstime": 4,
+      "plafond": 6,
+      "nature": "mesure",
+      "sortie": "/exemples/apres-cadre-vue3d.webp",
+      "sortiePresente": true,
+      "coutMesure": 4.05,
+      "prompt_id": "59fff4c7-2961-4a9e-b3df-553b19bd0382",
+      "licence": "Rendu maison U*TTU, généré avec FLUX 3 Image Klein (poids ouverts) via Comfy Cloud",
+      "note": "Lot 2026-10-27 (cadre-decor, 0 photo). Affiché sur la tuile « décor » du repérage 3D."
+    },
+    {
+      "geste": "prise-plan",
+      "template": "video_ltx2_5_i2v",
+      "entrees": [
+        {
+          "fichier": "/exemples/decor-quai-nuit.webp",
+          "role": "lieu",
+          "licence": "Rendu maison U*TTU"
+        }
+      ],
+      "prompt": "Uttu sur le quai, nuit, 5 s.",
+      "resolution": "1280×704",
+      "coutEstime": 12,
+      "plafond": 25,
+      "nature": "mesure",
+      "sortie": "/exemples/outils/prise-uttu-quai.mp4",
+      "sortiePresente": true,
+      "coutMesure": 9.87,
+      "prompt_id": "23b176b7-4e3f-415d-ac5c-bb5ce40b386a",
+      "licence": "Rendu maison U*TTU, généré avec LTX 2.5 i2v via Comfy Cloud",
+      "note": "Lot 2026-10-27. Seed vidéo du hub Outils."
+    },
+    {
+      "geste": "outil-vid-wan",
+      "template": "video_wan2_2_14B_i2v",
+      "entrees": [
+        {
+          "fichier": "/exemples/decor-gare.webp",
+          "role": "lieu",
+          "licence": "Rendu maison U*TTU"
+        }
+      ],
+      "prompt": "Le hall de gare s’anime, 5 s.",
+      "resolution": "832×480",
+      "coutEstime": 12,
+      "plafond": 25,
+      "nature": "mesure",
+      "sortie": "/exemples/outils/wan-gare.mp4",
+      "sortiePresente": true,
+      "coutMesure": 8.44,
+      "prompt_id": "c8d97094-bcb4-4c1f-95d4-6b0b7ff349eb",
+      "licence": "Rendu maison U*TTU, généré avec Wan 2.2 14B i2v (LoRA 4 pas) via Comfy Cloud",
+      "note": "Lot 2026-10-27."
     }
   ],
   "enAttenteDeReference": [
@@ -125,5 +236,5 @@
     "prise-image, prise-raccord, prise-prolonger, prise-camera, prise-mouvement, prise-levres, prise-vidu : cartes visibles, rien ne part.",
     "mont-voix, mont-effet, mont-musique, mont-levres, mont-agrandir, mont-fluide : cartes visibles, Créer éteint."
   ],
-  "licenceApres": "Rendu maison U*TTU, généré avec Nano Banana 2.1 via Comfy Cloud"
+  "licenceApres": "Rendu maison U*TTU — voir licence par item (Nano Banana 2.1, FLUX 3 Image Klein, LTX, Wan, SeedVR2 via Comfy Cloud)"
 }

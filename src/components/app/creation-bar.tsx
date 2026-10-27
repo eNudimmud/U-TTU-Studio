@@ -5,7 +5,7 @@
 // bar: Send opens the real tool, already filled, with its estimate on the button. The tools,
 // their families and the old entry stay one tap away under « Tous les outils ».
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
@@ -21,7 +21,9 @@ import {
   attachFor, barreTarget, priseHandoff, settingsFor, toggleRef, writeHandoff,
   type AttachKind, type BarreMode, type BarrePhoto, type BarreRef, type BarreSettings, type RefKind,
 } from "@/lib/barre/model";
+import { openBand, placeMenu } from "@/lib/mobile-band";
 import { Check, Close, Plus } from "./glyphs";
+import { UndoToast } from "./tool-shell";
 import { toggleAssistant } from "./assistant-panel";
 import { FamilyIcon, openFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
@@ -84,11 +86,13 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<BarreSettings>(DEFAULT_SETTINGS);
   const [sheet, setSheet] = useState(false);
+  const [undoChip, setUndoChip] = useState<{ kind: "photo" | "ref"; item: BarrePhoto | BarreRef; name: string; src: string } | null>(null);
   const inputId = useId();
   const menuId = useId();
   const routeId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   // Ideas (and links from elsewhere) fill the bar through one event.
   useEffect(() => {
@@ -105,14 +109,108 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   }, [all, inputId]);
 
   useEffect(() => {
-    if (!menu) return;
+    if (!menu && !settingsOpen) return;
     const close = (event: PointerEvent | KeyboardEvent) => {
-      if (event instanceof KeyboardEvent ? event.key === "Escape" : !menuRef.current?.contains(event.target as Node)) setMenu(false);
+      if (event instanceof KeyboardEvent && event.key === "Escape") { setMenu(false); setSettingsOpen(false); return; }
+      if (!(event instanceof PointerEvent)) return;
+      const node = event.target as Node;
+      if (menu && !menuRef.current?.contains(node)) setMenu(false);
+      if (settingsOpen && !settingsRef.current?.contains(node)) setSettingsOpen(false);
     };
     document.addEventListener("pointerdown", close);
     document.addEventListener("keydown", close);
     return () => { document.removeEventListener("pointerdown", close); document.removeEventListener("keydown", close); };
-  }, [menu]);
+  }, [menu, settingsOpen]);
+
+  // Keep the + menu inside the visible band between the sticky header and the tab bar.
+  useLayoutEffect(() => {
+    if (!menu) return;
+    const wrap = menuRef.current;
+    const panel = wrap?.querySelector<HTMLElement>("[data-barre-menu]");
+    const btn = wrap?.querySelector<HTMLElement>("[data-barre-plus]");
+    if (!panel || !btn) return;
+    const place = () => {
+      const bars = [...document.querySelectorAll<HTMLElement>(".u-top, .u-tabs, .u-chain")]
+        .filter(bar => ["fixed", "sticky"].includes(getComputedStyle(bar).position))
+        .map(bar => {
+          const box = bar.getBoundingClientRect();
+          return { top: box.top, bottom: box.bottom };
+        });
+      const viewport = window.visualViewport;
+      const visibleTop = viewport ? viewport.offsetTop : 0;
+      const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      const band = openBand(bars, visibleTop, visibleBottom, 48);
+      panel.style.maxHeight = "none";
+      panel.style.width = "";
+      const size = { width: panel.offsetWidth, height: panel.offsetHeight };
+      const anchor = btn.getBoundingClientRect();
+      const box = placeMenu({
+        anchor: { top: anchor.top, bottom: anchor.bottom, left: anchor.left, width: anchor.width },
+        size,
+        band,
+        viewportWidth: window.innerWidth,
+      });
+      panel.style.top = `${box.top}px`;
+      panel.style.left = `${box.left}px`;
+      panel.style.width = `${box.width}px`;
+      panel.style.maxHeight = `${box.maxHeight}px`;
+      panel.dataset.place = box.place;
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.visualViewport?.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.visualViewport?.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [menu, mode]);
+
+  useLayoutEffect(() => {
+    if (!settingsOpen) return;
+    const wrap = settingsRef.current;
+    const panel = wrap?.querySelector<HTMLElement>("[data-barre-settings-row]");
+    const btn = wrap?.querySelector<HTMLElement>("[data-barre-settings]");
+    if (!panel || !btn) return;
+    const place = () => {
+      const bars = [...document.querySelectorAll<HTMLElement>(".u-top, .u-tabs, .u-chain")]
+        .filter(bar => ["fixed", "sticky"].includes(getComputedStyle(bar).position))
+        .map(bar => {
+          const box = bar.getBoundingClientRect();
+          return { top: box.top, bottom: box.bottom };
+        });
+      const viewport = window.visualViewport;
+      const visibleTop = viewport ? viewport.offsetTop : 0;
+      const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      const band = openBand(bars, visibleTop, visibleBottom, 48);
+      panel.style.maxHeight = "none";
+      panel.style.width = "";
+      const size = { width: Math.max(panel.offsetWidth, 260), height: panel.offsetHeight };
+      const anchorBox = btn.getBoundingClientRect();
+      const box = placeMenu({
+        anchor: { top: anchorBox.top, bottom: anchorBox.bottom, left: anchorBox.left, width: anchorBox.width },
+        size,
+        band,
+        viewportWidth: window.innerWidth,
+      });
+      panel.style.top = `${box.top}px`;
+      panel.style.left = `${box.left}px`;
+      panel.style.width = `${box.width}px`;
+      panel.style.maxHeight = `${box.maxHeight}px`;
+      panel.dataset.place = box.place;
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.visualViewport?.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.visualViewport?.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [settingsOpen, settings.rendu, settings.duree, settings.format]);
+
 
   const attached: FilRef[] = mode === "agent" ? [] : [
     ...(mode === "image" ? photos.map(photo => ({ kind: "photo" as const, id: photo.id, name: photo.name, src: photo.url })) : []),
@@ -165,11 +263,20 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   }
 
   function remove(kind: RefKind | "photo", id: string) {
-    if (kind === "photo") setPhotos(list => list.filter(photo => photo.id !== id));
-    else setRefs(list => list.filter(ref => !(ref.kind === kind && ref.id === id)));
+    if (kind === "photo") {
+      const item = photos.find(photo => photo.id === id);
+      if (item) setUndoChip({ kind: "photo", item, name: item.name, src: item.url });
+      setPhotos(list => list.filter(photo => photo.id !== id));
+      return;
+    }
+    const item = refs.find(ref => ref.kind === kind && ref.id === id);
+    if (item) setUndoChip({ kind: "ref", item, name: item.name, src: item.src });
+    setRefs(list => list.filter(ref => !(ref.kind === kind && ref.id === id)));
   }
 
   function send() {
+    setMenu(false);
+    setSettingsOpen(false);
     const value = text.trim();
     if (!value) { document.getElementById(inputId)?.focus(); return; }
     if (onSend) {
@@ -205,17 +312,6 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
         </li>)}
         {!imageFull && <li><button type="button" className="u-barre-chip-add" aria-label={t("barre.attach.reference")} onClick={() => setSheet(true)}><Plus /></button></li>}
       </ul>}
-      {settingsOpen && shown.length > 0 && <div className="u-barre-settings" data-barre-settings-row="">
-        <div className="u-barre-seg" role="group" aria-label={t("barre.rendu.label")}>
-          {(["apercu", "finale"] as const).map(item => <button key={item} type="button" aria-pressed={settings.rendu === item} data-barre-rendu={item} onClick={() => setSettings(s => ({ ...s, rendu: item }))}>{t(`barre.rendu.${item}`)}</button>)}
-        </div>
-        <div className="u-barre-seg" role="group" aria-label={t("barre.duree")}>
-          {([5, 8] as const).map(item => <button key={item} type="button" aria-pressed={settings.duree === item} data-barre-duree={item} onClick={() => setSettings(s => ({ ...s, duree: item }))}>{t("barre.seconds", { n: String(item) })}</button>)}
-        </div>
-        <div className="u-barre-seg" role="group" aria-label={t("barre.format")}>
-          {(["16:9", "9:16"] as const).map(item => <button key={item} type="button" aria-pressed={settings.format === item} data-barre-format={item} onClick={() => setSettings(s => ({ ...s, format: item }))}>{item}</button>)}
-        </div>
-      </div>}
       <label className="u-barre-field" htmlFor={inputId}>
         <span className="sr-only">{t(`barre.ph.${mode}`)}</span>
         <textarea id={inputId} rows={2} value={text} maxLength={800} placeholder={t(`barre.ph.${mode}`)} data-barre-input="" aria-describedby={routeId}
@@ -238,7 +334,23 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
             <ModeIcon mode={item} /><span className="u-barre-mode-name">{t(`barre.mode.${item}`)}</span>
           </button>)}
         </div>
-        {shown.length > 0 && <button type="button" className="u-barre-round" aria-label={t("barre.settings")} aria-expanded={settingsOpen} data-barre-settings="" onClick={() => setSettingsOpen(value => !value)}><SettingsIcon /></button>}
+        {shown.length > 0 && <div className="u-barre-settings-wrap" ref={settingsRef}>
+          <button type="button" className="u-barre-settings-pill" aria-label={t("barre.settings")} aria-expanded={settingsOpen} aria-controls={settingsOpen ? "u-barre-settings-panel" : undefined} data-barre-settings="" onClick={() => setSettingsOpen(value => !value)}>
+            <SettingsIcon />
+            <span data-barre-settings-summary="">{t(`barre.rendu.${settings.rendu}`)} · {t("barre.seconds", { n: String(settings.duree) })} · {settings.format}</span>
+          </button>
+          {settingsOpen && <div id="u-barre-settings-panel" className="u-barre-settings" role="group" data-barre-settings-row="">
+            <div className="u-barre-seg" role="group" aria-label={t("barre.rendu.label")}>
+              {(["apercu", "finale"] as const).map(item => <button key={item} type="button" aria-pressed={settings.rendu === item} data-barre-rendu={item} onClick={() => { setSettings(s => ({ ...s, rendu: item })); }}>{t(`barre.rendu.${item}`)}</button>)}
+            </div>
+            <div className="u-barre-seg" role="group" aria-label={t("barre.duree")}>
+              {([5, 8] as const).map(item => <button key={item} type="button" aria-pressed={settings.duree === item} data-barre-duree={item} onClick={() => { setSettings(s => ({ ...s, duree: item })); }}>{t("barre.seconds", { n: String(item) })}</button>)}
+            </div>
+            <div className="u-barre-seg" role="group" aria-label={t("barre.format")}>
+              {(["16:9", "9:16"] as const).map(item => <button key={item} type="button" aria-pressed={settings.format === item} data-barre-format={item} onClick={() => { setSettings(s => ({ ...s, format: item })); setSettingsOpen(false); }}>{item}</button>)}
+            </div>
+          </div>}
+        </div>}
         <button type="submit" className="u-barre-send" data-barre-send="" data-ready={text.trim() ? "" : undefined} aria-label={cost ? `${t("barre.send")} · ${cost}` : t("barre.send")} aria-describedby={routeId}>
           <svg {...ICON} className="u-barre-send-arrow"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
           {cost && <span className="u-barre-send-cost" data-barre-cost="">{cost}</span>}
@@ -246,6 +358,11 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
       </div>
     </form>
     <p className="u-barre-route" id={routeId} data-barre-route={here ? here.route : target.kind === "outil" ? target.id : target.kind}>{cost && <span className="u-barre-route-cost" aria-hidden="true">{cost} · </span>}{here ? t(here.route === "agent" ? "barre.routeAgent" : here.route === "note" ? "barre.routeNote" : "barre.routeHere", { where: here.where }) : t("barre.route", { where })}</p>
+    {undoChip && <UndoToast message={t("shell.removeSlot", { name: undoChip.name })} thumb={undoChip.src || undefined} onUndo={() => {
+      if (undoChip.kind === "photo") setPhotos(list => [...list, undoChip.item as BarrePhoto]);
+      else setRefs(list => [...list, undoChip.item as BarreRef]);
+      setUndoChip(null);
+    }} onGone={() => setUndoChip(null)} />}
     {sheet && <ReferencesSheet all={all} picked={refs} max={mode === "image" ? MAX_REFS_IMAGE - photos.length : null} onClose={() => setSheet(false)} onJoin={next => { setRefs(next); setSheet(false); }} />}
   </>;
 }

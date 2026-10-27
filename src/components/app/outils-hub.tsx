@@ -32,7 +32,7 @@ import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-se
 export const SAMPLES: Record<Entree, { url: string; name: string }> = {
   image: { url: "/exemples/cast-coursiere.webp", name: "exemple-personnage.webp" },
   image2: { url: "/exemples/decor-quai-nuit.webp", name: "exemple-lieu.webp" },
-  video: { url: "/exemples/outils/plan-exemple.mp4", name: "exemple-plan.mp4" },
+  video: { url: "/exemples/outils/prise-uttu-quai.mp4", name: "prise-uttu-quai.mp4" },
   audio: { url: "/exemples/voix-exemple.wav", name: "exemple-voix.wav" },
 };
 

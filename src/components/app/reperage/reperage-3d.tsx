@@ -499,7 +499,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
           <b className="u-rv-eq-op" aria-hidden="true">+</b>
           <div className="u-rv-eq-tile"><img src={assetPath("/exemples/reperage/sf-rue.webp")} alt="" width={960} height={540} decoding="async" /><span>{t("rep3d.eq.photos")}</span></div>
           <b className="u-rv-eq-op" aria-hidden="true">=</b>
-          <div className="u-rv-eq-tile is-out"><img src={assetPath("/exemples/reperage/sf-exemple.webp")} alt="" width={960} height={540} decoding="async" /><span>{t("rep3d.eq.decor")}</span></div>
+          <div className="u-rv-eq-tile is-out"><img src={assetPath("/exemples/apres-cadre-vue3d.webp")} alt="" width={960} height={540} decoding="async" /><span>{t("rep3d.eq.decor")}</span></div>
           <figcaption className="u-rv-eg" data-rep3d-example-note="">{t("rep3d.eq.note")}</figcaption>
         </figure>
         <form className="u-rv-where" role="search" onSubmit={event => { event.preventDefault(); void search(); }}>

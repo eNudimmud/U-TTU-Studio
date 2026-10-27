@@ -170,11 +170,11 @@ export function BarreHome() {
     {!threaded && <section className="u-barre-ideas" aria-labelledby="u-ideas">
       <div className="u-family-head"><h2 id="u-ideas">{t("barre.ideas")}</h2></div>
       <div className="u-barre-idea-row">
-        {IDEAS.map(idea => <button key={idea.id} type="button" className="u-barre-idea" data-barre-idea={idea.id} onClick={() => {
+        {IDEAS.map((idea, index) => <button key={idea.id} type="button" className="u-barre-idea" data-barre-idea={idea.id} onClick={() => {
           if (!idea.mode) { openStudioTool(REPERAGE_ID); return; }
           fillBarre(idea.mode, t(`barre.idea.${idea.id}.text`), idea.id === "quai" && uttu ? [uttu, ...idea.refs] : idea.refs);
         }}>
-          <img src={assetPath(idea.img)} alt="" width={640} height={400} loading="lazy" decoding="async" />
+          <img src={assetPath(idea.img)} alt="" width={640} height={400} loading={index === 0 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : undefined} decoding="async" />
           <span className="u-barre-idea-kind" aria-hidden="true"><FamilyIcon fam={idea.mode === "video" ? "video" : idea.mode === "image" ? "creer" : "reperage"} /></span>
           <strong>{t(`barre.idea.${idea.id}.title`)}</strong>
         </button>)}

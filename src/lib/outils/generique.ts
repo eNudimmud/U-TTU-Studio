@@ -32,6 +32,8 @@ interface Spec {
   seed?: readonly At[];
   save: At;
   aspect?: { at: At; horizontal: string; vertical: string };
+  /** Width and height for the format, on one node (Wan keeps the frame instead of a square crop). */
+  size?: { node: string; horizontal: { width: number; height: number }; vertical: { width: number; height: number } };
   /** Fixed studio choices (short lengths keep one estimate). */
   set?: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
   /** For text the graph needs in another shape. */
@@ -62,7 +64,13 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
     },
   },
   api_seedance2_5_r2v: { images: [["12", "image"]], prompt: [["24", "model.prompt"]], seed: [["24", "seed"]], save: ["16", "filename_prefix"], needsText: true },
-  video_wan2_2_14B_i2v: { images: [["97", "image"]], prompt: [["129:93", "text"]], seed: [["129:86", "noise_seed"]], save: ["108", "filename_prefix"], needsText: true },
+  // The template ships with its 4-step LoRA off (20 steps, ≈ 174 s of GPU measured on 2026-10-16):
+  // the studio turns it on, so the run matches its estimate. 832×480 keeps the picture's frame.
+  video_wan2_2_14B_i2v: {
+    images: [["97", "image"]], prompt: [["129:93", "text"]], seed: [["129:86", "noise_seed"]], save: ["108", "filename_prefix"], needsText: true,
+    set: { "129:131": { value: true } },
+    size: { node: "129:98", horizontal: { width: 832, height: 480 }, vertical: { width: 480, height: 832 } },
+  },
   api_vidu_q4_preview_r2v: { images: [["11", "image"], ["10", "image"]], prompt: [["9", "model.prompt"]], seed: [["9", "model.seed"]], save: ["6", "filename_prefix"], aspect: { at: ["9", "model.aspect_ratio"], ...RATIO }, needsText: true },
   api_minimax_h3_max_r2v: { images: [["6", "image"]], prompt: [["4", "model.prompt"]], seed: [["4", "seed"]], save: ["2", "filename_prefix"], needsText: true },
   video_wan_animate2: { images: [["189", "image"]], video: ["240", "file"], prompt: [["672:585", "text"]], seed: [["672:597", "noise_seed"]], save: ["246", "filename_prefix"] },
@@ -140,6 +148,7 @@ export function generiqueGraph(input: GeneriqueInput): ApiGraph {
   for (const at of spec.seed ?? []) put(graph, at, seed);
   for (const [node, values] of Object.entries(spec.set ?? {})) Object.assign(graph[node].inputs, values);
   if (spec.aspect) put(graph, spec.aspect.at, spec.aspect[input.aspect ?? "horizontal"]);
+  if (spec.size) Object.assign(graph[spec.size.node].inputs, spec.size[input.aspect ?? "horizontal"]);
   spec.patch?.(graph, prompt);
   put(graph, spec.save, input.prefix);
   return graph;

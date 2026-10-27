@@ -25,7 +25,7 @@ test("video mode goes to PRISE only when every reference is in the project", () 
   assert.equal(p.kind === "run" && p.route.kind, "prise");
   const q = planSend({ ...base, mode: "video", text: "le DJ danse", refs: [demo] });
   assert.ok(q.kind === "run" && q.route.kind === "outil" && q.route.id === "vid-wan");
-  assert.deepEqual(planSend({ ...base, mode: "video", text: "un plan", refs: [] }), { kind: "note", key: "barre.fil.needRef" });
+  assert.deepEqual(planSend({ ...base, mode: "video", text: "un plan", refs: [] }), { kind: "run", route: { kind: "outil", id: "vid-texte", images: [] }, sortie: "video", refs: [] });
 });
 
 test("« anime-la » reuses the last image result", () => {

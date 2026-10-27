@@ -9,7 +9,7 @@ import type { ApiGraph } from "./take-graph.ts";
 export const KLEIN_TEMPLATES = { t2i: "image_flux3_klein_t2i", edit: "image_flux3_klein_image_edit" } as const;
 
 export const KLEIN_MODELS = {
-  unet: "flux3_image_klein_base_int8_convrot.safetensors",
+  unet: "flux3-image-klein-base-int8-convrot.safetensors",
   clip: "qwen3vl_4b_int8_convrot.safetensors",
   vae: "flux2-vae.safetensors",
 } as const;

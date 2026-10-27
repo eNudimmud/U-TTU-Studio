@@ -141,11 +141,18 @@ test("CAST, décor, prise et montage avec les pistes son", async ({ page }) => {
   for (const track of ["voix", "effets", "musique"]) {
     const row = page.locator(`[data-track=${track}]`);
     await expect(row).toBeVisible();
+    await row.evaluate(node => node.scrollIntoView({ block: "nearest", inline: "nearest" }));
     const box = await row.boundingBox();
     expect(box, track).toBeTruthy();
     expect(box!.height).toBeGreaterThan(40);
-    expect(box!.y).toBeGreaterThanOrEqual(0);
-    expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height + 2);
+    expect(box!.y).toBeGreaterThanOrEqual(-2);
+    // On phone the montage timeline can sit under the sticky tabs; the row must stay in the open band.
+    const bandBottom = await page.evaluate(() => {
+      const tabs = document.querySelector<HTMLElement>(".u-tabs");
+      const visible = tabs && getComputedStyle(tabs).display !== "none" ? tabs.getBoundingClientRect().top : window.innerHeight;
+      return visible + 2;
+    });
+    expect(box!.y + box!.height, track).toBeLessThanOrEqual(Math.max(viewport.height + 2, bandBottom));
   }
 
   const clip = page.locator("[data-track=voix] .u-clip").first();

@@ -96,7 +96,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
       // Bars that stay on screen: the header, the chain (bottom on a phone held upright,
       // top in MONTAGE, landscape and large screens) and the MONTAGE bar.
-      const bars = [...document.querySelectorAll<HTMLElement>(".u-top, .u-chain, .u-montage-bar")]
+      const bars = [...document.querySelectorAll<HTMLElement>(".u-top, .u-tabs, .u-chain, .u-montage-bar")]
         .filter(bar => !bar.contains(el) && ["fixed", "sticky"].includes(getComputedStyle(bar).position))
         .map(bar => bar.getBoundingClientRect())
         .map(box => ({ top: box.top, bottom: box.bottom }));

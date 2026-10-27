@@ -373,12 +373,15 @@ export function MontageStage({ onFilled }: { onFilled?: (filled: boolean) => voi
       }
       if (origin !== projectRef.current) throw new Error("Le projet a changé. Le média reste dans sa galerie ; ajoute-le à nouveau au montage souhaité.");
       const id = `plan-${crypto.randomUUID()}`;
-      if (pending.kind === "audio") {
-        commitFrom(historyRef.current, addAudio(historyRef.current.present, { id, track: "effets", source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, at: snapped(timeRef.current), volume: 0.8, fadeIn: 0, fadeOut: 0 }));
-      } else {
-        commitFrom(historyRef.current, appendVideo(historyRef.current.present, { id, kind: pending.kind, source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, takeId: null }));
-      }
+      const base = historyRef.current;
+      const next = pending.kind === "audio"
+        ? addAudio(base.present, { id, track: "effets", source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, at: snapped(timeRef.current), volume: 0.8, fadeIn: 0, fadeOut: 0 })
+        : appendVideo(base.present, { id, kind: pending.kind, source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, takeId: null });
+      // Await the vault write before the visitor (or an e2e reload) can race an empty cut.
+      const committed = commit(base, next);
+      show(committed);
       setSelected(id);
+      if (committed !== base) await persist(committed.present);
     })().catch(error => setNotice(error.message));
   }, [pendingClip, holdClip, loadedProject, studio.project]);
 
