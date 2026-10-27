@@ -1533,7 +1533,7 @@
     "prepare": "Préparation du montage dans l'onglet…",
     "envoi": "Envoi du montage…",
     "file": "En file d'attente sur ton compte…",
-    "calcul": "Agrandissement en cours ({seconds} s)…",
+    "calcul": "Agrandissement en cours…",
     "retour": "Récupération de la vidéo…",
     "mesure": "Lecture du coût réel…",
     "keepOpen": "Garde cet onglet ouvert. Le rendu va au bout, il n'est jamais annulé.",
@@ -3305,7 +3305,7 @@
       "stage": {
         "envoi": "Envoi de ta demande…",
         "file": "En file d'attente sur ton compte…",
-        "calcul": "Création en cours ({seconds} s)…",
+        "calcul": "Création en cours…",
         "retour": "Récupération du résultat…",
         "mesure": "Lecture du coût réel…",
         "calculStart": "Création en cours…"
@@ -3392,5 +3392,10 @@
     "slider": "Curseur",
     "dropSource": "Ta source s’affiche ici",
     "dropSourceLead": "Joins une photo, ou pars d’un exemple."
+  },
+  "progress": {
+    "elapsed": "Écoulé {time}",
+    "elapsedRemaining": "Écoulé {elapsed} · ≈ {remaining} restantes",
+    "elapsedAlmost": "Écoulé {time} · bientôt prêt"
   }
 }

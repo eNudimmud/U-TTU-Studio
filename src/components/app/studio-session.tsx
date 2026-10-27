@@ -96,8 +96,8 @@ export interface DecorInput {
   files?: File[];
   confirmed: boolean;
   geste?: string;
-  /** Décor from a kept 3D frame: `files[0]` is the frame, then `photos` reference photos (1–3). */
-  cadre?: { photos: number };
+  /** Décor from a kept 3D frame. `photos` = street photo count. `layout: photo-lines` = [style photo, edges, …photos]. */
+  cadre?: { photos: number; layout?: "depth-control" | "frame-first" | "photo-lines" };
   /** Credits of the open photos sent with the frame, kept in the décor's note. */
   credits?: string[];
   /** Called once the décor is filed in DÉCOR. */
@@ -853,8 +853,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     // From a kept 3D frame: the frame plus one to three photos, quoted by photo count.
     const cadre = input.cadre ? cadreQuote(input.cadre.photos) : null;
     if (input.cadre && !cadre) return false;
-    const pictures = (input.files && input.files.length > 0 ? input.files : input.file ? [input.file] : []).slice(0, cadre ? KLEIN_REFS_MAX : 3);
-    if (cadre && pictures.length !== input.cadre!.photos + 1) return false;
+    const layout = input.cadre?.layout ?? "depth-control";
+    // InstantX depth-control: colour frame alone. Legacy Klein layouts: frame + photos.
+    const cadreSlots = cadre ? (layout === "depth-control" ? 1 : input.cadre!.photos + 1) : 0;
+    const pictures = (input.files && input.files.length > 0 ? input.files : input.file ? [input.file] : []).slice(0, cadre ? cadreSlots : 3);
+    if (cadre && pictures.length !== cadreSlots) return false;
     const quote = cadre ?? (row && row.credits !== null && row.high !== null
       ? { credits: row.credits, high: row.high, template: row.template }
       : quoteForDecor(input.source));
@@ -899,14 +902,25 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         refs.push(path);
       }
       const receipt: PendingRender = { version: 1, kind: "decor", project: slug, id, name, prompt: input.prompt.trim(), at: new Date().toISOString(), account: await fingerprint(), refs, template: quote.template, quote: quote.credits, balanceBefore: fresh?.credits ?? 0, jobId: null };
+      const pictureName = (index: number) => {
+        if (!cadre) return `uttu-lieu-${index + 1}.jpg`;
+        if (layout === "depth-control") return "uttu-cadre-3d.png";
+        if (layout === "photo-lines") {
+          if (index === 0) return "uttu-lieu-1.jpg";
+          if (index === 1) return "uttu-cadre-lines.png";
+          return `uttu-lieu-${index}.jpg`;
+        }
+        return index === 0 ? "uttu-cadre-3d.png" : `uttu-lieu-${index}.jpg`;
+      };
       const result = await runStill(recoverableClient(client, localStorage, receipt), {
         kind,
         template: quote.template,
         prompt: sent,
-        pictures: pictures.map((file, index) => ({ blob: file, name: cadre && index === 0 ? "uttu-cadre-3d.png" : `uttu-lieu-${index + 1}.jpg` })),
+        pictures: pictures.map((file, index) => ({ blob: file, name: pictureName(index) })),
         seed: crypto.getRandomValues(new Uint32Array(1))[0],
         clientId: crypto.randomUUID(),
         balanceBefore: fresh?.credits ?? 0,
+        cadreLayout: cadre ? layout : undefined,
       });
       const sheet = `Projets/${slug}/Decors/${id}.png`;
       await writeBlob(vault, sheet, result.image);

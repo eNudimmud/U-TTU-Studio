@@ -31,6 +31,7 @@ import { parseQuartier, type Quartier } from "@/lib/repere/quartier";
 import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
+import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import { montrerDepart } from "@/lib/creation/depart";
 import { ExempleDepart } from "./exemple-depart";
 import { FormatSwitch, useFormat } from "./format-switch";
@@ -493,6 +494,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const savedDecor = !input.decorId || studio.scenes.some(scene => scene.id === input.decorId);
   const runPlan = pendingTake?.planId ?? null;
   const busy = run.phase === "running";
+  const priseElapsed = useComfyElapsed(busy);
   const runningHere = busy && (!runPlan || runPlan === draft.id);
   const failedHere = run.phase === "error" && (!runPlan || runPlan === draft.id);
   const canGenerate = !demo && !creating && !busy && quoted && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
@@ -849,8 +851,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     <div className="u-prise-side">
     <div className="u-prise-preview">
       <p className="u-label">{t("p0.preview")}</p>
-      {runningHere && <div className="u-card u-run" role="status">
-        <p className="u-run-label">{t("job.running")}</p>
+      {runningHere && <div className="u-card u-run" role="status" data-prise-progress="">
+        <ComfyProgress label={t("job.running")} elapsedSec={priseElapsed} typicalSec={typicalFor("prise")} note={t("finaliser.keepOpen")} marker="prise" />
         <button type="button" className="u-link" onClick={cancelRun}>{t("job.stopWaiting")}</button>
       </div>}
       {landed && media[landed.video] && <div className="u-take-view" data-take-view={landed.id} data-versions={versions.length}>

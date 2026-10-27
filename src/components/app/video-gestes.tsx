@@ -7,6 +7,7 @@
 import { ConnectLink } from "./connect-link";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
+import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import { formatCredits } from "@/lib/credits";
 import { PREVIS_SECONDS, VIDEO_GESTE_TEXT, VIDEO_GESTES, type VideoGesteId } from "@/lib/render/video-gestes";
 import { casesVisibles, gesteOuvert, gesteParId, gesteVisible } from "@/lib/workflows/registre";
@@ -38,6 +39,7 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
   const [text, setText] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [stage, setStage] = useState<{ stage: FinaliseStage; seconds?: number } | null>(null);
+  const videoElapsed = useComfyElapsed(Boolean(stage));
   const [outcome, setOutcome] = useState<FinaliseOutcome | null>(null);
   const [ownRecording, setRecording] = useState(0);
   const recording = Math.max(ownRecording, previsLeft);
@@ -152,7 +154,7 @@ export function VideoGestes({ aspect = "horizontal", previs: sent = null, onReco
     </button>
     {why && !busy && <p className="u-why" id="u-video-why">{why}</p>}
     {why && !busy && <ConnectLink />}
-    {stage && <p className="u-small" id="u-video-busy" aria-live="polite">{t(`finaliser.${stage.stage}`, { seconds: String(stage.seconds ?? 0) })} {t("finaliser.keepOpen")}</p>}
+    {stage && <div id="u-video-busy"><ComfyProgress label={t(`finaliser.${stage.stage}`)} elapsedSec={stage.seconds ?? videoElapsed} typicalSec={typicalFor("video")} note={t("finaliser.keepOpen")} marker="video" /></div>}
     {outcome && (outcome.ok
       ? <div className="u-video-done"><video src={outcome.url} controls playsInline /><p className="u-small">{t("videoGeste.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p><button type="button" className="u-chip" onClick={() => { holdClip({ source: outcome.path, label: t(`gestes.${row.clef}.title`), kind: "video" }); window.location.hash = "montage"; }}>{t("assets.toMontage")}</button></div>
       : <p className="u-why" role="alert">{outcome.message}</p>)}

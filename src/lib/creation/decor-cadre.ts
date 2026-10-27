@@ -1,36 +1,45 @@
-// « Décor depuis un lieu » : the kept 3D frame is image 1 (camera, composition, volumes).
-// The direct path needs nothing else: the place and what the frame shows (contexte.ts) go in the prompt.
-// Zero to three reference photos can follow as images 2–4 (materials, colours, light). One Klein edit pass.
+// « Décor depuis un lieu » : one InstantX + Lotus ControlNet pass.
+// The kept 3D colour frame is the only image. Lotus estimates its depth; InstantX
+// locks composition to that depth while Qwen Image fills photoreal materials.
+// Street photos colour the prompt only in v1 (they do not enter the graph — feeding
+// them as a second edit pass leaked people and drifted style in A/B).
 // Pure: no network, no storage. The graph itself is built by still.ts (kind "cadre-decor").
 
-import { KLEIN_REFS_MAX } from "../render/klein-graph.ts";
+import { INSTANTX_CADRE_TEMPLATE } from "../render/instantx-cadre.ts";
 
-/** Reference photos next to the frame. Klein takes four images in the studio pipeline: 1 frame + 3 photos. */
-export const CADRE_PHOTOS_MAX = KLEIN_REFS_MAX - 1;
+/** Street photos the visitor may pick (prompt / credit only — not wired into the graph). */
+export const CADRE_PHOTOS_MAX = 3;
 
 export type CadreAmbiance = "photos" | "nuit" | "pluie" | "aube";
 export const CADRE_AMBIANCES: readonly CadreAmbiance[] = ["photos", "nuit", "pluie", "aube"];
+
+/**
+ * How the kept 3D view is conditioned.
+ * `depth-control` (current): InstantX + Lotus on the colour frame alone.
+ * Legacy aliases kept so older receipts / UI still type-check; they map to depth-control.
+ */
+export type CadreLayout = "depth-control" | "frame-first" | "photo-lines";
 
 export interface CadreQuote {
   /** Estimate shown on the button, in Comfy credits. */
   credits: number;
   /** Ceiling checked against the balance before anything runs. */
   high: number;
-  template: "image_flux3_klein_image_edit";
+  template: typeof INSTANTX_CADRE_TEMPLATE;
 }
 
 /**
- * Klein edit measured at 2.6–4 cr. for one reference (docs/WORKFLOWS.md): the frame alone is ≈ 4, cap 6.
- * Each reference photo adds encoder and latent work: about one more credit, same 2-credit margin.
+ * InstantX + Lotus measured on Comfy Cloud (docs/test/reperage-depth/NOTES.md):
+ * ≈ 3,8–4,3 crédits for the frame alone (13–16 gpu_s × 0.27325). Flat cost: photos
+ * do not enter the graph. Quote ≈ 5, ceiling 8.
  */
 export function cadreQuote(photos: number): CadreQuote | null {
   if (!Number.isInteger(photos) || photos < 0 || photos > CADRE_PHOTOS_MAX) return null;
-  return { credits: 4 + photos, high: 6 + photos, template: "image_flux3_klein_image_edit" };
+  return { credits: 5, high: 8, template: INSTANTX_CADRE_TEMPLATE };
 }
 
 const AMBIANCE: Record<CadreAmbiance, string> = {
-  photos: "Keep the time of day and weather of the reference photos.",
-  // Shown as « Lumière du jour » when there is no photo.
+  photos: "Match the time of day and weather of an ordinary day at this place.",
   nuit: "Night: street lights and lit windows, dark sky.",
   pluie: "Rain: wet ground with reflections, overcast sky.",
   aube: "Dawn: low warm light, long soft shadows.",
@@ -39,34 +48,57 @@ const AMBIANCE: Record<CadreAmbiance, string> = {
 /** Longest visitor wish kept in the prompt (the field allows the same). */
 export const CADRE_DETAIL_MAX = 240;
 
+const NO_WATER = "Do not invent a lake, sea or open water unless the structural guide clearly frames one.";
+
 /**
- * The text sent with the images (Klein edit, upsampler off: this is exactly what the encoder reads).
- * English for the model. The visitor's wish (« Décris ce que tu veux », any language) is quoted as is
- * and scoped: it may change mood, season, time, weather, materials and add elements, never the camera
- * or the volumes of image 1, and never bring people or text. The fidelity rule is repeated last.
+ * Text sent with the single 3D colour frame (InstantX ControlNet).
+ * English for the model. Photos are never addressed as "image N" — they are not uploaded.
  */
-export function cadrePrompt(input: { photos: number; ambiance: CadreAmbiance; detail?: string; contexte?: readonly string[] }): string {
+export function cadrePrompt(input: {
+  photos: number;
+  ambiance: CadreAmbiance;
+  detail?: string;
+  contexte?: readonly string[];
+  layout?: CadreLayout;
+}): string {
   const count = Math.max(0, Math.min(CADRE_PHOTOS_MAX, Math.floor(input.photos)));
-  const refs = count === 1 ? "image 2" : count === 2 ? "images 2 and 3" : `images 2 to ${count + 1}`;
   const detail = (input.detail ?? "").replace(/\s+/g, " ").replace(/"/g, "'").trim().slice(0, CADRE_DETAIL_MAX);
-  // A wish replaces the default light; an ambiance chosen in Options still applies.
   const ambiance = input.ambiance === "photos"
     ? detail ? "" : count === 0 ? "Natural daylight, as on an ordinary clear day there." : AMBIANCE.photos
     : AMBIANCE[input.ambiance] ?? AMBIANCE.photos;
+  const contexte = (input.contexte ?? []).map(line => line.replace(/\s+/g, " ").trim().slice(0, 320)).filter(Boolean).slice(0, 5);
+
+  const style = count === 0
+    ? "Invent plausible real façades, streets, ground, roofs, windows, vegetation and sky for this place — never leave flat grey, clay, plastic or low-poly surfaces."
+    : "Match materials, colours, weathering, sky and light to a real street photograph of this same place. Prefer stone, terracotta roof tiles, dormers, chimneys and paving over any CG look.";
+
   return [
-    "Image 1 is a 3D frame of a real place: keep its exact camera position, eye level, angle, lens, composition and building volumes.",
-    count === 0
-      ? "Turn the plain volumes into the real façades, streets, ground and vegetation of this place."
-      : `Take the materials, colours, textures and light from ${refs}, photos of the same place.`,
-    ...(input.contexte ?? []).map(line => line.replace(/\s+/g, " ").trim().slice(0, 320)).filter(Boolean).slice(0, 5),
-    "Photorealistic cinema still, 16:9. No people. No text, no letters, no signs with words.",
+    "Photorealistic elevated photograph of this real place, same exact camera position and composition as the structural guide.",
+    "The input image is a grey untextured 3D massing / clay render: keep every building silhouette, roofline, vanishing point and relative size exactly — like a depth guide — and discard its flat grey look completely.",
+    "Completely replace every flat grey roof, wall and ground with real materials, windows, roof tiles, paving and vegetation so the result looks like a photograph taken on site, not a tinted 3D model.",
+    style,
+    NO_WATER,
+    ...contexte,
+    "Full-color outdoor photograph, 16:9, empty of people. No text, no letters, no signs with words, no 3D-render look, no low-poly, no clay, no untextured massing, no metallic CG look.",
     ambiance,
     ...(detail ? [
       `The visitor's wish, in their own words: "${detail}".`,
-      count === 0
-        ? "Apply it to the mood, season, time of day, weather, materials and added elements."
-        : `Apply it to the mood, season, time of day, weather, materials and added elements; where it differs from ${refs}, the wish wins.`,
-      "Whatever the wish says, image 1's camera, framing and building volumes stay exactly the same, with no people and no text.",
+      "Apply it to the mood, season, time of day, weather, materials and added elements.",
+      "Whatever the wish says, the structural guide's camera, framing and building layout stay exactly the same, with no people and no text, and the grey massing look must still be fully replaced by a real photograph.",
     ] : []),
   ].filter(Boolean).join("\n");
+}
+
+/**
+ * Build the image list for a cadre-decor run.
+ * Always just the colour frame (InstantX + Lotus). `photos` is kept for the quote
+ * and the prompt; lines are ignored (depth is re-estimated by Lotus).
+ */
+export function cadreImages(input: {
+  frame: File;
+  lines?: File | null;
+  photos: readonly File[];
+}): { files: File[]; layout: CadreLayout; photos: number } {
+  const photos = input.photos.slice(0, CADRE_PHOTOS_MAX);
+  return { files: [input.frame], layout: "depth-control", photos: photos.length };
 }

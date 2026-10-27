@@ -1533,7 +1533,7 @@
     "prepare": "Schnitt wird in diesem Tab vorbereitet…",
     "envoi": "Schnitt wird gesendet…",
     "file": "In der Warteschlange deines Kontos…",
-    "calcul": "Wird größer ({seconds} s)…",
+    "calcul": "Wird größer…",
     "retour": "Video wird abgeholt…",
     "mesure": "Echte Kosten werden gelesen…",
     "keepOpen": "Lass diesen Tab offen. Das Rendering läuft bis zum Ende und wird nie abgebrochen.",
@@ -3305,7 +3305,7 @@
       "stage": {
         "envoi": "Deine Anfrage wird gesendet…",
         "file": "In der Warteschlange deines Kontos…",
-        "calcul": "Wird erstellt ({seconds} s)…",
+        "calcul": "Wird erstellt…",
         "retour": "Ergebnis wird abgeholt…",
         "mesure": "Echte Kosten werden gelesen…",
         "calculStart": "Wird erstellt…"
@@ -3392,5 +3392,10 @@
     "slider": "Schieberegler",
     "dropSource": "Deine Quelle erscheint hier",
     "dropSourceLead": "Füge ein Foto hinzu oder starte mit einem Beispiel."
+  },
+  "progress": {
+    "elapsed": "Verstrichen {time}",
+    "elapsedRemaining": "Verstrichen {elapsed} · ≈ {remaining} übrig",
+    "elapsedAlmost": "Verstrichen {time} · gleich fertig"
   }
 }

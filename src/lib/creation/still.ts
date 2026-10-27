@@ -3,23 +3,27 @@
 
 import { measuredCost } from "../credits.ts";
 import { imageOutput, jobStage, RenderError, type JobDetail, type OutputRef, type RenderClient } from "../render/client.ts";
+import { instantxCadreGraph, INSTANTX_CADRE_TEMPLATE } from "../render/instantx-cadre.ts";
 import { KLEIN_REFS_MAX, kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
 import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
 
-/** `cadre-decor`: image 1 is a kept 3D frame, images 2–4 are optional photos of the place (decor-cadre.ts). */
+/** `cadre-decor`: the kept 3D colour frame alone, via InstantX + Lotus (decor-cadre.ts). */
 export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche" | "cadre-decor";
 
 /** Which graph family builds the still. Read from the gesture's template. */
-export type StillEngine = "klein" | "flux3" | "nano";
+export type StillEngine = "klein" | "flux3" | "nano" | "instantx";
 
 export function stillEngine(template: string | undefined): StillEngine {
   if (!template || template.startsWith("image_flux3_klein")) return "klein";
+  if (template === INSTANTX_CADRE_TEMPLATE || template.includes("instantx_controlnet")) return "instantx";
   if (template.startsWith("api_bfl_flux3")) return "flux3";
   if (template.startsWith("api_nano_banana") || template === "templates-character_sheet") return "nano";
   return "klein";
 }
+
+export type CadreStillLayout = "depth-control" | "frame-first" | "photo-lines";
 
 export interface StillRunInput {
   kind: StillKind;
@@ -30,6 +34,8 @@ export interface StillRunInput {
   seed: number;
   clientId: string;
   balanceBefore: number;
+  /** Cadre-decor only: depth-control (InstantX) is the live path; legacy aliases accepted. */
+  cadreLayout?: CadreStillLayout;
 }
 
 export interface StillRunResult {
@@ -111,14 +117,20 @@ function loads(graph: ApiGraph, images: readonly string[], max: number): [string
 }
 
 /** FLUX 3 Image Klein (open weights). Edits take up to four references. */
-function kleinStill(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number }): ApiGraph {
+function kleinStill(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number; cadreLayout?: CadreStillLayout }): ApiGraph {
   const kind = input.kind === "planche" ? "photo-cast" : input.kind;
   needsPhoto(input.kind, input.images);
   const graph: ApiGraph = {};
   const refs = kind === "texte-cast" || kind === "texte-decor" ? [] : loads(graph, input.images, KLEIN_REFS_MAX);
   if (kind === "cadre-decor") {
-    graph.load._meta = { title: "Cadre 3D (base fixe)" };
-    refs.slice(1).forEach(([id], index) => { graph[id]._meta = { title: `Photo du lieu ${index + 1}` }; });
+    if (input.cadreLayout === "photo-lines") {
+      graph.load._meta = { title: "Photo du lieu (style)" };
+      if (refs[1]) graph[refs[1][0]]._meta = { title: "Cadre 3D (lignes / structure)" };
+      refs.slice(2).forEach(([id], index) => { graph[id]._meta = { title: `Photo du lieu ${index + 2}` }; });
+    } else {
+      graph.load._meta = { title: "Cadre 3D (base fixe)" };
+      refs.slice(1).forEach(([id], index) => { graph[id]._meta = { title: `Photo du lieu ${index + 1}` }; });
+    }
   }
   const sheet = input.kind === "planche" ? "Turnaround of this fictional person: front, three-quarter, profile, back, full body, side by side. Plain background. No text." : SUFFIX[kind];
   Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: sheet ? `${input.prompt}\n\n${sheet}` : input.prompt, seed: input.seed, aspect: aspectOf(kind), images: refs }));
@@ -154,13 +166,20 @@ function flux3Still(input: { kind: StillKind; prompt: string; images: readonly s
 }
 
 /** The API graph for one template. `images` are already uploaded input names. */
-export function stillGraph(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number; template?: string }): ApiGraph {
+export function stillGraph(input: { kind: StillKind; prompt: string; images: readonly string[]; seed: number; template?: string; cadreLayout?: CadreStillLayout }): ApiGraph {
   const prompt = input.prompt.trim();
   if (!prompt) throw new Error("Le texte est vide.");
   const seed = seedOf(input.seed);
   const engine = stillEngine(input.template);
+  if (input.kind === "cadre-decor") {
+    // InstantX + Lotus is the only cadre path. Klein photo-lines drifted the 3D viewpoint.
+    if (engine !== "instantx" && input.template && engine !== "klein") {
+      throw new Error("Le décor depuis un cadre passe par InstantX ControlNet.");
+    }
+    needsPhoto("cadre-decor", input.images);
+    return instantxCadreGraph({ image: input.images[0]!, prompt, seed });
+  }
   if (engine === "klein") return kleinStill({ ...input, prompt, seed });
-  if (input.kind === "cadre-decor") throw new Error("Le décor depuis un cadre passe par FLUX 3 Klein.");
   if (engine === "flux3") return flux3Still({ ...input, prompt, seed });
   if (input.kind === "planche") {
     const image = input.images[0];
@@ -302,7 +321,7 @@ export async function runStill(client: RenderClient, input: StillRunInput, optio
     names.push(await client.upload(picture.blob, picture.name));
   }
   if (options.signal?.aborted) throw new RenderError("cancelled", "Rendu annulé avant l’envoi.");
-  const graph = stillGraph({ kind: input.kind, prompt: input.prompt, images: names, seed: input.seed, template: input.template });
+  const graph = stillGraph({ kind: input.kind, prompt: input.prompt, images: names, seed: input.seed, template: input.template, cadreLayout: input.cadreLayout });
   const jobId = await client.submit(graph, input.clientId);
   const started = now();
   for (;;) {

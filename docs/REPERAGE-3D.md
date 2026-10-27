@@ -88,8 +88,8 @@ Préréglages lumière : matin, midi, soir (position solaire réelle du jour, bo
 - `<id>.quartier.json` : bâtiments OSM et rues autour de la vue (130 m, 70 m sur téléphone, le double
   si la vue tombe sur une place), relief relatif, pour la maquette de PRISE.
 
-Le lieu apparaît dans la galerie DÉCOR et dans PRISE. L'image couleur est posée comme photo de
-référence du geste « décor depuis une photo » ; l'outil affiche le devis estimé et **ne lance rien**.
+Le lieu apparaît dans la galerie DÉCOR et dans PRISE. L'image couleur est le cadre structurel du
+geste « décor depuis un cadre » (InstantX + Lotus, ≈ 5 crédits) ; l'outil affiche le devis estimé et **ne lance rien** avant confirmation.
 
 ## Attribution
 

@@ -1,0 +1,7 @@
+Create a full-color outdoor photograph of this real place in Lausanne, Switzerland.
+Take the exact camera position, eye level, angle, composition and building silhouettes from image 2 — a black-and-white edge drawing of the 3D view (structure guide only).
+Take all materials, colours, textures, weathering, sky and light from image 1, image 3 and image 4 (street photos of the same place).
+Image 2 must not appear as lines or as a grey 3D model in the result: rebuild every surface as real stone, roof tiles, windows, paving and vegetation.
+Do not invent a lake, sea or open water unless image 2 clearly frames one.
+16:9, empty of people. No text, no letters, no signs with words, no low-poly, no clay, no untextured massing, no metallic CG look.
+Match the overcast daylight of the street photos.

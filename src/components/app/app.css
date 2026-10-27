@@ -2262,6 +2262,23 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-fil-bar span { position: absolute; inset: 0 auto 0 0; width: 35%; border-radius: 999px; background: var(--accent); animation: u-fil-run 1.4s ease-in-out infinite; }
 @keyframes u-fil-run { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
 @media (prefers-reduced-motion: reduce) { .u-fil-bar span { animation: none; width: 100%; opacity: .5; } }
+
+/* Shared Comfy wait progress (bar + % + elapsed / ≈ remaining) — every long tool. */
+.u-comfy-progress { display: grid; gap: 8px; width: min(420px, 100%); }
+.u-comfy-progress-bar { position: relative; display: block; height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.u-comfy-progress-bar span { display: block; height: 100%; border-radius: 999px; background: var(--accent); transition: width .35s ease-out; }
+.u-comfy-progress-label { display: flex; justify-content: space-between; gap: 12px; margin: 0; font: 500 14px/1.35 var(--font-body); }
+.u-comfy-progress-pct { font-variant-numeric: tabular-nums; color: var(--fg-2); }
+.u-comfy-progress-time { margin: 0; font: 400 12px/1.35 var(--font-body); color: var(--fg-2); }
+.u-comfy-progress-note { margin: 0; }
+.u-rv-making .u-comfy-progress { justify-self: center; }
+.u-tool-stage-progress .u-comfy-progress { width: 100%; }
+.u-fil-progress .u-comfy-progress { width: 100%; }
+.u-card.u-run .u-comfy-progress { width: 100%; margin-bottom: 8px; }
+@media (prefers-reduced-motion: reduce) {
+  .u-comfy-progress-bar span { transition: none; }
+}
+
 .u-fil-media { display: block; width: 100%; max-height: 56vh; border-radius: 14px; background: var(--bg); object-fit: contain; }
 .u-fil-result[data-aspect="vertical"] .u-fil-media { max-width: min(360px, 100%); }
 .u-fil-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }

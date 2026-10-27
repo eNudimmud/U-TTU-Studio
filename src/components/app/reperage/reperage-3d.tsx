@@ -2,10 +2,11 @@
 
 // « Un vrai lieu en décor », mockup v4: one question and one main action per screen.
 // 1 Où ? (search) → 2 Choisis ta vue (drag the 3D, three heights, free) → 3 Crée ton décor: the kept
-// Volumes view is image 1 of one Klein edit, the place and what the view shows (OSM names, heights,
-// camera, sun) go in the prompt. No photo needed. « Préciser avec des photos » is optional: your own
-// photo, the 360° sphere at the camera's spot, or up to 12 different open photos of the visible area
-// (Panoramax, Wikimedia Commons, KartaView, and Mapillary with a token), each credited under it. → 4 the result, saved in the décor gallery, picked for a shot.
+// Volumes colour frame drives InstantX + Lotus (depth lock); the place and what the view shows
+// (OSM names, heights, camera, sun) go in the prompt. No photo needed. « Préciser avec des photos »
+// is optional: your own photo, the 360° sphere, or up to 12 open photos of the visible area
+// (Panoramax, Wikimedia Commons, KartaView, Mapillary with a token) — credited; they colour the
+// prompt only in v1. → 4 the result, saved in the décor gallery, picked for a shot.
 // Open data only (OpenStreetMap, Terrain Tiles, swisstopo in Switzerland). Steps 1 and 2 spend nothing.
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -16,7 +17,8 @@ import { useStudio } from "../studio-session";
 import { assetPath } from "@/lib/site";
 import { RueViewer, type RueHandle } from "../rue-viewer";
 import { creationAllowed } from "@/lib/creation/quotes";
-import { CADRE_AMBIANCES, CADRE_DETAIL_MAX, CADRE_PHOTOS_MAX, cadrePrompt, cadreQuote, type CadreAmbiance } from "@/lib/creation/decor-cadre";
+import { CADRE_AMBIANCES, CADRE_DETAIL_MAX, CADRE_PHOTOS_MAX, cadreImages, cadrePrompt, cadreQuote, type CadreAmbiance } from "@/lib/creation/decor-cadre";
+import { ComfyProgress, useComfyElapsed, typicalFor } from "../comfy-progress";
 import { buildCaptureMeta, captureNote, type CaptureMeta } from "@/lib/repere3d/capture";
 import { lignesContexte, tagsContexte, type Contexte } from "@/lib/repere3d/contexte";
 import { createGeocoder, type GeocodeResult, type Lieu3d } from "@/lib/repere3d/geocode";
@@ -121,7 +123,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   const [hintSeen, setHintSeen] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const [captureFail, setCaptureFail] = useState("");
-  const [captured, setCaptured] = useState<{ sceneId: string; name: string; frame: Blob; url: string; block: number } | null>(null);
+  const [captured, setCaptured] = useState<{ sceneId: string; name: string; frame: Blob; lines: Blob; url: string; block: number } | null>(null);
   const [step, setStep] = useState<Step>(1);
   const [rue, setRue] = useState<{ state: RueState; photos: PhotoRue[]; pano: PhotoRue | null; mapillary: boolean }>({ state: "idle", photos: [], pano: null, mapillary: false });
   const [extra, setExtra] = useState<PoolItem[]>([]);
@@ -250,7 +252,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
     const e = await ensureEngine();
     if (seq !== loadSeq.current) return;
     if (!e) { setPhase("nogl"); return; }
-    // One base look only: Volumes (shaded masses), the best image 1 for Klein. Midday light.
+    // One base look only: Volumes (shaded masses), the colour frame InstantX locks to. Midday light.
     e.setLook("volumes");
     e.setSun(sunPreset("midi", next.lat));
     e.setLine(DEFAULT_SETTINGS.line);
@@ -342,7 +344,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
       });
       const meta = metaOut as CaptureMeta | null;
       if (!saved || !meta) { setCaptureFail(t("rep3d.captureFail")); return; }
-      setCaptured({ sceneId: saved.sceneId, name, frame: shot.color, url: URL.createObjectURL(shot.color), block: block ? block.buildings.length + block.streets.length : 0 });
+      setCaptured({ sceneId: saved.sceneId, name, frame: shot.color, lines: shot.lines, url: URL.createObjectURL(shot.color), block: block ? block.buildings.length + block.streets.length : 0 });
       setContexte(read);
       // A new frame is a new question: photos picked for another view do not carry over.
       setChosen([]);
@@ -425,17 +427,19 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
     try {
       const blobs = await Promise.all(picked.map(bytesFor));
       const frame = new File([captured.frame], "cadre-3d.png", { type: captured.frame.type || "image/png" });
-      const files = [frame, ...blobs.map((blob, index) => new File([blob], `photo-${index + 1}.${blob.type.includes("png") ? "png" : "jpg"}`, { type: blob.type || "image/jpeg" }))];
+      const lines = new File([captured.lines], "cadre-3d-lines.png", { type: captured.lines.type || "image/png" });
+      const photos = blobs.map((blob, index) => new File([blob], `photo-${index + 1}.${blob.type.includes("png") ? "png" : "jpg"}`, { type: blob.type || "image/jpeg" }));
+      const packed = cadreImages({ frame, lines, photos });
       let filed: { id: string; name: string; image: Blob } | null = null;
       const ok = await createDecor({
         name: decorName.trim() || (place?.name ?? "").slice(0, 40),
-        prompt: cadrePrompt({ photos: blobs.length, ambiance, detail: wish, contexte: contexte ? lignesContexte(contexte) : [] }),
+        prompt: cadrePrompt({ photos: packed.photos, ambiance, detail: wish, contexte: contexte ? lignesContexte(contexte) : [], layout: packed.layout }),
         source: "photo",
-        file: frame,
-        files,
+        file: packed.files[0] ?? frame,
+        files: packed.files,
         confirmed: true,
         geste: "decor-photo",
-        cadre: { photos: blobs.length },
+        cadre: { photos: packed.photos, layout: packed.layout },
         credits: [...new Set(picked.filter(item => item.photo).map(item => `${rueCredit(item.photo!)} (${item.photo!.sourceUrl || photoSourceUrl(item.photo!)})`))],
         onFiled: value => { filed = value; },
       });
@@ -466,6 +470,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   const quoted = cadreQuote(picked.length);
   const covered = quoted !== null && creationAllowed(connected, balance?.credits ?? null, quoted.high);
   const making = busy || creating;
+  const makingElapsed = useComfyElapsed(making);
   const shownStep = step === 4 ? 3 : step;
   const rueCredits = [...new Set(picked.filter(item => item.photo).map(item => rueCredit(item.photo!)))];
   const tags = contexte ? tagsContexte(contexte) : [];
@@ -682,7 +687,16 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
         : covered && <button type="button" className="u-rv-primary" data-rep3d-yes="" onClick={() => void make()}>{t("rep3d.ask.yes")}</button>}
     </>, { "data-rep3d-ask": "" })}
 
-    {making && captured && <div className="u-rv-making" data-rep3d-making=""><img src={captured.url} alt="" /><p role="status">{t("rep3d.making")}</p></div>}
+    {making && captured && <div className="u-rv-making" data-rep3d-making="">
+      <img src={captured.url} alt="" />
+      <ComfyProgress
+        label={t("rep3d.making")}
+        elapsedSec={makingElapsed}
+        typicalSec={typicalFor("cadre-decor")}
+        note={t("finaliser.keepOpen")}
+        marker="rep3d"
+      />
+    </div>}
   </div>;
 }
 
