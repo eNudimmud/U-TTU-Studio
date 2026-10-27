@@ -154,7 +154,8 @@ export function planSend(input: { mode: BarreMode; text: string; refs: FilRef[];
     return { kind: "run", route: { kind: "prise", cast, decor, settings: { ...settings } }, sortie: "video", refs: pictured };
   }
   const first = [...photos, ...pictured].find(ref => ref.src);
-  if (first) return { kind: "run", route: { kind: "outil", id: "vid-wan", images: [first] }, sortie: "video", refs: [first] };
+  // Keep every chip the visitor attached (P0-2); Animer still runs on the first picture.
+  if (first) return { kind: "run", route: { kind: "outil", id: "vid-wan", images: [first] }, sortie: "video", refs: pictured.length > 0 ? pictured : [first] };
   return { kind: "run", route: { kind: "outil", id: "vid-texte", images: [] }, sortie: "video", refs: [] };
 }
 

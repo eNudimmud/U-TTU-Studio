@@ -3322,6 +3322,63 @@
       "interrupted": "La page a été rechargée pendant la création. Si elle a abouti, elle est dans Mes créations.",
       "retry": "Relancer",
       "toCreations": "Mes créations"
+    },
+    "galerie": {
+      "title": "Pars d'un exemple",
+      "lead": "Rendus faits dans ce studio, sur Comfy. Touche-en un : il s'affiche en grand et la barre se remplit. Rien ne part.",
+      "do": "Faire ma version",
+      "active": "Dans la barre",
+      "inBar": "Dans la barre",
+      "before": "avant",
+      "todo": "clip à rendre",
+      "aria": "Faire ma version : {title}",
+      "strip": "Exemples",
+      "stripN": "Tout voir ({n})",
+      "powered": "Propulsé par ComfyUI",
+      "from": "D'après « {title} ».",
+      "clear": "Vider la barre",
+      "route": "Se crée avec {tool}. Tu confirmes avant tout envoi.",
+      "labSource": "Ta source",
+      "labExample": "Exemple · résultat attendu",
+      "quoteNear": "Exemple proche",
+      "tool": {
+        "klein": "Image rapide · Klein",
+        "modifier": "Modifier · Klein",
+        "prise": "PRISE · LTX",
+        "wan": "Animer · Wan"
+      },
+      "quai": {
+        "title": "Le quai, la nuit",
+        "text": "Un quai de port la nuit, pavés mouillés, bitte d'amarrage et cordage au premier plan, eau noire et immobile, lampes au sodium au loin dans la brume, or et noir, 35 mm anamorphique, sans personne."
+      },
+      "uttuQuai": {
+        "title": "Uttu sur le quai",
+        "text": "Uttu marche sur le quai, la nuit. La caméra la suit."
+      },
+      "rueAube": {
+        "title": "La même rue, à l'aube",
+        "text": "Même lieu. Change l'heure, la météo ou la saison. Sans personne. Aube sèche, même rue."
+      },
+      "pluie": {
+        "title": "Sous la pluie",
+        "text": "Une rue étroite sous une forte pluie, la nuit, pavé luisant, vitrines chaudes floues, vapeur d'une grille, noir et or, faible profondeur de champ, plan cinéma, sans personne."
+      },
+      "gare": {
+        "title": "Un hall de gare",
+        "text": "Un immense hall de gare du XIXᵉ siècle, vide, la nuit, verrière de fer, sol mouillé qui reflète des lampes dorées, ombres profondes, composition symétrique, sans personne."
+      },
+      "hallAnime": {
+        "title": "Le hall s'anime",
+        "text": "La caméra avance lentement dans le hall, les lampes vacillent."
+      },
+      "quaiRegard": {
+        "title": "Le même quai, autre regard",
+        "text": "Même lieu que la photo. 16:9, sans personne. Pas de texte."
+      },
+      "toit": {
+        "title": "Un toit au lever du jour",
+        "text": "Les toits de Paris à l'aube, zinc et cheminées, brume dorée du lever du soleil, ambiance calme, plan large cinéma, sans personne."
+      }
     }
   },
   "shell": {
