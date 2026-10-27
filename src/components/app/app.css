@@ -2513,37 +2513,175 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   }
 }
 
-/* Short desktop (1024×600): keep bin tabs readable, player modest, timeline fully on screen. */
+/* Short desktop (1024×600): keep bin tabs readable, player modest, timeline (vidéo+voix) on screen. */
 @media (min-width: 1024px) and (max-height: 700px) {
   .u-app[data-studio="montage"] .u-top { min-height: 44px; padding-block: 2px; }
   .u-app[data-studio="montage"] .u-chain { margin: 2px 12px 0; }
   .u-app[data-studio="montage"] .u-main { padding: 2px 10px 4px; }
   .u-stage.u-montage .u-montage-bar h1 { font-size: 18px; }
   .u-stage.u-montage .u-lead { display: none; }
-  .u-capcut { grid-template-rows: minmax(64px, min(28dvh, 180px)) auto; gap: 4px; }
+  .u-stage.u-montage .u-export-quality { display: none; }
+  .u-capcut { grid-template-rows: minmax(96px, min(30dvh, 200px)) minmax(0, 1fr); gap: 4px; }
   .u-capcut .u-bin-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
   .u-capcut .u-bin-tabs button { min-height: 44px; padding: 4px 2px; font-size: 12px; }
   .u-capcut .u-bin-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .u-capcut-time { min-height: 0; flex: 1 1 auto; }
-  .u-capcut .u-tl { flex: 1 1 auto; min-height: 120px; }
-  .u-montage-outils { grid-row: auto; max-height: 40dvh; overflow: auto; }
+  .u-capcut-time { min-height: 0; max-height: none; overflow: hidden; display: flex; flex-direction: column; }
+  .u-capcut .u-tl { flex: 1 1 auto; min-height: 120px; overflow: auto; }
+  .u-capcut .u-track-row.is-audio,
+  .u-capcut .u-track-row.is-audio .u-track { min-height: 56px; }
+  .u-montage-outils { display: none; }
 }
 
-/* Landscape phone (844×390): timeline must stay on screen — shrink player, compact chrome. */
-@media (max-height: 430px) and (orientation: landscape) {
+/* Comfortable desktop (1280×800+): readable 16:9 preview ≥ ~320 px, timeline vidéo+voix on screen. */
+@media (min-width: 1024px) and (min-height: 701px) {
+  .u-stage.u-montage .u-export-quality { margin: 0; font-size: 12px; }
+  .u-capcut {
+    grid-template-rows: minmax(320px, 1.15fr) minmax(200px, 0.7fr);
+    gap: 6px;
+  }
+  .u-capcut-player { min-height: 300px; }
+  .u-capcut-time {
+    min-height: 200px;
+    max-height: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .u-capcut .u-tl {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+  .u-capcut .u-track-row.is-audio,
+  .u-capcut .u-track-row.is-audio .u-track { min-height: 64px; }
+  .u-capcut-player .u-controls {
+    position: absolute;
+    z-index: 3;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
+}
+
+/* Short landscape (≤500 px tall, e.g. 844×390): side-by-side player | timeline, chrome stripped. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .u-app[data-studio="montage"] { height: 100dvh; max-height: 100dvh; overflow: hidden; }
+  .u-app[data-studio="montage"] .u-top { display: none; }
   .u-app[data-studio="montage"] .u-chain { display: none; }
-  .u-app[data-studio="montage"] .u-montage-bar .u-lead { display: none; }
-  .u-app[data-studio="montage"] .u-montage-bar h1 { font-size: 16px; }
-  .u-app[data-studio="montage"] .u-main { overflow: hidden; padding: 2px 6px 2px; }
-  .u-stage.u-montage { overflow: hidden; gap: 2px; height: 100%; }
-  .u-capcut { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(48px, 28dvh) minmax(0, 1fr); gap: 2px; }
-  .u-capcut .u-chutier { display: none; }
-  .u-capcut-player { grid-column: 1; grid-row: 1; min-height: 0; }
+  .u-app[data-studio="montage"] .u-tabs { display: none; }
+  .u-app[data-studio="montage"] .u-rail { display: none; }
+  .u-app[data-studio="montage"] .u-main {
+    overflow: hidden;
+    padding: 2px 6px 2px;
+    margin: 0;
+    max-width: none;
+    width: 100%;
+  }
+  .u-stage.u-montage { overflow: hidden; gap: 2px; height: 100%; min-height: 0; }
+  .u-stage.u-montage .u-montage-bar {
+    flex: none;
+    min-height: 44px;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+  }
+  .u-stage.u-montage .u-montage-bar h1,
+  .u-stage.u-montage .u-lead,
+  .u-stage.u-montage .u-label,
+  .u-stage.u-montage .u-export-quality { display: none; }
+  .u-stage.u-montage .u-montage-bar > :last-child {
+    display: flex;
+    gap: 6px;
+    margin-inline-start: auto;
+  }
+  .u-stage.u-montage .u-montage-bar .u-export,
+  .u-stage.u-montage .u-montage-bar .u-final-open {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .u-capcut {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid !important;
+    grid-template-columns: minmax(160px, 34vw) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 4px;
+    overflow: hidden;
+  }
+  .u-capcut .u-chutier { display: none !important; }
+  .u-capcut-player {
+    grid-column: 1;
+    grid-row: 1;
+    order: 0;
+    min-height: 0;
+    max-height: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .u-capcut-player .u-monitor,
+  .u-capcut-player .u-stage-frame {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+  }
+  .u-capcut-player .u-viewer,
   .u-capcut-player .u-viewer[data-ratio="16/9"],
-  .u-capcut-player .u-viewer[data-ratio="9/16"] { height: min(26dvh, 120px); width: auto; max-width: 100%; }
-  .u-capcut-time { grid-column: 1; grid-row: 2; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
-  .u-capcut .u-tl { flex: 1 1 auto; min-height: 80px; overflow: auto; }
-  .u-montage-outils { display: none; }
+  .u-capcut-player .u-viewer[data-ratio="9/16"] {
+    width: 100%;
+    height: auto;
+    max-height: calc(100% - 48px);
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 0 auto;
+  }
+  .u-capcut-player .u-controls {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    flex: none;
+    min-height: 44px;
+    padding: 0 4px;
+    background: transparent;
+  }
+  .u-capcut-player .u-controls button { min-width: 44px; min-height: 44px; }
+  .u-capcut-time {
+    grid-column: 2;
+    grid-row: 1;
+    order: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .u-capcut .u-toolrow {
+    flex: none;
+    min-height: 44px;
+    max-height: 44px;
+  }
+  .u-capcut .u-tool:not(.u-bin-toggle),
+  .u-capcut .u-floatbar button {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    padding: 0;
+  }
+  .u-capcut .u-toolrow .u-tool span { display: none; }
+  .u-capcut .u-tl {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+  .u-capcut .u-track-row { min-height: 48px; }
+  .u-capcut .u-track { min-height: 48px; }
+  .u-capcut .u-track-row.is-ruler { min-height: 16px; }
+  .u-capcut .u-ruler { height: 16px; }
+  .u-capcut .u-track-row.is-audio,
+  .u-capcut .u-track-row.is-audio .u-track { min-height: 48px; }
+  .u-montage-outils { display: none !important; }
 }
 
 /* Portrait phone short (390×600): timeline on screen without scrolling the page. */
