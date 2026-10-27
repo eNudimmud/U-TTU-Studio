@@ -667,7 +667,8 @@
     "keySubscription": "Comfy reconnaît ton compte, mais il n’a pas d’abonnement actif pour l’API. Choisis un abonnement payant, puis réessaie.",
     "keyCredits": "Comfy reconnaît ton compte, mais il n’a plus de crédits. Recharge-le sur Comfy Cloud, puis réessaie.",
     "clipboardDenied": "Ton navigateur n’a pas donné accès au presse-papiers. Colle la clé dans le champ (appui long, puis Coller).",
-    "clipboardEmpty": "Je ne trouve pas de clé Comfy dans ton presse-papiers. Copie-la sur ta page de clés, puis réessaie."
+    "clipboardEmpty": "Je ne trouve pas de clé Comfy dans ton presse-papiers. Copie-la sur ta page de clés, puis réessaie.",
+    "balanceLoading": "lecture du solde…"
   },
   "memory": {
     "title": "Ce projet",
@@ -2660,7 +2661,8 @@
     "slot": {
       "start": "Image de départ",
       "end": "Image d’arrivée"
-    }
+    },
+    "costWait": "durée en cours de lecture…"
   },
   "top": {
     "nav": "Navigation du studio",

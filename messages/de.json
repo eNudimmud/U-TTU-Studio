@@ -667,7 +667,8 @@
     "keySubscription": "Comfy erkennt dein Konto, aber es hat kein aktives Abo für die API. Wähle ein kostenpflichtiges Abo und versuch es dann erneut.",
     "keyCredits": "Comfy erkennt dein Konto, aber es hat keine Credits mehr. Lade es auf Comfy Cloud auf und versuch es dann erneut.",
     "clipboardDenied": "Dein Browser hat den Zugriff auf die Zwischenablage nicht erlaubt. Füge den Schlüssel ins Feld ein (lange drücken, dann Einfügen).",
-    "clipboardEmpty": "Ich finde keinen Comfy-Schlüssel in deiner Zwischenablage. Kopiere ihn auf deiner Schlüsselseite und versuch es dann erneut."
+    "clipboardEmpty": "Ich finde keinen Comfy-Schlüssel in deiner Zwischenablage. Kopiere ihn auf deiner Schlüsselseite und versuch es dann erneut.",
+    "balanceLoading": "Guthaben wird gelesen…"
   },
   "memory": {
     "title": "Dieses Projekt",
@@ -2660,7 +2661,8 @@
     "slot": {
       "start": "Startbild",
       "end": "Endbild"
-    }
+    },
+    "costWait": "Dauer wird gelesen…"
   },
   "top": {
     "nav": "Studio-Navigation",

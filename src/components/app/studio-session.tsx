@@ -252,6 +252,8 @@ export interface VideoGesteRun {
   confirmed: boolean;
   aspect?: "horizontal" | "vertical";
   onStage(stage: FinaliseStage, seconds?: number): void;
+  /** Real cost after the result is already shown (deferred balance read). */
+  onCost?(cost: number | null): void;
 }
 
 export interface MeshGesteRun {
@@ -277,6 +279,8 @@ export interface SuiteRun {
   /** Vault path of the validated asset it starts from. Read only, written in the note. */
   from?: string;
   onStage(stage: FinaliseStage, seconds?: number): void;
+  /** Real cost after the result is already shown (deferred balance read). */
+  onCost?(cost: number | null): void;
 }
 
 export interface OutilRun {
@@ -296,6 +300,8 @@ export interface OutilRun {
   consent?: boolean;
   from?: string;
   onStage(stage: FinaliseStage, seconds?: number): void;
+  /** Real cost after the result is already shown (deferred balance read). */
+  onCost?(cost: number | null): void;
 }
 
 export type FinaliseStage = "envoi" | "file" | "calcul" | "retour" | "mesure";
@@ -311,6 +317,8 @@ export interface FinaliseInput {
   /** Open weights: add in-between frames in the same pass (SeedVR2 path only). */
   fluidifier?: boolean;
   onStage(stage: FinaliseStage, seconds?: number): void;
+  /** Real cost after the result is already shown (deferred balance read). */
+  onCost?(cost: number | null): void;
 }
 
 const judgeOutcome = (outcome: FinaliseOutcome) => outcome.ok ? { ok: true } : { ok: false, reason: outcome.message };
@@ -637,7 +645,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     try {
       const slug = flight.project ?? await ensureActiveProject(store());
       const vault = projectVault(store(), slug);
-      const result = await followTake(renderClient, flight.jobId, flight.balanceBefore, event => setRun({ phase: "running", event }), { signal: abort.current.signal });
+      const result = await followTake(renderClient, flight.jobId, flight.balanceBefore, event => { if (event.stage === "measure") return; setRun({ phase: "running", event }); }, { signal: abort.current.signal });
       if (flight.manualRecovery) { result.costCredits = null; result.balanceAfter = null; }
       const id = takeId(new Date(flight.at), flight.sceneName || "prise");
       const video = `Projets/${slug}/Prises/${id}.${extensionFor(result.video.type || "video/mp4")}`;
@@ -1056,16 +1064,22 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         ? suiteGraph({ geste: "suite-finaliser-video", files: { source: file }, prompt: "", seed: randomSeed(), seconds: input.seconds, fluidifier: input.fluidifier })
         : finalGraph({ file, ratio: input.ratio, ...input.choice });
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      const notePath = `Projets/${slug}/Assets/${id}.md`;
+      const path = `Projets/${slug}/Assets/${id}.mp4`;
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
         if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
         else if (event.stage === "render") input.onStage("calcul", event.seconds);
-        else if (event.stage === "fetch") input.onStage("retour");
-        else if (event.stage === "measure") input.onStage("mesure");
+        else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
+      }, {
+        deferMeasure: true,
+        onCost: info => {
+          if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
+          void writeText(vault, notePath, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: receipt.prompt, geste: "mont-final", template: receipt.template, refs: [], devis: quote.credits, cout: info.costCredits, media: path, note: notePath, preview: null, loose: false }));
+          input.onCost?.(info.costCredits);
+        },
       });
-      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
-      const path = `Projets/${slug}/Assets/${id}.mp4`;
       await writeBlob(vault, path, result.video);
-      await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: receipt.prompt, geste: "mont-final", template: receipt.template, refs: [], devis: quote.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
+      await writeText(vault, notePath, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: receipt.prompt, geste: "mont-final", template: receipt.template, refs: [], devis: quote.credits, cout: result.costCredits, media: path, note: notePath, preview: null, loose: false }));
       await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
@@ -1110,16 +1124,22 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const graph = videoGesteGraph({ geste, files: names, prompt: input.prompt, aspect: input.aspect, seed: randomSeed() });
       const receipt: PendingRender = { version: 1, kind: "video", geste, project: slug, id, name: t(`gestes.${row.clef}.title`), prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: row.credits, balanceBefore: fresh!.credits, jobId: null };
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      const notePath = `Projets/${slug}/Assets/${id}.md`;
+      const path = `Projets/${slug}/Assets/${id}.mp4`;
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
         if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
         else if (event.stage === "render") input.onStage("calcul", event.seconds);
-        else if (event.stage === "fetch") input.onStage("retour");
-        else if (event.stage === "measure") input.onStage("mesure");
+        else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
+      }, {
+        deferMeasure: true,
+        onCost: info => {
+          if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
+          void writeText(vault, notePath, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: input.prompt, geste, template: row.template, refs, devis: row.credits, cout: info.costCredits, media: path, note: notePath, preview: null, loose: false }));
+          input.onCost?.(info.costCredits);
+        },
       });
-      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
-      const path = `Projets/${slug}/Assets/${id}.mp4`;
       await writeBlob(vault, path, result.video);
-      await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: input.prompt, geste, template: row.template, refs, devis: row.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
+      await writeText(vault, notePath, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: input.prompt, geste, template: row.template, refs, devis: row.credits, cout: result.costCredits, media: path, note: notePath, preview: null, loose: false }));
       await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
@@ -1219,18 +1239,26 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const still = SUITE_SORTIE[geste] === "image";
       const receipt: PendingRender = { version: 1, kind: still ? "image" : "video", geste, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      const ext = still ? "png" : "mp4";
+      const path = `Projets/${slug}/Assets/${id}.${ext}`;
+      const notePath = `Projets/${slug}/Assets/${id}.md`;
+      const kindNote = still ? "importe" : "plan";
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
         if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
         else if (event.stage === "render") input.onStage("calcul", event.seconds);
-        else if (event.stage === "fetch") input.onStage("retour");
-        else if (event.stage === "measure") input.onStage("mesure");
-      }, { output: still ? "image" : "video" });
-      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+        else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
+      }, {
+        output: still ? "image" : "video",
+        deferMeasure: true,
+        onCost: info => {
+          if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
+          void writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: info.costCredits, media: path, note: notePath, preview: null, loose: false }));
+          input.onCost?.(info.costCredits);
+        },
+      });
       if (!result.video.size) throw new RenderError("failed", t("suite.emptyResult"));
-      const ext = still ? "png" : "mp4";
-      const path = `Projets/${slug}/Assets/${id}.${ext}`;
       await writeBlob(vault, path, result.video);
-      await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: still ? "importe" : "plan", name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
+      await writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: notePath, preview: null, loose: false }));
       await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
@@ -1251,7 +1279,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (outil.moteur.kind === "suite") {
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.video : input.images[0];
       if (!source) return { ok: false, message: t("videoGeste.needFiles") };
-      return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage });
+      return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage, onCost: input.onCost });
     }
     const quote = outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh });
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
@@ -1292,21 +1320,34 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       const receipt: PendingRender = { version: 1, kind, geste: row.id, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      let notePath = "";
+      let mediaPath = "";
+      let kindNote: "plan" | "son" | "importe" = "importe";
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
         if (event.stage === "queue" || event.stage === "prepare") input.onStage("file");
         else if (event.stage === "render") input.onStage("calcul", event.seconds);
-        else if (event.stage === "fetch") input.onStage("retour");
-        else if (event.stage === "measure") input.onStage("mesure");
-      }, { output: sortie });
-      if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
+        else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
+      }, {
+        output: sortie,
+        deferMeasure: true,
+        onCost: info => {
+          if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
+          if (notePath) {
+            void writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: info.costCredits, media: mediaPath, note: notePath, preview: null, loose: false }));
+          }
+          input.onCost?.(info.costCredits);
+        },
+      });
       if (!result.video.size) throw new RenderError("failed", t("suite.emptyResult"));
       const ext = sortie === "image" ? "png" : sortie === "video" ? "mp4" : sortie === "mesh" ? await modelExtension(result.video, "model.glb") : (result.video.type.includes("wav") ? "wav" : result.video.type.includes("flac") ? "flac" : "mp3");
-      const path = `Projets/${slug}/Assets/${id}.${ext}`;
-      await writeBlob(vault, path, result.video);
-      await writeText(vault, `Projets/${slug}/Assets/${id}.md`, assetNote({ id, kind: sortie === "video" ? "plan" : sortie === "audio" ? "son" : "importe", name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: `Projets/${slug}/Assets/${id}.md`, preview: null, loose: false }));
+      mediaPath = `Projets/${slug}/Assets/${id}.${ext}`;
+      notePath = `Projets/${slug}/Assets/${id}.md`;
+      kindNote = sortie === "video" ? "plan" : sortie === "audio" ? "son" : "importe";
+      await writeBlob(vault, mediaPath, result.video);
+      await writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: mediaPath, note: notePath, preview: null, loose: false }));
       await completePending(client, jobId);
       await reload();
-      return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
+      return { ok: true, path: mediaPath, url: URL.createObjectURL(result.video), cost: result.costCredits };
     } catch (error) {
       return failOutcome(error);
     } finally {

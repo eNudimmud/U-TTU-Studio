@@ -43,7 +43,7 @@ function go(hash: string) {
 
 const uid = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
-const TAKE_STAGE: Record<string, string> = { start: "envoi", upload: "envoi", submit: "envoi", queue: "file", prepare: "file", render: "calcul", fetch: "retour", measure: "mesure" };
+const TAKE_STAGE: Record<string, string> = { start: "envoi", upload: "envoi", submit: "envoi", queue: "file", prepare: "file", render: "calcul", fetch: "retour", ready: "retour" };
 
 export interface FilSend { mode: BarreMode; text: string; refs: FilRef[]; settings: BarreSettings }
 
@@ -115,6 +115,8 @@ export function useFil(): FilRunner {
     if (sheet === "confirm" || sheet === "connect") held.saw = true;
     if (run.phase === "running") {
       const event = run.event;
+      // Cost measure is after the result: never flash « Lecture du coût réel… » mid-render.
+      if (event.stage === "measure") return;
       update(f => patchJob(f, held.id, { status: "running", stage: TAKE_STAGE[event.stage] ?? "envoi", seconds: event.stage === "render" ? event.seconds : undefined }));
     } else if (run.phase === "done") {
       const take = studio.takes.find(item => item.id === run.takeId);
@@ -140,7 +142,7 @@ export function useFil(): FilRunner {
       const single = job.route.images.length === 1 ? job.route.images[0].path : undefined;
       const result = await runOutil({
         outil: outil.id, images, prompt: job.text, confirmed: true, from: single,
-        onStage: (stage, seconds) => update(f => patchJob(f, job.id, { stage, seconds })),
+        onStage: (stage, seconds) => { if (stage === "mesure") return; update(f => patchJob(f, job.id, { stage, seconds })); },
       });
       if (result.ok) update(f => patchJob(f, job.id, { status: "done", url: result.url, path: result.path, cost: result.cost ?? null }));
       else update(f => patchJob(f, job.id, { status: "error", message: result.message }));

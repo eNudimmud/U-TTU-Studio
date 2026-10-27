@@ -4,9 +4,9 @@
 // 1 Où ? (search) → 2 Choisis ta vue (drag the 3D, three heights, free) → 3 Crée ton décor: the kept
 // Volumes colour frame drives InstantX + Lotus (depth lock); the place and what the view shows
 // (OSM names, heights, camera, sun) go in the prompt. No photo needed. « Préciser avec des photos »
-// is optional: your own photo, the 360° sphere, or up to 12 open photos of the visible area
-// (Panoramax, Wikimedia Commons, KartaView, Mapillary with a token) — credited; they colour the
-// prompt only in v1. → 4 the result, saved in the décor gallery, picked for a shot.
+// auto-fills up to 3 open photos of the view (360° of the spot when available, else diversified
+// Panoramax / Commons / KartaView / Mapillary) — changeable; they colour the prompt only in v1.
+// → 4 the result, saved in the décor gallery, picked for a shot.
 // Open data only (OpenStreetMap, Terrain Tiles, swisstopo in Switzerland). Steps 1 and 2 spend nothing.
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -224,6 +224,19 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
         pano: sphere,
         mapillary: [...usable, ...(sphere ? [sphere] : [])].some(photo => photo.source === "mapillary"),
       });
+      // Restore auto-pick (removed when photos became optional in #135/#136): 360° of the
+      // precise spot when available, else up to 3 diversified area photos — never one object alone.
+      setChosen(prev => {
+        if (prev.length > 0) return prev;
+        const keys: string[] = [];
+        if (sphere) keys.push(`pano-${sphere.id}`);
+        for (const photo of usable) {
+          if (keys.length >= CADRE_PHOTOS_MAX) break;
+          if (sphere && photo.id === sphere.id) continue;
+          keys.push(`rue-${photo.id}`);
+        }
+        return keys;
+      });
     } catch {
       if (seq === rueSeq.current) setRue({ state: "fail", photos: [], pano: null, mapillary: false });
     }
@@ -361,6 +374,14 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
   const here = captured && view ? { lat: view.lat, lon: view.lon } : place;
   const pool: PoolItem[] = [
     ...extra,
+    ...(rue.pano && !broken.has(`pano-${rue.pano.id}`) && !extra.some(item => item.key.startsWith("pano-")) ? [{
+      key: `pano-${rue.pano.id}`,
+      kind: "pano" as const,
+      name: rueCredit(rue.pano),
+      thumb: rue.pano.thumb || rue.pano.view,
+      photo: rue.pano,
+      dist: here ? Math.round(distanceMeters(here.lat, here.lon, rue.pano.lat, rue.pano.lon)) : undefined,
+    }] : []),
     ...rue.photos.filter(photo => !broken.has(`rue-${photo.id}`)).map(photo => ({
       key: `rue-${photo.id}`,
       kind: "rue" as const,

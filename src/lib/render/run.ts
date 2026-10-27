@@ -36,6 +36,8 @@ export type TakeRunEvent =
   | { stage: "prepare"; jobId: string }
   | { stage: "render"; jobId: string; seconds: number }
   | { stage: "fetch"; jobId: string }
+  /** Output bytes are in hand — UI may show the result before cost is known. */
+  | { stage: "ready"; jobId: string; video: Blob; filename: string }
   | { stage: "measure"; jobId: string };
 
 export interface TakeRunResult {
@@ -60,6 +62,13 @@ export interface TakeRunOptions {
   signal?: AbortSignal;
   /** What the job saves. A take is a video; « Et ensuite ? » image tools save a still. */
   output?: "video" | "image" | "audio" | "mesh";
+  /**
+   * Resolve as soon as the output bytes exist. Cost is read afterward and reported via
+   * `onCost` (and a trailing `measure` event) without blocking the result.
+   */
+  deferMeasure?: boolean;
+  /** Fired when a deferred (or sync) balance read finishes. */
+  onCost?: (info: { balanceAfter: number | null; costCredits: number | null }) => void;
 }
 
 const defaultSleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -143,24 +152,44 @@ export async function followTake(
   const missing = { image: "aucune image", audio: "aucun son", mesh: "aucun volume 3D", video: "aucune vidéo" }[kind];
   if (!ref) throw new RenderError("failed", `Le rendu est fini, mais ${missing} n’est sorti${kind === "image" || kind === "video" ? "e" : ""}.`);
   const video = await client.file(ref);
+  onEvent({ stage: "ready", jobId, video, filename: ref.filename });
 
-  onEvent({ stage: "measure", jobId });
-  let balanceAfter: number | null = null;
-  for (let attempt = 0; attempt < measureTries; attempt++) {
-    balanceAfter = await client.balance().catch(() => null);
-    if (balanceAfter !== null && balanceAfter !== balanceBefore) break;
-    if (attempt < measureTries - 1) await sleep(measureMs);
-  }
-  const charged = balanceAfter !== null && balanceAfter !== balanceBefore ? balanceAfter : null;
-  return {
+  const pack = (balanceAfter: number | null, costCredits: number | null): TakeRunResult => ({
     jobId,
     video,
     filename: ref.filename,
     gpuSeconds: executionSeconds(detail),
     balanceBefore,
-    balanceAfter: charged,
-    costCredits: measuredCost(balanceBefore, charged),
+    balanceAfter,
+    costCredits,
+  });
+
+  const readCost = async (): Promise<{ balanceAfter: number | null; costCredits: number | null }> => {
+    // When deferred, skip the measure stage event so the progress label never says
+    // « Lecture du coût réel… » after the bytes are already shown (or mid-render).
+    if (!options.deferMeasure) onEvent({ stage: "measure", jobId });
+    let balanceAfter: number | null = null;
+    for (let attempt = 0; attempt < measureTries; attempt++) {
+      balanceAfter = await client.balance().catch(() => null);
+      if (balanceAfter !== null && balanceAfter !== balanceBefore) break;
+      if (attempt < measureTries - 1) await sleep(measureMs);
+    }
+    const charged = balanceAfter !== null && balanceAfter !== balanceBefore ? balanceAfter : null;
+    const info = { balanceAfter: charged, costCredits: measuredCost(balanceBefore, charged) };
+    options.onCost?.(info);
+    return info;
   };
+
+  if (options.deferMeasure) {
+    // Never block the result on the balance poll: show bytes first, fill the quote line later.
+    void readCost().catch(() => {
+      options.onCost?.({ balanceAfter: null, costCredits: null });
+    });
+    return pack(null, null);
+  }
+
+  const measured = await readCost();
+  return pack(measured.balanceAfter, measured.costCredits);
 }
 
 export async function runTake(

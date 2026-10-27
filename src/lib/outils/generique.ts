@@ -49,10 +49,16 @@ const RATIO = { horizontal: "16:9", vertical: "9:16" };
 /** Exact slot map per template, read in the api graph. */
 export const GENERIQUE: Readonly<Record<string, Spec>> = {
   image_qwen_image_2_1_t2i: { prompt: [["459:471", "prompt"], ["459:474", "on_false"]], seed: [["459:458", "seed"]], save: ["461", "filename_prefix"], aspect: { at: ["13", "aspect_ratio"], ...RESOLUTION }, needsText: true },
+  // Flux3ImageNode.aspect_ratio COMBO accepts bare ratios ("16:9", "9:16", …) — verified live object_info 2026-10-27.
   api_bfl_flux3_t2i: { prompt: [["1", "prompt"]], seed: [["1", "seed"]], save: ["2", "filename_prefix"], aspect: { at: ["1", "aspect_ratio"], horizontal: "16:9", vertical: "9:16" }, needsText: true },
-  api_ideogram_v4_5_t2i: { prompt: [["1", "model.prompt"]], seed: [["1", "model.seed"]], save: ["5", "filename_prefix"], aspect: { at: ["1", "model.size"], horizontal: "16:9", vertical: "9:16" }, needsText: true },
+  // IdeogramTextToImageApi.model.size is a size enum, not a bare ratio. Live COMBO (2026-10-27) includes
+  // "(1K) 1280x720 (16:9)" / "(1K) 720x1280 (9:16)" (also 2K twins). Bare "16:9" → value_not_in_list.
+  api_ideogram_v4_5_t2i: { prompt: [["1", "model.prompt"]], seed: [["1", "model.seed"]], save: ["5", "filename_prefix"], aspect: { at: ["1", "model.size"], horizontal: "(1K) 1280x720 (16:9)", vertical: "(1K) 720x1280 (9:16)" }, needsText: true },
+  // OpenAIGPTImageNodeV2.model.size stays "auto" (no aspect réglage on img-gpt).
   api_openai_gpt_image_2_t2i: { prompt: [["271", "prompt"]], seed: [["271", "seed"]], save: ["269", "filename_prefix"], needsText: true },
+  // ByteDanceSeedreamNodeV3.model.size_preset is a size enum; img-seedream has no aspect réglage → leave template default.
   api_bytedance_seedream_5_0_pro_t2i: { prompt: [["3", "prompt"]], seed: [["3", "model.seed"]], save: ["2", "filename_prefix"], needsText: true },
+  // GeminiNanoBanana2V2.model.aspect_ratio accepts bare "16:9"/"9:16"; img-nano has no aspect réglage → leave "auto".
   api_nano_banana_2_1_t2i: { prompt: [["1", "prompt"]], seed: [["1", "seed"]], save: ["3", "filename_prefix"], needsText: true },
   image_qwen_image_2_1_image_edit: { images: [["470", "image"], ["475", "image"]], prompt: [["459:500", "prompt"], ["459:484", "on_false"]], seed: [["459:458", "seed"]], save: ["461", "filename_prefix"], needsText: true },
   video_ltx2_5_t2v: { prompt: [["405:376", "value"]], seed: [["405:339", "noise_seed"]], save: ["75", "filename_prefix"], aspect: { at: ["409", "aspect_ratio"], ...RESOLUTION }, set: { "405:362": { value: 5 } }, needsText: true },

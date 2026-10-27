@@ -56,12 +56,19 @@ function useTasks(): Task[] {
 
 export function TopBar({ place }: { place: Place }) {
   const { t, say } = useI18n();
-  const { connected, balance, balanceNote, setSheet } = useStudio();
+  const { ready, connected, balance, balanceNote, setSheet } = useStudio();
   const assistantOpen = useAssistantOpen();
   const [drawer, setDrawer] = useState(false);
   const [palette, setPalette] = useState(false);
   useTopHeight();
-  const renderAria = !connected ? t("sheet.notLinked") : balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
+  const creditsLoading = !ready || (connected && !balance && !balanceNote);
+  const renderAria = creditsLoading
+    ? t("sheet.balanceLoading")
+    : !connected
+      ? t("sheet.notLinked")
+      : balance
+        ? t("sheet.credits", { amount: formatCredits(balance.credits) })
+        : (balanceNote ? say(balanceNote) : t("sheet.balanceUnread"));
 
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
@@ -91,9 +98,9 @@ export function TopBar({ place }: { place: Place }) {
           <SearchIcon /><span className="u-tool-label">{t("top.search")}</span><kbd className="u-kbd">Ctrl K</kbd>
         </button>
         <button type="button" className="u-uttu" data-top-uttu="" aria-expanded={assistantOpen} aria-controls="u-assistant" aria-label={t("uttu.openAria")} onClick={() => toggleAssistant(!assistantOpen)}>{t("uttu.button")}</button>
-        <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })}>
-          <span className="u-tool-full">{connected && balance ? `${t("sheet.walletTitle")} · ${formatCredits(balance.credits)}` : t("sheet.walletTitle")}</span>
-          <span className="u-tool-short">{connected && balance ? formatCredits(balance.credits) : t("stage.creditsShort")}</span>
+        <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })} aria-busy={creditsLoading || undefined}>
+          <span className="u-tool-full">{connected && balance ? `${t("sheet.walletTitle")} · ${formatCredits(balance.credits)}` : creditsLoading ? `${t("sheet.walletTitle")} · …` : t("sheet.walletTitle")}</span>
+          <span className="u-tool-short">{connected && balance ? formatCredits(balance.credits) : creditsLoading ? "…" : t("stage.creditsShort")}</span>
         </button>
         <LangMenu />
         <button type="button" className="u-top-icon u-burger" data-top-burger="" aria-expanded={drawer} aria-controls="u-drawer" aria-label={t("top.menu")} onClick={() => setDrawer(true)}><MenuIcon /></button>

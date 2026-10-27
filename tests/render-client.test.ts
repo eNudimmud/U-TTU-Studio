@@ -139,7 +139,7 @@ describe("une prise sans quitter le studio", () => {
     assert.equal(result.gpuSeconds, 140);
     assert.equal(result.balanceAfter, 4800);
     assert.equal(result.costCredits, 201);
-    assert.deepEqual(events.map(event => event.stage), ["upload", "upload", "upload", "submit", "queue", "queue", "render", "render", "fetch", "measure"]);
+    assert.deepEqual(events.map(event => event.stage), ["upload", "upload", "upload", "submit", "queue", "queue", "render", "render", "fetch", "ready", "measure"]);
     const sent = JSON.parse(String(calls.find(call => call.url === "/api/prompt")?.body));
     assert.deepEqual(sent.prompt["136"].inputs["ref_images.ref_image_1"], ["picture_2", 0]);
     assert.equal(sent.prompt.picture_1.inputs.image, "in-1.jpg");
@@ -151,6 +151,21 @@ describe("une prise sans quitter le studio", () => {
     const result = await followTake(client, "job-0123456789", 5001, () => {}, { sleep: async () => {}, measureTries: 3, measureMs: 1 });
     assert.equal(result.costCredits, null);
     assert.equal(result.balanceAfter, null);
+  });
+
+  it("shows the bytes first when measure is deferred, without a measure stage event", async () => {
+    const { client } = scriptedCloud(["success"], [2370, 2275]);
+    const events: TakeRunEvent[] = [];
+    const costs: Array<number | null> = [];
+    const result = await followTake(client, "job-0123456789", 5001, event => events.push(event), {
+      sleep: async () => {}, measureTries: 2, measureMs: 1, deferMeasure: true,
+      onCost: info => costs.push(info.costCredits),
+    });
+    assert.equal(result.costCredits, null);
+    assert.ok(events.some(event => event.stage === "ready"));
+    assert.ok(!events.some(event => event.stage === "measure"));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    assert.ok(costs.length >= 1);
   });
 
   it("rides out a few unreachable reads while the phone changes networks", async () => {

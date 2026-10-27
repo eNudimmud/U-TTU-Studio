@@ -262,7 +262,8 @@ export class Reperage3D {
     groundTrait: new THREE.MeshBasicMaterial({ color: 0xffffff }),
     groundOmbres: new THREE.MeshLambertMaterial({ color: 0xffffff }),
     buildCarte: new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide }),
-    buildVolumes: new THREE.MeshLambertMaterial({ color: 0xc4c4c2, side: THREE.DoubleSide }),
+    // vertexColors: OSM / swissBUILDINGS hues so « Au sol » is not a flat grey canyon.
+    buildVolumes: new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide }),
     buildTrait: new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }),
     buildOmbres: new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide }),
   };
@@ -433,7 +434,10 @@ export class Reperage3D {
 
   private applyLook() {
     const m = this.materials;
-    const groundMat = { carte: m.groundCarte, volumes: m.groundVolumes, trait: m.groundTrait, ombres: m.groundOmbres }[this.look];
+    // At street level the plan sketch underfoot is too pale; prefer the painted map tiles.
+    const groundMat = this.street
+      ? m.groundCarte
+      : { carte: m.groundCarte, volumes: m.groundVolumes, trait: m.groundTrait, ombres: m.groundOmbres }[this.look];
     const buildMat = { carte: m.buildCarte, volumes: m.buildVolumes, trait: m.buildTrait, ombres: m.buildOmbres }[this.look];
     const usePhoto = this.look === "carte" && this.photoState === "ready" && this.textures.photo;
     m.groundCarte.map = usePhoto ? this.textures.photo : this.textures.map;
@@ -750,11 +754,13 @@ export class Reperage3D {
       this.setStreetControls(true);
       this.camera.position.copy(eye);
       this.controls.target.copy(eye).add(dir);
+      this.applyLook();
     } else {
       const spot = new THREE.Vector3(this.camera.position.x, 0, this.camera.position.z);
       spot.y = this.ground_y(spot.x, spot.z);
       this.street = false;
       this.setStreetControls(false);
+      this.applyLook();
       const pose = FRAMING_POSES.moyen;
       this.controls.target.copy(spot);
       this.camera.position.copy(this.clearPose(spot, forward, pose.elevation, pose.distance));

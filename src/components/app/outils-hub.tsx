@@ -409,6 +409,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   }, [video]);
 
   const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh }), [outil, seconds, fluide, mesh]);
+  const quotePending = Boolean(outil.parTranche && inputs.video && seconds == null);
   const busy = stage !== null;
   const missingInput = main.find(item => !inputs[item]);
   const missingText = outil.texte === "requis" && !text.trim();
@@ -471,7 +472,10 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       }
       const from = inputs.image?.path ?? inputs.video?.path;
       onResult?.(null);
-      const result = await runOutil({ outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, consent, from, onStage });
+      const result = await runOutil({
+        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, consent, from, onStage,
+        onCost: cost => setOutcome(current => current?.ok ? { ...current, cost } : current),
+      });
       setOutcome(result);
       if (result.ok) onResult?.({ url: result.url, path: result.path, kind: outil.sortie, poster: inputs.image?.url, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
     } catch (error) {
@@ -525,6 +529,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     <button type="button" className="u-tool-go" data-tool-go="" aria-disabled={busy || undefined} aria-describedby={busy ? busyId : why ? whyId : undefined} onClick={press}>
       <span>{action}</span>
       {quote && <span className="u-tool-go-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })}</span>}
+      {!quote && quotePending && <span className="u-tool-go-cost" data-tool-cost-wait="">{t("outils.costWait")}</span>}
     </button>
     {why && !busy && <p className="u-why" id={whyId} data-tool-why="">{why}</p>}
     {stage && !onBusy && <div id={busyId} data-tool-progress-host=""><ComfyProgress label={t(`barre.fil.stage.${stage.stage}`)} elapsedSec={outilElapsed} typicalSec={typicalFor(typicalKey)} note={t("finaliser.keepOpen")} marker="outil" /></div>}{stage && onBusy && <span id={busyId} className="u-sr-only" role="status">{t(`barre.fil.stage.${stage.stage}`)}</span>}
@@ -557,8 +562,8 @@ function ToolResult({ run, label }: { run: ToolRun; label: string }) {
   const { t } = useI18n();
   const root = useRef<HTMLElement>(null);
   useEffect(() => {
-    // On a phone the result lands under the panel: bring it into view once.
-    if (window.matchMedia("(max-width: 959px)").matches) root.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Always bring the result into view (desktop panel + phone).
+    root.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [run.url]);
   return <section ref={root} className="u-tool-result" data-tool-result={run.kind} aria-label={t("outils.result")}>
     <h2>{t("outils.result")}</h2>

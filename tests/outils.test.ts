@@ -66,12 +66,16 @@ describe("hub Outils", () => {
 
   it("estimates every wired card, per started 5 s block for per-length tools", () => {
     for (const item of wired) {
-      const quote = outilQuote(item);
+      const quote = outilQuote(item, item.parTranche ? { seconds: 5 } : {});
       assert.ok(quote && quote.credits > 0 && quote.high >= quote.credits, item.id);
       assert.equal(quote.kind, "estime");
     }
     const lips = OUTILS.find(item => item.id === "vid-levres")!;
     assert.equal(outilQuote(lips, { seconds: 5 })!.credits * 2, outilQuote(lips, { seconds: 7 })!.credits);
+    const musique = OUTILS.find(item => item.id === "son-musique-video")!;
+    assert.equal(outilQuote(musique), null);
+    assert.equal(outilQuote(musique, { seconds: 5 })!.credits, 10);
+    assert.equal(outilQuote(musique, { seconds: 10 })!.credits, 20);
   });
 
   it("feeds each tab from the same hub data", () => {

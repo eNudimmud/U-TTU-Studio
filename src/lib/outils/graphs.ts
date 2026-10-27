@@ -103,6 +103,9 @@ const round1 = (value: number) => Math.round(value * 10) / 10;
 export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso" } = {}): OutilQuote | null {
   const row = outil.moteur?.kind === "mesh" ? gesteParId(MESH_GESTE[options.mesh ?? "objet"]) : outilRow(outil);
   if (!row || row.credits === null || row.high === null) return null;
+  // Per-length tools (e.g. Musique pour une vidéo): wait for a real duration so the quote
+  // does not jump 10→20 when the video metadata loads.
+  if (outil.parTranche && !(Number.isFinite(options.seconds) && (options.seconds ?? 0) > 0)) return null;
   const seconds = Number.isFinite(options.seconds) && (options.seconds ?? 0) > 0 ? options.seconds! : OUTIL_SECONDS;
   const blocks = outil.parTranche ? Math.max(1, Math.ceil(seconds / OUTIL_SECONDS - 1e-9)) : 1;
   let credits = row.credits * blocks;

@@ -1,8 +1,8 @@
 // Open public servers, called from the browser. One request a second per service, kept for ten minutes.
 // OpenFreeMap is the map style. Photon finds a name. Overpass draws the block. Panoramax, Wikimedia
-// Commons and KartaView bring the street. Mapillary is asked only when a client token is present.
+// Commons and KartaView bring the street. Mapillary joins through /api/repere/mapillary (MAPILLARY_TOKEN on the server, never printed).
 
-import { mapillaryBboxUrl, mapillaryImagesUrl, mapillaryToken, parseMapillary, type RuePhoto } from "./mapillary.ts";
+import { mapillaryImagesUrl, mapillaryToken, parseMapillary, type RuePhoto } from "./mapillary.ts";
 import {
   chaineRue, distanceMeters, diversifier, pano360, panoramaxBboxUrl, panoramaxByIdUrl, panoramaxSearchUrl, parsePanoramax, parseInstanceHosts, RUE_RAYON, zoneVue,
   type PhotoRue, type Regard,
@@ -317,36 +317,51 @@ async function chargerPanoramax(view: Regard, centre: Regard, max: number): Prom
  * Panoramax, Wikimedia Commons and KartaView are asked at the same time, each with its own limit;
  * a slow or silent source only means fewer photos. Mapillary joins with a client token, never waited on.
  */
+async function chargerMapillaryZone(bbox: readonly [number, number, number, number]): Promise<{ state: "off" | "ok" | "fail"; photos: PhotoRue[] }> {
+  // Always go through the same-origin proxy so MAPILLARY_TOKEN stays on the server.
+  if (!(await slot("mapillary"))) return { state: "fail", photos: [] };
+  try {
+    const params = new URLSearchParams({ bbox: bbox.map(n => n.toFixed(6)).join(","), limit: "100" });
+    const response = await fetch(`/api/repere/mapillary?${params}`, {
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(KARTAVIEW_DELAI),
+    });
+    if (!response.ok) return { state: "fail", photos: [] };
+    const body = await response.json() as { state?: string; data?: unknown };
+    if (body.state === "off") return { state: "off", photos: [] };
+    if (body.state !== "ok" || body.data == null) return { state: "fail", photos: [] };
+    return { state: "ok", photos: parseMapillary(body.data, 100).map(mapillaryPhoto) };
+  } catch {
+    return { state: "fail", photos: [] };
+  }
+}
+
 export async function chargerZone(view: Regard, max = 12, pin?: { lat: number; lon: number }): Promise<ZoneSearch> {
-  const token = mapillaryToken();
-  const key = `zone-v3:${view.lat.toFixed(4)},${view.lon.toFixed(4)},${Math.round(view.heading / 10)},${Math.round(view.fov)},${pin ? `${pin.lat.toFixed(4)},${pin.lon.toFixed(4)}` : "-"},${token ? "m" : "p"}`;
+  const key = `zone-v4:${view.lat.toFixed(4)},${view.lon.toFixed(4)},${Math.round(view.heading / 10)},${Math.round(view.fov)},${pin ? `${pin.lat.toFixed(4)},${pin.lon.toFixed(4)}` : "-"}`;
   const cached = readPublicCache<ZoneSearch>(key);
   if (cached) return cached;
   const near = !pin || distanceMeters(view.lat, view.lon, pin.lat, pin.lon) <= 60;
   const centre = near ? view : { ...view, lat: pin.lat, lon: pin.lon };
   const bbox = zoneVue(view);
-  const [fromPanoramax, fromCommons, fromKartaview, fromMapillary] = await Promise.all([
+  const [fromPanoramax, fromCommons, fromKartaview, mapillary] = await Promise.all([
     chargerPanoramax(view, centre, max).catch(() => null),
     dansLesTemps(chargerCommons(centre.lat, centre.lon), COMMONS_MAX_MS),
     chargerKartaview(centre.lat, centre.lon).catch(() => null),
-    token
-      ? (async () => {
-        const body = await slot("mapillary") ? await getJson(mapillaryBboxUrl(bbox, 100), { Authorization: `OAuth ${token}` }, KARTAVIEW_DELAI) : null;
-        return body ? parseMapillary(body, 100).map(mapillaryPhoto) : null;
-      })().catch(() => null)
-      : Promise.resolve([] as PhotoRue[]),
+    chargerMapillaryZone(bbox),
   ]);
-  const all = [...(fromPanoramax ?? []), ...(fromKartaview ?? []), ...(fromCommons ?? []), ...(fromMapillary ?? [])];
+  const fromMapillary = mapillary.photos;
+  const all = [...(fromPanoramax ?? []), ...(fromKartaview ?? []), ...(fromCommons ?? []), ...fromMapillary];
   // A sphere at the spot first; otherwise any sphere of the block, so a 360° is offered whenever one exists.
   const pano = pano360(all, view.lat, view.lon) ?? (near ? null : pano360(all, centre.lat, centre.lon)) ?? pano360(all, centre.lat, centre.lon, WIDE_M);
   const result: ZoneSearch = {
     photos: diversifier(all.filter(photo => photo.id !== pano?.id && !photo.tour), view, max),
     pano,
     panoramax: fromPanoramax === null ? "fail" : "ok",
-    mapillary: token ? (fromMapillary === null ? "fail" : "ok") : "off",
+    mapillary: mapillary.state,
     commons: fromCommons === null ? "fail" : "ok",
     kartaview: fromKartaview === null ? "fail" : "ok",
   };
-  if (fromPanoramax !== null && fromCommons !== null && fromKartaview !== null) writePublicCache(key, result);
+  if (fromPanoramax !== null && fromCommons !== null && fromKartaview !== null && mapillary.state !== "fail") writePublicCache(key, result);
   return result;
 }
