@@ -33,11 +33,16 @@ export interface ToolStageProps {
 export function ToolStage({ view, onView, source, result, compare, progress, lab, className }: ToolStageProps) {
   const { t } = useI18n();
   const toggleId = useId();
+  const [wipe, setWipe] = useState(50);
   return <div className={`u-tool-stage${className ? ` ${className}` : ""}`} data-tool-stage={view} data-compare={compare ? "" : undefined}>
     <div className="u-tool-stage-frame">
-      {view === "compare" && compare ? <div className="u-tool-compare" data-tool-compare="">
+      {view === "compare" && compare ? <div className="u-tool-compare" data-tool-compare="" style={{ ["--wipe" as string]: `${wipe}%` }}>
         <div className="u-tool-compare-before">{source}</div>
         <div className="u-tool-compare-after">{result}</div>
+        <label className="u-tool-compare-range">
+          <span className="sr-only">{t("shell.compare")}</span>
+          <input type="range" min={0} max={100} value={wipe} data-tool-wipe="" aria-valuetext={`${wipe} %`} onChange={event => setWipe(Number(event.target.value))} />
+        </label>
       </div> : view === "result" ? result : source}
       {progress && <div className="u-tool-stage-progress" role="status" data-tool-progress="">
         <span className="u-fil-bar" aria-hidden="true"><span /></span>
@@ -46,6 +51,11 @@ export function ToolStage({ view, onView, source, result, compare, progress, lab
     </div>
     {lab && <div className="u-tool-stage-lab">{lab}</div>}
     {onView && (source && result) && !compare && <div className="u-tool-seg" role="group" aria-label={t("shell.compare")} id={toggleId}>
+      <button type="button" aria-pressed={view === "source"} data-tool-view="source" onClick={() => onView("source")}>{t("shell.source")}</button>
+      <button type="button" aria-pressed={view === "result"} data-tool-view="result" onClick={() => onView("result")}>{t("shell.result")}</button>
+    </div>}
+    {onView && (source && result) && compare && <div className="u-tool-seg" role="group" aria-label={t("shell.compare")} id={toggleId}>
+      <button type="button" aria-pressed={view === "compare"} data-tool-view="compare" onClick={() => onView("compare")}>{t("shell.slider")}</button>
       <button type="button" aria-pressed={view === "source"} data-tool-view="source" onClick={() => onView("source")}>{t("shell.source")}</button>
       <button type="button" aria-pressed={view === "result"} data-tool-view="result" onClick={() => onView("result")}>{t("shell.result")}</button>
     </div>}

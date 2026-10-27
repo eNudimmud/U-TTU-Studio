@@ -3322,6 +3322,63 @@
       "interrupted": "Die Seite wurde während der Erstellung neu geladen. Falls sie fertig wurde, ist sie in Meine Kreationen.",
       "retry": "Erneut versuchen",
       "toCreations": "Meine Kreationen"
+    },
+    "galerie": {
+      "title": "Von einem Beispiel starten",
+      "lead": "Renders aus diesem Studio auf Comfy. Tippe eines an: es erscheint groß und füllt die Leiste. Nichts wird gesendet.",
+      "do": "Meine Version machen",
+      "active": "In der Leiste",
+      "inBar": "In der Leiste",
+      "before": "vorher",
+      "todo": "Clip noch rendern",
+      "aria": "Meine Version machen: {title}",
+      "strip": "Beispiele",
+      "stripN": "Alle anzeigen ({n})",
+      "powered": "Powered by ComfyUI",
+      "from": "Nach « {title} ».",
+      "clear": "Leiste leeren",
+      "route": "Entsteht mit {tool}. Du bestätigst vor jedem Versand.",
+      "labSource": "Deine Quelle",
+      "labExample": "Beispiel · erwartetes Ergebnis",
+      "quoteNear": "Nahes Beispiel",
+      "tool": {
+        "klein": "Schnelles Bild · Klein",
+        "modifier": "Bearbeiten · Klein",
+        "prise": "TAKE · LTX",
+        "wan": "Animieren · Wan"
+      },
+      "quai": {
+        "title": "Der Kai bei Nacht",
+        "text": "Ein Hafenkai bei Nacht, nasses Pflaster, Poller und Tau im Vordergrund, stilles schwarzes Wasser, Natriumlampen im Nebel, Gold und Schwarz, 35-mm-Anamorphot, ohne Personen."
+      },
+      "uttuQuai": {
+        "title": "Uttu auf dem Kai",
+        "text": "Uttu geht nachts auf dem Kai. Die Kamera folgt ihr."
+      },
+      "rueAube": {
+        "title": "Dieselbe Straße im Morgengrauen",
+        "text": "Derselbe Ort. Ändere Zeit, Wetter oder Jahreszeit. Ohne Personen. Trockenes Morgengrauen, dieselbe Straße."
+      },
+      "pluie": {
+        "title": "Im Regen",
+        "text": "Eine enge Straße bei starkem Regen in der Nacht, glänzendes Pflaster, warme unscharfe Schaufenster, Dampf aus einem Gitter, Schwarz und Gold, geringe Schärfentiefe, Kinobild, ohne Personen."
+      },
+      "gare": {
+        "title": "Eine Bahnhofshalle",
+        "text": "Eine riesige Bahnhofshalle des 19. Jahrhunderts, leer bei Nacht, eisernes Glasdach, nasser Boden spiegelt goldene Lampen, tiefe Schatten, symmetrische Komposition, ohne Personen."
+      },
+      "hallAnime": {
+        "title": "Die Halle erwacht",
+        "text": "Die Kamera fährt langsam durch die Halle; die Lampen flackern."
+      },
+      "quaiRegard": {
+        "title": "Derselbe Kai, anderer Blick",
+        "text": "Derselbe Ort wie das Foto. 16:9, ohne Personen. Kein Text."
+      },
+      "toit": {
+        "title": "Ein Dach im Tagesanbruch",
+        "text": "Pariser Dächer im Morgengrauen, Zink und Schornsteine, goldener Morgennebel, ruhige Stimmung, weites Kinobild, ohne Personen."
+      }
     }
   },
   "shell": {
@@ -3331,6 +3388,9 @@
     "undoRemove": "Entfernen rückgängig",
     "required": "erforderlich",
     "optional": "optional",
-    "removeSlot": "{name} entfernen"
+    "removeSlot": "{name} entfernen",
+    "slider": "Schieberegler",
+    "dropSource": "Deine Quelle erscheint hier",
+    "dropSourceLead": "Füge ein Foto hinzu oder starte mit einem Beispiel."
   }
 }

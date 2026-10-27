@@ -24,6 +24,7 @@ import { MontageButton } from "./montage-button";
 import { resolveStudioHandoff } from "@/lib/agent/handoff";
 import { BarreHome, CardThumb, StudioHome, openStudioTool } from "./studio-entry";
 import { ALL_TOOLS_ID } from "./creation-bar";
+import { ToolShell, ToolStage, type StageView } from "./tool-shell";
 import { REFS_HANDOFF_KEY, isRefsHandoff, takeHandoff } from "@/lib/barre/model";
 import { ReperageTool } from "./reperage/reperage-tool";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
@@ -100,20 +101,58 @@ export function OutilsHub({ tool }: { tool: string | null }) {
   return <OutilWork key={head} outil={outil} head={head} />;
 }
 
+/** Hub tools that use the shared coque (PR B): Retoucher family + Finaliser with before/after slider. */
+const SHELL_COMPARE = new Set(["ret-finaliser"]);
+const SHELL_OUTILS = new Set([
+  "ret-modifier", "ret-finaliser", "ret-elargir", "ret-detourer", "ret-eclairer",
+]);
+
 function OutilWork({ outil, head }: { outil: Outil; head: string }) {
   const { t } = useI18n();
   const { connected, setSheet } = useStudio();
   const [last, setLast] = useState<ToolRun | null>(null);
-  return <div className="u-outils-work" data-outils-tool={head}>
+  const [preview, setPreview] = useState<string | null>(null);
+  const [view, setView] = useState<StageView>(SHELL_COMPARE.has(head) ? "compare" : "result");
+  const onShell = SHELL_OUTILS.has(head) || SHELL_OUTILS.has(outil.id);
+  const compare = SHELL_COMPARE.has(head) || SHELL_COMPARE.has(outil.id);
+
+  useEffect(() => {
+    setView(compare ? "compare" : "result");
+    setLast(null);
+    setPreview(null);
+  }, [head, compare]);
+
+  const sourceNode = preview
+    ? <img className="src" src={preview} alt="" />
+    : <div className="u-tool-stage-empty"><strong>{t("shell.dropSource")}</strong><p>{t("shell.dropSourceLead")}</p></div>;
+  const resultNode = last ? (last.kind === "video"
+    ? <video className="src" src={last.url} poster={last.poster} controls playsInline muted loop preload="metadata" />
+    : <img className="src" src={last.url} alt="" />) : null;
+
+  const stage = onShell ? <ToolStage
+    view={last ? view : "source"}
+    onView={last ? setView : undefined}
+    source={sourceNode}
+    result={resultNode}
+    compare={compare}
+    lab={last ? <>{t("shell.result")}</> : preview ? <>{t("shell.source")}</> : null}
+  /> : null;
+
+  // Coque shows the run on the stage; keep ToolResult below so « Et ensuite ? » + Mes créations stay (PR #137 panneau unique).
+  return <div className="u-outils-work" data-outils-tool={head} data-outil-shell={onShell ? "" : undefined}>
     {!connected && <p className="u-entry-link" data-entry-link="">
       <span>{t("entry.linkTitle")}</span>
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
     <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(ALL_TOOLS_ID)}>← {t("outils.back")}</button>
-    <div className="u-outils-split" data-has-result={last ? "" : undefined}>
-      <ToolPanel outil={outil} onResult={setLast} />
+    {onShell ? <ToolShell
+      stage={stage}
+      bar={<ToolPanel outil={outil} onResult={run => { setLast(run); if (run) setView(compare ? "compare" : "result"); }} onPreview={setPreview} />}
+      examples={last ? <ToolResult run={last} label={titreCarte(t, outil.id)} /> : null}
+    /> : <div className="u-outils-split" data-has-result={last ? "" : undefined}>
+      <ToolPanel outil={outil} onResult={setLast} onPreview={setPreview} />
       {last && <ToolResult run={last} label={titreCarte(t, outil.id)} />}
-    </div>
+    </div>}
   </div>;
 }
 
@@ -228,7 +267,7 @@ function Fold({ step, label, children }: { step: string; label: string; children
   </div>;
 }
 
-export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(run: ToolRun | null): void }) {
+export function ToolPanel({ outil: asked, onResult, onPreview }: { outil: Outil; onResult?(run: ToolRun | null): void; onPreview?(url: string | null): void }) {
   const { t } = useI18n();
   const { connected, creating, runOutil, balance, setSheet, prefs, media } = useStudio();
   const [modelId, setModelId] = useState(asked.id);
@@ -275,6 +314,10 @@ export function ToolPanel({ outil: asked, onResult }: { outil: Outil; onResult?(
 
 
   useEffect(() => { setModelId(asked.id); setAsk(false); }, [asked.id]);
+  useEffect(() => {
+    const url = inputs.image?.url ?? inputs.video?.url ?? null;
+    onPreview?.(url);
+  }, [inputs.image?.url, inputs.video?.url, onPreview]);
   useEffect(() => {
     function apply() {
       let saved: HandedSource | null = null;

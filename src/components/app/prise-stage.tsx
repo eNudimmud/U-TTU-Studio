@@ -36,6 +36,7 @@ import { ExempleDepart } from "./exemple-depart";
 import { FormatSwitch, useFormat } from "./format-switch";
 import { MaquetteView } from "./maquette-view";
 import { useStudio } from "./studio-session";
+import { ToolStage } from "./tool-shell";
 import { EtEnsuite } from "./et-ensuite";
 import { VideoGestes, type PrevisClip } from "./video-gestes";
 import { PrevisPanel } from "./previs-panel";
@@ -811,7 +812,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   else { gold = { label: planCredits === null ? t("p0.tourner") : t("p0.rendu.go", { credits: formatCredits(planCredits) }), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
   const reasonText = gold.enabled ? "" : gold.reason;
 
-  return <section className="u-stage u-prise" data-section="prise" data-prise-ready={ready ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
+  return <section className="u-stage u-prise" data-section="prise" data-prise-shell="" data-prise-ready={ready ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
     <aside className="u-prise-strip" aria-label={t("p0.plans")}>
       <p className="u-label">{t("p0.plans")}</p>
       <div className="u-prise-film">
@@ -867,10 +868,14 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </div>}
       {draft.finalised && draft.before
         ? <Compare before={draft.before} after={draft.after || draft.before} ratio={format} />
-        : !landed && <figure className="u-prise-still" data-prise-still="" data-ratio={format === "9:16" ? "9/16" : "16/9"}>
-          {shownPlace?.src ? <img src={shownPlace.src} alt="" /> : <span className="u-prise-still-empty" aria-hidden="true" />}
-          <figcaption>{[maquette.figures.map(figure => figure.name).join(", "), shownPlace?.name].filter(Boolean).join(" · ") || t("p0.stillEmpty")}</figcaption>
-        </figure>}
+        : !landed && <ToolStage
+          view="source"
+          source={<figure className="u-prise-still" data-prise-still="" data-ratio={format === "9:16" ? "9/16" : "16/9"}>
+            {shownPlace?.src ? <img src={shownPlace.src} alt="" /> : <span className="u-prise-still-empty" aria-hidden="true" />}
+            <figcaption>{[maquette.figures.map(figure => figure.name).join(", "), shownPlace?.name].filter(Boolean).join(" · ") || t("p0.stillEmpty")}</figcaption>
+          </figure>}
+          lab={shownPlace?.src ? <>{t("shell.source")}</> : null}
+        />}
     </div>
     </div>
 
