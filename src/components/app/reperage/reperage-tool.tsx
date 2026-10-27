@@ -2,7 +2,7 @@
 
 // « Repérer un lieu » as a tool of its own, opened from the rail and the 3D row.
 // The same sheet as DÉCOR, in three steps: Lieu, Cadre (free, kept in Mes créations › Lieux),
-// Décor (the kept frame + one to three photos, one Klein edit, quoted before anything runs).
+// Décor (the kept frame via InstantX + Lotus; optional photos colour the prompt; quoted before anything runs).
 
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";

@@ -2,10 +2,11 @@
 
 // « Un vrai lieu en décor », mockup v4: one question and one main action per screen.
 // 1 Où ? (search) → 2 Choisis ta vue (drag the 3D, three heights, free) → 3 Crée ton décor: the kept
-// Volumes view is image 1 of one Klein edit, the place and what the view shows (OSM names, heights,
-// camera, sun) go in the prompt. No photo needed. « Préciser avec des photos » is optional: your own
-// photo, the 360° sphere at the camera's spot, or up to 12 different open photos of the visible area
-// (Panoramax, Wikimedia Commons, KartaView, and Mapillary with a token), each credited under it. → 4 the result, saved in the décor gallery, picked for a shot.
+// Volumes colour frame drives InstantX + Lotus (depth lock); the place and what the view shows
+// (OSM names, heights, camera, sun) go in the prompt. No photo needed. « Préciser avec des photos »
+// is optional: your own photo, the 360° sphere, or up to 12 open photos of the visible area
+// (Panoramax, Wikimedia Commons, KartaView, Mapillary with a token) — credited; they colour the
+// prompt only in v1. → 4 the result, saved in the décor gallery, picked for a shot.
 // Open data only (OpenStreetMap, Terrain Tiles, swisstopo in Switzerland). Steps 1 and 2 spend nothing.
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -251,7 +252,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
     const e = await ensureEngine();
     if (seq !== loadSeq.current) return;
     if (!e) { setPhase("nogl"); return; }
-    // One base look only: Volumes (shaded masses), the best image 1 for Klein. Midday light.
+    // One base look only: Volumes (shaded masses), the colour frame InstantX locks to. Midday light.
     e.setLook("volumes");
     e.setSun(sunPreset("midi", next.lat));
     e.setLine(DEFAULT_SETTINGS.line);

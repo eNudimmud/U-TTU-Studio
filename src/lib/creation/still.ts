@@ -3,25 +3,27 @@
 
 import { measuredCost } from "../credits.ts";
 import { imageOutput, jobStage, RenderError, type JobDetail, type OutputRef, type RenderClient } from "../render/client.ts";
+import { instantxCadreGraph, INSTANTX_CADRE_TEMPLATE } from "../render/instantx-cadre.ts";
 import { KLEIN_REFS_MAX, kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
 import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
 
-/** `cadre-decor`: image 1 is a kept 3D frame, images 2–4 are optional photos of the place (decor-cadre.ts). */
+/** `cadre-decor`: the kept 3D colour frame alone, via InstantX + Lotus (decor-cadre.ts). */
 export type StillKind = "texte-cast" | "texte-decor" | "photo-decor" | "photo-cast" | "planche" | "cadre-decor";
 
 /** Which graph family builds the still. Read from the gesture's template. */
-export type StillEngine = "klein" | "flux3" | "nano";
+export type StillEngine = "klein" | "flux3" | "nano" | "instantx";
 
 export function stillEngine(template: string | undefined): StillEngine {
   if (!template || template.startsWith("image_flux3_klein")) return "klein";
+  if (template === INSTANTX_CADRE_TEMPLATE || template.includes("instantx_controlnet")) return "instantx";
   if (template.startsWith("api_bfl_flux3")) return "flux3";
   if (template.startsWith("api_nano_banana") || template === "templates-character_sheet") return "nano";
   return "klein";
 }
 
-export type CadreStillLayout = "frame-first" | "photo-lines";
+export type CadreStillLayout = "depth-control" | "frame-first" | "photo-lines";
 
 export interface StillRunInput {
   kind: StillKind;
@@ -32,7 +34,7 @@ export interface StillRunInput {
   seed: number;
   clientId: string;
   balanceBefore: number;
-  /** Cadre-decor only: photo-first + edges as structure when set. */
+  /** Cadre-decor only: depth-control (InstantX) is the live path; legacy aliases accepted. */
   cadreLayout?: CadreStillLayout;
 }
 
@@ -169,8 +171,15 @@ export function stillGraph(input: { kind: StillKind; prompt: string; images: rea
   if (!prompt) throw new Error("Le texte est vide.");
   const seed = seedOf(input.seed);
   const engine = stillEngine(input.template);
+  if (input.kind === "cadre-decor") {
+    // InstantX + Lotus is the only cadre path. Klein photo-lines drifted the 3D viewpoint.
+    if (engine !== "instantx" && input.template && engine !== "klein") {
+      throw new Error("Le décor depuis un cadre passe par InstantX ControlNet.");
+    }
+    needsPhoto("cadre-decor", input.images);
+    return instantxCadreGraph({ image: input.images[0]!, prompt, seed });
+  }
   if (engine === "klein") return kleinStill({ ...input, prompt, seed });
-  if (input.kind === "cadre-decor") throw new Error("Le décor depuis un cadre passe par FLUX 3 Klein.");
   if (engine === "flux3") return flux3Still({ ...input, prompt, seed });
   if (input.kind === "planche") {
     const image = input.images[0];
