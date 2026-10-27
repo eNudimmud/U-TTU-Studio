@@ -962,7 +962,8 @@
     "copied": "In das andere Projekt kopiert.",
     "imported": "Hinzugefügt: {count}",
     "noPicture": "Für den Take fehlt ein Bild.",
-    "sessionMissing": "Die Sitzung ist nicht offen."
+    "sessionMissing": "Die Sitzung ist nicht offen.",
+    "deleted": "„{name}“ entfernt"
   },
   "montage": {
     "lead": "Die Einstellungen folgen einander. Stimme, Effekte und Musik liegen darunter.",
@@ -1401,7 +1402,8 @@
     "estimate": "Kalkulation {amount}",
     "sansImageOne": "1 Ort ohne Bild wartet in Kulisse.",
     "sansImageMany": "{count} Orte ohne Bild warten in Kulisse.",
-    "sansImageGo": "Erstellen"
+    "sansImageGo": "Erstellen",
+    "credit": "Bildnachweis"
   },
   "r7": {
     "maquette": "Skizze",
@@ -1671,7 +1673,9 @@
     "savedClip": "Vorschau in Meine Kreationen gespeichert.",
     "downloadClip": "Video herunterladen",
     "modelTerms": "Modelllizenz lesen",
-    "hunyuanTerms": "Für dieses Volumen gelten besondere Bedingungen: Die Community-Lizenz schließt die EU, das Vereinigte Königreich und Südkorea aus. Kläre die geltenden Rechte vor der Nutzung mit deinem Anbieter."
+    "hunyuanTerms": "Für dieses Volumen gelten besondere Bedingungen: Die Community-Lizenz schließt die EU, das Vereinigte Königreich und Südkorea aus. Kläre die geltenden Rechte vor der Nutzung mit deinem Anbieter.",
+    "downloadImage": "Bild herunterladen",
+    "downloadAudio": "Audio herunterladen"
   },
   "recovery": {
     "title": "Renderauftrag wiederfinden",
@@ -1945,7 +1949,8 @@
       "goNext": "Einstellung {n} drehen · ≈ {credits} Credits geschätzt",
       "keep": "Deine Wahl bleibt für die nächsten Einstellungen dieses Projekts.",
       "apercuHint": "Eine Vorschau wird später finalisiert, einzeln oder mit dem ganzen Schnitt."
-    }
+    },
+    "addToMontage": "Zur Montage hinzufügen"
   },
   "p1": {
     "hint": "Ein Satz genügt: wer, wo, was passiert, die Kamera, die Stimmung.",
@@ -2974,7 +2979,8 @@
     },
     "guidance": "Wähle ein Projekt. Wähle Medien zum Prüfen oder Zuordnen aus und fülle mindestens ein Zuordnungsfeld aus. Aktionen warten, bis die Synchronisierung abgeschlossen ist.",
     "lead": "Deine Comfy-Werke, nach Projekt geordnet.",
-    "helpTitle": "Wie funktioniert das?"
+    "helpTitle": "Wie funktioniert das?",
+    "cloud": "Cloud"
   },
   "demoNames": {
     "demo-coursiere": "Die Kurierin",

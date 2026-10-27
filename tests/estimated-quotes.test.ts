@@ -10,7 +10,7 @@ describe("devis LTX estimé", () => {
     const quote = resolveTakeQuote(takeProfile(DEFAULT_TAKE), []);
     assert.equal(quote.source, "estimated");
     const line = quoteSentence(quote);
-    assert.match(line, /^Estimé : environ 12 à 25 crédits\./);
+    assert.match(line, /^Estimé : environ 14 à 28 crédits\./);
     assert.doesNotMatch(line, /mesuré sur/);
     assert.doesNotMatch(line, /Pas encore mesuré/);
   });
@@ -52,6 +52,10 @@ describe("gestes vidéo de PRISE", () => {
     }
     assert.throws(() => videoGesteGraph({ geste: "prise-effacer", files, prompt: " ", seed: 0 }));
     assert.doesNotThrow(() => videoGesteGraph({ geste: "prise-elargir", files, prompt: "", seed: 0 }));
+    const elargir = videoGesteGraph({ geste: "prise-elargir", files, prompt: "", seed: 0 });
+    assert.equal("audio" in (elargir["5152"]?.inputs ?? {}), false);
+    const effacer = videoGesteGraph({ geste: "prise-effacer", files, prompt: "la voiture rouge", seed: 1 });
+    assert.match(String(effacer["54:9"].inputs.text), /Remove|remove|supprim|effac/i);
   });
 });
 

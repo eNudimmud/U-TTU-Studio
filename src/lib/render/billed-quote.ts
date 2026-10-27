@@ -45,8 +45,8 @@ export interface TakeEstimate {
   creditsHigh: number;
 }
 
-/** LTX-2.5 i2v on Comfy Cloud: no billed take yet. 12–25 credits for 5 s, scaled by duration. */
-export const LTX_ESTIMATE_5S = { credits: 12, creditsHigh: 25 } as const;
+/** LTX-2.5 i2v on Comfy Cloud: no billed take yet. Live Tourner ≈14; quote tracks that (high unchanged). */
+export const LTX_ESTIMATE_5S = { credits: 14, creditsHigh: 28 } as const;
 
 /**
  * LTX-2.5 Aperçu (first pass only, about 480p). An estimate, not a measure: about half of

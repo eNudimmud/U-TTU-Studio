@@ -69,8 +69,8 @@ test('mémoire de production · 3 plans : A-02 et A-03 héritent de la tenue, A-
   await page.locator('[data-intention]').evaluate(element => element.scrollIntoView({ block: 'center' }));
   await snap('a01-intention');
   await gold.click();
-  await expect(page.locator('dialog [data-fiabilite]')).toContainText('tenue de chasseur');
-  await expect(page.locator('dialog [data-fiabilite]')).toContainText('VHS 1994');
+  await expect(page.locator('[data-confirm-tourner] [data-fiabilite]')).toContainText('tenue de chasseur');
+  await expect(page.locator('[data-confirm-tourner] [data-fiabilite]')).toContainText('VHS 1994');
   await snap('a01-confirmation');
   await page.locator('[data-confirm-gold]').click();
   await expect(page.locator('[data-take-view] video')).toBeVisible({ timeout: 60_000 });
@@ -81,7 +81,7 @@ test('mémoire de production · 3 plans : A-02 et A-03 héritent de la tenue, A-
   // A-02: the next plan inherits the outfit without being told.
   await page.getByRole('textbox', { name: 'Plan suivant : ce qui se passe' }).fill('Léa ouvre la porte du laboratoire, travelling avant');
   await gold.click();
-  await expect(page.locator('dialog [data-fiabilite]')).toContainText('Léa · tenue de chasseur (A-01)');
+  await expect(page.locator('[data-confirm-tourner] [data-fiabilite]')).toContainText('Léa · tenue de chasseur (A-01)');
   await page.locator('[data-confirm-gold]').click();
   await expect(page.locator('#u-title')).toHaveText('Plan 2');
   await expect(page.locator('[data-take-view] video')).toBeVisible({ timeout: 60_000 });
@@ -102,7 +102,7 @@ test('mémoire de production · 3 plans : A-02 et A-03 héritent de la tenue, A-
   await page.locator('[data-intention]').evaluate(element => element.scrollIntoView({ block: 'center' }));
   await snap('a03-changement');
   await gold.click();
-  await expect(page.locator('dialog [data-fiabilite]')).toContainText('Léa · combinaison de labo (A-03)');
+  await expect(page.locator('[data-confirm-tourner] [data-fiabilite]')).toContainText('Léa · combinaison de labo (A-03)');
   await page.locator('[data-confirm-gold]').click();
   await expect(page.locator('[data-take-view] video')).toBeVisible({ timeout: 60_000 });
   const p3 = comfy.prompts.filter(item => item.kind === 'video').at(-1)?.text ?? '';

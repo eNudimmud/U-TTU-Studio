@@ -18,10 +18,11 @@ import { failView } from "@/lib/render/fail";
 import { outilQuote } from "@/lib/outils/graphs";
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
 import { assetPath } from "@/lib/site";
-import { lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
+import { audioSeconds, lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
 import type { Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
+import { MeshViewer } from "./mesh-viewer";
 import { MontageButton } from "./montage-button";
 import { resolveStudioHandoff } from "@/lib/agent/handoff";
 import { BarreHome, CardThumb, StudioHome, openStudioTool } from "./studio-entry";
@@ -175,19 +176,33 @@ interface Picked { url: string; name: string; file?: File; path?: string; aspect
 function kindOfAsset(asset: AssetRecord, media: Record<string, string>): "image" | "video" | "audio" | "mesh" | null {
   const path = asset.media || asset.preview || "";
   if (/\.(glb|gltf)$/i.test(path)) return "mesh";
-  if (/\.(mp4|webm|mov)$/i.test(path) || asset.kind === "plan") return /\.(png|jpe?g|webp)$/i.test(path) ? "image" : "video";
+  // A PRISE take is always a video in this picker, even when only the poster path is known yet.
+  if (asset.kind === "plan") return "video";
+  if (/\.(mp4|webm|mov)$/i.test(path)) return "video";
   if (/\.(mp3|wav|flac|ogg|m4a)$/i.test(path) || asset.kind === "son") return "audio";
   if (/\.(png|jpe?g|webp|gif)$/i.test(path)) return "image";
   return media[path] ? "image" : null;
 }
 
-export function useResultAssets(): { asset: AssetRecord; url: string; kind: "image" | "video" | "audio" | "mesh" }[] {
+export function useResultAssets(): { asset: AssetRecord; url: string; kind: "image" | "video" | "audio" | "mesh"; thumb: string }[] {
   const { loose, media, studio } = useStudio();
   return useMemo(() => {
-    const takes: AssetRecord[] = studio.takes.map(take => ({ id: take.id, kind: "plan", name: take.line || take.id, at: take.at, prompt: take.prompt, geste: "prise-plan", template: "", refs: [], devis: take.announcedCredits, cout: take.costCredits, media: take.video, note: "", preview: null, loose: false }));
+    // Prefer the final upscale when present; keep the original as media so the picker can play it.
+    const takes: AssetRecord[] = studio.takes.map(take => ({
+      id: take.id, kind: "plan", name: take.line || take.id, at: take.at, prompt: take.prompt, geste: "prise-plan", template: "",
+      refs: [], devis: take.announcedCredits, cout: take.costCredits,
+      media: take.finalVideo || take.video, note: "", preview: take.poster, loose: false,
+    }));
     return [...loose, ...takes]
-      .map(asset => ({ asset, url: asset.preview ? assetPath(asset.preview) : (media[asset.media] ?? ""), kind: kindOfAsset(asset, media) }))
-      .filter((item): item is { asset: AssetRecord; url: string; kind: "image" | "video" | "audio" | "mesh" } => Boolean(item.url && item.kind))
+      .map(asset => {
+        const playable = asset.media ? (media[asset.media] ?? "") : "";
+        const poster = asset.preview ? (media[asset.preview] ?? (asset.preview.startsWith("/") || asset.preview.startsWith("blob:") ? asset.preview : assetPath(asset.preview))) : "";
+        // Playable blob first; a public/preview path keeps example assets in the list.
+        const url = playable || poster || "";
+        const kind = kindOfAsset({ ...asset, media: asset.media || asset.preview || "" }, media);
+        return { asset, url, kind, thumb: poster || playable || url };
+      })
+      .filter((item): item is { asset: AssetRecord; url: string; kind: "image" | "video" | "audio" | "mesh"; thumb: string } => Boolean(item.url && item.kind))
       .sort((a, b) => b.asset.at.localeCompare(a.asset.at));
   }, [loose, media, studio.takes]);
 }
@@ -198,7 +213,7 @@ function InputSlot({ entree, label, value, busy, busyId, onChange }: { entree: E
   const [over, setOver] = useState(false);
   const [studioOpen, setStudioOpen] = useState(false);
   const want = MEDIA[entree];
-  const own = useResultAssets().filter(item => item.kind === want).slice(0, 8);
+  const own = useResultAssets().filter(item => item.kind === want).slice(0, 32);
   const accept = `${want}/*`;
   function take(file: File | undefined) {
     if (!file || !(file.type || typeFromName(file.name)).startsWith(`${want}/`)) return;
@@ -225,7 +240,9 @@ function InputSlot({ entree, label, value, busy, busyId, onChange }: { entree: E
     </div>
     {studioOpen && <div className="u-outil-own" role="group" aria-label={t("outils.fromStudio")}>
       {own.map(item => <button key={item.asset.id} type="button" className="u-outil-own-item" onClick={() => { onChange({ url: item.url, name: item.asset.name, path: item.asset.media || undefined }); setStudioOpen(false); }}>
-        {want === "image" ? <img src={item.url} alt="" /> : <span>{want === "video" ? "▶" : "♪"}</span>}
+        {want === "image" ? <img src={item.thumb || item.url} alt="" />
+          : want === "video" ? <video src={item.url} poster={item.thumb && item.thumb !== item.url ? item.thumb : undefined} muted playsInline preload="metadata" />
+          : <audio src={item.url} preload="metadata" controls={false} />}
         <span className="u-small">{item.asset.name}</span>
       </button>)}
     </div>}
@@ -401,12 +418,18 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const slotName = (entree: Entree) => bridge && entree === "image" ? "start" : bridge && entree === "image2" ? "end" : entree;
   const reglages = [...(outil.reglages ?? []), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
   const video = inputs.video;
+  const audio = inputs.audio;
   useEffect(() => {
-    if (!video) { setSeconds(null); return; }
+    // Faire parler bills / renders from the voice length; other tools from the video.
+    const source = outil.id === "vid-parler" || (outil.entrees.includes("audio") && !outil.entrees.includes("video"))
+      ? audio?.url
+      : video?.url;
+    if (!source) { setSeconds(null); return; }
     let gone = false;
-    void videoSeconds(video.url).then(value => { if (!gone) setSeconds(value); });
+    const read = outil.id === "vid-parler" || (audio?.url === source) ? audioSeconds : videoSeconds;
+    void read(source).then(value => { if (!gone) setSeconds(value); });
     return () => { gone = true; };
-  }, [video]);
+  }, [video, audio, outil.id, outil.entrees]);
 
   const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh }), [outil, seconds, fluide, mesh]);
   const quotePending = Boolean(outil.parTranche && inputs.video && seconds == null);
@@ -554,6 +577,15 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   </section>;
 }
 
+
+/** Prefer a real .glb/.gltf name from the vault path (never a raw blob id). */
+function meshDownloadName(path: string, label: string): string {
+  const base = path.split("/").pop()?.trim() || "";
+  if (/\.(glb|gltf)$/i.test(base)) return base;
+  const safe = label.replace(/[^a-zA-Z0-9._\u00C0-\u024F-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "volume";
+  return `${safe}.glb`;
+}
+
 /** The run just made in this tool: what came back, shown big, never a file name. */
 export interface ToolRun { url: string; path: string; kind: Sortie; poster?: string; aspect?: "horizontal" | "vertical" }
 
@@ -571,7 +603,12 @@ function ToolResult({ run, label }: { run: ToolRun; label: string }) {
       {run.kind === "image" && <img src={run.url} alt={t("outils.result")} />}
       {run.kind === "video" && <video src={run.url} controls playsInline preload="metadata" />}
       {run.kind === "audio" && <audio src={run.url} controls />}
-      {run.kind === "mesh" && <>{run.poster && <img src={run.poster} alt="" />}<a className="u-primary" href={run.url} download>{t("outils.download")}</a></>}
+      {run.kind === "mesh" && <>
+        <MeshViewer url={run.url} label={t("outils.result")} />
+        <div className="u-tool-result-mesh-actions">
+          <a className="u-primary" href={run.url} download={meshDownloadName(run.path, label)}>{t("outils.download")}</a>
+        </div>
+      </>}
     </div>
     {run.kind === "video" && run.path && <div className="u-fil-actions" data-tool-result-actions="">
       <MontageButton input={{ planId: "outils", label, seconds: 5, aspect: run.aspect ?? "horizontal", still: "", video: run.path, prompt: "", sceneName: "", composeur: "" }} />

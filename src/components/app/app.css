@@ -2413,3 +2413,73 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-fil-quote-ex p { margin: 0; font: 500 13px/1.35 var(--font-body); }
 .u-fil-quote-ex small { color: var(--fg-2); }
 
+
+
+/* Clip reorder: insertion caret + dragged clip (Mes créations / montage visitor tests). */
+.u-clip-insert {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  z-index: 6;
+  width: 3px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: var(--u-gold, #c9a227);
+  pointer-events: none;
+}
+.u-clip[data-dragging] { outline: 1px dashed var(--u-gold, #c9a227); }
+
+/* (21) 390 px montage: Delete label must not wrap into unreadability; 44 px tools/zoom. */
+@media (max-width: 430px) {
+  .u-floatbar button span { display: none; }
+  .u-floatbar button { min-width: 44px; min-height: 44px; padding: 0; }
+  .u-toolrow-zoom { display: flex !important; }
+  .u-toolrow-zoom .u-tool,
+  .u-ruler-zoom .u-tool,
+  .u-track-add { width: 44px; min-width: 44px; height: 44px; min-height: 44px; }
+  .u-capcut .u-track-row.is-video,
+  .u-capcut .u-track-row.is-video .u-track { min-height: 64px; }
+  .u-capcut .u-clip.is-video { top: 6px; height: calc(100% - 12px); }
+}
+
+/* (23) 1024×600 montage toolbar: labels truncate — icons + native tooltips only. */
+@media (min-width: 800px) and (max-width: 1100px) {
+  .u-app[data-studio="montage"] .u-tool span,
+  .u-capcut .u-toolrow .u-tool span { display: none; }
+  .u-app[data-studio="montage"] .u-tool,
+  .u-capcut .u-toolrow .u-tool {
+    min-width: 44px;
+    width: 44px;
+    padding: 0;
+  }
+}
+
+/* (22) 844×390 landscape: compact header + scrollable rail so Film / Mes créations stay reachable. */
+@media (max-height: 430px) and (orientation: landscape) {
+  :root { --u-top-h: 48px; }
+  .u-top, .u-topbar {
+    min-height: 48px;
+    max-height: 48px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .u-top .u-mark .brand-studio,
+  .u-topbar .u-mark .brand-studio { display: none; }
+  .u-rail {
+    top: var(--u-top-h);
+    padding-top: 4px;
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
+    gap: 0;
+    overflow-y: auto;
+  }
+  .u-rail-item { min-height: 44px; }
+  .u-rail-sep { margin: 4px 6px; }
+  .u-rail-foot { padding-top: 4px; }
+  .u-rail-badge-mini { width: 44px; height: 44px; }
+  .u-app[data-studio="montage"] .u-top { min-height: 44px; padding-block: 2px; }
+  .u-app[data-studio="montage"] .u-chain { margin: 2px 8px 0; }
+  .u-app[data-studio="montage"] .u-main { padding: 2px 8px 4px; }
+}
+
+/* PRISE figure chips: 44 px tap targets (visitor test). */
+.u-figure-action { min-height: 44px; min-width: 44px; padding-inline: 12px; }

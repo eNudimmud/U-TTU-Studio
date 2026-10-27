@@ -38,6 +38,7 @@ describe("photos · filtre Wikimedia Commons", () => {
     ["an elevator", "Elevators in Lausanne"],
     ["an old picture", "Black and white photographs of Lausanne"],
     ["a street sign", "100elles|Rue de la Confédération (Geneva)"],
+    ["a circus", "Circus in Central Park|Ringling"],
   ] as const) {
     it(`drops ${what}`, () => {
       assert.ok(motBruit(text), text);
@@ -217,5 +218,21 @@ describe("photos · sphères Commons", () => {
       extmetadata: { LicenseShortName: { value: "CC BY-SA 4.0" }, Artist: { value: "Nfriedli" }, Categories: { value: "360° panoramas|Église réformée Saint-François" } },
     }] }] } }, new Map([[5, point]]));
     assert.deepEqual(out, []);
+  });
+});
+
+describe("photos · street bias for décor refs", () => {
+  it("ranks Mapillary/KartaView ahead of Commons park titles", () => {
+    const view = { lat: LAU.lat, lon: LAU.lon, heading: 0, fov: 90 };
+    const park = photo("c-park", "commons", 20, 0, { label: "Central Park lawn fountain" });
+    const street = photo("m-street", "mapillary", 40, 5);
+    const out = diversifier([park, street], view, 2);
+    assert.equal(out[0]?.id, "m-street");
+  });
+
+  it("prefers Mapillary spheres over Commons for pano360", () => {
+    const commons = photo("c-360", "commons", 10, 0, { tour: true });
+    const mly = photo("m-360", "mapillary", 25, 0, { tour: true });
+    assert.equal(pano360([commons, mly], LAU.lat, LAU.lon)?.id, "m-360");
   });
 });

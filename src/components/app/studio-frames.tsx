@@ -187,25 +187,29 @@ export function ConfirmTake() {
   const format = settings ? `${settings.seconds} s · ${settings.aspect === "vertical" ? "9:16" : "16:9"}` : "";
   const states = protocole({ prepared: true, checked: true, quoted: takeQuote.source !== "unmeasured", confirming: !creating, running: creating });
   const blockReason = gate.allowed ? "" : gateReason(t, takeQuote, balance?.credits ?? null);
-  return <Frame title={t("sheet.confirmTitle")} onClose={() => setSheet(null)}>
-    {pendingTake && <p>{format} · {t("p0.fiab.castCount", { count: pendingTake.castIds.length })}</p>}
-    <FiabiliteCard
-      states={states}
-      estimate={quoteWords(t, takeQuote)}
-      estimateId="u-confirm-cost"
-      failure={blockReason || undefined}
-      sent={pendingTake?.resume ?? []}
-      technical={[{ label: t("p0.fiab.sentEngine"), value: `${engine} · ${format}` }, { label: t("p0.fiab.sentRaw"), value: text }]}
-      change={pendingTake?.change || t("p0.fiab.changePrise")}
-      where={t("p0.fiab.whereTakeNext")}
-      open
-    />
-    <p className="sr-only" id="u-confirm-sent">{text}</p>
-    <div className="u-sheet-actions">
-      <button type="button" className="u-primary" data-confirm-gold="" disabled={!canConfirm} aria-describedby="u-confirm-cost u-confirm-sent" onClick={() => void confirmRun()}>{t("p0.confirmGo")}</button>
-      <button type="button" className="u-link" onClick={() => setSheet(null)}>{t("verb.cancel")}</button>
+  // Centered modal so Tourner confirm stays on-screen (bottom sheet was off-view on tall maquette).
+  return <div className="u-confirm-layer" role="presentation" data-confirm-tourner="">
+    <div className="u-confirm" role="dialog" aria-modal="true" aria-labelledby="u-confirm-title">
+      <h2 id="u-confirm-title">{t("sheet.confirmTitle")}</h2>
+      {pendingTake && <p>{format} · {t("p0.fiab.castCount", { count: pendingTake.castIds.length })}</p>}
+      <FiabiliteCard
+        states={states}
+        estimate={quoteWords(t, takeQuote)}
+        estimateId="u-confirm-cost"
+        failure={blockReason || undefined}
+        sent={pendingTake?.resume ?? []}
+        technical={[{ label: t("p0.fiab.sentEngine"), value: `${engine} · ${format}` }, { label: t("p0.fiab.sentRaw"), value: text }]}
+        change={pendingTake?.change || t("p0.fiab.changePrise")}
+        where={t("p0.fiab.whereTakeNext")}
+        open
+      />
+      <p className="sr-only" id="u-confirm-sent">{text}</p>
+      <div className="u-confirm-actions">
+        <button type="button" className="u-primary" data-confirm-gold="" disabled={!canConfirm} aria-describedby="u-confirm-cost u-confirm-sent" onClick={() => void confirmRun()}>{t("p0.confirmGo")}</button>
+        <button type="button" className="u-link" onClick={() => setSheet(null)}>{t("verb.cancel")}</button>
+      </div>
     </div>
-  </Frame>;
+  </div>;
 }
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;

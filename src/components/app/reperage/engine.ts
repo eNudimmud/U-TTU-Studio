@@ -9,7 +9,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { assetPath } from "@/lib/site";
 import { classifyTwo, readTwo, tiltFor, type Finger, type TwoMode, type TwoReading } from "@/lib/repere3d/gesture";
-import { gltfToLocal, heightOffset, keepSwiss, soberColor, splitB3dm, swissContents, swissRadius, swissTileCap, type SwissBuilding } from "@/lib/repere3d/swiss-buildings";
+import { gltfToLocal, heightOffset, keepSwiss, osmMassingColor, soberColor, splitB3dm, swissContents, swissRadius, swissTileCap, type SwissBuilding } from "@/lib/repere3d/swiss-buildings";
 import { plafondBatiments, rayonFor, streetStand, type Quartier } from "@/lib/repere/quartier";
 import { BUILDING_Z, DEM_Z, SWISS_Z, LocalFrame, headingOf, inSwitzerland, tileOrigin, tileSize, tilesAround, type TileId } from "@/lib/repere3d/geo";
 import { OPENFREEMAP_TILEJSON, decodeTile, parseTileJson, tileUrl, type Area, type Building, type Road, type TileShapes } from "@/lib/repere3d/osm-tiles";
@@ -258,7 +258,7 @@ export class Reperage3D {
   private readonly resizeObserver: ResizeObserver;
   private readonly materials = {
     groundCarte: new THREE.MeshLambertMaterial({ color: 0xffffff }),
-    groundVolumes: new THREE.MeshLambertMaterial({ color: 0xd8d8d6 }),
+    groundVolumes: new THREE.MeshLambertMaterial({ color: 0xb8b8b4 }),
     groundTrait: new THREE.MeshBasicMaterial({ color: 0xffffff }),
     groundOmbres: new THREE.MeshLambertMaterial({ color: 0xffffff }),
     buildCarte: new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide }),
@@ -448,8 +448,8 @@ export class Reperage3D {
     if (this.ground) this.ground.material = groundMat;
     if (this.buildings) this.buildings.material = buildMat;
     this.sunLight.castShadow = this.look !== "trait";
-    this.hemi.intensity = this.look === "ombres" ? 0.55 : 1.1;
-    this.sunLight.intensity = this.look === "ombres" ? 2.6 : 2.1;
+    this.hemi.intensity = this.look === "ombres" ? 0.55 : this.look === "volumes" ? 1.35 : 1.1;
+    this.sunLight.intensity = this.look === "ombres" ? 2.6 : this.look === "volumes" ? 2.8 : 2.1;
     if (this.look === "carte" && this.swiss && this.photoState === "none") void this.loadSwissPhoto();
   }
 
@@ -963,17 +963,16 @@ export class Reperage3D {
     const colors: number[] = [];
     const swissR = swissRadius(this.options.mobile);
     const swissOn = this.swissList.length > 0;
-    const osmColor = new THREE.Color(0xe9e3d8);
     for (const b of this.osmSorted) {
-      if (swissOn) {
-        let cx = 0, cz = 0;
-        const n = Math.max(1, b.outer.length - 1);
-        for (let i = 0; i < n; i += 1) { cx += b.outer[i][0]; cz += b.outer[i][1]; }
-        if (keepSwiss({ cx: cx / n, cz: cz / n }, swissR)) continue;
-      }
+      let cx = 0, cz = 0;
+      const n = Math.max(1, b.outer.length - 1);
+      for (let i = 0; i < n; i += 1) { cx += b.outer[i][0]; cz += b.outer[i][1]; }
+      cx /= n; cz /= n;
+      if (swissOn && keepSwiss({ cx, cz }, swissR)) continue;
       const from = positions.length;
       this.extrude(b, positions);
-      for (let i = from; i < positions.length; i += 3) colors.push(osmColor.r, osmColor.g, osmColor.b);
+      const [cr, cg, cb] = osmMassingColor(b.height, cx, cz);
+      for (let i = from; i < positions.length; i += 3) colors.push(cr, cg, cb);
     }
     for (const b of this.swissList) {
       positions.push(...b.positions);

@@ -39,7 +39,7 @@ for (const viewport of VIEWPORTS) {
     await panel.locator("[data-uttu-send]").click();
     const reply = panel.locator("[data-uttu-log] [data-role=assistant]").last();
     await expect(reply.locator("[data-uttu-total]")).toContainText("crédits estimés");
-    await expect(reply.locator("[data-uttu-total]")).toContainText("36–68");
+    await expect(reply.locator("[data-uttu-total]")).toContainText("40–74");
 
     await input.fill("où coller ma clé ?");
     await input.press("Enter");

@@ -33,10 +33,6 @@
       "images": [
         "5151:5143",
         0
-      ],
-      "audio": [
-        "5060",
-        2
       ]
     },
     "class_type": "VHS_VideoCombine",

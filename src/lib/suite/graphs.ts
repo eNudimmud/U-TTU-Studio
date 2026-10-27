@@ -81,8 +81,8 @@ export const SUITE_PREFIX: Record<SuiteGeste, string> = {
 
 /** Video length sent to the engine, in seconds. One fixed length keeps one estimate. */
 export const SUITE_SECONDS = 5;
-/** Lip-sync length cap. The voice is trimmed to it. */
-export const PARLER_MAX_SECONDS = 5;
+/** Lip-sync length cap. Output matches the voice up to this. */
+export const PARLER_MAX_SECONDS = 20;
 /** Finaliser vidéo: the shorter side after restoration. */
 export const FINAL_SHORTER = 1080;
 

@@ -64,3 +64,17 @@ export function lastFrame(url: string, name = "derniere-image"): Promise<File | 
     video.src = url;
   });
 }
+
+/** Seconds of an audio file, or null when it cannot be read. */
+export function audioSeconds(url: string): Promise<number | null> {
+  return new Promise(resolve => {
+    if (typeof document === "undefined" || !url) { resolve(null); return; }
+    const audio = document.createElement("audio");
+    const timer = window.setTimeout(() => resolve(null), 8000);
+    audio.preload = "metadata";
+    audio.onloadedmetadata = () => { window.clearTimeout(timer); resolve(Number.isFinite(audio.duration) ? audio.duration : null); };
+    audio.onerror = () => { window.clearTimeout(timer); resolve(null); };
+    audio.src = url;
+  });
+}
+

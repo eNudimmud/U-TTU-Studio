@@ -1,15 +1,24 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { assetFromCast, assetFromDecor, type AssetRecord } from "@/lib/creation/assets";
 import { assetPath } from "@/lib/site";
 import { studioTarget } from "@/lib/coffre/target";
 import { cleanCardName } from "@/lib/creation/gallery";
+import { useI18n } from "@/components/i18n/provider";
 import { AssetGallery, type LibraryType } from "./asset-gallery";
 import { useStudio } from "./studio-session";
+import { UndoToast } from "./tool-shell";
 
-function sourceOf(asset: AssetRecord, media: Record<string, string>): string {
-  if (asset.preview) return assetPath(asset.preview);
-  return asset.media && media[asset.media] ? asset.media : "";
+function takeLabel(line: string, id: string, at: string): string {
+  const cleaned = cleanCardName(line);
+  if (cleaned) return cleaned;
+  const when = at ? new Date(at) : null;
+  if (when && !Number.isNaN(when.getTime())) {
+    const stamp = `${String(when.getHours()).padStart(2, "0")}:${String(when.getMinutes()).padStart(2, "0")}`;
+    return `Prise · ${stamp}`;
+  }
+  return id;
 }
 
 export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, sort, title }: {
@@ -20,15 +29,33 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
   title?: string;
   defaultFilter?: "tout" | "personnage" | "decor" | "plan" | "son" | "importe";
 }) {
+  const { t } = useI18n();
   const session = useStudio();
   const { cast, decor, media, studio, loose, pickCast, pickDecor, renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo, copyDecorTo, importAssets, refreshStudio, holdRef, holdClip } = session;
+  const [pending, setPending] = useState<AssetRecord | null>(null);
+  const timer = useRef<number | null>(null);
+
+  const pendingRef = useRef<AssetRecord | null>(null);
+  pendingRef.current = pending;
+  useEffect(() => () => {
+    if (timer.current) {
+      window.clearTimeout(timer.current);
+      const asset = pendingRef.current;
+      if (asset) {
+        if (asset.kind === "personnage") void deleteCast(asset.id);
+        else if (asset.kind === "decor") void deleteDecor(asset.id);
+        else void deleteAsset(asset);
+      }
+    }
+  }, [deleteAsset, deleteCast, deleteDecor]);
+
   const assets: AssetRecord[] = [
     ...cast.map(assetFromCast),
     ...decor.map(card => assetFromDecor(card)),
     ...studio.takes.map(take => ({
       id: take.id,
       kind: "plan" as const,
-      name: cleanCardName(take.line) || take.id,
+      name: takeLabel(take.line, take.id, take.at),
       at: take.at,
       prompt: take.prompt,
       geste: "prise-plan",
@@ -42,9 +69,28 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
       loose: false,
     })),
     ...loose,
-  ];
+  ].filter(asset => asset.id !== pending?.id);
 
-  function useRef(asset: AssetRecord) {
+  function commitDelete(asset: AssetRecord) {
+    if (asset.kind === "personnage") void deleteCast(asset.id);
+    else if (asset.kind === "decor") void deleteDecor(asset.id);
+    else void deleteAsset(asset);
+  }
+
+  function scheduleDelete(asset: AssetRecord) {
+    if (pending && timer.current) {
+      window.clearTimeout(timer.current);
+      commitDelete(pending);
+    }
+    setPending(asset);
+    timer.current = window.setTimeout(() => {
+      commitDelete(asset);
+      setPending(null);
+      timer.current = null;
+    }, 6000);
+  }
+
+  function holdAsRef(asset: AssetRecord) {
     if (onUseRef) {
       onUseRef(asset);
       return;
@@ -55,61 +101,72 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
     window.location.hash = role === "lieu" ? "scene" : "personnage";
   }
 
-  return <AssetGallery
-    assets={assets}
-    media={media}
-    defaultFilter={defaultFilter}
-    type={type}
-    dense={dense}
-    sort={sort}
-    title={title}
-    projects={studio.projects.filter(item => item.slug !== studio.project)}
-    onRefresh={() => void refreshStudio()}
-    onEmptyDecor={() => { window.location.hash = "scene"; }}
-    onImport={files => void importAssets(files, defaultFilter === "personnage" || defaultFilter === "decor" ? defaultFilter : undefined)}
-    onUseRef={useRef}
-    onPrise={asset => {
-      if (!window.location.pathname.endsWith('/studio')) {
-        window.location.href = assetPath(studioTarget(asset.kind === 'decor' ? 'lieu' : asset.kind === 'personnage' ? 'personnage' : 'prise', asset.id, studio.project));
-        return;
-      }
-      if (asset.kind === "decor") void pickDecor(asset.id);
-      else if (asset.kind === "personnage") void pickCast(asset.id);
-      window.location.hash = "prise";
-    }}
-    onMontage={asset => {
-      if (!window.location.pathname.endsWith('/studio')) {
-        window.location.href = assetPath(studioTarget('asset', asset.id, studio.project));
-        return;
-      }
-      const take = studio.takes.find(item => item.id === asset.id);
-      // Vault path only — a preview URL cannot be resolved by the montage urlOf/media map.
-      const source = take?.video || asset.media;
-      if (!source) return;
-      holdClip({
-        source,
-        label: asset.name,
-        kind: asset.kind === "son" ? "audio" : /\.(mp4|webm|mov)$/i.test(source) ? "video" : "image",
-        seconds: take?.settings.seconds,
-      });
-      window.location.hash = "montage";
-    }}
-    onRename={(asset, name) => {
-      if (asset.kind === "personnage") void renameCast(asset.id, name);
-      if (asset.kind === "decor") void renameDecor(asset.id, name);
-    }}
-    onDuplicate={asset => {
-      if (asset.kind === "personnage") void duplicateCast(asset.id);
-      if (asset.kind === "decor") void duplicateDecor(asset.id);
-    }}
-    onDelete={asset => {
-      if (asset.kind === "personnage") void deleteCast(asset.id);
-      else if (asset.kind === "decor") void deleteDecor(asset.id);
-      else void deleteAsset(asset);
-    }}
-    onCopy={(asset, slug) => {
-      if (asset.kind === "personnage") void copyCastTo(asset.id, slug);
-      if (asset.kind === "decor") void copyDecorTo(asset.id, slug);
-    }}
-  />;
+  const thumb = pending ? (pending.preview ? assetPath(pending.preview) : (pending.media && media[pending.media]) || "") : "";
+
+  return <>
+    <AssetGallery
+      assets={assets}
+      media={media}
+      defaultFilter={defaultFilter}
+      type={type}
+      dense={dense}
+      sort={sort}
+      title={title}
+      projects={studio.projects.filter(item => item.slug !== studio.project)}
+      onRefresh={() => void refreshStudio()}
+      onEmptyDecor={() => { window.location.hash = "scene"; }}
+      onImport={files => void importAssets(files, defaultFilter === "personnage" || defaultFilter === "decor" ? defaultFilter : undefined)}
+      onUseRef={holdAsRef}
+      onPrise={asset => {
+        if (!window.location.pathname.endsWith('/studio')) {
+          window.location.href = assetPath(studioTarget(asset.kind === 'decor' ? 'lieu' : asset.kind === 'personnage' ? 'personnage' : 'prise', asset.id, studio.project));
+          return;
+        }
+        if (asset.kind === "decor") void pickDecor(asset.id);
+        else if (asset.kind === "personnage") void pickCast(asset.id);
+        window.location.hash = "prise";
+      }}
+      onMontage={asset => {
+        if (!window.location.pathname.endsWith('/studio')) {
+          window.location.href = assetPath(studioTarget('asset', asset.id, studio.project));
+          return;
+        }
+        const take = studio.takes.find(item => item.id === asset.id);
+        const source = take?.video || asset.media;
+        if (!source) return;
+        holdClip({
+          source,
+          label: asset.name,
+          kind: asset.kind === "son" ? "audio" : /\.(mp4|webm|mov)$/i.test(source) ? "video" : "image",
+          seconds: take?.settings.seconds,
+        });
+        window.location.hash = "montage";
+      }}
+      onRename={(asset, name) => {
+        if (asset.kind === "personnage") void renameCast(asset.id, name);
+        if (asset.kind === "decor") void renameDecor(asset.id, name);
+      }}
+      onDuplicate={asset => {
+        if (asset.kind === "personnage") void duplicateCast(asset.id);
+        if (asset.kind === "decor") void duplicateDecor(asset.id);
+      }}
+      onDelete={scheduleDelete}
+      onCopy={(asset, slug) => {
+        if (asset.kind === "personnage") void copyCastTo(asset.id, slug);
+        if (asset.kind === "decor") void copyDecorTo(asset.id, slug);
+      }}
+    />
+    {pending && <UndoToast
+      message={t("create.deleted", { name: pending.name })}
+      thumb={thumb || undefined}
+      onUndo={() => {
+        if (timer.current) window.clearTimeout(timer.current);
+        timer.current = null;
+        setPending(null);
+      }}
+      onGone={() => {
+        /* timeout already commits; toast dismiss after undo uses onGone from UndoToast click */
+      }}
+    />}
+  </>;
 }

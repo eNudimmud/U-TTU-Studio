@@ -23,6 +23,8 @@ export interface PhotoRue {
   prev: string | null;
   sourceUrl?: string;
   licenseUrl?: string;
+  /** Commons file title (or similar), used to prefer street/building shots over park-only. */
+  label?: string;
   /** Panoramax collection, Mapillary or KartaView sequence, or one Commons photographer: pictures of one walk or drive. */
   serie?: string;
 }
@@ -290,14 +292,27 @@ export function dansLaVue(view: Regard, photo: Pick<PhotoRue, "lat" | "lon">, re
  * one per ~`cell`-metre spot, one per series first, then other spots of a series only when far apart.
  * Pictures in the frame's wedge come first, then the nearest; sources take turns. Duplicates (same id) are dropped.
  */
+
+/** Street-level sources first; Commons last unless its label names streets/buildings. */
+const SOURCE_RANK: Record<PhotoSource, number> = { mapillary: 0, kartaview: 1, panoramax: 2, commons: 3 };
+
+function streetBias(photo: PhotoRue): number {
+  // Prefer Mapillary/KartaView/Panoramax; among Commons, prefer street/building titles.
+  let score = 4 - SOURCE_RANK[photo.source];
+  const label = photo.label ?? "";
+  if (/\b(streets?|avenues?|boulevards?|rues?|strasse|straße|buildings?|immeubles?|fa[cç]ades?|blocks?)\b/i.test(label)) score += 2;
+  else if (/\b(parks?|gardens?|jardins?|lawns?|lakes?|ponds?|meadows?)\b/i.test(label)) score -= 2;
+  return score;
+}
+
 export function diversifier(photos: readonly PhotoRue[], view: Regard, max = 12, cell = 40): PhotoRue[] {
   const seenId = new Set<string>();
   const unique = photos.filter(photo => !seenId.has(photo.id) && seenId.add(photo.id));
   const k = mLon(view.lat);
   const pos = (p: PhotoRue) => ({ x: (p.lon - view.lon) * k, z: (p.lat - view.lat) * M_LAT });
   const ranked = unique
-    .map(photo => ({ photo, inView: dansLaVue(view, photo), d: distanceMeters(view.lat, view.lon, photo.lat, photo.lon) }))
-    .sort((a, b) => Number(b.inView) - Number(a.inView) || a.d - b.d);
+    .map(photo => ({ photo, inView: dansLaVue(view, photo), d: distanceMeters(view.lat, view.lon, photo.lat, photo.lon), bias: streetBias(photo) }))
+    .sort((a, b) => b.bias - a.bias || Number(b.inView) - Number(a.inView) || a.d - b.d);
   const cells = new Set<string>();
   const series = new Map<string, { x: number; z: number }[]>();
   const out: PhotoRue[] = [];
@@ -312,7 +327,7 @@ export function diversifier(photos: readonly PhotoRue[], view: Regard, max = 12,
   const bySource = new Map<string, typeof ranked>();
   for (const item of ranked) bySource.set(item.photo.source, [...(bySource.get(item.photo.source) ?? []), item]);
   // Street-level sources first in each turn: their frames match the camera better than Commons' snapshots.
-  const turn: PhotoSource[] = ["panoramax", "kartaview", "mapillary", "commons"];
+  const turn: PhotoSource[] = ["mapillary", "kartaview", "panoramax", "commons"];
   const queues = [...bySource.entries()].sort((a, b) => turn.indexOf(a[0] as PhotoSource) - turn.indexOf(b[0] as PhotoSource)).map(([, queue]) => queue);
   for (let progress = true; progress && out.length < max;) {
     progress = false;
@@ -339,10 +354,10 @@ export function diversifier(photos: readonly PhotoRue[], view: Regard, max = 12,
 
 /** The 360° sphere closest to the camera, if one stands within `max` metres. */
 export function pano360(photos: readonly PhotoRue[], lat: number, lon: number, max = 60): PhotoRue | null {
-  // Any source may hold the sphere: Panoramax, KartaView (2:1 frames), Mapillary or Commons.
+  // Prefer Mapillary / KartaView / Panoramax spheres near the camera; Commons last.
   return photos
     .filter(photo => photo.tour)
-    .map(photo => ({ photo, d: distanceMeters(lat, lon, photo.lat, photo.lon) }))
+    .map(photo => ({ photo, d: distanceMeters(lat, lon, photo.lat, photo.lon), rank: SOURCE_RANK[photo.source] }))
     .filter(item => item.d <= max)
-    .sort((a, b) => a.d - b.d)[0]?.photo ?? null;
+    .sort((a, b) => a.rank - b.rank || a.d - b.d)[0]?.photo ?? null;
 }

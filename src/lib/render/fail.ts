@@ -25,6 +25,17 @@ const INVALID_MSG = "Le compte de rendu a refusé la prise. Rien n’a été env
 const CREDITS_MSG = "Crédits insuffisants sur ton compte de rendu.";
 const SUB_MSG = "Ton abonnement de rendu est inactif, ou la file est pleine.";
 
+
+/** Drop raw engine / ffmpeg lines visitors should never see. */
+function sanitizeDetail(detail: string): string {
+  const line = detail.trim();
+  if (!line) return "";
+  if (/ffmpeg|VHS failed|failed to extract audio|ffprobe|libx264|stderr/i.test(line)) {
+    return "";
+  }
+  return line;
+}
+
 export function failKind(error: unknown): FailKind {
   if (error instanceof RenderError) {
     if (error.code === "auth") return "auth";
@@ -49,14 +60,18 @@ export function failView(error: unknown): FailView {
   if (kind === "network") return { kind, message: NETWORK_MSG, intact: false, reconnect: false, retry: true };
   if (kind === "pending") return { kind, message: PENDING_MSG, intact: false, reconnect: false, retry: true };
   if (kind === "invalid") {
-    const detail = error instanceof RenderError && error.detail[0] ? ` ${error.detail[0]}` : "";
+    const raw = error instanceof RenderError && error.detail[0] ? sanitizeDetail(String(error.detail[0])) : "";
+    const detail = raw ? ` ${raw}` : "";
     return { kind, message: `${INVALID_MSG}${detail}`, intact: false, reconnect: false, retry: true };
   }
   if (kind === "cloud") {
-    const detail = error instanceof RenderError && error.detail[0] ? ` ${error.detail[0]}` : "";
+    const raw = error instanceof RenderError && error.detail[0] ? sanitizeDetail(String(error.detail[0])) : "";
+    const detail = raw ? ` ${raw}` : "";
     return { kind, message: `${CLOUD_MSG}${detail}`, intact: true, reconnect: false, retry: true };
   }
-  const message = error instanceof Error && error.message ? error.message : "Le rendu n’a pas abouti. Rien n’a été rangé.";
+  const raw = error instanceof Error && error.message ? error.message : "";
+  const cleaned = sanitizeDetail(raw);
+  const message = cleaned || "Le rendu n’a pas abouti. Rien n’a été rangé.";
   return { kind: "other", message, intact: true, reconnect: false, retry: true };
 }
 

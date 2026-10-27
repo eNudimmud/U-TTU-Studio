@@ -153,8 +153,9 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     {current && <article className="u-detail u-asset-detail">
       {isModel(current) ? <a href={srcOf(current)} download={current.media.split("/").pop()}>{t("previs.downloadModel")}</a> : isAudio(current) ? <audio src={srcOf(current)} controls /> : srcOf(current) ? (isVideo(current) ? <video src={srcOf(current)} controls playsInline preload="metadata" /> : <img src={srcOf(current)} alt="" />) : <KindMark kind={markOf(current.kind)} />}
       <h3>{current.name}</h3>
-      {current.prompt && <p>{current.prompt}</p>}
+      {current.prompt && current.geste !== "repere" && <p>{current.prompt}</p>}
       <dl>
+        {current.geste === "repere" && current.prompt ? <div><dt>{t("assets.credit")}</dt><dd>{current.prompt}</dd></div> : null}
         <div><dt>{t("assets.geste")}</dt><dd>{gesteParId(current.geste) ? t(`gestes.${gesteParId(current.geste)!.clef}.title`) : t("assets.none")}</dd></div>
         <div><dt>{t("assets.refs")}</dt><dd>{current.refs.length > 0 ? current.refs.join(", ") : t("assets.none")}</dd></div>
         <div><dt>{t("assets.cost")}</dt><dd>{current.cout !== null ? t("assets.credits", { amount: current.cout }) : current.devis !== null ? t("assets.estimate", { amount: current.devis }) : t("assets.none")}</dd></div>
@@ -162,7 +163,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
       </dl>
       {type && <p className="u-label u-item-label">{t("creations.use")}</p>}
       <div className="u-card-actions" data-item-use="">
-        {!current.preview && !isModel(current) && srcOf(current) && <a href={srcOf(current)} download={current.media.split("/").pop() || current.name}>{t("previs.downloadClip")}</a>}
+        {!current.preview && !isModel(current) && srcOf(current) && <a href={srcOf(current)} download={current.media.split("/").pop() || current.name}>{t(isVideo(current) ? "previs.downloadClip" : isAudio(current) ? "previs.downloadAudio" : "previs.downloadImage")}</a>}
         {onUseRef && !isModel(current) && !isAudio(current) && !isVideo(current) && current.kind !== "son" && <button type="button" onClick={() => onUseRef(current)}>{t("assets.useRef")}</button>}
         {onPrise && (current.kind === "personnage" || current.kind === "decor") && <button type="button" onClick={() => onPrise(current)}>{t("assets.toPrise")}</button>}
         {onMontage && !isModel(current) && <button type="button" onClick={() => onMontage(current)}>{t("assets.toMontage")}</button>}

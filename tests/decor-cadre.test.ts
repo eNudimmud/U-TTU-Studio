@@ -27,11 +27,14 @@ describe("décor depuis un cadre 3D", () => {
 
   it("prompt locks the 3D massing as structure and asks for a real photograph", () => {
     const one = cadrePrompt({ photos: 1, ambiance: "photos" });
-    assert.match(one, /Photorealistic elevated photograph/);
+    assert.match(one, /Photorealistic photograph/);
     assert.match(one, /grey untextured 3D massing/);
     assert.match(one, /depth guide/);
-    assert.match(one, /Match materials, colours, weathering/);
+    assert.match(one, /STYLE ONLY/);
+    assert.match(one, /materials, colours, weathering/);
     assert.match(one, /Do not invent a lake, sea or open water/);
+    assert.match(one, /Never invent, merge or remove buildings/);
+    assert.match(one, /Do NOT copy a photo's camera angle/);
     assert.match(one, /16:9/);
     assert.match(one, /empty of people/);
     assert.match(one, /No text/);
@@ -49,7 +52,7 @@ describe("décor depuis un cadre 3D", () => {
 
   it("legacy layout aliases still produce the InstantX structure prompt", () => {
     const text = cadrePrompt({ photos: 3, ambiance: "photos", layout: "photo-lines" });
-    assert.match(text, /Photorealistic elevated photograph/);
+    assert.match(text, /Photorealistic photograph/);
     assert.match(text, /grey untextured 3D massing/);
     assert.doesNotMatch(text, /black-and-white edge drawing/);
     const frame = cadrePrompt({ photos: 0, ambiance: "aube", layout: "frame-first", detail: "brume" });
@@ -106,7 +109,13 @@ describe("décor depuis un cadre 3D", () => {
     assert.ok(nodes(graph).some(([, node]) => node.class_type === "ImageInvert"));
     const sampler = nodes(graph).find(([, node]) => node.class_type === "KSampler")![1];
     assert.equal(sampler.inputs.steps, 4);
+    assert.equal(sampler.inputs.denoise, 0.85);
     assert.equal(sampler.inputs.seed, 7);
+    const lora = nodes(graph).find(([, node]) => node.class_type === "LoraLoaderModelOnly")![1];
+    assert.equal(lora.inputs.strength_model, 0.7);
+    const cn = nodes(graph).find(([, node]) => node.class_type === "ControlNetApplyAdvanced")![1];
+    assert.equal(cn.inputs.strength, 1);
+    assert.equal(cn.inputs.end_percent, 1);
     const text = nodes(graph).find(([id]) => id === "111:6")![1];
     assert.equal(text.inputs.text, prompt);
     assert.equal((graph["60"] as Node).class_type, "SaveImageAdvanced");
@@ -140,20 +149,22 @@ describe("décor depuis un cadre 3D", () => {
 });
 
 describe("comfy progress estimate", () => {
-  it("eases toward 95 % and never exceeds it before done", () => {
+  it("eases toward 98 % and keeps moving past the typical window", () => {
     assert.equal(estimateProgressPercent(0, 40), 0);
     assert.ok(estimateProgressPercent(20, 40) > 40);
-    assert.ok(estimateProgressPercent(20, 40) < 90);
-    assert.equal(estimateProgressPercent(40, 40), 90);
-    assert.ok(estimateProgressPercent(80, 40) <= 95);
-    assert.equal(estimateProgressPercent(10_000, 40), 95);
+    assert.ok(estimateProgressPercent(20, 40) < 88);
+    assert.equal(estimateProgressPercent(40, 40), 88);
+    assert.ok(estimateProgressPercent(80, 40) <= 98);
+    assert.ok(estimateProgressPercent(80, 40) > 88);
+    assert.equal(estimateProgressPercent(10_000, 40), 98);
     assert.ok(estimateProgressPercent(30, null) > 0);
-    assert.ok(estimateProgressPercent(30, null) <= 90);
+    assert.ok(estimateProgressPercent(30, null) <= 92);
+    assert.ok((estimateRemainingSec(80, 40) ?? 0) >= 5);
   });
 
   it("remaining seconds and clock formatting", () => {
     assert.equal(estimateRemainingSec(10, 40), 30);
-    assert.equal(estimateRemainingSec(50, 40), 0);
+    assert.ok((estimateRemainingSec(50, 40) ?? 0) >= 5);
     assert.equal(estimateRemainingSec(10, null), null);
     assert.equal(formatClock(9), "9 s");
     assert.equal(formatClock(60), "1 min");

@@ -6,7 +6,7 @@ import { suiteQuote } from "./quote.ts";
 import type { SuiteGeste } from "./graphs.ts";
 
 /** JD's ceiling for the whole measurement round, in Comfy credits. */
-export const MESURE_PLAFOND = 80;
+export const MESURE_PLAFOND = 120;
 
 export interface MesureRun {
   geste: SuiteGeste;
@@ -25,7 +25,7 @@ const ENTREES: Record<SuiteGeste, string> = {
   "suite-finaliser-video": "1 prise de 5 s, 1080p, sans fluidifier",
   "suite-fluidifier": "1 prise de 5 s, ×2",
   "suite-prolonger": "dernière image d’une prise, 5 s",
-  "suite-parler": "1 image + 5 s de voix, 1280×720",
+  "suite-parler": "1 image + voix (durée réelle, max 20 s), 1280×720",
 };
 
 export function mesurePlan(): { runs: MesureRun[]; credits: number; high: number } {

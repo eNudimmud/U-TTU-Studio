@@ -107,7 +107,10 @@ export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier
   // does not jump 10→20 when the video metadata loads.
   if (outil.parTranche && !(Number.isFinite(options.seconds) && (options.seconds ?? 0) > 0)) return null;
   const seconds = Number.isFinite(options.seconds) && (options.seconds ?? 0) > 0 ? options.seconds! : OUTIL_SECONDS;
-  const blocks = outil.parTranche ? Math.max(1, Math.ceil(seconds / OUTIL_SECONDS - 1e-9)) : 1;
+  // Encoded clips often land a few tens of ms past a block (e.g. 5.04 s). Without slack the
+  // quote doubles the moment metadata loads (8→16). A 0.25 s grace keeps one block for a
+  // "5 s" take while still billing a second block from ~5.25 s.
+  const blocks = outil.parTranche ? Math.max(1, Math.ceil(Math.max(0, seconds - 0.25) / OUTIL_SECONDS - 1e-9)) : 1;
   let credits = row.credits * blocks;
   let high = row.high * blocks;
   if (outil.id === "vid-finaliser" && options.fluidifier) {

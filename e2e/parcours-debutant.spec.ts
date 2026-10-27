@@ -126,10 +126,10 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await snap('prise-plan-1');
   await tap(gold);
   const sheet = page.locator('[data-confirm-gold]');
-  await expect(page.locator('dialog [data-fiabilite]')).toContainText('caméra à l’épaule');
+  await expect(page.locator('[data-confirm-tourner] [data-fiabilite]')).toContainText('caméra à l’épaule');
   // Plain words by default; the English prompt stays folded behind « Voir le détail technique ».
-  await expect(page.locator('dialog [data-detail-technique]')).not.toHaveAttribute('open', '');
-  await expect(page.locator('dialog [data-detail-technique] code').first()).toBeHidden();
+  await expect(page.locator('[data-confirm-tourner] [data-detail-technique]')).not.toHaveAttribute('open', '');
+  await expect(page.locator('[data-confirm-tourner] [data-detail-technique] code').first()).toBeHidden();
   if (mobile) await reachable(sheet);
   await snap('prise-confirmation');
   await tap(sheet);

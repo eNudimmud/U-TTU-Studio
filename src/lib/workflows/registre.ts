@@ -288,7 +288,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-plan", onglet: "prise", categorie: "plan", clef: "prisePlan",
     fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
-    template: "video_ltx2_5_i2v", credits: 12, high: 25, nature: "hypothese",
+    template: "video_ltx2_5_i2v", credits: 14, high: 28, nature: "hypothese",
     premier: true, still: "prise", minRefs: 0,
     consigne: "",
   }),
@@ -338,7 +338,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-volume-objet", onglet: "prise", categorie: "image", clef: "priseVolumeObjet",
     fournit: ["photo"], slots: [LIEU("image_1")],
-    template: "3d_pixal3d_trellis2_image_to_model", credits: 15, high: 30, nature: "hypothese",
+    template: "3d_pixal3d_trellis2_image_to_model", credits: 17, high: 34, nature: "hypothese",
     premier: false, still: "mesh", minRefs: 1, consigne: "",
   }),
   geste({
@@ -368,7 +368,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-effacer", onglet: "prise", categorie: "vfx", clef: "priseRemove",
     fournit: ["video", "texte"], slots: [{ role: "clip", slot: "video_1", media: "video" }],
-    template: "template_ltx2_3_obscura_remova_lora_remove_object_from_video", credits: 15, high: 30, nature: "hypothese",
+    template: "template_ltx2_3_obscura_remova_lora_remove_object_from_video", credits: 25, high: 38, nature: "hypothese",
     premier: false, still: "video", minRefs: 1, consigne: "",
   }),
   geste({
@@ -442,7 +442,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "suite-finaliser-video", onglet: "suite", categorie: "suite", clef: "suiteFinaliserVideo",
     fournit: ["video"], slots: [{ role: "clip", slot: "video", media: "video" }],
-    template: "utility_seedvr2_3b_int8_upscale_video", credits: 8, high: 16, nature: "hypothese",
+    template: "utility_seedvr2_3b_int8_upscale_video", credits: 27, high: 40, nature: "hypothese",
     premier: false, still: "suite", minRefs: 1, consigne: "",
   }),
   geste({
@@ -454,13 +454,13 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "suite-prolonger", onglet: "suite", categorie: "suite", clef: "suiteProlonger",
     fournit: ["video", "texte"], slots: [{ role: "fin", slot: "image" }],
-    template: "video_minimax_h3_i2v_continuation", credits: 4, high: 8, nature: "hypothese",
+    template: "video_minimax_h3_i2v_continuation", credits: 6, high: 12, nature: "hypothese",
     premier: false, still: "suite", minRefs: 1, consigne: "",
   }),
   geste({
     id: "suite-parler", onglet: "suite", categorie: "suite", clef: "suiteParler",
     fournit: ["asset", "audio", "texte"], slots: [{ role: "visage", slot: "image" }, { role: "voix", slot: "audio", media: "audio" }],
-    template: "video_ltx2_3_ia2v", credits: 12, high: 25, nature: "hypothese",
+    template: "video_ltx2_3_ia2v", credits: 8, high: 16, nature: "hypothese",
     premier: false, still: "suite", minRefs: 2, consigne: "",
   }),
   // « Outils » : one panel per whole template, opened from the hub. Each estimate is shown

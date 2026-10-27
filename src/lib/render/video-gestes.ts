@@ -98,10 +98,20 @@ export function videoGesteGraph(input: VideoGesteInput): ApiGraph {
     const graph = structuredClone(VIDEO_OUTPAINT_BASE);
     graph["5060"].inputs.video = need(input.files, "video_1");
     graph["5151:5138"].inputs.text = prompt;
+    // Silent clips make VHS_LoadVideo throw « failed to extract audio ». The outpaint
+    // path only needs frames; drop the audio wire so mute / no-track inputs work.
+    if (graph["5152"]?.inputs) delete graph["5152"].inputs.audio;
     return finish(graph, input.geste, seed);
   }
   const graph = structuredClone(VIDEO_REMOVE_BASE);
   graph["39"].inputs.file = need(input.files, "video_1");
-  graph["54:9"].inputs.text = prompt;
+  // Obscura Remova needs an imperative removal line; pad a short visitor phrase so the
+  // object actually disappears instead of being lightly retouched.
+  const cleaned = prompt.replace(/^\s+/u, "").replace(/\s+$/u, "");
+  graph["54:9"].inputs.text = /\b(remove|supprim|effac|delete|erase)\b/i.test(cleaned)
+    ? cleaned
+    : `Remove ${cleaned} completely from every frame. Fill the gap with matching background. Do not leave the object.`;
+  // Template ships remova at 2; nudge up so the object is actually erased.
+  if (graph["54:15"]?.inputs) graph["54:15"].inputs.strength_model = 2.4;
   return finish(graph, input.geste, seed);
 }

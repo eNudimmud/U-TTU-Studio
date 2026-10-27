@@ -62,7 +62,11 @@ export function MediaLibrary({ compact = false, initialQuery = '', proposedSeque
     </div>
     {busy && <p role="status">{t('media.busy')}</p>}
     {error && <p role="alert">{error}</p>}
-    <p className="u-small">{found.length} {t('media.results')}</p>
+    {(() => {
+      const localN = found.filter(a => a.localPath).length;
+      const remoteN = found.length - localN;
+      return <p className="u-small" data-media-count="">{found.length} {t('media.results')} · {localN} {t('media.local')}{remoteN > 0 ? ` · ${remoteN} ${t('media.cloud')}` : ''}</p>;
+    })()}
     <ul className="u-media-grid" role="list">
       {found.slice(0, compact ? 20 : 100).map(a => {
         const local = Boolean(a.localPath && session.media[a.localPath]);
