@@ -2532,28 +2532,36 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-montage-outils { display: none; }
 }
 
-/* Comfortable desktop (1280×800+): readable 16:9 preview ≥ ~320 px, timeline vidéo+voix on screen. */
+/* Comfortable desktop (1280×800+): readable 16:9 preview ≥ ~300 px; all montage tracks on screen. */
 @media (min-width: 1024px) and (min-height: 701px) {
   .u-stage.u-montage .u-export-quality { margin: 0; font-size: 12px; }
   .u-capcut {
-    grid-template-rows: minmax(320px, 1.15fr) minmax(200px, 0.7fr);
-    gap: 6px;
+    grid-template-rows: minmax(300px, 1fr) minmax(260px, auto);
+    gap: 4px;
   }
   .u-capcut-player { min-height: 300px; }
   .u-capcut-time {
-    min-height: 200px;
+    min-height: 0;
     max-height: none;
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     flex-direction: column;
   }
+  /* Keep horizontal scrub; do not clip tracks vertically (parcours drag + piste checks). */
   .u-capcut .u-tl {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     min-height: 0;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: visible;
   }
+  .u-capcut .u-track-row { min-height: 44px; }
+  .u-capcut .u-track { min-height: 44px; }
   .u-capcut .u-track-row.is-audio,
-  .u-capcut .u-track-row.is-audio .u-track { min-height: 64px; }
+  .u-capcut .u-track-row.is-audio .u-track {
+    min-height: 48px;
+    max-height: 52px;
+    height: 52px;
+  }
   .u-capcut-player .u-controls {
     position: absolute;
     z-index: 3;
@@ -2562,14 +2570,18 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
     bottom: 8px;
   }
 }
+/* Under 900 px tall: drop the bottom outils strip so vidéo+voix+effets+musique fit. */
+@media (min-width: 1024px) and (max-height: 900px) {
+  .u-app[data-studio="montage"] .u-montage-outils { display: none; }
+}
 
-/* Short landscape (≤500 px tall, e.g. 844×390): side-by-side player | timeline, chrome stripped. */
+/* Short landscape (≤500 px tall, e.g. 844×390): side-by-side player | timeline, chrome stripped.
+   Keep #u-title and the rail visible (design-obsidian). */
 @media (max-height: 500px) and (orientation: landscape) {
   .u-app[data-studio="montage"] { height: 100dvh; max-height: 100dvh; overflow: hidden; }
   .u-app[data-studio="montage"] .u-top { display: none; }
   .u-app[data-studio="montage"] .u-chain { display: none; }
   .u-app[data-studio="montage"] .u-tabs { display: none; }
-  .u-app[data-studio="montage"] .u-rail { display: none; }
   .u-app[data-studio="montage"] .u-main {
     overflow: hidden;
     padding: 2px 6px 2px;
@@ -2585,7 +2597,12 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
     gap: 6px;
     padding: 0;
   }
-  .u-stage.u-montage .u-montage-bar h1,
+  .u-stage.u-montage .u-montage-bar h1 {
+    display: block;
+    font-size: 16px;
+    margin: 0;
+    line-height: 1.1;
+  }
   .u-stage.u-montage .u-lead,
   .u-stage.u-montage .u-label,
   .u-stage.u-montage .u-export-quality { display: none; }
