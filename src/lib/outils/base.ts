@@ -4346,7 +4346,7 @@ export const OUTIL_BASES: Record<string, ApiGraph> = {
  "api_bria_remove_video_background": {
   "2": {
    "inputs": {
-    "background_color": "Black",
+    "background_color": "Transparent",
     "seed": 1763993566,
     "video": [
      "4",

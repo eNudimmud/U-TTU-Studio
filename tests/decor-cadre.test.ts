@@ -140,20 +140,22 @@ describe("décor depuis un cadre 3D", () => {
 });
 
 describe("comfy progress estimate", () => {
-  it("eases toward 95 % and never exceeds it before done", () => {
+  it("eases toward 98 % and keeps moving past the typical window", () => {
     assert.equal(estimateProgressPercent(0, 40), 0);
     assert.ok(estimateProgressPercent(20, 40) > 40);
-    assert.ok(estimateProgressPercent(20, 40) < 90);
-    assert.equal(estimateProgressPercent(40, 40), 90);
-    assert.ok(estimateProgressPercent(80, 40) <= 95);
-    assert.equal(estimateProgressPercent(10_000, 40), 95);
+    assert.ok(estimateProgressPercent(20, 40) < 88);
+    assert.equal(estimateProgressPercent(40, 40), 88);
+    assert.ok(estimateProgressPercent(80, 40) <= 98);
+    assert.ok(estimateProgressPercent(80, 40) > 88);
+    assert.equal(estimateProgressPercent(10_000, 40), 98);
     assert.ok(estimateProgressPercent(30, null) > 0);
-    assert.ok(estimateProgressPercent(30, null) <= 90);
+    assert.ok(estimateProgressPercent(30, null) <= 92);
+    assert.ok((estimateRemainingSec(80, 40) ?? 0) >= 5);
   });
 
   it("remaining seconds and clock formatting", () => {
     assert.equal(estimateRemainingSec(10, 40), 30);
-    assert.equal(estimateRemainingSec(50, 40), 0);
+    assert.ok((estimateRemainingSec(50, 40) ?? 0) >= 5);
     assert.equal(estimateRemainingSec(10, null), null);
     assert.equal(formatClock(9), "9 s");
     assert.equal(formatClock(60), "1 min");

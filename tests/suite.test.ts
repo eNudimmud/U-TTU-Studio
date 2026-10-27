@@ -92,10 +92,10 @@ describe("Et ensuite ? graphes", () => {
     assert.equal(prolonger["114"].inputs.image, "photo.png");
   });
 
-  it("Faire parler trims the voice to 5 s and sends the text straight to the encoder", () => {
+  it("Faire parler matches the voice length (capped) and sends the text straight to the encoder", () => {
     const graph = build("suite-parler", { seconds: 12, aspect: "vertical" });
     links(graph);
-    assert.equal(graph["340:331"].inputs.value, 5);
+    assert.equal(graph["340:331"].inputs.value, 12);
     assert.equal(graph["340:330"].inputs.value, 720);
     assert.equal(graph["340:324"].inputs.value, 1280);
     assert.deepEqual(graph["340:306"].inputs.text, ["340:319", 0]);
@@ -124,9 +124,10 @@ describe("Et ensuite ? registre et devis", () => {
 
   it("labels every quote « estimé » and scales length-based tools per 5 s block", () => {
     for (const geste of SUITE_GESTES) assert.equal(suiteQuote(geste)?.kind, "estime");
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5 }), { credits: 8, high: 16, kind: "estime" });
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 12 }), { credits: 24, high: 48, kind: "estime" });
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5, fluidifier: true }), { credits: 10, high: 20, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5 }), { credits: 27, high: 40, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5.04 }), { credits: 27, high: 40, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 12 }), { credits: 81, high: 120, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5, fluidifier: true }), { credits: 29, high: 44, kind: "estime" });
     assert.equal(suiteQuote("suite-animer", { seconds: 30 })?.credits, gesteParId("suite-animer")?.credits);
   });
 

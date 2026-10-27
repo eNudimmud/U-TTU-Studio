@@ -146,6 +146,15 @@ describe('parcours de production : données et reprise', () => {
     assert.equal(net.retry, true);
   });
 
+  it('failView hides raw ffmpeg / VHS extract lines', () => {
+    const vhs = failView(new RenderError('failed', 'boom', ['VHS failed to extract audio']));
+    assert.equal(vhs.kind, 'cloud');
+    assert.equal(vhs.message.includes('VHS'), false);
+    assert.equal(vhs.message.includes('ffmpeg'), false);
+    const raw = failView(new Error('ffmpeg: Error while decoding'));
+    assert.equal(raw.message.includes('ffmpeg'), false);
+  });
+
   it('saves a background result in the original project without switching the visible project', async () => {
     const vault = memoryVault();
     await createProject(vault, 'Film A');

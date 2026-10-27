@@ -94,7 +94,7 @@
   },
   "54:9": {
     "inputs": {
-      "text": "<texte du visiteur>",
+      "text": "Remove <texte du visiteur> completely from every frame. Fill the gap with matching background. Do not leave the object.",
       "clip": [
         "54:4",
         0
@@ -200,7 +200,7 @@
   "54:15": {
     "inputs": {
       "lora_name": "ltx23-obscura_remova.safetensors",
-      "strength_model": 2,
+      "strength_model": 2.4,
       "model": [
         "54:5",
         0

@@ -24,7 +24,8 @@ export function suiteQuote(geste: SuiteGeste, options: { seconds?: number; fluid
   if (!row || row.credits === null || row.high === null) return null;
   const perLength = geste === "suite-finaliser-video" || geste === "suite-fluidifier";
   const seconds = Number.isFinite(options.seconds) && (options.seconds ?? 0) > 0 ? options.seconds! : SUITE_SECONDS;
-  const blocks = perLength ? Math.max(1, Math.ceil(seconds / SUITE_SECONDS - 1e-9)) : 1;
+  // Same 0.25 s grace as outilQuote: a 5.04 s studio clip must stay one block.
+  const blocks = perLength ? Math.max(1, Math.ceil(Math.max(0, seconds - 0.25) / SUITE_SECONDS - 1e-9)) : 1;
   let credits = row.credits * blocks;
   let high = row.high * blocks;
   if (geste === "suite-finaliser-video" && options.fluidifier) {

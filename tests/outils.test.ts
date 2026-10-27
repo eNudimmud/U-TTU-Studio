@@ -72,6 +72,7 @@ describe("hub Outils", () => {
     }
     const lips = OUTILS.find(item => item.id === "vid-levres")!;
     assert.equal(outilQuote(lips, { seconds: 5 })!.credits * 2, outilQuote(lips, { seconds: 7 })!.credits);
+    assert.equal(outilQuote(lips, { seconds: 5.04 })!.credits, outilQuote(lips, { seconds: 5 })!.credits);
     const musique = OUTILS.find(item => item.id === "son-musique-video")!;
     assert.equal(outilQuote(musique), null);
     assert.equal(outilQuote(musique, { seconds: 5 })!.credits, 10);
