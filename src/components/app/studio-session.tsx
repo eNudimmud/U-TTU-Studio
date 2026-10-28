@@ -27,7 +27,7 @@ import { mergeCoffreZip, vaultPathFromZip } from "@/lib/coffre/import";
 import { folderLinkSupported, linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
   emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, removeTake, sceneMarkdown, selectProject as chooseProject, createProject as makeProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
-  writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
+  removeShot, writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
   type Scene, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { allowFolder, folderPermission, loadFolderHandle, readFolder, saveFolderHandle } from "@/lib/coffre/permit";
@@ -205,6 +205,8 @@ export interface StudioSession {
   readProjectFile(file: string): Promise<string | undefined>;
   writeProjectFile(file: string, text: string): Promise<void>;
   saveShot(shot: Shot): Promise<void>;
+  /** Removes one plan note (Shots/<id>.md). Its takes stay in the vault, so « Annuler » loses nothing. */
+  deleteShot(id: string): Promise<void>;
   saveLieu(input: { name: string; note: string; quartier?: string }): Promise<string | null>;
   saveLieuPhoto(input: { name: string; note: string; quartier?: string; photo: { id: string; author: string; credit: string; blob: Blob } }): Promise<string | null>;
   /** 3D repérage: one framing becomes its own DÉCOR card, colour first, then depth, lines and the camera card. */
@@ -1934,6 +1936,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await writeShot(store(), shot, current.takes, "");
   }, [current.takes, store]);
 
+  const deleteShot = useCallback(async (id: string) => {
+    await removeShot(store(), id);
+  }, [store]);
+
   const saveLieu = useCallback(async (input: { name: string; note: string; quartier?: string }) => {
     const name = cleanCardName(input.name);
     if (!name) return null;
@@ -2119,7 +2125,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, promoteExempleRefs, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
-    saveModel, savePrevis, saveExport, readProjectFile, writeProjectFile, saveShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
+    saveModel, savePrevis, saveExport, readProjectFile, writeProjectFile, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

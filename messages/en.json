@@ -1825,7 +1825,16 @@
     "nextLabel": "Shot {n} · what happens",
     "nextAria": "Next shot: what happens",
     "nextPh": "Same character, same set. Write what comes next.",
-    "plans": "Shots",
+    "plans": {
+      "copy": "copy",
+      "tools": "Shot {n}: tools",
+      "duplicate": "Duplicate",
+      "up": "Move shot up",
+      "down": "Move shot down",
+      "delete": "Delete",
+      "deleted": "“{name}” deleted.",
+      "undo": "Undo"
+    },
     "addPlan": "＋ Shot",
     "sequenceSum": "Sequence: {time} · {count, plural, one {# shot} other {# shots}}",
     "preview": "Preview",

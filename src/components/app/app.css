@@ -2712,3 +2712,9 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-capcut-time { flex: 1 1 auto; min-height: 0; overflow: hidden; }
   .u-capcut .u-tl { flex: 1 1 auto; min-height: 100px; overflow: auto; }
 }
+
+/* PRISE: one row of plan tools under the strip (44 px, touch-first); « Annuler » right after a delete. */
+.u-plan-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.u-plan-tools > button { min-height: 44px; min-width: 44px; }
+.u-plan-undo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0 0; }
+.u-plan-undo > button { min-height: 44px; }

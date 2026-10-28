@@ -1825,7 +1825,16 @@
     "nextLabel": "Einstellung {n} · was passiert",
     "nextAria": "Nächste Einstellung: was passiert",
     "nextPh": "Gleiche Figur, gleiche Kulisse. Schreib, wie es weitergeht.",
-    "plans": "Einstellungen",
+    "plans": {
+      "copy": "Kopie",
+      "tools": "Einstellung {n}: Werkzeuge",
+      "duplicate": "Duplizieren",
+      "up": "Einstellung nach oben",
+      "down": "Einstellung nach unten",
+      "delete": "Löschen",
+      "deleted": "„{name}“ gelöscht.",
+      "undo": "Rückgängig"
+    },
     "addPlan": "＋ Einstellung",
     "sequenceSum": "Sequenz: {time} · {count, plural, one {# Einstellung} other {# Einstellungen}}",
     "preview": "Vorschau",
