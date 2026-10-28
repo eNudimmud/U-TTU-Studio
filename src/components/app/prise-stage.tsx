@@ -299,7 +299,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (handed) setBarre(handed);
   }, [ready]);
   useEffect(() => {
-    if (!barre || booted.current !== (studio.project ?? "")) return;
+    // Hydration is asynchronous: applying the handoff before it finishes lets
+    // the saved journal overwrite the sentence and references from the bar.
+    if (!barre || plansLoaded !== (studio.project ?? "")) return;
     const hand = barre;
     setBarre(null);
     if (hand.castIds.concat(hand.decorId ?? "").some(id => DEMO_IDS.has(id))) setSeed("compose");
@@ -322,7 +324,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     }));
     if (hand.decorId) setPlaceCleared(false);
     setAsk(null);
-  }, [barre, currentId, studio.project]);
+  }, [barre, currentId, studio.project, plansLoaded]);
 
   /** Same fill as ?prise=compose: La coursière and Le vieil homme on the quay, framing, camera and action set. */
   function partirExemple() {
@@ -365,7 +367,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
   const castKey = `${drafts.find(item => item.id === currentId)?.input.castIds.join(",") ?? ""}|${people.map(person => `${person.id}:${person.name}`).join(",")}`;
   useEffect(() => {
-    if (maquetteLoaded !== maquetteKey || seeded.current || people.length === 0) return;
+    if (plansLoaded !== (studio.project ?? "") || maquetteLoaded !== maquetteKey || seeded.current || people.length === 0) return;
     const chosenIds = drafts.find(item => item.id === currentId)?.input.castIds ?? [];
     const lead = (chosenIds.length > 0 ? people.find(person => person.id === chosenIds[0]) : people[0]) ?? null;
     if (!lead) return;
@@ -387,7 +389,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         },
       };
     }));
-  }, [maquetteLoaded, maquetteKey, castKey, people, drafts, currentId, places, pickedDecor, t]);
+  }, [plansLoaded, studio.project, maquetteLoaded, maquetteKey, castKey, people, drafts, currentId, places, pickedDecor, t]);
 
   const index = Math.max(0, drafts.findIndex(item => item.id === currentId));
   const draft = drafts[index] ?? drafts[0];

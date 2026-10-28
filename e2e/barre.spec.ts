@@ -104,6 +104,12 @@ test("fil : Vidéo avec Uttu et un décor tourne la prise dans le fil, après la
   await expect(page.locator("[data-prise-ready]")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("textbox", { name: "Ce qui se passe", exact: true })).toHaveValue("Uttu marche sur le quai, la nuit. La caméra la suit.");
   await expect(page.locator("[data-rendu]")).toHaveAttribute("data-rendu", "apercu");
+  await expect(page.locator("[data-plan-save]")).toHaveAttribute("data-plan-save", "saved");
+  await page.reload();
+  await expect(page.locator("[data-prise-ready='true']")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Ce qui se passe", exact: true })).toHaveValue("Uttu marche sur le quai, la nuit. La caméra la suit.");
+  await expect(page.locator("[data-rendu]")).toHaveAttribute("data-rendu", "apercu");
+  expect(comfy.prompts).toHaveLength(1);
 });
 
 test("fil : Image avec une référence, devis puis accord, résultat et Et ensuite, puis « anime-la »", async ({ page }) => {
