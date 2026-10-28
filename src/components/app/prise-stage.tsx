@@ -15,6 +15,7 @@ import {
 } from "@/lib/maquette/state";
 import { ACTION_EXAMPLES, ACTION_MAX, type PlanEtat } from "@/lib/prise/copy";
 import { cameraChoice } from "@/lib/prise/camera-words";
+import { duplicatePlan, nextPlanId, removePlan, restorePlan, stepMove, type Removed } from "@/lib/prise/plans";
 import { mergeTakeIds, planVersions, sequenceTakes, shownTake, takeIdsFromShotNote } from "@/lib/prise/versions";
 import { protocole } from "@/lib/fiabilite";
 import { resolveTakeQuote } from "@/lib/render/billed-quote";
@@ -98,7 +99,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
+  const { ready, demo, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
   const { t, say } = useI18n();
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
@@ -128,6 +129,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [drafts, setDrafts] = useState<Draft[]>(() => [blank("plan-01", "Plan 1", "16:9")]);
   const [currentId, setCurrentId] = useState("plan-01");
   const [dragId, setDragId] = useState<string | null>(null);
+  /** The last deleted plan, for « Annuler » (kept until the next edit of the list). */
+  const [removed, setRemoved] = useState<Removed<Draft> | null>(null);
   const [panel, setPanel] = useState(false);
   const [mediaKind, setMediaKind] = useState<FinalMedia>("video");
   const [finaliser, setFinaliser] = useState<FinaliserInput>(finaliserDefaults("video", 5));
@@ -627,6 +630,50 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     void Promise.all(next.map(item => persist(next, item.id))).catch(error => setNotice(error.message));
   }
 
+  const saveOrder = (next: Draft[]) => Promise.all(next.map(item => persist(next, item.id))).catch(error => setNotice(error instanceof Error ? error.message : t("p0.saveFailed")));
+
+  function deletePlanAt(id: string) {
+    const { next, removed: gone } = removePlan(drafts, id);
+    if (!gone) return;
+    const list = next.length ? next : [blank(nextPlanId(drafts.map(item => item.id)), t("p0.planN", { n: "1" }), format)];
+    setDrafts(list);
+    setRemoved(gone);
+    if (currentId === id) setCurrentId(list[Math.min(gone.at, list.length - 1)].id);
+    setPanel(false);
+    // The note goes; its takes stay in the vault, so « Annuler » brings everything back.
+    void deleteShot(id).then(() => saveOrder(list)).catch(error => setNotice(error instanceof Error ? error.message : t("p0.saveFailed")));
+  }
+
+  function undoDelete() {
+    if (!removed) return;
+    // Deleting the only plan left an empty placeholder: « Annuler » replaces it.
+    const placeholder = drafts.length === 1 && !drafts[0].hasTake && !drafts[0].input.action.trim();
+    const next = restorePlan(placeholder ? [] : drafts, removed);
+    setDrafts(next);
+    setCurrentId(removed.item.id);
+    setRemoved(null);
+    void saveOrder(next);
+  }
+
+  async function duplicateAt(id: string) {
+    const { next, id: copy } = duplicatePlan(drafts, id, (source, newId) => ({ ...blank(newId, `${source.name} · ${t("p0.plans.copy")}`, format), input: { ...source.input, hasKeptTake: false } }));
+    if (!copy) return;
+    const shape = await readProjectFile(`.uttu/maquette-${id}.json`).catch(() => undefined);
+    if (shape) await writeProjectFile(`.uttu/maquette-${copy}.json`, shape).catch(() => undefined);
+    setDrafts(next);
+    setCurrentId(copy);
+    setRemoved(null);
+    setPanel(false);
+    void saveOrder(next);
+  }
+
+  function moveAt(id: string, dir: -1 | 1) {
+    const next = stepMove(drafts, id, dir);
+    setDrafts(next);
+    setRemoved(null);
+    void saveOrder(next);
+  }
+
   function onWho(id: string) {
     if (maquette.figures.some(figure => figure.id === id)) {
       if (maquette.lockPose) return;
@@ -855,6 +902,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         })}
         <button type="button" className="u-plan-add" onClick={addPlan}>{t("p0.addPlan")}</button>
       </div>
+      {!demo && <div className="u-plan-tools" role="group" aria-label={t("p0.plans.tools", { n: String(index + 1) })} data-plan-tools="">
+        {drafts.length < 12 && <button type="button" className="u-secondary" data-plan-duplicate="" onClick={() => void duplicateAt(draft.id)}>{t("p0.plans.duplicate")}</button>}
+        {index > 0 && <button type="button" className="u-secondary" data-plan-up="" aria-label={t("p0.plans.up")} onClick={() => moveAt(draft.id, -1)}>↑</button>}
+        {index < drafts.length - 1 && <button type="button" className="u-secondary" data-plan-down="" aria-label={t("p0.plans.down")} onClick={() => moveAt(draft.id, 1)}>↓</button>}
+        <button type="button" className="u-secondary" data-plan-delete="" onClick={() => deletePlanAt(draft.id)}>{t("p0.plans.delete")}</button>
+      </div>}
+      {removed && <p className="u-plan-undo" role="status" data-plan-undo="">{t("p0.plans.deleted", { name: removed.item.name })} <button type="button" className="u-secondary" onClick={undoDelete}>{t("p0.plans.undo")}</button></p>}
       <p className="u-plan-sum">{t("p0.sequenceSum", { time: clock(total), count: drafts.length })}</p>
     </aside>
 

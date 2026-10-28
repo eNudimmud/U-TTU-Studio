@@ -1825,7 +1825,16 @@
     "nextLabel": "Plan {n} · ce qui se passe",
     "nextAria": "Plan suivant : ce qui se passe",
     "nextPh": "Même personnage, même décor. Écris la suite.",
-    "plans": "Plans",
+    "plans": {
+      "copy": "copie",
+      "tools": "Plan {n} : outils",
+      "duplicate": "Dupliquer",
+      "up": "Monter le plan",
+      "down": "Descendre le plan",
+      "delete": "Supprimer",
+      "deleted": "« {name} » supprimé.",
+      "undo": "Annuler"
+    },
     "addPlan": "＋ Plan",
     "sequenceSum": "Séquence : {time} · {count, plural, one {# plan} other {# plans}}",
     "preview": "Aperçu",
