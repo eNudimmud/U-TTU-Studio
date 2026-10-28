@@ -12,13 +12,13 @@ Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure, arr
 |---|---|---|---|---|---|
 | `cast-photos` | 4 / 6, hypothese | **3,57** → 4 / 6 | Klein édition, 1 photo, 1 MP | `f704495a` | test visiteur |
 | `decor-heure` | 4 / 6, hypothese | **4,42** → 4 / 7 | Klein édition 16:9 (lot exemples ; 2e run fa472751 : 3,19) | `ca924213` | lot d'exemples (journal du lot, PR #141) |
-| `prise-plan` | 14 / 28, hypothese | **15,1** → 15 / 23 | 5 s 16:9 0,9 MP, première image Klein incluse (bab714ce : 14,66 ; 82d63ed9 : 14,55) | `d4d2fa37` | test visiteur |
+| `prise-plan` | 14 / 28, hypothese | **15,1** → 15 / 23 | 5 s 16:9 0,9 MP, première image Klein incluse (bab714ce : 14,66 ; 82d63ed9 : 14,55 ; lot d'exemples 23b176b7, 1 image sans Klein, 1280×704 : 9,87) | `d4d2fa37` | test visiteur |
 | `prise-raccord` | 12 / 25, hypothese | **6,98** → 7 / 11 | 5 s 1280×720 | `e89d94be` | test visiteur |
 | `prise-elargir` | 15 / 30, hypothese | **16,32** → 16 / 25 | prise de 5 s élargie | `38d04073` | test visiteur |
 | `prise-effacer` | 25 / 38, hypothese | **25,11** → 25 / 38 | 5 s 1280×704 | `414e91bc` | test visiteur |
 | `prise-volume-objet` | 17 / 34, hypothese | **16,65** → 17 / 25 | Trellis2, 1 objet | `8653fbd3` | test visiteur |
 | `suite-modifier` | 4 / 6, hypothese | **3,81** → 4 / 6 | Klein édition 1 MP (4e7167a7 : 3,37 ; dfa1f0bb : 3,06) | `14bd97c6` | lot exemples + test |
-| `suite-finaliser-image` | 2 / 4, hypothese | **1,56** → 2 / 3 | SeedVR2, 1 image | `efe8fc8e` | test visiteur |
+| `suite-finaliser-image` | 2 / 4, hypothese | **1,56** → 2 / 3 | SeedVR2, 1 image (lot d'exemples ad17b5dc : 0,83) | `efe8fc8e` | test visiteur |
 | `suite-detourer` | 2 / 4, hypothese | **0,58** → 1 / 1 | BiRefNet, 1 image (5c8bb7c1 : 0,29) | `e7f5f0af` | facturation 27.10 (03:35 UTC, hors fenêtre du test) |
 | `suite-elargir` | 2 / 4, hypothese | **5,18** → 5 / 8 | Klein extend 1,5 MP (2b32b187 : 3,61 ; ac0c40b9 : 1,18) | `79105d4e` | facturation 27.10 (03:40 UTC, hors fenêtre du test) |
 | `suite-finaliser-video` | 27 / 40, hypothese | **27,5** → 28 / 42 | 5 s 832×480 → 1872×1080, 1 bloc | `414d76ab` | test visiteur |
