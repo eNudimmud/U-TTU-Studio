@@ -8,7 +8,7 @@ import { routePrompt } from "../outils/route.ts";
 export type BarreMode = "image" | "video" | "agent";
 export const BARRE_MODES: readonly BarreMode[] = ["image", "video", "agent"];
 
-export type RefKind = "cast" | "decor";
+export type RefKind = "cast" | "decor" | "objet" | "style";
 
 /** One reference chip: a character from Cast/ or a place from Lieux/ (or a house example). */
 export interface BarreRef {
@@ -21,6 +21,8 @@ export interface BarreRef {
   path?: string;
   /** A place kept from repérage (a real address). */
   repere?: boolean;
+  description?: string;
+  images?: string[];
 }
 
 /** A photo picked from the device, kept in memory for this page only. */
@@ -28,6 +30,7 @@ export interface BarrePhoto {
   id: string;
   name: string;
   url: string;
+  path?: string;
 }
 
 export type Rendu = "apercu" | "finale";

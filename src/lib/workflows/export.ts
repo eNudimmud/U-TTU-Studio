@@ -11,11 +11,17 @@ import { isSuiteGeste, suiteExample, suiteGraph } from "../suite/graphs.ts";
 import { outilParGeste } from "../outils/catalogue.ts";
 import { outilExample, outilGraph } from "../outils/graphs.ts";
 import { REGISTRE, type Geste } from "./registre.ts";
+import { BUBBLE_DEFAULTS, bubbleGraph, bubblePrompt } from '../creation/bubble.ts';
 
 const PROMPT = "<texte du visiteur>";
 
 /** The graph the studio builds for a wired gesture, or null when the card is not wired yet. */
 export function graphForGeste(row: Geste): ApiGraph | null {
+  if (['creation-image-texte', 'creation-image', 'creation-video-refs', 'creation-video-texte'].includes(row.id)) {
+    const mode = row.id.startsWith('creation-image') ? 'image' : 'video';
+    const refs = row.id === 'creation-image' || row.id === 'creation-video-refs';
+    return bubbleGraph({ mode, settings: BUBBLE_DEFAULTS, images: refs ? ['uttu-personnage.png', 'uttu-decor.png'] : [], prompt: bubblePrompt(PROMPT, refs ? [{ name: 'Uttu', category: 'cast' }, { name: 'Quai', category: 'decor' }] : [], mode), seed: 0 });
+  }
   if (row.still === null) return null;
   const images = row.slots.filter(slot => (slot.media ?? "image") === "image").map((_, index) => `uttu-${index + 1}.jpg`);
   if (row.still === "prise") {

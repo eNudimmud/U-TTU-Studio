@@ -1,461 +1,154 @@
 "use client";
 
-// The creation bar: one sentence, three modes (Image · Vidéo · Agent), references attached on
-// demand as thumbnail chips, and the video settings only when asked for. Nothing runs from the
-// bar: Send opens the real tool, already filled, with its estimate on the button. The tools,
-// their families and the old entry stay one tap away under « Tous les outils ».
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useI18n } from '@/components/i18n/provider';
+import { formatCredits } from '@/lib/credits';
+import { DEMO_CAST, DEMO_DECOR } from '@/lib/creation/demo';
+import { BUBBLE_DEFAULTS, bubbleQuote, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
+import { CREATION_REFERENCES_MAX, type NamedReference } from '@/lib/creation/named-references';
+import { assetPath } from '@/lib/site';
+import { AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, DEFAULT_SETTINGS, writeHandoff, type BarreMode, type BarreRef } from '@/lib/barre/model';
+import type { FilRef } from '@/lib/barre/thread';
+import { openBand, placeMenu } from '@/lib/mobile-band';
+import { Close, Plus } from './glyphs';
+import { toggleAssistant } from './assistant-panel';
+import { FamilyIcon } from './studio-nav';
+import { ReferenceLibrary } from './reference-library';
+import { useStudio } from './studio-session';
+import type { FilSend } from './barre-fil';
 
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useI18n } from "@/components/i18n/provider";
-import { formatCredits } from "@/lib/credits";
-import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
-import type { ExempleRefSpec } from "@/lib/creation/exemple-galerie";
-import { outilParId, outilRow } from "@/lib/outils/catalogue";
-import { REPERAGE_ID } from "@/lib/outils/vignettes";
-import { quoteCredits } from "@/lib/prise/rendu";
-import { resolveTakeQuote } from "@/lib/render/billed-quote";
-import { quotesToRecords } from "@/lib/render/measured-quote";
-import { takeProfile } from "@/lib/render/take-graph";
-import { assetPath } from "@/lib/site";
-import {
-  AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, BARRE_MODES, DEFAULT_SETTINGS, MAX_REFS_IMAGE, PRISE_HANDOFF_KEY, REFS_HANDOFF_KEY,
-  attachFor, barreTarget, priseHandoff, settingsFor, toggleRef, writeHandoff,
-  type AttachKind, type BarreMode, type BarrePhoto, type BarreRef, type BarreSettings, type RefKind,
-} from "@/lib/barre/model";
-import { openBand, placeMenu } from "@/lib/mobile-band";
-import { Check, Close, Plus } from "./glyphs";
-import { UndoToast } from "./tool-shell";
-import { toggleAssistant } from "./assistant-panel";
-import { FamilyIcon, openFamily } from "./studio-nav";
-import { useStudio } from "./studio-session";
-import type { FilSend } from "./barre-fil";
-import type { FilRef } from "@/lib/barre/thread";
-
-/** The hash of the old entry: every tool, by family. */
-export const ALL_TOOLS_ID = "tous";
-
-function go(hash: string) {
-  if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
-  window.dispatchEvent(new HashChangeEvent("hashchange"));
-}
-
-const ICON = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
-function ModeIcon({ mode }: { mode: BarreMode }) {
-  if (mode === "image") return <FamilyIcon fam="creer" />;
-  if (mode === "video") return <FamilyIcon fam="video" />;
-  return <svg {...ICON}><path d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8z" /><path d="M19 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" /></svg>;
-}
-function AttachIcon({ kind }: { kind: AttachKind }) {
-  if (kind === "photo") return <svg {...ICON}><rect x="3.5" y="6" width="17" height="13" rx="2" /><path d="M8.5 6l1.5-2h4l1.5 2" /><circle cx="12" cy="12.5" r="3.2" /></svg>;
-  if (kind === "reference") return <svg {...ICON}><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" /><path d="M17 14v6M14 17h6" /></svg>;
-  if (kind === "lieu") return <FamilyIcon fam="reperage" />;
-  return <FamilyIcon fam="son" />;
-}
-function SettingsIcon() {
-  return <svg {...ICON}><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg>;
-}
-
-/** Every reference the sheet can show: the vault's Cast/ and Lieux/, or the house examples when empty. */
+export const ALL_TOOLS_ID = 'tous';
+type Attachment = { id: string; name: string; src: string; path?: string };
+const ICON = { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, 'aria-hidden': true };
 export function useReferences(): BarreRef[] {
-  const { t } = useI18n();
-  const { cast, decor, media } = useStudio();
-  return useMemo(() => {
-    const people: BarreRef[] = (cast.length > 0 ? cast : DEMO_CAST).map(card => {
-      const path = card.sheet ?? card.photos[0] ?? undefined;
-      const src = card.preview ? assetPath(card.preview) : path && media[path] ? media[path] : "";
-      return { kind: "cast" as const, id: card.id, name: card.id.startsWith("demo-") ? t(`demoNames.${card.id}`) : card.name, src, path };
-    });
-    const mine = decor.map(card => ({
-      kind: "decor" as const, id: card.id, name: card.name,
-      src: card.preview ? assetPath(card.preview) : card.sheet && media[card.sheet] ? media[card.sheet] : "",
-      path: card.sheet ?? undefined, repere: card.geste === "repere",
-    })).filter(place => place.src || place.repere);
-    const places: BarreRef[] = mine.length > 0 ? mine : DEMO_DECOR.map(card => ({ kind: "decor" as const, id: card.id, name: t(`demoNames.${card.id}`), src: card.preview ? assetPath(card.preview) : "" }));
-    return [...people, ...places];
-  }, [cast, decor, media, t]);
+  const { t } = useI18n(); const { references, media } = useStudio();
+  return useMemo(() => [
+    ...references.map(r => ({ kind: r.category, id: r.id, name: r.name, description: r.description, images: r.images, src: media[r.preview] ?? '', path: r.preview })),
+    ...DEMO_CAST.map(c => ({ kind: 'cast' as const, id: c.id, name: t(`demoNames.${c.id}`), src: c.preview ? assetPath(c.preview) : '' })),
+    ...DEMO_DECOR.map(c => ({ kind: 'decor' as const, id: c.id, name: t(`demoNames.${c.id}`), src: c.preview ? assetPath(c.preview) : '' })),
+  ], [references, media, t]);
 }
 
+/** One native creation bubble. Local drafts and reference photos belong to the active project. */
 export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void; preview?(input: FilSend): { route: string; where: string; quote: number | null } } = {}) {
-  const { t } = useI18n();
-  const { studio, promoteExempleRefs } = useStudio();
-  const all = useReferences();
-  const [mode, setMode] = useState<BarreMode>("image");
-  const [text, setText] = useState("");
-  const [refs, setRefs] = useState<BarreRef[]>([]);
-  const [photos, setPhotos] = useState<BarrePhoto[]>([]);
-  const [menu, setMenu] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settings, setSettings] = useState<BarreSettings>(DEFAULT_SETTINGS);
-  const [sheet, setSheet] = useState(false);
-  const [undoChip, setUndoChip] = useState<{ kind: "photo" | "ref"; item: BarrePhoto | BarreRef; name: string; src: string } | null>(null);
-  const inputId = useId();
-  const menuId = useId();
-  const routeId = useId();
-  const fileRef = useRef<HTMLInputElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const settingsRef = useRef<HTMLDivElement>(null);
-
-  // Ideas (and links from elsewhere) fill the bar through one event.
+  const { t } = useI18n(); const { ready, studio, media, storeCreationInput } = useStudio(); const all = useReferences();
+  const [mode, setMode] = useState<'image' | 'video'>('image'), [text, setText] = useState('');
+  const [refs, setRefs] = useState<BarreRef[]>([]), [photos, setPhotos] = useState<Attachment[]>([]), [audio, setAudio] = useState<Attachment | null>(null);
+  const [settings, setSettings] = useState<BubbleSettings>(BUBBLE_DEFAULTS);
+  const [menu, setMenu] = useState(false), [settingsOpen, setSettingsOpen] = useState(false), [sheet, setSheet] = useState(false);
+  const [busy, setBusy] = useState(false), [error, setError] = useState(''), [loadedFor, setLoadedFor] = useState<string | null>(null);
+  const inputId = useId(), menuId = useId(), routeId = useId(), attachmentsId = useId();
+  const fileRef = useRef<HTMLInputElement>(null), audioRef = useRef<HTMLInputElement>(null), menuRef = useRef<HTMLDivElement>(null), settingsRef = useRef<HTMLDivElement>(null);
+  const scope = `u-ttu-creation-draft:${studio.project ?? 'nouveau'}`;
   useEffect(() => {
-    const fill = (event: Event) => {
-      const d = (event as CustomEvent<{ mode: BarreMode; text: string; refs?: string[]; resolved?: BarreRef[] }>).detail;
-      if (!d) return;
-      setMode(d.mode);
-      setText(d.text);
-      if (d.resolved) setRefs(d.resolved);
-      else if (d.refs) setRefs(d.refs.flatMap(id => all.filter(ref => ref.id === id)));
+    if (!ready) return;
+    let d: Record<string, unknown> = {}; try {
+      if (loadedFor === 'u-ttu-creation-draft:nouveau' && scope !== loadedFor && !localStorage.getItem(scope)) {
+        const previous = localStorage.getItem(loadedFor); if (previous) localStorage.setItem(scope, previous);
+      }
+      d = JSON.parse(localStorage.getItem(scope) ?? '{}');
+    } catch { /* empty */ }
+    setText(typeof d.text === 'string' ? d.text.slice(0, 800) : ''); setMode(d.mode === 'video' ? 'video' : 'image');
+    setSettings(validBubbleSettings(d.settings) ? d.settings : BUBBLE_DEFAULTS);
+    setRefs(Array.isArray(d.refs) ? d.refs.filter((r): r is BarreRef => Boolean(r && typeof r === 'object' && typeof r.id === 'string' && typeof r.kind === 'string')).slice(0, CREATION_REFERENCES_MAX) : []);
+    setPhotos(Array.isArray(d.photos) ? d.photos.filter((p): p is Attachment => Boolean(p && typeof p === 'object' && typeof p.path === 'string' && typeof p.name === 'string')) : []);
+    setAudio(d.audio && typeof d.audio === 'object' && 'path' in d.audio ? d.audio as Attachment : null); setLoadedFor(scope);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, scope]);
+  const selected = refs.flatMap(r => { const fresh = all.find(x => x.kind === r.kind && x.id === r.id); return fresh ? [fresh] : []; });
+  const attached: FilRef[] = [...selected.map(r => ({ kind: r.kind, id: r.id, name: r.name, description: r.description, src: r.src, path: r.path, vault: Boolean(r.path) })), ...photos.map(p => ({ kind: 'photo' as const, id: p.id, name: p.name, src: media[p.path ?? ''] ?? p.src, path: p.path, vault: Boolean(p.path) }))];
+  const currentAudio = mode === 'video' && audio ? { name: audio.name, src: media[audio.path ?? ''] ?? audio.src, path: audio.path } : undefined;
+  const input: FilSend = { mode, text, refs: attached, settings: DEFAULT_SETTINGS, creation: { settings }, audio: currentAudio };
+  const here = preview?.(input), quote = bubbleQuote(mode, attached.length, settings, Boolean(currentAudio));
+  const credits = here ? here.quote : quote?.credits ?? null;
+  const cost = credits !== null ? t('barre.cost', { credits: formatCredits(credits) }) : null;
+  const full = attached.length >= CREATION_REFERENCES_MAX;
+  const size = bubbleSize(settings);
+  useEffect(() => {
+    if (!ready || loadedFor !== scope) return;
+    try { localStorage.setItem(scope, JSON.stringify({ mode, text, settings, refs: refs.map(r => ({ ...r, src: '' })), photos: photos.map(p => ({ ...p, src: '' })), audio: audio ? { ...audio, src: '' } : null })); }
+    catch { setError(t('bubble.draftFailed')); }
+  }, [ready, loadedFor, scope, mode, text, settings, refs, photos, audio, t]);
+  useEffect(() => {
+    const fill = (e: Event) => {
+      const d = (e as CustomEvent<{ mode: BarreMode; text: string; refs?: string[]; resolved?: BarreRef[] }>).detail; if (!d) return;
+      if (d.mode === 'agent') { writeHandoff(sessionStorage, AGENT_HANDOFF_KEY, d.text); toggleAssistant(true); requestAnimationFrame(() => window.dispatchEvent(new Event(AGENT_HANDOFF_EVENT))); return; }
+      setMode(d.mode); setText(d.text); setPhotos([]); setRefs((d.resolved ?? all.filter(r => d.refs?.includes(r.id))).slice(0, CREATION_REFERENCES_MAX));
       requestAnimationFrame(() => document.getElementById(inputId)?.focus());
-    };
-    window.addEventListener("u-ttu-barre-fill", fill);
-    return () => window.removeEventListener("u-ttu-barre-fill", fill);
+    }; window.addEventListener('u-ttu-barre-fill', fill); return () => window.removeEventListener('u-ttu-barre-fill', fill);
   }, [all, inputId]);
-
   useEffect(() => {
     if (!menu && !settingsOpen) return;
-    const close = (event: PointerEvent | KeyboardEvent) => {
-      if (event instanceof KeyboardEvent && event.key === "Escape") { setMenu(false); setSettingsOpen(false); return; }
-      if (!(event instanceof PointerEvent)) return;
-      const node = event.target as Node;
-      if (menu && !menuRef.current?.contains(node)) setMenu(false);
-      if (settingsOpen && !settingsRef.current?.contains(node)) setSettingsOpen(false);
-    };
-    document.addEventListener("pointerdown", close);
-    document.addEventListener("keydown", close);
-    return () => { document.removeEventListener("pointerdown", close); document.removeEventListener("keydown", close); };
+    const close = (e: PointerEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent && e.key === 'Escape') { setMenu(false); setSettingsOpen(false); }
+      if (e instanceof PointerEvent) { if (!menuRef.current?.contains(e.target as Node)) setMenu(false); if (!settingsRef.current?.contains(e.target as Node)) setSettingsOpen(false); }
+    }; document.addEventListener('pointerdown', close); document.addEventListener('keydown', close);
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', close); };
   }, [menu, settingsOpen]);
-
-  // Keep the + menu inside the visible band between the sticky header and the tab bar.
   useLayoutEffect(() => {
-    if (!menu) return;
-    const wrap = menuRef.current;
-    const panel = wrap?.querySelector<HTMLElement>("[data-barre-menu]");
-    const btn = wrap?.querySelector<HTMLElement>("[data-barre-plus]");
-    if (!panel || !btn) return;
+    const wrap = menu ? menuRef.current : settingsOpen ? settingsRef.current : null;
+    const panel = wrap?.querySelector<HTMLElement>(menu ? '[data-barre-menu]' : '[data-barre-settings-row]'), btn = wrap?.querySelector<HTMLElement>('button'); if (!panel || !btn) return;
     const place = () => {
-      const bars = [...document.querySelectorAll<HTMLElement>(".u-top, .u-tabs, .u-chain")]
-        .filter(bar => ["fixed", "sticky"].includes(getComputedStyle(bar).position))
-        .map(bar => {
-          const box = bar.getBoundingClientRect();
-          return { top: box.top, bottom: box.bottom };
-        });
-      const viewport = window.visualViewport;
-      const visibleTop = viewport ? viewport.offsetTop : 0;
-      const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      const band = openBand(bars, visibleTop, visibleBottom, 48);
-      panel.style.maxHeight = "none";
-      panel.style.width = "";
-      const size = { width: panel.offsetWidth, height: panel.offsetHeight };
-      const anchor = btn.getBoundingClientRect();
-      const box = placeMenu({
-        anchor: { top: anchor.top, bottom: anchor.bottom, left: anchor.left, width: anchor.width },
-        size,
-        band,
-        viewportWidth: window.innerWidth,
-      });
-      panel.style.top = `${box.top}px`;
-      panel.style.left = `${box.left}px`;
-      panel.style.width = `${box.width}px`;
-      panel.style.maxHeight = `${box.maxHeight}px`;
-      panel.dataset.place = box.place;
-    };
-    place();
-    window.addEventListener("resize", place);
-    window.visualViewport?.addEventListener("resize", place);
-    window.addEventListener("scroll", place, true);
-    return () => {
-      window.removeEventListener("resize", place);
-      window.visualViewport?.removeEventListener("resize", place);
-      window.removeEventListener("scroll", place, true);
-    };
-  }, [menu, mode]);
-
-  useLayoutEffect(() => {
-    if (!settingsOpen) return;
-    const wrap = settingsRef.current;
-    const panel = wrap?.querySelector<HTMLElement>("[data-barre-settings-row]");
-    const btn = wrap?.querySelector<HTMLElement>("[data-barre-settings]");
-    if (!panel || !btn) return;
-    const place = () => {
-      const bars = [...document.querySelectorAll<HTMLElement>(".u-top, .u-tabs, .u-chain")]
-        .filter(bar => ["fixed", "sticky"].includes(getComputedStyle(bar).position))
-        .map(bar => {
-          const box = bar.getBoundingClientRect();
-          return { top: box.top, bottom: box.bottom };
-        });
-      const viewport = window.visualViewport;
-      const visibleTop = viewport ? viewport.offsetTop : 0;
-      const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      const band = openBand(bars, visibleTop, visibleBottom, 48);
-      panel.style.maxHeight = "none";
-      panel.style.width = "";
-      const size = { width: Math.max(panel.offsetWidth, 260), height: panel.offsetHeight };
-      const anchorBox = btn.getBoundingClientRect();
-      const box = placeMenu({
-        anchor: { top: anchorBox.top, bottom: anchorBox.bottom, left: anchorBox.left, width: anchorBox.width },
-        size,
-        band,
-        viewportWidth: window.innerWidth,
-      });
-      panel.style.top = `${box.top}px`;
-      panel.style.left = `${box.left}px`;
-      panel.style.width = `${box.width}px`;
-      panel.style.maxHeight = `${box.maxHeight}px`;
-      panel.dataset.place = box.place;
-    };
-    place();
-    window.addEventListener("resize", place);
-    window.visualViewport?.addEventListener("resize", place);
-    window.addEventListener("scroll", place, true);
-    return () => {
-      window.removeEventListener("resize", place);
-      window.visualViewport?.removeEventListener("resize", place);
-      window.removeEventListener("scroll", place, true);
-    };
-  }, [settingsOpen, settings.rendu, settings.duree, settings.format]);
-
-
-  const attached: FilRef[] = mode === "agent" ? [] : [
-    ...(mode === "image" ? photos.map(photo => ({ kind: "photo" as const, id: photo.id, name: photo.name, src: photo.url })) : []),
-    ...refs.map(ref => ({ kind: ref.kind, id: ref.id, name: ref.name, src: ref.src, path: ref.path, vault: Boolean(ref.path) && !ref.id.startsWith("demo-") })),
-  ];
-  const here = preview?.({ mode, text, refs: attached, settings }) ?? null;
-  const target = barreTarget(mode, text, mode === "image" ? refs : [], mode === "image" ? photos : []);
-  const quote = useMemo(() => {
-    if (target.kind === "outil") {
-      const outil = outilParId(target.id);
-      return outil ? outilRow(outil)?.credits ?? null : null;
-    }
-    if (target.kind === "prise") {
-      const profile = takeProfile({ seconds: settings.duree, aspect: settings.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine: "ltx", rendu: settings.rendu });
-      return quoteCredits(resolveTakeQuote(profile, quotesToRecords(studio.quotes)));
-    }
-    return null;
-  }, [target.kind, target.kind === "outil" ? target.id : "", settings, studio.quotes]);
-  const where = target.kind === "outil" ? t(`outils.t.${target.id}.title`)
-    : target.kind === "prise" ? t("nav.take")
-    : target.kind === "agent" ? t("barre.where.agent")
-    : t("entry.film");
-  const chips = mode === "agent" ? [] : mode === "video" ? refs : [...refs, ...photos.map(photo => ({ kind: "photo" as const, id: photo.id, name: photo.name, src: photo.url }))];
-  const imageFull = mode === "image" && refs.length + photos.length >= MAX_REFS_IMAGE;
-  const attach = attachFor(mode);
-  const shown = settingsFor(mode);
-
-  function switchMode(next: BarreMode) {
-    setMode(next);
-    setMenu(false);
-    if (next !== "video") setSettingsOpen(false);
+      const bars = [...document.querySelectorAll<HTMLElement>('.u-top, .u-tabs, .u-chain')].filter(b => ['fixed','sticky'].includes(getComputedStyle(b).position)).map(b => b.getBoundingClientRect());
+      const v = window.visualViewport, band = openBand(bars, v?.offsetTop ?? 0, v ? v.offsetTop + v.height : innerHeight, 44);
+      panel.style.maxHeight = 'none'; panel.style.width = ''; const a = btn.getBoundingClientRect();
+      const box = placeMenu({ anchor: { top: a.top, bottom: a.bottom, left: a.left, width: a.width }, size: { width: Math.max(panel.offsetWidth, 280), height: panel.offsetHeight }, band, viewportWidth: innerWidth });
+      Object.assign(panel.style, { top: `${box.top}px`, left: `${box.left}px`, width: `${box.width}px`, maxHeight: `${box.maxHeight}px` }); panel.dataset.place = box.place;
+    }; place(); window.addEventListener('resize', place); window.addEventListener('scroll', place, true); window.visualViewport?.addEventListener('resize', place);
+    return () => { window.removeEventListener('resize', place); window.removeEventListener('scroll', place, true); window.visualViewport?.removeEventListener('resize', place); };
+  }, [menu, settingsOpen, mode]);
+  async function addFiles(files: FileList | null, kind: 'photo' | 'audio') {
+    if (!files?.length || busy) return; setBusy(true); setError('');
+    try {
+      const picked = [...files].filter(f => f.type.startsWith(kind === 'photo' ? 'image/' : 'audio/')).slice(0, kind === 'audio' ? 1 : CREATION_REFERENCES_MAX - attached.length), saved: Attachment[] = [];
+      for (const file of picked) { const p = await storeCreationInput(file); saved.push({ id: crypto.randomUUID(), name: file.name, src: p.url, path: p.path }); }
+      if (kind === 'audio') setAudio(saved[0] ?? null); else setPhotos(p => [...p, ...saved]);
+    } catch { setError(t('namedRefs.failed')); } finally { setBusy(false); }
   }
-
-  function pick(kind: AttachKind) {
-    setMenu(false);
-    if (kind === "photo") fileRef.current?.click();
-    else if (kind === "reference") setSheet(true);
-    else if (kind === "lieu") go(`#outils/${REPERAGE_ID}`);
-    else openFamily("son");
-  }
-
-  const shownQuote = here ? here.quote : quote;
-  const cost = shownQuote !== null ? t("barre.cost", { credits: formatCredits(shownQuote) }) : null;
-
-  function addPhotos(files: FileList | null) {
-    if (!files) return;
-    const room = MAX_REFS_IMAGE - refs.length - photos.length;
-    const next = [...files].filter(file => file.type.startsWith("image/")).slice(0, Math.max(0, room)).map((file, index) => ({ id: `photo-${Date.now()}-${index}`, name: file.name, url: URL.createObjectURL(file) }));
-    setPhotos(list => [...list, ...next]);
-  }
-
-  function remove(kind: RefKind | "photo", id: string) {
-    if (kind === "photo") {
-      const item = photos.find(photo => photo.id === id);
-      if (item) setUndoChip({ kind: "photo", item, name: item.name, src: item.url });
-      setPhotos(list => list.filter(photo => photo.id !== id));
-      return;
-    }
-    const item = refs.find(ref => ref.kind === kind && ref.id === id);
-    if (item) setUndoChip({ kind: "ref", item, name: item.name, src: item.src });
-    setRefs(list => list.filter(ref => !(ref.kind === kind && ref.id === id)));
-  }
-
   function send() {
-    setMenu(false);
-    setSettingsOpen(false);
-    const value = text.trim();
-    if (!value) { document.getElementById(inputId)?.focus(); return; }
-    if (onSend) {
-      // In the thread: the bubble, then the confirm and the run, without leaving the home.
-      onSend({ mode, text: value, refs: attached, settings });
-      setText(""); setRefs([]); setPhotos([]); setMenu(false); setSettingsOpen(false);
-      return;
-    }
-    if (target.kind === "agent") {
-      writeHandoff(window.sessionStorage, AGENT_HANDOFF_KEY, value);
-      toggleAssistant(true);
-      requestAnimationFrame(() => window.dispatchEvent(new Event(AGENT_HANDOFF_EVENT)));
-      return;
-    }
-    if (target.kind === "prise") {
-      writeHandoff(window.sessionStorage, PRISE_HANDOFF_KEY, priseHandoff(value, refs, settings));
-      go("#prise");
-      return;
-    }
-    if (target.kind === "film") { go("#personnage"); return; }
-    try { sessionStorage.setItem("u-ttu-consigne", value); } catch { /* the tool still opens */ }
-    if (target.images.length) writeHandoff(window.sessionStorage, REFS_HANDOFF_KEY, { tool: target.id, images: target.images });
-    go(`#outils/${target.id}`);
+    if (busy || !text.trim()) { document.getElementById(inputId)?.focus(); return; }
+    setMenu(false); setSettingsOpen(false); onSend?.({ ...input, text: text.trim() });
+    if (onSend) { setText(''); setRefs([]); setPhotos([]); setAudio(null); }
   }
-
+  function pickReference(r: NamedReference) {
+    const ref = all.find(a => a.id === r.id && a.kind === r.category) ?? { id: r.id, kind: r.category, name: r.name, src: media[r.preview] ?? '', path: r.preview, description: r.description };
+    if (!full && !selected.some(a => a.id === ref.id && a.kind === ref.kind)) setRefs(a => [...a, ref]); setSheet(false);
+  }
   return <>
-    <form className="u-barre" data-barre="" data-mode={mode} onSubmit={event => { event.preventDefault(); send(); }}>
-      {chips.length > 0 && <ul className="u-barre-chips" role="list" aria-label={t("barre.attached")} data-barre-chips="">
-        {chips.map(chip => <li key={`${chip.kind}-${chip.id}`} className="u-barre-chip" data-barre-chip={chip.kind}>
-          {chip.src ? <img src={chip.src} alt="" width={64} height={64} /> : <span className="u-barre-chip-glyph"><FamilyIcon fam="reperage" /></span>}
-          <span className="u-barre-chip-name">{chip.name}</span>
-          <button type="button" className="u-barre-chip-x" aria-label={t("barre.remove", { name: chip.name })} onClick={() => remove(chip.kind, chip.id)}><Close /></button>
-        </li>)}
-        {!imageFull && <li><button type="button" className="u-barre-chip-add" aria-label={t("barre.attach.reference")} onClick={() => setSheet(true)}><Plus /></button></li>}
-      </ul>}
-      <label className="u-barre-field" htmlFor={inputId}>
-        <span className="sr-only">{t(`barre.ph.${mode}`)}</span>
-        <textarea id={inputId} rows={2} value={text} maxLength={800} placeholder={t(`barre.ph.${mode}`)} data-barre-input="" aria-describedby={routeId}
-          onChange={event => setText(event.target.value)}
-          onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(); } }} />
-      </label>
+    <form className="u-barre u-creation-bubble" data-barre="" data-mode={mode} onSubmit={e => { e.preventDefault(); send(); }}>
+      {attached.length > 0 && <ul className="u-barre-chips" data-barre-chips="" aria-label={t('barre.attached')}>{attached.map(r => <li key={`${r.kind}-${r.id}`} className="u-barre-chip" data-barre-chip={r.kind}>{r.src && <img src={r.src} alt="" width={64} height={64} />}<span className="u-barre-chip-name">{r.name}</span><button type="button" className="u-barre-chip-x" aria-label={t('barre.remove', { name: r.name })} onClick={() => r.kind === 'photo' ? setPhotos(p => p.filter(a => a.id !== r.id)) : setRefs(a => a.filter(x => x.id !== r.id || x.kind !== r.kind))}><Close /></button></li>)}{!full && <li><button type="button" className="u-barre-chip-add" aria-label={t('barre.attach.reference')} onClick={() => setSheet(true)}><Plus /></button></li>}</ul>}
+      {currentAudio && <div className="u-bubble-audio" data-bubble-audio=""><FamilyIcon fam="son" /><span>{currentAudio.name}</span><button type="button" className="u-icon" aria-label={t('bubble.removeAudio')} onClick={() => setAudio(null)}><Close /></button></div>}
+      <label className="u-barre-field" htmlFor={inputId}><span className="sr-only">{t(`barre.ph.${mode}`)}</span><textarea id={inputId} rows={2} value={text} maxLength={800} placeholder={t(`barre.ph.${mode}`)} data-barre-input="" onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} /></label>
       <div className="u-barre-foot">
-        {attach.length > 0 && <div className="u-barre-plus-wrap" ref={menuRef}>
-          <button type="button" className="u-barre-round" aria-label={t("barre.plus")} aria-haspopup="menu" aria-expanded={menu} aria-controls={menuId} data-barre-plus="" onClick={() => setMenu(value => !value)}><Plus /></button>
+        <div className="u-barre-plus-wrap" ref={menuRef}>
+          <button type="button" className="u-barre-round" aria-label={t('barre.plus')} aria-haspopup="menu" aria-expanded={menu} aria-controls={menuId} data-barre-plus="" onClick={() => { setMenu(v => !v); setSettingsOpen(false); }}><Plus /></button>
           {menu && <div id={menuId} className="u-barre-menu" role="menu" data-barre-menu="">
-            {attach.map(kind => <button key={kind} type="button" role="menuitem" data-barre-attach={kind} disabled={kind === "photo" && imageFull} onClick={() => pick(kind)}>
-              <AttachIcon kind={kind} />
-              <span><strong>{t(`barre.attach.${kind}`)}</strong><small>{t(`barre.attach.${kind}Line`)}</small></span>
-            </button>)}
+            <button type="button" role="menuitem" data-barre-attach="photo" disabled={full || busy} aria-describedby={attachmentsId} onClick={() => { setMenu(false); fileRef.current?.click(); }}><FamilyIcon fam="creer" /><span><strong>{t('barre.attach.photo')}</strong><small>{t('barre.attach.photoLine')}</small></span></button>
+            <button type="button" role="menuitem" data-barre-attach="son" disabled={busy} aria-describedby={attachmentsId} onClick={() => { setMenu(false); setMode('video'); audioRef.current?.click(); }}><FamilyIcon fam="son" /><span><strong>{t('bubble.audio')}</strong><small>{t('bubble.audioHelp')}</small></span></button>
+            <button type="button" role="menuitem" data-barre-attach="reference" disabled={full} aria-describedby={attachmentsId} onClick={() => { setMenu(false); setSheet(true); }}><Plus /><span><strong>{t('barre.attach.reference')}</strong><small>{t('namedRefs.menuHelp')}</small></span></button>
           </div>}
-          <input ref={fileRef} type="file" accept="image/*" multiple hidden data-barre-photo="" onChange={event => { addPhotos(event.target.files); event.target.value = ""; }} />
-        </div>}
-        <div className="u-barre-modes" role="radiogroup" aria-label={t("barre.modes")}>
-          {BARRE_MODES.map(item => <button key={item} type="button" role="radio" aria-checked={mode === item} aria-label={t(`barre.mode.${item}`)} title={t(`barre.mode.${item}`)} data-barre-mode={item} onClick={() => switchMode(item)}>
-            <ModeIcon mode={item} /><span className="u-barre-mode-name">{t(`barre.mode.${item}`)}</span>
-          </button>)}
+          <input ref={fileRef} type="file" accept="image/*" multiple hidden data-barre-photo="" onChange={e => { void addFiles(e.target.files, 'photo'); e.target.value = ''; }} />
+          <input ref={audioRef} type="file" accept="audio/*" hidden data-barre-audio="" onChange={e => { void addFiles(e.target.files, 'audio'); e.target.value = ''; }} />
         </div>
-        {shown.length > 0 && <div className="u-barre-settings-wrap" ref={settingsRef}>
-          <button type="button" className="u-barre-settings-pill" aria-label={t("barre.settings")} aria-expanded={settingsOpen} aria-controls={settingsOpen ? "u-barre-settings-panel" : undefined} data-barre-settings="" onClick={() => setSettingsOpen(value => !value)}>
-            <SettingsIcon />
-            <span data-barre-settings-summary="">{t(`barre.rendu.${settings.rendu}`)} · {t("barre.seconds", { n: String(settings.duree) })} · {settings.format}</span>
-          </button>
-          {settingsOpen && <div id="u-barre-settings-panel" className="u-barre-settings" role="group" data-barre-settings-row="">
-            <div className="u-barre-seg" role="group" aria-label={t("barre.rendu.label")}>
-              {(["apercu", "finale"] as const).map(item => <button key={item} type="button" aria-pressed={settings.rendu === item} data-barre-rendu={item} onClick={() => { setSettings(s => ({ ...s, rendu: item })); }}>{t(`barre.rendu.${item}`)}</button>)}
-            </div>
-            <div className="u-barre-seg" role="group" aria-label={t("barre.duree")}>
-              {([5, 8] as const).map(item => <button key={item} type="button" aria-pressed={settings.duree === item} data-barre-duree={item} onClick={() => { setSettings(s => ({ ...s, duree: item })); }}>{t("barre.seconds", { n: String(item) })}</button>)}
-            </div>
-            <div className="u-barre-seg" role="group" aria-label={t("barre.format")}>
-              {(["16:9", "9:16"] as const).map(item => <button key={item} type="button" aria-pressed={settings.format === item} data-barre-format={item} onClick={() => { setSettings(s => ({ ...s, format: item })); setSettingsOpen(false); }}>{item}</button>)}
-            </div>
+        <div className="u-barre-modes" role="radiogroup" aria-label={t('barre.modes')}>{(['image','video'] as const).map(m => <button key={m} type="button" role="radio" aria-checked={mode === m} aria-label={t(`barre.mode.${m}`)} data-barre-mode={m} onClick={() => setMode(m)}><FamilyIcon fam={m === 'image' ? 'creer' : 'video'} /><span>{t(`barre.mode.${m}`)}</span></button>)}</div>
+        <div className="u-barre-settings-wrap" ref={settingsRef}>
+          <button type="button" className="u-barre-settings-pill" aria-label={t('barre.settings')} aria-expanded={settingsOpen} data-barre-settings="" onClick={() => { setSettingsOpen(v => !v); setMenu(false); }}><svg {...ICON}><path d="M4 7h16M4 17h16M9 3v8M16 13v8" /></svg><span data-barre-settings-summary="">{settings.format} · {settings.resolution}{mode === 'video' ? ` · ${settings.duration} s` : ''}</span></button>
+          {settingsOpen && <div className="u-barre-settings" data-barre-settings-row="">
+            <div className="u-barre-seg" role="group" aria-label={t('barre.format')}>{(['16:9','9:16','1:1'] as const).map(f => <button key={f} type="button" aria-pressed={settings.format === f} data-barre-format={f} onClick={() => setSettings(s => ({ ...s, format: f }))}>{f}</button>)}</div>
+            <div className="u-barre-seg" role="group" aria-label={t('bubble.resolution')}>{(['480p','720p'] as const).map(r => <button key={r} type="button" aria-pressed={settings.resolution === r} data-barre-resolution={r} onClick={() => setSettings(s => ({ ...s, resolution: r }))}>{r}</button>)}</div>
+            {mode === 'video' && <><div className="u-barre-seg" role="group" aria-label={t('barre.duree')}>{([5,10] as const).map(d => <button key={d} type="button" aria-pressed={settings.duration === d} data-barre-duree={d} onClick={() => setSettings(s => ({ ...s, duration: d }))}>{d} s</button>)}</div><button type="button" className="u-secondary" aria-pressed={settings.sound} data-barre-sound="" onClick={() => setSettings(s => ({ ...s, sound: !s.sound }))}>{t(settings.sound ? 'bubble.soundOn' : 'bubble.soundOff')}</button></>}
           </div>}
-        </div>}
-        <button type="submit" className="u-barre-send" data-barre-send="" data-ready={text.trim() ? "" : undefined} aria-label={cost ? `${t("barre.send")} · ${cost}` : t("barre.send")} aria-describedby={routeId}>
-          <svg {...ICON} className="u-barre-send-arrow"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
-          {cost && <span className="u-barre-send-cost" data-barre-cost="">{cost}</span>}
-        </button>
+        </div>
+        <button type="submit" className="u-barre-send" disabled={busy} data-barre-send="" data-ready={text.trim() ? '' : undefined} aria-label={cost ? `${t('barre.send')} · ${cost}` : t('barre.send')} aria-describedby={routeId}><svg {...ICON}><path d="M12 19V5M6 11l6-6 6 6" /></svg></button>
       </div>
+      <p className="u-bubble-limit" id={attachmentsId}>{busy ? t('namedRefs.saving') : t('bubble.referenceCount', { n: attached.length, max: CREATION_REFERENCES_MAX })} · {settings.format} · ≈ {settings.resolution} ({size.width}×{size.height})</p>
     </form>
-    <p className="u-barre-route" id={routeId} data-barre-route={here ? here.route : target.kind === "outil" ? target.id : target.kind}>{cost && <span className="u-barre-route-cost" aria-hidden="true">{cost} · </span>}{here ? t(here.route === "agent" ? "barre.routeAgent" : here.route === "note" ? "barre.routeNote" : "barre.routeHere", { where: here.where }) : t("barre.route", { where })}</p>
-    {undoChip && <UndoToast message={t("shell.removeSlot", { name: undoChip.name })} thumb={undoChip.src || undefined} onUndo={() => {
-      if (undoChip.kind === "photo") setPhotos(list => [...list, undoChip.item as BarrePhoto]);
-      else setRefs(list => [...list, undoChip.item as BarreRef]);
-      setUndoChip(null);
-    }} onGone={() => setUndoChip(null)} />}
-    {sheet && <ReferencesSheet all={all} picked={refs} max={mode === "image" ? MAX_REFS_IMAGE - photos.length : null} onClose={() => setSheet(false)} onJoin={async next => {
-      const demos = next.filter(ref => ref.id.startsWith("demo-") || (!ref.path && ref.src.includes("/exemples/")));
-      if (demos.length === 0) { setRefs(next); setSheet(false); return; }
-      const specs: ExempleRefSpec[] = demos.map(ref => ({
-        kind: ref.kind === "decor" ? "decor" : "cast",
-        demoId: ref.id.startsWith("demo-") ? ref.id : `demo-${ref.id}`,
-        name: ref.name,
-        preview: ref.src.replace(/^https?:\/\/[^/]+/, "") || ref.src,
-        thumb: ref.src,
-      }));
-      // Prefer known demo previews (absolute /exemples paths).
-      for (const spec of specs) {
-        const known = [...DEMO_CAST, ...DEMO_DECOR].find(card => card.id === spec.demoId);
-        if (known?.preview) { spec.preview = known.preview; spec.thumb = known.preview; }
-      }
-      try {
-        const promoted = await promoteExempleRefs(specs);
-        const byDemo = new Map(demos.map((d, i) => [d.id, promoted[i]!]));
-        const merged = next.map(ref => {
-          const p = byDemo.get(ref.id);
-          return p ? { kind: p.kind, id: p.id, name: p.name, src: p.src, path: p.path } : ref;
-        });
-        setRefs(merged);
-      } catch {
-        setRefs(next);
-      }
-      setSheet(false);
-    }} />}
+    <p className="u-barre-route" id={routeId} data-barre-route={here?.route ?? bubbleTool(mode, attached.length, Boolean(currentAudio))}>{cost && <strong data-barre-cost="">{cost} · </strong>}{t(mode === 'image' ? 'bubble.imageEngine' : attached.length || currentAudio ? 'bubble.referenceVideoEngine' : 'bubble.textVideoEngine')}</p>
+    <button type="button" className="u-text-button u-bubble-agent" data-barre-mode="agent" onClick={() => toggleAssistant(true)}>{t('bubble.askUttu')}</button>
+    {error && <p role="alert">{error}</p>}
+    {sheet && <ReferenceLibrary onClose={() => setSheet(false)} onPick={pickReference} />}
   </>;
 }
-
-type Filter = "tout" | RefKind;
-
-export function ReferencesSheet({ all, picked, max, onClose, onJoin }: { all: BarreRef[]; picked: BarreRef[]; max: number | null; onClose(): void; onJoin(next: BarreRef[]): void }) {
-  const { t } = useI18n();
-  const [filter, setFilter] = useState<Filter>("tout");
-  const [chosen, setChosen] = useState<BarreRef[]>(picked);
-  const [adding, setAdding] = useState(false);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
-  useEffect(() => {
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const node = dialog.current;
-    node?.showModal();
-    return () => { node?.close(); if (previous?.isConnected) previous.focus(); };
-  }, []);
-  const list = all.filter(ref => filter === "tout" || ref.kind === filter);
-  const isOn = (ref: BarreRef) => chosen.some(item => item.kind === ref.kind && item.id === ref.id);
-  function flip(ref: BarreRef) {
-    setChosen(current => {
-      if (!isOn(ref) && max !== null && current.length >= max) return current;
-      return max === null ? toggleRef(current, ref) : current.some(item => item.kind === ref.kind && item.id === ref.id) ? current.filter(item => !(item.kind === ref.kind && item.id === ref.id)) : [...current, ref];
-    });
-  }
-  return <div className="u-overlay">
-    <dialog ref={dialog} className="u-sheet u-native-sheet is-tall u-refs-sheet" aria-labelledby={titleId} data-refs-sheet="" onCancel={event => { event.preventDefault(); onClose(); }}>
-      <header className="u-refs-head">
-        <button type="button" className="u-icon" onClick={onClose} aria-label={t("verb.close")}><Close /></button>
-        <h2 id={titleId}>{t("barre.refs.title")}</h2>
-        <button type="button" className="u-icon" aria-label={t("barre.refs.new")} aria-expanded={adding} data-refs-new="" onClick={() => setAdding(value => !value)}><Plus /></button>
-      </header>
-      {adding && <div className="u-refs-new" data-refs-new-menu="">
-        <button type="button" className="u-secondary" onClick={() => go("#personnage")}>{t("barre.refs.newCast")}</button>
-        <button type="button" className="u-secondary" onClick={() => go("#scene")}>{t("barre.refs.newDecor")}</button>
-        <button type="button" className="u-secondary" onClick={() => go(`#outils/${REPERAGE_ID}`)}>{t("barre.attach.lieu")}</button>
-      </div>}
-      <div className="u-refs-filters" role="group" aria-label={t("barre.refs.filter")}>
-        {(["tout", "cast", "decor"] as const).map(item => <button key={item} type="button" aria-pressed={filter === item} data-refs-filter={item} onClick={() => setFilter(item)}>{t(`barre.refs.${item}`)}</button>)}
-      </div>
-      <ul className="u-refs-grid" role="list">
-        {list.map(ref => <li key={`${ref.kind}-${ref.id}`}>
-          <button type="button" className="u-refs-card" aria-pressed={isOn(ref)} data-ref={ref.id} data-ref-kind={ref.kind} onClick={() => flip(ref)}>
-            <span className="u-refs-thumb">
-              {ref.src ? <img src={ref.src} alt="" width={320} height={320} loading="lazy" decoding="async" /> : <span className="u-barre-chip-glyph"><FamilyIcon fam="reperage" /></span>}
-              {isOn(ref) && <span className="u-refs-check" aria-hidden="true"><Check /></span>}
-            </span>
-            <strong>{ref.name}</strong>
-            <small>{t(`barre.refs.${ref.kind}`)}{ref.repere ? ` · ${t("barre.refs.lieuReel")}` : ref.id.startsWith("demo-") ? ` · ${t("barre.refs.example")}` : ""}</small>
-          </button>
-        </li>)}
-      </ul>
-      <footer className="u-refs-foot">
-        <button type="button" className="u-primary" data-refs-join="" onClick={() => onJoin(chosen)}>
-          {chosen.length === 0 ? t("barre.refs.joinNone") : chosen.length === 1 ? t("barre.refs.joinOne") : t("barre.refs.join", { n: String(chosen.length) })}
-        </button>
-      </footer>
-    </dialog>
-  </div>;
-}
-
-/** Fills the bar from an idea / gallery card. Pass `resolved` after promoting demos (P0-2). */
 export function fillBarre(mode: BarreMode, text: string, refs?: string[], resolved?: BarreRef[]) {
-  window.dispatchEvent(new CustomEvent("u-ttu-barre-fill", { detail: { mode, text, refs, resolved } }));
+  window.dispatchEvent(new CustomEvent('u-ttu-barre-fill', { detail: { mode, text, refs, resolved } }));
 }
