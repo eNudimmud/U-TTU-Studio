@@ -50,7 +50,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       }
     };
     apply();
-    // « Try free (0 credits) » on the home page lands here with ?uttu=1: open the free U*TTU guide once, then drop the flag.
+    // Old links (landing « Découvrir avec Uttu », ?uttu=1) open the one Uttu agent once, then drop the flag.
     const url = new URL(window.location.href);
     if (url.searchParams.get("uttu") === "1") {
       url.searchParams.delete("uttu");

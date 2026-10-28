@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { studioActionRegistry } from '../src/lib/agent/registry.ts';
 import { emptyConversation, type ProductionContext } from '../src/lib/agent/kernel/production.ts';
 import { AGENT_REPLY_KEYS, MEDIA_SEARCH, interpretAgentRequest, localizedTurn, replyKey, toKernelLanguage, type AgentLocale } from '../src/lib/agent/language.ts';
@@ -84,7 +84,10 @@ test('the cutout planner understands German and Spanish through the same adapter
   assert.match(toKernelLanguage('Recorta esta imagen', 'es'), /remove background/);
 });
 
-test('the studio inline assistant has no hard-coded French', () => {
-  const code = readFileSync(new URL('../src/components/app/studio-agent-inline.tsx', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
-  assert.doesNotMatch(code, /Que veux-tu|Proposer|Demande à|Détour|devis|Enregistre-la/);
+test('one agent: the inline assistant and the local guide are gone, « Et ensuite ? » opens Uttu', () => {
+  assert.equal(existsSync(new URL('../src/components/app/studio-agent-inline.tsx', import.meta.url)), false);
+  const suite = readFileSync(new URL('../src/components/app/et-ensuite.tsx', import.meta.url), 'utf8');
+  assert.match(suite, /toggleAssistant\(true\)/);
+  const uttu = readFileSync(new URL('../src/components/app/uttu-free.tsx', import.meta.url), 'utf8');
+  assert.doesNotMatch(uttu, /data-uttu-mode-pick|data-uttu-guide|data-uttu-simulator/);
 });

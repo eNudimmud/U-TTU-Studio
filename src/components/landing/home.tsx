@@ -11,7 +11,7 @@ import "./home.css";
 
 const STUDIO_HREF = assetPath("/studio");
 /** « Try free · 0 credits »: the studio opens with the free U*TTU guide (start, FAQ, cost simulator) and the example tiles. */
-const TRY_FREE_HREF = assetPath("/studio?uttu=1");
+const UTTU_HREF = assetPath("/studio?uttu=1");
 const IMG = (name: string) => assetPath(`/images/accueil/${name}`);
 const MEDIA = (name: string) => assetPath(`/media/accueil/${name}`);
 /** Uttu in HD: one webp per width, the browser picks the one it needs. */
@@ -99,7 +99,7 @@ export function HomeLanding() {
             <h1 id="landing-title">{rich("accueil.h1")}</h1>
             <p className="hv-lead"><span>{t("accueil.sub")}</span><span>{t("accueil.sub2")}</span></p>
             <div className="hv-ctas">
-              <a className="hv-btn hv-gold" href={TRY_FREE_HREF} data-try-free="">{t("landing.tryFree")} <Arrow /></a>
+              <a className="hv-btn hv-gold" href={UTTU_HREF} data-try-free="">{t("landing.tryFree")} <Arrow /></a>
               <a className="hv-btn hv-glass" href={STUDIO_HREF}>{t("landing.enter")}</a>
               <PoweredBy className="hv-badge" />
             </div>
@@ -195,7 +195,7 @@ export function HomeLanding() {
           <BrandLockup className="hv-end-logo hv-rv" alt="U*TTU Studio" />
           <h2 id="hv-end-title" className="hv-rv d1">{rich("accueil.endTitle")}</h2>
           <div className="hv-ctas hv-rv d2">
-            <a className="hv-btn hv-gold" href={TRY_FREE_HREF}>{t("landing.tryFree")} <Arrow /></a>
+            <a className="hv-btn hv-gold" href={UTTU_HREF}>{t("landing.tryFree")} <Arrow /></a>
             <a className="hv-btn hv-glass" href={STUDIO_HREF}>{t("landing.enter")}</a>
           </div>
           <ul className="hv-trust hv-rv d3">{list("accueil.trust", 3).map(line => <li key={line}>{line}</li>)}</ul>

@@ -12,7 +12,7 @@ import { outilQuote } from "@/lib/outils/graphs";
 import { assetPath } from "@/lib/site";
 import { videoSeconds } from "@/lib/suite/media";
 import { useStudio } from "./studio-session";
-import { StudioAgentInline } from "./studio-agent-inline";
+import { toggleAssistant } from "./assistant-panel";
 import { safeHandoffUrl } from "@/lib/agent/source";
 
 export interface SuiteSource {
@@ -117,7 +117,7 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
           </a>;
         })}
       </div>)}
-      <StudioAgentInline source={source} onPrepare={() => rememberSource(source)} />
+      <button type="button" className="u-secondary" data-ask-uttu="" onClick={() => { rememberSource(source); toggleAssistant(true); }}>{t("agent.inline.title")}</button>
       {onPrise && <button type="button" className="u-secondary u-suite-prise" data-suite-prise="" onClick={onPrise}>{t("suite.toPrise")}</button>}
     </div>}
   </section>;

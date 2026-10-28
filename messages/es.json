@@ -3008,7 +3008,7 @@
     "sub": "Tu guía del estudio · local por defecto, agente Comfy opcional",
     "button": "U*TTU",
     "openAria": "Abrir o cerrar U*TTU, tu guía del estudio",
-    "welcome": "Hola, soy Uttu. Te ayudo a empezar, respondo tus preguntas sobre el estudio y estimo lo que cuestan tus renders. Todo pasa en este dispositivo: no envío nada y no gasto nada.",
+    "welcome": "Soy Uttu, el agente del estudio. Dime qué quieres rodar: te respondo, te propongo la herramienta o el plan y ves el presupuesto antes de cualquier render. Cada mensaje lo paga tu cuenta Comfy.",
     "ask": "Tu pregunta para Uttu",
     "placeholder": "p. ej. ¿Cuánto cuestan 3 retratos + 2 tomas LTX?",
     "send": "Enviar",
@@ -3206,10 +3206,10 @@
     "comfy": {
       "mode": "Modo de U*TTU",
       "free": "Guía local · sin modelo",
-      "paid": "{cost, select, 1 {Agente Comfy · ≈ 1 crédito estimado por mensaje} other {Agente Comfy · ≈ {cost} créditos estimados por mensaje}}",
+      "paid": "{cost, select, 1 {Agente Uttu · ≈ 1 crédito estimado por mensaje} other {Agente Uttu · ≈ {cost} créditos estimados por mensaje}}",
       "paidNote": "Agente Comfy activo: cada mensaje pasa por tu cuenta Comfy (GPT-5 Nano vía Comfy Router). El estudio no paga nada y no guarda tu clave. El agente no lanza nada: tú haces clic, tras el presupuesto habitual.",
       "paidNoteSession": "Agente Comfy activo: cada mensaje pasa por tu sesión de Comfy (GPT-5 Nano vía Comfy Router). El estudio no paga nada y no guarda nada de tu cuenta en sus servidores: tu sesión de Comfy se queda en este navegador. El agente no lanza nada: tú haces clic, tras el presupuesto habitual.",
-      "invite": "{cost, select, 1 {¿Quieres un agente que responda con sus palabras? Vincula tu cuenta Comfy: cada mensaje cuesta como mucho ≈ 1 crédito estimado, pagados por tu cuenta. Sin cuenta vinculada, U*TTU sigue siendo la guía local.} other {¿Quieres un agente que responda con sus palabras? Vincula tu cuenta Comfy: cada mensaje cuesta como mucho ≈ {cost} créditos estimados, pagados por tu cuenta. Sin cuenta vinculada, U*TTU sigue siendo la guía local.}}",
+      "invite": "{cost, select, 1 {Para hablar con Uttu, vincula tu cuenta Comfy: cada mensaje cuesta como mucho ≈ 1 crédito estimado, pagado por tu cuenta.} other {Para hablar con Uttu, vincula tu cuenta Comfy: cada mensaje cuesta como mucho ≈ {cost} créditos estimados, pagados por tu cuenta.}}",
       "inviteButton": "Vincular mi cuenta Comfy",
       "gateTitle": "Antes de tu primer mensaje de pago",
       "gateBody": "{cost, select, 1 {Cada mensaje al agente Comfy se cobra en tu cuenta Comfy: como mucho ≈ 1 crédito estimado, a menudo menos. El agente no lanza ningún render: te propone una acción, tú haces clic y el presupuesto habitual aparece antes de cualquier gasto. Tu acuerdo vale para esta sesión.} other {Cada mensaje al agente Comfy se cobra en tu cuenta Comfy: como mucho ≈ {cost} créditos estimados, a menudo menos. El agente no lanza ningún render: te propone una acción, tú haces clic y el presupuesto habitual aparece antes de cualquier gasto. Tu acuerdo vale para esta sesión.}}",
@@ -3234,8 +3234,9 @@
         "timeout": "Comfy tardó demasiado en responder. Vuelve a intentarlo en un momento.",
         "failed": "El agente Comfy no pudo responder. Vuelve a intentarlo o pasa a la guía local."
       },
-      "welcome": "Modo agente Comfy: respondo con mis palabras, solo a partir de la ficha del estudio, y cada mensaje lo paga tu cuenta Comfy. No lanzo nada: te propongo una acción y tú haces clic."
-    }
+      "welcome": "Soy Uttu, el agente del estudio. Dime qué quieres rodar: te respondo, te propongo la herramienta o el plan y ves el presupuesto antes de cualquier render. Cada mensaje lo paga tu cuenta Comfy."
+    },
+    "refs": "Referencias adjuntas: {list}"
   },
   "barre": {
     "title": "¿Qué rodamos?",

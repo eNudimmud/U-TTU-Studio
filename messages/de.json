@@ -3008,7 +3008,7 @@
     "sub": "Dein Studio-Guide · standardmäßig lokal, Comfy-Agent optional",
     "button": "U*TTU",
     "openAria": "U*TTU, deinen Studio-Guide, öffnen oder schließen",
-    "welcome": "Hallo, ich bin Uttu. Ich helfe dir beim Einstieg, beantworte deine Fragen zum Studio und schätze, was deine Renders kosten. Alles passiert auf diesem Gerät: Ich sende nichts und gebe nichts aus.",
+    "welcome": "Ich bin Uttu, der Agent des Studios. Sag mir, was du drehen willst: Ich antworte, schlage dir das Werkzeug oder den Plan vor, und du siehst den Kostenvoranschlag vor jedem Rendern. Jede Nachricht zahlt dein Comfy-Konto.",
     "ask": "Deine Frage an Uttu",
     "placeholder": "z. B. Was kosten 3 Porträts + 2 LTX-Takes?",
     "send": "Senden",
@@ -3206,10 +3206,10 @@
     "comfy": {
       "mode": "U*TTU-Modus",
       "free": "Lokaler Guide · ohne Modell",
-      "paid": "{cost, select, 1 {Comfy-Agent · ≈ 1 Credit geschätzt pro Nachricht} other {Comfy-Agent · ≈ {cost} Credits geschätzt pro Nachricht}}",
+      "paid": "{cost, select, 1 {Uttu-Agent · ≈ 1 Credit geschätzt pro Nachricht} other {Uttu-Agent · ≈ {cost} Credits geschätzt pro Nachricht}}",
       "paidNote": "Comfy-Agent aktiv: Jede Nachricht läuft über dein Comfy-Konto (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert deinen Schlüssel nicht. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
       "paidNoteSession": "Comfy-Agent aktiv: Jede Nachricht läuft über deine Comfy-Anmeldung (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert nichts von deinem Konto auf seinen Servern: Deine Comfy-Sitzung bleibt in diesem Browser. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
-      "invite": "{cost, select, 1 {Lust auf einen Agenten, der in eigenen Worten antwortet? Verbinde dein Comfy-Konto: Jede Nachricht kostet höchstens ≈ 1 Credit geschätzt, bezahlt von deinem Konto. Ohne verbundenes Konto bleibt U*TTU der lokale Guide.} other {Lust auf einen Agenten, der in eigenen Worten antwortet? Verbinde dein Comfy-Konto: Jede Nachricht kostet höchstens ≈ {cost} Credits geschätzt, bezahlt von deinem Konto. Ohne verbundenes Konto bleibt U*TTU der lokale Guide.}}",
+      "invite": "{cost, select, 1 {Um mit Uttu zu sprechen, verbinde dein Comfy-Konto: Jede Nachricht kostet höchstens ≈ 1 Credit geschätzt, bezahlt von deinem Konto.} other {Um mit Uttu zu sprechen, verbinde dein Comfy-Konto: Jede Nachricht kostet höchstens ≈ {cost} Credits geschätzt, bezahlt von deinem Konto.}}",
       "inviteButton": "Mein Comfy-Konto verbinden",
       "gateTitle": "Vor deiner ersten kostenpflichtigen Nachricht",
       "gateBody": "{cost, select, 1 {Jede Nachricht an den Comfy-Agenten wird deinem Comfy-Konto berechnet: höchstens ≈ 1 Credit geschätzt, oft weniger. Der Agent startet kein Rendering: Er schlägt eine Aktion vor, du klickst, und der übliche Kostenvoranschlag erscheint vor jeder Ausgabe. Deine Zustimmung gilt für diese Sitzung.} other {Jede Nachricht an den Comfy-Agenten wird deinem Comfy-Konto berechnet: höchstens ≈ {cost} Credits geschätzt, oft weniger. Der Agent startet kein Rendering: Er schlägt eine Aktion vor, du klickst, und der übliche Kostenvoranschlag erscheint vor jeder Ausgabe. Deine Zustimmung gilt für diese Sitzung.}}",
@@ -3234,8 +3234,9 @@
         "timeout": "Comfy hat zu lange gebraucht. Versuche es gleich noch einmal.",
         "failed": "Der Comfy-Agent konnte nicht antworten. Versuche es erneut oder wechsle zum lokalen Guide."
       },
-      "welcome": "Comfy-Agent-Modus: Ich antworte in eigenen Worten, nur auf Grundlage des Studio-Blatts, und jede Nachricht zahlt dein Comfy-Konto. Ich starte nichts: Ich schlage eine Aktion vor, du klickst."
-    }
+      "welcome": "Ich bin Uttu, der Agent des Studios. Sag mir, was du drehen willst: Ich antworte, schlage dir das Werkzeug oder den Plan vor, und du siehst den Kostenvoranschlag vor jedem Rendern. Jede Nachricht zahlt dein Comfy-Konto."
+    },
+    "refs": "Angehängte Referenzen: {list}"
   },
   "barre": {
     "title": "Was drehen wir?",

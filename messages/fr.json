@@ -3008,7 +3008,7 @@
     "sub": "Ton guide du studio · local par défaut, agent Comfy en option",
     "button": "U*TTU",
     "openAria": "Ouvrir ou fermer U*TTU, ton guide du studio",
-    "welcome": "Salut, je suis Uttu. Je t’aide à démarrer, je réponds à tes questions sur le studio et j’estime le coût de tes rendus. Tout se passe sur cet appareil : je n’envoie rien et je ne dépense rien.",
+    "welcome": "Je suis Uttu, l’agent du studio. Dis-moi ce que tu veux tourner : je te réponds, je te propose l’outil ou le plan, et tu vois le devis avant tout rendu. Chaque message est payé par ton compte Comfy.",
     "ask": "Ta question à Uttu",
     "placeholder": "ex. Combien coûtent 3 portraits + 2 prises LTX ?",
     "send": "Envoyer",
@@ -3206,10 +3206,10 @@
     "comfy": {
       "mode": "Mode de U*TTU",
       "free": "Guide local · sans modèle",
-      "paid": "{cost, select, 1 {Agent Comfy · ≈ 1 crédit estimé par message} other {Agent Comfy · ≈ {cost} crédits estimés par message}}",
+      "paid": "{cost, select, 1 {Agent Uttu · ≈ 1 crédit estimé par message} other {Agent Uttu · ≈ {cost} crédits estimés par message}}",
       "paidNote": "Agent Comfy actif : chaque message passe par ton compte Comfy (GPT-5 Nano via Comfy Router). Le studio ne paie rien et ne garde pas ta clé. L’agent ne lance rien : c’est toi qui cliques, après le devis habituel.",
       "paidNoteSession": "Agent Comfy actif : chaque message passe par ta connexion Comfy (GPT-5 Nano via Comfy Router). Le studio ne paie rien et ne garde rien de ton compte sur ses serveurs : ta session Comfy reste dans ce navigateur. L’agent ne lance rien : c’est toi qui cliques, après le devis habituel.",
-      "invite": "{cost, select, 1 {Envie d’un agent qui répond avec ses mots ? Relie ton compte Comfy : chaque message coûte ≈ 1 crédit estimé au plus, payés par ton compte. Sans compte relié, U*TTU reste le guide local.} other {Envie d’un agent qui répond avec ses mots ? Relie ton compte Comfy : chaque message coûte ≈ {cost} crédits estimés au plus, payés par ton compte. Sans compte relié, U*TTU reste le guide local.}}",
+      "invite": "{cost, select, 1 {Pour parler à Uttu, relie ton compte Comfy : chaque message coûte ≈ 1 crédit estimé au plus, payé par ton compte.} other {Pour parler à Uttu, relie ton compte Comfy : chaque message coûte ≈ {cost} crédits estimés au plus, payés par ton compte.}}",
       "inviteButton": "Relier mon compte Comfy",
       "gateTitle": "Avant ton premier message payant",
       "gateBody": "{cost, select, 1 {Chaque message à l’agent Comfy est facturé sur ton compte Comfy : ≈ 1 crédit estimé au plus, souvent moins. L’agent ne lance aucun rendu : il te propose une action, tu cliques, et le devis habituel s’affiche avant toute dépense. Ton accord vaut pour cette session.} other {Chaque message à l’agent Comfy est facturé sur ton compte Comfy : ≈ {cost} crédits estimés au plus, souvent moins. L’agent ne lance aucun rendu : il te propose une action, tu cliques, et le devis habituel s’affiche avant toute dépense. Ton accord vaut pour cette session.}}",
@@ -3234,8 +3234,9 @@
         "timeout": "Comfy a mis trop de temps à répondre. Réessaie dans un instant.",
         "failed": "L’agent Comfy n’a pas pu répondre. Réessaie, ou passe au guide local."
       },
-      "welcome": "Mode agent Comfy : je réponds avec mes mots, à partir de la fiche du studio seulement, et chaque message est payé par ton compte Comfy. Je ne lance rien : je te propose une action, tu cliques."
-    }
+      "welcome": "Je suis Uttu, l’agent du studio. Dis-moi ce que tu veux tourner : je te réponds, je te propose l’outil ou le plan, et tu vois le devis avant tout rendu. Chaque message est payé par ton compte Comfy."
+    },
+    "refs": "Références jointes : {list}"
   },
   "barre": {
     "title": "Qu’est-ce qu’on tourne ?",
