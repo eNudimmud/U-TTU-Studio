@@ -176,5 +176,5 @@ test("compteur : l’annonce compte toutes les cartes affichées", async ({ page
   await expect(hub.locator("[data-outil]")).toHaveCount(34);
   const cards = await hub.locator(".u-outils-row > .u-outil-card").count();
   expect(cards).toBe(36);
-  await expect(hub.locator(".u-entry-ask .eyebrow")).toContainText(`${cards} outils`);
+  await expect(hub.locator("[data-outils-tools] .eyebrow").first()).toContainText(`${cards} outils`);
 });

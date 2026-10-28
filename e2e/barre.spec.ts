@@ -240,11 +240,10 @@ test("fil : Agent répond dans le fil, sans rien lancer", async ({ page }) => {
   await expect(page.locator("[data-assistant-input]")).toHaveValue("Prépare un plan de 8 secondes avec mon personnage");
 });
 
-test("barre : « Tous les outils » garde l'ancien accueil, à un geste", async ({ page }) => {
+test("barre : « Tous les outils » descend aux outils de la même page, la barre reste", async ({ page }) => {
   await page.goto("/studio");
   await page.locator("[data-barre-all-link]").click();
   await expect(page).toHaveURL(/#outils\/tous$/);
   await expect(page.locator("[data-tous] [data-outil]").first()).toBeVisible();
-  await page.locator("[data-barre-back]").click();
-  await expect(page.locator("[data-barre]")).toBeVisible();
+  await expect(page.locator("[data-tous] [data-barre]")).toHaveCount(1);
 });
