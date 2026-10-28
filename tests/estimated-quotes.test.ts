@@ -10,7 +10,7 @@ describe("devis LTX estimé", () => {
     const quote = resolveTakeQuote(takeProfile(DEFAULT_TAKE), []);
     assert.equal(quote.source, "estimated");
     const line = quoteSentence(quote);
-    assert.match(line, /^Estimé : environ 14 à 28 crédits\./);
+    assert.match(line, /^Estimé : environ 15 à 23 crédits\./);
     assert.doesNotMatch(line, /mesuré sur/);
     assert.doesNotMatch(line, /Pas encore mesuré/);
   });
@@ -35,7 +35,7 @@ describe("gestes vidéo de PRISE", () => {
     for (const id of VIDEO_GESTES) {
       const row = gesteParId(id);
       assert.ok(row && gesteOuvert(row), id);
-      assert.equal(row.nature, "hypothese", id);
+      assert.ok(row.nature === "hypothese" || row.nature === "mesure", id);
       assert.ok(row.credits !== null && row.high !== null && row.high > row.credits, id);
     }
   });

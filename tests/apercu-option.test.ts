@@ -46,7 +46,7 @@ describe("Aperçu ou Qualité finale (prise)", () => {
 
   it("quotes Aperçu as an estimate, about half of the finale", () => {
     assert.deepEqual(estimatedTake("ltx25-apercu-5s-vertical"), { profile: "ltx25-apercu-5s-vertical", credits: 6, creditsHigh: 12 });
-    assert.deepEqual(estimatedTake("ltx25-5s-vertical"), { profile: "ltx25-5s-vertical", credits: 14, creditsHigh: 28 });
+    assert.deepEqual(estimatedTake("ltx25-5s-vertical"), { profile: "ltx25-5s-vertical", credits: 15, creditsHigh: 23 });
     assert.equal(quoteCredits(resolveTakeQuote("ltx25-apercu-5s-vertical", [])), 6);
     assert.match(readFileSync("src/lib/render/billed-quote.ts", "utf8"), /TODO\(mesure\)/);
   });

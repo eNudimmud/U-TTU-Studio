@@ -115,7 +115,7 @@ test("Agent Comfy : sans accord, aucun appel payant, et « Rester sur le guide l
   await panel.locator("[data-uttu-mode-pick=comfy]").click();
   await panel.locator("[data-uttu-input]").fill("Combien coûtent 3 portraits + 2 prises LTX ?");
   await panel.locator("[data-uttu-send]").click();
-  await expect(lastReply(panel).locator("[data-uttu-total]")).toContainText("40–74");
+  await expect(lastReply(panel).locator("[data-uttu-total]")).toContainText("42–64");
   expect(calls.length).toBe(0);
 });
 

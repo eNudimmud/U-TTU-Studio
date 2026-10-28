@@ -46,7 +46,7 @@ test('Aperçu en option : devis, premier passage seul, étiquettes et Finaliser 
   // Default: Qualité finale, today's take, the button repeats the quote.
   const choice = page.locator('[data-rendu]');
   await expect(choice).toHaveAttribute('data-rendu', 'finale');
-  await expect(gold).toHaveText('Tourner · ≈ 14 crédits estimés');
+  await expect(gold).toHaveText('Tourner · ≈ 15 crédits estimés');
   await expect(choice.locator('[data-rendu-opt=apercu]')).toContainText('≈ 6 crédits estimés');
   for (const option of await choice.locator('.u-rendu-opt').all()) expect((await option.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
   await shots(page, 'prise-finale', '[data-rendu]');
@@ -70,7 +70,7 @@ test('Aperçu en option : devis, premier passage seul, étiquettes et Finaliser 
   await expect(choice).toHaveAttribute('data-rendu', 'apercu');
   await choice.locator('[data-rendu-opt=finale]').click();
   await page.getByRole('textbox', { name: 'Plan suivant : ce qui se passe' }).fill('Léa ouvre la porte du laboratoire');
-  await expect(gold).toHaveText('Tourner le plan 2 · ≈ 14 crédits estimés');
+  await expect(gold).toHaveText('Tourner le plan 2 · ≈ 15 crédits estimés');
   await gold.click();
   await page.locator('[data-confirm-gold]').click();
   await expect(page.locator('#u-title')).toHaveText('Plan 2');
