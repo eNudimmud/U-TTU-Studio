@@ -3486,5 +3486,27 @@
     "elapsed": "Transcurrido {time}",
     "elapsedRemaining": "Transcurrido {elapsed} · ≈ {remaining} restantes",
     "elapsedAlmost": "Transcurrido {time} · casi listo"
+  },
+  "framing": {
+    "three": "Vista 3D",
+    "flat": "Encuadre 2D",
+    "zoom": "Zoom del encuadre 2D",
+    "flatHint": "Arrastra una silueta. Arrastra el fondo para encuadrar; pellizca para ampliar.",
+    "save": "Guardar este encuadre",
+    "saving": "Guardando el encuadre…",
+    "loading": "Preparando el encuadre…",
+    "kept": "Encuadre guardado",
+    "color": "Vista previa",
+    "depth": "Profundidad",
+    "edges": "Contornos",
+    "flatDepth": "En 2D, la profundidad guía las siluetas; no reconstruye el relieve del decorado.",
+    "nativeDepth": "La profundidad viene de los volúmenes de la escena. Una foto de fondo no añade geometría.",
+    "pipeline": "Este encuadre guía la imagen clave y después el vídeo. Se conserva hasta que lo sustituyas o lo retires.",
+    "clear": "Retirar este encuadre",
+    "ltx": "Este encuadre usa LTX. Retíralo para elegir otro motor.",
+    "missing": "No se encuentran las imágenes del encuadre. Vuelve a guardarlo antes de generar.",
+    "failed": "No se pudo guardar el encuadre. Espera a que cargue el decorado e inténtalo de nuevo.",
+    "formatChanged": "El formato ha cambiado. Vuelve a guardar el encuadre en este formato antes de generar.",
+    "unlock": "Desbloquea la cámara para cambiar el zoom."
   }
 }

@@ -56,6 +56,7 @@ async function exportOne(id, onglet, name, wiredGraph) {
   if (wiredGraph) writeFileSync(`workflows/${onglet}/${id}.api.json`, json(wiredGraph));
   index.push({
     id, onglet, template: name,
+    ...(id === "prise-plan-cadre" ? { sources: ["workflows/cast/cast-photos.json", "workflows/prise/sources/image_qwen_image_instantx_controlnet.json"] } : {}),
     partner: partnerNodes ? partnerNodes.length > 0 : name.startsWith("api_"),
     partnerNodes: partnerNodes ?? [],
     sentPartner,
@@ -64,6 +65,8 @@ async function exportOne(id, onglet, name, wiredGraph) {
   });
 }
 
+mkdirSync("workflows/prise/sources", { recursive: true });
+writeFileSync("workflows/prise/sources/image_qwen_image_instantx_controlnet.json", json(await template("image_qwen_image_instantx_controlnet")));
 for (const row of REGISTRE) await exportOne(row.id, row.onglet, row.template, wired.get(row.id)?.graph ?? null);
 for (const name of Object.values(FINAL_GRAPH)) await exportOne(name, "finaliser", name, null);
 // The Finaliser the studio really sends: the RTX Video Super Resolution stage of the

@@ -55,6 +55,7 @@ export interface FiltreGestes {
 
 /** Ids read in the official catalogs or in docs/TEMPLATES-COMFY.md. Nothing else is allowed. */
 export const TEMPLATES_OFFICIELS = [
+  "image_qwen_image_instantx_controlnet",
   "image_flux3_klein_t2i",
   "image_flux3_klein_image_edit",
   "api_bfl_flux3_image_edit",
@@ -292,6 +293,12 @@ export const REGISTRE: readonly Geste[] = [
     premier: true, still: "prise", minRefs: 0,
     consigne: "",
   }), // mesuré 27.10.2026 : 15,10 crédits pour 5 s 16:9 0,9 MP, première image Klein incluse (bab714ce : 14,66 ; 82d63ed9 : 14,55) (job d4d2fa37)
+  geste({
+    id: "prise-plan-cadre", onglet: "prise", categorie: "plan", clef: "prisePlan",
+    fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2"), { role: "plan", slot: "depth" }, { role: "plan", slot: "edges" }],
+    template: "video_ltx2_5_i2v", credits: 23, high: 39, nature: "hypothese",
+    premier: false, still: "prise", minRefs: 2, consigne: "",
+  }), // Klein apparence → Qwen InstantX profondeur + contours → LTX. Nouveau profil, non mesuré.
   geste({
     id: "prise-plan-h3", onglet: "prise", categorie: "plan", clef: "prisePlanH3",
     fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2")],

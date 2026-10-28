@@ -3486,5 +3486,27 @@
     "elapsed": "Écoulé {time}",
     "elapsedRemaining": "Écoulé {elapsed} · ≈ {remaining} restantes",
     "elapsedAlmost": "Écoulé {time} · bientôt prêt"
+  },
+  "framing": {
+    "three": "Vue 3D",
+    "flat": "Cadrage 2D",
+    "zoom": "Zoom du cadrage 2D",
+    "flatHint": "Déplace une silhouette au doigt. Glisse le fond pour recadrer ; pince pour zoomer.",
+    "save": "Garder ce cadrage",
+    "saving": "Enregistrement du cadrage…",
+    "loading": "Préparation du cadrage…",
+    "kept": "Cadrage gardé",
+    "color": "Aperçu",
+    "depth": "Profondeur",
+    "edges": "Contours",
+    "flatDepth": "En 2D, la profondeur est un guide de silhouettes ; elle ne reconstruit pas le relief du décor.",
+    "nativeDepth": "La profondeur vient des volumes de la maquette. Une photo de fond n’ajoute pas de géométrie.",
+    "pipeline": "Ce cadrage guide l’image clé, puis la vidéo. Il reste gardé jusqu’à ce que tu le remplaces ou le retires.",
+    "clear": "Retirer ce cadrage",
+    "ltx": "Ce cadrage utilise LTX. Retire-le pour choisir un autre moteur.",
+    "missing": "Les images du cadrage sont introuvables. Garde à nouveau le cadrage avant de générer.",
+    "failed": "Le cadrage n’a pas pu être enregistré. Attends le chargement du décor, puis réessaie.",
+    "formatChanged": "Le format a changé. Garde à nouveau le cadrage dans ce format avant de générer.",
+    "unlock": "Déverrouille la caméra pour modifier le zoom."
   }
 }

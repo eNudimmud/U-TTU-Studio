@@ -3,6 +3,7 @@
 // frame, inside the same graph. One job, one quote.
 
 import { kleinNodes } from "./klein-graph.ts";
+import { framedKeyNodes, type UploadedControls } from "./framed-key.ts";
 import { LTX_I2V_BASE } from "./ltx-base.ts";
 import { TAKE_ASPECTS, TAKE_OUTPUT_PREFIX, type ApiGraph, type TakeAspect, type TakeSeconds } from "./take-graph.ts";
 
@@ -17,6 +18,7 @@ const SECOND_PASS = ["398:371", "398:348", "398:349", "398:340", "398:338", "398
 const KLEIN_ASPECT = { vertical: "9:16", horizontal: "16:9", carre: "1:1" } as const;
 
 export interface LtxTakeInput {
+  controls?: UploadedControls;
   prompt: string;
   pictures: readonly string[];
   seed: number;
@@ -67,7 +69,7 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
     if (node.class_type === "SaveVideo") node.inputs.filename_prefix = TAKE_OUTPUT_PREFIX;
   }
 
-  if (pictures.length === 1) {
+  if (pictures.length === 1 && !input.controls) {
     graph[first].inputs.image = pictures[0];
     return graph;
   }
@@ -89,9 +91,10 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
     aspect: KLEIN_ASPECT[input.aspect],
     images: loads,
   }));
+  if (input.controls) Object.assign(graph, framedKeyNodes({ initial: ["frame_decode", 0], controls: input.controls, prompt, seed }));
   for (const node of Object.values(graph)) {
     for (const [key, value] of Object.entries(node.inputs)) {
-      if (Array.isArray(value) && value[0] === first) node.inputs[key] = ["frame_decode", 0];
+      if (Array.isArray(value) && value[0] === first) node.inputs[key] = [input.controls ? "control_111:8" : "frame_decode", 0];
     }
   }
   return graph;

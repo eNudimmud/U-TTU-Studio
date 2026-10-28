@@ -3486,5 +3486,27 @@
     "elapsed": "Verstrichen {time}",
     "elapsedRemaining": "Verstrichen {elapsed} · ≈ {remaining} übrig",
     "elapsedAlmost": "Verstrichen {time} · gleich fertig"
+  },
+  "framing": {
+    "three": "3D-Ansicht",
+    "flat": "2D-Bildausschnitt",
+    "zoom": "Zoom des 2D-Bildausschnitts",
+    "flatHint": "Verschiebe eine Silhouette. Ziehe den Hintergrund für den Ausschnitt; zoome mit zwei Fingern.",
+    "save": "Diesen Bildausschnitt behalten",
+    "saving": "Bildausschnitt wird gespeichert…",
+    "loading": "Bildausschnitt wird vorbereitet…",
+    "kept": "Gespeicherter Bildausschnitt",
+    "color": "Vorschau",
+    "depth": "Tiefe",
+    "edges": "Konturen",
+    "flatDepth": "In 2D führt die Tiefe die Silhouetten; sie rekonstruiert das Gelände der Kulisse nicht.",
+    "nativeDepth": "Die Tiefe stammt aus den Volumen der Szene. Ein Hintergrundfoto fügt keine Geometrie hinzu.",
+    "pipeline": "Dieser Ausschnitt führt das Schlüsselbild, dann das Video. Er bleibt erhalten, bis du ihn ersetzt oder entfernst.",
+    "clear": "Diesen Bildausschnitt entfernen",
+    "ltx": "Dieser Bildausschnitt verwendet LTX. Entferne ihn, um einen anderen Motor zu wählen.",
+    "missing": "Die Bilder des Ausschnitts fehlen. Speichere ihn vor dem Generieren erneut.",
+    "failed": "Der Bildausschnitt konnte nicht gespeichert werden. Warte auf die Kulisse und versuche es erneut.",
+    "formatChanged": "Das Format hat sich geändert. Speichere den Ausschnitt vor dem Generieren erneut in diesem Format.",
+    "unlock": "Entsperre die Kamera, um den Zoom zu ändern."
   }
 }
