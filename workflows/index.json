@@ -944,6 +944,18 @@
       "sentPartner": false,
       "template_file": "workflows/finaliser/montage-finaliser.json",
       "api_file": "workflows/finaliser/montage-finaliser.api.json"
+    },
+    {
+      "id": "outil-vid-genjutsu",
+      "onglet": "outils",
+      "template": "api_higgsfield_genjutsu_motion_transfer",
+      "partner": true,
+      "partnerNodes": [
+        "HiggsfieldMotionTransferNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-genjutsu.json",
+      "api_file": "workflows/outils/outil-vid-genjutsu.api.json"
     }
   ]
 }

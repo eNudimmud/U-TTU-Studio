@@ -29,7 +29,7 @@ export function studioProductionMap(filters: FiltreGestes = {}): StudioOperation
       outputKind: tool.sortie, requiresPrompt: tool.texte === "requis",
       toolId: tool.id, template: tool.template,
       ...(state.kind === "pret" && row?.credits != null && row.high != null ? { quote: { credits: row.credits, ceiling: row.high, estimated: row.nature !== "mesure" } } : {}),
-      ...(state.kind !== "pret" ? { reason: state.kind === "bientot" ? state.raison : state.kind === "app" ? "runs-in-comfy-app" : "hidden-by-preferences" } : {}),
+      ...(state.kind !== "pret" ? { reason: state.kind === "bientot" ? state.raison : "hidden-by-preferences" } : {}),
     };
   });
   for (const gesture of REGISTRE) {

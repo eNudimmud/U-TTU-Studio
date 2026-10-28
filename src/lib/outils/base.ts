@@ -2,8 +2,10 @@
 // Preview and comparison nodes removed; one save node kept. Do not edit by hand.
 
 import type { ApiGraph } from "../render/take-graph.ts";
+import { GENJUTSU_BASE } from "./genjutsu-base.ts";
 
 export const OUTIL_BASES: Record<string, ApiGraph> = {
+ api_higgsfield_genjutsu_motion_transfer: GENJUTSU_BASE,
  "image_qwen_image_2_1_t2i": {
   "13": {
    "inputs": {

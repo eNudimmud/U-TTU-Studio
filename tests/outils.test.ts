@@ -23,7 +23,7 @@ function links(graph: Record<string, { inputs: Record<string, unknown> }>): stri
 }
 
 describe("hub Outils", () => {
-  it("lists 57 template cards and one Comfy app, every one in a family", () => {
+  it("lists 58 template cards, every one in a family", () => {
     assert.equal(OUTILS.length, 58);
     assert.equal(new Set(OUTILS.map(item => item.id)).size, 58);
     assert.equal(new Set(OUTILS.map(item => item.num)).size, 55);
@@ -31,8 +31,8 @@ describe("hub Outils", () => {
     for (const famille of FAMILLES) assert.ok(OUTILS.some(item => dansFamille(item, famille)), famille);
   });
 
-  it("wires 47 cards and says « bientôt » with a reason for the other 10", () => {
-    assert.equal(wired.length, 47);
+  it("wires 48 cards and says « bientôt » with a reason for the other 10", () => {
+    assert.equal(wired.length, 48);
     assert.equal(soon.length, 10);
     for (const item of soon) assert.ok(item.bientot, item.id);
     for (const item of wired) {
@@ -66,7 +66,7 @@ describe("hub Outils", () => {
 
   it("estimates every wired card, per started 5 s block for per-length tools", () => {
     for (const item of wired) {
-      const quote = outilQuote(item, item.parTranche ? { seconds: 5 } : {});
+      const quote = outilQuote(item, item.parTranche || item.id === "vid-genjutsu" ? { seconds: 5 } : {});
       assert.ok(quote && quote.credits > 0 && quote.high >= quote.credits, item.id);
       assert.equal(quote.kind, "estime");
     }

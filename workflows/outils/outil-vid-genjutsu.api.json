@@ -1,0 +1,53 @@
+{
+  "9": {
+    "inputs": {
+      "model": "genjutsu-v1.0",
+      "model.prompt": "<texte du visiteur>",
+      "model.resolution": "480p",
+      "model.seed": 0,
+      "model.video": [
+        "13",
+        0
+      ],
+      "model.reference_images.image_1": [
+        "14",
+        0
+      ],
+      "model.reference_images.image_2": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "HiggsfieldMotionTransferNode"
+  },
+  "10": {
+    "inputs": {
+      "filename_prefix": "video/uttu-vid-genjutsu",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "SaveVideo"
+  },
+  "13": {
+    "inputs": {
+      "file": "uttu-plan.mp4"
+    },
+    "class_type": "LoadVideo"
+  },
+  "14": {
+    "inputs": {
+      "image": "uttu-1.png"
+    },
+    "class_type": "LoadImage"
+  },
+  "15": {
+    "inputs": {
+      "image": "uttu-2.png"
+    },
+    "class_type": "LoadImage"
+  }
+}

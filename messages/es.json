@@ -2651,9 +2651,9 @@
         "title": "Maqueta 3D y encuadre",
         "line": "Coloca tus personajes con el dedo, elige el ángulo de cámara y luego rueda el plano. Los créditos solo cuentan en el render."
       },
-      "vid-openjutsu": {
-        "title": "OpenJutsu — cambiar un personaje",
-        "line": "Cambia el personaje de un vídeo en la app de Comfy."
+      "vid-genjutsu": {
+        "title": "Genjutsu — sustituir un personaje",
+        "line": "Cambia el personaje de un clip y conserva su movimiento con el flujo de Comfy."
       }
     },
     "latest": "Últimos resultados",
@@ -2676,7 +2676,8 @@
       "son-musique-ouverte": "Música simple",
       "son-musique": "Música cuidada",
       "son-bruitage-ouvert": "Efecto simple",
-      "son-bruitage": "Efecto cuidado"
+      "son-bruitage": "Efecto cuidado",
+      "vid-genjutsu": "Higgsfield Genjutsu"
     },
     "model": "Modelo",
     "modelChange": "Cambiar de modelo",
@@ -2692,8 +2693,7 @@
       "start": "Imagen de inicio",
       "end": "Imagen final"
     },
-    "costWait": "leyendo la duración…",
-    "comfyApp": "App de Comfy ↗"
+    "costWait": "leyendo la duración…"
   },
   "top": {
     "nav": "Navegación del estudio",
@@ -3446,14 +3446,16 @@
     "elapsedRemaining": "Transcurrido {elapsed} · ≈ {remaining} restantes",
     "elapsedAlmost": "Transcurrido {time} · casi listo"
   },
-  "openjutsu": {
-    "lead": "Sustituye a la persona principal de un clip por tu personaje y conserva la escena, los movimientos y el sonido.",
-    "video": "Elige un vídeo en Comfy y después un fragmento de 5 a 15 segundos.",
-    "character": "Añade la imagen del personaje que sustituirá a la persona grabada.",
-    "quote": "Comprueba el presupuesto en Comfy antes de iniciar la generación.",
-    "cost": "El coste depende del clip y de la calidad. La imagen inicial se factura por separado cuando se genera. El coste de este proceso aún no se ha medido en U*TTU.",
-    "handoff": "La app se abre en una pestaña nueva. Eliges los archivos y obtienes el vídeo en Comfy; U*TTU no envía archivos al abrir esta herramienta.",
-    "open": "Abrir OpenJutsu en Comfy",
-    "source": "Código y documentación de OpenJutsu"
+  "genjutsu": {
+    "action": "Sustituir el personaje",
+    "info": "El vídeo debe durar al menos 4 segundos. El resultado sigue los movimientos, la cámara, el ritmo y el sonido del clip. El presupuesto depende de la duración y la resolución.",
+    "video": "Vídeo de origen",
+    "image": "Imagen del personaje",
+    "image2": "Referencia de lugar o estilo (opcional)",
+    "resolution": "Resolución del vídeo",
+    "tooShort": "Elige un vídeo de al menos 4 segundos.",
+    "trim": "Solo se utilizarán y presupuestarán los primeros 30 segundos.",
+    "promptDefault": "Sustituye a la persona grabada por el personaje de la primera imagen. Conserva los movimientos, la cámara, el ritmo y el sonido. Usa la segunda imagen como referencia del lugar si se proporciona.",
+    "quoteFor": "Para {seconds} s a {resolution}. El precio final puede variar."
   }
 }

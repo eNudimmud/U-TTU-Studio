@@ -143,6 +143,16 @@ Cartes « bientôt » (template officiel repéré, pas encore branché, raison a
 Finaliser agrandit et rend plus net ce qui existe déjà. Il ne refait jamais la prise ni l’image. Ses templates sont exportés dans `workflows/finaliser/`.
 
 
-## App OpenJutsu
+## Genjutsu : remplacer un personnage
 
-L’entrée `vid-openjutsu` de la famille Vidéo ouvre [l’app officielle Comfy](https://comfy.org/hub/apps/openjutsu/). Elle n’exécute pas de graphe du Studio : aucun template, API ou coût mesuré n’est ajouté à ce registre. Le coût doit être vérifié dans Comfy, y compris l’image de départ facturée séparément lorsqu’elle est générée. Inventaire, limites et vérifications : [OPENJUTSU.md](OPENJUTSU.md).
+`outil-vid-genjutsu` utilise le template officiel `api_higgsfield_genjutsu_motion_transfer` : `LoadVideo` + `LoadImage` → `HiggsfieldMotionTransferNode` (`genjutsu-v1.0`) → `SaveVideo`. Le Studio envoie le graphe par son client Comfy habituel, après devis et confirmation ; le résultat revient dans Mes créations et se transfère au montage.
+
+Le panneau reçoit une vidéo et une image de personnage, avec une deuxième image facultative de décor/style. Le template accepte jusqu’à 8 images par son entrée dynamique ; cette première interface en expose deux, comme son exemple officiel. La référence facultative est retirée du graphe lorsqu’elle n’est pas fournie. Pas de génération d’image de départ séparée.
+
+Vidéo de 4 s au minimum ; le nœud conserve au plus les 30 premières secondes. Résolutions 480p (choix initial du Studio), 720p et 1080p. La seed sert à déclencher le recalcul et ne garantit pas un résultat déterministe. Le nœud est une API partenaire payante ; l’option « modèles du studio seulement » le masque.
+
+Tarif publié dans `comfy_api_nodes/nodes_higgsfield.py`, vérifié le 28.10.2026 : 0,45474 / 0,97383 / 2,33376 USD par seconde pour 480p / 720p / 1080p. Le devis multiplie la durée retenue par ce tarif et 211 crédits/USD, puis arrondit au crédit supérieur. À 5 s : **≈ 480 crédits estimés**, **≈ 1 028 crédits estimés**, **≈ 2 463 crédits estimés** ; réserve de solde égale à 1,5 fois le devis arrondie au-dessus, sans garantie de plafond facturé. Le nombre du registre correspond à 5 s en 480p, pas à chaque clip. Sans durée lisible ou sous 4 s, aucun devis ni envoi.
+
+Sources : [template officiel](https://github.com/Comfy-Org/workflow_templates/blob/main/templates/api_higgsfield_genjutsu_motion_transfer.json), [nœud et barème officiels](https://github.com/Comfy-Org/ComfyUI/blob/master/comfy_api_nodes/nodes_higgsfield.py). Le template UI et le graphe exact envoyé sont dans `workflows/outils/outil-vid-genjutsu.json` et `.api.json`, avec une entrée dans `index.json`.
+
+Validation et limites : [GENJUTSU.md](GENJUTSU.md). Aucun rendu réel dans cette livraison ; le coût minimal estimé dépasse le budget de vérification de 60 crédits.

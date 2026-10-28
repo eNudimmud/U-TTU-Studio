@@ -2651,9 +2651,9 @@
         "title": "3D layout and framing",
         "line": "Place your characters with a finger, pick the camera angle, then shoot the take. Credits only count at the render."
       },
-      "vid-openjutsu": {
-        "title": "OpenJutsu — swap a character",
-        "line": "Change a video’s character in the Comfy app."
+      "vid-genjutsu": {
+        "title": "Genjutsu — replace a character",
+        "line": "Change a clip’s character while keeping its motion, using the Comfy workflow."
       }
     },
     "latest": "Latest results",
@@ -2676,7 +2676,8 @@
       "son-musique-ouverte": "Simple music",
       "son-musique": "Polished music",
       "son-bruitage-ouvert": "Simple effect",
-      "son-bruitage": "Polished effect"
+      "son-bruitage": "Polished effect",
+      "vid-genjutsu": "Higgsfield Genjutsu"
     },
     "model": "Model",
     "modelChange": "Change model",
@@ -2692,8 +2693,7 @@
       "start": "Start image",
       "end": "End image"
     },
-    "costWait": "reading duration…",
-    "comfyApp": "Comfy app ↗"
+    "costWait": "reading duration…"
   },
   "top": {
     "nav": "Studio navigation",
@@ -3446,14 +3446,16 @@
     "elapsedRemaining": "Elapsed {elapsed} · ≈ {remaining} left",
     "elapsedAlmost": "Elapsed {time} · almost done"
   },
-  "openjutsu": {
-    "lead": "Replace the main person in a clip with your character while keeping the scene, movement and sound.",
-    "video": "Choose a video in Comfy, then a 5 to 15 second section.",
-    "character": "Add the image of the character who will replace the filmed person.",
-    "quote": "Check the quote in Comfy before starting generation.",
-    "cost": "Charges depend on the clip and quality. The first-frame image is charged separately when generated. This flow’s cost has not yet been measured in U*TTU.",
-    "handoff": "The app opens in a new tab. You choose the files and collect the video in Comfy; opening this tool sends no files from U*TTU.",
-    "open": "Open OpenJutsu in Comfy",
-    "source": "OpenJutsu code and documentation"
+  "genjutsu": {
+    "action": "Replace the character",
+    "info": "Video must be at least 4 seconds long. The result follows the clip’s motion, camera, timing and sound. The quote depends on length and resolution.",
+    "video": "Source video",
+    "image": "Character image",
+    "image2": "Location or style reference (optional)",
+    "resolution": "Video resolution",
+    "tooShort": "Choose a video at least 4 seconds long.",
+    "trim": "Only the first 30 seconds will be used and included in the quote.",
+    "promptDefault": "Replace the filmed person with the character in the first image. Keep the motion, camera, timing and sound. Use the second image as the location reference if supplied.",
+    "quoteFor": "For {seconds} s at {resolution}. The final price may vary."
   }
 }
