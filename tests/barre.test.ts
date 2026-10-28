@@ -74,7 +74,7 @@ describe("barre unique", () => {
   it("writes the estimate in credits, in every language, with no free promise", () => {
     for (const lang of ["fr", "en", "de", "es"]) {
       const barre = JSON.parse(readFileSync(`messages/${lang}.json`, "utf8")).barre;
-      assert.match(barre.cost, /^≈ \{credits\} \S+ /);
+      assert.match(barre.cost, /other \{≈ \{credits\} \S+ /);
       assert.doesNotMatch(barre.cost, /\bcr\./);
       assert.doesNotMatch(JSON.stringify(barre), /gratuit|free|kostenlos|gratis/i);
     }
