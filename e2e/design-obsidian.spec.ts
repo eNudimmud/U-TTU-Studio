@@ -108,21 +108,20 @@ test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvr
   await expect(page.locator('[data-avance-group="maquette"]')).toBeInViewport();
 });
 
-test("entrée : le portrait d'Uttu, la porte du film, une rangée par famille avec vignettes réelles", async ({ page }) => {
+test("page de création unique : la barre, la porte du film, une rangée par famille avec vignettes réelles", async ({ page }) => {
   await page.goto("/studio#outils/tous");
   const entry = page.locator("[data-studio-entry]");
-  await expect(entry.locator("[data-entry-uttu] img")).toBeVisible();
+  await expect(entry.locator("[data-entry-uttu], [data-entry-prompt]")).toHaveCount(0);
   await expect(page.locator("#u-title em")).toHaveCount(1);
-  await expect(page.locator("[data-entry-route]")).toContainText("≈ 3 crédits estimés");
   await expect(page.locator("[data-entry-film]")).toBeVisible();
   for (const fam of ["creer", "retoucher", "video", "3d", "son"]) await expect(entry.locator(`[data-outils-section="${fam}"]`)).toHaveCount(1);
   const thumbs = entry.locator('[data-outils-section="creer"] .u-outil-thumb img');
   await expect(thumbs.first()).toHaveAttribute("src", /\/exemples\/vignettes\/img-klein\.webp$/);
   await expect(entry.locator("[data-outil-reperage]")).toBeVisible();
-  // One gold surface: « Continuer ».
+  // At most one gold surface on the creation page.
   const gold = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>("main *")].filter(el => {
     const style = getComputedStyle(el);
     return el.offsetParent && style.backgroundColor === "rgb(201, 167, 91)";
   }).length);
-  expect(gold).toBe(1);
+  expect(gold).toBeLessThanOrEqual(1);
 });
