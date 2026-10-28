@@ -175,6 +175,6 @@ test("compteur : l’annonce compte toutes les cartes affichées", async ({ page
   const hub = page.locator("[data-studio-entry]");
   await expect(hub.locator("[data-outil]")).toHaveCount(35);
   const cards = await hub.locator(".u-outils-row > .u-outil-card").count();
-  expect(cards).toBe(36);
+  expect(cards).toBe(37);
   await expect(hub.locator("[data-outils-tools] .eyebrow").first()).toContainText(`${cards} outils`);
 });
