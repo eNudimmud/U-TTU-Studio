@@ -110,7 +110,7 @@ describe("Et ensuite ? registre et devis", () => {
     assert.deepEqual(rows.map(row => row.id).sort(), [...SUITE_GESTES].sort());
     for (const row of rows) {
       assert.equal(gesteOuvert(row), true, row.id);
-      assert.equal(row.nature, "hypothese");
+      assert.ok(row.nature === "hypothese" || row.nature === "mesure", row.id);
       assert.equal(row.partenaire, false);
       assert.ok((TEMPLATES_OFFICIELS as readonly string[]).includes(row.template));
     }
@@ -124,10 +124,10 @@ describe("Et ensuite ? registre et devis", () => {
 
   it("labels every quote « estimé » and scales length-based tools per 5 s block", () => {
     for (const geste of SUITE_GESTES) assert.equal(suiteQuote(geste)?.kind, "estime");
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5 }), { credits: 27, high: 40, kind: "estime" });
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5.04 }), { credits: 27, high: 40, kind: "estime" });
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 12 }), { credits: 81, high: 120, kind: "estime" });
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5, fluidifier: true }), { credits: 29, high: 44, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5 }), { credits: 28, high: 42, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5.04 }), { credits: 28, high: 42, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 12 }), { credits: 84, high: 126, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5, fluidifier: true }), { credits: 30, high: 46, kind: "estime" });
     assert.equal(suiteQuote("suite-animer", { seconds: 30 })?.credits, gesteParId("suite-animer")?.credits);
   });
 

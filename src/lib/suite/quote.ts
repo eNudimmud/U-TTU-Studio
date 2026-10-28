@@ -1,6 +1,6 @@
-// One estimate per « Et ensuite ? » tool, read from the registry row. Always « estimé »:
-// none of these graphs has been billed on a real run yet. The reserve (high) is what the
-// balance must cover before anything leaves.
+// One quote per « Et ensuite ? » tool, read from the registry row. Shown « estimé »: the rows
+// marked « mesure » were billed once on 27.10.2026 (docs/mesures/test-visiteur-2026-10-27.md),
+// a next run can still differ. The reserve (high) is what the balance must cover before anything leaves.
 
 import { gesteParId, type Geste } from "../workflows/registre.ts";
 import { SUITE_SECONDS, type SuiteGeste } from "./graphs.ts";

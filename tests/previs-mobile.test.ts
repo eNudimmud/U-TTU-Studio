@@ -57,7 +57,7 @@ describe("previs mobile", () => {
   it("sends the two official 3D templates with an estimated quote", () => {
     for (const id of ["prise-volume-perso", "prise-volume-objet"] as const) {
       const row = gesteParId(id)!;
-      assert.equal(row.nature, "hypothese");
+      assert.ok(row.nature === "hypothese" || row.nature === "mesure", id);
       assert.ok(gesteOuvert(row));
       const graph = meshGesteGraph({ geste: id, image: "uttu-photo.png", seed: 7 });
       const load = Object.values(graph).filter(node => node.class_type === "LoadImage");
