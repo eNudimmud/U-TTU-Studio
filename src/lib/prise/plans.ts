@@ -34,10 +34,10 @@ export function restorePlan<T extends { id: string }>(list: readonly T[], remove
 }
 
 /** Inserts a copy right after its source: same cast, décor, action, camera; no take, nothing kept. */
-export function duplicatePlan<T extends { id: string; name: string }>(list: readonly T[], id: string, fresh: (source: T, id: string) => T): { next: T[]; id: string | null } {
+export function duplicatePlan<T extends { id: string; name: string }>(list: readonly T[], id: string, fresh: (source: T, id: string) => T, reservedIds: readonly string[] = list.map(item => item.id)): { next: T[]; id: string | null } {
   const at = list.findIndex(item => item.id === id);
   if (at < 0) return { next: [...list], id: null };
-  const copyId = nextPlanId(list.map(item => item.id));
+  const copyId = nextPlanId([...new Set([...reservedIds, ...list.map(item => item.id)])]);
   const next = [...list];
   next.splice(at + 1, 0, fresh(list[at], copyId));
   return { next, id: copyId };

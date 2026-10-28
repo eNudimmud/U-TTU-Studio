@@ -1833,9 +1833,10 @@
       "down": "Descendre le plan",
       "delete": "Supprimer",
       "deleted": "« {name} » supprimé.",
-      "undo": "Annuler"
+      "undo": "Annuler",
+      "label": "Plans"
     },
-    "addPlan": "＋ Plan",
+    "addPlan": "+ Plan",
     "sequenceSum": "Séquence : {time} · {count, plural, one {# plan} other {# plans}}",
     "preview": "Aperçu",
     "planN": "Plan {n}",
@@ -1897,7 +1898,8 @@
         "panoramique": "panoramique",
         "suivi": "caméra qui suit",
         "orbite": "orbite autour du sujet",
-        "epaule": "caméra à l’épaule"
+        "epaule": "caméra à l’épaule",
+        "dolly": "Dolly"
       }
     },
     "why": {
@@ -1971,7 +1973,51 @@
       "keep": "Ton choix reste pour les prochains plans de ce projet.",
       "apercuHint": "Un aperçu se finalise plus tard, seul ou avec tout le montage."
     },
-    "addToMontage": "Ajouter au montage"
+    "addToMontage": "Ajouter au montage",
+    "editor": {
+      "title": "Modifier ce plan",
+      "name": "Titre du plan",
+      "framing": "Cadrage",
+      "angle": "Angle caméra",
+      "move": "Mouvement caméra",
+      "position": "Position caméra",
+      "positionHint": "Par exemple : à gauche, à hauteur des yeux",
+      "duration": "Durée du plan",
+      "reference": "Référence de cadrage",
+      "none": "Aucune",
+      "referencesHint": "Choisis les personnages et le décor ci-dessous. La référence de cadrage est jointe au rendu comme indication visuelle.",
+      "changed": "Modification enregistrée dans l’historique.",
+      "retry": "Relancer",
+      "recover": "Récupérer le rendu",
+      "save": {
+        "saving": "Sauvegarde…",
+        "saved": "Enregistré automatiquement",
+        "error": "Sauvegarde impossible : réessaie avant de quitter."
+      },
+      "states": {
+        "draft": "Brouillon",
+        "queued": "En attente",
+        "running": "En cours",
+        "error": "En erreur",
+        "done": "Généré"
+      },
+      "framings": {
+        "large": "Plan large",
+        "moyen": "Plan moyen",
+        "rapproche": "Plan rapproché",
+        "americain": "Plan américain",
+        "gros": "Gros plan",
+        "tgp": "Très gros plan",
+        "plongee": "Plongée",
+        "contre": "Contre-plongée",
+        "epaule": "Par-dessus l’épaule"
+      },
+      "angles": {
+        "niveau": "À hauteur des yeux",
+        "plongee": "Plongée",
+        "contre-plongee": "Contre-plongée"
+      }
+    }
   },
   "p1": {
     "hint": "Une phrase suffit : qui, où, ce qui se passe, la caméra, l’ambiance.",

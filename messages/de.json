@@ -1833,9 +1833,10 @@
       "down": "Einstellung nach unten",
       "delete": "Löschen",
       "deleted": "„{name}“ gelöscht.",
-      "undo": "Rückgängig"
+      "undo": "Rückgängig",
+      "label": "Einstellungen"
     },
-    "addPlan": "＋ Einstellung",
+    "addPlan": "+ Einstellung",
     "sequenceSum": "Sequenz: {time} · {count, plural, one {# Einstellung} other {# Einstellungen}}",
     "preview": "Vorschau",
     "planN": "Einstellung {n}",
@@ -1897,7 +1898,8 @@
         "panoramique": "Schwenk",
         "suivi": "Verfolgung",
         "orbite": "Kreisfahrt um das Motiv",
-        "epaule": "Handkamera"
+        "epaule": "Handkamera",
+        "dolly": "Dolly"
       }
     },
     "why": {
@@ -1971,7 +1973,51 @@
       "keep": "Deine Wahl bleibt für die nächsten Einstellungen dieses Projekts.",
       "apercuHint": "Eine Vorschau wird später finalisiert, einzeln oder mit dem ganzen Schnitt."
     },
-    "addToMontage": "Zur Montage hinzufügen"
+    "addToMontage": "Zur Montage hinzufügen",
+    "editor": {
+      "title": "Diese Einstellung bearbeiten",
+      "name": "Titel der Einstellung",
+      "framing": "Bildausschnitt",
+      "angle": "Kamerawinkel",
+      "move": "Kamerabewegung",
+      "position": "Kameraposition",
+      "positionHint": "Zum Beispiel: links, auf Augenhöhe",
+      "duration": "Dauer der Einstellung",
+      "reference": "Bildreferenz für den Ausschnitt",
+      "none": "Keine",
+      "referencesHint": "Wähle unten Figuren und Kulisse. Die Bildreferenz wird als visuelle Vorgabe mitgesendet.",
+      "changed": "Änderung im Verlauf gespeichert.",
+      "retry": "Erneut versuchen",
+      "recover": "Ergebnis wiederherstellen",
+      "save": {
+        "saving": "Wird gespeichert…",
+        "saved": "Automatisch gespeichert",
+        "error": "Speichern fehlgeschlagen: versuche es vor dem Verlassen erneut."
+      },
+      "states": {
+        "draft": "Entwurf",
+        "queued": "In Warteschlange",
+        "running": "Wird gerendert",
+        "error": "Fehler",
+        "done": "Erstellt"
+      },
+      "framings": {
+        "large": "Totale",
+        "moyen": "Halbnah",
+        "rapproche": "Nahaufnahme",
+        "americain": "Amerikanisch",
+        "gros": "Großaufnahme",
+        "tgp": "Detailaufnahme",
+        "plongee": "Aufsicht",
+        "contre": "Untersicht",
+        "epaule": "Über die Schulter"
+      },
+      "angles": {
+        "niveau": "Auf Augenhöhe",
+        "plongee": "Aufsicht",
+        "contre-plongee": "Untersicht"
+      }
+    }
   },
   "p1": {
     "hint": "Ein Satz genügt: wer, wo, was passiert, die Kamera, die Stimmung.",

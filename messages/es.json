@@ -1833,9 +1833,10 @@
       "down": "Bajar el plano",
       "delete": "Eliminar",
       "deleted": "«{name}» eliminado.",
-      "undo": "Deshacer"
+      "undo": "Deshacer",
+      "label": "Planos"
     },
-    "addPlan": "＋ Plano",
+    "addPlan": "+ Plano",
     "sequenceSum": "Secuencia: {time} · {count, plural, one {# plano} other {# planos}}",
     "preview": "Vista previa",
     "planN": "Plano {n}",
@@ -1897,7 +1898,8 @@
         "panoramique": "panorámica",
         "suivi": "cámara que sigue",
         "orbite": "órbita alrededor del sujeto",
-        "epaule": "cámara al hombro"
+        "epaule": "cámara al hombro",
+        "dolly": "Dolly"
       }
     },
     "why": {
@@ -1971,7 +1973,51 @@
       "keep": "Tu elección se queda para los próximos planos de este proyecto.",
       "apercuHint": "Una vista previa se finaliza después, sola o con todo el montaje."
     },
-    "addToMontage": "Añadir al montaje"
+    "addToMontage": "Añadir al montaje",
+    "editor": {
+      "title": "Editar este plano",
+      "name": "Título del plano",
+      "framing": "Encuadre",
+      "angle": "Ángulo de cámara",
+      "move": "Movimiento de cámara",
+      "position": "Posición de cámara",
+      "positionHint": "Por ejemplo: a la izquierda, a la altura de los ojos",
+      "duration": "Duración del plano",
+      "reference": "Referencia de encuadre",
+      "none": "Ninguna",
+      "referencesHint": "Elige los personajes y el escenario abajo. La referencia de encuadre se envía con el render como guía visual.",
+      "changed": "Cambio guardado en el historial.",
+      "retry": "Reintentar",
+      "recover": "Recuperar el resultado",
+      "save": {
+        "saving": "Guardando…",
+        "saved": "Guardado automáticamente",
+        "error": "No se pudo guardar: vuelve a intentarlo antes de salir."
+      },
+      "states": {
+        "draft": "Borrador",
+        "queued": "En espera",
+        "running": "Generando",
+        "error": "Error",
+        "done": "Generado"
+      },
+      "framings": {
+        "large": "Plano general",
+        "moyen": "Plano medio",
+        "rapproche": "Plano medio corto",
+        "americain": "Plano americano",
+        "gros": "Primer plano",
+        "tgp": "Primerísimo primer plano",
+        "plongee": "Picado",
+        "contre": "Contrapicado",
+        "epaule": "Sobre el hombro"
+      },
+      "angles": {
+        "niveau": "A la altura de los ojos",
+        "plongee": "Picado",
+        "contre-plongee": "Contrapicado"
+      }
+    }
   },
   "p1": {
     "hint": "Basta una frase: quién, dónde, qué pasa, la cámara, el ambiente.",

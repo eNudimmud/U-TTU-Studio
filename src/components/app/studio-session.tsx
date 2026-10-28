@@ -136,6 +136,7 @@ export interface StudioSession {
   gate: ReturnType<typeof priseGate>;
   settings: TakeSettings;
   run: RunState;
+  runOrigin: { project: string; planId: string } | null;
   folderMode: FolderMode;
   folderName: string | null;
   requestRun(input?: TakeRequest): Promise<void>;
@@ -244,6 +245,8 @@ export interface TakeRequest {
   change?: string;
   /** Vault paths of state references inherited from the production memory, after the character sheets. */
   extraRefs?: string[];
+  /** Separate from characters and set: this image is a composition reference. */
+  framingRef?: string;
 }
 
 /** One PRISE video gesture (raccord, caméra, élargir, effacer). Same gate as a take: confirmed quote, balance over the ceiling. */
@@ -418,6 +421,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [balance, setBalance] = useState<Balance | null>(null);
   const [balanceNote, setBalanceNote] = useState("");
   const [run, setRun] = useState<RunState>({ phase: "idle" });
+  const [runOrigin, setRunOrigin] = useState<{ project: string; planId: string } | null>(null);
   const [creating, setCreating] = useState(false);
   const [folderMode, setFolderMode] = useState<FolderMode>("off");
   const [folderName, setFolderName] = useState<string | null>(null);
@@ -646,6 +650,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     abort.current = new AbortController();
     try {
       const slug = flight.project ?? await ensureActiveProject(store());
+      if (flight.planId) setRunOrigin({ project: slug, planId: flight.planId });
       const vault = projectVault(store(), slug);
       const result = await followTake(renderClient, flight.jobId, flight.balanceBefore, event => { if (event.stage === "measure") return; setRun({ phase: "running", event }); }, { signal: abort.current.signal });
       if (flight.manualRecovery) { result.costCredits = null; result.balanceAfter = null; }
@@ -678,6 +683,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } catch (error) {
       const failure = error instanceof RenderError ? error : new RenderError("failed", error instanceof Error ? error.message : "La prise n’a pas abouti.");
       // Keep the receipt on timeout, download and disk errors. Recovery is read-only.
+      // Only a confirmed terminal cloud failure permits a new, separately confirmed send.
+      if (await reconcilePendingReceipt(localStorage, renderClient) === "cleared") saveInFlight(localStorage, null);
       setRun({ phase: "error", code: failure.code, message: failure.message, detail: failure.detail });
     } finally {
       abort.current = null;
@@ -1528,8 +1535,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (pendingTake && selected.length !== pendingTake.castIds.length) { setNotice("Chaque personnage doit avoir une référence enregistrée. Retire les silhouettes neutres avant de générer."); return; }
     const photos = [...(selected.length ? selected.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)) : (pendingTake ? [] : held?.look.photos ?? [])), ...(pendingTake?.extraRefs ?? []).filter(path => path.startsWith("Projets/"))];
     const paths = referencePaths(photos, place, Infinity);
+    const framingRef = pendingTake?.framingRef;
+    if (framingRef?.startsWith("Projets/") && !paths.includes(framingRef)) paths.push(framingRef);
     if (paths.length > referenceLimit(settings)) { setNotice(t("safety.referencesMax", { max: referenceLimit(settings) })); return; }
-    const prompt = outgoing();
+    let prompt = outgoing();
+    if (framingRef && paths.includes(framingRef)) {
+      const index = paths.indexOf(framingRef) + 1;
+      const tag = settings.engine === "h3" ? `<Picture ${index}>` : `image ${index}`;
+      prompt += `\n[framing reference] ${tag} guides composition and framing only; keep character identity and set appearance from their named references.`;
+    }
     if (!prompt.trim()) {
       setNotice(t("create.noPicture"));
       return;
@@ -1537,6 +1551,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const slug = await ensureActiveProject(store());
     const vault = projectVault(store(), slug);
     const pictures: { blob: Blob; name: string }[] = [];
+    if (pendingTake?.planId) setRunOrigin({ project: slug, planId: pendingTake.planId });
     for (const path of paths) {
       const entry = await vault.get(path);
       if (!entry?.blob) {
@@ -1556,7 +1571,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     try {
       const at = new Date().toISOString();
       const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
-      const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: referencePaths(photos, place), template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
+      const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: paths, template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
         pictures, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(),
       }, event => setRun({ phase: "running", event }), abort.current.signal);
@@ -1614,6 +1629,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           await writeText(vault, projectPath(receipt.project, `.uttu/${receipt.id}.json`), JSON.stringify({ ...receipt, account: undefined, terminal: stage }));
           clearPending(localStorage, receipt.jobId);
           if (legacy?.jobId === receipt.jobId) saveInFlight(localStorage, null);
+          if (receipt.kind === "take" && receipt.flight?.planId) {
+            setRunOrigin({ project: receipt.project, planId: receipt.flight.planId });
+            setRun({ phase: "error", code: "failed", message: "Le rendu a échoué dans le cloud.", detail: [] });
+          }
           setNotice("Le cloud confirme que ce rendu est terminé sans résultat. Tu peux préparer un nouvel envoi avec confirmation.");
           return;
         }
@@ -1937,8 +1956,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [current.takes, store]);
 
   const deleteShot = useCallback(async (id: string) => {
-    await removeShot(store(), id);
-  }, [store]);
+    const slug = current.project ?? await ensureActiveProject(store());
+    const next = saves.current.catch(() => {}).then(() => removeShot(projectVault(store(), slug), id));
+    saves.current = next;
+    await next;
+  }, [current.project, store]);
 
   const saveLieu = useCallback(async (input: { name: string; note: string; quartier?: string }) => {
     const name = cleanCardName(input.name);
@@ -2120,7 +2142,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     prefs, setPrefs,
     ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
-    pendingTake, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
+    pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, promoteExempleRefs, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
