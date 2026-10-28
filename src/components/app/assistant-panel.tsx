@@ -187,7 +187,7 @@ export function AssistantPanel() {
   const hinted = interpretAgentRequest(query, context, locale).map(id => operations.find(op => op.id === id)).filter(op => op?.toolId && op.status === 'ready');
   return <aside id="u-assistant" className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
     <header className="u-assistant-head"><div><h2 id="u-assistant-title">{t('uttu.title')}</h2><p className="u-small u-assistant-sub">{t('uttu.sub')}</p></div><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
-    <UttuFree locale={locale} isAction={isAction} onPlan={handToPlan} />
+    <UttuFree locale={locale} isAction={isAction} onPlan={handToPlan} refs={resources.filter(r => conversation.selectedIds.includes(r.id)).map(r => `${r.name} (${t(`media.kinds.${r.kind}`)})`)} />
     <h3 className="u-uttu-plan-title" data-agent-kernel="">{t('uttu.plan.title')}</h3>
     <p className="u-small">{t('uttu.plan.lead')}</p>
     <p className="u-small" id="u-agent-guidance">{t('agent.guidance')}</p>
