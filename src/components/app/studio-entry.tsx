@@ -319,7 +319,7 @@ export function CardThumb({ id, fam }: { id: string; fam: Famille | "reperage" |
 
 function ToolCard({ outil }: { outil: Outil }) {
   const { t } = useI18n();
-  return <button type="button" className="u-outil-card" data-outil={outil.id} data-etat="pret" onClick={() => openStudioTool(outil.id)}>
+  return <button type="button" className="u-outil-card" data-outil={outil.id} data-etat={outil.comfyApp ? "app" : "pret"} onClick={() => openStudioTool(outil.id)}>
     <CardThumb id={outil.id} fam={familleVitrine(outil)} />
     <span className="u-outil-name">{titre(t, outil.id)}</span>
     <span className="u-outil-line">{ligne(t, outil.id)}</span>
@@ -329,6 +329,7 @@ function ToolCard({ outil }: { outil: Outil }) {
 
 function ToolCost({ outil }: { outil: Outil }) {
   const { t } = useI18n();
+  if (outil.comfyApp) return <span className="u-outil-cost">{t("outils.comfyApp")}</span>;
   const credits = outilRow(outil)?.credits ?? null;
   return credits === null ? null : <span className="u-outil-cost u-cost-est">{t("outils.costEst", { credits: formatCredits(credits) })}</span>;
 }

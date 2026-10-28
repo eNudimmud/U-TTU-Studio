@@ -2650,6 +2650,10 @@
       "maquette": {
         "title": "3D layout and framing",
         "line": "Place your characters with a finger, pick the camera angle, then shoot the take. Credits only count at the render."
+      },
+      "vid-openjutsu": {
+        "title": "OpenJutsu — swap a character",
+        "line": "Change a video’s character in the Comfy app."
       }
     },
     "latest": "Latest results",
@@ -2688,7 +2692,8 @@
       "start": "Start image",
       "end": "End image"
     },
-    "costWait": "reading duration…"
+    "costWait": "reading duration…",
+    "comfyApp": "Comfy app ↗"
   },
   "top": {
     "nav": "Studio navigation",
@@ -3440,5 +3445,15 @@
     "elapsed": "Elapsed {time}",
     "elapsedRemaining": "Elapsed {elapsed} · ≈ {remaining} left",
     "elapsedAlmost": "Elapsed {time} · almost done"
+  },
+  "openjutsu": {
+    "lead": "Replace the main person in a clip with your character while keeping the scene, movement and sound.",
+    "video": "Choose a video in Comfy, then a 5 to 15 second section.",
+    "character": "Add the image of the character who will replace the filmed person.",
+    "quote": "Check the quote in Comfy before starting generation.",
+    "cost": "Charges depend on the clip and quality. The first-frame image is charged separately when generated. This flow’s cost has not yet been measured in U*TTU.",
+    "handoff": "The app opens in a new tab. You choose the files and collect the video in Comfy; opening this tool sends no files from U*TTU.",
+    "open": "Open OpenJutsu in Comfy",
+    "source": "OpenJutsu code and documentation"
   }
 }

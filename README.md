@@ -50,7 +50,7 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 - **Aperçu / Qualité finale (Preview / Final quality):** an LTX take can start as a cheaper preview (about 480p, same seed), finalised later on its own or with the whole edit. / *Une prise LTX peut partir en aperçu, moins cher (environ 480p, même graine), puis se finaliser seule ou avec tout le montage.*
 - **Retoucher / Retouch:** edit, finalise, widen, cut out or relight an image; the original is never replaced. / *Modifier, finaliser, élargir, détourer ou rééclairer une image ; l’original n’est jamais remplacé.*
 - **Pars d’un exemple / Start from an example:** renders made in the studio on Comfy, under the bar; tap one and it fills the bar. / *Des rendus faits dans le studio sur Comfy, sous la barre ; un toucher et la barre se remplit.*
-- **36 tools / 36 outils:** 34 Comfy tools (create, retouch, video, 3D, sound; 57 models to choose from), plus « Scout a location » and « 3D layout and framing », which launch no render. / *34 outils Comfy (créer, retoucher, vidéo, 3D, son ; 57 modèles au choix), plus « Repérer un lieu » et « Maquette 3D et cadrage », qui ne lancent aucun rendu.*
+- **37 tools / 37 outils:** 34 integrated Comfy tools (57 model cards), [OpenJutsu in the official Comfy app](docs/OPENJUTSU.md), plus « Scout a location » and « 3D layout and framing ». / *34 outils Comfy intégrés (57 cartes de modèles), [OpenJutsu dans l’app officielle Comfy](docs/OPENJUTSU.md), plus « Repérer un lieu » et « Maquette 3D et cadrage ».*
 
 ## For the jury / Pour le jury
 

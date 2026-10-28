@@ -9,7 +9,7 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
   await expect(page.locator("[data-topbar]")).toBeVisible();
   await openToolsHub(page);
   await expect(page).toHaveURL(/#outils\/tous$/);
-  await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(34);
+  await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(35);
 
   await page.keyboard.press("Control+k");
   const palette = page.locator("[data-palette]");

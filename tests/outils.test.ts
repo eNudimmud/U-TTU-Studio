@@ -23,10 +23,10 @@ function links(graph: Record<string, { inputs: Record<string, unknown> }>): stri
 }
 
 describe("hub Outils", () => {
-  it("lists the 54 map rows with a ready Comfy template as 57 cards, every one in a family", () => {
-    assert.equal(OUTILS.length, 57);
-    assert.equal(new Set(OUTILS.map(item => item.id)).size, 57);
-    assert.equal(new Set(OUTILS.map(item => item.num)).size, 54);
+  it("lists 57 template cards and one Comfy app, every one in a family", () => {
+    assert.equal(OUTILS.length, 58);
+    assert.equal(new Set(OUTILS.map(item => item.id)).size, 58);
+    assert.equal(new Set(OUTILS.map(item => item.num)).size, 55);
     for (const item of OUTILS) assert.ok(FAMILLES.includes(item.famille), item.id);
     for (const famille of FAMILLES) assert.ok(OUTILS.some(item => dansFamille(item, famille)), famille);
   });
@@ -106,7 +106,7 @@ describe("hub Outils", () => {
 
   it("publishes one card per intent and hides the ten unwired tools", () => {
     const cards = outilsPublics();
-    assert.equal(cards.length, 34);
+    assert.equal(cards.length, 35);
     const ids = cards.map(item => item.id);
     assert.equal(new Set(ids).size, ids.length);
     assert.ok(cards.length < OUTILS.length);

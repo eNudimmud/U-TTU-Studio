@@ -31,6 +31,7 @@ import { ToolShell, ToolStage, type StageView } from "./tool-shell";
 import { REFS_HANDOFF_KEY, isRefsHandoff, takeHandoff } from "@/lib/barre/model";
 import { ReperageTool } from "./reperage/reperage-tool";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
+import { COMFY_APPS } from "@/lib/outils/comfy-apps";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
 
 export const SAMPLES: Record<Entree, { url: string; name: string }> = {
@@ -69,10 +70,11 @@ function nomModele(t: (key: string) => string, id: string) {
 
 export function OutilCard({ outil }: { outil: Outil }) {
   const { t } = useI18n();
-  return <button type="button" className="u-outil-card" data-outil={outil.id} data-etat="pret" onClick={() => openTool(outil.id)}>
+  return <button type="button" className="u-outil-card" data-outil={outil.id} data-etat={outil.comfyApp ? "app" : "pret"} onClick={() => openTool(outil.id)}>
     <CardThumb id={outil.id} fam={familleVitrine(outil)} />
     <span className="u-outil-name">{titreCarte(t, outil.id)}</span>
     <span className="u-outil-line">{ligneCarte(t, outil.id)}</span>
+    {outil.comfyApp && <span className="u-outil-cost">{t("outils.comfyApp")}</span>}
   </button>;
 }
 
@@ -100,8 +102,36 @@ export function OutilsHub({ tool }: { tool: string | null }) {
   if (tool === ALL_TOOLS_ID) return <BarreHome tous />;
   const outil = tool ? outilParId(tool) : null;
   if (!outil || outil.bientot) return <BarreHome />;
+  if (outil.comfyApp) return <ComfyAppWork key={outil.id} outil={outil} />;
   const head = intentDe(outil.id);
   return <OutilWork key={head} outil={outil} head={head} />;
+}
+
+/** Explicit hand-off to a Comfy-hosted app. Opening the panel sends no media or job. */
+function ComfyAppWork({ outil }: { outil: Outil }) {
+  const { t } = useI18n();
+  const { prefs } = useStudio();
+  const app = COMFY_APPS[outil.comfyApp!];
+  const hidden = outilEtat(outil, prefs).kind === "masque";
+  return <div className="u-outils-work" data-outils-tool={outil.id}>
+    <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(ALL_TOOLS_ID)}>← {t("outils.back")}</button>
+    <section className="u-tool-panel u-comfy-app-panel" data-comfy-app={outil.comfyApp}>
+      <ToolSwitch current={outil.id} />
+      <p className="eyebrow">{t("outils.comfyApp")}</p>
+      <h2>{titreCarte(t, outil.id)}</h2>
+      <p>{t("openjutsu.lead")}</p>
+      <ol className="u-comfy-app-steps">
+        <li>{t("openjutsu.video")}</li>
+        <li>{t("openjutsu.character")}</li>
+        <li>{t("openjutsu.quote")}</li>
+      </ol>
+      <p className="u-small" data-comfy-app-cost="">{t("openjutsu.cost")}</p>
+      <p className="u-small">{t("openjutsu.handoff")}</p>
+      {hidden ? <p className="u-why" data-comfy-app-hidden="">{t("outils.why.openWeights")}</p>
+        : <a className="u-primary" data-comfy-app-open="" href={app.url} target="_blank" rel="noopener noreferrer">{t("openjutsu.open")} ↗</a>}
+      <a className="u-link" href={app.source} target="_blank" rel="noopener noreferrer">{t("openjutsu.source")} ↗</a>
+    </section>
+  </div>;
 }
 
 /** Hub tools that use the shared coque (PR B): Retoucher family + Finaliser with before/after slider. */

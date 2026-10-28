@@ -1,9 +1,10 @@
-// « Outils » : every tool of the Scenario ↔ Comfy map (docs/OUTILS.md) that has a ready
-// official Comfy template, by family. A wired tool points at its registry row (budget,
+// « Outils » : Comfy workflow tools and official Comfy-hosted apps, by family.
+// A wired workflow tool points at its registry row (budget,
 // partner flag, template) and at the builder that makes its graph. A tool that is not
 // wired yet carries a one-line reason and never shows a working button.
 
 import { gesteOuvert, gesteParId, gesteVisible, templatePartenaire, type FiltreGestes, type Geste, type Onglet } from "../workflows/registre.ts";
+import type { ComfyAppId } from "./comfy-apps.ts";
 
 export const FAMILLES = ["creer", "retoucher", "video", "3d", "son"] as const;
 export type Famille = (typeof FAMILLES)[number];
@@ -27,8 +28,10 @@ export interface Outil {
   num: number;
   famille: Famille;
   sous: Sous;
-  /** Exact Comfy template id. */
+  /** Exact Comfy template id, or source app id for a Comfy-hosted app. */
   template: string;
+  /** Opens a separate official Comfy app; never passed to a graph builder. */
+  comfyApp?: ComfyAppId;
   entrees: readonly Entree[];
   texte: "requis" | "facultatif" | "aucun";
   sortie: Sortie;
@@ -116,6 +119,7 @@ export const OUTILS: readonly Outil[] = [
   { id: "vid-effacer", num: 57, famille: "video", sous: "video", template: "template_ltx2_3_obscura_remova_lora_remove_object_from_video", entrees: ["video"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-effacer", moteur: { kind: "video" } },
   { id: "vid-fluidifier", num: 58, famille: "video", sous: "video", template: "utility_video_frame_interpolation", entrees: ["video"], texte: "aucun", sortie: "video", onglets: ["montage"], geste: "suite-fluidifier", moteur: S, parTranche: true },
   { id: "vid-mouvement", num: 23, famille: "video", sous: "video", template: "video_wan_animate2", entrees: ["image", "video"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "outil-vid-mouvement", moteur: G },
+  { id: "vid-openjutsu", num: 59, famille: "video", sous: "video", template: "comfy-openjutsu", entrees: ["video", "image"], texte: "facultatif", sortie: "video", onglets: ["prise"], comfyApp: "openjutsu" },
 ];
 
 export function outilParId(id: string): Outil | null {
@@ -131,16 +135,20 @@ export function outilRow(outil: Outil): Geste | null {
 }
 
 export function outilPartenaire(outil: Outil): boolean {
-  return outilRow(outil)?.partenaire ?? templatePartenaire(outil.template);
+  return Boolean(outil.comfyApp) || (outilRow(outil)?.partenaire ?? templatePartenaire(outil.template));
 }
 
 export type Etat =
   | { kind: "pret" }
+  | { kind: "app" }
   | { kind: "bientot"; raison: string }
   | { kind: "masque"; raison: "openWeights" | "nano" };
 
 /** Ready, hidden by a studio option, or not wired yet (with its reason). Never a fake button. */
 export function outilEtat(outil: Outil, filtre: FiltreGestes = {}): Etat {
+  // The hosted OpenJutsu app also charges a Router first frame. Studio cannot
+  // enforce an open-weights-only run there, so this preference hides the entry.
+  if (outil.comfyApp) return filtre.openWeightsOnly ? { kind: "masque", raison: "openWeights" } : { kind: "app" };
   const row = outilRow(outil);
   if (outil.bientot || !row || !gesteOuvert(row)) return { kind: "bientot", raison: outil.bientot ?? "unwired" };
   if (!gesteVisible(row, filtre)) return { kind: "masque", raison: row.option === "nano" && !filtre.nanoBanana ? "nano" : "openWeights" };
@@ -204,7 +212,8 @@ export function modelesIntent(id: string, filtre: FiltreGestes = {}): Outil[] {
   const order = INTENT_MODELES[head] ?? [head];
   return order.flatMap(item => {
     const outil = outilParId(item);
-    return outil && outilEtat(outil, filtre).kind === "pret" ? [outil] : [];
+    const state = outil && outilEtat(outil, filtre);
+    return outil && (state?.kind === "pret" || state?.kind === "app") ? [outil] : [];
   });
 }
 

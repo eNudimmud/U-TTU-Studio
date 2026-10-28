@@ -1568,6 +1568,9 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-outils-split { display: grid; gap: 16px; align-items: start; }
 @media (min-width: 960px) { .u-outils-split { grid-template-columns: minmax(340px, 420px) minmax(0, 1fr); } .u-outils-split:not([data-has-result]) { grid-template-columns: minmax(340px, 560px); } }
 .u-tool-panel { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--u-line-strong); border-radius: var(--radius-card); background: var(--surface); }
+.u-comfy-app-panel { width: min(720px, 100%); justify-self: center; }
+.u-comfy-app-steps { padding-inline-start: 22px; display: grid; gap: 10px; line-height: 1.6; }
+.u-comfy-app-panel > a { min-height: 44px; display: flex; align-items: center; justify-content: center; text-align: center; white-space: normal; }
 .u-tool-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .u-tool-head h1 { margin: 0; font-size: 20px; }
 .u-tool-step { display: grid; gap: 10px; margin: 0; padding: 0; border: 0; min-width: 0; }

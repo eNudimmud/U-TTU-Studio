@@ -141,3 +141,8 @@ Cartes « bientôt » (template officiel repéré, pas encore branché, raison a
 ## Finaliser
 
 Finaliser agrandit et rend plus net ce qui existe déjà. Il ne refait jamais la prise ni l’image. Ses templates sont exportés dans `workflows/finaliser/`.
+
+
+## App OpenJutsu
+
+L’entrée `vid-openjutsu` de la famille Vidéo ouvre [l’app officielle Comfy](https://comfy.org/hub/apps/openjutsu/). Elle n’exécute pas de graphe du Studio : aucun template, API ou coût mesuré n’est ajouté à ce registre. Le coût doit être vérifié dans Comfy, y compris l’image de départ facturée séparément lorsqu’elle est générée. Inventaire, limites et vérifications : [OPENJUTSU.md](OPENJUTSU.md).
