@@ -34,7 +34,7 @@ test("asset : menu 44 px, un coût, Détourer ouvre la page outil avec l’image
   for (const item of await items.all()) {
     expect((await item.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     // One cost per item, always said as an estimate.
-    await expect(item).toContainText(/≈ [\d,]+ crédits estimés/);
+    await expect(item).toContainText(/≈ [\d,]+ crédits? estimés?/);
     await expect(item).not.toContainText(/réserve/i);
   }
   const link = detail.locator("[data-suite-item=suite-detourer]");
