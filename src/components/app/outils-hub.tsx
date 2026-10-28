@@ -25,7 +25,7 @@ import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
 import { MeshViewer } from "./mesh-viewer";
 import { MontageButton } from "./montage-button";
 import { resolveStudioHandoff } from "@/lib/agent/handoff";
-import { BarreHome, CardThumb, StudioHome, openStudioTool } from "./studio-entry";
+import { BarreHome, CardThumb, openStudioTool } from "./studio-entry";
 import { ALL_TOOLS_ID } from "./creation-bar";
 import { ToolShell, ToolStage, type StageView } from "./tool-shell";
 import { REFS_HANDOFF_KEY, isRefsHandoff, takeHandoff } from "@/lib/barre/model";
@@ -97,7 +97,7 @@ export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: b
 
 export function OutilsHub({ tool }: { tool: string | null }) {
   if (tool === REPERAGE_ID) return <ReperageTool onBack={() => openTool(null)} />;
-  if (tool === ALL_TOOLS_ID) return <StudioHome />;
+  if (tool === ALL_TOOLS_ID) return <BarreHome tous />;
   const outil = tool ? outilParId(tool) : null;
   if (!outil || outil.bientot) return <BarreHome />;
   const head = intentDe(outil.id);
