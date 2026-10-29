@@ -27,11 +27,19 @@ const SAMPLES = {
   "template_qwen_multiangle.app": { "1": { image: "cyber_genesis.png" }, "221": { horizontal_angle: 333, vertical_angle: 17, zoom: 5 } },
   audio_melbandroformer_audio_separation: { "1": { audio: "melbandroformer_input.mp3" } },
   api_mirelo_video_to_sfx: { "7": { file: "mage_crash_discovery_video.mp4" } },
+  video_minimax_h3_multiframe_reference: { "164": { image: "h3_frame_ref_1.png" }, "167": { image: "h3_frame_ref_4.png" } },
+  template_ltx2_3_style_transition: { "137": { image: "ltx23_flf2v_last_frame.png" }, "138": { image: "ltx23_flf2v_first_frame.png" } },
 };
 /** Extra outputs the studio does not read: the second stem, the speech track, the re-muxed video. */
 const DROP = {
   audio_melbandroformer_audio_separation: [/^5$/],
   api_mirelo_video_to_sfx: [/^5$/, /^730$/, /^729:/],
+  // Two pictures in the studio: the middle guides (1.5 s and 3 s) go, the 5 s guide stays.
+  video_minimax_h3_multiframe_reference: [/^(147|153|154|157|159|160|161|162)$/],
+};
+/** Links rewired after DROP so the graph stays whole. */
+const REWIRE = {
+  video_minimax_h3_multiframe_reference: { "169": { positive: ["136", 0] } },
 };
 const SAVE = /^(Save|VHS_VideoCombine$)/;
 
@@ -42,6 +50,7 @@ for (const file of readdirSync(DIR).filter(name => name.endsWith(".api.json")).s
   for (const [id, node] of Object.entries(graph)) if (/^Preview/.test(node.class_type)) delete graph[id];
   for (const [id, values] of Object.entries(SAMPLES[template] ?? {})) Object.assign(graph[id].inputs, values);
   for (const pattern of DROP[template] ?? []) for (const id of Object.keys(graph)) if (pattern.test(id)) delete graph[id];
+  for (const [id, values] of Object.entries(REWIRE[template] ?? {})) Object.assign(graph[id].inputs, values);
   const lot = LOTS[template];
   if (lot) {
     for (const [id, node] of Object.entries(graph)) if (SAVE.test(node.class_type)) delete graph[id];

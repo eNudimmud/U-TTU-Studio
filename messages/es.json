@@ -2554,8 +2554,12 @@
         "line": "Mantiene personajes y lugar coherentes."
       },
       "vid-multi": {
-        "title": "Varios fotogramas clave",
-        "line": "Un vídeo que pasa por varias imágenes."
+        "title": "Fotogramas clave fieles",
+        "line": "Mantiene el personaje de tu primera imagen y termina en la segunda, con sonido."
+      },
+      "vid-transition-style": {
+        "title": "Transición de estilo",
+        "line": "Tu plano pasa de un estilo a otro, de tu primera imagen a la segunda."
       },
       "vid-h3-audio": {
         "title": "Vídeo sobre un sonido",

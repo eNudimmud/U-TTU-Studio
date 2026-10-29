@@ -2554,8 +2554,12 @@
         "line": "Hält Figuren und Ort stabil."
       },
       "vid-multi": {
-        "title": "Mehrere Schlüsselbilder",
-        "line": "Ein Video über mehrere Bilder."
+        "title": "Treue Schlüsselbilder",
+        "line": "Behält die Figur aus deinem ersten Bild und endet auf dem zweiten, mit Ton."
+      },
+      "vid-transition-style": {
+        "title": "Stilübergang",
+        "line": "Deine Einstellung wechselt den Stil, vom ersten Bild zum zweiten."
       },
       "vid-h3-audio": {
         "title": "Video zum Ton",

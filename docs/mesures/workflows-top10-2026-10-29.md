@@ -56,3 +56,46 @@ Notes :
 - Vignettes : `public/exemples/vignettes/son-bruitage-video.webp` (image de la prise et enveloppe réelle du bruitage) et `son-separer.webp` (enveloppes réelles des deux pistes).
 
 Remplacement : aucun. `mont-effet` et `son-bruitage-ouvert` créent un effet depuis un texte, sans vidéo : ce n’est pas le même geste. Rien ne séparait les pistes avant.
+
+## Lot 2 — PRISE vidéo (n° 3, 4, 5, 8 et 9)
+
+Devis annoncés avant de lancer (29.10.2026, heure de Zurich), tous en GPU (`estimate_credits` : 0 nœud partenaire) :
+- n° 8, brouillon rapide H3 (`video_fasth3_ominiref_r2v`), 5 s : **≈ 3 crédits estimés** ; comparaison avec `prise-plan-h3` sur la même image : **≈ 4 crédits estimés**.
+- n° 4, H3 Multiframe (`video_minimax_h3_multiframe_reference`), 5 s, 2 images clés : **≈ 6 crédits estimés**.
+- n° 5, LTX planche de référence (`template_ltx2_3_ic_lora_ingredients`), 5 s : **≈ 15 crédits estimés**.
+- n° 9, transition de style LTX (`template_ltx2_3_style_transition`) : **≈ 10 crédits estimés**.
+- n° 3, chaîne multi-caméra : aucun nouveau rendu, somme des mesures (angles + prise H3).
+- Ajout (après la mesure du n° 8, plus chère que prévu) : FastH3 refait à 0,4 MP, la taille de `prise-plan-h3`, pour comparer à taille égale : **≈ 5 crédits estimés**.
+- Ajout : n° 5 refait, le premier rendu (job ef795de3, 14,85 crédits) a pris le texte de démonstration du template (le texte remplacé allait au réécrivain de prompt, éteint) : **≈ 15 crédits estimés**.
+- n° 9, image de fin pour la mesure : Uttu en aquarelle avec FLUX 3 Klein (`image_flux3_klein_image_edit`) : **≈ 4 crédits estimés**.
+
+### Résultats du lot 2 (facturation Comfy lue après chaque job, GPU × 0,27325)
+
+| N° | Workflow | Job | GPU | Crédits | Décision |
+| --- | --- | --- | --- | --- | --- |
+| 8 | `video_fasth3_ominiref_r2v`, 1 MP, 8 pas | 15b82e38 | 47,78 s | 13,05 | non intégré |
+| 8 | même graphe à 0,4 MP (taille de `prise-plan-h3`) | fa72eebe | 32,42 s | 8,86 | non intégré |
+| 8 | comparaison `prise-plan-h3` (H3 R2V, rapide 4 pas, 0,4 MP) même image, même texte, même graine | 152182d8 | 13,68 s | 3,74 | gardé |
+| 4 | `video_minimax_h3_multiframe_reference`, 5 s 16:9, 20 pas | 47a49f52 | 51,25 s | 14,00 | intégré : `vid-multi` ouvert |
+| 5 | `template_ltx2_3_ic_lora_ingredients`, 1er essai (texte de démo resté actif) | ef795de3 | 54,34 s | 14,85 | — |
+| 5 | même graphe, texte Uttu sur l’entrée active | 66a817df | 53,26 s | 14,55 | non intégré |
+| 9 | image de fin : Uttu en aquarelle, FLUX 3 Klein (graphe `suite-modifier`) | 4521b91c | 13,44 s | 3,67 | entrée de mesure |
+| 9 | `template_ltx2_3_style_transition`, 6 s 720×1280 | 1aa1b714 | 25,32 s | 6,92 | intégré : `vid-transition-style` |
+| 3 | chaîne multi-caméra | aucun | — | 0 | documentée, voir plus bas |
+
+Sous-total du lot 2 : **79,64 crédits** (dont 14,85 perdus sur le premier essai du n° 5).
+
+Notes :
+- n° 8, FastH3 : sur la même image d’Uttu, même texte et même graine, la prise H3 du studio en mode rapide (3,74 crédits) garde mieux les fissures dorées et tourne la tête vers l’objectif comme demandé ; FastH3 coûte 2,4 fois plus à taille égale (8,86) et 3,5 fois plus à sa taille native (13,05). Le « brouillon rapide » n’est pas moins cher sur Comfy Cloud : pas de carte, `prise-plan-h3` reste. Planche : `/workspace/top10/planche-fasth3-vs-h3.png` sur la box (ligne 1 H3 studio, ligne 2 FastH3 0,4 MP, ligne 3 FastH3 1 MP).
+- n° 4, images clés : l’image 1 est la référence du personnage (164), l’image 2 l’image clé à 5 s (167). Les deux guides du milieu (1,5 s et 3 s) sont retirés : le studio n’a que deux entrées d’image ; le coût dépend des pas et de la taille, pas du nombre de guides. Le rendu part du portrait et finit sur le gros plan demandé. Pas un remplacement de `vid-raccord` (LTX-2.5, interpolation stricte début → fin, sans son) : ici H3 garde l’identité et fait le son.
+- n° 5, planche de référence : le premier essai a pris le texte de démonstration (le texte remplacé allait au réécrivain de prompt, éteint par défaut ; l’entrée active est `129:211.on_false`). Le second essai, avec le bon texte, recopie la mise en page de la planche pendant ~1,5 s (vues du quai en mosaïque) puis montre Uttu au milieu d’un cadre noir : la planche composée à la main avait des marges noires. Trop cher (≈ 15 crédits) pour un résultat qui dépend autant de la planche : non exposé. À reprendre avec une planche pleine page (sortie de `cast-planche`).
+- n° 9, transition de style : passe bien de la photo à l’aquarelle (0 s → 6 s). Pas un remplacement de `vid-raccord` : c’est un raccord spécialisé (LoRA de transition), le raccord généraliste reste.
+- n° 3, chaîne multi-caméra : pas de nouveau rendu. La chaîne du studio est « Huit angles du personnage » (`ret-angles-perso`, 10,17 crédits mesurés) puis une prise par angle choisi (`prise-plan-h3` rapide, 3,74 crédits mesurés ci-dessus) : ≈ 14 crédits pour un plan d’un nouvel angle, ≈ 40 pour trois angles. Aucune carte en plus : les deux cartes existent déjà.
+
+### Connaissance de l’agent Uttu à mettre à jour (étape suivante)
+
+L’agent lit le catalogue en direct (`src/lib/agent/studio-map.ts`, `capabilities.ts`) : une carte ouverte lui apparaît sans liste à tenir. À ajouter au prompt et au catalogue décrit de l’agent :
+- `vid-multi` « Images clés fidèles » (PRISE) : ouvert, 14 / 21 crédits ; image 1 = personnage de référence, image 2 = image de fin à 5 s ; texte requis ; son généré.
+- `vid-transition-style` « Transition de style » (PRISE) : nouveau, 7 / 11 crédits, 6 s ; image de début, image de fin dans l’autre style (par ex. sortie de « Modifier ») ; le mot `zhuanchang` est ajouté tout seul.
+- Ne pas proposer FastH3 ni la planche de référence LTX : non intégrés.
+- Chaîne multi-caméra à décrire comme recette : « Huit angles du personnage » puis « Plan, second moteur » sur l’angle choisi.

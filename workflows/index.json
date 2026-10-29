@@ -710,6 +710,26 @@
       "api_file": "workflows/outils/outil-vid-wan.api.json"
     },
     {
+      "id": "outil-vid-multi",
+      "onglet": "outils",
+      "template": "video_minimax_h3_multiframe_reference",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-multi.json",
+      "api_file": "workflows/outils/outil-vid-multi.api.json"
+    },
+    {
+      "id": "outil-vid-transition-style",
+      "onglet": "outils",
+      "template": "template_ltx2_3_style_transition",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-transition-style.json",
+      "api_file": "workflows/outils/outil-vid-transition-style.api.json"
+    },
+    {
       "id": "outil-vid-vidu",
       "onglet": "outils",
       "template": "api_vidu_q4_preview_r2v",
