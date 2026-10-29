@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 const still = readFileSync('public/exemples/cast-dj.webp');
 const video = readFileSync('e2e/fixtures/prise-5s-vp9.mp4');
 
-type Job = { kind: 'image' | 'video'; at: number; still: Buffer; video: Buffer };
+type Job = { kind: 'image' | 'video'; at: number; still: Buffer; video: Buffer; save: string; loaded: Record<string, string> };
 
 export async function simulateComfy(page: Page) {
   const jobs = new Map<string, Job>();
@@ -24,7 +24,11 @@ export async function simulateComfy(page: Page) {
     const kind = nodes.some(node => /Video|LTXV|MiniMax/i.test(String(node.class_type))) ? 'video' : 'image';
     const text = nodes.flatMap(node => Object.values(node.inputs ?? {}).filter(value => typeof value === 'string' && value.length > 40)).join('\n');
     const id = `novice-job-${String(++n).padStart(4, '0')}`;
-    jobs.set(id, { kind, at: Date.now(), still: nextStill, video: nextVideo });
+    // Like Comfy Cloud: the save node, and the loaded files listed as outputs too (type input).
+    const entries = Object.entries(graph) as [string, { class_type?: string; inputs?: Record<string, unknown> }][];
+    const save = entries.find(([, node]) => /^(Save|VHS_VideoCombine$)/.test(String(node.class_type)))?.[0] ?? 'save';
+    const loaded = Object.fromEntries(entries.filter(([, node]) => /^Load(Video|Image)$/.test(String(node.class_type)) && typeof (node.inputs?.file ?? node.inputs?.image) === 'string').map(([key, node]) => [key, String(node.inputs?.file ?? node.inputs?.image)]));
+    jobs.set(id, { kind, at: Date.now(), still: nextStill, video: nextVideo, save, loaded });
     prompts.push({ kind, text });
     return route.fulfill({ json: { prompt_id: id, node_errors: {} } });
   });
@@ -36,7 +40,9 @@ export async function simulateComfy(page: Page) {
   await page.route(/\/api\/jobs\/([^/?]+)$/, route => {
     const id = route.request().url().split('/').pop() ?? '';
     const job = jobs.get(id);
-    return route.fulfill({ json: { status: 'success', outputs: { save: { images: [{ filename: `${id}.${job?.kind === 'video' ? 'mp4' : 'webp'}`, subfolder: '', type: 'output' }] } } } });
+    const outputs: Record<string, unknown> = Object.fromEntries(Object.entries(job?.loaded ?? {}).map(([key, file]) => [key, { images: [{ filename: file, subfolder: '', type: 'input' }] }]));
+    outputs[job?.save ?? 'save'] = { images: [{ filename: `${id}.${job?.kind === 'video' ? 'mp4' : 'webp'}`, subfolder: '', type: 'output' }] };
+    return route.fulfill({ json: { status: 'success', outputs } });
   });
   await page.route(/\/api\/view\?/, route => {
     const file = new URL(route.request().url()).searchParams.get('filename') ?? '';
