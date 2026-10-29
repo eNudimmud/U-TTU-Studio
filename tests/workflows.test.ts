@@ -22,7 +22,8 @@ describe("registre des gestes", () => {
   it("keeps four first gestures per tab and the rest behind the fold", () => {
     for (const onglet of ["cast", "decor", "prise", "montage"] as const) {
       const { premiers, suite } = gestesOnglet(onglet);
-      assert.equal(premiers.length, 4, onglet);
+      // DÉCOR: « Autres angles » left the picker for the tab's tool strip (Huit angles du décor, 29.10.2026).
+      assert.equal(premiers.length, onglet === "decor" ? 3 : 4, onglet);
       assert.ok(suite.length >= 2, onglet);
       assert.ok(premiers.every(item => item.premier));
       assert.ok(suite.every(item => !item.premier));
@@ -56,7 +57,8 @@ describe("registre des gestes", () => {
     assert.ok(open.includes("mont-voix"));
     assert.ok(open.includes("mont-effet"));
     assert.ok(open.includes("mont-musique"));
-    assert.equal(open.includes("cast-angle"), false);
+    assert.ok(open.includes("cast-angle"), "8 angles, measured 29.10.2026");
+    assert.ok(open.includes("decor-angles"), "8 angles, measured 29.10.2026");
     assert.equal(open.includes("decor-elargir"), false);
     for (const id of ["prise-raccord", "prise-camera", "prise-elargir", "prise-effacer"]) assert.ok(open.includes(id), id);
     assert.equal(open.includes("prise-vidu"), false);

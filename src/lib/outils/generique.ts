@@ -17,6 +17,20 @@ export interface OutilFiles {
   audio?: string;
 }
 
+/** Novice camera choices for the one-angle tool (CameraAngle: h 0–360, v −30…60, zoom 0–10). */
+export const CAMERAS = {
+  "trois-quarts": { horizontal_angle: 45, vertical_angle: 0, zoom: 5 },
+  face: { horizontal_angle: 0, vertical_angle: 0, zoom: 5 },
+  profil: { horizontal_angle: 90, vertical_angle: 0, zoom: 5 },
+  dos: { horizontal_angle: 180, vertical_angle: 0, zoom: 5 },
+  plongee: { horizontal_angle: 0, vertical_angle: 45, zoom: 5 },
+  "contre-plongee": { horizontal_angle: 0, vertical_angle: -30, zoom: 5 },
+  "gros-plan": { horizontal_angle: 0, vertical_angle: 0, zoom: 8 },
+  large: { horizontal_angle: 0, vertical_angle: 0, zoom: 2 },
+} as const;
+export type OutilCamera = keyof typeof CAMERAS;
+export const OUTIL_CAMERAS = Object.keys(CAMERAS) as OutilCamera[];
+
 export interface GeneriqueInput {
   template: string;
   files: OutilFiles;
@@ -25,6 +39,7 @@ export interface GeneriqueInput {
   prefix: string;
   aspect?: OutilAspect;
   resolution?: GenjutsuResolution;
+  camera?: OutilCamera;
 }
 
 interface Spec {
@@ -136,6 +151,19 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
   api_grok_video_extend: { video: ["1", "file"], prompt: [["2", "prompt"]], seed: [["2", "seed"]], save: ["3", "filename_prefix"], needsText: true },
   api_bria_remove_video_background: { video: ["4", "file"], seed: [["2", "seed"]], save: ["5", "filename_prefix"] },
   api_sync_so_lip_sync_video: { video: ["9", "file"], audio: ["11", "audio"], seed: [["8", "seed"]], save: ["13", "filename_prefix"] },
+  // Top 10 (29.10.2026). The 8 angles: one picture in, 8 out through Batch Images 990 → save 991.
+  "templates-1_click_multiple_character_angles-v1.0": {
+    images: [["25", "image"]], save: ["991", "filename_prefix"],
+    seed: [["427:221:169", "seed"], ["427:246:242", "seed"], ["427:271:267", "seed"], ["427:296:292", "seed"], ["427:321:317", "seed"], ["427:346:342", "seed"], ["427:371:367", "seed"], ["427:423:419", "seed"]],
+  },
+  "templates-1_click_multiple_scene_angles-v1.0": {
+    images: [["25", "image"]], save: ["991", "filename_prefix"],
+    seed: [["65:33:21", "seed"], ["65:35:81", "seed"], ["65:37:90", "seed"], ["65:39:99", "seed"], ["65:40:108", "seed"], ["65:42:117", "seed"], ["65:44:126", "seed"], ["65:46:138", "seed"]],
+  },
+  "template_qwen_multiangle.app": {
+    images: [["1", "image"]], seed: [["219:169", "seed"]], save: ["2", "filename_prefix"],
+    patch(graph, _prompt, input) { Object.assign(graph["221"].inputs, CAMERAS[input.camera ?? "trois-quarts"]); },
+  },
   api_sonilo_v2m: { video: ["705", "file"], prompt: [["703", "prompt"]], seed: [["703", "seed"]], save: ["728", "filename_prefix"] },
 };
 

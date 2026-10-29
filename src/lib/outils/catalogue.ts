@@ -11,7 +11,7 @@ export type Sous = "image" | "video" | "3d" | "son" | "texte";
 export type Sortie = "image" | "video" | "audio" | "mesh";
 /** What the panel asks for. `image2` is an optional second picture (références). */
 export type Entree = "image" | "image2" | "video" | "audio";
-export type Reglage = "aspect" | "elargir" | "fluide" | "mesh" | "resolution";
+export type Reglage = "aspect" | "camera" | "elargir" | "fluide" | "mesh" | "resolution";
 export type Moteur =
   | { kind: "generique" }
   | { kind: "klein" }
@@ -42,6 +42,8 @@ export interface Outil {
   parTranche?: boolean;
   /** The visitor confirms they may use the voice they upload. */
   consentement?: boolean;
+  /** Pictures one run saves through the final node (the 8 angles). Each is its own asset. */
+  lot?: number;
   /** i18n key under outils.why: why it is not wired yet. */
   bientot?: string;
   /** Partner price read with estimate_credits, shown on a « bientôt » card. */
@@ -104,6 +106,9 @@ export const OUTILS: readonly Outil[] = [
   { id: "ret-gommer", num: 47, famille: "retoucher", sous: "image", template: "image_flux.1_fill_dev_OneReward", entrees: ["image"], texte: "requis", sortie: "image", onglets: [], bientot: "masque" },
   { id: "ret-vectoriser", num: 48, famille: "retoucher", sous: "image", template: "api_quiver_arrow2_image_to_svg", entrees: ["image"], texte: "aucun", sortie: "image", onglets: [], bientot: "svg", prix: 9 },
   { id: "ret-eclairer", num: 50, famille: "retoucher", sous: "image", template: "template_character_portrait_relighting", entrees: ["image"], texte: "requis", sortie: "image", onglets: ["cast"], geste: "outil-ret-eclairer", moteur: G },
+  { id: "ret-angles-perso", num: 60, famille: "retoucher", sous: "image", template: "templates-1_click_multiple_character_angles-v1.0", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast"], geste: "cast-angle", moteur: G, lot: 8 },
+  { id: "ret-angles-decor", num: 61, famille: "retoucher", sous: "image", template: "templates-1_click_multiple_scene_angles-v1.0", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["decor"], geste: "decor-angles", moteur: G, lot: 8 },
+  { id: "ret-camera", num: 62, famille: "retoucher", sous: "image", template: "template_qwen_multiangle.app", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast", "decor"], geste: "outil-ret-camera", moteur: G, reglages: ["camera"] },
   // VIDÉO
   { id: "vid-animer", num: 13, famille: "video", sous: "video", template: "video_minimax_h3_i2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "suite-animer", moteur: S, reglages: ["aspect"] },
   { id: "vid-prolonger", num: 14, famille: "video", sous: "video", template: "video_minimax_h3_i2v_continuation", entrees: ["video"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "suite-prolonger", moteur: S },

@@ -23,6 +23,7 @@ const ADDED: Record<string, string> = {
   ImageStitch: "planche : deux passes FLUX 3 cousues côte à côte",
   ImageFromBatch: "élargir : la première image du clip remplace une seconde photo",
   ImageScale: "décor 3D : la vue 3D et sa profondeur ramenées au 1024×576 du rendu",
+  BatchImagesNode: "les 8 angles (29.10.2026) : les 8 images sortent par un seul nœud final, au lieu de 8 SaveImage",
   SaveImage: "détourer : le template n'a qu'un aperçu ; le PNG transparent doit être enregistré (demande JD)",
 };
 /** prise-plan chains two official templates: Klein edit makes the first frame, LTX-2.5 animates it.

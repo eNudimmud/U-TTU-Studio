@@ -127,7 +127,8 @@ describe("P0 · liens, jargon et gestes fermés", () => {
     assert.match(picker, /gesteVisible\(item, prefs\) && gesteOuvert\(item\)/);
     assert.doesNotMatch(picker, /gestes\.soon/);
     assert.match(picker, /<details className="u-fold u-avance"[\s\S]*<ModelOptions/);
-    assert.ok(REGISTRE.filter(item => !gesteOuvert(item)).length >= 16);
+    // 29.10.2026: the 8 angles (cast-angle, decor-angles) opened as hub tools.
+    assert.ok(REGISTRE.filter(item => !gesteOuvert(item)).length >= 14);
   });
   it("keeps visible labels out of the code", () => {
     const stage = read("src/components/app/stage-screens.tsx");

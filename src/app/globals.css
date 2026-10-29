@@ -170,3 +170,7 @@ fieldset { min-width: 0; margin: 0; }
 .u-mesh-canvas:active { cursor: grabbing; }
 .u-tool-result-media[data-aspect] .u-mesh-viewer { max-height: min(70vh, 560px); }
 .u-tool-result-mesh-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.75rem; }
+.u-tool-lot { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(44px, 1fr)); gap: 0.5rem; }
+.u-tool-lot-pick { display: block; width: 100%; min-height: 44px; min-width: 44px; padding: 0; border: 2px solid transparent; border-radius: 8px; background: none; cursor: pointer; overflow: hidden; }
+.u-tool-lot-pick[aria-pressed="true"] { border-color: var(--accent); }
+.u-tool-lot-pick img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }

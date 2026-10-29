@@ -21,7 +21,7 @@ Moteurs (concours Comfy « Open Source Higgsfield ») : **FLUX 3 Image Klein** (
 
 `ouvert` : le studio a déjà un graphe et un devis, le bouton Créer peut partir après confirmation. `fermé` : la carte reste, Créer reste éteint, rien ne part.
 
-Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « hypothèse » ou « estimé » n’est pas une mesure. 38 gestes sur 84 sont mesurés. Le relevé du 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue en lecture seule) en a ajouté 31, dont la prise LTX-2.5 (15,10 crédits pour 5 s 16:9), le raccord (6,98), élargir (16,32) et effacer (25,11) : chaque job et son coût sont dans [docs/mesures/test-visiteur-2026-10-27.md](mesures/test-visiteur-2026-10-27.md). Avant : la prise MiniMax H3 R2V (environ 4 crédits ; 3,66 le 27.10), les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109), la vue 360 et le croquis. Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure. Le devis de la prise affiché dans l’app reste marqué « Estimé » tant qu’aucun profil facturé n’est enregistré pour la prise ; le maximum sert de plafond face au solde.
+Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « hypothèse » ou « estimé » n’est pas une mesure. 41 gestes sur 86 sont mesurés. Le relevé du 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue en lecture seule) en a ajouté 31, dont la prise LTX-2.5 (15,10 crédits pour 5 s 16:9), le raccord (6,98), élargir (16,32) et effacer (25,11) : chaque job et son coût sont dans [docs/mesures/test-visiteur-2026-10-27.md](mesures/test-visiteur-2026-10-27.md). Avant : la prise MiniMax H3 R2V (environ 4 crédits ; 3,66 le 27.10), les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109), la vue 360 et le croquis. Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure. Le devis de la prise affiché dans l’app reste marqué « Estimé » tant qu’aucun profil facturé n’est enregistré pour la prise ; le maximum sert de plafond face au solde.
 
 ## CAST
 
@@ -34,7 +34,6 @@ Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « 
 | cast-texte-nano | Texte (Nano Banana) | `api_nano_banana_2_1_t2i` | 12 / 18, hypothèse | ouvert, nœud partenaire, option Nano Banana, éteinte par défaut |
 | cast-photos-nano | Photos (Nano Banana) | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert, nœud partenaire, option Nano Banana, éteinte par défaut |
 | cast-tenue | Tenue ou coiffure | `image_flux3_klein_image_edit` | 4 / 6, hypothèse | ouvert, premier, open weights |
-| cast-angle | Autre angle | `templates-1_click_multiple_character_angles-v1.0` | non mesuré | fermé, open weights |
 | cast-expressions | Expression | `templates_liveportrait.app` | non mesuré | fermé, open weights |
 | cast-eclair | Rééclairer | `template_character_portrait_relighting` | non mesuré | fermé, nœud partenaire |
 | cast-agrandir | Agrandir | `utility_seedvr2_3b_int8_upscale_image` | non mesuré | fermé, open weights |
@@ -49,7 +48,6 @@ Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « 
 | decor-texte-nano | Texte (Nano Banana) | `api_nano_banana_2_1_t2i` | 12 / 18, hypothèse | ouvert, nœud partenaire, option Nano Banana, éteinte par défaut |
 | decor-photo-nano | Photo (Nano Banana) | `api_nano_banana_2_1_image_edit` | 12 / 18, hypothèse | ouvert, nœud partenaire, option Nano Banana, éteinte par défaut |
 | decor-heure | Heure et météo | `image_flux3_klein_image_edit` | 4 / 7, mesuré | ouvert, premier, open weights |
-| decor-angles | Autres angles | `templates-1_click_multiple_scene_angles-v1.0` | non mesuré | fermé, premier, open weights |
 | decor-elargir | Élargir le cadre | `template_sirolim_any_aspect_ratio_nb2` | non mesuré | fermé, nœud partenaire, option Nano Banana, éteinte par défaut |
 | decor-objet | Objet | `api_bfl_flux3_image_edit` | 14 / 21, hypothèse | ouvert, nœud partenaire |
 | decor-volume | Volume du lieu | `3d_pixal3d_trellis2_image_to_model` | non mesuré | fermé, open weights |
@@ -105,7 +103,7 @@ Menu « Et ensuite ? » sur un asset (panneau de détail de Mes créations) et s
 
 ## OUTILS
 
-Le hub « Outils » (barre du haut de /studio et de Mes créations) range chaque outil de la carte Scenario ↔ Comfy qui a un template officiel. Les lignes `outil-*` ci-dessous sont les graphes ajoutés par le hub : template officiel converti en API par Comfy Cloud (stockage seulement, aucun run), élagué (aperçus retirés), puis seules les entrées du visiteur sont remplacées (`src/lib/outils/generique.ts`, `src/lib/outils/base.ts`). Les autres cartes du hub réutilisent les gestes déjà branchés plus haut. Devis estimés, sauf les lignes marquées « mesuré » (job cité dans `docs/mesures/test-visiteur-2026-10-27.md`).
+Le hub « Outils » (barre du haut de /studio et de Mes créations) range chaque outil de la carte Scenario ↔ Comfy qui a un template officiel. Les lignes `outil-*` ci-dessous sont les graphes ajoutés par le hub : template officiel converti en API par Comfy Cloud (stockage seulement, aucun run), élagué (aperçus retirés), puis seules les entrées du visiteur sont remplacées (`src/lib/outils/generique.ts`, `src/lib/outils/base.ts`). Les autres cartes du hub réutilisent les gestes déjà branchés plus haut. Devis estimés, sauf les lignes marquées « mesuré » (job cité dans `docs/mesures/test-visiteur-2026-10-27.md` ou `docs/mesures/workflows-top10-2026-10-29.md`). Les 8 angles (`cast-angle`, `decor-angles`) sortent par un seul nœud Batch Images (990) puis un SaveImage (991) : un job, 8 assets.
 
 | Geste | Template | Devis | État |
 | --- | --- | --- | --- |
@@ -117,6 +115,9 @@ Le hub « Outils » (barre du haut de /studio et de Mes créations) range chaque
 | outil-img-seedream | `api_bytedance_seedream_5_0_pro_t2i` | 10 / 15, mesuré | partenaire |
 | outil-img-nano | `api_nano_banana_2_1_t2i` | 12 / 18, estimé | partenaire |
 | outil-img-refs | `image_qwen_image_2_1_image_edit` | 2 / 4, mesuré | ouvert, open weights |
+| cast-angle | `templates-1_click_multiple_character_angles-v1.0` | 11 / 17, mesuré (8 angles) | ouvert, open weights ; carte « Huit angles du personnage » dans CAST |
+| decor-angles | `templates-1_click_multiple_scene_angles-v1.0` | 9 / 14, mesuré (8 angles) | ouvert, open weights ; carte « Huit angles du décor » dans DÉCOR |
+| outil-ret-camera | `template_qwen_multiangle.app` | 3 / 5, mesuré | ouvert, open weights ; carte « Déplacer la caméra » (CAST, DÉCOR) |
 | outil-img-360 | `template_qwen_Image_2512_360_lora` | 20 / 30, mesuré | ouvert, open weights |
 | outil-img-croquis | `image_qwen_Image_2512_controlnet` | 17 / 26, mesuré | ouvert, open weights |
 | outil-vid-texte | `video_ltx2_5_t2v` | 5 / 8, mesuré | ouvert, open weights |

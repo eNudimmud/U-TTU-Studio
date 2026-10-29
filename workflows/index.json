@@ -82,13 +82,13 @@
     },
     {
       "id": "cast-angle",
-      "onglet": "cast",
+      "onglet": "outils",
       "template": "templates-1_click_multiple_character_angles-v1.0",
       "partner": false,
       "partnerNodes": [],
-      "sentPartner": null,
-      "template_file": "workflows/cast/cast-angle.json",
-      "api_file": null
+      "sentPartner": false,
+      "template_file": "workflows/outils/cast-angle.json",
+      "api_file": "workflows/outils/cast-angle.api.json"
     },
     {
       "id": "cast-expressions",
@@ -190,13 +190,13 @@
     },
     {
       "id": "decor-angles",
-      "onglet": "decor",
+      "onglet": "outils",
       "template": "templates-1_click_multiple_scene_angles-v1.0",
       "partner": false,
       "partnerNodes": [],
-      "sentPartner": null,
-      "template_file": "workflows/decor/decor-angles.json",
-      "api_file": null
+      "sentPartner": false,
+      "template_file": "workflows/outils/decor-angles.json",
+      "api_file": "workflows/outils/decor-angles.api.json"
     },
     {
       "id": "decor-elargir",
@@ -634,6 +634,16 @@
       "sentPartner": false,
       "template_file": "workflows/outils/outil-img-refs.json",
       "api_file": "workflows/outils/outil-img-refs.api.json"
+    },
+    {
+      "id": "outil-ret-camera",
+      "onglet": "outils",
+      "template": "template_qwen_multiangle.app",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-ret-camera.json",
+      "api_file": "workflows/outils/outil-ret-camera.api.json"
     },
     {
       "id": "outil-img-360",

@@ -4,7 +4,7 @@
 // so a take queued before a reload can be picked up again.
 
 import { measuredCost } from "../credits.ts";
-import { executionSeconds, jobStage, pickOutput, RenderError, type OutputRef, type RenderClient } from "./client.ts";
+import { executionSeconds, jobStage, pickOutput, pickOutputs, RenderError, type OutputRef, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
 import type { UploadedControls } from "./framed-key.ts";
 import { TAKE_PICTURES_MAX, takeEngine, takeGraph, takeRendu, type ApiGraph, type TakeSettings } from "./take-graph.ts";
@@ -53,6 +53,8 @@ export interface TakeRunResult {
   balanceBefore: number;
   balanceAfter: number | null;
   costCredits: number | null;
+  /** With `all`: the other files the final node saved, after the first one. */
+  extras?: { blob: Blob; filename: string }[];
 }
 
 export interface TakeRunOptions {
@@ -69,6 +71,8 @@ export interface TakeRunOptions {
   output?: "video" | "image" | "audio" | "mesh";
   /** Id of the node that saves the final result (render/sortie.ts). Only that node is read. */
   outputNode?: string;
+  /** Also fetch every other file of `outputNode` (a lot of 8 angles saved by one node). */
+  all?: boolean;
   /**
    * Resolve as soon as the output bytes exist. Cost is read afterward and reported via
    * `onCost` (and a trailing `measure` event) without blocking the result.
@@ -167,6 +171,10 @@ export async function followTake(
   const missing = { image: "aucune image", audio: "aucun son", mesh: "aucun volume 3D", video: "aucune vidéo" }[kind];
   if (!ref) throw new RenderError("failed", `Le rendu est fini, mais ${missing} n’est sorti${kind === "image" || kind === "video" ? "e" : ""}.`);
   const video = await client.file(ref);
+  const extras: { blob: Blob; filename: string }[] = [];
+  if (options.all && options.outputNode !== undefined) {
+    for (const more of pickOutputs(detail.outputs, kind, options.outputNode).slice(1)) extras.push({ blob: await client.file(more), filename: more.filename });
+  }
   onEvent({ stage: "ready", jobId, video, filename: ref.filename });
 
   const pack = (balanceAfter: number | null, costCredits: number | null): TakeRunResult => ({
@@ -178,6 +186,7 @@ export async function followTake(
     balanceBefore,
     balanceAfter,
     costCredits,
+    ...(options.all ? { extras } : {}),
   });
 
   const readCost = async (): Promise<{ balanceAfter: number | null; costCredits: number | null }> => {

@@ -1993,8 +1993,16 @@
       "positionHint": "Zum Beispiel: links, auf Augenhöhe",
       "duration": "Dauer der Einstellung",
       "reference": "Bildreferenz für den Ausschnitt",
-      "refGroups": {"decor": "KULISSE · Blickwinkel", "cast": "BESETZUNG", "autres": "Weitere Bilder"},
-      "refKinds": {"rendu": "Rendering", "vue": "Ansicht", "image": "Bild"},
+      "refGroups": {
+        "decor": "KULISSE · Blickwinkel",
+        "cast": "BESETZUNG",
+        "autres": "Weitere Bilder"
+      },
+      "refKinds": {
+        "rendu": "Rendering",
+        "vue": "Ansicht",
+        "image": "Bild"
+      },
       "none": "Keine",
       "referencesHint": "Wähle unten Figuren und Kulisse. Die Bildreferenz wird als visuelle Vorgabe mitgesendet.",
       "changed": "Änderung im Verlauf gespeichert.",
@@ -2730,6 +2738,18 @@
       "vid-genjutsu": {
         "title": "Genjutsu — Figur ersetzen",
         "line": "Ersetze die Figur eines Clips und behalte ihre Bewegung mit dem Comfy-Workflow bei."
+      },
+      "ret-angles-perso": {
+        "title": "Acht Figurenwinkel",
+        "line": "Ein Porträt, acht Ansichten: Profile, Dreiviertel, Aufsicht, Großaufnahme."
+      },
+      "ret-angles-decor": {
+        "title": "Acht Kulissenwinkel",
+        "line": "Ein Ort, acht Blickwinkel für die ganze Szene."
+      },
+      "ret-camera": {
+        "title": "Kamera bewegen",
+        "line": "Dasselbe Bild aus einem anderen Winkel."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2769,7 +2789,20 @@
       "start": "Startbild",
       "end": "Endbild"
     },
-    "costWait": "Dauer wird gelesen…"
+    "costWait": "Dauer wird gelesen…",
+    "camera": {
+      "label": "Kamerawinkel",
+      "trois-quarts": "Dreiviertel",
+      "face": "Frontal",
+      "profil": "Profil",
+      "dos": "Rücken",
+      "plongee": "Aufsicht",
+      "contre-plongee": "Untersicht",
+      "gros-plan": "Großaufnahme",
+      "large": "Totale"
+    },
+    "lot": "{count} Winkel",
+    "lotItem": "Winkel {n} von {count}"
   },
   "top": {
     "nav": "Studio-Navigation",

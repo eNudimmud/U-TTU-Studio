@@ -18,6 +18,7 @@ import { failView } from "@/lib/render/fail";
 import { outilQuote } from "@/lib/outils/graphs";
 import { GENJUTSU_DEFAULT_RESOLUTION, GENJUTSU_RESOLUTIONS, genjutsuSeconds, type GenjutsuResolution } from "@/lib/outils/genjutsu";
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
+import { OUTIL_CAMERAS, type OutilCamera } from "@/lib/outils/generique";
 import { assetPath } from "@/lib/site";
 import { audioSeconds, lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
 import type { Elargir } from "@/lib/suite/graphs";
@@ -322,9 +323,10 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const [fluide, setFluide] = useState(draft?.fluide ?? false);
   const [mesh, setMesh] = useState<"objet" | "perso">(draft?.mesh ?? "objet");
   const [resolution, setResolution] = useState<GenjutsuResolution>(GENJUTSU_RESOLUTIONS.includes(draft?.resolution as GenjutsuResolution) ? draft!.resolution! : GENJUTSU_DEFAULT_RESOLUTION);
+  const [camera, setCamera] = useState<OutilCamera>(OUTIL_CAMERAS.includes(draft?.camera as OutilCamera) ? draft!.camera as OutilCamera : OUTIL_CAMERAS[0]);
   useEffect(() => {
-    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh, resolution });
-  }, [draftKey, inputs, text, aspect, side, fluide, mesh, resolution]);
+    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh, resolution, camera });
+  }, [draftKey, inputs, text, aspect, side, fluide, mesh, resolution, camera]);
   const [consent, setConsent] = useState(false);
   const [seconds, setSeconds] = useState<number | null>(null);
   const [ask, setAsk] = useState(false);
@@ -508,11 +510,11 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       const from = inputs.image?.path ?? inputs.video?.path;
       onResult?.(null);
       const result = await runOutil({
-        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, consent, from, onStage,
+        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, consent, from, onStage,
         onCost: cost => setOutcome(current => current?.ok ? { ...current, cost } : current),
       });
       setOutcome(result);
-      if (result.ok) onResult?.({ url: result.url, path: result.path, kind: outil.sortie, poster: inputs.image?.url, seconds: genjutsu ? genjutsuSeconds(seconds ?? undefined) ?? undefined : undefined, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
+      if (result.ok) onResult?.({ url: result.url, path: result.path, extras: result.extras, kind: outil.sortie, poster: inputs.image?.url, seconds: genjutsu ? genjutsuSeconds(seconds ?? undefined) ?? undefined : undefined, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
     } catch (error) {
       const view = failView(error);
       setOutcome({ ok: false, message: view.message, kind: view.kind, intact: view.intact, reconnect: view.reconnect, retry: view.retry });
@@ -553,6 +555,9 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     {reglages.length > 0 && <Fold step="reglages" label={t("outils.settings")}>
       {reglages.includes("resolution") && <div className="u-choice-row" role="group" aria-label={t("genjutsu.resolution")}>
         {GENJUTSU_RESOLUTIONS.map(value => <button key={value} type="button" className="u-chip" aria-pressed={resolution === value} data-genjutsu-resolution={value} {...lock} onClick={() => { setResolution(value); reset(); }}>{value}</button>)}
+      </div>}
+      {reglages.includes("camera") && <div className="u-choice-row" role="group" aria-label={t("outils.camera.label")}>
+        {OUTIL_CAMERAS.map(id => <button key={id} type="button" className="u-chip" aria-pressed={camera === id} data-tool-camera={id} {...lock} onClick={() => { setCamera(id); reset(); }}>{t(`outils.camera.${id}`)}</button>)}
       </div>}
       {reglages.includes("aspect") && <div className="u-choice-row" role="group" aria-label={t("outils.format")}>
         {(["horizontal", "vertical"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={aspect === id} data-tool-aspect={id} {...lock} onClick={() => { setAspect(id); reset(); }}>{t(`outils.aspect.${id}`)}</button>)}
@@ -606,12 +611,17 @@ function meshDownloadName(path: string, label: string): string {
 }
 
 /** The run just made in this tool: what came back, shown big, never a file name. */
-export interface ToolRun { url: string; path: string; kind: Sortie; poster?: string; seconds?: number; aspect?: "horizontal" | "vertical" }
+export interface ToolRun { url: string; path: string; extras?: { url: string; path: string }[]; kind: Sortie; poster?: string; seconds?: number; aspect?: "horizontal" | "vertical" }
 
 /** The fresh result, big, with « Et ensuite ? » open and a way to Mes créations. Earlier runs stay in Mes créations. */
 function ToolResult({ run, label }: { run: ToolRun; label: string }) {
   const { t } = useI18n();
   const root = useRef<HTMLElement>(null);
+  // A lot (the 8 angles): the big picture is the one picked below; « Et ensuite ? » follows it.
+  const lot = [{ url: run.url, path: run.path }, ...(run.extras ?? [])];
+  const [picked, setPicked] = useState(0);
+  useEffect(() => { setPicked(0); }, [run.url]);
+  const shown = lot[picked] ?? lot[0];
   useEffect(() => {
     // Always bring the result into view (desktop panel + phone).
     root.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -619,7 +629,7 @@ function ToolResult({ run, label }: { run: ToolRun; label: string }) {
   return <section ref={root} className="u-tool-result" data-tool-result={run.kind} aria-label={t("outils.result")}>
     <h2>{t("outils.result")}</h2>
     <div className="u-tool-result-media" data-aspect={run.aspect}>
-      {run.kind === "image" && <img src={run.url} alt={t("outils.result")} />}
+      {run.kind === "image" && <img src={shown.url} alt={t("outils.result")} />}
       {run.kind === "video" && <video src={run.url} controls playsInline preload="metadata" />}
       {run.kind === "audio" && <audio src={run.url} controls />}
       {run.kind === "mesh" && <>
@@ -629,10 +639,15 @@ function ToolResult({ run, label }: { run: ToolRun; label: string }) {
         </div>
       </>}
     </div>
+    {lot.length > 1 && <ul className="u-tool-lot" role="list" data-tool-lot={lot.length} aria-label={t("outils.lot", { count: String(lot.length) })}>
+      {lot.map((item, index) => <li key={item.path}><button type="button" className="u-tool-lot-pick" aria-pressed={item.path === shown.path} data-tool-lot-pick={index + 1} onClick={() => setPicked(index)}>
+        <img src={item.url} alt={t("outils.lotItem", { n: String(index + 1), count: String(lot.length) })} loading="lazy" />
+      </button></li>)}
+    </ul>}
     {run.kind === "video" && run.path && <div className="u-fil-actions" data-tool-result-actions="">
       <MontageButton input={{ planId: "outils", label, seconds: run.seconds ?? 5, aspect: run.aspect ?? "horizontal", still: "", video: run.path, prompt: "", sceneName: "", composeur: "" }} />
     </div>}
-    {(run.kind === "image" || run.kind === "video") && <EtEnsuite source={{ kind: run.kind, url: run.url, name: t("outils.result"), path: run.path || undefined, aspect: run.aspect }} defaultOpen />}
+    {(run.kind === "image" || run.kind === "video") && <EtEnsuite source={{ kind: run.kind, url: shown.url, name: t("outils.result"), path: shown.path || undefined, aspect: run.aspect }} defaultOpen />}
     <a className="u-link u-tool-result-lib" data-tool-result-lib="" href={assetPath("/mon-studio")}>{t("outils.inLibrary")}</a>
   </section>;
 }
