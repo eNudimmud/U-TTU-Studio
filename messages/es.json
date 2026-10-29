@@ -1815,6 +1815,8 @@
     "saveFailed": "No se pudo guardar el plano.",
     "keep": "★ Quedarme con esta toma",
     "keptBtn": "★ Guardada",
+    "montageWait": "El vídeo de la toma aún no ha llegado. Irá al montaje en cuanto llegue.",
+    "keptOnMontage": "Toma guardada: ya está en el montaje.",
     "kept": "guardada",
     "another": "Otra toma",
     "takeOf": "Toma {n} de {total}",
@@ -1984,6 +1986,8 @@
       "positionHint": "Por ejemplo: a la izquierda, a la altura de los ojos",
       "duration": "Duración del plano",
       "reference": "Referencia de encuadre",
+      "refGroups": {"decor": "DECORADO · puntos de vista", "cast": "REPARTO", "autres": "Otras imágenes"},
+      "refKinds": {"rendu": "render", "vue": "vista", "image": "imagen"},
       "none": "Ninguna",
       "referencesHint": "Elige los personajes y el escenario abajo. La referencia de encuadre se envía con el render como guía visual.",
       "changed": "Cambio guardado en el historial.",
@@ -2016,6 +2020,24 @@
         "niveau": "A la altura de los ojos",
         "plongee": "Picado",
         "contre-plongee": "Contrapicado"
+      }
+    },
+    "etapes": {
+      "aria": "Pasos de la toma",
+      "step": "Paso {n} de 5",
+      "preparer": "Preparar",
+      "plans": "Planos",
+      "previs": "Previsualizar",
+      "generer": "Generar",
+      "reviser": "Revisar",
+      "next": "Siguiente: {step}",
+      "prev": "Volver: {step}",
+      "lead": {
+        "preparer": "Personaje, decorado, acción, ambiente y referencias.",
+        "plans": "Arma la lista de planos y ajusta el plano elegido.",
+        "previs": "Revisa el encuadre antes de gastar créditos.",
+        "generer": "Primero el presupuesto, luego confirmas el lanzamiento.",
+        "reviser": "Mira, guarda la buena versión, relanza, envía al MONTAJE."
       }
     }
   },
@@ -2209,6 +2231,7 @@
       "tags": "Lo que sabemos del lugar",
       "refineTitle": "Afinar",
       "refineLead": "Un texto, fotos o ambos.",
+      "photosRule": "Las fotos dan la apariencia; el 3D mantiene el encuadre.",
       "wish": "Describe lo que quieres",
       "wishHint": "Ej.: tarde de otoño, hojas en el suelo",
       "ideas": "Ideas",

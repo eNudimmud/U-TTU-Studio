@@ -1815,6 +1815,8 @@
     "saveFailed": "Die Einstellung konnte nicht gespeichert werden.",
     "keep": "★ Diesen Take behalten",
     "keptBtn": "★ Behalten",
+    "montageWait": "Das Video des Takes ist noch nicht da. Es kommt in den Schnitt, sobald es eintrifft.",
+    "keptOnMontage": "Take behalten: Er ist im Schnitt.",
     "kept": "behalten",
     "another": "Weiterer Take",
     "takeOf": "Take {n} von {total}",
@@ -1984,6 +1986,8 @@
       "positionHint": "Zum Beispiel: links, auf Augenhöhe",
       "duration": "Dauer der Einstellung",
       "reference": "Bildreferenz für den Ausschnitt",
+      "refGroups": {"decor": "KULISSE · Blickwinkel", "cast": "BESETZUNG", "autres": "Weitere Bilder"},
+      "refKinds": {"rendu": "Rendering", "vue": "Ansicht", "image": "Bild"},
       "none": "Keine",
       "referencesHint": "Wähle unten Figuren und Kulisse. Die Bildreferenz wird als visuelle Vorgabe mitgesendet.",
       "changed": "Änderung im Verlauf gespeichert.",
@@ -2016,6 +2020,24 @@
         "niveau": "Auf Augenhöhe",
         "plongee": "Aufsicht",
         "contre-plongee": "Untersicht"
+      }
+    },
+    "etapes": {
+      "aria": "Schritte der Aufnahme",
+      "step": "Schritt {n} von 5",
+      "preparer": "Vorbereiten",
+      "plans": "Einstellungen",
+      "previs": "Vorschau",
+      "generer": "Erzeugen",
+      "reviser": "Prüfen",
+      "next": "Weiter: {step}",
+      "prev": "Zurück: {step}",
+      "lead": {
+        "preparer": "Figur, Kulisse, Handlung, Stimmung und Referenzen.",
+        "plans": "Stelle die Einstellungsliste zusammen und passe die gewählte an.",
+        "previs": "Prüfe den Bildausschnitt, bevor du Credits ausgibst.",
+        "generer": "Erst die Kalkulation, dann bestätigst du den Start.",
+        "reviser": "Ansehen, die richtige Version behalten, neu starten, an den SCHNITT senden."
       }
     }
   },
@@ -2209,6 +2231,7 @@
       "tags": "Was wir über den Ort wissen",
       "refineTitle": "Verfeinern",
       "refineLead": "Ein Text, Fotos oder beides.",
+      "photosRule": "Die Fotos geben das Aussehen; die 3D-Ansicht hält den Bildausschnitt.",
       "wish": "Beschreib, was du willst",
       "wishHint": "Z. B. später Herbstnachmittag, Laub am Boden",
       "ideas": "Ideen",

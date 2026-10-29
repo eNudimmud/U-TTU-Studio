@@ -54,7 +54,7 @@ import { followTake, referenceLimit, submitTake, type TakeRunEvent } from "@/lib
 import { sessionTokens } from "@/lib/render/session";
 import { settleLandedTake } from "@/lib/render/settle-take";
 import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
-import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
+import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
@@ -103,7 +103,7 @@ export interface DecorInput {
   confirmed: boolean;
   geste?: string;
   /** Décor from a kept 3D frame. `photos` = street photo count. `layout: photo-lines` = [style photo, edges, …photos]. */
-  cadre?: { photos: number; layout?: "depth-control" | "frame-first" | "photo-lines" };
+  cadre?: { photos: number; layout?: "structure-style" | "depth-control" | "frame-first" | "photo-lines" };
   /** Credits of the open photos sent with the frame, kept in the décor's note. */
   credits?: string[];
   /** Called once the décor is filed in DÉCOR. */
@@ -685,6 +685,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         profile: takeProfile(flight.settings), jobId: result.jobId, video, poster, prompt: flight.prompt,
         gpuSeconds: result.gpuSeconds, costCredits: result.costCredits, balanceBefore: result.balanceBefore, balanceAfter: result.balanceAfter,
         engine: "comfy", loraId: null, resolution: null, costUsd: null, costSource: null, announcedCredits: null, announcedHigh: null,
+        // Production sheet: what ran, with what, for which plan, and where Comfy keeps it.
+        workflow: takeWorkflow(flight.settings), storageUrl: comfyStorageUrl(result.output),
+        ...(flight.refs?.length ? { refs: flight.refs } : {}), ...(flight.planId ? { planId: flight.planId } : {}),
       };
       const learned = learnTakeCost({
         profile: take.profile, quotes: current.quotes, before: result.balanceBefore, after: result.balanceAfter, at: flight.at, balance: result.balanceAfter ?? flight.balanceBefore,
@@ -921,8 +924,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     // From a kept 3D frame: the frame plus one to three photos, quoted by photo count.
     const cadre = input.cadre ? cadreQuote(input.cadre.photos) : null;
     if (input.cadre && !cadre) return false;
-    const layout = input.cadre?.layout ?? "depth-control";
-    // InstantX depth-control: colour frame alone. Legacy Klein layouts: frame + photos.
+    const layout = input.cadre?.layout ?? "structure-style";
+    // structure-style: the frame (structure) then the photos (style). InstantX depth-control: frame alone.
     const cadreSlots = cadre ? (layout === "depth-control" ? 1 : input.cadre!.photos + 1) : 0;
     const pictures = (input.files && input.files.length > 0 ? input.files : input.file ? [input.file] : []).slice(0, cadre ? cadreSlots : 3);
     if (cadre && pictures.length !== cadreSlots) return false;
@@ -1601,8 +1604,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     abort.current = new AbortController();
     try {
       const at = new Date().toISOString();
-      const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
-      const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: [...paths, ...(pendingTake?.framing ? [pendingTake.framing.color, pendingTake.framing.depth, pendingTake.framing.edges] : [])], template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : freshQuote.source === "estimated" ? freshQuote.estimate.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
+      // P1-4: the take keeps every reference sent, framing maps included (P0-2).
+      const sentRefs = [...paths, ...(pendingTake?.framing ? [pendingTake.framing.color, pendingTake.framing.depth, pendingTake.framing.edges] : [])];
+      const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
+      const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: sentRefs, template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : freshQuote.source === "estimated" ? freshQuote.estimate.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
         pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(),
       }, event => setRun({ phase: "running", event }), abort.current.signal);

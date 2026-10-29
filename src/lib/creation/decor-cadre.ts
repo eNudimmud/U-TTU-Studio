@@ -1,41 +1,41 @@
-// « Décor depuis un lieu » : one InstantX + Lotus ControlNet pass.
-// The kept 3D colour frame is the only image. Lotus estimates its depth; InstantX
-// locks composition to that depth while Qwen Image fills photoreal materials.
-// Street photos colour the prompt only in v1 (they do not enter the graph — feeding
-// them as a second edit pass leaked people and drifted style in A/B).
+// « Décor depuis un lieu » : la vue 3D garde la géométrie, les photos donnent l'apparence.
+// Structure : profondeur de la vue 3D (Lotus) → FLUX.1 dev + LoRA depth, active à chaque pas.
+// Apparence : photos du lieu → FLUX Redux (StyleModelApply), jamais dans le latent ni comme cadre.
+// L'ancien chemin InstantX (vue seule, photos dans le texte) reste pour les reçus « depth-control ».
 // Pure: no network, no storage. The graph itself is built by still.ts (kind "cadre-decor").
 
+import { DECOR_3D_TEMPLATE } from "../render/decor-3d.ts";
 import { INSTANTX_CADRE_TEMPLATE } from "../render/instantx-cadre.ts";
 
-/** Street photos the visitor may pick (prompt / credit only — not wired into the graph). */
+/** Photos du lieu (apparence seulement, via Redux). */
 export const CADRE_PHOTOS_MAX = 3;
-
 export type CadreAmbiance = "photos" | "nuit" | "pluie" | "aube";
 export const CADRE_AMBIANCES: readonly CadreAmbiance[] = ["photos", "nuit", "pluie", "aube"];
 
 /**
  * How the kept 3D view is conditioned.
- * `depth-control` (current): InstantX + Lotus on the colour frame alone.
- * Legacy aliases kept so older receipts / UI still type-check; they map to depth-control.
+ * `structure-style` (current): 3D depth as structure, photos as style (decor-3d.ts).
+ * `depth-control`: former InstantX + Lotus on the frame alone. Other aliases are legacy.
  */
-export type CadreLayout = "depth-control" | "frame-first" | "photo-lines";
+export type CadreLayout = "structure-style" | "depth-control" | "frame-first" | "photo-lines";
 
 export interface CadreQuote {
   /** Estimate shown on the button, in Comfy credits. */
   credits: number;
   /** Ceiling checked against the balance before anything runs. */
   high: number;
-  template: typeof INSTANTX_CADRE_TEMPLATE;
+  template: typeof DECOR_3D_TEMPLATE | typeof INSTANTX_CADRE_TEMPLATE;
 }
 
 /**
- * InstantX + Lotus measured on Comfy Cloud (docs/test/reperage-depth/NOTES.md):
- * ≈ 3,8–4,3 crédits for the frame alone (13–16 gpu_s × 0.27325). Flat cost: photos
- * do not enter the graph. Quote ≈ 5, ceiling 8.
+ * FLUX depth + Redux mesuré sur Comfy Cloud (docs/mesures/decor-3d-2026-10-29.md) :
+ * 35,4 gpu_s pour 5 rendus à froid (9,67 crédits), ≈ 1 crédit par rendu à chaud.
+ * Un rendu seul à froid ≈ 21 gpu_s ≈ 5,7 crédits. Une photo ajoute un encodage CLIP Vision
+ * (moins d'une seconde) : devis plat ≈ 6, plafond 9.
  */
 export function cadreQuote(photos: number): CadreQuote | null {
   if (!Number.isInteger(photos) || photos < 0 || photos > CADRE_PHOTOS_MAX) return null;
-  return { credits: 5, high: 8, template: INSTANTX_CADRE_TEMPLATE };
+  return { credits: 6, high: 9, template: DECOR_3D_TEMPLATE };
 }
 
 const AMBIANCE: Record<CadreAmbiance, string> = {
@@ -48,14 +48,12 @@ const AMBIANCE: Record<CadreAmbiance, string> = {
 /** Longest visitor wish kept in the prompt (the field allows the same). */
 export const CADRE_DETAIL_MAX = 240;
 
-const NO_WATER = "Do not invent a lake, sea or open water unless the structural guide clearly frames one.";
-
-/** Negative CLIP text for InstantX cadre — keep geometry control in the positive prompt. */
-export const CADRE_NEGATIVE = "blocky, voxel, maze, low-poly, clay render, untextured massing, checkerboard façades, abstract cubes, plastic CG, metallic CG, cartoon buildings";
+/** Negative text, kept on the graph for the record (no effect at cfg 1). */
+export { DECOR_3D_NEGATIVE as CADRE_NEGATIVE } from "../render/decor-3d.ts";
 
 /**
- * Text sent with the single 3D colour frame (InstantX ControlNet).
- * English for the model. Photos are never addressed as "image N" — they are not uploaded.
+ * Text for FLUX (English). Descriptive only: the geometry comes from the 3D depth, the look
+ * from the photos (Redux). No instruction about "images", nothing the model could draw as text.
  */
 export function cadrePrompt(input: {
   photos: number;
@@ -70,37 +68,20 @@ export function cadrePrompt(input: {
     ? detail ? "" : count === 0 ? "Natural daylight, as on an ordinary clear day there." : AMBIANCE.photos
     : AMBIANCE[input.ambiance] ?? AMBIANCE.photos;
   const contexte = (input.contexte ?? []).map(line => line.replace(/\s+/g, " ").trim().slice(0, 320)).filter(Boolean).slice(0, 5);
-
-  const style = count === 0
-    ? "Invent a continuous row of realistic street façades with distinct windows, cornices, gutters, doorways and weathered materials for this place — never leave flat grey, clay, plastic, blocky, voxel or low-poly surfaces."
-    : [
-      "Reference street photos inform STYLE ONLY: materials, colours, weathering, sky and light of this same place.",
-      "Do NOT copy a photo's camera angle, framing, building count, skyline, lake, park layout or any geometry that is not in the structural guide.",
-      "Dress each building as a continuous realistic façade row: readable windows, cornices, gutters, door frames and the materials seen in the photos — stone, brick, stucco, terracotta roof tiles, dormers, chimneys and paving — never a chaotic checkerboard of abstract blocks.",
-    ].join(" ");
-
   return [
-    "Photorealistic photograph of this real place, same exact camera position and composition as the structural guide.",
-    "The input image is a grey untextured 3D massing / clay render: keep every building silhouette, roofline, vanishing point, relative size and ground plane exactly — like a depth guide — and discard its flat grey look completely.",
-    "Completely replace every flat grey roof, wall and ground with real materials, windows, roof tiles, paving and vegetation so the result looks like a photograph taken on site, not a tinted 3D model.",
-    "Never invent, merge or remove buildings; never turn a row of tall blocks into a single house; never add a lake, sea, skyline or park that the structural guide does not already frame.",
-    style,
-    NO_WATER,
+    "Photorealistic photograph of this real place, natural light, real camera, 16:9.",
+    "Real buildings with readable windows, doors, cornices, gutters and weathered materials; real paving, vegetation and sky.",
+    count > 0 ? "Materials, colours and light as in the reference photos of this place." : "",
     ...contexte,
-    "Full-color outdoor photograph, 16:9, empty of people. No text, no letters, no signs with words, no 3D-render look, no low-poly, no clay, no untextured massing, no metallic CG look, no blocky voxel maze, no checkerboard of abstract cubes.",
     ambiance,
-    ...(detail ? [
-      `The visitor's wish, in their own words: "${detail}".`,
-      "Apply it to the mood, season, time of day, weather, materials and added elements.",
-      "Whatever the wish says, the structural guide's camera, framing and building layout stay exactly the same, with no people and no text, and the grey massing look must still be fully replaced by a real photograph.",
-    ] : []),
+    detail ? `${detail}.` : "",
+    "Empty of people. No text, no signs with words, no 3D render look, no clay, no low-poly, no checkerboard façades.",
   ].filter(Boolean).join("\n");
 }
 
 /**
- * Build the image list for a cadre-decor run.
- * Always just the colour frame (InstantX + Lotus). `photos` is kept for the quote
- * and the prompt; lines are ignored (depth is re-estimated by Lotus).
+ * Build the image list for a cadre-decor run: the colour frame first (structure, depth
+ * re-estimated by Lotus), then the photos (style only). Lines are not sent.
  */
 export function cadreImages(input: {
   frame: File;
@@ -108,5 +89,5 @@ export function cadreImages(input: {
   photos: readonly File[];
 }): { files: File[]; layout: CadreLayout; photos: number } {
   const photos = input.photos.slice(0, CADRE_PHOTOS_MAX);
-  return { files: [input.frame], layout: "depth-control", photos: photos.length };
+  return { files: [input.frame, ...photos], layout: "structure-style", photos: photos.length };
 }

@@ -4,7 +4,7 @@
 // so a take queued before a reload can be picked up again.
 
 import { measuredCost } from "../credits.ts";
-import { audioOutput, executionSeconds, imageOutput, jobStage, meshOutput, RenderError, videoOutput, type RenderClient } from "./client.ts";
+import { audioOutput, executionSeconds, imageOutput, jobStage, meshOutput, RenderError, videoOutput, type OutputRef, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
 import type { UploadedControls } from "./framed-key.ts";
 import { TAKE_PICTURES_MAX, takeEngine, takeGraph, takeRendu, type ApiGraph, type TakeSettings } from "./take-graph.ts";
@@ -47,6 +47,8 @@ export interface TakeRunResult {
   jobId: string;
   video: Blob;
   filename: string;
+  /** The output as Comfy Cloud names it (filename, subfolder, type). */
+  output: OutputRef;
   gpuSeconds: number | null;
   balanceBefore: number;
   balanceAfter: number | null;
@@ -169,6 +171,7 @@ export async function followTake(
     jobId,
     video,
     filename: ref.filename,
+    output: { filename: ref.filename, subfolder: ref.subfolder, type: ref.type },
     gpuSeconds: executionSeconds(detail),
     balanceBefore,
     balanceAfter,

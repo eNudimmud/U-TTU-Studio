@@ -2797,3 +2797,38 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 [data-framing-mode="plat"] [data-autre-essai],
 [data-framing-mode="plat"] [data-tourner] { display:none; }
 .u-maquette-avance[data-framing-mode="plat"] ~ .u-tuiles-row { display:none; }
+
+/* ── P1-3 · PRISE on a phone: one simple path in five steps ───────────
+   Préparer → Plans → Prévisualiser → Générer → Réviser. Each step shows existing blocks only
+   (one plan editor, no second DÉCOR or MONTAGE). From 1024 px every block stays on screen. */
+.u-prise-steps, .u-prise-step-nav { display: none; }
+@media (max-width: 1023px) {
+  .u-prise-steps { order: 0; display: grid; gap: 6px; min-width: 0; }
+  .u-prise-steps ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .u-prise-steps button { width: 100%; min-height: 48px; display: grid; justify-items: center; align-content: center; gap: 2px; padding: 4px 2px; border: 1px solid var(--u-line); border-radius: 10px; background: var(--surface); color: var(--fg-2); font-size: 11px; line-height: 1.1; }
+  .u-prise-steps button[data-done] { color: var(--u-text); }
+  .u-prise-steps button[aria-current="step"] { border-color: var(--fg); background: var(--selected); color: var(--fg); }
+  .u-prise-step-n { font: 600 13px/1 var(--font-mono); }
+  .u-prise-step-name { max-width: 100%; text-align: center; overflow-wrap: anywhere; hyphens: auto; }
+  .u-prise-step-lead { margin: 0; color: var(--u-muted); font-size: 13px; line-height: 1.35; }
+  .u-prise-step-nav { order: 5; display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+  .u-prise-step-nav button { flex: 1 1 140px; min-height: 44px; width: auto; }
+
+  /* The plan strip, the preview, the action bar and the closed « Avancé » stay on every step but
+     « Plans »; the long column is cut in five. */
+  .u-prise[data-prise-etape] .u-prise-dock > .u-prise-card { display: none; }
+  .u-prise[data-prise-etape="generer"] .u-prise-dock > .u-prise-card,
+  .u-prise[data-prise-etape="reviser"] .u-prise-dock > .u-prise-card { display: grid; }
+  /* 1 · Préparer: who, where, the action and its mood; references sit with the cast and the set. */
+  .u-prise[data-prise-etape="preparer"] :is(.u-plan-tools, .u-plan-editor, .u-outils-strip) { display: none; }
+  /* 2 · Plans: the list tools and the one editor of the selected plan. */
+  .u-prise[data-prise-etape="plans"] .u-prise-work > :not(.u-prise-head, .u-plan-editor) { display: none; }
+  /* 3 · Prévisualiser: the still and the maquette framing (AVANCÉ), before any credit. */
+  .u-prise[data-prise-etape="previs"] .u-plan-tools { display: none; }
+  .u-prise[data-prise-etape="previs"] .u-prise-work > :not(.u-prise-head, .u-avance) { display: none; }
+  /* 4 · Générer: what is sent and the quote, then the confirmed launch. */
+  .u-prise[data-prise-etape="generer"] :is(.u-plan-tools, .u-prise-preview) { display: none; }
+  .u-prise[data-prise-etape="generer"] .u-prise-work > :not(.u-prise-head, .u-avance) { display: none; }
+  /* 5 · Réviser: the takes; keep, retry, finish, send the kept takes to MONTAGE. */
+  .u-prise[data-prise-etape="reviser"] .u-prise-work > :not(.u-prise-head, .u-outils-strip, .u-avance) { display: none; }
+}

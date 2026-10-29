@@ -53,6 +53,7 @@ Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « 
 | decor-elargir | Élargir le cadre | `template_sirolim_any_aspect_ratio_nb2` | non mesuré | fermé, nœud partenaire, option Nano Banana, éteinte par défaut |
 | decor-objet | Objet | `api_bfl_flux3_image_edit` | 14 / 21, hypothèse | ouvert, nœud partenaire |
 | decor-volume | Volume du lieu | `3d_pixal3d_trellis2_image_to_model` | non mesuré | fermé, open weights |
+| decor-3d-apparence | Repérage 3D, étape 3 | `flux_depth_lora_example` + `flux_redux_model_example` | 6 / 9, mesuré ≈ 2–3 par rendu | ouvert, open weights ; la vue 3D en structure (depth), les photos en style (Redux 0,1). Voir docs/DECOR-3D.md |
 
 ## PRISE
 

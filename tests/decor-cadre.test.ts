@@ -4,6 +4,7 @@ import { CADRE_PHOTOS_MAX, cadreImages, cadrePrompt, cadreQuote } from "../src/l
 import { stillEngine, stillGraph } from "../src/lib/creation/still.ts";
 import { estimateProgressPercent, estimateRemainingSec, formatClock, TYPICAL_WAIT_SEC } from "../src/lib/creation/comfy-progress.ts";
 import { INSTANTX_CADRE_TEMPLATE } from "../src/lib/render/instantx-cadre.ts";
+import { DECOR_3D_STYLE_STRENGTH, DECOR_3D_TEMPLATE, decor3dGraph } from "../src/lib/render/decor-3d.ts";
 
 type Node = { class_type: string; inputs: Record<string, unknown>; _meta?: { title?: string } };
 
@@ -12,143 +13,150 @@ function nodes(graph: ReturnType<typeof stillGraph>): [string, Node][] {
 }
 
 describe("décor depuis un cadre 3D", () => {
-  it("quotes InstantX + Lotus flat: ≈ 5 crédits (cap 8), any photo count 0–3", () => {
+  it("quotes FLUX depth + Redux flat: ≈ 6 crédits (cap 9), any photo count 0–3", () => {
     assert.equal(CADRE_PHOTOS_MAX, 3);
     assert.deepEqual([0, 1, 2, 3].map(n => cadreQuote(n)).map(q => [q?.credits, q?.high, q?.template]), [
-      [5, 8, INSTANTX_CADRE_TEMPLATE],
-      [5, 8, INSTANTX_CADRE_TEMPLATE],
-      [5, 8, INSTANTX_CADRE_TEMPLATE],
-      [5, 8, INSTANTX_CADRE_TEMPLATE],
+      [6, 9, DECOR_3D_TEMPLATE],
+      [6, 9, DECOR_3D_TEMPLATE],
+      [6, 9, DECOR_3D_TEMPLATE],
+      [6, 9, DECOR_3D_TEMPLATE],
     ]);
     assert.equal(cadreQuote(-1), null);
     assert.equal(cadreQuote(4), null);
     assert.equal(cadreQuote(1.5), null);
   });
 
-  it("prompt locks the 3D massing as structure and asks for a real photograph", () => {
+  it("prompt describes a real photograph and never instructs about images", () => {
     const one = cadrePrompt({ photos: 1, ambiance: "photos" });
-    assert.match(one, /Photorealistic photograph/);
-    assert.match(one, /grey untextured 3D massing/);
-    assert.match(one, /depth guide/);
-    assert.match(one, /STYLE ONLY/);
-    assert.match(one, /materials, colours, weathering/);
-    assert.match(one, /Do not invent a lake, sea or open water/);
-    assert.match(one, /Never invent, merge or remove buildings/);
-    assert.match(one, /Do NOT copy a photo's camera angle/);
+    assert.match(one, /^Photorealistic photograph/);
     assert.match(one, /16:9/);
-    assert.match(one, /empty of people/);
+    assert.match(one, /Empty of people/);
     assert.match(one, /No text/);
-    assert.match(one, /no clay|no untextured massing/);
-    assert.match(one, /façade|facade|windows|cornices/i);
-    assert.match(one, /blocky voxel maze|checkerboard/);
-    // Photos never addressed as image N — they are not uploaded.
-    assert.doesNotMatch(one, /image 2/);
-    assert.doesNotMatch(one, /from image 1/);
+    assert.match(one, /no clay/);
+    assert.match(one, /checkerboard façades/);
+    assert.match(one, /windows, doors, cornices/);
+    assert.match(one, /reference photos/);
+    // Nothing the model could copy as text or read as a layout order.
+    assert.doesNotMatch(one, /image \d|ref_image|structural guide|Do NOT|STYLE ONLY/);
+    assert.doesNotMatch(cadrePrompt({ photos: 0, ambiance: "photos" }), /reference photos/);
     const three = cadrePrompt({ photos: 3, ambiance: "nuit", detail: "  pavés   mouillés " });
     assert.match(three, /Night/);
-    assert.match(three, /The visitor's wish, in their own words: "pavés mouillés"\./);
-    assert.match(three, /structural guide's camera, framing and building layout stay exactly the same/);
-    assert.match(three, /grey massing look must still be fully replaced/);
+    assert.match(three, /^pavés mouillés\.$/m);
     assert.ok(!cadrePrompt({ photos: 1, ambiance: "pluie", detail: "x".repeat(400) }).includes("x".repeat(241)));
+    assert.match(cadrePrompt({ photos: 0, ambiance: "photos", detail: 'Sous la neige, "lampions"' }), /Sous la neige, 'lampions'\./);
+    assert.doesNotMatch(cadrePrompt({ photos: 0, ambiance: "photos", detail: "brume" }), /Natural daylight/);
   });
 
-  it("legacy layout aliases still produce the InstantX structure prompt", () => {
-    const text = cadrePrompt({ photos: 3, ambiance: "photos", layout: "photo-lines" });
-    assert.match(text, /Photorealistic photograph/);
-    assert.match(text, /grey untextured 3D massing/);
-    assert.doesNotMatch(text, /black-and-white edge drawing/);
-    const frame = cadrePrompt({ photos: 0, ambiance: "aube", layout: "frame-first", detail: "brume" });
-    assert.match(frame, /Dawn/);
-    assert.match(frame, /"brume"/);
-  });
-
-  it("cadreImages always returns only the colour frame (depth-control)", () => {
+  it("cadreImages sends the colour frame first, then the photos (structure-style)", () => {
     const frame = new File([new Uint8Array([1])], "cadre.png", { type: "image/png" });
     const lines = new File([new Uint8Array([2])], "lines.png", { type: "image/png" });
     const a = new File([new Uint8Array([3])], "a.jpg", { type: "image/jpeg" });
     const b = new File([new Uint8Array([4])], "b.jpg", { type: "image/jpeg" });
     const c = new File([new Uint8Array([5])], "c.jpg", { type: "image/jpeg" });
-    const withLines = cadreImages({ frame, lines, photos: [a, b, c] });
-    assert.equal(withLines.layout, "depth-control");
-    assert.equal(withLines.photos, 3);
-    assert.deepEqual(withLines.files.map(f => f.name), ["cadre.png"]);
-    const noLines = cadreImages({ frame, photos: [a, b] });
-    assert.equal(noLines.layout, "depth-control");
-    assert.deepEqual(noLines.files.map(f => f.name), ["cadre.png"]);
-    const alone = cadreImages({ frame, lines, photos: [] });
-    assert.equal(alone.layout, "depth-control");
-    assert.deepEqual(alone.files.map(f => f.name), ["cadre.png"]);
+    const d = new File([new Uint8Array([6])], "d.jpg", { type: "image/jpeg" });
+    const packed = cadreImages({ frame, lines, photos: [a, b, c, d] });
+    assert.equal(packed.layout, "structure-style");
+    assert.equal(packed.photos, 3);
+    assert.deepEqual(packed.files.map(f => f.name), ["cadre.png", "a.jpg", "b.jpg", "c.jpg"]);
+    assert.deepEqual(cadreImages({ frame, lines, photos: [] }).files.map(f => f.name), ["cadre.png"]);
   });
 
-  it("a wish without photos replaces the default daylight and keeps the frame authoritative", () => {
-    const text = cadrePrompt({ photos: 0, ambiance: "photos", detail: 'Sous la neige, "lampions"' });
-    assert.doesNotMatch(text, /Natural daylight/);
-    assert.doesNotMatch(text, /image 2/);
-    assert.match(text, /"Sous la neige, 'lampions'"/);
-    assert.match(text, /mood, season, time of day, weather, materials and added elements\.$/m);
-    assert.match(text, /no people and no text/);
-    assert.equal(cadreQuote(0)?.credits, 5);
-    assert.match(cadrePrompt({ photos: 0, ambiance: "nuit", detail: "brume" }), /Night/);
-  });
-
-  it("builds one InstantX + Lotus graph: single LoadImage, ControlNet, Lotus depth, 4-step sampler", () => {
-    assert.equal(stillEngine(INSTANTX_CADRE_TEMPLATE), "instantx");
-    const prompt = cadrePrompt({ photos: 3, ambiance: "aube" });
-    const graph = stillGraph({
-      kind: "cadre-decor",
-      prompt,
-      images: ["cadre.png", "a.png", "b.png"],
-      seed: 7,
-      template: INSTANTX_CADRE_TEMPLATE,
-      cadreLayout: "depth-control",
-    });
-    const loads = nodes(graph).filter(([, node]) => node.class_type === "LoadImage");
-    assert.equal(loads.length, 1);
-    assert.equal(loads[0]![1].inputs.image, "cadre.png");
-    assert.equal(loads[0]![1]._meta?.title, "Cadre 3D (base fixe)");
-    assert.ok(nodes(graph).some(([, node]) => node.class_type === "ControlNetApplyAdvanced"));
-    assert.ok(nodes(graph).some(([, node]) => node.class_type === "LotusConditioning"));
-    assert.ok(nodes(graph).some(([, node]) => node.class_type === "ImageInvert"));
-    const sampler = nodes(graph).find(([, node]) => node.class_type === "KSampler")![1];
-    assert.equal(sampler.inputs.steps, 4);
-    assert.equal(sampler.inputs.denoise, 0.85);
+  it("the structure is fed by the 3D view, the photos only reach the style input", () => {
+    assert.equal(stillEngine(DECOR_3D_TEMPLATE), "decor3d");
+    const prompt = cadrePrompt({ photos: 2, ambiance: "aube" });
+    const graph = stillGraph({ kind: "cadre-decor", prompt, images: ["cadre.png", "a.jpg", "b.jpg"], seed: 7, template: DECOR_3D_TEMPLATE, cadreLayout: "structure-style" });
+    const all = nodes(graph);
+    const byId = new Map(all);
+    const loadOf = (image: string) => all.find(([, node]) => node.class_type === "LoadImage" && node.inputs.image === image)![0];
+    // Every node reachable downstream of a LoadImage.
+    const downstream = (from: string): Set<string> => {
+      const seen = new Set([from]);
+      let grew = true;
+      while (grew) {
+        grew = false;
+        for (const [id, node] of all) {
+          if (seen.has(id)) continue;
+          if (Object.values(node.inputs).some(v => Array.isArray(v) && typeof v[0] === "string" && seen.has(v[0]))) { seen.add(id); grew = true; }
+        }
+      }
+      return seen;
+    };
+    const fromView = downstream(loadOf("cadre.png"));
+    const structure = all.find(([, node]) => node.class_type === "InstructPixToPixConditioning")!;
+    // Structure control: its pixels come from the 3D view (through Lotus), and only from it.
+    const pixels = structure[1].inputs.pixels as [string, number];
+    assert.ok(fromView.has(pixels[0]));
+    assert.equal(byId.get(pixels[0])!.class_type, "ImageInvert");
+    for (const photo of ["a.jpg", "b.jpg"]) {
+      const reach = downstream(loadOf(photo));
+      assert.ok(!reach.has(pixels[0]), `${photo} must not feed the depth`);
+      // A photo's first consumer is CLIP Vision, then Redux: nothing else.
+      const users = all.filter(([, node]) => Object.values(node.inputs).some(v => Array.isArray(v) && v[0] === loadOf(photo)));
+      assert.deepEqual(users.map(([, node]) => node.class_type), ["CLIPVisionEncode"]);
+      const style = all.filter(([, node]) => node.class_type === "StyleModelApply" && reach.has((node.inputs.clip_vision_output as [string, number])[0]));
+      assert.equal(style.length, 1);
+      // No photo reaches a VAEEncode (the latent) or the depth LoRA.
+      assert.ok(![...reach].some(id => byId.get(id)!.class_type === "VAEEncode"));
+    }
+    // The control stays on for every step: LoRA depth on the model, the pixels concatenated at each step.
+    const sampler = all.find(([, node]) => node.class_type === "KSampler")![1];
+    assert.deepEqual(sampler.inputs.positive, [structure[0], 0]);
+    assert.deepEqual(sampler.inputs.latent_image, [structure[0], 2]);
+    assert.equal(sampler.inputs.denoise, 1);
+    assert.equal(sampler.inputs.cfg, 1);
     assert.equal(sampler.inputs.seed, 7);
-    const lora = nodes(graph).find(([, node]) => node.class_type === "LoraLoaderModelOnly")![1];
-    assert.equal(lora.inputs.strength_model, 0.7);
-    const cn = nodes(graph).find(([, node]) => node.class_type === "ControlNetApplyAdvanced")![1];
-    assert.equal(cn.inputs.strength, 1);
-    assert.equal(cn.inputs.end_percent, 1);
-    const text = nodes(graph).find(([id]) => id === "111:6")![1];
-    assert.equal(text.inputs.text, prompt);
-    assert.equal((graph["60"] as Node).class_type, "SaveImageAdvanced");
-    // Extra images in the call are ignored — InstantX takes the frame only.
-    assert.doesNotMatch(JSON.stringify(graph), /a\.png/);
+    assert.equal(byId.get((sampler.inputs.model as [string])[0])!.inputs.lora_name, "flux1-depth-dev-lora.safetensors");
+    const style = all.filter(([, node]) => node.class_type === "StyleModelApply").map(([, node]) => node.inputs);
+    assert.deepEqual(style.map(v => [v.strength, v.strength_type]), [[DECOR_3D_STYLE_STRENGTH, "attn_bias"], [DECOR_3D_STYLE_STRENGTH, "attn_bias"]]);
+    assert.equal(all.find(([, node]) => node.class_type === "CLIPTextEncode" && node.inputs.text === prompt)?.[1].inputs.text, prompt);
+    assert.ok(all.some(([, node]) => node.class_type === "CLIPTextEncode" && /checkerboard façades/.test(String(node.inputs.text))));
+    assert.ok(all.some(([, node]) => node.class_type === "SaveImage"));
   });
 
-  it("routes cadre-decor to InstantX even when the template string is absent", () => {
+  it("an exported depth replaces Lotus; the « vue » start encodes the 3D view, never a photo", () => {
+    const graph = decor3dGraph([{ view: "vue.png", depth: "depth.png", photos: ["p.jpg"], prompt: "x", seed: 1, start: "vue" }]);
+    const all = nodes(graph);
+    assert.ok(!all.some(([, node]) => node.class_type === "LotusConditioning"));
+    const structure = all.find(([, node]) => node.class_type === "InstructPixToPixConditioning")![1];
+    const scaled = graph[(structure.inputs.pixels as [string])[0]] as Node;
+    assert.equal((graph[(scaled.inputs.image as [string])[0]] as Node).inputs.image, "depth.png");
+    const encode = all.find(([, node]) => node.class_type === "VAEEncode")![1];
+    const src = graph[(encode.inputs.pixels as [string])[0]] as Node;
+    assert.equal((graph[(src.inputs.image as [string])[0]] as Node).inputs.image, "vue.png");
+    assert.equal(all.find(([, node]) => node.class_type === "KSampler")![1].inputs.denoise, 0.8);
+    assert.throws(() => decor3dGraph([{ depth: "d.png", photos: [], prompt: "x", seed: 1, start: "vue" }]), /vue 3D/);
+  });
+
+  it("one graph for several views shares the loaders (measurement jobs)", () => {
+    const graph = decor3dGraph([1, 2, 3].map(seed => ({ view: "v.png", photos: ["p.jpg"], prompt: "x", seed })));
+    const count = (type: string) => nodes(graph).filter(([, node]) => node.class_type === type).length;
+    assert.equal(count("UNETLoader"), 2); // FLUX + Lotus
+    assert.equal(count("StyleModelLoader"), 1);
+    assert.equal(count("KSampler"), 3);
+    assert.equal(count("SaveImage"), 3);
+  });
+
+  it("routes cadre-decor to the 3D structure path when the template is absent; InstantX stays for old receipts", () => {
     const graph = stillGraph({ kind: "cadre-decor", prompt: cadrePrompt({ photos: 0, ambiance: "photos" }), images: ["cadre.png"], seed: 1 });
-    assert.ok(nodes(graph).some(([, node]) => node.class_type === "ControlNetLoader"));
-    const neg = nodes(graph).find(([id]) => id === "111:7");
-    assert.ok(neg);
-    assert.match(String(neg[1].inputs.text), /blocky|voxel|maze/i);
+    assert.ok(nodes(graph).some(([, node]) => node.class_type === "InstructPixToPixConditioning"));
+    assert.ok(!nodes(graph).some(([, node]) => node.class_type === "StyleModelApply"));
+    const old = stillGraph({ kind: "cadre-decor", prompt: "x", images: ["cadre.png", "a.png"], seed: 1, template: INSTANTX_CADRE_TEMPLATE, cadreLayout: "depth-control" });
+    assert.ok(nodes(old).some(([, node]) => node.class_type === "ControlNetApplyAdvanced"));
+    assert.doesNotMatch(JSON.stringify(old), /a\.png/);
   });
 
-  it("direct path: place context in the prompt, the frame as the only image", () => {
+  it("place context goes in the prompt", () => {
     const text = cadrePrompt({ photos: 0, ambiance: "photos", contexte: ["The place is real: City Center, New York, United States.", "In view: Central Park (park) ahead."] });
-    assert.doesNotMatch(text, /image 2/);
-    assert.match(text, /continuous row of realistic street façades/);
     assert.match(text, /City Center, New York/);
     assert.match(text, /Central Park \(park\) ahead/);
     assert.match(text, /Natural daylight/);
-    const graph = stillGraph({ kind: "cadre-decor", prompt: text, images: ["cadre.png"], seed: 1, template: INSTANTX_CADRE_TEMPLATE });
-    assert.deepEqual(nodes(graph).filter(([, node]) => node.class_type === "LoadImage").map(([, node]) => node.inputs.image), ["cadre.png"]);
   });
 
-  it("refuses a cadre without the frame, and any partner engine other than InstantX", () => {
+  it("refuses a cadre without the frame, and any partner engine", () => {
     assert.throws(() => stillGraph({ kind: "cadre-decor", prompt: "x", images: [], seed: 1 }), /cadre 3D/);
     assert.throws(
       () => stillGraph({ kind: "cadre-decor", prompt: "x", images: ["a.png"], seed: 1, template: "api_bfl_flux3_pro" }),
-      /InstantX ControlNet/,
+      /structure 3D/,
     );
   });
 });

@@ -1815,6 +1815,8 @@
     "saveFailed": "Sauvegarde du plan impossible.",
     "keep": "★ Garder cette prise",
     "keptBtn": "★ Gardée",
+    "montageWait": "La vidéo de la prise n’est pas encore là. Elle ira au montage dès son arrivée.",
+    "keptOnMontage": "Prise gardée : elle est dans le montage.",
     "kept": "gardée",
     "another": "Autre prise",
     "takeOf": "Prise {n} sur {total}",
@@ -1984,6 +1986,8 @@
       "positionHint": "Par exemple : à gauche, à hauteur des yeux",
       "duration": "Durée du plan",
       "reference": "Référence de cadrage",
+      "refGroups": {"decor": "DÉCOR · points de vue", "cast": "CAST", "autres": "Autres images"},
+      "refKinds": {"rendu": "rendu", "vue": "vue", "image": "image"},
       "none": "Aucune",
       "referencesHint": "Choisis les personnages et le décor ci-dessous. La référence de cadrage est jointe au rendu comme indication visuelle.",
       "changed": "Modification enregistrée dans l’historique.",
@@ -2016,6 +2020,24 @@
         "niveau": "À hauteur des yeux",
         "plongee": "Plongée",
         "contre-plongee": "Contre-plongée"
+      }
+    },
+    "etapes": {
+      "aria": "Étapes de la prise",
+      "step": "Étape {n} sur 5",
+      "preparer": "Préparer",
+      "plans": "Plans",
+      "previs": "Prévisualiser",
+      "generer": "Générer",
+      "reviser": "Réviser",
+      "next": "Suivant : {step}",
+      "prev": "Retour : {step}",
+      "lead": {
+        "preparer": "Personnage, décor, action, ambiance et références.",
+        "plans": "Compose la liste des plans, puis règle le plan choisi.",
+        "previs": "Vérifie le cadrage avant de dépenser des crédits.",
+        "generer": "Le devis d’abord, puis tu confirmes le lancement.",
+        "reviser": "Regarde, garde la bonne version, relance, envoie au MONTAGE."
       }
     }
   },
@@ -2209,6 +2231,7 @@
       "tags": "Ce que l'on sait du lieu",
       "refineTitle": "Affiner",
       "refineLead": "Un texte, des photos, ou les deux.",
+      "photosRule": "Les photos donnent l’apparence ; la 3D garde le cadrage.",
       "wish": "Décris ce que tu veux",
       "wishHint": "Ex. : fin d’après-midi d’automne, feuilles au sol",
       "ideas": "Idées",

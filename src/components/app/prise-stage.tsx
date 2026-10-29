@@ -1,6 +1,7 @@
 "use client";
 
 import { useAgentDraft } from "./use-agent-draft";
+import { ETAPES, etapeApres, etapeInitiale, etapePrecedente, etapeSuivante, type Etape, type EtapeSignal } from "@/lib/prise/etapes";
 import { PRISE_HANDOFF_KEY, isPriseHandoff, takeHandoff, type PriseHandoff } from "@/lib/barre/model";
 import { OutilsStrip } from "./outils-hub";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -33,6 +34,7 @@ import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/de
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
 import { parseQuartier, type Quartier } from "@/lib/repere/quartier";
+import { framingGroups } from "@/lib/prise/framing-refs";
 import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
@@ -107,12 +109,14 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, saveFraming, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
+  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, saveFraming, pickCast, pickDecor, run, cancelRun, sendSequence, sendToMontage, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
   const { t, say } = useI18n();
   const activeProject = useRef(studio.project); activeProject.current = studio.project;
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
   const [advanced, setAdvanced] = useState(false);
+  // P1-3 · phone path in five steps (CSS shows one step below 1024 px; large screens keep every block).
+  const [etape, setEtape] = useState<Etape>("preparer");
   // « Maquette 3D et cadrage » (the 3D row of Outils) lands on #prise/maquette: unfold AVANCÉ and the maquette.
   const [maquetteAsk, setMaquetteAsk] = useState(0);
   useEffect(() => {
@@ -120,6 +124,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       if (!/^#prise\/maquette\b/.test(window.location.hash)) return;
       setAdvanced(true);
       setMaquetteAsk(value => value + 1);
+      setEtape("previs");
     };
     apply();
     window.addEventListener("hashchange", apply);
@@ -431,6 +436,28 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const versions = planVersions(takeIds, studio.takes);
   const requestedTake = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("take");
   const landed = shownTake(versions, viewed[draft?.id ?? ""] ?? requestedTake);
+  const etapeSignal: EtapeSignal = {
+    running: run.phase === "running" && runOrigin?.project === studio.project && runOrigin?.planId === draft?.id,
+    failed: draft?.render?.phase === "error",
+    versions: versions.length,
+  };
+  const etapeSeen = useRef<{ plan: string; signal: EtapeSignal } | null>(null);
+  const etapeLoaded = plansLoaded === (studio.project ?? "");
+  useEffect(() => {
+    if (!etapeLoaded) return;
+    const plan = draft?.id ?? "";
+    const before = etapeSeen.current;
+    etapeSeen.current = { plan, signal: etapeSignal };
+    // First load opens on the takes when there are some. Picking another plan keeps the step,
+    // except « Réviser » on a plan with nothing to review: back to « Préparer ».
+    if (!before) { setEtape(current => current === "preparer" ? etapeInitiale(etapeSignal) : current); return; }
+    if (before.plan !== plan) {
+      if (etapeInitiale(etapeSignal) === "preparer") setEtape(current => current === "reviser" || current === "generer" ? "preparer" : current);
+      return;
+    }
+    setEtape(current => etapeApres(current, before.signal, etapeSignal));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [etapeLoaded, draft?.id, etapeSignal.running, etapeSignal.failed, etapeSignal.versions]);
   useEffect(() => {
     setDrafts(list => list.map(item => {
       const ids = studio.shots.find(shot => shot.id === item.id)?.takeIds ?? [];
@@ -941,14 +968,46 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     }
   }
 
+  // P1-4: a kept take lands on the cut by itself, once, without leaving PRISE.
+  // MONTAGE dedupes by take id and by source, so keeping twice never doubles the clip.
+  const [keptWaiting, setKeptWaiting] = useState<{ planId: string; takeId: string } | null>(null);
+  async function keptToMontage(planId: string, takeId: string): Promise<boolean> {
+    const take = studio.takes.find(item => item.id === takeId);
+    const stored = drafts.find(item => item.id === planId);
+    const plan = stored && planId === draft.id ? { ...stored, input } : stored;
+    if (!take || !plan) return false;
+    if (!media[take.video]) { setKeptWaiting({ planId, takeId }); setNotice(t("p0.montageWait")); return false; }
+    setKeptWaiting(null);
+    try {
+      await sendToMontage({
+        takeId, planId, label: plan.input.action.trim() || plan.name || take.line, seconds: plan.input.duree,
+        aspect: plan.input.format === "9:16" ? "vertical" : "horizontal", still: "", prompt: "",
+        sceneName: places.find(place => place.id === plan.input.decorId)?.name ?? "",
+        composeur: planJson(plan.input, { etat: etatOf(plan), before: plan.before, after: plan.after, garde: takeId }),
+      });
+      return true;
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : t("p0.montageFailed"));
+      return false;
+    }
+  }
+  const waitingVideo = keptWaiting ? media[studio.takes.find(take => take.id === keptWaiting.takeId)?.video ?? ""] ?? "" : "";
+  useEffect(() => {
+    if (!keptWaiting || !waitingVideo) return;
+    void keptToMontage(keptWaiting.planId, keptWaiting.takeId).then(ok => { if (ok) setNotice(t("p0.keptOnMontage")); });
+  }, [keptWaiting, waitingVideo]);
+
   function keep(takeId: string) {
     const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true, garde: takeId } : item);
     editPlans(next);
+    void keptToMontage(draft.id, takeId).then(ok => { if (ok) setNotice(t("p0.keptOnMontage")); });
   }
 
   async function keepAndMontage(takeId: string) {
-    keep(takeId);
+    const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true, garde: takeId } : item);
+    editPlans(next);
     if (!media[studio.takes.find(take => take.id === takeId)?.video ?? ""]) {
+      setKeptWaiting({ planId: draft.id, takeId });
       setNotice(t("p0.montageWait"));
       return;
     }
@@ -983,7 +1042,30 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   else { gold = { label: planCredits === null ? t("p0.tourner") : t("p0.rendu.go", { credits: formatCredits(planCredits) }), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
   const reasonText = gold.enabled ? "" : gold.reason;
 
-  return <section className="u-stage u-prise" data-section="prise" data-prise-shell="" data-prise-ready={ready && plansLoaded === (studio.project ?? "") ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
+  function goEtape(next: Etape) {
+    setEtape(next);
+    if (next === "previs") { setAdvanced(true); setMaquetteAsk(value => value + 1); }
+    // « Prévisualiser » opened « Avancé » itself: leaving the step folds it back.
+    else if (etape === "previs") setAdvanced(false);
+    if (next === "plans") requestAnimationFrame(() => document.querySelector<HTMLDetailsElement>("[data-plan-editor]")?.setAttribute("open", ""));
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+  const etapeAt = ETAPES.indexOf(etape);
+  const etapePrev = etapePrecedente(etape);
+  const etapeNext = etapeSuivante(etape);
+
+  return <section className="u-stage u-prise" data-section="prise" data-prise-shell="" data-prise-etape={etape} data-prise-ready={ready && plansLoaded === (studio.project ?? "") ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
+    <nav className="u-prise-steps" aria-label={t("p0.etapes.aria")} data-prise-steps="">
+      <ol>
+        {ETAPES.map((id, at) => <li key={id}>
+          <button type="button" data-prise-step={id} aria-current={etape === id ? "step" : undefined} data-done={at < etapeAt ? "" : undefined} aria-label={`${t("p0.etapes.step", { n: String(at + 1) })} · ${t(`p0.etapes.${id}`)}`} onClick={() => goEtape(id)}>
+            <span className="u-prise-step-n" aria-hidden="true">{at + 1}</span>
+            <span className="u-prise-step-name">{t(`p0.etapes.${id}`)}</span>
+          </button>
+        </li>)}
+      </ol>
+      <p className="u-prise-step-lead" data-prise-step-lead={etape}>{t(`p0.etapes.lead.${etape}`)}</p>
+    </nav>
     <aside className="u-prise-strip" aria-label={t("p0.plans.label")}>
       <p className="u-label">{t("p0.plans.label")}</p>
       <div className="u-prise-film">
@@ -1090,7 +1172,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           <label>{t("p0.editor.move")}<select aria-label={t("p0.editor.move")} value={input.camera} onChange={event => patch({ camera: event.target.value as CameraMove, manualCamera: true })}>{CAMERAS.map(value => <option key={value} value={value}>{t(`p0.camera.move.${value}`)}</option>)}</select></label>
           <label>{t("p0.editor.position")}<input aria-label={t("p0.editor.position")} maxLength={160} placeholder={t("p0.editor.positionHint")} value={input.cameraPosition ?? ""} onChange={event => patch({ cameraPosition: event.target.value })} /></label>
           <label>{t("p0.duration")}<select aria-label={t("p0.editor.duration")} value={input.duree} onChange={event => patch({ duree: Number(event.target.value) as PlanInput["duree"] })}><option value="5">5 s</option>{input.duree === 8 && <option value="8">8 s</option>}<option value="10">10 s</option></select></label>
-          <label className="u-plan-field-wide">{t("p0.editor.reference")}<select aria-label={t("p0.editor.reference")} value={input.framingRef ?? ""} onChange={event => patch({ framingRef: event.target.value })}><option value="">{t("p0.editor.none")}</option>{Object.keys(media).filter(path => /\.(png|jpe?g|webp)$/i.test(path)).map(path => <option key={path} value={path}>{cast.find(card => card.sheet === path || card.photos.includes(path))?.name ?? studio.scenes.find(scene => [scene.render, ...scene.stills, ...scene.views, ...scene.frames].includes(path))?.name ?? path.split("/").pop()}</option>)}</select></label>
+          <label className="u-plan-field-wide">{t("p0.editor.reference")}<select aria-label={t("p0.editor.reference")} value={input.framingRef ?? ""} onChange={event => patch({ framingRef: event.target.value })}><option value="">{t("p0.editor.none")}</option>{framingGroups(Object.keys(media), studio.scenes, cast, input.decorId).map(({ group, items }) => <optgroup key={group} label={t(`p0.editor.refGroups.${group}`)} data-framing-group={group}>{items.map(item => <option key={item.path} value={item.path}>{item.kind === "image" && item.n <= 1 ? item.name : `${item.name} · ${t(`p0.editor.refKinds.${item.kind}`)}${item.n ? ` ${item.n}` : ""}`}</option>)}</optgroup>)}</select></label>
         </div>
         {input.framingRef && media[input.framingRef] && <img className="u-plan-ref" src={media[input.framingRef]} alt={t("p0.editor.reference")} />}
         <p className="u-why">{t("p0.editor.referencesHint")}</p>
@@ -1424,6 +1506,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     </aside>
     </div>
 
+    <div className="u-prise-step-nav" data-prise-step-nav="">
+      {etapePrev && <button type="button" className="u-secondary" data-prise-step-prev={etapePrev} onClick={() => goEtape(etapePrev)}>← {t("p0.etapes.prev", { step: t(`p0.etapes.${etapePrev}`) })}</button>}
+      {etapeNext && <button type="button" className="u-secondary" data-prise-step-next={etapeNext} onClick={() => goEtape(etapeNext)}>{t("p0.etapes.next", { step: t(`p0.etapes.${etapeNext}`) })} →</button>}
+    </div>
   </section>;
 }
 
