@@ -20,9 +20,13 @@ import { ToolShell, ToolStage, type StageView } from "./tool-shell";
 import { exempleById, type ExempleCard } from "@/lib/creation/exemple-galerie";
 
 
-export function openStudioTool(id: string | null) {
+export function openStudioTool(id: string | null, { replace = false }: { replace?: boolean } = {}) {
   const hash = id ? `#outils/${id}` : "#outils";
-  if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
+  const url = `${window.location.pathname}${window.location.search}${hash}`;
+  if (window.location.hash !== hash) {
+    if (replace) window.history.replaceState(null, "", url);
+    else window.history.pushState(null, "", url);
+  }
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
 
