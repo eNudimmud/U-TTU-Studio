@@ -8,6 +8,6 @@ Serveur de dev local (`node scripts/dev.mjs`), branche `studio/accueil-readme-ag
 | `accueil-en-*` | mêmes tailles | aucun | idem (« Skip to content ») |
 | `uttu-fr-*`, `uttu-en-*` : studio, « Demander à Uttu » ouvert, question « Quel outil choisir ? » | mêmes tailles | aucun | aucune dans le panneau ; « Fermer l’assistant » 44×44 |
 
-`avant-accueil-fr-844x390*.jpg` : l’accueil sur main avant ce changement (logo répété dans le héros en paysage). Après : un seul logo dans la barre, et les cinq étapes de « Comment ça marche » tiennent sur une ligne à 844×390, FINALISER compris.
+`avant-accueil-fr-844x390*.jpg` : l’accueil sur main avant ce changement, où FINALISER était coupé à droite de « Comment ça marche » en 844×390. Après : les cinq étapes tiennent sur une ligne.
 
-Sans compte relié, Uttu invite à relier Comfy (≈ 0,3 crédit estimé par message au plus, calculé par `perMessageCeiling`) ; la réponse du modèle n’est donc pas filmée ici.
+Sans compte relié, Uttu invite à relier Comfy (≈ 0,2 crédit estimé par message au plus, calculé par `perMessageCeiling`) ; la réponse du modèle n’est donc pas filmée ici.

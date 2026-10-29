@@ -109,7 +109,7 @@ test("cost: studio math from the Router rate card, ceiling shown before the firs
   assert.equal(e.outputTokens, MAX_OUTPUT_TOKENS);
   assert.ok(e.credits > 0.1 && e.credits < 0.2, String(e.credits));
   const ceiling = perMessageCeiling(k);
-  assert.equal(ceiling, 0.3);
+  assert.equal(ceiling, 0.2);
   assert.ok(perMessageCeiling(null) >= 0.1 && perMessageCeiling(null) <= 0.3);
   assert.equal(usageCredits(routerReply({}, { input_tokens: 2400, output_tokens: 350 })), Math.round(creditsFor(2400, 350) * 100) / 100);
   assert.equal(usageCredits({}), null);
@@ -263,7 +263,7 @@ test("project context: names only, bounded, marked as data, sent to Router insid
   assert.ok(many.length <= PROJECT_MAX);
   assert.ok(many.split("\n").length <= PROJECT_ITEMS + 1);
   // The ceiling counts the largest project block; it stays the announced figure.
-  assert.equal(perMessageCeiling(k), 0.3);
+  assert.equal(perMessageCeiling(k), 0.2);
   const { calls, deps: d } = deps([ok({ reply: "Ton décor est prêt, passe à la PRISE.", action: "none", tool: "", request: "" })]);
   const res = await handleUttuChat(req({ message: "On en est où ?", history: [], locale: "fr", project: { name: "Le quai", items: [{ role: "cast", name: "Uttu" }, { role: "decor", name: "Quai" }] } }), d);
   assert.equal(res.status, 200);

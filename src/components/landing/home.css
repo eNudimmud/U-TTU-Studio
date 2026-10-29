@@ -223,8 +223,7 @@
   .hv-lead span + span { display: none; }
   .hv-tile.big { aspect-ratio: 16 / 10; }
   .hv-shot.g1 { aspect-ratio: 16 / 10; }
-  /* The bar already carries the wordmark: no second logo, and the five steps fit without being cut. */
-  .hv-lockup { display: none; }
+  /* The five steps fit without being cut. */
   .hv-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
   .hv-steps::before { left: 0; right: 0; width: auto; }
   .hv-steps li { padding-right: 14px; }

@@ -30,7 +30,7 @@ export const HISTORY = 8;
 /** Output ceiling, hidden reasoning tokens included. A short JSON answer needs ~300; the rest is headroom. */
 export const MAX_OUTPUT_TOKENS = 1600;
 /** Character budget for the knowledge pack sent with each message. */
-export const PACK_BUDGET = 12000;
+export const PACK_BUDGET = 11000;
 /** Conservative token count for French/German prose: one token per three characters. */
 export const CHARS_PER_TOKEN = 3;
 export const ATTEMPT_TIMEOUT_MS = 25_000;
@@ -77,7 +77,7 @@ export function quoteText(locale: UttuLocale, cost: readonly [number, number] | 
 }
 
 /** Guide entries sent with every message, so the model always knows the studio's main paths. */
-export const GUIDE_FAQ = ["tabs", "bubble", "refs", "prise5", "upload", "finaliser", "which", "start", "cost", "key", "cancel", "who", "agent"] as const;
+export const GUIDE_FAQ = ["tabs", "bubble", "refs", "prise5", "upload", "finaliser", "which", "start", "cost", "cancel", "who"] as const;
 
 /**
  * The knowledge the model sees for one question: tabs, every open tool (output kind and its

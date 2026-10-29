@@ -58,11 +58,11 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 
 ## Uttu, the studio guide / Uttu, le guide du studio
 
-**EN** — « Ask Uttu » opens the guide. Without an account, the studio itself prices cost questions (« 3 portraits + 2 LTX takes ») and hands a production request to the plan, with no language model; for open questions Uttu invites you to link Comfy. With a linked Comfy account, Uttu answers in its own words through Comfy Router (≈ 0.3 credits estimated per message at most, shown and accepted before the first message, paid by your account). It suggests a tool or a plan; it launches nothing, you click.
+**EN** — « Ask Uttu » opens the guide. Without an account, the studio itself prices cost questions (« 3 portraits + 2 LTX takes ») and hands a production request to the plan, with no language model; for open questions Uttu invites you to link Comfy. With a linked Comfy account, Uttu answers in its own words through Comfy Router (≈ 0.2 credits estimated per message at most, shown and accepted before the first message, paid by your account). It suggests a tool or a plan; it launches nothing, you click.
 
 Uttu does not keep a hand-written list of tools. At build time [`scripts/agent-knowledge.mjs`](scripts/agent-knowledge.mjs) writes `public/agent/knowledge.json` from the tool catalogue, the gesture registry and the four message files; Uttu then receives every open tool with its output (image, video, sound, 3D) and its registry quote (« ≈ 3–6 credits measured »), the open CAST / SET / TAKE / EDIT steps with their quotes, and the guide entries (bubble, references, TAKE in 5 steps, upload, Finalise, which tool). [`tests/uttu-studio-sync.test.ts`](tests/uttu-studio-sync.test.ts) fails when an open tool is missing from what Uttu knows, when a closed tool is named, or when an answer says a render costs nothing. A tool that opens in the registry, with its four translated lines, is known to Uttu on the next build.
 
-**FR** — « Demander à Uttu » ouvre le guide. Sans compte, le studio chiffre lui-même les questions de coût (« 3 portraits + 2 prises LTX ») et passe une demande de production au plan, sans modèle de langue ; pour une question ouverte, Uttu t’invite à relier Comfy. Avec ton compte Comfy relié, Uttu répond avec ses mots via Comfy Router (≈ 0,3 crédit estimé par message au plus, affiché et accepté avant le premier message, payé par ton compte). Il propose un outil ou un plan ; il ne lance rien, tu cliques.
+**FR** — « Demander à Uttu » ouvre le guide. Sans compte, le studio chiffre lui-même les questions de coût (« 3 portraits + 2 prises LTX ») et passe une demande de production au plan, sans modèle de langue ; pour une question ouverte, Uttu t’invite à relier Comfy. Avec ton compte Comfy relié, Uttu répond avec ses mots via Comfy Router (≈ 0,2 crédit estimé par message au plus, affiché et accepté avant le premier message, payé par ton compte). Il propose un outil ou un plan ; il ne lance rien, tu cliques.
 
 Uttu n’a pas de liste d’outils écrite à la main. Au build, [`scripts/agent-knowledge.mjs`](scripts/agent-knowledge.mjs) écrit `public/agent/knowledge.json` à partir du catalogue d’outils, du registre des gestes et des quatre fichiers de messages ; Uttu reçoit chaque outil ouvert avec sa sortie (image, vidéo, son, 3D) et son devis du registre (« ≈ 3–6 crédits mesurés »), les étapes ouvertes de CAST, DÉCOR, PRISE et MONTAGE avec leur devis, et les fiches du guide (bulle, références, PRISE en 5 étapes, envoi de fichiers, Finaliser, quel outil). [`tests/uttu-studio-sync.test.ts`](tests/uttu-studio-sync.test.ts) échoue si un outil ouvert manque, si un outil fermé est nommé, ou si une réponse dit qu’un rendu ne coûte rien. Un outil qui s’ouvre dans le registre, avec ses quatre traductions, est connu d’Uttu au build suivant.
 
@@ -80,7 +80,7 @@ Uttu n’a pas de liste d’outils écrite à la main. Au build, [`scripts/agent
    - EDIT: the timeline and the local MP4 export spend no credits;
    - Finalise the edit (1080p): ≈ 4.1 credits for 5 s (measured).
 5. The studio never cancels a Comfy job. If you stop waiting, the job keeps running on your account and lands in My creations.
-6. **Uttu** (« Ask Uttu »): once your Comfy account is linked, accept the per-message quote and Uttu answers in its own words through Comfy Router (≈ 0.3 credits estimated per message at most, paid by your Comfy account) and launches nothing: it suggests, you click.
+6. **Uttu** (« Ask Uttu »): once your Comfy account is linked, accept the per-message quote and Uttu answers in its own words through Comfy Router (≈ 0.2 credits estimated per message at most, paid by your Comfy account) and launches nothing: it suggests, you click.
 7. Without Comfy Cloud: « Run locally » below (`scripts/run-local.mjs` with your own ComfyUI, open weights).
 
 **FR**
@@ -95,7 +95,7 @@ Uttu n’a pas de liste d’outils écrite à la main. Au build, [`scripts/agent
    - MONTAGE : la timeline et l’export MP4 local ne dépensent aucun crédit ;
    - Finaliser le montage (1080p) : ≈ 4,1 crédits pour 5 s (mesuré).
 5. Le studio n’annule jamais un job chez Comfy. Si tu arrêtes d’attendre, le rendu continue sur ton compte et arrive dans Mes créations.
-6. **Uttu** (« Demander à Uttu ») : une fois ton compte Comfy relié, accepte le prix par message et Uttu répond avec ses mots via Comfy Router (≈ 0,3 crédit estimé par message au plus, payé par ton compte Comfy) et ne lance rien : il propose, tu cliques.
+6. **Uttu** (« Demander à Uttu ») : une fois ton compte Comfy relié, accepte le prix par message et Uttu répond avec ses mots via Comfy Router (≈ 0,2 crédit estimé par message au plus, payé par ton compte Comfy) et ne lance rien : il propose, tu cliques.
 7. Sans Comfy Cloud : « Lancer en local » plus bas (`scripts/run-local.mjs` avec ton propre ComfyUI, open weights).
 
 ## What is measured, and what is not / Ce qui est mesuré, et ce qui ne l’est pas
