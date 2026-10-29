@@ -11,7 +11,7 @@ export type Sous = "image" | "video" | "3d" | "son" | "texte";
 export type Sortie = "image" | "video" | "audio" | "mesh";
 /** What the panel asks for. `image2` is an optional second picture (références). */
 export type Entree = "image" | "image2" | "video" | "audio";
-export type Reglage = "aspect" | "camera" | "elargir" | "fluide" | "mesh" | "resolution";
+export type Reglage = "aspect" | "camera" | "elargir" | "fluide" | "mesh" | "piste" | "resolution";
 export type Moteur =
   | { kind: "generique" }
   | { kind: "klein" }
@@ -96,6 +96,8 @@ export const OUTILS: readonly Outil[] = [
   { id: "son-clone", num: 37, famille: "son", sous: "son", template: "audio-chatterbox_vc", entrees: ["audio"], texte: "aucun", sortie: "audio", onglets: [], bientot: "clone" },
   { id: "son-transcrire", num: 38, famille: "son", sous: "texte", template: "api_elevenLabs_speech_to_text", entrees: ["audio"], texte: "aucun", sortie: "audio", onglets: ["montage"], bientot: "texte", prix: 2 },
   { id: "son-musique-video", num: 56, famille: "son", sous: "son", template: "api_sonilo_v2m", entrees: ["video"], texte: "facultatif", sortie: "audio", onglets: ["montage"], geste: "outil-son-musique-video", moteur: G, parTranche: true },
+  { id: "son-bruitage-video", num: 63, famille: "son", sous: "son", template: "api_mirelo_video_to_sfx", entrees: ["video"], texte: "facultatif", sortie: "audio", onglets: ["montage"], geste: "outil-son-bruitage-video", moteur: G, parTranche: true },
+  { id: "son-separer", num: 64, famille: "son", sous: "son", template: "audio_melbandroformer_audio_separation", entrees: ["audio"], texte: "aucun", sortie: "audio", onglets: ["montage"], geste: "outil-son-separer", moteur: G, reglages: ["piste"] },
   // CRÉER · texte
   { id: "txt-decrire", num: 39, famille: "creer", sous: "texte", template: "llm_qwen3vl_text_gen", entrees: ["image"], texte: "aucun", sortie: "image", onglets: [], bientot: "texte" },
   // RETOUCHER

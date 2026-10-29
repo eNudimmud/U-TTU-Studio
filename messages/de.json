@@ -2750,6 +2750,14 @@
       "ret-camera": {
         "title": "Kamera bewegen",
         "line": "Dasselbe Bild aus einem anderen Winkel."
+      },
+      "son-bruitage-video": {
+        "title": "Geräusche für ein Video",
+        "line": "Geräusche passend zur Handlung deiner Einstellung. Die Stimme bleibt erhalten."
+      },
+      "son-separer": {
+        "title": "Stimme und Musik trennen",
+        "line": "Behalte die Stimme oder die Musik eines Tons."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2802,7 +2810,12 @@
       "large": "Totale"
     },
     "lot": "{count} Winkel",
-    "lotItem": "Winkel {n} von {count}"
+    "lotItem": "Winkel {n} von {count}",
+    "piste": {
+      "label": "Spur behalten",
+      "voix": "Stimme",
+      "musique": "Musik"
+    }
   },
   "top": {
     "nav": "Studio-Navigation",

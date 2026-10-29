@@ -18,7 +18,7 @@ import { failView } from "@/lib/render/fail";
 import { outilQuote } from "@/lib/outils/graphs";
 import { GENJUTSU_DEFAULT_RESOLUTION, GENJUTSU_RESOLUTIONS, genjutsuSeconds, type GenjutsuResolution } from "@/lib/outils/genjutsu";
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
-import { OUTIL_CAMERAS, type OutilCamera } from "@/lib/outils/generique";
+import { OUTIL_CAMERAS, OUTIL_PISTES, type OutilCamera, type OutilPiste } from "@/lib/outils/generique";
 import { assetPath } from "@/lib/site";
 import { audioSeconds, lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
 import type { Elargir } from "@/lib/suite/graphs";
@@ -324,9 +324,10 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const [mesh, setMesh] = useState<"objet" | "perso">(draft?.mesh ?? "objet");
   const [resolution, setResolution] = useState<GenjutsuResolution>(GENJUTSU_RESOLUTIONS.includes(draft?.resolution as GenjutsuResolution) ? draft!.resolution! : GENJUTSU_DEFAULT_RESOLUTION);
   const [camera, setCamera] = useState<OutilCamera>(OUTIL_CAMERAS.includes(draft?.camera as OutilCamera) ? draft!.camera as OutilCamera : OUTIL_CAMERAS[0]);
+  const [piste, setPiste] = useState<OutilPiste>(OUTIL_PISTES.includes(draft?.piste as OutilPiste) ? draft!.piste as OutilPiste : OUTIL_PISTES[0]);
   useEffect(() => {
-    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh, resolution, camera });
-  }, [draftKey, inputs, text, aspect, side, fluide, mesh, resolution, camera]);
+    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh, resolution, camera, piste });
+  }, [draftKey, inputs, text, aspect, side, fluide, mesh, resolution, camera, piste]);
   const [consent, setConsent] = useState(false);
   const [seconds, setSeconds] = useState<number | null>(null);
   const [ask, setAsk] = useState(false);
@@ -510,7 +511,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       const from = inputs.image?.path ?? inputs.video?.path;
       onResult?.(null);
       const result = await runOutil({
-        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, consent, from, onStage,
+        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, piste: outil.reglages?.includes("piste") ? piste : undefined, consent, from, onStage,
         onCost: cost => setOutcome(current => current?.ok ? { ...current, cost } : current),
       });
       setOutcome(result);
@@ -558,6 +559,9 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       </div>}
       {reglages.includes("camera") && <div className="u-choice-row" role="group" aria-label={t("outils.camera.label")}>
         {OUTIL_CAMERAS.map(id => <button key={id} type="button" className="u-chip" aria-pressed={camera === id} data-tool-camera={id} {...lock} onClick={() => { setCamera(id); reset(); }}>{t(`outils.camera.${id}`)}</button>)}
+      </div>}
+      {reglages.includes("piste") && <div className="u-choice-row" role="group" aria-label={t("outils.piste.label")}>
+        {OUTIL_PISTES.map(id => <button key={id} type="button" className="u-chip" aria-pressed={piste === id} data-tool-piste={id} {...lock} onClick={() => { setPiste(id); reset(); }}>{t(`outils.piste.${id}`)}</button>)}
       </div>}
       {reglages.includes("aspect") && <div className="u-choice-row" role="group" aria-label={t("outils.format")}>
         {(["horizontal", "vertical"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={aspect === id} data-tool-aspect={id} {...lock} onClick={() => { setAspect(id); reset(); }}>{t(`outils.aspect.${id}`)}</button>)}

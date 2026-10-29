@@ -2750,6 +2750,14 @@
       "ret-camera": {
         "title": "Move the camera",
         "line": "Same picture, seen from another angle."
+      },
+      "son-bruitage-video": {
+        "title": "Sound effects for a video",
+        "line": "Sounds timed to the action in your shot. Speech is kept."
+      },
+      "son-separer": {
+        "title": "Split voice and music",
+        "line": "Keep the voice or the music of a sound."
       }
     },
     "latest": "Latest results",
@@ -2802,7 +2810,12 @@
       "large": "Wide shot"
     },
     "lot": "{count} angles",
-    "lotItem": "Angle {n} of {count}"
+    "lotItem": "Angle {n} of {count}",
+    "piste": {
+      "label": "Track to keep",
+      "voix": "Voice",
+      "musique": "Music"
+    }
   },
   "top": {
     "nav": "Studio navigation",

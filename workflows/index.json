@@ -870,6 +870,28 @@
       "api_file": "workflows/outils/outil-vid-levres.api.json"
     },
     {
+      "id": "outil-son-bruitage-video",
+      "onglet": "outils",
+      "template": "api_mirelo_video_to_sfx",
+      "partner": true,
+      "partnerNodes": [
+        "MireloVideoToSFX"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-son-bruitage-video.json",
+      "api_file": "workflows/outils/outil-son-bruitage-video.api.json"
+    },
+    {
+      "id": "outil-son-separer",
+      "onglet": "outils",
+      "template": "audio_melbandroformer_audio_separation",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-son-separer.json",
+      "api_file": "workflows/outils/outil-son-separer.api.json"
+    },
+    {
       "id": "outil-son-musique-video",
       "onglet": "outils",
       "template": "api_sonilo_v2m",
