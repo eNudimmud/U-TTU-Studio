@@ -49,7 +49,6 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 - **Synchroniser les lèvres / Lip sync:** a video and a voice, the lips follow (sync.so, partner). / *Une vidéo et une voix, les lèvres suivent (sync.so, partenaire).*
 - **Aperçu / Qualité finale (Preview / Final quality):** an LTX take can start as a cheaper preview (about 480p, same seed), finalised later on its own or with the whole edit. / *Une prise LTX peut partir en aperçu, moins cher (environ 480p, même graine), puis se finaliser seule ou avec tout le montage.*
 - **Retoucher / Retouch:** edit, finalise, widen, cut out or relight an image; the original is never replaced. / *Modifier, finaliser, élargir, détourer ou rééclairer une image ; l’original n’est jamais remplacé.*
-- **Pars d’un exemple / Start from an example:** renders made in the studio on Comfy, under the bar; tap one and it fills the bar. / *Des rendus faits dans le studio sur Comfy, sous la barre ; un toucher et la barre se remplit.*
 - **36 tools / 36 outils:** 34 Comfy tools (create, retouch, video, 3D, sound; 57 models to choose from), plus « Scout a location » and « 3D layout and framing », which launch no render. / *34 outils Comfy (créer, retoucher, vidéo, 3D, son ; 57 modèles au choix), plus « Repérer un lieu » et « Maquette 3D et cadrage », qui ne lancent aucun rendu.*
 
 ## For the jury / Pour le jury
@@ -57,7 +56,7 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 **EN**
 
 1. Open <https://u-ttu-studio.vercel.app> on a computer or a phone. The page follows your browser language (FR, EN, DE or ES, English otherwise); the language menu switches it and keeps your choice.
-2. **Discover with Uttu** opens the studio. Start from the bar **Image · Video · Agent** (type what you want) or from **Start from an example**, then follow the five steps **CAST → SET → TAKE → EDIT → Finalise**. Everything that launches no render works without an account: Uttu the local guide (getting started, FAQ, cost simulator), the examples, scouting and the 3D layout, the timeline in EDIT, project export.
+2. **Discover with Uttu** opens the studio. Start from the bar **Image · Video · Agent** (type what you want) or from a tool card, then follow the five steps **CAST → SET → TAKE → EDIT → Finalise**. Everything that launches no render works without an account: Uttu the local guide (getting started, FAQ, cost simulator), the examples, scouting and the 3D layout, the timeline in EDIT, project export.
 3. **To render, link your own Comfy account:** **Credits → Connect the render account → Sign in with Comfy**, or paste a Comfy Cloud API key (a paid Comfy Cloud plan is needed). Session and key stay in your browser; the studio has no server-side key and no account of its own.
 4. Every paid button shows its quote first and asks for a confirmation. Current prices for a 5-run path:
    - CAST « From text »: ≈ 4 credits (measured);
@@ -72,7 +71,7 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 **FR**
 
 1. Ouvre <https://u-ttu-studio.vercel.app> sur ordinateur ou téléphone. La page suit la langue de ton navigateur (FR, EN, DE ou ES, sinon l’anglais) ; le menu de langue la change et garde ton choix.
-2. **Découvrir avec Uttu** ouvre le studio. Pars de la barre **Image · Vidéo · Agent** (écris ce que tu veux) ou de **Pars d’un exemple**, puis suis les cinq étapes **CAST → DÉCOR → PRISE → MONTAGE → Finaliser**. Tout ce qui ne lance aucun rendu marche sans compte : Uttu, le guide local (premiers pas, FAQ, simulateur de coûts), les exemples, le repérage et la maquette 3D, la timeline de MONTAGE, l’export du projet.
+2. **Découvrir avec Uttu** ouvre le studio. Pars de la barre **Image · Vidéo · Agent** (écris ce que tu veux) ou d’une carte d’outil, puis suis les cinq étapes **CAST → DÉCOR → PRISE → MONTAGE → Finaliser**. Tout ce qui ne lance aucun rendu marche sans compte : Uttu, le guide local (premiers pas, FAQ, simulateur de coûts), les exemples, le repérage et la maquette 3D, la timeline de MONTAGE, l’export du projet.
 3. **Pour rendre, relie ton propre compte Comfy :** **Crédits → Relier le compte de rendu → Se connecter avec Comfy**, ou colle une clé API Comfy Cloud (un abonnement Comfy Cloud payant est nécessaire). Session et clé restent dans ton navigateur ; le studio n’a ni clé côté serveur ni compte à lui.
 4. Chaque bouton payant montre d’abord son devis et demande une confirmation. Prix actuels pour un parcours en 5 rendus :
    - CAST « Depuis un texte » : ≈ 4 crédits (mesuré) ;

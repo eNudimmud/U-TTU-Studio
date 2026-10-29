@@ -55,8 +55,11 @@ test("bulle : accès direct à l’agent Uttu unique", async ({ page }) => {
 });
 
 test("barre : « Tous les outils » descend aux outils de la même page, la barre reste", async ({ page }) => {
+  // The « Pars d’un exemple » gallery (and its link) left the home on 29.10: the tools sit right under the bar.
   await page.goto("/studio");
-  await page.locator("[data-barre-all-link]").click();
+  await expect(page.locator("[data-ex-galerie], [data-ex-strip], [data-barre-all-link]")).toHaveCount(0);
+  await expect(page.locator("[data-barre-home] [data-outil]").first()).toBeVisible();
+  await page.goto("/studio#outils/tous");
   await expect(page).toHaveURL(/#outils\/tous$/);
   await expect(page.locator("[data-tous] [data-outil]").first()).toBeVisible();
   await expect(page.locator("[data-tous] [data-barre]")).toHaveCount(1);
