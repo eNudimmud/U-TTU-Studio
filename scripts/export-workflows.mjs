@@ -9,7 +9,7 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { REGISTRE } from "../src/lib/workflows/registre.ts";
-import { wiredGraphs } from "../src/lib/workflows/export.ts";
+import { decor3dExportGraph, wiredGraphs } from "../src/lib/workflows/export.ts";
 import { FINAL_GRAPH } from "../src/lib/prise/finaliser.ts";
 import { finalGraph } from "../src/lib/montage/finaliser.ts";
 
@@ -69,6 +69,11 @@ for (const name of Object.values(FINAL_GRAPH)) await exportOne(name, "finaliser"
 // The Finaliser the studio really sends: the RTX Video Super Resolution stage of the
 // official template `utility_nvidia_rtx_video_enhance`, without its HDR and frame steps.
 await exportOne("montage-finaliser", "finaliser", "utility_nvidia_rtx_video_enhance", finalGraph({ file: "uttu-montage.mp4", ratio: "16/9", resolution: "1080p", nettoyer: "aucun" }));
+
+// Repérage 3D → décor (docs/DECOR-3D.md): the official FLUX depth LoRA template, plus Redux
+// for the photos (flux_redux_model_example). Not a card: the step 3 of the Repérage sends it.
+await exportOne("decor-3d-apparence", "decor", "flux_depth_lora_example", decor3dExportGraph());
+writeFileSync("workflows/decor/decor-3d-apparence-redux.json", json(await template("flux_redux_model_example")));
 
 writeFileSync("workflows/index.json", json({ source: RAW, exported: new Date().toISOString().slice(0, 10), workflows: index }));
 console.log(`${index.length} workflows, ${index.filter(item => item.api_file).length} API graphs`);

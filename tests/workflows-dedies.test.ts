@@ -22,10 +22,15 @@ const ADDED: Record<string, string> = {
   SaveImageAdvanced: "la sortie image du studio (nom de fichier stable)",
   ImageStitch: "planche : deux passes FLUX 3 cousues côte à côte",
   ImageFromBatch: "élargir : la première image du clip remplace une seconde photo",
+  ImageScale: "décor 3D : la vue 3D et sa profondeur ramenées au 1024×576 du rendu",
   SaveImage: "détourer : le template n'a qu'un aperçu ; le PNG transparent doit être enregistré (demande JD)",
 };
-/** prise-plan chains two official templates: Klein edit makes the first frame, LTX-2.5 animates it. */
-const CHAINED: Record<string, string> = { "prise-plan": "workflows/cast/cast-photos.json" };
+/** prise-plan chains two official templates: Klein edit makes the first frame, LTX-2.5 animates it.
+ *  decor-3d-apparence joins the FLUX depth LoRA template (structure) and the FLUX Redux template (photos as style). */
+const CHAINED: Record<string, string> = {
+  "prise-plan": "workflows/cast/cast-photos.json",
+  "decor-3d-apparence": "workflows/decor/decor-3d-apparence-redux.json",
+};
 
 describe("workflows Comfy dédiés", () => {
   it("sends only the dedicated template's nodes, plus the named additions", () => {

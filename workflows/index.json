@@ -996,6 +996,16 @@
       "sentPartner": true,
       "template_file": "workflows/outils/outil-vid-genjutsu.json",
       "api_file": "workflows/outils/outil-vid-genjutsu.api.json"
+    },
+    {
+      "id": "decor-3d-apparence",
+      "onglet": "decor",
+      "template": "flux_depth_lora_example",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/decor/decor-3d-apparence.json",
+      "api_file": "workflows/decor/decor-3d-apparence.api.json"
     }
   ]
 }

@@ -102,7 +102,7 @@ export interface DecorInput {
   confirmed: boolean;
   geste?: string;
   /** Décor from a kept 3D frame. `photos` = street photo count. `layout: photo-lines` = [style photo, edges, …photos]. */
-  cadre?: { photos: number; layout?: "depth-control" | "frame-first" | "photo-lines" };
+  cadre?: { photos: number; layout?: "structure-style" | "depth-control" | "frame-first" | "photo-lines" };
   /** Credits of the open photos sent with the frame, kept in the décor's note. */
   credits?: string[];
   /** Called once the décor is filed in DÉCOR. */
@@ -918,8 +918,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     // From a kept 3D frame: the frame plus one to three photos, quoted by photo count.
     const cadre = input.cadre ? cadreQuote(input.cadre.photos) : null;
     if (input.cadre && !cadre) return false;
-    const layout = input.cadre?.layout ?? "depth-control";
-    // InstantX depth-control: colour frame alone. Legacy Klein layouts: frame + photos.
+    const layout = input.cadre?.layout ?? "structure-style";
+    // structure-style: the frame (structure) then the photos (style). InstantX depth-control: frame alone.
     const cadreSlots = cadre ? (layout === "depth-control" ? 1 : input.cadre!.photos + 1) : 0;
     const pictures = (input.files && input.files.length > 0 ? input.files : input.file ? [input.file] : []).slice(0, cadre ? cadreSlots : 3);
     if (cadre && pictures.length !== cadreSlots) return false;
