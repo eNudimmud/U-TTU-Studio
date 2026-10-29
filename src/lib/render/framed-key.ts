@@ -3,7 +3,11 @@
 import { INSTANTX_CADRE_BASE } from "./instantx-cadre-base.ts";
 import type { ApiGraph } from "./take-graph.ts";
 
-export interface UploadedControls { depth: string; edges: string }
+/** `guide`: the colour preview of the kept framing. Klein sees it as a layout guide
+ * so the appearance image already matches the controls before the controlled pass. */
+export interface UploadedControls { depth: string; edges: string; guide?: string }
+/** Denoise of the controlled pass. 0.7 replaced the appearance with mannequins (A/B 29.10). */
+export const FRAMING_DENOISE = 0.55;
 export const FRAMING_ESTIMATE = { credits: 8, high: 16 } as const;
 
 export function framedKeyNodes(input: { initial: [string, number]; controls: UploadedControls; prompt: string; seed: number }): ApiGraph {
@@ -13,7 +17,8 @@ export function framedKeyNodes(input: { initial: [string, number]; controls: Upl
   for (const id of Object.keys(base)) if (!id.startsWith("111:")) delete base[id];
   base.depth = { class_type: "LoadImage", inputs: { image: input.controls.depth }, _meta: { title: "Profondeur du cadrage gardé" } };
   base.edges = { class_type: "LoadImage", inputs: { image: input.controls.edges }, _meta: { title: "Contours du cadrage gardé" } };
-  base["111:6"].inputs.text = `Photorealistic first frame of a film. Preserve the people, outfits and set appearance of the initial image. The depth and edge controls define the camera and composition. No mannequins, no text.\n${input.prompt}`;
+  // Descriptive words only: Qwen Image draws instruction sentences as captions (A/B 29.10).
+  base["111:6"].inputs.text = `Photorealistic cinematic film still, real skin, real fabric, real materials. ${input.prompt}`;
   base["111:7"].inputs.text = "mannequin, low-poly, clay render, text, watermark, blocky, voxel, checkerboard";
   base["111:85"].inputs.image = ["depth", 0];
   base.edges_apply = {
@@ -24,7 +29,7 @@ export function framedKeyNodes(input: { initial: [string, number]; controls: Upl
   base["111:3"].inputs.positive = ["edges_apply", 0];
   base["111:3"].inputs.negative = ["edges_apply", 1];
   base["111:3"].inputs.seed = input.seed;
-  base["111:3"].inputs.denoise = .7;
+  base["111:3"].inputs.denoise = FRAMING_DENOISE;
   // Scale the initial appearance image to the controls before encoding it.
   base.size = { class_type: "GetImageSize", inputs: { image: ["depth", 0] } };
   base.initial = { class_type: "ImageScale", inputs: { image: input.initial, upscale_method: "lanczos", width: ["size", 0], height: ["size", 1], crop: "center" } };

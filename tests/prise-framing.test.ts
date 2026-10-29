@@ -39,7 +39,9 @@ test('framing: last key-image pass receives only native maps as depth/edge contr
  assert.deepEqual(edges.inputs.positive,['control_111:85',0]);
  assert.equal(edges.inputs.end_percent,1); assert.equal(edges.inputs.strength,.8);
  assert.deepEqual(graph['control_111:3'].inputs.positive,['control_edges_apply',0]);
- assert.equal(graph['control_111:3'].inputs.denoise,.7);
+ assert.equal(graph['control_111:3'].inputs.denoise,.55);
+ assert.doesNotMatch(graph['control_111:6'].inputs.text as string,/first frame|no text|no mannequins|control/i,'Qwen draws instruction sentences as captions');
+ assert.equal(graph.control_guide,undefined);
  assert.deepEqual(graph.control_initial.inputs.image,['frame_decode',0]);
  assert.equal(graph.control_depth.inputs.image,'native-depth.png');
  assert.equal(graph.control_edges.inputs.image,'native-edges.png');
@@ -47,6 +49,15 @@ test('framing: last key-image pass receives only native maps as depth/edge contr
  const uses=Object.values(graph).filter(n=>Object.values(n.inputs).some(v=>Array.isArray(v)&&v[0]==='control_111:8'));
  assert.ok(uses.length>=2,'video plus saved key image');
  assert.doesNotMatch(JSON.stringify(graph),/lotus-depth|LotusConditioning/);
+});
+
+test('framing: the colour preview reaches Klein as a layout guide after the identity references, never as a control',()=>{
+ const graph=takeGraphFor(settings,'Léa walks',['actor.png','a2.png','a3.png','set.png'],42,{depth:'d.png',edges:'e.png',guide:'guide.png'});
+ assert.equal(graph.control_guide.inputs.image,'guide.png');
+ const klein=JSON.stringify(Object.values(graph).filter(n=>n.class_type==='ReferenceMultiLatent'||/Reference/.test(n.class_type)));
+ assert.match(klein,/control_guide/);
+ assert.match(JSON.stringify(graph),/Use <ref_image_4> only as the camera and layout guide/);
+ assert.doesNotMatch(JSON.stringify(graph['control_111:85'].inputs)+JSON.stringify(graph.control_edges_apply.inputs),/control_guide/);
 });
 
 test('framing: a new estimated profile cannot reuse an ordinary take measurement',()=>{
@@ -76,8 +87,8 @@ test('framing: 2D pan and zoom survive maquette reload with bounded values',()=>
 
 test('framing: four identity references and two controls upload once in separate roles',async()=>{
  const names:string[]=[]; let sent=0;
- const client={upload:async(_blob:Blob,name:string)=>{names.push(name);return `uploaded-${name}`;},submit:async(graph:ReturnType<typeof takeGraphFor>)=>{sent++;assert.equal(graph.control_depth.inputs.image,'uploaded-depth.png');assert.equal(graph.control_edges.inputs.image,'uploaded-edges.png');assert.equal(Object.keys(graph).filter(id=>/^picture_/.test(id)).length,4);return 'one-job';}} as unknown as RenderClient;
+ const client={upload:async(_blob:Blob,name:string)=>{names.push(name);return `uploaded-${name}`;},submit:async(graph:ReturnType<typeof takeGraphFor>)=>{sent++;assert.equal(graph.control_guide.inputs.image,'uploaded-guide.png');assert.equal(graph.control_depth.inputs.image,'uploaded-depth.png');assert.equal(graph.control_edges.inputs.image,'uploaded-edges.png');assert.equal(Object.keys(graph).filter(id=>/^picture_/.test(id)).length,4);return 'one-job';}} as unknown as RenderClient;
  const picture=(name:string)=>({name,blob:new Blob(['png'],{type:'image/png'})});
- const id=await submitTake(client,{settings,prompt:'walk',pictures:['a.png','b.png','c.png','d.png'].map(picture),controls:{depth:picture('depth.png'),edges:picture('edges.png')},seed:1,clientId:'test'},()=>{});
- assert.equal(id,'one-job');assert.equal(sent,1);assert.deepEqual(names,['a.png','b.png','c.png','d.png','depth.png','edges.png']);
+ const id=await submitTake(client,{settings,prompt:'walk',pictures:['a.png','b.png','c.png','d.png'].map(picture),controls:{depth:picture('depth.png'),edges:picture('edges.png'),guide:picture('guide.png')},seed:1,clientId:'test'},()=>{});
+ assert.equal(id,'one-job');assert.equal(sent,1);assert.deepEqual(names,['a.png','b.png','c.png','d.png','depth.png','edges.png','guide.png']);
 });

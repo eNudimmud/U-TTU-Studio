@@ -4,7 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { ltxTakeGraph } from '../src/lib/render/ltx-graph.ts';
 const [output, variant = 'a'] = process.argv.slice(2);
 if (!output || !/^[ab]$/.test(variant)) throw new Error('Indique le fichier API de sortie, puis a ou b.');
-const graph = ltxTakeGraph({ pictures:['uttu-personnage.png','uttu-decor.png'], prompt:'First frame of a film. The person from image 1 in the place from image 2. Follow the depth and edge controls for the camera and composition. Same face, same outfit. No text.', seed:42, seconds:5, aspect:'horizontal', controls:{depth:`cadrage-${variant}-depth.png`,edges:`cadrage-${variant}-edges.png`} });
+const graph = ltxTakeGraph({ pictures:['uttu-personnage.png','uttu-decor.png'], prompt:'Uttu, a hooded woman with dark skin, gold markings and gold-beaded dreadlocks, stands on the wet stone quay at night under warm street lamps.', seed:42, seconds:5, aspect:'horizontal', controls:{depth:`cadrage-${variant}-depth.png`,edges:`cadrage-${variant}-edges.png`,guide:`cadrage-${variant}-apercu.png`} });
 const kept = new Set();
 function keep(id) {
  if (kept.has(id)) return;

@@ -1592,9 +1592,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (settings.cadrage) {
       const frame = readFraming(pendingTake?.framing);
       if (!frame || ![frame.depth, frame.edges, frame.color].every(path => path.startsWith(`Projets/${slug}/Assets/`))) { setNotice(t("framing.missing")); return; }
-      const [depth, edges] = await Promise.all([vault.get(frame.depth), vault.get(frame.edges)]);
+      const [depth, edges, guide] = await Promise.all([vault.get(frame.depth), vault.get(frame.edges), vault.get(frame.color)]);
       if (!depth?.blob || !edges?.blob) { setNotice(t("framing.missing")); return; }
-      controls = { depth: { blob: depth.blob, name: "uttu-depth.png" }, edges: { blob: edges.blob, name: "uttu-edges.png" } };
+      controls = { depth: { blob: depth.blob, name: "uttu-depth.png" }, edges: { blob: edges.blob, name: "uttu-edges.png" }, ...(guide?.blob ? { guide: { blob: guide.blob, name: "uttu-guide.png" } } : {}) };
     }
     setSheet(null);
     setRun({ phase: "running", event: { stage: "start" } });

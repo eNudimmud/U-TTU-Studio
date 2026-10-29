@@ -82,14 +82,23 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
     loads.push([id, 0]);
   });
   const last = `<ref_image_${pictures.length - 1}>`;
+  const guide = input.controls?.guide?.trim();
+  if (guide) {
+    graph.control_guide = { class_type: "LoadImage", inputs: { image: guide }, _meta: { title: "Guide du cadrage gardé (mise en place seule)" } };
+    loads.push(["control_guide", 0]);
+  }
+  const guideTag = `<ref_image_${pictures.length}>`;
   Object.assign(graph, kleinNodes({
     prefix: "frame_",
-    prompt: prompt.includes("[framing reference]")
+    prompt: guide
+      ? `Photorealistic film still. Use ${guideTag} only as the camera and layout guide: same camera distance, horizon height, figure size and position. Never copy its gold mannequins or its plain background. Replace each mannequin with the person from <ref_image_0>, same face, same outfit, in the place from ${last}. ${prompt}`
+      : prompt.includes("[framing reference]")
       ? `First frame of a film shot. Follow the named reference roles below: the framing guide controls composition only. ${prompt} Same face, same outfit, same place. No text.`
       : `First frame of a film shot. The person from <ref_image_0> stands in the place from ${last}. ${prompt} Same face, same outfit, same place. No text.`,
     seed,
     aspect: KLEIN_ASPECT[input.aspect],
     images: loads,
+    ...(guide ? { referenceLimit: 7 as const } : {}),
   }));
   if (input.controls) Object.assign(graph, framedKeyNodes({ initial: ["frame_decode", 0], controls: input.controls, prompt, seed }));
   for (const node of Object.values(graph)) {

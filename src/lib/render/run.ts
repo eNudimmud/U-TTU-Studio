@@ -24,7 +24,7 @@ export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: r
 }
 
 export interface TakeRunInput {
-  controls?: { depth: { blob: Blob; name: string }; edges: { blob: Blob; name: string } };
+  controls?: { depth: { blob: Blob; name: string }; edges: { blob: Blob; name: string }; guide?: { blob: Blob; name: string } };
   pictures: readonly { blob: Blob; name: string }[];
   prompt: string;
   settings: TakeSettings;
@@ -94,7 +94,11 @@ export async function submitTake(
   }
   onEvent({ stage: "upload", done: input.pictures.length, total: input.pictures.length });
   if (signal?.aborted) throw new RenderError("cancelled", "Prise annulée avant l’envoi.");
-  const controls = input.controls ? { depth: await client.upload(input.controls.depth.blob, input.controls.depth.name), edges: await client.upload(input.controls.edges.blob, input.controls.edges.name) } : undefined;
+  const controls = input.controls ? {
+    depth: await client.upload(input.controls.depth.blob, input.controls.depth.name),
+    edges: await client.upload(input.controls.edges.blob, input.controls.edges.name),
+    ...(input.controls.guide?.blob.size ? { guide: await client.upload(input.controls.guide.blob, input.controls.guide.name) } : {}),
+  } : undefined;
   if (signal?.aborted) throw new RenderError("cancelled", "Envoi interrompu avant la soumission.");
   onEvent({ stage: "submit" });
   const graph = takeGraphFor(input.settings, input.prompt, names, input.seed, controls);

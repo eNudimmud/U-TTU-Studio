@@ -738,6 +738,15 @@
       "title": "Picture 2"
     }
   },
+  "control_guide": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-guide.png"
+    },
+    "_meta": {
+      "title": "Guide du cadrage gardé (mise en place seule)"
+    }
+  },
   "frame_2": {
     "inputs": {
       "clip_name": "qwen3vl_4b_int8_convrot.safetensors",
@@ -843,6 +852,10 @@
       "images.image1": [
         "picture_2",
         0
+      ],
+      "images.image2": [
+        "control_guide",
+        0
       ]
     },
     "class_type": "ReferenceMultiLatent",
@@ -915,6 +928,10 @@
       "images.image1": [
         "picture_2",
         0
+      ],
+      "images.image2": [
+        "control_guide",
+        0
       ]
     },
     "class_type": "BatchImagesNode",
@@ -965,7 +982,7 @@
   "frame_61": {
     "class_type": "PrimitiveStringMultiline",
     "inputs": {
-      "value": "First frame of a film shot. The person from <ref_image_0> stands in the place from <ref_image_1>. <texte du visiteur> Same face, same outfit, same place. No text."
+      "value": "Photorealistic film still. Use <ref_image_2> only as the camera and layout guide: same camera distance, horizon height, figure size and position. Never copy its gold mannequins or its plain background. Replace each mannequin with the person from <ref_image_0>, same face, same outfit, in the place from <ref_image_1>. <texte du visiteur>"
     },
     "_meta": {
       "title": "Prompt"
@@ -1035,7 +1052,7 @@
         "control_111:38",
         0
       ],
-      "text": "Photorealistic first frame of a film. Preserve the people, outfits and set appearance of the initial image. The depth and edge controls define the camera and composition. No mannequins, no text.\n<texte du visiteur>"
+      "text": "Photorealistic cinematic film still, real skin, real fabric, real materials. <texte du visiteur>"
     },
     "_meta": {
       "title": "CLIP Text Encode (Positive Prompt)"
@@ -1114,7 +1131,7 @@
     "class_type": "KSampler",
     "inputs": {
       "cfg": 1,
-      "denoise": 0.7,
+      "denoise": 0.55,
       "latent_image": [
         "control_111:76",
         0
