@@ -787,6 +787,7 @@
     "audioTooLong": "Audio demasiado largo para el envío: seis minutos como máximo. Acorta el archivo.",
     "finalTooHeavy": "Finalizar conserva la calidad de la fuente: por encima de 3,8 MB aún no puede enviarse sin degradarla. Acorta el vídeo o finalízalo en varias partes.",
     "finalImageTooHeavy": "Finalizar conserva la calidad de la fuente: esta imagen supera 3,8 MB incluso en jpg de alta calidad. Usa una imagen más pequeña.",
+    "directFailed": "El envío directo del archivo pesado no se completó. Vuelve a intentarlo o usa un archivo más ligero.",
     "nameCharacter": "Da un nombre a este personaje.",
     "twoPhotos": "Al menos dos fotos del personaje, para acompañar los clips.",
     "clipsWeight": "Los clips pesan más de 2 GB: retira los más largos.",

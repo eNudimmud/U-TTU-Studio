@@ -787,6 +787,7 @@
     "audioTooLong": "Ton zu lang zum Senden: höchstens sechs Minuten. Kürze die Datei.",
     "finalTooHeavy": "Finalisieren behält die Qualität der Quelle: über 3,8 MB kann sie noch nicht gesendet werden, ohne sie zu verschlechtern. Kürze das Video oder finalisiere es in mehreren Teilen.",
     "finalImageTooHeavy": "Finalisieren behält die Qualität der Quelle: dieses Bild ist selbst als hochwertiges jpg größer als 3,8 MB. Nimm ein kleineres Bild.",
+    "directFailed": "Das direkte Senden der großen Datei hat nicht geklappt. Versuche es erneut oder nimm eine leichtere Datei.",
     "nameCharacter": "Gib dieser Figur einen Namen.",
     "twoPhotos": "Mindestens zwei Fotos der Figur, um die Clips zu begleiten.",
     "clipsWeight": "Die Clips wiegen mehr als 2 GB: entferne die längsten.",
