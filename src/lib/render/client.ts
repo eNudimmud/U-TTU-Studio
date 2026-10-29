@@ -5,6 +5,8 @@
 
 import { centsToCredits } from "../credits.ts";
 import type { ApiGraph } from "./take-graph.ts";
+import { UPLOAD_HEAVY, uploadTooHeavy } from "./upload-limit.ts";
+import { prepareUpload, type UploadNeed } from "./prepare-upload.ts";
 
 export type RenderAuth =
   | { kind: "key"; key: string }
@@ -280,12 +282,16 @@ export function createRenderClient(options: RenderClientOptions) {
     },
 
     /** Returns the input name a LoadImage node takes. */
-    async upload(file: Blob, filename: string, subfolder = ""): Promise<string> {
+    async upload(source: Blob, filename: string, need?: UploadNeed): Promise<string> {
+      // Every user file passes here: made to fit what the workflow consumes and the
+      // relay's ~4 MB body ceiling (src/lib/render/prepare-upload.ts), or refused clearly.
+      const file = await prepareUpload(source, filename, need);
+      if (uploadTooHeavy(file.size)) throw new Error(UPLOAD_HEAVY);
       const form = new FormData();
-      form.append("image", file, filename);
+      form.append("image", file, file.name);
       form.append("type", "input");
-      if (subfolder) form.append("subfolder", subfolder);
       const response = await call("/api/upload/image", { method: "POST", body: form });
+      if (response.status === 413) throw new Error(UPLOAD_HEAVY);
       if (!response.ok) throw new RenderError("invalid", `Photo refusée (${response.status}).`);
       const body = await json<{ name?: unknown; subfolder?: unknown }>(response);
       if (typeof body.name !== "string" || !body.name || /[\\\u0000]/.test(body.name)) throw new RenderError("invalid", "Photo envoyée sans nom.");

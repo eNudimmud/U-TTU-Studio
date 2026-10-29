@@ -45,6 +45,7 @@ import { isMeshGeste, meshGesteGraph, runMesh } from "@/lib/render/mesh-gestes";
 import { isSuiteGeste, SUITE_SORTIE, SUITE_SOURCE, SUITE_TEXTE, suiteGraph, type Elargir } from "@/lib/suite/graphs";
 import { suiteQuote } from "@/lib/suite/quote";
 import { videoSeconds } from "@/lib/suite/media";
+import { kindOf, needForTemplate, type UploadNeed } from "@/lib/render/prepare-upload";
 import { outilParGeste, outilParId, outilRow } from "@/lib/outils/catalogue";
 import { outilGraph, outilQuote } from "@/lib/outils/graphs";
 import { learnTakeCost } from "@/lib/render/landed-cost";
@@ -1090,7 +1091,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const template = open ? "utility_seedvr2_3b_int8_upscale_video" : "RTXVideoSuperResolution";
       const receipt: PendingRender = { version: 1, kind: "final", project: slug, id, name: `${input.name} — final ${open ? "1080p" : input.choice.resolution}`, prompt: JSON.stringify({ seconds: input.seconds, ratio: input.ratio, choice: input.choice, open, fluidifier: Boolean(input.fluidifier) }), at, account: await fingerprint(), refs: [], template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
       input.onStage("envoi");
-      const file = await client.upload(input.video, "uttu-montage.mp4");
+      const file = await client.upload(input.video, "uttu-montage.mp4", { kind: "video", keepQuality: true } satisfies UploadNeed);
       const graph = open
         ? suiteGraph({ geste: "suite-finaliser-video", files: { source: file }, prompt: "", seed: randomSeed(), seconds: input.seconds, fluidifier: input.fluidifier })
         : finalGraph({ file, ratio: input.ratio, ...input.choice });
@@ -1150,7 +1151,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         const path = `Projets/${slug}/Assets/${id}-${slot.slot}.${ext}`;
         await writeBlob(vault, path, file);
         refs.push(path);
-        names[slot.slot] = await client.upload(file, `${id}-${slot.slot}.${ext}`);
+        names[slot.slot] = await client.upload(file, `${id}-${slot.slot}.${ext}`, needForTemplate(row.template, kindOf(file.type)));
       }
       const graph = videoGesteGraph({ geste, files: names, prompt: input.prompt, aspect: input.aspect, seed: randomSeed() });
       const receipt: PendingRender = { version: 1, kind: "video", geste, project: slug, id, name: t(`gestes.${row.clef}.title`), prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: row.credits, balanceBefore: fresh!.credits, jobId: null };
@@ -1257,7 +1258,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         await writeBlob(vault, copy, input.source);
         refs.push(copy);
       }
-      const source = await client.upload(input.source, `${id}-source.${extensionFor(input.source.type)}`);
+      const source = await client.upload(input.source, `${id}-source.${extensionFor(input.source.type)}`, needForTemplate(row.template, kindOf(input.source.type)));
       let audio: string | undefined;
       if (input.audio) {
         const voiceExt = audioExtension(input.audio);
@@ -1345,7 +1346,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           await writeBlob(vault, copy, file);
           refs.push(copy);
         }
-        return client.upload(file, `${id}-${label}.${ext}`);
+        // The workflow's need (Copier un mouvement: one 16 fps window) is applied in client.upload.
+        return client.upload(file, `${id}-${label}.${ext}`, needForTemplate(row.template, kindOf(file.type)));
       };
       const images: string[] = [];
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
