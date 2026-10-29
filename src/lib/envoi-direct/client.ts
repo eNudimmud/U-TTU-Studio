@@ -1,9 +1,23 @@
-// Browser side of the direct send (see server.ts). Used only when a file is still above the
-// relay ceiling after preparation, or for Finaliser (original quality). If the store is not
-// connected, /envoi-direct/etat says so and the studio keeps the relay path, silently.
+// Browser side of the direct send (see server.ts). When the store is connected, every file
+// goes this way as the original (only Wan Animate's pose video is re-timed, see
+// prepare-upload.ts). If it is not connected, or the send fails, the studio keeps the
+// browser reduction + relay path, silently.
 
 export const DIRECT_FAILED = "L’envoi direct du fichier lourd n’a pas abouti. Réessaie, ou prends un fichier plus léger.";
-const DIRECT_TYPE = /^(image\/[a-z0-9.+-]+|video\/(mp4|quicktime|webm))$/i;
+const DIRECT_TYPE = /^(image\/[a-z0-9.+-]+|audio\/[a-z0-9.+-]+|video\/(mp4|quicktime|webm))$/i;
+const BY_EXTENSION: Record<string, string> = {
+  jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif", avif: "image/avif", heic: "image/heic", heif: "image/heif", tif: "image/tiff", tiff: "image/tiff",
+  mp4: "video/mp4", m4v: "video/mp4", mov: "video/quicktime", webm: "video/webm",
+  mp3: "audio/mpeg", m4a: "audio/mp4", aac: "audio/aac", wav: "audio/wav", flac: "audio/flac", ogg: "audio/ogg", opus: "audio/ogg",
+};
+
+/** The type the Blob token accepts for this file, read from the extension when the browser gives none (HEIC on some phones). Null: not for Blob. */
+export function directContentType(file: Blob, filename: string): string | null {
+  if (file.type && DIRECT_TYPE.test(file.type)) return file.type.toLowerCase();
+  if (file.type && file.type !== "application/octet-stream") return null;
+  const ext = filename.toLowerCase().split(".").pop() ?? "";
+  return BY_EXTENSION[ext] ?? null;
+}
 const MULTIPART_FROM = 20 * 1024 * 1024;
 
 export interface DirectState { direct: boolean; scope?: string }
@@ -40,9 +54,11 @@ const defaultBlobUpload: BlobUpload = async (pathname, file, options) => {
 /** Browser → private Blob, then server → Comfy (blob deleted). Returns the Comfy input name. */
 export async function sendDirect(file: File, scope: string, relay: string, headers: Record<string, string>, doFetch: typeof fetch, blobUpload: BlobUpload = defaultBlobUpload): Promise<string> {
   const filename = directName(file.name);
+  const contentType = directContentType(file, file.name);
+  if (!contentType) throw new Error(DIRECT_FAILED);
   let pathname: string;
   try {
-    const blob = await blobUpload(`envoi/${scope}/${filename}`, file, { handleUploadUrl: `${relay}/envoi-direct/jeton`, headers, multipart: file.size > MULTIPART_FROM, contentType: file.type });
+    const blob = await blobUpload(`envoi/${scope}/${filename}`, file, { handleUploadUrl: `${relay}/envoi-direct/jeton`, headers, multipart: file.size > MULTIPART_FROM, contentType });
     pathname = blob.pathname;
   } catch {
     throw new Error(DIRECT_FAILED);
@@ -66,7 +82,9 @@ export async function essaiDirect(file: File, relay: string, headers: Record<str
   const state = await readDirectState(relay, headers, doFetch);
   if (!state.direct || !state.scope) return { direct: false };
   const filename = directName(file.name);
-  const blob = await blobUpload(`envoi/${state.scope}/${filename}`, file, { handleUploadUrl: `${relay}/envoi-direct/jeton`, headers, multipart: file.size > MULTIPART_FROM, contentType: file.type });
+  const contentType = directContentType(file, file.name);
+  if (!contentType) throw new Error(DIRECT_FAILED);
+  const blob = await blobUpload(`envoi/${state.scope}/${filename}`, file, { handleUploadUrl: `${relay}/envoi-direct/jeton`, headers, multipart: file.size > MULTIPART_FROM, contentType });
   const response = await doFetch(`${relay}/envoi-direct/comfy`, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body: JSON.stringify({ pathname: blob.pathname, filename, essai: true }), cache: "no-store", credentials: "same-origin" });
   if (!response.ok) throw new Error(DIRECT_FAILED);
   const body = await response.json() as { received?: boolean; bytes?: number; deleted?: boolean | null };

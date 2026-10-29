@@ -9,7 +9,7 @@ import { createHash } from "node:crypto";
 
 export const COMFY = "https://cloud.comfy.org";
 export const DIRECT_MAX_BYTES = 200 * 1024 * 1024;
-export const DIRECT_TYPES = ["image/*", "video/mp4", "video/quicktime", "video/webm"];
+export const DIRECT_TYPES = ["image/*", "video/mp4", "video/quicktime", "video/webm", "audio/*"];
 export const DIRECT_PREFIX = "envoi";
 
 export interface BlobOps {

@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { handleUpload } from "@vercel/blob/client";
 import { DIRECT_MAX_BYTES, DIRECT_TYPES, authenticate, directConfigured, handToComfy, pathAllowed, tokenRules, type BlobOps } from "../src/lib/envoi-direct/server.ts";
-import { DIRECT_FAILED, directName, directType } from "../src/lib/envoi-direct/client.ts";
+import { DIRECT_FAILED, directContentType, directName, directType } from "../src/lib/envoi-direct/client.ts";
 import { createRenderClient } from "../src/lib/render/client.ts";
-import { FINAL_TOO_HEAVY } from "../src/lib/render/prepare-upload.ts";
+import { FINAL_TOO_HEAVY, planUpload } from "../src/lib/render/prepare-upload.ts";
 import { UPLOAD_MAX_BYTES } from "../src/lib/render/upload-limit.ts";
 import { phrase } from "../src/lib/i18n/phrase.ts";
 
@@ -28,14 +28,14 @@ test("the visitor is authenticated by a Comfy credential Comfy accepts; cross-si
   assert.equal(await authenticate(req("/x", { headers: { "x-api-key": KEY, origin: "https://evil.test" } }), userOk), null);
 });
 
-test("the client token is limited to the visitor's folder, image/* and video mp4/mov/webm, 200 Mo", async () => {
+test("the client token is limited to the visitor's folder, image/*, video mp4/mov/webm and audio/*, 200 Mo", async () => {
   const scope = (await authenticate(req("/x", { headers: { "x-api-key": KEY } }), userOk))!;
   assert.ok(pathAllowed(`envoi/${scope}/plan.mp4`, scope));
   assert.ok(!pathAllowed(`envoi/autre/plan.mp4`, scope));
   assert.ok(!pathAllowed(`envoi/${scope}/../x.mp4`, scope));
   assert.throws(() => tokenRules(scope, "ailleurs/plan.mp4"));
   const rules = tokenRules(scope, `envoi/${scope}/plan.mp4`);
-  assert.deepEqual(rules.allowedContentTypes, ["image/*", "video/mp4", "video/quicktime", "video/webm"]);
+  assert.deepEqual(rules.allowedContentTypes, ["image/*", "video/mp4", "video/quicktime", "video/webm", "audio/*"]);
   assert.equal(rules.maximumSizeInBytes, 200 * 1024 * 1024);
   assert.equal(DIRECT_MAX_BYTES, 200 * 1024 * 1024);
   assert.deepEqual(DIRECT_TYPES, rules.allowedContentTypes);
@@ -75,7 +75,8 @@ test("the server hands the private blob to Comfy with the visitor's credential, 
   assert.equal(other.status, 400);
 });
 
-function studio(state: unknown, uploads: { path: string; size: number }[], calls: string[]) {
+type Received = { path: string; size: number; bytes: Uint8Array; type: string };
+function studio(state: unknown, uploads: Received[], calls: string[], failBlob = false) {
   return createRenderClient({
     auth: { kind: "key", key: KEY },
     fetch: (async (url: unknown, init?: RequestInit) => {
@@ -85,43 +86,88 @@ function studio(state: unknown, uploads: { path: string; size: number }[], calls
       if (path.endsWith("/api/upload/image")) return Response.json({ name: "relais.png" });
       return new Response("{}");
     }) as typeof fetch,
-    blobUpload: async (pathname, file) => { uploads.push({ path: pathname, size: file.size }); return { pathname: pathname.replace(/\.mp4$/, "-r4nd.mp4") }; },
+    blobUpload: async (pathname, file, options) => {
+      if (failBlob) throw new Error("blob down");
+      uploads.push({ path: pathname, size: file.size, bytes: new Uint8Array(await file.arrayBuffer()), type: options.contentType });
+      return { pathname: pathname.replace(/(\.[a-z0-9]+)$/, "-r4nd$1") };
+    },
   });
 }
 
-test("Finaliser goes direct at its original quality when the store is connected", async () => {
-  const uploads: { path: string; size: number }[] = []; const calls: string[] = [];
+function filled(bytes: number, seed: number) {
+  const data = new Uint8Array(bytes);
+  for (let index = 0; index < bytes; index += 4093) data[index] = (index * seed) & 255;
+  return data;
+}
+const equalBytes = (left: Uint8Array, right: Uint8Array) => left.length === right.length && left.every((value, index) => value === right[index]);
+
+test("with Blob connected, every family goes as the original: Blob receives the same bytes, nothing through the relay", async () => {
+  const uploads: Received[] = []; const calls: string[] = [];
   const scope = "c".repeat(24);
   const client = studio({ direct: true, scope }, uploads, calls);
-  const montage = new Blob([new Uint8Array(30_000_000)], { type: "video/mp4" });
-  const name = await client.upload(montage, "uttu-montage.mp4", { kind: "video", keepQuality: true });
-  assert.equal(name, "uttu-montage.mp4");
-  assert.deepEqual(uploads, [{ path: `envoi/${scope}/uttu-montage.mp4`, size: 30_000_000 }]);
-  assert.ok(!calls.some(path => path.endsWith("/api/upload/image")), "nothing heavy through the relay");
+  const cases: { name: string; type: string; bytes: number; need?: Parameters<typeof client.upload>[2]; expect: string }[] = [
+    { name: "lea.jpg", type: "image/jpeg", bytes: 9_000_000, need: { kind: "image" }, expect: "image/jpeg" },                       // CAST / DÉCOR / bulle / PRISE
+    { name: "retouche.png", type: "image/png", bytes: 7_000_000, need: { kind: "image", keepQuality: true }, expect: "image/png" },   // Retoucher, upscale
+    { name: "IMG_0042.HEIC", type: "", bytes: 5_000_000, expect: "image/heic" },                                                    // HEIC without a browser type
+    { name: "petite.jpg", type: "image/jpeg", bytes: 300_000, expect: "image/jpeg" },                                               // light: Blob too
+    { name: "clip.mp4", type: "video/mp4", bytes: 12_000_000, need: { kind: "video" }, expect: "video/mp4" },                       // video tools
+    { name: "fluide.mov", type: "video/quicktime", bytes: 14_000_000, need: { kind: "video", keepFps: true }, expect: "video/quicktime" }, // Fluidifier
+    { name: "uttu-montage.mp4", type: "video/mp4", bytes: 30_000_000, need: { kind: "video", keepQuality: true }, expect: "video/mp4" }, // Finaliser
+    { name: "voix.wav", type: "audio/wav", bytes: 12_000_000, need: { kind: "audio" }, expect: "audio/wav" },                       // audio tools
+  ];
+  for (const [index, item] of cases.entries()) {
+    const original = filled(item.bytes, index + 3);
+    const name = await client.upload(new Blob([original], { type: item.type }), item.name, item.need);
+    const got = uploads[index];
+    assert.equal(got.size, item.bytes, item.name);
+    assert.ok(equalBytes(got.bytes, original), `${item.name}: Blob got the original bytes`);
+    assert.equal(got.type, item.expect, item.name);
+    assert.ok(got.path.startsWith(`envoi/${scope}/`));
+    assert.equal(name, got.path.split("/").pop());
+  }
+  assert.ok(!calls.some(path => path.endsWith("/api/upload/image")), "nothing through the relay");
+  assert.equal(calls.filter(path => path.endsWith("/envoi-direct/etat")).length, 1, "the state is asked once per account");
 });
 
-test("without the store, Finaliser keeps today's clear refusal and a light file never asks for Blob", async () => {
-  const uploads: { path: string; size: number }[] = []; const calls: string[] = [];
-  const client = studio({ direct: false }, uploads, calls);
+test("without Blob, today's reduction path: Finaliser's clear refusal, a light file through the relay, nothing to Blob", async () => {
+  const uploads: Received[] = []; const calls: string[] = [];
+  const client = studio({ direct: false, store: false }, uploads, calls);
   await assert.rejects(client.upload(new Blob([new Uint8Array(UPLOAD_MAX_BYTES + 1)], { type: "video/mp4" }), "m.mp4", { kind: "video", keepQuality: true }), (error: Error) => error.message === FINAL_TOO_HEAVY);
-  assert.equal(uploads.length, 0);
-  calls.length = 0;
   assert.equal(await client.upload(new Blob(["abc"], { type: "image/png" }), "a.png"), "relais.png");
-  assert.deepEqual(calls.map(path => path.replace(/^.*(\/[^/]+\/[^/]+)$/, "$1")), ["/upload/image"]);
+  assert.equal(uploads.length, 0);
 });
 
-test("a heavy file the browser cannot reduce goes direct; audio is never sent to Blob", async () => {
-  const uploads: { path: string; size: number }[] = []; const calls: string[] = [];
-  const client = studio({ direct: true, scope: "d".repeat(24) }, uploads, calls);
-  assert.equal(await client.upload(new Blob([new Uint8Array(12_000_000)], { type: "video/mp4" }), "clip.mp4"), "clip.mp4");
-  assert.equal(uploads[0].size, 12_000_000);
-  await assert.rejects(client.upload(new Blob([new Uint8Array(12_000_000)], { type: "audio/wav" }), "voix.wav"));
-  assert.equal(uploads.length, 1);
+test("if Blob fails, the relay path takes over silently", async () => {
+  const uploads: Received[] = []; const calls: string[] = [];
+  const client = studio({ direct: true, scope: "d".repeat(24) }, uploads, calls, true);
+  assert.equal(await client.upload(new Blob(["abc"], { type: "image/png" }), "a.png"), "relais.png");
+  await assert.rejects(client.upload(new Blob([new Uint8Array(UPLOAD_MAX_BYTES + 1)], { type: "video/mp4" }), "m.mp4", { kind: "video", keepQuality: true }), (error: Error) => error.message === FINAL_TOO_HEAVY);
+});
+
+test("Copier un mouvement with Blob: re-timed to 16 i/s and 81 images covering the 482×854 the graph crops to, high bitrate, sound kept", () => {
+  const phone = { bytes: 20_000_000, type: "video/mp4", width: 1080, height: 1920, seconds: 9, fps: 30, hasAudio: true };
+  const direct = planUpload(phone, { kind: "video", pose: true }, "direct");
+  assert.deepEqual(direct, { action: "video", width: 482, height: 858, frameRate: 16, end: 81 / 16, videoBitrate: 8_000_000, audio: true, audioBitrate: 192_000 });
+  const relay = planUpload(phone, { kind: "video", pose: true }, "relay");
+  assert.equal(relay.action === "video" && relay.audio, true, "the graph puts the source sound back (CreateVideo 672:245)");
+  assert.equal(relay.action === "video" && relay.videoBitrate, 1_500_000);
+  // Already at the graph's cadence and length: the original goes untouched.
+  assert.deepEqual(planUpload({ ...phone, fps: 16, seconds: 5 }, { kind: "video", pose: true }, "direct"), { action: "keep" });
+  // Never upscaled.
+  const small = planUpload({ ...phone, width: 360, height: 640 }, { kind: "video", pose: true }, "direct");
+  assert.equal(small.action === "video" && small.width, 360);
+  // Every other need keeps the original in direct mode.
+  for (const need of [{ kind: "image" }, { kind: "image", keepQuality: true }, { kind: "video" }, { kind: "video", keepFps: true }, { kind: "video", keepQuality: true }, { kind: "audio" }] as const) {
+    assert.deepEqual(planUpload({ ...phone, bytes: 90_000_000 }, need, "direct"), { action: "keep" });
+  }
 });
 
 test("file names are made safe for Blob and Comfy; types follow the token rules", () => {
   assert.equal(directName("Léa à la gare (1).MOV"), "Lea-a-la-gare-1.mov");
-  assert.ok(directType("image/heic") && directType("video/quicktime") && !directType("audio/wav") && !directType("video/x-matroska"));
+  assert.ok(directType("image/heic") && directType("video/quicktime") && directType("audio/wav") && !directType("video/x-matroska"));
+  assert.equal(directContentType(new Blob([]), "IMG_1.HEIC"), "image/heic");
+  assert.equal(directContentType(new Blob([], { type: "application/octet-stream" }), "voix.m4a"), "audio/mp4");
+  assert.equal(directContentType(new Blob([], { type: "video/x-matroska" }), "a.mkv"), null);
   assert.match(phrase(key => key, DIRECT_FAILED), /^runtime\./);
 });
 

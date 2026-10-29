@@ -7,7 +7,7 @@ import { centsToCredits } from "../credits.ts";
 import type { ApiGraph } from "./take-graph.ts";
 import { UPLOAD_HEAVY, uploadTooHeavy } from "./upload-limit.ts";
 import { prepareUpload, type UploadNeed } from "./prepare-upload.ts";
-import { directType, readDirectState, sendDirect, type BlobUpload, type DirectState } from "../envoi-direct/client.ts";
+import { directContentType, readDirectState, sendDirect, type BlobUpload, type DirectState } from "../envoi-direct/client.ts";
 
 export type RenderAuth =
   | { kind: "key"; key: string }
@@ -287,32 +287,22 @@ export function createRenderClient(options: RenderClientOptions) {
 
     /** Returns the input name a LoadImage node takes. */
     async upload(source: Blob, filename: string, need?: UploadNeed): Promise<string> {
-      // Every user file passes here: made to fit what the workflow consumes and the
-      // relay's ~4 MB body ceiling (src/lib/render/prepare-upload.ts). What still does not
-      // fit, and Finaliser's original, goes straight to the private Blob store when it is
-      // connected (src/lib/envoi-direct); otherwise it is refused clearly, as before.
-      const heavy = uploadTooHeavy(source.size);
-      const original = () => source instanceof File && source.name === filename ? source : new File([source], filename, { type: source.type });
-      const directOk = async () => {
-        directState ??= authHeaders().then(headers => readDirectState(relay, headers, doFetch));
-        const state = await directState;
-        return state.direct ? state : null;
-      };
-      let file: File;
-      if (heavy && need && "keepQuality" in need && need.keepQuality && directType(source.type) && await directOk()) file = original();
-      else {
+      // Every user file passes here. With the private Blob store connected
+      // (src/lib/envoi-direct), it goes as the original, bytes untouched (Wan Animate's
+      // pose video is only re-timed). Without it, or if that send fails, the browser
+      // reduction + relay path of src/lib/render/prepare-upload.ts, as before.
+      directState ??= authHeaders().then(headers => readDirectState(relay, headers, doFetch), () => ({ direct: false }));
+      const state = await directState;
+      if (state.direct && state.scope && directContentType(source, filename)) {
         try {
-          file = await prepareUpload(source, filename, need);
-        } catch (error) {
-          if (!heavy || !directType(source.type) || !(await directOk())) throw error;
-          file = original();
+          const file = await prepareUpload(source, filename, need, "direct");
+          return await sendDirect(file, state.scope, relay, await authHeaders(), doFetch, options.blobUpload);
+        } catch {
+          // Silent fallback to the relay path below.
         }
       }
-      if (uploadTooHeavy(file.size)) {
-        const state = directType(file.type) ? await directOk() : null;
-        if (!state?.scope) throw new Error(UPLOAD_HEAVY);
-        return sendDirect(file, state.scope, relay, await authHeaders(), doFetch, options.blobUpload);
-      }
+      const file = await prepareUpload(source, filename, need);
+      if (uploadTooHeavy(file.size)) throw new Error(UPLOAD_HEAVY);
       const form = new FormData();
       form.append("image", file, file.name);
       form.append("type", "input");
