@@ -191,6 +191,7 @@ export const INTENT_MODELES: Record<string, readonly string[]> = {
   "son-musique-ouverte": ["son-musique-ouverte", "son-musique"],
   "son-bruitage-ouvert": ["son-bruitage-ouvert", "son-bruitage"],
   "ret-eclairer-ouvert": ["ret-eclairer-ouvert", "ret-eclairer"],
+  "vid-h3-refs": ["vid-h3-refs", "vid-vidu"],
 };
 
 const VARIANTE = new Map<string, string>();
