@@ -49,6 +49,8 @@ export interface InFlight {
   jobId: string;
   project?: string;
   planId?: string;
+  /** Vault paths of the references sent, in order. */
+  refs?: string[];
   at: string;
   sceneId: string | null;
   sceneName: string;
@@ -67,6 +69,7 @@ export function readInFlight(storage: Pick<Storage, "getItem"> | null): InFlight
       jobId: data.jobId,
       ...(typeof data.project === "string" && /^[a-z0-9-]+$/.test(data.project) ? { project: data.project } : {}),
       ...(typeof data.planId === "string" && /^[a-z0-9-]+$/.test(data.planId) ? { planId: data.planId } : {}),
+      ...(Array.isArray(data.refs) ? { refs: data.refs.filter((item): item is string => typeof item === "string" && item.startsWith("Projets/")).slice(0, 12) } : {}),
       at: data.at,
       ...(data.manualRecovery === true ? { manualRecovery: true } : {}),
       sceneId: typeof data.sceneId === "string" ? data.sceneId : null,

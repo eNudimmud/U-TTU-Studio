@@ -243,6 +243,20 @@
       "api_file": "workflows/prise/prise-plan.api.json"
     },
     {
+      "id": "prise-plan-cadre",
+      "onglet": "prise",
+      "template": "video_ltx2_5_i2v",
+      "sources": [
+        "workflows/cast/cast-photos.json",
+        "workflows/prise/sources/image_qwen_image_instantx_controlnet.json"
+      ],
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/prise/prise-plan-cadre.json",
+      "api_file": "workflows/prise/prise-plan-cadre.api.json"
+    },
+    {
       "id": "prise-plan-h3",
       "onglet": "prise",
       "template": "video_minimax_h3_r2v",

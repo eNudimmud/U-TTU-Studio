@@ -38,7 +38,7 @@ export function graphForGeste(row: Geste): ApiGraph | null {
   const images = row.slots.filter(slot => (slot.media ?? "image") === "image").map((_, index) => `uttu-${index + 1}.jpg`);
   if (row.still === "prise") {
     const pictures = ["uttu-personnage.jpg", "uttu-lieu.jpg"];
-    if (row.template === "video_ltx2_5_i2v") return ltxTakeGraph({ prompt: PROMPT, pictures, seed: 0, seconds: DEFAULT_TAKE.seconds, aspect: DEFAULT_TAKE.aspect });
+    if (row.template === "video_ltx2_5_i2v") return ltxTakeGraph({ prompt: PROMPT, pictures, seed: 0, seconds: DEFAULT_TAKE.seconds, aspect: DEFAULT_TAKE.aspect, ...(row.id === "prise-plan-cadre" ? { controls: { depth: "uttu-depth.png", edges: "uttu-edges.png", guide: "uttu-guide.png" } } : {}) });
     return takeGraph({ ...DEFAULT_TAKE, prompt: PROMPT, pictures, seed: 0 });
   }
   if (row.still === "video") {

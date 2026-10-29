@@ -23,6 +23,7 @@ export type Paroles = "aucune" | "replique" | "voix-off";
 export type ProjectFormat = "16:9" | "9:16";
 
 export interface PlanInput {
+  framing?: import("../maquette/framing.ts").Framing;
   castIds: string[];
   castNames: string[];
   /** True when that person already has a view sheet. Same order as castNames. */

@@ -3,6 +3,7 @@
 // Only the profile named in docs/mesures is quoted. Every other setting stays off.
 
 import { COMFY_CLOUD } from "../comfy-stack.ts";
+import { FRAMING_ESTIMATE } from "./framed-key.ts";
 import { claimBasis, costClaim, formatCredits, runGate, type Balance, type CostRecord, type RunGate } from "../credits.ts";
 
 export const BILLED_MEASURE_FILE = "docs/mesures/h3-4pas-5s-vertical.json";
@@ -56,11 +57,12 @@ export const LTX_ESTIMATE_5S = { credits: 15, creditsHigh: 23 } as const;
 export const LTX_APERCU_ESTIMATE_5S = { credits: 6, creditsHigh: 12 } as const;
 
 export function estimatedTake(profile: string): TakeEstimate | null {
-  const match = /^ltx25-(apercu-)?(\d+)s-/.exec(profile);
+  const controlled = profile.startsWith("ltx25-cadre-v1-");
+  const match = /^ltx25-(apercu-)?(\d+)s-/.exec(profile.replace("ltx25-cadre-v1-", "ltx25-"));
   if (!match) return null;
   const base = match[1] ? LTX_APERCU_ESTIMATE_5S : LTX_ESTIMATE_5S;
   const factor = Number(match[2]) / 5;
-  return { profile, credits: Math.round(base.credits * factor), creditsHigh: Math.round(base.creditsHigh * factor) };
+  return { profile, credits: Math.round(base.credits * factor) + (controlled ? FRAMING_ESTIMATE.credits : 0), creditsHigh: Math.round(base.creditsHigh * factor) + (controlled ? FRAMING_ESTIMATE.high : 0) };
 }
 
 export function estimateSentence(estimate: Pick<TakeEstimate, "credits" | "creditsHigh">): string {

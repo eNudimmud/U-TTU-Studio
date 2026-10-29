@@ -86,9 +86,9 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 
 ## What is measured, and what is not / Ce qui est mesuré, et ce qui ne l’est pas
 
-**EN** — The registry lists 84 gestures. **38 have a real billed run**; 31 of them were measured on 27.10.2026 (visitor test and example batch, Comfy billing read job by job, no credit spent for the reading). Every job and its cost: [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). The other gestures are wired and tested against a simulated Comfy, and their quote is labelled « estimated », or stay closed.
+**EN** — The registry lists 85 gestures. **38 have a real billed run**; 31 of them were measured on 27.10.2026 (visitor test and example batch, Comfy billing read job by job, no credit spent for the reading). Every job and its cost: [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). The other gestures are wired and tested against a simulated Comfy, and their quote is labelled « estimated », or stay closed.
 
-**FR** — Le registre compte 84 gestes. **38 ont un vrai rendu facturé** ; 31 ont été mesurés le 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue job par job, aucun crédit dépensé pour la lecture). Chaque job et son coût : [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). Les autres gestes sont branchés et testés contre un Comfy simulé, avec un devis « estimé », ou restent fermés.
+**FR** — Le registre compte 85 gestes. **38 ont un vrai rendu facturé** ; 31 ont été mesurés le 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue job par job, aucun crédit dépensé pour la lecture). Chaque job et son coût : [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). Les autres gestes sont branchés et testés contre un Comfy simulé, avec un devis « estimé », ou restent fermés.
 
 Measured costs, in credits / Coûts mesurés, en crédits :
 
