@@ -92,9 +92,9 @@ test.describe("toutes les tailles d'écran", () => {
 test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvre la maquette de PRISE", async ({ page }) => {
   await page.goto("/studio#outils/tous");
   const entry = page.locator("[data-studio-entry]");
-  await expect(entry.locator("[data-outils-count]")).toHaveText("37 outils");
+  await expect(entry.locator("[data-outils-count]")).toHaveText("42 outils");
   const cards = entry.locator(".u-outil-card");
-  await expect(cards).toHaveCount(37);
+  await expect(cards).toHaveCount(42);
   await expect(entry.locator(".u-outil-card .u-outil-glyph")).toHaveCount(0);
   const card = entry.locator('[data-outils-section="3d"] [data-outil-maquette]');
   await expect(card).toContainText("Maquette 3D et cadrage");
