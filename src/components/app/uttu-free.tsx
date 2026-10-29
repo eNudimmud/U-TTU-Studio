@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { assetPath } from "@/lib/site";
 import { useI18n } from "@/components/i18n/provider";
 import { asksCost, formatCr, simulateText, toolHref, type FaqHit, type Knowledge, type SimItem, type SimResult, type UttuLocale } from "@/lib/agent/uttu";
-import { HISTORY, MAX_MESSAGE, perMessageCeiling, type AgentAction, type AgentErrorCode, type ChatResult } from "@/lib/agent/uttu-comfy";
+import { HISTORY, MAX_MESSAGE, perMessageCeiling, type AgentAction, type AgentErrorCode, type ChatResult, type ProjectContext } from "@/lib/agent/uttu-comfy";
 import { useStudio } from "./studio-session";
 
 const LOG_KEY = "u-ttu-uttu-log";
@@ -36,7 +36,7 @@ function readLog(): Turn[] {
   try { const raw = JSON.parse(window.localStorage.getItem(LOG_KEY) ?? "[]"); return Array.isArray(raw) ? raw.slice(-30) : []; } catch { return []; }
 }
 
-export function UttuFree({ locale, isAction, onPlan, refs = [] }: { locale: UttuLocale; isAction(text: string): boolean; onPlan(text: string): void; refs?: string[] }) {
+export function UttuFree({ locale, isAction, onPlan, refs = [], project }: { locale: UttuLocale; isAction(text: string): boolean; onPlan(text: string): void; refs?: string[]; project?: ProjectContext | null }) {
   const { t } = useI18n();
   const { connected, setSheet, agentAuth, linkMode } = useStudio();
   const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
@@ -94,7 +94,7 @@ export function UttuFree({ locale, isAction, onPlan, refs = [] }: { locale: Uttu
     try {
       const auth = await agentAuth();
       if (!auth) throw Object.assign(new Error("auth"), { code: "auth" });
-      const response = await fetch(assetPath("/studio-agent/chat"), { method: "POST", headers: { "content-type": "application/json", ...auth }, body: JSON.stringify({ message: refs.length ? `${clean}\n\n${t("uttu.refs", { list: refs.join(", ") })}`.slice(0, MAX_MESSAGE) : clean, history, locale }), cache: "no-store" });
+      const response = await fetch(assetPath("/studio-agent/chat"), { method: "POST", headers: { "content-type": "application/json", ...auth }, body: JSON.stringify({ message: refs.length ? `${clean}\n\n${t("uttu.refs", { list: refs.join(", ") })}`.slice(0, MAX_MESSAGE) : clean, history, locale, ...(project ? { project } : {}) }), cache: "no-store" });
       const data = await response.json().catch(() => ({})) as Partial<ChatResult> & { error?: string };
       if (!response.ok || typeof data.reply !== "string") throw Object.assign(new Error("router"), { code: data.error ?? "failed" });
       const action = (data.action ?? { kind: "none", tool: null, request: null }) as AgentAction;

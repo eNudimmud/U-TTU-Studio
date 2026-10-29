@@ -30,7 +30,7 @@ test("s'ouvre depuis le rail (ou la rangée 3D sur téléphone) et la carte se c
   await expect(page).toHaveURL(/#outils\/reperage$/);
   const tool = page.locator("[data-reperage-tool]");
   await expect(tool.locator("h1")).toHaveText("Repérer un lieu");
-  await expect(tool.locator("[data-reperage-decor]")).toContainText("≈ 5 crédits estimés");
+  await expect(tool.locator("[data-reperage-decor]")).toContainText("≈ 6 crédits estimés");
   await expect(tool.locator("[data-rep3d-example-note]")).toContainText("faite hors Comfy");
   await expect(tool.locator("[data-reperage-kept]")).toHaveAttribute("data-reperage-kept", "0");
   await tool.locator("[data-rep3d-open]").click();

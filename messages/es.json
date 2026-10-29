@@ -2227,6 +2227,7 @@
       "tags": "Lo que sabemos del lugar",
       "refineTitle": "Afinar",
       "refineLead": "Un texto, fotos o ambos.",
+      "photosRule": "Las fotos dan la apariencia; el 3D mantiene el encuadre.",
       "wish": "Describe lo que quieres",
       "wishHint": "Ej.: tarde de otoño, hojas en el suelo",
       "ideas": "Ideas",
