@@ -175,6 +175,21 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
     audio: ["1", "audio"], save: ["4", "filename_prefix"],
     patch(graph, _prompt, input) { graph["4"].inputs.audio = ["3", PISTES[input.piste ?? "voix"]]; },
   },
+  // Top 10 n° 4: Picture 1 is the reference (164), picture 2 the 5 s keyframe (167).
+  video_minimax_h3_multiframe_reference: {
+    images: [["164", "image"], ["167", "image"]], prompt: [["138", "value"]], seed: [["129", "noise_seed"]], save: ["92", "filename_prefix"],
+    aspect: { at: ["115", "aspect_ratio"], ...RESOLUTION }, needsText: true,
+  },
+  // Top 10 n° 9: first frame 138, last frame 137 (the other style), 6 s; the LoRA needs its trigger word.
+  template_ltx2_3_style_transition: {
+    images: [["138", "image"], ["137", "image"]], prompt: [["139:128", "text"]], seed: [["139:100", "noise_seed"]], save: ["68", "filename_prefix"], needsText: true,
+    patch(graph, prompt, input) {
+      const vertical = input.aspect !== "horizontal";
+      graph["139:113"].inputs.value = vertical ? 720 : 1280;
+      graph["139:98"].inputs.value = vertical ? 1280 : 720;
+      if (!/\bzhuanchang\b/i.test(prompt)) graph["139:128"].inputs.text = `${prompt.trim()} zhuanchang`;
+    },
+  },
   api_sonilo_v2m: { video: ["705", "file"], prompt: [["703", "prompt"]], seed: [["703", "seed"]], save: ["728", "filename_prefix"] },
 };
 

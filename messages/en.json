@@ -2554,8 +2554,12 @@
         "line": "Keeps characters and place consistent."
       },
       "vid-multi": {
-        "title": "Several keyframes",
-        "line": "A video passing through several pictures."
+        "title": "Faithful keyframes",
+        "line": "Keeps the character from your first picture and ends on the second, with sound."
+      },
+      "vid-transition-style": {
+        "title": "Style transition",
+        "line": "Your shot moves from one style to another, from your first picture to the second."
       },
       "vid-h3-audio": {
         "title": "Video on a sound",

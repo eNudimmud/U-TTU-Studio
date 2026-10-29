@@ -2554,8 +2554,12 @@
         "line": "Garde personnages et lieu d’une image à l’autre."
       },
       "vid-multi": {
-        "title": "Plusieurs images clés",
-        "line": "Une vidéo qui passe par plusieurs images."
+        "title": "Images clés fidèles",
+        "line": "Garde le personnage de ta première image et finit sur la deuxième, avec le son."
+      },
+      "vid-transition-style": {
+        "title": "Transition de style",
+        "line": "Ton plan passe d’un style à l’autre, de ta première image à la deuxième."
       },
       "vid-h3-audio": {
         "title": "Vidéo sur un son",
