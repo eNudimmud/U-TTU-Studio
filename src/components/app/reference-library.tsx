@@ -2,13 +2,14 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { useI18n } from '@/components/i18n/provider';
-import { REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from '@/lib/creation/named-references';
+import { CREATION_REFERENCES_MAX, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from '@/lib/creation/named-references';
 import { Close, Plus } from './glyphs';
 import { useStudio } from './studio-session';
 
-export function ReferenceLibrary({ onClose, onPick, initialImage }: {
+export function ReferenceLibrary({ onClose, onPick, initialImage, atLimit = false, selected = [] }: {
   onClose(): void; onPick?(ref: NamedReference): void;
   initialImage?: { src: string; name: string; path?: string };
+  atLimit?: boolean; selected?: readonly string[];
 }) {
   const { t } = useI18n();
   const { references, media, deleteReference } = useStudio();
@@ -30,30 +31,33 @@ export function ReferenceLibrary({ onClose, onPick, initialImage }: {
     <header className="u-refs-head">
       <button type="button" className="u-icon" aria-label={t('verb.close')} disabled={busy} aria-describedby={statusId} onClick={onClose}><Close /></button>
       <h2 id={title}>{t(editing ? editing === 'new' ? 'namedRefs.new' : 'namedRefs.edit' : 'namedRefs.title')}</h2>
-      {!editing && <button type="button" className="u-icon" aria-label={t('namedRefs.new')} data-refs-new="" onClick={() => setEditing('new')}><Plus /></button>}
     </header>
     <p className="u-small" id={statusId} hidden={!busy}>{t('namedRefs.saving')}</p>
     {error && <p role="alert">{error}</p>}
     {deleting ? <div className="u-named-delete" role="alertdialog" aria-label={t('namedRefs.deleteTitle')}>
       <h3>{t('namedRefs.deleteTitle')}</h3><p>{t('namedRefs.deleteQuestion', { name: deleting.name })}</p>
       <div className="u-fil-actions"><button className="u-secondary" disabled={busy} aria-describedby={statusId} autoFocus onClick={() => setDeleting(null)}>{t('verb.cancel')}</button><button className="u-primary" data-ref-delete-confirm="" disabled={busy} aria-describedby={statusId} onClick={async () => { setBusy(true); setError(''); try { await deleteReference(deleting); setDeleting(null); } catch { setError(t('namedRefs.failed')); } finally { setBusy(false); } }}>{t('namedRefs.delete')}</button></div>
-    </div> : editing ? <ReferenceEditor key={editing === 'new' ? 'new' : editing.note} original={editing === 'new' ? undefined : editing} initialImage={initialImage} onBack={() => setEditing(null)} onSaved={() => setEditing(null)} onBusy={setBusy} /> : <>
+    </div> : editing ? <ReferenceEditor key={editing === 'new' ? 'new' : editing.note} original={editing === 'new' ? undefined : editing} initialImage={initialImage} onBack={() => setEditing(null)} onSaved={() => { setEditing(null); setFilter('tout'); setQuery(''); }} onBusy={setBusy} /> : <>
+      <p className="u-small" data-refs-capacity="">{t('namedRefs.capacity', { n: references.length })}</p>
+      <button type="button" className="u-primary u-named-new" data-refs-new="" onClick={() => setEditing('new')}><Plus />{t('namedRefs.new')}</button>
       <p className="u-small">{t(onPick ? 'namedRefs.shared' : 'namedRefs.manageHelp')}</p>
+      {onPick && atLimit && <p className="u-small" role="status" data-refs-selection-limit="">{t('namedRefs.selectionLimit', { max: CREATION_REFERENCES_MAX })}</p>}
       <label className="u-field"><span className="sr-only">{t('namedRefs.search')}</span><input type="search" placeholder={t('namedRefs.search')} value={query} onChange={e => setQuery(e.target.value)} data-ref-search="" /></label>
       <div className="u-refs-filters" role="group" aria-label={t('barre.refs.filter')}>
         {(['tout', ...REFERENCE_CATEGORIES] as const).map(c => <button key={c} type="button" data-refs-filter={c} aria-pressed={filter === c} onClick={() => setFilter(c)}>{t(c === 'tout' ? 'barre.refs.tout' : `namedRefs.category.${c}`)}</button>)}
       </div>
-      {shown.length === 0 && <p className="u-small" data-refs-empty="">{t('namedRefs.empty')}</p>}
+      {shown.length === 0 && <p className="u-small" data-refs-empty="">{t(references.length ? 'namedRefs.noMatch' : 'namedRefs.empty')}</p>}
       <ul className="u-refs-grid" role="list">
-        {shown.map(ref => <li key={ref.note}>
-          <button type="button" className="u-refs-card" data-ref={ref.id} data-ref-kind={ref.category} disabled={Boolean(onPick) && !ref.preview} aria-describedby={!ref.preview ? `${statusId}-${ref.id}` : undefined} onClick={() => onPick ? onPick(ref) : setEditing(ref)}>
+        {shown.map(ref => { const attached = selected.includes(`${ref.category}:${ref.id}`); return <li key={ref.note}>
+          <button type="button" className="u-refs-card" data-ref={ref.id} data-ref-kind={ref.category} disabled={Boolean(onPick) && (!ref.preview || atLimit || attached)} aria-describedby={onPick && (!ref.preview || atLimit || attached) ? `${statusId}-${ref.id}` : undefined} onClick={() => onPick ? onPick(ref) : setEditing(ref)}>
             <span className="u-refs-thumb">{media[ref.preview] && <img src={media[ref.preview]} alt="" width={320} height={320} loading="lazy" />}</span>
-            <strong>{ref.name}</strong><small>{t(`namedRefs.category.${ref.category}`)} · {t('namedRefs.photoCount', { n: ref.images.length })}</small>{!ref.preview && <small id={`${statusId}-${ref.id}`}>{t('namedRefs.missing')}</small>}
+            <strong>{ref.name}</strong><small>{t(`namedRefs.category.${ref.category}`)} · {t('namedRefs.photoCount', { n: ref.images.length })}</small>
           </button>
+          {onPick && (!ref.preview || atLimit || attached) && <small className="u-small" id={`${statusId}-${ref.id}`}>{t(!ref.preview ? 'namedRefs.missing' : attached ? 'namedRefs.attached' : 'namedRefs.selectionLimit', { max: CREATION_REFERENCES_MAX })}</small>}
+          {!onPick && !ref.preview && <small className="u-small">{t('namedRefs.missing')}</small>}
           <div className="u-named-card-actions"><button type="button" data-ref-edit={ref.id} aria-label={t('namedRefs.editName', { name: ref.name })} onClick={() => setEditing(ref)}>{t('namedRefs.edit')}</button><button type="button" data-ref-delete={ref.id} aria-label={t('namedRefs.deleteName', { name: ref.name })} onClick={() => setDeleting(ref)}>{t('namedRefs.delete')}</button></div>
-        </li>)}
+        </li>; })}
       </ul>
-      <button type="button" className="u-secondary" data-ref-create="" onClick={() => setEditing('new')}><Plus />{t('namedRefs.new')}</button>
     </>}
   </dialog></div>;
 }

@@ -14,20 +14,66 @@ async function createRef(page:Page,name:string,count=1,category='cast'){
 }
 async function screenshot(page:Page,name:string){if(process.env.CREATION_SHOTS_DIR){mkdirSync(process.env.CREATION_SHOTS_DIR,{recursive:true});await page.screenshot({path:join(process.env.CREATION_SHOTS_DIR,name)});}}
 
-test('Android : JD avec 3 photos + GBOY, réemploi en un clic, devis, résultat puis prompt seul',async({page},info)=>{
+test('bibliothèque personnelle : formulaire vierge, plus de sept fiches et création possible même avec sept références jointes',async({page},info)=>{
+  const paid:string[]=[];
+  page.on('request',r=>{if(r.method()==='POST'&&/\/api\/(prompt|upload\/)/.test(r.url()))paid.push(r.url());});
+  await page.goto('/studio');await openLibrary(page);
+  await expect(page.locator('[data-ref]')).toHaveCount(0);
+  await expect(page.locator('[data-refs-capacity]')).toContainText('autant de références que tu veux');
+  if(info.project.name==='mobile')await screenshot(page,'references-390x844.png');
+  await page.locator('[data-refs-new]').tap();
+  await expect(page.locator('[data-ref-name]')).toHaveValue('');
+  await expect(page.locator('[data-ref-description]')).toHaveValue('');
+  await expect(page.locator('[data-ref-editor] img')).toHaveCount(0);
+  await expect(page.locator('[data-ref-save]')).toBeDisabled();
+  if(info.project.name==='mobile')await screenshot(page,'creation-reference-390x844.png');
+  for(const size of [{width:390,height:844},{width:844,height:390},{width:1024,height:600},{width:1280,height:800}]){
+    await page.setViewportSize(size);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+    expect(await page.locator('[data-refs-sheet]').evaluate(e=>e.scrollWidth-e.clientWidth)).toBeLessThanOrEqual(0);
+    const small=await page.locator('[data-ref-editor]').evaluate(el=>[...el.querySelectorAll<HTMLElement>('button,input:not([hidden]),select,textarea')].filter(e=>e.getClientRects().length).filter(e=>e.getBoundingClientRect().width<44||e.getBoundingClientRect().height<44).map(e=>e.outerHTML));expect(small).toEqual([]);
+  }
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('[data-ref-editor]').getByRole('button',{name:'Annuler',exact:true}).tap();
+  const categories=['cast','decor','objet','style'];
+  for(let i=1;i<=12;i++)await createRef(page,`Référence ${String(i).padStart(2,'0')}`,1,categories[(i-1)%4]);
+  await expect(page.locator('[data-ref]')).toHaveCount(12);
+  await page.locator('[data-ref-search]').fill('12');await expect(page.locator('[data-ref]')).toHaveCount(1);
+  await page.locator('[data-ref-search]').fill('introuvable');await expect(page.locator('[data-ref]')).toHaveCount(0);await expect(page.locator('[data-refs-empty]')).toContainText('recherche');
+  // Creating a new card is independent of both the current filter and its name.
+  await createRef(page,'Référence 01');await expect(page.locator('[data-ref]')).toHaveCount(13);
+  await page.locator('[data-refs-filter=style]').tap();await expect(page.locator('[data-ref]')).toHaveCount(3);
+  await page.reload();await openLibrary(page);await expect(page.locator('[data-ref]')).toHaveCount(13);
+  for(let i=0;i<7;i++){
+    await page.locator('[data-ref]:enabled').first().tap();await expect(page.locator('[data-barre-chip]')).toHaveCount(i+1);
+    await openLibrary(page);
+  }
+  await expect(page.locator('[data-refs-selection-limit]')).toContainText('7 références à cette création');
+  await expect(page.locator('[data-ref]:enabled')).toHaveCount(0);
+  await expect(page.locator('[data-refs-new]')).toBeEnabled();
+  await createRef(page,'Après la sélection',1,'objet');await expect(page.locator('[data-ref]')).toHaveCount(14);
+  await page.getByRole('dialog').getByRole('button',{name:'Fermer',exact:true}).tap();
+  await page.locator('[data-barre-chip]').first().getByRole('button').tap();await openLibrary(page);
+  await page.locator('[data-ref]').filter({hasText:'Après la sélection'}).tap();
+  await expect(page.locator('[data-barre-chip]')).toHaveCount(7);
+  await expect(page.locator('[data-barre-chips]')).toContainText('Après la sélection');
+  await page.reload();await expect(page.locator('[data-barre-chip]')).toHaveCount(7);await openLibrary(page);
+  await expect(page.locator('[data-ref]')).toHaveCount(14);expect(paid).toEqual([]);
+});
+
+test('Android : références personnelles, réemploi en un clic, devis, résultat puis prompt seul',async({page})=>{
   const comfy=await simulateComfy(page);comfy.setStill(photo.buffer);
   const graphs:Record<string,{class_type:string;inputs:Record<string,unknown>}>[]=[];let uploads=0,cancels=0;
   await page.route(/\/api\/prompt$/,route=>{graphs.push(route.request().postDataJSON().prompt);return route.fallback();});
   await page.route(/\/api\/upload\/image$/,route=>{uploads++;return route.fallback();});
   await page.route(/\/api\/(queue|interrupt)$/,route=>{cancels++;return route.fulfill({json:{}});});
-  await page.goto('/studio');await openLibrary(page);await createRef(page,'JD',3);await createRef(page,'GBOY');
+  await page.goto('/studio');await openLibrary(page);await createRef(page,'Référence A',3);await createRef(page,'Référence B');
   await expect(page.locator('[data-ref-kind=cast]')).toHaveCount(2);
-  if(info.project.name==='mobile')await screenshot(page,'references-390x844.png');
-  await page.locator('[data-ref]').filter({hasText:'JD'}).tap();
+  await page.locator('[data-ref]').filter({hasText:'Référence A'}).tap();
   await expect(page.locator('[data-refs-sheet]')).toHaveCount(0);await expect(page.locator('[data-barre-chip]')).toHaveCount(1);
-  await page.locator('.u-barre-chip-add').tap();await page.locator('[data-ref]').filter({hasText:'GBOY'}).tap();
-  await page.locator('[data-barre-input]').fill('JD et GBOY sur un quai, sous la pluie');await page.reload();
-  await expect(page.locator('[data-barre-chip]')).toHaveCount(2);await expect(page.locator('[data-barre-input]')).toHaveValue('JD et GBOY sur un quai, sous la pluie');
+  await page.locator('.u-barre-chip-add').tap();await page.locator('[data-ref]').filter({hasText:'Référence B'}).tap();
+  await page.locator('[data-barre-input]').fill('Référence A et Référence B sur un quai, sous la pluie');await page.reload();
+  await expect(page.locator('[data-barre-chip]')).toHaveCount(2);await expect(page.locator('[data-barre-input]')).toHaveValue('Référence A et Référence B sur un quai, sous la pluie');
   for(const size of [{width:390,height:844},{width:844,height:390},{width:1024,height:600},{width:1280,height:800}]){
     await page.setViewportSize(size);await page.locator('[data-barre]').scrollIntoViewIfNeeded();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
@@ -40,7 +86,6 @@ test('Android : JD avec 3 photos + GBOY, réemploi en un clic, devis, résultat 
   const confirmBox=await page.locator('[data-fil-confirm]').boundingBox();
   expect(confirmBox!.y).toBeGreaterThanOrEqual(0);expect(confirmBox!.y+confirmBox!.height).toBeLessThanOrEqual(844);
   expect(await page.locator('[data-fil-confirm]').evaluate(el=>{const b=el.getBoundingClientRect(),top=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return top===el||el.contains(top);})).toBe(true);
-  if(info.project.name==='mobile')await screenshot(page,'bulle-devis-390x844.png');
   await page.locator('[data-fil-confirm]').tap();await expect(page.locator('[data-bubble-render]')).toBeVisible();await expect(page.locator('[data-bubble-render]')).not.toContainText('Annuler');
   for(const size of [{width:844,height:390},{width:1024,height:600},{width:1280,height:800},{width:390,height:844}]){
     await page.setViewportSize(size);
@@ -50,7 +95,7 @@ test('Android : JD avec 3 photos + GBOY, réemploi en un clic, devis, résultat 
   await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-bubble-render]')).toHaveCount(0);
   await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});expect(graphs).toHaveLength(1);expect(uploads).toBe(2);
   expect(graphs[0].image_17.class_type).toBe('ReferenceMultiLatent');expect(graphs[0].reference_2.class_type).toBe('LoadImage');
-  expect(graphs[0].image_61.inputs.value).toContain('"JD"');expect(graphs[0].image_61.inputs.value).toContain('"GBOY"');
+  expect(graphs[0].image_61.inputs.value).toContain('"Référence A"');expect(graphs[0].image_61.inputs.value).toContain('"Référence B"');
   await page.locator('[data-fil-keep]').tap();await expect(page.locator('[data-fil-keep]')).toHaveAttribute('aria-pressed','true');
   await page.locator('[data-fil-favorite]').tap();await expect(page.locator('[data-fil-favorite]')).toHaveAttribute('aria-pressed','true');
   await page.reload();await expect(page.locator('[data-fil-job=done]')).toHaveCount(1);expect(graphs).toHaveLength(1);
@@ -61,7 +106,7 @@ test('Android : JD avec 3 photos + GBOY, réemploi en un clic, devis, résultat 
   await page.locator('[data-fil-job=confirm] [data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();
   await expect(page.locator('[data-fil-job=done]')).toHaveCount(2,{timeout:60000});expect(graphs).toHaveLength(2);expect(uploads).toBe(2);
   expect(Object.values(graphs[1]).filter(n=>n.class_type==='LoadImage')).toHaveLength(0);expect(cancels).toBe(0);
-  await page.goto('/studio#personnage');await expect(page.locator('main')).toContainText('JD');await expect(page.locator('main')).toContainText('GBOY');
+  await page.goto('/studio#personnage');await expect(page.locator('main')).toContainText('Référence A');await expect(page.locator('main')).toContainText('Référence B');
 });
 
 test('rechargement pendant le premier rendu : reprise du reçu, un seul POST, ancien résultat conservé en refaisant',async({page})=>{

@@ -6,7 +6,11 @@ Le plan actualisé place cette bulle avant P0-1, P0-2 et P0-3. Les PR #155, #156
 
 La barre limitait les images à deux références et « Nouvelle référence » renvoyait dans CAST ou DÉCOR. Elle demandait une deuxième validation de la sélection. La vidéo changeait de parcours selon l’origine des images.
 
-Une seule bulle contient maintenant Image/Vidéo, le prompt, Photos/Audio/Référence et les options. Une référence possède un nom obligatoire, une description facultative, une catégorie et une à trois photos. Un toucher sur sa carte la joint. Sept références visuelles au plus sont envoyées ; les trois photos d’un même sujet sont réunies localement en une planche. Les puces s’enlèvent individuellement. Les demandes et les résultats apparaissent une seule fois dans le fil ; aucun aperçu vide ni barre de saisie ne recouvre la confirmation.
+L’accès « Référence » était aussi désactivé lorsque sept pièces jointes étaient choisies : la limite d’une génération bloquait à tort la création et la gestion des fiches. Cet accès reste maintenant disponible.
+
+Une seule bulle contient maintenant Image/Vidéo, le prompt, Photos/Audio/Référence et les options. Une référence possède un nom obligatoire, une description facultative, une catégorie et une à trois photos. Le formulaire s’ouvre vierge : les noms et les images sont ceux que l’utilisateur choisit. Aucune référence de démonstration n’est enregistrée dans sa bibliothèque.
+
+Le nombre de fiches enregistrées n’a pas de quota applicatif. Le bouton « Nouvelle référence » reste visible et la bibliothèque reste accessible même lorsque sept références sont déjà jointes à une création. Un toucher sur une carte la joint ; celles déjà jointes sont signalées. **Sept est la limite des pièces jointes d’une génération, pas celle de la bibliothèque.** Les trois photos d’un même sujet sont réunies localement en une planche. Les puces s’enlèvent individuellement. Les demandes et les résultats apparaissent une seule fois dans le fil ; aucun aperçu vide ni barre de saisie ne recouvre la confirmation.
 
 `readNamedReferences` lit directement les fiches CAST et DÉCOR existantes. Les nouveaux personnages utilisent `Cast/`, les décors `Decors/`, objets et styles `Refs/`. Modifier une référence modifie la même fiche, avec conservation des métadonnées de production. La suppression est confirmée et conserve les fichiers encore utilisés ailleurs.
 
@@ -37,7 +41,7 @@ Les sources originales restent liées à la note de production : retirer une fic
 
 ## Vérification
 
-Unitaires : catalogue partagé, séparation des projets, métadonnées, sept liens dans Klein, canevas, options H3/audio, prompt seul, devis et parité FR/EN/DE/ES. E2E tactiles : « JD » avec trois photos puis « GBOY », ajout en un toucher, rechargement, deux références puis prompt seul, garder/favoris, édition, suppression confirmée, vidéo et montage. Les médias sont des exemples du dépôt et Comfy est simulé : les captures prouvent l’interface, pas un nouveau rendu.
+Unitaires : catalogue partagé, séparation des projets, métadonnées, sept liens dans Klein, canevas, options H3/audio, prompt seul, devis et parité FR/EN/DE/ES. E2E tactiles : formulaire vierge, création de quatorze fiches dans les quatre catégories, deux fiches homonymes sans écrasement, recherche, filtres, rechargement, réemploi en un toucher et création d’une nouvelle fiche avec sept références déjà jointes. Les autres parcours couvrent deux références puis prompt seul, garder/favoris, édition, suppression confirmée, vidéo et montage. Les médias des tests sont des exemples du dépôt et Comfy est simulé. Les deux captures montrent la bibliothèque vide et le formulaire vierge du build local, sans références personnelles imitées ni résultat de génération.
 
 Build de production Node 22 et contrôles de débordement aux tailles 390×844, 844×390, 1024×600 et 1280×800. Preuves dans `docs/preuves/creation/`.
 

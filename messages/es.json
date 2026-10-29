@@ -3476,7 +3476,11 @@
     "changed": "Esta referencia ha cambiado. Ábrela de nuevo.",
     "missing": "Falta una imagen en este dispositivo. Añádela de nuevo.",
     "manageHelp": "Tus referencias están guardadas en este proyecto. Toca una tarjeta para editarla.",
-    "requiredHelp": "Se necesitan un nombre y al menos una foto. Máximo tres fotos."
+    "requiredHelp": "Se necesitan un nombre y al menos una foto. Máximo tres fotos.",
+    "capacity": "Crea tantas referencias como quieras. {n} referencia(s) guardada(s) en este proyecto.",
+    "selectionLimit": "Ya has adjuntado {max} referencias a esta creación. Puedes seguir creando y gestionando fichas; quita una etiqueta para adjuntar otra.",
+    "attached": "Ya adjunta a esta creación",
+    "noMatch": "Ninguna referencia coincide con tu búsqueda o con esta categoría."
   },
   "bubble": {
     "audio": "Audio",
@@ -3485,7 +3489,7 @@
     "resolution": "Resolución",
     "soundOn": "Sonido activado",
     "soundOff": "Sonido desactivado",
-    "referenceCount": "{n} / {max} referencias",
+    "referenceCount": "{n} / {max} referencias adjuntas a esta creación",
     "imageEngine": "Imagen · Klein · Con ComfyUI",
     "referenceVideoEngine": "Vídeo · MiniMax H3 · Con ComfyUI",
     "textVideoEngine": "Vídeo · LTX · Con ComfyUI",

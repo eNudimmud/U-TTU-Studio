@@ -125,7 +125,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
           {menu && <div id={menuId} className="u-barre-menu" role="menu" data-barre-menu="">
             <button type="button" role="menuitem" data-barre-attach="photo" disabled={full || busy} aria-describedby={attachmentsId} onClick={() => { setMenu(false); fileRef.current?.click(); }}><FamilyIcon fam="creer" /><span><strong>{t('barre.attach.photo')}</strong><small>{t('barre.attach.photoLine')}</small></span></button>
             <button type="button" role="menuitem" data-barre-attach="son" disabled={busy} aria-describedby={attachmentsId} onClick={() => { setMenu(false); setMode('video'); audioRef.current?.click(); }}><FamilyIcon fam="son" /><span><strong>{t('bubble.audio')}</strong><small>{t('bubble.audioHelp')}</small></span></button>
-            <button type="button" role="menuitem" data-barre-attach="reference" disabled={full} aria-describedby={attachmentsId} onClick={() => { setMenu(false); setSheet(true); }}><Plus /><span><strong>{t('barre.attach.reference')}</strong><small>{t('namedRefs.menuHelp')}</small></span></button>
+            <button type="button" role="menuitem" data-barre-attach="reference" onClick={() => { setMenu(false); setSheet(true); }}><Plus /><span><strong>{t('barre.attach.reference')}</strong><small>{t('namedRefs.menuHelp')}</small></span></button>
           </div>}
           <input ref={fileRef} type="file" accept="image/*" multiple hidden data-barre-photo="" onChange={e => { void addFiles(e.target.files, 'photo'); e.target.value = ''; }} />
           <input ref={audioRef} type="file" accept="audio/*" hidden data-barre-audio="" onChange={e => { void addFiles(e.target.files, 'audio'); e.target.value = ''; }} />
@@ -146,7 +146,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
     <p className="u-barre-route" id={routeId} data-barre-route={here?.route ?? bubbleTool(mode, attached.length, Boolean(currentAudio))}>{cost && <strong data-barre-cost="">{cost} · </strong>}{t(mode === 'image' ? 'bubble.imageEngine' : attached.length || currentAudio ? 'bubble.referenceVideoEngine' : 'bubble.textVideoEngine')}</p>
     <button type="button" className="u-text-button u-bubble-agent" data-barre-mode="agent" onClick={() => toggleAssistant(true)}>{t('bubble.askUttu')}</button>
     {error && <p role="alert">{error}</p>}
-    {sheet && <ReferenceLibrary onClose={() => setSheet(false)} onPick={pickReference} />}
+    {sheet && <ReferenceLibrary onClose={() => setSheet(false)} onPick={pickReference} atLimit={full} selected={selected.map(r => `${r.kind}:${r.id}`)} />}
   </>;
 }
 export function fillBarre(mode: BarreMode, text: string, refs?: string[], resolved?: BarreRef[]) {
