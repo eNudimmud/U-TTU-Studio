@@ -787,6 +787,7 @@
     "audioTooLong": "Ton zu lang zum Senden: höchstens sechs Minuten. Kürze die Datei.",
     "finalTooHeavy": "Finalisieren behält die Qualität der Quelle: über 3,8 MB kann sie noch nicht gesendet werden, ohne sie zu verschlechtern. Kürze das Video oder finalisiere es in mehreren Teilen.",
     "finalImageTooHeavy": "Finalisieren behält die Qualität der Quelle: dieses Bild ist selbst als hochwertiges jpg größer als 3,8 MB. Nimm ein kleineres Bild.",
+    "directFailed": "Das direkte Senden der großen Datei hat nicht geklappt. Versuche es erneut oder nimm eine leichtere Datei.",
     "nameCharacter": "Gib dieser Figur einen Namen.",
     "twoPhotos": "Mindestens zwei Fotos der Figur, um die Clips zu begleiten.",
     "clipsWeight": "Die Clips wiegen mehr als 2 GB: entferne die längsten.",
@@ -3626,5 +3627,18 @@
     "trim": "Nur die ersten 30 Sekunden werden verwendet und im Kostenvoranschlag berücksichtigt.",
     "promptDefault": "Ersetze die gefilmte Person durch die Figur im ersten Bild. Behalte Bewegung, Kamera, Timing und Ton bei. Nutze das zweite Bild als Ortsreferenz, falls vorhanden.",
     "quoteFor": "Für {seconds} s bei {resolution}. Der Endpreis kann abweichen."
+  },
+  "envoiEssai": {
+    "title": "Test des direkten Sendens",
+    "lead": "Sendet eine große Datei in den privaten Speicher und löscht sie danach. Es startet kein Rendering, es werden keine Credits verbraucht.",
+    "pick": "Video oder Foto wählen",
+    "noAccount": "Verbinde zuerst dein Render-Konto im Studio.",
+    "noStore": "Der direkte Speicher ist in diesem Deployment nicht verbunden (nach dem Verbinden des Stores neu deployen).",
+    "sending": "Wird gesendet…",
+    "ok": "Vom Server empfangen: {mb} MB. Aus dem Speicher gelöscht: {deleted}.",
+    "yes": "ja",
+    "no": "nein",
+    "unknown": "unbekannt",
+    "failed": "Der Test hat nicht geklappt: {why}"
   }
 }

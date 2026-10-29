@@ -787,6 +787,7 @@
     "audioTooLong": "Audio too long to send: six minutes at most. Shorten the file.",
     "finalTooHeavy": "Finalise keeps the source quality: above 3.8 MB it cannot be sent yet without degrading it. Shorten the video or finalise it in several parts.",
     "finalImageTooHeavy": "Finalise keeps the source quality: this image is above 3.8 MB even as a high-quality jpg. Use a smaller image.",
+    "directFailed": "The direct send of the heavy file did not go through. Try again, or use a lighter file.",
     "nameCharacter": "Give this character a name.",
     "twoPhotos": "At least two photos of the character, to go with the clips.",
     "clipsWeight": "The clips weigh more than 2 GB: remove the longest.",
@@ -3626,5 +3627,18 @@
     "trim": "Only the first 30 seconds will be used and included in the quote.",
     "promptDefault": "Replace the filmed person with the character in the first image. Keep the motion, camera, timing and sound. Use the second image as the location reference if supplied.",
     "quoteFor": "For {seconds} s at {resolution}. The final price may vary."
+  },
+  "envoiEssai": {
+    "title": "Direct send test",
+    "lead": "Sends a heavy file to private storage, then deletes it. No render starts, no credits are spent.",
+    "pick": "Choose a video or a photo",
+    "noAccount": "Connect your render account in the studio first.",
+    "noStore": "Direct storage is not connected on this deployment (redeploy after connecting the store).",
+    "sending": "Sending…",
+    "ok": "Received by the server: {mb} MB. Deleted from storage: {deleted}.",
+    "yes": "yes",
+    "no": "no",
+    "unknown": "unknown",
+    "failed": "The test did not go through: {why}"
   }
 }

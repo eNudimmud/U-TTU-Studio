@@ -787,6 +787,7 @@
     "audioTooLong": "Son trop long pour l’envoi : six minutes au plus. Raccourcis le fichier.",
     "finalTooHeavy": "Finaliser garde la qualité de la source : au-delà de 3,8 Mo, elle ne peut pas encore partir sans être dégradée. Raccourcis la vidéo ou finalise-la en plusieurs morceaux.",
     "finalImageTooHeavy": "Finaliser garde la qualité de la source : cette image dépasse 3,8 Mo même en jpg de haute qualité. Prends une image plus petite.",
+    "directFailed": "L’envoi direct du fichier lourd n’a pas abouti. Réessaie, ou prends un fichier plus léger.",
     "nameCharacter": "Donne un nom à ce personnage.",
     "twoPhotos": "Deux photos du personnage au moins, pour accompagner les clips.",
     "clipsWeight": "Les clips pèsent plus de 2 Go : retire les plus longs.",
@@ -3626,5 +3627,18 @@
     "trim": "Seules les 30 premières secondes seront utilisées et comptées dans le devis.",
     "promptDefault": "Remplace la personne filmée par le personnage de la première image. Garde le mouvement, la caméra, le rythme et le son. Utilise la seconde image comme référence de décor si elle est fournie.",
     "quoteFor": "Pour {seconds} s en {resolution}. Le prix final peut varier."
+  },
+  "envoiEssai": {
+    "title": "Essai de l’envoi direct",
+    "lead": "Envoie un fichier lourd au stockage privé puis l’efface. Aucun rendu n’est lancé, aucun crédit n’est dépensé.",
+    "pick": "Choisir une vidéo ou une photo",
+    "noAccount": "Connecte d’abord ton compte de rendu dans le studio.",
+    "noStore": "Le stockage direct n’est pas branché sur ce déploiement (redéploie après la connexion du store).",
+    "sending": "Envoi en cours…",
+    "ok": "Reçu par le serveur : {mb} Mo. Effacé du stockage : {deleted}.",
+    "yes": "oui",
+    "no": "non",
+    "unknown": "inconnu",
+    "failed": "L’essai n’a pas abouti : {why}"
   }
 }

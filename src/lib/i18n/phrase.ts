@@ -99,6 +99,7 @@ const EXACT: Record<string, string> = {
   "Son trop long pour l’envoi : six minutes au plus. Raccourcis le fichier.": "runtime.audioTooLong",
   "Finaliser garde la qualité de la source : au-delà de 3,8 Mo, elle ne peut pas encore partir sans être dégradée. Raccourcis la vidéo ou finalise-la en plusieurs morceaux.": "runtime.finalTooHeavy",
   "Finaliser garde la qualité de la source : cette image dépasse 3,8 Mo même en jpg de haute qualité. Prends une image plus petite.": "runtime.finalImageTooHeavy",
+  "L’envoi direct du fichier lourd n’a pas abouti. Réessaie, ou prends un fichier plus léger.": "runtime.directFailed",
   "Donne un nom à ce personnage.": "runtime.nameCharacter",
   "Deux photos du personnage au moins, pour accompagner les clips.": "runtime.twoPhotos",
   "Les clips pèsent plus de 2 Go : retire les plus longs.": "runtime.clipsWeight",

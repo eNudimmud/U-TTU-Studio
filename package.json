@@ -18,6 +18,7 @@
     "@mapbox/vector-tile": "^3.0.0",
     "@mediabunny/aac-encoder": "1.61.0",
     "@photo-sphere-viewer/core": "^5.15.1",
+    "@vercel/blob": "^2.8.2",
     "maplibre-gl": "6.4.1",
     "mediabunny": "^1.61.3",
     "next": "16.3.8",

@@ -6,6 +6,12 @@
 // planUpload() is pure and unit-tested: it decides, from what the workflow
 // really consumes, whether a file goes as it is, is re-encoded, or is refused
 // with a clear line. runPlan() does the browser work (canvas, WebCodecs).
+//
+// Two modes. "direct" (private Vercel Blob connected, src/lib/envoi-direct): there is
+// no size ceiling, so every file goes as the original, bytes untouched. The only
+// exception is the pose video of Wan Animate, re-timed to the 16 fps / 81 frames the
+// graph reads (else the quote doubles), at the size the graph really uses and a high
+// bitrate. "relay" (no Blob, or Blob failed): the reductions below, to fit ~4 MB.
 
 import { POSE_FPS, POSE_FRAMES, UPLOAD_HEAVY, UPLOAD_MAX_BYTES, poseVideoTarget, uploadTooHeavy } from "./upload-limit.ts";
 
@@ -38,6 +44,10 @@ const VIDEO_FPS = 30;
 const VIDEO_MIN_BITRATE = 400_000;
 const VIDEO_MAX_BITRATE = 4_000_000;
 const AUDIO_IN_VIDEO = 96_000;
+/** Direct mode, pose video: ~1.2 bit per pixel at 482×856, 16 fps — no visible loss. */
+const POSE_DIRECT_BITRATE = 8_000_000;
+const POSE_DIRECT_AUDIO = 192_000;
+const POSE_RELAY_BITRATE = 1_500_000;
 const AUDIO_MIN_BITRATE = 64_000;
 const AUDIO_MAX_BITRATE = 128_000;
 /** Bits we let the re-encoded file use: 8 % below the ceiling, for container overhead. */
@@ -61,8 +71,31 @@ export function kindOf(type: string): UploadNeed["kind"] {
 
 const even = (value: number) => Math.max(2, Math.round(value / 2) * 2);
 
+export type UploadMode = "relay" | "direct";
+
+/**
+ * Wan Animate's pose video (video_wan_animate2, src/lib/outils/base.ts): node 672:600
+ * resizes every frame to 482×854 (« scale dimensions », centre crop) before the model,
+ * the 81-frame window runs at the source cadence, and node 672:245 (CreateVideo) puts
+ * the source's audio and fps back on the result. So the upload keeps the audio, never
+ * goes below the 482×854 box, and carries one 16 fps window of 81 frames.
+ */
+function planPose(facts: MediaFacts, mode: UploadMode): UploadPlan {
+  const window = POSE_FRAMES / POSE_FPS;
+  if (mode === "direct" && facts.fps && facts.fps <= POSE_FPS + 0.5 && facts.seconds && facts.seconds <= window + 0.05) return { action: "keep" };
+  const target = poseVideoTarget({ width: facts.width || 0, height: facts.height || 0, seconds: facts.seconds ?? null });
+  const audio = Boolean(facts.hasAudio);
+  return {
+    action: "video", width: target.width, height: target.height, frameRate: target.frameRate, end: target.end,
+    videoBitrate: mode === "direct" ? POSE_DIRECT_BITRATE : POSE_RELAY_BITRATE,
+    audio, audioBitrate: audio ? (mode === "direct" ? POSE_DIRECT_AUDIO : AUDIO_IN_VIDEO) : 0,
+  };
+}
+
 /** Decides what to do with a file. Pure. */
-export function planUpload(facts: MediaFacts, need: UploadNeed): UploadPlan {
+export function planUpload(facts: MediaFacts, need: UploadNeed, mode: UploadMode = "relay"): UploadPlan {
+  if (need.kind === "video" && need.pose) return planPose(facts, mode);
+  if (mode === "direct") return { action: "keep" };
   const heavy = uploadTooHeavy(facts.bytes);
   if (need.kind === "image") {
     if (!heavy) return { action: "keep" };
@@ -84,10 +117,6 @@ export function planUpload(facts: MediaFacts, need: UploadNeed): UploadPlan {
   // Video.
   const width = facts.width || 0;
   const height = facts.height || 0;
-  if (need.pose) {
-    const target = poseVideoTarget({ width, height, seconds: facts.seconds ?? null });
-    return { action: "video", width: target.width, height: target.height, frameRate: target.frameRate, end: target.end, videoBitrate: 1_500_000, audio: false, audioBitrate: 0 };
-  }
   if (!heavy) return { action: "keep" };
   if (need.keepQuality) return { action: "refuse", message: FINAL_TOO_HEAVY };
   const full = facts.seconds && facts.seconds > 0 ? facts.seconds : null;
@@ -199,10 +228,23 @@ async function convert(file: Blob, name: string, plan: Extract<UploadPlan, { act
  * takes it whole, re-encoded to what the workflow consumes otherwise, or
  * refused with a clear line. The returned File carries the right type and name.
  */
-export async function prepareUpload(file: Blob, name: string, need?: UploadNeed): Promise<File> {
+export async function prepareUpload(file: Blob, name: string, need?: UploadNeed, mode: UploadMode = "relay"): Promise<File> {
   const kind = need?.kind ?? kindOf(file.type);
   const wanted: UploadNeed = need ?? ({ kind } as UploadNeed);
   const asFile = file instanceof File && file.name === name ? file : new File([file], name, { type: file.type });
+  const pose = wanted.kind === "video" && Boolean(wanted.pose);
+  if (mode === "direct") {
+    // Original bytes, always; only the pose video is re-timed for the graph.
+    if (!pose) return asFile;
+    const plan = planUpload(await probe(file, "video"), wanted, "direct");
+    if (plan.action === "keep") return asFile;
+    if (plan.action !== "video") throw new Error(PREPARE_FAILED);
+    try {
+      return await convert(file, name, plan);
+    } catch {
+      throw new Error(PREPARE_FAILED);
+    }
+  }
   // Light files that the workflow takes whole skip probing entirely.
   if (!uploadTooHeavy(file.size) && !(wanted.kind === "video" && wanted.pose)) return asFile;
   // Finaliser never re-encodes its video: refuse before any decoding.

@@ -42,7 +42,7 @@ describe("client du compte de rendu", () => {
     for (const call of calls) {
       assert.equal(call.headers.get("x-api-key"), "comfyui-0123456789abcdef");
       assert.equal(call.headers.get("authorization"), null);
-      assert.ok(call.url.startsWith("/api/"), "everything goes through the same-origin relay");
+      assert.ok(call.url.startsWith("/api/") || call.url === "/envoi-direct/etat", "everything goes through the same-origin relay (or asks whether Blob is connected)");
     }
   });
 
@@ -106,7 +106,7 @@ describe("une prise sans quitter le studio", () => {
     const queue = [...statuses];
     const reads = [...cents];
     const { calls, fetchImpl } = fakeCloud(call => {
-      if (call.url === "/api/upload/image") return json({ name: `in-${calls.length}.jpg` });
+      if (call.url === "/api/upload/image") return json({ name: `in-${calls.filter(item => item.url !== "/envoi-direct/etat").length}.jpg` });
       if (call.url === "/api/prompt") return json({ prompt_id: "job-0123456789", number: 1, node_errors: {} });
       if (call.url === "/api/job/job-0123456789/status") return json({ status: queue.length > 1 ? queue.shift() : queue[0] });
       if (call.url === "/api/jobs/job-0123456789") {
