@@ -33,6 +33,7 @@ import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/de
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
 import { parseQuartier, type Quartier } from "@/lib/repere/quartier";
+import { framingGroups } from "@/lib/prise/framing-refs";
 import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
@@ -107,7 +108,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
+  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, sendToMontage, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
   const { t, say } = useI18n();
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
@@ -931,14 +932,46 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     }
   }
 
+  // P1-4: a kept take lands on the cut by itself, once, without leaving PRISE.
+  // MONTAGE dedupes by take id and by source, so keeping twice never doubles the clip.
+  const [keptWaiting, setKeptWaiting] = useState<{ planId: string; takeId: string } | null>(null);
+  async function keptToMontage(planId: string, takeId: string): Promise<boolean> {
+    const take = studio.takes.find(item => item.id === takeId);
+    const stored = drafts.find(item => item.id === planId);
+    const plan = stored && planId === draft.id ? { ...stored, input } : stored;
+    if (!take || !plan) return false;
+    if (!media[take.video]) { setKeptWaiting({ planId, takeId }); setNotice(t("p0.montageWait")); return false; }
+    setKeptWaiting(null);
+    try {
+      await sendToMontage({
+        takeId, planId, label: plan.input.action.trim() || plan.name || take.line, seconds: plan.input.duree,
+        aspect: plan.input.format === "9:16" ? "vertical" : "horizontal", still: "", prompt: "",
+        sceneName: places.find(place => place.id === plan.input.decorId)?.name ?? "",
+        composeur: planJson(plan.input, { etat: etatOf(plan), before: plan.before, after: plan.after, garde: takeId }),
+      });
+      return true;
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : t("p0.montageFailed"));
+      return false;
+    }
+  }
+  const waitingVideo = keptWaiting ? media[studio.takes.find(take => take.id === keptWaiting.takeId)?.video ?? ""] ?? "" : "";
+  useEffect(() => {
+    if (!keptWaiting || !waitingVideo) return;
+    void keptToMontage(keptWaiting.planId, keptWaiting.takeId).then(ok => { if (ok) setNotice(t("p0.keptOnMontage")); });
+  }, [keptWaiting, waitingVideo]);
+
   function keep(takeId: string) {
     const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true, garde: takeId } : item);
     editPlans(next);
+    void keptToMontage(draft.id, takeId).then(ok => { if (ok) setNotice(t("p0.keptOnMontage")); });
   }
 
   async function keepAndMontage(takeId: string) {
-    keep(takeId);
+    const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true, garde: takeId } : item);
+    editPlans(next);
     if (!media[studio.takes.find(take => take.id === takeId)?.video ?? ""]) {
+      setKeptWaiting({ planId: draft.id, takeId });
       setNotice(t("p0.montageWait"));
       return;
     }
@@ -1103,7 +1136,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           <label>{t("p0.editor.move")}<select aria-label={t("p0.editor.move")} value={input.camera} onChange={event => patch({ camera: event.target.value as CameraMove, manualCamera: true })}>{CAMERAS.map(value => <option key={value} value={value}>{t(`p0.camera.move.${value}`)}</option>)}</select></label>
           <label>{t("p0.editor.position")}<input aria-label={t("p0.editor.position")} maxLength={160} placeholder={t("p0.editor.positionHint")} value={input.cameraPosition ?? ""} onChange={event => patch({ cameraPosition: event.target.value })} /></label>
           <label>{t("p0.duration")}<select aria-label={t("p0.editor.duration")} value={input.duree} onChange={event => patch({ duree: Number(event.target.value) as PlanInput["duree"] })}><option value="5">5 s</option>{input.duree === 8 && <option value="8">8 s</option>}<option value="10">10 s</option></select></label>
-          <label className="u-plan-field-wide">{t("p0.editor.reference")}<select aria-label={t("p0.editor.reference")} value={input.framingRef ?? ""} onChange={event => patch({ framingRef: event.target.value })}><option value="">{t("p0.editor.none")}</option>{Object.keys(media).filter(path => /\.(png|jpe?g|webp)$/i.test(path)).map(path => <option key={path} value={path}>{cast.find(card => card.sheet === path || card.photos.includes(path))?.name ?? studio.scenes.find(scene => [scene.render, ...scene.stills, ...scene.views, ...scene.frames].includes(path))?.name ?? path.split("/").pop()}</option>)}</select></label>
+          <label className="u-plan-field-wide">{t("p0.editor.reference")}<select aria-label={t("p0.editor.reference")} value={input.framingRef ?? ""} onChange={event => patch({ framingRef: event.target.value })}><option value="">{t("p0.editor.none")}</option>{framingGroups(Object.keys(media), studio.scenes, cast, input.decorId).map(({ group, items }) => <optgroup key={group} label={t(`p0.editor.refGroups.${group}`)} data-framing-group={group}>{items.map(item => <option key={item.path} value={item.path}>{item.kind === "image" && item.n <= 1 ? item.name : `${item.name} · ${t(`p0.editor.refKinds.${item.kind}`)}${item.n ? ` ${item.n}` : ""}`}</option>)}</optgroup>)}</select></label>
         </div>
         {input.framingRef && media[input.framingRef] && <img className="u-plan-ref" src={media[input.framingRef]} alt={t("p0.editor.reference")} />}
         <p className="u-why">{t("p0.editor.referencesHint")}</p>

@@ -128,6 +128,14 @@ export interface Take {
   etat?: TakeEtat | null;
   /** Upscale of `video`. The original file stays. */
   finalVideo?: string | null;
+  /** Production sheet (P1-4). Absent on older notes. The Comfy template the graph comes from. */
+  workflow?: string;
+  /** Vault paths of the references sent, in order (cast, set, framing). */
+  refs?: string[];
+  /** The PRISE plan the take was shot for. */
+  planId?: string;
+  /** Comfy Cloud storage URL of the output (needs the account's own sign-in to read). */
+  storageUrl?: string;
 }
 
 export type LoraKind = "personnage" | "lieu";
@@ -426,7 +434,7 @@ export function takeMarkdown(take: Take, projet = "", links: TakeNoteLinks = { s
     ...links.sequences.map(item => noteLink(projet, "Sequences", item, "Séquence")),
     ...links.shots.map(item => noteLink(projet, "Shots", item, "Plan")),
   ];
-  const body = `# ${take.line || "Prise"}\n\n![[${take.video}]]\n\n## Texte parti\n\n${text}\n\nProfil : ${take.profile}\nJob : ${take.jobId}\nDate : ${when}\n${tied.length ? `\n${tied.join("\n")}\n` : ""}\n${take.sceneName ? `Lieu : ${take.sceneName}. ` : ""}${engine}${cost}\n`;
+  const body = `# ${take.line || "Prise"}\n\n![[${take.video}]]\n\n## Texte parti\n\n${text}\n\nProfil : ${take.profile}\n${take.workflow ? `Workflow : ${take.workflow}\n` : ""}Job : ${take.jobId}\nDate : ${when}\n${tied.length ? `\n${tied.join("\n")}\n` : ""}\n${take.sceneName ? `Lieu : ${take.sceneName}. ` : ""}${engine}${cost}\n`;
   return withFrontmatter({
     type: "prise",
     projet,
@@ -459,6 +467,10 @@ export function takeMarkdown(take: Take, projet = "", links: TakeNoteLinks = { s
     devis_borne: take.announcedHigh,
     ...(take.etat ? { etat: take.etat } : {}),
     ...(take.finalVideo ? { video_finale: take.finalVideo } : {}),
+    ...(take.workflow ? { workflow: take.workflow } : {}),
+    ...(take.refs?.length ? { references: take.refs } : {}),
+    ...(take.planId ? { plan_id: take.planId } : {}),
+    ...(take.storageUrl ? { stockage: take.storageUrl } : {}),
   }, body);
 }
 
@@ -507,6 +519,10 @@ export function parseTake(id: string, source: string): Take | null {
     announcedHigh: num(fields.devis_borne),
     ...(pick(text(fields.etat), ["essai", "gardee", "finalisee"] as const) ? { etat: pick(text(fields.etat), ["essai", "gardee", "finalisee"] as const) } : {}),
     ...(text(fields.video_finale) ? { finalVideo: text(fields.video_finale) } : {}),
+    ...(/^[A-Za-z0-9._-]{1,80}$/.test(text(fields.workflow)) ? { workflow: text(fields.workflow) } : {}),
+    ...(list(fields.references).some(path => path.startsWith("Projets/")) ? { refs: list(fields.references).filter(path => path.startsWith("Projets/")).slice(0, 12) } : {}),
+    ...(/^[a-z0-9-]{1,40}$/.test(text(fields.plan_id)) ? { planId: text(fields.plan_id) } : {}),
+    ...(/^https:\/\/cloud\.comfy\.org\/api\/view\?/.test(text(fields.stockage)) ? { storageUrl: text(fields.stockage) } : {}),
   };
 }
 
