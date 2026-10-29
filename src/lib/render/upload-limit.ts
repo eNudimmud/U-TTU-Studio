@@ -8,8 +8,6 @@ export const UPLOAD_MAX_BYTES = 3_800_000;
 
 /** French source line; phrase.ts maps it per locale (runtime.uploadHeavy). */
 export const UPLOAD_HEAVY = "Fichier trop lourd pour l’envoi : 3,8 Mo au plus. Prends un clip plus court ou une photo plus légère.";
-/** French source line; phrase.ts maps it per locale (runtime.poseVideoFailed). */
-export const POSE_VIDEO_FAILED = "Ce navigateur n’a pas pu préparer la vidéo de mouvement. Essaie un clip de 5 secondes au plus, en mp4.";
 
 export function uploadTooHeavy(bytes: number): boolean {
   return bytes > UPLOAD_MAX_BYTES;

@@ -3,6 +3,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { UPLOAD_MAX_BYTES, UPLOAD_HEAVY, POSE_FPS, POSE_FRAMES, poseVideoTarget, uploadTooHeavy } from "../src/lib/render/upload-limit.ts";
 import { createRenderClient } from "../src/lib/render/client.ts";
+import { PREPARE_FAILED } from "../src/lib/render/prepare-upload.ts";
 import { outilParId } from "../src/lib/outils/catalogue.ts";
 import { outilGraph } from "../src/lib/outils/graphs.ts";
 
@@ -33,11 +34,11 @@ test("the pose video is cut to one 81-frame window at 16 fps, so the quote (one 
   assert.equal(Math.floor((POSE_FRAMES - 2) / 80) + 1, 1);
 });
 
-test("client.upload refuses a too-heavy file before sending it, with a clear message", async () => {
+test("client.upload refuses a too-heavy file it cannot prepare, before sending it, with a clear message", async () => {
   let calls = 0;
   const client = createRenderClient({ auth: { kind: "key", key: "k".repeat(24) }, fetch: (async () => { calls++; return new Response("{}"); }) as typeof fetch });
   const big = new Blob([new Uint8Array(UPLOAD_MAX_BYTES + 10)], { type: "video/mp4" });
-  await assert.rejects(client.upload(big, "plan.mp4"), (error: Error) => error.message === UPLOAD_HEAVY);
+  await assert.rejects(client.upload(big, "plan.mp4"), (error: Error) => error.message === PREPARE_FAILED);
   assert.equal(calls, 0);
 });
 
@@ -50,8 +51,10 @@ test("the message exists in FR, EN, DE and ES", () => {
   for (const lang of ["fr", "en", "de", "es"]) {
     const messages = JSON.parse(readFileSync(`messages/${lang}.json`, "utf8"));
     assert.ok(messages.runtime.uploadHeavy, lang);
-    assert.ok(messages.runtime.poseVideoFailed, lang);
-    assert.doesNotMatch(messages.runtime.uploadHeavy + messages.runtime.poseVideoFailed, /gratuit|free|kostenlos|gratis/i);
+    for (const key of ["uploadHeavy", "prepareFailed", "videoTooLong", "audioTooLong", "finalTooHeavy", "finalImageTooHeavy"]) {
+      assert.ok(messages.runtime[key], `${lang} ${key}`);
+      assert.doesNotMatch(messages.runtime[key], /gratuit|free|kostenlos|gratis/i);
+    }
   }
 });
 
