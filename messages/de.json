@@ -130,7 +130,7 @@
       },
       "tools": {
         "name": "Eine Werkzeugbibliothek",
-        "body": "Comfy-Werkzeuge nach Familie: Bild, Retusche, Video, 3D, Ton. Jedes mit seiner Kalkulation."
+        "body": "Comfy-Werkzeuge nach Familie, jedes mit seiner Kalkulation: acht Winkel einer Figur oder Kulisse, bewegte Kamera, neues Licht, Geräusche passend zum Video, Stimme und Musik getrennt."
       },
       "refs": {
         "name": "Benannte Referenzen",
@@ -3315,7 +3315,7 @@
       "refs": {
         "q": "Wie nutze ich Referenzen?",
         "k": "referenzen referenz benannte name figur schauplatz objekt stil anhängen fotos bibliothek gesicht",
-        "a": "Eine benannte Referenz ist ein Name und bis zu 3 Fotos desselben Motivs, eingeordnet als Figur, Schauplatz, Objekt oder Stil. Leg sie unter „Referenzen“ in der Blase an und tippe auf ihre Karte, um sie anzuhängen. Sie bleibt in deinem Projekt und hält dasselbe Gesicht oder denselben Ort von Rendering zu Rendering."
+        "a": "Eine benannte Referenz ist ein Name und bis zu 3 Fotos desselben Motivs, eingeordnet als Figur, Schauplatz, Objekt oder Stil. Leg sie unter „Referenzen“ in der Blase an und tippe auf ihre Karte, um sie anzuhängen. Sie bleibt in deinem Projekt und hält dasselbe Gesicht oder denselben Ort von Rendering zu Rendering. Für ein Video aus Referenzen: „Referenztreues Video“. „Zwei Bilder vereint“ (≈ 100 Credits) bleibt hinter „Modell wechseln“, nur auf Wunsch."
       },
       "prise5": {
         "q": "Wie drehe ich einen Take?",
@@ -3334,8 +3334,8 @@
       },
       "which": {
         "q": "Welches Werkzeug soll ich nehmen?",
-        "k": "welches werkzeug werkzeuge wählen bedarf bibliothek familie rat empfehlen",
-        "a": "Ein Bild: Schnelles Bild. Eine Figur oder ein Ort, der gleich bleibt: Besetzung, Kulisse und Referenzen. Ein Video: die Blase im Video-Modus oder Take für eine echte Einstellung. Retusche: Ändern, Erweitern, Freistellen, Größer und schärfer. Ton: Stimme, Musik, Geräusch. „Werkzeuge“ ordnet alles nach Familie mit Kalkulation. Sag mir, was du machen willst, ich zeige dir das Werkzeug."
+        "k": "welches werkzeug werkzeuge wählen bedarf bibliothek familie rat empfehlen Winkel Kamera Mehrkamera Licht Geräusch trennen Übergang Schlüsselbilder",
+        "a": "Ein Bild: Schnelles Bild. Figur oder Ort beibehalten: Besetzung, Kulisse, Referenzen. Andere Blickwinkel: Acht Figurenwinkel, Acht Kulissenwinkel, Kamera bewegen. Ein Video: die Blase auf Video, oder Take; mit Referenzen: Referenztreues Video; zwei Schlüsselbilder: Treue Schlüsselbilder; wechselnder Stil: Stilübergang. Mehrere Kameras: Acht Figurenwinkel, dann „Einstellung, zweites Modell“ pro Winkel, ≈ 14 Credits pro Winkel. Retusche: Ändern, Erweitern, Freistellen, Größer und schärfer, Licht ändern („Licht nach Anweisung“, oder „Studioporträt“ als zweites Modell). Ton: Stimme, Musik, Geräusch, Geräusche für ein Video, Stimme und Musik trennen."
       },
       "projects": {
         "q": "Wo sind meine Projekte?",

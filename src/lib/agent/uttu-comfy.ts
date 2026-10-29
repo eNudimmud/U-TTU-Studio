@@ -30,7 +30,7 @@ export const HISTORY = 8;
 /** Output ceiling, hidden reasoning tokens included. A short JSON answer needs ~300; the rest is headroom. */
 export const MAX_OUTPUT_TOKENS = 1600;
 /** Character budget for the knowledge pack sent with each message. */
-export const PACK_BUDGET = 11000;
+export const PACK_BUDGET = 10600;
 /** Conservative token count for French/German prose: one token per three characters. */
 export const CHARS_PER_TOKEN = 3;
 export const ATTEMPT_TIMEOUT_MS = 25_000;
@@ -93,14 +93,19 @@ export function buildPack(k: Knowledge, locale: UttuLocale, question: string, bu
   const tools = k.tools.filter(t => open.has(t.id) && L.tools[t.id]).map(t => {
     const info = L.tools[t.id];
     const quote = quoteText(locale, t.cost, t.nature);
-    return `- ${t.id}: ${info.title}${info.model ? ` (${info.model})` : ""} [${L.families[t.famille] ?? t.famille} → ${OUTPUT_KIND[t.sortie] ?? t.sortie}${quote ? ` · ${quote}` : ""}]: ${info.line}`;
+    return `- ${t.id}: ${info.title}${info.model ? ` (${info.model})` : ""} [${OUTPUT_KIND[t.sortie] ?? t.sortie}${quote ? ` · ${quote}` : ""}]: ${info.line}`;
   });
-  sections.push(`TOOLS (id: name [family → output · quote]: what it does)\n${tools.join("\n")}`);
-  const gestures = k.gestures.filter(g => g.ouvert && !g.option && (g.onglet === "cast" || g.onglet === "decor" || g.onglet === "prise" || g.onglet === "montage") && L.gestures[g.clef]).map(g => {
+  sections.push(`TOOLS (id: name [output · quote]: what it does)\n${tools.join("\n")}`);
+  const seenStep = new Set<string>();
+  const gestures = k.gestures.filter(g => g.ouvert && !g.option && (g.onglet === "cast" || g.onglet === "decor" || g.onglet === "prise" || g.onglet === "montage") && L.gestures[g.clef]).filter(g => {
+    const key = `${g.onglet}:${L.gestures[g.clef].title}`;
+    if (seenStep.has(key)) return false;
+    seenStep.add(key); return true;
+  }).map(g => {
     const quote = quoteText(locale, g.cost, g.nature);
-    return `- ${L.tabs[g.onglet]?.title ?? g.onglet}: ${L.gestures[g.clef].title}${quote ? ` [${quote}]` : ""}: ${L.gestures[g.clef].phrase}`;
+    return `- ${L.tabs[g.onglet]?.title ?? g.onglet}: ${L.gestures[g.clef].title}${quote ? ` [${quote}]` : ""}`;
   });
-  if (gestures.length) sections.push(`STEPS (tab: action [quote]: what it does)\n${[...new Set(gestures)].join("\n")}`);
+  if (gestures.length) sections.push(`STEPS (tab: action [quote])\n${[...new Set(gestures)].join("\n")}`);
   const hits = searchFaq(k, locale, question, 6).filter(hit => hit.kind === "faq").map(hit => hit.id);
   const order = [...new Set([...hits, ...GUIDE_FAQ])];
   const faq = order.map(id => L.faq.find(f => f.id === id)).filter(Boolean).map(f => `Q: ${f!.q}\nA: ${f!.a.replaceAll("{version}", k.version.short)}`);
@@ -136,7 +141,7 @@ export function buildInstructions(locale: UttuLocale, pack: string, version: str
     `You are Uttu, the guide of U*TTU Studio (version ${version}), a film studio that runs only on ComfyUI and Comfy Cloud.`,
     `Answer in ${LANG[locale]} unless the visitor clearly writes another of: français, English, Deutsch, español. Speak to the visitor informally (French: « tu », German: « du », Spanish: « tú »).`,
     `Use ONLY the KNOWLEDGE below. If the answer is not in it, say exactly « ${UNKNOWN[locale]} » and suggest the guide or the cost estimator. Never invent features, prices, models or links.`,
-    "Costs: quote only the « ≈ … » figures written in TOOLS or STEPS, word for word, and add that the studio shows the exact quote before anything is launched. Never compute a total, never invent a price, never call anything free: a render always costs credits; only guiding, estimating, scouting and the timeline launch no render.",
+    "Costs: quote only the « ≈ … » figures written in TOOLS, STEPS or FAQ, word for word, and add that the studio shows the exact quote before anything is launched. Never compute a total, never invent a price, never call anything free: a render always costs credits; only guiding, estimating, scouting and the timeline launch no render.",
     "Guide well: say which tool or tab fits the need, whether it makes an image, a video, a sound or 3D, which references or files to bring, and the next step (CAST → DÉCOR → PRISE in 5 steps → MONTAGE → Finaliser). Finaliser improves, it never regenerates. Only the tools in TOOLS exist: never mention any other.",
     "You cannot launch, buy, cancel or change anything. When the visitor wants something made, set action to \"plan\" with their request rewritten as one short order; the studio prepares the plan and the visitor clicks to launch after a quote. When one tool fits, set action to \"open_tool\" with its id from TOOLS. Otherwise action is \"none\".",
     "Keep the reply under 110 words, plain text, no markdown. No stories, no backstory: you are Uttu, a helpful studio guide.",

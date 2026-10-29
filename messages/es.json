@@ -130,7 +130,7 @@
       },
       "tools": {
         "name": "Una biblioteca de herramientas",
-        "body": "Herramientas Comfy por familia: imagen, retoque, vídeo, 3D, sonido. Cada una con su presupuesto."
+        "body": "Herramientas Comfy por familia, cada una con su presupuesto: ocho ángulos de un personaje o un decorado, cámara movida, luz cambiada, efectos de sonido sincronizados con un vídeo, voz y música separadas."
       },
       "refs": {
         "name": "Referencias con nombre",
@@ -3315,7 +3315,7 @@
       "refs": {
         "q": "¿Cómo uso referencias?",
         "k": "referencias referencia nombrada nombre personaje escenario objeto estilo adjuntar fotos biblioteca cara",
-        "a": "Una referencia con nombre es un nombre y hasta 3 fotos del mismo tema, clasificada como Personaje, Escenario, Objeto o Estilo. Créala desde «Referencias» en la burbuja y toca su tarjeta para adjuntarla. Se queda en tu proyecto y mantiene la misma cara o el mismo lugar de un render a otro."
+        "a": "Una referencia con nombre es un nombre y hasta 3 fotos del mismo tema, clasificada como Personaje, Escenario, Objeto o Estilo. Créala desde «Referencias» en la burbuja y toca su tarjeta para adjuntarla. Se queda en tu proyecto y mantiene la misma cara o el mismo lugar de un render a otro. Para un vídeo a partir de referencias: «Vídeo fiel a referencias». «Dos imágenes combinadas» (≈ 100 créditos) queda tras «Cambiar de modelo», solo si se pide."
       },
       "prise5": {
         "q": "¿Cómo ruedo una Toma?",
@@ -3334,8 +3334,8 @@
       },
       "which": {
         "q": "¿Qué herramienta elijo?",
-        "k": "qué herramienta herramientas elegir necesito biblioteca familia consejo recomendar",
-        "a": "Una imagen: Imagen rápida. Un personaje o un lugar que no cambie: Reparto, Decorado y las referencias. Un vídeo: la burbuja en Vídeo, o Toma para un plano de verdad. Retocar: Modificar, Ampliar, Quitar fondo, Más grande y nítida. Sonido: Voz, Música, Efecto de sonido. «Herramientas» lo ordena todo por familia con su presupuesto. Dime qué quieres hacer y te indico la herramienta."
+        "k": "qué herramienta herramientas elegir necesito biblioteca familia consejo recomendar ángulo ángulos cámara multicámara luz efecto separar transición fotogramas",
+        "a": "Una imagen: Imagen rápida. Mantener un personaje o lugar: Reparto, Decorado, referencias. Otros puntos de vista: Ocho ángulos del personaje, Ocho ángulos del decorado, Mover la cámara. Un vídeo: la burbuja en Vídeo, o Toma; con referencias: Vídeo fiel a referencias; dos fotogramas clave: Fotogramas clave fieles; un estilo que cambia: Transición de estilo. Multicámara: Ocho ángulos del personaje, luego «Plano, segundo motor» en cada ángulo, ≈ 14 créditos por ángulo. Retocar: Modificar, Ampliar, Quitar fondo, Más grande y nítida, Cambiar la luz («Luz según tu consigna», o «Retrato de estudio» como segundo modelo). Sonido: Voz, Música, Efecto de sonido, Efectos de sonido para un vídeo, Separar voz y música."
       },
       "projects": {
         "q": "¿Dónde están mis proyectos?",

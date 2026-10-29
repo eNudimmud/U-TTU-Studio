@@ -52,9 +52,9 @@ test("sync: quotes are written in credits, never as free, image vs video vs soun
   for (const locale of UTTU_LOCALES) {
     const pack = buildPack(k, locale, "?");
     assert.doesNotMatch(pack, /\b(gratuit|gratuite|free|kostenlos|gratis)\b/i, locale);
-    assert.match(pack, /- img-klein: [^\n]*→ image/);
-    assert.match(pack, /- vid-h3-refs: [^\n]*→ video/);
-    assert.match(pack, /- son-dialogue: [^\n]*→ sound/);
+    assert.match(pack, /- img-klein: [^\n]*\[image/);
+    assert.match(pack, /- vid-h3-refs: [^\n]*\[video/);
+    assert.match(pack, /- son-dialogue: [^\n]*\[sound/);
     assert.match(pack, /\nSTEPS /);
   }
 });
@@ -83,5 +83,20 @@ test("sync: Uttu is the only guide, and no answer calls a render free", () => {
     const text = JSON.stringify(L.faq);
     assert.doesNotMatch(text, /\bMira\b/, locale);
     for (const f of L.faq) assert.doesNotMatch(f.a, /\b(gratuit|gratuite|gratuitement|free|kostenlos|gratis)\b/i, `${locale} ${f.id}`);
+  }
+});
+
+test("sync: top 10 paths are guided, unintegrated workflows are never proposed", () => {
+  for (const locale of UTTU_LOCALES) {
+    const pack = buildPack(k, locale, "Quel outil pour plusieurs angles et une vidéo à partir de références ?");
+    for (const id of ["ret-angles-perso", "ret-angles-decor", "ret-camera", "son-bruitage-video", "son-separer", "vid-multi", "vid-transition-style", "ret-eclairer-ouvert", "vid-h3-refs"]) {
+      assert.ok(open.includes(id), id);
+      assert.ok(pack.includes(k.locales[locale].tools[id].title), `${locale} ${id}`);
+    }
+    const which = k.locales[locale].faq.find(f => f.id === "which")!.a;
+    assert.match(which, /≈ 14 /, `${locale} multi-camera recipe`);
+    assert.ok(which.includes(k.locales[locale].tools["ret-angles-perso"].title), locale);
+    // Not integrated (docs/mesures/workflows-top10-2026-10-29.md) and the merged card is gone.
+    assert.doesNotMatch(pack, /FastH3|fasth3|Light Migration|light_migration|planche LTX|LTX reference sheet|Vidéo à références multiples|vid-vidu/i, locale);
   }
 });

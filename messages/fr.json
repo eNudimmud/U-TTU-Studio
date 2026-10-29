@@ -130,7 +130,7 @@
       },
       "tools": {
         "name": "Une bibliothèque d’outils",
-        "body": "Les outils Comfy rangés par famille : image, retouche, vidéo, 3D, son. Chacun avec son devis."
+        "body": "Les outils Comfy rangés par famille, chacun avec son devis : huit angles d’un personnage ou d’un décor, caméra déplacée, lumière changée, bruitage calé sur une vidéo, voix et musique séparées."
       },
       "refs": {
         "name": "Des références nommées",
@@ -3315,7 +3315,7 @@
       "refs": {
         "q": "Comment utiliser des références ?",
         "k": "références référence nommée nom personnage décor objet style joindre photos bibliothèque même visage",
-        "a": "Une référence nommée, c’est un nom et jusqu’à 3 photos du même sujet, rangée en Personnage, Décor, Objet ou Style. Crée-la depuis « Références » dans la bulle, puis touche sa carte pour la joindre à ta création. Elle reste dans ton projet et garde le même visage ou le même lieu d’un rendu à l’autre."
+        "a": "Une référence nommée, c’est un nom et jusqu’à 3 photos du même sujet, rangée en Personnage, Décor, Objet ou Style. Crée-la depuis « Références » dans la bulle, puis touche sa carte pour la joindre à ta création. Elle reste dans ton projet et garde le même visage ou le même lieu d’un rendu à l’autre. Pour une vidéo à partir de références : « Vidéo fidèle aux références ». « Deux images mêlées » (≈ 100 crédits) reste derrière « Changer de modèle », seulement si on le demande."
       },
       "prise5": {
         "q": "Comment tourner une PRISE ?",
@@ -3334,8 +3334,8 @@
       },
       "which": {
         "q": "Quel outil choisir ?",
-        "k": "quel outil outils choisir besoin bibliothèque famille conseil lequel recommander",
-        "a": "Une image : Image rapide. Un personnage ou un lieu qui reste le même : CAST, DÉCOR et les références. Une vidéo : la bulle en Vidéo, ou PRISE pour un vrai plan. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net. Le son : Voix, Musique, Bruitage. « Outils » range tout par famille avec son devis. Dis-moi ce que tu veux faire, je t’indique l’outil."
+        "k": "quel outil outils choisir besoin bibliothèque famille conseil lequel recommander angle angles caméra multi-caméra lumière bruitage séparer transition clés",
+        "a": "Une image : Image rapide. Garder un personnage ou un lieu : CAST, DÉCOR, références. D’autres points de vue : Huit angles du personnage, Huit angles du décor, Déplacer la caméra. Une vidéo : la bulle en Vidéo, ou PRISE ; avec références : Vidéo fidèle aux références ; deux images clés : Images clés fidèles ; un style qui change : Transition de style. Multi-caméra : Huit angles du personnage, puis « Plan, second moteur » sur chaque angle, ≈ 14 crédits par angle. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net, Changer la lumière (« Lumière par consigne », ou « Portrait studio » en second modèle). Son : Voix, Musique, Bruitage, Bruitage d’une vidéo, Séparer voix et musique."
       },
       "projects": {
         "q": "Où sont mes projets ?",

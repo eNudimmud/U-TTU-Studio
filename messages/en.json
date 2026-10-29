@@ -130,7 +130,7 @@
       },
       "tools": {
         "name": "A tool library",
-        "body": "Comfy tools sorted by family: image, retouch, video, 3D, sound. Each with its quote."
+        "body": "Comfy tools sorted by family, each with its quote: eight angles of a character or a set, a moved camera, new lighting, sound effects synced to a video, voice and music split."
       },
       "refs": {
         "name": "Named references",
@@ -3315,7 +3315,7 @@
       "refs": {
         "q": "How do I use references?",
         "k": "references reference named name character setting object style attach photos library same face",
-        "a": "A named reference is a name and up to 3 photos of the same subject, filed as Character, Setting, Object or Style. Create it from “References” in the bubble, then tap its card to attach it to your creation. It stays in your project and keeps the same face or place from one render to the next."
+        "a": "A named reference is a name and up to 3 photos of the same subject, filed as Character, Setting, Object or Style. Create it from “References” in the bubble, then tap its card to attach it to your creation. It stays in your project and keeps the same face or place from one render to the next. For a video from references: “Reference-true video”. “Two pictures blended” (≈ 100 credits) stays behind “Change model”, only if asked."
       },
       "prise5": {
         "q": "How do I shoot a Take?",
@@ -3334,8 +3334,8 @@
       },
       "which": {
         "q": "Which tool should I pick?",
-        "k": "which tool tools pick choose need library family advice recommend",
-        "a": "An image: Quick image. A character or place that stays the same: Cast, Set and references. A video: the bubble in Video, or Take for a real shot. Retouch: Edit, Extend, Remove background, Larger and sharper. Sound: Voice, Music, Sound effect. “Tools” sorts everything by family with its quote. Tell me what you want to make and I’ll point you to the tool."
+        "k": "which tool tools pick choose need library family advice recommend angle angles camera multi-camera light relight sound split transition keyframes",
+        "a": "An image: Quick image. Keep a character or place: Cast, Set, references. Other viewpoints: Eight character angles, Eight set angles, Move the camera. A video: the bubble in Video, or Take; with references: Reference-true video; two keyframes: Faithful keyframes; a changing style: Style transition. Multi-camera: Eight character angles, then “Shot, second engine” on each angle, ≈ 14 credits per angle. Retouch: Edit, Extend, Remove background, Larger and sharper, Relight (“Light from your prompt”, or “Studio portrait” as second model). Sound: Voice, Music, Sound effect, Sound effects for a video, Split voice and music."
       },
       "projects": {
         "q": "Where are my projects?",
