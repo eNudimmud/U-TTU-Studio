@@ -569,3 +569,50 @@ export function mapReferences(row: Geste, refs: readonly RefInput[]): { slot: st
 export function refsPourGraphe(row: Geste, refs: readonly RefInput[]): string[] {
   return mapReferences(row, refs).map(item => item.refId);
 }
+
+/**
+ * The node that saves the final result, per template, by node id in the graph we send.
+ * The studio reads this node only. Comfy also lists the loaded inputs among the outputs
+ * (LoadVideo previews the source clip), so « the first video » may be the visitor's own file.
+ * Checked against every graph in outils/base.ts and every wired tool graph by tests/sortie-finale.test.ts.
+ */
+export const NOEUD_SORTIE: Readonly<Record<string, string>> = {
+  api_higgsfield_genjutsu_motion_transfer: "10",
+  image_qwen_image_2_1_t2i: "461",
+  api_bfl_flux3_t2i: "2",
+  api_ideogram_v4_5_t2i: "5",
+  api_openai_gpt_image_2_t2i: "269",
+  api_bytedance_seedream_5_0_pro_t2i: "2",
+  api_nano_banana_2_1_t2i: "3",
+  image_qwen_image_2_1_image_edit: "461",
+  video_ltx2_5_t2v: "75",
+  api_kling_v3_video: "2",
+  api_seedance2_5_r2v: "16",
+  video_wan2_2_14B_i2v: "108",
+  api_vidu_q4_preview_r2v: "6",
+  api_minimax_h3_max_r2v: "2",
+  video_wan_animate2: "246",
+  api_tripo_p2_image_to_model: "14",
+  api_hunyuan3d_image_to_model: "13",
+  api_meshy7_1_image_to_model: "17",
+  "audio-chatterbox_tts_multilingual": "3",
+  api_elevenlabs_v4_text_to_dialogue: "220",
+  audio_ace_step1_5_xl_turbo: "111",
+  audio_stable_audio_3_medium: "57",
+  template_qwen_Image_2512_360_lora: "60",
+  image_qwen_Image_2512_controlnet: "60",
+  template_character_portrait_relighting: "138",
+  api_grok_video_extend: "3",
+  api_bria_remove_video_background: "5",
+  api_sync_so_lip_sync_video: "13",
+  api_sonilo_v2m: "728",
+  // Tools that load a file of the kind they save (suite graphs).
+  image_flux3_klein_image_edit: "save",
+  utility_seedvr2_3b_int8_upscale_image: "9",
+  templates_doc_workbox_klein_9b_image_extend: "142",
+  utility_birefnet_remove_background: "save",
+  utility_seedvr2_3b_int8_upscale_video: "76",
+  template_ltx2_3_lora_video_outpainting: "5152",
+  template_ltx2_3_obscura_remova_lora_remove_object_from_video: "53",
+  utility_video_frame_interpolation: "7",
+};

@@ -14,7 +14,7 @@ import { readFrontmatter, list, withFrontmatter } from "@/lib/coffre/markdown";
 import { castNote } from "@/lib/creation/fiche";
 import { runStem, type StemKind } from "@/lib/creation/stem";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
-import { gesteOuvert, gesteParId, gesteVisible, templatePartenaire, type RoleRef } from "@/lib/workflows/registre";
+import { gesteOuvert, gesteParId, gesteVisible, NOEUD_SORTIE, templatePartenaire, type RoleRef } from "@/lib/workflows/registre";
 import { captureFiles } from "@/lib/repere3d/capture";
 import { cleanCardName, copyCast, decorFromScene, renameById, type CastCard, type DecorCard } from "@/lib/creation/gallery";
 import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
@@ -38,7 +38,8 @@ import { posePlan } from "@/lib/ergonomie";
 import { type Balance } from "@/lib/credits";
 import { FINAL_MAX_SECONDS, finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
-import { audioOutput, videoOutput, meshOutput, jobStage, createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
+import { audioOutput, imageOutput, videoOutput, meshOutput, jobStage, createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
+import { noeudSortie } from "@/lib/render/sortie";
 import { isVideoGeste, VIDEO_GESTE_TEXT, videoGesteGraph } from "@/lib/render/video-gestes";
 import { importModel, modelExtension } from "@/lib/maquette/files";
 import { isMeshGeste, meshGesteGraph, runMesh } from "@/lib/render/mesh-gestes";
@@ -1095,7 +1096,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const graph = open
         ? suiteGraph({ geste: "suite-finaliser-video", files: { source: file }, prompt: "", seed: randomSeed(), seconds: input.seconds, fluidifier: input.fluidifier })
         : finalGraph({ file, ratio: input.ratio, ...input.choice });
-      const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      const outputNode = noeudSortie(graph, receipt.template);
+      const jobId = await recoverableClient(client, localStorage, { ...receipt, outputNode }).submit(graph, crypto.randomUUID());
       const notePath = `Projets/${slug}/Assets/${id}.md`;
       const path = `Projets/${slug}/Assets/${id}.mp4`;
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
@@ -1103,6 +1105,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         else if (event.stage === "render") input.onStage("calcul", event.seconds);
         else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
       }, {
+        outputNode,
         deferMeasure: true,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
@@ -1155,7 +1158,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       }
       const graph = videoGesteGraph({ geste, files: names, prompt: input.prompt, aspect: input.aspect, seed: randomSeed() });
       const receipt: PendingRender = { version: 1, kind: "video", geste, project: slug, id, name: t(`gestes.${row.clef}.title`), prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: row.credits, balanceBefore: fresh!.credits, jobId: null };
-      const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      const outputNode = noeudSortie(graph, receipt.template);
+      const jobId = await recoverableClient(client, localStorage, { ...receipt, outputNode }).submit(graph, crypto.randomUUID());
       const notePath = `Projets/${slug}/Assets/${id}.md`;
       const path = `Projets/${slug}/Assets/${id}.mp4`;
       const result = await followTake(client, jobId, fresh?.credits ?? 0, event => {
@@ -1163,6 +1167,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         else if (event.stage === "render") input.onStage("calcul", event.seconds);
         else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
       }, {
+        outputNode,
         deferMeasure: true,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
@@ -1269,7 +1274,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       }
       const graph = suiteGraph({ geste, files: { source, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds });
       const still = SUITE_SORTIE[geste] === "image";
-      const receipt: PendingRender = { version: 1, kind: still ? "image" : "video", geste, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
+      const outputNode = noeudSortie(graph, row.template);
+      const receipt: PendingRender = { version: 1, kind: still ? "image" : "video", geste, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null, outputNode };
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
       const ext = still ? "png" : "mp4";
       const path = `Projets/${slug}/Assets/${id}.${ext}`;
@@ -1281,6 +1287,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
       }, {
         output: still ? "image" : "video",
+        outputNode,
         deferMeasure: true,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
@@ -1356,7 +1363,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution });
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
-      const receipt: PendingRender = { version: 1, kind, geste: row.id, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
+      // The final save node by id (registry), never « the first video »: Comfy lists the source clip too.
+      const outputNode = noeudSortie(graph, creation ? undefined : row.template);
+      const receipt: PendingRender = { version: 1, kind, geste: row.id, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null, outputNode };
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
       input.onSubmitted?.({ jobId, assetId: id, project: slug });
       let notePath = "";
@@ -1368,6 +1377,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
       }, {
         output: sortie,
+        outputNode,
         deferMeasure: true,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
@@ -1682,7 +1692,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         const detail = await client.job(receipt.jobId);
         const isVideo = receipt.kind === "final" || receipt.kind === "video";
         const isImage = receipt.kind === "image";
-        const ref = receipt.kind === "mesh" ? meshOutput(detail.outputs) : receipt.kind === "son" ? audioOutput(detail.outputs) : isVideo ? videoOutput(detail.outputs) : stillOutput(detail.outputs);
+        // Receipts from before the fix carry no node: the registry's node, when this job has it.
+        const listed = NOEUD_SORTIE[receipt.template];
+        const node = receipt.outputNode ?? (listed && detail.outputs && listed in detail.outputs ? listed : undefined);
+        const ref = receipt.kind === "mesh" ? meshOutput(detail.outputs, node) : receipt.kind === "son" ? audioOutput(detail.outputs, node) : isVideo ? videoOutput(detail.outputs, node) : node ? imageOutput(detail.outputs, node) : stillOutput(detail.outputs);
         if (!ref) throw new Error("Le cloud annonce la fin mais le fichier manque. Le reçu est conservé.");
         const blob = await client.file(ref);
         if (receipt.kind === "mesh") await modelExtension(blob, ref.filename);

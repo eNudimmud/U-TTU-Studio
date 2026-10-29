@@ -32,7 +32,7 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await page.route(/\/api\/upload\/image$/, route => route.fulfill({ json: { name: 'input.webp' } }));
   await page.route(/\/api\/prompt$/, route => { posts++; return route.fulfill({ json: { prompt_id: 'video-recovery-123', node_errors: {} } }); });
   await page.route(/\/api\/job\/video-recovery-123\/status$/, route => route.fulfill({ json: { status: done ? 'success' : 'in_progress' } }));
-  await page.route(/\/api\/jobs\/video-recovery-123$/, route => route.fulfill({ json: { status: 'success', outputs: { save: { images: [{ filename: 'raccord.mp4', subfolder: '', type: 'output' }] } } } }));
+  await page.route(/\/api\/jobs\/video-recovery-123$/, route => route.fulfill({ json: { status: 'success', outputs: { '68': { images: [{ filename: 'raccord.mp4', subfolder: '', type: 'output' }] } } } })); // 68: SaveVideo of video_ltx2_5_flf2v
   await page.route(/\/api\/view\?/, route => route.fulfill({ contentType: 'video/mp4', body: video }));
   await page.goto('/studio#personnage');
   await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();

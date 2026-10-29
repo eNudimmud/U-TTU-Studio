@@ -74,93 +74,61 @@ const VIDEO_FILE = /\.(mp4|webm|mov|mkv)$/i;
 const IMAGE_FILE = /\.(png|jpe?g|webp)$/i;
 const AUDIO_FILE = /\.(mp3|wav|ogg|m4a|flac|opus)$/i;
 
-/** The first video a job saved. SaveVideo reports it under `images`, `video` or `gifs`. */
-export function videoOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
-  if (!outputs || typeof outputs !== "object") return null;
-  const files: OutputRef[] = [];
-  for (const node of Object.values(outputs)) {
-    if (!node || typeof node !== "object") continue;
-    for (const list of Object.values(node as Record<string, unknown>)) {
-      if (!Array.isArray(list)) continue;
-      for (const item of list) {
-        if (!item || typeof item !== "object") continue;
-        const row = item as Record<string, unknown>;
-        if (typeof row.filename !== "string" || !row.filename) continue;
-        files.push({
-          filename: row.filename,
-          subfolder: typeof row.subfolder === "string" ? row.subfolder : "",
-          type: typeof row.type === "string" ? row.type : "output",
-        });
-      }
-    }
-  }
-  return files.find(file => VIDEO_FILE.test(file.filename)) ?? null;
-}
-
-/** The first audio file a job saved. */
-export function audioOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
-  if (!outputs || typeof outputs !== "object") return null;
-  const files: OutputRef[] = [];
-  for (const node of Object.values(outputs)) {
-    if (!node || typeof node !== "object") continue;
-    for (const list of Object.values(node as Record<string, unknown>)) {
-      if (!Array.isArray(list)) continue;
-      for (const item of list) {
-        if (!item || typeof item !== "object") continue;
-        const row = item as Record<string, unknown>;
-        if (typeof row.filename !== "string" || !row.filename) continue;
-        files.push({
-          filename: row.filename,
-          subfolder: typeof row.subfolder === "string" ? row.subfolder : "",
-          type: typeof row.type === "string" ? row.type : "output",
-        });
-      }
-    }
-  }
-  return files.find(file => AUDIO_FILE.test(file.filename)) ?? null;
-}
-
+export type OutputKind = "video" | "image" | "audio" | "mesh";
 const MESH_FILE = /\.(glb|gltf)$/i;
+const KIND_FILE: Record<OutputKind, RegExp> = { video: VIDEO_FILE, image: IMAGE_FILE, audio: AUDIO_FILE, mesh: MESH_FILE };
 
-/** The first 3D model a job saved. SaveGLB and Save3DAdvanced report it under `3d` or `result`. */
-export function meshOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
-  if (!outputs || typeof outputs !== "object") return null;
-  for (const node of Object.values(outputs)) {
-    if (!node || typeof node !== "object") continue;
-    for (const list of Object.values(node as Record<string, unknown>)) {
-      if (!Array.isArray(list)) continue;
-      for (const item of list) {
-        if (!item || typeof item !== "object") continue;
-        const row = item as Record<string, unknown>;
-        if (typeof row.filename !== "string" || !MESH_FILE.test(row.filename)) continue;
-        return { filename: row.filename, subfolder: typeof row.subfolder === "string" ? row.subfolder : "", type: typeof row.type === "string" ? row.type : "output" };
-      }
+function filesOf(node: unknown): OutputRef[] {
+  const files: OutputRef[] = [];
+  if (!node || typeof node !== "object") return files;
+  for (const list of Object.values(node as Record<string, unknown>)) {
+    if (!Array.isArray(list)) continue;
+    for (const item of list) {
+      if (!item || typeof item !== "object") continue;
+      const row = item as Record<string, unknown>;
+      if (typeof row.filename !== "string" || !row.filename) continue;
+      files.push({
+        filename: row.filename,
+        subfolder: typeof row.subfolder === "string" ? row.subfolder : "",
+        type: typeof row.type === "string" ? row.type : "output",
+      });
     }
   }
-  return null;
+  return files;
 }
 
-/** The first still a job saved. SaveImage reports it under `images`. */
-export function imageOutput(outputs: Record<string, unknown> | undefined): OutputRef | null {
+/**
+ * The file a job saved, of one kind. With `node`, only that node's outputs count:
+ * Comfy also reports the loaded inputs (LoadVideo previews the source clip), and
+ * history keys come back in numeric order, so « the first video » can be the source.
+ * Without `node`, files marked `input` never count and saved files come first.
+ */
+export function pickOutput(outputs: Record<string, unknown> | undefined, kind: OutputKind, node?: string): OutputRef | null {
   if (!outputs || typeof outputs !== "object") return null;
-  const files: OutputRef[] = [];
-  for (const node of Object.values(outputs)) {
-    if (!node || typeof node !== "object") continue;
-    for (const list of Object.values(node as Record<string, unknown>)) {
-      if (!Array.isArray(list)) continue;
-      for (const item of list) {
-        if (!item || typeof item !== "object") continue;
-        const row = item as Record<string, unknown>;
-        if (typeof row.filename !== "string" || !row.filename) continue;
-        files.push({
-          filename: row.filename,
-          subfolder: typeof row.subfolder === "string" ? row.subfolder : "",
-          type: typeof row.type === "string" ? row.type : "output",
-        });
-      }
-    }
-  }
-  return files.find(file => IMAGE_FILE.test(file.filename)) ?? null;
+  const pattern = KIND_FILE[kind];
+  if (node !== undefined) return filesOf((outputs as Record<string, unknown>)[node]).find(file => file.type !== "input" && pattern.test(file.filename)) ?? null;
+  const files = Object.values(outputs).flatMap(filesOf).filter(file => file.type !== "input" && pattern.test(file.filename));
+  return files.find(file => file.type === "output") ?? files[0] ?? null;
+}
+
+/** The video a job saved. SaveVideo reports it under `images`, `video` or `gifs`. */
+export function videoOutput(outputs: Record<string, unknown> | undefined, node?: string): OutputRef | null {
+  return pickOutput(outputs, "video", node);
+}
+
+/** The audio file a job saved. */
+export function audioOutput(outputs: Record<string, unknown> | undefined, node?: string): OutputRef | null {
+  return pickOutput(outputs, "audio", node);
+}
+
+/** The 3D model a job saved. SaveGLB and Save3DAdvanced report it under `3d` or `result`. */
+export function meshOutput(outputs: Record<string, unknown> | undefined, node?: string): OutputRef | null {
+  return pickOutput(outputs, "mesh", node);
+}
+
+/** The still a job saved. SaveImage reports it under `images`. */
+export function imageOutput(outputs: Record<string, unknown> | undefined, node?: string): OutputRef | null {
+  return pickOutput(outputs, "image", node);
 }
 
 /** Execution time the cloud recorded, from its own timeline. */

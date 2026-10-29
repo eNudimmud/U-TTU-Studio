@@ -23,6 +23,8 @@ export interface PendingRender {
   balanceBefore: number;
   jobId: string | null;
   flight?: Omit<InFlight, 'jobId'>;
+  /** Node that saves the final result in the graph sent (render/sortie.ts). */
+  outputNode?: string;
 }
 
 export function readPending(storage: Pick<Storage, 'getItem'>): PendingRender | null {
@@ -32,7 +34,8 @@ export function readPending(storage: Pick<Storage, 'getItem'>): PendingRender | 
   const data = JSON.parse(raw) as PendingRender;
   if (data.version !== 1 || !['cast', 'decor', 'son', 'take', 'final', 'video', 'mesh', 'image'].includes(data.kind)
     || !/^[a-z0-9-]+$/.test(data.project) || !/^[a-z0-9-]+$/.test(data.id)
-    || (data.jobId !== null && !/^[a-zA-Z0-9-]{8,64}$/.test(data.jobId))) throw new Error('Le reçu de rendu est illisible. Conserve les données du navigateur et vérifie ton compte de rendu.');
+    || (data.jobId !== null && !/^[a-zA-Z0-9-]{8,64}$/.test(data.jobId))
+    || (data.outputNode !== undefined && (typeof data.outputNode !== 'string' || !/^[A-Za-z0-9:_-]{1,64}$/.test(data.outputNode)))) throw new Error('Le reçu de rendu est illisible. Conserve les données du navigateur et vérifie ton compte de rendu.');
   return data;
 }
 

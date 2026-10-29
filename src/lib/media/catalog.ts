@@ -125,14 +125,17 @@ export async function discoverLocal(store: VaultStore, project: string, labels: 
     return { ...base, jobId: label?.jobId ?? null, workflowId: label?.workflowId ?? null, organization: { ...base.organization, character: label?.character ?? '', decor: label?.decor ?? '', sequence: label?.sequence ?? '', take: label?.take ?? '' }, technical: { mime: e.blob!.type, bytes: e.blob!.size } };
   })] }));
 }
-export function outputRefs(detail: JobDetail): (OutputRef & { assetId: string | null })[] {
+/** What a job saved. Loaded inputs (type `input`) are never results; with `only`, that node alone. */
+export function outputRefs(detail: JobDetail, only?: string): (OutputRef & { assetId: string | null })[] {
   const refs: (OutputRef & { assetId: string | null })[] = [];
-  for (const node of Object.values(detail.outputs ?? {})) if (node && typeof node === 'object') for (const list of Object.values(node)) if (Array.isArray(list)) for (const row of list) if (row && typeof row.filename === 'string' && !/[\\\u0000]/.test(row.filename)) refs.push({ filename: row.filename, subfolder: text(row.subfolder), type: text(row.type) || 'output', assetId: id(row.asset_id ?? row.id) });
+  const outputs = detail.outputs ?? {};
+  const nodes = only && only in outputs ? [outputs[only]] : Object.values(outputs);
+  for (const node of nodes) if (node && typeof node === 'object') for (const list of Object.values(node)) if (Array.isArray(list)) for (const row of list) if (row && typeof row.filename === 'string' && !/[\\\u0000]/.test(row.filename) && row.type !== 'input') refs.push({ filename: row.filename, subfolder: text(row.subfolder), type: text(row.type) || 'output', assetId: id(row.asset_id ?? row.id) });
   return refs;
 }
 /** A completed job is a durable reference even if its output has no Asset API UUID. */
 export async function registerRender(store: VaultStore, receipt: PendingRender, detail: JobDetail, account: string): Promise<void> {
-  const refs = outputRefs(detail);
+  const refs = outputRefs(detail, receipt.outputNode);
   const entries = await store.list();
   const candidates = entries.filter(e => e.blob && e.path.startsWith(`Projets/${receipt.project}/`) && e.path.split('/').pop()?.startsWith(`${receipt.id}.`));
   await updateCatalog(store, receipt.project, c => {

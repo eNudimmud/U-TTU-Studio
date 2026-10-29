@@ -4,7 +4,7 @@
 // so a take queued before a reload can be picked up again.
 
 import { measuredCost } from "../credits.ts";
-import { audioOutput, executionSeconds, imageOutput, jobStage, meshOutput, RenderError, videoOutput, type OutputRef, type RenderClient } from "./client.ts";
+import { executionSeconds, jobStage, pickOutput, RenderError, type OutputRef, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
 import type { UploadedControls } from "./framed-key.ts";
 import { TAKE_PICTURES_MAX, takeEngine, takeGraph, takeRendu, type ApiGraph, type TakeSettings } from "./take-graph.ts";
@@ -67,6 +67,8 @@ export interface TakeRunOptions {
   signal?: AbortSignal;
   /** What the job saves. A take is a video; « Et ensuite ? » image tools save a still. */
   output?: "video" | "image" | "audio" | "mesh";
+  /** Id of the node that saves the final result (render/sortie.ts). Only that node is read. */
+  outputNode?: string;
   /**
    * Resolve as soon as the output bytes exist. Cost is read afterward and reported via
    * `onCost` (and a trailing `measure` event) without blocking the result.
@@ -161,7 +163,7 @@ export async function followTake(
   onEvent({ stage: "fetch", jobId });
   const detail = await client.job(jobId);
   const kind = options.output ?? "video";
-  const ref = kind === "image" ? imageOutput(detail.outputs) : kind === "audio" ? audioOutput(detail.outputs) : kind === "mesh" ? meshOutput(detail.outputs) : videoOutput(detail.outputs);
+  const ref = pickOutput(detail.outputs, kind, options.outputNode);
   const missing = { image: "aucune image", audio: "aucun son", mesh: "aucun volume 3D", video: "aucune vidéo" }[kind];
   if (!ref) throw new RenderError("failed", `Le rendu est fini, mais ${missing} n’est sorti${kind === "image" || kind === "video" ? "e" : ""}.`);
   const video = await client.file(ref);
