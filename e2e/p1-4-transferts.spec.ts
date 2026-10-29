@@ -7,6 +7,12 @@ test.use({ hasTouch: true });
 
 const nav = (page: Page, name: string) => page.getByRole("navigation").getByRole("button", { name, exact: false });
 
+/** P1-3: below 1024 px PRISE is five steps; tap the step only when the bar is shown. */
+async function step(page: Page, name: string) {
+  const button = page.locator(`[data-prise-step=${name}]`);
+  if (await button.isVisible()) await button.tap();
+}
+
 async function prepare(page: Page) {
   await page.goto("/studio#personnage");
   await page.getByLabel("Importer un personnage", { exact: true }).setInputFiles({ name: "Uttu.webp", mimeType: "image/webp", buffer: readFileSync("public/exemples/cast-coursiere.webp") });
@@ -26,7 +32,8 @@ test("DÉCOR → PRISE → MONTAGE : points de vue en référence, prise gardée
 
   // Framing reference: the set's viewpoints come first, in their own group, before the cast.
   const editor = page.locator("[data-plan-editor]");
-  if (!(await editor.getAttribute("open") === "")) await editor.locator("summary").tap();
+  await step(page, "plans");
+  if (await editor.getAttribute("open") === null) await editor.locator("summary").tap();
   const reference = page.getByLabel("Référence de cadrage", { exact: true });
   const groups = reference.locator("optgroup");
   await expect(groups.first()).toHaveAttribute("data-framing-group", "decor");
@@ -37,11 +44,14 @@ test("DÉCOR → PRISE → MONTAGE : points de vue en référence, prise gardée
   await reference.selectOption(viewpoint!);
   await expect(page.locator(".u-plan-ref")).toBeVisible();
 
+  await step(page, "preparer");
   await page.getByRole("textbox", { name: "Ce qui se passe", exact: true }).fill("Uttu ouvre la porte du laboratoire");
+  await step(page, "generer");
   await page.locator(".u-prise-actions .u-primary").tap();
   await page.locator("[data-confirm-gold]").tap();
   await expect.poll(() => comfy.prompts.length).toBe(1);
   await expect(page.locator('[data-plan="plan-01"]')).toHaveAttribute("data-render-state", "done", { timeout: 60_000 });
+  await step(page, "reviser");
   await page.locator('[data-plan="plan-01"]').tap();
   await expect(page.locator("[data-take-view] video")).toBeVisible();
 
