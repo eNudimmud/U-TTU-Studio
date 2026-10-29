@@ -11,9 +11,21 @@ import { isSuiteGeste, suiteExample, suiteGraph } from "../suite/graphs.ts";
 import { outilParGeste } from "../outils/catalogue.ts";
 import { outilExample, outilGraph } from "../outils/graphs.ts";
 import { REGISTRE, type Geste } from "./registre.ts";
+import { cadrePrompt } from "../creation/decor-cadre.ts";
 import { BUBBLE_DEFAULTS, bubbleGraph, bubblePrompt } from '../creation/bubble.ts';
 
 const PROMPT = "<texte du visiteur>";
+
+/** Repérage 3D → décor: the kept 3D view (structure) and three place photos (style), as the studio sends it. */
+export function decor3dExportGraph(): ApiGraph {
+  return stillGraph({
+    kind: "cadre-decor",
+    prompt: cadrePrompt({ photos: 3, ambiance: "photos", detail: PROMPT }),
+    images: ["uttu-cadre-3d.png", "uttu-lieu-1.jpg", "uttu-lieu-2.jpg", "uttu-lieu-3.jpg"],
+    seed: 0,
+    cadreLayout: "structure-style",
+  });
+}
 
 /** The graph the studio builds for a wired gesture, or null when the card is not wired yet. */
 export function graphForGeste(row: Geste): ApiGraph | null {

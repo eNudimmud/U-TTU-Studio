@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { FINAL_GRAPH } from "../src/lib/prise/finaliser.ts";
-import { graphForGeste } from "../src/lib/workflows/export.ts";
+import { decor3dExportGraph, graphForGeste } from "../src/lib/workflows/export.ts";
 import { REGISTRE, gesteVisible, gestesOnglet } from "../src/lib/workflows/registre.ts";
 
 interface Entry { id: string; onglet: string; template: string; partner: boolean; sentPartner: boolean | null; template_file: string; api_file: string | null }
@@ -21,7 +21,17 @@ describe("workflows exportés", () => {
       const workflow = read(entry.template_file);
       assert.ok(Array.isArray(workflow.nodes), `${row.id}: UI format`);
     }
-    assert.equal(index.length, REGISTRE.length + Object.keys(FINAL_GRAPH).length + 1, "plus montage-finaliser");
+    assert.equal(index.length, REGISTRE.length + Object.keys(FINAL_GRAPH).length + 2, "plus montage-finaliser and decor-3d-apparence");
+  });
+
+  it("exports the Repérage 3D → décor graph the studio sends: 3D view as structure, photos as style", () => {
+    const entry = index.find(item => item.id === "decor-3d-apparence")!;
+    assert.equal(entry.template, "flux_depth_lora_example");
+    assert.equal(entry.partner, false);
+    assert.ok(Array.isArray(read(entry.template_file).nodes));
+    assert.deepEqual(read(entry.api_file!), JSON.parse(JSON.stringify(decor3dExportGraph())), "run scripts/export-workflows.mjs");
+    const text = JSON.stringify(decor3dExportGraph());
+    for (const name of ["uttu-cadre-3d.png", "uttu-lieu-1.jpg", "uttu-lieu-3.jpg", "InstructPixToPixConditioning", "StyleModelApply"]) assert.ok(text.includes(name), name);
   });
 
   it("keeps each wired API graph equal to what the studio sends", () => {
