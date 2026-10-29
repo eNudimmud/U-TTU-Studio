@@ -25,6 +25,13 @@ const SAMPLES = {
   "templates-1_click_multiple_character_angles-v1.0": { "25": { image: "character_input.png" } },
   "templates-1_click_multiple_scene_angles-v1.0": { "25": { image: "comfy_billboard.png" } },
   "template_qwen_multiangle.app": { "1": { image: "cyber_genesis.png" }, "221": { horizontal_angle: 333, vertical_angle: 17, zoom: 5 } },
+  audio_melbandroformer_audio_separation: { "1": { audio: "melbandroformer_input.mp3" } },
+  api_mirelo_video_to_sfx: { "7": { file: "mage_crash_discovery_video.mp4" } },
+};
+/** Extra outputs the studio does not read: the second stem, the speech track, the re-muxed video. */
+const DROP = {
+  audio_melbandroformer_audio_separation: [/^5$/],
+  api_mirelo_video_to_sfx: [/^5$/, /^730$/, /^729:/],
 };
 const SAVE = /^(Save|VHS_VideoCombine$)/;
 
@@ -34,6 +41,7 @@ for (const file of readdirSync(DIR).filter(name => name.endsWith(".api.json")).s
   const graph = JSON.parse(readFileSync(new URL(file, DIR), "utf8"));
   for (const [id, node] of Object.entries(graph)) if (/^Preview/.test(node.class_type)) delete graph[id];
   for (const [id, values] of Object.entries(SAMPLES[template] ?? {})) Object.assign(graph[id].inputs, values);
+  for (const pattern of DROP[template] ?? []) for (const id of Object.keys(graph)) if (pattern.test(id)) delete graph[id];
   const lot = LOTS[template];
   if (lot) {
     for (const [id, node] of Object.entries(graph)) if (SAVE.test(node.class_type)) delete graph[id];

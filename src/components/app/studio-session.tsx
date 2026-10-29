@@ -318,6 +318,7 @@ export interface OutilRun {
   mesh?: "objet" | "perso";
   resolution?: import("@/lib/outils/genjutsu").GenjutsuResolution;
   camera?: import("@/lib/outils/generique").OutilCamera;
+  piste?: import("@/lib/outils/generique").OutilPiste;
   /** The visitor may use the voice they upload. */
   consent?: boolean;
   from?: string;
@@ -1358,7 +1359,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
       const video = input.video ? await send(input.video, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
-      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera });
+      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste });
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       // The final save node by id (registry), never « the first video »: Comfy lists the source clip too.

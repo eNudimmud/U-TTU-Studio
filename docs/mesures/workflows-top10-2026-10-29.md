@@ -1,7 +1,7 @@
 # Top 10 des workflows manquants — mesures du 29.10.2026
 
 Demande de JD (29.10, 20:16, heure de Zurich) : « Tout le top 10, et enlève du studio les choses que ça remplace si c’est mieux ».
-Budget accordé : environ 90 crédits Comfy pour les mesures, plafond 95.
+Budget accordé : environ 90 crédits Comfy pour les mesures, plafond 95. Plafond levé par JD le 29.10.2026 à 20 h 37 (heure de Zurich) : un rendu réel par workflow, sans rendu inutile, avec un devis annoncé avant chaque dépense.
 
 Méthode (docs/CREDITS.md) :
 - job GPU : `gpu_seconds × 0,27325` crédits (rtx_pro_6000), lu dans l’activité de facturation Comfy Cloud ;
@@ -31,3 +31,28 @@ Notes :
 Preuves : `docs/preuves/top10/planche-cast.webp` (entrée, gros plan, 90° gauche, contre-plongée, caméra 45°) et `docs/preuves/top10/planche-decor.webp` (entrée et 3 angles).
 
 Remplacement : aucun. Ces outils ne remplacent rien. « Autre angle » et « Autres angles » étaient des cartes fermées (« Bientôt ») : elles sont rouvertes, pas dupliquées. Leurs cartes vivent maintenant dans la bande d’outils de CAST et DÉCOR.
+
+## Lot 3 — son (n° 6 et 10)
+
+Devis annoncés avant de lancer (29.10.2026, heure de Zurich) :
+- n° 10, séparer voix et musique (`audio_melbandroformer_audio_separation`), mixage voix + musique de 6 s : **≈ 1 crédit estimé** (GPU seul, `estimate_credits` : 0 nœud partenaire).
+- n° 6, bruitage calé sur l’image (`api_mirelo_video_to_sfx`), prise d’Uttu sur le quai (5,04 s) : **≈ 15 à 18 crédits estimés** (`estimate_credits` : 3 crédits/s, nœud partenaire).
+
+Résultats :
+
+| N° | Outil du studio | Template | Job | Mesure | Crédits réels | Devis du registre |
+| --- | --- | --- | --- | --- | --- | --- |
+| 10 | Séparer voix et musique (`son-separer`, geste `outil-son-separer`) | `audio_melbandroformer_audio_separation` | `e17c6f9a` (essai 1) | 2,24 s GPU | 0,61 | — |
+| 10 | idem | idem | `28e6846d` (mesure retenue) | 1,57 s GPU | **0,43** | 1 / 1 |
+| 6 | Bruitage d’une vidéo (`son-bruitage-video`, geste `outil-son-bruitage-video`) | `api_mirelo_video_to_sfx` | `f5d1f00a` | partenaire `sfx-2.0` | **14,26** | 15 / 18 par tranche de 5 s |
+
+Sous-total du lot son : **15,30 crédits** (dont 0,61 pour l’essai 1).
+
+Notes :
+- Essai 1 de MelBand : l’entrée mêlait `voix-exemple.wav` et la musique d’exemple. Or `voix-exemple.wav` est un ton synthétique, pas une voix (docs/CREDITS.md). La piste voix est donc sortie muette (−91 dB) et tout est allé dans la musique : le modèle a eu raison. L’essai 2 utilise une phrase dite en français sur la même musique : voix −21,9 dB, musique −29,9 dB, comme le mélange.
+- MelBand sauve deux fichiers (voix, instruments) par deux nœuds. Le studio n’en lit qu’un : la base garde le nœud 4 et un choix « Voix / Musique » le rebranche sur la sortie 0 ou 1 du séparateur. Changer de piste demande un nouveau rendu (≈ 0,4 crédit).
+- Mirelo rend trois choses : la piste de bruitage, la piste de voix gardée et la vidéo remixée. Le studio garde la piste de bruitage (nœud 2), qui se pose sur la frise de MONTAGE sous la prise ; la voix d’origine reste sur la prise. Le texte est facultatif et guide les sons.
+- Tarif : 14,26 crédits pour 5,04 s, soit 2,83 crédits/s. Le devis par tranche de 5 s est donc 15 (haut 18).
+- Vignettes : `public/exemples/vignettes/son-bruitage-video.webp` (image de la prise et enveloppe réelle du bruitage) et `son-separer.webp` (enveloppes réelles des deux pistes).
+
+Remplacement : aucun. `mont-effet` et `son-bruitage-ouvert` créent un effet depuis un texte, sans vidéo : ce n’est pas le même geste. Rien ne séparait les pistes avant.

@@ -31,6 +31,11 @@ export const CAMERAS = {
 export type OutilCamera = keyof typeof CAMERAS;
 export const OUTIL_CAMERAS = Object.keys(CAMERAS) as OutilCamera[];
 
+/** Which stem the separation keeps (MelBandRoFormerSampler outputs: 0 vocals, 1 instruments). */
+export const PISTES = { voix: 0, musique: 1 } as const;
+export type OutilPiste = keyof typeof PISTES;
+export const OUTIL_PISTES = Object.keys(PISTES) as OutilPiste[];
+
 export interface GeneriqueInput {
   template: string;
   files: OutilFiles;
@@ -40,6 +45,7 @@ export interface GeneriqueInput {
   aspect?: OutilAspect;
   resolution?: GenjutsuResolution;
   camera?: OutilCamera;
+  piste?: OutilPiste;
 }
 
 interface Spec {
@@ -163,6 +169,11 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
   "template_qwen_multiangle.app": {
     images: [["1", "image"]], seed: [["219:169", "seed"]], save: ["2", "filename_prefix"],
     patch(graph, _prompt, input) { Object.assign(graph["221"].inputs, CAMERAS[input.camera ?? "trois-quarts"]); },
+  },
+  api_mirelo_video_to_sfx: { video: ["7", "file"], prompt: [["4", "model.prompt"]], seed: [["4", "model.seed"]], save: ["2", "filename_prefix"] },
+  audio_melbandroformer_audio_separation: {
+    audio: ["1", "audio"], save: ["4", "filename_prefix"],
+    patch(graph, _prompt, input) { graph["4"].inputs.audio = ["3", PISTES[input.piste ?? "voix"]]; },
   },
   api_sonilo_v2m: { video: ["705", "file"], prompt: [["703", "prompt"]], seed: [["703", "seed"]], save: ["728", "filename_prefix"] },
 };

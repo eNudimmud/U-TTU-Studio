@@ -12,6 +12,7 @@ const VIGNETTES = new Set([
   "vid-recadrer", "vid-detourer", "vid-levres", "vid-effacer", "vid-fluidifier", "vid-mouvement",
   "3d-ouvert", "reperage", "maquette",
   "son-voix-ouverte", "son-dialogue", "son-musique-ouverte", "son-bruitage-ouvert", "son-musique-video",
+  "son-bruitage-video", "son-separer",
 ]);
 
 /** The « Repérer un lieu » card: free 3D scouting, opened from the rail and the 3D row. */

@@ -19,7 +19,7 @@ test("hub : un clic depuis la barre du haut, une carte par intention, recherche,
   await page.goto("/studio#outils/tous");
   const hub = page.locator("[data-studio-entry]");
   await expect(hub.getByRole("heading", { name: "Qu’est-ce qu’on tourne ?" })).toBeVisible();
-  await expect(hub.locator("[data-outil]")).toHaveCount(38);
+  await expect(hub.locator("[data-outil]")).toHaveCount(40);
   await expect(hub.locator("article[data-outil][data-etat=bientot]")).toHaveCount(0);
   await expect(hub.locator("[data-outil=ret-gommer]")).toHaveCount(0);
   await expect(hub.locator("[data-outil=vid-kling]")).toHaveCount(0);
@@ -173,8 +173,8 @@ test("raccord : deux cases visibles, image de départ et image d’arrivée", as
 test("compteur : l’annonce compte toutes les cartes affichées", async ({ page }) => {
   await page.goto("/studio#outils/tous");
   const hub = page.locator("[data-studio-entry]");
-  await expect(hub.locator("[data-outil]")).toHaveCount(38);
+  await expect(hub.locator("[data-outil]")).toHaveCount(40);
   const cards = await hub.locator(".u-outils-row > .u-outil-card").count();
-  expect(cards).toBe(40);
+  expect(cards).toBe(42);
   await expect(hub.locator("[data-outils-tools] .eyebrow").first()).toContainText(`${cards} outils`);
 });

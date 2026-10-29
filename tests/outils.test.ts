@@ -23,16 +23,16 @@ function links(graph: Record<string, { inputs: Record<string, unknown> }>): stri
 }
 
 describe("hub Outils", () => {
-  it("lists 61 template cards, every one in a family", () => {
-    assert.equal(OUTILS.length, 61);
-    assert.equal(new Set(OUTILS.map(item => item.id)).size, 61);
-    assert.equal(new Set(OUTILS.map(item => item.num)).size, 58);
+  it("lists 63 template cards, every one in a family", () => {
+    assert.equal(OUTILS.length, 63);
+    assert.equal(new Set(OUTILS.map(item => item.id)).size, 63);
+    assert.equal(new Set(OUTILS.map(item => item.num)).size, 60);
     for (const item of OUTILS) assert.ok(FAMILLES.includes(item.famille), item.id);
     for (const famille of FAMILLES) assert.ok(OUTILS.some(item => dansFamille(item, famille)), famille);
   });
 
-  it("wires 51 cards and says « bientôt » with a reason for the other 10", () => {
-    assert.equal(wired.length, 51);
+  it("wires 53 cards and says « bientôt » with a reason for the other 10", () => {
+    assert.equal(wired.length, 53);
     assert.equal(soon.length, 10);
     for (const item of soon) assert.ok(item.bientot, item.id);
     for (const item of wired) {
@@ -106,7 +106,7 @@ describe("hub Outils", () => {
 
   it("publishes one card per intent and hides the ten unwired tools", () => {
     const cards = outilsPublics();
-    assert.equal(cards.length, 38);
+    assert.equal(cards.length, 40);
     const ids = cards.map(item => item.id);
     assert.equal(new Set(ids).size, ids.length);
     assert.ok(cards.length < OUTILS.length);

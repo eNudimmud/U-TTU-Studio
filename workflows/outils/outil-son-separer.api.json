@@ -1,0 +1,52 @@
+{
+  "1": {
+    "_meta": {
+      "title": "Load Audio"
+    },
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": "uttu-voix.mp3",
+      "audioUI": "/api/view?filename=melbandroformer_input.mp3&type=input&subfolder=&"
+    }
+  },
+  "2": {
+    "_meta": {
+      "title": "MelBand Model Loader"
+    },
+    "class_type": "MelBandRoFormerModelLoader",
+    "inputs": {
+      "model_name": "MelBandRoformer_fp16.safetensors"
+    }
+  },
+  "3": {
+    "_meta": {
+      "title": "MelBand Separator"
+    },
+    "class_type": "MelBandRoFormerSampler",
+    "inputs": {
+      "audio": [
+        "1",
+        0
+      ],
+      "model": [
+        "2",
+        0
+      ]
+    }
+  },
+  "4": {
+    "_meta": {
+      "title": "Save Vocals"
+    },
+    "class_type": "SaveAudioMP3",
+    "inputs": {
+      "audio": [
+        "3",
+        0
+      ],
+      "audioUI": "",
+      "filename_prefix": "audio/uttu-son-separer",
+      "quality": "128k"
+    }
+  }
+}

@@ -2750,6 +2750,14 @@
       "ret-camera": {
         "title": "Mover la cámara",
         "line": "La misma imagen, vista desde otro ángulo."
+      },
+      "son-bruitage-video": {
+        "title": "Efectos de sonido para un vídeo",
+        "line": "Sonidos sincronizados con la acción de tu plano. La voz se conserva."
+      },
+      "son-separer": {
+        "title": "Separar voz y música",
+        "line": "Conserva la voz o la música de un sonido."
       }
     },
     "latest": "Últimos resultados",
@@ -2802,7 +2810,12 @@
       "large": "Plano general"
     },
     "lot": "{count} ángulos",
-    "lotItem": "Ángulo {n} de {count}"
+    "lotItem": "Ángulo {n} de {count}",
+    "piste": {
+      "label": "Pista que conservar",
+      "voix": "Voz",
+      "musique": "Música"
+    }
   },
   "top": {
     "nav": "Navegación del estudio",

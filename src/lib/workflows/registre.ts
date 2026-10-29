@@ -125,6 +125,8 @@ export const TEMPLATES_OFFICIELS = [
   "api_quiver_arrow2_image_to_svg",
   // Top 10 (docs/mesures/workflows-top10-2026-10-29.md).
   "template_qwen_multiangle.app",
+  "api_mirelo_video_to_sfx",
+  "audio_melbandroformer_audio_separation",
 ] as const;
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
@@ -502,6 +504,8 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-vid-prolonger-grok", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_grok_video_extend", credits: 136, high: 204, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-detourer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bria_remove_video_background", credits: 63, high: 95, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 63,30 crédits pour API, 1 clip (job 74567076)
   geste({ id: "outil-vid-levres", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sync_so_lip_sync_video", credits: 280, high: 420, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 278 crédits pour ~5 s → registre 280 / high 420
+  geste({ id: "outil-son-bruitage-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_mirelo_video_to_sfx", credits: 15, high: 18, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 14,26 crédits partenaire pour 5,04 s de prise (job f5d1f00a), 3 crédits/s
+  geste({ id: "outil-son-separer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_melbandroformer_audio_separation", credits: 1, high: 1, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 0,43 crédit pour 6,4 s de voix + musique (job 28e6846d)
   geste({ id: "outil-son-musique-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sonilo_v2m", credits: 10, high: 15, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
 ];
 
@@ -603,6 +607,8 @@ export const NOEUD_SORTIE: Readonly<Record<string, string>> = {
   "templates-1_click_multiple_character_angles-v1.0": "991",
   "templates-1_click_multiple_scene_angles-v1.0": "991",
   "template_qwen_multiangle.app": "2",
+  api_mirelo_video_to_sfx: "2",
+  audio_melbandroformer_audio_separation: "4",
   // Tools that load a file of the kind they save (suite graphs).
   image_flux3_klein_image_edit: "save",
   utility_seedvr2_3b_int8_upscale_image: "9",

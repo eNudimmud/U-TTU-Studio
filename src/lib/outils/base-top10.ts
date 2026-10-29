@@ -7,6 +7,102 @@ import type { ApiGraph } from "../render/take-graph.ts";
 export const ANGLES_LOT = ["45_left","45_right","90_left","90_right","close_up","wide","low","aerial"] as const;
 
 export const TOP10_BASES: Record<string, ApiGraph> = {
+ "api_mirelo_video_to_sfx": {
+  "2": {
+   "_meta": {
+    "title": "Save SFX Track"
+   },
+   "class_type": "SaveAudioAdvanced",
+   "inputs": {
+    "audio": [
+     "4",
+     0
+    ],
+    "filename_prefix": "audio/Mirelo_SFX_2.0",
+    "format": "mp3",
+    "format.quality": "V0"
+   }
+  },
+  "4": {
+   "_meta": {
+    "title": "Mirelo Video to SFX"
+   },
+   "class_type": "MireloVideoToSFX",
+   "inputs": {
+    "model": "sfx-2.0",
+    "model.negative_prompt": "",
+    "model.preserve_speech": true,
+    "model.prompt": "Pulsing magenta energy hum from the crashed ship cockpit, soft electrical crackle, quiet rocky cavern wind, distant metal settling",
+    "model.seed": 441944540,
+    "model.video": [
+     "7",
+     0
+    ]
+   }
+  },
+  "7": {
+   "_meta": {
+    "title": "Load Video"
+   },
+   "class_type": "LoadVideo",
+   "inputs": {
+    "file": "mage_crash_discovery_video.mp4",
+    "video-preview": ""
+   }
+  }
+ },
+ "audio_melbandroformer_audio_separation": {
+  "1": {
+   "_meta": {
+    "title": "Load Audio"
+   },
+   "class_type": "LoadAudio",
+   "inputs": {
+    "audio": "melbandroformer_input.mp3",
+    "audioUI": "/api/view?filename=melbandroformer_input.mp3&type=input&subfolder=&"
+   }
+  },
+  "2": {
+   "_meta": {
+    "title": "MelBand Model Loader"
+   },
+   "class_type": "MelBandRoFormerModelLoader",
+   "inputs": {
+    "model_name": "MelBandRoformer_fp16.safetensors"
+   }
+  },
+  "3": {
+   "_meta": {
+    "title": "MelBand Separator"
+   },
+   "class_type": "MelBandRoFormerSampler",
+   "inputs": {
+    "audio": [
+     "1",
+     0
+    ],
+    "model": [
+     "2",
+     0
+    ]
+   }
+  },
+  "4": {
+   "_meta": {
+    "title": "Save Vocals"
+   },
+   "class_type": "SaveAudioMP3",
+   "inputs": {
+    "audio": [
+     "3",
+     0
+    ],
+    "audioUI": "",
+    "filename_prefix": "vocals",
+    "quality": "128k"
+   }
+  }
+ },
  "template_qwen_multiangle.app": {
   "1": {
    "_meta": {
