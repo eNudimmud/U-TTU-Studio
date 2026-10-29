@@ -33,10 +33,12 @@ type Link = [string, number];
  * With no image this is the text-to-image template; with images, the edit template.
  * The decoded image is `${prefix}decode`, slot 0.
  */
-export function kleinNodes(input: { prefix: string; prompt: string; seed: number; aspect: KleinAspect; images: readonly Link[]; megapixels?: number }): ApiGraph {
+export function kleinNodes(input: { prefix: string; prompt: string; seed: number; aspect: KleinAspect; images: readonly Link[]; megapixels?: number; referenceLimit?: 4 | 7 }): ApiGraph {
   const p = input.prefix;
   const seed = Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0;
-  const images = input.images.slice(0, KLEIN_REFS_MAX);
+  // Creation's seven named bundles fit ReferenceMultiLatent's official autogrow schema
+  // (max 100). Other studio pipelines retain their existing four-picture limit.
+  const images = input.images.slice(0, input.referenceLimit ?? KLEIN_REFS_MAX);
   const edit = images.length > 0;
   const base = structuredClone(edit ? KLEIN_EDIT_BASE : KLEIN_T2I_BASE);
   const decode = edit ? "8" : "18:8";

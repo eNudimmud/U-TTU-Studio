@@ -8,6 +8,7 @@ import { cameraChoice } from "./camera-words.ts";
 const CADRAGE_EN: Record<Cadrage, string> = {
   large: "wide shot, full figure",
   moyen: "medium shot, waist up",
+  rapproche: "medium close-up, chest up",
   americain: "cowboy shot, mid-thigh up",
   gros: "close-up on the face",
   tgp: "extreme close-up",
@@ -21,6 +22,7 @@ const CAMERA_EN: Record<CameraMove, string> = {
   "travelling-avant": "slow dolly in",
   "travelling-arriere": "slow dolly out",
   panoramique: "slow pan",
+  dolly: "camera dolly move on a track",
   suivi: "tracking shot following the subject",
   orbite: "camera orbits around the subject",
   epaule: "handheld camera, slight shake",
@@ -91,10 +93,12 @@ export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | 
     : "";
   // The user's camera words win; "static, locked-off" is never added on their behalf.
   const chosen = cameraChoice(plan.action, plan.camera);
-  const camera = extra?.camera === undefined ? chosen : { ...chosen, move: extra.camera };
+  const camera = extra?.camera === undefined ? plan.manualCamera ? { ...chosen, move: plan.camera } : chosen : { ...chosen, move: extra.camera };
   const lines = [
     `[références]  ${refs.join(", ") || "aucune"}`,
     `[cadrage]     ${CADRAGE_EN[plan.cadrage]}, ${plan.format}.`,
+    plan.angle ? `[angle]       ${{ niveau: "eye level", plongee: "high angle", "contre-plongee": "low angle" }[plan.angle]}.` : "",
+    plan.cameraPosition?.trim() ? `[position]    ${plan.cameraPosition.trim()}.` : "",
     placeLine ? `[lieu]        ${placeLine}` : "",
     camera.move ? `[caméra]      ${CAMERA_EN[camera.move]}.` : "",
     `[timeline]    [0s-${setupLabel}s] ${who} stands still and breathes.`,

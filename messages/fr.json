@@ -1833,9 +1833,10 @@
       "down": "Descendre le plan",
       "delete": "Supprimer",
       "deleted": "« {name} » supprimé.",
-      "undo": "Annuler"
+      "undo": "Annuler",
+      "label": "Plans"
     },
-    "addPlan": "＋ Plan",
+    "addPlan": "+ Plan",
     "sequenceSum": "Séquence : {time} · {count, plural, one {# plan} other {# plans}}",
     "preview": "Aperçu",
     "planN": "Plan {n}",
@@ -1897,7 +1898,8 @@
         "panoramique": "panoramique",
         "suivi": "caméra qui suit",
         "orbite": "orbite autour du sujet",
-        "epaule": "caméra à l’épaule"
+        "epaule": "caméra à l’épaule",
+        "dolly": "Dolly"
       }
     },
     "why": {
@@ -1971,7 +1973,51 @@
       "keep": "Ton choix reste pour les prochains plans de ce projet.",
       "apercuHint": "Un aperçu se finalise plus tard, seul ou avec tout le montage."
     },
-    "addToMontage": "Ajouter au montage"
+    "addToMontage": "Ajouter au montage",
+    "editor": {
+      "title": "Modifier ce plan",
+      "name": "Titre du plan",
+      "framing": "Cadrage",
+      "angle": "Angle caméra",
+      "move": "Mouvement caméra",
+      "position": "Position caméra",
+      "positionHint": "Par exemple : à gauche, à hauteur des yeux",
+      "duration": "Durée du plan",
+      "reference": "Référence de cadrage",
+      "none": "Aucune",
+      "referencesHint": "Choisis les personnages et le décor ci-dessous. La référence de cadrage est jointe au rendu comme indication visuelle.",
+      "changed": "Modification enregistrée dans l’historique.",
+      "retry": "Relancer",
+      "recover": "Récupérer le rendu",
+      "save": {
+        "saving": "Sauvegarde…",
+        "saved": "Enregistré automatiquement",
+        "error": "Sauvegarde impossible : réessaie avant de quitter."
+      },
+      "states": {
+        "draft": "Brouillon",
+        "queued": "En attente",
+        "running": "En cours",
+        "error": "En erreur",
+        "done": "Généré"
+      },
+      "framings": {
+        "large": "Plan large",
+        "moyen": "Plan moyen",
+        "rapproche": "Plan rapproché",
+        "americain": "Plan américain",
+        "gros": "Gros plan",
+        "tgp": "Très gros plan",
+        "plongee": "Plongée",
+        "contre": "Contre-plongée",
+        "epaule": "Par-dessus l’épaule"
+      },
+      "angles": {
+        "niveau": "À hauteur des yeux",
+        "plongee": "Plongée",
+        "contre-plongee": "Contre-plongée"
+      }
+    }
   },
   "p1": {
     "hint": "Une phrase suffit : qui, où, ce qui se passe, la caméra, l’ambiance.",
@@ -3445,6 +3491,78 @@
     "elapsed": "Écoulé {time}",
     "elapsedRemaining": "Écoulé {elapsed} · ≈ {remaining} restantes",
     "elapsedAlmost": "Écoulé {time} · bientôt prêt"
+  },
+  "namedRefs": {
+    "title": "Références",
+    "new": "Nouvelle référence",
+    "edit": "Modifier",
+    "name": "Nom de la référence",
+    "description": "Description (facultative)",
+    "categoryLabel": "Catégorie",
+    "category": {
+      "cast": "Personnage",
+      "decor": "Décor",
+      "objet": "Objet",
+      "style": "Style"
+    },
+    "create": "Créer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer cette référence ?",
+    "deleteQuestion": "Supprimer « {name} » de ta bibliothèque ? Les médias utilisés ailleurs sont conservés.",
+    "editName": "Modifier {name}",
+    "deleteName": "Supprimer {name}",
+    "shared": "Une seule bibliothèque pour tes personnages, décors, objets et styles. Touche une carte pour la joindre.",
+    "search": "Chercher une référence",
+    "empty": "Crée ta première référence avec un nom et jusqu’à trois photos.",
+    "photosHelp": "Ajoute jusqu’à 3 photos du même sujet. Elles sont réunies en une planche pour le rendu.",
+    "photosLimit": "3 photos maximum par référence.",
+    "addPhotos": "Ajouter des photos",
+    "removePhoto": "Retirer la photo {n}",
+    "photoCount": "{n} photo(s)",
+    "menuHelp": "Choisir ou créer une référence nommée",
+    "failed": "La référence n’a pas pu être enregistrée. Réessaie.",
+    "invalid": "Ajoute un nom et de 1 à 3 images valides.",
+    "changed": "Cette référence a changé. Rouvre-la avant de continuer.",
+    "missing": "Une image manque sur cet appareil. Ajoute-la à nouveau.",
+    "manageHelp": "Tes références sont sauvegardées dans ce projet. Touche une carte pour la modifier.",
+    "requiredHelp": "Un nom et au moins une photo sont requis. Trois photos maximum.",
+    "capacity": "Crée autant de références que tu veux. {n} référence(s) enregistrée(s) dans ce projet.",
+    "selectionLimit": "Tu as déjà joint {max} références à cette création. Tu peux continuer à créer et gérer tes fiches ; retire une puce pour en joindre une autre.",
+    "attached": "Déjà jointe à cette création",
+    "noMatch": "Aucune référence ne correspond à ta recherche ou à cette catégorie."
+  },
+  "bubble": {
+    "audio": "Audio",
+    "audioHelp": "Joindre un son de référence à une vidéo",
+    "removeAudio": "Retirer le son",
+    "resolution": "Résolution",
+    "soundOn": "Son activé",
+    "soundOff": "Son désactivé",
+    "referenceCount": "{n} / {max} références jointes à cette création",
+    "imageEngine": "Image · Klein · Propulsé par ComfyUI",
+    "referenceVideoEngine": "Vidéo · MiniMax H3 · Propulsé par ComfyUI",
+    "textVideoEngine": "Vidéo · LTX · Propulsé par ComfyUI",
+    "askUttu": "Demander à Uttu",
+    "imageTitle": "Créer une image",
+    "videoTitle": "Créer une vidéo",
+    "rendering": "Création en cours",
+    "back": "Retour",
+    "continues": "Tu peux revenir à la bulle. Le rendu continue chez Comfy et son résultat y arrivera. La progression affichée est estimée.",
+    "favorite": "Favori",
+    "favorited": "En favori",
+    "keep": "Garder",
+    "kept": "Gardé",
+    "redo": "Refaire",
+    "share": "Partager",
+    "asReference": "Ajouter comme référence",
+    "saveFailed": "L’enregistrement a échoué. Réessaie.",
+    "shareFailed": "Le partage n’a pas abouti. Réessaie.",
+    "draftFailed": "Le brouillon n’a pas pu être sauvegardé sur cet appareil.",
+    "invalid": "Vérifie tes options : au plus 7 références visuelles et un son en mode Vidéo.",
+    "asImageReference": "Utiliser la dernière image comme référence",
+    "runningConversation": "Attends le résultat pour commencer une nouvelle conversation. Tu peux continuer à parcourir le Studio."
   },
   "genjutsu": {
     "action": "Remplacer le personnage",

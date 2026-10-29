@@ -1833,9 +1833,10 @@
       "down": "Move shot down",
       "delete": "Delete",
       "deleted": "“{name}” deleted.",
-      "undo": "Undo"
+      "undo": "Undo",
+      "label": "Shots"
     },
-    "addPlan": "＋ Shot",
+    "addPlan": "+ Shot",
     "sequenceSum": "Sequence: {time} · {count, plural, one {# shot} other {# shots}}",
     "preview": "Preview",
     "planN": "Shot {n}",
@@ -1897,7 +1898,8 @@
         "panoramique": "pan",
         "suivi": "tracking shot",
         "orbite": "orbit around the subject",
-        "epaule": "handheld camera"
+        "epaule": "handheld camera",
+        "dolly": "Dolly"
       }
     },
     "why": {
@@ -1971,7 +1973,51 @@
       "keep": "Your choice stays for the next shots of this project.",
       "apercuHint": "A preview is finalised later, on its own or with the whole edit."
     },
-    "addToMontage": "Add to edit"
+    "addToMontage": "Add to edit",
+    "editor": {
+      "title": "Edit this shot",
+      "name": "Shot title",
+      "framing": "Framing",
+      "angle": "Camera angle",
+      "move": "Camera movement",
+      "position": "Camera position",
+      "positionHint": "For example: on the left, at eye level",
+      "duration": "Shot duration",
+      "reference": "Framing reference",
+      "none": "None",
+      "referencesHint": "Choose the characters and set below. The framing reference is sent with the render as a visual guide.",
+      "changed": "Change added to the history.",
+      "retry": "Try again",
+      "recover": "Recover the render",
+      "save": {
+        "saving": "Saving…",
+        "saved": "Saved automatically",
+        "error": "Could not save: try again before leaving."
+      },
+      "states": {
+        "draft": "Draft",
+        "queued": "Queued",
+        "running": "Rendering",
+        "error": "Failed",
+        "done": "Generated"
+      },
+      "framings": {
+        "large": "Wide shot",
+        "moyen": "Medium shot",
+        "rapproche": "Medium close-up",
+        "americain": "Cowboy shot",
+        "gros": "Close-up",
+        "tgp": "Extreme close-up",
+        "plongee": "High angle",
+        "contre": "Low angle",
+        "epaule": "Over the shoulder"
+      },
+      "angles": {
+        "niveau": "Eye level",
+        "plongee": "High angle",
+        "contre-plongee": "Low angle"
+      }
+    }
   },
   "p1": {
     "hint": "One sentence is enough: who, where, what happens, the camera, the mood.",
@@ -3445,6 +3491,78 @@
     "elapsed": "Elapsed {time}",
     "elapsedRemaining": "Elapsed {elapsed} · ≈ {remaining} left",
     "elapsedAlmost": "Elapsed {time} · almost done"
+  },
+  "namedRefs": {
+    "title": "References",
+    "new": "New reference",
+    "edit": "Edit",
+    "name": "Reference name",
+    "description": "Description (optional)",
+    "categoryLabel": "Category",
+    "category": {
+      "cast": "Character",
+      "decor": "Setting",
+      "objet": "Object",
+      "style": "Style"
+    },
+    "create": "Create",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "deleteTitle": "Delete this reference?",
+    "deleteQuestion": "Delete “{name}” from your library? Media used elsewhere is kept.",
+    "editName": "Edit {name}",
+    "deleteName": "Delete {name}",
+    "shared": "One library for your characters, settings, objects and styles. Tap a card to attach it.",
+    "search": "Search references",
+    "empty": "Create your first named reference with up to three photos.",
+    "photosHelp": "Add up to 3 photos of the same subject. They are combined into a contact sheet for generation.",
+    "photosLimit": "Up to 3 photos per reference.",
+    "addPhotos": "Add photos",
+    "removePhoto": "Remove photo {n}",
+    "photoCount": "{n} photo(s)",
+    "menuHelp": "Choose or create a named reference",
+    "failed": "Could not save the reference. Try again.",
+    "invalid": "Add a name and 1 to 3 valid images.",
+    "changed": "This reference changed. Open it again to continue.",
+    "missing": "An image is missing on this device. Add it again.",
+    "manageHelp": "Your references are saved in this project. Tap a card to edit it.",
+    "requiredHelp": "A name and at least one photo are required. Up to three photos.",
+    "capacity": "Create as many references as you want. {n} reference(s) saved in this project.",
+    "selectionLimit": "You have already attached {max} references to this creation. You can keep creating and managing references; remove a chip to attach another.",
+    "attached": "Already attached to this creation",
+    "noMatch": "No references match your search or this category."
+  },
+  "bubble": {
+    "audio": "Audio",
+    "audioHelp": "Attach reference audio to a video",
+    "removeAudio": "Remove audio",
+    "resolution": "Resolution",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off",
+    "referenceCount": "{n} / {max} references attached to this creation",
+    "imageEngine": "Image · Klein · Powered by ComfyUI",
+    "referenceVideoEngine": "Video · MiniMax H3 · Powered by ComfyUI",
+    "textVideoEngine": "Video · LTX · Powered by ComfyUI",
+    "askUttu": "Ask Uttu",
+    "imageTitle": "Create an image",
+    "videoTitle": "Create a video",
+    "rendering": "Creating",
+    "back": "Back",
+    "continues": "You can return to the bubble. Generation continues on Comfy and its result will arrive here. Progress is estimated.",
+    "favorite": "Favorite",
+    "favorited": "Favorited",
+    "keep": "Keep",
+    "kept": "Kept",
+    "redo": "Redo",
+    "share": "Share",
+    "asReference": "Add as reference",
+    "saveFailed": "Could not save. Try again.",
+    "shareFailed": "Sharing did not complete. Try again.",
+    "draftFailed": "Could not save the draft on this device.",
+    "invalid": "Check your options: up to 7 visual references and one audio in Video mode.",
+    "asImageReference": "Use the last frame as reference",
+    "runningConversation": "Wait for the result before starting a new conversation. You can keep browsing the Studio."
   },
   "genjutsu": {
     "action": "Replace the character",

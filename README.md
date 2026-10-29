@@ -50,7 +50,7 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 - **Aperçu / Qualité finale (Preview / Final quality):** an LTX take can start as a cheaper preview (about 480p, same seed), finalised later on its own or with the whole edit. / *Une prise LTX peut partir en aperçu, moins cher (environ 480p, même graine), puis se finaliser seule ou avec tout le montage.*
 - **Retoucher / Retouch:** edit, finalise, widen, cut out or relight an image; the original is never replaced. / *Modifier, finaliser, élargir, détourer ou rééclairer une image ; l’original n’est jamais remplacé.*
 - **Pars d’un exemple / Start from an example:** renders made in the studio on Comfy, under the bar; tap one and it fills the bar. / *Des rendus faits dans le studio sur Comfy, sous la barre ; un toucher et la barre se remplit.*
-- **37 tools / 37 outils:** 35 integrated Comfy tools (58 model cards), including Higgsfield Genjutsu character replacement, plus « Scout a location » and « 3D layout and framing ». / *35 outils Comfy intégrés (58 cartes de modèles), dont le remplacement de personnage avec Higgsfield Genjutsu, plus « Repérer un lieu » et « Maquette 3D et cadrage ».*
+- **36 tools / 36 outils:** 34 Comfy tools (create, retouch, video, 3D, sound; 57 models to choose from), plus « Scout a location » and « 3D layout and framing », which launch no render. / *34 outils Comfy (créer, retoucher, vidéo, 3D, son ; 57 modèles au choix), plus « Repérer un lieu » et « Maquette 3D et cadrage », qui ne lancent aucun rendu.*
 
 ## For the jury / Pour le jury
 
@@ -86,9 +86,9 @@ Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Lan
 
 ## What is measured, and what is not / Ce qui est mesuré, et ce qui ne l’est pas
 
-**EN** — The registry lists 80 gestures. **38 have a real billed run**; 31 of them were measured on 27.10.2026 (visitor test and example batch, Comfy billing read job by job, no credit spent for the reading). Every job and its cost: [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). The other gestures are wired and tested against a simulated Comfy, and their quote is labelled « estimated », or stay closed.
+**EN** — The registry lists 84 gestures. **38 have a real billed run**; 31 of them were measured on 27.10.2026 (visitor test and example batch, Comfy billing read job by job, no credit spent for the reading). Every job and its cost: [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). The other gestures are wired and tested against a simulated Comfy, and their quote is labelled « estimated », or stay closed.
 
-**FR** — Le registre compte 80 gestes. **38 ont un vrai rendu facturé** ; 31 ont été mesurés le 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue job par job, aucun crédit dépensé pour la lecture). Chaque job et son coût : [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). Les autres gestes sont branchés et testés contre un Comfy simulé, avec un devis « estimé », ou restent fermés.
+**FR** — Le registre compte 84 gestes. **38 ont un vrai rendu facturé** ; 31 ont été mesurés le 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue job par job, aucun crédit dépensé pour la lecture). Chaque job et son coût : [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). Les autres gestes sont branchés et testés contre un Comfy simulé, avec un devis « estimé », ou restent fermés.
 
 Measured costs, in credits / Coûts mesurés, en crédits :
 

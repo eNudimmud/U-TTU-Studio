@@ -7,13 +7,15 @@ import { buildPrompt } from "../prise/prompt.ts";
 import { decide, emptyPlan } from "../prise/decision.ts";
 import type { TakeSettings } from "../render/take-graph.ts";
 import { MAX_CAST, MAX_REFS_IMAGE, type BarreMode, type BarreSettings } from "./model.ts";
+import { bubbleTool, validBubbleSettings, type BubbleSettings } from '../creation/bubble.ts';
+import { CREATION_REFERENCES_MAX } from '../creation/named-references.ts';
 
 export const FIL_KEY = "u-ttu-barre-fil";
 export const FIL_MAX = 40;
 
 /** One picture shown in a bubble and sent with the run. */
 export interface FilRef {
-  kind: "cast" | "decor" | "photo" | "result";
+  kind: "cast" | "decor" | "objet" | "style" | "photo" | "result";
   id: string;
   name: string;
   src: string;
@@ -21,10 +23,11 @@ export interface FilRef {
   path?: string;
   /** Kept in the vault (not a house example): PRISE can send it. */
   vault?: boolean;
+  description?: string;
 }
 
 export type FilRoute =
-  | { kind: "outil"; id: string; images: FilRef[] }
+  | { kind: "outil"; id: string; images: FilRef[]; creation?: { mode: 'image' | 'video'; settings: BubbleSettings }; audio?: { name: string; src: string; path?: string } }
   | { kind: "prise"; cast: FilRef[]; decor: FilRef | null; settings: BarreSettings };
 
 export type FilStatus = "confirm" | "running" | "done" | "error" | "cancelled" | "interrupted";
@@ -50,6 +53,11 @@ export interface FilJob {
   cost?: number | null;
   message?: string;
   aspect: "horizontal" | "vertical";
+  renderId?: string;
+  jobId?: string;
+  project?: string;
+  favorite?: boolean;
+  kept?: boolean;
 }
 
 export interface FilLink { label: string; href: string; quote?: string }
@@ -129,12 +137,18 @@ export type Plan =
  * reference is kept in the project; otherwise Animer (Wan) on one picture; text only goes to
  * « Vidéo depuis un texte » (vid-texte). Agent: a reply.
  */
-export function planSend(input: { mode: BarreMode; text: string; refs: FilRef[]; last: FilJob | null; lastName: string; settings: BarreSettings }): Plan {
+export function planSend(input: { mode: BarreMode; text: string; refs: FilRef[]; last: FilJob | null; lastName: string; settings: BarreSettings; creation?: { settings: BubbleSettings }; audio?: { name: string; src: string; path?: string } }): Plan {
   const { mode, text, settings } = input;
   if (mode === "agent") return { kind: "agent" };
   if (!text.trim()) return { kind: "note", key: "barre.fil.needText" };
   const followUp = input.refs.length === 0 && input.last ? wantsLast(text) || (mode === "video" && wantsAnimate(text) && input.last.sortie === "image") : false;
   const refs = followUp && input.last ? [asRef(input.last, input.lastName)] : input.refs;
+  if (input.creation) {
+    if (!validBubbleSettings(input.creation.settings) || refs.length > CREATION_REFERENCES_MAX || mode === 'image' && input.audio) return { kind: 'note', key: 'bubble.invalid' };
+    if (refs.some(r => !r.src && !r.path)) return { kind: 'note', key: 'namedRefs.missing' };
+    if (refs.some(r => r.kind === 'result') && input.last?.sortie === 'video') return { kind: 'note', key: 'barre.fil.videoAsImage' };
+    return { kind: 'run', route: { kind: 'outil', id: bubbleTool(mode, refs.length, Boolean(input.audio)), images: refs, creation: { mode, settings: { ...input.creation.settings } }, ...(input.audio ? { audio: { ...input.audio } } : {}) }, sortie: mode, refs };
+  }
   if (mode === "image") {
     const images = refs.filter(ref => ref.src || ref.path).slice(0, MAX_REFS_IMAGE);
     if (images.some(ref => ref.kind === "result") && input.last?.sortie === "video") return { kind: "note", key: "barre.fil.videoAsImage" };
@@ -182,6 +196,12 @@ export function prisePrompt(text: string, route: Extract<FilRoute, { kind: "pris
 
 type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
+/** Separate conversations by project, including the first local write naming an empty project. */
+export function projectFilStore(storage: Store, project: string): Store {
+  if (!/^[a-z0-9-]+$/.test(project)) throw new Error('Projet invalide.');
+  return { getItem: key => storage.getItem(`${key}:${project}`), setItem: (key, value) => storage.setItem(`${key}:${project}`, value), removeItem: key => storage.removeItem(`${key}:${project}`) };
+}
+
 const SAFE_URL = /^(?:https?:|\/|data:image\/)/;
 
 /** What survives a reload: blob URLs die with the page (the vault path brings them back). A run cut by the reload is « interrompu ». */
@@ -193,7 +213,7 @@ export function toStored(fil: Fil): Fil {
       if (m.role !== "job") return m;
       const url = m.url && SAFE_URL.test(m.url) ? m.url : undefined;
       const status: FilStatus = m.status === "running" ? "interrupted" : m.status === "confirm" ? "cancelled" : m.status;
-      const route: FilRoute = m.route.kind === "outil" ? { ...m.route, images: m.route.images.map(ref => ({ ...ref, src: SAFE_URL.test(ref.src) ? ref.src : "" })) } : m.route;
+      const route: FilRoute = m.route.kind === "outil" ? { ...m.route, images: m.route.images.map(ref => ({ ...ref, src: SAFE_URL.test(ref.src) ? ref.src : "" })), ...(m.route.audio ? { audio: { ...m.route.audio, src: SAFE_URL.test(m.route.audio.src) ? m.route.audio.src : '' } } : {}) } : m.route;
       return { ...m, url, poster: m.poster && SAFE_URL.test(m.poster) ? m.poster : undefined, status, route };
     }),
   };

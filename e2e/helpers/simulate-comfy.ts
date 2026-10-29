@@ -5,13 +5,14 @@ import { readFileSync } from 'node:fs';
 const still = readFileSync('public/exemples/cast-dj.webp');
 const video = readFileSync('e2e/fixtures/prise-5s-vp9.mp4');
 
-type Job = { kind: 'image' | 'video'; at: number; still: Buffer };
+type Job = { kind: 'image' | 'video'; at: number; still: Buffer; video: Buffer };
 
 export async function simulateComfy(page: Page) {
   const jobs = new Map<string, Job>();
   const prompts: { kind: string; text: string }[] = [];
   let n = 0;
   let nextStill: Buffer = still;
+  let nextVideo: Buffer = video;
   await page.addInitScript(() => localStorage.setItem('u-ttu-rendu', JSON.stringify({ mode: 'key', key: 'audit-fake-key-0123456789' })));
   await page.route(/overpass|nominatim|photon|panoramax|mapillary|tiles\.openfreemap|fal\.ai/, route => route.abort());
   await page.route(/\/api\/user$/, route => route.fulfill({ json: { id: 'novice' } }));
@@ -23,7 +24,7 @@ export async function simulateComfy(page: Page) {
     const kind = nodes.some(node => /Video|LTXV|MiniMax/i.test(String(node.class_type))) ? 'video' : 'image';
     const text = nodes.flatMap(node => Object.values(node.inputs ?? {}).filter(value => typeof value === 'string' && value.length > 40)).join('\n');
     const id = `novice-job-${String(++n).padStart(4, '0')}`;
-    jobs.set(id, { kind, at: Date.now(), still: nextStill });
+    jobs.set(id, { kind, at: Date.now(), still: nextStill, video: nextVideo });
     prompts.push({ kind, text });
     return route.fulfill({ json: { prompt_id: id, node_errors: {} } });
   });
@@ -39,9 +40,9 @@ export async function simulateComfy(page: Page) {
   });
   await page.route(/\/api\/view\?/, route => {
     const file = new URL(route.request().url()).searchParams.get('filename') ?? '';
-    if (file.endsWith('.mp4')) return route.fulfill({ contentType: 'video/mp4', body: video });
+    if (file.endsWith('.mp4')) return route.fulfill({ contentType: 'video/mp4', body: jobs.get(file.split('.')[0])?.video ?? video });
     return route.fulfill({ contentType: 'image/webp', body: jobs.get(file.split('.')[0])?.still ?? still });
   });
-  return { prompts, setStill(next: Buffer) { nextStill = next; } };
+  return { prompts, setStill(next: Buffer) { nextStill = next; }, setVideo(next: Buffer) { nextVideo = next; } };
 }
 

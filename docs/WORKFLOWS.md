@@ -1,5 +1,18 @@
 # Gestes du studio
 
+## Bulle de création — P0-0
+
+Les graphes de la bulle réutilisent les templates officiels déjà intégrés. Les noms, les photos et les options restent dans une seule demande ; chaque dépense attend sa confirmation. [Fonctionnement, sources et validation](CREATION-REFERENCES.md).
+
+| Geste | Template | Devis de l’exemple 480p, 5 s | État |
+| --- | --- | --- | --- |
+| creation-image-texte | `image_flux3_klein_t2i` | ≈ 2 crédits estimés | ouvert, prompt seul |
+| creation-image | `image_flux3_klein_image_edit` | ≈ 3 crédits estimés | ouvert, deux références dans l’exemple, sept au plus |
+| creation-video-texte | `video_ltx2_5_t2v` | ≈ 5 crédits estimés | ouvert, prompt seul |
+| creation-video-refs | `video_minimax_h3_r2v` | ≈ 5 crédits estimés | ouvert, deux références dans l’exemple, sept au plus, audio facultatif |
+
+Ces quatre gestes utilisent un devis dynamique (résolution, format, durée, références). Ils n’ajoutent aucune mesure réelle au registre. La réserve de solde n’est pas un plafond garanti de facturation.
+
 Un geste est une carte. Le template Comfy reste derrière. Chaque geste a son fichier dans `workflows/<onglet>/<id>.json` (le template officiel, à ouvrir dans ComfyUI) et, s’il est branché, `workflows/<onglet>/<id>.api.json` (le graphe exact que le studio envoie). `workflows/index.json` dit lequel passe par un nœud partenaire. Régénérer : `node --experimental-strip-types scripts/export-workflows.mjs`.
 
 Moteurs (concours Comfy « Open Source Higgsfield ») : **FLUX 3 Image Klein** (open weights) pour les images de CAST et DÉCOR, **FLUX 3 Image** (nœud partenaire) pour plusieurs références et la planche, **LTX-2.5** pour la prise par défaut, **MiniMax H3** en second moteur. Nano Banana reste une option, éteinte par défaut. « Open weights seulement » cache tout geste à nœud partenaire.
@@ -8,7 +21,7 @@ Moteurs (concours Comfy « Open Source Higgsfield ») : **FLUX 3 Image Klein** (
 
 `ouvert` : le studio a déjà un graphe et un devis, le bouton Créer peut partir après confirmation. `fermé` : la carte reste, Créer reste éteint, rien ne part.
 
-Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « hypothèse » ou « estimé » n’est pas une mesure. 38 gestes sur 79 sont mesurés. Le relevé du 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue en lecture seule) en a ajouté 31, dont la prise LTX-2.5 (15,10 crédits pour 5 s 16:9), le raccord (6,98), élargir (16,32) et effacer (25,11) : chaque job et son coût sont dans [docs/mesures/test-visiteur-2026-10-27.md](mesures/test-visiteur-2026-10-27.md). Avant : la prise MiniMax H3 R2V (environ 4 crédits ; 3,66 le 27.10), les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109), la vue 360 et le croquis. Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure. Le devis de la prise affiché dans l’app reste marqué « Estimé » tant qu’aucun profil facturé n’est enregistré pour la prise ; le maximum sert de plafond face au solde.
+Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « hypothèse » ou « estimé » n’est pas une mesure. 38 gestes sur 84 sont mesurés. Le relevé du 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue en lecture seule) en a ajouté 31, dont la prise LTX-2.5 (15,10 crédits pour 5 s 16:9), le raccord (6,98), élargir (16,32) et effacer (25,11) : chaque job et son coût sont dans [docs/mesures/test-visiteur-2026-10-27.md](mesures/test-visiteur-2026-10-27.md). Avant : la prise MiniMax H3 R2V (environ 4 crédits ; 3,66 le 27.10), les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109), la vue 360 et le croquis. Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure. Le devis de la prise affiché dans l’app reste marqué « Estimé » tant qu’aucun profil facturé n’est enregistré pour la prise ; le maximum sert de plafond face au solde.
 
 ## CAST
 

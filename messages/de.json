@@ -1833,9 +1833,10 @@
       "down": "Einstellung nach unten",
       "delete": "Löschen",
       "deleted": "„{name}“ gelöscht.",
-      "undo": "Rückgängig"
+      "undo": "Rückgängig",
+      "label": "Einstellungen"
     },
-    "addPlan": "＋ Einstellung",
+    "addPlan": "+ Einstellung",
     "sequenceSum": "Sequenz: {time} · {count, plural, one {# Einstellung} other {# Einstellungen}}",
     "preview": "Vorschau",
     "planN": "Einstellung {n}",
@@ -1897,7 +1898,8 @@
         "panoramique": "Schwenk",
         "suivi": "Verfolgung",
         "orbite": "Kreisfahrt um das Motiv",
-        "epaule": "Handkamera"
+        "epaule": "Handkamera",
+        "dolly": "Dolly"
       }
     },
     "why": {
@@ -1971,7 +1973,51 @@
       "keep": "Deine Wahl bleibt für die nächsten Einstellungen dieses Projekts.",
       "apercuHint": "Eine Vorschau wird später finalisiert, einzeln oder mit dem ganzen Schnitt."
     },
-    "addToMontage": "Zur Montage hinzufügen"
+    "addToMontage": "Zur Montage hinzufügen",
+    "editor": {
+      "title": "Diese Einstellung bearbeiten",
+      "name": "Titel der Einstellung",
+      "framing": "Bildausschnitt",
+      "angle": "Kamerawinkel",
+      "move": "Kamerabewegung",
+      "position": "Kameraposition",
+      "positionHint": "Zum Beispiel: links, auf Augenhöhe",
+      "duration": "Dauer der Einstellung",
+      "reference": "Bildreferenz für den Ausschnitt",
+      "none": "Keine",
+      "referencesHint": "Wähle unten Figuren und Kulisse. Die Bildreferenz wird als visuelle Vorgabe mitgesendet.",
+      "changed": "Änderung im Verlauf gespeichert.",
+      "retry": "Erneut versuchen",
+      "recover": "Ergebnis wiederherstellen",
+      "save": {
+        "saving": "Wird gespeichert…",
+        "saved": "Automatisch gespeichert",
+        "error": "Speichern fehlgeschlagen: versuche es vor dem Verlassen erneut."
+      },
+      "states": {
+        "draft": "Entwurf",
+        "queued": "In Warteschlange",
+        "running": "Wird gerendert",
+        "error": "Fehler",
+        "done": "Erstellt"
+      },
+      "framings": {
+        "large": "Totale",
+        "moyen": "Halbnah",
+        "rapproche": "Nahaufnahme",
+        "americain": "Amerikanisch",
+        "gros": "Großaufnahme",
+        "tgp": "Detailaufnahme",
+        "plongee": "Aufsicht",
+        "contre": "Untersicht",
+        "epaule": "Über die Schulter"
+      },
+      "angles": {
+        "niveau": "Auf Augenhöhe",
+        "plongee": "Aufsicht",
+        "contre-plongee": "Untersicht"
+      }
+    }
   },
   "p1": {
     "hint": "Ein Satz genügt: wer, wo, was passiert, die Kamera, die Stimmung.",
@@ -3445,6 +3491,78 @@
     "elapsed": "Verstrichen {time}",
     "elapsedRemaining": "Verstrichen {elapsed} · ≈ {remaining} übrig",
     "elapsedAlmost": "Verstrichen {time} · gleich fertig"
+  },
+  "namedRefs": {
+    "title": "Referenzen",
+    "new": "Neue Referenz",
+    "edit": "Bearbeiten",
+    "name": "Name der Referenz",
+    "description": "Beschreibung (optional)",
+    "categoryLabel": "Kategorie",
+    "category": {
+      "cast": "Figur",
+      "decor": "Schauplatz",
+      "objet": "Objekt",
+      "style": "Stil"
+    },
+    "create": "Erstellen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "delete": "Löschen",
+    "deleteTitle": "Diese Referenz löschen?",
+    "deleteQuestion": "„{name}“ aus deiner Bibliothek löschen? Anderswo verwendete Medien bleiben erhalten.",
+    "editName": "{name} bearbeiten",
+    "deleteName": "{name} löschen",
+    "shared": "Eine Bibliothek für deine Figuren, Schauplätze, Objekte und Stile. Tippe zum Anhängen auf eine Karte.",
+    "search": "Referenz suchen",
+    "empty": "Erstelle deine erste benannte Referenz mit bis zu drei Fotos.",
+    "photosHelp": "Füge bis zu 3 Fotos desselben Motivs hinzu. Sie werden für die Erstellung zu einer Bildtafel zusammengefügt.",
+    "photosLimit": "Höchstens 3 Fotos pro Referenz.",
+    "addPhotos": "Fotos hinzufügen",
+    "removePhoto": "Foto {n} entfernen",
+    "photoCount": "{n} Foto(s)",
+    "menuHelp": "Benannte Referenz wählen oder erstellen",
+    "failed": "Die Referenz konnte nicht gespeichert werden. Versuch es erneut.",
+    "invalid": "Gib einen Namen und 1 bis 3 gültige Bilder an.",
+    "changed": "Diese Referenz wurde geändert. Öffne sie erneut.",
+    "missing": "Ein Bild fehlt auf diesem Gerät. Füge es erneut hinzu.",
+    "manageHelp": "Deine Referenzen sind in diesem Projekt gespeichert. Tippe zum Bearbeiten auf eine Karte.",
+    "requiredHelp": "Ein Name und mindestens ein Foto sind erforderlich. Höchstens drei Fotos.",
+    "capacity": "Erstelle so viele Referenzen, wie du möchtest. {n} Referenz(en) in diesem Projekt gespeichert.",
+    "selectionLimit": "Du hast bereits {max} Referenzen für diese Kreation angehängt. Du kannst weiterhin Referenzen erstellen und verwalten; entferne einen Chip, um eine andere anzuhängen.",
+    "attached": "Bereits für diese Kreation angehängt",
+    "noMatch": "Keine Referenzen passen zu deiner Suche oder dieser Kategorie."
+  },
+  "bubble": {
+    "audio": "Audio",
+    "audioHelp": "Referenzton an ein Video anhängen",
+    "removeAudio": "Ton entfernen",
+    "resolution": "Auflösung",
+    "soundOn": "Ton an",
+    "soundOff": "Ton aus",
+    "referenceCount": "{n} / {max} Referenzen für diese Kreation angehängt",
+    "imageEngine": "Bild · Klein · Mit ComfyUI",
+    "referenceVideoEngine": "Video · MiniMax H3 · Mit ComfyUI",
+    "textVideoEngine": "Video · LTX · Mit ComfyUI",
+    "askUttu": "Uttu fragen",
+    "imageTitle": "Bild erstellen",
+    "videoTitle": "Video erstellen",
+    "rendering": "Wird erstellt",
+    "back": "Zurück",
+    "continues": "Du kannst zur Eingabe zurückkehren. Die Erstellung läuft bei Comfy weiter und das Ergebnis erscheint hier. Der Fortschritt ist geschätzt.",
+    "favorite": "Favorit",
+    "favorited": "Als Favorit markiert",
+    "keep": "Behalten",
+    "kept": "Behalten",
+    "redo": "Erneut erstellen",
+    "share": "Teilen",
+    "asReference": "Als Referenz hinzufügen",
+    "saveFailed": "Speichern fehlgeschlagen. Versuch es erneut.",
+    "shareFailed": "Teilen fehlgeschlagen. Versuch es erneut.",
+    "draftFailed": "Der Entwurf konnte auf diesem Gerät nicht gespeichert werden.",
+    "invalid": "Prüfe deine Optionen: bis zu 7 Bildreferenzen und ein Ton im Videomodus.",
+    "asImageReference": "Letztes Bild als Referenz verwenden",
+    "runningConversation": "Warte auf das Ergebnis, bevor du eine neue Unterhaltung beginnst. Du kannst das Studio weiter nutzen."
   },
   "genjutsu": {
     "action": "Figur ersetzen",
