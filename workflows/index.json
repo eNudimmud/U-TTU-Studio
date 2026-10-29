@@ -1,6 +1,6 @@
 {
   "source": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates",
-  "exported": "2026-10-18",
+  "exported": "2026-10-29",
   "workflows": [
     {
       "id": "cast-photos",
@@ -958,6 +958,58 @@
       "sentPartner": false,
       "template_file": "workflows/finaliser/montage-finaliser.json",
       "api_file": "workflows/finaliser/montage-finaliser.api.json"
+    },
+    {
+      "id": "creation-image-texte",
+      "onglet": "outils",
+      "template": "image_flux3_klein_t2i",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/creation-image-texte.json",
+      "api_file": "workflows/outils/creation-image-texte.api.json"
+    },
+    {
+      "id": "creation-image",
+      "onglet": "outils",
+      "template": "image_flux3_klein_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/creation-image.json",
+      "api_file": "workflows/outils/creation-image.api.json"
+    },
+    {
+      "id": "creation-video-refs",
+      "onglet": "outils",
+      "template": "video_minimax_h3_r2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/creation-video-refs.json",
+      "api_file": "workflows/outils/creation-video-refs.api.json"
+    },
+    {
+      "id": "creation-video-texte",
+      "onglet": "outils",
+      "template": "video_ltx2_5_t2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/creation-video-texte.json",
+      "api_file": "workflows/outils/creation-video-texte.api.json"
+    },
+    {
+      "id": "outil-vid-genjutsu",
+      "onglet": "outils",
+      "template": "api_higgsfield_genjutsu_motion_transfer",
+      "partner": true,
+      "partnerNodes": [
+        "HiggsfieldMotionTransferNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-genjutsu.json",
+      "api_file": "workflows/outils/outil-vid-genjutsu.api.json"
     }
   ]
 }

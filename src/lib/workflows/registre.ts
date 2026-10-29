@@ -56,6 +56,7 @@ export interface FiltreGestes {
 /** Ids read in the official catalogs or in docs/TEMPLATES-COMFY.md. Nothing else is allowed. */
 export const TEMPLATES_OFFICIELS = [
   "image_qwen_image_instantx_controlnet",
+  "api_higgsfield_genjutsu_motion_transfer",
   "image_flux3_klein_t2i",
   "image_flux3_klein_image_edit",
   "api_bfl_flux3_image_edit",
@@ -470,6 +471,11 @@ export const REGISTRE: readonly Geste[] = [
     template: "video_ltx2_3_ia2v", credits: 8, high: 13, nature: "mesure",
     premier: false, still: "suite", minRefs: 2, consigne: "",
   }), // mesuré 27.10.2026 : 8,09 crédits pour 5 s 1280×720 (job 804f983f)
+  // Home bubble: dynamic sizes / durations / named-reference counts are estimates, never measurements.
+  geste({ id: "creation-image-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_t2i", credits: 2, high: 4, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "creation-image", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_image_edit", credits: 3, high: 6, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "creation-video-refs", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_minimax_h3_r2v", credits: 5, high: 10, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "creation-video-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_ltx2_5_t2v", credits: 5, high: 10, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   // « Outils » : one panel per whole template, opened from the hub. Each estimate is shown
   // « estimé » unless a real job was billed: open weights are guessed from the studio's measured
   // neighbours, partner prices come from Comfy's estimate_credits on the template. Rows marked
@@ -491,6 +497,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-vid-vidu", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_vidu_q4_preview_r2v", credits: 100, high: 151, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 100,23 crédits pour API, 1 clip (job 11703345)
   geste({ id: "outil-vid-h3max", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_minimax_h3_max_r2v", credits: 181, high: 272, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-mouvement", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_wan_animate2", credits: 17, high: 25, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 16,59 crédits pour 81 images 482×854 (job 6ad03f2c)
+  geste({ id: "outil-vid-genjutsu", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_higgsfield_genjutsu_motion_transfer", credits: 480, high: 720, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }), // 5 s 480p ; le formulaire calcule par seconde et par résolution.
   geste({ id: "outil-3d-tripo", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_tripo_p2_image_to_model", credits: 232, high: 348, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-3d-hunyuan", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_hunyuan3d_image_to_model", credits: 190, high: 285, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-3d-meshy", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_meshy7_1_image_to_model", credits: 362, high: 543, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),

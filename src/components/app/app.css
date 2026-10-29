@@ -2419,6 +2419,51 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-ex-mini[data-ex-on], .u-ex-mini[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .u-fil-quote-ex { display: grid; grid-template-columns: 72px 1fr; gap: 10px; align-items: center; margin: 8px 0; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
 .u-fil-quote-ex img { width: 72px; height: 48px; object-fit: cover; border-radius: 8px; }
+
+/* Native creation bubble and the shared project reference library. */
+.u-creation-bubble .u-barre-foot { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px 44px; gap: 6px; }
+.u-barre-home[data-threaded] > .u-creation-bubble { position: relative; bottom: auto; }
+.u-creation-bubble .u-barre-modes { min-width: 0; display: flex; }
+.u-creation-bubble .u-barre-modes button { flex: 1; min-width: 44px; min-height: 44px; padding: 0 8px; gap: 5px; }
+.u-creation-bubble .u-barre-settings-pill { width: 44px; min-height: 44px; padding: 0; justify-content: center; }
+.u-creation-bubble .u-barre-settings-pill > span { display: none; }
+.u-creation-bubble .u-barre-send { width: 44px; min-height: 44px; padding: 0; justify-content: center; }
+.u-creation-bubble .u-barre-settings { display: grid; gap: 10px; overflow-y: auto; }
+.u-creation-bubble .u-barre-settings button { min-width: 44px; min-height: 44px; }
+.u-bubble-limit { margin: 6px 0 0; color: var(--fg-2); font: 400 12px/1.4 var(--font-body); }
+.u-bubble-audio { display: flex; align-items: center; gap: 8px; }
+.u-bubble-audio > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.u-app .u-bubble-agent { justify-self: start; min-width: 44px; min-height: 44px; }
+.u-named-refs { max-width: calc(100vw - 24px); overflow: auto; }
+.u-named-refs > .u-small, .u-named-refs > .u-field { margin: 0; flex-shrink: 0; }
+.u-named-refs .u-refs-head { flex-shrink: 0; }
+.u-named-refs .u-refs-head h2 { overflow-wrap: anywhere; }
+.u-named-new { flex-shrink: 0; min-height: 44px; gap: 8px; }
+.u-named-refs .u-refs-grid { flex: 1 1 auto; min-height: 100px; }
+.u-named-refs .u-refs-grid > li { min-width: 0; }
+.u-named-refs .u-refs-card { width: 100%; }
+.u-named-card-actions { display: flex; }
+.u-named-card-actions button { flex: 1; min-width: 44px; min-height: 44px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 12px; }
+.u-named-editor { display: grid; gap: 12px; overflow-y: auto; min-height: 0; padding-bottom: 16px; }
+.u-named-editor .u-field { margin: 0; }
+.u-named-editor input, .u-named-editor select, .u-named-editor textarea { min-height: 44px; width: 100%; max-width: 100%; }
+.u-named-photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.u-named-photos > div { position: relative; min-width: 0; }
+.u-named-photos img { width: 100%; height: 100px; object-fit: contain; background: var(--surface-2); border-radius: 10px; }
+.u-named-photos .u-icon { position: absolute; top: 0; right: 0; background: var(--bg); }
+.u-named-editor-foot { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; bottom: 0; padding-top: 8px; background: var(--bg); }
+.u-named-editor-foot button { flex: 1; min-width: 90px; min-height: 44px; }
+.u-named-delete { display: grid; gap: 12px; padding-bottom: 16px; }
+.u-bubble-render { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 24px; border: 0; background: var(--bg); color: var(--fg); }
+.u-bubble-render[open] { display: flex; overflow: auto; }
+.u-bubble-render > div { width: min(640px, 100%); display: grid; gap: 20px; min-width: 0; margin: auto; }
+.u-bubble-render p { overflow-wrap: anywhere; }
+.u-bubble-render .u-secondary { justify-self: start; min-width: 90px; min-height: 44px; }
+@media (min-width: 600px) {
+  .u-creation-bubble .u-barre-foot { grid-template-columns: 44px minmax(150px, 1fr) auto 44px; }
+  .u-creation-bubble .u-barre-settings-pill { width: auto; padding: 0 12px; }
+  .u-creation-bubble .u-barre-settings-pill > span { display: inline; }
+}
 .u-fil-quote-ex p { margin: 0; font: 500 13px/1.35 var(--font-body); }
 .u-fil-quote-ex small { color: var(--fg-2); }
 

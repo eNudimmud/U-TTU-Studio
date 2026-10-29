@@ -60,6 +60,9 @@ import { takePrompt } from "@/lib/render/take-prompt";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
+import { namedReferenceNote, readNamedReferences, referenceNotePath, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from "@/lib/creation/named-references";
+import { referenceBoard } from "@/lib/creation/reference-board";
+import { bubbleGraph, bubbleGeste, bubbleQuote, bubbleTool, type BubbleMode, type BubbleSettings } from "@/lib/creation/bubble";
 
 export type SheetName = null | "credits" | "confirm" | "connect";
 
@@ -122,6 +125,11 @@ export interface StudioSession {
   media: Record<string, string>;
   cast: CastCard[];
   decor: DecorCard[];
+  references: NamedReference[];
+  saveReference(input: { original?: NamedReference; name: string; description: string; category: ReferenceCategory; images: { file?: File; path?: string }[] }): Promise<NamedReference>;
+  deleteReference(ref: NamedReference): Promise<void>;
+  markCreation(path: string, patch: { favorite?: boolean; kept?: boolean }): Promise<void>;
+  storeCreationInput(file: File): Promise<{ path: string; url: string }>;
   pickedCast: string | null;
   pickedDecor: string | null;
   line: string;
@@ -295,6 +303,11 @@ export interface OutilRun {
   outil: string;
   /** Images in slot order (the second one is optional). Prolonger: the take's last frame. */
   images: File[];
+  /** The home bubble uses the same upload / receipt / recovery / result path. */
+  creation?: { mode: BubbleMode; settings: BubbleSettings };
+  /** Original vault references remain linked to the production note, even if its library card is deleted. */
+  originRefs?: string[];
+  onSubmitted?(receipt: { jobId: string; assetId: string; project: string }): void;
   video?: File;
   audio?: File;
   prompt: string;
@@ -304,6 +317,7 @@ export interface OutilRun {
   fluidifier?: boolean;
   seconds?: number;
   mesh?: "objet" | "perso";
+  resolution?: import("@/lib/outils/genjutsu").GenjutsuResolution;
   /** The visitor may use the voice they upload. */
   consent?: boolean;
   from?: string;
@@ -431,6 +445,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [demoOn, setDemoOn] = useState(demo);
   const [catalog, setCatalog] = useState<MediaCatalog | null>(null);
   const [loose, setLoose] = useState<AssetRecord[]>([]);
+  const [references, setReferences] = useState<NamedReference[]>([]);
   const [pendingRef, setPendingRef] = useState<HeldRef | null>(null);
   const [pendingClip, setPendingClip] = useState<HeldClip | null>(null);
 
@@ -466,7 +481,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     for (const entry of await vault.list()) {
       if (next.project && entry.path.startsWith("Projets/") && !entry.path.startsWith(`Projets/${next.project}/`)) continue;
       if (/\/Sequences\/[^/]+\.(wav|mp3|m4a|ogg|webm|mp4)$/i.test(entry.path)) wanted.add(entry.path);
-      if (/\/(?:Cast|Decors|Lieux|Prises|Sons|Assets)\/[^/]+\.(png|jpe?g|webp|gif|mp4|webm|mov|wav|mp3|m4a|ogg|glb|gltf)$/i.test(entry.path)) wanted.add(entry.path);
+      if (/\/(?:Cast|Decors|Lieux|Refs|Prises|Sons|Assets)\/[^/]+\.(png|jpe?g|webp|gif|avif|mp4|webm|mov|wav|mp3|m4a|ogg|glb|gltf)$/i.test(entry.path)) wanted.add(entry.path);
     }
     for (const path of next.look.photos) wanted.add(path);
     for (const path of wanted) {
@@ -496,6 +511,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     catch { setCatalog(null); setNotice("L’index des médias est illisible. Les fichiers d’origine sont conservés ; exporte le coffre avant réparation."); }
     const entries = await vault.list();
     const paths = entries.map(entry => entry.path);
+    setReferences(await readNamedReferences(vault, next.project));
     const noted = await importNotes(async path => (await vault.get(path))?.text, paths, next.project);
     setLoose([...looseAssets(paths, next.project), ...noted]);
     await showMedia(vault, next);
@@ -1285,15 +1301,17 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   // built by outilGraph and land in Mon studio as a new asset. Jamais d'annulation.
   const runOutil = useCallback(async (input: OutilRun): Promise<FinaliseOutcome> => {
     const outil = outilParId(input.outil);
-    const row = outil ? outilRow(outil) : undefined;
+    const creation = input.creation;
+    const row = creation ? gesteParId(bubbleGeste(creation.mode, input.images.length, Boolean(input.audio))) : outil ? outilRow(outil) : undefined;
     if (!outil || !row || !outil.moteur || outil.bientot) return { ok: false, message: t(outil?.bientot ? `outils.why.${outil.bientot}` : "gestes.unwired") };
+    if (creation && input.outil !== bubbleTool(creation.mode, input.images.length, Boolean(input.audio))) return { ok: false, message: t("bubble.invalid") };
     if (!gesteVisible(row, prefs)) return { ok: false, message: t("safety.modelBlocked") };
-    if (outil.moteur.kind === "suite") {
+    if (outil.moteur.kind === "suite" && !creation) {
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.video : input.images[0];
       if (!source) return { ok: false, message: t("videoGeste.needFiles") };
       return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage, onCost: input.onCost });
     }
-    const quote = outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh });
+    const quote = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio)) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution });
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
     if (outil.texte === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
     if (outil.entrees.includes("image") && !input.images[0]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };
@@ -1315,7 +1333,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const toolTitle = t(`outils.t.${outil.id}.title`);
       const name = cleanCardName(subject ? `${toolTitle} · ${subject} · ${stamp}` : `${toolTitle} · ${stamp}`) || `${outil.id}-${stamp}`;
       input.onStage("envoi");
-      const refs: string[] = input.from ? [input.from] : [];
+      const refs: string[] = [...new Set([...(input.originRefs ?? []), ...(input.from ? [input.from] : [])])];
+      if (refs.some(path => !path.startsWith(`Projets/${slug}/`))) throw new RenderError("invalid", t("namedRefs.changed"));
       const send = async (file: File, label: string) => {
         const ext = file.type.startsWith("audio/") ? audioExtension(file) : extensionFor(file.type);
         if (!input.from) {
@@ -1329,11 +1348,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
       const video = input.video ? await send(input.video, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
-      const graph = outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh });
+      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution });
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       const receipt: PendingRender = { version: 1, kind, geste: row.id, project: slug, id, name, prompt: input.prompt, at, account: await fingerprint(), refs, template: row.template, quote: quote.credits, balanceBefore: fresh!.credits, jobId: null };
       const jobId = await recoverableClient(client, localStorage, receipt).submit(graph, crypto.randomUUID());
+      input.onSubmitted?.({ jobId, assetId: id, project: slug });
       let notePath = "";
       let mediaPath = "";
       let kindNote: "plan" | "son" | "importe" = "importe";
@@ -1873,6 +1893,81 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } catch (error) { setNotice(error instanceof Error ? error.message : "Import interrompu. Les fichiers déjà enregistrés sont conservés."); }
   }, [reload, store, t]);
 
+  const saveReference = useCallback(async (input: { original?: NamedReference; name: string; description: string; category: ReferenceCategory; images: { file?: File; path?: string }[] }): Promise<NamedReference> => {
+    const name = cleanCardName(input.name);
+    if (!name || !REFERENCE_CATEGORIES.includes(input.category) || input.images.length < 1 || input.images.length > REFERENCE_PHOTOS_MAX) throw new Error("namedRefs.invalid");
+    const slug = studioRef.current?.project ?? await ensureActiveProject(store());
+    const vault = projectVault(store(), slug);
+    const operation = saves.current.catch(() => {}).then(async () => {
+      const all = await readNamedReferences(vault, slug);
+      const original = input.original ? all.find(r => r.note === input.original!.note) : undefined;
+      if (input.original && !original) throw new Error("namedRefs.changed");
+      const id = original?.id ?? `${slugify(name).slice(0, 24)}-${crypto.randomUUID().slice(0, 8)}`;
+      const folder = referenceNotePath(slug, id, input.category).replace(/\/[^/]+$/, "");
+      const images: string[] = [], blobs: Blob[] = [];
+      for (const photo of input.images) {
+        if (photo.file) {
+          if (!photo.file.type.startsWith("image/") || !photo.file.size) throw new Error("namedRefs.invalid");
+          const path = `${folder}/${id}-${crypto.randomUUID().slice(0, 8)}.${extensionFor(photo.file.type)}`;
+          await writeBlob(vault, path, photo.file); images.push(path); blobs.push(photo.file);
+        } else {
+          if (!photo.path?.startsWith(`Projets/${slug}/`)) throw new Error("namedRefs.invalid");
+          const entry = await vault.get(photo.path);
+          if (!entry?.blob) throw new Error("namedRefs.missing");
+          images.push(photo.path); blobs.push(entry.blob);
+        }
+      }
+      const sameImages = original && images.length === original.images.length && images.every((p, i) => p === original.images[i]);
+      const preview = sameImages ? original.preview : images.length === 1 ? images[0] : `${folder}/${id}-planche-${crypto.randomUUID().slice(0, 8)}.png`;
+      if (!sameImages && images.length > 1) await writeBlob(vault, preview, await referenceBoard(blobs, name));
+      const note = original?.category === input.category ? original.note : referenceNotePath(slug, id, input.category);
+      const source = original ? (await vault.get(original.note))?.text : undefined;
+      await writeText(vault, note, namedReferenceNote(slug, id, { name, description: input.description, category: input.category, images, preview }, source));
+      if (original && original.note !== note) await vault.remove(original.note);
+      return { id, name, description: input.description.trim().slice(0, 2000), category: input.category, images, preview, note };
+    });
+    saves.current = operation;
+    const ref = await operation;
+    await reload();
+    return ref;
+  }, [reload, store]);
+
+  const deleteReference = useCallback(async (ref: NamedReference) => {
+    const slug = studioRef.current?.project;
+    if (!slug) return;
+    const vault = projectVault(store(), slug);
+    const found = (await readNamedReferences(vault, slug)).find(r => r.note === ref.note);
+    if (!found) throw new Error("namedRefs.changed");
+    await vault.remove(found.note);
+    if (found.category === 'cast') setPickedCast(current => current === found.id ? null : current);
+    if (found.category === 'decor') setPickedDecor(current => current === found.id ? null : current);
+    await removeUnreferenced(vault, [...found.images, found.preview]);
+    await reload();
+  }, [reload, store]);
+
+  const markCreation = useCallback(async (path: string, patch: { favorite?: boolean; kept?: boolean }) => {
+    const project = studioRef.current?.project;
+    if (!project || !path.startsWith(`Projets/${project}/`)) throw new Error("media.path");
+    const next = await updateCatalog(store(), project, c => ({ ...c, assets: c.assets.map(a => {
+      if (a.localPath !== path) return a;
+      const tags = new Set(a.organization.tags);
+      if (patch.favorite !== undefined) { if (patch.favorite) tags.add("favori"); else tags.delete("favori"); }
+      return { ...a, organization: { ...a.organization, tags: [...tags], ...(patch.kept !== undefined ? { validated: patch.kept } : {}) } };
+    }) }));
+    if (studioRef.current?.project === project) setCatalog(next);
+  }, [store]);
+
+  const storeCreationInput = useCallback(async (file: File) => {
+    if (!/^(image|audio)\//.test(file.type) || !file.size) throw new Error("bubble.invalid");
+    const slug = studioRef.current?.project ?? await ensureActiveProject(store());
+    const path = `Projets/${slug}/Assets/source-${crypto.randomUUID()}.${file.type.startsWith("audio/") ? audioExtension(file) : extensionFor(file.type)}`;
+    await writeBlob(projectVault(store(), slug), path, file);
+    const url = URL.createObjectURL(file);
+    retiredUrls.current.push(url);
+    await reload();
+    return { path, url };
+  }, [reload, store]);
+
   const promoteExempleRefs = useCallback(async (specs: readonly ExempleRefSpec[]) => {
     const promoted = await promoteDemoRefs(store(), specs);
     await reload();
@@ -2165,7 +2260,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const value: StudioSession = {
     catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
     prefs, setPrefs,
-    ready, demo: demoOn, studio: current, media, cast, decor, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
+    ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,

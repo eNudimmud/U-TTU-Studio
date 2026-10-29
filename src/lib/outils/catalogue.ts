@@ -11,7 +11,7 @@ export type Sous = "image" | "video" | "3d" | "son" | "texte";
 export type Sortie = "image" | "video" | "audio" | "mesh";
 /** What the panel asks for. `image2` is an optional second picture (références). */
 export type Entree = "image" | "image2" | "video" | "audio";
-export type Reglage = "aspect" | "elargir" | "fluide" | "mesh";
+export type Reglage = "aspect" | "elargir" | "fluide" | "mesh" | "resolution";
 export type Moteur =
   | { kind: "generique" }
   | { kind: "klein" }
@@ -116,6 +116,7 @@ export const OUTILS: readonly Outil[] = [
   { id: "vid-effacer", num: 57, famille: "video", sous: "video", template: "template_ltx2_3_obscura_remova_lora_remove_object_from_video", entrees: ["video"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-effacer", moteur: { kind: "video" } },
   { id: "vid-fluidifier", num: 58, famille: "video", sous: "video", template: "utility_video_frame_interpolation", entrees: ["video"], texte: "aucun", sortie: "video", onglets: ["montage"], geste: "suite-fluidifier", moteur: S, parTranche: true },
   { id: "vid-mouvement", num: 23, famille: "video", sous: "video", template: "video_wan_animate2", entrees: ["image", "video"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "outil-vid-mouvement", moteur: G },
+  { id: "vid-genjutsu", num: 59, famille: "video", sous: "video", template: "api_higgsfield_genjutsu_motion_transfer", entrees: ["video", "image", "image2"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "outil-vid-genjutsu", moteur: G, reglages: ["resolution"] },
 ];
 
 export function outilParId(id: string): Outil | null {
