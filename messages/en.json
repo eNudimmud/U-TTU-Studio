@@ -130,7 +130,7 @@
       },
       "tools": {
         "name": "A tool library",
-        "body": "Comfy tools sorted by family, each with its quote: eight angles of a character or a set, a moved camera, new lighting, sound effects synced to a video, voice and music split."
+        "body": "Comfy tools sorted by family, each with its quote: eight angles of a character or a set, a moved camera, new lighting or the light copied from a contrasting picture, a character kept in its place (FastH3, second model), sound effects synced to a video, voice and music split."
       },
       "refs": {
         "name": "Named references",
@@ -3449,7 +3449,11 @@
       },
       "welcome": "I’m Uttu, the studio’s agent. Tell me what you want to shoot: I answer, suggest the tool or the plan, and you see the quote before any render. Each message is paid by your Comfy account."
     },
-    "refs": "Attached references: {list}"
+    "refs": "Attached references: {list}",
+    "modelTip": {
+      "ret-lumiere-image": "portrait then light picture, no prompt; a light that contrasts with the portrait, or little changes.",
+      "vid-fasth3": "FastH3 keeps the place better: character picture, place picture, the action in one sentence; the studio writes the structured prompt."
+    }
   },
   "barre": {
     "title": "What are we shooting?",

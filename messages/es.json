@@ -130,7 +130,7 @@
       },
       "tools": {
         "name": "Una biblioteca de herramientas",
-        "body": "Herramientas Comfy por familia, cada una con su presupuesto: ocho ángulos de un personaje o un decorado, cámara movida, luz cambiada, efectos de sonido sincronizados con un vídeo, voz y música separadas."
+        "body": "Herramientas Comfy por familia, cada una con su presupuesto: ocho ángulos de un personaje o un decorado, cámara movida, luz cambiada o copiada de una imagen contrastada, un personaje fiel a su lugar (FastH3, segundo modelo), efectos de sonido sincronizados con un vídeo, voz y música separadas."
       },
       "refs": {
         "name": "Referencias con nombre",
@@ -3449,7 +3449,11 @@
       },
       "welcome": "Soy Uttu, el agente del estudio. Dime qué quieres rodar: te respondo, te propongo la herramienta o el plan y ves el presupuesto antes de cualquier render. Cada mensaje lo paga tu cuenta Comfy."
     },
-    "refs": "Referencias adjuntas: {list}"
+    "refs": "Referencias adjuntas: {list}",
+    "modelTip": {
+      "ret-lumiere-image": "retrato y luego imagen de luz, sin instrucción; luz que contraste con el retrato, si no cambia poco.",
+      "vid-fasth3": "FastH3 conserva mejor el lugar: imagen del personaje, imagen del lugar, la acción en una frase; el estudio escribe la instrucción estructurada."
+    }
   },
   "barre": {
     "title": "¿Qué rodamos?",

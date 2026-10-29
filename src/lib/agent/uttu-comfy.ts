@@ -30,7 +30,7 @@ export const HISTORY = 8;
 /** Output ceiling, hidden reasoning tokens included. A short JSON answer needs ~300; the rest is headroom. */
 export const MAX_OUTPUT_TOKENS = 1600;
 /** Character budget for the knowledge pack sent with each message. */
-export const PACK_BUDGET = 10600;
+export const PACK_BUDGET = 10900;
 /** Conservative token count for French/German prose: one token per three characters. */
 export const CHARS_PER_TOKEN = 3;
 export const ATTEMPT_TIMEOUT_MS = 25_000;
@@ -93,9 +93,15 @@ export function buildPack(k: Knowledge, locale: UttuLocale, question: string, bu
   const tools = k.tools.filter(t => open.has(t.id) && L.tools[t.id]).map(t => {
     const info = L.tools[t.id];
     const quote = quoteText(locale, t.cost, t.nature);
-    return `- ${t.id}: ${info.title}${info.model ? ` (${info.model})` : ""} [${OUTPUT_KIND[t.sortie] ?? t.sortie}${quote ? ` · ${quote}` : ""}]: ${info.line}`;
+    const head = `- ${t.id}: ${info.title}${info.model ? ` (${info.model})` : ""} [${OUTPUT_KIND[t.sortie] ?? t.sortie}${quote ? ` · ${quote}` : ""}]: ${info.line}`;
+    // Other open-weight models of the same card that carry a guide tip, by model name only: the id is the card's.
+    const others = (t.variantes ?? []).map(id => ({ tool: k.tools.find(item => item.id === id), info: L.tools[id] })).filter(item => item.tool && item.info?.tip).map(({ tool, info: other }) => {
+      const cost = quoteText(locale, tool!.cost, tool!.nature);
+      return `  + ${other.model ?? other.title}${cost ? ` [${cost}]` : ""}${other.tip ? `: ${other.tip}` : ""}`;
+    });
+    return [head, ...others].join("\n");
   });
-  sections.push(`TOOLS (id: name [output · quote]: what it does)\n${tools.join("\n")}`);
+  sections.push(`TOOLS (id: name [output · quote]: what it does; + = other model of the card)\n${tools.join("\n")}`);
   const seenStep = new Set<string>();
   const gestures = k.gestures.filter(g => g.ouvert && !g.option && (g.onglet === "cast" || g.onglet === "decor" || g.onglet === "prise" || g.onglet === "montage") && L.gestures[g.clef]).filter(g => {
     const key = `${g.onglet}:${L.gestures[g.clef].title}`;

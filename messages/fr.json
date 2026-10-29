@@ -130,7 +130,7 @@
       },
       "tools": {
         "name": "Une bibliothèque d’outils",
-        "body": "Les outils Comfy rangés par famille, chacun avec son devis : huit angles d’un personnage ou d’un décor, caméra déplacée, lumière changée, bruitage calé sur une vidéo, voix et musique séparées."
+        "body": "Les outils Comfy rangés par famille, chacun avec son devis : huit angles d’un personnage ou d’un décor, caméra déplacée, lumière changée ou copiée d’une image contrastée, personnage gardé dans son lieu (FastH3, second modèle), bruitage calé sur une vidéo, voix et musique séparées."
       },
       "refs": {
         "name": "Des références nommées",
@@ -3449,7 +3449,11 @@
       },
       "welcome": "Je suis Uttu, l’agent du studio. Dis-moi ce que tu veux tourner : je te réponds, je te propose l’outil ou le plan, et tu vois le devis avant tout rendu. Chaque message est payé par ton compte Comfy."
     },
-    "refs": "Références jointes : {list}"
+    "refs": "Références jointes : {list}",
+    "modelTip": {
+      "ret-lumiere-image": "portrait puis image de lumière, sans consigne ; lumière contrastée avec le portrait, sinon peu de changement.",
+      "vid-fasth3": "FastH3 garde mieux le lieu : image du personnage, image du lieu, l’action en une phrase ; le studio écrit la consigne structurée."
+    }
   },
   "barre": {
     "title": "Qu’est-ce qu’on tourne ?",

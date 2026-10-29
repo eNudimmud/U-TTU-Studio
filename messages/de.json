@@ -130,7 +130,7 @@
       },
       "tools": {
         "name": "Eine Werkzeugbibliothek",
-        "body": "Comfy-Werkzeuge nach Familie, jedes mit seiner Kalkulation: acht Winkel einer Figur oder Kulisse, bewegte Kamera, neues Licht, Geräusche passend zum Video, Stimme und Musik getrennt."
+        "body": "Comfy-Werkzeuge nach Familie, jedes mit seiner Kalkulation: acht Winkel einer Figur oder Kulisse, bewegte Kamera, neues Licht oder das Licht eines kontrastreichen Bildes, eine Figur treu an ihrem Ort (FastH3, zweites Modell), Geräusche passend zum Video, Stimme und Musik getrennt."
       },
       "refs": {
         "name": "Benannte Referenzen",
@@ -3449,7 +3449,11 @@
       },
       "welcome": "Ich bin Uttu, der Agent des Studios. Sag mir, was du drehen willst: Ich antworte, schlage dir das Werkzeug oder den Plan vor, und du siehst den Kostenvoranschlag vor jedem Rendern. Jede Nachricht zahlt dein Comfy-Konto."
     },
-    "refs": "Angehängte Referenzen: {list}"
+    "refs": "Angehängte Referenzen: {list}",
+    "modelTip": {
+      "ret-lumiere-image": "Porträt, dann Lichtbild, ohne Anweisung; das Licht muss sich vom Porträt abheben.",
+      "vid-fasth3": "FastH3 hält den Ort besser: Figur- und Ortsbild, Handlung in einem Satz; das Studio schreibt die strukturierte Anweisung."
+    }
   },
   "barre": {
     "title": "Was drehen wir?",

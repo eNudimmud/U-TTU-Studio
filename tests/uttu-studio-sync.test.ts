@@ -96,7 +96,40 @@ test("sync: top 10 paths are guided, unintegrated workflows are never proposed",
     const which = k.locales[locale].faq.find(f => f.id === "which")!.a;
     assert.match(which, /≈ 14 /, `${locale} multi-camera recipe`);
     assert.ok(which.includes(k.locales[locale].tools["ret-angles-perso"].title), locale);
-    // Not integrated (docs/mesures/workflows-top10-2026-10-29.md) and the merged card is gone.
-    assert.doesNotMatch(pack, /FastH3|fasth3|Light Migration|light_migration|planche LTX|LTX reference sheet|Vidéo à références multiples|vid-vidu/i, locale);
+    // Not integrated (docs/mesures/workflows-top10-2026-10-29.md, LTX reference sheet) and the merged card is gone.
+    assert.doesNotMatch(pack, /planche LTX|LTX reference sheet|ic_lora_ingredients|Vidéo à références multiples|vid-vidu/i, locale);
+  }
+});
+
+test("sync: the audit's open-weight models are guided inside their card, by model name, with the audit's tips", () => {
+  const tool = (id: string) => k.tools.find(t => t.id === id)!;
+  assert.deepEqual(tool("vid-h3-refs").variantes, ["vid-fasth3"]);
+  assert.ok(tool("ret-eclairer-ouvert").variantes.includes("ret-lumiere-image"));
+  // Partner models of a card are never named.
+  assert.ok(!tool("vid-h3-refs").variantes.includes("vid-vidu"));
+  assert.ok(!tool("ret-eclairer-ouvert").variantes.includes("ret-eclairer"));
+  const tips: Record<string, [RegExp, RegExp]> = {
+    fr: [/contrastée avec le portrait/, /consigne structurée/], en: [/contrasts with the portrait/, /structured prompt/],
+    de: [/vom Porträt abheben/, /strukturierte Anweisung/], es: [/contraste con el retrato/, /instrucción estructurada/],
+  };
+  for (const locale of UTTU_LOCALES) {
+    const L = k.locales[locale];
+    const pack = buildPack(k, locale, "Une vidéo de mon personnage sur le quai, et copier la lumière d’une photo ?");
+    const lines = pack.split("\n");
+    const under = (card: string) => lines[lines.findIndex(line => line.startsWith(`- ${card}: `)) + 1];
+    const fasth3 = under("vid-h3-refs");
+    assert.ok(fasth3.startsWith("  + "), `${locale} FastH3 under its card`);
+    assert.ok(fasth3, `${locale} FastH3 line`);
+    assert.ok(fasth3.includes(L.tools["vid-fasth3"].model!), locale);
+    assert.ok(fasth3.includes(quoteText(locale, tool("vid-fasth3").cost, tool("vid-fasth3").nature)!), `${locale} FastH3 quote`);
+    assert.match(fasth3, /FastH3/);
+    assert.match(fasth3, tips[locale][1]);
+    const light = under("ret-eclairer-ouvert");
+    assert.ok(light.startsWith("  + "), `${locale} light under its card`);
+    assert.ok(light, `${locale} light line`);
+    assert.ok(light.includes(L.tools["ret-lumiere-image"].model!), locale);
+    assert.match(light, tips[locale][0]);
+    // Model ids are never offered as tools of their own.
+    assert.doesNotMatch(pack, /(^|[^\w-])(vid-fasth3|ret-lumiere-image)(?![\w-])/, locale);
   }
 });
