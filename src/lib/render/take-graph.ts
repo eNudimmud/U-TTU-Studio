@@ -86,6 +86,17 @@ export function takeFrames(seconds: number): number {
 }
 
 /** Same profile, same cost: what calibration is keyed on. */
+/** The Comfy workflow a take ran: the template its graph comes from. */
+export function takeWorkflow(settings: TakeSettings): string {
+  return takeEngine(settings) === "ltx" ? "ltx-2.5-i2v" : "video_minimax_h3_r2v";
+}
+
+/** Where Comfy Cloud keeps an output. Reading it needs the account's own sign-in; no key is stored here. */
+export function comfyStorageUrl(ref: { filename: string; subfolder: string; type: string }): string {
+  const query = new URLSearchParams({ filename: ref.filename, subfolder: ref.subfolder, type: ref.type });
+  return `https://cloud.comfy.org/api/view?${query}`;
+}
+
 export function takeProfile(settings: TakeSettings): string {
   if (takeEngine(settings) === "ltx") {
     const apercu = takeRendu(settings) === "apercu" ? "apercu-" : "";
