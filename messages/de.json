@@ -2456,7 +2456,9 @@
       "start": "ein Startbild",
       "end": "ein Endbild",
       "sujet": "ein Porträt",
-      "lumiere": "ein Bild, dessen Licht übernommen wird"
+      "lumiere": "ein Bild, dessen Licht übernommen wird",
+      "personnage": "eine Figur",
+      "lieu": "einen Ort"
     },
     "prompt": "Anweisung",
     "refs": "Referenzen",
@@ -2772,6 +2774,10 @@
       "ret-lumiere-image": {
         "title": "Licht eines Bildes übernehmen",
         "line": "Dein Porträt, beleuchtet wie ein anderes Bild."
+      },
+      "vid-fasth3": {
+        "title": "Video ortsgetreu",
+        "line": "Deine Figur an deinem Ort, Kulisse bleibt."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2800,7 +2806,8 @@
       "ret-eclairer": "Studioporträt",
       "vid-h3-refs": "Treu, günstig",
       "vid-vidu": "Zwei Bilder vereint",
-      "ret-lumiere-image": "Licht aus einem Bild"
+      "ret-lumiere-image": "Licht aus einem Bild",
+      "vid-fasth3": "Ort treuer (mehrere Referenzen)"
     },
     "model": "Modell",
     "modelChange": "Modell wechseln",
@@ -2816,7 +2823,9 @@
       "start": "Startbild",
       "end": "Endbild",
       "sujet": "Porträt",
-      "lumiere": "Licht zum Übernehmen"
+      "lumiere": "Licht zum Übernehmen",
+      "personnage": "Figur",
+      "lieu": "Ort"
     },
     "costWait": "Dauer wird gelesen…",
     "camera": {

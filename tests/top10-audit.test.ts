@@ -51,7 +51,7 @@ describe("audit · copier la lumière d’une image (Qwen 2509 Light Migration)"
     assert.ok((TEMPLATES_OFFICIELS as readonly string[]).includes(outil.template));
   });
 
-  it("keeps FastH3 and the LTX reference sheet out of the catalogue", () => {
-    for (const template of ["video_fasth3_ominiref_r2v", "template_ltx2_3_ic_lora_ingredients"]) assert.equal(OUTILS.some(item => item.template === template), false, template);
+  it("keeps the LTX reference sheet out of the catalogue", () => {
+    assert.equal(OUTILS.some(item => item.template === "template_ltx2_3_ic_lora_ingredients"), false);
   });
 });

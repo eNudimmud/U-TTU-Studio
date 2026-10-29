@@ -77,7 +77,7 @@ describe("top 10 · transition de style (LTX 2.3)", () => {
 });
 
 describe("top 10 · not exposed", () => {
-  it("has no card for FastH3 nor for the LTX reference sheet (see docs/mesures)", () => {
-    for (const template of ["video_fasth3_ominiref_r2v", "template_ltx2_3_ic_lora_ingredients"]) assert.equal(OUTILS.some(item => item.template === template), false, template);
+  it("has no card for the LTX reference sheet (see docs/mesures); FastH3 came back after the audit as a model, not a card", () => {
+    assert.equal(OUTILS.some(item => item.template === "template_ltx2_3_ic_lora_ingredients"), false);
   });
 });
