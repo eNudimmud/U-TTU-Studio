@@ -852,6 +852,16 @@
       "api_file": "workflows/outils/outil-ret-eclairer-ouvert.api.json"
     },
     {
+      "id": "outil-ret-lumiere-image",
+      "onglet": "outils",
+      "template": "templates-portrait_light_migration",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-ret-lumiere-image.json",
+      "api_file": "workflows/outils/outil-ret-lumiere-image.api.json"
+    },
+    {
       "id": "outil-ret-eclairer",
       "onglet": "outils",
       "template": "template_character_portrait_relighting",

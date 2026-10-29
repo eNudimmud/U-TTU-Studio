@@ -177,6 +177,13 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
   },
   // Top 10 n° 7: Qwen Image Edit 2509 + Relight LoRA, 4 Lightning steps. Node 14 puts the
   // LoRA's trigger « 重新照明, » in front of the consigne (15).
+  // Audit n° 7 (29.10.2026): Qwen Image Edit 2509 + Light Migration LoRA, 4 Lightning steps.
+  // Subject in image1 (7), light in image2 (6), as the LoRA card and the « app » template say; the
+  // January template wired the light to image3. The default Chinese prompt stays as shipped.
+  "templates-portrait_light_migration": {
+    images: [["7", "image"], ["6", "image"]], seed: [["471:121", "seed"]], save: ["5", "filename_prefix"],
+    patch(_graph, _prompt, input) { if (!input.files.images?.[1]) throw new Error("Image de lumière manquante."); },
+  },
   image_qwen_image_edit_2509_relight: {
     images: [["11", "image"]], prompt: [["15", "value"]], seed: [["10:3", "seed"]], save: ["12", "filename_prefix"], needsText: true,
   },

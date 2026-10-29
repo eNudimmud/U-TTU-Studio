@@ -26,7 +26,7 @@ describe("top 10 · changer la lumière en poids ouverts (Qwen 2509 Relight)", (
 
   it("is the default model of the one « Changer la lumière » card; the partner model stays second", () => {
     assert.equal(intentDe("ret-eclairer"), "ret-eclairer-ouvert");
-    assert.deepEqual(modelesIntent("ret-eclairer").map(item => item.id), ["ret-eclairer-ouvert", "ret-eclairer"]);
+    assert.deepEqual(modelesIntent("ret-eclairer").map(item => item.id), ["ret-eclairer-ouvert", "ret-lumiere-image", "ret-eclairer"]);
     const cards = outilsPublics().map(item => item.id);
     assert.ok(cards.includes("ret-eclairer-ouvert"));
     assert.equal(cards.includes("ret-eclairer"), false);
