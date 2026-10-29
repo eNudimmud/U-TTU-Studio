@@ -2017,6 +2017,24 @@
         "plongee": "High angle",
         "contre-plongee": "Low angle"
       }
+    },
+    "etapes": {
+      "aria": "Take steps",
+      "step": "Step {n} of 5",
+      "preparer": "Prepare",
+      "plans": "Shots",
+      "previs": "Preview",
+      "generer": "Generate",
+      "reviser": "Review",
+      "next": "Next: {step}",
+      "prev": "Back: {step}",
+      "lead": {
+        "preparer": "Character, set, action, mood and references.",
+        "plans": "Build the shot list, then adjust the selected shot.",
+        "previs": "Check the framing before spending credits.",
+        "generer": "The quote first, then you confirm the launch.",
+        "reviser": "Watch, keep the right version, retry, send to EDIT."
+      }
     }
   },
   "p1": {

@@ -2017,6 +2017,24 @@
         "plongee": "Picado",
         "contre-plongee": "Contrapicado"
       }
+    },
+    "etapes": {
+      "aria": "Pasos de la toma",
+      "step": "Paso {n} de 5",
+      "preparer": "Preparar",
+      "plans": "Planos",
+      "previs": "Previsualizar",
+      "generer": "Generar",
+      "reviser": "Revisar",
+      "next": "Siguiente: {step}",
+      "prev": "Volver: {step}",
+      "lead": {
+        "preparer": "Personaje, decorado, acción, ambiente y referencias.",
+        "plans": "Arma la lista de planos y ajusta el plano elegido.",
+        "previs": "Revisa el encuadre antes de gastar créditos.",
+        "generer": "Primero el presupuesto, luego confirmas el lanzamiento.",
+        "reviser": "Mira, guarda la buena versión, relanza, envía al MONTAJE."
+      }
     }
   },
   "p1": {
