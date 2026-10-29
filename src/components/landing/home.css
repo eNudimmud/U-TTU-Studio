@@ -223,6 +223,12 @@
   .hv-lead span + span { display: none; }
   .hv-tile.big { aspect-ratio: 16 / 10; }
   .hv-shot.g1 { aspect-ratio: 16 / 10; }
+  /* The bar already carries the wordmark: no second logo, and the five steps fit without being cut. */
+  .hv-lockup { display: none; }
+  .hv-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
+  .hv-steps::before { left: 0; right: 0; width: auto; }
+  .hv-steps li { padding-right: 14px; }
+  .hv-also ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 520px) {
   .hv-ctas .hv-btn { flex: 1 1 100%; }

@@ -34,14 +34,17 @@ function deps(responses: (Response | Error)[]) {
 const ok = (payload: object) => new Response(JSON.stringify(routerReply(payload)), { status: 200, headers: { "content-type": "application/json" } });
 const err = (status: number, type: string) => new Response(JSON.stringify({ error_type: type, detail: "x" }), { status, headers: { "x-comfy-error-type": type } });
 
-test("prompt: persona, language, informal address, knowledge only, no price, no launch", () => {
+test("prompt: persona, language, informal address, knowledge only, registry quotes only, no launch", () => {
   const fr = buildInstructions("fr", "PACK", "abc1234");
   assert.match(fr, /You are Uttu/);
   assert.match(fr, /français/);
   assert.match(fr, /« tu »/);
   assert.match(fr, /Use ONLY the KNOWLEDGE/);
   assert.match(fr, /« Je ne sais pas\. »/);
-  assert.match(fr, /Never state a number of credits/);
+  assert.match(fr, /quote only the « ≈ … » figures/);
+  assert.match(fr, /never call anything free/);
+  assert.match(fr, /Finaliser improves, it never regenerates/);
+  assert.doesNotMatch(fr, /Mira/);
   assert.match(fr, /cannot launch/);
   assert.match(fr, /ComfyUI and Comfy Cloud/);
   assert.match(buildInstructions("de", "P", "v"), /Deutsch[\s\S]*Das weiß ich nicht/);
@@ -49,7 +52,7 @@ test("prompt: persona, language, informal address, knowledge only, no price, no 
   assert.match(buildInstructions("en", "P", "v"), /English[\s\S]*I don’t know/);
 });
 
-test("pack: targeted FAQ first, tools and tabs always, never over budget, no prices", () => {
+test("pack: targeted FAQ first, tools and tabs always, never over budget, prices only from the registry", () => {
   const pack = buildPack(k, "fr", "où coller ma clé ?");
   assert.ok(pack.length <= PACK_BUDGET);
   assert.match(pack, /^TABS/);
@@ -59,7 +62,9 @@ test("pack: targeted FAQ first, tools and tabs always, never over budget, no pri
   const firstQ = pack.slice(faqStart).split("\n").find(line => line.startsWith("Q: "));
   assert.equal(firstQ, `Q: ${k.locales.fr.faq.find(f => f.id === "key")!.q}`);
   for (const id of allowedTools(k)) assert.ok(pack.includes(`- ${id}:`), id);
-  assert.doesNotMatch(pack.split("FAQ")[0], /\d+(?:[.,]\d+)?\s*cr\b/);
+  // Every number before the FAQ is a registry quote, written « ≈ X–Y crédits … ».
+  const head = pack.split("\nFAQ")[0];
+  assert.doesNotMatch(head.replace(/≈ [\d.,]+(?:–[\d.,]+)? crédits? (?:estimés?|mesurés?)/g, ""), /\d+(?:[.,]\d+)?\s*cr/);
   const tiny = buildPack(k, "de", "Wie fange ich an?", 900);
   assert.ok(tiny.length <= 900);
   const de = buildPack(k, "de", "Wie fange ich an?");
@@ -104,7 +109,7 @@ test("cost: studio math from the Router rate card, ceiling shown before the firs
   assert.equal(e.outputTokens, MAX_OUTPUT_TOKENS);
   assert.ok(e.credits > 0.1 && e.credits < 0.2, String(e.credits));
   const ceiling = perMessageCeiling(k);
-  assert.equal(ceiling, 0.2);
+  assert.equal(ceiling, 0.3);
   assert.ok(perMessageCeiling(null) >= 0.1 && perMessageCeiling(null) <= 0.3);
   assert.equal(usageCredits(routerReply({}, { input_tokens: 2400, output_tokens: 350 })), Math.round(creditsFor(2400, 350) * 100) / 100);
   assert.equal(usageCredits({}), null);
@@ -258,7 +263,7 @@ test("project context: names only, bounded, marked as data, sent to Router insid
   assert.ok(many.length <= PROJECT_MAX);
   assert.ok(many.split("\n").length <= PROJECT_ITEMS + 1);
   // The ceiling counts the largest project block; it stays the announced figure.
-  assert.equal(perMessageCeiling(k), 0.2);
+  assert.equal(perMessageCeiling(k), 0.3);
   const { calls, deps: d } = deps([ok({ reply: "Ton décor est prêt, passe à la PRISE.", action: "none", tool: "", request: "" })]);
   const res = await handleUttuChat(req({ message: "On en est où ?", history: [], locale: "fr", project: { name: "Le quai", items: [{ role: "cast", name: "Uttu" }, { role: "decor", name: "Quai" }] } }), d);
   assert.equal(res.status, 200);

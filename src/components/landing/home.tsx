@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Arrow } from "@/components/glyph";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
-import { assetPath, contactEmail } from "@/lib/site";
+import { assetPath, contactEmail, sourceRepo } from "@/lib/site";
 import { LegacyStudioHash } from "./legacy-hash";
 import { Brand, BrandLockup } from "@/components/brand";
 import { PoweredBy } from "@/components/powered-by";
@@ -28,7 +28,7 @@ const SLIDES = [
   { cls: "s5", src: IMG("hero-village-clair.webp") },
 ] as const;
 const FLOW = ["cast", "decor", "prise", "montage", "finaliser"] as const;
-const ALSO = ["guide", "studio", "quote", "langs"] as const;
+const ALSO = ["bubble", "tools", "refs", "upload", "guide", "studio", "quote", "langs"] as const;
 
 function PauseIcon({ paused }: { paused: boolean }) {
   return paused
@@ -207,6 +207,7 @@ export function HomeLanding() {
       <div className="hv-wrap">
         <span>{t("accueil.foot")}</span>
         <a href={`mailto:${contactEmail}`}>{t("landing.contact")}</a>
+        <a href={sourceRepo} target="_blank" rel="noopener noreferrer" data-source-code="">{t("landing.code")}</a>
         <span>{t("accueil.attrib")}</span>
       </div>
     </footer>

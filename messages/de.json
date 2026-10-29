@@ -36,7 +36,8 @@
     "poweredByLabel": "Powered by ComfyUI — comfy.org, neuer Tab",
     "kicker": "Open-Source-KI-Filmstudio auf ComfyUI",
     "contact": "Studio kontaktieren ↗",
-    "tryFree": "Mit Uttu entdecken"
+    "tryFree": "Mit Uttu entdecken",
+    "code": "Quellcode auf GitHub ↗"
   },
   "accueil": {
     "kicker": "Open Source · MIT · auf ComfyUI",
@@ -65,7 +66,7 @@
     "g3": "Ein echter Ort, von oben gesehen.",
     "g3Alt": "Ein Juradorf mit seiner romanischen Abtei im Morgengrauen, im Nebel",
     "fine": "Inspirationsbilder, für diese Seite erstellt.",
-    "flowTitle": "Ein Film, fünf Tabs",
+    "flowTitle": "So funktioniert’s",
     "flow": {
       "cast": {
         "name": "BESETZUNG",
@@ -73,19 +74,19 @@
       },
       "decor": {
         "name": "KULISSE",
-        "body": "Aus einem Text, einem Foto oder der Karte."
+        "body": "Ein Text, ein Foto oder ein echter Ort."
       },
       "prise": {
         "name": "TAKE",
-        "body": "Inszenieren, 5 s drehen."
+        "body": "5 Schritte, die Kalkulation vor dem Rendering."
       },
       "montage": {
         "name": "SCHNITT",
-        "body": "Einstellungen, Stimme, Musik."
+        "body": "Einstellungen, Stimme, Musik, MP4-Export."
       },
       "finaliser": {
         "name": "FINALISIEREN",
-        "body": "Schärfer, ohne alles neu zu machen."
+        "body": "Schärfer, nichts neu gemacht."
       }
     },
     "toolsTitle": "Was du nur <em>hier</em> findest.",
@@ -123,9 +124,25 @@
     },
     "alsoTitle": "Außerdem im Studio",
     "also": {
+      "bubble": {
+        "name": "Eine Blase, Bild oder Video",
+        "body": "Flux Klein fürs Bild; MiniMax H3 oder LTX fürs Video. Die Kalkulation steht vor dem Senden."
+      },
+      "tools": {
+        "name": "Eine Werkzeugbibliothek",
+        "body": "Comfy-Werkzeuge nach Familie: Bild, Retusche, Video, 3D, Ton. Jedes mit seiner Kalkulation."
+      },
+      "refs": {
+        "name": "Benannte Referenzen",
+        "body": "Ein Name, bis zu 3 Fotos: dasselbe Gesicht, derselbe Ort von Rendering zu Rendering."
+      },
+      "upload": {
+        "name": "Deine Dateien in Originalqualität",
+        "body": "Mit verbundenem Comfy-Konto: Fotos, Videos und Töne bis 200 MB, aus dem Speicher gelöscht, sobald Comfy sie hat."
+      },
       "guide": {
-        "name": "U*TTU, dein Guide",
-        "body": "Lokal, ohne Rendering; Comfy-Agent optional, bezahlt über dein Konto."
+        "name": "Uttu, dein Guide",
+        "body": "Kennt jedes Werkzeug und seine Kalkulation. Antwortet über dein Comfy-Konto, Nachrichtenpreis vorab; Kostenschätzungen bleiben lokal."
       },
       "studio": {
         "name": "Mein Studio",
@@ -3232,10 +3249,40 @@
         "k": "reiter schritte aufbau bereiche besetzung kulisse take schnitt",
         "a": "Das Studio folgt vier Schritten: Besetzung (deine Figuren), Kulisse (deine Orte), Take (deine Videoeinstellungen) und Schnitt (du fügst zusammen und exportierst). „Werkzeuge“ sammelt alle Comfy-Werkzeuge nach Familie."
       },
+      "bubble": {
+        "q": "Bild oder Video: wie erstelle ich etwas?",
+        "k": "erstellen blase bild video foto clip wählen unterschied erzeugen drehen",
+        "a": "In „Was drehen wir?“ wählst du Bild oder Video, bevor du schreibst. Bild läuft über Flux Klein. Video läuft über MiniMax H3, wenn du Referenzen anhängst, sonst über LTX. Die Kalkulation „≈ X Credits geschätzt“ steht unter der Blase, bevor etwas gesendet wird. Du kannst bis zu 7 Bildreferenzen anhängen und im Video-Modus einen Ton."
+      },
+      "refs": {
+        "q": "Wie nutze ich Referenzen?",
+        "k": "referenzen referenz benannte name figur schauplatz objekt stil anhängen fotos bibliothek gesicht",
+        "a": "Eine benannte Referenz ist ein Name und bis zu 3 Fotos desselben Motivs, eingeordnet als Figur, Schauplatz, Objekt oder Stil. Leg sie unter „Referenzen“ in der Blase an und tippe auf ihre Karte, um sie anzuhängen. Sie bleibt in deinem Projekt und hält dasselbe Gesicht oder denselben Ort von Rendering zu Rendering."
+      },
+      "prise5": {
+        "q": "Wie drehe ich einen Take?",
+        "k": "take drehen einstellung einstellungen schritte vorbereiten vorschau erzeugen prüfen szene",
+        "a": "Ein Take hat 5 Schritte: 1. Vorbereiten (Figur, Kulisse, Handlung, Stimmung, Referenzen); 2. Einstellungen (Liste anlegen, gewählte Einstellung justieren); 3. Vorschau (Bildausschnitt prüfen, bevor Credits fließen); 4. Erzeugen (erst die Kalkulation, dann bestätigst du); 5. Prüfen (gute Version behalten, neu starten oder an den Schnitt schicken)."
+      },
+      "upload": {
+        "q": "Wie sende ich Fotos, Videos oder Töne?",
+        "k": "senden hochladen importieren datei dateien foto video ton audio originalqualität groß größe ablegen",
+        "a": "Leg sie im Werkzeug oder unter „Referenzen“ ab. Mit verbundenem Comfy-Konto geht die Datei in Originalqualität (bis 200 MB) in einen privaten Speicher, wird an dein Comfy-Konto übergeben und danach aus dem Speicher gelöscht. Ist dieser Weg nicht verfügbar, verkleinert dein Browser sie vor dem Senden. Bilder, Videos in MP4, MOV oder WebM und Töne werden angenommen."
+      },
+      "finaliser": {
+        "q": "Was macht Fertigstellen?",
+        "k": "fertigstellen finalisieren verbessern vergrößern schärfer schärfe qualität 1080p neu erzeugen",
+        "a": "Fertigstellen verbessert, was da ist, und macht nichts neu: Ein Bild wird schärfer und doppelt so groß, ein Take oder der ganze Schnitt größer und schärfer. Spiel, Ton und Rhythmus bleiben. Die Kalkulation kommt vorher, beim Video geschätzt pro angefangenem 5-Sekunden-Block."
+      },
+      "which": {
+        "q": "Welches Werkzeug soll ich nehmen?",
+        "k": "welches werkzeug werkzeuge wählen bedarf bibliothek familie rat empfehlen",
+        "a": "Ein Bild: Schnelles Bild. Eine Figur oder ein Ort, der gleich bleibt: Besetzung, Kulisse und Referenzen. Ein Video: die Blase im Video-Modus oder Take für eine echte Einstellung. Retusche: Ändern, Erweitern, Freistellen, Größer und schärfer. Ton: Stimme, Musik, Geräusch. „Werkzeuge“ ordnet alles nach Familie mit Kalkulation. Sag mir, was du machen willst, ich zeige dir das Werkzeug."
+      },
       "projects": {
         "q": "Wo sind meine Projekte?",
-        "k": "projekte sicherung speicher dateien gespeichert gerät zip export",
-        "a": "Deine Projekte werden in diesem Browser auf diesem Gerät gespeichert. Du öffnest sie über „Meine Kreationen“. Lade eine Sicherung herunter: Der Browser kann seine Daten löschen, wenn der Platz knapp wird."
+        "k": "projekte sicherung speicher dateien gespeichert gerät zip export obsidian tresor ordner",
+        "a": "Deine Projekte werden in diesem Browser auf diesem Gerät gespeichert. Du öffnest sie über „Meine Kreationen“. Lade eine Sicherung herunter: Der Browser kann seine Daten löschen, wenn der Platz knapp wird. Am Computer mit Chrome oder Edge legt „Meinen Obsidian-Ordner verbinden“ deine Karten und Bilder zusätzlich in einem Ordner deiner Wahl ab."
       },
       "local": {
         "q": "Wie funktioniert Uttu?",

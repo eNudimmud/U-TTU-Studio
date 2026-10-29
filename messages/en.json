@@ -36,7 +36,8 @@
     "poweredByLabel": "Powered by ComfyUI — comfy.org, new tab",
     "kicker": "Open-source AI film studio on ComfyUI",
     "contact": "Contact the studio ↗",
-    "tryFree": "Discover with Uttu"
+    "tryFree": "Discover with Uttu",
+    "code": "Source code on GitHub ↗"
   },
   "accueil": {
     "kicker": "Open source · MIT · on ComfyUI",
@@ -65,7 +66,7 @@
     "g3": "A real place, seen from above.",
     "g3Alt": "A Jura village and its Romanesque abbey at dawn, in the mist",
     "fine": "Inspiration images, made for this page.",
-    "flowTitle": "One film, five tabs",
+    "flowTitle": "How it works",
     "flow": {
       "cast": {
         "name": "CAST",
@@ -73,19 +74,19 @@
       },
       "decor": {
         "name": "SET",
-        "body": "From a text, a photo or the map."
+        "body": "A text, a photo or a real place."
       },
       "prise": {
         "name": "TAKE",
-        "body": "Stage it, shoot 5 s."
+        "body": "5 steps, the quote before the render."
       },
       "montage": {
         "name": "EDIT",
-        "body": "Shots, voice, music."
+        "body": "Shots, voice, music, MP4 export."
       },
       "finaliser": {
         "name": "FINALISE",
-        "body": "Sharper, without remaking it."
+        "body": "Sharper, nothing remade."
       }
     },
     "toolsTitle": "What you’ll only find <em>here</em>.",
@@ -123,9 +124,25 @@
     },
     "alsoTitle": "Also in the studio",
     "also": {
+      "bubble": {
+        "name": "One bubble, image or video",
+        "body": "Flux Klein for images; MiniMax H3 or LTX for video. The quote shows before anything is sent."
+      },
+      "tools": {
+        "name": "A tool library",
+        "body": "Comfy tools sorted by family: image, retouch, video, 3D, sound. Each with its quote."
+      },
+      "refs": {
+        "name": "Named references",
+        "body": "A name, up to 3 photos: the same face, the same place from one render to the next."
+      },
+      "upload": {
+        "name": "Your files in original quality",
+        "body": "With your Comfy account linked: photos, videos and sounds up to 200 MB, deleted from storage once Comfy has them."
+      },
       "guide": {
-        "name": "U*TTU, your guide",
-        "body": "Local, no render; optional Comfy agent, paid by your account."
+        "name": "Uttu, your guide",
+        "body": "Knows every tool and its quote. Answers through your Comfy account, the message price shown first; cost estimates stay local."
       },
       "studio": {
         "name": "My studio",
@@ -3232,10 +3249,40 @@
         "k": "tabs steps organisation sections cast set take edit",
         "a": "The studio follows four steps: Cast (your characters), Set (your places), Take (your video shots) and Edit (you assemble and export). “Tools” gathers every Comfy tool by family."
       },
+      "bubble": {
+        "q": "Image or video: how do I create?",
+        "k": "create bubble image picture video photo clip choose difference generate shoot",
+        "a": "In “What are we shooting?”, pick Image or Video before you type. Image runs on Flux Klein. Video runs on MiniMax H3 when you attach references, otherwise on LTX. The quote “≈ X credits estimated” shows under the bubble before anything is sent. You can attach up to 7 visual references and, in Video, one sound."
+      },
+      "refs": {
+        "q": "How do I use references?",
+        "k": "references reference named name character setting object style attach photos library same face",
+        "a": "A named reference is a name and up to 3 photos of the same subject, filed as Character, Setting, Object or Style. Create it from “References” in the bubble, then tap its card to attach it to your creation. It stays in your project and keeps the same face or place from one render to the next."
+      },
+      "prise5": {
+        "q": "How do I shoot a Take?",
+        "k": "take shoot shot shots steps prepare preview generate review scene",
+        "a": "A Take has 5 steps: 1. Prepare (character, set, action, mood, references); 2. Shots (build the list, tune the chosen shot); 3. Preview (check the framing before spending credits); 4. Generate (the quote first, then you confirm); 5. Review (keep the good version, run again or send it to Edit)."
+      },
+      "upload": {
+        "q": "How do I send my photos, videos or sounds?",
+        "k": "send upload import file files photo video sound audio original quality heavy size drop",
+        "a": "Drop them in the tool or in “References”. With your Comfy account linked, the file goes in original quality (up to 200 MB) to private storage, is handed to your Comfy account, then deleted from the storage. If that path is not available, your browser shrinks it before sending. Images, MP4, MOV or WebM videos and sounds are accepted."
+      },
+      "finaliser": {
+        "q": "What does Finish do?",
+        "k": "finish finalise finalize improve upscale sharp sharper quality 1080p remake regenerate",
+        "a": "Finish improves what exists and never remakes it: an image becomes sharper and twice as large, a take or the whole edit becomes larger and sharper. Acting, sound and timing stay. The quote shows first, estimated per 5-second block for video."
+      },
+      "which": {
+        "q": "Which tool should I pick?",
+        "k": "which tool tools pick choose need library family advice recommend",
+        "a": "An image: Quick image. A character or place that stays the same: Cast, Set and references. A video: the bubble in Video, or Take for a real shot. Retouch: Edit, Extend, Remove background, Larger and sharper. Sound: Voice, Music, Sound effect. “Tools” sorts everything by family with its quote. Tell me what you want to make and I’ll point you to the tool."
+      },
       "projects": {
         "q": "Where are my projects?",
-        "k": "projects backup storage files saved device zip export",
-        "a": "Your projects are saved in this browser, on this device. You reopen them from “My creations”. Remember to download a backup: the browser can erase its data when space runs low."
+        "k": "projects backup storage files saved device zip export obsidian vault folder",
+        "a": "Your projects are saved in this browser, on this device. You reopen them from “My creations”. Remember to download a backup: the browser can erase its data when space runs low. On a computer with Chrome or Edge, “Connect my Obsidian folder” also files your sheets and images in the folder you pick."
       },
       "local": {
         "q": "How does Uttu work?",
