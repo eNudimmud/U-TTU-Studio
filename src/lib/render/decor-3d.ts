@@ -17,6 +17,8 @@ export const DECOR_3D_STEPS = 20;
  * Poids Redux par photo (attn_bias). Mesuré : à 0,6 la matière passe fort mais, sur une vue au sol
  * plat (Central Park), la photo impose son propre cadrage (sol −235 px) ; à 0,3 aussi. À 0,1 la ligne
  * du sol tient (4 px) et la pierre et la brique passent ; le verre passe mal. Le cadrage d'abord.
+ * Sur la scène à trois volumes, 0,3 garde les silhouettes mais recopie la photo comme 0,6 (bornes,
+ * neige, porte) : on reste à 0,1.
  */
 export const DECOR_3D_STYLE_STRENGTH = 0.1;
 export const DECOR_3D_STYLE_TYPE: "attn_bias" | "multiply" = "attn_bias";
