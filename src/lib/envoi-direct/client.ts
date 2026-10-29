@@ -58,3 +58,17 @@ export async function sendDirect(file: File, scope: string, relay: string, heade
   if (typeof body.name !== "string" || !body.name || /[\\\u0000]/.test(body.name)) throw new Error(DIRECT_FAILED);
   return typeof body.subfolder === "string" && body.subfolder ? `${body.subfolder}/${body.name}` : body.name;
 }
+
+export interface EssaiResult { direct: boolean; received?: boolean; bytes?: number; deleted?: boolean | null }
+
+/** The free test: browser → private Blob → server reads it and deletes it. Comfy's upload is never called. */
+export async function essaiDirect(file: File, relay: string, headers: Record<string, string>, doFetch: typeof fetch = (input, init) => fetch(input, init), blobUpload: BlobUpload = defaultBlobUpload): Promise<EssaiResult> {
+  const state = await readDirectState(relay, headers, doFetch);
+  if (!state.direct || !state.scope) return { direct: false };
+  const filename = directName(file.name);
+  const blob = await blobUpload(`envoi/${state.scope}/${filename}`, file, { handleUploadUrl: `${relay}/envoi-direct/jeton`, headers, multipart: file.size > MULTIPART_FROM, contentType: file.type });
+  const response = await doFetch(`${relay}/envoi-direct/comfy`, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body: JSON.stringify({ pathname: blob.pathname, filename, essai: true }), cache: "no-store", credentials: "same-origin" });
+  if (!response.ok) throw new Error(DIRECT_FAILED);
+  const body = await response.json() as { received?: boolean; bytes?: number; deleted?: boolean | null };
+  return { direct: true, received: body.received === true, bytes: body.bytes, deleted: body.deleted ?? null };
+}

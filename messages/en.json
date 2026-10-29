@@ -3601,5 +3601,18 @@
     "trim": "Only the first 30 seconds will be used and included in the quote.",
     "promptDefault": "Replace the filmed person with the character in the first image. Keep the motion, camera, timing and sound. Use the second image as the location reference if supplied.",
     "quoteFor": "For {seconds} s at {resolution}. The final price may vary."
+  },
+  "envoiEssai": {
+    "title": "Direct send test",
+    "lead": "Sends a heavy file to private storage, then deletes it. No render starts, no credits are spent.",
+    "pick": "Choose a video or a photo",
+    "noAccount": "Connect your render account in the studio first.",
+    "noStore": "Direct storage is not connected on this deployment (redeploy after connecting the store).",
+    "sending": "Sending…",
+    "ok": "Received by the server: {mb} MB. Deleted from storage: {deleted}.",
+    "yes": "yes",
+    "no": "no",
+    "unknown": "unknown",
+    "failed": "The test did not go through: {why}"
   }
 }

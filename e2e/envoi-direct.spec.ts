@@ -10,7 +10,7 @@ test.setTimeout(150_000);
 
 const FAKE_TOKEN = "vercel_blob_rw_teststore123_" + "x".repeat(32);
 const SCOPE = "e".repeat(24);
-type Seen = { etat: number; jeton: number; put: { pathname: string; access: string }[]; comfy: { pathname: string; filename: string }[] };
+type Seen = { etat: number; jeton: number; put: { pathname: string; access: string }[]; comfy: { pathname: string; filename: string; essai?: boolean }[] };
 
 async function simulateDirect(page: Page, direct: boolean) {
   const seen: Seen = { etat: 0, jeton: 0, put: [], comfy: [] };
@@ -25,7 +25,7 @@ async function simulateDirect(page: Page, direct: boolean) {
       return real(input, init);
     };
   });
-  await page.route(/\/envoi-direct\/etat$/, route => { seen.etat++; return route.fulfill({ json: direct ? { direct: true, scope: SCOPE } : { direct: false } }); });
+  await page.route(/\/envoi-direct\/etat$/, route => { seen.etat++; return route.fulfill({ json: direct ? { direct: true, store: true, scope: SCOPE } : { direct: false, store: false } }); });
   await page.route(/\/envoi-direct\/jeton$/, async route => {
     seen.jeton++;
     const body = route.request().postDataJSON() as { payload: { pathname: string } };
@@ -108,4 +108,23 @@ test("Outils · vidéo, store connecté : le clip réduit sous la limite reste s
   await expect(panel.locator("[data-tool-done]")).toBeVisible({ timeout: 90_000 });
   for (const file of await relay.sent()) expect(file.bytes).toBeLessThan(RELAY_LIMIT);
   expect(seen.put).toHaveLength(0);
+});
+
+test("Page d’essai : un fichier de 6 Mo atteint Blob puis est effacé, sans rendu", async ({ page }, info) => {
+  const seen = await simulateDirect(page, true);
+  await page.route(/\/envoi-direct\/comfy$/, route => {
+    const body = route.request().postDataJSON() as { pathname: string; filename: string; essai?: boolean };
+    seen.comfy.push(body);
+    return route.fulfill({ json: { essai: true, received: true, bytes: 6 * 1024 * 1024, deleted: true } });
+  });
+  const prompts: string[] = [];
+  await page.route(/cloud\.comfy\.org|\/api\/(prompt|upload)/, route => { prompts.push(route.request().url()); return route.abort(); });
+  await page.addInitScript(() => localStorage.setItem("u-ttu-rendu", JSON.stringify({ mode: "key", key: "k".repeat(24) })));
+  await page.goto("/envoi-direct/essai");
+  await page.locator("[data-essai-file]").setInputFiles(heavyMp4(info.outputPath("essai.mp4"), 6 * 1024 * 1024));
+  await expect(page.locator("[data-essai-line]")).toContainText("6.3 Mo", { timeout: 60_000 });
+  await expect(page.locator("[data-essai-line]")).toContainText("Effacé du stockage : oui");
+  expect(seen.put).toHaveLength(1);
+  expect(seen.comfy[0].essai).toBe(true);
+  expect(prompts).toHaveLength(0);
 });

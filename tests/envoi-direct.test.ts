@@ -124,3 +124,15 @@ test("file names are made safe for Blob and Comfy; types follow the token rules"
   assert.ok(directType("image/heic") && directType("video/quicktime") && !directType("audio/wav") && !directType("video/x-matroska"));
   assert.match(phrase(key => key, DIRECT_FAILED), /^runtime\./);
 });
+
+test("the free test reads the blob and deletes it, Comfy's upload is never called", async () => {
+  const scope = "f".repeat(24);
+  const stored = new Set([`envoi/${scope}/essai-x.mp4`]);
+  const blobs: BlobOps = { get: async () => ({ blob: new Blob([new Uint8Array(6_000_000)]), contentType: "video/mp4" }), del: async path => { stored.delete(path); }, exists: async path => stored.has(path) };
+  let comfyCalls = 0;
+  const comfy = (async () => { comfyCalls++; return Response.json({ name: "x" }); }) as typeof fetch;
+  const response = await handToComfy(req("/envoi-direct/comfy", { method: "POST", headers: { "x-api-key": KEY } }), { pathname: `envoi/${scope}/essai-x.mp4`, filename: "essai.mp4", essai: true }, scope, blobs, comfy);
+  assert.deepEqual(await response.json(), { essai: true, received: true, bytes: 6_000_000, deleted: true });
+  assert.equal(comfyCalls, 0);
+  assert.equal(stored.size, 0);
+});

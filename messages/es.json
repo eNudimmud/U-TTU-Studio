@@ -3601,5 +3601,18 @@
     "trim": "Solo se utilizarán y presupuestarán los primeros 30 segundos.",
     "promptDefault": "Sustituye a la persona grabada por el personaje de la primera imagen. Conserva los movimientos, la cámara, el ritmo y el sonido. Usa la segunda imagen como referencia del lugar si se proporciona.",
     "quoteFor": "Para {seconds} s a {resolution}. El precio final puede variar."
+  },
+  "envoiEssai": {
+    "title": "Prueba del envío directo",
+    "lead": "Envía un archivo pesado al almacenamiento privado y luego lo borra. No se lanza ningún render ni se gastan créditos.",
+    "pick": "Elegir un vídeo o una foto",
+    "noAccount": "Conecta primero tu cuenta de render en el estudio.",
+    "noStore": "El almacenamiento directo no está conectado en este despliegue (vuelve a desplegar tras conectar el store).",
+    "sending": "Enviando…",
+    "ok": "Recibido por el servidor: {mb} MB. Borrado del almacenamiento: {deleted}.",
+    "yes": "sí",
+    "no": "no",
+    "unknown": "desconocido",
+    "failed": "La prueba no se completó: {why}"
   }
 }

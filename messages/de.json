@@ -3601,5 +3601,18 @@
     "trim": "Nur die ersten 30 Sekunden werden verwendet und im Kostenvoranschlag berücksichtigt.",
     "promptDefault": "Ersetze die gefilmte Person durch die Figur im ersten Bild. Behalte Bewegung, Kamera, Timing und Ton bei. Nutze das zweite Bild als Ortsreferenz, falls vorhanden.",
     "quoteFor": "Für {seconds} s bei {resolution}. Der Endpreis kann abweichen."
+  },
+  "envoiEssai": {
+    "title": "Test des direkten Sendens",
+    "lead": "Sendet eine große Datei in den privaten Speicher und löscht sie danach. Es startet kein Rendering, es werden keine Credits verbraucht.",
+    "pick": "Video oder Foto wählen",
+    "noAccount": "Verbinde zuerst dein Render-Konto im Studio.",
+    "noStore": "Der direkte Speicher ist in diesem Deployment nicht verbunden (nach dem Verbinden des Stores neu deployen).",
+    "sending": "Wird gesendet…",
+    "ok": "Vom Server empfangen: {mb} MB. Aus dem Speicher gelöscht: {deleted}.",
+    "yes": "ja",
+    "no": "nein",
+    "unknown": "unbekannt",
+    "failed": "Der Test hat nicht geklappt: {why}"
   }
 }

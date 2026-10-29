@@ -15,6 +15,8 @@ export const DIRECT_PREFIX = "envoi";
 export interface BlobOps {
   get(pathname: string): Promise<{ blob: Blob; contentType: string } | null>;
   del(pathname: string): Promise<void>;
+  /** Still in the store? Used by the free test to prove the deletion. */
+  exists?(pathname: string): Promise<boolean>;
 }
 
 /** True only when the store is connected. Never reads or returns the value. */
@@ -82,9 +84,21 @@ export function tokenRules(scope: string, pathname: string, now = Date.now()) {
 }
 
 /** Reads the private blob, sends it to Comfy with the visitor's credential, then deletes it. */
-export async function handToComfy(request: Request, input: { pathname: string; filename: string }, scope: string, blobs: BlobOps, fetchImpl: typeof fetch = fetch): Promise<Response> {
+/** `essai`: the free test. Reads the blob and deletes it, never calls Comfy's upload. */
+export async function handToComfy(request: Request, input: { pathname: string; filename: string; essai?: boolean }, scope: string, blobs: BlobOps, fetchImpl: typeof fetch = fetch): Promise<Response> {
   if (!pathAllowed(input.pathname, scope) || !SAFE_NAME.test(input.filename)) return Response.json({ error: "Chemin refusé." }, { status: 400 });
   const credential = comfyCredential(request)!;
+  if (input.essai) {
+    let bytes = -1;
+    try {
+      const found = await blobs.get(input.pathname);
+      bytes = found ? found.blob.size : -1;
+    } finally {
+      await blobs.del(input.pathname).catch(() => {});
+    }
+    const left = blobs.exists ? await blobs.exists(input.pathname).catch(() => true) : null;
+    return Response.json({ essai: true, received: bytes >= 0, bytes, deleted: left === null ? null : !left });
+  }
   try {
     const found = await blobs.get(input.pathname);
     if (!found) return Response.json({ error: "Fichier introuvable." }, { status: 404 });
