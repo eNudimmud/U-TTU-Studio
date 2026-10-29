@@ -317,6 +317,7 @@ export interface OutilRun {
   seconds?: number;
   mesh?: "objet" | "perso";
   resolution?: import("@/lib/outils/genjutsu").GenjutsuResolution;
+  camera?: import("@/lib/outils/generique").OutilCamera;
   /** The visitor may use the voice they upload. */
   consent?: boolean;
   from?: string;
@@ -345,7 +346,7 @@ export interface FinaliseInput {
 const judgeOutcome = (outcome: FinaliseOutcome) => outcome.ok ? { ok: true } : { ok: false, reason: outcome.message };
 
 export type FinaliseOutcome =
-  | { ok: true; path: string; url: string; cost: number | null }
+  | { ok: true; path: string; url: string; cost: number | null; extras?: { path: string; url: string }[] }
   | { ok: false; message: string; kind?: FailKind; intact?: boolean; reconnect?: boolean; retry?: boolean };
 
 export interface HeldRef {
@@ -1357,7 +1358,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
       const video = input.video ? await send(input.video, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
-      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution });
+      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera });
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       // The final save node by id (registry), never « the first video »: Comfy lists the source clip too.
@@ -1376,6 +1377,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         output: sortie,
         outputNode,
         deferMeasure: true,
+        all: Boolean(outil.lot) && !creation,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
           if (notePath) {
@@ -1391,9 +1393,22 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       kindNote = sortie === "video" ? "plan" : sortie === "audio" ? "son" : "importe";
       await writeBlob(vault, mediaPath, result.video);
       await writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: mediaPath, note: notePath, preview: null, loose: false }));
+      // A lot (the 8 angles): every other picture of the final node is its own asset and note.
+      // The quote and the real cost stay on the first note; the others point back to it.
+      const extras: { path: string; url: string }[] = [];
+      const lot = (result.extras?.length ?? 0) + 1;
+      for (const [index, extra] of (result.extras ?? []).entries()) {
+        if (!extra.blob.size) continue;
+        const extraId = `${id}-${index + 2}`;
+        const extraMedia = `Projets/${slug}/Assets/${extraId}.png`;
+        const extraNote = `Projets/${slug}/Assets/${extraId}.md`;
+        await writeBlob(vault, extraMedia, extra.blob);
+        await writeText(vault, extraNote, assetNote({ id: extraId, kind: "importe", name: `${name} · ${index + 2}/${lot}`, at, prompt: input.prompt, geste: row.id, template: row.template, refs: [...refs, mediaPath], devis: null, cout: null, media: extraMedia, note: extraNote, preview: null, loose: false }));
+        extras.push({ path: extraMedia, url: URL.createObjectURL(extra.blob) });
+      }
       await completePending(client, jobId);
       await reload();
-      return { ok: true, path: mediaPath, url: URL.createObjectURL(result.video), cost: result.costCredits };
+      return { ok: true, path: mediaPath, url: URL.createObjectURL(result.video), cost: result.costCredits, ...(extras.length ? { extras } : {}) };
     } catch (error) {
       return failOutcome(error);
     } finally {

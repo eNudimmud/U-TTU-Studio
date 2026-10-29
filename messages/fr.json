@@ -1993,8 +1993,16 @@
       "positionHint": "Par exemple : à gauche, à hauteur des yeux",
       "duration": "Durée du plan",
       "reference": "Référence de cadrage",
-      "refGroups": {"decor": "DÉCOR · points de vue", "cast": "CAST", "autres": "Autres images"},
-      "refKinds": {"rendu": "rendu", "vue": "vue", "image": "image"},
+      "refGroups": {
+        "decor": "DÉCOR · points de vue",
+        "cast": "CAST",
+        "autres": "Autres images"
+      },
+      "refKinds": {
+        "rendu": "rendu",
+        "vue": "vue",
+        "image": "image"
+      },
       "none": "Aucune",
       "referencesHint": "Choisis les personnages et le décor ci-dessous. La référence de cadrage est jointe au rendu comme indication visuelle.",
       "changed": "Modification enregistrée dans l’historique.",
@@ -2730,6 +2738,18 @@
       "vid-genjutsu": {
         "title": "Genjutsu — remplacer un personnage",
         "line": "Change le personnage d’un clip en gardant son mouvement, avec le workflow Comfy."
+      },
+      "ret-angles-perso": {
+        "title": "Huit angles du personnage",
+        "line": "Un portrait, huit vues : profils, trois-quarts, plongée, gros plan."
+      },
+      "ret-angles-decor": {
+        "title": "Huit angles du décor",
+        "line": "Un lieu, huit points de vue pour couvrir la scène."
+      },
+      "ret-camera": {
+        "title": "Déplacer la caméra",
+        "line": "Même image, vue d’un autre angle."
       }
     },
     "latest": "Derniers résultats",
@@ -2769,7 +2789,20 @@
       "start": "Image de départ",
       "end": "Image d’arrivée"
     },
-    "costWait": "durée en cours de lecture…"
+    "costWait": "durée en cours de lecture…",
+    "camera": {
+      "label": "Angle de caméra",
+      "trois-quarts": "Trois-quarts",
+      "face": "Face",
+      "profil": "Profil",
+      "dos": "Dos",
+      "plongee": "Plongée",
+      "contre-plongee": "Contre-plongée",
+      "gros-plan": "Gros plan",
+      "large": "Plan large"
+    },
+    "lot": "{count} angles",
+    "lotItem": "Angle {n} sur {count}"
   },
   "top": {
     "nav": "Navigation du studio",

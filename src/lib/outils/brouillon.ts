@@ -14,6 +14,7 @@ export interface ToolDraft {
   fluide: boolean;
   mesh: "objet" | "perso";
   resolution?: GenjutsuResolution;
+  camera?: string;
 }
 
 const KEY = "u-ttu-brouillons";

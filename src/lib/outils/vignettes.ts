@@ -7,6 +7,7 @@
 const VIGNETTES = new Set([
   "img-klein", "img-qwen", "img-flux3", "img-ideogram", "img-gpt", "img-seedream", "img-nano", "img-refs", "img-360", "img-croquis",
   "ret-modifier", "ret-finaliser", "ret-elargir", "ret-detourer", "ret-eclairer",
+  "ret-angles-perso", "ret-angles-decor", "ret-camera",
   "vid-wan", "vid-texte", "vid-raccord", "vid-h3-refs", "vid-vidu", "vid-prolonger", "vid-parler", "vid-finaliser",
   "vid-recadrer", "vid-detourer", "vid-levres", "vid-effacer", "vid-fluidifier", "vid-mouvement",
   "3d-ouvert", "reperage", "maquette",

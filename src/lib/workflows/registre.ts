@@ -123,6 +123,8 @@ export const TEMPLATES_OFFICIELS = [
   "llm_qwen3vl_text_gen",
   "image_flux.1_fill_dev_OneReward",
   "api_quiver_arrow2_image_to_svg",
+  // Top 10 (docs/mesures/workflows-top10-2026-10-29.md).
+  "template_qwen_multiangle.app",
 ] as const;
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
@@ -197,12 +199,7 @@ export const REGISTRE: readonly Geste[] = [
     premier: true, still: "photo-cast", minRefs: 2,
     consigne: "Garde le visage. Change seulement la tenue ou la coiffure demandée.",
   }),
-  geste({
-    id: "cast-angle", onglet: "cast", categorie: "apparence", clef: "castAngle",
-    fournit: ["photo"], slots: [FACE("image_1")],
-    template: "templates-1_click_multiple_character_angles-v1.0", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.castAngle",
-  }),
+  geste({ id: "cast-angle", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "templates-1_click_multiple_character_angles-v1.0", credits: 11, high: 17, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 10,87 crédits pour 8 angles 832×1248, un portrait (job d68df6c9)
   geste({
     id: "cast-expressions", onglet: "cast", categorie: "apparence", clef: "castExpression",
     fournit: ["photo", "video"], slots: [FACE("image_1"), { role: "clip", slot: "video_1", media: "video" }],
@@ -262,12 +259,7 @@ export const REGISTRE: readonly Geste[] = [
     premier: true, still: "photo-decor", minRefs: 1,
     consigne: "Même lieu. Change l’heure, la météo ou la saison. Sans personne.",
   }), // mesuré 27.10.2026 : 4,42 crédits pour Klein édition 16:9 (lot exemples ; 2e run fa472751 : 3,19) (job ca924213)
-  geste({
-    id: "decor-angles", onglet: "decor", categorie: "variante", clef: "decorAngles",
-    fournit: ["photo"], slots: [LIEU("image_1")],
-    template: "templates-1_click_multiple_scene_angles-v1.0", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.decorAngles",
-  }),
+  geste({ id: "decor-angles", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "templates-1_click_multiple_scene_angles-v1.0", credits: 9, high: 14, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 9,05 crédits pour 8 angles 1360×768, un décor (job 03ceae25)
   geste({
     id: "decor-elargir", onglet: "decor", categorie: "finition", clef: "decorWiden",
     fournit: ["photo"], slots: [LIEU("image_1")],
@@ -488,6 +480,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-img-seedream", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bytedance_seedream_5_0_pro_t2i", credits: 10, high: 15, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 9,50 crédits pour API, 1 image (job f8d6b6d4)
   geste({ id: "outil-img-nano", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_nano_banana_2_1_t2i", credits: 12, high: 18, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "", option: "nano" }),
   geste({ id: "outil-img-refs", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_image_2_1_image_edit", credits: 2, high: 4, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 2,01 crédits pour 1024×1024, 1 référence (job 2ac9e65b)
+  geste({ id: "outil-ret-camera", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_qwen_multiangle.app", credits: 3, high: 5, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 3,29 crédits pour 1 angle 832×1248 (job 4a23ca60)
   geste({ id: "outil-img-360", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_qwen_Image_2512_360_lora", credits: 20, high: 30, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-img-croquis", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_Image_2512_controlnet", credits: 17, high: 26, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_ltx2_5_t2v", credits: 5, high: 8, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 4,72 crédits pour 5 s 16:9 0,9 MP (job b782b20d)
@@ -606,6 +599,10 @@ export const NOEUD_SORTIE: Readonly<Record<string, string>> = {
   api_bria_remove_video_background: "5",
   api_sync_so_lip_sync_video: "13",
   api_sonilo_v2m: "728",
+  // Top 10 (29.10.2026): the 8 angles leave through one Batch Images node and one save.
+  "templates-1_click_multiple_character_angles-v1.0": "991",
+  "templates-1_click_multiple_scene_angles-v1.0": "991",
+  "template_qwen_multiangle.app": "2",
   // Tools that load a file of the kind they save (suite graphs).
   image_flux3_klein_image_edit: "save",
   utility_seedvr2_3b_int8_upscale_image: "9",
