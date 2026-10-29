@@ -4,6 +4,7 @@
 const TYPES: Record<string, string> = {
   png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", gif: "image/gif",
   mp4: "video/mp4", webm: "video/webm", mov: "video/quicktime",
+  wav: "audio/wav", mp3: "audio/mpeg", m4a: "audio/mp4", ogg: "audio/ogg", flac: "audio/flac",
 };
 
 /** The MIME type from a path or URL, else the fallback. */
@@ -13,12 +14,13 @@ export function typeFromName(name: string, fallback = ""): string {
 }
 
 /** Reads what is on screen as a File. The vault copy is never touched. */
-export async function sourceFile(url: string, name: string, kind: "image" | "video"): Promise<File> {
+export async function sourceFile(url: string, name: string, kind: "image" | "video" | "audio"): Promise<File> {
   const response = await fetch(url);
   if (!response.ok) throw new Error(String(response.status));
   const blob = await response.blob();
-  const type = blob.type && blob.type.startsWith(`${kind}/`) ? blob.type : typeFromName(name, kind === "image" ? "image/png" : "video/mp4");
-  const ext = Object.entries(TYPES).find(([, value]) => value === type)?.[0] ?? (kind === "image" ? "png" : "mp4");
+  const fallback = kind === 'audio' ? 'audio/wav' : kind === 'image' ? 'image/png' : 'video/mp4';
+  const type = blob.type && blob.type.startsWith(`${kind}/`) ? blob.type : typeFromName(name, fallback);
+  const ext = Object.entries(TYPES).find(([, value]) => value === type)?.[0] ?? (kind === 'audio' ? 'wav' : kind === 'image' ? 'png' : 'mp4');
   return new File([blob], `${name.replace(/\.[a-z0-9]+$/i, "") || "source"}.${ext}`, { type });
 }
 

@@ -463,6 +463,11 @@ export const REGISTRE: readonly Geste[] = [
     template: "video_ltx2_3_ia2v", credits: 8, high: 13, nature: "mesure",
     premier: false, still: "suite", minRefs: 2, consigne: "",
   }), // mesuré 27.10.2026 : 8,09 crédits pour 5 s 1280×720 (job 804f983f)
+  // Home bubble: dynamic sizes / durations / named-reference counts are estimates, never measurements.
+  geste({ id: "creation-image-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_t2i", credits: 2, high: 4, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "creation-image", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_image_edit", credits: 3, high: 6, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "creation-video-refs", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_minimax_h3_r2v", credits: 5, high: 10, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "creation-video-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_ltx2_5_t2v", credits: 5, high: 10, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   // « Outils » : one panel per whole template, opened from the hub. Each estimate is shown
   // « estimé » unless a real job was billed: open weights are guessed from the studio's measured
   // neighbours, partner prices come from Comfy's estimate_credits on the template. Rows marked

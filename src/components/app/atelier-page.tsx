@@ -15,6 +15,7 @@ import { StudioSplash } from "./splash";
 import { CREATION_TYPES, TopBar, type CreationType } from "./top-bar";
 import { MediaLibrary } from "./media-library";
 import { AssistantPanel } from "./assistant-panel";
+import { ReferenceLibrary } from './reference-library';
 
 type Tab = "tout" | CreationType | "notes";
 
@@ -46,6 +47,7 @@ function AtelierFrame() {
   const [dense, setDense] = useState(false);
   const [sort, setSort] = useState<"recent" | "nom">("recent");
   const [settings, setSettings] = useState(false);
+  const [referencesOpen, setReferencesOpen] = useState(false);
 
   useEffect(() => {
     const read = () => {
@@ -118,6 +120,7 @@ function AtelierFrame() {
           </button>)}
         </nav>
         <div className="u-lib-tools">
+          <button type="button" className="u-secondary" data-library-references="" onClick={() => setReferencesOpen(true)}>{t('namedRefs.title')}</button>
           <div className="u-choice-row" role="group" aria-label={t("creations.sort")}>
             {(["recent", "nom"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={sort === id} data-creations-sort={id} onClick={() => setSort(id)}>{t(`creations.sorts.${id}`)}</button>)}
           </div>
@@ -166,6 +169,7 @@ function AtelierFrame() {
     </main>
     {notice && <p className="u-toast" role="status">{say(notice)}</p>}
     <AssistantPanel />
+    {referencesOpen && <ReferenceLibrary onClose={() => setReferencesOpen(false)} />}
     {sheet === "credits" && <CreditSheet />}
     {sheet === "connect" && <ConnectSheet />}
   </div>;
