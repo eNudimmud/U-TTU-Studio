@@ -16,7 +16,9 @@ describe("le studio, une app", () => {
     assert.equal(resumeTab({ lookReady: true, hasScene: false }), "scene");
     assert.equal(resumeTab({ lookReady: true, hasScene: true }), "prise");
     assert.equal(tabFromLocation("", "?step=look"), "look");
-    assert.equal(tabFromLocation("#creer", ""), "look");
+    // « Créer » is a bottom tab: an old #creer link lands on it, never on Film (CAST).
+    assert.equal(tabFromLocation("#creer", ""), "outils");
+    assert.equal(tabFromLocation("#créer", ""), "outils");
     assert.equal(tabFromLocation("#photos", ""), "look");
     assert.equal(tabFromLocation("#plateau", ""), "scene");
     assert.equal(tabFromLocation("#Take", ""), "prise");
