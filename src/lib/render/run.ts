@@ -6,6 +6,7 @@
 import { measuredCost } from "../credits.ts";
 import { audioOutput, executionSeconds, imageOutput, jobStage, meshOutput, RenderError, videoOutput, type OutputRef, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
+import type { UploadedControls } from "./framed-key.ts";
 import { TAKE_PICTURES_MAX, takeEngine, takeGraph, takeRendu, type ApiGraph, type TakeSettings } from "./take-graph.ts";
 
 export function referenceLimit(settings: TakeSettings): number { return takeEngine(settings) === "ltx" ? LTX_REFS_MAX : TAKE_PICTURES_MAX; }
@@ -15,13 +16,15 @@ function checkReferences(settings: TakeSettings, count: number): void {
 }
 
 /** The graph for the chosen engine. Same pictures, same text. */
-export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number): ApiGraph {
+export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number, controls?: UploadedControls): ApiGraph {
   checkReferences(settings, pictures.length);
-  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu" });
+  if (Boolean(settings.cadrage) !== Boolean(controls) || (controls && takeEngine(settings) !== "ltx")) throw new RenderError("invalid", "Le cadrage gardé demande ses deux contrôles et le moteur LTX.");
+  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu", controls });
   return takeGraph({ ...settings, prompt, pictures, seed });
 }
 
 export interface TakeRunInput {
+  controls?: { depth: { blob: Blob; name: string }; edges: { blob: Blob; name: string }; guide?: { blob: Blob; name: string } };
   pictures: readonly { blob: Blob; name: string }[];
   prompt: string;
   settings: TakeSettings;
@@ -83,6 +86,8 @@ export async function submitTake(
   signal?: AbortSignal,
 ): Promise<string> {
   checkReferences(input.settings, input.pictures.length);
+  // Reject incomplete controls before uploading or submitting anything.
+  if (Boolean(input.settings.cadrage) !== Boolean(input.controls) || (input.controls && (takeEngine(input.settings) !== "ltx" || !input.controls.depth?.blob.size || !input.controls.edges?.blob.size))) throw new RenderError("invalid", "Les contrôles de cadrage sont incomplets.");
   const names: string[] = [];
   for (const [index, picture] of input.pictures.entries()) {
     if (signal?.aborted) throw new RenderError("cancelled", "Prise annulée avant l’envoi.");
@@ -91,8 +96,14 @@ export async function submitTake(
   }
   onEvent({ stage: "upload", done: input.pictures.length, total: input.pictures.length });
   if (signal?.aborted) throw new RenderError("cancelled", "Prise annulée avant l’envoi.");
+  const controls = input.controls ? {
+    depth: await client.upload(input.controls.depth.blob, input.controls.depth.name),
+    edges: await client.upload(input.controls.edges.blob, input.controls.edges.name),
+    ...(input.controls.guide?.blob.size ? { guide: await client.upload(input.controls.guide.blob, input.controls.guide.name) } : {}),
+  } : undefined;
+  if (signal?.aborted) throw new RenderError("cancelled", "Envoi interrompu avant la soumission.");
   onEvent({ stage: "submit" });
-  const graph = takeGraphFor(input.settings, input.prompt, names, input.seed);
+  const graph = takeGraphFor(input.settings, input.prompt, names, input.seed, controls);
   return client.submit(graph, input.clientId);
 }
 

@@ -5,6 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { MAX_PIXEL_RATIO, RADIUS_MIN, uprightRotation, type MaquetteState } from "@/lib/maquette/state";
 import { PATH_SECONDS, decimation, orbitAt, type Prop } from "@/lib/maquette/scene";
 import { sampleRelief, standsInStreet, type Quartier } from "@/lib/repere/quartier";
+import { captureScene } from "@/lib/maquette/capture";
+import type { CaptureFraming } from "@/lib/maquette/framing";
+import { FramingFlat } from "./framing-flat";
 import { drawQuartier } from "./quartier-draw";
 
 interface Props {
@@ -14,6 +17,12 @@ interface Props {
   badge: string;
   hint: string;
   quartier?: Quartier | null;
+  force2D?: boolean;
+  aspect?: "16:9" | "9:16";
+  onWebGLFailed?(): void;
+  onMode?(mode: "webgl" | "plat"): void;
+  onCaptureReady?(capture: CaptureFraming | null): void;
+  onFlat?(flat: NonNullable<MaquetteState["flat"]>): void;
   onMove(id: string, x: number, z: number): void;
   onOrbit(dx: number, dy: number): void;
   onPinch(previous: number, distance: number): void;
@@ -35,7 +44,7 @@ function canWebGL(): boolean {
   }
 }
 
-export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier = null, onMove, onOrbit, onPinch, onMoveProp, playFrom = null, onPlayTick }: Props) {
+export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier = null, onMove, onOrbit, onPinch, onMoveProp, playFrom = null, onPlayTick, force2D = false, aspect, onWebGLFailed, onMode, onCaptureReady, onFlat }: Props) {
   const { t } = useI18n();
   const [modelError, setModelError] = useState("");
   const host = useRef<HTMLDivElement>(null);
@@ -55,13 +64,18 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
   playRef.current = playFrom;
   const tickRef = useRef(onPlayTick);
   tickRef.current = onPlayTick;
-  const [mode, setMode] = useState<Mode>("webgl");
+  const [fallback, setFallback] = useState(false);
+  const mode: Mode = force2D || fallback ? "plat" : "webgl";
+  const modeRef = useRef(mode); modeRef.current = mode;
+  const captureRef = useRef(onCaptureReady); captureRef.current = onCaptureReady;
+  useEffect(() => { onMode?.(mode); }, [mode, onMode]);
+  useEffect(() => { if (fallback) onWebGLFailed?.(); }, [fallback, onWebGLFailed]);
 
   useEffect(() => {
     const node = host.current;
     if (mode === "plat") return;
     if (!node || !canWebGL()) {
-      setMode("plat");
+      setFallback(true);
       return;
     }
     let dead = false;
@@ -74,6 +88,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       const canvas = renderer.domElement;
       canvas.className = "u-maquette-canvas";
       host.current.replaceChildren(canvas);
+      let capturing = false;
       const scene = new THREE.Scene();
       scene.fog = new THREE.Fog(0x1a1610, 12, 28);
       const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
@@ -162,6 +177,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         );
         geometries.push(shadow.geometry);
         materials.push(shadow.material);
+        shadow.userData.exportDecoration = true;
         shadow.rotation.x = -Math.PI / 2;
         shadow.position.y = 0.02;
         group.add(shadow);
@@ -330,13 +346,9 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         const orbit = started === null ? stateRef.current.orbit : orbitAt(stateRef.current.path ?? [], (performance.now() - started) / 1000, stateRef.current.orbit);
         const place = quartierRef.current;
         const origin = worldOf(0, 0);
-        const span = stateRef.current.figures.reduce((max, figure) => Math.max(max, Math.abs(figure.x), Math.abs(figure.z)), 0);
-        const aspect = Math.max(0.75, camera.aspect || 1);
-        const needed = (span + 1.2) / (Math.tan((20 * Math.PI) / 180) * aspect);
-        // Close tiles stay above the distance that keeps head, name and feet inside the stage.
-        const guided = playRef.current !== null || (stateRef.current.path?.length ?? 0) > 0;
-        const radius = guided ? Math.max(orbit.radius, RADIUS_MIN) : Math.max(orbit.radius, 6.6, needed);
-        const targetY = origin.y + 1.25;
+        // Respect the selected distance: automatic fitting used to cancel close shots.
+        const radius = Math.max(orbit.radius, RADIUS_MIN);
+        const targetY = origin.y + (radius < 4.5 ? 2 : 1.25);
         camera.far = place ? 250 : 100;
         camera.updateProjectionMatrix();
         camera.position.set(
@@ -348,7 +360,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       }
 
       function paint() {
-        if (dead) return;
+        if (dead || capturing) return;
         const width = host.current?.clientWidth ?? 1;
         const height = host.current?.clientHeight ?? 1;
         renderer.setPixelRatio(Math.min(MAX_PIXEL_RATIO, window.devicePixelRatio || 1));
@@ -361,6 +373,14 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         frameCamera();
         renderer.render(scene, camera);
       }
+
+      captureRef.current?.(async (width, height) => {
+        if (dead || capturing) throw new Error("Le cadrage est occupé.");
+        paint();
+        capturing = true;
+        try { return await captureScene(THREE, renderer, scene, camera, width, height); }
+        finally { capturing = false; paint(); }
+      });
 
       const raycaster = new THREE.Raycaster();
       const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -390,6 +410,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         raycaster.setFromCamera(ndc(event), camera);
         const hit = raycaster.intersectObjects([...groups.values(), ...propGroups.values()], true)[0];
         const root = hit?.object.userData.root as THREE.Object3D | undefined;
+        ground.constant = -(root?.position.y ?? 0);
         dragId = root && !stateRef.current.lockPose && playRef.current === null ? root.name : null;
         dragProp = Boolean(root?.userData.prop);
         last = { x: event.clientX, y: event.clientY };
@@ -437,7 +458,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         pinchRef.current(100, distance);
         paint();
       }
-      function onLost() { setMode("plat"); }
+      function onLost() { captureRef.current?.(null); setFallback(true); }
 
       canvas.addEventListener("pointerdown", onDown);
       canvas.addEventListener("pointermove", onMove);
@@ -461,6 +482,9 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       frame = requestAnimationFrame(loop);
 
       stop = () => {
+        // The 2D child may already have registered its exporter when the old
+        // WebGL effect releases resources. It owns the callback in that mode.
+        if (modeRef.current === "webgl") captureRef.current?.(null);
         dropBlock();
         window.clearInterval(watch);
         cancelAnimationFrame(frame);
@@ -476,7 +500,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         renderer.dispose();
         canvas.remove();
       };
-    }).catch(() => { if (!dead) setMode("plat"); });
+    }).catch(() => { if (!dead) setFallback(true); });
 
     return () => {
       dead = true;
@@ -487,75 +511,19 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
   const props = (state.props ?? []).map(prop => `${prop.id}@${prop.x.toFixed(2)},${prop.z.toFixed(2)}`).join(" ");
   const layout = state.figures.map(figure => `${figure.id}@${figure.x.toFixed(2)},${figure.z.toFixed(2)}`).join(" ");
   const rue = quartier && standsInStreet(quartier) ? "1" : "0";
-  return <div className="u-maquette" data-maquette={mode} data-tuile={state.tuile} data-figures={state.figures.length} data-layout={layout} data-props={props} data-keys={state.path?.length ?? 0} data-playing={playFrom !== null ? "1" : undefined} data-quartier={quartier ? "1" : "0"} data-batiments={quartier?.buildings.length ?? 0} data-rue={rue}>
+  return <div className="u-maquette" data-maquette={mode} data-flat-zoom={state.flat?.zoom ?? 1} data-tuile={state.tuile} data-figures={state.figures.length} data-layout={layout} data-props={props} data-keys={state.path?.length ?? 0} data-playing={playFrom !== null ? "1" : undefined} data-quartier={quartier ? "1" : "0"} data-batiments={quartier?.buildings.length ?? 0} data-rue={rue}>
     {modelError && <p role="alert" className="u-small">{t("previs.modelFailed", { name: modelError })}</p>}
     <div
       className="u-maquette-stage"
-      style={backdrop ? { backgroundImage: `linear-gradient(180deg, rgba(11,10,9,.25), rgba(11,10,9,.72)), url(${backdrop})` } : undefined}
+      style={{ ...(backdrop ? { backgroundImage: `linear-gradient(180deg, rgba(11,10,9,.25), rgba(11,10,9,.72)), url(${backdrop})` } : {}), ...(aspect ? { aspectRatio: aspect.replace(":", "/"), height: "auto" } : {}) }}
     >
       <div className="u-maquette-gl" ref={host} />
-      {mode === "plat" && <Plat state={state} onMove={onMove} onOrbit={onOrbit} onPinch={onPinch} />}
+      {mode === "plat" && <FramingFlat state={state} backdrop={backdrop} onMove={onMove} onFlat={flat => onFlat?.(flat)} onCaptureReady={onCaptureReady} />}
       <p className="u-maquette-badge">{badge}</p>
       <p className="u-maquette-names">{state.figures.map((figure, index) => <span key={figure.id} style={{ color: figure.color }}>{index > 0 ? " · " : ""}{figure.name}</span>)}</p>
       {placeName && <p className="u-maquette-place">{placeName}</p>}
       <p className="u-maquette-hint">{hint}</p>
     </div>
-  </div>;
-}
-
-function Plat({ state, onMove, onOrbit, onPinch }: { state: MaquetteState; onMove: Props["onMove"]; onOrbit: Props["onOrbit"]; onPinch: Props["onPinch"] }) {
-  const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const drag = useRef<string | null>(null);
-  const last = useRef<{ x: number; y: number } | null>(null);
-  const pinchDistance = useRef(0);
-  const origin = useRef<{ x: number; z: number } | null>(null);
-
-  function down(event: React.PointerEvent, id: string | null) {
-    event.currentTarget.setPointerCapture(event.pointerId);
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    if (pointers.current.size === 2) {
-      const [a, b] = [...pointers.current.values()];
-      pinchDistance.current = Math.hypot(a.x - b.x, a.y - b.y) || 1;
-      drag.current = null;
-      return;
-    }
-    drag.current = id;
-    last.current = { x: event.clientX, y: event.clientY };
-    const figure = id ? state.figures.find(item => item.id === id) : null;
-    origin.current = figure ? { x: figure.x, z: figure.z } : null;
-  }
-  function move(event: React.PointerEvent) {
-    if (!pointers.current.has(event.pointerId)) return;
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    if (pointers.current.size >= 2) {
-      const [a, b] = [...pointers.current.values()];
-      const distance = Math.hypot(a.x - b.x, a.y - b.y) || 1;
-      onPinch(pinchDistance.current, distance);
-      pinchDistance.current = distance;
-      return;
-    }
-    if (!last.current) return;
-    const dx = event.clientX - last.current.x;
-    const dy = event.clientY - last.current.y;
-    if (drag.current && origin.current && !state.lockPose) onMove(drag.current, origin.current.x + dx / 36, origin.current.z + dy / 36);
-    else if (!state.lockCam) onOrbit(dx, dy);
-    last.current = { x: event.clientX, y: event.clientY };
-  }
-  function up(event: React.PointerEvent) {
-    pointers.current.delete(event.pointerId);
-    drag.current = null;
-    last.current = null;
-    origin.current = null;
-  }
-
-  return <div className="u-plat" onPointerDown={event => down(event, null)} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
-    {state.figures.map(figure => <button
-      key={figure.id}
-      type="button"
-      className="u-figure"
-      style={{ left: `${50 + figure.x * 8}%`, top: `${46 + figure.z * 6}%`, background: figure.color, transform: `translate(-50%, -100%) rotate(${figure.yaw}rad)` }}
-      onPointerDown={event => { event.stopPropagation(); down(event, figure.id); }}
-    >{figure.name}</button>)}
   </div>;
 }
 

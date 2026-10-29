@@ -28,6 +28,8 @@ export interface Orbit {
 }
 
 export interface Frame {
+  /** 2D fallback: pan/zoom of the decorated image and its silhouettes. */
+  flat?: { x: number; y: number; zoom: number };
   props?: import("./scene.ts").Prop[];
   path?: import("./scene.ts").Keyframe[];
   figures: Figure[];
@@ -78,6 +80,7 @@ function clamp(value: number, min: number, max: number): number {
 
 function frameOf(state: MaquetteState): Frame {
   return {
+    ...(state.flat ? { flat: { ...state.flat } } : {}),
     ...(state.props ? { props: state.props.map(item => ({ ...item })) } : {}),
     ...(state.path ? { path: state.path.map(item => ({ t: item.t, orbit: { ...item.orbit } })) } : {}),
     figures: state.figures.map(item => ({ ...item })),

@@ -1,6 +1,7 @@
 // What Mon studio keeps for a shot and for a take, original and final.
 // The final file is an upscale of the original, never a new generation.
 
+import { readFraming } from "../maquette/framing.ts";
 import { withFrontmatter } from "../coffre/markdown.ts";
 import type { PlanInput } from "./decision.ts";
 import { isCadrage, isCamera } from "./decision.ts";
@@ -64,6 +65,7 @@ export function planJson(input: PlanInput, extra: { etat?: PlanEtat; before?: st
     angle: input.angle ?? "niveau",
     cameraPosition: input.cameraPosition ?? "",
     framingRef: input.framingRef ?? "",
+    framing: input.framing,
     manualCamera: input.manualCamera === true,
     manualFraming: input.manualFraming === true,
     duree: input.duree,
@@ -118,6 +120,7 @@ export function planFromJson(source: string | null | undefined, fallback: PlanIn
       angle: data.angle === "plongee" || data.angle === "contre-plongee" ? data.angle : "niveau",
       cameraPosition: typeof data.cameraPosition === "string" ? data.cameraPosition.slice(0, 160) : "",
       framingRef: typeof data.framingRef === "string" && /^Projets\/[a-z0-9-]+\/[A-Za-z]+\/[A-Za-z0-9._ -]+\.(png|jpe?g|webp)$/i.test(data.framingRef) ? data.framingRef : "",
+      framing: readFraming(data.framing),
       manualCamera: data.manualCamera === true,
       manualFraming: data.manualFraming === true,
       duree,

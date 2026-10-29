@@ -43,6 +43,8 @@ export type TakeRendu = (typeof TAKE_RENDUS)[number];
 export const DEFAULT_RENDU: TakeRendu = "finale";
 
 export interface TakeSettings {
+  /** Distinct graph and quote profile. Native controls are not visual references. */
+  cadrage?: "depth-edges-v1";
   seconds: TakeSeconds;
   quality: TakeQuality;
   aspect: TakeAspect;
@@ -65,7 +67,7 @@ export function takeRendu(settings: Pick<TakeSettings, "engine" | "rendu">): Tak
 
 /** A take profile made with Aperçu. Its cost is kept apart from « finale ». */
 export function isApercuProfile(profile: string): boolean {
-  return /^ltx25-apercu-/.test(profile);
+  return /^ltx25-(?:cadre-v1-)?apercu-/.test(profile);
 }
 
 export interface TakeGraphInput extends TakeSettings {
@@ -100,7 +102,7 @@ export function comfyStorageUrl(ref: { filename: string; subfolder: string; type
 export function takeProfile(settings: TakeSettings): string {
   if (takeEngine(settings) === "ltx") {
     const apercu = takeRendu(settings) === "apercu" ? "apercu-" : "";
-    return `ltx25-${apercu}${settings.seconds}s-${settings.aspect}`;
+    return `ltx25-${settings.cadrage ? "cadre-v1-" : ""}${apercu}${settings.seconds}s-${settings.aspect}`;
   }
   return `h3-${TAKE_STEPS[settings.quality]}pas-${settings.seconds}s-${settings.aspect}`;
 }

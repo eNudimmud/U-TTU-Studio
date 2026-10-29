@@ -18,6 +18,7 @@ import { gesteOuvert, gesteParId, gesteVisible, templatePartenaire, type RoleRef
 import { captureFiles } from "@/lib/repere3d/capture";
 import { cleanCardName, copyCast, decorFromScene, renameById, type CastCard, type DecorCard } from "@/lib/creation/gallery";
 import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
+import { readFraming, type Framing, type FramingCapture } from "@/lib/maquette/framing";
 import { stillOutput, runStill } from "@/lib/creation/still";
 import { cadreQuote } from "@/lib/creation/decor-cadre";
 import { KLEIN_REFS_MAX } from "@/lib/render/klein-graph";
@@ -209,6 +210,7 @@ export interface StudioSession {
   outgoing(): string;
   saveModel(file: File): Promise<string>;
   savePrevis(file: File): Promise<string>;
+  saveFraming(planId: string, capture: FramingCapture): Promise<Framing>;
   /** The film just exported from MONTAGE, kept in the project so it shows in Mes créations. */
   saveExport(film: Blob, name: string): Promise<string>;
   readProjectFile(file: string): Promise<string | undefined>;
@@ -241,6 +243,7 @@ export interface LieuCaptureInput {
 export interface MontageInput { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; video?: string; prompt: string; sceneName: string; composeur: string }
 
 export interface TakeRequest {
+  framing?: Framing;
   planId: string;
   castIds: string[];
   decorId: string | null;
@@ -1504,7 +1507,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       return;
     }
     if (asset.note) await vault.remove(asset.note).catch(() => undefined);
-    if (asset.media) await vault.remove(asset.media).catch(() => undefined);
+    if (asset.media) await removeUnreferenced(vault, [asset.media]);
     // Loose media without a note: drop matching sidecar paths and any Assets note.
     if (!asset.note && asset.media) {
       const base = asset.media.replace(/\.[^.]+$/, "");
@@ -1588,15 +1591,25 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       setNotice(t("create.noPicture"));
       return;
     }
+    let controls: Parameters<typeof submitTake>[1]["controls"];
+    if (settings.cadrage) {
+      const frame = readFraming(pendingTake?.framing);
+      if (!frame || ![frame.depth, frame.edges, frame.color].every(path => path.startsWith(`Projets/${slug}/Assets/`))) { setNotice(t("framing.missing")); return; }
+      const [depth, edges, guide] = await Promise.all([vault.get(frame.depth), vault.get(frame.edges), vault.get(frame.color)]);
+      if (!depth?.blob || !edges?.blob) { setNotice(t("framing.missing")); return; }
+      controls = { depth: { blob: depth.blob, name: "uttu-depth.png" }, edges: { blob: edges.blob, name: "uttu-edges.png" }, ...(guide?.blob ? { guide: { blob: guide.blob, name: "uttu-guide.png" } } : {}) };
+    }
     setSheet(null);
     setRun({ phase: "running", event: { stage: "start" } });
     abort.current = new AbortController();
     try {
       const at = new Date().toISOString();
-      const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, refs: paths, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
-      const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: paths, template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
+      // P1-4: the take keeps every reference sent, framing maps included (P0-2).
+      const sentRefs = [...paths, ...(pendingTake?.framing ? [pendingTake.framing.color, pendingTake.framing.depth, pendingTake.framing.edges] : [])];
+      const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
+      const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: sentRefs, template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : freshQuote.source === "estimated" ? freshQuote.estimate.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
-        pictures, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(),
+        pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(),
       }, event => setRun({ phase: "running", event }), abort.current.signal);
       const flight: InFlight = { ...flightData, jobId };
       saveInFlight(localStorage, flight);
@@ -2014,6 +2027,20 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     return path;
   }, [current.project, reload, store, t]);
 
+  const saveFraming = useCallback(async (planId: string, capture: FramingCapture): Promise<Framing> => {
+    const slug = current.project ?? await ensureActiveProject(store());
+    const vault = projectVault(store(), slug);
+    const id = `cadrage-${planId.replace(/[^a-z0-9-]/g, "").slice(0, 16)}-${crypto.randomUUID()}`;
+    const path = (kind: string) => `Projets/${slug}/Assets/${id}-${kind}.png`;
+    const frame = readFraming({ version: 1, source: capture.source, color: path("color"), depth: path("depth"), edges: path("edges"), width: capture.width, height: capture.height, camera: capture.camera });
+    if (!frame || [capture.color, capture.depth, capture.edges].some(blob => blob.type !== "image/png" || !blob.size || blob.size > 12_000_000)) throw new Error(t("framing.failed"));
+    for (const key of ["color", "depth", "edges"] as const) await writeBlob(vault, frame[key], capture[key]);
+    const note = `Projets/${slug}/Assets/${id}.md`;
+    await writeText(vault, note, assetNote({ id, kind: "importe", name: `${t("framing.kept")} · ${planId}`, at: new Date().toISOString(), prompt: JSON.stringify({ planId, ...frame }), geste: "cadrage-local", template: "", refs: [frame.depth, frame.edges], devis: 0, cout: 0, media: frame.color, note, preview: null, loose: false }));
+    await reload();
+    return frame;
+  }, [current.project, reload, store, t]);
+
   const saveExport = useCallback(async (film: Blob, name: string) => {
     const slug = current.project ?? await ensureActiveProject(store());
     const vault = projectVault(store(), slug);
@@ -2245,7 +2272,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, promoteExempleRefs, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
-    saveModel, savePrevis, saveExport, readProjectFile, writeProjectFile, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
+    saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
