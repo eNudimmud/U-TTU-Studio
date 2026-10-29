@@ -34,7 +34,13 @@ export interface PlanInput {
   cadrage: Cadrage;
   action: string;
   camera: CameraMove;
-  duree: 5 | 8;
+  /** 8 s stays readable for existing projects; new plans offer 5 or 10 s. */
+  duree: 5 | 8 | 10;
+  angle?: "niveau" | "plongee" | "contre-plongee";
+  cameraPosition?: string;
+  framingRef?: string;
+  manualCamera?: boolean;
+  manualFraming?: boolean;
   paroles: Paroles;
   replique: string;
   enchainer: boolean;
@@ -139,7 +145,7 @@ export function actionForte(action: string): boolean {
 }
 
 function closeUp(cadrage: Cadrage): boolean {
-  return cadrage === "gros" || cadrage === "moyen" || cadrage === "americain" || cadrage === "tgp";
+  return cadrage === "gros" || cadrage === "moyen" || cadrage === "rapproche" || cadrage === "americain" || cadrage === "tgp";
 }
 
 function priced(row: number, intent: Intent, graph: string | null, suite: string | null, titre: string, pourquoi: string, quote: number | null, statut: CoutStatut | null, enabled: boolean, reason: string, son: boolean): Decision {

@@ -82,7 +82,9 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
   const last = `<ref_image_${pictures.length - 1}>`;
   Object.assign(graph, kleinNodes({
     prefix: "frame_",
-    prompt: `First frame of a film shot. The person from <ref_image_0> stands in the place from ${last}. ${prompt} Same face, same outfit, same place. No text.`,
+    prompt: prompt.includes("[framing reference]")
+      ? `First frame of a film shot. Follow the named reference roles below: the framing guide controls composition only. ${prompt} Same face, same outfit, same place. No text.`
+      : `First frame of a film shot. The person from <ref_image_0> stands in the place from ${last}. ${prompt} Same face, same outfit, same place. No text.`,
     seed,
     aspect: KLEIN_ASPECT[input.aspect],
     images: loads,

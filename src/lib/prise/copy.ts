@@ -3,6 +3,7 @@
 export const CADRAGES = [
   "large",
   "moyen",
+  "rapproche",
   "americain",
   "gros",
   "tgp",
@@ -16,6 +17,7 @@ export type Cadrage = (typeof CADRAGES)[number];
 export const CADRAGE_LABEL: Record<Cadrage, string> = {
   large: "Plan large",
   moyen: "Plan moyen",
+  rapproche: "Plan rapproché",
   americain: "Américain",
   gros: "Gros plan",
   tgp: "Très gros plan",
@@ -29,6 +31,7 @@ export const CAMERAS = [
   "travelling-avant",
   "travelling-arriere",
   "panoramique",
+  "dolly",
   "suivi",
   "orbite",
   "epaule",
@@ -41,6 +44,7 @@ export const CAMERA_LABEL: Record<CameraMove, string> = {
   "travelling-avant": "Travelling avant",
   "travelling-arriere": "Travelling arrière",
   panoramique: "Panoramique",
+  dolly: "Dolly",
   suivi: "Suivi",
   orbite: "Orbite",
   epaule: "Caméra à l'épaule",

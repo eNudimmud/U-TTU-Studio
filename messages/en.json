@@ -1833,9 +1833,10 @@
       "down": "Move shot down",
       "delete": "Delete",
       "deleted": "“{name}” deleted.",
-      "undo": "Undo"
+      "undo": "Undo",
+      "label": "Shots"
     },
-    "addPlan": "＋ Shot",
+    "addPlan": "+ Shot",
     "sequenceSum": "Sequence: {time} · {count, plural, one {# shot} other {# shots}}",
     "preview": "Preview",
     "planN": "Shot {n}",
@@ -1897,7 +1898,8 @@
         "panoramique": "pan",
         "suivi": "tracking shot",
         "orbite": "orbit around the subject",
-        "epaule": "handheld camera"
+        "epaule": "handheld camera",
+        "dolly": "Dolly"
       }
     },
     "why": {
@@ -1971,7 +1973,51 @@
       "keep": "Your choice stays for the next shots of this project.",
       "apercuHint": "A preview is finalised later, on its own or with the whole edit."
     },
-    "addToMontage": "Add to edit"
+    "addToMontage": "Add to edit",
+    "editor": {
+      "title": "Edit this shot",
+      "name": "Shot title",
+      "framing": "Framing",
+      "angle": "Camera angle",
+      "move": "Camera movement",
+      "position": "Camera position",
+      "positionHint": "For example: on the left, at eye level",
+      "duration": "Shot duration",
+      "reference": "Framing reference",
+      "none": "None",
+      "referencesHint": "Choose the characters and set below. The framing reference is sent with the render as a visual guide.",
+      "changed": "Change added to the history.",
+      "retry": "Try again",
+      "recover": "Recover the render",
+      "save": {
+        "saving": "Saving…",
+        "saved": "Saved automatically",
+        "error": "Could not save: try again before leaving."
+      },
+      "states": {
+        "draft": "Draft",
+        "queued": "Queued",
+        "running": "Rendering",
+        "error": "Failed",
+        "done": "Generated"
+      },
+      "framings": {
+        "large": "Wide shot",
+        "moyen": "Medium shot",
+        "rapproche": "Medium close-up",
+        "americain": "Cowboy shot",
+        "gros": "Close-up",
+        "tgp": "Extreme close-up",
+        "plongee": "High angle",
+        "contre": "Low angle",
+        "epaule": "Over the shoulder"
+      },
+      "angles": {
+        "niveau": "Eye level",
+        "plongee": "High angle",
+        "contre-plongee": "Low angle"
+      }
+    }
   },
   "p1": {
     "hint": "One sentence is enough: who, where, what happens, the camera, the mood.",

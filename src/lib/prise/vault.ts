@@ -61,6 +61,11 @@ export function planJson(input: PlanInput, extra: { etat?: PlanEtat; before?: st
     cadrage: input.cadrage,
     action: input.action,
     camera: input.camera,
+    angle: input.angle ?? "niveau",
+    cameraPosition: input.cameraPosition ?? "",
+    framingRef: input.framingRef ?? "",
+    manualCamera: input.manualCamera === true,
+    manualFraming: input.manualFraming === true,
     duree: input.duree,
     paroles: input.paroles,
     replique: input.replique,
@@ -100,7 +105,7 @@ export function planFromJson(source: string | null | undefined, fallback: PlanIn
     const data = JSON.parse(source) as Record<string, unknown>;
     const cadrage = typeof data.cadrage === "string" && isCadrage(data.cadrage) ? data.cadrage : fallback.cadrage;
     const camera = typeof data.camera === "string" && isCamera(data.camera) ? data.camera : fallback.camera;
-    const duree = data.duree === 8 ? 8 : 5;
+    const duree = data.duree === 10 ? 10 : data.duree === 8 ? 8 : 5;
     const paroles = data.paroles === "replique" || data.paroles === "voix-off" ? data.paroles : "aucune";
     const imageCle = data.imageCle === "proposee" || data.imageCle === "validee" ? data.imageCle : "aucune";
     return {
@@ -110,6 +115,11 @@ export function planFromJson(source: string | null | undefined, fallback: PlanIn
       cadrage,
       action: typeof data.action === "string" ? data.action.slice(0, 240) : "",
       camera,
+      angle: data.angle === "plongee" || data.angle === "contre-plongee" ? data.angle : "niveau",
+      cameraPosition: typeof data.cameraPosition === "string" ? data.cameraPosition.slice(0, 160) : "",
+      framingRef: typeof data.framingRef === "string" && /^Projets\/[a-z0-9-]+\/[A-Za-z]+\/[A-Za-z0-9._ -]+\.(png|jpe?g|webp)$/i.test(data.framingRef) ? data.framingRef : "",
+      manualCamera: data.manualCamera === true,
+      manualFraming: data.manualFraming === true,
       duree,
       paroles,
       replique: typeof data.replique === "string" ? data.replique.slice(0, 240) : "",

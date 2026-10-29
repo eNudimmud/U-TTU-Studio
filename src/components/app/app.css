@@ -2763,3 +2763,25 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-plan-tools > button { min-height: 44px; min-width: 44px; }
 .u-plan-undo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0 0; }
 .u-plan-undo > button { min-height: 44px; }
+
+/* PRISE: one current-shot editor and a persistent undo control, usable by touch. */
+.u-plan-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px 0; }
+.u-plan-fields label { display: grid; gap: 6px; min-width: 0; color: var(--u-muted); font-size: 12px; }
+.u-plan-fields :is(input, select) { min-width: 0; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 8px; background: var(--u-bg, #141414); color: var(--fg); font: inherit; font-size: 16px; }
+.u-plan-field-wide { grid-column: 1 / -1; }
+.u-plan-ref { display: block; max-width: 100%; max-height: 160px; object-fit: contain; border-radius: 8px; }
+.u-plan-name { max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.u-plan-card progress { width: 44px; height: 5px; accent-color: var(--u-gold, #d4af37); }
+.u-plan-tools { flex-wrap: wrap; }
+.u-plan-undo { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.u-plan-undo button, .u-plan-tools button { min-width: 44px; min-height: 44px; }
+.u-plan-save { margin: 4px 0; font-size: 11px; color: var(--u-muted); }
+.u-plan-error { padding: 12px; border: 1px solid var(--u-line); border-radius: 12px; overflow-wrap: anywhere; }
+@media (max-width: 440px) { .u-plan-fields { grid-template-columns: minmax(0, 1fr); } }
+.u-prise .u-uttu > div { min-width: 0; overflow-wrap: anywhere; }
+.u-prise-work > .u-plan-editor { order: 2; }
+@media (max-width: 1023px) {
+  .u-plan-card .u-plan-etat { position: static; width: auto; height: auto; margin: 0; clip: auto; white-space: normal; font-size: 10px; }
+  .u-plan-name { max-width: 56px; }
+}
+.u-prise [data-uttu-dit] { display: block; min-width: 0; white-space: normal; letter-spacing: normal; cursor: default; }

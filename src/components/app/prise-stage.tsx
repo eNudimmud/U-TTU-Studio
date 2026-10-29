@@ -13,15 +13,18 @@ import {
   addFigure, addNeutral, applyTuile, astuce, autreEssai, canAddFigure, captureLine, cadrageFromOrbit, initialMaquette, MAX_FIGURES, moveFigure, orbitDrag, pinch, removeFigure, scenePhrase, seedLead, toggleLock, undoMaquette, yawFigure,
   type MaquetteState,
 } from "@/lib/maquette/state";
-import { ACTION_EXAMPLES, ACTION_MAX, type PlanEtat } from "@/lib/prise/copy";
+import { ACTION_EXAMPLES, ACTION_MAX, CADRAGES, type Cadrage, type PlanEtat } from "@/lib/prise/copy";
 import { cameraChoice } from "@/lib/prise/camera-words";
-import { duplicatePlan, nextPlanId, removePlan, restorePlan, stepMove, type Removed } from "@/lib/prise/plans";
+import { duplicatePlan, nextPlanId, removePlan, stepMove } from "@/lib/prise/plans";
+import { historyJson, PLAN_HISTORY_FILE, planHistory, planReducer, readPlanHistory } from "@/lib/prise/history";
+import { PlanUndo } from "./plan-undo";
 import { mergeTakeIds, planVersions, sequenceTakes, shownTake, takeIdsFromShotNote } from "@/lib/prise/versions";
 import { protocole } from "@/lib/fiabilite";
 import { resolveTakeQuote } from "@/lib/render/billed-quote";
 import { quotesToRecords } from "@/lib/render/measured-quote";
 import { takeProfile, type TakeRendu, type TakeSettings } from "@/lib/render/take-graph";
 import { quoteCredits, readRendu, saveRendu } from "@/lib/prise/rendu";
+import { readPending } from "@/lib/render/recovery";
 import { formatCredits } from "@/lib/credits";
 import { FiabiliteCard, type SentLine } from "./fiabilite-card";
 import { quoteWords } from "./studio-frames";
@@ -65,6 +68,10 @@ interface Draft {
   after: string;
   /** The take marked « Garder ». Other takes stay as versions. */
   garde: string;
+  takeIds?: string[];
+  /** Synchronous seed for a duplicate, before its separate maquette file exists. */
+  maquetteSeed?: string;
+  render?: { phase: "queued" | "running" | "error" | "done"; message: string; jobId?: string };
 }
 
 function fr(value: number): string {
@@ -99,7 +106,7 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
+  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
   const { t, say } = useI18n();
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
@@ -126,11 +133,52 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const memoryProject = useRef<string | null>(null);
   const memorySave = useRef<number>(0);
   const [seed, setSeed] = useState<Seed>("vide");
-  const [drafts, setDrafts] = useState<Draft[]>(() => [blank("plan-01", "Plan 1", "16:9")]);
-  const [currentId, setCurrentId] = useState("plan-01");
+  const [history, setHistory] = useState(() => planHistory<Draft>([blank("plan-01", "Plan 1", "16:9")]));
+  const drafts = history.plans;
+  const currentId = history.currentId;
+  const [plansLoaded, setPlansLoaded] = useState<string | null>(null);
+  const [planSaveState, setSaveState] = useState<"saving" | "saved" | "error">("saved");
   const [dragId, setDragId] = useState<string | null>(null);
-  /** The last deleted plan, for « Annuler » (kept until the next edit of the list). */
-  const [removed, setRemoved] = useState<Removed<Draft> | null>(null);
+  const [receiptBlocked, setReceiptBlocked] = useState(false);
+  useEffect(() => {
+    try { setReceiptBlocked(Boolean(readPending(localStorage))); }
+    catch { setReceiptBlocked(true); }
+  }, [run, creating, ready, plansLoaded]);
+  const saveRevision = useRef(0);
+  const latestPlanSave = useRef(new Map<string, number>());
+  const savedIds = useRef<string[]>([]);
+  const planWrites = useRef<Promise<void>>(Promise.resolve());
+  // System updates (a landed take, hydration) do not consume an undo step.
+  function setDrafts(update: Draft[] | ((list: Draft[]) => Draft[])) {
+    setHistory(state => planReducer(state, { type: "replace", plans: typeof update === "function" ? update(state.plans) : update, record: false }));
+  }
+  function setCurrentId(id: string) { setHistory(state => planReducer(state, { type: "select", id })); }
+  function editPlans(next: Draft[], focus = currentId, group?: string) {
+    setHistory(state => planReducer(state, { type: "replace", plans: next, currentId: focus, group, at: Date.now() }));
+  }
+  function undoPlan() {
+    const next = planReducer(history, { type: "undo" });
+    // Paid jobs and their versions are facts, never something an undo can replay or erase.
+    const restored = { ...next, plans: next.plans.map(item => {
+      const live = drafts.find(plan => plan.id === item.id);
+      return live ? { ...item, hasTake: live.hasTake, takeIds: mergeTakeIds(item.takeIds ?? [], live.takeIds ?? []), render: live.render } : item;
+    }) };
+    setHistory(restored);
+    const selected = restored.plans.find(item => item.id === restored.currentId);
+    if (selected && selected.id === currentId) {
+      setMaquette(state => {
+        let shape = state;
+        for (const figure of shape.figures) if (!selected.input.castIds.includes(figure.id)) shape = removeFigure(shape, figure.id);
+        for (const id of selected.input.castIds) {
+          const person = people.find(item => item.id === id);
+          if (person && !shape.figures.some(figure => figure.id === id)) shape = addFigure(shape, { id, name: person.name });
+        }
+        return shape;
+      });
+      setPlaceCleared(!selected.input.decorId);
+    }
+    setAsk(null);
+  }
   const [panel, setPanel] = useState(false);
   const [mediaKind, setMediaKind] = useState<FinalMedia>("video");
   const [finaliser, setFinaliser] = useState<FinaliserInput>(finaliserDefaults("video", 5));
@@ -147,7 +195,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [previsClip, setPrevisClip] = useState<PrevisClip | null>(null);
   const filming = useRef(false);
   useAgentDraft(op => op.id === "local:take", (draft) => {
-    setDrafts(list => list.map(item => item.id === currentId ? { ...item, input: { ...item.input, action: draft.prompt.slice(0, 240) } } : item));
+    patch({ action: draft.prompt.slice(0, 240) });
     setAsk(null);
   });
 
@@ -179,6 +227,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const seeded = useRef(false);
   const [maquetteLoaded, setMaquetteLoaded] = useState("");
   const maquetteKey = `${studio.project ?? ""}/${currentId}`;
+  const maquetteSeed = drafts.find(item => item.id === currentId)?.maquetteSeed;
   useEffect(() => {
     if (!ready) return;
     let dead = false;
@@ -186,7 +235,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     seeded.current = false;
     void readProjectFile(`.uttu/maquette-${currentId}.json`).then(raw => {
       if (dead) return;
-      const saved = readMaquette(raw);
+      const saved = readMaquette(raw ?? maquetteSeed);
       if (saved) { setMaquette(saved); seeded.current = true; }
       else setMaquette(demo ? initialMaquette() : { ...initialMaquette(), figures: [] });
       setMaquetteLoaded(maquetteKey);
@@ -204,15 +253,16 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     const key = studio.project ?? "";
     if (!ready || booted.current === key) return;
     booted.current = key;
+    setPlansLoaded(null);
     seeded.current = false;
     setMaquette(initialMaquette());
     setPlaceCleared(false);
     const asked = new URLSearchParams(window.location.search).get("prise");
-    if (asked === "compose" || asked === "final") {
+    if (demo && (asked === "compose" || asked === "final")) {
       const next = demoDraft(asked, format, t("p0.action.1"));
       setSeed(asked);
-      setDrafts([next]);
-      setCurrentId(next.id);
+      setHistory(planHistory([next]));
+      setPlansLoaded(key);
       setPanel(asked === "final");
       setFinaliser(finaliserDefaults("video", next.input.duree));
       return;
@@ -220,15 +270,26 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     const target = new URLSearchParams(window.location.search);
     const targetTake = target.get("take");
     const targetPlan = target.get("plan") ?? studio.shots.find(shot => shot.takeIds.includes(targetTake ?? ""))?.id;
-    const stored = studio.shots.filter(shot => shot.composeur || shot.id === targetPlan);
-    if (stored.length === 0) { setDrafts([blank("plan-01", "Plan 1", format)]); setCurrentId("plan-01"); return; }
-    const next = stored
-      .slice()
-      .sort((a, b) => a.ordre - b.ordre)
-      .map(shot => draftFromShot(shot, format));
-    setDrafts(next);
-    setCurrentId(next.find(item => item.id === targetPlan)?.id ?? next[0]?.id ?? "plan-01");
-  }, [ready, format, studio.project, studio.shots, t]);
+    const stored = studio.shots.filter(shot => shot.composeur || shot.id === targetPlan).slice().sort((a, b) => a.ordre - b.ordre);
+    const next = stored.length ? stored.map(shot => draftFromShot(shot, format)) : [blank("plan-01", t("p0.planN", { n: "1" }), format)];
+    savedIds.current = stored.map(shot => shot.id);
+    let dead = false;
+    void readProjectFile(PLAN_HISTORY_FILE).then(raw => {
+      if (dead) return;
+      const saved = readPlanHistory(raw, decodeDraft);
+      const loaded = saved ?? planHistory(next);
+      if (targetPlan && loaded.plans.some(plan => plan.id === targetPlan)) loaded.currentId = targetPlan;
+      setHistory(loaded);
+      setPlansLoaded(key);
+    }).catch(error => {
+      if (dead) return;
+      setHistory(planHistory(next));
+      setPlansLoaded(key);
+      setNotice(error instanceof Error ? error.message : t("p0.saveFailed"));
+    });
+    // Only a project switch/unmount invalidates the read, not a take landing meanwhile.
+    return () => { dead = true; booted.current = null; };
+  }, [ready, studio.project, readProjectFile, demo]);
 
   // The creation bar (mode Vidéo) hands over a sentence, the chosen references and the settings, once.
   const [barre, setBarre] = useState<PriseHandoff | null>(null);
@@ -238,7 +299,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (handed) setBarre(handed);
   }, [ready]);
   useEffect(() => {
-    if (!barre || booted.current !== (studio.project ?? "")) return;
+    // Hydration is asynchronous: applying the handoff before it finishes lets
+    // the saved journal overwrite the sentence and references from the bar.
+    if (!barre || plansLoaded !== (studio.project ?? "")) return;
     const hand = barre;
     setBarre(null);
     if (hand.castIds.concat(hand.decorId ?? "").some(id => DEMO_IDS.has(id))) setSeed("compose");
@@ -261,7 +324,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     }));
     if (hand.decorId) setPlaceCleared(false);
     setAsk(null);
-  }, [barre, currentId, studio.project]);
+  }, [barre, currentId, studio.project, plansLoaded]);
 
   /** Same fill as ?prise=compose: La coursière and Le vieil homme on the quay, framing, camera and action set. */
   function partirExemple() {
@@ -304,7 +367,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
   const castKey = `${drafts.find(item => item.id === currentId)?.input.castIds.join(",") ?? ""}|${people.map(person => `${person.id}:${person.name}`).join(",")}`;
   useEffect(() => {
-    if (maquetteLoaded !== maquetteKey || seeded.current || people.length === 0) return;
+    if (plansLoaded !== (studio.project ?? "") || maquetteLoaded !== maquetteKey || seeded.current || people.length === 0) return;
     const chosenIds = drafts.find(item => item.id === currentId)?.input.castIds ?? [];
     const lead = (chosenIds.length > 0 ? people.find(person => person.id === chosenIds[0]) : people[0]) ?? null;
     if (!lead) return;
@@ -326,7 +389,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         },
       };
     }));
-  }, [maquetteLoaded, maquetteKey, castKey, people, drafts, currentId, places, pickedDecor, t]);
+  }, [plansLoaded, studio.project, maquetteLoaded, maquetteKey, castKey, people, drafts, currentId, places, pickedDecor, t]);
 
   const index = Math.max(0, drafts.findIndex(item => item.id === currentId));
   const draft = drafts[index] ?? drafts[0];
@@ -346,7 +409,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return () => { dead = true; };
   }, [previewPlaceId, readProjectFile]);
   const previous = index > 0 ? drafts[index - 1] : null;
-  const takeIds = studio.shots.find(shot => shot.id === draft?.id)?.takeIds ?? [];
+  const takeIds = mergeTakeIds(draft?.takeIds ?? [], studio.shots.find(shot => shot.id === draft?.id)?.takeIds ?? []);
   // Every take of the plan is a version. The newest is shown when it lands; « Garder » marks the one for the cut.
   const versions = planVersions(takeIds, studio.takes);
   const requestedTake = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("take");
@@ -355,7 +418,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     setDrafts(list => list.map(item => {
       const ids = studio.shots.find(shot => shot.id === item.id)?.takeIds ?? [];
       const hasTake = studio.takes.some(take => ids.includes(take.id));
-      return hasTake === item.hasTake ? item : { ...item, hasTake };
+      const takeIds = mergeTakeIds(item.takeIds ?? [], ids);
+      const available = hasTake || studio.takes.some(take => takeIds.includes(take.id));
+      return available === item.hasTake && takeIds.join() === (item.takeIds ?? []).join() ? item : { ...item, hasTake: available, takeIds };
     }));
   }, [studio.shots, studio.takes]);
   // A take that just landed is shown at once, even if another version was open.
@@ -407,10 +472,47 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
   function patch(partial: Partial<PlanInput>) {
     const next = drafts.map(item => item.id === draft.id ? { ...item, input: { ...input, ...partial, format } } : item);
-    setDrafts(next);
+    editPlans(next, draft.id, Object.keys(partial).length === 1 ? `${draft.id}:${Object.keys(partial)[0]}` : undefined);
     setAsk(null);
-    void persist(next).catch(error => setNotice(error.message));
   }
+
+  // The journal is saved first, then the interoperable Shots notes. All mutations share one queue.
+  useEffect(() => {
+    if (!ready || demo || plansLoaded !== (studio.project ?? "") || !studio.project) return;
+    const revision = ++saveRevision.current;
+    const project = studio.project;
+    latestPlanSave.current.set(project, revision);
+    setSaveState("saving");
+    const previousIds = savedIds.current;
+    // Keep every known id until cleanup succeeds, including after a failed disk write.
+    savedIds.current = [...new Set([...previousIds, ...drafts.map(item => item.id)])];
+    const snapshot = history;
+    const next = planWrites.current.catch(() => {}).then(async () => {
+      // While one save is in flight, keep only the newest queued snapshot per project.
+      if (latestPlanSave.current.get(project) !== revision) return;
+      await writeProjectFile(PLAN_HISTORY_FILE, historyJson(snapshot));
+      for (const id of previousIds) if (!snapshot.plans.some(item => item.id === id)) await deleteShot(id);
+      for (const item of snapshot.plans) await persist(snapshot.plans, item.id);
+    });
+    planWrites.current = next;
+    void next.then(() => { if (saveRevision.current === revision) setSaveState("saved"); }).catch(error => {
+      if (saveRevision.current === revision) setSaveState("error");
+      setNotice(error instanceof Error ? error.message : t("p0.saveFailed"));
+    });
+  }, [history, plansLoaded, ready, demo, studio.project]);
+
+  // A render belongs to its original plan, including after refresh or when another card is open.
+  useEffect(() => {
+    if (!runOrigin || runOrigin.project !== studio.project || run.phase === "idle" || plansLoaded !== (studio.project ?? "")) return;
+    setDrafts(list => list.map(item => {
+      if (item.id !== runOrigin.planId) return item;
+      const render: Draft["render"] = run.phase === "running"
+        ? { phase: run.event.stage === "render" || run.event.stage === "fetch" || run.event.stage === "measure" || run.event.stage === "ready" ? "running" : "queued", message: "", ...("jobId" in run.event ? { jobId: run.event.jobId } : {}) }
+        : run.phase === "error" ? { phase: "error", message: say(run.message), jobId: item.render?.jobId }
+        : { phase: "done", message: "", jobId: item.render?.jobId };
+      return JSON.stringify(render) === JSON.stringify(item.render) ? item : { ...item, render };
+    }));
+  }, [run, runOrigin, studio.project, plansLoaded, drafts.map(item => item.id).join(",")]);
 
   useEffect(() => {
     setDrafts(list => list.map(item => item.input.format === format ? item : { ...item, input: { ...item.input, format } }));
@@ -443,8 +545,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     decorName: shownPlace?.name ?? "",
     decorNote: shownPlace?.note ?? "",
     // Geometry from the 3D view wins: never hardcode close-up when the camera is far.
-    cadrage: (cadrageFromOrbit(maquette.orbit, maquette.figures) as PlanInput["cadrage"]),
-    camera: tuileById(maquette.tuile).camera,
+    cadrage: draft.input.manualFraming ? draft.input.cadrage : (cadrageFromOrbit(maquette.orbit, maquette.figures) as PlanInput["cadrage"]),
+    camera: draft.input.manualCamera ? draft.input.camera : tuileById(maquette.tuile).camera,
     speakerName: draft.input.speakerName || maquette.figures[0]?.name || "",
     previousKept: Boolean(previous && (previous.kept || previous.finalised)),
     hasKeptTake: draft.kept || draft.finalised,
@@ -466,7 +568,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       previousInPlace: Boolean(prev && (prev.kept || prev.finalised || prev.hasTake) && prev.input.decorId && prev.input.decorId === plan.decorId),
       format: plan.format,
     });
-    const pick = cameraPick[planId];
+    const pick = plan.manualCamera ? plan.camera : cameraPick[planId];
     const lines = ambianceOff[planId] ? decided.promptLines.filter(line => !line.startsWith("[ambiance]")) : decided.promptLines;
     return { read, inherited, decided, extra: { lines, camera: pick === undefined ? undefined : pick === "none" ? null : pick } };
   }
@@ -477,7 +579,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const essai = decide(input, "essai");
   const fin = chooseFinaliser({ ...finaliser, media: mediaKind, seconds: input.duree });
   const showFinal = draft.finalised;
-  const cadre = [captureLine(maquette, tuileById(maquette.tuile).prompt), quartier ? t("r7.rue") : ""].filter(Boolean).join(" ");
+  const cadre = input.manualFraming || input.manualCamera ? "" : [captureLine(maquette, tuileById(maquette.tuile).prompt), quartier ? t("r7.rue") : ""].filter(Boolean).join(" ");
   const prompt = buildPrompt(input, showFinal ? { graph: fin.graph, son: false } : cardDecision, { cadre, ...intention.extra });
   const tip = astuce(maquette);
   const tileLabels = TUILES.map(item => ({ id: item.id, label: t(`r7.tuile.${item.id}`) }));
@@ -496,20 +598,22 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const quoted = planQuote.source !== "unmeasured";
   const realRefs = input.castIds.length <= 3 && input.castIds.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
   const savedDecor = !input.decorId || studio.scenes.some(scene => scene.id === input.decorId);
-  const runPlan = pendingTake?.planId ?? null;
+  const runPlan = sheet === "confirm" ? pendingTake?.planId ?? null : runOrigin?.project === studio.project ? runOrigin.planId : null;
   const busy = run.phase === "running";
   const priseElapsed = useComfyElapsed(busy);
-  const runningHere = busy && (!runPlan || runPlan === draft.id);
-  const failedHere = run.phase === "error" && (!runPlan || runPlan === draft.id);
-  const canGenerate = !demo && !creating && !busy && quoted && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
+  const runningHere = busy && runPlan === draft.id;
+  const failedHere = draft.render?.phase === "error" || (run.phase === "error" && runPlan === draft.id);
+  const canGenerate = !demo && !creating && !busy && !receiptBlocked && quoted && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
   const generateReason = demo ? t("p0.why.demo")
     : busy ? t("p0.why.busy")
+    : receiptBlocked ? t("recovery.blocked")
     : !quoted ? t(engine === "h3" ? "p0.why.h3Format" : "p0.why.noQuote")
     : !realRefs ? t("p0.why.refs")
     : !savedDecor ? t("p0.why.decorExample")
     : t("p0.why.nothing");
 
   function cameraLine(plan: PlanInput): SentLine {
+    if (plan.manualCamera) return { label: t("p0.fiab.sentCamera"), value: t(`p0.camera.move.${plan.camera}`) };
     const choice = cameraChoice(plan.action, plan.camera);
     const move = choice.move ? t(`p0.camera.move.${choice.move}`) : "";
     const value = choice.source === "texte"
@@ -543,8 +647,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   async function generate() {
     if (!canGenerate) return;
     try {
+      await planWrites.current;
       await persist(drafts.map(item => item.id === draft.id ? { ...item, input } : item));
-      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre, ...intention.extra }).text, settings: planSettings, resume: resumeFor(input), change: changeFor(input), extraRefs: intention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path) });
+      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre, ...intention.extra }).text, settings: planSettings, resume: resumeFor(input), change: changeFor(input), extraRefs: intention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: input.framingRef });
     } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
@@ -555,31 +660,31 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const canNext = canGenerate && nextAction.trim().length > 0;
   async function tournerSuivant() {
     if (!canNext) return;
-    let n = nextNumber;
-    while (drafts.some(item => item.id === `plan-${String(n).padStart(2, "0")}`)) n += 1;
-    const id = `plan-${String(n).padStart(2, "0")}`;
+    const n = nextNumber;
+    const id = nextPlanId(reservedPlanIds());
     const nextInput: PlanInput = { ...input, action: nextAction.trim().slice(0, ACTION_MAX), imageCle: "aucune", enchainer: false, imageFin: false, hasKeptTake: false, previousKept: Boolean(draft.kept) };
     const item: Draft = { ...blank(id, `Plan ${n}`, format), input: nextInput };
     const next = [...drafts, item];
     try {
       await writeProjectFile(`.uttu/maquette-${id}.json`, maquetteJson(maquette));
-      setDrafts(next);
-      setCurrentId(id);
+      editPlans(next, id);
       setNextAction("");
       await persist(next, id);
       const nextIntention = intentionFor(nextInput.action, id, nextInput);
       const nextSettings: TakeSettings = { ...planSettings, engine: nextIntention.decided.engine };
-      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre, ...nextIntention.extra }).text, settings: nextSettings, resume: resumeFor(nextInput, id), change: changeFor(nextInput, id), extraRefs: nextIntention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path) });
+      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre, ...nextIntention.extra }).text, settings: nextSettings, resume: resumeFor(nextInput, id), change: changeFor(nextInput, id), extraRefs: nextIntention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: nextInput.framingRef });
     } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
   function planWord(item: Draft): string {
+    if (item.render && item.render.phase !== "done") return t(`p0.editor.states.${item.render.phase}`);
     const mark = etatOf(item);
+    if (item.hasTake && !item.kept && !item.finalised) return t("p0.editor.states.done");
     if (mark !== "vide") return t(`p0.etat.${mark}`);
     const live = item.id === draft.id;
     const filled = Boolean(item.input.action.trim() || item.input.castIds.length > 0 || item.input.decorId)
       || (live && (maquette.figures.length > 0 || Boolean(shownPlace)));
-    return filled ? t("r7.enPlace") : t("p0.etat.vide");
+    return filled ? t("r7.enPlace") : t("p0.editor.states.draft");
   }
   const total = drafts.reduce((sum, item) => sum + item.input.duree, 0);
   const planLabel = t("p0.planN", { n: String(index + 1) });
@@ -599,7 +704,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       input: { ...shot.input, format },
       graph: decision.graph ?? "",
       pourquoi: decision.pourquoi,
-      takeIds: mergeTakeIds(studio.shots.find(item => item.id === shot.id)?.takeIds ?? [], onDisk),
+      takeIds: mergeTakeIds(shot.takeIds ?? [], studio.shots.find(item => item.id === shot.id)?.takeIds ?? [], onDisk),
       garde: shot.garde,
       imageCle: shot.before,
       imageFin: "",
@@ -609,69 +714,39 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   }
 
   function addPlan() {
-    const n = drafts.length + 1;
-    const id = `plan-${String(n).padStart(2, "0")}`;
-    const next = [...drafts, blank(id, `Plan ${n}`, format)];
-    setDrafts(next);
-    setCurrentId(id);
+    const id = nextPlanId(reservedPlanIds());
+    const next = [...drafts, blank(id, t("p0.planN", { n: String(drafts.length + 1) }), format)];
+    editPlans(next, id);
     setPanel(false);
-    void persist(next, id).catch(error => setNotice(error.message));
   }
 
   function dropOn(id: string) {
     if (!dragId || dragId === id) return;
     const order = moveId(drafts.map(item => item.id), dragId, id);
-    const next = order.flatMap(key => {
-      const found = drafts.find(item => item.id === key);
-      return found ? [found] : [];
-    });
-    setDrafts(next);
+    editPlans(order.flatMap(key => drafts.find(item => item.id === key) ?? []));
     setDragId(null);
-    void Promise.all(next.map(item => persist(next, item.id))).catch(error => setNotice(error.message));
   }
-
-  const saveOrder = (next: Draft[]) => Promise.all(next.map(item => persist(next, item.id))).catch(error => setNotice(error instanceof Error ? error.message : t("p0.saveFailed")));
 
   function deletePlanAt(id: string) {
-    const { next, removed: gone } = removePlan(drafts, id);
-    if (!gone) return;
-    const list = next.length ? next : [blank(nextPlanId(drafts.map(item => item.id)), t("p0.planN", { n: "1" }), format)];
-    setDrafts(list);
-    setRemoved(gone);
-    if (currentId === id) setCurrentId(list[Math.min(gone.at, list.length - 1)].id);
-    setPanel(false);
-    // The note goes; its takes stay in the vault, so « Annuler » brings everything back.
-    void deleteShot(id).then(() => saveOrder(list)).catch(error => setNotice(error instanceof Error ? error.message : t("p0.saveFailed")));
-  }
-
-  function undoDelete() {
+    const { next, removed } = removePlan(drafts, id);
     if (!removed) return;
-    // Deleting the only plan left an empty placeholder: « Annuler » replaces it.
-    const placeholder = drafts.length === 1 && !drafts[0].hasTake && !drafts[0].input.action.trim();
-    const next = restorePlan(placeholder ? [] : drafts, removed);
-    setDrafts(next);
-    setCurrentId(removed.item.id);
-    setRemoved(null);
-    void saveOrder(next);
-  }
-
-  async function duplicateAt(id: string) {
-    const { next, id: copy } = duplicatePlan(drafts, id, (source, newId) => ({ ...blank(newId, `${source.name} · ${t("p0.plans.copy")}`, format), input: { ...source.input, hasKeptTake: false } }));
-    if (!copy) return;
-    const shape = await readProjectFile(`.uttu/maquette-${id}.json`).catch(() => undefined);
-    if (shape) await writeProjectFile(`.uttu/maquette-${copy}.json`, shape).catch(() => undefined);
-    setDrafts(next);
-    setCurrentId(copy);
-    setRemoved(null);
+    const list = next.length ? next : [blank(nextPlanId(reservedPlanIds()), t("p0.planN", { n: "1" }), format)];
+    editPlans(list, currentId === id ? list[Math.min(removed.at, list.length - 1)].id : currentId);
     setPanel(false);
-    void saveOrder(next);
   }
 
-  function moveAt(id: string, dir: -1 | 1) {
-    const next = stepMove(drafts, id, dir);
-    setDrafts(next);
-    setRemoved(null);
-    void saveOrder(next);
+  function duplicateAt(id: string) {
+    const { next, id: copy } = duplicatePlan(drafts, id, (source, newId) => ({ ...blank(newId, `${source.name} · ${t("p0.plans.copy")}`, format), input: { ...structuredClone(source.input), imageCle: "aucune" as const, hasKeptTake: false }, maquetteSeed: maquetteJson(maquette) }), reservedPlanIds());
+    if (!copy) return;
+    // The seed travels with the draft; an asynchronous copy cannot race its first load.
+    editPlans(next, copy);
+    setPanel(false);
+  }
+
+  function moveAt(id: string, dir: -1 | 1) { editPlans(stepMove(drafts, id, dir)); }
+
+  function reservedPlanIds(): string[] {
+    return [...new Set([...drafts.map(item => item.id), ...history.past.flatMap(step => step.plans.map(item => item.id)), ...studio.shots.map(item => item.id), ...(runOrigin?.project === studio.project ? [runOrigin.planId] : [])])];
   }
 
   function onWho(id: string) {
@@ -779,7 +854,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   }
 
   // « Monter la séquence »: every plan goes to the cut in order, with its kept take (else its newest take).
-  const sequence = sequenceTakes(drafts.map(item => ({ id: item.id, garde: item.garde })), studio.shots, studio.takes);
+  const sequenceShots = drafts.map(item => ({ id: item.id, takeIds: mergeTakeIds(item.takeIds ?? [], studio.shots.find(shot => shot.id === item.id)?.takeIds ?? []) }));
+  const sequence = sequenceTakes(drafts.map(item => ({ id: item.id, garde: item.garde })), sequenceShots, studio.takes);
   const withTake = sequence.filter(entry => entry.take).length;
   function stillOf(plan: PlanInput): string {
     return places.find(place => place.id === plan.decorId)?.src
@@ -799,14 +875,15 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return () => { gone = true; };
   }, [frameKey]);
   const canMonter = !sending && (withTake > 0 || Boolean(stillOf(input)));
-  async function monter() {
+  async function monter(keptOverride?: { planId: string; takeId: string }) {
     if (!canMonter) return;
     setSending(true);
     try {
-      const live = drafts.map(item => item.id === draft.id ? { ...item, input } : item);
+      const live = drafts.map(item => ({ ...(item.id === draft.id ? { ...item, input } : item), ...(keptOverride?.planId === item.id ? { kept: true, garde: keptOverride.takeId } : {}) }));
+      const chosen = sequenceTakes(live.map(item => ({ id: item.id, garde: item.garde })), sequenceShots, studio.takes);
       await persist(live);
       await sendSequence(live.map((item, at) => {
-        const entry = sequence[at];
+        const entry = chosen[at];
         const plan = item.input;
         return {
           takeId: entry?.take?.id,
@@ -830,8 +907,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
   function keep(takeId: string) {
     const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true, garde: takeId } : item);
-    setDrafts(next);
-    void persist(next).catch(error => setNotice(error.message));
+    editPlans(next);
   }
 
   async function keepAndMontage(takeId: string) {
@@ -840,7 +916,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       setNotice(t("p0.montageWait"));
       return;
     }
-    await monter();
+    await monter({ planId: draft.id, takeId });
   }
 
   // Demo keeps its illustrative quote; production shows the plan's own single estimate.
@@ -857,7 +933,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         : { prepared: Boolean(input.castIds.length || shownPlace), checked: canGenerate, quoted: quoted && !demo, confirming: sheet === "confirm" && runPlan === draft.id });
   const versionIndex = landed ? versions.findIndex(take => take.id === landed.id) + 1 : 0;
   const where = landed ? t("p0.fiab.whereTake", { plan: planLabel, n: versionIndex, total: versions.length }) : "";
-  const failure = failedHere && run.phase === "error" ? say(run.message) : "";
+  const failure = failedHere ? draft.render?.message || (run.phase === "error" ? say(run.message) : "") : "";
 
   type Action = { label: string; enabled: boolean; reason: string; onClick(): void; mark: string };
   const monterAction: Action = { label: withTake > 0 ? t("p0.monter", { count: withTake }) : t("p0.monterStill"), enabled: canMonter, reason: "", onClick: () => void monter(), mark: "monter" };
@@ -871,9 +947,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   else { gold = { label: planCredits === null ? t("p0.tourner") : t("p0.rendu.go", { credits: formatCredits(planCredits) }), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
   const reasonText = gold.enabled ? "" : gold.reason;
 
-  return <section className="u-stage u-prise" data-section="prise" data-prise-shell="" data-prise-ready={ready ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
-    <aside className="u-prise-strip" aria-label={t("p0.plans")}>
-      <p className="u-label">{t("p0.plans")}</p>
+  return <section className="u-stage u-prise" data-section="prise" data-prise-shell="" data-prise-ready={ready && plansLoaded === (studio.project ?? "") ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
+    <aside className="u-prise-strip" aria-label={t("p0.plans.label")}>
+      <p className="u-label">{t("p0.plans.label")}</p>
       <div className="u-prise-film">
         {drafts.map((item, at) => {
           const mark = etatOf(item);
@@ -889,6 +965,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
             aria-current={item.id === draft.id ? "true" : undefined}
             data-etat={mark}
             data-plan={item.id}
+            aria-label={`${item.name} · ${word}`}
+            data-render-state={item.render?.phase ?? (item.hasTake ? "done" : "draft")}
             onDragStart={() => setDragId(item.id)}
             onDragOver={event => event.preventDefault()}
             onDrop={() => dropOn(item.id)}
@@ -897,18 +975,22 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
             <span className="u-plan-num">{String(at + 1)}</span>
             <span className={thumb ? "u-plan-thumb" : "u-plan-thumb is-empty"}>{thumb ? <img src={thumb} alt="" /> : null}</span>
             <span className="u-plan-etat">{word}</span>
+            <span className="u-plan-name">{item.name}</span>
+            {(item.render?.phase === "queued" || item.render?.phase === "running") && <progress aria-label={word} />}
             <span className="u-plan-time">{item.input.duree} s</span>
           </button>;
         })}
         <button type="button" className="u-plan-add" onClick={addPlan}>{t("p0.addPlan")}</button>
       </div>
       {!demo && <div className="u-plan-tools" role="group" aria-label={t("p0.plans.tools", { n: String(index + 1) })} data-plan-tools="">
+        {history.past.length > 0 && <button type="button" className="u-secondary" data-plan-undo-action="" onClick={undoPlan}>{t("p0.plans.undo")}</button>}
         {drafts.length < 12 && <button type="button" className="u-secondary" data-plan-duplicate="" onClick={() => void duplicateAt(draft.id)}>{t("p0.plans.duplicate")}</button>}
         {index > 0 && <button type="button" className="u-secondary" data-plan-up="" aria-label={t("p0.plans.up")} onClick={() => moveAt(draft.id, -1)}>↑</button>}
         {index < drafts.length - 1 && <button type="button" className="u-secondary" data-plan-down="" aria-label={t("p0.plans.down")} onClick={() => moveAt(draft.id, 1)}>↓</button>}
         <button type="button" className="u-secondary" data-plan-delete="" onClick={() => deletePlanAt(draft.id)}>{t("p0.plans.delete")}</button>
       </div>}
-      {removed && <p className="u-plan-undo" role="status" data-plan-undo="">{t("p0.plans.deleted", { name: removed.item.name })} <button type="button" className="u-secondary" onClick={undoDelete}>{t("p0.plans.undo")}</button></p>}
+      {!demo && history.revision > 0 && history.past.length > 0 && <PlanUndo revision={history.revision} text={t("p0.editor.changed")} label={t("p0.plans.undo")} onUndo={undoPlan} />}
+      {!demo && <p className="u-plan-save" role="status" data-plan-save={planSaveState}>{t(`p0.editor.save.${planSaveState}`)}</p>}
       <p className="u-plan-sum">{t("p0.sequenceSum", { time: clock(total), count: drafts.length })}</p>
     </aside>
 
@@ -919,6 +1001,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <ComfyProgress label={t("job.running")} elapsedSec={priseElapsed} typicalSec={typicalFor("prise")} note={t("finaliser.keepOpen")} marker="prise" />
         <button type="button" className="u-link" onClick={cancelRun}>{t("job.stopWaiting")}</button>
       </div>}
+      {failedHere && <div className="u-plan-error" role="alert" data-plan-error=""><p>{failure}</p>{receiptBlocked
+        ? <button type="button" className="u-secondary" data-plan-recover="" onClick={resumeRun}>{t("p0.editor.recover")}</button>
+        : <><button type="button" className="u-secondary" data-plan-retry="" disabled={!canGenerate} aria-describedby={!canGenerate ? "u-plan-retry-why" : undefined} onClick={() => void generate()}>{t("p0.editor.retry")}</button>{!canGenerate && <p id="u-plan-retry-why" className="u-why">{generateReason}</p>}</>}</div>}
       {landed && <div className="u-take-view" data-take-view={landed.id} data-versions={versions.length} data-media-ready={media[landed.video] ? "true" : "false"}>
         <p className="u-label">{t("p0.takeOf", { n: versionIndex, total: versions.length })}{draft.garde === landed.id ? ` · ${t("p0.kept")}` : ""}</p>
         {media[landed.video]
@@ -959,6 +1044,21 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <p className="u-plan-etat">{planWord(draft)}</p>
       </header>
       {montrerDepart({ mesAssets: cast.length + decor.length + studio.shots.filter(shot => shot.composeur).length, rempli: seed !== "vide" }) && <ExempleDepart etape="prise" onStart={partirExemple} />}
+
+      {!demo && <details className="u-fold u-plan-editor" data-plan-editor={draft.id}>
+        <summary>{t("p0.editor.title")}</summary>
+        <div className="u-plan-fields">
+          <label>{t("p0.editor.name")}<input aria-label={t("p0.editor.name")} maxLength={80} value={draft.name} onChange={event => editPlans(drafts.map(item => item.id === draft.id ? { ...item, name: event.target.value } : item), draft.id, `${draft.id}:title`)} /></label>
+          <label>{t("p0.editor.framing")}<select aria-label={t("p0.editor.framing")} value={input.cadrage} onChange={event => patch({ cadrage: event.target.value as Cadrage, manualFraming: true })}>{CADRAGES.map(value => <option key={value} value={value}>{t(`p0.editor.framings.${value}`)}</option>)}</select></label>
+          <label>{t("p0.editor.angle")}<select aria-label={t("p0.editor.angle")} value={input.angle ?? "niveau"} onChange={event => patch({ angle: event.target.value as PlanInput["angle"] })}>{(["niveau", "plongee", "contre-plongee"] as const).map(value => <option key={value} value={value}>{t(`p0.editor.angles.${value}`)}</option>)}</select></label>
+          <label>{t("p0.editor.move")}<select aria-label={t("p0.editor.move")} value={input.camera} onChange={event => patch({ camera: event.target.value as CameraMove, manualCamera: true })}>{CAMERAS.map(value => <option key={value} value={value}>{t(`p0.camera.move.${value}`)}</option>)}</select></label>
+          <label>{t("p0.editor.position")}<input aria-label={t("p0.editor.position")} maxLength={160} placeholder={t("p0.editor.positionHint")} value={input.cameraPosition ?? ""} onChange={event => patch({ cameraPosition: event.target.value })} /></label>
+          <label>{t("p0.duration")}<select aria-label={t("p0.editor.duration")} value={input.duree} onChange={event => patch({ duree: Number(event.target.value) as PlanInput["duree"] })}><option value="5">5 s</option>{input.duree === 8 && <option value="8">8 s</option>}<option value="10">10 s</option></select></label>
+          <label className="u-plan-field-wide">{t("p0.editor.reference")}<select aria-label={t("p0.editor.reference")} value={input.framingRef ?? ""} onChange={event => patch({ framingRef: event.target.value })}><option value="">{t("p0.editor.none")}</option>{Object.keys(media).filter(path => /\.(png|jpe?g|webp)$/i.test(path)).map(path => <option key={path} value={path}>{cast.find(card => card.sheet === path || card.photos.includes(path))?.name ?? studio.scenes.find(scene => [scene.render, ...scene.stills, ...scene.views, ...scene.frames].includes(path))?.name ?? path.split("/").pop()}</option>)}</select></label>
+        </div>
+        {input.framingRef && media[input.framingRef] && <img className="u-plan-ref" src={media[input.framingRef]} alt={t("p0.editor.reference")} />}
+        <p className="u-why">{t("p0.editor.referencesHint")}</p>
+      </details>}
 
       <Row className="u-who-row" label={t("p0.who")}>
         <div className="u-choice-row u-who">
@@ -1014,7 +1114,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           names={maquette.figures.map(figure => figure.name)}
           place={shownPlace?.name ?? ""}
           camera={(() => {
-            const pick = cameraPick[draft.id];
+            const pick = input.manualCamera ? input.camera : cameraPick[draft.id];
             const move = pick === undefined ? (intention.read.camera.move ?? cameraChoice(input.action, input.camera).move) : pick === "none" ? null : pick;
             const label = move ? t(`p0.camera.move.${move}`) : t("p1.chip.cameraFree");
             return { value: pick ?? "auto", label: move === "orbite" && intention.read.camera.degrees && pick === undefined ? t("p1.chip.degrees", { move: label, degrees: intention.read.camera.degrees }) : label, autoLabel: t("p1.chip.cameraWords") };
@@ -1028,12 +1128,18 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           t={t}
           onWho={() => document.querySelector<HTMLElement>(".u-who-row button")?.focus()}
           onWhere={() => document.querySelector<HTMLElement>(".u-where button")?.focus()}
-          onCamera={value => setCameraPick(map => {
-            const next = { ...map };
-            if (value === "auto") delete next[draft.id];
-            else next[draft.id] = value as CameraMove | "none";
-            return next;
-          })}
+          onCamera={value => {
+            if (value !== "auto" && value !== "none") patch({ camera: value as CameraMove, manualCamera: true });
+            else {
+              patch({ manualCamera: false });
+              setCameraPick(map => {
+                const next = { ...map };
+                if (value === "none") next[draft.id] = "none";
+                else delete next[draft.id];
+                return next;
+              });
+            }
+          }}
           onDropAmbiance={() => setAmbianceOff(map => ({ ...map, [draft.id]: true }))}
           onDuree={seconds => patch({ duree: seconds })}
           onUnknown={goCast}
@@ -1153,7 +1259,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
 
         <Row label={t("p0.duration")}>
           <div className="u-choice-row u-duree">
-            {([5, 8] as const).map(seconds => (
+            {([5, ...(input.duree === 8 ? [8 as const] : []), 10] as const).map(seconds => (
               <button key={seconds} type="button" className="u-chip" aria-pressed={input.duree === seconds} onClick={() => patch({ duree: seconds })}>{seconds} s</button>
             ))}
           </div>
@@ -1203,7 +1309,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <p className="u-prise-brief" data-lire-maquette="">
           <span>{t("r7.lireCast")} : {maquette.figures.map(figure => figure.name).join(", ") || "—"}</span>
           <span>{t("r7.lireLieu")} : {shownPlace?.name || "—"}{quartier ? ` · ${t("r7.rue")}` : ""}</span>
-          <span>{t("r7.lireCadrage")} : {t(`r7.tuile.${maquette.tuile}`)}</span>
+          <span>{t("r7.lireCadrage")} : {input.manualFraming ? t(`p0.editor.framings.${input.cadrage}`) : t(`r7.tuile.${maquette.tuile}`)}</span>
         </p>
         <FiabiliteCard
           states={states}
@@ -1298,6 +1404,7 @@ function draftFromShot(shot: Shot, format: PlanInput["format"]): Draft {
     input,
     kept: state.etat === "gardee" || state.etat === "finalisee" || Boolean(state.garde),
     finalised: state.etat === "finalisee",
+    takeIds: shot.takeIds,
     hasTake: state.etat === "prise" || state.etat === "gardee" || state.etat === "finalisee" || shot.takeIds.length > 0,
     before: state.before,
     after: state.after,
@@ -1348,8 +1455,8 @@ function IntentionChips(props: {
   names: string[]; place: string;
   camera: { value: string; label: string; autoLabel: string };
   moves: { move: CameraMove; label: string }[];
-  ambiance: string[]; duree: 5 | 8; unknown: string[]; line: string[]; flags: string[]; t: T;
-  onWho(): void; onWhere(): void; onCamera(value: string): void; onDropAmbiance(): void; onDuree(seconds: 5 | 8): void; onUnknown(): void;
+  ambiance: string[]; duree: 5 | 8 | 10; unknown: string[]; line: string[]; flags: string[]; t: T;
+  onWho(): void; onWhere(): void; onCamera(value: string): void; onDropAmbiance(): void; onDuree(seconds: 5 | 8 | 10): void; onUnknown(): void;
 }) {
   const { t } = props;
   return <div className="u-intent" data-intention="">
@@ -1368,9 +1475,10 @@ function IntentionChips(props: {
         ? <button type="button" className="u-ichip" data-chip="ambiance" aria-label={t("p1.chip.drop", { label: props.ambiance.join(", ") })} onClick={props.onDropAmbiance}><small>{t("p1.chip.ambiance")}</small><b>{props.ambiance.join(", ")} <span aria-hidden="true">×</span></b></button>
         : <span className="u-ichip is-empty" data-chip="ambiance"><small>{t("p1.chip.ambiance")}</small><b>{t("p1.chip.none")}</b></span>}
       <label className="u-ichip u-ichip-select" data-chip="duree"><small>{t("p1.chip.duration")}</small><b aria-hidden="true">{t("p1.chip.sec", { n: props.duree })}</b>
-        <select aria-label={t("p1.chip.duration")} value={props.duree} onChange={event => props.onDuree(event.target.value === "8" ? 8 : 5)}>
+        <select aria-label={t("p1.chip.duration")} value={props.duree} onChange={event => props.onDuree(event.target.value === "10" ? 10 : event.target.value === "8" ? 8 : 5)}>
           <option value="5">{t("p1.chip.sec", { n: 5 })}</option>
-          <option value="8">{t("p1.chip.sec", { n: 8 })}</option>
+          {props.duree === 8 && <option value="8">{t("p1.chip.sec", { n: 8 })}</option>}
+          <option value="10">{t("p1.chip.sec", { n: 10 })}</option>
         </select>
       </label>
       {props.unknown.map(word => <button key={word} type="button" className="u-ichip is-unknown" data-chip="inconnu" aria-label={t("p1.chip.unknownGo", { word })} onClick={props.onUnknown}><small>{t("p1.chip.unknown")}</small><b>{word}</b></button>)}
@@ -1426,4 +1534,21 @@ function AvanceGroup({ id, title, children, ask = 0 }: { id: string; title: stri
     <button type="button" className="u-fold-head" data-avance-toggle={id} aria-expanded={open} aria-controls={bodyId} onClick={event => { setOpen(current => !current); event.currentTarget.scrollIntoView({ block: "nearest" }); }}>{title}</button>
     <div id={bodyId} className="u-avance-body" hidden={!open}>{children}</div>
   </section>;
+}
+
+function decodeDraft(value: unknown): Draft | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Draft;
+  if (typeof item.id !== "string" || !/^[a-z0-9-]{1,80}$/i.test(item.id) || typeof item.name !== "string" || !item.input || !Array.isArray(item.input.castIds)) return null;
+  const input = planFromJson(JSON.stringify({ ...item.input, qui: item.input.castIds, ou: item.input.decorId }), emptyPlan());
+  return {
+    ...blank(item.id, item.name.slice(0, 80), input.format), input,
+    kept: item.kept === true, finalised: item.finalised === true, hasTake: item.hasTake === true,
+    garde: typeof item.garde === "string" ? item.garde : "",
+    before: typeof item.before === "string" && !item.before.startsWith("blob:") ? item.before : "",
+    after: typeof item.after === "string" && !item.after.startsWith("blob:") ? item.after : "",
+    takeIds: Array.isArray(item.takeIds) ? item.takeIds.filter(id => typeof id === "string") : [],
+    ...(typeof item.maquetteSeed === "string" && readMaquette(item.maquetteSeed) ? { maquetteSeed: item.maquetteSeed } : {}),
+    render: item.render && ["queued", "running", "error", "done"].includes(item.render.phase) ? { phase: item.render.phase, message: String(item.render.message ?? "").slice(0, 2000), ...(typeof item.render.jobId === "string" ? { jobId: item.render.jobId } : {}) } : undefined,
+  };
 }

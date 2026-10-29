@@ -14,7 +14,7 @@ export const TAKE_MODELS = {
 
 export const TAKE_PICTURES_MAX = 9;
 export const TAKE_FPS = 24;
-export const TAKE_SECONDS = [5, 8] as const;
+export const TAKE_SECONDS = [5, 8, 10] as const;
 export const TAKE_STEPS = { fine: 20, rapide: 4 } as const;
 export const TAKE_ASPECTS = {
   vertical: "9:16 (Portrait Widescreen)",
