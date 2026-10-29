@@ -2471,7 +2471,11 @@
       "video": "une vidéo",
       "audio": "un son",
       "start": "une image de départ",
-      "end": "une image d’arrivée"
+      "end": "une image d’arrivée",
+      "sujet": "un portrait",
+      "lumiere": "une image dont prendre la lumière",
+      "personnage": "un personnage",
+      "lieu": "un lieu"
     },
     "prompt": "Consigne",
     "refs": "Références",
@@ -2783,6 +2787,14 @@
       "ret-eclairer-ouvert": {
         "title": "Changer la lumière",
         "line": "Même portrait, nouvel éclairage."
+      },
+      "ret-lumiere-image": {
+        "title": "Copier la lumière d’une image",
+        "line": "Ton portrait, éclairé comme une autre image."
+      },
+      "vid-fasth3": {
+        "title": "Vidéo fidèle au lieu",
+        "line": "Ton personnage dans ton lieu, décor gardé."
       }
     },
     "latest": "Derniers résultats",
@@ -2810,7 +2822,9 @@
       "ret-eclairer-ouvert": "Lumière par consigne",
       "ret-eclairer": "Portrait studio",
       "vid-h3-refs": "Fidèle, économique",
-      "vid-vidu": "Deux images mêlées"
+      "vid-vidu": "Deux images mêlées",
+      "ret-lumiere-image": "Lumière d’une image",
+      "vid-fasth3": "Lieu plus fidèle (multi-références)"
     },
     "model": "Modèle",
     "modelChange": "Changer de modèle",
@@ -2824,7 +2838,11 @@
     "rowLess": "Réduire",
     "slot": {
       "start": "Image de départ",
-      "end": "Image d’arrivée"
+      "end": "Image d’arrivée",
+      "sujet": "Portrait",
+      "lumiere": "Lumière à copier",
+      "personnage": "Personnage",
+      "lieu": "Lieu"
     },
     "costWait": "durée en cours de lecture…",
     "camera": {

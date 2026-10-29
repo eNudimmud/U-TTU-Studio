@@ -5439,6 +5439,698 @@ export const TOP10_BASES: Record<string, ApiGraph> = {
    }
   }
  },
+ "templates-portrait_light_migration": {
+  "5": {
+   "_meta": {
+    "title": "Save Image"
+   },
+   "class_type": "SaveImage",
+   "inputs": {
+    "filename_prefix": "ComfyUI-light_migration",
+    "images": [
+     "471:118",
+     0
+    ]
+   }
+  },
+  "6": {
+   "_meta": {
+    "title": "Load Lighting Image"
+   },
+   "class_type": "LoadImage",
+   "inputs": {
+    "image": "woman_with_sunbeam.jpg"
+   }
+  },
+  "7": {
+   "_meta": {
+    "title": "Load Subject Image"
+   },
+   "class_type": "LoadImage",
+   "inputs": {
+    "image": "women_with_blue_orb.jpg"
+   }
+  },
+  "471:110": {
+   "_meta": {
+    "title": "CFGNorm"
+   },
+   "class_type": "CFGNorm",
+   "inputs": {
+    "model": [
+     "471:115",
+     0
+    ],
+    "strength": 1
+   }
+  },
+  "471:111": {
+   "_meta": {
+    "title": "VAELoader"
+   },
+   "class_type": "VAELoader",
+   "inputs": {
+    "vae_name": "qwen_image_vae.safetensors"
+   }
+  },
+  "471:112": {
+   "_meta": {
+    "title": "CLIPLoader"
+   },
+   "class_type": "CLIPLoader",
+   "inputs": {
+    "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "device": "default",
+    "type": "qwen_image"
+   }
+  },
+  "471:113": {
+   "_meta": {
+    "title": "UNETLoader"
+   },
+   "class_type": "UNETLoader",
+   "inputs": {
+    "unet_name": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
+    "weight_dtype": "default"
+   }
+  },
+  "471:114": {
+   "_meta": {
+    "title": "TextEncodeQwenImageEditPlus"
+   },
+   "class_type": "TextEncodeQwenImageEditPlus",
+   "inputs": {
+    "clip": [
+     "471:112",
+     0
+    ],
+    "image1": [
+     "471:120",
+     0
+    ],
+    "prompt": "",
+    "vae": [
+     "471:111",
+     0
+    ],
+    "image2": [
+     "6",
+     0
+    ]
+   }
+  },
+  "471:115": {
+   "_meta": {
+    "title": "ModelSamplingAuraFlow"
+   },
+   "class_type": "ModelSamplingAuraFlow",
+   "inputs": {
+    "model": [
+     "471:440",
+     0
+    ],
+    "shift": 3.1
+   }
+  },
+  "471:116": {
+   "_meta": {
+    "title": "TextEncodeQwenImageEditPlus"
+   },
+   "class_type": "TextEncodeQwenImageEditPlus",
+   "inputs": {
+    "clip": [
+     "471:112",
+     0
+    ],
+    "image1": [
+     "471:120",
+     0
+    ],
+    "prompt": "参考色调，移除图1原有的光照并参考图2的光照和色调对图1重新照明",
+    "vae": [
+     "471:111",
+     0
+    ],
+    "image2": [
+     "6",
+     0
+    ]
+   }
+  },
+  "471:117": {
+   "_meta": {
+    "title": "VAEEncode"
+   },
+   "class_type": "VAEEncode",
+   "inputs": {
+    "pixels": [
+     "471:120",
+     0
+    ],
+    "vae": [
+     "471:111",
+     0
+    ]
+   }
+  },
+  "471:118": {
+   "_meta": {
+    "title": "VAEDecode"
+   },
+   "class_type": "VAEDecode",
+   "inputs": {
+    "samples": [
+     "471:121",
+     0
+    ],
+    "vae": [
+     "471:111",
+     0
+    ]
+   }
+  },
+  "471:119": {
+   "_meta": {
+    "title": "LoraLoaderModelOnly"
+   },
+   "class_type": "LoraLoaderModelOnly",
+   "inputs": {
+    "lora_name": "Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
+    "model": [
+     "471:472",
+     0
+    ],
+    "strength_model": 1
+   }
+  },
+  "471:120": {
+   "_meta": {
+    "title": "FluxKontextImageScale"
+   },
+   "class_type": "FluxKontextImageScale",
+   "inputs": {
+    "image": [
+     "7",
+     0
+    ]
+   }
+  },
+  "471:121": {
+   "_meta": {
+    "title": "KSampler"
+   },
+   "class_type": "KSampler",
+   "inputs": {
+    "cfg": [
+     "471:442",
+     0
+    ],
+    "denoise": 1,
+    "latent_image": [
+     "471:117",
+     0
+    ],
+    "model": [
+     "471:110",
+     0
+    ],
+    "negative": [
+     "471:114",
+     0
+    ],
+    "positive": [
+     "471:116",
+     0
+    ],
+    "sampler_name": "euler",
+    "scheduler": "simple",
+    "seed": 4242,
+    "steps": [
+     "471:441",
+     0
+    ]
+   }
+  },
+  "471:436": {
+   "_meta": {
+    "title": "PrimitiveInt"
+   },
+   "class_type": "PrimitiveInt",
+   "inputs": {
+    "value": 4
+   }
+  },
+  "471:437": {
+   "_meta": {
+    "title": "PrimitiveFloat"
+   },
+   "class_type": "PrimitiveFloat",
+   "inputs": {
+    "value": 1
+   }
+  },
+  "471:438": {
+   "_meta": {
+    "title": "PrimitiveInt"
+   },
+   "class_type": "PrimitiveInt",
+   "inputs": {
+    "value": 20
+   }
+  },
+  "471:439": {
+   "_meta": {
+    "title": "PrimitiveFloat"
+   },
+   "class_type": "PrimitiveFloat",
+   "inputs": {
+    "value": 4
+   }
+  },
+  "471:440": {
+   "_meta": {
+    "title": "ComfySwitchNode"
+   },
+   "class_type": "ComfySwitchNode",
+   "inputs": {
+    "on_false": [
+     "471:472",
+     0
+    ],
+    "on_true": [
+     "471:119",
+     0
+    ],
+    "switch": [
+     "471:443",
+     0
+    ]
+   }
+  },
+  "471:441": {
+   "_meta": {
+    "title": "ComfySwitchNode"
+   },
+   "class_type": "ComfySwitchNode",
+   "inputs": {
+    "on_false": [
+     "471:438",
+     0
+    ],
+    "on_true": [
+     "471:436",
+     0
+    ],
+    "switch": [
+     "471:443",
+     0
+    ]
+   }
+  },
+  "471:442": {
+   "_meta": {
+    "title": "ComfySwitchNode"
+   },
+   "class_type": "ComfySwitchNode",
+   "inputs": {
+    "on_false": [
+     "471:439",
+     0
+    ],
+    "on_true": [
+     "471:437",
+     0
+    ],
+    "switch": [
+     "471:443",
+     0
+    ]
+   }
+  },
+  "471:443": {
+   "_meta": {
+    "title": "PrimitiveBoolean"
+   },
+   "class_type": "PrimitiveBoolean",
+   "inputs": {
+    "value": true
+   }
+  },
+  "471:472": {
+   "_meta": {
+    "title": "LoraLoaderModelOnly"
+   },
+   "class_type": "LoraLoaderModelOnly",
+   "inputs": {
+    "lora_name": "Qwen-Image-Edit-2509-Light-Migration.safetensors",
+    "model": [
+     "471:113",
+     0
+    ],
+    "strength_model": 1
+   }
+  }
+ },
+ "video_fasth3_ominiref_r2v": {
+  "92": {
+   "_meta": {
+    "title": "SaveVideo"
+   },
+   "class_type": "SaveVideo",
+   "inputs": {
+    "codec": "auto",
+    "filename_prefix": "video/FastH3_OmniRef",
+    "format": "auto",
+    "format.codec": "auto",
+    "video": [
+     "130",
+     0
+    ]
+   }
+  },
+  "115": {
+   "_meta": {
+    "title": "Resolution Selector (Size)"
+   },
+   "class_type": "ResolutionSelector",
+   "inputs": {
+    "aspect_ratio": "16:9 (Widescreen)",
+    "megapixels": 1,
+    "multiple": 32,
+    "preview": ""
+   }
+  },
+  "119": {
+   "_meta": {
+    "title": "VAELoader"
+   },
+   "class_type": "VAELoader",
+   "inputs": {
+    "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+   }
+  },
+  "120": {
+   "_meta": {
+    "title": "VAELoader"
+   },
+   "class_type": "VAELoader",
+   "inputs": {
+    "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+   }
+  },
+  "121": {
+   "_meta": {
+    "title": "VAEDecodeAudio"
+   },
+   "class_type": "VAEDecodeAudio",
+   "inputs": {
+    "samples": [
+     "125",
+     0
+    ],
+    "vae": [
+     "120",
+     0
+    ]
+   }
+  },
+  "122": {
+   "_meta": {
+    "title": "VAEDecode"
+   },
+   "class_type": "VAEDecode",
+   "inputs": {
+    "samples": [
+     "125",
+     0
+    ],
+    "vae": [
+     "119",
+     0
+    ]
+   }
+  },
+  "123": {
+   "_meta": {
+    "title": "KSamplerSelect"
+   },
+   "class_type": "KSamplerSelect",
+   "inputs": {
+    "sampler_name": "euler"
+   }
+  },
+  "124": {
+   "_meta": {
+    "title": "BasicScheduler"
+   },
+   "class_type": "BasicScheduler",
+   "inputs": {
+    "denoise": 1,
+    "model": [
+     "143",
+     0
+    ],
+    "scheduler": "simple",
+    "steps": 8
+   }
+  },
+  "125": {
+   "_meta": {
+    "title": "SamplerCustomAdvanced"
+   },
+   "class_type": "SamplerCustomAdvanced",
+   "inputs": {
+    "guider": [
+     "126",
+     0
+    ],
+    "latent_image": [
+     "136",
+     1
+    ],
+    "noise": [
+     "129",
+     0
+    ],
+    "sampler": [
+     "123",
+     0
+    ],
+    "sigmas": [
+     "124",
+     0
+    ]
+   }
+  },
+  "126": {
+   "_meta": {
+    "title": "BasicGuider"
+   },
+   "class_type": "BasicGuider",
+   "inputs": {
+    "conditioning": [
+     "136",
+     0
+    ],
+    "model": [
+     "143",
+     0
+    ]
+   }
+  },
+  "127": {
+   "_meta": {
+    "title": "UNETLoader"
+   },
+   "class_type": "UNETLoader",
+   "inputs": {
+    "unet_name": "fasth3_omniref_8step_pruned_int8_convrot.safetensors",
+    "weight_dtype": "default"
+   }
+  },
+  "128": {
+   "_meta": {
+    "title": "CLIPLoader"
+   },
+   "class_type": "CLIPLoader",
+   "inputs": {
+    "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "device": "default",
+    "type": "minimax"
+   }
+  },
+  "129": {
+   "_meta": {
+    "title": "RandomNoise"
+   },
+   "class_type": "RandomNoise",
+   "inputs": {
+    "noise_seed": 771204598
+   }
+  },
+  "130": {
+   "_meta": {
+    "title": "CreateVideo"
+   },
+   "class_type": "CreateVideo",
+   "inputs": {
+    "audio": [
+     "121",
+     0
+    ],
+    "bit_depth": 8,
+    "codec": "none",
+    "color_space": "sRGB",
+    "fps": 24,
+    "images": [
+     "122",
+     0
+    ]
+   }
+  },
+  "131": {
+   "_meta": {
+    "title": "ComfyMathExpression"
+   },
+   "class_type": "ComfyMathExpression",
+   "inputs": {
+    "expression": "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17",
+    "values.a": [
+     "132",
+     0
+    ]
+   }
+  },
+  "132": {
+   "_meta": {
+    "title": "Float (Duration)"
+   },
+   "class_type": "PrimitiveFloat",
+   "inputs": {
+    "value": 5
+   }
+  },
+  "136": {
+   "_meta": {
+    "title": "MiniMaxH3ReferenceToVideo"
+   },
+   "class_type": "MiniMaxH3ReferenceToVideo",
+   "inputs": {
+    "audio_vae": [
+     "120",
+     0
+    ],
+    "clip": [
+     "128",
+     0
+    ],
+    "height": [
+     "115",
+     1
+    ],
+    "length": [
+     "131",
+     1
+    ],
+    "prompt": [
+     "138",
+     0
+    ],
+    "ref_image_size": "match",
+    "ref_images.ref_image_0": [
+     "137",
+     0
+    ],
+    "vae": [
+     "119",
+     0
+    ],
+    "width": [
+     "115",
+     0
+    ],
+    "ref_images.ref_image_1": [
+     "150",
+     0
+    ]
+   }
+  },
+  "137": {
+   "_meta": {
+    "title": "Load Image (Picture 1)"
+   },
+   "class_type": "LoadImage",
+   "inputs": {
+    "image": "yellow_plane_ref.png"
+   }
+  },
+  "138": {
+   "_meta": {
+    "title": "Input Text (Prompt)"
+   },
+   "class_type": "PrimitiveStringMultiline",
+   "inputs": {
+    "value": "subject_definitions:\n<Subject 1> is the plane in <Picture 1>: a yellow propeller plane climbing vertically with a smoke trail.\n<Subject 2> is the setting in <Picture 1>: a towering cumulus cloud against a near-black sky.\n\nsummary:\n[reference generation] The target video is a 5-second, multi-cut cinematic aviation film. The plane climbs vertically, stalls at the top and tumbles into a dramatic dive.\n\nretention_analysis:\n<Subject 1> (appears in [Shot 1], [Shot 2]): fully_preserved - the yellow plane and white smoke trail are retained.\n<Subject 2> (appears in [Shot 1], [Shot 2]): fully_preserved - the towering cumulus and dark sky are retained.\n\ndetailed_description:\nThe target video is a striking, high-contrast aerial film with bright sunlit clouds, deep dark sky and dynamic camera moves.\n[Shot 1] A wide shot matches <Picture 1>: <Subject 1> climbs straight up above <Subject 2>, smoke trail curling, and the camera tilts up with it.\n[Shot 2] At 00:02.000, the shot cuts to a beautiful close-up of the propeller and yellow nose as it slows at the top; the plane stalls, flips over and the camera follows it diving toward the bright cloud.\n\noverall_soundscape:\nStraining engine, wind, a sudden silence at the stall and a roaring dive.\n\nnon_diegetic_music:\nTense rising strings that break into a thrilling crescendo."
+   }
+  },
+  "141": {
+   "_meta": {
+    "title": "MiniMaxH3SigmaShift"
+   },
+   "class_type": "MiniMaxH3SigmaShift",
+   "inputs": {
+    "model": [
+     "127",
+     0
+    ],
+    "shift_audio": 3,
+    "shift_video": 12
+   }
+  },
+  "142": {
+   "_meta": {
+    "title": "ModelAttentionBackend"
+   },
+   "class_type": "ModelAttentionBackend",
+   "inputs": {
+    "attention": "comfy kitchen attention",
+    "model": [
+     "141",
+     0
+    ]
+   }
+  },
+  "143": {
+   "_meta": {
+    "title": "BlockSparseAttention"
+   },
+   "class_type": "BlockSparseAttention",
+   "inputs": {
+    "dense_blocks": "",
+    "end_percent": 1,
+    "extra_tokens": 256,
+    "min_tokens": 12288,
+    "model": [
+     "142",
+     0
+    ],
+    "selection": "vsa",
+    "selection.keep_percent": 10,
+    "sink_conditioning": "exact_kv_and_rows",
+    "start_percent": 0,
+    "verbose": false
+   }
+  },
+  "150": {
+   "class_type": "LoadImage",
+   "inputs": {
+    "image": "yellow_plane_ref.png"
+   },
+   "_meta": {
+    "title": "Load Image (Picture 2)"
+   }
+  }
+ },
  "video_minimax_h3_multiframe_reference": {
   "92": {
    "_meta": {

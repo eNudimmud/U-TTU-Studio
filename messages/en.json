@@ -2471,7 +2471,11 @@
       "video": "a video",
       "audio": "a sound",
       "start": "a start image",
-      "end": "an end image"
+      "end": "an end image",
+      "sujet": "a portrait",
+      "lumiere": "a picture to take the light from",
+      "personnage": "a character",
+      "lieu": "a place"
     },
     "prompt": "Prompt",
     "refs": "References",
@@ -2783,6 +2787,14 @@
       "ret-eclairer-ouvert": {
         "title": "Relight",
         "line": "Same portrait, new lighting."
+      },
+      "ret-lumiere-image": {
+        "title": "Copy the light of a picture",
+        "line": "Your portrait, lit like another picture."
+      },
+      "vid-fasth3": {
+        "title": "Video faithful to the place",
+        "line": "Your character in your place, set kept."
       }
     },
     "latest": "Latest results",
@@ -2810,7 +2822,9 @@
       "ret-eclairer-ouvert": "Light from your prompt",
       "ret-eclairer": "Studio portrait",
       "vid-h3-refs": "Faithful, low cost",
-      "vid-vidu": "Two pictures blended"
+      "vid-vidu": "Two pictures blended",
+      "ret-lumiere-image": "Light from a picture",
+      "vid-fasth3": "More faithful place (multi-reference)"
     },
     "model": "Model",
     "modelChange": "Change model",
@@ -2824,7 +2838,11 @@
     "rowLess": "Show less",
     "slot": {
       "start": "Start image",
-      "end": "End image"
+      "end": "End image",
+      "sujet": "Portrait",
+      "lumiere": "Light to copy",
+      "personnage": "Character",
+      "lieu": "Place"
     },
     "costWait": "reading duration…",
     "camera": {

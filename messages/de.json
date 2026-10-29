@@ -2471,7 +2471,11 @@
       "video": "ein Video",
       "audio": "einen Ton",
       "start": "ein Startbild",
-      "end": "ein Endbild"
+      "end": "ein Endbild",
+      "sujet": "ein Porträt",
+      "lumiere": "ein Bild, dessen Licht übernommen wird",
+      "personnage": "eine Figur",
+      "lieu": "einen Ort"
     },
     "prompt": "Anweisung",
     "refs": "Referenzen",
@@ -2783,6 +2787,14 @@
       "ret-eclairer-ouvert": {
         "title": "Licht ändern",
         "line": "Gleiches Porträt, neues Licht."
+      },
+      "ret-lumiere-image": {
+        "title": "Licht eines Bildes übernehmen",
+        "line": "Dein Porträt, beleuchtet wie ein anderes Bild."
+      },
+      "vid-fasth3": {
+        "title": "Video ortsgetreu",
+        "line": "Deine Figur an deinem Ort, Kulisse bleibt."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2810,7 +2822,9 @@
       "ret-eclairer-ouvert": "Licht nach Anweisung",
       "ret-eclairer": "Studioporträt",
       "vid-h3-refs": "Treu, günstig",
-      "vid-vidu": "Zwei Bilder vereint"
+      "vid-vidu": "Zwei Bilder vereint",
+      "ret-lumiere-image": "Licht aus einem Bild",
+      "vid-fasth3": "Ort treuer (mehrere Referenzen)"
     },
     "model": "Modell",
     "modelChange": "Modell wechseln",
@@ -2824,7 +2838,11 @@
     "rowLess": "Weniger",
     "slot": {
       "start": "Startbild",
-      "end": "Endbild"
+      "end": "Endbild",
+      "sujet": "Porträt",
+      "lumiere": "Licht zum Übernehmen",
+      "personnage": "Figur",
+      "lieu": "Ort"
     },
     "costWait": "Dauer wird gelesen…",
     "camera": {

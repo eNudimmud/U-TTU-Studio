@@ -70,7 +70,7 @@ function ligneCarte(t: (key: string) => string, id: string) {
   return t(`outils.t.${intentDe(id)}.line`);
 }
 
-const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage", "ret-eclairer-ouvert", "ret-eclairer", "vid-h3-refs", "vid-vidu"]);
+const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage", "ret-eclairer-ouvert", "ret-lumiere-image", "ret-eclairer", "vid-h3-refs", "vid-fasth3", "vid-vidu"]);
 
 function nomModele(t: (key: string) => string, id: string) {
   return NAMED_MODELS.has(id) ? t(`outils.modelName.${id}`) : t(`outils.t.${id}.title`);
@@ -426,9 +426,15 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
 
   // A bridge (start and end frames) needs both pictures: two visible slots, « départ » and « arrivée ».
   const bridge = outil.template.endsWith("_flf2v");
-  const main = bridge ? outil.entrees : outil.entrees.filter(item => item !== "image2");
-  const refs = bridge ? [] : outil.entrees.filter(item => item === "image2");
-  const slotName = (entree: Entree) => bridge && entree === "image" ? "start" : bridge && entree === "image2" ? "end" : entree;
+  // A light pair (subject, then the picture whose light it takes) or a character and its place
+  // (FastH3) also needs both, named.
+  const pair = bridge || Boolean(outil.paire);
+  const main = pair ? outil.entrees : outil.entrees.filter(item => item !== "image2");
+  const refs = pair ? [] : outil.entrees.filter(item => item === "image2");
+  const slotName = (entree: Entree) => bridge ? (entree === "image" ? "start" : entree === "image2" ? "end" : entree)
+    : outil.paire === "lumiere" ? (entree === "image" ? "sujet" : entree === "image2" ? "lumiere" : entree)
+    : outil.paire === "lieu" ? (entree === "image" ? "personnage" : entree === "image2" ? "lieu" : entree)
+    : entree;
   const reglages = [...(outil.reglages ?? []), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
   const video = inputs.video;
   const audio = inputs.audio;
@@ -539,7 +545,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     </div>
     {main.length > 0 && <fieldset className="u-tool-step" data-tool-step="entree">
       <legend className="u-label">{t("outils.input")}</legend>
-      {main.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t(`genjutsu.${entree}`) : bridge ? t(`outils.slot.${slotName(entree)}`) : undefined} sample={genjutsu && entree === "image" ? { url: UTTU_PORTRAIT_HD, name: "uttu-personnage.webp" } : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
+      {main.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t(`genjutsu.${entree}`) : pair ? t(`outils.slot.${slotName(entree)}`) : undefined} sample={genjutsu && entree === "image" ? { url: UTTU_PORTRAIT_HD, name: "uttu-personnage.webp" } : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
       {tooShort && <p className="u-why" role="alert" data-genjutsu-short="">{t("genjutsu.tooShort")}</p>}
       {genjutsu && seconds !== null && seconds > 30 && <p className="u-small" role="status" data-genjutsu-trim="">{t("genjutsu.trim")}</p>}
       {outil.consentement && inputs.audio && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={consent} data-tool-consent="" {...lock} onClick={() => { setConsent(value => !value); reset(); }}>

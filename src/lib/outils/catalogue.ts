@@ -48,6 +48,9 @@ export interface Outil {
   bientot?: string;
   /** Partner price read with estimate_credits, shown on a « bientôt » card. */
   prix?: number;
+  /** Both pictures are required and named: the subject, then the picture whose light it takes
+   *  (« lumiere »), or the character, then the place (« lieu »). */
+  paire?: "lumiere" | "lieu";
 }
 
 const G = { kind: "generique" } as const;
@@ -76,6 +79,7 @@ export const OUTILS: readonly Outil[] = [
   { id: "vid-kling", num: 17, famille: "creer", sous: "video", template: "api_kling_v3_video", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-kling", moteur: G, reglages: ["aspect"] },
   { id: "vid-seedance", num: 18, famille: "creer", sous: "video", template: "api_seedance2_5_r2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-seedance", moteur: G },
   { id: "vid-wan", num: 19, famille: "creer", sous: "video", template: "video_wan2_2_14B_i2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-wan", moteur: G },
+  { id: "vid-fasth3", num: 12, famille: "creer", sous: "video", template: "video_fasth3_ominiref_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-fasth3", moteur: G, reglages: ["aspect"], paire: "lieu" },
   { id: "vid-vidu", num: 21, famille: "creer", sous: "video", template: "api_vidu_q4_preview_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-vidu", moteur: G, reglages: ["aspect"] },
   { id: "vid-h3max", num: 22, famille: "creer", sous: "video", template: "api_minimax_h3_max_r2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-h3max", moteur: G },
   // CRÉER · 3D
@@ -109,6 +113,7 @@ export const OUTILS: readonly Outil[] = [
   { id: "ret-gommer", num: 47, famille: "retoucher", sous: "image", template: "image_flux.1_fill_dev_OneReward", entrees: ["image"], texte: "requis", sortie: "image", onglets: [], bientot: "masque" },
   { id: "ret-vectoriser", num: 48, famille: "retoucher", sous: "image", template: "api_quiver_arrow2_image_to_svg", entrees: ["image"], texte: "aucun", sortie: "image", onglets: [], bientot: "svg", prix: 9 },
   { id: "ret-eclairer-ouvert", num: 50, famille: "retoucher", sous: "image", template: "image_qwen_image_edit_2509_relight", entrees: ["image"], texte: "requis", sortie: "image", onglets: ["cast"], geste: "outil-ret-eclairer-ouvert", moteur: G },
+  { id: "ret-lumiere-image", num: 50, famille: "retoucher", sous: "image", template: "templates-portrait_light_migration", entrees: ["image", "image2"], texte: "aucun", sortie: "image", onglets: ["cast"], geste: "outil-ret-lumiere-image", moteur: G, paire: "lumiere" },
   { id: "ret-eclairer", num: 50, famille: "retoucher", sous: "image", template: "template_character_portrait_relighting", entrees: ["image"], texte: "requis", sortie: "image", onglets: ["cast"], geste: "outil-ret-eclairer", moteur: G },
   { id: "ret-angles-perso", num: 60, famille: "retoucher", sous: "image", template: "templates-1_click_multiple_character_angles-v1.0", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast"], geste: "cast-angle", moteur: G, lot: 8 },
   { id: "ret-angles-decor", num: 61, famille: "retoucher", sous: "image", template: "templates-1_click_multiple_scene_angles-v1.0", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["decor"], geste: "decor-angles", moteur: G, lot: 8 },
@@ -190,8 +195,8 @@ export const INTENT_MODELES: Record<string, readonly string[]> = {
   "son-voix-ouverte": ["son-voix-ouverte", "son-voix"],
   "son-musique-ouverte": ["son-musique-ouverte", "son-musique"],
   "son-bruitage-ouvert": ["son-bruitage-ouvert", "son-bruitage"],
-  "ret-eclairer-ouvert": ["ret-eclairer-ouvert", "ret-eclairer"],
-  "vid-h3-refs": ["vid-h3-refs", "vid-vidu"],
+  "ret-eclairer-ouvert": ["ret-eclairer-ouvert", "ret-lumiere-image", "ret-eclairer"],
+  "vid-h3-refs": ["vid-h3-refs", "vid-fasth3", "vid-vidu"],
 };
 
 const VARIANTE = new Map<string, string>();

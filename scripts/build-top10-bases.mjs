@@ -29,6 +29,8 @@ const SAMPLES = {
   api_mirelo_video_to_sfx: { "7": { file: "mage_crash_discovery_video.mp4" } },
   video_minimax_h3_multiframe_reference: { "164": { image: "h3_frame_ref_1.png" }, "167": { image: "h3_frame_ref_4.png" } },
   template_ltx2_3_style_transition: { "137": { image: "ltx23_flf2v_last_frame.png" }, "138": { image: "ltx23_flf2v_first_frame.png" } },
+  video_fasth3_ominiref_r2v: { "137": { image: "yellow_plane_ref.png" }, "150": { image: "yellow_plane_ref.png" } },
+  "templates-portrait_light_migration": { "6": { image: "woman_with_sunbeam.jpg" }, "7": { image: "women_with_blue_orb.jpg" } },
   image_qwen_image_edit_2509_relight: { "11": { image: "warm_living_room.png" }, "15": { value: " relight the image using twilight light (with a warm color temperature, soft light, and blurred shadows)" } },
 };
 /** Extra outputs the studio does not read: the second stem, the speech track, the re-muxed video. */

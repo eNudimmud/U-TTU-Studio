@@ -35,7 +35,7 @@ const ANIMEES = new Set([
 ]);
 
 /** Open-weight heads that reuse the thumbnail of the card they now lead. */
-const MEME_VIGNETTE: Record<string, string> = { "ret-eclairer-ouvert": "ret-eclairer" };
+const MEME_VIGNETTE: Record<string, string> = { "ret-eclairer-ouvert": "ret-eclairer", "ret-lumiere-image": "ret-eclairer", "vid-fasth3": "vid-h3-refs" };
 const nom = (id: string) => MEME_VIGNETTE[id] ?? id;
 
 /** Public path of a tool's thumbnail, or null (a tool without a thumbnail yet). */
