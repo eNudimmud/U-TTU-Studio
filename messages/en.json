@@ -781,6 +781,8 @@
     "placeImageFailed": "The location image did not finish.",
     "clipUnreadable": "Clip unreadable on this device.",
     "clipHeavy": "Clip too heavy: 300 MB at most.",
+    "uploadHeavy": "File too heavy to send: 3.8 MB at most. Use a shorter clip or a lighter photo.",
+    "poseVideoFailed": "This browser could not prepare the motion video. Try a clip of 5 seconds at most, in mp4.",
     "nameCharacter": "Give this character a name.",
     "twoPhotos": "At least two photos of the character, to go with the clips.",
     "clipsWeight": "The clips weigh more than 2 GB: remove the longest.",

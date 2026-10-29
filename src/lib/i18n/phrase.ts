@@ -93,6 +93,8 @@ const EXACT: Record<string, string> = {
   "L’image du lieu n’a pas abouti.": "runtime.placeImageFailed",
   "Clip illisible sur cet appareil.": "runtime.clipUnreadable",
   "Clip trop lourd : 300 Mo au plus.": "runtime.clipHeavy",
+  "Fichier trop lourd pour l’envoi : 3,8 Mo au plus. Prends un clip plus court ou une photo plus légère.": "runtime.uploadHeavy",
+  "Ce navigateur n’a pas pu préparer la vidéo de mouvement. Essaie un clip de 5 secondes au plus, en mp4.": "runtime.poseVideoFailed",
   "Donne un nom à ce personnage.": "runtime.nameCharacter",
   "Deux photos du personnage au moins, pour accompagner les clips.": "runtime.twoPhotos",
   "Les clips pèsent plus de 2 Go : retire les plus longs.": "runtime.clipsWeight",

@@ -781,6 +781,8 @@
     "placeImageFailed": "Das Bild des Drehorts ist nicht gelungen.",
     "clipUnreadable": "Clip unlesbar auf diesem Gerät.",
     "clipHeavy": "Clip zu schwer: höchstens 300 MB.",
+    "uploadHeavy": "Datei zu schwer zum Senden: höchstens 3,8 MB. Nimm einen kürzeren Clip oder ein leichteres Foto.",
+    "poseVideoFailed": "Dieser Browser konnte das Bewegungsvideo nicht vorbereiten. Versuche einen Clip von höchstens 5 Sekunden, als mp4.",
     "nameCharacter": "Gib dieser Figur einen Namen.",
     "twoPhotos": "Mindestens zwei Fotos der Figur, um die Clips zu begleiten.",
     "clipsWeight": "Die Clips wiegen mehr als 2 GB: entferne die längsten.",

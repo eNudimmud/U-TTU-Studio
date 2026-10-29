@@ -44,6 +44,7 @@ import { isMeshGeste, meshGesteGraph, runMesh } from "@/lib/render/mesh-gestes";
 import { isSuiteGeste, SUITE_SORTIE, SUITE_SOURCE, SUITE_TEXTE, suiteGraph, type Elargir } from "@/lib/suite/graphs";
 import { suiteQuote } from "@/lib/suite/quote";
 import { videoSeconds } from "@/lib/suite/media";
+import { fitImageForUpload, preparePoseVideo } from "@/lib/suite/pose-video";
 import { outilParGeste, outilParId, outilRow } from "@/lib/outils/catalogue";
 import { outilGraph, outilQuote } from "@/lib/outils/graphs";
 import { learnTakeCost } from "@/lib/render/landed-cost";
@@ -1342,8 +1343,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         return client.upload(file, `${id}-${label}.${ext}`);
       };
       const images: string[] = [];
-      for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
-      const video = input.video ? await send(input.video, "video") : undefined;
+      for (const [index, file] of input.images.entries()) images.push(await send(await fitImageForUpload(file), `image-${index + 1}`));
+      // Copier un mouvement: one 16 fps window, under the relay's upload ceiling.
+      const poseVideo = input.video && row.template === "video_wan_animate2" ? await preparePoseVideo(input.video) : input.video;
+      const video = poseVideo ? await send(poseVideo, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
       const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution });
       const sortie = outil.sortie;

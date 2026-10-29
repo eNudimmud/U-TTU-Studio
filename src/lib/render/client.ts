@@ -5,6 +5,7 @@
 
 import { centsToCredits } from "../credits.ts";
 import type { ApiGraph } from "./take-graph.ts";
+import { UPLOAD_HEAVY, uploadTooHeavy } from "./upload-limit.ts";
 
 export type RenderAuth =
   | { kind: "key"; key: string }
@@ -281,11 +282,14 @@ export function createRenderClient(options: RenderClientOptions) {
 
     /** Returns the input name a LoadImage node takes. */
     async upload(file: Blob, filename: string, subfolder = ""): Promise<string> {
+      // The relay refuses large bodies with 413 before Comfy sees them: say so before sending.
+      if (uploadTooHeavy(file.size)) throw new Error(UPLOAD_HEAVY);
       const form = new FormData();
       form.append("image", file, filename);
       form.append("type", "input");
       if (subfolder) form.append("subfolder", subfolder);
       const response = await call("/api/upload/image", { method: "POST", body: form });
+      if (response.status === 413) throw new Error(UPLOAD_HEAVY);
       if (!response.ok) throw new RenderError("invalid", `Photo refusée (${response.status}).`);
       const body = await json<{ name?: unknown; subfolder?: unknown }>(response);
       if (typeof body.name !== "string" || !body.name || /[\\\u0000]/.test(body.name)) throw new RenderError("invalid", "Photo envoyée sans nom.");

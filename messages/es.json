@@ -781,6 +781,8 @@
     "placeImageFailed": "La imagen de la localización no ha llegado.",
     "clipUnreadable": "Clip ilegible en este aparato.",
     "clipHeavy": "Clip demasiado pesado: 300 MB como máximo.",
+    "uploadHeavy": "Archivo demasiado pesado para enviar: 3,8 MB como máximo. Usa un clip más corto o una foto más ligera.",
+    "poseVideoFailed": "Este navegador no pudo preparar el vídeo de movimiento. Prueba un clip de 5 segundos como máximo, en mp4.",
     "nameCharacter": "Da un nombre a este personaje.",
     "twoPhotos": "Al menos dos fotos del personaje, para acompañar los clips.",
     "clipsWeight": "Los clips pesan más de 2 GB: retira los más largos.",

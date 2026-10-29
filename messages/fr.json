@@ -781,6 +781,8 @@
     "placeImageFailed": "L’image du lieu n’a pas abouti.",
     "clipUnreadable": "Clip illisible sur cet appareil.",
     "clipHeavy": "Clip trop lourd : 300 Mo au plus.",
+    "uploadHeavy": "Fichier trop lourd pour l’envoi : 3,8 Mo au plus. Prends un clip plus court ou une photo plus légère.",
+    "poseVideoFailed": "Ce navigateur n’a pas pu préparer la vidéo de mouvement. Essaie un clip de 5 secondes au plus, en mp4.",
     "nameCharacter": "Donne un nom à ce personnage.",
     "twoPhotos": "Deux photos du personnage au moins, pour accompagner les clips.",
     "clipsWeight": "Les clips pèsent plus de 2 Go : retire les plus longs.",
