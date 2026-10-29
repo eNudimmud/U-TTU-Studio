@@ -82,13 +82,13 @@
     },
     {
       "id": "cast-angle",
-      "onglet": "cast",
+      "onglet": "outils",
       "template": "templates-1_click_multiple_character_angles-v1.0",
       "partner": false,
       "partnerNodes": [],
-      "sentPartner": null,
-      "template_file": "workflows/cast/cast-angle.json",
-      "api_file": null
+      "sentPartner": false,
+      "template_file": "workflows/outils/cast-angle.json",
+      "api_file": "workflows/outils/cast-angle.api.json"
     },
     {
       "id": "cast-expressions",
@@ -190,13 +190,13 @@
     },
     {
       "id": "decor-angles",
-      "onglet": "decor",
+      "onglet": "outils",
       "template": "templates-1_click_multiple_scene_angles-v1.0",
       "partner": false,
       "partnerNodes": [],
-      "sentPartner": null,
-      "template_file": "workflows/decor/decor-angles.json",
-      "api_file": null
+      "sentPartner": false,
+      "template_file": "workflows/outils/decor-angles.json",
+      "api_file": "workflows/outils/decor-angles.api.json"
     },
     {
       "id": "decor-elargir",
@@ -636,6 +636,16 @@
       "api_file": "workflows/outils/outil-img-refs.api.json"
     },
     {
+      "id": "outil-ret-camera",
+      "onglet": "outils",
+      "template": "template_qwen_multiangle.app",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-ret-camera.json",
+      "api_file": "workflows/outils/outil-ret-camera.api.json"
+    },
+    {
       "id": "outil-img-360",
       "onglet": "outils",
       "template": "template_qwen_Image_2512_360_lora",
@@ -698,6 +708,26 @@
       "sentPartner": false,
       "template_file": "workflows/outils/outil-vid-wan.json",
       "api_file": "workflows/outils/outil-vid-wan.api.json"
+    },
+    {
+      "id": "outil-vid-multi",
+      "onglet": "outils",
+      "template": "video_minimax_h3_multiframe_reference",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-multi.json",
+      "api_file": "workflows/outils/outil-vid-multi.api.json"
+    },
+    {
+      "id": "outil-vid-transition-style",
+      "onglet": "outils",
+      "template": "template_ltx2_3_style_transition",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-transition-style.json",
+      "api_file": "workflows/outils/outil-vid-transition-style.api.json"
     },
     {
       "id": "outil-vid-vidu",
@@ -812,6 +842,16 @@
       "api_file": "workflows/outils/outil-son-bruitage-ouvert.api.json"
     },
     {
+      "id": "outil-ret-eclairer-ouvert",
+      "onglet": "outils",
+      "template": "image_qwen_image_edit_2509_relight",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-ret-eclairer-ouvert.json",
+      "api_file": "workflows/outils/outil-ret-eclairer-ouvert.api.json"
+    },
+    {
       "id": "outil-ret-eclairer",
       "onglet": "outils",
       "template": "template_character_portrait_relighting",
@@ -858,6 +898,28 @@
       "sentPartner": true,
       "template_file": "workflows/outils/outil-vid-levres.json",
       "api_file": "workflows/outils/outil-vid-levres.api.json"
+    },
+    {
+      "id": "outil-son-bruitage-video",
+      "onglet": "outils",
+      "template": "api_mirelo_video_to_sfx",
+      "partner": true,
+      "partnerNodes": [
+        "MireloVideoToSFX"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-son-bruitage-video.json",
+      "api_file": "workflows/outils/outil-son-bruitage-video.api.json"
+    },
+    {
+      "id": "outil-son-separer",
+      "onglet": "outils",
+      "template": "audio_melbandroformer_audio_separation",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-son-separer.json",
+      "api_file": "workflows/outils/outil-son-separer.api.json"
     },
     {
       "id": "outil-son-musique-video",

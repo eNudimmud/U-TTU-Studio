@@ -11,7 +11,7 @@ export type Sous = "image" | "video" | "3d" | "son" | "texte";
 export type Sortie = "image" | "video" | "audio" | "mesh";
 /** What the panel asks for. `image2` is an optional second picture (références). */
 export type Entree = "image" | "image2" | "video" | "audio";
-export type Reglage = "aspect" | "elargir" | "fluide" | "mesh" | "resolution";
+export type Reglage = "aspect" | "camera" | "elargir" | "fluide" | "mesh" | "piste" | "resolution";
 export type Moteur =
   | { kind: "generique" }
   | { kind: "klein" }
@@ -42,6 +42,8 @@ export interface Outil {
   parTranche?: boolean;
   /** The visitor confirms they may use the voice they upload. */
   consentement?: boolean;
+  /** Pictures one run saves through the final node (the 8 angles). Each is its own asset. */
+  lot?: number;
   /** i18n key under outils.why: why it is not wired yet. */
   bientot?: string;
   /** Partner price read with estimate_credits, shown on a « bientôt » card. */
@@ -68,7 +70,8 @@ export const OUTILS: readonly Outil[] = [
   { id: "vid-texte", num: 10, famille: "creer", sous: "video", template: "video_ltx2_5_t2v", entrees: [], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-texte", moteur: G, reglages: ["aspect"] },
   { id: "vid-raccord", num: 11, famille: "creer", sous: "video", template: "video_ltx2_5_flf2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-raccord", moteur: { kind: "video" } },
   { id: "vid-h3-refs", num: 12, famille: "creer", sous: "video", template: "video_minimax_h3_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-plan-h3", moteur: { kind: "take", engine: "h3" }, reglages: ["aspect"] },
-  { id: "vid-multi", num: 15, famille: "creer", sous: "video", template: "video_minimax_h3_multiframe_reference", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], bientot: "multi" },
+  { id: "vid-multi", num: 15, famille: "creer", sous: "video", template: "video_minimax_h3_multiframe_reference", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-multi", moteur: G, reglages: ["aspect"] },
+  { id: "vid-transition-style", num: 65, famille: "creer", sous: "video", template: "template_ltx2_3_style_transition", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-transition-style", moteur: G, reglages: ["aspect"] },
   { id: "vid-h3-audio", num: 16, famille: "creer", sous: "video", template: "video_minimax_h3_r2v", entrees: ["image", "audio"], texte: "requis", sortie: "video", onglets: ["prise"], bientot: "h3Audio" },
   { id: "vid-kling", num: 17, famille: "creer", sous: "video", template: "api_kling_v3_video", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-kling", moteur: G, reglages: ["aspect"] },
   { id: "vid-seedance", num: 18, famille: "creer", sous: "video", template: "api_seedance2_5_r2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-seedance", moteur: G },
@@ -94,6 +97,8 @@ export const OUTILS: readonly Outil[] = [
   { id: "son-clone", num: 37, famille: "son", sous: "son", template: "audio-chatterbox_vc", entrees: ["audio"], texte: "aucun", sortie: "audio", onglets: [], bientot: "clone" },
   { id: "son-transcrire", num: 38, famille: "son", sous: "texte", template: "api_elevenLabs_speech_to_text", entrees: ["audio"], texte: "aucun", sortie: "audio", onglets: ["montage"], bientot: "texte", prix: 2 },
   { id: "son-musique-video", num: 56, famille: "son", sous: "son", template: "api_sonilo_v2m", entrees: ["video"], texte: "facultatif", sortie: "audio", onglets: ["montage"], geste: "outil-son-musique-video", moteur: G, parTranche: true },
+  { id: "son-bruitage-video", num: 63, famille: "son", sous: "son", template: "api_mirelo_video_to_sfx", entrees: ["video"], texte: "facultatif", sortie: "audio", onglets: ["montage"], geste: "outil-son-bruitage-video", moteur: G, parTranche: true },
+  { id: "son-separer", num: 64, famille: "son", sous: "son", template: "audio_melbandroformer_audio_separation", entrees: ["audio"], texte: "aucun", sortie: "audio", onglets: ["montage"], geste: "outil-son-separer", moteur: G, reglages: ["piste"] },
   // CRÉER · texte
   { id: "txt-decrire", num: 39, famille: "creer", sous: "texte", template: "llm_qwen3vl_text_gen", entrees: ["image"], texte: "aucun", sortie: "image", onglets: [], bientot: "texte" },
   // RETOUCHER
@@ -103,7 +108,11 @@ export const OUTILS: readonly Outil[] = [
   { id: "ret-detourer", num: 46, famille: "retoucher", sous: "image", template: "utility_birefnet_remove_background", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast"], geste: "suite-detourer", moteur: S },
   { id: "ret-gommer", num: 47, famille: "retoucher", sous: "image", template: "image_flux.1_fill_dev_OneReward", entrees: ["image"], texte: "requis", sortie: "image", onglets: [], bientot: "masque" },
   { id: "ret-vectoriser", num: 48, famille: "retoucher", sous: "image", template: "api_quiver_arrow2_image_to_svg", entrees: ["image"], texte: "aucun", sortie: "image", onglets: [], bientot: "svg", prix: 9 },
+  { id: "ret-eclairer-ouvert", num: 50, famille: "retoucher", sous: "image", template: "image_qwen_image_edit_2509_relight", entrees: ["image"], texte: "requis", sortie: "image", onglets: ["cast"], geste: "outil-ret-eclairer-ouvert", moteur: G },
   { id: "ret-eclairer", num: 50, famille: "retoucher", sous: "image", template: "template_character_portrait_relighting", entrees: ["image"], texte: "requis", sortie: "image", onglets: ["cast"], geste: "outil-ret-eclairer", moteur: G },
+  { id: "ret-angles-perso", num: 60, famille: "retoucher", sous: "image", template: "templates-1_click_multiple_character_angles-v1.0", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast"], geste: "cast-angle", moteur: G, lot: 8 },
+  { id: "ret-angles-decor", num: 61, famille: "retoucher", sous: "image", template: "templates-1_click_multiple_scene_angles-v1.0", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["decor"], geste: "decor-angles", moteur: G, lot: 8 },
+  { id: "ret-camera", num: 62, famille: "retoucher", sous: "image", template: "template_qwen_multiangle.app", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast", "decor"], geste: "outil-ret-camera", moteur: G, reglages: ["camera"] },
   // VIDÉO
   { id: "vid-animer", num: 13, famille: "video", sous: "video", template: "video_minimax_h3_i2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "suite-animer", moteur: S, reglages: ["aspect"] },
   { id: "vid-prolonger", num: 14, famille: "video", sous: "video", template: "video_minimax_h3_i2v_continuation", entrees: ["video"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "suite-prolonger", moteur: S },
@@ -181,6 +190,8 @@ export const INTENT_MODELES: Record<string, readonly string[]> = {
   "son-voix-ouverte": ["son-voix-ouverte", "son-voix"],
   "son-musique-ouverte": ["son-musique-ouverte", "son-musique"],
   "son-bruitage-ouvert": ["son-bruitage-ouvert", "son-bruitage"],
+  "ret-eclairer-ouvert": ["ret-eclairer-ouvert", "ret-eclairer"],
+  "vid-h3-refs": ["vid-h3-refs", "vid-vidu"],
 };
 
 const VARIANTE = new Map<string, string>();

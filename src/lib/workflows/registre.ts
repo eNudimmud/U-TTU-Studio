@@ -123,6 +123,12 @@ export const TEMPLATES_OFFICIELS = [
   "llm_qwen3vl_text_gen",
   "image_flux.1_fill_dev_OneReward",
   "api_quiver_arrow2_image_to_svg",
+  // Top 10 (docs/mesures/workflows-top10-2026-10-29.md).
+  "template_qwen_multiangle.app",
+  "api_mirelo_video_to_sfx",
+  "audio_melbandroformer_audio_separation",
+  "template_ltx2_3_style_transition",
+  "image_qwen_image_edit_2509_relight",
 ] as const;
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
@@ -197,12 +203,7 @@ export const REGISTRE: readonly Geste[] = [
     premier: true, still: "photo-cast", minRefs: 2,
     consigne: "Garde le visage. Change seulement la tenue ou la coiffure demandée.",
   }),
-  geste({
-    id: "cast-angle", onglet: "cast", categorie: "apparence", clef: "castAngle",
-    fournit: ["photo"], slots: [FACE("image_1")],
-    template: "templates-1_click_multiple_character_angles-v1.0", credits: null, high: null, nature: "non-mesure",
-    premier: false, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.castAngle",
-  }),
+  geste({ id: "cast-angle", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "templates-1_click_multiple_character_angles-v1.0", credits: 11, high: 17, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 10,87 crédits pour 8 angles 832×1248, un portrait (job d68df6c9)
   geste({
     id: "cast-expressions", onglet: "cast", categorie: "apparence", clef: "castExpression",
     fournit: ["photo", "video"], slots: [FACE("image_1"), { role: "clip", slot: "video_1", media: "video" }],
@@ -262,12 +263,7 @@ export const REGISTRE: readonly Geste[] = [
     premier: true, still: "photo-decor", minRefs: 1,
     consigne: "Même lieu. Change l’heure, la météo ou la saison. Sans personne.",
   }), // mesuré 27.10.2026 : 4,42 crédits pour Klein édition 16:9 (lot exemples ; 2e run fa472751 : 3,19) (job ca924213)
-  geste({
-    id: "decor-angles", onglet: "decor", categorie: "variante", clef: "decorAngles",
-    fournit: ["photo"], slots: [LIEU("image_1")],
-    template: "templates-1_click_multiple_scene_angles-v1.0", credits: null, high: null, nature: "non-mesure",
-    premier: true, still: null, minRefs: 1, consigne: "", raison: "gestes.raisons.decorAngles",
-  }),
+  geste({ id: "decor-angles", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "templates-1_click_multiple_scene_angles-v1.0", credits: 9, high: 14, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 9,05 crédits pour 8 angles 1360×768, un décor (job 03ceae25)
   geste({
     id: "decor-elargir", onglet: "decor", categorie: "finition", clef: "decorWiden",
     fournit: ["photo"], slots: [LIEU("image_1")],
@@ -488,12 +484,15 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-img-seedream", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bytedance_seedream_5_0_pro_t2i", credits: 10, high: 15, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 9,50 crédits pour API, 1 image (job f8d6b6d4)
   geste({ id: "outil-img-nano", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_nano_banana_2_1_t2i", credits: 12, high: 18, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "", option: "nano" }),
   geste({ id: "outil-img-refs", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_image_2_1_image_edit", credits: 2, high: 4, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 2,01 crédits pour 1024×1024, 1 référence (job 2ac9e65b)
+  geste({ id: "outil-ret-camera", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_qwen_multiangle.app", credits: 3, high: 5, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 3,29 crédits pour 1 angle 832×1248 (job 4a23ca60)
   geste({ id: "outil-img-360", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_qwen_Image_2512_360_lora", credits: 20, high: 30, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-img-croquis", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_Image_2512_controlnet", credits: 17, high: 26, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_ltx2_5_t2v", credits: 5, high: 8, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 4,72 crédits pour 5 s 16:9 0,9 MP (job b782b20d)
   geste({ id: "outil-vid-kling", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_kling_v3_video", credits: 177, high: 266, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-seedance", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_seedance2_5_r2v", credits: 352, high: 528, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-wan", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_wan2_2_14B_i2v", credits: 8, high: 13, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 8,44 crédits pour 5 s 832×480 (lot exemples ; 261e9e69 : 6,32) (job c8d97094)
+  geste({ id: "outil-vid-multi", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_minimax_h3_multiframe_reference", credits: 14, high: 21, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 14,00 crédits pour 5 s 16:9, 20 pas (job 47a49f52)
+  geste({ id: "outil-vid-transition-style", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_ltx2_3_style_transition", credits: 7, high: 11, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 6,92 crédits pour 6 s 720×1280 (job 1aa1b714)
   geste({ id: "outil-vid-vidu", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_vidu_q4_preview_r2v", credits: 100, high: 151, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 100,23 crédits pour API, 1 clip (job 11703345)
   geste({ id: "outil-vid-h3max", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_minimax_h3_max_r2v", credits: 181, high: 272, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-mouvement", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_wan_animate2", credits: 17, high: 25, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 16,59 crédits pour 81 images 482×854 (job 6ad03f2c)
@@ -505,10 +504,13 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-son-dialogue", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_elevenlabs_v4_text_to_dialogue", credits: 4, high: 6, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 3,57 crédits pour API 2,39 + GPU 1,18 (job 23c3206b)
   geste({ id: "outil-son-musique-ouverte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_ace_step1_5_xl_turbo", credits: 3, high: 6, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 3,37 crédits pour 30 s (job a14b4cd4)
   geste({ id: "outil-son-bruitage-ouvert", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_stable_audio_3_medium", credits: 2, high: 3, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 1,66 crédits pour 1 bruitage (job 54ab5718)
+  geste({ id: "outil-ret-eclairer-ouvert", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_image_edit_2509_relight", credits: 4, high: 6, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 3,61 crédits pour 1 portrait 832×1248, 4 pas (job 416ef414)
   geste({ id: "outil-ret-eclairer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_character_portrait_relighting", credits: 18, high: 27, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-prolonger-grok", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_grok_video_extend", credits: 136, high: 204, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-detourer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bria_remove_video_background", credits: 63, high: 95, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 63,30 crédits pour API, 1 clip (job 74567076)
   geste({ id: "outil-vid-levres", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sync_so_lip_sync_video", credits: 280, high: 420, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 278 crédits pour ~5 s → registre 280 / high 420
+  geste({ id: "outil-son-bruitage-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_mirelo_video_to_sfx", credits: 15, high: 18, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 14,26 crédits partenaire pour 5,04 s de prise (job f5d1f00a), 3 crédits/s
+  geste({ id: "outil-son-separer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_melbandroformer_audio_separation", credits: 1, high: 1, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 0,43 crédit pour 6,4 s de voix + musique (job 28e6846d)
   geste({ id: "outil-son-musique-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sonilo_v2m", credits: 10, high: 15, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
 ];
 
@@ -606,6 +608,15 @@ export const NOEUD_SORTIE: Readonly<Record<string, string>> = {
   api_bria_remove_video_background: "5",
   api_sync_so_lip_sync_video: "13",
   api_sonilo_v2m: "728",
+  // Top 10 (29.10.2026): the 8 angles leave through one Batch Images node and one save.
+  "templates-1_click_multiple_character_angles-v1.0": "991",
+  "templates-1_click_multiple_scene_angles-v1.0": "991",
+  "template_qwen_multiangle.app": "2",
+  api_mirelo_video_to_sfx: "2",
+  audio_melbandroformer_audio_separation: "4",
+  video_minimax_h3_multiframe_reference: "92",
+  template_ltx2_3_style_transition: "68",
+  image_qwen_image_edit_2509_relight: "12",
   // Tools that load a file of the kind they save (suite graphs).
   image_flux3_klein_image_edit: "save",
   utility_seedvr2_3b_int8_upscale_image: "9",

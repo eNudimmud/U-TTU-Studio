@@ -2010,8 +2010,16 @@
       "positionHint": "For example: on the left, at eye level",
       "duration": "Shot duration",
       "reference": "Framing reference",
-      "refGroups": {"decor": "SET · viewpoints", "cast": "CAST", "autres": "Other images"},
-      "refKinds": {"rendu": "render", "vue": "view", "image": "image"},
+      "refGroups": {
+        "decor": "SET · viewpoints",
+        "cast": "CAST",
+        "autres": "Other images"
+      },
+      "refKinds": {
+        "rendu": "render",
+        "vue": "view",
+        "image": "image"
+      },
       "none": "None",
       "referencesHint": "Choose the characters and set below. The framing reference is sent with the render as a visual guide.",
       "changed": "Change added to the history.",
@@ -2563,8 +2571,12 @@
         "line": "Keeps characters and place consistent."
       },
       "vid-multi": {
-        "title": "Several keyframes",
-        "line": "A video passing through several pictures."
+        "title": "Faithful keyframes",
+        "line": "Keeps the character from your first picture and ends on the second, with sound."
+      },
+      "vid-transition-style": {
+        "title": "Style transition",
+        "line": "Your shot moves from one style to another, from your first picture to the second."
       },
       "vid-h3-audio": {
         "title": "Video on a sound",
@@ -2747,6 +2759,30 @@
       "vid-genjutsu": {
         "title": "Genjutsu — replace a character",
         "line": "Change a clip’s character while keeping its motion, using the Comfy workflow."
+      },
+      "ret-angles-perso": {
+        "title": "Eight character angles",
+        "line": "One portrait, eight views: profiles, three-quarters, high angle, close-up."
+      },
+      "ret-angles-decor": {
+        "title": "Eight set angles",
+        "line": "One place, eight viewpoints to cover the scene."
+      },
+      "ret-camera": {
+        "title": "Move the camera",
+        "line": "Same picture, seen from another angle."
+      },
+      "son-bruitage-video": {
+        "title": "Sound effects for a video",
+        "line": "Sounds timed to the action in your shot. Speech is kept."
+      },
+      "son-separer": {
+        "title": "Split voice and music",
+        "line": "Keep the voice or the music of a sound."
+      },
+      "ret-eclairer-ouvert": {
+        "title": "Relight",
+        "line": "Same portrait, new lighting."
       }
     },
     "latest": "Latest results",
@@ -2770,7 +2806,11 @@
       "son-musique": "Polished music",
       "son-bruitage-ouvert": "Simple effect",
       "son-bruitage": "Polished effect",
-      "vid-genjutsu": "Higgsfield Genjutsu"
+      "vid-genjutsu": "Higgsfield Genjutsu",
+      "ret-eclairer-ouvert": "Light from your prompt",
+      "ret-eclairer": "Studio portrait",
+      "vid-h3-refs": "Faithful, low cost",
+      "vid-vidu": "Two pictures blended"
     },
     "model": "Model",
     "modelChange": "Change model",
@@ -2786,7 +2826,25 @@
       "start": "Start image",
       "end": "End image"
     },
-    "costWait": "reading duration…"
+    "costWait": "reading duration…",
+    "camera": {
+      "label": "Camera angle",
+      "trois-quarts": "Three-quarter",
+      "face": "Front",
+      "profil": "Profile",
+      "dos": "Back",
+      "plongee": "High angle",
+      "contre-plongee": "Low angle",
+      "gros-plan": "Close-up",
+      "large": "Wide shot"
+    },
+    "lot": "{count} angles",
+    "lotItem": "Angle {n} of {count}",
+    "piste": {
+      "label": "Track to keep",
+      "voix": "Voice",
+      "musique": "Music"
+    }
   },
   "top": {
     "nav": "Studio navigation",

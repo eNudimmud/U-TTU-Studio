@@ -17,6 +17,25 @@ export interface OutilFiles {
   audio?: string;
 }
 
+/** Novice camera choices for the one-angle tool (CameraAngle: h 0–360, v −30…60, zoom 0–10). */
+export const CAMERAS = {
+  "trois-quarts": { horizontal_angle: 45, vertical_angle: 0, zoom: 5 },
+  face: { horizontal_angle: 0, vertical_angle: 0, zoom: 5 },
+  profil: { horizontal_angle: 90, vertical_angle: 0, zoom: 5 },
+  dos: { horizontal_angle: 180, vertical_angle: 0, zoom: 5 },
+  plongee: { horizontal_angle: 0, vertical_angle: 45, zoom: 5 },
+  "contre-plongee": { horizontal_angle: 0, vertical_angle: -30, zoom: 5 },
+  "gros-plan": { horizontal_angle: 0, vertical_angle: 0, zoom: 8 },
+  large: { horizontal_angle: 0, vertical_angle: 0, zoom: 2 },
+} as const;
+export type OutilCamera = keyof typeof CAMERAS;
+export const OUTIL_CAMERAS = Object.keys(CAMERAS) as OutilCamera[];
+
+/** Which stem the separation keeps (MelBandRoFormerSampler outputs: 0 vocals, 1 instruments). */
+export const PISTES = { voix: 0, musique: 1 } as const;
+export type OutilPiste = keyof typeof PISTES;
+export const OUTIL_PISTES = Object.keys(PISTES) as OutilPiste[];
+
 export interface GeneriqueInput {
   template: string;
   files: OutilFiles;
@@ -25,6 +44,8 @@ export interface GeneriqueInput {
   prefix: string;
   aspect?: OutilAspect;
   resolution?: GenjutsuResolution;
+  camera?: OutilCamera;
+  piste?: OutilPiste;
 }
 
 interface Spec {
@@ -136,6 +157,44 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
   api_grok_video_extend: { video: ["1", "file"], prompt: [["2", "prompt"]], seed: [["2", "seed"]], save: ["3", "filename_prefix"], needsText: true },
   api_bria_remove_video_background: { video: ["4", "file"], seed: [["2", "seed"]], save: ["5", "filename_prefix"] },
   api_sync_so_lip_sync_video: { video: ["9", "file"], audio: ["11", "audio"], seed: [["8", "seed"]], save: ["13", "filename_prefix"] },
+  // Top 10 (29.10.2026). The 8 angles: one picture in, 8 out through Batch Images 990 → save 991.
+  "templates-1_click_multiple_character_angles-v1.0": {
+    images: [["25", "image"]], save: ["991", "filename_prefix"],
+    seed: [["427:221:169", "seed"], ["427:246:242", "seed"], ["427:271:267", "seed"], ["427:296:292", "seed"], ["427:321:317", "seed"], ["427:346:342", "seed"], ["427:371:367", "seed"], ["427:423:419", "seed"]],
+  },
+  "templates-1_click_multiple_scene_angles-v1.0": {
+    images: [["25", "image"]], save: ["991", "filename_prefix"],
+    seed: [["65:33:21", "seed"], ["65:35:81", "seed"], ["65:37:90", "seed"], ["65:39:99", "seed"], ["65:40:108", "seed"], ["65:42:117", "seed"], ["65:44:126", "seed"], ["65:46:138", "seed"]],
+  },
+  "template_qwen_multiangle.app": {
+    images: [["1", "image"]], seed: [["219:169", "seed"]], save: ["2", "filename_prefix"],
+    patch(graph, _prompt, input) { Object.assign(graph["221"].inputs, CAMERAS[input.camera ?? "trois-quarts"]); },
+  },
+  api_mirelo_video_to_sfx: { video: ["7", "file"], prompt: [["4", "model.prompt"]], seed: [["4", "model.seed"]], save: ["2", "filename_prefix"] },
+  audio_melbandroformer_audio_separation: {
+    audio: ["1", "audio"], save: ["4", "filename_prefix"],
+    patch(graph, _prompt, input) { graph["4"].inputs.audio = ["3", PISTES[input.piste ?? "voix"]]; },
+  },
+  // Top 10 n° 7: Qwen Image Edit 2509 + Relight LoRA, 4 Lightning steps. Node 14 puts the
+  // LoRA's trigger « 重新照明, » in front of the consigne (15).
+  image_qwen_image_edit_2509_relight: {
+    images: [["11", "image"]], prompt: [["15", "value"]], seed: [["10:3", "seed"]], save: ["12", "filename_prefix"], needsText: true,
+  },
+  // Top 10 n° 4: Picture 1 is the reference (164), picture 2 the 5 s keyframe (167).
+  video_minimax_h3_multiframe_reference: {
+    images: [["164", "image"], ["167", "image"]], prompt: [["138", "value"]], seed: [["129", "noise_seed"]], save: ["92", "filename_prefix"],
+    aspect: { at: ["115", "aspect_ratio"], ...RESOLUTION }, needsText: true,
+  },
+  // Top 10 n° 9: first frame 138, last frame 137 (the other style), 6 s; the LoRA needs its trigger word.
+  template_ltx2_3_style_transition: {
+    images: [["138", "image"], ["137", "image"]], prompt: [["139:128", "text"]], seed: [["139:100", "noise_seed"]], save: ["68", "filename_prefix"], needsText: true,
+    patch(graph, prompt, input) {
+      const vertical = input.aspect !== "horizontal";
+      graph["139:113"].inputs.value = vertical ? 720 : 1280;
+      graph["139:98"].inputs.value = vertical ? 1280 : 720;
+      if (!/\bzhuanchang\b/i.test(prompt)) graph["139:128"].inputs.text = `${prompt.trim()} zhuanchang`;
+    },
+  },
   api_sonilo_v2m: { video: ["705", "file"], prompt: [["703", "prompt"]], seed: [["703", "seed"]], save: ["728", "filename_prefix"] },
 };
 

@@ -1,0 +1,44 @@
+{
+  "2": {
+    "_meta": {
+      "title": "Save SFX Track"
+    },
+    "class_type": "SaveAudioAdvanced",
+    "inputs": {
+      "audio": [
+        "4",
+        0
+      ],
+      "filename_prefix": "audio/uttu-son-bruitage-video",
+      "format": "mp3",
+      "format.quality": "V0"
+    }
+  },
+  "4": {
+    "_meta": {
+      "title": "Mirelo Video to SFX"
+    },
+    "class_type": "MireloVideoToSFX",
+    "inputs": {
+      "model": "sfx-2.0",
+      "model.negative_prompt": "",
+      "model.preserve_speech": true,
+      "model.prompt": "<texte du visiteur>",
+      "model.seed": 0,
+      "model.video": [
+        "7",
+        0
+      ]
+    }
+  },
+  "7": {
+    "_meta": {
+      "title": "Load Video"
+    },
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "uttu-plan.mp4",
+      "video-preview": ""
+    }
+  }
+}

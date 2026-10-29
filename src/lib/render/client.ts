@@ -111,6 +111,13 @@ export function pickOutput(outputs: Record<string, unknown> | undefined, kind: O
   return files.find(file => file.type === "output") ?? files[0] ?? null;
 }
 
+/** Every file of one kind a node saved, in save order (an 8-angle lot leaves through one node). */
+export function pickOutputs(outputs: Record<string, unknown> | undefined, kind: OutputKind, node: string): OutputRef[] {
+  if (!outputs || typeof outputs !== "object") return [];
+  const pattern = KIND_FILE[kind];
+  return filesOf((outputs as Record<string, unknown>)[node]).filter(file => file.type !== "input" && pattern.test(file.filename));
+}
+
 /** The video a job saved. SaveVideo reports it under `images`, `video` or `gifs`. */
 export function videoOutput(outputs: Record<string, unknown> | undefined, node?: string): OutputRef | null {
   return pickOutput(outputs, "video", node);

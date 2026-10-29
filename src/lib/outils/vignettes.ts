@@ -7,10 +7,12 @@
 const VIGNETTES = new Set([
   "img-klein", "img-qwen", "img-flux3", "img-ideogram", "img-gpt", "img-seedream", "img-nano", "img-refs", "img-360", "img-croquis",
   "ret-modifier", "ret-finaliser", "ret-elargir", "ret-detourer", "ret-eclairer",
-  "vid-wan", "vid-texte", "vid-raccord", "vid-h3-refs", "vid-vidu", "vid-prolonger", "vid-parler", "vid-finaliser",
+  "ret-angles-perso", "ret-angles-decor", "ret-camera",
+  "vid-wan", "vid-texte", "vid-raccord", "vid-h3-refs", "vid-multi", "vid-transition-style", "vid-vidu", "vid-prolonger", "vid-parler", "vid-finaliser",
   "vid-recadrer", "vid-detourer", "vid-levres", "vid-effacer", "vid-fluidifier", "vid-mouvement",
   "3d-ouvert", "reperage", "maquette",
   "son-voix-ouverte", "son-dialogue", "son-musique-ouverte", "son-bruitage-ouvert", "son-musique-video",
+  "son-bruitage-video", "son-separer",
 ]);
 
 /** The « Repérer un lieu » card: free 3D scouting, opened from the rail and the 3D row. */
@@ -32,21 +34,25 @@ const ANIMEES = new Set([
   "son-voix-ouverte", "son-dialogue", "son-musique-ouverte", "son-bruitage-ouvert", "son-musique-video",
 ]);
 
+/** Open-weight heads that reuse the thumbnail of the card they now lead. */
+const MEME_VIGNETTE: Record<string, string> = { "ret-eclairer-ouvert": "ret-eclairer" };
+const nom = (id: string) => MEME_VIGNETTE[id] ?? id;
+
 /** Public path of a tool's thumbnail, or null (a tool without a thumbnail yet). */
 export function vignette(id: string): string | null {
   if (id === "vid-genjutsu") return UTTU_PORTRAIT_WIDE;
-  return VIGNETTES.has(id) ? `/exemples/vignettes/${id}.webp` : null;
+  return VIGNETTES.has(nom(id)) ? `/exemples/vignettes/${nom(id)}.webp` : null;
 }
 
 /** The same thumbnail at 1280x800, for dense screens. */
 export function vignette2x(id: string): string | null {
   if (id === "vid-genjutsu") return UTTU_PORTRAIT_WIDE_HD;
-  return VIGNETTES.has(id) ? `/exemples/vignettes/${id}@2x.webp` : null;
+  return VIGNETTES.has(nom(id)) ? `/exemples/vignettes/${nom(id)}@2x.webp` : null;
 }
 
 /** The card's silent loop (webm first, mp4 for Safari), or null for a still card. */
 export function vignetteAnimee(id: string): { webm: string; mp4: string } | null {
-  return ANIMEES.has(id) ? { webm: `/exemples/vignettes/${id}.webm`, mp4: `/exemples/vignettes/${id}.mp4` } : null;
+  return ANIMEES.has(nom(id)) ? { webm: `/exemples/vignettes/${nom(id)}.webm`, mp4: `/exemples/vignettes/${nom(id)}.mp4` } : null;
 }
 
 /** Uttu, the studio's character: the canon portrait, cropped so only she is in frame. */

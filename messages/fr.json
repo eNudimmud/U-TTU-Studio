@@ -2010,8 +2010,16 @@
       "positionHint": "Par exemple : à gauche, à hauteur des yeux",
       "duration": "Durée du plan",
       "reference": "Référence de cadrage",
-      "refGroups": {"decor": "DÉCOR · points de vue", "cast": "CAST", "autres": "Autres images"},
-      "refKinds": {"rendu": "rendu", "vue": "vue", "image": "image"},
+      "refGroups": {
+        "decor": "DÉCOR · points de vue",
+        "cast": "CAST",
+        "autres": "Autres images"
+      },
+      "refKinds": {
+        "rendu": "rendu",
+        "vue": "vue",
+        "image": "image"
+      },
       "none": "Aucune",
       "referencesHint": "Choisis les personnages et le décor ci-dessous. La référence de cadrage est jointe au rendu comme indication visuelle.",
       "changed": "Modification enregistrée dans l’historique.",
@@ -2563,8 +2571,12 @@
         "line": "Garde personnages et lieu d’une image à l’autre."
       },
       "vid-multi": {
-        "title": "Plusieurs images clés",
-        "line": "Une vidéo qui passe par plusieurs images."
+        "title": "Images clés fidèles",
+        "line": "Garde le personnage de ta première image et finit sur la deuxième, avec le son."
+      },
+      "vid-transition-style": {
+        "title": "Transition de style",
+        "line": "Ton plan passe d’un style à l’autre, de ta première image à la deuxième."
       },
       "vid-h3-audio": {
         "title": "Vidéo sur un son",
@@ -2747,6 +2759,30 @@
       "vid-genjutsu": {
         "title": "Genjutsu — remplacer un personnage",
         "line": "Change le personnage d’un clip en gardant son mouvement, avec le workflow Comfy."
+      },
+      "ret-angles-perso": {
+        "title": "Huit angles du personnage",
+        "line": "Un portrait, huit vues : profils, trois-quarts, plongée, gros plan."
+      },
+      "ret-angles-decor": {
+        "title": "Huit angles du décor",
+        "line": "Un lieu, huit points de vue pour couvrir la scène."
+      },
+      "ret-camera": {
+        "title": "Déplacer la caméra",
+        "line": "Même image, vue d’un autre angle."
+      },
+      "son-bruitage-video": {
+        "title": "Bruitage d’une vidéo",
+        "line": "Des bruits calés sur l’action de ton plan, la voix est gardée."
+      },
+      "son-separer": {
+        "title": "Séparer voix et musique",
+        "line": "Garde la voix ou la musique d’un son."
+      },
+      "ret-eclairer-ouvert": {
+        "title": "Changer la lumière",
+        "line": "Même portrait, nouvel éclairage."
       }
     },
     "latest": "Derniers résultats",
@@ -2770,7 +2806,11 @@
       "son-musique": "Musique soignée",
       "son-bruitage-ouvert": "Bruitage simple",
       "son-bruitage": "Bruitage soigné",
-      "vid-genjutsu": "Higgsfield Genjutsu"
+      "vid-genjutsu": "Higgsfield Genjutsu",
+      "ret-eclairer-ouvert": "Lumière par consigne",
+      "ret-eclairer": "Portrait studio",
+      "vid-h3-refs": "Fidèle, économique",
+      "vid-vidu": "Deux images mêlées"
     },
     "model": "Modèle",
     "modelChange": "Changer de modèle",
@@ -2786,7 +2826,25 @@
       "start": "Image de départ",
       "end": "Image d’arrivée"
     },
-    "costWait": "durée en cours de lecture…"
+    "costWait": "durée en cours de lecture…",
+    "camera": {
+      "label": "Angle de caméra",
+      "trois-quarts": "Trois-quarts",
+      "face": "Face",
+      "profil": "Profil",
+      "dos": "Dos",
+      "plongee": "Plongée",
+      "contre-plongee": "Contre-plongée",
+      "gros-plan": "Gros plan",
+      "large": "Plan large"
+    },
+    "lot": "{count} angles",
+    "lotItem": "Angle {n} sur {count}",
+    "piste": {
+      "label": "Piste à garder",
+      "voix": "Voix",
+      "musique": "Musique"
+    }
   },
   "top": {
     "nav": "Navigation du studio",

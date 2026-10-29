@@ -2010,8 +2010,16 @@
       "positionHint": "Zum Beispiel: links, auf Augenhöhe",
       "duration": "Dauer der Einstellung",
       "reference": "Bildreferenz für den Ausschnitt",
-      "refGroups": {"decor": "KULISSE · Blickwinkel", "cast": "BESETZUNG", "autres": "Weitere Bilder"},
-      "refKinds": {"rendu": "Rendering", "vue": "Ansicht", "image": "Bild"},
+      "refGroups": {
+        "decor": "KULISSE · Blickwinkel",
+        "cast": "BESETZUNG",
+        "autres": "Weitere Bilder"
+      },
+      "refKinds": {
+        "rendu": "Rendering",
+        "vue": "Ansicht",
+        "image": "Bild"
+      },
       "none": "Keine",
       "referencesHint": "Wähle unten Figuren und Kulisse. Die Bildreferenz wird als visuelle Vorgabe mitgesendet.",
       "changed": "Änderung im Verlauf gespeichert.",
@@ -2563,8 +2571,12 @@
         "line": "Hält Figuren und Ort stabil."
       },
       "vid-multi": {
-        "title": "Mehrere Schlüsselbilder",
-        "line": "Ein Video über mehrere Bilder."
+        "title": "Treue Schlüsselbilder",
+        "line": "Behält die Figur aus deinem ersten Bild und endet auf dem zweiten, mit Ton."
+      },
+      "vid-transition-style": {
+        "title": "Stilübergang",
+        "line": "Deine Einstellung wechselt den Stil, vom ersten Bild zum zweiten."
       },
       "vid-h3-audio": {
         "title": "Video zum Ton",
@@ -2747,6 +2759,30 @@
       "vid-genjutsu": {
         "title": "Genjutsu — Figur ersetzen",
         "line": "Ersetze die Figur eines Clips und behalte ihre Bewegung mit dem Comfy-Workflow bei."
+      },
+      "ret-angles-perso": {
+        "title": "Acht Figurenwinkel",
+        "line": "Ein Porträt, acht Ansichten: Profile, Dreiviertel, Aufsicht, Großaufnahme."
+      },
+      "ret-angles-decor": {
+        "title": "Acht Kulissenwinkel",
+        "line": "Ein Ort, acht Blickwinkel für die ganze Szene."
+      },
+      "ret-camera": {
+        "title": "Kamera bewegen",
+        "line": "Dasselbe Bild aus einem anderen Winkel."
+      },
+      "son-bruitage-video": {
+        "title": "Geräusche für ein Video",
+        "line": "Geräusche passend zur Handlung deiner Einstellung. Die Stimme bleibt erhalten."
+      },
+      "son-separer": {
+        "title": "Stimme und Musik trennen",
+        "line": "Behalte die Stimme oder die Musik eines Tons."
+      },
+      "ret-eclairer-ouvert": {
+        "title": "Licht ändern",
+        "line": "Gleiches Porträt, neues Licht."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2770,7 +2806,11 @@
       "son-musique": "Feine Musik",
       "son-bruitage-ouvert": "Einfaches Geräusch",
       "son-bruitage": "Feines Geräusch",
-      "vid-genjutsu": "Higgsfield Genjutsu"
+      "vid-genjutsu": "Higgsfield Genjutsu",
+      "ret-eclairer-ouvert": "Licht nach Anweisung",
+      "ret-eclairer": "Studioporträt",
+      "vid-h3-refs": "Treu, günstig",
+      "vid-vidu": "Zwei Bilder vereint"
     },
     "model": "Modell",
     "modelChange": "Modell wechseln",
@@ -2786,7 +2826,25 @@
       "start": "Startbild",
       "end": "Endbild"
     },
-    "costWait": "Dauer wird gelesen…"
+    "costWait": "Dauer wird gelesen…",
+    "camera": {
+      "label": "Kamerawinkel",
+      "trois-quarts": "Dreiviertel",
+      "face": "Frontal",
+      "profil": "Profil",
+      "dos": "Rücken",
+      "plongee": "Aufsicht",
+      "contre-plongee": "Untersicht",
+      "gros-plan": "Großaufnahme",
+      "large": "Totale"
+    },
+    "lot": "{count} Winkel",
+    "lotItem": "Winkel {n} von {count}",
+    "piste": {
+      "label": "Spur behalten",
+      "voix": "Stimme",
+      "musique": "Musik"
+    }
   },
   "top": {
     "nav": "Studio-Navigation",

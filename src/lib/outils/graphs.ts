@@ -11,7 +11,7 @@ import { isVideoGeste, videoGesteGraph } from "../render/video-gestes.ts";
 import { isSuiteGeste, suiteGraph, type Elargir } from "../suite/graphs.ts";
 import { gesteParId } from "../workflows/registre.ts";
 import { outilRow, type Outil } from "./catalogue.ts";
-import { generiqueGraph, type OutilAspect, type OutilFiles } from "./generique.ts";
+import { generiqueGraph, type OutilAspect, type OutilCamera, type OutilFiles, type OutilPiste } from "./generique.ts";
 import { GENJUTSU_TEMPLATE, genjutsuQuote, type GenjutsuResolution } from "./genjutsu.ts";
 
 export const OUTIL_SECONDS = 5;
@@ -27,6 +27,8 @@ export interface OutilInput {
   seconds?: number;
   mesh?: "objet" | "perso";
   resolution?: GenjutsuResolution;
+  camera?: OutilCamera;
+  piste?: OutilPiste;
 }
 
 export const MESH_GESTE = { objet: "prise-volume-objet", perso: "prise-volume-perso" } as const;
@@ -56,7 +58,7 @@ export function outilGraph(outil: Outil, input: OutilInput): ApiGraph {
       return graph;
     }
     case "generique":
-      return generiqueGraph({ template: outil.template, files: input.files, prompt, seed: input.seed, prefix: outilPrefix(outil), aspect: input.aspect, resolution: input.resolution });
+      return generiqueGraph({ template: outil.template, files: input.files, prompt, seed: input.seed, prefix: outilPrefix(outil), aspect: input.aspect, resolution: input.resolution, camera: input.camera, piste: input.piste });
     case "suite": {
       if (!isSuiteGeste(row.id)) throw new Error(row.id);
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.files.video : images[0];
