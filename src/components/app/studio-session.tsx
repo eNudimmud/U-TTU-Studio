@@ -8,8 +8,6 @@ import type { Edit } from "@/lib/montage/edit";
 import { assetPath } from "@/lib/site";
 import { assetNote, assetPaths, importNotes, looseAssets, type AssetRecord } from "@/lib/creation/assets";
 import { importMedia } from "@/lib/creation/import-media";
-import { promoteDemoRefs, type PromotedRef } from "@/lib/creation/promote-demo";
-import type { ExempleRefSpec } from "@/lib/creation/exemple-galerie";
 import { readFrontmatter, list, withFrontmatter } from "@/lib/coffre/markdown";
 import { castNote } from "@/lib/creation/fiche";
 import { runStem, type StemKind } from "@/lib/creation/stem";
@@ -197,7 +195,6 @@ export interface StudioSession {
   importFiles(files: File[]): Promise<void>;
   importAssets(files: File[], as?: "personnage" | "decor"): Promise<void>;
   /** P0-2: copy gallery/example refs into the project so Vidéo routes to PRISE. */
-  promoteExempleRefs(specs: readonly ExempleRefSpec[]): Promise<PromotedRef[]>;
   refreshStudio(): Promise<void>;
   pendingRef: HeldRef | null;
   holdRef(ref: HeldRef | null): void;
@@ -1988,12 +1985,6 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     return { path, url };
   }, [reload, store]);
 
-  const promoteExempleRefs = useCallback(async (specs: readonly ExempleRefSpec[]) => {
-    const promoted = await promoteDemoRefs(store(), specs);
-    await reload();
-    return promoted;
-  }, [reload, store]);
-
   const refreshStudio = useCallback(async () => {
     await reload();
   }, [reload]);
@@ -2284,7 +2275,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,
-    pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, promoteExempleRefs, refreshStudio,
+    pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
     saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
