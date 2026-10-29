@@ -6,6 +6,7 @@ import { seedOf } from "../seed.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import { OUTIL_BASES } from "./base.ts";
 import { genjutsuResolution, type GenjutsuResolution } from "./genjutsu.ts";
+import { fastH3Prompt } from "./fasth3-prompt.ts";
 
 type At = readonly [node: string, input: string];
 export type OutilAspect = "horizontal" | "vertical";
@@ -180,6 +181,19 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
   // Audit n° 7 (29.10.2026): Qwen Image Edit 2509 + Light Migration LoRA, 4 Lightning steps.
   // Subject in image1 (7), light in image2 (6), as the LoRA card and the « app » template say; the
   // January template wired the light to image3. The default Chinese prompt stays as shipped.
+  // Audit n° 8 (29.10.2026): FastH3 OmniRef as the template ships it (8 steps, guidance 1, euler,
+  // shift 12 / 3, vsa 10 %), two references (Picture 1 character, Picture 2 place: the template
+  // wires one, the node takes up to 9) and the structured prompt built from the request.
+  // 0.4 MP (864×480), 5 s: the measured settings (job ddd54cb2, 7,78 crédits).
+  video_fasth3_ominiref_r2v: {
+    images: [["137", "image"], ["150", "image"]], seed: [["129", "noise_seed"]], save: ["92", "filename_prefix"],
+    aspect: { at: ["115", "aspect_ratio"], ...RESOLUTION }, needsText: true,
+    set: { "115": { megapixels: 0.4 }, "132": { value: 5 }, "136": { ref_image_size: "match" } },
+    patch(graph, prompt, input) {
+      if (!input.files.images?.[1]) throw new Error("Image du lieu manquante.");
+      graph["138"].inputs.value = fastH3Prompt(prompt);
+    },
+  },
   "templates-portrait_light_migration": {
     images: [["7", "image"], ["6", "image"]], seed: [["471:121", "seed"]], save: ["5", "filename_prefix"],
     patch(_graph, _prompt, input) { if (!input.files.images?.[1]) throw new Error("Image de lumière manquante."); },

@@ -227,3 +227,28 @@ Là où FastH3 est meilleur :
 - Jusqu’à 9 images de référence, plus des références vidéo et audio.
 
 Note pour l’agent Uttu : FastH3 n’est bon qu’avec la consigne structurée (`subject_definitions`, `summary [reference generation]`, `retention_analysis`, `detailed_description`, `overall_soundscape`, `non_diegetic_music`).
+
+## FastH3 OmniRef intégré en second modèle (décision de JD, 23 h 05)
+
+JD : « On garde le meilleur ou les deux s’ils se complètent ». Ils se complètent : H3 turbo garde mieux le visage (fissures dorées) et coûte moins cher ; FastH3 garde mieux le lieu (corde, bittes d’amarrage, brume). H3 reste donc le modèle par défaut de « Vidéo fidèle aux références », et FastH3 devient le second modèle (`vid-fasth3`, « Lieu plus fidèle (multi-références) », via « Changer de modèle »). Vidu passe en troisième.
+
+Réglages : ceux du job mesuré `ddd54cb2`, tels que le template les livre.
+- Recette : 8 pas, guidage 1, euler simple, décalage 12 / 3, attention `vsa` à 10 %, comfy kitchen attention.
+- Format : `ref_image_size: match`, 0,4 MP (864×480 en 16:9), 5 s (124 images à 24 i/s).
+- Format vertical : 9:16, même nombre de pixels, même devis (non mesuré à part).
+
+Références : le template n’en câble qu’une (`ref_image_0`). Le nœud en accepte jusqu’à 9. Le studio envoie les deux références de la mesure, dans deux cases nommées : Picture 1 pour le personnage, Picture 2 pour le lieu. Le lieu est obligatoire. Je n’ouvre pas 3 à 9 références tant qu’aucun rendu ni devis ne les couvre : chaque référence ajoute des jetons à la séquence, donc du temps de GPU. Le générateur de consigne sait déjà en nommer jusqu’à 9.
+
+Consigne : le visiteur écrit une demande. Le studio en tire la consigne structurée documentée (`src/lib/outils/fasth3-prompt.ts`), dans cet ordre :
+- `subject_definitions` (`<Subject N> is the character/setting in <Picture N>`, avec le nom s’il est connu) ;
+- `summary` (`[reference generation] …` + la demande) ;
+- `retention_analysis` (`fully_preserved`) ;
+- `detailed_description` (`[Shot 1]` + la demande) ;
+- `overall_soundscape` ;
+- `non_diegetic_music: None.`
+
+La fonction est pure. Elle tourne là où le graphe est construit, comme pour tous les outils du hub. Le proxy Comfy, lui, transmet le corps du job sans le réécrire.
+
+Devis : 8 / 12 crédits, mesuré (7,78 crédits, job `ddd54cb2`). Aucun nouveau rendu : l’intégration ne change aucun réglage, seul le texte de la consigne est désormais généré. Dépense de cette étape : **0 crédit**.
+
+Ordre de fusion : #167 → #168 → #170 → #172 → #173 (`top10-doublons`) → #174 (`top10-audit`, lumière) → PR FastH3 (`top10-fasth3`) → #171 (`studio/accueil-readme-agent`, rebasée sur `top10-fasth3`).

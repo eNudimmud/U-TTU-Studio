@@ -2456,7 +2456,9 @@
       "start": "una imagen de inicio",
       "end": "una imagen final",
       "sujet": "un retrato",
-      "lumiere": "una imagen de la que tomar la luz"
+      "lumiere": "una imagen de la que tomar la luz",
+      "personnage": "un personaje",
+      "lieu": "un lugar"
     },
     "prompt": "Consigna",
     "refs": "Referencias",
@@ -2772,6 +2774,10 @@
       "ret-lumiere-image": {
         "title": "Copiar la luz de una imagen",
         "line": "Tu retrato, iluminado como otra imagen."
+      },
+      "vid-fasth3": {
+        "title": "Vídeo fiel al lugar",
+        "line": "Tu personaje en tu lugar, con el decorado intacto."
       }
     },
     "latest": "Últimos resultados",
@@ -2800,7 +2806,8 @@
       "ret-eclairer": "Retrato de estudio",
       "vid-h3-refs": "Fiel y económico",
       "vid-vidu": "Dos imágenes combinadas",
-      "ret-lumiere-image": "Luz de una imagen"
+      "ret-lumiere-image": "Luz de una imagen",
+      "vid-fasth3": "Lugar más fiel (multirreferencia)"
     },
     "model": "Modelo",
     "modelChange": "Cambiar de modelo",
@@ -2816,7 +2823,9 @@
       "start": "Imagen de inicio",
       "end": "Imagen final",
       "sujet": "Retrato",
-      "lumiere": "Luz que copiar"
+      "lumiere": "Luz que copiar",
+      "personnage": "Personaje",
+      "lieu": "Lugar"
     },
     "costWait": "leyendo la duración…",
     "camera": {

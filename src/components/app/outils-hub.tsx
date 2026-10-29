@@ -70,7 +70,7 @@ function ligneCarte(t: (key: string) => string, id: string) {
   return t(`outils.t.${intentDe(id)}.line`);
 }
 
-const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage", "ret-eclairer-ouvert", "ret-eclairer", "vid-h3-refs", "vid-vidu"]);
+const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage", "ret-eclairer-ouvert", "ret-lumiere-image", "ret-eclairer", "vid-h3-refs", "vid-fasth3", "vid-vidu"]);
 
 function nomModele(t: (key: string) => string, id: string) {
   return NAMED_MODELS.has(id) ? t(`outils.modelName.${id}`) : t(`outils.t.${id}.title`);
@@ -426,12 +426,14 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
 
   // A bridge (start and end frames) needs both pictures: two visible slots, « départ » and « arrivée ».
   const bridge = outil.template.endsWith("_flf2v");
-  // A light pair (subject, then the picture whose light it takes) also needs both, named.
-  const pair = bridge || outil.paire === "lumiere";
+  // A light pair (subject, then the picture whose light it takes) or a character and its place
+  // (FastH3) also needs both, named.
+  const pair = bridge || Boolean(outil.paire);
   const main = pair ? outil.entrees : outil.entrees.filter(item => item !== "image2");
   const refs = pair ? [] : outil.entrees.filter(item => item === "image2");
   const slotName = (entree: Entree) => bridge ? (entree === "image" ? "start" : entree === "image2" ? "end" : entree)
     : outil.paire === "lumiere" ? (entree === "image" ? "sujet" : entree === "image2" ? "lumiere" : entree)
+    : outil.paire === "lieu" ? (entree === "image" ? "personnage" : entree === "image2" ? "lieu" : entree)
     : entree;
   const reglages = [...(outil.reglages ?? []), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
   const video = inputs.video;

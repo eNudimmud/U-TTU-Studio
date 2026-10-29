@@ -189,3 +189,13 @@ test("copier la lumière d’une image : deux cases nommées, ton portrait et l�
   await expect(panel.locator("[data-tool-step=consigne]")).toHaveCount(0);
   await expect(panel.locator("[data-tool-go]")).toContainText("≈ 3 crédits");
 });
+
+test("FastH3, second modèle de « Vidéo fidèle aux références » : deux cases nommées, personnage et lieu", async ({ page }) => {
+  await page.goto("/studio#outils/vid-fasth3");
+  const panel = page.locator("[data-tool-panel]").first();
+  await expect(panel.locator("[data-tool-step=modele]")).toContainText("Lieu plus fidèle (multi-références)");
+  await expect(panel.locator("[data-outil-input=image] .u-label")).toHaveText("Personnage");
+  await expect(panel.locator("[data-outil-input=image2] .u-label")).toHaveText("Lieu");
+  await expect(panel.locator("[data-tool-step=consigne] textarea")).toBeVisible();
+  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 8 crédits");
+});

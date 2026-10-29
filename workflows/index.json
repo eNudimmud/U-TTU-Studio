@@ -730,6 +730,16 @@
       "api_file": "workflows/outils/outil-vid-transition-style.api.json"
     },
     {
+      "id": "outil-vid-fasth3",
+      "onglet": "outils",
+      "template": "video_fasth3_ominiref_r2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-fasth3.json",
+      "api_file": "workflows/outils/outil-vid-fasth3.api.json"
+    },
+    {
       "id": "outil-vid-vidu",
       "onglet": "outils",
       "template": "api_vidu_q4_preview_r2v",
