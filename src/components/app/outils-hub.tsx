@@ -70,7 +70,7 @@ function ligneCarte(t: (key: string) => string, id: string) {
   return t(`outils.t.${intentDe(id)}.line`);
 }
 
-const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage"]);
+const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage", "ret-eclairer-ouvert", "ret-eclairer"]);
 
 function nomModele(t: (key: string) => string, id: string) {
   return NAMED_MODELS.has(id) ? t(`outils.modelName.${id}`) : t(`outils.t.${id}.title`);
@@ -116,7 +116,7 @@ export function OutilsHub({ tool }: { tool: string | null }) {
 /** Hub tools that use the shared coque (PR B): Retoucher family + Finaliser with before/after slider. */
 const SHELL_COMPARE = new Set(["ret-finaliser"]);
 const SHELL_OUTILS = new Set([
-  "ret-modifier", "ret-finaliser", "ret-elargir", "ret-detourer", "ret-eclairer",
+  "ret-modifier", "ret-finaliser", "ret-elargir", "ret-detourer", "ret-eclairer", "ret-eclairer-ouvert",
 ]);
 
 function OutilWork({ outil, head }: { outil: Outil; head: string }) {

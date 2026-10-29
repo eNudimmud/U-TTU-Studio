@@ -2762,6 +2762,10 @@
       "son-separer": {
         "title": "Split voice and music",
         "line": "Keep the voice or the music of a sound."
+      },
+      "ret-eclairer-ouvert": {
+        "title": "Relight",
+        "line": "Same portrait, new lighting."
       }
     },
     "latest": "Latest results",
@@ -2785,7 +2789,9 @@
       "son-musique": "Polished music",
       "son-bruitage-ouvert": "Simple effect",
       "son-bruitage": "Polished effect",
-      "vid-genjutsu": "Higgsfield Genjutsu"
+      "vid-genjutsu": "Higgsfield Genjutsu",
+      "ret-eclairer-ouvert": "Light from your prompt",
+      "ret-eclairer": "Studio portrait"
     },
     "model": "Model",
     "modelChange": "Change model",

@@ -23,16 +23,16 @@ function links(graph: Record<string, { inputs: Record<string, unknown> }>): stri
 }
 
 describe("hub Outils", () => {
-  it("lists 64 template cards, every one in a family", () => {
-    assert.equal(OUTILS.length, 64);
-    assert.equal(new Set(OUTILS.map(item => item.id)).size, 64);
+  it("lists 65 template cards, every one in a family", () => {
+    assert.equal(OUTILS.length, 65);
+    assert.equal(new Set(OUTILS.map(item => item.id)).size, 65);
     assert.equal(new Set(OUTILS.map(item => item.num)).size, 61);
     for (const item of OUTILS) assert.ok(FAMILLES.includes(item.famille), item.id);
     for (const famille of FAMILLES) assert.ok(OUTILS.some(item => dansFamille(item, famille)), famille);
   });
 
-  it("wires 55 cards and says « bientôt » with a reason for the other 9", () => {
-    assert.equal(wired.length, 55);
+  it("wires 56 cards and says « bientôt » with a reason for the other 9", () => {
+    assert.equal(wired.length, 56);
     assert.equal(soon.length, 9);
     for (const item of soon) assert.ok(item.bientot, item.id);
     for (const item of wired) {
@@ -121,7 +121,9 @@ describe("hub Outils", () => {
     assert.equal(intentDe("vid-prolonger-grok"), "vid-prolonger");
     assert.equal(cards.filter(item => item.id === "vid-wan").length, 1);
     assert.equal(cards.some(item => item.id === "vid-kling"), false);
-    assert.equal(Object.values(INTENT_MODELES).flat().length, 6 + 2 + 4 + 2 + 2 + 2);
+    assert.equal(Object.values(INTENT_MODELES).flat().length, 6 + 2 + 4 + 2 + 2 + 2 + 2);
+    assert.equal(intentDe("ret-eclairer"), "ret-eclairer-ouvert");
+    assert.equal(modelesIntent("ret-eclairer")[0]?.id, "ret-eclairer-ouvert");
     // Nano stays off unless the visitor asks for it; the open card is still there.
     assert.equal(cards.some(item => item.id === "img-nano"), false);
     assert.equal(outilsPublics({ nanoBanana: true }).some(item => item.id === "img-nano"), true);

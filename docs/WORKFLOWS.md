@@ -21,7 +21,7 @@ Moteurs (concours Comfy « Open Source Higgsfield ») : **FLUX 3 Image Klein** (
 
 `ouvert` : le studio a déjà un graphe et un devis, le bouton Créer peut partir après confirmation. `fermé` : la carte reste, Créer reste éteint, rien ne part.
 
-Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « hypothèse » ou « estimé » n’est pas une mesure. 45 gestes sur 90 sont mesurés. Le relevé du 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue en lecture seule) en a ajouté 31, dont la prise LTX-2.5 (15,10 crédits pour 5 s 16:9), le raccord (6,98), élargir (16,32) et effacer (25,11) : chaque job et son coût sont dans [docs/mesures/test-visiteur-2026-10-27.md](mesures/test-visiteur-2026-10-27.md). Avant : la prise MiniMax H3 R2V (environ 4 crédits ; 3,66 le 27.10), les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109), la vue 360 et le croquis. Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure. Le devis de la prise affiché dans l’app reste marqué « Estimé » tant qu’aucun profil facturé n’est enregistré pour la prise ; le maximum sert de plafond face au solde.
+Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « hypothèse » ou « estimé » n’est pas une mesure. 46 gestes sur 91 sont mesurés. Le relevé du 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue en lecture seule) en a ajouté 31, dont la prise LTX-2.5 (15,10 crédits pour 5 s 16:9), le raccord (6,98), élargir (16,32) et effacer (25,11) : chaque job et son coût sont dans [docs/mesures/test-visiteur-2026-10-27.md](mesures/test-visiteur-2026-10-27.md). Avant : la prise MiniMax H3 R2V (environ 4 crédits ; 3,66 le 27.10), les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109), la vue 360 et le croquis. Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure. Le devis de la prise affiché dans l’app reste marqué « Estimé » tant qu’aucun profil facturé n’est enregistré pour la prise ; le maximum sert de plafond face au solde.
 
 ## CAST
 
@@ -136,7 +136,8 @@ Le hub « Outils » (barre du haut de /studio et de Mes créations) range chaque
 | outil-son-dialogue | `api_elevenlabs_v4_text_to_dialogue` | 4 / 6, mesuré | partenaire |
 | outil-son-musique-ouverte | `audio_ace_step1_5_xl_turbo` | 3 / 6, mesuré | ouvert, open weights |
 | outil-son-bruitage-ouvert | `audio_stable_audio_3_medium` | 2 / 3, mesuré | ouvert, open weights |
-| outil-ret-eclairer | `template_character_portrait_relighting` | 18 / 27, estimé | partenaire |
+| outil-ret-eclairer-ouvert | `image_qwen_image_edit_2509_relight` | 4 / 6, mesuré | ouvert, open weights ; modèle par défaut de la carte « Changer la lumière » (CAST), consigne requise, 4 pas Lightning |
+| outil-ret-eclairer | `template_character_portrait_relighting` | 18 / 27, estimé | partenaire ; second modèle de la carte « Changer la lumière » |
 | outil-vid-prolonger-grok | `api_grok_video_extend` | 136 / 204, estimé | partenaire |
 | outil-vid-detourer | `api_bria_remove_video_background` | 63 / 95 par 5 s, mesuré | partenaire |
 | outil-vid-levres | `api_sync_so_lip_sync_video` | 280 / 420 par 5 s, mesuré | partenaire |
