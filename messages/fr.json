@@ -2023,6 +2023,24 @@
         "plongee": "Plongée",
         "contre-plongee": "Contre-plongée"
       }
+    },
+    "etapes": {
+      "aria": "Étapes de la prise",
+      "step": "Étape {n} sur 5",
+      "preparer": "Préparer",
+      "plans": "Plans",
+      "previs": "Prévisualiser",
+      "generer": "Générer",
+      "reviser": "Réviser",
+      "next": "Suivant : {step}",
+      "prev": "Retour : {step}",
+      "lead": {
+        "preparer": "Personnage, décor, action, ambiance et références.",
+        "plans": "Compose la liste des plans, puis règle le plan choisi.",
+        "previs": "Vérifie le cadrage avant de dépenser des crédits.",
+        "generer": "Le devis d’abord, puis tu confirmes le lancement.",
+        "reviser": "Regarde, garde la bonne version, relance, envoie au MONTAGE."
+      }
     }
   },
   "p1": {
@@ -2215,6 +2233,7 @@
       "tags": "Ce que l'on sait du lieu",
       "refineTitle": "Affiner",
       "refineLead": "Un texte, des photos, ou les deux.",
+      "photosRule": "Les photos donnent l’apparence ; la 3D garde le cadrage.",
       "wish": "Décris ce que tu veux",
       "wishHint": "Ex. : fin d’après-midi d’automne, feuilles au sol",
       "ideas": "Idées",
