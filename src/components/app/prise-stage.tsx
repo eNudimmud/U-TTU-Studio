@@ -1,6 +1,7 @@
 "use client";
 
 import { useAgentDraft } from "./use-agent-draft";
+import { ETAPES, etapeApres, etapeInitiale, etapePrecedente, etapeSuivante, type Etape, type EtapeSignal } from "@/lib/prise/etapes";
 import { PRISE_HANDOFF_KEY, isPriseHandoff, takeHandoff, type PriseHandoff } from "@/lib/barre/model";
 import { OutilsStrip } from "./outils-hub";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -111,6 +112,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
   const [advanced, setAdvanced] = useState(false);
+  // P1-3 · phone path in five steps (CSS shows one step below 1024 px; large screens keep every block).
+  const [etape, setEtape] = useState<Etape>("preparer");
   // « Maquette 3D et cadrage » (the 3D row of Outils) lands on #prise/maquette: unfold AVANCÉ and the maquette.
   const [maquetteAsk, setMaquetteAsk] = useState(0);
   useEffect(() => {
@@ -118,6 +121,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       if (!/^#prise\/maquette\b/.test(window.location.hash)) return;
       setAdvanced(true);
       setMaquetteAsk(value => value + 1);
+      setEtape("previs");
     };
     apply();
     window.addEventListener("hashchange", apply);
@@ -414,6 +418,28 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const versions = planVersions(takeIds, studio.takes);
   const requestedTake = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("take");
   const landed = shownTake(versions, viewed[draft?.id ?? ""] ?? requestedTake);
+  const etapeSignal: EtapeSignal = {
+    running: run.phase === "running" && runOrigin?.project === studio.project && runOrigin?.planId === draft?.id,
+    failed: draft?.render?.phase === "error",
+    versions: versions.length,
+  };
+  const etapeSeen = useRef<{ plan: string; signal: EtapeSignal } | null>(null);
+  const etapeLoaded = plansLoaded === (studio.project ?? "");
+  useEffect(() => {
+    if (!etapeLoaded) return;
+    const plan = draft?.id ?? "";
+    const before = etapeSeen.current;
+    etapeSeen.current = { plan, signal: etapeSignal };
+    // First load opens on the takes when there are some. Picking another plan keeps the step,
+    // except « Réviser » on a plan with nothing to review: back to « Préparer ».
+    if (!before) { setEtape(current => current === "preparer" ? etapeInitiale(etapeSignal) : current); return; }
+    if (before.plan !== plan) {
+      if (etapeInitiale(etapeSignal) === "preparer") setEtape(current => current === "reviser" || current === "generer" ? "preparer" : current);
+      return;
+    }
+    setEtape(current => etapeApres(current, before.signal, etapeSignal));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [etapeLoaded, draft?.id, etapeSignal.running, etapeSignal.failed, etapeSignal.versions]);
   useEffect(() => {
     setDrafts(list => list.map(item => {
       const ids = studio.shots.find(shot => shot.id === item.id)?.takeIds ?? [];
@@ -947,7 +973,30 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   else { gold = { label: planCredits === null ? t("p0.tourner") : t("p0.rendu.go", { credits: formatCredits(planCredits) }), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
   const reasonText = gold.enabled ? "" : gold.reason;
 
-  return <section className="u-stage u-prise" data-section="prise" data-prise-shell="" data-prise-ready={ready && plansLoaded === (studio.project ?? "") ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
+  function goEtape(next: Etape) {
+    setEtape(next);
+    if (next === "previs") { setAdvanced(true); setMaquetteAsk(value => value + 1); }
+    // « Prévisualiser » opened « Avancé » itself: leaving the step folds it back.
+    else if (etape === "previs") setAdvanced(false);
+    if (next === "plans") requestAnimationFrame(() => document.querySelector<HTMLDetailsElement>("[data-plan-editor]")?.setAttribute("open", ""));
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+  const etapeAt = ETAPES.indexOf(etape);
+  const etapePrev = etapePrecedente(etape);
+  const etapeNext = etapeSuivante(etape);
+
+  return <section className="u-stage u-prise" data-section="prise" data-prise-shell="" data-prise-etape={etape} data-prise-ready={ready && plansLoaded === (studio.project ?? "") ? "true" : undefined} data-prise-seed={seed} aria-labelledby="u-title">
+    <nav className="u-prise-steps" aria-label={t("p0.etapes.aria")} data-prise-steps="">
+      <ol>
+        {ETAPES.map((id, at) => <li key={id}>
+          <button type="button" data-prise-step={id} aria-current={etape === id ? "step" : undefined} data-done={at < etapeAt ? "" : undefined} aria-label={`${t("p0.etapes.step", { n: String(at + 1) })} · ${t(`p0.etapes.${id}`)}`} onClick={() => goEtape(id)}>
+            <span className="u-prise-step-n" aria-hidden="true">{at + 1}</span>
+            <span className="u-prise-step-name">{t(`p0.etapes.${id}`)}</span>
+          </button>
+        </li>)}
+      </ol>
+      <p className="u-prise-step-lead" data-prise-step-lead={etape}>{t(`p0.etapes.lead.${etape}`)}</p>
+    </nav>
     <aside className="u-prise-strip" aria-label={t("p0.plans.label")}>
       <p className="u-label">{t("p0.plans.label")}</p>
       <div className="u-prise-film">
@@ -1361,6 +1410,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     </aside>
     </div>
 
+    <div className="u-prise-step-nav" data-prise-step-nav="">
+      {etapePrev && <button type="button" className="u-secondary" data-prise-step-prev={etapePrev} onClick={() => goEtape(etapePrev)}>← {t("p0.etapes.prev", { step: t(`p0.etapes.${etapePrev}`) })}</button>}
+      {etapeNext && <button type="button" className="u-secondary" data-prise-step-next={etapeNext} onClick={() => goEtape(etapeNext)}>{t("p0.etapes.next", { step: t(`p0.etapes.${etapeNext}`) })} →</button>}
+    </div>
   </section>;
 }
 

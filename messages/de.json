@@ -2017,6 +2017,24 @@
         "plongee": "Aufsicht",
         "contre-plongee": "Untersicht"
       }
+    },
+    "etapes": {
+      "aria": "Schritte der Aufnahme",
+      "step": "Schritt {n} von 5",
+      "preparer": "Vorbereiten",
+      "plans": "Einstellungen",
+      "previs": "Vorschau",
+      "generer": "Erzeugen",
+      "reviser": "Prüfen",
+      "next": "Weiter: {step}",
+      "prev": "Zurück: {step}",
+      "lead": {
+        "preparer": "Figur, Kulisse, Handlung, Stimmung und Referenzen.",
+        "plans": "Stelle die Einstellungsliste zusammen und passe die gewählte an.",
+        "previs": "Prüfe den Bildausschnitt, bevor du Credits ausgibst.",
+        "generer": "Erst die Kalkulation, dann bestätigst du den Start.",
+        "reviser": "Ansehen, die richtige Version behalten, neu starten, an den SCHNITT senden."
+      }
     }
   },
   "p1": {

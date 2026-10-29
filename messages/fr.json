@@ -2017,6 +2017,24 @@
         "plongee": "Plongée",
         "contre-plongee": "Contre-plongée"
       }
+    },
+    "etapes": {
+      "aria": "Étapes de la prise",
+      "step": "Étape {n} sur 5",
+      "preparer": "Préparer",
+      "plans": "Plans",
+      "previs": "Prévisualiser",
+      "generer": "Générer",
+      "reviser": "Réviser",
+      "next": "Suivant : {step}",
+      "prev": "Retour : {step}",
+      "lead": {
+        "preparer": "Personnage, décor, action, ambiance et références.",
+        "plans": "Compose la liste des plans, puis règle le plan choisi.",
+        "previs": "Vérifie le cadrage avant de dépenser des crédits.",
+        "generer": "Le devis d’abord, puis tu confirmes le lancement.",
+        "reviser": "Regarde, garde la bonne version, relance, envoie au MONTAGE."
+      }
     }
   },
   "p1": {

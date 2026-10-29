@@ -20,6 +20,12 @@ async function prepare(page: Page) {
   await expect(page.locator('[data-prise-ready="true"]')).toBeVisible();
 }
 
+/** Mobile shows PRISE as 5 steps; wider screens show everything, so there is nothing to tap. */
+async function step(page: Page, name: string) {
+  const button = page.locator(`[data-prise-step=${name}]`);
+  if (await button.isVisible()) await button.tap();
+}
+
 async function proof(page: Page, name: string) {
   if (!process.env.PRISE_SHOTS_DIR || page.viewportSize()?.width !== 390) return;
   mkdirSync(process.env.PRISE_SHOTS_DIR, { recursive: true });
@@ -35,10 +41,16 @@ test("PRISE tactile : trois plans, édition complète, suppression/annulation, o
   await expect(cards(page)).toHaveCount(3);
   await cards(page).nth(1).tap();
   const editor = page.locator("[data-plan-editor]");
-  await editor.locator("summary").tap();
+  // Mobile: the plan editor is step 2 of 5, « Plans ».
+  await step(page, "plans");
+  if (await editor.getAttribute("open") === null) await editor.locator("summary").tap();
+  await expect(editor).toHaveAttribute("open", "");
   await page.getByRole("textbox", { name: "Titre du plan", exact: true }).fill("La porte dorée");
   const action = page.getByRole("textbox", { name: "Ce qui se passe", exact: true });
+  // The action is written in step 1, « Préparer »; framing details go back to « Plans ».
+  await step(page, "preparer");
   await action.fill("Léa ouvre la porte du laboratoire");
+  await step(page, "plans");
   await page.getByLabel("Cadrage", { exact: true }).selectOption("rapproche");
   await page.getByLabel("Angle caméra", { exact: true }).selectOption("contre-plongee");
   await page.getByLabel("Mouvement caméra", { exact: true }).selectOption("dolly");
@@ -54,6 +66,7 @@ test("PRISE tactile : trois plans, édition complète, suppression/annulation, o
   const original = page.viewportSize()!;
   for (const [width, height] of SIZES) {
     await page.setViewportSize({ width, height });
+    await step(page, "plans");
     const layout = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll("body *")].filter(element => { const box = element.getBoundingClientRect(); return box.width > 0 && box.right > innerWidth + 1; }).slice(0, 12).map(element => ({ tag: element.tagName, cls: element.className, right: element.getBoundingClientRect().right })) }));
     expect(layout.scrollWidth, JSON.stringify(layout)).toBeLessThanOrEqual(width + 1);
     for (const control of await editor.locator("input, select, summary").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -75,9 +88,12 @@ test("PRISE tactile : trois plans, édition complète, suppression/annulation, o
   await expect(cards(page)).toHaveCount(3);
   expect(await cards(page).evaluateAll(elements => elements.map(element => element.getAttribute("data-plan")))).toEqual(order);
   await expect(page.locator('[data-plan="plan-02"]')).toHaveAttribute("aria-current", "true");
+  await step(page, "plans");
   if (!await editor.getAttribute("open")) await editor.locator("summary").tap();
   await expect(page.getByLabel("Titre du plan", { exact: true })).toHaveValue("La porte dorée");
+  await step(page, "preparer");
   await expect(action).toHaveValue("Léa ouvre la porte du laboratoire");
+  await step(page, "plans");
   await expect(page.getByLabel("Cadrage", { exact: true })).toHaveValue("rapproche");
   await expect(page.getByLabel("Angle caméra", { exact: true })).toHaveValue("contre-plongee");
   await expect(page.getByLabel("Mouvement caméra", { exact: true })).toHaveValue("dolly");
