@@ -156,6 +156,22 @@ Cartes « bientôt » (template officiel repéré, pas encore branché, raison a
 
 Finaliser agrandit et rend plus net ce qui existe déjà. Il ne refait jamais la prise ni l’image. Ses templates sont exportés dans `workflows/finaliser/`.
 
+## PRISE — cadrage contrôlé (P0-2)
+
+`prise-plan-cadre` : `video_ltx2_5_i2v` + `image_flux3_klein_image_edit` + `image_qwen_image_instantx_controlnet`. Graphe exact : `workflows/prise/prise-plan-cadre.api.json`. Sources officielles conservées dans l’index et `workflows/prise/sources/`.
+
+Les références de personnages et de décor donnent l’apparence initiale à Klein ; l’aperçu couleur du cadrage y entre en dernier, comme guide de mise en place (`control_guide`), jamais comme contrôle. La passe finale de l’image clé utilise Qwen Image InstantX Union avec deux `ControlNetApplyAdvanced` : profondeur native à 1, contours à 0,8, du début à la fin. Son latent part de l’image Klein redimensionnée aux dimensions des contrôles, avec débruitage 0,55. Aucune photo n’est reliée aux entrées de contrôle. Aucun Lotus ne ré-estime la profondeur exportée. Le décodage **après** contrôle est enregistré en PNG par Comfy et devient l’unique première image de LTX. Aucun passage d’édition ne peut ensuite contourner les contrôles.
+
+Profil de coût séparé `ltx25-cadre-v1-<durée>s-<format>` (ou `cadre-v1-apercu-…`). Majoration estimée de 8 crédits, plafond de 16, par image clé contrôlée, ajoutée une seule fois au devis de la prise. Pour 5 s, qualité finale : **≈ 23 crédits estimés**, plafond 39. Aperçu : **≈ 14 crédits estimés**, plafond 28. Ces montants sont des hypothèses ; la mesure d’une prise ordinaire ne vaut pas pour ce graphe.
+
+Disponibilité vérifiée par les sources officielles le 28.10.2026 (lecture, aucun rendu) :
+- https://docs.comfy.org/tutorials/image/qwen/qwen-image#qwen-image-instantx-controlnet-workflow
+- https://github.com/Comfy-Org/workflow_templates/blob/main/templates/image_qwen_image_instantx_controlnet.json
+- https://github.com/Comfy-Org/workflow_templates/blob/main/templates/image_qwen_Image_2512_controlnet.json (`GetImageSize`)
+- https://github.com/Comfy-Org/ComfyUI/blob/master/nodes.py (`ImageScale`)
+
+Ces sources confirment nœuds et modèles, pas la qualité du nouveau chaînage. Le test réel A/B de cadrage reste nécessaire avant de considérer P0-2 comme validé en production. Le nouveau pipeline n’implémente pas le transfert d’apparence des photos de DÉCOR (P0-3).
+
 
 ## Genjutsu : remplacer un personnage
 

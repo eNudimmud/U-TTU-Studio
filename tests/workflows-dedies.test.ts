@@ -26,10 +26,12 @@ const ADDED: Record<string, string> = {
   SaveImage: "détourer : le template n'a qu'un aperçu ; le PNG transparent doit être enregistré (demande JD)",
 };
 /** prise-plan chains two official templates: Klein edit makes the first frame, LTX-2.5 animates it.
+ *  prise-plan-cadre adds the InstantX ControlNet template (kept framing).
  *  decor-3d-apparence joins the FLUX depth LoRA template (structure) and the FLUX Redux template (photos as style). */
-const CHAINED: Record<string, string> = {
-  "prise-plan": "workflows/cast/cast-photos.json",
-  "decor-3d-apparence": "workflows/decor/decor-3d-apparence-redux.json",
+const CHAINED: Record<string, string[]> = {
+  "prise-plan": ["workflows/cast/cast-photos.json"],
+  "prise-plan-cadre": ["workflows/cast/cast-photos.json", "workflows/prise/sources/image_qwen_image_instantx_controlnet.json"],
+  "decor-3d-apparence": ["workflows/decor/decor-3d-apparence-redux.json"],
 };
 
 describe("workflows Comfy dédiés", () => {
@@ -38,7 +40,9 @@ describe("workflows Comfy dédiés", () => {
     assert.ok(wired.length >= 20);
     for (const entry of wired) {
       const allowed = templateTypes(entry.template_file);
-      if (CHAINED[entry.id]) for (const type of templateTypes(CHAINED[entry.id])) allowed.add(type);
+      for (const file of CHAINED[entry.id] ?? []) for (const type of templateTypes(file)) allowed.add(type);
+      // Only this chain adds official core sizing nodes, to match the control PNGs.
+      if (entry.id === "prise-plan-cadre") for (const type of ["GetImageSize", "ImageScale"]) allowed.add(type);
       const graph = JSON.parse(readFileSync(entry.api_file!, "utf8")) as Record<string, { class_type: string }>;
       const foreign = [...new Set(Object.values(graph).map(node => node.class_type))].filter(type => !allowed.has(type) && !(type in ADDED));
       assert.deepEqual(foreign, [], `${entry.id} (${entry.template})`);

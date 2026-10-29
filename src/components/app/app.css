@@ -2786,6 +2786,18 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 }
 .u-prise [data-uttu-dit] { display: block; min-width: 0; white-space: normal; letter-spacing: normal; cursor: default; }
 
+/* Kept framing: the maps are independent of identity/style references. */
+.u-framing-controls { display:grid; gap:12px; min-width:0; margin-block:14px; }
+.u-framing-controls button, .u-framing-controls input { min-height:44px; min-width:44px; }
+.u-framing-maps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.u-framing-maps a { min-width:0; min-height:44px; color:var(--gold,#d4af37); display:grid; gap:4px; overflow-wrap:anywhere; }
+.u-framing-maps img { width:100%; max-height:180px; object-fit:contain; background:#080808; border:1px solid #66522a; border-radius:8px; }
+.u-framing-flat { position:absolute; inset:0; width:100%; height:100%; touch-action:none; }
+[data-framing-mode="plat"] .u-maquette-distance,
+[data-framing-mode="plat"] [data-autre-essai],
+[data-framing-mode="plat"] [data-tourner] { display:none; }
+.u-maquette-avance[data-framing-mode="plat"] ~ .u-tuiles-row { display:none; }
+
 /* ── P1-3 · PRISE on a phone: one simple path in five steps ───────────
    Préparer → Plans → Prévisualiser → Générer → Réviser. Each step shows existing blocks only
    (one plan editor, no second DÉCOR or MONTAGE). From 1024 px every block stays on screen. */

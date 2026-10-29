@@ -3,6 +3,7 @@
 // frame, inside the same graph. One job, one quote.
 
 import { kleinNodes } from "./klein-graph.ts";
+import { framedKeyNodes, type UploadedControls } from "./framed-key.ts";
 import { LTX_I2V_BASE } from "./ltx-base.ts";
 import { TAKE_ASPECTS, TAKE_OUTPUT_PREFIX, type ApiGraph, type TakeAspect, type TakeSeconds } from "./take-graph.ts";
 
@@ -17,6 +18,7 @@ const SECOND_PASS = ["398:371", "398:348", "398:349", "398:340", "398:338", "398
 const KLEIN_ASPECT = { vertical: "9:16", horizontal: "16:9", carre: "1:1" } as const;
 
 export interface LtxTakeInput {
+  controls?: UploadedControls;
   prompt: string;
   pictures: readonly string[];
   seed: number;
@@ -67,7 +69,7 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
     if (node.class_type === "SaveVideo") node.inputs.filename_prefix = TAKE_OUTPUT_PREFIX;
   }
 
-  if (pictures.length === 1) {
+  if (pictures.length === 1 && !input.controls) {
     graph[first].inputs.image = pictures[0];
     return graph;
   }
@@ -80,18 +82,28 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
     loads.push([id, 0]);
   });
   const last = `<ref_image_${pictures.length - 1}>`;
+  const guide = input.controls?.guide?.trim();
+  if (guide) {
+    graph.control_guide = { class_type: "LoadImage", inputs: { image: guide }, _meta: { title: "Guide du cadrage gardé (mise en place seule)" } };
+    loads.push(["control_guide", 0]);
+  }
+  const guideTag = `<ref_image_${pictures.length}>`;
   Object.assign(graph, kleinNodes({
     prefix: "frame_",
-    prompt: prompt.includes("[framing reference]")
+    prompt: guide
+      ? `Photorealistic film still. Use ${guideTag} only as the camera and layout guide: same camera distance, horizon height, figure size and position. Never copy its gold mannequins or its plain background. Replace each mannequin with the person from <ref_image_0>, same face, same outfit, in the place from ${last}. ${prompt}`
+      : prompt.includes("[framing reference]")
       ? `First frame of a film shot. Follow the named reference roles below: the framing guide controls composition only. ${prompt} Same face, same outfit, same place. No text.`
       : `First frame of a film shot. The person from <ref_image_0> stands in the place from ${last}. ${prompt} Same face, same outfit, same place. No text.`,
     seed,
     aspect: KLEIN_ASPECT[input.aspect],
     images: loads,
+    ...(guide ? { referenceLimit: 7 as const } : {}),
   }));
+  if (input.controls) Object.assign(graph, framedKeyNodes({ initial: ["frame_decode", 0], controls: input.controls, prompt, seed }));
   for (const node of Object.values(graph)) {
     for (const [key, value] of Object.entries(node.inputs)) {
-      if (Array.isArray(value) && value[0] === first) node.inputs[key] = ["frame_decode", 0];
+      if (Array.isArray(value) && value[0] === first) node.inputs[key] = [input.controls ? "control_111:8" : "frame_decode", 0];
     }
   }
   return graph;

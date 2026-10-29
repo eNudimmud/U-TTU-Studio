@@ -4,8 +4,9 @@ import { useAgentDraft } from "./use-agent-draft";
 import { ETAPES, etapeApres, etapeInitiale, etapePrecedente, etapeSuivante, type Etape, type EtapeSignal } from "@/lib/prise/etapes";
 import { PRISE_HANDOFF_KEY, isPriseHandoff, takeHandoff, type PriseHandoff } from "@/lib/barre/model";
 import { OutilsStrip } from "./outils-hub";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { framePoster } from "@/lib/montage/poster";
+import { framingSize, type CaptureFraming } from "@/lib/maquette/framing";
 import { maquetteJson, readMaquette } from "@/lib/maquette/persistence";
 import { assetPath } from "@/lib/site";
 import { DEMO_CAST, DEMO_DECOR } from "@/lib/creation/demo";
@@ -33,6 +34,7 @@ import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/de
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
 import { parseQuartier, type Quartier } from "@/lib/repere/quartier";
+import { framingGroups } from "@/lib/prise/framing-refs";
 import { moveId, planFromJson, planJson, planMarkdown, planStateFromJson, type StoredPlan } from "@/lib/prise/vault";
 import type { Shot } from "@/lib/coffre/model";
 import { useI18n } from "@/components/i18n/provider";
@@ -107,8 +109,9 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, pickCast, pickDecor, run, cancelRun, sendSequence, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
+  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, saveFraming, pickCast, pickDecor, run, cancelRun, sendSequence, sendToMontage, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
   const { t, say } = useI18n();
+  const activeProject = useRef(studio.project); activeProject.current = studio.project;
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
   const [advanced, setAdvanced] = useState(false);
@@ -194,6 +197,20 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [maquette, setMaquette] = useState<MaquetteState>(() => initialMaquette());
   const [sending, setSending] = useState(false);
   const [picker, setPicker] = useState(false);
+  const captureFraming = useRef<CaptureFraming | null>(null);
+  const [captureReady, setCaptureReady] = useState(false);
+  const [framingBusy, setFramingBusy] = useState(false);
+  const framingSaving = useRef(false);
+  const framingTouch = useRef<number | null>(null);
+  const framingTouchHandled = useRef(false);
+  const [force2D, setForce2D] = useState(false);
+  const [noWebGL, setNoWebGL] = useState(false);
+  const onWebGLFailed = useCallback(() => setNoWebGL(true), []);
+  const [maquetteMode, setMaquetteMode] = useState<"webgl" | "plat">("webgl");
+  const onCaptureReady = useCallback((capture: CaptureFraming | null) => { captureFraming.current = capture; setCaptureReady(Boolean(capture)); }, []);
+  useEffect(() => {
+    if (plansLoaded === (studio.project ?? "")) setForce2D(drafts.find(item => item.id === currentId)?.input.framing?.source === "2d");
+  }, [plansLoaded, currentId, studio.project]);
   const [playFrom, setPlayFrom] = useState<number | null>(null);
   const [previsLeft, setPrevisLeft] = useState(0);
   const [previsClip, setPrevisClip] = useState<PrevisClip | null>(null);
@@ -231,6 +248,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const seeded = useRef(false);
   const [maquetteLoaded, setMaquetteLoaded] = useState("");
   const maquetteKey = `${studio.project ?? ""}/${currentId}`;
+  const canCapture = captureReady && maquetteLoaded === maquetteKey && plansLoaded === (studio.project ?? "");
   const maquetteSeed = drafts.find(item => item.id === currentId)?.maquetteSeed;
   useEffect(() => {
     if (!ready) return;
@@ -599,7 +617,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return { read, inherited, decided, extra: { lines, camera: pick === undefined ? undefined : pick === "none" ? null : pick } };
   }
   const intention = intentionFor(draft.input.action, draft.id, input);
-  const engine = intention.decided.engine;
+  const engine = input.framing ? "ltx" : intention.decided.engine;
   const intent = primaryIntent(input);
   const cardDecision = decide(input, intent);
   const essai = decide(input, "essai");
@@ -612,7 +630,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
   // One quote per take, from the plan's own engine, format and length. LTX is estimated in 16:9 and 9:16.
   // Aperçu (first pass only) or Qualité finale (today's two passes). LTX only; each keeps its own profile.
-  const baseSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine };
+  const baseSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine, ...(input.framing ? { cadrage: "depth-edges-v1" as const } : {}) };
   const planSettings: TakeSettings = engine === "ltx" && rendu === "apercu" ? { ...baseSettings, rendu: "apercu" } : baseSettings;
   const planQuote = resolveTakeQuote(takeProfile(planSettings), quotesToRecords(studio.quotes));
   const renduQuotes = {
@@ -629,8 +647,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const priseElapsed = useComfyElapsed(busy);
   const runningHere = busy && runPlan === draft.id;
   const failedHere = draft.render?.phase === "error" || (run.phase === "error" && runPlan === draft.id);
-  const canGenerate = !demo && !creating && !busy && !receiptBlocked && quoted && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
-  const generateReason = demo ? t("p0.why.demo")
+  const framingFits = !input.framing || (input.framing.width === framingSize(format).width && input.framing.height === framingSize(format).height);
+  const canGenerate = framingFits && !framingBusy && !demo && !creating && !busy && !receiptBlocked && quoted && realRefs && savedDecor && Boolean(input.castIds.length || shownPlace?.src);
+  const generateReason = !framingFits ? t("framing.formatChanged") : framingBusy ? t("framing.saving") : demo ? t("p0.why.demo")
     : busy ? t("p0.why.busy")
     : receiptBlocked ? t("recovery.blocked")
     : !quoted ? t(engine === "h3" ? "p0.why.h3Format" : "p0.why.noQuote")
@@ -661,7 +680,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (read.ambiance.length && !ambianceOff[planId]) rows.push({ label: t("p1.fiab.ambiance"), value: read.ambiance.map(item => item.label).join(", ") });
     const kept = inherited.filter(row => row.state).map(row => `${row.name} · ${row.state!.label} (${row.state!.fromCode || "?"})`);
     if (kept.length) rows.push({ label: t("p1.fiab.continuity"), value: kept.join(" ; ") });
-    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: t(decided.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx") }) });
+    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: t(!plan.framing && decided.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx") }) });
+    if (plan.framing) rows.push({ label: t("framing.kept"), value: `${plan.framing.width} × ${plan.framing.height} · ${t("framing.depth")} + ${t("framing.edges")}` });
     if (read.unknown.length) rows.push({ label: t("p1.chip.unknown"), value: read.unknown.join(", "), flag: true });
     return rows;
   }
@@ -670,12 +690,29 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return [t("p0.fiab.changePrise"), ...decided.warnings.map(sayIt)].join(" ");
   }
 
+  async function keepFraming() {
+    if (framingBusy || framingSaving.current || !canCapture) return;
+    const project = studio.project;
+    if (!captureFraming.current) { setNotice(t("framing.loading")); return; }
+    const id = draft.id;
+    framingSaving.current = true;
+    setFramingBusy(true);
+    try {
+      const size = framingSize(format);
+      const capture = await captureFraming.current(size.width, size.height);
+      const frame = await saveFraming(id, capture);
+      if (activeProject.current !== project) return;
+      setHistory(state => planReducer(state, { type: "replace", plans: state.plans.map(item => item.id === id ? { ...item, input: { ...item.input, framing: frame } } : item) }));
+    } catch { setNotice(t("framing.failed")); }
+    finally { framingSaving.current = false; setFramingBusy(false); }
+  }
+
   async function generate() {
     if (!canGenerate) return;
     try {
       await planWrites.current;
       await persist(drafts.map(item => item.id === draft.id ? { ...item, input } : item));
-      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre, ...intention.extra }).text, settings: planSettings, resume: resumeFor(input), change: changeFor(input), extraRefs: intention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: input.framingRef });
+      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre, ...intention.extra }).text, settings: planSettings, resume: resumeFor(input), change: changeFor(input), extraRefs: intention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: input.framingRef, framing: input.framing });
     } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
@@ -697,8 +734,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       setNextAction("");
       await persist(next, id);
       const nextIntention = intentionFor(nextInput.action, id, nextInput);
-      const nextSettings: TakeSettings = { ...planSettings, engine: nextIntention.decided.engine };
-      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre, ...nextIntention.extra }).text, settings: nextSettings, resume: resumeFor(nextInput, id), change: changeFor(nextInput, id), extraRefs: nextIntention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: nextInput.framingRef });
+      const nextSettings: TakeSettings = { ...planSettings, engine: nextInput.framing ? "ltx" : nextIntention.decided.engine };
+      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre, ...nextIntention.extra }).text, settings: nextSettings, resume: resumeFor(nextInput, id), change: changeFor(nextInput, id), extraRefs: nextIntention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: nextInput.framingRef, framing: nextInput.framing });
     } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
@@ -931,14 +968,46 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     }
   }
 
+  // P1-4: a kept take lands on the cut by itself, once, without leaving PRISE.
+  // MONTAGE dedupes by take id and by source, so keeping twice never doubles the clip.
+  const [keptWaiting, setKeptWaiting] = useState<{ planId: string; takeId: string } | null>(null);
+  async function keptToMontage(planId: string, takeId: string): Promise<boolean> {
+    const take = studio.takes.find(item => item.id === takeId);
+    const stored = drafts.find(item => item.id === planId);
+    const plan = stored && planId === draft.id ? { ...stored, input } : stored;
+    if (!take || !plan) return false;
+    if (!media[take.video]) { setKeptWaiting({ planId, takeId }); setNotice(t("p0.montageWait")); return false; }
+    setKeptWaiting(null);
+    try {
+      await sendToMontage({
+        takeId, planId, label: plan.input.action.trim() || plan.name || take.line, seconds: plan.input.duree,
+        aspect: plan.input.format === "9:16" ? "vertical" : "horizontal", still: "", prompt: "",
+        sceneName: places.find(place => place.id === plan.input.decorId)?.name ?? "",
+        composeur: planJson(plan.input, { etat: etatOf(plan), before: plan.before, after: plan.after, garde: takeId }),
+      });
+      return true;
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : t("p0.montageFailed"));
+      return false;
+    }
+  }
+  const waitingVideo = keptWaiting ? media[studio.takes.find(take => take.id === keptWaiting.takeId)?.video ?? ""] ?? "" : "";
+  useEffect(() => {
+    if (!keptWaiting || !waitingVideo) return;
+    void keptToMontage(keptWaiting.planId, keptWaiting.takeId).then(ok => { if (ok) setNotice(t("p0.keptOnMontage")); });
+  }, [keptWaiting, waitingVideo]);
+
   function keep(takeId: string) {
     const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true, garde: takeId } : item);
     editPlans(next);
+    void keptToMontage(draft.id, takeId).then(ok => { if (ok) setNotice(t("p0.keptOnMontage")); });
   }
 
   async function keepAndMontage(takeId: string) {
-    keep(takeId);
+    const next = drafts.map(item => item.id === draft.id ? { ...item, kept: true, garde: takeId } : item);
+    editPlans(next);
     if (!media[studio.takes.find(take => take.id === takeId)?.video ?? ""]) {
+      setKeptWaiting({ planId: draft.id, takeId });
       setNotice(t("p0.montageWait"));
       return;
     }
@@ -1103,7 +1172,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           <label>{t("p0.editor.move")}<select aria-label={t("p0.editor.move")} value={input.camera} onChange={event => patch({ camera: event.target.value as CameraMove, manualCamera: true })}>{CAMERAS.map(value => <option key={value} value={value}>{t(`p0.camera.move.${value}`)}</option>)}</select></label>
           <label>{t("p0.editor.position")}<input aria-label={t("p0.editor.position")} maxLength={160} placeholder={t("p0.editor.positionHint")} value={input.cameraPosition ?? ""} onChange={event => patch({ cameraPosition: event.target.value })} /></label>
           <label>{t("p0.duration")}<select aria-label={t("p0.editor.duration")} value={input.duree} onChange={event => patch({ duree: Number(event.target.value) as PlanInput["duree"] })}><option value="5">5 s</option>{input.duree === 8 && <option value="8">8 s</option>}<option value="10">10 s</option></select></label>
-          <label className="u-plan-field-wide">{t("p0.editor.reference")}<select aria-label={t("p0.editor.reference")} value={input.framingRef ?? ""} onChange={event => patch({ framingRef: event.target.value })}><option value="">{t("p0.editor.none")}</option>{Object.keys(media).filter(path => /\.(png|jpe?g|webp)$/i.test(path)).map(path => <option key={path} value={path}>{cast.find(card => card.sheet === path || card.photos.includes(path))?.name ?? studio.scenes.find(scene => [scene.render, ...scene.stills, ...scene.views, ...scene.frames].includes(path))?.name ?? path.split("/").pop()}</option>)}</select></label>
+          <label className="u-plan-field-wide">{t("p0.editor.reference")}<select aria-label={t("p0.editor.reference")} value={input.framingRef ?? ""} onChange={event => patch({ framingRef: event.target.value })}><option value="">{t("p0.editor.none")}</option>{framingGroups(Object.keys(media), studio.scenes, cast, input.decorId).map(({ group, items }) => <optgroup key={group} label={t(`p0.editor.refGroups.${group}`)} data-framing-group={group}>{items.map(item => <option key={item.path} value={item.path}>{item.kind === "image" && item.n <= 1 ? item.name : `${item.name} · ${t(`p0.editor.refKinds.${item.kind}`)}${item.n ? ` ${item.n}` : ""}`}</option>)}</optgroup>)}</select></label>
         </div>
         {input.framingRef && media[input.framingRef] && <img className="u-plan-ref" src={media[input.framingRef]} alt={t("p0.editor.reference")} />}
         <p className="u-why">{t("p0.editor.referencesHint")}</p>
@@ -1226,20 +1295,46 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         {!demo && withTake === 0 && canMonter && <button type="button" className="u-secondary" data-envoyer-montage="" data-image-fixe="" onClick={() => void monter()}>{t("p0.monterStill")}</button>}
         {/* AVANCÉ is short collapsed groups; the gestures that do not need the maquette live in Outils. */}
         <AvanceGroup id="maquette" title={t("p0.groups.maquette")} ask={maquetteAsk}>
-        <div className="u-maquette-avance" data-maquette-avance="">
+        <div className="u-maquette-avance" data-maquette-avance="" data-framing-mode={maquetteMode}>
       <MaquetteView
           state={{ ...maquette, props: maquette.props?.map(prop => ({ ...prop, url: prop.source ? media[prop.source] : undefined })) }}
-          backdrop={quartier ? "" : (shownPlace?.src || "")}
+          backdrop={quartier && !force2D && maquetteMode !== "plat" ? "" : (shownPlace?.src || "")}
           placeName={shownPlace?.name || ""}
           quartier={quartier}
           badge={t(`r7.tuile.${maquette.tuile}`)}
-          hint={t("r7.hint")}
+          hint={t(maquetteMode === "plat" ? "framing.flatHint" : "r7.hint")}
+          force2D={force2D}
+          aspect={format}
+          onWebGLFailed={onWebGLFailed}
+          onMode={setMaquetteMode}
+          onCaptureReady={onCaptureReady}
+          onFlat={flat => setMaquette(state => ({ ...state, flat }))}
           onMove={(id, x, z) => setMaquette(state => moveFigure(state, id, x, z))}
           onOrbit={(dx, dy) => setMaquette(state => orbitDrag(state, dx, dy))}
           onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
           onMoveProp={(id, x, z) => setMaquette(state => moveProp(state, id, x, z))}
           playFrom={playFrom}
         />
+      <div className="u-framing-controls" data-framing-panel="">
+        <div className="u-choice-row">
+          {!noWebGL && <button type="button" className="u-chip" disabled={framingBusy} aria-describedby={framingBusy ? "u-framing-wait" : undefined} aria-pressed={!force2D} onClick={() => { if (force2D) { onCaptureReady(null); setForce2D(false); } }}>{t("framing.three")}</button>}
+          <button type="button" className="u-chip" data-framing-2d="" disabled={framingBusy} aria-describedby={framingBusy ? "u-framing-wait" : undefined} aria-pressed={force2D || maquetteMode === "plat"} onClick={() => { if (!force2D) { if (maquetteMode !== "plat") onCaptureReady(null); setForce2D(true); } }}>{t("framing.flat")}</button>
+        </div>
+        {maquetteMode === "plat" && <label className="u-field">{t("framing.zoom")}<input type="range" min="50" max="300" disabled={maquette.lockCam} aria-describedby={maquette.lockCam ? "u-flat-zoom-why" : undefined} value={Math.round((maquette.flat?.zoom ?? 1) * 100)} onChange={event => setMaquette(state => ({ ...state, flat: { x: state.flat?.x ?? 0, y: state.flat?.y ?? 0, zoom: Number(event.target.value) / 100 } }))} /></label>}
+        {maquetteMode === "plat" && maquette.lockCam && <p id="u-flat-zoom-why" className="u-why">{t("framing.unlock")}</p>}
+        <button type="button" className="u-secondary" data-framing-save="" disabled={!canCapture || framingBusy} aria-describedby={!canCapture || framingBusy ? "u-framing-wait" : undefined} onPointerDown={event => { framingTouchHandled.current = false; framingTouch.current = event.pointerType === "touch" ? event.pointerId : null; }}
+          onPointerCancel={() => { framingTouch.current = null; framingTouchHandled.current = false; }}
+          onPointerUp={event => { if (event.pointerType === "touch" && framingTouch.current === event.pointerId) { framingTouch.current = null; framingTouchHandled.current = true; void keepFraming(); } }}
+          onClick={event => { if (event.detail > 0 && framingTouchHandled.current) { framingTouchHandled.current = false; return; } framingTouchHandled.current = false; void keepFraming(); }}>{t(framingBusy ? "framing.saving" : "framing.save")}</button>
+        {(!canCapture || framingBusy) && <p id="u-framing-wait" className="u-why">{t(framingBusy ? "framing.saving" : "framing.loading")}</p>}
+        {input.framing && <div data-framing-kept={input.framing.source}>
+          <p>{t("framing.kept")} · {input.framing.width} × {input.framing.height}</p>
+          <div className="u-framing-maps">{(["color", "depth", "edges"] as const).map(key => <a key={key} href={media[input.framing![key]]} download={`${draft.id}-${key}.png`}><img src={media[input.framing![key]]} alt={t(`framing.${key}`)} /><span>{t(`framing.${key}`)}</span></a>)}</div>
+          <p className="u-why">{t(input.framing.source === "2d" ? "framing.flatDepth" : "framing.nativeDepth")}</p>
+          <p className="u-why">{t("framing.pipeline")}</p>
+          <button type="button" className="u-chip" data-framing-clear="" onClick={() => patch({ framing: undefined })}>{t("framing.clear")}</button>
+        </div>}
+      </div>
       <div className="u-maquette-tools">
         <button type="button" className="u-lock" aria-pressed={maquette.lockPose} onClick={() => setMaquette(state => toggleLock(state, "pose"))}>{maquette.lockPose ? "🔒" : "🔓"} {t("r7.pose")}</button>
         <button type="button" className="u-lock" aria-pressed={maquette.lockCam} onClick={() => setMaquette(state => toggleLock(state, "cam"))}>{maquette.lockCam ? "🔒" : "🔓"} {t("r7.cam")}</button>
@@ -1296,7 +1391,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </Row>
         </AvanceGroup>
         <AvanceGroup id="rendu" title={t("p0.groups.rendu")}>
-        <Row label={t("stage.engine.label")}>
+        {input.framing && <p className="u-why">{t("framing.ltx")}</p>}
+        {!input.framing && <Row label={t("stage.engine.label")}>
           <div className="u-choice-row u-engine" data-engine={engine} data-engine-mode={prefs.engineManual ? "main" : "auto"}>
             <button type="button" className="u-chip" data-engine-auto="" aria-pressed={!prefs.engineManual} onClick={() => setPrefs({ engineManual: false })}>{t("p1.engineAuto")} · {intention.decided.auto === "h3" ? "H3" : "LTX"}</button>
             {(["ltx", "h3"] as const).map(item => (
@@ -1304,7 +1400,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
             ))}
           </div>
           <p className="u-engine-hint">{t(engine === "ltx" ? "stage.engine.ltxHint" : "stage.engine.h3Hint")}</p>
-        </Row>
+        </Row>}
 
         <Row label={t("p0.duration")}>
           <div className="u-choice-row u-duree">

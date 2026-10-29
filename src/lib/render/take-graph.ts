@@ -43,6 +43,8 @@ export type TakeRendu = (typeof TAKE_RENDUS)[number];
 export const DEFAULT_RENDU: TakeRendu = "finale";
 
 export interface TakeSettings {
+  /** Distinct graph and quote profile. Native controls are not visual references. */
+  cadrage?: "depth-edges-v1";
   seconds: TakeSeconds;
   quality: TakeQuality;
   aspect: TakeAspect;
@@ -65,7 +67,7 @@ export function takeRendu(settings: Pick<TakeSettings, "engine" | "rendu">): Tak
 
 /** A take profile made with Aperçu. Its cost is kept apart from « finale ». */
 export function isApercuProfile(profile: string): boolean {
-  return /^ltx25-apercu-/.test(profile);
+  return /^ltx25-(?:cadre-v1-)?apercu-/.test(profile);
 }
 
 export interface TakeGraphInput extends TakeSettings {
@@ -86,10 +88,21 @@ export function takeFrames(seconds: number): number {
 }
 
 /** Same profile, same cost: what calibration is keyed on. */
+/** The Comfy workflow a take ran: the template its graph comes from. */
+export function takeWorkflow(settings: TakeSettings): string {
+  return takeEngine(settings) === "ltx" ? "ltx-2.5-i2v" : "video_minimax_h3_r2v";
+}
+
+/** Where Comfy Cloud keeps an output. Reading it needs the account's own sign-in; no key is stored here. */
+export function comfyStorageUrl(ref: { filename: string; subfolder: string; type: string }): string {
+  const query = new URLSearchParams({ filename: ref.filename, subfolder: ref.subfolder, type: ref.type });
+  return `https://cloud.comfy.org/api/view?${query}`;
+}
+
 export function takeProfile(settings: TakeSettings): string {
   if (takeEngine(settings) === "ltx") {
     const apercu = takeRendu(settings) === "apercu" ? "apercu-" : "";
-    return `ltx25-${apercu}${settings.seconds}s-${settings.aspect}`;
+    return `ltx25-${settings.cadrage ? "cadre-v1-" : ""}${apercu}${settings.seconds}s-${settings.aspect}`;
   }
   return `h3-${TAKE_STEPS[settings.quality]}pas-${settings.seconds}s-${settings.aspect}`;
 }
