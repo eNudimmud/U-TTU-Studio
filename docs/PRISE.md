@@ -33,3 +33,5 @@ Preuves : `docs/preuves/prise-p0-1/prise-p0-1-edition-390x844.png` et `prise-p0-
 Le parcours `e2e/barre.spec.ts` détectait un écrasement de la demande lors de « Ouvrir dans l’outil » : le transfert était appliqué dès le démarrage de PRISE, avant la lecture asynchrone du journal. Le journal remplaçait ensuite le plan, puis l’initialisation de la maquette écrivait « Uttu, regard caméra ». Le transfert et l’initialisation attendent maintenant que les plans du projet soient chargés. Le parcours vérifie aussi la conservation de la demande et du réglage Aperçu après actualisation, sans second envoi Comfy.
 
 P0-2 puis P0-3 restent à traiter dans leurs branches et PR respectives. Aucun pipeline de contrôle de profondeur ni transfert d’apparence n’est annoncé comme livré par cette correction.
+
+La remise à jour sur la bulle de création conserve ses parcours Image/Vidéo natifs. Le transfert historique vers PRISE reste lisible, attend la lecture du journal et se sauvegarde sans démarrer de rendu ; un parcours dédié vérifie ce comportement après rechargement.

@@ -103,15 +103,8 @@ export function BarreHome({ tous = false }: { tous?: boolean } = {}) {
   const [stageView, setStageView] = useState<StageView>("source");
   const [picking, setPicking] = useState(false);
   const active = useMemo(() => activeId ? EXEMPLE_GALERIE_FIND(activeId) : null, [activeId]);
-  const lastDone = useMemo(() => {
-    for (let i = runner.fil.messages.length - 1; i >= 0; i--) {
-      const m = runner.fil.messages[i];
-      if (m.role === "job" && m.status === "done") return m;
-    }
-    return null;
-  }, [runner.fil.messages]);
-  const busy = useMemo(() => runner.fil.messages.some(m => m.role === "job" && (m.status === "running" || m.status === "confirm")), [runner.fil.messages]);
-  const showStage = Boolean(active || lastDone || busy);
+  // Examples have a preview stage. Native requests and their results live once in the thread.
+  const showStage = Boolean(active);
   useEffect(() => {
     if (!tous) { requestAnimationFrame(() => scrollToFamily()); return; }
     requestAnimationFrame(() => { const node = document.querySelector<HTMLElement>("[data-outils-tools]"); node?.scrollIntoView({ block: "start", behavior: "instant" }); node?.focus({ preventScroll: true }); });
@@ -144,8 +137,8 @@ export function BarreHome({ tous = false }: { tous?: boolean } = {}) {
 
   const stageNode = showStage ? <HomeStage
     active={active}
-    lastDone={lastDone}
-    busy={busy}
+    lastDone={null}
+    busy={false}
     view={stageView}
     onView={setStageView}
     media={media}
@@ -154,7 +147,7 @@ export function BarreHome({ tous = false }: { tous?: boolean } = {}) {
   // Keep CreationBar mounted across showStage flips so the prompt survives example picks.
   const barBlock = <>
     <BarreFil runner={runner} />
-    <CreationBar onSend={runner.send} preview={runner.preview} />
+    <CreationBar onSend={input => { setActiveId(null); runner.send(input); }} preview={runner.preview} />
   </>;
 
   const examples = <>

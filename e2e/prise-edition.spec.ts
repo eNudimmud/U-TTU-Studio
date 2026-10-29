@@ -172,3 +172,26 @@ test("PRISE : Annuler reste disponible huit secondes, en pause au survol et au t
   await page.locator("[data-plan-undo-action]").dispatchEvent("click");
   await expect(cards(page)).toHaveCount(1);
 });
+
+test("PRISE : un ancien transfert attend le journal puis reste sauvegardé sans lancer de rendu", async ({ page }) => {
+  const comfy = await simulateComfy(page);
+  await prepare(page);
+  const action = page.getByRole("textbox", { name: "Ce qui se passe", exact: true });
+  await action.fill("Ancienne action du plan");
+  await saved(page);
+  await page.goto("/studio#outils");
+  await page.evaluate(() => sessionStorage.setItem("u-ttu-barre-prise", JSON.stringify({
+    action: "Le personnage traverse le laboratoire", castIds: [], castNames: [], decorId: null, decorName: "",
+    settings: { rendu: "apercu", duree: 8, format: "9:16" },
+  })));
+  await page.goto("/studio#prise");
+  await expect(page.locator('[data-prise-ready="true"]')).toBeVisible();
+  await expect(action).toHaveValue("Le personnage traverse le laboratoire");
+  await expect(page.locator("[data-rendu]")).toHaveAttribute("data-rendu", "apercu");
+  await saved(page);
+  await page.reload();
+  await expect(page.locator('[data-prise-ready="true"]')).toBeVisible();
+  await expect(action).toHaveValue("Le personnage traverse le laboratoire");
+  await expect(page.locator("[data-rendu]")).toHaveAttribute("data-rendu", "apercu");
+  expect(comfy.prompts).toHaveLength(0);
+});
