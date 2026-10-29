@@ -613,6 +613,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
                 </div>
               </div>
               <div className="u-rv-refine-card" data-rep3d-photos-card="">
+                <p className="u-rv-refine-lead" data-rep3d-photos-rule="">{t("rep3d.s3.photosRule")}</p>
                 {picked.length > 0 && <>
                   <p className="u-rv-mix-line"><b aria-hidden="true">+</b> {picked.every(item => item.kind !== "import")
                     ? picked.length === 1 ? t("rep3d.s3.rue1") : t("rep3d.s3.rue", { n: picked.length })

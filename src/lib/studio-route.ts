@@ -1,18 +1,18 @@
 // The chain is Personnage → Scène → Prise. The photo sheet is not a step.
-// Old links still land: #creer and #look open the photos, #lora and #rôle
+// Old links still land: #look opens the photos, #creer the creation page (the « Créer » tab), #lora and #rôle
 // open Personnage, #plateau and #decor the scene, #take the take.
 
 export type Tab = "look" | "lora" | "scene" | "prise" | "montage" | "sphere" | "fiches" | "outils";
 
 const ALIASES: Record<string, Tab> = {
-  look: "look", photos: "look", creer: "look", créer: "look", style: "look", identite: "look", identité: "look",
+  look: "look", photos: "look", style: "look", identite: "look", identité: "look",
   lora: "lora", former: "lora", entrainer: "lora", entraîner: "lora", double: "lora", role: "lora", rôle: "lora", personnage: "lora", personnages: "lora", cast: "lora",
   scene: "scene", scène: "scene", plateau: "scene", monde: "scene", decor: "scene", décor: "scene", decors: "scene", décors: "scene", set: "scene", kulisse: "scene", decorado: "scene",
   prise: "prise", take: "prise", studio: "prise", plan: "prise", plans: "prise", toma: "prise",
   montage: "montage", monter: "montage", edit: "montage",
   sphere: "sphere", sphère: "sphere", bibliotheque: "sphere", bibliothèque: "sphere",
   fiches: "fiches", fiche: "fiches",
-  outils: "outils", outil: "outils", tools: "outils", werkzeuge: "outils", herramientas: "outils",
+  outils: "outils", outil: "outils", creer: "outils", créer: "outils", tools: "outils", werkzeuge: "outils", herramientas: "outils",
 };
 
 /** Hash written when the adherent opens a place from the chain. */

@@ -1,0 +1,433 @@
+{
+  "unet": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux1-dev.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "FLUX.1 dev"
+    }
+  },
+  "depth_lora": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "unet",
+        0
+      ],
+      "lora_name": "flux1-depth-dev-lora.safetensors",
+      "strength_model": 1
+    },
+    "_meta": {
+      "title": "Structure : LoRA depth"
+    }
+  },
+  "clip": {
+    "class_type": "DualCLIPLoader",
+    "inputs": {
+      "clip_name1": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "clip_name2": "clip_l.safetensors",
+      "type": "flux",
+      "device": "default"
+    }
+  },
+  "vae": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    }
+  },
+  "vision": {
+    "class_type": "CLIPVisionLoader",
+    "inputs": {
+      "clip_name": "sigclip_vision_patch14_384.safetensors"
+    }
+  },
+  "redux": {
+    "class_type": "StyleModelLoader",
+    "inputs": {
+      "style_model_name": "flux1-redux-dev.safetensors"
+    },
+    "_meta": {
+      "title": "Apparence : Redux"
+    }
+  },
+  "r0_view": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-cadre-3d.png"
+    },
+    "_meta": {
+      "title": "Vue 3D"
+    }
+  },
+  "r0_view_scale": {
+    "class_type": "ImageScale",
+    "inputs": {
+      "image": [
+        "r0_view",
+        0
+      ],
+      "upscale_method": "lanczos",
+      "width": 1024,
+      "height": 576,
+      "crop": "center"
+    }
+  },
+  "lotus_unet": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "lotus-depth-d-v1-1.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "lotus_vae": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    }
+  },
+  "lotus_cond": {
+    "class_type": "LotusConditioning",
+    "inputs": {}
+  },
+  "lotus_noise": {
+    "class_type": "DisableNoise",
+    "inputs": {}
+  },
+  "lotus_guider": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "lotus_unet",
+        0
+      ],
+      "conditioning": [
+        "lotus_cond",
+        0
+      ]
+    }
+  },
+  "lotus_sched": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "model": [
+        "lotus_unet",
+        0
+      ],
+      "scheduler": "normal",
+      "steps": 1,
+      "denoise": 1
+    }
+  },
+  "lotus_sigma": {
+    "class_type": "SetFirstSigma",
+    "inputs": {
+      "sigmas": [
+        "lotus_sched",
+        0
+      ],
+      "sigma": 999
+    }
+  },
+  "lotus_sampler": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    }
+  },
+  "r0_lotus_enc": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "r0_view_scale",
+        0
+      ],
+      "vae": [
+        "lotus_vae",
+        0
+      ]
+    }
+  },
+  "r0_lotus_run": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "lotus_noise",
+        0
+      ],
+      "guider": [
+        "lotus_guider",
+        0
+      ],
+      "sampler": [
+        "lotus_sampler",
+        0
+      ],
+      "sigmas": [
+        "lotus_sigma",
+        0
+      ],
+      "latent_image": [
+        "r0_lotus_enc",
+        0
+      ]
+    }
+  },
+  "r0_lotus_dec": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "r0_lotus_run",
+        0
+      ],
+      "vae": [
+        "lotus_vae",
+        0
+      ]
+    }
+  },
+  "r0_lotus_depth": {
+    "class_type": "ImageInvert",
+    "inputs": {
+      "image": [
+        "r0_lotus_dec",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Profondeur estimée (Lotus) de la vue 3D"
+    }
+  },
+  "r0_pos": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "Photorealistic photograph of this real place, natural light, real camera, 16:9.\nReal buildings with readable windows, doors, cornices, gutters and weathered materials; real paving, vegetation and sky.\nMaterials, colours and light as in the reference photos of this place.\n<texte du visiteur>.\nEmpty of people. No text, no signs with words, no 3D render look, no clay, no low-poly, no checkerboard façades."
+    }
+  },
+  "r0_neg": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "blocky, voxel, maze, low-poly, clay render, untextured massing, checkerboard façades, abstract cubes, plastic CG, metallic CG, cartoon buildings"
+    }
+  },
+  "r0_photo0": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-lieu-1.jpg"
+    },
+    "_meta": {
+      "title": "Photo du lieu 1 (apparence)"
+    }
+  },
+  "r0_photo0_vision": {
+    "class_type": "CLIPVisionEncode",
+    "inputs": {
+      "clip_vision": [
+        "vision",
+        0
+      ],
+      "image": [
+        "r0_photo0",
+        0
+      ],
+      "crop": "center"
+    }
+  },
+  "r0_photo0_style": {
+    "class_type": "StyleModelApply",
+    "inputs": {
+      "conditioning": [
+        "r0_pos",
+        0
+      ],
+      "style_model": [
+        "redux",
+        0
+      ],
+      "clip_vision_output": [
+        "r0_photo0_vision",
+        0
+      ],
+      "strength": 0.1,
+      "strength_type": "attn_bias"
+    }
+  },
+  "r0_photo1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-lieu-2.jpg"
+    },
+    "_meta": {
+      "title": "Photo du lieu 2 (apparence)"
+    }
+  },
+  "r0_photo1_vision": {
+    "class_type": "CLIPVisionEncode",
+    "inputs": {
+      "clip_vision": [
+        "vision",
+        0
+      ],
+      "image": [
+        "r0_photo1",
+        0
+      ],
+      "crop": "center"
+    }
+  },
+  "r0_photo1_style": {
+    "class_type": "StyleModelApply",
+    "inputs": {
+      "conditioning": [
+        "r0_photo0_style",
+        0
+      ],
+      "style_model": [
+        "redux",
+        0
+      ],
+      "clip_vision_output": [
+        "r0_photo1_vision",
+        0
+      ],
+      "strength": 0.1,
+      "strength_type": "attn_bias"
+    }
+  },
+  "r0_photo2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-lieu-3.jpg"
+    },
+    "_meta": {
+      "title": "Photo du lieu 3 (apparence)"
+    }
+  },
+  "r0_photo2_vision": {
+    "class_type": "CLIPVisionEncode",
+    "inputs": {
+      "clip_vision": [
+        "vision",
+        0
+      ],
+      "image": [
+        "r0_photo2",
+        0
+      ],
+      "crop": "center"
+    }
+  },
+  "r0_photo2_style": {
+    "class_type": "StyleModelApply",
+    "inputs": {
+      "conditioning": [
+        "r0_photo1_style",
+        0
+      ],
+      "style_model": [
+        "redux",
+        0
+      ],
+      "clip_vision_output": [
+        "r0_photo2_vision",
+        0
+      ],
+      "strength": 0.1,
+      "strength_type": "attn_bias"
+    }
+  },
+  "r0_guidance": {
+    "class_type": "FluxGuidance",
+    "inputs": {
+      "conditioning": [
+        "r0_photo2_style",
+        0
+      ],
+      "guidance": 10
+    }
+  },
+  "r0_structure": {
+    "class_type": "InstructPixToPixConditioning",
+    "inputs": {
+      "positive": [
+        "r0_guidance",
+        0
+      ],
+      "negative": [
+        "r0_neg",
+        0
+      ],
+      "vae": [
+        "vae",
+        0
+      ],
+      "pixels": [
+        "r0_lotus_depth",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Structure : profondeur de la vue 3D"
+    }
+  },
+  "r0_sample": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "depth_lora",
+        0
+      ],
+      "positive": [
+        "r0_structure",
+        0
+      ],
+      "negative": [
+        "r0_structure",
+        1
+      ],
+      "latent_image": [
+        "r0_structure",
+        2
+      ],
+      "seed": 0,
+      "steps": 20,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1
+    }
+  },
+  "r0_decode": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "r0_sample",
+        0
+      ],
+      "vae": [
+        "vae",
+        0
+      ]
+    }
+  },
+  "r0_save": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "r0_decode",
+        0
+      ],
+      "filename_prefix": "uttu-decor-3d-0"
+    }
+  }
+}

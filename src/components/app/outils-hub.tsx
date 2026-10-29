@@ -54,6 +54,13 @@ function openTool(id: string | null) {
   else window.location.href = assetPath(`/studio${id ? `#outils/${id}` : "#outils"}`);
 }
 
+/** « ← Tous les outils » replaces the tool in the history instead of stacking the list on top of it:
+ * otherwise the phone's Back button reopened the tool the visitor had just left (a loop). */
+function backToTools(id: string | null) {
+  if (window.location.pathname.endsWith("/studio")) openStudioTool(id, { replace: true });
+  else window.location.replace(assetPath(`/studio${id ? `#outils/${id}` : "#outils"}`));
+}
+
 function titreCarte(t: (key: string) => string, id: string) {
   return t(`outils.t.${intentDe(id)}.title`);
 }
@@ -97,7 +104,7 @@ export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: b
 }
 
 export function OutilsHub({ tool }: { tool: string | null }) {
-  if (tool === REPERAGE_ID) return <ReperageTool onBack={() => openTool(null)} />;
+  if (tool === REPERAGE_ID) return <ReperageTool onBack={() => backToTools(null)} />;
   if (tool === ALL_TOOLS_ID) return <BarreHome tous />;
   const outil = tool ? outilParId(tool) : null;
   if (!outil || outil.bientot) return <BarreHome />;
@@ -160,7 +167,7 @@ function OutilWork({ outil, head }: { outil: Outil; head: string }) {
       <span>{t("entry.linkTitle")}</span>
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
-    <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => openTool(ALL_TOOLS_ID)}>← {t("outils.back")}</button>
+    <button type="button" className="u-secondary u-outils-back" data-outils-back="" onClick={() => backToTools(ALL_TOOLS_ID)}>← {t("outils.back")}</button>
     {onShell ? <ToolShell
       stage={stage}
       bar={<ToolPanel outil={outil} onResult={run => { setLast(run); if (run) setView(compare ? "compare" : "result"); }} onPreview={setPreview} onBusy={setBusy} />}
