@@ -2791,7 +2791,9 @@
       "son-bruitage": "Polished effect",
       "vid-genjutsu": "Higgsfield Genjutsu",
       "ret-eclairer-ouvert": "Light from your prompt",
-      "ret-eclairer": "Studio portrait"
+      "ret-eclairer": "Studio portrait",
+      "vid-h3-refs": "Faithful, low cost",
+      "vid-vidu": "Two pictures blended"
     },
     "model": "Model",
     "modelChange": "Change model",

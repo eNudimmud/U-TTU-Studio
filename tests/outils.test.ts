@@ -106,7 +106,7 @@ describe("hub Outils", () => {
 
   it("publishes one card per intent and hides the nine unwired tools", () => {
     const cards = outilsPublics();
-    assert.equal(cards.length, 42);
+    assert.equal(cards.length, 41);
     const ids = cards.map(item => item.id);
     assert.equal(new Set(ids).size, ids.length);
     assert.ok(cards.length < OUTILS.length);
@@ -121,7 +121,11 @@ describe("hub Outils", () => {
     assert.equal(intentDe("vid-prolonger-grok"), "vid-prolonger");
     assert.equal(cards.filter(item => item.id === "vid-wan").length, 1);
     assert.equal(cards.some(item => item.id === "vid-kling"), false);
-    assert.equal(Object.values(INTENT_MODELES).flat().length, 6 + 2 + 4 + 2 + 2 + 2 + 2);
+    assert.equal(Object.values(INTENT_MODELES).flat().length, 6 + 2 + 4 + 2 + 2 + 2 + 2 + 2);
+    // Doublon retiré de la grille : Vidu (100 crédits) est le second modèle de « Vidéo fidèle aux références ».
+    assert.equal(intentDe("vid-vidu"), "vid-h3-refs");
+    assert.deepEqual(modelesIntent("vid-h3-refs").map(item => item.id), ["vid-h3-refs", "vid-vidu"]);
+    assert.equal(cards.some(item => item.id === "vid-vidu"), false);
     assert.equal(intentDe("ret-eclairer"), "ret-eclairer-ouvert");
     assert.equal(modelesIntent("ret-eclairer")[0]?.id, "ret-eclairer-ouvert");
     // Nano stays off unless the visitor asks for it; the open card is still there.

@@ -124,3 +124,19 @@ Notes :
 - Planche : `/workspace/top10/planche-relight.png` sur la box (Uttu d’origine, lumière du quai, Light Migration 4 pas, Light Migration 20 pas, Relight par consigne).
 
 Connaissance de l’agent Uttu : la carte « Changer la lumière » (CAST) a maintenant deux modèles, « Lumière par consigne » (poids ouverts, ≈ 4 crédits, par défaut) et « Portrait studio » (partenaire, ≈ 18 crédits). Proposer le premier d’abord ; ne pas proposer de raccord lumière par image de référence.
+
+## Nettoyage des doublons (branche `top10-doublons`, empilée sur `top10-lumiere`)
+
+Aucun rendu, donc 0 crédit.
+
+**Regroupé (clairement redondant)**
+- `vid-vidu` (« Vidéo à références multiples », Vidu Q4 r2v, partenaire, 100 / 151 crédits) et `vid-h3-refs` (« Vidéo fidèle aux références », H3 r2v, 4 crédits) prenaient les mêmes entrées (deux images, une consigne, format) pour le même résultat. Il n’y a plus qu’une carte : « Vidéo fidèle aux références ». Modèle par défaut « Fidèle, économique » (H3) ; second modèle « Deux images mêlées » (Vidu). Vidu n’est pas supprimé : il reste à un clic, derrière « Changer de modèle ». Résultat : 42 → 41 cartes, 44 → 43 outils.
+
+**Examinés et gardés (pas clairement redondants)**
+- Les six cartes texte → image (`img-klein`, `img-flux3`, `img-seedream`, `img-gpt`…) : chacune a une force différente (vitesse, qualité, photo, respect de la consigne).
+- `vid-genjutsu` et `vid-mouvement` : l’un remplace un personnage dans un clip, l’autre fait reprendre un geste ; workflows et entrées différents.
+- `vid-h3-audio` : déjà caché (« bientôt »).
+- `img-refs` et `ret-modifier` : l’un crée à partir de références, l’autre retouche une image existante.
+
+**À reprendre dans la connaissance de l’agent Uttu**
+- Plus de carte « Vidéo à références multiples ». Pour une vidéo à partir de références, proposer « Vidéo fidèle aux références » (≈ 4 crédits). Ne parler de Vidu (« Deux images mêlées », ≈ 100 crédits) que si on le demande. L’agent lit le catalogue en direct (`studio-map.ts`, `capabilities.ts`), donc rien à coder ; seul le texte de prompt et du README qui citerait l’ancienne carte est à revoir.

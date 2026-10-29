@@ -126,7 +126,7 @@ Le hub « Outils » (barre du haut de /studio et de Mes créations) range chaque
 | outil-vid-wan | `video_wan2_2_14B_i2v` | 8 / 13, mesuré | ouvert, open weights |
 | outil-vid-multi | `video_minimax_h3_multiframe_reference` | 14 / 21, mesuré | ouvert, open weights ; carte « Images clés fidèles » (PRISE), image 1 = référence, image 2 = image clé à 5 s ; les deux guides du milieu du template sont retirés |
 | outil-vid-transition-style | `template_ltx2_3_style_transition` | 7 / 11, mesuré | ouvert, open weights ; carte « Transition de style » (PRISE), image de début, image de fin dans l’autre style, 6 s ; le mot déclencheur `zhuanchang` est ajouté s’il manque |
-| outil-vid-vidu | `api_vidu_q4_preview_r2v` | 100 / 151, mesuré | partenaire |
+| outil-vid-vidu | `api_vidu_q4_preview_r2v` | 100 / 151, mesuré | partenaire ; second modèle de la carte « Vidéo fidèle aux références » (même entrée, deux images et une consigne) |
 | outil-vid-h3max | `api_minimax_h3_max_r2v` | 181 / 272, estimé | partenaire |
 | outil-vid-mouvement | `video_wan_animate2` | 17 / 25, mesuré | ouvert, open weights |
 | outil-3d-tripo | `api_tripo_p2_image_to_model` | 232 / 348, estimé | partenaire |
