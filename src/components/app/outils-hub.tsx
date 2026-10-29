@@ -426,9 +426,13 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
 
   // A bridge (start and end frames) needs both pictures: two visible slots, « départ » and « arrivée ».
   const bridge = outil.template.endsWith("_flf2v");
-  const main = bridge ? outil.entrees : outil.entrees.filter(item => item !== "image2");
-  const refs = bridge ? [] : outil.entrees.filter(item => item === "image2");
-  const slotName = (entree: Entree) => bridge && entree === "image" ? "start" : bridge && entree === "image2" ? "end" : entree;
+  // A light pair (subject, then the picture whose light it takes) also needs both, named.
+  const pair = bridge || outil.paire === "lumiere";
+  const main = pair ? outil.entrees : outil.entrees.filter(item => item !== "image2");
+  const refs = pair ? [] : outil.entrees.filter(item => item === "image2");
+  const slotName = (entree: Entree) => bridge ? (entree === "image" ? "start" : entree === "image2" ? "end" : entree)
+    : outil.paire === "lumiere" ? (entree === "image" ? "sujet" : entree === "image2" ? "lumiere" : entree)
+    : entree;
   const reglages = [...(outil.reglages ?? []), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
   const video = inputs.video;
   const audio = inputs.audio;
@@ -539,7 +543,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     </div>
     {main.length > 0 && <fieldset className="u-tool-step" data-tool-step="entree">
       <legend className="u-label">{t("outils.input")}</legend>
-      {main.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t(`genjutsu.${entree}`) : bridge ? t(`outils.slot.${slotName(entree)}`) : undefined} sample={genjutsu && entree === "image" ? { url: UTTU_PORTRAIT_HD, name: "uttu-personnage.webp" } : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
+      {main.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t(`genjutsu.${entree}`) : pair ? t(`outils.slot.${slotName(entree)}`) : undefined} sample={genjutsu && entree === "image" ? { url: UTTU_PORTRAIT_HD, name: "uttu-personnage.webp" } : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
       {tooShort && <p className="u-why" role="alert" data-genjutsu-short="">{t("genjutsu.tooShort")}</p>}
       {genjutsu && seconds !== null && seconds > 30 && <p className="u-small" role="status" data-genjutsu-trim="">{t("genjutsu.trim")}</p>}
       {outil.consentement && inputs.audio && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={consent} data-tool-consent="" {...lock} onClick={() => { setConsent(value => !value); reset(); }}>

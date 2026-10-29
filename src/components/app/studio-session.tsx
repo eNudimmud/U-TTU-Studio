@@ -1325,6 +1325,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
     if (outil.texte === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
     if (outil.entrees.includes("image") && !input.images[0]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };
+    if (outil.paire && !input.images[1]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };
     if (outil.entrees.includes("video") && !input.video?.type.startsWith("video/")) return { ok: false, message: t("videoGeste.needFiles") };
     if (outil.entrees.includes("audio") && !input.audio?.type.startsWith("audio/")) return { ok: false, message: t("videoGeste.needFiles") };
     if (outil.consentement && input.audio && !input.consent) return { ok: false, message: t("outils.needConsent") };

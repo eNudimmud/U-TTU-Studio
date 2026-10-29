@@ -178,3 +178,14 @@ test("compteur : l’annonce compte toutes les cartes affichées", async ({ page
   expect(cards).toBe(43);
   await expect(hub.locator("[data-outils-tools] .eyebrow").first()).toContainText(`${cards} outils`);
 });
+
+test("copier la lumière d’une image : deux cases nommées, ton portrait et l’image de lumière", async ({ page }) => {
+  await page.goto("/studio#outils/ret-lumiere-image");
+  const panel = page.locator("[data-tool-panel]").first();
+  await expect(panel.locator("[data-outil-input=image]")).toBeVisible();
+  await expect(panel.locator("[data-outil-input=image2]")).toBeVisible();
+  await expect(panel.locator("[data-outil-input=image] .u-label")).toHaveText("Portrait");
+  await expect(panel.locator("[data-outil-input=image2] .u-label")).toHaveText("Lumière à copier");
+  await expect(panel.locator("[data-tool-step=consigne]")).toHaveCount(0);
+  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 3 crédits");
+});
