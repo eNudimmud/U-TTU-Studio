@@ -128,6 +128,7 @@ export const TEMPLATES_OFFICIELS = [
   "api_mirelo_video_to_sfx",
   "audio_melbandroformer_audio_separation",
   "template_ltx2_3_style_transition",
+  "image_qwen_image_edit_2509_relight",
 ] as const;
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
@@ -503,6 +504,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-son-dialogue", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_elevenlabs_v4_text_to_dialogue", credits: 4, high: 6, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 3,57 crédits pour API 2,39 + GPU 1,18 (job 23c3206b)
   geste({ id: "outil-son-musique-ouverte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_ace_step1_5_xl_turbo", credits: 3, high: 6, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 3,37 crédits pour 30 s (job a14b4cd4)
   geste({ id: "outil-son-bruitage-ouvert", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_stable_audio_3_medium", credits: 2, high: 3, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 1,66 crédits pour 1 bruitage (job 54ab5718)
+  geste({ id: "outil-ret-eclairer-ouvert", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_image_edit_2509_relight", credits: 4, high: 6, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 3,61 crédits pour 1 portrait 832×1248, 4 pas (job 416ef414)
   geste({ id: "outil-ret-eclairer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "template_character_portrait_relighting", credits: 18, high: 27, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-prolonger-grok", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_grok_video_extend", credits: 136, high: 204, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-detourer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bria_remove_video_background", credits: 63, high: 95, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 63,30 crédits pour API, 1 clip (job 74567076)
@@ -614,6 +616,7 @@ export const NOEUD_SORTIE: Readonly<Record<string, string>> = {
   audio_melbandroformer_audio_separation: "4",
   video_minimax_h3_multiframe_reference: "92",
   template_ltx2_3_style_transition: "68",
+  image_qwen_image_edit_2509_relight: "12",
   // Tools that load a file of the kind they save (suite graphs).
   image_flux3_klein_image_edit: "save",
   utility_seedvr2_3b_int8_upscale_image: "9",

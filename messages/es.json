@@ -2762,6 +2762,10 @@
       "son-separer": {
         "title": "Separar voz y música",
         "line": "Conserva la voz o la música de un sonido."
+      },
+      "ret-eclairer-ouvert": {
+        "title": "Cambiar la luz",
+        "line": "Mismo retrato, nueva iluminación."
       }
     },
     "latest": "Últimos resultados",
@@ -2785,7 +2789,9 @@
       "son-musique": "Música cuidada",
       "son-bruitage-ouvert": "Efecto simple",
       "son-bruitage": "Efecto cuidado",
-      "vid-genjutsu": "Higgsfield Genjutsu"
+      "vid-genjutsu": "Higgsfield Genjutsu",
+      "ret-eclairer-ouvert": "Luz según tu consigna",
+      "ret-eclairer": "Retrato de estudio"
     },
     "model": "Modelo",
     "modelChange": "Cambiar de modelo",

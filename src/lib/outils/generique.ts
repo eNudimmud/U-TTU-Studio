@@ -175,6 +175,11 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
     audio: ["1", "audio"], save: ["4", "filename_prefix"],
     patch(graph, _prompt, input) { graph["4"].inputs.audio = ["3", PISTES[input.piste ?? "voix"]]; },
   },
+  // Top 10 n° 7: Qwen Image Edit 2509 + Relight LoRA, 4 Lightning steps. Node 14 puts the
+  // LoRA's trigger « 重新照明, » in front of the consigne (15).
+  image_qwen_image_edit_2509_relight: {
+    images: [["11", "image"]], prompt: [["15", "value"]], seed: [["10:3", "seed"]], save: ["12", "filename_prefix"], needsText: true,
+  },
   // Top 10 n° 4: Picture 1 is the reference (164), picture 2 the 5 s keyframe (167).
   video_minimax_h3_multiframe_reference: {
     images: [["164", "image"], ["167", "image"]], prompt: [["138", "value"]], seed: [["129", "noise_seed"]], save: ["92", "filename_prefix"],

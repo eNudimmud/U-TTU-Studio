@@ -842,6 +842,16 @@
       "api_file": "workflows/outils/outil-son-bruitage-ouvert.api.json"
     },
     {
+      "id": "outil-ret-eclairer-ouvert",
+      "onglet": "outils",
+      "template": "image_qwen_image_edit_2509_relight",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-ret-eclairer-ouvert.json",
+      "api_file": "workflows/outils/outil-ret-eclairer-ouvert.api.json"
+    },
+    {
       "id": "outil-ret-eclairer",
       "onglet": "outils",
       "template": "template_character_portrait_relighting",

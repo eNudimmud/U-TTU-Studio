@@ -99,3 +99,28 @@ L’agent lit le catalogue en direct (`src/lib/agent/studio-map.ts`, `capabiliti
 - `vid-transition-style` « Transition de style » (PRISE) : nouveau, 7 / 11 crédits, 6 s ; image de début, image de fin dans l’autre style (par ex. sortie de « Modifier ») ; le mot `zhuanchang` est ajouté tout seul.
 - Ne pas proposer FastH3 ni la planche de référence LTX : non intégrés.
 - Chaîne multi-caméra à décrire comme recette : « Huit angles du personnage » puis « Plan, second moteur » sur l’angle choisi.
+
+## Lot 3 — Rééclairer en poids ouverts (n° 7)
+
+Devis annoncés avant de lancer :
+- `image_qwen_image_edit_2509_relight` (Qwen Image Edit 2509 + LoRA Relight, 4 pas Lightning), portrait d’Uttu, consigne « contre-jour coucher de soleil » : **≈ 2 crédits estimés**.
+- `templates-portrait_light_migration` (Qwen Image Edit 2509 + LoRA Light Migration), Uttu éclairé comme le quai de nuit, Lightning activé (4 pas au lieu de 20) : **≈ 2 crédits estimés**.
+- Comparaison avec `ret-eclairer` (`template_character_portrait_relighting`, partenaire, devis 18 crédits non mesuré) : **non lancée**, plus de 15 crédits. Les deux restent si le nouveau marche.
+- Light Migration en 4 pas : effet à peine visible sur Uttu. Un essai au réglage du template (20 pas, CFG 4, sans Lightning), consigne sans la fin de démo « glass orb » : **≈ 7 crédits estimés**.
+
+### Résultats du lot 3
+
+| N° | Workflow | Job | GPU | Crédits | Décision |
+| --- | --- | --- | --- | --- | --- |
+| 7 | `image_qwen_image_edit_2509_relight`, portrait d’Uttu, « sunset backlight », 4 pas | 416ef414 | 13,21 s | 3,61 | intégré : `ret-eclairer-ouvert` |
+| 7 | `templates-portrait_light_migration`, Uttu + lumière du quai, Lightning 4 pas | 17e4bc26 | 13,82 s | 3,78 | non intégré |
+| 7 | même graphe, réglage du template (20 pas), consigne sans « glass orb » | e86f2d4c | 41,95 s | 11,46 | non intégré |
+
+Sous-total du lot 3 : **18,85 crédits**.
+
+Notes :
+- Rééclairer par consigne : contre-jour orangé net, visage et fissures dorées gardés. Il devient le modèle par défaut de la carte « Changer la lumière » (intention `ret-eclairer-ouvert`, 4 / 6 crédits) ; l’ancien `ret-eclairer` (partenaire, devis 18 / 27 non mesuré) reste comme second modèle « Portrait studio ». Pas de comparaison : son rendu dépasse 15 crédits, donc les deux restent, sans carte en plus.
+- Raccord lumière par image (Light Migration) : en 4 pas, le portrait ressort presque inchangé ; en 20 pas, il prend une teinte ambrée proche du quai, mais l’effet reste léger pour 11,46 crédits, trois fois le rééclairage par consigne. Non exposé.
+- Planche : `/workspace/top10/planche-relight.png` sur la box (Uttu d’origine, lumière du quai, Light Migration 4 pas, Light Migration 20 pas, Relight par consigne).
+
+Connaissance de l’agent Uttu : la carte « Changer la lumière » (CAST) a maintenant deux modèles, « Lumière par consigne » (poids ouverts, ≈ 4 crédits, par défaut) et « Portrait studio » (partenaire, ≈ 18 crédits). Proposer le premier d’abord ; ne pas proposer de raccord lumière par image de référence.
