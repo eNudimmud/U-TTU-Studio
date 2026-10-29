@@ -21,7 +21,7 @@ Moteurs (concours Comfy « Open Source Higgsfield ») : **FLUX 3 Image Klein** (
 
 `ouvert` : le studio a déjà un graphe et un devis, le bouton Créer peut partir après confirmation. `fermé` : la carte reste, Créer reste éteint, rien ne part.
 
-Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « hypothèse » ou « estimé » n’est pas une mesure. 38 gestes sur 83 sont mesurés. Le relevé du 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue en lecture seule) en a ajouté 31, dont la prise LTX-2.5 (15,10 crédits pour 5 s 16:9), le raccord (6,98), élargir (16,32) et effacer (25,11) : chaque job et son coût sont dans [docs/mesures/test-visiteur-2026-10-27.md](mesures/test-visiteur-2026-10-27.md). Avant : la prise MiniMax H3 R2V (environ 4 crédits ; 3,66 le 27.10), les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109), la vue 360 et le croquis. Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure. Le devis de la prise affiché dans l’app reste marqué « Estimé » tant qu’aucun profil facturé n’est enregistré pour la prise ; le maximum sert de plafond face au solde.
+Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « hypothèse » ou « estimé » n’est pas une mesure. 38 gestes sur 84 sont mesurés. Le relevé du 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue en lecture seule) en a ajouté 31, dont la prise LTX-2.5 (15,10 crédits pour 5 s 16:9), le raccord (6,98), élargir (16,32) et effacer (25,11) : chaque job et son coût sont dans [docs/mesures/test-visiteur-2026-10-27.md](mesures/test-visiteur-2026-10-27.md). Avant : la prise MiniMax H3 R2V (environ 4 crédits ; 3,66 le 27.10), les images FLUX 3 Klein (2,6 à 4 crédits, exemples DÉCOR #109), la vue 360 et le croquis. Règle du registre : `credits` = mesure arrondie, `high` = 1,5 × la mesure. Le devis de la prise affiché dans l’app reste marqué « Estimé » tant qu’aucun profil facturé n’est enregistré pour la prise ; le maximum sert de plafond face au solde.
 
 ## CAST
 
@@ -154,3 +154,18 @@ Cartes « bientôt » (template officiel repéré, pas encore branché, raison a
 ## Finaliser
 
 Finaliser agrandit et rend plus net ce qui existe déjà. Il ne refait jamais la prise ni l’image. Ses templates sont exportés dans `workflows/finaliser/`.
+
+
+## Genjutsu : remplacer un personnage
+
+`outil-vid-genjutsu` utilise le template officiel `api_higgsfield_genjutsu_motion_transfer` : `LoadVideo` + `LoadImage` → `HiggsfieldMotionTransferNode` (`genjutsu-v1.0`) → `SaveVideo`. Le Studio envoie le graphe par son client Comfy habituel, après devis et confirmation ; le résultat revient dans Mes créations et se transfère au montage.
+
+Le panneau reçoit une vidéo et une image de personnage, avec une deuxième image facultative de décor/style. Le template accepte jusqu’à 8 images par son entrée dynamique ; cette première interface en expose deux, comme son exemple officiel. La référence facultative est retirée du graphe lorsqu’elle n’est pas fournie. Pas de génération d’image de départ séparée.
+
+Vidéo de 4 s au minimum ; le nœud conserve au plus les 30 premières secondes. Résolutions 480p (choix initial du Studio), 720p et 1080p. La seed sert à déclencher le recalcul et ne garantit pas un résultat déterministe. Le nœud est une API partenaire payante ; l’option « modèles du studio seulement » le masque.
+
+Tarif publié dans `comfy_api_nodes/nodes_higgsfield.py`, vérifié le 28.10.2026 : 0,45474 / 0,97383 / 2,33376 USD par seconde pour 480p / 720p / 1080p. Le devis multiplie la durée retenue par ce tarif et 211 crédits/USD, puis arrondit au crédit supérieur. À 5 s : **≈ 480 crédits estimés**, **≈ 1 028 crédits estimés**, **≈ 2 463 crédits estimés** ; réserve de solde égale à 1,5 fois le devis arrondie au-dessus, sans garantie de plafond facturé. Le nombre du registre correspond à 5 s en 480p, pas à chaque clip. Sans durée lisible ou sous 4 s, aucun devis ni envoi.
+
+Sources : [template officiel](https://github.com/Comfy-Org/workflow_templates/blob/main/templates/api_higgsfield_genjutsu_motion_transfer.json), [nœud et barème officiels](https://github.com/Comfy-Org/ComfyUI/blob/master/comfy_api_nodes/nodes_higgsfield.py). Le template UI et le graphe exact envoyé sont dans `workflows/outils/outil-vid-genjutsu.json` et `.api.json`, avec une entrée dans `index.json`.
+
+Validation et limites : [GENJUTSU.md](GENJUTSU.md). Aucun rendu réel dans cette livraison ; le coût minimal estimé dépasse le budget de vérification de 60 crédits.

@@ -2696,6 +2696,10 @@
       "maquette": {
         "title": "Maqueta 3D y encuadre",
         "line": "Coloca tus personajes con el dedo, elige el ángulo de cámara y luego rueda el plano. Los créditos solo cuentan en el render."
+      },
+      "vid-genjutsu": {
+        "title": "Genjutsu — sustituir un personaje",
+        "line": "Cambia el personaje de un clip y conserva su movimiento con el flujo de Comfy."
       }
     },
     "latest": "Últimos resultados",
@@ -2718,7 +2722,8 @@
       "son-musique-ouverte": "Música simple",
       "son-musique": "Música cuidada",
       "son-bruitage-ouvert": "Efecto simple",
-      "son-bruitage": "Efecto cuidado"
+      "son-bruitage": "Efecto cuidado",
+      "vid-genjutsu": "Higgsfield Genjutsu"
     },
     "model": "Modelo",
     "modelChange": "Cambiar de modelo",
@@ -3558,5 +3563,17 @@
     "invalid": "Revisa tus opciones: hasta 7 referencias visuales y un audio en modo Vídeo.",
     "asImageReference": "Usar el último fotograma como referencia",
     "runningConversation": "Espera al resultado para iniciar una nueva conversación. Puedes seguir explorando el Studio."
+  },
+  "genjutsu": {
+    "action": "Sustituir el personaje",
+    "info": "El vídeo debe durar al menos 4 segundos. El resultado sigue los movimientos, la cámara, el ritmo y el sonido del clip. El presupuesto depende de la duración y la resolución.",
+    "video": "Vídeo de origen",
+    "image": "Imagen del personaje",
+    "image2": "Referencia de lugar o estilo (opcional)",
+    "resolution": "Resolución del vídeo",
+    "tooShort": "Elige un vídeo de al menos 4 segundos.",
+    "trim": "Solo se utilizarán y presupuestarán los primeros 30 segundos.",
+    "promptDefault": "Sustituye a la persona grabada por el personaje de la primera imagen. Conserva los movimientos, la cámara, el ritmo y el sonido. Usa la segunda imagen como referencia del lugar si se proporciona.",
+    "quoteFor": "Para {seconds} s a {resolution}. El precio final puede variar."
   }
 }

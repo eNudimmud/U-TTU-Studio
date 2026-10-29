@@ -2696,6 +2696,10 @@
       "maquette": {
         "title": "Maquette 3D et cadrage",
         "line": "Place tes personnages au doigt, choisis l'angle de caméra, puis tourne le plan. Les crédits ne comptent qu’au rendu."
+      },
+      "vid-genjutsu": {
+        "title": "Genjutsu — remplacer un personnage",
+        "line": "Change le personnage d’un clip en gardant son mouvement, avec le workflow Comfy."
       }
     },
     "latest": "Derniers résultats",
@@ -2718,7 +2722,8 @@
       "son-musique-ouverte": "Musique simple",
       "son-musique": "Musique soignée",
       "son-bruitage-ouvert": "Bruitage simple",
-      "son-bruitage": "Bruitage soigné"
+      "son-bruitage": "Bruitage soigné",
+      "vid-genjutsu": "Higgsfield Genjutsu"
     },
     "model": "Modèle",
     "modelChange": "Changer de modèle",
@@ -3558,5 +3563,17 @@
     "invalid": "Vérifie tes options : au plus 7 références visuelles et un son en mode Vidéo.",
     "asImageReference": "Utiliser la dernière image comme référence",
     "runningConversation": "Attends le résultat pour commencer une nouvelle conversation. Tu peux continuer à parcourir le Studio."
+  },
+  "genjutsu": {
+    "action": "Remplacer le personnage",
+    "info": "Vidéo de 4 secondes minimum. Le rendu suit les mouvements, la caméra, le rythme et le son du clip. Le devis dépend de sa durée et de la résolution.",
+    "video": "Vidéo source",
+    "image": "Image du personnage",
+    "image2": "Décor ou style de référence (facultatif)",
+    "resolution": "Résolution de la vidéo",
+    "tooShort": "Choisis une vidéo d’au moins 4 secondes.",
+    "trim": "Seules les 30 premières secondes seront utilisées et comptées dans le devis.",
+    "promptDefault": "Remplace la personne filmée par le personnage de la première image. Garde le mouvement, la caméra, le rythme et le son. Utilise la seconde image comme référence de décor si elle est fournie.",
+    "quoteFor": "Pour {seconds} s en {resolution}. Le prix final peut varier."
   }
 }

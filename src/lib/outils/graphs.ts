@@ -12,6 +12,7 @@ import { isSuiteGeste, suiteGraph, type Elargir } from "../suite/graphs.ts";
 import { gesteParId } from "../workflows/registre.ts";
 import { outilRow, type Outil } from "./catalogue.ts";
 import { generiqueGraph, type OutilAspect, type OutilFiles } from "./generique.ts";
+import { GENJUTSU_TEMPLATE, genjutsuQuote, type GenjutsuResolution } from "./genjutsu.ts";
 
 export const OUTIL_SECONDS = 5;
 
@@ -25,6 +26,7 @@ export interface OutilInput {
   /** Length of the source video (estimate per block, Finaliser chunks). */
   seconds?: number;
   mesh?: "objet" | "perso";
+  resolution?: GenjutsuResolution;
 }
 
 export const MESH_GESTE = { objet: "prise-volume-objet", perso: "prise-volume-perso" } as const;
@@ -54,7 +56,7 @@ export function outilGraph(outil: Outil, input: OutilInput): ApiGraph {
       return graph;
     }
     case "generique":
-      return generiqueGraph({ template: outil.template, files: input.files, prompt, seed: input.seed, prefix: outilPrefix(outil), aspect: input.aspect });
+      return generiqueGraph({ template: outil.template, files: input.files, prompt, seed: input.seed, prefix: outilPrefix(outil), aspect: input.aspect, resolution: input.resolution });
     case "suite": {
       if (!isSuiteGeste(row.id)) throw new Error(row.id);
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.files.video : images[0];
@@ -100,7 +102,8 @@ export interface OutilQuote {
 const round1 = (value: number) => Math.round(value * 10) / 10;
 
 /** Estimated from the registry row. Per-length tools count each started block of five seconds. */
-export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso" } = {}): OutilQuote | null {
+export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso"; resolution?: GenjutsuResolution } = {}): OutilQuote | null {
+  if (outil.template === GENJUTSU_TEMPLATE) return genjutsuQuote(options.seconds, options.resolution);
   const row = outil.moteur?.kind === "mesh" ? gesteParId(MESH_GESTE[options.mesh ?? "objet"]) : outilRow(outil);
   if (!row || row.credits === null || row.high === null) return null;
   // Per-length tools (e.g. Musique pour une vidéo): wait for a real duration so the quote

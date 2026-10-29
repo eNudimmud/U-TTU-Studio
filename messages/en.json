@@ -2696,6 +2696,10 @@
       "maquette": {
         "title": "3D layout and framing",
         "line": "Place your characters with a finger, pick the camera angle, then shoot the take. Credits only count at the render."
+      },
+      "vid-genjutsu": {
+        "title": "Genjutsu — replace a character",
+        "line": "Change a clip’s character while keeping its motion, using the Comfy workflow."
       }
     },
     "latest": "Latest results",
@@ -2718,7 +2722,8 @@
       "son-musique-ouverte": "Simple music",
       "son-musique": "Polished music",
       "son-bruitage-ouvert": "Simple effect",
-      "son-bruitage": "Polished effect"
+      "son-bruitage": "Polished effect",
+      "vid-genjutsu": "Higgsfield Genjutsu"
     },
     "model": "Model",
     "modelChange": "Change model",
@@ -3558,5 +3563,17 @@
     "invalid": "Check your options: up to 7 visual references and one audio in Video mode.",
     "asImageReference": "Use the last frame as reference",
     "runningConversation": "Wait for the result before starting a new conversation. You can keep browsing the Studio."
+  },
+  "genjutsu": {
+    "action": "Replace the character",
+    "info": "Video must be at least 4 seconds long. The result follows the clip’s motion, camera, timing and sound. The quote depends on length and resolution.",
+    "video": "Source video",
+    "image": "Character image",
+    "image2": "Location or style reference (optional)",
+    "resolution": "Video resolution",
+    "tooShort": "Choose a video at least 4 seconds long.",
+    "trim": "Only the first 30 seconds will be used and included in the quote.",
+    "promptDefault": "Replace the filmed person with the character in the first image. Keep the motion, camera, timing and sound. Use the second image as the location reference if supplied.",
+    "quoteFor": "For {seconds} s at {resolution}. The final price may vary."
   }
 }

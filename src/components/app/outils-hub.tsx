@@ -16,6 +16,7 @@ import { formatCredits } from "@/lib/credits";
 import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
 import { failView } from "@/lib/render/fail";
 import { outilQuote } from "@/lib/outils/graphs";
+import { GENJUTSU_DEFAULT_RESOLUTION, GENJUTSU_RESOLUTIONS, genjutsuSeconds, type GenjutsuResolution } from "@/lib/outils/genjutsu";
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
 import { assetPath } from "@/lib/site";
 import { audioSeconds, lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
@@ -30,7 +31,7 @@ import { ALL_TOOLS_ID } from "./creation-bar";
 import { ToolShell, ToolStage, type StageView } from "./tool-shell";
 import { REFS_HANDOFF_KEY, isRefsHandoff, takeHandoff } from "@/lib/barre/model";
 import { ReperageTool } from "./reperage/reperage-tool";
-import { REPERAGE_ID } from "@/lib/outils/vignettes";
+import { REPERAGE_ID, UTTU_PORTRAIT_HD } from "@/lib/outils/vignettes";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
 
 export const SAMPLES: Record<Entree, { url: string; name: string }> = {
@@ -61,7 +62,7 @@ function ligneCarte(t: (key: string) => string, id: string) {
   return t(`outils.t.${intentDe(id)}.line`);
 }
 
-const NAMED_MODELS = new Set(["vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage"]);
+const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage"]);
 
 function nomModele(t: (key: string) => string, id: string) {
   return NAMED_MODELS.has(id) ? t(`outils.modelName.${id}`) : t(`outils.t.${id}.title`);
@@ -207,7 +208,7 @@ export function useResultAssets(): { asset: AssetRecord; url: string; kind: "ima
   }, [loose, media, studio.takes]);
 }
 
-function InputSlot({ entree, label, value, busy, busyId, onChange }: { entree: Entree; label?: string; value: Picked | null; busy: boolean; busyId: string; onChange(next: Picked | null): void }) {
+function InputSlot({ entree, label, sample, value, busy, busyId, onChange }: { entree: Entree; label?: string; sample?: { url: string; name: string }; value: Picked | null; busy: boolean; busyId: string; onChange(next: Picked | null): void }) {
   const { t } = useI18n();
   const id = useId();
   const [over, setOver] = useState(false);
@@ -235,7 +236,7 @@ function InputSlot({ entree, label, value, busy, busyId, onChange }: { entree: E
         <span>{value ? t("outils.replace") : t("outils.pick")}</span>
         <input type="file" accept={accept} disabled={busy} aria-labelledby={`${id}-label`} aria-describedby={busy ? busyId : undefined} onChange={event => take(event.target.files?.[0] ?? undefined)} />
       </label>
-      <button type="button" className="u-chip" data-outil-sample={entree} disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => onChange({ url: assetPath(SAMPLES[entree].url), name: SAMPLES[entree].name })}>{t("outils.sample")}</button>
+      <button type="button" className="u-chip" data-outil-sample={entree} disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => onChange({ url: assetPath((sample ?? SAMPLES[entree]).url), name: (sample ?? SAMPLES[entree]).name })}>{t("outils.sample")}</button>
       {own.length > 0 && <button type="button" className="u-chip" aria-expanded={studioOpen} data-outil-studio={entree} disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={() => setStudioOpen(open => !open)}>{t("outils.fromStudio")}</button>}
     </div>
     {studioOpen && <div className="u-outil-own" role="group" aria-label={t("outils.fromStudio")}>
@@ -303,18 +304,20 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const { connected, creating, runOutil, balance, setSheet, prefs, media } = useStudio();
   const [modelId, setModelId] = useState(asked.id);
   const outil = outilParId(modelId) ?? asked;
+  const genjutsu = outil.id === "vid-genjutsu";
   // The form you left here comes back as it was: pictures, text and settings (never the consent box).
   const draftKey = intentDe(asked.id);
   const [draft] = useState(() => loadDraft(draftKey, path => media[path]));
   const [inputs, setInputs] = useState<Partial<Record<Entree, Picked | null>>>(() => (draft?.inputs ?? {}) as Partial<Record<Entree, Picked | null>>);
-  const [text, setText] = useState(draft?.text ?? "");
+  const [text, setText] = useState(draft?.text ?? (genjutsu ? t("genjutsu.promptDefault") : ""));
   const [aspect, setAspect] = useState<"horizontal" | "vertical">(draft?.aspect ?? "horizontal");
   const [side, setSide] = useState<Elargir>((draft?.side as Elargir | undefined) ?? "cotes");
   const [fluide, setFluide] = useState(draft?.fluide ?? false);
   const [mesh, setMesh] = useState<"objet" | "perso">(draft?.mesh ?? "objet");
+  const [resolution, setResolution] = useState<GenjutsuResolution>(GENJUTSU_RESOLUTIONS.includes(draft?.resolution as GenjutsuResolution) ? draft!.resolution! : GENJUTSU_DEFAULT_RESOLUTION);
   useEffect(() => {
-    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh });
-  }, [draftKey, inputs, text, aspect, side, fluide, mesh]);
+    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh, resolution });
+  }, [draftKey, inputs, text, aspect, side, fluide, mesh, resolution]);
   const [consent, setConsent] = useState(false);
   const [seconds, setSeconds] = useState<number | null>(null);
   const [ask, setAsk] = useState(false);
@@ -431,14 +434,15 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     return () => { gone = true; };
   }, [video, audio, outil.id, outil.entrees]);
 
-  const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh }), [outil, seconds, fluide, mesh]);
-  const quotePending = Boolean(outil.parTranche && inputs.video && seconds == null);
+  const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh, resolution }), [outil, seconds, fluide, mesh, resolution]);
+  const quotePending = Boolean((outil.parTranche || genjutsu) && inputs.video && seconds == null);
+  const tooShort = genjutsu && seconds !== null && seconds < 4;
   const busy = stage !== null;
   const missingInput = main.find(item => !inputs[item]);
   const missingText = outil.texte === "requis" && !text.trim();
   const needConsent = Boolean(outil.consentement && inputs.audio && !consent);
   const lowBalance = Boolean(quote && balance && balance.credits < quote.high);
-  const action = outil.entrees.length === 0 || outil.famille === "3d" ? t(`outils.do.${outil.sortie}`) : titreCarte(t, outil.id);
+  const action = genjutsu ? t("genjutsu.action") : outil.entrees.length === 0 || outil.famille === "3d" ? t(`outils.do.${outil.sortie}`) : titreCarte(t, outil.id);
   const lock = { disabled: busy, "aria-describedby": busy ? busyId : undefined };
 
   function set(entree: Entree, next: Picked | null) { setInputs(current => ({ ...current, [entree]: next })); setAsk(false); setOutcome(null); setWhy(""); }
@@ -454,10 +458,11 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   function press() {
     if (busy || creating) return;
     if (!connected) { setSheet("connect"); return; }
-    if (etat.kind !== "pret") { setWhy(t("gestes.unwired")); return; }
+    if (etat.kind !== "pret") { setWhy(t(etat.kind === "masque" ? "safety.modelBlocked" : "gestes.unwired")); return; }
     if (missingInput) { setWhy(t("outils.needInput", { what: t(`outils.kind.${slotName(missingInput)}`) })); return; }
     if (missingText) { setWhy(t("videoGeste.needText")); return; }
     if (needConsent) { setWhy(t("outils.needConsent")); return; }
+    if (tooShort) { setWhy(t("genjutsu.tooShort")); return; }
     if (!quote) return;
     if (lowBalance) { setWhy(t("finaliser.needCeiling", { ceiling: formatCredits(quote.high) })); return; }
     setWhy("");
@@ -496,11 +501,11 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       const from = inputs.image?.path ?? inputs.video?.path;
       onResult?.(null);
       const result = await runOutil({
-        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, consent, from, onStage,
+        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, consent, from, onStage,
         onCost: cost => setOutcome(current => current?.ok ? { ...current, cost } : current),
       });
       setOutcome(result);
-      if (result.ok) onResult?.({ url: result.url, path: result.path, kind: outil.sortie, poster: inputs.image?.url, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
+      if (result.ok) onResult?.({ url: result.url, path: result.path, kind: outil.sortie, poster: inputs.image?.url, seconds: genjutsu ? genjutsuSeconds(seconds ?? undefined) ?? undefined : undefined, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
     } catch (error) {
       const view = failView(error);
       setOutcome({ ok: false, message: view.message, kind: view.kind, intact: view.intact, reconnect: view.reconnect, retry: view.retry });
@@ -516,6 +521,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       <ToolSwitch current={outil.id} />
     </header>
     <p className="u-small">{ligneCarte(t, outil.id)}</p>
+    {genjutsu && <p className="u-small" data-genjutsu-info="">{t("genjutsu.info")}</p>}
     <div className="u-tool-step u-model-card" data-tool-step="modele">
       <span className="u-label">{t("outils.model")}</span>
       <strong data-model-current="">{nomModele(t, outil.id)}</strong>
@@ -523,7 +529,9 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     </div>
     {main.length > 0 && <fieldset className="u-tool-step" data-tool-step="entree">
       <legend className="u-label">{t("outils.input")}</legend>
-      {main.map(entree => <InputSlot key={entree} entree={entree} label={bridge ? t(`outils.slot.${slotName(entree)}`) : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
+      {main.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t(`genjutsu.${entree}`) : bridge ? t(`outils.slot.${slotName(entree)}`) : undefined} sample={genjutsu && entree === "image" ? { url: UTTU_PORTRAIT_HD, name: "uttu-personnage.webp" } : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
+      {tooShort && <p className="u-why" role="alert" data-genjutsu-short="">{t("genjutsu.tooShort")}</p>}
+      {genjutsu && seconds !== null && seconds > 30 && <p className="u-small" role="status" data-genjutsu-trim="">{t("genjutsu.trim")}</p>}
       {outil.consentement && inputs.audio && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={consent} data-tool-consent="" {...lock} onClick={() => { setConsent(value => !value); reset(); }}>
         <span className="u-final-box" aria-hidden="true">{consent ? "✓" : ""}</span><span>{t("outils.consent")}</span>
       </button>}
@@ -533,9 +541,12 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       <textarea rows={3} value={text} maxLength={1200} {...lock} onChange={event => { setText(event.target.value); reset(); }} />
     </label>}
     {refs.length > 0 && <Fold step="references" label={t("outils.refs")}>
-      {refs.map(entree => <InputSlot key={entree} entree={entree} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
+      {refs.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t("genjutsu.image2") : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
     </Fold>}
     {reglages.length > 0 && <Fold step="reglages" label={t("outils.settings")}>
+      {reglages.includes("resolution") && <div className="u-choice-row" role="group" aria-label={t("genjutsu.resolution")}>
+        {GENJUTSU_RESOLUTIONS.map(value => <button key={value} type="button" className="u-chip" aria-pressed={resolution === value} data-genjutsu-resolution={value} {...lock} onClick={() => { setResolution(value); reset(); }}>{value}</button>)}
+      </div>}
       {reglages.includes("aspect") && <div className="u-choice-row" role="group" aria-label={t("outils.format")}>
         {(["horizontal", "vertical"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={aspect === id} data-tool-aspect={id} {...lock} onClick={() => { setAspect(id); reset(); }}>{t(`outils.aspect.${id}`)}</button>)}
       </div>}
@@ -567,7 +578,8 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     {ask && quote && <div className="u-confirm-layer">
       <div role="dialog" aria-modal="true" aria-labelledby={askId} className="u-confirm" data-tool-ask="">
         <h2 id={askId}>{t("outils.confirmTitle")}</h2>
-        <p>{t("outils.confirmBody", { credits: formatCredits(quote.credits) })}</p>
+        <p>{t(genjutsu ? "outils.cost" : "outils.confirmBody", { credits: formatCredits(quote.credits) })}</p>
+        {genjutsu && <p>{t("genjutsu.quoteFor", { seconds: String(Math.round((genjutsuSeconds(seconds ?? undefined) ?? 0) * 100) / 100), resolution })}</p>}
         <div className="u-confirm-actions">
           <button type="button" className="u-primary" data-tool-confirm="" onClick={() => void launch()}>{t("outils.confirmYes")}</button>
           <button type="button" className="u-link" data-tool-cancel="" onClick={() => setAsk(false)}>{t("outils.confirmNo")}</button>
@@ -587,7 +599,7 @@ function meshDownloadName(path: string, label: string): string {
 }
 
 /** The run just made in this tool: what came back, shown big, never a file name. */
-export interface ToolRun { url: string; path: string; kind: Sortie; poster?: string; aspect?: "horizontal" | "vertical" }
+export interface ToolRun { url: string; path: string; kind: Sortie; poster?: string; seconds?: number; aspect?: "horizontal" | "vertical" }
 
 /** The fresh result, big, with « Et ensuite ? » open and a way to Mes créations. Earlier runs stay in Mes créations. */
 function ToolResult({ run, label }: { run: ToolRun; label: string }) {
@@ -611,7 +623,7 @@ function ToolResult({ run, label }: { run: ToolRun; label: string }) {
       </>}
     </div>
     {run.kind === "video" && run.path && <div className="u-fil-actions" data-tool-result-actions="">
-      <MontageButton input={{ planId: "outils", label, seconds: 5, aspect: run.aspect ?? "horizontal", still: "", video: run.path, prompt: "", sceneName: "", composeur: "" }} />
+      <MontageButton input={{ planId: "outils", label, seconds: run.seconds ?? 5, aspect: run.aspect ?? "horizontal", still: "", video: run.path, prompt: "", sceneName: "", composeur: "" }} />
     </div>}
     {(run.kind === "image" || run.kind === "video") && <EtEnsuite source={{ kind: run.kind, url: run.url, name: t("outils.result"), path: run.path || undefined, aspect: run.aspect }} defaultOpen />}
     <a className="u-link u-tool-result-lib" data-tool-result-lib="" href={assetPath("/mon-studio")}>{t("outils.inLibrary")}</a>

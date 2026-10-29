@@ -5,6 +5,7 @@
 import { seedOf } from "../seed.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import { OUTIL_BASES } from "./base.ts";
+import { genjutsuResolution, type GenjutsuResolution } from "./genjutsu.ts";
 
 type At = readonly [node: string, input: string];
 export type OutilAspect = "horizontal" | "vertical";
@@ -23,6 +24,7 @@ export interface GeneriqueInput {
   seed: number;
   prefix: string;
   aspect?: OutilAspect;
+  resolution?: GenjutsuResolution;
 }
 
 interface Spec {
@@ -38,7 +40,7 @@ interface Spec {
   /** Fixed studio choices (short lengths keep one estimate). */
   set?: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
   /** For text the graph needs in another shape. */
-  patch?(graph: ApiGraph, prompt: string): void;
+  patch?(graph: ApiGraph, prompt: string, input: GeneriqueInput): void;
   /** The text the graph needs is required. */
   needsText?: boolean;
 }
@@ -48,6 +50,14 @@ const RATIO = { horizontal: "16:9", vertical: "9:16" };
 
 /** Exact slot map per template, read in the api graph. */
 export const GENERIQUE: Readonly<Record<string, Spec>> = {
+  api_higgsfield_genjutsu_motion_transfer: {
+    images: [["14", "image"], ["15", "image"]], video: ["13", "file"],
+    prompt: [["9", "model.prompt"]], seed: [["9", "model.seed"]], save: ["10", "filename_prefix"],
+    patch(graph, _prompt, input) {
+      graph["9"].inputs["model.resolution"] = genjutsuResolution(input.resolution);
+      if (!input.files.images?.[1]) { delete graph["15"]; delete graph["9"].inputs["model.reference_images.image_2"]; }
+    },
+  },
   image_qwen_image_2_1_t2i: { prompt: [["459:471", "prompt"], ["459:474", "on_false"]], seed: [["459:458", "seed"]], save: ["461", "filename_prefix"], aspect: { at: ["13", "aspect_ratio"], ...RESOLUTION }, needsText: true },
   // Flux3ImageNode.aspect_ratio COMBO accepts bare ratios ("16:9", "9:16", …) — verified live object_info 2026-10-27.
   api_bfl_flux3_t2i: { prompt: [["1", "prompt"]], seed: [["1", "seed"]], save: ["2", "filename_prefix"], aspect: { at: ["1", "aspect_ratio"], horizontal: "16:9", vertical: "9:16" }, needsText: true },
@@ -170,7 +180,7 @@ export function generiqueGraph(input: GeneriqueInput): ApiGraph {
   for (const [node, values] of Object.entries(spec.set ?? {})) Object.assign(graph[node].inputs, values);
   if (spec.aspect) put(graph, spec.aspect.at, spec.aspect[input.aspect ?? "horizontal"]);
   if (spec.size) Object.assign(graph[spec.size.node].inputs, spec.size[input.aspect ?? "horizontal"]);
-  spec.patch?.(graph, prompt);
+  spec.patch?.(graph, prompt, input);
   put(graph, spec.save, input.prefix);
   return graph;
 }

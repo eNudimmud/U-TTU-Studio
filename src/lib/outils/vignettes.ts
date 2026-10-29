@@ -34,11 +34,13 @@ const ANIMEES = new Set([
 
 /** Public path of a tool's thumbnail, or null (a tool without a thumbnail yet). */
 export function vignette(id: string): string | null {
+  if (id === "vid-genjutsu") return UTTU_PORTRAIT_WIDE;
   return VIGNETTES.has(id) ? `/exemples/vignettes/${id}.webp` : null;
 }
 
 /** The same thumbnail at 1280x800, for dense screens. */
 export function vignette2x(id: string): string | null {
+  if (id === "vid-genjutsu") return UTTU_PORTRAIT_WIDE_HD;
   return VIGNETTES.has(id) ? `/exemples/vignettes/${id}@2x.webp` : null;
 }
 

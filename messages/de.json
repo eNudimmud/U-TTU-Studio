@@ -2696,6 +2696,10 @@
       "maquette": {
         "title": "3D-Modell und Bildausschnitt",
         "line": "Stell deine Figuren mit dem Finger auf, wähl den Kamerawinkel und dreh dann die Einstellung. Credits zählen erst beim Rendern."
+      },
+      "vid-genjutsu": {
+        "title": "Genjutsu — Figur ersetzen",
+        "line": "Ersetze die Figur eines Clips und behalte ihre Bewegung mit dem Comfy-Workflow bei."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2718,7 +2722,8 @@
       "son-musique-ouverte": "Einfache Musik",
       "son-musique": "Feine Musik",
       "son-bruitage-ouvert": "Einfaches Geräusch",
-      "son-bruitage": "Feines Geräusch"
+      "son-bruitage": "Feines Geräusch",
+      "vid-genjutsu": "Higgsfield Genjutsu"
     },
     "model": "Modell",
     "modelChange": "Modell wechseln",
@@ -3558,5 +3563,17 @@
     "invalid": "Prüfe deine Optionen: bis zu 7 Bildreferenzen und ein Ton im Videomodus.",
     "asImageReference": "Letztes Bild als Referenz verwenden",
     "runningConversation": "Warte auf das Ergebnis, bevor du eine neue Unterhaltung beginnst. Du kannst das Studio weiter nutzen."
+  },
+  "genjutsu": {
+    "action": "Figur ersetzen",
+    "info": "Das Video muss mindestens 4 Sekunden lang sein. Das Ergebnis folgt Bewegung, Kamera, Timing und Ton des Clips. Der Kostenvoranschlag hängt von Länge und Auflösung ab.",
+    "video": "Quellvideo",
+    "image": "Bild der Figur",
+    "image2": "Referenz für Ort oder Stil (optional)",
+    "resolution": "Videoauflösung",
+    "tooShort": "Wähle ein Video mit mindestens 4 Sekunden Länge.",
+    "trim": "Nur die ersten 30 Sekunden werden verwendet und im Kostenvoranschlag berücksichtigt.",
+    "promptDefault": "Ersetze die gefilmte Person durch die Figur im ersten Bild. Behalte Bewegung, Kamera, Timing und Ton bei. Nutze das zweite Bild als Ortsreferenz, falls vorhanden.",
+    "quoteFor": "Für {seconds} s bei {resolution}. Der Endpreis kann abweichen."
   }
 }

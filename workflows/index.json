@@ -1,6 +1,6 @@
 {
   "source": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates",
-  "exported": "2026-10-28",
+  "exported": "2026-10-29",
   "workflows": [
     {
       "id": "cast-photos",
@@ -984,6 +984,18 @@
       "sentPartner": false,
       "template_file": "workflows/outils/creation-video-texte.json",
       "api_file": "workflows/outils/creation-video-texte.api.json"
+    },
+    {
+      "id": "outil-vid-genjutsu",
+      "onglet": "outils",
+      "template": "api_higgsfield_genjutsu_motion_transfer",
+      "partner": true,
+      "partnerNodes": [
+        "HiggsfieldMotionTransferNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-genjutsu.json",
+      "api_file": "workflows/outils/outil-vid-genjutsu.api.json"
     }
   ]
 }
