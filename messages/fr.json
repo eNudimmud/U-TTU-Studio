@@ -1758,7 +1758,10 @@
     "sessionElsewhere": "Ta session Comfy a expiré (connexion ouverte ailleurs ?). Reconnecte-toi.",
     "network": "Le compte de rendu ne répond pas. Vérifie ta connexion, puis réessaie.",
     "retry": "Réessayer",
-    "reconnect": "Reconnecter"
+    "reconnect": "Reconnecter",
+    "watchRunning": "Rendu en cours dans le cloud : {name}.",
+    "watchDone": "Rendu terminé : {name}. Rangement dans le projet…",
+    "watchAuto": "Le studio le suit tout seul et le range dès qu’il est prêt. Aucun nouvel envoi."
   },
   "safety": {
     "modelBlocked": "Cet outil est masqué par tes choix de modèles. Rien n’est envoyé.",

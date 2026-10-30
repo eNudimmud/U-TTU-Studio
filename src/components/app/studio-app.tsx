@@ -13,6 +13,7 @@ import { CastStage, DecorStage, PriseStage } from "./stage-screens";
 import { outilFromHash, OutilsHub } from "./outils-hub";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
+import { RenduSuivi } from "./rendu-suivi";
 import "./app.css";
 import { StudioSplash } from "./splash";
 import { TopBar } from "./top-bar";
@@ -190,6 +191,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     </nav>}
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready || switching} data-switching={switching ? "" : undefined}>
       {!ready ? <StudioSplash /> : <>
+        <RenduSuivi />
         {section === "outils" ? <OutilsHub tool={outil} />
           : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
           : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
