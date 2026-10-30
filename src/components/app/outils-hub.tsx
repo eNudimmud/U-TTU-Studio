@@ -34,6 +34,7 @@ import { ToolShell, ToolStage, type StageView } from "./tool-shell";
 import { REFS_HANDOFF_KEY, isRefsHandoff, takeHandoff } from "@/lib/barre/model";
 import { ReperageTool } from "./reperage/reperage-tool";
 import { REPERAGE_ID, UTTU_PORTRAIT_HD } from "@/lib/outils/vignettes";
+import { marquerModeleAbsent, modeleAbsent, pikaRefusModele } from "@/lib/outils/pika-h3-flex";
 import { useStudio, type FinaliseOutcome, type FinaliseStage } from "./studio-session";
 
 export const SAMPLES: Record<Entree, { url: string; name: string }> = {
@@ -71,7 +72,7 @@ function ligneCarte(t: (key: string) => string, id: string) {
   return t(`outils.t.${intentDe(id)}.line`);
 }
 
-const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage", "ret-eclairer-ouvert", "ret-lumiere-image", "ret-eclairer", "vid-h3-refs", "vid-fasth3", "vid-vidu"]);
+const NAMED_MODELS = new Set(["vid-genjutsu", "vid-wan", "vid-ltx-image", "vid-animer", "vid-kling", "vid-seedance", "vid-h3max", "vid-prolonger", "vid-prolonger-grok", "3d-ouvert", "3d-tripo", "3d-hunyuan", "3d-meshy", "son-voix-ouverte", "son-voix", "son-musique-ouverte", "son-musique", "son-bruitage-ouvert", "son-bruitage", "ret-eclairer-ouvert", "ret-lumiere-image", "ret-eclairer", "vid-h3-refs", "vid-fasth3", "vid-pika", "vid-vidu"]);
 
 function nomModele(t: (key: string) => string, id: string) {
   return NAMED_MODELS.has(id) ? t(`outils.modelName.${id}`) : t(`outils.t.${id}.title`);
@@ -313,7 +314,9 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const { t } = useI18n();
   const { connected, creating, runOutil, balance, setSheet, prefs, media } = useStudio();
   const [modelId, setModelId] = useState(asked.id);
-  const outil = outilParId(modelId) ?? asked;
+  const picked = outilParId(modelId) ?? asked;
+  // A model Comfy refused this session (missing weights) opens as its card's default instead.
+  const outil = picked.absentSiRefus && modeleAbsent(picked.id) ? outilParId(intentDe(picked.id)) ?? picked : picked;
   const genjutsu = outil.id === "vid-genjutsu";
   const doubler = outil.id === "vid-doubler";
   // The form you left here comes back as it was: pictures, text and settings (never the consent box).
@@ -530,6 +533,14 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
         outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, piste: outil.reglages?.includes("piste") ? piste : undefined, doublage: doubler ? doublage : undefined, consent, from, onStage,
         onCost: cost => setOutcome(current => current?.ok ? { ...current, cost } : current),
       });
+      // Comfy refused the graph for a weight or node it lacks today: the model leaves « Changer de
+      // modèle » for this session and the card goes back to its default (H3 for Pika). Nothing ran.
+      if (!result.ok && result.kind === "invalid" && outil.absentSiRefus && pikaRefusModele(result.message)) {
+        marquerModeleAbsent(outil.id);
+        setOutcome({ ok: false, message: t("outils.modelGone"), kind: "invalid", intact: false, reconnect: false, retry: false });
+        pickModel(intentDe(outil.id));
+        return;
+      }
       setOutcome(result);
       if (result.ok) onResult?.({ url: result.url, path: result.path, extras: result.extras, kind: outil.sortie, poster: inputs.image?.url, seconds: genjutsu ? genjutsuSeconds(seconds ?? undefined) ?? undefined : doubler ? veedSeconds(seconds ?? undefined) ?? undefined : undefined, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
     } catch (error) {
@@ -552,6 +563,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     <div className="u-tool-step u-model-card" data-tool-step="modele">
       <span className="u-label">{t("outils.model")}</span>
       <strong data-model-current="">{nomModele(t, outil.id)}</strong>
+      {outil.attribution && <span className="u-small" data-model-attribution="">{t(`outils.attribution.${outil.id}`)}</span>}
       <ModelMenu current={outil.id} onPick={pickModel} />
     </div>
     {main.length > 0 && <fieldset className="u-tool-step" data-tool-step="entree">

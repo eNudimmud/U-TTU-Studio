@@ -4,6 +4,7 @@
 // wired yet carries a one-line reason and never shows a working button.
 
 import { gesteOuvert, gesteParId, gesteVisible, templatePartenaire, type FiltreGestes, type Geste, type Onglet } from "../workflows/registre.ts";
+import { modeleAbsent } from "./pika-h3-flex.ts";
 
 export const FAMILLES = ["creer", "retoucher", "video", "3d", "son"] as const;
 export type Famille = (typeof FAMILLES)[number];
@@ -51,6 +52,10 @@ export interface Outil {
   /** Both pictures are required and named: the subject, then the picture whose light it takes
    *  (« lumiere »), or the character, then the place (« lieu »). */
   paire?: "lumiere" | "lieu";
+  /** Licence line under the model name (outils.attribution.<id>), e.g. « MiniMax H3 » for Pika. */
+  attribution?: boolean;
+  /** Weights Comfy may not have: once a refusal names one, the model leaves the menu (pika-h3-flex.ts). */
+  absentSiRefus?: boolean;
 }
 
 const G = { kind: "generique" } as const;
@@ -80,6 +85,7 @@ export const OUTILS: readonly Outil[] = [
   { id: "vid-seedance", num: 18, famille: "creer", sous: "video", template: "api_seedance2_5_r2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-seedance", moteur: G },
   { id: "vid-wan", num: 19, famille: "creer", sous: "video", template: "video_wan2_2_14B_i2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-wan", moteur: G },
   { id: "vid-fasth3", num: 12, famille: "creer", sous: "video", template: "video_fasth3_ominiref_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-fasth3", moteur: G, reglages: ["aspect"], paire: "lieu" },
+  { id: "vid-pika", num: 12, famille: "creer", sous: "video", template: "video_pika_h3_flex_ref2va", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-pika", moteur: G, reglages: ["aspect"], paire: "lieu", attribution: true, absentSiRefus: true },
   { id: "vid-vidu", num: 21, famille: "creer", sous: "video", template: "api_vidu_q4_preview_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-vidu", moteur: G, reglages: ["aspect"] },
   { id: "vid-h3max", num: 22, famille: "creer", sous: "video", template: "api_minimax_h3_max_r2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-h3max", moteur: G },
   // CRÉER · 3D
@@ -197,7 +203,7 @@ export const INTENT_MODELES: Record<string, readonly string[]> = {
   "son-musique-ouverte": ["son-musique-ouverte", "son-musique"],
   "son-bruitage-ouvert": ["son-bruitage-ouvert", "son-bruitage"],
   "ret-eclairer-ouvert": ["ret-eclairer-ouvert", "ret-lumiere-image", "ret-eclairer"],
-  "vid-h3-refs": ["vid-h3-refs", "vid-fasth3", "vid-vidu"],
+  "vid-h3-refs": ["vid-h3-refs", "vid-fasth3", "vid-pika", "vid-vidu"],
 };
 
 const VARIANTE = new Map<string, string>();
@@ -222,7 +228,8 @@ export function modelesIntent(id: string, filtre: FiltreGestes = {}): Outil[] {
   const order = INTENT_MODELES[head] ?? [head];
   return order.flatMap(item => {
     const outil = outilParId(item);
-    return outil && outilEtat(outil, filtre).kind === "pret" ? [outil] : [];
+    // A model whose weights Comfy refused this session stays out of the menu.
+    return outil && outilEtat(outil, filtre).kind === "pret" && !(outil.absentSiRefus && modeleAbsent(outil.id)) ? [outil] : [];
   });
 }
 

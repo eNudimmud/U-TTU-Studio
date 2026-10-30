@@ -103,7 +103,7 @@ test("sync: top 10 paths are guided, unintegrated workflows are never proposed",
 
 test("sync: the audit's open-weight models are guided inside their card, by model name, with the audit's tips", () => {
   const tool = (id: string) => k.tools.find(t => t.id === id)!;
-  assert.deepEqual(tool("vid-h3-refs").variantes, ["vid-fasth3"]);
+  assert.deepEqual(tool("vid-h3-refs").variantes, ["vid-fasth3", "vid-pika"]);
   assert.ok(tool("ret-eclairer-ouvert").variantes.includes("ret-lumiere-image"));
   // Partner models of a card are never named.
   assert.ok(!tool("vid-h3-refs").variantes.includes("vid-vidu"));

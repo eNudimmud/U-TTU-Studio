@@ -7,6 +7,7 @@ import type { ApiGraph } from "../render/take-graph.ts";
 import { OUTIL_BASES } from "./base.ts";
 import { genjutsuResolution, type GenjutsuResolution } from "./genjutsu.ts";
 import { fastH3Prompt } from "./fasth3-prompt.ts";
+import { pikaGraphProblem } from "./pika-h3-flex.ts";
 import { veedChoix, veedLangues, veedMemeLangue, type VeedChoix } from "./veed.ts";
 
 type At = readonly [node: string, input: string];
@@ -195,6 +196,22 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
     patch(graph, prompt, input) {
       if (!input.files.images?.[1]) throw new Error("Image du lieu manquante.");
       graph["138"].inputs.value = fastH3Prompt(prompt);
+    },
+  },
+  // Pika H3 Flex Ref2VA (30.10.2026), third model of « Vidéo fidèle aux références »: the template
+  // as it ships (Pika's LoRA on the H3 Ref2VA weights, lcm, six fixed sigmas), Picture 1 the
+  // character, Picture 2 the place, the same structured prompt as FastH3 (the template's own
+  // prompt has that shape). 0.4 MP, 5 s: the measured settings (job 5f7c6344, 7,54 crédits).
+  // Never the H3 turbo LoRA: it breaks Pika's output (pika-h3-flex.ts refuses the graph).
+  video_pika_h3_flex_ref2va: {
+    images: [["149", "image"], ["150", "image"]], seed: [["129", "noise_seed"]], save: ["92", "filename_prefix"],
+    aspect: { at: ["115", "aspect_ratio"], ...RESOLUTION }, needsText: true,
+    set: { "115": { megapixels: 0.4 }, "132": { value: 5 }, "136": { ref_image_size: "match" } },
+    patch(graph, prompt, input) {
+      if (!input.files.images?.[1]) throw new Error("Image du lieu manquante.");
+      graph["138"].inputs.value = fastH3Prompt(prompt);
+      const problem = pikaGraphProblem(graph);
+      if (problem) throw new Error(problem);
     },
   },
   "templates-portrait_light_migration": {
