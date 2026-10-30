@@ -2,12 +2,12 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { useI18n } from '@/components/i18n/provider';
-import { CREATION_REFERENCES_MAX, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from '@/lib/creation/named-references';
-import { Close, Plus } from './glyphs';
+import { CREATION_REFERENCES_MAX, pickerReferences, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from '@/lib/creation/named-references';
+import { Check, Close, More, Plus } from './glyphs';
 import { useStudio } from './studio-session';
 
-export function ReferenceLibrary({ onClose, onPick, initialImage, atLimit = false, selected = [] }: {
-  onClose(): void; onPick?(ref: NamedReference): void;
+export function ReferenceLibrary({ onClose, onPick, onUnpick, initialImage, atLimit = false, selected = [] }: {
+  onClose(): void; onPick?(ref: NamedReference): void; onUnpick?(ref: NamedReference): void;
   initialImage?: { src: string; name: string; path?: string };
   atLimit?: boolean; selected?: readonly string[];
 }) {
@@ -18,6 +18,7 @@ export function ReferenceLibrary({ onClose, onPick, initialImage, atLimit = fals
   const [query, setQuery] = useState('');
   const [deleting, setDeleting] = useState<NamedReference | null>(null);
   const [busy, setBusy] = useState(false);
+  const [menuFor, setMenuFor] = useState<string | null>(null);
   const [error, setError] = useState('');
   const dialog = useRef<HTMLDialogElement>(null);
   const title = useId(), statusId = useId();
@@ -26,7 +27,11 @@ export function ReferenceLibrary({ onClose, onPick, initialImage, atLimit = fals
     const el = dialog.current; el?.showModal();
     return () => { el?.close(); if (previous?.isConnected) previous.focus(); };
   }, []);
-  const shown = references.filter(r => (filter === 'tout' || r.category === filter) && `${r.name} ${r.description}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
+  // The bubble only offers cards the user named; imports and byte-identical copies stay in the vault, out of sight.
+  const pool = onPick ? pickerReferences(references) : references;
+  const hidden = references.length - pool.length;
+  const needle = query.trim().toLocaleLowerCase();
+  const shown = pool.filter(r => (filter === 'tout' || r.category === filter) && `${r.name} ${r.description}`.toLocaleLowerCase().includes(needle));
   return <div className="u-overlay"><dialog ref={dialog} className="u-sheet u-native-sheet is-tall u-refs-sheet u-named-refs" aria-labelledby={title} data-refs-sheet="" onCancel={e => { e.preventDefault(); if (!busy) onClose(); }}>
     <header className="u-refs-head">
       <button type="button" className="u-icon" aria-label={t('verb.close')} disabled={busy} aria-describedby={statusId} onClick={onClose}><Close /></button>
@@ -38,25 +43,42 @@ export function ReferenceLibrary({ onClose, onPick, initialImage, atLimit = fals
       <h3>{t('namedRefs.deleteTitle')}</h3><p>{t('namedRefs.deleteQuestion', { name: deleting.name })}</p>
       <div className="u-fil-actions"><button className="u-secondary" disabled={busy} aria-describedby={statusId} autoFocus onClick={() => setDeleting(null)}>{t('verb.cancel')}</button><button className="u-primary" data-ref-delete-confirm="" disabled={busy} aria-describedby={statusId} onClick={async () => { setBusy(true); setError(''); try { await deleteReference(deleting); setDeleting(null); } catch { setError(t('namedRefs.failed')); } finally { setBusy(false); } }}>{t('namedRefs.delete')}</button></div>
     </div> : editing ? <ReferenceEditor key={editing === 'new' ? 'new' : editing.note} original={editing === 'new' ? undefined : editing} initialImage={initialImage} onBack={() => setEditing(null)} onSaved={() => { setEditing(null); setFilter('tout'); setQuery(''); }} onBusy={setBusy} /> : <>
-      <p className="u-small" data-refs-capacity="">{t('namedRefs.capacity', { n: references.length })}</p>
-      <button type="button" className="u-primary u-named-new" data-refs-new="" onClick={() => setEditing('new')}><Plus />{t('namedRefs.new')}</button>
-      <p className="u-small">{t(onPick ? 'namedRefs.shared' : 'namedRefs.manageHelp')}</p>
+      <p className="u-small" data-refs-capacity="">{t(onPick ? 'namedRefs.pickerCount' : 'namedRefs.capacity', { n: pool.length })}</p>
+      {onPick && hidden > 0 && <p className="u-small" data-refs-hidden="">{t('namedRefs.hiddenImports', { n: hidden })}</p>}
       {onPick && atLimit && <p className="u-small" role="status" data-refs-selection-limit="">{t('namedRefs.selectionLimit', { max: CREATION_REFERENCES_MAX })}</p>}
-      <label className="u-field"><span className="sr-only">{t('namedRefs.search')}</span><input type="search" placeholder={t('namedRefs.search')} value={query} onChange={e => setQuery(e.target.value)} data-ref-search="" /></label>
-      <div className="u-refs-filters" role="group" aria-label={t('barre.refs.filter')}>
+      <div className="u-named-tools">
+        <label className="u-field"><span className="sr-only">{t('namedRefs.search')}</span><input type="search" placeholder={t('namedRefs.search')} value={query} onChange={e => setQuery(e.target.value)} data-ref-search="" /></label>
+        <button type="button" className="u-secondary u-named-new" data-refs-new="" onClick={() => setEditing('new')}><Plus />{t('namedRefs.new')}</button>
+      </div>
+      <div className="u-refs-filters" role="group" aria-label={t('barre.refs.filter')} data-refs-filters="">
         {(['tout', ...REFERENCE_CATEGORIES] as const).map(c => <button key={c} type="button" data-refs-filter={c} aria-pressed={filter === c} onClick={() => setFilter(c)}>{t(c === 'tout' ? 'barre.refs.tout' : `namedRefs.category.${c}`)}</button>)}
       </div>
-      {shown.length === 0 && <p className="u-small" data-refs-empty="">{t(references.length ? 'namedRefs.noMatch' : 'namedRefs.empty')}</p>}
-      <ul className="u-refs-grid" role="list">
-        {shown.map(ref => { const attached = selected.includes(`${ref.category}:${ref.id}`); return <li key={ref.note}>
-          <button type="button" className="u-refs-card" data-ref={ref.id} data-ref-kind={ref.category} disabled={Boolean(onPick) && (!ref.preview || atLimit || attached)} aria-describedby={onPick && (!ref.preview || atLimit || attached) ? `${statusId}-${ref.id}` : undefined} onClick={() => onPick ? onPick(ref) : setEditing(ref)}>
-            <span className="u-refs-thumb">{media[ref.preview] && <img src={media[ref.preview]} alt="" width={320} height={320} loading="lazy" />}</span>
-            <strong>{ref.name}</strong><small>{t(`namedRefs.category.${ref.category}`)} · {t('namedRefs.photoCount', { n: ref.images.length })}</small>
-          </button>
-          {onPick && (!ref.preview || atLimit || attached) && <small className="u-small" id={`${statusId}-${ref.id}`}>{t(!ref.preview ? 'namedRefs.missing' : attached ? 'namedRefs.attached' : 'namedRefs.selectionLimit', { max: CREATION_REFERENCES_MAX })}</small>}
-          {!onPick && !ref.preview && <small className="u-small">{t('namedRefs.missing')}</small>}
-          <div className="u-named-card-actions"><button type="button" data-ref-edit={ref.id} aria-label={t('namedRefs.editName', { name: ref.name })} onClick={() => setEditing(ref)}>{t('namedRefs.edit')}</button><button type="button" data-ref-delete={ref.id} aria-label={t('namedRefs.deleteName', { name: ref.name })} onClick={() => setDeleting(ref)}>{t('namedRefs.delete')}</button></div>
-        </li>; })}
+      {shown.length === 0 && <p className="u-small" data-refs-empty="">{t(pool.length ? 'namedRefs.noMatch' : 'namedRefs.empty')}</p>}
+      <ul className="u-refs-grid u-named-grid" role="list">
+        {shown.map(ref => {
+          const attached = selected.includes(`${ref.category}:${ref.id}`);
+          const blocked = Boolean(onPick) && (!ref.preview || (atLimit && !attached));
+          const why = !ref.preview ? 'namedRefs.missing' : blocked ? 'namedRefs.selectionLimit' : attached ? 'namedRefs.attached' : '';
+          const thumbs = (ref.images.length > 1 ? ref.images : [ref.preview]).slice(0, REFERENCE_PHOTOS_MAX);
+          return <li key={ref.note} className="u-named-item" data-attached={attached || undefined}>
+            <button type="button" className="u-refs-card u-named-card" data-ref={ref.id} data-ref-kind={ref.category}
+              aria-pressed={onPick ? attached : undefined} disabled={blocked} aria-describedby={why ? `${statusId}-${ref.id}` : undefined}
+              onClick={() => { setMenuFor(null); if (!onPick) setEditing(ref); else if (attached) onUnpick?.(ref); else onPick(ref); }}>
+              <span className="u-refs-thumb u-named-thumbs" data-count={thumbs.length}>
+                {thumbs.map((path, i) => media[path] ? <img key={`${path}-${i}`} src={media[path]} alt="" width={320} height={320} loading="lazy" /> : <span key={`${path}-${i}`} />)}
+                {attached && <span className="u-refs-check" aria-hidden="true"><Check /></span>}
+              </span>
+              <strong>{ref.name}</strong>
+              <small>{t(`namedRefs.category.${ref.category}`)} · {t('namedRefs.photoCount', { n: ref.images.length })}</small>
+              {why && <small className="u-named-why" id={`${statusId}-${ref.id}`}>{t(why, { max: CREATION_REFERENCES_MAX })}</small>}
+            </button>
+            <button type="button" className="u-icon u-named-more" data-ref-menu={ref.id} aria-label={t('namedRefs.moreName', { name: ref.name })} aria-expanded={menuFor === ref.note} onClick={() => setMenuFor(m => m === ref.note ? null : ref.note)}><More /></button>
+            {menuFor === ref.note && <div className="u-named-menu" role="group" aria-label={t('namedRefs.moreName', { name: ref.name })}>
+              <button type="button" data-ref-edit={ref.id} aria-label={t('namedRefs.editName', { name: ref.name })} onClick={() => { setMenuFor(null); setEditing(ref); }}>{t('namedRefs.edit')}</button>
+              <button type="button" data-ref-delete={ref.id} aria-label={t('namedRefs.deleteName', { name: ref.name })} onClick={() => { setMenuFor(null); setDeleting(ref); }}>{t('namedRefs.delete')}</button>
+            </div>}
+          </li>;
+        })}
       </ul>
     </>}
   </dialog></div>;

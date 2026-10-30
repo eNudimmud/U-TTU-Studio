@@ -2393,8 +2393,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-named-refs .u-refs-grid { flex: 1 1 auto; min-height: 100px; }
 .u-named-refs .u-refs-grid > li { min-width: 0; }
 .u-named-refs .u-refs-card { width: 100%; }
-.u-named-card-actions { display: flex; }
-.u-named-card-actions button { flex: 1; min-width: 44px; min-height: 44px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 12px; }
 .u-named-editor { display: grid; gap: 12px; overflow-y: auto; min-height: 0; padding-bottom: 16px; }
 .u-named-editor .u-field { margin: 0; }
 .u-named-editor input, .u-named-editor select, .u-named-editor textarea { min-height: 44px; width: 100%; max-width: 100%; }
@@ -2783,3 +2781,30 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   /* 5 · Réviser: the takes; keep, retry, finish, send the kept takes to MONTAGE. */
   .u-prise[data-prise-etape="reviser"] .u-prise-work > :not(.u-prise-head, .u-outils-strip, .u-avance) { display: none; }
 }
+
+/* Bubble reference picker: named cards only, one tap to attach, edit/delete behind « ⋯ ». */
+.u-named-tools { display: flex; flex-wrap: wrap; gap: 8px; flex-shrink: 0; }
+.u-named-tools .u-field { flex: 1 1 200px; margin: 0; min-width: 0; }
+.u-named-tools input { width: 100%; min-height: 44px; }
+.u-named-tools .u-named-new { flex: 0 0 auto; width: auto; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; }
+.u-named-refs .u-refs-filters { flex-wrap: wrap; overflow: visible; flex-shrink: 0; }
+.u-named-refs .u-refs-filters button { flex: 0 1 auto; min-width: 44px; }
+.u-named-grid { grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); }
+.u-named-item { position: relative; display: grid; align-content: start; }
+.u-named-card { min-height: 44px; border-radius: 14px; }
+.u-named-card:disabled { opacity: .55; cursor: not-allowed; }
+.u-named-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.u-named-thumbs { display: grid; gap: 2px; grid-template-columns: 1fr; }
+.u-named-thumbs[data-count="2"] { grid-template-columns: 1fr 1fr; }
+.u-named-thumbs[data-count="3"] { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; }
+.u-named-thumbs[data-count="3"] > :first-child { grid-row: span 2; }
+.u-named-thumbs > img, .u-named-thumbs > span:not(.u-refs-check) { width: 100%; height: 100%; min-height: 0; object-fit: cover; background: var(--surface-2, var(--bg)); }
+.u-named-item[data-attached] .u-refs-thumb { border-color: var(--accent); }
+.u-named-card strong { overflow-wrap: anywhere; }
+.u-named-why { color: var(--fg-2); }
+.u-named-more { position: absolute; top: 6px; left: 6px; width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 999px; background: color-mix(in srgb, var(--bg) 78%, transparent); color: var(--fg); }
+.u-named-menu { position: absolute; top: 54px; left: 6px; z-index: 2; display: grid; min-width: 150px; padding: 4px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); box-shadow: 0 8px 24px rgb(0 0 0 / .35); }
+.u-named-menu button { min-height: 44px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--fg); font: 500 15px/1 var(--font-body); text-align: start; cursor: pointer; }
+.u-named-menu button:hover, .u-named-menu button:focus-visible { background: var(--surface-2, var(--bg)); }
+.u-named-menu button[data-ref-delete] { color: var(--danger, #ff6b6b); }
+.u-named-refs .u-refs-head .u-icon { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }

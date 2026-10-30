@@ -3686,7 +3686,10 @@
     "capacity": "Crée autant de références que tu veux. {n} référence(s) enregistrée(s) dans ce projet.",
     "selectionLimit": "Tu as déjà joint {max} références à cette création. Tu peux continuer à créer et gérer tes fiches ; retire une puce pour en joindre une autre.",
     "attached": "Déjà jointe à cette création",
-    "noMatch": "Aucune référence ne correspond à ta recherche ou à cette catégorie."
+    "noMatch": "Aucune référence ne correspond à ta recherche ou à cette catégorie.",
+    "pickerCount": "{n} référence(s) nommée(s). Touche une carte pour la joindre, retouche-la pour la retirer.",
+    "hiddenImports": "{n} image(s) importée(s) sans nom ou en double ne sont pas proposées ici. Elles restent dans ton projet.",
+    "moreName": "Plus d’actions pour {name}"
   },
   "bubble": {
     "audio": "Audio",

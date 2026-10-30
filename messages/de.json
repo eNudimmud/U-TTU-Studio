@@ -3686,7 +3686,10 @@
     "capacity": "Erstelle so viele Referenzen, wie du möchtest. {n} Referenz(en) in diesem Projekt gespeichert.",
     "selectionLimit": "Du hast bereits {max} Referenzen für diese Kreation angehängt. Du kannst weiterhin Referenzen erstellen und verwalten; entferne einen Chip, um eine andere anzuhängen.",
     "attached": "Bereits für diese Kreation angehängt",
-    "noMatch": "Keine Referenzen passen zu deiner Suche oder dieser Kategorie."
+    "noMatch": "Keine Referenzen passen zu deiner Suche oder dieser Kategorie.",
+    "pickerCount": "{n} benannte Referenz(en). Tippe auf eine Karte, um sie anzuhängen, und erneut, um sie zu entfernen.",
+    "hiddenImports": "{n} unbenannte oder doppelte importierte Bild(er) werden hier nicht angeboten. Sie bleiben in deinem Projekt.",
+    "moreName": "Weitere Aktionen für {name}"
   },
   "bubble": {
     "audio": "Audio",

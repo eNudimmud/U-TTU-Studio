@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { BUBBLE_DEFAULTS, bubbleGraph, bubblePrompt, bubbleQuote, bubbleSize } from '../src/lib/creation/bubble.ts';
-import { namedReferenceNote, readNamedReferences, referenceFromNote } from '../src/lib/creation/named-references.ts';
+import { BUBBLE_DEFAULTS, bubbleGraph, bubblePrompt, bubbleQuote, bubbleResolutionLabel, bubbleSize } from '../src/lib/creation/bubble.ts';
+import { fileLikeName, namedReferenceNote, pickerReferences, readNamedReferences, referenceFromNote, type NamedReference } from '../src/lib/creation/named-references.ts';
+import { importMedia } from '../src/lib/creation/import-media.ts';
 import { memoryVault } from '../src/lib/coffre/store.ts';
 import { castNote } from '../src/lib/creation/fiche.ts';
 import { readFrontmatter } from '../src/lib/coffre/markdown.ts';
@@ -36,11 +37,76 @@ test('seven named references reach Klein without truncation, and its canvas foll
   for(let i=0;i<7;i++)assert.deepEqual(graph.image_17.inputs[`images.image${i}`],[`reference_${i+1}`,0]);
   assert.equal(Object.values(graph).filter(n=>n.class_type==='LoadImage').length,7);
   assert.deepEqual(graph.image_7.inputs.latent_image,['canvas',0]);
-  assert.equal(graph.canvas.inputs.width,bubbleSize(settings).width);
-  assert.equal(graph.canvas.inputs.height,bubbleSize(settings).height);
+  assert.equal(graph.canvas.inputs.width,bubbleSize(settings,'image').width);
+  assert.equal(graph.canvas.inputs.height,bubbleSize(settings,'image').height);
   const prompt=bubblePrompt('Sujet A et Sujet B',[{name:'Sujet A',description:'manteau sombre'},{name:'Sujet B'}],'image');
-  assert.match(prompt,/<ref_image_0>: "Sujet A"/);assert.match(prompt,/<ref_image_1>: "Sujet B"/);
+  assert.match(prompt,/The first image named "Sujet A"/);assert.match(prompt,/The second image named "Sujet B"/);
   assert.throws(()=>bubbleGraph({mode:'image',settings,images:[...images,'8.png'],prompt:'test',seed:1}));
+});
+
+test('JD 2026-10-30: an image with a cast sheet and two loose photos is ≥ 1 MP, reads every reference at 1 MP, names each by ordinal and lets the vision upsampler run',()=>{
+  // Before: 864×480 canvas, every reference squeezed to 0.4 MP, `<ref_image_N>: "1000053068.png"` tokens and the upsampler switched off.
+  assert.deepEqual(bubbleSize(BUBBLE_DEFAULTS,'image'),{width:1344,height:768,megapixels:1344*768/2**20});
+  assert.deepEqual([bubbleSize({...BUBBLE_DEFAULTS,format:'9:16'},'image').width,bubbleSize({...BUBBLE_DEFAULTS,format:'1:1'},'image').width],[768,1024]);
+  assert.ok(bubbleSize({...BUBBLE_DEFAULTS,resolution:'720p'},'image').megapixels>=1.9);
+  assert.deepEqual(bubbleSize(BUBBLE_DEFAULTS),{width:864,height:480,megapixels:864*480/2**20},'video keeps its 480p canvas');
+  assert.equal(bubbleResolutionLabel('image','480p'),'1 MP');assert.equal(bubbleResolutionLabel('video','480p'),'480p');
+  const refs=[{name:'L’alien',category:'cast'},{name:'1000053068.png',category:'photo'},{name:'1000052926.png',category:'photo'}];
+  const prompt=bubblePrompt('génère une photo de l’alien avec la créature, en train de jouer dans la nature',refs,'image');
+  assert.match(prompt,/The first image named "L’alien": a character from the cast — when it is a character sheet/);
+  assert.match(prompt,/The second image: an attached photo/);assert.match(prompt,/The third image: an attached photo/);
+  assert.doesNotMatch(prompt,/<ref_image|1000053068|\.png/);assert.match(prompt,/never merge two subjects into one/);
+  const graph=bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:['a.png','b.png','c.png'],prompt,seed:1785575703});
+  assert.deepEqual([graph.canvas.inputs.width,graph.canvas.inputs.height],[1344,768]);
+  assert.equal(graph.image_17.inputs['resolution.megapixels'],1);
+  assert.equal(graph.image_51.inputs.switch,false,'the template’s vision upsampler describes each picture by ordinal');
+  for(let i=0;i<3;i++)assert.deepEqual(graph.image_17.inputs[`images.image${i}`],[`reference_${i+1}`,0]);
+  assert.equal(graph.image_61.inputs.value,prompt);
+  assert.equal(graph.image_7.inputs.cfg,3.5,'the base Klein checkpoint needs guidance; cfg 1 (left over from the distilled template) melts anatomy');
+  assert.equal(graph.image_7.inputs.steps,50);
+  assert.match(bubblePrompt('a',[{name:'Sujet A',category:'cast'}],'video'),/<Picture 1>: "Sujet A"/,'video prompts are unchanged');
+  for(const name of ['1000052812','1000053068.png','IMG_2041','PXL_20261030_014500.jpg'])assert.ok(fileLikeName(name),name);
+  for(const name of ['L’alien','Fennec','Planète rose','R2'])assert.ok(!fileLikeName(name),name);
+});
+
+test('the image estimate follows the measured Comfy Cloud cost of the job it sends',()=>{
+  // 2026-10-30, rtx_pro_6000: 1344×768 + 3 refs at 1 MP + upsampler at cfg 3.5 = 38.5 GPU s ≈ 10.5 credits (job fef595a7).
+  const three=bubbleQuote('image',3,BUBBLE_DEFAULTS)!;
+  assert.equal(three.credits,11);assert.ok(three.high>=three.credits);
+  assert.ok(bubbleQuote('image',0,BUBBLE_DEFAULTS)!.credits<three.credits);
+  assert.ok(bubbleQuote('image',3,{...BUBBLE_DEFAULTS,resolution:'720p'})!.credits>three.credits);
+});
+
+test('the bubble picker offers only named references, once each; raw imports stay in the vault',async()=>{
+  const vault=memoryVault();
+  const sheet=new Blob([new Uint8Array([1,2,3])],{type:'image/png'}),other=new Blob([new Uint8Array([4,5,6])],{type:'image/png'});
+  const file=(blob:Blob,name:string)=>new File([blob],name,{type:'image/png'});
+  // JD's library: the same sheet imported twice under its camera name, a loose building photo, and a character imported twice as « Uttu ».
+  await importMedia(vault,[file(sheet,'1000052812.png'),file(sheet,'1000052812.png')],'personnage');
+  await importMedia(vault,[file(other,'1000052926.png')],'decor');
+  await importMedia(vault,[file(other,'Uttu.png'),file(other,'Uttu.png')],'personnage');
+  const project=(await vault.list()).find(e=>/^Projets\/[^/]+\/Cast\//.test(e.path))!.path.split('/')[1];
+  const shot=`Projets/${project}/Cast/alien.png`;await vault.put({path:shot,blob:sheet,updatedAt:1});
+  const saved=(id:string)=>vault.put({path:`Projets/${project}/Cast/${id}.md`,text:namedReferenceNote(project,id,{name:'L’alien',description:'',category:'cast',images:[shot],preview:shot}),updatedAt:1});
+  await saved('alien');await saved('alien-bis');
+  // An older bubble card (no `origine`) named by hand is kept; an older import still named after its file is hidden.
+  const legacy=(id:string,name:string)=>castNote({id,name,at:'2026-10-01T00:00:00Z',prompt:'',source:'photos',photos:[shot],sheet:shot,template:'',quote:0,cost:0,project});
+  await vault.put({path:`Projets/${project}/Cast/vieux.md`,text:legacy('vieux','Fennec'),updatedAt:1});
+  await vault.put({path:`Projets/${project}/Cast/vieil-import.md`,text:legacy('vieil-import','1000053068'),updatedAt:1});
+  const all=await readNamedReferences(vault,project);
+  assert.equal(all.length,9,'nothing is deleted from the library itself');
+  const picker=pickerReferences(all);
+  assert.deepEqual(picker.map(r=>r.name),['Fennec','L’alien','L’alien','Uttu'],'two hand-saved cards stay; the double import of Uttu shows once');
+  assert.ok(all.filter(r=>r.name==='L’alien').every(r=>r.hash&&r.hash===all.find(x=>x.name==='1000052812')!.hash),'same bytes, same hash');
+  // Renaming an import in the Références box makes it a reference.
+  const imported=all.find(r=>r.name==='1000052926')!;assert.equal(imported.pickable,false);
+  const renamed=namedReferenceNote(project,imported.id,{name:'Le Capitole',description:'',category:'decor',images:imported.images,preview:imported.preview},(await vault.get(imported.note))!.text);
+  assert.equal(readFrontmatter(renamed).fields.origine,'references');
+  assert.equal(referenceFromNote(imported.note,renamed,project)!.pickable,true);
+  // A CAST sheet generated by a template is a reference whatever its name.
+  const generated=castNote({id:'gen',name:'1000052812',at:'',prompt:'',source:'photos',photos:[shot],sheet:shot,template:'image_flux3_klein_image_edit',quote:4,cost:3,project});
+  assert.equal(referenceFromNote(`Projets/${project}/Cast/gen.md`,generated,project)!.pickable,true);
+  const without:NamedReference[]=[{id:'x',name:'X',description:'',category:'cast',images:[],preview:'',note:'n'}];assert.deepEqual(pickerReferences(without),[],'no picture, nothing to attach');
 });
 
 test('video references, duration, sound and audio are wired to the official H3 inputs',()=>{
@@ -59,8 +125,8 @@ test('prompt alone uses the existing text templates and estimates increase with 
   assert.equal(Object.values(still).filter(n=>n.class_type==='LoadImage').length,0);
   assert.deepEqual(still['image_18:7'].inputs.latent_image,['canvas',0]);
   const large=bubbleGraph({mode:'image',settings:{...BUBBLE_DEFAULTS,resolution:'720p'},images:[],prompt:'un quai',seed:42});
-  assert.equal(large.canvas.inputs.width,bubbleSize({...BUBBLE_DEFAULTS,resolution:'720p'}).width);
-  assert.equal(large.canvas.inputs.height,bubbleSize({...BUBBLE_DEFAULTS,resolution:'720p'}).height);
+  assert.equal(large.canvas.inputs.width,bubbleSize({...BUBBLE_DEFAULTS,resolution:'720p'},'image').width);
+  assert.equal(large.canvas.inputs.height,bubbleSize({...BUBBLE_DEFAULTS,resolution:'720p'},'image').height);
   const video=bubbleGraph({mode:'video',settings:{...BUBBLE_DEFAULTS,duration:10,sound:false,format:'1:1'},images:[],prompt:'Un quai sous la pluie',seed:42});
   assert.equal(video['405:362'].inputs.value,10);assert.match(String(video['409'].inputs.aspect_ratio),/1:1/);
   assert.ok(Object.values(video).every(n=>n.class_type!=='CreateVideo'||!n.inputs.audio));

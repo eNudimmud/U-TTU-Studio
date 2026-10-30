@@ -3686,7 +3686,10 @@
     "capacity": "Create as many references as you want. {n} reference(s) saved in this project.",
     "selectionLimit": "You have already attached {max} references to this creation. You can keep creating and managing references; remove a chip to attach another.",
     "attached": "Already attached to this creation",
-    "noMatch": "No references match your search or this category."
+    "noMatch": "No references match your search or this category.",
+    "pickerCount": "{n} named reference(s). Tap a card to attach it, tap again to remove it.",
+    "hiddenImports": "{n} unnamed or duplicate imported image(s) are not offered here. They stay in your project.",
+    "moreName": "More actions for {name}"
   },
   "bubble": {
     "audio": "Audio",

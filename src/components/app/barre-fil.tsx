@@ -30,7 +30,7 @@ import { fillBarre } from "./creation-bar";
 import { toggleAssistant } from "./assistant-panel";
 import { MontageButton } from "./montage-button";
 import { useStudio, type MontageInput } from "./studio-session";
-import { bubblePrompt, bubbleQuote, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
+import { bubblePrompt, bubbleQuote, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
 import { ReferenceLibrary } from './reference-library';
 import { readPending } from '@/lib/render/recovery';
 
@@ -392,7 +392,7 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
   const open = job.route.kind === 'outil' && job.route.creation ? null : <a className="u-text-button u-fil-open" href={job.route.kind === "prise" ? "#prise" : `#outils/${job.route.id}`} data-fil-open="" onClick={event => { event.preventDefault(); openInTool(job); }}>{t("barre.fil.openTool")}</a>;
   const duration = job.route.kind === 'outil' && job.route.creation ? job.route.creation.settings.duration : 5;
   const choices = job.route.kind === 'outil' ? job.route.creation : undefined;
-  const dimensions = choices ? bubbleSize(choices.settings) : null;
+  const dimensions = choices ? bubbleSize(choices.settings, choices.mode) : null;
 
   const montage: MontageInput | null = !url ? null
     : job.takeId ? { takeId: job.takeId, planId: "barre", label: job.text.slice(0, 80), seconds: 5, aspect: job.aspect, still: "", prompt: job.text, sceneName: "", composeur: "" }
@@ -402,7 +402,7 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
 
   return <li className="u-fil-job" data-fil-job={job.status} data-fil-tool={job.route.kind === "prise" ? "prise" : job.route.id} data-fil-sortie={job.sortie}>
     <p className="u-fil-who">{name}{cost && <span className="u-fil-cost"> · {cost}</span>}</p>
-    {choices && dimensions && <p className="u-small" data-fil-settings="">{choices.settings.format} · ≈ {choices.settings.resolution} · {dimensions.width}×{dimensions.height}{choices.mode === 'video' ? ` · ${choices.settings.duration} s · ${t(choices.settings.sound ? 'bubble.soundOn' : 'bubble.soundOff')}` : ''}</p>}
+    {choices && dimensions && <p className="u-small" data-fil-settings="">{choices.settings.format} · ≈ {bubbleResolutionLabel(choices.mode, choices.settings.resolution)} · {dimensions.width}×{dimensions.height}{choices.mode === 'video' ? ` · ${choices.settings.duration} s · ${t(choices.settings.sound ? 'bubble.soundOn' : 'bubble.soundOff')}` : ''}</p>}
     {job.status === "confirm" && job.route.kind === "outil" && <div className="u-fil-confirm" data-fil-confirm-card="">
       <p>{t("barre.fil.confirmLine")}</p>
       {!connected && <QuoteExemple job={job} />}
