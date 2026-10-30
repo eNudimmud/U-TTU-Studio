@@ -269,6 +269,12 @@
 
 .u-toast { position: fixed; z-index: 45; top: 68px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); padding: 10px 16px; border: 1px solid var(--u-line-strong); border-radius: 999px; background: var(--u-ink); color: var(--u-gold-soft); font-size: 14px; box-shadow: none; }
 
+.u-suivi { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--u-line-strong); border-radius: 14px; background: var(--u-ink); color: var(--u-gold-soft); }
+.u-suivi p { flex: 1 1 220px; margin: 0; font-size: 14px; line-height: 1.4; }
+.u-suivi p span { color: var(--u-sand); }
+.u-suivi .u-secondary { width: auto; min-height: 44px; flex: 0 0 auto; }
+.u-suivi .u-why { flex: 1 1 100%; }
+.u-suivi-dot { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; background: var(--accent); animation: u-pulse 1.4s ease-in-out infinite; }
 .u-chain { position: fixed; z-index: 50; left: 0; right: 0; bottom: 0; width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 6px 8px calc(6px + var(--u-safe)); background: var(--u-ink); border-top: 1px solid var(--u-line-strong); box-shadow: none; }
 .u-chain button { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; width: 100%; min-width: 0; min-height: 52px; padding: 6px 4px; border: 0; border-radius: 12px; background: none; color: var(--u-muted); font: 600 13px/1.15 var(--font-mono); letter-spacing: .06em; }
 .u-chain button small { font: 600 12px/1 var(--font-body); letter-spacing: .04em; text-transform: none; color: var(--u-sand); }
@@ -422,7 +428,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .u-thread span, .u-pulse, .u-guide, .u-sheet { animation: none; }
+  .u-thread span, .u-pulse, .u-suivi-dot, .u-guide, .u-sheet { animation: none; }
 }
 
 .u-modes, .u-suggest, .u-card-actions { display: flex; flex-wrap: wrap; gap: 8px; }

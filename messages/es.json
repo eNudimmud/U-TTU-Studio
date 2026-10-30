@@ -1758,7 +1758,10 @@
     "sessionElsewhere": "Tu sesión de Comfy ha caducado (¿sesión abierta en otro sitio?). Vuelve a conectarte.",
     "network": "La cuenta de render no responde. Comprueba tu conexión e inténtalo de nuevo.",
     "retry": "Reintentar",
-    "reconnect": "Reconectar"
+    "reconnect": "Reconectar",
+    "watchRunning": "Render en curso en la nube: {name}.",
+    "watchDone": "Render terminado: {name}. Guardándolo en el proyecto…",
+    "watchAuto": "El estudio lo sigue solo y lo guarda en cuanto esté listo. No se envía nada de nuevo."
   },
   "safety": {
     "modelBlocked": "Esta herramienta está oculta por tus elecciones de modelos. No se envía nada.",
