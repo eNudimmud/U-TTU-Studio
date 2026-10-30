@@ -1,8 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { proxyComfy } from "@/lib/comfy-proxy";
+import { studioOriginGate } from "@/lib/studio-origin-gate";
 
-// Every route is public. The proxy only serves Comfy media on this host.
+// Every route is public. The proxy serves Comfy media on this host, and sends the studio pages
+// to the login-authorized origin when this host cannot log in to Comfy (src/lib/studio-origin.ts).
 export async function proxy(request: NextRequest) {
+  const gate = studioOriginGate(request);
+  if (gate) return gate;
   // Comfy media is same-site only when the frame is this host.
   const comfy = await proxyComfy(request);
   return comfy ?? NextResponse.next();

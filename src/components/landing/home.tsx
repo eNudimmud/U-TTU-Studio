@@ -7,6 +7,7 @@ import { assetPath, contactEmail, sourceRepo } from "@/lib/site";
 import { LegacyStudioHash } from "./legacy-hash";
 import { Brand, BrandLockup } from "@/components/brand";
 import { PoweredBy } from "@/components/powered-by";
+import { useStudioHref } from "@/components/use-studio-href";
 import "./home.css";
 
 const STUDIO_HREF = assetPath("/studio");
@@ -38,6 +39,9 @@ function PauseIcon({ paused }: { paused: boolean }) {
 
 export function HomeLanding() {
   const { t } = useI18n();
+  // On a host where the render login is not allowed (uttu-studio.app), the studio opens on the allowed origin (src/lib/studio-origin.ts).
+  const studioHref = useStudioHref(STUDIO_HREF);
+  const uttuHref = useStudioHref(UTTU_HREF);
   const rich = (key: string) => t.rich(key, { em: (chunks: ReactNode) => <em>{chunks}</em> });
   const list = (key: string, n: number) => Array.from({ length: n }, (_, i) => t(`${key}.${i}`));
   const root = useRef<HTMLDivElement>(null);
@@ -91,7 +95,7 @@ export function HomeLanding() {
       <Brand href={assetPath("/")} label={t("landing.home")} className="wordmark hv-mark" />
       <span className="hv-sp" />
       <LanguageSwitcher />
-      <a className="hv-btn hv-glass hv-bar-cta" href={STUDIO_HREF}>{t("landing.enter")}</a>
+      <a className="hv-btn hv-glass hv-bar-cta" href={studioHref}>{t("landing.enter")}</a>
     </header>
     <main id="contenu" className="hv-main" tabIndex={-1}>
       <section className={paused ? "hv-hero is-paused" : "hv-hero"} aria-labelledby="landing-title" data-hero="">
@@ -108,8 +112,8 @@ export function HomeLanding() {
             <h1 id="landing-title">{rich("accueil.h1")}</h1>
             <p className="hv-lead"><span>{t("accueil.sub")}</span><span>{t("accueil.sub2")}</span></p>
             <div className="hv-ctas">
-              <a className="hv-btn hv-gold" href={STUDIO_HREF} data-enter-studio="">{t("landing.enter")} <Arrow /></a>
-              <a className="hv-btn hv-glass" href={UTTU_HREF} data-try-free="">{t("landing.tryFree")}</a>
+              <a className="hv-btn hv-gold" href={studioHref} data-enter-studio="">{t("landing.enter")} <Arrow /></a>
+              <a className="hv-btn hv-glass" href={uttuHref} data-try-free="">{t("landing.tryFree")}</a>
               <PoweredBy className="hv-badge" />
             </div>
           </div>
@@ -204,8 +208,8 @@ export function HomeLanding() {
           <BrandLockup className="hv-end-logo hv-rv" alt="U*TTU Studio" />
           <h2 id="hv-end-title" className="hv-rv d1">{rich("accueil.endTitle")}</h2>
           <div className="hv-ctas hv-rv d2">
-            <a className="hv-btn hv-gold" href={STUDIO_HREF}>{t("landing.enter")} <Arrow /></a>
-            <a className="hv-btn hv-glass" href={UTTU_HREF}>{t("landing.tryFree")}</a>
+            <a className="hv-btn hv-gold" href={studioHref}>{t("landing.enter")} <Arrow /></a>
+            <a className="hv-btn hv-glass" href={uttuHref}>{t("landing.tryFree")}</a>
           </div>
           <ul className="hv-trust hv-rv d3">{list("accueil.trust", 3).map(line => <li key={line}>{line}</li>)}</ul>
           <PoweredBy className="hv-badge hv-rv d3" />

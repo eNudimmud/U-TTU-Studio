@@ -18,8 +18,11 @@ describe("accueil", () => {
     assert.match(home, /t\("landing\.tryFree"\)/);
     assert.match(home, /t\("landing\.enter"\)/);
     // JD, 30.10.2026: the studio door is the primary (gold) button, Uttu the secondary one.
-    assert.match(home, /className="hv-btn hv-gold" href=\{STUDIO_HREF\} data-enter-studio=""/);
-    assert.match(home, /className="hv-btn hv-glass" href=\{UTTU_HREF\} data-try-free=""/);
+    // Same doors; on a host where the render login is not allowed they point to the authorized origin (src/lib/studio-origin.ts).
+    assert.match(home, /const studioHref = useStudioHref\(STUDIO_HREF\)/);
+    assert.match(home, /const uttuHref = useStudioHref\(UTTU_HREF\)/);
+    assert.match(home, /className="hv-btn hv-gold" href=\{studioHref\} data-enter-studio=""/);
+    assert.match(home, /className="hv-btn hv-glass" href=\{uttuHref\} data-try-free=""/);
     assert.match(home, /assetPath\("\/studio\?uttu=1"\)/);
     assert.match(home, /assetPath\("\/studio"\)/);
     assert.match(home, /<PoweredBy className="hv-badge" \/>/);
