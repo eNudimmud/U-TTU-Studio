@@ -184,9 +184,9 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await expect(page.getByLabel('Modèles 3D enregistrés', { exact: true }).locator('option')).toHaveCount(2);
   await expect.poll(() => savedScene(page)).toEqual({ props: 1, keys: 1 });
   await page.reload();
+  await openPrevis(page); // the maquette mounts when « Avancé » › Prévis opens
   await expect(page.locator('[data-retirer-prop]')).toHaveCount(1);
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-keys', '1');
-  await openPrevis(page);
   const panel = page.locator('[data-generer-3d]');
   const photo = panel.locator('input[type=file]');
   await photo.setInputFiles({ name: 'photo.webp', mimeType: 'image/webp', buffer: portrait });
@@ -215,6 +215,7 @@ test('3D : import réellement conservé et contrat simulé de reprise sans deuxi
   await page.close();
   const reopened = await context.newPage();
   await reopened.goto('/studio#prise');
+  await openPrevis(reopened);
   await expect(reopened.locator('[data-retirer-prop]')).toHaveCount(2);
   await reopened.screenshot({ path: info.outputPath('models-reopened.png'), fullPage: true });
   await reopened.goto('/mon-studio');

@@ -8,6 +8,7 @@ import { sampleRelief, standsInStreet, type Quartier } from "@/lib/repere/quarti
 import { captureScene } from "@/lib/maquette/capture";
 import type { CaptureFraming } from "@/lib/maquette/framing";
 import { FramingFlat } from "./framing-flat";
+import { watchShown } from "@/lib/dom/shown";
 import { drawQuartier } from "./quartier-draw";
 
 interface Props {
@@ -469,7 +470,9 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
       const observer = new ResizeObserver(() => paint());
       observer.observe(host.current);
       paint();
-      const watch = window.setInterval(() => { if (playRef.current === null) paint(); }, 200);
+      // The 200 ms catch-up repaint sleeps while the maquette is off screen (closed group, hidden tab).
+      const view = watchShown(host.current, paint);
+      const watch = window.setInterval(() => { if (playRef.current === null && view.shown()) paint(); }, 200);
       let frame = 0;
       const loop = () => {
         frame = requestAnimationFrame(loop);
@@ -487,6 +490,7 @@ export function MaquetteView({ state, backdrop, placeName, badge, hint, quartier
         if (modeRef.current === "webgl") captureRef.current?.(null);
         dropBlock();
         window.clearInterval(watch);
+        view.stop();
         cancelAnimationFrame(frame);
         observer.disconnect();
         canvas.removeEventListener("pointerdown", onDown);

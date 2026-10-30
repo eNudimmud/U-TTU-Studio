@@ -39,7 +39,7 @@ test('import gratuit → plan conservé → montage → vrai MP4 et réouverture
   await expect(page.locator('[data-depart=decor]')).toHaveCount(0);
   await expect(page.getByRole('navigation').getByRole('button', { name: 'DÉCOR' })).toContainText('Prêt');
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
-  await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1');
+  await expect(page.locator('[data-prise-ready="true"]')).toBeVisible();
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Alice traverse le quai audit');
   await expect.poll(async () => (await readVault(page)).some(entry => /\/Shots\//.test(entry.path) && entry.text?.includes('Alice traverse le quai audit'))).toBe(true);
@@ -75,7 +75,7 @@ test('import gratuit → plan conservé → montage → vrai MP4 et réouverture
   await expect(reopened.locator('.u-clip.is-video')).toHaveCount(1);
   await reopened.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
   await expect(reopened.getByRole('textbox', { name: 'Ce qui se passe', exact: true })).toHaveValue('Alice traverse le quai audit');
-  await expect(reopened.locator('[data-maquette]')).toHaveAttribute('data-figures', '1');
+  await expect(reopened.locator('[data-prise-ready="true"]')).toBeVisible();
   expect(submissions).toEqual([]);
 });
 
@@ -95,7 +95,7 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   await page.route(/\/api\/view\?/, route => route.fulfill({ contentType: 'video/mp4', body: video }));
   await importCast(page);
   await page.getByRole('navigation').getByRole('button', { name: 'PRISE' }).click();
-  await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1');
+  await expect(page.locator('[data-prise-ready="true"]')).toBeVisible();
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Alice tend la main audit');
   // The engine is named on the main step; duration stays folded in « Avancé ».

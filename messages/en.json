@@ -1758,7 +1758,10 @@
     "sessionElsewhere": "Your Comfy session expired (signed in elsewhere?). Sign in again.",
     "network": "The render account is not responding. Check your connection, then try again.",
     "retry": "Try again",
-    "reconnect": "Reconnect"
+    "reconnect": "Reconnect",
+    "watchRunning": "Render in progress in the cloud: {name}.",
+    "watchDone": "Render finished: {name}. Saving it to the project…",
+    "watchAuto": "The studio follows it on its own and saves it as soon as it is ready. Nothing is sent again."
   },
   "safety": {
     "modelBlocked": "This tool is hidden by your model choices. Nothing is sent.",

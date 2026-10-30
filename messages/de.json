@@ -1758,7 +1758,10 @@
     "sessionElsewhere": "Deine Comfy-Sitzung ist abgelaufen (anderswo angemeldet?). Melde dich erneut an.",
     "network": "Das Render-Konto antwortet nicht. Prüfe deine Verbindung und versuche es erneut.",
     "retry": "Erneut versuchen",
-    "reconnect": "Erneut verbinden"
+    "reconnect": "Erneut verbinden",
+    "watchRunning": "Rendering läuft in der Cloud: {name}.",
+    "watchDone": "Rendering fertig: {name}. Wird im Projekt gespeichert …",
+    "watchAuto": "Das Studio verfolgt es selbst und speichert es, sobald es fertig ist. Nichts wird erneut gesendet."
   },
   "safety": {
     "modelBlocked": "Dieses Werkzeug ist durch deine Modellwahl ausgeblendet. Es wird nichts gesendet.",
