@@ -12,6 +12,8 @@ export interface KnowledgeTool {
   id: string; famille: string; sous: string; entrees: readonly string[]; sortie: string; texte: string;
   etat: "pret" | "bientot" | "masque"; public: boolean; geste: string | null;
   cost: [number, number] | null; nature: string | null; tranche: boolean; partenaire: boolean;
+  /** Open-weight models offered inside this public card (« Changer de modèle »), in studio order. */
+  variantes: string[];
 }
 export interface KnowledgeGesture {
   id: string; onglet: string; clef: string; ouvert: boolean; option: string | null;
@@ -21,7 +23,7 @@ export interface KnowledgeTab { id: string; href: string; tools: number; gesture
 export interface KnowledgeFaq { id: string; q: string; k: string; a: string }
 export interface KnowledgeLocale {
   tabs: Record<string, { title: string; line: string }>;
-  tools: Record<string, { title: string; line: string; model?: string }>;
+  tools: Record<string, { title: string; line: string; model?: string; tip?: string }>;
   gestures: Record<string, { title: string; phrase: string }>;
   families: Record<string, string>;
   faq: KnowledgeFaq[];
@@ -47,6 +49,8 @@ interface BuildInput {
   tools: readonly { id: string; famille: string; sous: string; entrees: readonly string[]; sortie: string; texte: string; geste?: string; parTranche?: boolean; onglets: readonly string[] }[];
   toolState(id: string): "pret" | "bientot" | "masque";
   publicTools: readonly string[];
+  /** The other models of a public card, in « Changer de modèle » order. */
+  variants?(id: string): readonly string[];
   toolRow(id: string): { credits: number | null; high: number | null; nature: string; partenaire: boolean } | null;
   gestures: readonly { id: string; onglet: string; clef: string; credits: number | null; high: number | null; nature: string; partenaire: boolean; option?: string }[];
   gestureOpen(id: string): boolean;
@@ -95,9 +99,15 @@ export function buildKnowledge(input: BuildInput): Knowledge {
       id: tool.id, famille: tool.famille, sous: tool.sous, entrees: [...tool.entrees], sortie: tool.sortie, texte: tool.texte,
       etat, public: publicSet.has(tool.id), geste: tool.geste ?? null,
       cost: etat === "pret" && row?.credits != null && row.high != null ? [round2(row.credits), round2(row.high)] : null,
-      nature: row?.nature ?? null, tranche: Boolean(tool.parTranche), partenaire: Boolean(row?.partenaire),
+      nature: row?.nature ?? null, tranche: Boolean(tool.parTranche), partenaire: Boolean(row?.partenaire), variantes: [],
     };
   });
+  // A variant is told only when it opens and runs on open weights; partner models stay unnamed.
+  const byId = new Map(tools.map(t => [t.id, t]));
+  for (const t of tools) {
+    if (!t.public || t.etat !== "pret") continue;
+    t.variantes = (input.variants?.(t.id) ?? []).filter(id => id !== t.id && byId.get(id)?.etat === "pret" && !byId.get(id)?.public && !byId.get(id)?.partenaire);
+  }
   // Closed gestures have no price and no graph: Uttu never offers them.
   const gestures: KnowledgeGesture[] = input.gestures.filter(g => g.onglet !== "outils" && input.gestureOpen(g.id)).map(g => {
     const ouvert = input.gestureOpen(g.id);
@@ -119,7 +129,7 @@ export function buildKnowledge(input: BuildInput): Knowledge {
     const outils = m.outils ?? {};
     locales[locale] = {
       tabs: Object.fromEntries(STUDIO_TABS.map(tab => [tab.id, { title: tab.nav ? m.nav?.[tab.nav] ?? tab.id : outils.title ?? tab.id, line: u.tabs?.[tab.id] ?? "" }])),
-      tools: Object.fromEntries(tools.filter(t => t.etat === "pret").map(t => [t.id, { title: outils.t?.[t.id]?.title ?? t.id, line: outils.t?.[t.id]?.line ?? "", ...(outils.modelName?.[t.id] ? { model: outils.modelName[t.id] } : {}) }])),
+      tools: Object.fromEntries(tools.filter(t => t.etat === "pret").map(t => [t.id, { title: outils.t?.[t.id]?.title ?? t.id, line: outils.t?.[t.id]?.line ?? "", ...(outils.modelName?.[t.id] ? { model: outils.modelName[t.id] } : {}), ...(u.modelTip?.[t.id] ? { tip: u.modelTip[t.id] } : {}) }])),
       gestures: Object.fromEntries(gestures.filter(g => g.ouvert).map(g => [g.clef, { title: m.gestes?.[g.clef]?.title ?? g.clef, phrase: m.gestes?.[g.clef]?.phrase ?? "" }])),
       families: Object.fromEntries(input.families.map(f => [f, outils.fam?.[f] ?? f])),
       faq: Object.entries((u.faq ?? {}) as Record<string, { q: string; k: string; a: string }>).map(([id, item]) => ({ id, q: item.q, k: item.k, a: item.a })),

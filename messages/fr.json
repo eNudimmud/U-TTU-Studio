@@ -36,7 +36,8 @@
     "poweredByLabel": "Propulsé par ComfyUI — comfy.org, nouvel onglet",
     "kicker": "Studio de cinéma IA open source sur ComfyUI",
     "contact": "Contacter le studio ↗",
-    "tryFree": "Découvrir avec Uttu"
+    "tryFree": "Découvrir avec Uttu",
+    "code": "Code source sur GitHub ↗"
   },
   "accueil": {
     "kicker": "Open source · MIT · sur ComfyUI",
@@ -65,7 +66,7 @@
     "g3": "Un vrai lieu, vu du ciel.",
     "g3Alt": "Village du Jura et son abbaye romane à l’aube, dans la brume",
     "fine": "Images d’inspiration, créées pour cette page.",
-    "flowTitle": "Un film, cinq onglets",
+    "flowTitle": "Comment ça marche",
     "flow": {
       "cast": {
         "name": "CAST",
@@ -73,19 +74,19 @@
       },
       "decor": {
         "name": "DÉCOR",
-        "body": "Un texte, une photo ou la carte."
+        "body": "Un texte, une photo ou un vrai lieu."
       },
       "prise": {
         "name": "PRISE",
-        "body": "Mets en scène, tourne 5 s."
+        "body": "5 étapes, le devis avant le rendu."
       },
       "montage": {
         "name": "MONTAGE",
-        "body": "Plans, voix, musique."
+        "body": "Plans, voix, musique, export MP4."
       },
       "finaliser": {
         "name": "FINALISER",
-        "body": "Plus net, sans tout refaire."
+        "body": "Plus net, sans rien refaire."
       }
     },
     "toolsTitle": "Ce que tu ne trouves <em>qu’ici</em>.",
@@ -123,9 +124,25 @@
     },
     "alsoTitle": "Aussi dans le studio",
     "also": {
+      "bubble": {
+        "name": "Une bulle, image ou vidéo",
+        "body": "Flux Klein pour l’image ; MiniMax H3 ou LTX pour la vidéo. Le devis s’affiche avant l’envoi."
+      },
+      "tools": {
+        "name": "Une bibliothèque d’outils",
+        "body": "Les outils Comfy rangés par famille, chacun avec son devis : huit angles d’un personnage ou d’un décor, caméra déplacée, lumière changée ou copiée d’une image contrastée, personnage gardé dans son lieu (FastH3, second modèle), bruitage calé sur une vidéo, voix et musique séparées."
+      },
+      "refs": {
+        "name": "Des références nommées",
+        "body": "Un nom, jusqu’à 3 photos : le même visage, le même lieu d’un rendu à l’autre."
+      },
+      "upload": {
+        "name": "Tes fichiers en qualité originale",
+        "body": "Avec ton compte Comfy relié : photos, vidéos et sons jusqu’à 200 Mo, effacés du stockage dès qu’ils sont chez Comfy."
+      },
       "guide": {
-        "name": "U*TTU, ton guide",
-        "body": "Local, sans rendu ; agent Comfy en option, payé par ton compte."
+        "name": "Uttu, ton guide",
+        "body": "Il connaît chaque outil et son devis. Il répond via ton compte Comfy, prix du message annoncé avant ; le calcul des coûts reste local."
       },
       "studio": {
         "name": "Mon studio",
@@ -3308,10 +3325,40 @@
         "k": "onglets étapes organisation sections cast décor prise montage",
         "a": "Le studio suit quatre étapes : CAST (tes personnages), DÉCOR (tes lieux), PRISE (tes plans vidéo) et MONTAGE (tu assembles et exportes). « Outils » regroupe tous les outils Comfy par famille."
       },
+      "bubble": {
+        "q": "Image ou vidéo : comment créer ?",
+        "k": "créer bulle image vidéo photo clip choisir différence générer tourne",
+        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. Image passe par Flux Klein. Vidéo passe par MiniMax H3 quand tu joins des références, sinon par LTX. Le devis « ≈ X crédits estimés » s’affiche sous la bulle avant tout envoi. Tu peux joindre jusqu’à 7 références visuelles et, en Vidéo, un son."
+      },
+      "refs": {
+        "q": "Comment utiliser des références ?",
+        "k": "références référence nommée nom personnage décor objet style joindre photos bibliothèque même visage",
+        "a": "Une référence nommée, c’est un nom et jusqu’à 3 photos du même sujet, rangée en Personnage, Décor, Objet ou Style. Crée-la depuis « Références » dans la bulle, puis touche sa carte pour la joindre à ta création. Elle reste dans ton projet et garde le même visage ou le même lieu d’un rendu à l’autre. Pour une vidéo à partir de références : « Vidéo fidèle aux références ». « Deux images mêlées » (≈ 100 crédits) reste derrière « Changer de modèle », seulement si on le demande."
+      },
+      "prise5": {
+        "q": "Comment tourner une PRISE ?",
+        "k": "prise tourner plan plans étapes préparer prévisualiser générer réviser scène",
+        "a": "PRISE se fait en 5 étapes : 1. Préparer (personnage, décor, action, ambiance, références) ; 2. Plans (compose la liste, règle le plan choisi) ; 3. Prévisualiser (vérifie le cadrage avant de dépenser des crédits) ; 4. Générer (le devis d’abord, puis tu confirmes) ; 5. Réviser (garde la bonne version, relance ou envoie au MONTAGE)."
+      },
+      "upload": {
+        "q": "Comment envoyer mes photos, vidéos ou sons ?",
+        "k": "envoyer importer fichier fichiers photo vidéo son audio qualité originale lourd taille déposer",
+        "a": "Dépose-les dans l’outil ou dans « Références ». Avec ton compte Comfy relié, le fichier part en qualité originale (jusqu’à 200 Mo) vers un stockage privé, passe à ton compte Comfy, puis il est effacé du stockage. Si ce chemin n’est pas disponible, ton navigateur le réduit avant l’envoi. Images, vidéos MP4, MOV ou WebM et sons sont acceptés."
+      },
+      "finaliser": {
+        "q": "Que fait Finaliser ?",
+        "k": "finaliser améliorer agrandir net netteté qualité 1080p refaire régénérer",
+        "a": "Finaliser améliore ce qui existe, sans jamais le refaire : une image devient plus nette et deux fois plus grande, une prise ou tout le montage passe en plus grand et plus net. Le jeu, le son et le rythme restent. Le devis s’affiche avant, estimé par tranche de 5 secondes pour la vidéo."
+      },
+      "which": {
+        "q": "Quel outil choisir ?",
+        "k": "quel outil outils choisir besoin bibliothèque famille conseil lequel recommander angle angles caméra multi-caméra lumière bruitage séparer transition clés",
+        "a": "Une image : Image rapide. Garder un personnage ou un lieu : CAST, DÉCOR, références. D’autres points de vue : Huit angles du personnage, Huit angles du décor, Déplacer la caméra. Une vidéo : la bulle en Vidéo, ou PRISE ; avec références : Vidéo fidèle aux références ; deux images clés : Images clés fidèles ; un style qui change : Transition de style. Multi-caméra : Huit angles du personnage, puis « Plan, second moteur » sur chaque angle, ≈ 14 crédits par angle. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net, Changer la lumière (« Lumière par consigne », ou « Portrait studio » en second modèle). Son : Voix, Musique, Bruitage, Bruitage d’une vidéo, Séparer voix et musique."
+      },
       "projects": {
         "q": "Où sont mes projets ?",
-        "k": "projets sauvegarde stockage fichiers enregistrés appareil zip export",
-        "a": "Tes projets sont enregistrés dans ce navigateur, sur cet appareil. Tu les rouvres depuis « Mes créations ». Pense à télécharger une sauvegarde : le navigateur peut effacer ses données s’il manque d’espace."
+        "k": "projets sauvegarde stockage fichiers enregistrés appareil zip export obsidian coffre dossier",
+        "a": "Tes projets sont enregistrés dans ce navigateur, sur cet appareil. Tu les rouvres depuis « Mes créations ». Pense à télécharger une sauvegarde : le navigateur peut effacer ses données s’il manque d’espace. Sur ordinateur, avec Chrome ou Edge, « Relier mon dossier Obsidian » range aussi tes fiches et images dans le dossier de ton choix."
       },
       "local": {
         "q": "Comment fonctionne Uttu ?",
@@ -3402,7 +3449,11 @@
       },
       "welcome": "Je suis Uttu, l’agent du studio. Dis-moi ce que tu veux tourner : je te réponds, je te propose l’outil ou le plan, et tu vois le devis avant tout rendu. Chaque message est payé par ton compte Comfy."
     },
-    "refs": "Références jointes : {list}"
+    "refs": "Références jointes : {list}",
+    "modelTip": {
+      "ret-lumiere-image": "portrait puis image de lumière, sans consigne ; lumière contrastée avec le portrait, sinon peu de changement.",
+      "vid-fasth3": "FastH3 garde mieux le lieu : image du personnage, image du lieu, l’action en une phrase ; le studio écrit la consigne structurée."
+    }
   },
   "barre": {
     "title": "Qu’est-ce qu’on tourne ?",

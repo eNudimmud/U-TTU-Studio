@@ -36,7 +36,8 @@
     "poweredByLabel": "Con tecnología de ComfyUI — comfy.org, pestaña nueva",
     "kicker": "Estudio de cine IA de código abierto en ComfyUI",
     "contact": "Contactar el estudio ↗",
-    "tryFree": "Descubrir con Uttu"
+    "tryFree": "Descubrir con Uttu",
+    "code": "Código fuente en GitHub ↗"
   },
   "accueil": {
     "kicker": "Código abierto · MIT · en ComfyUI",
@@ -65,7 +66,7 @@
     "g3": "Un lugar real, visto desde el cielo.",
     "g3Alt": "Un pueblo del Jura y su abadía románica al amanecer, entre la niebla",
     "fine": "Imágenes de inspiración, creadas para esta página.",
-    "flowTitle": "Una película, cinco pestañas",
+    "flowTitle": "Cómo funciona",
     "flow": {
       "cast": {
         "name": "REPARTO",
@@ -73,19 +74,19 @@
       },
       "decor": {
         "name": "DECORADO",
-        "body": "Un texto, una foto o el mapa."
+        "body": "Un texto, una foto o un lugar real."
       },
       "prise": {
         "name": "TOMA",
-        "body": "Pon en escena, rueda 5 s."
+        "body": "5 pasos, el presupuesto antes del render."
       },
       "montage": {
         "name": "MONTAJE",
-        "body": "Planos, voz, música."
+        "body": "Planos, voz, música, exportación MP4."
       },
       "finaliser": {
         "name": "FINALIZAR",
-        "body": "Más nítido, sin rehacerlo todo."
+        "body": "Más nítido, sin rehacer nada."
       }
     },
     "toolsTitle": "Lo que solo encuentras <em>aquí</em>.",
@@ -123,9 +124,25 @@
     },
     "alsoTitle": "También en el estudio",
     "also": {
+      "bubble": {
+        "name": "Una burbuja, imagen o vídeo",
+        "body": "Flux Klein para la imagen; MiniMax H3 o LTX para el vídeo. El presupuesto aparece antes de enviar."
+      },
+      "tools": {
+        "name": "Una biblioteca de herramientas",
+        "body": "Herramientas Comfy por familia, cada una con su presupuesto: ocho ángulos de un personaje o un decorado, cámara movida, luz cambiada o copiada de una imagen contrastada, un personaje fiel a su lugar (FastH3, segundo modelo), efectos de sonido sincronizados con un vídeo, voz y música separadas."
+      },
+      "refs": {
+        "name": "Referencias con nombre",
+        "body": "Un nombre, hasta 3 fotos: la misma cara, el mismo lugar de un render a otro."
+      },
+      "upload": {
+        "name": "Tus archivos en calidad original",
+        "body": "Con tu cuenta Comfy vinculada: fotos, vídeos y sonidos de hasta 200 MB, borrados del almacenamiento en cuanto llegan a Comfy."
+      },
       "guide": {
-        "name": "U*TTU, tu guía",
-        "body": "Local, sin render; agente Comfy opcional, pagado con tu cuenta."
+        "name": "Uttu, tu guía",
+        "body": "Conoce cada herramienta y su presupuesto. Responde con tu cuenta Comfy, con el precio del mensaje antes; el cálculo de costes es local."
       },
       "studio": {
         "name": "Mi estudio",
@@ -3308,10 +3325,40 @@
         "k": "pestañas pasos organización secciones reparto decorado toma montaje",
         "a": "El estudio sigue cuatro pasos: Reparto (tus personajes), Decorado (tus lugares), Toma (tus planos de vídeo) y Montaje (montas y exportas). «Herramientas» reúne todas las herramientas Comfy por familia."
       },
+      "bubble": {
+        "q": "Imagen o vídeo: ¿cómo creo?",
+        "k": "crear burbuja imagen vídeo foto clip elegir diferencia generar rodar",
+        "a": "En «¿Qué rodamos?», elige Imagen o Vídeo antes de escribir. Imagen usa Flux Klein. Vídeo usa MiniMax H3 cuando adjuntas referencias y, si no, LTX. El presupuesto «≈ X créditos estimados» aparece bajo la burbuja antes de enviar nada. Puedes adjuntar hasta 7 referencias visuales y, en Vídeo, un sonido."
+      },
+      "refs": {
+        "q": "¿Cómo uso referencias?",
+        "k": "referencias referencia nombrada nombre personaje escenario objeto estilo adjuntar fotos biblioteca cara",
+        "a": "Una referencia con nombre es un nombre y hasta 3 fotos del mismo tema, clasificada como Personaje, Escenario, Objeto o Estilo. Créala desde «Referencias» en la burbuja y toca su tarjeta para adjuntarla. Se queda en tu proyecto y mantiene la misma cara o el mismo lugar de un render a otro. Para un vídeo a partir de referencias: «Vídeo fiel a referencias». «Dos imágenes combinadas» (≈ 100 créditos) queda tras «Cambiar de modelo», solo si se pide."
+      },
+      "prise5": {
+        "q": "¿Cómo ruedo una Toma?",
+        "k": "toma rodar plano planos pasos preparar previsualizar generar revisar escena",
+        "a": "Una Toma tiene 5 pasos: 1. Preparar (personaje, decorado, acción, ambiente, referencias); 2. Planos (crea la lista y ajusta el plano elegido); 3. Previsualizar (revisa el encuadre antes de gastar créditos); 4. Generar (primero el presupuesto, luego confirmas); 5. Revisar (guarda la buena versión, relanza o envíala al Montaje)."
+      },
+      "upload": {
+        "q": "¿Cómo envío mis fotos, vídeos o sonidos?",
+        "k": "enviar subir importar archivo archivos foto vídeo sonido audio calidad original pesado tamaño soltar",
+        "a": "Suéltalos en la herramienta o en «Referencias». Con tu cuenta de Comfy vinculada, el archivo va en calidad original (hasta 200 MB) a un almacenamiento privado, pasa a tu cuenta de Comfy y luego se borra del almacenamiento. Si esa vía no está disponible, tu navegador lo reduce antes de enviarlo. Se aceptan imágenes, vídeos MP4, MOV o WebM y sonidos."
+      },
+      "finaliser": {
+        "q": "¿Qué hace Finalizar?",
+        "k": "finalizar mejorar ampliar nítido nitidez calidad 1080p rehacer regenerar",
+        "a": "Finalizar mejora lo que existe y nunca lo rehace: una imagen gana nitidez y dobla su tamaño, una toma o todo el montaje se vuelve más grande y más nítido. La actuación, el sonido y el ritmo se quedan. El presupuesto aparece antes, estimado por bloques de 5 segundos en vídeo."
+      },
+      "which": {
+        "q": "¿Qué herramienta elijo?",
+        "k": "qué herramienta herramientas elegir necesito biblioteca familia consejo recomendar ángulo ángulos cámara multicámara luz efecto separar transición fotogramas",
+        "a": "Una imagen: Imagen rápida. Mantener un personaje o lugar: Reparto, Decorado, referencias. Otros puntos de vista: Ocho ángulos del personaje, Ocho ángulos del decorado, Mover la cámara. Un vídeo: la burbuja en Vídeo, o Toma; con referencias: Vídeo fiel a referencias; dos fotogramas clave: Fotogramas clave fieles; un estilo que cambia: Transición de estilo. Multicámara: Ocho ángulos del personaje, luego «Plano, segundo motor» en cada ángulo, ≈ 14 créditos por ángulo. Retocar: Modificar, Ampliar, Quitar fondo, Más grande y nítida, Cambiar la luz («Luz según tu consigna», o «Retrato de estudio» como segundo modelo). Sonido: Voz, Música, Efecto de sonido, Efectos de sonido para un vídeo, Separar voz y música."
+      },
       "projects": {
         "q": "¿Dónde están mis proyectos?",
-        "k": "proyectos copia almacenamiento archivos guardados dispositivo zip exportar",
-        "a": "Tus proyectos se guardan en este navegador, en este dispositivo. Los vuelves a abrir desde «Mis creaciones». Descarga una copia: el navegador puede borrar sus datos si le falta espacio."
+        "k": "proyectos copia almacenamiento archivos guardados dispositivo zip exportar obsidian bóveda carpeta",
+        "a": "Tus proyectos se guardan en este navegador, en este dispositivo. Los vuelves a abrir desde «Mis creaciones». Descarga una copia: el navegador puede borrar sus datos si le falta espacio. En un ordenador con Chrome o Edge, «Vincular mi carpeta de Obsidian» guarda también tus fichas e imágenes en la carpeta que elijas."
       },
       "local": {
         "q": "¿Cómo funciona Uttu?",
@@ -3402,7 +3449,11 @@
       },
       "welcome": "Soy Uttu, el agente del estudio. Dime qué quieres rodar: te respondo, te propongo la herramienta o el plan y ves el presupuesto antes de cualquier render. Cada mensaje lo paga tu cuenta Comfy."
     },
-    "refs": "Referencias adjuntas: {list}"
+    "refs": "Referencias adjuntas: {list}",
+    "modelTip": {
+      "ret-lumiere-image": "retrato y luego imagen de luz, sin instrucción; luz que contraste con el retrato, si no cambia poco.",
+      "vid-fasth3": "FastH3 conserva mejor el lugar: imagen del personaje, imagen del lugar, la acción en una frase; el estudio escribe la instrucción estructurada."
+    }
   },
   "barre": {
     "title": "¿Qué rodamos?",

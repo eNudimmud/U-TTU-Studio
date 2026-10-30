@@ -6,7 +6,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FAMILLES, OUTILS, outilEtat, outilRow, outilsPublics } from "../src/lib/outils/catalogue.ts";
+import { FAMILLES, OUTILS, modelesIntent, outilEtat, outilRow, outilsPublics } from "../src/lib/outils/catalogue.ts";
 import { REGISTRE, gesteOuvert } from "../src/lib/workflows/registre.ts";
 import { UTTU_LOCALES, buildKnowledge } from "../src/lib/agent/uttu.ts";
 
@@ -27,6 +27,7 @@ export function knowledge(sha = commitSha()) {
     tools: OUTILS,
     toolState: id => outilEtat(byId.get(id)).kind,
     publicTools: outilsPublics().map(tool => tool.id),
+    variants: id => modelesIntent(id).map(tool => tool.id),
     toolRow: id => outilRow(byId.get(id)),
     gestures: REGISTRE,
     gestureOpen: id => gesteOuvert(gestures.get(id)),

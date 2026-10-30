@@ -1,4 +1,6 @@
 export const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "HelveticVault@gmail.com";
+/** Public source repository (MIT). */
+export const sourceRepo = "https://github.com/eNudimmud/U-TTU-Studio";
 export const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export const assetPath = (path: string) => `${basePath}${path}`;
 const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, "");

@@ -30,7 +30,7 @@ export const HISTORY = 8;
 /** Output ceiling, hidden reasoning tokens included. A short JSON answer needs ~300; the rest is headroom. */
 export const MAX_OUTPUT_TOKENS = 1600;
 /** Character budget for the knowledge pack sent with each message. */
-export const PACK_BUDGET = 6000;
+export const PACK_BUDGET = 10900;
 /** Conservative token count for French/German prose: one token per three characters. */
 export const CHARS_PER_TOKEN = 3;
 export const ATTEMPT_TIMEOUT_MS = 25_000;
@@ -57,26 +57,70 @@ export function allowedTools(k: Knowledge): string[] {
   return k.tools.filter(t => t.public && t.etat === "pret").map(t => t.id);
 }
 
+/** How a cost is written in each language: « ≈ 3–6 crédits estimés ». The word is never « free ». */
+const CREDIT_WORD: Record<UttuLocale, { one: [string, string, string]; many: [string, string, string] }> = {
+  fr: { one: ["crédit", "estimé", "mesuré"], many: ["crédits", "estimés", "mesurés"] },
+  en: { one: ["credit", "estimated", "measured"], many: ["credits", "estimated", "measured"] },
+  de: { one: ["Credit", "geschätzt", "gemessen"], many: ["Credits", "geschätzt", "gemessen"] },
+  es: { one: ["crédito", "estimado", "medido"], many: ["créditos", "estimados", "medidos"] },
+};
+const OUTPUT_KIND: Record<string, string> = { image: "image", video: "video", audio: "sound", mesh: "3D" };
+const fmt = (locale: UttuLocale, n: number) => new Intl.NumberFormat(locale === "en" ? "en-GB" : locale, { maximumFractionDigits: 2 }).format(n);
+
+/** « ≈ 3–6 crédits estimés », from the registry bounds only. Null when the studio has no price. */
+export function quoteText(locale: UttuLocale, cost: readonly [number, number] | null, nature: string | null): string | null {
+  if (!cost) return null;
+  const [low, high] = cost;
+  const [word, estimated, measured] = high <= 1 ? CREDIT_WORD[locale].one : CREDIT_WORD[locale].many;
+  const range = low === high ? fmt(locale, low) : `${fmt(locale, low)}–${fmt(locale, high)}`;
+  return `≈ ${range} ${word} ${nature === "mesure" ? measured : estimated}`;
+}
+
+/** Guide entries sent with every message, so the model always knows the studio's main paths. */
+export const GUIDE_FAQ = ["tabs", "bubble", "refs", "prise5", "upload", "finaliser", "which", "start", "cost", "cancel", "who"] as const;
+
 /**
- * The knowledge the model sees for one question: tabs, the tool list, then the FAQ entries
- * closest to the question, until the budget is spent. No price: the studio computes prices.
+ * The knowledge the model sees for one question: tabs, every open tool (output kind and its
+ * registry quote), the open gestures of the four tabs, then the FAQ entries closest to the
+ * question and the guide entries, until the budget is spent. Every number comes from the registry.
  */
 export function buildPack(k: Knowledge, locale: UttuLocale, question: string, budget = PACK_BUDGET): string {
   const L = k.locales[locale];
   const sections: string[] = [];
   const tabs = k.tabs.map(tab => L.tabs[tab.id] ? `- ${tab.id}: ${L.tabs[tab.id].title}: ${L.tabs[tab.id].line}` : "").filter(Boolean);
   sections.push(`TABS\n${tabs.join("\n")}`);
-  const tools = allowedTools(k).map(id => L.tools[id] ? `- ${id}: ${L.tools[id].title}${L.tools[id].model ? ` (${L.tools[id].model})` : ""}: ${L.tools[id].line}` : "").filter(Boolean);
-  sections.push(`TOOLS (id: name: what it does)\n${tools.join("\n")}`);
+  const open = new Set(allowedTools(k));
+  const tools = k.tools.filter(t => open.has(t.id) && L.tools[t.id]).map(t => {
+    const info = L.tools[t.id];
+    const quote = quoteText(locale, t.cost, t.nature);
+    const head = `- ${t.id}: ${info.title}${info.model ? ` (${info.model})` : ""} [${OUTPUT_KIND[t.sortie] ?? t.sortie}${quote ? ` · ${quote}` : ""}]: ${info.line}`;
+    // Other open-weight models of the same card that carry a guide tip, by model name only: the id is the card's.
+    const others = (t.variantes ?? []).map(id => ({ tool: k.tools.find(item => item.id === id), info: L.tools[id] })).filter(item => item.tool && item.info?.tip).map(({ tool, info: other }) => {
+      const cost = quoteText(locale, tool!.cost, tool!.nature);
+      return `  + ${other.model ?? other.title}${cost ? ` [${cost}]` : ""}${other.tip ? `: ${other.tip}` : ""}`;
+    });
+    return [head, ...others].join("\n");
+  });
+  sections.push(`TOOLS (id: name [output · quote]: what it does; + = other model of the card)\n${tools.join("\n")}`);
+  const seenStep = new Set<string>();
+  const gestures = k.gestures.filter(g => g.ouvert && !g.option && (g.onglet === "cast" || g.onglet === "decor" || g.onglet === "prise" || g.onglet === "montage") && L.gestures[g.clef]).filter(g => {
+    const key = `${g.onglet}:${L.gestures[g.clef].title}`;
+    if (seenStep.has(key)) return false;
+    seenStep.add(key); return true;
+  }).map(g => {
+    const quote = quoteText(locale, g.cost, g.nature);
+    return `- ${L.tabs[g.onglet]?.title ?? g.onglet}: ${L.gestures[g.clef].title}${quote ? ` [${quote}]` : ""}`;
+  });
+  if (gestures.length) sections.push(`STEPS (tab: action [quote])\n${[...new Set(gestures)].join("\n")}`);
   const hits = searchFaq(k, locale, question, 6).filter(hit => hit.kind === "faq").map(hit => hit.id);
-  const order = [...new Set([...hits, "who", "agent", "start", "cost", "key", "cancel"])];
+  const order = [...new Set([...hits, ...GUIDE_FAQ])];
   const faq = order.map(id => L.faq.find(f => f.id === id)).filter(Boolean).map(f => `Q: ${f!.q}\nA: ${f!.a.replaceAll("{version}", k.version.short)}`);
   let pack = sections.join("\n\n");
   if (pack.length > budget) return pack.slice(0, budget);
   let head = "\n\nFAQ";
   for (const entry of faq) {
     const next = `${head}\n${entry}`;
-    if (pack.length + next.length > budget) break;
+    if (pack.length + next.length > budget) continue;
     pack += next; head = "";
   }
   return pack;
@@ -103,9 +147,10 @@ export function buildInstructions(locale: UttuLocale, pack: string, version: str
     `You are Uttu, the guide of U*TTU Studio (version ${version}), a film studio that runs only on ComfyUI and Comfy Cloud.`,
     `Answer in ${LANG[locale]} unless the visitor clearly writes another of: français, English, Deutsch, español. Speak to the visitor informally (French: « tu », German: « du », Spanish: « tú »).`,
     `Use ONLY the KNOWLEDGE below. If the answer is not in it, say exactly « ${UNKNOWN[locale]} » and suggest the guide or the cost estimator. Never invent features, prices, models or links.`,
-    "Never state a number of credits or a price: the studio computes and shows every cost itself.",
+    "Costs: quote only the « ≈ … » figures written in TOOLS, STEPS or FAQ, word for word, and add that the studio shows the exact quote before anything is launched. Never compute a total, never invent a price, never call anything free: a render always costs credits; only guiding, estimating, scouting and the timeline launch no render.",
+    "Guide well: say which tool or tab fits the need, whether it makes an image, a video, a sound or 3D, which references or files to bring, and the next step (CAST → DÉCOR → PRISE in 5 steps → MONTAGE → Finaliser). Finaliser improves, it never regenerates. Only the tools in TOOLS exist: never mention any other.",
     "You cannot launch, buy, cancel or change anything. When the visitor wants something made, set action to \"plan\" with their request rewritten as one short order; the studio prepares the plan and the visitor clicks to launch after a quote. When one tool fits, set action to \"open_tool\" with its id from TOOLS. Otherwise action is \"none\".",
-    "Keep the reply under 90 words, plain text, no markdown. No stories, no backstory: you are a helpful studio guide.",
+    "Keep the reply under 110 words, plain text, no markdown. No stories, no backstory: you are Uttu, a helpful studio guide.",
     "",
     "KNOWLEDGE",
     pack,
