@@ -62,15 +62,17 @@ test('JD 2026-10-30: an image with a cast sheet and two loose photos is ≥ 1 MP
   assert.equal(graph.image_51.inputs.switch,false,'the template’s vision upsampler describes each picture by ordinal');
   for(let i=0;i<3;i++)assert.deepEqual(graph.image_17.inputs[`images.image${i}`],[`reference_${i+1}`,0]);
   assert.equal(graph.image_61.inputs.value,prompt);
+  assert.equal(graph.image_7.inputs.cfg,3.5,'the base Klein checkpoint needs guidance; cfg 1 (left over from the distilled template) melts anatomy');
+  assert.equal(graph.image_7.inputs.steps,50);
   assert.match(bubblePrompt('a',[{name:'Sujet A',category:'cast'}],'video'),/<Picture 1>: "Sujet A"/,'video prompts are unchanged');
   for(const name of ['1000052812','1000053068.png','IMG_2041','PXL_20261030_014500.jpg'])assert.ok(fileLikeName(name),name);
   for(const name of ['L’alien','Fennec','Planète rose','R2'])assert.ok(!fileLikeName(name),name);
 });
 
 test('the image estimate follows the measured Comfy Cloud cost of the job it sends',()=>{
-  // 2026-10-30, rtx_pro_6000: 1344×768 + 3 refs at 1 MP + upsampler = 23.7 GPU s ≈ 6.5 credits.
+  // 2026-10-30, rtx_pro_6000: 1344×768 + 3 refs at 1 MP + upsampler at cfg 3.5 = 38.5 GPU s ≈ 10.5 credits (job fef595a7).
   const three=bubbleQuote('image',3,BUBBLE_DEFAULTS)!;
-  assert.equal(three.credits,7);assert.ok(three.high>=three.credits);
+  assert.equal(three.credits,11);assert.ok(three.high>=three.credits);
   assert.ok(bubbleQuote('image',0,BUBBLE_DEFAULTS)!.credits<three.credits);
   assert.ok(bubbleQuote('image',3,{...BUBBLE_DEFAULTS,resolution:'720p'})!.credits>three.credits);
 });

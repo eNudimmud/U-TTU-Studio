@@ -15,6 +15,14 @@ export const KLEIN_MODELS = {
 } as const;
 
 export const KLEIN_STEPS = 50;
+/**
+ * Guidance for the base (non-distilled) checkpoint. The official edit template's note says
+ * « same sampler settings as text-to-image (50 steps, cfg 3.5) », but its KSampler still carries
+ * cfg 1 from the distilled template (its SaveImage prefix is `..._distilled_image_edit`). At cfg 1
+ * the base model runs unguided: melted anatomy, fused toes, noisy textures. Opt-in per pipeline,
+ * since guidance doubles the sampling cost.
+ */
+export const KLEIN_BASE_CFG = 3.5;
 /** Reference pipeline limit kept by the studio. */
 export const KLEIN_REFS_MAX = 4;
 
@@ -33,7 +41,7 @@ type Link = [string, number];
  * With no image this is the text-to-image template; with images, the edit template.
  * The decoded image is `${prefix}decode`, slot 0.
  */
-export function kleinNodes(input: { prefix: string; prompt: string; seed: number; aspect: KleinAspect; images: readonly Link[]; megapixels?: number; referenceMegapixels?: number; upsample?: boolean; referenceLimit?: 4 | 7 }): ApiGraph {
+export function kleinNodes(input: { prefix: string; prompt: string; seed: number; aspect: KleinAspect; images: readonly Link[]; megapixels?: number; referenceMegapixels?: number; upsample?: boolean; referenceLimit?: 4 | 7; cfg?: number }): ApiGraph {
   const p = input.prefix;
   const seed = Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0;
   // Creation's seven named bundles fit ReferenceMultiLatent's official autogrow schema
@@ -55,6 +63,7 @@ export function kleinNodes(input: { prefix: string; prompt: string; seed: number
   if (edit) {
     at("61").inputs.value = input.prompt;
     at("7").inputs.seed = seed;
+    if (input.cfg !== undefined) at("7").inputs.cfg = input.cfg;
     // Every reference is resized to this area before it is encoded (the official template: 1 MP).
     at("17").inputs["resolution.megapixels"] = input.referenceMegapixels ?? input.megapixels ?? 1;
     // The official template's prompt upsampler sees the references and writes, by ordinal, what to

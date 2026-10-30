@@ -1,5 +1,5 @@
 // Native creation: the already integrated Klein, LTX text-to-video and H3 reference templates.
-import { kleinNodes } from '../render/klein-graph.ts';
+import { KLEIN_BASE_CFG, kleinNodes } from '../render/klein-graph.ts';
 import { H3_R2V_BASE } from '../render/h3-base.ts';
 import { TAKE_ASPECTS, type ApiGraph } from '../render/take-graph.ts';
 import { generiqueGraph } from '../outils/generique.ts';
@@ -46,7 +46,7 @@ export function bubbleTool(mode: BubbleMode, count: number, audio = false): stri
 export function bubbleGeste(mode: BubbleMode, count: number, audio = false): string {
   return mode === 'image' ? count ? 'creation-image' : 'creation-image-texte' : count || audio ? 'creation-video-refs' : 'creation-video-texte';
 }
-const IMAGE_CREDITS_PER_MP = 1.4, UPSAMPLER_CREDITS = 1;
+const IMAGE_CREDITS_PER_MP = 1.4, IMAGE_EDIT_CREDITS_PER_MP = 2.4, UPSAMPLER_CREDITS = 1;
 export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, audio = false) {
   if (!validBubbleSettings(s) || count < 0 || count > CREATION_REFERENCES_MAX) return null;
   const id = bubbleTool(mode, count, audio);
@@ -56,8 +56,10 @@ export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, 
   if (mode === 'image') {
     // Klein edit cost follows the pixels it reads and writes: canvas + each reference at BUBBLE_REFERENCE_MEGAPIXELS,
     // plus the vision prompt upsampler when references are attached. Measured on Comfy Cloud (rtx_pro_6000, 2026-10-30):
-    // 1344×768 + 3 refs at 1 MP + upsampler = 23.7 GPU s ≈ 6.5 credits; without upsampler 20.2 s ≈ 5.5; 864×480 + 3 refs at 0.4 MP = 7.3 s ≈ 2.0.
-    const credits = Math.ceil(IMAGE_CREDITS_PER_MP * (pixels + count * BUBBLE_REFERENCE_MEGAPIXELS) + (count > 0 ? UPSAMPLER_CREDITS : 0));
+    // 1344×768 + 3 refs at 1 MP + upsampler at cfg 1 = 23.7 GPU s ≈ 6.5 credits (job 9e8c477b); at cfg 3.5
+    // (KLEIN_BASE_CFG, a second pass per step) = 38.5 s ≈ 10.5 credits (job fef595a7). Text-only stays on t2i (cfg 3.5).
+    const perMp = count > 0 ? IMAGE_EDIT_CREDITS_PER_MP : IMAGE_CREDITS_PER_MP;
+    const credits = Math.ceil(perMp * (pixels + count * BUBBLE_REFERENCE_MEGAPIXELS) + (count > 0 ? UPSAMPLER_CREDITS : 0));
     return { credits, high: Math.ceil(credits * 1.5), kind: 'estime' as const };
   }
   const base = row?.credits ?? 5;
@@ -97,7 +99,7 @@ export function bubbleGraph(input: { mode: BubbleMode; settings: BubbleSettings;
     const links: [string, number][] = images.map((image, i) => {
       const id = `reference_${i + 1}`; graph[id] = { class_type: 'LoadImage', inputs: { image } }; return [id, 0];
     });
-    Object.assign(graph, kleinNodes({ prefix: 'image_', prompt: input.prompt, seed: input.seed, aspect: s.format, images: links, megapixels: size.megapixels, referenceMegapixels: BUBBLE_REFERENCE_MEGAPIXELS, upsample: images.length > 0, referenceLimit: 7 }));
+    Object.assign(graph, kleinNodes({ prefix: 'image_', prompt: input.prompt, seed: input.seed, aspect: s.format, images: links, megapixels: size.megapixels, referenceMegapixels: BUBBLE_REFERENCE_MEGAPIXELS, upsample: images.length > 0, referenceLimit: 7, cfg: KLEIN_BASE_CFG }));
     // ReferenceMultiLatent's default output canvas follows reference 1. Use the same official
     // EmptyFlux2LatentImage as t2i so the selected frame also applies to reference edits.
     graph.canvas = { class_type: 'EmptyFlux2LatentImage', inputs: { width: size.width, height: size.height, batch_size: 1 } };
