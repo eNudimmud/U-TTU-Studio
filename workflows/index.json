@@ -740,6 +740,16 @@
       "api_file": "workflows/outils/outil-vid-fasth3.api.json"
     },
     {
+      "id": "outil-vid-pika",
+      "onglet": "outils",
+      "template": "video_pika_h3_flex_ref2va",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/outil-vid-pika.json",
+      "api_file": "workflows/outils/outil-vid-pika.api.json"
+    },
+    {
       "id": "outil-vid-vidu",
       "onglet": "outils",
       "template": "api_vidu_q4_preview_r2v",

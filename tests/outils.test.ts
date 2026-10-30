@@ -23,16 +23,16 @@ function links(graph: Record<string, { inputs: Record<string, unknown> }>): stri
 }
 
 describe("hub Outils", () => {
-  it("lists 68 template cards, every one in a family", () => {
-    assert.equal(OUTILS.length, 68);
-    assert.equal(new Set(OUTILS.map(item => item.id)).size, 68);
+  it("lists 69 template cards, every one in a family", () => {
+    assert.equal(OUTILS.length, 69);
+    assert.equal(new Set(OUTILS.map(item => item.id)).size, 69);
     assert.equal(new Set(OUTILS.map(item => item.num)).size, 62);
     for (const item of OUTILS) assert.ok(FAMILLES.includes(item.famille), item.id);
     for (const famille of FAMILLES) assert.ok(OUTILS.some(item => dansFamille(item, famille)), famille);
   });
 
-  it("wires 59 cards and says « bientôt » with a reason for the other 9", () => {
-    assert.equal(wired.length, 59);
+  it("wires 60 cards and says « bientôt » with a reason for the other 9", () => {
+    assert.equal(wired.length, 60);
     assert.equal(soon.length, 9);
     for (const item of soon) assert.ok(item.bientot, item.id);
     for (const item of wired) {
@@ -121,10 +121,10 @@ describe("hub Outils", () => {
     assert.equal(intentDe("vid-prolonger-grok"), "vid-prolonger");
     assert.equal(cards.filter(item => item.id === "vid-wan").length, 1);
     assert.equal(cards.some(item => item.id === "vid-kling"), false);
-    assert.equal(Object.values(INTENT_MODELES).flat().length, 6 + 2 + 4 + 2 + 2 + 2 + 3 + 3);
-    // Doublon retiré de la grille : Vidu (100 crédits) est un modèle de « Vidéo fidèle aux références », après FastH3 (audit n° 8).
+    assert.equal(Object.values(INTENT_MODELES).flat().length, 6 + 2 + 4 + 2 + 2 + 2 + 3 + 4);
+    // Doublon retiré de la grille : Vidu (100 crédits) est un modèle de « Vidéo fidèle aux références », après FastH3 (audit n° 8) et Pika H3 Flex (30.10.2026).
     assert.equal(intentDe("vid-vidu"), "vid-h3-refs");
-    assert.deepEqual(modelesIntent("vid-h3-refs").map(item => item.id), ["vid-h3-refs", "vid-fasth3", "vid-vidu"]);
+    assert.deepEqual(modelesIntent("vid-h3-refs").map(item => item.id), ["vid-h3-refs", "vid-fasth3", "vid-pika", "vid-vidu"]);
     assert.equal(cards.some(item => item.id === "vid-vidu"), false);
     assert.equal(intentDe("ret-eclairer"), "ret-eclairer-ouvert");
     assert.equal(modelesIntent("ret-eclairer")[0]?.id, "ret-eclairer-ouvert");
