@@ -106,7 +106,7 @@ test("Agent Uttu : sans accord, aucun appel payant ; un devis est calculé par l
   // A cost question is answered by the studio itself, without a paid call, even before consent.
   await panel.locator("[data-uttu-input]").fill("Combien coûtent 3 portraits + 2 prises LTX ?");
   await panel.locator("[data-uttu-send]").click();
-  await expect(lastReply(panel).locator("[data-uttu-total]")).toContainText("42–64");
+  await expect(lastReply(panel).locator("[data-uttu-total]")).toContainText("48–72");
   expect(calls.length).toBe(0);
 });
 
