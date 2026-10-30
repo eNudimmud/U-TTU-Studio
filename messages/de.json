@@ -1963,8 +1963,9 @@
     },
     "quote": {
       "estimated": "{low, select, 1 {≈ 1 Credit geschätzt} other {≈ {low} Credits geschätzt}}",
-      "measured": "Gemessen: etwa {credits} Credits",
+      "measured": "≈ {credits} bis {high} Credits geschätzt",
       "measuredBalance": "Gemessen an deinen Takes: etwa {credits} Credits.",
+      "measuredBalanceRange": "≈ {credits} bis {high} Credits geschätzt, gemessen an deinen Takes.",
       "none": "Noch kein Kostenvoranschlag für diese Einstellung. Nichts wird gesendet."
     },
     "gate": {
@@ -2020,7 +2021,8 @@
       "go": "{credits, select, 1 {Drehen · ≈ 1 Credit geschätzt} other {Drehen · ≈ {credits} Credits geschätzt}}",
       "goNext": "{credits, select, 1 {Einstellung {n} drehen · ≈ 1 Credit geschätzt} other {Einstellung {n} drehen · ≈ {credits} Credits geschätzt}}",
       "keep": "Deine Wahl bleibt für die nächsten Einstellungen dieses Projekts.",
-      "apercuHint": "Eine Vorschau wird später finalisiert, einzeln oder mit dem ganzen Schnitt."
+      "apercuHint": "Eine Vorschau wird später finalisiert, einzeln oder mit dem ganzen Schnitt.",
+      "range": "{low} bis {high}"
     },
     "addToMontage": "Zur Montage hinzufügen",
     "editor": {

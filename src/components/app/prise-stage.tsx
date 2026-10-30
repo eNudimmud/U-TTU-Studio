@@ -30,6 +30,7 @@ import { readPending } from "@/lib/render/recovery";
 import { formatCredits } from "@/lib/credits";
 import { FiabiliteCard, type SentLine } from "./fiabilite-card";
 import { quoteWords } from "./studio-frames";
+import { quoteAmount } from "@/lib/render/quote-words";
 import { decide, emptyPlan, primaryIntent, type PlanInput } from "@/lib/prise/decision";
 import { chooseFinaliser, finaliserDefaults, type FinaliserInput, type FinalMedia } from "@/lib/prise/finaliser";
 import { buildPrompt } from "@/lib/prise/prompt";
@@ -650,6 +651,12 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     ltx: quoteCredits(resolveTakeQuote(takeProfile({ ...baseSettings, engine: "ltx", ...(input.framing ? { cadrage: "depth-edges-v1" as const } : {}), ...(rendu === "apercu" ? { rendu: "apercu" as const } : {}) }), quotesToRecords(studio.quotes))),
     h3: quoteCredits(resolveTakeQuote(takeProfile({ seconds: baseSettings.seconds, aspect: baseSettings.aspect, quality: "rapide", engine: "h3" }), quotesToRecords(studio.quotes))),
   };
+  // What each chip and the gold button print: a measured quote reads « 4 à 6 », like the quote line.
+  const engineAmount = {
+    ltx: quoteAmount(t, resolveTakeQuote(takeProfile({ ...baseSettings, engine: "ltx", ...(input.framing ? { cadrage: "depth-edges-v1" as const } : {}), ...(rendu === "apercu" ? { rendu: "apercu" as const } : {}) }), quotesToRecords(studio.quotes))),
+    h3: quoteAmount(t, resolveTakeQuote(takeProfile({ seconds: baseSettings.seconds, aspect: baseSettings.aspect, quality: "rapide", engine: "h3" }), quotesToRecords(studio.quotes))),
+  };
+  const planAmount = quoteAmount(t, planQuote);
   const framedLtx = quoteCredits(resolveTakeQuote(takeProfile({ seconds: baseSettings.seconds, aspect: baseSettings.aspect, quality: "rapide", engine: "ltx", cadrage: "depth-edges-v1", ...(rendu === "apercu" ? { rendu: "apercu" as const } : {}) }), quotesToRecords(studio.quotes)));
   const creditsWord = (value: number | null) => value === null ? "" : t("p0.rendu.quote", { credits: formatCredits(value) });
   const quoted = planQuote.source !== "unmeasured";
@@ -1056,10 +1063,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   if (demo) { gold = { label: t("p0.tourner"), enabled: false, reason: t("p0.why.demo"), onClick() {}, mark: "tourner" }; second = monterAction; }
   else if (busy) { gold = { label: t("p0.running"), enabled: false, reason: runningHere ? t("p0.runningWhy") : t("p0.why.busy"), onClick() {}, mark: "attente" }; second = withTake > 0 ? monterAction : null; }
   else if (pendingPlan && versions.length > 0) { gold = { label: t("p0.goPlan", { n: String(pendingNumber) }), enabled: true, reason: "", onClick: () => { setCurrentId(pendingPlan.id); setPanel(false); setAsk(null); window.scrollTo({ top: 0, behavior: "instant" }); }, mark: "aller" }; second = withTake > 0 ? monterAction : null; }
-  else if (showNext) { gold = { label: planCredits === null ? t("p0.tournerSuivant", { n: String(nextNumber) }) : t("p0.rendu.goNext", { n: String(nextNumber), credits: formatCredits(planCredits) }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber) }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
+  else if (showNext) { gold = { label: planCredits === null ? t("p0.tournerSuivant", { n: String(nextNumber) }) : t("p0.rendu.goNext", { n: String(nextNumber), credits: planAmount ?? formatCredits(planCredits) }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber) }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
   else if (versions.length > 0) gold = monterAction;
   // Default level: no still-image shortcut. MONTAGE gets takes; the example (demo) keeps its still.
-  else { gold = { label: planCredits === null ? t("p0.tourner") : t("p0.rendu.go", { credits: formatCredits(planCredits) }), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
+  else { gold = { label: planCredits === null ? t("p0.tourner") : t("p0.rendu.go", { credits: planAmount ?? formatCredits(planCredits) }), enabled: canGenerate, reason: generateReason, onClick: () => void generate(), mark: "tourner" }; second = withTake > 0 && canMonter ? monterAction : null; }
   const reasonText = gold.enabled ? "" : gold.reason;
 
   function goEtape(next: Etape) {
@@ -1313,7 +1320,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <div className="u-choice-row u-engine" data-engine={engine} data-engine-mode={prefs.engineManual ? "main" : "auto"} data-framing-sent={framingSent ? "" : undefined}>
           <button type="button" className="u-chip" data-engine-auto="" aria-pressed={!prefs.engineManual} onClick={() => setPrefs({ engineManual: false })}>{t("p1.engineAuto")} · {(input.framing ? "ltx" : intention.decided.auto) === "h3" ? "H3" : "LTX"}</button>
           {(["h3", "ltx"] as const).map(item => (
-            <button key={item} type="button" className="u-chip" data-engine-choice={item} aria-pressed={prefs.engineManual && prefs.engine === item} onClick={() => setPrefs({ engine: item, engineManual: true })}>{t(`stage.engine.${item}`)}{engineCredits[item] === null ? "" : ` · ${t("p0.rendu.quote", { credits: formatCredits(engineCredits[item]!) })}`}</button>
+            <button key={item} type="button" className="u-chip" data-engine-choice={item} aria-pressed={prefs.engineManual && prefs.engine === item} onClick={() => setPrefs({ engine: item, engineManual: true })}>{t(`stage.engine.${item}`)}{engineAmount[item] === null ? "" : ` · ${t("p0.rendu.quote", { credits: engineAmount[item]! })}`}</button>
           ))}
         </div>
         <p className="u-engine-hint" data-engine-hint="">{input.framing

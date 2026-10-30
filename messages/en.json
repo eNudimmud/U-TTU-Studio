@@ -1963,8 +1963,9 @@
     },
     "quote": {
       "estimated": "{low, select, 1 {≈ 1 credit estimated} other {≈ {low} credits estimated}}",
-      "measured": "Measured: about {credits} credits",
+      "measured": "≈ {credits} to {high} credits estimated",
       "measuredBalance": "Measured on your takes: about {credits} credits.",
+      "measuredBalanceRange": "≈ {credits} to {high} credits estimated, measured on your takes.",
       "none": "No quote yet for this setting. Nothing is sent."
     },
     "gate": {
@@ -2020,7 +2021,8 @@
       "go": "{credits, select, 1 {Shoot · ≈ 1 credit estimated} other {Shoot · ≈ {credits} credits estimated}}",
       "goNext": "{credits, select, 1 {Shoot shot {n} · ≈ 1 credit estimated} other {Shoot shot {n} · ≈ {credits} credits estimated}}",
       "keep": "Your choice stays for the next shots of this project.",
-      "apercuHint": "A preview is finalised later, on its own or with the whole edit."
+      "apercuHint": "A preview is finalised later, on its own or with the whole edit.",
+      "range": "{low} to {high}"
     },
     "addToMontage": "Add to edit",
     "editor": {

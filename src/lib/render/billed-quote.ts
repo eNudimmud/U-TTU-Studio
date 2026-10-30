@@ -61,7 +61,8 @@ export type BilledMeasure = typeof BILLED_MEASURE | typeof BILLED_MEASURE_HORIZO
 export const UNMEASURED_LINE = "Pas encore mesuré. Cette durée, cette qualité ou ce format n’a pas de prise réelle. Rien ne part.";
 
 export type TakeQuote =
-  | { source: "balance"; credits: number; at: string; runs: number }
+  /** high: the billed (or estimated) upper bound for the same setting, when one exists above the measured delta. */
+  | { source: "balance"; credits: number; at: string; runs: number; high: number | null }
   | { source: "billed"; measure: BilledMeasure }
   | { source: "estimated"; estimate: TakeEstimate }
   | { source: "unmeasured" };
@@ -110,7 +111,11 @@ export function billedMeasure(profile: string): BilledMeasure | null {
  */
 export function resolveTakeQuote(profile: string, records: readonly CostRecord[]): TakeQuote {
   const delta = costClaim(profile, records);
-  if (delta.state === "measured") return { source: "balance", credits: delta.credits, at: delta.at, runs: delta.runs };
+  if (delta.state === "measured") {
+    // A balance delta has no upper bound of its own: one take can run longer on a cold worker (bug 9: 4 → 5,98).
+    const bound = billedMeasure(profile)?.creditsHigh ?? estimatedTake(profile)?.creditsHigh ?? null;
+    return { source: "balance", credits: delta.credits, at: delta.at, runs: delta.runs, high: bound !== null && bound > delta.credits ? bound : null };
+  }
   const measure = billedMeasure(profile);
   if (measure) return { source: "billed", measure };
   const estimate = estimatedTake(profile);

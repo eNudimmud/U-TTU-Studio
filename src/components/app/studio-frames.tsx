@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
-import { quoteSentence, type TakeQuote } from "@/lib/render/billed-quote";
+import { type TakeQuote } from "@/lib/render/billed-quote";
 import { protocole } from "@/lib/fiabilite";
 import { FiabiliteCard } from "./fiabilite-card";
 import { Close } from "./glyphs";
@@ -51,7 +51,7 @@ export function CreditSheet() {
   return <Frame title={t("sheet.walletTitle")} onClose={() => setSheet(null)}>
     <p>{t("sheet.walletLead")}</p>
     <p className="u-cost" data-state={creditsLoading ? "load" : connected ? "on" : "off"}>{creditsLoading ? t("sheet.balanceLoading") : connected && balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : connected ? say(balanceNote) : t("sheet.notLinked")}</p>
-    <p className="u-small">{quoteSentence(takeQuote)}</p>
+    <p className="u-small" data-credit-quote="">{quoteWords(t, takeQuote)}</p>
     <RecoveryPanel />
     <div className="u-card-actions">
       <button type="button" className="u-link" data-sheet-assistant="" onClick={() => { setSheet(null); toggleAssistant(true); }}>{t("assistant.title")}</button>
@@ -214,13 +214,8 @@ export function ConfirmTake() {
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
-/** The single estimate, in the user's language, always labelled estimé or mesuré. */
-export function quoteWords(t: Translate, quote: TakeQuote): string {
-  if (quote.source === "estimated") return t("p0.quote.estimated", { low: formatCredits(quote.estimate.credits), high: formatCredits(quote.estimate.creditsHigh) });
-  if (quote.source === "billed") return t("p0.quote.measured", { credits: formatCredits(quote.measure.credits), high: formatCredits(quote.measure.creditsHigh) });
-  if (quote.source === "balance") return t("p0.quote.measuredBalance", { credits: formatCredits(quote.credits) });
-  return t("p0.quote.none");
-}
+import { quoteWords } from "@/lib/render/quote-words";
+export { quoteWords };
 
 /** Why the gate is closed, in plain words. */
 export function gateReason(t: Translate, quote: TakeQuote, credits: number | null): string {
