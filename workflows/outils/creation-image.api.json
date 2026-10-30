@@ -96,7 +96,7 @@
   "image_17": {
     "inputs": {
       "resolution": "resize",
-      "resolution.megapixels": 0.3955078125,
+      "resolution.megapixels": 1,
       "positive": [
         "image_4",
         0
@@ -197,7 +197,7 @@
   },
   "image_51": {
     "inputs": {
-      "switch": true,
+      "switch": false,
       "on_false": [
         "image_47",
         0
@@ -238,7 +238,7 @@
   "image_61": {
     "class_type": "PrimitiveStringMultiline",
     "inputs": {
-      "value": "<texte du visiteur>\n\nNamed visual references (a contact sheet contains several views of the same subject):\n<ref_image_0>: \"Uttu\" (cast)\n<ref_image_1>: \"Quai\" (decor)\nUse each named reference for its assigned subject. Return a single finished scene, without reference panels, labels or contact-sheet layout."
+      "value": "<texte du visiteur>\n\nReference images, in order:\n- The first image named \"Uttu\": a character from the cast — when it is a character sheet (several views of the same character), it shows ONE character to keep identical: same face, body, outfit and logos.\n- The second image named \"Quai\": the place / setting.\nUse every image: each distinct character or creature appears once, whole and recognisable, with its own anatomy, colours and clothing; never merge two subjects into one. Compose ONE new finished picture, without reference panels, labels or contact-sheet layout."
     },
     "_meta": {
       "title": "Prompt"
@@ -247,8 +247,8 @@
   "canvas": {
     "class_type": "EmptyFlux2LatentImage",
     "inputs": {
-      "width": 864,
-      "height": 480,
+      "width": 1344,
+      "height": 768,
       "batch_size": 1
     }
   },

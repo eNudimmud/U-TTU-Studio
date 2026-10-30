@@ -2,7 +2,7 @@
   "image_19": {
     "inputs": {
       "aspect_ratio": "16:9 (Widescreen)",
-      "megapixels": 0.3955078125,
+      "megapixels": 0.984375,
       "multiple": 16
     },
     "class_type": "ResolutionSelector",
@@ -213,8 +213,8 @@
   "canvas": {
     "class_type": "EmptyFlux2LatentImage",
     "inputs": {
-      "width": 864,
-      "height": 480,
+      "width": 1344,
+      "height": 768,
       "batch_size": 1
     }
   },

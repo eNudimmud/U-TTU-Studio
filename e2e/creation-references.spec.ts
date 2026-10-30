@@ -19,7 +19,7 @@ test('bibliothèque personnelle : formulaire vierge, plus de sept fiches et cré
   page.on('request',r=>{if(r.method()==='POST'&&/\/api\/(prompt|upload\/)/.test(r.url()))paid.push(r.url());});
   await page.goto('/studio');await openLibrary(page);
   await expect(page.locator('[data-ref]')).toHaveCount(0);
-  await expect(page.locator('[data-refs-capacity]')).toContainText('autant de références que tu veux');
+  await expect(page.locator('[data-refs-capacity]')).toContainText('référence(s) nommée(s)');
   if(info.project.name==='mobile')await screenshot(page,'references-390x844.png');
   await page.locator('[data-refs-new]').tap();
   await expect(page.locator('[data-ref-name]')).toHaveValue('');
@@ -45,11 +45,11 @@ test('bibliothèque personnelle : formulaire vierge, plus de sept fiches et cré
   await page.locator('[data-refs-filter=style]').tap();await expect(page.locator('[data-ref]')).toHaveCount(3);
   await page.reload();await openLibrary(page);await expect(page.locator('[data-ref]')).toHaveCount(13);
   for(let i=0;i<7;i++){
-    await page.locator('[data-ref]:enabled').first().tap();await expect(page.locator('[data-barre-chip]')).toHaveCount(i+1);
+    await page.locator('[data-ref][aria-pressed=false]:enabled').first().tap();await expect(page.locator('[data-barre-chip]')).toHaveCount(i+1);
     await openLibrary(page);
   }
   await expect(page.locator('[data-refs-selection-limit]')).toContainText('7 références à cette création');
-  await expect(page.locator('[data-ref]:enabled')).toHaveCount(0);
+  await expect(page.locator('[data-ref][aria-pressed=false]:enabled')).toHaveCount(0);await expect(page.locator('[data-ref][aria-pressed=true]')).toHaveCount(7);
   await expect(page.locator('[data-refs-new]')).toBeEnabled();
   await createRef(page,'Après la sélection',1,'objet');await expect(page.locator('[data-ref]')).toHaveCount(14);
   await page.getByRole('dialog').getByRole('button',{name:'Fermer',exact:true}).tap();
@@ -123,17 +123,17 @@ test('rechargement pendant le premier rendu : reprise du reçu, un seul POST, an
 
 test('référence : modification, suppression confirmée et persistance des catégories',async({page})=>{
   await page.goto('/studio');await openLibrary(page);await createRef(page,'Texture de cuivre',1,'style');
-  await page.locator('[data-ref-edit]').tap();await page.locator('[data-ref-name]').fill('Cuivre patiné');await page.locator('[data-ref-save]').tap();
+  await page.locator('[data-ref-menu]').first().tap();await page.locator('[data-ref-edit]').tap();await page.locator('[data-ref-name]').fill('Cuivre patiné');await page.locator('[data-ref-save]').tap();
   await expect(page.locator('[data-ref]')).toContainText('Cuivre patiné');
-  await page.locator('[data-ref-delete]').tap();await expect(page.getByRole('alertdialog')).toBeVisible();await page.getByRole('alertdialog').getByRole('button',{name:'Annuler'}).tap();await expect(page.locator('[data-ref]')).toHaveCount(1);
-  await page.locator('[data-ref-delete]').tap();await page.locator('[data-ref-delete-confirm]').tap();await expect(page.locator('[data-ref]')).toHaveCount(0);
+  await page.locator('[data-ref-menu]').first().tap();await page.locator('[data-ref-delete]').tap();await expect(page.getByRole('alertdialog')).toBeVisible();await page.getByRole('alertdialog').getByRole('button',{name:'Annuler'}).tap();await expect(page.locator('[data-ref]')).toHaveCount(1);
+  await page.locator('[data-ref-menu]').first().tap();await page.locator('[data-ref-delete]').tap();await page.locator('[data-ref-delete-confirm]').tap();await expect(page.locator('[data-ref]')).toHaveCount(0);
   await page.reload();await openLibrary(page);await expect(page.locator('[data-ref]')).toHaveCount(0);
 });
 
 test('supprimer une fiche de référence conserve les sources d’un rendu pour Refaire',async({page})=>{
   const comfy=await simulateComfy(page);await page.goto('/studio');await openLibrary(page);await createRef(page,'Uttu');await page.locator('[data-ref]').tap();
   await page.locator('[data-barre-input]').fill('Uttu au bord du lac, lumière du matin');await page.locator('[data-barre-send]').tap();await page.locator('[data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});
-  await openLibrary(page);await page.locator('[data-ref-delete]').tap();await page.locator('[data-ref-delete-confirm]').tap();await expect(page.locator('[data-ref]')).toHaveCount(0);await page.getByRole('dialog').getByRole('button',{name:'Fermer',exact:true}).tap();await page.reload();
+  await openLibrary(page);await page.locator('[data-ref-menu]').first().tap();await page.locator('[data-ref-delete]').tap();await page.locator('[data-ref-delete-confirm]').tap();await expect(page.locator('[data-ref]')).toHaveCount(0);await page.getByRole('dialog').getByRole('button',{name:'Fermer',exact:true}).tap();await page.reload();
   await page.locator('[data-fil-redo]').tap();expect(comfy.prompts).toHaveLength(1);await page.locator('[data-fil-job=confirm] [data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-fil-job=done]')).toHaveCount(2,{timeout:60000});expect(comfy.prompts).toHaveLength(2);
 });
 

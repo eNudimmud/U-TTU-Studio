@@ -4,7 +4,7 @@ import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 're
 import { useI18n } from '@/components/i18n/provider';
 import { formatCredits } from '@/lib/credits';
 import { DEMO_CAST, DEMO_DECOR } from '@/lib/creation/demo';
-import { BUBBLE_DEFAULTS, bubbleQuote, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
+import { BUBBLE_DEFAULTS, bubbleQuote, bubbleResolutionLabel, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
 import { CREATION_REFERENCES_MAX, type NamedReference } from '@/lib/creation/named-references';
 import { assetPath } from '@/lib/site';
 import { AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, DEFAULT_SETTINGS, writeHandoff, type BarreMode, type BarreRef } from '@/lib/barre/model';
@@ -63,7 +63,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const credits = here ? here.quote : quote?.credits ?? null;
   const cost = credits !== null ? t('barre.cost', { credits: formatCredits(credits) }) : null;
   const full = attached.length >= CREATION_REFERENCES_MAX;
-  const size = bubbleSize(settings);
+  const size = bubbleSize(settings, mode);
   useEffect(() => {
     if (!ready || loadedFor !== scope) return;
     try { localStorage.setItem(scope, JSON.stringify({ mode, text, settings, refs: refs.map(r => ({ ...r, src: '' })), photos: photos.map(p => ({ ...p, src: '' })), audio: audio ? { ...audio, src: '' } : null })); }
@@ -132,21 +132,21 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
         </div>
         <div className="u-barre-modes" role="radiogroup" aria-label={t('barre.modes')}>{(['image','video'] as const).map(m => <button key={m} type="button" role="radio" aria-checked={mode === m} aria-label={t(`barre.mode.${m}`)} data-barre-mode={m} onClick={() => setMode(m)}><FamilyIcon fam={m === 'image' ? 'creer' : 'video'} /><span>{t(`barre.mode.${m}`)}</span></button>)}</div>
         <div className="u-barre-settings-wrap" ref={settingsRef}>
-          <button type="button" className="u-barre-settings-pill" aria-label={t('barre.settings')} aria-expanded={settingsOpen} data-barre-settings="" onClick={() => { setSettingsOpen(v => !v); setMenu(false); }}><svg {...ICON}><path d="M4 7h16M4 17h16M9 3v8M16 13v8" /></svg><span data-barre-settings-summary="">{settings.format} · {settings.resolution}{mode === 'video' ? ` · ${settings.duration} s` : ''}</span></button>
+          <button type="button" className="u-barre-settings-pill" aria-label={t('barre.settings')} aria-expanded={settingsOpen} data-barre-settings="" onClick={() => { setSettingsOpen(v => !v); setMenu(false); }}><svg {...ICON}><path d="M4 7h16M4 17h16M9 3v8M16 13v8" /></svg><span data-barre-settings-summary="">{settings.format} · {bubbleResolutionLabel(mode, settings.resolution)}{mode === 'video' ? ` · ${settings.duration} s` : ''}</span></button>
           {settingsOpen && <div className="u-barre-settings" data-barre-settings-row="">
             <div className="u-barre-seg" role="group" aria-label={t('barre.format')}>{(['16:9','9:16','1:1'] as const).map(f => <button key={f} type="button" aria-pressed={settings.format === f} data-barre-format={f} onClick={() => setSettings(s => ({ ...s, format: f }))}>{f}</button>)}</div>
-            <div className="u-barre-seg" role="group" aria-label={t('bubble.resolution')}>{(['480p','720p'] as const).map(r => <button key={r} type="button" aria-pressed={settings.resolution === r} data-barre-resolution={r} onClick={() => setSettings(s => ({ ...s, resolution: r }))}>{r}</button>)}</div>
+            <div className="u-barre-seg" role="group" aria-label={t('bubble.resolution')}>{(['480p','720p'] as const).map(r => <button key={r} type="button" aria-pressed={settings.resolution === r} data-barre-resolution={r} onClick={() => setSettings(s => ({ ...s, resolution: r }))}>{bubbleResolutionLabel(mode, r)}</button>)}</div>
             {mode === 'video' && <><div className="u-barre-seg" role="group" aria-label={t('barre.duree')}>{([5,10] as const).map(d => <button key={d} type="button" aria-pressed={settings.duration === d} data-barre-duree={d} onClick={() => setSettings(s => ({ ...s, duration: d }))}>{d} s</button>)}</div><button type="button" className="u-secondary" aria-pressed={settings.sound} data-barre-sound="" onClick={() => setSettings(s => ({ ...s, sound: !s.sound }))}>{t(settings.sound ? 'bubble.soundOn' : 'bubble.soundOff')}</button></>}
           </div>}
         </div>
         <button type="submit" className="u-barre-send" disabled={busy} data-barre-send="" data-ready={text.trim() ? '' : undefined} aria-label={cost ? `${t('barre.send')} · ${cost}` : t('barre.send')} aria-describedby={routeId}><svg {...ICON}><path d="M12 19V5M6 11l6-6 6 6" /></svg></button>
       </div>
-      <p className="u-bubble-limit" id={attachmentsId}>{busy ? t('namedRefs.saving') : t('bubble.referenceCount', { n: attached.length, max: CREATION_REFERENCES_MAX })} · {settings.format} · ≈ {settings.resolution} ({size.width}×{size.height})</p>
+      <p className="u-bubble-limit" id={attachmentsId}>{busy ? t('namedRefs.saving') : t('bubble.referenceCount', { n: attached.length, max: CREATION_REFERENCES_MAX })} · {settings.format} · ≈ {bubbleResolutionLabel(mode, settings.resolution)} ({size.width}×{size.height})</p>
     </form>
     <p className="u-barre-route" id={routeId} data-barre-route={here?.route ?? bubbleTool(mode, attached.length, Boolean(currentAudio))}>{cost && <strong data-barre-cost="">{cost} · </strong>}{t(mode === 'image' ? 'bubble.imageEngine' : attached.length || currentAudio ? 'bubble.referenceVideoEngine' : 'bubble.textVideoEngine')}</p>
     <button type="button" className="u-text-button u-bubble-agent" data-barre-mode="agent" onClick={() => toggleAssistant(true)}>{t('bubble.askUttu')}</button>
     {error && <p role="alert">{error}</p>}
-    {sheet && <ReferenceLibrary onClose={() => setSheet(false)} onPick={pickReference} atLimit={full} selected={selected.map(r => `${r.kind}:${r.id}`)} />}
+    {sheet && <ReferenceLibrary onClose={() => setSheet(false)} onPick={pickReference} onUnpick={r => setRefs(a => a.filter(x => x.id !== r.id || x.kind !== r.category))} atLimit={full} selected={selected.map(r => `${r.kind}:${r.id}`)} />}
   </>;
 }
 export function fillBarre(mode: BarreMode, text: string, refs?: string[], resolved?: BarreRef[]) {

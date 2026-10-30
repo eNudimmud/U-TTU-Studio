@@ -3686,7 +3686,10 @@
     "capacity": "Crea tantas referencias como quieras. {n} referencia(s) guardada(s) en este proyecto.",
     "selectionLimit": "Ya has adjuntado {max} referencias a esta creación. Puedes seguir creando y gestionando fichas; quita una etiqueta para adjuntar otra.",
     "attached": "Ya adjunta a esta creación",
-    "noMatch": "Ninguna referencia coincide con tu búsqueda o con esta categoría."
+    "noMatch": "Ninguna referencia coincide con tu búsqueda o con esta categoría.",
+    "pickerCount": "{n} referencia(s) con nombre. Toca una tarjeta para adjuntarla y vuelve a tocarla para quitarla.",
+    "hiddenImports": "{n} imagen(es) importada(s) sin nombre o duplicada(s) no se ofrecen aquí. Siguen en tu proyecto.",
+    "moreName": "Más acciones para {name}"
   },
   "bubble": {
     "audio": "Audio",
