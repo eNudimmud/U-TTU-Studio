@@ -2828,6 +2828,10 @@
       "vid-doubler": {
         "title": "Doubler une prise",
         "line": "VEED traduit un clip, lèvres recalées."
+      },
+      "vid-pika": {
+        "title": "Vidéo fidèle, son inclus",
+        "line": "Ton personnage dans ton lieu, visage et décor gardés, avec le son."
       }
     },
     "latest": "Derniers résultats",
@@ -2857,10 +2861,15 @@
       "vid-h3-refs": "Fidèle, économique",
       "vid-vidu": "Deux images mêlées",
       "ret-lumiere-image": "Lumière d’une image",
-      "vid-fasth3": "Lieu plus fidèle (multi-références)"
+      "vid-fasth3": "Lieu plus fidèle (multi-références)",
+      "vid-pika": "Visage et lieu fidèles, son inclus (Pika · MiniMax H3)"
     },
     "model": "Modèle",
     "modelChange": "Changer de modèle",
+    "attribution": {
+      "vid-pika": "Pika H3 Flex, construit sur MiniMax H3"
+    },
+    "modelGone": "Ce modèle n’est pas disponible aujourd’hui sur ton compte de rendu. Rien n’est parti : la carte revient à son modèle par défaut.",
     "confirmTitle": "Lancer ce rendu ?",
     "confirmBody": "Environ {credits} crédits, estimé. Le prix final peut varier.",
     "confirmYes": "Confirmer",

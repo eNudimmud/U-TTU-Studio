@@ -2828,6 +2828,10 @@
       "vid-doubler": {
         "title": "Doblar una toma",
         "line": "VEED traduce un clip y sincroniza los labios."
+      },
+      "vid-pika": {
+        "title": "Vídeo fiel, con sonido",
+        "line": "Tu personaje en tu lugar, rostro y decorado intactos, con sonido."
       }
     },
     "latest": "Últimos resultados",
@@ -2857,10 +2861,15 @@
       "vid-h3-refs": "Fiel y económico",
       "vid-vidu": "Dos imágenes combinadas",
       "ret-lumiere-image": "Luz de una imagen",
-      "vid-fasth3": "Lugar más fiel (multirreferencia)"
+      "vid-fasth3": "Lugar más fiel (multirreferencia)",
+      "vid-pika": "Rostro y lugar fieles, con sonido (Pika · MiniMax H3)"
     },
     "model": "Modelo",
     "modelChange": "Cambiar de modelo",
+    "attribution": {
+      "vid-pika": "Pika H3 Flex, basado en MiniMax H3"
+    },
+    "modelGone": "Este modelo no está disponible hoy en tu cuenta de render. No se envió nada: la tarjeta vuelve a su modelo por defecto.",
     "confirmTitle": "¿Lanzar este render?",
     "confirmBody": "Unos {credits} créditos, estimado. El precio final puede variar.",
     "confirmYes": "Confirmar",

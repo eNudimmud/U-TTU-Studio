@@ -2828,6 +2828,10 @@
       "vid-doubler": {
         "title": "Dub a take",
         "line": "VEED translates a clip’s speech and re-syncs the lips."
+      },
+      "vid-pika": {
+        "title": "Faithful video, with sound",
+        "line": "Your character in your place, face and set kept, with sound."
       }
     },
     "latest": "Latest results",
@@ -2857,10 +2861,15 @@
       "vid-h3-refs": "Faithful, low cost",
       "vid-vidu": "Two pictures blended",
       "ret-lumiere-image": "Light from a picture",
-      "vid-fasth3": "More faithful place (multi-reference)"
+      "vid-fasth3": "More faithful place (multi-reference)",
+      "vid-pika": "Faithful face and place, with sound (Pika · MiniMax H3)"
     },
     "model": "Model",
     "modelChange": "Change model",
+    "attribution": {
+      "vid-pika": "Pika H3 Flex, built on MiniMax H3"
+    },
+    "modelGone": "This model is not available on your render account today. Nothing was sent: the card is back on its default model.",
     "confirmTitle": "Run this render?",
     "confirmBody": "About {credits} credits, estimated. The final price may vary.",
     "confirmYes": "Confirm",
