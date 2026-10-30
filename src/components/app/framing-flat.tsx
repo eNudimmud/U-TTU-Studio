@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { watchShown } from "@/lib/dom/shown";
 import { contourCanvas, png, type CaptureFraming } from "@/lib/maquette/framing";
 import type { MaquetteState } from "@/lib/maquette/state";
 
@@ -76,11 +77,13 @@ export function FramingFlat(props: Props) {
     };
     const observer = new ResizeObserver(paint); if (canvas.current) observer.observe(canvas.current);
     paint();
-    const timer = window.setInterval(paint, 100);
+    // Repaint only while on screen: behind a closed group or a hidden tab this timer must sleep.
+    const view = canvas.current ? watchShown(canvas.current, paint) : null;
+    const timer = window.setInterval(() => { if (view?.shown() !== false) paint(); }, 100);
     // Keep a stable button during a media-URL refresh. The export itself waits
     // for the image, rather than losing a tap while the button becomes disabled.
     props.onCaptureReady?.(capture);
-    return () => { dead = true; observer.disconnect(); window.clearInterval(timer); props.onCaptureReady?.(null); };
+    return () => { dead = true; observer.disconnect(); view?.stop(); window.clearInterval(timer); props.onCaptureReady?.(null); };
   }, [props.backdrop]);
 
   function down(event: React.PointerEvent<HTMLCanvasElement>) {
