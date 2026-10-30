@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { openAssistant, openCreations, openToolsHub } from "./helpers/top-bar";
+import { openCreations, openPlan, openToolsHub } from "./helpers/top-bar";
 
 // One top bar on every page: Créer, project switcher, search over tools and creations,
 // recent tasks, the docked assistant, and the tool switch card. All local, nothing is sent.
@@ -19,7 +19,7 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
   await expect(page).toHaveURL(/#outils\/[a-z0-9-]+$/);
   await expect(page.locator("[data-tool-panel]")).toHaveCount(1);
 
-  await openAssistant(page);
+  await openPlan(page);
   const assistant = page.locator("[data-assistant-panel]");
   await expect(assistant).toBeVisible();
   await assistant.locator("[data-assistant-input]").fill("faire parler mon personnage");

@@ -7,7 +7,7 @@
   "skip": "Zum Inhalt",
   "meta": {
     "title": "U*TTU Studio — Open-Source-KI-Filmstudio auf ComfyUI",
-    "description": "Inszeniere deine Einstellung in 3D auf deinem Handy, LTX dreht sie. Open Source (MIT), ein Kostenvoranschlag vor jedem Credit, Renders auf deinem eigenen Comfy-Cloud-Konto."
+    "description": "Schreib, was du drehen willst, Bild oder Video: 43 ComfyUI-Werkzeuge, benannte Referenzen, 3D-Inszenierung und Schnitt. Open Source (MIT), eine Kalkulation vor jedem Credit, Renders auf deinem eigenen Comfy-Konto."
   },
   "nav": {
     "character": "Besetzung",
@@ -42,8 +42,8 @@
   "accueil": {
     "kicker": "Open Source · MIT · auf ComfyUI",
     "h1": "Dein KI-<em>Filmstudio</em>, Open Source, auf ComfyUI.",
-    "sub": "Erschaffe deine Figuren und Kulissen, erkunde einen echten Ort, inszeniere deine Einstellung in 3D, dann dreh und schneide deinen Film.",
-    "sub2": "Alles läuft über dein eigenes Comfy-Konto, mit einer Kalkulation vor jedem Credit.",
+    "sub": "Schreib, was du drehen willst, als Bild oder Video, mit deinen Figuren und Orten. Dann erkunde, inszeniere in 3D, dreh und schneide deinen Film.",
+    "sub2": "43 ComfyUI-Werkzeuge auf deinem eigenen Comfy-Konto, mit einer Kalkulation vor jedem Credit.",
     "caps": {
       "0": "Eine Figur",
       "1": "Eine Nahaufnahme",
@@ -66,7 +66,7 @@
     "g3": "Ein echter Ort, von oben gesehen.",
     "g3Alt": "Ein Juradorf mit seiner romanischen Abtei im Morgengrauen, im Nebel",
     "fine": "Inspirationsbilder, für diese Seite erstellt.",
-    "flowTitle": "So funktioniert’s",
+    "flowTitle": "Einen Film machen, in 5 Schritten",
     "flow": {
       "cast": {
         "name": "BESETZUNG",
@@ -78,15 +78,15 @@
       },
       "prise": {
         "name": "TAKE",
-        "body": "5 Schritte, die Kalkulation vor dem Rendering."
+        "body": "Vorbereiten, Einstellungen, Vorschau, Erzeugen, Prüfen."
       },
       "montage": {
         "name": "SCHNITT",
-        "body": "Einstellungen, Stimme, Musik, MP4-Export."
+        "body": "Einstellungen, Stimme, Musik, MP4-Export ohne Credits."
       },
       "finaliser": {
         "name": "FINALISIEREN",
-        "body": "Schärfer, nichts neu gemacht."
+        "body": "Schärfer und größer, nichts neu gemacht."
       }
     },
     "toolsTitle": "Was du nur <em>hier</em> findest.",
@@ -126,31 +126,47 @@
     "also": {
       "bubble": {
         "name": "Eine Blase, Bild oder Video",
-        "body": "Flux Klein fürs Bild; MiniMax H3 oder LTX fürs Video. Die Kalkulation steht vor dem Senden."
-      },
-      "tools": {
-        "name": "Eine Werkzeugbibliothek",
-        "body": "Comfy-Werkzeuge nach Familie, jedes mit seiner Kalkulation: acht Winkel einer Figur oder Kulisse, bewegte Kamera, neues Licht oder das Licht eines kontrastreichen Bildes, eine Figur treu an ihrem Ort (FastH3, zweites Modell), Geräusche passend zum Video, Stimme und Musik getrennt."
+        "body": "„Was drehen wir?“ Bilder mit Flux Klein; Video mit MiniMax H3, wenn du Referenzen anhängst, sonst LTX. Ab ≈ 2 Credits geschätzt, Kalkulation vor dem Senden."
       },
       "refs": {
         "name": "Benannte Referenzen",
-        "body": "Ein Name, bis zu 3 Fotos: dasselbe Gesicht, derselbe Ort von Rendering zu Rendering."
+        "body": "Ein Name und bis zu 3 Fotos, abgelegt als Figur, Kulisse, Objekt oder Stil. Bis zu 7 Referenzen pro Kreation."
+      },
+      "angles": {
+        "name": "Winkel und Licht",
+        "body": "Acht Winkel einer Figur (≈ 11 Credits geschätzt) oder einer Kulisse (≈ 9), Kamera bewegen (≈ 3), Licht nach Anweisung (≈ 4) oder von einem Bild übernommen (≈ 3)."
+      },
+      "video": {
+        "name": "Treues Video",
+        "body": "Referenztreu mit MiniMax H3 (≈ 4 Credits geschätzt), FastH3 als zweites Modell hält den Ort besser (≈ 8). Treue Schlüsselbilder (≈ 14), Stilübergang (≈ 7)."
+      },
+      "son": {
+        "name": "Ton für dein Video",
+        "body": "Geräusche passend zum Bild (≈ 15 Credits geschätzt pro 5-s-Abschnitt), Stimme und Musik getrennt (≈ 1)."
+      },
+      "multicam": {
+        "name": "Mehrkamera",
+        "body": "Acht Figurenwinkel, dann ein MiniMax-H3-Take auf dem gewählten Winkel: ≈ 14 Credits geschätzt für eine erste Einstellung, dann ≈ 4 pro weiterem Winkel."
+      },
+      "library": {
+        "name": "43 Werkzeuge, jedes mit Kalkulation",
+        "body": "Erschaffen, Retusche, Video, 3D, Ton. „Nur Studiomodelle“ blendet Werkzeuge aus, die über einen kostenpflichtigen Partnerdienst laufen."
       },
       "upload": {
         "name": "Deine Dateien in Originalqualität",
         "body": "Mit verbundenem Comfy-Konto: Fotos, Videos und Töne bis 200 MB, aus dem Speicher gelöscht, sobald Comfy sie hat."
       },
       "guide": {
-        "name": "Uttu, dein Guide",
-        "body": "Kennt jedes Werkzeug und seine Kalkulation. Antwortet über dein Comfy-Konto, Nachrichtenpreis vorab; Kostenschätzungen bleiben lokal."
+        "name": "Uttu, der Studio-Agent",
+        "body": "Kennt jedes Werkzeug und seine Kalkulation und schlägt Werkzeug oder Plan vor; du startest. Über dein Comfy-Konto: höchstens ≈ 0,2 Credits geschätzt pro Nachricht."
       },
-      "studio": {
-        "name": "Mein Studio",
-        "body": "Deine Projekte in Markdown, lesbar in Obsidian."
+      "creations": {
+        "name": "Meine Kreationen",
+        "body": "Deine Projekte bleiben auf deinem Gerät: ZIP-Export und ein Obsidian-Ordner am Computer."
       },
       "quote": {
         "name": "Eine Kalkulation vor jedem Credit",
-        "body": "Jeder kostenpflichtige Button nennt seinen Preis und wartet auf dein OK."
+        "body": "Jeder kostenpflichtige Knopf zeigt seine geschätzten Credits und wartet auf dein OK."
       },
       "langs": {
         "name": "4 Sprachen",
@@ -3188,7 +3204,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Dein Studio-Guide · standardmäßig lokal, Comfy-Agent optional",
+    "sub": "Der Studio-Agent · über dein Comfy-Konto, Preis vor jeder Nachricht angezeigt",
     "button": "U*TTU",
     "openAria": "U*TTU, deinen Studio-Guide, öffnen oder schließen",
     "welcome": "Ich bin Uttu, der Agent des Studios. Sag mir, was du drehen willst: Ich antworte, schlage dir das Werkzeug oder den Plan vor, und du siehst den Kostenvoranschlag vor jedem Rendern. Jede Nachricht zahlt dein Comfy-Konto.",
@@ -3207,7 +3223,7 @@
       "free": "Was kostet Credits?",
       "cancel": "Kann ich einen Render abbrechen?"
     },
-    "notFound": "Darauf kann ich mit meinem lokalen Blatt nicht antworten, und ich sage dir das lieber, als etwas zu erfinden. Versuch andere Wörter oder schau dir unten den Guide und den Kostenrechner an. Mit verbundenem Comfy-Konto kannst du auch in den Comfy-Agent-Modus wechseln, bezahlt von deinem Konto.",
+    "notFound": "Darauf weiß ich keine Antwort, und ich sage dir das lieber, als etwas zu erfinden. Versuch andere Wörter oder öffne Werkzeuge: Jede Karte zeigt ihre Kalkulation.",
     "planHint": "Das klingt nach einer Aktion für dein Projekt. Ich gebe sie an den Produktionsplan unten weiter: Prüf sie und tipp dann auf „Meinen Plan vorbereiten“.",
     "planButton": "Zum Produktionsplan",
     "seeAlso": "Siehe auch:",
@@ -3353,7 +3369,7 @@
       "which": {
         "q": "Welches Werkzeug soll ich nehmen?",
         "k": "welches werkzeug werkzeuge wählen bedarf bibliothek familie rat empfehlen Winkel Kamera Mehrkamera Licht Geräusch trennen Übergang Schlüsselbilder",
-        "a": "Ein Bild: Schnelles Bild. Figur oder Ort beibehalten: Besetzung, Kulisse, Referenzen. Andere Blickwinkel: Acht Figurenwinkel, Acht Kulissenwinkel, Kamera bewegen. Ein Video: die Blase auf Video, oder Take; mit Referenzen: Referenztreues Video; zwei Schlüsselbilder: Treue Schlüsselbilder; wechselnder Stil: Stilübergang. Mehrere Kameras: Acht Figurenwinkel, dann „Einstellung, zweites Modell“ pro Winkel, ≈ 14 Credits pro Winkel. Retusche: Ändern, Erweitern, Freistellen, Größer und schärfer, Licht ändern („Licht nach Anweisung“, oder „Studioporträt“ als zweites Modell). Ton: Stimme, Musik, Geräusch, Geräusche für ein Video, Stimme und Musik trennen."
+        "a": "Ein Bild: Schnelles Bild. Figur oder Ort beibehalten: Besetzung, Kulisse, Referenzen. Andere Blickwinkel: Acht Figurenwinkel, Acht Kulissenwinkel, Kamera bewegen. Ein Video: die Blase auf Video, oder Take; mit Referenzen: Referenztreues Video; zwei Schlüsselbilder: Treue Schlüsselbilder; wechselnder Stil: Stilübergang. Mehrere Kameras: Acht Figurenwinkel, dann „Einstellung, zweites Modell“: ≈ 14 Credits, je weiterer Winkel ≈ 4. Retusche: Ändern, Erweitern, Freistellen, Größer und schärfer, Licht ändern („Licht nach Anweisung“, oder „Studioporträt“ als zweites Modell). Ton: Stimme, Musik, Geräusch, Geräusche für ein Video, Stimme und Musik trennen."
       },
       "projects": {
         "q": "Wo sind meine Projekte?",
@@ -3373,7 +3389,7 @@
       "agent": {
         "q": "Gibt es einen umfassenderen Agenten?",
         "k": "agent kostenpflichtig comfy umfassend freie unterhaltung zukunft bald",
-        "a": "Ja: Der Comfy-Agent-Modus versteht offene Anfragen. Er läuft über dein verbundenes Comfy-Konto, jede Nachricht zahlt dein Konto, und die geschätzten Kosten erscheinen vor dem ersten Senden. Der Agent startet nichts: Er schlägt eine Aktion vor, du klickst. Ohne verbundenes Konto bleibe ich der lokale Guide."
+        "a": "Ja: Der Comfy-Agent-Modus versteht offene Anfragen. Er läuft über dein verbundenes Comfy-Konto, jede Nachricht zahlt dein Konto, und die geschätzten Kosten erscheinen vor dem ersten Senden. Der Agent startet nichts: Er schlägt eine Aktion vor, du klickst. Ohne verbundenes Konto ist nur der Kostenrechner verfügbar."
       },
       "openWeights": {
         "q": "Was sind offene Modelle?",
@@ -3418,7 +3434,7 @@
     },
     "comfy": {
       "mode": "U*TTU-Modus",
-      "free": "Lokaler Guide · ohne Modell",
+      "free": "Ohne Konto · Kostenrechner",
       "paid": "{cost, select, 1 {Uttu-Agent · ≈ 1 Credit geschätzt pro Nachricht} other {Uttu-Agent · ≈ {cost} Credits geschätzt pro Nachricht}}",
       "paidNote": "Comfy-Agent aktiv: Jede Nachricht läuft über dein Comfy-Konto (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert deinen Schlüssel nicht. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
       "paidNoteSession": "Comfy-Agent aktiv: Jede Nachricht läuft über deine Comfy-Anmeldung (GPT-5 Nano über Comfy Router). Das Studio zahlt nichts und speichert nichts von deinem Konto auf seinen Servern: Deine Comfy-Sitzung bleibt in diesem Browser. Der Agent startet nichts: Du klickst, nach dem üblichen Kostenvoranschlag.",
@@ -3427,7 +3443,7 @@
       "gateTitle": "Vor deiner ersten kostenpflichtigen Nachricht",
       "gateBody": "{cost, select, 1 {Jede Nachricht an den Comfy-Agenten wird deinem Comfy-Konto berechnet: höchstens ≈ 1 Credit geschätzt, oft weniger. Der Agent startet kein Rendering: Er schlägt eine Aktion vor, du klickst, und der übliche Kostenvoranschlag erscheint vor jeder Ausgabe. Deine Zustimmung gilt für diese Sitzung.} other {Jede Nachricht an den Comfy-Agenten wird deinem Comfy-Konto berechnet: höchstens ≈ {cost} Credits geschätzt, oft weniger. Der Agent startet kein Rendering: Er schlägt eine Aktion vor, du klickst, und der übliche Kostenvoranschlag erscheint vor jeder Ausgabe. Deine Zustimmung gilt für diese Sitzung.}}",
       "accept": "Einverstanden, senden",
-      "decline": "Beim lokalen Guide bleiben",
+      "decline": "Nicht jetzt",
       "thinking": "U*TTU denkt auf deinem Comfy-Konto nach …",
       "send": "Senden (kostenpflichtig)",
       "spent": "{cost, select, 1 {≈ 1 Credit geschätzt für diese Nachricht} other {≈ {cost} Credits geschätzt für diese Nachricht}}",
@@ -3439,13 +3455,13 @@
       "errors": {
         "auth": "Dein Comfy-Konto lehnt die Verbindung ab. Verbinde es erneut (API-Schlüssel oder Comfy-Anmeldung) und sende deine Nachricht noch einmal.",
         "credits": "Nicht genug Credits auf deinem Comfy-Konto. Lade es bei Comfy Cloud auf und versuche es erneut. Es wurde nichts gestartet.",
-        "subscription": "Dein Comfy-Konto hat keinen Zugriff auf dieses Modell: Prüfe dein Comfy-Cloud-Abo. Der lokale Guide bleibt verfügbar.",
+        "subscription": "Dein Comfy-Konto hat keinen Zugriff auf dieses Modell: Prüfe dein Comfy-Cloud-Abo. Der Kostenrechner bleibt verfügbar.",
         "busy": "Comfy ist für dein Konto gerade stark ausgelastet. Warte ein paar Sekunden und sende deine Nachricht erneut.",
         "invalid": "Diese Nachricht konnte nicht verarbeitet werden. Kürze sie oder formuliere sie um.",
-        "refused": "Das Modell hat diese Nachricht nicht beantwortet. Formuliere sie um oder wechsle zum lokalen Guide.",
-        "network": "Comfy antwortet nicht. Prüfe deine Verbindung und versuche es erneut; der lokale Guide funktioniert offline.",
+        "refused": "Das Modell hat diese Nachricht nicht beantwortet. Formuliere sie um.",
+        "network": "Comfy antwortet nicht. Prüfe deine Verbindung und versuche es erneut; der Kostenrechner funktioniert offline.",
         "timeout": "Comfy hat zu lange gebraucht. Versuche es gleich noch einmal.",
-        "failed": "Der Comfy-Agent konnte nicht antworten. Versuche es erneut oder wechsle zum lokalen Guide."
+        "failed": "Der Comfy-Agent konnte nicht antworten. Versuche es gleich noch einmal."
       },
       "welcome": "Ich bin Uttu, der Agent des Studios. Sag mir, was du drehen willst: Ich antworte, schlage dir das Werkzeug oder den Plan vor, und du siehst den Kostenvoranschlag vor jedem Rendern. Jede Nachricht zahlt dein Comfy-Konto."
     },
@@ -3453,7 +3469,11 @@
     "modelTip": {
       "ret-lumiere-image": "Porträt, dann Lichtbild, ohne Anweisung; das Licht muss sich vom Porträt abheben.",
       "vid-fasth3": "FastH3 hält den Ort besser: Figur- und Ortsbild, Handlung in einem Satz; das Studio schreibt die strukturierte Anweisung."
-    }
+    },
+    "greeting": "Hallo, ich bin Uttu. Was willst du drehen?",
+    "perMessage": "{n, plural, one {≈ # Credit geschätzt pro Nachricht} other {≈ # Credits geschätzt pro Nachricht}}",
+    "connectShort": "Comfy verbinden",
+    "more": "Mehr Optionen"
   },
   "barre": {
     "title": "Was drehen wir?",

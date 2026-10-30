@@ -23,12 +23,15 @@ test("Agent Uttu payant sur Android : devis, accord au toucher, contexte du proj
   await page.locator("[data-top-uttu]").tap();
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();
+  await expect(panel.locator("[data-uttu-price]")).toHaveText("≈ 0,2 crédit estimé par message");
+  const more = panel.locator("[data-uttu-more] > summary");
+  expect((await more.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await more.tap();
   const projectName = panel.getByLabel("Nom du projet", { exact: true });
   if (await projectName.isVisible()) {
     await projectName.fill("Quai mobile");
     await panel.getByRole("button", { name: "Créer le projet", exact: true }).tap();
   }
-  await expect(panel.locator("[data-uttu-price]")).toHaveText("Agent Uttu · ≈ 0,2 crédits estimés par message");
   await expect(panel.locator("[data-uttu-mode-pick]")).toHaveCount(0);
 
   const input = panel.locator("[data-uttu-input]");

@@ -28,7 +28,7 @@ const SLIDES = [
   { cls: "s5", src: IMG("hero-village-clair.webp") },
 ] as const;
 const FLOW = ["cast", "decor", "prise", "montage", "finaliser"] as const;
-const ALSO = ["bubble", "tools", "refs", "upload", "guide", "studio", "quote", "langs"] as const;
+const ALSO = ["bubble", "refs", "angles", "video", "son", "multicam", "library", "upload", "guide", "creations", "quote", "langs"] as const;
 
 function PauseIcon({ paused }: { paused: boolean }) {
   return paused
@@ -99,8 +99,8 @@ export function HomeLanding() {
             <h1 id="landing-title">{rich("accueil.h1")}</h1>
             <p className="hv-lead"><span>{t("accueil.sub")}</span><span>{t("accueil.sub2")}</span></p>
             <div className="hv-ctas">
-              <a className="hv-btn hv-gold" href={UTTU_HREF} data-try-free="">{t("landing.tryFree")} <Arrow /></a>
-              <a className="hv-btn hv-glass" href={STUDIO_HREF}>{t("landing.enter")}</a>
+              <a className="hv-btn hv-gold" href={STUDIO_HREF} data-enter-studio="">{t("landing.enter")} <Arrow /></a>
+              <a className="hv-btn hv-glass" href={UTTU_HREF} data-try-free="">{t("landing.tryFree")}</a>
               <PoweredBy className="hv-badge" />
             </div>
           </div>
@@ -195,8 +195,8 @@ export function HomeLanding() {
           <BrandLockup className="hv-end-logo hv-rv" alt="U*TTU Studio" />
           <h2 id="hv-end-title" className="hv-rv d1">{rich("accueil.endTitle")}</h2>
           <div className="hv-ctas hv-rv d2">
-            <a className="hv-btn hv-gold" href={UTTU_HREF}>{t("landing.tryFree")} <Arrow /></a>
-            <a className="hv-btn hv-glass" href={STUDIO_HREF}>{t("landing.enter")}</a>
+            <a className="hv-btn hv-gold" href={STUDIO_HREF}>{t("landing.enter")} <Arrow /></a>
+            <a className="hv-btn hv-glass" href={UTTU_HREF}>{t("landing.tryFree")}</a>
           </div>
           <ul className="hv-trust hv-rv d3">{list("accueil.trust", 3).map(line => <li key={line}>{line}</li>)}</ul>
           <PoweredBy className="hv-badge hv-rv d3" />

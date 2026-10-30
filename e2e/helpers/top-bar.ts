@@ -28,3 +28,15 @@ export async function openAssistant(page: Page) {
   await page.locator("header .u-credit").click();
   await page.locator("[data-sheet-assistant]").click();
 }
+
+/** Uttu's panel is minimal; the production plan waits behind « Plus d’options ». */
+export async function showPlan(page: Page) {
+  const more = page.locator("[data-assistant-panel] [data-uttu-more]");
+  if ((await more.getAttribute("open")) === null) await more.locator("> summary").click();
+}
+
+/** Opens the assistant and its production plan. */
+export async function openPlan(page: Page) {
+  await openAssistant(page);
+  await showPlan(page);
+}

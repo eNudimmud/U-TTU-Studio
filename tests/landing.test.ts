@@ -17,6 +17,9 @@ describe("accueil", () => {
     assert.match(home, /rich\("accueil\.h1"\)/);
     assert.match(home, /t\("landing\.tryFree"\)/);
     assert.match(home, /t\("landing\.enter"\)/);
+    // JD, 30.10.2026: the studio door is the primary (gold) button, Uttu the secondary one.
+    assert.match(home, /className="hv-btn hv-gold" href=\{STUDIO_HREF\} data-enter-studio=""/);
+    assert.match(home, /className="hv-btn hv-glass" href=\{UTTU_HREF\} data-try-free=""/);
     assert.match(home, /assetPath\("\/studio\?uttu=1"\)/);
     assert.match(home, /assetPath\("\/studio"\)/);
     assert.match(home, /<PoweredBy className="hv-badge" \/>/);
