@@ -2845,3 +2845,26 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 /* PRISE: the engine chips carry their own quote and wrap on a phone. */
 .u-engine .u-chip { min-height: 44px; }
 .u-doublage .u-choice-row { flex-wrap: wrap; overflow: visible; gap: 8px; }
+
+/* DÉCOR: the form comes first, so its text field and the gold button share the first screen. */
+.u-decor-form { display: grid; gap: 8px; }
+.u-decor-form .u-suggest button { min-height: 44px; }
+@media (max-width: 1023px) {
+  .u-desk[data-section="decor"] .u-desk-gestes { order: 2; }
+}
+/* DÉCOR on a short landscape screen (844×390): a one-line head, and the gold button pinned above the chain like on a phone. */
+@media (min-width: 800px) and (max-width: 1023px) and (max-height: 520px) {
+  .u-desk[data-section="decor"] { padding-top: 6px; gap: 8px; padding-bottom: calc(150px + var(--u-safe)); }
+  .u-desk[data-section="decor"] .u-desk-work { gap: 8px; }
+  .u-desk[data-section="decor"] .u-head h1 { font-size: 26px; line-height: 1.1; }
+  .u-desk[data-section="decor"] .u-head > label, .u-desk[data-section="decor"] .u-head > button { min-height: 44px; padding-block: 0; }
+  .u-main:has(> .u-desk[data-section="decor"]) { padding-top: 8px; }
+  .u-desk[data-section="decor"] .u-decor-form textarea { height: 52px; min-height: 52px; }
+  .u-desk[data-section="decor"] .u-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .u-desk[data-section="decor"] .u-head > .u-label, .u-desk[data-section="decor"] .u-head .u-lead { display: none; }
+  .u-desk[data-section="decor"] .u-head h1 { margin: 0; flex: 1 1 auto; }
+  .u-desk[data-section="decor"] .u-head > label, .u-desk[data-section="decor"] .u-head > button { flex: 0 1 auto; width: auto; margin: 0; }
+  .u-desk[data-section="decor"] .u-create-bar { position: fixed; z-index: 45; left: var(--rail-w, 76px); right: 0; bottom: calc(66px + var(--u-safe)); display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-auto-flow: dense; align-items: center; gap: 2px 10px; margin: 0; padding: 6px 10px; background: rgba(15, 15, 17, .97); border-top: 1px solid var(--u-line-strong); box-shadow: none; max-height: 45dvh; overflow: auto; }
+  .u-desk[data-section="decor"] .u-create-bar .u-primary { grid-column: 1; grid-row: 1 / span 3; width: auto; }
+  .u-desk[data-section="decor"] .u-create-bar > :not(.u-primary) { grid-column: 2; margin: 0; font-size: 12px; line-height: 1.3; }
+}
