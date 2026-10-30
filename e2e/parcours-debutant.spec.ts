@@ -117,7 +117,8 @@ test('parcours débutant : personnage, décor, 3 plans, export MP4 en ≤ 12 tap
   await tap(page.locator('[data-create-confirm]'));
 
   // 3 · PRISE in the default 16:9, one estimated cost, the user's camera words kept.
-  await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1', { timeout: 30_000 });
+  // The 3D maquette now loads only when « Avancé » opens: wait for PRISE itself.
+  await expect(page.locator('[data-prise-ready="true"]')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '16:9', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.u-prise-quote:visible')).toHaveCount(1);
   await expect(page.locator('.u-prise-quote:visible')).toHaveText(/≈ [\d,]+ crédits? estimés?/);

@@ -28,7 +28,7 @@ test('agent: project → CAST → DÉCOR → PRISE → MONTAGE → export → ba
  await panel.getByRole('checkbox',{name:/Alice/}).check();
  await panel.getByRole('checkbox',{name:/Laboratoire/}).check();
  await prepare(page,'local:shots');
- await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures','1');
+ await expect(page.locator('[data-prise-ready="true"]')).toBeVisible();
  await prepare(page,'local:take');
  await page.getByRole('textbox',{name:'Ce qui se passe',exact:true}).fill('Alice traverse le laboratoire');
  await expect(page.locator('[data-tourner-gold]')).toBeEnabled();
