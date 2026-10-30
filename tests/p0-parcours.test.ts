@@ -52,13 +52,14 @@ describe("P0 · caméra : les mots de l'utilisateur gagnent", () => {
 });
 
 describe("P0 · 16:9 avec devis LTX estimé", () => {
-  it("quotes LTX in 16:9 and 9:16, and keeps H3 to its billed profile only", () => {
+  it("quotes LTX in 16:9 and 9:16, and keeps H3 to its billed profiles only", () => {
     for (const aspect of ["horizontal", "vertical"] as const) {
       const quote = resolveTakeQuote(takeProfile({ seconds: 5, aspect, quality: "rapide", engine: "ltx" }), []);
       assert.equal(quote.source, "estimated", aspect);
     }
     assert.equal(resolveTakeQuote(takeProfile({ seconds: 5, aspect: "vertical", quality: "rapide", engine: "h3" }), []).source, "billed");
-    assert.equal(resolveTakeQuote(takeProfile({ seconds: 5, aspect: "horizontal", quality: "rapide", engine: "h3" }), []).source, "unmeasured");
+    assert.equal(resolveTakeQuote(takeProfile({ seconds: 5, aspect: "horizontal", quality: "rapide", engine: "h3" }), []).source, "billed");
+    assert.equal(resolveTakeQuote(takeProfile({ seconds: 10, aspect: "horizontal", quality: "rapide", engine: "h3" }), []).source, "unmeasured");
     const prise = read("src/components/app/prise-stage.tsx");
     assert.doesNotMatch(prise, /measuredProfile/);
     assert.match(prise, /planQuote\.source !== "unmeasured"/);

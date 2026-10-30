@@ -948,8 +948,8 @@
     "photoPlaceName": "Foto des Orts",
     "engine": {
       "label": "Stil der Einstellung",
-      "ltx": "Einfache Bewegung",
-      "h3": "Bis zu neun Bilder",
+      "ltx": "LTX · Einfache Bewegung",
+      "h3": "H3 · Bis zu neun Bilder",
       "ltxHint": "Die Figur wird ins Dekor gesetzt, dann wird die Einstellung lebendig.",
       "h3Hint": "Bis zu neun Referenzbilder."
     }
@@ -1003,7 +1003,14 @@
     "imported": "Hinzugefügt: {count}",
     "noPicture": "Für den Take fehlt ein Bild.",
     "sessionMissing": "Die Sitzung ist nicht offen.",
-    "deleted": "„{name}“ entfernt"
+    "deleted": "„{name}“ entfernt",
+    "importName": {
+      "lead": "{name} ist in deinem CAST und für PRISE gewählt. Prüfe den Namen: er steht im Einstellungstext und im Schnitt.",
+      "saved": "Name behalten: {name}. Für PRISE gewählt.",
+      "label": "Name der Figur",
+      "save": "Diesen Namen behalten",
+      "next": "Weiter zu DÉCOR"
+    }
   },
   "montage": {
     "lead": "Die Einstellungen folgen einander. Stimme, Effekte und Musik liegen darunter.",
@@ -1457,9 +1464,9 @@
     "add": "+ Figur",
     "neutral": "Neutral",
     "neutralName": "Figur",
-    "turn": "Drehen",
+    "turn": "Rotieren",
     "remove": "Entfernen",
-    "turnName": "Drehen {name}",
+    "turnName": "{name} rotieren",
     "removeName": "Entfernen {name}",
     "pairWhy": "Diese Kachel braucht zwei Figuren. Füge eine mit + Figur hinzu.",
     "pairShort": "Zwei Figuren",
@@ -1947,7 +1954,7 @@
     "why": {
       "demo": "Die Demo sendet kein Rendering.",
       "busy": "Ein Rendering läuft. Warte, bis es fertig ist.",
-      "h3Format": "Dieser Stil hat nur im Hochformat, 5 Sekunden, einen Preis. Wechsle ins Hochformat oder zurück zum einfachen Stil unter Erweitert.",
+      "h3Format": "H3 hat nur bei 5 Sekunden einen Preis. Wechsle auf 5 s oder wähle LTX.",
       "noQuote": "Für diese Einstellung gibt es noch keinen Kostenvoranschlag. Nichts wird gesendet.",
       "refs": "Höchstens drei gespeicherte Figuren; neutrale Figuren dienen nur zum Einrichten.",
       "decorExample": "Diese Beispielkulisse dient nur zum Einrichten. Erstelle oder importiere deine Kulisse unter KULISSE.",
@@ -2087,7 +2094,8 @@
         "generer": "Erst die Kalkulation, dann bestätigst du den Start.",
         "reviser": "Ansehen, die richtige Version behalten, neu starten, an den SCHNITT senden."
       }
-    }
+    },
+    "goPlan": "Zu Einstellung {n} · noch nicht gedreht"
   },
   "p1": {
     "hint": "Ein Satz genügt: wer, wo, was passiert, die Kamera, die Stimmung.",
@@ -2111,7 +2119,7 @@
     "say": {
       "engineH3Refs": "Es gibt {count} Bilder, und dieser Stil nimmt nur {max}: ich wechsle zum anderen Stil.",
       "engineH3Cast": "{count} Figuren in der Einstellung: ich wechsle zum Stil für mehrere Gesichter.",
-      "engineManual": "Stil von Hand unter Erweitert gewählt: {engine}.",
+      "engineManual": "Stil von Hand gewählt: {engine}.",
       "refsDropped": "Über {max} Referenzen hinaus bleiben {count} außen vor.",
       "missingRef": "Kein Foto von {name}: das Aussehen kann sich ändern.",
       "missingDecorRef": "Kein Bild vom Ort {name}: das Set folgt deinen Worten.",
@@ -3665,7 +3673,11 @@
     "missing": "Die Bilder des Ausschnitts fehlen. Speichere ihn vor dem Generieren erneut.",
     "failed": "Der Bildausschnitt konnte nicht gespeichert werden. Warte auf die Kulisse und versuche es erneut.",
     "formatChanged": "Das Format hat sich geändert. Speichere den Ausschnitt vor dem Generieren erneut in diesem Format.",
-    "unlock": "Entsperre die Kamera, um den Zoom zu ändern."
+    "unlock": "Entsperre die Kamera, um den Zoom zu ändern.",
+    "ltxSent": "Bildausschnitt behalten: diese Einstellung geht an LTX (Tiefe + Kanten) · ≈ {credits} Credits geschätzt. H3 nutzt den Ausschnitt nicht.",
+    "h3NotSent": "H3 gewählt: der behaltene Ausschnitt bleibt gespeichert, wird aber nicht gesendet. Wähle LTX, um ihn zu nutzen.",
+    "willSwitch": "Wenn du diesen Ausschnitt behältst, wechselt die Einstellung von H3 (≈ {before}) zu LTX (≈ {after} Credits geschätzt). Unter „Stil der Einstellung“ kannst du zu H3 zurück.",
+    "switched": "Ausschnitt behalten: diese Einstellung wechselt zu LTX, ≈ {after} Credits geschätzt statt ≈ {before} mit H3."
   },
   "namedRefs": {
     "title": "Referenzen",

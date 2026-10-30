@@ -24,7 +24,7 @@ import { mergeTakeIds, planVersions, sequenceTakes, shownTake, takeIdsFromShotNo
 import { protocole } from "@/lib/fiabilite";
 import { resolveTakeQuote } from "@/lib/render/billed-quote";
 import { quotesToRecords } from "@/lib/render/measured-quote";
-import { takeProfile, type TakeRendu, type TakeSettings } from "@/lib/render/take-graph";
+import { takeProfile, type TakeEngine, type TakeRendu, type TakeSettings } from "@/lib/render/take-graph";
 import { quoteCredits, readRendu, saveRendu } from "@/lib/prise/rendu";
 import { readPending } from "@/lib/render/recovery";
 import { formatCredits } from "@/lib/credits";
@@ -109,11 +109,12 @@ function personSrc(preview: string | null | undefined, sheet: string | null | un
 }
 
 export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
-  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, saveFraming, pickCast, pickDecor, run, cancelRun, sendSequence, sendToMontage, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
+  const { ready, demo, runOrigin, notice, setNotice, resumeRun, creating, cast, decor, media, studio, pickedCast, pickedDecor, requestRun, writeProjectFile, readProjectFile, deleteShot, savePrevis, saveFraming, pickCast, pickDecor, run, cancelRun, sendSequence, sendToMontage, prefs, setPrefs, pendingTake, sheet, connected, setSheet } = useStudio();
   const { t, say } = useI18n();
   const activeProject = useRef(studio.project); activeProject.current = studio.project;
   const [viewed, setViewed] = useState<Record<string, string>>({});
   const [nextAction, setNextAction] = useState("");
+  const [undoToast, setUndoToast] = useState(false);
   const [advanced, setAdvanced] = useState(false);
   // P1-3 · phone path in five steps (CSS shows one step below 1024 px; large screens keep every block).
   const [etape, setEtape] = useState<Etape>("preparer");
@@ -393,7 +394,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   useEffect(() => {
     if (plansLoaded !== (studio.project ?? "") || maquetteLoaded !== maquetteKey || seeded.current || people.length === 0) return;
     const chosenIds = drafts.find(item => item.id === currentId)?.input.castIds ?? [];
-    const lead = (chosenIds.length > 0 ? people.find(person => person.id === chosenIds[0]) : people[0]) ?? null;
+    // Like the décor: the character just made or imported in CAST leads, else the first one.
+    const lead = (chosenIds.length > 0 ? people.find(person => person.id === chosenIds[0]) : people.find(person => person.id === pickedCast) ?? people[0]) ?? null;
     if (!lead) return;
     seeded.current = true;
     setMaquette(state => seedLead(state, { id: lead.id, name: lead.name }));
@@ -413,7 +415,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         },
       };
     }));
-  }, [plansLoaded, studio.project, maquetteLoaded, maquetteKey, castKey, people, drafts, currentId, places, pickedDecor, t]);
+  }, [plansLoaded, studio.project, maquetteLoaded, maquetteKey, castKey, people, drafts, currentId, places, pickedDecor, pickedCast, t]);
 
   const index = Math.max(0, drafts.findIndex(item => item.id === currentId));
   const draft = drafts[index] ?? drafts[0];
@@ -619,7 +621,10 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     return { read, inherited, decided, extra: { lines, camera: pick === undefined ? undefined : pick === "none" ? null : pick } };
   }
   const intention = intentionFor(draft.input.action, draft.id, input);
-  const engine = input.framing ? "ltx" : intention.decided.engine;
+  // A kept framing needs LTX (depth + edges). Choosing H3 by hand still wins: the framing stays saved, not sent.
+  const engineFor = (plan: PlanInput, decided: { engine: TakeEngine }): TakeEngine => plan.framing && !(prefs.engineManual && prefs.engine === "h3") ? "ltx" : decided.engine;
+  const engine = engineFor(input, intention.decided);
+  const framingSent = Boolean(input.framing) && engine === "ltx";
   const intent = primaryIntent(input);
   const cardDecision = decide(input, intent);
   const essai = decide(input, "essai");
@@ -632,7 +637,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const knownLabels = [...tileLabels, ...TUILES.map(item => ({ id: item.id, label: item.label }))];
   // One quote per take, from the plan's own engine, format and length. LTX is estimated in 16:9 and 9:16.
   // Aperçu (first pass only) or Qualité finale (today's two passes). LTX only; each keeps its own profile.
-  const baseSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine, ...(input.framing ? { cadrage: "depth-edges-v1" as const } : {}) };
+  const baseSettings: TakeSettings = { seconds: input.duree, aspect: input.format === "9:16" ? "vertical" : "horizontal", quality: "rapide", engine, ...(framingSent ? { cadrage: "depth-edges-v1" as const } : {}) };
   const planSettings: TakeSettings = engine === "ltx" && rendu === "apercu" ? { ...baseSettings, rendu: "apercu" } : baseSettings;
   const planQuote = resolveTakeQuote(takeProfile(planSettings), quotesToRecords(studio.quotes));
   const renduQuotes = {
@@ -640,6 +645,12 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     finale: quoteCredits(resolveTakeQuote(takeProfile({ ...baseSettings, engine: "ltx" }), quotesToRecords(studio.quotes))),
   };
   const planCredits = quoteCredits(planQuote);
+  // One price per engine for the chooser, so switching never surprises.
+  const engineCredits = {
+    ltx: quoteCredits(resolveTakeQuote(takeProfile({ ...baseSettings, engine: "ltx", ...(input.framing ? { cadrage: "depth-edges-v1" as const } : {}), ...(rendu === "apercu" ? { rendu: "apercu" as const } : {}) }), quotesToRecords(studio.quotes))),
+    h3: quoteCredits(resolveTakeQuote(takeProfile({ seconds: baseSettings.seconds, aspect: baseSettings.aspect, quality: "rapide", engine: "h3" }), quotesToRecords(studio.quotes))),
+  };
+  const framedLtx = quoteCredits(resolveTakeQuote(takeProfile({ seconds: baseSettings.seconds, aspect: baseSettings.aspect, quality: "rapide", engine: "ltx", cadrage: "depth-edges-v1", ...(rendu === "apercu" ? { rendu: "apercu" as const } : {}) }), quotesToRecords(studio.quotes)));
   const creditsWord = (value: number | null) => value === null ? "" : t("p0.rendu.quote", { credits: formatCredits(value) });
   const quoted = planQuote.source !== "unmeasured";
   const realRefs = input.castIds.length <= 3 && input.castIds.every(id => cast.some(card => card.id === id && !id.startsWith("demo-")));
@@ -682,8 +693,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (read.ambiance.length && !ambianceOff[planId]) rows.push({ label: t("p1.fiab.ambiance"), value: read.ambiance.map(item => item.label).join(", ") });
     const kept = inherited.filter(row => row.state).map(row => `${row.name} · ${row.state!.label} (${row.state!.fromCode || "?"})`);
     if (kept.length) rows.push({ label: t("p1.fiab.continuity"), value: kept.join(" ; ") });
-    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: t(!plan.framing && decided.engine === "h3" ? "stage.engine.h3" : "stage.engine.ltx") }) });
-    if (plan.framing) rows.push({ label: t("framing.kept"), value: `${plan.framing.width} × ${plan.framing.height} · ${t("framing.depth")} + ${t("framing.edges")}` });
+    rows.push({ label: t("p1.fiab.engine"), value: t(prefs.engineManual ? "p1.fiab.engineHand" : "p1.fiab.engineAuto", { engine: t(engineFor(plan, decided) === "h3" ? "stage.engine.h3" : "stage.engine.ltx") }) });
+    if (plan.framing && engineFor(plan, decided) === "ltx") rows.push({ label: t("framing.kept"), value: `${plan.framing.width} × ${plan.framing.height} · ${t("framing.depth")} + ${t("framing.edges")}` });
     if (read.unknown.length) rows.push({ label: t("p1.chip.unknown"), value: read.unknown.join(", "), flag: true });
     return rows;
   }
@@ -705,6 +716,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       const frame = await saveFraming(id, capture);
       if (activeProject.current !== project) return;
       setHistory(state => planReducer(state, { type: "replace", plans: state.plans.map(item => item.id === id ? { ...item, input: { ...item.input, framing: frame } } : item) }));
+      // Say the switch out loud: a kept framing moves an H3 plan to LTX, at LTX's price.
+      if (engine === "h3" && !prefs.engineManual) setNotice(t("framing.switched", { before: engineCredits.h3 === null ? "—" : formatCredits(engineCredits.h3), after: framedLtx === null ? "—" : formatCredits(framedLtx) }));
     } catch { setNotice(t("framing.failed")); }
     finally { framingSaving.current = false; setFramingBusy(false); }
   }
@@ -714,13 +727,16 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     try {
       await planWrites.current;
       await persist(drafts.map(item => item.id === draft.id ? { ...item, input } : item));
-      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre, ...intention.extra }).text, settings: planSettings, resume: resumeFor(input), change: changeFor(input), extraRefs: intention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: input.framingRef, framing: input.framing });
+      await requestRun({ planId: draft.id, castIds: input.castIds, decorId: input.decorId, line: input.action, prompt: buildPrompt(input, essai, { cadre, ...intention.extra }).text, settings: planSettings, resume: resumeFor(input), change: changeFor(input), extraRefs: intention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: input.framingRef, framing: framingSent ? input.framing : undefined });
     } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
   // « Tourner le plan suivant »: one tap creates the next plan with the same cast, décor and staging, then asks once.
   const isLast = index === drafts.length - 1;
-  const showNext = !demo && isLast && (versions.length > 0 || runningHere) && drafts.length < 12;
+  // The bar points to a plan that exists and has no take yet, before it offers to write a new one.
+  const pendingPlan = demo ? null : [...drafts.slice(index + 1), ...drafts.slice(0, index)].find(item => !item.hasTake && item.render?.phase !== "running" && !item.kept && !item.finalised) ?? null;
+  const pendingNumber = pendingPlan ? drafts.indexOf(pendingPlan) + 1 : 0;
+  const showNext = !demo && isLast && !pendingPlan && (versions.length > 0 || runningHere) && drafts.length < 12;
   const nextNumber = drafts.length + 1;
   const canNext = canGenerate && nextAction.trim().length > 0;
   async function tournerSuivant() {
@@ -736,8 +752,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       setNextAction("");
       await persist(next, id);
       const nextIntention = intentionFor(nextInput.action, id, nextInput);
-      const nextSettings: TakeSettings = { ...planSettings, engine: nextInput.framing ? "ltx" : nextIntention.decided.engine };
-      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre, ...nextIntention.extra }).text, settings: nextSettings, resume: resumeFor(nextInput, id), change: changeFor(nextInput, id), extraRefs: nextIntention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: nextInput.framingRef, framing: nextInput.framing });
+      const nextEngine = engineFor(nextInput, nextIntention.decided);
+      const nextSettings: TakeSettings = { seconds: nextInput.duree, aspect: baseSettings.aspect, quality: "rapide", engine: nextEngine, ...(nextEngine === "ltx" && nextInput.framing ? { cadrage: "depth-edges-v1" as const } : {}), ...(nextEngine === "ltx" && rendu === "apercu" ? { rendu: "apercu" as const } : {}) };
+      await requestRun({ planId: id, castIds: nextInput.castIds, decorId: nextInput.decorId, line: nextInput.action, prompt: buildPrompt(nextInput, decide(nextInput, "essai"), { cadre, ...nextIntention.extra }).text, settings: nextSettings, resume: resumeFor(nextInput, id), change: changeFor(nextInput, id), extraRefs: nextIntention.decided.refs.filter(ref => ref.kind === "etat").map(ref => ref.path), framingRef: nextInput.framingRef, framing: nextSettings.cadrage ? nextInput.framing : undefined });
     } catch (error) { setNotice(error instanceof Error ? error.message : t("p0.saveFailed")); }
   }
 
@@ -1038,6 +1055,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   let second: Action | null = null;
   if (demo) { gold = { label: t("p0.tourner"), enabled: false, reason: t("p0.why.demo"), onClick() {}, mark: "tourner" }; second = monterAction; }
   else if (busy) { gold = { label: t("p0.running"), enabled: false, reason: runningHere ? t("p0.runningWhy") : t("p0.why.busy"), onClick() {}, mark: "attente" }; second = withTake > 0 ? monterAction : null; }
+  else if (pendingPlan && versions.length > 0) { gold = { label: t("p0.goPlan", { n: String(pendingNumber) }), enabled: true, reason: "", onClick: () => { setCurrentId(pendingPlan.id); setPanel(false); setAsk(null); window.scrollTo({ top: 0, behavior: "instant" }); }, mark: "aller" }; second = withTake > 0 ? monterAction : null; }
   else if (showNext) { gold = { label: planCredits === null ? t("p0.tournerSuivant", { n: String(nextNumber) }) : t("p0.rendu.goNext", { n: String(nextNumber), credits: formatCredits(planCredits) }), enabled: canNext, reason: canNext ? "" : nextAction.trim() ? generateReason : t("p0.why.nextWords", { n: String(nextNumber) }), onClick: () => void tournerSuivant(), mark: "suivant" }; second = withTake > 0 ? monterAction : null; }
   else if (versions.length > 0) gold = monterAction;
   // Default level: no still-image shortcut. MONTAGE gets takes; the example (demo) keeps its still.
@@ -1103,13 +1121,13 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <button type="button" className="u-plan-add" onClick={addPlan}>{t("p0.addPlan")}</button>
       </div>
       {!demo && <div className="u-plan-tools" role="group" aria-label={t("p0.plans.tools", { n: String(index + 1) })} data-plan-tools="">
-        {history.past.length > 0 && <button type="button" className="u-secondary" data-plan-undo-action="" onClick={undoPlan}>{t("p0.plans.undo")}</button>}
+        {history.past.length > 0 && !undoToast && <button type="button" className="u-secondary" data-plan-undo-action="" onClick={undoPlan}>{t("p0.plans.undo")}</button>}
         {drafts.length < 12 && <button type="button" className="u-secondary" data-plan-duplicate="" onClick={() => void duplicateAt(draft.id)}>{t("p0.plans.duplicate")}</button>}
         {index > 0 && <button type="button" className="u-secondary" data-plan-up="" aria-label={t("p0.plans.up")} onClick={() => moveAt(draft.id, -1)}>↑</button>}
         {index < drafts.length - 1 && <button type="button" className="u-secondary" data-plan-down="" aria-label={t("p0.plans.down")} onClick={() => moveAt(draft.id, 1)}>↓</button>}
         <button type="button" className="u-secondary" data-plan-delete="" onClick={() => deletePlanAt(draft.id)}>{t("p0.plans.delete")}</button>
       </div>}
-      {!demo && history.revision > 0 && history.past.length > 0 && <PlanUndo revision={history.revision} text={t("p0.editor.changed")} label={t("p0.plans.undo")} onUndo={undoPlan} />}
+      {!demo && history.revision > 0 && history.past.length > 0 && <PlanUndo revision={history.revision} text={t("p0.editor.changed")} label={t("p0.plans.undo")} onUndo={undoPlan} onVisible={setUndoToast} />}
       {!demo && <p className="u-plan-save" role="status" data-plan-save={planSaveState}>{t(`p0.editor.save.${planSaveState}`)}</p>}
       <p className="u-plan-sum">{t("p0.sequenceSum", { time: clock(total), count: drafts.length })}</p>
     </aside>
@@ -1291,6 +1309,20 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </Row>
 
 
+      {<Row label={t("stage.engine.label")}>
+        <div className="u-choice-row u-engine" data-engine={engine} data-engine-mode={prefs.engineManual ? "main" : "auto"} data-framing-sent={framingSent ? "" : undefined}>
+          <button type="button" className="u-chip" data-engine-auto="" aria-pressed={!prefs.engineManual} onClick={() => setPrefs({ engineManual: false })}>{t("p1.engineAuto")} · {(input.framing ? "ltx" : intention.decided.auto) === "h3" ? "H3" : "LTX"}</button>
+          {(["h3", "ltx"] as const).map(item => (
+            <button key={item} type="button" className="u-chip" data-engine-choice={item} aria-pressed={prefs.engineManual && prefs.engine === item} onClick={() => setPrefs({ engine: item, engineManual: true })}>{t(`stage.engine.${item}`)}{engineCredits[item] === null ? "" : ` · ${t("p0.rendu.quote", { credits: formatCredits(engineCredits[item]!) })}`}</button>
+          ))}
+        </div>
+        <p className="u-engine-hint" data-engine-hint="">{input.framing
+          ? engine === "ltx"
+            ? t("framing.ltxSent", { credits: engineCredits.ltx === null ? "—" : formatCredits(engineCredits.ltx) })
+            : t("framing.h3NotSent")
+          : t(engine === "ltx" ? "stage.engine.ltxHint" : "stage.engine.h3Hint")}</p>
+      </Row>}
+
       <OutilsStrip onglet="prise" />
       <details className="u-fold u-avance" data-avance-prise="" open={advanced} onToggle={event => setAdvanced(event.currentTarget.open)}>
         <summary>{t("p0.advanced")}</summary>
@@ -1328,6 +1360,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           onPointerCancel={() => { framingTouch.current = null; framingTouchHandled.current = false; }}
           onPointerUp={event => { if (event.pointerType === "touch" && framingTouch.current === event.pointerId) { framingTouch.current = null; framingTouchHandled.current = true; void keepFraming(); } }}
           onClick={event => { if (event.detail > 0 && framingTouchHandled.current) { framingTouchHandled.current = false; return; } framingTouchHandled.current = false; void keepFraming(); }}>{t(framingBusy ? "framing.saving" : "framing.save")}</button>
+        {!input.framing && engine === "h3" && !prefs.engineManual && <p className="u-why" data-framing-engine-warn="">{t("framing.willSwitch", { before: engineCredits.h3 === null ? "—" : formatCredits(engineCredits.h3), after: framedLtx === null ? "—" : formatCredits(framedLtx) })}</p>}
         {(!canCapture || framingBusy) && <p id="u-framing-wait" className="u-why">{t(framingBusy ? "framing.saving" : "framing.loading")}</p>}
         {input.framing && <div data-framing-kept={input.framing.source}>
           <p>{t("framing.kept")} · {input.framing.width} × {input.framing.height}</p>
@@ -1393,17 +1426,6 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </Row>
         </AvanceGroup>
         <AvanceGroup id="rendu" title={t("p0.groups.rendu")}>
-        {input.framing && <p className="u-why">{t("framing.ltx")}</p>}
-        {!input.framing && <Row label={t("stage.engine.label")}>
-          <div className="u-choice-row u-engine" data-engine={engine} data-engine-mode={prefs.engineManual ? "main" : "auto"}>
-            <button type="button" className="u-chip" data-engine-auto="" aria-pressed={!prefs.engineManual} onClick={() => setPrefs({ engineManual: false })}>{t("p1.engineAuto")} · {intention.decided.auto === "h3" ? "H3" : "LTX"}</button>
-            {(["ltx", "h3"] as const).map(item => (
-              <button key={item} type="button" className="u-chip" aria-pressed={prefs.engineManual && prefs.engine === item} onClick={() => setPrefs({ engine: item, engineManual: true })}>{t(`stage.engine.${item}`)}</button>
-            ))}
-          </div>
-          <p className="u-engine-hint">{t(engine === "ltx" ? "stage.engine.ltxHint" : "stage.engine.h3Hint")}</p>
-        </Row>}
-
         <Row label={t("p0.duration")}>
           <div className="u-choice-row u-duree">
             {([5, ...(input.duree === 8 ? [8 as const] : []), 10] as const).map(seconds => (

@@ -136,8 +136,24 @@ function engineName(t: (key: string, values?: Record<string, string | number>) =
 
 export function CastStage({ onDecor }: { onDecor(): void }) {
   const { t } = useI18n();
-  const { ready: vaultReady, media, createCast, connected, balance, creating, importAssets, cast, prefs, setSheet } = useStudio();
+  const { ready: vaultReady, media, createCast, connected, balance, creating, importAssets, renameCast, cast, prefs, setSheet } = useStudio();
   const [gesteId, setGesteIdState] = useState("cast-photos");
+  // The character just imported: chosen for PRISE, and its name asked once (it goes into the plan text and the clip labels).
+  const [imported, setImported] = useState<{ id: string; name: string; saved: boolean } | null>(null);
+  const [importedName, setImportedName] = useState("");
+  async function importCast(files: File[]) {
+    const items = await importAssets(files, "personnage");
+    const first = items.find(item => item.kind === "personnage");
+    if (!first) return;
+    setImported({ id: first.id, name: first.name, saved: false });
+    setImportedName(first.name);
+  }
+  async function keepImportedName() {
+    if (!imported) return;
+    const name = importedName.trim();
+    if (name && name !== imported.name) await renameCast(imported.id, name);
+    setImported({ ...imported, name: name || imported.name, saved: true });
+  }
   const [touched, setTouched] = useState(false);
   const setGesteId = (id: string) => { setTouched(true); setGesteIdState(id); };
   useEffect(() => {
@@ -238,9 +254,21 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <p className="u-label">01</p>
       <h1 id="u-title" tabIndex={-1}>{t("nav.character")}</h1>
       <p className="u-lead">{t("create.castLead")}</p>
-      <label className="u-secondary">{t("p0.importCast")}<input className="sr-only" type="file" accept="image/*" aria-label={t("p0.importCastAria")} disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "personnage"); event.target.value = ""; }} /></label>
+      <label className="u-secondary">{t("p0.importCast")}<input className="sr-only" type="file" accept="image/*" aria-label={t("p0.importCastAria")} disabled={!vaultReady} multiple onChange={event => { void importCast([...(event.target.files ?? [])]); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
+      {imported && cast.some(card => card.id === imported.id) && <form className="u-card u-import-name" data-import-name={imported.id} data-import-saved={imported.saved ? "true" : "false"} onSubmit={event => { event.preventDefault(); void keepImportedName(); }}>
+        {media[cast.find(card => card.id === imported.id)?.sheet ?? ""] && <img className="u-import-thumb" src={media[cast.find(card => card.id === imported.id)?.sheet ?? ""]} alt="" />}
+        <p role="status">{imported.saved ? t("create.importName.saved", { name: imported.name }) : t("create.importName.lead", { name: imported.name })}</p>
+        <label className="u-field">
+          <span className="u-label">{t("create.importName.label")}</span>
+          <input value={importedName} maxLength={40} autoComplete="off" onChange={event => { setImportedName(event.target.value); if (imported.saved) setImported({ ...imported, saved: false }); }} />
+        </label>
+        <span className="u-card-actions">
+          {!imported.saved && <button type="submit" className="u-secondary" data-import-name-save="">{t("create.importName.save")}</button>}
+          <button type="button" className="u-secondary" data-import-next="" onClick={() => { void keepImportedName().then(onDecor); }}>{t("create.importName.next")}</button>
+        </span>
+      </form>}
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
       <label className="u-field">
         <span className="u-label">{t("create.name")}</span>

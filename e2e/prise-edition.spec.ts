@@ -104,7 +104,9 @@ test("PRISE tactile : trois plans, édition complète, suppression/annulation, o
   await proof(page, "prise-p0-1-persistance-390x844");
   await page.locator("[data-plan-duplicate]").tap();
   await expect(cards(page)).toHaveCount(4);
-  await page.locator("[data-plan-undo-action]").tap();
+  // One « Annuler » at a time: the toast's, while it shows.
+  await expect(page.locator("[data-plan-undo-action]")).toHaveCount(0);
+  await page.locator("[data-plan-undo] button").tap();
   await expect(cards(page)).toHaveCount(3);
   await saved(page);
 });

@@ -2836,3 +2836,11 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-named-menu button:hover, .u-named-menu button:focus-visible { background: var(--surface-2, var(--bg)); }
 .u-named-menu button[data-ref-delete] { color: var(--danger, #ff6b6b); }
 .u-named-refs .u-refs-head .u-icon { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+
+/* CAST: the character just imported, named once, already chosen for PRISE. */
+.u-import-name { display: grid; gap: 8px; margin: 0 0 12px; padding: 12px; border-color: var(--u-gold, #c9a227); }
+.u-import-name p { margin: 0; }
+.u-import-name input { min-height: 44px; }
+.u-import-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
+/* PRISE: the engine chips carry their own quote and wrap on a phone. */
+.u-engine .u-chip { min-height: 44px; }

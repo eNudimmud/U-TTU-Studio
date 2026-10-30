@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 
 /** Eight seconds of readable time; hovering, focus and touch all pause the clock. */
-export function PlanUndo({ revision, text, label, onUndo }: { revision: number; text: string; label: string; onUndo(): void }) {
+export function PlanUndo({ revision, text, label, onUndo, onVisible }: { revision: number; text: string; label: string; onUndo(): void; onVisible?(visible: boolean): void }) {
   const [visible, setVisible] = useState(true);
+  // The owner hides its own « Annuler » while this one shows: one undo button on screen at a time.
+  useEffect(() => { onVisible?.(visible); return () => onVisible?.(false); }, [visible, onVisible]);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const remaining = useRef(8000);
   const started = useRef(0);

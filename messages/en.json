@@ -948,8 +948,8 @@
     "photoPlaceName": "Place photo",
     "engine": {
       "label": "Shot style",
-      "ltx": "Simple motion",
-      "h3": "Up to nine pictures",
+      "ltx": "LTX · Simple motion",
+      "h3": "H3 · Up to nine pictures",
       "ltxHint": "The character is placed in the set, then the shot comes to life.",
       "h3Hint": "Up to nine reference pictures."
     }
@@ -1003,7 +1003,14 @@
     "imported": "Added: {count}",
     "noPicture": "A picture is missing for the take.",
     "sessionMissing": "The session is not open.",
-    "deleted": "“{name}” removed"
+    "deleted": "“{name}” removed",
+    "importName": {
+      "lead": "{name} is in your CAST and chosen for PRISE. Check the name: it goes into the shot text and the edit.",
+      "saved": "Name kept: {name}. Chosen for PRISE.",
+      "label": "Character name",
+      "save": "Keep this name",
+      "next": "Continue to DÉCOR"
+    }
   },
   "montage": {
     "lead": "The shots follow one another. Voice, effects and music sit underneath.",
@@ -1457,9 +1464,9 @@
     "add": "+ Character",
     "neutral": "Neutral",
     "neutralName": "Figure",
-    "turn": "Turn",
+    "turn": "Rotate",
     "remove": "Remove",
-    "turnName": "Turn {name}",
+    "turnName": "Rotate {name}",
     "removeName": "Remove {name}",
     "pairWhy": "This tile needs two characters. Add one with + Character.",
     "pairShort": "Two characters",
@@ -1947,7 +1954,7 @@
     "why": {
       "demo": "The demo sends no render.",
       "busy": "A render is running. Wait for it to finish before starting another.",
-      "h3Format": "This style only has a price in vertical, 5 seconds. Switch to vertical, or go back to the simple style in Advanced.",
+      "h3Format": "H3 only has a price at 5 seconds. Switch to 5 s, or choose LTX.",
       "noQuote": "This setting has no quote yet. Nothing is sent.",
       "refs": "Use at most three saved characters; neutral figures only help set up the frame.",
       "decorExample": "This example set only helps frame the shot. Create or import your set in SET to send it.",
@@ -2087,7 +2094,8 @@
         "generer": "The quote first, then you confirm the launch.",
         "reviser": "Watch, keep the right version, retry, send to EDIT."
       }
-    }
+    },
+    "goPlan": "Go to shot {n} · not shot yet"
   },
   "p1": {
     "hint": "One sentence is enough: who, where, what happens, the camera, the mood.",
@@ -2111,7 +2119,7 @@
     "say": {
       "engineH3Refs": "There are {count} pictures, and this style only takes {max}: switching to the other style.",
       "engineH3Cast": "{count} characters in the shot: switching to the style made for several faces.",
-      "engineManual": "Style picked by hand in Advanced: {engine}.",
+      "engineManual": "Style picked by hand: {engine}.",
       "refsDropped": "Beyond {max} references, {count} are left out.",
       "missingRef": "No photo for {name}: their look may change.",
       "missingDecorRef": "No picture for the place {name}: the set will follow your words.",
@@ -3665,7 +3673,11 @@
     "missing": "The framing images are missing. Keep the framing again before generating.",
     "failed": "The framing could not be saved. Wait for the set to load, then try again.",
     "formatChanged": "The format changed. Keep the framing again in this format before generating.",
-    "unlock": "Unlock the camera to change the zoom."
+    "unlock": "Unlock the camera to change the zoom.",
+    "ltxSent": "Framing kept: this shot goes to LTX (depth + edges) · ≈ {credits} credits estimated. H3 does not use the framing.",
+    "h3NotSent": "H3 chosen: the kept framing stays saved but is not sent. Choose LTX to use it.",
+    "willSwitch": "Keeping this framing moves this shot from H3 (≈ {before}) to LTX (≈ {after} credits estimated). You can go back to H3 in “Shot style”.",
+    "switched": "Framing kept: this shot moves to LTX, ≈ {after} credits estimated instead of ≈ {before} with H3."
   },
   "namedRefs": {
     "title": "References",

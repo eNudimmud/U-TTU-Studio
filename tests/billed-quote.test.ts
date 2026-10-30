@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import { COMFY_CLOUD } from "../src/lib/comfy-stack.ts";
 import { phrase } from "../src/lib/i18n/phrase.ts";
 import {
-  BILLED_MEASURE, BILLED_MEASURE_FILE, UNMEASURED_LINE, billedMeasure, billedSentence, priseGate, quoteSentence, resolveTakeQuote,
+  BILLED_MEASURE, BILLED_MEASURE_FILE, BILLED_MEASURE_HORIZONTAL, BILLED_MEASURE_HORIZONTAL_FILE, UNMEASURED_LINE, billedMeasure, billedSentence, priseGate, quoteSentence, resolveTakeQuote,
 } from "../src/lib/render/billed-quote.ts";
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "../src/lib/render/take-graph.ts";
 
@@ -14,7 +14,7 @@ const read = (path: string) => readFileSync(path, "utf8");
 describe("devis facturé", () => {
   it("locks the versioned record to the one measured profile", () => {
     const files = readdirSync("docs/mesures").filter(name => name.endsWith(".json"));
-    assert.deepEqual(files, ["h3-4pas-5s-vertical.json"]);
+    assert.deepEqual(files.sort(), ["h3-4pas-5s-horizontal.json", "h3-4pas-5s-vertical.json"]);
     const record = JSON.parse(read(BILLED_MEASURE_FILE));
     assert.deepEqual(record, BILLED_MEASURE);
     assert.equal(BILLED_MEASURE.profile, PROFILE);
@@ -39,11 +39,22 @@ describe("devis facturé", () => {
     assert.equal(billedMeasure(PROFILE), BILLED_MEASURE);
     assert.equal(billedMeasure("h3-4pas-8s-vertical"), null);
     assert.equal(billedMeasure("h3-20pas-5s-vertical"), null);
-    assert.equal(billedMeasure("h3-4pas-5s-horizontal"), null);
+    assert.equal(billedMeasure("h3-4pas-5s-horizontal"), BILLED_MEASURE_HORIZONTAL);
+    assert.equal(billedMeasure("h3-4pas-10s-horizontal"), null);
     assert.equal(takeProfile({ ...DEFAULT_TAKE, engine: "h3" }), PROFILE);
     assert.equal(takeProfile(DEFAULT_TAKE), "ltx25-5s-vertical");
     assert.equal(billedMeasure(takeProfile(DEFAULT_TAKE)), null);
     assert.doesNotMatch(read("src/lib/render/billed-quote.ts"), /submit_workflow|run_template|partner_generate|estimate_credits|class_type|UNETLoader/);
+  });
+
+  it("quotes H3 16:9 from the bubble's billed job, same template and size as PRISE", () => {
+    assert.deepEqual(JSON.parse(read(BILLED_MEASURE_HORIZONTAL_FILE)), BILLED_MEASURE_HORIZONTAL);
+    const billed = BILLED_MEASURE_HORIZONTAL.gpuSeconds * BILLED_MEASURE_HORIZONTAL.usdPerGpuSecond * BILLED_MEASURE_HORIZONTAL.creditsPerUsd;
+    assert.ok(billed > 3.9 && billed < 4, String(billed));
+    assert.equal(BILLED_MEASURE_HORIZONTAL.credits, Math.round(billed));
+    assert.ok(BILLED_MEASURE_HORIZONTAL.creditsHigh >= 5.98, "covers the cold 21.9 s run (2486759b)");
+    assert.equal(takeProfile({ ...DEFAULT_TAKE, engine: "h3", aspect: "horizontal" }), "h3-4pas-5s-horizontal");
+    assert.equal(resolveTakeQuote("h3-4pas-5s-horizontal", []).source, "billed");
   });
 
   it("opens Tourner only for the measured profile, and lets a balance delta win", () => {
@@ -69,7 +80,7 @@ describe("devis facturé", () => {
     for (const gate of [
       other({ seconds: 8, quality: "rapide", aspect: "vertical" }),
       other({ seconds: 5, quality: "fine", aspect: "vertical" }),
-      other({ seconds: 5, quality: "rapide", aspect: "horizontal" }),
+      other({ seconds: 10, quality: "rapide", aspect: "horizontal" }),
       other({ seconds: 5, quality: "rapide", aspect: "carre" }),
     ]) {
       assert.equal(gate.allowed, false);

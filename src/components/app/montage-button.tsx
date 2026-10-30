@@ -9,7 +9,7 @@ import { useStudio, type MontageInput } from "./studio-session";
 
 export function MontageButton({ input }: { input: MontageInput }) {
   const { t } = useI18n();
-  const { sendToMontage } = useStudio();
+  const { sendToMontage, setNotice } = useStudio();
   const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
 
   async function add() {
@@ -18,6 +18,8 @@ export function MontageButton({ input }: { input: MontageInput }) {
     try {
       await sendToMontage(input);
       setState("done");
+      // The bubble may be scrolled or closed: the studio's toast confirms it too.
+      setNotice(t("barre.fil.inMontage"));
     } catch { setState("error"); }
   }
 

@@ -948,8 +948,8 @@
     "photoPlaceName": "Photo de lieu",
     "engine": {
       "label": "Style du plan",
-      "ltx": "Mouvement simple",
-      "h3": "Jusqu’à neuf images",
+      "ltx": "LTX · Mouvement simple",
+      "h3": "H3 · Jusqu’à neuf images",
       "ltxHint": "Le personnage est placé dans le décor, puis le plan s’anime.",
       "h3Hint": "Jusqu’à neuf images de référence."
     }
@@ -1003,7 +1003,14 @@
     "imported": "Ajouté : {count}",
     "noPicture": "Il manque une image pour la prise.",
     "sessionMissing": "La session n’est pas ouverte.",
-    "deleted": "« {name} » retiré"
+    "deleted": "« {name} » retiré",
+    "importName": {
+      "lead": "{name} est dans ton CAST et choisi pour PRISE. Vérifie son nom : il sert dans le texte du plan et au montage.",
+      "saved": "Nom gardé : {name}. Choisi pour PRISE.",
+      "label": "Nom du personnage",
+      "save": "Garder ce nom",
+      "next": "Continuer vers DÉCOR"
+    }
   },
   "montage": {
     "lead": "Les plans se suivent. La voix, les effets et la musique se posent dessous.",
@@ -1457,9 +1464,9 @@
     "add": "+ Personnage",
     "neutral": "Neutre",
     "neutralName": "Personnage",
-    "turn": "Tourner",
+    "turn": "Pivoter",
     "remove": "Retirer",
-    "turnName": "Tourner {name}",
+    "turnName": "Pivoter {name}",
     "removeName": "Retirer {name}",
     "pairWhy": "Cette tuile demande deux personnages. Ajoute-en un avec + Personnage.",
     "pairShort": "Deux personnages",
@@ -1947,7 +1954,7 @@
     "why": {
       "demo": "La démonstration n’envoie aucun rendu.",
       "busy": "Un rendu est en cours. Attends sa fin pour en lancer un autre.",
-      "h3Format": "Ce style n’a de prix qu’en vertical, 5 secondes. Passe en vertical, ou reprends le style simple dans Avancé.",
+      "h3Format": "H3 n’a de prix qu’en 5 secondes. Passe à 5 s, ou choisis LTX.",
       "noQuote": "Ce réglage n’a pas encore de devis. Rien ne part.",
       "refs": "Utilise au plus trois personnages enregistrés ; les silhouettes neutres servent seulement à préparer le cadre.",
       "decorExample": "Le décor d’exemple sert à préparer le cadre. Crée ou importe ton décor dans DÉCOR pour l’envoyer.",
@@ -2087,7 +2094,8 @@
         "generer": "Le devis d’abord, puis tu confirmes le lancement.",
         "reviser": "Regarde, garde la bonne version, relance, envoie au MONTAGE."
       }
-    }
+    },
+    "goPlan": "Aller au plan {n} · pas encore tourné"
   },
   "p1": {
     "hint": "Une phrase suffit : qui, où, ce qui se passe, la caméra, l’ambiance.",
@@ -2111,7 +2119,7 @@
     "say": {
       "engineH3Refs": "Il y a {count} images, et ce style n’en prend que {max} : je passe à l’autre style.",
       "engineH3Cast": "{count} personnages dans le plan : je passe au style fait pour plusieurs visages.",
-      "engineManual": "Style choisi à la main dans Avancé : {engine}.",
+      "engineManual": "Style choisi à la main : {engine}.",
       "refsDropped": "Au-delà de {max} références, {count} restent de côté.",
       "missingRef": "Pas de photo pour {name} : son apparence peut changer.",
       "missingDecorRef": "Pas d’image pour le lieu {name} : le décor suivra tes mots.",
@@ -3665,7 +3673,11 @@
     "missing": "Les images du cadrage sont introuvables. Garde à nouveau le cadrage avant de générer.",
     "failed": "Le cadrage n’a pas pu être enregistré. Attends le chargement du décor, puis réessaie.",
     "formatChanged": "Le format a changé. Garde à nouveau le cadrage dans ce format avant de générer.",
-    "unlock": "Déverrouille la caméra pour modifier le zoom."
+    "unlock": "Déverrouille la caméra pour modifier le zoom.",
+    "ltxSent": "Cadrage gardé : ce plan part en LTX (profondeur + contours) · ≈ {credits} crédits estimés. H3 n’utilise pas le cadrage.",
+    "h3NotSent": "H3 choisi : le cadrage gardé reste enregistré mais n’est pas envoyé. Choisis LTX pour l’utiliser.",
+    "willSwitch": "Garder ce cadrage fait passer ce plan de H3 (≈ {before}) à LTX (≈ {after} crédits estimés). Tu pourras revenir à H3 dans « Style du plan ».",
+    "switched": "Cadrage gardé : ce plan passe en LTX, ≈ {after} crédits estimés au lieu de ≈ {before} avec H3."
   },
   "namedRefs": {
     "title": "Références",
