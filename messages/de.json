@@ -1846,7 +1846,9 @@
     "pendingBlock": "Ein früherer Render wartet noch auf den Abruf. Öffne Credits, dann Render abrufen — oder versuche es erneut, wenn die Cloud schon ohne Ergebnis fertig ist.",
     "submitRefused": "Das Render-Konto hat die Aufnahme abgelehnt. Es wurde nichts gesendet.",
     "creditsLow": "Nicht genug Credits auf deinem Render-Konto.",
-    "subscriptionInactive": "Dein Render-Abo ist inaktiv, oder die Warteschlange ist voll."
+    "subscriptionInactive": "Dein Render-Abo ist inaktiv, oder die Warteschlange ist voll.",
+    "pendingRunning": "Ein Render läuft noch in der Cloud: {name}. Warte, bis er fertig ist, bevor du einen neuen startest. Nichts geht verloren, nichts wird erneut gesendet.",
+    "pendingDone": "Der vorherige Render ist fertig: {name}. Speichere ihn zuerst mit Render abrufen (unter Credits), ohne neuen Versand."
   },
   "p0": {
     "advanced": "Erweitert",
