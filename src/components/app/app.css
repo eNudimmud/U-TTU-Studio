@@ -2874,3 +2874,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-desk[data-section="decor"] .u-create-bar .u-primary { grid-column: 1; grid-row: 1 / span 3; width: auto; }
   .u-desk[data-section="decor"] .u-create-bar > :not(.u-primary) { grid-column: 2; margin: 0; font-size: 12px; line-height: 1.3; }
 }
+
+/* F14 · The early home (server HTML, studio still opening). A stage address shows the splash instead,
+   a saved link hides « Relier mon compte » until the client knows it. See src/lib/studio-boot.ts. */
+.u-splash[data-splash-early] { display: none; }
+[data-u-deep] .u-splash[data-splash-early] { display: grid; }
+[data-u-deep] [data-barre-home][data-early] { display: none; }
+[data-u-linked] [data-barre-home][data-early] [data-entry-link] { display: none; }

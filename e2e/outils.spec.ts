@@ -172,7 +172,8 @@ test("raccord : deux cases visibles, image de départ et image d’arrivée", as
 
 test("compteur : l’annonce compte toutes les cartes affichées", async ({ page }) => {
   await page.goto("/studio#outils/tous");
-  const hub = page.locator("[data-studio-entry]");
+  // F14 · the home paints before the studio opens; count once it is open (its prefs are read).
+  const hub = page.locator("[data-studio-entry]:not([data-early])");
   await expect(hub.locator("[data-outil]")).toHaveCount(42);
   const cards = await hub.locator(".u-outils-row > .u-outil-card").count();
   expect(cards).toBe(44);

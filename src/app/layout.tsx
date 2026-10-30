@@ -52,5 +52,6 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await requestLocale();
   const messages = await loadCatalog(locale);
-  return <html lang={htmlLang(locale)} className={display.variable}><body><LocaleProvider initial={locale} messages={messages}><SkipLink />{children}</LocaleProvider></body></html>;
+  // suppressHydrationWarning: /studio's boot script marks <html> before React hydrates (studio-boot.ts).
+  return <html lang={htmlLang(locale)} className={display.variable} suppressHydrationWarning><body><LocaleProvider initial={locale} messages={messages}><SkipLink />{children}</LocaleProvider></body></html>;
 }

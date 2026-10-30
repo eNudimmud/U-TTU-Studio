@@ -40,6 +40,8 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const inputId = useId(), menuId = useId(), routeId = useId(), attachmentsId = useId();
   const fileRef = useRef<HTMLInputElement>(null), audioRef = useRef<HTMLInputElement>(null), menuRef = useRef<HTMLDivElement>(null), settingsRef = useRef<HTMLDivElement>(null);
   const scope = `u-ttu-creation-draft:${studio.project ?? 'nouveau'}`;
+  // F14 · The bar is in the server HTML before the studio opens: nothing typed is lost to the draft load.
+  const drafted = loadedFor === scope;
   useEffect(() => {
     if (!ready) return;
     let d: Record<string, unknown> = {}; try {
@@ -118,7 +120,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
     <form className="u-barre u-creation-bubble" data-barre="" data-mode={mode} onSubmit={e => { e.preventDefault(); send(); }}>
       {attached.length > 0 && <ul className="u-barre-chips" data-barre-chips="" aria-label={t('barre.attached')}>{attached.map(r => <li key={`${r.kind}-${r.id}`} className="u-barre-chip" data-barre-chip={r.kind}>{r.src && <img src={r.src} alt="" width={64} height={64} />}<span className="u-barre-chip-name">{r.name}</span><button type="button" className="u-barre-chip-x" aria-label={t('barre.remove', { name: r.name })} onClick={() => r.kind === 'photo' ? setPhotos(p => p.filter(a => a.id !== r.id)) : setRefs(a => a.filter(x => x.id !== r.id || x.kind !== r.kind))}><Close /></button></li>)}{!full && <li><button type="button" className="u-barre-chip-add" aria-label={t('barre.attach.reference')} onClick={() => setSheet(true)}><Plus /></button></li>}</ul>}
       {currentAudio && <div className="u-bubble-audio" data-bubble-audio=""><FamilyIcon fam="son" /><span>{currentAudio.name}</span><button type="button" className="u-icon" aria-label={t('bubble.removeAudio')} onClick={() => setAudio(null)}><Close /></button></div>}
-      <label className="u-barre-field" htmlFor={inputId}><span className="sr-only">{t(`barre.ph.${mode}`)}</span><textarea id={inputId} rows={2} value={text} maxLength={800} placeholder={t(`barre.ph.${mode}`)} data-barre-input="" onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} /></label>
+      <label className="u-barre-field" htmlFor={inputId}><span className="sr-only">{t(`barre.ph.${mode}`)}</span><textarea id={inputId} rows={2} value={text} readOnly={!drafted} maxLength={800} placeholder={t(`barre.ph.${mode}`)} data-barre-input="" onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} /></label>
       <div className="u-barre-foot">
         <div className="u-barre-plus-wrap" ref={menuRef}>
           <button type="button" className="u-barre-round" aria-label={t('barre.plus')} aria-haspopup="menu" aria-expanded={menu} aria-controls={menuId} data-barre-plus="" onClick={() => { setMenu(v => !v); setSettingsOpen(false); }}><Plus /></button>
@@ -139,7 +141,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
             {mode === 'video' && <><div className="u-barre-seg" role="group" aria-label={t('barre.duree')}>{([5,10] as const).map(d => <button key={d} type="button" aria-pressed={settings.duration === d} data-barre-duree={d} onClick={() => setSettings(s => ({ ...s, duration: d }))}>{d} s</button>)}</div><button type="button" className="u-secondary" aria-pressed={settings.sound} data-barre-sound="" onClick={() => setSettings(s => ({ ...s, sound: !s.sound }))}>{t(settings.sound ? 'bubble.soundOn' : 'bubble.soundOff')}</button></>}
           </div>}
         </div>
-        <button type="submit" className="u-barre-send" disabled={busy} data-barre-send="" data-ready={text.trim() ? '' : undefined} aria-label={cost ? `${t('barre.send')} · ${cost}` : t('barre.send')} aria-describedby={routeId}><svg {...ICON}><path d="M12 19V5M6 11l6-6 6 6" /></svg></button>
+        <button type="submit" className="u-barre-send" disabled={busy || !drafted} data-barre-send="" data-ready={text.trim() ? '' : undefined} aria-label={cost ? `${t('barre.send')} · ${cost}` : t('barre.send')} aria-describedby={routeId}><svg {...ICON}><path d="M12 19V5M6 11l6-6 6 6" /></svg></button>
       </div>
       <p className="u-bubble-limit" id={attachmentsId}>{busy ? t('namedRefs.saving') : t('bubble.referenceCount', { n: attached.length, max: CREATION_REFERENCES_MAX })} · {settings.format} · ≈ {bubbleResolutionLabel(mode, settings.resolution)} ({size.width}×{size.height})</p>
     </form>

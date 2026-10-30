@@ -4,6 +4,7 @@ import { STUDIO_HERO } from "@/lib/studio-hero";
 import { StudioApp } from "@/components/app/studio-app";
 import { routeMetadata } from "@/lib/route-meta";
 import { tabFromLocation, type Tab } from "@/lib/studio-route";
+import { STUDIO_BOOT } from "@/lib/studio-boot";
 
 export const metadata: Metadata = routeMetadata("studio");
 
@@ -15,5 +16,9 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
   // The entry picture appears once the local studio opens: start its download with the HTML.
   // A #hash for another stage is not visible here; the 640/960 px file keeps that miss small.
   if (!asked || asked === "outils") preload(STUDIO_HERO.src, { as: "image", imageSrcSet: STUDIO_HERO.srcSet, imageSizes: STUDIO_HERO.sizes, fetchPriority: "high" });
-  return <StudioApp initialTab={initialTab} />;
+  // F14 · Before the home paints: a stage address or a saved link (see studio-boot.ts).
+  return <>
+    <script dangerouslySetInnerHTML={{ __html: STUDIO_BOOT }} />
+    <StudioApp initialTab={initialTab} />
+  </>;
 }
