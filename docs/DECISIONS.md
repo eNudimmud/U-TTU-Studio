@@ -677,7 +677,7 @@ Dépassé pour le produit par la section ci-dessus. Le constat Comfy, lui, tient
 
 ## Phase 0 — Créer maintenant — 28 septembre 2026
 
-- **Fait d’hébergement :** l’export Pages statique reste le build. Le calcul nouveau est dans le Worker (`POST /bootstrap`, `GET /file`). `FAL_KEY` n’est pas dans `NEXT_PUBLIC_*`. Le Worker n’a pas été déployé ici.
+- **Fait d’hébergement :** l’export Pages statique reste le build. Le calcul nouveau est dans le Worker (`POST /bootstrap`, `GET /file`). Aucune clé de rendu n’est dans `NEXT_PUBLIC_*`. Le Worker n’a pas été déployé ici.
 - **Décision inchangée :** échéance au 8 octobre 2026 ou 1 CHF. Cette phase ne lève pas le HOLD.
 
 ## Reprise après PR #5 — 26 septembre 2026
