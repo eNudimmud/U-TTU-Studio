@@ -16,6 +16,8 @@ import { UttuFree } from './uttu-free';
 import { AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, isAgentHandoff, takeHandoff } from '@/lib/barre/model';
 
 const KEY = 'u-ttu-assistant';
+/** « Plus d’options » of the panel: closed by default, remembered once opened. */
+const MORE_KEY = 'u-ttu-uttu-more';
 const FILE = '.uttu/agent-conversation.json';
 export function toggleAssistant(force?: boolean) {
   let next = force ?? true;
@@ -63,10 +65,15 @@ export function AssistantPanel() {
   const resources = projectResources(session);
   const latest = useRef(session); latest.current = session;
   const kernelInput = useRef<HTMLTextAreaElement>(null);
+  const [more, setMoreState] = useState(false);
+  useEffect(() => { try { setMoreState(window.localStorage.getItem(MORE_KEY) === '1'); } catch {} }, []);
+  const setMore = useCallback((next: boolean) => { setMoreState(next); try { window.localStorage.setItem(MORE_KEY, next ? '1' : '0'); } catch {} }, []);
+  // The plan lives behind « Plus d’options »: a handoff (Agent mode of the creation bar, « Préparer
+  // le plan » in a reply) or a newly picked reference opens it, so nothing lands out of sight.
   const handToPlan = useCallback((text: string) => {
-    setQuery(text.slice(0, 2000)); setModelConfirm(false);
-    requestAnimationFrame(() => { const node = kernelInput.current; if (!node) return; node.scrollIntoView({ block: 'center', behavior: 'smooth' }); node.focus({ preventScroll: true }); });
-  }, []);
+    setQuery(text.slice(0, 2000)); setModelConfirm(false); setMore(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => { const node = kernelInput.current; if (!node) return; node.scrollIntoView({ block: 'center', behavior: 'smooth' }); node.focus({ preventScroll: true }); }));
+  }, [setMore]);
   // Mode Agent of the creation bar: the sentence lands in this field, ready to send; nothing runs by itself.
   // It is read once the project is loaded, so the load that clears the field never wipes it.
   const settled = open && session.ready && !(project && loaded !== project);
@@ -76,6 +83,9 @@ export function AssistantPanel() {
     ask();
     window.addEventListener(AGENT_HANDOFF_EVENT, ask); return () => window.removeEventListener(AGENT_HANDOFF_EVENT, ask);
   }, [settled, handToPlan]);
+  const picked = conversation.selectedIds.length;
+  const pickedBefore = useRef(picked);
+  useEffect(() => { if (picked > pickedBefore.current) setMore(true); pickedBefore.current = picked; }, [picked, setMore]);
   const isAction = useCallback((text: string) => interpretAgentRequest(text, contextRef.current, locale).length > 0, [locale]);
   useEffect(() => { document.documentElement.toggleAttribute('data-assistant', open); return () => document.documentElement.removeAttribute('data-assistant'); }, [open]);
   useEffect(() => { setTasks(listTasks()); return subscribeTasks(setTasks); }, []);
@@ -186,42 +196,43 @@ export function AssistantPanel() {
   if (!open) return null;
   const hinted = interpretAgentRequest(query, context, locale).map(id => operations.find(op => op.id === id)).filter(op => op?.toolId && op.status === 'ready');
   return <aside id="u-assistant" className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
-    <header className="u-assistant-head"><div><h2 id="u-assistant-title">{t('uttu.title')}</h2><p className="u-small u-assistant-sub">{t('uttu.sub')}</p></div><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
-    <UttuFree locale={locale} isAction={isAction} onPlan={handToPlan} project={project ? { name: session.studio.projectName ?? '', items: resources.map(r => ({ role: r.role, name: r.name })) } : null} refs={resources.filter(r => conversation.selectedIds.includes(r.id)).map(r => `${r.name} (${t(`media.kinds.${r.kind}`)})`)} />
-    <h3 className="u-uttu-plan-title" data-agent-kernel="">{t('uttu.plan.title')}</h3>
-    <p className="u-small">{t('uttu.plan.lead')}</p>
-    <p className="u-small" id="u-agent-guidance">{t('agent.guidance')}</p>
-    <p className="u-label">{session.studio.projectName || t('agent.noProject')}</p>
-    {!project && <form onSubmit={e => { e.preventDefault(); void work(() => session.createProject(projectName)); }}><label className="u-field">{t('agent.projectName')}<input value={projectName} maxLength={80} onChange={e => setProjectName(e.target.value)} /></label><button className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !projectName.trim()}>{t('agent.createProject')}</button></form>}
-    <div className="u-agent-messages" role="log" aria-live="polite" aria-label={t('agent.conversation')}>
-      {conversation.projectId === project && conversation.messages.map((m, i) => <p key={`${m.at}-${i}`} data-role={m.role}><strong>{m.role === 'user' ? t('agent.you') : 'U*TTU Studio'}</strong><span>{m.text}</span></p>)}
-      {!conversation.messages.length && <p>{t('agent.welcome')}</p>}
-    </div>
-    <form onSubmit={e => { e.preventDefault(); void send(); }}>
-      <label className="u-field"><span className="u-label">{t('assistant.ask')}</span><textarea ref={kernelInput} value={query} maxLength={2000} rows={3} disabled={busy || !session.ready || Boolean(project && loaded !== project)} aria-describedby="u-agent-guidance" onChange={e => { setQuery(e.target.value); setModelConfirm(false); }} placeholder={t('agent.placeholder')} data-assistant-input="" /></label>
-      <div className="u-agent-actions"><button className="u-primary" data-agent-send="" aria-describedby="u-agent-guidance" disabled={busy || !query.trim() || loaded !== project || !project}>{t('agent.send')}</button><button type="button" className="u-secondary" onClick={() => { setLibrary(v => !v); setMediaQuery(''); }}>{t('media.title')}</button></div>
-    </form>
-    {hinted.length > 0 && <ul className="u-assistant-list">{hinted.map(op => op && <li key={op.id}><a href={assetPath(op.href!)} data-assistant-outil={op.toolId}>{op.label}</a></li>)}</ul>}
-    {SEMANTIC_MODEL_ENABLED && <details><summary>{t('agent.model')}</summary><p className="u-small">{t('agent.modelHelp')}</p><label className="u-field">{t('agent.modelKey')}<input type="password" autoComplete="off" value={modelKey} onChange={e => { setModelKey(e.target.value); setModelConfirm(false); }} /></label><p className="u-small">{t('agent.modelScope')}</p><label className="u-media-name"><input type="checkbox" checked={modelConfirm} onChange={e => setModelConfirm(e.target.checked)} />{t('agent.modelConsent')}</label><button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !modelConfirm || modelKey.length < 10 || !query.trim() || loaded !== project} onClick={() => void sendSemantic()}>{t('agent.modelSend')}</button></details>}
-    {error && <p role="alert">{error}</p>}
-    {resources.length > 0 && <details><summary>{t('agent.references')} ({conversation.selectedIds.length})</summary><div className="u-agent-resources">{resources.map(r => <label key={r.id}><input type="checkbox" disabled={busy || !r.available || loaded !== project} checked={conversation.selectedIds.includes(r.id)} onChange={e => { const checked = e.target.checked; void work(() => commit({ ...liveConversation.current, selectedIds: checked ? [...new Set([...liveConversation.current.selectedIds, r.id])].slice(0, 20) : liveConversation.current.selectedIds.filter(id => id !== r.id) }, true)); }} />{r.name} · {t(`media.kinds.${r.kind}`)}{!r.available && ` · ${t('media.uncached')}`}</label>)}</div></details>}
-    {plan && <section data-agent-plan=""><h3>{t('agent.plan')}</h3><ol className="u-agent-plan">{plan.steps.map(step => {
-      const op = operations.find(o => o.id === step.operationId);
-      const results = (context.evidence[op?.evidenceKey ?? ''] ?? []).filter(id => !step.baseline.includes(id));
-      const canPrepare = ['ready','prepared','failed','interrupted'].includes(step.state) || step.reason === 'resource';
-      return <li key={step.id} data-agent-step={step.operationId} data-state={step.state}><strong>{op?.label ?? step.operationId}{step.quantity > 1 && ` × ${step.quantity}`}</strong><span className="u-small">{t(`agent.states.${step.state}`)}</span>
-        {step.reason && <p className="u-small">{t(`agent.reasons.${step.reason}`)}</p>}
-        {op?.description && <p className="u-small">{op.description}</p>}
-        {op?.quote && <p className="u-small">{t('agent.quote')} {op.quote.credits}–{op.quote.ceiling} {t('agent.credits')}</p>}
-        <div className="u-agent-actions">{canPrepare && <button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy} data-agent-prepare="" onClick={() => void prepare(step)}>{t('agent.prepare')}</button>}
-          {step.state === 'prepared' && <button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !results.length} data-agent-accept="" onClick={() => accept(step)}>{t('agent.accept')}</button>}
-          {!['done','cancelled'].includes(step.state) && <button type="button" className="u-text-button" aria-describedby="u-agent-guidance" disabled={busy} onClick={() => void work(() => commit({ ...liveConversation.current, plan: updateStep(plan, step.id, { state: 'cancelled' }) }))}>{t('agent.cancelStep')}</button>}
-        </div>{step.state === 'prepared' && !results.length && <p className="u-small">{t('agent.waitResult')}</p>}
-      </li>;
-    })}</ol></section>}
-    <details><summary>{t('agent.jobs')}</summary><p className="u-small">{t('agent.jobsHelp')}</p>{tasks.filter(task => task.project === project).slice(0,5).map(task => <p key={task.id}>{task.plain ? task.label : t(task.label)} · {t(`agent.states.${task.state}`)}{task.reason && ` — ${task.reason}`}</p>)}<button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={session.creating || session.run.phase === 'running'} onClick={() => session.resumeRun()}>{t('agent.recover')}</button></details>
-    {library && <MediaLibrary compact initialQuery={mediaQuery} proposedSequence={proposedSequence} selectedPaths={resources.filter(r => conversation.selectedIds.includes(r.id)).map(r => r.path)} />}
-    <a className="u-small" data-assistant-next="" href={assetPath('/mon-studio')}>{t('agent.projects')}</a>
-    <p className="u-small">{t('agent.local')}</p>
+    <header className="u-assistant-head"><h2 id="u-assistant-title">{t('uttu.title')}</h2><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
+    <UttuFree locale={locale} isAction={isAction} onPlan={handToPlan} project={project ? { name: session.studio.projectName ?? '', items: resources.map(r => ({ role: r.role, name: r.name })) } : null} refs={resources.filter(r => conversation.selectedIds.includes(r.id)).map(r => `${r.name} (${t(`media.kinds.${r.kind}`)})`)} more={<div className="u-uttu-kernel">
+        <h3 className="u-uttu-plan-title" data-agent-kernel="">{t('uttu.plan.title')}</h3>
+        <p className="u-small">{t('uttu.plan.lead')}</p>
+        <p className="u-small" id="u-agent-guidance">{t('agent.guidance')}</p>
+        <p className="u-label">{session.studio.projectName || t('agent.noProject')}</p>
+        {!project && <form data-agent-project="" onSubmit={e => { e.preventDefault(); void work(() => session.createProject(projectName)); }}><label className="u-field">{t('agent.projectName')}<input value={projectName} maxLength={80} onChange={e => setProjectName(e.target.value)} /></label><button className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !projectName.trim()}>{t('agent.createProject')}</button></form>}
+        <div className="u-agent-messages" role="log" aria-live="polite" aria-label={t('agent.conversation')}>
+          {conversation.projectId === project && conversation.messages.map((m, i) => <p key={`${m.at}-${i}`} data-role={m.role}><strong>{m.role === 'user' ? t('agent.you') : 'U*TTU Studio'}</strong><span>{m.text}</span></p>)}
+          {!conversation.messages.length && <p>{t('agent.welcome')}</p>}
+        </div>
+        <form onSubmit={e => { e.preventDefault(); void send(); }}>
+          <label className="u-field"><span className="u-label">{t('assistant.ask')}</span><textarea ref={kernelInput} value={query} maxLength={2000} rows={3} disabled={busy || !session.ready || Boolean(project && loaded !== project)} aria-describedby="u-agent-guidance" onChange={e => { setQuery(e.target.value); setModelConfirm(false); }} placeholder={t('agent.placeholder')} data-assistant-input="" /></label>
+          <div className="u-agent-actions"><button className="u-primary" data-agent-send="" aria-describedby="u-agent-guidance" disabled={busy || !query.trim() || loaded !== project || !project}>{t('agent.send')}</button><button type="button" className="u-secondary" onClick={() => { setLibrary(v => !v); setMediaQuery(''); }}>{t('media.title')}</button></div>
+        </form>
+        {hinted.length > 0 && <ul className="u-assistant-list">{hinted.map(op => op && <li key={op.id}><a href={assetPath(op.href!)} data-assistant-outil={op.toolId}>{op.label}</a></li>)}</ul>}
+        {SEMANTIC_MODEL_ENABLED && <details><summary>{t('agent.model')}</summary><p className="u-small">{t('agent.modelHelp')}</p><label className="u-field">{t('agent.modelKey')}<input type="password" autoComplete="off" value={modelKey} onChange={e => { setModelKey(e.target.value); setModelConfirm(false); }} /></label><p className="u-small">{t('agent.modelScope')}</p><label className="u-media-name"><input type="checkbox" checked={modelConfirm} onChange={e => setModelConfirm(e.target.checked)} />{t('agent.modelConsent')}</label><button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !modelConfirm || modelKey.length < 10 || !query.trim() || loaded !== project} onClick={() => void sendSemantic()}>{t('agent.modelSend')}</button></details>}
+        {error && <p role="alert">{error}</p>}
+        {resources.length > 0 && <details><summary>{t('agent.references')} ({conversation.selectedIds.length})</summary><div className="u-agent-resources">{resources.map(r => <label key={r.id}><input type="checkbox" disabled={busy || !r.available || loaded !== project} checked={conversation.selectedIds.includes(r.id)} onChange={e => { const checked = e.target.checked; void work(() => commit({ ...liveConversation.current, selectedIds: checked ? [...new Set([...liveConversation.current.selectedIds, r.id])].slice(0, 20) : liveConversation.current.selectedIds.filter(id => id !== r.id) }, true)); }} />{r.name} · {t(`media.kinds.${r.kind}`)}{!r.available && ` · ${t('media.uncached')}`}</label>)}</div></details>}
+        {plan && <section data-agent-plan=""><h3>{t('agent.plan')}</h3><ol className="u-agent-plan">{plan.steps.map(step => {
+          const op = operations.find(o => o.id === step.operationId);
+          const results = (context.evidence[op?.evidenceKey ?? ''] ?? []).filter(id => !step.baseline.includes(id));
+          const canPrepare = ['ready','prepared','failed','interrupted'].includes(step.state) || step.reason === 'resource';
+          return <li key={step.id} data-agent-step={step.operationId} data-state={step.state}><strong>{op?.label ?? step.operationId}{step.quantity > 1 && ` × ${step.quantity}`}</strong><span className="u-small">{t(`agent.states.${step.state}`)}</span>
+            {step.reason && <p className="u-small">{t(`agent.reasons.${step.reason}`)}</p>}
+            {op?.description && <p className="u-small">{op.description}</p>}
+            {op?.quote && <p className="u-small">{t('agent.quote')} {op.quote.credits}–{op.quote.ceiling} {t('agent.credits')}</p>}
+            <div className="u-agent-actions">{canPrepare && <button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy} data-agent-prepare="" onClick={() => void prepare(step)}>{t('agent.prepare')}</button>}
+              {step.state === 'prepared' && <button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !results.length} data-agent-accept="" onClick={() => accept(step)}>{t('agent.accept')}</button>}
+              {!['done','cancelled'].includes(step.state) && <button type="button" className="u-text-button" aria-describedby="u-agent-guidance" disabled={busy} onClick={() => void work(() => commit({ ...liveConversation.current, plan: updateStep(plan, step.id, { state: 'cancelled' }) }))}>{t('agent.cancelStep')}</button>}
+            </div>{step.state === 'prepared' && !results.length && <p className="u-small">{t('agent.waitResult')}</p>}
+          </li>;
+        })}</ol></section>}
+        <details><summary>{t('agent.jobs')}</summary><p className="u-small">{t('agent.jobsHelp')}</p>{tasks.filter(task => task.project === project).slice(0,5).map(task => <p key={task.id}>{task.plain ? task.label : t(task.label)} · {t(`agent.states.${task.state}`)}{task.reason && ` — ${task.reason}`}</p>)}<button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={session.creating || session.run.phase === 'running'} onClick={() => session.resumeRun()}>{t('agent.recover')}</button></details>
+        {library && <MediaLibrary compact initialQuery={mediaQuery} proposedSequence={proposedSequence} selectedPaths={resources.filter(r => conversation.selectedIds.includes(r.id)).map(r => r.path)} />}
+        <a className="u-small" data-assistant-next="" href={assetPath('/mon-studio')}>{t('agent.projects')}</a>
+        <p className="u-small">{t('agent.local')}</p>
+    </div>} moreOpen={more} onMore={setMore} />
   </aside>;
 }

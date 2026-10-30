@@ -3469,7 +3469,11 @@
     "modelTip": {
       "ret-lumiere-image": "portrait then light picture, no prompt; a light that contrasts with the portrait, or little changes.",
       "vid-fasth3": "FastH3 keeps the place better: character picture, place picture, the action in one sentence; the studio writes the structured prompt."
-    }
+    },
+    "greeting": "Hi, I’m Uttu. What do you want to shoot?",
+    "perMessage": "{n, plural, one {≈ # credit estimated per message} other {≈ # credits estimated per message}}",
+    "connectShort": "Link Comfy",
+    "more": "More options"
   },
   "barre": {
     "title": "What are we shooting?",

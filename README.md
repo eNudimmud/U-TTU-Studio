@@ -11,11 +11,21 @@ Live: <https://u-ttu-studio.vercel.app> (landing) · <https://u-ttu-studio.verce
 <img src="docs/preuves/accueil-v2/accueil-fr-390x844-top.webp" width="22%" alt="Landing, 390 px">
 </p>
 <p>
-<img src="docs/screenshots/readme-entree-1280.jpg" width="49%" alt="Studio entry, 1280 px">
-<img src="docs/screenshots/readme-prise-1280.jpg" width="49%" alt="TAKE, 1280 px">
+<img src="docs/screenshots/readme-studio-1280.webp" width="49%" alt="Studio entry: the creation bubble and the 43 tools, 1280 px">
+<img src="docs/screenshots/readme-outils-1280.webp" width="49%" alt="Tools by family: video, 3D, sound, 1280 px">
+</p>
+<p>
+<img src="docs/screenshots/readme-cast-1280.webp" width="49%" alt="CAST, 1280 px">
+<img src="docs/screenshots/readme-prise-1280.webp" width="49%" alt="TAKE, 1280 px">
+</p>
+<p>
+<img src="docs/screenshots/readme-uttu-1280.webp" width="49%" alt="Uttu, the studio agent, opened from the top bar, 1280 px">
+<img src="docs/screenshots/readme-studio-390.webp" width="16%" alt="Studio entry, 390 px">
+<img src="docs/screenshots/readme-uttu-390.webp" width="16%" alt="Uttu panel, 390 px">
+<img src="docs/screenshots/readme-cast-390.webp" width="16%" alt="CAST, 390 px">
 </p>
 
-<sub>Landing: local build of this branch, 30.10.2026. Studio: live, 28.10.2026, no account linked (no render of yours is shown). / Accueil : build local de cette branche, 30.10.2026. Studio : en ligne, 28.10.2026, sans compte relié.</sub>
+<sub>Local build of this branch, 30.10.2026, no account linked (no render of yours is shown). / Build local de cette branche, 30.10.2026, sans compte relié.</sub>
 
 ## Principles / Principes
 

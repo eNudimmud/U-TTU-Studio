@@ -3469,7 +3469,11 @@
     "modelTip": {
       "ret-lumiere-image": "retrato y luego imagen de luz, sin instrucción; luz que contraste con el retrato, si no cambia poco.",
       "vid-fasth3": "FastH3 conserva mejor el lugar: imagen del personaje, imagen del lugar, la acción en una frase; el estudio escribe la instrucción estructurada."
-    }
+    },
+    "greeting": "Hola, soy Uttu. ¿Qué quieres rodar?",
+    "perMessage": "{n, plural, one {≈ # crédito estimado por mensaje} other {≈ # créditos estimados por mensaje}}",
+    "connectShort": "Vincular Comfy",
+    "more": "Más opciones"
   },
   "barre": {
     "title": "¿Qué rodamos?",

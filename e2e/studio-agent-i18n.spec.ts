@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { openAssistant } from './helpers/top-bar';
+import { openPlan } from './helpers/top-bar';
 
 // The conversation must stay visible (it once collapsed to 0 px inside the scrolling panel)
 // and German/Spanish requests must get a plan and a reply in their own language. 0 credit.
@@ -18,11 +18,11 @@ for (const c of cases) test(`assistant i18n: ${c.locale} ${c.width}×${c.height}
   await page.route(/\/api\/(prompt|upload)|typesafe\.ai|\/studio-agent\/interpret/, r => { paid++; return r.abort(); });
   await page.setViewportSize({ width: c.width, height: c.height });
   await page.goto('/studio#personnage');
-  await openAssistant(page);
+  await openPlan(page);
   const panel = page.locator('[data-assistant-panel]');
   await expect(panel).toBeVisible();
-  const create = panel.locator('form').first();
-  if (await create.locator('input').isVisible()) { await create.locator('input').fill('Agent i18n'); await create.locator('button').click(); }
+  const create = panel.locator('[data-agent-project]');
+  if (await create.count() && await create.locator('input').isVisible()) { await create.locator('input').fill('Agent i18n'); await create.locator('button').click(); }
   const input = panel.locator('[data-assistant-input]');
   await expect(input).toBeEnabled();
   await input.fill(c.text);

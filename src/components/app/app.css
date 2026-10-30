@@ -2134,6 +2134,34 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-uttu-tool { margin:4px 0 0; display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
 .u-uttu-count { align-self:center; color:var(--fg-2); }
 
+/* Uttu panel (top bar « U*TTU »), minimal: greeting, ideas, field, price per message.
+   The rest waits behind « Plus d’options ». JD, 30.10.2026. */
+.u-assistant.u-agent { gap:12px; }
+.u-assistant-head { align-items:center; }
+.u-assistant-head h2 { margin:0; }
+.u-uttu-hello p { font-size:15px; line-height:1.45; }
+.u-uttu-ask { display:flex; align-items:flex-end; gap:8px; margin:0; }
+.u-uttu-ask .u-field { flex:1 1 auto; min-width:0; margin:0; }
+.u-uttu-ask textarea { min-height:44px; max-height:160px; padding:11px 12px; line-height:1.35; resize:none; field-sizing:content; }
+.u-uttu-ask .u-uttu-send { flex:0 0 44px; width:44px; min-width:44px; height:44px; min-height:44px; padding:0; border-radius:999px; font-size:20px; line-height:1; }
+.u-uttu-price { display:flex; flex-wrap:wrap; align-items:center; gap:0 12px; margin:-4px 0 0; color:var(--fg-2); }
+.u-uttu-price .u-uttu-connect { font-size:13px; padding-block:0; }
+.u-uttu-more { border-top:1px solid var(--u-line); }
+.u-uttu-more > summary { min-height:44px; display:flex; align-items:center; gap:6px; color:var(--fg-2); font-size:13px; cursor:pointer; list-style:none; }
+.u-uttu-more > summary::-webkit-details-marker { display:none; }
+.u-uttu-more > summary::before { content:"+"; display:inline-grid; place-items:center; width:20px; height:20px; border:1px solid var(--u-line); border-radius:999px; font-size:13px; }
+.u-uttu-more[open] > summary::before { content:"−"; }
+.u-uttu-more > summary:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.u-uttu-more-body, .u-uttu-kernel { display:grid; gap:12px; }
+.u-uttu-more-body p { margin:0; }
+.u-uttu-kernel .u-uttu-plan-title { margin-top:4px; }
+/* Short screens (phone on its side): ideas on one swipeable line. */
+@media (max-height:500px) {
+  .u-uttu-suggest { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
+  .u-uttu-suggest .u-chip { flex:0 0 auto; white-space:nowrap; }
+  .u-uttu-log { max-height:none; }
+}
+
 /* Qualité de la prise : Aperçu ou Qualité finale. Deux cartes radio, 44 px minimum. */
 .u-rendu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 12px; padding: 0; border: 0; min-inline-size: 0; }
 .u-rendu legend { grid-column: 1 / -1; padding: 0; margin-bottom: 6px; }

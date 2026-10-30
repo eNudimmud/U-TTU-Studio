@@ -1,5 +1,6 @@
 import { test, expect, type Page, type Request } from "@playwright/test";
 import { simulateComfy } from "./helpers/simulate-comfy";
+import { showPlan } from "./helpers/top-bar";
 
 // U*TTU, Agent Comfy mode: paid by the visitor's own Comfy account, opt-in, accepted once per
 // session. The route /studio-agent/chat is mocked: no Router call, no credit spent by the tests.
@@ -45,7 +46,11 @@ for (const viewport of VIEWPORTS) {
 
     // One agent: no free/paid switch, the price per message is always shown.
     await expect(panel.locator("[data-uttu-mode-pick]")).toHaveCount(0);
-    await expect(panel.locator("[data-uttu-price]")).toHaveText("Agent Uttu · ≈ 0,2 crédits estimés par message");
+    await expect(panel.locator("[data-uttu-price]")).toHaveText("≈ 0,2 crédit estimé par message");
+    // Minimal panel: the explanations wait behind « Plus d’options ».
+    await expect(panel.locator("[data-uttu-paid-note]")).toBeHidden();
+    await expect(panel.locator("[data-uttu-suggest]")).toHaveCount(3);
+    await showPlan(page);
     await expect(panel.locator("[data-uttu-paid-note]")).toBeVisible();
     await expect(panel.locator("[data-uttu-paid-note]")).toContainText("ne garde pas ta clé");
 
@@ -70,6 +75,7 @@ for (const viewport of VIEWPORTS) {
 
     await lastReply(panel).locator("[data-uttu-act=plan]").click();
     await expect(panel.locator("[data-assistant-input]")).toHaveValue("Prépare trois prises de la scène du quai");
+    await expect(panel.locator("[data-assistant-input]")).toBeVisible();
     expect(calls.length).toBe(1);
 
     // Accepted once for the session: the next message goes without asking again.
@@ -111,7 +117,7 @@ test("Agent Uttu : sans compte relié, invitation à relier, aucun guide local",
   await expect(panel.locator("[data-uttu-mode]")).toHaveCount(0);
   await expect(panel.locator("[data-uttu-guide], [data-uttu-simulator]")).toHaveCount(0);
   const invite = panel.locator("[data-uttu-invite]");
-  await expect(invite).toContainText("≈ 0,2 crédits estimés");
+  await expect(invite).toContainText("≈ 0,2 crédit estimé par message");
   await invite.locator("[data-uttu-invite-connect]").click();
   await expect(page.locator("dialog[open]").last()).toBeVisible();
   expect(calls.length).toBe(0);
@@ -137,7 +143,7 @@ test("Agent Comfy parle allemand avec du", async ({ page }, testInfo) => {
   await simulateComfy(page);
   const calls = await mockChat(page, [{ json: { reply: "Verbinde zuerst dein Comfy-Konto, dann wähle einen Tab.", action: { kind: "none", tool: null, request: null }, credits: 0.16, measured: false } }]);
   const panel = await openPanel(page);
-  await expect(panel.locator("[data-uttu-price]")).toHaveText("Uttu-Agent · ≈ 0,2 Credits geschätzt pro Nachricht");
+  await expect(panel.locator("[data-uttu-price]")).toHaveText("≈ 0,2 Credits geschätzt pro Nachricht");
   await panel.locator("[data-uttu-input]").fill("Wie fange ich an?");
   await panel.locator("[data-uttu-send]").click();
   await expect(panel.locator("[data-uttu-gate]")).toContainText("Deine Zustimmung gilt für diese Sitzung");
@@ -159,6 +165,7 @@ test("Agent Comfy relié par la connexion Comfy (sans clé) : la note ne parle p
   });
   const calls = await mockChat(page, [{ json: { reply: "Bienvenue sur le studio.", action: { kind: "none", tool: null, request: null }, credits: 0.03, measured: true } }]);
   const panel = await openPanel(page);
+  await showPlan(page);
   const note = panel.locator("[data-uttu-paid-note]");
   await expect(note).toContainText("ta connexion Comfy");
   await expect(note).not.toContainText("clé");

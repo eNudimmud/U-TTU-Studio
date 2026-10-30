@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { openAssistant } from './helpers/top-bar';
+import { openPlan } from './helpers/top-bar';
 const image=readFileSync('public/exemples/cast-dj.webp');
 const id='12345678-1234-4234-8234-123456789abc';
 test('hybrid library: metadata only, dedup, classification, lazy download, reopen and missing remote (mocked)',async({page},info)=>{
@@ -33,12 +33,12 @@ test('hybrid library: metadata only, dedup, classification, lazy download, reope
  const text=readFileSync(info.outputPath('manifest.json'),'utf8');expect(text).not.toMatch(/mock-library-key|expired\.invalid/);
  await page.screenshot({path:info.outputPath('hybrid-library.png'),fullPage:true});
  // A missing remote remains reusable through its explicitly downloaded cache.
- await openAssistant(page);
+ await openPlan(page);
  await panel.locator('[data-assistant-input]').fill('Assemble cette image au montage');
  await panel.locator('[data-agent-send]').click();
  await panel.locator('[data-agent-step="local:montage"] [data-agent-prepare]').click();
  await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
- await openAssistant(page);
+ await openPlan(page);
  const montage=panel.locator('[data-agent-step="local:montage"]');
  await expect(montage.locator('[data-agent-accept]')).toBeEnabled();
  await montage.locator('[data-agent-accept]').click();
@@ -73,13 +73,13 @@ test('hybrid library: selected cloud video and audio persist on the native timel
   await expect(panel.getByText(`Références sélectionnées (${index+1})`)).toBeVisible();
   await panel.getByRole('button',{name:/Fermer/}).click();
  }
- await openAssistant(page);
+ await openPlan(page);
  await panel.locator('[data-assistant-input]').fill('Assemble ces médias au montage');
  await panel.locator('[data-agent-send]').click();
  await panel.locator('[data-agent-step="local:montage"] [data-agent-prepare]').click();
  await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
  await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);
- await openAssistant(page);
+ await openPlan(page);
  const step=panel.locator('[data-agent-step="local:montage"]');
  // Changing selection while this step is prepared must not duplicate its sound
  // or discard the evidence awaiting approval from the first preparation.
@@ -88,7 +88,7 @@ test('hybrid library: selected cloud video and audio persist on the native timel
  await step.locator('[data-agent-prepare]').click();
  await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
  await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);
- await openAssistant(page);
+ await openPlan(page);
  await expect(step.locator('[data-agent-accept]')).toBeEnabled();
  await step.locator('[data-agent-accept]').click();await expect(step).toHaveAttribute('data-state','done');
  await page.reload();await expect(page.locator('.u-clip.is-video')).toHaveCount(1);await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);

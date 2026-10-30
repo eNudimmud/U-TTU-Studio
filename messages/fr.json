@@ -3469,7 +3469,11 @@
     "modelTip": {
       "ret-lumiere-image": "portrait puis image de lumière, sans consigne ; lumière contrastée avec le portrait, sinon peu de changement.",
       "vid-fasth3": "FastH3 garde mieux le lieu : image du personnage, image du lieu, l’action en une phrase ; le studio écrit la consigne structurée."
-    }
+    },
+    "greeting": "Bonjour, je suis Uttu. Que veux-tu tourner ?",
+    "perMessage": "{n, plural, one {≈ # crédit estimé par message} other {≈ # crédits estimés par message}}",
+    "connectShort": "Relier Comfy",
+    "more": "Plus d’options"
   },
   "barre": {
     "title": "Qu’est-ce qu’on tourne ?",

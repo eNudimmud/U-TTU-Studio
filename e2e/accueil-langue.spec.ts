@@ -46,15 +46,19 @@ test("accueil : le choix AA reste, même si le navigateur parle une autre langue
 });
 
 for (const viewport of VIEWPORTS) {
-  test(`accueil à ${viewport.width}×${viewport.height} : accroche et porte Uttu au premier écran`, async ({ browser }, testInfo) => {
+  test(`accueil à ${viewport.width}×${viewport.height} : accroche, porte du studio en premier et porte Uttu au premier écran`, async ({ browser }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "Viewports are set by the test");
     const context = await browser.newContext({ locale: "en-US", viewport });
     const page = await context.newPage();
     const spent: string[] = [];
     page.on("request", request => { if (/\/api\/(prompt|agent|router|chat)|api\.comfy|comfy\.cloud|fal\.ai/i.test(request.url())) spent.push(request.url()); });
     await page.goto("/");
+    const enter = page.locator("[data-hero] [data-enter-studio]");
     const free = page.locator("[data-try-free]");
     await expect(page.locator("#landing-title")).toBeInViewport();
+    await expect(enter).toBeInViewport();
+    await expect(enter).toHaveClass(/hv-gold/);
+    expect((await enter.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     await expect(free).toBeInViewport();
     const box = await free.boundingBox();
     expect(box!.height).toBeGreaterThanOrEqual(44);

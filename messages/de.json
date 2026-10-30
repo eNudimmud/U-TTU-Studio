@@ -3469,7 +3469,11 @@
     "modelTip": {
       "ret-lumiere-image": "Porträt, dann Lichtbild, ohne Anweisung; das Licht muss sich vom Porträt abheben.",
       "vid-fasth3": "FastH3 hält den Ort besser: Figur- und Ortsbild, Handlung in einem Satz; das Studio schreibt die strukturierte Anweisung."
-    }
+    },
+    "greeting": "Hallo, ich bin Uttu. Was willst du drehen?",
+    "perMessage": "{n, plural, one {≈ # Credit geschätzt pro Nachricht} other {≈ # Credits geschätzt pro Nachricht}}",
+    "connectShort": "Comfy verbinden",
+    "more": "Mehr Optionen"
   },
   "barre": {
     "title": "Was drehen wir?",

@@ -1,9 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { simulateComfy } from './helpers/simulate-comfy';
-import { openAssistant } from './helpers/top-bar';
+import { openAssistant, showPlan } from './helpers/top-bar';
 const image=readFileSync('public/exemples/cast-dj.webp');
-async function assistant(page:Page){const panel=page.locator('[data-assistant-panel]');if(!await panel.isVisible())await openAssistant(page);return panel;}
+async function assistant(page:Page){const panel=page.locator('[data-assistant-panel]');if(!await panel.isVisible())await openAssistant(page);await showPlan(page);return panel;}
 async function approve(page:Page,operation:string){const panel=await assistant(page);const step=panel.locator(`[data-agent-step="${operation}"]`);await expect(step.locator('[data-agent-accept]')).toBeEnabled();await step.locator('[data-agent-accept]').click();await expect(step).toHaveAttribute('data-state','done');}
 async function prepare(page:Page,operation:string){const panel=await assistant(page);const step=panel.locator(`[data-agent-step="${operation}"]`);await expect(step.locator('[data-agent-prepare]')).toBeEnabled();await step.locator('[data-agent-prepare]').click();}
 test('agent: project → CAST → DÉCOR → PRISE → MONTAGE → export → backup → reopen (cloud mocked)',async({page},info)=>{

@@ -3,7 +3,7 @@
 // /studio-agent/chat, paid per message (« ≈ X crédits estimés »), accepted once per session.
 // Without a linked account it only invites to link; cost questions are priced here, by the
 // studio, never by the model. The model never launches anything: it proposes, the visitor clicks.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { assetPath } from "@/lib/site";
 import { useI18n } from "@/components/i18n/provider";
 import { asksCost, formatCr, simulateText, toolHref, type FaqHit, type Knowledge, type SimItem, type SimResult, type UttuLocale } from "@/lib/agent/uttu";
@@ -36,7 +36,12 @@ function readLog(): Turn[] {
   try { const raw = JSON.parse(window.localStorage.getItem(LOG_KEY) ?? "[]"); return Array.isArray(raw) ? raw.slice(-30) : []; } catch { return []; }
 }
 
-export function UttuFree({ locale, isAction, onPlan, refs = [], project }: { locale: UttuLocale; isAction(text: string): boolean; onPlan(text: string): void; refs?: string[]; project?: ProjectContext | null }) {
+/**
+ * The panel opened by the top bar's « U*TTU »: a short greeting, the conversation, two or three
+ * question ideas, the field, the price per message. Everything else (Comfy account, notes, the
+ * production plan) waits behind « Plus d’options », passed in as `more`.
+ */
+export function UttuFree({ locale, isAction, onPlan, refs = [], project, more, moreOpen = false, onMore }: { locale: UttuLocale; isAction(text: string): boolean; onPlan(text: string): void; refs?: string[]; project?: ProjectContext | null; more?: ReactNode; moreOpen?: boolean; onMore?(open: boolean): void }) {
   const { t } = useI18n();
   const { connected, setSheet, agentAuth, linkMode } = useStudio();
   const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
@@ -120,10 +125,12 @@ export function UttuFree({ locale, isAction, onPlan, refs = [], project }: { loc
     window.open(COMFY_PRICING, "_blank", "noopener,noreferrer");
   }
 
+  const perMessage = t("uttu.perMessage", { n: Number(ceiling.toFixed(1)) });
+  const asked = log.some(turn => turn.role === "user");
   return <section className="u-uttu-free" data-uttu="" aria-labelledby="u-uttu-log-title">
     <h3 id="u-uttu-log-title" className="sr-only">{t("uttu.log")}</h3>
     <div className="u-uttu-log" data-uttu-log="" role="log" aria-live="polite" aria-label={t("uttu.log")} ref={logRef}>
-      <article data-role="assistant"><strong>{t("uttu.me")}</strong><p>{t("uttu.comfy.welcome")}</p></article>
+      <article data-role="assistant" className="u-uttu-hello"><p>{t("uttu.greeting")}</p></article>
       {log.map((turn, i) => <article key={`${turn.at}-${i}`} data-role={turn.role}>
         <strong>{turn.role === "user" ? t("uttu.you") : t("uttu.me")}</strong>
         <p>{turn.text}</p>
@@ -138,14 +145,8 @@ export function UttuFree({ locale, isAction, onPlan, refs = [], project }: { loc
         </button>)}</div>}
       </article>)}
       {pending && <p className="u-small" data-uttu-pending="" role="status">{t("uttu.comfy.thinking")}</p>}
-      {!knowledge && !failed && <p className="u-small">{t("uttu.loading")}</p>}
       {failed && <p className="u-small" role="alert">{t("uttu.loadError")}</p>}
     </div>
-    {connected ? <p className="u-uttu-mode" data-uttu-mode="comfy" data-uttu-price="">{t("uttu.comfy.paid", { cost })}</p> : <div className="u-uttu-invite" data-uttu-invite="">
-      <p className="u-small">{t("uttu.comfy.invite", { cost })}</p>
-      <button type="button" className="u-secondary" data-uttu-invite-connect="" onClick={() => setSheet("connect")}>{t("uttu.comfy.inviteButton")}</button>
-    </div>}
-    {comfy && <p className="u-small" data-uttu-paid-note="">{t(linkMode === "session" ? "uttu.comfy.paidNoteSession" : "uttu.comfy.paidNote")}</p>}
     {comfy && held !== null && <div className="u-uttu-gate" ref={gateRef} role="alertdialog" aria-labelledby="u-uttu-gate-title" data-uttu-gate="">
       <strong id="u-uttu-gate-title">{t("uttu.comfy.gateTitle")}</strong>
       <p className="u-small">{t("uttu.comfy.gateBody", { cost })}</p>
@@ -154,19 +155,32 @@ export function UttuFree({ locale, isAction, onPlan, refs = [], project }: { loc
         <button type="button" className="u-secondary" data-uttu-decline="" onClick={() => setHeld(null)}>{t("uttu.comfy.decline")}</button>
       </div>
     </div>}
-    <div className="u-uttu-suggest" role="group" aria-label={t("uttu.suggest")}>
+    {!asked && <div className="u-uttu-suggest" role="group" aria-label={t("uttu.suggest")}>
       {(["start", "cost", "cancel"] as const).map(key => <button key={key} type="button" className="u-chip" data-uttu-suggest={key} onClick={() => send(t(`uttu.suggestions.${key}`))}>{t(`uttu.suggestions.${key}`)}</button>)}
-    </div>
+    </div>}
     {refs.length > 0 && <p className="u-small" data-uttu-refs="">{t("uttu.refs", { list: refs.join(", ") })}</p>}
-    <div className="u-uttu-ask">
-      <label className="u-field"><span className="u-label">{t("uttu.ask")}</span>
-        <textarea data-uttu-input="" rows={2} maxLength={MAX_MESSAGE} value={text} placeholder={t("uttu.placeholder")} onChange={e => setText(e.target.value)}
+    <form className="u-uttu-ask" onSubmit={e => { e.preventDefault(); send(); }}>
+      <label className="u-field"><span className="sr-only">{t("uttu.ask")}</span>
+        <textarea data-uttu-input="" rows={1} maxLength={MAX_MESSAGE} value={text} placeholder={t("uttu.ask")} onChange={e => setText(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} />
       </label>
-      <button type="button" className="u-primary" data-uttu-send="" aria-busy={pending || undefined} onClick={() => send()}>{comfy ? t("uttu.comfy.send") : t("uttu.send")}</button>
-      {comfy && <span className="u-small u-uttu-count" data-uttu-count="">{t("uttu.comfy.counter", { n: text.length, max: MAX_MESSAGE })}</span>}
-    </div>
-    {knowledge && <p className="u-small u-uttu-version" data-uttu-version={knowledge.version.short}>{t("uttu.version", { version: knowledge.version.short })}</p>}
+      <button type="submit" className="u-primary u-uttu-send" data-uttu-send="" aria-busy={pending || undefined} aria-label={comfy ? t("uttu.comfy.send") : t("uttu.send")} title={comfy ? t("uttu.comfy.send") : t("uttu.send")}><span aria-hidden="true">↑</span></button>
+    </form>
+    {text.length > MAX_MESSAGE - 100 && <p className="u-small u-uttu-count" data-uttu-count="">{t("uttu.comfy.counter", { n: text.length, max: MAX_MESSAGE })}</p>}
+    {connected ? <p className="u-small u-uttu-price" data-uttu-mode="comfy" data-uttu-price="">{perMessage}</p> : <p className="u-small u-uttu-price" data-uttu-invite="">
+      <span data-uttu-price="">{perMessage}</span>
+      <button type="button" className="u-link u-uttu-connect" data-uttu-invite-connect="" onClick={() => setSheet("connect")}>{t("uttu.connectShort")}</button>
+    </p>}
+    <details className="u-uttu-more" data-uttu-more="" open={moreOpen} onToggle={e => onMore?.((e.currentTarget as HTMLDetailsElement).open)}>
+      <summary>{t("uttu.more")}</summary>
+      <div className="u-uttu-more-body">
+        <p className="u-small">{t("uttu.comfy.welcome")}</p>
+        {comfy ? <p className="u-small" data-uttu-paid-note="">{t(linkMode === "session" ? "uttu.comfy.paidNoteSession" : "uttu.comfy.paidNote")}</p>
+          : <div className="u-uttu-invite"><p className="u-small">{t("uttu.comfy.invite", { cost })}</p><button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("uttu.comfy.inviteButton")}</button></div>}
+        {knowledge && <p className="u-small u-uttu-version" data-uttu-version={knowledge.version.short}>{t("uttu.version", { version: knowledge.version.short })}</p>}
+        {more}
+      </div>
+    </details>
   </section>;
 }
 
