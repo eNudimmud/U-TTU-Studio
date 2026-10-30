@@ -6,7 +6,7 @@ import { coffreZip } from '../src/lib/coffre/export.ts';
 import { mergeCoffreZip } from '../src/lib/coffre/import.ts';
 import { createProject, loadStudio, writeText, writeBlob, type Shot } from '../src/lib/coffre/model.ts';
 import { memoryVault, removeUnreferenced } from '../src/lib/coffre/store.ts';
-import { PENDING_RENDER_KEY, readPending, clearPending, clearTerminalPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from '../src/lib/render/recovery.ts';
+import { PENDING_RENDER_KEY, readPending, clearPending, clearTerminalPending, reconcilePendingReceipt, pendingState, recoverableClient, projectVault, type PendingRender } from '../src/lib/render/recovery.ts';
 import { failView, failKind } from '../src/lib/render/fail.ts';
 import { RenderError, type RenderClient } from '../src/lib/render/client.ts';
 import { placeLandedTake } from '../src/lib/render/settle-take.ts';
@@ -120,6 +120,9 @@ describe('parcours de production : données et reprise', () => {
     const liveClient = { status: async () => 'running' } as unknown as Pick<RenderClient, 'status'>;
     assert.equal(await reconcilePendingReceipt(disk, liveClient), 'blocked');
     assert.ok(readPending(disk));
+    // F3: the refusal knows the job is still running (status read only).
+    assert.equal((await pendingState(disk, liveClient)).stage, 'render');
+    assert.equal((await pendingState(disk, { status: async () => 'success' } as unknown as Pick<RenderClient, 'status'>)).stage, 'done');
 
     clearTerminalPending(disk, 'live-job');
     assert.equal(readPending(disk), null);

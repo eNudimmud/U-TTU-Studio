@@ -1843,7 +1843,9 @@
     "pendingBlock": "Un rendu précédent attend encore sa récupération. Ouvre Crédits, puis Récupérer le rendu — ou réessaie si le cloud l’a déjà terminé sans résultat.",
     "submitRefused": "Le compte de rendu a refusé la prise. Rien n’a été envoyé.",
     "creditsLow": "Crédits insuffisants sur ton compte de rendu.",
-    "subscriptionInactive": "Ton abonnement de rendu est inactif, ou la file est pleine."
+    "subscriptionInactive": "Ton abonnement de rendu est inactif, ou la file est pleine.",
+    "pendingRunning": "Un rendu est encore en cours dans le cloud : {name}. Attends qu’il finisse avant d’en lancer un autre. Rien n’est perdu, rien n’est renvoyé.",
+    "pendingDone": "Le rendu précédent est terminé : {name}. Range-le d’abord avec Récupérer le rendu (dans Crédits), sans nouvel envoi."
   },
   "p0": {
     "advanced": "Avancé",
