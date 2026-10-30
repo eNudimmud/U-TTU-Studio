@@ -1,16 +1,18 @@
 import { expect, test } from "@playwright/test";
 
 // uttu-studio.app is the public address, but Comfy's login only accepts *.vercel.app (docs/DECISIONS.md, 2026-10-30).
-// Chromium resolves uttu-studio.app to the local server, so the page really runs on that host.
-test.use({ launchOptions: { args: ["--host-resolver-rules=MAP uttu-studio.app 127.0.0.1, MAP www.uttu-studio.app 127.0.0.1"] } });
+// Chrome forces HTTPS on .app (HSTS preload), so the browser checks use another unauthorized host,
+// resolved to the local server: the page really runs on a host Comfy does not allow.
+const PUBLIC = "uttu-studio.test";
+test.use({ launchOptions: { args: [`--host-resolver-rules=MAP ${PUBLIC} 127.0.0.1`] } });
 
 const AUTHORIZED = "https://u-ttu-studio.vercel.app";
 const port = (baseURL: string | undefined) => new URL(baseURL ?? "http://127.0.0.1:3000").port || "80";
 const alias = { host: "uttu-studio.app", "x-forwarded-host": "uttu-studio.app", accept: "text/html", "sec-fetch-dest": "document" };
 
 test("public domain: the landing stays, the studio doors open the login-authorized origin", async ({ page, baseURL }) => {
-  await page.goto(`http://uttu-studio.app:${port(baseURL)}/`);
-  await expect(page).toHaveURL(/^http:\/\/uttu-studio\.app:\d+\/$/);
+  await page.goto(`http://${PUBLIC}:${port(baseURL)}/`);
+  await expect(page).toHaveURL(/^http:\/\/uttu-studio\.test:\d+\/$/);
   const enter = page.locator("[data-enter-studio]");
   await expect(enter).toHaveAttribute("href", `${AUTHORIZED}/studio?uttu_hop=1&uttu_lang=fr`);
   await expect(page.locator("[data-try-free]")).toHaveAttribute("href", `${AUTHORIZED}/studio?uttu=1&uttu_hop=1&uttu_lang=fr`);
@@ -43,7 +45,7 @@ test("a hop that comes straight back shows an explicit error, never a redirect l
   expect(back.headers().location).toBeUndefined();
   expect(await back.text()).toContain("data-loop-retry");
 
-  await page.goto(`http://uttu-studio.app:${port(baseURL)}/studio?uttu_hop=1`);
+  await page.goto(`http://${PUBLIC}:${port(baseURL)}/studio?uttu_hop=1`);
   await expect(page.getByRole("heading", { name: "Le studio n'a pas pu s'ouvrir" })).toBeVisible();
   for (const selector of ["[data-loop-retry]", "[data-loop-home]"]) {
     const box = await page.locator(selector).boundingBox();
