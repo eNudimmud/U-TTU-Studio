@@ -19,6 +19,8 @@ import { StudioSplash } from "./splash";
 import { BOOT_MARKS } from "@/lib/studio-boot";
 import { TopBar } from "./top-bar";
 import { AssistantPanel, toggleAssistant } from "./assistant-panel";
+import { film2DansCePoste } from "@/lib/film/drapeau";
+import { FilmPlans } from "./film/film-plans";
 
 function stageOf(tab: Tab): "lora" | "scene" | "prise" | "montage" | "outils" {
   return tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
@@ -44,6 +46,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const [asked, setAsked] = useState<Tab | null>(initialTab);
   const [cutReady, setCutReady] = useState<boolean | null>(null);
   const [outil, setOutil] = useState<string | null>(null);
+  // Refonte FILM (?film2=1): PRISE becomes the plan card. Read after mount, the server HTML stays the same.
+  const [film2, setFilm2] = useState(false);
+  useEffect(() => { setFilm2(film2DansCePoste()); }, []);
 
   useEffect(() => {
     const apply = () => {
@@ -203,7 +208,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       {section === "outils" && (ready || !outil) ? <OutilsHub tool={outil} early={!ready} />
         : !ready ? <StudioSplash />
         : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
-        : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
+        : section === "prise" ? (film2
+          ? <FilmPlans goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
+          : <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />)
         : section === "montage" ? <MontageStage onFilled={setCutReady} />
         : <CastStage onDecor={() => go("scene")} />}
       {/* Shown instead of the home only when the address already asks for a stage (see STUDIO_BOOT). */}

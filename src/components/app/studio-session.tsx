@@ -172,7 +172,7 @@ export interface StudioSession {
   linkMode: RenderLink["mode"];
   creating: boolean;
   loose: AssetRecord[];
-  createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
+  createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string; onFiled?(filed: { id: string; name: string }): void }): Promise<boolean>;
   createDecor(input: DecorInput): Promise<boolean>;
   createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
   prefs: StudioPrefs;
@@ -230,6 +230,8 @@ export interface StudioSession {
   /** 3D repérage: one framing becomes its own DÉCOR card, colour first, then depth, lines and the camera card. */
   saveLieuCapture(input: LieuCaptureInput): Promise<{ sceneId: string; color: string } | null>;
   sendToMontage(input: MontageInput): Promise<void>;
+  /** Plans (film2): create what the sentence names and is missing, then shoot, in one confirmed run. */
+  tournerPlan(input: PlanShoot): Promise<boolean>;
   /** Puts every plan on the cut, in plan order: kept take, else newest take, else its still. */
   sendSequence(inputs: MontageInput[]): Promise<number>;
 }
@@ -248,6 +250,19 @@ export interface LieuCaptureInput {
 
 /** One plan for the cut: a PRISE take, a video already in the project (a tool's result), or a still. */
 export interface MontageInput { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; video?: string; prompt: string; sceneName: string; composeur: string }
+
+/** Plans (film2): one sentence shot with one confirmation. Missing characters and the missing place are
+ * created first, in this order, then the take; a step already done is found again on retry. */
+export interface PlanShoot {
+  planId: string;
+  phrase: string;
+  castIds: string[];
+  decorId: string | null;
+  nouveaux: { nom: string }[];
+  nouveauLieu: { nom: string } | null;
+  settings: TakeSettings;
+  onEtape?(index: number): void;
+}
 
 export interface TakeRequest {
   framing?: Framing;
@@ -853,7 +868,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     });
   }, [cast, current.look.photos, current.look.traits, current.scenes, line, pickedCast, pickedDecor, pendingTake, t]);
 
-  const createCast = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }) => {
+  const createCast = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string; onFiled?(filed: { id: string; name: string }): void }) => {
     const row = input.geste ? gesteParId(input.geste) : null;
     const opened = !row || (gesteOuvert(row) && row.still !== "prise" && row.onglet === "cast");
     const quote = row && row.credits !== null && row.high !== null
@@ -922,6 +937,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       setPickedCast(id);
       setNotice(t("create.filed"));
+      input.onFiled?.({ id, name });
       return true;
     } catch (error) {
       const failure = error instanceof RenderError ? error : new RenderError("failed", error instanceof Error ? error.message : t("create.failed"));
@@ -1580,7 +1596,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     setSheet("confirm");
   }, [client, connected, refreshBalance]);
 
-  const confirmRun = useCallback(async () => {
+  const pendingHeld = pendingTake;
+  const sheetSettings = settings;
+  const confirmRun = useCallback(async (given?: TakeRequest) => {
+    // `given`: a take built elsewhere (Plans, film2), launched without the session's confirm sheet.
+    const pendingTake = given ?? pendingHeld;
+    const settings = given ? given.settings : sheetSettings;
     if (run.phase === "running") return;
     if (!client) {
       setSheet("connect");
@@ -1603,7 +1624,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const framingRef = pendingTake?.framingRef;
     if (framingRef?.startsWith("Projets/") && !paths.includes(framingRef)) paths.push(framingRef);
     if (paths.length > referenceLimit(settings)) { setNotice(t("safety.referencesMax", { max: referenceLimit(settings) })); return; }
-    let prompt = outgoing();
+    let prompt = given ? given.prompt : outgoing();
     if (framingRef && paths.includes(framingRef)) {
       const index = paths.indexOf(framingRef) + 1;
       const tag = settings.engine === "h3" ? `<Picture ${index}>` : `image ${index}`;
@@ -1658,7 +1679,53 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       setRun({ phase: "error", code: failure.code, message: failure.message, detail: failure.detail });
       abort.current = null;
     }
-  }, [client, completePending, fingerprint, finish, line, outgoing, pendingTake, pickedCast, pickedDecor, refreshBalance, run.phase, settings, store, t]);
+  }, [client, completePending, fingerprint, finish, line, outgoing, pendingHeld, pickedCast, pickedDecor, refreshBalance, run.phase, sheetSettings, store, t]);
+
+  const tournerPlan = useCallback(async (input: PlanShoot): Promise<boolean> => {
+    if (run.phase === "running") return false;
+    if (!client || !connected) { setSheet("connect"); return false; }
+    const castIds = [...input.castIds];
+    let step = 0;
+    for (const who of input.nouveaux) {
+      const known = studioRef.current?.cast.find(card => card.name.trim().toLowerCase() === who.nom.trim().toLowerCase());
+      if (known) { castIds.push(known.id); step += 1; continue; }
+      input.onEtape?.(step);
+      let id: string | null = null;
+      const ok = await createCast({ name: who.nom, prompt: `${who.nom}, the character of this film shot: ${input.phrase}. Full body, neutral light, plain background.`, source: "texte", files: [], confirmed: true, onFiled: filed => { id = filed.id; } });
+      if (!ok || !id) return false;
+      castIds.push(id);
+      step += 1;
+    }
+    let decorId = input.decorId;
+    if (input.nouveauLieu) {
+      const known = studioRef.current?.scenes.find(scene => scene.name.trim().toLowerCase() === input.nouveauLieu!.nom.trim().toLowerCase());
+      if (known) decorId = known.id;
+      else {
+        input.onEtape?.(step);
+        let id: string | null = null;
+        const ok = await createDecor({ name: input.nouveauLieu.nom, prompt: `${input.nouveauLieu.nom}, the place of this film shot: ${input.phrase}. No people.`, source: "texte", file: null, confirmed: true, onFiled: filed => { id = filed.id; } });
+        if (!ok || !id) return false;
+        decorId = id;
+      }
+      step += 1;
+    }
+    input.onEtape?.(step);
+    const held = studioRef.current;
+    const who = castIds.flatMap(id => held?.cast.find(card => card.id === id) ?? []);
+    const place = decorId ? held?.scenes.find(scene => scene.id === decorId) ?? null : null;
+    const photos = who.flatMap(card => card.sheet ? [card.sheet] : card.photos.slice(0, 1));
+    const paths = referencePaths(photos, place, Infinity);
+    const prompt = takePrompt({
+      traits: [],
+      lookPictures: Math.min(photos.length, paths.length),
+      subject: who.map(card => card.name).join(", "),
+      place: place ? { name: place.name, note: place.prompt || place.note, pictures: Math.max(0, paths.length - photos.length) } : null,
+      line: input.phrase,
+      tags: input.settings.engine === "h3" ? "picture" : "image",
+    });
+    await confirmRun({ planId: input.planId, castIds, decorId, line: input.phrase, prompt, settings: input.settings });
+    return true;
+  }, [client, confirmRun, connected, createCast, createDecor, run.phase]);
 
   const cancelRun = useCallback(() => {
     abort.current?.abort();
@@ -2355,6 +2422,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
     saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
+    tournerPlan: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.prise" }, () => paid(() => tournerPlan(input), false), ok => ({ ok })),
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
