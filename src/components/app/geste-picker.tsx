@@ -75,7 +75,18 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
     if (folded.some(item => item.id === value)) setMore(true);
   }, [value, onglet]);
   useEffect(() => {
-    document.querySelector(`[data-geste="${value}"]`)?.scrollIntoView({ block: "nearest" });
+    // Bring the chosen tile into its own row or column only: never scroll the page away from the form.
+    const tile = document.querySelector<HTMLElement>(`[data-geste="${value}"]`);
+    for (let box = tile?.parentElement ?? null; tile && box && box !== document.body; box = box.parentElement) {
+      const style = getComputedStyle(box);
+      const t = tile.getBoundingClientRect(), b = box.getBoundingClientRect();
+      if (/auto|scroll/.test(style.overflowX) && box.scrollWidth > box.clientWidth) {
+        if (t.left < b.left) box.scrollLeft -= b.left - t.left; else if (t.right > b.right) box.scrollLeft += t.right - b.right;
+      }
+      if (/auto|scroll/.test(style.overflowY) && box.scrollHeight > box.clientHeight) {
+        if (t.top < b.top) box.scrollTop -= b.top - t.top; else if (t.bottom > b.bottom) box.scrollTop += t.bottom - b.bottom;
+      }
+    }
   }, [value, more]);
 
   return <div className="u-gestes">

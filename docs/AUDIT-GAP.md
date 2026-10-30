@@ -88,5 +88,5 @@ Pas commencé, ou bloqué hors du dépôt.
 1. **Fermer la boucle photo, une fois, au budget annoncé.** Lot 2–3 → 15 (environ 0,60 $), PASS du gate, `POST /train` court, téléchargement du `.safetensors`, puis une case de `POST /gen` avec cette URL. Noter la facture. C’est le critère « sa LoRA, puis une photo ». Ne pas ouvrir la vente sur cette seule preuve.
 2. **Une ligne de journal qui vient du run.** Après ce burn, le coût réel doit pouvoir se noter dans Compte sans être inventé par le cloud. Aujourd’hui la saisie est entièrement manuelle (`src/lib/budget.ts`).
 4. **Partage Entre, seulement s’il existe.** Publier l’app Comfy, poser `NEXT_PUBLIC_COMFY_ENTRE_APP_URL` (URL `https://cloud.comfy.org/?share=` distincte de Former et de Tester), redéployer Vercel. Sans cette URL, laisser « Partage manquant ».
-5. **Garde-fou de dépense avant d’élargir le code.** Plafond ou limite de débit sur le Worker. Le code partagé paie avec `FAL_KEY`.
+5. **Garde-fou de dépense avant d’élargir le code.** Plafond ou limite de débit sur le Worker. Le code partagé paie avec la clé du serveur.
 6. **Domaine et Clerk Production ensemble, pas avant.** `u-ttu.studio` ne résout pas. Le jour où il revient : origine CORS, domaine Clerk, instance Production (`pk_live_`). D’ici là, l’hôte de travail reste `u-ttu-studio.vercel.app` en Development.

@@ -196,6 +196,8 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const missingTenue = casesVisibles(row).some(item => item.role === "tenue" && !refs.some(ref => ref.caseId === item.id));
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : missingTenue ? t("gestes.needOutfit") : row.minRefs > mapped ? t("gestes.needRefs") : t("why.needName");
   const preview = refs.find(ref => ref.url)?.url ?? "";
+  // Just imported and nothing new started: the character is ready, so the gold button goes on to DÉCOR instead of asking for a reference.
+  const importedReady = !!imported && cast.some(card => card.id === imported.id) && !name.trim() && !prompt.trim() && refs.length === 0;
 
 
 
@@ -266,7 +268,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         </label>
         <span className="u-card-actions">
           {!imported.saved && <button type="submit" className="u-secondary" data-import-name-save="">{t("create.importName.save")}</button>}
-          <button type="button" className="u-secondary" data-import-next="" onClick={() => { void keepImportedName().then(onDecor); }}>{t("create.importName.next")}</button>
+          {!importedReady && <button type="button" className="u-secondary" data-import-next="" onClick={() => { void keepImportedName().then(onDecor); }}>{t("create.importName.next")}</button>}
         </span>
       </form>}
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
@@ -284,7 +286,11 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       <OutilsStrip onglet="cast" />
     </div>
     <div className="u-create-bar">
-      {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : <>
+      {ask && amount !== null && high !== null ? <CreateConfirm title={t("create.confirmTitle")} amount={amount} high={high} row={row} name={name} prompt={prompt} refs={mapped} onCancel={() => setAsk(false)} onYes={() => void confirm()} /> : importedReady ? <>
+        <button type="button" className="u-primary" data-cast-gold="" data-cast-ready="" onClick={() => { void keepImportedName().then(onDecor); }}>
+          {t("create.importName.next")} <Arrow />
+        </button>
+      </> : <>
         <button type="button" className="u-primary" data-cast-gold="" disabled={blocked} aria-describedby={blocked ? "u-why-cast" : undefined} onClick={() => { if (!connected) { setSheet("connect"); return; } setAsk(true); }}>
           {amount !== null ? t("create.castButton", { amount }) : t("create.castButtonClosed")} <Arrow />
         </button>
@@ -401,6 +407,21 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
       <label className="u-secondary">{t("p0.importDecor")}<input className="sr-only" type="file" accept="image/*" aria-label={t("p0.importDecorAria")} disabled={!vaultReady} multiple onChange={event => { void importAssets([...(event.target.files ?? [])], "decor"); event.target.value = ""; }} /></label>
     </header>
     <div className="u-desk-scroll">
+      {/* The form first, so the text and the gold button share the first screen at every size. */}
+      <div className="u-decor-form" data-decor-form="">
+        <label className="u-field">
+          <span className="u-label">{t("create.prompt")}</span>
+          <textarea value={prompt} rows={2} maxLength={800} onChange={event => describe(event.target.value)} />
+        </label>
+        <label className="u-field">
+          <span className="u-label">{t("create.name")}</span>
+          <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
+        </label>
+        <p className="u-label">{t("create.suggestions")}</p>
+        <div className="u-suggest">
+          {SUGGESTIONS.map(key => <button key={key} type="button" data-suggestion={key} onClick={() => suggest(t(key))}>{t(key)}</button>)}
+        </div>
+      </div>
       {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
       <ToolShell
         stage={<ToolStage
@@ -423,18 +444,6 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         onDecor={() => setGalleryOpen(true)}
       />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
-      <label className="u-field">
-        <span className="u-label">{t("create.name")}</span>
-        <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
-      </label>
-      <p className="u-label">{t("create.suggestions")}</p>
-      <div className="u-suggest">
-        {SUGGESTIONS.map(key => <button key={key} type="button" data-suggestion={key} onClick={() => suggest(t(key))}>{t(key)}</button>)}
-      </div>
-      <label className="u-field">
-        <span className="u-label">{t("create.prompt")}</span>
-        <textarea value={prompt} rows={3} maxLength={800} onChange={event => describe(event.target.value)} />
-      </label>
       {!depart && (apres || preview) && <div className="u-result-frame">
         <img src={apres || preview} alt="" />
       </div>}
