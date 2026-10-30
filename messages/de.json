@@ -2830,6 +2830,10 @@
       "vid-doubler": {
         "title": "Take synchronisieren",
         "line": "VEED übersetzt, Lippen synchron."
+      },
+      "vid-pika": {
+        "title": "Treues Video mit Ton",
+        "line": "Deine Figur an deinem Ort, Gesicht und Kulisse bleiben, mit Ton."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -2859,10 +2863,15 @@
       "vid-h3-refs": "Treu, günstig",
       "vid-vidu": "Zwei Bilder vereint",
       "ret-lumiere-image": "Licht aus einem Bild",
-      "vid-fasth3": "Ort treuer (mehrere Referenzen)"
+      "vid-fasth3": "Ort treuer (mehrere Referenzen)",
+      "vid-pika": "Gesicht und Ort treu, mit Ton (Pika · MiniMax H3)"
     },
     "model": "Modell",
     "modelChange": "Modell wechseln",
+    "attribution": {
+      "vid-pika": "Pika H3 Flex, basiert auf MiniMax H3"
+    },
+    "modelGone": "Dieses Modell ist heute auf deinem Render-Konto nicht verfügbar. Nichts wurde gesendet: Die Karte nutzt wieder ihr Standardmodell.",
     "confirmTitle": "Dieses Rendering starten?",
     "confirmBody": "Etwa {credits} Credits, geschätzt. Der Endpreis kann variieren.",
     "confirmYes": "Bestätigen",
