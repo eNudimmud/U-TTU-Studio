@@ -36,7 +36,7 @@ import { posePlan } from "@/lib/ergonomie";
 import { type Balance } from "@/lib/credits";
 import { FINAL_MAX_SECONDS, finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
-import { audioOutput, imageOutput, videoOutput, meshOutput, jobStage, createRenderClient, RenderError, type RenderClient } from "@/lib/render/client";
+import { audioOutput, imageOutput, videoOutput, meshOutput, jobStage, createRenderClient, RenderError, type JobStage, type RenderClient } from "@/lib/render/client";
 import { noeudSortie } from "@/lib/render/sortie";
 import { isVideoGeste, VIDEO_GESTE_TEXT, videoGesteGraph } from "@/lib/render/video-gestes";
 import { importModel, modelExtension } from "@/lib/maquette/files";
@@ -57,7 +57,7 @@ import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderL
 import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
-import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
+import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 import { namedReferenceNote, readNamedReferences, referenceNotePath, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from "@/lib/creation/named-references";
@@ -71,6 +71,9 @@ export type RunState =
   | { phase: "running"; event: TakeRunEvent | { stage: "start" } }
   | { phase: "done"; takeId: string }
   | { phase: "error"; code: string; message: string; detail: string[] };
+
+/** What the studio shows while it follows a receipt by itself (status reads only). */
+export interface PendingWatch { kind: PendingRender["kind"]; project: string; name: string; stage: JobStage }
 
 export type FolderMode = "unsupported" | "off" | "ask" | "on";
 
@@ -154,6 +157,8 @@ export interface StudioSession {
   cancelRun(): void;
   resetRun(): void;
   resumeRun(): void;
+  /** A render sent earlier (this tab or a closed one) that the studio follows by itself until its file is saved. */
+  pendingWatch: PendingWatch | null;
   identifyPendingJob(jobId: string, confirmed: boolean): Promise<string | null>;
   refreshBalance(): Promise<Balance | null>;
   connectKey(raw: string): Promise<string | null>;
@@ -444,6 +449,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [run, setRun] = useState<RunState>({ phase: "idle" });
   const [runOrigin, setRunOrigin] = useState<{ project: string; planId: string } | null>(null);
   const [creating, setCreating] = useState(false);
+  const [pendingWatch, setPendingWatch] = useState<PendingWatch | null>(null);
   const [folderMode, setFolderMode] = useState<FolderMode>("off");
   const [folderName, setFolderName] = useState<string | null>(null);
   const [demoOn, setDemoOn] = useState(demo);
@@ -621,12 +627,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (!navigator.locks) throw new Error("Ce navigateur ne peut pas sécuriser les envois simultanés. Utilise un navigateur récent.");
       return await navigator.locks.request("uttu-paid-render", { ifAvailable: true }, async lock => {
         if (!lock) throw new Error("Un rendu est déjà suivi dans un autre onglet.");
-        if (client) {
-          const reconciled = await reconcilePendingReceipt(localStorage, client);
-          if (reconciled === "cleared") setNotice(t("runtimeSafe.cloudNoResult"));
-        }
-        if (readPending(localStorage) || readInFlight(localStorage)) {
-          throw new Error("Un rendu précédent attend encore sa récupération. Ouvre Crédits, puis Récupérer le rendu — ou réessaie si le cloud l’a déjà terminé sans résultat.");
+        const state = client ? await pendingState(localStorage, client) : null;
+        if (state?.result === "cleared") setNotice(t("runtimeSafe.cloudNoResult"));
+        const waiting = readPending(localStorage);
+        if (waiting || readInFlight(localStorage)) {
+          // Say what is really happening: running in the cloud, finished and waiting to be saved, or unknown.
+          throw new Error(pendingRefusal(waiting && state?.pending?.jobId === waiting.jobId ? state.stage : null, waiting?.name || waiting?.project || ""));
         }
         return work();
       });
@@ -1739,16 +1745,59 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     })().catch(error => setNotice(error instanceof Error ? error.message : "Récupération impossible pour le moment.")).finally(() => { paidBusy.current = false; setCreating(false); });
   }, [client, completePending, fingerprint, finish, reload, store]);
 
+  // Follow a pending receipt by itself: on load, every few seconds while the page is shown, and at
+  // once when it comes back to the foreground. Only status reads (no POST, no spend); the file is
+  // fetched through resumeRun once the cloud says the job ended. Paused while the page is hidden.
   useEffect(() => {
     if (!ready || !client) return;
-    try {
-      const receipt = readPending(localStorage);
-      // An ambiguous submission has no job to poll. Its explicit identification
-      // must not race an automatic attempt holding the same operation lock.
-      if (receipt?.jobId || (!receipt && readInFlight(localStorage))) resumeRun();
-    }
-    catch (error) { setNotice(error instanceof Error ? error.message : "Reçu illisible."); }
-  }, [ready, client, resumeRun]);
+    let alive = true;
+    let busy = false;
+    let first = true;
+    const tried = new Set<string>();
+    const check = async () => {
+      if (!alive || busy || document.hidden || paidBusy.current || following.current) return;
+      busy = true;
+      const opening = first;
+      first = false;
+      try {
+        const receipt = readPending(localStorage);
+        if (!receipt?.jobId) {
+          setPendingWatch(null);
+          // An ambiguous submission has no job to poll. Its explicit identification
+          // must not race an automatic attempt holding the same operation lock.
+          if (opening && !receipt && readInFlight(localStorage)) resumeRun();
+          return;
+        }
+        if (receipt.kind === "take" && receipt.flight) {
+          // A take is followed by finish(), which polls on its own.
+          if (opening) resumeRun();
+          return;
+        }
+        const stage = jobStage(await client.status(receipt.jobId));
+        if (!alive) return;
+        setPendingWatch({ kind: receipt.kind, project: receipt.project, name: receipt.name, stage });
+        const ended = stage === "done" || stage === "failed" || stage === "cancelled";
+        // One automatic attempt per job; after that the visible button stays for a manual retry.
+        if (ended && !tried.has(receipt.jobId) && receipt.account === await fingerprint()) {
+          tried.add(receipt.jobId);
+          resumeRun();
+        }
+      } catch (error) {
+        if (opening && alive && !(error instanceof RenderError)) setNotice(error instanceof Error ? error.message : "Reçu illisible.");
+      } finally { busy = false; }
+    };
+    void check();
+    const timer = window.setInterval(() => void check(), 4000);
+    const shown = () => { if (!document.hidden) void check(); };
+    document.addEventListener("visibilitychange", shown);
+    window.addEventListener("pageshow", shown);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", shown);
+      window.removeEventListener("pageshow", shown);
+    };
+  }, [ready, client, resumeRun, fingerprint]);
 
   const connectKey = useCallback(async (raw: string) => {
     const key = cleanApiKey(raw);
@@ -2296,7 +2345,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     prefs, setPrefs,
     ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
-    pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
+    pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,

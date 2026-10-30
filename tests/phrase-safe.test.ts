@@ -19,3 +19,23 @@ test('reliability errors from the libraries are translated in every language', (
   assert.equal(phrase(tr('fr'), fr[0]), fr[0]);
   assert.match(phrase(tr('de'), 'Le rendu job-42 a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conserve cet identifiant et vérifie ton espace disque. Ne relance pas la génération.'), /job-42/);
 });
+
+test('F3 · a second send is refused with the true reason: running, finished, or unknown — in every language', async () => {
+  const { pendingRefusal } = await import('../src/lib/render/recovery.ts');
+  const running = pendingRefusal('render', 'Léa');
+  assert.match(running, /encore en cours dans le cloud : Léa\./);
+  assert.doesNotMatch(running, /attend encore sa récupération/);
+  assert.equal(pendingRefusal('queue', 'Léa'), running);
+  assert.match(pendingRefusal('done', 'Quai'), /est terminé : Quai\./);
+  assert.match(pendingRefusal(null, 'Léa'), /attend encore sa récupération/);
+  const expected: Record<string, [RegExp, RegExp]> = {
+    fr: [/en cours dans le cloud : Léa/, /est terminé : Quai/],
+    en: [/still running in the cloud: Léa/, /is finished: Quai/],
+    es: [/en curso en la nube: Léa/, /ha terminado: Quai/],
+    de: [/läuft noch in der Cloud: Léa/, /ist fertig: Quai/],
+  };
+  for (const [code, [run, done]] of Object.entries(expected)) {
+    assert.match(phrase(tr(code), running), run, code);
+    assert.match(phrase(tr(code), pendingRefusal('done', 'Quai')), done, code);
+  }
+});

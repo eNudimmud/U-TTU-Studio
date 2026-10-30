@@ -1758,7 +1758,10 @@
     "sessionElsewhere": "Tu sesión de Comfy ha caducado (¿sesión abierta en otro sitio?). Vuelve a conectarte.",
     "network": "La cuenta de render no responde. Comprueba tu conexión e inténtalo de nuevo.",
     "retry": "Reintentar",
-    "reconnect": "Reconectar"
+    "reconnect": "Reconectar",
+    "watchRunning": "Render en curso en la nube: {name}.",
+    "watchDone": "Render terminado: {name}. Guardándolo en el proyecto…",
+    "watchAuto": "El estudio lo sigue solo y lo guarda en cuanto esté listo. No se envía nada de nuevo."
   },
   "safety": {
     "modelBlocked": "Esta herramienta está oculta por tus elecciones de modelos. No se envía nada.",
@@ -1843,7 +1846,9 @@
     "pendingBlock": "Un render anterior sigue pendiente de recuperación. Abre Créditos y luego Recuperar el render — o reintenta si la nube ya terminó sin resultado.",
     "submitRefused": "La cuenta de render rechazó la toma. No se envió nada.",
     "creditsLow": "Créditos insuficientes en tu cuenta de render.",
-    "subscriptionInactive": "Tu suscripción de render está inactiva, o la cola está llena."
+    "subscriptionInactive": "Tu suscripción de render está inactiva, o la cola está llena.",
+    "pendingRunning": "Un render sigue en curso en la nube: {name}. Espera a que termine antes de lanzar otro. No se pierde nada ni se reenvía nada.",
+    "pendingDone": "El render anterior ha terminado: {name}. Guárdalo primero con Recuperar el render (en Créditos), sin un nuevo envío."
   },
   "p0": {
     "advanced": "Avanzado",

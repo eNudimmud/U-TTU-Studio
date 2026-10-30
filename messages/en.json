@@ -1758,7 +1758,10 @@
     "sessionElsewhere": "Your Comfy session expired (signed in elsewhere?). Sign in again.",
     "network": "The render account is not responding. Check your connection, then try again.",
     "retry": "Try again",
-    "reconnect": "Reconnect"
+    "reconnect": "Reconnect",
+    "watchRunning": "Render in progress in the cloud: {name}.",
+    "watchDone": "Render finished: {name}. Saving it to the project…",
+    "watchAuto": "The studio follows it on its own and saves it as soon as it is ready. Nothing is sent again."
   },
   "safety": {
     "modelBlocked": "This tool is hidden by your model choices. Nothing is sent.",
@@ -1843,7 +1846,9 @@
     "pendingBlock": "A previous render is still waiting to be recovered. Open Credits, then Recover render — or try again if the cloud already finished with no result.",
     "submitRefused": "The render account refused the take. Nothing was sent.",
     "creditsLow": "Not enough credits on your render account.",
-    "subscriptionInactive": "Your render subscription is inactive, or the queue is full."
+    "subscriptionInactive": "Your render subscription is inactive, or the queue is full.",
+    "pendingRunning": "A render is still running in the cloud: {name}. Wait for it to finish before starting another. Nothing is lost, nothing is sent again.",
+    "pendingDone": "The previous render is finished: {name}. Save it first with Recover render (in Credits), without a new send."
   },
   "p0": {
     "advanced": "Advanced",
