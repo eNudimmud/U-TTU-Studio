@@ -2602,11 +2602,11 @@
       },
       "vid-multi": {
         "title": "Treue Schlüsselbilder",
-        "line": "Behält die Figur aus deinem ersten Bild und endet auf dem zweiten, mit Ton."
+        "line": "Behält die Figur des ersten Bilds und endet auf dem zweiten, mit Ton."
       },
       "vid-transition-style": {
         "title": "Stilübergang",
-        "line": "Deine Einstellung wechselt den Stil, vom ersten Bild zum zweiten."
+        "line": "Die Einstellung wechselt den Stil, vom ersten Bild zum zweiten."
       },
       "vid-h3-audio": {
         "title": "Video zum Ton",
@@ -2662,7 +2662,7 @@
       },
       "son-voix-ouverte": {
         "title": "Stimme",
-        "line": "Liest deinen Text mit der Stimme deines Clips."
+        "line": "Liest deinen Text mit der Stimme des Clips."
       },
       "son-voix": {
         "title": "Stimme",
@@ -2788,11 +2788,11 @@
       },
       "vid-genjutsu": {
         "title": "Genjutsu — Figur ersetzen",
-        "line": "Ersetze die Figur eines Clips und behalte ihre Bewegung mit dem Comfy-Workflow bei."
+        "line": "Neue Figur im Clip, gleiche Bewegung."
       },
       "ret-angles-perso": {
         "title": "Acht Figurenwinkel",
-        "line": "Ein Porträt, acht Ansichten: Profile, Dreiviertel, Aufsicht, Großaufnahme."
+        "line": "Ein Porträt, acht Ansichten, Profil bis Großaufnahme."
       },
       "ret-angles-decor": {
         "title": "Acht Kulissenwinkel",
@@ -2804,7 +2804,7 @@
       },
       "son-bruitage-video": {
         "title": "Geräusche für ein Video",
-        "line": "Geräusche passend zur Handlung deiner Einstellung. Die Stimme bleibt erhalten."
+        "line": "Geräusche passend zur Handlung, die Stimme bleibt."
       },
       "son-separer": {
         "title": "Stimme und Musik trennen",
@@ -2821,6 +2821,10 @@
       "vid-fasth3": {
         "title": "Video ortsgetreu",
         "line": "Deine Figur an deinem Ort, Kulisse bleibt."
+      },
+      "vid-doubler": {
+        "title": "Take synchronisieren",
+        "line": "VEED übersetzt, Lippen synchron."
       }
     },
     "latest": "Neueste Ergebnisse",
@@ -3478,7 +3482,7 @@
     "refs": "Angehängte Referenzen: {list}",
     "modelTip": {
       "ret-lumiere-image": "Porträt, dann Lichtbild, ohne Anweisung; das Licht muss sich vom Porträt abheben.",
-      "vid-fasth3": "FastH3 hält den Ort besser: Figur- und Ortsbild, Handlung in einem Satz; das Studio schreibt die strukturierte Anweisung."
+      "vid-fasth3": "FastH3 hält den Ort besser: Figur, Ort, Handlung in einem Satz; das Studio schreibt die strukturierte Anweisung."
     },
     "greeting": "Hallo, ich bin Uttu. Was willst du drehen?",
     "perMessage": "{n, plural, one {≈ # Credit geschätzt pro Nachricht} other {≈ # Credits geschätzt pro Nachricht}}",
@@ -3780,5 +3784,34 @@
     "no": "nein",
     "unknown": "unbekannt",
     "failed": "Der Test hat nicht geklappt: {why}"
+  },
+  "doublage": {
+    "action": "Take synchronisieren",
+    "info": "Ein sichtbares Gesicht und eine Stimme im Ton. Der synchronisierte Clip ist so lang wie seine Tonspur, mit 25 Bildern/s. Der Kostenvoranschlag hängt von Länge und Version ab.",
+    "cible": "Zielsprache",
+    "source": "Gesprochene Sprache im Clip",
+    "tier": "Version",
+    "tiers": {
+      "standard": "Standard · {credits} Credits/s",
+      "pro": "Pro · {credits} Credits/s"
+    },
+    "tierName": {
+      "standard": "Standard",
+      "pro": "Pro"
+    },
+    "langues": {
+      "auto": "Automatisch",
+      "fr": "Französisch",
+      "en": "Englisch",
+      "de": "Deutsch",
+      "es": "Spanisch",
+      "it": "Italienisch",
+      "pt": "Portugiesisch",
+      "ja": "Japanisch",
+      "zh": "Chinesisch"
+    },
+    "same": "Wähle eine andere Zielsprache als die gesprochene.",
+    "trim": "Der Clip ist länger als 599 Sekunden: VEED nimmt nicht mehr.",
+    "quoteFor": "Für {seconds} s in {tier}, {from} → {to}. Der Endpreis kann abweichen."
   }
 }

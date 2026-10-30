@@ -194,3 +194,13 @@ Tarif publié dans `comfy_api_nodes/nodes_higgsfield.py`, vérifié le 28.10.202
 Sources : [template officiel](https://github.com/Comfy-Org/workflow_templates/blob/main/templates/api_higgsfield_genjutsu_motion_transfer.json), [nœud et barème officiels](https://github.com/Comfy-Org/ComfyUI/blob/master/comfy_api_nodes/nodes_higgsfield.py). Le template UI et le graphe exact envoyé sont dans `workflows/outils/outil-vid-genjutsu.json` et `.api.json`, avec une entrée dans `index.json`.
 
 Validation et limites : [GENJUTSU.md](GENJUTSU.md). Aucun rendu réel dans cette livraison ; le coût minimal estimé dépasse le budget de vérification de 60 crédits.
+
+## VEED Dubbing : doubler une prise
+
+`outil-vid-doubler` (« Doubler une prise », onglet MONTAGE) utilise le template officiel `api_veed_dubbing` : `LoadVideo` → `VeedDubbingNode` → `SaveVideo`. Le Studio envoie le graphe par son client Comfy habituel, après devis et confirmation ; le résultat revient dans Mes créations.
+
+Réglages : langue d’arrivée (anglais, français, allemand, espagnol, italien, portugais, japonais, chinois), langue parlée (détection auto, ou fr, en, de, es, it) et version Standard ou Pro. Les noms envoyés sont ceux du nœud : en Pro, les cibles ont une variante (« English (US) », « French (France) », « Spanish (Spain) », « Portuguese (Portugal) »). Même langue au départ et à l’arrivée : rien ne part. Le nœud prend au plus 599 s et rend une vidéo à 25 images/s. Nœud partenaire payant : « Open weights seulement » le masque.
+
+Devis lu le 30.10.2026 par `estimate_credits` de Comfy Cloud (lecture seule) : **33 crédits/s en Standard, 54 crédits/s en Pro**, soit ≈ 165 / 270 crédits estimés pour 5 s. Le devis multiplie la durée du clip par ce tarif et arrondit au crédit supérieur ; réserve de solde à 1,5 fois. Le chiffre du registre (165 / 248, hypothèse) correspond à 5 s en Standard. Sans durée lisible, aucun devis ni envoi.
+
+Sources : [tutoriel Comfy](https://docs.comfy.org/tutorials/partner-nodes/veed/veed-dubbing), [tarifs VEED](https://api.veed.io/pricing). Template UI et graphe exact envoyé : `workflows/outils/outil-vid-doubler.json` et `.api.json`, avec une entrée dans `index.json`. Aucun rendu réel dans cette livraison : 5 s coûtent au moins 165 crédits, au-dessus du budget de test de 15 crédits.

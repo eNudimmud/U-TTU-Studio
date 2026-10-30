@@ -17,6 +17,7 @@ import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsP
 import { failView } from "@/lib/render/fail";
 import { outilQuote } from "@/lib/outils/graphs";
 import { GENJUTSU_DEFAULT_RESOLUTION, GENJUTSU_RESOLUTIONS, genjutsuSeconds, type GenjutsuResolution } from "@/lib/outils/genjutsu";
+import { VEED_CIBLES, VEED_CREDITS_PER_SECOND, VEED_DEFAULT, VEED_MAX_SECONDS, VEED_SOURCES, VEED_TIERS, veedMemeLangue, veedSeconds, type VeedChoix } from "@/lib/outils/veed";
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
 import { OUTIL_CAMERAS, OUTIL_PISTES, type OutilCamera, type OutilPiste } from "@/lib/outils/generique";
 import { assetPath } from "@/lib/site";
@@ -313,6 +314,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const [modelId, setModelId] = useState(asked.id);
   const outil = outilParId(modelId) ?? asked;
   const genjutsu = outil.id === "vid-genjutsu";
+  const doubler = outil.id === "vid-doubler";
   // The form you left here comes back as it was: pictures, text and settings (never the consent box).
   const draftKey = intentDe(asked.id);
   const [draft] = useState(() => loadDraft(draftKey, path => media[path]));
@@ -325,9 +327,13 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const [resolution, setResolution] = useState<GenjutsuResolution>(GENJUTSU_RESOLUTIONS.includes(draft?.resolution as GenjutsuResolution) ? draft!.resolution! : GENJUTSU_DEFAULT_RESOLUTION);
   const [camera, setCamera] = useState<OutilCamera>(OUTIL_CAMERAS.includes(draft?.camera as OutilCamera) ? draft!.camera as OutilCamera : OUTIL_CAMERAS[0]);
   const [piste, setPiste] = useState<OutilPiste>(OUTIL_PISTES.includes(draft?.piste as OutilPiste) ? draft!.piste as OutilPiste : OUTIL_PISTES[0]);
+  const [doublage, setDoublage] = useState<VeedChoix>(() => {
+    const saved = draft?.doublage;
+    return saved && VEED_TIERS.includes(saved.tier) && VEED_CIBLES.includes(saved.cible) && VEED_SOURCES.includes(saved.source) ? saved : VEED_DEFAULT;
+  });
   useEffect(() => {
-    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh, resolution, camera, piste });
-  }, [draftKey, inputs, text, aspect, side, fluide, mesh, resolution, camera, piste]);
+    saveDraft(draftKey, { inputs: inputs as Record<string, Picked | null>, text, aspect, side, fluide, mesh, resolution, camera, piste, doublage });
+  }, [draftKey, inputs, text, aspect, side, fluide, mesh, resolution, camera, piste, doublage]);
   const [consent, setConsent] = useState(false);
   const [seconds, setSeconds] = useState<number | null>(null);
   const [ask, setAsk] = useState(false);
@@ -435,7 +441,8 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     : outil.paire === "lumiere" ? (entree === "image" ? "sujet" : entree === "image2" ? "lumiere" : entree)
     : outil.paire === "lieu" ? (entree === "image" ? "personnage" : entree === "image2" ? "lieu" : entree)
     : entree;
-  const reglages = [...(outil.reglages ?? []), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
+  // Doubler une prise shows its languages in the open, never folded: they are the whole point.
+  const reglages = [...(outil.reglages ?? []).filter(item => item !== "doublage"), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
   const video = inputs.video;
   const audio = inputs.audio;
   useEffect(() => {
@@ -450,15 +457,16 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     return () => { gone = true; };
   }, [video, audio, outil.id, outil.entrees]);
 
-  const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh, resolution }), [outil, seconds, fluide, mesh, resolution]);
-  const quotePending = Boolean((outil.parTranche || genjutsu) && inputs.video && seconds == null);
+  const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh, resolution, doublage }), [outil, seconds, fluide, mesh, resolution, doublage]);
+  const quotePending = Boolean((outil.parTranche || genjutsu || doubler) && inputs.video && seconds == null);
+  const sameLang = doubler && veedMemeLangue(doublage);
   const tooShort = genjutsu && seconds !== null && seconds < 4;
   const busy = stage !== null;
   const missingInput = main.find(item => !inputs[item]);
   const missingText = outil.texte === "requis" && !text.trim();
   const needConsent = Boolean(outil.consentement && inputs.audio && !consent);
   const lowBalance = Boolean(quote && balance && balance.credits < quote.high);
-  const action = genjutsu ? t("genjutsu.action") : outil.entrees.length === 0 || outil.famille === "3d" ? t(`outils.do.${outil.sortie}`) : titreCarte(t, outil.id);
+  const action = genjutsu ? t("genjutsu.action") : doubler ? t("doublage.action") : outil.entrees.length === 0 || outil.famille === "3d" ? t(`outils.do.${outil.sortie}`) : titreCarte(t, outil.id);
   const lock = { disabled: busy, "aria-describedby": busy ? busyId : undefined };
 
   function set(entree: Entree, next: Picked | null) { setInputs(current => ({ ...current, [entree]: next })); setAsk(false); setOutcome(null); setWhy(""); }
@@ -479,6 +487,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     if (missingText) { setWhy(t("videoGeste.needText")); return; }
     if (needConsent) { setWhy(t("outils.needConsent")); return; }
     if (tooShort) { setWhy(t("genjutsu.tooShort")); return; }
+    if (sameLang) { setWhy(t("doublage.same")); return; }
     if (!quote) return;
     if (lowBalance) { setWhy(t("finaliser.needCeiling", { ceiling: formatCredits(quote.high) })); return; }
     setWhy("");
@@ -517,11 +526,11 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       const from = inputs.image?.path ?? inputs.video?.path;
       onResult?.(null);
       const result = await runOutil({
-        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, piste: outil.reglages?.includes("piste") ? piste : undefined, consent, from, onStage,
+        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, piste: outil.reglages?.includes("piste") ? piste : undefined, doublage: doubler ? doublage : undefined, consent, from, onStage,
         onCost: cost => setOutcome(current => current?.ok ? { ...current, cost } : current),
       });
       setOutcome(result);
-      if (result.ok) onResult?.({ url: result.url, path: result.path, extras: result.extras, kind: outil.sortie, poster: inputs.image?.url, seconds: genjutsu ? genjutsuSeconds(seconds ?? undefined) ?? undefined : undefined, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
+      if (result.ok) onResult?.({ url: result.url, path: result.path, extras: result.extras, kind: outil.sortie, poster: inputs.image?.url, seconds: genjutsu ? genjutsuSeconds(seconds ?? undefined) ?? undefined : doubler ? veedSeconds(seconds ?? undefined) ?? undefined : undefined, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
     } catch (error) {
       const view = failView(error);
       setOutcome({ ok: false, message: view.message, kind: view.kind, intact: view.intact, reconnect: view.reconnect, retry: view.retry });
@@ -538,6 +547,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     </header>
     <p className="u-small">{ligneCarte(t, outil.id)}</p>
     {genjutsu && <p className="u-small" data-genjutsu-info="">{t("genjutsu.info")}</p>}
+    {doubler && <p className="u-small" data-doublage-info="">{t("doublage.info")}</p>}
     <div className="u-tool-step u-model-card" data-tool-step="modele">
       <span className="u-label">{t("outils.model")}</span>
       <strong data-model-current="">{nomModele(t, outil.id)}</strong>
@@ -548,6 +558,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       {main.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t(`genjutsu.${entree}`) : pair ? t(`outils.slot.${slotName(entree)}`) : undefined} sample={genjutsu && entree === "image" ? { url: UTTU_PORTRAIT_HD, name: "uttu-personnage.webp" } : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
       {tooShort && <p className="u-why" role="alert" data-genjutsu-short="">{t("genjutsu.tooShort")}</p>}
       {genjutsu && seconds !== null && seconds > 30 && <p className="u-small" role="status" data-genjutsu-trim="">{t("genjutsu.trim")}</p>}
+      {doubler && seconds !== null && seconds > VEED_MAX_SECONDS && <p className="u-small" role="status" data-doublage-trim="">{t("doublage.trim")}</p>}
       {outil.consentement && inputs.audio && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={consent} data-tool-consent="" {...lock} onClick={() => { setConsent(value => !value); reset(); }}>
         <span className="u-final-box" aria-hidden="true">{consent ? "✓" : ""}</span><span>{t("outils.consent")}</span>
       </button>}
@@ -556,6 +567,21 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       <span className="u-label">{t("outils.prompt")}{outil.texte === "facultatif" ? ` ${t("suite.optional")}` : ""}</span>
       <textarea rows={3} value={text} maxLength={1200} {...lock} onChange={event => { setText(event.target.value); reset(); }} />
     </label>}
+    {doubler && <fieldset className="u-tool-step u-doublage" data-tool-step="doublage">
+      <legend className="u-label">{t("doublage.cible")}</legend>
+      <div className="u-choice-row" role="group" aria-label={t("doublage.cible")}>
+        {VEED_CIBLES.map(id => <button key={id} type="button" className="u-chip" aria-pressed={doublage.cible === id} data-doublage-cible={id} {...lock} onClick={() => { setDoublage(current => ({ ...current, cible: id })); reset(); }}>{t(`doublage.langues.${id}`)}</button>)}
+      </div>
+      <span className="u-label">{t("doublage.source")}</span>
+      <div className="u-choice-row" role="group" aria-label={t("doublage.source")}>
+        {VEED_SOURCES.map(id => <button key={id} type="button" className="u-chip" aria-pressed={doublage.source === id} data-doublage-source={id} {...lock} onClick={() => { setDoublage(current => ({ ...current, source: id })); reset(); }}>{t(`doublage.langues.${id}`)}</button>)}
+      </div>
+      <span className="u-label">{t("doublage.tier")}</span>
+      <div className="u-choice-row" role="group" aria-label={t("doublage.tier")}>
+        {VEED_TIERS.map(id => <button key={id} type="button" className="u-chip" aria-pressed={doublage.tier === id} data-doublage-tier={id} {...lock} onClick={() => { setDoublage(current => ({ ...current, tier: id })); reset(); }}>{t(`doublage.tiers.${id}`, { credits: String(VEED_CREDITS_PER_SECOND[id]) })}</button>)}
+      </div>
+      {sameLang && <p className="u-why" role="alert" data-doublage-same="">{t("doublage.same")}</p>}
+    </fieldset>}
     {refs.length > 0 && <Fold step="references" label={t("outils.refs")}>
       {refs.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t("genjutsu.image2") : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
     </Fold>}
@@ -600,7 +626,8 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     {ask && quote && <div className="u-confirm-layer">
       <div role="dialog" aria-modal="true" aria-labelledby={askId} className="u-confirm" data-tool-ask="">
         <h2 id={askId}>{t("outils.confirmTitle")}</h2>
-        <p>{t(genjutsu ? "outils.cost" : "outils.confirmBody", { credits: formatCredits(quote.credits) })}</p>
+        <p>{t(genjutsu || doubler ? "outils.cost" : "outils.confirmBody", { credits: formatCredits(quote.credits) })}</p>
+        {doubler && <p data-doublage-quote="">{t("doublage.quoteFor", { seconds: new Intl.NumberFormat(document.documentElement.lang || undefined, { maximumFractionDigits: 2 }).format(veedSeconds(seconds ?? undefined) ?? 0), tier: t(`doublage.tierName.${doublage.tier}`), from: t(`doublage.langues.${doublage.source}`), to: t(`doublage.langues.${doublage.cible}`) })}</p>}
         {genjutsu && <p>{t("genjutsu.quoteFor", { seconds: String(Math.round((genjutsuSeconds(seconds ?? undefined) ?? 0) * 100) / 100), resolution })}</p>}
         <div className="u-confirm-actions">
           <button type="button" className="u-primary" data-tool-confirm="" onClick={() => void launch()}>{t("outils.confirmYes")}</button>

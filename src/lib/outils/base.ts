@@ -4,9 +4,11 @@
 import type { ApiGraph } from "../render/take-graph.ts";
 import { GENJUTSU_BASE } from "./genjutsu-base.ts";
 import { TOP10_BASES } from "./base-top10.ts";
+import { VEED_BASE, VEED_TEMPLATE } from "./veed.ts";
 
 export const OUTIL_BASES: Record<string, ApiGraph> = {
  api_higgsfield_genjutsu_motion_transfer: GENJUTSU_BASE,
+ [VEED_TEMPLATE]: VEED_BASE,
  ...TOP10_BASES,
  "image_qwen_image_2_1_t2i": {
   "13": {

@@ -2788,7 +2788,7 @@
       },
       "vid-genjutsu": {
         "title": "Genjutsu — sustituir un personaje",
-        "line": "Cambia el personaje de un clip y conserva su movimiento con el flujo de Comfy."
+        "line": "Cambia el personaje de un clip y conserva su movimiento."
       },
       "ret-angles-perso": {
         "title": "Ocho ángulos del personaje",
@@ -2821,6 +2821,10 @@
       "vid-fasth3": {
         "title": "Vídeo fiel al lugar",
         "line": "Tu personaje en tu lugar, con el decorado intacto."
+      },
+      "vid-doubler": {
+        "title": "Doblar una toma",
+        "line": "VEED traduce un clip y sincroniza los labios."
       }
     },
     "latest": "Últimos resultados",
@@ -3478,7 +3482,7 @@
     "refs": "Referencias adjuntas: {list}",
     "modelTip": {
       "ret-lumiere-image": "retrato y luego imagen de luz, sin instrucción; luz que contraste con el retrato, si no cambia poco.",
-      "vid-fasth3": "FastH3 conserva mejor el lugar: imagen del personaje, imagen del lugar, la acción en una frase; el estudio escribe la instrucción estructurada."
+      "vid-fasth3": "FastH3 conserva mejor el lugar: personaje, lugar, la acción en una frase; el estudio escribe la instrucción estructurada."
     },
     "greeting": "Hola, soy Uttu. ¿Qué quieres rodar?",
     "perMessage": "{n, plural, one {≈ # crédito estimado por mensaje} other {≈ # créditos estimados por mensaje}}",
@@ -3780,5 +3784,34 @@
     "no": "no",
     "unknown": "desconocido",
     "failed": "La prueba no se completó: {why}"
+  },
+  "doublage": {
+    "action": "Doblar la toma",
+    "info": "Una cara visible y una voz en el sonido. El clip doblado dura lo que su pista de audio, a 25 imágenes/s. El presupuesto depende de su duración y de la versión.",
+    "cible": "Idioma de destino",
+    "source": "Idioma hablado en el clip",
+    "tier": "Versión",
+    "tiers": {
+      "standard": "Estándar · {credits} créditos/s",
+      "pro": "Pro · {credits} créditos/s"
+    },
+    "tierName": {
+      "standard": "Estándar",
+      "pro": "Pro"
+    },
+    "langues": {
+      "auto": "Detección auto",
+      "fr": "Francés",
+      "en": "Inglés",
+      "de": "Alemán",
+      "es": "Español",
+      "it": "Italiano",
+      "pt": "Portugués",
+      "ja": "Japonés",
+      "zh": "Chino"
+    },
+    "same": "Elige un idioma de destino distinto del hablado.",
+    "trim": "El clip supera los 599 segundos: VEED no admite más.",
+    "quoteFor": "Para {seconds} s en {tier}, {from} → {to}. El precio final puede variar."
   }
 }
