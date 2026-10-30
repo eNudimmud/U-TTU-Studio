@@ -24,6 +24,62 @@ export function toggleAssistant(force?: boolean) {
   try { next = force ?? window.localStorage.getItem(KEY) !== '1'; window.localStorage.setItem(KEY, next ? '1' : '0'); } catch {}
   window.dispatchEvent(new CustomEvent(KEY, { detail: next }));
 }
+/** Closes the panel and gives the keyboard back to the U*TTU button that opened it. */
+function closeAssistant() {
+  toggleAssistant(false);
+  const opener = document.querySelector<HTMLElement>('[data-top-uttu]');
+  if (opener && opener.offsetParent !== null) opener.focus({ preventScroll: true });
+}
+/** Below 1600 px the panel floats over the studio: Escape or a press outside it closes it, and that
+ *  press still reaches what it was aimed at (the chain, a tab, a button). Docked wide, only Escape. */
+function useAssistantDismiss(open: boolean, panel: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open) return;
+    const modalElsewhere = () => [...document.querySelectorAll('dialog[open], [aria-modal="true"]')].some(node => !panel.current?.contains(node));
+    const key = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented || modalElsewhere()) return;
+      closeAssistant();
+    };
+    const press = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (!target || !window.matchMedia('(max-width: 1599px)').matches || modalElsewhere()) return;
+      if (panel.current?.contains(target) || target.closest('[data-top-uttu], [data-drawer-assistant], .u-sheet, .u-sheet-backdrop, [role="dialog"]')) return;
+      toggleAssistant(false);
+    };
+    document.addEventListener('keydown', key);
+    document.addEventListener('pointerdown', press, true);
+    return () => { document.removeEventListener('keydown', key); document.removeEventListener('pointerdown', press, true); };
+  }, [open, panel]);
+}
+/** Floating, the panel stops at the film chain and the phone tabs instead of covering them, so a
+ *  tap on a step always lands on the step (and closes Uttu, see above). */
+function useAssistantRoom(open: boolean, panel: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open) return;
+    let frame = 0;
+    const fit = () => {
+      frame = 0;
+      const node = panel.current; if (!node) return;
+      node.style.removeProperty('top'); node.style.removeProperty('bottom');
+      if (!window.matchMedia('(max-width: 1599px)').matches) return;
+      const box = node.getBoundingClientRect();
+      let top = box.top, bottom = window.innerHeight - box.bottom;
+      for (const bar of document.querySelectorAll<HTMLElement>('.u-chain, .u-tabs')) {
+        const r = bar.getBoundingClientRect();
+        if (!r.height || r.bottom <= 0 || r.top >= window.innerHeight || r.right <= box.left) continue;
+        if (r.top < window.innerHeight / 2) top = Math.max(top, r.bottom); else bottom = Math.max(bottom, window.innerHeight - r.top);
+      }
+      if (top > box.top) node.style.top = `${Math.round(top)}px`;
+      if (bottom > window.innerHeight - box.bottom) node.style.bottom = `${Math.round(bottom)}px`;
+    };
+    const later = () => { if (!frame) frame = requestAnimationFrame(fit); };
+    fit();
+    // The chain mounts once the studio is ready, and the page grows: refit then too.
+    const grow = new ResizeObserver(later); grow.observe(document.body);
+    window.addEventListener('resize', later); window.addEventListener('scroll', later, { passive: true });
+    return () => { cancelAnimationFrame(frame); grow.disconnect(); window.removeEventListener('resize', later); window.removeEventListener('scroll', later); };
+  }, [open, panel]);
+}
 export function useAssistantOpen(): boolean {
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -39,6 +95,9 @@ export function AssistantPanel() {
   const locale = agentLocale(uiLocale);
   const session = useStudio();
   const open = useAssistantOpen();
+  const panel = useRef<HTMLElement>(null);
+  useAssistantDismiss(open, panel);
+  useAssistantRoom(open, panel);
   const project = session.studio.project ?? '';
   const [conversation, setConversation] = useState<Conversation>(() => emptyConversation(''));
   const liveConversation = useRef(conversation); liveConversation.current = conversation;
@@ -195,8 +254,8 @@ export function AssistantPanel() {
   }
   if (!open) return null;
   const hinted = interpretAgentRequest(query, context, locale).map(id => operations.find(op => op.id === id)).filter(op => op?.toolId && op.status === 'ready');
-  return <aside id="u-assistant" className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
-    <header className="u-assistant-head"><h2 id="u-assistant-title">{t('uttu.title')}</h2><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={() => toggleAssistant(false)}>×</button></header>
+  return <aside ref={panel} id="u-assistant" className="u-assistant u-agent" data-assistant-panel="" aria-labelledby="u-assistant-title">
+    <header className="u-assistant-head"><h2 id="u-assistant-title">{t('uttu.title')}</h2><button type="button" className="u-top-icon" aria-label={t('assistant.close')} onClick={closeAssistant}>×</button></header>
     <UttuFree locale={locale} isAction={isAction} onPlan={handToPlan} project={project ? { name: session.studio.projectName ?? '', items: resources.map(r => ({ role: r.role, name: r.name })) } : null} refs={resources.filter(r => conversation.selectedIds.includes(r.id)).map(r => `${r.name} (${t(`media.kinds.${r.kind}`)})`)} more={<div className="u-uttu-kernel">
         <h3 className="u-uttu-plan-title" data-agent-kernel="">{t('uttu.plan.title')}</h3>
         <p className="u-small">{t('uttu.plan.lead')}</p>
