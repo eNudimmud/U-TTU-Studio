@@ -1,0 +1,33 @@
+{
+  "1": {
+    "inputs": {
+      "file": "uttu-plan.mp4"
+    },
+    "class_type": "LoadVideo"
+  },
+  "3": {
+    "inputs": {
+      "filename_prefix": "video/uttu-vid-doubler",
+      "format": "auto",
+      "format.codec": "auto",
+      "video": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "SaveVideo"
+  },
+  "5": {
+    "inputs": {
+      "model": "standard",
+      "model.video": [
+        "1",
+        0
+      ],
+      "model.target_language": "English",
+      "model.source_language": "auto",
+      "model.seed": 0
+    },
+    "class_type": "VeedDubbingNode"
+  }
+}

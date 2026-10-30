@@ -23,16 +23,16 @@ function links(graph: Record<string, { inputs: Record<string, unknown> }>): stri
 }
 
 describe("hub Outils", () => {
-  it("lists 67 template cards, every one in a family", () => {
-    assert.equal(OUTILS.length, 67);
-    assert.equal(new Set(OUTILS.map(item => item.id)).size, 67);
-    assert.equal(new Set(OUTILS.map(item => item.num)).size, 61);
+  it("lists 68 template cards, every one in a family", () => {
+    assert.equal(OUTILS.length, 68);
+    assert.equal(new Set(OUTILS.map(item => item.id)).size, 68);
+    assert.equal(new Set(OUTILS.map(item => item.num)).size, 62);
     for (const item of OUTILS) assert.ok(FAMILLES.includes(item.famille), item.id);
     for (const famille of FAMILLES) assert.ok(OUTILS.some(item => dansFamille(item, famille)), famille);
   });
 
-  it("wires 58 cards and says « bientôt » with a reason for the other 9", () => {
-    assert.equal(wired.length, 58);
+  it("wires 59 cards and says « bientôt » with a reason for the other 9", () => {
+    assert.equal(wired.length, 59);
     assert.equal(soon.length, 9);
     for (const item of soon) assert.ok(item.bientot, item.id);
     for (const item of wired) {
@@ -66,7 +66,7 @@ describe("hub Outils", () => {
 
   it("estimates every wired card, per started 5 s block for per-length tools", () => {
     for (const item of wired) {
-      const quote = outilQuote(item, item.parTranche || item.id === "vid-genjutsu" ? { seconds: 5 } : {});
+      const quote = outilQuote(item, item.parTranche || item.id === "vid-genjutsu" || item.id === "vid-doubler" ? { seconds: 5 } : {});
       assert.ok(quote && quote.credits > 0 && quote.high >= quote.credits, item.id);
       assert.equal(quote.kind, "estime");
     }
@@ -106,7 +106,7 @@ describe("hub Outils", () => {
 
   it("publishes one card per intent and hides the nine unwired tools", () => {
     const cards = outilsPublics();
-    assert.equal(cards.length, 41);
+    assert.equal(cards.length, 42);
     const ids = cards.map(item => item.id);
     assert.equal(new Set(ids).size, ids.length);
     assert.ok(cards.length < OUTILS.length);

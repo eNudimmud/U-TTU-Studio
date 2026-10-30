@@ -2844,6 +2844,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-import-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
 /* PRISE: the engine chips carry their own quote and wrap on a phone. */
 .u-engine .u-chip { min-height: 44px; }
+.u-doublage .u-choice-row { flex-wrap: wrap; overflow: visible; gap: 8px; }
 
 /* DÉCOR: the form comes first, so its text field and the gold button share the first screen. */
 .u-decor-form { display: grid; gap: 8px; }

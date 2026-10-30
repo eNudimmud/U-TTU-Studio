@@ -3,6 +3,7 @@
 // keeps what survives a reload: the text, the settings, and pictures that have a lasting address.
 // It never starts a render and never keeps the « I have the rights » box ticked.
 import type { GenjutsuResolution } from "./genjutsu.ts";
+import type { VeedChoix } from "./veed.ts";
 
 export interface DraftInput { url: string; name: string; file?: File; path?: string; aspect?: "horizontal" | "vertical" }
 
@@ -16,6 +17,7 @@ export interface ToolDraft {
   resolution?: GenjutsuResolution;
   camera?: string;
   piste?: string;
+  doublage?: VeedChoix;
 }
 
 const KEY = "u-ttu-brouillons";

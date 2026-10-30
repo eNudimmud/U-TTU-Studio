@@ -131,6 +131,8 @@ export const TEMPLATES_OFFICIELS = [
   "image_qwen_image_edit_2509_relight",
   "templates-portrait_light_migration",
   "video_fasth3_ominiref_r2v",
+  // VEED Dubbing, partner node read on Comfy Cloud 30.10.2026.
+  "api_veed_dubbing",
 ] as const;
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
@@ -513,6 +515,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-vid-prolonger-grok", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_grok_video_extend", credits: 136, high: 204, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "outil-vid-detourer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_bria_remove_video_background", credits: 63, high: 95, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 63,30 crédits pour API, 1 clip (job 74567076)
   geste({ id: "outil-vid-levres", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sync_so_lip_sync_video", credits: 280, high: 420, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 27.10.2026 : 278 crédits pour ~5 s → registre 280 / high 420
+  geste({ id: "outil-vid-doubler", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_veed_dubbing", credits: 165, high: 248, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }), // 5 s en standard (estimate_credits 30.10.2026 : 33 crédits/s standard, 54 pro) ; le formulaire calcule par seconde et par version. Aucun rendu facturé.
   geste({ id: "outil-son-bruitage-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_mirelo_video_to_sfx", credits: 15, high: 18, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 14,26 crédits partenaire pour 5,04 s de prise (job f5d1f00a), 3 crédits/s
   geste({ id: "outil-son-separer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_melbandroformer_audio_separation", credits: 1, high: 1, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 0,43 crédit pour 6,4 s de voix + musique (job 28e6846d)
   geste({ id: "outil-son-musique-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sonilo_v2m", credits: 10, high: 15, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
@@ -584,6 +587,7 @@ export function refsPourGraphe(row: Geste, refs: readonly RefInput[]): string[] 
  */
 export const NOEUD_SORTIE: Readonly<Record<string, string>> = {
   api_higgsfield_genjutsu_motion_transfer: "10",
+  api_veed_dubbing: "3",
   image_qwen_image_2_1_t2i: "461",
   api_bfl_flux3_t2i: "2",
   api_ideogram_v4_5_t2i: "5",

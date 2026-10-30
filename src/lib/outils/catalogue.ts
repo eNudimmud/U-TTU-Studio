@@ -11,7 +11,7 @@ export type Sous = "image" | "video" | "3d" | "son" | "texte";
 export type Sortie = "image" | "video" | "audio" | "mesh";
 /** What the panel asks for. `image2` is an optional second picture (références). */
 export type Entree = "image" | "image2" | "video" | "audio";
-export type Reglage = "aspect" | "camera" | "elargir" | "fluide" | "mesh" | "piste" | "resolution";
+export type Reglage = "aspect" | "camera" | "doublage" | "elargir" | "fluide" | "mesh" | "piste" | "resolution";
 export type Moteur =
   | { kind: "generique" }
   | { kind: "klein" }
@@ -127,6 +127,7 @@ export const OUTILS: readonly Outil[] = [
   { id: "vid-recadrer", num: 53, famille: "video", sous: "video", template: "template_ltx2_3_lora_video_outpainting", entrees: ["video"], texte: "aucun", sortie: "video", onglets: ["prise"], geste: "prise-elargir", moteur: { kind: "video" } },
   { id: "vid-detourer", num: 54, famille: "video", sous: "video", template: "api_bria_remove_video_background", entrees: ["video"], texte: "aucun", sortie: "video", onglets: [], geste: "outil-vid-detourer", moteur: G, parTranche: true },
   { id: "vid-levres", num: 55, famille: "video", sous: "video", template: "api_sync_so_lip_sync_video", entrees: ["video", "audio"], texte: "aucun", sortie: "video", onglets: ["montage"], geste: "outil-vid-levres", moteur: G, parTranche: true },
+  { id: "vid-doubler", num: 66, famille: "video", sous: "video", template: "api_veed_dubbing", entrees: ["video"], texte: "aucun", sortie: "video", onglets: ["montage"], geste: "outil-vid-doubler", moteur: G, reglages: ["doublage"] },
   { id: "vid-effacer", num: 57, famille: "video", sous: "video", template: "template_ltx2_3_obscura_remova_lora_remove_object_from_video", entrees: ["video"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-effacer", moteur: { kind: "video" } },
   { id: "vid-fluidifier", num: 58, famille: "video", sous: "video", template: "utility_video_frame_interpolation", entrees: ["video"], texte: "aucun", sortie: "video", onglets: ["montage"], geste: "suite-fluidifier", moteur: S, parTranche: true },
   { id: "vid-mouvement", num: 23, famille: "video", sous: "video", template: "video_wan_animate2", entrees: ["image", "video"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "outil-vid-mouvement", moteur: G },

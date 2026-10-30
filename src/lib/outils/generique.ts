@@ -7,6 +7,7 @@ import type { ApiGraph } from "../render/take-graph.ts";
 import { OUTIL_BASES } from "./base.ts";
 import { genjutsuResolution, type GenjutsuResolution } from "./genjutsu.ts";
 import { fastH3Prompt } from "./fasth3-prompt.ts";
+import { veedChoix, veedLangues, veedMemeLangue, type VeedChoix } from "./veed.ts";
 
 type At = readonly [node: string, input: string];
 export type OutilAspect = "horizontal" | "vertical";
@@ -47,6 +48,8 @@ export interface GeneriqueInput {
   resolution?: GenjutsuResolution;
   camera?: OutilCamera;
   piste?: OutilPiste;
+  /** Doubler une prise: tier and languages. */
+  doublage?: Partial<VeedChoix>;
 }
 
 interface Spec {
@@ -214,6 +217,16 @@ export const GENERIQUE: Readonly<Record<string, Spec>> = {
       graph["139:113"].inputs.value = vertical ? 720 : 1280;
       graph["139:98"].inputs.value = vertical ? 1280 : 720;
       if (!/\bzhuanchang\b/i.test(prompt)) graph["139:128"].inputs.text = `${prompt.trim()} zhuanchang`;
+    },
+  },
+  // « Doubler une prise » (30.10.2026): VEED Dubbing, the clip in 1, tier and languages on 5.
+  api_veed_dubbing: {
+    video: ["1", "file"], seed: [["5", "model.seed"]], save: ["3", "filename_prefix"],
+    patch(graph, _prompt, input) {
+      const choix = veedChoix(input.doublage);
+      if (veedMemeLangue(choix)) throw new Error("Langue de départ et d’arrivée identiques.");
+      const langues = veedLangues(choix);
+      Object.assign(graph["5"].inputs, { model: choix.tier, "model.target_language": langues.target_language, "model.source_language": langues.source_language });
     },
   },
   api_sonilo_v2m: { video: ["705", "file"], prompt: [["703", "prompt"]], seed: [["703", "seed"]], save: ["728", "filename_prefix"] },

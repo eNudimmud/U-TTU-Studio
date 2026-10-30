@@ -2821,6 +2821,10 @@
       "vid-fasth3": {
         "title": "Video faithful to the place",
         "line": "Your character in your place, set kept."
+      },
+      "vid-doubler": {
+        "title": "Dub a take",
+        "line": "VEED translates a clip’s speech and re-syncs the lips."
       }
     },
     "latest": "Latest results",
@@ -3780,5 +3784,34 @@
     "no": "no",
     "unknown": "unknown",
     "failed": "The test did not go through: {why}"
+  },
+  "doublage": {
+    "action": "Dub the take",
+    "info": "A visible face and a voice in the sound. The dubbed clip lasts as long as its audio track, at 25 fps. The quote depends on its length and the version.",
+    "cible": "Target language",
+    "source": "Language spoken in the clip",
+    "tier": "Version",
+    "tiers": {
+      "standard": "Standard · {credits} credits/s",
+      "pro": "Pro · {credits} credits/s"
+    },
+    "tierName": {
+      "standard": "Standard",
+      "pro": "Pro"
+    },
+    "langues": {
+      "auto": "Auto-detect",
+      "fr": "French",
+      "en": "English",
+      "de": "German",
+      "es": "Spanish",
+      "it": "Italian",
+      "pt": "Portuguese",
+      "ja": "Japanese",
+      "zh": "Chinese"
+    },
+    "same": "Pick a target language different from the spoken one.",
+    "trim": "The clip is longer than 599 seconds: VEED takes no more.",
+    "quoteFor": "For {seconds} s in {tier}, {from} → {to}. The final price may vary."
   }
 }

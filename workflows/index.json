@@ -1094,6 +1094,18 @@
       "api_file": "workflows/outils/outil-vid-genjutsu.api.json"
     },
     {
+      "id": "outil-vid-doubler",
+      "onglet": "outils",
+      "template": "api_veed_dubbing",
+      "partner": true,
+      "partnerNodes": [
+        "VeedDubbingNode"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/outil-vid-doubler.json",
+      "api_file": "workflows/outils/outil-vid-doubler.api.json"
+    },
+    {
       "id": "decor-3d-apparence",
       "onglet": "decor",
       "template": "flux_depth_lora_example",

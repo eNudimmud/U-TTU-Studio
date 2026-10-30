@@ -13,6 +13,7 @@ import { gesteParId } from "../workflows/registre.ts";
 import { outilRow, type Outil } from "./catalogue.ts";
 import { generiqueGraph, type OutilAspect, type OutilCamera, type OutilFiles, type OutilPiste } from "./generique.ts";
 import { GENJUTSU_TEMPLATE, genjutsuQuote, type GenjutsuResolution } from "./genjutsu.ts";
+import { VEED_TEMPLATE, veedQuote, type VeedChoix } from "./veed.ts";
 
 export const OUTIL_SECONDS = 5;
 
@@ -29,6 +30,7 @@ export interface OutilInput {
   resolution?: GenjutsuResolution;
   camera?: OutilCamera;
   piste?: OutilPiste;
+  doublage?: Partial<VeedChoix>;
 }
 
 export const MESH_GESTE = { objet: "prise-volume-objet", perso: "prise-volume-perso" } as const;
@@ -58,7 +60,7 @@ export function outilGraph(outil: Outil, input: OutilInput): ApiGraph {
       return graph;
     }
     case "generique":
-      return generiqueGraph({ template: outil.template, files: input.files, prompt, seed: input.seed, prefix: outilPrefix(outil), aspect: input.aspect, resolution: input.resolution, camera: input.camera, piste: input.piste });
+      return generiqueGraph({ template: outil.template, files: input.files, prompt, seed: input.seed, prefix: outilPrefix(outil), aspect: input.aspect, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
     case "suite": {
       if (!isSuiteGeste(row.id)) throw new Error(row.id);
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.files.video : images[0];
@@ -104,8 +106,9 @@ export interface OutilQuote {
 const round1 = (value: number) => Math.round(value * 10) / 10;
 
 /** Estimated from the registry row. Per-length tools count each started block of five seconds. */
-export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso"; resolution?: GenjutsuResolution } = {}): OutilQuote | null {
+export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso"; resolution?: GenjutsuResolution; doublage?: Partial<VeedChoix> } = {}): OutilQuote | null {
   if (outil.template === GENJUTSU_TEMPLATE) return genjutsuQuote(options.seconds, options.resolution);
+  if (outil.template === VEED_TEMPLATE) return veedQuote(options.seconds, options.doublage?.tier);
   const row = outil.moteur?.kind === "mesh" ? gesteParId(MESH_GESTE[options.mesh ?? "objet"]) : outilRow(outil);
   if (!row || row.credits === null || row.high === null) return null;
   // Per-length tools (e.g. Musique pour une vidéo): wait for a real duration so the quote
