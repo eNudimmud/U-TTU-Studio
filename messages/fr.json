@@ -1963,8 +1963,9 @@
     },
     "quote": {
       "estimated": "{low, select, 1 {≈ 1 crédit estimé} other {≈ {low} crédits estimés}}",
-      "measured": "Mesuré : environ {credits} crédits",
+      "measured": "≈ {credits} à {high} crédits estimés",
       "measuredBalance": "Mesuré sur tes prises : environ {credits} crédits.",
+      "measuredBalanceRange": "≈ {credits} à {high} crédits estimés, mesuré sur tes prises.",
       "none": "Pas encore de devis pour ce réglage. Rien ne part."
     },
     "gate": {
@@ -2020,7 +2021,8 @@
       "go": "{credits, select, 1 {Tourner · ≈ 1 crédit estimé} other {Tourner · ≈ {credits} crédits estimés}}",
       "goNext": "{credits, select, 1 {Tourner le plan {n} · ≈ 1 crédit estimé} other {Tourner le plan {n} · ≈ {credits} crédits estimés}}",
       "keep": "Ton choix reste pour les prochains plans de ce projet.",
-      "apercuHint": "Un aperçu se finalise plus tard, seul ou avec tout le montage."
+      "apercuHint": "Un aperçu se finalise plus tard, seul ou avec tout le montage.",
+      "range": "{low} à {high}"
     },
     "addToMontage": "Ajouter au montage",
     "editor": {

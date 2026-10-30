@@ -32,7 +32,7 @@ describe("CAST, DÉCOR, PRISE", () => {
 
   it("quotes the billed 4 credits and nothing when the setting is unmeasured", () => {
     assert.equal(quotedCredits({ source: "billed", measure: BILLED_MEASURE }), 4);
-    assert.equal(quotedCredits({ source: "balance", credits: 4, at: "2026-10-07", runs: 1 }), 4);
+    assert.equal(quotedCredits({ source: "balance", credits: 4, at: "2026-10-07", runs: 1, high: 6 }), 4);
     assert.equal(quotedCredits({ source: "unmeasured" }), null);
   });
 
