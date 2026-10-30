@@ -5,7 +5,7 @@ import { measuredCost } from "../credits.ts";
 import { imageOutput, jobStage, RenderError, type JobDetail, type OutputRef, type RenderClient } from "../render/client.ts";
 import { DECOR_3D_TEMPLATE, decor3dGraph } from "../render/decor-3d.ts";
 import { instantxCadreGraph, INSTANTX_CADRE_TEMPLATE } from "../render/instantx-cadre.ts";
-import { KLEIN_REFS_MAX, kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
+import { KLEIN_BASE_CFG, KLEIN_REFS_MAX, kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
 import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
@@ -135,7 +135,12 @@ function kleinStill(input: { kind: StillKind; prompt: string; images: readonly s
     }
   }
   const sheet = input.kind === "planche" ? "Turnaround of this fictional person: front, three-quarter, profile, back, full body, side by side. Plain background. No text." : SUFFIX[kind];
-  Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: sheet ? `${input.prompt}\n\n${sheet}` : input.prompt, seed: input.seed, aspect: aspectOf(kind), images: refs }));
+  // Place edits (décor photo, change the time) need the base model's guidance: at cfg 1 the
+  // 27.10 « Changer l'heure » runs melted into colour mush (ca924213, fa472751); at cfg 3.5 the
+  // same job keeps the street (42214421). Face edits stay at cfg 1: at cfg 3.5 the same CAST job
+  // dropped the hood, braids and costume of the reference (a284d608 against f704495a).
+  const cfg = kind === "photo-decor" ? KLEIN_BASE_CFG : undefined;
+  Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: sheet ? `${input.prompt}\n\n${sheet}` : input.prompt, seed: input.seed, aspect: aspectOf(kind), images: refs, cfg }));
   graph.save = save(input.kind === "planche" ? "planche" : "save", "klein_decode", input.kind === "planche" ? "uttu-planche" : "uttu-still");
   return graph;
 }

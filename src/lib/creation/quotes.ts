@@ -48,10 +48,10 @@ export const DECOR_TEXT_QUOTE: CreationQuote = {
   kind: "mesure",
 };
 
-/** One FLUX 3 Klein edit of a place photo. */
+/** One FLUX 3 Klein edit of a place photo at cfg 3.5. Measured 5.89 credits on 2026-10-30 (job 42214421). */
 export const DECOR_PHOTO_QUOTE: CreationQuote = {
-  credits: 4,
-  high: 6,
+  credits: 6,
+  high: 9,
   template: "image_flux3_klein_image_edit",
   kind: "mesure",
 };

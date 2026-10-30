@@ -65,7 +65,7 @@ test('framing: a new estimated profile cannot reuse an ordinary take measurement
  assert.equal(profile,'ltx25-cadre-v1-5s-horizontal');
  const quote=resolveTakeQuote(profile,[]);
  assert.equal(quote.source,'estimated');
- if(quote.source==='estimated') {assert.equal(quote.estimate.credits,23);assert.equal(quote.estimate.creditsHigh,39);}
+ if(quote.source==='estimated') {assert.equal(quote.estimate.credits,26);assert.equal(quote.estimate.creditsHigh,43);}
  const preview=takeProfile({...settings,rendu:'apercu'});
  assert.equal(isApercuProfile(preview),true);
  assert.equal(resolveTakeQuote(preview,[]).source,'estimated');
