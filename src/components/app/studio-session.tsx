@@ -91,6 +91,8 @@ const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO = /\.(mp4|webm|mov)$/i;
 
 import { getComfyAuthHeaders, renderCredentialScope } from "@/lib/render/client";
+import { film2DansCePoste } from "@/lib/film/drapeau";
+import { memoEnvois } from "@/lib/film/envois";
 import { randomSeed } from "@/lib/seed";
 import { connectMessage } from "@/lib/render/connect";
 import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
@@ -529,8 +531,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [setStudio, showMedia, store]);
 
   const client = useMemo<RenderClient | null>(() => {
-    if (link.mode === "key") return createRenderClient({ auth: { kind: "key", key: link.key } });
-    if (link.mode === "session") return createRenderClient({ auth: { kind: "session", token: () => tokens.token() } });
+    // Refonte FILM (registre): behind film2, a picture already sent is not uploaded again.
+    const memo = film2DansCePoste() ? { uploadMemo: memoEnvois(localStorage) } : {};
+    if (link.mode === "key") return createRenderClient({ auth: { kind: "key", key: link.key }, ...memo });
+    if (link.mode === "session") return createRenderClient({ auth: { kind: "session", token: () => tokens.token() }, ...memo });
     return null;
   }, [link, tokens]);
 
