@@ -158,6 +158,14 @@ function phraseInner(t: PhraseFn, line: string, depth: number): string {
 
 const PATTERNS: Pattern[] = [
   {
+    re: /^Un rendu est encore en cours dans le cloud : (.+)\. Attends qu’il finisse avant d’en lancer un autre\. Rien n’est perdu, rien n’est renvoyé\.$/,
+    apply: (t, match) => t("runtimeSafe.pendingRunning", { name: match[1] }),
+  },
+  {
+    re: /^Le rendu précédent est terminé : (.+)\. Range-le d’abord avec Récupérer le rendu \(dans Crédits\), sans nouvel envoi\.$/,
+    apply: (t, match) => t("runtimeSafe.pendingDone", { name: match[1] }),
+  },
+  {
     re: /^Estimé : environ (\S+) à (\S+) crédits\. Estimation, pas une mesure : aucune prise réelle facturée pour ce réglage\.$/,
     apply: (t, match) => t("runtime.estimateQuote", { amount: match[1], high: match[2] }),
   },

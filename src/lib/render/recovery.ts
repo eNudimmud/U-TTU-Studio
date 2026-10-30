@@ -1,6 +1,6 @@
 // Durable receipt for a paid submission. Never automatically submit again:
 // an interrupted POST may already have been charged upstream.
-import { RenderError, jobStage, type RenderClient } from './client.ts';
+import { RenderError, jobStage, type JobStage, type RenderClient } from './client.ts';
 import type { InFlight } from './settings.ts';
 import { ACTIVE_FILE } from '../coffre/project.ts';
 import type { VaultStore } from '../coffre/store.ts';
@@ -92,23 +92,44 @@ export function clearTerminalPending(storage: StorageLike, jobId: string): void 
  * - "blocked" when a live or finished-success job still needs recovery
  * - "none" when there is no receipt
  */
-export async function reconcilePendingReceipt(
+/** What blocks a new paid send: nothing, a receipt the cloud ended without result (dropped), or a
+ *  receipt still there, with the cloud stage when it could be read (status only, nothing sent). */
+export async function pendingState(
   storage: StorageLike,
   client: Pick<RenderClient, 'status'>,
-): Promise<'none' | 'cleared' | 'blocked'> {
+): Promise<{ result: 'none' | 'cleared' | 'blocked'; stage: JobStage | null; pending: PendingRender | null }> {
   const pending = readPending(storage);
-  if (!pending) return 'none';
-  if (!pending.jobId) return 'blocked';
+  if (!pending) return { result: 'none', stage: null, pending: null };
+  if (!pending.jobId) return { result: 'blocked', stage: null, pending };
   try {
     const stage = jobStage(await client.status(pending.jobId));
     if (stage === 'failed' || stage === 'cancelled') {
       clearPending(storage, pending.jobId);
-      return 'cleared';
+      return { result: 'cleared', stage, pending: null };
     }
-    return 'blocked';
+    return { result: 'blocked', stage, pending };
   } catch {
-    return 'blocked';
+    return { result: 'blocked', stage: null, pending };
   }
+}
+
+export async function reconcilePendingReceipt(
+  storage: StorageLike,
+  client: Pick<RenderClient, 'status'>,
+): Promise<'none' | 'cleared' | 'blocked'> {
+  return (await pendingState(storage, client)).result;
+}
+
+/** The sentence shown when a second paid send is refused, true to what the cloud is doing. */
+export function pendingRefusal(stage: JobStage | null, name: string): string {
+  const label = name.trim() || 'sans nom';
+  if (stage === 'queue' || stage === 'prepare' || stage === 'render') {
+    return `Un rendu est encore en cours dans le cloud : ${label}. Attends qu’il finisse avant d’en lancer un autre. Rien n’est perdu, rien n’est renvoyé.`;
+  }
+  if (stage === 'done') {
+    return `Le rendu précédent est terminé : ${label}. Range-le d’abord avec Récupérer le rendu (dans Crédits), sans nouvel envoi.`;
+  }
+  return "Un rendu précédent attend encore sa récupération. Ouvre Crédits, puis Récupérer le rendu — ou réessaie si le cloud l’a déjà terminé sans résultat.";
 }
 
 /** A background result always returns to its original project. */
