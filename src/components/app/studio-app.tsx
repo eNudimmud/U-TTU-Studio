@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { liftDelta, openBand } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
 import { chooseEdit, editHasClips } from "@/lib/montage/from-takes";
@@ -17,6 +17,10 @@ import "./app.css";
 import { StudioSplash } from "./splash";
 import { TopBar } from "./top-bar";
 import { AssistantPanel, toggleAssistant } from "./assistant-panel";
+
+function stageOf(tab: Tab): "lora" | "scene" | "prise" | "montage" | "outils" {
+  return tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
+}
 
 const STEPS: { id: "lora" | "scene" | "prise" | "montage"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" }[] = [
   { id: "lora", key: "nav.character" },
@@ -67,16 +71,32 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const tab: Tab = asked ?? "outils";
   const section: "lora" | "scene" | "prise" | "montage" | "outils" = tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
 
+  // Switching tab mounts a whole stage (PRISE is the heaviest). Render it as a transition so the tap
+  // paints at once (the tab lights up, the old stage stays until the new one is ready) instead of
+  // freezing the main thread for the full mount. Scroll and focus follow once the new stage is in.
+  const [switching, startSwitch] = useTransition();
+  const [target, setTarget] = useState<Tab | null>(null);
+  const arrive = useRef(false);
+  const shownStage = useRef(section); shownStage.current = section;
   const go = useCallback((next: Tab) => {
     const shown: Tab = next === "look" || next === "fiches" || next === "sphere" ? "lora" : next;
-    setAsked(shown);
-    setOutil(null);
+    setTarget(shown);
+    if (stageOf(shown) === shownStage.current) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      requestAnimationFrame(() => document.getElementById("u-title")?.focus({ preventScroll: true }));
+    } else arrive.current = true;
+    startSwitch(() => { setAsked(shown); setOutil(null); });
     const hash = TAB_HASH[shown];
     const url = `${window.location.pathname}${window.location.search}#${hash}`;
     if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== url) window.history.pushState(null, "", url);
+  }, []);
+  useEffect(() => {
+    if (switching || !arrive.current) return;
+    arrive.current = false;
     window.scrollTo({ top: 0, behavior: "instant" });
     requestAnimationFrame(() => document.getElementById("u-title")?.focus({ preventScroll: true }));
-  }, []);
+  }, [switching, section]);
+  const lit = switching && target ? stageOf(target) : section;
 
   useEffect(() => {
     if (!notice) return;
@@ -162,13 +182,13 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   return <FormatProvider><div className="u-app" data-studio={section}>
     <TopBar place={section === "montage" ? "montage" : section === "outils" ? "creer" : "realiser"} />
     {section !== "outils" && <nav className="u-chain" aria-label={t("nav.chain")}>
-      {STEPS.map(step => <button key={step.id} type="button" aria-current={section === step.id ? "page" : undefined} data-state={marks[step.id] ? "pret" : "vide"} onClick={() => go(step.id)}>
+      {STEPS.map(step => <button key={step.id} type="button" aria-current={lit === step.id ? "page" : undefined} data-state={marks[step.id] ? "pret" : "vide"} onClick={() => go(step.id)}>
         <span>{t(step.key)}</span>
         <small>{marks[step.id] ? t("stage.ready") : t("stage.empty")}</small>
         {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
       </button>)}
     </nav>}
-    <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready}>
+    <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready || switching} data-switching={switching ? "" : undefined}>
       {!ready ? <StudioSplash /> : <>
         {section === "outils" ? <OutilsHub tool={outil} />
           : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
