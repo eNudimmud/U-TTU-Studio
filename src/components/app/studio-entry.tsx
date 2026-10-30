@@ -4,6 +4,7 @@
 // settings on demand), the door into the film (CAST → DÉCOR → PRISE → MONTAGE), every ready tool in one
 // row per family (the same list as the rail and search).
 
+import { STUDIO_HERO, THUMB_SIZES } from "@/lib/studio-hero";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
@@ -69,7 +70,7 @@ function CreationTools() {
   const total = shown.length + (scout ? 1 : 0) + (maquette ? 1 : 0);
   return <>
     <button type="button" className="u-entry-film" data-entry-film="" onClick={goFilm}>
-      <img src={assetPath("/exemples/decor-quai-nuit.webp")} alt="" width={1600} height={900} loading="lazy" decoding="async" />
+      <img src={STUDIO_HERO.src} srcSet={STUDIO_HERO.srcSet} sizes={STUDIO_HERO.sizes} alt="" width={1600} height={900} loading="eager" fetchPriority="high" decoding="async" data-entry-hero="" />
       <span className="u-entry-film-copy">
         <strong>{t("entry.film")}</strong>
         <span>{t("entry.filmLine")}</span>
@@ -189,7 +190,7 @@ export function CardThumb({ id, fam }: { id: string; fam: Famille | "reperage" |
   const src = vignette(key), src2x = vignette2x(key), loop = vignetteAnimee(key);
   const motion = useMotionOk();
   return <span className="u-outil-thumb" aria-hidden="true">
-    {src ? <img src={assetPath(src)} srcSet={src2x ? `${assetPath(src)} 1x, ${assetPath(src2x)} 2x` : undefined} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
+    {src ? <img src={assetPath(src)} srcSet={src2x ? `${assetPath(src)} 640w, ${assetPath(src2x)} 1280w` : undefined} sizes={src2x ? THUMB_SIZES : undefined} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
     {src && loop && motion ? <CardLoop webm={assetPath(loop.webm)} mp4={assetPath(loop.mp4)} poster={assetPath(src)} /> : null}
   </span>;
 }
