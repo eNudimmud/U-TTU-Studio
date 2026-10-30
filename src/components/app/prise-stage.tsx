@@ -1,5 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
 import { useAgentDraft } from "./use-agent-draft";
 import { ETAPES, etapeApres, etapeInitiale, etapePrecedente, etapeSuivante, type Etape, type EtapeSignal } from "@/lib/prise/etapes";
 import { PRISE_HANDOFF_KEY, isPriseHandoff, takeHandoff, type PriseHandoff } from "@/lib/barre/model";
@@ -43,12 +45,13 @@ import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import { montrerDepart } from "@/lib/creation/depart";
 import { ExempleDepart } from "./exemple-depart";
 import { FormatSwitch, useFormat } from "./format-switch";
-import { MaquetteView } from "./maquette-view";
 import { useStudio } from "./studio-session";
 import { ToolStage } from "./tool-shell";
 import { EtEnsuite } from "./et-ensuite";
 import { VideoGestes, type PrevisClip } from "./video-gestes";
-import { PrevisPanel } from "./previs-panel";
+// The maquette (three.js) and the prévis panel load only once their « Avancé » group is opened.
+const MaquetteView = dynamic(() => import("./maquette-view").then(module => module.MaquetteView), { ssr: false, loading: () => <div className="u-maquette" data-maquette-loading="" aria-busy="true" /> });
+const PrevisPanel = dynamic(() => import("./previs-panel").then(module => module.PrevisPanel), { ssr: false });
 import { recordMaquette } from "@/lib/maquette/record";
 import { resolveIntention, type KnownName } from "@/lib/intention/resolve";
 import { planIntention, uttuLine, type Say } from "@/lib/intention/plan";
@@ -123,6 +126,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [editorOpen, setEditorOpen] = useState(false);
   // « Maquette 3D et cadrage » (the 3D row of Outils) lands on #prise/maquette: unfold AVANCÉ and the maquette.
   const [maquetteAsk, setMaquetteAsk] = useState(0);
+  // Mounted on the first opening of the maquette or prévis group, then kept so its state survives a fold.
+  const [maquetteSeen, setMaquetteSeen] = useState(false);
+  const seeMaquette = useCallback(() => setMaquetteSeen(true), []);
   useEffect(() => {
     const apply = () => {
       if (!/^#prise\/maquette\b/.test(window.location.hash)) return;
@@ -1335,9 +1341,9 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
         <summary>{t("p0.advanced")}</summary>
         {!demo && withTake === 0 && canMonter && <button type="button" className="u-secondary" data-envoyer-montage="" data-image-fixe="" onClick={() => void monter()}>{t("p0.monterStill")}</button>}
         {/* AVANCÉ is short collapsed groups; the gestures that do not need the maquette live in Outils. */}
-        <AvanceGroup id="maquette" title={t("p0.groups.maquette")} ask={maquetteAsk}>
+        <AvanceGroup id="maquette" title={t("p0.groups.maquette")} ask={maquetteAsk} onOpen={seeMaquette}>
         <div className="u-maquette-avance" data-maquette-avance="" data-framing-mode={maquetteMode}>
-      <MaquetteView
+      {maquetteSeen && <MaquetteView
           state={{ ...maquette, props: maquette.props?.map(prop => ({ ...prop, url: prop.source ? media[prop.source] : undefined })) }}
           backdrop={quartier && !force2D && maquetteMode !== "plat" ? "" : (shownPlace?.src || "")}
           placeName={shownPlace?.name || ""}
@@ -1355,7 +1361,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           onPinch={(previous, distance) => setMaquette(state => pinch(state, previous, distance))}
           onMoveProp={(id, x, z) => setMaquette(state => moveProp(state, id, x, z))}
           playFrom={playFrom}
-        />
+        />}
       <div className="u-framing-controls" data-framing-panel="">
         <div className="u-choice-row">
           {!noWebGL && <button type="button" className="u-chip" disabled={framingBusy} aria-describedby={framingBusy ? "u-framing-wait" : undefined} aria-pressed={!force2D} onClick={() => { if (force2D) { onCaptureReady(null); setForce2D(false); } }}>{t("framing.three")}</button>}
@@ -1472,8 +1478,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
           {!input.previousKept && input.enchainer && <p className="u-why">{t("p0.chainNotKept")}</p>}
           <button type="button" className="u-chip" aria-pressed={input.imageFin} onClick={() => patch({ imageFin: !input.imageFin })}>{t("p0.chainEnd")}</button>
         </details>
-        <AvanceGroup id="previs" title={t("p0.groups.previs")}>
-        <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} />
+        <AvanceGroup id="previs" title={t("p0.groups.previs")} onOpen={seeMaquette}>
+        {maquetteSeen && <PrevisPanel state={maquette} setState={setMaquette} cast={people.map(person => ({ id: person.id, name: person.name }))} neutralName={t("r7.neutralName")} recording={previsLeft} onRecord={() => void filmPrevis()} />}
         <VideoGestes aspect={format === "9:16" ? "vertical" : "horizontal"} previs={previsClip} previsLeft={previsLeft} onRecordPrevis={() => void filmPrevis()} only={["prise-previs", "prise-camera"]} />
         </AvanceGroup>
         {!demo && memory && <MemoirePanel memory={memory} planId={draft.id} t={t} />}
@@ -1700,8 +1706,10 @@ function MemoirePanel({ memory, planId, t }: { memory: ProductionMemory; planId:
 
 // One AVANCÉ group: a real button (aria-expanded) instead of a nested <summary>, which Safari did not toggle on tap.
 // The content stays mounted while closed so the maquette, the engine choice and the prévis keep their state.
-function AvanceGroup({ id, title, children, ask = 0 }: { id: string; title: string; children: ReactNode; ask?: number }) {
+// `onOpen` lets a heavy child (the three.js maquette) mount on the first opening only.
+function AvanceGroup({ id, title, children, ask = 0, onOpen }: { id: string; title: string; children: ReactNode; ask?: number; onOpen?: () => void }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => { if (open) onOpen?.(); }, [open, onOpen]);
   const bodyId = `u-avance-${id}`;
   const groupRef = useRef<HTMLElement>(null);
   // A link asked for this group: open it and bring it into view.
