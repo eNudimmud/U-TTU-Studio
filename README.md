@@ -4,7 +4,7 @@
 
 **FR** — Studio de cinéma IA open source sur ComfyUI. Écris ce que tu veux tourner, en image ou en vidéo, garde tes personnages et tes lieux avec des références nommées, puis mets en scène, tourne et monte un film. Chaque rendu passe par ton propre compte Comfy, avec un devis avant chaque crédit.
 
-Live: <https://u-ttu-studio.vercel.app> (landing) · <https://u-ttu-studio.vercel.app/studio> (studio) · License: [MIT](LICENSE) · Languages / langues : FR (source), EN, DE, ES.
+Live: <https://uttu-studio.app> (landing) · studio: <https://uttu-studio.app/studio>, which opens on <https://u-ttu-studio.vercel.app/studio> because Comfy login is only authorized there for now (see [DECISIONS](docs/DECISIONS.md)) · License: [MIT](LICENSE) · Languages / langues : FR (source), EN, DE, ES.
 
 <p>
 <img src="docs/preuves/accueil-v2/accueil-fr-1280x800-top.webp" width="64%" alt="Landing, 1280 px">
@@ -75,7 +75,7 @@ Quotes below are the registry quotes at their default size ([`src/lib/workflows/
 
 | EN | FR |
 |---|---|
-| 1. Open <https://u-ttu-studio.vercel.app>. The page follows your browser language; the language menu keeps your choice. | 1. Ouvre <https://u-ttu-studio.vercel.app>. La page suit la langue du navigateur ; le menu de langue garde ton choix. |
+| 1. Open <https://uttu-studio.app>. The page follows your browser language; the language menu keeps your choice. | 1. Ouvre <https://uttu-studio.app>. La page suit la langue du navigateur ; le menu de langue garde ton choix. |
 | 2. **Discover with Uttu** or **Enter the studio**. Without an account: cost simulator, getting-started guide, scouting, 3D mock-up, EDIT timeline, project export. | 2. **Découvrir avec Uttu** ou **Entrer dans le studio**. Sans compte : simulateur de coûts, guide, repérage, maquette 3D, timeline de MONTAGE, export du projet. |
 | 3. To render: **Credits → Connect the render account → Sign in with Comfy**, or paste a Comfy Cloud API key (paid Comfy Cloud plan). Session and key stay in your browser. | 3. Pour rendre : **Crédits → Relier le compte de rendu → Se connecter avec Comfy**, ou colle une clé API Comfy Cloud (abonnement payant). Session et clé restent dans ton navigateur. |
 | 4. A 5-render path: CAST from text ≈ 4 · SET from text ≈ 4 · TAKE LTX 5 s ≈ 18 · EDIT 0 · Finalise the edit ≈ 4.1 (all measured). | 4. Parcours en 5 rendus : CAST depuis un texte ≈ 4 · DÉCOR ≈ 4 · PRISE LTX 5 s ≈ 18 · MONTAGE 0 · Finaliser le montage ≈ 4,1 (tous mesurés). |
