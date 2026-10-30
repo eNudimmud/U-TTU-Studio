@@ -117,6 +117,8 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
   const [advanced, setAdvanced] = useState(false);
   // P1-3 · phone path in five steps (CSS shows one step below 1024 px; large screens keep every block).
   const [etape, setEtape] = useState<Etape>("preparer");
+  // « Modifier ce plan » is open as soon as the « Plans » step is: React owns `open`, so no frame passes with it shut.
+  const [editorOpen, setEditorOpen] = useState(false);
   // « Maquette 3D et cadrage » (the 3D row of Outils) lands on #prise/maquette: unfold AVANCÉ and the maquette.
   const [maquetteAsk, setMaquetteAsk] = useState(0);
   useEffect(() => {
@@ -1047,7 +1049,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
     if (next === "previs") { setAdvanced(true); setMaquetteAsk(value => value + 1); }
     // « Prévisualiser » opened « Avancé » itself: leaving the step folds it back.
     else if (etape === "previs") setAdvanced(false);
-    if (next === "plans") requestAnimationFrame(() => document.querySelector<HTMLDetailsElement>("[data-plan-editor]")?.setAttribute("open", ""));
+    if (next === "plans") setEditorOpen(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   const etapeAt = ETAPES.indexOf(etape);
@@ -1163,7 +1165,7 @@ export function PriseStage({ goCast, goDecor, onMontage }: { goCast(): void; goD
       </header>
       {montrerDepart({ mesAssets: cast.length + decor.length + studio.shots.filter(shot => shot.composeur).length, rempli: seed !== "vide" }) && <ExempleDepart etape="prise" onStart={partirExemple} />}
 
-      {!demo && <details className="u-fold u-plan-editor" data-plan-editor={draft.id}>
+      {!demo && <details className="u-fold u-plan-editor" data-plan-editor={draft.id} open={editorOpen} onToggle={event => setEditorOpen(event.currentTarget.open)}>
         <summary>{t("p0.editor.title")}</summary>
         <div className="u-plan-fields">
           <label>{t("p0.editor.name")}<input aria-label={t("p0.editor.name")} maxLength={80} value={draft.name} onChange={event => editPlans(drafts.map(item => item.id === draft.id ? { ...item, name: event.target.value } : item), draft.id, `${draft.id}:title`)} /></label>
