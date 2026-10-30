@@ -7,7 +7,7 @@
   "skip": "Skip to content",
   "meta": {
     "title": "U*TTU Studio — Open-source AI film studio on ComfyUI",
-    "description": "Direct your shot in 3D on your phone, LTX films it. Open source (MIT), a quote before every credit, renders on your own Comfy Cloud account."
+    "description": "Write what you want to shoot, image or video: 43 ComfyUI tools, named references, 3D staging and editing. Open source (MIT), a quote before every credit, renders on your own Comfy account."
   },
   "nav": {
     "character": "Cast",
@@ -42,8 +42,8 @@
   "accueil": {
     "kicker": "Open source · MIT · on ComfyUI",
     "h1": "Your AI <em>film studio</em>, open source, on ComfyUI.",
-    "sub": "Create your characters and sets, scout a real place, stage your shot in 3D, then shoot and cut your film.",
-    "sub2": "Everything runs on your own Comfy account, with a quote before every credit.",
+    "sub": "Write what you want to shoot, as a picture or a video, with your characters and places. Then scout, stage it in 3D, shoot and cut your film.",
+    "sub2": "43 ComfyUI tools on your own Comfy account, with a quote before every credit.",
     "caps": {
       "0": "A character",
       "1": "A close-up",
@@ -66,7 +66,7 @@
     "g3": "A real place, seen from above.",
     "g3Alt": "A Jura village and its Romanesque abbey at dawn, in the mist",
     "fine": "Inspiration images, made for this page.",
-    "flowTitle": "How it works",
+    "flowTitle": "Make a film, in 5 steps",
     "flow": {
       "cast": {
         "name": "CAST",
@@ -78,15 +78,15 @@
       },
       "prise": {
         "name": "TAKE",
-        "body": "5 steps, the quote before the render."
+        "body": "Prepare, shots, preview, generate, review."
       },
       "montage": {
         "name": "EDIT",
-        "body": "Shots, voice, music, MP4 export."
+        "body": "Shots, voice, music, MP4 export with no credits."
       },
       "finaliser": {
         "name": "FINALISE",
-        "body": "Sharper, nothing remade."
+        "body": "Sharper and bigger, nothing remade."
       }
     },
     "toolsTitle": "What you’ll only find <em>here</em>.",
@@ -126,31 +126,47 @@
     "also": {
       "bubble": {
         "name": "One bubble, image or video",
-        "body": "Flux Klein for images; MiniMax H3 or LTX for video. The quote shows before anything is sent."
-      },
-      "tools": {
-        "name": "A tool library",
-        "body": "Comfy tools sorted by family, each with its quote: eight angles of a character or a set, a moved camera, new lighting or the light copied from a contrasting picture, a character kept in its place (FastH3, second model), sound effects synced to a video, voice and music split."
+        "body": "“What are we shooting?” Images with Flux Klein; video with MiniMax H3 when you attach references, LTX otherwise. From ≈ 2 credits estimated, quoted before sending."
       },
       "refs": {
         "name": "Named references",
-        "body": "A name, up to 3 photos: the same face, the same place from one render to the next."
+        "body": "A name and up to 3 photos, filed as Character, Set, Object or Style. Up to 7 references per creation."
+      },
+      "angles": {
+        "name": "Angles and light",
+        "body": "Eight angles of a character (≈ 11 credits estimated) or a set (≈ 9), move the camera (≈ 3), light from your prompt (≈ 4) or copied from a picture (≈ 3)."
+      },
+      "video": {
+        "name": "Faithful video",
+        "body": "True to your references with MiniMax H3 (≈ 4 credits estimated), FastH3 as second model to keep the place better (≈ 8). Faithful keyframes (≈ 14), style transition (≈ 7)."
+      },
+      "son": {
+        "name": "Sound for your video",
+        "body": "Sound effects synced to the picture (≈ 15 credits estimated per 5 s block), voice and music split (≈ 1)."
+      },
+      "multicam": {
+        "name": "Multi-camera",
+        "body": "Eight character angles, then one MiniMax H3 take on the angle you pick: ≈ 14 credits estimated for a first shot, then ≈ 4 per extra angle."
+      },
+      "library": {
+        "name": "43 tools, each with its quote",
+        "body": "Create, retouch, video, 3D, sound. “Studio models only” hides tools that go through a paid partner service."
       },
       "upload": {
         "name": "Your files in original quality",
         "body": "With your Comfy account linked: photos, videos and sounds up to 200 MB, deleted from storage once Comfy has them."
       },
       "guide": {
-        "name": "Uttu, your guide",
-        "body": "Knows every tool and its quote. Answers through your Comfy account, the message price shown first; cost estimates stay local."
+        "name": "Uttu, the studio agent",
+        "body": "Knows every tool and its quote, and suggests the tool or the plan; you launch. Through your Comfy account: ≈ 0.2 credits estimated per message at most."
       },
-      "studio": {
-        "name": "My studio",
-        "body": "Your projects in Markdown, readable in Obsidian."
+      "creations": {
+        "name": "My creations",
+        "body": "Your projects stay on your device: ZIP export, and an Obsidian folder on a computer."
       },
       "quote": {
         "name": "A quote before every credit",
-        "body": "Every paid button shows its cost and waits for your OK."
+        "body": "Every paid button shows its estimated credits and waits for your OK."
       },
       "langs": {
         "name": "4 languages",
@@ -3188,7 +3204,7 @@
   },
   "uttu": {
     "title": "U*TTU",
-    "sub": "Your studio guide · local by default, Comfy agent optional",
+    "sub": "The studio agent · through your Comfy account, price shown before each message",
     "button": "U*TTU",
     "openAria": "Open or close U*TTU, your studio guide",
     "welcome": "I’m Uttu, the studio’s agent. Tell me what you want to shoot: I answer, suggest the tool or the plan, and you see the quote before any render. Each message is paid by your Comfy account.",
@@ -3207,7 +3223,7 @@
       "free": "What costs credits?",
       "cancel": "Can I cancel a render?"
     },
-    "notFound": "I can’t answer that from my local sheet, and I’d rather say so than make something up. Try other words, or look at the guide and the estimator below. With a linked Comfy account, you can also switch to Comfy agent mode, paid by your account.",
+    "notFound": "I can’t answer that, and I’d rather say so than make something up. Try other words, or open Tools: every card shows its quote.",
     "planHint": "That sounds like an action to prepare in your project. I’m passing it to the production plan below: check it, then tap “Prepare my plan”.",
     "planButton": "Go to the production plan",
     "seeAlso": "See also:",
@@ -3353,7 +3369,7 @@
       "which": {
         "q": "Which tool should I pick?",
         "k": "which tool tools pick choose need library family advice recommend angle angles camera multi-camera light relight sound split transition keyframes",
-        "a": "An image: Quick image. Keep a character or place: Cast, Set, references. Other viewpoints: Eight character angles, Eight set angles, Move the camera. A video: the bubble in Video, or Take; with references: Reference-true video; two keyframes: Faithful keyframes; a changing style: Style transition. Multi-camera: Eight character angles, then “Shot, second engine” on each angle, ≈ 14 credits per angle. Retouch: Edit, Extend, Remove background, Larger and sharper, Relight (“Light from your prompt”, or “Studio portrait” as second model). Sound: Voice, Music, Sound effect, Sound effects for a video, Split voice and music."
+        "a": "An image: Quick image. Keep a character or place: Cast, Set, references. Other viewpoints: Eight character angles, Eight set angles, Move the camera. A video: the bubble in Video, or Take; with references: Reference-true video; two keyframes: Faithful keyframes; a changing style: Style transition. Multi-camera: Eight character angles, then “Shot, second engine” on the chosen angle: ≈ 14 credits, then ≈ 4 per extra angle. Retouch: Edit, Extend, Remove background, Larger and sharper, Relight (“Light from your prompt”, or “Studio portrait” as second model). Sound: Voice, Music, Sound effect, Sound effects for a video, Split voice and music."
       },
       "projects": {
         "q": "Where are my projects?",
@@ -3373,7 +3389,7 @@
       "agent": {
         "q": "Is there a fuller agent?",
         "k": "agent paid comfy fuller free conversation future soon",
-        "a": "Yes: Comfy agent mode understands open-ended requests. It runs on your linked Comfy account, each message is paid by your account, and its estimated cost shows before the first send. The agent launches nothing: it suggests an action, you click. Without a linked account, I stay the local guide."
+        "a": "Yes: Comfy agent mode understands open-ended requests. It runs on your linked Comfy account, each message is paid by your account, and its estimated cost shows before the first send. The agent launches nothing: it suggests an action, you click. Without a linked account, only the cost simulator is available."
       },
       "openWeights": {
         "q": "What are open models?",
@@ -3418,7 +3434,7 @@
     },
     "comfy": {
       "mode": "U*TTU mode",
-      "free": "Local guide · no model",
+      "free": "No account · cost simulator",
       "paid": "{cost, select, 1 {Uttu agent · ≈ 1 credit estimated per message} other {Uttu agent · ≈ {cost} credits estimated per message}}",
       "paidNote": "Comfy agent on: each message goes through your Comfy account (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps no key. The agent launches nothing: you click, after the usual quote.",
       "paidNoteSession": "Comfy agent on: each message goes through your Comfy sign-in (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps nothing of your account on its servers: your Comfy session stays in this browser. The agent launches nothing: you click, after the usual quote.",
@@ -3427,7 +3443,7 @@
       "gateTitle": "Before your first paid message",
       "gateBody": "{cost, select, 1 {Each message to the Comfy agent is billed to your Comfy account: ≈ 1 credit estimated at most, often less. The agent launches no render: it suggests an action, you click, and the usual quote shows before any spend. Your consent lasts for this session.} other {Each message to the Comfy agent is billed to your Comfy account: ≈ {cost} credits estimated at most, often less. The agent launches no render: it suggests an action, you click, and the usual quote shows before any spend. Your consent lasts for this session.}}",
       "accept": "I accept, send",
-      "decline": "Stay with the local guide",
+      "decline": "Not now",
       "thinking": "U*TTU is thinking on your Comfy account…",
       "send": "Send (paid)",
       "spent": "{cost, select, 1 {≈ 1 credit estimated for this message} other {≈ {cost} credits estimated for this message}}",
@@ -3439,13 +3455,13 @@
       "errors": {
         "auth": "Your Comfy account refuses the connection. Link it again (API key or Comfy sign-in), then resend your message.",
         "credits": "Not enough credits on your Comfy account. Top it up on Comfy Cloud, then try again. Nothing was launched.",
-        "subscription": "Your Comfy account has no access to this model: check your Comfy Cloud subscription. The local guide is still here meanwhile.",
+        "subscription": "Your Comfy account has no access to this model: check your Comfy Cloud subscription. The cost simulator is still here.",
         "busy": "Comfy is very busy for your account right now. Wait a few seconds and resend your message.",
         "invalid": "This message could not be processed. Shorten it or rephrase it.",
-        "refused": "The model declined to answer this message. Rephrase it, or switch to the local guide.",
-        "network": "Comfy is not answering. Check your connection and try again; the local guide works offline.",
+        "refused": "The model declined to answer this message. Rephrase it.",
+        "network": "Comfy is not answering. Check your connection and try again; the cost simulator works offline.",
         "timeout": "Comfy took too long to answer. Try again in a moment.",
-        "failed": "The Comfy agent could not answer. Try again, or switch to the local guide."
+        "failed": "The Comfy agent could not answer. Try again in a moment."
       },
       "welcome": "I’m Uttu, the studio’s agent. Tell me what you want to shoot: I answer, suggest the tool or the plan, and you see the quote before any render. Each message is paid by your Comfy account."
     },

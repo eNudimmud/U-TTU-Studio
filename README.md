@@ -1,237 +1,144 @@
 # U*TTU Studio
 
-**Open-source AI film studio on ComfyUI: describe a picture or a shot, keep your characters and places, and film it on your own Comfy account.**
+**EN** — Open-source AI film studio on ComfyUI. Write what you want to shoot, as a picture or a video, keep your characters and places with named references, then stage, shoot and cut a film. Every render runs on your own Comfy account, with a quote before every credit.
 
-Type what you want in the bubble « What are we shooting? » and pick **Image** (Flux Klein) or **Video** (MiniMax H3 with references, LTX with text only). Named references keep a face, a place or a style from one render to the next. For a real film, five steps: **CAST · SET · TAKE · EDIT · FINALISE**; in TAKE you can block actors and the camera in a 3D mock-up with a finger, and LTX-2.3 IC-LoRA re-shoots it on your character and set. Every render runs on your own Comfy Cloud account, with a quote in credits before anything is spent. Uttu, the studio guide, tells you which tool fits and what it costs.
+**FR** — Studio de cinéma IA open source sur ComfyUI. Écris ce que tu veux tourner, en image ou en vidéo, garde tes personnages et tes lieux avec des références nommées, puis mets en scène, tourne et monte un film. Chaque rendu passe par ton propre compte Comfy, avec un devis avant chaque crédit.
 
-**FR** — *Studio de cinéma IA open source sur ComfyUI : décris une image ou un plan, garde tes personnages et tes lieux, et tourne-le sur ton propre compte Comfy.* Écris dans la bulle « Qu’est-ce qu’on tourne ? » et choisis **Image** (Flux Klein) ou **Vidéo** (MiniMax H3 avec des références, LTX avec un texte seul). Les références nommées gardent un visage, un lieu ou un style d’un rendu à l’autre. Pour un vrai film, cinq étapes : **CAST · DÉCOR · PRISE · MONTAGE · FINALISER** ; dans PRISE, tu peux placer tes personnages et la caméra au doigt dans une maquette 3D, et LTX-2.3 IC-LoRA retourne le plan avec ton personnage et ton décor. Chaque rendu passe par ton compte Comfy Cloud, avec un devis en crédits avant toute dépense. Uttu, le guide du studio, te dit quel outil choisir et ce qu’il coûte.
-
-Live: <https://u-ttu-studio.vercel.app/studio> · License: [MIT](LICENSE) · Languages: FR (source), EN, DE, ES.
+Live: <https://u-ttu-studio.vercel.app> (landing) · <https://u-ttu-studio.vercel.app/studio> (studio) · License: [MIT](LICENSE) · Languages / langues : FR (source), EN, DE, ES.
 
 <p>
-<img src="docs/screenshots/readme-entree-1280.jpg" width="49%" alt="Entry, 1280 px">
-<img src="docs/screenshots/readme-cast-1280.jpg" width="49%" alt="CAST, 1280 px">
+<img src="docs/preuves/accueil-v2/accueil-fr-1280x800-top.webp" width="64%" alt="Landing, 1280 px">
+<img src="docs/preuves/accueil-v2/accueil-fr-390x844-top.webp" width="22%" alt="Landing, 390 px">
 </p>
 <p>
+<img src="docs/screenshots/readme-entree-1280.jpg" width="49%" alt="Studio entry, 1280 px">
 <img src="docs/screenshots/readme-prise-1280.jpg" width="49%" alt="TAKE, 1280 px">
-<img src="docs/screenshots/readme-outils-1280.jpg" width="49%" alt="Comfy tools, 1280 px">
-</p>
-<p>
-<img src="docs/screenshots/readme-entree-390.jpg" width="32%" alt="Entry, 390 px">
-<img src="docs/screenshots/readme-cast-390.jpg" width="32%" alt="CAST, 390 px">
-<img src="docs/screenshots/readme-mes-creations-390.jpg" width="32%" alt="My creations, 390 px">
 </p>
 
-<sub>Real screenshots of the live studio (English, 1280 px and 390 px, 28 October 2026). No account linked, so no render of yours is shown.</sub>
+<sub>Landing: local build of this branch, 30.10.2026. Studio: live, 28.10.2026, no account linked (no render of yours is shown). / Accueil : build local de cette branche, 30.10.2026. Studio : en ligne, 28.10.2026, sans compte relié.</sub>
 
 ## Principles / Principes
 
-**EN**
-
-- **A quote before every credit.** Every paid button shows « ≈ X credits estimated » (or measured, once a real job was billed) and asks for a confirmation; the balance must cover the reserve.
-- **One gesture = one exported Comfy workflow.** Each gesture has its official template and the exact API graph the studio sends in [`workflows/`](workflows).
-- **Finalise improves, never regenerates.** It upscales and cleans the frames already made; sound and timing stay.
-- **Your Comfy account.** Renders run on your own Comfy Cloud account; the studio has no server-side key, no account of its own, and sells nothing.
-- **Open weights possible.** « Open weights only » hides partner gestures, and `scripts/run-local.mjs` sends the same graphs to your own ComfyUI.
-
-**FR**
-
-- **Un devis avant chaque crédit.** Chaque bouton payant montre « ≈ X crédits estimés » (ou mesurés, une fois un vrai job facturé) et demande une confirmation ; le solde doit couvrir la réserve.
-- **Un geste = un workflow Comfy exporté.** Chaque geste a son template officiel et le graphe API exact envoyé par le studio dans [`workflows/`](workflows).
-- **Finaliser améliore, ne régénère jamais.** Il agrandit et nettoie les images déjà faites ; le son et la cadence restent.
-- **Ton compte Comfy.** Les rendus partent sur ton propre compte Comfy Cloud ; le studio n’a ni clé côté serveur, ni compte à lui, et ne vend rien.
-- **Open weights possible.** « Open weights seulement » cache les gestes partenaires, et `scripts/run-local.mjs` envoie les mêmes graphes à ton propre ComfyUI.
+| EN | FR |
+|---|---|
+| **A quote before every credit.** Every paid button shows « ≈ X credits estimated » (or « measured » once a real job was billed) and waits for your confirmation. The studio never cancels a running Comfy job. | **Un devis avant chaque crédit.** Chaque bouton payant affiche « ≈ X crédits estimés » (ou « mesurés » quand un vrai job a été facturé) et attend ta confirmation. Le studio n’annule jamais un job Comfy lancé. |
+| **Your Comfy account.** No server-side key, no account of its own; the studio sells nothing. | **Ton compte Comfy.** Aucune clé côté serveur, aucun compte à lui ; le studio ne vend rien. |
+| **One gesture = one exported Comfy workflow** in [`workflows/`](workflows). | **Un geste = un workflow Comfy exporté** dans [`workflows/`](workflows). |
+| **Finalise enhances, never regenerates.** Upscale and clean what exists; sound and timing stay. | **Finaliser améliore, ne régénère jamais.** Agrandit et rend net ce qui existe ; le son et la cadence restent. |
+| **Open weights possible.** « Studio models only » hides partner tools; `scripts/run-local.mjs` sends the same graphs to your own ComfyUI. | **Open weights possible.** « Modèles du studio seulement » cache les outils partenaires ; `scripts/run-local.mjs` envoie les mêmes graphes à ton ComfyUI. |
 
 ## What is in the studio / Ce qu’il y a dans le studio
 
-- **The bubble / La bulle « Qu’est-ce qu’on tourne ? »:** Image or Video before you type; Image runs Flux Klein, Video runs MiniMax H3 when references are attached, LTX otherwise. Up to 7 visual references (and one sound in Video); the quote « ≈ X credits estimated » shows under the bubble before sending. / *Image ou Vidéo avant d’écrire ; Image passe par Flux Klein, Vidéo par MiniMax H3 avec des références, sinon LTX. Jusqu’à 7 références visuelles (et un son en Vidéo) ; le devis « ≈ X crédits estimés » s’affiche sous la bulle avant l’envoi.*
-- **Named references / Références nommées:** a name and up to 3 photos of the same subject, filed as Character, Set, Object or Style; tap the card to attach it. / *Un nom et jusqu’à 3 photos du même sujet, rangée en Personnage, Décor, Objet ou Style ; touche la carte pour la joindre.*
-- **Tool library / Bibliothèque d’outils:** every open Comfy tool, sorted by family (create, retouch, video, 3D, sound), each with its own quote: eight character or set angles, move the camera, relight (light from your prompt, studio portrait or « Copy the light of a picture » as other models — that one needs a light picture that contrasts with the portrait), faithful keyframes (≈ 14 credits), style transition (≈ 7), reference-true video (≈ 4; FastH3 OmniRef as second model keeps the place better, ≈ 8 credits, and the studio writes its structured prompt from your sentence), sound effects for a video, split voice and music. Multi-camera is a recipe: eight angles, then one MiniMax H3 shot per angle (≈ 14 credits per angle). Plus « Scout a location » and « 3D layout and framing », which launch no render. The list and its counts come from the registry ([`src/lib/outils/catalogue.ts`](src/lib/outils/catalogue.ts), [`src/lib/workflows/registre.ts`](src/lib/workflows/registre.ts)). / *Chaque outil Comfy ouvert, rangé par famille, avec son devis : huit angles du personnage ou du décor, déplacer la caméra, changer la lumière (lumière par consigne ; portrait studio ou « Copier la lumière d’une image » en autres modèles — celui-ci demande une image de lumière contrastée avec le portrait), images clés fidèles (≈ 14 crédits), transition de style (≈ 7), vidéo fidèle aux références (≈ 4 ; FastH3 OmniRef en second modèle garde mieux le lieu, ≈ 8 crédits, et le studio écrit sa consigne structurée à partir de ta phrase), bruitage d’une vidéo, séparer voix et musique. Le multi-caméra est une recette : huit angles, puis une prise MiniMax H3 par angle (≈ 14 crédits par angle). Plus « Repérer un lieu » et « Maquette 3D et cadrage », qui ne lancent aucun rendu. La liste et ses chiffres viennent du registre.*
-- **PRISE in 5 steps / TAKE in 5 steps:** Prepare, Shots, Preview (check the framing before spending), Generate (quote first, then confirm), Review (keep, retry or send to EDIT). / *Préparer, Plans, Prévisualiser, Générer (le devis d’abord), Réviser.*
-- **Your files / Tes fichiers:** photos, MP4/MOV/WebM videos and sounds. With a linked Comfy account a file goes in original quality (up to 200 MB) through private storage to your Comfy account, then is deleted from that storage; otherwise the browser reduces it before sending. / *Photos, vidéos MP4/MOV/WebM et sons. Avec ton compte Comfy relié, le fichier part en qualité originale (jusqu’à 200 Mo) via un stockage privé vers ton compte Comfy, puis il en est effacé ; sinon le navigateur le réduit avant l’envoi.*
-- **Finaliser / Finalise:** upscales and cleans what exists (an image, a take or the whole edit), never regenerates; video quotes are estimated per 5 s block. / *Agrandit et rend net ce qui existe, sans jamais le refaire ; le devis vidéo est estimé par tranche de 5 s.*
-- **Repérage / Scouting:** a real place becomes your set: a 3D view of the block (OpenStreetMap buildings and terrain), plus street photos from Panoramax, Wikimedia Commons and KartaView (Mapillary where covered), each with its author and licence. / *Un vrai lieu devient ton décor : une vue 3D du quartier, plus des photos de rue Panoramax, Wikimedia Commons et KartaView (Mapillary selon couverture), chacune avec son auteur et sa licence.*
-- **Maquette 3D / 3D layout:** place people, props and the camera path with a finger, then film the previs for « Directed camera ». / *Place personnages, objets et trajet caméra au doigt, puis filme la prévis pour « Caméra maîtrisée ».*
-- **Aperçu / Qualité finale (Preview / Final quality):** an LTX take can start as a cheaper preview (about 480p, same seed), finalised later on its own or with the whole edit. / *Une prise LTX peut partir en aperçu, moins cher (environ 480p, même graine), puis se finaliser seule ou avec tout le montage.*
-- **Mes créations / My creations:** projects stay in the browser; ZIP export and import; on a computer with Chrome or Edge, « Connect my Obsidian folder » also files sheets and images in a folder you pick. / *Les projets restent dans le navigateur ; export et import ZIP ; sur ordinateur avec Chrome ou Edge, « Relier mon dossier Obsidian » range aussi fiches et images dans le dossier choisi.*
-- **Uttu, the guide / Uttu, le guide:** see below. / *voir plus bas.*
+Quotes below are the registry quotes at their default size ([`src/lib/workflows/registre.ts`](src/lib/workflows/registre.ts)); the app shows the exact one before you confirm. / *Les devis ci-dessous sont ceux du registre à la taille par défaut ; l’app affiche le devis exact avant confirmation.*
 
-## Uttu, the studio guide / Uttu, le guide du studio
+- **The bubble / La bulle « What are we shooting? · Qu’est-ce qu’on tourne ? »** — Image (Flux Klein, or Qwen edit with references) ≈ 2 credits estimated; Video: MiniMax H3 with references or a sound ≈ 4, LTX-2.5 from text only ≈ 5 (480p, 5 s). Up to 7 references. / *Image (Flux Klein, ou Qwen edit avec références) ≈ 2 crédits estimés ; Vidéo : MiniMax H3 avec références ou un son ≈ 4, LTX-2.5 avec un texte seul ≈ 5.*
+- **Named references / Références nommées** — a name and up to 3 photos, filed as Character, Set, Object or Style. / *Un nom et jusqu’à 3 photos, rangés en Personnage, Décor, Objet ou Style.*
+- **43 tools / 43 outils** in five families (Create 9, Retouch 8, Video 16, 3D 3, Sound 7), each with its quote. The ten added on 29.10.2026 (measured): / *Dix outils ajoutés le 29.10.2026 (mesurés) :*
 
-**EN** — « Ask Uttu » opens the guide. Without an account, the studio itself prices cost questions (« 3 portraits + 2 LTX takes ») and hands a production request to the plan, with no language model; for open questions Uttu invites you to link Comfy. With a linked Comfy account, Uttu answers in its own words through Comfy Router (≈ 0.2 credits estimated per message at most, shown and accepted before the first message, paid by your account). It suggests a tool or a plan; it launches nothing, you click.
+  | Tool / Outil | Template | Quote / Devis |
+  |---|---|---|
+  | Eight character angles / Huit angles du personnage | `templates-1_click_multiple_character_angles-v1.0` | ≈ 11–17 |
+  | Eight set angles / Huit angles du décor | `templates-1_click_multiple_scene_angles-v1.0` | ≈ 9–14 |
+  | Move the camera / Déplacer la caméra | `template_qwen_multiangle.app` | ≈ 3–5 |
+  | Light from your prompt / Lumière par consigne | `image_qwen_image_edit_2509_relight` | ≈ 4–6 |
+  | Copy the light of a picture / Copier la lumière d’une image | `templates-portrait_light_migration` | ≈ 3–6 |
+  | Faithful keyframes / Images clés fidèles (H3) | `video_minimax_h3_multiframe_reference` | ≈ 14–21 |
+  | Style transition / Transition de style (LTX-2.3) | `template_ltx2_3_style_transition` | ≈ 7–11 |
+  | Reference-true video, 2nd model / Vidéo fidèle aux références, 2e modèle (FastH3 OmniRef) | `video_fasth3_ominiref_r2v` | ≈ 8–12 |
+  | Sound effects for a video / Bruitage d’une vidéo | `api_mirelo_video_to_sfx` (partner) | ≈ 15–18 per 5 s |
+  | Split voice and music / Séparer voix et musique | `audio_melbandroformer_audio_separation` | ≈ 1 |
 
-Uttu does not keep a hand-written list of tools. At build time [`scripts/agent-knowledge.mjs`](scripts/agent-knowledge.mjs) writes `public/agent/knowledge.json` from the tool catalogue, the gesture registry and the four message files; Uttu then receives every open tool with its output (image, video, sound, 3D) and its registry quote (« ≈ 3–6 credits measured »), the open CAST / SET / TAKE / EDIT steps with their quotes, and the guide entries (bubble, references, TAKE in 5 steps, upload, Finalise, which tool). [`tests/uttu-studio-sync.test.ts`](tests/uttu-studio-sync.test.ts) fails when an open tool is missing from what Uttu knows, when a closed tool is named, or when an answer says a render costs nothing. A tool that opens in the registry, with its four translated lines, is known to Uttu on the next build.
+  Multi-camera is a recipe, not a card: eight character angles (once), then one MiniMax H3 take on the angle you pick: ≈ 14 credits for a first shot, then ≈ 4 per extra angle. / *Le multi-caméra est une recette : huit angles (une fois), puis une prise MiniMax H3 sur l’angle choisi : ≈ 14 crédits pour un premier plan, puis ≈ 4 par angle de plus.*
+- **Make a film / Réaliser un film: CAST · SET/DÉCOR · TAKE/PRISE · EDIT/MONTAGE · FINALISE/FINALISER.** TAKE has 5 steps: Prepare, Shots, Preview, Generate, Review. Default engine LTX-2.5 (≈ 15–23 credits for 5 s, measured), MiniMax H3 as second engine (≈ 4–6). In the 3D mock-up you place people and the camera with a finger; « Directed camera » re-shoots that previs with LTX-2.3 IC-LoRA (≈ 15–30, estimated). EDIT: timeline, voice, music, local MP4 export with no credits. / *PRISE en 5 étapes : Préparer, Plans, Prévisualiser, Générer, Réviser. Moteur par défaut LTX-2.5 (≈ 15–23 crédits pour 5 s, mesuré), MiniMax H3 en second moteur (≈ 4–6). Dans la maquette 3D, tu places personnages et caméra au doigt ; « Caméra maîtrisée » retourne cette prévis avec LTX-2.3 IC-LoRA (≈ 15–30, estimé). MONTAGE : timeline, voix, musique, export MP4 local sans crédit.*
+- **Finalise / Finaliser** — image or take: SeedVR2 (≈ 2 / ≈ 28 for 5 s → 1080p); the whole edit: NVIDIA RTX Video Super Resolution (`utility_nvidia_rtx_video_enhance`, ≈ 4.1 for 5 s, measured 14.10.2026). Never regenerates. / *Image ou prise : SeedVR2 ; tout le montage : RTX Video Super Resolution. Ne régénère jamais.*
+- **Your files / Tes fichiers** — photos, MP4/MOV/WebM videos and sounds. With a linked Comfy account they go in original quality (up to 200 MB) through private storage to your Comfy account, then are deleted from that storage. / *Avec ton compte Comfy relié, en qualité originale (jusqu’à 200 Mo) via un stockage privé, effacés dès qu’ils sont chez Comfy.*
+- **Scouting / Repérage** — a real place becomes your set: 3D view of the block (OpenStreetMap) and street photos (Panoramax, Wikimedia Commons, KartaView, Mapillary), each with author and licence. / *Un vrai lieu devient ton décor : vue 3D du quartier et photos de rue, chacune avec auteur et licence.*
+- **My creations / Mes créations** — projects stay on the device; ZIP export and import; on a computer with Chrome or Edge, « Connect my Obsidian folder ». / *Les projets restent sur l’appareil ; export et import ZIP ; sur ordinateur, « Relier mon dossier Obsidian ».*
 
-**FR** — « Demander à Uttu » ouvre le guide. Sans compte, le studio chiffre lui-même les questions de coût (« 3 portraits + 2 prises LTX ») et passe une demande de production au plan, sans modèle de langue ; pour une question ouverte, Uttu t’invite à relier Comfy. Avec ton compte Comfy relié, Uttu répond avec ses mots via Comfy Router (≈ 0,2 crédit estimé par message au plus, affiché et accepté avant le premier message, payé par ton compte). Il propose un outil ou un plan ; il ne lance rien, tu cliques.
+## Uttu, the studio agent / Uttu, l’agent du studio
 
-Uttu n’a pas de liste d’outils écrite à la main. Au build, [`scripts/agent-knowledge.mjs`](scripts/agent-knowledge.mjs) écrit `public/agent/knowledge.json` à partir du catalogue d’outils, du registre des gestes et des quatre fichiers de messages ; Uttu reçoit chaque outil ouvert avec sa sortie (image, vidéo, son, 3D) et son devis du registre (« ≈ 3–6 crédits mesurés »), les étapes ouvertes de CAST, DÉCOR, PRISE et MONTAGE avec leur devis, et les fiches du guide (bulle, références, PRISE en 5 étapes, envoi de fichiers, Finaliser, quel outil). [`tests/uttu-studio-sync.test.ts`](tests/uttu-studio-sync.test.ts) échoue si un outil ouvert manque, si un outil fermé est nommé, ou si une réponse dit qu’un rendu ne coûte rien. Un outil qui s’ouvre dans le registre, avec ses quatre traductions, est connu d’Uttu au build suivant.
+**EN** — « Ask Uttu » opens the panel. Without an account it offers the cost simulator (« 3 portraits + 2 LTX takes ») and an invite to link Comfy. With your Comfy account linked, Uttu answers in its own words through Comfy Router: ≈ 0.2 credits estimated per message at most, shown and accepted before the first message, paid by your account. It suggests a tool or a plan; it launches nothing. Its knowledge (`public/agent/knowledge.json`) is generated at build time by [`scripts/agent-knowledge.mjs`](scripts/agent-knowledge.mjs) from the tool catalogue, the registry and the four message files; [`tests/uttu-studio-sync.test.ts`](tests/uttu-studio-sync.test.ts) fails if an open tool is missing or a closed one is named.
+
+**FR** — « Demander à Uttu » ouvre le panneau. Sans compte : le simulateur de coûts (« 3 portraits + 2 prises LTX ») et une invitation à relier Comfy. Avec ton compte Comfy relié, Uttu répond avec ses mots via Comfy Router : ≈ 0,2 crédit estimé par message au plus, affiché et accepté avant le premier message, payé par ton compte. Il propose un outil ou un plan ; il ne lance rien. Sa connaissance est générée au build à partir du catalogue, du registre et des quatre fichiers de messages ; un test échoue si un outil ouvert manque ou si un outil fermé est nommé.
 
 ## For the jury / Pour le jury
 
-**EN**
-
-1. Open <https://u-ttu-studio.vercel.app> on a computer or a phone. The page follows your browser language (FR, EN, DE or ES, English otherwise); the language menu switches it and keeps your choice.
-2. **Discover with Uttu** opens the studio. Type in the bubble **What are we shooting?** (Image or Video), open a tool from the library, or **Make a film** and follow the five steps **CAST → SET → TAKE → EDIT → Finalise**. Everything that launches no render works without an account: the cost simulator in « Ask Uttu », the getting-started guide, scouting and the 3D layout, the timeline in EDIT, project export.
-3. **To render, link your own Comfy account:** **Credits → Connect the render account → Sign in with Comfy**, or paste a Comfy Cloud API key (a paid Comfy Cloud plan is needed). Session and key stay in your browser; the studio has no server-side key and no account of its own.
-4. Every paid button shows its quote first and asks for a confirmation. Current prices for a 5-run path:
-   - CAST « From text »: ≈ 4 credits (measured);
-   - SET « From text »: ≈ 4 credits (measured);
-   - TAKE with the default LTX engine, 5 s 16:9: ≈ 15 credits, 23 at most (measured on 27.10.2026: 14.55 to 15.10 credits; the app still labels this quote « estimated »); a preview take: ≈ 6 credits estimated;
-   - EDIT: the timeline and the local MP4 export spend no credits;
-   - Finalise the edit (1080p): ≈ 4.1 credits for 5 s (measured).
-5. The studio never cancels a Comfy job. If you stop waiting, the job keeps running on your account and lands in My creations.
-6. **Uttu** (« Ask Uttu »): once your Comfy account is linked, accept the per-message quote and Uttu answers in its own words through Comfy Router (≈ 0.2 credits estimated per message at most, paid by your Comfy account) and launches nothing: it suggests, you click.
-7. Without Comfy Cloud: « Run locally » below (`scripts/run-local.mjs` with your own ComfyUI, open weights).
-
-**FR**
-
-1. Ouvre <https://u-ttu-studio.vercel.app> sur ordinateur ou téléphone. La page suit la langue de ton navigateur (FR, EN, DE ou ES, sinon l’anglais) ; le menu de langue la change et garde ton choix.
-2. **Découvrir avec Uttu** ouvre le studio. Écris dans la bulle **Qu’est-ce qu’on tourne ?** (Image ou Vidéo), ouvre un outil de la bibliothèque, ou **Réaliser un film** et suis les cinq étapes **CAST → DÉCOR → PRISE → MONTAGE → Finaliser**. Tout ce qui ne lance aucun rendu marche sans compte : le simulateur de coûts de « Demander à Uttu », le guide de premiers pas, le repérage et la maquette 3D, la timeline de MONTAGE, l’export du projet.
-3. **Pour rendre, relie ton propre compte Comfy :** **Crédits → Relier le compte de rendu → Se connecter avec Comfy**, ou colle une clé API Comfy Cloud (un abonnement Comfy Cloud payant est nécessaire). Session et clé restent dans ton navigateur ; le studio n’a ni clé côté serveur ni compte à lui.
-4. Chaque bouton payant montre d’abord son devis et demande une confirmation. Prix actuels pour un parcours en 5 rendus :
-   - CAST « Depuis un texte » : ≈ 4 crédits (mesuré) ;
-   - DÉCOR « Depuis un texte » : ≈ 4 crédits (mesuré) ;
-   - PRISE avec le moteur LTX par défaut, 5 s 16:9 : ≈ 15 crédits, 23 au plus (mesuré le 27.10.2026 : 14,55 à 15,10 crédits ; l’app affiche encore ce devis « estimé ») ; une prise en aperçu : ≈ 6 crédits estimés ;
-   - MONTAGE : la timeline et l’export MP4 local ne dépensent aucun crédit ;
-   - Finaliser le montage (1080p) : ≈ 4,1 crédits pour 5 s (mesuré).
-5. Le studio n’annule jamais un job chez Comfy. Si tu arrêtes d’attendre, le rendu continue sur ton compte et arrive dans Mes créations.
-6. **Uttu** (« Demander à Uttu ») : une fois ton compte Comfy relié, accepte le prix par message et Uttu répond avec ses mots via Comfy Router (≈ 0,2 crédit estimé par message au plus, payé par ton compte Comfy) et ne lance rien : il propose, tu cliques.
-7. Sans Comfy Cloud : « Lancer en local » plus bas (`scripts/run-local.mjs` avec ton propre ComfyUI, open weights).
-
-## What is measured, and what is not / Ce qui est mesuré, et ce qui ne l’est pas
-
-**EN** — The registry lists 85 gestures. **38 have a real billed run**; 31 of them were measured on 27.10.2026 (visitor test and example batch, Comfy billing read job by job, no credit spent for the reading). Every job and its cost: [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). The other gestures are wired and tested against a simulated Comfy, and their quote is labelled « estimated », or stay closed.
-
-**FR** — Le registre compte 85 gestes. **38 ont un vrai rendu facturé** ; 31 ont été mesurés le 27.10.2026 (test visiteur et lot d’exemples, facturation Comfy lue job par job, aucun crédit dépensé pour la lecture). Chaque job et son coût : [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md). Les autres gestes sont branchés et testés contre un Comfy simulé, avec un devis « estimé », ou restent fermés.
-
-Measured costs, in credits / Coûts mesurés, en crédits :
-
-| Step / Étape | Gesture / Geste (measured / mesuré) |
+| EN | FR |
 |---|---|
-| CAST | from text / depuis un texte ≈ 4 · from photos / depuis des photos 3,57 |
-| DÉCOR | from text / depuis un texte ≈ 4 · from a photo / depuis une photo 2,53 · time of day / heure 4,42 |
-| PRISE | LTX-2.5 5 s 15,10 · MiniMax H3 3,66 · bridge / raccord 6,98 · widen / élargir 16,32 · remove an object / effacer 25,11 · 3D object / objet 3D 16,65 |
-| After a take / Après une prise | edit / modifier 3,81 · finalise image 1,56 · cut out / détourer 0,58 · widen image / élargir 5,18 · finalise video / finaliser vidéo (5 s → 1080p) 27,50 · smooth / fluidifier 2,01 · continue / prolonger 6,11 · make it talk / faire parler 8,09 |
-| Finaliser (edit / montage) | 4,1 for 5 s, 4,5 for 30 s (14.10.2026) |
-| Tools / Outils, image | Klein 3,49 · Qwen 3,00 · FLUX 3 14,48 · Ideogram 18,1 · GPT Image 1,26 · Seedream 9,5 · references / références 2,01 · 360° 20,00 · sketch / croquis 16,84 |
-| Tools / Outils, video | text to video / texte → vidéo 4,72 · Wan 8,44 · Vidu 100,23 · motion / mouvement 16,59 · cut out / détourer 63,3 · lip sync / lèvres 277,57 |
-| Tools / Outils, sound | open voice / voix ouverte 2,80 · dialogue 3,57 · open music / musique ouverte 3,37 · sound effect / bruitage 1,66 |
+| 1. Open <https://u-ttu-studio.vercel.app>. The page follows your browser language; the language menu keeps your choice. | 1. Ouvre <https://u-ttu-studio.vercel.app>. La page suit la langue du navigateur ; le menu de langue garde ton choix. |
+| 2. **Discover with Uttu** or **Enter the studio**. Without an account: cost simulator, getting-started guide, scouting, 3D mock-up, EDIT timeline, project export. | 2. **Découvrir avec Uttu** ou **Entrer dans le studio**. Sans compte : simulateur de coûts, guide, repérage, maquette 3D, timeline de MONTAGE, export du projet. |
+| 3. To render: **Credits → Connect the render account → Sign in with Comfy**, or paste a Comfy Cloud API key (paid Comfy Cloud plan). Session and key stay in your browser. | 3. Pour rendre : **Crédits → Relier le compte de rendu → Se connecter avec Comfy**, ou colle une clé API Comfy Cloud (abonnement payant). Session et clé restent dans ton navigateur. |
+| 4. A 5-render path: CAST from text ≈ 4 · SET from text ≈ 4 · TAKE LTX 5 s ≈ 15 · EDIT 0 · Finalise the edit ≈ 4.1 (all measured). | 4. Parcours en 5 rendus : CAST depuis un texte ≈ 4 · DÉCOR ≈ 4 · PRISE LTX 5 s ≈ 15 · MONTAGE 0 · Finaliser le montage ≈ 4,1 (tous mesurés). |
+| 5. Without Comfy Cloud: « Run locally » below. | 5. Sans Comfy Cloud : « Lancer en local » plus bas. |
 
-The example media in `public/exemples/` say how they were made (`public/exemples/A-GENERER.json`, cost per item) / Les exemples de `public/exemples/` disent comment ils ont été faits :
-- The SET stills (quay, rainy street, rooftop, station) are **FLUX 3 Image Klein** (open weights); three CAST portraits and two sets are **Seedream 4.5** (partner), all via Comfy Cloud. / *Les décors sont en FLUX 3 Image Klein ; trois portraits CAST et deux décors en Seedream 4.5 (partenaire).*
-- « After » examples rendered on 8 October 2026 with **Nano Banana 2.1** and the `templates-character_sheet` template (partner) are kept as they are: CAST from text, from photos and view sheet, SET from text and time of day. / *Les « après » du 8 octobre 2026 en Nano Banana 2.1 et planche (partenaire) restent tels quels.*
-- The 27.10.2026 batch (40.19 credits) added **Klein** (SET from a photo, retouch « snow », set from the 3D view), **SeedVR2** (finalise an image), an **LTX-2.5** take (`outils/prise-uttu-quai.mp4`, 9.87 credits) and a **Wan 2.2** clip (`outils/wan-gare.mp4`, 8.44). / *Le lot du 27.10.2026 (40,19 crédits) a ajouté Klein (décor depuis une photo, retouche « neige », décor depuis la vue 3D), SeedVR2, une prise LTX-2.5 et un clip Wan 2.2.*
-- `public/exemples/outils/plan-exemple.mp4` (3 s) is a sample clip to try the video tools, **not** a render from a video model. / *C’est un clip pour essayer les outils vidéo, pas un rendu d’un modèle vidéo.*
+## Measured / Mesuré
 
----
+The registry lists **93 gestures: 79 open, 48 with a real billed run** (« measured »), the other open ones « estimated »; 14 stay closed. Billing was read job by job: [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md), [docs/mesures/workflows-top10-2026-10-29.md](docs/mesures/workflows-top10-2026-10-29.md). / *Le registre compte **93 gestes : 79 ouverts, dont 48 avec un vrai rendu facturé** (« mesuré »), les autres « estimés » ; 14 restent fermés.*
 
-## English
+| Area / Domaine | Measured quote, credits / Devis mesuré, crédits |
+|---|---|
+| CAST · DÉCOR | from text / depuis un texte ≈ 4 · from photos / depuis des photos ≈ 4 · time of day / heure ≈ 4 |
+| PRISE | LTX-2.5 5 s ≈ 15 · MiniMax H3 ≈ 4 · bridge / raccord ≈ 7 · widen / élargir ≈ 16 · remove an object / effacer ≈ 25 · 3D object / objet 3D ≈ 17 |
+| After a take / Après une prise | edit / modifier ≈ 4 · finalise image ≈ 2 · cut out / détourer ≈ 1 · widen image ≈ 5 · finalise video 5 s ≈ 28 · smooth / fluidifier ≈ 2 · continue / prolonger ≈ 6 · make it talk / faire parler ≈ 8 |
+| Image tools / Outils image | Klein ≈ 3 · Qwen ≈ 3 · references / références ≈ 2 · GPT Image ≈ 1 · Seedream ≈ 10 · FLUX 3 ≈ 14 · Ideogram ≈ 18 · sketch / croquis ≈ 17 · 360° ≈ 20 |
+| Video tools / Outils vidéo | text to video / texte → vidéo ≈ 5 · Wan ≈ 8 · motion / mouvement ≈ 17 · cut out / détourer ≈ 63 · Vidu ≈ 100 · lip sync / lèvres ≈ 280 |
+| Sound tools / Outils son | open voice / voix ouverte (Chatterbox) ≈ 3 · dialogue ≈ 4 · open music / musique ouverte (ACE-Step) ≈ 3 · open sound effect / bruitage ouvert (Stable Audio) ≈ 2 |
 
-### Built on the Comfy Developer Platform
+Example media in `public/exemples/` say how they were made (`public/exemples/A-GENERER.json`). `public/exemples/outils/plan-exemple.mp4` is a sample clip to try the video tools, not a model render. / *Les exemples disent comment ils ont été faits ; `plan-exemple.mp4` est un clip d’essai, pas un rendu.*
 
-Every render runs on the visitor's own Comfy account through the documented **Comfy Cloud API** (`POST /api/upload/image`, `POST /api/prompt`, `GET /api/job/{id}/status`, `GET /api/jobs/{id}`, `GET /api/view`, balance from `api.comfy.org`), via a same-origin relay that stores nothing ([`src/lib/comfy-proxy.ts`](src/lib/comfy-proxy.ts)). The studio sells nothing and keeps no visitor account; files live in a local vault on the device.
+## Engines / Moteurs
 
-| Tab | Default engine | Template(s) | Weights |
-| --- | --- | --- | --- |
-| CAST | **FLUX 3 Image Klein** (text, photo edit, outfit) | `image_flux3_klein_t2i`, `image_flux3_klein_image_edit` | open |
-| CAST | **FLUX 3 Image** (several references, view sheet) | `api_bfl_flux3_image_edit` | partner |
-| DÉCOR | **FLUX 3 Image Klein** (text, real place photo, time of day) | `image_flux3_klein_t2i`, `image_flux3_klein_image_edit` | open |
-| PRISE | **LTX-2.5** image-to-video, first frame composed by FLUX 3 Klein from character + set (one graph) | `video_ltx2_5_i2v` (+ Klein edit) | open |
-| PRISE | **MiniMax H3** reference-to-video, second engine | `video_minimax_h3_r2v` | open |
-| PRISE (video gestures) | **Directed camera** (previs-to-picture: the studio's 3D maquette is filmed in the browser, MoGe depth + LTX-2.3 IC-LoRA union control render the shot), LTX-2.5 first/last frame bridge, LTX-2.3 IC-LoRA camera, LTX-2.3 video outpainting and object removal (VFX / re-shoot) | `video_ltx2_5_flf2v`, `video_ltx2_3_ic_lora`, `template_ltx2_3_lora_video_outpainting`, `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | open |
-| MONTAGE | voice, sound effect, music | ElevenLabs, Sonilo partner templates | partner |
-| Finalize | NVIDIA RTX Video Super Resolution on the whole edit, optional denoise/deblur (never regenerates) | `utility_nvidia_rtx_video_enhance` (Super Resolution stage) | see NVIDIA license; not verified for Open Weights Only |
+Renders go through the documented **Comfy Cloud API** (`/api/upload/image`, `/api/prompt`, `/api/job/{id}/status`, `/api/jobs/{id}`, `/api/view`, balance from `api.comfy.org`) via a same-origin relay that stores nothing ([`src/lib/comfy-proxy.ts`](src/lib/comfy-proxy.ts)).
 
-Nano Banana stays available as an **option, off by default** (toggle « Nano Banana (option) »). **Open weights only** hides partner gestures and rejects them again before submission. RTX finalization is unavailable in that mode until its model license is verified; local MP4 export remains available. Both toggles sit above the gesture cards; the PRISE tab has an engine switch (LTX-2.5 default / MiniMax H3).
+| Tab / Onglet | Default / Par défaut | Template(s) | Weights |
+|---|---|---|---|
+| CAST · DÉCOR | FLUX 3 Image Klein (text, photo edit, time of day) | `image_flux3_klein_t2i`, `image_flux3_klein_image_edit` | open |
+| CAST | FLUX 3 Image (several references, view sheet) | `api_bfl_flux3_image_edit` | partner |
+| PRISE | LTX-2.5 i2v, first frame composed by Klein from character + set | `video_ltx2_5_i2v` | open |
+| PRISE | MiniMax H3 reference-to-video (second engine) | `video_minimax_h3_r2v` | open |
+| PRISE (VFX) | Directed camera (MoGe depth + LTX-2.3 IC-LoRA), bridge, camera, widen, remove an object | `video_ltx2_5_flf2v`, `video_ltx2_3_ic_lora`, `template_ltx2_3_lora_video_outpainting`, `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | open |
+| MONTAGE | voice, music, sound effect: ElevenLabs, Sonilo; open tools: Chatterbox, ACE-Step, Stable Audio | `api_elevenlabs_*`, `api_sonilo_t2m`, `audio-chatterbox_tts_multilingual`, `audio_ace_step1_5_xl_turbo`, `audio_stable_audio_3_medium` | partner / open |
+| Finaliser | SeedVR2 (image, take); RTX Video Super Resolution (whole edit) | `utility_seedvr2_3b_int8_upscale_*`, `utility_nvidia_rtx_video_enhance` | open / NVIDIA licence |
 
-### Workflows
+« Versatile model (optional) » (Nano Banana) is off by default. « Studio models only » hides partner tools and rejects them again before sending; RTX finalisation stays closed in that mode until its licence is verified. / *« Modèle polyvalent (option) » est éteint par défaut. « Modèles du studio seulement » cache les outils partenaires et les refuse avant envoi ; la finalisation RTX reste fermée dans ce mode.*
 
-[`workflows/`](workflows) holds one Comfy workflow per gesture:
+## Workflows
 
-- `workflows/<tab>/<gesture>.json` — the official Comfy template the gesture comes from (UI format: drag it into ComfyUI);
-- `workflows/<tab>/<gesture>.api.json` — the exact API graph the studio sends, for wired gestures (placeholders `uttu-*.jpg` and `<texte du visiteur>`);
-- `workflows/index.json` — gesture → template, partner nodes, files. `tests/workflows-export.test.ts` keeps it equal to the registry ([`src/lib/workflows/registre.ts`](src/lib/workflows/registre.ts)).
+- `workflows/<tab>/<gesture>.json` — the official Comfy template (drag it into ComfyUI) / *le template officiel* ;
+- `workflows/<tab>/<gesture>.api.json` — the exact API graph the studio sends / *le graphe exact envoyé* ;
+- `workflows/index.json` — gesture → template, partner nodes; kept equal to the registry by `tests/workflows-export.test.ts`.
 
-Regenerate: `node --experimental-strip-types scripts/export-workflows.mjs` (reads templates from `Comfy-Org/workflow_templates`, partner flags from a local ComfyUI `/object_info` when one runs).
+Regenerate / Régénérer : `node --experimental-strip-types scripts/export-workflows.mjs`. Details: [docs/WORKFLOWS.md](docs/WORKFLOWS.md), [docs/AUDIT-WORKFLOWS-COMFY.md](docs/AUDIT-WORKFLOWS-COMFY.md).
 
-### Run locally
+## Run locally / Lancer en local
 
-Requirements: Node ≥ 22.
+Node ≥ 22.
 
 ```bash
 npm ci
-npm run dev          # http://localhost:3000/studio
-npm test             # unit tests
-npm run build
+npm run dev          # http://localhost:3000 (landing) · /studio
+npm test             # unit tests / tests unitaires
+npm run typecheck
+npm run build        # writes public/agent/knowledge.json, then next build
+npm run test:e2e     # Playwright
 ```
 
-Link a Comfy Cloud account in the app (session or API key, kept on the device) to render.
-
-**Fully local, open weights, with your own ComfyUI:**
-
-1. Install/update [ComfyUI](https://github.com/comfyanonymous/ComfyUI) and start it (`python main.py`, default `http://127.0.0.1:8188`).
-2. Open any `workflows/<tab>/<gesture>.json` in ComfyUI: the template's notes list the model files and their Hugging Face links (FLUX 3 Image Klein, LTX-2.5, MiniMax H3, SeedVR2).
-3. Or run the studio's exact graph: 
-   ```bash
-   node scripts/run-local.mjs workflows/prise/prise-plan.api.json \
-     --text "Uttu walks along the quay at night" \
-     --image uttu-personnage.jpg=./uttu.png --image uttu-lieu.jpg=./quay.png
-   ```
-   The script refuses graphs with partner nodes unless `--allow-partner` is set.
-
-Every feature runs through its dedicated Comfy workflow (official template, exported): see `docs/AUDIT-WORKFLOWS-COMFY.md`.
-
-### Touch previs (phone)
-In PRISE, the 3D maquette is driven by touch: one finger orbits or moves a person or a prop, two fingers pinch. A camera path is built from timed keyframes (up to 8 over 5 s, eased). « Sentence → scene » is a small rule-based agent (FR/EN/DE/ES, no language model, no network) that lays out mannequins, props and a camera move. Props are primitives or an imported `.glb`, simplified on the device (20 000 triangles on a phone). « Film the previs » records 5 s of the canvas with MediaRecorder and hands the clip straight to « Directed camera » (LTX-2.3 IC-LoRA). « Generate in 3D » runs the official open-weights templates `3d_hunyuan3d-v2.1` (person) and `3d_pixal3d_trellis2_image_to_model` (prop or set, decimated to 40 000 faces by the template's own node), with an estimated quote and a confirmation before any spend.
-
-Next step, not built: cloud Blender over MCP, see [docs/BLENDER-MCP.md](docs/BLENDER-MCP.md).
-
-### Spending rules
-
-A quote is shown before every spend; Create/Shoot stays off when the balance does not cover the required reserve (not a guaranteed billing cap). A quote says « measured » only for a gesture with a billed job ([docs/mesures](docs/mesures/test-visiteur-2026-10-27.md)); otherwise it is labelled « estimated » and the visitor confirms the estimate and its uncertainty. The LTX take was billed on 27.10.2026 (about 15 credits for 5 s), but the take quote in the app is still labelled « estimated ». Running jobs are never cancelled by the studio on its own. Finalize only upscales/restores.
-
-### Credits
-
-Street-level references come from [Panoramax](https://panoramax.fr) (CC BY-SA: derived sets inherit share-alike) and OpenStreetMap/Photon. Google imagery is never sent to a model. Example character: Uttu (original design by the author).
-
----
-
-## Français
-
-### Sur la Comfy Developer Platform
-
-Chaque rendu part sur le compte Comfy du visiteur par l’**API Comfy Cloud** documentée, via un relais même origine qui ne garde rien. Le studio ne vend rien et ne garde aucun compte ; les fichiers restent dans un coffre local.
-
-- **CAST et DÉCOR :** FLUX 3 Image Klein (open weights) par défaut ; FLUX 3 Image (nœud partenaire) pour plusieurs références et la planche ; Nano Banana en option, éteinte par défaut.
-- **PRISE :** LTX-2.5 par défaut (FLUX 3 Klein compose la première image à partir du personnage et du décor, puis LTX-2.5 l’anime, dans un seul graphe) ; MiniMax H3 en second moteur. Gestes vidéo : caméra maîtrisée (la maquette 3D filmée dans le navigateur sert de prévis ; profondeur MoGe + IC-LoRA LTX-2.3 rendent le plan), raccord LTX-2.5, caméra LTX-2.3 IC-LoRA, élargir le plan et effacer un objet (VFX, re-shoot).
-- **MONTAGE :** voix, effet, musique (partenaires) ; Finaliser : RTX Video Super Resolution (étape du template `utility_nvidia_rtx_video_enhance`), sans jamais refaire le rendu.
-- **Open weights seulement :** cache les gestes partenaires et les refuse avant envoi. La finalisation RTX, non vérifiée pour ce mode, reste fermée ; l’export MP4 local reste disponible.
-
-### Workflows
-
-Un fichier par geste dans `workflows/<onglet>/` : le template officiel (`.json`, à ouvrir dans ComfyUI) et, si le geste est branché, le graphe exact envoyé par le studio (`.api.json`). `workflows/index.json` dit lequel passe par un partenaire. Détail des gestes : [docs/WORKFLOWS.md](docs/WORKFLOWS.md).
-
-### Lancer en local
+With your own ComfyUI (open weights, no Comfy Cloud credits) / *Avec ton propre ComfyUI :*
 
 ```bash
-npm ci && npm run dev   # http://localhost:3000/studio
+node scripts/run-local.mjs workflows/prise/prise-plan.api.json \
+  --text "Uttu walks along the quay at night" \
+  --image uttu-personnage.jpg=./uttu.png --image uttu-lieu.jpg=./quay.png
 ```
 
-Avec ton propre ComfyUI (open weights, sans crédit) : lance ComfyUI, ouvre un `workflows/…/*.json`, ou envoie le graphe exact du studio avec `node scripts/run-local.mjs <graphe.api.json> --text "…" --image nom=fichier`.
+The script refuses graphs with partner nodes unless `--allow-partner` is set. / *Le script refuse les graphes avec nœuds partenaires sans `--allow-partner`.*
 
-### Prévis au doigt (téléphone)
-Dans PRISE, la maquette 3D se pilote au doigt : un doigt tourne la caméra ou déplace une personne, un objet ; deux doigts pincent. Le trajet caméra se construit par points-clés minutés (8 au plus sur 5 s, adoucis). « Phrase → scène » est un petit agent à règles (FR/EN/DE/ES, sans modèle de langue, sans réseau) qui place mannequins, objets et mouvement de caméra. Les objets sont des primitives ou un `.glb` importé, allégé sur l'appareil (20 000 triangles sur téléphone). « Filmer la prévis » enregistre 5 s du canvas (MediaRecorder) et envoie le clip directement dans « Caméra maîtrisée » (LTX-2.3 IC-LoRA). « Générer en 3D » passe par les templates officiels open weights `3d_hunyuan3d-v2.1` (personnage) et `3d_pixal3d_trellis2_image_to_model` (objet ou décor, décimé à 40 000 faces par le nœud du template), avec devis estimé et confirmation avant toute dépense.
+## Storage and export / Stockage et export
 
-Étape suivante, pas encore construite : Blender cloud via MCP, voir [docs/BLENDER-MCP.md](docs/BLENDER-MCP.md).
+Projects are stored in the browser (request storage protection and download a ZIP backup from My creations; clearing browser data removes them). Local MP4 export: H.264/AAC, up to 60 s, 960×540 or 540×960 at 12 fps. / *Les projets restent dans le navigateur (protection et copie ZIP depuis Mes créations). Export MP4 local : H.264/AAC, 60 s au plus, 960×540 ou 540×960 à 12 i/s.*
 
-### Règles de dépense
+The contest branch is not a production validation: see [docs/audit-2026-10-14/integration-concours.md](docs/audit-2026-10-14/integration-concours.md). Next step, not built: cloud Blender over MCP ([docs/BLENDER-MCP.md](docs/BLENDER-MCP.md)).
 
-Un devis avant chaque dépense. Un devis ne dit « mesuré » que pour un geste dont un job a été facturé ([docs/mesures](docs/mesures/test-visiteur-2026-10-27.md)) ; sinon il est affiché « estimé », et tu confirmes l’estimation et son incertitude. La prise LTX a été facturée le 27.10.2026 (environ 15 crédits pour 5 s), mais son devis reste affiché « estimé » dans l’app ; le solde doit couvrir la réserve annoncée, qui ne garantit pas un plafond facturé. Finaliser agrandit et rend net, ne régénère jamais.
+## Credits
 
-## Validation et sauvegardes / Validation and backups
-
-La branche concours ne vaut pas validation de production. [Audit et intégration](docs/audit-2026-10-14/integration-concours.md) : preuves réelles, contrats simulés et opérations encore non validées sont distincts. Aucun appel payant effectué par cet audit.
-
-Les projets restent dans le navigateur. Mes créations permet de demander sa protection contre l’éviction et d’exporter une copie ZIP indépendante. La protection ne survit pas à un effacement volontaire des données. Export local MP4 H.264/AAC : jusqu’à 60 s, 960×540 ou 540×960 à 12 images/s ; encodeur AAC local de secours.
-
-Projects are stored in the browser. Request storage protection and download an independent ZIP backup from My creations. Clearing browser data still removes local projects. Local MP4 export: H.264/AAC, up to 60 s, 960×540 or 540×960 at 12 fps, with a local AAC fallback encoder. Real cloud generation and physical-device validation remain separate acceptance steps.
+Street-level references: [Panoramax](https://panoramax.fr) (CC BY-SA), OpenStreetMap/Photon; Google imagery is never sent to a model. Example character: Uttu (original design by the author). See [docs/CREDITS.md](docs/CREDITS.md).

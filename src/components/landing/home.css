@@ -194,10 +194,12 @@
   .hv-shot.g1, .hv-shot.g2, .hv-shot.g3 { grid-column: auto; grid-row: auto; }
   .hv-shot.g1 { aspect-ratio: 4 / 5; }
   .hv-shot.g2, .hv-shot.g3 { aspect-ratio: 16 / 10; }
-  .hv-steps { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--hv-pad); margin: 0 calc(var(--hv-pad) * -1); padding: 0 var(--hv-pad); scrollbar-width: none; }
-  .hv-steps::-webkit-scrollbar { display: none; }
-  .hv-steps::before { left: var(--hv-pad); right: auto; width: calc(5 * 190px); }
-  .hv-steps li { flex: 0 0 190px; scroll-snap-align: start; padding-right: 18px; }
+  /* Portrait: the five steps stack on a vertical line, all visible, none cut off. */
+  .hv-steps { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .hv-steps::before { left: 4px; right: auto; top: 8px; bottom: 8px; width: 1px; height: auto; background: linear-gradient(180deg, var(--accent), rgba(201, 167, 91, .25) 60%, rgba(201, 167, 91, .06)); }
+  .hv-steps li { padding: 0 0 0 30px; }
+  .hv-steps li::before { top: 4px; }
+  .hv-steps b { margin-bottom: 4px; }
   .hv-bento { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .hv-tile.big, .hv-tile.small { grid-column: auto; }
   .hv-tile.big { min-height: 0; aspect-ratio: 4 / 5; }
@@ -224,9 +226,11 @@
   .hv-tile.big { aspect-ratio: 16 / 10; }
   .hv-shot.g1 { aspect-ratio: 16 / 10; }
   /* The five steps fit without being cut. */
-  .hv-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
-  .hv-steps::before { left: 0; right: 0; width: auto; }
-  .hv-steps li { padding-right: 14px; }
+  .hv-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; }
+  .hv-steps::before { left: 0; right: 0; top: 15px; bottom: auto; width: auto; height: 1px; background: linear-gradient(90deg, var(--accent), rgba(201, 167, 91, .25) 60%, rgba(201, 167, 91, .06)); }
+  .hv-steps li { padding: 44px 14px 0 0; }
+  .hv-steps li::before { top: 11px; }
+  .hv-steps b { margin-bottom: 8px; }
   .hv-also ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 520px) {

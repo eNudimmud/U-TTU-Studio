@@ -28,7 +28,7 @@ const SLIDES = [
   { cls: "s5", src: IMG("hero-village-clair.webp") },
 ] as const;
 const FLOW = ["cast", "decor", "prise", "montage", "finaliser"] as const;
-const ALSO = ["bubble", "tools", "refs", "upload", "guide", "studio", "quote", "langs"] as const;
+const ALSO = ["bubble", "refs", "angles", "video", "son", "multicam", "library", "upload", "guide", "creations", "quote", "langs"] as const;
 
 function PauseIcon({ paused }: { paused: boolean }) {
   return paused
