@@ -106,11 +106,12 @@ export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: b
   </div>;
 }
 
-export function OutilsHub({ tool }: { tool: string | null }) {
+/** `early`: the studio is still opening (F14), only the home is asked for then. */
+export function OutilsHub({ tool, early = false }: { tool: string | null; early?: boolean }) {
   if (tool === REPERAGE_ID) return <ReperageTool onBack={() => backToTools(null)} />;
-  if (tool === ALL_TOOLS_ID) return <BarreHome tous />;
+  if (tool === ALL_TOOLS_ID) return <BarreHome tous early={early} />;
   const outil = tool ? outilParId(tool) : null;
-  if (!outil || outil.bientot) return <BarreHome />;
+  if (!outil || outil.bientot) return <BarreHome early={early} />;
   const head = intentDe(outil.id);
   return <OutilWork key={head} outil={outil} head={head} />;
 }

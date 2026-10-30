@@ -16,6 +16,7 @@ import { StudioProvider, useStudio } from "./studio-session";
 import { RenduSuivi } from "./rendu-suivi";
 import "./app.css";
 import { StudioSplash } from "./splash";
+import { BOOT_MARKS } from "@/lib/studio-boot";
 import { TopBar } from "./top-bar";
 import { AssistantPanel, toggleAssistant } from "./assistant-panel";
 
@@ -161,6 +162,11 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     };
   }, []);
 
+  // Once the studio is ready the early home is over: drop the marks STUDIO_BOOT left on <html>.
+  useEffect(() => {
+    if (ready) for (const mark of BOOT_MARKS) document.documentElement.removeAttribute(mark);
+  }, [ready]);
+
   const montageKey = `${vault.project ?? ""}|${vault.sequences.length}|${vault.shots.length}|${vault.takes.length}`;
   useEffect(() => {
     if (!ready) return;
@@ -190,14 +196,18 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       </button>)}
     </nav>}
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready || switching} data-switching={switching ? "" : undefined}>
-      {!ready ? <StudioSplash /> : <>
-        <RenduSuivi />
-        {section === "outils" ? <OutilsHub tool={outil} />
-          : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
-          : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
-          : section === "montage" ? <MontageStage onFilled={setCutReady} />
-          : <CastStage onDecor={() => go("scene")} />}
-      </>}
+      {ready && <RenduSuivi />}
+      {/* F14 · The home (title, bar, the film door with the LCP picture) is in the server HTML and does
+          not wait for the local studio. A stage or a tool still opens behind the splash. Same slot before
+          and after ready, so the home is never mounted twice. */}
+      {section === "outils" && (ready || !outil) ? <OutilsHub tool={outil} early={!ready} />
+        : !ready ? <StudioSplash />
+        : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
+        : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
+        : section === "montage" ? <MontageStage onFilled={setCutReady} />
+        : <CastStage onDecor={() => go("scene")} />}
+      {/* Shown instead of the home only when the address already asks for a stage (see STUDIO_BOOT). */}
+      {!ready && section === "outils" && !outil && <StudioSplash early />}
     </main>
     {/* PRISE and MONTAGE show the notice inline (near the action / under the header); the floating toast stays for other tabs and over sheets. */}
     {notice && !((section === "prise" || section === "montage") && !studio.sheet) && <p className="u-toast" role="status" onClick={() => setNotice("")}>{say(notice)}</p>}

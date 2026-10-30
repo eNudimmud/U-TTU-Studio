@@ -5,7 +5,7 @@
 // row per family (the same list as the rail and search).
 
 import { STUDIO_HERO, THUMB_SIZES } from "@/lib/studio-hero";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { FAMILLES, cherche, familleVitrine, intentDe, outilRow, outilsPublics, type Famille, type Outil } from "@/lib/outils/catalogue";
@@ -16,6 +16,8 @@ import { useStudio } from "./studio-session";
 import { CreationBar } from "./creation-bar";
 import { BarreFil, useFil } from "./barre-fil";
 
+
+const noSubscribe = () => () => {};
 
 export function openStudioTool(id: string | null, { replace = false }: { replace?: boolean } = {}) {
   const hash = id ? `#outils/${id}` : "#outils";
@@ -95,9 +97,14 @@ export function StudioHome() {
 }
 
 /** The home: title, the creation bar and its thread, then the film door and every ready tool. */
-export function BarreHome({ tous = false }: { tous?: boolean } = {}) {
+export function BarreHome({ tous = false, early = false }: { tous?: boolean; early?: boolean } = {}) {
   const { t } = useI18n();
   const { connected, setSheet } = useStudio();
+  // F14 · The home is in the server HTML, where no saved link is known: the server and the hydrating
+  // client both show « Relier mon compte », then the client's answer. A linked visitor never sees it
+  // flash: the boot script's data-u-linked hides it until then (app.css).
+  const hydrated = useSyncExternalStore(noSubscribe, () => true, () => false);
+  const askLink = hydrated ? !connected : true;
   const runner = useFil();
   const threaded = runner.fil.messages.length > 0;
   useEffect(() => {
@@ -113,9 +120,12 @@ export function BarreHome({ tous = false }: { tous?: boolean } = {}) {
     data-outils-hub=""
     data-tous={tous ? "" : undefined}
     data-threaded={threaded ? "" : undefined}
+    data-early={early ? "" : undefined}
+    inert={early}
+    aria-busy={early || undefined}
     aria-labelledby="u-title"
   >
-    {!connected && <p className="u-entry-link" data-entry-link="">
+    {askLink && <p className="u-entry-link" data-entry-link="">
       <img src={assetPath("/exemples/comfy-logomark-yellow.svg")} alt="" width={18} height={18} />
       <span>{t("entry.linkTitle")}</span>
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>

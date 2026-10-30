@@ -82,8 +82,8 @@ describe("barre unique", () => {
 
   it("one creation page: « Tous les outils » is the same page, scrolled to the tools", () => {
     const hub = readFileSync("src/components/app/outils-hub.tsx", "utf8");
-    assert.match(hub, /ALL_TOOLS_ID\) return <BarreHome tous \/>/);
-    assert.match(hub, /<BarreHome \/>/);
+    assert.match(hub, /ALL_TOOLS_ID\) return <BarreHome tous( early={early})? \/>/);
+    assert.match(hub, /<BarreHome( early={early})? \/>/);
     const home = readFileSync("src/components/app/studio-entry.tsx", "utf8");
     assert.match(home, /<CreationTools \/>/);
     assert.doesNotMatch(home, /outils\.entry"|data-entry-prompt|data-entry-chip/);
