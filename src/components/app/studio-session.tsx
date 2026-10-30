@@ -7,7 +7,7 @@ import { orderSequence, placeStoryboard } from "@/lib/montage/arrivee";
 import type { Edit } from "@/lib/montage/edit";
 import { assetPath } from "@/lib/site";
 import { assetNote, assetPaths, importNotes, looseAssets, type AssetRecord } from "@/lib/creation/assets";
-import { importMedia } from "@/lib/creation/import-media";
+import { importMediaItems, type ImportedItem } from "@/lib/creation/import-media";
 import { readFrontmatter, list, withFrontmatter } from "@/lib/coffre/markdown";
 import { castNote } from "@/lib/creation/fiche";
 import { runStem, type StemKind } from "@/lib/creation/stem";
@@ -193,7 +193,8 @@ export interface StudioSession {
   exportCoffre(): Promise<void>;
   importCoffre(file: File): Promise<void>;
   importFiles(files: File[]): Promise<void>;
-  importAssets(files: File[], as?: "personnage" | "decor"): Promise<void>;
+  /** Imports, then selects the first character or décor imported, like a fresh render would. */
+  importAssets(files: File[], as?: "personnage" | "decor"): Promise<ImportedItem[]>;
   /** P0-2: copy gallery/example refs into the project so Vidéo routes to PRISE. */
   refreshStudio(): Promise<void>;
   pendingRef: HeldRef | null;
@@ -373,8 +374,9 @@ export function useStudio(): StudioSession {
   return value;
 }
 
-function pictureName(index: number): string {
-  return `uttu-${index + 1}.jpg`;
+/** The name says what the bytes are: a WebP sent as « .jpg » misleads Comfy's history and anyone reading it. */
+function pictureName(index: number, blob: Blob): string {
+  return `uttu-${index + 1}.${extensionFor(blob.type || "image/jpeg")}`;
 }
 
 async function posterOf(video: Blob): Promise<Blob | null> {
@@ -890,7 +892,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         kind,
         template: quote.template,
         prompt: sent,
-        pictures: input.files.slice(0, row ? Math.max(3, row.slots.length) : 3).map((file, index) => ({ blob: file, name: `uttu-${index + 1}.jpg` })),
+        pictures: input.files.slice(0, row ? Math.max(3, row.slots.length) : 3).map((file, index) => ({ blob: file, name: pictureName(index, file) })),
         seed: randomSeed(),
         clientId: crypto.randomUUID(),
         balanceBefore: fresh?.credits ?? 0,
@@ -1611,7 +1613,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         setRun({ phase: "error", code: "invalid", message: t("create.noPicture"), detail: [] });
         return;
       }
-      pictures.push({ blob: entry.blob, name: pictureName(pictures.length) });
+      pictures.push({ blob: entry.blob, name: pictureName(pictures.length, entry.blob) });
     }
     if (pictures.length === 0) {
       setNotice(t("create.noPicture"));
@@ -1919,12 +1921,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     setSheet(null);
   }, [reload, store]);
 
-  const importAssets = useCallback(async (files: File[], as?: "personnage" | "decor") => {
+  const importAssets = useCallback(async (files: File[], as?: "personnage" | "decor"): Promise<ImportedItem[]> => {
     try {
-      const count = await importMedia(store(), files, as);
+      const items = await importMediaItems(store(), files, as);
       await reload();
-      if (count > 0) setNotice(t("create.imported", { count }));
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Import interrompu. Les fichiers déjà enregistrés sont conservés."); }
+      const first = items.find(item => item.kind === "personnage");
+      if (first) setPickedCast(first.id);
+      if (items.length > 0) setNotice(t("create.imported", { count: items.length }));
+      return items;
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Import interrompu. Les fichiers déjà enregistrés sont conservés."); return []; }
   }, [reload, store, t]);
 
   const saveReference = useCallback(async (input: { original?: NamedReference; name: string; description: string; category: ReferenceCategory; images: { file?: File; path?: string }[] }): Promise<NamedReference> => {

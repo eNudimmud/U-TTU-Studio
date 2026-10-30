@@ -948,8 +948,8 @@
     "photoPlaceName": "Foto del lugar",
     "engine": {
       "label": "Estilo del plano",
-      "ltx": "Movimiento simple",
-      "h3": "Hasta nueve imágenes",
+      "ltx": "LTX · Movimiento simple",
+      "h3": "H3 · Hasta nueve imágenes",
       "ltxHint": "El personaje se coloca en el decorado y el plano cobra vida.",
       "h3Hint": "Hasta nueve imágenes de referencia."
     }
@@ -1003,7 +1003,14 @@
     "imported": "Añadido: {count}",
     "noPicture": "No hay una imagen para la toma.",
     "sessionMissing": "La sesión no está abierta.",
-    "deleted": "« {name} » eliminado"
+    "deleted": "« {name} » eliminado",
+    "importName": {
+      "lead": "{name} está en tu CAST y elegido para PRISE. Revisa su nombre: va en el texto del plano y en el montaje.",
+      "saved": "Nombre guardado: {name}. Elegido para PRISE.",
+      "label": "Nombre del personaje",
+      "save": "Guardar este nombre",
+      "next": "Continuar a DÉCOR"
+    }
   },
   "montage": {
     "lead": "Los planos se siguen. La voz, los efectos y la música se colocan debajo.",
@@ -1947,7 +1954,7 @@
     "why": {
       "demo": "La demostración no envía ningún render.",
       "busy": "Hay un render en curso. Espera a que termine para lanzar otro.",
-      "h3Format": "Este estilo solo tiene precio en vertical, 5 segundos. Pasa a vertical o vuelve al estilo simple en Avanzado.",
+      "h3Format": "H3 solo tiene precio en 5 segundos. Pasa a 5 s o elige LTX.",
       "noQuote": "Este ajuste aún no tiene presupuesto. No se envía nada.",
       "refs": "Usa como máximo tres personajes guardados; las siluetas neutras solo sirven para preparar el encuadre.",
       "decorExample": "Este decorado de ejemplo solo sirve para encuadrar. Crea o importa tu decorado en DECORADO para enviarlo.",
@@ -2087,7 +2094,8 @@
         "generer": "Primero el presupuesto, luego confirmas el lanzamiento.",
         "reviser": "Mira, guarda la buena versión, relanza, envía al MONTAJE."
       }
-    }
+    },
+    "goPlan": "Ir al plano {n} · aún sin rodar"
   },
   "p1": {
     "hint": "Basta una frase: quién, dónde, qué pasa, la cámara, el ambiente.",
@@ -2111,7 +2119,7 @@
     "say": {
       "engineH3Refs": "Hay {count} imágenes, y este estilo solo admite {max}: paso al otro estilo.",
       "engineH3Cast": "{count} personajes en el plano: paso al estilo hecho para varias caras.",
-      "engineManual": "Estilo elegido a mano en Avanzado: {engine}.",
+      "engineManual": "Estilo elegido a mano: {engine}.",
       "refsDropped": "Más allá de {max} referencias, {count} quedan fuera.",
       "missingRef": "No hay foto de {name}: su aspecto puede cambiar.",
       "missingDecorRef": "No hay imagen del lugar {name}: el decorado seguirá tus palabras.",
@@ -3665,7 +3673,11 @@
     "missing": "No se encuentran las imágenes del encuadre. Vuelve a guardarlo antes de generar.",
     "failed": "No se pudo guardar el encuadre. Espera a que cargue el decorado e inténtalo de nuevo.",
     "formatChanged": "El formato ha cambiado. Vuelve a guardar el encuadre en este formato antes de generar.",
-    "unlock": "Desbloquea la cámara para cambiar el zoom."
+    "unlock": "Desbloquea la cámara para cambiar el zoom.",
+    "ltxSent": "Encuadre guardado: este plano va a LTX (profundidad + contornos) · ≈ {credits} créditos estimados. H3 no usa el encuadre.",
+    "h3NotSent": "H3 elegido: el encuadre guardado se conserva pero no se envía. Elige LTX para usarlo.",
+    "willSwitch": "Guardar este encuadre pasa el plano de H3 (≈ {before}) a LTX (≈ {after} créditos estimados). Puedes volver a H3 en «Estilo del plano».",
+    "switched": "Encuadre guardado: este plano pasa a LTX, ≈ {after} créditos estimados en lugar de ≈ {before} con H3."
   },
   "namedRefs": {
     "title": "Referencias",

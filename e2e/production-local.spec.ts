@@ -98,7 +98,7 @@ test('contrat cloud simulé : confirmation, un seul POST, reprise et vraie vidé
   await expect(page.locator('[data-maquette]')).toHaveAttribute('data-figures', '1');
   await page.getByRole('group', { name: 'Format du projet' }).getByRole('button', { name: '9:16', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ce qui se passe', exact: true }).fill('Alice tend la main audit');
-  // Engines live in « Avancé »: the novice never meets them.
+  // The engine is named on the main step; duration stays folded in « Avancé ».
   await expect(page.locator('[data-avance-prise]')).not.toHaveAttribute('open', '');
   await page.locator('[data-avance-prise] > summary').click();
   await page.locator('[data-avance-toggle=rendu]').click();

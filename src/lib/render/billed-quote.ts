@@ -1,6 +1,6 @@
 // A billed quote is one finished job's GPU time, times the rate on that bill.
 // It is not a balance delta (F11), and it is not the Cloud estimator's 0.
-// Only the profile named in docs/mesures is quoted. Every other setting stays off.
+// Only the profiles named in docs/mesures are quoted. Every other setting stays off.
 
 import { COMFY_CLOUD } from "../comfy-stack.ts";
 import { FRAMING_ESTIMATE } from "./framed-key.ts";
@@ -8,7 +8,7 @@ import { claimBasis, costClaim, formatCredits, runGate, type Balance, type CostR
 
 export const BILLED_MEASURE_FILE = "docs/mesures/h3-4pas-5s-vertical.json";
 
-/** The only billed take in the repo. Keep this object equal to BILLED_MEASURE_FILE. */
+/** The first billed take in the repo (H3 vertical). Keep this object equal to BILLED_MEASURE_FILE. */
 export const BILLED_MEASURE = {
   version: 1,
   kind: "gpu-facture",
@@ -29,7 +29,34 @@ export const BILLED_MEASURE = {
   modelsWarm: true,
 } as const;
 
-export type BilledMeasure = typeof BILLED_MEASURE;
+export const BILLED_MEASURE_HORIZONTAL_FILE = "docs/mesures/h3-4pas-5s-horizontal.json";
+
+/**
+ * H3 16:9, same 0.4 MP budget as the vertical (864×480 against 480×864), 4 steps, 5 s, two references.
+ * Billed on the « Créer » bubble, 30.10.2026 (job d5e843a4, 14.48 GPU s ≈ 3.96 crédits). PRISE and the
+ * bubble send the same template at the same size, so one measure quotes both. Keep equal to its file.
+ */
+export const BILLED_MEASURE_HORIZONTAL = {
+  version: 1,
+  kind: "gpu-facture",
+  profile: "h3-4pas-5s-horizontal",
+  at: "2026-10-30T08:35:39.809Z",
+  displayDay: "30 octobre",
+  jobId: "d5e843a4-ead9-4c3a-856b-0322e04b252b",
+  gpu: "rtx_pro_6000",
+  gpuSeconds: 14.475616,
+  usdPerGpuSecond: 0.001295,
+  creditsPerUsd: COMFY_CLOUD.creditsPerUsd,
+  gpuCreditsPerSecondBound: COMFY_CLOUD.gpuCreditsPerSecond,
+  /** Math.round(14.475616 × 0.001295 × 211) = 4 (3.96). */
+  credits: 4,
+  /** Same novice ceiling as the vertical: a cold worker billed 21.9 s (≈ 5.98) on the same graph the same morning. */
+  creditsHigh: 6,
+  runs: 1,
+  modelsWarm: true,
+} as const;
+
+export type BilledMeasure = typeof BILLED_MEASURE | typeof BILLED_MEASURE_HORIZONTAL;
 
 export const UNMEASURED_LINE = "Pas encore mesuré. Cette durée, cette qualité ou ce format n’a pas de prise réelle. Rien ne part.";
 
@@ -74,7 +101,7 @@ export function estimateSentence(estimate: Pick<TakeEstimate, "credits" | "credi
 
 /** The billed record for this exact profile, or nothing. No other profile is invented. */
 export function billedMeasure(profile: string): BilledMeasure | null {
-  return profile === BILLED_MEASURE.profile ? BILLED_MEASURE : null;
+  return [BILLED_MEASURE, BILLED_MEASURE_HORIZONTAL].find(measure => measure.profile === profile) ?? null;
 }
 
 /**
