@@ -44,6 +44,15 @@ export function HomeLanding() {
   const [solid, setSolid] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
   const [hidden, setHidden] = useState(false);
+  // Only the first slide is in the HTML: the four others wait for the page load, so the LCP image
+  // gets the whole connection on a phone (they appear from ~7 s into the crossfade).
+  const [rest, setRest] = useState(false);
+  useEffect(() => {
+    const go = () => setRest(true);
+    if (document.readyState === "complete") { go(); return; }
+    window.addEventListener("load", go, { once: true });
+    return () => window.removeEventListener("load", go);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 40);
@@ -89,7 +98,7 @@ export function HomeLanding() {
         <div className="hv-slides" aria-hidden="true">
           {SLIDES.map((slide, i) => <div key={slide.cls} className={`hv-slide ${slide.cls}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={slide.src} srcSet={"set" in slide ? slide.set : undefined} sizes={"set" in slide ? HERO_SIZES : undefined} alt="" decoding="async" fetchPriority={i === 0 ? "high" : undefined} />
+            {(i === 0 || rest) && <img src={slide.src} srcSet={"set" in slide ? slide.set : undefined} sizes={"set" in slide ? HERO_SIZES : undefined} alt="" decoding="async" fetchPriority={i === 0 ? "high" : "low"} />}
           </div>)}
         </div>
         <div className="hv-hero-in">
