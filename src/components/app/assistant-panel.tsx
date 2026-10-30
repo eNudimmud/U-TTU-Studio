@@ -31,7 +31,8 @@ function closeAssistant() {
   if (opener && opener.offsetParent !== null) opener.focus({ preventScroll: true });
 }
 /** Below 1600 px the panel floats over the studio: Escape or a press outside it closes it, and that
- *  press still reaches what it was aimed at (the chain, a tab, a button). Docked wide, only Escape. */
+ *  press still reaches what it was aimed at (the chain, a tab, a button). The top bar is not outside:
+ *  Uttu follows the navigation there. Docked wide, only Escape. */
 function useAssistantDismiss(open: boolean, panel: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     if (!open) return;
@@ -43,7 +44,7 @@ function useAssistantDismiss(open: boolean, panel: React.RefObject<HTMLElement |
     const press = (event: PointerEvent) => {
       const target = event.target as Element | null;
       if (!target || !window.matchMedia('(max-width: 1599px)').matches || modalElsewhere()) return;
-      if (panel.current?.contains(target) || target.closest('[data-top-uttu], [data-drawer-assistant], .u-sheet, .u-sheet-backdrop, [role="dialog"]')) return;
+      if (panel.current?.contains(target) || target.closest('[data-topbar], .u-drawer-scrim, [data-top-uttu], [data-drawer-assistant], .u-sheet, .u-sheet-backdrop, [role="dialog"]')) return;
       toggleAssistant(false);
     };
     document.addEventListener('keydown', key);
