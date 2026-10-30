@@ -57,7 +57,7 @@ import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderL
 import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
-import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
+import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 import { namedReferenceNote, readNamedReferences, referenceNotePath, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from "@/lib/creation/named-references";
@@ -627,12 +627,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (!navigator.locks) throw new Error("Ce navigateur ne peut pas sécuriser les envois simultanés. Utilise un navigateur récent.");
       return await navigator.locks.request("uttu-paid-render", { ifAvailable: true }, async lock => {
         if (!lock) throw new Error("Un rendu est déjà suivi dans un autre onglet.");
-        if (client) {
-          const reconciled = await reconcilePendingReceipt(localStorage, client);
-          if (reconciled === "cleared") setNotice(t("runtimeSafe.cloudNoResult"));
-        }
-        if (readPending(localStorage) || readInFlight(localStorage)) {
-          throw new Error("Un rendu précédent attend encore sa récupération. Ouvre Crédits, puis Récupérer le rendu — ou réessaie si le cloud l’a déjà terminé sans résultat.");
+        const state = client ? await pendingState(localStorage, client) : null;
+        if (state?.result === "cleared") setNotice(t("runtimeSafe.cloudNoResult"));
+        const waiting = readPending(localStorage);
+        if (waiting || readInFlight(localStorage)) {
+          // Say what is really happening: running in the cloud, finished and waiting to be saved, or unknown.
+          throw new Error(pendingRefusal(waiting && state?.pending?.jobId === waiting.jobId ? state.stage : null, waiting?.name || waiting?.project || ""));
         }
         return work();
       });
