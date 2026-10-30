@@ -3500,7 +3500,6 @@
       "needRef": "—"
     },
     "ideas": "Ideas",
-    "all": "Todas las herramientas",
     "back": "Crear",
     "idea": {
       "quai": {
@@ -3575,21 +3574,6 @@
       "toCreations": "Mis creaciones"
     },
     "galerie": {
-      "title": "Parte de un ejemplo",
-      "lead": "Renders hechos en este estudio en Comfy. Toca uno: se muestra grande y llena la barra. No se envía nada.",
-      "do": "Hacer mi versión",
-      "active": "En la barra",
-      "inBar": "En la barra",
-      "before": "antes",
-      "todo": "clip por renderizar",
-      "aria": "Hacer mi versión: {title}",
-      "strip": "Ejemplos",
-      "stripN": "Ver todos ({n})",
-      "powered": "Con la tecnología de ComfyUI",
-      "from": "A partir de « {title} ».",
-      "clear": "Vaciar la barra",
-      "route": "Se crea con {tool}. Confirmas antes de cualquier envío.",
-      "labSource": "Tu fuente",
       "labExample": "Ejemplo · resultado esperado",
       "quoteNear": "Ejemplo cercano",
       "tool": {
@@ -3599,36 +3583,28 @@
         "wan": "Animar · Wan"
       },
       "quai": {
-        "title": "El muelle de noche",
-        "text": "Un muelle de puerto de noche, adoquines mojados, noray y cabo en primer plano, agua negra inmóvil, lámparas de sodio en la bruma, oro y negro, 35 mm anamórfico, sin personas."
+        "title": "El muelle de noche"
       },
       "uttuQuai": {
-        "title": "Uttu en el muelle",
-        "text": "Uttu camina por el muelle de noche. La cámara la sigue."
+        "title": "Uttu en el muelle"
       },
       "rueAube": {
-        "title": "La misma calle al alba",
-        "text": "Mismo lugar. Cambia la hora, el tiempo o la estación. Sin personas. Alba seca, misma calle."
+        "title": "La misma calle al alba"
       },
       "pluie": {
-        "title": "Bajo la lluvia",
-        "text": "Una calle estrecha bajo lluvia fuerte de noche, adoquín brillante, escaparates cálidos borrosos, vapor de una reja, negro y oro, poca profundidad de campo, plano de cine, sin personas."
+        "title": "Bajo la lluvia"
       },
       "gare": {
-        "title": "Un hall de estación",
-        "text": "Un enorme hall de estación del siglo XIX, vacío de noche, cubierta de hierro y cristal, suelo mojado que refleja lámparas doradas, sombras profundas, composición simétrica, sin personas."
+        "title": "Un hall de estación"
       },
       "hallAnime": {
-        "title": "El hall cobra vida",
-        "text": "La cámara avanza despacio por el hall; las lámparas parpadean."
+        "title": "El hall cobra vida"
       },
       "quaiRegard": {
-        "title": "El mismo muelle, otra mirada",
-        "text": "Mismo lugar que la foto. 16:9, sin personas. Sin texto."
+        "title": "El mismo muelle, otra mirada"
       },
       "toit": {
-        "title": "Un tejado al amanecer",
-        "text": "Los tejados de París al alba, zinc y chimeneas, bruma dorada del amanecer, ambiente calmo, plano ancho de cine, sin personas."
+        "title": "Un tejado al amanecer"
       }
     }
   },

@@ -1,5 +1,5 @@
-// Accueil v2 « Pars d'un exemple »: real house renders (batch 2026-10-27 + earlier).
-// Tapping a card fills the bar and shows the source on the stage. Nothing runs from here.
+// Real house renders (batch 2026-10-27 + earlier), used as the nearby example in the bar's quote
+// (barre-fil). The « Pars d'un exemple » home gallery was removed on 29.10.
 
 export type ExempleMode = "image" | "video";
 
@@ -17,7 +17,6 @@ export interface ExempleCard {
   mode: ExempleMode;
   /** i18n key under barre.galerie.<id> */
   titleKey: string;
-  textKey: string;
   /** Engine label shown on the card tag (Klein / LTX / Wan). */
   eng: "Klein" | "LTX" | "Wan";
   /** Tool route label for the route line (i18n under barre.galerie.tool.*). */
@@ -62,13 +61,13 @@ const GARE: ExempleRefSpec = {
 export const EXEMPLE_GALERIE: readonly ExempleCard[] = [
   {
     id: "quai", mode: "image", eng: "Klein", tool: "klein", price: 4,
-    titleKey: "barre.galerie.quai.title", textKey: "barre.galerie.quai.text",
+    titleKey: "barre.galerie.quai.title",
     img: "/exemples/decor-quai-nuit.webp", thumb: "/exemples/decor-quai-nuit-640.webp",
     big: "/exemples/decor-quai-nuit.webp", refs: [],
   },
   {
     id: "uttu-quai", mode: "video", eng: "LTX", tool: "prise", price: 12, dur: "5 s",
-    titleKey: "barre.galerie.uttuQuai.title", textKey: "barre.galerie.uttuQuai.text",
+    titleKey: "barre.galerie.uttuQuai.title",
     img: "/exemples/outils/prise-uttu-quai-poster.jpg", thumb: "/exemples/decor-quai-nuit-640.webp",
     refs: [UTTU, QUAI],
     video: "/exemples/outils/prise-uttu-quai.mp4",
@@ -76,25 +75,25 @@ export const EXEMPLE_GALERIE: readonly ExempleCard[] = [
   },
   {
     id: "rue-aube", mode: "image", eng: "Klein", tool: "modifier", price: 4,
-    titleKey: "barre.galerie.rueAube.title", textKey: "barre.galerie.rueAube.text",
+    titleKey: "barre.galerie.rueAube.title",
     img: "/exemples/apres-decor-heure.webp", thumb: "/exemples/apres-decor-heure-640.webp",
     before: RUE, refs: [RUE],
   },
   {
     id: "pluie", mode: "image", eng: "Klein", tool: "klein", price: 4,
-    titleKey: "barre.galerie.pluie.title", textKey: "barre.galerie.pluie.text",
+    titleKey: "barre.galerie.pluie.title",
     img: "/exemples/decor-rue-pluie.webp", thumb: "/exemples/decor-rue-pluie-640.webp",
     big: "/exemples/decor-rue-pluie.webp", refs: [],
   },
   {
     id: "gare", mode: "image", eng: "Klein", tool: "klein", price: 4,
-    titleKey: "barre.galerie.gare.title", textKey: "barre.galerie.gare.text",
+    titleKey: "barre.galerie.gare.title",
     img: "/exemples/decor-gare.webp", thumb: "/exemples/decor-gare-640.webp",
     big: "/exemples/decor-gare.webp", refs: [],
   },
   {
     id: "hall-anime", mode: "video", eng: "Wan", tool: "wan", price: 12, dur: "5 s",
-    titleKey: "barre.galerie.hallAnime.title", textKey: "barre.galerie.hallAnime.text",
+    titleKey: "barre.galerie.hallAnime.title",
     img: "/exemples/outils/wan-gare-poster.jpg", thumb: "/exemples/decor-gare-640.webp",
     refs: [GARE],
     video: "/exemples/outils/wan-gare.mp4",
@@ -102,13 +101,13 @@ export const EXEMPLE_GALERIE: readonly ExempleCard[] = [
   },
   {
     id: "quai-regard", mode: "image", eng: "Klein", tool: "modifier", price: 4,
-    titleKey: "barre.galerie.quaiRegard.title", textKey: "barre.galerie.quaiRegard.text",
+    titleKey: "barre.galerie.quaiRegard.title",
     img: "/exemples/apres-decor-photo.webp", thumb: "/exemples/apres-decor-photo-640.webp",
     before: QUAI, refs: [QUAI],
   },
   {
     id: "toit", mode: "image", eng: "Klein", tool: "klein", price: 4,
-    titleKey: "barre.galerie.toit.title", textKey: "barre.galerie.toit.text",
+    titleKey: "barre.galerie.toit.title",
     img: "/exemples/decor-toit-aube.webp", thumb: "/exemples/decor-toit-aube-640.webp",
     big: "/exemples/decor-toit-aube.webp", refs: [],
   },
@@ -130,8 +129,4 @@ export function nearestExemple(input: { mode: ExempleMode; tool?: string; hasRef
     return exempleById("rue-aube") ?? EXEMPLE_GALERIE[2]!;
   }
   return exempleById("quai") ?? EXEMPLE_GALERIE[0]!;
-}
-
-export function thumbSrcSet(thumb640: string, full: string): string {
-  return `${thumb640} 640w, ${full} 1280w`;
 }

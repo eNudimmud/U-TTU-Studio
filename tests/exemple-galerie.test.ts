@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { EXEMPLE_GALERIE, exempleById, nearestExemple, thumbSrcSet } from "../src/lib/creation/exemple-galerie.ts";
+import { EXEMPLE_GALERIE, exempleById, nearestExemple } from "../src/lib/creation/exemple-galerie.ts";
 import { planSend, type FilRef } from "../src/lib/barre/thread.ts";
 import { DEFAULT_SETTINGS } from "../src/lib/barre/model.ts";
 
-describe("accueil v2 galerie", () => {
+describe("exemples maison (devis de la barre)", () => {
   it("lists the approved v2 cards with real batch renders", () => {
     assert.equal(EXEMPLE_GALERIE.length, 8);
     assert.ok(exempleById("uttu-quai")?.video?.includes("prise-uttu-quai.mp4"));
@@ -21,10 +21,9 @@ describe("accueil v2 galerie", () => {
     assert.equal(nearestExemple({ mode: "image", hasRefs: false }).id, "quai");
   });
 
-  it("exposes 640w thumbs for the first paint (P0-6)", () => {
+  it("keeps 640w thumbs for the quote card", () => {
     const first = EXEMPLE_GALERIE[0]!;
     assert.match(first.thumb, /-640\.webp$/);
-    assert.match(thumbSrcSet(first.thumb, first.img), /640w/);
     for (const card of EXEMPLE_GALERIE) {
       const thumb = card.thumb.startsWith("/") ? `public${card.thumb}` : card.thumb;
       // poster jpgs are fine without -640; webp thumbs should exist when referenced as -640
@@ -51,27 +50,25 @@ describe("accueil v2 galerie", () => {
     assert.deepEqual(wan.refs.map(r => r.id), ["demo-dj", "demo-quai"]);
   });
 
-  it("wires the home to ToolShell / ToolStage and the gallery (no old Idées row)", () => {
+  it("keeps the home to the bar and the tools: no « Pars d’un exemple » gallery (JD 29.10), no old Idées row", () => {
     const home = readFileSync("src/components/app/studio-entry.tsx", "utf8");
     assert.match(home, /data-barre-v2/);
-    assert.match(home, /ToolShell/);
-    assert.match(home, /ToolStage/);
-    assert.match(home, /ExempleGalerieGrid/);
-    assert.match(home, /promoteExempleRefs/);
+    assert.match(home, /<CreationTools \/>/);
+    assert.doesNotMatch(home, /ExempleGalerie|exemple-galerie|promoteExempleRefs/);
     assert.doesNotMatch(home, /u-barre-ideas/);
     assert.doesNotMatch(home, /const IDEAS/);
   });
 
-  it("tutoiement, crédits, nothing free — in every locale", () => {
+  it("keeps only the quote keys, nothing free — in every locale", () => {
     for (const lang of ["fr", "en", "de", "es"]) {
       const barre = JSON.parse(readFileSync(`messages/${lang}.json`, "utf8")).barre;
-      assert.ok(barre.galerie?.title);
-      assert.ok(barre.galerie?.uttuQuai?.title);
-      assert.doesNotMatch(JSON.stringify(barre.galerie), /gratuit|free|kostenlos|gratis/i);
-      if (lang === "fr") {
-        assert.match(barre.galerie.route, /\bTu\b|\bton\b|\bta\b|\btoi\b/i);
-        assert.match(barre.galerie.lead, /\bTouche\b/);
+      assert.equal(barre.galerie?.title, undefined, `${lang}: the home gallery is gone`);
+      assert.ok(barre.galerie?.quoteNear);
+      for (const card of EXEMPLE_GALERIE) {
+        const key = card.titleKey.replace(/^barre\./, "").split(".");
+        assert.ok(key.reduce<any>((node, part) => node?.[part], barre), `${lang}: ${card.titleKey}`);
       }
+      assert.doesNotMatch(JSON.stringify(barre.galerie), /gratuit|free|kostenlos|gratis/i);
     }
   });
 });

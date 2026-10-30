@@ -3500,7 +3500,6 @@
       "needRef": "—"
     },
     "ideas": "Ideas",
-    "all": "All tools",
     "back": "Create",
     "idea": {
       "quai": {
@@ -3575,21 +3574,6 @@
       "toCreations": "My creations"
     },
     "galerie": {
-      "title": "Start from an example",
-      "lead": "Renders made in this studio on Comfy. Tap one: it opens large and fills the bar. Nothing is sent.",
-      "do": "Make my version",
-      "active": "In the bar",
-      "inBar": "In the bar",
-      "before": "before",
-      "todo": "clip to render",
-      "aria": "Make my version: {title}",
-      "strip": "Examples",
-      "stripN": "See all ({n})",
-      "powered": "Powered by ComfyUI",
-      "from": "From “{title}”.",
-      "clear": "Clear the bar",
-      "route": "Creates with {tool}. You confirm before anything is sent.",
-      "labSource": "Your source",
       "labExample": "Example · expected result",
       "quoteNear": "Nearby example",
       "tool": {
@@ -3599,36 +3583,28 @@
         "wan": "Animate · Wan"
       },
       "quai": {
-        "title": "The quay at night",
-        "text": "A harbour quay at night, wet cobbles, bollard and rope in the foreground, still black water, sodium lamps in the mist, gold and black, 35 mm anamorphic, no people."
+        "title": "The quay at night"
       },
       "uttuQuai": {
-        "title": "Uttu on the quay",
-        "text": "Uttu walks on the quay at night. The camera follows her."
+        "title": "Uttu on the quay"
       },
       "rueAube": {
-        "title": "The same street at dawn",
-        "text": "Same place. Change the time, weather or season. No people. Dry dawn, same street."
+        "title": "The same street at dawn"
       },
       "pluie": {
-        "title": "In the rain",
-        "text": "A narrow street in heavy rain at night, gleaming cobbles, warm blurred shopfronts, steam from a grate, black and gold, shallow depth of field, cinema frame, no people."
+        "title": "In the rain"
       },
       "gare": {
-        "title": "A station hall",
-        "text": "A vast 19th-century station hall, empty at night, iron glass roof, wet floor reflecting golden lamps, deep shadows, symmetrical composition, no people."
+        "title": "A station hall"
       },
       "hallAnime": {
-        "title": "The hall comes alive",
-        "text": "The camera moves slowly through the hall; the lamps flicker."
+        "title": "The hall comes alive"
       },
       "quaiRegard": {
-        "title": "The same quay, another look",
-        "text": "Same place as the photo. 16:9, no people. No text."
+        "title": "The same quay, another look"
       },
       "toit": {
-        "title": "A roof at daybreak",
-        "text": "Paris rooftops at dawn, zinc and chimneys, golden morning mist, calm mood, wide cinema frame, no people."
+        "title": "A roof at daybreak"
       }
     }
   },

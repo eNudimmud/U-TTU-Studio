@@ -20,7 +20,7 @@ async function lastMainVisible(page: Page) {
   return page.evaluate(() => {
     const main = document.querySelector("main") ?? document.querySelector(".u-main");
     if (!main) return null;
-    const nodes = [...main.querySelectorAll<HTMLElement>("a, button, h2, [data-barre-all-link]")].filter(n => n.offsetParent !== null);
+    const nodes = [...main.querySelectorAll<HTMLElement>("a, button, h2")].filter(n => n.offsetParent !== null);
     const last = nodes.at(-1);
     if (!last) return null;
     // Instant: global scroll-behavior:smooth would leave the check mid-animation under the tabs.
