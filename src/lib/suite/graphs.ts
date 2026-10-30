@@ -5,7 +5,7 @@
 // Finaliser enhances what exists (SeedVR2 restores and enlarges, interpolation adds in-between
 // frames). It never regenerates the image or the take.
 
-import { kleinNodes } from "../render/klein-graph.ts";
+import { KLEIN_BASE_CFG, kleinNodes } from "../render/klein-graph.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import {
   BIREFNET_BASE, H3_I2V_BASE, INTERPOLATION_BASE, KLEIN9B_EXTEND_BASE, LTX23_IA2V_BASE, SEEDVR2_IMAGE_BASE, SEEDVR2_VIDEO_BASE,
@@ -124,7 +124,9 @@ function modifier(input: SuiteInput): ApiGraph {
   const graph: ApiGraph = {
     load: { class_type: "LoadImage", inputs: { image: safeName(input.files.source, "Image") }, _meta: { title: "Image" } },
   };
-  Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: `${prompt}\n\nKeep everything else as it is. No text.`, seed: input.seed, aspect: "16:9", images: [["load", 0]] }));
+  // Guided like the bubble: at cfg 1 « add snow on the roofs » barely touched two chimneys
+  // (14bd97c6); at cfg 3.5 every roof is white and the rest is unchanged (4044db72).
+  Object.assign(graph, kleinNodes({ prefix: "klein_", prompt: `${prompt}\n\nKeep everything else as it is. No text.`, seed: input.seed, aspect: "16:9", images: [["load", 0]], cfg: KLEIN_BASE_CFG }));
   saveImage(graph, ["klein_decode", 0], SUITE_PREFIX["suite-modifier"]);
   return graph;
 }

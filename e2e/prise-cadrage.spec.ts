@@ -78,7 +78,7 @@ test('cadrage 3D : deux exports distincts, persistance et contrôles effectiveme
  await expect(page.locator('[data-framing-kept]')).toHaveAttribute('data-framing-kept','3d');
  await expect.poll(async()=>(await imageData(page,'Profondeur')).hash).toBe(b.hash);
  await page.locator('.u-prise-actions .u-primary').tap();
- await expect(page.locator('#u-confirm-cost')).toContainText('23');
+ await expect(page.locator('#u-confirm-cost')).toContainText('26');
  expect(graphs).toHaveLength(0);
  await page.locator('[data-confirm-gold]').tap();
  await expect.poll(()=>graphs.length).toBe(1);

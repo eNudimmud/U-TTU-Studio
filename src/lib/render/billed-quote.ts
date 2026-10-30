@@ -46,8 +46,11 @@ export interface TakeEstimate {
   creditsHigh: number;
 }
 
-/** LTX-2.5 i2v on Comfy Cloud, 5 s 16:9 0.9 MP with its Klein first frame. mesuré 27.10.2026 : 15,10 crédits (job d4d2fa37 ; 14,66 et 14,55 sur deux autres prises) → 15 / 23. */
-export const LTX_ESTIMATE_5S = { credits: 15, creditsHigh: 23 } as const;
+/**
+ * LTX-2.5 i2v on Comfy Cloud, 5 s 16:9 0.9 MP with its Klein first frame. mesuré 27.10.2026 : 15,10 crédits
+ * (job d4d2fa37) ; the first frame at cfg 3.5 adds 2,93 (30.10.2026 : 0d6b5c7e 7,68 against 594509e3 4,75) → 18 / 27.
+ */
+export const LTX_ESTIMATE_5S = { credits: 18, creditsHigh: 27 } as const;
 
 /**
  * LTX-2.5 Aperçu (first pass only, about 480p). An estimate, not a measure: about half of

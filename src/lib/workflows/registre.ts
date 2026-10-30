@@ -240,10 +240,10 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "decor-photo", onglet: "decor", categorie: "lieu", clef: "decorPhoto",
     fournit: ["photo"], slots: [LIEU("image_1")],
-    template: KLEIN_EDIT, credits: 4, high: 6, nature: "mesure",
+    template: KLEIN_EDIT, credits: 6, high: 9, nature: "mesure",
     premier: true, still: "photo-decor", minRefs: 1,
     consigne: "Même lieu que la photo. 16:9, sans personne. Pas de texte.",
-  }),
+  }), // même graphe que decor-heure (Klein édition 16:9, cfg 3,5) : mesuré 30.10.2026 5,89 crédits (job 42214421)
   geste({
     id: "decor-texte-nano", onglet: "decor", categorie: "lieu", clef: "decorTextNano",
     fournit: ["texte"], slots: [],
@@ -261,10 +261,10 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "decor-heure", onglet: "decor", categorie: "variante", clef: "decorTime",
     fournit: ["photo", "texte"], slots: [LIEU("image_1")],
-    template: KLEIN_EDIT, credits: 4, high: 7, nature: "mesure",
+    template: KLEIN_EDIT, credits: 6, high: 9, nature: "mesure",
     premier: true, still: "photo-decor", minRefs: 1,
     consigne: "Même lieu. Change l’heure, la météo ou la saison. Sans personne.",
-  }), // mesuré 27.10.2026 : 4,42 crédits pour Klein édition 16:9 (lot exemples ; 2e run fa472751 : 3,19) (job ca924213)
+  }), // mesuré 30.10.2026 : 5,89 crédits pour Klein édition 16:9 à cfg 3,5, 21,57 s GPU (job 42214421 ; avant, cfg 1 : 4,42, job ca924213, image fondue)
   geste({ id: "decor-angles", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "templates-1_click_multiple_scene_angles-v1.0", credits: 9, high: 14, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 9,05 crédits pour 8 angles 1360×768, un décor (job 03ceae25)
   geste({
     id: "decor-elargir", onglet: "decor", categorie: "finition", clef: "decorWiden",
@@ -288,16 +288,16 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-plan", onglet: "prise", categorie: "plan", clef: "prisePlan",
     fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
-    template: "video_ltx2_5_i2v", credits: 15, high: 23, nature: "mesure",
+    template: "video_ltx2_5_i2v", credits: 18, high: 27, nature: "mesure",
     premier: true, still: "prise", minRefs: 0,
     consigne: "",
-  }), // mesuré 27.10.2026 : 15,10 crédits pour 5 s 16:9 0,9 MP, première image Klein incluse (bab714ce : 14,66 ; 82d63ed9 : 14,55) (job d4d2fa37)
+  }), // mesuré 27.10.2026 : 15,10 crédits pour 5 s 16:9 0,9 MP, première image Klein incluse (job d4d2fa37) ; + 2,93 le 30.10.2026 pour la première image à cfg 3,5 (0d6b5c7e : 7,68 contre 594509e3 : 4,75 à cfg 1) → 18,03
   geste({
     id: "prise-plan-cadre", onglet: "prise", categorie: "plan", clef: "prisePlan",
     fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2"), { role: "plan", slot: "depth" }, { role: "plan", slot: "edges" }],
-    template: "video_ltx2_5_i2v", credits: 23, high: 39, nature: "hypothese",
+    template: "video_ltx2_5_i2v", credits: 26, high: 43, nature: "hypothese",
     premier: false, still: "prise", minRefs: 2, consigne: "",
-  }), // Klein apparence → Qwen InstantX profondeur + contours → LTX. Nouveau profil, non mesuré.
+  }), // Klein apparence → Qwen InstantX profondeur + contours → LTX. Nouveau profil, non mesuré ; + 3 pour la première image Klein à cfg 3,5 (30.10.2026).
   geste({
     id: "prise-plan-h3", onglet: "prise", categorie: "plan", clef: "prisePlanH3",
     fournit: ["asset", "texte"], slots: [FACE("image_1"), LIEU("image_2")],
@@ -418,9 +418,9 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "suite-modifier", onglet: "suite", categorie: "suite", clef: "suiteModifier",
     fournit: ["asset", "texte"], slots: [{ role: "plan", slot: "image" }],
-    template: KLEIN_EDIT, credits: 4, high: 6, nature: "mesure",
+    template: KLEIN_EDIT, credits: 5, high: 8, nature: "mesure",
     premier: false, still: "suite", minRefs: 1, consigne: "",
-  }), // mesuré 27.10.2026 : 3,81 crédits pour Klein édition 1 MP (4e7167a7 : 3,37 ; dfa1f0bb : 3,06) (job 14bd97c6)
+  }), // mesuré 30.10.2026 : 5,19 crédits pour Klein édition 1 MP à cfg 3,5, 18,98 s GPU (job 4044db72 ; avant, cfg 1 : 3,81, job 14bd97c6, neige à peine posée)
   geste({
     id: "suite-finaliser-image", onglet: "suite", categorie: "suite", clef: "suiteFinaliserImage",
     fournit: ["asset"], slots: [{ role: "plan", slot: "image" }],

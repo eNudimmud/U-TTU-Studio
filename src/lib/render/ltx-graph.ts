@@ -2,7 +2,7 @@
 // both a character and a set, FLUX 3 Klein first edits them into one start
 // frame, inside the same graph. One job, one quote.
 
-import { kleinNodes } from "./klein-graph.ts";
+import { KLEIN_BASE_CFG, kleinNodes } from "./klein-graph.ts";
 import { framedKeyNodes, type UploadedControls } from "./framed-key.ts";
 import { LTX_I2V_BASE } from "./ltx-base.ts";
 import { TAKE_ASPECTS, TAKE_OUTPUT_PREFIX, type ApiGraph, type TakeAspect, type TakeSeconds } from "./take-graph.ts";
@@ -99,6 +99,9 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
     aspect: KLEIN_ASPECT[input.aspect],
     images: loads,
     ...(guide ? { referenceLimit: 7 as const } : {}),
+    // Same frame, seed and pictures: at cfg 1 Uttu melted into a heap of cloth (594509e3);
+    // at cfg 3.5 she walks in with hood, braids and coat (0d6b5c7e).
+    cfg: KLEIN_BASE_CFG,
   }));
   if (input.controls) Object.assign(graph, framedKeyNodes({ initial: ["frame_decode", 0], controls: input.controls, prompt, seed }));
   for (const node of Object.values(graph)) {
