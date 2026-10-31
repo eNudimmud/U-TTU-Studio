@@ -7,7 +7,7 @@ import { dateLocale, htmlLang, LOCALE_COOKIE, LOCALE_STORAGE, type Locale, readL
 import { phrase } from "@/lib/i18n/phrase";
 
 const LocaleContext = createContext<{ locale: Locale; setLocale(locale: Locale): void }>({
-  locale: "fr",
+  locale: "en",
   setLocale() {},
 });
 
