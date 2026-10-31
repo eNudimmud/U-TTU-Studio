@@ -4059,6 +4059,11 @@
       "plans": "Shots",
       "vide": "empty"
     },
+    "autrePrise": "Another take",
+    "modifierRefaire": "Change and reshoot",
+    "finiAutre": "Take {n} of this shot. It is in My creations and in “My shots” in the edit; the cut keeps the first one.",
+    "soldeApresAutre": "Balance after: ≈ {n} credits. The take will be saved in My creations and in “My shots”; the cut keeps the first one.",
+    "soldeInconnuAutre": "The take will be saved in My creations and in “My shots”; the cut keeps the first one.",
     "exemples": {
       "titre": "Or start from an example",
       "liste": "{n} examples, swipe to see them",
