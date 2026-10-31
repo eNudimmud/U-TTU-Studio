@@ -3,6 +3,7 @@
 // Nano Banana stays an option, off by default: FLUX 3 is the image engine.
 
 import type { TakeEngine } from "./render/take-graph.ts";
+import type { FiltreGestes } from "./workflows/registre.ts";
 
 export interface StudioPrefs {
   openWeightsOnly: boolean;
@@ -40,4 +41,21 @@ export function savePrefs(storage: Pick<Storage, "setItem"> | null, prefs: Studi
 /** film2: the account setting decides. Paid partner services stay off until the visitor says yes. */
 export function prefsFilm2(prefs: StudioPrefs): StudioPrefs {
   return { ...prefs, openWeightsOnly: !prefs.partenaires, nanoBanana: prefs.partenaires && prefs.nanoBanana };
+}
+
+/**
+ * What the tool catalogue (Outils, rail, search, home count) filters on: only the explicit
+ * « Open weights only » / « Nano Banana » choices kept on this device. The film2 account switch
+ * « services partenaires » drives FILM's own choices and never shrinks the catalogue: before this,
+ * the rail read 44 on the first paint, then 33 once the film2 flag was read (11 partner tools hidden).
+ * Every partner tool still shows its « ≈ X crédits estimés » and asks before spending.
+ */
+export function filtreOutils(prefs: Pick<StudioPrefs, "openWeightsOnly" | "nanoBanana">): FiltreGestes {
+  return { openWeightsOnly: prefs.openWeightsOnly, nanoBanana: prefs.nanoBanana };
+}
+
+/** What the session derives from the stored prefs: the generation prefs (film2 forces open weights
+ *  unless partner models are on) and the catalogue filter, which never depends on film2. */
+export function prefsSession(stored: StudioPrefs, film2: boolean): { prefs: StudioPrefs; outilsFiltre: FiltreGestes } {
+  return { prefs: film2 ? prefsFilm2(stored) : stored, outilsFiltre: filtreOutils(stored) };
 }
