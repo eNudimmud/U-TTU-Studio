@@ -125,7 +125,7 @@ export function imageOrdinals(first: number, count: number): string {
 }
 const ROLE: Record<string, string> = {
   cast: 'a character from the cast: keep this exact character, same face, species, body, colours, outfit and logos. A picture with several views (a character sheet) still shows ONE character',
-  decor: 'the place where the scene happens: the new picture is set in or on this place, never in a generic one. Keep its architecture, shapes, colours and materials; the characters stand inside it at a believable scale. If the request names a part of it the pictures do not show (a deck, an interior, a street), build that part in the same design, colours and materials',
+  decor: 'the place where the scene happens: the new picture is set in or on this place, never in a generic one. Keep its architecture, shapes, colours and materials; the characters are inside it at a believable scale. If the request names a part of it the pictures do not show (a deck, an interior, a street), build that part in the same design, colours and materials',
   objet: 'an object to include',
   style: 'the visual style to follow',
   photo: 'an attached photo',
@@ -203,7 +203,7 @@ export const NANO_SYSTEM_PROMPT = [
   'You are the image engine of a film studio. You always return exactly one finished image, never text.',
   'The user attaches numbered reference images. Each one belongs to a named reference listed in the request, with its category: character, object, place or style.',
   'Characters and objects keep their exact identity from their own images: face, species, anatomy, proportions, colours, clothing, markings and logos. Never mix two references, never lend one reference\'s features to another, never merge two characters into one.',
-  'A place is the setting of the scene. Characters stand inside it at a believable scale, with consistent light and perspective.',
+  'A place is the setting of the scene. Characters are inside it at a believable scale, with consistent light and perspective; their poses follow the request.',
   NANO_SHEET_RULE,
   'Follow the visual style the request asks for; when it asks for none, keep the rendering of the reference images.',
   'Never add text, captions, watermarks or borders.',

@@ -348,5 +348,11 @@ test('JD 2026-10-31 night: open weights only. The bubble never offers or points 
   assert.deepEqual([q7.credits,q7.high,q7.kind],[6,12,'estime']);
   assert.equal(q1.credits,3,'above the 2.01 measured for one reference (2ac9e65b)');
   // Klein keeps its path and also hears the pose rule (its upsampler reads the request).
+  const { NANO_SYSTEM_PROMPT } = await import('../src/lib/creation/bubble.ts');
+  const { KLEIN_EDIT_BASE } = await import('../src/lib/render/klein-base.ts');
+  for(const engine of ['klein','qwen','nano'] as const) assert.doesNotMatch(bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,engine)+NANO_SYSTEM_PROMPT,/\bstands?\b/i,`${engine}: no word imposes a standing pose`);
+  const upsampler=String(KLEIN_EDIT_BASE['48'].inputs.value);
+  assert.doesNotMatch(upsampler,/which pose/,'the upsampler never has to fix a pose');
+  assert.match(upsampler,/Keep the action the user describes/);assert.match(upsampler,/never copy the pose a reference image shows/);
   assert.ok(bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'klein').includes(POSE_RULE));
 });
