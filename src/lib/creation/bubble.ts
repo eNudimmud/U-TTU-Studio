@@ -13,8 +13,9 @@ import { CREATION_REFERENCES_MAX, fileLikeName } from './named-references.ts';
  * image. `nano`: Nano Banana 2.1, a paid Google partner node, only reachable with partner services on
  * (the studio runs open weights only by default, JD 31.10.2026).
  */
-export type BubbleImageEngine = 'nano' | 'klein' | 'qwen';
-export const OPEN_BUBBLE_ENGINES = ['klein', 'qwen'] as const;
+export type BubbleImageEngine = 'nano' | 'klein' | 'qwen' | 'flux2';
+/** `flux2`: FLUX.2 dev, open weights (non-commercial licence, run on Comfy Cloud for credits), JD 01.11.2026. */
+export const OPEN_BUBBLE_ENGINES = ['klein', 'qwen', 'flux2'] as const;
 export interface BubbleSettings { format: '16:9' | '9:16' | '1:1'; resolution: '480p' | '720p'; duration: 5 | 10; sound: boolean; engine?: BubbleImageEngine }
 export const BUBBLE_DEFAULTS: BubbleSettings = { format: '16:9', resolution: '480p', duration: 5, sound: true };
 export type BubbleMode = 'image' | 'video';
@@ -25,7 +26,7 @@ export type BubbleMode = 'image' | 'video';
 export function bubbleImageEngine(mode: BubbleMode, count: number, s: Pick<BubbleSettings, 'engine'>, openWeightsOnly = false): BubbleImageEngine | null {
   if (mode !== 'image') return null;
   if (count === 0) return 'klein';
-  if (s.engine === 'klein' || s.engine === 'qwen') return s.engine;
+  if (s.engine === 'klein' || s.engine === 'qwen' || s.engine === 'flux2') return s.engine;
   return openWeightsOnly ? 'klein' : 'nano';
 }
 /** The engines the bubble settings offer: open weights only never lists a partner engine. */
@@ -61,7 +62,7 @@ export const BUBBLE_REFERENCE_MEGAPIXELS = 1;
 export function validBubbleSettings(s: unknown): s is BubbleSettings {
   if (!s || typeof s !== 'object') return false;
   const v = s as BubbleSettings;
-  return ['16:9','9:16','1:1'].includes(v.format) && ['480p','720p'].includes(v.resolution) && [5,10].includes(v.duration) && typeof v.sound === 'boolean' && (v.engine === undefined || v.engine === 'nano' || v.engine === 'klein' || v.engine === 'qwen');
+  return ['16:9','9:16','1:1'].includes(v.format) && ['480p','720p'].includes(v.resolution) && [5,10].includes(v.duration) && typeof v.sound === 'boolean' && (v.engine === undefined || v.engine === 'nano' || v.engine === 'klein' || v.engine === 'qwen' || v.engine === 'flux2');
 }
 export function bubbleTool(mode: BubbleMode, count: number, audio = false): string {
   return mode === 'image' ? count ? 'img-refs' : 'img-klein' : count || audio ? 'vid-h3-refs' : 'vid-texte';
@@ -69,6 +70,7 @@ export function bubbleTool(mode: BubbleMode, count: number, audio = false): stri
 export function bubbleGeste(mode: BubbleMode, count: number, audio = false, engine: BubbleImageEngine | null = null): string {
   if (mode === 'image' && count && engine === 'nano') return 'creation-image-nano';
   if (mode === 'image' && count && engine === 'qwen') return 'creation-image-qwen';
+  if (mode === 'image' && count && engine === 'flux2') return 'creation-image-flux2';
   return mode === 'image' ? count ? 'creation-image' : 'creation-image-texte' : count || audio ? 'creation-video-refs' : 'creation-video-texte';
 }
 /**
@@ -90,11 +92,29 @@ const EXTRA_REFERENCE_CREDITS = 0.85;
  * picture is also read by the 8B vision encoder: 0.25 per picture is a margin, not a measure.
  */
 const QWEN_CREDITS_PER_MP = 1, QWEN_CREDITS_PER_PICTURE = 0.25;
+/**
+ * FLUX.2 dev (32B, 20 steps, guidance 4, Mistral 3 Small 24B text encoder): NOT measured yet. Cautious
+ * upper reckoning from Klein's measures (≈ 0.27 credit per GPU s, 2.4 credits per MP read and written at
+ * 50 steps on a far smaller model): ≈ 4 credits per MP, each reference at 1 MP, plus 2 for the text
+ * encoder. 7 refs at 1344×768 ≈ 34 credits estimés, shown with « prix à confirmer » until a real run
+ * is measured (FLUX2_PRICE_CONFIRMED).
+ */
+const FLUX2_CREDITS_PER_MP = 4, FLUX2_ENCODER_CREDITS = 2;
+export const FLUX2_REFERENCE_MEGAPIXELS = 1;
+export const FLUX2_PRICE_CONFIRMED = false;
+/** True while the engine's price is a reckoning, not a measure: the bubble says « prix à confirmer ». */
+export function bubblePriceUnconfirmed(mode: BubbleMode, count: number, engine: BubbleImageEngine | null): boolean {
+  return mode === 'image' && count > 0 && engine === 'flux2' && !FLUX2_PRICE_CONFIRMED;
+}
 export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, audio = false, engine: BubbleImageEngine | null = null) {
   if (!validBubbleSettings(s) || count < 0 || count > CREATION_REFERENCES_MAX) return null;
   if (mode === 'image' && count > 0 && engine === 'nano') return { ...NANO_QUOTE[s.resolution], kind: 'estime' as const };
   if (mode === 'image' && count > 0 && engine === 'qwen') {
     const credits = Math.ceil(QWEN_CREDITS_PER_MP * (bubbleSize(s, mode).megapixels + count * bubbleReferenceMegapixels(count)) + count * QWEN_CREDITS_PER_PICTURE);
+    return { credits, high: Math.ceil(credits * 2), kind: 'estime' as const };
+  }
+  if (mode === 'image' && count > 0 && engine === 'flux2') {
+    const credits = Math.ceil(FLUX2_CREDITS_PER_MP * (bubbleSize(s, mode).megapixels + count * FLUX2_REFERENCE_MEGAPIXELS) + FLUX2_ENCODER_CREDITS);
     return { credits, high: Math.ceil(credits * 2), kind: 'estime' as const };
   }
   const id = bubbleTool(mode, count, audio);
@@ -369,10 +389,52 @@ export function qwenBubbleNodes(input: { settings: BubbleSettings; images: reado
   graph.save = { class_type: 'SaveImage', inputs: { images: ['459:457', 0], filename_prefix: 'uttu/creation-image' } };
   return graph;
 }
+/**
+ * FLUX.2 dev multi-reference, open weights, built from the official `image_flux2` template (its subgraph
+ * flattened, Turbo LoRA off as shipped: 20 steps, euler, guidance 4). The template reads one reference;
+ * here each photo gets the template's own chain, LoadImage → ImageScaleToTotalPixels (1 MP, lanczos) →
+ * VAEEncode → ReferenceLatent, chained one after the other on the conditioning, in send order (cast,
+ * objects, style, place). Canvas: the chosen frame on EmptyFlux2LatentImage, never a reference's size.
+ * Same prompt as Klein (ordinals, POSE_RULE) plus the seed's staging and the style note; no upsampler.
+ */
+export function flux2BubbleNodes(input: { settings: BubbleSettings; images: readonly string[]; prompt: string; seed: number; style?: BubbleStyle }): ApiGraph {
+  const size = bubbleSize(input.settings, 'image');
+  const style = input.style !== undefined ? input.style : bubbleStyle(input.prompt.split(REFERENCE_HEADER)[0]);
+  const note = bubbleStyleNote(style);
+  const text = [input.prompt, bubbleStaging(input.seed), note].filter(Boolean).join('\n');
+  const graph: ApiGraph = {
+    unet: { class_type: 'UNETLoader', inputs: { unet_name: 'flux2_dev_fp8mixed.safetensors', weight_dtype: 'default' } },
+    clip: { class_type: 'CLIPLoader', inputs: { clip_name: 'mistral_3_small_flux2_bf16.safetensors', type: 'flux2', device: 'default' } },
+    vae: { class_type: 'VAELoader', inputs: { vae_name: 'full_encoder_small_decoder.safetensors' } },
+    prompt: { class_type: 'CLIPTextEncode', inputs: { clip: ['clip', 0], text } },
+    guidance: { class_type: 'FluxGuidance', inputs: { conditioning: ['prompt', 0], guidance: 4 } },
+  };
+  let conditioning: [string, number] = ['guidance', 0];
+  input.images.forEach((image, i) => {
+    const n = i + 1;
+    graph[`reference_${n}`] = { class_type: 'LoadImage', inputs: { image } };
+    graph[`scale_${n}`] = { class_type: 'ImageScaleToTotalPixels', inputs: { image: [`reference_${n}`, 0], upscale_method: 'lanczos', megapixels: FLUX2_REFERENCE_MEGAPIXELS, resolution_steps: 1 } };
+    graph[`encode_${n}`] = { class_type: 'VAEEncode', inputs: { pixels: [`scale_${n}`, 0], vae: ['vae', 0] } };
+    graph[`ref_${n}`] = { class_type: 'ReferenceLatent', inputs: { conditioning, latent: [`encode_${n}`, 0] } };
+    conditioning = [`ref_${n}`, 0];
+  });
+  Object.assign(graph, {
+    canvas: { class_type: 'EmptyFlux2LatentImage', inputs: { width: size.width, height: size.height, batch_size: 1 } },
+    sigmas: { class_type: 'Flux2Scheduler', inputs: { steps: 20, width: size.width, height: size.height } },
+    guider: { class_type: 'BasicGuider', inputs: { model: ['unet', 0], conditioning } },
+    sampler: { class_type: 'KSamplerSelect', inputs: { sampler_name: 'euler' } },
+    noise: { class_type: 'RandomNoise', inputs: { noise_seed: Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0 } },
+    sample: { class_type: 'SamplerCustomAdvanced', inputs: { noise: ['noise', 0], guider: ['guider', 0], sampler: ['sampler', 0], sigmas: ['sigmas', 0], latent_image: ['canvas', 0] } },
+    decode: { class_type: 'VAEDecode', inputs: { samples: ['sample', 0], vae: ['vae', 0] } },
+    save: { class_type: 'SaveImage', inputs: { images: ['decode', 0], filename_prefix: 'uttu/creation-image' } },
+  });
+  return graph;
+}
 export function bubbleGraph(input: { mode: BubbleMode; settings: BubbleSettings; images: readonly string[]; audio?: string; prompt: string; seed: number; style?: BubbleStyle; engine?: BubbleImageEngine | null }): ApiGraph {
   const { settings: s, images, mode } = input;
   if (!validBubbleSettings(s) || images.length > CREATION_REFERENCES_MAX || !input.prompt.trim() || mode === 'image' && input.audio) throw new Error('bubble.invalid');
   if (mode === 'image' && images.length && input.engine === 'nano') return nanoBubbleNodes({ settings: s, images, prompt: input.prompt, seed: input.seed });
+  if (mode === 'image' && images.length && input.engine === 'flux2') return flux2BubbleNodes({ settings: s, images, prompt: input.prompt, seed: input.seed, style: input.style });
   if (mode === 'image' && images.length && input.engine === 'qwen') return qwenBubbleNodes({ settings: s, images, prompt: input.prompt, seed: input.seed, style: input.style });
   const size = bubbleSize(s, mode);
   const aspect = s.format === '1:1' ? 'carre' : s.format === '9:16' ? 'vertical' : 'horizontal';

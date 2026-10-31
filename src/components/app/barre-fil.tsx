@@ -31,7 +31,7 @@ import { toggleAssistant } from "./assistant-panel";
 import { MontageButton } from "./montage-button";
 import { useStudio, type MontageInput } from "./studio-session";
 import { pictureIsSheet, withoutSheets } from '@/lib/creation/sheet';
-import { bubbleImageEngine, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, chipReference, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
+import { bubbleImageEngine, bubblePictureCount, bubblePriceUnconfirmed, bubblePrompt, bubbleQuote, bubbleReferenceSlots, chipReference, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
 import { ReferenceLibrary } from './reference-library';
 import { readPending } from '@/lib/render/recovery';
 
@@ -399,7 +399,10 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
   useEffect(() => () => frameUrls.current.forEach(u => URL.revokeObjectURL(u)), []);
   useEffect(() => { if (job.status === 'running') setFullscreen(true); }, [job.status]);
   const name = toolName(t, job);
-  const cost = job.quote !== null ? t("barre.cost", { credits: formatCredits(job.quote) }) : null;
+  const outilRoute = job.route.kind === 'outil' ? job.route : null;
+  const creation = outilRoute?.creation, refCount = outilRoute?.images.length ?? 0;
+  const unconfirmed = Boolean(creation && bubblePriceUnconfirmed(creation.mode, refCount, bubbleImageEngine(creation.mode, refCount, creation.settings, true)));
+  const cost = job.quote !== null ? `${t("barre.cost", { credits: formatCredits(job.quote) })}${unconfirmed ? ` (${t("bubble.priceUnconfirmed")})` : ""}` : null;
   const url = job.url || (job.path ? media[job.path] : "") || "";
   const poster = job.poster ? (job.poster.startsWith("Projets/") ? media[job.poster] : job.poster) : undefined;
   const open = job.route.kind === 'outil' && job.route.creation ? null : <a className="u-text-button u-fil-open" href={job.route.kind === "prise" ? "#prise" : `#outils/${job.route.id}`} data-fil-open="" onClick={event => { event.preventDefault(); openInTool(job); }}>{t("barre.fil.openTool")}</a>;

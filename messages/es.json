@@ -3805,16 +3805,20 @@
     "runningConversation": "Espera al resultado para iniciar una nueva conversación. Puedes seguir explorando el Studio.",
     "imageEngineNano": "Imagen · Nano Banana 2.1 · Con ComfyUI",
     "imageEngineQwen": "Imagen · Qwen Image 2.1 · Con ComfyUI",
+    "imageEngineFlux2": "Imagen · FLUX.2 dev · Con ComfyUI",
+    "priceUnconfirmed": "precio por confirmar",
     "engine": "Motor de imagen",
     "engineName": {
       "nano": "Nano Banana 2.1",
       "klein": "Klein",
-      "qwen": "Qwen Image 2.1"
+      "qwen": "Qwen Image 2.1",
+      "flux2": "FLUX.2 dev"
     },
     "engineHelp": {
       "nano": "Compone tus referencias, cada foto leída por separado (socio de Google vía Comfy).",
       "klein": "El modelo abierto del estudio.",
-      "qwen": "Modelo abierto: lee cada foto por separado y mantiene tu acción tal cual."
+      "qwen": "Modelo abierto: lee cada foto por separado y mantiene tu acción tal cual.",
+      "flux2": "Modelo abierto, fuerte con varias referencias. Más lento y caro que Klein."
     },
     "engineStudioOnly": "Solo modelos open weights.",
     "nanoFailed": "Nano Banana 2.1 no terminó: {reason} No se relanzó nada. Para reintentar con Klein, elígelo en los ajustes de la burbuja."

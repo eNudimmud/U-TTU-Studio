@@ -3805,16 +3805,20 @@
     "runningConversation": "Wait for the result before starting a new conversation. You can keep browsing the Studio.",
     "imageEngineNano": "Image · Nano Banana 2.1 · Powered by ComfyUI",
     "imageEngineQwen": "Image · Qwen Image 2.1 · Powered by ComfyUI",
+    "imageEngineFlux2": "Image · FLUX.2 dev · Powered by ComfyUI",
+    "priceUnconfirmed": "price to be confirmed",
     "engine": "Image engine",
     "engineName": {
       "nano": "Nano Banana 2.1",
       "klein": "Klein",
-      "qwen": "Qwen Image 2.1"
+      "qwen": "Qwen Image 2.1",
+      "flux2": "FLUX.2 dev"
     },
     "engineHelp": {
       "nano": "Composes your references, each photo read on its own (Google partner via Comfy).",
       "klein": "The studio’s open model.",
-      "qwen": "Open model: reads each photo on its own and keeps your action as written."
+      "qwen": "Open model: reads each photo on its own and keeps your action as written.",
+      "flux2": "Open model, strong with several references. Slower and pricier than Klein."
     },
     "engineStudioOnly": "Open-weights models only.",
     "nanoFailed": "Nano Banana 2.1 did not finish: {reason} Nothing was rerun. To try again with Klein, pick it in the bubble settings."

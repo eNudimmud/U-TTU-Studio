@@ -2251,6 +2251,9 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-barre-seg { display: inline-flex; flex: 0 0 auto; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--bg); }
 .u-barre-seg button { min-width: 44px; min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--fg-2); font: 500 14px/1 var(--font-body); white-space: nowrap; cursor: pointer; }
 .u-barre-seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+/* Three engines plus the open-weights note: the group wraps inside the 320 px panel instead of overflowing. */
+.u-barre-seg[data-barre-engine-group] { flex-wrap: wrap; max-width: 100%; border-radius: 22px; }
+.u-barre-seg[data-barre-engine-group] small { flex-basis: 100%; padding: 4px 10px; }
 @media (max-width: 420px) {
   .u-barre-mode-name { display: none; }
   .u-barre-settings-pill span { max-width: 9.5rem; }

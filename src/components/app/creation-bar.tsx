@@ -5,7 +5,7 @@ import { useI18n } from '@/components/i18n/provider';
 import { formatCredits } from '@/lib/credits';
 import { DEMO_CAST, DEMO_DECOR } from '@/lib/creation/demo';
 import { insertMention, mentionedReferences, opensPicker, removeMention } from '@/lib/creation/mentions';
-import { BUBBLE_DEFAULTS, bubbleEngineChoices, bubbleImageEngine, bubblePictureCount, bubbleQuote, chipReference, bubbleResolutionLabel, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
+import { BUBBLE_DEFAULTS, bubbleEngineChoices, bubblePriceUnconfirmed, bubbleImageEngine, bubblePictureCount, bubbleQuote, chipReference, bubbleResolutionLabel, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
 import { CREATION_REFERENCES_MAX, type NamedReference } from '@/lib/creation/named-references';
 import { assetPath } from '@/lib/site';
 import { storyboardDansCePoste } from '@/lib/storyboard/drapeau';
@@ -76,6 +76,8 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const here = preview?.(input), quote = bubbleQuote(mode, pictures, settings, Boolean(currentAudio), engine);
   const credits = here ? here.quote : quote?.credits ?? null;
   const cost = credits !== null ? t('barre.cost', { credits: formatCredits(credits) }) : null;
+  // FLUX.2 dev is not measured yet: its estimate says so until a real run confirms it.
+  const unconfirmed = !here && bubblePriceUnconfirmed(mode, pictures, engine);
   const full = attached.length >= CREATION_REFERENCES_MAX;
   const size = bubbleSize(settings, mode);
   useEffect(() => {
@@ -171,7 +173,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
       </div>
       <p className="u-bubble-limit" id={attachmentsId}>{busy ? t('namedRefs.saving') : t('bubble.referenceCount', { n: attached.length, max: CREATION_REFERENCES_MAX })} · {settings.format} · ≈ {bubbleResolutionLabel(mode, settings.resolution)} ({size.width}×{size.height}){all.some(a => a.path) && <> · <span data-bubble-mention-hint="">{t('bubble.mentionHint')}</span></>}</p>
     </form>
-    <p className="u-barre-route" id={routeId} data-barre-route={here?.route ?? bubbleTool(mode, attached.length, Boolean(currentAudio))}>{cost && <strong data-barre-cost="">{cost} · </strong>}{t(mode === 'image' ? engine === 'nano' ? 'bubble.imageEngineNano' : engine === 'qwen' ? 'bubble.imageEngineQwen' : 'bubble.imageEngine' : attached.length || currentAudio ? 'bubble.referenceVideoEngine' : 'bubble.textVideoEngine')}</p>
+    <p className="u-barre-route" id={routeId} data-barre-route={here?.route ?? bubbleTool(mode, attached.length, Boolean(currentAudio))}>{cost && <strong data-barre-cost="">{cost}{unconfirmed && <> ({t('bubble.priceUnconfirmed')})</>} · </strong>}{t(mode === 'image' ? engine === 'nano' ? 'bubble.imageEngineNano' : engine === 'qwen' ? 'bubble.imageEngineQwen' : engine === 'flux2' ? 'bubble.imageEngineFlux2' : 'bubble.imageEngine' : attached.length || currentAudio ? 'bubble.referenceVideoEngine' : 'bubble.textVideoEngine')}</p>
     <button type="button" className="u-text-button u-bubble-agent" data-barre-mode="agent" onClick={() => toggleAssistant(true)}>{t('bubble.askUttu')}</button>
     {error && <p role="alert">{error}</p>}
     {sheet && <ReferenceLibrary onClose={() => setSheet(false)} onPick={pickReference} onUnpick={r => setRefs(a => a.filter(x => x.id !== r.id || x.kind !== r.category))} atLimit={full} selected={selected.map(r => `${r.kind}:${r.id}`)} />}

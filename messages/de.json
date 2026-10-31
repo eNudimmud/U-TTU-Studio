@@ -3805,16 +3805,20 @@
     "runningConversation": "Warte auf das Ergebnis, bevor du eine neue Unterhaltung beginnst. Du kannst das Studio weiter nutzen.",
     "imageEngineNano": "Bild · Nano Banana 2.1 · Mit ComfyUI",
     "imageEngineQwen": "Bild · Qwen Image 2.1 · Mit ComfyUI",
+    "imageEngineFlux2": "Bild · FLUX.2 dev · Mit ComfyUI",
+    "priceUnconfirmed": "Preis noch zu bestätigen",
     "engine": "Bild-Engine",
     "engineName": {
       "nano": "Nano Banana 2.1",
       "klein": "Klein",
-      "qwen": "Qwen Image 2.1"
+      "qwen": "Qwen Image 2.1",
+      "flux2": "FLUX.2 dev"
     },
     "engineHelp": {
       "nano": "Setzt deine Referenzen zusammen, jedes Foto wird einzeln gelesen (Google-Partner über Comfy).",
       "klein": "Das offene Modell des Studios.",
-      "qwen": "Offenes Modell: liest jedes Foto einzeln und übernimmt deine Handlung wörtlich."
+      "qwen": "Offenes Modell: liest jedes Foto einzeln und übernimmt deine Handlung wörtlich.",
+      "flux2": "Offenes Modell, stark mit mehreren Referenzen. Langsamer und teurer als Klein."
     },
     "engineStudioOnly": "Nur Open-Weights-Modelle.",
     "nanoFailed": "Nano Banana 2.1 ist nicht fertig geworden: {reason} Nichts wurde neu gestartet. Um es mit Klein erneut zu versuchen, wähle Klein in den Einstellungen der Blase."

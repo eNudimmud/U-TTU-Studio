@@ -1094,6 +1094,16 @@
       "api_file": "workflows/outils/creation-image-qwen.api.json"
     },
     {
+      "id": "creation-image-flux2",
+      "onglet": "outils",
+      "template": "image_flux2",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/creation-image-flux2.json",
+      "api_file": "workflows/outils/creation-image-flux2.api.json"
+    },
+    {
       "id": "creation-video-refs",
       "onglet": "outils",
       "template": "video_minimax_h3_r2v",

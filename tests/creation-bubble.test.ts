@@ -306,8 +306,8 @@ test('JD 2026-10-31 night: open weights only. The bubble never offers or points 
   assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'qwen'},true),'qwen');
   assert.equal(bubbleImageEngine('image',0,{...BUBBLE_DEFAULTS,engine:'qwen'},true),'klein','text-only stills stay on Klein t2i');
   assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,on.openWeightsOnly),'nano','the Nano path is kept, behind partner services');
-  assert.deepEqual(bubbleEngineChoices(true),['klein','qwen']);
-  assert.deepEqual(bubbleEngineChoices(false),['nano','klein','qwen']);
+  assert.deepEqual(bubbleEngineChoices(true),['klein','qwen','flux2']);
+  assert.deepEqual(bubbleEngineChoices(false),['nano','klein','qwen','flux2']);
   assert.equal(gesteParId('creation-image-qwen')?.partenaire,false);
   assert.equal(gesteParId('creation-image-qwen')?.template,'image_qwen_image_2_1_image_edit');
   for(const lang of ['en','fr','de','es']){
@@ -366,4 +366,52 @@ test('JD 2026-10-31 night: open weights only. The bubble never offers or points 
   assert.doesNotMatch(upsampler,/which pose/,'the upsampler never has to fix a pose');
   assert.match(upsampler,/Keep the action the user describes/);assert.match(upsampler,/never copy the pose a reference image shows/);
   assert.ok(bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'klein').includes(POSE_RULE));
+});
+
+test('JD 2026-11-01: FLUX.2 dev is a third open engine, multi-reference from the official image_flux2 chain, price to be confirmed', async () => {
+  const { bubbleImageEngine, bubbleEngineChoices, bubblePriceUnconfirmed, validBubbleSettings, POSE_RULE, FLUX2_REFERENCE_MEGAPIXELS } = await import('../src/lib/creation/bubble.ts');
+  const { gesteParId } = await import('../src/lib/workflows/registre.ts');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,true),'klein','Klein stays the default');
+  assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'flux2'},true),'flux2');
+  assert.equal(bubbleImageEngine('image',0,{...BUBBLE_DEFAULTS,engine:'flux2'},true),'klein','text-only stills stay on Klein t2i');
+  assert.equal(bubbleEngineChoices(true)[0],'klein');
+  assert.ok(validBubbleSettings({...BUBBLE_DEFAULTS,engine:'flux2'}));
+  const row=gesteParId('creation-image-flux2');
+  assert.equal(row?.template,'image_flux2');assert.equal(row?.partenaire,false);
+  const chips=[
+    {name:'Lieu B',category:'decor',pictures:['b1.png','b2.png']},
+    {name:'Sujet A',category:'cast',pictures:['a1.png','a2.png','a3.png']},
+    {name:'Objet D',category:'objet',pictures:['d1.png']},
+    {name:'Sujet C',category:'cast',pictures:['c1.png']},
+  ];
+  const slots=bubbleReferenceSlots(chips)!;
+  assert.deepEqual(slots.map(s=>s.picture),['a1.png','a2.png','a3.png','c1.png','d1.png','b1.png','b2.png'],'characters, then objects, then the place');
+  const prompt=bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'flux2');
+  assert.ok(prompt.includes(POSE_RULE));
+  const graph=bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:slots.map(s=>s.picture),prompt,seed:96585588,engine:'flux2'});
+  assert.equal(graph.unet.inputs.unet_name,'flux2_dev_fp8mixed.safetensors');
+  assert.equal(graph.clip.inputs.type,'flux2');
+  const text=String(graph.prompt.inputs.text);
+  assert.ok(text.startsWith(prompt)&&text.includes(bubbleStaging(96585588)),'request first, then the seed\'s staging');
+  let cond:unknown=graph.guider.inputs.conditioning;
+  const order:string[]=[];
+  while(Array.isArray(cond)&&String(cond[0]).startsWith('ref_')){const n=graph[cond[0] as string];const enc=graph[(n.inputs.latent as [string,number])[0]];const scale=graph[(enc.inputs.pixels as [string,number])[0]];assert.equal(scale.class_type,'ImageScaleToTotalPixels');assert.equal(scale.inputs.megapixels,FLUX2_REFERENCE_MEGAPIXELS);order.unshift(String(graph[(scale.inputs.image as [string,number])[0]].inputs.image));cond=n.inputs.conditioning;}
+  assert.deepEqual(order,slots.map(s=>s.picture),'one ReferenceLatent per photo, chained in send order');
+  assert.deepEqual(cond,['guidance',0]);
+  assert.equal(graph.guidance.inputs.guidance,4);
+  assert.deepEqual([graph.canvas.class_type,graph.canvas.inputs.width,graph.canvas.inputs.height],['EmptyFlux2LatentImage',1344,768],'the chosen frame, never a reference');
+  assert.equal(graph.noise.inputs.noise_seed,96585588);
+  assert.equal(graph.sigmas.inputs.steps,20);
+  assert.ok(!Object.values(graph).some(n=>/TextGenerate|Gemini|Lora/.test(n.class_type)),'no upsampler, no partner, Turbo LoRA off');
+  for(const [id,node] of Object.entries(graph)) for(const v of Object.values(node.inputs)) if(Array.isArray(v)&&typeof v[0]==='string') assert.ok(graph[v[0]],`${id} links to an existing node`);
+  const q=bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'flux2')!;
+  assert.deepEqual([q.credits,q.high,q.kind],[34,68,'estime']);
+  assert.ok(q.credits>bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'klein')!.credits*2,'a cautious upper estimate, well above Klein');
+  assert.equal(bubblePriceUnconfirmed('image',7,'flux2'),true);
+  assert.equal(bubblePriceUnconfirmed('image',7,'klein'),false);
+  for(const lang of ['en','fr','de','es']){
+    const m=JSON.parse(readFileSync(new URL(`../messages/${lang}.json`,import.meta.url),'utf8'));
+    assert.ok(m.bubble.engineName.flux2&&m.bubble.engineHelp.flux2&&m.bubble.imageEngineFlux2&&m.bubble.priceUnconfirmed,`${lang}: FLUX.2 dev is named, its price flagged`);
+    assert.doesNotMatch(JSON.stringify([m.bubble.engineHelp.flux2,m.bubble.priceUnconfirmed]),/gratuit|free|kostenlos|gratis/i);
+  }
 });
