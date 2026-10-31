@@ -7,7 +7,7 @@
   "skip": "Zum Inhalt",
   "meta": {
     "title": "U*TTU Studio — Open-Source-KI-Filmstudio auf ComfyUI",
-    "description": "Schreib, was du drehen willst, Bild oder Video: 43 ComfyUI-Werkzeuge, benannte Referenzen, 3D-Inszenierung und Schnitt. Open Source (MIT), eine Kalkulation vor jedem Credit, Renders auf deinem eigenen Comfy-Konto."
+    "description": "Schreib, was du drehen willst, Bild oder Video: {n} ComfyUI-Werkzeuge, benannte Referenzen, 3D-Inszenierung und Schnitt. Open Source (MIT), eine Kalkulation vor jedem Credit, Renders auf deinem eigenen Comfy-Konto."
   },
   "nav": {
     "character": "Besetzung",
@@ -43,7 +43,7 @@
     "kicker": "Open Source · MIT · auf ComfyUI",
     "h1": "Dein KI-<em>Filmstudio</em>, Open Source, auf ComfyUI.",
     "sub": "Schreib, was du drehen willst, als Bild oder Video, mit deinen Figuren und Orten. Dann erkunde, inszeniere in 3D, dreh und schneide deinen Film.",
-    "sub2": "43 ComfyUI-Werkzeuge auf deinem eigenen Comfy-Konto, mit einer Kalkulation vor jedem Credit.",
+    "sub2": "{n} ComfyUI-Werkzeuge auf deinem eigenen Comfy-Konto, mit einer Kalkulation vor jedem Credit.",
     "caps": {
       "0": "Eine Figur",
       "1": "Eine Nahaufnahme",
@@ -149,7 +149,7 @@
         "body": "Acht Figurenwinkel, dann ein MiniMax-H3-Take auf dem gewählten Winkel: ≈ 14 Credits geschätzt für eine erste Einstellung, dann ≈ 4 pro weiterem Winkel."
       },
       "library": {
-        "name": "43 Werkzeuge, jedes mit Kalkulation",
+        "name": "{n} Werkzeuge, jedes mit Kalkulation",
         "body": "Erschaffen, Retusche, Video, 3D, Ton. „Nur Studiomodelle“ blendet Werkzeuge aus, die über einen kostenpflichtigen Partnerdienst laufen."
       },
       "upload": {

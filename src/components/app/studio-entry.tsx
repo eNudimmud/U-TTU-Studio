@@ -4,6 +4,7 @@
 // settings on demand), the door into the film (CAST → DÉCOR → PRISE → MONTAGE), every ready tool in one
 // row per family (the same list as the rail and search).
 
+import { OUTILS_HORS_CATALOGUE } from "@/lib/outils/nombre";
 import { STUDIO_HERO, THUMB_SIZES } from "@/lib/studio-hero";
 import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useI18n } from "@/components/i18n/provider";
@@ -80,7 +81,7 @@ function CreationTools() {
       <span className="u-entry-film-go" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>
     </button>
     <div className="u-outils-tools" data-outils-tools="" tabIndex={-1}>
-      <p className="eyebrow">{t("outils.entryLead", { n: String(cards.length + 2) })}</p>
+      <p className="eyebrow">{t("outils.entryLead", { n: String(cards.length + OUTILS_HORS_CATALOGUE) })}</p>
       <label className="u-field u-outils-search" htmlFor={searchId}>
         <span className="sr-only">{t("outils.search")}</span>
         <input id={searchId} type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t("outils.search")} data-outils-search="" />

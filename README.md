@@ -11,7 +11,7 @@ Live: <https://uttu-studio.app> (landing) · studio: <https://uttu-studio.app/st
 <img src="docs/preuves/accueil-v2/accueil-fr-390x844-top.webp" width="22%" alt="Landing, 390 px">
 </p>
 <p>
-<img src="docs/screenshots/readme-studio-1280.webp" width="49%" alt="Studio entry: the creation bubble and the 43 tools, 1280 px">
+<img src="docs/screenshots/readme-studio-1280.webp" width="49%" alt="Studio entry: the creation bubble and the 44 tools, 1280 px">
 <img src="docs/screenshots/readme-outils-1280.webp" width="49%" alt="Tools by family: video, 3D, sound, 1280 px">
 </p>
 <p>
@@ -43,7 +43,7 @@ Quotes below are the registry quotes at their default size ([`src/lib/workflows/
 
 - **The bubble / La bulle « What are we shooting? · Qu’est-ce qu’on tourne ? »** — Image (Flux Klein, or Qwen edit with references) ≈ 2 credits estimated; Video: MiniMax H3 with references or a sound ≈ 4, LTX-2.5 from text only ≈ 5 (480p, 5 s). Up to 7 references. / *Image (Flux Klein, ou Qwen edit avec références) ≈ 2 crédits estimés ; Vidéo : MiniMax H3 avec références ou un son ≈ 4, LTX-2.5 avec un texte seul ≈ 5.*
 - **Named references / Références nommées** — a name and up to 3 photos, filed as Character, Set, Object or Style. / *Un nom et jusqu’à 3 photos, rangés en Personnage, Décor, Objet ou Style.*
-- **43 tools / 43 outils** in five families (Create 9, Retouch 8, Video 16, 3D 3, Sound 7), each with its quote. The ten added on 29.10.2026 (measured): / *Dix outils ajoutés le 29.10.2026 (mesurés) :*
+- **44 tools / 44 outils** in five families (Create 9, Retouch 8, Video 17, 3D 3, Sound 7), each with its quote. The ten added on 29.10.2026 (measured): / *Dix outils ajoutés le 29.10.2026 (mesurés) :*
 
   | Tool / Outil | Template | Quote / Devis |
   |---|---|---|

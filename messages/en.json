@@ -7,7 +7,7 @@
   "skip": "Skip to content",
   "meta": {
     "title": "U*TTU Studio — Open-source AI film studio on ComfyUI",
-    "description": "Write what you want to shoot, image or video: 43 ComfyUI tools, named references, 3D staging and editing. Open source (MIT), a quote before every credit, renders on your own Comfy account."
+    "description": "Write what you want to shoot, image or video: {n} ComfyUI tools, named references, 3D staging and editing. Open source (MIT), a quote before every credit, renders on your own Comfy account."
   },
   "nav": {
     "character": "Cast",
@@ -43,7 +43,7 @@
     "kicker": "Open source · MIT · on ComfyUI",
     "h1": "Your AI <em>film studio</em>, open source, on ComfyUI.",
     "sub": "Write what you want to shoot, as a picture or a video, with your characters and places. Then scout, stage it in 3D, shoot and cut your film.",
-    "sub2": "43 ComfyUI tools on your own Comfy account, with a quote before every credit.",
+    "sub2": "{n} ComfyUI tools on your own Comfy account, with a quote before every credit.",
     "caps": {
       "0": "A character",
       "1": "A close-up",
@@ -149,7 +149,7 @@
         "body": "Eight character angles, then one MiniMax H3 take on the angle you pick: ≈ 14 credits estimated for a first shot, then ≈ 4 per extra angle."
       },
       "library": {
-        "name": "43 tools, each with its quote",
+        "name": "{n} tools, each with its quote",
         "body": "Create, retouch, video, 3D, sound. “Studio models only” hides tools that go through a paid partner service."
       },
       "upload": {
