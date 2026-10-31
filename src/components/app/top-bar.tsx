@@ -91,7 +91,7 @@ export function TopBar({ place }: { place: Place }) {
     <header className="u-top u-topbar" data-topbar="" data-focus={focus ? "" : undefined}>
       <div className="u-top-left">
         <Brand className="u-mark" href={assetPath("/studio")} />
-        {(place === "realiser" || place === "montage") && <ProjectSwitcher />}
+        {!focus && (place === "realiser" || place === "montage") && <ProjectSwitcher />}
       </div>
       {!focus && <nav className="u-top-nav" aria-label={t("top.nav")}>
         <MainNav place={place} />
