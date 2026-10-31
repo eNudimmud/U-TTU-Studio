@@ -33,7 +33,7 @@ export function useReferences(): BarreRef[] {
 
 /** One native creation bubble. Local drafts and reference photos belong to the active project. */
 export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void; preview?(input: FilSend): { route: string; where: string; quote: number | null } } = {}) {
-  const { t } = useI18n(); const { ready, studio, media, storeCreationInput, prefs } = useStudio(); const all = useReferences();
+  const { t } = useI18n(); const { ready, studio, media, storeCreationInput, prefs, film2 } = useStudio(); const all = useReferences();
   const [mode, setMode] = useState<'image' | 'video'>('image'), [text, setText] = useState('');
   const [refs, setRefs] = useState<BarreRef[]>([]), [photos, setPhotos] = useState<Attachment[]>([]), [audio, setAudio] = useState<Attachment | null>(null);
   const [settings, setSettings] = useState<BubbleSettings>(BUBBLE_DEFAULTS);
@@ -69,6 +69,10 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const input: FilSend = { mode, text, refs: attached, settings: DEFAULT_SETTINGS, creation: { settings }, audio: currentAudio };
   const pictures = bubblePictureCount(mode, attached.map(r => chipReference(r, p => Boolean(media[p]))));
   const engine = bubbleImageEngine(mode, pictures, settings, prefs.openWeightsOnly);
+  // Nano Banana is a paid partner: with partner services off (the film2 account default), the bubble
+  // runs on Klein. Say it next to the price, not only inside the folded settings (JD 31.10.2026).
+  const engineWhy = prefs.openWeightsOnly ? t(film2 && !prefs.partenaires ? 'bubble.engineNeedsPartners' : 'bubble.engineStudioOnly') : '';
+  const fallbackShown = mode === 'image' && pictures > 0 && engine === 'klein' && settings.engine !== 'klein' && Boolean(engineWhy);
   const here = preview?.(input), quote = bubbleQuote(mode, pictures, settings, Boolean(currentAudio), engine);
   const credits = here ? here.quote : quote?.credits ?? null;
   const cost = credits !== null ? t('barre.cost', { credits: formatCredits(credits) }) : null;
@@ -159,7 +163,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
           {settingsOpen && <div className="u-barre-settings" data-barre-settings-row="">
             <div className="u-barre-seg" role="group" aria-label={t('barre.format')}>{(['16:9','9:16','1:1'] as const).map(f => <button key={f} type="button" aria-pressed={settings.format === f} data-barre-format={f} onClick={() => setSettings(s => ({ ...s, format: f }))}>{f}</button>)}</div>
             <div className="u-barre-seg" role="group" aria-label={t('bubble.resolution')}>{(['480p','720p'] as const).map(r => <button key={r} type="button" aria-pressed={settings.resolution === r} data-barre-resolution={r} onClick={() => setSettings(s => ({ ...s, resolution: r }))}>{bubbleResolutionLabel(mode, r)}</button>)}</div>
-            {mode === 'image' && <div className="u-barre-seg" role="group" aria-label={t('bubble.engine')} data-barre-engine-group="">{(['nano','klein'] as const).map(e => <button key={e} type="button" aria-pressed={(settings.engine ?? 'nano') === e} disabled={e === 'nano' && prefs.openWeightsOnly} aria-describedby={e === 'nano' && prefs.openWeightsOnly ? 'barre-engine-why' : undefined} title={e === 'nano' && prefs.openWeightsOnly ? t('bubble.engineStudioOnly') : t(`bubble.engineHelp.${e}`)} data-barre-engine={e} onClick={() => setSettings(s => ({ ...s, engine: e }))}>{t(`bubble.engineName.${e}`)}</button>)}{prefs.openWeightsOnly && <small id="barre-engine-why" data-barre-engine-why="">{t('bubble.engineStudioOnly')}</small>}</div>}
+            {mode === 'image' && <div className="u-barre-seg" role="group" aria-label={t('bubble.engine')} data-barre-engine-group="">{(['nano','klein'] as const).map(e => <button key={e} type="button" aria-pressed={(settings.engine ?? 'nano') === e} disabled={e === 'nano' && prefs.openWeightsOnly} aria-describedby={e === 'nano' && prefs.openWeightsOnly ? 'barre-engine-why' : undefined} title={e === 'nano' && prefs.openWeightsOnly ? engineWhy : t(`bubble.engineHelp.${e}`)} data-barre-engine={e} onClick={() => setSettings(s => ({ ...s, engine: e }))}>{t(`bubble.engineName.${e}`)}</button>)}{prefs.openWeightsOnly && !fallbackShown && <small id="barre-engine-why" data-barre-engine-why="">{engineWhy}</small>}</div>}
             {mode === 'video' && <><div className="u-barre-seg" role="group" aria-label={t('barre.duree')}>{([5,10] as const).map(d => <button key={d} type="button" aria-pressed={settings.duration === d} data-barre-duree={d} onClick={() => setSettings(s => ({ ...s, duration: d }))}>{d} s</button>)}</div><button type="button" className="u-secondary" aria-pressed={settings.sound} data-barre-sound="" onClick={() => setSettings(s => ({ ...s, sound: !s.sound }))}>{t(settings.sound ? 'bubble.soundOn' : 'bubble.soundOff')}</button></>}
           </div>}
         </div>
@@ -167,7 +171,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
       </div>
       <p className="u-bubble-limit" id={attachmentsId}>{busy ? t('namedRefs.saving') : t('bubble.referenceCount', { n: attached.length, max: CREATION_REFERENCES_MAX })} · {settings.format} · ≈ {bubbleResolutionLabel(mode, settings.resolution)} ({size.width}×{size.height}){all.some(a => a.path) && <> · <span data-bubble-mention-hint="">{t('bubble.mentionHint')}</span></>}</p>
     </form>
-    <p className="u-barre-route" id={routeId} data-barre-route={here?.route ?? bubbleTool(mode, attached.length, Boolean(currentAudio))}>{cost && <strong data-barre-cost="">{cost} · </strong>}{t(mode === 'image' ? engine === 'nano' ? 'bubble.imageEngineNano' : 'bubble.imageEngine' : attached.length || currentAudio ? 'bubble.referenceVideoEngine' : 'bubble.textVideoEngine')}</p>
+    <p className="u-barre-route" id={routeId} data-barre-route={here?.route ?? bubbleTool(mode, attached.length, Boolean(currentAudio))}>{cost && <strong data-barre-cost="">{cost} · </strong>}{t(mode === 'image' ? engine === 'nano' ? 'bubble.imageEngineNano' : 'bubble.imageEngine' : attached.length || currentAudio ? 'bubble.referenceVideoEngine' : 'bubble.textVideoEngine')}{fallbackShown && <small id="barre-engine-why" data-barre-engine-why="" data-barre-engine-fallback=""> · {engineWhy}</small>}</p>
     <button type="button" className="u-text-button u-bubble-agent" data-barre-mode="agent" onClick={() => toggleAssistant(true)}>{t('bubble.askUttu')}</button>
     {error && <p role="alert">{error}</p>}
     {sheet && <ReferenceLibrary onClose={() => setSheet(false)} onPick={pickReference} onUnpick={r => setRefs(a => a.filter(x => x.id !== r.id || x.kind !== r.category))} atLimit={full} selected={selected.map(r => `${r.kind}:${r.id}`)} />}

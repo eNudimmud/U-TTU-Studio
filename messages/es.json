@@ -3814,6 +3814,7 @@
       "klein": "El modelo abierto del estudio, como respaldo."
     },
     "engineStudioOnly": "Elegiste solo modelos del estudio: la imagen pasa por Klein.",
+    "engineNeedsPartners": "Los servicios asociados de pago están desactivados: esta imagen pasa por Klein. Para Nano Banana 2.1, activa «Usar también servicios asociados de pago» en el menú de créditos.",
     "nanoFailed": "Nano Banana 2.1 no terminó: {reason} No se relanzó nada. Para reintentar con Klein, elígelo en los ajustes de la burbuja."
   },
   "genjutsu": {

@@ -65,6 +65,12 @@ export function bubbleGeste(mode: BubbleMode, count: number, audio = false, engi
 export const NANO_QUOTE = { '480p': { credits: 12, high: 15 }, '720p': { credits: 17, high: 22 } } as const;
 export const NANO_RESOLUTION = { '480p': '1K', '720p': '2K' } as const;
 const IMAGE_CREDITS_PER_MP = 1.4, IMAGE_EDIT_CREDITS_PER_MP = 2.4, UPSAMPLER_CREDITS = 1;
+/**
+ * Past three pictures the area stays 3 MP, but each extra picture still costs: the upsampler reads it and
+ * the sampler attends to its tokens. Measured: 3 refs = 38.5 GPU s ≈ 10.5 credits (fef595a7); 7 refs =
+ * 50.9 GPU s = 14 credits, twice (job 96b0a72b, then JD's 31.10 evening test). (14 − 10.5) / 4 ≈ 0.85.
+ */
+const EXTRA_REFERENCE_CREDITS = 0.85;
 export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, audio = false, engine: BubbleImageEngine | null = null) {
   if (!validBubbleSettings(s) || count < 0 || count > CREATION_REFERENCES_MAX) return null;
   if (mode === 'image' && count > 0 && engine === 'nano') return { ...NANO_QUOTE[s.resolution], kind: 'estime' as const };
@@ -78,7 +84,7 @@ export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, 
     // 1344×768 + 3 refs at 1 MP + upsampler at cfg 1 = 23.7 GPU s ≈ 6.5 credits (job 9e8c477b); at cfg 3.5
     // (KLEIN_BASE_CFG, a second pass per step) = 38.5 s ≈ 10.5 credits (job fef595a7). Text-only stays on t2i (cfg 3.5).
     const perMp = count > 0 ? IMAGE_EDIT_CREDITS_PER_MP : IMAGE_CREDITS_PER_MP;
-    const credits = Math.ceil(perMp * (pixels + count * bubbleReferenceMegapixels(count)) + (count > 0 ? UPSAMPLER_CREDITS : 0));
+    const credits = Math.ceil(perMp * (pixels + count * bubbleReferenceMegapixels(count)) + (count > 0 ? UPSAMPLER_CREDITS : 0) + Math.max(0, count - 3) * EXTRA_REFERENCE_CREDITS);
     return { credits, high: Math.ceil(credits * 1.5), kind: 'estime' as const };
   }
   const base = row?.credits ?? 5;

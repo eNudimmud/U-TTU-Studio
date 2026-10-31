@@ -3814,6 +3814,7 @@
       "klein": "The studio’s open model, as a fallback."
     },
     "engineStudioOnly": "You chose studio models only: images run on Klein.",
+    "engineNeedsPartners": "Paid partner services are off, so this image runs on Klein. For Nano Banana 2.1, turn on “Also use paid partner services” in the credits menu.",
     "nanoFailed": "Nano Banana 2.1 did not finish: {reason} Nothing was rerun. To try again with Klein, pick it in the bubble settings."
   },
   "genjutsu": {

@@ -3814,6 +3814,7 @@
       "klein": "Das offene Modell des Studios, als Ausweichlösung."
     },
     "engineStudioOnly": "Du hast nur Studio-Modelle gewählt: Bilder laufen über Klein.",
+    "engineNeedsPartners": "Kostenpflichtige Partnerdienste sind aus: Dieses Bild läuft über Klein. Für Nano Banana 2.1 schalte im Credits-Menü „Auch kostenpflichtige Partnerdienste nutzen“ ein.",
     "nanoFailed": "Nano Banana 2.1 ist nicht fertig geworden: {reason} Nichts wurde neu gestartet. Um es mit Klein erneut zu versuchen, wähle Klein in den Einstellungen der Blase."
   },
   "genjutsu": {

@@ -190,7 +190,7 @@ test('JD 2026-10-31: three named references (two characters, one DÉCOR) send ev
   assert.deepEqual(graph.image_4.inputs.text,['style_note',0],'the photo style is said again after the upsampler');
   assert.match(String(graph.image_58.inputs.text),/cartoon, illustration/,'cfg 3.5 reads a negative prompt');
   assert.equal(graph.image_7.inputs.cfg,3.5);
-  assert.equal(bubbleQuote('image',6,BUBBLE_DEFAULTS)!.credits,bubbleQuote('image',3,BUBBLE_DEFAULTS)!.credits,'same reference area, same estimate');
+  assert.ok(bubbleQuote('image',6,BUBBLE_DEFAULTS)!.credits>bubbleQuote('image',3,BUBBLE_DEFAULTS)!.credits,'same reference area, but every extra picture is read and costs');
 });
 
 test('the style intent is read in four languages and an asked-for drawing is never forced into a photo',()=>{
@@ -268,4 +268,45 @@ test('JD 2026-10-31: with references, the image bubble composes on Nano Banana 2
   assert.equal(bubbleQuote('image',7,{...BUBBLE_DEFAULTS,resolution:'720p'},false,'nano')!.credits,17);
   assert.equal(gesteParId('creation-image-nano')?.template,'api_nano_banana_2_1_image_edit');
   assert.equal(gesteParId('creation-image-nano')?.partenaire,true);
+});
+
+test('JD 2026-10-31 evening: the Klein still with 7 pictures is quoted at the 14 credits it cost twice, and every run gets its own caption', async () => {
+  const { UPSAMPLER_TOP_K } = await import('../src/lib/render/klein-graph.ts');
+  // Job 96b0a72b and the next test: 1344×768 + 7 pictures + upsampler at cfg 3.5 = 50.9 GPU s = 14 credits.
+  assert.equal(bubbleQuote('image',7,BUBBLE_DEFAULTS)!.credits,14);
+  assert.equal(bubbleQuote('image',3,BUBBLE_DEFAULTS)!.credits,11,'3 pictures stay at the measured 10.5 (fef595a7)');
+  // Before: the upsampler decoded greedily (top_k 1, seed 0), so the same pictures always gave the same
+  // caption, and every run drew the same pose whatever the sampler seed.
+  const chips=[
+    {name:'Sujet A',category:'cast',pictures:['a1.png','a2.png','a3.png']},
+    {name:'Sujet C',category:'cast',pictures:['c1.png','c2.png']},
+    {name:'Lieu B',category:'decor',pictures:['b1.png','b2.png']},
+  ];
+  const slots=bubbleReferenceSlots(chips)!;
+  const prompt=bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'klein');
+  const run=(seed:number)=>bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:slots.map(s=>s.picture),prompt,seed,engine:'klein'});
+  const a=run(1406790374), b=run(96585588);
+  assert.equal(a.image_47.class_type,'TextGenerate');
+  assert.deepEqual([a.image_47.inputs['sampling_mode.seed'],b.image_47.inputs['sampling_mode.seed']],[1406790374,96585588],'the caption follows the run seed');
+  assert.equal(a.image_47.inputs['sampling_mode.top_k'],UPSAMPLER_TOP_K);assert.ok(UPSAMPLER_TOP_K>1,'never greedy');
+  assert.deepEqual(a.image_7.inputs.seed,1406790374);
+  // Nothing but the chips' own photos reaches the graph: no earlier result, no extra picture.
+  const loads=Object.values(a).filter(n=>n.class_type==='LoadImage').map(n=>n.inputs.image);
+  assert.deepEqual(loads,['a1.png','a2.png','a3.png','c1.png','c2.png','b1.png','b2.png']);
+  assert.ok(!Object.values(a).some(n=>n.class_type==='LoadImage'&&!loads.includes(n.inputs.image as string)));
+});
+
+test('JD 2026-10-31 evening: with paid partner services off (the film2 default) the bubble runs on Klein, so the bubble must say so', async () => {
+  const { bubbleImageEngine } = await import('../src/lib/creation/bubble.ts');
+  const { DEFAULT_PREFS, prefsSession } = await import('../src/lib/studio-prefs.ts');
+  const off=prefsSession(DEFAULT_PREFS,true).prefs, on=prefsSession({...DEFAULT_PREFS,partenaires:true},true).prefs;
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,off.openWeightsOnly),'klein');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,on.openWeightsOnly),'nano');
+  for(const lang of ['en','fr','de','es']){
+    const m=JSON.parse(readFileSync(new URL(`../messages/${lang}.json`,import.meta.url),'utf8'));
+    assert.match(m.bubble.engineNeedsPartners,/Klein/);assert.match(m.bubble.engineNeedsPartners,/Nano Banana 2\.1/);
+    assert.ok(m.bubble.engineNeedsPartners.includes(m.film2.compte.partenaires),`${lang}: names the switch to turn on`);
+  }
+  const bar=readFileSync(new URL('../src/components/app/creation-bar.tsx',import.meta.url),'utf8');
+  assert.match(bar,/data-barre-engine-fallback/,'the fallback is said next to the price, outside the folded settings');
 });

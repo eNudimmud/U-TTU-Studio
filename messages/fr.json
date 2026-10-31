@@ -3814,6 +3814,7 @@
       "klein": "Modèle ouvert du studio, en secours."
     },
     "engineStudioOnly": "Tu as choisi les modèles du studio seulement : l’image passe par Klein.",
+    "engineNeedsPartners": "Les services partenaires payants sont coupés : cette image passe par Klein. Pour Nano Banana 2.1, active « Utiliser aussi des services partenaires payants » dans le menu des crédits.",
     "nanoFailed": "Nano Banana 2.1 n’a pas abouti : {reason} Rien n’a été relancé. Pour réessayer avec Klein, choisis-le dans les réglages de la bulle."
   },
   "genjutsu": {
