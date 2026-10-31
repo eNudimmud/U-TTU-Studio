@@ -15,6 +15,9 @@ export default defineConfig({
     actionTimeout: 20_000,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
+    // The new film (PRISE | MONTAGE) is the default; the specs of the former film keep it on with this
+    // preference. The film2-* specs open /studio?film2=1, which switches back to the new one.
+    storageState: { cookies: [], origins: [{ origin: "http://127.0.0.1:3000", localStorage: [{ name: "u-ttu-film2", value: "0" }] }] },
   },
   webServer: {
     command: ci ? "npm start -- --port 3000" : "npm run dev -- --hostname 127.0.0.1 --port 3000",

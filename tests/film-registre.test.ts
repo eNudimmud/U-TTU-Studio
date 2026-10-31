@@ -120,14 +120,17 @@ test("the stored memo expires after a week", () => {
   assert.equal(memo.get("k"), null);
 });
 
-test("film2 is off by default, on with ?film2=1 and kept, off with ?film2=0", () => {
+test("film2 is on by default, off with ?film2=0 and kept, back on with ?film2=1", () => {
   const rows = new Map<string, string>();
   const storage = { getItem: (k: string) => rows.get(k) ?? null, setItem: (k: string, v: string) => { rows.set(k, v); }, removeItem: (k: string) => { rows.delete(k); } };
-  assert.equal(film2Actif("", storage), false);
-  assert.equal(film2Actif("?demo=1&film2=1", storage), true);
-  assert.equal(rows.get(FILM2_KEY), "1");
+  // PR 9: the new film is the default; ?film2=0 keeps the former one on this device until ?film2=1.
   assert.equal(film2Actif("", storage), true);
   assert.equal(film2Actif("?film2=0", storage), false);
+  assert.equal(rows.get(FILM2_KEY), "0");
   assert.equal(film2Actif("", storage), false);
-  assert.equal(film2Actif("?film2=1", null), true);
+  assert.equal(film2Actif("?demo=1&film2=1", storage), true);
+  assert.equal(rows.has(FILM2_KEY), false);
+  assert.equal(film2Actif("", storage), true);
+  assert.equal(film2Actif("", null), true);
+  assert.equal(film2Actif("?film2=0", null), false);
 });
