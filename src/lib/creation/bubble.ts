@@ -82,6 +82,7 @@ const ROLE: Record<string, string> = {
   style: 'the visual style to follow',
   photo: 'an attached photo',
 };
+const NOUN: Record<string, string> = { cast: 'character', decor: 'place', objet: 'object', style: 'style', photo: 'subject', result: 'subject' };
 /** The order the pictures are sent in: who first, what next, where last. */
 const ORDER: Record<string, number> = { cast: 0, photo: 1, result: 1, objet: 2, style: 3, decor: 4 };
 export interface BubbleReference { name: string; description?: string; category?: string; /** Pictures of this reference, in send order. */ pictures?: readonly string[] }
@@ -149,13 +150,17 @@ export function bubblePrompt(text: string, refs: readonly BubbleReference[], mod
     const where = imageOrdinals(g.first, g.count);
     const named = r.name && !fileLikeName(r.name);
     // « Enki » alone means nothing to the text encoder; say which pictures it is.
-    if (named) request = request.replace(new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(r.name.trim())}(?![\\p{L}\\p{N}])`, 'giu'), m => `${m} (${where})`);
+    // « @Enki » or « Enki » becomes « Enki (the character from the first image, <description>) ».
+    if (named) {
+      const brief = r.description?.trim() ? `, ${r.description.trim().replace(/\s+/g, ' ').slice(0, 120)}` : '';
+      request = request.replace(new RegExp(`(?<![\\p{L}\\p{N}_@])@?${escapeRe(r.name.trim())}(?![\\p{L}\\p{N}_])`, 'giu'), m => `${m.replace(/^@/, '')} (the ${NOUN[r.category ?? 'photo'] ?? NOUN.photo} from ${where}${brief})`);
+    }
     const role = ROLE[r.category ?? 'photo'] ?? ROLE.photo;
     const label = where.charAt(0).toUpperCase() + where.slice(1);
     return `- ${label}${named ? ` named ${JSON.stringify(r.name)}` : ''}: ${role}${r.description ? ` (${r.description.slice(0, 300)})` : ''}.`;
   }).join('\n');
   const note = bubbleStyleNote(bubbleStyle(text));
-  return `${request}${REFERENCE_HEADER}${lines}\nUse every image: each distinct character or creature appears once, whole and recognisable, with its own anatomy, colours and clothing; never merge two subjects into one. Compose ONE new finished picture, without reference panels, labels or contact-sheet layout.${note ? `\n${note}` : ''}`;
+  return `${request}${REFERENCE_HEADER}${lines}\nUse every image: each distinct character or creature appears once, whole and recognisable, with its own anatomy, colours and clothing; never merge two subjects into one. The images of a name define that name only: never lend its face, fur, colours, clothing or shapes to another name or to the place; the images of a place define only the setting. Compose ONE new finished picture, without reference panels, labels or contact-sheet layout.${note ? `\n${note}` : ''}`;
 }
 /** Reference area per picture: the template's 1 MP up to three pictures, then the same 3 MP shared. */
 export function bubbleReferenceMegapixels(count: number): number {

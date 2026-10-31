@@ -4,6 +4,7 @@ import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 're
 import { useI18n } from '@/components/i18n/provider';
 import { formatCredits } from '@/lib/credits';
 import { DEMO_CAST, DEMO_DECOR } from '@/lib/creation/demo';
+import { insertMention, mentionedReferences, opensPicker, removeMention } from '@/lib/creation/mentions';
 import { BUBBLE_DEFAULTS, bubblePictureCount, bubbleQuote, chipReference, bubbleResolutionLabel, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
 import { CREATION_REFERENCES_MAX, type NamedReference } from '@/lib/creation/named-references';
 import { assetPath } from '@/lib/site';
@@ -38,6 +39,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const [menu, setMenu] = useState(false), [settingsOpen, setSettingsOpen] = useState(false), [sheet, setSheet] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [loadedFor, setLoadedFor] = useState<string | null>(null);
   const inputId = useId(), menuId = useId(), routeId = useId(), attachmentsId = useId();
+  const textRef = useRef<HTMLTextAreaElement>(null), caretRef = useRef<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null), audioRef = useRef<HTMLInputElement>(null), menuRef = useRef<HTMLDivElement>(null), settingsRef = useRef<HTMLDivElement>(null);
   const scope = `u-ttu-creation-draft:${studio.project ?? 'nouveau'}`;
   // F14 · The bar is in the server HTML before the studio opens: nothing typed is lost to the draft load.
@@ -115,12 +117,24 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   function pickReference(r: NamedReference) {
     const ref = all.find(a => a.id === r.id && a.kind === r.category) ?? { id: r.id, kind: r.category, name: r.name, src: media[r.preview] ?? '', path: r.preview, description: r.description };
     if (!full && !selected.some(a => a.id === ref.id && a.kind === ref.kind)) setRefs(a => [...a, ref]); setSheet(false);
+    // The chip and « @Name » in the text are the same reference.
+    const at = caretRef.current ?? text.length; caretRef.current = null;
+    const next = insertMention(text, ref.name, Math.min(at, text.length));
+    if (next.text.length <= 800) { setText(next.text); requestAnimationFrame(() => { const el = textRef.current; if (el) { el.focus(); el.setSelectionRange(next.caret, next.caret); } }); }
+  }
+  function typed(next: string, caret: number) {
+    if (opensPicker(text, next, caret)) { caretRef.current = caret; setSheet(true); }
+    // A typed « @Name » of a saved reference attaches it, up to the per-creation limit.
+    const named = all.filter(a => a.src || a.path);
+    const fresh = mentionedReferences(next, named).filter(a => !selected.some(x => x.id === a.id && x.kind === a.kind));
+    if (fresh.length) setRefs(a => [...a, ...fresh].slice(0, Math.max(a.length, CREATION_REFERENCES_MAX - photos.length)));
+    setText(next);
   }
   return <>
     <form className="u-barre u-creation-bubble" data-barre="" data-mode={mode} onSubmit={e => { e.preventDefault(); send(); }}>
-      {attached.length > 0 && <ul className="u-barre-chips" data-barre-chips="" aria-label={t('barre.attached')}>{attached.map(r => <li key={`${r.kind}-${r.id}`} className="u-barre-chip" data-barre-chip={r.kind}>{r.src && <img src={r.src} alt="" width={64} height={64} />}<span className="u-barre-chip-name">{r.name}</span><button type="button" className="u-barre-chip-x" aria-label={t('barre.remove', { name: r.name })} onClick={() => r.kind === 'photo' ? setPhotos(p => p.filter(a => a.id !== r.id)) : setRefs(a => a.filter(x => x.id !== r.id || x.kind !== r.kind))}><Close /></button></li>)}{!full && <li><button type="button" className="u-barre-chip-add" aria-label={t('barre.attach.reference')} onClick={() => setSheet(true)}><Plus /></button></li>}</ul>}
+      {attached.length > 0 && <ul className="u-barre-chips" data-barre-chips="" aria-label={t('barre.attached')}>{attached.map(r => <li key={`${r.kind}-${r.id}`} className="u-barre-chip" data-barre-chip={r.kind}>{r.src && <img src={r.src} alt="" width={64} height={64} />}<span className="u-barre-chip-name">{r.name}</span><button type="button" className="u-barre-chip-x" aria-label={t('barre.remove', { name: r.name })} onClick={() => { if (r.kind === 'photo') setPhotos(p => p.filter(a => a.id !== r.id)); else { setRefs(a => a.filter(x => x.id !== r.id || x.kind !== r.kind)); setText(v => removeMention(v, r.name)); } }}><Close /></button></li>)}{!full && <li><button type="button" className="u-barre-chip-add" aria-label={t('barre.attach.reference')} onClick={() => setSheet(true)}><Plus /></button></li>}</ul>}
       {currentAudio && <div className="u-bubble-audio" data-bubble-audio=""><FamilyIcon fam="son" /><span>{currentAudio.name}</span><button type="button" className="u-icon" aria-label={t('bubble.removeAudio')} onClick={() => setAudio(null)}><Close /></button></div>}
-      <label className="u-barre-field" htmlFor={inputId}><span className="sr-only">{t(`barre.ph.${mode}`)}</span><textarea id={inputId} rows={2} value={text} readOnly={!drafted} maxLength={800} placeholder={t(`barre.ph.${mode}`)} data-barre-input="" onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} /></label>
+      <label className="u-barre-field" htmlFor={inputId}><span className="sr-only">{t(`barre.ph.${mode}`)}</span><textarea ref={textRef} id={inputId} rows={2} value={text} readOnly={!drafted} maxLength={800} placeholder={t(`barre.ph.${mode}`)} data-barre-input="" onChange={e => typed(e.target.value, e.target.selectionStart ?? e.target.value.length)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} /></label>
       <div className="u-barre-foot">
         <div className="u-barre-plus-wrap" ref={menuRef}>
           <button type="button" className="u-barre-round" aria-label={t('barre.plus')} aria-haspopup="menu" aria-expanded={menu} aria-controls={menuId} data-barre-plus="" onClick={() => { setMenu(v => !v); setSettingsOpen(false); }}><Plus /></button>
@@ -143,7 +157,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
         </div>
         <button type="submit" className="u-barre-send" disabled={busy || !drafted} data-barre-send="" data-ready={text.trim() ? '' : undefined} aria-label={cost ? `${t('barre.send')} · ${cost}` : t('barre.send')} aria-describedby={routeId}><svg {...ICON}><path d="M12 19V5M6 11l6-6 6 6" /></svg></button>
       </div>
-      <p className="u-bubble-limit" id={attachmentsId}>{busy ? t('namedRefs.saving') : t('bubble.referenceCount', { n: attached.length, max: CREATION_REFERENCES_MAX })} · {settings.format} · ≈ {bubbleResolutionLabel(mode, settings.resolution)} ({size.width}×{size.height})</p>
+      <p className="u-bubble-limit" id={attachmentsId}>{busy ? t('namedRefs.saving') : t('bubble.referenceCount', { n: attached.length, max: CREATION_REFERENCES_MAX })} · {settings.format} · ≈ {bubbleResolutionLabel(mode, settings.resolution)} ({size.width}×{size.height}){all.some(a => a.path) && <> · <span data-bubble-mention-hint="">{t('bubble.mentionHint')}</span></>}</p>
     </form>
     <p className="u-barre-route" id={routeId} data-barre-route={here?.route ?? bubbleTool(mode, attached.length, Boolean(currentAudio))}>{cost && <strong data-barre-cost="">{cost} · </strong>}{t(mode === 'image' ? 'bubble.imageEngine' : attached.length || currentAudio ? 'bubble.referenceVideoEngine' : 'bubble.textVideoEngine')}</p>
     <button type="button" className="u-text-button u-bubble-agent" data-barre-mode="agent" onClick={() => toggleAssistant(true)}>{t('bubble.askUttu')}</button>

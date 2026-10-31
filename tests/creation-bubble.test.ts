@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { BUBBLE_DEFAULTS, bubbleGraph, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, bubbleResolutionLabel, bubbleSize, bubbleStyle, chipReference } from '../src/lib/creation/bubble.ts';
+import { insertMention, mentionedReferences, opensPicker, removeMention } from '../src/lib/creation/mentions.ts';
 import { fileLikeName, namedReferenceNote, pickerReferences, readNamedReferences, referenceFromNote, type NamedReference } from '../src/lib/creation/named-references.ts';
 import { importMedia } from '../src/lib/creation/import-media.ts';
 import { memoryVault } from '../src/lib/coffre/store.ts';
@@ -41,7 +42,7 @@ test('seven named references reach Klein without truncation, and its canvas foll
   assert.equal(graph.canvas.inputs.height,bubbleSize(settings,'image').height);
   const prompt=bubblePrompt('Sujet A et Sujet B',[{name:'Sujet A',description:'manteau sombre'},{name:'Sujet B'}],'image');
   assert.match(prompt,/The first image named "Sujet A"/);assert.match(prompt,/The second image named "Sujet B"/);
-  assert.match(prompt,/^Sujet A \(the first image\) et Sujet B \(the second image\)/,'names in the request point at their pictures');
+  assert.match(prompt,/^Sujet A \(the subject from the first image, manteau sombre\) et Sujet B \(the subject from the second image\)/,'names in the request point at their pictures');
   assert.throws(()=>bubbleGraph({mode:'image',settings,images:[...images,'8.png'],prompt:'test',seed:1}));
 });
 
@@ -175,7 +176,8 @@ test('JD 2026-10-31: three named references (two characters, one DÉCOR) send ev
   assert.equal(bubblePictureCount('image',chips),6);assert.equal(bubblePictureCount('video',chips),3,'video keeps one picture per chip');
   const text='génère une photo d’Enki qui Joue avec Kaya sur le pont du Blanche Of Castille';
   const prompt=bubblePrompt(text,chips,'image',slots);
-  assert.match(prompt,/^génère une photo d’Enki \(the first image\) qui Joue avec Kaya \(the second and third images\) sur le pont du Blanche Of Castille \(the fourth to sixth images\)/);
+  assert.match(prompt,/^génère une photo d’Enki \(the character from the first image\) qui Joue avec Kaya \(the character from the second and third images, renard bleu-gris\) sur le pont du Blanche Of Castille \(the place from the fourth to sixth images, cité volante rouge au-dessus des nuages\)/);
+  assert.equal(bubblePrompt('@Enki joue avec @Kaya',chips,'image',slots).split('\n')[0],'Enki (the character from the first image) joue avec Kaya (the character from the second and third images, renard bleu-gris)','an @mention is bound to its chip');
   assert.match(prompt,/The fourth to sixth images named "Blanche Of Castille": the place where the scene happens: the new picture is set in or on this place, never in a generic one/);
   assert.match(prompt,/a deck, an interior, a street\), build that part in the same design/);
   assert.match(prompt,/\(cité volante rouge au-dessus des nuages\)/,'the saved description describes the place');
@@ -210,4 +212,15 @@ test('seven pictures at most: each reference keeps one, the rest round-robin, an
   const fr=JSON.parse(readFileSync('messages/fr.json','utf8'));assert.match(fr.bubble.tooManyRefs,/sept au plus/);
   assert.deepEqual(chipReference({kind:'cast',name:'X',path:'p.png',images:['a.png','b.png']},p=>p==='b.png').pictures,['b.png'],'an unloadable photo is skipped');
   assert.deepEqual(chipReference({kind:'photo',name:'1.png',src:'/x.png'},()=>true).pictures,['/x.png'],'a loose photo or a house example sends what the chip shows');
+});
+
+test('@Name mentions: picking writes one, a lone @ opens the picker, a typed one binds the longest saved name, removing keeps the word',()=>{
+  assert.deepEqual(insertMention('Une scène avec',"Sujet A"),{text:'Une scène avec @Sujet A ',caret:24});
+  assert.equal(insertMention('avec @',"Sujet A",6).text,'avec @Sujet A ','the lone @ becomes the mention');
+  assert.equal(insertMention('@sujet a rit','Sujet A').text,'@sujet a rit','never twice');
+  assert.ok(opensPicker('avec ','avec @',6));assert.ok(!opensPicker('mail','mail@',5),'an e-mail is not a mention');
+  assert.equal(removeMention('@Sujet A et @Sujet B','Sujet A'),'Sujet A et @Sujet B');
+  const lib=[{name:'Ana'},{name:'Ana Maria'},{name:'Quai'}];
+  assert.deepEqual(mentionedReferences('@Ana Maria au @Quai',lib).map(r=>r.name),['Ana Maria','Quai']);
+  assert.deepEqual(mentionedReferences('@Anatole',lib),[],'whole names only');
 });
