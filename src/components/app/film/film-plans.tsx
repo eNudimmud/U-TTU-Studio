@@ -199,12 +199,15 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
           <span><small>{t("film2.ou")}</small><strong>{plan.ou?.nom || t("film2.ouVide")}</strong>{plan.ou && <em>{plan.ou.nouveau ? t("film2.nouveau") : t("film2.deTesLieux")}</em>}</span>
         </button>
       </div>
-      <p className="u-film-eyebrow">{t("film2.compris")}</p>
-      <div className="u-film-chips" data-film-chips="">
-        {chips.map(chip => chip.onClick
-          ? <button key={chip.key} type="button" className="u-film-chip" aria-label={`${chip.aria} : ${chip.label}`} onClick={chip.onClick} disabled={running} aria-describedby={running ? "u-film-running" : undefined}>{chip.label}</button>
-          : <span key={chip.key} className="u-film-chip">{chip.label}</span>)}
-      </div>
+      {/* PR 9: the first screen stays short; « Uttu a compris » appears once there is a sentence to read. */}
+      {phrase.trim() !== "" && <>
+        <p className="u-film-eyebrow">{t("film2.compris")}</p>
+        <div className="u-film-chips" data-film-chips="">
+          {chips.map(chip => chip.onClick
+            ? <button key={chip.key} type="button" className="u-film-chip" aria-label={`${chip.aria} : ${chip.label}`} onClick={chip.onClick} disabled={running} aria-describedby={running ? "u-film-running" : undefined}>{chip.label}</button>
+            : <span key={chip.key} className="u-film-chip">{chip.label}</span>)}
+        </div>
+      </>}
     </div>
 
     {running && <p id="u-film-running" className="u-film-state" role="status" data-film-running="">{t("film2.enCours", { i: String(Math.min(etape + 1, etapes.length)), n: String(etapes.length), label: labelEtape(etape) })}</p>}

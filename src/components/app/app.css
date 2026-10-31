@@ -2881,3 +2881,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 [data-u-deep] .u-splash[data-splash-early] { display: grid; }
 [data-u-deep] [data-barre-home][data-early] { display: none; }
 [data-u-linked] [data-barre-home][data-early] [data-entry-link] { display: none; }
+
+/* Refonte FILM · PR 9 — the film is a focused place: logo, film, credits, menu; two views PRISE | MONTAGE. */
+.u-app[data-film2] { --rail-w: 0px; --u-tabs-h: 0px; }
+.u-top[data-focus] .u-burger { display: inline-flex; }
+.u-top[data-focus] { justify-content: space-between; }
+.u-app .u-chain.u-film-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.u-chain.u-film-nav button small { color: var(--u-sand); }

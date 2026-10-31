@@ -4040,6 +4040,11 @@
         "retour": "Recuperando la película…",
         "mesure": "Leyendo el coste real…"
       }
+    },
+    "nav": {
+      "aria": "Película: planos y montaje",
+      "plans": "Planos",
+      "vide": "vacío"
     }
   }
 }

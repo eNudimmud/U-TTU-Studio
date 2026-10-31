@@ -4040,6 +4040,11 @@
         "retour": "Getting the film back…",
         "mesure": "Reading the real cost…"
       }
+    },
+    "nav": {
+      "aria": "Film: shots and edit",
+      "plans": "Shots",
+      "vide": "empty"
     }
   }
 }

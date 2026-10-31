@@ -4040,6 +4040,11 @@
         "retour": "Film wird abgeholt…",
         "mesure": "Echte Kosten werden gelesen…"
       }
+    },
+    "nav": {
+      "aria": "Film: Einstellungen und Schnitt",
+      "plans": "Einstellungen",
+      "vide": "leer"
     }
   }
 }

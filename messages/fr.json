@@ -4040,6 +4040,11 @@
         "retour": "Récupération du film…",
         "mesure": "Lecture du coût réel…"
       }
+    },
+    "nav": {
+      "aria": "Film : plans et montage",
+      "plans": "Plans",
+      "vide": "vide"
     }
   }
 }

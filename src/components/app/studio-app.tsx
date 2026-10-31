@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { liftDelta, openBand } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
 import { chooseEdit, editHasClips } from "@/lib/montage/from-takes";
+import { formatClock, videoDuration } from "@/lib/montage/edit";
 import { priseReady } from "@/lib/stage";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { useI18n } from "@/components/i18n/provider";
@@ -46,6 +47,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const { ready, sheet, notice, setNotice, run, cast, decor, line, loadMontages, studio: vault } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
   const [cutReady, setCutReady] = useState<boolean | null>(null);
+  const [cutLength, setCutLength] = useState(0);
   const [outil, setOutil] = useState<string | null>(null);
   // Refonte FILM (?film2=1): PRISE becomes the plan card. Read after mount, the server HTML stays the same.
   const [film2, setFilm2] = useState(false);
@@ -181,6 +183,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       if (gone) return;
       const choice = chooseEdit({ saved, sequences: vault.sequences, shots: vault.shots, takes: vault.takes });
       setCutReady(editHasClips(choice.edit));
+      setCutLength(videoDuration(choice.edit));
     });
     return () => { gone = true; };
   }, [ready, montageKey, loadMontages, vault.sequences, vault.shots, vault.takes]);
@@ -192,9 +195,10 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     montage: cutReady === true,
   };
 
-  return <FormatProvider><div className="u-app" data-studio={section}>
+  return <FormatProvider><div className="u-app" data-studio={section} data-film2={film2 && section !== "outils" ? "" : undefined}>
     <TopBar place={section === "montage" ? "montage" : section === "outils" ? "creer" : "realiser"} />
-    {section !== "outils" && <nav className="u-chain" aria-label={t("nav.chain")}>
+    {section !== "outils" && film2 && <FilmNav lit={lit} running={run.phase === "running"} montage={cutReady === true ? formatClock(cutLength) : null} go={go} />}
+    {section !== "outils" && !film2 && <nav className="u-chain" aria-label={t("nav.chain")}>
       {STEPS.map(step => <button key={step.id} type="button" aria-current={lit === step.id ? "page" : undefined} data-state={marks[step.id] ? "pret" : "vide"} onClick={() => go(step.id)}>
         <span>{t(step.key)}</span>
         <small>{marks[step.id] ? t("stage.ready") : t("stage.empty")}</small>
@@ -224,4 +228,19 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     {sheet === "connect" && <ConnectSheet />}
     {sheet === "confirm" && <ConfirmTake />}
   </div></FormatProvider>;
+}
+
+/** Refonte FILM (PR 9, F9): two views only, PRISE (the plans) | MONTAGE. CAST and DÉCOR keep their titles
+    as libraries, opened from Qui and Où or from the menu. */
+function FilmNav({ lit, running, montage, go }: { lit: string; running: boolean; montage: string | null; go(tab: "prise" | "montage"): void }) {
+  const { t } = useI18n();
+  return <nav className="u-chain u-film-nav" aria-label={t("film2.nav.aria")} data-film-nav="">
+    <button type="button" aria-current={lit === "prise" ? "page" : undefined} data-film-nav-to="prise" onClick={() => go("prise")}>
+      <span>{t("nav.take")}</span><small>{t("film2.nav.plans")}</small>
+      {running && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
+    </button>
+    <button type="button" aria-current={lit === "montage" ? "page" : undefined} data-film-nav-to="montage" onClick={() => go("montage")}>
+      <span>{t("nav.edit")}</span><small>{montage ?? t("film2.nav.vide")}</small>
+    </button>
+  </nav>;
 }

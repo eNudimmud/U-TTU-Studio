@@ -56,7 +56,10 @@ function useTasks(): Task[] {
 
 export function TopBar({ place }: { place: Place }) {
   const { t, say } = useI18n();
-  const { ready, connected, balance, balanceNote, setSheet } = useStudio();
+  const { ready, connected, balance, balanceNote, setSheet, film2 } = useStudio();
+  // Refonte FILM (PR 9): in the film the bar keeps only the logo, the film, the credits and the menu.
+  // Créer, Film, Mes créations, search, the guide and the language live in the menu; no rail, no bottom bar.
+  const focus = film2 && (place === "realiser" || place === "montage");
   const assistantOpen = useAssistantOpen();
   const [drawer, setDrawer] = useState(false);
   const [palette, setPalette] = useState(false);
@@ -85,24 +88,24 @@ export function TopBar({ place }: { place: Place }) {
   }, [drawer]);
 
   return <>
-    <header className="u-top u-topbar" data-topbar="">
+    <header className="u-top u-topbar" data-topbar="" data-focus={focus ? "" : undefined}>
       <div className="u-top-left">
         <Brand className="u-mark" href={assetPath("/studio")} />
         {(place === "realiser" || place === "montage") && <ProjectSwitcher />}
       </div>
-      <nav className="u-top-nav" aria-label={t("top.nav")}>
+      {!focus && <nav className="u-top-nav" aria-label={t("top.nav")}>
         <MainNav place={place} />
-      </nav>
+      </nav>}
       <div className="u-top-tools">
-        <button type="button" className="u-top-icon u-top-search" data-top-search="" aria-label={t("top.searchAria")} onClick={() => setPalette(true)}>
+        {!focus && <button type="button" className="u-top-icon u-top-search" data-top-search="" aria-label={t("top.searchAria")} onClick={() => setPalette(true)}>
           <SearchIcon /><span className="u-tool-label">{t("top.search")}</span><kbd className="u-kbd">Ctrl K</kbd>
-        </button>
-        <button type="button" className="u-uttu" data-top-uttu="" aria-expanded={assistantOpen} aria-controls="u-assistant" aria-label={t("uttu.openAria")} onClick={() => toggleAssistant(!assistantOpen)}>{t("uttu.button")}</button>
+        </button>}
+        {!focus && <button type="button" className="u-uttu" data-top-uttu="" aria-expanded={assistantOpen} aria-controls="u-assistant" aria-label={t("uttu.openAria")} onClick={() => toggleAssistant(!assistantOpen)}>{t("uttu.button")}</button>}
         <button type="button" className="u-credit" onClick={() => setSheet("credits")} aria-label={t("sheet.walletAria", { render: renderAria })} aria-busy={creditsLoading || undefined}>
           <span className="u-tool-full">{connected && balance ? `${t("sheet.walletTitle")} · ${formatCredits(balance.credits)}` : creditsLoading ? `${t("sheet.walletTitle")} · …` : t("sheet.walletTitle")}</span>
           <span className="u-tool-short">{connected && balance ? formatCredits(balance.credits) : creditsLoading ? "…" : t("stage.creditsShort")}</span>
         </button>
-        <LangMenu />
+        {!focus && <LangMenu />}
         <button type="button" className="u-top-icon u-burger" data-top-burger="" aria-expanded={drawer} aria-controls="u-drawer" aria-label={t("top.menu")} onClick={() => setDrawer(true)}><MenuIcon /></button>
       </div>
     </header>
@@ -115,13 +118,14 @@ export function TopBar({ place }: { place: Place }) {
         <nav aria-label={t("top.nav")} className="u-drawer-nav"><MainNav place={place} drawer onPick={() => setDrawer(false)} /></nav>
         <div className="u-drawer-foot">
           <TasksBell />
+          {focus && <button type="button" className="u-secondary" data-drawer-search="" onClick={() => { setDrawer(false); setPalette(true); }}>{t("top.search")}</button>}
           <button type="button" className="u-secondary" data-drawer-assistant="" onClick={() => { setDrawer(false); toggleAssistant(true); }}>{t("uttu.title")}</button>
           <LanguageSwitcher />
         </div>
       </aside>
     </div>}
-    <StudioRail place={place} onSearch={() => setPalette(true)} />
-    <StudioTabs place={place} />
+    {!focus && <StudioRail place={place} onSearch={() => setPalette(true)} />}
+    {!focus && <StudioTabs place={place} />}
     {palette && <SearchPalette onClose={() => setPalette(false)} />}
   </>;
 }
@@ -153,8 +157,11 @@ function Dropdown({ id, label, current, drawer, children }: { id: string; label:
 
 function FilmMenu({ onPick }: { onPick(): void }) {
   const { t } = useI18n();
+  const { film2 } = useStudio();
+  // film2: the film opens on its plans; CAST and DÉCOR are the libraries behind Qui and Où.
+  const items = film2 ? [...FILM.slice(2), ...FILM.slice(0, 2)] : FILM;
   return <ul className="u-dd-list" role="list" data-film-menu="">
-    {FILM.map(item => <li key={item.id}><a href={assetPath(item.href)} onClick={onPick} data-film={item.id}>{t(item.label)}</a></li>)}
+    {items.map(item => <li key={item.id}><a href={assetPath(item.href)} onClick={onPick} data-film={item.id}>{t(item.label)}</a></li>)}
   </ul>;
 }
 
