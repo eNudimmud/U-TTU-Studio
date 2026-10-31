@@ -126,7 +126,7 @@
     "also": {
       "bubble": {
         "name": "One bubble, image or video",
-        "body": "“What are we shooting?” Images with Flux Klein; video with MiniMax H3 when you attach references, LTX otherwise. From ≈ 2 credits estimated, quoted before sending."
+        "body": "“What are we shooting?” Images with Nano Banana 2.1 when you attach references, Flux Klein otherwise; video with MiniMax H3 when you attach references, LTX otherwise. From ≈ 2 credits estimated, quoted before sending."
       },
       "refs": {
         "name": "Named references",
@@ -3398,7 +3398,7 @@
       "bubble": {
         "q": "Image or video: how do I create?",
         "k": "create bubble image picture video photo clip choose difference generate shoot",
-        "a": "In “What are we shooting?”, pick Image or Video before you type. Image runs on Flux Klein. Video runs on MiniMax H3 when you attach references, otherwise on LTX. The quote “≈ X credits estimated” shows under the bubble before anything is sent. You can attach up to 7 visual references and, in Video, one sound."
+        "a": "In “What are we shooting?”, pick Image or Video before you type. Image: Nano Banana 2.1 with references, Flux Klein otherwise. Video runs on MiniMax H3 when you attach references, otherwise on LTX. The quote “≈ X credits estimated” shows under the bubble before anything is sent. You can attach up to 7 visual references and, in Video, one sound."
       },
       "refs": {
         "q": "How do I use references?",
@@ -3800,7 +3800,19 @@
     "draftFailed": "Could not save the draft on this device.",
     "invalid": "Check your options: up to 7 visual references and one audio in Video mode.",
     "asImageReference": "Use the last frame as reference",
-    "runningConversation": "Wait for the result before starting a new conversation. You can keep browsing the Studio."
+    "runningConversation": "Wait for the result before starting a new conversation. You can keep browsing the Studio.",
+    "imageEngineNano": "Image · Nano Banana 2.1 · Powered by ComfyUI",
+    "engine": "Image engine",
+    "engineName": {
+      "nano": "Nano Banana 2.1",
+      "klein": "Klein"
+    },
+    "engineHelp": {
+      "nano": "Composes your references, each photo read on its own (Google partner via Comfy).",
+      "klein": "The studio’s open model, as a fallback."
+    },
+    "engineStudioOnly": "You chose studio models only: images run on Klein.",
+    "nanoFailed": "Nano Banana 2.1 did not finish: {reason} Nothing was rerun. To try again with Klein, pick it in the bubble settings."
   },
   "genjutsu": {
     "action": "Replace the character",

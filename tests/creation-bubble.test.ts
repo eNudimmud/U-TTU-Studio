@@ -224,3 +224,48 @@ test('@Name mentions: picking writes one, a lone @ opens the picker, a typed one
   assert.deepEqual(mentionedReferences('@Ana Maria au @Quai',lib).map(r=>r.name),['Ana Maria','Quai']);
   assert.deepEqual(mentionedReferences('@Anatole',lib),[],'whole names only');
 });
+
+test('JD 2026-10-31: with references, the image bubble composes on Nano Banana 2.1, one LoadImage per photo on its own numbered input, no batch, no upsampler', async () => {
+  const { bubbleImageEngine, NANO_SHEET_RULE, NANO_SYSTEM_PROMPT } = await import('../src/lib/creation/bubble.ts');
+  const { gesteParId } = await import('../src/lib/workflows/registre.ts');
+  const chips=[
+    {name:'Sujet A',category:'cast',description:'petit, logo sur le torse',pictures:['a1.png','a2.png','a3.png']},
+    {name:'Lieu B',category:'decor',pictures:['b1.png','b2.png']},
+    {name:'Sujet C',category:'cast',pictures:['c1.png','c2.png']},
+  ];
+  const slots=bubbleReferenceSlots(chips)!;
+  assert.deepEqual(slots.map(s=>s.picture),['a1.png','a2.png','a3.png','c1.png','c2.png','b1.png','b2.png'],'cast first, place last');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS),'nano','Nano Banana is the default with references');
+  assert.equal(bubbleImageEngine('image',0,BUBBLE_DEFAULTS),'klein','text-only stills stay on Klein');
+  assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'klein'}),'klein','Klein is an explicit choice');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,true),'klein','studio models only never reaches a partner node');
+  assert.equal(bubbleImageEngine('video',7,BUBBLE_DEFAULTS),null);
+  const prompt=bubblePrompt('@Sujet A et Sujet C jouent sur Lieu B, en photo',chips,'image',slots,'nano');
+  assert.equal(prompt.split('\n')[0],'Sujet A (images 1 to 3) et Sujet C (images 4 and 5) jouent sur Lieu B (images 6 and 7), en photo');
+  assert.match(prompt,/- Images 1 to 3: "Sujet A", character\. Keep this exact character.*petit, logo sur le torse\./);
+  assert.match(prompt,/- Images 6 and 7: "Lieu B", place \(the setting\)\./);
+  assert.ok(prompt.includes(NANO_SHEET_RULE),'a sheet of panels is never copied');
+  assert.doesNotMatch(prompt,/Style: a real photograph|the first image/,'no forced style note, no Klein ordinals');
+  const settings={...BUBBLE_DEFAULTS,format:'9:16' as const};
+  const graph=bubbleGraph({mode:'image',settings,images:slots.map((_,i)=>`u${i}.png`),prompt,seed:9,engine:'nano'});
+  const nano=graph.nano;
+  assert.equal(nano.class_type,'GeminiNanoBanana2V2');
+  assert.equal(nano.inputs.model,'Gemini Nano Banana 2.1');
+  assert.equal(nano.inputs['model.aspect_ratio'],'9:16','the chosen frame, never auto');
+  assert.equal(nano.inputs['model.resolution'],'1K');
+  assert.equal(nano.inputs.system_prompt,NANO_SYSTEM_PROMPT);
+  assert.equal(nano.inputs.prompt,prompt);
+  for(let i=0;i<7;i++){assert.deepEqual(nano.inputs[`model.images.image_${i+1}`],[`reference_${i+1}`,0]);assert.equal(graph[`reference_${i+1}`].inputs.image,`u${i}.png`);}
+  const classes=Object.values(graph).map(n=>n.class_type);
+  assert.deepEqual(classes.filter(c=>c!=='LoadImage').sort(),['GeminiNanoBanana2V2','SaveImage']);
+  assert.ok(!classes.some(c=>/Batch|TextGenerate|StringConcatenate|Klein|ReferenceMultiLatent/.test(c)));
+  assert.deepEqual(graph.save.inputs.images,['nano',0]);
+  assert.doesNotMatch(NANO_SYSTEM_PROMPT+NANO_SHEET_RULE,/Sujet|Lieu/,'the fixed rules carry no name');
+  assert.equal(bubbleGraph({mode:'image',settings:{...BUBBLE_DEFAULTS,resolution:'720p'},images:['a.png'],prompt:'x',seed:1,engine:'nano'}).nano.inputs['model.resolution'],'2K');
+  assert.equal(bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:['a.png'],prompt:'x',seed:1,engine:'klein'}).nano,undefined,'Klein path kept');
+  const quote=bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'nano')!;
+  assert.deepEqual([quote.credits,quote.high,quote.kind],[12,15,'estime']);
+  assert.equal(bubbleQuote('image',7,{...BUBBLE_DEFAULTS,resolution:'720p'},false,'nano')!.credits,17);
+  assert.equal(gesteParId('creation-image-nano')?.template,'api_nano_banana_2_1_image_edit');
+  assert.equal(gesteParId('creation-image-nano')?.partenaire,true);
+});

@@ -103,9 +103,11 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
   await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});expect(graphs).toHaveLength(1);
   // JD 31.10: the three saved photos of Référence A go one by one (never its contact sheet), then Référence B.
   expect(uploads).toBe(4);
-  expect(graphs[0].image_17.class_type).toBe('ReferenceMultiLatent');expect(graphs[0].reference_4.class_type).toBe('LoadImage');expect(graphs[0].image_17.inputs['images.image3']).toEqual(['reference_4',0]);
-  expect(graphs[0].image_61.inputs.value).toContain('Référence A (the character from the first to third images)');expect(graphs[0].image_61.inputs.value).toContain('The fourth image named "Référence B"');
-  expect(graphs[0].image_61.inputs.value).toContain('"Référence A"');expect(graphs[0].image_61.inputs.value).toContain('"Référence B"');
+  // JD 31.10 (Nano Banana 2.1): one LoadImage per photo, each on its own image_N, the prompt numbers them.
+  expect(graphs[0].nano.class_type).toBe('GeminiNanoBanana2V2');expect(graphs[0].reference_4.class_type).toBe('LoadImage');expect(graphs[0].nano.inputs['model.images.image_4']).toEqual(['reference_4',0]);
+  expect(Object.values(graphs[0]).map(n=>n.class_type).sort()).toEqual(['GeminiNanoBanana2V2','LoadImage','LoadImage','LoadImage','LoadImage','SaveImage']);
+  const asked=String(graphs[0].nano.inputs.prompt);expect(asked).toContain('Référence A (images 1 to 3)');expect(asked).toContain('- Image 4: "Référence B", character.');
+  expect(asked).toContain('- Images 1 to 3: "Référence A", character.');expect(asked).toContain('design sheet');
   await page.locator('[data-fil-keep]').tap();await expect(page.locator('[data-fil-keep]')).toHaveAttribute('aria-pressed','true');
   await page.locator('[data-fil-favorite]').tap();await expect(page.locator('[data-fil-favorite]')).toHaveAttribute('aria-pressed','true');
   await page.reload();await expect(page.locator('[data-fil-job=done]')).toHaveCount(1);expect(graphs).toHaveLength(1);

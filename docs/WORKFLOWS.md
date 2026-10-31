@@ -7,11 +7,12 @@ Les graphes de la bulle réutilisent les templates officiels déjà intégrés. 
 | Geste | Template | Devis de l’exemple 480p, 5 s | État |
 | --- | --- | --- | --- |
 | creation-image-texte | `image_flux3_klein_t2i` | ≈ 2 crédits estimés | ouvert, prompt seul |
-| creation-image | `image_flux3_klein_image_edit` | ≈ 3 crédits estimés | ouvert, deux références dans l’exemple, sept au plus |
+| creation-image | `image_flux3_klein_image_edit` | ≈ 3 crédits estimés | ouvert, repli explicite (réglage « Klein » ou « Modèles du studio seulement »), deux références dans l’exemple, sept au plus |
+| creation-image-nano | `api_nano_banana_2_1_image_edit` | ≈ 12 crédits estimés (1K), ≈ 17 en 2K | ouvert, nœud partenaire `GeminiNanoBanana2V2` appelé par Comfy, moteur par défaut dès qu’une référence est jointe : une `LoadImage` par photo sur son entrée `model.images.image_N` (persos, objets, style, décor), sans BatchImages ni upsampler, cadre fixé, prompt numéroté et règles du studio en `system_prompt` |
 | creation-video-texte | `video_ltx2_5_t2v` | ≈ 5 crédits estimés | ouvert, prompt seul |
 | creation-video-refs | `video_minimax_h3_r2v` | ≈ 5 crédits estimés | ouvert, deux références dans l’exemple, sept au plus, audio facultatif |
 
-Ces quatre gestes utilisent un devis dynamique (résolution, format, durée, références). Ils n’ajoutent aucune mesure réelle au registre. La réserve de solde n’est pas un plafond garanti de facturation.
+Ces cinq gestes utilisent un devis dynamique (résolution, format, durée, références). Ils n’ajoutent aucune mesure réelle au registre. La réserve de solde n’est pas un plafond garanti de facturation.
 
 Un geste est une carte. Le template Comfy reste derrière. Chaque geste a son fichier dans `workflows/<onglet>/<id>.json` (le template officiel, à ouvrir dans ComfyUI) et, s’il est branché, `workflows/<onglet>/<id>.api.json` (le graphe exact que le studio envoie). `workflows/index.json` dit lequel passe par un nœud partenaire. Régénérer : `node --experimental-strip-types scripts/export-workflows.mjs`.
 
