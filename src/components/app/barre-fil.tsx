@@ -30,7 +30,7 @@ import { fillBarre } from "./creation-bar";
 import { toggleAssistant } from "./assistant-panel";
 import { MontageButton } from "./montage-button";
 import { useStudio, type MontageInput } from "./studio-session";
-import { bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, chipReference, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
+import { bubbleImageEngine, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, chipReference, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
 import { ReferenceLibrary } from './reference-library';
 import { readPending } from '@/lib/render/recovery';
 
@@ -114,10 +114,13 @@ export function useFil(): FilRunner {
   }, [ready, connected, interrupted, scope, session.resumeRun]);
 
   const quoteOf = useCallback((route: FilRoute): number | null => {
-    if (route.kind === 'outil' && route.creation) return bubbleQuote(route.creation.mode, bubblePictureCount(route.creation.mode, route.images.map(r => chipReference(r, p => Boolean(media[p])))), route.creation.settings, Boolean(route.audio))?.credits ?? null;
+    if (route.kind === 'outil' && route.creation) {
+      const count = bubblePictureCount(route.creation.mode, route.images.map(r => chipReference(r, p => Boolean(media[p]))));
+      return bubbleQuote(route.creation.mode, count, route.creation.settings, Boolean(route.audio), bubbleImageEngine(route.creation.mode, count, route.creation.settings, prefs.openWeightsOnly))?.credits ?? null;
+    }
     if (route.kind === "outil") { const outil = outilParId(route.id); return outil ? outilQuote(outil)?.credits ?? null : null; }
     return quoteCredits(resolveTakeQuote(takeProfile(priseSettings(route.settings, prefs.engineManual ? prefs.engine : "ltx")), quotesToRecords(studio.quotes)));
-  }, [media, prefs.engine, prefs.engineManual, studio.quotes]);
+  }, [media, prefs.engine, prefs.engineManual, prefs.openWeightsOnly, studio.quotes]);
 
   const startPrise = useCallback(async (job: FilJob) => {
     if (job.route.kind !== "prise") return;
@@ -194,7 +197,7 @@ export function useFil(): FilRunner {
       const result = await runOutil({
         outil: outil.id, images, audio, creation: job.route.creation,
         originRefs: job.route.creation ? [...new Set([...job.route.images.flatMap(r => r.path ? [r.path] : []), ...slots.flatMap(s => s.picture.startsWith('Projets/') ? [s.picture] : []), ...(job.route.audio?.path ? [job.route.audio.path] : [])])] : undefined,
-        prompt: job.route.creation ? bubblePrompt(job.text, chips, job.route.creation.mode, slots) : job.text, confirmed: true, from: job.route.creation ? undefined : single,
+        prompt: job.route.creation ? bubblePrompt(job.text, chips, job.route.creation.mode, slots, bubbleImageEngine(job.route.creation.mode, slots.length, job.route.creation.settings, prefs.openWeightsOnly)) : job.text, confirmed: true, from: job.route.creation ? undefined : single,
         onSubmitted: receipt => { project = receipt.project; patch({ jobId: receipt.jobId, renderId: receipt.assetId, project: receipt.project }); },
         onCost: cost => patch({ cost }),
         onStage: (stage, seconds) => { if (stage !== "mesure") patch({ stage, seconds }); },

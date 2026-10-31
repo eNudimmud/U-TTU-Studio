@@ -126,7 +126,7 @@
     "also": {
       "bubble": {
         "name": "Una burbuja, imagen o vídeo",
-        "body": "«¿Qué rodamos?» Imagen con Flux Klein; vídeo con MiniMax H3 si adjuntas referencias, LTX si no. Desde ≈ 2 créditos estimados, presupuesto antes del envío."
+        "body": "«¿Qué rodamos?» Imagen con Nano Banana 2.1 si adjuntas referencias, Flux Klein si no; vídeo con MiniMax H3 si adjuntas referencias, LTX si no. Desde ≈ 2 créditos estimados, presupuesto antes del envío."
       },
       "refs": {
         "name": "Referencias con nombre",
@@ -3398,7 +3398,7 @@
       "bubble": {
         "q": "Imagen o vídeo: ¿cómo creo?",
         "k": "crear burbuja imagen vídeo foto clip elegir diferencia generar rodar",
-        "a": "En «¿Qué rodamos?», elige Imagen o Vídeo antes de escribir. Imagen usa Flux Klein. Vídeo usa MiniMax H3 cuando adjuntas referencias y, si no, LTX. El presupuesto «≈ X créditos estimados» aparece bajo la burbuja antes de enviar nada. Puedes adjuntar hasta 7 referencias visuales y, en Vídeo, un sonido."
+        "a": "En «¿Qué rodamos?», elige Imagen o Vídeo antes de escribir. Imagen: Nano Banana 2.1 (referencias) o Flux Klein. Vídeo usa MiniMax H3 cuando adjuntas referencias y, si no, LTX. El presupuesto «≈ X créditos estimados» aparece antes de enviar nada. Hasta 7 referencias visuales y, en Vídeo, un sonido."
       },
       "refs": {
         "q": "¿Cómo uso referencias?",
@@ -3802,7 +3802,19 @@
     "draftFailed": "No se pudo guardar el borrador en este dispositivo.",
     "invalid": "Revisa tus opciones: hasta 7 referencias visuales y un audio en modo Vídeo.",
     "asImageReference": "Usar el último fotograma como referencia",
-    "runningConversation": "Espera al resultado para iniciar una nueva conversación. Puedes seguir explorando el Studio."
+    "runningConversation": "Espera al resultado para iniciar una nueva conversación. Puedes seguir explorando el Studio.",
+    "imageEngineNano": "Imagen · Nano Banana 2.1 · Con ComfyUI",
+    "engine": "Motor de imagen",
+    "engineName": {
+      "nano": "Nano Banana 2.1",
+      "klein": "Klein"
+    },
+    "engineHelp": {
+      "nano": "Compone tus referencias, cada foto leída por separado (socio de Google vía Comfy).",
+      "klein": "El modelo abierto del estudio, como respaldo."
+    },
+    "engineStudioOnly": "Elegiste solo modelos del estudio: la imagen pasa por Klein.",
+    "nanoFailed": "Nano Banana 2.1 no terminó: {reason} No se relanzó nada. Para reintentar con Klein, elígelo en los ajustes de la burbuja."
   },
   "genjutsu": {
     "action": "Sustituir el personaje",

@@ -6,9 +6,20 @@ import { generiqueGraph } from '../outils/generique.ts';
 import { gesteParId } from '../workflows/registre.ts';
 import { CREATION_REFERENCES_MAX, fileLikeName } from './named-references.ts';
 
-export interface BubbleSettings { format: '16:9' | '9:16' | '1:1'; resolution: '480p' | '720p'; duration: 5 | 10; sound: boolean }
+/**
+ * Image engine when references are attached. `nano`: Nano Banana 2.1 (Google partner node, called by
+ * Comfy) reads each photo as its own numbered image. `klein`: FLUX 3 Klein, open weights, kept as the
+ * fallback the visitor picks by hand (and the only one with « Modèles du studio seulement »).
+ */
+export type BubbleImageEngine = 'nano' | 'klein';
+export interface BubbleSettings { format: '16:9' | '9:16' | '1:1'; resolution: '480p' | '720p'; duration: 5 | 10; sound: boolean; engine?: BubbleImageEngine }
 export const BUBBLE_DEFAULTS: BubbleSettings = { format: '16:9', resolution: '480p', duration: 5, sound: true };
 export type BubbleMode = 'image' | 'video';
+/** The engine an image bubble runs on. Text-only stills and studio-only accounts stay on Klein. */
+export function bubbleImageEngine(mode: BubbleMode, count: number, s: Pick<BubbleSettings, 'engine'>, openWeightsOnly = false): BubbleImageEngine | null {
+  if (mode !== 'image') return null;
+  return count > 0 && s.engine !== 'klein' && !openWeightsOnly ? 'nano' : 'klein';
+}
 /**
  * Output frame. Video keeps 480p/720p. A still is never a video frame: the same two choices give
  * Klein's native 1 MP (16:9 = 1344×768) or 2 MP, the sizes the official templates work at.
@@ -38,17 +49,25 @@ export const BUBBLE_REFERENCE_MEGAPIXELS = 1;
 export function validBubbleSettings(s: unknown): s is BubbleSettings {
   if (!s || typeof s !== 'object') return false;
   const v = s as BubbleSettings;
-  return ['16:9','9:16','1:1'].includes(v.format) && ['480p','720p'].includes(v.resolution) && [5,10].includes(v.duration) && typeof v.sound === 'boolean';
+  return ['16:9','9:16','1:1'].includes(v.format) && ['480p','720p'].includes(v.resolution) && [5,10].includes(v.duration) && typeof v.sound === 'boolean' && (v.engine === undefined || v.engine === 'nano' || v.engine === 'klein');
 }
 export function bubbleTool(mode: BubbleMode, count: number, audio = false): string {
   return mode === 'image' ? count ? 'img-refs' : 'img-klein' : count || audio ? 'vid-h3-refs' : 'vid-texte';
 }
-export function bubbleGeste(mode: BubbleMode, count: number, audio = false): string {
+export function bubbleGeste(mode: BubbleMode, count: number, audio = false, engine: BubbleImageEngine | null = null): string {
+  if (mode === 'image' && count && engine === 'nano') return 'creation-image-nano';
   return mode === 'image' ? count ? 'creation-image' : 'creation-image-texte' : count || audio ? 'creation-video-refs' : 'creation-video-texte';
 }
+/**
+ * Nano Banana 2.1 is priced per output image (Comfy estimate_credits, 2026-10-31, 7 references):
+ * ≈ 12 credits at 1K, ≈ 17 at 2K. The reference photos add little; the upper bound keeps a margin.
+ */
+export const NANO_QUOTE = { '480p': { credits: 12, high: 15 }, '720p': { credits: 17, high: 22 } } as const;
+export const NANO_RESOLUTION = { '480p': '1K', '720p': '2K' } as const;
 const IMAGE_CREDITS_PER_MP = 1.4, IMAGE_EDIT_CREDITS_PER_MP = 2.4, UPSAMPLER_CREDITS = 1;
-export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, audio = false) {
+export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, audio = false, engine: BubbleImageEngine | null = null) {
   if (!validBubbleSettings(s) || count < 0 || count > CREATION_REFERENCES_MAX) return null;
+  if (mode === 'image' && count > 0 && engine === 'nano') return { ...NANO_QUOTE[s.resolution], kind: 'estime' as const };
   const id = bubbleTool(mode, count, audio);
   const row = gesteParId(id === 'img-klein' ? 'cast-eclair' : id === 'img-refs' ? 'suite-modifier' : id === 'vid-h3-refs' ? 'prise-plan-h3' : 'outil-vid-texte');
   // Different sizes/reference counts are estimates. Never inherit the source row's measured label.
@@ -134,8 +153,51 @@ export function bubbleNegative(style: BubbleStyle): string {
 }
 const REFERENCE_HEADER = '\n\nReference images, in order:\n';
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-export function bubblePrompt(text: string, refs: readonly BubbleReference[], mode: BubbleMode, slots?: readonly BubbleSlot[]): string {
+/** « image 1 », « images 2 and 3 », « images 4 to 6 ». */
+export function imageNumbers(first: number, count: number): string {
+  if (count <= 1) return `image ${first + 1}`;
+  if (count === 2) return `images ${first + 1} and ${first + 2}`;
+  return `images ${first + 1} to ${first + count}`;
+}
+const NANO_NOUN: Record<string, string> = { cast: 'character', decor: 'place (the setting)', objet: 'object', style: 'visual style', photo: 'subject', result: 'subject' };
+const NANO_ROLE: Record<string, string> = {
+  cast: 'keep this exact character: same face, species, body proportions, colours, outfit, markings and logos',
+  decor: 'the scene happens in or on this place; keep its architecture, shapes, colours and materials, and build any part the request names that the pictures do not show in the same design',
+  objet: 'include this exact object',
+  style: 'follow this visual style only; never copy its subjects',
+  photo: 'use what this photo shows',
+};
+/** Always said: a sheet of panels describes a design, it is never the picture to make. */
+export const NANO_SHEET_RULE = 'An image made of several panels, views or labelled drawings is a design sheet: use it only to understand the design. Never copy its panels, layout, grid, labels, captions or plain background into the new picture.';
+/** Generic studio rules, sent as the Nano Banana system prompt. No name, no lore. */
+export const NANO_SYSTEM_PROMPT = [
+  'You are the image engine of a film studio. You always return exactly one finished image, never text.',
+  'The user attaches numbered reference images. Each one belongs to a named reference listed in the request, with its category: character, object, place or style.',
+  'Characters and objects keep their exact identity from their own images: face, species, anatomy, proportions, colours, clothing, markings and logos. Never mix two references, never lend one reference\'s features to another, never merge two characters into one.',
+  'A place is the setting of the scene. Characters stand inside it at a believable scale, with consistent light and perspective.',
+  NANO_SHEET_RULE,
+  'Follow the visual style the request asks for; when it asks for none, keep the rendering of the reference images.',
+  'Never add text, captions, watermarks or borders.',
+].join('\n');
+function nanoPrompt(text: string, refs: readonly BubbleReference[], sent: readonly BubbleSlot[]): string {
+  const groups: { ref: number; first: number; count: number }[] = [];
+  sent.forEach((slot, i) => { const last = groups[groups.length - 1]; if (last && last.ref === slot.ref) last.count++; else groups.push({ ref: slot.ref, first: i, count: 1 }); });
+  let request = text.trim();
+  const lines = groups.map(g => {
+    const r = refs[g.ref];
+    const where = imageNumbers(g.first, g.count);
+    const category = r.category ?? 'photo';
+    const named = r.name && !fileLikeName(r.name);
+    if (named) request = request.replace(new RegExp(`(?<![\\p{L}\\p{N}_@])@?${escapeRe(r.name.trim())}(?![\\p{L}\\p{N}_])`, 'giu'), m => `${m.replace(/^@/, '')} (${where})`);
+    const label = where.charAt(0).toUpperCase() + where.slice(1);
+    const description = r.description?.trim() ? ` ${r.description.trim().replace(/\s+/g, ' ').slice(0, 300)}.` : '';
+    return `- ${label}: ${named ? `${JSON.stringify(r.name.trim())}, ` : ''}${NANO_NOUN[category] ?? NANO_NOUN.photo}. ${(NANO_ROLE[category] ?? NANO_ROLE.photo).replace(/^./, c => c.toUpperCase())}.${description}`;
+  }).join('\n');
+  return `${request}\n\nReference images, numbered in the order they are attached:\n${lines}\n${NANO_SHEET_RULE}\nCompose ONE new picture of this scene, where every named character and object appears once, whole and recognisable.`;
+}
+export function bubblePrompt(text: string, refs: readonly BubbleReference[], mode: BubbleMode, slots?: readonly BubbleSlot[], engine: BubbleImageEngine | null = null): string {
   if (!refs.length) return text.trim();
+  if (mode === 'image' && engine === 'nano') return nanoPrompt(text, refs, slots ?? refs.map((r, ref) => ({ ref, picture: '' })));
   if (mode === 'video') {
     const names = refs.map((r, i) => `<Picture ${i + 1}>: ${JSON.stringify(r.name)}${r.category ? ` (${r.category})` : ''}${r.description ? ` — ${r.description.slice(0, 500)}` : ''}`).join('\n');
     return `${text.trim()}\n\nNamed visual references (a contact sheet contains several views of the same subject):\n${names}\nUse each named reference for its assigned subject. Return a single finished scene, without reference panels, labels or contact-sheet layout.`;
@@ -166,9 +228,43 @@ export function bubblePrompt(text: string, refs: readonly BubbleReference[], mod
 export function bubbleReferenceMegapixels(count: number): number {
   return count <= 3 ? BUBBLE_REFERENCE_MEGAPIXELS : Math.round(3 / count * 1000) / 1000;
 }
-export function bubbleGraph(input: { mode: BubbleMode; settings: BubbleSettings; images: readonly string[]; audio?: string; prompt: string; seed: number; style?: BubbleStyle }): ApiGraph {
+/**
+ * Nano Banana 2.1 composition: one LoadImage per photo on its own `model.images.image_N`, in send
+ * order (cast, objects, style, place). No batch, no crop, no upsampler, no style note: the prompt
+ * numbers the images and the system prompt carries the studio rules. The frame is always fixed.
+ */
+export function nanoBubbleNodes(input: { settings: BubbleSettings; images: readonly string[]; prompt: string; seed: number }): ApiGraph {
+  const graph: ApiGraph = {};
+  const slots: Record<string, [string, number]> = {};
+  input.images.forEach((image, i) => {
+    const id = `reference_${i + 1}`;
+    graph[id] = { class_type: 'LoadImage', inputs: { image } };
+    slots[`model.images.image_${i + 1}`] = [id, 0];
+  });
+  graph.nano = {
+    class_type: 'GeminiNanoBanana2V2',
+    inputs: {
+      prompt: input.prompt,
+      model: 'Gemini Nano Banana 2.1',
+      'model.aspect_ratio': input.settings.format,
+      'model.resolution': NANO_RESOLUTION[input.settings.resolution],
+      'model.thinking_level': 'MEDIUM',
+      ...slots,
+      seed: Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0,
+      response_modalities: 'IMAGE',
+      system_prompt: NANO_SYSTEM_PROMPT,
+      temperature: 1,
+      top_p: 0.95,
+    },
+    _meta: { title: 'Nano Banana 2.1' },
+  };
+  graph.save = { class_type: 'SaveImage', inputs: { images: ['nano', 0], filename_prefix: 'uttu/creation-image' } };
+  return graph;
+}
+export function bubbleGraph(input: { mode: BubbleMode; settings: BubbleSettings; images: readonly string[]; audio?: string; prompt: string; seed: number; style?: BubbleStyle; engine?: BubbleImageEngine | null }): ApiGraph {
   const { settings: s, images, mode } = input;
   if (!validBubbleSettings(s) || images.length > CREATION_REFERENCES_MAX || !input.prompt.trim() || mode === 'image' && input.audio) throw new Error('bubble.invalid');
+  if (mode === 'image' && images.length && input.engine === 'nano') return nanoBubbleNodes({ settings: s, images, prompt: input.prompt, seed: input.seed });
   const size = bubbleSize(s, mode);
   const aspect = s.format === '1:1' ? 'carre' : s.format === '9:16' ? 'vertical' : 'horizontal';
   if (mode === 'image') {
