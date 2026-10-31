@@ -3923,6 +3923,7 @@
       "nomVide": "Ponle primero un nombre.",
       "photoVide": "Elige al menos una foto.",
       "descriptionVide": "Descríbelo en pocas palabras."
-    }
+    },
+    "garde": "Ya hecho y guardado: {faits}. «Reintentar» solo relanza: {reste}."
   }
 }

@@ -77,3 +77,5 @@ button.u-film-chip { cursor: pointer; }
 .u-film-choix .u-film-gold { position: sticky; bottom: 0; }
 .u-film-pick { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border-radius: 12px; cursor: pointer; }
 .u-film-file:focus-within .u-film-pick { outline: 2px solid var(--accent, #d9b15c); outline-offset: 2px; }
+.u-film-error { display: grid; gap: 6px; }
+.u-film-error p { margin: 0; }

@@ -59,11 +59,16 @@ export function comprendrePlan(phrase: string, context: { cast: readonly KnownNa
   const read = resolveIntention(text, context);
   const qui: QuiCompris[] = read.who.slice(0, 3).map(item => ({ id: item.id, nom: item.name, nouveau: false }));
   const nom = qui.length < 3 ? nouveauNom(read, text) : null;
-  if (nom) qui.push({ id: null, nom, nouveau: true });
+  const madeWho = nom ? context.cast.find(item => fold(item.name) === fold(nom)) : undefined;
+  if (madeWho && !qui.some(item => item.id === madeWho.id)) qui.push({ id: madeWho.id, nom: madeWho.name, nouveau: false });
+  else if (nom && !madeWho) qui.push({ id: null, nom, nouveau: true });
   let ou: OuCompris | null = read.where ? { id: read.where.id, nom: read.where.name, nouveau: false } : null;
   if (!ou) {
     const lieu = lieuDeLaPhrase(text);
-    if (lieu) ou = { id: null, nom: lieu, nouveau: true };
+    // A place made in an earlier try is a card now: found again by its name, never made twice.
+    const made = lieu ? context.decor.find(item => fold(item.name) === fold(lieu)) : undefined;
+    if (made) ou = { id: made.id, nom: made.name, nouveau: false };
+    else if (lieu) ou = { id: null, nom: lieu, nouveau: true };
   }
   const decorDeLaPhrase = text.length > 0 && !ou && qui.length === 0;
   if (decorDeLaPhrase) ou = { id: null, nom: text.split(/\s+/).slice(0, 4).join(" "), nouveau: true };

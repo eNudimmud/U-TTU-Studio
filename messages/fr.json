@@ -3923,6 +3923,7 @@
       "nomVide": "Donne-lui d’abord un nom.",
       "photoVide": "Choisis au moins une photo.",
       "descriptionVide": "Décris-le en quelques mots."
-    }
+    },
+    "garde": "Déjà fait et gardé : {faits}. « Réessayer » ne relance que : {reste}."
   }
 }
