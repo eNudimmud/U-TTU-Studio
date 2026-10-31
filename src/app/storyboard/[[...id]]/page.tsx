@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { StoryboardApp } from "@/components/storyboard/storyboard-app";
 import { STORYBOARD_COOKIE, storyboardActif } from "@/lib/storyboard/drapeau";
 
-// SB5 · /storyboard, /storyboard/<id>, /storyboard/<id>/print. Behind `?storyboard=1` (or its cookie) until
-// JD opens it: without the flag the address answers the studio's own 404, nothing of the page is sent.
+// SB5 · /storyboard, /storyboard/<id>, /storyboard/<id>/print. Open to everyone (SB11). `?storyboard=0` (or its
+// cookie) stays one version as an escape hatch: the address then answers the studio's own 404.
 
 export const metadata: Metadata = { title: "Storyboard · U*TTU Studio", robots: { index: false, follow: false } };
 export const viewport: Viewport = { colorScheme: "light", themeColor: "#f7f4ee" };
