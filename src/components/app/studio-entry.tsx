@@ -6,6 +6,7 @@
 
 import { OUTILS_HORS_CATALOGUE } from "@/lib/outils/nombre";
 import { STUDIO_HERO, THUMB_SIZES } from "@/lib/studio-hero";
+import { film2DansCePoste } from "@/lib/film/drapeau";
 import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
@@ -38,7 +39,8 @@ export function openMaquette() {
 }
 
 export function goFilm() {
-  const hash = "#personnage";
+  // Refonte FILM: the film door opens the plan card (PRISE), CAST and DÉCOR open from Qui and Où.
+  const hash = film2DansCePoste() ? "#prise" : "#personnage";
   if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
