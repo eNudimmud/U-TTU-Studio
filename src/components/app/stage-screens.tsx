@@ -23,6 +23,32 @@ import { ReperageEntry } from "./reperage/reperage-entry";
 import { lieuNote } from "@/lib/repere/lieu";
 import { SlotBoard, type LocalRef } from "./references";
 import { useStudio } from "./studio-session";
+import { EXEMPLE_KEY, lireExempleEnAttente } from "@/lib/film/exemples";
+import { film2DansCePoste } from "@/lib/film/drapeau";
+
+/** PR 4: an example picked on the plan card fills this form once, lit, then its confirmation opens. */
+function useExempleFilm(vers: "cast" | "decor", load: (geste: string) => Promise<void>, ouvrir: () => boolean) {
+  const [filled, setFilled] = useState(false);
+  const [lit, setLit] = useState(false);
+  useEffect(() => {
+    let geste: string | null = null;
+    try { geste = lireExempleEnAttente(sessionStorage.getItem(EXEMPLE_KEY), vers); if (geste) sessionStorage.removeItem(EXEMPLE_KEY); } catch { /* private tab */ }
+    if (geste) void load(geste).then(() => { setFilled(true); setLit(true); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!filled) return;
+    document.querySelector(".u-desk-scroll")?.scrollIntoView({ block: "start" });
+    const timer = window.setTimeout(() => { if (ouvrir()) setFilled(false); }, 700);
+    return () => window.clearTimeout(timer);
+  });
+  useEffect(() => {
+    if (!lit) return;
+    const timer = window.setTimeout(() => setLit(false), 2400);
+    return () => window.clearTimeout(timer);
+  }, [lit]);
+  return lit;
+}
 
 export { PriseStage } from "./prise-stage";
 
@@ -200,6 +226,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const preview = refs.find(ref => ref.url)?.url ?? "";
   // Just imported and nothing new started: the character is ready, so the gold button goes on to DÉCOR instead of asking for a reference.
   const importedReady = !!imported && cast.some(card => card.id === imported.id) && !name.trim() && !prompt.trim() && refs.length === 0;
+  const castLit = useExempleFilm("cast", geste => loadExemple(geste), () => { if (!connected) { setSheet("connect"); return true; } if (blocked) return false; setAsk(true); return true; });
 
 
 
@@ -274,7 +301,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         </span>
       </form>}
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
-      <label className="u-field">
+      <label className="u-field" data-rempli={castLit ? "" : undefined}>
         <span className="u-label">{t("create.name")}</span>
         <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
       </label>
@@ -365,7 +392,9 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
-  const depart = montrerDepart({ mesAssets: decor.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
+  // Under film2 the examples live on the plan card (one model, PR 4): no second « Exemple — refais-le » here.
+  const depart = !film2DansCePoste() && montrerDepart({ mesAssets: decor.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
+  const decorLit = useExempleFilm("decor", geste => loadExemple(geste), () => { if (!connected) { setSheet("connect"); return true; } if (blocked) return false; setAsk(true); return true; });
 
 
 
@@ -412,7 +441,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     </header>
     <div className="u-desk-scroll">
       {/* The form first, so the text and the gold button share the first screen at every size. */}
-      <div className="u-decor-form" data-decor-form="">
+      <div className="u-decor-form" data-decor-form="" data-rempli={decorLit ? "" : undefined}>
         <label className="u-field">
           <span className="u-label">{t("create.prompt")}</span>
           <textarea value={prompt} rows={2} maxLength={800} onChange={event => describe(event.target.value)} />

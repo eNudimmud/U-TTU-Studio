@@ -4057,6 +4057,38 @@
       "aria": "Film: Einstellungen und Schnitt",
       "plans": "Einstellungen",
       "vide": "leer"
+    },
+    "autrePrise": "Noch ein Take",
+    "modifierRefaire": "Ändern und neu drehen",
+    "finiAutre": "Take {n} dieser Einstellung. Er ist in Meine Werke und unter „Meine Einstellungen“ im Schnitt; der Schnitt behält den ersten.",
+    "soldeApresAutre": "Guthaben danach: ≈ {n} Credits. Der Take kommt in Meine Werke und unter „Meine Einstellungen“; der Schnitt behält den ersten.",
+    "soldeInconnuAutre": "Der Take kommt in Meine Werke und unter „Meine Einstellungen“; der Schnitt behält den ersten.",
+    "exemples": {
+      "titre": "Oder starte mit einem Beispiel",
+      "liste": "{n} Beispiele, wische, um sie zu sehen",
+      "resultat": "Echtes Ergebnis des Studios",
+      "reel": "echtes Ergebnis",
+      "video": "VIDEO {s} s",
+      "image": "BILD",
+      "recetteVideo": "{n} Referenzen → 1 Video",
+      "recetteTexte": "1 Satz → 1 Bild",
+      "recettePhoto": "1 Foto → 1 Bild",
+      "sansPrix": "Preis nicht verfügbar",
+      "refaire": "Dieses Beispiel nachmachen",
+      "prepare": "Wird vorbereitet…",
+      "note": "Füllt den Plan vor deinen Augen. Nichts wird vor « Starten » gesendet.",
+      "introuvable": "Das Beispiel konnte nicht geladen werden. Versuche es noch einmal, nichts wurde gesendet.",
+      "uttuQuai": {
+        "titre": "Uttu am Kai",
+        "phrase": "Uttu geht nachts den Kai entlang, die Kamera folgt ihr."
+      },
+      "lieuPhoto": {
+        "titre": "Ein Ort aus einem Foto"
+      },
+      "persoTexte": {
+        "titre": "Eine Figur aus einem Satz",
+        "texte": "Ein alter Mann, eine erfundene Figur."
+      }
     }
   },
   "exampleItems": {
