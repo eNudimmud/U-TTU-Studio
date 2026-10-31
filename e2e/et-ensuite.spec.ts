@@ -82,14 +82,15 @@ test("prise importée : trois actions, chacune vers sa page, un coût", async ({
   await expect(detail.locator("[data-suite-item]")).toHaveCount(3);
   const finish = detail.locator("[data-suite-item=suite-finaliser-video]");
   await expect(finish).toHaveAttribute("href", /#outils\/vid-finaliser/);
-  await expect(finish).toContainText("≈ 28 crédits");
+  // 5 s at 24 fps, billed per frame of the 1080p result (31.10.2026 measures: 41–43).
+  await expect(finish).toContainText("≈ 42 crédits");
   await expect(detail.locator("[data-suite-item=suite-fluidifier]")).toHaveAttribute("href", /#outils\/vid-fluidifier/);
   await expect(detail.locator(".u-suite")).not.toContainText(/réserve/i);
   await finish.click();
   await expect(page).toHaveURL(/\/studio#outils\/vid-finaliser/);
   const panel = page.locator("[data-tool-panel=vid-finaliser]");
   await expect(panel.locator("[data-outil-input=video] video")).toBeVisible({ timeout: 30_000 });
-  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 28 crédits");
+  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 42 crédits");
   await expect(panel).not.toContainText(/réserve/i);
   expect(seen.graphs).toHaveLength(0);
 });
