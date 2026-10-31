@@ -5,7 +5,7 @@
 // lists every step (a missing character or place is created first), then the take lands in the card
 // and on the cut by itself. CAST and DÉCOR stay the libraries behind Qui and Où.
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { quoteForCast, quoteForDecor } from "@/lib/creation/quotes";
@@ -15,10 +15,12 @@ import { ajouterPlan, ajouterPrise, auMontage, lireRegistre, nouveauPlan, regist
 import { quoteCredits } from "@/lib/prise/rendu";
 import { resolveTakeQuote } from "@/lib/render/billed-quote";
 import { quotesToRecords } from "@/lib/render/measured-quote";
-import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
+import { takeProfile, type TakeSettings } from "@/lib/render/take-graph";
+import { ligneDuPlan, lireReglages, reglagesChiffres, reglagesVersTake, REGLAGES_FILM, REGLAGES_KEY, type ReglagesFilm } from "@/lib/film/reglages";
 import { assetPath } from "@/lib/site";
 import { useStudio } from "../studio-session";
 import { FilmChoix, type CarteChoix } from "./film-choix";
+import { FilmReglages } from "./film-reglages";
 import "./film-plans.css";
 
 const DRAFT_KEY = "u-ttu-film2-plan";
@@ -28,8 +30,8 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const studio = useStudio();
   const { studio: vault, media, run, runOrigin, balance } = studio;
   const [phrase, setPhrase] = useState("");
-  const [duree, setDuree] = useState<5 | 8>(5);
-  const [portrait, setPortrait] = useState(false);
+  const [reglagesVoulus, setReglagesVoulus] = useState<ReglagesFilm>(REGLAGES_FILM);
+  const [reglagesOuverts, setReglagesOuverts] = useState(false);
   const [asking, setAsking] = useState(false);
   const [envoye, setEnvoye] = useState(false);
   const [launched, setLaunched] = useState<string | null>(null);
@@ -72,8 +74,19 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     const ouHit = choix.ou && !choix.ou.id ? byName(known.decor, choix.ou.nom) : null;
     return appliquerChoix(comprendrePlan(phrase, known), { qui, ou: ouHit ? { id: ouHit.id, nom: ouHit.name } : choix.ou });
   }, [phrase, known, choix]);
-  const settings = useMemo<TakeSettings>(() => ({ ...DEFAULT_TAKE, engine: "h3", seconds: duree, aspect: portrait ? "vertical" : "horizontal" }), [duree, portrait]);
-  const priseCredits = quoteCredits(resolveTakeQuote(takeProfile(settings), quotesToRecords(vault.quotes))) ?? 0;
+  const records = useMemo(() => quotesToRecords(vault.quotes), [vault.quotes]);
+  const prixPrise = useCallback((take: TakeSettings) => quoteCredits(resolveTakeQuote(takeProfile(take), records)), [records]);
+  // A duration with no price for this rendu is never kept: the quote stays real.
+  const reglages = useMemo(() => reglagesChiffres(reglagesVoulus, prixPrise), [reglagesVoulus, prixPrise]);
+  const duree = reglages.duree;
+  const settings = useMemo<TakeSettings>(() => reglagesVersTake(reglages), [reglages]);
+  const priseQuote = prixPrise(settings);
+  const priseCredits = priseQuote ?? 0;
+  const ligne = ligneDuPlan(plan.phrase, reglages);
+  const changerReglages = (next: ReglagesFilm) => {
+    setReglagesVoulus(next);
+    try { localStorage.setItem(REGLAGES_KEY, JSON.stringify(next)); } catch { /* private tab */ }
+  };
   const { etapes, total } = etapesPlan(plan, { personnage: quoteForCast("texte").credits, personnagePhotos: quoteForCast("photos").credits, lieu: quoteForDecor("texte").credits, lieuPhoto: quoteForDecor("photo").credits, prise: priseCredits });
   const numero = registre.plans.length + (launched && registre.plans.some(item => item.id === launched) ? 0 : 1);
   const running = run.phase === "running" || (launched !== null && studio.creating && run.phase !== "done");
@@ -94,6 +107,9 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     })();
   }, [landed, launched, plan.phrase, plan.qui, plan.ou, registre, studio]);
 
+  useEffect(() => {
+    try { setReglagesVoulus(lireReglages(localStorage.getItem(REGLAGES_KEY))); } catch { /* private tab */ }
+  }, []);
   useEffect(() => { if (asking) requestAnimationFrame(() => lancer.current?.focus()); }, [asking]);
 
   const ask = () => {
@@ -114,6 +130,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     const ok = await studio.tournerPlan({
       planId: id,
       phrase: plan.phrase,
+      ligne,
       castIds: plan.qui.flatMap(who => who.id && !who.nouveau ? [who.id] : []),
       decorId: plan.ou && !plan.ou.nouveau ? plan.ou.id : null,
       nouveaux: plan.qui.filter(who => who.nouveau).map(who => ({ nom: who.nom, ...(who.description ? { description: who.description } : {}), ...(who.source === "photos" ? { files: fichiers[who.nom.toLowerCase()] ?? [] } : {}) })),
@@ -156,11 +173,15 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     return step.type === "personnage" ? t("film2.etapePersonnage", { nom: step.nom }) : step.type === "lieu" ? t("film2.etapeLieu", { nom: step.nom }) : t("film2.etapePrise");
   };
   const gardes = lancees.filter(step => step.type !== "prise" && !etapes.some(item => item.type === step.type && item.nom.toLowerCase() === step.nom.toLowerCase()));
+  const ouvrirReglages = () => setReglagesOuverts(true);
   const chips: { key: string; label: string; onClick?(): void; aria?: string }[] = [
     ...(plan.read.camera.words ? [{ key: "camera", label: /cam[eé]ra|kamera|c[aá]mara/i.test(plan.read.camera.words) ? plan.read.camera.words.charAt(0).toUpperCase() + plan.read.camera.words.slice(1) : t("film2.camera", { words: plan.read.camera.words }) }] : []),
-    { key: "duree", label: t("film2.duree", { s: String(duree) }), onClick: () => setDuree(value => value === 5 ? 8 : 5), aria: t("film2.changerDuree") },
-    { key: "format", label: portrait ? t("film2.portrait") : t("film2.paysage"), onClick: () => setPortrait(value => !value), aria: t("film2.changerFormat") },
-    ...plan.read.ambiance.slice(0, 2).map(item => ({ key: `amb-${item.label}`, label: item.label })),
+    ...(reglages.camera ? [{ key: "camera-choisie", label: t(`film2.reglages.cam.${reglages.camera}`), onClick: ouvrirReglages, aria: t("film2.reglages.changer") }] : []),
+    { key: "duree", label: t("film2.duree", { s: String(duree) }), onClick: ouvrirReglages, aria: t("film2.reglages.changer") },
+    { key: "format", label: reglages.format === "portrait" ? t("film2.portrait") : t("film2.paysage"), onClick: ouvrirReglages, aria: t("film2.reglages.changer") },
+    { key: "rendu", label: t(`film2.reglages.${reglages.rendu}`), onClick: ouvrirReglages, aria: t("film2.reglages.changer") },
+    ...(reglages.paroles !== "aucune" ? [{ key: "paroles", label: t(`film2.reglages.par.${reglages.paroles}`), onClick: ouvrirReglages, aria: t("film2.reglages.changer") }] : []),
+    ...plan.read.ambiance.slice(0, 1).map(item => ({ key: `amb-${item.label}`, label: item.label })),
   ];
 
   return <section className="u-film" data-film-plans="" data-film-ready={studio.ready ? "true" : "false"}>
@@ -202,11 +223,13 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     {!running && !landed && <p className="u-film-note"><span className="u-film-badge">{t("film2.video", { s: String(duree) })}</span> {etapes.length > 1 ? t("film2.explication") : t("film2.explicationPrete")}</p>}
 
     {!landed && <div className="u-film-dock">
-      <button type="button" className="u-film-gold" data-film-tourner="" disabled={running} aria-describedby={running ? "u-film-running" : undefined} onClick={failed && launched ? () => void go() : ask}>
+      {priseQuote === null && <p id="u-film-sans-prix" className="u-film-note" data-film-sans-prix="">{t("film2.reglages.sansPrixLong")}</p>}
+      <button type="button" className="u-film-gold" data-film-tourner="" disabled={running || priseQuote === null} aria-describedby={running ? "u-film-running" : priseQuote === null ? "u-film-sans-prix" : undefined} onClick={failed && launched ? () => void go() : ask}>
         <span>{failed && launched ? t("film2.reessayer") : t("film2.tourner")}</span><span className="u-film-price">· {prix}</span>
       </button>
     </div>}
 
+    {reglagesOuverts && <FilmReglages value={reglages} onChange={changerReglages} prix={prixPrise} onClose={() => setReglagesOuverts(false)} />}
     {ouvert && <FilmChoix
       kind={ouvert}
       cartes={ouvert === "qui" ? cartesQui : cartesOu}
@@ -234,7 +257,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
           <button type="button" className="u-secondary" data-film-modifier="" onClick={() => { setAsking(false); field.current?.focus(); }}>{t("film2.modifier")}</button>
           <button type="button" className="u-secondary" aria-expanded={envoye} data-film-envoye="" onClick={() => setEnvoye(value => !value)}>{t("film2.envoye")}</button>
         </div>
-        {envoye && <p className="u-film-sent" data-film-sent="">{t("film2.envoyeLead")}<br /><q>{plan.phrase}</q></p>}
+        {envoye && <p className="u-film-sent" data-film-sent="">{t("film2.envoyeLead")}<br /><q>{ligne}</q><br /><small data-film-moteur="">{t("film2.reglages.moteur", { moteur: settings.engine === "h3" ? "MiniMax H3" : "LTX 2.5 (aperçu)" })}</small></p>}
       </div>
     </div>}
   </section>;

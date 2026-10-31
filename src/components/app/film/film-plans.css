@@ -79,3 +79,14 @@ button.u-film-chip { cursor: pointer; }
 .u-film-file:focus-within .u-film-pick { outline: 2px solid var(--accent, #d9b15c); outline-offset: 2px; }
 .u-film-error { display: grid; gap: 6px; }
 .u-film-error p { margin: 0; }
+
+/* Réglages du plan (PR 7). */
+.u-film-group { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
+.u-film-group legend { margin-bottom: 6px; font-weight: 700; }
+.u-film-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.u-film-opts-col { display: grid; }
+.u-film-opt { display: grid; gap: 2px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--u-line-strong, #2a2a2e); border-radius: 14px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.u-film-opt small { color: var(--u-muted, #a1a1aa); font-size: 12px; }
+.u-film-opt[aria-pressed="true"] { border-color: var(--accent, #d9b15c); color: var(--accent, #d9b15c); }
+.u-film-opt:disabled { opacity: .5; cursor: not-allowed; }
+.u-film-reglages .u-film-gold { position: sticky; bottom: 0; }

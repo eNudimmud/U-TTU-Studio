@@ -12,7 +12,7 @@ type Job = { kind: 'image' | 'video'; at: number; save: string; fails: boolean }
 /** `fail(n, kind)`: the n-th job (1-based) of that kind fails once, as Comfy reports it. */
 export async function simulateComfy(page: Page, options: { fail?(index: number, kind: 'image' | 'video'): boolean } = {}) {
   const jobs = new Map<string, Job>();
-  const prompts: { kind: string; at: number }[] = [];
+  const prompts: { kind: string; at: number; text: string }[] = [];
   let n = 0;
   await page.addInitScript(() => localStorage.setItem('u-ttu-rendu', JSON.stringify({ mode: 'key', key: 'audit-fake-key-0123456789' })));
   await page.route(/overpass|nominatim|photon|panoramax|mapillary|tiles\.openfreemap|fal\.ai/, route => route.abort());
@@ -25,7 +25,7 @@ export async function simulateComfy(page: Page, options: { fail?(index: number, 
     const kind: 'image' | 'video' = entries.some(([, node]) => /Video|LTXV|MiniMax|Hunyuan|H3/i.test(String(node.class_type))) ? 'video' : 'image';
     const id = `film2-job-${String(++n).padStart(4, '0')}`;
     const save = entries.find(([, node]) => /^(Save|VHS_VideoCombine$)/.test(String(node.class_type)))?.[0] ?? 'save';
-    prompts.push({ kind, at: Date.now() });
+    prompts.push({ kind, at: Date.now(), text: JSON.stringify(graph) });
     const index = prompts.filter(item => item.kind === kind).length;
     jobs.set(id, { kind, at: Date.now(), save, fails: options.fail?.(index, kind) ?? false });
     return route.fulfill({ json: { prompt_id: id, node_errors: {} } });
