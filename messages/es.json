@@ -4046,6 +4046,11 @@
       "plans": "Planos",
       "vide": "vacío"
     },
+    "autrePrise": "Otra toma",
+    "modifierRefaire": "Cambiar y volver a rodar",
+    "finiAutre": "Toma {n} de este plano. Está en Mis creaciones y en «Mis planos» del montaje; el montaje conserva la primera.",
+    "soldeApresAutre": "Saldo después: ≈ {n} créditos. La toma se guardará en Mis creaciones y en «Mis planos»; el montaje conserva la primera.",
+    "soldeInconnuAutre": "La toma se guardará en Mis creaciones y en «Mis planos»; el montaje conserva la primera.",
     "exemples": {
       "titre": "O empieza con un ejemplo",
       "liste": "{n} ejemplos, desliza para verlos",

@@ -4046,6 +4046,11 @@
       "plans": "Plans",
       "vide": "vide"
     },
+    "autrePrise": "Autre prise",
+    "modifierRefaire": "Modifier et refaire",
+    "finiAutre": "Prise {n} de ce plan. Elle est dans Mes créations et dans « Mes plans » au MONTAGE ; le montage garde la première.",
+    "soldeApresAutre": "Solde après : ≈ {n} crédits. La prise sera rangée dans Mes créations et dans « Mes plans » ; le montage garde la première.",
+    "soldeInconnuAutre": "La prise sera rangée dans Mes créations et dans « Mes plans » ; le montage garde la première.",
     "exemples": {
       "titre": "Ou pars d’un exemple",
       "liste": "{n} exemples, glisse pour les voir",
