@@ -7,7 +7,7 @@
   "skip": "Aller au contenu",
   "meta": {
     "title": "U*TTU Studio — Studio de cinéma IA open source sur ComfyUI",
-    "description": "Écris ce que tu veux tourner, image ou vidéo : 43 outils ComfyUI, références nommées, mise en scène 3D et montage. Open source (MIT), devis avant chaque crédit, rendus sur ton compte Comfy."
+    "description": "Écris ce que tu veux tourner, image ou vidéo : {n} outils ComfyUI, références nommées, mise en scène 3D et montage. Open source (MIT), devis avant chaque crédit, rendus sur ton compte Comfy."
   },
   "nav": {
     "character": "CAST",
@@ -43,7 +43,7 @@
     "kicker": "Open source · MIT · sur ComfyUI",
     "h1": "Ton <em>studio de cinéma</em> IA, open source, sur ComfyUI.",
     "sub": "Écris ce que tu veux tourner, en image ou en vidéo, avec tes personnages et tes lieux. Puis repère, mets en scène en 3D, tourne et monte ton film.",
-    "sub2": "43 outils ComfyUI sur ton propre compte Comfy, avec un devis avant chaque crédit.",
+    "sub2": "{n} outils ComfyUI sur ton propre compte Comfy, avec un devis avant chaque crédit.",
     "caps": {
       "0": "Un personnage",
       "1": "Un gros plan",
@@ -149,7 +149,7 @@
         "body": "Huit angles du personnage, puis une prise MiniMax H3 sur l’angle choisi : ≈ 14 crédits estimés pour un premier plan, puis ≈ 4 par angle de plus."
       },
       "library": {
-        "name": "43 outils, chacun son devis",
+        "name": "{n} outils, chacun son devis",
         "body": "Créer, retoucher, vidéo, 3D, son. « Modèles du studio seulement » cache les outils qui passent par un service partenaire payant."
       },
       "upload": {

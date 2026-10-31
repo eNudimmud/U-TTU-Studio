@@ -11,6 +11,7 @@ import { useEffect, useMemo } from "react";
 import { assetPath } from "@/lib/site";
 import { FAMILLES, familleVitrine, outilsPublics, type Famille } from "@/lib/outils/catalogue";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
+import { OUTILS_HORS_CATALOGUE } from "@/lib/outils/nombre";
 import { useI18n } from "@/components/i18n/provider";
 import { PoweredBy, ComfyLogomark } from "@/components/powered-by";
 import { useStudio } from "./studio-session";
@@ -81,7 +82,7 @@ function useCounts() {
   return useMemo(() => {
     const counts = Object.fromEntries(FAMILLES.map(fam => [fam, 0])) as Record<Famille, number>;
     for (const item of outilsPublics(prefs)) counts[familleVitrine(item)] += 1;
-    counts["3d"] += 2; // « Maquette 3D et cadrage » and « Repérer un lieu » sit in the 3D row.
+    counts["3d"] += OUTILS_HORS_CATALOGUE; // « Maquette 3D et cadrage » and « Repérer un lieu » sit in the 3D row.
     return counts;
   }, [prefs]);
 }

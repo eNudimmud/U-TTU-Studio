@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Arrow } from "@/components/glyph";
 import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
+import { NOMBRE_OUTILS } from "@/lib/outils/nombre";
 import { assetPath, contactEmail, sourceRepo } from "@/lib/site";
 import { LegacyStudioHash } from "./legacy-hash";
 import { Brand, BrandLockup } from "@/components/brand";
@@ -110,7 +111,7 @@ export function HomeLanding() {
             <BrandLockup className="hv-lockup" alt="U*TTU Studio" />
             <p className="hv-kicker hv-mono" data-landing-kicker="">{t("accueil.kicker")}</p>
             <h1 id="landing-title">{rich("accueil.h1")}</h1>
-            <p className="hv-lead"><span>{t("accueil.sub")}</span><span>{t("accueil.sub2")}</span></p>
+            <p className="hv-lead"><span>{t("accueil.sub")}</span><span>{t("accueil.sub2", { n: String(NOMBRE_OUTILS) })}</span></p>
             <div className="hv-ctas">
               <a className="hv-btn hv-gold" href={studioHref} data-enter-studio="">{t("landing.enter")} <Arrow /></a>
               <a className="hv-btn hv-glass" href={uttuHref} data-try-free="">{t("landing.tryFree")}</a>
@@ -197,7 +198,7 @@ export function HomeLanding() {
       <section className="hv-also hv-wrap" aria-labelledby="hv-also-title">
         <p className="hv-eyebrow hv-mono hv-rv" id="hv-also-title">{t("accueil.alsoTitle")}</p>
         <ul className="hv-rv d1">
-          {ALSO.map(item => <li key={item}><b>{t(`accueil.also.${item}.name`)}</b><span>{t(`accueil.also.${item}.body`)}</span></li>)}
+          {ALSO.map(item => <li key={item}><b>{t(`accueil.also.${item}.name`, { n: String(NOMBRE_OUTILS) })}</b><span>{t(`accueil.also.${item}.body`)}</span></li>)}
         </ul>
       </section>
 

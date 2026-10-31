@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { LocaleProvider, SkipLink } from "@/components/i18n/provider";
 import { loadCatalog } from "@/lib/i18n/catalog";
+import { NOMBRE_OUTILS } from "@/lib/outils/nombre";
 import { htmlLang, type Locale } from "@/lib/i18n/config";
 import { requestLocale } from "@/lib/i18n/server";
 import { assetPath, siteOrigin, socialImage } from "@/lib/site";
@@ -25,19 +26,20 @@ const ogLocale: Record<Locale, string> = { fr: "fr_CH", en: "en_GB", de: "de_DE"
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await requestLocale();
   const copy = (await loadCatalog(locale)).meta as { title: string; description: string };
+  const description = copy.description.replace("{n}", String(NOMBRE_OUTILS));
   return {
     metadataBase: new URL(siteOrigin || "http://localhost:3000"),
     title: copy.title,
-    description: copy.description,
+    description,
     applicationName: "U*TTU Studio",
     ...(siteOrigin ? { alternates: { canonical: `${siteOrigin}/` } } : {}),
     openGraph: {
       type: "website", locale: ogLocale[locale], siteName: "U*TTU Studio",
-      title: copy.title, description: copy.description,
+      title: copy.title, description,
       ...(siteOrigin ? { url: siteOrigin } : {}),
       images: [{ url: socialImage, width: 1200, height: 630, alt: copy.title }],
     },
-    twitter: { card: "summary_large_image", title: copy.title, description: copy.description, images: [socialImage] },
+    twitter: { card: "summary_large_image", title: copy.title, description, images: [socialImage] },
         appleWebApp: { capable: true, title: "U*TTU", statusBarStyle: "black-translucent" },
   };
 }

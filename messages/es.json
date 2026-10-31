@@ -7,7 +7,7 @@
   "skip": "Ir al contenido",
   "meta": {
     "title": "U*TTU Studio — Estudio de cine IA de código abierto en ComfyUI",
-    "description": "Escribe lo que quieres rodar, imagen o vídeo: 43 herramientas de ComfyUI, referencias con nombre, puesta en escena 3D y montaje. Código abierto (MIT), un presupuesto antes de cada crédito, renders en tu propia cuenta de Comfy."
+    "description": "Escribe lo que quieres rodar, imagen o vídeo: {n} herramientas de ComfyUI, referencias con nombre, puesta en escena 3D y montaje. Código abierto (MIT), un presupuesto antes de cada crédito, renders en tu propia cuenta de Comfy."
   },
   "nav": {
     "character": "Reparto",
@@ -43,7 +43,7 @@
     "kicker": "Código abierto · MIT · en ComfyUI",
     "h1": "Tu <em>estudio de cine</em> IA, de código abierto, en ComfyUI.",
     "sub": "Escribe lo que quieres rodar, en imagen o en vídeo, con tus personajes y tus lugares. Luego localiza, pon en escena en 3D, rueda y monta tu película.",
-    "sub2": "43 herramientas de ComfyUI en tu propia cuenta de Comfy, con un presupuesto antes de cada crédito.",
+    "sub2": "{n} herramientas de ComfyUI en tu propia cuenta de Comfy, con un presupuesto antes de cada crédito.",
     "caps": {
       "0": "Un personaje",
       "1": "Un primer plano",
@@ -149,7 +149,7 @@
         "body": "Ocho ángulos del personaje y luego una toma MiniMax H3 sobre el ángulo elegido: ≈ 14 créditos estimados por un primer plano, luego ≈ 4 por cada ángulo más."
       },
       "library": {
-        "name": "43 herramientas, cada una con su presupuesto",
+        "name": "{n} herramientas, cada una con su presupuesto",
         "body": "Crear, retocar, vídeo, 3D, sonido. «Solo modelos del estudio» oculta las herramientas que pasan por un servicio socio de pago."
       },
       "upload": {
