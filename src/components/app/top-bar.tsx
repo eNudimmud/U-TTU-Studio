@@ -167,8 +167,8 @@ function FilmMenu({ onPick }: { onPick(): void }) {
 
 function CreerMenu({ onPick, drawer = false }: { onPick(): void; drawer?: boolean }) {
   const { t } = useI18n();
-  const { prefs } = useStudio();
-  const cards = outilsPublics(prefs);
+  const { outilsFiltre } = useStudio();
+  const cards = outilsPublics(outilsFiltre);
   return <div className="u-mega" data-creer-menu="">
     <div className="u-mega-cols">
       {FAMILLES.flatMap(fam => {
@@ -287,7 +287,7 @@ function LangMenu() {
 /** Ctrl K: tools and my creations in one list. */
 function SearchPalette({ onClose }: { onClose(): void }) {
   const { t } = useI18n();
-  const { prefs, cast, decor, studio, loose, demo } = useStudio();
+  const { outilsFiltre, cast, decor, studio, loose, demo } = useStudio();
   const [query, setQuery] = useState("");
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -297,7 +297,7 @@ function SearchPalette({ onClose }: { onClose(): void }) {
     return () => document.removeEventListener("keydown", key);
   }, [onClose]);
   const needle = query.trim();
-  const tools = outilsPublics(prefs).filter(item => !needle || cherche(`${t(`outils.t.${item.id}.title`)} ${t(`outils.t.${item.id}.line`)} ${t(`outils.fam.${familleVitrine(item)}`)}`, needle)).slice(0, needle ? 8 : 6);
+  const tools = outilsPublics(outilsFiltre).filter(item => !needle || cherche(`${t(`outils.t.${item.id}.title`)} ${t(`outils.t.${item.id}.line`)} ${t(`outils.fam.${familleVitrine(item)}`)}`, needle)).slice(0, needle ? 8 : 6);
   const mine = [
     ...cast.map(card => ({ id: `c-${card.id}`, name: card.name, kind: t("creations.type.personnages"), href: studioTarget("personnage", card.id, studio.project, demo) })),
     ...decor.map(card => ({ id: `d-${card.id}`, name: card.name, kind: t("creations.type.lieux"), href: studioTarget("lieu", card.id, studio.project, demo) })),

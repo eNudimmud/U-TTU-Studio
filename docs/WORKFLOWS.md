@@ -69,7 +69,7 @@ Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « 
 | prise-mouvement | Transfert de mouvement | `video_wan_animate2` | non mesuré | fermé, open weights |
 | prise-levres | Lèvres | `video_ltx2_3_ia2v` | non mesuré | fermé, open weights |
 | prise-vidu | Autre plan, références | `api_vidu_q4_preview_r2v` | 100 / 150, hypothèse | fermé, nœud partenaire |
-| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | 16 / 25, mesuré | ouvert, open weights |
+| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | 28 / 45 par 5 s, estimé (cadre 16:9 · 9:16 · 1:1, rendu 1280×704) | ouvert, open weights |
 | prise-effacer | Effacer un objet | `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | 25 / 38, mesuré | ouvert, open weights |
 
 ## MONTAGE / SON
@@ -94,7 +94,7 @@ Menu « Et ensuite ? » sur un asset (panneau de détail de Mes créations) et s
 | suite-detourer | Détourer (PNG transparent ; SaveImage ajouté au template) | `utility_birefnet_remove_background` | 1 / 1, mesuré | ouvert, open weights |
 | suite-elargir | Élargir le cadre (Flux.2 Klein 9B) | `templates_doc_workbox_klein_9b_image_extend` | 5 / 8, mesuré | ouvert, open weights |
 | suite-animer | Animer une image (5 s) | `video_minimax_h3_i2v` | 4 / 8, estimé | ouvert, open weights |
-| suite-finaliser-video | Finaliser une prise ou le montage (1080p, + fluidifier en option) | `utility_seedvr2_3b_int8_upscale_video` | 28 / 42 par 5 s, mesuré | ouvert, open weights |
+| suite-finaliser-video | Finaliser une prise ou le montage (1080p, + fluidifier en option) | `utility_seedvr2_3b_int8_upscale_video` | ≈ 0,167 × images × Mpx de sortie (42 / 63 pour 5 s à 24 fps en 1080p), mesuré | ouvert, open weights |
 | suite-fluidifier | Fluidifier (images intermédiaires ×2) | `utility_video_frame_interpolation` | 2 / 4 par 5 s, mesuré | ouvert, open weights |
 | suite-prolonger | Prolonger (depuis la dernière image, 5 s) | `video_minimax_h3_i2v_continuation` | 6 / 10, mesuré | ouvert, open weights |
 | suite-parler | Faire parler (image + voix, 5 s) | `video_ltx2_3_ia2v` | 8 / 13, mesuré | ouvert, open weights |

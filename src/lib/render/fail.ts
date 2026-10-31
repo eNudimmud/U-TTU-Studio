@@ -3,7 +3,7 @@
 
 import { RenderError, type RenderErrorCode } from "./client.ts";
 
-export type FailKind = "auth" | "credits" | "subscription" | "network" | "cloud" | "pending" | "invalid" | "other";
+export type FailKind = "auth" | "credits" | "subscription" | "network" | "cloud" | "pending" | "invalid" | "empty" | "other";
 
 export interface FailView {
   kind: FailKind;
@@ -44,6 +44,7 @@ export function failKind(error: unknown): FailKind {
     if (error.code === "network" || error.code === "timeout") return "network";
     if (error.code === "failed") return "cloud";
     if (error.code === "invalid") return "invalid";
+    if (error.code === "empty") return "empty";
   }
   if (error instanceof Error) {
     if (/attend (déjà )?sa récupération|Récupération impossible|recovery\.failed/i.test(error.message)) return "pending";
@@ -59,6 +60,8 @@ export function failView(error: unknown): FailView {
   if (kind === "subscription") return { kind, message: SUB_MSG, intact: false, reconnect: false, retry: true };
   if (kind === "network") return { kind, message: NETWORK_MSG, intact: false, reconnect: false, retry: true };
   if (kind === "pending") return { kind, message: PENDING_MSG, intact: false, reconnect: false, retry: true };
+  // The render finished but carried no picture: the caller's own (translated) sentence says so.
+  if (kind === "empty") return { kind, message: error instanceof Error && error.message ? error.message : CLOUD_MSG, intact: true, reconnect: false, retry: true };
   if (kind === "invalid") {
     const raw = error instanceof RenderError && error.detail[0] ? sanitizeDetail(String(error.detail[0])) : "";
     const detail = raw ? ` ${raw}` : "";

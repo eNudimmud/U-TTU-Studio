@@ -31,7 +31,7 @@
       "pingpong": false,
       "save_output": true,
       "images": [
-        "5151:5143",
+        "5151:sortie",
         0
       ]
     },
@@ -42,7 +42,7 @@
   },
   "5151:5097": {
     "inputs": {
-      "value": 9
+      "value": 16
     },
     "class_type": "PrimitiveInt",
     "_meta": {
@@ -51,7 +51,7 @@
   },
   "5151:5098": {
     "inputs": {
-      "value": 16
+      "value": 9
     },
     "class_type": "PrimitiveInt",
     "_meta": {
@@ -292,13 +292,15 @@
   },
   "5151:5129": {
     "inputs": {
-      "resize_type": "scale by multiplier",
-      "resize_type.multiplier": 0.5,
+      "resize_type": "scale dimensions",
       "scale_method": "lanczos",
       "input": [
         "5151:5139",
         0
-      ]
+      ],
+      "resize_type.width": 1280,
+      "resize_type.height": 704,
+      "resize_type.crop": "disabled"
     },
     "class_type": "ResizeImageMaskNode",
     "_meta": {
@@ -409,7 +411,7 @@
   },
   "5151:5138": {
     "inputs": {
-      "text": "<texte du visiteur>",
+      "text": "Continue the scene seamlessly beyond the original frame: same place, light, colours and style, steady camera. <texte du visiteur>",
       "clip": [
         "5151:5135",
         0
@@ -660,6 +662,23 @@
     "class_type": "ImageFromBatch",
     "_meta": {
       "title": "First frame of the clip"
+    }
+  },
+  "5151:sortie": {
+    "class_type": "ResizeImageMaskNode",
+    "inputs": {
+      "resize_type": "scale dimensions",
+      "resize_type.width": 1280,
+      "resize_type.height": 720,
+      "resize_type.crop": "disabled",
+      "scale_method": "lanczos",
+      "input": [
+        "5151:5143",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Cadre 16:9"
     }
   }
 }

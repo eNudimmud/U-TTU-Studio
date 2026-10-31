@@ -2407,6 +2407,7 @@
     "needVoice": "Füge eine Stimme hinzu (Audiodatei).",
     "noFrame": "Das letzte Bild der Aufnahme ließ sich auf diesem Gerät nicht lesen. Nichts wurde gesendet.",
     "emptyResult": "Der Render kam leer zurück. Das Original bleibt unverändert.",
+    "blankResult": "Der Render kam komplett schwarz (oder einfarbig) zurück: Das ist kein Ergebnis, nichts wurde abgelegt. Es können Credits abgebucht worden sein; sie stehen in deinem Comfy-Verlauf. Versuch es noch einmal oder kürze die Anweisung.",
     "toPrise": "In einer Einstellung öffnen",
     "fluide": "Die Bewegung weicher machen",
     "voice": "Stimme (erste 5 Sekunden)",
@@ -2773,7 +2774,7 @@
       },
       "vid-recadrer": {
         "title": "Videobild erweitern",
-        "line": "Vergrößert den Rahmen einer Einstellung."
+        "line": "Clip in 16:9, 9:16 oder 1:1."
       },
       "vid-detourer": {
         "title": "Video freistellen",
@@ -2918,7 +2919,19 @@
       "label": "Spur behalten",
       "voix": "Stimme",
       "musique": "Musik"
-    }
+    },
+    "cadre": {
+      "label": "Endformat",
+      "16x9": "16:9 · quer",
+      "9x16": "9:16 · hoch",
+      "1x1": "1:1 · quadratisch",
+      "4x3": "4:3 · Foto",
+      "video": "Das Video kommt in {w}×{h}: Die neue Fläche erzeugt die KI, nichts wird gestreckt oder beschnitten.",
+      "image": "Das Bild kommt genau in diesem Format: Die neue Fläche erzeugt die KI, nichts wird beschnitten.",
+      "bande": "Feste Ränder: Das Endformat hängt von deinem Bild ab.",
+      "avance": "Oder feste Ränder (erweitert)"
+    },
+    "costUnread": "Tatsächliche Kosten nicht gelesen: Das Comfy-Guthaben hat sich innerhalb einer Minute nicht bewegt. Die Abbuchung bleibt in deinem Comfy-Verlauf sichtbar."
   },
   "top": {
     "nav": "Studio-Navigation",
