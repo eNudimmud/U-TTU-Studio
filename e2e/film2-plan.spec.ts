@@ -1,54 +1,12 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { simulateComfy } from './helpers/film2-comfy';
 
 // Refonte FILM · PR 5 — la carte du plan (?film2=1). Comfy is simulated: this proves the path and
 // the tap count, never the quality of a paid model. 0 real credits.
 
-const still = readFileSync('public/exemples/cast-coursiere.webp');
-const decorStill = readFileSync('public/exemples/decor-quai-nuit.webp');
-const video = readFileSync('e2e/fixtures/prise-5s-vp9.mp4');
 const SHOTS = process.env.FILM2_SHOTS;
-
-type Job = { kind: 'image' | 'video'; at: number; save: string };
-
-async function simulateComfy(page: Page) {
-  const jobs = new Map<string, Job>();
-  const prompts: { kind: string; at: number }[] = [];
-  let n = 0;
-  await page.addInitScript(() => localStorage.setItem('u-ttu-rendu', JSON.stringify({ mode: 'key', key: 'audit-fake-key-0123456789' })));
-  await page.route(/overpass|nominatim|photon|panoramax|mapillary|tiles\.openfreemap|fal\.ai/, route => route.abort());
-  await page.route(/\/api\/user$/, route => route.fulfill({ json: { id: 'novice' } }));
-  await page.route(/\/api\/billing\/usage\/timeseries|customers\/balance/, route => route.fulfill({ json: { summary: { balance: { amount_micros: 500_000_000 } } } }));
-  await page.route(/\/api\/upload\/image$/, route => route.fulfill({ json: { name: `entree-${++n}.webp` } }));
-  await page.route(/\/api\/prompt$/, route => {
-    const graph = route.request().postDataJSON()?.prompt ?? {};
-    const entries = Object.entries(graph) as [string, { class_type?: string }][];
-    const kind = entries.some(([, node]) => /Video|LTXV|MiniMax|Hunyuan|H3/i.test(String(node.class_type))) ? 'video' : 'image';
-    const id = `film2-job-${String(++n).padStart(4, '0')}`;
-    const save = entries.find(([, node]) => /^(Save|VHS_VideoCombine$)/.test(String(node.class_type)))?.[0] ?? 'save';
-    jobs.set(id, { kind, at: Date.now(), save });
-    prompts.push({ kind, at: Date.now() });
-    return route.fulfill({ json: { prompt_id: id, node_errors: {} } });
-  });
-  await page.route(/\/api\/job\/([^/]+)\/status$/, route => {
-    const id = /job\/([^/]+)\/status/.exec(route.request().url())?.[1] ?? '';
-    const job = jobs.get(id);
-    return route.fulfill({ json: { status: job && Date.now() - job.at > 1200 ? 'success' : 'in_progress' } });
-  });
-  await page.route(/\/api\/jobs\/([^/?]+)$/, route => {
-    const id = route.request().url().split('/').pop() ?? '';
-    const job = jobs.get(id);
-    return route.fulfill({ json: { status: 'success', outputs: { [job?.save ?? 'save']: { images: [{ filename: `${id}.${job?.kind === 'video' ? 'mp4' : 'webp'}`, subfolder: '', type: 'output' }] } } } });
-  });
-  let images = 0;
-  await page.route(/\/api\/view\?/, route => {
-    const file = new URL(route.request().url()).searchParams.get('filename') ?? '';
-    if (file.endsWith('.mp4')) return route.fulfill({ contentType: 'video/mp4', body: video });
-    return route.fulfill({ contentType: 'image/webp', body: images++ === 0 ? still : decorStill });
-  });
-  return { prompts };
-}
 
 async function onScreen(page: Page, target: Locator) {
   const box = await target.boundingBox();

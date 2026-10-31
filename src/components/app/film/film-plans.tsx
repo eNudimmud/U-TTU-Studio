@@ -26,7 +26,7 @@ const DRAFT_KEY = "u-ttu-film2-plan";
 export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDecor(): void; onMontage(): void }) {
   const { t, say } = useI18n();
   const studio = useStudio();
-  const { studio: vault, media, run, runOrigin, balance, notice } = studio;
+  const { studio: vault, media, run, runOrigin, balance } = studio;
   const [phrase, setPhrase] = useState("");
   const [duree, setDuree] = useState<5 | 8>(5);
   const [portrait, setPortrait] = useState(false);
@@ -35,6 +35,8 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const [launched, setLaunched] = useState<string | null>(null);
   const [etape, setEtape] = useState(0);
   const [echec, setEchec] = useState("");
+  // The steps of the try in flight: after a failure, what is no longer a step was made and is kept.
+  const [lancees, setLancees] = useState<{ type: string; nom: string }[]>([]);
   const [choix, setChoix] = useState<Choix>(CHOIX_VIDE);
   const [fichiers, setFichiers] = useState<Record<string, File[]>>({});
   const [ouvert, setOuvert] = useState<null | "qui" | "ou">(null);
@@ -42,8 +44,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const filed = useRef<string | null>(null);
   const field = useRef<HTMLTextAreaElement>(null);
   const lancer = useRef<HTMLButtonElement>(null);
-  const said = useRef(notice);
-  said.current = notice;
+  const raisonRef = useRef("");
 
   useEffect(() => {
     try { setPhrase(localStorage.getItem(DRAFT_KEY) ?? ""); } catch { /* private tab */ }
@@ -103,7 +104,10 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   };
   const go = async () => {
     setAsking(false);
-    const id = `plan-${Date.now().toString(36)}`;
+    // A retry keeps the plan id: the steps already made are found again, only the rest is sent.
+    const id = failed && launched ? launched : `plan-${Date.now().toString(36)}`;
+    if (!(failed && launched)) setLancees(etapes.map(step => ({ type: step.type, nom: step.nom })));
+    setEchec("");
     setLaunched(id);
     setEtape(0);
     studio.resetRun();
@@ -116,12 +120,15 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
       nouveauLieu: plan.ou?.nouveau ? { nom: plan.ou.nom, ...(plan.ou.description ? { description: plan.ou.description } : {}), ...(plan.ou.source === "photo" ? { file: fichiers[plan.ou.nom.toLowerCase()]?.[0] ?? null } : {}) } : null,
       settings,
       onEtape: setEtape,
+      onEchec: raison => { raisonRef.current = raison; },
     });
     // A refused step says why (notice from the step); the steps already done are kept and found again.
-    if (!ok) setEchec(said.current ? say(said.current) : t("create.failed"));
+    if (!ok) setEchec(raisonRef.current ? say(raisonRef.current) : studio.connected ? t("create.failed") : t("create.needLink"));
+    raisonRef.current = "";
   };
   const suivant = () => {
     write("");
+    setLancees([]);
     setChoix(CHOIX_VIDE);
     setFichiers({});
     setLaunched(null);
@@ -148,6 +155,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     if (!step) return "";
     return step.type === "personnage" ? t("film2.etapePersonnage", { nom: step.nom }) : step.type === "lieu" ? t("film2.etapeLieu", { nom: step.nom }) : t("film2.etapePrise");
   };
+  const gardes = lancees.filter(step => step.type !== "prise" && !etapes.some(item => item.type === step.type && item.nom.toLowerCase() === step.nom.toLowerCase()));
   const chips: { key: string; label: string; onClick?(): void; aria?: string }[] = [
     ...(plan.read.camera.words ? [{ key: "camera", label: /cam[eé]ra|kamera|c[aá]mara/i.test(plan.read.camera.words) ? plan.read.camera.words.charAt(0).toUpperCase() + plan.read.camera.words.slice(1) : t("film2.camera", { words: plan.read.camera.words }) }] : []),
     { key: "duree", label: t("film2.duree", { s: String(duree) }), onClick: () => setDuree(value => value === 5 ? 8 : 5), aria: t("film2.changerDuree") },
@@ -187,7 +195,10 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
         <button type="button" className="u-secondary" data-film-montage="" onClick={onMontage}>{t("film2.voirMontage")}</button>
       </div>
     </div>}
-    {failed && !running && <p className="u-film-error" role="alert" data-film-error="">{launched ? t("film2.erreur", { raison: failed }) : failed}</p>}
+    {failed && !running && <div className="u-film-error" role="alert" data-film-error="">
+      <p>{launched ? t("film2.erreur", { raison: failed }) : failed}</p>
+      {launched && gardes.length > 0 && <p data-film-garde="">{t("film2.garde", { faits: gardes.map(step => step.nom).join(", "), reste: etapes.map((_, index) => labelEtape(index)).join(", ") })}</p>}
+    </div>}
     {!running && !landed && <p className="u-film-note"><span className="u-film-badge">{t("film2.video", { s: String(duree) })}</span> {etapes.length > 1 ? t("film2.explication") : t("film2.explicationPrete")}</p>}
 
     {!landed && <div className="u-film-dock">

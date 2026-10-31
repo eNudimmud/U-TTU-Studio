@@ -3923,6 +3923,7 @@
       "nomVide": "Gib ihm zuerst einen Namen.",
       "photoVide": "Wähle mindestens ein Foto.",
       "descriptionVide": "Beschreibe es in ein paar Worten."
-    }
+    },
+    "garde": "Schon erstellt und behalten: {faits}. „Erneut versuchen“ startet nur: {reste}."
   }
 }

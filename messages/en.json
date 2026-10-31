@@ -3923,6 +3923,7 @@
       "nomVide": "Give it a name first.",
       "photoVide": "Pick at least one photo.",
       "descriptionVide": "Describe it in a few words."
-    }
+    },
+    "garde": "Already made and kept: {faits}. “Try again” only restarts: {reste}."
   }
 }

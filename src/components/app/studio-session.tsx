@@ -263,6 +263,8 @@ export interface PlanShoot {
   nouveauLieu: { nom: string; description?: string; file?: File | null } | null;
   settings: TakeSettings;
   onEtape?(index: number): void;
+  /** Why a creation step stopped, in the visitor's words. */
+  onEchec?(raison: string): void;
 }
 
 export interface TakeRequest {
@@ -457,7 +459,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [pickedCast, setPickedCast] = useState<string | null>(null);
   const [pickedDecor, setPickedDecor] = useState<string | null>(null);
   const [line, setLineState] = useState("");
-  const [notice, setNotice] = useState("");
+  const [notice, setNoticeState] = useState("");
+  // The last notice, read synchronously by chained steps (tournerPlan) before React renders it.
+  const lastNotice = useRef("");
+  const setNotice = useCallback((text: string) => { lastNotice.current = text; setNoticeState(text); }, []);
   const [sheet, setSheet] = useState<SheetName>(null);
   // Read the saved link on the first client paint so Film/Créer never flash « Relier mon compte ».
   const [link, setLink] = useState<RenderLink>(() => readRenderLink(typeof window === "undefined" ? null : localStorage));
@@ -1691,10 +1696,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const known = studioRef.current?.cast.find(card => card.name.trim().toLowerCase() === who.nom.trim().toLowerCase());
       if (known) { castIds.push(known.id); step += 1; continue; }
       input.onEtape?.(step);
+      lastNotice.current = "";
       let id: string | null = null;
       const photos = who.files?.slice(0, 3) ?? [];
       const ok = await createCast({ name: who.nom, prompt: who.description ? `${who.nom}: ${who.description}. Full body, neutral light, plain background.` : `${who.nom}, the character of this film shot: ${input.phrase}. Full body, neutral light, plain background.`, source: photos.length ? "photos" : "texte", files: photos, confirmed: true, onFiled: filed => { id = filed.id; } });
-      if (!ok || !id) return false;
+      if (!ok || !id) { input.onEchec?.(lastNotice.current || t("create.failed")); return false; }
       castIds.push(id);
       step += 1;
     }
@@ -1704,10 +1710,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (known) decorId = known.id;
       else {
         input.onEtape?.(step);
+        lastNotice.current = "";
         let id: string | null = null;
         const file = input.nouveauLieu.file ?? null;
         const ok = await createDecor({ name: input.nouveauLieu.nom, prompt: input.nouveauLieu.description ? `${input.nouveauLieu.nom}: ${input.nouveauLieu.description}. No people.` : `${input.nouveauLieu.nom}, the place of this film shot: ${input.phrase}. No people.`, source: file ? "photo" : "texte", file, confirmed: true, onFiled: filed => { id = filed.id; } });
-        if (!ok || !id) return false;
+        if (!ok || !id) { input.onEchec?.(lastNotice.current || t("create.failed")); return false; }
         decorId = id;
       }
       step += 1;
@@ -1728,7 +1735,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     });
     await confirmRun({ planId: input.planId, castIds, decorId, line: input.phrase, prompt, settings: input.settings });
     return true;
-  }, [client, confirmRun, connected, createCast, createDecor, run.phase]);
+  }, [client, confirmRun, connected, createCast, createDecor, run.phase, t]);
 
   const cancelRun = useCallback(() => {
     abort.current?.abort();

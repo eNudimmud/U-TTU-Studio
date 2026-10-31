@@ -55,3 +55,14 @@ test("F16: twins are dropped, a photo already in the gallery is offered back", (
   assert.deepEqual(sorted.dejaLa, { id: "uttu", nom: "Uttu" });
   assert.equal(trierPhotos(["a"], []).dejaLa, null);
 });
+
+test("PR6: after a failed try, what was made is found again by name, only the missing steps stay", () => {
+  const phrase = "Uttu marche sur le quai la nuit";
+  const first = etapesPlan(comprendrePlan(phrase, { cast: [], decor: [] }), { personnage: 4, lieu: 4, prise: 6 });
+  assert.deepEqual(first.etapes.map(step => step.type), ["personnage", "lieu", "prise"]);
+  const afterCharacter = etapesPlan(comprendrePlan(phrase, { cast: [{ id: "u", name: "Uttu" }], decor: [] }), { personnage: 4, lieu: 4, prise: 6 });
+  assert.deepEqual(afterCharacter.etapes.map(step => step.type), ["lieu", "prise"]);
+  const afterPlace = etapesPlan(comprendrePlan(phrase, { cast: [{ id: "u", name: "Uttu" }], decor: [{ id: "q", name: "Le quai" }] }), { personnage: 4, lieu: 4, prise: 6 });
+  assert.deepEqual(afterPlace.etapes.map(step => step.type), ["prise"]);
+  assert.equal(afterPlace.total, 6);
+});
