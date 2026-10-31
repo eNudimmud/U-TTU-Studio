@@ -2197,7 +2197,7 @@
   },
   "rep3d": {
     "entryTitle": "Ein echter Ort als Kulisse",
-    "entryLead": "Wähl einen Ort und eine 3D-Ansicht: Comfy macht daraus deine Kulisse. Mit einem Text oder Fotos kannst du sie verfeinern.",
+    "entryLead": "Wähl einen Ort und eine 3D-Ansicht: Das Studio macht daraus deine Kulisse. Mit einem Text oder Fotos kannst du sie verfeinern.",
     "open": "Ort wählen",
     "cardCost": "3D-Ansicht auf der Karte",
     "toolLine": "Ein echter Ort wird deine Kulisse: eine 3D-Ansicht plus Straßenfotos.",
@@ -3924,6 +3924,56 @@
       "photoVide": "Wähle mindestens ein Foto.",
       "descriptionVide": "Beschreibe es in ein paar Worten."
     },
-    "garde": "Schon erstellt und behalten: {faits}. „Erneut versuchen“ startet nur: {reste}."
+    "garde": "Schon erstellt und behalten: {faits}. „Erneut versuchen“ startet nur: {reste}.",
+    "compte": {
+      "titre": "Kontoeinstellungen",
+      "partenaires": "Auch kostenpflichtige Partnerdienste nutzen",
+      "partenairesSous": "Standardmäßig aus: Das Studio nutzt nur seine eigenen Modelle. An: Ein paar weitere Werkzeuge laufen über einen externen Dienst, immer mit ihrem Preis „≈ X Credits geschätzt“ vor dem Start."
+    },
+    "reglages": {
+      "titre": "Einstellungen der Einstellung",
+      "lead": "Alles ist schon gewählt. Ändere nur, was du willst.",
+      "changer": "Einstellungen ändern",
+      "duree": "Dauer",
+      "format": "Format",
+      "paysage": "Querformat · YouTube",
+      "paysageSous": "Breit, für Computer- oder Fernsehbildschirm",
+      "portrait": "Hochformat · Reels",
+      "portraitSous": "Hoch, für ein Handy",
+      "camera": "Kamera",
+      "cam": {
+        "phrase": "Wie in meinem Satz",
+        "phraseSous": "Das Studio folgt deinem Text",
+        "fixe": "Bewegt sich nicht",
+        "fixeSous": "Ruhig, wie auf einem Stativ",
+        "suit": "Folgt der Figur",
+        "suitSous": "Die Kamera geht mit",
+        "approche": "Kommt näher",
+        "approcheSous": "Langsam, zum Gesicht oder Objekt",
+        "autour": "Kreist herum",
+        "autourSous": "Eine langsame Runde um das Motiv"
+      },
+      "paroles": "Worte",
+      "par": {
+        "aucune": "Keine",
+        "aucuneSous": "Ohne Worte",
+        "replique": "Ein Satz",
+        "repliqueSous": "Die Figur sagt einen Satz",
+        "voixoff": "Off-Stimme",
+        "voixoffSous": "Eine Stimme erzählt über dem Bild",
+        "texteReplique": "Was die Figur sagt",
+        "texteVoix": "Was die Stimme sagt"
+      },
+      "rendu": "Ergebnis",
+      "renduLead": "Das Studio wählt die passende Methode für dich.",
+      "rapide": "Schnell",
+      "rapideSous": "Zum Ausprobieren: einfacheres Bild, später im Schnitt schärfbar",
+      "fidele": "Näher an meinen Vorlagen",
+      "fideleSous": "Gesichter und Orte bleiben besser erhalten",
+      "sansPrix": "noch kein Preis mit diesem Ergebnis",
+      "sansPrixLong": "Für diese Einstellung gibt es noch keinen Preis: wähle eine andere Dauer oder ein anderes Ergebnis.",
+      "ok": "Fertig",
+      "moteur": "Verwendetes Modell: {moteur}"
+    }
   }
 }

@@ -56,7 +56,7 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
   examples?: readonly string[];
 }) {
   const { t } = useI18n();
-  const { prefs, setPrefs } = useStudio();
+  const { prefs, setPrefs, film2 } = useStudio();
   // Closed gestures are not shown at all: a novice only sees what really runs.
   const mine = REGISTRE.filter(item => item.onglet === onglet && gesteVisible(item, prefs) && gesteOuvert(item));
   const open = mine;
@@ -101,10 +101,11 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
         {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} onStart={onStart} />)}
       </div>
     </div>)}
-    <details className="u-fold u-avance" data-avance="">
+    {/* film2: the models group leaves CAST and DÉCOR, it is an account setting (wallet sheet). */}
+    {!film2 && <details className="u-fold u-avance" data-avance="">
       <summary>{t("p0.advanced")}</summary>
       <ModelOptions openWeightsOnly={prefs.openWeightsOnly} nanoBanana={prefs.nanoBanana} onChange={setPrefs} />
-    </details>
+    </details>}
   </div>;
 }
 

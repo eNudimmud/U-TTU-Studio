@@ -2197,7 +2197,7 @@
   },
   "rep3d": {
     "entryTitle": "A real place as your set",
-    "entryLead": "Pick a place and a 3D view: Comfy turns it into your set. You can refine it with text or photos.",
+    "entryLead": "Pick a place and a 3D view: the studio turns it into your set. You can refine it with text or photos.",
     "open": "Pick a place",
     "cardCost": "3D view on the map",
     "toolLine": "A real place becomes your set: a 3D view, plus street photos.",
@@ -3924,6 +3924,56 @@
       "photoVide": "Pick at least one photo.",
       "descriptionVide": "Describe it in a few words."
     },
-    "garde": "Already made and kept: {faits}. “Try again” only restarts: {reste}."
+    "garde": "Already made and kept: {faits}. “Try again” only restarts: {reste}.",
+    "compte": {
+      "titre": "Account settings",
+      "partenaires": "Also use paid partner services",
+      "partenairesSous": "Off by default: the studio only uses its own models. On: a few more tools go through an outside service, always with their price “≈ X credits estimated” before starting."
+    },
+    "reglages": {
+      "titre": "Shot settings",
+      "lead": "Everything is already chosen. Change only what you want.",
+      "changer": "Change the shot settings",
+      "duree": "Length",
+      "format": "Format",
+      "paysage": "Landscape · YouTube",
+      "paysageSous": "Wide, for a computer or TV screen",
+      "portrait": "Portrait · Reels",
+      "portraitSous": "Tall, for a phone",
+      "camera": "Camera",
+      "cam": {
+        "phrase": "As in my sentence",
+        "phraseSous": "The studio follows what you wrote",
+        "fixe": "Stays still",
+        "fixeSous": "Steady shot, as on a tripod",
+        "suit": "Follows the character",
+        "suitSous": "The camera moves with them",
+        "approche": "Moves closer",
+        "approcheSous": "Slowly, toward the face or the object",
+        "autour": "Circles around",
+        "autourSous": "A slow turn around the subject"
+      },
+      "paroles": "Words",
+      "par": {
+        "aucune": "None",
+        "aucuneSous": "A shot with no words",
+        "replique": "One line",
+        "repliqueSous": "The character says one sentence",
+        "voixoff": "Voice-over",
+        "voixoffSous": "A voice tells the story over the picture",
+        "texteReplique": "What they say",
+        "texteVoix": "What the voice says"
+      },
+      "rendu": "Look",
+      "renduLead": "The studio picks the right method for you.",
+      "rapide": "Quick",
+      "rapideSous": "To try out: a simpler picture you can sharpen later in the edit",
+      "fidele": "Closer to my references",
+      "fideleSous": "Faces and places kept better",
+      "sansPrix": "no price yet with this look",
+      "sansPrixLong": "This shot has no price yet: pick another length or look in the settings.",
+      "ok": "Done",
+      "moteur": "Engine used: {moteur}"
+    }
   }
 }

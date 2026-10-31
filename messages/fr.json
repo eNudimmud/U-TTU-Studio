@@ -2197,7 +2197,7 @@
   },
   "rep3d": {
     "entryTitle": "Un vrai lieu en décor",
-    "entryLead": "Choisis un lieu et une vue 3D : Comfy en fait ton décor. Tu peux préciser avec un texte ou des photos.",
+    "entryLead": "Choisis un lieu et une vue 3D : le studio en fait ton décor. Tu peux préciser avec un texte ou des photos.",
     "open": "Choisir un lieu",
     "cardCost": "Vue 3D sur la carte",
     "toolLine": "Un vrai lieu devient ton décor : une vue 3D, plus des photos de la rue.",
@@ -3924,6 +3924,56 @@
       "photoVide": "Choisis au moins une photo.",
       "descriptionVide": "Décris-le en quelques mots."
     },
-    "garde": "Déjà fait et gardé : {faits}. « Réessayer » ne relance que : {reste}."
+    "garde": "Déjà fait et gardé : {faits}. « Réessayer » ne relance que : {reste}.",
+    "compte": {
+      "titre": "Réglages du compte",
+      "partenaires": "Utiliser aussi des services partenaires payants",
+      "partenairesSous": "Non par défaut : le studio n’utilise que ses propres modèles. Oui : quelques outils de plus passent par un service extérieur, toujours avec leur prix « ≈ X crédits estimés » avant de lancer."
+    },
+    "reglages": {
+      "titre": "Réglages du plan",
+      "lead": "Tout est déjà choisi. Change seulement ce que tu veux.",
+      "changer": "Changer les réglages du plan",
+      "duree": "Durée",
+      "format": "Format",
+      "paysage": "Paysage · YouTube",
+      "paysageSous": "Large, pour un écran d’ordinateur ou de télé",
+      "portrait": "Portrait · Reels",
+      "portraitSous": "En hauteur, pour un téléphone",
+      "camera": "Caméra",
+      "cam": {
+        "phrase": "Comme dans ma phrase",
+        "phraseSous": "Le studio suit ce que tu as écrit",
+        "fixe": "Ne bouge pas",
+        "fixeSous": "Plan posé, comme sur un pied",
+        "suit": "Suit le personnage",
+        "suitSous": "La caméra marche avec lui",
+        "approche": "S’approche",
+        "approcheSous": "Doucement, vers le visage ou l’objet",
+        "autour": "Tourne autour",
+        "autourSous": "Un tour lent autour du sujet"
+      },
+      "paroles": "Paroles",
+      "par": {
+        "aucune": "Aucune",
+        "aucuneSous": "Plan sans paroles",
+        "replique": "Une réplique",
+        "repliqueSous": "Le personnage dit une phrase",
+        "voixoff": "Voix off",
+        "voixoffSous": "Une voix raconte par-dessus l’image",
+        "texteReplique": "Ce qu’il dit",
+        "texteVoix": "Ce que dit la voix"
+      },
+      "rendu": "Rendu",
+      "renduLead": "Le studio choisit la bonne méthode pour toi.",
+      "rapide": "Rapide",
+      "rapideSous": "Pour essayer : image plus simple, à rendre plus nette ensuite au montage",
+      "fidele": "Plus fidèle à mes références",
+      "fideleSous": "Visages et lieux mieux gardés",
+      "sansPrix": "pas encore de prix avec ce rendu",
+      "sansPrixLong": "Ce plan n’a pas encore de prix : choisis une autre durée ou un autre rendu dans les réglages.",
+      "ok": "C’est bon",
+      "moteur": "Moteur utilisé : {moteur}"
+    }
   }
 }

@@ -55,7 +55,7 @@ import { sessionTokens } from "@/lib/render/session";
 import { settleLandedTake } from "@/lib/render/settle-take";
 import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
 import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
-import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
+import { DEFAULT_PREFS, prefsFilm2, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
@@ -177,6 +177,8 @@ export interface StudioSession {
   createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
   prefs: StudioPrefs;
   setPrefs(next: Partial<StudioPrefs>): void;
+  /** Refonte FILM flag on this device (preference or ?film2=1). */
+  film2: boolean;
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   runVideoGeste(input: VideoGesteRun): Promise<FinaliseOutcome>;
   runMeshGeste(input: MeshGesteRun): Promise<FinaliseOutcome>;
@@ -262,6 +264,8 @@ export interface PlanShoot {
   nouveaux: { nom: string; description?: string; files?: File[] }[];
   nouveauLieu: { nom: string; description?: string; file?: File | null } | null;
   settings: TakeSettings;
+  /** The sentence sent for the take (the visitor's words plus camera and words said); defaults to phrase. */
+  ligne?: string;
   onEtape?(index: number): void;
   /** Why a creation step stopped, in the visitor's words. */
   onEchec?(raison: string): void;
@@ -838,8 +842,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   const cast = demoOn && current.cast.length === 0 ? DEMO_CAST : current.cast;
   const decor = demoOn && current.scenes.length === 0 ? DEMO_DECOR : current.scenes.map(decorFromScene);
-  const [prefs, setPrefsState] = useState<StudioPrefs>(DEFAULT_PREFS);
-  useEffect(() => { setPrefsState(readPrefs(localStorage)); }, []);
+  const [storedPrefs, setPrefsState] = useState<StudioPrefs>(DEFAULT_PREFS);
+  const [film2, setFilm2] = useState(false);
+  useEffect(() => { setPrefsState(readPrefs(localStorage)); setFilm2(film2DansCePoste()); }, []);
+  // film2: « services partenaires payants » is an account setting, off by default (refonte FILM, PR 7).
+  const prefs = useMemo(() => film2 ? prefsFilm2(storedPrefs) : storedPrefs, [film2, storedPrefs]);
   const setPrefs = useCallback((next: Partial<StudioPrefs>) => {
     setPrefsState(prev => {
       const merged = { ...prev, ...next };
@@ -1730,10 +1737,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       lookPictures: Math.min(photos.length, paths.length),
       subject: who.map(card => card.name).join(", "),
       place: place ? { name: place.name, note: place.prompt || place.note, pictures: Math.max(0, paths.length - photos.length) } : null,
-      line: input.phrase,
+      line: input.ligne ?? input.phrase,
       tags: input.settings.engine === "h3" ? "picture" : "image",
     });
-    await confirmRun({ planId: input.planId, castIds, decorId, line: input.phrase, prompt, settings: input.settings });
+    await confirmRun({ planId: input.planId, castIds, decorId, line: input.ligne ?? input.phrase, prompt, settings: input.settings });
     return true;
   }, [client, confirmRun, connected, createCast, createDecor, run.phase, t]);
 
@@ -2424,7 +2431,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const value: StudioSession = {
     catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
     prefs, setPrefs,
-    ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
+    ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet, film2,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,

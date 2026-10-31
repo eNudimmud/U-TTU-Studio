@@ -2197,7 +2197,7 @@
   },
   "rep3d": {
     "entryTitle": "Un lugar real como decorado",
-    "entryLead": "Elige un lugar y una vista 3D: Comfy lo convierte en tu decorado. Puedes afinarlo con un texto o fotos.",
+    "entryLead": "Elige un lugar y una vista 3D: el estudio lo convierte en tu decorado. Puedes afinarlo con un texto o fotos.",
     "open": "Elegir un lugar",
     "cardCost": "Vista 3D en el mapa",
     "toolLine": "Un lugar real se convierte en tu decorado: una vista 3D y fotos de la calle.",
@@ -3924,6 +3924,56 @@
       "photoVide": "Elige al menos una foto.",
       "descriptionVide": "Descríbelo en pocas palabras."
     },
-    "garde": "Ya hecho y guardado: {faits}. «Reintentar» solo relanza: {reste}."
+    "garde": "Ya hecho y guardado: {faits}. «Reintentar» solo relanza: {reste}.",
+    "compte": {
+      "titre": "Ajustes de la cuenta",
+      "partenaires": "Usar también servicios asociados de pago",
+      "partenairesSous": "Desactivado por defecto: el estudio solo usa sus propios modelos. Activado: algunas herramientas más pasan por un servicio externo, siempre con su precio «≈ X créditos estimados» antes de lanzar."
+    },
+    "reglages": {
+      "titre": "Ajustes del plano",
+      "lead": "Todo ya está elegido. Cambia solo lo que quieras.",
+      "changer": "Cambiar los ajustes del plano",
+      "duree": "Duración",
+      "format": "Formato",
+      "paysage": "Horizontal · YouTube",
+      "paysageSous": "Ancho, para pantalla de ordenador o tele",
+      "portrait": "Vertical · Reels",
+      "portraitSous": "En vertical, para el móvil",
+      "camera": "Cámara",
+      "cam": {
+        "phrase": "Como en mi frase",
+        "phraseSous": "El estudio sigue lo que escribiste",
+        "fixe": "No se mueve",
+        "fixeSous": "Plano fijo, como en un trípode",
+        "suit": "Sigue al personaje",
+        "suitSous": "La cámara va con él",
+        "approche": "Se acerca",
+        "approcheSous": "Despacio, hacia la cara o el objeto",
+        "autour": "Gira alrededor",
+        "autourSous": "Una vuelta lenta alrededor"
+      },
+      "paroles": "Palabras",
+      "par": {
+        "aucune": "Ninguna",
+        "aucuneSous": "Plano sin palabras",
+        "replique": "Una frase",
+        "repliqueSous": "El personaje dice una frase",
+        "voixoff": "Voz en off",
+        "voixoffSous": "Una voz narra sobre la imagen",
+        "texteReplique": "Lo que dice",
+        "texteVoix": "Lo que dice la voz"
+      },
+      "rendu": "Resultado",
+      "renduLead": "El estudio elige el método adecuado por ti.",
+      "rapide": "Rápido",
+      "rapideSous": "Para probar: imagen más sencilla, se puede afinar luego en el montaje",
+      "fidele": "Más fiel a mis referencias",
+      "fideleSous": "Caras y lugares mejor conservados",
+      "sansPrix": "aún sin precio con este resultado",
+      "sansPrixLong": "Este plano aún no tiene precio: elige otra duración u otro resultado en los ajustes.",
+      "ok": "Listo",
+      "moteur": "Motor usado: {moteur}"
+    }
   }
 }
