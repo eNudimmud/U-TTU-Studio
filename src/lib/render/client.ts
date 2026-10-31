@@ -7,6 +7,7 @@ import { centsToCredits } from "../credits.ts";
 import type { ApiGraph } from "./take-graph.ts";
 import { UPLOAD_HEAVY, uploadTooHeavy } from "./upload-limit.ts";
 import { prepareUpload, type UploadNeed } from "./prepare-upload.ts";
+import { envoiKey, sha256Hex, type UploadMemo } from "../film/envois.ts";
 import { directContentType, readDirectState, sendDirect, type BlobUpload, type DirectState } from "../envoi-direct/client.ts";
 
 export type RenderAuth =
@@ -48,6 +49,8 @@ export interface RenderClientOptions {
   balanceUrl?: string;
   /** Direct send to private Vercel Blob for heavy files (tests inject a fake). */
   blobUpload?: BlobUpload;
+  /** Registre de production: a picture already sent to this account is not uploaded again. */
+  uploadMemo?: UploadMemo;
 }
 
 export const BALANCE_URL = "https://api.comfy.org/customers/balance";
@@ -205,6 +208,8 @@ export function createRenderClient(options: RenderClientOptions) {
   const relay = (options.relay ?? "").replace(/\/+$/, "");
   const balanceUrl = options.balanceUrl ?? BALANCE_URL;
   let directState: Promise<DirectState> | null = null;
+  /** Memo keys answered without an upload since the last submit: forgotten if Comfy refuses the graph. */
+  let memoUsed: string[] = [];
 
   async function authHeaders(): Promise<Record<string, string>> {
     const headers = await getComfyAuthHeaders(options.auth);
@@ -235,6 +240,57 @@ export function createRenderClient(options: RenderClientOptions) {
     }
   }
 
+  async function uploadNow(source: Blob, filename: string, need?: UploadNeed): Promise<string> {
+    // Every user file passes here. With the private Blob store connected
+    // (src/lib/envoi-direct), it goes as the original, bytes untouched (Wan Animate's
+    // pose video is only re-timed). Without it, or if that send fails, the browser
+    // reduction + relay path of src/lib/render/prepare-upload.ts, as before.
+    directState ??= authHeaders().then(headers => readDirectState(relay, headers, doFetch), () => ({ direct: false }));
+    const state = await directState;
+    if (state.direct && state.scope && directContentType(source, filename)) {
+      try {
+        const file = await prepareUpload(source, filename, need, "direct");
+        return await sendDirect(file, state.scope, relay, await authHeaders(), doFetch, options.blobUpload);
+      } catch {
+        // Silent fallback to the relay path below.
+      }
+    }
+    const file = await prepareUpload(source, filename, need);
+    if (uploadTooHeavy(file.size)) throw new Error(UPLOAD_HEAVY);
+    const form = new FormData();
+    form.append("image", file, file.name);
+    form.append("type", "input");
+    const response = await call("/api/upload/image", { method: "POST", body: form });
+    if (response.status === 413) throw new Error(UPLOAD_HEAVY);
+    if (!response.ok) throw new RenderError("invalid", `Photo refusée (${response.status}).`);
+    const body = await json<{ name?: unknown; subfolder?: unknown }>(response);
+    if (typeof body.name !== "string" || !body.name || /[\\\u0000]/.test(body.name)) throw new RenderError("invalid", "Photo envoyée sans nom.");
+    return typeof body.subfolder === "string" && body.subfolder ? `${body.subfolder}/${body.name}` : body.name;
+  }
+
+  async function submitNow(graph: ApiGraph, clientId: string): Promise<string> {
+    // Partner/API nodes read credentials from extra_data, not only HTTP headers
+    // (Comfy Cloud: api_key_comfy_org for a key, auth_token_comfy_org for a session).
+    const extra_data: Record<string, string> = {};
+    if (options.auth.kind === "key") {
+      if (options.auth.key) extra_data.api_key_comfy_org = options.auth.key;
+    } else {
+      const token = await options.auth.token();
+      if (token) extra_data.auth_token_comfy_org = token;
+    }
+    const response = await call("/api/prompt", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ prompt: graph, client_id: clientId, extra_data }),
+    });
+    const body = await json<Record<string, unknown>>(response);
+    const lines = errorLines(body);
+    if (!response.ok || lines.length > 0 || typeof body.prompt_id !== "string") {
+      throw new RenderError("invalid", "Le compte de rendu a refusé la prise.", lines);
+    }
+    return body.prompt_id;
+  }
+
   const client = {
     async user(): Promise<Record<string, unknown>> {
       const response = await call("/api/user");
@@ -262,54 +318,29 @@ export function createRenderClient(options: RenderClientOptions) {
 
     /** Returns the input name a LoadImage node takes. */
     async upload(source: Blob, filename: string, need?: UploadNeed): Promise<string> {
-      // Every user file passes here. With the private Blob store connected
-      // (src/lib/envoi-direct), it goes as the original, bytes untouched (Wan Animate's
-      // pose video is only re-timed). Without it, or if that send fails, the browser
-      // reduction + relay path of src/lib/render/prepare-upload.ts, as before.
-      directState ??= authHeaders().then(headers => readDirectState(relay, headers, doFetch), () => ({ direct: false }));
-      const state = await directState;
-      if (state.direct && state.scope && directContentType(source, filename)) {
-        try {
-          const file = await prepareUpload(source, filename, need, "direct");
-          return await sendDirect(file, state.scope, relay, await authHeaders(), doFetch, options.blobUpload);
-        } catch {
-          // Silent fallback to the relay path below.
-        }
-      }
-      const file = await prepareUpload(source, filename, need);
-      if (uploadTooHeavy(file.size)) throw new Error(UPLOAD_HEAVY);
-      const form = new FormData();
-      form.append("image", file, file.name);
-      form.append("type", "input");
-      const response = await call("/api/upload/image", { method: "POST", body: form });
-      if (response.status === 413) throw new Error(UPLOAD_HEAVY);
-      if (!response.ok) throw new RenderError("invalid", `Photo refusée (${response.status}).`);
-      const body = await json<{ name?: unknown; subfolder?: unknown }>(response);
-      if (typeof body.name !== "string" || !body.name || /[\\\u0000]/.test(body.name)) throw new RenderError("invalid", "Photo envoyée sans nom.");
-      return typeof body.subfolder === "string" && body.subfolder ? `${body.subfolder}/${body.name}` : body.name;
+      const memo = options.uploadMemo;
+      if (!memo) return uploadNow(source, filename, need);
+      let key: string | null = null;
+      try {
+        const scope = await credentialScopes.get(client)?.();
+        if (scope) key = envoiKey(scope, await sha256Hex(source), need ?? null, filename);
+      } catch { key = null; }
+      const known = key ? memo.get(key) : null;
+      if (key && known) { memoUsed.push(key); return known; }
+      const name = await uploadNow(source, filename, need);
+      if (key) memo.set(key, name);
+      return name;
     },
 
     async submit(graph: ApiGraph, clientId: string): Promise<string> {
-      // Partner/API nodes read credentials from extra_data, not only HTTP headers
-      // (Comfy Cloud: api_key_comfy_org for a key, auth_token_comfy_org for a session).
-      const extra_data: Record<string, string> = {};
-      if (options.auth.kind === "key") {
-        if (options.auth.key) extra_data.api_key_comfy_org = options.auth.key;
-      } else {
-        const token = await options.auth.token();
-        if (token) extra_data.auth_token_comfy_org = token;
+      const used = memoUsed;
+      memoUsed = [];
+      try { return await submitNow(graph, clientId); }
+      catch (error) {
+        // A refused graph may point at an input the cloud no longer has: send those pictures again next time.
+        for (const key of used) options.uploadMemo?.forget(key);
+        throw error;
       }
-      const response = await call("/api/prompt", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt: graph, client_id: clientId, extra_data }),
-      });
-      const body = await json<Record<string, unknown>>(response);
-      const lines = errorLines(body);
-      if (!response.ok || lines.length > 0 || typeof body.prompt_id !== "string") {
-        throw new RenderError("invalid", "Le compte de rendu a refusé la prise.", lines);
-      }
-      return body.prompt_id;
     },
 
     async status(jobId: string): Promise<string> {
