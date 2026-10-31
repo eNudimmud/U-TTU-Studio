@@ -315,7 +315,7 @@ export async function handleUttuChat(request: Request, deps: Deps): Promise<Resp
   try { payload = await request.json(); } catch { return fail("invalid", 400); }
   const message = typeof payload?.message === "string" ? payload.message.trim() : "";
   if (!message || message.length > MAX_MESSAGE) return fail("invalid", 400);
-  const locale: UttuLocale = (UTTU_LOCALES as readonly string[]).includes(payload.locale as string) ? payload.locale as UttuLocale : "fr";
+  const locale: UttuLocale = (UTTU_LOCALES as readonly string[]).includes(payload.locale as string) ? payload.locale as UttuLocale : "en";
   let k: Knowledge;
   try { k = await deps.knowledge(); } catch { return fail("failed", 503); }
   const body = routerBody(k, locale, message, cleanHistory(payload.history), cleanProject(payload.project));

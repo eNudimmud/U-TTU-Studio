@@ -349,7 +349,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
           <button type="button" className="u-secondary" data-film-modifier="" onClick={() => { setAsking(false); field.current?.focus(); }}>{t("film2.modifier")}</button>
           <button type="button" className="u-secondary" aria-expanded={envoye} data-film-envoye="" onClick={() => setEnvoye(value => !value)}>{t("film2.envoye")}</button>
         </div>
-        {envoye && <p className="u-film-sent" data-film-sent="">{t("film2.envoyeLead")}<br /><q>{ligne}</q><br /><small data-film-moteur="">{t("film2.reglages.moteur", { moteur: settings.engine === "h3" ? "MiniMax H3" : "LTX 2.5 (aperçu)" })}</small></p>}
+        {envoye && <p className="u-film-sent" data-film-sent="">{t("film2.envoyeLead")}<br /><q>{ligne}</q><br /><small data-film-moteur="">{t("film2.reglages.moteur", { moteur: settings.engine === "h3" ? "MiniMax H3" : t("film2.reglages.ltxApercu") })}</small></p>}
       </div>
     </div>}
   </section>;

@@ -1,8 +1,8 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { LOCALE_COOKIE, requestLocaleFrom, type Locale } from "./config";
 
-/** The visitor's explicit choice (AA, cookie) stays; a first visit follows the browser, English otherwise. */
+/** The visitor's explicit choice (cookie) stays; a first visit is in English. */
 export async function requestLocale(): Promise<Locale> {
-  const [jar, head] = await Promise.all([cookies(), headers()]);
-  return requestLocaleFrom(jar.get(LOCALE_COOKIE)?.value, head.get("accept-language"));
+  const jar = await cookies();
+  return requestLocaleFrom(jar.get(LOCALE_COOKIE)?.value);
 }

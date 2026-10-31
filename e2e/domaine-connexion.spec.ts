@@ -14,8 +14,8 @@ test("public domain: the landing stays, the studio doors open the login-authoriz
   await page.goto(`http://${PUBLIC}:${port(baseURL)}/`);
   await expect(page).toHaveURL(/^http:\/\/uttu-studio\.test:\d+\/$/);
   const enter = page.locator("[data-enter-studio]");
-  await expect(enter).toHaveAttribute("href", `${AUTHORIZED}/studio?uttu_hop=1&uttu_lang=fr`);
-  await expect(page.locator("[data-try-free]")).toHaveAttribute("href", `${AUTHORIZED}/studio?uttu=1&uttu_hop=1&uttu_lang=fr`);
+  await expect(enter).toHaveAttribute("href", `${AUTHORIZED}/studio?uttu_hop=1&uttu_lang=en`);
+  await expect(page.locator("[data-try-free]")).toHaveAttribute("href", `${AUTHORIZED}/studio?uttu=1&uttu_hop=1&uttu_lang=en`);
   const box = await enter.boundingBox();
   expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
 });
@@ -46,7 +46,7 @@ test("a hop that comes straight back shows an explicit error, never a redirect l
   expect(await back.text()).toContain("data-loop-retry");
 
   await page.goto(`http://${PUBLIC}:${port(baseURL)}/studio?uttu_hop=1`);
-  await expect(page.getByRole("heading", { name: "Le studio n'a pas pu s'ouvrir" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The studio couldn't open" })).toBeVisible();
   for (const selector of ["[data-loop-retry]", "[data-loop-home]"]) {
     const box = await page.locator(selector).boundingBox();
     expect(box?.height ?? 0, selector).toBeGreaterThanOrEqual(44);

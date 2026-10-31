@@ -811,3 +811,10 @@ La première livraison vendait le « Look-Lock Pack » (CHF 800–2 500) et une 
   - hôtes autorisés : `NEXT_PUBLIC_LOGIN_AUTHORIZED_HOSTS` (défaut `.vercel.app,localhost,127.0.0.1,[::1]`, un point initial couvre les sous-domaines, donc les aperçus) ;
   - anti-boucle : chaque saut porte `uttu_hop=1` et pose un cookie de 20 s. Si la requête revient sur l'hôte non autorisé avec l'un des deux (l'origine autorisée redirige encore ici), le proxy répond 508 avec une page claire en FR/EN/DE/ES (« Réessayer », « Retour à l'accueil », 44 px) au lieu de rediriger. Sur l'origine autorisée, `uttu_hop`/`uttu_lang` sont retirés par une redirection et la langue est gardée en cookie.
 - Fin du correctif : quand Comfy aura ajouté `uttu-studio.app` (et `www.`) à ses domaines autorisés (demande à support@comfy.org), ajouter ces hôtes à `NEXT_PUBLIC_LOGIN_AUTHORIZED_HOSTS` et `NEXT_PUBLIC_STUDIO_ORIGIN=https://uttu-studio.app` sur Vercel, puis redéployer. Plus aucun saut. Les sessions Comfy ouvertes sur `vercel.app` ne suivent pas (localStorage par origine) : se reconnecter une fois.
+
+## 2026-10-31 — English by default
+
+- **Décision :** le studio s'ouvre en anglais pour tout nouveau visiteur. L'en-tête `Accept-Language` n'est plus lu : les aperçus de lien, les robots et une première visite voient le même studio. Un choix enregistré (cookie `u-ttu-locale`, localStorage, `?uttu_lang=`) reste prioritaire. FR, DE et ES restent dans le sélecteur.
+- **Décision :** noms de sections en anglais : CAST · SET · SHOOT · EDIT, puis FINISH. L'outil de retouche s'appelle Retouch pour ne pas se confondre avec EDIT.
+- **Fait :** les images de partage (`public/og.jpg`, `public/og/{accueil,studio,creations}.jpg`) sont régénérées en anglais, 1200×630, adresse `?v=4`.
+- **Hypothèse (suite) :** les ancres d'URL (`#personnage`, `#prise`, `#outils`…), le format des fiches du coffre Obsidian et le format des nombres de crédits (fr-CH) restent tels quels. Les changer casserait des liens et des coffres existants.

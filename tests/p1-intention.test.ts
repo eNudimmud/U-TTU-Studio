@@ -97,7 +97,7 @@ describe("P1 · résolveur d’intention", () => {
 
   it("déterministe : même phrase, même résultat", () => {
     assert.deepEqual(resolveIntention(SENTENCE_1, CTX), resolveIntention(SENTENCE_1, CTX));
-    assert.equal(detectLang(""), "fr");
+    assert.equal(detectLang(""), "en");
   });
 });
 
