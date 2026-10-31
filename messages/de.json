@@ -4045,6 +4045,11 @@
       "aria": "Film: Einstellungen und Schnitt",
       "plans": "Einstellungen",
       "vide": "leer"
-    }
+    },
+    "autrePrise": "Noch ein Take",
+    "modifierRefaire": "Ändern und neu drehen",
+    "finiAutre": "Take {n} dieser Einstellung. Er ist in Meine Werke und unter „Meine Einstellungen“ im Schnitt; der Schnitt behält den ersten.",
+    "soldeApresAutre": "Guthaben danach: ≈ {n} Credits. Der Take kommt in Meine Werke und unter „Meine Einstellungen“; der Schnitt behält den ersten.",
+    "soldeInconnuAutre": "Der Take kommt in Meine Werke und unter „Meine Einstellungen“; der Schnitt behält den ersten."
   }
 }

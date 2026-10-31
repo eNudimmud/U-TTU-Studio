@@ -90,3 +90,7 @@ button.u-film-chip { cursor: pointer; }
 .u-film-opt[aria-pressed="true"] { border-color: var(--accent, #d9b15c); color: var(--accent, #d9b15c); }
 .u-film-opt:disabled { opacity: .5; cursor: not-allowed; }
 .u-film-reglages .u-film-gold { position: sticky; bottom: 0; }
+
+/* « Autre prise »: the label, then its estimate on its own line (no ragged wrap on a phone). */
+.u-film-result-actions [data-film-autre] { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.u-film-result-actions [data-film-autre] .u-film-price { font-size: 0.8em; opacity: 0.85; }

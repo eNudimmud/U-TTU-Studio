@@ -35,6 +35,8 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const [asking, setAsking] = useState(false);
   const [envoye, setEnvoye] = useState(false);
   const [launched, setLaunched] = useState<string | null>(null);
+  // « Autre prise » / « Modifier et refaire »: the next try is one more take of this plan, not a new plan.
+  const [reprise, setReprise] = useState<string | null>(null);
   const [etape, setEtape] = useState(0);
   const [echec, setEchec] = useState("");
   // The steps of the try in flight: after a failure, what is no longer a step was made and is kept.
@@ -98,8 +100,10 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   useEffect(() => {
     if (!landed || !launched || filed.current === landed.id) return;
     filed.current = landed.id;
+    const deja = registre.plans.find(item => item.id === launched)?.prises.length ?? 0;
     void (async () => {
-      await studio.sendToMontage({ takeId: landed.id, planId: launched, label: plan.phrase.slice(0, 80), seconds: landed.settings.seconds, aspect: landed.settings.aspect === "vertical" ? "vertical" : "horizontal", still: landed.poster ?? "", video: landed.video, prompt: landed.prompt, sceneName: landed.sceneName, composeur: "" });
+      // Another take of a plan already on the cut stays in « Mes plans »: the cut keeps the first one.
+      if (deja === 0) await studio.sendToMontage({ takeId: landed.id, planId: launched, label: plan.phrase.slice(0, 80), seconds: landed.settings.seconds, aspect: landed.settings.aspect === "vertical" ? "vertical" : "horizontal", still: landed.poster ?? "", video: landed.video, prompt: landed.prompt, sceneName: landed.sceneName, composeur: "" });
       const base = registre.plans.some(item => item.id === launched) ? registre : ajouterPlan(registre, { ...nouveauPlan(registre, launched, plan.phrase), quiIds: plan.qui.flatMap(who => who.id ?? []), ouId: plan.ou?.id ?? null });
       const next = auMontage(ajouterPrise(base, launched, { id: landed.id, fichier: landed.video }), launched, landed.settings.seconds);
       setRegistre(next);
@@ -121,7 +125,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const go = async () => {
     setAsking(false);
     // A retry keeps the plan id: the steps already made are found again, only the rest is sent.
-    const id = failed && launched ? launched : `plan-${Date.now().toString(36)}`;
+    const id = failed && launched ? launched : reprise ?? `plan-${Date.now().toString(36)}`;
     if (!(failed && launched)) setLancees(etapes.map(step => ({ type: step.type, nom: step.nom })));
     setEchec("");
     setLaunched(id);
@@ -149,8 +153,24 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     setChoix(CHOIX_VIDE);
     setFichiers({});
     setLaunched(null);
+    setReprise(null);
     studio.resetRun();
     requestAnimationFrame(() => field.current?.focus());
+  };
+  // A take of a plan that already has one does not go on the cut: the sheet says so.
+  const autreDuPlan = reprise !== null && (registre.plans.find(item => item.id === reprise)?.prises.length ?? 0) > 0;
+  // Same sentence, same Qui/Où, same settings: only the take is quoted again (the cards exist now).
+  const autrePrise = () => {
+    if (!launched) return;
+    setReprise(launched);
+    studio.resetRun();
+    ask();
+  };
+  const modifierRefaire = () => {
+    if (!launched) return;
+    setReprise(launched);
+    studio.resetRun();
+    requestAnimationFrame(() => { field.current?.focus(); field.current?.select(); });
   };
 
   const thumb = (path: string | null | undefined, preview?: string | null) => preview ? assetPath(preview) : path && media[path] ? media[path] : "";
@@ -213,8 +233,11 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     {running && <p id="u-film-running" className="u-film-state" role="status" data-film-running="">{t("film2.enCours", { i: String(Math.min(etape + 1, etapes.length)), n: String(etapes.length), label: labelEtape(etape) })}</p>}
     {landed && <div className="u-film-result" data-film-result="">
       {media[landed.video] ? <video src={media[landed.video]} controls playsInline muted loop preload="metadata" /> : null}
-      <p role="status">{t("film2.fini")}</p>
+      <p role="status" data-film-fini="">{(() => { const n = registre.plans.find(item => item.id === launched)?.prises.findIndex(item => item.id === landed.id) ?? -1; return n > 0 ? t("film2.finiAutre", { n: String(n + 1) }) : t("film2.fini"); })()}</p>
       <div className="u-film-result-actions">
+        <button type="button" className="u-secondary" data-film-autre="" onClick={autrePrise} disabled={priseQuote === null} aria-describedby={priseQuote === null ? "u-film-autre-why" : undefined}><span>{t("film2.autrePrise")}</span>{priseQuote !== null && <span className="u-film-price">{t("film2.credits", { n: formatCredits(priseCredits) })}</span>}</button>
+        {priseQuote === null && <span id="u-film-autre-why" className="sr-only">{t("film2.reglages.sansPrixLong")}</span>}
+        <button type="button" className="u-secondary" data-film-refaire-plan="" onClick={modifierRefaire}>{t("film2.modifierRefaire")}</button>
         <button type="button" className="u-secondary" data-film-suivant="" onClick={suivant}>{t("film2.planSuivant")}</button>
         <button type="button" className="u-secondary" data-film-montage="" onClick={onMontage}>{t("film2.voirMontage")}</button>
       </div>
@@ -254,7 +277,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
           </li>)}
         </ol>
         <p className="u-film-total"><strong>{t("film2.total")}</strong><strong data-film-total="">{prix}</strong></p>
-        <p className="u-film-after">{balance ? t("film2.soldeApres", { n: formatCredits(Math.max(0, balance.credits - total)) }) : t("film2.soldeInconnu")}</p>
+        <p className="u-film-after" data-film-apres-lancer="">{balance ? t(autreDuPlan ? "film2.soldeApresAutre" : "film2.soldeApres", { n: formatCredits(Math.max(0, balance.credits - total)) }) : t(autreDuPlan ? "film2.soldeInconnuAutre" : "film2.soldeInconnu")}</p>
         <button ref={lancer} type="button" className="u-film-gold" data-film-lancer="" onClick={() => void go()}><span>{t("film2.lancer")}</span><span className="u-film-price">· {prix}</span></button>
         <div className="u-film-sheet-row">
           <button type="button" className="u-secondary" data-film-modifier="" onClick={() => { setAsking(false); field.current?.focus(); }}>{t("film2.modifier")}</button>
