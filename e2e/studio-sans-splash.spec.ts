@@ -65,7 +65,7 @@ test("the same home stays once the studio is ready: no second mount, the film do
   await expect(page.locator("[data-splash]")).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.getAttributeNames().filter(name => name.startsWith("data-u-")))).toEqual([]);
   await page.locator("[data-entry-film]").click();
-  await expect(page).toHaveURL(/#personnage$/);
-  await expect(page.locator(".u-app")).toHaveAttribute("data-studio", "lora");
+  await expect(page).toHaveURL(/#prise$/);
+  await expect(page.locator(".u-app")).toHaveAttribute("data-studio", "prise");
   expect(errors).toEqual([]);
 });

@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
-import { clipSpeed, commit, editDuration, emptyEdit, formatClock, historyOf, mediaTime, playSpan, redo, setVideoFade, setVideoSpeed, undo, videoAt, type Edit, type History, type VideoClip } from "@/lib/montage/edit";
+import { addAudio, clipSpeed, commit, editDuration, emptyEdit, formatClock, historyOf, mediaTime, playSpan, redo, setVideoFade, setVideoSpeed, undo, videoAt, type Edit, type History, type VideoClip } from "@/lib/montage/edit";
 import { exportAllowed, exportEstimate } from "@/lib/montage/export-plan";
 import { exportExtension, exportMp4 } from "@/lib/montage/encode";
 import { FINAL_MAX_SECONDS, MASTER, finalQuote, masterSize } from "@/lib/montage/finaliser";
@@ -17,6 +17,8 @@ import { suiteQuote } from "@/lib/suite/quote";
 import { ACTIONS, actionPourTouche, agir, ajouterALaFin, placements, pourquoiPas, type ActionId } from "@/lib/film/montage";
 import { Pause, Play, Redo, Split, Trash, Undo, ZoomIn, ZoomOut } from "../glyphs";
 import { useStudio } from "../studio-session";
+import { useAgentDraft } from "../use-agent-draft";
+import { appendAgentMedia, localMediaDuration, type TimedResource } from "@/lib/agent/montage";
 import "./film-montage.css";
 
 const BULLE_KEY = "u-ttu-film2-montage-bulle";
@@ -37,7 +39,7 @@ type Sortie = { phase: "idle" } | { phase: "run"; texte: string } | { phase: "do
 
 export function FilmMontage({ onFilled, onPlans }: { onFilled?(filled: boolean): void; onPlans?(): void }) {
   const { t, say } = useI18n();
-  const { ready, studio, media, connected, balance, prefs, loadMontages, saveMontage, writeProjectFile, saveExport, finaliseMontage } = useStudio();
+  const { ready, studio, media, connected, balance, prefs, loadMontages, saveMontage, writeProjectFile, saveExport, finaliseMontage, pendingClip, holdClip } = useStudio();
   const [history, setHistory] = useState<History<Edit>>(() => historyOf(emptyEdit("suite", "Séquence")));
   const historyRef = useRef(history);
   historyRef.current = history;
@@ -52,6 +54,8 @@ export function FilmMontage({ onFilled, onPlans }: { onFilled?(filled: boolean):
   const [net, setNet] = useState(false);
   const [sortie, setSortie] = useState<Sortie>({ phase: "idle" });
   const [error, setError] = useState("");
+  /** The project whose saved cut is on screen: held clips and agent handoffs wait for it. */
+  const [loaded, setLoaded] = useState<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const syncing = useRef(false);
@@ -90,10 +94,69 @@ export function FilmMontage({ onFilled, onPlans }: { onFilled?(filled: boolean):
       const current = historyRef.current;
       if (current.past.length === 0 && current.future.length === 0) show(historyOf(choice.edit));
       else if (choice.edit.video.length > current.present.video.length) show(commit(current, choice.edit));
+      setLoaded(studio.project ?? "");
     }).catch(() => { if (!gone) setError(t("safety.sequenceMissing")); });
     return () => { gone = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, key]);
+
+  // The assistant's « Assembler » step with library media: they go on this cut once it is loaded, with
+  // stable clip ids so a replayed handoff never adds them twice; the draft stays until the save holds.
+  useAgentDraft(op => op.adapter === "montage", async (draft, resources) => {
+    const origin = studio.project ?? "";
+    const additions: TimedResource[] = [];
+    for (const resource of resources) {
+      if (resource.role !== "asset" || !["image", "video", "audio"].includes(resource.kind)) continue;
+      const seconds = resource.kind === "image" ? 5 : await localMediaDuration(resource.kind as "video" | "audio", media[resource.path] ?? "");
+      additions.push({ ...resource, seconds });
+    }
+    if (draft.projectId !== origin) throw new Error("project");
+    const base = historyRef.current;
+    const next = appendAgentMedia(base.present, draft, additions);
+    if (next === base.present) return;
+    show(commit(base, next));
+    try {
+      const saved = await saveMontage(next, {});
+      if (historyRef.current.present === next) show({ ...historyRef.current, present: saved.edit });
+    } catch (reason) {
+      if (historyRef.current.present === next) show(base);
+      throw reason;
+    }
+  }, loaded === (studio.project ?? ""));
+
+  // « Ajouter au montage » from Mes créations (or a ?asset= link): the held clip goes at the end of the
+  // cut once this project's cut is loaded, with its own duration, then is released.
+  useEffect(() => {
+    if (!pendingClip || loaded !== (studio.project ?? "")) return;
+    const pending = pendingClip;
+    const src = media[pending.source];
+    // The media map fills after a reload: wait for the blob URL rather than failing empty.
+    if (!src && !pending.source.startsWith("/")) return;
+    let cancelled = false;
+    void (async () => {
+      let seconds = pending.seconds ?? 5;
+      if (pending.kind !== "image" && !pending.seconds) {
+        const element = document.createElement(pending.kind === "video" ? "video" : "audio");
+        try {
+          seconds = await new Promise<number>((resolve, reject) => {
+            const timer = window.setTimeout(() => reject(new Error("timeout")), 15000);
+            element.onloadedmetadata = () => { clearTimeout(timer); if (Number.isFinite(element.duration) && element.duration > 0) resolve(element.duration); else reject(new Error("duration")); };
+            element.onerror = () => { clearTimeout(timer); reject(new Error("unreadable")); };
+            element.src = src || pending.source;
+          });
+        } finally { element.removeAttribute("src"); element.load(); }
+      }
+      if (cancelled) return;
+      const id = `plan-${crypto.randomUUID()}`;
+      const base = historyRef.current.present;
+      apply(pending.kind === "audio"
+        ? addAudio(base, { id, track: "effets", source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, at: 0, volume: 0.8, fadeIn: 0, fadeOut: 0 })
+        : ajouterALaFin(base, { id, kind: pending.kind, source: pending.source, label: pending.label, media: seconds, start: 0, end: seconds, takeId: null }));
+      if (pending.kind !== "audio") setSelected(id);
+      holdClip(current => current && current.source === pending.source && current.label === pending.label ? null : current);
+    })().catch(() => { if (!cancelled) setError(t("safety.assetMissing")); });
+    return () => { cancelled = true; };
+  }, [pendingClip, holdClip, loaded, studio.project, media, apply, t]);
   useEffect(() => { onFilled?.(edit.video.length > 0); }, [edit.video.length, onFilled]);
   useEffect(() => {
     try { if (!localStorage.getItem(BULLE_KEY)) setBulle(true); } catch { /* private tab */ }

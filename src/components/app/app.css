@@ -721,8 +721,6 @@
 .u-gallery-hidden { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; font-size: .85rem; color: var(--u-gold-soft); }
 .u-gallery-hidden button { flex: none; white-space: nowrap; min-height: 44px; padding: 0 14px; border: 1px solid var(--control); border-radius: var(--radius-control); background: transparent; color: var(--fg); }
 
-/* Gestes vidéo de PRISE : même grammaire que Finaliser, cibles de 44 px. */
-
 /* Prévis au doigt */
 .u-file-chip { position: relative; cursor: pointer; }
 .u-file-chip input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
@@ -790,8 +788,6 @@
   .u-toast { top: 6px; max-width: min(520px, calc(100% - 560px)); padding: 8px 14px; border-radius: 12px; z-index: 60; font-size: 13px; line-height: 1.3; }
 }
 .u-fiab-change { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--u-line); }
-/* PRISE default preview: the chosen décor, framed, with who · where. No 3D at the default level. */
-
 /* #113 quick-fix: in PRISE and MONTAGE the notice is a quiet status line, not a toast over the work. */
 @keyframes u-status-in { from { transform: translateY(3px); } to { transform: none; } }
 
@@ -799,9 +795,6 @@
    Existing tokens only (no new colours or ornaments) so the coming re-theme applies as is. */
 .u-uttu { padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
 /* Sequence summary: "· 3 plans" wraps in the narrow desktop strip instead of being clipped. */
-/* DA v1 · 390 / 360: the continuity line sits under « Ce qui se passe », above the text box,
-   so the chips and the assistant appearing while typing never push it under the sticky bar. */
-
 /* 3D repérage — one entry in DÉCOR, a full-screen sheet. Sober DA tokens only. */
 .u-rep3d-entry { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-card); background: var(--surface); }
 .u-rep3d-entry > div:not(.u-rep3d) { flex: 1 1 220px; min-width: 0; display: grid; gap: 4px; }
@@ -1710,12 +1703,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-uttu-log { max-height:none; }
 }
 
-/* Qualité de la prise : Aperçu ou Qualité finale. Deux cartes radio, 44 px minimum. */
-
-/* Montage : étiquette Aperçu / Qualité finale sur chaque plan. */
-
-/* MONTAGE : la qualité de l'export, dite avant d'exporter, et le chemin vers Finaliser. */
-
 /* Barre unique: one compact creation bar. Modes, « + », settings and chips appear only when asked for. */
 .u-barre-home { width: min(860px, 100%); gap: 18px; }
 .u-app .u-barre-title { margin: 8px 0 0; font-size: clamp(36px, 9vw, 60px); line-height: 1.02; text-align: start; }
@@ -1961,12 +1948,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 
 
 
-/* Clip reorder: insertion caret + dragged clip (Mes créations / montage visitor tests). */
-
-/* (21) 390 px montage: Delete label must not wrap into unreadability; 44 px tools/zoom. */
-
-/* (23) 1024×600 montage toolbar: labels truncate — icons + native tooltips only. */
-
 /* (22) 844×390 landscape: compact header + scrollable rail so Film / Mes créations stay reachable. */
 @media (max-height: 430px) and (orientation: landscape) {
   :root { --u-top-h: 48px; }
@@ -1994,10 +1975,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-app[data-studio="montage"] .u-main { padding: 2px 8px 4px; }
 }
 
-/* PRISE figure chips: 44 px tap targets (visitor test). */
-
-/* Montage tools: keep full words when there is room; scroll rather than ellipsis to one letter. */
-
 /* Short desktop (1024×600): keep bin tabs readable, player modest, timeline (vidéo+voix) on screen. */
 @media (min-width: 1024px) and (max-height: 700px) {
   .u-app[data-studio="montage"] .u-top { min-height: 44px; padding-block: 2px; }
@@ -2006,8 +1983,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 }
 
 /* Comfortable desktop (1280×800+): readable 16:9 preview ≥ ~300 px; all montage tracks on screen. */
-/* Under 900 px tall: drop the bottom outils strip so vidéo+voix+effets+musique fit. */
-
 /* Short landscape (≤500 px tall, e.g. 844×390): side-by-side player | timeline, chrome stripped.
    Keep #u-title and the rail visible (design-obsidian). */
 @media (max-height: 500px) and (orientation: landscape) {
@@ -2030,16 +2005,8 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-app[data-studio="montage"] .u-main { padding: 2px 8px 4px; overflow: hidden; }
 }
 
-/* PRISE: one row of plan tools under the strip (44 px, touch-first); « Annuler » right after a delete. */
-
-/* PRISE: one current-shot editor and a persistent undo control, usable by touch. */
-
 /* Kept framing: the maps are independent of identity/style references. */
 [data-framing-mode="plat"] [data-autre-essai], [data-framing-mode="plat"] [data-tourner] { display:none; }
-
-/* ── P1-3 · PRISE on a phone: one simple path in five steps ───────────
-   Préparer → Plans → Prévisualiser → Générer → Réviser. Each step shows existing blocks only
-   (one plan editor, no second DÉCOR or MONTAGE). From 1024 px every block stays on screen. */
 
 /* Bubble reference picker: named cards only, one tap to attach, edit/delete behind « ⋯ ». */
 .u-named-tools { display: flex; flex-wrap: wrap; gap: 8px; flex-shrink: 0; }
@@ -2106,11 +2073,12 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 [data-u-deep] [data-barre-home][data-early] { display: none; }
 [data-u-linked] [data-barre-home][data-early] [data-entry-link] { display: none; }
 
-/* Refonte FILM · PR 9 — the film is a focused place: logo, film, credits, menu; two views PRISE | MONTAGE. */
-.u-app:not([data-studio="outils"]) { --rail-w: 0px; --u-tabs-h: 0px; }
+/* The film is a focused place: logo, film, credits, menu; its own bar CAST · DÉCOR · PRISE · MONTAGE. */
+.u-app[data-studio]:not([data-studio="outils"]) { --rail-w: 0px; --u-tabs-h: 0px; }
 .u-top[data-focus] .u-burger { display: inline-flex; }
 .u-top[data-focus] { justify-content: space-between; }
 .u-app .u-chain.u-film-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.u-chain.u-film-nav button { min-height: 48px; }
+.u-app .u-chain.u-film-nav button { min-height: 48px; padding-inline: 2px; }
+.u-chain.u-film-nav button small { letter-spacing: 0; }
 .u-chain.u-film-nav button > span, .u-chain.u-film-nav button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .u-chain.u-film-nav button small { color: var(--u-sand); }

@@ -183,7 +183,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     return () => { gone = true; };
   }, [ready, montageKey, loadMontages, vault.sequences, vault.shots, vault.takes]);
 
-  return <FormatProvider><div className="u-app" data-studio={section} >
+  return <FormatProvider><div className="u-app" data-studio={section}>
     <TopBar place={section === "montage" ? "montage" : section === "outils" ? "creer" : "realiser"} />
     {section !== "outils" && <FilmNav lit={lit} running={run.phase === "running"} cast={castOk} decor={decorOk} montage={cutReady === true ? formatClock(cutLength) : null} go={go} />}
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready || switching} data-switching={switching ? "" : undefined}>

@@ -278,10 +278,3 @@ describe("mémoire du plan", () => {
     ]);
   });
 });
-
-describe("écran PRISE", () => {
-  it("composes plans and does not spend or show the old gesture list", () => {
-    // P0: one reliability card, one estimate, one confirmation; the exact text stays readable in the card.
-    assert.match(readFileSync("src/components/app/app.css", "utf8"), /@media \(min-width: 1024px\)[\s\S]*u-prise-dock/);
-  });
-});

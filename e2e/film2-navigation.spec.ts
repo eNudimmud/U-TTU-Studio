@@ -4,40 +4,57 @@ import { join } from 'node:path';
 import { firstScreen } from './helpers/explore';
 import { simulateComfy } from './helpers/film2-comfy';
 
-// Refonte FILM · PR 9 — navigation PRISE | MONTAGE (F9). Comfy simulated, 0 real credits.
+// Refonte FILM — the film bar CAST · DÉCOR · PRISE · MONTAGE, in creation order. Comfy simulated, 0 real credits.
 
 const SHOTS = process.env.FILM2_SHOTS;
 const SIZES = [{ width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 600 }, { width: 1280, height: 800 }];
 const PRIMARY = '.u-primary, .u-film-gold';
 
-test('Plans : ≤ 10 actions et 1 seul bouton primaire au 1er écran, deux vues PRISE | MONTAGE, aux 4 tailles', async ({ page }) => {
+test('Plans : ≤ 12 actions et 1 seul bouton primaire au 1er écran, quatre onglets CAST · DÉCOR · PRISE · MONTAGE, aux 4 tailles', async ({ page }) => {
   test.setTimeout(180_000);
   await simulateComfy(page);
   for (const size of SIZES) {
     await page.setViewportSize(size);
-    await page.goto('/studio?film2=1#prise');
+    await page.goto('/studio#prise');
     await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(300);
     const actions = await firstScreen(page);
-    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(10);
+    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(12);
     expect(actions.filter(line => / <44$/.test(line)), `${size.width}: touch targets`).toEqual([]);
     const primaries = await page.locator(PRIMARY).evaluateAll(nodes => nodes.filter(node => {
       const box = node.getBoundingClientRect();
       return box.width > 0 && box.height > 0 && box.top < innerHeight && box.bottom > 0;
     }).length);
     expect(primaries, `${size.width}: primary buttons`).toBe(1);
-    // Two views only; the four titles stay (CAST and DÉCOR are libraries behind Qui and Où, and in the menu).
+    // Four tabs in creation order, each with its status, 44 px and inside the screen.
     const views = page.locator('[data-film-nav] button');
-    await expect(views).toHaveCount(2);
-    await expect(views.nth(0)).toContainText('PRISE');
-    await expect(views.nth(1)).toContainText('MONTAGE');
+    await expect(views).toHaveCount(4);
+    for (const [i, name] of ['CAST', 'DÉCOR', 'PRISE', 'MONTAGE'].entries()) {
+      await expect(views.nth(i).locator('span').first()).toHaveText(name);
+      await expect(views.nth(i).locator('small')).not.toBeEmpty();
+      const box = (await views.nth(i).boundingBox())!;
+      expect(box.height, `${size.width}: ${name}`).toBeGreaterThanOrEqual(44);
+      expect(box.x + box.width, `${size.width}: ${name}`).toBeLessThanOrEqual(size.width + 1);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${size.width}: sideways scroll`).toBeLessThanOrEqual(0);
     await expect(page.locator('[data-rail], [data-tabs]')).toHaveCount(0);
   }
-  // Nothing is lost: the menu still opens Créer, Film (with CAST and DÉCOR), Mes créations and search.
+  // The menu's Film submenu keeps the same order: CAST, DÉCOR, PRISE, MONTAGE.
   await page.locator('[data-top-burger]').click();
   await page.locator('#u-drawer').getByRole('button', { name: /Film/ }).click();
+  await expect(page.locator('#u-drawer [data-film]')).toHaveCount(4);
+  expect(await page.locator('#u-drawer [data-film]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-film')))).toEqual(['cast', 'decor', 'prise', 'montage']);
   await expect(page.locator('#u-drawer [data-film="cast"]')).toBeVisible();
-  await expect(page.locator('#u-drawer [data-film="decor"]')).toBeVisible();
+  // Each tab opens its section.
+  await page.locator('#u-drawer [data-film="decor"]').click();
+  await expect(page).toHaveURL(/#scene/);
+  await expect(page.locator('[data-film-nav-to="scene"]')).toHaveAttribute('aria-current', 'page');
+  await page.locator('[data-film-nav-to="lora"]').click();
+  await expect(page).toHaveURL(/#personnage/);
+  await expect(page.locator('[data-film-nav-to="lora"]')).toHaveAttribute('aria-current', 'page');
+  await page.locator('[data-film-nav-to="prise"]').click();
+  await expect(page.locator('[data-film-plans]')).toBeVisible();
+  await page.locator('[data-top-burger]').click();
   await expect(page.locator('#u-drawer [data-drawer-search]')).toBeVisible();
 });
 
@@ -51,7 +68,7 @@ test('scénario A : 4 taps de l’entrée du studio au plan visible dans MONTAGE
   const tap = async (selector: string) => { await page.locator(selector).first().click(); taps += 1; };
 
   // Where « Entrer dans le studio » lands.
-  await page.goto('/studio?film2=1');
+  await page.goto('/studio');
   await tap('[data-entry-film]');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('[data-film-nav-to="prise"]')).toHaveAttribute('aria-current', 'page');
