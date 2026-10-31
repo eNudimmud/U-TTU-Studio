@@ -8,6 +8,7 @@ import { priseReady } from "@/lib/stage";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { useI18n } from "@/components/i18n/provider";
 import { MontageStage } from "./montage-stage";
+import { FilmMontage } from "./film/film-montage";
 import { FormatProvider } from "./format-switch";
 import { CastStage, DecorStage, PriseStage } from "./stage-screens";
 import { outilFromHash, OutilsHub } from "./outils-hub";
@@ -211,7 +212,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
         : section === "prise" ? (film2
           ? <FilmPlans goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
           : <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />)
-        : section === "montage" ? <MontageStage onFilled={setCutReady} />
+        : section === "montage" ? (film2 ? <FilmMontage onFilled={setCutReady} onPlans={() => go("prise")} /> : <MontageStage onFilled={setCutReady} />)
         : <CastStage onDecor={() => go("scene")} />}
       {/* Shown instead of the home only when the address already asks for a stage (see STUDIO_BOOT). */}
       {!ready && section === "outils" && !outil && <StudioSplash early />}
