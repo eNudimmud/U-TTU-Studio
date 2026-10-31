@@ -69,7 +69,7 @@ Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « 
 | prise-mouvement | Transfert de mouvement | `video_wan_animate2` | non mesuré | fermé, open weights |
 | prise-levres | Lèvres | `video_ltx2_3_ia2v` | non mesuré | fermé, open weights |
 | prise-vidu | Autre plan, références | `api_vidu_q4_preview_r2v` | 100 / 150, hypothèse | fermé, nœud partenaire |
-| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | 16 / 25, mesuré | ouvert, open weights |
+| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | 28 / 45 par 5 s, estimé (cadre 16:9 · 9:16 · 1:1, rendu 1280×704) | ouvert, open weights |
 | prise-effacer | Effacer un objet | `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | 25 / 38, mesuré | ouvert, open weights |
 
 ## MONTAGE / SON

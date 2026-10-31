@@ -10,6 +10,7 @@ import type { ApiGraph } from "../render/take-graph.ts";
 import { isVideoGeste, videoGesteGraph } from "../render/video-gestes.ts";
 import { isSuiteGeste, suiteGraph, type Elargir } from "../suite/graphs.ts";
 import { gesteParId } from "../workflows/registre.ts";
+import { isCadre } from "./cadre.ts";
 import { outilRow, type Outil } from "./catalogue.ts";
 import { generiqueGraph, type OutilAspect, type OutilCamera, type OutilFiles, type OutilPiste } from "./generique.ts";
 import { GENJUTSU_TEMPLATE, genjutsuQuote, type GenjutsuResolution } from "./genjutsu.ts";
@@ -74,7 +75,7 @@ export function outilGraph(outil: Outil, input: OutilInput): ApiGraph {
       row.slots.forEach((slot, index) => {
         files[slot.slot] = slot.media === "video" ? (input.files.video ?? "") : (images[index] ?? images[0] ?? "");
       });
-      return videoGesteGraph({ geste: row.id, files, prompt, seed: input.seed, aspect: input.aspect });
+      return videoGesteGraph({ geste: row.id, files, prompt, seed: input.seed, aspect: input.aspect, cadre: isCadre(input.elargir) ? input.elargir : undefined });
     }
     case "mesh":
       return meshGesteGraph({ geste: MESH_GESTE[input.mesh ?? "objet"], image: first(images, "Image"), seed: input.seed });

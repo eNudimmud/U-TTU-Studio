@@ -372,9 +372,10 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-elargir", onglet: "prise", categorie: "vfx", clef: "priseOutpaint",
     fournit: ["video"], slots: [{ role: "clip", slot: "video_1", media: "video" }],
-    template: "template_ltx2_3_lora_video_outpainting", credits: 16, high: 25, nature: "mesure",
+    template: "template_ltx2_3_lora_video_outpainting", credits: 28, high: 45, nature: "hypothese",
     premier: false, still: "video", minRefs: 1, consigne: "",
-  }), // mesuré 27.10.2026 : 16,32 crédits pour prise de 5 s élargie (job 38d04073)
+  }), // estimé 31.10.2026, par tranche de 5 s : rendu 1280×704 (≈ Effacer, 25,11 crédits mesurés à 1280×704) + guide IC-LoRA.
+  // L'ancien 16,32 (job 38d04073) mesurait le graphe cassé : cadre 9:16 du modèle, moitié de la taille (464×688 → 224×384).
   geste({
     id: "prise-effacer", onglet: "prise", categorie: "vfx", clef: "priseRemove",
     fournit: ["video", "texte"], slots: [{ role: "clip", slot: "video_1", media: "video" }],

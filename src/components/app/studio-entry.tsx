@@ -64,10 +64,10 @@ export function KeyTitle({ text, word }: { text: string; word: string }) {
  * ready tool in one row per family. */
 function CreationTools() {
   const { t } = useI18n();
-  const { prefs } = useStudio();
+  const { outilsFiltre } = useStudio();
   const [query, setQuery] = useState("");
   const searchId = useId();
-  const cards = useMemo(() => outilsPublics(prefs), [prefs]);
+  const cards = useMemo(() => outilsPublics(outilsFiltre), [outilsFiltre]);
   const needle = query.trim();
   const shown = cards.filter(item => !needle || cherche(`${titre(t, item.id)} ${ligne(t, item.id)} ${t(`outils.fam.${familleVitrine(item)}`)}`, query));
   const scout = !needle || cherche(`${t(`outils.t.${REPERAGE_ID}.title`)} ${t(`outils.t.${REPERAGE_ID}.line`)} ${t("outils.fam.3d")}`, query);

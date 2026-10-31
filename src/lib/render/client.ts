@@ -14,7 +14,7 @@ export type RenderAuth =
   | { kind: "key"; key: string }
   | { kind: "session"; token: () => Promise<string | null> };
 
-export type RenderErrorCode = "auth" | "credits" | "subscription" | "invalid" | "network" | "failed" | "cancelled" | "timeout";
+export type RenderErrorCode = "auth" | "credits" | "subscription" | "invalid" | "network" | "failed" | "cancelled" | "timeout" | "empty";
 
 export class RenderError extends Error {
   readonly code: RenderErrorCode;

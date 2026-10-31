@@ -2395,6 +2395,7 @@
     "needVoice": "Ajoute une voix (fichier audio).",
     "noFrame": "La dernière image de la prise n’a pas pu être lue sur cet appareil. Rien n’est parti.",
     "emptyResult": "Le rendu est revenu vide. L’original reste intact.",
+    "blankResult": "Le rendu est sorti entièrement noir (ou d’une seule couleur) : ce n’est pas un résultat, rien n’a été rangé. Des crédits ont pu être débités, ils restent visibles dans ton historique Comfy. Réessaie, ou raccourcis la consigne.",
     "toPrise": "Ouvrir dans un plan",
     "fluide": "Rendre le mouvement plus doux",
     "voice": "Voix (5 premières secondes)",
@@ -2761,7 +2762,7 @@
       },
       "vid-recadrer": {
         "title": "Élargir une vidéo",
-        "line": "Agrandit le cadre d’un plan."
+        "line": "Plan en 16:9, 9:16 ou 1:1."
       },
       "vid-detourer": {
         "title": "Détourer une vidéo",
@@ -2906,7 +2907,19 @@
       "label": "Piste à garder",
       "voix": "Voix",
       "musique": "Musique"
-    }
+    },
+    "cadre": {
+      "label": "Format final",
+      "16x9": "16:9 · paysage",
+      "9x16": "9:16 · vertical",
+      "1x1": "1:1 · carré",
+      "4x3": "4:3 · photo",
+      "video": "La vidéo sort en {w}×{h} : la zone ajoutée est inventée par l’IA, rien n’est étiré ni coupé.",
+      "image": "L’image sort exactement à ce format : la zone ajoutée est inventée par l’IA, rien n’est coupé.",
+      "bande": "Bandes fixes : le format final dépend de ton image.",
+      "avance": "Ou des bandes fixes (avancé)"
+    },
+    "costUnread": "Coût réel non lu : le solde Comfy n’a pas bougé dans la minute. Le débit reste visible dans ton historique Comfy."
   },
   "top": {
     "nav": "Navigation du studio",

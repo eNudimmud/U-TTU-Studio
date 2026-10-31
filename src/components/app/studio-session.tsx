@@ -12,7 +12,7 @@ import { readFrontmatter, list, withFrontmatter } from "@/lib/coffre/markdown";
 import { castNote } from "@/lib/creation/fiche";
 import { runStem, type StemKind } from "@/lib/creation/stem";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
-import { gesteOuvert, gesteParId, gesteVisible, NOEUD_SORTIE, templatePartenaire, type RoleRef } from "@/lib/workflows/registre";
+import { gesteOuvert, gesteParId, gesteVisible, NOEUD_SORTIE, templatePartenaire, type FiltreGestes, type RoleRef } from "@/lib/workflows/registre";
 import { captureFiles } from "@/lib/repere3d/capture";
 import { cleanCardName, copyCast, decorFromScene, renameById, type CastCard, type DecorCard } from "@/lib/creation/gallery";
 import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
@@ -55,10 +55,11 @@ import { sessionTokens } from "@/lib/render/session";
 import { settleLandedTake } from "@/lib/render/settle-take";
 import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
 import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
-import { DEFAULT_PREFS, prefsFilm2, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
+import { DEFAULT_PREFS, prefsSession, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
+import { imageVide } from "@/lib/render/blank";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 import { namedReferenceNote, readNamedReferences, referenceNotePath, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from "@/lib/creation/named-references";
 import { referenceBoard } from "@/lib/creation/reference-board";
@@ -176,6 +177,8 @@ export interface StudioSession {
   createDecor(input: DecorInput): Promise<boolean>;
   createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
   prefs: StudioPrefs;
+  /** Filter of the tool catalogue (Outils, rail, search): explicit device choices only, never film2. */
+  outilsFiltre: FiltreGestes;
   setPrefs(next: Partial<StudioPrefs>): void;
   /** Refonte FILM flag on this device (preference or ?film2=1). */
   film2: boolean;
@@ -633,7 +636,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   const failOutcome = useCallback((error: unknown): Extract<FinaliseOutcome, { ok: false }> => {
     const view = failView(error);
-    if (error instanceof RenderError && (error.code === "failed" || error.code === "cancelled")) {
+    if (error instanceof RenderError && (error.code === "failed" || error.code === "cancelled" || error.code === "empty")) {
       const pending = readPending(localStorage);
       if (pending?.jobId) clearTerminalPending(localStorage, pending.jobId);
     }
@@ -846,7 +849,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [film2, setFilm2] = useState(false);
   useEffect(() => { setPrefsState(readPrefs(localStorage)); setFilm2(film2DansCePoste()); }, []);
   // film2: « services partenaires payants » is an account setting, off by default (refonte FILM, PR 7).
-  const prefs = useMemo(() => film2 ? prefsFilm2(storedPrefs) : storedPrefs, [film2, storedPrefs]);
+  const { prefs, outilsFiltre } = useMemo(() => prefsSession(storedPrefs, film2), [film2, storedPrefs]);
+  // The catalogue never depends on film2 (read after the first paint): same tools on every load.
   const setPrefs = useCallback((next: Partial<StudioPrefs>) => {
     setPrefsState(prev => {
       const merged = { ...prev, ...next };
@@ -937,6 +941,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         balanceBefore: fresh?.credits ?? 0,
       });
       const photos = refs;
+      if (await imageVide(result.image)) throw new RenderError("empty", t("suite.blankResult"));
       const sheet = `Projets/${slug}/Cast/${id}.png`;
       await writeBlob(vault, sheet, result.image);
       const at = new Date().toISOString();
@@ -1036,6 +1041,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         balanceBefore: fresh?.credits ?? 0,
         cadreLayout: cadre ? layout : undefined,
       });
+      if (await imageVide(result.image)) throw new RenderError("empty", t("suite.blankResult"));
       const sheet = `Projets/${slug}/Decors/${id}.png`;
       await writeBlob(vault, sheet, result.image);
       const scene: Scene = {
@@ -1336,7 +1342,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           input.onCost?.(info.costCredits);
         },
       });
-      if (!result.video.size) throw new RenderError("failed", t("suite.emptyResult"));
+      if (!result.video.size) throw new RenderError("empty", t("suite.emptyResult"));
+      if (still && await imageVide(result.video)) throw new RenderError("empty", t("suite.blankResult"));
       await writeBlob(vault, path, result.video);
       await writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: notePath, preview: null, loose: false }));
       await completePending(client, jobId);
@@ -1357,7 +1364,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const row = creation ? gesteParId(bubbleGeste(creation.mode, input.images.length, Boolean(input.audio))) : outil ? outilRow(outil) : undefined;
     if (!outil || !row || !outil.moteur || outil.bientot) return { ok: false, message: t(outil?.bientot ? `outils.why.${outil.bientot}` : "gestes.unwired") };
     if (creation && input.outil !== bubbleTool(creation.mode, input.images.length, Boolean(input.audio))) return { ok: false, message: t("bubble.invalid") };
-    if (!gesteVisible(row, prefs)) return { ok: false, message: t("safety.modelBlocked") };
+    if (!gesteVisible(row, creation ? prefs : outilsFiltre)) return { ok: false, message: t("safety.modelBlocked") };
     if (outil.moteur.kind === "suite" && !creation) {
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.video : input.images[0];
       if (!source) return { ok: false, message: t("videoGeste.needFiles") };
@@ -1430,7 +1437,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           input.onCost?.(info.costCredits);
         },
       });
-      if (!result.video.size) throw new RenderError("failed", t("suite.emptyResult"));
+      if (!result.video.size) throw new RenderError("empty", t("suite.emptyResult"));
+      if (sortie === "image" && await imageVide(result.video)) throw new RenderError("empty", t("suite.blankResult"));
       const ext = sortie === "image" ? "png" : sortie === "video" ? "mp4" : sortie === "mesh" ? await modelExtension(result.video, "model.glb") : (result.video.type.includes("wav") ? "wav" : result.video.type.includes("flac") ? "flac" : "mp3");
       mediaPath = `Projets/${slug}/Assets/${id}.${ext}`;
       notePath = `Projets/${slug}/Assets/${id}.md`;
@@ -1458,7 +1466,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, runSuite, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, outilsFiltre, prefs, refreshBalance, reload, runSuite, store, t]);
 
   const rewriteCast = useCallback(async (cards: CastCard[]) => {
     const vault = store();
@@ -1809,6 +1817,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         const ref = receipt.kind === "mesh" ? meshOutput(detail.outputs, node) : receipt.kind === "son" ? audioOutput(detail.outputs, node) : isVideo ? videoOutput(detail.outputs, node) : node ? imageOutput(detail.outputs, node) : stillOutput(detail.outputs);
         if (!ref) throw new Error("Le cloud annonce la fin mais le fichier manque. Le reçu est conservé.");
         const blob = await client.file(ref);
+        // A flat black picture is not a result: never file it, say so, and drop the receipt.
+        if ((isImage || receipt.kind === "cast" || receipt.kind === "decor") && await imageVide(blob)) {
+          clearPending(localStorage, receipt.jobId);
+          setPendingWatch(null);
+          throw new Error(t("suite.blankResult"));
+        }
         if (receipt.kind === "mesh") await modelExtension(blob, ref.filename);
         const ext = ref.filename.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || (receipt.kind === "son" ? "mp3" : "png");
         const kind = receipt.kind === "cast" ? "personnage" : receipt.kind === "decor" ? "decor" : isVideo ? "plan" : receipt.kind === "mesh" || isImage ? "importe" : "son";
@@ -1831,7 +1845,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         await recover();
       });
     })().catch(error => setNotice(error instanceof Error ? error.message : "Récupération impossible pour le moment.")).finally(() => { paidBusy.current = false; setCreating(false); });
-  }, [client, completePending, fingerprint, finish, reload, store]);
+  }, [client, completePending, fingerprint, finish, reload, store, t]);
 
   // Follow a pending receipt by itself: on load, every few seconds while the page is shown, and at
   // once when it comes back to the foreground. Only status reads (no POST, no spend); the file is
@@ -2430,7 +2444,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   );
   const value: StudioSession = {
     catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
-    prefs, setPrefs,
+    prefs, outilsFiltre, setPrefs,
     ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet, film2,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,

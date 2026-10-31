@@ -2395,6 +2395,7 @@
     "needVoice": "Añade una voz (archivo de audio).",
     "noFrame": "No se pudo leer el último fotograma de la toma en este dispositivo. No se envió nada.",
     "emptyResult": "El render volvió vacío. El original queda intacto.",
+    "blankResult": "El render salió completamente negro (o de un solo color): no es un resultado, no se ha guardado nada. Puede que se hayan cobrado créditos; aparecen en tu historial de Comfy. Vuelve a intentarlo o acorta la instrucción.",
     "toPrise": "Abrir en un plano",
     "fluide": "Hacer el movimiento más suave",
     "voice": "Voz (primeros 5 segundos)",
@@ -2761,7 +2762,7 @@
       },
       "vid-recadrer": {
         "title": "Ampliar un vídeo",
-        "line": "Agranda el encuadre de un plano."
+        "line": "Plano en 16:9, 9:16 o 1:1."
       },
       "vid-detourer": {
         "title": "Quitar fondo de vídeo",
@@ -2906,7 +2907,19 @@
       "label": "Pista que conservar",
       "voix": "Voz",
       "musique": "Música"
-    }
+    },
+    "cadre": {
+      "label": "Formato final",
+      "16x9": "16:9 · horizontal",
+      "9x16": "9:16 · vertical",
+      "1x1": "1:1 · cuadrado",
+      "4x3": "4:3 · foto",
+      "video": "El vídeo sale en {w}×{h}: la IA genera la zona añadida, nada se estira ni se recorta.",
+      "image": "La imagen sale exactamente en este formato: la IA genera la zona añadida, nada se recorta.",
+      "bande": "Bandas fijas: el formato final depende de tu imagen.",
+      "avance": "O bandas fijas (avanzado)"
+    },
+    "costUnread": "Coste real no leído: el saldo de Comfy no se movió en un minuto. El cargo sigue visible en tu historial de Comfy."
   },
   "top": {
     "nav": "Navegación del estudio",
