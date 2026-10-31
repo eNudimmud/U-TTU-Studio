@@ -3804,17 +3804,19 @@
     "asImageReference": "Use the last frame as reference",
     "runningConversation": "Wait for the result before starting a new conversation. You can keep browsing the Studio.",
     "imageEngineNano": "Image · Nano Banana 2.1 · Powered by ComfyUI",
+    "imageEngineQwen": "Image · Qwen Image 2.1 · Powered by ComfyUI",
     "engine": "Image engine",
     "engineName": {
       "nano": "Nano Banana 2.1",
-      "klein": "Klein"
+      "klein": "Klein",
+      "qwen": "Qwen Image 2.1"
     },
     "engineHelp": {
       "nano": "Composes your references, each photo read on its own (Google partner via Comfy).",
-      "klein": "The studio’s open model, as a fallback."
+      "klein": "The studio’s open model.",
+      "qwen": "Open model: reads each photo on its own and keeps your action as written."
     },
-    "engineStudioOnly": "You chose studio models only: images run on Klein.",
-    "engineNeedsPartners": "Paid partner services are off, so this image runs on Klein. For Nano Banana 2.1, turn on “Also use paid partner services” in the credits menu.",
+    "engineStudioOnly": "Open-weights models only.",
     "nanoFailed": "Nano Banana 2.1 did not finish: {reason} Nothing was rerun. To try again with Klein, pick it in the bubble settings."
   },
   "genjutsu": {

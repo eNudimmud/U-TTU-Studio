@@ -3,22 +3,34 @@ import { KLEIN_BASE_CFG, kleinNodes } from '../render/klein-graph.ts';
 import { H3_R2V_BASE } from '../render/h3-base.ts';
 import { TAKE_ASPECTS, type ApiGraph } from '../render/take-graph.ts';
 import { generiqueGraph } from '../outils/generique.ts';
+import { OUTIL_BASES } from '../outils/base.ts';
 import { gesteParId } from '../workflows/registre.ts';
 import { CREATION_REFERENCES_MAX, fileLikeName } from './named-references.ts';
 
 /**
- * Image engine when references are attached. `nano`: Nano Banana 2.1 (Google partner node, called by
- * Comfy) reads each photo as its own numbered image. `klein`: FLUX 3 Klein, open weights, kept as the
- * fallback the visitor picks by hand (and the only one with « Modèles du studio seulement »).
+ * Image engine when references are attached. `klein`: FLUX 3 Klein, open weights, the default.
+ * `qwen`: Qwen Image 2.1 edit, open weights, its vision encoder reads each photo as its own numbered
+ * image. `nano`: Nano Banana 2.1, a paid Google partner node, only reachable with partner services on
+ * (the studio runs open weights only by default, JD 31.10.2026).
  */
-export type BubbleImageEngine = 'nano' | 'klein';
+export type BubbleImageEngine = 'nano' | 'klein' | 'qwen';
+export const OPEN_BUBBLE_ENGINES = ['klein', 'qwen'] as const;
 export interface BubbleSettings { format: '16:9' | '9:16' | '1:1'; resolution: '480p' | '720p'; duration: 5 | 10; sound: boolean; engine?: BubbleImageEngine }
 export const BUBBLE_DEFAULTS: BubbleSettings = { format: '16:9', resolution: '480p', duration: 5, sound: true };
 export type BubbleMode = 'image' | 'video';
-/** The engine an image bubble runs on. Text-only stills and studio-only accounts stay on Klein. */
+/**
+ * The engine an image bubble runs on. Text-only stills stay on Klein; open-weights accounts never reach
+ * Nano Banana, whatever was saved. With partners allowed and nothing chosen, Nano stays the default.
+ */
 export function bubbleImageEngine(mode: BubbleMode, count: number, s: Pick<BubbleSettings, 'engine'>, openWeightsOnly = false): BubbleImageEngine | null {
   if (mode !== 'image') return null;
-  return count > 0 && s.engine !== 'klein' && !openWeightsOnly ? 'nano' : 'klein';
+  if (count === 0) return 'klein';
+  if (s.engine === 'klein' || s.engine === 'qwen') return s.engine;
+  return openWeightsOnly ? 'klein' : 'nano';
+}
+/** The engines the bubble settings offer: open weights only never lists a partner engine. */
+export function bubbleEngineChoices(openWeightsOnly: boolean): readonly BubbleImageEngine[] {
+  return openWeightsOnly ? OPEN_BUBBLE_ENGINES : ['nano', ...OPEN_BUBBLE_ENGINES];
 }
 /**
  * Output frame. Video keeps 480p/720p. A still is never a video frame: the same two choices give
@@ -49,13 +61,14 @@ export const BUBBLE_REFERENCE_MEGAPIXELS = 1;
 export function validBubbleSettings(s: unknown): s is BubbleSettings {
   if (!s || typeof s !== 'object') return false;
   const v = s as BubbleSettings;
-  return ['16:9','9:16','1:1'].includes(v.format) && ['480p','720p'].includes(v.resolution) && [5,10].includes(v.duration) && typeof v.sound === 'boolean' && (v.engine === undefined || v.engine === 'nano' || v.engine === 'klein');
+  return ['16:9','9:16','1:1'].includes(v.format) && ['480p','720p'].includes(v.resolution) && [5,10].includes(v.duration) && typeof v.sound === 'boolean' && (v.engine === undefined || v.engine === 'nano' || v.engine === 'klein' || v.engine === 'qwen');
 }
 export function bubbleTool(mode: BubbleMode, count: number, audio = false): string {
   return mode === 'image' ? count ? 'img-refs' : 'img-klein' : count || audio ? 'vid-h3-refs' : 'vid-texte';
 }
 export function bubbleGeste(mode: BubbleMode, count: number, audio = false, engine: BubbleImageEngine | null = null): string {
   if (mode === 'image' && count && engine === 'nano') return 'creation-image-nano';
+  if (mode === 'image' && count && engine === 'qwen') return 'creation-image-qwen';
   return mode === 'image' ? count ? 'creation-image' : 'creation-image-texte' : count || audio ? 'creation-video-refs' : 'creation-video-texte';
 }
 /**
@@ -71,9 +84,19 @@ const IMAGE_CREDITS_PER_MP = 1.4, IMAGE_EDIT_CREDITS_PER_MP = 2.4, UPSAMPLER_CRE
  * 14 credits, twice (job 96b0a72b, 50.9 GPU s; then JD's 31.10 evening test). (14 − 10.5) / 4 ≈ 0.85.
  */
 const EXTRA_REFERENCE_CREDITS = 0.85;
+/**
+ * Qwen Image 2.1 edit (25 steps, cfg 1, no prompt enhancer): measured 2.01 credits for a 1 MP picture and
+ * one 1 MP reference (job 2ac9e65b, 27.10.2026), so ≈ 1 credit per MP the sampler reads and writes. Each
+ * picture is also read by the 8B vision encoder: 0.25 per picture is a margin, not a measure.
+ */
+const QWEN_CREDITS_PER_MP = 1, QWEN_CREDITS_PER_PICTURE = 0.25;
 export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, audio = false, engine: BubbleImageEngine | null = null) {
   if (!validBubbleSettings(s) || count < 0 || count > CREATION_REFERENCES_MAX) return null;
   if (mode === 'image' && count > 0 && engine === 'nano') return { ...NANO_QUOTE[s.resolution], kind: 'estime' as const };
+  if (mode === 'image' && count > 0 && engine === 'qwen') {
+    const credits = Math.ceil(QWEN_CREDITS_PER_MP * (bubbleSize(s, mode).megapixels + count * bubbleReferenceMegapixels(count)) + count * QWEN_CREDITS_PER_PICTURE);
+    return { credits, high: Math.ceil(credits * 2), kind: 'estime' as const };
+  }
   const id = bubbleTool(mode, count, audio);
   const row = gesteParId(id === 'img-klein' ? 'cast-eclair' : id === 'img-refs' ? 'suite-modifier' : id === 'vid-h3-refs' ? 'prise-plan-h3' : 'outil-vid-texte');
   // Different sizes/reference counts are estimates. Never inherit the source row's measured label.
@@ -201,9 +224,33 @@ function nanoPrompt(text: string, refs: readonly BubbleReference[], sent: readon
   }).join('\n');
   return `${request}\n\nReference images, numbered in the order they are attached:\n${lines}\n${NANO_SHEET_RULE}\nCompose ONE new picture of this scene, where every named character and object appears once, whole and recognisable.`;
 }
+/**
+ * Reference photos give identity and design, never the pose: without this, an engine tends to copy the
+ * stance of the first character sheet into every picture (JD 31.10.2026, same pose on every run).
+ */
+export const POSE_RULE = 'Poses, gestures and camera angle come from the request, never from the reference photos: give each character a fresh, natural pose that acts out the request.';
+/** Qwen Image 2.1 names its inputs `<image1>`, `<image2>`… (the official prompt enhancer's own rule). */
+const qwenTags = (first: number, count: number) => Array.from({ length: count }, (_, i) => `<image${first + i + 1}>`).join(' ');
+function qwenPrompt(text: string, refs: readonly BubbleReference[], sent: readonly BubbleSlot[]): string {
+  const groups: { ref: number; first: number; count: number }[] = [];
+  sent.forEach((slot, i) => { const last = groups[groups.length - 1]; if (last && last.ref === slot.ref) last.count++; else groups.push({ ref: slot.ref, first: i, count: 1 }); });
+  let request = text.trim();
+  const lines = groups.map(g => {
+    const r = refs[g.ref];
+    const where = qwenTags(g.first, g.count);
+    const category = r.category ?? 'photo';
+    const named = r.name && !fileLikeName(r.name);
+    if (named) request = request.replace(new RegExp(`(?<![\\p{L}\\p{N}_@])@?${escapeRe(r.name.trim())}(?![\\p{L}\\p{N}_])`, 'giu'), m => `${m.replace(/^@/, '')} (${where})`);
+    const description = r.description?.trim() ? ` ${r.description.trim().replace(/\s+/g, ' ').slice(0, 300)}.` : '';
+    return `- ${where}: ${named ? `${JSON.stringify(r.name.trim())}, ` : ''}${NANO_NOUN[category] ?? NANO_NOUN.photo}. ${(NANO_ROLE[category] ?? NANO_ROLE.photo).replace(/^./, c => c.toUpperCase())}.${description}`;
+  }).join('\n');
+  const note = bubbleStyleNote(bubbleStyle(text));
+  return `${request}\n\nReference images:\n${lines}\n${NANO_SHEET_RULE}\n${POSE_RULE}\nCompose ONE new picture of this scene, where every named character and object appears once, whole and recognisable. Never merge two characters, never lend one reference's features to another.${note ? `\n${note}` : ''}`;
+}
 export function bubblePrompt(text: string, refs: readonly BubbleReference[], mode: BubbleMode, slots?: readonly BubbleSlot[], engine: BubbleImageEngine | null = null): string {
   if (!refs.length) return text.trim();
   if (mode === 'image' && engine === 'nano') return nanoPrompt(text, refs, slots ?? refs.map((r, ref) => ({ ref, picture: '' })));
+  if (mode === 'image' && engine === 'qwen') return qwenPrompt(text, refs, slots ?? refs.map((r, ref) => ({ ref, picture: '' })));
   if (mode === 'video') {
     const names = refs.map((r, i) => `<Picture ${i + 1}>: ${JSON.stringify(r.name)}${r.category ? ` (${r.category})` : ''}${r.description ? ` — ${r.description.slice(0, 500)}` : ''}`).join('\n');
     return `${text.trim()}\n\nNamed visual references (a contact sheet contains several views of the same subject):\n${names}\nUse each named reference for its assigned subject. Return a single finished scene, without reference panels, labels or contact-sheet layout.`;
@@ -228,7 +275,7 @@ export function bubblePrompt(text: string, refs: readonly BubbleReference[], mod
     return `- ${label}${named ? ` named ${JSON.stringify(r.name)}` : ''}: ${role}${r.description ? ` (${r.description.slice(0, 300)})` : ''}.`;
   }).join('\n');
   const note = bubbleStyleNote(bubbleStyle(text));
-  return `${request}${REFERENCE_HEADER}${lines}\nUse every image: each distinct character or creature appears once, whole and recognisable, with its own anatomy, colours and clothing; never merge two subjects into one. The images of a name define that name only: never lend its face, fur, colours, clothing or shapes to another name or to the place; the images of a place define only the setting. Compose ONE new finished picture, without reference panels, labels or contact-sheet layout.${note ? `\n${note}` : ''}`;
+  return `${request}${REFERENCE_HEADER}${lines}\nUse every image: each distinct character or creature appears once, whole and recognisable, with its own anatomy, colours and clothing; never merge two subjects into one. The images of a name define that name only: never lend its face, fur, colours, clothing or shapes to another name or to the place; the images of a place define only the setting. ${POSE_RULE} Compose ONE new finished picture, without reference panels, labels or contact-sheet layout.${note ? `\n${note}` : ''}`;
 }
 /** Reference area per picture: the template's 1 MP up to three pictures, then the same 3 MP shared. */
 export function bubbleReferenceMegapixels(count: number): number {
@@ -267,10 +314,46 @@ export function nanoBubbleNodes(input: { settings: BubbleSettings; images: reado
   graph.save = { class_type: 'SaveImage', inputs: { images: ['nano', 0], filename_prefix: 'uttu/creation-image' } };
   return graph;
 }
+/** Qwen Image 2.1 reads each reference at about `side`×`side`: the same area per picture as Klein. */
+export function qwenReferenceSide(count: number): number {
+  return Math.max(512, Math.round(Math.sqrt(bubbleReferenceMegapixels(count)) * 1024 / 32) * 32);
+}
+/**
+ * Qwen Image 2.1 edit, open weights, from the official template: one LoadImage per photo on its own
+ * `images.image_N` of TextEncodeQwenImage21 (seen by the Qwen3-VL encoder one by one, no batch, no crop),
+ * in send order (cast, objects, style, place). The prompt enhancer is removed: the visitor's action
+ * reaches the encoder verbatim. The canvas is always the chosen frame, never reference 1's.
+ */
+export function qwenBubbleNodes(input: { settings: BubbleSettings; images: readonly string[]; prompt: string; seed: number; style?: BubbleStyle }): ApiGraph {
+  const base = structuredClone(OUTIL_BASES.image_qwen_image_2_1_image_edit);
+  const size = bubbleSize(input.settings, 'image');
+  const graph: ApiGraph = {};
+  for (const [id, node] of Object.entries(base)) {
+    if (['470', '475', '461', '459:477', '459:479', '459:480', '459:484', '459:485', '459:500'].includes(id)) continue;
+    graph[id] = node;
+  }
+  const encode = graph['459:474'].inputs;
+  for (const key of Object.keys(encode)) if (key.startsWith('images.')) delete encode[key];
+  input.images.forEach((image, i) => {
+    const id = `reference_${i + 1}`;
+    graph[id] = { class_type: 'LoadImage', inputs: { image } };
+    encode[`images.image_${i + 1}`] = [id, 0];
+  });
+  encode.prompt = input.prompt;
+  encode.resolution = qwenReferenceSide(input.images.length);
+  const style = input.style !== undefined ? input.style : bubbleStyle(input.prompt.split('\n\nReference images:')[0]);
+  encode.negative_prompt = bubbleNegative(style);
+  graph['459:456'].inputs = { ...graph['459:456'].inputs, width: size.width, height: size.height, batch_size: 1 };
+  graph['459:468'].inputs.switch = true;
+  graph['459:458'].inputs.seed = Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0;
+  graph.save = { class_type: 'SaveImage', inputs: { images: ['459:457', 0], filename_prefix: 'uttu/creation-image' } };
+  return graph;
+}
 export function bubbleGraph(input: { mode: BubbleMode; settings: BubbleSettings; images: readonly string[]; audio?: string; prompt: string; seed: number; style?: BubbleStyle; engine?: BubbleImageEngine | null }): ApiGraph {
   const { settings: s, images, mode } = input;
   if (!validBubbleSettings(s) || images.length > CREATION_REFERENCES_MAX || !input.prompt.trim() || mode === 'image' && input.audio) throw new Error('bubble.invalid');
   if (mode === 'image' && images.length && input.engine === 'nano') return nanoBubbleNodes({ settings: s, images, prompt: input.prompt, seed: input.seed });
+  if (mode === 'image' && images.length && input.engine === 'qwen') return qwenBubbleNodes({ settings: s, images, prompt: input.prompt, seed: input.seed, style: input.style });
   const size = bubbleSize(s, mode);
   const aspect = s.format === '1:1' ? 'carre' : s.format === '9:16' ? 'vertical' : 'horizontal';
   if (mode === 'image') {

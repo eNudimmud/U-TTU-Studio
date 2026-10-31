@@ -3804,17 +3804,19 @@
     "asImageReference": "Utiliser la dernière image comme référence",
     "runningConversation": "Attends le résultat pour commencer une nouvelle conversation. Tu peux continuer à parcourir le Studio.",
     "imageEngineNano": "Image · Nano Banana 2.1 · Propulsé par ComfyUI",
+    "imageEngineQwen": "Image · Qwen Image 2.1 · Propulsé par ComfyUI",
     "engine": "Moteur image",
     "engineName": {
       "nano": "Nano Banana 2.1",
-      "klein": "Klein"
+      "klein": "Klein",
+      "qwen": "Qwen Image 2.1"
     },
     "engineHelp": {
       "nano": "Compose tes références, chaque photo lue à part (partenaire Google via Comfy).",
-      "klein": "Modèle ouvert du studio, en secours."
+      "klein": "Le modèle ouvert du studio.",
+      "qwen": "Modèle ouvert : lit chaque photo à part et garde ton action telle quelle."
     },
-    "engineStudioOnly": "Tu as choisi les modèles du studio seulement : l’image passe par Klein.",
-    "engineNeedsPartners": "Les services partenaires payants sont coupés : cette image passe par Klein. Pour Nano Banana 2.1, active « Utiliser aussi des services partenaires payants » dans le menu des crédits.",
+    "engineStudioOnly": "Modèles open weights seulement.",
     "nanoFailed": "Nano Banana 2.1 n’a pas abouti : {reason} Rien n’a été relancé. Pour réessayer avec Klein, choisis-le dans les réglages de la bulle."
   },
   "genjutsu": {

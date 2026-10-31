@@ -235,7 +235,7 @@ test('JD 2026-10-31: with references, the image bubble composes on Nano Banana 2
   ];
   const slots=bubbleReferenceSlots(chips)!;
   assert.deepEqual(slots.map(s=>s.picture),['a1.png','a2.png','a3.png','c1.png','c2.png','b1.png','b2.png'],'cast first, place last');
-  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS),'nano','Nano Banana is the default with references');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS),'nano','with partner services on, Nano Banana is the default with references');
   assert.equal(bubbleImageEngine('image',0,BUBBLE_DEFAULTS),'klein','text-only stills stay on Klein');
   assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'klein'}),'klein','Klein is an explicit choice');
   assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,true),'klein','studio models only never reaches a partner node');
@@ -296,17 +296,57 @@ test('JD 2026-10-31 evening: the Klein still with 7 pictures is quoted at the 14
   assert.ok(!Object.values(a).some(n=>n.class_type==='LoadImage'&&!loads.includes(n.inputs.image as string)));
 });
 
-test('JD 2026-10-31 evening: with paid partner services off (the film2 default) the bubble runs on Klein, so the bubble must say so', async () => {
-  const { bubbleImageEngine } = await import('../src/lib/creation/bubble.ts');
+test('JD 2026-10-31 night: open weights only. The bubble never offers or points to a partner engine, and Qwen Image 2.1 reads each photo on its own', async () => {
+  const { bubbleImageEngine, bubbleEngineChoices, qwenReferenceSide, POSE_RULE } = await import('../src/lib/creation/bubble.ts');
   const { DEFAULT_PREFS, prefsSession } = await import('../src/lib/studio-prefs.ts');
+  const { gesteParId } = await import('../src/lib/workflows/registre.ts');
   const off=prefsSession(DEFAULT_PREFS,true).prefs, on=prefsSession({...DEFAULT_PREFS,partenaires:true},true).prefs;
-  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,off.openWeightsOnly),'klein');
-  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,on.openWeightsOnly),'nano');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,off.openWeightsOnly),'klein','the studio default stays open weights');
+  assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'nano'},true),'klein','a saved Nano choice never reaches a partner node');
+  assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'qwen'},true),'qwen');
+  assert.equal(bubbleImageEngine('image',0,{...BUBBLE_DEFAULTS,engine:'qwen'},true),'klein','text-only stills stay on Klein t2i');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,on.openWeightsOnly),'nano','the Nano path is kept, behind partner services');
+  assert.deepEqual(bubbleEngineChoices(true),['klein','qwen']);
+  assert.deepEqual(bubbleEngineChoices(false),['nano','klein','qwen']);
+  assert.equal(gesteParId('creation-image-qwen')?.partenaire,false);
+  assert.equal(gesteParId('creation-image-qwen')?.template,'image_qwen_image_2_1_image_edit');
   for(const lang of ['en','fr','de','es']){
     const m=JSON.parse(readFileSync(new URL(`../messages/${lang}.json`,import.meta.url),'utf8'));
-    assert.match(m.bubble.engineNeedsPartners,/Klein/);assert.match(m.bubble.engineNeedsPartners,/Nano Banana 2\.1/);
-    assert.ok(m.bubble.engineNeedsPartners.includes(m.film2.compte.partenaires),`${lang}: names the switch to turn on`);
+    assert.equal(m.bubble.engineNeedsPartners,undefined,`${lang}: no call to turn partners on`);
+    assert.doesNotMatch(m.bubble.engineStudioOnly,/Nano|partner|partenaire|Partner|asociad/i,`${lang}: a neutral line`);
+    assert.ok(m.bubble.engineName.qwen&&m.bubble.engineHelp.qwen&&m.bubble.imageEngineQwen,`${lang}: Qwen is named`);
   }
   const bar=readFileSync(new URL('../src/components/app/creation-bar.tsx',import.meta.url),'utf8');
-  assert.match(bar,/data-barre-engine-fallback/,'the fallback is said next to the price, outside the folded settings');
+  assert.doesNotMatch(bar,/engineNeedsPartners|data-barre-engine-fallback/);
+  assert.match(bar,/bubbleEngineChoices\(prefs\.openWeightsOnly\)/,'the engine list comes from the open-weights filter');
+  // Qwen graph: one LoadImage per photo on its own input, cast → place, no enhancer, fixed frame.
+  const chips=[
+    {name:'Sujet A',category:'cast',description:'petit, logo sur le torse',pictures:['a1.png','a2.png','a3.png']},
+    {name:'Lieu B',category:'decor',pictures:['b1.png','b2.png']},
+    {name:'Sujet C',category:'cast',pictures:['c1.png','c2.png']},
+  ];
+  const slots=bubbleReferenceSlots(chips)!;
+  const prompt=bubblePrompt('@Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'qwen');
+  assert.equal(prompt.split('\n')[0],'Sujet A (<image1> <image2> <image3>) et Sujet C (<image4> <image5>) jouent sur Lieu B (<image6> <image7>)','the action stays verbatim, names point to their images');
+  assert.match(prompt,/- <image6> <image7>: "Lieu B", place \(the setting\)\./);
+  assert.ok(prompt.includes(POSE_RULE),'poses come from the request, never from the sheets');
+  const graph=bubbleGraph({mode:'image',settings:{...BUBBLE_DEFAULTS,format:'9:16'},images:slots.map(s=>s.picture),prompt,seed:42,engine:'qwen'});
+  const encode=graph['459:474'];
+  assert.equal(encode.class_type,'TextEncodeQwenImage21');
+  assert.equal(encode.inputs.prompt,prompt);
+  for(let i=0;i<7;i++){assert.deepEqual(encode.inputs[`images.image_${i+1}`],[`reference_${i+1}`,0]);assert.equal(graph[`reference_${i+1}`].inputs.image,slots[i].picture);}
+  assert.equal(encode.inputs.resolution,qwenReferenceSide(7));
+  assert.equal(qwenReferenceSide(7),672,'7 pictures share 3 MP, like Klein');assert.equal(qwenReferenceSide(2),1024);
+  const classes=Object.values(graph).map(n=>n.class_type);
+  assert.ok(!classes.some(c=>/TextGenerate|Batch|PreviewAny|Gemini/.test(c)),'no prompt enhancer, no batch, no partner');
+  assert.equal(graph['459:468'].inputs.switch,true,'the canvas is the chosen frame');
+  assert.deepEqual([graph['459:456'].inputs.width,graph['459:456'].inputs.height],[768,1344]);
+  assert.equal(graph['459:458'].inputs.seed,42);
+  assert.deepEqual(graph.save.inputs.images,['459:457',0]);
+  for(const [id,node] of Object.entries(graph)) for(const v of Object.values(node.inputs)) if(Array.isArray(v)&&typeof v[0]==='string') assert.ok(graph[v[0]],`${id} links to an existing node`);
+  const q7=bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'qwen')!, q1=bubbleQuote('image',1,BUBBLE_DEFAULTS,false,'qwen')!;
+  assert.deepEqual([q7.credits,q7.high,q7.kind],[6,12,'estime']);
+  assert.equal(q1.credits,3,'above the 2.01 measured for one reference (2ac9e65b)');
+  // Klein keeps its path and also hears the pose rule (its upsampler reads the request).
+  assert.ok(bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'klein').includes(POSE_RULE));
 });

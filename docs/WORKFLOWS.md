@@ -8,7 +8,8 @@ Les graphes de la bulle réutilisent les templates officiels déjà intégrés. 
 | --- | --- | --- | --- |
 | creation-image-texte | `image_flux3_klein_t2i` | ≈ 2 crédits estimés | ouvert, prompt seul |
 | creation-image | `image_flux3_klein_image_edit` | ≈ 3 crédits estimés | ouvert, repli explicite (réglage « Klein » ou « Modèles du studio seulement »), deux références dans l’exemple, sept au plus |
-| creation-image-nano | `api_nano_banana_2_1_image_edit` | ≈ 12 crédits estimés (1K), ≈ 17 en 2K | ouvert, nœud partenaire `GeminiNanoBanana2V2` appelé par Comfy, moteur par défaut dès qu’une référence est jointe : une `LoadImage` par photo sur son entrée `model.images.image_N` (persos, objets, style, décor), sans BatchImages ni upsampler, cadre fixé, prompt numéroté et règles du studio en `system_prompt` |
+| creation-image-nano | `api_nano_banana_2_1_image_edit` | ≈ 12 crédits estimés (1K), ≈ 17 en 2K | ouvert, nœud partenaire `GeminiNanoBanana2V2` appelé par Comfy, seulement si les services partenaires sont activés (le studio reste en open weights par défaut) : une `LoadImage` par photo sur son entrée `model.images.image_N` (persos, objets, style, décor), sans BatchImages ni upsampler, cadre fixé, prompt numéroté et règles du studio en `system_prompt` |
+| creation-image-qwen | `image_qwen_image_2_1_image_edit` | ≈ 6 crédits estimés (1 MP, 7 réfs) | open weights, au choix dans les réglages de la bulle : une `LoadImage` par photo sur `images.image_N` de `TextEncodeQwenImage21` (lue une à une par Qwen3-VL), même aire par réf que Klein, sans prompt enhancer (l’action reste mot pour mot), cadre fixé, réfs désignées `<image1>`… |
 | creation-video-texte | `video_ltx2_5_t2v` | ≈ 5 crédits estimés | ouvert, prompt seul |
 | creation-video-refs | `video_minimax_h3_r2v` | ≈ 5 crédits estimés | ouvert, deux références dans l’exemple, sept au plus, audio facultatif |
 

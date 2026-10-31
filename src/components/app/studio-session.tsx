@@ -1366,7 +1366,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const runOutil = useCallback(async (input: OutilRun): Promise<FinaliseOutcome> => {
     const outil = outilParId(input.outil);
     const creation = input.creation;
-    // Image + references: Nano Banana 2.1 unless the visitor chose Klein or studio models only.
+    // Image + references: open weights (Klein, or Qwen when chosen); Nano Banana only with partner services on.
     const engine = creation ? bubbleImageEngine(creation.mode, input.images.length, creation.settings, prefs.openWeightsOnly) : null;
     const row = creation ? gesteParId(bubbleGeste(creation.mode, input.images.length, Boolean(input.audio), engine)) : outil ? outilRow(outil) : undefined;
     if (!outil || !row || !outil.moteur || outil.bientot) return { ok: false, message: t(outil?.bientot ? `outils.why.${outil.bientot}` : "gestes.unwired") };

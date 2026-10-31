@@ -3804,17 +3804,19 @@
     "asImageReference": "Letztes Bild als Referenz verwenden",
     "runningConversation": "Warte auf das Ergebnis, bevor du eine neue Unterhaltung beginnst. Du kannst das Studio weiter nutzen.",
     "imageEngineNano": "Bild · Nano Banana 2.1 · Mit ComfyUI",
+    "imageEngineQwen": "Bild · Qwen Image 2.1 · Mit ComfyUI",
     "engine": "Bild-Engine",
     "engineName": {
       "nano": "Nano Banana 2.1",
-      "klein": "Klein"
+      "klein": "Klein",
+      "qwen": "Qwen Image 2.1"
     },
     "engineHelp": {
       "nano": "Setzt deine Referenzen zusammen, jedes Foto wird einzeln gelesen (Google-Partner über Comfy).",
-      "klein": "Das offene Modell des Studios, als Ausweichlösung."
+      "klein": "Das offene Modell des Studios.",
+      "qwen": "Offenes Modell: liest jedes Foto einzeln und übernimmt deine Handlung wörtlich."
     },
-    "engineStudioOnly": "Du hast nur Studio-Modelle gewählt: Bilder laufen über Klein.",
-    "engineNeedsPartners": "Kostenpflichtige Partnerdienste sind aus: Dieses Bild läuft über Klein. Für Nano Banana 2.1 schalte im Credits-Menü „Auch kostenpflichtige Partnerdienste nutzen“ ein.",
+    "engineStudioOnly": "Nur Open-Weights-Modelle.",
     "nanoFailed": "Nano Banana 2.1 ist nicht fertig geworden: {reason} Nichts wurde neu gestartet. Um es mit Klein erneut zu versuchen, wähle Klein in den Einstellungen der Blase."
   },
   "genjutsu": {
