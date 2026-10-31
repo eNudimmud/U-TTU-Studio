@@ -1,0 +1,81 @@
+/* Refonte FILM · PR 8 — MONTAGE refait. Mobile first; desktop gets bin | preview | properties. */
+.u-fm { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 8px 12px 24px; max-width: 1280px; margin: 0 auto; }
+.u-fm > *, .u-fm-body > * { min-width: 0; }
+.u-fm-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.u-fm-head .u-film-title { margin: 0; }
+.u-fm .u-fm-export { flex: 0 0 auto; width: auto; min-width: 120px; padding: 0 20px; }
+.u-fm-tool kbd { display: none; font: inherit; opacity: .7; }
+.u-fm-body { display: grid; gap: 10px; }
+.u-fm-centre { display: grid; gap: 8px; }
+.u-fm-preview { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; max-height: 30vh; justify-self: center; width: 100%; background: #000; border-radius: 16px; overflow: hidden; }
+.u-fm-preview.is-vertical { aspect-ratio: 9 / 16; width: auto; height: 30vh; }
+.u-fm-preview video { width: 100%; height: 100%; object-fit: contain; }
+.u-fm-empty { color: var(--u-muted, #a1a1aa); padding: 16px; text-align: center; }
+.u-fm-badge { position: absolute; top: 8px; right: 8px; padding: 2px 10px; border-radius: 999px; background: rgba(0, 0, 0, .7); font-size: 13px; }
+.u-fm-player { display: flex; align-items: center; gap: 12px; }
+.u-fm-play { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; border: 1px solid var(--u-line-strong, #2a2a2e); background: transparent; color: inherit; }
+.u-fm-clock { font-variant-numeric: tabular-nums; font-size: 18px; }
+.u-fm-hint { margin-left: auto; color: var(--u-muted, #a1a1aa); font-size: 13px; }
+.u-fm-barre { display: flex; gap: 2px; overflow-x: auto; align-items: stretch; padding: 4px 0; border-top: 1px solid var(--u-line, #1f1f23); }
+.u-fm-tool { display: grid; justify-items: center; align-content: center; gap: 2px; min-width: 60px; min-height: 52px; padding: 4px 6px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; font-size: 12px; line-height: 1.1; text-align: center; cursor: pointer; }
+.u-fm-tool:disabled { opacity: .4; cursor: not-allowed; }
+.u-fm-tool:not(:disabled):hover { background: rgba(255, 255, 255, .06); }
+.u-fm-zoom { min-width: 44px; }
+.u-fm-sep { flex: 1; min-width: 8px; }
+.u-fm-state { display: none; align-self: center; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--u-line-strong, #2a2a2e); font-size: 12px; white-space: nowrap; }
+.u-fm-timeline { position: relative; border-top: 1px solid var(--u-line, #1f1f23); }
+.u-fm-playhead { position: absolute; z-index: 3; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; background: #fff; pointer-events: none; }
+.u-fm-playhead::before { content: ""; position: absolute; top: 0; left: -6px; border: 7px solid transparent; border-top-color: #fff; }
+.u-fm-bulle { position: absolute; z-index: 4; left: 50%; top: -6px; transform: translate(-50%, -100%); margin: 0; padding: 6px 12px; border-radius: 10px; background: var(--accent, #d9b15c); color: #111; font-size: 13px; max-width: 86%; text-align: center; cursor: pointer; }
+.u-fm-scroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; touch-action: pan-x; }
+.u-fm-scroll:focus-visible { outline: 2px solid var(--accent, #d9b15c); }
+.u-fm-inner { position: relative; box-sizing: content-box; min-height: 96px; padding: 0 50%; }
+.u-fm-inner > * { position: relative; }
+.u-fm-ruler { position: relative; height: 22px; font-size: 11px; color: var(--u-muted, #a1a1aa); font-variant-numeric: tabular-nums; }
+.u-fm-ruler span { position: absolute; top: 4px; transform: translateX(-1px); padding-left: 3px; border-left: 1px solid currentColor; }
+.u-fm-track { position: relative; height: 64px; }
+.u-fm-track.is-audio { height: 36px; }
+.u-fm-track-name { position: sticky; left: 0; z-index: 2; display: none; }
+.u-fm-clip { position: absolute; top: 6px; bottom: 6px; display: flex; align-items: flex-start; padding: 4px 6px; border: 2px solid var(--u-line-strong, #2a2a2e); border-radius: 10px; background: #1b1b1f center / cover repeat-x; color: #fff; font: inherit; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px #000; cursor: pointer; }
+.u-fm-clip[aria-pressed="true"] { border-color: var(--accent, #d9b15c); box-shadow: 0 0 0 2px var(--accent, #d9b15c); }
+.u-fm-audio { position: absolute; top: 4px; bottom: 4px; padding: 4px 8px; border-radius: 8px; background: #1e3a5f; font-size: 12px; overflow: hidden; white-space: nowrap; }
+.u-fm-props { display: grid; gap: 8px; align-content: start; min-height: 48px; }
+.u-fm-props-sub { margin: 0; color: var(--u-muted, #a1a1aa); font-size: 13px; }
+.u-fm-chips { display: flex; gap: 8px; overflow-x: auto; }
+.u-fm-chips .u-film-chip[aria-pressed="true"] { border-color: var(--accent, #d9b15c); color: var(--accent, #d9b15c); }
+.u-fm-bin { display: grid; gap: 6px; order: 9; }
+.u-fm-bin-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.u-fm-bin-item { display: grid; gap: 4px; flex: 0 0 88px; min-height: 44px; padding: 0; border: 1px solid var(--u-line-strong, #2a2a2e); border-radius: 10px; background: transparent; color: inherit; font: inherit; font-size: 11px; text-align: left; overflow: hidden; cursor: pointer; }
+.u-fm-bin-item img, .u-fm-bin-ph { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #1b1b1f; display: block; }
+.u-fm-bin-item > span:last-child { padding: 0 6px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.u-fm-bin-plus { place-items: center; border-style: dashed; font-size: 12px; }
+.u-fm-bin-plus > span:first-child { font-size: 24px; }
+.u-fm-net { display: flex; gap: 12px; align-items: flex-start; min-height: 44px; padding: 12px; border: 1px solid var(--u-line-strong, #2a2a2e); border-radius: 14px; cursor: pointer; }
+.u-fm-net input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--accent, #d9b15c); }
+.u-fm-net span { display: grid; gap: 4px; }
+.u-fm-net small { color: var(--u-muted, #a1a1aa); }
+
+@media (max-width: 999px) {
+  .u-fm-body { display: contents; }
+  .u-fm-head { order: 0; }
+  .u-fm-centre { order: 1; }
+  .u-fm-barre { order: 2; }
+  .u-fm-timeline { order: 3; }
+  .u-fm-props { order: 4; }
+  .u-fm-bin { order: 5; }
+  .u-fm > .u-film-error { order: 6; }
+}
+@media (min-width: 1000px) {
+  .u-fm-tool kbd { display: inline; }
+  .u-fm-preview.is-vertical { height: 46vh; }
+  .u-fm-body { grid-template-columns: 220px minmax(0, 1fr) 260px; align-items: start; }
+  .u-fm-bin { order: 0; }
+  .u-fm-bin-list { display: grid; grid-template-columns: 1fr 1fr; overflow: visible; }
+  .u-fm-state { display: inline-block; }
+  .u-fm-track-name { display: none; }
+  .u-fm-preview { max-height: 46vh; aspect-ratio: 16 / 9; }
+  .u-fm-props { padding-left: 12px; border-left: 1px solid var(--u-line, #1f1f23); }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .u-fm-preview { max-height: 46vh; }
+}
