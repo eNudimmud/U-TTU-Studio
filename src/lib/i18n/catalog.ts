@@ -8,9 +8,9 @@ function asMessages(value: unknown): AbstractIntlMessages {
 
 export async function loadCatalog(locale: Locale): Promise<AbstractIntlMessages> {
   switch (locale) {
-    case "en": return asMessages((await import("../../../messages/en.json")).default);
+    case "fr": return asMessages((await import("../../../messages/fr.json")).default);
     case "de": return asMessages((await import("../../../messages/de.json")).default);
     case "es": return asMessages((await import("../../../messages/es.json")).default);
-    default: return asMessages((await import("../../../messages/fr.json")).default);
+    default: return asMessages((await import("../../../messages/en.json")).default);
   }
 }

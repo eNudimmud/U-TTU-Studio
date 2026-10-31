@@ -31,7 +31,7 @@ describe("langues du studio", () => {
     assert.equal(catalogs.es.nav.take, "Toma");
     assert.equal(catalogs.en.nav.character, "Cast");
     assert.equal(catalogs.en.nav.scene, "Set");
-    assert.equal(catalogs.en.nav.take, "Take");
+    assert.equal(catalogs.en.nav.take, "Shoot");
     assert.equal(catalogs.en._human, "native_open");
     assert.equal(catalogs.de._human, "native_open");
     assert.equal(catalogs.es._human, "native_open");
@@ -88,7 +88,7 @@ describe("langues du studio", () => {
     assert.equal(phrase(t, "une.md"), "une.md");
     assert.equal(phrase(t, "20261003-153000-le-quai.md"), "20261003-153000-le-quai.md");
     assert.equal(readLocaleValue("es"), "es");
-    assert.equal(readLocaleValue("nope"), "fr");
+    assert.equal(readLocaleValue("nope"), "en");
     assert.equal(LOCALE_COOKIE, "u-ttu-locale");
   });
 

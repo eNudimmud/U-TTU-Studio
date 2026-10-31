@@ -23,10 +23,17 @@ describe("first-visit language", () => {
     assert.equal(negotiateLocale("*"), "en");
   });
 
-  it("keeps the visitor's explicit choice (AA) over the browser", () => {
+  it("keeps the visitor's explicit choice over the default", () => {
     assert.equal(requestLocaleFrom("fr", "en-US,en;q=0.9"), "fr");
     assert.equal(requestLocaleFrom("es", "de-DE"), "es");
-    assert.equal(requestLocaleFrom("nope", "de-DE"), "de");
+    assert.equal(requestLocaleFrom("de", null), "de");
+  });
+
+  it("opens in English for a first visit, whatever the browser language", () => {
+    assert.equal(requestLocaleFrom(undefined, "fr-CH,fr;q=0.9"), "en");
+    assert.equal(requestLocaleFrom(null, "de-DE"), "en");
+    assert.equal(requestLocaleFrom("nope", "es-ES"), "en");
     assert.equal(requestLocaleFrom(undefined, "pt-BR"), "en");
+    assert.equal(requestLocaleFrom(undefined, undefined), "en");
   });
 });
