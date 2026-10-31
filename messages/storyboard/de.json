@@ -16,7 +16,7 @@
       "savedIn": "Gespeichert in {path}",
       "noRender": "Ein Storyboard schreiben rendert nichts. Jede Einstellung zeigt ihr Angebot, bevor sie gedreht wird.",
       "unreadable": "Ein Storyboard konnte nicht gelesen werden ({file}). Es bleibt unverändert.",
-      "meta": "{scenes, plural, one {# Szene} other {# Szenen}} · {shots, plural, one {# Einstellung} other {# Einstellungen}} · {seconds} s · {format}",
+      "meta": "{scenes, plural, one {# Sequenz} other {# Sequenzen}} · {shots, plural, one {# Einstellung} other {# Einstellungen}} · {seconds} s · {format}",
       "progress": "{x} von {y} Einstellungen gedreht",
       "toFinish": "≈ {n} Credits geschätzt bis zum Ende",
       "inEdit": "Im Schnitt",
@@ -41,7 +41,7 @@
     "idea": {
       "titleA": "Starte mit",
       "titleB": "einer Idee",
-      "lead": "Ein Satz genügt. Uttu schreibt die Szenen und Einstellungen; noch wird nichts gerendert.",
+      "lead": "Ein Satz genügt. Uttu schreibt die Sequenzen und Einstellungen; noch wird nichts gerendert.",
       "label": "Deine Idee in einem Satz",
       "placeholder": "Uttu durchquert die Stadt im Regen, um im Morgengrauen ein Dach zu erreichen.",
       "length": "Länge",
@@ -64,9 +64,9 @@
       "export": "Exportieren",
       "exportMd": "Markdown · schon in deinem Tresor",
       "print": "Drucken / PDF",
-      "scene": "Szene {n}",
+      "scene": "Sequenz {n}",
       "sceneMeta": "{shots, plural, one {# Einstellung} other {# Einstellungen}} · {seconds} s",
-      "sceneTitle": "Titel der Szene",
+      "sceneTitle": "Titel der Sequenz",
       "titleLabel": "Titel des Storyboards",
       "shot": "Einstellung {n}",
       "open": "Einstellung {n} öffnen",
@@ -97,7 +97,7 @@
       "connect": "Verbinde Comfy Cloud zum Drehen"
     },
     "sheet": {
-      "where": "Szene {s} · {scene} · Einstellung {n} von {total}",
+      "where": "Sequenz {s} · {scene} · Einstellung {n} von {total}",
       "shotTitle": "Titel der Einstellung",
       "close": "Schließen",
       "what": "Was passiert?",
@@ -192,7 +192,7 @@
     },
     "writer": {
       "writing": "Uttu schreibt… Noch ist nichts gedreht.",
-      "reply": "Hier {shots, plural, one {ist # Einstellung} other {sind # Einstellungen}} in {scenes, plural, one {# Szene} other {# Szenen}}, etwa {seconds} s.",
+      "reply": "Hier {shots, plural, one {ist # Einstellung} other {sind # Einstellungen}} in {scenes, plural, one {# Sequenz} other {# Sequenzen}}, etwa {seconds} s.",
       "reuse": "Ich nehme {names} aus deinem Projekt.",
       "create": "Neu: {names}. Ich erstelle sie beim Drehen, mit ihrem Angebot.",
       "and": "{a} und {b}",
@@ -220,7 +220,7 @@
       "page": "A4 quer · 6 Einstellungen pro Seite"
     },
     "md": {
-      "scene": "Szene",
+      "scene": "Sequenz",
       "shot": "Einstellung",
       "action": "Handlung",
       "who": "Wer",
@@ -301,6 +301,12 @@
           "action": "{lieu}, wieder weit: {qui} ist klein im Bild."
         }
       }
+    },
+    "quoted": "„{text}“",
+    "entry": {
+      "title": "Storyboard",
+      "lead": "Von einer Idee zu Sequenzen und Einstellungen, mit einem Kostenvoranschlag pro Einstellung. Schreiben rendert nichts.",
+      "open": "Storyboards öffnen"
     }
   }
 }

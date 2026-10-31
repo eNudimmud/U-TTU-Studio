@@ -301,6 +301,12 @@
           "action": "{lieu}, de nuevo general: {qui} es pequeño en el cuadro."
         }
       }
+    },
+    "quoted": "«{text}»",
+    "entry": {
+      "title": "Guion gráfico",
+      "lead": "De una idea a secuencias y planos, con un presupuesto en cada plano. Escribir no renderiza nada.",
+      "open": "Abrir los guiones gráficos"
     }
   }
 }

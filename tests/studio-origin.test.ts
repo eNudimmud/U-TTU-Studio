@@ -47,7 +47,7 @@ test("gate: unauthorized host sends /studio, /mon-studio and Comfy login pages t
   const hop = gateDecision({ ...base, url: new URL("https://uttu-studio.app/studio?step=prise"), host: "uttu-studio.app", isDocument: true }, config);
   assert.equal(hop.kind, "hop");
   if (hop.kind === "hop") assert.equal(hop.location, "https://u-ttu-studio.vercel.app/studio?step=prise&uttu_hop=1&uttu_lang=es");
-  for (const path of ["/studio/", "/mon-studio", "/cloud/login", "/oauth/x", "/login"]) {
+  for (const path of ["/studio/", "/mon-studio", "/storyboard", "/storyboard/court-a1/print", "/cloud/login", "/oauth/x", "/login"]) {
     assert.equal(gateDecision({ ...base, url: new URL(`https://uttu-studio.app${path}`), host: "uttu-studio.app", isDocument: true }, config).kind, "hop", path);
   }
   // The landing, assets and APIs stay on the public domain.

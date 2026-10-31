@@ -63,7 +63,7 @@ export function isLoginAuthorizedHost(host: string | null | undefined, config: S
 
 /** Pages that need the Comfy session: they must run on an authorized origin. */
 export function needsAuthorizedOrigin(pathname: string, isDocument: boolean): boolean {
-  if (/^\/(studio|mon-studio)(\/|$)/.test(pathname)) return true;
+  if (/^\/(studio|mon-studio|storyboard)(\/|$)/.test(pathname)) return true;
   // Comfy's own pages (login, sign-up, user check, post-login return) are proxied here.
   return isDocument && (/^\/(cloud|oauth)(\/|$)/.test(pathname) || pathname === "/login" || pathname === "/user-select");
 }

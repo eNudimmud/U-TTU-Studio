@@ -35,7 +35,7 @@ export interface OptionsEcriture {
   gabarits: Gabarits;
   now: string;
   suffixe: string;
-  /** True when this length has a quote for the default render: 10 s is only used when priced. */
+  /** True when this length has a quote for the default render: 8 s and 10 s are only used when priced. */
   dureeChiffree?(duree: DureePlan): boolean;
 }
 
@@ -81,7 +81,13 @@ const DECOUPAGE: Record<DureeCible, { type: TypeSequence; plans: TypePlan[] }[]>
 const CAMERAS: Camera[] = ["fixe", "suit", "approche", "autour"];
 /** Motion verbs choose a following camera for the main action (FR/EN/DE/ES). */
 const MOUVEMENT = /\b(march|court|cour|travers|roul|vol|nag|danse|fui|walk|run|cross|ride|driv|fly|swim|danc|flee|chase|geh|lauf|renn|fahr|flieg|tanz|camin|corr|cruz|vuel|bail|hu[iy])\w*/iu;
-const GUILLEMETS = /[«"“]\s*([^»"”]{1,200}?)\s*[»"”]/u;
+const GUILLEMETS = /[«"“„]\s*([^»"”“]{1,200}?)\s*[»"”“]/u;
+const DIT_FIN = /(?:[,;]\s*|\s+|^)(?:[\p{L}’'-]+\s+)?(?:dit|dit-elle|dit-il|says|said|sagt|dice|diciendo)\s*:?\s*$/iu;
+
+/** The action without the quoted words nor the « she says: » left in front of them. */
+export function sansReplique(text: string): string {
+  return text.replace(new RegExp(GUILLEMETS.source, "gu"), " ").replace(/\s+/g, " ").trim().replace(DIT_FIN, "").replace(/[\s:]+$/u, "").trim();
+}
 
 const ARTICLE = /^(?:the|a|an|le|la|les|l['’]|un|une|der|die|das|den|dem|ein|eine|el|los|las|una?)\b/iu;
 /** Weather and time of day are not places: « in the rain », « at dawn » never become a DÉCOR card. */
@@ -155,9 +161,11 @@ export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, optio
   const nomLieu = ou?.nom ?? g.lieu;
   const quote = GUILLEMETS.exec(idee)?.[1]?.trim().slice(0, REPLIQUE_MAX) ?? "";
   const camIdee = compris.read.camera.move ? null : MOUVEMENT.test(idee) ? "suit" as const : null;
-  const action = compris.read.action.trim() || idee.replace(GUILLEMETS, " ").trim();
+  const action = sansReplique(compris.read.action.trim() || idee);
   const values = { qui: nomQui, lieu: nomLieu, idee: majuscule(action) };
   const dixOk = options.dureeChiffree?.(10) ?? false;
+  // A line wants 8 s, but only when 8 s has a quote for the default render; otherwise 5 s stays filmable.
+  const huitOk = options.dureeChiffree?.(8) ?? true;
 
   let n = 0;
   const sequences: Sequence[] = DECOUPAGE[options.dureeCible].map((seq, s) => {
@@ -170,7 +178,7 @@ export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, optio
         ...(ou && type !== "detail" ? [ou] : []),
       ]);
       const base = planVide(`p${n}`, options.format);
-      const duree: DureePlan = parle ? 8 : type === "action" && options.dureeCible === 60 && dixOk ? 10 : 5;
+      const duree: DureePlan = parle && huitOk ? 8 : type === "action" && options.dureeCible === 60 && dixOk ? 10 : 5;
       const plan: PlanSB = {
         ...base,
         titre: g.plans[type].titre,

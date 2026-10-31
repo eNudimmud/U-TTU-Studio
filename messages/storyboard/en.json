@@ -16,7 +16,7 @@
       "savedIn": "Saved in {path}",
       "noRender": "Writing a storyboard renders nothing. Every shot shows its quote before it is filmed.",
       "unreadable": "A storyboard could not be read ({file}). It was left as it is.",
-      "meta": "{scenes, plural, one {# scene} other {# scenes}} · {shots, plural, one {# shot} other {# shots}} · {seconds} s · {format}",
+      "meta": "{scenes, plural, one {# sequence} other {# sequences}} · {shots, plural, one {# shot} other {# shots}} · {seconds} s · {format}",
       "progress": "{x} of {y} shots filmed",
       "toFinish": "≈ {n} credits estimated to finish",
       "inEdit": "In the edit",
@@ -41,7 +41,7 @@
     "idea": {
       "titleA": "Start from",
       "titleB": "an idea",
-      "lead": "One sentence is enough. Uttu writes the scenes and the shots; nothing is rendered yet.",
+      "lead": "One sentence is enough. Uttu writes the sequences and the shots; nothing is rendered yet.",
       "label": "Your idea in one sentence",
       "placeholder": "Uttu crosses the city in the rain to reach a rooftop at dawn.",
       "length": "Length",
@@ -64,9 +64,9 @@
       "export": "Export",
       "exportMd": "Markdown · already in your vault",
       "print": "Print / PDF",
-      "scene": "Scene {n}",
+      "scene": "Sequence {n}",
       "sceneMeta": "{shots, plural, one {# shot} other {# shots}} · {seconds} s",
-      "sceneTitle": "Scene title",
+      "sceneTitle": "Sequence title",
       "titleLabel": "Storyboard title",
       "shot": "Shot {n}",
       "open": "Open shot {n}",
@@ -97,7 +97,7 @@
       "connect": "Connect Comfy Cloud to film"
     },
     "sheet": {
-      "where": "Scene {s} · {scene} · Shot {n} of {total}",
+      "where": "Sequence {s} · {scene} · Shot {n} of {total}",
       "shotTitle": "Shot title",
       "close": "Close",
       "what": "What happens?",
@@ -192,7 +192,7 @@
     },
     "writer": {
       "writing": "Uttu is writing… Nothing is filmed yet.",
-      "reply": "Here are {shots, plural, one {# shot} other {# shots}} in {scenes, plural, one {# scene} other {# scenes}}, about {seconds} s.",
+      "reply": "Here are {shots, plural, one {# shot} other {# shots}} in {scenes, plural, one {# sequence} other {# sequences}}, about {seconds} s.",
       "reuse": "I reuse {names} from your project.",
       "create": "New: {names}. I create them when you film, with their quote.",
       "and": "{a} and {b}",
@@ -220,7 +220,7 @@
       "page": "A4 landscape · 6 shots per page"
     },
     "md": {
-      "scene": "Scene",
+      "scene": "Sequence",
       "shot": "Shot",
       "action": "Action",
       "who": "Who",
@@ -301,6 +301,12 @@
           "action": "{lieu}, wide again: {qui} is small in the frame."
         }
       }
+    },
+    "quoted": "“{text}”",
+    "entry": {
+      "title": "Storyboard",
+      "lead": "From one idea to sequences and shots, with a quote on every shot. Writing renders nothing.",
+      "open": "Open the storyboards"
     }
   }
 }

@@ -13,6 +13,7 @@ import { FilmMontage } from "./film/film-montage";
 import { FormatProvider } from "./format-switch";
 import { CastStage, DecorStage, PriseStage } from "./stage-screens";
 import { outilFromHash, OutilsHub } from "./outils-hub";
+import { StoryboardEntry } from "../storyboard/storyboard-entry";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import { RenduSuivi } from "./rendu-suivi";
@@ -220,6 +221,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
         : <CastStage onDecor={() => go("scene")} />}
       {/* Shown instead of the home only when the address already asks for a stage (see STUDIO_BOOT). */}
       {!ready && section === "outils" && !outil && <StudioSplash early />}
+      {ready && section === "outils" && !outil && <StoryboardEntry />}
     </main>
     {/* PRISE and MONTAGE show the notice inline (near the action / under the header); the floating toast stays for other tabs and over sheets. */}
     {notice && !((section === "prise" || section === "montage") && !studio.sheet) && <p className="u-toast" role="status" onClick={() => setNotice("")}>{say(notice)}</p>}
