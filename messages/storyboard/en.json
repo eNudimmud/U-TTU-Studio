@@ -301,6 +301,12 @@
           "action": "{lieu}, wide again: {qui} is small in the frame."
         }
       }
+    },
+    "quoted": "“{text}”",
+    "entry": {
+      "title": "Storyboard",
+      "lead": "From one idea to scenes and shots, with a quote on every shot. Writing renders nothing.",
+      "open": "Open the storyboards"
     }
   }
 }

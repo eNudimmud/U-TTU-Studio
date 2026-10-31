@@ -301,6 +301,12 @@
           "action": "{lieu}, wieder weit: {qui} ist klein im Bild."
         }
       }
+    },
+    "quoted": "„{text}“",
+    "entry": {
+      "title": "Storyboard",
+      "lead": "Von einer Idee zu Szenen und Einstellungen, mit einem Kostenvoranschlag pro Einstellung. Schreiben rendert nichts.",
+      "open": "Storyboards öffnen"
     }
   }
 }

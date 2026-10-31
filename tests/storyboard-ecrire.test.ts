@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { definirPersonnage, ecrireStoryboard, titreDeLIdee, type Gabarits } from "../src/lib/storyboard/ecrire.ts";
+import { definirPersonnage, sansReplique, ecrireStoryboard, titreDeLIdee, type Gabarits } from "../src/lib/storyboard/ecrire.ts";
 import { dureeTotale, tousLesPlans, DUREES_PLAN } from "../src/lib/storyboard/storyboard.ts";
 
 const gabarits = (lang: string): Gabarits => JSON.parse(readFileSync(`messages/storyboard/${lang}.json`, "utf8")).storyboard.gabarits;
@@ -71,6 +71,20 @@ test("10 s is only used when that length has a quote", () => {
   assert.ok(tousLesPlans(sans.storyboard).every(plan => plan.duree !== 10));
   const avec = ecrireStoryboard("Uttu sur le quai.", CTX, opts({ dureeCible: 60, dureeChiffree: () => true }));
   assert.ok(tousLesPlans(avec.storyboard).some(plan => plan.duree === 10));
+});
+
+test("a line takes 8 s only when 8 s has a quote, so every shot stays filmable", () => {
+  const idee = "Uttu sur le quai. Elle dit : « On y est presque. »";
+  const sans = ecrireStoryboard(idee, CTX, opts({ dureeCible: 30, dureeChiffree: duree => duree === 5 }));
+  assert.ok(tousLesPlans(sans.storyboard).every(plan => plan.duree === 5));
+  const avec = ecrireStoryboard(idee, CTX, opts({ dureeCible: 30, dureeChiffree: () => true }));
+  assert.ok(tousLesPlans(avec.storyboard).some(plan => plan.duree === 8));
+});
+
+test("the action keeps the idea without the quoted words nor « she says: »", () => {
+  assert.equal(sansReplique("Uttu monte sur le toit à l’aube. Elle dit : « On y est presque. »"), "Uttu monte sur le toit à l’aube.");
+  assert.equal(sansReplique("Uttu waits, she says: “Not yet.”"), "Uttu waits");
+  assert.equal(sansReplique("Uttu wartet. Sie sagt: „Gleich.“"), "Uttu wartet.");
 });
 
 test("the title comes from the idea's first words, never a quote", () => {

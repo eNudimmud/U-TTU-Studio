@@ -293,7 +293,6 @@ export function retirerPlan(sb: Storyboard, planId: string, now?: string): Story
   return touche(sb, sb.sequences.map(seq => ({ ...seq, plans: seq.plans.filter(plan => plan.id !== planId) })), now);
 }
 
-/** Moves a shot by `pas` places in the whole board (it may change scene). */
 /**
  * One step earlier (pas < 0) or later (pas > 0). Inside a scene the shot swaps with its neighbour; at the
  * scene's edge it crosses into the next (or previous) scene first, without jumping over a shot.
