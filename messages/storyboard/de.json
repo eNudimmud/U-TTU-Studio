@@ -1,0 +1,306 @@
+{
+  "storyboard": {
+    "name": "Storyboard",
+    "open": "Storyboard",
+    "openLead": "Schreib mit Uttu einen kurzen Film, Einstellung für Einstellung",
+    "studio": "Studio ↗",
+    "uttuName": "Uttu",
+    "boardTab": "Board",
+    "back": "Alle Storyboards",
+    "balance": "≈ {n} Credits",
+    "list": {
+      "titleA": "Deine",
+      "titleB": "Storyboards",
+      "lead": "Jedes hält Geschichte, Einstellungen, Referenzen und Takes zusammen, getrennt von deinen Galerien.",
+      "empty": "Noch kein Storyboard. Schreib deine Idee in einem Satz.",
+      "savedIn": "Gespeichert in {path}",
+      "noRender": "Ein Storyboard schreiben rendert nichts. Jede Einstellung zeigt ihr Angebot, bevor sie gedreht wird.",
+      "unreadable": "Ein Storyboard konnte nicht gelesen werden ({file}). Es bleibt unverändert.",
+      "meta": "{scenes, plural, one {# Szene} other {# Szenen}} · {shots, plural, one {# Einstellung} other {# Einstellungen}} · {seconds} s · {format}",
+      "progress": "{x} von {y} Einstellungen gedreht",
+      "toFinish": "≈ {n} Credits geschätzt bis zum Ende",
+      "inEdit": "Im Schnitt",
+      "archive": "Archivieren",
+      "restore": "Wiederherstellen",
+      "open": "{title} öffnen"
+    },
+    "filter": {
+      "label": "Anzeigen",
+      "tous": "Alle",
+      "en-cours": "In Arbeit",
+      "tournes": "Gedreht",
+      "archives": "Archiviert",
+      "count": "{label} · {n}"
+    },
+    "statut": {
+      "brouillon": "Entwurf",
+      "en-cours": "In Arbeit",
+      "tourne": "Gedreht",
+      "archive": "Archiviert"
+    },
+    "idea": {
+      "titleA": "Starte mit",
+      "titleB": "einer Idee",
+      "lead": "Ein Satz genügt. Uttu schreibt die Szenen und Einstellungen; noch wird nichts gerendert.",
+      "label": "Deine Idee in einem Satz",
+      "placeholder": "Uttu durchquert die Stadt im Regen, um im Morgengrauen ein Dach zu erreichen.",
+      "length": "Länge",
+      "target": "≈ {n} s",
+      "format": "Format",
+      "write": "Uttu schreibt es",
+      "empty": "Schreib zuerst deine Idee in einem Satz."
+    },
+    "format": {
+      "paysage": "Querformat",
+      "portrait": "Hochformat",
+      "paysageRatio": "Querformat 16:9",
+      "portraitRatio": "Hochformat 9:16"
+    },
+    "board": {
+      "seconds": "{n} s",
+      "music": "Musik: {text}",
+      "filmed": "{x} / {y} gedreht",
+      "script": "Drehbuch",
+      "export": "Exportieren",
+      "exportMd": "Markdown · schon in deinem Tresor",
+      "print": "Drucken / PDF",
+      "scene": "Szene {n}",
+      "sceneMeta": "{shots, plural, one {# Einstellung} other {# Einstellungen}} · {seconds} s",
+      "sceneTitle": "Titel der Szene",
+      "titleLabel": "Titel des Storyboards",
+      "shot": "Einstellung {n}",
+      "open": "Einstellung {n} öffnen",
+      "kept": "★ behalten",
+      "play": "Behaltenen Take abspielen",
+      "etat": {
+        "a-tourner": "Zu drehen",
+        "en-cours": "Wird gerendert…",
+        "tourne": "Gedreht",
+        "echec": "Nicht fertig geworden"
+      },
+      "takes": "Takes ({n})",
+      "film": "Drehen · ≈ {n}",
+      "filmTitle": "Diese Einstellung drehen · ≈ {n} Credits geschätzt",
+      "noQuote": "Kein Angebot für diese Länge",
+      "addShot": "+ Einstellung hinzufügen",
+      "moveUp": "Einstellung {n} nach vorn",
+      "moveDown": "Einstellung {n} nach hinten",
+      "remove": "Einstellung {n} entfernen",
+      "removed": "Einstellung entfernt.",
+      "undo": "Rückgängig",
+      "filmAll": "{n, plural, one {# Einstellung} other {# Einstellungen}} drehen",
+      "filmAllPrice": "≈ {n} Credits geschätzt",
+      "filmAllNote": "Eine Einstellung, die schon rendert, läuft weiter. Eine Bestätigung zeigt jeden Schritt vor „Starten“.",
+      "allFilmed": "Alle Einstellungen sind gedreht.",
+      "queue": "Einstellung {i} von {n} · die nächste startet, wenn diese fertig ist",
+      "notFound": "Dieses Storyboard ist nicht in diesem Projekt.",
+      "connect": "Verbinde Comfy Cloud zum Drehen"
+    },
+    "sheet": {
+      "where": "Szene {s} · {scene} · Einstellung {n} von {total}",
+      "shotTitle": "Titel der Einstellung",
+      "close": "Schließen",
+      "what": "Was passiert?",
+      "references": "Referenzen",
+      "who": "Wer",
+      "whereRef": "Wo",
+      "objectStyle": "Objekt / Stil",
+      "fromCast": "aus deiner Besetzung",
+      "fromPlaces": "aus deinen Orten",
+      "newRef": "neu · wird erstellt",
+      "refsMax": "bis zu {n} Referenzen",
+      "addRef": "Hinzufügen",
+      "addWho": "Figur hinzufügen",
+      "addWhere": "Ort wählen",
+      "refName": "Name",
+      "removeRef": "{nom} entfernen",
+      "dialogue": "Dialog",
+      "suggested": "von Uttu vorgeschlagen",
+      "fromIdea": "aus deiner Idee",
+      "editable": "änderbar",
+      "paroles": {
+        "aucune": "Ohne Worte",
+        "replique": "Ein Satz",
+        "voixoff": "Off-Stimme"
+      },
+      "speaker": "Wer spricht",
+      "lineLabel": "Die gesprochenen Worte",
+      "linePlaceholder": "Ein kurzer Satz, in Sekunden gesagt",
+      "writeOwn": "✎ Selbst schreiben",
+      "pick": "Diesen Satz nehmen",
+      "suggestOther": "Andere Sätze vorschlagen",
+      "framing": "Bildausschnitt",
+      "cadrage": {
+        "large": "Totale",
+        "moyen": "Halbnah",
+        "serre": "Nah",
+        "detail": "Detail"
+      },
+      "camera": "Kamera",
+      "cam": {
+        "fixe": "Statisch",
+        "suit": "Folgt",
+        "approche": "Fährt heran",
+        "autour": "Kreist"
+      },
+      "length": "Länge",
+      "render": "Rendering",
+      "rendu": {
+        "fidele": "Nah an meinen Referenzen",
+        "rapide": "Schnell"
+      },
+      "raccord": "Gleiches Licht und gleicher Ort wie davor",
+      "sound": "Ton",
+      "music": "Musik",
+      "ambience": "Atmo",
+      "takes": "Takes",
+      "noTake": "Noch kein Take.",
+      "keep": "★ Behalten",
+      "keptTake": "★ behalten",
+      "newTake": "Neuer Take",
+      "sent": "Was gesendet wird",
+      "sentEdit": "Eigenen Prompt schreiben",
+      "sentReset": "Zurück zum berechneten Prompt",
+      "sentMeta": "{engine} · {s} s · {ratio} · {refs, plural, one {# Referenz} other {# Referenzen}}",
+      "filmThis": "Diese Einstellung drehen",
+      "steps": "{n, plural, one {Ein Schritt} other {# Schritte}}: {list}. Eine Bestätigung.",
+      "delete": "Diese Einstellung entfernen"
+    },
+    "uttu": {
+      "label": "Mit Uttu sprechen",
+      "ask": "Bitte Uttu zu ändern, hinzuzufügen, zu kürzen…",
+      "send": "Senden",
+      "status": "{x} von {y} Einstellungen gedreht. {next}",
+      "nextFilm": "Als Nächstes zu drehen: Einstellung {n}.",
+      "allDone": "Alles ist gedreht und im Schnitt.",
+      "noRenderTag": "kein Rendering",
+      "tighten": "Auf {n} s kürzen",
+      "addClosing": "Schlusseinstellung hinzufügen",
+      "toPortrait": "Ins Hochformat",
+      "toLandscape": "Ins Querformat",
+      "done": {
+        "added": "Einstellung {n} hinzugefügt. Öffne sie, um sie zu beschreiben.",
+        "removed": "Einstellung {n} entfernt.",
+        "moved": "Einstellung {n} verschoben.",
+        "format": "Jede noch nicht gedrehte Einstellung ist jetzt {format}.",
+        "tightened": "Auf etwa {n} s gekürzt.",
+        "line": "Einstellung {n} sagt jetzt: „{text}“"
+      },
+      "notUnderstood": "Das habe ich nicht verstanden. Versuch „Einstellung hinzufügen“, „Einstellung 3 entfernen“, „Einstellung 2 nach hinten“, „Hochformat“, „auf 15 s kürzen“ oder „Einstellung 2 sagt: …“. Alles andere änderst du von Hand in der Einstellung.",
+      "toggle": "Uttu",
+      "toggleBoard": "Board"
+    },
+    "writer": {
+      "writing": "Uttu schreibt… Noch ist nichts gedreht.",
+      "reply": "Hier {shots, plural, one {ist # Einstellung} other {sind # Einstellungen}} in {scenes, plural, one {# Szene} other {# Szenen}}, etwa {seconds} s.",
+      "reuse": "Ich nehme {names} aus deinem Projekt.",
+      "create": "Neu: {names}. Ich erstelle sie beim Drehen, mit ihrem Angebot.",
+      "and": "{a} und {b}",
+      "filmEverything": "Alles drehen",
+      "oneQuestion": "Eine Frage",
+      "qWho": "Wer ist die Hauptfigur?",
+      "qWhoPlaceholder": "Der Name",
+      "qWhoOk": "Diesen Namen nehmen",
+      "qFormat": "Ich habe Querformat gewählt. Lieber Hochformat, für soziale Netzwerke?",
+      "qFormatPortrait": "Ich habe Hochformat gewählt. Lieber Querformat?",
+      "open": "Board öffnen",
+      "rewrite": "Neu schreiben",
+      "note": "Schreiben rendert nichts. Nichts wird vor „Starten“ gesendet.",
+      "failed": "Das Storyboard konnte nicht im Projekt gespeichert werden. Nichts ging verloren: versuch es nochmal."
+    },
+    "confirm": {
+      "titleN": "{n, plural, one {# Einstellung} other {# Einstellungen}} drehen?",
+      "lead": "Nacheinander, in der Reihenfolge des Boards. Nichts wird vor „Starten“ gesendet.",
+      "shotLine": "Einstellung {n} · {title}",
+      "topUp": "Credits aufladen"
+    },
+    "print": {
+      "title": "{title} · Storyboard",
+      "go": "Drucken / als PDF sichern",
+      "page": "A4 quer · 6 Einstellungen pro Seite"
+    },
+    "md": {
+      "scene": "Szene",
+      "shot": "Einstellung",
+      "action": "Handlung",
+      "who": "Wer",
+      "where": "Wo",
+      "object": "Objekt / Stil",
+      "line": "Satz",
+      "voiceOver": "Off-Stimme",
+      "sound": "Ton",
+      "prompt": "Prompt",
+      "render": "Rendering",
+      "kept": "Behaltener Take",
+      "toCreate": "neu · wird erstellt",
+      "fidele": "Nah an meinen Referenzen (H3)",
+      "rapide": "Schnell",
+      "credits": "≈ {n} Credits geschätzt",
+      "noQuote": "kein Angebot"
+    },
+    "gabarits": {
+      "quelquun": "die Figur",
+      "lieu": "der Ort",
+      "sequences": {
+        "unique": {
+          "titre": "Der Moment",
+          "resume": "{idee}"
+        },
+        "ouverture": {
+          "titre": "Auftakt",
+          "resume": "Wo wir sind, wem wir folgen."
+        },
+        "coeur": {
+          "titre": "Herz",
+          "resume": "{idee}"
+        },
+        "chute": {
+          "titre": "Schluss",
+          "resume": "Was bleibt."
+        }
+      },
+      "plans": {
+        "etablir": {
+          "titre": "Der Ort",
+          "action": "{lieu}, weit gesehen, bevor etwas passiert."
+        },
+        "arrivee": {
+          "titre": "Ankunft",
+          "action": "{qui} erscheint in {lieu}."
+        },
+        "detail": {
+          "titre": "Ein Detail",
+          "action": "Ein Detail, das die Stimmung setzt: Hände, ein Gegenstand, das Licht."
+        },
+        "action": {
+          "titre": "Der Moment",
+          "action": "{idee}"
+        },
+        "regard": {
+          "titre": "Der Blick",
+          "action": "Nah an {qui}: das Gesicht, was gefühlt wird."
+        },
+        "reaction": {
+          "titre": "Ein Atemzug",
+          "action": "{qui} hält kurz inne; etwas verändert sich."
+        },
+        "mouvement": {
+          "titre": "In Bewegung",
+          "action": "{qui} zieht weiter durch {lieu}."
+        },
+        "depart": {
+          "titre": "Der Aufbruch",
+          "action": "{qui} wendet sich ab und verlässt das Bild."
+        },
+        "dernier": {
+          "titre": "Letztes Licht",
+          "action": "Das Licht über {lieu} verändert sich."
+        },
+        "fin": {
+          "titre": "Das Ende",
+          "action": "{lieu}, wieder weit: {qui} ist klein im Bild."
+        }
+      }
+    }
+  }
+}

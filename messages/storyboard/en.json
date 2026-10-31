@@ -1,0 +1,306 @@
+{
+  "storyboard": {
+    "name": "Storyboard",
+    "open": "Storyboard",
+    "openLead": "Write a short film shot by shot with Uttu",
+    "studio": "Studio ↗",
+    "uttuName": "Uttu",
+    "boardTab": "Board",
+    "back": "All storyboards",
+    "balance": "≈ {n} credits",
+    "list": {
+      "titleA": "Your",
+      "titleB": "storyboards",
+      "lead": "Each one keeps its story, shots, references and takes together, apart from your galleries.",
+      "empty": "No storyboard yet. Write your idea in one sentence.",
+      "savedIn": "Saved in {path}",
+      "noRender": "Writing a storyboard renders nothing. Every shot shows its quote before it is filmed.",
+      "unreadable": "A storyboard could not be read ({file}). It was left as it is.",
+      "meta": "{scenes, plural, one {# scene} other {# scenes}} · {shots, plural, one {# shot} other {# shots}} · {seconds} s · {format}",
+      "progress": "{x} of {y} shots filmed",
+      "toFinish": "≈ {n} credits estimated to finish",
+      "inEdit": "In the edit",
+      "archive": "Archive",
+      "restore": "Restore",
+      "open": "Open {title}"
+    },
+    "filter": {
+      "label": "Show",
+      "tous": "All",
+      "en-cours": "In progress",
+      "tournes": "Filmed",
+      "archives": "Archived",
+      "count": "{label} · {n}"
+    },
+    "statut": {
+      "brouillon": "Draft",
+      "en-cours": "In progress",
+      "tourne": "Filmed",
+      "archive": "Archived"
+    },
+    "idea": {
+      "titleA": "Start from",
+      "titleB": "an idea",
+      "lead": "One sentence is enough. Uttu writes the scenes and the shots; nothing is rendered yet.",
+      "label": "Your idea in one sentence",
+      "placeholder": "Uttu crosses the city in the rain to reach a rooftop at dawn.",
+      "length": "Length",
+      "target": "≈ {n} s",
+      "format": "Format",
+      "write": "Write it with Uttu",
+      "empty": "First write your idea in one sentence."
+    },
+    "format": {
+      "paysage": "Landscape",
+      "portrait": "Portrait",
+      "paysageRatio": "Landscape 16:9",
+      "portraitRatio": "Portrait 9:16"
+    },
+    "board": {
+      "seconds": "{n} s",
+      "music": "Music: {text}",
+      "filmed": "{x} / {y} filmed",
+      "script": "Script",
+      "export": "Export",
+      "exportMd": "Markdown · already in your vault",
+      "print": "Print / PDF",
+      "scene": "Scene {n}",
+      "sceneMeta": "{shots, plural, one {# shot} other {# shots}} · {seconds} s",
+      "sceneTitle": "Scene title",
+      "titleLabel": "Storyboard title",
+      "shot": "Shot {n}",
+      "open": "Open shot {n}",
+      "kept": "★ kept",
+      "play": "Play the kept take",
+      "etat": {
+        "a-tourner": "To film",
+        "en-cours": "Rendering…",
+        "tourne": "Filmed",
+        "echec": "Did not finish"
+      },
+      "takes": "Takes ({n})",
+      "film": "Film · ≈ {n}",
+      "filmTitle": "Film this shot · ≈ {n} credits estimated",
+      "noQuote": "Quote unavailable for this length",
+      "addShot": "+ Add a shot",
+      "moveUp": "Move shot {n} earlier",
+      "moveDown": "Move shot {n} later",
+      "remove": "Remove shot {n}",
+      "removed": "Shot removed.",
+      "undo": "Undo",
+      "filmAll": "Film {n, plural, one {# shot} other {# shots}}",
+      "filmAllPrice": "≈ {n} credits estimated",
+      "filmAllNote": "A shot already rendering keeps going. One confirmation lists every step before “Start”.",
+      "allFilmed": "Every shot is filmed.",
+      "queue": "Shot {i} of {n} · the next one starts when this one ends",
+      "notFound": "This storyboard is not in this project.",
+      "connect": "Connect Comfy Cloud to film"
+    },
+    "sheet": {
+      "where": "Scene {s} · {scene} · Shot {n} of {total}",
+      "shotTitle": "Shot title",
+      "close": "Close",
+      "what": "What happens?",
+      "references": "References",
+      "who": "Who",
+      "whereRef": "Where",
+      "objectStyle": "Object / style",
+      "fromCast": "from your cast",
+      "fromPlaces": "from your places",
+      "newRef": "new · will be created",
+      "refsMax": "up to {n} references",
+      "addRef": "Add",
+      "addWho": "Add a character",
+      "addWhere": "Choose the place",
+      "refName": "Name",
+      "removeRef": "Remove {nom}",
+      "dialogue": "Dialogue",
+      "suggested": "suggested by Uttu",
+      "fromIdea": "from your idea",
+      "editable": "editable",
+      "paroles": {
+        "aucune": "No words",
+        "replique": "A line",
+        "voixoff": "Voice-over"
+      },
+      "speaker": "Who speaks",
+      "lineLabel": "The words said",
+      "linePlaceholder": "A short line, said in a few seconds",
+      "writeOwn": "✎ Write my own",
+      "pick": "Use this line",
+      "suggestOther": "Suggest other lines",
+      "framing": "Framing",
+      "cadrage": {
+        "large": "Wide",
+        "moyen": "Medium",
+        "serre": "Close",
+        "detail": "Detail"
+      },
+      "camera": "Camera",
+      "cam": {
+        "fixe": "Static",
+        "suit": "Follows",
+        "approche": "Moves closer",
+        "autour": "Circles"
+      },
+      "length": "Length",
+      "render": "Render",
+      "rendu": {
+        "fidele": "Closest to my references",
+        "rapide": "Fast"
+      },
+      "raccord": "Same light and place as the shot before",
+      "sound": "Sound",
+      "music": "Music",
+      "ambience": "Ambience",
+      "takes": "Takes",
+      "noTake": "No take yet.",
+      "keep": "★ Keep",
+      "keptTake": "★ kept",
+      "newTake": "New take",
+      "sent": "What will be sent",
+      "sentEdit": "Write my own prompt",
+      "sentReset": "Back to the computed prompt",
+      "sentMeta": "{engine} · {s} s · {ratio} · {refs, plural, one {# reference} other {# references}}",
+      "filmThis": "Film this shot",
+      "steps": "{n, plural, one {One step} other {# steps}}: {list}. One confirmation.",
+      "delete": "Remove this shot"
+    },
+    "uttu": {
+      "label": "Talk with Uttu",
+      "ask": "Ask Uttu to change, add, shorten…",
+      "send": "Send",
+      "status": "{x} of {y} shots filmed. {next}",
+      "nextFilm": "The next one to film is shot {n}.",
+      "allDone": "Everything is filmed and in the edit.",
+      "noRenderTag": "no render",
+      "tighten": "Tighten to {n} s",
+      "addClosing": "Add a closing shot",
+      "toPortrait": "Switch to portrait",
+      "toLandscape": "Switch to landscape",
+      "done": {
+        "added": "Shot {n} added. Open it to describe it.",
+        "removed": "Shot {n} removed.",
+        "moved": "Shot {n} moved.",
+        "format": "Every shot not yet filmed is now {format}.",
+        "tightened": "Tightened to about {n} s.",
+        "line": "Shot {n} now says: “{text}”"
+      },
+      "notUnderstood": "I did not catch that. Try “add a shot”, “remove shot 3”, “move shot 2 later”, “portrait”, “shorten to 15 s” or “shot 2 says: …”. Everything else changes by hand in the shot.",
+      "toggle": "Uttu",
+      "toggleBoard": "Board"
+    },
+    "writer": {
+      "writing": "Uttu is writing… Nothing is filmed yet.",
+      "reply": "Here are {shots, plural, one {# shot} other {# shots}} in {scenes, plural, one {# scene} other {# scenes}}, about {seconds} s.",
+      "reuse": "I reuse {names} from your project.",
+      "create": "New: {names}. I create them when you film, with their quote.",
+      "and": "{a} and {b}",
+      "filmEverything": "Film everything",
+      "oneQuestion": "One question",
+      "qWho": "Who is the main character?",
+      "qWhoPlaceholder": "Their name",
+      "qWhoOk": "Use this name",
+      "qFormat": "I set it to landscape. Would you rather have portrait, for social?",
+      "qFormatPortrait": "I set it to portrait. Would you rather have landscape?",
+      "open": "Open the board",
+      "rewrite": "Rewrite",
+      "note": "Writing renders nothing. Nothing is sent before “Start”.",
+      "failed": "The storyboard could not be saved in your project. Nothing was lost: try again."
+    },
+    "confirm": {
+      "titleN": "Film {n, plural, one {# shot} other {# shots}}?",
+      "lead": "One after the other, in the board’s order. Nothing is sent before “Start”.",
+      "shotLine": "Shot {n} · {title}",
+      "topUp": "Top up my credits"
+    },
+    "print": {
+      "title": "{title} · storyboard",
+      "go": "Print / save as PDF",
+      "page": "A4 landscape · 6 shots per page"
+    },
+    "md": {
+      "scene": "Scene",
+      "shot": "Shot",
+      "action": "Action",
+      "who": "Who",
+      "where": "Where",
+      "object": "Object / style",
+      "line": "Line",
+      "voiceOver": "voice-over",
+      "sound": "Sound",
+      "prompt": "Prompt",
+      "render": "Render",
+      "kept": "Kept take",
+      "toCreate": "new · will be created",
+      "fidele": "Closest to my references (H3)",
+      "rapide": "Fast",
+      "credits": "≈ {n} credits estimated",
+      "noQuote": "quote unavailable"
+    },
+    "gabarits": {
+      "quelquun": "the character",
+      "lieu": "the place",
+      "sequences": {
+        "unique": {
+          "titre": "The moment",
+          "resume": "{idee}"
+        },
+        "ouverture": {
+          "titre": "Opening",
+          "resume": "Where we are, who we follow."
+        },
+        "coeur": {
+          "titre": "Heart",
+          "resume": "{idee}"
+        },
+        "chute": {
+          "titre": "Ending",
+          "resume": "What it leaves behind."
+        }
+      },
+      "plans": {
+        "etablir": {
+          "titre": "The place",
+          "action": "{lieu}, seen wide, before anything happens."
+        },
+        "arrivee": {
+          "titre": "Arrival",
+          "action": "{qui} appears in {lieu}."
+        },
+        "detail": {
+          "titre": "A detail",
+          "action": "A detail that sets the mood: hands, an object, the light."
+        },
+        "action": {
+          "titre": "The moment",
+          "action": "{idee}"
+        },
+        "regard": {
+          "titre": "The look",
+          "action": "Close on {qui}: the face, what they feel."
+        },
+        "reaction": {
+          "titre": "A breath",
+          "action": "{qui} stops for a breath; something changes."
+        },
+        "mouvement": {
+          "titre": "On the move",
+          "action": "{qui} moves on through {lieu}."
+        },
+        "depart": {
+          "titre": "Leaving",
+          "action": "{qui} turns away and leaves the frame."
+        },
+        "dernier": {
+          "titre": "Last light",
+          "action": "The light changes over {lieu}."
+        },
+        "fin": {
+          "titre": "The end",
+          "action": "{lieu}, wide again: {qui} is small in the frame."
+        }
+      }
+    }
+  }
+}
