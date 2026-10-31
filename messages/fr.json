@@ -4058,6 +4058,33 @@
       "aria": "Film : plans et montage",
       "plans": "Plans",
       "vide": "vide"
+    },
+    "exemples": {
+      "titre": "Ou pars d’un exemple",
+      "liste": "{n} exemples, glisse pour les voir",
+      "resultat": "Résultat réel du studio",
+      "reel": "résultat réel",
+      "video": "VIDÉO {s} s",
+      "image": "IMAGE",
+      "recetteVideo": "{n} références → 1 vidéo",
+      "recetteTexte": "1 phrase → 1 image",
+      "recettePhoto": "1 photo → 1 image",
+      "sansPrix": "prix indisponible",
+      "refaire": "Refaire cet exemple",
+      "prepare": "Préparation…",
+      "note": "Remplit le plan sous tes yeux. Rien ne part avant « Lancer ».",
+      "introuvable": "L’exemple n’a pas pu être chargé. Réessaie, rien n’a été envoyé.",
+      "uttuQuai": {
+        "titre": "Uttu sur le quai",
+        "phrase": "Uttu marche sur le quai la nuit, la caméra la suit."
+      },
+      "lieuPhoto": {
+        "titre": "Un lieu depuis une photo"
+      },
+      "persoTexte": {
+        "titre": "Un personnage depuis une phrase",
+        "texte": "Un vieil homme, personnage fictif."
+      }
     }
   }
 }

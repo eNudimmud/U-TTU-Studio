@@ -4058,6 +4058,33 @@
       "aria": "Película: planos y montaje",
       "plans": "Planos",
       "vide": "vacío"
+    },
+    "exemples": {
+      "titre": "O empieza con un ejemplo",
+      "liste": "{n} ejemplos, desliza para verlos",
+      "resultat": "Resultado real del estudio",
+      "reel": "resultado real",
+      "video": "VÍDEO {s} s",
+      "image": "IMAGEN",
+      "recetteVideo": "{n} referencias → 1 vídeo",
+      "recetteTexte": "1 frase → 1 imagen",
+      "recettePhoto": "1 foto → 1 imagen",
+      "sansPrix": "precio no disponible",
+      "refaire": "Rehacer este ejemplo",
+      "prepare": "Preparando…",
+      "note": "Rellena el plano ante tus ojos. Nada se envía antes de « Lanzar ».",
+      "introuvable": "No se pudo cargar el ejemplo. Inténtalo de nuevo, no se ha enviado nada.",
+      "uttuQuai": {
+        "titre": "Uttu en el muelle",
+        "phrase": "Uttu camina por el muelle de noche, la cámara la sigue."
+      },
+      "lieuPhoto": {
+        "titre": "Un lugar a partir de una foto"
+      },
+      "persoTexte": {
+        "titre": "Un personaje a partir de una frase",
+        "texte": "Un anciano, personaje ficticio."
+      }
     }
   }
 }
