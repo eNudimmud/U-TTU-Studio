@@ -4,7 +4,7 @@ import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 're
 import { useI18n } from '@/components/i18n/provider';
 import { formatCredits } from '@/lib/credits';
 import { DEMO_CAST, DEMO_DECOR } from '@/lib/creation/demo';
-import { BUBBLE_DEFAULTS, bubbleQuote, bubbleResolutionLabel, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
+import { BUBBLE_DEFAULTS, bubblePictureCount, bubbleQuote, chipReference, bubbleResolutionLabel, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
 import { CREATION_REFERENCES_MAX, type NamedReference } from '@/lib/creation/named-references';
 import { assetPath } from '@/lib/site';
 import { AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, DEFAULT_SETTINGS, writeHandoff, type BarreMode, type BarreRef } from '@/lib/barre/model';
@@ -58,10 +58,10 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, scope]);
   const selected = refs.flatMap(r => { const fresh = all.find(x => x.kind === r.kind && x.id === r.id); return fresh ? [fresh] : []; });
-  const attached: FilRef[] = [...selected.map(r => ({ kind: r.kind, id: r.id, name: r.name, description: r.description, src: r.src, path: r.path, vault: Boolean(r.path) })), ...photos.map(p => ({ kind: 'photo' as const, id: p.id, name: p.name, src: media[p.path ?? ''] ?? p.src, path: p.path, vault: Boolean(p.path) }))];
+  const attached: FilRef[] = [...selected.map(r => ({ kind: r.kind, id: r.id, name: r.name, description: r.description, src: r.src, path: r.path, vault: Boolean(r.path), ...('images' in r && r.images?.length ? { images: [...r.images] } : {}) })), ...photos.map(p => ({ kind: 'photo' as const, id: p.id, name: p.name, src: media[p.path ?? ''] ?? p.src, path: p.path, vault: Boolean(p.path) }))];
   const currentAudio = mode === 'video' && audio ? { name: audio.name, src: media[audio.path ?? ''] ?? audio.src, path: audio.path } : undefined;
   const input: FilSend = { mode, text, refs: attached, settings: DEFAULT_SETTINGS, creation: { settings }, audio: currentAudio };
-  const here = preview?.(input), quote = bubbleQuote(mode, attached.length, settings, Boolean(currentAudio));
+  const here = preview?.(input), quote = bubbleQuote(mode, bubblePictureCount(mode, attached.map(r => chipReference(r, p => Boolean(media[p])))), settings, Boolean(currentAudio));
   const credits = here ? here.quote : quote?.credits ?? null;
   const cost = credits !== null ? t('barre.cost', { credits: formatCredits(credits) }) : null;
   const full = attached.length >= CREATION_REFERENCES_MAX;

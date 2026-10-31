@@ -93,8 +93,11 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
     expect(await page.locator('[data-bubble-render]').evaluate(e=>e.scrollWidth-e.clientWidth)).toBeLessThanOrEqual(0);
   }
   await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-bubble-render]')).toHaveCount(0);
-  await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});expect(graphs).toHaveLength(1);expect(uploads).toBe(2);
-  expect(graphs[0].image_17.class_type).toBe('ReferenceMultiLatent');expect(graphs[0].reference_2.class_type).toBe('LoadImage');
+  await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});expect(graphs).toHaveLength(1);
+  // JD 31.10: the three saved photos of Référence A go one by one (never its contact sheet), then Référence B.
+  expect(uploads).toBe(4);
+  expect(graphs[0].image_17.class_type).toBe('ReferenceMultiLatent');expect(graphs[0].reference_4.class_type).toBe('LoadImage');expect(graphs[0].image_17.inputs['images.image3']).toEqual(['reference_4',0]);
+  expect(graphs[0].image_61.inputs.value).toContain('Référence A (the first to third images)');expect(graphs[0].image_61.inputs.value).toContain('The fourth image named "Référence B"');
   expect(graphs[0].image_61.inputs.value).toContain('"Référence A"');expect(graphs[0].image_61.inputs.value).toContain('"Référence B"');
   await page.locator('[data-fil-keep]').tap();await expect(page.locator('[data-fil-keep]')).toHaveAttribute('aria-pressed','true');
   await page.locator('[data-fil-favorite]').tap();await expect(page.locator('[data-fil-favorite]')).toHaveAttribute('aria-pressed','true');
@@ -104,7 +107,7 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
   await page.locator('[data-fil-reference]').tap();await expect(page.locator('[data-ref-editor] img')).toHaveCount(1);await page.locator('[data-ref-name]').fill('Image gardée');await page.locator('[data-ref-category]').selectOption('decor');await page.locator('[data-ref-save]').tap();await expect(page.locator('[data-ref-kind=decor]')).toHaveCount(1);await page.getByRole('dialog').getByRole('button',{name:'Fermer',exact:true}).tap();
   await page.locator('[data-barre-input]').fill('Une forêt dorée au lever du jour');await page.locator('[data-barre-send]').tap();
   await page.locator('[data-fil-job=confirm] [data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();
-  await expect(page.locator('[data-fil-job=done]')).toHaveCount(2,{timeout:60000});expect(graphs).toHaveLength(2);expect(uploads).toBe(2);
+  await expect(page.locator('[data-fil-job=done]')).toHaveCount(2,{timeout:60000});expect(graphs).toHaveLength(2);expect(uploads).toBe(4);
   expect(Object.values(graphs[1]).filter(n=>n.class_type==='LoadImage')).toHaveLength(0);expect(cancels).toBe(0);
   await page.goto('/studio#personnage');await expect(page.locator('main')).toContainText('Référence A');await expect(page.locator('main')).toContainText('Référence B');
 });

@@ -24,6 +24,8 @@ export interface FilRef {
   /** Kept in the vault (not a house example): PRISE can send it. */
   vault?: boolean;
   description?: string;
+  /** Vault paths of every saved photo of a named reference, sent one by one (the chip shows `path`). */
+  images?: string[];
 }
 
 export type FilRoute =

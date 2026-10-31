@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { BUBBLE_DEFAULTS, bubbleGraph, bubblePrompt, bubbleQuote, bubbleResolutionLabel, bubbleSize } from '../src/lib/creation/bubble.ts';
+import { BUBBLE_DEFAULTS, bubbleGraph, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, bubbleResolutionLabel, bubbleSize, bubbleStyle, chipReference } from '../src/lib/creation/bubble.ts';
 import { fileLikeName, namedReferenceNote, pickerReferences, readNamedReferences, referenceFromNote, type NamedReference } from '../src/lib/creation/named-references.ts';
 import { importMedia } from '../src/lib/creation/import-media.ts';
 import { memoryVault } from '../src/lib/coffre/store.ts';
@@ -41,6 +41,7 @@ test('seven named references reach Klein without truncation, and its canvas foll
   assert.equal(graph.canvas.inputs.height,bubbleSize(settings,'image').height);
   const prompt=bubblePrompt('Sujet A et Sujet B',[{name:'Sujet A',description:'manteau sombre'},{name:'Sujet B'}],'image');
   assert.match(prompt,/The first image named "Sujet A"/);assert.match(prompt,/The second image named "Sujet B"/);
+  assert.match(prompt,/^Sujet A \(the first image\) et Sujet B \(the second image\)/,'names in the request point at their pictures');
   assert.throws(()=>bubbleGraph({mode:'image',settings,images:[...images,'8.png'],prompt:'test',seed:1}));
 });
 
@@ -53,7 +54,7 @@ test('JD 2026-10-30: an image with a cast sheet and two loose photos is ≥ 1 MP
   assert.equal(bubbleResolutionLabel('image','480p'),'1 MP');assert.equal(bubbleResolutionLabel('video','480p'),'480p');
   const refs=[{name:'L’alien',category:'cast'},{name:'1000053068.png',category:'photo'},{name:'1000052926.png',category:'photo'}];
   const prompt=bubblePrompt('génère une photo de l’alien avec la créature, en train de jouer dans la nature',refs,'image');
-  assert.match(prompt,/The first image named "L’alien": a character from the cast — when it is a character sheet/);
+  assert.match(prompt,/The first image named "L’alien": a character from the cast: keep this exact character/);assert.match(prompt,/character sheet\) still shows ONE character/);
   assert.match(prompt,/The second image: an attached photo/);assert.match(prompt,/The third image: an attached photo/);
   assert.doesNotMatch(prompt,/<ref_image|1000053068|\.png/);assert.match(prompt,/never merge two subjects into one/);
   const graph=bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:['a.png','b.png','c.png'],prompt,seed:1785575703});
@@ -62,6 +63,7 @@ test('JD 2026-10-30: an image with a cast sheet and two loose photos is ≥ 1 MP
   assert.equal(graph.image_51.inputs.switch,false,'the template’s vision upsampler describes each picture by ordinal');
   for(let i=0;i<3;i++)assert.deepEqual(graph.image_17.inputs[`images.image${i}`],[`reference_${i+1}`,0]);
   assert.equal(graph.image_61.inputs.value,prompt);
+  assert.match(prompt,/Style: a real photograph/,'« une photo » is honoured');
   assert.equal(graph.image_7.inputs.cfg,3.5,'the base Klein checkpoint needs guidance; cfg 1 (left over from the distilled template) melts anatomy');
   assert.equal(graph.image_7.inputs.steps,50);
   assert.match(bubblePrompt('a',[{name:'Sujet A',category:'cast'}],'video'),/<Picture 1>: "Sujet A"/,'video prompts are unchanged');
@@ -158,4 +160,54 @@ test('project threads retain the submitted receipt across reload and cannot read
   assert.equal(back.status,'interrupted');assert.equal(back.jobId,'comfy-existing-job');assert.equal(back.project,'film');
   assert.equal(loadFil(projectFilStore(store,'autre')).messages.length,0);
   assert.throws(()=>projectFilStore(store,'../autre'));
+});
+
+test('JD 2026-10-31: three named references (two characters, one DÉCOR) send every saved photo, the place sets the scene, and « une photo » stays a photo',()=>{
+  // Before: each chip sent ONE local contact sheet (1536×1024, photos side by side + the name drawn on it): Kaya and the ship
+  // reached Klein as sheets of sheets, shrunk to 1 MP, and the result was a generic cartoon on a generic ship.
+  const enki={kind:'cast',name:'Enki',path:'Projets/p/Cast/enki.png',images:['Projets/p/Cast/enki.png']};
+  const kaya={kind:'cast',name:'Kaya',description:'renard bleu-gris',path:'Projets/p/Cast/kaya-planche.png',images:['Projets/p/Cast/kaya-1.png','Projets/p/Cast/kaya-2.png']};
+  const ship={kind:'decor',name:'Blanche Of Castille',description:'cité volante rouge au-dessus des nuages',path:'Projets/p/Decors/ship-planche.png',images:['Projets/p/Decors/s1.png','Projets/p/Decors/s2.png','Projets/p/Decors/s3.png']};
+  const loadable=()=>true;
+  const chips=[ship,enki,kaya].map(r=>chipReference(r,loadable));
+  const slots=bubbleReferenceSlots(chips)!;
+  assert.deepEqual(slots.map(s=>s.picture),['Projets/p/Cast/enki.png','Projets/p/Cast/kaya-1.png','Projets/p/Cast/kaya-2.png','Projets/p/Decors/s1.png','Projets/p/Decors/s2.png','Projets/p/Decors/s3.png'],'every photo, characters first, the place last, never a contact sheet');
+  assert.equal(bubblePictureCount('image',chips),6);assert.equal(bubblePictureCount('video',chips),3,'video keeps one picture per chip');
+  const text='génère une photo d’Enki qui Joue avec Kaya sur le pont du Blanche Of Castille';
+  const prompt=bubblePrompt(text,chips,'image',slots);
+  assert.match(prompt,/^génère une photo d’Enki \(the first image\) qui Joue avec Kaya \(the second and third images\) sur le pont du Blanche Of Castille \(the fourth to sixth images\)/);
+  assert.match(prompt,/The fourth to sixth images named "Blanche Of Castille": the place where the scene happens: the new picture is set in or on this place, never in a generic one/);
+  assert.match(prompt,/a deck, an interior, a street\), build that part in the same design/);
+  assert.match(prompt,/\(cité volante rouge au-dessus des nuages\)/,'the saved description describes the place');
+  assert.match(prompt,/The second and third images named "Kaya": a character from the cast/);
+  assert.match(prompt,/Style: a real photograph.*Not a cartoon/);
+  const graph=bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:slots.map((_,i)=>`u${i}.png`),prompt,seed:7});
+  for(let i=0;i<6;i++){assert.deepEqual(graph.image_17.inputs[`images.image${i}`],[`reference_${i+1}`,0]);assert.deepEqual(graph.image_50.inputs[`images.image${i}`],[`reference_${i+1}`,0]);}
+  assert.equal(graph.image_17.inputs['resolution.megapixels'],0.5,'six pictures share the same 3 MP as three');
+  assert.equal(graph.style_note.class_type,'StringConcatenate');assert.deepEqual(graph.style_note.inputs.string_a,['image_51',0]);
+  assert.deepEqual(graph.image_4.inputs.text,['style_note',0],'the photo style is said again after the upsampler');
+  assert.match(String(graph.image_58.inputs.text),/cartoon, illustration/,'cfg 3.5 reads a negative prompt');
+  assert.equal(graph.image_7.inputs.cfg,3.5);
+  assert.equal(bubbleQuote('image',6,BUBBLE_DEFAULTS)!.credits,bubbleQuote('image',3,BUBBLE_DEFAULTS)!.credits,'same reference area, same estimate');
+});
+
+test('the style intent is read in four languages and an asked-for drawing is never forced into a photo',()=>{
+  for(const t of ['une photo de','a photograph of','ein Foto von','una fotografía de','réaliste','realistic','cinématique'])assert.equal(bubbleStyle(t),'photo',t);
+  for(const t of ['un dessin de','a cartoon of','eine Zeichnung','un dibujo','style anime','a watercolour'])assert.equal(bubbleStyle(t),'drawn',t);
+  assert.equal(bubbleStyle('Sujet A au quai'),null);
+  const drawn=bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:['a.png'],prompt:bubblePrompt('un dessin de Sujet A',[{name:'Sujet A',category:'cast'}],'image'),seed:1});
+  assert.equal(drawn.style_note,undefined);assert.equal(drawn.image_58.inputs.text,'');
+  const open=bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:['a.png'],prompt:bubblePrompt('Sujet A au quai',[{name:'Sujet A',category:'cast'}],'image'),seed:1});
+  assert.match(String(open.style_note.inputs.string_b),/keep the rendering of the reference images/);assert.equal(open.image_58.inputs.text,'');
+});
+
+test('seven pictures at most: each reference keeps one, the rest round-robin, and an eighth reference is refused with a message',()=>{
+  const ref=(n:number,k='cast')=>({name:`R${n}`,category:k,pictures:[1,2,3].map(i=>`r${n}-${i}.png`)});
+  const slots=bubbleReferenceSlots([ref(1),ref(2),ref(3,'decor')])!;
+  assert.equal(slots.length,7);assert.deepEqual(slots.map(s=>s.ref),[0,0,0,1,1,2,2]);
+  assert.equal(bubbleReferenceSlots(Array.from({length:7},(_,i)=>ref(i)))!.length,7);
+  assert.equal(bubbleReferenceSlots(Array.from({length:8},(_,i)=>ref(i))),null);
+  const fr=JSON.parse(readFileSync('messages/fr.json','utf8'));assert.match(fr.bubble.tooManyRefs,/sept au plus/);
+  assert.deepEqual(chipReference({kind:'cast',name:'X',path:'p.png',images:['a.png','b.png']},p=>p==='b.png').pictures,['b.png'],'an unloadable photo is skipped');
+  assert.deepEqual(chipReference({kind:'photo',name:'1.png',src:'/x.png'},()=>true).pictures,['/x.png'],'a loose photo or a house example sends what the chip shows');
 });

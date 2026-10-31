@@ -3745,6 +3745,7 @@
     "moreName": "Plus d’actions pour {name}"
   },
   "bubble": {
+    "tooManyRefs": "Trop de références pour ce modèle : sept au plus par image. Retire une référence puis renvoie.",
     "audio": "Audio",
     "audioHelp": "Joindre un son de référence à une vidéo",
     "removeAudio": "Retirer le son",

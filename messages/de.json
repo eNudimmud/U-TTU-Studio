@@ -3745,6 +3745,7 @@
     "moreName": "Weitere Aktionen für {name}"
   },
   "bubble": {
+    "tooManyRefs": "Zu viele Referenzen für dieses Modell: höchstens sieben pro Bild. Entferne eine und sende erneut.",
     "audio": "Audio",
     "audioHelp": "Referenzton an ein Video anhängen",
     "removeAudio": "Ton entfernen",

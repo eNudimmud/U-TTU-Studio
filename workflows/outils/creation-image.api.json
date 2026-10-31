@@ -34,7 +34,7 @@
   "image_4": {
     "inputs": {
       "text": [
-        "image_51",
+        "style_note",
         0
       ],
       "clip": [
@@ -238,7 +238,7 @@
   "image_61": {
     "class_type": "PrimitiveStringMultiline",
     "inputs": {
-      "value": "<texte du visiteur>\n\nReference images, in order:\n- The first image named \"Uttu\": a character from the cast — when it is a character sheet (several views of the same character), it shows ONE character to keep identical: same face, body, outfit and logos.\n- The second image named \"Quai\": the place / setting.\nUse every image: each distinct character or creature appears once, whole and recognisable, with its own anatomy, colours and clothing; never merge two subjects into one. Compose ONE new finished picture, without reference panels, labels or contact-sheet layout."
+      "value": "<texte du visiteur>\n\nReference images, in order:\n- The first image named \"Uttu\": a character from the cast: keep this exact character, same face, species, body, colours, outfit and logos. A picture with several views (a character sheet) still shows ONE character.\n- The second image named \"Quai\": the place where the scene happens: the new picture is set in or on this place, never in a generic one. Keep its architecture, shapes, colours and materials; the characters stand inside it at a believable scale. If the request names a part of it the pictures do not show (a deck, an interior, a street), build that part in the same design, colours and materials.\nUse every image: each distinct character or creature appears once, whole and recognisable, with its own anatomy, colours and clothing; never merge two subjects into one. Compose ONE new finished picture, without reference panels, labels or contact-sheet layout.\nStyle: keep the rendering of the reference images; photographic references give a photographic picture, not a cartoon."
     },
     "_meta": {
       "title": "Prompt"
@@ -250,6 +250,17 @@
       "width": 1344,
       "height": 768,
       "batch_size": 1
+    }
+  },
+  "style_note": {
+    "class_type": "StringConcatenate",
+    "inputs": {
+      "string_a": [
+        "image_51",
+        0
+      ],
+      "string_b": "Style: keep the rendering of the reference images; photographic references give a photographic picture, not a cartoon.",
+      "delimiter": "\n\n"
     }
   },
   "save": {
