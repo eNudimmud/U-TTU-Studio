@@ -117,3 +117,40 @@ test('idea → saved board → shot sheet → one confirmation; four sizes', asy
   await expect(page.locator('[data-sb-print-page]').first()).toBeVisible({ timeout: 60_000 });
   await snap('06-print');
 });
+
+test('bubble: « Make a storyboard » only with the flag, carrying the idea to /storyboard', async ({ page }, info) => {
+  test.setTimeout(120_000);
+  await page.goto('/studio');
+  const bar = page.locator('[data-barre]');
+  await bar.locator('[data-barre-plus]').click();
+  await expect(bar.locator('[data-barre-attach]')).toHaveCount(3);
+  await expect(page.locator('[data-barre-storyboard]')).toHaveCount(0);
+
+  await page.goto('/studio?storyboard=1');
+  const idea = 'Uttu traverse la ville sous la pluie.';
+  await bar.locator('textarea').fill(idea);
+  await bar.locator('[data-barre-plus]').click();
+  const item = page.locator('[data-barre-storyboard]');
+  await expect(item).toBeVisible();
+  expect((await item.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await expect(item).not.toContainText(/gratuit|free|kostenlos|gratis/i);
+  if (SHOTS) {
+    mkdirSync(SHOTS, { recursive: true });
+    const { width, height } = page.viewportSize()!;
+    await page.screenshot({ path: join(SHOTS, `${width}x${height}-07-bubble-entry.png`) });
+  }
+  await item.click();
+  await expect(page).toHaveURL(/\/storyboard\?idee=/);
+  await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-sb-idea-field]:visible')).toHaveValue(idea);
+  // The place is read from « la ville », not « the place ».
+  await page.locator('[data-sb-write]:visible').click();
+  await expect(page.locator('[data-sb-writer-reply]')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-sb-writer-reply]')).toContainText(/la ville/i);
+  if (SHOTS) {
+    const { width, height } = page.viewportSize()!;
+    await page.waitForTimeout(350);
+    await page.screenshot({ path: join(SHOTS, `${width}x${height}-08-from-bubble.png`) });
+  }
+  void info;
+});

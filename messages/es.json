@@ -3541,7 +3541,9 @@
       "lieu": "Lugar real",
       "lieuLine": "Una dirección real, en 3D",
       "son": "Sonido",
-      "sonLine": "Voz, música, efectos"
+      "sonLine": "Voz, música, efectos",
+      "storyboard": "Hacer un guion gráfico",
+      "storyboardLine": "Uttu convierte esta idea en secuencias y planos, cada uno con su presupuesto. Escribir no renderiza nada."
     },
     "settings": "Ajustes",
     "rendu": {

@@ -300,6 +300,13 @@
           "titre": "Das Ende",
           "action": "{lieu}, wieder weit: {qui} ist klein im Bild."
         }
+      },
+      "sansLieu": {
+        "etablir": "Weit gesehen, bevor etwas passiert.",
+        "arrivee": "{qui} erscheint.",
+        "mouvement": "{qui} zieht weiter.",
+        "dernier": "Das Licht verändert sich.",
+        "fin": "Wieder weit: {qui} ist klein im Bild."
       }
     },
     "quoted": "„{text}“",

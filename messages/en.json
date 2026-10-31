@@ -3541,7 +3541,9 @@
       "lieu": "Real place",
       "lieuLine": "A real address, in 3D",
       "son": "Sound",
-      "sonLine": "Voice, music, sound effects"
+      "sonLine": "Voice, music, sound effects",
+      "storyboard": "Make a storyboard",
+      "storyboardLine": "Uttu turns this idea into sequences and shots, each with its quote. Writing renders nothing."
     },
     "settings": "Settings",
     "rendu": {

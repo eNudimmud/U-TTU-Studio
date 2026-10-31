@@ -3541,7 +3541,9 @@
       "lieu": "Lieu réel",
       "lieuLine": "Une vraie adresse, en 3D",
       "son": "Son",
-      "sonLine": "Voix, musique, bruitages"
+      "sonLine": "Voix, musique, bruitages",
+      "storyboard": "Faire un storyboard",
+      "storyboardLine": "Uttu fait de cette idée des séquences et des plans, chacun avec son devis. Écrire ne rend rien."
     },
     "settings": "Réglages",
     "rendu": {

@@ -300,6 +300,13 @@
           "titre": "The end",
           "action": "{lieu}, wide again: {qui} is small in the frame."
         }
+      },
+      "sansLieu": {
+        "etablir": "Seen wide, before anything happens.",
+        "arrivee": "{qui} appears.",
+        "mouvement": "{qui} moves on.",
+        "dernier": "The light changes.",
+        "fin": "Wide again: {qui} is small in the frame."
       }
     },
     "quoted": "“{text}”",
