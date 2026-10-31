@@ -39,6 +39,19 @@ test("public domain: /studio and Comfy's login redirect once to the authorized o
   expect(landing.status()).toBe(200);
 });
 
+test("public domain: login pages redirect even without browser headers (curl, link checkers)", async ({ request }) => {
+  const bare = { host: "uttu-studio.app", "x-forwarded-host": "uttu-studio.app", accept: "*/*" };
+  for (const path of ["/cloud/login", "/cloud", "/oauth/callback", "/login", "/user-select", "/mon-studio", "/studio"]) {
+    const response = await request.get(path, { headers: bare, maxRedirects: 0 });
+    expect(response.status(), path).toBe(307);
+    const location = new URL(response.headers().location);
+    expect(location.origin, path).toBe(AUTHORIZED);
+    expect(location.pathname, path).toBe(path);
+  }
+  const landing = await request.get("/", { headers: bare, maxRedirects: 0 });
+  expect(landing.status()).toBe(200);
+});
+
 test("a hop that comes straight back shows an explicit error, never a redirect loop", async ({ request, page, baseURL }) => {
   const back = await request.get("/studio?uttu_hop=1", { headers: alias, maxRedirects: 0 });
   expect(back.status()).toBe(508);
