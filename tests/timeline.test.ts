@@ -117,7 +117,7 @@ describe("timeline", () => {
     assert.match(sheet, /type: "sequence"/);
     assert.match(sheet, /gesture: "montage"/);
     assert.match(sheet, /\| Ordre \| Piste \| Nom \| Début \| Durée \| Volume \| Fondu \| Source \|/);
-    assert.match(sheet, /Le quai, la nuit/);
+    assert.match(sheet, /The quay at night/);
     assert.match(sheet, /2,5 s/);
     assert.doesNotMatch(sheet, /class_type|api_elevenlabs|estimate_credits/);
     const back = parseSequenceFiche("exemple", sheet);

@@ -1848,7 +1848,19 @@
     "creditsLow": "Crédits insuffisants sur ton compte de rendu.",
     "subscriptionInactive": "Ton abonnement de rendu est inactif, ou la file est pleine.",
     "pendingRunning": "Un rendu est encore en cours dans le cloud : {name}. Attends qu’il finisse avant d’en lancer un autre. Rien n’est perdu, rien n’est renvoyé.",
-    "pendingDone": "Le rendu précédent est terminé : {name}. Range-le d’abord avec Récupérer le rendu (dans Crédits), sans nouvel envoi."
+    "pendingDone": "Le rendu précédent est terminé : {name}. Range-le d’abord avec Récupérer le rendu (dans Crédits), sans nouvel envoi.",
+    "opInterrupted": "Opération interrompue.",
+    "recoverLater": "Récupération impossible pour le moment.",
+    "receiptUnreadable": "Reçu illisible.",
+    "folderSyncFailed": "La synchronisation du dossier a échoué. Les données locales sont conservées.",
+    "importInterrupted": "Import interrompu. Les fichiers déjà enregistrés sont conservés.",
+    "editNotSavedKeepTab": "Le montage n’a pas pu être sauvegardé. Garde cet onglet ouvert.",
+    "editNotSaved": "Le montage n’a pas pu être sauvegardé.",
+    "cloudFailedShort": "Le rendu a échoué dans le cloud.",
+    "launchCancelled": "Lancement annulé dans le studio. Rien n’est parti.",
+    "comfyNotConnected": "Compte de rendu non connecté.",
+    "requestRefused": "Requête refusée.",
+    "pathRefused": "Chemin refusé."
   },
   "p0": {
     "advanced": "Avancé",
@@ -3986,7 +3998,8 @@
       "sansPrix": "pas encore de prix avec ce rendu",
       "sansPrixLong": "Ce plan n’a pas encore de prix : choisis une autre durée ou un autre rendu dans les réglages.",
       "ok": "C’est bon",
-      "moteur": "Moteur utilisé : {moteur}"
+      "moteur": "Moteur utilisé : {moteur}",
+      "ltxApercu": "LTX 2.5 (aperçu)"
     },
     "montage": {
       "titre": "MONTAGE",
@@ -4091,5 +4104,48 @@
         "texte": "Un vieil homme, personnage fictif."
       }
     }
+  },
+  "exampleItems": {
+    "decor-quai-nuit": {
+      "title": "Le quai, la nuit"
+    },
+    "decor-rue-pluie": {
+      "title": "Sous la pluie"
+    },
+    "decor-piece": {
+      "title": "Une pièce",
+      "prompt": "Une pièce vide, lumière douce, parquet, sans personne."
+    },
+    "decor-toit-aube": {
+      "title": "Un toit au lever du jour"
+    },
+    "decor-gare": {
+      "title": "Un hall de gare"
+    },
+    "decor-couloir": {
+      "title": "Un couloir",
+      "prompt": "Un couloir clair, lignes longues, sans personne."
+    },
+    "cast-coursiere": {
+      "title": "La coursière",
+      "prompt": "Une coursière, planche de vues, personnage fictif."
+    },
+    "cast-vieil-homme": {
+      "title": "Le vieil homme",
+      "prompt": "Un vieil homme, planche de vues, personnage fictif."
+    },
+    "cast-dj": {
+      "title": "DJ",
+      "prompt": "Un DJ, planche de vues, personnage fictif."
+    }
+  },
+  "demoPrompts": {
+    "demo-coursiere": "Une coursière, planche de vues, personnage fictif.",
+    "demo-vieil-homme": "Un vieil homme, planche de vues, personnage fictif.",
+    "demo-dj": "Un DJ, planche de vues, personnage fictif.",
+    "demo-quai": "Un quai la nuit, eau noire, lumières lointaines, sans personne.",
+    "demo-gare": "Un hall de gare, vide, lumière froide, sans personne.",
+    "demo-pluie": "Une rue sous la pluie, lumières floues, sans personne.",
+    "demo-toit": "Des toits de zinc à l’aube, brume dorée, sans personne."
   }
 }

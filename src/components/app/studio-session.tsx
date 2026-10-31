@@ -845,8 +845,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     quotes: [], project: null, projectName: "", projects: [], tree: [], memory: { bible: "", style: "", lexique: "", prompts: "", notes: [] },
   } as Studio;
 
-  const cast = demoOn && current.cast.length === 0 ? DEMO_CAST : current.cast;
-  const decor = demoOn && current.scenes.length === 0 ? DEMO_DECOR : current.scenes.map(decorFromScene);
+  // The demo cards keep their ids; their names and prompts follow the studio language.
+  const demoCast = useMemo(() => DEMO_CAST.map(card => ({ ...card, name: t(`demoNames.${card.id}`), prompt: t.has(`demoPrompts.${card.id}`) ? t(`demoPrompts.${card.id}`) : card.prompt })), [t]);
+  const demoDecor = useMemo(() => DEMO_DECOR.map(card => ({ ...card, name: t(`demoNames.${card.id}`), prompt: t.has(`demoPrompts.${card.id}`) ? t(`demoPrompts.${card.id}`) : card.prompt })), [t]);
+  const cast = demoOn && current.cast.length === 0 ? demoCast : current.cast;
+  const decor = demoOn && current.scenes.length === 0 ? demoDecor : current.scenes.map(decorFromScene);
   const [storedPrefs, setPrefsState] = useState<StudioPrefs>(DEFAULT_PREFS);
   const [film2, setFilm2] = useState(false);
   useEffect(() => { setPrefsState(readPrefs(localStorage)); setFilm2(film2DansCePoste()); }, []);
