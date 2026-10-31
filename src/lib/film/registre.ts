@@ -32,7 +32,8 @@ export interface Lieu {
   decorId: string | null;
 }
 
-export type Duree = 3 | 5 | 8;
+/** Same lengths as a take (TAKE_SECONDS). A register saved with 3 s reads it as 5 s. */
+export type Duree = 5 | 8 | 10;
 export type Format = "paysage" | "portrait";
 export type Camera = "fixe" | "suit" | "approche" | "autour";
 export type Paroles = "aucune" | "replique" | "voixoff";
@@ -193,7 +194,7 @@ export function lireRegistre(raw: string | null | undefined): Registre {
   const reglages = (value: unknown): ReglagesPlan => {
     const row = (value ?? {}) as Partial<ReglagesPlan>;
     return {
-      duree: row.duree === 3 || row.duree === 8 ? row.duree : 5,
+      duree: row.duree === 8 || row.duree === 10 ? row.duree : 5,
       format: row.format === "portrait" ? "portrait" : "paysage",
       camera: row.camera === "fixe" || row.camera === "suit" || row.camera === "approche" || row.camera === "autour" ? row.camera : null,
       paroles: row.paroles === "replique" || row.paroles === "voixoff" ? row.paroles : "aucune",

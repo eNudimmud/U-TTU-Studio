@@ -1,0 +1,306 @@
+{
+  "storyboard": {
+    "name": "Storyboard",
+    "open": "Storyboard",
+    "openLead": "Escribe un corto plano a plano con Uttu",
+    "studio": "Studio ↗",
+    "uttuName": "Uttu",
+    "boardTab": "Guion",
+    "back": "Todos los guiones",
+    "balance": "≈ {n} créditos",
+    "list": {
+      "titleA": "Tus",
+      "titleB": "guiones",
+      "lead": "Cada uno guarda su historia, sus planos, sus referencias y sus tomas juntos, aparte de tus galerías.",
+      "empty": "Aún no hay guion. Escribe tu idea en una frase.",
+      "savedIn": "Guardado en {path}",
+      "noRender": "Escribir un guion no lanza ningún render. Cada plano muestra su presupuesto antes de rodarse.",
+      "unreadable": "No se pudo leer un guion ({file}). Se deja tal cual.",
+      "meta": "{scenes, plural, one {# secuencia} other {# secuencias}} · {shots, plural, one {# plano} other {# planos}} · {seconds} s · {format}",
+      "progress": "{x} de {y} planos rodados",
+      "toFinish": "≈ {n} créditos estimados para terminar",
+      "inEdit": "En el montaje",
+      "archive": "Archivar",
+      "restore": "Restaurar",
+      "open": "Abrir {title}"
+    },
+    "filter": {
+      "label": "Mostrar",
+      "tous": "Todos",
+      "en-cours": "En curso",
+      "tournes": "Rodados",
+      "archives": "Archivados",
+      "count": "{label} · {n}"
+    },
+    "statut": {
+      "brouillon": "Borrador",
+      "en-cours": "En curso",
+      "tourne": "Rodado",
+      "archive": "Archivado"
+    },
+    "idea": {
+      "titleA": "Parte de",
+      "titleB": "una idea",
+      "lead": "Basta una frase. Uttu escribe las secuencias y los planos; aún no se renderiza nada.",
+      "label": "Tu idea en una frase",
+      "placeholder": "Uttu cruza la ciudad bajo la lluvia para llegar a una azotea al amanecer.",
+      "length": "Duración",
+      "target": "≈ {n} s",
+      "format": "Formato",
+      "write": "Uttu lo escribe",
+      "empty": "Escribe primero tu idea en una frase."
+    },
+    "format": {
+      "paysage": "Horizontal",
+      "portrait": "Vertical",
+      "paysageRatio": "Horizontal 16:9",
+      "portraitRatio": "Vertical 9:16"
+    },
+    "board": {
+      "seconds": "{n} s",
+      "music": "Música: {text}",
+      "filmed": "{x} / {y} rodados",
+      "script": "Guion literario",
+      "export": "Exportar",
+      "exportMd": "Markdown · ya en tu bóveda",
+      "print": "Imprimir / PDF",
+      "scene": "Secuencia {n}",
+      "sceneMeta": "{shots, plural, one {# plano} other {# planos}} · {seconds} s",
+      "sceneTitle": "Título de la secuencia",
+      "titleLabel": "Título del guion",
+      "shot": "Plano {n}",
+      "open": "Abrir el plano {n}",
+      "kept": "★ guardada",
+      "play": "Reproducir la toma guardada",
+      "etat": {
+        "a-tourner": "Por rodar",
+        "en-cours": "Renderizando…",
+        "tourne": "Rodado",
+        "echec": "No se terminó"
+      },
+      "takes": "Tomas ({n})",
+      "film": "Rodar · ≈ {n}",
+      "filmTitle": "Rodar este plano · ≈ {n} créditos estimados",
+      "noQuote": "Presupuesto no disponible para esta duración",
+      "addShot": "+ Añadir un plano",
+      "moveUp": "Adelantar el plano {n}",
+      "moveDown": "Retrasar el plano {n}",
+      "remove": "Quitar el plano {n}",
+      "removed": "Plano quitado.",
+      "undo": "Deshacer",
+      "filmAll": "Rodar {n, plural, one {# plano} other {# planos}}",
+      "filmAllPrice": "≈ {n} créditos estimados",
+      "filmAllNote": "Un plano que ya se renderiza sigue. Una sola confirmación lista cada paso antes de «Lanzar».",
+      "allFilmed": "Todos los planos están rodados.",
+      "queue": "Plano {i} de {n} · el siguiente sale cuando este termine",
+      "notFound": "Este guion no está en este proyecto.",
+      "connect": "Conecta Comfy Cloud para rodar"
+    },
+    "sheet": {
+      "where": "Secuencia {s} · {scene} · Plano {n} de {total}",
+      "shotTitle": "Título del plano",
+      "close": "Cerrar",
+      "what": "¿Qué pasa?",
+      "references": "Referencias",
+      "who": "Quién",
+      "whereRef": "Dónde",
+      "objectStyle": "Objeto / estilo",
+      "fromCast": "de tu reparto",
+      "fromPlaces": "de tus lugares",
+      "newRef": "nuevo · se creará",
+      "refsMax": "hasta {n} referencias",
+      "addRef": "Añadir",
+      "addWho": "Añadir un personaje",
+      "addWhere": "Elegir el lugar",
+      "refName": "Nombre",
+      "removeRef": "Quitar {nom}",
+      "dialogue": "Diálogo",
+      "suggested": "propuesta por Uttu",
+      "fromIdea": "de tu idea",
+      "editable": "editable",
+      "paroles": {
+        "aucune": "Sin palabras",
+        "replique": "Una réplica",
+        "voixoff": "Voz en off"
+      },
+      "speaker": "Quién habla",
+      "lineLabel": "Las palabras dichas",
+      "linePlaceholder": "Una frase corta, dicha en segundos",
+      "writeOwn": "✎ Escribo la mía",
+      "pick": "Usar esta réplica",
+      "suggestOther": "Proponer otras réplicas",
+      "framing": "Encuadre",
+      "cadrage": {
+        "large": "General",
+        "moyen": "Medio",
+        "serre": "Primer plano",
+        "detail": "Detalle"
+      },
+      "camera": "Cámara",
+      "cam": {
+        "fixe": "Fija",
+        "suit": "Sigue",
+        "approche": "Se acerca",
+        "autour": "Gira alrededor"
+      },
+      "length": "Duración",
+      "render": "Render",
+      "rendu": {
+        "fidele": "Fiel a mis referencias",
+        "rapide": "Rápido"
+      },
+      "raccord": "Misma luz y mismo lugar que el plano anterior",
+      "sound": "Sonido",
+      "music": "Música",
+      "ambience": "Ambiente",
+      "takes": "Tomas",
+      "noTake": "Aún no hay toma.",
+      "keep": "★ Guardar",
+      "keptTake": "★ guardada",
+      "newTake": "Nueva toma",
+      "sent": "Lo que se enviará",
+      "sentEdit": "Escribir mi propio prompt",
+      "sentReset": "Volver al prompt calculado",
+      "sentMeta": "{engine} · {s} s · {ratio} · {refs, plural, one {# referencia} other {# referencias}}",
+      "filmThis": "Rodar este plano",
+      "steps": "{n, plural, one {Un paso} other {# pasos}}: {list}. Una sola confirmación.",
+      "delete": "Quitar este plano"
+    },
+    "uttu": {
+      "label": "Hablar con Uttu",
+      "ask": "Pide a Uttu que cambie, añada, acorte…",
+      "send": "Enviar",
+      "status": "{x} de {y} planos rodados. {next}",
+      "nextFilm": "El siguiente por rodar es el plano {n}.",
+      "allDone": "Todo está rodado y en el montaje.",
+      "noRenderTag": "ningún render",
+      "tighten": "Ajustar a {n} s",
+      "addClosing": "Añadir un plano final",
+      "toPortrait": "Pasar a vertical",
+      "toLandscape": "Pasar a horizontal",
+      "done": {
+        "added": "Plano {n} añadido. Ábrelo para describirlo.",
+        "removed": "Plano {n} quitado.",
+        "moved": "Plano {n} movido.",
+        "format": "Cada plano aún no rodado está ahora en {format}.",
+        "tightened": "Ajustado a unos {n} s.",
+        "line": "El plano {n} dice ahora: «{text}»"
+      },
+      "notUnderstood": "No lo he entendido. Prueba «añade un plano», «quita el plano 3», «retrasa el plano 2», «vertical», «acorta a 15 s» o «el plano 2 dice: …». Lo demás se cambia a mano en el plano.",
+      "toggle": "Uttu",
+      "toggleBoard": "Guion"
+    },
+    "writer": {
+      "writing": "Uttu escribe… Aún no se ha rodado nada.",
+      "reply": "Aquí tienes {shots, plural, one {# plano} other {# planos}} en {scenes, plural, one {# secuencia} other {# secuencias}}, unos {seconds} s.",
+      "reuse": "Reutilizo {names} de tu proyecto.",
+      "create": "Nuevo: {names}. Los creo cuando ruedes, con su presupuesto.",
+      "and": "{a} y {b}",
+      "filmEverything": "Rodar todo",
+      "oneQuestion": "Una pregunta",
+      "qWho": "¿Quién es el personaje principal?",
+      "qWhoPlaceholder": "Su nombre",
+      "qWhoOk": "Usar este nombre",
+      "qFormat": "He puesto horizontal. ¿Lo prefieres vertical, para redes?",
+      "qFormatPortrait": "He puesto vertical. ¿Lo prefieres horizontal?",
+      "open": "Abrir el guion",
+      "rewrite": "Reescribir",
+      "note": "Escribir no lanza ningún render. No se envía nada antes de «Lanzar».",
+      "failed": "No se pudo guardar el guion en tu proyecto. No se perdió nada: inténtalo de nuevo."
+    },
+    "confirm": {
+      "titleN": "¿Rodar {n, plural, one {# plano} other {# planos}}?",
+      "lead": "Uno tras otro, en el orden del guion. No se envía nada antes de «Lanzar».",
+      "shotLine": "Plano {n} · {title}",
+      "topUp": "Recargar mis créditos"
+    },
+    "print": {
+      "title": "{title} · guion",
+      "go": "Imprimir / guardar como PDF",
+      "page": "A4 horizontal · 6 planos por página"
+    },
+    "md": {
+      "scene": "Secuencia",
+      "shot": "Plano",
+      "action": "Acción",
+      "who": "Quién",
+      "where": "Dónde",
+      "object": "Objeto / estilo",
+      "line": "Réplica",
+      "voiceOver": "voz en off",
+      "sound": "Sonido",
+      "prompt": "Prompt",
+      "render": "Render",
+      "kept": "Toma guardada",
+      "toCreate": "nuevo · se creará",
+      "fidele": "Fiel a mis referencias (H3)",
+      "rapide": "Rápido",
+      "credits": "≈ {n} créditos estimados",
+      "noQuote": "presupuesto no disponible"
+    },
+    "gabarits": {
+      "quelquun": "el personaje",
+      "lieu": "el lugar",
+      "sequences": {
+        "unique": {
+          "titre": "El momento",
+          "resume": "{idee}"
+        },
+        "ouverture": {
+          "titre": "Apertura",
+          "resume": "Dónde estamos, a quién seguimos."
+        },
+        "coeur": {
+          "titre": "Núcleo",
+          "resume": "{idee}"
+        },
+        "chute": {
+          "titre": "Final",
+          "resume": "Lo que queda."
+        }
+      },
+      "plans": {
+        "etablir": {
+          "titre": "El lugar",
+          "action": "{lieu}, visto de lejos, antes de que pase nada."
+        },
+        "arrivee": {
+          "titre": "La llegada",
+          "action": "{qui} aparece en {lieu}."
+        },
+        "detail": {
+          "titre": "Un detalle",
+          "action": "Un detalle que marca el tono: unas manos, un objeto, la luz."
+        },
+        "action": {
+          "titre": "El momento",
+          "action": "{idee}"
+        },
+        "regard": {
+          "titre": "La mirada",
+          "action": "Cerca de {qui}: la cara, lo que siente."
+        },
+        "reaction": {
+          "titre": "Un respiro",
+          "action": "{qui} se detiene un instante; algo cambia."
+        },
+        "mouvement": {
+          "titre": "En movimiento",
+          "action": "{qui} sigue a través de {lieu}."
+        },
+        "depart": {
+          "titre": "La partida",
+          "action": "{qui} se da la vuelta y sale del cuadro."
+        },
+        "dernier": {
+          "titre": "Última luz",
+          "action": "La luz cambia sobre {lieu}."
+        },
+        "fin": {
+          "titre": "El final",
+          "action": "{lieu}, de nuevo general: {qui} es pequeño en el cuadro."
+        }
+      }
+    }
+  }
+}

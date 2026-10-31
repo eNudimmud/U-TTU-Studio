@@ -134,3 +134,13 @@ test("film2 is on by default, off with ?film2=0 and kept, back on with ?film2=1"
   assert.equal(film2Actif("", null), true);
   assert.equal(film2Actif("?film2=0", null), false);
 });
+
+test("a shot lasts 5, 8 or 10 s like a take; an older 3 s shot reads as 5 s", () => {
+  let reg = ajouterPlan(registreVide(), nouveauPlan(registreVide(), "p1"));
+  reg = ajouterPlan(reg, { ...nouveauPlan(reg, "p2"), reglages: { ...nouveauPlan(reg, "p2").reglages, duree: 10 } });
+  const raw = JSON.parse(registreJson(reg));
+  raw.plans[0].reglages.duree = 3;
+  const read = lireRegistre(JSON.stringify(raw));
+  assert.equal(read.plans[0].reglages.duree, 5);
+  assert.equal(read.plans[1].reglages.duree, 10);
+});
