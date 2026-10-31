@@ -4,8 +4,8 @@
 import { resolveIntention, type KnownName, type Resolved } from "../intention/resolve.ts";
 import { fold } from "../intention/words.ts";
 
-export interface QuiCompris { id: string | null; nom: string; nouveau: boolean }
-export interface OuCompris { id: string | null; nom: string; nouveau: boolean }
+export interface QuiCompris { id: string | null; nom: string; nouveau: boolean; /** Chosen in the Qui sheet: how the new character is made. */ source?: "texte" | "photos"; description?: string }
+export interface OuCompris { id: string | null; nom: string; nouveau: boolean; source?: "texte" | "photo"; description?: string }
 
 export interface PlanCompris {
   phrase: string;
@@ -74,10 +74,10 @@ export type EtapeType = "personnage" | "lieu" | "prise";
 export interface Etape { type: EtapeType; nom: string; credits: number }
 
 /** The steps of one quote, in order: missing characters, missing place, then the take. */
-export function etapesPlan(plan: PlanCompris, cost: { personnage: number; lieu: number; prise: number }): { etapes: Etape[]; total: number } {
+export function etapesPlan(plan: PlanCompris, cost: { personnage: number; lieu: number; prise: number; personnagePhotos?: number; lieuPhoto?: number }): { etapes: Etape[]; total: number } {
   const etapes: Etape[] = [
-    ...plan.qui.filter(item => item.nouveau).map(item => ({ type: "personnage" as const, nom: item.nom, credits: cost.personnage })),
-    ...(plan.ou?.nouveau ? [{ type: "lieu" as const, nom: plan.ou.nom, credits: cost.lieu }] : []),
+    ...plan.qui.filter(item => item.nouveau).map(item => ({ type: "personnage" as const, nom: item.nom, credits: item.source === "photos" ? cost.personnagePhotos ?? cost.personnage : cost.personnage })),
+    ...(plan.ou?.nouveau ? [{ type: "lieu" as const, nom: plan.ou.nom, credits: plan.ou.source === "photo" ? cost.lieuPhoto ?? cost.lieu : cost.lieu }] : []),
     { type: "prise", nom: plan.phrase, credits: cost.prise },
   ];
   return { etapes, total: Math.round(etapes.reduce((sum, item) => sum + item.credits, 0) * 10) / 10 };

@@ -258,8 +258,9 @@ export interface PlanShoot {
   phrase: string;
   castIds: string[];
   decorId: string | null;
-  nouveaux: { nom: string }[];
-  nouveauLieu: { nom: string } | null;
+  /** Missing characters, made first inside the same quote: from the sentence, a description or 1–3 photos. */
+  nouveaux: { nom: string; description?: string; files?: File[] }[];
+  nouveauLieu: { nom: string; description?: string; file?: File | null } | null;
   settings: TakeSettings;
   onEtape?(index: number): void;
 }
@@ -1691,7 +1692,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (known) { castIds.push(known.id); step += 1; continue; }
       input.onEtape?.(step);
       let id: string | null = null;
-      const ok = await createCast({ name: who.nom, prompt: `${who.nom}, the character of this film shot: ${input.phrase}. Full body, neutral light, plain background.`, source: "texte", files: [], confirmed: true, onFiled: filed => { id = filed.id; } });
+      const photos = who.files?.slice(0, 3) ?? [];
+      const ok = await createCast({ name: who.nom, prompt: who.description ? `${who.nom}: ${who.description}. Full body, neutral light, plain background.` : `${who.nom}, the character of this film shot: ${input.phrase}. Full body, neutral light, plain background.`, source: photos.length ? "photos" : "texte", files: photos, confirmed: true, onFiled: filed => { id = filed.id; } });
       if (!ok || !id) return false;
       castIds.push(id);
       step += 1;
@@ -1703,7 +1705,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       else {
         input.onEtape?.(step);
         let id: string | null = null;
-        const ok = await createDecor({ name: input.nouveauLieu.nom, prompt: `${input.nouveauLieu.nom}, the place of this film shot: ${input.phrase}. No people.`, source: "texte", file: null, confirmed: true, onFiled: filed => { id = filed.id; } });
+        const file = input.nouveauLieu.file ?? null;
+        const ok = await createDecor({ name: input.nouveauLieu.nom, prompt: input.nouveauLieu.description ? `${input.nouveauLieu.nom}: ${input.nouveauLieu.description}. No people.` : `${input.nouveauLieu.nom}, the place of this film shot: ${input.phrase}. No people.`, source: file ? "photo" : "texte", file, confirmed: true, onFiled: filed => { id = filed.id; } });
         if (!ok || !id) return false;
         decorId = id;
       }

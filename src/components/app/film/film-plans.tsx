@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { quoteForCast, quoteForDecor } from "@/lib/creation/quotes";
+import { appliquerChoix, CHOIX_VIDE, type Choix, type ChoixOu, type ChoixQui } from "@/lib/film/choix";
 import { comprendrePlan, etapesPlan } from "@/lib/film/comprendre";
 import { ajouterPlan, ajouterPrise, auMontage, lireRegistre, nouveauPlan, registreJson, REGISTRE_FILE, type Registre } from "@/lib/film/registre";
 import { quoteCredits } from "@/lib/prise/rendu";
@@ -17,6 +18,7 @@ import { quotesToRecords } from "@/lib/render/measured-quote";
 import { DEFAULT_TAKE, takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { assetPath } from "@/lib/site";
 import { useStudio } from "../studio-session";
+import { FilmChoix, type CarteChoix } from "./film-choix";
 import "./film-plans.css";
 
 const DRAFT_KEY = "u-ttu-film2-plan";
@@ -33,6 +35,9 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const [launched, setLaunched] = useState<string | null>(null);
   const [etape, setEtape] = useState(0);
   const [echec, setEchec] = useState("");
+  const [choix, setChoix] = useState<Choix>(CHOIX_VIDE);
+  const [fichiers, setFichiers] = useState<Record<string, File[]>>({});
+  const [ouvert, setOuvert] = useState<null | "qui" | "ou">(null);
   const [registre, setRegistre] = useState<Registre>(() => lireRegistre(null));
   const filed = useRef<string | null>(null);
   const field = useRef<HTMLTextAreaElement>(null);
@@ -59,10 +64,16 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     cast: vault.cast.filter(card => card.sheet || card.photos.length).map(card => ({ id: card.id, name: card.name })),
     decor: vault.scenes.map(scene => ({ id: scene.id, name: scene.name })),
   }), [vault.cast, vault.scenes]);
-  const plan = useMemo(() => comprendrePlan(phrase, known), [phrase, known]);
+  // A new one made in an earlier try is a card now: it is picked, not made twice.
+  const plan = useMemo(() => {
+    const byName = (list: readonly { id: string; name: string }[], nom: string) => list.find(item => item.name.trim().toLowerCase() === nom.trim().toLowerCase());
+    const qui = choix.qui?.map(item => { const hit = item.id ? null : byName(known.cast, item.nom); return hit ? { id: hit.id, nom: hit.name } : item; }) ?? null;
+    const ouHit = choix.ou && !choix.ou.id ? byName(known.decor, choix.ou.nom) : null;
+    return appliquerChoix(comprendrePlan(phrase, known), { qui, ou: ouHit ? { id: ouHit.id, nom: ouHit.name } : choix.ou });
+  }, [phrase, known, choix]);
   const settings = useMemo<TakeSettings>(() => ({ ...DEFAULT_TAKE, engine: "h3", seconds: duree, aspect: portrait ? "vertical" : "horizontal" }), [duree, portrait]);
   const priseCredits = quoteCredits(resolveTakeQuote(takeProfile(settings), quotesToRecords(vault.quotes))) ?? 0;
-  const { etapes, total } = etapesPlan(plan, { personnage: quoteForCast("texte").credits, lieu: quoteForDecor("texte").credits, prise: priseCredits });
+  const { etapes, total } = etapesPlan(plan, { personnage: quoteForCast("texte").credits, personnagePhotos: quoteForCast("photos").credits, lieu: quoteForDecor("texte").credits, lieuPhoto: quoteForDecor("photo").credits, prise: priseCredits });
   const numero = registre.plans.length + (launched && registre.plans.some(item => item.id === launched) ? 0 : 1);
   const running = run.phase === "running" || (launched !== null && studio.creating && run.phase !== "done");
   const mine = launched !== null && runOrigin?.planId === launched;
@@ -101,8 +112,8 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
       phrase: plan.phrase,
       castIds: plan.qui.flatMap(who => who.id && !who.nouveau ? [who.id] : []),
       decorId: plan.ou && !plan.ou.nouveau ? plan.ou.id : null,
-      nouveaux: plan.qui.filter(who => who.nouveau).map(who => ({ nom: who.nom })),
-      nouveauLieu: plan.ou?.nouveau ? { nom: plan.ou.nom } : null,
+      nouveaux: plan.qui.filter(who => who.nouveau).map(who => ({ nom: who.nom, ...(who.description ? { description: who.description } : {}), ...(who.source === "photos" ? { files: fichiers[who.nom.toLowerCase()] ?? [] } : {}) })),
+      nouveauLieu: plan.ou?.nouveau ? { nom: plan.ou.nom, ...(plan.ou.description ? { description: plan.ou.description } : {}), ...(plan.ou.source === "photo" ? { file: fichiers[plan.ou.nom.toLowerCase()]?.[0] ?? null } : {}) } : null,
       settings,
       onEtape: setEtape,
     });
@@ -111,14 +122,24 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   };
   const suivant = () => {
     write("");
+    setChoix(CHOIX_VIDE);
+    setFichiers({});
     setLaunched(null);
     studio.resetRun();
     requestAnimationFrame(() => field.current?.focus());
   };
 
+  const thumb = (path: string | null | undefined, preview?: string | null) => preview ? assetPath(preview) : path && media[path] ? media[path] : "";
+  const cartesQui: CarteChoix[] = vault.cast.filter(card => card.sheet || card.photos.length).map(card => ({ id: card.id, nom: card.name, thumb: thumb(card.sheet ?? card.photos[0]), paths: [...(card.sheet ? [card.sheet] : []), ...card.photos] }));
+  const cartesOu: CarteChoix[] = vault.scenes.map(item => ({ id: item.id, nom: item.name, thumb: thumb(item.render ?? item.stills[0]), paths: [...(item.render ? [item.render] : []), ...item.stills] }));
+  const fermerChoix = (kind: "qui" | "ou", pick: (ChoixQui | ChoixOu)[], files: Record<string, File[]>) => {
+    setChoix(current => kind === "qui" ? { ...current, qui: pick.length ? pick as ChoixQui[] : null } : { ...current, ou: (pick[0] as ChoixOu | undefined) ?? null });
+    setFichiers(current => ({ ...current, ...files }));
+    setOuvert(null);
+    setEchec("");
+  };
   const quiNoms = plan.qui.map(who => who.nom);
   const quiTexte = quiNoms.length > 1 ? t("film2.plusieurs", { a: quiNoms.slice(0, -1).join(", "), b: quiNoms.at(-1)! }) : quiNoms[0] ?? "";
-  const thumb = (path: string | null | undefined, preview?: string | null) => preview ? assetPath(preview) : path && media[path] ? media[path] : "";
   const castCard = (id: string | null) => id ? vault.cast.find(card => card.id === id) : undefined;
   const scene = plan.ou?.id ? vault.scenes.find(item => item.id === plan.ou!.id) : undefined;
   const prix = t("film2.credits", { n: formatCredits(total) });
@@ -140,11 +161,11 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
       <label className="sr-only" htmlFor="u-film-phrase">{t("film2.phrase")}</label>
       <textarea id="u-film-phrase" ref={field} className="u-film-phrase" data-film-phrase="" rows={2} maxLength={240} value={phrase} placeholder={t("film2.phrasePh")} onChange={event => write(event.target.value)} disabled={running} />
       <div className="u-film-slots">
-        <button type="button" className="u-film-slot" data-film-qui="" data-nouveau={plan.qui.some(who => who.nouveau) ? "" : undefined} onClick={goCast}>
+        <button type="button" className="u-film-slot" data-film-qui="" data-nouveau={plan.qui.some(who => who.nouveau) ? "" : undefined} aria-haspopup="dialog" onClick={() => setOuvert("qui")} disabled={running} aria-describedby={running ? "u-film-running" : undefined}>
           {(() => { const card = castCard(plan.qui[0]?.id ?? null); const src = card ? thumb(card.sheet ?? card.photos[0], card.preview) : ""; return src ? <img src={src} alt="" width={44} height={44} /> : <span className="u-film-slot-ph" aria-hidden="true">?</span>; })()}
           <span><small>{t("film2.qui")}</small><strong>{quiTexte || t("film2.quiVide")}</strong>{plan.qui.length > 0 && <em>{plan.qui.some(who => who.nouveau) ? t("film2.nouveau") : t("film2.deTaDistribution")}</em>}</span>
         </button>
-        <button type="button" className="u-film-slot" data-film-ou="" data-nouveau={plan.ou?.nouveau ? "" : undefined} onClick={goDecor}>
+        <button type="button" className="u-film-slot" data-film-ou="" data-nouveau={plan.ou?.nouveau ? "" : undefined} aria-haspopup="dialog" onClick={() => setOuvert("ou")} disabled={running} aria-describedby={running ? "u-film-running" : undefined}>
           {(() => { const src = scene ? thumb(scene.render ?? scene.stills[0]) : ""; return src ? <img src={src} alt="" width={44} height={44} /> : <span className="u-film-slot-ph" aria-hidden="true">?</span>; })()}
           <span><small>{t("film2.ou")}</small><strong>{plan.ou?.nom || t("film2.ouVide")}</strong>{plan.ou && <em>{plan.ou.nouveau ? t("film2.nouveau") : t("film2.deTesLieux")}</em>}</span>
         </button>
@@ -175,6 +196,16 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
       </button>
     </div>}
 
+    {ouvert && <FilmChoix
+      kind={ouvert}
+      cartes={ouvert === "qui" ? cartesQui : cartesOu}
+      media={media}
+      choisis={ouvert === "qui" ? plan.qui.map(who => who.id ? { id: who.id, nom: who.nom } : { id: null, nom: who.nom, source: who.source ?? "texte", ...(who.description ? { description: who.description } : {}) }) : plan.ou ? [plan.ou.id ? { id: plan.ou.id, nom: plan.ou.nom } : { id: null, nom: plan.ou.nom, source: plan.ou.source ?? "texte", ...(plan.ou.description ? { description: plan.ou.description } : {}) }] : []}
+      credits={ouvert === "qui" ? { photos: quoteForCast("photos").credits, texte: quoteForCast("texte").credits } : { photos: quoteForDecor("photo").credits, texte: quoteForDecor("texte").credits }}
+      onDone={(pick, files) => fermerChoix(ouvert, pick, files)}
+      onClose={() => setOuvert(null)}
+      onBibliotheque={() => { setOuvert(null); if (ouvert === "qui") goCast(); else goDecor(); }}
+    />}
     {asking && <div className="u-film-sheet-back" onClick={() => setAsking(false)}>
       <div className="u-film-sheet" role="dialog" aria-modal="true" aria-labelledby="u-film-confirm-title" data-film-confirm="" onClick={event => event.stopPropagation()} onKeyDown={event => { if (event.key === "Escape") setAsking(false); }}>
         <h2 id="u-film-confirm-title">{t("film2.confirmTitle")}</h2>
