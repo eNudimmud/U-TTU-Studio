@@ -5,6 +5,7 @@
 // Words come from the visitor's language (messages/storyboard/<locale>.json → storyboard.gabarits).
 
 import { comprendrePlan, lieuDeLaPhrase } from "../film/comprendre.ts";
+import { mentionedReferences } from "../creation/mentions.ts";
 import type { KnownName } from "../intention/resolve.ts";
 import {
   nouvelId, refsPropres, storyboardVide, type Cadrage, type Camera, type DureeCible, type DureePlan, type Format,
@@ -19,12 +20,16 @@ export interface Gabarits {
   lieu: string;
   sequences: Record<TypeSequence, { titre: string; resume: string }>;
   plans: Record<TypePlan, { titre: string; action: string }>;
+  /** The same shots when no place is known: nothing says « the place », the sentence stays whole. */
+  sansLieu?: Partial<Record<TypePlan, string>>;
 }
 
 export interface ContexteEcriture {
   /** The visitor's CAST cards and DÉCOR places (names only). Nothing else is ever named. */
   cast: readonly KnownName[];
   decor: readonly KnownName[];
+  /** Place references the visitor named (Références box, category DÉCOR) that have no DÉCOR card yet. */
+  lieuxNommes?: readonly string[];
 }
 
 export interface OptionsEcriture {
@@ -91,7 +96,29 @@ export function sansReplique(text: string): string {
 
 const ARTICLE = /^(?:the|a|an|le|la|les|l['’]|un|une|der|die|das|den|dem|ein|eine|el|los|las|una?)\b/iu;
 /** Weather and time of day are not places: « in the rain », « at dawn » never become a DÉCOR card. */
-const PAS_UN_LIEU = /^(?:the |la |le |l['’]|der |die |das |el |la )?(?:rain|snow|fog|wind|storm|night|dawn|dusk|sun|morning|evening|pluie|neige|brume|brouillard|vent|orage|nuit|aube|aurore|cr[eé]puscule|soleil|matin|soir|regen|schnee|nebel|wind|sturm|nacht|morgengrauen|d[aä]mmerung|sonne|morgen|abend|lluvia|nieve|niebla|viento|tormenta|noche|amanecer|alba|atardecer|sol|ma[nñ]ana|tarde)\b/iu;
+const PAS_UN_LIEU = /^(?:the |la |le |l['’]|der |die |das |el |la )?(?:rain|snow|fog|wind|storm|night|dawn|dusk|sun|morning|evening|pluie|neige|brume|brouillard|vent|orage|nuit|aube|aurore|cr[eé]puscule|soleil|matin|soir|regen|schnee|nebel|wind|sturm|nacht|morgengrauen|d[aä]mmerung|sonne|morgen|abend|lluvia|nieve|niebla|viento|tormenta|noche|amanecer|alba|atardecer|sol|ma[nñ]ana|tarde|dark|darkness|obscurit[eé]|dunkel(?:heit)?|oscuridad|silence|silencio|stille)\b/iu;
+
+/** Everyday place nouns (FR/EN/DE/ES), read only with their article: « la ville », « the city », « die Stadt ». */
+const NOMS_DE_LIEU = [
+  "city", "town", "village", "street", "road", "alley", "square", "park", "forest", "woods", "beach", "sea", "harbour", "harbor", "port", "station", "bridge", "roof", "rooftop", "house", "room", "kitchen", "garden", "field", "desert", "mountain", "river", "lake", "quay", "market", "church", "school", "bar", "club", "café", "cafe", "subway", "office", "hall", "corridor", "hallway", "stairs", "courtyard", "island", "shore", "cliff", "valley", "hill", "studio", "stage",
+  "ville", "rue", "ruelle", "parc", "forêt", "bois", "plage", "mer", "gare", "pont", "toit", "maison", "chambre", "cuisine", "jardin", "champ", "désert", "montagne", "rivière", "fleuve", "lac", "quai", "marché", "église", "école", "métro", "bureau", "salle", "couloir", "escalier", "cour", "île", "rive", "falaise", "vallée", "colline", "scène",
+  "stadt", "dorf", "straße", "strasse", "gasse", "platz", "wald", "strand", "meer", "hafen", "bahnhof", "brücke", "dach", "haus", "zimmer", "küche", "garten", "feld", "wüste", "berg", "fluss", "see", "kai", "markt", "kirche", "schule", "u-bahn", "büro", "saal", "flur", "treppe", "hof", "insel", "ufer", "klippe", "tal", "hügel", "bühne",
+  "ciudad", "pueblo", "calle", "callejón", "plaza", "parque", "bosque", "playa", "mar", "puerto", "estación", "puente", "tejado", "azotea", "casa", "habitación", "cocina", "jardín", "campo", "desierto", "montaña", "río", "lago", "muelle", "mercado", "iglesia", "escuela", "oficina", "estudio", "sala", "pasillo", "escalera", "patio", "isla", "orilla", "acantilado", "valle", "colina", "escenario",
+];
+const ARTICLE_LIEU = "the|this|that|la|le|les|l['’]|cette|ce|cet|sa|son|der|die|das|den|dem|des|diese[nmrs]?|el|los|las|esta|este|su";
+const LIEU_NOMME = new RegExp(`(?<![\\p{L}])(?:${ARTICLE_LIEU})\\s*(?<=['’]|\\s)(?:${NOMS_DE_LIEU.join("|")})(?![\\p{L}-])`, "iu");
+
+/** « Uttu crosses the city… »: an everyday place noun with its article, when no preposition named one. */
+export function lieuCommun(phrase: string): string | null {
+  const hit = LIEU_NOMME.exec(phrase)?.[0]?.replace(/\s+/g, " ").trim();
+  return hit ? hit.charAt(0).toUpperCase() + hit.slice(1) : null;
+}
+
+/** « @Quai Nord »: a DÉCOR card the sentence mentions. The « @ » is removed for everything else. */
+export function lieuMentionne(phrase: string, decor: readonly KnownName[]): KnownName | null {
+  return mentionedReferences(phrase, decor)[0] ?? null;
+}
+const sansArobase = (text: string) => text.replace(/(^|[^\p{L}\p{N}_])@(?=[\p{L}\p{N}])/gu, "$1");
 
 /** The first place named in the sentence that is not weather or a time of day. */
 export function lieuDeLIdee(phrase: string): string | null {
@@ -144,14 +171,27 @@ export function varier(plans: PlanSB[]): PlanSB[] {
 }
 
 export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, options: OptionsEcriture): Ecrit {
-  const idee = ideeBrute.replace(/\s+/g, " ").trim().slice(0, 600);
+  const brut = ideeBrute.replace(/\s+/g, " ").trim().slice(0, 600);
+  const mention = lieuMentionne(brut.replace(GUILLEMETS, " "), [
+    ...ctx.decor,
+    ...(ctx.lieuxNommes ?? []).filter(nom => !ctx.decor.some(item => item.name.trim().toLowerCase() === nom.trim().toLowerCase())).map(name => ({ id: "", name })),
+  ]);
+  const idee = sansArobase(brut);
   const compris = comprendrePlan(idee.replace(GUILLEMETS, " "), ctx);
-  const qui: RefPlan[] = compris.qui.map(item => ({ role: "qui", nom: item.nom, id: item.nouveau ? null : item.id }));
+  // A mentioned place is never read as a new character.
+  const qui: RefPlan[] = compris.qui
+    .filter(item => !mention || !item.nouveau || !mention.name.toLowerCase().split(/\s+/).includes(item.nom.trim().toLowerCase()))
+    .map(item => ({ role: "qui", nom: item.nom, id: item.nouveau ? null : item.id }));
   // A known place (DÉCOR card) is linked; a new one is read from the sentence, never from the weather.
-  const ou: RefPlan | null = compris.ou && !compris.ou.nouveau
+  // Order: an @mentioned DÉCOR card, a DÉCOR card named in the sentence, a place after a preposition,
+  // an everyday place noun (« la ville »), else no place at all (the shots are written without one).
+  const ou: RefPlan | null = mention
+    ? { role: "ou", nom: mention.name, id: mention.id || null }
+    : compris.ou && !compris.ou.nouveau
     ? { role: "ou", nom: compris.ou.nom, id: compris.ou.id }
     : (() => {
-      const nom = lieuDeLIdee(idee.replace(GUILLEMETS, " "));
+      const phrase = idee.replace(GUILLEMETS, " ");
+      const nom = lieuDeLIdee(phrase) ?? lieuCommun(phrase);
       if (!nom) return null;
       const known = ctx.decor.find(item => item.name.trim().toLowerCase() === nom.toLowerCase());
       return { role: "ou", nom: known?.name ?? nom, id: known?.id ?? null };
@@ -182,7 +222,7 @@ export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, optio
       const plan: PlanSB = {
         ...base,
         titre: g.plans[type].titre,
-        action: remplir(g.plans[type].action, values).slice(0, 240),
+        action: remplir((!ou && g.sansLieu?.[type]) || g.plans[type].action, values).slice(0, 240),
         refs,
         cadrage: forme.cadrage,
         camera: type === "action" && camIdee ? camIdee : forme.camera,

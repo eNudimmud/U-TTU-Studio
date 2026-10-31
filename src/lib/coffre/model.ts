@@ -803,8 +803,23 @@ function mapSection(title: string, lines: readonly string[]): string {
   return `## ${title}\n\n${body}`;
 }
 
+/** A storyboard as the project map lists it (read from Storyboard/<id>.md). */
+export interface StoryboardMoc { id: string; titre: string; archive: boolean }
+
+/** The project's storyboards from their notes: title from the « # » heading, archived from `statut: archive`. */
+export function storyboardsDuProjet(slug: string, entries: readonly { path: string; text?: string }[]): StoryboardMoc[] {
+  const prefix = projectPath(slug, "Storyboard/");
+  return entries.flatMap(entry => {
+    if (!entry.path.startsWith(prefix)) return [];
+    const id = /^([a-z0-9][a-z0-9-]{0,60})\.md$/.exec(entry.path.slice(prefix.length))?.[1];
+    if (!id) return [];
+    const text = entry.text ?? "";
+    return [{ id, titre: /^# (.+)$/m.exec(text)?.[1]?.trim() || id, archive: /^statut:\s*"?archive"?\s*$/m.test(text) }];
+  }).sort((a, b) => Number(a.archive) - Number(b.archive) || a.titre.localeCompare(b.titre));
+}
+
 /** The active project's map. The root map only lists projects. */
-export function mocMarkdown(studio: Studio): string {
+export function mocMarkdown(studio: Studio, storyboards: readonly StoryboardMoc[] = []): string {
   const slug = studio.project;
   if (!slug) return rootMoc(studio.projects);
   const look = studio.look.name.trim();
@@ -822,6 +837,8 @@ export function mocMarkdown(studio: Studio): string {
     mapSection("Prises", studio.takes.map(take => wiki(`${base}/Prises/${take.id}`, take.line.trim() || take.sceneName || "Prise"))),
     mapSection("Séquences", studio.sequences.map(sequence => wiki(`${base}/Sequences/${sequence.id}`, sequence.name || "Séquence"))),
     mapSection("Plans", studio.shots.map(shot => wiki(`${base}/Shots/${shot.id}`, shot.name || "Plan"))),
+    // Only once a storyboard exists: older projects keep the same map.
+    ...(storyboards.length > 0 ? [mapSection("Storyboards", storyboards.map(sb => `${wiki(`${base}/Storyboard/${sb.id}`, sb.titre)}${sb.archive ? " · archivé" : ""}`))] : []),
     mapSection("Repères", [wiki(`${base}/Bible`, "Bible"), wiki(`${base}/Style`, "Style"), wiki(`${base}/Lexique`, "Lexique"), wiki(`${base}/Journal`, "Journal")]),
     mapSection("Moteurs", [
       wiki(`${base}/Moteurs/moteur-references`, "Prise · Références"),
@@ -1151,7 +1168,7 @@ export async function writeMap(store: VaultStore): Promise<void> {
   await writeText(store, "MOC.md", rootMoc(studio.projects));
   if (studio.project) {
     await writeText(store, projectPath(studio.project, "Journal.md"), jobsMarkdown(studio.takes, studio.loras, studio.project));
-    await writeText(store, projectPath(studio.project, "_MOC.md"), mocMarkdown(studio));
+    await writeText(store, projectPath(studio.project, "_MOC.md"), mocMarkdown(studio, storyboardsDuProjet(studio.project, await store.list())));
   }
   if (!(await store.get("README.md"))) await writeText(store, "README.md", README);
 }
