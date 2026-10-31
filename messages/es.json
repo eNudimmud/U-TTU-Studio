@@ -3985,7 +3985,8 @@
       "sansPrix": "aún sin precio con este resultado",
       "sansPrixLong": "Este plano aún no tiene precio: elige otra duración u otro resultado en los ajustes.",
       "ok": "Listo",
-      "moteur": "Motor usado: {moteur}"
+      "moteur": "Motor usado: {moteur}",
+      "ltxApercu": "LTX 2.5 (vista previa)"
     },
     "montage": {
       "titre": "MONTAJE",

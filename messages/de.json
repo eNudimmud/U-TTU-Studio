@@ -3985,7 +3985,8 @@
       "sansPrix": "noch kein Preis mit diesem Ergebnis",
       "sansPrixLong": "Für diese Einstellung gibt es noch keinen Preis: wähle eine andere Dauer oder ein anderes Ergebnis.",
       "ok": "Fertig",
-      "moteur": "Verwendetes Modell: {moteur}"
+      "moteur": "Verwendetes Modell: {moteur}",
+      "ltxApercu": "LTX 2.5 (Vorschau)"
     },
     "montage": {
       "titre": "SCHNITT",

@@ -3985,7 +3985,8 @@
       "sansPrix": "no price yet with this look",
       "sansPrixLong": "This shot has no price yet: pick another length or look in the settings.",
       "ok": "Done",
-      "moteur": "Engine used: {moteur}"
+      "moteur": "Engine used: {moteur}",
+      "ltxApercu": "LTX 2.5 (preview)"
     },
     "montage": {
       "titre": "EDIT",
@@ -4076,7 +4077,7 @@
       "sansPrix": "price unavailable",
       "refaire": "Redo this example",
       "prepare": "Preparing…",
-      "note": "Fills the plan in front of you. Nothing is sent before « Start ».",
+      "note": "Fills in the shot in front of you. Nothing is sent before “Start”.",
       "introuvable": "The example could not be loaded. Try again, nothing was sent.",
       "uttuQuai": {
         "titre": "Uttu on the quay",

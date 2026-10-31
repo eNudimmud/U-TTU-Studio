@@ -3985,7 +3985,8 @@
       "sansPrix": "pas encore de prix avec ce rendu",
       "sansPrixLong": "Ce plan n’a pas encore de prix : choisis une autre durée ou un autre rendu dans les réglages.",
       "ok": "C’est bon",
-      "moteur": "Moteur utilisé : {moteur}"
+      "moteur": "Moteur utilisé : {moteur}",
+      "ltxApercu": "LTX 2.5 (aperçu)"
     },
     "montage": {
       "titre": "MONTAGE",
