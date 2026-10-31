@@ -12,10 +12,10 @@
   "nav": {
     "character": "Cast",
     "scene": "Set",
-    "take": "Take",
+    "take": "Shoot",
     "edit": "Edit",
-    "chain": "Cast, set, take, edit",
-    "sphere": "Sphere",
+    "chain": "Cast, set, shoot, edit",
+    "sphere": "Library",
     "sheets": "Sheets",
     "studio": "My creations",
     "connect": "Connect",
@@ -23,11 +23,11 @@
     "opening": "Opening my studio…",
     "takeRunning": "take in progress",
     "sceneRunning": "scene in progress",
-    "renderCredits": "Render account credits",
+    "renderCredits": "Comfy account credits",
     "rail": "Studio tools"
   },
   "project": {
-    "lead": "The name is already written: {name}. One gesture creates the project. You can change it."
+    "lead": "The name is already written: {name}. One tap creates the project. You can change it."
   },
   "landing": {
     "home": "U*TTU Studio — Home",
@@ -59,7 +59,7 @@
     "g1Tag": "CAST",
     "g1": "One character, the same in every shot.",
     "g1Alt": "Close-up of Uttu, hooded, with golden veins",
-    "g2Tag": "SET · TAKE",
+    "g2Tag": "SET · SHOOT",
     "g2": "A set, a light, a move.",
     "g2Alt": "A courier in a yellow jacket in an abandoned station, rays of light",
     "g3Tag": "SCOUTING",
@@ -77,16 +77,16 @@
         "body": "A text, a photo or a real place."
       },
       "prise": {
-        "name": "TAKE",
-        "body": "Prepare, shots, preview, generate, review."
+        "name": "SHOOT",
+        "body": "Prepare, frame, preview, generate, review."
       },
       "montage": {
         "name": "EDIT",
         "body": "Shots, voice, music, MP4 export with no credits."
       },
       "finaliser": {
-        "name": "FINALISE",
-        "body": "Sharper and bigger, nothing remade."
+        "name": "FINISH",
+        "body": "Sharper and larger, nothing regenerated."
       }
     },
     "toolsTitle": "What you’ll only find <em>here</em>.",
@@ -154,11 +154,11 @@
       },
       "upload": {
         "name": "Your files in original quality",
-        "body": "With your Comfy account linked: photos, videos and sounds up to 200 MB, deleted from storage once Comfy has them."
+        "body": "With your Comfy account connected: photos, videos and sounds up to 200 MB, deleted from storage once Comfy has them."
       },
       "guide": {
         "name": "Uttu, the studio agent",
-        "body": "Knows every tool and its quote, and suggests the tool or the plan; you launch. Through your Comfy account: ≈ 0.2 credits estimated per message at most."
+        "body": "Knows every tool and its cost, and suggests the right tool or the next step; you launch it. Through your Comfy account: ≈ 0.2 credits estimated per message at most."
       },
       "creations": {
         "name": "My creations",
@@ -170,7 +170,7 @@
       },
       "langs": {
         "name": "4 languages",
-        "body": "Français, English, Deutsch, Español."
+        "body": "English, Français, Deutsch, Español."
       }
     },
     "endTitle": "Come in, and shoot your <em>first shot</em>.",
@@ -183,24 +183,24 @@
     "attrib": "Map: © OpenStreetMap contributors · OpenFreeMap · Terrain Tiles · © swisstopo"
   },
   "guide": {
-    "look-photos": "Two photos, three at most. Front, then three-quarter. I weave the rest.",
-    "look-name": "Give a name. That is the one I hold.",
+    "look-photos": "Two photos, three at most: front, then three-quarter. The studio does the rest.",
+    "look-name": "Give your character a name. The studio keeps it.",
     "look-traits": "Two traits, if you have them. Nothing is invented.",
-    "look-ready": "The photos hold. Set the location now.",
-    "scene-new": "Place 1 is written. You can change the name.",
-    "scene-still": "An image of the location, and I keep it from one take to the next.",
-    "scene-previz": "This location stays. So does the path. One gesture films your character.",
-    "scene-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
-    "take-connect": "Connect your render account. The compute is paid there, not here.",
-    "take-line": "One line: what the take does. The rest is already woven.",
-    "take-memory": "Bible, style, lexicon, prompts: empty, or yours. Nothing is invented.",
-    "take-ready": "I show the cost first. Nothing leaves without your gesture.",
-    "take-running": "The thread is rolling. Stay here, or come back later.",
-    "take-done": "The take is here. One gesture sets it on a shot.",
-    "take-filed": "The take is in the sequence. One gesture plays it.",
-    "take-double": "This character holds from one take to the next. The photos hold the rest.",
-    "sphere-empty": "Your takes will come to rest here.",
-    "project-name": "Atelier is written. One gesture creates the project.",
+    "look-ready": "The photos are set. Now pick a place.",
+    "scene-new": "Place 1 is created. You can rename it.",
+    "scene-still": "Add a picture of the place, and it stays the same from one take to the next.",
+    "scene-previz": "The place and the camera path are kept. One tap films your character.",
+    "scene-memory": "Story bible, style, glossary, prompts: empty, or yours. Nothing is made up.",
+    "take-connect": "Connect your Comfy account. Renders are paid there, not here.",
+    "take-line": "One line: what happens in the take. Everything else is already set.",
+    "take-memory": "Story bible, style, glossary, prompts: empty, or yours. Nothing is made up.",
+    "take-ready": "You see the cost first. Nothing is sent without your OK.",
+    "take-running": "The render is running. Stay here, or come back later.",
+    "take-done": "The take is ready. One tap puts it on a shot.",
+    "take-filed": "The take is in the sequence. One tap plays it.",
+    "take-double": "This character stays the same from one take to the next, thanks to the photos.",
+    "sphere-empty": "Your takes will appear here.",
+    "project-name": "The project name is filled in. One tap creates the project.",
     "understood": "Understood",
     "stepCharacter": "Add 2 photos (front and three-quarter).",
     "stepScene": "Pick a set.",
@@ -260,17 +260,17 @@
     "aria": "Two ways to create a character"
   },
   "sphere": {
-    "kicker": "Sphere",
-    "title": "Your sphere.",
+    "kicker": "Library",
+    "title": "Your library.",
     "subtitle": "Your takes",
     "empty": "No take yet.",
     "open": "Open the take {line}"
   },
   "shelf": {
-    "label": "Shelf",
+    "label": "Library",
     "cast": "Cast",
     "places": "Set",
-    "takes": "Take",
+    "takes": "Takes",
     "noCharacter": "No character in my creations",
     "noPlace": "No location in my creations",
     "noTake": "No take in my creations"
@@ -318,7 +318,7 @@
     "goTake": "Go to the take",
     "setPlace": "Set this place",
     "spaceSummary": "Set the layout and the path",
-    "passTake": "You can go on to the take. Filming the path is another gesture.",
+    "passTake": "You can go on to the take. Filming the path is another step.",
     "placeFirst": "Set a location first",
     "placeName": "Location name",
     "holds": "What holds the location",
@@ -329,7 +329,7 @@
     "blenderBody": "It renders the empty location, {frames} images along the path. The character is not in this file.",
     "theCharacterBody": "It is the file in my creations. It enters only the filmed path, after these images.",
     "thePrice": "The price",
-    "thePriceBody": "Both quotes are read before the gesture. Nothing leaves without confirmation.",
+    "thePriceBody": "Both quotes are read before you confirm. Nothing is sent without confirmation.",
     "plan": "Layout",
     "path": "Path",
     "start": "Start",
@@ -357,7 +357,7 @@
   },
   "sequence": {
     "title": "Sequences",
-    "lead": "A sequence links takes, in order. Continuity is a note: light, gaze, movement, prop. It is not the gesture “Bridge two images”.",
+    "lead": "A sequence links takes, in order. Continuity is a note: light, gaze, movement, prop. It is not the action “Bridge two images”.",
     "name": "Sequence name",
     "create": "Create the sequence",
     "add": "Add this take",
@@ -427,7 +427,7 @@
     },
     "plan": {
       "label": "Choose a layout",
-      "missing": "A layout is missing. Pièce, Quai or Rue."
+      "missing": "A layout is missing: Room, Quay or Street."
     },
     "blender": {
       "label": "Connect Blender",
@@ -452,9 +452,9 @@
     "reprise": "{project} · {who} · {place}.",
     "repriseHeld": "Back. Nothing to type again.",
     "characterHeld": "{name} is back for this take.",
-    "runningRender": "Your render account is computing.",
+    "runningRender": "Your Comfy account is computing.",
     "stay": "You can stay here or come back later: the take joins my studio.",
-    "inSphere": "This take is in the sphere and in my creations.",
+    "inSphere": "This take is in the library and in my creations.",
     "debitedRender": "Charged: {amount} credits, read on your balance.",
     "debitHiddenRender": "Charge not yet visible on your balance.",
     "filed": "Filed in this project.",
@@ -466,9 +466,9 @@
     "calc": " Compute: {clock}.",
     "new": "New take",
     "soft": "It did not land.",
-    "reloadRender": "Top up your render account, then run again. The balance, at the top, shows what remains.",
+    "reloadRender": "Top up your Comfy account, then run again. The balance, at the top, shows what remains.",
     "adjust": "Set the take",
-    "before": "Before the gesture",
+    "before": "Before you confirm",
     "exampleWalk": "Sample walk · {who}, {place}. {line} Nothing is charged here.",
     "reloads": "This file reloads {name}.",
     "theCharacter": "the character",
@@ -491,7 +491,7 @@
     "examplePlace": "Sample · {place}",
     "filmedStill": "Filmed image",
     "resetPlan": "Reset this take",
-    "next": "After Shoot, one gesture sets the shot. The export is on the sequence.",
+    "next": "After Shoot, one tap sets the shot. The export is on the sequence.",
     "nextReturn": "After Shoot, the take joins the sequence. Play, then export.",
     "pose": "Set the shot",
     "poseHint": "One shot, inside a sequence. The names are already written.",
@@ -510,8 +510,8 @@
     "done": "Landed",
     "outputs": "Outputs",
     "latest": "Latest output",
-    "empty": "No output for this gesture.",
-    "lead": "The latest output of this gesture is here. The sphere stays the shelf.",
+    "empty": "No output for this action.",
+    "lead": "The latest output of this action is here. Everything else is in the library.",
     "stopWaiting": "Stop waiting here (the take continues on Comfy)"
   },
   "run": {
@@ -528,9 +528,9 @@
   "fiche": {
     "kicker": "Sheets",
     "title": "What the studio launches.",
-    "lead": "The gestures already wired are read here. The charge still waits for the gesture, on the screen that holds it.",
+    "lead": "Actions that are already set up show here. Nothing is charged until you confirm, on that action’s own screen.",
     "needs": "What it needs",
-    "noSend": "Nothing leaves from here. A take’s text is read on the take, before Shoot.",
+    "noSend": "Nothing is sent from here. A take’s text is read on the take, before Shoot.",
     "references": {
       "name": "Take · References",
       "sentence": "The photos in my creations become a take, with the sound.",
@@ -560,7 +560,7 @@
     }
   },
   "publish": {
-    "shareOpen": "Share sheet open. Nothing is published without your gesture in X.",
+    "shareOpen": "Share sheet open. Nothing is published without your OK in X.",
     "shareCancel": "Share cancelled.",
     "shareFailed": "The share did not finish.",
     "xDraft": "The X draft opens with the text. Attach the saved video, then publish.",
@@ -569,7 +569,7 @@
     "save": "Save the video"
   },
   "sheet": {
-    "renderTitle": "Your render account",
+    "renderTitle": "Your Comfy account",
     "linkedKey": "by key",
     "linkedSession": "by your session",
     "linkedBody": "Connected {how}. Takes roll on this account, and its credits pay them.",
@@ -579,15 +579,15 @@
     "haveKey": "I have a key",
     "frameTitle": "Render account sign-in",
     "frameHint": "Sign in inside this frame. It closes as soon as the session is here.",
-    "trackers": "Comfy’s sign-in page opens in this sheet. It loads its own trackers (Google, LinkedIn). Nothing loads before your gesture.",
+    "trackers": "Comfy’s sign-in page opens in this sheet. It loads its own trackers (Google, LinkedIn). Nothing loads before you confirm.",
     "openSignIn": "Open sign-in",
     "keyLabel": "Comfy Cloud API key",
     "keyHint": "The key stays on this device. It needs a paid Comfy Cloud subscription. No third-party tracker loads in this mode.",
     "checking": "Checking…",
-    "linkRender": "Connect the render account",
+    "linkRender": "Connect your Comfy account",
     "accountsTitle": "Accounts",
     "walletTitle": "My credits",
-    "walletLead": "One account. My studio takes nothing. The quote is read before the gesture.",
+    "walletLead": "One account. My studio takes nothing. The quote is read before you confirm.",
     "walletAria": "My credits. Render: {render}.",
     "quote": "Quote",
     "quotePending": "No figure until the quote is read.",
@@ -597,12 +597,12 @@
     "readAt": "credits, read at {time}",
     "balanceUnread": "balance unread",
     "rereadRender": "Reread the render balance",
-    "referencesRun": "« {engine} » takes roll on your Comfy Cloud account. 1 $ = {rate} credits. The studio takes nothing.",
+    "referencesRun": "“{engine}” takes roll on your Comfy Cloud account. 1 $ = {rate} credits. The studio takes nothing.",
     "forgetLink": "This device forgets the link. My studio and the account stay.",
-    "unlinkRender": "Disconnect the render account",
+    "unlinkRender": "Disconnect your Comfy account",
     "thisSetting": "At this setting · {profile}",
     "aboutClaim": "About {amount} credits, measured on {basis}.",
-    "uncalibratedClaim": "Quote absent. No total for this take. Nothing leaves without a figure measured at the same setting.",
+    "uncalibratedClaim": "Quote absent. No total for this take. Nothing is sent without a figure measured at the same setting.",
     "measuredLead": "A measured quote is the difference of two balances, at the same setting.",
     "measuredQuotes": "Measured quotes",
     "measuredSetting": "{steps} steps · {seconds} s · {aspect}",
@@ -631,7 +631,7 @@
     "importing": "Import…",
     "import": "Import a studio (.zip)",
     "importLabel": "Import a studio",
-    "linkedFolder": "Linked to « {name} »",
+    "linkedFolder": "Linked to “{name}”",
     "linkObsidian": "Connect my Obsidian folder",
     "phoneZip": "On a computer, Chrome or Edge write into the chosen folder. On a phone, carry the ZIP to the computer, then the ZIP back. No server.",
     "keysOut": "Keys stay outside my studio.",
@@ -639,7 +639,7 @@
     "guideOff": "Turn the guide off",
     "confirmShoot": "Shoot this take?",
     "confirm": "Confirm",
-    "place": "Location",
+    "place": "Place",
     "noLine": "no line",
     "setting": "Setting",
     "yourBalance": "Your balance",
@@ -649,9 +649,9 @@
     "fast": "fast",
     "fine": "fine",
     "shootRender": "Shoot · charge on my account",
-    "nothing": "Nothing leaves without this gesture. The studio takes nothing.",
+    "nothing": "Nothing is sent without your OK. The studio takes nothing.",
     "relierTitle": "Connect",
-    "referencesPays": "It pays « {engine} » takes.",
+    "referencesPays": "It pays “{engine}” takes.",
     "confirmFilm": "Film this path?",
     "filmBody": "Blender renders the empty location, along the path. The character is the file in my creations: it enters only the filmed path. If no image comes back, none is shown.",
     "filmDebit": "Film · charge on my account",
@@ -672,7 +672,7 @@
     "file": "Trained file",
     "reread": "Read the balance again",
     "session": "Session already open",
-    "connectLead": "Rendering is paid on your Comfy account. Nothing leaves from here.",
+    "connectLead": "Rendering is paid on your Comfy account. Nothing is sent from here.",
     "confirmTitle": "Generate the video?",
     "keyInvalid": "This key doesn’t have the right format. Paste your full Comfy Cloud API key.",
     "keyRefused": "Comfy doesn’t recognise this key. Check it and try again.",
@@ -680,13 +680,13 @@
     "keyUnchecked": "Comfy couldn’t check this key. Try again in a moment.",
     "sessionExpired": "Your Comfy session expired (signed in elsewhere?). Sign in again.",
     "loginButton": "Sign in with Comfy",
-    "loginHint": "Comfy’s sign-in page opens alongside: Google, GitHub or email, and sign-up if you don’t have an account yet. Sign in, then come back here: the studio links itself.",
+    "loginHint": "Comfy’s sign-in page opens alongside: Google, GitHub or email, and sign-up if you don’t have an account yet. Sign in, then come back here: the studio connects automatically.",
     "loginWaiting": "Waiting for you to sign in on the Comfy page…",
     "loginStop": "Stop waiting",
-    "loginClosed": "The Comfy window closed and I didn’t find your sign-in. Try « Sign in with Comfy » again, or paste an API key.",
-    "loginMissing": "I can’t find a Comfy session on this studio. Tap « Sign in with Comfy », or paste an API key.",
+    "loginClosed": "The Comfy window closed and I didn’t find your sign-in. Try “Sign in with Comfy” again, or paste an API key.",
+    "loginMissing": "I can’t find a Comfy session on this studio. Tap “Sign in with Comfy”, or paste an API key.",
     "orKey": "Or with a Comfy API key",
-    "keyStep1": "Open your Comfy keys page, tap « + New » and name it U*TTU.",
+    "keyStep1": "Open your Comfy keys page, tap “+ New” and name it U*TTU.",
     "keyOpen": "Open my keys page",
     "keyStep2": "Copy the key (it starts with comfyui-) and paste it here: I check it right away. It stays on this device.",
     "pasteButton": "Paste my key",
@@ -732,7 +732,7 @@
   "tree": {
     "characters": "Characters",
     "references": "References",
-    "places": "Locations",
+    "places": "Places",
     "takes": "Takes",
     "sequences": "Sequences",
     "plans": "Shots",
@@ -765,20 +765,20 @@
     "take": "Take"
   },
   "runtime": {
-    "balanceUnreadable": "Balance unreadable. Nothing leaves without reading the account that will pay.",
-    "renderEmpty": "Empty balance on your render account.",
-    "uncalibrated": "Quote absent. The total for this take is not a number. Nothing leaves.",
-    "notMeasured": "Not measured yet. This duration, this quality or this format has no real take. Nothing leaves.",
+    "balanceUnreadable": "Balance unreadable. Nothing is sent without reading the account that will pay.",
+    "renderEmpty": "Empty balance on your Comfy account.",
+    "uncalibrated": "Quote absent. The total for this take is not a number. Nothing is sent.",
+    "notMeasured": "Not measured yet. This duration, this quality or this format has no real take. Nothing is sent.",
     "notMeasuredShort": "not measured yet",
     "billedMark": "about {amount} credits",
     "billedQuote": "About {amount} credits, estimated from a take on {date}. The final price may vary.",
     "billedLow": "Balance too low: {have} credits. About {amount} credits, estimated from a take on {date}. The final price may vary.",
     "billedUnread": "Balance unreadable. Nothing is sent without reading the account that will pay. About {amount} credits, estimated from a take on {date}. The final price may vary.",
-    "billedEmpty": "Empty balance on your render account. About {amount} credits, estimated from a take on {date}. The final price may vary.",
-    "characterPriceUnread": "The character price is not read. Nothing leaves.",
-    "bothPricesUnread": "Both prices are not read. Nothing leaves.",
-    "quoteUnread": "The quote is not read yet. Nothing leaves.",
-    "quoteUnreadable": "The quote is not readable. Nothing leaves.",
+    "billedEmpty": "Empty balance on your Comfy account. About {amount} credits, estimated from a take on {date}. The final price may vary.",
+    "characterPriceUnread": "The character price is not read. Nothing is sent.",
+    "bothPricesUnread": "Both prices are not read. Nothing is sent.",
+    "quoteUnread": "The quote is not read yet. Nothing is sent.",
+    "quoteUnreadable": "The quote is not readable. Nothing is sent.",
     "renderLinked": "Render account connected.",
     "renderLinkedKey": "Render account connected by key.",
     "blenderHeld": "Blender key held on this device.",
@@ -801,7 +801,7 @@
     "characterNotOnPath": "The character is not on the path.",
     "pathImageMissing": "A path image is missing from my creations.",
     "placeRenderedResume": "The location is rendered. The character follow resumes. Nothing is sent again.",
-    "placeEmptyNext": "The location is rendered, empty. The next gesture films the character.",
+    "placeEmptyNext": "The location is rendered, empty. The next action films the character.",
     "followStopped": "Follow stopped here. If the render has already left, it continues on your account.",
     "filmFailed": "The filming did not finish.",
     "clipsMaxNotice": "Thirty clips at most.",
@@ -818,8 +818,8 @@
     "prepareFailed": "This browser could not prepare this file for sending. Try a jpg photo or a shorter mp4 video.",
     "videoTooLong": "Video too long to send: one minute at most. Shorten the clip.",
     "audioTooLong": "Audio too long to send: six minutes at most. Shorten the file.",
-    "finalTooHeavy": "Finalise keeps the source quality: above 3.8 MB it cannot be sent yet without degrading it. Shorten the video or finalise it in several parts.",
-    "finalImageTooHeavy": "Finalise keeps the source quality: this image is above 3.8 MB even as a high-quality jpg. Use a smaller image.",
+    "finalTooHeavy": "Finish keeps the source quality: above 3.8 MB it cannot be sent yet without degrading it. Shorten the video or finish it in several parts.",
+    "finalImageTooHeavy": "Finish keeps the source quality: this image is above 3.8 MB even as a high-quality jpg. Use a smaller image.",
     "directFailed": "The direct send of the heavy file did not go through. Try again, or use a lighter file.",
     "nameCharacter": "Give this character a name.",
     "twoPhotos": "At least two photos of the character, to go with the clips.",
@@ -831,7 +831,7 @@
     "balanceLow": "Balance too low: {have} credits. About {need} are needed, measured on {basis}.",
     "thisTake": "This take",
     "thisTakeLower": "this take",
-    "exampleRender": "Sample · {rate} credit per second of compute, on the render account. Nothing is charged here.",
+    "exampleRender": "Sample · {rate} credit per second of compute, on your Comfy account. Nothing is charged here.",
     "exampleComfyTake": "Sample for {seconds} s: {rate} credit per second of compute, published on {date}. 1 $ = {credits} credits. This take’s figure is read after Connect. Nothing is charged here.",
     "exampleRate": "Sample · {rate} credit/s",
     "exampleAmount": "Sample · {amount}",
@@ -849,19 +849,19 @@
     "clipLong": "Clip too long: {max} s at most.",
     "importedOne": "Added to my creations: {count} file. Takes and characters already here stay.",
     "importedMany": "Added to my creations: {count} files. Takes and characters already here stay.",
-    "folderCopied": "{count} files copied into « {name} ». The folder follows the studio until it closes.",
+    "folderCopied": "{count} files copied into “{name}”. The folder follows the studio until it closes.",
     "estimateQuote": "Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
     "estimateLow": "Balance too low: {have} credits. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
-    "estimateUnread": "Balance unreadable. Nothing leaves without reading the account that pays. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
-    "estimateEmpty": "Your render account is empty. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet."
+    "estimateUnread": "Balance unreadable. Nothing is sent without reading the account that pays. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet.",
+    "estimateEmpty": "Your Comfy account is empty. Estimated: about {amount} to {high} credits. An estimate, not a measure: no billed real take for this setting yet."
   },
   "cinema": {
     "kicker": "Apart",
-    "lead": "Three gestures apart. They do not shoot this take. Without a number, Shoot stays off.",
-    "leadPlan": "The same gestures, from the images of this shot.",
+    "lead": "Three actions apart. They do not shoot this take. Without a number, Shoot stays off.",
+    "leadPlan": "The same actions, from the images of this shot.",
     "lands": "The short film is filed with the takes. The storyboard shot keeps it when the film starts there.",
-    "partage": "The link is missing. This gesture has no model on file. Nothing opens.",
-    "devis": "Quote absent. The total for this gesture is not a number. Nothing leaves.",
+    "partage": "The link is missing. This action has no model on file. Nothing opens.",
+    "devis": "Quote absent. The total for this action is not a number. Nothing is sent.",
     "raccord": {
       "name": "Bridge two images",
       "sentence": "The first image and the last image become a short film.",
@@ -890,7 +890,7 @@
       "sentence": "A filmed take receives the style of one image.",
       "need": "It needs a filmed take, and an image for the effect."
     },
-    "noText": "No text leaves with this gesture."
+    "noText": "No text is sent with this action."
   },
   "stage": {
     "castLead": "Add 2 photos (front and three-quarter).",
@@ -975,9 +975,9 @@
     "statusHypothesis": "hypothesis",
     "statusUnknown": "unknown",
     "confirmTitle": "Create now?",
-    "confirmBody": "The quote is here. Nothing leaves without this gesture.",
+    "confirmBody": "The quote is here. Nothing is sent without your OK.",
     "estimate": "About {amount} credits, estimated. The final price may vary.",
-    "needLink": "Link your render account to create.",
+    "needLink": "Connect your Comfy account to create.",
     "needCeiling": "The balance does not cover this estimate.",
     "filed": "The render is filed.",
     "running": "The render is running.",
@@ -997,7 +997,7 @@
     "describeDecor": "Describe your set",
     "fromPhoto": "A photo of the place",
     "examples": "Examples",
-    "examplesNote": "A click loads the reference and the gesture. The after is not rendered yet.",
+    "examplesNote": "A click loads the reference and the action. The after is not rendered yet.",
     "copyProject": "Copy to {name}",
     "copied": "Copied into the other project.",
     "imported": "Added: {count}",
@@ -1005,11 +1005,11 @@
     "sessionMissing": "The session is not open.",
     "deleted": "“{name}” removed",
     "importName": {
-      "lead": "{name} is in your CAST and chosen for PRISE. Check the name: it goes into the shot text and the edit.",
-      "saved": "Name kept: {name}. Chosen for PRISE.",
+      "lead": "{name} is in your CAST and selected for SHOOT. Check the name: it goes into the shot prompt and the edit.",
+      "saved": "Name kept: {name}. Selected for SHOOT.",
       "label": "Character name",
       "save": "Keep this name",
-      "next": "Continue to DÉCOR"
+      "next": "Continue to SET"
     }
   },
   "montage": {
@@ -1039,7 +1039,7 @@
     "drop": "Drop a sound · {track}",
     "addVoice": "Add a voice",
     "addSfx": "Add a sound effect",
-    "needLink": "Link your render account to create.",
+    "needLink": "Connect your Comfy account to create.",
     "voiceLead": "A voice from a text.",
     "sfxLead": "A sound effect from a text.",
     "musicLead": "Thirty seconds of music from a text.",
@@ -1097,7 +1097,7 @@
     "shortcutHelp": "Space plays. S splits. Delete removes. Ctrl+Z undoes, Ctrl+Y redoes. Arrows: one frame.",
     "snap": "Snapped",
     "exportQuality": "Quick export: {height}p, {fps} frames per second, {max} s at most.",
-    "exportBetter": "Sharper: Finalise",
+    "exportBetter": "Sharper: Finish",
     "exportQualityShort": "{height}p · {fps} frames/s · {max} s max"
   },
   "atelier": {
@@ -1355,9 +1355,9 @@
       "phrase": "A photo becomes an object or a piece of set in volume."
     },
     "suiteModifier": {
-      "title": "Edit",
+      "title": "Retouch",
       "phrase": "Change one detail in one sentence. The rest of the image stays.",
-      "quiet": "Edit"
+      "quiet": "Retouch"
     },
     "suiteFinaliserImage": {
       "title": "Enhance image",
@@ -1572,7 +1572,7 @@
   },
   "finaliser": {
     "open": "Finish the edit",
-    "title": "Finalise the edit",
+    "title": "Finish the edit",
     "lead": "The whole film gets bigger and sharper, in one go. Nothing is remade: acting, sound and rhythm stay.",
     "resolution": "Resolution",
     "nettoyer": "Clean up",
@@ -1584,10 +1584,10 @@
     "estimate": "Estimate, not measured yet.",
     "seconds": "{seconds} s edit.",
     "confirm": "I confirm this estimate. The final price may vary.",
-    "go": "{credits, select, 1 {Finalise · ≈ 1 credit estimated} other {Finalise · ≈ {credits} credits estimated}}",
+    "go": "{credits, select, 1 {Finish · ≈ 1 credit estimated} other {Finish · ≈ {credits} credits estimated}}",
     "empty": "The edit is empty: add at least one shot.",
-    "long": "The edit is longer than 60 s: trim it before finalising.",
-    "needLink": "Link your render account (Comfy) to finalise.",
+    "long": "The edit is longer than 60 s: trim it before finishing.",
+    "needLink": "Connect your Comfy account to finish.",
     "needConfirm": "Confirm to start.",
     "needCeiling": "The balance does not cover this estimate.",
     "busy": "A finalisation is already running.",
@@ -1599,10 +1599,10 @@
     "retour": "Fetching the video…",
     "mesure": "Reading the real cost…",
     "keepOpen": "Keep this tab open. The render runs to the end; it is never cancelled.",
-    "done": "Edit finalised, saved in My creations.",
+    "done": "Edit finished, saved in My creations.",
     "cost": "Real cost: {credits} credits.",
     "costUnknown": "Real cost not readable on the balance yet.",
-    "again": "Finalise differently",
+    "again": "Finish differently",
     "fail": "Finalising did not work: {message}",
     "close": "Close",
     "download": "Download",
@@ -1610,19 +1610,19 @@
     "openShort": "Finish",
     "tagApercu": "Preview",
     "tagFinale": "Final quality",
-    "planOpen": "Finalise this shot",
-    "planTitle": "Finalise this shot",
+    "planOpen": "Finish this shot",
+    "planTitle": "Finish this shot",
     "planLead": "This shot gets bigger and sharper. Nothing is remade: acting and sound stay. It replaces the preview in your edit.",
     "summary": "{count, plural, =0 {No shot in preview} one {# shot in preview} other {# shots in preview}} · {seconds} s",
     "compare": "{one, select, 1 {One shot alone: ≈ 1 credit estimated. The whole edit costs less.} other {One shot alone: ≈ {one} credits estimated. The whole edit costs less.}}",
-    "planDone": "Shot finalised: it replaces the preview in your edit.",
+    "planDone": "Shot finished: it replaces the preview in your edit.",
     "planSeconds": "{seconds} s shot."
   },
   "depart": {
     "label": "Example — make it yours",
     "aria": "Start from the example {title}",
     "cast": "A real studio result. Tap it: photo, name and text fill in, you only change them.",
-    "decor": "A real studio set. Tap it: the reference, name and gesture fill in.",
+    "decor": "A real studio set. Tap it: the reference, name and action fill in.",
     "prise": "The courier on the quay, already framed. Tap it: character, set, framing and action fill in.",
     "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent.",
     "titles": {
@@ -1652,7 +1652,7 @@
     "estimate": "The final price may vary.",
     "confirm": "I confirm this estimate. The final price may vary.",
     "go": "{credits, select, 1 {Start · ≈ 1 credit estimated} other {Start · ≈ {credits} credits estimated}}",
-    "needLink": "Link your render account (Comfy) to run.",
+    "needLink": "Connect your Comfy account to run.",
     "needFiles": "A file or the text is missing.",
     "needText": "The text is empty.",
     "needConfirm": "Confirm to start.",
@@ -1708,7 +1708,7 @@
     "addKey": "＋ Keyframe here",
     "clearPath": "Clear the path",
     "removeKey": "Remove the keyframe at {t} s",
-    "noPath": "No keyframe yet: the previs follows your gestures.",
+    "noPath": "No keyframe yet: the previs follows your actions.",
     "film": "Film the previs ({seconds} s)",
     "filmPath": "The camera follows your keyframes; the clip goes to Directed camera.",
     "filmFree": "Move the camera while filming; the clip goes to Directed camera.",
@@ -1756,7 +1756,7 @@
     "blocked": "A previous render is still waiting to be recovered. Open Credits, then Recover render.",
     "cloudFailed": "The render failed in the cloud. Check your Comfy history for any charge.",
     "sessionElsewhere": "Your Comfy session expired (signed in elsewhere?). Sign in again.",
-    "network": "The render account is not responding. Check your connection, then try again.",
+    "network": "Your Comfy account is not responding. Check your connection, then try again.",
     "retry": "Try again",
     "reconnect": "Reconnect",
     "watchRunning": "Render in progress in the cloud: {name}.",
@@ -1842,13 +1842,25 @@
     "soundSkipped": "This browser cannot read the sound of at least one take: the video is exported without that sound.",
     "cloudFailed": "The render failed in the cloud. Check your Comfy history for any charge.",
     "sessionElsewhere": "Your Comfy session expired (signed in elsewhere?). Sign in again.",
-    "renderNetwork": "The render account is not responding. Check your connection, then try again.",
+    "renderNetwork": "Your Comfy account is not responding. Check your connection, then try again.",
     "pendingBlock": "A previous render is still waiting to be recovered. Open Credits, then Recover render — or try again if the cloud already finished with no result.",
-    "submitRefused": "The render account refused the take. Nothing was sent.",
-    "creditsLow": "Not enough credits on your render account.",
+    "submitRefused": "Your Comfy account refused the take. Nothing was sent.",
+    "creditsLow": "Not enough credits on your Comfy account.",
     "subscriptionInactive": "Your render subscription is inactive, or the queue is full.",
     "pendingRunning": "A render is still running in the cloud: {name}. Wait for it to finish before starting another. Nothing is lost, nothing is sent again.",
-    "pendingDone": "The previous render is finished: {name}. Save it first with Recover render (in Credits), without a new send."
+    "pendingDone": "The previous render is finished: {name}. Save it first with Recover render (in Credits), without a new send.",
+    "opInterrupted": "Operation interrupted.",
+    "recoverLater": "Can’t recover it right now.",
+    "receiptUnreadable": "Unreadable receipt.",
+    "folderSyncFailed": "Folder sync failed. Your local data is kept.",
+    "importInterrupted": "Import interrupted. Files already saved are kept.",
+    "editNotSavedKeepTab": "The edit couldn’t be saved. Keep this tab open.",
+    "editNotSaved": "The edit couldn’t be saved.",
+    "cloudFailedShort": "The render failed in the cloud.",
+    "launchCancelled": "Launch cancelled in the studio. Nothing was sent.",
+    "comfyNotConnected": "Comfy account not connected.",
+    "requestRefused": "Request refused.",
+    "pathRefused": "Path refused."
   },
   "p0": {
     "advanced": "Advanced",
@@ -2005,7 +2017,7 @@
       "castCount": "{count, plural, one {# character} other {# characters}}",
       "whereAsset": "Result: filed in My creations and offered here. If it fails, nothing is replaced and the message says why.",
       "whereTake": "Filed in {plan} · take {n} of {total} (My studio › Takes). Other versions stay.",
-      "whereTakeNext": "The take lands in TAKE, on its shot, without overwriting a kept take. If the tab closes, “Recover the render” finds it again.",
+      "whereTakeNext": "The take lands in SHOOT, on its shot, without overwriting a kept take. If the tab closes, “Recover the render” finds it again.",
       "via": "Rendered on Comfy Cloud",
       "technical": "See the technical detail",
       "stepNow": "Step {n}/7 · {label}"
@@ -2019,14 +2031,14 @@
     "rendu": {
       "label": "Quality",
       "apercu": "Preview",
-      "apercuBody": "To try things out. You finalise what you keep later.",
+      "apercuBody": "To try things out. You finish what you keep later.",
       "finale": "Final quality",
       "finaleBody": "Ready to edit as is.",
       "quote": "{credits, select, 1 {≈ 1 credit estimated} other {≈ {credits} credits estimated}}",
       "go": "{credits, select, 1 {Shoot · ≈ 1 credit estimated} other {Shoot · ≈ {credits} credits estimated}}",
       "goNext": "{credits, select, 1 {Shoot shot {n} · ≈ 1 credit estimated} other {Shoot shot {n} · ≈ {credits} credits estimated}}",
       "keep": "Your choice stays for the next shots of this project.",
-      "apercuHint": "A preview is finalised later, on its own or with the whole edit.",
+      "apercuHint": "A preview is finished later, on its own or with the whole edit.",
       "range": "{low} to {high}"
     },
     "addToMontage": "Add to edit",
@@ -2206,7 +2218,7 @@
     "stepKeep": "Create: Comfy blends your view and the photos into one set image.",
     "toolQuote": "Creating the set next:",
     "kept": "Views kept: {n}",
-    "keptNone": "Your view is ready. The décor is created next, with a credit quote.",
+    "keptNone": "Your view is ready. The set is created next, with a credit estimate.",
     "cadre": "3D view",
     "title": "A real place as your set",
     "close": "Close",
@@ -2410,7 +2422,7 @@
     },
     "tools": {
       "suite-modifier": {
-        "title": "Edit",
+        "title": "Retouch",
         "phrase": "Change one detail in one sentence. The rest of the image stays.",
         "text": "What changes"
       },
@@ -2521,7 +2533,7 @@
       "perso": "Character"
     },
     "confirm": "I confirm: about {credits} credits. The final price may vary.",
-    "link": "Link my account",
+    "link": "Connect my account",
     "needInput": "Add {what} to start.",
     "needConsent": "Confirm you may use this voice.",
     "consent": "I may use this voice (mine or with written consent).",
@@ -2710,7 +2722,7 @@
         "line": "Writes a prompt from a picture."
       },
       "ret-modifier": {
-        "title": "Edit",
+        "title": "Retouch",
         "line": "Changes what you describe, keeps the rest."
       },
       "ret-finaliser": {
@@ -2871,7 +2883,7 @@
     "attribution": {
       "vid-pika": "Pika H3 Flex, built on MiniMax H3"
     },
-    "modelGone": "This model is not available on your render account today. Nothing was sent: the card is back on its default model.",
+    "modelGone": "This model is not available on your Comfy account today. Nothing was sent: the card is back on its default model.",
     "confirmTitle": "Run this render?",
     "confirmBody": "About {credits} credits, estimated. The final price may vary.",
     "confirmYes": "Confirm",
@@ -3048,8 +3060,8 @@
     "home": "Home"
   },
   "entry": {
-    "linkTitle": "To run a render, link your Comfy account.",
-    "link": "Link",
+    "linkTitle": "To run a render, connect your Comfy account.",
+    "link": "Connect",
     "promptPh": "Describe an image, a video, or a film…",
     "go": "Continue",
     "chip": {
@@ -3181,7 +3193,7 @@
     "downloadUse": "Download and use",
     "classify": "Classify selection",
     "character": "Character",
-    "decor": "Location",
+    "decor": "Set",
     "sequence": "Sequence",
     "apply": "Confirm classification",
     "validate": "Mark as approved",
@@ -3263,7 +3275,7 @@
       "title": "Get started · 4 steps",
       "lead": "To run a render, the studio goes through your Comfy Cloud account. Here is the path, in order.",
       "done": "Done",
-      "connected": "Your Comfy account is linked: you can run renders, always after the quote.",
+      "connected": "Your Comfy account is connected: you can run renders, always after the quote.",
       "account": {
         "title": "Create your Comfy Cloud account",
         "body": "You sign up on Comfy’s site, not here.",
@@ -3279,27 +3291,27 @@
         "body": "Every subscription includes credits. You can buy more at any time on your Comfy account (Settings → Plans & Credits). The studio sells nothing."
       },
       "key": {
-        "title": "Link your Comfy account",
-        "body": "The easiest way: « Sign in with Comfy », no key to copy. Otherwise, create a key on your Comfy keys page (+ New, name it U*TTU) and paste it here: it stays on this device.",
+        "title": "Connect your Comfy account",
+        "body": "The easiest way: “Sign in with Comfy”, no key to copy. Otherwise, create a key on your Comfy keys page (+ New, name it U*TTU) and paste it here: it stays on this device.",
         "link": "Open my keys page",
         "button": "Connect my Comfy account"
       }
     },
     "sim": {
       "title": "Estimate a cost",
-      "lead": "Pick gestures: I add them up with the studio’s cost table.",
-      "pick": "Gesture",
+      "lead": "Pick actions: I add them up with the studio’s cost table.",
+      "pick": "Action",
       "option": "{name} · {low}–{high} credits",
       "qty": "How many",
       "add": "Add",
       "remove": "Remove {name}",
       "clear": "Clear all",
-      "empty": "Add a gesture to see the estimate.",
+      "empty": "Add an action to see the estimate.",
       "line": "{qty} × {name}: {low}–{high} credits",
       "total": "≈ {low}–{high} credits estimated",
       "perBlock": "Some tools count per 5 s block of source: this total is for one block.",
       "unknown": "I didn’t recognise: {list}.",
-      "note": "Estimate from the studio’s table, not a quote: the exact quote shows in the tool before you confirm. Nothing leaves from here.",
+      "note": "Estimate from the studio’s table, not a quote: the exact quote shows in the tool before you confirm. Nothing is sent from here.",
       "reply": "Here is the estimate, from the studio’s cost table:"
     },
     "plan": {
@@ -3348,7 +3360,7 @@
       "cost": {
         "q": "How much does a render cost?",
         "k": "cost price how much credits expensive estimate",
-        "a": "Every tool shows its estimate before the gesture, in “credits estimated”. For a total, write for example “3 portraits + 2 LTX takes”, or open the estimator below."
+        "a": "Every tool shows its estimate before you confirm, in “credits estimated”. For a total, write for example “3 portraits + 2 LTX takes”, or open the estimator below."
       },
       "estimate": {
         "q": "What does “estimated” mean?",
@@ -3388,7 +3400,7 @@
       "upload": {
         "q": "How do I send my photos, videos or sounds?",
         "k": "send upload import file files photo video sound audio original quality heavy size drop",
-        "a": "Drop them in the tool or in “References”. With your Comfy account linked, the file goes in original quality (up to 200 MB) to private storage, is handed to your Comfy account, then deleted from the storage. If that path is not available, your browser shrinks it before sending. Images, MP4, MOV or WebM videos and sounds are accepted."
+        "a": "Drop them in the tool or in “References”. With your Comfy account connected, the file goes in original quality (up to 200 MB) to private storage, is handed to your Comfy account, then deleted from the storage. If that path is not available, your browser shrinks it before sending. Images, MP4, MOV or WebM videos and sounds are accepted."
       },
       "finaliser": {
         "q": "What does Finish do?",
@@ -3418,7 +3430,7 @@
       "agent": {
         "q": "Is there a fuller agent?",
         "k": "agent paid comfy fuller free conversation future soon",
-        "a": "Yes: Comfy agent mode understands open-ended requests. It runs on your linked Comfy account, each message is paid by your account, and its estimated cost shows before the first send. The agent launches nothing: it suggests an action, you click. Without a linked account, only the cost simulator is available."
+        "a": "Yes: Comfy agent mode understands open-ended requests. It runs on your connected Comfy account, each message is paid by your account, and its estimated cost shows before the first send. The agent launches nothing: it suggests an action, you click. Without a linked account, only the cost simulator is available."
       },
       "openWeights": {
         "q": "What are open models?",
@@ -3428,7 +3440,7 @@
       "language": {
         "q": "How do I change the language?",
         "k": "language change english german spanish french",
-        "a": "The language selector is in the top bar: français, English, Deutsch, español."
+        "a": "The language selector is in the top bar: English, français, Deutsch, español. The studio opens in English until you pick another language."
       },
       "hello": {
         "q": "Hello",
@@ -3467,8 +3479,8 @@
       "paid": "{cost, select, 1 {Uttu agent · ≈ 1 credit estimated per message} other {Uttu agent · ≈ {cost} credits estimated per message}}",
       "paidNote": "Comfy agent on: each message goes through your Comfy account (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps no key. The agent launches nothing: you click, after the usual quote.",
       "paidNoteSession": "Comfy agent on: each message goes through your Comfy sign-in (GPT-5 Nano via Comfy Router). The studio pays nothing and keeps nothing of your account on its servers: your Comfy session stays in this browser. The agent launches nothing: you click, after the usual quote.",
-      "invite": "{cost, select, 1 {To talk to Uttu, link your Comfy account: each message costs ≈ 1 credit estimated at most, paid by your account.} other {To talk to Uttu, link your Comfy account: each message costs ≈ {cost} credits estimated at most, paid by your account.}}",
-      "inviteButton": "Link my Comfy account",
+      "invite": "{cost, select, 1 {To talk to Uttu, connect your Comfy account: each message costs ≈ 1 credit estimated at most, paid by your account.} other {To talk to Uttu, connect your Comfy account: each message costs ≈ {cost} credits estimated at most, paid by your account.}}",
+      "inviteButton": "Connect my Comfy account",
       "gateTitle": "Before your first paid message",
       "gateBody": "{cost, select, 1 {Each message to the Comfy agent is billed to your Comfy account: ≈ 1 credit estimated at most, often less. The agent launches no render: it suggests an action, you click, and the usual quote shows before any spend. Your consent lasts for this session.} other {Each message to the Comfy agent is billed to your Comfy account: ≈ {cost} credits estimated at most, often less. The agent launches no render: it suggests an action, you click, and the usual quote shows before any spend. Your consent lasts for this session.}}",
       "accept": "I accept, send",
@@ -3501,7 +3513,7 @@
     },
     "greeting": "Hi, I’m Uttu. What do you want to shoot?",
     "perMessage": "{n, plural, one {≈ # credit estimated per message} other {≈ # credits estimated per message}}",
-    "connectShort": "Link Comfy",
+    "connectShort": "Connect Comfy",
     "more": "More options"
   },
   "barre": {
@@ -3585,9 +3597,9 @@
       "title": "Your conversation",
       "new": "New conversation",
       "needText": "Write what you want to make.",
-      "videoAsImage": "The last result is a video. To retouch it, open « What next? » under the video.",
-      "alreadyVideo": "The last result is already a video. Use « What next? » to extend or smooth it.",
-      "needRef": "For a video, attach a character, a location or a photo, or make an image first, then say « animate it ».",
+      "videoAsImage": "The last result is a video. To retouch it, open “What next?” under the video.",
+      "alreadyVideo": "The last result is already a video. Use “What next?” to extend or smooth it.",
+      "needRef": "For a video, attach a character, a location or a photo, or make an image first, then say “animate it”.",
       "busy": "Something is already being made here. Wait for its result, then send again.",
       "toolClosed": "This tool isn't available right now. Open it to see why.",
       "readFailed": "An attached image couldn't be read. Nothing went out.",
@@ -3596,7 +3608,7 @@
       "toAssistant": "Continue with the assistant",
       "openTool": "Open in the tool",
       "confirmLine": "Nothing goes out before your OK. The final price may vary.",
-      "needLink": "Link your Comfy account to start this creation.",
+      "needLink": "Connect your Comfy account to start this creation.",
       "go": "Start · {cost}",
       "goNoQuote": "Start",
       "confirmPrise": "Check the take in the confirmation window. Nothing goes out before your OK.",
@@ -3627,8 +3639,8 @@
       "quoteNear": "Nearby example",
       "tool": {
         "klein": "Quick image · Klein",
-        "modifier": "Edit · Klein",
-        "prise": "TAKE · LTX",
+        "modifier": "Retouch · Klein",
+        "prise": "SHOOT · LTX",
         "wan": "Animate · Wan"
       },
       "quai": {
@@ -3791,7 +3803,7 @@
     "title": "Direct send test",
     "lead": "Sends a heavy file to private storage, then deletes it. No render starts, no credits are spent.",
     "pick": "Choose a video or a photo",
-    "noAccount": "Connect your render account in the studio first.",
+    "noAccount": "Connect your Comfy account in the studio first.",
     "noStore": "Direct storage is not connected on this deployment (redeploy after connecting the store).",
     "sending": "Sending…",
     "ok": "Received by the server: {mb} MB. Deleted from storage: {deleted}.",
@@ -3830,7 +3842,7 @@
     "quoteFor": "For {seconds} s in {tier}, {from} → {to}. The final price may vary."
   },
   "film2": {
-    "title": "TAKE",
+    "title": "SHOOT",
     "planN": "Shot {n} · What happens?",
     "phrase": "What happens?",
     "phrasePh": "Uttu walks on a pier at night, in the rain. The camera follows.",
@@ -3865,7 +3877,7 @@
     "soldeApres": "Balance after: ≈ {n} credits. The shot will be saved in My creations and added to the edit.",
     "soldeInconnu": "The shot will be saved in My creations and added to the edit.",
     "lancer": "Start",
-    "modifier": "Edit",
+    "modifier": "Change",
     "envoye": "What will be sent",
     "envoyeLead": "Your sentence goes as written to the video render service (H3), with the pictures of each character and of the place.",
     "enCours": "Step {i} of {n}: {label}",
@@ -3880,8 +3892,8 @@
     "choix": {
       "quiTitre": "Who is in this shot?",
       "ouTitre": "Where does this shot happen?",
-      "quiLead": "Up to 3 characters. They stay in your cast (CAST) for the whole film.",
-      "ouLead": "One place per shot. It stays in your places (DÉCOR) for the whole film.",
+      "quiLead": "Up to 3 characters. They stay in your CAST for the whole film.",
+      "ouLead": "One place per shot. It stays in your places (SET) for the whole film.",
       "personne": "Keep what my sentence says",
       "lieuPhrase": "Keep the place in my sentence",
       "utiliser": "Use {nom}",
@@ -3898,7 +3910,7 @@
       "depuisDescriptionSous": "Image · “a woman in a red coat…” · {prix}",
       "depuisDescriptionLieuSous": "Image · “a station in the rain…” · {prix}",
       "lieuReel": "Real place in 3D",
-      "lieuReelSous": "A real street, framed in 3D · opens in DÉCOR",
+      "lieuReelSous": "A real street, framed in 3D · opens in SET",
       "max": "3 characters at most: remove one to add another.",
       "nom": "Name",
       "nomPh": "The courier",
@@ -3918,7 +3930,7 @@
       "retour": "Back",
       "ajouter": "Add to the shot",
       "toutCast": "Open the whole cast (CAST)",
-      "toutDecor": "Open all places (DÉCOR)",
+      "toutDecor": "Open all places (SET)",
       "photoIllisible": "This photo could not be read. Try another picture.",
       "nomVide": "Give it a name first.",
       "photoVide": "Pick at least one photo.",
@@ -4046,5 +4058,48 @@
       "plans": "Shots",
       "vide": "empty"
     }
+  },
+  "exampleItems": {
+    "decor-quai-nuit": {
+      "title": "The quay at night"
+    },
+    "decor-rue-pluie": {
+      "title": "In the rain"
+    },
+    "decor-piece": {
+      "title": "A room",
+      "prompt": "An empty room, soft light, wooden floor, no one."
+    },
+    "decor-toit-aube": {
+      "title": "A rooftop at dawn"
+    },
+    "decor-gare": {
+      "title": "A station hall"
+    },
+    "decor-couloir": {
+      "title": "A corridor",
+      "prompt": "A bright corridor, long lines, no one."
+    },
+    "cast-coursiere": {
+      "title": "The courier",
+      "prompt": "A courier, character turnaround sheet, fictional character."
+    },
+    "cast-vieil-homme": {
+      "title": "The old man",
+      "prompt": "An old man, character turnaround sheet, fictional character."
+    },
+    "cast-dj": {
+      "title": "DJ",
+      "prompt": "A DJ, character turnaround sheet, fictional character."
+    }
+  },
+  "demoPrompts": {
+    "demo-coursiere": "A courier, character sheet, fictional character.",
+    "demo-vieil-homme": "An old man, character sheet, fictional character.",
+    "demo-dj": "A DJ, character sheet, fictional character.",
+    "demo-quai": "A quay at night, black water, distant lights, no one in frame.",
+    "demo-gare": "A station hall, empty, cold light, no one in frame.",
+    "demo-pluie": "A street in the rain, blurred lights, no one in frame.",
+    "demo-toit": "Zinc rooftops at dawn, golden haze, no one in frame."
   }
 }

@@ -1848,7 +1848,19 @@
     "creditsLow": "Créditos insuficientes en tu cuenta de render.",
     "subscriptionInactive": "Tu suscripción de render está inactiva, o la cola está llena.",
     "pendingRunning": "Un render sigue en curso en la nube: {name}. Espera a que termine antes de lanzar otro. No se pierde nada ni se reenvía nada.",
-    "pendingDone": "El render anterior ha terminado: {name}. Guárdalo primero con Recuperar el render (en Créditos), sin un nuevo envío."
+    "pendingDone": "El render anterior ha terminado: {name}. Guárdalo primero con Recuperar el render (en Créditos), sin un nuevo envío.",
+    "opInterrupted": "Operación interrumpida.",
+    "recoverLater": "No se puede recuperar por ahora.",
+    "receiptUnreadable": "Recibo ilegible.",
+    "folderSyncFailed": "La sincronización de la carpeta falló. Los datos locales se conservan.",
+    "importInterrupted": "Importación interrumpida. Los archivos ya guardados se conservan.",
+    "editNotSavedKeepTab": "No se pudo guardar el montaje. Mantén esta pestaña abierta.",
+    "editNotSaved": "No se pudo guardar el montaje.",
+    "cloudFailedShort": "El render falló en la nube.",
+    "launchCancelled": "Lanzamiento cancelado en el estudio. No se envió nada.",
+    "comfyNotConnected": "Cuenta de Comfy no vinculada.",
+    "requestRefused": "Solicitud rechazada.",
+    "pathRefused": "Ruta rechazada."
   },
   "p0": {
     "advanced": "Avanzado",
@@ -4046,5 +4058,48 @@
       "plans": "Planos",
       "vide": "vacío"
     }
+  },
+  "exampleItems": {
+    "decor-quai-nuit": {
+      "title": "El muelle de noche"
+    },
+    "decor-rue-pluie": {
+      "title": "Bajo la lluvia"
+    },
+    "decor-piece": {
+      "title": "Una habitación",
+      "prompt": "Una habitación vacía, luz suave, parqué, sin nadie."
+    },
+    "decor-toit-aube": {
+      "title": "Un tejado al amanecer"
+    },
+    "decor-gare": {
+      "title": "Un vestíbulo de estación"
+    },
+    "decor-couloir": {
+      "title": "Un pasillo",
+      "prompt": "Un pasillo luminoso, líneas largas, sin nadie."
+    },
+    "cast-coursiere": {
+      "title": "La mensajera",
+      "prompt": "Una mensajera, hoja de vistas, personaje ficticio."
+    },
+    "cast-vieil-homme": {
+      "title": "El anciano",
+      "prompt": "Un anciano, hoja de vistas, personaje ficticio."
+    },
+    "cast-dj": {
+      "title": "DJ",
+      "prompt": "Un DJ, hoja de vistas, personaje ficticio."
+    }
+  },
+  "demoPrompts": {
+    "demo-coursiere": "Una mensajera, hoja de vistas, personaje ficticio.",
+    "demo-vieil-homme": "Un anciano, hoja de vistas, personaje ficticio.",
+    "demo-dj": "Un DJ, hoja de vistas, personaje ficticio.",
+    "demo-quai": "Un muelle de noche, agua negra, luces lejanas, sin nadie.",
+    "demo-gare": "Un vestíbulo de estación, vacío, luz fría, sin nadie.",
+    "demo-pluie": "Una calle bajo la lluvia, luces borrosas, sin nadie.",
+    "demo-toit": "Tejados de zinc al amanecer, bruma dorada, sin nadie."
   }
 }

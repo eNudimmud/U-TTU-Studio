@@ -4,7 +4,7 @@ import { useAgentDraft } from "./use-agent-draft";
 import { OutilsStrip } from "./outils-hub";
 import { ConnectLink } from "./connect-link";
 import { useEffect, useState, type ReactNode } from "react";
-import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
+import { EXEMPLES_CAST, EXEMPLES_DECOR, exampleText, type ExempleItem } from "@/lib/creation/exemples";
 import { DEPARTS, montrerDepart } from "@/lib/creation/depart";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { creationAllowed, spendAllowed } from "@/lib/creation/quotes";
@@ -184,6 +184,8 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     if (op.id === "local:scout") window.dispatchEvent(new CustomEvent("u-ttu-agent-scout", { detail: draft.prompt }));
   });
   const house = EXEMPLES_CAST;
+  const exampleTitle = (item: ExempleItem) => exampleText(t, item).title;
+  const examplePrompt = (item: ExempleItem) => exampleText(t, item).prompt;
   const row = gesteParId(gesteId) ?? gesteParId("cast-photos")!;
   const opened = gesteOuvert(row);
   const amount = row.credits;
@@ -207,8 +209,8 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       const item = house.find(entry => entry.id === "cast-vieil-homme") ?? house[0];
       if (!item) return;
       setGesteId(geste);
-      setName(item.title);
-      setPrompt(item.prompt);
+      setName(exampleTitle(item));
+      setPrompt(examplePrompt(item));
       setRefs([]);
       return;
     }
@@ -224,9 +226,9 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     const target = gesteParId(geste);
     const first = target ? casesVisibles(target)[0] : null;
     setGesteId(geste);
-    setName(item.title);
-    setPrompt(item.prompt);
-    setRefs(first ? [{ id: `ref-${item.id}`, role, caseId: first.id, name: item.title, url: assetPath(item.file), file, assetId: null }] : []);
+    setName(exampleTitle(item));
+    setPrompt(examplePrompt(item));
+    setRefs(first ? [{ id: `ref-${item.id}`, role, caseId: first.id, name: exampleTitle(item), url: assetPath(item.file), file, assetId: null }] : []);
   }
 
   async function confirm() {
@@ -349,6 +351,8 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     if (op.id === "local:scout") window.dispatchEvent(new CustomEvent("u-ttu-agent-scout", { detail: draft.prompt }));
   });
   const house = EXEMPLES_DECOR;
+  const exampleTitle = (item: ExempleItem) => exampleText(t, item).title;
+  const examplePrompt = (item: ExempleItem) => exampleText(t, item).prompt;
   const row = gesteParId(gesteId) ?? gesteParId("decor-photo")!;
   const opened = gesteOuvert(row);
   const amount = row.credits;
@@ -375,9 +379,9 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     const target = gesteParId(geste);
     const first = target ? casesVisibles(target)[0] : null;
     setGesteId(geste);
-    setName(item.title);
-    setPrompt(geste === "decor-texte" ? item.prompt : "");
-    setRefs(first && geste !== "decor-texte" ? [{ id: `ref-${item.id}`, role: pair.role, caseId: first.id, name: item.title, url: assetPath(item.file), file, assetId: null }] : []);
+    setName(exampleTitle(item));
+    setPrompt(geste === "decor-texte" ? examplePrompt(item) : "");
+    setRefs(first && geste !== "decor-texte" ? [{ id: `ref-${item.id}`, role: pair.role, caseId: first.id, name: exampleTitle(item), url: assetPath(item.file), file, assetId: null }] : []);
   }
 
   async function confirm() {
@@ -422,7 +426,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
           {SUGGESTIONS.map(key => <button key={key} type="button" data-suggestion={key} onClick={() => suggest(t(key))}>{t(key)}</button>)}
         </div>
       </div>
-      {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
+      {depart && <ExempleDepart etape="decor" image={apres} titre={(found => found ? exampleTitle(found) : undefined)(house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id))} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
       <ToolShell
         stage={<ToolStage
           view="source"
