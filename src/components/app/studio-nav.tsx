@@ -78,13 +78,13 @@ export function useTopHeight() {
 }
 
 function useCounts() {
-  const { prefs } = useStudio();
+  const { outilsFiltre } = useStudio();
   return useMemo(() => {
     const counts = Object.fromEntries(FAMILLES.map(fam => [fam, 0])) as Record<Famille, number>;
-    for (const item of outilsPublics(prefs)) counts[familleVitrine(item)] += 1;
+    for (const item of outilsPublics(outilsFiltre)) counts[familleVitrine(item)] += 1;
     counts["3d"] += OUTILS_HORS_CATALOGUE; // « Maquette 3D et cadrage » and « Repérer un lieu » sit in the 3D row.
     return counts;
-  }, [prefs]);
+  }, [outilsFiltre]);
 }
 
 export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void }) {

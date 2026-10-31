@@ -125,7 +125,9 @@ export async function followTake(
   const now = options.now ?? Date.now;
   const pollMs = options.pollMs ?? 3000;
   const timeoutMs = options.timeoutMs ?? 35 * 60 * 1000;
-  const measureTries = options.measureTries ?? 4;
+  // A deferred read never blocks the result, so it can wait for Comfy's slow balance update
+  // (about a minute) instead of giving up after 20 s and leaving the cost unread.
+  const measureTries = options.measureTries ?? (options.deferMeasure ? 12 : 4);
   const measureMs = options.measureMs ?? 5000;
   const networkTries = options.networkTries ?? 5;
 

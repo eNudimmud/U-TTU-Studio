@@ -16,13 +16,16 @@ import { formatCredits } from "@/lib/credits";
 import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
 import { failView } from "@/lib/render/fail";
 import { outilQuote } from "@/lib/outils/graphs";
+import { videoFacts } from "@/lib/render/prepare-upload";
+import type { FinaliserSource } from "@/lib/suite/quote";
 import { GENJUTSU_DEFAULT_RESOLUTION, GENJUTSU_RESOLUTIONS, genjutsuSeconds, type GenjutsuResolution } from "@/lib/outils/genjutsu";
 import { VEED_CIBLES, VEED_CREDITS_PER_SECOND, VEED_DEFAULT, VEED_MAX_SECONDS, VEED_SOURCES, VEED_TIERS, veedMemeLangue, veedSeconds, type VeedChoix } from "@/lib/outils/veed";
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
 import { OUTIL_CAMERAS, OUTIL_PISTES, type OutilCamera, type OutilPiste } from "@/lib/outils/generique";
 import { assetPath } from "@/lib/site";
-import { audioSeconds, lastFrame, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
-import type { Elargir } from "@/lib/suite/graphs";
+import { audioSeconds, lastFrame, mediaSize, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
+import { CADRES, CADRES_VIDEO, VIDEO_CADRE_TAILLE, cadreDefaut, isCadre, videoCadre, type Cadre } from "@/lib/outils/cadre";
+import { ELARGIR_BANDES, type Elargir } from "@/lib/suite/graphs";
 import type { Onglet } from "@/lib/workflows/registre";
 import { EtEnsuite, SOURCE_KEY, type HandedSource } from "./et-ensuite";
 import { MeshViewer } from "./mesh-viewer";
@@ -90,9 +93,9 @@ export function OutilCard({ outil }: { outil: Outil }) {
 /** One tab's own tools, from the same public cards, folded so the tab stays short. */
 export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: boolean }) {
   const { t } = useI18n();
-  const { prefs } = useStudio();
+  const { outilsFiltre } = useStudio();
   const [opened, setOpened] = useState(open);
-  const list = outilsPublicsOnglet(onglet, prefs);
+  const list = outilsPublicsOnglet(onglet, outilsFiltre);
   const panelId = useId();
   if (list.length === 0) return null;
   return <div className="u-outils-strip" data-outils-onglet={onglet}>
@@ -265,8 +268,8 @@ const MODELS = "u-ttu-modeles-recents";
 
 function ModelMenu({ current, onPick }: { current: string; onPick(id: string): void }) {
   const { t } = useI18n();
-  const { prefs } = useStudio();
-  const models = modelesIntent(current, prefs);
+  const { outilsFiltre } = useStudio();
+  const models = modelesIntent(current, outilsFiltre);
   const modelKey = models.map(item => item.id).join(" ");
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState<string[]>([]);
@@ -312,7 +315,7 @@ function Fold({ step, label, children }: { step: string; label: string; children
 
 export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil: Outil; onResult?(run: ToolRun | null): void; onPreview?(url: string | null): void; onBusy?(busy: { stage: FinaliseStage; seconds: number; labelKey: string; typical: "son" | "video" | "outil" | "retoucher" } | null): void }) {
   const { t } = useI18n();
-  const { connected, creating, runOutil, balance, setSheet, prefs, media } = useStudio();
+  const { connected, creating, runOutil, balance, setSheet, outilsFiltre, media } = useStudio();
   const [modelId, setModelId] = useState(asked.id);
   const picked = outilParId(modelId) ?? asked;
   // A model Comfy refused this session (missing weights) opens as its card's default instead.
@@ -325,7 +328,12 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const [inputs, setInputs] = useState<Partial<Record<Entree, Picked | null>>>(() => (draft?.inputs ?? {}) as Partial<Record<Entree, Picked | null>>);
   const [text, setText] = useState(draft?.text ?? (genjutsu ? t("genjutsu.promptDefault") : ""));
   const [aspect, setAspect] = useState<"horizontal" | "vertical">(draft?.aspect ?? "horizontal");
-  const [side, setSide] = useState<Elargir>((draft?.side as Elargir | undefined) ?? "cotes");
+  // Élargir: a target frame (16:9 by default for a portrait source) or, in advanced, a fixed band.
+  const [side, setSide] = useState<Elargir>(() => {
+    const saved = draft?.side;
+    return isCadre(saved) || (ELARGIR_BANDES as readonly string[]).includes(saved ?? "") ? saved as Elargir : "16:9";
+  });
+  const sideChosen = useRef(Boolean(draft?.side && isCadre(draft.side)));
   const [fluide, setFluide] = useState(draft?.fluide ?? false);
   const [mesh, setMesh] = useState<"objet" | "perso">(draft?.mesh ?? "objet");
   const [resolution, setResolution] = useState<GenjutsuResolution>(GENJUTSU_RESOLUTIONS.includes(draft?.resolution as GenjutsuResolution) ? draft!.resolution! : GENJUTSU_DEFAULT_RESOLUTION);
@@ -351,11 +359,12 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     onBusy({ stage: stage.stage, seconds: outilElapsed, labelKey: `barre.fil.stage.${stage.stage}`, typical: typicalKey });
   }, [stage, outilElapsed, onBusy, typicalKey]);
   const [outcome, setOutcome] = useState<FinaliseOutcome | null>(null);
+  const [costPending, setCostPending] = useState(false);
   const titleId = useId();
   const busyId = `${titleId}-busy`;
   const whyId = `${titleId}-why`;
   const askId = `${titleId}-ask`;
-  const etat = outilEtat(outil, prefs);
+  const etat = outilEtat(outil, outilsFiltre);
   const sending = useRef(false);
   useAgentDraft(op => op.toolId === outil.id, (draft, resources) => {
     const remaining = [...resources];
@@ -449,6 +458,19 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   const reglages = [...(outil.reglages ?? []).filter(item => item !== "doublage"), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
   const video = inputs.video;
   const audio = inputs.audio;
+  const cadres: readonly Cadre[] = outil.entrees.includes("video") ? CADRES_VIDEO : CADRES;
+  const cadreSource = outil.entrees.includes("video") ? video : inputs.image;
+  // A new source picks the frame it most likely needs, until the visitor picks one by hand.
+  useEffect(() => {
+    if (!outil.reglages?.includes("cadre")) return;
+    const url = cadreSource?.url;
+    if (!url || sideChosen.current) return;
+    let gone = false;
+    void mediaSize(url, outil.entrees.includes("video") ? "video" : "image").then(size => { if (!gone && !sideChosen.current) setSide(cadreDefaut(size, cadres)); });
+    return () => { gone = true; };
+  }, [cadreSource?.url, outil.reglages, outil.entrees, cadres]);
+  // The video tool only knows its own frames: a band or 4:3 left by the picture tool falls back to 16:9.
+  const sideSent: Elargir = outil.entrees.includes("video") && outil.reglages?.includes("cadre") ? videoCadre(isCadre(side) ? side : undefined) : side;
   useEffect(() => {
     // Faire parler bills / renders from the voice length; other tools from the video.
     const source = outil.id === "vid-parler" || (outil.entrees.includes("audio") && !outil.entrees.includes("video"))
@@ -461,8 +483,22 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     return () => { gone = true; };
   }, [video, audio, outil.id, outil.entrees]);
 
-  const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh, resolution, doublage }), [outil, seconds, fluide, mesh, resolution, doublage]);
-  const quotePending = Boolean((outil.parTranche || genjutsu || doubler) && inputs.video && seconds == null);
+  // Agrandir une vidéo is billed per frame of the 1080p result: read the clip's size and frame
+  // rate locally before quoting (undefined while reading, null when unreadable → studio defaults).
+  const [source, setSource] = useState<FinaliserSource | null | undefined>(null);
+  useEffect(() => {
+    if (outil.id !== "vid-finaliser" || !video) { setSource(null); return; }
+    let gone = false;
+    setSource(undefined);
+    void (async () => {
+      const blob = video.file ?? await (await fetch(video.url)).blob();
+      const facts = await videoFacts(blob);
+      if (!gone) setSource(facts ? { width: facts.width, height: facts.height, fps: facts.fps ?? undefined } : null);
+    })().catch(() => { if (!gone) setSource(null); });
+    return () => { gone = true; };
+  }, [video, outil.id]);
+  const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh, resolution, doublage, source: source ?? undefined }), [outil, seconds, fluide, mesh, resolution, doublage, source]);
+  const quotePending = Boolean((outil.parTranche || genjutsu || doubler) && inputs.video && (seconds == null || source === undefined));
   const sameLang = doubler && veedMemeLangue(doublage);
   const tooShort = genjutsu && seconds !== null && seconds < 4;
   const busy = stage !== null;
@@ -529,9 +565,17 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       }
       const from = inputs.image?.path ?? inputs.video?.path;
       onResult?.(null);
+      // The real cost lands after the bytes (deferred balance read). It can land before the result
+      // is set: keep it here so it is never dropped and « Coût réel » never sticks on « pas lisible ».
+      let measured: number | null | undefined;
+      setCostPending(true);
       const result = await runOutil({
-        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: side, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, piste: outil.reglages?.includes("piste") ? piste : undefined, doublage: doubler ? doublage : undefined, consent, from, onStage,
-        onCost: cost => setOutcome(current => current?.ok ? { ...current, cost } : current),
+        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: sideSent, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, piste: outil.reglages?.includes("piste") ? piste : undefined, doublage: doubler ? doublage : undefined, source: source ?? undefined, consent, from, onStage,
+        onCost: cost => {
+          measured = cost;
+          setCostPending(false);
+          setOutcome(current => current?.ok ? { ...current, cost } : current);
+        },
       });
       // Comfy refused the graph for a weight or node it lacks today: the model leaves « Changer de
       // modèle » for this session and the card goes back to its default (H3 for Pika). Nothing ran.
@@ -541,7 +585,8 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
         pickModel(intentDe(outil.id));
         return;
       }
-      setOutcome(result);
+      setOutcome(result.ok && measured !== undefined ? { ...result, cost: measured } : result);
+      if (!result.ok) setCostPending(false);
       if (result.ok) onResult?.({ url: result.url, path: result.path, extras: result.extras, kind: outil.sortie, poster: inputs.image?.url, seconds: genjutsu ? genjutsuSeconds(seconds ?? undefined) ?? undefined : doubler ? veedSeconds(seconds ?? undefined) ?? undefined : undefined, aspect: outil.reglages?.includes("aspect") ? aspect : undefined });
     } catch (error) {
       const view = failView(error);
@@ -595,10 +640,19 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       </div>
       {sameLang && <p className="u-why" role="alert" data-doublage-same="">{t("doublage.same")}</p>}
     </fieldset>}
+    {reglages.includes("cadre") && <fieldset className="u-tool-step" data-tool-step="cadre">
+      <legend className="u-label">{t("outils.cadre.label")}</legend>
+      <div className="u-choice-row" style={{ flexWrap: "wrap" }} role="group" aria-label={t("outils.cadre.label")}>
+        {cadres.map(id => <button key={id} type="button" className="u-chip" style={{ whiteSpace: "nowrap", flexShrink: 0 }} aria-pressed={sideSent === id} data-tool-cadre={id} {...lock} onClick={() => { sideChosen.current = true; setSide(id); reset(); }}>{t(`outils.cadre.${id.replace(":", "x")}`)}</button>)}
+      </div>
+      <p className="u-small" data-tool-cadre-note="">{outil.entrees.includes("video") && isCadre(sideSent)
+        ? t("outils.cadre.video", { w: String(VIDEO_CADRE_TAILLE[videoCadre(sideSent)].sortie.width), h: String(VIDEO_CADRE_TAILLE[videoCadre(sideSent)].sortie.height) })
+        : isCadre(side) ? t("outils.cadre.image") : t("outils.cadre.bande")}</p>
+    </fieldset>}
     {refs.length > 0 && <Fold step="references" label={t("outils.refs")}>
       {refs.map(entree => <InputSlot key={entree} entree={entree} label={genjutsu ? t("genjutsu.image2") : undefined} value={inputs[entree] ?? null} busy={busy} busyId={busyId} onChange={next => set(entree, next)} />)}
     </Fold>}
-    {reglages.length > 0 && <Fold step="reglages" label={t("outils.settings")}>
+    {reglages.some(item => item !== "cadre") && <Fold step="reglages" label={t("outils.settings")}>
       {reglages.includes("resolution") && <div className="u-choice-row" role="group" aria-label={t("genjutsu.resolution")}>
         {GENJUTSU_RESOLUTIONS.map(value => <button key={value} type="button" className="u-chip" aria-pressed={resolution === value} data-genjutsu-resolution={value} {...lock} onClick={() => { setResolution(value); reset(); }}>{value}</button>)}
       </div>}
@@ -611,9 +665,12 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       {reglages.includes("aspect") && <div className="u-choice-row" role="group" aria-label={t("outils.format")}>
         {(["horizontal", "vertical"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={aspect === id} data-tool-aspect={id} {...lock} onClick={() => { setAspect(id); reset(); }}>{t(`outils.aspect.${id}`)}</button>)}
       </div>}
-      {reglages.includes("elargir") && <div className="u-choice-row" role="group" aria-label={t("suite.side")}>
-        {(["cotes", "haut-bas", "tout"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={side === id} data-tool-side={id} {...lock} onClick={() => { setSide(id); reset(); }}>{t(`suite.sides.${id}`)}</button>)}
-      </div>}
+      {reglages.includes("elargir") && <>
+        <span className="u-label">{reglages.includes("cadre") ? t("outils.cadre.avance") : t("suite.side")}</span>
+        <div className="u-choice-row" role="group" aria-label={t("suite.side")}>
+          {ELARGIR_BANDES.map(id => <button key={id} type="button" className="u-chip" aria-pressed={side === id} data-tool-side={id} {...lock} onClick={() => { sideChosen.current = true; setSide(id); reset(); }}>{t(`suite.sides.${id}`)}</button>)}
+        </div>
+      </>}
       {reglages.includes("mesh") && <div className="u-choice-row" role="group" aria-label={t("outils.settings")}>
         {(["objet", "perso"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={mesh === id} data-tool-mesh={id} {...lock} onClick={() => { setMesh(id); reset(); }}>{t(`outils.mesh.${id}`)}</button>)}
       </div>}
@@ -635,7 +692,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
         {outcome.retry && <button type="button" className="u-link" data-tool-retry="" onClick={() => { setOutcome(null); press(); }}>{t("recovery.retry")}</button>}
       </p>}
     </div>}
-    {outcome?.ok && <p className="u-small" data-tool-done="">{t("suite.done")} {outcome.cost === null ? t("finaliser.costUnknown") : t("finaliser.cost", { credits: formatCredits(outcome.cost) })}</p>}
+    {outcome?.ok && <p className="u-small" data-tool-done="" data-tool-cost={outcome.cost === null ? (costPending ? "lecture" : "non-lu") : "lu"}>{t("suite.done")} {outcome.cost !== null ? t("finaliser.cost", { credits: formatCredits(outcome.cost) }) : costPending ? t("finaliser.mesure") : t("outils.costUnread")}</p>}
     {ask && quote && <div className="u-confirm-layer">
       <div role="dialog" aria-modal="true" aria-labelledby={askId} className="u-confirm" data-tool-ask="">
         <h2 id={askId}>{t("outils.confirmTitle")}</h2>
@@ -720,10 +777,10 @@ function useRecents(current: string): string[] {
 /** The tool card's switch: recent tools and « Voir tous les outils », without leaving the panel. */
 function ToolSwitch({ current }: { current: string }) {
   const { t } = useI18n();
-  const { prefs } = useStudio();
+  const { outilsFiltre } = useStudio();
   const recents = useRecents(current);
   const here = outilParId(current);
-  const family = here ? outilsPublics(prefs).filter(item => familleVitrine(item) === familleVitrine(here) && intentDe(item.id) !== intentDe(current)).slice(0, 8) : [];
+  const family = here ? outilsPublics(outilsFiltre).filter(item => familleVitrine(item) === familleVitrine(here) && intentDe(item.id) !== intentDe(current)).slice(0, 8) : [];
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const menuId = useId();
