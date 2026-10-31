@@ -26,7 +26,7 @@ import { mergeCoffreZip, vaultPathFromZip } from "@/lib/coffre/import";
 import { folderLinkSupported, linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
   emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, removeTake, sceneMarkdown, selectProject as chooseProject, createProject as makeProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
-  removeShot, writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
+  removeShot, writeBlob, writeLook, writeMap, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
   type Scene, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { allowFolder, folderPermission, loadFolderHandle, readFolder, saveFolderHandle } from "@/lib/coffre/permit";
@@ -2259,7 +2259,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         if (!incoming.fields.sequence && existing.fields.sequence) incoming.fields.sequence = existing.fields.sequence;
         text = withFrontmatter(incoming.fields, incoming.body);
       }
+      // A storyboard note that is new, renamed or (un)archived refreshes the project map (_MOC).
+      const carte = /^Storyboard\/[a-z0-9-]+\.md$/.test(file);
+      const resume = (note: string) => `${/^# .*$/m.exec(note)?.[0] ?? ""}|${/^statut:.*$/m.exec(note)?.[0] ?? ""}`;
+      const avant = carte ? (await store().get(projectPath(slug, file)))?.text : undefined;
       await writeText(store(), projectPath(slug, file), text);
+      if (carte && (avant === undefined || resume(avant) !== resume(text))) await writeMap(store());
     });
     saves.current = next;
     await next;

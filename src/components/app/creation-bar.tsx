@@ -8,6 +8,7 @@ import { insertMention, mentionedReferences, opensPicker, removeMention } from '
 import { BUBBLE_DEFAULTS, bubbleImageEngine, bubblePictureCount, bubbleQuote, chipReference, bubbleResolutionLabel, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
 import { CREATION_REFERENCES_MAX, type NamedReference } from '@/lib/creation/named-references';
 import { assetPath } from '@/lib/site';
+import { storyboardDansCePoste } from '@/lib/storyboard/drapeau';
 import { AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, DEFAULT_SETTINGS, writeHandoff, type BarreMode, type BarreRef } from '@/lib/barre/model';
 import type { FilRef } from '@/lib/barre/thread';
 import { openBand, placeMenu } from '@/lib/mobile-band';
@@ -38,6 +39,9 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const [settings, setSettings] = useState<BubbleSettings>(BUBBLE_DEFAULTS);
   const [menu, setMenu] = useState(false), [settingsOpen, setSettingsOpen] = useState(false), [sheet, setSheet] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [loadedFor, setLoadedFor] = useState<string | null>(null);
+  // Storyboard (behind ?storyboard=1): the bubble's idea opens /storyboard, written there, nothing rendered.
+  const [storyboard, setStoryboard] = useState(false);
+  useEffect(() => { setStoryboard(storyboardDansCePoste()); }, []);
   const inputId = useId(), menuId = useId(), routeId = useId(), attachmentsId = useId();
   const textRef = useRef<HTMLTextAreaElement>(null), caretRef = useRef<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null), audioRef = useRef<HTMLInputElement>(null), menuRef = useRef<HTMLDivElement>(null), settingsRef = useRef<HTMLDivElement>(null);
@@ -144,6 +148,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
             <button type="button" role="menuitem" data-barre-attach="photo" disabled={full || busy} aria-describedby={attachmentsId} onClick={() => { setMenu(false); fileRef.current?.click(); }}><FamilyIcon fam="creer" /><span><strong>{t('barre.attach.photo')}</strong><small>{t('barre.attach.photoLine')}</small></span></button>
             <button type="button" role="menuitem" data-barre-attach="son" disabled={busy} aria-describedby={attachmentsId} onClick={() => { setMenu(false); setMode('video'); audioRef.current?.click(); }}><FamilyIcon fam="son" /><span><strong>{t('bubble.audio')}</strong><small>{t('bubble.audioHelp')}</small></span></button>
             <button type="button" role="menuitem" data-barre-attach="reference" onClick={() => { setMenu(false); setSheet(true); }}><Plus /><span><strong>{t('barre.attach.reference')}</strong><small>{t('namedRefs.menuHelp')}</small></span></button>
+            {storyboard && <button type="button" role="menuitem" data-barre-storyboard="" onClick={() => { setMenu(false); const idee = text.trim(); window.location.assign(assetPath(idee ? `/storyboard?idee=${encodeURIComponent(idee.slice(0, 240))}` : '/storyboard')); }}><svg {...ICON}><rect x="3" y="5" width="7" height="6" rx="1" /><rect x="14" y="5" width="7" height="6" rx="1" /><rect x="3" y="14" width="7" height="6" rx="1" /><rect x="14" y="14" width="7" height="6" rx="1" /></svg><span><strong>{t('barre.attach.storyboard')}</strong><small>{t('barre.attach.storyboardLine')}</small></span></button>}
           </div>}
           <input ref={fileRef} type="file" accept="image/*" multiple hidden data-barre-photo="" onChange={e => { void addFiles(e.target.files, 'photo'); e.target.value = ''; }} />
           <input ref={audioRef} type="file" accept="audio/*" hidden data-barre-audio="" onChange={e => { void addFiles(e.target.files, 'audio'); e.target.value = ''; }} />

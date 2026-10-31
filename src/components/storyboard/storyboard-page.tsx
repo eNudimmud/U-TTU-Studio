@@ -75,7 +75,8 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
   const known = useMemo(() => ({
     cast: vault.cast.filter(card => card.sheet || card.photos.length).map(card => ({ id: card.id, name: card.name })),
     decor: vault.scenes.map(scene => ({ id: scene.id, name: scene.name })),
-  }), [vault.cast, vault.scenes]);
+    lieuxNommes: studio.references.filter(ref => ref.category === "decor" && ref.name.trim()).map(ref => ref.name.trim()),
+  }), [vault.cast, vault.scenes, studio.references]);
 
   const dire = useCallback((id: string, bulle: Bulle) => setBulles(all => ({ ...all, [id]: [...(all[id] ?? []), bulle].slice(-30) })), []);
 

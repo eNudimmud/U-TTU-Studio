@@ -300,6 +300,13 @@
           "titre": "La fin",
           "action": "{lieu}, large à nouveau : {qui} est petit dans le cadre."
         }
+      },
+      "sansLieu": {
+        "etablir": "Vu large, avant que rien ne se passe.",
+        "arrivee": "{qui} apparaît.",
+        "mouvement": "{qui} repart.",
+        "dernier": "La lumière change.",
+        "fin": "Large à nouveau : {qui} est petit dans le cadre."
       }
     },
     "quoted": "« {text} »",

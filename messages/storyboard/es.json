@@ -300,6 +300,13 @@
           "titre": "El final",
           "action": "{lieu}, de nuevo general: {qui} es pequeño en el cuadro."
         }
+      },
+      "sansLieu": {
+        "etablir": "Visto de lejos, antes de que pase nada.",
+        "arrivee": "{qui} aparece.",
+        "mouvement": "{qui} sigue su camino.",
+        "dernier": "La luz cambia.",
+        "fin": "De nuevo general: {qui} es pequeño en el cuadro."
       }
     },
     "quoted": "«{text}»",

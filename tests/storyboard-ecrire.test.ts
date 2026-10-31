@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { definirPersonnage, sansReplique, ecrireStoryboard, titreDeLIdee, type Gabarits } from "../src/lib/storyboard/ecrire.ts";
+import { definirPersonnage, lieuCommun, sansReplique, ecrireStoryboard, titreDeLIdee, type Gabarits } from "../src/lib/storyboard/ecrire.ts";
 import { dureeTotale, tousLesPlans, DUREES_PLAN } from "../src/lib/storyboard/storyboard.ts";
 
 const gabarits = (lang: string): Gabarits => JSON.parse(readFileSync(`messages/storyboard/${lang}.json`, "utf8")).storyboard.gabarits;
@@ -97,4 +97,50 @@ test("every language's templates fill every placeholder", () => {
     const { storyboard } = ecrireStoryboard("Uttu sur le quai.", CTX, opts({ gabarits: gabarits(lang), dureeCible: 60 }));
     for (const plan of tousLesPlans(storyboard)) assert.doesNotMatch(plan.action, /[{}]/, `${lang} ${plan.action}`);
   }
+});
+
+test("an everyday place noun with its article becomes the place, in four languages", () => {
+  assert.equal(lieuCommun("Uttu traverse la ville sous la pluie pour atteindre un toit à l’aube."), "La ville");
+  assert.equal(lieuCommun("Uttu crosses the city to reach a roof."), "The city");
+  assert.equal(lieuCommun("Uttu läuft durch die Stadt."), "Die Stadt");
+  assert.equal(lieuCommun("Uttu cruza la ciudad bajo la lluvia."), "La ciudad");
+  assert.equal(lieuCommun("Uttu ouvre l’escalier."), "L’escalier");
+  assert.equal(lieuCommun("Uttu sourit."), null);
+  // A word that only starts like a place is not one.
+  assert.equal(lieuCommun("Uttu lit the cityscape poster."), null);
+  const { storyboard, nouveaux } = ecrireStoryboard("Uttu traverse la ville sous la pluie pour atteindre un toit à l’aube. Elle dit : « On y est presque. »", { cast: [{ id: "c1", name: "Uttu" }], decor: [] }, opts());
+  assert.ok(nouveaux.includes("La ville"));
+  assert.match(storyboard.sequences[0]!.plans[0]!.action, /^La ville, vu large/);
+  assert.match(storyboard.sequences[0]!.plans[1]!.action, /dans la ville/);
+});
+
+test("an @mentioned DÉCOR card is the place, linked, and the @ is not read as a new name", () => {
+  const ctx = { cast: [{ id: "c1", name: "Uttu" }], decor: [{ id: "d1", name: "Quai Nord" }] };
+  const { storyboard, repris, nouveaux } = ecrireStoryboard("@Uttu marche le long du @Quai Nord dans la ville.", ctx, opts());
+  const lieu = storyboard.sequences[0]!.plans[1]!.refs.find(ref => ref.role === "ou");
+  assert.deepEqual(lieu, { role: "ou", nom: "Quai Nord", id: "d1" });
+  assert.ok(repris.includes("Quai Nord"));
+  assert.ok(repris.includes("Uttu"));
+  assert.ok(!nouveaux.some(nom => nom.includes("@")));
+  assert.ok(!storyboard.logline.includes("@"));
+});
+
+test("with no place at all, no shot says « the place »: the sentence stays whole", () => {
+  for (const lang of ["en", "fr", "de", "es"]) {
+    const g = gabarits(lang);
+    const { storyboard } = ecrireStoryboard("Uttu sourit.", { cast: [{ id: "c1", name: "Uttu" }], decor: [] }, opts({ gabarits: g, dureeCible: 60 }));
+    for (const plan of storyboard.sequences.flatMap(seq => seq.plans)) {
+      assert.ok(!plan.action.toLowerCase().includes(g.lieu.toLowerCase()), `${lang}: ${plan.action}`);
+      assert.ok(!plan.refs.some(ref => ref.role === "ou"));
+    }
+  }
+});
+
+test("an @mentioned place reference without a DÉCOR card is the place (new), not a character", () => {
+  const ctx = { cast: [{ id: "c1", name: "Uttu" }], decor: [], lieuxNommes: ["Toit Est"] };
+  const { storyboard, nouveaux } = ecrireStoryboard("@Uttu attend sur le @Toit Est.", ctx, opts());
+  const plans = storyboard.sequences.flatMap(seq => seq.plans);
+  assert.ok(plans.some(plan => plan.refs.some(ref => ref.role === "ou" && ref.nom === "Toit Est" && ref.id === null)));
+  assert.ok(!plans.some(plan => plan.refs.some(ref => ref.role === "qui" && ref.nom.startsWith("Toit"))));
+  assert.ok(nouveaux.includes("Toit Est"));
 });
