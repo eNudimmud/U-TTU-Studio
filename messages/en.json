@@ -3770,6 +3770,8 @@
     "moreName": "More actions for {name}"
   },
   "bubble": {
+    "mentionHint": "@ mentions a reference",
+    "tooManyRefs": "Too many references for this model: seven at most per image. Remove one and send again.",
     "audio": "Audio",
     "audioHelp": "Attach reference audio to a video",
     "removeAudio": "Remove audio",
