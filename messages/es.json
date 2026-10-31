@@ -3757,6 +3757,8 @@
     "moreName": "Más acciones para {name}"
   },
   "bubble": {
+    "mentionHint": "@ cita una referencia",
+    "tooManyRefs": "Demasiadas referencias para este modelo: siete como máximo por imagen. Quita una y vuelve a enviar.",
     "audio": "Audio",
     "audioHelp": "Adjuntar audio de referencia a un vídeo",
     "removeAudio": "Quitar audio",
