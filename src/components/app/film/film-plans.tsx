@@ -19,7 +19,9 @@ import { takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { ligneDuPlan, lireReglages, reglagesChiffres, reglagesVersTake, REGLAGES_FILM, REGLAGES_KEY, type ReglagesFilm } from "@/lib/film/reglages";
 import { assetPath } from "@/lib/site";
 import { useStudio } from "../studio-session";
+import { coutExemple, EXEMPLE_KEY, EXEMPLES_FILM, type Exemple } from "@/lib/film/exemples";
 import { FilmChoix, type CarteChoix } from "./film-choix";
+import { FilmExemples } from "./film-exemples";
 import { FilmReglages } from "./film-reglages";
 import "./film-plans.css";
 
@@ -35,6 +37,8 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const [asking, setAsking] = useState(false);
   const [envoye, setEnvoye] = useState(false);
   const [launched, setLaunched] = useState<string | null>(null);
+  // « Autre prise » / « Modifier et refaire »: the next try is one more take of this plan, not a new plan.
+  const [reprise, setReprise] = useState<string | null>(null);
   const [etape, setEtape] = useState(0);
   const [echec, setEchec] = useState("");
   // The steps of the try in flight: after a failure, what is no longer a step was made and is kept.
@@ -47,6 +51,11 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const field = useRef<HTMLTextAreaElement>(null);
   const lancer = useRef<HTMLButtonElement>(null);
   const raisonRef = useRef("");
+  const carte = useRef<HTMLDivElement>(null);
+  // PR 4: « Refaire cet exemple » — which one is being prepared, and the card lit while it fills.
+  const [prepare, setPrepare] = useState<string | null>(null);
+  const [rempli, setRempli] = useState(false);
+  const [askAfterFill, setAskAfterFill] = useState(false);
 
   useEffect(() => {
     try { setPhrase(localStorage.getItem(DRAFT_KEY) ?? ""); } catch { /* private tab */ }
@@ -98,8 +107,10 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   useEffect(() => {
     if (!landed || !launched || filed.current === landed.id) return;
     filed.current = landed.id;
+    const deja = registre.plans.find(item => item.id === launched)?.prises.length ?? 0;
     void (async () => {
-      await studio.sendToMontage({ takeId: landed.id, planId: launched, label: plan.phrase.slice(0, 80), seconds: landed.settings.seconds, aspect: landed.settings.aspect === "vertical" ? "vertical" : "horizontal", still: landed.poster ?? "", video: landed.video, prompt: landed.prompt, sceneName: landed.sceneName, composeur: "" });
+      // Another take of a plan already on the cut stays in « Mes plans »: the cut keeps the first one.
+      if (deja === 0) await studio.sendToMontage({ takeId: landed.id, planId: launched, label: plan.phrase.slice(0, 80), seconds: landed.settings.seconds, aspect: landed.settings.aspect === "vertical" ? "vertical" : "horizontal", still: landed.poster ?? "", video: landed.video, prompt: landed.prompt, sceneName: landed.sceneName, composeur: "" });
       const base = registre.plans.some(item => item.id === launched) ? registre : ajouterPlan(registre, { ...nouveauPlan(registre, launched, plan.phrase), quiIds: plan.qui.flatMap(who => who.id ?? []), ouId: plan.ou?.id ?? null });
       const next = auMontage(ajouterPrise(base, launched, { id: landed.id, fichier: landed.video }), launched, landed.settings.seconds);
       setRegistre(next);
@@ -112,6 +123,18 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   }, []);
   useEffect(() => { if (asking) requestAnimationFrame(() => lancer.current?.focus()); }, [asking]);
 
+  // The example has filled the card: once seen, the confirmation opens (nothing is sent before Lancer).
+  useEffect(() => {
+    if (!askAfterFill || !plan.phrase) return;
+    const timer = window.setTimeout(() => { setAskAfterFill(false); ask(); }, 700);
+    return () => window.clearTimeout(timer);
+  });
+  useEffect(() => {
+    if (!rempli) return;
+    const timer = window.setTimeout(() => setRempli(false), 2400);
+    return () => window.clearTimeout(timer);
+  }, [rempli]);
+
   const ask = () => {
     if (!plan.phrase) { setEchec(t("film2.phraseVide")); field.current?.focus(); return; }
     if (!studio.connected) { studio.setSheet("connect"); return; }
@@ -121,7 +144,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
   const go = async () => {
     setAsking(false);
     // A retry keeps the plan id: the steps already made are found again, only the rest is sent.
-    const id = failed && launched ? launched : `plan-${Date.now().toString(36)}`;
+    const id = failed && launched ? launched : reprise ?? `plan-${Date.now().toString(36)}`;
     if (!(failed && launched)) setLancees(etapes.map(step => ({ type: step.type, nom: step.nom })));
     setEchec("");
     setLaunched(id);
@@ -149,9 +172,71 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     setChoix(CHOIX_VIDE);
     setFichiers({});
     setLaunched(null);
+    setReprise(null);
     studio.resetRun();
     requestAnimationFrame(() => field.current?.focus());
   };
+  // A take of a plan that already has one does not go on the cut: the sheet says so.
+  const autreDuPlan = reprise !== null && (registre.plans.find(item => item.id === reprise)?.prises.length ?? 0) > 0;
+  // Same sentence, same Qui/Où, same settings: only the take is quoted again (the cards exist now).
+  const autrePrise = () => {
+    if (!launched) return;
+    setReprise(launched);
+    studio.resetRun();
+    ask();
+  };
+  const modifierRefaire = () => {
+    if (!launched) return;
+    setReprise(launched);
+    studio.resetRun();
+    requestAnimationFrame(() => { field.current?.focus(); field.current?.select(); });
+  };
+
+  const prixExemple = (exemple: Exemple) => coutExemple(exemple, {
+    prise: rendu => prixPrise(reglagesVersTake({ ...reglages, duree: exemple.secondes ?? 5, rendu })),
+    cast: source => quoteForCast(source).credits,
+    decor: source => quoteForDecor(source).credits,
+  });
+  // The house references become the visitor's own cards (a local import, no render, never twice);
+  // the sentence, Qui and Où fill the card on screen, then the confirmation opens.
+  const refaire = async (exemple: Exemple) => {
+    const cible = exemple.refaire;
+    if (cible.vers !== "plan") {
+      try { sessionStorage.setItem(EXEMPLE_KEY, JSON.stringify(cible)); } catch { /* private tab */ }
+      if (cible.vers === "cast") goCast(); else goDecor();
+      return;
+    }
+    setPrepare(exemple.id);
+    setEchec("");
+    try {
+      const picked: { cast: { id: string; nom: string }[]; decor: { id: string; nom: string } | null } = { cast: [], decor: null };
+      for (const item of exemple.avant) {
+        if (item.kind === "texte") continue;
+        const list = item.kind === "cast" ? known.cast : known.decor;
+        let found = list.find(card => card.name.trim().toLowerCase() === item.nom.toLowerCase());
+        if (!found) {
+          const response = await fetch(assetPath(item.image));
+          if (!response.ok) throw new Error(t("film2.exemples.introuvable"));
+          const blob = await response.blob();
+          const [made] = await studio.importAssets([new File([blob], `${item.nom}.webp`, { type: blob.type || "image/webp" })], item.kind === "cast" ? "personnage" : "decor");
+          if (!made) throw new Error(t("film2.exemples.introuvable"));
+          found = { id: made.id, name: made.name };
+        }
+        if (item.kind === "cast") picked.cast.push({ id: found.id, nom: found.name }); else picked.decor = { id: found.id, nom: found.name };
+      }
+      write(t(exemple.phrase ?? exemple.titre));
+      setChoix({ qui: picked.cast.length ? picked.cast : null, ou: picked.decor });
+      changerReglages({ ...reglagesVoulus, duree: exemple.secondes ?? 5, rendu: cible.rendu });
+      setRempli(true);
+      carte.current?.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      setAskAfterFill(true);
+    } catch (error) {
+      setEchec(error instanceof Error && error.message ? error.message : t("film2.exemples.introuvable"));
+    } finally {
+      setPrepare(null);
+    }
+  };
+  const vide = !phrase.trim() && !launched && !running && registre.plans.length === 0 && choix.qui === null && choix.ou === null;
 
   const thumb = (path: string | null | undefined, preview?: string | null) => preview ? assetPath(preview) : path && media[path] ? media[path] : "";
   const cartesQui: CarteChoix[] = vault.cast.filter(card => card.sheet || card.photos.length).map(card => ({ id: card.id, nom: card.name, thumb: thumb(card.sheet ?? card.photos[0]), paths: [...(card.sheet ? [card.sheet] : []), ...card.photos] }));
@@ -186,7 +271,7 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
 
   return <section className="u-film" data-film-plans="" data-film-ready={studio.ready ? "true" : "false"}>
     <h1 id="u-title" tabIndex={-1} className="u-film-title"><span className="u-film-stage">{t("film2.title")}</span> <span>{t("film2.planN", { n: String(numero) })}</span></h1>
-    <div className="u-film-card">
+    <div ref={carte} className="u-film-card" data-rempli={rempli ? "" : undefined}>
       <label className="sr-only" htmlFor="u-film-phrase">{t("film2.phrase")}</label>
       <textarea id="u-film-phrase" ref={field} className="u-film-phrase" data-film-phrase="" rows={2} maxLength={240} value={phrase} placeholder={t("film2.phrasePh")} onChange={event => write(event.target.value)} disabled={running} />
       <div className="u-film-slots">
@@ -213,8 +298,11 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
     {running && <p id="u-film-running" className="u-film-state" role="status" data-film-running="">{t("film2.enCours", { i: String(Math.min(etape + 1, etapes.length)), n: String(etapes.length), label: labelEtape(etape) })}</p>}
     {landed && <div className="u-film-result" data-film-result="">
       {media[landed.video] ? <video src={media[landed.video]} controls playsInline muted loop preload="metadata" /> : null}
-      <p role="status">{t("film2.fini")}</p>
+      <p role="status" data-film-fini="">{(() => { const n = registre.plans.find(item => item.id === launched)?.prises.findIndex(item => item.id === landed.id) ?? -1; return n > 0 ? t("film2.finiAutre", { n: String(n + 1) }) : t("film2.fini"); })()}</p>
       <div className="u-film-result-actions">
+        <button type="button" className="u-secondary" data-film-autre="" onClick={autrePrise} disabled={priseQuote === null} aria-describedby={priseQuote === null ? "u-film-autre-why" : undefined}><span>{t("film2.autrePrise")}</span>{priseQuote !== null && <span className="u-film-price">{t("film2.credits", { n: formatCredits(priseCredits) })}</span>}</button>
+        {priseQuote === null && <span id="u-film-autre-why" className="sr-only">{t("film2.reglages.sansPrixLong")}</span>}
+        <button type="button" className="u-secondary" data-film-refaire-plan="" onClick={modifierRefaire}>{t("film2.modifierRefaire")}</button>
         <button type="button" className="u-secondary" data-film-suivant="" onClick={suivant}>{t("film2.planSuivant")}</button>
         <button type="button" className="u-secondary" data-film-montage="" onClick={onMontage}>{t("film2.voirMontage")}</button>
       </div>
@@ -223,7 +311,8 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
       <p>{launched ? t("film2.erreur", { raison: failed }) : failed}</p>
       {launched && gardes.length > 0 && <p data-film-garde="">{t("film2.garde", { faits: gardes.map(step => step.nom).join(", "), reste: etapes.map((_, index) => labelEtape(index)).join(", ") })}</p>}
     </div>}
-    {!running && !landed && <p className="u-film-note"><span className="u-film-badge">{t("film2.video", { s: String(duree) })}</span> {etapes.length > 1 ? t("film2.explication") : t("film2.explicationPrete")}</p>}
+    {vide && <FilmExemples exemples={EXEMPLES_FILM} cout={prixExemple} busy={prepare} onRefaire={exemple => void refaire(exemple)} />}
+    {!running && !landed && !vide && <p className="u-film-note"><span className="u-film-badge">{t("film2.video", { s: String(duree) })}</span> {etapes.length > 1 ? t("film2.explication") : t("film2.explicationPrete")}</p>}
 
     {!landed && <div className="u-film-dock">
       {priseQuote === null && <p id="u-film-sans-prix" className="u-film-note" data-film-sans-prix="">{t("film2.reglages.sansPrixLong")}</p>}
@@ -254,13 +343,13 @@ export function FilmPlans({ goCast, goDecor, onMontage }: { goCast(): void; goDe
           </li>)}
         </ol>
         <p className="u-film-total"><strong>{t("film2.total")}</strong><strong data-film-total="">{prix}</strong></p>
-        <p className="u-film-after">{balance ? t("film2.soldeApres", { n: formatCredits(Math.max(0, balance.credits - total)) }) : t("film2.soldeInconnu")}</p>
+        <p className="u-film-after" data-film-apres-lancer="">{balance ? t(autreDuPlan ? "film2.soldeApresAutre" : "film2.soldeApres", { n: formatCredits(Math.max(0, balance.credits - total)) }) : t(autreDuPlan ? "film2.soldeInconnuAutre" : "film2.soldeInconnu")}</p>
         <button ref={lancer} type="button" className="u-film-gold" data-film-lancer="" onClick={() => void go()}><span>{t("film2.lancer")}</span><span className="u-film-price">· {prix}</span></button>
         <div className="u-film-sheet-row">
           <button type="button" className="u-secondary" data-film-modifier="" onClick={() => { setAsking(false); field.current?.focus(); }}>{t("film2.modifier")}</button>
           <button type="button" className="u-secondary" aria-expanded={envoye} data-film-envoye="" onClick={() => setEnvoye(value => !value)}>{t("film2.envoye")}</button>
         </div>
-        {envoye && <p className="u-film-sent" data-film-sent="">{t("film2.envoyeLead")}<br /><q>{ligne}</q><br /><small data-film-moteur="">{t("film2.reglages.moteur", { moteur: settings.engine === "h3" ? "MiniMax H3" : "LTX 2.5 (aperçu)" })}</small></p>}
+        {envoye && <p className="u-film-sent" data-film-sent="">{t("film2.envoyeLead")}<br /><q>{ligne}</q><br /><small data-film-moteur="">{t("film2.reglages.moteur", { moteur: settings.engine === "h3" ? "MiniMax H3" : t("film2.reglages.ltxApercu") })}</small></p>}
       </div>
     </div>}
   </section>;

@@ -4,9 +4,10 @@ import { X_COMPOSER, X_DIRECT_NEEDS, X_TEXT_MAX, clipForX, shareableFile, takeCa
 
 describe("publier une prise", () => {
   it("writes a plain caption from the take and the place", () => {
-    assert.equal(takeCaption({ line: "Elle traverse le quai.", place: "Quai, nuit" }), "Elle traverse le quai — Quai, nuit. Tourné dans U*TTU Studio.");
-    assert.equal(takeCaption({ line: "  ", place: "" }), "Tourné dans U*TTU Studio.");
-    assert.equal(takeCaption({ place: "Serre" }), "Serre. Tourné dans U*TTU Studio.");
+    assert.equal(takeCaption({ line: "Elle traverse le quai.", place: "Quai, nuit", locale: "fr" }), "Elle traverse le quai — Quai, nuit. Tourné dans U*TTU Studio.");
+    assert.equal(takeCaption({ line: "She crosses the quay.", place: "Quay, night" }), "She crosses the quay — Quay, night. Shot in U*TTU Studio.");
+    assert.equal(takeCaption({ line: "  ", place: "" }), "Shot in U*TTU Studio.");
+    assert.equal(takeCaption({ place: "Serre", locale: "fr" }), "Serre. Tourné dans U*TTU Studio.");
   });
 
   it("counts like X and opens X's own composer", () => {

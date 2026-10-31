@@ -4,7 +4,7 @@ import { useAgentDraft } from "./use-agent-draft";
 import { OutilsStrip } from "./outils-hub";
 import { ConnectLink } from "./connect-link";
 import { useEffect, useState, type ReactNode } from "react";
-import { EXEMPLES_CAST, EXEMPLES_DECOR, type ExempleItem } from "@/lib/creation/exemples";
+import { EXEMPLES_CAST, EXEMPLES_DECOR, exampleText, type ExempleItem } from "@/lib/creation/exemples";
 import { DEPARTS, montrerDepart } from "@/lib/creation/depart";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { creationAllowed, spendAllowed } from "@/lib/creation/quotes";
@@ -23,6 +23,32 @@ import { ReperageEntry } from "./reperage/reperage-entry";
 import { lieuNote } from "@/lib/repere/lieu";
 import { SlotBoard, type LocalRef } from "./references";
 import { useStudio } from "./studio-session";
+import { EXEMPLE_KEY, lireExempleEnAttente } from "@/lib/film/exemples";
+import { film2DansCePoste } from "@/lib/film/drapeau";
+
+/** PR 4: an example picked on the plan card fills this form once, lit, then its confirmation opens. */
+function useExempleFilm(vers: "cast" | "decor", load: (geste: string) => Promise<void>, ouvrir: () => boolean) {
+  const [filled, setFilled] = useState(false);
+  const [lit, setLit] = useState(false);
+  useEffect(() => {
+    let geste: string | null = null;
+    try { geste = lireExempleEnAttente(sessionStorage.getItem(EXEMPLE_KEY), vers); if (geste) sessionStorage.removeItem(EXEMPLE_KEY); } catch { /* private tab */ }
+    if (geste) void load(geste).then(() => { setFilled(true); setLit(true); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!filled) return;
+    document.querySelector(".u-desk-scroll")?.scrollIntoView({ block: "start" });
+    const timer = window.setTimeout(() => { if (ouvrir()) setFilled(false); }, 700);
+    return () => window.clearTimeout(timer);
+  });
+  useEffect(() => {
+    if (!lit) return;
+    const timer = window.setTimeout(() => setLit(false), 2400);
+    return () => window.clearTimeout(timer);
+  }, [lit]);
+  return lit;
+}
 
 export { PriseStage } from "./prise-stage";
 
@@ -184,6 +210,8 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     if (op.id === "local:scout") window.dispatchEvent(new CustomEvent("u-ttu-agent-scout", { detail: draft.prompt }));
   });
   const house = EXEMPLES_CAST;
+  const exampleTitle = (item: ExempleItem) => exampleText(t, item).title;
+  const examplePrompt = (item: ExempleItem) => exampleText(t, item).prompt;
   const row = gesteParId(gesteId) ?? gesteParId("cast-photos")!;
   const opened = gesteOuvert(row);
   const amount = row.credits;
@@ -198,6 +226,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
   const preview = refs.find(ref => ref.url)?.url ?? "";
   // Just imported and nothing new started: the character is ready, so the gold button goes on to DÉCOR instead of asking for a reference.
   const importedReady = !!imported && cast.some(card => card.id === imported.id) && !name.trim() && !prompt.trim() && refs.length === 0;
+  const castLit = useExempleFilm("cast", geste => loadExemple(geste), () => { if (!connected) { setSheet("connect"); return true; } if (blocked) return false; setAsk(true); return true; });
 
 
 
@@ -207,8 +236,8 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
       const item = house.find(entry => entry.id === "cast-vieil-homme") ?? house[0];
       if (!item) return;
       setGesteId(geste);
-      setName(item.title);
-      setPrompt(item.prompt);
+      setName(exampleTitle(item));
+      setPrompt(examplePrompt(item));
       setRefs([]);
       return;
     }
@@ -224,9 +253,9 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
     const target = gesteParId(geste);
     const first = target ? casesVisibles(target)[0] : null;
     setGesteId(geste);
-    setName(item.title);
-    setPrompt(item.prompt);
-    setRefs(first ? [{ id: `ref-${item.id}`, role, caseId: first.id, name: item.title, url: assetPath(item.file), file, assetId: null }] : []);
+    setName(exampleTitle(item));
+    setPrompt(examplePrompt(item));
+    setRefs(first ? [{ id: `ref-${item.id}`, role, caseId: first.id, name: exampleTitle(item), url: assetPath(item.file), file, assetId: null }] : []);
   }
 
   async function confirm() {
@@ -272,7 +301,7 @@ export function CastStage({ onDecor }: { onDecor(): void }) {
         </span>
       </form>}
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
-      <label className="u-field">
+      <label className="u-field" data-rempli={castLit ? "" : undefined}>
         <span className="u-label">{t("create.name")}</span>
         <input value={name} maxLength={40} autoComplete="off" onChange={event => setName(event.target.value)} />
       </label>
@@ -349,6 +378,8 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     if (op.id === "local:scout") window.dispatchEvent(new CustomEvent("u-ttu-agent-scout", { detail: draft.prompt }));
   });
   const house = EXEMPLES_DECOR;
+  const exampleTitle = (item: ExempleItem) => exampleText(t, item).title;
+  const examplePrompt = (item: ExempleItem) => exampleText(t, item).prompt;
   const row = gesteParId(gesteId) ?? gesteParId("decor-photo")!;
   const opened = gesteOuvert(row);
   const amount = row.credits;
@@ -361,7 +392,9 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
-  const depart = montrerDepart({ mesAssets: decor.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
+  // Under film2 the examples live on the plan card (one model, PR 4): no second « Exemple — refais-le » here.
+  const depart = !film2DansCePoste() && montrerDepart({ mesAssets: decor.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
+  const decorLit = useExempleFilm("decor", geste => loadExemple(geste), () => { if (!connected) { setSheet("connect"); return true; } if (blocked) return false; setAsk(true); return true; });
 
 
 
@@ -375,9 +408,9 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     const target = gesteParId(geste);
     const first = target ? casesVisibles(target)[0] : null;
     setGesteId(geste);
-    setName(item.title);
-    setPrompt(geste === "decor-texte" ? item.prompt : "");
-    setRefs(first && geste !== "decor-texte" ? [{ id: `ref-${item.id}`, role: pair.role, caseId: first.id, name: item.title, url: assetPath(item.file), file, assetId: null }] : []);
+    setName(exampleTitle(item));
+    setPrompt(geste === "decor-texte" ? examplePrompt(item) : "");
+    setRefs(first && geste !== "decor-texte" ? [{ id: `ref-${item.id}`, role: pair.role, caseId: first.id, name: exampleTitle(item), url: assetPath(item.file), file, assetId: null }] : []);
   }
 
   async function confirm() {
@@ -408,7 +441,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
     </header>
     <div className="u-desk-scroll">
       {/* The form first, so the text and the gold button share the first screen at every size. */}
-      <div className="u-decor-form" data-decor-form="">
+      <div className="u-decor-form" data-decor-form="" data-rempli={decorLit ? "" : undefined}>
         <label className="u-field">
           <span className="u-label">{t("create.prompt")}</span>
           <textarea value={prompt} rows={2} maxLength={800} onChange={event => describe(event.target.value)} />
@@ -422,7 +455,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
           {SUGGESTIONS.map(key => <button key={key} type="button" data-suggestion={key} onClick={() => suggest(t(key))}>{t(key)}</button>)}
         </div>
       </div>
-      {depart && <ExempleDepart etape="decor" image={apres} titre={house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id)?.title} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
+      {depart && <ExempleDepart etape="decor" image={apres} titre={(found => found ? exampleTitle(found) : undefined)(house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id))} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
       <ToolShell
         stage={<ToolStage
           view="source"

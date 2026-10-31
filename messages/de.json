@@ -1848,7 +1848,19 @@
     "creditsLow": "Nicht genug Credits auf deinem Render-Konto.",
     "subscriptionInactive": "Dein Render-Abo ist inaktiv, oder die Warteschlange ist voll.",
     "pendingRunning": "Ein Render läuft noch in der Cloud: {name}. Warte, bis er fertig ist, bevor du einen neuen startest. Nichts geht verloren, nichts wird erneut gesendet.",
-    "pendingDone": "Der vorherige Render ist fertig: {name}. Speichere ihn zuerst mit Render abrufen (unter Credits), ohne neuen Versand."
+    "pendingDone": "Der vorherige Render ist fertig: {name}. Speichere ihn zuerst mit Render abrufen (unter Credits), ohne neuen Versand.",
+    "opInterrupted": "Vorgang unterbrochen.",
+    "recoverLater": "Wiederherstellung ist gerade nicht möglich.",
+    "receiptUnreadable": "Beleg nicht lesbar.",
+    "folderSyncFailed": "Die Ordner-Synchronisierung ist fehlgeschlagen. Die lokalen Daten bleiben erhalten.",
+    "importInterrupted": "Import unterbrochen. Bereits gespeicherte Dateien bleiben erhalten.",
+    "editNotSavedKeepTab": "Der Schnitt konnte nicht gespeichert werden. Lass diesen Tab offen.",
+    "editNotSaved": "Der Schnitt konnte nicht gespeichert werden.",
+    "cloudFailedShort": "Das Rendern ist in der Cloud fehlgeschlagen.",
+    "launchCancelled": "Start im Studio abgebrochen. Nichts wurde gesendet.",
+    "comfyNotConnected": "Comfy-Konto nicht verbunden.",
+    "requestRefused": "Anfrage abgelehnt.",
+    "pathRefused": "Pfad abgelehnt."
   },
   "p0": {
     "advanced": "Erweitert",
@@ -3975,7 +3987,8 @@
       "sansPrix": "noch kein Preis mit diesem Ergebnis",
       "sansPrixLong": "Für diese Einstellung gibt es noch keinen Preis: wähle eine andere Dauer oder ein anderes Ergebnis.",
       "ok": "Fertig",
-      "moteur": "Verwendetes Modell: {moteur}"
+      "moteur": "Verwendetes Modell: {moteur}",
+      "ltxApercu": "LTX 2.5 (Vorschau)"
     },
     "montage": {
       "titre": "SCHNITT",
@@ -4047,6 +4060,81 @@
       "aria": "Film: Einstellungen und Schnitt",
       "plans": "Einstellungen",
       "vide": "leer"
+    },
+    "autrePrise": "Noch ein Take",
+    "modifierRefaire": "Ändern und neu drehen",
+    "finiAutre": "Take {n} dieser Einstellung. Er ist in Meine Werke und unter „Meine Einstellungen“ im Schnitt; der Schnitt behält den ersten.",
+    "soldeApresAutre": "Guthaben danach: ≈ {n} Credits. Der Take kommt in Meine Werke und unter „Meine Einstellungen“; der Schnitt behält den ersten.",
+    "soldeInconnuAutre": "Der Take kommt in Meine Werke und unter „Meine Einstellungen“; der Schnitt behält den ersten.",
+    "exemples": {
+      "titre": "Oder starte mit einem Beispiel",
+      "liste": "{n} Beispiele, wische, um sie zu sehen",
+      "resultat": "Echtes Ergebnis des Studios",
+      "reel": "echtes Ergebnis",
+      "video": "VIDEO {s} s",
+      "image": "BILD",
+      "recetteVideo": "{n} Referenzen → 1 Video",
+      "recetteTexte": "1 Satz → 1 Bild",
+      "recettePhoto": "1 Foto → 1 Bild",
+      "sansPrix": "Preis nicht verfügbar",
+      "refaire": "Dieses Beispiel nachmachen",
+      "prepare": "Wird vorbereitet…",
+      "note": "Füllt den Plan vor deinen Augen. Nichts wird vor « Starten » gesendet.",
+      "introuvable": "Das Beispiel konnte nicht geladen werden. Versuche es noch einmal, nichts wurde gesendet.",
+      "uttuQuai": {
+        "titre": "Uttu am Kai",
+        "phrase": "Uttu geht nachts den Kai entlang, die Kamera folgt ihr."
+      },
+      "lieuPhoto": {
+        "titre": "Ein Ort aus einem Foto"
+      },
+      "persoTexte": {
+        "titre": "Eine Figur aus einem Satz",
+        "texte": "Ein alter Mann, eine erfundene Figur."
+      }
     }
+  },
+  "exampleItems": {
+    "decor-quai-nuit": {
+      "title": "Der Kai bei Nacht"
+    },
+    "decor-rue-pluie": {
+      "title": "Im Regen"
+    },
+    "decor-piece": {
+      "title": "Ein Zimmer",
+      "prompt": "Ein leeres Zimmer, weiches Licht, Parkett, niemand da."
+    },
+    "decor-toit-aube": {
+      "title": "Ein Dach im Morgengrauen"
+    },
+    "decor-gare": {
+      "title": "Eine Bahnhofshalle"
+    },
+    "decor-couloir": {
+      "title": "Ein Flur",
+      "prompt": "Ein heller Flur, lange Linien, niemand da."
+    },
+    "cast-coursiere": {
+      "title": "Die Kurierin",
+      "prompt": "Eine Kurierin, Ansichtenblatt, fiktive Figur."
+    },
+    "cast-vieil-homme": {
+      "title": "Der alte Mann",
+      "prompt": "Ein alter Mann, Ansichtenblatt, fiktive Figur."
+    },
+    "cast-dj": {
+      "title": "DJ",
+      "prompt": "Ein DJ, Ansichtenblatt, fiktive Figur."
+    }
+  },
+  "demoPrompts": {
+    "demo-coursiere": "Eine Kurierin, Ansichtsbogen, fiktive Figur.",
+    "demo-vieil-homme": "Ein alter Mann, Ansichtsbogen, fiktive Figur.",
+    "demo-dj": "Ein DJ, Ansichtsbogen, fiktive Figur.",
+    "demo-quai": "Ein Kai bei Nacht, schwarzes Wasser, ferne Lichter, menschenleer.",
+    "demo-gare": "Eine Bahnhofshalle, leer, kaltes Licht, menschenleer.",
+    "demo-pluie": "Eine Straße im Regen, verschwommene Lichter, menschenleer.",
+    "demo-toit": "Zinkdächer im Morgengrauen, goldener Dunst, menschenleer."
   }
 }

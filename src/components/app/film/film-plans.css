@@ -90,3 +90,38 @@ button.u-film-chip { cursor: pointer; }
 .u-film-opt[aria-pressed="true"] { border-color: var(--accent, #d9b15c); color: var(--accent, #d9b15c); }
 .u-film-opt:disabled { opacity: .5; cursor: not-allowed; }
 .u-film-reglages .u-film-gold { position: sticky; bottom: 0; }
+
+/* « Autre prise »: the label, then its estimate on its own line (no ragged wrap on a phone). */
+.u-film-result-actions [data-film-autre] { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.u-film-result-actions [data-film-autre] .u-film-price { font-size: 0.8em; opacity: 0.85; }
+/* Exemples (PR 4): one card per view, the next one peeks; its button shows once swiped in. */
+.u-film-exemples { display: grid; gap: 8px; }
+.u-film-ex-list { display: grid; grid-auto-flow: column; grid-auto-columns: 88%; gap: 10px; margin: 0; padding: 0 0 4px; list-style: none; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; }
+.u-film-ex-list:focus-visible { outline: 2px solid var(--accent, #d9b15c); outline-offset: 2px; }
+.u-film-ex { scroll-snap-align: start; display: grid; gap: 8px; padding: 10px; border: 1px solid var(--u-line-strong, #2a2a2e); border-radius: 14px; background: var(--u-ink, #121214); }
+.u-film-ex-media { display: grid; grid-template-columns: 64px auto minmax(0, 1fr); align-items: center; gap: 6px; }
+.u-film-ex-avant { display: grid; gap: 4px; }
+.u-film-ex-avant img { width: 100%; aspect-ratio: 1; height: auto; object-fit: cover; border-radius: 8px; }
+.u-film-ex-texte { margin: 0; padding: 6px; font-style: italic; border: 1px dashed var(--u-line-strong, #2a2a2e); border-radius: 8px; font-size: 12px; line-height: 1.35; color: var(--fg, #f4f4f5); }
+.u-film-ex-fleche { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent, #d9b15c); color: var(--on-accent, #17130a); font-size: 13px; }
+.u-film-ex-apres { position: relative; margin: 0; }
+.u-film-ex-apres video, .u-film-ex-apres img { display: block; width: 100%; aspect-ratio: 16 / 10; height: auto; object-fit: cover; border-radius: 10px; background: #000; }
+.u-film-ex-apres figcaption { position: absolute; left: 6px; bottom: 6px; padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .6); font-size: 11px; pointer-events: none; }
+.u-film-ex-badge { position: absolute; top: 6px; right: 6px; padding: 2px 8px; border: 1px solid #7aa7ff; border-radius: 6px; background: rgba(10, 16, 32, .85); color: #cfe0ff; font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.u-film-ex-badge[data-film-badge="image"] { border-color: var(--accent, #d9b15c); color: var(--accent, #d9b15c); background: rgba(20, 16, 8, .85); }
+.u-film-ex-corps { display: grid; gap: 4px; }
+.u-film-ex-corps strong { font-size: 16px; }
+.u-film-ex-corps small { color: var(--muted, #a1a1aa); font-size: 13px; }
+.u-film-ex-corps [data-film-ex-cout] { font-variant-numeric: tabular-nums; color: var(--fg, #f4f4f5); }
+.u-film-refaire { min-height: 48px; margin-top: 4px; border: 1px solid var(--accent, #d9b15c); border-radius: 12px; background: transparent; color: var(--accent, #d9b15c); font: inherit; font-weight: 700; cursor: pointer; }
+.u-film-refaire:disabled { opacity: .5; cursor: default; }
+.u-film-ex:not([data-vu]) .u-film-refaire { visibility: hidden; }
+@media (min-width: 800px) {
+  .u-film-ex { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); align-items: end; }
+}
+/* « Refaire cet exemple »: the card fills under the eyes. */
+.u-film-card[data-rempli] { animation: u-film-rempli 1.6s ease-out; }
+@keyframes u-film-rempli { 0%, 40% { box-shadow: 0 0 0 3px var(--accent, #d9b15c); border-color: var(--accent, #d9b15c); } 100% { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { .u-film-card[data-rempli] { animation: none; outline: 3px solid var(--accent, #d9b15c); } }
+.u-decor-form[data-rempli], .u-field[data-rempli] { border-radius: 12px; animation: u-film-rempli 1.6s ease-out; }
+.u-film-ex-media:has(.u-film-ex-texte) { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.3fr); }
