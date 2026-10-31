@@ -115,7 +115,8 @@ test('carte du plan : de l’accueil au POST en ≤ 3 taps et 1 champ, puis la p
   // On the cut without a tap.
   await page.locator('[data-film-montage]').click();
   await expect(page.locator('.u-chain [aria-current="page"]')).toContainText('MONTAGE');
-  await expect(page.locator('.u-chain button').nth(3)).toHaveAttribute('data-state', 'pret', { timeout: 20_000 });
+  // PR 9: two views; MONTAGE shows the length of the film once a shot is in it.
+  await expect(page.locator('[data-film-nav-to="montage"] small')).toHaveText(/\d+:\d\d/, { timeout: 20_000 });
 });
 
 for (const size of [{ width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 600 }, { width: 1280, height: 800 }]) {

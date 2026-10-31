@@ -89,6 +89,7 @@ function useCounts() {
 
 export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void }) {
   const { t } = useI18n();
+  const { film2 } = useStudio();
   const counts = useCounts();
   const total = FAMILLES.reduce((sum, fam) => sum + counts[fam], 0);
   return <aside className="u-rail" aria-label={t("nav.rail")} data-rail="">
@@ -108,7 +109,7 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
     </ul>
     <span className="u-rail-sep" aria-hidden="true" />
     <ul role="list" className="u-rail-list">
-      <li><a className="u-rail-item" href={assetPath("/studio#personnage")} data-rail-film="" aria-current={place === "realiser" || place === "montage" ? "page" : undefined} aria-label={t("entry.film")}>
+      <li><a className="u-rail-item" href={assetPath(film2 ? "/studio#prise" : "/studio#personnage")} data-rail-film="" aria-current={place === "realiser" || place === "montage" ? "page" : undefined} aria-label={t("entry.film")}>
         <FamilyIcon fam="film" /><span className="u-rail-name">{t("entry.film")}</span>
       </a></li>
       <li><a className="u-rail-item" href={assetPath("/mon-studio")} data-rail-creations="" aria-current={place === "creations" ? "page" : undefined} aria-label={t("top.creations")}>
@@ -124,10 +125,11 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
 
 export function StudioTabs({ place }: { place: Place }) {
   const { t } = useI18n();
+  const { film2 } = useStudio();
   const tabs: { id: string; href: string; label: string; full?: string; icon: Parameters<typeof FamilyIcon>[0]["fam"]; on: boolean }[] = [
     { id: "accueil", href: "/", label: t("top.home"), icon: "home", on: place === "accueil" },
     { id: "creer", href: "/studio#outils", label: t("top.create"), icon: "creer", on: place === "creer" },
-    { id: "film", href: "/studio#personnage", label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" },
+    { id: "film", href: film2 ? "/studio#prise" : "/studio#personnage", label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" },
     { id: "creations", href: "/mon-studio", label: t("top.creationsShort"), full: t("top.creations"), icon: "creations", on: place === "creations" },
   ];
   return <nav className="u-tabs" aria-label={t("top.nav")} data-tabs="">
