@@ -5,13 +5,11 @@ import { liftDelta, openBand } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
 import { chooseEdit, editHasClips } from "@/lib/montage/from-takes";
 import { formatClock, videoDuration } from "@/lib/montage/edit";
-import { priseReady } from "@/lib/stage";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { useI18n } from "@/components/i18n/provider";
-import { MontageStage } from "./montage-stage";
 import { FilmMontage } from "./film/film-montage";
 import { FormatProvider } from "./format-switch";
-import { CastStage, DecorStage, PriseStage } from "./stage-screens";
+import { CastStage, DecorStage } from "./stage-screens";
 import { outilFromHash, OutilsHub } from "./outils-hub";
 import { StoryboardEntry } from "../storyboard/storyboard-entry";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
@@ -22,13 +20,13 @@ import { StudioSplash } from "./splash";
 import { BOOT_MARKS } from "@/lib/studio-boot";
 import { TopBar } from "./top-bar";
 import { AssistantPanel, toggleAssistant } from "./assistant-panel";
-import { film2DansCePoste } from "@/lib/film/drapeau";
 import { FilmPlans } from "./film/film-plans";
 
 function stageOf(tab: Tab): "lora" | "scene" | "prise" | "montage" | "outils" {
   return tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
 }
 
+/** The film in creation order: CAST · DÉCOR · PRISE · MONTAGE. */
 const STEPS: { id: "lora" | "scene" | "prise" | "montage"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" }[] = [
   { id: "lora", key: "nav.character" },
   { id: "scene", key: "nav.scene" },
@@ -45,14 +43,11 @@ const TYPING = "textarea, select, input:not([type=checkbox]):not([type=radio]):n
 function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
   const { t, say } = useI18n();
-  const { ready, sheet, notice, setNotice, run, cast, decor, line, loadMontages, studio: vault } = studio;
+  const { ready, sheet, notice, setNotice, run, cast, decor, loadMontages, studio: vault } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
   const [cutReady, setCutReady] = useState<boolean | null>(null);
   const [cutLength, setCutLength] = useState(0);
   const [outil, setOutil] = useState<string | null>(null);
-  // Refonte FILM (?film2=1): PRISE becomes the plan card. Read after mount, the server HTML stays the same.
-  const [film2, setFilm2] = useState(false);
-  useEffect(() => { setFilm2(film2DansCePoste()); }, []);
 
   useEffect(() => {
     const apply = () => {
@@ -78,7 +73,6 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
 
   const castOk = cast.some(card => Boolean(card.sheet || card.preview || card.photos.length));
   const decorOk = decor.some(card => Boolean(card.sheet || card.preview || card.geste === "repere"));
-  const priseOk = vault.takes.length > 0 || vault.shots.some(shot => Boolean(shot.composeur)) || priseReady({ cast: castOk, decor: decorOk, line });
   const tab: Tab = asked ?? "outils";
   const section: "lora" | "scene" | "prise" | "montage" | "outils" = tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
 
@@ -189,23 +183,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     return () => { gone = true; };
   }, [ready, montageKey, loadMontages, vault.sequences, vault.shots, vault.takes]);
 
-  const marks: Record<"lora" | "scene" | "prise" | "montage", boolean> = {
-    lora: castOk,
-    scene: decorOk,
-    prise: priseOk,
-    montage: cutReady === true,
-  };
-
-  return <FormatProvider><div className="u-app" data-studio={section} data-film2={film2 && section !== "outils" ? "" : undefined}>
+  return <FormatProvider><div className="u-app" data-studio={section} >
     <TopBar place={section === "montage" ? "montage" : section === "outils" ? "creer" : "realiser"} />
-    {section !== "outils" && film2 && <FilmNav lit={lit} running={run.phase === "running"} montage={cutReady === true ? formatClock(cutLength) : null} go={go} />}
-    {section !== "outils" && !film2 && <nav className="u-chain" aria-label={t("nav.chain")}>
-      {STEPS.map(step => <button key={step.id} type="button" aria-current={lit === step.id ? "page" : undefined} data-state={marks[step.id] ? "pret" : "vide"} onClick={() => go(step.id)}>
-        <span>{t(step.key)}</span>
-        <small>{marks[step.id] ? t("stage.ready") : t("stage.empty")}</small>
-        {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
-      </button>)}
-    </nav>}
+    {section !== "outils" && <FilmNav lit={lit} running={run.phase === "running"} cast={castOk} decor={decorOk} montage={cutReady === true ? formatClock(cutLength) : null} go={go} />}
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready || switching} data-switching={switching ? "" : undefined}>
       {ready && <RenduSuivi />}
       {/* F14 · The home (title, bar, the film door with the LCP picture) is in the server HTML and does
@@ -214,10 +194,8 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       {section === "outils" && (ready || !outil) ? <OutilsHub tool={outil} early={!ready} />
         : !ready ? <StudioSplash />
         : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
-        : section === "prise" ? (film2
-          ? <FilmPlans goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
-          : <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />)
-        : section === "montage" ? (film2 ? <FilmMontage onFilled={setCutReady} onPlans={() => go("prise")} /> : <MontageStage onFilled={setCutReady} />)
+        : section === "prise" ? <FilmPlans goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
+        : section === "montage" ? <FilmMontage onFilled={setCutReady} onPlans={() => go("prise")} />
         : <CastStage onDecor={() => go("scene")} />}
       {/* Shown instead of the home only when the address already asks for a stage (see STUDIO_BOOT). */}
       {!ready && section === "outils" && !outil && <StudioSplash early />}
@@ -232,17 +210,21 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   </div></FormatProvider>;
 }
 
-/** Refonte FILM (PR 9, F9): two views only, PRISE (the plans) | MONTAGE. CAST and DÉCOR keep their titles
-    as libraries, opened from Qui and Où or from the menu. */
-function FilmNav({ lit, running, montage, go }: { lit: string; running: boolean; montage: string | null; go(tab: "prise" | "montage"): void }) {
+/** The film bar: four tabs in creation order, CAST · DÉCOR · PRISE · MONTAGE, each with its status.
+    CAST and DÉCOR open their libraries, PRISE the plans, MONTAGE the cut. */
+function FilmNav({ lit, running, cast, decor, montage, go }: { lit: string; running: boolean; cast: boolean; decor: boolean; montage: string | null; go(tab: Tab): void }) {
   const { t } = useI18n();
-  return <nav className="u-chain u-film-nav" aria-label={t("film2.nav.aria")} data-film-nav="">
-    <button type="button" aria-current={lit === "prise" ? "page" : undefined} data-film-nav-to="prise" onClick={() => go("prise")}>
-      <span>{t("nav.take")}</span><small>{t("film2.nav.plans")}</small>
-      {running && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
-    </button>
-    <button type="button" aria-current={lit === "montage" ? "page" : undefined} data-film-nav-to="montage" onClick={() => go("montage")}>
-      <span>{t("nav.edit")}</span><small>{montage ?? t("film2.nav.vide")}</small>
-    </button>
+  const status: Record<(typeof STEPS)[number]["id"], string> = {
+    lora: cast ? t("stage.ready") : t("film2.nav.vide"),
+    scene: decor ? t("stage.ready") : t("film2.nav.vide"),
+    prise: t("film2.nav.plans"),
+    montage: montage ?? t("film2.nav.vide"),
+  };
+  const filled = { lora: cast, scene: decor, prise: true, montage: montage !== null };
+  return <nav className="u-chain u-film-nav" aria-label={t("nav.chain")} data-film-nav="">
+    {STEPS.map(step => <button key={step.id} type="button" aria-current={lit === step.id ? "page" : undefined} data-film-nav-to={step.id} data-state={filled[step.id] ? "pret" : "vide"} onClick={() => go(step.id)}>
+      <span>{t(step.key)}</span><small>{status[step.id]}</small>
+      {step.id === "prise" && running && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
+    </button>)}
   </nav>;
 }
