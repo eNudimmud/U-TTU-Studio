@@ -1,7 +1,7 @@
 "use client";
 
-// SB9 · The studio's door to /storyboard, shown on the studio home only when the storyboard flag is on
-// in this browser (`?storyboard=1`). Off: nothing is rendered and no storyboard catalog is loaded.
+// SB9 · The studio's door to /storyboard, on the studio home for everyone (SB11). Switched off in this
+// browser (`?storyboard=0`): nothing is rendered and no storyboard catalog is loaded.
 
 import { NextIntlClientProvider, useMessages, type AbstractIntlMessages } from "next-intl";
 import { useEffect, useState } from "react";

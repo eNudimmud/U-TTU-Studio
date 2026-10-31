@@ -39,7 +39,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const [settings, setSettings] = useState<BubbleSettings>(BUBBLE_DEFAULTS);
   const [menu, setMenu] = useState(false), [settingsOpen, setSettingsOpen] = useState(false), [sheet, setSheet] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [loadedFor, setLoadedFor] = useState<string | null>(null);
-  // Storyboard (behind ?storyboard=1): the bubble's idea opens /storyboard, written there, nothing rendered.
+  // Storyboard (open to all; ?storyboard=0 hides it): the bubble's idea opens /storyboard, written there, nothing rendered.
   const [storyboard, setStoryboard] = useState(false);
   useEffect(() => { setStoryboard(storyboardDansCePoste()); }, []);
   const inputId = useId(), menuId = useId(), routeId = useId(), attachmentsId = useId();

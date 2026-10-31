@@ -106,13 +106,14 @@ test("filters: in progress, filmed, archived", () => {
   assert.deepEqual(filtrer([a, b], "tournes", null), []);
 });
 
-test("the flag: ?storyboard=1 turns it on and stays on this device, ?storyboard=0 turns it off", () => {
-  assert.equal(storyboardActif("", null), false);
-  assert.equal(storyboardActif("?storyboard=1", null), true);
+test("open to everyone (SB11): on by default, ?storyboard=0 turns it off for this device, ?storyboard=1 back on", () => {
+  assert.equal(storyboardActif("", null), true);
   assert.equal(storyboardActif("", "1"), true);
-  assert.equal(storyboardActif("?storyboard=0", "1"), false);
-  assert.equal(lireCookie(`a=b; ${STORYBOARD_COOKIE}=1`), "1");
-  assert.match(cookieDemande("?storyboard=1") ?? "", new RegExp(`^${STORYBOARD_COOKIE}=1`));
-  assert.match(cookieDemande("?storyboard=0") ?? "", /Max-Age=0/i);
+  assert.equal(storyboardActif("?storyboard=0", null), false);
+  assert.equal(storyboardActif("", "0"), false);
+  assert.equal(storyboardActif("?storyboard=1", "0"), true);
+  assert.equal(lireCookie(`a=b; ${STORYBOARD_COOKIE}=0`), "0");
+  assert.match(cookieDemande("?storyboard=0") ?? "", new RegExp(`^${STORYBOARD_COOKIE}=0`));
+  assert.match(cookieDemande("?storyboard=1") ?? "", /Max-Age=0/i);
   assert.equal(cookieDemande("?x=1"), null);
 });
