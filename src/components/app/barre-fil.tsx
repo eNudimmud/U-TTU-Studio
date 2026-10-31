@@ -30,6 +30,7 @@ import { fillBarre } from "./creation-bar";
 import { toggleAssistant } from "./assistant-panel";
 import { MontageButton } from "./montage-button";
 import { useStudio, type MontageInput } from "./studio-session";
+import { pictureIsSheet, withoutSheets } from '@/lib/creation/sheet';
 import { bubbleImageEngine, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, chipReference, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
 import { ReferenceLibrary } from './reference-library';
 import { readPending } from '@/lib/render/recovery';
@@ -189,9 +190,13 @@ export function useFil(): FilRunner {
       // Image creation sends every saved photo of each chip as its own reference (never the chip's contact sheet).
       const sent = job.route.images;
       const chips = sent.map(r => chipReference(r, p => Boolean(media[p])));
-      const slots = job.route.creation?.mode === 'image' ? bubbleReferenceSlots(chips) : sent.map((c, ref) => ({ ref, picture: c.path || c.src || '' }));
-      if (!slots) { patch({ status: "error", message: t("bubble.tooManyRefs") }); return; }
-      const images = await Promise.all(slots.map(({ ref, picture }) => { const chip = sent[ref]; return sourceFile(media[picture] || (picture === chip.path || picture === chip.src ? (chip.path ? media[chip.path] : '') || chip.src : '') || "", chip.name, "image"); }));
+      const planned = job.route.creation?.mode === 'image' ? bubbleReferenceSlots(chips) : sent.map((c, ref) => ({ ref, picture: c.path || c.src || '' }));
+      if (!planned) { patch({ status: "error", message: t("bubble.tooManyRefs") }); return; }
+      const read = await Promise.all(planned.map(({ ref, picture }) => { const chip = sent[ref]; return sourceFile(media[picture] || (picture === chip.path || picture === chip.src ? (chip.path ? media[chip.path] : '') || chip.src : '') || "", chip.name, "image"); }));
+      // A multi-panel board is pasted into the scene as the place: drop it when its chip has a clean picture.
+      const boards = job.route.creation?.mode === 'image' ? await Promise.all(read.map(pictureIsSheet)) : read.map(() => false);
+      const slots = withoutSheets(planned.map((s, i) => ({ ...s, i })), boards);
+      const images = slots.map(s => read[s.i]);
       const audio = job.route.audio ? await sourceFile((job.route.audio.path ? media[job.route.audio.path] : '') || job.route.audio.src, job.route.audio.name, 'audio') : undefined;
       const single = job.route.images.length === 1 ? job.route.images[0].path : undefined;
       const result = await runOutil({
