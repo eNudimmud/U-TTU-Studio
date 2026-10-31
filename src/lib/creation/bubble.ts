@@ -314,6 +314,26 @@ export function nanoBubbleNodes(input: { settings: BubbleSettings; images: reado
   graph.save = { class_type: 'SaveImage', inputs: { images: ['nano', 0], filename_prefix: 'uttu/creation-image' } };
   return graph;
 }
+/**
+ * JD 31.10.2026: three Klein runs (seeds 1406790374, 96585588, 2049149149; greedy then sampled caption) drew the
+ * same staging, same placement and stance, although the init latent is empty and no earlier result is loaded.
+ * The only constants are the references and the request, so the model falls into its own default staging.
+ * Each run therefore gets one generic staging, picked by its seed, that the request always overrides.
+ */
+export const BUBBLE_STAGINGS = [
+  'a wide shot, the characters small on the left third of the frame, the setting filling the rest',
+  'a medium shot from a low angle, the characters on the right side of the frame',
+  'a view from behind one character\'s shoulder, looking past them at the others',
+  'a high angle looking down, the characters apart from each other across the frame',
+  'a medium shot, the characters face to face, seen in profile',
+  'a diagonal composition, one character close in the foreground, the others further back',
+  'a wide side view, the characters caught in mid-motion, moving across the frame',
+  'an eye-level shot, the characters side by side, each doing something different',
+] as const;
+export function bubbleStaging(seed: number): string {
+  const i = Number.isSafeInteger(seed) && seed >= 0 ? seed % BUBBLE_STAGINGS.length : 0;
+  return `Staging for this picture, unless the request says otherwise: ${BUBBLE_STAGINGS[i]}. Pose every character for this staging and the action.`;
+}
 /** Qwen Image 2.1 reads each reference at about `side`×`side`: the same area per picture as Klein. */
 export function qwenReferenceSide(count: number): number {
   return Math.max(512, Math.round(Math.sqrt(bubbleReferenceMegapixels(count)) * 1024 / 32) * 32);
@@ -361,7 +381,7 @@ export function bubbleGraph(input: { mode: BubbleMode; settings: BubbleSettings;
     const links: [string, number][] = images.map((image, i) => {
       const id = `reference_${i + 1}`; graph[id] = { class_type: 'LoadImage', inputs: { image } }; return [id, 0];
     });
-    Object.assign(graph, kleinNodes({ prefix: 'image_', prompt: input.prompt, seed: input.seed, aspect: s.format, images: links, megapixels: size.megapixels, referenceMegapixels: bubbleReferenceMegapixels(images.length), upsample: images.length > 0, referenceLimit: 7, cfg: KLEIN_BASE_CFG }));
+    Object.assign(graph, kleinNodes({ prefix: 'image_', prompt: images.length ? `${input.prompt}\n${bubbleStaging(input.seed)}` : input.prompt, seed: input.seed, aspect: s.format, images: links, megapixels: size.megapixels, referenceMegapixels: bubbleReferenceMegapixels(images.length), upsample: images.length > 0, referenceLimit: 7, cfg: KLEIN_BASE_CFG }));
     // ReferenceMultiLatent's default output canvas follows reference 1. Use the same official
     // EmptyFlux2LatentImage as t2i so the selected frame also applies to reference edits.
     graph.canvas = { class_type: 'EmptyFlux2LatentImage', inputs: { width: size.width, height: size.height, batch_size: 1 } };

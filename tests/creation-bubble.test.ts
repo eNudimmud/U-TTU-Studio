@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { BUBBLE_DEFAULTS, bubbleGraph, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, bubbleResolutionLabel, bubbleSize, bubbleStyle, chipReference } from '../src/lib/creation/bubble.ts';
+import { BUBBLE_DEFAULTS, bubbleGraph, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, bubbleResolutionLabel, bubbleSize, bubbleStaging, bubbleStyle, chipReference } from '../src/lib/creation/bubble.ts';
 import { insertMention, mentionedReferences, opensPicker, removeMention } from '../src/lib/creation/mentions.ts';
 import { fileLikeName, namedReferenceNote, pickerReferences, readNamedReferences, referenceFromNote, type NamedReference } from '../src/lib/creation/named-references.ts';
 import { importMedia } from '../src/lib/creation/import-media.ts';
@@ -63,7 +63,7 @@ test('JD 2026-10-30: an image with a cast sheet and two loose photos is ≥ 1 MP
   assert.equal(graph.image_17.inputs['resolution.megapixels'],1);
   assert.equal(graph.image_51.inputs.switch,false,'the template’s vision upsampler describes each picture by ordinal');
   for(let i=0;i<3;i++)assert.deepEqual(graph.image_17.inputs[`images.image${i}`],[`reference_${i+1}`,0]);
-  assert.equal(graph.image_61.inputs.value,prompt);
+  assert.equal(graph.image_61.inputs.value,`${prompt}\n${bubbleStaging(graph.image_7.inputs.seed as number)}`,'the request, then this run\'s staging');
   assert.match(prompt,/Style: a real photograph/,'« une photo » is honoured');
   assert.equal(graph.image_7.inputs.cfg,3.5,'the base Klein checkpoint needs guidance; cfg 1 (left over from the distilled template) melts anatomy');
   assert.equal(graph.image_7.inputs.steps,50);
@@ -348,6 +348,17 @@ test('JD 2026-10-31 night: open weights only. The bubble never offers or points 
   assert.deepEqual([q7.credits,q7.high,q7.kind],[6,12,'estime']);
   assert.equal(q1.credits,3,'above the 2.01 measured for one reference (2ac9e65b)');
   // Klein keeps its path and also hears the pose rule (its upsampler reads the request).
+  // JD 31.10.2026: same staging on every Klein run with nothing fixed but refs + text: each seed gets its own staging.
+  const { BUBBLE_STAGINGS } = await import('../src/lib/creation/bubble.ts');
+  const kp=bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'klein');
+  const k=(seed:number)=>String(bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:slots.map(s=>s.picture),prompt:kp,seed,engine:'klein'}).image_61.inputs.value);
+  assert.ok(k(1406790374).startsWith(kp)&&k(1406790374).endsWith(bubbleStaging(1406790374)),'the request comes first, the staging after');
+  assert.notEqual(bubbleStaging(1406790374),bubbleStaging(96585588));assert.notEqual(bubbleStaging(96585588),bubbleStaging(2049149149));
+  assert.equal(new Set(Array.from({length:BUBBLE_STAGINGS.length},(_,i)=>bubbleStaging(i))).size,BUBBLE_STAGINGS.length);
+  assert.match(bubbleStaging(5),/unless the request says otherwise/);
+  assert.doesNotMatch(BUBBLE_STAGINGS.join(' '),/Sujet|Lieu|Enki|Fizz|Uttu/,'generic, no name');
+  assert.equal(String(bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:[],prompt:'x',seed:3,engine:'klein'})['image_18:61']?.inputs.value ?? 'x'),'x','text-only stills are untouched');
+  assert.ok(!String(graph['459:474'].inputs.prompt).includes('Staging for this picture'),'Qwen is untouched');
   const { NANO_SYSTEM_PROMPT } = await import('../src/lib/creation/bubble.ts');
   const { KLEIN_EDIT_BASE } = await import('../src/lib/render/klein-base.ts');
   for(const engine of ['klein','qwen','nano'] as const) assert.doesNotMatch(bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,engine)+NANO_SYSTEM_PROMPT,/\bstands?\b/i,`${engine}: no word imposes a standing pose`);
