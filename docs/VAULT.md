@@ -22,6 +22,7 @@ U-TTU-Studio/
     Sequences/<id>.md            la séquence, ses prises, le raccord
     Sequences/<id>-montage.md    la liste de montage, type sequence, gesture montage : plans, voix, effets, musique. Le MP4 reste sur l’appareil.
     Shots/  Prompts/
+    Storyboard/<id>.md           un storyboard lisible : séquences, plans, refs, répliques, devis
     Templates/modele-personnage.md  modele-scene.md  modele-prise.md  modele-sequence.md  modele-shot.md
     Moteurs/                     fiches Relier → Lancer, sans graphe
     Assets/                      poids .safetensors et clips
@@ -29,9 +30,10 @@ U-TTU-Studio/
     .uttu/clips.json             durée et taille de chaque clip
     .uttu/role.json              le brouillon de personnage
     .uttu/devis.json             devis mesuré : la baisse entre deux soldes
+    .uttu/sb-<id>.json           le storyboard structuré (la vérité ; le .md en est la vue)
 ```
 
-Les fiches sont du Markdown avec frontmatter : `type`, `projet`, `statut`, `updated`, et `moteur` (`comfy` ou `demo`) plus `gesture` quand le geste existe. Une prise garde aussi `lora`, `resolution`, `cout_usd`, `cout_source`. Une fiche de fichier porte `declencheur`, `fichier`, `sha256`, `pas`, `rang`, `entraineur`, `requete`. Les images et la vidéo sont liées en `![[…]]`. `MOC.md` liste les projets. `_MOC.md` relie le personnage, les lieux, les prises, la bible et le journal de ce projet. Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
+Les fiches sont du Markdown avec frontmatter : `type`, `projet`, `statut`, `updated`, et `moteur` (`comfy` ou `demo`) plus `gesture` quand le geste existe. Une prise garde aussi `lora`, `resolution`, `cout_usd`, `cout_source`. Une fiche de fichier porte `declencheur`, `fichier`, `sha256`, `pas`, `rang`, `entraineur`, `requete`. Les images et la vidéo sont liées en `![[…]]`. `MOC.md` liste les projets. `_MOC.md` relie le personnage, les lieux, les prises, les storyboards (dès qu’il y en a un), la bible et le journal de ce projet. Voir [STORYBOARD.md](STORYBOARD.md). Aucun plugin Obsidian n’est requis. Le code : [`src/lib/coffre/`](../src/lib/coffre/).
 
 Un ZIP ancien (`CANON.md`, `scenes/`, `prises/`, `loras/`) est rangé dans un projet à l’import. Un fichier déjà présent n’est pas écrasé.
 

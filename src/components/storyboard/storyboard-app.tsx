@@ -18,7 +18,7 @@ export function StoryboardApp({ id, print }: { id: string | null; print: boolean
   const { locale } = useLocaleSwitch();
   const base = useMessages();
   const [extra, setExtra] = useState<{ locale: string; messages: AbstractIntlMessages } | null>(null);
-  // An explicit ?storyboard=1 is kept for this browser, like the studio's other flags.
+  // An explicit ?storyboard=0 / =1 is kept for this browser, like the studio's other flags.
   useEffect(() => { storyboardDansCePoste(); }, []);
   useEffect(() => {
     let gone = false;
