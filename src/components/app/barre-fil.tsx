@@ -30,7 +30,7 @@ import { fillBarre } from "./creation-bar";
 import { toggleAssistant } from "./assistant-panel";
 import { MontageButton } from "./montage-button";
 import { useStudio, type MontageInput } from "./studio-session";
-import { bubblePrompt, bubbleQuote, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
+import { bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, chipReference, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
 import { ReferenceLibrary } from './reference-library';
 import { readPending } from '@/lib/render/recovery';
 
@@ -114,10 +114,10 @@ export function useFil(): FilRunner {
   }, [ready, connected, interrupted, scope, session.resumeRun]);
 
   const quoteOf = useCallback((route: FilRoute): number | null => {
-    if (route.kind === 'outil' && route.creation) return bubbleQuote(route.creation.mode, route.images.length, route.creation.settings, Boolean(route.audio))?.credits ?? null;
+    if (route.kind === 'outil' && route.creation) return bubbleQuote(route.creation.mode, bubblePictureCount(route.creation.mode, route.images.map(r => chipReference(r, p => Boolean(media[p])))), route.creation.settings, Boolean(route.audio))?.credits ?? null;
     if (route.kind === "outil") { const outil = outilParId(route.id); return outil ? outilQuote(outil)?.credits ?? null : null; }
     return quoteCredits(resolveTakeQuote(takeProfile(priseSettings(route.settings, prefs.engineManual ? prefs.engine : "ltx")), quotesToRecords(studio.quotes)));
-  }, [prefs.engine, prefs.engineManual, studio.quotes]);
+  }, [media, prefs.engine, prefs.engineManual, studio.quotes]);
 
   const startPrise = useCallback(async (job: FilJob) => {
     if (job.route.kind !== "prise") return;
@@ -183,13 +183,18 @@ export function useFil(): FilRunner {
     if (!outil || outilEtat(outil, prefs).kind !== "pret") { patch({ status: "error", message: t("barre.fil.toolClosed") }); return; }
     patch({ status: "running", stage: "envoi", message: undefined });
     try {
-      const images = await Promise.all(job.route.images.map(ref => sourceFile((ref.path ? media[ref.path] : '') || ref.src || "", ref.name, "image")));
+      // Image creation sends every saved photo of each chip as its own reference (never the chip's contact sheet).
+      const sent = job.route.images;
+      const chips = sent.map(r => chipReference(r, p => Boolean(media[p])));
+      const slots = job.route.creation?.mode === 'image' ? bubbleReferenceSlots(chips) : sent.map((c, ref) => ({ ref, picture: c.path || c.src || '' }));
+      if (!slots) { patch({ status: "error", message: t("bubble.tooManyRefs") }); return; }
+      const images = await Promise.all(slots.map(({ ref, picture }) => { const chip = sent[ref]; return sourceFile(media[picture] || (picture === chip.path || picture === chip.src ? (chip.path ? media[chip.path] : '') || chip.src : '') || "", chip.name, "image"); }));
       const audio = job.route.audio ? await sourceFile((job.route.audio.path ? media[job.route.audio.path] : '') || job.route.audio.src, job.route.audio.name, 'audio') : undefined;
       const single = job.route.images.length === 1 ? job.route.images[0].path : undefined;
       const result = await runOutil({
         outil: outil.id, images, audio, creation: job.route.creation,
-        originRefs: job.route.creation ? [...job.route.images.flatMap(r => r.path ? [r.path] : []), ...(job.route.audio?.path ? [job.route.audio.path] : [])] : undefined,
-        prompt: job.route.creation ? bubblePrompt(job.text, job.route.images.map(r => ({ name: r.name, description: r.description, category: r.kind })), job.route.creation.mode) : job.text, confirmed: true, from: job.route.creation ? undefined : single,
+        originRefs: job.route.creation ? [...new Set([...job.route.images.flatMap(r => r.path ? [r.path] : []), ...slots.flatMap(s => s.picture.startsWith('Projets/') ? [s.picture] : []), ...(job.route.audio?.path ? [job.route.audio.path] : [])])] : undefined,
+        prompt: job.route.creation ? bubblePrompt(job.text, chips, job.route.creation.mode, slots) : job.text, confirmed: true, from: job.route.creation ? undefined : single,
         onSubmitted: receipt => { project = receipt.project; patch({ jobId: receipt.jobId, renderId: receipt.assetId, project: receipt.project }); },
         onCost: cost => patch({ cost }),
         onStage: (stage, seconds) => { if (stage !== "mesure") patch({ stage, seconds }); },
