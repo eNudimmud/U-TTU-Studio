@@ -49,7 +49,7 @@ test('idea → saved board → shot sheet → one confirmation; four sizes', asy
   const count = await shots.count();
   expect(count).toBeGreaterThanOrEqual(3);
   // Every shot written has a quote: the dock offers the whole board, priced.
-  await expect(page.locator('[data-sb-film-all]')).toContainText(/≈ [\d,]+ crédits estimés/);
+  await expect(page.locator('[data-sb-film-all]')).toContainText(/≈ [\d.,]+ (crédits estimés|credits estimated)/);
   await expect(page.locator('[data-sb-no-quote]')).toHaveCount(0);
   // The quoted words of the idea become a line, shown quoted on the board.
   await expect(page.locator('[data-sb-line]').first()).toContainText('On y est presque.');
@@ -86,12 +86,12 @@ test('idea → saved board → shot sheet → one confirmation; four sizes', asy
     await expect(sheet).toBeVisible();
     await snap('03-sheet');
     await targets44(page);
-    await expect(page.locator('[data-sb-sheet-film]')).toContainText(/≈ [\d,]+/);
+    await expect(page.locator('[data-sb-sheet-film]')).toContainText(/≈ [\d.,]+/);
     await page.locator('[data-sb-sheet-film]').click();
     const confirm = page.locator('[data-sb-confirm]');
     await expect(confirm).toBeVisible();
-    await expect(confirm.locator('[data-sb-total]')).toContainText(/≈ [\d,]+ crédits estimés/);
-    await expect(confirm).not.toContainText(/gratuit/i);
+    await expect(confirm.locator('[data-sb-total]')).toContainText(/≈ [\d.,]+ (crédits estimés|credits estimated)/);
+    await expect(confirm).not.toContainText(/gratuit|\bfree\b|kostenlos|gratis/i);
     await snap('05-confirm');
     await confirm.locator('[data-sb-cancel]').click();
     await expect(confirm).toHaveCount(0);
