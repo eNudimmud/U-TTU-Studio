@@ -272,7 +272,7 @@ test('JD 2026-10-31: with references, the image bubble composes on Nano Banana 2
 
 test('JD 2026-10-31 evening: the Klein still with 7 pictures is quoted at the 14 credits it cost twice, and every run gets its own caption', async () => {
   const { UPSAMPLER_TOP_K } = await import('../src/lib/render/klein-graph.ts');
-  // Job 96b0a72b and the next test: 1344×768 + 7 pictures + upsampler at cfg 3.5 = 50.9 GPU s = 14 credits.
+  // Job 96b0a72b (50.9 GPU s) and the next test: 1344×768 + 7 pictures + upsampler at cfg 3.5 = 14 credits each.
   assert.equal(bubbleQuote('image',7,BUBBLE_DEFAULTS)!.credits,14);
   assert.equal(bubbleQuote('image',3,BUBBLE_DEFAULTS)!.credits,11,'3 pictures stay at the measured 10.5 (fef595a7)');
   // Before: the upsampler decoded greedily (top_k 1, seed 0), so the same pictures always gave the same

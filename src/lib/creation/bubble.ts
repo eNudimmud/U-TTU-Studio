@@ -68,7 +68,7 @@ const IMAGE_CREDITS_PER_MP = 1.4, IMAGE_EDIT_CREDITS_PER_MP = 2.4, UPSAMPLER_CRE
 /**
  * Past three pictures the area stays 3 MP, but each extra picture still costs: the upsampler reads it and
  * the sampler attends to its tokens. Measured: 3 refs = 38.5 GPU s ≈ 10.5 credits (fef595a7); 7 refs =
- * 50.9 GPU s = 14 credits, twice (job 96b0a72b, then JD's 31.10 evening test). (14 − 10.5) / 4 ≈ 0.85.
+ * 14 credits, twice (job 96b0a72b, 50.9 GPU s; then JD's 31.10 evening test). (14 − 10.5) / 4 ≈ 0.85.
  */
 const EXTRA_REFERENCE_CREDITS = 0.85;
 export function bubbleQuote(mode: BubbleMode, count: number, s: BubbleSettings, audio = false, engine: BubbleImageEngine | null = null) {
