@@ -143,6 +143,11 @@ export function planUpload(facts: MediaFacts, need: UploadNeed, mode: UploadMode
 
 const baseName = (name: string, fallback: string) => name.replace(/\.[a-z0-9]+$/i, "") || fallback;
 
+/** Size, length and frame rate of a video, read locally (nothing is sent). Null when unreadable. */
+export async function videoFacts(file: Blob): Promise<MediaFacts | null> {
+  try { return await probe(file, "video"); } catch { return null; }
+}
+
 async function probe(file: Blob, kind: UploadNeed["kind"]): Promise<MediaFacts> {
   const facts: MediaFacts = { bytes: file.size, type: file.type };
   if (kind === "image") {

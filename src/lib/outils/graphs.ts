@@ -9,6 +9,7 @@ import { takeGraphFor } from "../render/run.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import { isVideoGeste, videoGesteGraph } from "../render/video-gestes.ts";
 import { isSuiteGeste, suiteGraph, type Elargir } from "../suite/graphs.ts";
+import { finaliserVideoCredits, type FinaliserSource } from "../suite/quote.ts";
 import { gesteParId } from "../workflows/registre.ts";
 import { isCadre } from "./cadre.ts";
 import { outilRow, type Outil } from "./catalogue.ts";
@@ -107,7 +108,7 @@ export interface OutilQuote {
 const round1 = (value: number) => Math.round(value * 10) / 10;
 
 /** Estimated from the registry row. Per-length tools count each started block of five seconds. */
-export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso"; resolution?: GenjutsuResolution; doublage?: Partial<VeedChoix> } = {}): OutilQuote | null {
+export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso"; resolution?: GenjutsuResolution; doublage?: Partial<VeedChoix>; source?: FinaliserSource } = {}): OutilQuote | null {
   if (outil.template === GENJUTSU_TEMPLATE) return genjutsuQuote(options.seconds, options.resolution);
   if (outil.template === VEED_TEMPLATE) return veedQuote(options.seconds, options.doublage?.tier);
   const row = outil.moteur?.kind === "mesh" ? gesteParId(MESH_GESTE[options.mesh ?? "objet"]) : outilRow(outil);
@@ -122,6 +123,8 @@ export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier
   const blocks = outil.parTranche ? Math.max(1, Math.ceil(Math.max(0, seconds - 0.25) / OUTIL_SECONDS - 1e-9)) : 1;
   let credits = row.credits * blocks;
   let high = row.high * blocks;
+  // Agrandir une vidéo: priced on the clip's real frames and output size, not a flat block.
+  if (outil.id === "vid-finaliser") ({ credits, high } = finaliserVideoCredits(seconds, options.source));
   if (outil.id === "vid-finaliser" && options.fluidifier) {
     const extra = gesteParId("suite-fluidifier");
     if (!extra || extra.credits === null || extra.high === null) return null;

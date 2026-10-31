@@ -353,6 +353,8 @@ export interface OutilRun {
   camera?: import("@/lib/outils/generique").OutilCamera;
   piste?: import("@/lib/outils/generique").OutilPiste;
   doublage?: import("@/lib/outils/veed").VeedChoix;
+  /** Agrandir une vidéo: the clip's size and frame rate, so the gate uses the same quote as the card. */
+  source?: import("@/lib/suite/quote").FinaliserSource;
   /** The visitor may use the voice they upload. */
   consent?: boolean;
   from?: string;
@@ -1370,7 +1372,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (!source) return { ok: false, message: t("videoGeste.needFiles") };
       return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage, onCost: input.onCost });
     }
-    const quote = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio)) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage });
+    const quote = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio)) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage, source: input.source });
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
     if (outil.texte === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
     if (outil.entrees.includes("image") && !input.images[0]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };

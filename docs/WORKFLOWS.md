@@ -94,7 +94,7 @@ Menu « Et ensuite ? » sur un asset (panneau de détail de Mes créations) et s
 | suite-detourer | Détourer (PNG transparent ; SaveImage ajouté au template) | `utility_birefnet_remove_background` | 1 / 1, mesuré | ouvert, open weights |
 | suite-elargir | Élargir le cadre (Flux.2 Klein 9B) | `templates_doc_workbox_klein_9b_image_extend` | 5 / 8, mesuré | ouvert, open weights |
 | suite-animer | Animer une image (5 s) | `video_minimax_h3_i2v` | 4 / 8, estimé | ouvert, open weights |
-| suite-finaliser-video | Finaliser une prise ou le montage (1080p, + fluidifier en option) | `utility_seedvr2_3b_int8_upscale_video` | 28 / 42 par 5 s, mesuré | ouvert, open weights |
+| suite-finaliser-video | Finaliser une prise ou le montage (1080p, + fluidifier en option) | `utility_seedvr2_3b_int8_upscale_video` | ≈ 0,167 × images × Mpx de sortie (42 / 63 pour 5 s à 24 fps en 1080p), mesuré | ouvert, open weights |
 | suite-fluidifier | Fluidifier (images intermédiaires ×2) | `utility_video_frame_interpolation` | 2 / 4 par 5 s, mesuré | ouvert, open weights |
 | suite-prolonger | Prolonger (depuis la dernière image, 5 s) | `video_minimax_h3_i2v_continuation` | 6 / 10, mesuré | ouvert, open weights |
 | suite-parler | Faire parler (image + voix, 5 s) | `video_ltx2_3_ia2v` | 8 / 13, mesuré | ouvert, open weights |

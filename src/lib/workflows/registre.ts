@@ -453,9 +453,10 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "suite-finaliser-video", onglet: "suite", categorie: "suite", clef: "suiteFinaliserVideo",
     fournit: ["video"], slots: [{ role: "clip", slot: "video", media: "video" }],
-    template: "utility_seedvr2_3b_int8_upscale_video", credits: 28, high: 42, nature: "mesure",
+    template: "utility_seedvr2_3b_int8_upscale_video", credits: 42, high: 63, nature: "mesure",
     premier: false, still: "suite", minRefs: 1, consigne: "",
-  }), // mesuré 27.10.2026 : 27,50 crédits pour 5 s 832×480 → 1872×1080, 1 bloc (job 414d76ab)
+  }), // 5 s à 24 fps → 1920×1080. Le devis réel vient de finaliserVideoCredits (images × mégapixels de sortie) :
+  // mesuré 27.10.2026 : 27,50 crédits pour 5 s 832×480 16 fps → 1872×1080 (job 414d76ab) ; 31.10.2026 : 41 à 43 crédits, 7 prises 5,17 s 1280×736 H3 → 1878×1080
   geste({
     id: "suite-fluidifier", onglet: "suite", categorie: "suite", clef: "suiteFluidifier",
     fournit: ["video"], slots: [{ role: "clip", slot: "video", media: "video" }],

@@ -16,6 +16,8 @@ import { formatCredits } from "@/lib/credits";
 import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
 import { failView } from "@/lib/render/fail";
 import { outilQuote } from "@/lib/outils/graphs";
+import { videoFacts } from "@/lib/render/prepare-upload";
+import type { FinaliserSource } from "@/lib/suite/quote";
 import { GENJUTSU_DEFAULT_RESOLUTION, GENJUTSU_RESOLUTIONS, genjutsuSeconds, type GenjutsuResolution } from "@/lib/outils/genjutsu";
 import { VEED_CIBLES, VEED_CREDITS_PER_SECOND, VEED_DEFAULT, VEED_MAX_SECONDS, VEED_SOURCES, VEED_TIERS, veedMemeLangue, veedSeconds, type VeedChoix } from "@/lib/outils/veed";
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
@@ -481,8 +483,22 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     return () => { gone = true; };
   }, [video, audio, outil.id, outil.entrees]);
 
-  const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh, resolution, doublage }), [outil, seconds, fluide, mesh, resolution, doublage]);
-  const quotePending = Boolean((outil.parTranche || genjutsu || doubler) && inputs.video && seconds == null);
+  // Agrandir une vidéo is billed per frame of the 1080p result: read the clip's size and frame
+  // rate locally before quoting (undefined while reading, null when unreadable → studio defaults).
+  const [source, setSource] = useState<FinaliserSource | null | undefined>(null);
+  useEffect(() => {
+    if (outil.id !== "vid-finaliser" || !video) { setSource(null); return; }
+    let gone = false;
+    setSource(undefined);
+    void (async () => {
+      const blob = video.file ?? await (await fetch(video.url)).blob();
+      const facts = await videoFacts(blob);
+      if (!gone) setSource(facts ? { width: facts.width, height: facts.height, fps: facts.fps ?? undefined } : null);
+    })().catch(() => { if (!gone) setSource(null); });
+    return () => { gone = true; };
+  }, [video, outil.id]);
+  const quote = useMemo(() => outilQuote(outil, { seconds: seconds ?? undefined, fluidifier: fluide, mesh, resolution, doublage, source: source ?? undefined }), [outil, seconds, fluide, mesh, resolution, doublage, source]);
+  const quotePending = Boolean((outil.parTranche || genjutsu || doubler) && inputs.video && (seconds == null || source === undefined));
   const sameLang = doubler && veedMemeLangue(doublage);
   const tooShort = genjutsu && seconds !== null && seconds < 4;
   const busy = stage !== null;
@@ -554,7 +570,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
       let measured: number | null | undefined;
       setCostPending(true);
       const result = await runOutil({
-        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: sideSent, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, piste: outil.reglages?.includes("piste") ? piste : undefined, doublage: doubler ? doublage : undefined, consent, from, onStage,
+        outil: outil.id, images, video: await toFile("video"), audio: await toFile("audio"), prompt: text, confirmed: true, aspect, elargir: sideSent, fluidifier: fluide, seconds: seconds ?? undefined, mesh, resolution, camera: outil.reglages?.includes("camera") ? camera : undefined, piste: outil.reglages?.includes("piste") ? piste : undefined, doublage: doubler ? doublage : undefined, source: source ?? undefined, consent, from, onStage,
         onCost: cost => {
           measured = cost;
           setCostPending(false);

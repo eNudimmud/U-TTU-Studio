@@ -124,10 +124,11 @@ describe("Et ensuite ? registre et devis", () => {
 
   it("labels every quote « estimé » and scales length-based tools per 5 s block", () => {
     for (const geste of SUITE_GESTES) assert.equal(suiteQuote(geste)?.kind, "estime");
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5 }), { credits: 28, high: 42, kind: "estime" });
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5.04 }), { credits: 28, high: 42, kind: "estime" });
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 12 }), { credits: 84, high: 126, kind: "estime" });
-    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5, fluidifier: true }), { credits: 30, high: 46, kind: "estime" });
+    // Finaliser vidéo is billed per frame of the 1080p result (31.10.2026: 41–43 measured on 5.17 s clips).
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5 }), { credits: 41.6, high: 62.3, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5.04 }), { credits: 41.9, high: 62.9, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 12 }), { credits: 99.7, high: 149.6, kind: "estime" });
+    assert.deepEqual(suiteQuote("suite-finaliser-video", { seconds: 5, fluidifier: true }), { credits: 43.6, high: 66.3, kind: "estime" });
     assert.equal(suiteQuote("suite-animer", { seconds: 30 })?.credits, gesteParId("suite-animer")?.credits);
   });
 
