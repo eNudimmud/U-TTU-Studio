@@ -1,16 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { authorizedUrl, gateDecision, hostnameOf, isLoginAuthorizedHost, studioHref, studioOriginConfig, HOP_PARAM, LANG_PARAM } from "../src/lib/studio-origin.ts";
-import { studioOriginGate } from "../src/lib/studio-origin-gate.ts";
+import { isDocumentRequest, studioOriginGate } from "../src/lib/studio-origin-gate.ts";
 import { loopCopy } from "../src/lib/studio-origin-page.ts";
 
 const config = studioOriginConfig({});
-const req = (url: string, init: { host?: string; method?: string; dest?: string; cookie?: string; accept?: string } = {}) => {
+const req = (url: string, init: { host?: string; method?: string; dest?: string; cookie?: string; accept?: string; xhr?: boolean } = {}) => {
   const headers = new Headers();
   headers.set("host", init.host ?? new URL(url).host);
   if (init.dest) headers.set("sec-fetch-dest", init.dest);
   if (init.cookie) headers.set("cookie", init.cookie);
   if (init.accept) headers.set("accept", init.accept);
+  if (init.xhr) headers.set("x-requested-with", "XMLHttpRequest");
   return new Request(url, { method: init.method ?? "GET", headers });
 };
 
@@ -105,4 +106,32 @@ test("loop copy exists in FR, EN, DE, ES", () => {
     for (const value of Object.values(copy)) assert.ok(value.trim().length > 0);
   }
   assert.notEqual(loopCopy("fr").title, loopCopy("en").title);
+});
+
+test("login pages on the public domain redirect without browser headers too (curl, link checkers)", () => {
+  const paths = ["/cloud", "/cloud/login", "/cloud/signup", "/oauth/callback?code=x", "/login", "/user-select", "/mon-studio", "/studio"];
+  for (const path of paths) {
+    for (const accept of [undefined, "*/*", "text/html,application/xhtml+xml,*/*;q=0.8"]) {
+      const response = studioOriginGate(req(`https://uttu-studio.app${path}`, { accept }), { basePath: "", config });
+      assert.equal(response?.status, 307, `${path} accept=${accept}`);
+      const location = new URL(response!.headers.get("location")!);
+      assert.equal(location.origin, "https://u-ttu-studio.vercel.app");
+      assert.equal(location.pathname, path.split("?")[0]);
+    }
+  }
+  // A fetch, a frame or an explicit non-page request stays on the proxy.
+  for (const init of [{ dest: "empty" }, { dest: "iframe" }, { accept: "application/json" }, { xhr: true, accept: "*/*" }]) {
+    assert.equal(studioOriginGate(req("https://uttu-studio.app/cloud/login", init), { basePath: "", config }), null, JSON.stringify(init));
+  }
+  assert.equal(studioOriginGate(req("https://uttu-studio.app/"), { basePath: "", config }), null);
+  assert.equal(studioOriginGate(req("https://uttu-studio.app/api/x", { accept: "*/*" }), { basePath: "", config }), null);
+});
+
+test("document detection", () => {
+  const h = (init: Record<string, string>) => new Headers(init);
+  assert.equal(isDocumentRequest(h({ "sec-fetch-dest": "document" })), true);
+  assert.equal(isDocumentRequest(h({ "sec-fetch-dest": "image", accept: "text/html" })), false);
+  assert.equal(isDocumentRequest(h({})), true);
+  assert.equal(isDocumentRequest(h({ accept: "*/*" })), true);
+  assert.equal(isDocumentRequest(h({ accept: "image/webp" })), false);
 });
