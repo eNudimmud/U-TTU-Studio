@@ -63,7 +63,7 @@ import { imageVide } from "@/lib/render/blank";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 import { namedReferenceNote, readNamedReferences, referenceNotePath, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from "@/lib/creation/named-references";
 import { referenceBoard } from "@/lib/creation/reference-board";
-import { bubbleGraph, bubbleGeste, bubbleQuote, bubbleTool, type BubbleMode, type BubbleSettings } from "@/lib/creation/bubble";
+import { bubbleGraph, bubbleGeste, bubbleImageEngine, bubbleQuote, bubbleTool, type BubbleMode, type BubbleSettings } from "@/lib/creation/bubble";
 
 export type SheetName = null | "credits" | "confirm" | "connect";
 
@@ -92,7 +92,6 @@ const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO = /\.(mp4|webm|mov)$/i;
 
 import { getComfyAuthHeaders, renderCredentialScope } from "@/lib/render/client";
-import { film2DansCePoste } from "@/lib/film/drapeau";
 import { memoEnvois } from "@/lib/film/envois";
 import { randomSeed } from "@/lib/seed";
 import { connectMessage } from "@/lib/render/connect";
@@ -180,8 +179,6 @@ export interface StudioSession {
   /** Filter of the tool catalogue (Outils, rail, search): explicit device choices only, never film2. */
   outilsFiltre: FiltreGestes;
   setPrefs(next: Partial<StudioPrefs>): void;
-  /** Refonte FILM flag on this device (preference or ?film2=1). */
-  film2: boolean;
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   runVideoGeste(input: VideoGesteRun): Promise<FinaliseOutcome>;
   runMeshGeste(input: MeshGesteRun): Promise<FinaliseOutcome>;
@@ -360,7 +357,8 @@ export interface OutilRun {
   from?: string;
   onStage(stage: FinaliseStage, seconds?: number): void;
   /** Real cost after the result is already shown (deferred balance read). */
-  onCost?(cost: number | null): void;
+  /** `gpu`: the job's compute-time figure, when the balance cannot show its cost. */
+  onCost?(cost: number | null, gpu?: { seconds: number; credits: number } | null): void;
 }
 
 export type FinaliseStage = "envoi" | "file" | "calcul" | "retour" | "mesure";
@@ -561,8 +559,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [setStudio, showMedia, store]);
 
   const client = useMemo<RenderClient | null>(() => {
-    // Refonte FILM (registre): behind film2, a picture already sent is not uploaded again.
-    const memo = film2DansCePoste() ? { uploadMemo: memoEnvois(localStorage) } : {};
+    // Refonte FILM (registre): a picture already sent is not uploaded again.
+    const memo = typeof window === "undefined" ? {} : { uploadMemo: memoEnvois(window.localStorage) };
     if (link.mode === "key") return createRenderClient({ auth: { kind: "key", key: link.key }, ...memo });
     if (link.mode === "session") return createRenderClient({ auth: { kind: "session", token: () => tokens.token() }, ...memo });
     return null;
@@ -851,11 +849,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const cast = demoOn && current.cast.length === 0 ? demoCast : current.cast;
   const decor = demoOn && current.scenes.length === 0 ? demoDecor : current.scenes.map(decorFromScene);
   const [storedPrefs, setPrefsState] = useState<StudioPrefs>(DEFAULT_PREFS);
-  const [film2, setFilm2] = useState(false);
-  useEffect(() => { setPrefsState(readPrefs(localStorage)); setFilm2(film2DansCePoste()); }, []);
-  // film2: « services partenaires payants » is an account setting, off by default (refonte FILM, PR 7).
-  const { prefs, outilsFiltre } = useMemo(() => prefsSession(storedPrefs, film2), [film2, storedPrefs]);
-  // The catalogue never depends on film2 (read after the first paint): same tools on every load.
+  useEffect(() => { setPrefsState(readPrefs(localStorage)); }, []);
+  // « Services partenaires payants » is an account setting, off by default (refonte FILM, PR 7).
+  const { prefs, outilsFiltre } = useMemo(() => prefsSession(storedPrefs), [storedPrefs]);
   const setPrefs = useCallback((next: Partial<StudioPrefs>) => {
     setPrefsState(prev => {
       const merged = { ...prev, ...next };
@@ -1366,7 +1362,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const runOutil = useCallback(async (input: OutilRun): Promise<FinaliseOutcome> => {
     const outil = outilParId(input.outil);
     const creation = input.creation;
-    const row = creation ? gesteParId(bubbleGeste(creation.mode, input.images.length, Boolean(input.audio))) : outil ? outilRow(outil) : undefined;
+    // Image + references: open weights (Klein, or Qwen when chosen); Nano Banana only with partner services on.
+    const engine = creation ? bubbleImageEngine(creation.mode, input.images.length, creation.settings, prefs.openWeightsOnly) : null;
+    const row = creation ? gesteParId(bubbleGeste(creation.mode, input.images.length, Boolean(input.audio), engine)) : outil ? outilRow(outil) : undefined;
     if (!outil || !row || !outil.moteur || outil.bientot) return { ok: false, message: t(outil?.bientot ? `outils.why.${outil.bientot}` : "gestes.unwired") };
     if (creation && input.outil !== bubbleTool(creation.mode, input.images.length, Boolean(input.audio))) return { ok: false, message: t("bubble.invalid") };
     if (!gesteVisible(row, creation ? prefs : outilsFiltre)) return { ok: false, message: t("safety.modelBlocked") };
@@ -1375,7 +1373,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (!source) return { ok: false, message: t("videoGeste.needFiles") };
       return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage, onCost: input.onCost });
     }
-    const quote = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio)) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage, source: input.source });
+    const quote = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio), engine) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage, source: input.source });
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
     if (outil.texte === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
     if (outil.entrees.includes("image") && !input.images[0]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };
@@ -1414,7 +1412,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
       const video = input.video ? await send(input.video, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
-      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
+      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed(), engine }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       // The final save node by id (registry), never « the first video »: Comfy lists the source clip too.
@@ -1439,7 +1437,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           if (notePath) {
             void writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: info.costCredits, media: mediaPath, note: notePath, preview: null, loose: false }));
           }
-          input.onCost?.(info.costCredits);
+          input.onCost?.(info.costCredits, info.gpuCredits && info.gpuSeconds ? { seconds: info.gpuSeconds, credits: info.gpuCredits } : null);
         },
       });
       if (!result.video.size) throw new RenderError("empty", t("suite.emptyResult"));
@@ -1467,7 +1465,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       return { ok: true, path: mediaPath, url: URL.createObjectURL(result.video), cost: result.costCredits, ...(extras.length ? { extras } : {}) };
     } catch (error) {
-      return failOutcome(error);
+      const outcome = failOutcome(error);
+      // Never a silent switch: a Nano Banana failure says so, and Klein is the visitor's explicit choice.
+      return engine === "nano" ? { ...outcome, message: t("bubble.nanoFailed", { reason: outcome.message }) } : outcome;
     } finally {
       setCreating(false);
     }
@@ -2455,7 +2455,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const value: StudioSession = {
     catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
     prefs, outilsFiltre, setPrefs,
-    ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet, film2,
+    ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,

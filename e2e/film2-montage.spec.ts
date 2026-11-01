@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { simulateComfy } from './helpers/film2-comfy';
 
-// Refonte FILM · PR 8 — MONTAGE refait (?film2=1, Comfy simulated, 0 real credits).
+// Refonte FILM · PR 8 — MONTAGE refait (, Comfy simulated, 0 real credits).
 
 const SHOTS = process.env.FILM2_SHOTS;
 // A generation graph would start from text or noise; the enhancement starts from the exported film only.
@@ -25,7 +25,7 @@ test('un plan tourné est au montage sans tap ; outils nommés ; bac ; pas de tr
       .observe({ type: 'event', buffered: true, durationThreshold: 16 } as PerformanceObserverInit);
   });
 
-  await page.goto('/studio?film2=1#prise');
+  await page.goto('/studio#prise');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
   await page.locator('[data-film-phrase]').fill('Uttu marche sur le quai la nuit');
   await page.locator('[data-film-tourner]').click();
@@ -33,7 +33,7 @@ test('un plan tourné est au montage sans tap ; outils nommés ; bac ; pas de tr
   await expect(page.locator('[data-film-result]')).toBeVisible({ timeout: 120_000 });
 
   // The shot is already in MONTAGE: open the stage, no « add » tap.
-  await page.goto('/studio?film2=1#montage');
+  await page.goto('/studio#montage');
   const clips = page.locator('[data-fm-clip]');
   await expect(clips).toHaveCount(1, { timeout: 30_000 });
   await expect(page.locator('[data-film-montage] video')).toHaveCount(1);

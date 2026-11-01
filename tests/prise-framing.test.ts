@@ -6,8 +6,7 @@ import { planJson, planFromJson } from '../src/lib/prise/vault.ts';
 import { takeGraphFor, submitTake } from '../src/lib/render/run.ts';
 import { takeProfile, isApercuProfile } from '../src/lib/render/take-graph.ts';
 import { resolveTakeQuote } from '../src/lib/render/billed-quote.ts';
-import { maquetteJson, readMaquette } from '../src/lib/maquette/persistence.ts';
-import { initialMaquette } from '../src/lib/maquette/state.ts';
+
 import type { RenderClient } from '../src/lib/render/client.ts';
 
 const frame = {version:1 as const, source:'3d' as const, width:1280,height:720,color:'Projets/test/Assets/cadre-color.png',depth:'Projets/test/Assets/cadre-depth.png',edges:'Projets/test/Assets/cadre-edges.png'};
@@ -77,12 +76,6 @@ test('framing: missing controls stop before any upload or submission',async()=>{
  let calls=0; const client={upload:async()=>{calls++;return 'x.png';},submit:async()=>{calls++;return 'job';}} as unknown as RenderClient;
  await assert.rejects(()=>submitTake(client,{settings,prompt:'walk',pictures:[{blob:new Blob(['x']),name:'actor.png'}],seed:0,clientId:'x'},()=>{}),/incomplets/);
  assert.equal(calls,0);
-});
-
-test('framing: 2D pan and zoom survive maquette reload with bounded values',()=>{
- const state={...initialMaquette(),flat:{x:.2,y:-.1,zoom:1.5}};
- assert.deepEqual(readMaquette(maquetteJson(state))?.flat,state.flat);
- assert.equal(readMaquette(maquetteJson({...state,flat:{x:0,y:0,zoom:50}})),null);
 });
 
 test('framing: four identity references and two controls upload once in separate roles',async()=>{

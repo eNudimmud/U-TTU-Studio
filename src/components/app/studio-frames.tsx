@@ -46,21 +46,21 @@ function Frame({ title, onClose, children }: { title: string; onClose(): void; c
 
 export function CreditSheet() {
   const { t, say } = useI18n();
-  const { ready, setSheet, connected, balance, balanceNote, refreshBalance, disconnect, takeQuote, film2, prefs, setPrefs } = useStudio();
+  const { ready, setSheet, connected, balance, balanceNote, refreshBalance, disconnect, takeQuote, prefs, setPrefs } = useStudio();
   const creditsLoading = !ready || (connected && !balance && !balanceNote);
   return <Frame title={t("sheet.walletTitle")} onClose={() => setSheet(null)}>
     <p>{t("sheet.walletLead")}</p>
     <p className="u-cost" data-state={creditsLoading ? "load" : connected ? "on" : "off"}>{creditsLoading ? t("sheet.balanceLoading") : connected && balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : connected ? say(balanceNote) : t("sheet.notLinked")}</p>
     <p className="u-small" data-credit-quote="">{quoteWords(t, takeQuote)}</p>
     <RecoveryPanel />
-    {film2 && <fieldset className="u-model-options" data-compte-partenaires="">
+    <fieldset className="u-model-options" data-compte-partenaires="">
       <legend className="u-label">{t("film2.compte.titre")}</legend>
       <label className="u-toggle">
         <input type="checkbox" role="switch" checked={prefs.partenaires} aria-describedby="u-compte-partenaires-sous" onChange={event => setPrefs({ partenaires: event.target.checked })} />
         <span>{t("film2.compte.partenaires")} · {t(prefs.partenaires ? "p0.yes" : "p0.no")}</span>
       </label>
       <p id="u-compte-partenaires-sous" className="u-small">{t("film2.compte.partenairesSous")}</p>
-    </fieldset>}
+    </fieldset>
     <div className="u-card-actions">
       <button type="button" className="u-link" data-sheet-assistant="" onClick={() => { setSheet(null); toggleAssistant(true); }}>{t("assistant.title")}</button>
       <button type="button" className="u-link" onClick={() => void refreshBalance()}>{t("sheet.reread")}</button>

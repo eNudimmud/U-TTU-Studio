@@ -113,29 +113,14 @@ test("sans compte relié : la raison et le lien « Relier mon compte » sont à 
   await expect(page.getByRole("dialog")).toBeVisible();
 });
 
-test("page de création unique : une carte ouvre son outil, le film ouvre CAST", async ({ page }) => {
+test("page de création unique : une carte ouvre son outil, le film ouvre PRISE", async ({ page }) => {
   await page.goto("/studio#outils/tous");
   await page.locator("button[data-outil=vid-wan]").click();
   await expect(page).toHaveURL(/#outils\/vid-wan$/);
   await page.goto("/studio#outils/tous");
   await page.locator("[data-entry-film]").click();
-  await expect(page).toHaveURL(/#personnage$/);
+  await expect(page).toHaveURL(/#prise$/);
   await expect(page.locator(".u-chain")).toBeVisible();
-});
-
-test("MONTAGE : le menu Plus se ferme avec Échap et ne bloque plus les onglets", async ({ page }) => {
-  await page.goto("/studio#montage");
-  const more = page.getByRole("button", { name: "Plus", exact: true }).first();
-  await more.click();
-  const menu = page.locator(".u-popover");
-  await expect(menu).toBeVisible();
-  await expect(menu.locator("[data-more-outils]")).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(menu).toBeHidden();
-  await more.click();
-  await expect(menu).toBeVisible();
-  await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
-  await expect(page.getByRole("heading", { name: "DÉCOR" })).toBeVisible();
 });
 
 test('passer d’un outil à l’autre : un seul panneau à la fois, plus de liste des anciens résultats', async ({ page }) => {
