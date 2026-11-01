@@ -63,7 +63,21 @@ test.describe("toutes les tailles d'écran", () => {
         // Rail from 768 px, bottom bar below; both keep 44 px targets.
         const rail = page.locator("[data-rail]");
         const tabs = page.locator("[data-tabs]");
-        if (size.width >= 768) {
+        if (["film", "prise", "montage"].includes(target.id)) {
+          // The film keeps its whole width: its own bar CAST · DÉCOR · PRISE · MONTAGE replaces rail and tabs.
+          await expect(rail).toBeHidden();
+          await expect(tabs).toBeHidden();
+          const film = page.locator("[data-film-nav-to]");
+          await expect(film).toHaveCount(4);
+          for (const item of await film.all()) {
+            // Short landscape MONTAGE gives the whole height to the player and the timeline.
+            if (!(await item.isVisible())) continue;
+            const box = (await item.boundingBox())!;
+            expect(box.height, `${target.id} film`).toBeGreaterThanOrEqual(44);
+            expect(box.width, `${target.id} film`).toBeGreaterThanOrEqual(44);
+            expect(box.x + box.width, `${target.id} film`).toBeLessThanOrEqual(size.width + 1);
+          }
+        } else if (size.width >= 768) {
           await expect(rail).toBeVisible();
           await expect(tabs).toBeHidden();
           for (const item of await rail.locator("a, button").all()) {
@@ -74,8 +88,7 @@ test.describe("toutes les tailles d'écran", () => {
           }
           const names = rail.locator(".u-rail-name").first();
           // Film stages keep icons until 1440 px so the work surface has room.
-          const film = ["film", "prise", "montage"].includes(target.id);
-          if (size.width >= 1440 || (size.width >= 1280 && !film)) await expect(names).toBeVisible(); else await expect(names).toBeHidden();
+          if (size.width >= 1280) await expect(names).toBeVisible(); else await expect(names).toBeHidden();
         } else {
           await expect(rail).toBeHidden();
           await expect(tabs).toBeVisible();
@@ -89,7 +102,7 @@ test.describe("toutes les tailles d'écran", () => {
   }
 });
 
-test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvre la maquette de PRISE", async ({ page }) => {
+test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvre PRISE", async ({ page }) => {
   await page.goto("/studio#outils/tous");
   const entry = page.locator("[data-studio-entry]");
   await expect(entry.locator("[data-outils-count]")).toHaveText("44 outils");
@@ -103,9 +116,7 @@ test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvr
   expect((await card.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await card.click();
   await expect(page).toHaveURL(/#prise\/maquette$/);
-  await expect(page.locator('[data-avance-toggle="maquette"]')).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator('[data-avance-group="maquette"] canvas')).toBeVisible();
-  await expect(page.locator('[data-avance-group="maquette"]')).toBeInViewport();
+  await expect(page.locator("[data-film-plans]")).toBeVisible();
 });
 
 test("page de création unique : la barre, la porte du film, une rangée par famille avec vignettes réelles", async ({ page }) => {

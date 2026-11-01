@@ -92,7 +92,6 @@ const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO = /\.(mp4|webm|mov)$/i;
 
 import { getComfyAuthHeaders, renderCredentialScope } from "@/lib/render/client";
-import { film2DansCePoste } from "@/lib/film/drapeau";
 import { memoEnvois } from "@/lib/film/envois";
 import { randomSeed } from "@/lib/seed";
 import { connectMessage } from "@/lib/render/connect";
@@ -180,8 +179,6 @@ export interface StudioSession {
   /** Filter of the tool catalogue (Outils, rail, search): explicit device choices only, never film2. */
   outilsFiltre: FiltreGestes;
   setPrefs(next: Partial<StudioPrefs>): void;
-  /** Refonte FILM flag on this device (preference or ?film2=1). */
-  film2: boolean;
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   runVideoGeste(input: VideoGesteRun): Promise<FinaliseOutcome>;
   runMeshGeste(input: MeshGesteRun): Promise<FinaliseOutcome>;
@@ -562,8 +559,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [setStudio, showMedia, store]);
 
   const client = useMemo<RenderClient | null>(() => {
-    // Refonte FILM (registre): behind film2, a picture already sent is not uploaded again.
-    const memo = film2DansCePoste() ? { uploadMemo: memoEnvois(localStorage) } : {};
+    // Refonte FILM (registre): a picture already sent is not uploaded again.
+    const memo = typeof window === "undefined" ? {} : { uploadMemo: memoEnvois(window.localStorage) };
     if (link.mode === "key") return createRenderClient({ auth: { kind: "key", key: link.key }, ...memo });
     if (link.mode === "session") return createRenderClient({ auth: { kind: "session", token: () => tokens.token() }, ...memo });
     return null;
@@ -852,11 +849,9 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const cast = demoOn && current.cast.length === 0 ? demoCast : current.cast;
   const decor = demoOn && current.scenes.length === 0 ? demoDecor : current.scenes.map(decorFromScene);
   const [storedPrefs, setPrefsState] = useState<StudioPrefs>(DEFAULT_PREFS);
-  const [film2, setFilm2] = useState(false);
-  useEffect(() => { setPrefsState(readPrefs(localStorage)); setFilm2(film2DansCePoste()); }, []);
-  // film2: « services partenaires payants » is an account setting, off by default (refonte FILM, PR 7).
-  const { prefs, outilsFiltre } = useMemo(() => prefsSession(storedPrefs, film2), [film2, storedPrefs]);
-  // The catalogue never depends on film2 (read after the first paint): same tools on every load.
+  useEffect(() => { setPrefsState(readPrefs(localStorage)); }, []);
+  // « Services partenaires payants » is an account setting, off by default (refonte FILM, PR 7).
+  const { prefs, outilsFiltre } = useMemo(() => prefsSession(storedPrefs), [storedPrefs]);
   const setPrefs = useCallback((next: Partial<StudioPrefs>) => {
     setPrefsState(prev => {
       const merged = { ...prev, ...next };
@@ -2460,7 +2455,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const value: StudioSession = {
     catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
     prefs, outilsFiltre, setPrefs,
-    ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet, film2,
+    ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,

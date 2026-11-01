@@ -56,10 +56,10 @@ function useTasks(): Task[] {
 
 export function TopBar({ place }: { place: Place }) {
   const { t, say } = useI18n();
-  const { ready, connected, balance, balanceNote, setSheet, film2 } = useStudio();
+  const { ready, connected, balance, balanceNote, setSheet } = useStudio();
   // Refonte FILM (PR 9): in the film the bar keeps only the logo, the film, the credits and the menu.
   // Créer, Film, Mes créations, search, the guide and the language live in the menu; no rail, no bottom bar.
-  const focus = film2 && (place === "realiser" || place === "montage");
+  const focus = place === "realiser" || place === "montage";
   const assistantOpen = useAssistantOpen();
   const [drawer, setDrawer] = useState(false);
   const [palette, setPalette] = useState(false);
@@ -91,7 +91,6 @@ export function TopBar({ place }: { place: Place }) {
     <header className="u-top u-topbar" data-topbar="" data-focus={focus ? "" : undefined}>
       <div className="u-top-left">
         <Brand className="u-mark" href={assetPath("/studio")} />
-        {!focus && (place === "realiser" || place === "montage") && <ProjectSwitcher />}
       </div>
       {!focus && <nav className="u-top-nav" aria-label={t("top.nav")}>
         <MainNav place={place} />
@@ -157,9 +156,8 @@ function Dropdown({ id, label, current, drawer, children }: { id: string; label:
 
 function FilmMenu({ onPick }: { onPick(): void }) {
   const { t } = useI18n();
-  const { film2 } = useStudio();
-  // film2: the film opens on its plans; CAST and DÉCOR are the libraries behind Qui and Où.
-  const items = film2 ? [...FILM.slice(2), ...FILM.slice(0, 2)] : FILM;
+  // Creation order, like the film bar: CAST · DÉCOR · PRISE · MONTAGE.
+  const items = FILM;
   return <ul className="u-dd-list" role="list" data-film-menu="">
     {items.map(item => <li key={item.id}><a href={assetPath(item.href)} onClick={onPick} data-film={item.id}>{t(item.label)}</a></li>)}
   </ul>;

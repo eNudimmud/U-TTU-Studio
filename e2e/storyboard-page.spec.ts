@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { simulateComfy } from './helpers/film2-comfy';
 
-// Storyboard (SB5–SB10) behind ?storyboard=1. Comfy is simulated: 0 real credits. Proves the path,
+// Storyboard (SB5–SB11), open to everyone; ?storyboard=0 is the one-version escape hatch. Comfy is simulated: 0 real credits. Proves the path,
 // the saved files, the one confirmation and the 44 px targets on the paper theme.
 
 const SHOTS = process.env.STORYBOARD_SHOTS;
@@ -18,9 +18,18 @@ async function targets44(page: Page) {
   expect(small, 'targets under 44 px').toEqual([]);
 }
 
-test('flag off: /storyboard answers 404', async ({ page }) => {
-  const response = await page.goto('/storyboard');
-  expect(response?.status()).toBe(404);
+test('open to everyone: /storyboard answers 200; ?storyboard=0 hides it on this device, ?storyboard=1 brings it back', async ({ page }) => {
+  expect((await page.goto('/storyboard'))?.status()).toBe(200);
+  await expect(page.locator('[data-storyboard-page]')).toBeVisible({ timeout: 60_000 });
+  expect((await page.goto('/storyboard?storyboard=0'))?.status()).toBe(404);
+  await page.goto('/studio?storyboard=0');
+  const bar = page.locator('[data-barre]');
+  await bar.locator('[data-barre-plus]').click();
+  await expect(bar.locator('[data-barre-attach]')).toHaveCount(3);
+  await expect(page.locator('[data-barre-storyboard]')).toHaveCount(0);
+  expect((await page.goto('/storyboard'))?.status()).toBe(404);
+  expect((await page.goto('/storyboard?storyboard=1'))?.status()).toBe(200);
+  expect((await page.goto('/storyboard'))?.status()).toBe(200);
 });
 
 test('idea → saved board → shot sheet → one confirmation; four sizes', async ({ page }, info) => {
@@ -36,7 +45,7 @@ test('idea → saved board → shot sheet → one confirmation; four sizes', asy
   };
 
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto('/storyboard?storyboard=1');
+  await page.goto('/storyboard');
   await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
   await expect(page.locator('[data-sb-idea]:visible')).toBeVisible();
   await page.locator('[data-sb-idea-field]:visible').fill('Uttu traverse la ville sous la pluie pour atteindre un toit à l’aube. Elle dit : « On y est presque. »');
@@ -118,15 +127,10 @@ test('idea → saved board → shot sheet → one confirmation; four sizes', asy
   await snap('06-print');
 });
 
-test('bubble: « Make a storyboard » only with the flag, carrying the idea to /storyboard', async ({ page }, info) => {
+test('bubble: « Make a storyboard » for everyone, carrying the idea to /storyboard', async ({ page }, info) => {
   test.setTimeout(120_000);
   await page.goto('/studio');
   const bar = page.locator('[data-barre]');
-  await bar.locator('[data-barre-plus]').click();
-  await expect(bar.locator('[data-barre-attach]')).toHaveCount(3);
-  await expect(page.locator('[data-barre-storyboard]')).toHaveCount(0);
-
-  await page.goto('/studio?storyboard=1');
   const idea = 'Uttu traverse la ville sous la pluie.';
   await bar.locator('textarea').fill(idea);
   await bar.locator('[data-barre-plus]').click();

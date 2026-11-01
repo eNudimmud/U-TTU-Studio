@@ -1,6 +1,6 @@
-// Storyboard page (/storyboard) stays behind `?storyboard=1` until JD opens it (SB11). Off by default.
-// The choice is kept in a cookie, not localStorage, so the server can answer a clean 404 when it is off:
-// `?storyboard=1` switches it on for this browser, `?storyboard=0` switches it off again.
+// Storyboard (/storyboard and the bubble's « Make a storyboard ») is open to everyone since SB11 (JD's yes).
+// `?storyboard=0` stays one version as an escape hatch: it switches it off for this browser (cookie, so the
+// server answers a clean 404), and `?storyboard=1` switches it back on.
 
 export const STORYBOARD_COOKIE = "u-ttu-storyboard";
 const UN_AN = 60 * 60 * 24 * 365;
@@ -10,7 +10,7 @@ export function storyboardActif(search: string, cookie: string | null | undefine
   const asked = new URLSearchParams(search).get("storyboard");
   if (asked === "1") return true;
   if (asked === "0") return false;
-  return cookie === "1";
+  return cookie !== "0";
 }
 
 /** The value of our cookie in a `document.cookie` string, or null. */
@@ -25,8 +25,8 @@ export function lireCookie(cookies: string): string | null {
 /** The cookie line to write after an explicit `?storyboard=` in the address, or null when nothing was asked. */
 export function cookieDemande(search: string): string | null {
   const asked = new URLSearchParams(search).get("storyboard");
-  if (asked === "1") return `${STORYBOARD_COOKIE}=1; Path=/; Max-Age=${UN_AN}; SameSite=Lax`;
-  if (asked === "0") return `${STORYBOARD_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+  if (asked === "0") return `${STORYBOARD_COOKIE}=0; Path=/; Max-Age=${UN_AN}; SameSite=Lax`;
+  if (asked === "1") return `${STORYBOARD_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
   return null;
 }
 

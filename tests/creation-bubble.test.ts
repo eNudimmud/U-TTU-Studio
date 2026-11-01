@@ -300,7 +300,7 @@ test('JD 2026-10-31 night: open weights only. The bubble never offers or points 
   const { bubbleImageEngine, bubbleEngineChoices, qwenReferenceSide, POSE_RULE } = await import('../src/lib/creation/bubble.ts');
   const { DEFAULT_PREFS, prefsSession } = await import('../src/lib/studio-prefs.ts');
   const { gesteParId } = await import('../src/lib/workflows/registre.ts');
-  const off=prefsSession(DEFAULT_PREFS,true).prefs, on=prefsSession({...DEFAULT_PREFS,partenaires:true},true).prefs;
+  const off=prefsSession(DEFAULT_PREFS).prefs, on=prefsSession({...DEFAULT_PREFS,partenaires:true}).prefs;
   assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,off.openWeightsOnly),'klein','the studio default stays open weights');
   assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'nano'},true),'klein','a saved Nano choice never reaches a partner node');
   assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'qwen'},true),'qwen');
