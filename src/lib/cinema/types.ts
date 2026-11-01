@@ -170,6 +170,8 @@ export interface Quote {
   basis: "provider" | "measured_similar_job" | "unavailable";
   createdAt: string;
   expiresAt: string;
+  /** Media jobs (CE2 R1): digest of the exact payload (snapshot digest + graph + generation + account). */
+  payloadDigest?: string;
 }
 
 export interface SpendApproval {
@@ -180,6 +182,8 @@ export interface SpendApproval {
   snapshotDigest: string;
   workflowDigest: string;
   authorizedCeilingCredits: number;
+  /** Media jobs (CE2 R1): the exact payload the person approved; equals the quote's. */
+  payloadDigest?: string;
   /** Only a person approves a spend. A model never produces this object. */
   actor: "user";
   approvedAt: string;

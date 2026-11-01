@@ -14,7 +14,9 @@ import { gpuTimeCredits } from "../credits.ts";
 import { INTENT_RECEIPT_KEY, readIntentReceipt } from "./intent-job.ts";
 import { CinemaError, TERMINAL_JOB_STATES, type CinemaDiagnostic, type ObservedCost, type Quote, type SpendApproval, type StorageLike } from "./types.ts";
 
-export const SPEND_LEDGER_KEY = "u-ttu-spend-ledger";
+import { SPEND_LEDGER_KEY } from "./approval-ledger.ts";
+// One ledger for every paid kind: the key (and the consumed approvals list) is shared with the intent job.
+export { SPEND_LEDGER_KEY };
 export const PAID_SESSION_KEY = "u-ttu-paid-session";
 /** A paid session that has not said it is alive for this long is presumed closed. */
 export const PAID_SESSION_TTL_MS = 45_000;

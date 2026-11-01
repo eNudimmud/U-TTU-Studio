@@ -13,14 +13,18 @@ import { RenderError, jobStage, type RenderClient } from "../render/client.ts";
 import { PENDING_RENDER_KEY, readPending, type PendingRender } from "../render/recovery.ts";
 import { OPEN_WEIGHTS_MODE } from "../open-weights.ts";
 import { cheminJson, lireStoryboard, majPlan, storyboardJson, trouverPlan } from "../storyboard/storyboard.ts";
-import { assertNoSecretFields, sha256Text } from "./digest.ts";
+import { assertNoSecretFields, digestOf, sha256Text } from "./digest.ts";
 import { advance } from "./intent-job.ts";
 import { markUncertain, readLedger, release, reserve, submissionBusy, writeLedger } from "./spend-ledger.ts";
 import { assertSubmittable } from "./workflow-policy.ts";
-import { cinemaMetaPath, metaJson, parseMeta, projectFiles, runTransaction, type CinemaMeta, type ProjectLock, type Write } from "./journal.ts";
+import { cinemaMetaPath, metaJson, parseMeta, projectFiles, runComputedTransaction, type CinemaMeta, type ProjectLock, type StoredJournal, type Write } from "./journal.ts";
 import { CinemaError, type CinemaDiagnostic, type JobOutputRef, type JobReceipt, type ObservedCost, type Quote, type ShotSnapshot, type SpendApproval, type StorageLike, type TakeProvenance } from "./types.ts";
 
-export interface ShotJobReceipt extends JobReceipt { snapshot: ShotSnapshot }
+export interface ShotJobReceipt extends JobReceipt {
+  snapshot: ShotSnapshot;
+  /** The generation settings that entered the payload digest (seed, length, size, model…), kept for a reload (R1). */
+  generation?: object;
+}
 
 export function isShotReceipt(receipt: JobReceipt): receipt is ShotJobReceipt {
   const snapshot = receipt.snapshot as Partial<ShotSnapshot> & { kind?: string };
@@ -118,8 +122,10 @@ export async function settleShotJob(request: SettleRequest, ports: SettlementPor
   // A duplicate result (second tab, replayed poll, receipt lost after settling): nothing is fetched or written again.
   try {
     const known = parseMeta((await files.get(cinemaMetaPath(storyboardId)))?.text ?? null, storyboardId);
-    if (request.outputs.every(output => alreadySettled(known, receipt.accountScope, jobId, output.index))) {
-      const takeIds = await Promise.all(request.outputs.map(output => takeIdOf(receipt.accountScope, jobId, output.index)));
+    const takeIds = await Promise.all(request.outputs.map(output => takeIdOf(receipt.accountScope, jobId, output.index)));
+    // The dedup key alone is not proof: the take must also be in the authoritative registre (R3).
+    if (request.outputs.every(output => alreadySettled(known, receipt.accountScope, jobId, output.index))
+      && takesInRegistre(lireRegistre((await files.get(REGISTRE_FILE))?.text ?? null), receipt.snapshot.planFilmId, takeIds)) {
       return { outcome: "settled", receipt: { ...receipt, state: "settled", settlement: "projections_saved", updatedAt: now }, takeIds, fromEarlierRevision: takeIds.some(id => known.takes[id]?.fromEarlierRevision), diagnostics: [{ code: "ALREADY_SETTLED" }] };
     }
   } catch (error) { return pending(receipt, now, [{ code: "STORAGE_UNAVAILABLE", detail: error instanceof Error ? error.message : "meta" }]); }
@@ -144,54 +150,85 @@ export async function settleShotJob(request: SettleRequest, ports: SettlementPor
   }
   let current: ShotJobReceipt = { ...receipt, state: "result_pending", outputs: saved.map(item => item.ref), settlement: "assets_saved", updatedAt: now };
 
-  let meta: CinemaMeta;
-  try { meta = parseMeta((await files.get(cinemaMetaPath(storyboardId)))?.text ?? null, storyboardId); }
-  catch (error) { return pending(current, now, [{ code: "STORAGE_UNAVAILABLE", detail: error instanceof Error ? error.message : "meta" }]); }
   const shotId = receipt.snapshot.shotId;
-  const fromEarlierRevision = (meta.revisions[shotId] ?? receipt.snapshot.revision) > receipt.snapshot.revision;
   const scope = receipt.snapshot.scope;
+  const planId = receipt.snapshot.planFilmId;
+  const takeIds = saved.map(item => item.takeId);
+  // A conflict is never a success (R3): the result stays pending, receipt and media kept, and the
+  // dependent projections (provenance, dedup keys, storyboard link) do not move.
+  const conflicted = (entry: StoredJournal, step: string) => entry.state === "conflict"
+    ? pending(current, now, [...diagnostics, { code: "REVISION_CONFLICT", detail: `${step}: ${(entry.conflicts ?? []).join(", ")}` }])
+    : null;
+  let fromEarlierRevision = false;
 
   try {
-    // 2. Registre takes. A plan missing from the registre is created; an existing kept take is never replaced.
-    const registreText = (await files.get(REGISTRE_FILE))?.text ?? null;
-    let registre = lireRegistre(registreText);
-    const planId = receipt.snapshot.planFilmId;
-    if (!registre.plans.some(plan => plan.id === planId)) registre = ajouterPlan(registre, nouveauPlan(registre, planId));
-    for (const item of saved) registre = ajouterPrise(registre, planId, { id: item.takeId, fichier: item.ref.assetId });
-    await runTransaction(files, ports.lock, { operationId: `${receipt.attemptId}.take`, scope, writes: [{ path: REGISTRE_FILE, text: registreJson(registre) }], now: ports.now })
-      .then(entry => { if (entry.state === "conflict") diagnostics.push({ code: "REVISION_CONFLICT", detail: REGISTRE_FILE }); });
+    // 2. Registre takes, read + computed + written under one hold of the project lock (R2): a take
+    //    written by another tab before the lock is part of what is computed, never overwritten.
+    //    A plan missing from the registre is created; an existing kept take is never replaced.
+    const take = await runComputedTransaction(files, ports.lock, {
+      operationId: `${receipt.attemptId}.take`, scope, now: ports.now,
+      compute: async () => {
+        let registre = lireRegistre((await files.get(REGISTRE_FILE))?.text ?? null);
+        if (!registre.plans.some(plan => plan.id === planId)) registre = ajouterPlan(registre, nouveauPlan(registre, planId));
+        for (const item of saved) registre = ajouterPrise(registre, planId, { id: item.takeId, fichier: item.ref.assetId });
+        return [{ path: REGISTRE_FILE, text: registreJson(registre) }];
+      },
+    });
+    const takeConflict = conflicted(take, REGISTRE_FILE);
+    if (takeConflict) return takeConflict;
+    // Read back: the takes are in the authoritative registre before anything depends on them.
+    if (!takesInRegistre(lireRegistre((await files.get(REGISTRE_FILE))?.text ?? null), planId, takeIds)) {
+      return pending(current, now, [...diagnostics, { code: "REVISION_CONFLICT", detail: `${REGISTRE_FILE}: take missing after write` }]);
+    }
     current = { ...current, settlement: "take_saved" };
 
-    // 3. Projections: provenance + dedup keys in the sidecar, the storyboard link if the shot is still there.
-    const latestMeta = parseMeta((await files.get(cinemaMetaPath(storyboardId)))?.text ?? null, storyboardId);
-    const nextMeta: CinemaMeta = { ...latestMeta, takes: { ...latestMeta.takes }, settled: [...latestMeta.settled] };
-    for (const item of saved) {
-      const provenance: TakeProvenance = {
-        operationId: receipt.operationId, attemptId: receipt.attemptId, shotId, revision: receipt.snapshot.revision,
-        workflowDigest: receipt.approval.workflowDigest, assetIds: [item.ref.assetId],
-        ...(receipt.snapshot.sourceTakeId ? { sourceTakeId: receipt.snapshot.sourceTakeId } : {}),
-        cost: item === saved[0] ? request.cost : { credits: null, provenance: request.cost.provenance, unit: "credits", readAt: request.cost.readAt },
-        fromEarlierRevision,
-      };
-      nextMeta.takes[item.takeId] = provenance;
-      const key = dedupKey(receipt.accountScope, jobId, item.output.index);
-      if (!nextMeta.settled.includes(key)) nextMeta.settled.push(key);
+    // 3. Projections: provenance + dedup keys in the sidecar, the storyboard link if the shot is still
+    //    there; read and computed under the same lock hold as their write.
+    const projection = await runComputedTransaction(files, ports.lock, {
+      operationId: `${receipt.attemptId}.projection`, scope, now: ports.now,
+      compute: async () => {
+        const latestMeta = parseMeta((await files.get(cinemaMetaPath(storyboardId)))?.text ?? null, storyboardId);
+        fromEarlierRevision = (latestMeta.revisions[shotId] ?? receipt.snapshot.revision) > receipt.snapshot.revision;
+        const nextMeta: CinemaMeta = { ...latestMeta, takes: { ...latestMeta.takes }, settled: [...latestMeta.settled] };
+        for (const item of saved) {
+          const provenance: TakeProvenance = {
+            operationId: receipt.operationId, attemptId: receipt.attemptId, shotId, revision: receipt.snapshot.revision,
+            workflowDigest: receipt.approval.workflowDigest, assetIds: [item.ref.assetId],
+            ...(receipt.snapshot.sourceTakeId ? { sourceTakeId: receipt.snapshot.sourceTakeId } : {}),
+            cost: item === saved[0] ? request.cost : { credits: null, provenance: request.cost.provenance, unit: "credits", readAt: request.cost.readAt },
+            fromEarlierRevision,
+          };
+          nextMeta.takes[item.takeId] = provenance;
+          const key = dedupKey(receipt.accountScope, jobId, item.output.index);
+          if (!nextMeta.settled.includes(key)) nextMeta.settled.push(key);
+        }
+        const writes: Write[] = [{ path: cinemaMetaPath(storyboardId), text: metaJson(nextMeta) }];
+        const board = lireStoryboard((await files.get(cheminJson(storyboardId)))?.text ?? null);
+        const archived = !board || board.archive || latestMeta.archived.includes(shotId) || !trouverPlan(board, shotId);
+        if (archived) diagnostics.push({ code: "SHOT_ARCHIVED", detail: "kept in history, shot not reactivated" });
+        else if (trouverPlan(board!, shotId)!.plan.planFilmId === null) writes.push({ path: cheminJson(storyboardId), text: storyboardJson(majPlan(board!, shotId, { planFilmId: receipt.snapshot.planFilmId }, now)) });
+        return writes;
+      },
+    });
+    // On a replay the stored journal is finished without computing again: read the flag back.
+    if (projection.state !== "conflict") {
+      const meta = parseMeta((await files.get(cinemaMetaPath(storyboardId)))?.text ?? null, storyboardId);
+      fromEarlierRevision = saved.some(item => meta.takes[item.takeId]?.fromEarlierRevision);
     }
-    const writes: Write[] = [{ path: cinemaMetaPath(storyboardId), text: metaJson(nextMeta) }];
-    const boardText = (await files.get(cheminJson(storyboardId)))?.text ?? null;
-    const board = lireStoryboard(boardText);
-    const archived = !board || board.archive || latestMeta.archived.includes(shotId) || !trouverPlan(board, shotId);
-    if (archived) diagnostics.push({ code: "SHOT_ARCHIVED", detail: "kept in history, shot not reactivated" });
-    else if (trouverPlan(board!, shotId)!.plan.planFilmId === null) writes.push({ path: cheminJson(storyboardId), text: storyboardJson(majPlan(board!, shotId, { planFilmId: receipt.snapshot.planFilmId }, now)) });
-    await runTransaction(files, ports.lock, { operationId: `${receipt.attemptId}.projection`, scope, writes, now: ports.now })
-      .then(entry => { if (entry.state === "conflict") diagnostics.push({ code: "REVISION_CONFLICT", detail: (entry as { conflicts?: string[] }).conflicts?.join(", ") }); });
+    const projectionConflict = conflicted(projection, "projection");
+    if (projectionConflict) return { ...projectionConflict, receipt: { ...projectionConflict.receipt, settlement: "take_saved" } };
     current = { ...current, settlement: "projections_saved" };
   } catch (error) {
     return pending(current, now, [...diagnostics, { code: "STORAGE_UNAVAILABLE", detail: error instanceof Error ? error.message : "write failed" }]);
   }
 
-  // 4. Settled marker. A conflict is not a failure: both versions are on disk and the visitor chooses.
-  return { outcome: "settled", receipt: { ...current, state: "settled", updatedAt: ports.now() }, takeIds: saved.map(item => item.takeId), fromEarlierRevision, diagnostics };
+  // 4. Settled marker: only once every target was applied and read back.
+  return { outcome: "settled", receipt: { ...current, state: "settled", updatedAt: ports.now() }, takeIds, fromEarlierRevision, diagnostics };
+}
+
+function takesInRegistre(registre: ReturnType<typeof lireRegistre>, planId: string, takeIds: string[]): boolean {
+  const plan = registre.plans.find(item => item.id === planId);
+  return !!plan && takeIds.every(id => plan.prises.some(take => take.id === id));
 }
 
 /** For CE4: the takes of a shot that came back for an earlier version (« Result from an earlier version »). */
@@ -216,6 +253,8 @@ export interface ShotJobDeps {
   trancheCapCredits: number;
   balanceCredits: number | null;
   openWeightsMode?: boolean;
+  /** Re-reads the current shot (revision, locks, references) and throws when it differs from the snapshot. */
+  revalidate?: (snapshot: ShotSnapshot) => Promise<void>;
 }
 
 export interface ShotSubmission {
@@ -226,6 +265,17 @@ export interface ShotSubmission {
   snapshot: ShotSnapshot;
   quote: Quote;
   graph: Record<string, unknown>;
+  /** Generation settings in the payload digest (CE1 GenerationSettings); persisted on the receipt. */
+  generation?: object;
+}
+
+/**
+ * Digest of the exact media payload (R1): snapshot digest + the graph that will be POSTed + the
+ * generation settings + the account. Computed at quote time (quote.payloadDigest, copied into the
+ * approval) and recomputed right before the reserve and the POST.
+ */
+export function shotPayloadDigest(input: Pick<ShotSubmission, "snapshot" | "graph" | "generation" | "accountScope">): Promise<string> {
+  return digestOf({ snapshotDigest: input.snapshot.digest, graph: input.graph, generation: input.generation ?? null, accountScope: input.accountScope });
 }
 
 function writePending(storage: StorageLike, pending: PendingWithCinema): void {
@@ -248,6 +298,9 @@ export async function submitShotJob(input: ShotSubmission, approval: SpendApprov
   if (input.base.project !== input.snapshot.scope.projectId) throw new CinemaError("PROJECT_UNAVAILABLE", "Le reçu et le plan ne sont pas du même projet.");
   if (approval.operationId !== input.operationId) throw new CinemaError("APPROVAL_REQUIRED", "Autorisation d'une autre opération.");
   assertSubmittable(input.graph as never, { openWeightsMode: deps.openWeightsMode ?? OPEN_WEIGHTS_MODE });
+  await assertPayloadApproved(input, approval);
+  // Last validation point: the caller re-reads revision, locks and references of the current shot (CE5).
+  if (deps.revalidate) await deps.revalidate(input.snapshot);
   if (submissionBusy(deps.storage)) throw new CinemaError("BUDGET_RESERVED", "Une autre opération payante est encore ouverte.");
   const attemptId = deps.uuid();
   const reserved = reserve({
@@ -260,6 +313,7 @@ export async function submitShotJob(input: ShotSubmission, approval: SpendApprov
     schemaVersion: 2, operationId: input.operationId, attemptId, accountScope: input.accountScope,
     snapshot: input.snapshot, quote: input.quote, approval: { ...approval, consumedByAttemptId: attemptId },
     state: "submitting", providerJobId: null, submittedAt: null, updatedAt: now.toISOString(), outputs: [], settlement: "none",
+    ...(input.generation ? { generation: input.generation } : {}),
   };
   try { writePending(deps.storage, withCinemaReceipt({ ...input.base, jobId: null }, receipt)); }
   catch {
@@ -285,6 +339,22 @@ export async function submitShotJob(input: ShotSubmission, approval: SpendApprov
   receipt = { ...receipt, state: "queued", providerJobId: jobId, submittedAt: deps.now().toISOString(), updatedAt: deps.now().toISOString() };
   writePendingQuiet(deps.storage, withCinemaReceipt({ ...input.base, jobId }, receipt));
   return receipt;
+}
+
+/**
+ * R1: the snapshot really submitted, its graph and its generation settings are the ones quoted and
+ * approved. A mutation after the quote = zero POST, a new approval is needed. Throws before any reserve.
+ */
+async function assertPayloadApproved(input: ShotSubmission, approval: SpendApproval): Promise<void> {
+  const problems: string[] = [];
+  if (input.snapshot.digest !== input.quote.snapshotDigest || input.snapshot.digest !== approval.snapshotDigest) problems.push("snapshot");
+  if (approval.quoteId !== input.quote.id) problems.push("quote");
+  if (approval.workflowDigest !== input.quote.workflowDigest) problems.push("workflow");
+  let exact: string | null = null;
+  try { exact = await shotPayloadDigest(input); } catch { problems.push("payload-secret"); }
+  if (!input.quote.payloadDigest || !approval.payloadDigest) problems.push("payload-unbound");
+  else if (exact !== input.quote.payloadDigest || exact !== approval.payloadDigest) problems.push("payload");
+  if (problems.length) throw new CinemaError("APPROVAL_REQUIRED", "Le plan a changé depuis son devis : nouveau devis et nouvelle autorisation nécessaires.", problems);
 }
 
 /**

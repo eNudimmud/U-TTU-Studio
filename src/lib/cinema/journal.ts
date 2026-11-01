@@ -85,9 +85,38 @@ const writeJournal = (store: VaultStore, entry: StoredJournal, now: () => string
  * of starting it again, so a crash anywhere is safe to retry.
  */
 export async function runTransaction(store: VaultStore, lock: ProjectLock, input: TransactionInput): Promise<StoredJournal> {
-  input.writes.forEach(write => assertMetadataPath(write.path));
-  if (new Set(input.writes.map(write => write.path)).size !== input.writes.length) throw new CinemaError("STORAGE_UNAVAILABLE", "Une cible apparaît deux fois.");
+  checkWrites(input.writes);
+  return lock(input.scope.projectId, () => transactionHeld(store, input));
+}
+
+function checkWrites(writes: Write[]): void {
+  writes.forEach(write => assertMetadataPath(write.path));
+  if (new Set(writes.map(write => write.path)).size !== writes.length) throw new CinemaError("STORAGE_UNAVAILABLE", "Une cible apparaît deux fois.");
+}
+
+/**
+ * Read → compute → journal → write under ONE acquisition of the project lock (CE2 R2). `compute`
+ * reads the current files itself, inside the lock, so a write that landed before the lock was taken
+ * is part of what it computes from, never overwritten by a stale calculation. Replaying the same id
+ * finishes the stored journal and does not compute again. The journal is called with the lock held
+ * (no re-entrance).
+ */
+export async function runComputedTransaction(
+  store: VaultStore, lock: ProjectLock,
+  input: Omit<TransactionInput, "writes"> & { compute: () => Promise<Write[]> },
+): Promise<StoredJournal> {
   return lock(input.scope.projectId, async () => {
+    const existing = await readJournal(store, input.operationId);
+    if (existing) return finish(store, existing, input.now);
+    const writes = await input.compute();
+    checkWrites(writes);
+    return transactionHeld(store, { ...input, writes });
+  });
+}
+
+/** The transaction body; the caller holds the project lock. */
+async function transactionHeld(store: VaultStore, input: TransactionInput): Promise<StoredJournal> {
+  {
     const existing = await readJournal(store, input.operationId);
     if (existing) return finish(store, existing, input.now);
     const before = await Promise.all(input.writes.map(write => textAt(store, write.path)));
@@ -105,7 +134,7 @@ export async function runTransaction(store: VaultStore, lock: ProjectLock, input
     };
     await writeJournal(store, entry, input.now);
     return finish(store, entry, input.now);
-  });
+  }
 }
 
 /** Brings every target to its `after` text; a target that is neither before nor after is a conflict, kept side by side. */

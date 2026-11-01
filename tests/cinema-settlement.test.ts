@@ -12,10 +12,11 @@ import { RenderError } from "../src/lib/render/client.ts";
 import { cheminJson, lireStoryboard, planVide, storyboardJson, storyboardVide, trouverPlan } from "../src/lib/storyboard/storyboard.ts";
 import { cinemaMetaPath, emptyMeta, metaJson, noLock, parseMeta } from "../src/lib/cinema/journal.ts";
 import {
-  cinemaReceiptOf, earlierVersionTakes, pollShotJob, resumeShotJobs, settleShotJob, submitShotJob, takeIdOf,
+  cinemaReceiptOf, earlierVersionTakes, pollShotJob, resumeShotJobs, settleShotJob, shotPayloadDigest, submitShotJob, takeIdOf,
   type ProviderOutput, type SettlementPorts, type ShotJobDeps, type ShotJobReceipt, type ShotSubmission,
 } from "../src/lib/cinema/settlement.ts";
 import { readLedger } from "../src/lib/cinema/spend-ledger.ts";
+import { consumeApproval } from "../src/lib/cinema/approval-ledger.ts";
 import { CinemaError, type ObservedCost, type Quote, type ShotSnapshot, type SpendApproval, type StorageLike } from "../src/lib/cinema/types.ts";
 
 const ACCOUNT = "comfy-user-7f3a";
@@ -55,14 +56,19 @@ const snapshot = (revision = 1): ShotSnapshot => ({
   bindings: [], digest: "d".repeat(64),
 });
 
+const GRAPH = { "1": { class_type: "SaveVideo", inputs: {} } };
+// R1: quote and approval are bound to the exact payload (snapshot digest + graph + account).
+const PAYLOAD = await shotPayloadDigest({ snapshot: snapshot(), graph: GRAPH, accountScope: ACCOUNT });
+
 const quote = (estimated: number | null = 4): Quote => ({
   id: "q1", snapshotDigest: "d".repeat(64), workflowDigest: "w".repeat(64), estimatedCredits: estimated, uncertaintyCredits: estimated === null ? null : 1,
   basis: estimated === null ? "unavailable" : "measured_similar_job", createdAt: NOW, expiresAt: "2026-11-01T12:15:00.000Z",
+  payloadDigest: PAYLOAD,
 });
 
 const approval = (id = "a1"): SpendApproval => ({
   id, trancheId: "t1", operationId: "op1", quoteId: "q1", snapshotDigest: "d".repeat(64), workflowDigest: "w".repeat(64),
-  authorizedCeilingCredits: 10, actor: "user", approvedAt: NOW, consumedByAttemptId: null,
+  authorizedCeilingCredits: 10, actor: "user", approvedAt: NOW, consumedByAttemptId: null, payloadDigest: PAYLOAD,
 });
 
 const succeeded = (rev = 1): ShotJobReceipt => ({
@@ -242,7 +248,6 @@ const BASE: PendingRender = {
   version: 1, kind: "take", project: "demo", id: "sb-b1-s1", name: "Plan 1", prompt: "", at: NOW, account: "fp", refs: [], template: "ltx",
   quote: 4, balanceBefore: 100, jobId: null,
 };
-const GRAPH = { "1": { class_type: "SaveVideo", inputs: {} } };
 
 function client(behaviour: "ok" | "lost" | "refused" = "ok") {
   const calls: string[] = [];
@@ -347,5 +352,131 @@ describe("CE2 paid take: at most one POST, never a cancel", () => {
     await assert.rejects(submitShotJob(submission(), approval(), deps(storage, c)), (e: unknown) => e instanceof CinemaError && e.code === "BUDGET_RESERVED");
     storage.removeItem(PENDING_RENDER_KEY);
     await assert.rejects(submitShotJob(submission(), approval(), deps(storage, c)), (e: unknown) => e instanceof CinemaError && e.code === "APPROVAL_REQUIRED");
+  });
+});
+
+// Astra review (#226, probes R1–R3 of 857f116): kept as written, plus the neighbouring cases.
+describe("CE2 review: stale quote, concurrent take, conflict never settled (Astra R1–R3)", () => {
+  it("R1: a changed shot snapshot must invalidate the approved quote before submit", async () => {
+    const storage = memoryStorage();
+    const { c, calls } = client();
+    const input = submission();
+    input.snapshot = { ...input.snapshot, digest: "e".repeat(64), revision: 9 };
+    await assert.rejects(submitShotJob(input, approval(), deps(storage, c)));
+    assert.equal(calls.length, 0);
+  });
+
+  for (const [name, mutate] of [
+    ["graph prompt", (s: ShotSubmission) => { s.graph = { ...s.graph, "2": { class_type: "CLIPTextEncode", inputs: { text: "unapproved" } } }; }],
+    ["generation seed", (s: ShotSubmission) => { s.generation = { seed: 999 }; }],
+    ["account", (s: ShotSubmission) => { s.accountScope = "comfy-user-other"; }],
+    ["unbound quote", (s: ShotSubmission) => { s.quote = { ...s.quote, payloadDigest: undefined }; }],
+  ] as const) {
+    it(`R1: a mutation after the quote (${name}) = zero POST, zero reserve, approval still unused`, async () => {
+      const storage = memoryStorage();
+      const { c, calls } = client();
+      const input = submission();
+      mutate(input);
+      await assert.rejects(submitShotJob(input, approval(), deps(storage, c)), (e: unknown) => e instanceof CinemaError && e.code === "APPROVAL_REQUIRED");
+      assert.equal(calls.length, 0);
+      assert.equal(readLedger(storage).reservations.length, 0);
+      assert.equal(readLedger(storage).consumedApprovals.length, 0);
+    });
+  }
+
+  it("R1: the last validation point (current shot re-read) can refuse; generation settings are persisted", async () => {
+    const storage = memoryStorage();
+    const { c, calls } = client();
+    const refuse = { ...deps(storage, c), revalidate: async () => { throw new CinemaError("REVISION_CONFLICT", "shot changed"); } };
+    await assert.rejects(submitShotJob(submission(), approval(), refuse), (e: unknown) => e instanceof CinemaError && e.code === "REVISION_CONFLICT");
+    assert.equal(calls.length, 0);
+    const generation = { seed: 7, length: 121 };
+    const input = { ...submission(), generation };
+    const bound = await shotPayloadDigest(input);
+    const receipt = await submitShotJob({ ...input, quote: { ...input.quote, payloadDigest: bound } }, { ...approval(), payloadDigest: bound }, deps(storage, c));
+    assert.deepEqual(receipt.generation, generation);
+    assert.deepEqual(cinemaReceiptOf(readPending(storage))?.generation, generation);
+  });
+
+  it("R2: a take written before the project lock is acquired must survive settlement", async () => {
+    const vault = memoryVault();
+    await project(vault);
+    let injected = false;
+    const p = ports(vault, { lock: async (_id, fn) => {
+      if (!injected) {
+        injected = true;
+        const reg = ajouterPrise(await registreOf(vault), "sb-b1-s1", { id: "concurrent-kept", fichier: "Projets/demo/Prises/concurrent.mp4" });
+        await vault.put({ path: `Projets/demo/${REGISTRE_FILE}`, text: registreJson(reg), updatedAt: 0 });
+      }
+      return fn();
+    } });
+    const result = await settleShotJob({ receipt: succeeded(), outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, p);
+    const prises = (await registreOf(vault)).plans[0].prises;
+    assert.ok(prises.some(t => t.id === "concurrent-kept"));
+    assert.ok(prises.some(t => t.id === result.takeIds[0]));
+    assert.equal(result.outcome, "settled");
+  });
+
+  it("R2: a sidecar change before the projection lock is kept too (two actors racing)", async () => {
+    const vault = memoryVault();
+    await project(vault);
+    let n = 0;
+    const p = ports(vault, { lock: async (_id, fn) => {
+      if (++n === 2) {
+        const meta = await metaOf(vault);
+        await vault.put({ path: `Projets/demo/${cinemaMetaPath("b1")}`, text: metaJson({ ...meta, revisions: { ...meta.revisions, s2: 5 } }), updatedAt: 0 });
+      }
+      return fn();
+    } });
+    const result = await settleShotJob({ receipt: succeeded(), outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, p);
+    assert.equal(result.outcome, "settled");
+    const meta = await metaOf(vault);
+    assert.equal(meta.revisions.s2, 5);
+    assert.ok(meta.takes[result.takeIds[0]]);
+  });
+
+  it("R3: a registry conflict must remain pending, never marked settled", async () => {
+    const vault = memoryVault();
+    await project(vault);
+    vault.failPut = path => path === `Projets/demo/${REGISTRE_FILE}`;
+    const first = await settleShotJob({ receipt: succeeded(), outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, ports(vault));
+    assert.equal(first.outcome, "result_pending");
+    vault.failPut = null;
+    const reg = ajouterPrise(await registreOf(vault), "sb-b1-s1", { id: "user-kept", fichier: "Projets/demo/Prises/user.mp4" });
+    await vault.put({ path: `Projets/demo/${REGISTRE_FILE}`, text: registreJson(reg), updatedAt: 0 });
+    const resumed = await settleShotJob({ receipt: first.receipt, outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, ports(vault));
+    assert.ok(resumed.diagnostics.some(d => d.code === "REVISION_CONFLICT"));
+    assert.equal(resumed.outcome, "result_pending");
+    // Receipt and media kept; no dependent projection (dedup / provenance) advanced; a later resume stays pending.
+    assert.equal(resumed.receipt.state, "result_pending");
+    assert.equal(mediaCount(vault), 1);
+    const meta = await metaOf(vault);
+    assert.equal(meta.settled.length, 0);
+    assert.deepEqual(meta.takes, {});
+    assert.ok((await registreOf(vault)).plans[0].prises.some(t => t.id === "user-kept"));
+    const again = await settleShotJob({ receipt: resumed.receipt, outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, ports(vault));
+    assert.equal(again.outcome, "result_pending");
+  });
+
+  it("R3: a dedup key without its take in the registre is not « already settled »", async () => {
+    const vault = memoryVault();
+    await project(vault);
+    const key = `${ACCOUNT}|${JOB}|0`;
+    await vault.put({ path: `Projets/demo/${cinemaMetaPath("b1")}`, text: metaJson({ ...emptyMeta("b1"), settled: [key] }), updatedAt: 0 });
+    const result = await settleShotJob({ receipt: succeeded(), outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, ports(vault));
+    assert.equal(result.diagnostics.some(d => d.code === "ALREADY_SETTLED"), false);
+    assert.ok((await registreOf(vault)).plans[0].prises.some(t => t.id === result.takeIds[0]));
+  });
+});
+
+describe("CE2 review: one ledger for text and media approvals", () => {
+  it("an approval id consumed by the intent job cannot reserve a take (and keeps the ledger whole)", async () => {
+    const storage = memoryStorage();
+    const { c, calls } = client();
+    consumeApproval(storage, "a1");
+    await assert.rejects(submitShotJob(submission(), approval("a1"), deps(storage, c)), (e: unknown) => e instanceof CinemaError && e.code === "APPROVAL_REQUIRED");
+    assert.equal(calls.length, 0);
+    await submitShotJob(submission(), approval("a2"), deps(storage, c));
+    assert.deepEqual(readLedger(storage).consumedApprovals, ["a1", "a2"]);
   });
 });

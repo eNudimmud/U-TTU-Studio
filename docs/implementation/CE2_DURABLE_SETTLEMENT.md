@@ -75,3 +75,10 @@ Every ambiguous recovery test asserts one `submit` at most and no other client c
 - CE3: write `revisions` and `archived` in the sidecar through `runTransaction`.
 - CE4: `earlierVersionTakes(meta, shotId)` → « Result from an earlier version »; `costLabel` for « ≈ X crédits estimés ».
 - CE5: call `resumeShotJobs` on open, `submitShotJob` behind `withPaidSession`, `settleShotJob` with `client.file` as `download` and `observedCost(client.jobCharge(...))`.
+
+## Revue Astra (857f116) — R1/R2/R3 corrigés
+
+- **R1** `submitShotJob` : `quote.payloadDigest` et `approval.payloadDigest` (champs additifs) lient la charge exacte (`shotPayloadDigest` = digest snapshot + graph + generation + compte). Recalcul juste avant réserve/POST ; écart ou charge non liée = `APPROVAL_REQUIRED`, zéro réserve, zéro POST. Port `revalidate(snapshot)` pour la relecture du plan courant (CE5). `generation` persistée sur le reçu.
+- **R2** `runComputedTransaction` (journal.ts) : lecture → calcul → journal → écriture sous une seule acquisition du verrou projet, sans réentrance ; utilisé pour le registre et pour les projections. Téléchargements en amont.
+- **R3** Conflit du registre ou des projections = `result_pending` (reçu et médias conservés, ni dedup ni provenance avancés) ; registre relu avant les projections ; le raccourci « déjà réglé » exige aussi la prise dans le registre. Résolution d'un conflit : action du visiteur (CE5), jamais automatique.
+- **Ledger commun** : clé et `consumedApprovals` partagés avec le job d'intention (`approval-ledger.ts`, CE0), sans cycle intent-job ↔ spend-ledger.
