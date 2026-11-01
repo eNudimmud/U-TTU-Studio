@@ -13,8 +13,8 @@ import { assetPath, siteOrigin, socialImage } from "@/lib/site";
 /* Instrument Serif (OFL, src/app/fonts/InstrumentSerif-OFL.txt): one display title per screen, never body text. */
 const display = localFont({
   src: [
-    { path: "./fonts/InstrumentSerif-Regular.woff", weight: "400", style: "normal" },
-    { path: "./fonts/InstrumentSerif-Italic.woff", weight: "400", style: "italic" },
+    { path: "./fonts/InstrumentSerif-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/InstrumentSerif-Italic.woff2", weight: "400", style: "italic" },
   ],
   variable: "--font-instrument",
   display: "swap",

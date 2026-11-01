@@ -85,8 +85,15 @@ export function HomeLanding() {
       if (still) return;
       if (entry.isIntersecting) { video.preload = "auto"; video.play().catch(() => {}); } else video.pause();
     }), { threshold: .25 });
-    el.querySelectorAll<HTMLVideoElement>("video[data-lazy]").forEach(node => loops.observe(node));
-    return () => { reveal.disconnect(); loops.disconnect(); };
+    // Their posters are far below the hero: fetched a screen ahead, so they never compete with the first paint.
+    const posters = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const video = entry.target as HTMLVideoElement;
+      if (video.dataset.poster) video.poster = video.dataset.poster;
+      posters.unobserve(video);
+    }), { rootMargin: "1200px 0px" });
+    el.querySelectorAll<HTMLVideoElement>("video[data-lazy]").forEach(node => { loops.observe(node); posters.observe(node); });
+    return () => { reveal.disconnect(); loops.disconnect(); posters.disconnect(); };
   }, []);
 
   const paused = userPaused || hidden;
@@ -163,7 +170,7 @@ export function HomeLanding() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={IMG("village-clair.webp")} alt={t("accueil.mapAlt")} loading="lazy" decoding="async" />
             <figure className="hv-inset">
-              <video muted loop playsInline preload="none" poster={MEDIA("loop-map-poster.webp")} data-lazy="" aria-hidden="true">
+              <video muted loop playsInline preload="none" data-poster={MEDIA("loop-map-poster.webp")} data-lazy="" aria-hidden="true">
                 <source src={MEDIA("loop-map.webm")} type="video/webm" /><source src={MEDIA("loop-map.mp4")} type="video/mp4" />
               </video>
               <figcaption>{t("accueil.inStudio")}</figcaption>
@@ -174,7 +181,7 @@ export function HomeLanding() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={IMG("uttu-quai-1280.webp")} srcSet={srcset("uttu-quai")} sizes="(max-width: 900px) 100vw, 50vw" alt={t("accueil.stageAlt")} loading="lazy" decoding="async" />
             <figure className="hv-inset">
-              <video muted loop playsInline preload="none" poster={MEDIA("loop-stage-poster.webp")} data-lazy="" aria-hidden="true">
+              <video muted loop playsInline preload="none" data-poster={MEDIA("loop-stage-poster.webp")} data-lazy="" aria-hidden="true">
                 <source src={MEDIA("loop-stage.webm")} type="video/webm" /><source src={MEDIA("loop-stage.mp4")} type="video/mp4" />
               </video>
               <figcaption>{t("accueil.inStudio")}</figcaption>

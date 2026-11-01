@@ -41,3 +41,12 @@ test("accueil: only the first hero slide is in the HTML and at high priority; th
   await expect(page.locator(".hv-slide img")).toHaveCount(5, { timeout: 15_000 });
   await expect(page.locator(".hv-slide.s2 img")).toHaveAttribute("fetchpriority", "low");
 });
+
+test("perf/lcp: the storyboard paints from the server HTML, and the studio's card pictures wait for the load", async ({ page, request }) => {
+  const board = await (await request.get("/storyboard")).text();
+  expect(board).toMatch(/class="sb-muted[^"]*">[^<]+</);
+  const studio = await (await request.get("/studio")).text();
+  expect(studio).not.toMatch(/<img[^>]*src="[^"]*\/exemples\/vignettes\//);
+  await page.goto("/studio");
+  await expect(page.locator(".u-outil-thumb img").first()).toHaveAttribute("src", /\/exemples\/vignettes\/[a-z0-9-]+\.webp$/, { timeout: 20_000 });
+});
