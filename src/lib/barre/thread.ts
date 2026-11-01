@@ -53,6 +53,8 @@ export interface FilJob {
   poster?: string;
   takeId?: string;
   cost?: number | null;
+  /** The balance could not show the cost: compute time × the billed rate (« ≈ … estimés »). */
+  costGpu?: { seconds: number; credits: number } | null;
   message?: string;
   aspect: "horizontal" | "vertical";
   renderId?: string;

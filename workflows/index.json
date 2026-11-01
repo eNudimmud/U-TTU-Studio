@@ -1072,6 +1072,38 @@
       "api_file": "workflows/outils/creation-image.api.json"
     },
     {
+      "id": "creation-image-nano",
+      "onglet": "outils",
+      "template": "api_nano_banana_2_1_image_edit",
+      "partner": true,
+      "partnerNodes": [
+        "GeminiNanoBanana2V2"
+      ],
+      "sentPartner": true,
+      "template_file": "workflows/outils/creation-image-nano.json",
+      "api_file": "workflows/outils/creation-image-nano.api.json"
+    },
+    {
+      "id": "creation-image-qwen",
+      "onglet": "outils",
+      "template": "image_qwen_image_2_1_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/creation-image-qwen.json",
+      "api_file": "workflows/outils/creation-image-qwen.api.json"
+    },
+    {
+      "id": "creation-image-flux2",
+      "onglet": "outils",
+      "template": "image_flux2",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": false,
+      "template_file": "workflows/outils/creation-image-flux2.json",
+      "api_file": "workflows/outils/creation-image-flux2.api.json"
+    },
+    {
       "id": "creation-video-refs",
       "onglet": "outils",
       "template": "video_minimax_h3_r2v",

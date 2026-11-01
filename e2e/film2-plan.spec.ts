@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { simulateComfy } from './helpers/film2-comfy';
 
-// Refonte FILM · PR 5 — la carte du plan (?film2=1). Comfy is simulated: this proves the path and
+// Refonte FILM · PR 5 — la carte du plan (). Comfy is simulated: this proves the path and
 // the tap count, never the quality of a paid model. 0 real credits.
 
 const SHOTS = process.env.FILM2_SHOTS;
@@ -31,7 +31,7 @@ test('carte du plan : de l’accueil au POST en ≤ 3 taps et 1 champ, puis la p
   let taps = 0;
   const tap = async (target: Locator) => { await expect(target).toBeEnabled(); await target.click(); taps += 1; };
 
-  await page.goto('/studio?film2=1');
+  await page.goto('/studio');
   await snap('01-accueil');
   // Tap 1 · the film door opens the plan card, not CAST.
   await tap(page.locator('[data-entry-film]'));
@@ -123,7 +123,7 @@ for (const size of [{ width: 390, height: 844 }, { width: 844, height: 390 }, { 
   test(`carte du plan ${size.width}×${size.height} : champ et bouton or au premier écran, un seul primaire`, async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop', 'sizes are set here');
     await page.setViewportSize(size);
-    await page.goto('/studio?film2=1#prise');
+    await page.goto('/studio#prise');
     const field = page.locator('[data-film-phrase]');
     await expect(field).toBeVisible({ timeout: 30_000 });
     await onScreen(page, field);

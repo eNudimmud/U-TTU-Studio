@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { simulateComfy } from './helpers/film2-comfy';
 
-// Refonte FILM · PR 7 — réglages en clair (?film2=1). No engine, model or plumbing word in the default
+// Refonte FILM · PR 7 — réglages en clair (). No engine, model or plumbing word in the default
 // view of Plans, CAST and DÉCOR; no « Avancé » fold; every option of « Réglages du plan » says its effect.
 
 const JARGON = /\bH3\b|\bLTX\b|Klein|\bMP\b|Avancé|16:9|9:16|planche|Prévis|Mémoire|Comfy/;
@@ -14,7 +14,7 @@ async function jargon(page: Page) {
 for (const section of ['prise', 'personnage', 'decor']) {
   test(`vue par défaut sans jargon : #${section}`, async ({ page }) => {
     await simulateComfy(page);
-    await page.goto(`/studio?film2=1#${section}`);
+    await page.goto(`/studio#${section}`);
     await expect(page.locator('#u-title')).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(800);
     expect(await jargon(page)).toEqual([]);
@@ -27,7 +27,7 @@ test('« Réglages du plan » : chaque option dit son effet, le choix part dans 
   const comfy = await simulateComfy(page);
   const SHOTS = process.env.FILM2_SHOTS;
   const prefix = `film2-${page.viewportSize()?.width}x${page.viewportSize()?.height}`;
-  await page.goto('/studio?film2=1#prise');
+  await page.goto('/studio#prise');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
   await page.locator('[data-film-phrase]').fill('Uttu marche sur le quai la nuit');
   const chips = page.locator('[data-film-chips] > *');
@@ -79,7 +79,7 @@ test('« Réglages du plan » : chaque option dit son effet, le choix part dans 
 
 test('services partenaires payants : non par défaut, un seul interrupteur expliqué', async ({ page }) => {
   await simulateComfy(page);
-  await page.goto('/studio?film2=1#prise');
+  await page.goto('/studio#prise');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
   await page.locator('button.u-credit').click();
   const box = page.locator('[data-compte-partenaires]');

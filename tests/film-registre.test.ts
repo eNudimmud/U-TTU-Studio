@@ -5,7 +5,6 @@ import {
   registreJson, registreVide, relier, REFS_MAX, type Registre,
 } from "../src/lib/film/registre.ts";
 import { memoEnvois, memoMemoire, ENVOI_TTL_MS } from "../src/lib/film/envois.ts";
-import { film2Actif, FILM2_KEY } from "../src/lib/film/drapeau.ts";
 import { createRenderClient } from "../src/lib/render/client.ts";
 
 const ref = (sha: string) => ({ sha256: sha, path: `${sha}.png` });
@@ -88,7 +87,7 @@ test("0 /api/upload/image for a picture already sent to the same account", async
   const other = createRenderClient({ auth: { kind: "key", key: "autre-fake-key-9876543210" }, fetch: comfy.fetch, uploadMemo: memo });
   await other.upload(photo(), "uttu.png");
   assert.equal(comfy.calls.filter(call => call.endsWith("/api/upload/image")).length, 2);
-  // Without the memo (film2 off), nothing changes: every take uploads.
+  // Without the memo, nothing changes: every take uploads.
   const plain = createRenderClient({ auth: { kind: "key", key: "audit-fake-key-0123456789" }, fetch: comfy.fetch });
   await plain.upload(photo(), "uttu.png");
   assert.equal(comfy.calls.filter(call => call.endsWith("/api/upload/image")).length, 3);
@@ -118,21 +117,6 @@ test("the stored memo expires after a week", () => {
   assert.equal(memo.get("k"), "nom.png");
   now += ENVOI_TTL_MS + 1;
   assert.equal(memo.get("k"), null);
-});
-
-test("film2 is on by default, off with ?film2=0 and kept, back on with ?film2=1", () => {
-  const rows = new Map<string, string>();
-  const storage = { getItem: (k: string) => rows.get(k) ?? null, setItem: (k: string, v: string) => { rows.set(k, v); }, removeItem: (k: string) => { rows.delete(k); } };
-  // PR 9: the new film is the default; ?film2=0 keeps the former one on this device until ?film2=1.
-  assert.equal(film2Actif("", storage), true);
-  assert.equal(film2Actif("?film2=0", storage), false);
-  assert.equal(rows.get(FILM2_KEY), "0");
-  assert.equal(film2Actif("", storage), false);
-  assert.equal(film2Actif("?demo=1&film2=1", storage), true);
-  assert.equal(rows.has(FILM2_KEY), false);
-  assert.equal(film2Actif("", storage), true);
-  assert.equal(film2Actif("", null), true);
-  assert.equal(film2Actif("?film2=0", null), false);
 });
 
 test("a shot lasts 5, 8 or 10 s like a take; an older 3 s shot reads as 5 s", () => {

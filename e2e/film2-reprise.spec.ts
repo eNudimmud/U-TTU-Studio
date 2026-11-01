@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { simulateComfy } from './helpers/film2-comfy';
 
-// Refonte FILM · PR 6 — confirmation unique et chaînage (?film2=1, Comfy simulated, 0 real credits).
+// Refonte FILM · PR 6 — confirmation unique et chaînage (, Comfy simulated, 0 real credits).
 // A failed step says why, keeps what was made, and « Réessayer » sends only what is missing.
 
 const SHOTS = process.env.FILM2_SHOTS;
@@ -23,7 +23,7 @@ test('une étape échoue : son image est gardée, « Réessayer » ne renvoie qu
   const prefix = `film2-${page.viewportSize()?.width}x${page.viewportSize()?.height}`;
   if (SHOTS) mkdirSync(SHOTS, { recursive: true });
   const snap = async (name: string) => { if (SHOTS) { await page.waitForTimeout(300); await page.screenshot({ path: join(SHOTS, `${prefix}-${name}.png`) }); } };
-  await page.goto('/studio?film2=1#prise');
+  await page.goto('/studio#prise');
   const field = page.locator('[data-film-phrase]');
   const gold = page.locator('[data-film-tourner]');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });

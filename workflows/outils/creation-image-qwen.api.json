@@ -1,0 +1,169 @@
+{
+  "459:451": {
+    "inputs": {
+      "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model"
+    }
+  },
+  "459:453": {
+    "inputs": {
+      "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load CLIP"
+    }
+  },
+  "459:454": {
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "459:456": {
+    "inputs": {
+      "width": 1344,
+      "height": 768,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent Image"
+    }
+  },
+  "459:457": {
+    "inputs": {
+      "samples": [
+        "459:458",
+        0
+      ],
+      "vae": [
+        "459:454",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "459:458": {
+    "inputs": {
+      "seed": 0,
+      "steps": 25,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "459:469",
+        0
+      ],
+      "positive": [
+        "459:474",
+        0
+      ],
+      "negative": [
+        "459:474",
+        1
+      ],
+      "latent_image": [
+        "459:468",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "459:468": {
+    "inputs": {
+      "switch": true,
+      "on_false": [
+        "459:474",
+        2
+      ],
+      "on_true": [
+        "459:456",
+        0
+      ]
+    },
+    "class_type": "ComfySwitchNode",
+    "_meta": {
+      "title": "If/Else Switch"
+    }
+  },
+  "459:469": {
+    "inputs": {
+      "device": "auto",
+      "dtype": "default",
+      "model": [
+        "459:451",
+        0
+      ]
+    },
+    "class_type": "QwenImage21Cache",
+    "_meta": {
+      "title": "Qwen Image 2.1 Cache"
+    }
+  },
+  "459:474": {
+    "inputs": {
+      "negative_prompt": "",
+      "resolution": 1024,
+      "clip": [
+        "459:453",
+        0
+      ],
+      "vae": [
+        "459:454",
+        0
+      ],
+      "prompt": "<texte du visiteur>\n\nReference images:\n- <image1>: \"Uttu\", character. Keep this exact character: same face, species, body proportions, colours, outfit, markings and logos.\n- <image2>: \"Quai\", place (the setting). The scene happens in or on this place; keep its architecture, shapes, colours and materials, and build any part the request names that the pictures do not show in the same design.\nAn image made of several panels, views or labelled drawings is a design sheet: use it only to understand the design. Never copy its panels, layout, grid, labels, captions or plain background into the new picture.\nPoses, gestures and camera angle come from the request, never from the reference photos: give each character a fresh, natural pose that acts out the request.\nCompose ONE new picture of this scene, where every named character and object appears once, whole and recognisable. Never merge two characters, never lend one reference's features to another.\nStyle: keep the rendering of the reference images; photographic references give a photographic picture, not a cartoon.",
+      "images.image_1": [
+        "reference_1",
+        0
+      ],
+      "images.image_2": [
+        "reference_2",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImage21",
+    "_meta": {
+      "title": "Text Encode Qwen Image 2.1"
+    }
+  },
+  "reference_1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-personnage.png"
+    }
+  },
+  "reference_2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-decor.png"
+    }
+  },
+  "save": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "459:457",
+        0
+      ],
+      "filename_prefix": "uttu/creation-image"
+    }
+  }
+}

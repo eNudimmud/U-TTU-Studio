@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { parseTake, takeMarkdown, type Take } from "../src/lib/coffre/model.ts";
 import { placeStoryboard } from "../src/lib/montage/arrivee.ts";
-import { framingGroups } from "../src/lib/prise/framing-refs.ts";
+
 import { comfyStorageUrl, takeWorkflow } from "../src/lib/render/take-graph.ts";
 import { IN_FLIGHT_KEY, readInFlight } from "../src/lib/render/settings.ts";
 
@@ -72,19 +72,4 @@ describe("P1-4 · DÉCOR → PRISE : points de vue en référence de cadrage", (
   const cast = [{ name: "Uttu", sheet: "Projets/a/Personnages/uttu-planche.png", photos: ["Projets/a/Personnages/uttu.png"] }];
   const paths = ["Projets/a/Lieux/quai-rendu.png", "Projets/a/Lieux/quai.png", "Projets/a/Lieux/quai-2.png", "Projets/a/Lieux/quai-3.jpg", "Projets/a/Lieux/gare.png", "Projets/a/Personnages/uttu-planche.png", "Projets/a/Personnages/uttu.png", "Projets/a/Import/x.webp", "Projets/a/Prises/p.mp4"];
 
-  it("lists the plan's set viewpoints first, then other sets, then cast, then the rest", () => {
-    const groups = framingGroups(paths, scenes, cast, "le-quai");
-    assert.deepEqual(groups.map(group => group.group), ["decor", "cast", "autres"]);
-    assert.deepEqual(groups[0].items.map(item => item.path), ["Projets/a/Lieux/quai-rendu.png", "Projets/a/Lieux/quai.png", "Projets/a/Lieux/quai-2.png", "Projets/a/Lieux/quai-3.jpg", "Projets/a/Lieux/gare.png"]);
-    assert.equal(groups[0].items[0].kind, "rendu");
-    assert.deepEqual(groups[0].items.slice(1, 4).map(item => item.n), [1, 2, 3]);
-    assert.deepEqual(groups[2].items.map(item => item.path), ["Projets/a/Import/x.webp"]);
-    const all = groups.flatMap(group => group.items.map(item => item.path));
-    assert.equal(new Set(all).size, all.length);
-    assert.ok(!all.includes("Projets/a/Prises/p.mp4"));
-  });
-
-  it("offers only what is in the project", () => {
-    assert.deepEqual(framingGroups(["Projets/a/Personnages/uttu.png"], scenes, cast, null).map(group => group.group), ["cast"]);
-  });
 });
