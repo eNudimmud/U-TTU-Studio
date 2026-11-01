@@ -16,10 +16,10 @@ function checkReferences(settings: TakeSettings, count: number): void {
 }
 
 /** The graph for the chosen engine. Same pictures, same text. */
-export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number, controls?: UploadedControls): ApiGraph {
+export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number, controls?: UploadedControls, roles?: string): ApiGraph {
   checkReferences(settings, pictures.length);
   if (Boolean(settings.cadrage) !== Boolean(controls) || (controls && takeEngine(settings) !== "ltx")) throw new RenderError("invalid", "Le cadrage gardé demande ses deux contrôles et le moteur LTX.");
-  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu", controls });
+  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu", controls, ...(roles ? { roles } : {}) });
   return takeGraph({ ...settings, prompt, pictures, seed });
 }
 

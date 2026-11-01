@@ -1,6 +1,7 @@
 // A storyboard shot becomes a film2 shot (SB7): same take, same single confirmation, same register.
 // The new characters and the new place are created first; a step already made is found again by name.
 
+import { fromRefPlan, type ShotRefInput } from "../cinema/references.ts";
 import type { KnownName } from "../intention/resolve.ts";
 import type { TakeSettings } from "../render/take-graph.ts";
 import { reglagesDuPlan } from "./devis.ts";
@@ -16,6 +17,12 @@ export interface EnvoiPlan {
   nouveaux: { nom: string }[];
   nouveauLieu: { nom: string } | null;
   settings: TakeSettings;
+  /**
+   * CE1: every ref of the shot with its role, objects and style included, in the shot's order. The
+   * cinema resolver (cinema/references.ts) binds them by project/category/id up to the graph; the
+   * fields above stay for the historical take path.
+   */
+  references: ShotRefInput[];
 }
 
 /** The register id of a storyboard shot: stable, so a retry finds the steps already done. */
@@ -48,6 +55,7 @@ export function versPlanFilm(sb: Storyboard, plan: PlanSB, cards: { cast: readon
     nouveaux,
     nouveauLieu: ou && !decorId ? { nom: ou.nom } : null,
     settings: reglagesDuPlan(plan),
+    references: plan.refs.map(fromRefPlan),
   };
 }
 

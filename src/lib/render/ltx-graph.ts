@@ -26,6 +26,12 @@ export interface LtxTakeInput {
   aspect: TakeAspect;
   /** First pass only, about 480p. Same seed, same prompt. */
   apercu?: boolean;
+  /**
+   * CE1: the role of every picture, named with `<ref_image_i>` tags (cinema/references.ts `slotPrompt`).
+   * When given, the first-frame text no longer assumes picture 1 is the one person and the last
+   * picture the place. Absent: the historical text, unchanged.
+   */
+  roles?: string;
 }
 
 /**
@@ -50,8 +56,11 @@ function byTitle(graph: ApiGraph, title: string): string {
 }
 
 export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
-  const pictures = input.pictures.filter(name => typeof name === "string" && name.trim()).slice(0, LTX_REFS_MAX);
+  const pictures = input.pictures.filter(name => typeof name === "string" && name.trim());
   if (pictures.length === 0) throw new Error("Au moins une photo des références.");
+  // Never cut a reference to fit: the caller reduces them, or the shot is refused (CE1).
+  if (pictures.length > LTX_REFS_MAX) throw new Error(`Ce moteur accepte au plus ${LTX_REFS_MAX} images de référence.`);
+  const roles = input.roles?.trim();
   const prompt = input.prompt.trim();
   if (!prompt) throw new Error("Le plan est vide.");
   const seed = Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0;
@@ -90,7 +99,11 @@ export function ltxTakeGraph(input: LtxTakeInput): ApiGraph {
   const guideTag = `<ref_image_${pictures.length}>`;
   Object.assign(graph, kleinNodes({
     prefix: "frame_",
-    prompt: guide
+    prompt: roles
+      ? guide
+        ? `Photorealistic film still. Use ${guideTag} only as the camera and layout guide: same camera distance, horizon height, figure size and position. Never copy its gold mannequins or its plain background. Replace the mannequins with the characters named below, each with their own face and outfit. ${roles} ${prompt} No text.`
+        : `First frame of a film shot. ${roles} ${prompt} Keep each character's own face and outfit, and the place as shown. No text.`
+      : guide
       ? `Photorealistic film still. Use ${guideTag} only as the camera and layout guide: same camera distance, horizon height, figure size and position. Never copy its gold mannequins or its plain background. Replace each mannequin with the person from <ref_image_0>, same face, same outfit, in the place from ${last}. ${prompt}`
       : prompt.includes("[framing reference]")
       ? `First frame of a film shot. Follow the named reference roles below: the framing guide controls composition only. ${prompt} Same face, same outfit, same place. No text.`
