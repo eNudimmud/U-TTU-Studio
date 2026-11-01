@@ -77,7 +77,7 @@ describe("CE5 page writer: three-way save through the common revision", () => {
 
 describe("CE5 page writer: journaled save", () => {
   const now = () => "2026-11-01T12:00:00.000Z";
-  it("writes board + sidecar in one journal, then drops the journal of a clean save; a settlement's link survives", async () => {
+  it("writes board + sidecar in one journal, kept applied after a clean save (CE5-W); a settlement's link survives", async () => {
     const files = memoryVault();
     const base = board();
     await files.put({ path: cheminJson("b1"), text: storyboardJson(majPlan(base, "s2", { planFilmId: "pf-1" })), updatedAt: 1 });
@@ -86,7 +86,8 @@ describe("CE5 page writer: journaled save", () => {
     assert.equal(shot(onDisk, "s2").planFilmId, "pf-1");
     assert.equal(shot(onDisk, "s1").action, "pluie");
     assert.equal(parseMeta((await files.get(cinemaMetaPath("b1")))?.text ?? null, "b1").revisions.s1, 1);
-    assert.equal(await files.get(journalPath("op-1")), null);
+    const kept = JSON.parse((await files.get(journalPath("op-1")))!.text!);
+    assert.equal(kept.state, "applied", "the applied journal stays: replay, traceability, inverse");
     assert.deepEqual(saved.board, onDisk, "memory = files");
   });
 
@@ -117,5 +118,53 @@ describe("CE5 page writer: journaled save", () => {
     await assert.rejects(runComputedTransaction(failing, noLock, { operationId: "op-4", scope: { projectId: "p", storyboardId: "b1" }, now, compute: async () => [{ path: cheminJson("b1"), text: storyboardJson(majPlan(base, "s1", { action: "v1" })) }] }));
     const saved = await saveBoard(files, noLock, { projectId: "p", operationId: "op-4", base, mine: majPlan(base, "s1", { action: "v2" }), now });
     assert.equal(shot(saved.board, "s1").action, "v1", "the journaled write wins, not a second calculation");
+  });
+});
+
+describe("CE5-W · structure merged three ways, explicit restore", () => {
+  const two = (sb: Storyboard) => ({ ...sb, sequences: [sb.sequences[1], sb.sequences[0]] });
+  it("a structure the page left alone follows the disk (reorder across sequences, sequence order)", () => {
+    const base = board();
+    const disk: Storyboard = two({ ...base, sequences: [{ ...base.sequences[0], plans: [base.sequences[0].plans[0]] }, { ...base.sequences[1], plans: [base.sequences[0].plans[1], base.sequences[1].plans[0]] }] });
+    const mine = majPlan(base, "s1", { action: "page" });
+    const out = rebaseBoard(base, mine, disk, emptyMeta("b1"));
+    assert.deepEqual(out.board.sequences.map(seq => [seq.id, seq.plans.map(p => p.id)]), [["q2", ["s2", "s3"]], ["q1", ["s1"]]]);
+    assert.equal(shot(out.board, "s1").action, "page");
+    assert.deepEqual(out.conflicts, []);
+  });
+  it("the page adds a shot while another writer reorders: both kept, no conflict", () => {
+    const base = board();
+    const disk: Storyboard = { ...base, sequences: [{ ...base.sequences[0], plans: [...base.sequences[0].plans].reverse() }, base.sequences[1]] };
+    const extra = { ...planVide("s9"), titre: "s9", action: "neuf" };
+    const mine: Storyboard = { ...base, sequences: [base.sequences[0], { ...base.sequences[1], plans: [...base.sequences[1].plans, extra] }] };
+    const out = rebaseBoard(base, mine, disk, emptyMeta("b1"));
+    assert.deepEqual(order(out.board), ["s2", "s1", "s3", "s9"]);
+    assert.deepEqual(out.conflicts, []);
+  });
+  it("another writer removes a shot while the page reorders the rest: the removal stands", () => {
+    const base = board();
+    const disk = retirerPlan(base, "s3");
+    const mine = two(base);
+    const out = rebaseBoard(base, mine, disk, emptyMeta("b1"));
+    assert.deepEqual(order(out.board), ["s1", "s2"]);
+    assert.deepEqual(out.board.sequences.map(seq => seq.id), ["q2", "q1"]);
+  });
+  it("both reorder differently: explicit conflict, the disk's structure kept", () => {
+    const base = board();
+    const disk: Storyboard = { ...base, sequences: [{ ...base.sequences[0], plans: [...base.sequences[0].plans].reverse() }, base.sequences[1]] };
+    const mine = two(base);
+    const out = rebaseBoard(base, mine, disk, emptyMeta("b1"));
+    assert.deepEqual(out.conflicts, ["board.structure"]);
+    assert.deepEqual(order(out.board), ["s2", "s1", "s3"]);
+  });
+  it("an explicit restore makes the shot active with a new revision; a shot removed elsewhere is not resurrected", () => {
+    const base = board();
+    const removed = rebaseBoard(base, retirerPlan(base, "s2"), base, emptyMeta("b1"));
+    const restored = rebaseBoard(removed.board, base, removed.board, removed.meta);
+    assert.ok(!restored.meta.archived.includes("s2"));
+    assert.ok(restored.meta.revisions.s2 > (removed.meta.revisions.s2 ?? 0), "old quotes and keyframes stay void");
+    assert.ok((restored.meta.archivedShots as Record<string, unknown>).s2, "history kept");
+    const elsewhere = rebaseBoard(base, base, retirerPlan(base, "s2"), emptyMeta("b1"));
+    assert.ok(!order(elsewhere.board).includes("s2"));
   });
 });

@@ -6,7 +6,8 @@
 //   base = the file as the page last read or wrote it, mine = the page's board, disk = the file now.
 // Per field: what the page changed wins, what it left alone follows the disk; both changed it differently =
 // the disk is kept and the page's version is written beside it (`conflicts`), never lost.
-// A removed shot is archived whole in the sidecar. Every shot whose editable fields move gets a new
+// A removed shot is archived whole in the sidecar; a shot the page restores becomes active again with a new revision.
+// Structure (order, sequences, parent) is merged three ways as well: a structure the page left alone follows the disk. Every shot whose editable fields move gets a new
 // revision (its quotes and approvals are void), the board revision moves with its structure.
 // Pure: the caller reads and writes under the project lock, inside one journaled transaction.
 import type { VaultStore } from "../coffre/store.ts";
@@ -59,26 +60,46 @@ export function rebaseBoard(base: Storyboard | null, mine: Storyboard, disk: Sto
   const archivedShots: Record<string, unknown> = { ...(meta.archivedShots ?? {}) };
   const archived = new Set(meta.archived);
 
-  // The page's structure (order, sequences) wins; shots it removed go, shots it never saw stay where they were.
-  const kept = (id: string) => {
-    if (!diskShots.has(id)) return !baseShots.has(id); // removed elsewhere: gone, unless the page created it
-    return true;
-  };
-  const sequences: Sequence[] = mine.sequences.map(seq => {
+  // Structure (sequence order, shot order, parent sequence) is merged three ways too (CE5-W, R8):
+  // the page's structure wins only where the page moved something; a structure the page left alone
+  // follows the disk; both moved differently = conflict, the disk's structure is kept (page copy beside).
+  const removedElsewhere = (id: string) => !diskShots.has(id) && baseShots.has(id);
+  const removedByPage = (id: string) => baseShots.has(id) && !mineShots.has(id);
+  const common = new Set([...baseShots.keys()].filter(id => mineShots.has(id) && diskShots.has(id)));
+  const baseSeqIds = new Set((base ?? disk).sequences.map(seq => seq.id));
+  const skeleton = (sb: Storyboard) => sb.sequences.filter(seq => baseSeqIds.has(seq.id)).map(seq => [seq.id, seq.plans.map(plan => plan.id).filter(id => common.has(id))]);
+  const pageMoved = !same(skeleton(mine), skeleton(base ?? disk));
+  const diskMoved = !same(skeleton(disk), skeleton(base ?? disk));
+  const structureClash = pageMoved && diskMoved && !same(skeleton(mine), skeleton(disk));
+  if (structureClash) conflicts.push("board.structure");
+  const followDisk = structureClash || (!pageMoved && diskMoved);
+
+  const mergeSeq = (seq: Sequence, from: "mine" | "disk"): Sequence => {
     const baseSeq = (base ?? disk).sequences.find(item => item.id === seq.id);
+    const mineSeq = mine.sequences.find(item => item.id === seq.id);
     const diskSeq = disk.sequences.find(item => item.id === seq.id);
-    const fields = Object.fromEntries(SEQUENCE_FIELDS.map(key => [key, diskSeq ? merge3(baseSeq?.[key], seq[key], diskSeq[key], `${seq.id}.${key}`, conflicts) : seq[key]]));
-    const plans = seq.plans.filter(plan => kept(plan.id)).map(plan => {
+    const fields = Object.fromEntries(SEQUENCE_FIELDS.map(key => [key, mineSeq && diskSeq ? merge3(baseSeq?.[key], mineSeq[key], diskSeq[key], `${seq.id}.${key}`, conflicts) : seq[key]]));
+    const plans = seq.plans.filter(plan => from === "mine" ? !removedElsewhere(plan.id) || !baseShots.has(plan.id) : !removedByPage(plan.id) || structureClash).map(plan => {
       const now = diskShots.get(plan.id);
-      return now ? mergeShot(baseShots.get(plan.id), plan, now, conflicts) : plan;
+      const page = mineShots.get(plan.id);
+      return now && page ? mergeShot(baseShots.get(plan.id), page, now, conflicts) : plan;
     });
     return { ...seq, ...fields, plans } as Sequence;
-  });
+  };
+  // The side whose structure stands; the other side's new shots and sequences are inserted after what precedes them there.
+  const [lead, other] = followDisk ? [disk, mine] : [mine, disk];
+  const sequences: Sequence[] = lead.sequences
+    .filter(seq => followDisk ? !(baseSeqIds.has(seq.id) && !mine.sequences.some(item => item.id === seq.id) && !structureClash) : true)
+    .map(seq => mergeSeq(seq, followDisk ? "disk" : "mine"));
+  for (const [index, seq] of other.sequences.entries()) {
+    if (sequences.some(item => item.id === seq.id) || baseSeqIds.has(seq.id)) continue;
+    const before = other.sequences.slice(0, index).reverse().find(item => sequences.some(s => s.id === item.id));
+    sequences.splice(before ? sequences.findIndex(s => s.id === before.id) + 1 : 0, 0, { ...seq, plans: [] });
+  }
   // A shot the page edited but another writer removed: the removal stands, the page's version is kept beside.
   for (const [id] of mineShots) if (baseShots.has(id) && !diskShots.has(id) && !same(baseShots.get(id), mineShots.get(id))) conflicts.push(`${id}.removed`);
-  // Shots added on the disk since the page read it: inserted after the shot that precedes them there.
   const placed = new Set(sequences.flatMap(seq => seq.plans.map(plan => plan.id)));
-  for (const seq of disk.sequences) {
+  for (const seq of other.sequences) {
     seq.plans.forEach((plan, index) => {
       if (placed.has(plan.id) || baseShots.has(plan.id)) return;
       const target = sequences.find(item => item.id === seq.id) ?? sequences[sequences.length - 1];
@@ -95,6 +116,12 @@ export function rebaseBoard(base: Storyboard | null, mine: Storyboard, disk: Sto
     archivedShots[id] = plan;
     archived.add(id);
   }
+  // R9 · a shot the page brought back (absent from its base, present on its board, archived in the
+  // sidecar) is restored explicitly: active again, a new revision (a keyframe or a quote from before
+  // the archive never becomes valid again), its takes and archived copy kept as history. A shot
+  // removed by another writer is never resurrected here (it is in the page's base, so it stays gone).
+  const restored = [...placed].filter(id => archived.has(id) && !baseShots.has(id) && mineShots.has(id));
+  for (const id of restored) archived.delete(id);
 
   const boardFields = Object.fromEntries(BOARD_FIELDS.map(key => [key, merge3(base?.[key], mine[key], disk[key], `board.${key}`, conflicts)]));
   const board: Storyboard = { ...mine, ...boardFields, sequences, majLe: mine.majLe > disk.majLe ? mine.majLe : disk.majLe } as Storyboard;
@@ -106,15 +133,18 @@ export function rebaseBoard(base: Storyboard | null, mine: Storyboard, disk: Sto
   }).map(([id]) => id);
   const structural = orderOf(board) !== orderOf(disk) || BOARD_FIELDS.some(key => !same(board[key], disk[key]));
   const revisions = { ...meta.revisions };
-  for (const id of invalidated) revisions[id] = shotRevisionOf(meta, id) + 1;
-  const changed = invalidated.length > 0 || structural || archived.size !== meta.archived.length;
+  for (const id of new Set([...invalidated, ...restored])) revisions[id] = shotRevisionOf(meta, id) + 1;
+  const changed = invalidated.length > 0 || restored.length > 0 || structural || archived.size !== meta.archived.length;
   const nextMeta: CinemaMeta = changed ? {
     ...meta, revisions, archived: [...archived],
     ...(Object.keys(archivedShots).length ? { archivedShots } : {}),
+    ...(restored.length ? { restoredShots: { ...((meta as { restoredShots?: Record<string, string> }).restoredShots ?? {}), ...Object.fromEntries(restored.map(id => [id, nowOf(board)])) } } : {}),
     ...(structural ? { storyboardRevision: storyboardRevisionOf(meta) + 1 } : {}),
   } : meta;
-  return { board, meta: nextMeta, invalidated, conflicts };
+  return { board, meta: nextMeta, invalidated: [...new Set([...invalidated, ...restored])], conflicts };
 }
+
+const nowOf = (sb: Storyboard) => sb.majLe;
 
 // ---------------------------------------------------------------- journaled save
 
@@ -134,7 +164,8 @@ export const pageCopyPath = (boardId: string, operationId: string) => cheminJson
 /**
  * One save of the page = one journaled transaction (board + sidecar), computed under the project lock from
  * the files as they are now. A replay of the same id finishes the stored journal and computes nothing again.
- * The journal of a clean save is removed once applied (it only served atomicity; undo is a new save).
+ * CE5-W · the applied journal of every save is kept (idempotence of a replay, traceability, inverse):
+ * never removed right after a « clean » save.
  */
 export async function saveBoard(files: VaultStore, lock: ProjectLock, input: { projectId: string; operationId: string; base: Storyboard | null; mine: Storyboard; now: () => string }): Promise<SavedBoard> {
   const boardPath = cheminJson(input.mine.id);
@@ -160,8 +191,6 @@ export async function saveBoard(files: VaultStore, lock: ProjectLock, input: { p
   if (done && done.conflicts.length) {
     keptBeside = pageCopyPath(input.mine.id, input.operationId);
     await files.put({ path: keptBeside, text: storyboardJson(input.mine), updatedAt: Date.parse(input.now()) || 0 });
-  } else if (journal.state === "applied") {
-    await files.remove(journalPath(input.operationId)).catch(() => undefined);
   }
   const board = lireStoryboard((await files.get(boardPath))?.text ?? null) ?? done?.board ?? input.mine;
   return { board, invalidated: done?.invalidated ?? [], conflicts: done?.conflicts ?? [], keptBeside };
