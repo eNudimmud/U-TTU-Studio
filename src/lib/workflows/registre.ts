@@ -99,6 +99,7 @@ export const TEMPLATES_OFFICIELS = [
   "api_openai_gpt_image_2_t2i",
   "api_bytedance_seedream_5_0_pro_t2i",
   "image_qwen_image_2_1_image_edit",
+  "image_flux2",
   "video_ltx2_5_t2v",
   "api_kling_v3_video",
   "api_seedance2_5_r2v",
@@ -479,6 +480,9 @@ export const REGISTRE: readonly Geste[] = [
   // Home bubble: dynamic sizes / durations / named-reference counts are estimates, never measurements.
   geste({ id: "creation-image-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_t2i", credits: 2, high: 4, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "creation-image", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_image_edit", credits: 3, high: 6, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "creation-image-nano", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_nano_banana_2_1_image_edit", credits: 12, high: 15, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }), // estimate_credits 31.10.2026 : ≈ 12 crédits/image en 1K, ≈ 17 en 2K (7 références)
+  geste({ id: "creation-image-qwen", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_image_2_1_image_edit", credits: 6, high: 12, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }), // open weights : 2,01 crédits mesurés pour 1 MP + 1 réf (job 2ac9e65b) ; 7 réfs ≈ 6 crédits estimés
+  geste({ id: "creation-image-flux2", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux2", credits: 50, high: 100, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }), // open weights, FLUX.2 dev multi-réf : 1re prise 01.11.2026 (job d107aeb5, 128 s GPU ≈ 35 crédits, 5 réfs) ; ≈ 50 crédits estimés à 7 réfs, prix à confirmer
   geste({ id: "creation-video-refs", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_minimax_h3_r2v", credits: 5, high: 10, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "creation-video-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_ltx2_5_t2v", credits: 5, high: 10, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   // « Outils » : one panel per whole template, opened from the hub. Each estimate is shown

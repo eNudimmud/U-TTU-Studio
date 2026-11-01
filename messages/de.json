@@ -126,7 +126,7 @@
     "also": {
       "bubble": {
         "name": "Eine Blase, Bild oder Video",
-        "body": "„Was drehen wir?“ Bilder mit Flux Klein; Video mit MiniMax H3, wenn du Referenzen anhängst, sonst LTX. Ab ≈ 2 Credits geschätzt, Kalkulation vor dem Senden."
+        "body": "„Was drehen wir?“ Bilder mit Nano Banana 2.1, wenn du Referenzen anhängst, sonst Flux Klein; Video mit MiniMax H3, wenn du Referenzen anhängst, sonst LTX. Ab ≈ 2 Credits geschätzt, Kalkulation vor dem Senden."
       },
       "refs": {
         "name": "Benannte Referenzen",
@@ -1544,6 +1544,7 @@
     "done": "Schnitt finalisiert, in Meine Kreationen gespeichert.",
     "cost": "Echte Kosten: {credits} Credits.",
     "costUnknown": "Echte Kosten noch nicht am Guthaben ablesbar.",
+    "costGpu": "≈ {credits} Credits geschätzt nach Rechenzeit ({seconds} s); das Guthaben zeigt diesen Auftrag noch nicht.",
     "again": "Anders finalisieren",
     "fail": "Finalisieren hat nicht geklappt: {message}",
     "close": "Schließen",
@@ -3008,7 +3009,7 @@
       "bubble": {
         "q": "Bild oder Video: wie erstelle ich etwas?",
         "k": "erstellen blase bild video foto clip wählen unterschied erzeugen drehen",
-        "a": "In „Was drehen wir?“ wählst du Bild oder Video, bevor du schreibst. Bild läuft über Flux Klein. Video läuft über MiniMax H3, wenn du Referenzen anhängst, sonst über LTX. Die Kalkulation „≈ X Credits geschätzt“ steht unter der Blase, bevor etwas gesendet wird. Du kannst bis zu 7 Bildreferenzen anhängen und im Video-Modus einen Ton."
+        "a": "In „Was drehen wir?“ wählst du Bild oder Video, bevor du schreibst. Bild: Nano Banana 2.1 (Referenzen) oder Flux Klein. Video läuft über MiniMax H3, wenn du Referenzen anhängst, sonst über LTX. Die Kalkulation „≈ X Credits geschätzt“ steht vor dem Senden da. Du kannst bis zu 7 Bildreferenzen anhängen und im Video-Modus einen Ton."
       },
       "refs": {
         "q": "Wie nutze ich Referenzen?",
@@ -3391,7 +3392,26 @@
     "draftFailed": "Der Entwurf konnte auf diesem Gerät nicht gespeichert werden.",
     "invalid": "Prüfe deine Optionen: bis zu 7 Bildreferenzen und ein Ton im Videomodus.",
     "asImageReference": "Letztes Bild als Referenz verwenden",
-    "runningConversation": "Warte auf das Ergebnis, bevor du eine neue Unterhaltung beginnst. Du kannst das Studio weiter nutzen."
+    "runningConversation": "Warte auf das Ergebnis, bevor du eine neue Unterhaltung beginnst. Du kannst das Studio weiter nutzen.",
+    "imageEngineNano": "Bild · Nano Banana 2.1 · Mit ComfyUI",
+    "imageEngineQwen": "Bild · Qwen Image 2.1 · Mit ComfyUI",
+    "imageEngineFlux2": "Bild · FLUX.2 dev · Mit ComfyUI",
+    "priceUnconfirmed": "Preis noch zu bestätigen",
+    "engine": "Bild-Engine",
+    "engineName": {
+      "nano": "Nano Banana 2.1",
+      "klein": "Klein",
+      "qwen": "Qwen Image 2.1",
+      "flux2": "FLUX.2 dev"
+    },
+    "engineHelp": {
+      "nano": "Setzt deine Referenzen zusammen, jedes Foto wird einzeln gelesen (Google-Partner über Comfy).",
+      "klein": "Das offene Modell des Studios.",
+      "qwen": "Offenes Modell: liest jedes Foto einzeln und übernimmt deine Handlung wörtlich.",
+      "flux2": "Offenes Modell, stark mit mehreren Referenzen. Langsamer und teurer als Klein."
+    },
+    "engineStudioOnly": "Nur Open-Weights-Modelle.",
+    "nanoFailed": "Nano Banana 2.1 ist nicht fertig geworden: {reason} Nichts wurde neu gestartet. Um es mit Klein erneut zu versuchen, wähle Klein in den Einstellungen der Blase."
   },
   "genjutsu": {
     "action": "Figur ersetzen",

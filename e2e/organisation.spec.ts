@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { openCreations, openPlan, openToolsHub } from "./helpers/top-bar";
+import { openCreations, openPlan, openToolsHub, revealInTopBar } from "./helpers/top-bar";
 import { NOMBRE_OUTILS, OUTILS_HORS_CATALOGUE } from "../src/lib/outils/nombre";
 
 // One top bar on every page: Créer, project switcher, search over tools and creations,
@@ -47,10 +47,12 @@ test("carte d'outil : récents et « Voir tous les outils » sans quitter le pan
 
 test("sélecteur de projet : créer un projet en un geste, il devient le projet en cours", async ({ page }) => {
   await page.goto("/studio#personnage");
-  const burger = page.locator("[data-top-burger]");
-  if (await burger.isVisible()) await burger.click();
-  const switcher = page.locator("[data-project-switcher]").filter({ visible: true }).first();
-  await switcher.locator("button").first().click();
+  let switcher = page.locator("[data-project-switcher]").filter({ visible: true }).first();
+  await expect(async () => {
+    switcher = await revealInTopBar(page, "[data-project-switcher]");
+    if (!(await switcher.locator("[data-project-new]").isVisible())) await switcher.locator("button").first().click({ timeout: 2000 });
+    await expect(switcher.locator("[data-project-new]")).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 30000 });
   await switcher.locator("[data-project-new]").fill("Court métrage");
   await switcher.locator("[data-project-create]").click();
   await expect(page.locator("[data-project-switcher]").filter({ visible: true }).first()).toContainText("Court métrage");
