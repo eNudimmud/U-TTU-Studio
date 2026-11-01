@@ -1,0 +1,158 @@
+diff --git a/tests/astra-ce5-probes.test.ts b/tests/astra-ce5-probes.test.ts
+new file mode 100644
+--- /dev/null
++++ b/tests/astra-ce5-probes.test.ts
+@@ -0,0 +1,153 @@
++// CE5: the cinema controller composes CE0–CE3 through ports. Fully mocked: no Comfy call, no spend,
++// no real picture. Covers single-use approval, refused mutation, lost POST, reload, account rotation vs
++// change, campaign limit, journal idempotence, video only from the approved keyframe, explicit targets.
++import { describe, it } from "node:test";
++import assert from "node:assert/strict";
++import type { VaultEntry, VaultStore } from "../src/lib/coffre/store.ts";
++import { createCinemaController, intentContextPath, type CinemaClient, type ControllerPorts, type PrepareIntentRequest, type PrepareShotRequest, shotApproval } from "../src/lib/cinema/controller.ts";
++import { INTENT_RECEIPT_KEY, userApproval } from "../src/lib/cinema/intent-job.ts";
++import { cinemaMetaPath, emptyMeta, metaJson, noLock, parseMeta, projectFiles } from "../src/lib/cinema/journal.ts";
++import { readLedger } from "../src/lib/cinema/spend-ledger.ts";
++import { cheminJson, lireStoryboard, planVide, storyboardJson, storyboardVide, tousLesPlans } from "../src/lib/storyboard/storyboard.ts";
++import { RenderError } from "../src/lib/render/client.ts";
++import { PENDING_RENDER_KEY, type PendingRender } from "../src/lib/render/recovery.ts";
++import type { StorageLike, WorkflowManifest } from "../src/lib/cinema/types.ts";
++
++const P = "demo";
++const scope = { projectId: P, storyboardId: "b1" };
++const NOW = new Date("2026-11-01T12:00:00Z");
++
++function memory(): StorageLike & { map: Map<string, string> } {
++  const map = new Map<string, string>();
++  return { map, getItem: k => map.get(k) ?? null, setItem: (k, v) => { map.set(k, v); }, removeItem: k => { map.delete(k); } };
++}
++function memoryVault(): VaultStore & { map: Map<string, VaultEntry> } {
++  const map = new Map<string, VaultEntry>();
++  return { map, list: async () => [...map.values()], get: async p => map.get(p) ?? null, put: async e => { map.set(e.path, { ...e }); }, remove: async p => { map.delete(p); } };
++}
++
++async function seedBoard(vault: VaultStore) {
++  const sb = storyboardVide({ id: "b1", titre: "Demo", idee: "idée", now: "2026-10-01T00:00:00.000Z" });
++  const plan = (id: string, action: string) => ({ ...planVide(id), titre: id, action, refs: [{ role: "qui" as const, nom: "Sujet A", id: "r-a" }] });
++  const board = { ...sb, sequences: [{ id: "q1", titre: "A", resume: "", plans: [plan("s1", "un"), plan("s2", "deux")] }] };
++  const files = projectFiles(vault, P);
++  await files.put({ path: cheminJson("b1"), text: storyboardJson(board), updatedAt: 0 });
++  await files.put({ path: cinemaMetaPath("b1"), text: metaJson(emptyMeta("b1")), updatedAt: 0 });
++}
++
++const answerFor = (shotId: string, expectedRevision = 0) => JSON.stringify({
++  creativeGoal: "serrer", expectedResult: "plan serré", rationale: "", unresolved: [],
++  operations: [{ kind: "shot.patch", target: { ...scope, shotId, expectedRevision }, patch: { cadrage: "serre" } }],
++});
++
++function fakeClient(over: { user?: () => unknown; submit?: () => Promise<string>; text?: string } = {}) {
++  const calls: string[] = [];
++  const client: CinemaClient = {
++    async user() { calls.push("user"); return over.user ? over.user() : { id: "acct-1" }; },
++    async submit() { calls.push("submit"); return over.submit ? over.submit() : "job-0123456789"; },
++    async status() { calls.push("status"); return "success"; },
++    async job() { calls.push("job"); return { status: "success", outputs: { "3": { text: [over.text ?? answerFor("s2")] } } }; },
++  } as CinemaClient;
++  return { client, calls };
++}
++
++const exclusive = { request: async (_n: string, _o: unknown, fn: (lock: unknown) => Promise<unknown>) => fn({}) };
++
++let seq = 0;
++function setup(over: Partial<ControllerPorts> = {}, client = fakeClient()) {
++  const storage = memory();
++  const vault = memoryVault();
++  const ports: ControllerPorts = {
++    storage, vault, lock: noLock, paidLocks: exclusive, sessionId: "tab-1", client: () => client.client,
++    now: () => NOW, uuid: () => `00000000-0000-4000-8000-${String(++seq).padStart(12, "0")}`, seed: () => 7,
++    trancheCapCredits: 10, campaign: { capCredits: 300, priorCredits: 0 }, balance: async () => null,
++    projectAvailable: async () => true, openWeightsMode: true, purpose: "qualification", ...over,
++  };
++  return { ports, storage, vault, client, controller: createCinemaController(ports) };
++}
++
++const intentRequest = (over: Partial<PrepareIntentRequest> = {}): PrepareIntentRequest => ({
++  scope, locale: "fr", selectedShotId: "s2", userText: "serre ce plan", locks: {},
++  references: [{ referenceId: "r-a", category: "cast", name: "Sujet A", locked: false }], capabilities: [], ...over,
++});
++const approve = (prep: Parameters<typeof userApproval>[0], ceiling = 3) => userApproval(prep, ceiling, { id: `ap-${++seq}`, trancheId: "t-1" }, NOW);
++
++async function board(vault: VaultStore) {
++  const files = projectFiles(vault, P);
++  return { sb: lireStoryboard((await files.get(cheminJson("b1")))!.text!)!, meta: parseMeta((await files.get(cinemaMetaPath("b1")))!.text!, "b1") };
++}
++
++
++import { campaignHeld, recordCost, type SpendLedger } from "../src/lib/cinema/spend-ledger.ts";
++import { rebaseBoard, saveBoard } from "../src/lib/cinema/board-writer.ts";
++import { journalPath } from "../src/lib/cinema/journal.ts";
++import { majPlan, retirerPlan } from "../src/lib/storyboard/storyboard.ts";
++
++it("R6a: startup preserves the budget of a submitted terminal intent", async () => {
++  const t = setup(); await seedBoard(t.vault);
++  const p = await t.controller.prepareIntent(intentRequest());
++  assert.equal(p.code, "INTENT_PREPARED");
++  assert.equal((await t.controller.submitIntent(p.data!, approve(p.data!.preparation))).code, "INTENT_SUBMITTED");
++  const held = campaignHeld(readLedger(t.storage));
++  assert.ok(held > 0);
++  // Crash after the provider failure was saved, before its cost was reconciled.
++  const receipt = JSON.parse(t.storage.getItem(INTENT_RECEIPT_KEY)!);
++  t.storage.setItem(INTENT_RECEIPT_KEY, JSON.stringify({ ...receipt, state: "failed" }));
++  await t.controller.resumeResults({ projectIds: [P] });
++  assert.equal(campaignHeld(readLedger(t.storage)), held, "a failed submitted job is not proof of never_sent");
++});
++
++it("R6b: a real invoice supersedes a numeric GPU estimate", () => {
++  const ledger: SpendLedger = { schemaVersion: 1, consumedApprovals: ["approval"], reservations: [{
++    attemptId: "attempt", operationId: "op", approvalId: "approval", trancheId: "tranche", accountScope: "scope",
++    reservedCredits: 3, basis: "ceiling", state: "reserved", observed: null,
++    createdAt: NOW.toISOString(), updatedAt: NOW.toISOString(),
++  }] };
++  const estimated = recordCost(ledger, "attempt", { credits: 3, provenance: "gpu_estimate", unit: "credits", readAt: NOW.toISOString() }, NOW);
++  const invoiced = recordCost(estimated, "attempt", { credits: 12, provenance: "billing_job", unit: "credits", readAt: NOW.toISOString() }, NOW);
++  assert.equal(campaignHeld(invoiced), 12);
++  assert.equal(invoiced.reservations[0].observed?.provenance, "billing_job");
++});
++
++it("R7: a conflicting journal must never be reported as an applied intent", async () => {
++  const t = setup(); await seedBoard(t.vault);
++  const p = await t.controller.prepareIntent(intentRequest());
++  assert.equal((await t.controller.submitIntent(p.data!, approve(p.data!.preparation))).code, "INTENT_SUBMITTED");
++  const operationId = p.data!.preparation.operationId;
++  // Valid persisted terminal journal state following a recovery conflict.
++  await projectFiles(t.vault, P).put({ path: journalPath(operationId), updatedAt: NOW.getTime(), text: JSON.stringify({
++    schemaVersion: 1, operationId, scope, state: "conflict", targets: [], payload: { before: [], after: [] },
++    conflicts: [cheminJson("b1")], createdAt: NOW.toISOString(), updatedAt: NOW.toISOString(),
++  }) });
++  const resumed = await t.controller.resumeIntent({ locks: {} });
++  assert.notEqual(resumed.code, "INTENT_APPLIED", "conflict is pending application, not successful mutation");
++  assert.equal(resumed.ok, false);
++  assert.notEqual(JSON.parse(t.storage.getItem(INTENT_RECEIPT_KEY)!).state, "settled");
++});
++
++it("R8: an unrelated page edit preserves a reorder saved by another writer", async () => {
++  const t = setup(); await seedBoard(t.vault); const base = (await board(t.vault)).sb;
++  const mine = majPlan(base, "s2", { action: "local edit" });
++  const disk = { ...base, sequences: base.sequences.map(s => ({ ...s, plans: [...s.plans].reverse() })) };
++  const out = rebaseBoard(base, mine, disk, emptyMeta("b1"));
++  assert.deepEqual(tousLesPlans(out.board).map(s => s.id), ["s2", "s1"]);
++  assert.equal(tousLesPlans(out.board).find(s => s.id === "s2")!.action, "local edit");
++});
++
++it("R9: restoring a removed shot restores its active status", async () => {
++  const t = setup(); await seedBoard(t.vault); const base = (await board(t.vault)).sb;
++  const removed = rebaseBoard(base, retirerPlan(base, "s1"), base, emptyMeta("b1"));
++  assert.ok(removed.meta.archived.includes("s1"));
++  const restored = rebaseBoard(removed.board, base, removed.board, removed.meta);
++  assert.ok(tousLesPlans(restored.board).some(s => s.id === "s1"));
++  assert.ok(!restored.meta.archived.includes("s1"), "visible restored shot must be usable by CE3");
++});
++
++import { lireCorrection, lireReglage } from "../src/lib/storyboard/corriger.ts";
++const routedLocal = (text: string, selected: number) => lireCorrection(text) ?? lireCorrection(text, selected) ?? lireReglage(text, selected);
++it("R10a: asking for a close-up must not reorder the selected shot", () => {
++  assert.notEqual(routedLocal("Make it a close-up", 2)?.type, "deplacer");
++});
++it("R10b: removing rain must not delete the selected shot", () => {
++  assert.notEqual(routedLocal("Remove the rain", 2)?.type, "retirer");
++});

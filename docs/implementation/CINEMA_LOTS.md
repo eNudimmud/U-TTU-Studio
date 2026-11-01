@@ -13,7 +13,7 @@ Les corrections #209/#211/#217/#218/#220/#221 sont fusionnées : ce sont des acq
 | CE2 `fix/cinema-durable-settlement` | Types CE0 | Journal, settlement, budget | Prêt après types |
 | CE3 `feat/cinema-intent-commands` | Types CE0 ; CE2 pour persistance | Parser, contexte, commandes | Parser/test parallélisables ; adapter persistance ensuite |
 | CE4 `feat/cinema-workspace-u1` | U1 validé ; CE0–CE3 pour le raccord | Storyboard/conversation, CSS et messages | Autorisé ; préparation UI parallélisable |
-| CE5 `test/cinema-p0-integration` | Lots précédents selon périmètre validé | Raccords `studio-session`, e2e, preuves de production | Préparation prête ; Cloud par JD |
+| CE5 `test/cinema-p0-integration` | Lots précédents selon périmètre validé | Raccords `studio-session`, e2e, preuves de production | Partiel dans #228 ; revue R6–R10 ; Cloud par JD |
 
 Chaque branche part du main à jour, SHA inscrit dans la PR ; une dépendance peut être empilée sur un commit publié sans fusionner main. Un seul propriétaire modifie `types.ts` (CE0), un seul intègre `studio-session.tsx` (CE5), un seul touche messages/styles (CE4). Les lots produisent des adapters et patchs de raccord à intégrer séquentiellement. Ne pas écraser les changements d'un autre exécutant.
 
@@ -91,7 +91,7 @@ Interdictions communes : aucun merge sans accord JD, force-push, PR #112, destru
 
 ## CE5 — Intégration, répétition et mise à jour de candidature
 
-**Mise à jour du 1er novembre :** CE0–CE4 livrés en PR #224/#225/#226/#227/#223 ; CI vérifiées vertes. Le [raccord CE5 et les décisions de revue](CE5_INTEGRATION.md) sont maintenant spécifiés. R1–R5 sont des blocages avant activation payante, avec reproductions exécutables. Préparer CE5 sans attendre une fusion de main ; aucune dépense ni fusion autorisée.
+**Mise à jour du 1er novembre :** CE0–CE4 livrés en PR #224/#225/#226/#227/#223 ; CI vérifiées vertes. Le [raccord CE5 et les décisions de revue](CE5_INTEGRATION.md) sont maintenant spécifiés. R1–R5 sont corrigés et leurs cinq sondes passent sur CE5 `6bd185e`. La revue actuelle a exécuté 210 tests ciblés verts et reproduit sept nouveaux échecs R6–R10 ; leurs sous-lots et arbitrages sont au §7 de CE5_INTEGRATION. CE5 reste partiel dans #228. La révision UX demandée après le retour mobile est soumise séparément à JD ; les correctifs headless avancent maintenant. Aucune dépense ni fusion autorisée.
 
 **Objectif.** Prouver le parcours réel en s'appuyant sur DEMO-P0 (#215) et SOUMISSION (#219), sans produire de dossiers concurrents.
 

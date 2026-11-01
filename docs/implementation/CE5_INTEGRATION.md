@@ -4,7 +4,17 @@ Décisions Astra du 1er novembre 2026. Source commune : [#216](https://github.co
 
 **Statut : préparation et intégration autorisées sur branche dédiée ; corrections de revue avant activation payante.** Aucun merge, aucune tranche ni composition artistique ne sont approuvés par ce document.
 
-## 1. État vérifié, sans refaire les lots
+## État actuel — revue du 1er novembre, soirée Zurich
+
+**CE5 est livré partiellement dans [#228](https://github.com/eNudimmud/U-TTU-Studio/pull/228), tête revue `6bd185e73178e58f671071397ab8bdb9e597ab48`. R1–R5 sont corrigés et vérifiés.** Sur cette tête, Astra a réexécuté **210 tests ciblés, tous verts**, dont les cinq sondes originales, les 202 tests `cinema-*` et les trois tests `storyboard-reglage`. Aucun appel Cloud.
+
+CI exacte : [41345683801](https://github.com/eNudimmud/U-TTU-Studio/actions/runs/41345683801), `success`. La preuve CI complète reste distincte des tests ciblés exécutés par Astra. Les dernières mesures LCP et les parcours e2e sont [rapportés par Cursor](https://github.com/eNudimmud/U-TTU-Studio/pull/228#issuecomment-6561854090), pas remesurés ici.
+
+Le contrôleur, l'écriture journalisée `use-storyboards`, l'agent de correction sous drapeau de qualification et le chargement différé sont présents. Le corps initial de #228 ne reflète plus tous ces raccords. Le chemin prise reste masqué, faute de manifestes de plan ; aucune qualification Cloud n'est démontrée. La revue nouvelle reproduit **sept échecs** R6–R10, détaillés en §7. L'intégration reste `partial`.
+
+Le retour mobile de JD [#216](https://github.com/eNudimmud/U-TTU-Studio/issues/216#issuecomment-6563277521) demande une simplification du storyboard. U1 reste l'approbation historique ; une révision importante exige une proposition puis l'accord de JD. Les corrections headless ci-dessous avancent indépendamment.
+
+## 1. État historique de la revue initiale, sans refaire les lots
 
 | Lot | PR / SHA examiné | Vérification Astra | Suite |
 | --- | --- | --- | --- |
@@ -19,9 +29,9 @@ Astra a exécuté sur `ba66315` : `node --experimental-strip-types --no-warnings
 
 Cinq sondes supplémentaires ont reproduit cinq écarts malgré cette suite verte. Les assertions attendues échouent sur cette base : ce sont des reproductions, pas des tests de recette passés.
 
-## 2. Corrections à réaliser en premier
+## 2. R1–R5 — corrigés et vérifiés, historique des reproductions
 
-Reproduction complète : [ce0-ce2-regressions.patch](probes/ce0-ce2-regressions.patch). Dans un checkout de revue de `ba66315`, appliquer ce patch puis exécuter :
+Les cinq assertions ci-dessous passent sur `6bd185e`. Conserver leur couverture. Reproduction historique complète : [ce0-ce2-regressions.patch](probes/ce0-ce2-regressions.patch). Dans un checkout de revue de `ba66315`, appliquer ce patch puis exécuter :
 
 ```sh
 git apply /chemin/vers/ce0-ce2-regressions.patch
@@ -156,3 +166,61 @@ Promotion de manifeste seulement avec runIds, version/graph exact, sortie observ
 CE5 est `partial` tant que les raccords ou reproductions restent ouverts ; `tested` pour les mocks ne signifie pas qualifié Cloud. Fournir une preview intégrée avant la demande de merge. JD reste seul décideur des fusions, dépenses, compositions et changements majeurs de design.
 
 Planning Zurich inchangé : lundi intégration/répétition ; mardi 3 novembre 10 h gel, 16 h dossier prêt, 18 h limite finale. Les corrections critiques après gel nécessitent son accord.
+
+
+## 7. Revue CE5 à `6bd185e` — missions immédiates, hors nouvelle UI
+
+### Preuves reproductibles
+
+[ce5-integration-regressions.patch](probes/ce5-integration-regressions.patch) ajoute sept assertions synthétiques. Elles **échouent toutes** sur `6bd185e` ; elles ne sont pas des tests passés. Aucun réseau, image privée, secret ou dépense.
+
+```sh
+git apply /chemin/vers/ce5-integration-regressions.patch
+node --experimental-strip-types --no-warnings --test tests/astra-ce5-probes.test.ts
+```
+
+Contrôle positif exécuté séparément (après application du patch historique R1–R5) :
+
+```sh
+node --experimental-strip-types --no-warnings --test tests/cinema-*.test.ts tests/storyboard-reglage.test.ts tests/astra-review-probes.test.ts
+# 210/210, zéro échec
+```
+
+| Repère | Défaut reproduit | Contrat attendu / test d'acceptation |
+| --- | --- | --- |
+| R6a, P1 | `resumeResults` exclut du `keep` les intents `failed/settled/provider_cancelled`. Après crash entre terminal et réconciliation, `resumeShotJobs` libère la réserve comme `never_sent` : 3 crédits retenus deviennent 0. | Conserver tout attempt associé à un reçu, y compris terminal, jusqu'à réconciliation. Terminal n'est pas preuve d'absence d'envoi. Récupération explicite → coût inconnu retenu ; un orphelin n'est libéré que sur preuve durable « jamais soumis ». Tester les trois états, crash et démarrage avant `resumeIntent`. |
+| R6b, P1 | `recordCost` ignore une facture numérique après une estimation GPU numérique : 3 estimés puis 12 facturés restent comptés 3. | Hiérarchie de preuve `billing_job > gpu_estimate > unknown`, facture rapprochée du même attempt/job/compte, mises à jour idempotentes et datées. Avant facture, retenir au minimum la réserve ou l'estimation la plus conservatrice. La facture prévaut même si elle dépasse le plafond : enregistrer le dépassement, bloquer la prochaine opération, ne pas plafonner artificiellement le coût. |
+| R7, P1 | `resumeIntent` annonce `INTENT_APPLIED` et `settled` dès qu'un journal existe, même `conflict`. | Après recovery, relire le journal. Seul `applied` confirme l'application. `conflict/prepared` restent en attente avec diagnostic ; `rolled_back` ne réapplique rien et n'est pas annoncé comme appliqué. Garder réponse, portée et contexte. Séparer fin du job / coût de réussite de la mutation. |
+| R8, P1 | `rebaseBoard` impose l'ordre de `mine`, même si seule une action a été modifiée : un réordre externe `[s2,s1]` revient silencieusement à `[s1,s2]`. | Fusion à trois versions également pour ordre/séquences/parenté. Structure locale inchangée → structure disque ; les deux structures changées différemment → conflit explicite, disque conservé et copie locale. Tester ajout/suppression/réordre interséquences et vue mise à jour via `cinemaTick`. |
+| R9, P1 | Supprimer puis rétablir un plan le remet à l'écran mais son ID reste dans `meta.archived` : CE3 et la génération le refusent. | Restauration explicite = statut actif cohérent, nouvelle révision, anciennes prises et historique conservés. Une image clé ou un devis d'avant l'archivage ne redevient pas valide. Ne pas ressusciter automatiquement un plan supprimé par un autre writer. |
+| R10a/b, P1 | Le routeur local de la page lit `Make it a close-up` comme déplacement (`up`) et `Remove the rain` comme suppression du plan. Les réglages sont testés après ces regex. | Parser une **commande complète**, son objet et sa portée ; aucune action structurelle déduite d'un mot isolé. `close-up` ne change pas l'ordre ; retirer la pluie ne retire pas le plan ; négation/plusieurs cibles/clauses mixtes → clarification ou proposition native, aucune mutation opportuniste. Conserver les règles FR/EN/DE/ES. |
+
+Ces tests concernent des comportements produit ; les corriger sans affaiblir leurs assertions. La CI verte existante ne les couvrait pas.
+
+### Propriété et séquencement
+
+| Sous-lot | Branche / fichiers | Dépendances | Acceptation |
+| --- | --- | --- | --- |
+| CE5-R budget et reprise | Cursor, `test/cinema-p0-integration` : `controller.ts`, `spend-ledger.ts`, tests contrôleur/ledger | CE0/CE2 intégrés ; pas de nouveau design | R6a/b et R7 verts ; aucun POST ni cancel dans recovery ; contrôle du compte avant lectures/applications |
+| CE5-W writers | Même propriétaire, `board-writer.ts`, `use-storyboards.ts`, tests writer | CE3 et CE5-R pour replay | R8/R9 verts ; journaux appliqués conservés ou tombstone durable équivalent pour idempotence, traçabilité et inverse. Ne pas supprimer immédiatement le journal d'une sauvegarde « propre ». |
+| CE5-L langue / catalogue | Même propriétaire : `corriger.ts`, `ecrire.ts`, selectors de références, tests purs | Aucun changement de layout | R10a/b + négation et clauses mixtes ; même voie de révision/locks ; aucun nouveau personnage pour une identité déjà connue sans photo |
+| CE5-U1.1 | Proposition dans `UX_REVIEW.md`, implémentation après accord JD uniquement | Aucun blocage des trois sous-lots précédents | Une action principale par étape ; aucune grille vide dominante ; pas de fonction indisponible présentée comme prête |
+
+Un seul propriétaire de `studio-session.tsx`/`storyboard-page.tsx` : intégrer séquentiellement les adapters. Correctifs additifs sur la branche propriétaire, nouveaux commits et preuves dans #228/#216. Main et PR #112 restent intacts.
+
+### Arbitrages fermant les questions Cursor
+
+1. **Compte confirmé.** La source plus récente de Cursor est vérifiée : [ComfyUI `a9ba0f1`, `openapi.yaml`, UserResponse](https://github.com/Comfy-Org/ComfyUI/blob/a9ba0f1/openapi.yaml#L1478) exige `id` et `status` ; `/api/user` référence ce type à la ligne 4431. `id` stable opaque, jamais clé, reste le bon contrat. Le schéma `Comfy-Org/docs/openapi-cloud.yaml` (blob `2268c8b2e6c5e0aab69fced96e9550f46eff2eba`) ne documentait que `status` : divergence identifiée, pas de nouvelle question à JD. Ajouter des fixtures structurelles sans valeur réelle. Vérifier le compte à la reprise et au rattachement d'un job inconnu.
+2. **`closeWithUnknownCost`.** Accepté pour un job prouvé terminal, afin de permettre une nouvelle opération explicitement autorisée tout en comptant intégralement le coût inconnu. Ce n'est ni un coût nul, ni une facture, ni une libération de réserve. Ne jamais l'utiliser pour un POST incertain non rattaché. Un job auparavant incertain puis rattaché et prouvé terminal peut se clôturer ainsi, avec preuve conservée. R6 reste obligatoire.
+3. **Hooks budget / `consumedByCaller`.** Ports CE0 vers ledger commun acceptés. Le booléen n'est pas une autorisation autonome : même verrou global, accord consommé par **cet attempt**, devis/digest/compte exacts, aucune autre réservation pour l'accord. Préférer un jeton interne lié à l'attempt ou une seule primitive atomique consume+reserve, plutôt qu'un bypass public. Vérifier écriture et relecture avant POST ; refus = zéro POST. La liste durable de consommation n'est jamais vidée pour réessayer.
+4. **Re-pin du graph `88c980ce…`.** Une correction de schéma justifie un nouveau digest calculé depuis le fichier exact et couvert par les tests. Accepté comme candidat versionné, jamais comme qualification Cloud. Pas de changement automatique de loader en cas d'échec. Aucun devis existant ne survit à un changement de graph.
+5. **XHR / qualification.** Garde XHR acceptée : ferme le même périmètre que fetch. Le drapeau `?cinema=qualification`, conservé seulement dans la session et inopérant en production, est acceptable pour la preview. Il rend le candidat accessible ; il **n'autorise aucune dépense**. Le dossier de qualification doit donner l'URL exacte avec ce drapeau. Aucun fallback fournisseur ni promotion démo implicite.
+6. **Budget 49.** C'est une valeur antérieure rapportée par Cursor, avec date et provenance de facturation, pas une nouvelle autorisation ni une preuve consultée par Astra dans le compte privé. Ne pas demander à JD de la recopier. Avant chaque tranche, réconcilier facture/ledger sur une frontière temporelle explicite : éviter à la fois oubli des dépenses externes et double comptage des jobs du ledger. Une valeur manquante/périmée ou un compte différent bloque l'envoi. La tranche proposée de 10 et les deux essais restent non approuvés.
+7. **Performance.** Garder le contrôleur différé. +0,14 s de LCP rapporté sur storyboard ne justifie pas une refonte de chargement avant P0 ; vérifier sur même protocole après stabilisation et traiter seulement une régression reproductible. Pas de report de la sauvegarde/reprise pour gagner un score.
+8. **Routage local avant natif.** Accepté uniquement pour une intention locale univoque entièrement représentée et journalisée. Une regex caméra/ambiance n'est pas une compréhension générale. Conserver la demande entière et ses clauses ; en cas d'ambiguïté, ne rien muter, proposer la précision utile ou la préparation native. R10 bloque l'acceptation du raccourci actuel. `data.sauver(..., {now:true}) === false` doit bloquer la préparation native : ne pas continuer sur des fichiers plus anciens que l'écran.
+9. **Titres, catégories, références (réponse a/b/c de #216).** a) Titres tirés de l'action réellement présente ; pas de segmentation automatique aveugle sur `; / while / then` (dialogues, simultanéité, lieux et noms restent cohérents). Le découpage natif validé produit des opérations ; un gabarit déterministe est annoncé comme brouillon. b) Distinguer personnages et lieux dans les données ; les textes visibles sont inclus dans U1.1. c) Toutes les identités CAST existantes et les références classées CAST participent à la résolution, même sans image. `identity exists` et `reference ready` sont deux états. Dédupliquer par ID/lien explicite, jamais fusionner deux homonymes ; homonymie = clarification. Une fiche sans image ne déclenche ni création de double ni invention d'identité. Au tournage seulement, expliquer les images/permissions manquantes.
+10. **Manifestes prise.** Préparer à partir des graphs déjà présents (keyframe références puis vidéo depuis image approuvée), sans nouveau fournisseur. Pour chacun : hash, rôle des refs, limites, licence, coût et preuve de qualification. Rester candidat/masqué tant que cette preuve manque. On ne peut annoncer « P0 de bout en bout » avec le seul agent texte.
+
+### Conditions de la prochaine revue
+
+R1–R10 verts ; fixtures adverses et contrôles existants préservés ; corps #228 remis à jour ; SHA intégré, CI, preview et état exact des manifestes publiés. Les tests et le design restent distincts de la qualification payante et de l'accord de fusion. Pas de demande de dépense sur une preview encore exposée à ces erreurs.
