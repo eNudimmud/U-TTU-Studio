@@ -3,7 +3,8 @@
 // SB5–SB10 · The storyboard page (« Papier »): the list of the project's storyboards, one board with its
 // scenes and shot cards, the shot sheet, the Uttu column, the confirmation before anything is filmed and
 // the print view. The studio's session does the work (vault, Comfy link, quotes, PRISE); nothing here
-// renders without one « Start ».
+// renders without one « Start ». CE4 · an open board is the U1 workspace (storyboard-workspace.tsx): the
+// shots, the selected shot large, its context on demand, and the Uttu column as the one conversation.
 
 import { useMessages } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -12,11 +13,11 @@ import { formatCredits } from "@/lib/credits";
 import { ajouterPlan as ajouterPlanFilm, ajouterPrise, auMontage, garderPrise, nouveauPlan } from "@/lib/film/registre";
 import { assetPath } from "@/lib/site";
 import { appliquerCorrection, lireCorrection, type Correction } from "@/lib/storyboard/corriger";
-import { devisPlan, devisStoryboard, plansATourner, reglagesDuPlan } from "@/lib/storyboard/devis";
+import { devisStoryboard, plansATourner, reglagesDuPlan } from "@/lib/storyboard/devis";
 import { definirPersonnage, ecrireStoryboard, type Gabarits, type Question } from "@/lib/storyboard/ecrire";
 import { fileVide, finDuPlan, suivantDeLaFile, versPlanFilm, type FileTournage } from "@/lib/storyboard/film";
 import {
-  ajouterPlan, archiver, changerFormat, cheminMarkdown, deplacerPlan, dureeTotale, etatDuPlan, filtrer, majPlan, planVide,
+  archiver, changerFormat, cheminMarkdown, dureeTotale, etatDuPlan, filtrer, majPlan,
   progression, retirerPlan, tousLesPlans, trouverPlan, type DureeCible, type Filtre, type Format, type PlanSB, type Storyboard,
 } from "@/lib/storyboard/storyboard";
 import { ConnectSheet, CreditSheet } from "../app/studio-frames";
@@ -24,9 +25,10 @@ import { useStudio } from "../app/studio-session";
 import { StoryboardConfirm } from "./storyboard-confirm";
 import { StoryboardPrint } from "./storyboard-print";
 import { StoryboardSheet } from "./storyboard-sheet";
-import { RefAvatars, ShotThumb } from "./storyboard-ui";
+import { ShotThumb } from "./storyboard-ui";
 import { UttuColumn, type Bulle, type Ecrit } from "./storyboard-uttu";
 import { useStoryboards, type Storyboards } from "./use-storyboards";
+import { planChoisi, Workspace } from "./storyboard-workspace";
 
 const FILTRES: Filtre[] = ["tous", "en-cours", "tournes", "archives"];
 const nouvelIdCourt = () => Math.random().toString(36).slice(2, 8);
@@ -42,7 +44,8 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
   const data = useStoryboards();
   const { studio: vault, balance, connected, sheet, setSheet, run, runOrigin } = studio;
   const [currentId, setCurrentId] = useState<string | null>(initialId);
-  const [vue, setVue] = useState<"board" | "uttu">("board");
+  const [choisi, setChoisi] = useState<string | null>(null);
+  const [sauvegarde, setSauvegarde] = useState<"saved" | "saving" | "failed">("saved");
   const [ouvert, setOuvert] = useState<string | null>(null);
   const [aConfirmer, setAConfirmer] = useState<string[] | null>(null);
   const [file, setFile] = useState<FileTournage | null>(null);
@@ -95,13 +98,14 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
     setEcrits(all => ({ ...all, [next.id]: { idee: idee.trim(), question: res.question, repris: res.repris, nouveaux: res.nouveaux } }));
     setBulles(all => ({ ...all, [next.id]: [] }));
     aller(next.id);
-    setVue("uttu");
+    setChoisi(tousLesPlans(next)[0]?.id ?? null);
     return true;
   }, [known, messages.storyboard.gabarits, data, aller]);
 
   const changer = useCallback((next: Storyboard, label?: string) => {
     if (label && sb) setAnnuler({ sb, label });
-    void data.sauver(next);
+    setSauvegarde("saving");
+    void Promise.resolve(data.sauver(next)).then(ok => setSauvegarde(ok === false ? "failed" : "saved"));
   }, [data, sb]);
 
   useEffect(() => {
@@ -204,13 +208,16 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
   const corriger = useCallback((texte: string) => {
     if (!sb) return;
     dire(sb.id, { qui: "moi", texte });
-    const c = lireCorrection(texte);
+    // The scope shown next to the field: a request that names no shot (« says: … », « remove », « move later »)
+    // is read for the selected shot. A request that names one, or the whole board, is read as written.
+    const numero = (() => { const found = planChoisi(sb, choisi); return found ? tousLesPlans(sb).findIndex(plan => plan.id === found.plan.id) + 1 : 0; })();
+    const c = lireCorrection(texte) ?? (numero ? lireCorrection(`${t("storyboard.ws.shotWord")} ${numero} ${texte}`) : null);
     const applied = c ? appliquerCorrection(sb, c, data.registre, nouvelIdCourt()) : null;
     if (!c || !applied) { dire(sb.id, { qui: "uttu", texte: t("storyboard.uttu.notUnderstood") }); return; }
     const text = reponse(c, applied.n, applied.sb);
     changer(applied.sb, text);
     dire(sb.id, { qui: "uttu", texte: text });
-  }, [sb, data.registre, dire, changer, t]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sb, choisi, data.registre, dire, changer, t]); // eslint-disable-line react-hooks/exhaustive-deps
   function reponse(c: Correction, n: number | null, next: Storyboard): string {
     switch (c.type) {
       case "ajouter": return t("storyboard.uttu.done.added", { n: String(n ?? "") });
@@ -237,20 +244,26 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
 
   if (print && sb) return <div className="sb-root" data-theme="paper"><StoryboardPrint sb={sb} data={data} back={adresse(sb.id)} /></div>;
 
-  return <div className="sb-root" data-theme="paper" data-view={sb ? vue : "board"} data-storyboard-page="" data-ready={studio.ready && data.charge ? "true" : "false"}>
+  const choix = sb ? planChoisi(sb, choisi) : null;
+  const portee = sb && choix ? tousLesPlans(sb).findIndex(plan => plan.id === choix.plan.id) + 1 : null;
+  const saveFailed = data.echecEcriture || sauvegarde === "failed";
+  const saveLabel = saveFailed ? t("storyboard.ws.saveFailed") : sauvegarde === "saving" ? t("storyboard.ws.saving") : t("storyboard.ws.saved");
+
+  return <div className="sb-root" data-theme="paper" data-view={sb ? "u1" : "board"} data-storyboard-page="" data-ready={studio.ready && data.charge ? "true" : "false"}>
     <header className="sb-bar">
       <div className="sb-bar-l">
         <span className="sb-mark" aria-hidden="true"><img src={assetPath("/brand/uttu-mark-h48.png")} alt="" width={22} height={22} /></span>
         {sb
           ? <button type="button" className="sb-bar-t" data-sb-back="" onClick={() => aller(null)}><span aria-hidden="true">←&nbsp;</span>{t("storyboard.back")}</button>
           : <span className="sb-bar-t">U*TTU · <i>&nbsp;{t("storyboard.name")}</i></span>}
-        {vault.projectName && <span className="sb-bar-proj sb-wide-only">· {vault.projectName}</span>}
+        {sb
+          ? <span className="sb-bar-proj sb-ws-project" data-sb-project=""><span className="sb-ws-kicker">{t("storyboard.ws.project")}</span><strong>{[vault.projectName, sb.titre].filter(Boolean).join(" · ")}</strong></span>
+          : vault.projectName && <span className="sb-bar-proj sb-wide-only">· {vault.projectName}</span>}
       </div>
       <div className="sb-bar-r">
+        {sb && <span className={`sb-ws-save${saveFailed ? " is-fail" : ""}`} role="status" data-sb-save={saveFailed ? "failed" : sauvegarde}>{saveLabel}</span>}
         {credits && <button type="button" className="sb-credits sb-wide-only" onClick={() => setSheet("credits")}>{credits}</button>}
-        <a className="sb-ghost sb-wide-only" href={assetPath("/studio")} data-sb-studio="">{t("storyboard.studio")}</a>
-        {sb && <button type="button" className="sb-out sb-uttu-toggle" data-sb-toggle="" aria-pressed={vue === "uttu"} onClick={() => setVue(vue === "uttu" ? "board" : "uttu")}>{vue === "uttu" ? t("storyboard.uttu.toggleBoard") : t("storyboard.uttu.toggle")}</button>}
-        {!sb && <a className="sb-ghost sb-uttu-toggle" href={assetPath("/studio")}>{t("storyboard.studio")}</a>}
+        <a className="sb-ghost sb-ws-studio" href={assetPath("/studio")} data-sb-studio="">{t("storyboard.studio")}</a>
       </div>
     </header>
     <div className="sb-wrap">
@@ -258,20 +271,22 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
         {currentId && !sb && data.charge
           ? <p className="sb-notice" role="status" data-sb-not-found="">{t("storyboard.board.notFound")}</p>
           : sb
-            ? <Board sb={sb} data={data} etat={etat} echecs={echecs} onOpen={setOuvert} onChange={changer} onFilm={id => filmer([id])} ecriture={ecriture} />
+            ? <><Workspace sb={sb} data={data} etat={etat} echecs={echecs} selectedId={choix?.plan.id ?? null} onSelect={setChoisi} onOpen={setOuvert}
+                onChange={changer} onFilm={id => filmer([id])} newId={nouvelIdCourt} file={file} enCours={enCours} connected={connected} onFilmAll={ids => filmer(ids)} />
+              <BoardFooter sb={sb} onChange={changer} /></>
             : <Liste data={data} onOpen={aller} ecrire={ecrire} ecriture={ecriture} idee={ideeInitiale} />}
         {data.echecEcriture && <p className="sb-notice is-fail" role="alert">{t("storyboard.writer.failed")}</p>}
       </main>
       <aside className="sb-side" aria-label={t("storyboard.uttu.label")}>
         {sb
-          ? <UttuColumn sb={sb} data={data} etat={etat} bulles={bulles[sb.id] ?? []} ecrit={ecrits[sb.id] ?? null} ecriture={ecriture}
-              onCorrect={corriger} onAnswer={repondre} onOpenBoard={() => setVue("board")}
+          ? <UttuColumn sb={sb} data={data} etat={etat} bulles={bulles[sb.id] ?? []} ecrit={ecrits[sb.id] ?? null} ecriture={ecriture} scope={portee}
+              onCorrect={corriger} onAnswer={repondre}
+              onOpenBoard={() => { const el = document.querySelector<HTMLElement>("[data-sb-select][aria-pressed='true']"); el?.scrollIntoView({ block: "center" }); el?.focus(); }}
               onRewrite={(idee, cible, format) => ecrire(idee, cible, format, true, sb)}
               onFilmAll={() => filmer(plansATourner(sb, data.registre).map(plan => plan.id))} />
           : <IdeaBox ecrire={ecrire} ecriture={ecriture} idee={ideeInitiale} />}
       </aside>
     </div>
-    {sb && <Dock sb={sb} data={data} file={file} enCours={enCours} connected={connected} onFilm={ids => filmer(ids)} />}
     {ouvertPlan && sb && <StoryboardSheet sb={sb} found={ouvertPlan} data={data} etat={etat(ouvertPlan.plan)} echec={echecs[ouvertPlan.plan.id] ?? null}
       onClose={() => setOuvert(null)} onChange={next => changer(next)} onFilm={() => filmer([ouvertPlan.plan.id])}
       onKeep={async priseId => { if (ouvertPlan.plan.planFilmId) await data.setRegistre(garderPrise(data.registre, ouvertPlan.plan.planFilmId, priseId)); }}
@@ -279,10 +294,31 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
     {aConfirmer && sb && <StoryboardConfirm sb={sb} ids={aConfirmer} data={data} onStart={demarrer} onClose={() => setAConfirmer(null)} />}
     {annuler && <div className="sb-toast" role="status" data-sb-undo="">
       <span>{annuler.label}</span>
-      <button type="button" onClick={() => { void data.sauver(annuler.sb); setAnnuler(null); }}>{t("storyboard.board.undo")}</button>
+      <button type="button" onClick={() => { changer(annuler.sb); setAnnuler(null); }}>{t("storyboard.board.undo")}</button>
     </div>}
     {dark && <div className="u-app sb-dark">{dark}</div>}
   </div>;
+}
+
+/** Under the workspace: where the board is saved, the export and print views, archive. */
+function BoardFooter({ sb, onChange }: { sb: Storyboard; onChange(next: Storyboard, label?: string): void }) {
+  const { t } = useI18n();
+  const { studio: vault } = useStudio();
+  const [menu, setMenu] = useState(false);
+  return <footer className="sb-ws-footer">
+    <span className="sb-where">{t("storyboard.ws.savedIn", { path: vault.project ? `Projets/${vault.project}/${cheminMarkdown(sb.id)}` : cheminMarkdown(sb.id) })}</span>
+    <span className="sb-ws-footer-a">
+      <span className="sb-ws-menu-wrap">
+        <button type="button" className="sb-out" aria-expanded={menu} data-sb-export="" onClick={() => setMenu(open => !open)}>{t("storyboard.board.export")}</button>
+        {menu && <span className="sb-menu sb-ws-menu is-up" role="group" aria-label={t("storyboard.board.export")}>
+          <span className="sb-small sb-muted" style={{ padding: "8px 12px" }}>{t("storyboard.board.exportMd")}</span>
+          <span className="sb-small sb-muted" style={{ padding: "0 12px 8px" }}>{t("storyboard.ws.exportPreview")}</span>
+          <a className="sb-ghost" href={adresse(sb.id, true)} data-sb-print="">{t("storyboard.board.print")}</a>
+        </span>}
+      </span>
+      <button type="button" className="sb-ghost" onClick={() => onChange(archiver(sb, !sb.archive))}>{sb.archive ? t("storyboard.list.restore") : t("storyboard.list.archive")}</button>
+    </span>
+  </footer>;
 }
 
 // ---------- screen 1: the list ----------
@@ -364,116 +400,3 @@ export function IdeaBox({ ecrire, ecriture, idee: initial, compact = false }: { 
     <button type="button" className="sb-gold" data-sb-write="" disabled={ecriture} onClick={() => void go()}>{ecriture ? t("storyboard.writer.writing") : t("storyboard.idea.write")}</button>
   </section>;
 }
-
-// ---------- screen 2: the board ----------
-
-function Board({ sb, data, etat, echecs, onOpen, onChange, onFilm, ecriture }: {
-  sb: Storyboard; data: Storyboards; etat(plan: PlanSB): ReturnType<typeof etatDuPlan>; echecs: Record<string, string>;
-  onOpen(id: string): void; onChange(next: Storyboard, label?: string): void; onFilm(id: string): void; ecriture: boolean;
-}) {
-  const { t } = useI18n();
-  const { studio: vault } = useStudio();
-  const [menu, setMenu] = useState(false);
-  const { tournes, total } = progression(sb, data.registre);
-  let numero = 0;
-  return <>
-    <div className="sb-head">
-      <h1 className="sb-serif"><label className="sr-only" htmlFor="sb-title">{t("storyboard.board.titleLabel")}</label>
-        <input id="sb-title" className="sb-head-title" value={sb.titre} maxLength={80} data-sb-title="" onChange={event => onChange({ ...sb, titre: event.target.value, majLe: new Date().toISOString() })} /></h1>
-      {sb.idee && <p className="sb-log sb-muted">{sb.idee}</p>}
-      <div className="sb-facts">
-        <span className="sb-tag">{t("storyboard.board.seconds", { n: String(dureeTotale(sb)) })}</span>
-        <span className="sb-tag">{sb.format === "portrait" ? "9:16" : "16:9"}</span>
-        {sb.musique && <span className="sb-tag">{t("storyboard.board.music", { text: sb.musique })}</span>}
-        <span className={`sb-tag${tournes === total && total > 0 ? " is-ok" : ""}`} data-sb-filmed="">{t("storyboard.board.filmed", { x: String(tournes), y: String(total) })}</span>
-      </div>
-      <div className="sb-tools">
-        <button type="button" className="sb-out" aria-expanded={menu} data-sb-export="" onClick={() => setMenu(open => !open)}>{t("storyboard.board.export")}</button>
-        {menu && <div className="sb-menu" role="group" aria-label={t("storyboard.board.export")}>
-          <p className="sb-small sb-muted" style={{ padding: "8px 12px" }}>{t("storyboard.board.exportMd")}<br /><span className="sb-where">{vault.project ? `Projets/${vault.project}/${cheminMarkdown(sb.id)}` : cheminMarkdown(sb.id)}</span></p>
-          <a className="sb-ghost" href={adresse(sb.id, true)} data-sb-print="">{t("storyboard.board.print")}</a>
-        </div>}
-        <button type="button" className="sb-ghost" onClick={() => onChange(archiver(sb, !sb.archive))}>{sb.archive ? t("storyboard.list.restore") : t("storyboard.list.archive")}</button>
-      </div>
-    </div>
-    {sb.sequences.map((seq, s) => <section key={seq.id} className="sb-scene" data-sb-scene={seq.id} aria-labelledby={`sb-scene-${seq.id}`}>
-      <div className="sb-scene-h">
-        <span className="sb-k">{t("storyboard.board.scene", { n: String(s + 1) })}</span>
-        <h2 id={`sb-scene-${seq.id}`}>{seq.titre || t("storyboard.board.scene", { n: String(s + 1) })}</h2>
-        <span className="sb-s sb-mono">{t("storyboard.board.sceneMeta", { shots: seq.plans.length, seconds: String(seq.plans.reduce((sum, plan) => sum + plan.duree, 0)) })}</span>
-      </div>
-      {seq.resume && seq.resume !== sb.idee && <p className="sb-small sb-muted sb-hide-short">{seq.resume}</p>}
-      <div className="sb-shots">
-        {seq.plans.map(plan => { numero += 1; return <ShotCard key={plan.id} sb={sb} plan={plan} numero={numero} total={total} data={data} etat={etat(plan)} echec={echecs[plan.id] ?? null} onOpen={onOpen} onChange={onChange} onFilm={onFilm} />; })}
-        {ecriture && <div className="sb-thumb is-skeleton" aria-hidden="true" />}
-      </div>
-      <button type="button" className="sb-add" data-sb-add={seq.id} onClick={() => {
-        const id = nouvelIdCourt();
-        onChange(ajouterPlan(sb, seq.id, planVide(id, sb.format)));
-        onOpen(id);
-      }}>{t("storyboard.board.addShot")}</button>
-    </section>)}
-  </>;
-}
-
-function ShotCard({ sb, plan, numero, total, data, etat, echec, onOpen, onChange, onFilm }: {
-  sb: Storyboard; plan: PlanSB; numero: number; total: number; data: Storyboards; etat: ReturnType<typeof etatDuPlan>; echec: string | null;
-  onOpen(id: string): void; onChange(next: Storyboard, label?: string): void; onFilm(id: string): void;
-}) {
-  const { t } = useI18n();
-  const devis = devisPlan(plan, data.ctxDevis).total;
-  const hit = data.priseDuPlan(plan);
-  const prises = hit?.film.prises.length ?? 0;
-  const tag = etat === "tourne" ? " is-ok" : etat === "en-cours" ? " is-gold" : etat === "echec" ? " is-fail" : "";
-  return <article className="sb-shot" data-sb-shot={plan.id} data-sb-etat={etat}>
-    <button type="button" className="sb-shot-open" aria-label={t("storyboard.board.open", { n: String(numero) })} data-sb-open={plan.id} onClick={() => onOpen(plan.id)} />
-    <ShotThumb plan={plan} numero={numero} data={data} kept={t("storyboard.board.kept")} />
-    <div className="sb-shot-b">
-      <h3>{plan.titre || t("storyboard.board.shot", { n: String(numero) })}</h3>
-      {plan.action && <p className="sb-act">{plan.action}</p>}
-      {plan.dialogue.type !== "aucune" && plan.dialogue.texte && <p className="sb-line" data-sb-line="">{t("storyboard.quoted", { text: plan.dialogue.texte })}</p>}
-      <p className="sb-meta sb-mono">{[plan.cadrage ? t(`storyboard.sheet.cadrage.${plan.cadrage}`) : null, plan.camera ? t(`storyboard.sheet.cam.${plan.camera}`) : null, `${plan.duree} s`].filter(Boolean).join(" · ")}</p>
-      <div className="sb-shot-f">
-        <RefAvatars refs={plan.refs} />
-        <span className={`sb-tag${tag}`} title={echec ?? undefined}>{t(`storyboard.board.etat.${etat}`)}</span>
-      </div>
-      <div className="sb-shot-a">
-        {numero > 1 ? <button type="button" className="sb-ghost sb-icon" aria-label={t("storyboard.board.moveUp", { n: String(numero) })} onClick={() => onChange(deplacerPlan(sb, plan.id, -1))}>↑</button> : <span className="sb-icon" aria-hidden="true" />}
-        {numero < total ? <button type="button" className="sb-ghost sb-icon" aria-label={t("storyboard.board.moveDown", { n: String(numero) })} onClick={() => onChange(deplacerPlan(sb, plan.id, 1))}>↓</button> : <span className="sb-icon" aria-hidden="true" />}
-        {etat === "tourne"
-          ? <button type="button" className="sb-out" onClick={() => onOpen(plan.id)}>{t("storyboard.board.takes", { n: String(prises) })}</button>
-          : etat === "en-cours"
-            ? <span className="sb-small sb-muted" role="status">{t("storyboard.board.etat.en-cours")}</span>
-            : devis === null
-              ? <span className="sb-small sb-muted" data-sb-no-quote={plan.id}>{t("storyboard.board.noQuote")}</span>
-              : <button type="button" className="sb-out is-gold" data-sb-film={plan.id} title={t("storyboard.board.filmTitle", { n: formatCredits(devis) })} aria-label={t("storyboard.board.filmTitle", { n: formatCredits(devis) })} onClick={() => onFilm(plan.id)}>
-                {t("storyboard.board.film", { n: formatCredits(devis) })}</button>}
-      </div>
-    </div>
-  </article>;
-}
-
-// ---------- the gold dock ----------
-
-function Dock({ sb, data, file, enCours, connected, onFilm }: { sb: Storyboard; data: Storyboards; file: FileTournage | null; enCours: string | null; connected: boolean; onFilm(ids: string[]): void }) {
-  const { t } = useI18n();
-  const plans = plansATourner(sb, data.registre);
-  const devis = devisStoryboard(sb, data.ctxDevis, data.registre, plans);
-  if (file && enCours) {
-    const i = file.faits.length + file.echecs.length + 1;
-    const n = i + file.restants.length;
-    return <div className="sb-dock" data-sb-dock=""><p className="sb-notice" role="status" data-sb-queue="">{t("storyboard.board.queue", { i: String(i), n: String(n) })}</p></div>;
-  }
-  if (!plans.length) return <div className="sb-dock" data-sb-dock=""><p className="sb-notice" role="status">{t("storyboard.board.allFilmed")}</p></div>;
-  return <div className="sb-dock" data-sb-dock="">
-    {connected && devis.total === null
-      ? <p className="sb-notice" role="status" data-sb-no-quote="">{t("storyboard.board.noQuote")}</p>
-      : <button type="button" className="sb-gold" data-sb-film-all="" onClick={() => onFilm(plans.map(plan => plan.id))}>
-        {connected && devis.total !== null
-          ? <><span>{t("storyboard.board.filmAll", { n: plans.length })}</span><span className="sb-p">{t("storyboard.board.filmAllPrice", { n: formatCredits(devis.total) })}</span></>
-          : <span>{t("storyboard.board.connect")}</span>}
-      </button>}
-    <p className="sb-dock-under">{t("storyboard.board.filmAllNote")}</p>
-  </div>;
-}
-
