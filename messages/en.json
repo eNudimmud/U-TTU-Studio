@@ -947,11 +947,8 @@
     "creditsShort": "Credits",
     "photoPlaceName": "Place photo",
     "engine": {
-      "label": "Shot style",
       "ltx": "LTX · Simple motion",
-      "h3": "H3 · Up to nine pictures",
-      "ltxHint": "The character is placed in the set, then the shot comes to life.",
-      "h3Hint": "Up to nine reference pictures."
+      "h3": "H3 · Up to nine pictures"
     }
   },
   "create": {
@@ -969,11 +966,6 @@
     "decorButtonClosed": "Create the set",
     "ceilingHyp": "Estimate: {high} credits",
     "ceilingMeasured": "Measured: {high} credits",
-    "quoteLead": "Quote: {quote} · {status}",
-    "quoteUnknown": "Quote: unknown",
-    "statusMeasured": "measured",
-    "statusHypothesis": "hypothesis",
-    "statusUnknown": "unknown",
     "confirmTitle": "Create now?",
     "confirmBody": "The quote is here. Nothing is sent without your OK.",
     "estimate": "About {amount} credits, estimated. The final price may vary.",
@@ -1454,56 +1446,11 @@
   },
   "r7": {
     "maquette": "Sketch",
-    "hint": "Drag a figure to move it · drag the ground to turn the camera · pinch to zoom",
-    "pose": "Keep the pose",
-    "cam": "Keep the camera",
-    "essai": "Another try",
-    "gratuit": "no render",
-    "annuler": "Undo",
-    "annulerOff": "Nothing to undo.",
-    "add": "+ Character",
-    "neutral": "Neutral",
-    "neutralName": "Figure",
-    "turn": "Rotate",
-    "remove": "Remove",
-    "turnName": "Rotate {name}",
-    "removeName": "Remove {name}",
-    "pairWhy": "This tile needs two characters. Add one with + Character.",
     "pairShort": "Two characters",
-    "addOff": "The scene holds {max} characters.",
-    "poseLock": "The pose is kept.",
-    "link": "and",
     "rendre": "Render this take",
     "devis": "{credits, select, 1 {Quote before sending: ≈ 1 credit (hypothesis, estimate to measure)} other {Quote before sending: ≈ {credits} credits (hypothesis, estimate to measure)}}",
     "envoyer": "Send to the edit",
-    "tuiles": "Film language",
-    "cequi": "What happens",
-    "lireCast": "People",
-    "lireLieu": "Place",
-    "lireCadrage": "Framing",
-    "enPlace": "Staged",
     "allerBusy": "Search in progress.",
-    "astuce": {
-      "bord": "Tip: the head of {name} touches the frame.",
-      "loin": "Tip: {name} is too far for this shot.",
-      "tient": "Everything stays in frame."
-    },
-    "tuile": {
-      "large": "Wide shot",
-      "largeHint": "The whole set",
-      "taille": "Waist shot",
-      "tailleHint": "Both, to the waist",
-      "contre": "Shot / reverse",
-      "contreHint": "Follow whoever speaks",
-      "reac": "Silence",
-      "reacHint": "Close-up on the listener",
-      "impact": "Impact zoom",
-      "impactHint": "For a shock",
-      "regard": "Look at camera",
-      "regardHint": "They look at us",
-      "regardHintMany": "They look at us",
-      "tailleHintMany": "The group, to the waist"
-    },
     "repere": "Scouting · a real place",
     "lieuPh": "Name, link, or coordinates",
     "ou": "Where?",
@@ -1529,7 +1476,6 @@
     "lienCourt": "This short link cannot be opened here. Paste the full link, or coordinates.",
     "creditRelief": "Terrain: Terrarium, AWS Open Data",
     "quartierFail": "The block could not be loaded.",
-    "rue": "In the street.",
     "pasCarte": "1. Touch a point on the map.",
     "pasSol": "2. In the street",
     "pasAngle": "Drag to look around, then move from photo to photo.",
@@ -1556,10 +1502,6 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Photo added to the references.",
     "photosBusy": "Loading photos.",
-    "reacMontage": "Silence",
-    "stillShot": "Still shot",
-    "distance": "Distance",
-    "pairTile": "Two characters",
     "cadrage": {
       "large": "Wide shot",
       "americain": "Medium-long shot",
@@ -1624,84 +1566,19 @@
     "cast": "A real studio result. Tap it: photo, name and text fill in, you only change them.",
     "decor": "A real studio set. Tap it: the reference, name and action fill in.",
     "prise": "The courier on the quay, already framed. Tap it: character, set, framing and action fill in.",
-    "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent.",
-    "titles": {
-      "cast": "DJ",
-      "decor": "The quay at night",
-      "prise": "The courier on the quay",
-      "montage": "The example clip"
-    }
+    "montage": "Three shots, a voice and music. Tap it: the edit fills in, nothing is sent."
   },
   "videoGeste": {
-    "title": "From the mock-up",
-    "lead": "From the mock-up or a picture. The price is an estimate.",
-    "slot": {
-      "debut": "First frame",
-      "fin": "Last frame",
-      "plan": "Shot picture",
-      "clip": "Shot video"
-    },
-    "text": {
-      "prise-raccord": "What happens in between",
-      "prise-camera": "The move and the scene",
-      "prise-effacer": "What to erase",
-      "prise-previs": "What we see in the shot"
-    },
-    "textOptional": "What appears on the sides (optional)",
-    "quote": "{credits, select, 1 {≈ 1 credit estimated} other {≈ {credits} credits estimated}}",
-    "estimate": "The final price may vary.",
-    "confirm": "I confirm this estimate. The final price may vary.",
-    "go": "{credits, select, 1 {Start · ≈ 1 credit estimated} other {Start · ≈ {credits} credits estimated}}",
-    "needLink": "Connect your Comfy account to run.",
     "needFiles": "A file or the text is missing.",
-    "needText": "The text is empty.",
-    "needConfirm": "Confirm to start.",
-    "done": "Video saved in My creations.",
-    "slotPrevis": {
-      "plan": "Look picture (character in the set)",
-      "clip": "Previs (maquette video)"
-    },
-    "previsLead": "Move the camera and the characters in the maquette for {seconds} s: this previs guides the shot (depth, framing, timing).",
-    "previsRecord": "Film the maquette ({seconds} s)",
-    "previsRecording": "Recording previs… {seconds} s",
-    "previsMove": "Move the camera in the maquette now.",
-    "previsReady": "{seconds} s previs ready. Nothing was sent.",
-    "previsNoCanvas": "The 3D maquette can't be filmed on this device: add a previs video."
+    "needText": "The text is empty."
   },
   "previs": {
     "title": "Previs by touch",
     "touch": "One finger: orbit the camera, or move a person or a prop. Two fingers: pinch to get closer.",
-    "agent": {
-      "label": "Sentence → scene",
-      "placeholder": "The courier and the old man in an alley at night, a car, two streetlights, push in",
-      "go": "Lay out the scene",
-      "why": "Write one sentence: who, which props, which move.",
-      "people": "{n} character(s)",
-      "props": "props: {list}",
-      "done": "Understood: {list}. Undo brings back the previous scene.",
-      "none": "Nothing recognised. Try: “two characters, a table, the camera circles around”."
-    },
     "props": "Props",
     "glb": "Import a .glb",
     "glbNote": "The model and embedded textures stay in your vault and ZIP backups. A light model works better on phones.",
     "propsFull": "{max} props at most.",
-    "prop": {
-      "caisse": "Crate",
-      "mur": "Wall",
-      "voiture": "Car",
-      "arbre": "Tree",
-      "lampadaire": "Streetlight",
-      "table": "Table",
-      "glb": "3D model"
-    },
-    "move": {
-      "avant": "push in",
-      "arriere": "pull back",
-      "tour": "orbit",
-      "pano": "pan",
-      "plongee": "high angle",
-      "fixe": "static shot"
-    },
     "path": "Camera path ({seconds} s)",
     "pathLead": "Frame with your finger, pick the moment, add a keyframe. The camera glides from one to the next.",
     "keyAt": "Keyframe at {t} s",
@@ -1712,14 +1589,6 @@
     "film": "Film the previs ({seconds} s)",
     "filmPath": "The camera follows your keyframes; the clip goes to Directed camera.",
     "filmFree": "Move the camera while filming; the clip goes to Directed camera.",
-    "mesh": {
-      "title": "Generate in 3D",
-      "photo": "Source photo",
-      "needPhoto": "Add a photo.",
-      "estimate": "Estimated quote, never measured yet. Official Comfy workflow; nothing runs without your confirmation.",
-      "go": "{credits, select, 1 {Generate · ≈ 1 credit estimated} other {Generate · ≈ {credits} credits estimated}}",
-      "done": "Model added to the maquette."
-    },
     "keysFull": "{max} keyframes at most.",
     "invalidModel": "This file is not a readable GLB or glTF 2.0 model.",
     "externalModel": "This model needs separate files. Export a GLB with embedded textures, then import it.",
@@ -1766,7 +1635,6 @@
   "safety": {
     "modelBlocked": "This tool is hidden by your model choices. Nothing is sent.",
     "finalBlocked": "This finish is not available yet. Exporting the video still works.",
-    "estimate": "The price is an estimate. The final price may vary.",
     "projectMissing": "This project is not on this device. Import its backup to open it.",
     "sequenceMissing": "This sequence is missing from the project. No other edit was opened in its place.",
     "referencesMax": "This style accepts at most {max} pictures. Reduce them before starting.",
@@ -1863,120 +1731,20 @@
     "pathRefused": "Path refused."
   },
   "p0": {
-    "advanced": "Advanced",
     "importCast": "Import a character",
     "importCastAria": "Import a character",
     "importDecor": "Import a set",
     "importDecorAria": "Import a set",
     "confirmGo": "Confirm and shoot",
-    "tourner": "Shoot",
-    "tournerSuivant": "Shoot shot {n}",
-    "running": "Rendering…",
-    "runningWhy": "You can write the next shot meanwhile. Nothing else is sent.",
-    "monter": "Edit the sequence ({count, plural, one {# shot} other {# shots}})",
-    "monterStill": "Send the still image to the edit",
-    "montageFailed": "Sending to the edit was interrupted.",
-    "saveFailed": "The shot could not be saved.",
-    "keep": "★ Keep this take",
-    "keptBtn": "★ Kept",
-    "montageWait": "The take’s video is not here yet. It goes to the edit as soon as it arrives.",
-    "keptOnMontage": "Take kept: it is in the edit.",
-    "kept": "kept",
-    "another": "Another take",
-    "takeOf": "Take {n} of {total}",
-    "versions": "Versions of this shot",
-    "versionN": "Take {n}",
-    "recover": "Recover the render",
-    "relaunch": "Try again · new quote",
-    "nextLabel": "Shot {n} · what happens",
-    "nextAria": "Next shot: what happens",
-    "nextPh": "Same character, same set. Write what comes next.",
     "plans": {
-      "copy": "copy",
-      "tools": "Shot {n}: tools",
-      "duplicate": "Duplicate",
-      "up": "Move shot up",
-      "down": "Move shot down",
-      "delete": "Delete",
-      "deleted": "“{name}” deleted.",
-      "undo": "Undo",
-      "label": "Shots"
+      "deleted": "“{name}” deleted."
     },
-    "addPlan": "+ Shot",
-    "sequenceSum": "Sequence: {time} · {count, plural, one {# shot} other {# shots}}",
-    "preview": "Preview",
-    "planN": "Shot {n}",
-    "who": "Who?",
-    "where": "Where?",
-    "addPerson": "Add a character",
-    "addPlace": "Add a place",
-    "firstPlace": "Create your first place",
-    "firstPlaceHint": "In SET, from a text or a street photo. It will appear here.",
-    "orExample": "Or start from an example:",
-    "example": "Example",
-    "actionPh": "stands still, breathes",
-    "duration": "Length",
-    "speech": "Speech",
-    "line": "The line",
-    "chain": "Continue",
-    "chainStart": "Start where the previous shot ends",
-    "chainEnd": "Set the last frame",
-    "chainNotKept": "The previous shot is not kept yet.",
     "yes": "yes",
     "no": "no",
-    "before": "Before",
-    "after": "After",
-    "compare": "Compare before and after",
     "engine": {
       "open": "studio model",
       "partner": "outside service",
       "versatile": "versatile model"
-    },
-    "paroles": {
-      "aucune": "None",
-      "replique": "Line",
-      "voix-off": "Voice-over"
-    },
-    "etat": {
-      "vide": "Empty",
-      "image-cle": "Key frame",
-      "validee": "Approved",
-      "prise": "Take",
-      "gardee": "Kept",
-      "finalisee": "Finished"
-    },
-    "action": {
-      "0": "walks toward the camera",
-      "1": "turns around",
-      "2": "looks into the distance",
-      "3": "stops",
-      "4": "reaches out a hand",
-      "5": "lowers their eyes"
-    },
-    "camera": {
-      "free": "open: nothing is set",
-      "fromText": "“{words}” read in your text → {move}",
-      "fromTile": "{move}, from the chosen move",
-      "move": {
-        "fixe": "static camera",
-        "travelling-avant": "dolly in",
-        "travelling-arriere": "dolly out",
-        "panoramique": "pan",
-        "suivi": "tracking shot",
-        "orbite": "orbit around the subject",
-        "epaule": "handheld camera",
-        "dolly": "Dolly"
-      }
-    },
-    "why": {
-      "demo": "The demo sends no render.",
-      "busy": "A render is running. Wait for it to finish before starting another.",
-      "h3Format": "H3 only has a price at 5 seconds. Switch to 5 s, or choose LTX.",
-      "noQuote": "This setting has no quote yet. Nothing is sent.",
-      "refs": "Use at most three saved characters; neutral figures only help set up the frame.",
-      "decorExample": "This example set only helps frame the shot. Create or import your set in SET to send it.",
-      "nothing": "Choose at least one saved character or set.",
-      "nextWords": "Write what happens in shot {n}."
     },
     "quote": {
       "estimated": "{low, select, 1 {≈ 1 credit estimated} other {≈ {low} credits estimated}}",
@@ -2022,188 +1790,25 @@
       "technical": "See the technical detail",
       "stepNow": "Step {n}/7 · {label}"
     },
-    "stillEmpty": "Choose who and where: the preview appears here.",
-    "groups": {
-      "maquette": "3D layout and framing",
-      "rendu": "Style and length",
-      "previs": "Filmed previs"
-    },
     "rendu": {
-      "label": "Quality",
-      "apercu": "Preview",
-      "apercuBody": "To try things out. You finish what you keep later.",
-      "finale": "Final quality",
-      "finaleBody": "Ready to edit as is.",
-      "quote": "{credits, select, 1 {≈ 1 credit estimated} other {≈ {credits} credits estimated}}",
-      "go": "{credits, select, 1 {Shoot · ≈ 1 credit estimated} other {Shoot · ≈ {credits} credits estimated}}",
-      "goNext": "{credits, select, 1 {Shoot shot {n} · ≈ 1 credit estimated} other {Shoot shot {n} · ≈ {credits} credits estimated}}",
-      "keep": "Your choice stays for the next shots of this project.",
-      "apercuHint": "A preview is finished later, on its own or with the whole edit.",
       "range": "{low} to {high}"
-    },
-    "addToMontage": "Add to edit",
-    "editor": {
-      "title": "Edit this shot",
-      "name": "Shot title",
-      "framing": "Framing",
-      "angle": "Camera angle",
-      "move": "Camera movement",
-      "position": "Camera position",
-      "positionHint": "For example: on the left, at eye level",
-      "duration": "Shot duration",
-      "reference": "Framing reference",
-      "refGroups": {
-        "decor": "SET · viewpoints",
-        "cast": "CAST",
-        "autres": "Other images"
-      },
-      "refKinds": {
-        "rendu": "render",
-        "vue": "view",
-        "image": "image"
-      },
-      "none": "None",
-      "referencesHint": "Choose the characters and set below. The framing reference is sent with the render as a visual guide.",
-      "changed": "Change added to the history.",
-      "retry": "Try again",
-      "recover": "Recover the render",
-      "save": {
-        "saving": "Saving…",
-        "saved": "Saved automatically",
-        "error": "Could not save: try again before leaving."
-      },
-      "states": {
-        "draft": "Draft",
-        "queued": "Queued",
-        "running": "Rendering",
-        "error": "Failed",
-        "done": "Generated"
-      },
-      "framings": {
-        "large": "Wide shot",
-        "moyen": "Medium shot",
-        "rapproche": "Medium close-up",
-        "americain": "Cowboy shot",
-        "gros": "Close-up",
-        "tgp": "Extreme close-up",
-        "plongee": "High angle",
-        "contre": "Low angle",
-        "epaule": "Over the shoulder"
-      },
-      "angles": {
-        "niveau": "Eye level",
-        "plongee": "High angle",
-        "contre-plongee": "Low angle"
-      }
-    },
-    "etapes": {
-      "aria": "Take steps",
-      "step": "Step {n} of 5",
-      "preparer": "Prepare",
-      "plans": "Shots",
-      "previs": "Preview",
-      "generer": "Generate",
-      "reviser": "Review",
-      "next": "Next: {step}",
-      "prev": "Back: {step}",
-      "lead": {
-        "preparer": "Character, set, action, mood and references.",
-        "plans": "Build the shot list, then adjust the selected shot.",
-        "previs": "Check the framing before spending credits.",
-        "generer": "The quote first, then you confirm the launch.",
-        "reviser": "Watch, keep the right version, retry, send to EDIT."
-      }
-    },
-    "goPlan": "Go to shot {n} · not shot yet"
+    }
   },
   "p1": {
     "hint": "One sentence is enough: who, where, what happens, the camera, the mood.",
     "chips": "What I understood",
     "chip": {
-      "who": "Who",
-      "where": "Where",
-      "camera": "Camera",
-      "ambiance": "Mood",
-      "duration": "Length",
-      "format": "Format",
-      "none": "—",
-      "unknown": "Unknown",
-      "drop": "Remove mood {label}",
-      "cameraWords": "From your words",
-      "cameraFree": "Open",
-      "degrees": "{move} · {degrees}°",
-      "sec": "{n} s",
-      "unknownGo": "“{word}”: add in CAST"
-    },
-    "say": {
-      "engineH3Refs": "There are {count} pictures, and this style only takes {max}: switching to the other style.",
-      "engineH3Cast": "{count} characters in the shot: switching to the style made for several faces.",
-      "engineManual": "Style picked by hand: {engine}.",
-      "refsDropped": "Beyond {max} references, {count} are left out.",
-      "missingRef": "No photo for {name}: their look may change.",
-      "missingDecorRef": "No picture for the place {name}: the set will follow your words.",
-      "orbitDegreesWho": "{degrees}° rotation around {name}.",
-      "orbitDegrees": "{degrees}° camera rotation.",
-      "orbitWho": "The camera turns around {name}.",
-      "orbit": "The camera turns around the scene.",
-      "ltxMoveNotExact": "This style does not guarantee this move to the inch.",
-      "camera": {
-        "fixe": "Static camera.",
-        "travelling-avant": "Slow dolly in.",
-        "travelling-arriere": "Slow dolly out.",
-        "panoramique": "Slow pan.",
-        "suivi": "The camera follows the character.",
-        "orbite": "The camera turns around the subject.",
-        "epaule": "Handheld camera, slight shake."
-      },
-      "identitySheet": "I keep {name}'s look with their turnaround sheet.",
-      "identityPhoto": "I keep {name}'s look from their photo.",
-      "stateKept": "{name} keeps “{state}” since {code}.",
-      "continuityLight": "I keep their look and the lighting of the previous shot.",
-      "keyframeKlein": "The opening picture is composed first from {count} references, then the shot comes to life.",
-      "ambiance": "Mood: {label}.",
-      "durationClamped": "{asked} s asked: the take lasts {seconds} s (5 or 8 s).",
-      "unknownName": "I don't know “{word}”: add it in CAST or SET, or fix the word.",
-      "noWho": "Nobody is named: choose who plays in Who."
+      "format": "Format"
     },
     "uttu": "Studio assistant",
     "fiab": {
-      "ambiance": "Mood",
-      "continuity": "Continuity",
-      "engine": "Style",
-      "engineAuto": "{engine} · chosen by the studio",
-      "engineHand": "{engine} · picked by hand",
-      "resolution": "Resolution (estimated)",
       "graph": "Comfy template",
-      "refs": "References",
-      "identity": "Identity",
       "identityplanche": "turnaround sheet",
       "identityphoto": "photo",
       "identityaucune": "no reference"
     },
-    "cont": {
-      "chip": "✓ {name} · {state} · since {code}",
-      "none": "{name} · no state",
-      "change": "Change state",
-      "set": "Set a state",
-      "label": "New state for {name} from {code}",
-      "ph": "e.g. hunter outfit",
-      "save": "Save",
-      "cancel": "Cancel",
-      "aria": "Continuity"
-    },
     "mem": {
-      "title": "Production memory",
-      "canon": "Canon",
-      "characters": "Characters",
-      "places": "Places",
-      "sequences": "Sequences",
-      "empty": "empty slot",
-      "noState": "no state",
-      "states": "States",
-      "shots": "{count, plural, =0 {no shot} one {# shot} other {# shots}}",
-      "history": "History",
-      "saved": "Memory saved in My creations (.uttu/memoire.json and Memoire/)."
+      "history": "History"
     },
     "engineAuto": "Auto"
   },
@@ -3702,30 +3307,9 @@
     "elapsedAlmost": "Elapsed {time} · almost done"
   },
   "framing": {
-    "three": "3D view",
-    "flat": "2D framing",
-    "zoom": "2D framing zoom",
-    "flatHint": "Drag a silhouette. Drag the background to reframe; pinch to zoom.",
-    "save": "Keep this framing",
-    "saving": "Saving framing…",
-    "loading": "Preparing framing…",
     "kept": "Kept framing",
-    "color": "Preview",
-    "depth": "Depth",
-    "edges": "Edges",
-    "flatDepth": "In 2D, depth guides the silhouettes; it does not reconstruct the set’s terrain.",
-    "nativeDepth": "Depth comes from the scene’s volumes. A background photo adds no geometry.",
-    "pipeline": "This framing guides the key image, then the video. It stays kept until you replace or remove it.",
-    "clear": "Remove this framing",
-    "ltx": "This framing uses LTX. Remove it to choose another engine.",
     "missing": "The framing images are missing. Keep the framing again before generating.",
-    "failed": "The framing could not be saved. Wait for the set to load, then try again.",
-    "formatChanged": "The format changed. Keep the framing again in this format before generating.",
-    "unlock": "Unlock the camera to change the zoom.",
-    "ltxSent": "Framing kept: this shot goes to LTX (depth + edges) · ≈ {credits} credits estimated. H3 does not use the framing.",
-    "h3NotSent": "H3 chosen: the kept framing stays saved but is not sent. Choose LTX to use it.",
-    "willSwitch": "Keeping this framing moves this shot from H3 (≈ {before}) to LTX (≈ {after} credits estimated). You can go back to H3 in “Shot style”.",
-    "switched": "Framing kept: this shot moves to LTX, ≈ {after} credits estimated instead of ≈ {before} with H3."
+    "failed": "The framing could not be saved. Wait for the set to load, then try again."
   },
   "namedRefs": {
     "title": "References",
@@ -3875,8 +3459,6 @@
     "paysage": "Landscape",
     "portrait": "Portrait",
     "camera": "Camera: {words}",
-    "changerDuree": "Change the length",
-    "changerFormat": "Change the format",
     "video": "Video {s} s",
     "explication": "What is missing is created first (image), then the shot is filmed (video). One confirmation.",
     "explicationPrete": "Everything is ready: the shot is filmed (video). One confirmation.",
@@ -4072,7 +3654,6 @@
       }
     },
     "nav": {
-      "aria": "Film: shots and edit",
       "plans": "Shots",
       "vide": "empty"
     },

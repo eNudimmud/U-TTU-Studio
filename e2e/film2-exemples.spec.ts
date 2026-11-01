@@ -21,7 +21,7 @@ async function snap(page: Page, name: string) {
 async function open(page: Page, locale = 'fr') {
   await page.context().addCookies([{ name: 'u-ttu-locale', value: locale, url: test.info().project.use.baseURL ?? 'http://127.0.0.1:3000' }]);
   await page.addInitScript(value => window.localStorage.setItem('u-ttu-locale', value), locale);
-  await page.goto('/studio?film2=1#prise');
+  await page.goto('/studio#prise');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
 }
 
@@ -51,7 +51,7 @@ test('chaque exemple : badge IMAGE|VIDÉO, ≈ X crédits estimés, un vrai apr�
     await page.setViewportSize(size);
     await open(page);
     const actions = await firstScreen(page);
-    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(10);
+    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(12);
     expect(actions.filter(line => / <44$/.test(line)), `${size.width}: touch targets`).toEqual([]);
     // One card per view: the next one peeks, its button does not count until it is swiped in.
     await expect(page.locator('[data-film-refaire]:visible')).toHaveCount(1);

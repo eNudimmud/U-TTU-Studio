@@ -5,7 +5,6 @@ import { OutilsStrip } from "./outils-hub";
 import { ConnectLink } from "./connect-link";
 import { useEffect, useState, type ReactNode } from "react";
 import { EXEMPLES_CAST, EXEMPLES_DECOR, exampleText, type ExempleItem } from "@/lib/creation/exemples";
-import { DEPARTS, montrerDepart } from "@/lib/creation/depart";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { creationAllowed, spendAllowed } from "@/lib/creation/quotes";
 import { assetPath } from "@/lib/site";
@@ -15,7 +14,6 @@ import { FiabiliteCard } from "./fiabilite-card";
 import { APRES_PAR_GESTE, EXEMPLE_PAR_GESTE } from "@/lib/workflows/tuiles";
 import { useI18n } from "@/components/i18n/provider";
 import { Arrow } from "./glyphs";
-import { ExempleDepart } from "./exemple-depart";
 import { ToolShell, ToolStage } from "./tool-shell";
 import { GestePicker } from "./geste-picker";
 import { ProjectGallery } from "./project-gallery";
@@ -24,7 +22,6 @@ import { lieuNote } from "@/lib/repere/lieu";
 import { SlotBoard, type LocalRef } from "./references";
 import { useStudio } from "./studio-session";
 import { EXEMPLE_KEY, lireExempleEnAttente } from "@/lib/film/exemples";
-import { film2DansCePoste } from "@/lib/film/drapeau";
 
 /** PR 4: an example picked on the plan card fills this form once, lit, then its confirmation opens. */
 function useExempleFilm(vers: "cast" | "decor", load: (geste: string) => Promise<void>, ouvrir: () => boolean) {
@@ -49,8 +46,6 @@ function useExempleFilm(vers: "cast" | "decor", load: (geste: string) => Promise
   }, [lit]);
   return lit;
 }
-
-export { PriseStage } from "./prise-stage";
 
 function gesteFromQuery(onglet: Onglet, fallback: string): string | null {
   if (typeof window === "undefined") return null;
@@ -392,8 +387,6 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
   const why = !opened ? t(row.raison ?? "gestes.unwired") : !connected ? t("create.needLink") : !covered ? t("create.needCeiling") : creating ? t("create.running") : row.minRefs > mapped ? t("gestes.needRefs") : t("stage.chooseDecor");
   const preview = refs.find(ref => ref.url)?.url ?? "";
   const apres = APRES_PAR_GESTE[gesteId] ? assetPath(APRES_PAR_GESTE[gesteId]) : "";
-  // Under film2 the examples live on the plan card (one model, PR 4): no second « Exemple — refais-le » here.
-  const depart = !film2DansCePoste() && montrerDepart({ mesAssets: decor.length, rempli: refs.length > 0 || name.trim().length > 0 || prompt.trim().length > 0 });
   const decorLit = useExempleFilm("decor", geste => loadExemple(geste), () => { if (!connected) { setSheet("connect"); return true; } if (blocked) return false; setAsk(true); return true; });
 
 
@@ -455,7 +448,6 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
           {SUGGESTIONS.map(key => <button key={key} type="button" data-suggestion={key} onClick={() => suggest(t(key))}>{t(key)}</button>)}
         </div>
       </div>
-      {depart && <ExempleDepart etape="decor" image={apres} titre={(found => found ? exampleTitle(found) : undefined)(house.find(entry => entry.id === EXEMPLE_PAR_GESTE[gesteId]?.id))} onStart={() => void loadExemple(EXEMPLE_PAR_GESTE[gesteId] ? gesteId : DEPARTS.decor.geste)} />}
       <ToolShell
         stage={<ToolStage
           view="source"
@@ -477,7 +469,7 @@ export function DecorStage({ onPrise }: { onPrise(): void }) {
         onDecor={() => setGalleryOpen(true)}
       />
       <SlotBoard geste={row} refs={refs} onChange={setRefs} onGallery={() => setGalleryOpen(true)} />
-      {!depart && (apres || preview) && <div className="u-result-frame">
+      {(apres || preview) && <div className="u-result-frame">
         <img src={apres || preview} alt="" />
       </div>}
       <OutilsStrip onglet="decor" />

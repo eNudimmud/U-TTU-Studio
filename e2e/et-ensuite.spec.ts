@@ -94,27 +94,3 @@ test("prise importée : trois actions, chacune vers sa page, un coût", async ({
   await expect(panel).not.toContainText(/réserve/i);
   expect(seen.graphs).toHaveLength(0);
 });
-
-test("MONTAGE : avec les modèles du studio seulement, Finaliser restaure au lieu d'être bloqué", async ({ page }) => {
-  await simulateComfy(page);
-  const seen = await watch(page);
-  await page.addInitScript(() => localStorage.setItem("u-ttu-moteurs", JSON.stringify({ openWeightsOnly: true, nanoBanana: false, engine: "ltx", engineManual: false })));
-  await page.goto("/studio#personnage");
-  await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
-  await page.locator("[data-partir-exemple=montage]").click();
-  const open = page.locator("[data-finaliser-open]");
-  await expect(open).toBeEnabled();
-  await open.click();
-  const sheet = page.getByRole("dialog", { name: "Finaliser le montage" });
-  await expect(sheet.locator("[data-final-open]")).toBeVisible();
-  await expect(sheet.locator("[data-final-quote='estimation']")).toBeVisible();
-  await expect(sheet.getByRole("button", { name: "4K" })).toHaveCount(0);
-  await sheet.locator("[data-final-confirm]").click();
-  await sheet.locator("[data-final-go]").click();
-  await expect(sheet.locator("[data-final-stage]").or(sheet.locator("video"))).toBeVisible({ timeout: 90_000 });
-  await expect.poll(() => seen.graphs.length, { timeout: 90_000 }).toBeGreaterThan(0);
-  const sent = types(seen.graphs.at(-1));
-  expect(sent).toContain("SeedVR2Conditioning");
-  expect(sent).not.toContain("RTXVideoSuperResolution");
-  expect(seen.cancels()).toBe(0);
-});

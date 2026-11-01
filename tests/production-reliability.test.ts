@@ -10,8 +10,7 @@ import { PENDING_RENDER_KEY, readPending, clearPending, clearTerminalPending, re
 import { failView, failKind } from '../src/lib/render/fail.ts';
 import { RenderError, type RenderClient } from '../src/lib/render/client.ts';
 import { placeLandedTake } from '../src/lib/render/settle-take.ts';
-import { initialMaquette, addFigure, seedLead, removeFigure } from '../src/lib/maquette/state.ts';
-import { maquetteJson, readMaquette } from '../src/lib/maquette/persistence.ts';
+
 import { chooseEdit } from '../src/lib/montage/from-takes.ts';
 import { readFolder } from '../src/lib/coffre/permit.ts';
 import type { DirectoryHandle } from '../src/lib/coffre/link.ts';
@@ -24,13 +23,6 @@ const receipt: PendingRender = { version: 1, kind: 'take', project: 'film-a', id
 const graph = {};
 
 describe('parcours de production : données et reprise', () => {
-  it('places the imported cast in an untouched empty scene without undoing a deliberate removal', () => {
-    const empty = { ...initialMaquette(), figures: [] };
-    const placed = seedLead(empty, { id: 'alice', name: 'Alice' });
-    assert.deepEqual(placed.figures.map(figure => figure.id), ['alice']);
-    const removed = removeFigure(placed, 'alice');
-    assert.equal(seedLead(removed, { id: 'alice', name: 'Alice' }), removed);
-  });
 
   it('imports the same filename twice without overwriting bytes, and restores all media from ZIP', async () => {
     const vault = memoryVault();
@@ -188,18 +180,6 @@ describe('parcours de production : données et reprise', () => {
     await vault.remove('Projets/film-a/Sequences/cut.json');
     await removeUnreferenced(vault, [path]);
     assert.equal(await vault.get(path), null);
-  });
-
-  it('restores the maquette and starts a real project with an empty montage', () => {
-    const state = addFigure(initialMaquette(), { id: 'other', name: 'Autre' });
-    const restored = readMaquette(maquetteJson(state));
-    assert.deepEqual(restored?.figures, state.figures);
-    assert.deepEqual(restored?.orbit, state.orbit);
-    assert.deepEqual(restored?.past, []);
-    assert.equal(readMaquette('{bad'), null);
-    const empty = { saved: [], sequences: [], shots: [], takes: [] };
-    assert.equal(chooseEdit(empty).edit.video.length, 0);
-    assert.ok(chooseEdit({ ...empty, demo: true }).edit.video.length > 0);
   });
 
   it('stops folder synchronization before overwriting divergent local or external data', async () => {

@@ -150,9 +150,6 @@ describe("galerie CAST et DÉCOR", () => {
     assert.ok(decor.indexOf("runStill") < decor.indexOf("writeScene"));
     assert.doesNotMatch(cast + decor, /fetch\(|submit_workflow|run_template|partner_generate|estimate_credits/);
     assert.match(read("src/components/app/stage-screens.tsx"), /create\.needLink/);
-    const board = read("src/components/app/prise-stage.tsx");
-    assert.match(board, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
-    assert.doesNotMatch(board, /confirmRun\(/);
   });
 
   it("sends a gallery card into PRISE and keeps a 44px target", () => {
@@ -165,9 +162,6 @@ describe("galerie CAST et DÉCOR", () => {
     assert.equal(picked.where?.name, "Le quai, la nuit");
     assert.equal(picked.ready, true);
     assert.equal(prisePick({ castId: "absent", decorId: "demo-quai", cast: DEMO_CAST, decor: DEMO_DECOR }).ready, false);
-    const prise = read("src/components/app/prise-stage.tsx");
-    assert.match(prise, /pickCast\(/);
-    assert.match(prise, /pickDecor\(/);
     const stage = read("src/components/app/stage-screens.tsx");
     assert.match(stage, /EXEMPLES_DECOR/);
     assert.match(stage, /EXEMPLES_CAST/);

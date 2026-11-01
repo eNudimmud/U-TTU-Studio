@@ -947,11 +947,8 @@
     "creditsShort": "Credits",
     "photoPlaceName": "Foto des Orts",
     "engine": {
-      "label": "Stil der Einstellung",
       "ltx": "LTX · Einfache Bewegung",
-      "h3": "H3 · Bis zu neun Bilder",
-      "ltxHint": "Die Figur wird ins Dekor gesetzt, dann wird die Einstellung lebendig.",
-      "h3Hint": "Bis zu neun Referenzbilder."
+      "h3": "H3 · Bis zu neun Bilder"
     }
   },
   "create": {
@@ -969,11 +966,6 @@
     "decorButtonClosed": "Kulisse erstellen",
     "ceilingHyp": "Schätzung: {high} Credits",
     "ceilingMeasured": "Gemessen: {high} Credits",
-    "quoteLead": "Kalkulation: {quote} · {status}",
-    "quoteUnknown": "Kalkulation: unbekannt",
-    "statusMeasured": "gemessen",
-    "statusHypothesis": "Annahme",
-    "statusUnknown": "unbekannt",
     "confirmTitle": "Jetzt erstellen?",
     "confirmBody": "Die Kalkulation ist da. Ohne diese Geste geht nichts raus.",
     "estimate": "Etwa {amount} Credits, geschätzt. Der Endpreis kann abweichen.",
@@ -1454,56 +1446,11 @@
   },
   "r7": {
     "maquette": "Skizze",
-    "hint": "Zieh eine Figur zum Verschieben · zieh den Boden, um die Kamera zu drehen · mit zwei Fingern zoomen",
-    "pose": "Haltung behalten",
-    "cam": "Kamera behalten",
-    "essai": "Anderer Versuch",
-    "gratuit": "ohne Rendering",
-    "annuler": "Zurück",
-    "annulerOff": "Nichts zurückzunehmen.",
-    "add": "+ Figur",
-    "neutral": "Neutral",
-    "neutralName": "Figur",
-    "turn": "Rotieren",
-    "remove": "Entfernen",
-    "turnName": "{name} rotieren",
-    "removeName": "Entfernen {name}",
-    "pairWhy": "Diese Kachel braucht zwei Figuren. Füge eine mit + Figur hinzu.",
     "pairShort": "Zwei Figuren",
-    "addOff": "Die Szene hält {max} Figuren.",
-    "poseLock": "Die Haltung bleibt.",
-    "link": "und",
     "rendre": "Diese Einstellung ausgeben",
     "devis": "{credits, select, 1 {Kalkulation vor dem Senden: ≈ 1 Credit (Hypothese, noch zu messen)} other {Kalkulation vor dem Senden: ≈ {credits} Credits (Hypothese, noch zu messen)}}",
     "envoyer": "An den Schnitt senden",
-    "tuiles": "Filmsprache",
-    "cequi": "Was geschieht",
-    "lireCast": "Personen",
-    "lireLieu": "Ort",
-    "lireCadrage": "Bildausschnitt",
-    "enPlace": "Steht",
     "allerBusy": "Suche läuft.",
-    "astuce": {
-      "bord": "Hinweis: der Kopf von {name} berührt den Rahmen.",
-      "loin": "Hinweis: {name} steht zu weit für diese Einstellung.",
-      "tient": "Alles bleibt im Rahmen."
-    },
-    "tuile": {
-      "large": "Totale",
-      "largeHint": "Die ganze Kulisse",
-      "taille": "Halbnahe",
-      "tailleHint": "Beide bis zur Hüfte",
-      "contre": "Schuss / Gegenschuss",
-      "contreHint": "Wir folgen, wer spricht",
-      "reac": "Stille",
-      "reacHint": "Groß auf die zuhörende Person",
-      "impact": "Aufprall-Zoom",
-      "impactHint": "Für einen Schock",
-      "regard": "Blick in die Kamera",
-      "regardHint": "Er sieht uns an",
-      "regardHintMany": "Sie sehen uns an",
-      "tailleHintMany": "Die Gruppe bis zur Hüfte"
-    },
     "repere": "Suche · ein echter Ort",
     "lieuPh": "Name, Link oder Koordinaten",
     "ou": "Wo?",
@@ -1529,7 +1476,6 @@
     "lienCourt": "Dieser Kurzlink lässt sich hier nicht öffnen. Füge den vollständigen Link oder Koordinaten ein.",
     "creditRelief": "Relief: Terrarium, offene AWS-Daten",
     "quartierFail": "Das Viertel konnte nicht geladen werden.",
-    "rue": "In der Straße.",
     "pasCarte": "1. Tippe einen Punkt auf der Karte.",
     "pasSol": "2. In der Straße",
     "pasAngle": "Ziehen, um sich umzusehen, dann von Foto zu Foto weiter.",
@@ -1556,10 +1502,6 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Foto zu den Referenzen gelegt.",
     "photosBusy": "Fotos werden geladen.",
-    "reacMontage": "Stille",
-    "stillShot": "Standbild",
-    "distance": "Abstand",
-    "pairTile": "Zwei Figuren",
     "cadrage": {
       "large": "Weitaufnahme",
       "americain": "Amerikanische Einstellung",
@@ -1624,84 +1566,19 @@
     "cast": "Ein echtes Studio-Ergebnis. Tippe darauf: Foto, Name und Text werden ausgefüllt.",
     "decor": "Eine echte Studio-Kulisse. Tippe darauf: Referenz, Name und Geste werden ausgefüllt.",
     "prise": "Die Kurierin am Kai, schon gerahmt. Tippe darauf: Figur, Kulisse, Bildausschnitt und Handlung werden ausgefüllt.",
-    "montage": "Drei Einstellungen, eine Stimme und Musik. Tippe darauf: der Schnitt wird gefüllt, nichts wird gesendet.",
-    "titles": {
-      "cast": "DJ",
-      "decor": "Der Kai bei Nacht",
-      "prise": "Die Kurierin am Kai",
-      "montage": "Der Beispielclip"
-    }
+    "montage": "Drei Einstellungen, eine Stimme und Musik. Tippe darauf: der Schnitt wird gefüllt, nichts wird gesendet."
   },
   "videoGeste": {
-    "title": "Aus der Skizze",
-    "lead": "Aus der Skizze oder einem Bild. Der Preis ist eine Schätzung.",
-    "slot": {
-      "debut": "Erstes Bild",
-      "fin": "Letztes Bild",
-      "plan": "Bild der Einstellung",
-      "clip": "Video der Einstellung"
-    },
-    "text": {
-      "prise-raccord": "Was dazwischen passiert",
-      "prise-camera": "Bewegung und Szene",
-      "prise-effacer": "Was entfernt werden soll",
-      "prise-previs": "Was in der Einstellung zu sehen ist"
-    },
-    "textOptional": "Was an den Seiten erscheint (optional)",
-    "quote": "{credits, select, 1 {≈ 1 Credit geschätzt} other {≈ {credits} Credits geschätzt}}",
-    "estimate": "Der Endpreis kann abweichen.",
-    "confirm": "Ich bestätige diese Schätzung. Der Endpreis kann abweichen.",
-    "go": "{credits, select, 1 {Starten · ≈ 1 Credit geschätzt} other {Starten · ≈ {credits} Credits geschätzt}}",
-    "needLink": "Verbinde dein Render-Konto (Comfy), um zu starten.",
     "needFiles": "Eine Datei oder der Text fehlt.",
-    "needText": "Der Text ist leer.",
-    "needConfirm": "Zum Starten bestätigen.",
-    "done": "Video in Meine Kreationen gespeichert.",
-    "slotPrevis": {
-      "plan": "Look-Bild (Figur im Set)",
-      "clip": "Previs (Video des Modells)"
-    },
-    "previsLead": "Bewege Kamera und Figuren im Modell {seconds} s lang: diese Previs führt die Einstellung (Tiefe, Bildausschnitt, Timing).",
-    "previsRecord": "Modell filmen ({seconds} s)",
-    "previsRecording": "Previs läuft… {seconds} s",
-    "previsMove": "Bewege jetzt die Kamera im Modell.",
-    "previsReady": "Previs von {seconds} s bereit. Nichts wurde gesendet.",
-    "previsNoCanvas": "Das 3D-Modell lässt sich auf diesem Gerät nicht filmen: füge ein Previs-Video hinzu."
+    "needText": "Der Text ist leer."
   },
   "previs": {
     "title": "Previs mit dem Finger",
     "touch": "Ein Finger: Kamera drehen oder eine Person, ein Objekt verschieben. Zwei Finger: zusammenziehen, um näher zu kommen.",
-    "agent": {
-      "label": "Satz → Szene",
-      "placeholder": "Die Kurierin und der alte Mann in einer Gasse bei Nacht, ein Auto, zwei Laternen, Fahrt näher",
-      "go": "Szene aufbauen",
-      "why": "Schreib einen Satz: wer, welche Objekte, welche Bewegung.",
-      "people": "{n} Figur(en)",
-      "props": "Objekte: {list}",
-      "done": "Verstanden: {list}. Rückgängig holt die vorige Szene zurück.",
-      "none": "Nichts erkannt. Versuch: „zwei Personen, ein Tisch, die Kamera kreist herum“."
-    },
     "props": "Objekte",
     "glb": ".glb importieren",
     "glbNote": "Modell und eingebettete Texturen bleiben im lokalen Studio und in ZIP-Sicherungen. Ein leichtes Modell eignet sich besser fürs Handy.",
     "propsFull": "Höchstens {max} Objekte.",
-    "prop": {
-      "caisse": "Kiste",
-      "mur": "Wand",
-      "voiture": "Auto",
-      "arbre": "Baum",
-      "lampadaire": "Laterne",
-      "table": "Tisch",
-      "glb": "3D-Modell"
-    },
-    "move": {
-      "avant": "Fahrt nach vorn",
-      "arriere": "Rückfahrt",
-      "tour": "Kreisfahrt",
-      "pano": "Schwenk",
-      "plongee": "Vogelperspektive",
-      "fixe": "feste Kamera"
-    },
     "path": "Kamerafahrt ({seconds} s)",
     "pathLead": "Mit dem Finger kadrieren, den Moment wählen, einen Keyframe setzen. Die Kamera gleitet von einem zum nächsten.",
     "keyAt": "Keyframe bei {t} s",
@@ -1712,14 +1589,6 @@
     "film": "Previs filmen ({seconds} s)",
     "filmPath": "Die Kamera folgt deinen Keyframes; der Clip geht an Gesteuerte Kamera.",
     "filmFree": "Beweg die Kamera beim Filmen; der Clip geht an Gesteuerte Kamera.",
-    "mesh": {
-      "title": "In 3D erzeugen",
-      "photo": "Ausgangsfoto",
-      "needPhoto": "Füge ein Foto hinzu.",
-      "estimate": "Eine Schätzung, noch nie gemessen. Offizieller Comfy-Workflow; nichts läuft ohne deine Bestätigung.",
-      "go": "{credits, select, 1 {Erzeugen · ≈ 1 Credit geschätzt} other {Erzeugen · ≈ {credits} Credits geschätzt}}",
-      "done": "Modell zur Maquette hinzugefügt."
-    },
     "keysFull": "Höchstens {max} Keyframes.",
     "invalidModel": "Diese Datei ist kein lesbares GLB- oder glTF-2.0-Modell.",
     "externalModel": "Dieses Modell benötigt separate Dateien. Exportiere eine GLB-Datei mit eingebetteten Texturen und importiere sie.",
@@ -1766,7 +1635,6 @@
   "safety": {
     "modelBlocked": "Dieses Werkzeug ist durch deine Modellwahl ausgeblendet. Es wird nichts gesendet.",
     "finalBlocked": "Diese Endbearbeitung ist noch nicht verfügbar. Der Videoexport bleibt möglich.",
-    "estimate": "Der Preis ist eine Schätzung. Der Endpreis kann abweichen.",
     "projectMissing": "Dieses Projekt ist nicht auf diesem Gerät. Importiere seine Sicherung.",
     "sequenceMissing": "Diese Sequenz fehlt im Projekt. Es wurde kein anderer Schnitt stattdessen geöffnet.",
     "referencesMax": "Dieser Stil nimmt höchstens {max} Bilder. Verringere sie vor dem Start.",
@@ -1863,120 +1731,20 @@
     "pathRefused": "Pfad abgelehnt."
   },
   "p0": {
-    "advanced": "Erweitert",
     "importCast": "Figur importieren",
     "importCastAria": "Figur importieren",
     "importDecor": "Kulisse importieren",
     "importDecorAria": "Kulisse importieren",
     "confirmGo": "Bestätigen und drehen",
-    "tourner": "Drehen",
-    "tournerSuivant": "Einstellung {n} drehen",
-    "running": "Wird gerendert…",
-    "runningWhy": "Du kannst inzwischen die nächste Einstellung schreiben. Sonst wird nichts gesendet.",
-    "monter": "Sequenz schneiden ({count, plural, one {# Einstellung} other {# Einstellungen}})",
-    "monterStill": "Standbild in den Schnitt senden",
-    "montageFailed": "Übergabe an den Schnitt unterbrochen.",
-    "saveFailed": "Die Einstellung konnte nicht gespeichert werden.",
-    "keep": "★ Diesen Take behalten",
-    "keptBtn": "★ Behalten",
-    "montageWait": "Das Video des Takes ist noch nicht da. Es kommt in den Schnitt, sobald es eintrifft.",
-    "keptOnMontage": "Take behalten: Er ist im Schnitt.",
-    "kept": "behalten",
-    "another": "Weiterer Take",
-    "takeOf": "Take {n} von {total}",
-    "versions": "Versionen dieser Einstellung",
-    "versionN": "Take {n}",
-    "recover": "Rendering abholen",
-    "relaunch": "Neu starten · neuer Kostenvoranschlag",
-    "nextLabel": "Einstellung {n} · was passiert",
-    "nextAria": "Nächste Einstellung: was passiert",
-    "nextPh": "Gleiche Figur, gleiche Kulisse. Schreib, wie es weitergeht.",
     "plans": {
-      "copy": "Kopie",
-      "tools": "Einstellung {n}: Werkzeuge",
-      "duplicate": "Duplizieren",
-      "up": "Einstellung nach oben",
-      "down": "Einstellung nach unten",
-      "delete": "Löschen",
-      "deleted": "„{name}“ gelöscht.",
-      "undo": "Rückgängig",
-      "label": "Einstellungen"
+      "deleted": "„{name}“ gelöscht."
     },
-    "addPlan": "+ Einstellung",
-    "sequenceSum": "Sequenz: {time} · {count, plural, one {# Einstellung} other {# Einstellungen}}",
-    "preview": "Vorschau",
-    "planN": "Einstellung {n}",
-    "who": "Wer?",
-    "where": "Wo?",
-    "addPerson": "Figur hinzufügen",
-    "addPlace": "Ort hinzufügen",
-    "firstPlace": "Erstelle deinen ersten Ort",
-    "firstPlaceHint": "In KULISSE, aus einem Text oder einem Straßenfoto. Er erscheint hier.",
-    "orExample": "Oder starte mit einem Beispiel:",
-    "example": "Beispiel",
-    "actionPh": "steht still, atmet",
-    "duration": "Dauer",
-    "speech": "Sprache",
-    "line": "Der Satz",
-    "chain": "Anschließen",
-    "chainStart": "Dort beginnen, wo die vorige Einstellung endet",
-    "chainEnd": "Letztes Bild vorgeben",
-    "chainNotKept": "Die vorige Einstellung ist noch nicht behalten.",
     "yes": "ja",
     "no": "nein",
-    "before": "Vorher",
-    "after": "Nachher",
-    "compare": "Vorher und nachher vergleichen",
     "engine": {
       "open": "Studiomodell",
       "partner": "externer Dienst",
       "versatile": "vielseitiges Modell"
-    },
-    "paroles": {
-      "aucune": "Keine",
-      "replique": "Dialog",
-      "voix-off": "Off-Stimme"
-    },
-    "etat": {
-      "vide": "Leer",
-      "image-cle": "Schlüsselbild",
-      "validee": "Freigegeben",
-      "prise": "Take",
-      "gardee": "Behalten",
-      "finalisee": "Fertig"
-    },
-    "action": {
-      "0": "geht auf die Kamera zu",
-      "1": "dreht sich um",
-      "2": "blickt in die Ferne",
-      "3": "bleibt stehen",
-      "4": "streckt die Hand aus",
-      "5": "senkt den Blick"
-    },
-    "camera": {
-      "free": "frei: nichts wird vorgegeben",
-      "fromText": "„{words}“ aus deinem Text gelesen → {move}",
-      "fromTile": "{move}, nach der gewählten Bewegung",
-      "move": {
-        "fixe": "feste Kamera",
-        "travelling-avant": "Kamerafahrt vor",
-        "travelling-arriere": "Kamerafahrt zurück",
-        "panoramique": "Schwenk",
-        "suivi": "Verfolgung",
-        "orbite": "Kreisfahrt um das Motiv",
-        "epaule": "Handkamera",
-        "dolly": "Dolly"
-      }
-    },
-    "why": {
-      "demo": "Die Demo sendet kein Rendering.",
-      "busy": "Ein Rendering läuft. Warte, bis es fertig ist.",
-      "h3Format": "H3 hat nur bei 5 Sekunden einen Preis. Wechsle auf 5 s oder wähle LTX.",
-      "noQuote": "Für diese Einstellung gibt es noch keinen Kostenvoranschlag. Nichts wird gesendet.",
-      "refs": "Höchstens drei gespeicherte Figuren; neutrale Figuren dienen nur zum Einrichten.",
-      "decorExample": "Diese Beispielkulisse dient nur zum Einrichten. Erstelle oder importiere deine Kulisse unter KULISSE.",
-      "nothing": "Wähle mindestens eine gespeicherte Figur oder Kulisse.",
-      "nextWords": "Schreib, was in Einstellung {n} passiert."
     },
     "quote": {
       "estimated": "{low, select, 1 {≈ 1 Credit geschätzt} other {≈ {low} Credits geschätzt}}",
@@ -2022,188 +1790,25 @@
       "technical": "Technische Details ansehen",
       "stepNow": "Schritt {n}/7 · {label}"
     },
-    "stillEmpty": "Wähle wer und wo: Die Vorschau erscheint hier.",
-    "groups": {
-      "maquette": "3D-Modell und Bildausschnitt",
-      "rendu": "Stil und Dauer",
-      "previs": "Gefilmte Previs"
-    },
     "rendu": {
-      "label": "Qualität",
-      "apercu": "Vorschau",
-      "apercuBody": "Zum Ausprobieren. Was du behältst, finalisierst du später.",
-      "finale": "Endqualität",
-      "finaleBody": "Direkt bereit für den Schnitt.",
-      "quote": "{credits, select, 1 {≈ 1 Credit geschätzt} other {≈ {credits} Credits geschätzt}}",
-      "go": "{credits, select, 1 {Drehen · ≈ 1 Credit geschätzt} other {Drehen · ≈ {credits} Credits geschätzt}}",
-      "goNext": "{credits, select, 1 {Einstellung {n} drehen · ≈ 1 Credit geschätzt} other {Einstellung {n} drehen · ≈ {credits} Credits geschätzt}}",
-      "keep": "Deine Wahl bleibt für die nächsten Einstellungen dieses Projekts.",
-      "apercuHint": "Eine Vorschau wird später finalisiert, einzeln oder mit dem ganzen Schnitt.",
       "range": "{low} bis {high}"
-    },
-    "addToMontage": "Zur Montage hinzufügen",
-    "editor": {
-      "title": "Diese Einstellung bearbeiten",
-      "name": "Titel der Einstellung",
-      "framing": "Bildausschnitt",
-      "angle": "Kamerawinkel",
-      "move": "Kamerabewegung",
-      "position": "Kameraposition",
-      "positionHint": "Zum Beispiel: links, auf Augenhöhe",
-      "duration": "Dauer der Einstellung",
-      "reference": "Bildreferenz für den Ausschnitt",
-      "refGroups": {
-        "decor": "KULISSE · Blickwinkel",
-        "cast": "BESETZUNG",
-        "autres": "Weitere Bilder"
-      },
-      "refKinds": {
-        "rendu": "Rendering",
-        "vue": "Ansicht",
-        "image": "Bild"
-      },
-      "none": "Keine",
-      "referencesHint": "Wähle unten Figuren und Kulisse. Die Bildreferenz wird als visuelle Vorgabe mitgesendet.",
-      "changed": "Änderung im Verlauf gespeichert.",
-      "retry": "Erneut versuchen",
-      "recover": "Ergebnis wiederherstellen",
-      "save": {
-        "saving": "Wird gespeichert…",
-        "saved": "Automatisch gespeichert",
-        "error": "Speichern fehlgeschlagen: versuche es vor dem Verlassen erneut."
-      },
-      "states": {
-        "draft": "Entwurf",
-        "queued": "In Warteschlange",
-        "running": "Wird gerendert",
-        "error": "Fehler",
-        "done": "Erstellt"
-      },
-      "framings": {
-        "large": "Totale",
-        "moyen": "Halbnah",
-        "rapproche": "Nahaufnahme",
-        "americain": "Amerikanisch",
-        "gros": "Großaufnahme",
-        "tgp": "Detailaufnahme",
-        "plongee": "Aufsicht",
-        "contre": "Untersicht",
-        "epaule": "Über die Schulter"
-      },
-      "angles": {
-        "niveau": "Auf Augenhöhe",
-        "plongee": "Aufsicht",
-        "contre-plongee": "Untersicht"
-      }
-    },
-    "etapes": {
-      "aria": "Schritte der Aufnahme",
-      "step": "Schritt {n} von 5",
-      "preparer": "Vorbereiten",
-      "plans": "Einstellungen",
-      "previs": "Vorschau",
-      "generer": "Erzeugen",
-      "reviser": "Prüfen",
-      "next": "Weiter: {step}",
-      "prev": "Zurück: {step}",
-      "lead": {
-        "preparer": "Figur, Kulisse, Handlung, Stimmung und Referenzen.",
-        "plans": "Stelle die Einstellungsliste zusammen und passe die gewählte an.",
-        "previs": "Prüfe den Bildausschnitt, bevor du Credits ausgibst.",
-        "generer": "Erst die Kalkulation, dann bestätigst du den Start.",
-        "reviser": "Ansehen, die richtige Version behalten, neu starten, an den SCHNITT senden."
-      }
-    },
-    "goPlan": "Zu Einstellung {n} · noch nicht gedreht"
+    }
   },
   "p1": {
     "hint": "Ein Satz genügt: wer, wo, was passiert, die Kamera, die Stimmung.",
     "chips": "Was ich verstanden habe",
     "chip": {
-      "who": "Wer",
-      "where": "Wo",
-      "camera": "Kamera",
-      "ambiance": "Stimmung",
-      "duration": "Dauer",
-      "format": "Format",
-      "none": "—",
-      "unknown": "Unbekannt",
-      "drop": "Stimmung {label} entfernen",
-      "cameraWords": "Nach deinen Worten",
-      "cameraFree": "Frei",
-      "degrees": "{move} · {degrees}°",
-      "sec": "{n} s",
-      "unknownGo": "„{word}“: in Besetzung hinzufügen"
-    },
-    "say": {
-      "engineH3Refs": "Es gibt {count} Bilder, und dieser Stil nimmt nur {max}: ich wechsle zum anderen Stil.",
-      "engineH3Cast": "{count} Figuren in der Einstellung: ich wechsle zum Stil für mehrere Gesichter.",
-      "engineManual": "Stil von Hand gewählt: {engine}.",
-      "refsDropped": "Über {max} Referenzen hinaus bleiben {count} außen vor.",
-      "missingRef": "Kein Foto von {name}: das Aussehen kann sich ändern.",
-      "missingDecorRef": "Kein Bild vom Ort {name}: das Set folgt deinen Worten.",
-      "orbitDegreesWho": "Drehung um {degrees}° um {name}.",
-      "orbitDegrees": "Kameradrehung um {degrees}°.",
-      "orbitWho": "Die Kamera kreist um {name}.",
-      "orbit": "Die Kamera kreist um die Szene.",
-      "ltxMoveNotExact": "Dieser Stil garantiert diese Bewegung nicht auf den Zentimeter.",
-      "camera": {
-        "fixe": "Feste Kamera.",
-        "travelling-avant": "Langsame Ranfahrt.",
-        "travelling-arriere": "Langsame Rückfahrt.",
-        "panoramique": "Langsamer Schwenk.",
-        "suivi": "Die Kamera folgt der Figur.",
-        "orbite": "Die Kamera kreist um das Motiv.",
-        "epaule": "Handkamera, leichtes Wackeln."
-      },
-      "identitySheet": "Ich halte das Aussehen von {name} mit dem Ansichtsblatt.",
-      "identityPhoto": "Ich halte das Aussehen von {name} nach dem Foto.",
-      "stateKept": "{name} behält „{state}“ seit {code}.",
-      "continuityLight": "Ich behalte Aussehen und Licht der vorigen Einstellung.",
-      "keyframeKlein": "Das Startbild wird zuerst aus {count} Referenzen gebaut, dann wird die Einstellung lebendig.",
-      "ambiance": "Stimmung: {label}.",
-      "durationClamped": "{asked} s verlangt: die Aufnahme dauert {seconds} s (5 oder 8 s).",
-      "unknownName": "„{word}“ kenne ich nicht: in Besetzung oder Kulisse hinzufügen oder das Wort korrigieren.",
-      "noWho": "Niemand ist genannt: wähle unter Wer, wer spielt."
+      "format": "Format"
     },
     "uttu": "Studio-Assistent",
     "fiab": {
-      "ambiance": "Stimmung",
-      "continuity": "Kontinuität",
-      "engine": "Stil",
-      "engineAuto": "{engine} · vom Studio gewählt",
-      "engineHand": "{engine} · von Hand gewählt",
-      "resolution": "Auflösung (geschätzt)",
       "graph": "Comfy-Vorlage",
-      "refs": "Referenzen",
-      "identity": "Identität",
       "identityplanche": "Ansichtsblatt",
       "identityphoto": "Foto",
       "identityaucune": "keine Referenz"
     },
-    "cont": {
-      "chip": "✓ {name} · {state} · seit {code}",
-      "none": "{name} · kein Zustand",
-      "change": "Zustand ändern",
-      "set": "Zustand festlegen",
-      "label": "Neuer Zustand für {name} ab {code}",
-      "ph": "z. B. Jägerkleidung",
-      "save": "Speichern",
-      "cancel": "Abbrechen",
-      "aria": "Kontinuität"
-    },
     "mem": {
-      "title": "Produktionsgedächtnis",
-      "canon": "Kanon",
-      "characters": "Figuren",
-      "places": "Orte",
-      "sequences": "Sequenzen",
-      "empty": "leeres Feld",
-      "noState": "kein Zustand",
-      "states": "Zustände",
-      "shots": "{count, plural, =0 {keine Einstellung} one {# Einstellung} other {# Einstellungen}}",
-      "history": "Verlauf",
-      "saved": "Gedächtnis in Meine Kreationen gespeichert (.uttu/memoire.json und Memoire/)."
+      "history": "Verlauf"
     },
     "engineAuto": "Auto"
   },
@@ -3702,30 +3307,9 @@
     "elapsedAlmost": "Verstrichen {time} · gleich fertig"
   },
   "framing": {
-    "three": "3D-Ansicht",
-    "flat": "2D-Bildausschnitt",
-    "zoom": "Zoom des 2D-Bildausschnitts",
-    "flatHint": "Verschiebe eine Silhouette. Ziehe den Hintergrund für den Ausschnitt; zoome mit zwei Fingern.",
-    "save": "Diesen Bildausschnitt behalten",
-    "saving": "Bildausschnitt wird gespeichert…",
-    "loading": "Bildausschnitt wird vorbereitet…",
     "kept": "Gespeicherter Bildausschnitt",
-    "color": "Vorschau",
-    "depth": "Tiefe",
-    "edges": "Konturen",
-    "flatDepth": "In 2D führt die Tiefe die Silhouetten; sie rekonstruiert das Gelände der Kulisse nicht.",
-    "nativeDepth": "Die Tiefe stammt aus den Volumen der Szene. Ein Hintergrundfoto fügt keine Geometrie hinzu.",
-    "pipeline": "Dieser Ausschnitt führt das Schlüsselbild, dann das Video. Er bleibt erhalten, bis du ihn ersetzt oder entfernst.",
-    "clear": "Diesen Bildausschnitt entfernen",
-    "ltx": "Dieser Bildausschnitt verwendet LTX. Entferne ihn, um einen anderen Motor zu wählen.",
     "missing": "Die Bilder des Ausschnitts fehlen. Speichere ihn vor dem Generieren erneut.",
-    "failed": "Der Bildausschnitt konnte nicht gespeichert werden. Warte auf die Kulisse und versuche es erneut.",
-    "formatChanged": "Das Format hat sich geändert. Speichere den Ausschnitt vor dem Generieren erneut in diesem Format.",
-    "unlock": "Entsperre die Kamera, um den Zoom zu ändern.",
-    "ltxSent": "Bildausschnitt behalten: diese Einstellung geht an LTX (Tiefe + Kanten) · ≈ {credits} Credits geschätzt. H3 nutzt den Ausschnitt nicht.",
-    "h3NotSent": "H3 gewählt: der behaltene Ausschnitt bleibt gespeichert, wird aber nicht gesendet. Wähle LTX, um ihn zu nutzen.",
-    "willSwitch": "Wenn du diesen Ausschnitt behältst, wechselt die Einstellung von H3 (≈ {before}) zu LTX (≈ {after} Credits geschätzt). Unter „Stil der Einstellung“ kannst du zu H3 zurück.",
-    "switched": "Ausschnitt behalten: diese Einstellung wechselt zu LTX, ≈ {after} Credits geschätzt statt ≈ {before} mit H3."
+    "failed": "Der Bildausschnitt konnte nicht gespeichert werden. Warte auf die Kulisse und versuche es erneut."
   },
   "namedRefs": {
     "title": "Referenzen",
@@ -3875,8 +3459,6 @@
     "paysage": "Querformat",
     "portrait": "Hochformat",
     "camera": "Kamera: {words}",
-    "changerDuree": "Dauer ändern",
-    "changerFormat": "Format ändern",
     "video": "Video {s} s",
     "explication": "Was fehlt, wird zuerst erstellt (Bild), dann wird die Einstellung gedreht (Video). Eine einzige Bestätigung.",
     "explicationPrete": "Alles ist bereit: Die Einstellung wird gedreht (Video). Eine einzige Bestätigung.",
@@ -4072,7 +3654,6 @@
       }
     },
     "nav": {
-      "aria": "Film: Einstellungen und Schnitt",
       "plans": "Einstellungen",
       "vide": "leer"
     },

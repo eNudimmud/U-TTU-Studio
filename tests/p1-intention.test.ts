@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { resolveIntention, detectLang } from "../src/lib/intention/resolve.ts";
-import { deName, fill, planIntention, uttuLine, type PlanContext } from "../src/lib/intention/plan.ts";
+
 import { buildPrompt } from "../src/lib/prise/prompt.ts";
 import { emptyPlan } from "../src/lib/prise/decision.ts";
 
@@ -98,75 +98,5 @@ describe("P1 · résolveur d’intention", () => {
   it("déterministe : même phrase, même résultat", () => {
     assert.deepEqual(resolveIntention(SENTENCE_1, CTX), resolveIntention(SENTENCE_1, CTX));
     assert.equal(detectLang(""), "en");
-  });
-});
-
-function context(partial: Partial<PlanContext> = {}): PlanContext {
-  return { cast: [{ id: "elise", name: "Élise", sheet: "Projets/x/Cast/elise.webp", photos: [] }], decor: { id: "lab", name: "Le laboratoire", stills: ["Projets/x/Decors/lab.webp"] }, inherited: [], engineOverride: null, previousInPlace: false, format: "16:9", ...partial };
-}
-
-describe("P1 · choix moteur, références, assistant", () => {
-  it("LTX par défaut, Klein compose l’image de départ, planche en référence 1", () => {
-    const plan = planIntention(resolveIntention(SENTENCE_1, CTX), context());
-    assert.equal(plan.engine, "ltx");
-    assert.equal(plan.template, "video_ltx2_5_i2v");
-    assert.equal(plan.identity, "planche");
-    assert.equal(plan.keyframe, true);
-    assert.deepEqual(plan.refs.map(ref => ref.kind), ["planche", "decor"]);
-    assert.ok(plan.promptLines.some(line => line.includes("VHS camcorder look from 1994")));
-    assert.match(plan.resolution, /^\d+×\d+$/);
-  });
-
-  it("trop de références pour LTX → H3 ; le choix manuel gagne et se dit", () => {
-    const cast = ["a", "b", "c"].map(id => ({ id, name: id.toUpperCase(), sheet: `Projets/x/Cast/${id}.webp`, photos: [] }));
-    const inherited = [{ characterId: "a", name: "A", identity: "", refs: [], state: { id: "s", characterId: "a", label: "tenue de chasseur", fromPlan: "plan-01", fromCode: "A-01", at: "", refs: ["Projets/x/Cast/a-chasseur.webp"] }, startsHere: false }];
-    const plan = planIntention(resolveIntention("A, B et C dans le labo", CTX), context({ cast, inherited }));
-    assert.equal(plan.auto, "h3");
-    assert.equal(plan.refs.length, 5);
-    const hand = planIntention(resolveIntention("A, B et C dans le labo", CTX), context({ cast, inherited, engineOverride: "ltx" }));
-    assert.equal(hand.engine, "ltx");
-    assert.equal(hand.refs.length, 4);
-    assert.equal(hand.dropped.length, 1);
-    assert.ok(hand.decisions.some(item => item.key === "engineManual"));
-    assert.ok(hand.warnings.some(item => item.key === "refsDropped"));
-  });
-
-  it("assistant : la phrase type, en français, avec l’incertitude LTX", () => {
-    const fr = catalog("fr");
-    const plan = planIntention(resolveIntention("La caméra tourne autour d'Élise à 90°", CTX), context({ previousInPlace: true }));
-    const { line, flags } = uttuLine(plan);
-    const text = line.map(item => fill(at(fr, `p1.say.${item.key}`), item.vars)).join(" ");
-    assert.ok(text.startsWith("Rotation de 90° autour d’Élise. Je conserve son apparence et l’éclairage du plan précédent."), text);
-    assert.ok(flags.some(item => fill(at(fr, `p1.say.${item.key}`), item.vars) === "Ce style ne garantit pas ce mouvement au centimètre."));
-    assert.equal(deName("MALO"), "de MALO");
-  });
-
-  it("assistant : nom inconnu et référence manquante signalés", () => {
-    const plan = planIntention(resolveIntention("ZORA attend dans la forêt", CTX), context({ cast: [{ id: "malo", name: "MALO", sheet: null, photos: [] }], decor: { id: "foret", name: "Forêt", stills: [] } }));
-    const keys = plan.warnings.map(item => item.key);
-    assert.ok(keys.includes("unknownName"));
-    assert.ok(keys.includes("missingRef"));
-    assert.ok(keys.includes("missingDecorRef"));
-  });
-
-  it("chaque clé de l’assistant existe dans les 4 langues", () => {
-    const fr = catalog("fr");
-    const keys = Object.keys(at(fr, "p1.say") as unknown as Record<string, unknown>);
-    for (const lang of ["en", "de", "es"]) {
-      const other = catalog(lang);
-      for (const key of keys) assert.ok(at(other, `p1.say.${key}`), `${lang} p1.say.${key}`);
-    }
-  });
-
-  it("le prompt reçoit ambiance, état et rotation, la phrase part telle quelle", () => {
-    const resolved = resolveIntention(SENTENCE_1, CTX);
-    const inherited = [{ characterId: "elise", name: "Élise", identity: "", refs: [], state: { id: "s", characterId: "elise", label: "tenue de chasseur", fromPlan: "plan-01", fromCode: "A-01", at: "", refs: [] }, startsHere: false }];
-    const plan = planIntention(resolved, context({ inherited }));
-    const input = { ...emptyPlan("16:9"), castIds: ["elise"], castNames: ["Élise"], castPlanche: [true], decorId: "lab", decorName: "Laboratoire", action: SENTENCE_1 };
-    const text = buildPrompt(input, { graph: "video_ltx2_5_i2v", son: false } as never, { lines: plan.promptLines }).text;
-    assert.ok(text.includes(SENTENCE_1));
-    assert.ok(text.includes("[état]        Élise: tenue de chasseur"));
-    assert.ok(text.includes("[ambiance]"));
-    assert.ok(text.includes("handheld"));
   });
 });

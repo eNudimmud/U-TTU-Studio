@@ -29,7 +29,7 @@ test('Autre prise et Modifier et refaire : une prise de plus du même plan, seul
   const view = page.viewportSize()!;
   if (SHOTS) mkdirSync(SHOTS, { recursive: true });
 
-  await page.goto('/studio?film2=1#prise');
+  await page.goto('/studio#prise');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
   await page.locator('[data-film-phrase]').fill('Uttu marche sur le quai la nuit');
   await page.locator('[data-film-tourner]').click();
@@ -83,7 +83,7 @@ test('Autre prise et Modifier et refaire : une prise de plus du même plan, seul
   if (SHOTS) await page.screenshot({ path: join(SHOTS, `film2-${view.width}x${view.height}-23-prise-3.png`) });
 
   // The cut keeps the first take; the three takes are in « Mes plans ».
-  await page.goto('/studio?film2=1#montage');
+  await page.goto('/studio#montage');
   await expect(page.locator('[data-fm-bin-item]')).toHaveCount(3, { timeout: 30_000 });
   await expect(page.locator('[data-fm-clip]')).toHaveCount(1);
 });

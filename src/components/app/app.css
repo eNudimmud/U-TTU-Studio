@@ -141,12 +141,8 @@
 .u-sequence { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .u-sequence > li { display: grid; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); }
 .u-sequence > li.is-drop { border-color: var(--u-gold); }
-.u-montage { display: grid; gap: 10px; min-width: 0; }
 .u-montage-play { display: grid; gap: 8px; min-width: 0; }
 .u-montage-play .u-player { width: min(100%, 280px); }
-.u-slate { display: grid; align-content: center; justify-items: center; gap: 8px; width: min(100%, 280px); aspect-ratio: 9 / 16; max-height: min(42dvh, 420px); margin-inline: auto; padding: 16px; border: 1px solid var(--u-line-strong); border-radius: 12px; background: var(--bg); color: var(--fg-2); text-align: center; }
-.u-slate strong { font: 600 18px/1.25 var(--font-heading); color: var(--fg); }
-.u-slate span { color: var(--u-sand); font-size: 14px; line-height: 1.45; }
 .u-drag { min-width: 44px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--u-line-strong); border-radius: 12px; background: transparent; color: var(--fg-2); font: 600 13px/1.2 var(--font-body); touch-action: none; user-select: none; }
 .u-tree .u-link { justify-content: flex-start; min-height: 44px; padding: 4px 0; font-size: 13px; }
 .u-problems { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; color: var(--u-fail); font-size: 14px; }
@@ -235,8 +231,6 @@
 .u-cost { font-size: 14px; line-height: 1.5; padding: 12px 14px; border: 1px solid var(--line); border-left: 2px solid var(--fg-2); background: var(--surface-2); border-radius: 0 var(--radius-control) var(--radius-control) 0; color: var(--fg); }
 .u-cost.is-warn { border-color: var(--u-sand); color: var(--u-sand); }
 .u-cost.is-block { border-color: var(--danger); background: rgba(255, 133, 119, .08); color: var(--u-fail); }
-
-.u-run { justify-items: start; }
 .u-run-label { font: 600 22px/1.2 var(--font-heading); letter-spacing: -.02em; }
 .u-thread { position: relative; width: 100%; height: 2px; background: var(--u-line); overflow: hidden; border-radius: 2px; }
 .u-thread span { position: absolute; top: -3px; left: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: u-weave 2.4s ease-in-out infinite; }
@@ -301,7 +295,6 @@
 .u-cinema .u-card { min-width: 0; }
 .u-cinema h2 { font-size: 22px; }
 .u-desk { display: grid; gap: 18px; }
-.u-actions { display: grid; gap: 4px; }
 .u-nudge { display: flex; flex-wrap: wrap; gap: 6px; }
 .u-nudge button { min-width: 44px; min-height: 44px; padding: 6px 8px; border: 1px solid var(--u-line); border-radius: 10px; background: transparent; color: var(--u-muted); font: 600 12px/1 var(--font-mono); }
 .u-previz { margin: 0; display: grid; gap: 6px; }
@@ -379,30 +372,28 @@
   .u-stage { gap: 12px; }
   .u-app[data-studio="montage"] .u-chain { position: sticky; top: 56px; bottom: auto; z-index: 36; border-top: 0; border-bottom: 1px solid var(--u-line-strong); box-shadow: none; }
   .u-app[data-studio="montage"] .u-main { padding-bottom: calc(20px + var(--u-safe)); }
-  .u-stage.u-montage .u-montage-bar { position: sticky; top: calc(120px + var(--u-safe)); z-index: 30; background: rgba(15, 15, 17, .96); }
 }
 .u-stage .u-head h1 { font-size: clamp(28px, 6vw, 44px); }
 .u-board { display: grid; gap: 16px; align-items: start; }
 .u-prise-grid { display: grid; gap: 16px; align-items: start; }
 .u-pick-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
-.u-pick-row > button, .u-place > button { display: grid; gap: 8px; min-height: 44px; padding: 0; border: 0; background: none; text-align: left; color: inherit; }
+.u-pick-row > button { display: grid; gap: 8px; min-height: 44px; padding: 0; border: 0; background: none; text-align: left; color: inherit; }
 .u-example img { width: 100%; max-height: 148px; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; border: 1px solid var(--u-line-strong); background: var(--surface); }
 @media (min-width: 800px) {
   .u-example img { max-height: 280px; aspect-ratio: 3 / 4; width: auto; max-width: 100%; }
 }
-.u-pick-row img, .u-place img, .u-pick-row .u-scene-empty, .u-place .u-scene-empty, .u-person-file .u-scene-empty {
+.u-pick-row img, .u-pick-row .u-scene-empty, .u-person-file .u-scene-empty {
   width: 100%; aspect-ratio: 3 / 4; max-height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid var(--u-line-strong); background: var(--surface);
 }
 .u-example { margin: 0; display: grid; gap: 8px; }
-.u-example figcaption, .u-place span, .u-pick-row span { font-size: 15px; line-height: 1.35; }
+.u-example figcaption, .u-pick-row span { font-size: 15px; line-height: 1.35; }
 .u-example figcaption { color: var(--u-gold-soft); }
 .u-night { min-height: 180px; border-radius: 12px; border: 1px solid var(--u-line-strong); background:
   radial-gradient(70% 50% at 50% 100%, rgba(255, 255, 255, 0.12), transparent 62%),
   linear-gradient(180deg, var(--surface-2), var(--bg));
   display: grid; align-items: end; padding: 16px;
 }
-.u-person, .u-place { display: grid; gap: 10px; align-content: start; padding: 12px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); }
-.u-place[data-selected="true"] { border-color: var(--u-gold); }
+.u-person { display: grid; gap: 10px; align-content: start; padding: 12px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); }
 .u-pick-row small { color: var(--u-sand); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
 .u-decor-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .u-decor-card { position: relative; display: grid; gap: 8px; align-content: start; padding: 8px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); }
@@ -459,92 +450,11 @@
 .u-lien, .u-detail { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); }
 .u-lien .u-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .u-lien .u-row .u-secondary { width: auto; flex: 1 1 180px; }
-.u-stage.u-montage { gap: 12px; min-width: 0; max-width: 100%; }
-.u-stage.u-montage .u-head h1 { font-size: clamp(28px, 6vw, 48px); }
-.u-stage.u-montage > * { min-width: 0; }
 .u-montage-bar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .u-montage-bar .u-lead { margin: 0; }
-.u-export { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--u-accent); color: var(--on-accent); font: 600 14px/1 var(--font-body); }
-.u-export:hover:not(:disabled) { background: var(--accent-hover); }
-.u-export:disabled { opacity: .4; }
-.u-monitor { display: grid; gap: 8px; width: 100%; }
-.u-stage-frame { display: flex; align-items: center; justify-content: center; width: 100%; border: 1px solid var(--u-line-strong); border-radius: 12px; background: var(--bg); overflow: hidden; }
-.u-viewer { position: relative; background: var(--bg); }
-.u-viewer[data-ratio="16/9"] { width: 100%; max-height: 70dvh; aspect-ratio: 16 / 9; }
-.u-viewer[data-ratio="9/16"] { width: auto; max-width: 100%; height: min(52dvh, 560px); aspect-ratio: 9 / 16; }
-.u-viewer img, .u-viewer video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--bg); }
-.u-viewer .u-slate { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; max-height: none; aspect-ratio: auto; margin: 0; padding: 16px; border: 0; border-radius: 0; background: transparent; }
-.u-controls { display: flex; align-items: center; gap: 8px; min-height: 52px; }
-.u-play { display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface-2); color: var(--fg); }
-.u-play svg { width: 22px; height: 22px; }
-.u-time { flex: 1; color: var(--fg); font: 600 15px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
-.u-toolrow { display: flex; align-items: stretch; gap: 4px; }
-.u-toolrow-main { display: flex; flex: 1 1 auto; gap: 2px; min-width: 0; overflow-x: auto; }
-.u-toolrow-zoom { display: flex; flex: 0 0 auto; gap: 2px; }
-.u-tool { display: grid; justify-items: center; align-content: center; gap: 2px; min-width: 52px; min-height: 52px; padding: 4px 6px; border: 0; border-radius: 10px; background: transparent; color: var(--fg); font: 600 12px/1.1 var(--font-body); }
-.u-tool span { white-space: nowrap; }
-.u-ruler-zoom { display: none; }
-.u-tool:disabled { color: var(--u-muted); }
-.u-tool svg { width: 20px; height: 20px; }
 .u-tool-slot { position: relative; display: grid; }
-.u-tip { position: absolute; z-index: 8; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); width: max-content; max-width: 220px; padding: 6px 8px; border: 1px solid var(--u-line-strong); border-radius: 8px; background: var(--surface-2); color: var(--u-gold-soft); font-size: 12px; line-height: 1.3; opacity: 0; visibility: hidden; pointer-events: none; }
-.u-tool-slot:hover .u-tip, .u-tool-slot:focus-within .u-tip, .u-tool-slot[data-tip] .u-tip { opacity: 1; visibility: visible; }
 .u-menu-back { position: fixed; inset: 0; z-index: 65; padding: 0; border: 0; background: transparent; }
-.u-popover { position: fixed; z-index: 70; display: grid; gap: 4px; width: min(280px, calc(100vw - 16px)); padding: 8px; border: 1px solid var(--u-line-strong); border-radius: 12px; background: var(--surface-2); box-shadow: none; }
-.u-popover p { margin: 0; padding: 4px 8px 0; }
-.u-popover button, .u-popover label { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--u-text); font-size: 14px; text-align: left; }
-.u-popover button:disabled { color: var(--u-muted); }
-.u-tl { overflow: auto; border: 1px solid var(--u-line); border-radius: 12px; background: var(--bg); touch-action: pan-x; }
-.u-tl-inner { position: relative; min-height: 0; }
-.u-playline { position: absolute; top: 22px; bottom: 0; z-index: 3; width: 2px; margin-left: -1px; background: var(--accent); pointer-events: none; }
-.u-playhead { position: absolute; top: 0; z-index: 6; width: 44px; height: 44px; margin-left: -22px; padding: 0; border: 0; background: transparent; touch-action: none; }
-.u-playhead::before { content: ""; position: absolute; top: 8px; left: 15px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--bg); }
-.u-track-row { display: grid; grid-template-columns: 56px minmax(0, 1fr); min-height: 88px; }
-.u-track-row.is-ruler { min-height: 32px; }
-.u-track-row + .u-track-row { border-top: 1px solid var(--u-line); }
-.u-track-head { position: sticky; left: 0; z-index: 5; display: grid; align-content: center; justify-items: center; gap: 2px; background: var(--surface); color: var(--fg-2); }
-.u-track-mark { display: grid; place-items: center; width: 44px; height: 28px; }
-.u-track-add { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--u-line-strong); border-radius: 10px; background: transparent; color: var(--fg-2); }
-.u-ruler { position: relative; height: 32px; }
-.u-ruler span { position: absolute; top: 8px; transform: translateX(-50%); color: var(--u-muted); font: 600 12px/1 var(--font-mono); }
-.u-ruler span::before { content: ""; position: absolute; top: -8px; left: 50%; width: 1px; height: 6px; background: var(--u-line-strong); }
-.u-track { position: relative; min-height: 88px; }
-.u-track-row.is-audio .u-track, .u-track-row.is-audio { min-height: 96px; }
-.u-clip { position: absolute; top: 8px; height: calc(100% - 16px); overflow: hidden; border-radius: 8px; background: var(--surface-2); border: 1px solid rgba(255, 255, 255, 0.12); }
-.u-clip.is-audio { background: var(--surface-2); }
-.u-clip[data-selected] { border-color: var(--u-gold); }
-.u-clip[data-trimming] { box-shadow: 0 0 0 2px var(--u-gold); }
-.u-clip-body { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; padding: 0; border: 0; background-color: transparent; background-position: center; background-size: cover; color: var(--u-text); font: 600 12px/1.2 var(--font-body); text-align: left; }
-.u-clip.is-video .u-clip-body > span { position: absolute; right: 0; bottom: 0; left: 0; padding: 4px 28px 4px 10px; background: var(--bg); white-space: nowrap; overflow: hidden; }
-.u-clip.is-audio .u-clip-body > span { position: absolute; z-index: 1; top: 4px; left: 12px; max-width: calc(100% - 24px); overflow: hidden; white-space: nowrap; }
-.u-handle { position: absolute; top: 0; z-index: 2; width: 44px; height: 100%; padding: 0; border: 0; background: transparent; touch-action: none; }
-.u-handle.is-start { left: 0; }
-.u-handle.is-end { right: 0; }
-.u-handle::after { content: ""; position: absolute; top: 10px; bottom: 10px; width: 3px; border-radius: 2px; background: var(--fg); }
-.u-handle.is-start::after { left: 6px; }
-.u-handle.is-end::after { right: 6px; }
-.u-wave { height: 48px; margin-top: 22px; overflow: hidden; pointer-events: none; }
-.u-levels { display: grid; gap: 8px; }
-.u-meter { height: 8px; overflow: hidden; border-radius: 99px; background: var(--surface-2); }
-.u-meter span { display: block; height: 100%; background: var(--accent); }
-@media (max-width: 799px) {
-  .u-stage.u-montage .u-tl { width: calc(100% + 36px); margin-inline: -18px; border-radius: 0; border-inline: 0; }
-}
-@media (max-width: 480px) {
-  .u-toolrow-zoom { display: none; }
-  .u-toolrow-main { overflow: visible; gap: 0; }
-  .u-toolrow-main > .u-tool-slot,
-  .u-toolrow-main > .u-tool { flex: 0 0 auto; min-width: 44px; }
-  .u-toolrow-main .u-tool { width: auto; min-width: 44px; min-height: 44px; padding: 2px 8px; }
-  .u-tl { position: relative; }
-  .u-ruler-zoom { position: absolute; z-index: 8; top: 0; right: 0; display: flex; background: var(--surface); }
-  .u-ruler-zoom .u-tool { width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; }
-  .u-track-row.is-ruler { min-height: 44px; }
-  .u-ruler { height: 44px; }
-  .u-ruler span { top: 18px; }
-}
 @media (min-width: 800px) {
-  .u-levels { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .u-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .u-stage[data-section="decor"] .u-head h1 { font-size: 48px; }
   .u-decor-layout { grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: 28px; align-items: start; }
@@ -595,26 +505,11 @@
 .u-assets[data-selecting="true"] .u-asset-check, .u-card-lg:hover .u-asset-check, .u-card-lg:focus-within .u-asset-check, .u-card-lg[data-selected="true"] .u-asset-check { opacity: 1; }
 .u-asset-check[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 .u-asset-detail img, .u-asset-detail video { width: 100%; max-height: 70dvh; object-fit: contain; background: var(--bg); }
-.u-chutier { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
-.u-bin-body { display: grid; align-content: start; gap: 8px; min-width: 0; min-height: 0; overflow: auto; }
-.u-chutier-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; min-width: 0; max-width: 100%; }
-.u-chutier-row button { display: grid; grid-template-rows: 72px auto; gap: 4px; min-width: 0; max-width: 100%; min-height: 44px; padding: 6px; overflow: hidden; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); color: inherit; text-align: left; }
-.u-bin-thumb { display: block; min-width: 0; max-width: 100%; height: 72px; overflow: hidden; border-radius: 8px; background: var(--bg); }
-.u-bin-thumb img, .u-chutier-row img { width: 100%; height: 72px; object-fit: cover; border-radius: 8px; }
-.u-bin-thumb .u-wave, .u-bin-thumb canvas { width: 100% !important; max-width: 100% !important; height: 72px; margin: 0 !important; }
-.u-bin-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; overflow-wrap: anywhere; font-size: 13px; line-height: 16px; }
 .u-bin-quiet { flex: none; margin: 0; color: var(--u-muted); font-size: 12px; line-height: 1.35; white-space: normal; }
-.u-bin-handle { display: block; flex: none; width: 40px; height: 4px; margin: 2px auto 4px; border-radius: 99px; background: var(--u-line-strong); touch-action: none; }
 .u-context { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .u-context button, .u-context input, .u-context select { min-height: 44px; }
 .u-context .u-field { flex: 1 1 160px; margin: 0; }
-.u-snap { color: var(--accent); }
-.u-tl[data-snap="true"] .u-playline { outline: 2px solid var(--u-gold); }
-.u-viewer { position: relative; }
-.u-on-title { position: absolute; left: 12px; right: 12px; bottom: 12px; margin: 0; padding: 8px 12px; border-radius: 10px; background: rgba(15, 15, 17, .55); color: var(--fg); }
-.u-fade { position: absolute; inset: 0; background: var(--bg); pointer-events: none; }
-.u-fade img, img.u-fade { width: 100%; height: 100%; object-fit: contain; }
-.u-geste, .u-refs button, .u-refs select, .u-chutier button, .u-context button { min-height: 44px; }
+.u-geste, .u-refs button, .u-refs select, .u-context button { min-height: 44px; }
 
 .u-tile { display: grid; gap: 4px; width: 100%; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); overflow: hidden; }
 .u-tile[data-selected="true"] { border-color: var(--u-gold); box-shadow: inset 0 0 0 1px var(--u-gold); }
@@ -663,48 +558,16 @@
 .u-desk-switch button[aria-pressed="true"] { border-color: var(--u-gold); color: var(--u-gold); background: rgba(255, 255, 255, 0.066); }
 .u-tile-scroll { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; }
 .u-tile-scroll > .u-tile { flex: 0 0 168px; scroll-snap-align: start; }
-.u-capcut { display: flex; flex-direction: column; gap: 10px; min-width: 0; max-width: 100%; }
 @media (max-width: 1023px) {
   .u-app[data-studio="montage"] { height: 100dvh; max-height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
   .u-app[data-studio="montage"] .u-top,
   .u-app[data-studio="montage"] .u-chain { flex: none; }
   .u-app[data-studio="montage"] .u-chain { position: static; top: auto; bottom: auto; width: auto; margin: 4px 8px 0; }
   .u-app[data-studio="montage"] .u-main { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; max-width: 100%; padding-bottom: 8px; }
-  .u-stage.u-montage { flex: 1 1 auto; min-height: 0; max-width: 100%; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
-  .u-stage.u-montage .u-montage-bar { position: static; top: auto; z-index: auto; flex: none; align-items: center; background: transparent; }
-  .u-stage.u-montage .u-montage-bar > div { display: flex; align-items: baseline; gap: 8px; }
-  .u-stage.u-montage .u-head h1 { font-size: 22px; }
-  .u-capcut { flex: 1 1 auto; min-height: 0; overflow: visible; }
-  .u-capcut-player, .u-capcut-player .u-monitor, .u-capcut-player .u-stage-frame, .u-capcut-time { max-width: 100%; min-width: 0; }
-  .u-capcut-player { order: 1; flex: 0 1 auto; min-height: 120px; max-height: 200px; display: flex; flex-direction: column; }
-  .u-capcut-time { order: 2; }
-  .u-capcut-player .u-monitor { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-  .u-capcut-player .u-stage-frame { flex: 1 1 auto; min-height: 0; display: flex; }
-  .u-capcut-player .u-viewer { width: 100%; max-width: 100%; min-width: 0; height: auto; max-height: 100%; margin: 0; }
-  .u-capcut-player .u-controls { position: relative; z-index: 2; flex: none; }
-  .u-capcut-time { order: 2; flex: 0 0 auto; min-height: 0; overflow: visible; }
-  .u-tl { max-width: 100%; }
-  .u-app[data-studio="montage"] .u-track-row.is-audio,
-  .u-app[data-studio="montage"] .u-track-row.is-audio .u-track { min-height: 76px; }
 }
-.u-capcut .u-chutier { display: none; }
-.u-capcut .u-chutier[data-open="true"] { display: flex; position: relative; z-index: 1; order: 3; flex: 0 1 auto; width: 100%; max-height: 46%; overflow: hidden; margin-top: 0; padding: 8px 12px calc(12px + var(--u-safe)); border: 1px solid var(--u-line-gold, var(--u-gold)); border-bottom: 0; border-radius: 12px 18px 0 0; background: var(--surface); }
-.u-capcut .u-chutier[data-open="true"] .u-bin-body { flex: 1 1 auto; }
-.u-bin-close { flex: none; width: 100%; min-height: 44px; }
-.u-app:not([data-studio="montage"]) .u-capcut .u-chutier[data-open="true"] { bottom: calc(72px + var(--u-safe)); }
-.u-bin-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; overflow: visible; }
-.u-bin-tabs button { min-width: 0; min-height: 44px; padding: 0 2px; border: 0; border-radius: 10px; background: transparent; color: var(--u-muted); }
-.u-bin-label { display: block; overflow: visible; white-space: nowrap; text-overflow: clip; font-size: 13px; line-height: 1; letter-spacing: 0; }
-.u-bin-tabs button[aria-selected="true"] { color: var(--u-gold); background: rgba(255, 255, 255, 0.066); }
 .u-tile-why { display: block; margin: 0; padding: 0 8px 8px; color: var(--u-gold-soft, var(--fg)); font-size: 12px; line-height: 1.35; white-space: normal; overflow: visible; }
 .u-refslot-audio { display: grid; place-items: center; padding: 8px; font-size: 12px; text-align: center; }
 .u-geste-group { display: grid; gap: 6px; }
-.u-floatbar { position: static; z-index: 1; display: flex; flex: 0 0 auto; flex-wrap: nowrap; gap: 2px; align-items: center; width: auto; max-width: none; margin: 0; padding: 0 8px 0 0; border: 0; border-right: 1px solid var(--u-line); border-radius: 0; background: transparent; box-shadow: none; }
-.u-floatbar button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 44px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: inherit; }
-.u-floatbar button[aria-pressed="true"] { color: var(--u-gold); }
-.u-speed { position: relative; }
-.u-speed-menu { position: absolute; left: 0; bottom: calc(100% + 4px); display: grid; min-width: 72px; padding: 4px; border: 1px solid var(--u-line); border-radius: 10px; background: var(--surface-2); }
-.u-capcut-time { position: relative; min-width: 0; }
 
 @media (max-width: 1023px) {
   .u-app:not([data-studio="montage"]) .u-chain { position: fixed; top: auto; bottom: 0; left: 0; right: 0; width: 100%; margin: 0; border-radius: 0; }
@@ -715,16 +578,11 @@
   .u-top { flex: none; }
   .u-chain { position: static; flex: none; top: auto; bottom: auto; width: auto; margin: 8px 12px 0; }
   .u-main { flex: 1 1 auto; min-height: 0; width: 100%; max-width: none; margin: 0; overflow: hidden; padding: 8px 12px 12px; }
-  .u-stage.u-desk, .u-stage.u-montage { width: 100%; max-width: none; height: 100%; min-height: 0; margin: 0; overflow: hidden; }
+  .u-stage.u-desk { width: 100%; max-width: none; height: 100%; min-height: 0; margin: 0; overflow: hidden; }
   .u-app[data-studio="montage"] .u-top { padding-block: 4px; min-height: 48px; }
   .u-app[data-studio="montage"] .u-chain { margin: 4px 12px 0; }
   .u-app[data-studio="montage"] .u-chain button { min-height: 44px; padding: 4px 4px; }
   .u-app[data-studio="montage"] .u-main { padding: 4px 12px 8px; }
-  .u-stage.u-montage { display: flex; flex-direction: column; gap: 4px; overflow: auto; }
-  .u-stage.u-montage .u-head { gap: 0; }
-  .u-stage.u-montage .u-montage-bar { align-items: center; }
-  .u-stage.u-montage .u-montage-bar > div { display: flex; align-items: baseline; gap: 8px; }
-  .u-stage.u-montage .u-label { margin: 0; }
   .u-desk { display: grid; grid-template-columns: 220px minmax(0, 1fr) minmax(240px, 320px); gap: 12px; height: 100%; }
   .u-desk-switch { display: none; }
   .u-desk-gallery { display: block; min-height: 0; overflow: auto; }
@@ -741,7 +599,6 @@
   .u-desk .u-slot { aspect-ratio: auto; height: auto; min-height: 0; }
   .u-desk .u-pick { min-height: 0; }
   .u-desk .u-pick img { max-height: 88px; }
-  .u-stage.u-montage .u-head h1 { font-size: 22px; }
   .u-desk .u-tile-scroll { display: grid; grid-template-columns: 1fr; gap: 8px; overflow: visible; }
   .u-desk .u-tile-scroll > .u-tile { flex: none; }
   .u-desk .u-tile-hit { grid-template-columns: 48px minmax(0, 1fr); align-items: center; gap: 8px; padding: 6px; }
@@ -749,39 +606,7 @@
   .u-desk .u-tile-copy { padding: 0; }
   .u-desk .u-tile-copy > span:not(.u-tile-why) { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .u-desk .u-tile .u-link { min-height: 44px; margin: 0 6px 4px; }
-  .u-capcut { display: grid; flex: 1; grid-template-columns: 196px minmax(0, 1fr); grid-template-rows: minmax(80px, 1fr) auto; gap: 8px; min-height: 0; }
-  .u-capcut .u-chutier,
-  .u-capcut .u-chutier[data-open="true"] { display: flex; flex-direction: column; gap: 6px; grid-column: 1; grid-row: 1; position: static; inset: auto; max-height: none; overflow: hidden; border: 1px solid var(--u-line); border-radius: 12px; padding: 6px; background: var(--bg); }
-  .u-capcut .u-bin-handle { display: none; }
-  .u-capcut .u-bin-tabs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .u-capcut .u-chutier-row { grid-template-columns: minmax(0, 1fr); }
-  .u-capcut .u-bin-body { flex: 1; min-height: 0; }
-  .u-capcut .u-bin-quiet { font-size: 12px; line-height: 1.3; }
-  .u-capcut-player { position: relative; grid-column: 2; grid-row: 1; min-height: 0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; gap: 0; }
-  .u-capcut-player .u-monitor { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-  .u-capcut-player .u-stage-frame { container-type: size; flex: 1 1 auto; min-height: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
-  .u-capcut-player .u-viewer { flex: none; width: min(100cqw, calc(100cqh * 16 / 9)); height: min(100cqh, calc(100cqw * 9 / 16)); max-width: 100%; max-height: 100%; aspect-ratio: 16 / 9; margin-inline: auto; }
-  .u-capcut-player .u-viewer[data-ratio="9/16"] { width: min(100cqw, calc(100cqh * 9 / 16)); height: min(100cqh, calc(100cqw * 16 / 9)); aspect-ratio: 9 / 16; }
-  .u-capcut-player .u-controls { position: absolute; z-index: 3; left: 8px; right: 8px; bottom: 8px; margin: 0; padding: 4px 8px; border-radius: 12px; background: rgba(15, 15, 17, .72); }
-  .u-capcut-time { grid-column: 1 / -1; grid-row: 2; min-height: 280px; overflow: visible; display: flex; flex-direction: column; gap: 4px; }
-  .u-capcut .u-toolrow { flex-wrap: nowrap; overflow-x: auto; min-height: 44px; max-height: 44px; }
-  .u-capcut .u-tool:not(.u-bin-toggle), .u-capcut .u-floatbar button { display: inline-flex; flex-direction: row; align-items: center; gap: 4px; height: 44px; min-height: 44px; max-height: 44px; min-width: 44px; padding: 0 8px; }
-  .u-capcut .u-chutier-row button { grid-template-rows: 44px auto; padding: 4px; gap: 2px; }
-  .u-capcut .u-bin-thumb, .u-capcut .u-bin-thumb img, .u-capcut .u-chutier-row img, .u-capcut .u-bin-thumb .u-wave, .u-capcut .u-bin-thumb canvas { height: 44px; }
-  .u-capcut .u-tl { flex: none; overflow-x: auto; overflow-y: visible; }
-  .u-capcut .u-tl-inner { min-height: 0; }
-  .u-capcut .u-track-row { grid-template-columns: 56px minmax(0, 1fr); min-height: 52px; }
-  .u-capcut .u-track { min-height: 52px; }
-  .u-capcut .u-clip { top: 4px; height: calc(100% - 8px); }
-  .u-capcut .u-clip.is-audio .u-clip-body > span { top: 0; bottom: 0; display: flex; align-items: center; height: 100%; max-width: calc(100% - 8px); padding: 0 6px; line-height: 16px; }
-  .u-capcut .u-wave { height: 100%; margin-top: 0; }
-  .u-capcut .u-track-head { display: grid; align-content: center; justify-items: center; gap: 2px; padding: 2px; }
-  .u-capcut .u-track-add { width: 44px; height: 44px; }
-  .u-capcut .u-track-row.is-ruler { min-height: 18px; }
-  .u-capcut .u-ruler { height: 18px; }
-  .u-capcut .u-track-row.is-audio, .u-capcut .u-track-row.is-audio .u-track { min-height: 96px; }
   .u-desk .u-tile-why { padding: 0 6px 6px; }
-  .u-bin-toggle, .u-bin-close { display: none; }
   .u-create-bar { position: static; padding-top: 4px; background: var(--bg); }
 }
 
@@ -790,40 +615,13 @@
 .u-format { display: flex; gap: 4px; }
 .u-format button { min-width: 44px; min-height: 44px; padding: 0 10px; border: 1px solid var(--u-line); border-radius: 10px; background: transparent; color: var(--u-text); white-space: nowrap; }
 .u-format button[aria-pressed="true"] { color: var(--fg); background: var(--selected); border-color: var(--fg); }
-
-.u-prise { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
-.u-prise-rail { display: contents; }
-.u-prise-strip, .u-prise-work, .u-prise-preview, .u-prise-dock, .u-prise-rail { min-width: 0; }
-.u-prise-film { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-.u-plan-card, .u-plan-add { flex: 0 0 auto; display: grid; justify-items: center; align-content: start; gap: 2px; min-width: 64px; min-height: 44px; padding: 4px; border: 1px solid var(--u-line); border-radius: 12px; background: transparent; color: inherit; }
-.u-plan-add { border-style: dashed; border-color: var(--control); color: var(--fg-2); }
-.u-plan-card[aria-current="true"] { border-color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg); }
-.u-plan-num, .u-plan-etat, .u-plan-time, .u-plan-sum { white-space: nowrap; }
-.u-plan-etat { color: var(--fg-2); font-size: 12px; }
-.u-plan-thumb, .u-avatar-face, .u-place-face { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 10px; overflow: hidden; background: transparent; }
-.u-place-face { height: 40px; }
-.u-plan-thumb.is-empty, .u-avatar-face.is-empty, .u-place-face.is-empty { border: 1px dashed var(--control); background: var(--surface); }
-.u-plan-thumb img, .u-avatar-face img, .u-place-face img, .u-prise-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.u-plan-sum { margin: 8px 0 0; color: var(--u-muted); font-size: 13px; }
-.u-prise-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.u-prise-title { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
-.u-prise-head h1 { margin: 0; font: 600 20px/1.15 var(--font-heading); letter-spacing: -.015em; }
-.u-prise-row, .u-final, .u-prise-card, .u-prise-actions { display: grid; gap: 6px; }
+.u-final { display: grid; gap: 6px; }
 .u-choice-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
-.u-prise .u-who { flex-wrap: wrap; overflow: visible; }
-.u-avatar-face i { display: block; width: 100%; height: 100%; border-radius: inherit; }
-.u-prise .u-chip, .u-prise .u-avatar, .u-prise .u-place { flex: 0 0 auto; display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 44px; padding: 4px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); color: var(--u-text); }
-.u-prise .u-avatar > span:last-child, .u-prise .u-place > span:last-child { white-space: normal; text-align: center; font-size: 12px; line-height: 1.15; max-width: 88px; }
-.u-prise .u-chip { white-space: nowrap; padding-inline: 10px; }
 .u-shot-tile { flex: 0 0 80px; display: grid; justify-items: center; align-content: center; gap: 2px; width: 80px; min-height: 44px; padding: 4px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); color: var(--u-text); }
 .u-shot-tile span { white-space: normal; text-align: center; font-size: 12px; line-height: 1.15; }
-.u-add-tile { border-style: dashed; border-color: var(--control); background: transparent; color: var(--fg-2); }
-.u-chip[aria-pressed="true"], .u-avatar[aria-pressed="true"], .u-place[aria-pressed="true"], .u-shot-tile[aria-pressed="true"] { border-color: var(--fg); background: var(--selected); }
+.u-chip[aria-pressed="true"], .u-shot-tile[aria-pressed="true"] { border-color: var(--fg); background: var(--selected); }
 .u-shot-tile:disabled, .u-chip:disabled, .u-primary:disabled, .u-secondary:disabled { opacity: .55; }
-.u-ico { width: 64px; height: 36px; stroke: currentColor; fill: none; stroke-width: 1.6; }
-.u-add-ico { width: 28px; height: 28px; }
 .u-frame-ico .u-fig, .u-cam-ico .u-fig { fill: currentColor; stroke: none; }
-.u-prise .u-field textarea { min-height: 44px; padding-block: 8px; }
 .u-cam-tile:hover .u-cam-move, .u-cam-tile:focus-visible .u-cam-move { animation: u-cam-in .9s ease-in-out infinite alternate; }
 .u-cam-tile[data-cam="travelling-arriere"]:hover .u-cam-move { animation-name: u-cam-out; }
 .u-cam-tile[data-cam="panoramique"]:hover .u-cam-move, .u-cam-tile[data-cam="suivi"]:hover .u-cam-move { animation-name: u-cam-pan; }
@@ -838,86 +636,19 @@
 @media (prefers-reduced-motion: reduce) {
   .u-cam-tile:hover .u-cam-move, .u-cam-tile:focus-visible .u-cam-move { animation: none; }
 }
-.u-prise-frame { position: relative; display: grid; place-items: center; width: 100%; background: var(--surface); border: 1px solid var(--u-line); border-radius: 12px; overflow: hidden; }
-.u-prise-frame.is-empty { background: rgba(255, 255, 255, 0.022); border: 1px dashed rgba(255, 255, 255, 0.12); }
-.u-prise-frame[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
-.u-prise-frame[data-ratio="9:16"] { aspect-ratio: 9 / 16; width: min(100%, 168px); margin-inline: auto; }
-.u-prise-frame img { grid-area: 1 / 1; width: 100%; height: 100%; }
 .u-prise-empty { display: grid; justify-items: center; align-content: center; gap: 6px; padding: 12px; color: var(--fg-2); text-align: center; }
-.u-prise-empty .u-ico { width: 48px; height: 28px; }
-.u-compare { display: grid; gap: 6px; }
-.u-compare-legend { display: flex; justify-content: space-between; margin: 0; color: var(--u-gold-soft); font-size: 12px; }
-.u-compare-soft { filter: blur(1.8px) saturate(.75) brightness(.92); transform: scale(1.08); }
-.u-compare input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; accent-color: var(--fg-2); }
-.u-compare input[type="range"]::-webkit-slider-runnable-track { height: 4px; background: rgba(255, 255, 255, 0.12); border-radius: 999px; }
-.u-compare input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: var(--fg-2); border: 2px solid var(--bg); }
-.u-compare input[type="range"]::-moz-range-track { height: 4px; background: rgba(255, 255, 255, 0.12); border-radius: 999px; }
-.u-compare input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--fg-2); border: 2px solid var(--bg); }
-.u-prise-quote { margin: 0; color: var(--u-gold-soft); }
-.u-prise-brief { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 0; color: var(--u-text); font-size: 14px; line-height: 1.35; }
-.u-prise-brief span { min-width: 0; }
-.u-bar-quote { display: none; }
 .u-prise-prompt { width: 100%; min-height: 140px; padding: 8px; border: 1px solid var(--u-line); border-radius: 10px; background: var(--bg); color: inherit; resize: vertical; }
-.u-prise-actions .u-primary, .u-prise-actions .u-secondary { min-height: 44px; }
 @media (max-width: 1023px) {
   .u-top:has(.u-project-name) { flex-wrap: wrap; }
-  .u-top:has(.u-project-name) .u-top-project { flex: 1 1 100%; order: 3; }
-  .u-stage.u-prise { padding-bottom: calc(168px + var(--u-safe)); } /* the end of AVANCÉ scrolls clear of the quote + Tourner bar */
-  .u-prise-strip { order: 1; }
-  .u-prise-preview { order: 2; }
-  .u-prise-work { order: 3; }
-  .u-prise-dock { order: 4; }
+  .u-top:has(.u-project-name) .u-top-project { flex: 1 1 100%; order: 3; } /* the end of AVANCÉ scrolls clear of the quote + Tourner bar */
   .u-cadrage { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; }
   .u-cadrage .u-shot-tile { width: auto; flex: none; min-width: 0; }
-  .u-plan-card { width: 64px; min-width: 64px; padding: 2px; }
-  .u-plan-thumb { width: 56px; height: 56px; }
-  .u-plan-card .u-plan-etat, .u-plan-card .u-plan-time { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-  .u-plan-add { width: 64px; min-height: 64px; }
-  .u-bar-quote { display: block; }
-  .u-prise-card .u-prise-quote { display: none; }
-  .u-prise-actions { position: static; gap: 4px; }
 }
-.u-prise-side { display: contents; }
-@media (min-width: 1024px) {
-  .u-stage.u-prise { width: 100%; max-width: none; height: 100%; min-height: 0; margin: 0; overflow: hidden; display: grid; grid-template-columns: 132px minmax(0, 1fr) minmax(280px, 380px); grid-template-rows: minmax(0, 1fr); grid-template-areas: "strip preview rail"; gap: 6px 10px; }
-  .u-prise-strip { grid-area: strip; min-height: 0; overflow: auto; }
-  .u-prise-rail { display: flex; flex-direction: column; grid-area: rail; min-height: 0; overflow: auto; gap: 8px; }
-  .u-prise-work { min-height: 0; overflow: visible; display: grid; align-content: start; gap: 4px; flex: none; }
-  .u-prise-side { display: contents; }
-  .u-prise-preview { grid-area: preview; min-height: 0; overflow: auto; }
-  .u-prise-dock { min-height: 0; overflow: visible; display: grid; align-content: start; gap: 8px; flex: none; max-height: none; }
-  .u-prise-film { flex-direction: column; overflow: visible; }
-  .u-plan-card, .u-plan-add { width: 100%; }
-  .u-prise-work .u-cadrage,
-  .u-prise-work .u-camera,
-  .u-prise-work .u-where,
-  .u-prise-work .u-actions,
-  .u-prise-work .u-duree { flex-wrap: nowrap; overflow-x: auto; }
-  .u-prise-work .u-who { flex-wrap: wrap; overflow: visible; }
-  .u-prise-work > * { order: 6; }
-  .u-prise-work > .u-prise-head { order: 1; }
-  .u-prise-work > .u-who-row { order: 2; }
-  .u-prise-work > .u-scene-row { order: 3; }
-  .u-prise-work > .u-tuiles-row { order: 4; }
-}
-
-.u-maquette { display: grid; gap: 8px; min-width: 0; }
-.u-maquette-stage { position: relative; overflow: hidden; height: 280px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface) center / cover no-repeat; touch-action: none; }
-.u-maquette-gl, .u-plat, .u-maquette-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.u-maquette-canvas { display: block; touch-action: none; }
-.u-maquette-badge, .u-maquette-names, .u-maquette-place, .u-maquette-hint { position: absolute; z-index: 2; margin: 0; max-width: calc(100% - 16px); }
-.u-maquette-badge { top: 8px; left: 8px; padding: 6px 10px; border-radius: 999px; background: rgba(15, 15, 17, .85); color: var(--fg); font: 600 13px/1.2 var(--font-body); }
-.u-maquette-names { top: 40px; left: 8px; color: var(--fg); font-size: 13px; line-height: 1.2;  }
-.u-maquette-place { top: 8px; right: 8px; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--u-gold-soft); font-size: 12px; text-align: right;  }
-.u-maquette-hint { left: 8px; right: 8px; bottom: 8px; max-width: none; padding: 8px 10px; border-radius: 10px; background: rgba(15, 15, 17, .88); color: var(--u-gold-soft); font-size: 13px; line-height: 1.35; }
-.u-maquette-tools, .u-repere-chips, .u-repere-views { display: flex; flex-wrap: wrap; gap: 6px; }
-.u-maquette-tools button, .u-lock, .u-repere-chips button, .u-repere-views button, .u-repere-go, .u-photo, .u-tuile { min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); color: inherit; }
-.u-lock[aria-pressed="true"], .u-tuile[aria-pressed="true"], .u-repere-views button[aria-pressed="true"], .u-repere-chips button[aria-pressed="true"] { border-color: var(--fg); color: var(--fg); background: var(--selected); }
-.u-maquette-tools small { color: var(--u-gold-soft); font-size: 12px; }
+.u-plat { position: absolute; inset: 0; width: 100%; height: 100%; }
+.u-repere-chips, .u-repere-views { display: flex; flex-wrap: wrap; gap: 6px; }
+.u-repere-chips button, .u-repere-views button, .u-repere-go, .u-photo { min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); color: inherit; }
+.u-repere-views button[aria-pressed="true"], .u-repere-chips button[aria-pressed="true"] { border-color: var(--fg); color: var(--fg); background: var(--selected); }
 .u-maquette-render { display: grid; gap: 4px; }
-.u-tuiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.u-tuile { display: grid; align-content: center; justify-items: start; gap: 2px; width: 100%; text-align: left; white-space: normal; }
-.u-tuile small { color: var(--u-muted); font-size: 12px; line-height: 1.3; }
 .u-figure { position: absolute; z-index: 2; width: 48px; min-width: 44px; min-height: 88px; padding: 8px 4px; border: 0; border-radius: 12px; color: var(--on-accent); font: 650 12px/1.15 var(--font-body); }
 .u-repere { display: grid; gap: 8px; min-width: 0; }
 .u-repere-search { display: flex; gap: 8px; align-items: center; min-width: 0; }
@@ -968,113 +699,37 @@
   .u-repere.is-rue .u-rue-stage { height: auto; min-height: 0; border-radius: 8px; }
   .u-repere.is-rue .u-rue-quit { display: inline-flex; }
 }
-.u-track-mark { width: 100%; height: auto; min-height: 0; }
-.u-track-mark svg { width: 16px; height: 16px; }
-.u-track-word { display: block; max-width: 100%; overflow: visible; text-overflow: clip; white-space: nowrap; text-align: center; font: 600 12px/1.15 var(--font-body); letter-spacing: 0; text-transform: none; }
-.u-track-empty { position: absolute; inset: 0; display: flex; align-items: center; padding-left: 8px; color: var(--u-muted); font-size: 12px; pointer-events: none; }
-.u-figure-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0; padding: 0; list-style: none; }
-.u-figure-row li { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-.u-figure-name { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 13px; }
-.u-swatch { width: 12px; height: 12px; border-radius: 99px; display: inline-block; flex: none; }
-.u-figure-row button { min-width: 44px; min-height: 44px; height: 44px; padding: 0 10px; }
-.u-picker button { min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); color: inherit; }
-.u-picker { display: flex; flex-wrap: wrap; gap: 6px; }
 @media (max-width: 799px) {
-  .u-maquette-stage { height: 248px; }
-  .u-maquette-hint { font-size: 12px; padding: 6px 8px; }
-  .u-maquette { gap: 6px; }
   .u-repere-map, .u-quartier { height: 200px; }
-  .u-tuile { min-height: 56px; }
 }
 @media (min-width: 1024px) {
-  .u-maquette-stage { height: min(34dvh, 300px); }
-  .u-prise-work .u-scene-row textarea { min-height: 72px; max-height: none; }
-  .u-prise-work .u-tuile { min-height: 48px; padding: 4px 8px; }
-  .u-prise-dock { gap: 4px; }
-  .u-prise-dock .u-prise-actions { display: flex; flex-wrap: wrap; align-items: center; }
-  .u-prise-dock .u-fiab-dot { width: 10px; height: 10px; font-size: 0; border-width: 2px; }
-.u-prise-dock .u-fiab-now { font-size: 12px; font-weight: 500; color: var(--fg-2); }
-.u-prise-dock .u-prise-actions .u-why { flex: 1 1 100%; }
-  .u-prise-dock .u-prise-actions .u-primary,
-  .u-prise-dock .u-prise-actions .u-secondary { width: auto; flex: 1 1 140px; }
-  .u-prise-dock .u-prise-card { gap: 2px; }
-  .u-prise-dock .u-prise-card h2 { font-size: 18px; }
   .u-repere-map, .u-quartier { height: 200px; }
 }
 
 /* R8 Finaliser : une passe sur tout le montage. */
-.u-bar-actions { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; }
-.u-final-open { gap: 6px; background: transparent; color: var(--fg); border: 1px solid var(--control); }
-.u-final-open .u-ico, .u-final-open svg { width: 16px; height: 16px; }
-.u-final-sheet .u-choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
-.u-final-sheet .u-chip { min-height: 44px; min-width: 64px; }
-.u-final-quote { display: grid; gap: 4px; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.13); border-radius: 12px; background: var(--surface); }
-.u-final-quote .u-cost { margin: 0; font-family: var(--font-mono); }
 .u-final-confirm { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 8px 0; border: 0; background: transparent; color: var(--u-gold-soft); font: 500 14px/1.35 var(--font-body); text-align: left; cursor: pointer; }
 .u-final-box { display: inline-grid; place-items: center; flex: none; width: 24px; height: 24px; border: 1.5px solid var(--control); border-radius: 6px; color: var(--bg); font-weight: 700; }
 .u-final-confirm[aria-checked="true"] .u-final-box { background: var(--fg); border-color: var(--fg); }
-.u-final-video { display: block; width: 100%; max-height: 52dvh; border-radius: 12px; background: var(--bg); object-fit: contain; }
-.u-final-download { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; text-decoration: none; }
-.u-meter.is-busy span { width: 35%; animation: u-final-busy 1.4s ease-in-out infinite; }
 @keyframes u-final-busy { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
-@media (prefers-reduced-motion: reduce) { .u-meter.is-busy span { animation: none; width: 100%; opacity: .5; } }
 
 /* R9 · « Partir de cet exemple » et « Exemple — refais-le » */
 .u-tile-examples { display: flex; flex-wrap: wrap; gap: 0 14px; margin: 0 8px 8px; }
 .u-tile .u-tile-examples .u-link { margin: 0; }
 .u-tile .u-start { font-weight: 700; }
-.u-depart { display: grid; gap: 10px; margin: 0 0 16px; padding: 10px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); }
-.u-depart-hit { position: relative; display: block; min-height: 44px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; background: none; cursor: pointer; }
-.u-depart-hit img { display: block; width: 100%; max-height: 300px; object-fit: cover; }
-.u-depart-badge { position: absolute; left: 8px; top: 8px; padding: 6px 10px; border-radius: 999px; background: rgba(15, 15, 17, .85); color: var(--fg); font-size: 12px; font-weight: 600; letter-spacing: .01em; }
-.u-depart figcaption { display: grid; gap: 4px; }
-.u-depart figcaption strong { font-weight: 600; }
-.u-depart figcaption span { color: var(--u-muted, var(--fg-2)); font-size: 14px; }
-.u-depart figcaption .u-link { justify-content: flex-start; font-weight: 700; }
-.u-depart-in { position: absolute; inset: 0 0 auto 0; display: flex; justify-content: center; padding: 8px; z-index: 4; }
-.u-depart[data-compact] { grid-template-columns: minmax(96px, 160px) 1fr; align-items: center; width: min(100%, 460px); margin: 0; padding: 8px; background: var(--surface); }
-.u-depart[data-compact] .u-depart-hit img { height: 84px; max-height: none; }
-.u-depart[data-compact] .u-depart-badge { left: 4px; top: 4px; padding: 3px 7px; font-size: 12px; }
 
 /* R10 · Où ? only lists the user's décors. Empty: one action card, then labelled examples. */
-.u-where-empty { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 12px; border: 1px dashed var(--control); border-radius: 12px; background: var(--surface); color: var(--fg); text-align: left; }
-.u-where-empty strong { display: block; font-weight: 600; }
-.u-where-empty small { display: block; margin-top: 2px; opacity: .8; font-size: .82rem; line-height: 1.3; }
-.u-where-empty .u-place-face { flex: none; width: 44px; height: 44px; }
-.u-where-note { margin: 10px 0 4px; font-size: .82rem; color: var(--u-gold-soft); opacity: .85; }
-.u-place-face { position: relative; }
-.u-place-tag { position: absolute; left: 3px; bottom: 3px; padding: 1px 5px; border-radius: 6px; background: rgba(15, 15, 17, .72); color: var(--fg); font-style: normal; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
 .u-gallery-hidden { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; font-size: .85rem; color: var(--u-gold-soft); }
 .u-gallery-hidden button { flex: none; white-space: nowrap; min-height: 44px; padding: 0 14px; border: 1px solid var(--control); border-radius: var(--radius-control); background: transparent; color: var(--fg); }
 
-/* Gestes vidéo de PRISE : même grammaire que Finaliser, cibles de 44 px. */
-.u-video-gestes { display: grid; gap: 12px; margin-top: 24px; padding: 16px; border: 1px solid var(--u-line); border-radius: 12px; }
-.u-video-gestes .u-chip, .u-video-gestes .u-primary, .u-video-gestes .u-final-confirm { min-height: 44px; }
-.u-video-file input[type="file"] { min-height: 44px; color: var(--u-muted); }
-.u-video-done video { width: 100%; max-height: 360px; border-radius: 10px; background: var(--bg); }
-.u-previs { display: grid; gap: 8px; }
-.u-previs-clip { width: 100%; max-height: 220px; border-radius: 10px; background: var(--bg); }
-
 /* Prévis au doigt */
-.u-previs-panel { display: grid; gap: 14px; margin-top: 12px; padding: 14px; border: 1px solid var(--u-line-strong); border-radius: 12px; background: var(--bg); }
-.u-previs-block { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--u-line); }
-.u-previs-block:first-of-type { border-top: 0; padding-top: 0; }
 .u-file-chip { position: relative; cursor: pointer; }
 .u-file-chip input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.u-previs-time { display: grid; gap: 4px; }
-.u-previs-time input[type="range"] { min-height: 44px; accent-color: var(--fg); }
-.u-keys { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.u-keys li { display: inline-flex; align-items: center; gap: 6px; padding-left: 10px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--fg); }
-.u-keys .u-chip { min-width: 44px; justify-content: center; }
-.u-previs-film { justify-self: start; border-color: var(--control); color: var(--fg); }
 
 /* P0 · Carte de fiabilité : sept étapes, un seul devis, échec en clair. */
 .u-fiab { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--u-line-strong); border-radius: 12px; background: var(--bg); }
 .u-fiab-steps { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; margin: 0; padding: 0; list-style: none; }
 .u-fiab-steps li { display: grid; justify-items: center; gap: 2px; min-width: 0; color: var(--u-muted); }
 .u-fiab-dot { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--u-line-strong); border-radius: 50%; font: 650 12px/1 var(--font-body); }
-.u-prise-dock .u-fiab-dot { width: 10px; height: 10px; font-size: 0; border-width: 2px; }
-.u-prise-dock .u-fiab-now { font-size: 12px; font-weight: 500; color: var(--fg-2); }
 .u-fiab-word { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 1.2; }
 .u-fiab-steps li[data-etat="fait"] { color: var(--fg); }
 .u-fiab-steps li[data-etat="fait"] .u-fiab-dot { background: var(--surface-2); border-color: var(--fg-2); color: var(--fg); }
@@ -1094,19 +749,8 @@
 .u-fiab-change { margin: 0; color: var(--u-muted); font-size: 13px; line-height: 1.35; }
 .u-avance > summary, .u-fold > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 .u-avance { border-top: 1px solid var(--u-line); padding-top: 4px; }
-.u-versions { display: flex; flex-wrap: wrap; gap: 6px; }
-.u-versions button { min-width: 44px; min-height: 44px; padding: 6px 10px; border: 1px solid var(--u-line); border-radius: 12px; background: var(--surface); color: inherit; }
-.u-versions button[aria-pressed="true"] { border-color: var(--fg); background: var(--selected); color: var(--fg); }
-.u-take-view { display: grid; gap: 6px; }
-.u-take-view video { width: 100%; max-height: 360px; border-radius: 12px; background: var(--bg); }
-.u-next-plan { display: grid; gap: 6px; padding: 8px; border: 1px dashed var(--control); border-radius: 12px; }
 /* Mobile: the action stays reachable above the CAST·DÉCOR·PRISE·MONTAGE bar, without scrolling. */
 @media (max-width: 799px) {
-  .u-stage.u-prise { padding-bottom: calc(200px + var(--u-safe)); }
-  .u-prise-dock .u-prise-actions { position: fixed; z-index: 45; left: 0; right: 0; bottom: calc(64px + var(--u-safe)); display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; background: rgba(15, 15, 17, .97); border-top: 1px solid var(--u-line-strong); box-shadow: none; }
-  .u-prise-dock .u-prise-actions .u-primary { flex: 1 1 60%; width: auto; }
-  .u-prise-dock .u-prise-actions .u-secondary { flex: 1 1 30%; width: auto; }
-  .u-prise-dock .u-prise-actions .u-why, .u-prise-dock .u-prise-actions .u-bar-quote { flex: 1 1 100%; margin: 0; font-size: 12px; line-height: 1.3; }
   .u-desk .u-create-bar { position: fixed; z-index: 45; left: 0; right: 0; bottom: calc(64px + var(--u-safe)); margin: 0; padding: 8px 10px; background: rgba(15, 15, 17, .97); border-top: 1px solid var(--u-line-strong); box-shadow: none; max-height: 70dvh; overflow: auto; }
   .u-desk .u-create-bar .u-why { font-size: 12px; }
   .u-desk { padding-bottom: calc(150px + var(--u-safe)); }
@@ -1136,113 +780,21 @@
 .u-toast { cursor: pointer; text-align: center; }
 @media (max-width: 799px) {
   .u-toast { top: auto; bottom: calc(64px + var(--u-safe) + 10px); width: calc(100% - 24px); max-width: 520px; border-radius: 12px; font-size: 13px; line-height: 1.35; }
-  body:has(.u-prise-dock .u-prise-actions) .u-toast { bottom: calc(64px + var(--u-safe) + 150px); }
   body:has(.u-desk .u-create-bar) .u-toast { bottom: calc(64px + var(--u-safe) + 120px); }
 }
 /* MONTAGE toolbar and track heads at 390 / 360. */
-@media (max-width: 480px) {
-  /* Icon + native title only — never wrap « Annuler » into « Annu/ler ». */
-  .u-toolrow-main .u-tool span,
-  .u-capcut .u-toolrow .u-tool span { display: none; }
-  .u-toolrow-main .u-tool,
-  .u-capcut .u-toolrow .u-tool { min-width: 44px; width: 44px; padding: 0; }
-  .u-track-mark { width: 54px; height: auto; gap: 1px; overflow: hidden; }
-  .u-track-word { display: block; max-width: 52px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 12px/1.1 var(--font-body); }
-}
-@media (max-width: 799px) {
-  /* The stage scrolls (overflow: auto) and would clip a full-bleed timeline: keep it inside, framed. */
-  .u-stage.u-montage .u-tl { width: 100%; margin-inline: 0; border-inline: 1px solid var(--u-line); border-radius: 12px; }
-  body:has(.u-stage.u-montage) .u-toast { top: calc(232px + var(--u-safe-top, 0px)); bottom: auto; }
-}
-@media (max-width: 480px) {
-  .u-stage.u-montage .u-montage-bar { gap: 8px; }
-  .u-stage.u-montage .u-montage-bar h1 { font-size: 24px; }
-  .u-stage.u-montage .u-montage-bar .u-export { min-width: 44px; padding-inline: 12px; font-size: 14px; white-space: nowrap; }
-  .u-stage.u-montage .u-montage-bar > :last-child { display: flex; gap: 6px; flex: none; }
-  .u-ruler span:first-child { margin-left: 16px; }
-}
 @media (min-width: 800px) {
   /* Over the centred project name in the top bar: it never hides a control or the preview. */
   .u-toast { top: 6px; max-width: min(520px, calc(100% - 560px)); padding: 8px 14px; border-radius: 12px; z-index: 60; font-size: 13px; line-height: 1.3; }
 }
-@media (max-width: 799px) {
-  /* Short phones (360×740): the preview keeps its 16:9 size instead of shrinking to a strip; the stage scrolls. */
-  .u-capcut-player { flex: none; min-height: 0; max-height: none; }
-  .u-capcut-player .u-monitor, .u-capcut-player .u-stage-frame { flex: none; }
-  .u-capcut-player .u-stage-frame { justify-content: center; }
-  .u-capcut-player .u-viewer[data-ratio="16/9"] { width: auto; max-width: 100%; height: min(18dvh, calc((100vw - 36px) * 9 / 16)); aspect-ratio: 16 / 9; margin-inline: auto; }
-  .u-capcut-player .u-viewer[data-ratio="9/16"] { width: auto; height: min(30dvh, 300px); max-height: none; margin-inline: auto; }
-  /* All three sound tracks stay on screen at 390×844 with the larger preview. */
-  .u-app[data-studio="montage"] .u-track-row.is-audio, .u-app[data-studio="montage"] .u-track-row.is-audio .u-track { min-height: 68px; }
-  .u-app[data-studio="montage"] .u-track-row.is-audio .u-track-head { gap: 0; }
-  .u-stage.u-montage .u-montage-bar { flex-wrap: wrap; row-gap: 6px; }
-}
-@media (max-width: 380px) {
-  .u-stage.u-montage .u-montage-bar h1 { font-size: 20px; }
-  .u-stage.u-montage .u-montage-bar .u-export { padding-inline: 10px; font-size: 13px; }
-  .u-toolrow-main .u-tool { font-size: 12px; }
-  .u-toolrow-main .u-tool span { overflow-wrap: normal; word-break: normal; }
-}
 .u-fiab-change { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--u-line); }
-/* PRISE default preview: the chosen décor, framed, with who · where. No 3D at the default level. */
-.u-prise-still { position: relative; margin: 0; overflow: hidden; border: 1px solid var(--u-line-strong); border-radius: 12px; background: var(--bg); }
-.u-prise-still[data-ratio="16/9"] { aspect-ratio: 16 / 9; }
-.u-prise-still[data-ratio="9/16"] { aspect-ratio: 9 / 16; max-height: 60dvh; margin-inline: auto; }
-.u-prise-still img, .u-prise-still-empty { display: block; width: 100%; height: 100%; object-fit: cover; }
-.u-prise-still-empty { background: radial-gradient(circle at 50% 40%, var(--surface-2), var(--bg) 70%); }
-.u-prise-still figcaption { position: absolute; left: 10px; right: 10px; bottom: 10px; padding: 6px 10px; border-radius: 10px; background: rgba(15, 15, 17, .78); color: var(--u-gold-soft); font-size: 13px; line-height: 1.3; }
-.u-maquette-avance { display: grid; gap: 8px; margin-bottom: 8px; }
-
 /* #113 quick-fix: in PRISE and MONTAGE the notice is a quiet status line, not a toast over the work. */
-.u-inline-status { margin: 0 0 6px; padding: 4px 2px 4px 18px; position: relative; color: var(--u-gold-soft); font: 500 12.5px/1.35 var(--font-body); cursor: pointer; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; animation: u-status-in .18s ease-out; }
-.u-inline-status::before { content: ""; position: absolute; left: 4px; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
-.u-montage-status { margin: 0 0 8px; padding-left: 18px; }
 @keyframes u-status-in { from { transform: translateY(3px); } to { transform: none; } }
-@media (prefers-reduced-motion: reduce) { .u-inline-status { animation: none; } }
 
 /* P1 · intention chips, the studio assistant's line, continuity, production memory.
    Existing tokens only (no new colours or ornaments) so the coming re-theme applies as is. */
-.u-intent-hint { margin: 6px 2px 0; color: var(--u-muted); font-size: 13px; line-height: 1.35; }
-.u-intent { margin-top: 10px; display: grid; gap: 8px; }
-.u-intent-head { margin: 0; }
-.u-intent-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.u-ichip { position: relative; display: inline-grid; align-content: center; gap: 2px; min-height: 44px; min-width: 64px; max-width: 100%; padding: 4px 12px; border: 1px solid var(--u-line-strong); border-radius: 12px; background: var(--u-char); color: var(--u-text); text-align: left; font: inherit; font-size: 14px; cursor: pointer; }
-.u-ichip small { font-size: 12px; color: var(--u-muted); }
-.u-ichip b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
-.u-ichip.is-empty { border-style: dashed; color: var(--u-muted); }
-.u-ichip.is-unknown { border-color: var(--u-fail); }
-.u-ichip-select select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
 .u-uttu { padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
-.u-uttu-who { display: flex; align-items: center; gap: 6px; margin: 0 0 2px; font-size: 12px; font-weight: 600; color: var(--fg-2); }
-.u-uttu-who svg { width: 16px; height: 16px; }
-.u-uttu-line { margin: 0; color: var(--u-text); font-size: 14px; line-height: 1.4; }
-.u-uttu-flag { margin: 4px 0 0; color: var(--fg-2); padding-left: 10px; border-left: 2px solid var(--danger); font-size: 13px; line-height: 1.35; }
-.u-continuity { margin-top: 8px; display: grid; gap: 6px; }
-.u-cont-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
-.u-cont-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 12px; border: 1px dashed var(--u-line-strong); border-radius: 999px; color: var(--u-muted); font-size: 13px; }
-.u-cont-chip.is-on { border-style: solid; color: var(--u-text); }
-.u-cont-change { min-height: 44px; }
-.u-cont-form { flex-basis: 100%; display: grid; gap: 6px; }
-.u-cont-form input { min-height: 44px; }
-.u-cont-actions { display: flex; gap: 10px; align-items: center; }
-.u-cont-actions .u-link { min-height: 44px; }
-.u-memoire section { margin-top: 10px; }
-.u-memoire-list, .u-memoire-seq { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
-.u-memoire-list li { display: grid; gap: 2px; padding: 6px 0; border-bottom: 1px solid var(--u-line); font-size: 14px; }
-.u-memoire-list small, .u-memoire-empty, .u-memoire-note, .u-memoire-text { color: var(--u-muted); font-size: 13px; }
-.u-memoire-seq { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.u-memoire-seq li { padding: 6px 8px; border: 1px solid var(--u-line); border-radius: 8px; font-size: 13px; }
-.u-memoire-seq li[aria-current="true"] { border-color: var(--u-line-strong); color: var(--u-text); }
 /* Sequence summary: "· 3 plans" wraps in the narrow desktop strip instead of being clipped. */
-.u-plan-sum { white-space: normal; }
-/* DA v1 · 390 / 360: the continuity line sits under « Ce qui se passe », above the text box,
-   so the chips and the assistant appearing while typing never push it under the sticky bar. */
-@media (max-width: 799px) {
-  .u-scene-row > .u-label { order: -2; }
-  .u-scene-row > .u-continuity { order: -1; margin-top: 0; }
-  .u-prise .u-scene-row :where(input, textarea) { scroll-margin-bottom: calc(232px + var(--u-safe)); }
-}
-
 /* 3D repérage — one entry in DÉCOR, a full-screen sheet. Sober DA tokens only. */
 .u-rep3d-entry { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-card); background: var(--surface); }
 .u-rep3d-entry > div:not(.u-rep3d) { flex: 1 1 220px; min-width: 0; display: grid; gap: 4px; }
@@ -1566,7 +1118,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-outils-strip[open] { padding-bottom: 12px; }
 .u-outils-strip-body { display: grid; gap: 8px; }
 .u-outils-strip-body > .u-secondary { width: auto; justify-self: start; min-height: 44px; margin-top: 8px; }
-.u-avance-group { margin: 8px 0; scroll-margin-top: 76px; }
 .u-outils-strip-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .u-outils-strip-head .u-secondary { width: auto; min-height: 44px; }
 .u-outils-work { display: grid; gap: 12px; max-width: 1280px; margin: 0 auto; width: 100%; }
@@ -1619,23 +1170,10 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-tool-result-lib { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; }
 @media (max-width: 420px) { .u-outils-grid { grid-template-columns: 1fr; } }
 @media (max-width: 420px) { .u-outil-card { min-height: 0; } }
-.u-more-keys > summary { display: flex; align-items: center; min-height: 44px; padding: 0 10px; cursor: pointer; color: var(--fg-2); font-size: 13px; }
 .u-connect-link { justify-self: start; min-height: 44px; padding: 0 2px; font-size: 13px; }
 
 /* MONTAGE Finaliser: always the short readable word (aria-label keeps the full phrase). */
-.u-short-label { display: none; }
-.u-final-open .u-long-label { display: none; }
-.u-final-open .u-short-label { display: inline; }
 /* MONTAGE on a wide screen: the bin column scrolls, so its family tools stay reachable under the media. */
-@media (min-width: 1024px) {
-  .u-capcut .u-chutier, .u-capcut .u-chutier[data-open="true"] { overflow-y: auto; }
-  .u-montage-outils { grid-column: 1 / -1; grid-row: 3; }
-  .u-montage-outils .u-outils-strip { margin: 0; }
-  /* Opened, the tools rise over the timeline instead of squeezing the player; the summary stays put to close them. */
-  .u-montage-outils { position: relative; }
-  .u-montage-outils .u-outils-strip[open] { padding-bottom: 0; }
-  .u-montage-outils .u-outils-strip[open] > .u-outils-strip-body { position: absolute; z-index: 40; left: 0; right: 0; top: calc(100% + 4px); bottom: auto; max-height: min(40dvh, 280px); overflow-y: auto; padding: 12px; border: 1px solid var(--u-line); border-radius: var(--radius-card); background: var(--surface); box-shadow: none; }
-}
 /* AVANCÉ groups: a button head that looks like the other folds. */
 .u-fold > .u-fold-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 48px; padding: 12px 14px; border: 0; background: transparent; color: var(--u-muted); font: 600 12px/1.4 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; text-align: start; cursor: pointer; touch-action: manipulation; }
 .u-fold > .u-fold-head::after { content: "+"; font-size: 16px; line-height: 1; }
@@ -1840,13 +1378,11 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-rail, .u-tabs { display: none; }
 
 /* Display titles: Instrument Serif, one per screen. */
-.u-head h1, .u-tool-head h1, .u-prise-head h1, .u-scout h1 { font-family: var(--font-title); font-weight: 400; letter-spacing: -.01em; line-height: 1.04; }
+.u-head h1, .u-tool-head h1, .u-scout h1 { font-family: var(--font-title); font-weight: 400; letter-spacing: -.01em; line-height: 1.04; }
 .u-head h1 { font-size: clamp(34px, 8vw, 48px); }
 .u-tool-head h1 { font-size: clamp(32px, 4vw, 44px); }
-.u-prise-head h1 { font-size: 28px; }
 @media (min-width: 1024px) {
   .u-stage.u-desk .u-head h1 { font-size: 34px; }
-  .u-stage.u-montage .u-head h1 { font-size: 28px; }
 }
 
 /* Phones: bottom bar Accueil · Créer · Film · Mes créations, above the home indicator. */
@@ -1892,7 +1428,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-rail-badge-mini:hover { background: var(--surface); }
   /* Fixed bottom bars start after the rail. */
   .u-app:not([data-studio="montage"]) .u-chain { left: var(--rail-w); width: auto; }
-  .u-prise-dock .u-prise-actions, .u-desk .u-create-bar { left: var(--rail-w); }
+  .u-desk .u-create-bar { left: var(--rail-w); }
   .u-toast { left: calc(50% + var(--rail-w) / 2); }
 }
 @media (min-width: 1280px) {
@@ -1921,7 +1457,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 
 /* Large screens: content keeps a reading width; work surfaces cap at 1760 px. */
 @media (min-width: 1920px) {
-  .u-app .u-stage.u-desk, .u-app .u-stage.u-prise, .u-app .u-stage.u-montage { max-width: 1760px; margin-inline: auto; }
+  .u-app .u-stage.u-desk { max-width: 1760px; margin-inline: auto; }
   .u-app .u-chain { max-width: 1760px; margin-inline: auto; width: calc(100% - 24px); }
 }
 
@@ -2010,7 +1546,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-app .u-secondary:hover:not(:disabled) { background: var(--hover); border-color: var(--fg-2); }
 .u-app .u-outils-entry { border-color: var(--line-strong); }
 .u-slot::after { padding: 2px 6px; border-radius: 6px; background: rgba(15, 15, 17, .72); }
-.u-maquette-names, .u-maquette-place { padding: 2px 6px; border-radius: 6px; background: rgba(15, 15, 17, .72); }
 .u-assistant { top: var(--u-top-h); }
 /* Headings take focus on route change for screen readers; no ring for that programmatic focus. */
 [tabindex="-1"]:focus:not(:focus-visible), h1[tabindex="-1"]:focus { outline: none; }
@@ -2168,40 +1703,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-uttu-log { max-height:none; }
 }
 
-/* Qualité de la prise : Aperçu ou Qualité finale. Deux cartes radio, 44 px minimum. */
-.u-rendu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 12px; padding: 0; border: 0; min-inline-size: 0; }
-.u-rendu legend { grid-column: 1 / -1; padding: 0; margin-bottom: 6px; }
-.u-rendu-opt { position: relative; display: grid; gap: 4px; align-content: start; min-height: 44px; padding: 10px 12px; border: 1px solid var(--u-line); border-radius: 12px; color: var(--u-muted); cursor: pointer; }
-.u-rendu-opt:has(input:checked) { border-color: var(--u-gold); background: rgba(255, 255, 255, 0.066); color: var(--u-gold-soft); }
-.u-rendu-opt:has(input:focus-visible) { outline: 2px solid var(--u-gold); outline-offset: 2px; }
-.u-rendu-opt:has(input:disabled) { cursor: default; opacity: .6; }
-.u-rendu-opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: inherit; }
-.u-rendu-text { display: grid; gap: 2px; }
-.u-rendu-text b { font: 650 15px/1.2 var(--font-heading); color: var(--u-text); }
-.u-rendu-opt:has(input:checked) .u-rendu-text b { color: var(--u-gold-soft); }
-.u-rendu-text small { font-size: 13px; line-height: 1.3; }
-.u-rendu-quote { font: 600 12px/1.3 var(--font-mono); color: var(--u-gold-soft); }
-.u-rendu-hint { grid-column: 1 / -1; margin: 0; }
-@media (max-height: 480px) { .u-rendu-text small { display: none; } .u-rendu-opt { padding: 8px 10px; } }
-
-/* Montage : étiquette Aperçu / Qualité finale sur chaque plan. */
-.u-clip.is-video .u-clip-body > .u-clip-tier { top: 4px; right: auto; bottom: auto; left: 12px; padding: 1px 6px; border-radius: 6px; background: var(--bg); font: 600 10px/1.4 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--u-muted); }
-.u-clip.is-video .u-clip-body > .u-clip-tier[data-tier="finale"] { color: var(--u-gold-soft); border: 1px solid var(--u-gold); }
-.u-floatbar .u-final-plan { color: var(--u-gold-soft); }
-.u-final-sum { margin: 4px 0 8px; font: 600 13px/1.3 var(--font-mono); color: var(--u-gold-soft); }
-
-/* MONTAGE : la qualité de l'export, dite avant d'exporter, et le chemin vers Finaliser. */
-.u-export-quality { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; margin: 0 0 4px; font-size: 13px; line-height: 1.35; color: var(--u-muted); }
-.u-export-quality .u-text-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--u-gold-soft); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-@media (max-height: 480px) { .u-export-quality .u-text-link { min-height: 44px; } }
-@media (max-width: 600px) {
-  .u-export-quality { flex-wrap: nowrap; gap: 0 6px; margin: -4px 0 0; font-size: 12px; line-height: 1.2; white-space: nowrap; }
-  .u-export-quality .u-long-label { display: none; }
-  .u-export-quality .u-short-label { display: inline; overflow: hidden; text-overflow: ellipsis; }
-  /* Same 44 px target, folded into the line so the timeline keeps its height. */
-  .u-export-quality .u-text-link { margin: -13px 0; flex: none; }
-}
-
 /* Barre unique: one compact creation bar. Modes, « + », settings and chips appear only when asked for. */
 .u-barre-home { width: min(860px, 100%); gap: 18px; }
 .u-app .u-barre-title { margin: 8px 0 0; font-size: clamp(36px, 9vw, 60px); line-height: 1.02; text-align: start; }
@@ -2310,7 +1811,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-rv-making .u-comfy-progress { justify-self: center; }
 .u-tool-stage-progress .u-comfy-progress { width: 100%; }
 .u-fil-progress .u-comfy-progress { width: 100%; }
-.u-card.u-run .u-comfy-progress { width: 100%; margin-bottom: 8px; }
 @media (prefers-reduced-motion: reduce) {
   .u-comfy-progress-bar span { transition: none; }
 }
@@ -2387,11 +1887,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-tool-slots .u-tool-slot.is-empty small { font: 500 9.5px/1 var(--font-mono); text-transform: uppercase; letter-spacing: .04em; }
 .u-tool-slots .u-tool-slot-x { position: absolute; top: 0; right: 0; width: 44px; height: 44px; border: 0; background: transparent; color: var(--fg); font-size: 20px; cursor: pointer; }
 /* Montage toolbar tip wrapper — never inherit the 76 px hub card. */
-.u-toolrow .u-tool-slot,
 .u-montage-bar .u-tool-slot { position: relative; display: inline-flex; width: auto; min-width: 0; min-height: 0; border: 0; border-radius: 0; overflow: visible; background: transparent; }
-.u-final-open { flex: none; white-space: nowrap; }
-.u-final-open .u-long-label { display: none; }
-.u-final-open .u-short-label { display: inline; }
 .u-undo-toast { position: fixed; z-index: 60; left: 50%; bottom: calc(var(--u-tabs-h, 0px) + 16px); transform: translateX(-50%); display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100vw - 24px); min-height: 52px; padding: 4px 6px 4px 14px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface-2); box-shadow: 0 8px 24px rgba(0, 0, 0, .4); }
 .u-undo-toast img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; opacity: .7; }
 .u-undo-toast p { flex: 1; margin: 0; min-width: 0; font: 500 14px/1.3 var(--font-body); }
@@ -2452,45 +1948,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 
 
 
-/* Clip reorder: insertion caret + dragged clip (Mes créations / montage visitor tests). */
-.u-clip-insert {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  z-index: 6;
-  width: 3px;
-  margin-left: -1px;
-  border-radius: 2px;
-  background: var(--u-gold, #c9a227);
-  pointer-events: none;
-}
-.u-clip[data-dragging] { outline: 1px dashed var(--u-gold, #c9a227); }
-
-/* (21) 390 px montage: Delete label must not wrap into unreadability; 44 px tools/zoom. */
-@media (max-width: 430px) {
-  .u-floatbar button span { display: none; }
-  .u-floatbar button { min-width: 44px; min-height: 44px; padding: 0; }
-  .u-toolrow-zoom { display: flex !important; }
-  .u-toolrow-zoom .u-tool,
-  .u-ruler-zoom .u-tool,
-  .u-track-add { width: 44px; min-width: 44px; height: 44px; min-height: 44px; }
-  .u-capcut .u-track-row.is-video,
-  .u-capcut .u-track-row.is-video .u-track { min-height: 64px; }
-  .u-capcut .u-clip.is-video { top: 6px; height: calc(100% - 12px); }
-}
-
-/* (23) 1024×600 montage toolbar: labels truncate — icons + native tooltips only. */
-@media (min-width: 800px) and (max-width: 1100px) {
-  .u-app[data-studio="montage"] .u-tool span,
-  .u-capcut .u-toolrow .u-tool span { display: none; }
-  .u-app[data-studio="montage"] .u-tool,
-  .u-capcut .u-toolrow .u-tool {
-    min-width: 44px;
-    width: 44px;
-    padding: 0;
-  }
-}
-
 /* (22) 844×390 landscape: compact header + scrollable rail so Film / Mes créations stay reachable. */
 @media (max-height: 430px) and (orientation: landscape) {
   :root { --u-top-h: 48px; }
@@ -2518,91 +1975,14 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-app[data-studio="montage"] .u-main { padding: 2px 8px 4px; }
 }
 
-/* PRISE figure chips: 44 px tap targets (visitor test). */
-.u-figure-action { min-height: 44px; min-width: 44px; padding-inline: 12px; }
-
-/* Montage tools: keep full words when there is room; scroll rather than ellipsis to one letter. */
-@media (min-width: 1101px) {
-  .u-app[data-studio="montage"] .u-toolrow-main .u-tool,
-  .u-capcut .u-toolrow .u-tool {
-    flex: 0 0 auto;
-    width: auto;
-    min-width: 44px;
-    max-width: none;
-    padding: 0 10px;
-  }
-  .u-app[data-studio="montage"] .u-toolrow-main .u-tool span,
-  .u-capcut .u-toolrow .u-tool span {
-    display: inline;
-    max-width: none;
-    overflow: visible;
-    text-overflow: clip;
-    white-space: nowrap;
-  }
-}
-
 /* Short desktop (1024×600): keep bin tabs readable, player modest, timeline (vidéo+voix) on screen. */
 @media (min-width: 1024px) and (max-height: 700px) {
   .u-app[data-studio="montage"] .u-top { min-height: 44px; padding-block: 2px; }
   .u-app[data-studio="montage"] .u-chain { margin: 2px 12px 0; }
   .u-app[data-studio="montage"] .u-main { padding: 2px 10px 4px; }
-  .u-stage.u-montage .u-montage-bar h1 { font-size: 18px; }
-  .u-stage.u-montage .u-lead { display: none; }
-  .u-stage.u-montage .u-export-quality { display: none; }
-  .u-capcut { grid-template-rows: minmax(96px, min(30dvh, 200px)) minmax(0, 1fr); gap: 4px; }
-  .u-capcut .u-bin-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
-  .u-capcut .u-bin-tabs button { min-height: 44px; padding: 4px 2px; font-size: 12px; }
-  .u-capcut .u-bin-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .u-capcut-time { min-height: 0; max-height: none; overflow: hidden; display: flex; flex-direction: column; }
-  .u-capcut .u-tl { flex: 1 1 auto; min-height: 120px; overflow: auto; }
-  .u-capcut .u-track-row.is-audio,
-  .u-capcut .u-track-row.is-audio .u-track { min-height: 56px; }
-  .u-montage-outils { display: none; }
 }
 
 /* Comfortable desktop (1280×800+): readable 16:9 preview ≥ ~300 px; all montage tracks on screen. */
-@media (min-width: 1024px) and (min-height: 701px) {
-  .u-stage.u-montage .u-export-quality { margin: 0; font-size: 12px; }
-  .u-capcut {
-    grid-template-rows: minmax(300px, 1fr) minmax(260px, auto);
-    gap: 4px;
-  }
-  .u-capcut-player { min-height: 300px; }
-  .u-capcut-time {
-    min-height: 0;
-    max-height: none;
-    overflow: visible;
-    display: flex;
-    flex-direction: column;
-  }
-  /* Keep horizontal scrub; do not clip tracks vertically (parcours drag + piste checks). */
-  .u-capcut .u-tl {
-    flex: 0 0 auto;
-    min-height: 0;
-    overflow-x: auto;
-    overflow-y: visible;
-  }
-  .u-capcut .u-track-row { min-height: 44px; }
-  .u-capcut .u-track { min-height: 44px; }
-  .u-capcut .u-track-row.is-audio,
-  .u-capcut .u-track-row.is-audio .u-track {
-    min-height: 48px;
-    max-height: 52px;
-    height: 52px;
-  }
-  .u-capcut-player .u-controls {
-    position: absolute;
-    z-index: 3;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-  }
-}
-/* Under 900 px tall: drop the bottom outils strip so vidéo+voix+effets+musique fit. */
-@media (min-width: 1024px) and (max-height: 900px) {
-  .u-app[data-studio="montage"] .u-montage-outils { display: none; }
-}
-
 /* Short landscape (≤500 px tall, e.g. 844×390): side-by-side player | timeline, chrome stripped.
    Keep #u-title and the rail visible (design-obsidian). */
 @media (max-height: 500px) and (orientation: landscape) {
@@ -2617,204 +1997,16 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
     max-width: none;
     width: 100%;
   }
-  .u-stage.u-montage { overflow: hidden; gap: 2px; height: 100%; min-height: 0; }
-  .u-stage.u-montage .u-montage-bar {
-    flex: none;
-    min-height: 44px;
-    align-items: center;
-    gap: 6px;
-    padding: 0;
-  }
-  .u-stage.u-montage .u-montage-bar h1 {
-    display: block;
-    font-size: 16px;
-    margin: 0;
-    line-height: 1.1;
-  }
-  .u-stage.u-montage .u-lead,
-  .u-stage.u-montage .u-label,
-  .u-stage.u-montage .u-export-quality { display: none; }
-  .u-stage.u-montage .u-montage-bar > :last-child {
-    display: flex;
-    gap: 6px;
-    margin-inline-start: auto;
-  }
-  .u-stage.u-montage .u-montage-bar .u-export,
-  .u-stage.u-montage .u-montage-bar .u-final-open {
-    min-width: 44px;
-    min-height: 44px;
-  }
-  .u-capcut {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: grid !important;
-    grid-template-columns: minmax(160px, 34vw) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    gap: 4px;
-    overflow: hidden;
-  }
-  .u-capcut .u-chutier { display: none !important; }
-  .u-capcut-player {
-    grid-column: 1;
-    grid-row: 1;
-    order: 0;
-    min-height: 0;
-    max-height: none;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  .u-capcut-player .u-monitor,
-  .u-capcut-player .u-stage-frame {
-    flex: 1 1 auto;
-    min-height: 0;
-    height: auto;
-  }
-  .u-capcut-player .u-viewer,
-  .u-capcut-player .u-viewer[data-ratio="16/9"],
-  .u-capcut-player .u-viewer[data-ratio="9/16"] {
-    width: 100%;
-    height: auto;
-    max-height: calc(100% - 48px);
-    max-width: 100%;
-    aspect-ratio: 16 / 9;
-    margin: 0 auto;
-  }
-  .u-capcut-player .u-controls {
-    position: relative;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    flex: none;
-    min-height: 44px;
-    padding: 0 4px;
-    background: transparent;
-  }
-  .u-capcut-player .u-controls button { min-width: 44px; min-height: 44px; }
-  .u-capcut-time {
-    grid-column: 2;
-    grid-row: 1;
-    order: 0;
-    min-height: 0;
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .u-capcut .u-toolrow {
-    flex: none;
-    min-height: 44px;
-    max-height: 44px;
-  }
-  .u-capcut .u-tool:not(.u-bin-toggle),
-  .u-capcut .u-floatbar button {
-    min-width: 44px;
-    min-height: 44px;
-    width: 44px;
-    padding: 0;
-  }
-  .u-capcut .u-toolrow .u-tool span { display: none; }
-  .u-capcut .u-tl {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: auto;
-  }
-  .u-capcut .u-track-row { min-height: 48px; }
-  .u-capcut .u-track { min-height: 48px; }
-  .u-capcut .u-track-row.is-ruler { min-height: 16px; }
-  .u-capcut .u-ruler { height: 16px; }
-  .u-capcut .u-track-row.is-audio,
-  .u-capcut .u-track-row.is-audio .u-track { min-height: 48px; }
-  .u-montage-outils { display: none !important; }
 }
 
 /* Portrait phone short (390×600): timeline on screen without scrolling the page. */
 @media (max-width: 480px) and (max-height: 700px) {
   .u-app[data-studio="montage"] .u-chain { margin: 2px 8px 0; }
   .u-app[data-studio="montage"] .u-main { padding: 2px 8px 4px; overflow: hidden; }
-  .u-stage.u-montage { overflow: hidden; height: 100%; gap: 2px; }
-  .u-stage.u-montage .u-lead { display: none; }
-  .u-capcut-player .u-viewer[data-ratio="16/9"] { height: min(14dvh, 96px); }
-  .u-capcut-player .u-viewer[data-ratio="9/16"] { height: min(18dvh, 120px); }
-  .u-capcut-time { flex: 1 1 auto; min-height: 0; overflow: hidden; }
-  .u-capcut .u-tl { flex: 1 1 auto; min-height: 100px; overflow: auto; }
 }
-
-/* PRISE: one row of plan tools under the strip (44 px, touch-first); « Annuler » right after a delete. */
-.u-plan-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-.u-plan-tools > button { min-height: 44px; min-width: 44px; }
-.u-plan-undo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0 0; }
-.u-plan-undo > button { min-height: 44px; }
-
-/* PRISE: one current-shot editor and a persistent undo control, usable by touch. */
-.u-plan-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px 0; }
-.u-plan-fields label { display: grid; gap: 6px; min-width: 0; color: var(--u-muted); font-size: 12px; }
-.u-plan-fields :is(input, select) { min-width: 0; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--u-line); border-radius: 8px; background: var(--u-bg, #141414); color: var(--fg); font: inherit; font-size: 16px; }
-.u-plan-field-wide { grid-column: 1 / -1; }
-.u-plan-ref { display: block; max-width: 100%; max-height: 160px; object-fit: contain; border-radius: 8px; }
-.u-plan-name { max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
-.u-plan-card progress { width: 44px; height: 5px; accent-color: var(--u-gold, #d4af37); }
-.u-plan-tools { flex-wrap: wrap; }
-.u-plan-undo { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-.u-plan-undo button, .u-plan-tools button { min-width: 44px; min-height: 44px; }
-.u-plan-save { margin: 4px 0; font-size: 11px; color: var(--u-muted); }
-.u-plan-error { padding: 12px; border: 1px solid var(--u-line); border-radius: 12px; overflow-wrap: anywhere; }
-@media (max-width: 440px) { .u-plan-fields { grid-template-columns: minmax(0, 1fr); } }
-.u-prise .u-uttu > div { min-width: 0; overflow-wrap: anywhere; }
-.u-prise-work > .u-plan-editor { order: 2; }
-@media (max-width: 1023px) {
-  .u-plan-card .u-plan-etat { position: static; width: auto; height: auto; margin: 0; clip: auto; white-space: normal; font-size: 10px; }
-  .u-plan-name { max-width: 56px; }
-}
-.u-prise [data-uttu-dit] { display: block; min-width: 0; white-space: normal; letter-spacing: normal; cursor: default; }
 
 /* Kept framing: the maps are independent of identity/style references. */
-.u-framing-controls { display:grid; gap:12px; min-width:0; margin-block:14px; }
-.u-framing-controls button, .u-framing-controls input { min-height:44px; min-width:44px; }
-.u-framing-maps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
-.u-framing-maps a { min-width:0; min-height:44px; color:var(--gold,#d4af37); display:grid; gap:4px; overflow-wrap:anywhere; }
-.u-framing-maps img { width:100%; max-height:180px; object-fit:contain; background:#080808; border:1px solid #66522a; border-radius:8px; }
-.u-framing-flat { position:absolute; inset:0; width:100%; height:100%; touch-action:none; }
-[data-framing-mode="plat"] .u-maquette-distance,
-[data-framing-mode="plat"] [data-autre-essai],
-[data-framing-mode="plat"] [data-tourner] { display:none; }
-.u-maquette-avance[data-framing-mode="plat"] ~ .u-tuiles-row { display:none; }
-
-/* ── P1-3 · PRISE on a phone: one simple path in five steps ───────────
-   Préparer → Plans → Prévisualiser → Générer → Réviser. Each step shows existing blocks only
-   (one plan editor, no second DÉCOR or MONTAGE). From 1024 px every block stays on screen. */
-.u-prise-steps, .u-prise-step-nav { display: none; }
-@media (max-width: 1023px) {
-  .u-prise-steps { order: 0; display: grid; gap: 6px; min-width: 0; }
-  .u-prise-steps ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 0; list-style: none; }
-  .u-prise-steps button { width: 100%; min-height: 48px; display: grid; justify-items: center; align-content: center; gap: 2px; padding: 4px 2px; border: 1px solid var(--u-line); border-radius: 10px; background: var(--surface); color: var(--fg-2); font-size: 11px; line-height: 1.1; }
-  .u-prise-steps button[data-done] { color: var(--u-text); }
-  .u-prise-steps button[aria-current="step"] { border-color: var(--fg); background: var(--selected); color: var(--fg); }
-  .u-prise-step-n { font: 600 13px/1 var(--font-mono); }
-  .u-prise-step-name { max-width: 100%; text-align: center; overflow-wrap: anywhere; hyphens: auto; }
-  .u-prise-step-lead { margin: 0; color: var(--u-muted); font-size: 13px; line-height: 1.35; }
-  .u-prise-step-nav { order: 5; display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
-  .u-prise-step-nav button { flex: 1 1 140px; min-height: 44px; width: auto; }
-
-  /* The plan strip, the preview, the action bar and the closed « Avancé » stay on every step but
-     « Plans »; the long column is cut in five. */
-  .u-prise[data-prise-etape] .u-prise-dock > .u-prise-card { display: none; }
-  .u-prise[data-prise-etape="generer"] .u-prise-dock > .u-prise-card,
-  .u-prise[data-prise-etape="reviser"] .u-prise-dock > .u-prise-card { display: grid; }
-  /* 1 · Préparer: who, where, the action and its mood; references sit with the cast and the set. */
-  .u-prise[data-prise-etape="preparer"] :is(.u-plan-tools, .u-plan-editor, .u-outils-strip) { display: none; }
-  /* 2 · Plans: the list tools and the one editor of the selected plan. */
-  .u-prise[data-prise-etape="plans"] .u-prise-work > :not(.u-prise-head, .u-plan-editor) { display: none; }
-  /* 3 · Prévisualiser: the still and the maquette framing (AVANCÉ), before any credit. */
-  .u-prise[data-prise-etape="previs"] .u-plan-tools { display: none; }
-  .u-prise[data-prise-etape="previs"] .u-prise-work > :not(.u-prise-head, .u-avance) { display: none; }
-  /* 4 · Générer: what is sent and the quote, then the confirmed launch. */
-  .u-prise[data-prise-etape="generer"] :is(.u-plan-tools, .u-prise-preview) { display: none; }
-  .u-prise[data-prise-etape="generer"] .u-prise-work > :not(.u-prise-head, .u-avance) { display: none; }
-  /* 5 · Réviser: the takes; keep, retry, finish, send the kept takes to MONTAGE. */
-  .u-prise[data-prise-etape="reviser"] .u-prise-work > :not(.u-prise-head, .u-outils-strip, .u-avance) { display: none; }
-}
+[data-framing-mode="plat"] [data-autre-essai], [data-framing-mode="plat"] [data-tourner] { display:none; }
 
 /* Bubble reference picker: named cards only, one tap to attach, edit/delete behind « ⋯ ». */
 .u-named-tools { display: flex; flex-wrap: wrap; gap: 8px; flex-shrink: 0; }
@@ -2849,7 +2041,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-import-name input { min-height: 44px; }
 .u-import-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
 /* PRISE: the engine chips carry their own quote and wrap on a phone. */
-.u-engine .u-chip { min-height: 44px; }
 .u-doublage .u-choice-row { flex-wrap: wrap; overflow: visible; gap: 8px; }
 
 /* DÉCOR: the form comes first, so its text field and the gold button share the first screen. */
@@ -2882,9 +2073,12 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 [data-u-deep] [data-barre-home][data-early] { display: none; }
 [data-u-linked] [data-barre-home][data-early] [data-entry-link] { display: none; }
 
-/* Refonte FILM · PR 9 — the film is a focused place: logo, film, credits, menu; two views PRISE | MONTAGE. */
-.u-app[data-film2] { --rail-w: 0px; --u-tabs-h: 0px; }
+/* The film is a focused place: logo, film, credits, menu; its own bar CAST · DÉCOR · PRISE · MONTAGE. */
+.u-app[data-studio]:not([data-studio="outils"]) { --rail-w: 0px; --u-tabs-h: 0px; }
 .u-top[data-focus] .u-burger { display: inline-flex; }
 .u-top[data-focus] { justify-content: space-between; }
-.u-app .u-chain.u-film-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.u-app .u-chain.u-film-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.u-app .u-chain.u-film-nav button { min-height: 48px; padding-inline: 2px; }
+.u-chain.u-film-nav button small { letter-spacing: 0; }
+.u-chain.u-film-nav button > span, .u-chain.u-film-nav button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .u-chain.u-film-nav button small { color: var(--u-sand); }

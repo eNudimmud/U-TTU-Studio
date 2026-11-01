@@ -278,17 +278,3 @@ describe("mémoire du plan", () => {
     ]);
   });
 });
-
-describe("écran PRISE", () => {
-  it("composes plans and does not spend or show the old gesture list", () => {
-    const source = readFileSync("src/components/app/prise-stage.tsx", "utf8");
-    // P0: one reliability card, one estimate, one confirmation; the exact text stays readable in the card.
-    assert.match(source, /FiabiliteCard/);
-    assert.match(source, /p0\.fiab\.sentRaw/);
-    assert.match(source, /data-avance-prise/);
-    assert.match(source, /requestRun\(\{ planId: draft\.id, castIds: input\.castIds/);
-    assert.doesNotMatch(source, /confirmRun\(|GestePicker|Bientôt|prise-plan|run_template|submit_workflow|partner_generate|estimate_credits|fal\.ai/);
-    assert.match(source, /FormatSwitch/);
-    assert.match(readFileSync("src/components/app/app.css", "utf8"), /@media \(min-width: 1024px\)[\s\S]*u-prise-dock/);
-  });
-});
