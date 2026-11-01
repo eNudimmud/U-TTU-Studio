@@ -9,6 +9,8 @@ import { UPLOAD_HEAVY, uploadTooHeavy } from "./upload-limit.ts";
 import { prepareUpload, type UploadNeed } from "./prepare-upload.ts";
 import { envoiKey, sha256Hex, type UploadMemo } from "../film/envois.ts";
 import { directContentType, readDirectState, sendDirect, type BlobUpload, type DirectState } from "../envoi-direct/client.ts";
+import { OPEN_WEIGHTS_MODE } from "../open-weights.ts";
+import { graphVerdict } from "../cinema/workflow-policy.ts";
 
 export type RenderAuth =
   | { kind: "key"; key: string }
@@ -51,6 +53,8 @@ export interface RenderClientOptions {
   blobUpload?: BlobUpload;
   /** Registre de production: a picture already sent to this account is not uploaded again. */
   uploadMemo?: UploadMemo;
+  /** Contest mode: refuse a partner node, closed model or restricted licence before any POST (CE0). */
+  openWeightsMode?: boolean;
 }
 
 export const BALANCE_URL = "https://api.comfy.org/customers/balance";
@@ -371,7 +375,12 @@ export function createRenderClient(options: RenderClientOptions) {
     async submit(graph: ApiGraph, clientId: string): Promise<string> {
       const used = memoUsed;
       memoUsed = [];
-      try { return await submitNow(graph, clientId); }
+      try {
+        // The common guard of every Comfy submit (src/lib/cinema/workflow-policy.ts): nothing leaves.
+        const verdict = graphVerdict(graph, options.openWeightsMode ?? OPEN_WEIGHTS_MODE);
+        if (!verdict.allowed) throw new RenderError("invalid", "Ce workflow n'est pas open weights.", verdict.reasons);
+        return await submitNow(graph, clientId);
+      }
       catch (error) {
         // A refused graph may point at an input the cloud no longer has: send those pictures again next time.
         for (const key of used) options.uploadMemo?.forget(key);

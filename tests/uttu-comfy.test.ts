@@ -29,7 +29,7 @@ function deps(responses: (Response | Error)[]) {
     if (next instanceof Error) throw next;
     return next;
   }) as unknown as typeof fetch;
-  return { calls, deps: { fetch: fetchMock, knowledge: async () => k, uuid: () => "11111111-2222-4333-8444-555555555555", timeoutMs: 1000 } };
+  return { calls, deps: { fetch: fetchMock, knowledge: async () => k, uuid: () => "11111111-2222-4333-8444-555555555555", timeoutMs: 1000, openWeightsMode: false } };
 }
 const ok = (payload: object) => new Response(JSON.stringify(routerReply(payload)), { status: 200, headers: { "content-type": "application/json" } });
 const err = (status: number, type: string) => new Response(JSON.stringify({ error_type: type, detail: "x" }), { status, headers: { "x-comfy-error-type": type } });

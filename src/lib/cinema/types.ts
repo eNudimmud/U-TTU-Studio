@@ -292,6 +292,8 @@ export const CINEMA_ERROR_CODES = [
   "SUBMISSION_UNKNOWN", "PROJECT_UNAVAILABLE", "OUTPUT_INVALID", "STORAGE_UNAVAILABLE",
   // CE0 addition, named in CINEMA_LOTS CE0 « Acceptation »: the model file is missing on Cloud.
   "INTENT_MODEL_UNAVAILABLE",
+  // CE0 addition: the provider answered the POST with a refusal (auth, credits, subscription, invalid graph).
+  "PROVIDER_REFUSED",
 ] as const;
 export type CinemaErrorCode = (typeof CINEMA_ERROR_CODES)[number];
 
