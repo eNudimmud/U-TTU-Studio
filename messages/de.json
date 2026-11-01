@@ -948,7 +948,7 @@
     "photoPlaceName": "Foto des Orts",
     "engine": {
       "ltx": "LTX · Einfache Bewegung",
-      "h3": "H3 · Bis zu neun Bilder"
+      "h3": "MiniMax H3 · Bis zu neun Bilder"
     }
   },
   "create": {
@@ -1324,7 +1324,7 @@
     },
     "prisePlanH3": {
       "title": "Einstellung, zweites Modell",
-      "phrase": "Bis zu neun Referenzen, Preis schon gemessen."
+      "phrase": "MiniMax H3, bis zu neun Referenzen, Preis schon gemessen."
     },
     "priseOutpaint": {
       "title": "Einstellung erweitern",
@@ -2487,7 +2487,12 @@
     "model": "Modell",
     "modelChange": "Modell wechseln",
     "attribution": {
-      "vid-pika": "Pika H3 Flex, basiert auf MiniMax H3"
+      "vid-pika": "Pika H3 Flex, basiert auf MiniMax H3",
+      "vid-animer": "Basiert auf MiniMax H3",
+      "vid-h3-refs": "Basiert auf MiniMax H3",
+      "vid-fasth3": "FastH3, basiert auf MiniMax H3",
+      "vid-multi": "Basiert auf MiniMax H3",
+      "vid-prolonger": "Basiert auf MiniMax H3"
     },
     "modelGone": "Dieses Modell ist heute auf deinem Render-Konto nicht verfügbar. Nichts wurde gesendet: Die Karte nutzt wieder ihr Standardmodell.",
     "confirmTitle": "Dieses Rendering starten?",
@@ -3478,7 +3483,7 @@
     "lancer": "Starten",
     "modifier": "Ändern",
     "envoye": "Was gesendet wird",
-    "envoyeLead": "Dein Satz geht unverändert an den Video-Renderdienst (H3), mit den Bildern jeder Figur und des Ortes.",
+    "envoyeLead": "Dein Satz geht unverändert an den Video-Renderdienst (MiniMax H3), mit den Bildern jeder Figur und des Ortes.",
     "enCours": "Schritt {i} von {n}: {label}",
     "fini": "Einstellung gedreht. Sie ist in Meine Werke und im Schnitt.",
     "planSuivant": "Nächste Einstellung",

@@ -5,6 +5,7 @@
 // studio, never by the model. The model never launches anything: it proposes, the visitor clicks.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { assetPath } from "@/lib/site";
+import { OPEN_WEIGHTS_MODE } from "@/lib/open-weights";
 import { useI18n } from "@/components/i18n/provider";
 import { asksCost, formatCr, simulateText, toolHref, type FaqHit, type Knowledge, type SimItem, type SimResult, type UttuLocale } from "@/lib/agent/uttu";
 import { HISTORY, MAX_MESSAGE, perMessageCeiling, type AgentAction, type AgentErrorCode, type ChatResult, type ProjectContext } from "@/lib/agent/uttu-comfy";
@@ -203,7 +204,8 @@ function ToolLink({ id, knowledge, locale }: { id: string; knowledge: Knowledge;
   const { t } = useI18n();
   const tool = knowledge.tools.find(item => item.id === id);
   const name = knowledge.locales[locale].tools[id]?.title ?? id;
-  if (!tool) return null;
+  // A knowledge file built without open-weights mode can still name a partner tool: no link to a hidden page.
+  if (!tool || (OPEN_WEIGHTS_MODE && tool.partenaire)) return null;
   return <p className="u-uttu-tool">
     <a className="u-uttu-go" data-uttu-tool={id} href={assetPath(toolHref(id))}>{t("uttu.comfy.openTool", { name })}</a>
     {tool.cost && <span className="u-small" data-uttu-tool-cost=""> · {t("uttu.comfy.toolCost", { low: formatCr(locale, tool.cost[0]), high: formatCr(locale, tool.cost[1]) })}</span>}

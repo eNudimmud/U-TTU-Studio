@@ -2,6 +2,10 @@ import { expect, test } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { simulateComfy } from "./helpers/simulate-comfy";
+import { OPEN_WEIGHTS_MODE } from "../src/lib/open-weights";
+
+// Partner node: hidden in open-weights mode (contest build). Runs with NEXT_PUBLIC_OPEN_WEIGHTS_MODE=off.
+test.skip(OPEN_WEIGHTS_MODE, "Genjutsu (Higgsfield) is a partner node, hidden in open-weights mode");
 
 test.use({ hasTouch:true });
 

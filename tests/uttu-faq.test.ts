@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { knowledge } from "../scripts/agent-knowledge.mjs";
 import { searchFaq, type Knowledge } from "../src/lib/agent/uttu.ts";
 
-const k = knowledge("abcdef0123456789") as Knowledge;
+const k = knowledge("abcdef0123456789", false) as Knowledge;
 const top = (locale: "fr" | "en" | "de" | "es", q: string) => searchFaq(k, locale, q)[0];
 
 test("the local FAQ answers in the four languages", () => {

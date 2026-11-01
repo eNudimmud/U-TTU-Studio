@@ -7,7 +7,7 @@ import { GUIDE_FAQ, allowedTools, buildPack, quoteText, routerBody } from "../sr
 
 // Uttu knows the studio from the same catalogue and registry the studio renders. These tests keep
 // it that way: a tool that opens is known (with its quote), a tool that is closed is never named.
-const k = knowledge("abcdef0123456789") as Knowledge;
+const k = knowledge("abcdef0123456789", false) as Knowledge;
 const open = outilsPublics().filter(o => outilEtat(o).kind === "pret").map(o => o.id);
 const closed = OUTILS.map(o => o.id).filter(id => !open.includes(id));
 const word = (id: string) => new RegExp(`(^|[^\\w-])${id.replace(/[-]/g, "\\-")}(?![\\w-])`);

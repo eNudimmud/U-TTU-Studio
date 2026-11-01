@@ -40,7 +40,7 @@ for (const viewport of VIEWPORTS) {
     await simulateComfy(page);
     const calls = await mockChat(page, [
       { json: { reply: "Je te prépare trois prises dans le plan de production. Tu verras le devis avant de lancer.", action: { kind: "plan", tool: null, request: "Prépare trois prises de la scène du quai" }, credits: 0.05, measured: true } },
-      { json: { reply: "L’outil d’image Flux convient pour ça.", action: { kind: "open_tool", tool: "img-flux3", request: null }, credits: 0.04, measured: true } },
+      { json: { reply: "L’outil d’image Qwen convient pour ça.", action: { kind: "open_tool", tool: "img-qwen", request: null }, credits: 0.04, measured: true } },
     ]);
     const panel = await openPanel(page);
 
@@ -81,12 +81,12 @@ for (const viewport of VIEWPORTS) {
     // Accepted once for the session: the next message goes without asking again.
     await input.fill("Quel outil pour une image de quai ?");
     await input.press("Enter");
-    await expect(lastReply(panel)).toContainText("Flux");
+    await expect(lastReply(panel)).toContainText("Qwen");
     await expect(gate).toHaveCount(0);
     expect(calls.length).toBe(2);
     expect(calls[1].postDataJSON().history.length).toBeGreaterThan(0);
-    const tool = lastReply(panel).locator("[data-uttu-tool=img-flux3]");
-    await expect(tool).toHaveAttribute("href", /\/studio#outils\/img-flux3$/);
+    const tool = lastReply(panel).locator("[data-uttu-tool=img-qwen]");
+    await expect(tool).toHaveAttribute("href", /\/studio#outils\/img-qwen$/);
     await expect(lastReply(panel).locator("[data-uttu-tool-cost]")).toContainText("crédits estimés par lancement");
     // Nothing was launched: no Comfy prompt left the studio.
     expect(calls.every(call => /\/studio-agent\/chat$/.test(call.url()))).toBe(true);
