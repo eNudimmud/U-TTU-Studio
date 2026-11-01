@@ -3,7 +3,7 @@
 // account was charged from two real balance readings. Following is separate
 // so a take queued before a reload can be picked up again.
 
-import { gpuTimeCredits, measuredCost } from "../credits.ts";
+import { BILLED_CREDITS_PER_GPU_SECOND, gpuTimeCredits, measuredCost } from "../credits.ts";
 import { executionSeconds, jobStage, pickOutput, pickOutputs, RenderError, type OutputRef, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
 import type { UploadedControls } from "./framed-key.ts";
@@ -126,8 +126,8 @@ export async function followTake(
   const pollMs = options.pollMs ?? 3000;
   const timeoutMs = options.timeoutMs ?? 35 * 60 * 1000;
   // A deferred read never blocks the result, so it can wait for Comfy's slow balance update
-  // (about a minute) instead of giving up after 20 s and leaving the cost unread.
-  const measureTries = options.measureTries ?? (options.deferMeasure ? 12 : 4);
+  // (about a minute) and for the job's billed row in the event feed, instead of leaving the cost unread.
+  const measureTries = options.measureTries ?? (options.deferMeasure ? 24 : 4);
   const measureMs = options.measureMs ?? 5000;
   const networkTries = options.networkTries ?? 5;
 
@@ -197,14 +197,19 @@ export async function followTake(
     // « Lecture du coût réel… » after the bytes are already shown (or mid-render).
     if (!options.deferMeasure) onEvent({ stage: "measure", jobId });
     let balanceAfter: number | null = null;
+    let billed: number | null = null;
     for (let attempt = 0; attempt < measureTries; attempt++) {
+      // The job's own billed row first (GPU seconds × the billed rate): a balance moves with grants,
+      // other tabs and invoice lag, so its difference is only the fallback.
+      const charge = typeof client.jobCharge === "function" ? await client.jobCharge(jobId, BILLED_CREDITS_PER_GPU_SECOND).catch(() => null) : null;
+      if (charge) billed = charge.credits;
       balanceAfter = await client.balance().catch(() => null);
-      if (balanceAfter !== null && balanceAfter !== balanceBefore) break;
+      if (billed !== null || (balanceAfter !== null && balanceAfter !== balanceBefore)) break;
       if (attempt < measureTries - 1) await sleep(measureMs);
     }
     const charged = balanceAfter !== null && balanceAfter !== balanceBefore ? balanceAfter : null;
-    const costCredits = measuredCost(balanceBefore, charged);
-    // The balance is not a per-job meter (late, or raised by a top-up): keep the job's compute time as a fallback figure.
+    const costCredits = billed ?? measuredCost(balanceBefore, charged);
+    // Neither readable yet: keep the job's compute time as a fallback figure (« ≈ … estimés »).
     const info = { balanceAfter: charged, costCredits, gpuSeconds, gpuCredits: costCredits === null ? gpuTimeCredits(gpuSeconds) : null };
     options.onCost?.(info);
     return info;

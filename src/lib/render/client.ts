@@ -47,6 +47,8 @@ export interface RenderClientOptions {
   fetch?: typeof fetch;
   relay?: string;
   balanceUrl?: string;
+  /** Comfy's account event feed: one `cloud_workflow_executed` row per billed job (tests inject a fake). */
+  eventsUrl?: string;
   /** Direct send to private Vercel Blob for heavy files (tests inject a fake). */
   blobUpload?: BlobUpload;
   /** Registre de production: a picture already sent to this account is not uploaded again. */
@@ -54,6 +56,30 @@ export interface RenderClientOptions {
 }
 
 export const BALANCE_URL = "https://api.comfy.org/customers/balance";
+export const EVENTS_URL = "https://api.comfy.org/customers/events";
+
+/** What Comfy billed for one job, read from its event feed (never from a balance difference). */
+export interface JobCharge {
+  credits: number;
+  gpuSeconds: number | null;
+}
+
+/** The feed rows of one job: GPU seconds × the billed rate, plus any Partner Node credits it reports. */
+export function chargeFromEvents(body: unknown, jobId: string, creditsPerGpuSecond: number): JobCharge | null {
+  const events = body && typeof body === "object" && Array.isArray((body as { events?: unknown }).events) ? (body as { events: unknown[] }).events : [];
+  let credits = 0;
+  let gpuSeconds: number | null = null;
+  let found = false;
+  for (const event of events) {
+    const params = event && typeof event === "object" ? (event as { params?: Record<string, unknown> }).params : undefined;
+    if (!params || (params.job_id !== jobId && params.prompt_id !== jobId)) continue;
+    const gpu = Number(params.gpu_seconds);
+    const used = Number(params.credits_used);
+    if (params.gpu_seconds !== undefined && Number.isFinite(gpu) && gpu >= 0) { gpuSeconds = (gpuSeconds ?? 0) + gpu; credits += gpu * creditsPerGpuSecond; found = true; }
+    else if (params.credits_used !== undefined && Number.isFinite(used) && used >= 0) { credits += used; found = true; }
+  }
+  return found ? { credits: Math.round(credits * 100) / 100, gpuSeconds } : null;
+}
 
 const IN_QUEUE = new Set(["submitted", "waiting_to_dispatch", "queued_waiting", "pending", "queued"]);
 const PREPARING = new Set(["preparing", "assigned"]);
@@ -163,7 +189,7 @@ export function executionSeconds(detail: JobDetail): number | null {
 function readCents(body: unknown): number | null {
   if (!body || typeof body !== "object") return null;
   const row = body as Record<string, unknown>;
-  const raw = row.amount_micros ?? row.amountMicros;
+  const raw = row.amount_cents ?? row.amount_micros ?? row.amountMicros;
   const cents = typeof raw === "number" ? raw : Number(raw);
   return raw !== undefined && raw !== null && Number.isFinite(cents) ? cents : null;
 }
@@ -207,6 +233,7 @@ export function createRenderClient(options: RenderClientOptions) {
   const doFetch: typeof fetch = options.fetch ?? ((input, init) => fetch(input, init));
   const relay = (options.relay ?? "").replace(/\/+$/, "");
   const balanceUrl = options.balanceUrl ?? BALANCE_URL;
+  const eventsUrl = options.eventsUrl ?? EVENTS_URL;
   let directState: Promise<DirectState> | null = null;
   /** Memo keys answered without an upload since the last submit: forgotten if Comfy refuses the graph. */
   let memoUsed: string[] = [];
@@ -300,7 +327,10 @@ export function createRenderClient(options: RenderClientOptions) {
 
     /** Credits available right now on the account that will be charged. */
     async balance(): Promise<number | null> {
-      if (options.auth.kind === "session") {
+      // The live account balance, for a pasted key too (api.comfy.org answers CORS for x-api-key).
+      // The billing report below is drawn from invoices, « not a real-time meter »: it lagged and even
+      // rose after a paid run (347 → 360 on 01.11.2026), so it is only the last resort.
+      {
         try {
           const response = await doFetch(balanceUrl, { headers: await authHeaders(), signal: AbortSignal.timeout(15_000), cache: "no-store" });
           if (response.ok) {
@@ -314,6 +344,15 @@ export function createRenderClient(options: RenderClientOptions) {
       const body = await json<{ summary?: { balance?: unknown } }>(response);
       const cents = readCents(body.summary?.balance);
       return cents === null ? null : centsToCredits(cents);
+    },
+
+    /** What Comfy billed for this job, from the account event feed. Null until its row exists. */
+    async jobCharge(jobId: string, creditsPerGpuSecond: number): Promise<JobCharge | null> {
+      try {
+        const response = await doFetch(`${eventsUrl}?limit=50`, { headers: await authHeaders(), signal: AbortSignal.timeout(15_000), cache: "no-store" });
+        if (!response?.ok) return null;
+        return chargeFromEvents(await response.json(), jobId, creditsPerGpuSecond);
+      } catch { return null; }
     },
 
     /** Returns the input name a LoadImage node takes. */
