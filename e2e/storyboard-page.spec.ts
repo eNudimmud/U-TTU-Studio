@@ -75,22 +75,14 @@ test('idea → saved board → shot sheet → one confirmation; four sizes', asy
     await page.setViewportSize({ width, height });
     await page.goto(url);
     await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
-    const narrow = width < 800;
-    if (narrow) {
-      // Board first; the Uttu toggle swaps the column in.
-      await expect(shots.first()).toBeVisible();
-      await snap('02-board');
-      await page.locator('[data-sb-toggle]').click();
-      await expect(page.locator('[data-sb-chat]')).toBeVisible();
-      await snap('04-uttu');
-      await targets44(page);
-      await page.locator('[data-sb-toggle]').click();
-    } else {
-      await expect(page.locator('[data-sb-chat]')).toBeVisible();
-      await snap('02-board-uttu');
-    }
+    // U1 (CE4): one workspace at every size; the Uttu conversation sits in the flow, no toggle.
+    await expect(page.locator('[data-sb-toggle]')).toHaveCount(0);
+    await expect(shots.first()).toBeVisible();
+    await expect(page.locator('[data-sb-chat]')).toBeVisible();
+    await snap('02-board-uttu');
     await targets44(page);
-    await page.locator('[data-sb-open]').nth(1).click();
+    await page.locator('[data-sb-select]').nth(1).click();
+    await page.locator('[data-sb-open]').click();
     const sheet = page.locator('[data-sb-sheet]');
     await expect(sheet).toBeVisible();
     await snap('03-sheet');
