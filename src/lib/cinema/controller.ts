@@ -199,21 +199,32 @@ export function createCinemaController(ports: ControllerPorts) {
     } catch (error) { return failure(error, where); }
   }
 
-  /** Closes the intent's reserve once the job is over: known cost settles it, unknown keeps it counted. */
-  function closeIntentReserve(attemptId: string, cost: ObservedCost | null): void {
+  /**
+   * Closes the intent's reserve once the provider proved the job terminal: a known cost settles it,
+   * an unknown one keeps the reserve counted (`closeWithUnknownCost`). Independent of the mutation.
+   */
+  function closeIntentReserve(attemptId: string, cost: ObservedCost | null, boundJobId: string | null): void {
     try {
       let ledger = readLedger(ports.storage);
       if (!ledger.reservations.some(item => item.attemptId === attemptId)) return;
       ledger = cost ? recordCost(ledger, attemptId, cost, ports.now()) : ledger;
-      writeLedger(ports.storage, closeWithUnknownCost(ledger, attemptId, ports.now()));
+      writeLedger(ports.storage, closeWithUnknownCost(ledger, attemptId, ports.now(), { terminal: true, boundJobId }));
     } catch { /* stays reserved: safe */ }
+  }
+
+  /** CE5-R · reads and applications happen for the account of the receipt only (rotation of key = same id). */
+  async function assertReceiptAccount(accountScope: string): Promise<void> {
+    const { scope } = await accountOf(ports);
+    if (scope !== accountScope) throw new CinemaError("ACCOUNT_UNAVAILABLE", "Autre compte que celui de l'envoi : rien n'est lu ni appliqué.", ["account"]);
   }
 
   /**
    * GET only. A finished answer is parsed by CE3 against the context saved before the POST, then
-   * committed once (the journal of the same operation id is resumed, never applied twice).
+   * committed once (the journal of the same operation id is resumed, never applied twice). Only an
+   * `applied` journal confirms the mutation: `conflict` / `prepared` stay pending with a diagnostic
+   * (receipt, answer and context kept), `rolled_back` is never re-applied nor reported as applied.
    */
-  async function resumeIntent(env: { locks: Record<string, EditableShotField[]> }): Promise<ControllerAnswer<{ applied?: Applied | null; retryAfterMs?: number | null; unresolved?: IntentEnvelope["unresolved"] }>> {
+  async function resumeIntent(env: { locks: Record<string, EditableShotField[]> }): Promise<ControllerAnswer<{ applied?: Applied | null; retryAfterMs?: number | null; unresolved?: IntentEnvelope["unresolved"]; journal?: string }>> {
     let receipt = (() => { try { return readIntentReceipt(ports.storage); } catch { return null; } })();
     if (!receipt) return answer(true, "NOTHING_TO_RESUME", target(""));
     const scope = receipt.snapshot.scope;
@@ -221,15 +232,17 @@ export function createCinemaController(ports: ControllerPorts) {
     try {
       if (receipt.state === "submission_unknown") return answer(false, "INTENT_UNKNOWN", where);
       if (receipt.state === "settled") return answer(true, "NOTHING_TO_RESUME", where);
-      if (receipt.state === "failed" || receipt.state === "provider_cancelled") { closeIntentReserve(receipt.attemptId, null); return answer(false, "INTENT_FAILED", where); }
+      if (receipt.state === "failed" || receipt.state === "provider_cancelled") { closeIntentReserve(receipt.attemptId, null, receipt.providerJobId); return answer(false, "INTENT_FAILED", where); }
+      if (!ports.client()) return answer(false, "ACCOUNT_UNAVAILABLE", where);
+      await assertReceiptAccount(receipt.accountScope);
       if (receipt.state !== "succeeded") {
-        const client = ports.client();
-        if (!client) return answer(false, "ACCOUNT_UNAVAILABLE", where);
-        const polled = await pollIntent(intentDeps(client));
+        const polled = await pollIntent(intentDeps(ports.client()!));
         receipt = polled?.receipt ?? receipt;
-        if (receipt.state === "failed" || receipt.state === "provider_cancelled") { closeIntentReserve(receipt.attemptId, null); return answer(false, "INTENT_FAILED", where); }
+        if (receipt.state === "failed" || receipt.state === "provider_cancelled") { closeIntentReserve(receipt.attemptId, null, receipt.providerJobId); return answer(false, "INTENT_FAILED", where); }
         if (receipt.state !== "succeeded") return answer(true, "INTENT_WAITING", where, { retryAfterMs: polled?.retryAfterMs ?? null });
       }
+      // The job is over on the provider: its reserve closes now, whatever happens to the mutation.
+      closeIntentReserve(receipt.attemptId, null, receipt.providerJobId);
       if (!(await ports.projectAvailable(scope.projectId).catch(() => false))) return answer(false, "PROJECT_UNAVAILABLE", where);
       const store = files(ports, scope.projectId);
       const saved = JSON.parse((await store.get(intentContextPath(receipt.operationId)))?.text ?? "null") as SavedIntentContext | null;
@@ -237,19 +250,25 @@ export function createCinemaController(ports: ControllerPorts) {
         return answer(false, "OUTPUT_INVALID", where, undefined, [{ code: "OUTPUT_INVALID", detail: "context of the request not found" }]);
       }
       // Idempotent per command: an operation already journaled is finished, never recomputed.
-      const existing = await readJournal(store, receipt.operationId);
+      let existing = await readJournal(store, receipt.operationId);
+      if (existing?.state === "prepared") {
+        await recoverJournals(store, ports.lock, scope.projectId, () => ports.now().toISOString());
+        existing = await readJournal(store, receipt.operationId);
+      }
       if (existing) {
-        if (existing.state === "prepared") await recoverJournals(store, ports.lock, scope.projectId, () => ports.now().toISOString());
-        settleIntent(ports);
-        closeIntentReserve(receipt.attemptId, null);
-        return answer(true, "INTENT_APPLIED", where, { applied: null });
+        if (existing.state === "applied") { settleIntent(ports); return answer(true, "INTENT_APPLIED", where, { applied: null }); }
+        if (existing.state === "rolled_back") { settleIntent(ports); return answer(true, "UNDONE", where, { journal: existing.state }, [{ code: "UNDO_REFUSED", detail: "operation was undone; nothing re-applied" }]); }
+        // conflict (or still prepared): the mutation is not confirmed; the receipt keeps the answer.
+        return answer(false, "REVISION_CONFLICT", where, { journal: existing.state }, (existing.conflicts?.length ? existing.conflicts : [existing.state]).map(detail => ({ code: "REVISION_CONFLICT", detail })));
       }
       const parsed = parseIntent(receipt.text!.text, saved.context, { operationId: receipt.operationId, source: "conversation", userText: saved.userText }, saved.options);
-      if (parsed.status === "invalid") { settleIntent(ports); closeIntentReserve(receipt.attemptId, null); return answer(false, "INTENT_INVALID", where, undefined, parsed.diagnostics); }
-      if (parsed.status === "needs_clarification") { settleIntent(ports); closeIntentReserve(receipt.attemptId, null); return answer(true, "INTENT_NEEDS_CLARIFICATION", where, { unresolved: parsed.unresolved }); }
+      if (parsed.status === "invalid") { settleIntent(ports); return answer(false, "INTENT_INVALID", where, undefined, parsed.diagnostics); }
+      if (parsed.status === "needs_clarification") { settleIntent(ports); return answer(true, "INTENT_NEEDS_CLARIFICATION", where, { unresolved: parsed.unresolved }); }
       const applied = await commitIntent(store, ports.lock, parsed.envelope, applyEnv(env.locks));
+      if (applied.journal && applied.journal.state !== "applied") {
+        return answer(false, "REVISION_CONFLICT", where, { journal: applied.journal.state }, (applied.journal.conflicts ?? [applied.journal.state]).map(detail => ({ code: "REVISION_CONFLICT", detail })));
+      }
       settleIntent(ports);
-      closeIntentReserve(receipt.attemptId, null);
       return answer(true, "INTENT_APPLIED", where, { applied });
     } catch (error) { return failure(error, where); }
   }
@@ -427,7 +446,9 @@ export function createCinemaController(ports: ControllerPorts) {
       catch (error) { diagnostics.push({ code: "STORAGE_UNAVAILABLE", detail: error instanceof Error ? error.message : projectId }); }
     }
     const intent = (() => { try { return readIntentReceipt(ports.storage); } catch { return null; } })();
-    const keep = intent && !["settled", "failed", "provider_cancelled"].includes(intent.state) ? [intent.attemptId] : [];
+    // R6a: a receipt names its attempt, terminal or not: its reserve waits for reconciliation
+    // (resumeIntent), a terminal state is no proof that nothing was sent.
+    const keep = intent ? [intent.attemptId] : [];
     let resumed: { receipt: ShotJobReceipt | null; released: string[] };
     try { resumed = resumeShotJobs(ports.storage, ports.now(), keep); } catch (error) { return failure(error, target("")); }
     let receipt = resumed.receipt;
@@ -435,7 +456,10 @@ export function createCinemaController(ports: ControllerPorts) {
     const where = target(receipt.snapshot.scope.projectId, receipt.snapshot.scope.storyboardId, receipt.snapshot.shotId);
     const client = ports.client();
     if (!client) return answer(false, "ACCOUNT_UNAVAILABLE", where, { journals, receipt, released: resumed.released }, diagnostics);
-    if (receipt.state === "queued" || receipt.state === "running") receipt = (await pollShotJob(ports.storage, client, ports.now())) ?? receipt;
+    if (receipt.state === "queued" || receipt.state === "running") {
+      try { await assertReceiptAccount(receipt.accountScope); } catch (error) { return { ...failure(error, where), data: { journals, receipt, released: resumed.released } }; }
+      receipt = (await pollShotJob(ports.storage, client, ports.now())) ?? receipt;
+    }
     if (receipt.state === "queued" || receipt.state === "running") return answer(true, "JOB_RUNNING", where, { journals, receipt, released: resumed.released }, diagnostics);
     if (receipt.state === "submission_unknown") return answer(false, "SUBMISSION_UNKNOWN", where, { journals, receipt, released: resumed.released }, diagnostics);
     if (receipt.state === "failed" || receipt.state === "provider_cancelled") return answer(false, "JOB_FAILED", where, { journals, receipt, released: resumed.released }, diagnostics);
@@ -455,7 +479,7 @@ export function createCinemaController(ports: ControllerPorts) {
       try { ports.storage.setItem(PENDING_RENDER_KEY, JSON.stringify(withCinemaReceipt(pending, settled.receipt))); } catch { /* reread on next open */ }
     }
     if (settled.outcome === "settled") {
-      try { writeLedger(ports.storage, closeWithUnknownCost(recordCost(readLedger(ports.storage), receipt.attemptId, cost, ports.now()), receipt.attemptId, ports.now())); } catch { /* stays reserved */ }
+      try { writeLedger(ports.storage, closeWithUnknownCost(recordCost(readLedger(ports.storage), receipt.attemptId, cost, ports.now()), receipt.attemptId, ports.now(), { terminal: true, boundJobId: receipt.providerJobId })); } catch { /* stays reserved */ }
       if (pending?.jobId) clearPending(ports.storage, pending.jobId);
     }
     return answer(settled.outcome === "settled", settled.outcome === "settled" ? "RESULT_SETTLED" : "RESULT_PENDING", where, { journals, receipt: settled.receipt, released: resumed.released }, [...diagnostics, ...settled.diagnostics]);
