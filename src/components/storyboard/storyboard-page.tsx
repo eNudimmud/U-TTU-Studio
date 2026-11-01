@@ -277,6 +277,7 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
               <BoardFooter sb={sb} onChange={changer} /></>
             : <Liste data={data} onOpen={aller} ecrire={ecrire} ecriture={ecriture} idee={ideeInitiale} />}
         {data.echecEcriture && <p className="sb-notice is-fail" role="alert">{t("storyboard.writer.failed")}</p>}
+        {data.conflits.length > 0 && <p className="sb-notice is-fail" role="alert" data-sb-conflict="">{t("storyboard.cinema.errors.REVISION_CONFLICT")}</p>}
       </main>
       <aside className="sb-side" aria-label={t("storyboard.uttu.label")}>
         {sb
