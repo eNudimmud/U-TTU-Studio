@@ -104,6 +104,8 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
   // JD 31.10: the three saved photos of Référence A go one by one (never its contact sheet), then Référence B.
   // The four photos are the same bytes here: the upload memo sends them once, the graph still loads four images.
   expect(uploads).toBe(1);
+  // #209: one LoadImage per photo (never the contact sheet), whatever the engine.
+  expect(Object.values(graphs[0]).filter(n=>n.class_type==='LoadImage')).toHaveLength(4);
   expect(graphs[0].image_17.class_type).toBe('ReferenceMultiLatent');expect(graphs[0].reference_4.class_type).toBe('LoadImage');expect(graphs[0].image_17.inputs['images.image3']).toEqual(['reference_4',0]);
   expect(graphs[0].image_61.inputs.value).toContain('Référence A (the character from the first to third images)');expect(graphs[0].image_61.inputs.value).toContain('The fourth image named "Référence B"');
   expect(graphs[0].image_61.inputs.value).toContain('"Référence A"');expect(graphs[0].image_61.inputs.value).toContain('"Référence B"');

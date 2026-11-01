@@ -29,10 +29,11 @@ export function decor3dExportGraph(): ApiGraph {
 
 /** The graph the studio builds for a wired gesture, or null when the card is not wired yet. */
 export function graphForGeste(row: Geste): ApiGraph | null {
-  if (['creation-image-texte', 'creation-image', 'creation-video-refs', 'creation-video-texte'].includes(row.id)) {
+  if (['creation-image-texte', 'creation-image', 'creation-image-nano', 'creation-image-qwen', 'creation-image-flux2', 'creation-video-refs', 'creation-video-texte'].includes(row.id)) {
     const mode = row.id.startsWith('creation-image') ? 'image' : 'video';
-    const refs = row.id === 'creation-image' || row.id === 'creation-video-refs';
-    return bubbleGraph({ mode, settings: BUBBLE_DEFAULTS, images: refs ? ['uttu-personnage.png', 'uttu-decor.png'] : [], prompt: bubblePrompt(PROMPT, refs ? [{ name: 'Uttu', category: 'cast' }, { name: 'Quai', category: 'decor' }] : [], mode), seed: 0 });
+    const refs = row.id === 'creation-image' || row.id === 'creation-image-nano' || row.id === 'creation-image-qwen' || row.id === 'creation-image-flux2' || row.id === 'creation-video-refs';
+    const engine = row.id === 'creation-image-nano' ? 'nano' : row.id === 'creation-image-qwen' ? 'qwen' : row.id === 'creation-image-flux2' ? 'flux2' : mode === 'image' ? 'klein' : null;
+    return bubbleGraph({ mode, settings: BUBBLE_DEFAULTS, images: refs ? ['uttu-personnage.png', 'uttu-decor.png'] : [], prompt: bubblePrompt(PROMPT, refs ? [{ name: 'Uttu', category: 'cast' }, { name: 'Quai', category: 'decor' }] : [], mode, undefined, engine), seed: 0, engine });
   }
   if (row.still === null) return null;
   const images = row.slots.filter(slot => (slot.media ?? "image") === "image").map((_, index) => `uttu-${index + 1}.jpg`);

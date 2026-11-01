@@ -30,7 +30,8 @@ import { fillBarre } from "./creation-bar";
 import { toggleAssistant } from "./assistant-panel";
 import { MontageButton } from "./montage-button";
 import { useStudio, type MontageInput } from "./studio-session";
-import { bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, chipReference, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
+import { pictureIsSheet, withoutSheets } from '@/lib/creation/sheet';
+import { bubbleImageEngine, bubblePictureCount, bubblePriceUnconfirmed, bubblePrompt, bubbleQuote, bubbleReferenceSlots, chipReference, bubbleResolutionLabel, bubbleSize, type BubbleSettings } from '@/lib/creation/bubble';
 import { ReferenceLibrary } from './reference-library';
 import { readPending } from '@/lib/render/recovery';
 
@@ -114,10 +115,13 @@ export function useFil(): FilRunner {
   }, [ready, connected, interrupted, scope, session.resumeRun]);
 
   const quoteOf = useCallback((route: FilRoute): number | null => {
-    if (route.kind === 'outil' && route.creation) return bubbleQuote(route.creation.mode, bubblePictureCount(route.creation.mode, route.images.map(r => chipReference(r, p => Boolean(media[p])))), route.creation.settings, Boolean(route.audio))?.credits ?? null;
+    if (route.kind === 'outil' && route.creation) {
+      const count = bubblePictureCount(route.creation.mode, route.images.map(r => chipReference(r, p => Boolean(media[p]))));
+      return bubbleQuote(route.creation.mode, count, route.creation.settings, Boolean(route.audio), bubbleImageEngine(route.creation.mode, count, route.creation.settings, prefs.openWeightsOnly))?.credits ?? null;
+    }
     if (route.kind === "outil") { const outil = outilParId(route.id); return outil ? outilQuote(outil)?.credits ?? null : null; }
     return quoteCredits(resolveTakeQuote(takeProfile(priseSettings(route.settings, prefs.engineManual ? prefs.engine : "ltx")), quotesToRecords(studio.quotes)));
-  }, [media, prefs.engine, prefs.engineManual, studio.quotes]);
+  }, [media, prefs.engine, prefs.engineManual, prefs.openWeightsOnly, studio.quotes]);
 
   const startPrise = useCallback(async (job: FilJob) => {
     if (job.route.kind !== "prise") return;
@@ -186,17 +190,21 @@ export function useFil(): FilRunner {
       // Image creation sends every saved photo of each chip as its own reference (never the chip's contact sheet).
       const sent = job.route.images;
       const chips = sent.map(r => chipReference(r, p => Boolean(media[p])));
-      const slots = job.route.creation?.mode === 'image' ? bubbleReferenceSlots(chips) : sent.map((c, ref) => ({ ref, picture: c.path || c.src || '' }));
-      if (!slots) { patch({ status: "error", message: t("bubble.tooManyRefs") }); return; }
-      const images = await Promise.all(slots.map(({ ref, picture }) => { const chip = sent[ref]; return sourceFile(media[picture] || (picture === chip.path || picture === chip.src ? (chip.path ? media[chip.path] : '') || chip.src : '') || "", chip.name, "image"); }));
+      const planned = job.route.creation?.mode === 'image' ? bubbleReferenceSlots(chips) : sent.map((c, ref) => ({ ref, picture: c.path || c.src || '' }));
+      if (!planned) { patch({ status: "error", message: t("bubble.tooManyRefs") }); return; }
+      const read = await Promise.all(planned.map(({ ref, picture }) => { const chip = sent[ref]; return sourceFile(media[picture] || (picture === chip.path || picture === chip.src ? (chip.path ? media[chip.path] : '') || chip.src : '') || "", chip.name, "image"); }));
+      // A multi-panel board is pasted into the scene as the place: drop it when its chip has a clean picture.
+      const boards = job.route.creation?.mode === 'image' ? await Promise.all(read.map(pictureIsSheet)) : read.map(() => false);
+      const slots = withoutSheets(planned.map((s, i) => ({ ...s, i })), boards);
+      const images = slots.map(s => read[s.i]);
       const audio = job.route.audio ? await sourceFile((job.route.audio.path ? media[job.route.audio.path] : '') || job.route.audio.src, job.route.audio.name, 'audio') : undefined;
       const single = job.route.images.length === 1 ? job.route.images[0].path : undefined;
       const result = await runOutil({
         outil: outil.id, images, audio, creation: job.route.creation,
         originRefs: job.route.creation ? [...new Set([...job.route.images.flatMap(r => r.path ? [r.path] : []), ...slots.flatMap(s => s.picture.startsWith('Projets/') ? [s.picture] : []), ...(job.route.audio?.path ? [job.route.audio.path] : [])])] : undefined,
-        prompt: job.route.creation ? bubblePrompt(job.text, chips, job.route.creation.mode, slots) : job.text, confirmed: true, from: job.route.creation ? undefined : single,
+        prompt: job.route.creation ? bubblePrompt(job.text, chips, job.route.creation.mode, slots, bubbleImageEngine(job.route.creation.mode, slots.length, job.route.creation.settings, prefs.openWeightsOnly)) : job.text, confirmed: true, from: job.route.creation ? undefined : single,
         onSubmitted: receipt => { project = receipt.project; patch({ jobId: receipt.jobId, renderId: receipt.assetId, project: receipt.project }); },
-        onCost: cost => patch({ cost }),
+        onCost: (cost, gpu) => patch({ cost, costGpu: cost === null ? gpu ?? null : null }),
         onStage: (stage, seconds) => { if (stage !== "mesure") patch({ stage, seconds }); },
       });
       if (result.ok) patch({ status: "done", url: result.url, path: result.path, cost: result.cost ?? null });
@@ -262,7 +270,7 @@ export function useFil(): FilRunner {
     if (job.status === 'done') {
       const original = live.current.messages.find(m => m.id === job.of);
       const of = uid('u');
-      const next: FilJob = { ...job, id: uid('j'), of, quote: quoteOf(job.route), status: 'confirm', url: undefined, path: undefined, cost: undefined, jobId: undefined, renderId: undefined, favorite: false, kept: false };
+      const next: FilJob = { ...job, id: uid('j'), of, quote: quoteOf(job.route), status: 'confirm', url: undefined, path: undefined, cost: undefined, costGpu: undefined, jobId: undefined, renderId: undefined, favorite: false, kept: false };
       update(f => append(f, { id: of, role: 'user', mode: original?.role === 'user' ? original.mode : job.sortie, text: job.text, refs: original?.role === 'user' ? original.refs : [], at: Date.now() }, next));
       return;
     }
@@ -391,7 +399,10 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
   useEffect(() => () => frameUrls.current.forEach(u => URL.revokeObjectURL(u)), []);
   useEffect(() => { if (job.status === 'running') setFullscreen(true); }, [job.status]);
   const name = toolName(t, job);
-  const cost = job.quote !== null ? t("barre.cost", { credits: formatCredits(job.quote) }) : null;
+  const outilRoute = job.route.kind === 'outil' ? job.route : null;
+  const creation = outilRoute?.creation, refCount = outilRoute?.images.length ?? 0;
+  const unconfirmed = Boolean(creation && bubblePriceUnconfirmed(creation.mode, refCount, bubbleImageEngine(creation.mode, refCount, creation.settings, true)));
+  const cost = job.quote !== null ? `${t("barre.cost", { credits: formatCredits(job.quote) })}${unconfirmed ? ` (${t("bubble.priceUnconfirmed")})` : ""}` : null;
   const url = job.url || (job.path ? media[job.path] : "") || "";
   const poster = job.poster ? (job.poster.startsWith("Projets/") ? media[job.poster] : job.poster) : undefined;
   const open = job.route.kind === 'outil' && job.route.creation ? null : <a className="u-text-button u-fil-open" href={job.route.kind === "prise" ? "#prise" : `#outils/${job.route.id}`} data-fil-open="" onClick={event => { event.preventDefault(); openInTool(job); }}>{t("barre.fil.openTool")}</a>;
@@ -433,7 +444,7 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
         ? <img src={url} alt={job.text} className="u-fil-media" data-fil-media="" />
         : <video src={url} poster={poster} className="u-fil-media" data-fil-media="" controls playsInline muted loop preload="metadata" aria-label={job.text} />)
         : <p className="u-small">{t("barre.fil.inCreations")}</p>}
-      <p className="u-small" data-fil-saved="">{t("barre.fil.saved")} {typeof job.cost === "number" ? t("finaliser.cost", { credits: formatCredits(job.cost) }) : t("finaliser.costUnknown")}</p>
+      <p className="u-small" data-fil-saved="">{t("barre.fil.saved")} {typeof job.cost === "number" ? t("finaliser.cost", { credits: formatCredits(job.cost) }) : job.costGpu ? t("finaliser.costGpu", { credits: formatCredits(job.costGpu.credits), seconds: Math.round(job.costGpu.seconds) }) : t("finaliser.costUnknown")}</p>
       <div className="u-fil-actions">
         <button type="button" className="u-secondary" data-fil-favorite="" aria-pressed={Boolean(job.favorite)} onClick={() => runner.mark(job.id, { favorite: !job.favorite })}>{t(job.favorite ? 'bubble.favorited' : 'bubble.favorite')}</button>
         <button type="button" className="u-secondary" data-fil-keep="" aria-pressed={Boolean(job.kept)} onClick={() => runner.mark(job.id, { kept: true })}>{t(job.kept ? 'bubble.kept' : 'bubble.keep')}</button>

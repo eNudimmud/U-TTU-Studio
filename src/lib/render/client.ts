@@ -55,6 +55,29 @@ export interface RenderClientOptions {
 
 export const BALANCE_URL = "https://api.comfy.org/customers/balance";
 
+/** What Comfy billed for one job, read from its event feed (never from a balance difference). */
+export interface JobCharge {
+  credits: number;
+  gpuSeconds: number | null;
+}
+
+/** The feed rows of one job: GPU seconds × the billed rate, plus any Partner Node credits it reports. */
+export function chargeFromEvents(body: unknown, jobId: string, creditsPerGpuSecond: number): JobCharge | null {
+  const events = body && typeof body === "object" && Array.isArray((body as { events?: unknown }).events) ? (body as { events: unknown[] }).events : [];
+  let credits = 0;
+  let gpuSeconds: number | null = null;
+  let found = false;
+  for (const event of events) {
+    const params = event && typeof event === "object" ? (event as { params?: Record<string, unknown> }).params : undefined;
+    if (!params || (params.job_id !== jobId && params.prompt_id !== jobId)) continue;
+    const gpu = Number(params.gpu_seconds);
+    const used = Number(params.credits_used);
+    if (params.gpu_seconds !== undefined && Number.isFinite(gpu) && gpu >= 0) { gpuSeconds = (gpuSeconds ?? 0) + gpu; credits += gpu * creditsPerGpuSecond; found = true; }
+    else if (params.credits_used !== undefined && Number.isFinite(used) && used >= 0) { credits += used; found = true; }
+  }
+  return found ? { credits: Math.round(credits * 100) / 100, gpuSeconds } : null;
+}
+
 const IN_QUEUE = new Set(["submitted", "waiting_to_dispatch", "queued_waiting", "pending", "queued"]);
 const PREPARING = new Set(["preparing", "assigned"]);
 const SUCCESS = new Set(["success", "completed"]);
@@ -163,7 +186,7 @@ export function executionSeconds(detail: JobDetail): number | null {
 function readCents(body: unknown): number | null {
   if (!body || typeof body !== "object") return null;
   const row = body as Record<string, unknown>;
-  const raw = row.amount_micros ?? row.amountMicros;
+  const raw = row.effective_balance_cents ?? row.effective_balance_micros ?? row.amount_cents ?? row.amount_micros ?? row.amountMicros;
   const cents = typeof raw === "number" ? raw : Number(raw);
   return raw !== undefined && raw !== null && Number.isFinite(cents) ? cents : null;
 }
@@ -300,20 +323,33 @@ export function createRenderClient(options: RenderClientOptions) {
 
     /** Credits available right now on the account that will be charged. */
     async balance(): Promise<number | null> {
-      if (options.auth.kind === "session") {
-        try {
-          const response = await doFetch(balanceUrl, { headers: await authHeaders(), signal: AbortSignal.timeout(15_000), cache: "no-store" });
-          if (response.ok) {
-            const cents = readCents(await response.json());
-            if (cents !== null) return centsToCredits(cents);
-          }
-        } catch {}
-      }
+      // The live balance, minus the charges not invoiced yet (`effective_balance`), as Comfy's own app
+      // shows it. The amount alone waits for the invoice, so it did not drop after a paid run and later
+      // rose (347 → 360 on 01.11.2026). A key reads it through the relay, never straight from the page.
+      try {
+        const response = options.auth.kind === "session"
+          ? await doFetch(balanceUrl, { headers: await authHeaders(), signal: AbortSignal.timeout(15_000), cache: "no-store" })
+          : await call("/api/billing/balance");
+        if (response?.ok) {
+          const cents = readCents(await response.json());
+          if (cents !== null) return centsToCredits(cents);
+        }
+      } catch {}
+      // Last resort: the invoice report, « not a real-time meter ».
       const response = await call("/api/billing/usage/timeseries?granularity=month&months=1");
       if (!response.ok) return null;
       const body = await json<{ summary?: { balance?: unknown } }>(response);
       const cents = readCents(body.summary?.balance);
       return cents === null ? null : centsToCredits(cents);
+    },
+
+    /** What Comfy billed for this job, from the account event feed (through the relay). Null until its row exists. */
+    async jobCharge(jobId: string, creditsPerGpuSecond: number): Promise<JobCharge | null> {
+      try {
+        const response = await call("/api/billing/events?page=1&limit=50");
+        if (!response.ok) return null;
+        return chargeFromEvents(await response.json(), jobId, creditsPerGpuSecond);
+      } catch { return null; }
     },
 
     /** Returns the input name a LoadImage node takes. */

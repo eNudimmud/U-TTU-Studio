@@ -126,7 +126,7 @@
     "also": {
       "bubble": {
         "name": "Une bulle, image ou vidéo",
-        "body": "« Qu’est-ce qu’on tourne ? » Image avec Flux Klein ; vidéo avec MiniMax H3 si tu joins des références, LTX sinon. Dès ≈ 2 crédits estimés, devis avant l’envoi."
+        "body": "« Qu’est-ce qu’on tourne ? » Image avec Nano Banana 2.1 si tu joins des références, Flux Klein sinon ; vidéo avec MiniMax H3 si tu joins des références, LTX sinon. Dès ≈ 2 crédits estimés, devis avant l’envoi."
       },
       "refs": {
         "name": "Des références nommées",
@@ -1544,6 +1544,7 @@
     "done": "Montage finalisé, enregistré dans Mes créations.",
     "cost": "Coût réel : {credits} crédits.",
     "costUnknown": "Coût réel pas encore lisible sur le solde.",
+    "costGpu": "≈ {credits} crédits estimés d’après le temps de calcul ({seconds} s) ; le solde ne montre pas encore cette prise.",
     "again": "Finaliser autrement",
     "fail": "La finalisation n'a pas abouti : {message}",
     "close": "Fermer",
@@ -3003,7 +3004,7 @@
       "bubble": {
         "q": "Image ou vidéo : comment créer ?",
         "k": "créer bulle image vidéo photo clip choisir différence générer tourne",
-        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. Image passe par Flux Klein. Vidéo passe par MiniMax H3 quand tu joins des références, sinon par LTX. Le devis « ≈ X crédits estimés » s’affiche sous la bulle avant tout envoi. Tu peux joindre jusqu’à 7 références visuelles et, en Vidéo, un son."
+        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. Image : Nano Banana 2.1 (références) ou Flux Klein. Vidéo passe par MiniMax H3 quand tu joins des références, sinon par LTX. Le devis « ≈ X crédits estimés » s’affiche avant tout envoi. Jusqu’à 7 références visuelles et, en Vidéo, un son."
       },
       "refs": {
         "q": "Comment utiliser des références ?",
@@ -3386,7 +3387,26 @@
     "draftFailed": "Le brouillon n’a pas pu être sauvegardé sur cet appareil.",
     "invalid": "Vérifie tes options : au plus 7 références visuelles et un son en mode Vidéo.",
     "asImageReference": "Utiliser la dernière image comme référence",
-    "runningConversation": "Attends le résultat pour commencer une nouvelle conversation. Tu peux continuer à parcourir le Studio."
+    "runningConversation": "Attends le résultat pour commencer une nouvelle conversation. Tu peux continuer à parcourir le Studio.",
+    "imageEngineNano": "Image · Nano Banana 2.1 · Propulsé par ComfyUI",
+    "imageEngineQwen": "Image · Qwen Image 2.1 · Propulsé par ComfyUI",
+    "imageEngineFlux2": "Image · FLUX.2 dev · Propulsé par ComfyUI",
+    "priceUnconfirmed": "prix à confirmer",
+    "engine": "Moteur image",
+    "engineName": {
+      "nano": "Nano Banana 2.1",
+      "klein": "Klein",
+      "qwen": "Qwen Image 2.1",
+      "flux2": "FLUX.2 dev"
+    },
+    "engineHelp": {
+      "nano": "Compose tes références, chaque photo lue à part (partenaire Google via Comfy).",
+      "klein": "Le modèle ouvert du studio.",
+      "qwen": "Modèle ouvert : lit chaque photo à part et garde ton action telle quelle.",
+      "flux2": "Modèle ouvert, fort avec plusieurs références. Plus lent et plus cher que Klein."
+    },
+    "engineStudioOnly": "Modèles open weights seulement.",
+    "nanoFailed": "Nano Banana 2.1 n’a pas abouti : {reason} Rien n’a été relancé. Pour réessayer avec Klein, choisis-le dans les réglages de la bulle."
   },
   "genjutsu": {
     "action": "Remplacer le personnage",

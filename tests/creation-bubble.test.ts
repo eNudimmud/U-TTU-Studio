@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { BUBBLE_DEFAULTS, bubbleGraph, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, bubbleResolutionLabel, bubbleSize, bubbleStyle, chipReference } from '../src/lib/creation/bubble.ts';
+import { BUBBLE_DEFAULTS, bubbleGraph, bubblePictureCount, bubblePrompt, bubbleQuote, bubbleReferenceSlots, bubbleResolutionLabel, bubbleSize, bubbleStaging, bubbleStyle, chipReference } from '../src/lib/creation/bubble.ts';
 import { insertMention, mentionedReferences, opensPicker, removeMention } from '../src/lib/creation/mentions.ts';
 import { fileLikeName, namedReferenceNote, pickerReferences, readNamedReferences, referenceFromNote, type NamedReference } from '../src/lib/creation/named-references.ts';
 import { importMedia } from '../src/lib/creation/import-media.ts';
@@ -63,7 +63,7 @@ test('JD 2026-10-30: an image with a cast sheet and two loose photos is ≥ 1 MP
   assert.equal(graph.image_17.inputs['resolution.megapixels'],1);
   assert.equal(graph.image_51.inputs.switch,false,'the template’s vision upsampler describes each picture by ordinal');
   for(let i=0;i<3;i++)assert.deepEqual(graph.image_17.inputs[`images.image${i}`],[`reference_${i+1}`,0]);
-  assert.equal(graph.image_61.inputs.value,prompt);
+  assert.equal(graph.image_61.inputs.value,`${prompt}\n${bubbleStaging(graph.image_7.inputs.seed as number)}`,'the request, then this run\'s staging');
   assert.match(prompt,/Style: a real photograph/,'« une photo » is honoured');
   assert.equal(graph.image_7.inputs.cfg,3.5,'the base Klein checkpoint needs guidance; cfg 1 (left over from the distilled template) melts anatomy');
   assert.equal(graph.image_7.inputs.steps,50);
@@ -190,7 +190,7 @@ test('JD 2026-10-31: three named references (two characters, one DÉCOR) send ev
   assert.deepEqual(graph.image_4.inputs.text,['style_note',0],'the photo style is said again after the upsampler');
   assert.match(String(graph.image_58.inputs.text),/cartoon, illustration/,'cfg 3.5 reads a negative prompt');
   assert.equal(graph.image_7.inputs.cfg,3.5);
-  assert.equal(bubbleQuote('image',6,BUBBLE_DEFAULTS)!.credits,bubbleQuote('image',3,BUBBLE_DEFAULTS)!.credits,'same reference area, same estimate');
+  assert.ok(bubbleQuote('image',6,BUBBLE_DEFAULTS)!.credits>bubbleQuote('image',3,BUBBLE_DEFAULTS)!.credits,'same reference area, but every extra picture is read and costs');
 });
 
 test('the style intent is read in four languages and an asked-for drawing is never forced into a photo',()=>{
@@ -223,4 +223,197 @@ test('@Name mentions: picking writes one, a lone @ opens the picker, a typed one
   const lib=[{name:'Ana'},{name:'Ana Maria'},{name:'Quai'}];
   assert.deepEqual(mentionedReferences('@Ana Maria au @Quai',lib).map(r=>r.name),['Ana Maria','Quai']);
   assert.deepEqual(mentionedReferences('@Anatole',lib),[],'whole names only');
+});
+
+test('JD 2026-10-31: with references, the image bubble composes on Nano Banana 2.1, one LoadImage per photo on its own numbered input, no batch, no upsampler', async () => {
+  const { bubbleImageEngine, NANO_SHEET_RULE, NANO_SYSTEM_PROMPT } = await import('../src/lib/creation/bubble.ts');
+  const { gesteParId } = await import('../src/lib/workflows/registre.ts');
+  const chips=[
+    {name:'Sujet A',category:'cast',description:'petit, logo sur le torse',pictures:['a1.png','a2.png','a3.png']},
+    {name:'Lieu B',category:'decor',pictures:['b1.png','b2.png']},
+    {name:'Sujet C',category:'cast',pictures:['c1.png','c2.png']},
+  ];
+  const slots=bubbleReferenceSlots(chips)!;
+  assert.deepEqual(slots.map(s=>s.picture),['a1.png','a2.png','a3.png','c1.png','c2.png','b1.png','b2.png'],'cast first, place last');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS),'nano','with partner services on, Nano Banana is the default with references');
+  assert.equal(bubbleImageEngine('image',0,BUBBLE_DEFAULTS),'klein','text-only stills stay on Klein');
+  assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'klein'}),'klein','Klein is an explicit choice');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,true),'klein','studio models only never reaches a partner node');
+  assert.equal(bubbleImageEngine('video',7,BUBBLE_DEFAULTS),null);
+  const prompt=bubblePrompt('@Sujet A et Sujet C jouent sur Lieu B, en photo',chips,'image',slots,'nano');
+  assert.equal(prompt.split('\n')[0],'Sujet A (images 1 to 3) et Sujet C (images 4 and 5) jouent sur Lieu B (images 6 and 7), en photo');
+  assert.match(prompt,/- Images 1 to 3: "Sujet A", character\. Keep this exact character.*petit, logo sur le torse\./);
+  assert.match(prompt,/- Images 6 and 7: "Lieu B", place \(the setting\)\./);
+  assert.ok(prompt.includes(NANO_SHEET_RULE),'a sheet of panels is never copied');
+  assert.doesNotMatch(prompt,/Style: a real photograph|the first image/,'no forced style note, no Klein ordinals');
+  const settings={...BUBBLE_DEFAULTS,format:'9:16' as const};
+  const graph=bubbleGraph({mode:'image',settings,images:slots.map((_,i)=>`u${i}.png`),prompt,seed:9,engine:'nano'});
+  const nano=graph.nano;
+  assert.equal(nano.class_type,'GeminiNanoBanana2V2');
+  assert.equal(nano.inputs.model,'Gemini Nano Banana 2.1');
+  assert.equal(nano.inputs['model.aspect_ratio'],'9:16','the chosen frame, never auto');
+  assert.equal(nano.inputs['model.resolution'],'1K');
+  assert.equal(nano.inputs.system_prompt,NANO_SYSTEM_PROMPT);
+  assert.equal(nano.inputs.prompt,prompt);
+  for(let i=0;i<7;i++){assert.deepEqual(nano.inputs[`model.images.image_${i+1}`],[`reference_${i+1}`,0]);assert.equal(graph[`reference_${i+1}`].inputs.image,`u${i}.png`);}
+  const classes=Object.values(graph).map(n=>n.class_type);
+  assert.deepEqual(classes.filter(c=>c!=='LoadImage').sort(),['GeminiNanoBanana2V2','SaveImage']);
+  assert.ok(!classes.some(c=>/Batch|TextGenerate|StringConcatenate|Klein|ReferenceMultiLatent/.test(c)));
+  assert.deepEqual(graph.save.inputs.images,['nano',0]);
+  assert.doesNotMatch(NANO_SYSTEM_PROMPT+NANO_SHEET_RULE,/Sujet|Lieu/,'the fixed rules carry no name');
+  assert.equal(bubbleGraph({mode:'image',settings:{...BUBBLE_DEFAULTS,resolution:'720p'},images:['a.png'],prompt:'x',seed:1,engine:'nano'}).nano.inputs['model.resolution'],'2K');
+  assert.equal(bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:['a.png'],prompt:'x',seed:1,engine:'klein'}).nano,undefined,'Klein path kept');
+  const quote=bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'nano')!;
+  assert.deepEqual([quote.credits,quote.high,quote.kind],[12,15,'estime']);
+  assert.equal(bubbleQuote('image',7,{...BUBBLE_DEFAULTS,resolution:'720p'},false,'nano')!.credits,17);
+  assert.equal(gesteParId('creation-image-nano')?.template,'api_nano_banana_2_1_image_edit');
+  assert.equal(gesteParId('creation-image-nano')?.partenaire,true);
+});
+
+test('JD 2026-10-31 evening: the Klein still with 7 pictures is quoted at the 14 credits it cost twice, and every run gets its own caption', async () => {
+  const { UPSAMPLER_TOP_K } = await import('../src/lib/render/klein-graph.ts');
+  // Job 96b0a72b (50.9 GPU s) and the next test: 1344×768 + 7 pictures + upsampler at cfg 3.5 = 14 credits each.
+  assert.equal(bubbleQuote('image',7,BUBBLE_DEFAULTS)!.credits,14);
+  assert.equal(bubbleQuote('image',3,BUBBLE_DEFAULTS)!.credits,11,'3 pictures stay at the measured 10.5 (fef595a7)');
+  // Before: the upsampler decoded greedily (top_k 1, seed 0), so the same pictures always gave the same
+  // caption, and every run drew the same pose whatever the sampler seed.
+  const chips=[
+    {name:'Sujet A',category:'cast',pictures:['a1.png','a2.png','a3.png']},
+    {name:'Sujet C',category:'cast',pictures:['c1.png','c2.png']},
+    {name:'Lieu B',category:'decor',pictures:['b1.png','b2.png']},
+  ];
+  const slots=bubbleReferenceSlots(chips)!;
+  const prompt=bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'klein');
+  const run=(seed:number)=>bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:slots.map(s=>s.picture),prompt,seed,engine:'klein'});
+  const a=run(1406790374), b=run(96585588);
+  assert.equal(a.image_47.class_type,'TextGenerate');
+  assert.deepEqual([a.image_47.inputs['sampling_mode.seed'],b.image_47.inputs['sampling_mode.seed']],[1406790374,96585588],'the caption follows the run seed');
+  assert.equal(a.image_47.inputs['sampling_mode.top_k'],UPSAMPLER_TOP_K);assert.ok(UPSAMPLER_TOP_K>1,'never greedy');
+  assert.deepEqual(a.image_7.inputs.seed,1406790374);
+  // Nothing but the chips' own photos reaches the graph: no earlier result, no extra picture.
+  const loads=Object.values(a).filter(n=>n.class_type==='LoadImage').map(n=>n.inputs.image);
+  assert.deepEqual(loads,['a1.png','a2.png','a3.png','c1.png','c2.png','b1.png','b2.png']);
+  assert.ok(!Object.values(a).some(n=>n.class_type==='LoadImage'&&!loads.includes(n.inputs.image as string)));
+});
+
+test('JD 2026-10-31 night: open weights only. The bubble never offers or points to a partner engine, and Qwen Image 2.1 reads each photo on its own', async () => {
+  const { bubbleImageEngine, bubbleEngineChoices, qwenReferenceSide, POSE_RULE } = await import('../src/lib/creation/bubble.ts');
+  const { DEFAULT_PREFS, prefsSession } = await import('../src/lib/studio-prefs.ts');
+  const { gesteParId } = await import('../src/lib/workflows/registre.ts');
+  const off=prefsSession(DEFAULT_PREFS).prefs, on=prefsSession({...DEFAULT_PREFS,partenaires:true}).prefs;
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,off.openWeightsOnly),'klein','the studio default stays open weights');
+  assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'nano'},true),'klein','a saved Nano choice never reaches a partner node');
+  assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'qwen'},true),'qwen');
+  assert.equal(bubbleImageEngine('image',0,{...BUBBLE_DEFAULTS,engine:'qwen'},true),'klein','text-only stills stay on Klein t2i');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,on.openWeightsOnly),'nano','the Nano path is kept, behind partner services');
+  assert.deepEqual(bubbleEngineChoices(true),['klein','qwen','flux2']);
+  assert.deepEqual(bubbleEngineChoices(false),['nano','klein','qwen','flux2']);
+  assert.equal(gesteParId('creation-image-qwen')?.partenaire,false);
+  assert.equal(gesteParId('creation-image-qwen')?.template,'image_qwen_image_2_1_image_edit');
+  for(const lang of ['en','fr','de','es']){
+    const m=JSON.parse(readFileSync(new URL(`../messages/${lang}.json`,import.meta.url),'utf8'));
+    assert.equal(m.bubble.engineNeedsPartners,undefined,`${lang}: no call to turn partners on`);
+    assert.doesNotMatch(m.bubble.engineStudioOnly,/Nano|partner|partenaire|Partner|asociad/i,`${lang}: a neutral line`);
+    assert.ok(m.bubble.engineName.qwen&&m.bubble.engineHelp.qwen&&m.bubble.imageEngineQwen,`${lang}: Qwen is named`);
+  }
+  const bar=readFileSync(new URL('../src/components/app/creation-bar.tsx',import.meta.url),'utf8');
+  assert.doesNotMatch(bar,/engineNeedsPartners|data-barre-engine-fallback/);
+  assert.match(bar,/bubbleEngineChoices\(prefs\.openWeightsOnly\)/,'the engine list comes from the open-weights filter');
+  // Qwen graph: one LoadImage per photo on its own input, cast → place, no enhancer, fixed frame.
+  const chips=[
+    {name:'Sujet A',category:'cast',description:'petit, logo sur le torse',pictures:['a1.png','a2.png','a3.png']},
+    {name:'Lieu B',category:'decor',pictures:['b1.png','b2.png']},
+    {name:'Sujet C',category:'cast',pictures:['c1.png','c2.png']},
+  ];
+  const slots=bubbleReferenceSlots(chips)!;
+  const prompt=bubblePrompt('@Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'qwen');
+  assert.equal(prompt.split('\n')[0],'Sujet A (<image1> <image2> <image3>) et Sujet C (<image4> <image5>) jouent sur Lieu B (<image6> <image7>)','the action stays verbatim, names point to their images');
+  assert.match(prompt,/- <image6> <image7>: "Lieu B", place \(the setting\)\./);
+  assert.ok(prompt.includes(POSE_RULE),'poses come from the request, never from the sheets');
+  const graph=bubbleGraph({mode:'image',settings:{...BUBBLE_DEFAULTS,format:'9:16'},images:slots.map(s=>s.picture),prompt,seed:42,engine:'qwen'});
+  const encode=graph['459:474'];
+  assert.equal(encode.class_type,'TextEncodeQwenImage21');
+  assert.equal(encode.inputs.prompt,prompt);
+  for(let i=0;i<7;i++){assert.deepEqual(encode.inputs[`images.image_${i+1}`],[`reference_${i+1}`,0]);assert.equal(graph[`reference_${i+1}`].inputs.image,slots[i].picture);}
+  assert.equal(encode.inputs.resolution,qwenReferenceSide(7));
+  assert.equal(qwenReferenceSide(7),672,'7 pictures share 3 MP, like Klein');assert.equal(qwenReferenceSide(2),1024);
+  const classes=Object.values(graph).map(n=>n.class_type);
+  assert.ok(!classes.some(c=>/TextGenerate|Batch|PreviewAny|Gemini/.test(c)),'no prompt enhancer, no batch, no partner');
+  assert.equal(graph['459:468'].inputs.switch,true,'the canvas is the chosen frame');
+  assert.deepEqual([graph['459:456'].inputs.width,graph['459:456'].inputs.height],[768,1344]);
+  assert.equal(graph['459:458'].inputs.seed,42);
+  assert.deepEqual(graph.save.inputs.images,['459:457',0]);
+  for(const [id,node] of Object.entries(graph)) for(const v of Object.values(node.inputs)) if(Array.isArray(v)&&typeof v[0]==='string') assert.ok(graph[v[0]],`${id} links to an existing node`);
+  const q7=bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'qwen')!, q1=bubbleQuote('image',1,BUBBLE_DEFAULTS,false,'qwen')!;
+  assert.deepEqual([q7.credits,q7.high,q7.kind],[6,12,'estime']);
+  assert.equal(q1.credits,3,'above the 2.01 measured for one reference (2ac9e65b)');
+  // Klein keeps its path and also hears the pose rule (its upsampler reads the request).
+  // JD 31.10.2026: same staging on every Klein run with nothing fixed but refs + text: each seed gets its own staging.
+  const { BUBBLE_STAGINGS } = await import('../src/lib/creation/bubble.ts');
+  const kp=bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'klein');
+  const k=(seed:number)=>String(bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:slots.map(s=>s.picture),prompt:kp,seed,engine:'klein'}).image_61.inputs.value);
+  assert.ok(k(1406790374).startsWith(kp)&&k(1406790374).endsWith(bubbleStaging(1406790374)),'the request comes first, the staging after');
+  assert.notEqual(bubbleStaging(1406790374),bubbleStaging(96585588));assert.notEqual(bubbleStaging(96585588),bubbleStaging(2049149149));
+  assert.equal(new Set(Array.from({length:BUBBLE_STAGINGS.length},(_,i)=>bubbleStaging(i))).size,BUBBLE_STAGINGS.length);
+  assert.match(bubbleStaging(5),/unless the request says otherwise/);
+  assert.doesNotMatch(BUBBLE_STAGINGS.join(' '),/Sujet|Lieu|Enki|Fizz|Uttu/,'generic, no name');
+  assert.equal(String(bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:[],prompt:'x',seed:3,engine:'klein'})['image_18:61']?.inputs.value ?? 'x'),'x','text-only stills are untouched');
+  assert.ok(!String(graph['459:474'].inputs.prompt).includes('Staging for this picture'),'Qwen is untouched');
+  const { NANO_SYSTEM_PROMPT } = await import('../src/lib/creation/bubble.ts');
+  const { KLEIN_EDIT_BASE } = await import('../src/lib/render/klein-base.ts');
+  for(const engine of ['klein','qwen','nano'] as const) assert.doesNotMatch(bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,engine)+NANO_SYSTEM_PROMPT,/\bstands?\b/i,`${engine}: no word imposes a standing pose`);
+  const upsampler=String(KLEIN_EDIT_BASE['48'].inputs.value);
+  assert.doesNotMatch(upsampler,/which pose/,'the upsampler never has to fix a pose');
+  assert.match(upsampler,/Keep the action the user describes/);assert.match(upsampler,/never copy the pose a reference image shows/);
+  assert.ok(bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'klein').includes(POSE_RULE));
+});
+
+test('JD 2026-11-01: FLUX.2 dev is a third open engine, multi-reference from the official image_flux2 chain, price to be confirmed', async () => {
+  const { bubbleImageEngine, bubbleEngineChoices, bubblePriceUnconfirmed, validBubbleSettings, POSE_RULE, FLUX2_REFERENCE_MEGAPIXELS } = await import('../src/lib/creation/bubble.ts');
+  const { gesteParId } = await import('../src/lib/workflows/registre.ts');
+  assert.equal(bubbleImageEngine('image',7,BUBBLE_DEFAULTS,true),'klein','Klein stays the default');
+  assert.equal(bubbleImageEngine('image',7,{...BUBBLE_DEFAULTS,engine:'flux2'},true),'flux2');
+  assert.equal(bubbleImageEngine('image',0,{...BUBBLE_DEFAULTS,engine:'flux2'},true),'klein','text-only stills stay on Klein t2i');
+  assert.equal(bubbleEngineChoices(true)[0],'klein');
+  assert.ok(validBubbleSettings({...BUBBLE_DEFAULTS,engine:'flux2'}));
+  const row=gesteParId('creation-image-flux2');
+  assert.equal(row?.template,'image_flux2');assert.equal(row?.partenaire,false);
+  const chips=[
+    {name:'Lieu B',category:'decor',pictures:['b1.png','b2.png']},
+    {name:'Sujet A',category:'cast',pictures:['a1.png','a2.png','a3.png']},
+    {name:'Objet D',category:'objet',pictures:['d1.png']},
+    {name:'Sujet C',category:'cast',pictures:['c1.png']},
+  ];
+  const slots=bubbleReferenceSlots(chips)!;
+  assert.deepEqual(slots.map(s=>s.picture),['a1.png','a2.png','a3.png','c1.png','d1.png','b1.png','b2.png'],'characters, then objects, then the place');
+  const prompt=bubblePrompt('Sujet A et Sujet C jouent sur Lieu B',chips,'image',slots,'flux2');
+  assert.ok(prompt.includes(POSE_RULE));
+  const graph=bubbleGraph({mode:'image',settings:BUBBLE_DEFAULTS,images:slots.map(s=>s.picture),prompt,seed:96585588,engine:'flux2'});
+  assert.equal(graph.unet.inputs.unet_name,'flux2_dev_fp8mixed.safetensors');
+  assert.equal(graph.clip.inputs.type,'flux2');
+  const text=String(graph.prompt.inputs.text);
+  assert.ok(text.startsWith(prompt)&&text.includes(bubbleStaging(96585588)),'request first, then the seed\'s staging');
+  let cond:unknown=graph.guider.inputs.conditioning;
+  const order:string[]=[];
+  while(Array.isArray(cond)&&String(cond[0]).startsWith('ref_')){const n=graph[cond[0] as string];const enc=graph[(n.inputs.latent as [string,number])[0]];const scale=graph[(enc.inputs.pixels as [string,number])[0]];assert.equal(scale.class_type,'ImageScaleToTotalPixels');assert.equal(scale.inputs.megapixels,FLUX2_REFERENCE_MEGAPIXELS);order.unshift(String(graph[(scale.inputs.image as [string,number])[0]].inputs.image));cond=n.inputs.conditioning;}
+  assert.deepEqual(order,slots.map(s=>s.picture),'one ReferenceLatent per photo, chained in send order');
+  assert.deepEqual(cond,['guidance',0]);
+  assert.equal(graph.guidance.inputs.guidance,4);
+  assert.deepEqual([graph.canvas.class_type,graph.canvas.inputs.width,graph.canvas.inputs.height],['EmptyFlux2LatentImage',1344,768],'the chosen frame, never a reference');
+  assert.equal(graph.noise.inputs.noise_seed,96585588);
+  assert.equal(graph.sigmas.inputs.steps,20);
+  assert.ok(!Object.values(graph).some(n=>/TextGenerate|Gemini|Lora/.test(n.class_type)),'no upsampler, no partner, Turbo LoRA off');
+  for(const [id,node] of Object.entries(graph)) for(const v of Object.values(node.inputs)) if(Array.isArray(v)&&typeof v[0]==='string') assert.ok(graph[v[0]],`${id} links to an existing node`);
+  const q=bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'flux2')!;
+  assert.deepEqual([q.credits,q.high,q.kind],[50,100,'estime']);
+  // First run (job d107aeb5): 1344×768 + 5 refs = 128 GPU s ≈ 35 credits. The quote at 5 refs stays above it.
+  assert.ok(bubbleQuote('image',5,BUBBLE_DEFAULTS,false,'flux2')!.credits>=Math.ceil(128*0.001295*211),'never under the first billed run');
+  assert.ok(q.credits>bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'klein')!.credits*2,'a cautious upper estimate, well above Klein');
+  assert.equal(bubblePriceUnconfirmed('image',7,'flux2'),true);
+  assert.equal(bubblePriceUnconfirmed('image',7,'klein'),false);
+  for(const lang of ['en','fr','de','es']){
+    const m=JSON.parse(readFileSync(new URL(`../messages/${lang}.json`,import.meta.url),'utf8'));
+    assert.ok(m.bubble.engineName.flux2&&m.bubble.engineHelp.flux2&&m.bubble.imageEngineFlux2&&m.bubble.priceUnconfirmed,`${lang}: FLUX.2 dev is named, its price flagged`);
+    assert.doesNotMatch(JSON.stringify([m.bubble.engineHelp.flux2,m.bubble.priceUnconfirmed]),/gratuit|free|kostenlos|gratis/i);
+  }
 });
