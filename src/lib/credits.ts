@@ -12,6 +12,17 @@ export const centsToCredits = (cents: number) => Math.round((cents * CREDITS_PER
 const group = new Intl.NumberFormat("fr-CH", { maximumFractionDigits: 0 });
 export const formatCredits = (value: number) => group.format(Math.round(value));
 
+/** Comfy Cloud bills rtx_pro_6000 at $0.001295 a GPU second (≈ 0.2732 credit), the rate of every billed measure. */
+export const BILLED_CREDITS_PER_GPU_SECOND = 0.001295 * CREDITS_PER_USD;
+
+/**
+ * When the balance cannot show a job's cost (it has not moved yet, or it rose with a top-up or the
+ * monthly grant), its compute time times the billed rate still gives a figure. Shown as « ≈ … estimés ».
+ */
+export function gpuTimeCredits(gpuSeconds: number | null): number | null {
+  return typeof gpuSeconds === "number" && Number.isFinite(gpuSeconds) && gpuSeconds > 0 ? Math.ceil(gpuSeconds * BILLED_CREDITS_PER_GPU_SECOND) : null;
+}
+
 export interface Balance {
   credits: number;
   readAt: number;
