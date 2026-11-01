@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { openCreations, openPlan, openToolsHub } from "./helpers/top-bar";
+import { NOMBRE_OUTILS, OUTILS_HORS_CATALOGUE } from "../src/lib/outils/nombre";
 
 // One top bar on every page: Créer, project switcher, search over tools and creations,
 // recent tasks, the docked assistant, and the tool switch card. All local, nothing is sent.
@@ -9,7 +10,7 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
   await expect(page.locator("[data-topbar]")).toBeVisible();
   await openToolsHub(page);
   await expect(page).toHaveURL(/#outils\/tous$/);
-  await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(42);
+  await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(NOMBRE_OUTILS - OUTILS_HORS_CATALOGUE);
 
   await page.keyboard.press("Control+k");
   const palette = page.locator("[data-palette]");
