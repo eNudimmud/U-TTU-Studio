@@ -7,8 +7,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
-import { cinemaMessageKey, type PreparedIntent } from "@/lib/cinema/controller";
-import { userApproval } from "@/lib/cinema/intent-job";
+import type { ControllerCode, PreparedIntent } from "@/lib/cinema/controller";
 import { formatCredits } from "@/lib/credits";
 import type { Storyboard } from "@/lib/storyboard/storyboard";
 import { useStudio } from "../app/studio-session";
@@ -33,9 +32,10 @@ export function useNativeAgent(sb: Storyboard | null, selectedShotId: string | n
   const [busy, setBusy] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const project = studio.studio.project;
-  const say = useCallback((boardId: string, code: Parameters<typeof cinemaMessageKey>[0]) => {
-    const key = cinemaMessageKey(code);
-    dire(boardId, { qui: "uttu", texte: key && t.has(key) ? t(key) : t("storyboard.cinema.agent.failed") });
+  // The codes with a sentence in the catalogue get it; any other one gets the plain « could not ».
+  const say = useCallback((boardId: string, code: ControllerCode) => {
+    const key = `storyboard.cinema.errors.${code}`;
+    dire(boardId, { qui: "uttu", texte: t.has(key) ? t(key) : t("storyboard.cinema.agent.failed") });
   }, [dire, t]);
 
   // GET only: reads the answer of a sent request until it is applied, refused or failed.
@@ -76,6 +76,7 @@ export function useNativeAgent(sb: Storyboard | null, selectedShotId: string | n
     setPending(null);
     if (!prepared) return;
     const boardId = prepared.context.scope.storyboardId;
+    const { userApproval } = await import("@/lib/cinema/intent-job");
     const approval = userApproval(prepared.preparation, ceilingOf(prepared), { id: crypto.randomUUID(), trancheId: TRANCHE }, new Date());
     const sent = await studio.cinema.submitIntent(prepared, approval);
     if (!sent.ok) { say(boardId, sent.code); return; }

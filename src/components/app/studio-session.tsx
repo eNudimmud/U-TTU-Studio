@@ -101,7 +101,7 @@ import { createMediaClient } from "@/lib/media/cloud";
 import { saveBoard as saveBoardJournaled, type SavedBoard } from "@/lib/cinema/board-writer";
 import { CAMPAIGN } from "@/lib/cinema/campaign";
 import { browserProjectLock, projectFiles } from "@/lib/cinema/journal";
-import { cinemaMessageKey, createCinemaController, type CinemaController } from "@/lib/cinema/controller";
+import type { CinemaController, ControllerPorts } from "@/lib/cinema/controller";
 import type { Storyboard } from "@/lib/storyboard/storyboard";
 import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
 
@@ -119,6 +119,21 @@ export interface DecorInput {
   credits?: string[];
   /** Called once the décor is filed in DÉCOR. */
   onFiled?(filed: { id: string; name: string; cost: number | null; quote: number; image: Blob }): void;
+}
+
+/** The controller with every method answered asynchronously (its module is fetched on first use). */
+export type LazyCinema = { [K in keyof CinemaController]: CinemaController[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never };
+
+const CINEMA_METHODS = ["prepareIntent", "submitIntent", "resumeIntent", "bindIntent", "declareIntentAbsent", "applyLocal", "undo", "approveKeyframe", "prepareShot", "submitShot", "resumeResults"] as const satisfies readonly (keyof CinemaController)[];
+
+// A controller method missing from the list fails to compile here.
+const cinemaMethodsComplete: [Exclude<keyof CinemaController, (typeof CINEMA_METHODS)[number]>] extends [never] ? true : false = true;
+void cinemaMethodsComplete;
+
+function lazyCinema(ports: ControllerPorts): LazyCinema {
+  let made: Promise<CinemaController> | null = null;
+  const get = () => (made ??= import("@/lib/cinema/controller").then(module => module.createCinemaController(ports)));
+  return Object.fromEntries(CINEMA_METHODS.map(name => [name, (...args: unknown[]) => get().then(controller => (controller[name] as (...a: unknown[]) => unknown)(...args))])) as LazyCinema;
 }
 
 export interface StudioSession {
@@ -232,8 +247,9 @@ export interface StudioSession {
   writeProjectFile(file: string, text: string): Promise<void>;
   /** CE5: a storyboard save through the common revision path (three-way, journaled, under the project lock). */
   saveBoard(base: Storyboard | null, mine: Storyboard): Promise<SavedBoard>;
-  /** CE5: the cinema service of this session (no React inside). */
-  cinema: CinemaController;
+  /** CE5: the cinema service of this session (no React inside), loaded on its first call so it stays
+   *  out of the first paint (LCP, method #221). */
+  cinema: LazyCinema;
   /** CE5: moves when a resume or the agent wrote project files, so open boards re-read them. */
   cinemaTick: number;
   /** CE5: the board files changed under the page (agent answer applied): open boards re-read them. */
@@ -1943,7 +1959,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, []);
   const cinema = useMemo(() => {
     const locks = typeof navigator === "undefined" ? null : navigator.locks ?? null;
-    return createCinemaController({
+    return lazyCinema({
       storage: typeof window === "undefined" ? { getItem: () => null, setItem: () => undefined, removeItem: () => undefined } : window.localStorage,
       // Lazy: the vault opens on first use in the browser, never during the server render.
       vault: { list: () => store().list(), get: path => store().get(path), put: entry => store().put(entry), remove: path => store().remove(path) },
@@ -1963,8 +1979,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     let alive = true;
     void cinema.resumeResults({ projectIds: studio.projects.map(project => project.slug) }).then(answer => {
       if (alive && (answer.data?.journals || answer.code === "RESULT_SETTLED")) setCinemaTick(n => n + 1);
-      const key = cinemaMessageKey(answer.code);
-      if (alive && !answer.ok && key && t.has(key)) setNotice(t(key));
+      const key = `storyboard.cinema.errors.${answer.code}`;
+      if (alive && !answer.ok && t.has(key)) setNotice(t(key));
     }).catch(() => undefined);
     return () => { alive = false; };
   }, [ready, studio?.projects, cinema]); // eslint-disable-line react-hooks/exhaustive-deps
