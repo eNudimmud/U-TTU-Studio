@@ -211,7 +211,8 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
     // The scope shown next to the field: a request that names no shot (« says: … », « remove », « move later »)
     // is read for the selected shot. A request that names one, or the whole board, is read as written.
     const numero = (() => { const found = planChoisi(sb, choisi); return found ? tousLesPlans(sb).findIndex(plan => plan.id === found.plan.id) + 1 : 0; })();
-    const c = lireCorrection(texte) ?? (numero ? lireCorrection(`${t("storyboard.ws.shotWord")} ${numero} ${texte}`) : null);
+    // CE5: the selection is passed as data, the request text is never rewritten with a « shot N » prefix.
+    const c = lireCorrection(texte) ?? (numero ? lireCorrection(texte, numero) : null);
     const applied = c ? appliquerCorrection(sb, c, data.registre, nouvelIdCourt()) : null;
     if (!c || !applied) { dire(sb.id, { qui: "uttu", texte: t("storyboard.uttu.notUnderstood") }); return; }
     const text = reponse(c, applied.n, applied.sb);
@@ -312,7 +313,8 @@ function BoardFooter({ sb, onChange }: { sb: Storyboard; onChange(next: Storyboa
         <button type="button" className="sb-out" aria-expanded={menu} data-sb-export="" onClick={() => setMenu(open => !open)}>{t("storyboard.board.export")}</button>
         {menu && <span className="sb-menu sb-ws-menu is-up" role="group" aria-label={t("storyboard.board.export")}>
           <span className="sb-small sb-muted" style={{ padding: "8px 12px" }}>{t("storyboard.board.exportMd")}</span>
-          <span className="sb-small sb-muted" style={{ padding: "0 12px 8px" }}>{t("storyboard.ws.exportPreview")}</span>
+          {/* CE5: the video export is the real montage export (540p · 12 fps preview, originals kept), not a note. */}
+          <a className="sb-ghost" style={{ whiteSpace: "normal", textAlign: "left" }} href={assetPath("/studio#montage")} data-sb-export-video="">{t("storyboard.ws.exportPreview")}</a>
           <a className="sb-ghost" href={adresse(sb.id, true)} data-sb-print="">{t("storyboard.board.print")}</a>
         </span>}
       </span>

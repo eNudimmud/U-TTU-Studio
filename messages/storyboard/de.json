@@ -359,6 +359,32 @@
       "describe": "Beschreib die Änderung",
       "askHint": "Enter sendet, Umschalt+Enter fügt eine Zeile hinzu. Eine Bitte ohne Einstellungsnummer gilt für die gewählte Einstellung.",
       "shotWord": "Einstellung"
+    },
+    "cinema": {
+      "errors": {
+        "REFERENCE_MISSING": "Für diese Einstellung fehlt ein Referenzbild. Füge es in CAST oder DÉCOR hinzu und versuche es erneut.",
+        "REFERENCE_AMBIGUOUS": "Zwei Karten tragen diesen Namen. Wähle in der Einstellung die richtige.",
+        "REFERENCE_CAPACITY": "Diese Einstellung hat mehr Referenzen, als der Workflow annimmt. Entferne eine; nichts wird still gekürzt.",
+        "REVISION_CONFLICT": "Diese Einstellung hat sich inzwischen geändert. Nichts wurde überschrieben: prüfe sie und versuche es erneut.",
+        "LOCK_CONFLICT": "Dieses Feld ist gesperrt. Entsperre es, um es zu ändern.",
+        "WORKFLOW_UNQUALIFIED": "Dieser Schritt ist noch nicht qualifiziert. Nichts wurde gesendet.",
+        "MODEL_INELIGIBLE": "Dieses Modell ist im aktuellen Modus nicht verfügbar. Nichts wurde gesendet.",
+        "QUOTE_UNAVAILABLE": "Die Schätzung ist abgelaufen oder nicht verfügbar. Fordere vor dem Bestätigen eine neue an.",
+        "APPROVAL_REQUIRED": "Seit deiner Bestätigung hat sich etwas geändert. Prüfe die neue Schätzung und bestätige erneut.",
+        "BUDGET_RESERVED": "Ein anderer kostenpflichtiger Schritt ist noch offen oder das Ausgabenlimit ist erreicht. Nichts wurde gesendet.",
+        "SUBMISSION_UNKNOWN": "Es ist unklar, ob Comfy diese Anfrage erhalten hat. Prüfe deinen Comfy-Verlauf, bevor du erneut sendest.",
+        "PROJECT_UNAVAILABLE": "Das Projekt dieses Ergebnisses ist auf diesem Gerät nicht geöffnet. Der Beleg bleibt erhalten.",
+        "OUTPUT_INVALID": "Die Antwort konnte nicht verwendet werden. Nichts wurde geändert.",
+        "STORAGE_UNAVAILABLE": "Dieses Gerät konnte nicht speichern. Nichts wurde gesendet.",
+        "INTENT_MODEL_UNAVAILABLE": "Das Gesprächsmodell fehlt auf Comfy Cloud. Nichts wurde gesendet.",
+        "PROVIDER_REFUSED": "Comfy hat die Anfrage abgelehnt (Konto, Guthaben oder Abo).",
+        "ACCOUNT_UNAVAILABLE": "Dein Comfy-Konto konnte nicht erkannt werden. Verbinde es erneut; der Beleg bleibt erhalten.",
+        "KEYFRAME_REQUIRED": "Gib zuerst ein Schlüsselbild für diese Version der Einstellung frei.",
+        "UNDO_REFUSED": "Diese Änderung lässt sich nicht mehr rückgängig machen: die Einstellung hat sich seitdem geändert. Beide Versionen bleiben erhalten.",
+        "CONTEXT_TOO_LONG": "Dieses Storyboard ist zu lang, um es auf einmal zu senden. Wähle eine Einstellung und frage dazu.",
+        "INTENT_INVALID": "Uttus Vorschlag konnte nicht angewendet werden. Nichts wurde geändert.",
+        "JOB_FAILED": "Das Rendering endete auf Comfy ohne Ergebnis."
+      }
     }
   }
 }

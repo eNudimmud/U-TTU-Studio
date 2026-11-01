@@ -98,6 +98,8 @@ import { randomSeed } from "@/lib/seed";
 import { connectMessage } from "@/lib/render/connect";
 import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
 import { createMediaClient } from "@/lib/media/cloud";
+import { browserProjectLock } from "@/lib/cinema/journal";
+import { cinemaMessageKey, createCinemaController } from "@/lib/cinema/controller";
 import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
 
 export interface DecorInput {
@@ -1909,6 +1911,35 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       window.removeEventListener("pageshow", shown);
     };
   }, [ready, client, resumeRun, fingerprint]);
+
+  // CE5 · the cinema controller: one service, React-free, held for the session. Credentials stay in the
+  // client in memory. The campaign's prior spend is not entered yet, so it refuses any paid cinema POST;
+  // without Web Locks there is no reliable exclusion between tabs, so no paid cinema POST either.
+  const cinema = useMemo(() => {
+    const locks = typeof navigator === "undefined" ? null : navigator.locks ?? null;
+    return createCinemaController({
+      storage: typeof window === "undefined" ? { getItem: () => null, setItem: () => undefined, removeItem: () => undefined } : window.localStorage,
+      // Lazy: the vault opens on first use in the browser, never during the server render.
+      vault: { list: () => store().list(), get: path => store().get(path), put: entry => store().put(entry), remove: path => store().remove(path) },
+      lock: browserProjectLock(locks).lock, paidLocks: locks, sessionId: typeof crypto === "undefined" ? "ssr" : crypto.randomUUID(),
+      client: () => activeClient.current, now: () => new Date(), uuid: () => crypto.randomUUID(), seed: () => randomSeed(),
+      trancheCapCredits: 10, campaign: { capCredits: 300, priorCredits: null }, balance: async () => null,
+      projectAvailable: async slug => Boolean(studioRef.current?.projects.some(project => project.slug === slug)),
+      purpose: "demo",
+    });
+  }, [store]);
+
+  // CE5 · resume on open, without mounting any storyboard: incomplete journals of every project first,
+  // then the cinema receipts (GET only). Unavailable project or account = the receipt stays.
+  useEffect(() => {
+    if (!ready || !studio) return;
+    let alive = true;
+    void cinema.resumeResults({ projectIds: studio.projects.map(project => project.slug) }).then(answer => {
+      const key = cinemaMessageKey(answer.code);
+      if (alive && !answer.ok && key && t.has(key)) setNotice(t(key));
+    }).catch(() => undefined);
+    return () => { alive = false; };
+  }, [ready, studio?.projects, cinema]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const connectKey = useCallback(async (raw: string) => {
     const key = cleanApiKey(raw);

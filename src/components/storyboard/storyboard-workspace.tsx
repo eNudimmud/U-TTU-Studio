@@ -113,7 +113,6 @@ function Selected({ sb, data, etat, echecs, onSelect, onOpen, onChange, onFilm, 
   const at = (ref: RefPlan) => `@${ref.nom.trim()}${ref.id ? "" : ` (${t("storyboard.ws.notInProject")})`}`;
   const portrait = plan.format === "portrait";
   const contextId = `${uid}-context`;
-  const pendingId = `${uid}-pending`;
   const doDuplicate = () => {
     const id = newId();
     const { id: _old, planFilmId: _film, etat: _etat, ...rest } = plan;
@@ -132,7 +131,7 @@ function Selected({ sb, data, etat, echecs, onSelect, onOpen, onChange, onFilm, 
     {plan.action && <p className="sb-ws-action" data-sb-action="">{plan.action}</p>}
     {echec && <p className="sb-notice is-fail" role="status">{echec}</p>}
     <div className="sb-ws-actions">
-      <button type="button" className="sb-ws-primary" disabled aria-describedby={pendingId} data-sb-keyframe="">{t("storyboard.ws.prepareKeyframe")}</button>
+      {/* CE5: no qualified keyframe workflow yet, so no inactive button and no « coming soon » copy (Astra review). */}
       {state === "en-cours"
         ? <span className="sb-ws-est" role="status">{t("storyboard.board.etat.en-cours")}</span>
         : devis === null
@@ -157,7 +156,6 @@ function Selected({ sb, data, etat, echecs, onSelect, onOpen, onChange, onFilm, 
         </span>}
       </span>
     </div>
-    <p className="sb-ws-pending" id={pendingId}>{t("storyboard.ws.keyframePending")}</p>
     <section id={contextId} className="sb-ws-context" hidden={!context} data-sb-context="" aria-label={t("storyboard.ws.plannedRefs")}>
       <h3>{t("storyboard.ws.plannedRefs")}</h3>
       <dl>

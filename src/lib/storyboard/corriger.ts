@@ -20,9 +20,14 @@ const fold = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g,
 const SHOT = "(?:plan|shot|einstellung|plano)";
 const NUM = "(\\d{1,2})";
 
-export function lireCorrection(raw: string): Correction | null {
+/**
+ * `selected` (1-based, CE5): the shot selected next to the field. A request that names no shot is read
+ * for it, without rewriting the request text; a request that names one is read as written.
+ */
+export function lireCorrection(raw: string, selected?: number): Correction | null {
   const text = raw.trim();
   const f = fold(text);
+  const chosen = selected && selected > 0 ? selected : null;
   // « shot 2 says: … » / « le plan 2 dit : … » / « Einstellung 2 sagt: … » / « el plano 2 dice: … »
   const says = new RegExp(`${SHOT}\\s*${NUM}\\s*(?:says|dit|sagt|dice)\\s*:?\\s*(.+)$`, "iu").exec(f);
   if (says) {
@@ -30,7 +35,15 @@ export function lireCorrection(raw: string): Correction | null {
     const texte = text.slice(start).replace(/^[\s«"“„]+|[\s»"”“]+$/g, "").slice(0, 160);
     if (texte) return { type: "replique", n: Number(says[1]), texte };
   }
-  const n = new RegExp(`${SHOT}\\s*(?:n[o°]?\\s*)?${NUM}`, "iu").exec(f);
+  // « says: … » with no shot named: the selected shot's line.
+  const saysHere = chosen ? /^(?:says|dit|sagt|dice)\s*:?\s*(.+)$/iu.exec(f) : null;
+  if (saysHere && !says) {
+    const start = f.indexOf(saysHere[1]!);
+    const texte = text.slice(start).replace(/^[\s«"“„]+|[\s»"”“]+$/g, "").slice(0, 160);
+    if (texte) return { type: "replique", n: chosen!, texte };
+  }
+  const named = new RegExp(`${SHOT}\\s*(?:n[o°]?\\s*)?${NUM}`, "iu").exec(f);
+  const n = named ? [named[0], named[1]] as const : chosen ? ["", String(chosen)] as const : null;
   if (n && /\b(retire|supprime|enleve|remove|delete|drop|entfern|losch|quita|borra|elimina)/.test(f)) return { type: "retirer", n: Number(n[1]) };
   if (n && /\b(recule|apres|plus tard|later|after|down|nach hinten|spater|retrasa|despues|mas tarde)/.test(f)) return { type: "deplacer", n: Number(n[1]), pas: 1 };
   if (n && /\b(avance|avant|plus tot|earlier|before|up|nach vorn|fruher|adelanta|antes)/.test(f)) return { type: "deplacer", n: Number(n[1]), pas: -1 };

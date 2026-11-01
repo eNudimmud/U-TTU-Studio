@@ -3126,7 +3126,8 @@
         "refused": "El modelo no quiso responder a este mensaje. Reformúlalo.",
         "network": "Comfy no responde. Revisa tu conexión y vuelve a intentarlo; el simulador de costes funciona sin conexión.",
         "timeout": "Comfy tardó demasiado en responder. Vuelve a intentarlo en un momento.",
-        "failed": "El agente Comfy no pudo responder. Vuelve a intentarlo en un momento."
+        "failed": "El agente Comfy no pudo responder. Vuelve a intentarlo en un momento.",
+        "ineligible": "Este modelo de conversación no está disponible en el modo de pesos abiertos. No se envió nada ni se usó ningún crédito."
       },
       "welcome": "Soy Uttu, el agente del estudio. Dime qué quieres rodar: te respondo, te propongo la herramienta o el plan y ves el presupuesto antes de cualquier render. Cada mensaje lo paga tu cuenta Comfy."
     },

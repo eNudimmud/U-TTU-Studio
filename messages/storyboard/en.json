@@ -359,6 +359,32 @@
       "describe": "Describe the change",
       "askHint": "Enter sends, Shift+Enter adds a line. A request that names no shot applies to the selected shot.",
       "shotWord": "shot"
+    },
+    "cinema": {
+      "errors": {
+        "REFERENCE_MISSING": "A reference picture is missing for this shot. Add it in CAST or SET, then try again.",
+        "REFERENCE_AMBIGUOUS": "Two cards share this name. Pick the right one in the shot.",
+        "REFERENCE_CAPACITY": "This shot has more references than the workflow accepts. Remove one; nothing is cut silently.",
+        "REVISION_CONFLICT": "This shot changed in the meantime. Nothing was overwritten: check it, then try again.",
+        "LOCK_CONFLICT": "This field is locked. Unlock it to change it.",
+        "WORKFLOW_UNQUALIFIED": "This step is not qualified yet. Nothing was sent.",
+        "MODEL_INELIGIBLE": "This model is not available in the current mode. Nothing was sent.",
+        "QUOTE_UNAVAILABLE": "The estimate expired or is unavailable. Ask for a new estimate before confirming.",
+        "APPROVAL_REQUIRED": "Something changed since your confirmation. Check the new estimate and confirm again.",
+        "BUDGET_RESERVED": "Another paid step is still open, or the spending limit is reached. Nothing was sent.",
+        "SUBMISSION_UNKNOWN": "We could not confirm whether Comfy received this request. Check your Comfy history before sending again.",
+        "PROJECT_UNAVAILABLE": "The project of this result is not open on this device. The receipt is kept.",
+        "OUTPUT_INVALID": "The answer could not be used. Nothing was changed.",
+        "STORAGE_UNAVAILABLE": "This device could not save. Nothing was sent.",
+        "INTENT_MODEL_UNAVAILABLE": "The conversation model is missing on Comfy Cloud. Nothing was sent.",
+        "PROVIDER_REFUSED": "Comfy refused the request (account, credits or subscription).",
+        "ACCOUNT_UNAVAILABLE": "Your Comfy account could not be identified. Reconnect it; the receipt is kept.",
+        "KEYFRAME_REQUIRED": "Approve a keyframe for this version of the shot first.",
+        "UNDO_REFUSED": "This change can no longer be undone: the shot changed since. Both versions are kept.",
+        "CONTEXT_TOO_LONG": "This storyboard is too long to send at once. Select a shot and ask about it.",
+        "INTENT_INVALID": "Uttu’s proposal could not be applied. Nothing was changed.",
+        "JOB_FAILED": "The render ended without a result on Comfy."
+      }
     }
   }
 }

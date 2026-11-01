@@ -89,12 +89,8 @@ test('U1: select a shot, scope the composer, open the context; the other shots s
   await page.keyboard.press(' ');
   await expect(tiles.nth(1)).toHaveAttribute('aria-pressed', 'true');
 
-  // The keyframe step is not wired yet (CE1/CE3): disabled and explained, never presented as running.
-  const keyframe = page.locator('[data-sb-keyframe]');
-  await expect(keyframe).toBeDisabled();
-  const pending = await keyframe.getAttribute('aria-describedby');
-  expect(pending).toBeTruthy();
-  await expect(page.locator(`[id="${pending}"]`)).toBeVisible();
+  // CE5: no qualified keyframe workflow yet, so the inactive keyframe button is not shown at all.
+  await expect(page.locator('[data-sb-keyframe]')).toHaveCount(0);
 
   // Context: closed by default, aria-expanded follows, references by role.
   const toggle = page.locator('[data-sb-context-toggle]');
@@ -165,13 +161,13 @@ test('U1: select a shot, scope the composer, open the context; the other shots s
 
   // English by default, French, German, Spanish: the workspace copy follows, never « free ».
   await page.setViewportSize({ width: 1280, height: 800 });
-  const expected = { en: 'Prepare keyframe', fr: 'Préparer l’image clé', de: 'Schlüsselbild vorbereiten', es: 'Preparar imagen clave' } as const;
+  const expected = { en: 'Context', fr: 'Contexte', de: 'Kontext', es: 'Contexto' } as const;
   for (const [locale, word] of Object.entries(expected)) {
     await setLocale(page, locale);
     await page.goto(url);
     await ready(page);
     await expect(page.locator('html')).toHaveAttribute('lang', new RegExp(`^${locale}\\b`));
-    await expect(page.locator('[data-sb-keyframe]')).toContainText(word);
+    await expect(page.locator('[data-sb-context-toggle]')).toContainText(word);
     await expect(page.locator('[data-storyboard-page]')).not.toContainText(FREE);
     await page.waitForTimeout(250);
     if (SHOTS && locale !== 'fr') await page.screenshot({ path: join(SHOTS, `1280x800-u1-${locale}.png`) });

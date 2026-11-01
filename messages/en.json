@@ -3126,7 +3126,8 @@
         "refused": "The model declined to answer this message. Rephrase it.",
         "network": "Comfy is not answering. Check your connection and try again; the cost simulator works offline.",
         "timeout": "Comfy took too long to answer. Try again in a moment.",
-        "failed": "The Comfy agent could not answer. Try again in a moment."
+        "failed": "The Comfy agent could not answer. Try again in a moment.",
+        "ineligible": "This conversation model is not available in open-weights mode. Nothing was sent and no credit was used."
       },
       "welcome": "I’m Uttu, the studio’s agent. Tell me what you want to shoot: I answer, suggest the tool or the plan, and you see the quote before any render. Each message is paid by your Comfy account."
     },

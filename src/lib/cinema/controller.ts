@@ -500,3 +500,16 @@ export function shotApproval(prepared: PreparedShot, ceilingCredits: number, ids
     authorizedCeilingCredits: ceilingCredits, actor: "user", approvedAt: now.toISOString(), consumedByAttemptId: null,
   };
 }
+
+/** Codes the session shows as a sentence (existing catalogs, `storyboard.cinema.errors.*`). */
+export const CINEMA_MESSAGE_CODES = [
+  "REFERENCE_MISSING", "REFERENCE_AMBIGUOUS", "REFERENCE_CAPACITY", "REVISION_CONFLICT", "LOCK_CONFLICT", "WORKFLOW_UNQUALIFIED",
+  "MODEL_INELIGIBLE", "QUOTE_UNAVAILABLE", "APPROVAL_REQUIRED", "BUDGET_RESERVED", "SUBMISSION_UNKNOWN", "PROJECT_UNAVAILABLE",
+  "OUTPUT_INVALID", "STORAGE_UNAVAILABLE", "INTENT_MODEL_UNAVAILABLE", "PROVIDER_REFUSED", "ACCOUNT_UNAVAILABLE",
+  "KEYFRAME_REQUIRED", "UNDO_REFUSED", "CONTEXT_TOO_LONG", "INTENT_INVALID", "JOB_FAILED",
+] as const satisfies readonly ControllerCode[];
+
+/** The catalog key for an answer, or null when it needs no sentence (success, waiting). */
+export function cinemaMessageKey(code: ControllerCode): string | null {
+  return (CINEMA_MESSAGE_CODES as readonly string[]).includes(code) ? `storyboard.cinema.errors.${code}` : null;
+}

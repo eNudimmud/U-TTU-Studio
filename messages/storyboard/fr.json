@@ -359,6 +359,32 @@
       "describe": "Décris le changement",
       "askHint": "Entrée envoie, Maj+Entrée ajoute une ligne. Une demande qui ne nomme aucun plan s’applique au plan choisi.",
       "shotWord": "plan"
+    },
+    "cinema": {
+      "errors": {
+        "REFERENCE_MISSING": "Une image de référence manque pour ce plan. Ajoute-la dans CAST ou DÉCOR, puis réessaie.",
+        "REFERENCE_AMBIGUOUS": "Deux fiches portent ce nom. Choisis la bonne dans le plan.",
+        "REFERENCE_CAPACITY": "Ce plan a plus de références que le workflow n’en accepte. Retires-en une ; rien n’est coupé en silence.",
+        "REVISION_CONFLICT": "Ce plan a changé entre-temps. Rien n’a été écrasé : vérifie-le, puis réessaie.",
+        "LOCK_CONFLICT": "Ce champ est verrouillé. Déverrouille-le pour le changer.",
+        "WORKFLOW_UNQUALIFIED": "Cette étape n’est pas encore qualifiée. Rien n’a été envoyé.",
+        "MODEL_INELIGIBLE": "Ce modèle n’est pas disponible dans le mode actuel. Rien n’a été envoyé.",
+        "QUOTE_UNAVAILABLE": "L’estimation a expiré ou n’est pas disponible. Demande une nouvelle estimation avant de confirmer.",
+        "APPROVAL_REQUIRED": "Quelque chose a changé depuis ta confirmation. Vérifie la nouvelle estimation et confirme à nouveau.",
+        "BUDGET_RESERVED": "Une autre étape payante est encore ouverte, ou la limite de dépense est atteinte. Rien n’a été envoyé.",
+        "SUBMISSION_UNKNOWN": "Impossible de confirmer que Comfy a reçu cette demande. Vérifie ton historique Comfy avant de renvoyer.",
+        "PROJECT_UNAVAILABLE": "Le projet de ce résultat n’est pas ouvert sur cet appareil. Le reçu est conservé.",
+        "OUTPUT_INVALID": "La réponse n’a pas pu être utilisée. Rien n’a été modifié.",
+        "STORAGE_UNAVAILABLE": "Cet appareil n’a pas pu enregistrer. Rien n’a été envoyé.",
+        "INTENT_MODEL_UNAVAILABLE": "Le modèle de conversation manque sur Comfy Cloud. Rien n’a été envoyé.",
+        "PROVIDER_REFUSED": "Comfy a refusé la demande (compte, crédits ou abonnement).",
+        "ACCOUNT_UNAVAILABLE": "Ton compte Comfy n’a pas pu être identifié. Reconnecte-le ; le reçu est conservé.",
+        "KEYFRAME_REQUIRED": "Approuve d’abord une image clé pour cette version du plan.",
+        "UNDO_REFUSED": "Ce changement ne peut plus être annulé : le plan a changé depuis. Les deux versions sont conservées.",
+        "CONTEXT_TOO_LONG": "Ce storyboard est trop long pour être envoyé d’un coup. Sélectionne un plan et demande pour lui.",
+        "INTENT_INVALID": "La proposition d’Uttu n’a pas pu être appliquée. Rien n’a été modifié.",
+        "JOB_FAILED": "Le rendu s’est terminé sans résultat sur Comfy."
+      }
     }
   }
 }

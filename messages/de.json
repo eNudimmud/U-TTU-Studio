@@ -3126,7 +3126,8 @@
         "refused": "Das Modell hat diese Nachricht nicht beantwortet. Formuliere sie um.",
         "network": "Comfy antwortet nicht. Prüfe deine Verbindung und versuche es erneut; der Kostenrechner funktioniert offline.",
         "timeout": "Comfy hat zu lange gebraucht. Versuche es gleich noch einmal.",
-        "failed": "Der Comfy-Agent konnte nicht antworten. Versuche es gleich noch einmal."
+        "failed": "Der Comfy-Agent konnte nicht antworten. Versuche es gleich noch einmal.",
+        "ineligible": "Dieses Gesprächsmodell ist im Open-Weights-Modus nicht verfügbar. Nichts wurde gesendet, kein Guthaben verbraucht."
       },
       "welcome": "Ich bin Uttu, der Agent des Studios. Sag mir, was du drehen willst: Ich antworte, schlage dir das Werkzeug oder den Plan vor, und du siehst den Kostenvoranschlag vor jedem Rendern. Jede Nachricht zahlt dein Comfy-Konto."
     },
