@@ -1,0 +1,195 @@
+diff --git a/tests/astra-review-probes.test.ts b/tests/astra-review-probes.test.ts
+new file mode 100644
+--- /dev/null
++++ b/tests/astra-review-probes.test.ts
+@@ -0,0 +1,190 @@
++// CE2: settlement and the paid take's receipt. A result lands once, in the project and shot it was
++// sent from, with the storyboard page closed. Failure list of CINEMA_LOTS CE2: crash before/after
++// POST, lost answer, polling timeout, two tabs, reload, account changed, archived shot, project
++// unavailable, interrupted download, duplicate result, crash between each write, quota / partial file.
++// Every ambiguous recovery: at most one POST, zero cancels. Fully mocked: no Comfy call, no spend.
++import { describe, it } from "node:test";
++import assert from "node:assert/strict";
++import type { VaultEntry, VaultStore } from "../src/lib/coffre/store.ts";
++import { lireRegistre, registreJson, registreVide, ajouterPlan, nouveauPlan, ajouterPrise, REGISTRE_FILE } from "../src/lib/film/registre.ts";
++import { PENDING_RENDER_KEY, readPending, type PendingRender } from "../src/lib/render/recovery.ts";
++import { RenderError } from "../src/lib/render/client.ts";
++import { cheminJson, lireStoryboard, planVide, storyboardJson, storyboardVide, trouverPlan } from "../src/lib/storyboard/storyboard.ts";
++import { cinemaMetaPath, emptyMeta, metaJson, noLock, parseMeta } from "../src/lib/cinema/journal.ts";
++import {
++  cinemaReceiptOf, earlierVersionTakes, pollShotJob, resumeShotJobs, settleShotJob, submitShotJob, takeIdOf,
++  type ProviderOutput, type SettlementPorts, type ShotJobDeps, type ShotJobReceipt, type ShotSubmission,
++} from "../src/lib/cinema/settlement.ts";
++import { readLedger } from "../src/lib/cinema/spend-ledger.ts";
++import { CinemaError, type ObservedCost, type Quote, type ShotSnapshot, type SpendApproval, type StorageLike } from "../src/lib/cinema/types.ts";
++
++const ACCOUNT = "comfy-user-7f3a";
++const JOB = "job-0000-aaaa-1111";
++const NOW = "2026-11-01T12:00:00.000Z";
++
++function memoryVault(): VaultStore & { map: Map<string, VaultEntry>; puts: string[]; failPut: ((path: string, n: number) => boolean) | null } {
++  const map = new Map<string, VaultEntry>();
++  const vault = {
++    map, puts: [] as string[], failPut: null as ((path: string, n: number) => boolean) | null,
++    list: async () => [...map.values()],
++    get: async (path: string) => map.get(path) ?? null,
++    put: async (entry: VaultEntry) => {
++      if (vault.failPut?.(entry.path, vault.puts.length)) throw new Error("QuotaExceededError");
++      vault.puts.push(entry.path);
++      map.set(entry.path, { ...entry });
++    },
++    remove: async (path: string) => { map.delete(path); },
++  };
++  return vault;
++}
++
++function memoryStorage(): StorageLike & { map: Map<string, string>; failKey: string | null } {
++  const map = new Map<string, string>();
++  const s = {
++    map, failKey: null as string | null,
++    getItem: (k: string) => map.get(k) ?? null,
++    setItem: (k: string, v: string) => { if (s.failKey === k) throw new Error("quota"); map.set(k, v); },
++    removeItem: (k: string) => { map.delete(k); },
++  };
++  return s;
++}
++
++const snapshot = (revision = 1): ShotSnapshot => ({
++  schemaVersion: 1, scope: { projectId: "demo", storyboardId: "b1" }, shotId: "s1", revision, planFilmId: "sb-b1-s1",
++  creative: { titre: "", action: "walks in", refs: [], cadrage: null, camera: null, duree: 5, format: "paysage", rendu: "fidele", dialogue: { type: "aucun", qui: "", texte: "" } as never, son: { musique: "", ambiance: "" }, raccord: false, promptManuel: null },
++  bindings: [], digest: "d".repeat(64),
++});
++
++const quote = (estimated: number | null = 4): Quote => ({
++  id: "q1", snapshotDigest: "d".repeat(64), workflowDigest: "w".repeat(64), estimatedCredits: estimated, uncertaintyCredits: estimated === null ? null : 1,
++  basis: estimated === null ? "unavailable" : "measured_similar_job", createdAt: NOW, expiresAt: "2026-11-01T12:15:00.000Z",
++});
++
++const approval = (id = "a1"): SpendApproval => ({
++  id, trancheId: "t1", operationId: "op1", quoteId: "q1", snapshotDigest: "d".repeat(64), workflowDigest: "w".repeat(64),
++  authorizedCeilingCredits: 10, actor: "user", approvedAt: NOW, consumedByAttemptId: null,
++});
++
++const succeeded = (rev = 1): ShotJobReceipt => ({
++  schemaVersion: 2, operationId: "op1", attemptId: "att-1", accountScope: ACCOUNT, snapshot: snapshot(rev), quote: quote(), approval: { ...approval(), consumedByAttemptId: "att-1" },
++  state: "succeeded", providerJobId: JOB, submittedAt: NOW, updatedAt: NOW, outputs: [], settlement: "none",
++});
++
++const COST: ObservedCost = { credits: 3, provenance: "billing_job", unit: "credits", readAt: NOW };
++const OUT: ProviderOutput[] = [{ index: 0, filename: "uttu_00001.mp4", kind: "video" }];
++
++async function project(vault: ReturnType<typeof memoryVault>, opts: { keptTake?: boolean; shot?: boolean } = {}) {
++  let sb = storyboardVide({ id: "b1", titre: "Demo", idee: "", now: NOW });
++  sb = { ...sb, sequences: [{ id: "q1", titre: "", resume: "", plans: [...(opts.shot === false ? [] : [planVide("s1")]), planVide("s2")] }] };
++  await vault.put({ path: `Projets/demo/${cheminJson("b1")}`, text: storyboardJson(sb), updatedAt: 0 });
++  let reg = ajouterPlan(registreVide(), nouveauPlan(registreVide(), "sb-b1-s1"));
++  if (opts.keptTake) reg = ajouterPrise(reg, "sb-b1-s1", { id: "old-kept", fichier: "Projets/demo/Prises/old-kept.mp4" });
++  await vault.put({ path: `Projets/demo/${REGISTRE_FILE}`, text: registreJson(reg), updatedAt: 0 });
++  vault.puts.length = 0;
++}
++
++function ports(vault: VaultStore, over: Partial<SettlementPorts> = {}): SettlementPorts & { downloads: number } {
++  const p = {
++    downloads: 0, vault, lock: noLock, now: () => NOW,
++    projectAvailable: async (id: string) => id === "demo",
++    download: async () => { p.downloads++; return new Blob([new Uint8Array([1, 2, 3, 4])], { type: "video/mp4" }); },
++    ...over,
++  };
++  return p;
++}
++
++const registreOf = async (vault: VaultStore) => lireRegistre((await vault.get(`Projets/demo/${REGISTRE_FILE}`))?.text);
++const metaOf = async (vault: VaultStore) => parseMeta((await vault.get(`Projets/demo/${cinemaMetaPath("b1")}`))?.text ?? null, "b1");
++const mediaCount = (vault: ReturnType<typeof memoryVault>) => [...vault.map.keys()].filter(k => /\/Prises\/c-.*\.mp4$/.test(k)).length;
++
++const BASE: PendingRender = {
++  version: 1, kind: "take", project: "demo", id: "sb-b1-s1", name: "Plan 1", prompt: "", at: NOW, account: "fp", refs: [], template: "ltx",
++  quote: 4, balanceBefore: 100, jobId: null,
++};
++const GRAPH = { "1": { class_type: "SaveVideo", inputs: {} } };
++
++function client(behaviour: "ok" | "lost" | "refused" = "ok") {
++  const calls: string[] = [];
++  const c = new Proxy({
++    submit: async () => { calls.push("submit"); if (behaviour === "lost") throw new RenderError("network", "timeout"); if (behaviour === "refused") throw new RenderError("credits", "no credits"); return JOB; },
++    status: async () => { calls.push("status"); return "in_progress"; },
++  }, { get: (target, key) => { if (!(key in target)) calls.push(`other:${String(key)}`); return (target as Record<string | symbol, unknown>)[key]; } });
++  return { c, calls };
++}
++
++const submission = (): ShotSubmission => ({ base: BASE, operationId: "op1", accountScope: ACCOUNT, snapshot: snapshot(), quote: quote(), graph: GRAPH });
++const deps = (storage: StorageLike, c: ShotJobDeps["client"]): ShotJobDeps => ({ storage, client: c, now: () => new Date(NOW), uuid: () => "att-1", trancheCapCredits: 300, balanceCredits: 100 });
++
++// Astra review probes: expected safety properties, mocked only. Failures reproduce gaps.
++it("R1: a changed shot snapshot must invalidate the approved quote before submit", async () => {
++  const storage = memoryStorage();
++  const { c, calls } = client();
++  const input = submission();
++  input.snapshot = { ...input.snapshot, digest: "e".repeat(64), revision: 9 };
++  await assert.rejects(submitShotJob(input, approval(), deps(storage, c)));
++  assert.equal(calls.length, 0);
++});
++
++it("R2: a take written before the project lock is acquired must survive settlement", async () => {
++  const vault = memoryVault();
++  await project(vault);
++  let injected = false;
++  const p = ports(vault, { lock: async (_id, fn) => {
++    if (!injected) {
++      injected = true;
++      const reg = ajouterPrise(await registreOf(vault), "sb-b1-s1", { id: "concurrent-kept", fichier: "Projets/demo/Prises/concurrent.mp4" });
++      await vault.put({ path: `Projets/demo/${REGISTRE_FILE}`, text: registreJson(reg), updatedAt: 0 });
++    }
++    return fn();
++  } });
++  await settleShotJob({ receipt: succeeded(), outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, p);
++  assert.ok((await registreOf(vault)).plans[0].prises.some(t => t.id === "concurrent-kept"));
++});
++
++it("R3: a registry conflict must remain pending, never marked settled", async () => {
++  const vault = memoryVault();
++  await project(vault);
++  vault.failPut = path => path === `Projets/demo/${REGISTRE_FILE}`;
++  const first = await settleShotJob({ receipt: succeeded(), outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, ports(vault));
++  assert.equal(first.outcome, "result_pending");
++  vault.failPut = null;
++  const reg = ajouterPrise(await registreOf(vault), "sb-b1-s1", { id: "user-kept", fichier: "Projets/demo/Prises/user.mp4" });
++  await vault.put({ path: `Projets/demo/${REGISTRE_FILE}`, text: registreJson(reg), updatedAt: 0 });
++  const resumed = await settleShotJob({ receipt: first.receipt, outputs: OUT, cost: COST, currentAccountScope: ACCOUNT }, ports(vault));
++  assert.ok(resumed.diagnostics.some(d => d.code === "REVISION_CONFLICT"));
++  assert.equal(resumed.outcome, "result_pending");
++});
++
++import { prepareIntent, userApproval, submitApprovedIntent, pollIntent, settleIntent } from "../src/lib/cinema/intent-job.ts";
++import type { IntentContext } from "../src/lib/cinema/types.ts";
++const CTX: IntentContext = { scope: { projectId: "demo", storyboardId: "b1" }, locale: "en", selectedShotId: null, storyboardRevision: 0, shots: [], references: [], capabilities: [], narrative: "" };
++async function intentFixture() {
++  let i = 0;
++  const calls: unknown[] = [];
++  const d = { storage: memoryStorage(), now: () => new Date(NOW), uuid: () => `intent-${++i}`, client: {
++    submit: async (graph: unknown) => { calls.push(graph); return `job-${calls.length}`; },
++    status: async () => "success",
++    job: async () => ({ status: "success", outputs: { "3": { text: [JSON.stringify({ creativeGoal: "test", expectedResult: "test", operations: [], rationale: "", unresolved: [] })] } } }),
++  } };
++  const prep = await prepareIntent({ context: CTX, contextText: JSON.stringify(CTX), userText: "Create three shots", accountScope: ACCOUNT, seed: 1 }, d);
++  const a = userApproval(prep, 3, { id: "approved-once", trancheId: "t1" }, new Date(NOW));
++  return { d, prep, a, calls };
++}
++
++it("R4: a terminal intent must not allow reusing the same approval", async () => {
++  const { d, prep, a, calls } = await intentFixture();
++  await submitApprovedIntent(prep, a, d, { purpose: "qualification" });
++  await pollIntent(d);
++  settleIntent(d);
++  await assert.rejects(submitApprovedIntent(prep, a, d, { purpose: "qualification" }));
++  assert.equal(calls.length, 1);
++});
++
++it("R5: mutating the intent graph after approval must be refused", async () => {
++  const { d, prep, a, calls } = await intentFixture();
++  prep.graph["2"].inputs.prompt = "A completely different unapproved request";
++  prep.graph["2"].inputs["sampling_mode.seed"] = 999;
++  await assert.rejects(submitApprovedIntent(prep, a, d, { purpose: "qualification" }));
++  assert.equal(calls.length, 0);
++});
++

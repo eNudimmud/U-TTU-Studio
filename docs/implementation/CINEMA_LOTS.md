@@ -91,6 +91,8 @@ Interdictions communes : aucun merge sans accord JD, force-push, PR #112, destru
 
 ## CE5 — Intégration, répétition et mise à jour de candidature
 
+**Mise à jour du 1er novembre :** CE0–CE4 livrés en PR #224/#225/#226/#227/#223 ; CI vérifiées vertes. Le [raccord CE5 et les décisions de revue](CE5_INTEGRATION.md) sont maintenant spécifiés. R1–R5 sont des blocages avant activation payante, avec reproductions exécutables. Préparer CE5 sans attendre une fusion de main ; aucune dépense ni fusion autorisée.
+
 **Objectif.** Prouver le parcours réel en s'appuyant sur DEMO-P0 (#215) et SOUMISSION (#219), sans produire de dossiers concurrents.
 
 **Fichiers.** Un propriétaire raccorde `src/components/app/studio-session.tsx`, les adapters legacy et le composant agent. Tests `tests/p0-non-regression.test.ts`, nouvelle couverture e2e storyboard→job→registre→montage. Mise à jour des documents existants par leur propriétaire, sur branche dédiée.
