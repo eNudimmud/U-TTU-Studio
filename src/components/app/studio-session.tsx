@@ -360,7 +360,8 @@ export interface OutilRun {
   from?: string;
   onStage(stage: FinaliseStage, seconds?: number): void;
   /** Real cost after the result is already shown (deferred balance read). */
-  onCost?(cost: number | null): void;
+  /** `gpu`: the job's compute-time figure, when the balance cannot show its cost. */
+  onCost?(cost: number | null, gpu?: { seconds: number; credits: number } | null): void;
 }
 
 export type FinaliseStage = "envoi" | "file" | "calcul" | "retour" | "mesure";
@@ -1441,7 +1442,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           if (notePath) {
             void writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: info.costCredits, media: mediaPath, note: notePath, preview: null, loose: false }));
           }
-          input.onCost?.(info.costCredits);
+          input.onCost?.(info.costCredits, info.gpuCredits && info.gpuSeconds ? { seconds: info.gpuSeconds, credits: info.gpuCredits } : null);
         },
       });
       if (!result.video.size) throw new RenderError("empty", t("suite.emptyResult"));

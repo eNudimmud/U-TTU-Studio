@@ -1602,6 +1602,7 @@
     "done": "Schnitt finalisiert, in Meine Kreationen gespeichert.",
     "cost": "Echte Kosten: {credits} Credits.",
     "costUnknown": "Echte Kosten noch nicht am Guthaben ablesbar.",
+    "costGpu": "≈ {credits} Credits geschätzt nach Rechenzeit ({seconds} s); das Guthaben zeigt diesen Auftrag noch nicht.",
     "again": "Anders finalisieren",
     "fail": "Finalisieren hat nicht geklappt: {message}",
     "close": "Schließen",

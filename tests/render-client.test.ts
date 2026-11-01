@@ -153,6 +153,20 @@ describe("une prise sans quitter le studio", () => {
     assert.equal(result.balanceAfter, null);
   });
 
+  it("falls back on the job's compute time when the balance rose (a top-up) or did not move", async () => {
+    // 2370 cents before the take, 2440 after: a top-up landed mid-run, so the balance cannot price the job.
+    const { client } = scriptedCloud(["success"], [2440]);
+    const infos: Array<{ costCredits: number | null; gpuSeconds?: number | null; gpuCredits?: number | null }> = [];
+    await followTake(client, "job-0123456789", 5001, () => {}, { sleep: async () => {}, measureTries: 2, measureMs: 1, onCost: info => infos.push(info) });
+    assert.equal(infos[0].costCredits, null, "never a negative or invented real cost");
+    assert.equal(infos[0].gpuSeconds, 140);
+    assert.equal(infos[0].gpuCredits, Math.ceil(140 * 0.001295 * 211), "compute time × the billed rate, rounded up");
+    const flat = scriptedCloud(["success"], [2370]);
+    const later: typeof infos = [];
+    await followTake(flat.client, "job-0123456789", 5001, () => {}, { sleep: async () => {}, measureTries: 2, measureMs: 1, onCost: info => later.push(info) });
+    assert.equal(later[0].gpuCredits, 39);
+  });
+
   it("shows the bytes first when measure is deferred, without a measure stage event", async () => {
     const { client } = scriptedCloud(["success"], [2370, 2275]);
     const events: TakeRunEvent[] = [];

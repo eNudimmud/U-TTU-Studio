@@ -204,7 +204,7 @@ export function useFil(): FilRunner {
         originRefs: job.route.creation ? [...new Set([...job.route.images.flatMap(r => r.path ? [r.path] : []), ...slots.flatMap(s => s.picture.startsWith('Projets/') ? [s.picture] : []), ...(job.route.audio?.path ? [job.route.audio.path] : [])])] : undefined,
         prompt: job.route.creation ? bubblePrompt(job.text, chips, job.route.creation.mode, slots, bubbleImageEngine(job.route.creation.mode, slots.length, job.route.creation.settings, prefs.openWeightsOnly)) : job.text, confirmed: true, from: job.route.creation ? undefined : single,
         onSubmitted: receipt => { project = receipt.project; patch({ jobId: receipt.jobId, renderId: receipt.assetId, project: receipt.project }); },
-        onCost: cost => patch({ cost }),
+        onCost: (cost, gpu) => patch({ cost, costGpu: cost === null ? gpu ?? null : null }),
         onStage: (stage, seconds) => { if (stage !== "mesure") patch({ stage, seconds }); },
       });
       if (result.ok) patch({ status: "done", url: result.url, path: result.path, cost: result.cost ?? null });
@@ -270,7 +270,7 @@ export function useFil(): FilRunner {
     if (job.status === 'done') {
       const original = live.current.messages.find(m => m.id === job.of);
       const of = uid('u');
-      const next: FilJob = { ...job, id: uid('j'), of, quote: quoteOf(job.route), status: 'confirm', url: undefined, path: undefined, cost: undefined, jobId: undefined, renderId: undefined, favorite: false, kept: false };
+      const next: FilJob = { ...job, id: uid('j'), of, quote: quoteOf(job.route), status: 'confirm', url: undefined, path: undefined, cost: undefined, costGpu: undefined, jobId: undefined, renderId: undefined, favorite: false, kept: false };
       update(f => append(f, { id: of, role: 'user', mode: original?.role === 'user' ? original.mode : job.sortie, text: job.text, refs: original?.role === 'user' ? original.refs : [], at: Date.now() }, next));
       return;
     }
@@ -444,7 +444,7 @@ function JobCard({ job, runner }: { job: FilJob; runner: FilRunner }) {
         ? <img src={url} alt={job.text} className="u-fil-media" data-fil-media="" />
         : <video src={url} poster={poster} className="u-fil-media" data-fil-media="" controls playsInline muted loop preload="metadata" aria-label={job.text} />)
         : <p className="u-small">{t("barre.fil.inCreations")}</p>}
-      <p className="u-small" data-fil-saved="">{t("barre.fil.saved")} {typeof job.cost === "number" ? t("finaliser.cost", { credits: formatCredits(job.cost) }) : t("finaliser.costUnknown")}</p>
+      <p className="u-small" data-fil-saved="">{t("barre.fil.saved")} {typeof job.cost === "number" ? t("finaliser.cost", { credits: formatCredits(job.cost) }) : job.costGpu ? t("finaliser.costGpu", { credits: formatCredits(job.costGpu.credits), seconds: Math.round(job.costGpu.seconds) }) : t("finaliser.costUnknown")}</p>
       <div className="u-fil-actions">
         <button type="button" className="u-secondary" data-fil-favorite="" aria-pressed={Boolean(job.favorite)} onClick={() => runner.mark(job.id, { favorite: !job.favorite })}>{t(job.favorite ? 'bubble.favorited' : 'bubble.favorite')}</button>
         <button type="button" className="u-secondary" data-fil-keep="" aria-pressed={Boolean(job.kept)} onClick={() => runner.mark(job.id, { kept: true })}>{t(job.kept ? 'bubble.kept' : 'bubble.keep')}</button>

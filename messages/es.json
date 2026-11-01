@@ -1602,6 +1602,7 @@
     "done": "Montaje finalizado, guardado en Mis creaciones.",
     "cost": "Coste real: {credits} créditos.",
     "costUnknown": "El coste real aún no se lee en el saldo.",
+    "costGpu": "≈ {credits} créditos estimados según el tiempo de cálculo ({seconds} s); el saldo aún no muestra este trabajo.",
     "again": "Finalizar de otra forma",
     "fail": "La finalización no salió: {message}",
     "close": "Cerrar",

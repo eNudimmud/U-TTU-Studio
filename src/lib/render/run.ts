@@ -3,7 +3,7 @@
 // account was charged from two real balance readings. Following is separate
 // so a take queued before a reload can be picked up again.
 
-import { measuredCost } from "../credits.ts";
+import { gpuTimeCredits, measuredCost } from "../credits.ts";
 import { executionSeconds, jobStage, pickOutput, pickOutputs, RenderError, type OutputRef, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
 import type { UploadedControls } from "./framed-key.ts";
@@ -79,7 +79,7 @@ export interface TakeRunOptions {
    */
   deferMeasure?: boolean;
   /** Fired when a deferred (or sync) balance read finishes. */
-  onCost?: (info: { balanceAfter: number | null; costCredits: number | null }) => void;
+  onCost?: (info: { balanceAfter: number | null; costCredits: number | null; gpuSeconds?: number | null; gpuCredits?: number | null }) => void;
 }
 
 const defaultSleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -191,7 +191,8 @@ export async function followTake(
     ...(options.all ? { extras } : {}),
   });
 
-  const readCost = async (): Promise<{ balanceAfter: number | null; costCredits: number | null }> => {
+  const gpuSeconds = executionSeconds(detail);
+  const readCost = async (): Promise<{ balanceAfter: number | null; costCredits: number | null; gpuSeconds: number | null; gpuCredits: number | null }> => {
     // When deferred, skip the measure stage event so the progress label never says
     // « Lecture du coût réel… » after the bytes are already shown (or mid-render).
     if (!options.deferMeasure) onEvent({ stage: "measure", jobId });
@@ -202,7 +203,9 @@ export async function followTake(
       if (attempt < measureTries - 1) await sleep(measureMs);
     }
     const charged = balanceAfter !== null && balanceAfter !== balanceBefore ? balanceAfter : null;
-    const info = { balanceAfter: charged, costCredits: measuredCost(balanceBefore, charged) };
+    const costCredits = measuredCost(balanceBefore, charged);
+    // The balance is not a per-job meter (late, or raised by a top-up): keep the job's compute time as a fallback figure.
+    const info = { balanceAfter: charged, costCredits, gpuSeconds, gpuCredits: costCredits === null ? gpuTimeCredits(gpuSeconds) : null };
     options.onCost?.(info);
     return info;
   };
@@ -210,7 +213,7 @@ export async function followTake(
   if (options.deferMeasure) {
     // Never block the result on the balance poll: show bytes first, fill the quote line later.
     void readCost().catch(() => {
-      options.onCost?.({ balanceAfter: null, costCredits: null });
+      options.onCost?.({ balanceAfter: null, costCredits: null, gpuSeconds, gpuCredits: gpuTimeCredits(gpuSeconds) });
     });
     return pack(null, null);
   }

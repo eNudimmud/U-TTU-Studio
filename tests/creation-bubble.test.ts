@@ -405,7 +405,9 @@ test('JD 2026-11-01: FLUX.2 dev is a third open engine, multi-reference from the
   assert.ok(!Object.values(graph).some(n=>/TextGenerate|Gemini|Lora/.test(n.class_type)),'no upsampler, no partner, Turbo LoRA off');
   for(const [id,node] of Object.entries(graph)) for(const v of Object.values(node.inputs)) if(Array.isArray(v)&&typeof v[0]==='string') assert.ok(graph[v[0]],`${id} links to an existing node`);
   const q=bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'flux2')!;
-  assert.deepEqual([q.credits,q.high,q.kind],[34,68,'estime']);
+  assert.deepEqual([q.credits,q.high,q.kind],[50,100,'estime']);
+  // First run (job d107aeb5): 1344×768 + 5 refs = 128 GPU s ≈ 35 credits. The quote at 5 refs stays above it.
+  assert.ok(bubbleQuote('image',5,BUBBLE_DEFAULTS,false,'flux2')!.credits>=Math.ceil(128*0.001295*211),'never under the first billed run');
   assert.ok(q.credits>bubbleQuote('image',7,BUBBLE_DEFAULTS,false,'klein')!.credits*2,'a cautious upper estimate, well above Klein');
   assert.equal(bubblePriceUnconfirmed('image',7,'flux2'),true);
   assert.equal(bubblePriceUnconfirmed('image',7,'klein'),false);

@@ -1602,6 +1602,7 @@
     "done": "Edit finished, saved in My creations.",
     "cost": "Real cost: {credits} credits.",
     "costUnknown": "Real cost not readable on the balance yet.",
+    "costGpu": "≈ {credits} credits estimated from compute time ({seconds} s); the balance does not show this job yet.",
     "again": "Finish differently",
     "fail": "Finalising did not work: {message}",
     "close": "Close",

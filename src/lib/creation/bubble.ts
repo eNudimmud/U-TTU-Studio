@@ -93,13 +93,13 @@ const EXTRA_REFERENCE_CREDITS = 0.85;
  */
 const QWEN_CREDITS_PER_MP = 1, QWEN_CREDITS_PER_PICTURE = 0.25;
 /**
- * FLUX.2 dev (32B, 20 steps, guidance 4, Mistral 3 Small 24B text encoder): NOT measured yet. Cautious
- * upper reckoning from Klein's measures (≈ 0.27 credit per GPU s, 2.4 credits per MP read and written at
- * 50 steps on a far smaller model): ≈ 4 credits per MP, each reference at 1 MP, plus 2 for the text
- * encoder. 7 refs at 1344×768 ≈ 34 credits estimés, shown with « prix à confirmer » until a real run
- * is measured (FLUX2_PRICE_CONFIRMED).
+ * FLUX.2 dev (32B, 20 steps, guidance 4, Mistral 3 Small 24B text encoder). First run on Comfy Cloud
+ * (01.11.2026, job d107aeb5, rtx_pro_6000): 1344×768 + 5 refs at 1 MP = 128 GPU s ≈ 35 credits, about
+ * 5.8 per MP read and written. One run, possibly a cold worker, attributed from the billing feed: the
+ * quote keeps 6 per MP + 2 for the text encoder (7 refs ≈ 50 crédits estimés, 5 refs ≈ 38, high ×2) and still says
+ * « prix à confirmer » (FLUX2_PRICE_CONFIRMED) until the studio reads a billed cost itself.
  */
-const FLUX2_CREDITS_PER_MP = 4, FLUX2_ENCODER_CREDITS = 2;
+const FLUX2_CREDITS_PER_MP = 6, FLUX2_ENCODER_CREDITS = 2;
 export const FLUX2_REFERENCE_MEGAPIXELS = 1;
 export const FLUX2_PRICE_CONFIRMED = false;
 /** True while the engine's price is a reckoning, not a measure: the bubble says « prix à confirmer ». */

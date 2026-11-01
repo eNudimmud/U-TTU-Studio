@@ -1602,6 +1602,7 @@
     "done": "Montage finalisé, enregistré dans Mes créations.",
     "cost": "Coût réel : {credits} crédits.",
     "costUnknown": "Coût réel pas encore lisible sur le solde.",
+    "costGpu": "≈ {credits} crédits estimés d’après le temps de calcul ({seconds} s) ; le solde ne montre pas encore cette prise.",
     "again": "Finaliser autrement",
     "fail": "La finalisation n'a pas abouti : {message}",
     "close": "Fermer",
