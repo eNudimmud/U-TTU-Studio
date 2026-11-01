@@ -14,7 +14,7 @@ import { StoryboardPage } from "./storyboard-page";
 import "../app/app.css";
 import "./storyboard.css";
 
-export function StoryboardApp({ id, print, initial = null }: { id: string | null; print: boolean; initial?: { locale: string; messages: AbstractIntlMessages } | null }) {
+export function StoryboardApp({ id, print, u11 = false, initial = null }: { id: string | null; print: boolean; u11?: boolean; initial?: { locale: string; messages: AbstractIntlMessages } | null }) {
   const { locale } = useLocaleSwitch();
   const base = useMessages();
   // `initial` is the server's catalog for the request locale: no empty first frame. A language switch loads the next one.
@@ -31,7 +31,7 @@ export function StoryboardApp({ id, print, initial = null }: { id: string | null
   if (!extra) return <div className="sb-root" data-theme="paper" aria-busy="true" />;
   return <NextIntlClientProvider locale={htmlLang(locale)} messages={{ ...base, ...extra.messages }} timeZone="Europe/Zurich">
     <StudioProvider>
-      <StoryboardPage initialId={id} print={print} />
+      <StoryboardPage initialId={id} print={print} initialU11={u11} />
     </StudioProvider>
   </NextIntlClientProvider>;
 }

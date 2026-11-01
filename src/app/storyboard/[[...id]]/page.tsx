@@ -10,7 +10,12 @@ import { requestLocale } from "@/lib/i18n/server";
 // cookie) stays one version as an escape hatch: the address then answers the studio's own 404.
 
 export const metadata: Metadata = { title: "Storyboard · U*TTU Studio", robots: { index: false, follow: false } };
-export const viewport: Viewport = { colorScheme: "light", themeColor: "#f7f4ee" };
+
+export async function generateViewport({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Viewport> {
+  const search = await searchParams;
+  const asked = Array.isArray(search.storyboard) ? search.storyboard[0] : search.storyboard;
+  return asked === "u11" ? { colorScheme: "dark", themeColor: "#0f0f11" } : { colorScheme: "light", themeColor: "#f7f4ee" };
+}
 
 export default async function StoryboardPage({ params, searchParams }: {
   params: Promise<{ id?: string[] }>;
@@ -24,5 +29,5 @@ export default async function StoryboardPage({ params, searchParams }: {
   // The storyboard's words come with the HTML: the page paints on the first frame, not after a client fetch.
   const locale = await requestLocale();
   const messages = await loadStoryboardCatalog(locale);
-  return <StoryboardApp id={board} print={mode === "print"} initial={{ locale, messages }} />;
+  return <StoryboardApp id={board} print={mode === "print"} u11={asked === "u11"} initial={{ locale, messages }} />;
 }

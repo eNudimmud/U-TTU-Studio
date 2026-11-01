@@ -397,6 +397,123 @@
         "applied": "Erledigt: Das Board folgt der Antwort des Agenten.",
         "failed": "Uttus Agent konnte das nicht tun. Das Board ist unverändert."
       }
+    },
+    "u11": {
+      "header": {
+        "boards": "Meine Boards",
+        "crumb": "Storyboard",
+        "newStory": "Neue Geschichte"
+      },
+      "write": {
+        "titleA": "Erzähl mir deine",
+        "titleB": "Geschichte",
+        "lead": "Schreib oder füge sie ein. Tippe @ für Figuren und Orte. Daraus wird ein Storyboard, das du ansehen kannst. Nichts wird gedreht, bevor du zustimmst.",
+        "label": "Deine Geschichte",
+        "placeholder": "Eine Nacht, zwei Menschen, ein Ort, und das, was einer trägt.",
+        "refs": "Referenzen dieser Geschichte",
+        "add": "Hinzufügen",
+        "cast": "Cast",
+        "place": "Ort",
+        "characters": "Figuren",
+        "places": "Orte",
+        "photos": "{n, plural, one {# Foto} other {# Fotos}}",
+        "length": "Länge",
+        "fit": "wie die Geschichte",
+        "seconds": "{n} s",
+        "formatLandscape": "Querformat 16:9",
+        "formatPortrait": "Hochformat 9:16",
+        "look": "Look",
+        "lookRefs": "wie meine Referenzen",
+        "quality": "Qualität",
+        "faithful": "treu",
+        "fast": "schnell",
+        "go": "Mein Storyboard schreiben",
+        "cost": "Das Schreiben kostet 0 Credits. Den Preis siehst du vor dem Dreh.",
+        "tip": "Du kannst ein Skript mit Szenen und Dialogen einfügen. Ich behalte deine Worte.",
+        "picker": "Referenz wählen",
+        "newAsk": "Neue Figur oder neuer Ort?",
+        "newCast": "Neue Figur",
+        "newPlace": "Neuer Ort",
+        "empty": "Schreib zuerst die Geschichte."
+      },
+      "work": {
+        "stop": "Stopp",
+        "working": "Arbeitet… {n} s",
+        "worked": "{n} s gearbeitet",
+        "zero": "0 Credits · noch nichts gedreht",
+        "read": "Ich lese deine Geschichte",
+        "cast": "Figuren: {names} — aus deinem Cast",
+        "castNew": "Figuren: {names}",
+        "noCast": "Keine Figur aus deinem Cast genannt",
+        "place": "Ort: {name} — aus deinen Orten",
+        "placeNew": "Ort: {name}",
+        "noPlace": "Kein Ort genannt",
+        "split": "Aufteilung in {n, plural, one {# Einstellung} other {# Einstellungen}}",
+        "dialogue": "Ich behalte deinen Dialog und setze Kamerabewegungen",
+        "sketch": "Eine Skizze pro Einstellung",
+        "asWritten": "{title}, wie du es geschrieben hast",
+        "look": "Wie deine Referenzen",
+        "settings": "Länge {length} · {format} · Qualität {quality}"
+      },
+      "plan": {
+        "kicker": "Plan bereit",
+        "facts": "{shots} Einstellungen · {seconds} s · {characters, plural, one {# Figur} other {# Figuren}} · {places, plural, one {# Ort} other {# Orte}}",
+        "play": "Animatic abspielen · {n} s",
+        "same": "Derselbe Look in jeder Einstellung",
+        "shot": "Einstellung {n}",
+        "seconds": "{n} s",
+        "changed": "geändert",
+        "sketch": "Skizze · wird vom echten Bild ersetzt",
+        "close": "Spiel es ab, bitte um eine Änderung, oder gib es zum Dreh frei.",
+        "keptStory": "Ich habe deine Geschichte behalten.",
+        "keptLines": "Ich habe deine Geschichte und deine {n, plural, one {# Zeile} other {# Zeilen}} Dialog behalten.",
+        "keptWho": "{names} sehen in jeder Einstellung gleich aus.",
+        "keptPlace": "Die ganze Szene bleibt in {place}.",
+        "empty": "Dieses Board hat noch keine Einstellung."
+      },
+      "ask": {
+        "placeholder": "Bitte um eine Änderung…",
+        "send": "Senden",
+        "suggestions": "Vorschläge",
+        "approve": "Freigeben und drehen",
+        "noQuote": "Angebot nicht verfügbar",
+        "closeup": "Einstellung {n} als Nahaufnahme",
+        "rain": "Entferne den Regen",
+        "closing": "Schlusseinstellung hinzufügen",
+        "undo": "Rückgängig",
+        "undone": "Rückgängig. Das Board ist wieder wie zuvor.",
+        "zero": "0 Credits · nichts gedreht",
+        "doneClose": "Erledigt: Einstellung {n}, „{title}“, ist jetzt eine Nahaufnahme. Gleicher Ort, gleiche Figuren, gleiche Länge. Sonst nichts geändert.",
+        "doneAll": "Erledigt: Ich habe „{text}“ auf jede Einstellung gelegt. Geschichte, Figuren, Ort und Dialog bleiben gleich.",
+        "doneNote": "Erledigt: Ich habe „{text}“ auf {where} notiert. Nichts wurde entfernt oder verschoben.",
+        "doneOne": "Erledigt: Ich habe „{text}“ auf Einstellung {n} gelegt. Geschichte, Figuren, Ort und Dialog bleiben gleich.",
+        "whereAll": "jede Einstellung",
+        "whereOne": "Einstellung {n}",
+        "added": "Einstellung {n} am Ende hinzugefügt. Nichts wurde gedreht."
+      },
+      "anim": {
+        "close": "Schließen",
+        "label": "Animatic"
+      },
+      "film": {
+        "kicker": "Vor dem Dreh",
+        "title": "Drehen",
+        "meta": "{shots} Einstellungen · {seconds} s · {format} · deine Referenzen fest",
+        "total": "Summe",
+        "start": "Dreh starten",
+        "back": "Zurück zum Plan",
+        "rule1": "Die Einstellungen werden nacheinander gedreht, von deinem Comfy-Konto.",
+        "rule2": "Du kannst zwischen zwei Einstellungen anhalten. Eine Einstellung, die schon läuft, wird immer fertig.",
+        "rule3": "Jede fertige Einstellung erscheint auf ihrer Karte. Der Schnitt öffnet sich am Ende.",
+        "stop": "Nach dieser Einstellung anhalten",
+        "filming": "Einstellung {n} läuft. Die nächsten warten.",
+        "stopped": "Angehalten nach dieser Einstellung. Was schon läuft, wird fertig.",
+        "line": "{seconds} s · ≈ {n}"
+      },
+      "list": {
+        "empty": "Noch kein Storyboard.",
+        "open": "{title} öffnen"
+      }
     }
   }
 }

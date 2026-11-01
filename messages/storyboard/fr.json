@@ -397,6 +397,123 @@
         "applied": "Fait : le board suit la réponse de l'agent.",
         "failed": "L'agent d'Uttu n'a pas pu le faire. Le board est inchangé."
       }
+    },
+    "u11": {
+      "header": {
+        "boards": "Mes boards",
+        "crumb": "Storyboard",
+        "newStory": "Nouvelle histoire"
+      },
+      "write": {
+        "titleA": "Raconte-moi ton",
+        "titleB": "histoire",
+        "lead": "Écris-la ou colle-la. Tape @ pour appeler tes personnages et tes lieux. J'en fais un storyboard que tu peux regarder. Rien n'est filmé tant que tu n'as pas approuvé.",
+        "label": "Ton histoire",
+        "placeholder": "Une nuit, deux personnes, un lieu, et l'objet que l'une porte.",
+        "refs": "Références de cette histoire",
+        "add": "Ajouter",
+        "cast": "Cast",
+        "place": "Lieu",
+        "characters": "Personnages",
+        "places": "Lieux",
+        "photos": "{n, plural, one {# photo} other {# photos}}",
+        "length": "Durée",
+        "fit": "selon l'histoire",
+        "seconds": "{n} s",
+        "formatLandscape": "Paysage 16:9",
+        "formatPortrait": "Portrait 9:16",
+        "look": "Look",
+        "lookRefs": "comme mes références",
+        "quality": "Qualité",
+        "faithful": "fidèle",
+        "fast": "rapide",
+        "go": "Écrire mon storyboard",
+        "cost": "L'écriture coûte 0 crédit. Tu vois le prix avant de filmer.",
+        "tip": "Tu peux coller un script avec des scènes et des répliques. Je garde tes mots.",
+        "picker": "Choisir une référence",
+        "newAsk": "Nouveau personnage ou nouveau lieu ?",
+        "newCast": "Nouveau personnage",
+        "newPlace": "Nouveau lieu",
+        "empty": "Écris d'abord l'histoire."
+      },
+      "work": {
+        "stop": "Stop",
+        "working": "En cours… {n} s",
+        "worked": "Travaillé {n} s",
+        "zero": "0 crédit · rien n'est filmé",
+        "read": "Je lis ton histoire",
+        "cast": "Personnages : {names} — depuis ton Cast",
+        "castNew": "Personnages : {names}",
+        "noCast": "Aucun personnage nommé dans ton Cast",
+        "place": "Lieu : {name} — depuis tes Lieux",
+        "placeNew": "Lieu : {name}",
+        "noPlace": "Aucun lieu nommé",
+        "split": "Découpage en {n, plural, one {# plan} other {# plans}}",
+        "dialogue": "Je garde tes répliques et j'ajoute les mouvements",
+        "sketch": "Une esquisse par plan",
+        "asWritten": "{title}, comme tu l'as écrit",
+        "look": "Comme tes références",
+        "settings": "Durée {length} · {format} · qualité {quality}"
+      },
+      "plan": {
+        "kicker": "Plan prêt",
+        "facts": "{shots} plans · {seconds} s · {characters, plural, one {# personnage} other {# personnages}} · {places, plural, one {# lieu} other {# lieux}}",
+        "play": "Lire l'animatique · {n} s",
+        "same": "Le même visage dans chaque plan",
+        "shot": "Plan {n}",
+        "seconds": "{n} s",
+        "changed": "modifié",
+        "sketch": "Esquisse · remplacée par l'image réelle",
+        "close": "Lis-le, demande un changement, ou approuve pour filmer.",
+        "keptStory": "J'ai gardé ton histoire.",
+        "keptLines": "J'ai gardé ton histoire et tes {n, plural, one {# réplique} other {# répliques}}.",
+        "keptWho": "{names} gardent le même visage dans chaque plan.",
+        "keptPlace": "Toute la scène reste à {place}.",
+        "empty": "Ce board n'a pas encore de plan."
+      },
+      "ask": {
+        "placeholder": "Demande un changement…",
+        "send": "Envoyer",
+        "suggestions": "Suggestions",
+        "approve": "Approuver et filmer",
+        "noQuote": "Devis indisponible",
+        "closeup": "Plan {n} en gros plan",
+        "rain": "Enlève la pluie",
+        "closing": "Ajoute un plan de fin",
+        "undo": "Annuler",
+        "undone": "Annulé. Le board est revenu comme avant.",
+        "zero": "0 crédit · rien filmé",
+        "doneClose": "Fait : le plan {n}, « {title} », est maintenant un gros plan. Même lieu, mêmes personnages, même durée. Rien d'autre n'a changé.",
+        "doneAll": "Fait : j'ai appliqué « {text} » à chaque plan. L'histoire, les personnages, le lieu et les répliques restent les mêmes.",
+        "doneNote": "Fait : j'ai noté « {text} » sur {where}. Rien n'a été retiré ni déplacé.",
+        "doneOne": "Fait : j'ai appliqué « {text} » au plan {n}. L'histoire, les personnages, le lieu et les répliques restent les mêmes.",
+        "whereAll": "chaque plan",
+        "whereOne": "le plan {n}",
+        "added": "Plan {n} ajouté à la fin. Rien n'a été filmé."
+      },
+      "anim": {
+        "close": "Fermer",
+        "label": "Animatique"
+      },
+      "film": {
+        "kicker": "Avant de filmer",
+        "title": "Filmer",
+        "meta": "{shots} plans · {seconds} s · {format} · tes références verrouillées",
+        "total": "Total",
+        "start": "Lancer le tournage",
+        "back": "Retour au plan",
+        "rule1": "Les plans sont filmés l'un après l'autre, depuis ton compte Comfy.",
+        "rule2": "Tu peux t'arrêter entre deux plans. Un plan déjà en cours va toujours au bout.",
+        "rule3": "Chaque plan fini apparaît sur sa carte. Ton montage s'ouvre à la fin.",
+        "stop": "S'arrêter après ce plan",
+        "filming": "Plan {n} en cours. Les suivants attendent.",
+        "stopped": "Arrêt après ce plan. Ce qui tournait déjà ira au bout.",
+        "line": "{seconds} s · ≈ {n}"
+      },
+      "list": {
+        "empty": "Pas encore de storyboard.",
+        "open": "Ouvrir {title}"
+      }
     }
   }
 }
