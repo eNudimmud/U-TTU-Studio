@@ -184,7 +184,8 @@
         "moved": "Shot {n} moved.",
         "format": "Every shot not yet filmed is now {format}.",
         "tightened": "Tightened to about {n} s.",
-        "line": "Shot {n} now says: “{text}”"
+        "line": "Shot {n} now says: “{text}”",
+        "setting": "Shot {n} updated, nothing rendered: camera {camera}, framing {cadrage}. Added to the action: “{text}”."
       },
       "notUnderstood": "I did not catch that. Try “add a shot”, “remove shot 3”, “move shot 2 later”, “portrait”, “shorten to 15 s” or “shot 2 says: …”. Everything else changes by hand in the shot.",
       "toggle": "Uttu",

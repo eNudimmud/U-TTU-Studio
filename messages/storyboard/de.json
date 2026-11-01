@@ -184,7 +184,8 @@
         "moved": "Einstellung {n} verschoben.",
         "format": "Jede noch nicht gedrehte Einstellung ist jetzt {format}.",
         "tightened": "Auf etwa {n} s gekürzt.",
-        "line": "Einstellung {n} sagt jetzt: „{text}“"
+        "line": "Einstellung {n} sagt jetzt: „{text}“",
+        "setting": "Einstellung {n} geändert, nichts gerendert: Kamera {camera}, Bildausschnitt {cadrage}. Zur Handlung hinzugefügt: „{text}“."
       },
       "notUnderstood": "Das habe ich nicht verstanden. Versuch „Einstellung hinzufügen“, „Einstellung 3 entfernen“, „Einstellung 2 nach hinten“, „Hochformat“, „auf 15 s kürzen“ oder „Einstellung 2 sagt: …“. Alles andere änderst du von Hand in der Einstellung.",
       "toggle": "Uttu",

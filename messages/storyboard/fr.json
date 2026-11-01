@@ -184,7 +184,8 @@
         "moved": "Plan {n} déplacé.",
         "format": "Chaque plan pas encore tourné est maintenant en {format}.",
         "tightened": "Resserré à environ {n} s.",
-        "line": "Le plan {n} dit maintenant : « {text} »"
+        "line": "Le plan {n} dit maintenant : « {text} »",
+        "setting": "Plan {n} modifié, rien n’est rendu : caméra {camera}, cadrage {cadrage}. Ajouté à l’action : « {text} »."
       },
       "notUnderstood": "Je n’ai pas compris. Essaie « ajoute un plan », « retire le plan 3 », « recule le plan 2 », « portrait », « raccourcis à 15 s » ou « le plan 2 dit : … ». Le reste se change à la main dans le plan.",
       "toggle": "Uttu",

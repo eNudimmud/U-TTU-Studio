@@ -118,6 +118,15 @@ export function lieuCommun(phrase: string): string | null {
 export function lieuMentionne(phrase: string, decor: readonly KnownName[]): KnownName | null {
   return mentionedReferences(phrase, decor)[0] ?? null;
 }
+/** A DÉCOR card or named place written in the sentence without « @ », whole words, any case; the longest wins. */
+export function lieuEcrit(phrase: string, lieux: readonly KnownName[]): KnownName | null {
+  const folded = phrase.toLowerCase();
+  return [...lieux].filter(item => item.name.trim().length >= 3).sort((a, b) => b.name.trim().length - a.name.trim().length).find(item => {
+    const name = item.name.trim().toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+    return new RegExp(`(?<![\\p{L}\\p{N}])${name}(?![\\p{L}\\p{N}])`, "u").test(folded);
+  }) ?? null;
+}
+const motsDuLieu = (nom: string) => nom.toLowerCase().split(/\s+/).filter(Boolean);
 const sansArobase = (text: string) => text.replace(/(^|[^\p{L}\p{N}_])@(?=[\p{L}\p{N}])/gu, "$1");
 
 /** The first place named in the sentence that is not weather or a time of day. */
@@ -172,15 +181,17 @@ export function varier(plans: PlanSB[]): PlanSB[] {
 
 export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, options: OptionsEcriture): Ecrit {
   const brut = ideeBrute.replace(/\s+/g, " ").trim().slice(0, 600);
-  const mention = lieuMentionne(brut.replace(GUILLEMETS, " "), [
+  const lieux: KnownName[] = [
     ...ctx.decor,
     ...(ctx.lieuxNommes ?? []).filter(nom => !ctx.decor.some(item => item.name.trim().toLowerCase() === nom.trim().toLowerCase())).map(name => ({ id: "", name })),
-  ]);
+  ];
+  // « @Quai Nord », or a DÉCOR card / named place written as is (« in Blanche of Castille »): a place.
+  const mention = lieuMentionne(brut.replace(GUILLEMETS, " "), lieux) ?? lieuEcrit(brut.replace(GUILLEMETS, " "), lieux);
   const idee = sansArobase(brut);
   const compris = comprendrePlan(idee.replace(GUILLEMETS, " "), ctx);
   // A mentioned place is never read as a new character.
   const qui: RefPlan[] = compris.qui
-    .filter(item => !mention || !item.nouveau || !mention.name.toLowerCase().split(/\s+/).includes(item.nom.trim().toLowerCase()))
+    .filter(item => !item.nouveau || !motsDuLieu(mention?.name ?? compris.ou?.nom ?? lieuDeLIdee(idee) ?? "").includes(item.nom.trim().toLowerCase()))
     .map(item => ({ role: "qui", nom: item.nom, id: item.nouveau ? null : item.id }));
   // A known place (DÉCOR card) is linked; a new one is read from the sentence, never from the weather.
   // Order: an @mentioned DÉCOR card, a DÉCOR card named in the sentence, a place after a preposition,

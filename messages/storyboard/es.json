@@ -184,7 +184,8 @@
         "moved": "Plano {n} movido.",
         "format": "Cada plano aún no rodado está ahora en {format}.",
         "tightened": "Ajustado a unos {n} s.",
-        "line": "El plano {n} dice ahora: «{text}»"
+        "line": "El plano {n} dice ahora: «{text}»",
+        "setting": "Plano {n} cambiado, nada renderizado: cámara {camera}, encuadre {cadrage}. Añadido a la acción: «{text}»."
       },
       "notUnderstood": "No lo he entendido. Prueba «añade un plano», «quita el plano 3», «retrasa el plano 2», «vertical», «acorta a 15 s» o «el plano 2 dice: …». Lo demás se cambia a mano en el plano.",
       "toggle": "Uttu",

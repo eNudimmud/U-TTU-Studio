@@ -152,6 +152,12 @@ test('native agent: hidden by default; under qualification, quote, nothing befor
   await page.locator('[data-sb-send]').click();
   await expect(chat).toContainText(either(m => m.storyboard.uttu.notUnderstood));
   await expect(page.locator('[data-sb-agent-confirm]')).toHaveCount(0);
+  // Camera and mood words are never a dead end: written into the selected shot, nothing rendered, no dialog.
+  await page.locator('[data-sb-ask]').fill('Make it more dramatic: low camera, slow push-in, rain on the stained glass.`');
+  await page.locator('[data-sb-send]').click();
+  await expect(chat).toContainText(/Plan 2 modifié|Shot 2 updated/);
+  await expect(chat).toContainText(/low camera, slow push-in, rain on the stained glass/);
+  await expect(page.locator('[data-sb-agent-confirm]')).toHaveCount(0);
 
   // Qualification: same request → prepared and quoted, nothing sent before « Start ».
   await page.goto(`${board}?cinema=qualification`);

@@ -12,7 +12,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { ajouterPlan as ajouterPlanFilm, ajouterPrise, auMontage, garderPrise, nouveauPlan } from "@/lib/film/registre";
 import { assetPath } from "@/lib/site";
-import { appliquerCorrection, lireCorrection, type Correction } from "@/lib/storyboard/corriger";
+import { appliquerCorrection, lireCorrection, lireReglage, type Correction } from "@/lib/storyboard/corriger";
 import { devisStoryboard, plansATourner, reglagesDuPlan } from "@/lib/storyboard/devis";
 import { definirPersonnage, ecrireStoryboard, type Gabarits, type Question } from "@/lib/storyboard/ecrire";
 import { fileVide, finDuPlan, suivantDeLaFile, versPlanFilm, type FileTournage } from "@/lib/storyboard/film";
@@ -215,7 +215,8 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
     // is read for the selected shot. A request that names one, or the whole board, is read as written.
     const numero = (() => { const found = planChoisi(sb, choisi); return found ? tousLesPlans(sb).findIndex(plan => plan.id === found.plan.id) + 1 : 0; })();
     // CE5: the selection is passed as data, the request text is never rewritten with a « shot N » prefix.
-    const c = lireCorrection(texte) ?? (numero ? lireCorrection(texte, numero) : null);
+    // Camera, framing or mood words for one shot are written into it locally: no dead end, nothing rendered.
+    const c = lireCorrection(texte) ?? (numero ? lireCorrection(texte, numero) : null) ?? lireReglage(texte, numero);
     const applied = c ? appliquerCorrection(sb, c, data.registre, nouvelIdCourt()) : null;
     if (!c || !applied) {
       const id = sb.id;
@@ -234,6 +235,12 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
       case "format": return t("storyboard.uttu.done.format", { format: t(`storyboard.format.${c.format}`) });
       case "raccourcir": return t("storyboard.uttu.done.tightened", { n: String(dureeTotale(next)) });
       case "replique": return t("storyboard.uttu.done.line", { n: String(c.n), text: c.texte });
+      case "reglage": return t("storyboard.uttu.done.setting", {
+        n: String(c.n),
+        camera: c.camera ? t(`storyboard.sheet.cam.${c.camera}`) : "—",
+        cadrage: c.cadrage ? t(`storyboard.sheet.cadrage.${c.cadrage}`) : "—",
+        text: c.note,
+      });
     }
   }
   const repondre = useCallback((question: NonNullable<Question>, value: string) => {

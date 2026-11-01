@@ -1,10 +1,12 @@
 // « Ask Uttu to change, add, shorten… » (SB8, free mode): a few plain intentions read in FR/EN/DE/ES,
 // no model, no credit. Anything else is changed by hand in the shot sheet.
 
-import type { Registre } from "../film/registre.ts";
+import type { Camera, Registre } from "../film/registre.ts";
+import { cameraFromWords } from "../prise/camera-words.ts";
+import type { CameraMove } from "../prise/copy.ts";
 import {
-  ajouterPlan, changerFormat, deplacerPlan, dureeTotale, ecrireReplique, etatDuPlan, planVide, retirerPlan,
-  tousLesPlans, trouverPlan, type Format, type PlanSB, type Storyboard,
+  ACTION_MAX, ajouterPlan, changerFormat, deplacerPlan, dureeTotale, ecrireReplique, etatDuPlan, planVide, retirerPlan,
+  tousLesPlans, trouverPlan, type Cadrage, type Format, type PlanSB, type Storyboard,
 } from "./storyboard.ts";
 
 export type Correction =
@@ -13,12 +15,47 @@ export type Correction =
   | { type: "deplacer"; n: number; pas: 1 | -1 }
   | { type: "format"; format: Format }
   | { type: "raccourcir"; secondes: number }
-  | { type: "replique"; n: number; texte: string };
+  | { type: "replique"; n: number; texte: string }
+  /** CE5: camera, framing, angle or mood words for one shot. Written into the shot, nothing is rendered. */
+  | { type: "reglage"; n: number; camera: Camera | null; cadrage: Cadrage | null; note: string };
 
 const fold = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 const SHOT = "(?:plan|shot|einstellung|plano)";
 const NUM = "(\\d{1,2})";
+
+/** The storyboard keeps four camera kinds: each engine move is read as the nearest one. */
+const CAMERA_SB: Record<CameraMove, Camera> = {
+  fixe: "fixe", "travelling-avant": "approche", "travelling-arriere": "fixe", panoramique: "suit", dolly: "approche",
+  suivi: "suit", orbite: "autour", epaule: "suit",
+};
+const CADRAGE_SB: readonly { value: Cadrage; pattern: RegExp }[] = [
+  { value: "detail", pattern: /\b(tres gros plan|extreme close[- ]?up|detail(?:aufnahme)?|insert|macro|primerisimo primer plano)\b/ },
+  { value: "serre", pattern: /\b(gros plan|close[- ]?up|closer|plus serre|nahaufnahme|primer plano)\b/ },
+  { value: "moyen", pattern: /\b(plan moyen|medium shot|mid[- ]shot|halbtotale|plano medio)\b/ },
+  { value: "large", pattern: /\b(plan large|plan d'ensemble|wide(?: shot)?|wider|plus large|totale|plano general|establishing)\b/ },
+];
+/** Angle, light and mood words: kept verbatim in the action, never guessed. */
+const AMBIANCE = /\b(low[- ]?(?:camera|angle)|high[- ]?(?:camera|angle)|camera basse|contre[- ]plongee|plongee|froschperspektive|vogelperspektive|contrapicado|picado|dramati\w*|tense|tendu\w*|sombre|dark\w*|moody|mood|ambiance|stimmung|ambiente|night|nuit|nacht|noche|rain\w*|pluie|regen|lluvia|fog|brume|nebel|niebla|light\w*|lumiere|licht|luz|slow[- ]?motion|ralenti|zeitlupe|camara lenta|silhouette|backlit|contre[- ]jour|neon|candle\w*|bougie|stained glass|vitrail|vitraux)\b/;
+
+/** « Make it more dramatic: low camera, slow push-in, rain on the stained glass » for the selected shot. */
+export function lireReglage(raw: string, selected?: number): Correction | null {
+  const text = raw.replace(/[`´]+/g, " ").replace(/\s+/g, " ").trim();
+  const f = fold(text);
+  const named = new RegExp(`${SHOT}\\s*(?:n[o°]?\\s*)?${NUM}`, "iu").exec(f);
+  const n = named ? Number(named[1]) : selected && selected > 0 ? selected : null;
+  if (!n) return null;
+  const move = cameraFromWords(text)?.move ?? null;
+  const cadrage = CADRAGE_SB.find(entry => entry.pattern.test(f))?.value ?? null;
+  const mood = AMBIANCE.test(f);
+  if (!move && !cadrage && !mood) return null;
+  // The visitor's own words go into the action, without « make it » nor the shot number.
+  const note = text
+    .replace(new RegExp(`^(?:(?:in|dans|im|en)\\s+)?${SHOT}\\s*(?:n[o°]?\\s*)?\\d{1,2}\\s*[:,-]?\\s*`, "iu"), "")
+    .replace(/^(?:make it|rends[- ]le|mach es|hazlo)\s+/iu, "")
+    .replace(/[\s.]+$/u, "");
+  return { type: "reglage", n, camera: move ? CAMERA_SB[move] : null, cadrage, note: note.charAt(0).toUpperCase() + note.slice(1) };
+}
 
 /**
  * `selected` (1-based, CE5): the shot selected next to the field. A request that names no shot is read
@@ -104,6 +141,15 @@ export function appliquerCorrection(sb: Storyboard, c: Correction, registre: Pic
       if (!plan) return null;
       const withType = plan.dialogue.type === "aucune" ? { ...sb, sequences: sb.sequences.map(seq => ({ ...seq, plans: seq.plans.map(item => item.id === plan.id ? { ...item, dialogue: { ...item.dialogue, type: "replique" as const, qui: item.refs.find(ref => ref.role === "qui")?.nom ?? null } } : item) })) } : sb;
       return { sb: ecrireReplique(withType, plan.id, c.texte, now), n: c.n };
+    }
+    case "reglage": {
+      const plan = at(c.n);
+      if (!plan || etatDuPlan(plan, registre) === "tourne") return null;
+      const action = plan.action.includes(c.note) ? plan.action : `${plan.action.replace(/[\s.]+$/u, "")}${plan.action.trim() ? ". " : ""}${c.note}.`;
+      const next: Storyboard = { ...sb, majLe: now ?? sb.majLe, sequences: sb.sequences.map(seq => ({ ...seq, plans: seq.plans.map(item => item.id !== plan.id ? item : {
+        ...item, action: action.slice(0, ACTION_MAX), camera: c.camera ?? item.camera, cadrage: c.cadrage ?? item.cadrage,
+      }) })) };
+      return { sb: next, n: c.n };
     }
   }
 }
