@@ -48,7 +48,7 @@ Out of 193 files that exist, only two native templates are refused, both on purp
 
 File: `workflows/cinema/intent-qwen3vl.api.json`. The `INTENT_GRAPH_TEMPLATE` constant must stay identical to it (tested).
 
-Graph sha256 (canonical sorted-key JSON, data slots empty): `d0f282117a1442f1c69873362586fdb630aa58c894898c03be2b40a10e023bf4`.
+Graph sha256 (canonical sorted-key JSON, data slots empty): `88c980ce2f120b5f487ffbbf0818f7c00947bc800e37e23540b905039769e157` (CE5: system prompt now carries the full answer schema from `intent-schema.ts`; previous pin `d0f28211…` on CE0).
 
 | Node | Class | Inputs |
 |---|---|---|

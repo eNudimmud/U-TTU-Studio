@@ -37,6 +37,21 @@ export interface IntentJobDeps {
   uuid(): string;
   openWeightsMode?: boolean;
   manifest?: WorkflowManifest;
+  /**
+   * CE5 · the common budget (spend-ledger, tranche and campaign), injected to avoid an
+   * intent-job ↔ spend-ledger cycle. `check` runs before the approval is consumed; `hold` writes the
+   * reserve after it and before the receipt and the POST (a throw = nothing sent).
+   */
+  budget?: IntentBudget;
+}
+
+export interface IntentBudget {
+  check(approval: SpendApproval, quote: Quote): void;
+  hold(approval: SpendApproval, quote: Quote, attemptId: string): void;
+  /** The provider refused the POST: the reserve is released (never sent). */
+  refused(attemptId: string): void;
+  /** The answer was lost: the reserve stays, uncertain. */
+  uncertain(attemptId: string): void;
 }
 
 export interface IntentPreparation {
@@ -212,9 +227,11 @@ export async function submitApprovedIntent(prep: IntentPreparation, approval: Sp
   if (integrity.length) throw new CinemaError("APPROVAL_REQUIRED", "The request changed after approval: a fresh user approval is required.", integrity);
   if (busy(deps.storage)) throw new CinemaError("BUDGET_RESERVED", "Another operation is still pending.");
 
+  deps.budget?.check(approval, prep.quote);
   // Consumed before the receipt and the POST: a failed write after this burns the approval, never sends twice.
   consumeApproval(deps.storage, approval.id);
   const attemptId = deps.uuid();
+  deps.budget?.hold(approval, prep.quote, attemptId);
   let receipt: IntentJobReceipt = {
     schemaVersion: 2, operationId: prep.operationId, attemptId, accountScope: prep.accountScope,
     snapshot: prep.snapshot, quote: prep.quote, approval: { ...approval, consumedByAttemptId: attemptId },
@@ -234,6 +251,7 @@ export async function submitApprovedIntent(prep: IntentPreparation, approval: Sp
       error: refused ? { code: "PROVIDER_REFUSED", safeMessage: `Refused by the provider (${code}).` }
         : { code: "SUBMISSION_UNKNOWN", safeMessage: "The provider's answer was lost. Check the Comfy history before any new attempt." },
     };
+    try { if (refused) deps.budget?.refused(attemptId); else deps.budget?.uncertain(attemptId); } catch { /* stays reserved: safe */ }
     writeReceiptQuiet(deps.storage, receipt);
     return receipt;
   }

@@ -6,6 +6,7 @@
 // them; an id that is not in the context is refused, a name that matches several references or none
 // is « unresolved », never created.
 import { INTENT_OUTPUT_MAX_CHARS } from "./intent-workflow.ts";
+import { CADRAGES, CAMERAS, DUREES, FORMATS, PAROLES, PREPARE_OUTPUTS, RENDUS, ROLE_CATEGORY, ROLES } from "./intent-schema.ts";
 import {
   EDITABLE_SHOT_FIELDS, OPERATION_KINDS, type CinemaDiagnostic, type EditableShotField, type EditableShotPatch, type IntentContext,
   type IntentEnvelope, type IntentParse, type Operation, type Scope, type ShotDraft, type ShotDraftRef, type Target, type Unresolved,
@@ -22,14 +23,6 @@ export const INTENT_LIMITS = {
   unresolved: 12,
 } as const;
 
-const CADRAGES = ["large", "moyen", "serre", "detail"] as const;
-const CAMERAS = ["fixe", "suit", "approche", "autour"] as const;
-const DUREES = [5, 8, 10] as const;
-const FORMATS = ["paysage", "portrait"] as const;
-const RENDUS = ["rapide", "fidele"] as const;
-const PAROLES = ["aucune", "replique", "voixoff"] as const;
-const ROLES = ["qui", "ou", "objet", "style"] as const;
-const ROLE_CATEGORY = { qui: "cast", ou: "decor", objet: "objet", style: "style" } as const;
 const TOP_KEYS = ["creativeGoal", "expectedResult", "operations", "rationale", "unresolved"] as const;
 
 /** « This shot » in the four studio languages. It needs a selection. */
@@ -246,7 +239,7 @@ function operationOf(value: unknown, context: IntentContext, options: ParseOptio
     }
     case "shot.prepare": {
       onlyKeys(value, ["kind", "target", "output"], field);
-      return { kind: "shot.prepare", target: targetOf(value.target, context, `${field}.target`).target, output: oneOf(value.output, ["keyframe", "video"] as const, `${field}.output`)! };
+      return { kind: "shot.prepare", target: targetOf(value.target, context, `${field}.target`).target, output: oneOf(value.output, PREPARE_OUTPUTS, `${field}.output`)! };
     }
     case "take.finish.prepare": {
       onlyKeys(value, ["kind", "target", "sourceTakeId", "recipeId"], field);

@@ -100,6 +100,11 @@ export interface ReserveInput {
   now: Date;
   /** Another paid operation is open (submissionBusy, or a second session). */
   busy: boolean;
+  /**
+   * CE5 · intent jobs: CE0 already consumed this approval in the same ledger (approval-ledger.ts) just
+   * before calling the reserve; it is not consumed twice. A media approval never sets this.
+   */
+  consumedByCaller?: boolean;
 }
 
 export interface Reserved { ledger: SpendLedger; reservation: Reservation; diagnostics: CinemaDiagnostic[] }
@@ -108,7 +113,7 @@ export interface Reserved { ledger: SpendLedger; reservation: Reservation; diagn
 export function reserve(input: ReserveInput): Reserved {
   const { ledger, quote, approval, now } = input;
   if (approval.actor !== "user") throw new CinemaError("APPROVAL_REQUIRED", "Seule une personne autorise une dépense.");
-  if (approval.consumedByAttemptId || ledger.consumedApprovals.includes(approval.id)) throw new CinemaError("APPROVAL_REQUIRED", "Cette autorisation a déjà servi : une nouvelle est nécessaire.");
+  if (approval.consumedByAttemptId || (!input.consumedByCaller && ledger.consumedApprovals.includes(approval.id))) throw new CinemaError("APPROVAL_REQUIRED", "Cette autorisation a déjà servi : une nouvelle est nécessaire.");
   if (approval.quoteId !== quote.id || approval.snapshotDigest !== quote.snapshotDigest || approval.workflowDigest !== quote.workflowDigest) throw new CinemaError("APPROVAL_REQUIRED", "L'autorisation ne correspond pas à ce devis.");
   if (Date.parse(quote.expiresAt) <= now.getTime()) throw new CinemaError("QUOTE_UNAVAILABLE", "Le devis a expiré : nouvelle estimation et nouvelle autorisation nécessaires.");
   if (input.busy || ledger.reservations.some(item => ACTIVE.includes(item.state))) throw new CinemaError("BUDGET_RESERVED", "Une autre opération payante est encore ouverte.");
@@ -128,7 +133,8 @@ export function reserve(input: ReserveInput): Reserved {
     accountScope: input.accountScope, reservedCredits, basis: estimate === null ? "ceiling" : "estimate",
     state: "reserved", observed: null, createdAt: at, updatedAt: at,
   };
-  return { ledger: { ...ledger, consumedApprovals: [...ledger.consumedApprovals, approval.id], reservations: [...ledger.reservations, reservation] }, reservation, diagnostics };
+  const consumedApprovals = ledger.consumedApprovals.includes(approval.id) ? ledger.consumedApprovals : [...ledger.consumedApprovals, approval.id];
+  return { ledger: { ...ledger, consumedApprovals, reservations: [...ledger.reservations, reservation] }, reservation, diagnostics };
 }
 
 function update(ledger: SpendLedger, attemptId: string, change: (item: Reservation) => Reservation): SpendLedger {
@@ -156,10 +162,48 @@ export function release(ledger: SpendLedger, attemptId: string, proof: "never_se
 /** Records the observed cost. An unknown cost keeps the reserve (the attempt stays held, never counted as zero). */
 export function recordCost(ledger: SpendLedger, attemptId: string, observed: ObservedCost, now: Date): SpendLedger {
   return update(ledger, attemptId, item => {
+    // A job closed with an unknown cost (closeWithUnknownCost) may still be reconciled with its invoice.
+    if (item.state === "settled" && item.observed?.credits == null && observed.credits !== null && observed.provenance !== "unknown") return { ...item, observed, updatedAt: now.toISOString() };
     if (item.state === "settled" || item.state === "released") return item;
     if (observed.provenance === "unknown" || observed.credits === null) return { ...item, observed, updatedAt: now.toISOString() };
     return { ...item, state: "settled", observed, updatedAt: now.toISOString() };
   });
+}
+
+/**
+ * CE5 · the job is over (terminal on the provider) but its cost is still unknown: the reserve keeps
+ * counting in the tranche and the campaign (never zero), yet it no longer blocks the next approved
+ * operation. `recordCost` can still reconcile it later from the job's invoice.
+ */
+export function closeWithUnknownCost(ledger: SpendLedger, attemptId: string, now: Date): SpendLedger {
+  return update(ledger, attemptId, item => {
+    if (item.state !== "reserved") return item;
+    return { ...item, state: "settled", observed: item.observed ?? { credits: null, provenance: "unknown", unit: "credits", readAt: null }, updatedAt: now.toISOString() };
+  });
+}
+
+/** Credits held by the whole campaign in this browser: every tranche, agent and media, settled or open. */
+export function campaignHeld(ledger: SpendLedger): number {
+  return [...new Set(ledger.reservations.map(item => item.trancheId))].reduce((sum, id) => sum + trancheHeld(ledger, id), 0);
+}
+
+export interface CampaignLimit {
+  /** The global ceiling JD set for the contest (300). */
+  capCredits: number;
+  /** Credits already spent before this ledger existed (earlier tests, agent included). Null = not entered yet. */
+  priorCredits: number | null;
+}
+
+/**
+ * The global campaign limit, on top of the tranche: prior spend + everything this ledger holds + the
+ * new reserve must stay within the cap. A missing or non-finite figure refuses (the counter is not reliable).
+ */
+export function assertCampaign(ledger: SpendLedger, limit: CampaignLimit, addCredits: number): void {
+  const finite = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n) && n >= 0;
+  if (!finite(limit.capCredits) || !(limit.capCredits > 0)) throw new CinemaError("BUDGET_RESERVED", "Plafond de campagne invalide.", ["campaign-cap"]);
+  if (!finite(limit.priorCredits)) throw new CinemaError("BUDGET_RESERVED", "Dépense antérieure de la campagne non renseignée : aucun envoi.", ["campaign-prior"]);
+  if (!(Number.isFinite(addCredits) && addCredits > 0)) throw new CinemaError("APPROVAL_REQUIRED", "Plafond autorisé invalide.", ["ceiling"]);
+  if (limit.priorCredits + campaignHeld(ledger) + addCredits > limit.capCredits) throw new CinemaError("BUDGET_RESERVED", "La limite de campagne ne couvre pas cette réserve.", [`campagne ${limit.capCredits}`]);
 }
 
 /**
