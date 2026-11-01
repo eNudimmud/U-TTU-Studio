@@ -124,7 +124,7 @@ export interface DecorInput {
 /** The controller with every method answered asynchronously (its module is fetched on first use). */
 export type LazyCinema = { [K in keyof CinemaController]: CinemaController[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never };
 
-const CINEMA_METHODS = ["prepareIntent", "submitIntent", "resumeIntent", "bindIntent", "declareIntentAbsent", "applyLocal", "undo", "approveKeyframe", "prepareShot", "submitShot", "resumeResults"] as const satisfies readonly (keyof CinemaController)[];
+const CINEMA_METHODS = ["prepareIntent", "submitIntent", "resumeIntent", "collectIntent", "bindIntent", "declareIntentAbsent", "applyLocal", "undo", "approveKeyframe", "prepareShot", "submitShot", "resumeResults"] as const satisfies readonly (keyof CinemaController)[];
 
 // A controller method missing from the list fails to compile here.
 const cinemaMethodsComplete: [Exclude<keyof CinemaController, (typeof CINEMA_METHODS)[number]>] extends [never] ? true : false = true;

@@ -13,6 +13,7 @@ import { formatCredits } from "@/lib/credits";
 import { ajouterPlan as ajouterPlanFilm, ajouterPrise, auMontage, garderPrise, nouveauPlan } from "@/lib/film/registre";
 import { assetPath } from "@/lib/site";
 import { appliquerCorrection, lireCorrection, lireReglage, type Correction } from "@/lib/storyboard/corriger";
+import { arreterEntreLesPlans, persistStoryboardU11 } from "@/lib/storyboard/u11";
 import { devisStoryboard, plansATourner, reglagesDuPlan } from "@/lib/storyboard/devis";
 import { definirPersonnage, ecrireStoryboard, type Gabarits, type Question } from "@/lib/storyboard/ecrire";
 import { catalogue, contexteDuCatalogue } from "@/lib/storyboard/identites";
@@ -31,6 +32,7 @@ import { ShotThumb } from "./storyboard-ui";
 import { UttuColumn, type Bulle, type Ecrit } from "./storyboard-uttu";
 import { useStoryboards, type Storyboards } from "./use-storyboards";
 import { planChoisi, Workspace } from "./storyboard-workspace";
+import { U11Storyboard } from "./storyboard-u11";
 
 const FILTRES: Filtre[] = ["tous", "en-cours", "tournes", "archives"];
 const nouvelIdCourt = () => Math.random().toString(36).slice(2, 8);
@@ -39,7 +41,7 @@ function adresse(id: string | null, print = false) {
   return assetPath(id ? `/storyboard/${id}${print ? "/print" : ""}` : "/storyboard");
 }
 
-export function StoryboardPage({ initialId, print }: { initialId: string | null; print: boolean }) {
+export function StoryboardPage({ initialId, print, initialU11 = false }: { initialId: string | null; print: boolean; initialU11?: boolean }) {
   const studio = useStudio();
   const { t } = useI18n();
   const messages = useMessages() as unknown as { storyboard: { gabarits: Gabarits } };
@@ -57,6 +59,7 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
   const [ecrits, setEcrits] = useState<Record<string, Ecrit>>({});
   const [ecriture, setEcriture] = useState(false);
   const [ideeInitiale, setIdeeInitiale] = useState("");
+  const [u11, setU11] = useState(initialU11);
 
   // Address ↔ page without a server round trip; the back button works.
   useEffect(() => {
@@ -67,6 +70,7 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
     };
     window.addEventListener("popstate", back);
     try { setIdeeInitiale(new URLSearchParams(window.location.search).get("idee")?.slice(0, 240) ?? ""); } catch { /* no address */ }
+    setU11(persistStoryboardU11(window.location.search));
     return () => window.removeEventListener("popstate", back);
   }, []);
   const aller = useCallback((id: string | null) => {
@@ -201,6 +205,18 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
     setAConfirmer(null);
   }, [sb, aConfirmer]);
 
+  // U1.1 starts the same queue, from its own sheet. Stopping clears only the shots still waiting.
+  const lancer = useCallback((ids: string[]) => {
+    if (!sb || !ids.length) return;
+    if (!connected) { setSheet("connect"); return; }
+    sbFile.current = sb.id;
+    filed.current = null;
+    setEchecs(all => { const next = { ...all }; for (const id of ids) delete next[id]; return next; });
+    setFile(suivantDeLaFile(fileVide(ids)));
+    setAConfirmer(null);
+  }, [sb, connected, setSheet]);
+  const stopApres = useCallback(() => setFile(current => current ? arreterEntreLesPlans(current) : current), []);
+
   const etat = useCallback((plan: PlanSB) => {
     if (sb && sbFile.current === sb.id && enCours === plan.id) return "en-cours" as const;
     if (echecs[plan.id]) return "echec" as const;
@@ -265,6 +281,19 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
   const portee = sb && choix ? tousLesPlans(sb).findIndex(plan => plan.id === choix.plan.id) + 1 : null;
   const saveFailed = data.echecEcriture || sauvegarde === "failed";
   const saveLabel = saveFailed ? t("storyboard.ws.saveFailed") : sauvegarde === "saving" ? t("storyboard.ws.saving") : t("storyboard.ws.saved");
+
+  if (u11 && !print) {
+    return <div className="sb-root" data-theme="obsidian" data-view="u11" data-storyboard-page="" data-u11="" data-ready={studio.ready && data.charge ? "true" : "false"}>
+      <U11Storyboard sb={sb} data={data} known={known} aller={aller} onOpen={setOuvert} onStart={lancer} filming={Boolean(file)} onStopAfter={stopApres} askAgent={agent.ask} />
+      {ouvertPlan && sb && <div data-theme="paper" style={{ display: "contents" }}><StoryboardSheet sb={sb} found={ouvertPlan} data={data} etat={etat(ouvertPlan.plan)} echec={echecs[ouvertPlan.plan.id] ?? null}
+        onClose={() => setOuvert(null)} onChange={next => changer(next)} onFilm={() => filmer([ouvertPlan.plan.id])}
+        onKeep={async priseId => { if (ouvertPlan.plan.planFilmId) await data.setRegistre(garderPrise(data.registre, ouvertPlan.plan.planFilmId, priseId)); }}
+        onRemove={() => { changer(retirerPlan(sb, ouvertPlan.plan.id), t("storyboard.board.removed")); setOuvert(null); }} /></div>}
+      {agent.confirm && <div data-theme="paper" style={{ display: "contents" }}>{agent.confirm}</div>}
+      {aConfirmer && sb && <div data-theme="paper" style={{ display: "contents" }}><StoryboardConfirm sb={sb} ids={aConfirmer} data={data} onStart={demarrer} onClose={() => setAConfirmer(null)} /></div>}
+      {dark && <div className="u-app sb-dark">{dark}</div>}
+    </div>;
+  }
 
   return <div className="sb-root" data-theme="paper" data-view={sb ? "u1" : "board"} data-storyboard-page="" data-ready={studio.ready && data.charge ? "true" : "false"}>
     <header className="sb-bar">
