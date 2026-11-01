@@ -384,6 +384,17 @@
         "CONTEXT_TOO_LONG": "Ce storyboard est trop long pour être envoyé d’un coup. Sélectionne un plan et demande pour lui.",
         "INTENT_INVALID": "La proposition d’Uttu n’a pas pu être appliquée. Rien n’a été modifié.",
         "JOB_FAILED": "Le rendu s’est terminé sans résultat sur Comfy."
+      },
+      "agent": {
+        "title": "Demander à l'agent d'Uttu ?",
+        "lead": "Une lecture texte sur ton compte Comfy lit cette demande. Le board ne change qu'une fois sa réponse vérifiée.",
+        "cost": "≈ {n} crédits estimés",
+        "costUnknown": "≈ {n} crédits estimés au plus (coût pas encore mesuré sur ce compte)",
+        "start": "Lancer",
+        "cancel": "Annuler",
+        "sent": "Envoyé. Le board change une fois la réponse lue.",
+        "applied": "Fait : le board suit la réponse de l'agent.",
+        "failed": "L'agent d'Uttu n'a pas pu le faire. Le board est inchangé."
       }
     }
   }

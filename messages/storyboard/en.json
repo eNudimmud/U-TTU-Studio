@@ -384,6 +384,17 @@
         "CONTEXT_TOO_LONG": "This storyboard is too long to send at once. Select a shot and ask about it.",
         "INTENT_INVALID": "Uttu’s proposal could not be applied. Nothing was changed.",
         "JOB_FAILED": "The render ended without a result on Comfy."
+      },
+      "agent": {
+        "title": "Ask Uttu's agent?",
+        "lead": "One text run on your Comfy account reads this request. The board changes only once its answer is checked.",
+        "cost": "≈ {n} credits estimated",
+        "costUnknown": "≈ {n} credits estimated at most (cost not measured on this account yet)",
+        "start": "Start",
+        "cancel": "Cancel",
+        "sent": "Sent. The board changes once the answer is read.",
+        "applied": "Done: the board follows the agent's answer.",
+        "failed": "Uttu's agent could not do this. The board is unchanged."
       }
     }
   }

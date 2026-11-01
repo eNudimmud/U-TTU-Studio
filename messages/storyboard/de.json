@@ -384,6 +384,17 @@
         "CONTEXT_TOO_LONG": "Dieses Storyboard ist zu lang, um es auf einmal zu senden. Wähle eine Einstellung und frage dazu.",
         "INTENT_INVALID": "Uttus Vorschlag konnte nicht angewendet werden. Nichts wurde geändert.",
         "JOB_FAILED": "Das Rendering endete auf Comfy ohne Ergebnis."
+      },
+      "agent": {
+        "title": "Uttus Agenten fragen?",
+        "lead": "Ein Textlauf auf deinem Comfy-Konto liest diese Anfrage. Das Board ändert sich erst, wenn die Antwort geprüft ist.",
+        "cost": "≈ {n} Credits geschätzt",
+        "costUnknown": "≈ höchstens {n} Credits geschätzt (Kosten auf diesem Konto noch nicht gemessen)",
+        "start": "Starten",
+        "cancel": "Abbrechen",
+        "sent": "Gesendet. Das Board ändert sich, sobald die Antwort gelesen ist.",
+        "applied": "Erledigt: Das Board folgt der Antwort des Agenten.",
+        "failed": "Uttus Agent konnte das nicht tun. Das Board ist unverändert."
       }
     }
   }

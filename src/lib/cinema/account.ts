@@ -3,9 +3,11 @@
 // key, never a hash of the key (a rotated key on the same account keeps the same scope; another
 // account gets another one). No id = no new cinema submission; open receipts are kept as they are.
 //
-// Field: `id`, the one the media catalogue already reads first and the redacted fixture holds. Its
-// presence on the real account is still to be confirmed by a redacted read on JD's side; until then
-// `user_id` / `uid` and the key-hash fallback of `media/catalog.ts` are deliberately NOT accepted here.
+// Field: `id`, confirmed: Comfy-Org/ComfyUI openapi.yaml (master a9ba0f1, x-runtime cloud) declares
+// `UserResponse.required: [id, status]`, `id` = "Firebase UID of the authenticated user". The account's
+// own billing feed carries the same kind of value as `user_id` on every event (read-only check, value
+// not copied). docs.comfy.org's page for GET /api/user still lists `status` only (stale). `user_id` /
+// `uid` and the key-hash fallback of `media/catalog.ts` stay deliberately NOT accepted here.
 import { accountFingerprint } from "../render/recovery.ts";
 import { CinemaError } from "./types.ts";
 

@@ -22,6 +22,7 @@ import {
 } from "@/lib/storyboard/storyboard";
 import { ConnectSheet, CreditSheet } from "../app/studio-frames";
 import { useStudio } from "../app/studio-session";
+import { useNativeAgent } from "./storyboard-agent";
 import { StoryboardConfirm } from "./storyboard-confirm";
 import { StoryboardPrint } from "./storyboard-print";
 import { StoryboardSheet } from "./storyboard-sheet";
@@ -205,6 +206,8 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
   }, [sb, enCours, echecs, data.registre]);
 
   // ---- Uttu column: plain corrections ----
+  // CE5: behind JD's qualification flag only; elsewhere `ask` declines and the reply stays as before.
+  const agent = useNativeAgent(sb, sb ? planChoisi(sb, choisi)?.plan.id ?? null : null, data, dire);
   const corriger = useCallback((texte: string) => {
     if (!sb) return;
     dire(sb.id, { qui: "moi", texte });
@@ -214,11 +217,15 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
     // CE5: the selection is passed as data, the request text is never rewritten with a « shot N » prefix.
     const c = lireCorrection(texte) ?? (numero ? lireCorrection(texte, numero) : null);
     const applied = c ? appliquerCorrection(sb, c, data.registre, nouvelIdCourt()) : null;
-    if (!c || !applied) { dire(sb.id, { qui: "uttu", texte: t("storyboard.uttu.notUnderstood") }); return; }
+    if (!c || !applied) {
+      const id = sb.id;
+      void agent.ask(texte).then(taken => { if (!taken) dire(id, { qui: "uttu", texte: t("storyboard.uttu.notUnderstood") }); });
+      return;
+    }
     const text = reponse(c, applied.n, applied.sb);
     changer(applied.sb, text);
     dire(sb.id, { qui: "uttu", texte: text });
-  }, [sb, choisi, data.registre, dire, changer, t]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sb, choisi, data.registre, dire, changer, t, agent]); // eslint-disable-line react-hooks/exhaustive-deps
   function reponse(c: Correction, n: number | null, next: Storyboard): string {
     switch (c.type) {
       case "ajouter": return t("storyboard.uttu.done.added", { n: String(n ?? "") });
@@ -293,6 +300,7 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
       onClose={() => setOuvert(null)} onChange={next => changer(next)} onFilm={() => filmer([ouvertPlan.plan.id])}
       onKeep={async priseId => { if (ouvertPlan.plan.planFilmId) await data.setRegistre(garderPrise(data.registre, ouvertPlan.plan.planFilmId, priseId)); }}
       onRemove={() => { changer(retirerPlan(sb, ouvertPlan.plan.id), t("storyboard.board.removed")); setOuvert(null); }} />}
+    {agent.confirm}
     {aConfirmer && sb && <StoryboardConfirm sb={sb} ids={aConfirmer} data={data} onStart={demarrer} onClose={() => setAConfirmer(null)} />}
     {annuler && <div className="sb-toast" role="status" data-sb-undo="">
       <span>{annuler.label}</span>

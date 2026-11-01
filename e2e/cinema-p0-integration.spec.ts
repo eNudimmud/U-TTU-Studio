@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { simulateComfy } from './helpers/film2-comfy';
 
@@ -120,4 +121,63 @@ test('P0: the legacy ?film2=0 link and the studio open on one plan composer, wit
     await expect(field).toBeVisible();
   }
   expect(posts).toEqual([]);
+});
+
+// CE5 · native agent: hidden outside JD's qualification flag; with it, an unread request is prepared and
+// quoted in the confirmation surface (« ≈ X »), nothing is sent before « Start », and « Start » sends one
+// request only. Comfy simulated: the one POST is answered by the mock, 0 real credits.
+test('native agent: hidden by default; under qualification, quote, nothing before Start, one POST on Start', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'one desktop run');
+  test.setTimeout(180_000);
+  await simulateComfy(page);
+  const posts = watchPosts(page);
+  type M = { storyboard: { uttu: { notUnderstood: string }; cinema: { agent: Record<string, string> } } };
+  const read = (locale: string) => JSON.parse(readFileSync(`messages/storyboard/${locale}.json`, 'utf8')) as M;
+  const locales = [read('fr'), read('en')];
+  const either = (pick: (m: M) => string) => new RegExp(locales.map(m => pick(m).slice(0, 24).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'));
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/storyboard');
+  await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
+  await page.locator('[data-sb-idea-field]:visible').fill('Une voyageuse traverse la ville sous la pluie pour atteindre un toit à l’aube.');
+  await page.locator('[data-sb-write]:visible').click();
+  await expect(page).toHaveURL(/\/storyboard\/[a-z0-9-]+/, { timeout: 30_000 });
+  await ready(page);
+  const board = page.url();
+  const chat = page.locator('[data-sb-chat]');
+
+  // Demo: the reply is the board's own « not understood », no agent surface.
+  await page.locator('[data-sb-strip] [data-sb-select]').nth(1).click();
+  await page.locator('[data-sb-ask]').fill('rends ce plan plus mélancolique');
+  await page.locator('[data-sb-send]').click();
+  await expect(chat).toContainText(either(m => m.storyboard.uttu.notUnderstood));
+  await expect(page.locator('[data-sb-agent-confirm]')).toHaveCount(0);
+
+  // Qualification: same request → prepared and quoted, nothing sent before « Start ».
+  await page.goto(`${board}?cinema=qualification`);
+  await ready(page);
+  await page.locator('[data-sb-strip] [data-sb-select]').nth(1).click();
+  await page.locator('[data-sb-ask]').fill('rends ce plan plus mélancolique');
+  await page.locator('[data-sb-send]').click();
+  const dialog = page.locator('[data-sb-agent-confirm]');
+  await expect(dialog).toBeVisible({ timeout: 30_000 });
+  await expect(dialog.locator('[data-sb-agent-quote]')).toContainText('≈');
+  await expect(dialog).not.toContainText(FREE);
+  await page.waitForTimeout(1000);
+  expect(posts, 'no POST before Start').toEqual([]);
+  const box = await dialog.locator('[data-sb-agent-start]').boundingBox();
+  expect(box!.height).toBeGreaterThanOrEqual(43.5);
+
+  // Cancel sends nothing; « Start » sends exactly one request (mocked).
+  await dialog.locator('[data-sb-agent-cancel]').click();
+  await expect(dialog).toHaveCount(0);
+  expect(posts).toEqual([]);
+  await page.locator('[data-sb-ask]').fill('rends ce plan plus mélancolique');
+  await page.locator('[data-sb-send]').click();
+  await expect(dialog).toBeVisible({ timeout: 30_000 });
+  await dialog.locator('[data-sb-agent-start]').click();
+  await expect(dialog).toHaveCount(0);
+  await expect(chat).toContainText(either(m => m.storyboard.cinema.agent.sent), { timeout: 15_000 });
+  await page.waitForTimeout(3000);
+  expect(posts, 'one approval = one POST').toEqual(['/api/prompt']);
 });
