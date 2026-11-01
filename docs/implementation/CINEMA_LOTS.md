@@ -2,7 +2,7 @@
 
 Base examinée : main `77094dd`. Suivi unique : [#216](https://github.com/eNudimmud/U-TTU-Studio/issues/216). Lire [architecture](../architecture/CINEMA_ENGINE.md), [contrats](../architecture/CONTRACTS.md), [workflows](../architecture/CINEMA_WORKFLOWS.md). Compléter la méthode de `docs/implementation/README.md` dans #215, sans la dupliquer.
 
-Les corrections #209/#211/#217/#218/#220/#221 sont fusionnées : ce sont des acquis, pas des tâches à refaire. Les lots ci-dessous sont prêts pour préparation/implémentation headless, sauf les interfaces et actions explicitement réservées à JD.
+Les corrections #209/#211/#217/#218/#220/#221 sont fusionnées : ce sont des acquis, pas des tâches à refaire. Les lots headless sont prêts. **JD a validé U1 le 1er novembre : CE4 est autorisé**, selon [l'accord consigné](https://github.com/eNudimmud/U-TTU-Studio/pull/222#issuecomment-6557202544), avec les dépendances ci-dessous. Les dépenses, compositions artistiques, merges et extensions importantes du design restent réservés à JD.
 
 ## Ordre et propriétaires de fichiers
 
@@ -12,7 +12,7 @@ Les corrections #209/#211/#217/#218/#220/#221 sont fusionnées : ce sont des acq
 | CE1 `fix/cinema-reference-bindings` | Types CE0 | Références, snapshot, préparation des vues | Prêt après types ; compléter #217 |
 | CE2 `fix/cinema-durable-settlement` | Types CE0 | Journal, settlement, budget | Prêt après types |
 | CE3 `feat/cinema-intent-commands` | Types CE0 ; CE2 pour persistance | Parser, contexte, commandes | Parser/test parallélisables ; adapter persistance ensuite |
-| CE4 `feat/cinema-workspace-u1` | Accord JD U1 ; CE0–CE3 | Storyboard/conversation, CSS et messages | Bloqué pour implémentation UI |
+| CE4 `feat/cinema-workspace-u1` | U1 validé ; CE0–CE3 pour le raccord | Storyboard/conversation, CSS et messages | Autorisé ; préparation UI parallélisable |
 | CE5 `test/cinema-p0-integration` | Lots précédents selon périmètre validé | Raccords `studio-session`, e2e, preuves de production | Préparation prête ; Cloud par JD |
 
 Chaque branche part du main à jour, SHA inscrit dans la PR ; une dépendance peut être empilée sur un commit publié sans fusionner main. Un seul propriétaire modifie `types.ts` (CE0), un seul intègre `studio-session.tsx` (CE5), un seul touche messages/styles (CE4). Les lots produisent des adapters et patchs de raccord à intégrer séquentiellement. Ne pas écraser les changements d'un autre exécutant.
@@ -77,7 +77,7 @@ Interdictions communes : aucun merge sans accord JD, force-push, PR #112, destru
 
 **Acceptation.** Réponse invalide = zéro mutation/zéro appel payant supplémentaire. Cinq demandes P0 ont un résultat typé et un diagnostic stable. Les tests de #218 restent vrais ou évoluent avec migration documentée, pas une simple mise à jour des assertions pour masquer une régression.
 
-## CE4 — Workspace U1, seulement après accord
+## CE4 — Workspace U1 validé
 
 **Objectif.** Une conversation principale, plans visuels et contexte accessible à la demande, selon [U1](../architecture/UX_REVIEW.md).
 
@@ -87,7 +87,7 @@ Interdictions communes : aucun merge sans accord JD, force-push, PR #112, destru
 
 **Tests.** 390×844, 844×390, 1024×600, 1280×800 ; cibles >=44 px ; pas de scroll horizontal ; focus conservé ; annonces accessibles ; quatre langues ; erreur/reprise ; sélection Fizz puis caméra ne touche pas Enki. Régression SSR/LCP #221 évitée.
 
-**Acceptation/autorité.** Commentaire JD `U1 validé` avant code UI. La présence de cette spécification n'est pas cet accord. Pas de design supplémentaire introduit au passage.
+**Acceptation/autorité.** Accord JD reçu et [consigné](https://github.com/eNudimmud/U-TTU-Studio/pull/222#issuecomment-6557202544). Implémenter le périmètre U1 et sa maquette conservée dans `docs/architecture/prototypes/uttu-cinema-u1.html`. La structure et les comportements locaux peuvent avancer en parallèle ; le produit ne présente aucune génération simulée comme réelle. Livrer une PR de code, une preview et les tests requis avant demande de merge. Pas de design supplémentaire introduit au passage.
 
 ## CE5 — Intégration, répétition et mise à jour de candidature
 

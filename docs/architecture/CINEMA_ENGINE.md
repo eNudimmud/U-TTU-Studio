@@ -2,6 +2,8 @@
 
 Spécification Astra du 1er novembre 2026, synchronisée sur `main` **77094dd29ab3f176ac53145c465c4699f8d886f8**. Documentation seulement. Aucun changement d'interface, merge ou test payant n'est autorisé par sa publication.
 
+**Mise à jour de validation : U1 approuvé par JD le 1er novembre 2026.** [Accord](https://github.com/eNudimmud/U-TTU-Studio/pull/222#issuecomment-6557202544). CE4 peut être implémenté sur sa branche dédiée selon les dépendances ; la validation ne vaut pas accord de merge ou de dépense.
+
 ## Source commune et acquis
 
 Le suivi reste dans [#216](https://github.com/eNudimmud/U-TTU-Studio/issues/216). Réutiliser les documents Cursor : [ETAT-TECHNIQUE et DEMO-P0, PR #215](https://github.com/eNudimmud/U-TTU-Studio/pull/215), [SOUMISSION, PR #219](https://github.com/eNudimmud/U-TTU-Studio/pull/219). Ils restent sur leurs branches tant que JD n'a pas approuvé leur merge. Ne pas créer un deuxième scénario, dossier de soumission ou tableau d'avancement concurrent.
@@ -56,7 +58,7 @@ flowchart TD
 | Continuity Engine | Identité, apparence, costume, pose, lieu, objet, style et caméra séparés | Bindings par ID/hash, snapshots par plan, contraintes de raccord |
 | Invisible Workflow Engine | Routage par capacités, admissibilité et preuves | Étendre le registre et `open-weights.ts`, sans second catalogue divergent |
 | Cloud Production | Jobs, assets, coûts, reprise et associations | Réutiliser le client, reçus, coffre, upload memo et médiathèque |
-| Production Workspace | Conversation, canvas, contexte à la demande | Évolution du storyboard sous accord U1, quatre domaines métier préservés |
+| Production Workspace | Conversation, canvas, contexte à la demande | Évolution du storyboard selon U1 validé, quatre domaines métier préservés |
 | Postproduction | Prises gardées, timeline, finition dérivée, son et exports | Export existant annoncé honnêtement ; extension progressive |
 
 ### ADR-01 — Monolithe modulaire, contrats stables

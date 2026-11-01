@@ -1,8 +1,10 @@
 # U1 — storyboard conversationnel
 
-**Proposition à valider par JD avant implémentation CE4.** Aucun changement produit livré par ce dossier. Cette validation ne vaudra ni accord artistique sur les plans, ni autorisation de crédits ou de merge.
+**Design U1 validé par JD le 1er novembre 2026 ; implémentation CE4 autorisée.** [Accord consigné dans GitHub](https://github.com/eNudimmud/U-TTU-Studio/pull/222#issuecomment-6557202544) : « Oui je valide », en réponse à la maquette et au périmètre U1. Aucun changement produit n'est livré par ce dossier. Les compositions artistiques, crédits et merges conservent leurs validations distinctes.
 
-## Décision attendue
+[Maquette interactive validée](prototypes/uttu-cinema-u1.html) : fragment de référence conservé tel que présenté, hors code applicatif. Sélection de plan et ouverture du contexte seulement ; aucun appel réseau ni média privé. Cursor peut s'en servir directement sans demander à JD de retransmettre la maquette.
+
+## Périmètre validé
 
 Faire évoluer le storyboard existant : plans visuels au centre, conversation Uttu contextuelle, références et historique à la demande. Garder le papier/or, les routes et les quatre domaines CAST · DÉCOR · PRISE · MONTAGE. Aucun nouveau menu « moteur AAA » ou panneau permanent par compétence.
 
@@ -45,4 +47,4 @@ Cibles >=44 px, focus visible, sélection clavier, alternatives au glisser-dépo
 
 Périmètre : workspace storyboard et conversation. Risque principal : deux champs concurrents ou sélection mal propagée. Test d'acceptation : choisir Fizz, modifier caméra, vérifier qu'Enki et son plan restent identiques. Les contrôles de budget/reprise restent hors React.
 
-Réponse attendue dans la PR documentaire : `U1 validé` ou modifications précises. Les détails d'implémentation compatibles sont tranchés par Astra/Cursor ; toute extension UX importante repasse par JD.
+L'accord est acquis pour ce périmètre : ne pas redemander la même validation à JD. Cursor ouvre la PR CE4 sur `feat/cinema-workspace-u1`, publie la preview et les preuves des quatre dimensions, puis Astra vérifie la conformité. Le raccord aux opérations réelles dépend de CE0–CE3. Les détails d'implémentation compatibles sont tranchés par Astra/Cursor ; toute extension UX importante repasse par JD.
