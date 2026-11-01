@@ -197,13 +197,23 @@ function CardLoop({ webm, mp4, poster }: { webm: string; mp4: string; poster: st
   </video>;
 }
 
+/* The ~45 card pictures (≈ 2 MB) are fetched once the page has loaded, like the home's later hero slides:
+ * they never share the first paint's bandwidth with the entry picture. Same box, same pictures. */
+const onLoad = (done: () => void) => {
+  if (document.readyState === "complete") return () => {};
+  window.addEventListener("load", done, { once: true });
+  return () => window.removeEventListener("load", done);
+};
+const useAfterLoad = () => useSyncExternalStore(onLoad, () => document.readyState === "complete", () => false);
+
 export function CardThumb({ id, fam }: { id: string; fam: Famille | "reperage" | "maquette" }) {
   const key = intentDe(id);
   const src = vignette(key), src2x = vignette2x(key), loop = vignetteAnimee(key);
   const motion = useMotionOk();
+  const loaded = useAfterLoad();
   return <span className="u-outil-thumb" aria-hidden="true">
-    {src ? <img src={assetPath(src)} srcSet={src2x ? `${assetPath(src)} 640w, ${assetPath(src2x)} 1280w` : undefined} sizes={src2x ? THUMB_SIZES : undefined} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
-    {src && loop && motion ? <CardLoop webm={assetPath(loop.webm)} mp4={assetPath(loop.mp4)} poster={assetPath(src)} /> : null}
+    {src ? <img src={loaded ? assetPath(src) : undefined} srcSet={loaded && src2x ? `${assetPath(src)} 640w, ${assetPath(src2x)} 1280w` : undefined} sizes={src2x ? THUMB_SIZES : undefined} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
+    {src && loop && motion && loaded ? <CardLoop webm={assetPath(loop.webm)} mp4={assetPath(loop.mp4)} poster={assetPath(src)} /> : null}
   </span>;
 }
 

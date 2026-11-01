@@ -14,17 +14,20 @@ import { StoryboardPage } from "./storyboard-page";
 import "../app/app.css";
 import "./storyboard.css";
 
-export function StoryboardApp({ id, print }: { id: string | null; print: boolean }) {
+export function StoryboardApp({ id, print, initial = null }: { id: string | null; print: boolean; initial?: { locale: string; messages: AbstractIntlMessages } | null }) {
   const { locale } = useLocaleSwitch();
   const base = useMessages();
-  const [extra, setExtra] = useState<{ locale: string; messages: AbstractIntlMessages } | null>(null);
+  // `initial` is the server's catalog for the request locale: no empty first frame. A language switch loads the next one.
+  const [extra, setExtra] = useState<{ locale: string; messages: AbstractIntlMessages } | null>(initial);
+  const ready = extra?.locale === locale;
   // An explicit ?storyboard=0 / =1 is kept for this browser, like the studio's other flags.
   useEffect(() => { storyboardDansCePoste(); }, []);
   useEffect(() => {
+    if (ready) return;
     let gone = false;
     void loadStoryboardCatalog(locale).then(messages => { if (!gone) setExtra({ locale, messages }); });
     return () => { gone = true; };
-  }, [locale]);
+  }, [locale, ready]);
   if (!extra) return <div className="sb-root" data-theme="paper" aria-busy="true" />;
   return <NextIntlClientProvider locale={htmlLang(locale)} messages={{ ...base, ...extra.messages }} timeZone="Europe/Zurich">
     <StudioProvider>
