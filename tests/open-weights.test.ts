@@ -4,13 +4,14 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { LICENCE_A_VERIFIER, MINIMAX_H3_ATTRIBUTION, OPEN_WEIGHTS_MODE, licenceAVerifier, modeOpenWeights } from "../src/lib/open-weights.ts";
+import { LICENCE_RESTREINTE, MINIMAX_H3_ATTRIBUTION, OPEN_WEIGHTS_MODE, licenceRestreinte, masqueParLicence, modeOpenWeights } from "../src/lib/open-weights.ts";
+import { MESH_CHOIX, meshChoisi, outilGraph, outilQuote } from "../src/lib/outils/graphs.ts";
 import { FAMILLES, OUTILS, familleVitrine, modelesIntent, outilEtat, outilParId, outilPartenaire, outilsPublics, outilsPublicsOnglet } from "../src/lib/outils/catalogue.ts";
 import { ONGLET, REGISTRE, TEMPLATES_OFFICIELS, gesteOuvert, gesteVisible, templatePartenaire } from "../src/lib/workflows/registre.ts";
 import { TAKE_ENGINES } from "../src/lib/render/take-graph.ts";
 import { DEFAULT_PREFS, prefsSession } from "../src/lib/studio-prefs.ts";
 
-type Statut = "open" | "open, MiniMax H3 licence (name shown)" | "open, licence to check";
+type Statut = "open" | "open, MiniMax H3 licence (name shown)";
 const OW = { openWeightsOnly: true } as const;
 
 /** Every tool model visible in open-weights mode: id → [template, status]. */
@@ -70,7 +71,8 @@ const root = new URL("../", import.meta.url);
 
 function statut(template: string): Statut {
   if (MINIMAX_H3_ATTRIBUTION.includes(template)) return "open, MiniMax H3 licence (name shown)";
-  return licenceAVerifier(template) ? "open, licence to check" : "open";
+  assert.equal(licenceRestreinte(template), null, `${template} has a restricted licence: it cannot be visible`);
+  return "open";
 }
 
 function visibleModels(): string[] {
@@ -157,8 +159,8 @@ describe("open-weights mode", () => {
     assert.equal(later, firstPaint);
   });
 
-  it("flags Hunyuan 3D 2.1 for a licence check, and keeps local H3, FastH3 and Pika H3 open, without hiding them", () => {
-    for (const template of [...Object.keys(LICENCE_A_VERIFIER), ...MINIMAX_H3_ATTRIBUTION]) {
+  it("keeps local H3, FastH3 and Pika H3 open and visible, and Hunyuan3D 2.1 is a local template (hidden for its licence, not as a partner)", () => {
+    for (const template of [...Object.keys(LICENCE_RESTREINTE), ...MINIMAX_H3_ATTRIBUTION]) {
       assert.equal(templatePartenaire(template), false, template);
       assert.ok((TEMPLATES_OFFICIELS as readonly string[]).includes(template), template);
     }
@@ -222,5 +224,24 @@ describe("open-weights mode: Montage Finaliser", () => {
     const finaliser = outilParId("vid-finaliser");
     assert.equal(finaliser?.template, "utility_seedvr2_3b_int8_upscale_video");
     assert.equal(templatePartenaire("utility_seedvr2_3b_int8_upscale_video"), false);
+  });
+});
+
+describe("open-weights mode: Hunyuan3D 2.1 (licence excludes the EU, the UK and South Korea)", () => {
+  it("is hidden with the same flag: no gesture, no « Character » option; TRELLIS.2 still turns any picture into 3D", () => {
+    assert.equal(masqueParLicence("3d_hunyuan3d-v2.1", true), true);
+    assert.equal(masqueParLicence("3d_hunyuan3d-v2.1", false), false);
+    assert.equal(masqueParLicence("3d_pixal3d_trellis2_image_to_model", true), false);
+    if (!OPEN_WEIGHTS_MODE) return;
+    assert.ok(!REGISTRE.some(row => row.template === "3d_hunyuan3d-v2.1" && gesteVisible(row, OW)));
+    assert.ok(REGISTRE.some(row => row.template === "3d_hunyuan3d-v2.1" && gesteVisible(row, { openWeightsOnly: false })), "still there for a build with the mode off");
+    assert.deepEqual([...MESH_CHOIX], ["objet"]);
+    assert.equal(meshChoisi("perso"), "objet", "a saved « Character » draft falls back to TRELLIS.2");
+    const outil = outilParId("3d-ouvert")!;
+    assert.ok(visibleModels().includes("3d-ouvert"));
+    const graph = JSON.stringify(outilGraph(outil, { prompt: "", files: { images: ["a.png"] }, seed: 1, mesh: "perso" } as Parameters<typeof outilGraph>[1]));
+    assert.doesNotMatch(graph, /hunyuan/i);
+    assert.match(graph, /trellis/i);
+    assert.deepEqual(outilQuote(outil, { mesh: "perso" }), outilQuote(outil, { mesh: "objet" }));
   });
 });

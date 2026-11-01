@@ -5,6 +5,7 @@
 import { stemGraph } from "../creation/stem.ts";
 import { kleinNodes } from "../render/klein-graph.ts";
 import { meshGesteGraph } from "../render/mesh-gestes.ts";
+import { masqueParLicence } from "../open-weights.ts";
 import { takeGraphFor } from "../render/run.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import { isVideoGeste, videoGesteGraph } from "../render/video-gestes.ts";
@@ -36,6 +37,12 @@ export interface OutilInput {
 }
 
 export const MESH_GESTE = { objet: "prise-volume-objet", perso: "prise-volume-perso" } as const;
+export type MeshChoix = keyof typeof MESH_GESTE;
+/** « Personnage » runs Hunyuan3D 2.1, hidden in open-weights mode for its licence: TRELLIS.2 (« Objet ») then does every picture. */
+export const MESH_CHOIX: readonly MeshChoix[] = masqueParLicence("3d_hunyuan3d-v2.1") ? ["objet"] : ["objet", "perso"];
+export function meshChoisi(mesh: MeshChoix | undefined): MeshChoix {
+  return mesh && MESH_CHOIX.includes(mesh) ? mesh : "objet";
+}
 
 export function outilPrefix(outil: Outil): string {
   const folder = outil.sortie === "video" ? "video/" : outil.sortie === "audio" ? "audio/" : outil.sortie === "mesh" ? "3d/" : "";
@@ -79,7 +86,7 @@ export function outilGraph(outil: Outil, input: OutilInput): ApiGraph {
       return videoGesteGraph({ geste: row.id, files, prompt, seed: input.seed, aspect: input.aspect, cadre: isCadre(input.elargir) ? input.elargir : undefined });
     }
     case "mesh":
-      return meshGesteGraph({ geste: MESH_GESTE[input.mesh ?? "objet"], image: first(images, "Image"), seed: input.seed });
+      return meshGesteGraph({ geste: MESH_GESTE[meshChoisi(input.mesh)], image: first(images, "Image"), seed: input.seed });
     case "stem":
       return stemGraph({ kind: moteur.stem, text: prompt, seed: input.seed });
   }
@@ -111,7 +118,7 @@ const round1 = (value: number) => Math.round(value * 10) / 10;
 export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso"; resolution?: GenjutsuResolution; doublage?: Partial<VeedChoix>; source?: FinaliserSource } = {}): OutilQuote | null {
   if (outil.template === GENJUTSU_TEMPLATE) return genjutsuQuote(options.seconds, options.resolution);
   if (outil.template === VEED_TEMPLATE) return veedQuote(options.seconds, options.doublage?.tier);
-  const row = outil.moteur?.kind === "mesh" ? gesteParId(MESH_GESTE[options.mesh ?? "objet"]) : outilRow(outil);
+  const row = outil.moteur?.kind === "mesh" ? gesteParId(MESH_GESTE[meshChoisi(options.mesh)]) : outilRow(outil);
   if (!row || row.credits === null || row.high === null) return null;
   // Per-length tools (e.g. Musique pour une vidéo): wait for a real duration so the quote
   // does not jump 10→20 when the video metadata loads.

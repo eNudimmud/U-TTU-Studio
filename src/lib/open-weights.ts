@@ -31,13 +31,20 @@ export const MINIMAX_H3_ATTRIBUTION: readonly string[] = [
 ];
 
 /**
- * Local templates (no partner node, they run on Comfy's GPUs) that stay visible but whose model
- * licence still has to be read before the contest entry. Template id → what to check.
+ * Local templates (no partner node) whose model licence restricts where it may be used: hidden in
+ * open-weights mode like partner nodes (JD, 01 Nov), still there with the mode off.
+ * Template id → why. Hunyuan3D 2.1 only served the « character » option of the open 3D tool and
+ * the PRISE « volume perso » gesture; TRELLIS.2 (MIT) keeps image → 3D for everything.
  */
-export const LICENCE_A_VERIFIER: Readonly<Record<string, string>> = {
-  "3d_hunyuan3d-v2.1": "Tencent Hunyuan 3D community licence excludes the EU, the UK and South Korea.",
+export const LICENCE_RESTREINTE: Readonly<Record<string, string>> = {
+  "3d_hunyuan3d-v2.1": "Tencent Hunyuan 3D 2.1 community licence excludes the EU, the UK and South Korea.",
 };
 
-export function licenceAVerifier(template: string): string | null {
-  return LICENCE_A_VERIFIER[template] ?? null;
+export function licenceRestreinte(template: string): string | null {
+  return LICENCE_RESTREINTE[template] ?? null;
+}
+
+/** True when this build hides the template for its licence (open-weights mode on). */
+export function masqueParLicence(template: string, openWeightsMode: boolean = OPEN_WEIGHTS_MODE): boolean {
+  return openWeightsMode && licenceRestreinte(template) !== null;
 }
