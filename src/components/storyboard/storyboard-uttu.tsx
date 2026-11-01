@@ -3,6 +3,8 @@
 // Screen 4 · the Uttu column: where the board stands in one sentence, what Uttu just wrote (reused /
 // created later, at most one question with the default already applied), a few suggestions with
 // their cost, and plain corrections. Nothing here renders: only « Film everything » leads to « Start ».
+// CE4 · U1: this column is the one conversation of the workspace; the scope of the selected shot sits
+// next to the field (« Working on Shot 02 »).
 
 import { useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
@@ -22,8 +24,8 @@ function joindre(t: ReturnType<typeof useI18n>["t"], names: readonly string[]): 
   return t("storyboard.writer.and", { a: names.slice(0, -1).join(", "), b: names.at(-1)! });
 }
 
-export function UttuColumn({ sb, data, etat, bulles, ecrit, ecriture, onCorrect, onAnswer, onOpenBoard, onRewrite, onFilmAll }: {
-  sb: Storyboard; data: Storyboards; etat(plan: PlanSB): EtatPlan; bulles: Bulle[]; ecrit: Ecrit | null; ecriture: boolean;
+export function UttuColumn({ sb, data, etat, bulles, ecrit, ecriture, scope, onCorrect, onAnswer, onOpenBoard, onRewrite, onFilmAll }: {
+  sb: Storyboard; data: Storyboards; etat(plan: PlanSB): EtatPlan; bulles: Bulle[]; ecrit: Ecrit | null; ecriture: boolean; scope: number | null;
   onCorrect(text: string): void; onAnswer(question: NonNullable<Question>, value: string): void; onOpenBoard(): void;
   onRewrite(idee: string, cible: DureeCible, format: Format): Promise<boolean>; onFilmAll(): void;
 }) {
@@ -43,7 +45,8 @@ export function UttuColumn({ sb, data, etat, bulles, ecrit, ecriture, onCorrect,
   const q = ecrit?.question ?? null;
 
   return <>
-    <div className="sb-who"><span className="sb-dot" aria-hidden="true"><img src={assetPath("/brand/uttu-mark-h48.png")} alt="" width={15} height={15} /></span>{t("storyboard.uttuName")}</div>
+    <div className="sb-who sb-ws-who"><span className="sb-dot" aria-hidden="true"><img src={assetPath("/brand/uttu-mark-h48.png")} alt="" width={15} height={15} /></span>
+      <span><h2 className="sb-serif">{t("storyboard.uttuName")}</h2><span className="sb-ws-meta">{t("storyboard.ws.director")}</span></span></div>
     <div className="sb-chat" aria-live="polite" data-sb-chat="">
       {ecrit && <>
         <p className="sb-me">{ecrit.idee}</p>
@@ -67,7 +70,7 @@ export function UttuColumn({ sb, data, etat, bulles, ecrit, ecriture, onCorrect,
                 </div>
               </>}
         </div>}
-        <button type="button" className="sb-gold sb-uttu-toggle" data-sb-open-board="" onClick={onOpenBoard}>{t("storyboard.writer.open")}</button>
+        <button type="button" className="sb-out sb-ws-open-board" data-sb-open-board="" onClick={onOpenBoard}>{t("storyboard.ws.selectToRefine")}</button>
         {!filmed && <button type="button" className="sb-out" aria-expanded={reecrire} data-sb-rewrite="" onClick={() => setReecrire(open => !open)}>{t("storyboard.writer.rewrite")}</button>}
         {reecrire && !filmed && <IdeaBoxAgain idee={ecrit.idee} sb={sb} ecriture={ecriture} onRewrite={async (idee, cible, format) => { if (await onRewrite(idee, cible, format)) setReecrire(false); }} />}
         <p className="sb-small sb-faint">{t("storyboard.writer.note")}</p>
@@ -84,10 +87,14 @@ export function UttuColumn({ sb, data, etat, bulles, ecrit, ecriture, onCorrect,
       {ecrit && suivant >= 0 && reste.total !== null && suggestion(t("storyboard.writer.filmEverything"), t("storyboard.board.filmAllPrice", { n: formatCredits(reste.total) }), onFilmAll, "film-all")}
     </div>
     <div className="sb-grow" />
-    <form className="sb-compose" onSubmit={event => { event.preventDefault(); send(); }}>
-      <label className="sr-only" htmlFor="sb-ask">{t("storyboard.uttu.ask")}</label>
-      <input id="sb-ask" value={texte} maxLength={200} placeholder={t("storyboard.uttu.ask")} data-sb-ask="" onChange={event => setTexte(event.target.value)} />
-      <button type="submit" className="sb-send" aria-label={t("storyboard.uttu.send")}>↑</button>
+    <form className="sb-ws-compose" onSubmit={event => { event.preventDefault(); send(); }}>
+      <p className="sb-ws-scope" data-sb-scope="" aria-live="polite">{scope ? t("storyboard.ws.scope", { n: String(scope).padStart(2, "0") }) : t("storyboard.ws.scopeBoard")}</p>
+      <label className="sb-ws-label" htmlFor="sb-ask">{t("storyboard.ws.describe")}</label>
+      <textarea id="sb-ask" value={texte} maxLength={200} rows={3} placeholder={t("storyboard.uttu.ask")} data-sb-ask="" aria-describedby="sb-ask-hint"
+        onChange={event => setTexte(event.target.value)}
+        onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(); } }} />
+      <p className="sr-only" id="sb-ask-hint">{t("storyboard.ws.askHint")}</p>
+      <button type="submit" className="sb-out sb-ws-send" data-sb-send="" disabled={!texte.trim()}>{t("storyboard.uttu.send")}</button>
     </form>
   </>;
 }
