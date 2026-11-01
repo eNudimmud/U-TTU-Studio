@@ -4,6 +4,7 @@
 
 import type { TakeEngine } from "./render/take-graph.ts";
 import type { FiltreGestes } from "./workflows/registre.ts";
+import { OPEN_WEIGHTS_MODE } from "./open-weights.ts";
 
 export interface StudioPrefs {
   openWeightsOnly: boolean;
@@ -38,8 +39,10 @@ export function savePrefs(storage: Pick<Storage, "setItem"> | null, prefs: Studi
   try { storage?.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch {}
 }
 
-/** The account setting decides. Paid partner services stay off until the visitor says yes. */
-export function prefsFilm2(prefs: StudioPrefs): StudioPrefs {
+/** The account setting decides. Paid partner services stay off until the visitor says yes.
+ *  In open-weights mode (contest build, default) they stay off whatever is stored. */
+export function prefsFilm2(prefs: StudioPrefs, openWeightsMode: boolean = OPEN_WEIGHTS_MODE): StudioPrefs {
+  if (openWeightsMode) return { ...prefs, openWeightsOnly: true, nanoBanana: false, partenaires: false };
   return { ...prefs, openWeightsOnly: !prefs.partenaires, nanoBanana: prefs.partenaires && prefs.nanoBanana };
 }
 
@@ -50,12 +53,14 @@ export function prefsFilm2(prefs: StudioPrefs): StudioPrefs {
  * read 44 on the first paint, then 33 once a device flag was read: 11 partner tools hidden).
  * Every partner tool still shows its « ≈ X crédits estimés » and asks before spending.
  */
-export function filtreOutils(prefs: Pick<StudioPrefs, "openWeightsOnly" | "nanoBanana">): FiltreGestes {
+export function filtreOutils(prefs: Pick<StudioPrefs, "openWeightsOnly" | "nanoBanana">, openWeightsMode: boolean = OPEN_WEIGHTS_MODE): FiltreGestes {
+  // Open-weights mode is a build constant: the first paint and every later paint list the same tools.
+  if (openWeightsMode) return { openWeightsOnly: true, nanoBanana: false };
   return { openWeightsOnly: prefs.openWeightsOnly, nanoBanana: prefs.nanoBanana };
 }
 
 /** What the session derives from the stored prefs: the generation prefs (open weights unless partner
  *  models are on) and the catalogue filter. */
-export function prefsSession(stored: StudioPrefs): { prefs: StudioPrefs; outilsFiltre: FiltreGestes } {
-  return { prefs: prefsFilm2(stored), outilsFiltre: filtreOutils(stored) };
+export function prefsSession(stored: StudioPrefs, openWeightsMode: boolean = OPEN_WEIGHTS_MODE): { prefs: StudioPrefs; outilsFiltre: FiltreGestes } {
+  return { prefs: prefsFilm2(stored, openWeightsMode), outilsFiltre: filtreOutils(stored, openWeightsMode) };
 }

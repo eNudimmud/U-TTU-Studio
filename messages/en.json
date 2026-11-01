@@ -948,7 +948,7 @@
     "photoPlaceName": "Place photo",
     "engine": {
       "ltx": "LTX · Simple motion",
-      "h3": "H3 · Up to nine pictures"
+      "h3": "MiniMax H3 · Up to nine pictures"
     }
   },
   "create": {
@@ -1324,7 +1324,7 @@
     },
     "prisePlanH3": {
       "title": "Shot, second engine",
-      "phrase": "Up to nine references, price already measured."
+      "phrase": "MiniMax H3, up to nine references, price already measured."
     },
     "priseOutpaint": {
       "title": "Widen the shot",
@@ -2488,7 +2488,12 @@
     "model": "Model",
     "modelChange": "Change model",
     "attribution": {
-      "vid-pika": "Pika H3 Flex, built on MiniMax H3"
+      "vid-pika": "Pika H3 Flex, built on MiniMax H3",
+      "vid-animer": "Built on MiniMax H3",
+      "vid-h3-refs": "Built on MiniMax H3",
+      "vid-fasth3": "FastH3, built on MiniMax H3",
+      "vid-multi": "Built on MiniMax H3",
+      "vid-prolonger": "Built on MiniMax H3"
     },
     "modelGone": "This model is not available on your Comfy account today. Nothing was sent: the card is back on its default model.",
     "confirmTitle": "Run this render?",
@@ -3498,7 +3503,7 @@
     "lancer": "Start",
     "modifier": "Change",
     "envoye": "What will be sent",
-    "envoyeLead": "Your sentence goes as written to the video render service (H3), with the pictures of each character and of the place.",
+    "envoyeLead": "Your sentence goes as written to the video render service (MiniMax H3), with the pictures of each character and of the place.",
     "enCours": "Step {i} of {n}: {label}",
     "fini": "Shot done. It is in My creations and in the edit.",
     "planSuivant": "Next shot",

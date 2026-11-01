@@ -7,7 +7,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FAMILLES, OUTILS, modelesIntent, outilEtat, outilRow, outilsPublics } from "../src/lib/outils/catalogue.ts";
-import { REGISTRE, gesteOuvert } from "../src/lib/workflows/registre.ts";
+import { REGISTRE, gesteOuvert, gesteVisible } from "../src/lib/workflows/registre.ts";
+import { OPEN_WEIGHTS_MODE } from "../src/lib/open-weights.ts";
 import { UTTU_LOCALES, buildKnowledge } from "../src/lib/agent/uttu.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -19,17 +20,19 @@ function commitSha() {
   catch { return "local"; }
 }
 
-export function knowledge(sha = commitSha()) {
+export function knowledge(sha = commitSha(), openWeightsMode = OPEN_WEIGHTS_MODE) {
+  // Open-weights mode (contest build): Uttu neither names, links nor prices a partner-node tool.
+  const filtre = openWeightsMode ? { openWeightsOnly: true } : {};
   const byId = new Map(OUTILS.map(tool => [tool.id, tool]));
   const gestures = new Map(REGISTRE.map(row => [row.id, row]));
   return buildKnowledge({
     sha,
     tools: OUTILS,
-    toolState: id => outilEtat(byId.get(id)).kind,
-    publicTools: outilsPublics().map(tool => tool.id),
-    variants: id => modelesIntent(id).map(tool => tool.id),
+    toolState: id => outilEtat(byId.get(id), filtre).kind,
+    publicTools: outilsPublics(filtre).map(tool => tool.id),
+    variants: id => modelesIntent(id, filtre).map(tool => tool.id),
     toolRow: id => outilRow(byId.get(id)),
-    gestures: REGISTRE,
+    gestures: REGISTRE.filter(row => gesteVisible(row, filtre)),
     gestureOpen: id => gesteOuvert(gestures.get(id)),
     families: FAMILLES,
     messages: Object.fromEntries(UTTU_LOCALES.map(locale => [locale, JSON.parse(readFileSync(join(root, `messages/${locale}.json`), "utf8"))])),

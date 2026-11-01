@@ -948,7 +948,7 @@
     "photoPlaceName": "Foto del lugar",
     "engine": {
       "ltx": "LTX · Movimiento simple",
-      "h3": "H3 · Hasta nueve imágenes"
+      "h3": "MiniMax H3 · Hasta nueve imágenes"
     }
   },
   "create": {
@@ -1324,7 +1324,7 @@
     },
     "prisePlanH3": {
       "title": "Plano, segundo motor",
-      "phrase": "Hasta nueve referencias, precio ya medido."
+      "phrase": "MiniMax H3, hasta nueve referencias, precio ya medido."
     },
     "priseOutpaint": {
       "title": "Ampliar el plano",
@@ -2488,7 +2488,12 @@
     "model": "Modelo",
     "modelChange": "Cambiar de modelo",
     "attribution": {
-      "vid-pika": "Pika H3 Flex, basado en MiniMax H3"
+      "vid-pika": "Pika H3 Flex, basado en MiniMax H3",
+      "vid-animer": "Basado en MiniMax H3",
+      "vid-h3-refs": "Basado en MiniMax H3",
+      "vid-fasth3": "FastH3, basado en MiniMax H3",
+      "vid-multi": "Basado en MiniMax H3",
+      "vid-prolonger": "Basado en MiniMax H3"
     },
     "modelGone": "Este modelo no está disponible hoy en tu cuenta de render. No se envió nada: la tarjeta vuelve a su modelo por defecto.",
     "confirmTitle": "¿Lanzar este render?",
@@ -3498,7 +3503,7 @@
     "lancer": "Lanzar",
     "modifier": "Modificar",
     "envoye": "Lo que se enviará",
-    "envoyeLead": "Tu frase se envía tal cual al servicio de render de vídeo (H3), con las imágenes de cada personaje y del lugar.",
+    "envoyeLead": "Tu frase se envía tal cual al servicio de render de vídeo (MiniMax H3), con las imágenes de cada personaje y del lugar.",
     "enCours": "Paso {i} de {n}: {label}",
     "fini": "Plano rodado. Está en Mis creaciones y en el montaje.",
     "planSuivant": "Siguiente plano",

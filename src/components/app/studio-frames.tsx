@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
+import { OPEN_WEIGHTS_MODE } from "@/lib/open-weights";
 import { type TakeQuote } from "@/lib/render/billed-quote";
 import { protocole } from "@/lib/fiabilite";
 import { FiabiliteCard } from "./fiabilite-card";
@@ -53,14 +54,14 @@ export function CreditSheet() {
     <p className="u-cost" data-state={creditsLoading ? "load" : connected ? "on" : "off"}>{creditsLoading ? t("sheet.balanceLoading") : connected && balance ? t("sheet.credits", { amount: formatCredits(balance.credits) }) : connected ? say(balanceNote) : t("sheet.notLinked")}</p>
     <p className="u-small" data-credit-quote="">{quoteWords(t, takeQuote)}</p>
     <RecoveryPanel />
-    <fieldset className="u-model-options" data-compte-partenaires="">
+    {OPEN_WEIGHTS_MODE ? null : <fieldset className="u-model-options" data-compte-partenaires="">
       <legend className="u-label">{t("film2.compte.titre")}</legend>
       <label className="u-toggle">
         <input type="checkbox" role="switch" checked={prefs.partenaires} aria-describedby="u-compte-partenaires-sous" onChange={event => setPrefs({ partenaires: event.target.checked })} />
         <span>{t("film2.compte.partenaires")} · {t(prefs.partenaires ? "p0.yes" : "p0.no")}</span>
       </label>
       <p id="u-compte-partenaires-sous" className="u-small">{t("film2.compte.partenairesSous")}</p>
-    </fieldset>
+    </fieldset>}
     <div className="u-card-actions">
       <button type="button" className="u-link" data-sheet-assistant="" onClick={() => { setSheet(null); toggleAssistant(true); }}>{t("assistant.title")}</button>
       <button type="button" className="u-link" onClick={() => void refreshBalance()}>{t("sheet.reread")}</button>

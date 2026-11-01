@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { simulateComfy } from './helpers/film2-comfy';
+import { OPEN_WEIGHTS_MODE } from '../src/lib/open-weights';
 
 // Refonte FILM · PR 7 — réglages en clair (). No engine, model or plumbing word in the default
 // view of Plans, CAST and DÉCOR; no « Avancé » fold; every option of « Réglages du plan » says its effect.
@@ -78,6 +79,7 @@ test('« Réglages du plan » : chaque option dit son effet, le choix part dans 
 });
 
 test('services partenaires payants : non par défaut, un seul interrupteur expliqué', async ({ page }) => {
+  test.skip(OPEN_WEIGHTS_MODE, 'open-weights mode has no partner switch (e2e/open-weights.spec.ts)');
   await simulateComfy(page);
   await page.goto('/studio#prise');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });

@@ -15,7 +15,7 @@ import type { AssetRecord } from "@/lib/creation/assets";
 import { formatCredits } from "@/lib/credits";
 import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
 import { failView } from "@/lib/render/fail";
-import { outilQuote } from "@/lib/outils/graphs";
+import { MESH_CHOIX, meshChoisi, outilQuote, type MeshChoix } from "@/lib/outils/graphs";
 import { videoFacts } from "@/lib/render/prepare-upload";
 import type { FinaliserSource } from "@/lib/suite/quote";
 import { GENJUTSU_DEFAULT_RESOLUTION, GENJUTSU_RESOLUTIONS, genjutsuSeconds, type GenjutsuResolution } from "@/lib/outils/genjutsu";
@@ -335,7 +335,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
   });
   const sideChosen = useRef(Boolean(draft?.side && isCadre(draft.side)));
   const [fluide, setFluide] = useState(draft?.fluide ?? false);
-  const [mesh, setMesh] = useState<"objet" | "perso">(draft?.mesh ?? "objet");
+  const [mesh, setMesh] = useState<MeshChoix>(meshChoisi(draft?.mesh));
   const [resolution, setResolution] = useState<GenjutsuResolution>(GENJUTSU_RESOLUTIONS.includes(draft?.resolution as GenjutsuResolution) ? draft!.resolution! : GENJUTSU_DEFAULT_RESOLUTION);
   const [camera, setCamera] = useState<OutilCamera>(OUTIL_CAMERAS.includes(draft?.camera as OutilCamera) ? draft!.camera as OutilCamera : OUTIL_CAMERAS[0]);
   const [piste, setPiste] = useState<OutilPiste>(OUTIL_PISTES.includes(draft?.piste as OutilPiste) ? draft!.piste as OutilPiste : OUTIL_PISTES[0]);
@@ -455,7 +455,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     : outil.paire === "lieu" ? (entree === "image" ? "personnage" : entree === "image2" ? "lieu" : entree)
     : entree;
   // Doubler une prise shows its languages in the open, never folded: they are the whole point.
-  const reglages = [...(outil.reglages ?? []).filter(item => item !== "doublage"), ...(outil.moteur?.kind === "mesh" ? ["mesh" as const] : [])];
+  const reglages = (outil.reglages ?? []).filter(item => item !== "doublage" && (item !== "mesh" || MESH_CHOIX.length > 1));
   const video = inputs.video;
   const audio = inputs.audio;
   const cadres: readonly Cadre[] = outil.entrees.includes("video") ? CADRES_VIDEO : CADRES;
@@ -672,7 +672,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
         </div>
       </>}
       {reglages.includes("mesh") && <div className="u-choice-row" role="group" aria-label={t("outils.settings")}>
-        {(["objet", "perso"] as const).map(id => <button key={id} type="button" className="u-chip" aria-pressed={mesh === id} data-tool-mesh={id} {...lock} onClick={() => { setMesh(id); reset(); }}>{t(`outils.mesh.${id}`)}</button>)}
+        {MESH_CHOIX.map(id => <button key={id} type="button" className="u-chip" aria-pressed={mesh === id} data-tool-mesh={id} {...lock} onClick={() => { setMesh(id); reset(); }}>{t(`outils.mesh.${id}`)}</button>)}
       </div>}
       {reglages.includes("fluide") && <button type="button" role="checkbox" className="u-final-confirm" aria-checked={fluide} data-tool-fluide="" {...lock} onClick={() => { setFluide(value => !value); reset(); }}>
         <span className="u-final-box" aria-hidden="true">{fluide ? "✓" : ""}</span><span>{t("suite.fluide")}</span>

@@ -1,6 +1,7 @@
 // Studio gestures. Each card hides one template id from the official Comfy catalog
 // (docs/TEMPLATES-COMFY.md and the catalogs synced 2026-10-08). No node names here.
 // A null `still` means the studio has no graph for it yet: the card stays, Créer stays off.
+import { masqueParLicence } from "../open-weights.ts";
 
 export const ROLES = ["visage", "tenue", "style", "lieu", "debut", "fin", "plan", "voix", "clip"] as const;
 export type RoleRef = (typeof ROLES)[number];
@@ -538,6 +539,7 @@ export function gesteParId(id: string): Geste | null {
 export function gesteVisible(row: Geste, filtre: FiltreGestes = {}): boolean {
   if (row.option === "nano" && !filtre.nanoBanana) return false;
   if (filtre.openWeightsOnly && row.partenaire) return false;
+  if (filtre.openWeightsOnly && masqueParLicence(row.template)) return false;
   return true;
 }
 

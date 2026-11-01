@@ -7,11 +7,11 @@ import { UTTU_LOCALES, type Knowledge } from "../src/lib/agent/uttu.ts";
 const SHA = "0123456789abcdef0123456789abcdef01234567";
 
 test("the knowledge pack is deterministic for one commit", () => {
-  assert.equal(JSON.stringify(knowledge(SHA)), JSON.stringify(knowledge(SHA)));
+  assert.equal(JSON.stringify(knowledge(SHA, false)), JSON.stringify(knowledge(SHA, false)));
 });
 
 test("the knowledge pack carries the commit and stays small", () => {
-  const k = knowledge(SHA) as Knowledge;
+  const k = knowledge(SHA, false) as Knowledge;
   assert.equal(k.schema, 1);
   assert.equal(k.version.sha, SHA);
   assert.equal(k.version.short, SHA.slice(0, 7));
@@ -20,7 +20,7 @@ test("the knowledge pack carries the commit and stays small", () => {
 });
 
 test("the knowledge pack covers the four languages with the same entries", () => {
-  const k = knowledge(SHA) as Knowledge;
+  const k = knowledge(SHA, false) as Knowledge;
   const faq = (l: (typeof UTTU_LOCALES)[number]) => k.locales[l].faq.map(f => f.id).join();
   for (const l of UTTU_LOCALES) {
     assert.ok(k.locales[l], l);
@@ -32,7 +32,7 @@ test("the knowledge pack covers the four languages with the same entries", () =>
 });
 
 test("only open gestures are described, with the registry prices", () => {
-  const k = knowledge(SHA) as Knowledge;
+  const k = knowledge(SHA, false) as Knowledge;
   for (const g of k.gestures) {
     const source = REGISTRE.find(r => r.id === g.id);
     assert.ok(source, g.id);
@@ -42,6 +42,6 @@ test("only open gestures are described, with the registry prices", () => {
 });
 
 test("the pack names no third-party render service", () => {
-  const raw = JSON.stringify(knowledge(SHA));
+  const raw = JSON.stringify(knowledge(SHA, false));
   assert.doesNotMatch(raw, /\bfal\.ai\b|\bfal\.run\b/i);
 });
