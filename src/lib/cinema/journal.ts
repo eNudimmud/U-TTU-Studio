@@ -155,6 +155,12 @@ export async function undoTransaction(store: VaultStore, lock: ProjectLock, oper
   return undo;
 }
 
+/** Marks an operation undone once its inverse is applied (used by callers that build their own inverse). */
+export async function markRolledBack(store: VaultStore, operationId: string, now: () => string): Promise<void> {
+  const entry = await readJournal(store, operationId);
+  if (entry && entry.state === "applied") await writeJournal(store, { ...entry, state: "rolled_back", updatedAt: now() }, now);
+}
+
 // ---------------------------------------------------------------- the cinema sidecar
 
 export const CINEMA_META_VERSION = 1;
@@ -171,6 +177,10 @@ export interface CinemaMeta {
   revisions: Record<string, number>;
   /** Shots removed or archived: their takes stay in history, the shot is not brought back. */
   archived: string[];
+  /** Revision of the storyboard as a whole (CE3). Absent = 0. */
+  storyboardRevision?: number;
+  /** Shots archived by `shot.archive` (CE3), kept whole so nothing is lost. */
+  archivedShots?: Record<string, unknown>;
   [unknown: string]: unknown;
 }
 
