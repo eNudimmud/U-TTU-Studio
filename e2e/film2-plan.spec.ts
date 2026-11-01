@@ -131,8 +131,10 @@ for (const size of [{ width: 390, height: 844 }, { width: 844, height: 390 }, { 
     await expect(page.locator('[data-film-plans] .u-film-gold:visible')).toHaveCount(1);
     const actions = await page.locator('[data-film-plans] button:visible, [data-film-plans] textarea:visible').count();
     expect(actions).toBeLessThanOrEqual(10);
-    // Off by default: the classic PRISE without the flag.
+    // The old ?film2=0 link no longer switches FILM off: it lands on the same PRISE with exactly one plan composer.
     await page.goto('/studio?film2=0#prise');
-    await expect(page.locator('[data-film-plans]')).toHaveCount(0);
+    const legacy = page.locator('[data-film-phrase]');
+    await expect(legacy).toHaveCount(1, { timeout: 30_000 });
+    await expect(legacy).toBeVisible();
   });
 }
