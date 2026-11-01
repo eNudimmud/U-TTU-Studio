@@ -15,6 +15,7 @@ import { assetPath } from "@/lib/site";
 import { appliquerCorrection, lireCorrection, lireReglage, type Correction } from "@/lib/storyboard/corriger";
 import { devisStoryboard, plansATourner, reglagesDuPlan } from "@/lib/storyboard/devis";
 import { definirPersonnage, ecrireStoryboard, type Gabarits, type Question } from "@/lib/storyboard/ecrire";
+import { catalogue, contexteDuCatalogue } from "@/lib/storyboard/identites";
 import { fileVide, finDuPlan, suivantDeLaFile, versPlanFilm, type FileTournage } from "@/lib/storyboard/film";
 import {
   archiver, changerFormat, cheminMarkdown, dureeTotale, etatDuPlan, filtrer, majPlan,
@@ -76,9 +77,10 @@ export function StoryboardPage({ initialId, print }: { initialId: string | null;
   }, []);
 
   const sb = currentId ? data.boards[currentId] ?? null : null;
+  // CE5-L: every CAST card (with or without a picture) and every reference classed CAST is a known identity,
+  // merged by ID; a homonym is never linked nor made twice. CAST and DÉCOR stay separate.
   const known = useMemo(() => ({
-    cast: vault.cast.filter(card => card.sheet || card.photos.length).map(card => ({ id: card.id, name: card.name })),
-    decor: vault.scenes.map(scene => ({ id: scene.id, name: scene.name })),
+    ...contexteDuCatalogue(catalogue(vault.cast, vault.scenes, studio.references)),
     lieuxNommes: studio.references.filter(ref => ref.category === "decor" && ref.name.trim()).map(ref => ref.name.trim()),
   }), [vault.cast, vault.scenes, studio.references]);
 

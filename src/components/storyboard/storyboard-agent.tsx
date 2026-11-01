@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import type { ControllerCode, PreparedIntent } from "@/lib/cinema/controller";
 import { formatCredits } from "@/lib/credits";
+import { referencesDuCatalogue } from "@/lib/storyboard/identites";
 import type { Storyboard } from "@/lib/storyboard/storyboard";
 import { useStudio } from "../app/studio-session";
 import type { Bulle } from "./storyboard-uttu";
@@ -46,6 +47,8 @@ export function useNativeAgent(sb: Storyboard | null, selectedShotId: string | n
       const where = out.target.storyboardId || boardId;
       if (WAITING.has(out.code)) { timer.current = setTimeout(tick, Math.max(2000, out.data?.retryAfterMs ?? 4000)); return; }
       if (out.code === "NOTHING_TO_RESUME") return;
+      // The answer was undone on purpose (rolled back journal): the board is re-read, nothing to say.
+      if (out.code === "UNDONE") { studio.cinemaChanged(); return; }
       if (out.code === "INTENT_APPLIED") { studio.cinemaChanged(); if (where) dire(where, { qui: "uttu", texte: t("storyboard.cinema.agent.applied") }); return; }
       if (where) say(where, out.code);
     };
@@ -59,11 +62,11 @@ export function useNativeAgent(sb: Storyboard | null, selectedShotId: string | n
     if (!studio.cinemaAgent || !sb || !project) return false;
     setBusy(true);
     try {
-      await data.sauver(sb, { now: true });
-      const references = [
-        ...studio.studio.cast.map(card => ({ referenceId: card.id, category: "cast" as const, name: card.name, locked: false })),
-        ...studio.studio.scenes.map(scene => ({ referenceId: scene.id, category: "decor" as const, name: scene.name, locked: false })),
-      ];
+      // Arbitrage 8: a refused save stops here; nothing is prepared on a board that is not on disk.
+      if (await data.sauver(sb, { now: true }) === false) { say(sb.id, "STORAGE_UNAVAILABLE"); return true; }
+      // CE5-L: every CAST card and CAST reference (with or without pictures), one per ID; homonyms stay two
+      // entries so the model has to ask, never merge.
+      const references = referencesDuCatalogue(studio.studio.cast, studio.studio.scenes, studio.references);
       const out = await studio.cinema.prepareIntent({ scope: { projectId: project, storyboardId: sb.id }, locale, selectedShotId, userText: texte, locks: {}, references, capabilities: [] });
       if (!out.ok || !out.data) say(sb.id, out.code);
       else setPending(out.data);
