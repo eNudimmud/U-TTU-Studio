@@ -12,6 +12,7 @@ import { PENDING_RENDER_KEY } from "../render/recovery.ts";
 import { OPEN_WEIGHTS_MODE } from "../open-weights.ts";
 import { assertSubmittable } from "./workflow-policy.ts";
 import { assertNoSecretFields, canonicalJson, digestOf, sha256Text } from "./digest.ts";
+import { consumeApproval, isApprovalConsumed } from "./approval-ledger.ts";
 import {
   INTENT_GRAPH_TEMPLATE, INTENT_MANIFEST, INTENT_OUTPUT_MAX_CHARS, INTENT_OUTPUT_NODE,
   assertRunnable, intentGraph, intentGraphDigest, type IntentGraph,
@@ -72,7 +73,7 @@ export async function prepareIntent(input: PrepareIntentInput, deps: Pick<Intent
     userText: input.userText.trim(), locale: input.context.locale,
     contextDigest, workflowId: INTENT_MANIFEST.id, workflowDigest,
   };
-  const snapshot: IntentJobSnapshot = { ...base, digest: await digestOf({ ...base, graph }) };
+  const snapshot: IntentJobSnapshot = { ...base, digest: await payloadDigest(base, graph, input.accountScope) };
   const now = deps.now();
   const estimate = input.estimate ?? null;
   const quote: Quote = {
@@ -86,6 +87,15 @@ export async function prepareIntent(input: PrepareIntentInput, deps: Pick<Intent
     expiresAt: new Date(now.getTime() + QUOTE_TTL_MS).toISOString(),
   };
   return { operationId: deps.uuid(), accountScope: input.accountScope, snapshot, graph, quote };
+}
+
+/**
+ * Digest of the exact approved payload: snapshot fields + the graph that will be POSTed + the
+ * account. Recomputed right before the POST (R5): any change to prompt, seed, context or account
+ * after the quote invalidates the approval.
+ */
+function payloadDigest(base: Omit<IntentJobSnapshot, "digest">, graph: IntentGraph, accountScope: string): Promise<string> {
+  return digestOf({ ...base, graph, accountScope });
 }
 
 /** What the UI creates when the visitor taps the launch button. Only a person approves a spend. */
@@ -181,13 +191,29 @@ export interface SubmitOptions {
 export async function submitApprovedIntent(prep: IntentPreparation, approval: SpendApproval, deps: IntentJobDeps, options: SubmitOptions): Promise<IntentJobReceipt> {
   const now = deps.now();
   checkApproval(prep, approval, now);
-  assertRunnable(deps.manifest ?? INTENT_MANIFEST, options.purpose);
+  // R4: consumption is durable in the common ledger, not only in the (forgettable) receipt.
+  if (isApprovalConsumed(deps.storage, approval.id)) throw new CinemaError("APPROVAL_REQUIRED", "A fresh user approval is required.", ["consumed"]);
+  const manifest = deps.manifest ?? INTENT_MANIFEST;
+  assertRunnable(manifest, options.purpose);
   assertSubmittable(prep.graph, { openWeightsMode: deps.openWeightsMode ?? OPEN_WEIGHTS_MODE });
   // The graph sent is exactly the pinned template plus the data slots of this snapshot.
   const rebuilt = intentGraph({ userText: prep.snapshot.userText, contextText: "", seed: 0 });
   if (canonicalJson(stripData(prep.graph)) !== canonicalJson(stripData(rebuilt))) throw new CinemaError("WORKFLOW_UNQUALIFIED", "Graph differs from the pinned workflow.");
+  // R5: the template check above ignores the data slots; the exact payload is checked here.
+  const { digest: _stored, ...base } = prep.snapshot;
+  let exact: string;
+  try { exact = await payloadDigest(base, prep.graph, prep.accountScope); }
+  catch { throw new CinemaError("STORAGE_UNAVAILABLE", "A credential-looking field was found: nothing was saved or sent."); }
+  const workflowDigest = await intentGraphDigest(INTENT_GRAPH_TEMPLATE);
+  const integrity: string[] = [];
+  if (exact !== approval.snapshotDigest || exact !== prep.quote.snapshotDigest) integrity.push("payload");
+  if (workflowDigest !== approval.workflowDigest || prep.snapshot.workflowDigest !== workflowDigest) integrity.push("workflow");
+  if (prep.snapshot.workflowId !== manifest.id) integrity.push("manifest");
+  if (integrity.length) throw new CinemaError("APPROVAL_REQUIRED", "The request changed after approval: a fresh user approval is required.", integrity);
   if (busy(deps.storage)) throw new CinemaError("BUDGET_RESERVED", "Another operation is still pending.");
 
+  // Consumed before the receipt and the POST: a failed write after this burns the approval, never sends twice.
+  consumeApproval(deps.storage, approval.id);
   const attemptId = deps.uuid();
   let receipt: IntentJobReceipt = {
     schemaVersion: 2, operationId: prep.operationId, attemptId, accountScope: prep.accountScope,

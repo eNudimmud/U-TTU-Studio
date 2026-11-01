@@ -55,7 +55,7 @@ function fakeClient(script: { submit?: () => Promise<string>; status?: string[];
 
 async function prepared(d: IntentJobDeps) {
   const prep = await prepareIntent({ context: CONTEXT, contextText: contextText(CONTEXT), userText: "Ajoute un plan où Sujet A part", accountScope: ACCOUNT, seed: 7 }, d);
-  const approval = userApproval(prep, 3, { id: "ap-1", trancheId: "t-1" }, d.now());
+  const approval = userApproval(prep, 3, { id: `ap-${++n}`, trancheId: "t-1" }, d.now()); // one approval per decision
   return { prep, approval };
 }
 
@@ -283,4 +283,71 @@ describe("intent job: secrets", () => {
     await assert.rejects(() => submitApprovedIntent(tainted, { ...approval }, d, { purpose: "qualification" }), (e: unknown) => e instanceof CinemaError && e.code === "STORAGE_UNAVAILABLE");
     assert.equal(d.storage.map.size, 0);
   });
+});
+
+// Astra review (#224, probes R4/R5 of 857f116): kept as written, without weakening.
+describe("intent job: approval integrity (Astra R4/R5)", () => {
+  const ok = JSON.stringify({ creativeGoal: "test", expectedResult: "test", operations: [], rationale: "", unresolved: [] });
+
+  it("R4: a terminal intent must not allow reusing the same approval (one POST, ever)", async () => {
+    const { client, calls } = fakeClient({ status: ["success"], outputs: { "3": { text: [ok] } } });
+    const d = deps(client);
+    const { prep, approval } = await prepared(d);
+    await submitApprovedIntent(prep, approval, d, { purpose: "qualification" });
+    await pollIntent(d);
+    settleIntent(d);
+    await assert.rejects(() => submitApprovedIntent(prep, approval, d, { purpose: "qualification" }), (e: unknown) => e instanceof CinemaError && e.code === "APPROVAL_REQUIRED");
+    // Forgetting the receipt (or a reload) does not revive the approval either.
+    assert.equal(forgetIntent(d.storage), true);
+    const reloaded = { ...d, storage: d.storage };
+    await assert.rejects(() => submitApprovedIntent(prep, approval, reloaded, { purpose: "qualification" }), (e: unknown) => e instanceof CinemaError && e.code === "APPROVAL_REQUIRED");
+    assert.equal(calls.filter(c => c === "submit").length, 1);
+  });
+
+  it("R4: the consumption lives in the common spend ledger and keeps its other fields", async () => {
+    const { client } = fakeClient({});
+    const d = deps(client);
+    d.storage.setItem("u-ttu-spend-ledger", JSON.stringify({ schemaVersion: 1, consumedApprovals: ["older"], reservations: [{ attemptId: "x" }] }));
+    const { prep, approval } = await prepared(d);
+    await submitApprovedIntent(prep, approval, d, { purpose: "qualification" });
+    const ledger = JSON.parse(d.storage.getItem("u-ttu-spend-ledger")!);
+    assert.deepEqual(ledger.consumedApprovals, ["older", approval.id]);
+    assert.deepEqual(ledger.reservations, [{ attemptId: "x" }]);
+  });
+
+  it("R4: an unreadable spend ledger sends nothing", async () => {
+    const { client, calls } = fakeClient({});
+    const d = deps(client);
+    d.storage.setItem("u-ttu-spend-ledger", "{not json");
+    const { prep, approval } = await prepared(d);
+    await assert.rejects(() => submitApprovedIntent(prep, approval, d, { purpose: "qualification" }), (e: unknown) => e instanceof CinemaError && e.code === "STORAGE_UNAVAILABLE");
+    assert.equal(calls.length, 0);
+  });
+
+  it("R5: mutating the intent graph after approval must be refused", async () => {
+    const { client, calls } = fakeClient({});
+    const d = deps(client);
+    const { prep, approval } = await prepared(d);
+    prep.graph["2"].inputs.prompt = "A completely different unapproved request";
+    prep.graph["2"].inputs["sampling_mode.seed"] = 999;
+    await assert.rejects(() => submitApprovedIntent(prep, approval, d, { purpose: "qualification" }));
+    assert.equal(calls.length, 0);
+  });
+
+  for (const [name, mutate] of [
+    ["seed only", (p: Awaited<ReturnType<typeof prepared>>["prep"]) => { p.graph["2"].inputs["sampling_mode.seed"] = 8; }],
+    ["prompt only", (p: Awaited<ReturnType<typeof prepared>>["prep"]) => { p.graph["2"].inputs.prompt += " "; }],
+    ["account", (p: Awaited<ReturnType<typeof prepared>>["prep"]) => { p.accountScope = "comfy-user-other"; }],
+    ["snapshot field", (p: Awaited<ReturnType<typeof prepared>>["prep"]) => { (p.snapshot as { storyboardRevision: number }).storyboardRevision = 99; }],
+  ] as const) {
+    it(`R5: a change after the quote (${name}) is refused with zero POST and keeps the approval unconsumed`, async () => {
+      const { client, calls } = fakeClient({});
+      const d = deps(client);
+      const { prep, approval } = await prepared(d);
+      mutate(prep);
+      await assert.rejects(() => submitApprovedIntent(prep, approval, d, { purpose: "qualification" }), (e: unknown) => e instanceof CinemaError && e.code === "APPROVAL_REQUIRED");
+      assert.equal(calls.length, 0);
+      assert.equal(d.storage.getItem(INTENT_RECEIPT_KEY), null);
+    });
+  }
 });
