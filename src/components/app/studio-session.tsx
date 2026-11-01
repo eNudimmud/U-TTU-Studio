@@ -57,6 +57,7 @@ import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderL
 import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, prefsSession, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
+import { castReferences } from "@/lib/render/cast-references";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
 import { imageVide } from "@/lib/render/blank";
@@ -1645,7 +1646,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (pendingTake?.decorId && !place) { setNotice("Le décor choisi n’est pas enregistré dans ce projet. Enregistre-le dans DÉCOR avant de générer."); return; }
     const selected = pendingTake ? pendingTake.castIds.flatMap(id => held?.cast.find(item => item.id === id) ? [held.cast.find(item => item.id === id)!] : []) : held?.cast.filter(item => item.id === pickedCast) ?? [];
     if (pendingTake && selected.length !== pendingTake.castIds.length) { setNotice("Chaque personnage doit avoir une référence enregistrée. Retire les silhouettes neutres avant de générer."); return; }
-    const photos = [...(selected.length ? selected.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)) : (pendingTake ? [] : held?.look.photos ?? [])), ...(pendingTake?.extraRefs ?? []).filter(path => path.startsWith("Projets/"))];
+    const photos = [...(selected.length ? castReferences(selected).photos : (pendingTake ? [] : held?.look.photos ?? [])), ...(pendingTake?.extraRefs ?? []).filter(path => path.startsWith("Projets/"))];
     const paths = referencePaths(photos, place, Infinity);
     const framingRef = pendingTake?.framingRef;
     if (framingRef?.startsWith("Projets/") && !paths.includes(framingRef)) paths.push(framingRef);
@@ -1743,12 +1744,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const held = studioRef.current;
     const who = castIds.flatMap(id => held?.cast.find(card => card.id === id) ?? []);
     const place = decorId ? held?.scenes.find(scene => scene.id === decorId) ?? null : null;
-    const photos = who.flatMap(card => card.sheet ? [card.sheet] : card.photos.slice(0, 1));
+    // Clean views before any sheet, balanced per character (#212); confirmRun sends the same list.
+    const refs = castReferences(who);
+    const photos = refs.photos;
     const paths = referencePaths(photos, place, Infinity);
     const prompt = takePrompt({
       traits: [],
       lookPictures: Math.min(photos.length, paths.length),
-      subject: who.map(card => card.name).join(", "),
+      subject: who.length === 1 ? who[0].name : undefined,
+      cast: who.length > 1 ? refs.groups : undefined,
       place: place ? { name: place.name, note: place.prompt || place.note, pictures: Math.max(0, paths.length - photos.length) } : null,
       line: input.ligne ?? input.phrase,
       tags: input.settings.engine === "h3" ? "picture" : "image",
