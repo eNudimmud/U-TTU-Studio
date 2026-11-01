@@ -34,7 +34,7 @@ import {
   type CampaignLimit, type PaidSessionLocks,
 } from "./spend-ledger.ts";
 import {
-  CinemaError, type CinemaDiagnostic, type EditableShotField, type IntentContext, type IntentEnvelope, type ObservedCost, type Operation, type Quote,
+  CinemaError, type CinemaDiagnostic, type EditableShotField, type IntentContext, type IntentEnvelope, type IntentParse, type ObservedCost, type Operation, type Quote,
   type ReferenceBinding, type Scope, type ShotSnapshot, type SpendApproval, type StorageLike, type WorkflowManifest,
 } from "./types.ts";
 
@@ -139,9 +139,11 @@ export interface PrepareIntentRequest {
   capabilities: IntentContext["capabilities"];
   parseOptions?: ParseOptions;
   estimate?: { credits: number; uncertainty: number; basis: "provider" | "measured_similar_job" } | null;
+  /** The candidate text workflow runs only when the visitor explicitly approved this reading. */
+  purpose?: "demo" | "qualification";
 }
 
-export interface PreparedIntent { preparation: IntentPreparation; context: IntentContext; contextText: string; parseOptions: ParseOptions }
+export interface PreparedIntent { preparation: IntentPreparation; context: IntentContext; contextText: string; parseOptions: ParseOptions; purpose: "demo" | "qualification" }
 
 export function createCinemaController(ports: ControllerPorts) {
   const intentDeps = (client: IntentClient) => ({ storage: ports.storage, client, now: ports.now, uuid: ports.uuid, openWeightsMode: ports.openWeightsMode, manifest: ports.intentManifest });
@@ -150,7 +152,8 @@ export function createCinemaController(ports: ControllerPorts) {
   async function prepareIntent(request: PrepareIntentRequest): Promise<ControllerAnswer<PreparedIntent>> {
     const where = target(request.scope.projectId, request.scope.storyboardId, request.selectedShotId);
     try {
-      assertRunnable(ports.intentManifest ?? INTENT_MANIFEST, ports.purpose);
+      const purpose = request.purpose ?? ports.purpose;
+      assertRunnable(ports.intentManifest ?? INTENT_MANIFEST, purpose);
       const { scope: accountScope } = await accountOf(ports);
       const { storyboard, meta } = await readBoard(files(ports, request.scope.projectId), request.scope);
       const built = buildIntentContext({
@@ -160,7 +163,7 @@ export function createCinemaController(ports: ControllerPorts) {
       if (!built.ok) return answer(false, "CONTEXT_TOO_LONG", where, undefined, built.diagnostics);
       const text = contextText(built.context);
       const preparation = await prepareIntentJob({ context: built.context, contextText: text, userText: request.userText, accountScope, seed: ports.seed(), estimate: request.estimate ?? null }, ports);
-      return answer(true, "INTENT_PREPARED", where, { preparation, context: built.context, contextText: text, parseOptions: request.parseOptions ?? {} }, built.diagnostics);
+      return answer(true, "INTENT_PREPARED", where, { preparation, context: built.context, contextText: text, parseOptions: request.parseOptions ?? {}, purpose }, built.diagnostics);
     } catch (error) { return failure(error, where); }
   }
 
@@ -192,7 +195,7 @@ export function createCinemaController(ports: ControllerPorts) {
           refused: attemptId => writeLedger(ports.storage, release(readLedger(ports.storage), attemptId, "never_sent", ports.now())),
           uncertain: attemptId => writeLedger(ports.storage, markUncertain(readLedger(ports.storage), attemptId, ports.now())),
         };
-        const receipt = await submitApprovedIntent(prepared.preparation, approval, { ...intentDeps(client), budget }, { purpose: ports.purpose });
+        const receipt = await submitApprovedIntent(prepared.preparation, approval, { ...intentDeps(client), budget }, { purpose: prepared.purpose });
         const code: ControllerCode = receipt.state === "queued" ? "INTENT_SUBMITTED" : receipt.state === "submission_unknown" ? "SUBMISSION_UNKNOWN" : "PROVIDER_REFUSED";
         return answer(receipt.state === "queued", code, where, { state: receipt.state });
       });
@@ -485,7 +488,49 @@ export function createCinemaController(ports: ControllerPorts) {
     return answer(settled.outcome === "settled", settled.outcome === "settled" ? "RESULT_SETTLED" : "RESULT_PENDING", where, { journals, receipt: settled.receipt, released: resumed.released }, [...diagnostics, ...settled.diagnostics]);
   }
 
-  return { prepareIntent, submitIntent, resumeIntent, bindIntent, declareIntentAbsent, applyLocal, undo, approveKeyframe, prepareShot, submitShot, resumeResults };
+  /**
+   * GET only, then parse. Does not commit: the caller shows the proposal and applies it itself.
+   * A succeeded receipt is settled so a later reading can start; the text stays on the receipt.
+   */
+  async function collectIntent(): Promise<ControllerAnswer<{ parsed?: IntentParse; retryAfterMs?: number }>> {
+    let receipt = (() => { try { return readIntentReceipt(ports.storage); } catch { return null; } })();
+    if (!receipt) return answer(true, "NOTHING_TO_RESUME", target(""));
+    const scope = receipt.snapshot.scope;
+    const where = target(scope.projectId, scope.storyboardId, receipt.snapshot.selectedShotId);
+    const started = ports.now().getTime();
+    try {
+      if (receipt.state === "submission_unknown") return answer(false, "INTENT_UNKNOWN", where);
+      if (!ports.client()) return answer(false, "ACCOUNT_UNAVAILABLE", where);
+      await assertReceiptAccount(receipt.accountScope);
+      let waits = 0;
+      while (receipt && !["succeeded", "failed", "provider_cancelled", "settled"].includes(receipt.state)) {
+        if (ports.now().getTime() - started > 45_000 || waits > 30) return answer(true, "INTENT_WAITING", where, { retryAfterMs: 2000 });
+        const polled = await pollIntent(intentDeps(ports.client()!));
+        receipt = polled?.receipt ?? receipt;
+        if (receipt.state === "failed" || receipt.state === "provider_cancelled") break;
+        if (receipt.state !== "succeeded") {
+          const pause = Math.min(polled?.retryAfterMs ?? 1000, 1500);
+          await new Promise(resolve => setTimeout(resolve, pause));
+          waits += 1;
+        }
+      }
+      if (!receipt || receipt.state === "failed" || receipt.state === "provider_cancelled") {
+        if (receipt) closeIntentReserve(receipt.attemptId, null, receipt.providerJobId);
+        return answer(false, "INTENT_FAILED", where);
+      }
+      if (receipt.state !== "succeeded" || !receipt.text?.text) return answer(false, "OUTPUT_INVALID", where);
+      closeIntentReserve(receipt.attemptId, null, receipt.providerJobId);
+      const store = files(ports, scope.projectId);
+      const saved = JSON.parse((await store.get(intentContextPath(receipt.operationId)))?.text ?? "null") as SavedIntentContext | null;
+      if (!saved || saved.operationId !== receipt.operationId) return answer(false, "OUTPUT_INVALID", where);
+      const parsed = parseIntent(receipt.text.text, saved.context, { operationId: receipt.operationId, source: "conversation", userText: saved.userText }, saved.options);
+      try { settleIntent(ports); } catch { /* already settled */ }
+      if (parsed.status === "invalid") return answer(false, "INTENT_INVALID", where, { parsed }, parsed.diagnostics);
+      return answer(true, parsed.status === "needs_clarification" ? "INTENT_NEEDS_CLARIFICATION" : "INTENT_PREPARED", where, { parsed });
+    } catch (error) { return failure(error, where); }
+  }
+
+  return { prepareIntent, submitIntent, resumeIntent, collectIntent, bindIntent, declareIntentAbsent, applyLocal, undo, approveKeyframe, prepareShot, submitShot, resumeResults };
 }
 
 export type CinemaController = ReturnType<typeof createCinemaController>;

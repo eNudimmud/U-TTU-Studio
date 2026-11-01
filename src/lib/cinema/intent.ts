@@ -117,7 +117,7 @@ function refOf(value: unknown, context: IntentContext, field: string, unresolved
   const name = cleanText(value.name ?? "", INTENT_LIMITS.title, `${field}.name`);
   if (value.referenceId === null || value.referenceId === undefined) {
     // A name without an id is not an identity: it becomes a question, never a new character.
-    unresolved.push({ field, reason: "reference without id", candidateIds: candidatesFor(context, role, name) });
+    unresolved.push({ field, reason: `reference without id (${role}): ${name}`.slice(0, INTENT_LIMITS.text), candidateIds: candidatesFor(context, role, name) });
     return null;
   }
   const entry = context.references.find(item => item.referenceId === value.referenceId);

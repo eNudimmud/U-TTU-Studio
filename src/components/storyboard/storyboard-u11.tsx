@@ -1,15 +1,21 @@
 "use client";
 
-// U1.1 · one story, one plan, one place to ask for a change, the price only at approval.
-// Writing and editing stay on this device (0 credits). Filming uses the existing queue and only starts
-// from « Start filming ». A shot already running is never cancelled.
+// U1.1 · one story, one plan, one place to ask for a change. Understanding is the native text agent
+// (Qwen3-VL, the visitor's Comfy account). The local splitter is only the fallback. Filming stays
+// behind Approve & film. A shot already running is never cancelled.
 
 import { useMessages } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useI18n } from "@/components/i18n/provider";
+import { useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
 import { assetPath } from "@/lib/site";
 import { opensPicker } from "@/lib/creation/mentions";
+import { userApproval } from "@/lib/cinema/intent-job";
+import { referencesDuCatalogue } from "@/lib/storyboard/identites";
+import {
+  U11_AGENT_CEILING, agentChange, agentReading, answerOf, boardFromProposal, confirmProposal, describeOperations,
+  shellForStory, withQuotableDurations, withSettings, type NameProposal,
+} from "@/lib/storyboard/u11-agent";
 import { appliquerCorrection } from "@/lib/storyboard/corriger";
 import { devisStoryboard, reglagesDuPlan } from "@/lib/storyboard/devis";
 import type { ContexteEcriture, Gabarits } from "@/lib/storyboard/ecrire";
@@ -71,7 +77,7 @@ type Phase = "write" | "work" | "plan";
 type Reply = { you: string; uttu: string; undo: boolean };
 
 export function U11Storyboard({
-  sb, data, known, aller, onOpen, onStart, filming, onStopAfter, askAgent,
+  sb, data, known, aller, onOpen, onStart, filming, onStopAfter, askAgent: _askAgent,
 }: {
   sb: Storyboard | null;
   data: Storyboards;
@@ -84,6 +90,7 @@ export function U11Storyboard({
   askAgent(text: string): Promise<boolean>;
 }) {
   const { t } = useI18n();
+  const { locale } = useLocaleSwitch();
   const messages = useMessages() as { storyboard: { gabarits: Gabarits } };
   const studio = useStudio();
   const picture = useRefPicture();
@@ -100,7 +107,6 @@ export function U11Storyboard({
   const [phase, setPhase] = useState<Phase>(sb ? "plan" : "write");
   const [boards, setBoards] = useState(false);
   const [job, setJob] = useState<{ result: EcritRecit; story: string; refs: Chip[] } | null>(null);
-  const [shown, setShown] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [worked, setWorked] = useState(0);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -111,6 +117,13 @@ export function U11Storyboard({
   const [frame, setFrame] = useState(0);
   const [progress, setProgress] = useState(0);
   const [stopped, setStopped] = useState(false);
+  const [proposals, setProposals] = useState<NameProposal[]>([]);
+  const [preview, setPreview] = useState<{ before: Storyboard; next: Storyboard; lines: string[]; proposals: NameProposal[] } | null>(null);
+  const [readingNote, setReadingNote] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const online = mounted && studio.connected;
   const area = useRef<HTMLTextAreaElement>(null);
   const cancel = useRef(false);
   const started = useRef(0);
@@ -176,58 +189,84 @@ export function U11Storyboard({
     setEmpty(false);
   };
 
-  const write = () => {
+  const ctxFor = (): ContexteEcriture => ({
+    ...known,
+    cast: [...known.cast, ...forced.filter(item => item.role === "qui" && !known.cast.some(have => have.name.toLowerCase() === item.name.toLowerCase())).map(item => ({ id: item.id, name: item.name }))],
+    decor: [...known.decor, ...forced.filter(item => item.role === "ou" && !known.decor.some(have => have.name.toLowerCase() === item.name.toLowerCase())).map(item => ({ id: item.id, name: item.name }))],
+  });
+  const priced = (duree: 5 | 8 | 10) => data.prixPrise(reglagesDuPlan({ duree, format, rendu: quality })) !== null;
+  const catalogue = useMemo(() => [
+    ...known.cast.map(item => ({ id: item.id, category: "cast" as const, name: item.name, description: vault.cast.find(card => card.id === item.id)?.prompt ?? studio.references.find(ref => ref.id === item.id)?.description ?? "" })),
+    ...known.decor.map(item => ({ id: item.id, category: "decor" as const, name: item.name, description: vault.scenes.find(scene => scene.id === item.id)?.prompt ?? studio.references.find(ref => ref.id === item.id)?.description ?? "" })),
+  ], [known, vault.cast, vault.scenes, studio.references]);
+
+  const runAgent = async (userText: string, boardId: string) => {
+    const lang = locale === "fr" || locale === "de" || locale === "es" ? locale : "en";
+    const prepared = await studio.cinema.prepareIntent({
+      scope: { projectId: studio.studio.project ?? "", storyboardId: boardId }, locale: lang, selectedShotId: null, userText,
+      locks: {}, references: referencesDuCatalogue(vault.cast, vault.scenes, studio.references), capabilities: [], purpose: "qualification", estimate: null,
+    });
+    if (cancel.current || !prepared.ok || !prepared.data) return "down" as const;
+    const approval = userApproval(prepared.data.preparation, U11_AGENT_CEILING, { id: crypto.randomUUID(), trancheId: "u11-agent" }, new Date());
+    const posted = await studio.cinema.submitIntent(prepared.data, approval);
+    setSent(true);
+    if (cancel.current || !posted.ok) return "down" as const;
+    const collected = await studio.cinema.collectIntent();
+    const parsed = collected.data?.parsed;
+    if (collected.code === "INTENT_INVALID" || parsed?.status === "invalid") return "again" as const;
+    if (!parsed) return "down" as const;
+    return answerOf(parsed.status, parsed.envelope);
+  };
+
+  const write = async () => {
     const idee = text.trim();
     if (!idee) { setEmpty(true); return; }
-    const ctx: ContexteEcriture = {
-      ...known,
-      cast: [...known.cast, ...forced.filter(item => item.role === "qui" && !known.cast.some(have => have.name.toLowerCase() === item.name.toLowerCase())).map(item => ({ id: item.id, name: item.name }))],
-      decor: [...known.decor, ...forced.filter(item => item.role === "ou" && !known.decor.some(have => have.name.toLowerCase() === item.name.toLowerCase())).map(item => ({ id: item.id, name: item.name }))],
-    };
-    const result = ecrireDepuisRecit(idee, ctx, {
-      dureeCible: length === "fit" ? null : length,
-      format,
-      formatChoisi: true,
-      gabarits: messages.storyboard.gabarits,
-      now: new Date().toISOString(),
-      suffixe: nouvelId(),
-      rendu: quality,
-      dureeChiffree: duree => data.prixPrise(reglagesDuPlan({ duree, format, rendu: quality })) !== null,
-    });
     cancel.current = false;
+    setSent(false);
     started.current = Date.now();
     setElapsed(0);
-    setShown(0);
-    setJob({ result, story: idee, refs: chips });
+    setJob({ result: ecrireDepuisRecit(idee, ctxFor(), { dureeCible: length === "fit" ? null : length, format, formatChoisi: true, gabarits: messages.storyboard.gabarits, now: new Date().toISOString(), suffixe: "hold", rendu: quality }), story: idee, refs: chips });
     setBoards(false);
     setApprove(false);
     setPhase("work");
+    const localBoard = () => withSettings(withQuotableDurations(ecrireDepuisRecit(idee, ctxFor(), {
+      dureeCible: length === "fit" ? null : length, format, formatChoisi: true, gabarits: messages.storyboard.gabarits, now: new Date().toISOString(), suffixe: nouvelId(), rendu: quality,
+    }).storyboard, priced), format, quality);
+    const show = async (board: Storyboard, note: string | null, asked: NameProposal[]) => {
+      if (await data.sauver(board, { now: true }) === false) { setPhase("write"); return; }
+      setReadingNote(note);
+      setProposals(asked);
+      setWorked(Math.max(1, Math.round((Date.now() - started.current) / 1000)));
+      setPhase("plan");
+      aller(board.id);
+    };
+    if (!studio.connected || !studio.studio.project) {
+      await show(localBoard(), t("storyboard.u11.write.limited"), []);
+      return;
+    }
+    const reading = agentReading(idee, catalogue);
+    const shell = shellForStory(idee, reading, { format, rendu: quality, suffix: nouvelId(), now: new Date().toISOString() });
+    if (await data.sauver(shell, { now: true }) === false) { setPhase("write"); return; }
+    let answer = await runAgent(reading.userText, shell.id);
+    if (answer === "again" && !cancel.current) answer = await runAgent(reading.userText, shell.id);
+    if (cancel.current) return;
+    if (answer === "again" || answer === "down" || answer.status !== "ready" || !answer.envelope.operations.some(op => op.kind === "storyboard.create")) {
+      const fallback = localBoard();
+      await show({ ...fallback, id: shell.id, creeLe: shell.creeLe }, t("storyboard.u11.work.fallback"), []);
+      return;
+    }
+    const next = withSettings(withQuotableDurations(boardFromProposal(shell, answer.envelope, new Date().toISOString()), priced), format, quality);
+    await show(next, null, answer.proposals);
   };
 
   useEffect(() => {
-    if (phase !== "work" || !job) return;
+    if (phase !== "work") return;
     const clock = window.setInterval(() => setElapsed(Math.max(0, Math.round((Date.now() - started.current) / 1000))), 400);
-    let step = 0;
-    const reveal = window.setInterval(() => {
-      step += 1;
-      setShown(step);
-      if (step < 6) return;
-      window.clearInterval(reveal);
-      window.clearInterval(clock);
-      if (cancel.current) return;
-      const seconds = Math.max(1, Math.round((Date.now() - started.current) / 1000));
-      setWorked(seconds);
-      void data.sauver(job.result.storyboard, { now: true }).then(ok => {
-        if (cancel.current) return;
-        if (!ok) { setPhase("write"); return; }
-        setPhase("plan");
-        aller(job.result.storyboard.id);
-      });
-    }, 480);
-    return () => { window.clearInterval(clock); window.clearInterval(reveal); };
-  }, [phase, job]); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => window.clearInterval(clock);
+  }, [phase]);
 
   const halt = () => {
+    if (sent) return;
     cancel.current = true;
     setPhase("write");
     setJob(null);
@@ -238,67 +277,51 @@ export function U11Storyboard({
   const total = devis?.total ?? null;
   const price = (n: number) => t("storyboard.md.credits", { n: formatCredits(n) });
   const who = [...new Map(plans.flatMap(plan => plan.refs.filter(ref => ref.role === "qui")).map(ref => [ref.nom.toLowerCase(), ref])).values()];
-  const where = plans.flatMap(plan => plan.refs.filter(ref => ref.role === "ou"))[0] ?? null;
+  const placeRefs = [...new Map(plans.flatMap(plan => plan.refs.filter(ref => ref.role === "ou")).map(ref => [ref.nom.toLowerCase(), ref])).values()];
   const lineCount = plans.filter(plan => plan.dialogue.texte.trim()).length;
-  const rainy = sb ? /\brain\b|pluie|regen|\blluvia\b/i.test(`${sb.idee} ${plans.map(plan => `${plan.titre} ${plan.action}`).join(" ")}`) : false;
-  const closeAt = Math.max(1, (plans.findIndex(plan => plan.cadrage !== "serre") + 1) || plans.length || 1);
   const suggestions = [
-    plans.length ? { label: t("storyboard.u11.ask.closeup", { n: String(closeAt) }), text: t("storyboard.u11.ask.closeup", { n: String(closeAt) }) } : null,
-    rainy ? { label: t("storyboard.u11.ask.rain"), text: t("storyboard.u11.ask.rain") } : null,
+    { label: t("storyboard.u11.ask.closeup", { n: "1" }), text: t("storyboard.u11.ask.closeup", { n: "1" }) },
     { label: t("storyboard.u11.ask.closing"), text: t("storyboard.u11.ask.closing") },
-  ].filter((item): item is { label: string; text: string } => Boolean(item)).slice(0, 3);
+  ];
+
+  const askOffline = async (texte: string, before: Storyboard) => {
+    const read = lireDemande(texte);
+    let next = before;
+    let uttu = t("storyboard.u11.write.limited");
+    if (read.kind === "toutes") {
+      next = appliquerATous(before, read.correction, data.registre);
+      uttu = `${t("storyboard.u11.write.limited")} ${t("storyboard.u11.ask.doneAll", { text: texte })}`;
+    } else if (read.kind === "correction") {
+      const applied = appliquerCorrection(before, read.correction, data.registre, nouvelId());
+      if (applied) {
+        next = applied.sb;
+        uttu = `${t("storyboard.u11.write.limited")} ${t("storyboard.u11.ask.doneOne", { text: texte, n: String(applied.n ?? "") })}`;
+      }
+    } else {
+      const shots = ciblesNote(before, texte, read.kind === "note" ? read.n : null);
+      next = appliquerNote(before, shots, texte);
+      uttu = `${t("storyboard.u11.write.limited")} ${t("storyboard.u11.ask.doneNote", { text: texte, where: t("storyboard.u11.ask.whereAll") })}`;
+    }
+    if (await data.sauver(next) === false) return;
+    setUndo(before);
+    setReplies(all => [...all, { you: texte, uttu, undo: true }]);
+  };
 
   const ask = async (raw: string) => {
     if (!sb) return;
     const texte = raw.trim();
     if (!texte) return;
-    const before = sb;
-    const order = tousLesPlans(sb).map(plan => plan.id);
-    const read = lireDemande(texte);
-    let next = sb;
-    let uttu = "";
-    if (read.kind === "note") {
-      if (await askAgent(texte)) {
-        setReplies(all => [...all, { you: texte, uttu: "", undo: false }]);
-        return;
-      }
-      const shots = ciblesNote(sb, texte, read.n).filter(n => n >= 1 && n <= tousLesPlans(sb).length);
-      next = appliquerNote(sb, shots, texte);
-      const whereLabel = shots.length === tousLesPlans(sb).length ? t("storyboard.u11.ask.whereAll") : shots.map(n => t("storyboard.u11.ask.whereOne", { n: String(n) })).join(", ");
-      uttu = t("storyboard.u11.ask.doneNote", { text: texte, where: whereLabel });
-    } else if (read.kind === "toutes") {
-      next = appliquerATous(sb, read.correction, data.registre);
-      uttu = t("storyboard.u11.ask.doneAll", { text: texte });
-    } else {
-      const applied = appliquerCorrection(sb, read.correction, data.registre, nouvelId());
-      if (!applied) {
-        const shots = ciblesNote(sb, texte, null);
-        next = appliquerNote(sb, shots, texte);
-        uttu = t("storyboard.u11.ask.doneNote", { text: texte, where: t("storyboard.u11.ask.whereAll") });
-      } else {
-        next = applied.sb;
-        const correction = read.correction;
-        if (correction.type === "reglage" && correction.cadrage === "serre") {
-          const plan = tousLesPlans(next)[correction.n - 1];
-          uttu = t("storyboard.u11.ask.doneClose", { n: String(correction.n), title: plan?.titre ?? "" });
-        } else if (correction.type === "ajouter") {
-          uttu = t("storyboard.u11.ask.added", { n: String(applied.n ?? tousLesPlans(next).length) });
-        } else {
-          uttu = t("storyboard.u11.ask.doneOne", { text: texte, n: String(applied.n ?? "") });
-        }
-      }
-    }
-    const ids = tousLesPlans(next).map(plan => plan.id);
-    const orderKept = order.every((id, index) => ids[index] === id);
-    if (!orderKept && read.kind !== "correction") next = appliquerNote(before, ciblesNote(before, texte, read.kind === "note" ? read.n : null), texte);
-    const ok = await data.sauver(next);
-    if (ok === false) return;
-    setUndo(before);
-    setChanged(new Set(tousLesPlans(next).filter(plan => {
-      const prev = tousLesPlans(before).find(item => item.id === plan.id);
-      return !prev || prev.action !== plan.action || prev.cadrage !== plan.cadrage || prev.camera !== plan.camera || prev.titre !== plan.titre;
-    }).map(plan => plan.id)));
-    setReplies(all => [...all, { you: texte, uttu, undo: true }]);
+    if (!studio.connected || !studio.studio.project) { await askOffline(texte, sb); return; }
+    if (await data.sauver(sb, { now: true }) === false) return;
+    setSent(false);
+    cancel.current = false;
+    let answer = await runAgent(agentChange(texte), sb.id);
+    if (answer === "again" && !cancel.current) answer = await runAgent(agentChange(texte), sb.id);
+    if (answer === "again" || answer === "down" || answer.status !== "ready") { await askOffline(texte, sb); return; }
+    const titles = new Map(tousLesPlans(sb).map(plan => [plan.id, plan.titre]));
+    const next = withSettings(withQuotableDurations(boardFromProposal(sb, answer.envelope, new Date().toISOString()), priced), sb.format, quality);
+    setPreview({ before: sb, next, lines: describeOperations(answer.envelope.operations, titles), proposals: answer.proposals });
+    setReplies(all => [...all, { you: texte, uttu: answer.status === "ready" ? answer.envelope.expectedResult || answer.envelope.rationale : "", undo: false }]);
   };
 
   const restore = async () => {
@@ -417,8 +440,11 @@ export function U11Storyboard({
           </div>
         </div>
         <div className="u11-go">
-          <button type="button" className="u11-primary" data-u11-write="" onClick={write}>{t("storyboard.u11.write.go")}</button>
-          <span className="u11-note">{t("storyboard.u11.write.cost")}</span>
+          <button type="button" className="u11-primary" data-u11-write="" onClick={() => void write()}>
+            <span>{t("storyboard.u11.write.go")}</span>
+            {online && <span className="cost" data-u11-agent-cost="">{t("storyboard.u11.write.agent", { n: formatCredits(U11_AGENT_CEILING) })}</span>}
+          </button>
+          <span className="u11-note">{online ? t("storyboard.u11.write.cost") : t("storyboard.u11.write.limited")}</span>
         </div>
         <p className="u11-hint">{t("storyboard.u11.write.tip")}</p>
       </section>}
@@ -436,12 +462,13 @@ export function U11Storyboard({
         <details className="u11-worked" open>
           <summary>{t("storyboard.u11.work.working", { n: String(elapsed) })}</summary>
           <ol className="u11-steps">
-            {steps.map((label, index) => <li key={label} className={index < shown ? "is-done" : index === shown ? "is-now" : ""}>{label}</li>)}
+            <li className="is-done">{t("storyboard.u11.work.read")}</li>
+            <li className="is-now">{online ? t("storyboard.u11.work.asking") : t("storyboard.u11.write.limited")}</li>
           </ol>
         </details>
         <div className="u11-foot">
-          <button type="button" className="u11-ghost" data-u11-halt="" onClick={halt}>{t("storyboard.u11.work.stop")}</button>
-          <span className="u11-zero">{t("storyboard.u11.work.zero")}</span>
+          {!sent && <button type="button" className="u11-ghost" data-u11-halt="" onClick={halt}>{t("storyboard.u11.work.stop")}</button>}
+          <span className="u11-zero">{online ? t("storyboard.u11.work.asking") : t("storyboard.u11.work.zero")}</span>
         </div>
       </section>}
 
@@ -453,19 +480,29 @@ export function U11Storyboard({
         </details>}
         <div className="u11-uttu">
           <span className="u11-face" aria-hidden="true">U</span>
+          {readingNote && <p className="u11-note" data-u11-reading="">{readingNote}</p>}
+          {proposals.length > 0 && <div data-u11-proposals="">{proposals.map(proposal => <p key={`${proposal.role}:${proposal.name}`}>
+            <span>{proposal.name}</span>{" "}
+            <button type="button" className="u11-ghost" data-u11-proposal={proposal.role} onClick={() => { const next = confirmProposal(sb, proposal, new Date().toISOString()); void data.sauver(next); setProposals(list => list.filter(item => item.name !== proposal.name || item.role !== proposal.role)); }}>{proposal.role === "qui" ? t("storyboard.u11.ask.proposalCast") : t("storyboard.u11.ask.proposalPlace")}</button>
+          </p>)}</div>}
+          {preview && <div className="u11-reply" data-u11-preview="">
+            {preview.lines.map(line => <p key={line}>{line}</p>)}
+            <button type="button" className="u11-primary" data-u11-apply="" onClick={() => { void data.sauver(preview.next); setUndo(preview.before); setProposals(preview.proposals); setChanged(new Set(tousLesPlans(preview.next).map(plan => plan.id))); setPreview(null); }}>{t("storyboard.u11.ask.apply")}</button>
+            <button type="button" className="u11-ghost" data-u11-dismiss="" onClick={() => setPreview(null)}>{t("storyboard.u11.ask.dismiss")}</button>
+          </div>}
           <p data-u11-kept="">
             {lineCount ? t("storyboard.u11.plan.keptLines", { n: lineCount }) : t("storyboard.u11.plan.keptStory")}
             {" "}
             {who.length > 0 && t("storyboard.u11.plan.keptWho", { names: who.map(ref => ref.nom).join(", ") })}
             {" "}
-            {where && t("storyboard.u11.plan.keptPlace", { place: where.nom })}
+            {placeRefs.length > 0 && t("storyboard.u11.plan.keptPlace", { place: placeRefs.map(ref => ref.nom).join(", ") })}
           </p>
         </div>
         <article className="u11-plan">
           <div className="u11-plan-h">
             <span className="u11-kicker">{t("storyboard.u11.plan.kicker")}</span>
             <h2>{sb.titre}</h2>
-            <p className="u11-facts" data-u11-facts="">{t("storyboard.u11.plan.facts", { shots: plans.length, seconds: dureeTotale(sb), characters: who.length, places: where ? 1 : 0 })}</p>
+            <p className="u11-facts" data-u11-facts="">{t("storyboard.u11.plan.facts", { shots: plans.length, seconds: dureeTotale(sb), characters: who.length, places: placeRefs.length })}</p>
           </div>
           <div className="u11-strip" style={{ gridTemplateColumns: `repeat(${Math.max(plans.length, 1)}, minmax(0, 1fr))` }}>
             {plans.map(plan => <div key={plan.id} className="u11-frame"><Sketch plan={plan} /></div>)}
@@ -473,7 +510,7 @@ export function U11Storyboard({
           <button type="button" className="u11-play" data-u11-play="" onClick={() => { setFrame(0); setProgress(0); setAnim(true); }}>{t("storyboard.u11.plan.play", { n: String(dureeTotale(sb)) })}</button>
           <div className="u11-cast" data-u11-locked="">
             {who.map(ref => <span key={ref.nom} className="u11-chip" data-u11-role="qui"><Avatar name={ref.nom} src={picture(ref) || undefined} />{ref.nom}</span>)}
-            {where && <span className="u11-chip" data-u11-role="ou"><Avatar name={where.nom} place src={picture(where) || undefined} />{where.nom}</span>}
+            {placeRefs.map(ref => <span key={ref.nom} className="u11-chip" data-u11-role="ou"><Avatar name={ref.nom} place src={picture(ref) || undefined} />{ref.nom}</span>)}
             <span className="u11-lock">{t("storyboard.u11.plan.same")}</span>
           </div>
         </article>
