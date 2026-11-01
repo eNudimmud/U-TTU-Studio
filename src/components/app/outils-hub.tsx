@@ -455,7 +455,7 @@ export function ToolPanel({ outil: asked, onResult, onPreview, onBusy }: { outil
     : outil.paire === "lieu" ? (entree === "image" ? "personnage" : entree === "image2" ? "lieu" : entree)
     : entree;
   // Doubler une prise shows its languages in the open, never folded: they are the whole point.
-  const reglages = [...(outil.reglages ?? []).filter(item => item !== "doublage"), ...(outil.moteur?.kind === "mesh" && MESH_CHOIX.length > 1 ? ["mesh" as const] : [])];
+  const reglages = (outil.reglages ?? []).filter(item => item !== "doublage" && (item !== "mesh" || MESH_CHOIX.length > 1));
   const video = inputs.video;
   const audio = inputs.audio;
   const cadres: readonly Cadre[] = outil.entrees.includes("video") ? CADRES_VIDEO : CADRES;

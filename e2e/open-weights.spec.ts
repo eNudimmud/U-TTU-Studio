@@ -27,7 +27,7 @@ test("open weights : aucun outil partenaire, un seul compte, pas d’interrupteu
 test("open weights : « Image en volume » reste, sans l’option Personnage (Hunyuan3D 2.1, licence hors UE/UK/Corée du Sud)", async ({ page }) => {
   await simulateComfy(page);
   await page.goto("/studio#outils/3d-ouvert");
-  const panel = page.locator("[data-tool-panel=3d-ouvert]");
+  const panel = page.locator("[data-tool-panel=\"3d-ouvert\"]");
   await expect(panel).toBeVisible({ timeout: 20_000 });
   await expect(panel.locator("[data-tool-mesh]")).toHaveCount(0);
   await expect(panel.locator("[data-tool-step=reglages]")).toHaveCount(0);
