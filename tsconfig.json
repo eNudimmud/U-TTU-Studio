@@ -28,7 +28,7 @@
         "./src/*"
       ],
       "storyweave-app": [
-        "./src/components/storyboard/storyweave-pending.tsx"
+        "./src/components/storyweave/storyweave-app.tsx"
       ]
     }
   },

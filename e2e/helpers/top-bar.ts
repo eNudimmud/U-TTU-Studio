@@ -13,7 +13,7 @@ export async function revealInTopBar(page: Page, selector: string): Promise<Loca
   const target = page.locator(selector).filter({ visible: true }).first();
   await expect(async () => {
     if (!(await target.isVisible())) {
-      const burger = page.locator("[data-top-burger]");
+      const burger = page.locator("[data-top-burger], [data-chain-menu]").filter({ visible: true }).first();
       if (await burger.isVisible() && (await burger.getAttribute("aria-expanded")) !== "true") await burger.click({ timeout: 2000 });
     }
     await expect(target).toBeVisible({ timeout: 2000 });
@@ -33,7 +33,7 @@ export const openCreations = async (page: Page) => {
 
 /** Opens Uttu from the bar. The panel starts closed. */
 export async function openAssistant(page: Page) {
-  const uttu = page.locator("[data-top-uttu]").filter({ visible: true }).first();
+  const uttu = page.locator("[data-top-uttu], [data-chain-uttu]").filter({ visible: true }).first();
   await uttu.click();
 }
 

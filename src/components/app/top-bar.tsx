@@ -51,9 +51,12 @@ function useTasks(): Task[] {
   return tasks;
 }
 
-export function TopBar({ place, step = null, onStep }: { place: Place; step?: string | null; onStep?(tab: Tab): void }) {
+export function TopBar({ place, step = null, onStep, cutReady = false }: { place: Place; step?: string | null; onStep?(tab: Tab): void; cutReady?: boolean }) {
   const { t, say } = useI18n();
   const { ready, connected, balance, balanceNote, setSheet, cast, decor } = useStudio();
+  const own = (id: string) => !id.startsWith("demo-");
+  const castReady = cast.some(card => own(card.id) && Boolean(card.sheet || card.preview || card.photos.length));
+  const decorReady = decor.some(card => own(card.id) && Boolean(card.sheet || card.preview));
   const assistantOpen = useAssistantOpen();
   const lookReady = cast.some(card => Boolean(card.sheet || card.preview || card.photos.length));
   const hasScene = decor.some(card => Boolean(card.sheet || card.preview || card.geste === "repere"));
@@ -110,7 +113,7 @@ export function TopBar({ place, step = null, onStep }: { place: Place; step?: st
         <button type="button" className="u-top-icon u-burger" data-top-burger="" aria-expanded={drawer} aria-controls="u-drawer" aria-label={t("chrome.menuAria")} onClick={() => setDrawer(true)}><MenuIcon /></button>
       </div>
     </header>
-    <ProjectChain step={step ?? (place === "look" ? "look" : null)} onStep={onStep} project={<ProjectSwitcher />} uttuOpen={assistantOpen} onUttu={() => toggleAssistant(!assistantOpen)} onMenu={() => setDrawer(true)} />
+    <ProjectChain step={step ?? (place === "look" ? "look" : null)} onStep={onStep} project={<ProjectSwitcher />} uttuOpen={assistantOpen} onUttu={() => toggleAssistant(!assistantOpen)} onMenu={() => setDrawer(true)} ready={{ lora: castReady, scene: decorReady, prise: castReady && decorReady, montage: cutReady, finaliser: cutReady }} />
     {drawer && <div className="u-drawer-scrim" onClick={() => setDrawer(false)}>
       <aside id="u-drawer" className="u-drawer" data-drawer="" role="dialog" aria-modal="true" aria-label={t("top.menu")} onClick={event => event.stopPropagation()}>
         <div className="u-drawer-head">

@@ -20,6 +20,8 @@ export const CHAIN: { id: "lora" | "scene" | "prise" | "montage" | "finaliser"; 
 
 const MenuIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>;
 
+export type ChainId = (typeof CHAIN)[number]["id"];
+
 export function ProjectChain({
   step,
   onStep,
@@ -27,6 +29,7 @@ export function ProjectChain({
   onUttu,
   uttuOpen,
   project,
+  ready,
 }: {
   step?: string | null;
   onStep?(tab: Tab): void;
@@ -34,6 +37,8 @@ export function ProjectChain({
   onUttu?(): void;
   uttuOpen?: boolean;
   project?: ReactNode;
+  /** Filled stages. The word stays in the button (the reliability contract) without a second control. */
+  ready?: Partial<Record<ChainId, boolean>>;
 }) {
   const { t } = useI18n();
   const { doc } = useProjectLook();
@@ -47,8 +52,9 @@ export function ProjectChain({
     {project && <span className="u-step-proj">{project}</span>}
     {CHAIN.map((item, index) => <span key={item.id} className="u-step-pair">
       {index > 0 && <span className="u-step-arrow" aria-hidden="true">›</span>}
-      <button type="button" className="u-step" data-film-nav-to={item.id} aria-current={step === item.id ? "page" : undefined} onClick={() => go(item.id)}>
+      <button type="button" className="u-step" data-film-nav-to={item.id} data-state={ready?.[item.id] ? "pret" : "vide"} aria-current={step === item.id ? "page" : undefined} onClick={() => go(item.id)}>
         <i>{index + 1}</i><span>{t(item.key)}</span>
+        <small className="sr-only">{t(ready?.[item.id] ? "stage.ready" : "stage.empty")}</small>
       </button>
     </span>)}
     <span className="u-step-div" aria-hidden="true" />
@@ -57,10 +63,10 @@ export function ProjectChain({
       <b>{anime ? t("chrome.lookAnime") : t("chrome.lookStandard")}</b>
     </a>
     {STORYBOARD_CLOSED
-      ? <span className="u-step-soon" data-storyweave="soon">{t("chrome.storyweave")} <span className="u-soon">{t("chrome.soon")}</span></span>
-      : <a className="u-step-soon" href={assetPath("/storyboard?storyboard=sw")} data-storyweave="open">{t("chrome.storyweave")}</a>}
+      ? <span className="u-step-soon" data-chain-weave="soon">{t("chrome.storyweave")} <span className="u-soon">{t("chrome.soon")}</span></span>
+      : <a className="u-step-soon" href={assetPath("/storyboard?storyboard=sw")} data-chain-weave="open">{t("chrome.storyweave")}</a>}
     <span className="u-step-tail">
-      <button type="button" className="u-top-icon" data-top-burger="" aria-label={t("chrome.menuAria")} onClick={onMenu}><MenuIcon /></button>
+      <button type="button" className="u-top-icon" data-chain-menu="" aria-label={t("chrome.menuAria")} onClick={onMenu}><MenuIcon /></button>
       <button type="button" className="u-uttu u-uttu-face" data-chain-uttu="" aria-expanded={uttuOpen ? true : false} aria-label={t("uttu.openAria")} onClick={onUttu}>
         <img src={assetPath("/images/uttu-portrait.webp")} alt="" width={34} height={34} />
       </button>

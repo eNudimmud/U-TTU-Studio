@@ -26,7 +26,7 @@ async function mockChat(page: Page, replies: Reply[]) {
 }
 async function openPanel(page: Page) {
   await page.goto("/studio");
-  await page.locator("[data-top-uttu]").click();
+  await page.locator("[data-top-uttu], [data-chain-uttu]").filter({ visible: true }).first().click();
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();
   return panel;
