@@ -6,7 +6,7 @@ import { ecrireStoryboard, titreDeLIdee, type Gabarits } from "../src/lib/storyb
 import { catalogue, contexteDuCatalogue } from "../src/lib/storyboard/identites.ts";
 import { appliquerATous, appliquerNote, ciblesNote, lireDemande } from "../src/lib/storyboard/note.ts";
 import { decouper, ecrireDepuisRecit, estRecit, type OptionsRecit } from "../src/lib/storyboard/recit.ts";
-import { arreterEntreLesPlans, storyboardU11Actif } from "../src/lib/storyboard/u11.ts";
+import { arreterEntreLesPlans, persistStoryboardU11, storyboardU11Actif } from "../src/lib/storyboard/u11.ts";
 import { tousLesPlans, type Storyboard } from "../src/lib/storyboard/storyboard.ts";
 
 const gabarits = (lang: string): Gabarits => JSON.parse(readFileSync(`messages/storyboard/${lang}.json`, "utf8")).storyboard.gabarits;
@@ -26,12 +26,39 @@ Enki: "You came back." Fizz: "I always do."
 Enki ties the golden thread around Fizz's wrist. Thunder. The thread glows, and they walk into the castle together.`;
 const GENERIC = new Set(["The place", "Arrival", "A detail", "The moment", "The look", "Opening", "Heart", "Ending", "The action"]);
 
-test("the flag is the address or the tab, and 0/1 leave the classic page", () => {
+test("U1.1 is the default; ?storyboard=u11 still opens it; ?storyboard=legacy is the paper page", () => {
+  assert.equal(storyboardU11Actif("", null), true);
+  assert.equal(storyboardU11Actif("?idee=hello", null), true);
   assert.equal(storyboardU11Actif("?storyboard=u11", null), true);
+  assert.equal(storyboardU11Actif("?storyboard=u11", "legacy"), true);
   assert.equal(storyboardU11Actif("", "u11"), true);
-  assert.equal(storyboardU11Actif("", null), false);
-  assert.equal(storyboardU11Actif("?storyboard=1", "u11"), false);
-  assert.equal(storyboardU11Actif("?storyboard=0", "u11"), false);
+  assert.equal(storyboardU11Actif("?storyboard=legacy", null), false);
+  assert.equal(storyboardU11Actif("?storyboard=legacy", "u11"), false);
+  assert.equal(storyboardU11Actif("", "legacy"), false);
+  assert.equal(storyboardU11Actif("?storyboard=1", null), true);
+  assert.equal(storyboardU11Actif("?storyboard=0", "legacy"), false);
+});
+
+test("?storyboard=legacy sticks for the tab until ?storyboard=u11", () => {
+  const mem = new Map<string, string>();
+  const previous = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  Object.defineProperty(globalThis, "sessionStorage", {
+    configurable: true,
+    value: {
+      getItem: (key: string) => mem.get(key) ?? null,
+      setItem: (key: string, value: string) => { mem.set(key, value); },
+      removeItem: (key: string) => { mem.delete(key); },
+    },
+  });
+  try {
+    assert.equal(persistStoryboardU11("?storyboard=legacy"), false);
+    assert.equal(persistStoryboardU11("?idee=pluie"), false);
+    assert.equal(persistStoryboardU11("?storyboard=u11"), true);
+    assert.equal(persistStoryboardU11(""), true);
+  } finally {
+    if (previous) Object.defineProperty(globalThis, "sessionStorage", previous);
+    else delete (globalThis as { sessionStorage?: unknown }).sessionStorage;
+  }
 });
 
 test("stopping between shots drops only the shots still waiting", () => {

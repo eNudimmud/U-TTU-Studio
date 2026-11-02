@@ -44,7 +44,9 @@ test("accueil: only the first hero slide is in the HTML and at high priority; th
 
 test("perf/lcp: the storyboard paints from the server HTML, and the studio's card pictures wait for the load", async ({ page, request }) => {
   const board = await (await request.get("/storyboard")).text();
-  expect(board).toMatch(/class="sb-muted[^"]*">[^<]+</);
+  expect(board).toMatch(/data-u11/);
+  expect(board).toMatch(/class="u11-lede"/);
+  expect(board).toMatch(/name="theme-color" content="#0f0f11"/);
   const studio = await (await request.get("/studio")).text();
   expect(studio).not.toMatch(/<img[^>]*src="[^"]*\/exemples\/vignettes\//);
   await page.goto("/studio");

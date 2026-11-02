@@ -123,6 +123,13 @@ export function U11Storyboard({
   const [sent, setSent] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+  // The bubble opens /storyboard?idee=… . The story lands in the composer; nothing is written until « Write ».
+  useEffect(() => {
+    try {
+      const idee = new URLSearchParams(window.location.search).get("idee")?.slice(0, 4000) ?? "";
+      if (idee) setText(current => current || idee);
+    } catch { /* no address */ }
+  }, []);
   const online = mounted && studio.connected;
   const area = useRef<HTMLTextAreaElement>(null);
   const cancel = useRef(false);
@@ -404,7 +411,7 @@ export function U11Storyboard({
             </span>)}
             <button type="button" className="u11-chip is-add" data-u11-add="" onClick={() => { setPicker(open => !open); setQuery(""); }}>{t("storyboard.u11.write.add")}</button>
           </div>
-          <label className="u11-note" htmlFor="u11-story" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>{t("storyboard.u11.write.label")}</label>
+          <label className="sr-only" htmlFor="u11-story">{t("storyboard.u11.write.label")}</label>
           <textarea id="u11-story" ref={area} className="u11-story" data-u11-story="" rows={8} maxLength={4000} value={text} placeholder={t("storyboard.u11.write.placeholder")} aria-invalid={empty || undefined} onChange={event => onType(event.target.value, event.target.selectionStart ?? event.target.value.length)} onKeyDown={event => { if (event.key === "Escape") setPicker(false); }} />
           {empty && <p className="u11-note" role="alert" data-u11-empty="">{t("storyboard.u11.write.empty")}</p>}
           {picker && <div className="u11-picker" role="listbox" aria-label={t("storyboard.u11.write.picker")} data-u11-picker="">

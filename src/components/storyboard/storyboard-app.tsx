@@ -1,7 +1,8 @@
 "use client";
 
-// SB5 · The storyboard page shell: its own word catalog (messages/storyboard/<locale>.json) on top of the
-// studio's, the studio session (same vault, same Comfy link, same quotes), and the « Papier » theme.
+// The storyboard page shell: its own word catalog (messages/storyboard/<locale>.json) on top of the
+// studio's, and the studio session (same vault, same Comfy link, same quotes). U1.1 is obsidian;
+// the paper theme is the `?storyboard=legacy` page and the print view.
 
 import { NextIntlClientProvider, useMessages, type AbstractIntlMessages } from "next-intl";
 import { useEffect, useState } from "react";
@@ -28,7 +29,7 @@ export function StoryboardApp({ id, print, u11 = false, initial = null }: { id: 
     void loadStoryboardCatalog(locale).then(messages => { if (!gone) setExtra({ locale, messages }); });
     return () => { gone = true; };
   }, [locale, ready]);
-  if (!extra) return <div className="sb-root" data-theme="paper" aria-busy="true" />;
+  if (!extra) return <div className="sb-root" data-theme={u11 ? "obsidian" : "paper"} aria-busy="true" />;
   return <NextIntlClientProvider locale={htmlLang(locale)} messages={{ ...base, ...extra.messages }} timeZone="Europe/Zurich">
     <StudioProvider>
       <StoryboardPage initialId={id} print={print} initialU11={u11} />

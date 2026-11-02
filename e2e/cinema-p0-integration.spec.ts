@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { simulateComfy } from './helpers/film2-comfy';
+import { legacyStoryboard } from './helpers/storyboard-flag';
 
 // CE5 · P0 journey, integrated (docs/architecture CE5 §5): write a board, select a shot, a plain request is
 // read for that shot only, undo, the footer's one video exit opens the real MONTAGE, and the session resumes on
@@ -48,7 +49,7 @@ test('P0: board → selected shot → plain request on that shot only → undo �
   const posts = watchPosts(page);
 
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto('/storyboard');
+  await page.goto(legacyStoryboard('/storyboard'));
   await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
   await page.locator('[data-sb-idea-field]:visible').fill('Une voyageuse traverse la ville sous la pluie pour atteindre un toit à l’aube. Elle dit : « On y est presque. »');
   await page.locator('[data-sb-write]:visible').click();
@@ -88,7 +89,7 @@ test('P0: board → selected shot → plain request on that shot only → undo �
   // Four sizes on the board: 44 px targets, no side scroll, one composer, never « free ».
   for (const [width, height] of SIZES) {
     await page.setViewportSize({ width, height });
-    await page.goto(url);
+    await page.goto(legacyStoryboard(url));
     await ready(page);
     await expect(page.locator('[data-sb-ask]')).toHaveCount(1);
     await targets44(page, '[data-theme="paper"]');
@@ -99,7 +100,7 @@ test('P0: board → selected shot → plain request on that shot only → undo �
 
   // The exit lands on MONTAGE; the studio session opens, resumes (status reads only) and sends nothing.
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto(url);
+  await page.goto(legacyStoryboard(url));
   await ready(page);
   await page.locator('[data-sb-export]').click();
   await page.locator('[data-sb-export-video]').click();
@@ -137,7 +138,7 @@ test('native agent: hidden by default; under qualification, quote, nothing befor
   const either = (pick: (m: M) => string) => new RegExp(locales.map(m => pick(m).slice(0, 24).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'));
 
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto('/storyboard');
+  await page.goto(legacyStoryboard('/storyboard'));
   await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
   await page.locator('[data-sb-idea-field]:visible').fill('Une voyageuse traverse la ville sous la pluie pour atteindre un toit à l’aube.');
   await page.locator('[data-sb-write]:visible').click();
@@ -160,7 +161,7 @@ test('native agent: hidden by default; under qualification, quote, nothing befor
   await expect(page.locator('[data-sb-agent-confirm]')).toHaveCount(0);
 
   // Qualification: same request → prepared and quoted, nothing sent before « Start ».
-  await page.goto(`${board}?cinema=qualification`);
+  await page.goto(legacyStoryboard(board, { cinema: "qualification" }));
   await ready(page);
   await page.locator('[data-sb-strip] [data-sb-select]').nth(1).click();
   await page.locator('[data-sb-ask]').fill('rends ce plan plus mélancolique');

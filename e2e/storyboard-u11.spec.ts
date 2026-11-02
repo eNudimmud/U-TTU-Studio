@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { simulateComfy } from './helpers/film2-comfy';
 
 // The agent is mocked: TextGenerate answers are local JSON. No request leaves for Comfy or fal.
-// Stories vary (French, two places, no dialogue, an unknown name). The layout flag stays ?storyboard=u11.
+// Stories vary (French, two places, no dialogue, an unknown name). U1.1 is the default; ?storyboard=u11 still opens it.
 
 const OUT = process.env.U11_SHOTS || '/opt/cursor/artifacts/u11';
 
@@ -115,7 +115,7 @@ async function mockAgent(page: Page, invalidFirst = false) {
 }
 
 async function ready(page: Page) {
-  await page.goto('/storyboard?storyboard=u11');
+  await page.goto('/storyboard');
   await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
 }
 

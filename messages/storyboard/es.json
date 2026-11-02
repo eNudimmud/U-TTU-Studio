@@ -313,7 +313,7 @@
     "quoted": "«{text}»",
     "entry": {
       "title": "Guion gráfico",
-      "lead": "De una idea a secuencias y planos, con un presupuesto en cada plano. Escribir no renderiza nada.",
+      "lead": "Cuenta la historia. Uttu escribe un storyboard que puedes ver. No se filma nada hasta que lo apruebas.",
       "open": "Abrir los guiones gráficos"
     },
     "ws": {
