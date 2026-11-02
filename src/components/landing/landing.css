@@ -50,7 +50,19 @@
 @media (max-width: 900px) {
   .ln-hide { display: none; }
   .ln-steps, .ln-split, .ln-duo, .ln-models { grid-template-columns: 1fr; }
-  .ln-hero { min-height: 760px; }
+  .ln-hero { min-height: 100svh; }
+}
+/* The header gold repeats the hero button. On a narrow phone it is the piece that sticks out past the screen. */
+@media (max-width: 480px) {
+  .ln-top .hv-gold { display: none; }
+}
+/* A short landscape screen (844×390): the title and both doors stay on the first screen. */
+@media (max-height: 520px) {
+  .ln-hero { min-height: 100svh; align-items: center; }
+  .ln-hero-in { padding: 56px max(16px, 4vw) 12px; }
+  .ln h1 { font-size: clamp(28px, 5vw, 40px); margin: 4px 0; }
+  .ln-lead, .ln-fine { display: none; }
+  .ln-ctas { margin-top: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ln img { scroll-behavior: auto; }

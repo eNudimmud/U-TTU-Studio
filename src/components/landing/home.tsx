@@ -32,7 +32,7 @@ export function HomeLanding() {
     </header>
     <main id="contenu" tabIndex={-1}>
       <section className="ln-hero" data-hero="" aria-labelledby="landing-title">
-        <img src={assetPath("/images/accueil/uttu-quai-1920.webp")} alt={t("accueil.g1Alt")} />
+        <img src={assetPath("/images/accueil/uttu-quai-1920.webp")} alt={t("accueil.g1Alt")} fetchPriority="high" />
         <div className="ln-hero-in">
           <BrandLockup className="hv-lockup" alt="U*TTU Studio" />
           <p className="eyebrow" data-landing-kicker="">{t("accueil.kicker")}</p>
