@@ -8,6 +8,7 @@ import { annulerLook, appliquerLook, estGuide, lireLook, lookAnime, sansGuide } 
 import { annulerLookProjet, confirmerLook, lireLookProjet } from "../src/lib/look/persist.ts";
 import { COUT_PLAN_JEU, EXEMPLE_FILM, EXEMPLE_PREPA, devisFilm, devisPreparation, libelleEstime } from "../src/lib/look/quote.ts";
 import { consulterLook, resolveLook, routePlan, seedDuPlan } from "../src/lib/look/resolve.ts";
+import { LOOK_COPY } from "../src/lib/look/copy.ts";
 import { gesteParId, gesteVisible } from "../src/lib/workflows/registre.ts";
 
 const FORBIDDEN_PRICE = /\b(free|gratuit|kostenlos|gratis)\b/i;
@@ -140,6 +141,22 @@ describe("anime look, quotes", () => {
     const precise = devisFilm(["camera", "acting", "acting"], 1, 2);
     assert.equal(precise.nature, "hypothese");
     assert.equal(precise.estimated, true);
+  });
+});
+
+describe("anime look, page copy", () => {
+  it("keeps every price an estimate and the concept-art caption in English", () => {
+    assert.equal(LOOK_COPY.en.caption, "Concept art — your project is rendered on Comfy with the open anime pipeline");
+    for (const [locale, copy] of Object.entries(LOOK_COPY)) {
+      for (const step of copy.steps) assert.equal(FORBIDDEN_PRICE.test(step.cost), false, `${locale} ${step.cost}`);
+      assert.match(copy.finalNote, /≈ 70/);
+      assert.match(copy.steps[0]!.cost, /≈ 3/);
+      assert.match(copy.steps[4]!.cost, /≈ 3/);
+    }
+    assert.match(LOOK_COPY.en.finalNote, /Choosing the look is free/);
+    assert.equal(/\bgratuit\b/i.test(LOOK_COPY.fr.finalNote), false);
+    assert.equal(/\bkostenlos\b/i.test(LOOK_COPY.de.finalNote), false);
+    assert.equal(/\bgratis\b/i.test(LOOK_COPY.es.finalNote), false);
   });
 });
 
