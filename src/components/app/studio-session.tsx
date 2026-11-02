@@ -60,6 +60,8 @@ import { takePrompt } from "@/lib/render/take-prompt";
 import { rolesLtx } from "@/lib/render/take-roles";
 import { castReferences } from "@/lib/render/cast-references";
 import { refusTournageStoryboard } from "@/lib/storyboard/film";
+import { reglerPrise } from "@/lib/storyboard/reglement";
+import { lireRegistre, registreJson, REGISTRE_FILE } from "@/lib/film/registre";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
 import { imageVide } from "@/lib/render/blank";
@@ -497,6 +499,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const abort = useRef<AbortController | null>(null);
   const paidBusy = useRef(false);
   const following = useRef<string | null>(null);
+  const toMontage = useRef<(input: MontageInput) => Promise<void>>(async () => {});
   const saves = useRef<Promise<unknown>>(Promise.resolve());
   const mediaVersions = useRef<Record<string, number>>({});
   const retiredUrls = useRef<string[]>([]);
@@ -780,6 +783,17 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       take.announcedHigh = learned.announced?.high ?? null;
       const takes = [take, ...current.takes.filter(item => item.id !== id)];
       await settleLandedTake(vault, take, current.sequences, current.shots, takes, current.loras, flight.planId);
+      if (flight.planId) {
+        const envoi = flight.envoi?.planId === flight.planId
+          ? flight.envoi
+          : { planId: flight.planId, phrase: flight.line, castIds: [] as string[], decorId: flight.sceneId };
+        const filed = reglerPrise(lireRegistre((await vault.get(projectPath(slug, REGISTRE_FILE)))?.text ?? null), { ...envoi, seconds: flight.settings.seconds }, { id, fichier: video });
+        await writeText(vault, projectPath(slug, REGISTRE_FILE), registreJson(filed));
+        await toMontage.current({
+          takeId: id, planId: flight.planId, label: (envoi.phrase || flight.line).slice(0, 80), seconds: flight.settings.seconds,
+          aspect: flight.settings.aspect === "vertical" ? "vertical" : "horizontal", still: poster ?? "", video, prompt: flight.prompt, sceneName: flight.sceneName, composeur: "",
+        });
+      }
       await completePending(renderClient, flight.jobId);
       saveInFlight(localStorage, null);
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
@@ -1734,7 +1748,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const at = new Date().toISOString();
       // P1-4: the take keeps every reference sent, framing maps included (P0-2).
       const sentRefs = [...paths, ...(pendingTake?.framing ? [pendingTake.framing.color, pendingTake.framing.depth, pendingTake.framing.edges] : [])];
-      const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
+      const flightData: Omit<InFlight, "jobId"> = {
+        at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits,
+        ...(pendingTake?.planId ? { envoi: { planId: pendingTake.planId, phrase: pendingTake.line, castIds: pendingTake.castIds, decorId: pendingTake.decorId } } : {}),
+      };
       const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: sentRefs, template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : freshQuote.source === "estimated" ? freshQuote.estimate.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
         pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(), ...(pendingTake?.roles ? { roles: pendingTake.roles } : {}),
@@ -2524,6 +2541,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
     await reload();
   }, [demoOn, prepareMontageClip, reload, store]);
+  toMontage.current = sendToMontage;
 
   const sendSequence = useCallback(async (inputs: MontageInput[]) => {
     await saves.current;
