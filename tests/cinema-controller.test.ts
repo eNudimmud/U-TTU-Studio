@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import type { VaultEntry, VaultStore } from "../src/lib/coffre/store.ts";
 import { createCinemaController, intentContextPath, type CinemaClient, type ControllerPorts, type PrepareIntentRequest, type PrepareShotRequest, shotApproval } from "../src/lib/cinema/controller.ts";
 import { INTENT_RECEIPT_KEY, userApproval } from "../src/lib/cinema/intent-job.ts";
-import { cinemaMetaPath, emptyMeta, metaJson, noLock, parseMeta, projectFiles } from "../src/lib/cinema/journal.ts";
+import { cinemaMetaPath, emptyMeta, journalPath, metaJson, noLock, parseMeta, projectFiles } from "../src/lib/cinema/journal.ts";
 import { readLedger } from "../src/lib/cinema/spend-ledger.ts";
 import { cheminJson, lireStoryboard, planVide, storyboardJson, storyboardVide, tousLesPlans } from "../src/lib/storyboard/storyboard.ts";
 import { RenderError } from "../src/lib/render/client.ts";
@@ -271,6 +271,48 @@ describe("controller: shots", () => {
     assert.equal(t.client.calls.filter(c => c === "submit").length, 1);
     assert.equal((await t.controller.submitShot(prepared, approval, base)).ok, false, "single use");
     assert.equal(t.client.calls.filter(c => c === "submit").length, 1);
+  });
+
+  it("a conflicted intent is abandoned without touching the board, then the next intent is accepted", async () => {
+    const t = setup();
+    await seedBoard(t.vault);
+    const prepared = (await t.controller.prepareIntent(intentRequest())).data!;
+    await t.controller.submitIntent(prepared, approve(prepared.preparation));
+    const operationId = prepared.preparation.operationId;
+    const files = projectFiles(t.vault, P);
+    const boardBefore = (await files.get(cheminJson("b1")))!.text!;
+    const metaBefore = (await files.get(cinemaMetaPath("b1")))!.text!;
+    await files.put({
+      path: journalPath(operationId), updatedAt: NOW.getTime(), text: JSON.stringify({
+        schemaVersion: 1, operationId, scope, state: "conflict",
+        targets: [{ path: cheminJson("b1"), before: "x", after: "y" }],
+        conflicts: [cheminJson("b1")],
+        payload: { before: [boardBefore], after: ["SHOULD-NOT-LAND"] },
+        createdAt: NOW.toISOString(), updatedAt: NOW.toISOString(),
+      }),
+    });
+    assert.equal((await t.controller.resumeIntent({ locks: {} })).code, "REVISION_CONFLICT");
+
+    const blockedPrep = (await t.controller.prepareIntent(intentRequest())).data!;
+    const blocked = await t.controller.submitIntent(blockedPrep, approve(blockedPrep.preparation));
+    assert.equal(blocked.code, "BUDGET_RESERVED");
+    assert.equal(t.client.calls.filter(c => c === "submit").length, 1, "the open conflict blocks the next POST");
+
+    const abandoned = await t.controller.resolveConflictedIntent(operationId, "abandon");
+    assert.equal(abandoned.ok, true);
+    assert.equal(abandoned.code, "INTENT_ABANDONED");
+    assert.equal((await files.get(cheminJson("b1")))!.text, boardBefore, "abandon never writes the board");
+    assert.equal((await files.get(cinemaMetaPath("b1")))!.text, metaBefore);
+    const journal = JSON.parse((await files.get(journalPath(operationId)))!.text!);
+    assert.equal(journal.event, "intent.abandoned");
+    assert.equal(journal.state, "conflict", "the conflict stays on record; the board mutation is not applied");
+    assert.equal(t.client.calls.filter(c => c === "submit").length, 1, "abandon never POSTs");
+    assert.equal((await t.controller.abandonIntent(operationId)).code, "INTENT_ABANDONED", "abandoning again is the same decision");
+
+    const next = (await t.controller.prepareIntent(intentRequest())).data!;
+    const sent = await t.controller.submitIntent(next, approve(next.preparation));
+    assert.equal(sent.code, "INTENT_SUBMITTED", JSON.stringify(sent));
+    assert.equal(t.client.calls.filter(c => c === "submit").length, 2);
   });
 
   it("resume on open recovers journals and keeps the open intent's reserve", async () => {

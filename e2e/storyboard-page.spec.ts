@@ -135,18 +135,24 @@ test('U1.1 default: four sizes, 44 px targets, no side scroll', async ({ page })
   }
 });
 
-test('legacy hatch: ?storyboard=legacy still opens the paper page and prices a board', async ({ page }) => {
+test('legacy hatch: ?storyboard=legacy still opens the paper page; an unknown name makes no POST', async ({ page }) => {
   test.skip(STORYBOARD_CLOSED, 'holding page covers this until StoryWeave; flip STORYBOARD_CLOSED');
   test.skip(test.info().project.name !== 'desktop', 'one desktop check of the hatch');
   await simulateComfy(page);
+  const posts: string[] = [];
+  page.on('request', request => {
+    if (request.method() === 'POST' && /\/api\/prompt$/.test(new URL(request.url()).pathname)) posts.push(request.url());
+  });
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/storyboard?storyboard=legacy');
   await expect(page.locator('[data-storyboard-page][data-theme="paper"][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
   await expect(page.locator('[data-u11]')).toHaveCount(0);
   await page.locator('[data-sb-idea-field]:visible').fill('Uttu traverse la ville sous la pluie pour atteindre un toit à l’aube. Elle dit : « On y est presque. »');
   await page.locator('[data-sb-write]:visible').click();
-  await expect(page.locator('[data-sb-film-all]')).toContainText(/≈ [\d.,]+ (crédits estimés|credits estimated)/, { timeout: 30_000 });
+  await expect(page.locator('[data-sb-no-quote]').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-sb-film-all]')).toHaveCount(0);
   await expect(page.locator('[data-storyboard-page]')).not.toContainText(FREE);
+  expect(posts, 'an unknown name does not start a render').toEqual([]);
   const url = page.url();
   await page.goto(`${url.split('?')[0]}/print?storyboard=legacy`);
   await expect(page.locator('[data-sb-print-page]').first()).toBeVisible({ timeout: 60_000 });

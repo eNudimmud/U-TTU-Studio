@@ -499,6 +499,7 @@
         "closing": "Añade un plano de cierre",
         "undo": "Deshacer",
         "undone": "Deshecho. El tablero volvió a estar como antes.",
+        "reread": "Volver a leer con Uttu",
         "zero": "Nada filmado.",
       "apply": "Aplicar este cambio",
       "dismiss": "No esto",

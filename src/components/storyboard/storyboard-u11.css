@@ -118,6 +118,7 @@ html:has(.sb-root[data-theme="obsidian"]) body {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
 }
 [data-theme="obsidian"] .u11-primary:hover { background: var(--u11-accent-2); }
+[data-theme="obsidian"] [data-u11-reread] { min-width: 44px; max-width: 100%; height: auto; white-space: normal; flex-wrap: wrap; }
 [data-theme="obsidian"] .u11-primary .cost { font: 500 13px var(--u11-mono); }
 [data-theme="obsidian"] .u11-note, [data-theme="obsidian"] .u11-hint { color: var(--u11-fg-3); font-size: 13px; }
 [data-theme="obsidian"] .u11-you {

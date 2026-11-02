@@ -164,8 +164,8 @@ export const pageCopyPath = (boardId: string, operationId: string) => cheminJson
 /**
  * One save of the page = one journaled transaction (board + sidecar), computed under the project lock from
  * the files as they are now. A replay of the same id finishes the stored journal and computes nothing again.
- * CE5-W · the applied journal of every save is kept (idempotence of a replay, traceability, inverse):
- * never removed right after a « clean » save.
+ * CE5-W · the applied journal stays through the save (replay, traceability, inverse).
+ * D2 then keeps the 20 newest applied journals of this board; a clean save is not deleted on the spot.
  */
 export async function saveBoard(files: VaultStore, lock: ProjectLock, input: { projectId: string; operationId: string; base: Storyboard | null; mine: Storyboard; now: () => string }): Promise<SavedBoard> {
   const boardPath = cheminJson(input.mine.id);

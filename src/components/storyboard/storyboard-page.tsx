@@ -10,7 +10,7 @@ import { useMessages } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
-import { ajouterPlan as ajouterPlanFilm, ajouterPrise, auMontage, garderPrise, nouveauPlan } from "@/lib/film/registre";
+import { garderPrise } from "@/lib/film/registre";
 import { assetPath } from "@/lib/site";
 import { appliquerCorrection, lireCorrection, lireReglage, type Correction } from "@/lib/storyboard/corriger";
 import { arreterEntreLesPlans, persistStoryboardU11, storyboardLayoutQuery } from "@/lib/storyboard/u11";
@@ -150,17 +150,22 @@ export function StoryboardPage({ initialId, print, initialU11 = false }: { initi
     if (!found) { terminer(enCours, false); return; }
     lance.current = enCours;
     const envoi = versPlanFilm(board, found.plan, known);
-    if (found.plan.planFilmId !== envoi.planId) void data.sauver(majPlan(board, found.plan.id, { planFilmId: envoi.planId }), { now: true });
-    studio.resetRun();
-    void studio.tournerPlan({ ...envoi, onEchec: raison => terminer(enCours, false, raison) }).then(started => {
+    void (async () => {
+      if (found.plan.planFilmId !== envoi.planId) await data.sauver(majPlan(board, found.plan.id, { planFilmId: envoi.planId }), { now: true });
+      if (lance.current !== enCours) return;
+      studio.resetRun();
+      const started = await studio.tournerPlan({ ...envoi, origine: "storyboard", onEchec: raison => terminer(enCours, false, raison) });
+      // onEchec already settled a refusal (REF_MISSING): do not overwrite it.
+      if (lance.current !== enCours) return;
       if (!started) { terminer(enCours, false, studio.notice); setFile(null); return; }
       // The gate said no (balance, quote, reference): nothing left, the queue stops there.
       const now = runRef.current;
-      if (now.phase !== "running" && now.phase !== "done" && now.phase !== "error" && lance.current === enCours) { terminer(enCours, false, studio.notice); setFile(null); }
-    });
+      if (now.phase !== "running" && now.phase !== "done" && now.phase !== "error") { terminer(enCours, false, studio.notice); setFile(null); }
+    })();
   }, [enCours, data, known, studio, terminer]);
 
-  // A take landed (or failed) for the shot in flight: register it, put it on the cut, next shot.
+  // A take landed (or failed) for the shot in flight. The session already filed it: this only reads
+  // that and moves the queue on. It does not write the register or the cut.
   useEffect(() => {
     const boardId = sbFile.current;
     const board = boardId ? data.boards[boardId] : null;
@@ -172,24 +177,11 @@ export function StoryboardPage({ initialId, print, initialU11 = false }: { initi
     if (run.phase !== "done") return;
     const take = vault.takes.find(item => item.id === run.takeId);
     if (!take || filed.current === take.id) return;
+    const film = data.registre.plans.find(item => item.id === filmId);
+    if (!film?.prises.some(item => item.id === take.id)) return;
     filed.current = take.id;
-    void (async () => {
-      const envoi = versPlanFilm(board, found.plan, known);
-      await studio.sendToMontage({ takeId: take.id, planId: filmId, label: found.plan.titre.slice(0, 80) || envoi.phrase.slice(0, 80), seconds: take.settings.seconds, aspect: take.settings.aspect === "vertical" ? "vertical" : "horizontal", still: take.poster ?? "", video: take.video, prompt: take.prompt, sceneName: take.sceneName, composeur: "" });
-      const base = data.registre.plans.some(item => item.id === filmId) ? data.registre : ajouterPlanFilm(data.registre, { ...nouveauPlan(data.registre, filmId, envoi.phrase), quiIds: envoi.castIds, ouId: envoi.decorId });
-      await data.setRegistre(auMontage(ajouterPrise(base, filmId, { id: take.id, fichier: take.video }), filmId, take.settings.seconds));
-      // New characters and places are cards now: link them, so the next shots reuse them.
-      const latest = data.boards[board.id] ?? board;
-      const relie = { ...latest, sequences: latest.sequences.map(seq => ({ ...seq, plans: seq.plans.map(plan => ({ ...plan, refs: plan.refs.map(ref => {
-        if (ref.id) return ref;
-        const list = ref.role === "qui" ? studio.studio.cast : ref.role === "ou" ? studio.studio.scenes : [];
-        const hit = list.find(item => item.name.trim().toLowerCase() === ref.nom.trim().toLowerCase());
-        return hit ? { ...ref, id: hit.id } : ref;
-      }) })) })) };
-      await data.sauver(relie, { now: true });
-      terminer(enCours, true);
-    })();
-  }, [run, runOrigin, enCours, vault.takes, data, known, studio, terminer]);
+    terminer(enCours, true);
+  }, [run, runOrigin, enCours, vault.takes, data, terminer]);
 
   const filmer = useCallback((ids: string[]) => {
     if (!sb) return;

@@ -1,9 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import type { VaultEntry, VaultStore } from "../src/lib/coffre/store.ts";
+import { createCinemaController, type CinemaClient, type ControllerPorts } from "../src/lib/cinema/controller.ts";
 import { parseIntent } from "../src/lib/cinema/intent.ts";
-import type { IntentContext, IntentEnvelope } from "../src/lib/cinema/types.ts";
-import { answerOf, agentChange, agentReading, boardFromProposal, confirmProposal, proposalsOf, U11_AGENT_CEILING, withQuotableDurations } from "../src/lib/storyboard/u11-agent.ts";
-import { tousLesPlans } from "../src/lib/storyboard/storyboard.ts";
+import { cinemaMetaPath, emptyMeta, metaJson, noLock, parseMeta, projectFiles } from "../src/lib/cinema/journal.ts";
+import type { IntentContext, IntentEnvelope, Operation } from "../src/lib/cinema/types.ts";
+import { answerOf, agentChange, agentReading, boardFromProposal, confirmProposal, proposalsOf, U11_AGENT_CEILING, U11_AUTO_RETRY, withQuotableDurations } from "../src/lib/storyboard/u11-agent.ts";
+import { cheminJson, lireStoryboard, planVide, storyboardJson, storyboardVide, tousLesPlans, type Storyboard } from "../src/lib/storyboard/storyboard.ts";
 
 const context = (over: Partial<IntentContext> = {}): IntentContext => ({
   scope: { projectId: "atelier", storyboardId: "board-1" },
@@ -106,32 +109,132 @@ test("applying a proposal keeps library ids and does not invent the unresolved n
   assert.ok(tousLesPlans(priced).every(plan => plan.duree === 5));
 });
 
-test("a structural change is only the operation the proposal names", () => {
+test("a modification is not applied by rebuilding the board", () => {
   const ctx = context({
     shots: [
-      { shotId: "p1", revision: 0, index: 0, titre: "Léa sur le quai", action: "arrive", archived: false, lockedFields: [] },
-      { shotId: "p2", revision: 0, index: 1, titre: "Le marché", action: "traverse", archived: false, lockedFields: [] },
+      { shotId: "p1", revision: 0, index: 0, titre: "Shot 1", action: "one", archived: false, lockedFields: [] },
+      { shotId: "p2", revision: 0, index: 1, titre: "Shot 2", action: "two", archived: false, lockedFields: [] },
     ],
     storyboardRevision: 0,
   });
   const board = {
-    version: 1, id: "board-1", titre: "La traversée", idee: "x", logline: "", scenario: "", format: "paysage" as const, dureeCible: 30 as const, musique: "", archive: false, creeLe: "t", majLe: "t",
+    version: 1, id: "board-1", titre: "Board", idee: "x", logline: "", scenario: "", format: "paysage" as const, dureeCible: 30 as const, musique: "", archive: false, creeLe: "t", majLe: "t",
     sequences: [{ id: "s1", titre: "", resume: "", plans: [
-      { id: "p1", titre: "Léa sur le quai", action: "arrive", refs: [], cadrage: "large" as const, camera: "fixe" as const, duree: 5 as const, format: "paysage" as const, rendu: "fidele" as const, dialogue: { type: "aucune" as const, qui: null, texte: "", source: "visiteur" as const, propositions: [] }, son: { musique: "", ambiance: "" }, promptManuel: null, raccord: false, planFilmId: null, etat: "a-tourner" as const },
-      { id: "p2", titre: "Le marché", action: "traverse", refs: [], cadrage: "moyen" as const, camera: "fixe" as const, duree: 5 as const, format: "paysage" as const, rendu: "fidele" as const, dialogue: { type: "aucune" as const, qui: null, texte: "", source: "visiteur" as const, propositions: [] }, son: { musique: "", ambiance: "" }, promptManuel: null, raccord: false, planFilmId: null, etat: "a-tourner" as const },
+      { id: "p1", titre: "Shot 1", action: "one", refs: [], cadrage: "large" as const, camera: "fixe" as const, duree: 5 as const, format: "paysage" as const, rendu: "fidele" as const, dialogue: { type: "aucune" as const, qui: null, texte: "", source: "visiteur" as const, propositions: [] }, son: { musique: "", ambiance: "" }, promptManuel: null, raccord: false, planFilmId: null, etat: "a-tourner" as const },
+      { id: "p2", titre: "Shot 2", action: "two", refs: [], cadrage: "moyen" as const, camera: "fixe" as const, duree: 5 as const, format: "paysage" as const, rendu: "fidele" as const, dialogue: { type: "aucune" as const, qui: null, texte: "", source: "visiteur" as const, propositions: [] }, son: { musique: "", ambiance: "" }, promptManuel: null, raccord: false, planFilmId: null, etat: "a-tourner" as const },
     ] }],
   };
   const patch = envelope({
-    creativeGoal: "La traversée",
+    creativeGoal: "Board",
     expectedResult: "closer",
     operations: [{ kind: "shot.patch", target: { ...ctx.scope, shotId: "p1", expectedRevision: 0 }, patch: { cadrage: "serre" } }],
     rationale: "",
     unresolved: [],
   }, ctx);
-  const next = boardFromProposal(board, patch, "t2");
-  assert.deepEqual(tousLesPlans(next).map(plan => plan.id), ["p1", "p2"]);
-  assert.equal(tousLesPlans(next)[0]!.cadrage, "serre");
-  assert.equal(tousLesPlans(next)[1]!.cadrage, "moyen");
-  const invalid = answerOf("invalid", null);
-  assert.equal(invalid.status, "invalid");
+  const before = JSON.stringify(board);
+  assert.throws(() => boardFromProposal(board, patch, "t2"), /shell create only/);
+  assert.equal(JSON.stringify(board), before, "the board bytes are untouched");
+  assert.equal(answerOf("invalid", null).status, "invalid");
+  assert.equal(U11_AUTO_RETRY, false, "a bad answer is not sent again by itself");
+});
+
+const PROJECT = "atelier";
+const scope = { projectId: PROJECT, storyboardId: "board-1" };
+
+function memoryVault(): VaultStore & { map: Map<string, VaultEntry> } {
+  const map = new Map<string, VaultEntry>();
+  return { map, list: async () => [...map.values()], get: async path => map.get(path) ?? null, put: async entry => { map.set(entry.path, { ...entry }); }, remove: async path => { map.delete(path); } };
+}
+
+function threeShots(): Storyboard {
+  const sb = storyboardVide({ id: "board-1", titre: "Board", idee: "three shots", now: "2026-11-01T00:00:00.000Z" });
+  const plan = (id: string, action: string) => ({ ...planVide(id), titre: id, action });
+  return { ...sb, sequences: [{ id: "seq", titre: "", resume: "", plans: [plan("p1", "one"), plan("p2", "two"), plan("p3", "three")] }] };
+}
+
+async function mustText(files: VaultStore, path: string): Promise<string> {
+  const text = (await files.get(path))?.text;
+  assert.equal(typeof text, "string");
+  return text!;
+}
+
+function planBytes(text: string, id: string): string {
+  const board = lireStoryboard(text);
+  const plan = board ? tousLesPlans(board).find(item => item.id === id) : null;
+  return JSON.stringify(plan);
+}
+
+function portsFor(vault: VaultStore, calls: string[]): ControllerPorts {
+  let n = 0;
+  const client = {
+    async user() { calls.push("user"); return { id: "acct" }; },
+    async submit() { calls.push("submit"); return "job"; },
+    async status() { calls.push("status"); return "success"; },
+    async job() { calls.push("job"); return { status: "success", outputs: {} }; },
+  } as CinemaClient;
+  return {
+    storage: { getItem: () => null, setItem: () => undefined, removeItem: () => undefined },
+    vault, lock: noLock, paidLocks: null, sessionId: "tab", client: () => client,
+    now: () => new Date("2026-11-02T00:00:00.000Z"),
+    uuid: () => `00000000-0000-4000-8000-${String(++n).padStart(12, "0")}`,
+    seed: () => 1, trancheCapCredits: 3, campaign: { capCredits: 300, priorCredits: 0 },
+    balance: async () => null, projectAvailable: async () => true, purpose: "qualification",
+  };
+}
+
+async function seeded() {
+  const vault = memoryVault();
+  const files = projectFiles(vault, PROJECT);
+  const board = threeShots();
+  const text = storyboardJson(board);
+  await files.put({ path: cheminJson(board.id), text, updatedAt: 0 });
+  await files.put({ path: cinemaMetaPath(board.id), text: metaJson(emptyMeta(board.id)), updatedAt: 0 });
+  const calls: string[] = [];
+  return { vault, files, text, calls, cinema: createCinemaController(portsFor(vault, calls)) };
+}
+
+const patch = (shotId: string, expectedRevision: number, field: "cadrage" | "camera", value: string): Operation => ({
+  kind: "shot.patch",
+  target: { ...scope, shotId, expectedRevision },
+  patch: { [field]: value },
+});
+
+test("editing shot 2 leaves shots 1 and 3 byte-identical, and a stale revision writes nothing", async () => {
+  const { files, text, calls, cinema } = await seeded();
+  const out = await cinema.applyLocal(scope, [patch("p2", 0, "cadrage", "serre")], { locks: {}, userText: "tighten shot 2" });
+  assert.equal(out.code, "LOCAL_APPLIED");
+  const next = await mustText(files, cheminJson("board-1"));
+  assert.equal(planBytes(next, "p1"), planBytes(text, "p1"));
+  assert.equal(planBytes(next, "p3"), planBytes(text, "p3"));
+  assert.notEqual(planBytes(next, "p2"), planBytes(text, "p2"));
+  assert.equal(JSON.parse(planBytes(next, "p2")).cadrage, "serre");
+  const stale = await cinema.applyLocal(scope, [patch("p2", 0, "camera", "suit")], { locks: {} });
+  assert.equal(stale.ok, false);
+  assert.equal(stale.code, "REVISION_CONFLICT");
+  assert.equal(await mustText(files, cheminJson("board-1")), next, "a conflict is shown by the caller and nothing is written");
+  assert.deepEqual(calls, [], "applyLocal never POSTs");
+});
+
+test("a locked shot is refused and the board bytes stay", async () => {
+  const { files, text, calls, cinema } = await seeded();
+  const out = await cinema.applyLocal(scope, [patch("p2", 0, "cadrage", "serre")], { locks: { p2: ["cadrage"] }, userText: "tighten the locked shot" });
+  assert.equal(out.ok, false);
+  assert.equal(out.code, "LOCK_CONFLICT");
+  assert.equal(await mustText(files, cheminJson("board-1")), text);
+  assert.equal(parseMeta(await mustText(files, cinemaMetaPath("board-1")), "board-1").revisions.p2, undefined);
+  assert.deepEqual(calls, []);
+});
+
+test("undo restores the previous revision of the board", async () => {
+  const { files, text, calls, cinema } = await seeded();
+  const applied = await cinema.applyLocal(scope, [patch("p2", 0, "cadrage", "serre")], { locks: {} });
+  assert.equal(applied.code, "LOCAL_APPLIED");
+  const operationId = applied.data?.operationId;
+  assert.ok(operationId);
+  const undone = await cinema.undo(scope, operationId!);
+  assert.equal(undone.code, "UNDONE");
+  assert.equal(await mustText(files, cheminJson("board-1")), text, "the board file is the previous revision, byte for byte");
+  const meta = parseMeta(await mustText(files, cinemaMetaPath("board-1")), "board-1");
+  assert.equal(meta.revisions.p2, 2, "the sidecar revision only moves forward, so an older quote cannot spend");
+  assert.deepEqual(calls, []);
 });

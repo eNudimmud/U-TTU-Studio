@@ -1,6 +1,7 @@
 // Quotes of a storyboard (SB3). Never invented: a take price comes from the studio's quote for those
-// settings (H3 or Rapide, 5/8/10 s), a new character or place from its creation quote. No price → null,
-// and the caller disables the button (« Quote unavailable »). Nothing here is ever shown as zero.
+// settings (H3 or Rapide, 5/8/10 s). A character or a place without a card blocks the shot instead of
+// adding a creation step (D6). No price → null, and the caller disables the button (« Quote unavailable »).
+// Nothing here is ever shown as zero.
 
 import { reglagesVersTake } from "../film/reglages.ts";
 import type { MeasuredQuote } from "../render/measured-quote.ts";
@@ -18,6 +19,13 @@ export interface ContexteDevis {
 
 export interface EtapeDevis { type: "personnage" | "lieu" | "prise"; nom: string; credits: number }
 
+export interface DevisPlan {
+  etapes: EtapeDevis[];
+  total: number | null;
+  /** A character or a place has no card. The shot is not quoted and no card is created for it. */
+  bloque?: "REF_MISSING";
+}
+
 export function reglagesDuPlan(plan: Pick<PlanSB, "duree" | "format" | "rendu">): TakeSettings {
   return reglagesVersTake({ duree: plan.duree, format: plan.format, rendu: plan.rendu });
 }
@@ -25,21 +33,17 @@ export function reglagesDuPlan(plan: Pick<PlanSB, "duree" | "format" | "rendu">)
 const arrondi = (n: number) => Math.round(n * 10) / 10;
 
 /**
- * The steps of one shot: each new character, the new place, then the take. `dejaCrees` holds the folded
- * names already counted by an earlier shot of the same batch: a new reference is created once.
+ * The quote of one shot. A character or a place without a card blocks the shot: no creation step is
+ * added (D6). `dejaCrees` stays in the signature so a batch caller can still pass the set; creation
+ * is no longer counted here. A shot whose cards are all linked quotes the take alone.
  */
-export function devisPlan(plan: PlanSB, ctx: ContexteDevis, dejaCrees: ReadonlySet<string> = new Set()): { etapes: EtapeDevis[]; total: number | null } {
+export function devisPlan(plan: PlanSB, ctx: ContexteDevis, _dejaCrees: ReadonlySet<string> = new Set()): DevisPlan {
+  const manquant = plan.refs.some(ref => !ref.id && (ref.role === "qui" || ref.role === "ou"));
+  if (manquant) return { etapes: [], total: null, bloque: "REF_MISSING" };
   const prise = ctx.prixPrise(reglagesDuPlan(plan));
-  const etapes: EtapeDevis[] = [];
-  for (const ref of plan.refs) {
-    if (ref.id || (ref.role !== "qui" && ref.role !== "ou")) continue;
-    const key = `${ref.role}:${ref.nom.trim().toLowerCase()}`;
-    if (dejaCrees.has(key)) continue;
-    etapes.push(ref.role === "qui" ? { type: "personnage", nom: ref.nom, credits: ctx.creation.personnage } : { type: "lieu", nom: ref.nom, credits: ctx.creation.lieu });
-  }
-  if (prise === null) return { etapes, total: null };
-  etapes.push({ type: "prise", nom: plan.titre || plan.action, credits: prise });
-  return { etapes, total: arrondi(etapes.reduce((sum, step) => sum + step.credits, 0)) };
+  if (prise === null) return { etapes: [], total: null };
+  const etapes: EtapeDevis[] = [{ type: "prise", nom: plan.titre || plan.action, credits: prise }];
+  return { etapes, total: arrondi(prise) };
 }
 
 /** The shots still to film, in board order. */
