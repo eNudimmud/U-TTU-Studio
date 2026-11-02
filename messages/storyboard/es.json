@@ -626,6 +626,7 @@
     "split": "Cortar en el cabezal",
     "addText": "Añadir un texto",
     "delete": "Borrar el clip elegido",
+    "needSelection": "Elige primero un clip en la línea de tiempo.",
     "prev": "Plano anterior",
     "next": "Plano siguiente",
     "play": "Reproducir",

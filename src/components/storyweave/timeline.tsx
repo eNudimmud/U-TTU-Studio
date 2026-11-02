@@ -70,9 +70,9 @@ export function Timeline({
   return <div className="sw-tl" ref={wrap} aria-label={t("storyweave.timeline")} data-sw-tracks="4">
     <div className="sw-bar">
       <div>
-        <button type="button" className="sw-ib" aria-label={t("storyweave.split")} disabled={!selectedClip || selectedClip.track !== "video" || !selectedClip.shotId} onClick={() => selectedClip?.shotId && onSplit(selectedClip.shotId)}><Icon d={ICON.cut} /></button>
+        <button type="button" className="sw-ib" aria-label={t("storyweave.split")} aria-describedby="sw-tl-why" disabled={!selectedClip || selectedClip.track !== "video" || !selectedClip.shotId} onClick={() => selectedClip?.shotId && onSplit(selectedClip.shotId)}><Icon d={ICON.cut} /></button>
         <button type="button" className="sw-ib" aria-label={t("storyweave.addText")} onClick={() => onAddText(playhead)}><Icon d={ICON.text} /></button>
-        <button type="button" className="sw-ib" aria-label={t("storyweave.delete")} disabled={!selectedClip} data-sw-delete="" onClick={() => selectedClip && onDelete(selectedClip)}><Icon d={ICON.del} /></button>
+        <button type="button" className="sw-ib" aria-label={t("storyweave.delete")} aria-describedby="sw-tl-why" disabled={!selectedClip} data-sw-delete="" onClick={() => selectedClip && onDelete(selectedClip)}><Icon d={ICON.del} /></button>
       </div>
       <div className="sw-mid">
         <button type="button" className="sw-ib" aria-label={t("storyweave.prev")} onClick={() => jump(-1)}><Icon d={ICON.prev} /></button>
@@ -82,6 +82,7 @@ export function Timeline({
       </div>
       <button type="button" className="sw-ib" aria-label={t("storyweave.full")} onClick={() => setFull(value => !value)}><Icon d={ICON.full} /></button>
     </div>
+    <p id="sw-tl-why" className="sw-sr">{t("storyweave.needSelection")}</p>
     <div className="sw-lanes">
       <div className="sw-heads" aria-hidden="true">
         <span />

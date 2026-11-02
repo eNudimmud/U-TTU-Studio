@@ -193,9 +193,9 @@ export function Panel({
           if (!rowsOf.length) return null;
           return <div key={group} className="sw-grp"><div className="sw-lbl">{t(`storyweave.group.${group}`)}</div>
             {rowsOf.map(cue => <div key={cue.id} className={`sw-cue${cue.recorded ? "" : " is-todo"}`}>
-              <button type="button" className="sw-pl" aria-label={t("storyweave.playCue", { name: cue.label })} disabled={!cue.source} onClick={() => cue.source && void playUrl(cue.source)}><Icon d={ICON.play} size={16} /></button>
-              <span><b>{cue.label}</b><small>{cue.shotIndex ? t("storyweave.cueMeta", { shot: String(cue.shotIndex), seconds: String(Math.round(cue.seconds)) }) : formatClock(cue.seconds)}{cue.recorded ? "" : ` · ${t("storyweave.notRecorded")}`}</small></span>
-              <button type="button" className="sw-ib" aria-label={t("storyweave.download", { name: cue.label })} disabled={!cue.source} onClick={() => cue.source && void download(cue.label, [{ name: `${cue.label}.audio`, url: cue.source }])}><Icon d={ICON.dl} /></button>
+              <button type="button" className="sw-pl" aria-label={t("storyweave.playCue", { name: cue.label })} aria-describedby={`sw-cue-${cue.id}`} disabled={!cue.source} onClick={() => cue.source && void playUrl(cue.source)}><Icon d={ICON.play} size={16} /></button>
+              <span><b>{cue.label}</b><small id={`sw-cue-${cue.id}`}>{cue.shotIndex ? t("storyweave.cueMeta", { shot: String(cue.shotIndex), seconds: String(Math.round(cue.seconds)) }) : formatClock(cue.seconds)}{cue.recorded ? "" : ` · ${t("storyweave.notRecorded")}`}</small></span>
+              <button type="button" className="sw-ib" aria-label={t("storyweave.download", { name: cue.label })} aria-describedby={`sw-cue-${cue.id}`} disabled={!cue.source} onClick={() => cue.source && void download(cue.label, [{ name: `${cue.label}.audio`, url: cue.source }])}><Icon d={ICON.dl} /></button>
             </div>)}
             <button type="button" className="sw-txt" onClick={() => void download(group, rowsOf.flatMap(cue => cue.source ? [{ name: cue.label, url: cue.source }] : []))}>{t("storyweave.downloadGroup")}</button>
           </div>;
@@ -290,12 +290,11 @@ function ShotSheet({ plan, scene, data, locked, missing, filming, picture, engin
     {!filmed && <div className="sw-confirm" role="group" aria-label={t("storyweave.filmTitle", { n: String(scene.index) })}>
       <h3>{t("storyweave.filmTitle", { n: String(scene.index) })}</h3>
       <p className="sw-q">{t("storyweave.filmMeta", { engine, seconds: String(plan.duree), ratio: plan.format === "portrait" ? "9:16" : "16:9" })}</p>
-      {missing && <p className="sw-miss" data-sw-ref-missing="">{t("storyboard.cinema.errors.REFERENCE_MISSING")}</p>}
       <div className="sw-go">
-        <button type="button" className="sw-primary" data-sw-film="" disabled={missing || devis.total === null || filming} onClick={onFilm}>{t("storyweave.filmGo", { n: String(scene.index) })} <small>{costText(t, devis.total)}</small></button>
+        <button type="button" className="sw-primary" data-sw-film="" aria-describedby="sw-film-why" disabled={missing || devis.total === null || filming} onClick={onFilm}>{t("storyweave.filmGo", { n: String(scene.index) })} <small>{costText(t, devis.total)}</small></button>
         <button type="button" className="sw-txt" onClick={onBack}>{t("storyweave.notNow")}</button>
       </div>
-      <p className="sw-fine">{t("storyweave.filmFine")}</p>
+      <p id="sw-film-why" className="sw-fine" data-sw-ref-missing={missing ? "" : undefined}>{missing ? t("storyboard.cinema.errors.REFERENCE_MISSING") : devis.total === null ? t("storyweave.beforeLaunch") : t("storyweave.filmFine")}</p>
     </div>}
     <ul className="sw-facts">
       <li><span className="sw-k">{t("storyweave.engine")}</span><span className="sw-v">{engine}</span><button type="button" className="sw-txt" aria-expanded={engineOpen} onClick={onEngineOpen}>{t("storyweave.change")}</button></li>
@@ -304,12 +303,12 @@ function ShotSheet({ plan, scene, data, locked, missing, filming, picture, engin
       <li><span className="sw-k">{t("storyweave.lock")}</span><span className="sw-v sw-mut">{locked ? t("storyweave.lockOn") : t("storyweave.lockOff")}</span>
         <button type="button" className="sw-sw" role="switch" aria-checked={locked} aria-label={t("storyweave.lockLabel")} onClick={() => onLock(!locked)}><i /></button></li>
     </ul>
-    <p className="sw-fine">{t("storyweave.finish", { cost: costText(t, finish?.credits ?? null) })}</p>
+    <p id="sw-finish-why" className="sw-fine">{t("storyweave.finish", { cost: costText(t, finish?.credits ?? null) })}</p>
     {filmed && !askFinish && <button type="button" className="sw-txt" data-sw-finish="" onClick={() => setAskFinish(true)}>{t("storyweave.finishGo")}</button>}
     {filmed && askFinish && <div className="sw-confirm">
       <h3>{t("storyweave.finishAsk")}</h3>
       <div className="sw-go">
-        <button type="button" className="sw-primary" data-sw-finish-go="" disabled={!finish} onClick={onFinish}>{t("storyweave.finishGo")} {finish && <small>{costText(t, finish.credits)}</small>}</button>
+        <button type="button" className="sw-primary" data-sw-finish-go="" aria-describedby="sw-finish-why" disabled={!finish} onClick={onFinish}>{t("storyweave.finishGo")} {finish && <small>{costText(t, finish.credits)}</small>}</button>
         <button type="button" className="sw-txt" onClick={() => setAskFinish(false)}>{t("storyweave.notNow")}</button>
       </div>
     </div>}

@@ -626,6 +626,7 @@
     "split": "Am Abspielkopf schneiden",
     "addText": "Text hinzufügen",
     "delete": "Gewählten Clip löschen",
+    "needSelection": "Wähle zuerst einen Clip auf der Timeline.",
     "prev": "Vorherige Einstellung",
     "next": "Nächste Einstellung",
     "play": "Abspielen",

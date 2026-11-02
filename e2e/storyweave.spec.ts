@@ -87,8 +87,9 @@ test("StoryWeave stays behind ?storyboard=sw and keeps four tracks", async ({ pa
   const agent = await mockAgent(page);
 
   await page.goto("/storyboard");
-  await expect(page.locator("[data-u11]")).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator("[data-storyboard-gate='closed']")).toBeVisible({ timeout: 60_000 });
   await expect(page.locator("[data-storyweave]")).toHaveCount(0);
+  await expect(page.locator("[data-u11]")).toHaveCount(0);
 
   await page.evaluate(async () => {
     const entries = [{ path: ".uttu/projet.json", text: "{\"actif\":\"atelier\"}\n" }, { path: "Projets/atelier/_MOC.md", text: "# Atelier\n" }];
@@ -111,7 +112,7 @@ test("StoryWeave stays behind ?storyboard=sw and keeps four tracks", async ({ pa
   await expect(page.locator("[data-sw-online='true']")).toBeVisible({ timeout: 30_000 });
   await expect(page.locator("[data-u11]")).toHaveCount(0);
   await expect(page.locator("[data-sw-track]")).toHaveCount(4);
-  await expect(page.locator("[data-storyweave]")).not.toContainText(FREE);
+  await expect(page.locator(".sw-app")).not.toContainText(FREE);
   await shot(page, "chat");
 
   const ask = page.locator("[data-sw-ask]");

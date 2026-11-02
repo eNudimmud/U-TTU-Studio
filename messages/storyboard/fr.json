@@ -626,6 +626,7 @@
     "split": "Couper à la tête de lecture",
     "addText": "Ajouter un texte",
     "delete": "Supprimer le clip choisi",
+    "needSelection": "Choisis d'abord un clip sur la timeline.",
     "prev": "Plan précédent",
     "next": "Plan suivant",
     "play": "Lecture",
