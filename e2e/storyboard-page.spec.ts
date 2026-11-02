@@ -65,7 +65,7 @@ test('legacy hatch: ?storyboard=legacy still opens the paper page; an unknown na
   await expect(page.locator('[data-u11]')).toHaveCount(0);
   await page.locator('[data-sb-idea-field]:visible').fill('Uttu traverse la ville sous la pluie pour atteindre un toit à l’aube. Elle dit : « On y est presque. »');
   await page.locator('[data-sb-write]:visible').click();
-  await expect(page.locator('[data-sb-no-quote]')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-sb-no-quote]').first()).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('[data-sb-film-all]')).toHaveCount(0);
   await expect(page.locator('[data-storyboard-page]')).not.toContainText(FREE);
   expect(posts, 'an unknown name does not start a render').toEqual([]);
