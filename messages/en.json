@@ -3006,12 +3006,12 @@
       "tabs": {
         "q": "How is the studio organised?",
         "k": "tabs steps organisation sections cast set take edit",
-        "a": "The studio follows four steps: Cast (your characters), Set (your places), Take (your video shots) and Edit (you assemble and export). “Tools” gathers every Comfy tool by family."
+        "a": "The studio follows five steps: Cast (your characters), Set (your places), Shoot (your video shots), Edit (you assemble) and Finish (sharper and larger, nothing regenerated). Tools gathers every Comfy tool by family."
       },
       "bubble": {
         "q": "Image or video: how do I create?",
         "k": "create bubble image picture video photo clip choose difference generate shoot",
-        "a": "In “What are we shooting?”, pick Image or Video before you type. Image: Nano Banana 2.1 with references, Flux Klein otherwise. Video runs on MiniMax H3 when you attach references, otherwise on LTX. The quote “≈ X credits estimated” shows under the bubble before anything is sent. You can attach up to 7 visual references and, in Video, one sound."
+        "a": "In “What are we shooting?”, pick Image or Video before you type. Video with references runs on MiniMax H3, otherwise on LTX. The quote “≈ X credits estimated” shows under the bubble before anything is sent."
       },
       "refs": {
         "q": "How do I use references?",

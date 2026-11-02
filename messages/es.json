@@ -3006,12 +3006,12 @@
       "tabs": {
         "q": "¿Cómo está organizado el estudio?",
         "k": "pestañas pasos organización secciones reparto decorado toma montaje",
-        "a": "El estudio sigue cuatro pasos: Reparto (tus personajes), Decorado (tus lugares), Toma (tus planos de vídeo) y Montaje (montas y exportas). «Herramientas» reúne todas las herramientas Comfy por familia."
+        "a": "El estudio sigue cinco pasos: Reparto, Decorado, Toma, Montaje y Finalizar (más nítido y más grande, nada se regenera). Las herramientas reúnen cada herramienta de Comfy por familia."
       },
       "bubble": {
         "q": "Imagen o vídeo: ¿cómo creo?",
         "k": "crear burbuja imagen vídeo foto clip elegir diferencia generar rodar",
-        "a": "En «¿Qué rodamos?», elige Imagen o Vídeo antes de escribir. Imagen: Nano Banana 2.1 (referencias) o Flux Klein. Vídeo usa MiniMax H3 cuando adjuntas referencias y, si no, LTX. El presupuesto «≈ X créditos estimados» aparece antes de enviar nada. Hasta 7 referencias visuales y, en Vídeo, un sonido."
+        "a": "En «¿Qué rodamos?», elige Imagen o Vídeo antes de escribir. El vídeo con referencias corre en MiniMax H3, si no en LTX. El presupuesto «≈ X créditos estimados» aparece bajo la burbuja antes de enviar nada."
       },
       "refs": {
         "q": "¿Cómo uso referencias?",
