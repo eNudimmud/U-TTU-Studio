@@ -72,7 +72,7 @@ function cleanLook(value: unknown): ProjectLook | null {
   if (!value || typeof value !== "object") return null;
   const row = value as Partial<ProjectLook>;
   if (row.kind !== LOOK_KIND || typeof row.preset !== "string" || !PRESETS.has(row.preset)) return null;
-  const locks = row.locks ?? {};
+  const locks: Partial<AnimeLocks> = row.locks ?? {};
   const own = Array.isArray(row.ownRefs) ? row.ownRefs.map(cleanPath).filter((item): item is string => Boolean(item)).slice(0, 2) : [];
   return {
     kind: LOOK_KIND,
