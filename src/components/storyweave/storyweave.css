@@ -84,7 +84,14 @@
 .sw-face { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
 .sw-u p { margin: 2px 0 0; }
 .sw-u p + p { margin-top: 10px; }
-.sw-acts { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 0 -12px; }
+.sw-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+.sw-app .sw-chip {
+  min-height: 44px; min-width: 44px; padding: 0 16px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--fg); font-weight: 500; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.sw-app .sw-chip:hover { background: rgba(255, 255, 255, 0.14); }
 .sw-think .sw-head { display: flex; align-items: center; gap: 10px; min-height: 28px; font-size: 14px; color: var(--fg-2); }
 .sw-think .sw-head b { font-weight: 500; color: var(--fg); }
 .sw-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: sw-pulse 1.4s infinite; }
@@ -217,15 +224,20 @@
 .sw-tr.is-v .sw-clip { top: 2px; bottom: 2px; outline: 1px solid rgba(0, 0, 0, 0.6); }
 .sw-clip img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sw-clip.is-frame img { filter: grayscale(0.6) brightness(0.7); }
-.sw-clip.is-frame .sw-frame { position: absolute; left: 5px; bottom: 3px; font: 9px var(--font-mono), ui-monospace, monospace; color: rgba(255, 255, 255, 0.7); }
-.sw-clip.is-a { background: transparent; }
-.sw-clip.is-a::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 20px; transform: translateY(-50%); border-radius: 6px; background: var(--lift-2); }
+.sw-clip.is-frame .sw-frame { position: absolute; left: 8px; right: 8px; top: 50%; transform: translateY(-50%); font: 11px var(--font-mono), ui-monospace, monospace; color: rgba(255, 255, 255, 0.82); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sw-clip.is-a { background: var(--lift); }
+.sw-clip.is-a span, .sw-clip.is-t span { position: absolute; inset: 0; display: block; line-height: 44px; padding: 0 8px; font-size: 11px; color: var(--fg-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-empty {
+  position: absolute; left: 0; right: 12px; top: 6px; bottom: 6px; border-radius: 8px;
+  border: 1px dashed var(--hair-2); color: var(--fg-3); font-size: 12px;
+  display: flex; align-items: center; padding: 0 10px; pointer-events: none;
+}
 .sw-clip.is-sel { outline: 2px solid var(--accent); outline-offset: -1px; z-index: 2; }
 .sw-hd { position: absolute; top: 0; bottom: 0; width: 14px; background: var(--accent); display: none; place-items: center; }
 .sw-clip.is-sel .sw-hd { display: grid; }
 .sw-hd::after { content: ""; width: 2px; height: 16px; border-radius: 1px; background: var(--on-accent); }
 .sw-hd.is-l { left: 0; } .sw-hd.is-r { right: 0; }
-.sw-clip.is-t span { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 8px; font-size: 10.5px; color: var(--fg-2); white-space: nowrap; overflow: hidden; }
+.sw-clip.is-t span { position: absolute; inset: 0; display: block; line-height: 44px; padding: 0 8px; font-size: 11px; color: var(--fg-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sw-ph {
   position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--fg); z-index: 3; pointer-events: none;
 }

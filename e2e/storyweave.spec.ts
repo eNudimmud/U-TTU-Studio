@@ -118,14 +118,7 @@ test("StoryWeave stays behind ?storyboard=sw and keeps four tracks", async ({ pa
   const ask = page.locator("[data-sw-ask]");
   await ask.fill("A quiet walk at night, one line at the gate.");
   await page.locator("[data-sw-send]").click();
-  await expect(page.locator("[data-sw-thinking]")).toBeVisible();
-  await page.locator("[data-sw-stop]").click();
-  await expect(page.locator("[data-sw-thinking]")).toHaveCount(0);
-  expect(agent.answers.size, "stop before the quote does not post").toBe(0);
-  expect(agent.cancels, "stop never cancels a job").toEqual([]);
-
-  await ask.fill("A quiet walk at night, one line at the gate.");
-  await page.locator("[data-sw-send]").click();
+  await expect(page.locator(".sw-you")).toHaveCount(1);
   await expect(page.locator("[data-sw-quote]")).toBeVisible({ timeout: 30_000 });
   await expect(page.locator("[data-sw-agent-cost]")).toContainText(/credits estimated|price shown before launch/i);
   await page.locator("[data-sw-quote-go]").click();
@@ -163,6 +156,15 @@ test("StoryWeave stays behind ?storyboard=sw and keeps four tracks", async ({ pa
   await page.locator("[data-sw-shot='2']").click();
   await expect(page.locator("[data-sw-film]")).toBeVisible();
   await shot(page, "shot");
-  expect(agent.cancels).toEqual([]);
+  await expect(page.locator(".sw-you")).toHaveCount(1);
+  await expect(page.locator(".sw-chip")).toHaveCount(2);
+  const posted = agent.answers.size;
+  await ask.fill("Leave this thought.");
+  await page.locator("[data-sw-send]").click();
+  await expect(page.locator("[data-sw-thinking]")).toBeVisible();
+  await page.locator("[data-sw-stop]").click();
+  await expect(page.locator("[data-sw-thinking]")).toHaveCount(0);
+  expect(agent.answers.size, "stop before the quote does not post").toBe(posted);
+  expect(agent.cancels, "stop never cancels a job").toEqual([]);
   expect(agent.posts).toEqual([]);
 });

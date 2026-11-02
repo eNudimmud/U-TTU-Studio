@@ -187,6 +187,35 @@ export function timelineDuration(clips: readonly SwClip[]): number {
   return round1(clips.reduce((max, clip) => Math.max(max, clip.start + clip.duration), 0));
 }
 
+const PACK_RANK: Record<SwClip["kind"], number> = { title: 0, line: 1, text: 2, shot: 3, narration: 4, dialogue: 5, music: 6 };
+
+/**
+ * Clips on one track keep their order and never share time.
+ * A clip that would start inside the previous one starts when that one ends.
+ * `minDuration` is the shortest clip, so a 44 px target does not paint over the next label.
+ */
+export function packClips(clips: readonly SwClip[], minDuration = 0): SwClip[] {
+  const floor = Number.isFinite(minDuration) && minDuration > 0 ? minDuration : 0;
+  const grouped = new Map<SwClip["track"], SwClip[]>();
+  for (const clip of clips) {
+    const list = grouped.get(clip.track) ?? [];
+    list.push(clip);
+    grouped.set(clip.track, list);
+  }
+  const packed: SwClip[] = [];
+  for (const track of TRACKS) {
+    const row = [...(grouped.get(track) ?? [])].sort((a, b) => a.start - b.start || PACK_RANK[a.kind] - PACK_RANK[b.kind]);
+    let end = 0;
+    for (const clip of row) {
+      const start = round1(Math.max(clip.start, end));
+      const duration = round1(Math.max(clip.duration, floor));
+      packed.push({ ...clip, start, duration });
+      end = start + duration;
+    }
+  }
+  return packed;
+}
+
 /** Remember where sound sits now, so a later picture move can be seen as a drift. */
 export function freezeAudio(sb: Storyboard, edit: SwEdit, filmed: ReadonlySet<string>): SwEdit {
   const clips = buildTimeline(sb, edit, filmed);

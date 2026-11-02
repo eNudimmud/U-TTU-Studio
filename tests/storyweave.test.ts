@@ -5,7 +5,7 @@ import { costLine } from "../src/lib/storyweave/cost.ts";
 import { archiveOperation, duplicateOperation, lockFields, parseLocks, reorderOperation } from "../src/lib/storyweave/journal.ts";
 import { cuesOf, scenesOf } from "../src/lib/storyweave/script.ts";
 import {
-  acceptResync, audioDrift, buildTimeline, emptySwEdit, freezeAudio, quotableDuration, shotSpan, TRACKS, trimShot,
+  acceptResync, audioDrift, buildTimeline, emptySwEdit, freezeAudio, packClips, quotableDuration, shotSpan, TRACKS, trimShot,
 } from "../src/lib/storyweave/timeline.ts";
 import { parseVersions, publishVersion } from "../src/lib/storyweave/versions.ts";
 import { zipNames, zipStore } from "../src/lib/storyweave/zip.ts";
@@ -60,6 +60,11 @@ test("the timeline always has four tracks and a trim can desync sound", () => {
   assert.equal(drift.some(item => item.shotId === "shot-b"), true);
   const synced = acceptResync(trimmed);
   assert.deepEqual(audioDrift(sb, synced, new Set()), []);
+  const text = buildTimeline(sb, edit, new Set()).filter(clip => clip.track === "text");
+  const packed = packClips(text, 1.2);
+  for (let index = 1; index < packed.length; index += 1) {
+    assert.ok(packed[index]!.start >= packed[index - 1]!.start + packed[index - 1]!.duration - 0.05);
+  }
   const scenes = scenesOf(sb, edit);
   assert.equal(scenes[0]?.proposal, true);
   assert.equal(scenes[0]?.voice, true);

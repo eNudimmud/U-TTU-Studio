@@ -50,6 +50,7 @@ export function Conversation({
   const fileRef = useRef<HTMLInputElement>(null);
   const recRef = useRef<{ stop: () => void } | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const sending = useRef(false);
   useEffect(() => { if (seed) setText(current => current || seed); }, [seed]);
   useEffect(() => {
     const node = scroller.current;
@@ -82,12 +83,15 @@ export function Conversation({
 
   const send = () => {
     const value = text.trim();
-    if (!value || phase) return;
+    // phase updates on the next render. The ref blocks a second submit in the same turn.
+    if (!value || phase || sending.current) return;
+    sending.current = true;
     const files = fileRef.current?.files ? [...fileRef.current.files] : [];
     if (fileRef.current) fileRef.current.value = "";
     setText("");
     onSend(value, files);
   };
+  useEffect(() => { if (!phase) sending.current = false; }, [phase]);
 
   return <div className="sw-chat">
     <div className="sw-hist" ref={scroller}>
@@ -97,8 +101,8 @@ export function Conversation({
           if (item.kind === "uttu") return <div key={item.id} className="sw-u"><img className="sw-face" src={assetPath("/brand/uttu-mark-h48.png")} alt="" /><div>
             <p>{item.text}</p>
             <div className="sw-acts">
-              <button type="button" className="sw-txt" onClick={() => onOpen("script")}>{t("storyweave.readScript")}</button>
-              <button type="button" className="sw-txt" onClick={() => onOpen("audio")}>{t("storyweave.listen")}</button>
+              <button type="button" className="sw-chip" data-sw-script-link="" onClick={() => onOpen("script")}>{t("storyweave.readScript")}</button>
+              <button type="button" className="sw-chip" data-sw-audio-link="" onClick={() => onOpen("audio")}>{t("storyweave.listen")}</button>
             </div>
           </div></div>;
           if (item.kind === "log") return <div key={item.id} className="sw-log">{item.text}{item.onUndo && <button type="button" className="sw-txt" data-sw-undo="" onClick={item.onUndo}>{t("storyweave.undo")}</button>}</div>;

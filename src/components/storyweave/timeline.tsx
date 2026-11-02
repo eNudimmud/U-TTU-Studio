@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import { useI18n } from "@/components/i18n/provider";
 import { formatClock } from "@/lib/montage/edit";
 import type { Storyboard } from "@/lib/storyboard/storyboard";
-import { buildTimeline, shotRows, timelineDuration, TRACKS, type SwClip, type SwEdit } from "@/lib/storyweave/timeline";
+import { buildTimeline, packClips, shotRows, timelineDuration, TRACKS, type SwClip, type SwEdit } from "@/lib/storyweave/timeline";
 import { Icon, ICON } from "./icons";
 
 export function Timeline({
@@ -22,7 +22,9 @@ export function Timeline({
   onAddText: (at: number) => void;
 }) {
   const { t } = useI18n();
-  const clips = sb ? buildTimeline(sb, edit, filmed) : [];
+  const pps = 36;
+  const minClip = 44 / pps;
+  const clips = sb ? packClips(buildTimeline(sb, edit, filmed), minClip) : [];
   const rows = sb ? shotRows(sb, edit) : [];
   const total = Math.max(timelineDuration(clips), 1);
   const [playhead, setPlayhead] = useState(0);
@@ -55,7 +57,6 @@ export function Timeline({
     return () => cancelAnimationFrame(frame);
   }, [playing, total]);
 
-  const pps = 36;
   const width = Math.max(total * pps, 280);
   const left = (seconds: number) => seconds * pps;
   const selectedClip = clips.find(clip => clip.id === selected) ?? null;
@@ -93,12 +94,15 @@ export function Timeline({
       </div>
       <div className="sw-scroll"><div className="sw-track-w" style={{ width }}>
         <div className="sw-ruler">{Array.from({ length: Math.floor(total / 10) + 1 }, (_, index) => <span key={index} style={{ left: left(index * 10) }}>{formatClock(index * 10)}</span>)}</div>
-        {TRACKS.map(track => <div key={track} className={`sw-tr${track === "video" ? " is-v" : ""}`} data-sw-track={track}>
-          {clips.filter(clip => clip.track === track).map(clip => {
+        {TRACKS.map(track => {
+          const row = clips.filter(clip => clip.track === track);
+          return <div key={track} className={`sw-tr${track === "video" ? " is-v" : ""}`} data-sw-track={track}>
+          {row.length === 0 && (track === "voice" || track === "music") && <span className="sw-empty" data-sw-empty={track}>{t(track === "voice" ? "storyweave.emptyVoice" : "storyweave.emptyMusic")}</span>}
+          {row.map(clip => {
             const index = video.findIndex(item => item.id === clip.id);
             return <button key={clip.id} type="button" className={`sw-clip${track === "video" ? "" : track === "text" ? " is-t" : " is-a"}${clip.track === "video" && !clip.filmed ? " is-frame" : ""}${selected === clip.id ? " is-sel" : ""}`}
-              style={{ left: left(clip.start), width: Math.max(left(clip.duration), 44) }}
-              aria-label={clip.label || t(`storyweave.track.${track}`)}
+              style={{ left: left(clip.start), width: left(clip.duration) }}
+              aria-label={clip.track === "video" && !clip.filmed ? t("storyweave.notFilmed", { n: String(index + 1) }) : (clip.label || t(`storyweave.track.${track}`))}
               data-sw-clip={clip.id}
               onClick={() => { setSelected(clip.id); if (clip.shotId) onOpenShot(clip.shotId); }}
               onPointerDown={event => {
@@ -128,8 +132,8 @@ export function Timeline({
                 window.addEventListener("pointerup", up);
               }}
             >
-              {track === "video" && <span className="sw-frame">{clip.filmed ? "" : t("storyweave.frame")}</span>}
-              {track === "text" && <span>{clip.label}</span>}
+              {track === "video" && !clip.filmed && <span className="sw-frame">{t("storyweave.notFilmed", { n: String(index + 1) })}</span>}
+              {track !== "video" && <span>{clip.label}</span>}
               {selected === clip.id && clip.track === "video" && <>
                 <span className="sw-hd is-l" onPointerDown={event => startTrim(event, clip, "start", pps, onTrim)} />
                 <span className="sw-hd is-r" onPointerDown={event => startTrim(event, clip, "end", pps, onTrim)} />
@@ -137,7 +141,8 @@ export function Timeline({
               {locked.has(clip.shotId ?? "") && track === "video" && <Icon d={ICON.lock} size={14} />}
             </button>;
           })}
-        </div>)}
+        </div>;
+        })}
         <div className="sw-ph" style={{ left: left(Math.min(playhead, total)) }} />
         {selectedClip?.track === "video" && <div className="sw-tip" style={{ left: left(selectedClip.start) }}>{t("storyweave.trimHint", { seconds: String(selectedClip.duration) })}</div>}
       </div></div>
