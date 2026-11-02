@@ -15,7 +15,7 @@ test("public domain: the landing stays, the studio doors open the login-authoriz
   await expect(page).toHaveURL(/^http:\/\/uttu-studio\.test:\d+\/$/);
   const enter = page.locator("[data-enter-studio]");
   await expect(enter).toHaveAttribute("href", `${AUTHORIZED}/studio?uttu_hop=1&uttu_lang=en`);
-  await expect(page.locator("[data-try-free]")).toHaveAttribute("href", `${AUTHORIZED}/studio?uttu=1&uttu_hop=1&uttu_lang=en`);
+  await expect(page.locator("[data-read-guide]")).toHaveAttribute("href", "/guide");
   const box = await enter.boundingBox();
   expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
 });

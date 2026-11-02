@@ -38,7 +38,8 @@
     "kicker": "Open-Source-KI-Filmstudio auf ComfyUI",
     "contact": "Studio kontaktieren ↗",
     "tryFree": "Mit Uttu entdecken",
-    "code": "Quellcode auf GitHub ↗"
+    "code": "Quellcode auf GitHub ↗",
+    "readGuide": "Guide lesen"
   },
   "accueil": {
     "kicker": "Open Source · MIT · auf ComfyUI",
@@ -181,7 +182,8 @@
       "2": "Nichts läuft ohne deine Bestätigung"
     },
     "foot": "U*TTU Studio · Open Source (MIT)",
-    "attrib": "Karte: © OpenStreetMap-Mitwirkende · OpenFreeMap · Terrain Tiles · © swisstopo"
+    "attrib": "Karte: © OpenStreetMap-Mitwirkende · OpenFreeMap · Terrain Tiles · © swisstopo",
+    "partnerBadge": "Partner · bezahlte API"
   },
   "guide": {
     "look-photos": "Zwei Fotos, höchstens drei. Frontal, dann Dreiviertel. Den Rest webe ich.",

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import { LANDING } from "../src/lib/landing/page-copy.ts";
 
 const JARGON = /\b(seedance|comfy|fal|lora|flux|blender|night city)\b/i;
 const LANGS = ["fr", "en", "de", "es"] as const;
@@ -8,74 +9,58 @@ const catalog = (lang: string) => JSON.parse(readFileSync(`messages/${lang}.json
 
 describe("accueil", () => {
   const home = readFileSync("src/components/landing/home.tsx", "utf8");
-  const css = readFileSync("src/components/landing/home.css", "utf8");
+  const css = readFileSync("src/components/landing/landing.css", "utf8");
   const page = readFileSync("src/app/page.tsx", "utf8");
 
-  it("opens on the hero: JD's whole logo, the hook, a guided door, the studio door and « Powered by ComfyUI »", () => {
+  it("opens on the quay still, the studio door, and the Guide", () => {
     assert.match(home, /<BrandLockup className="hv-lockup" alt="U\*TTU Studio" \/>/);
     assert.match(home, /t\("accueil\.kicker"\)/);
     assert.match(home, /rich\("accueil\.h1"\)/);
-    assert.match(home, /t\("landing\.tryFree"\)/);
+    assert.match(home, /copy\.readGuide/);
     assert.match(home, /t\("landing\.enter"\)/);
-    // JD, 30.10.2026: the studio door is the primary (gold) button, Uttu the secondary one.
-    // Same doors; on a host where the render login is not allowed they point to the authorized origin (src/lib/studio-origin.ts).
-    assert.match(home, /const studioHref = useStudioHref\(STUDIO_HREF\)/);
-    assert.match(home, /const uttuHref = useStudioHref\(UTTU_HREF\)/);
+    assert.match(home, /const studioHref = useStudioHref\(STUDIO\)/);
     assert.match(home, /className="hv-btn hv-gold" href=\{studioHref\} data-enter-studio=""/);
-    assert.match(home, /className="hv-btn hv-glass" href=\{uttuHref\} data-try-free=""/);
-    assert.match(home, /assetPath\("\/studio\?uttu=1"\)/);
+    assert.match(home, /data-read-guide=""/);
+    assert.match(home, /assetPath\("\/guide"\)/);
     assert.match(home, /assetPath\("\/studio"\)/);
+    assert.doesNotMatch(home, /uttu=1/);
+    assert.doesNotMatch(home, /accueil\.also|loop-stage|Discover with Uttu/);
+    assert.match(home, /#personnage|#scene|#prise|#montage|#finaliser/);
+    assert.match(home, /vid-h3-refs|vid-multi|vid-fasth3|vid-animer/);
+    assert.match(home, /OPEN_WEIGHTS_MODE \? copy\.partnerHidden : copy\.partnerOn/);
     assert.match(home, /<PoweredBy className="hv-badge" \/>/);
     assert.match(home, /LanguageSwitcher/);
     assert.doesNotMatch(`${page}\n${home}`, JARGON);
     assert.match(page, /HomeLanding/);
-    assert.match(readFileSync("src/components/landing/legacy-hash.tsx", "utf8"), /raw === "compte"\) window\.location\.replace\(assetPath\("\/studio"\)\)/);
-  });
-
-  it("crossfades five inspiration images, Uttu on the quay first, and can be paused", () => {
-    const order = ["uttu-quai", "uttu-portrait", "hero-gare", "hero-village\\.webp", "hero-village-clair"].map(name => home.search(new RegExp(name)));
-    assert.ok(order.every((at, i) => at > 0 && (i === 0 || at > order[i - 1])), "slide order");
-    for (const size of [960, 1280, 1920, 2560]) {
-      assert.equal(existsSync(`public/images/accueil/uttu-quai-${size}.webp`), true);
-      assert.equal(existsSync(`public/images/accueil/uttu-portrait-${size}.webp`), true);
-    }
-    for (const name of ["hero-gare", "hero-village", "hero-village-clair", "gare", "village", "village-clair", "capture-cadrage"]) {
-      assert.equal(existsSync(`public/images/accueil/${name}.webp`), true, name);
-    }
-    for (const name of ["loop-map", "loop-stage"]) {
-      for (const ext of ["webm", "mp4"]) assert.equal(existsSync(`public/media/accueil/${name}.${ext}`), true, name);
-    }
-    assert.match(home, /accueil\.pause/);
-    assert.match(home, /visibilitychange/);
     assert.match(css, /prefers-reduced-motion: reduce/);
-    assert.match(css, /\.hv-pp \{ display: none; \}/);
+    assert.equal(existsSync("public/images/accueil/uttu-quai-1920.webp"), true);
+    assert.equal(existsSync("public/look/anime/hero-key.webp"), true);
   });
 
-  it("says what it is in every language, with tutoiement and no lore", () => {
+  it("says what it is in every language, with estimated prices and no free", () => {
     for (const lang of LANGS) {
       const { landing, accueil } = catalog(lang);
+      const copy = LANDING[lang];
       assert.match(accueil.kicker, /ComfyUI/, lang);
       assert.match(accueil.kicker, /open.source|código abierto/i, lang);
-      assert.match(accueil.kicker, /MIT/, lang);
       assert.match(accueil.h1, /<em>.+<\/em>/, lang);
-      assert.match(accueil.h1, /ComfyUI/, lang);
-      assert.match(landing.tryFree, /Uttu/, lang);
-      assert.doesNotMatch(landing.tryFree, /gratuit|free|kostenlos|gratis|0 cr/i, lang);
-      assert.equal(Object.keys(accueil.caps).length, 5, lang);
-      assert.equal(Object.keys(accueil.flow).length, 5, lang);
-      assert.equal(Object.keys(accueil.trust).length, 3, lang);
-      assert.match(accueil.ltxBody, /≈ 15–30 cr[ée]dit/i, lang);
-      assert.doesNotMatch(JSON.stringify(accueil), /\bfal\b/i, lang);
-      assert.match(accueil.flow.montage.body, /browser|navigateur|Browser|navegador/i, lang);
-      assert.match(accueil.flow.montage.body, /no render|aucun rendu|kein Rendering|sin render/, lang);
-      assert.doesNotMatch(accueil.flow.montage.body, /gratuit|\bfree\b|kostenlos|gratis|cr[ée]dit/i, lang);
+      assert.match(landing.readGuide, /Guide|guide|guía/i, lang);
+      assert.doesNotMatch(landing.readGuide, /gratuit|free|kostenlos|gratis|0 cr/i, lang);
+      assert.equal(copy.steps.length, 5, lang);
+      assert.equal(copy.trust.length, 3, lang);
+      assert.match(copy.stageBody, /≈ 15–30 cr[ée]dit/i, lang);
+      assert.match(copy.steps[3]!.body, /browser|navigateur|Browser|navegador/i, lang);
+      assert.match(copy.steps[3]!.body, /no render|aucun rendu|kein Rendering|sin render/, lang);
+      assert.equal(copy.h3.some(item => item.soon && !item.href), true, lang);
+      assert.ok(copy.costs.every(row => /estim|geschätzt/i.test(row.price)), lang);
+      assert.equal(/\bfal\b/i.test(JSON.stringify(copy)), false, lang);
+      assert.equal(/\b(free|gratuit|kostenlos|gratis)\b/i.test(JSON.stringify(copy)), false, lang);
     }
     assert.match(catalog("de").accueil.h1, /Dein/);
     assert.match(catalog("es").accueil.h1, /^Tu /);
-    assert.doesNotMatch(JSON.stringify(catalog("en").accueil), /DÉCOR|PRISE/);
   });
 
-  it("opens the U*TTU guide when the studio is reached through « Découvrir avec Uttu »", () => {
+  it("still opens Uttu when an old link asks with ?uttu=1", () => {
     const app = readFileSync("src/components/app/studio-app.tsx", "utf8");
     assert.match(app, /searchParams\.get\("uttu"\) === "1"/);
     assert.match(app, /toggleAssistant\(true\)/);

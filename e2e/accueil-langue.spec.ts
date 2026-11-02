@@ -10,12 +10,12 @@ const VIEWPORTS = [
   { width: 1280, height: 800 },
 ];
 
-const EN = { lang: "en", kicker: "Open source · MIT · on ComfyUI", free: "Discover with Uttu" };
+const EN = { lang: "en", kicker: "Open source · MIT · on ComfyUI", free: "Read the Guide" };
 const CASES = ["en-US", "fr-CH", "de-DE", "es-ES", "ja-JP"].map(locale => ({ locale, ...EN }));
 const SAVED = [
-  { locale: "fr", lang: "fr-CH", kicker: "Open source · MIT · sur ComfyUI", free: "Découvrir avec Uttu" },
-  { locale: "de", lang: "de", kicker: "Open Source · MIT · auf ComfyUI", free: "Mit Uttu entdecken" },
-  { locale: "es", lang: "es", kicker: "Código abierto · MIT · en ComfyUI", free: "Descubrir con Uttu" },
+  { locale: "fr", lang: "fr-CH", kicker: "Open source · MIT · sur ComfyUI", free: "Lire le guide" },
+  { locale: "de", lang: "de", kicker: "Open Source · MIT · auf ComfyUI", free: "Guide lesen" },
+  { locale: "es", lang: "es", kicker: "Código abierto · MIT · en ComfyUI", free: "Leer la guía" },
 ];
 
 for (const c of SAVED) {
@@ -27,7 +27,7 @@ for (const c of SAVED) {
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("lang", c.lang);
     await expect(page.locator("[data-landing-kicker]")).toHaveText(c.kicker);
-    await expect(page.locator("[data-try-free]")).toContainText(c.free);
+    await expect(page.locator("[data-read-guide]")).toContainText(c.free);
     await context.close();
   });
 }
@@ -40,7 +40,7 @@ for (const c of CASES) {
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("lang", c.lang);
     await expect(page.locator("[data-landing-kicker]")).toHaveText(c.kicker);
-    await expect(page.locator("[data-try-free]")).toContainText(c.free);
+    await expect(page.locator("[data-read-guide]")).toContainText(c.free);
     await expect(page.locator("[data-hero] [data-comfy-badge]")).toBeVisible();
     await context.close();
   });
@@ -70,7 +70,7 @@ for (const viewport of VIEWPORTS) {
     page.on("request", request => { if (/\/api\/(prompt|agent|router|chat)|api\.comfy|comfy\.cloud|fal\.ai/i.test(request.url())) spent.push(request.url()); });
     await page.goto("/");
     const enter = page.locator("[data-hero] [data-enter-studio]");
-    const free = page.locator("[data-try-free]");
+    const free = page.locator("[data-read-guide]");
     await expect(page.locator("#landing-title")).toBeInViewport();
     await expect(enter).toBeInViewport();
     await expect(enter).toHaveClass(/hv-gold/);
@@ -80,9 +80,8 @@ for (const viewport of VIEWPORTS) {
     expect(box!.height).toBeGreaterThanOrEqual(44);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
     await free.click();
-    await expect(page).toHaveURL(/\/studio$/);
-    await expect(page.locator("[data-assistant-panel]")).toBeVisible();
-    await expect(page.locator("[data-top-uttu]")).toHaveAttribute("aria-expanded", "true");
+    await expect(page).toHaveURL(/\/guide$/);
+    await expect(page.locator("[data-assistant-panel]")).toHaveCount(0);
     expect(spent).toEqual([]);
     await context.close();
   });

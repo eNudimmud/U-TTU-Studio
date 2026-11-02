@@ -38,7 +38,8 @@
     "kicker": "Studio de cinéma IA open source sur ComfyUI",
     "contact": "Contacter le studio ↗",
     "tryFree": "Découvrir avec Uttu",
-    "code": "Code source sur GitHub ↗"
+    "code": "Code source sur GitHub ↗",
+    "readGuide": "Lire le guide"
   },
   "accueil": {
     "kicker": "Open source · MIT · sur ComfyUI",
@@ -181,7 +182,8 @@
       "2": "Rien ne part sans ta confirmation"
     },
     "foot": "U*TTU Studio · open source (MIT)",
-    "attrib": "Carte : © contributeurs OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo"
+    "attrib": "Carte : © contributeurs OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo",
+    "partnerBadge": "Partenaire · API payante"
   },
   "guide": {
     "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",
