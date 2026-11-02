@@ -130,6 +130,7 @@ Rules for the edit: never show keys, balances or account pages; Uttu only from h
 | C9 | No unlicensed IP in the video | ⚠ keep R43 out | JD |
 | C10 | « This is my only submission » | ⚠ do not submit Higgsfield-reperage separately | JD |
 | C11 | StoryWeave as default `/storyboard` | open — it stays behind `?storyboard=sw` until JD says yes | JD |
+| C12 | `?storyboard=sw` shows the holding page on prod (2 Nov, 20:40 Zurich) although local builds mount StoryWeave | ❌ fix in PR #245, to confirm on its Vercel preview | JD: merge |
 
 ## 9. Form answers (prepared, JD sends)
 
