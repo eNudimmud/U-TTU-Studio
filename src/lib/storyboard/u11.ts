@@ -31,7 +31,7 @@ export function persistStoryboardU11(search: string): boolean {
 export function storyboardLayoutQuery(): string {
   if (typeof window === "undefined") return "";
   const asked = new URLSearchParams(window.location.search).get("storyboard");
-  if (asked === "legacy" || asked === "u11") return `?storyboard=${encodeURIComponent(asked)}`;
+  if (asked === "legacy" || asked === "u11" || asked === "sw") return `?storyboard=${encodeURIComponent(asked)}`;
   try {
     if (sessionStorage.getItem(U11_SESSION) === "legacy") return "?storyboard=legacy";
   } catch { /* storage off */ }
