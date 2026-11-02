@@ -12,6 +12,7 @@ import { CinemaError, type IntentContext, type StorageLike } from "../src/lib/ci
 import { RenderError, createRenderClient } from "../src/lib/render/client.ts";
 import { PENDING_RENDER_KEY } from "../src/lib/render/recovery.ts";
 import { sha256Text } from "../src/lib/cinema/digest.ts";
+import { readLedger, release, reserve, writeLedger } from "../src/lib/cinema/spend-ledger.ts";
 
 const KEY = "comfyui-0000-test-only-not-a-real-key";
 const ACCOUNT = "comfy-user-7f3a"; // opaque account id, as Comfy's /api/user returns
@@ -118,6 +119,44 @@ describe("intent job: submit", () => {
     assert.equal(receipt.state, "queued");
     assert.equal(receipt.providerJobId, "job-0123456789");
     assert.equal(readIntentReceipt(storage)?.providerJobId, "job-0123456789");
+  });
+
+  it("releases the hold as never_sent when the receipt cannot be saved, and never calls the client", async () => {
+    const storage = memory();
+    const realSet = storage.setItem.bind(storage);
+    storage.setItem = (key, value) => {
+      if (key === INTENT_RECEIPT_KEY) throw new Error("quota");
+      realSet(key, value);
+    };
+    const { client, calls } = fakeClient({});
+    const d = deps(client, storage);
+    const order: string[] = [];
+    d.budget = {
+      check() { order.push("check"); },
+      hold(approval, quote, attemptId) {
+        order.push(`hold:${attemptId}`);
+        const held = reserve({
+          ledger: readLedger(storage), quote, approval, attemptId, accountScope: ACCOUNT,
+          trancheCapCredits: 50, balanceCredits: null, now: d.now(), busy: false, consumedByCaller: true,
+        });
+        writeLedger(storage, held.ledger);
+      },
+      refused(attemptId) {
+        order.push(`refused:${attemptId}`);
+        writeLedger(storage, release(readLedger(storage), attemptId, "never_sent", d.now()));
+      },
+      uncertain() { order.push("uncertain"); },
+    };
+    const { prep, approval } = await prepared(d);
+    await assert.rejects(
+      () => submitApprovedIntent(prep, approval, d, { purpose: "qualification" }),
+      (e: unknown) => e instanceof CinemaError && e.code === "STORAGE_UNAVAILABLE",
+    );
+    assert.deepEqual(calls, [], "the client is never called");
+    assert.equal(storage.getItem(INTENT_RECEIPT_KEY), null);
+    assert.equal(readLedger(storage).reservations[0]?.state, "released");
+    assert.deepEqual(order.map(step => step.split(":")[0]), ["check", "hold", "refused"]);
+    assert.equal(order[2], `refused:${order[1].slice("hold:".length)}`);
   });
 
   it("does not POST when the receipt cannot be saved", async () => {

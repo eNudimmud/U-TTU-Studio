@@ -231,6 +231,8 @@ export async function submitApprovedIntent(prep: IntentPreparation, approval: Sp
   // Consumed before the receipt and the POST: a failed write after this burns the approval, never sends twice.
   consumeApproval(deps.storage, approval.id);
   const attemptId = deps.uuid();
+  // D3 (PR #228 question 3): hold, then the receipt. A receipt without a reserve would under-count,
+  // so the order stays. If the receipt cannot be saved, nothing was sent: release the hold now.
   deps.budget?.hold(approval, prep.quote, attemptId);
   let receipt: IntentJobReceipt = {
     schemaVersion: 2, operationId: prep.operationId, attemptId, accountScope: prep.accountScope,
@@ -238,7 +240,12 @@ export async function submitApprovedIntent(prep: IntentPreparation, approval: Sp
     state: "submitting", providerJobId: null, submittedAt: null, updatedAt: now.toISOString(),
     outputs: [], settlement: "none", text: null,
   };
-  writeReceipt(deps.storage, receipt);
+  try {
+    writeReceipt(deps.storage, receipt);
+  } catch (error) {
+    try { deps.budget?.refused(attemptId); } catch { /* stays reserved; reload still releases never_sent */ }
+    throw error;
+  }
 
   let jobId: string;
   try {
@@ -343,6 +350,21 @@ export function declareUnknownAbsent(deps: Pick<IntentJobDeps, "storage" | "now"
   if (!receipt || receipt.state !== "submission_unknown") throw new CinemaError("SUBMISSION_UNKNOWN", "No uncertain submission.");
   if (!confirmedByUser) throw new CinemaError("APPROVAL_REQUIRED", "Only the visitor can say the job is absent.");
   const next: IntentJobReceipt = { ...receipt, state: "failed", updatedAt: deps.now().toISOString(), error: { code: "SUBMISSION_UNKNOWN", safeMessage: "Declared absent from the Comfy history by the visitor." } };
+  writeReceipt(deps.storage, next);
+  return next;
+}
+
+/**
+ * D1 · the conflicted proposal is dropped. The receipt closes (`settled`) without claiming the
+ * board was written (`settlement: "abandoned"`). Only from `succeeded` — a running job is not cancelled.
+ * Idempotent once the receipt is already abandoned.
+ */
+export function closeAbandonedIntent(deps: Pick<IntentJobDeps, "storage" | "now">, operationId: string): IntentJobReceipt {
+  const receipt = readIntentReceipt(deps.storage);
+  if (!receipt || receipt.operationId !== operationId) throw new CinemaError("REVISION_CONFLICT", "Aucune intention en conflit à abandonner.", [operationId]);
+  if (receipt.state === "settled" && receipt.settlement === "abandoned") return receipt;
+  if (receipt.state !== "succeeded") throw new CinemaError("REVISION_CONFLICT", "Seule une intention terminée et en conflit peut être abandonnée.", [receipt.state]);
+  const next: IntentJobReceipt = { ...receipt, state: advance(receipt.state, "settled"), settlement: "abandoned", updatedAt: deps.now().toISOString() };
   writeReceipt(deps.storage, next);
   return next;
 }

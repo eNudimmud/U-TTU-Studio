@@ -12,6 +12,14 @@ import { sha256Text } from "./digest.ts";
 import { CinemaError, type JournalEntry, type Scope, type TakeProvenance } from "./types.ts";
 
 export const JOURNAL_DIR = ".uttu";
+/**
+ * Applied journals kept per board (D2, PR #228 question 2). The newest `updatedAt` win.
+ * Non-applied journals (`prepared`, `rolled_back`) and `conflict` journals are never counted here.
+ * Set to `Infinity` to turn the purge off — no migration, the extra files simply stay.
+ */
+export const JOURNAL_KEEP = 20;
+/** Operation ids of receipts that are still open. Purge never removes their journals. */
+export const RECEIPT_GUARD_PATH = `${JOURNAL_DIR}/receipt-guard.json`;
 export const journalPath = (operationId: string) => `${JOURNAL_DIR}/op-${safeId(operationId)}.json`;
 export const cinemaMetaPath = (boardId: string) => `${JOURNAL_DIR}/cinema-${safeId(boardId)}.json`;
 export const conflictPath = (path: string, operationId: string) => `${path}.conflict-${safeId(operationId)}`;
@@ -43,6 +51,11 @@ export interface StoredJournal extends JournalEntry {
   payload: { before: (string | null)[]; after: string[] };
   /** Paths where an unknown write was found; the journaled version waits next to it. */
   conflicts?: string[];
+  /**
+   * D1 · the visitor abandoned a conflicted intent. The targets were not applied.
+   * Optional: a journal written before this field stays valid.
+   */
+  event?: "intent.abandoned";
 }
 
 export interface Write { path: string; text: string }
@@ -139,6 +152,13 @@ async function transactionHeld(store: VaultStore, input: TransactionInput): Prom
 
 /** Brings every target to its `after` text; a target that is neither before nor after is a conflict, kept side by side. */
 async function finish(store: VaultStore, entry: StoredJournal, now: () => string): Promise<StoredJournal> {
+  const done = await finishTargets(store, entry, now);
+  // D2 · purge at save, after this journal is durable, still under the project lock.
+  await purgeAppliedJournals(store, done.scope.storyboardId);
+  return done;
+}
+
+async function finishTargets(store: VaultStore, entry: StoredJournal, now: () => string): Promise<StoredJournal> {
   if (entry.state !== "prepared") return entry;
   const conflicts: string[] = [];
   for (const [i, target] of entry.targets.entries()) {
@@ -153,10 +173,65 @@ async function finish(store: VaultStore, entry: StoredJournal, now: () => string
   return done;
 }
 
+const journalFile = /(^|\/)\.uttu\/op-[\w.-]+\.json$/;
+
+/**
+ * Drops applied journals of one board past `JOURNAL_KEEP`. Every non-applied journal stays.
+ * A journal named by an open receipt (`.uttu/receipt-guard.json`) stays even when it is older
+ * than the window. An unreadable guard skips the purge: a protected journal is never guessed away.
+ * Returns the operation ids removed.
+ */
+export async function purgeAppliedJournals(store: VaultStore, boardId: string): Promise<string[]> {
+  if (!Number.isFinite(JOURNAL_KEEP)) return [];
+  const protectedIds = await openReceiptOperationIds(store);
+  if (protectedIds === null) return [];
+  const files = (await store.list()).filter(entry => journalFile.test(entry.path));
+  const applied: StoredJournal[] = [];
+  for (const file of files) {
+    const id = /op-([\w.-]+)\.json$/.exec(file.path)?.[1];
+    if (!id) continue;
+    let entry: StoredJournal | null;
+    try { entry = await readJournal(store, id); } catch { continue; }
+    if (!entry || entry.scope.storyboardId !== boardId || entry.state !== "applied") continue;
+    applied.push(entry);
+  }
+  applied.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.createdAt.localeCompare(a.createdAt) || b.operationId.localeCompare(a.operationId));
+  const keep = new Set<string>(applied.slice(0, JOURNAL_KEEP).map(entry => entry.operationId));
+  for (const id of protectedIds) keep.add(id);
+  const removed: string[] = [];
+  for (const entry of applied) {
+    if (keep.has(entry.operationId)) continue;
+    await store.remove(journalPath(entry.operationId));
+    removed.push(entry.operationId);
+  }
+  return removed;
+}
+
+/** `null` = the guard cannot be read, so the caller must not delete anything. */
+async function openReceiptOperationIds(store: VaultStore): Promise<readonly string[] | null> {
+  const raw = await textAt(store, RECEIPT_GUARD_PATH);
+  if (raw === null) return [];
+  try {
+    const data = JSON.parse(raw) as { operationIds?: unknown };
+    if (!Array.isArray(data.operationIds) || data.operationIds.some(id => typeof id !== "string")) return null;
+    return data.operationIds as string[];
+  } catch { return null; }
+}
+
+/** Remember the operation ids an open receipt still names, so a later save will not purge them. */
+export async function writeReceiptGuard(store: VaultStore, operationIds: readonly string[], now: () => string): Promise<void> {
+  await putText(store, RECEIPT_GUARD_PATH, JSON.stringify({ schemaVersion: 1, operationIds }, null, 2), now);
+}
+
+/** The receipt is terminal: its journal may age out of the applied window like any other. */
+export async function clearReceiptGuard(store: VaultStore): Promise<void> {
+  await store.remove(RECEIPT_GUARD_PATH);
+}
+
 /** Finishes every journal left `prepared` (a crash between two writes). Run on open, without mounting any component. */
 export async function recoverJournals(store: VaultStore, lock: ProjectLock, projectId: string, now: () => string): Promise<StoredJournal[]> {
   return lock(projectId, async () => {
-    const entries = (await store.list()).filter(entry => /(^|\/)\.uttu\/op-[\w.-]+\.json$/.test(entry.path));
+    const entries = (await store.list()).filter(entry => journalFile.test(entry.path));
     const out: StoredJournal[] = [];
     for (const file of entries) {
       const id = /op-([\w.-]+)\.json$/.exec(file.path)![1];

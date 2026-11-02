@@ -5,11 +5,13 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import type { VaultEntry, VaultStore } from "../src/lib/coffre/store.ts";
 import { sha256Text } from "../src/lib/cinema/digest.ts";
+import { saveBoard } from "../src/lib/cinema/board-writer.ts";
 import {
-  CINEMA_META_VERSION, backupPath, browserProjectLock, cinemaMetaPath, conflictPath, emptyMeta, journalPath, metaJson, migrateFile,
+  CINEMA_META_VERSION, JOURNAL_KEEP, RECEIPT_GUARD_PATH, backupPath, browserProjectLock, cinemaMetaPath, conflictPath, emptyMeta, journalPath, metaJson, migrateFile,
   noLock, parseMeta, projectFiles, readJournal, recoverJournals, restoreBackup, runTransaction, undoTransaction,
 } from "../src/lib/cinema/journal.ts";
 import { CinemaError } from "../src/lib/cinema/types.ts";
+import { cheminJson, storyboardJson, storyboardVide, type Storyboard } from "../src/lib/storyboard/storyboard.ts";
 
 export function memoryVault(): VaultStore & { map: Map<string, VaultEntry>; puts: string[]; failPut: ((path: string, n: number) => boolean) | null } {
   const map = new Map<string, VaultEntry>();
@@ -106,6 +108,72 @@ describe("CE2 journal", () => {
     await rejectsCode(runTransaction(vault, noLock, { operationId: "op-6", scope, writes: [{ path: "Prises/x.mp4", text: "" }], now: clock }), "STORAGE_UNAVAILABLE");
     await rejectsCode(runTransaction(vault, noLock, { operationId: "op-7", scope, writes: [{ path: "../other/a.json", text: "" }], now: clock }), "STORAGE_UNAVAILABLE");
     assert.equal(vault.map.size, 0);
+  });
+
+  it("25 saves keep the 20 newest applied journals and every unapplied one", async () => {
+    const vault = memoryVault();
+    const board = storyboardVide({ id: "b1", titre: "Demo", idee: "idée", now: "2026-10-01T00:00:00.000Z" });
+    const plant = async (operationId: string, state: string, storyboardId = "b1") => {
+      await vault.put({
+        path: journalPath(operationId), updatedAt: 0, text: JSON.stringify({
+          schemaVersion: 1, operationId, scope: { projectId: "p", storyboardId }, state,
+          targets: [], payload: { before: [], after: [] },
+          createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z",
+        }),
+      });
+    };
+    await plant("keep-conflict", "conflict");
+    await plant("keep-prepared", "prepared");
+    await plant("keep-rolled", "rolled_back");
+    await plant("other-board", "applied", "b2");
+    let tick = 0;
+    const now = () => {
+      tick += 1;
+      return `2026-11-02T00:${String(Math.floor(tick / 60)).padStart(2, "0")}:${String(tick % 60).padStart(2, "0")}.000Z`;
+    };
+    let current: Storyboard | null = null;
+    for (let i = 1; i <= 25; i++) {
+      const operationId = `s${String(i).padStart(2, "0")}`;
+      const saved = await saveBoard(vault, noLock, { projectId: "p", operationId, base: current, mine: { ...board, titre: `v${i}` }, now });
+      current = saved.board;
+    }
+    const journals = [...vault.map.values()]
+      .filter(entry => /\.uttu\/op-[\w.-]+\.json$/.test(entry.path))
+      .map(entry => JSON.parse(entry.text!));
+    const onBoard = journals.filter(entry => entry.scope.storyboardId === "b1");
+    const applied = onBoard.filter(entry => entry.state === "applied").map(entry => entry.operationId).sort();
+    assert.equal(JOURNAL_KEEP, 20);
+    assert.equal(applied.length, JOURNAL_KEEP);
+    assert.deepEqual(applied, Array.from({ length: 20 }, (_, i) => `s${String(i + 6).padStart(2, "0")}`));
+    assert.deepEqual(onBoard.filter(entry => entry.state !== "applied").map(entry => entry.operationId).sort(), ["keep-conflict", "keep-prepared", "keep-rolled"]);
+    assert.equal(journals.find(entry => entry.operationId === "other-board")?.state, "applied");
+    assert.equal((await vault.get(cheminJson("b1")))?.text, storyboardJson(current!), "the board file itself is not purged");
+  });
+
+  it("a journal named by an open receipt survives the purge", async () => {
+    const vault = memoryVault();
+    const board = storyboardVide({ id: "b1", titre: "Demo", idee: "idée", now: "2026-10-01T00:00:00.000Z" });
+    await vault.put({
+      path: RECEIPT_GUARD_PATH, updatedAt: 0,
+      text: JSON.stringify({ schemaVersion: 1, operationIds: ["s01"] }),
+    });
+    let tick = 0;
+    const now = () => {
+      tick += 1;
+      return `2026-11-02T00:${String(Math.floor(tick / 60)).padStart(2, "0")}:${String(tick % 60).padStart(2, "0")}.000Z`;
+    };
+    let current: Storyboard | null = null;
+    for (let i = 1; i <= 25; i++) {
+      const saved = await saveBoard(vault, noLock, { projectId: "p", operationId: `s${String(i).padStart(2, "0")}`, base: current, mine: { ...board, titre: `v${i}` }, now });
+      current = saved.board;
+    }
+    const applied = [...vault.map.values()]
+      .filter(entry => /\.uttu\/op-[\w.-]+\.json$/.test(entry.path))
+      .map(entry => JSON.parse(entry.text!).operationId as string)
+      .sort();
+    assert.equal(applied.includes("s01"), true, "the open receipt's journal is kept");
+    assert.equal(applied.includes("s02"), false, "an older applied journal with no receipt is purged");
+    assert.equal(applied.length, 21);
   });
 
   it("runs under the project lock when the browser has one", async () => {
