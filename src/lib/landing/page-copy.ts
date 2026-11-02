@@ -26,7 +26,7 @@ export interface LandingCopy {
   stageTitle: string;
   stageBody: string;
   stageLink: string;
-  stagePlaceholder: string;
+  stageAlt: string;
   uttuTitle: string;
   uttuBody: string;
   uttuCost: string;
@@ -64,7 +64,7 @@ const en: LandingCopy = {
   steps: [
     { id: "cast", name: "Cast", body: "Your characters, the same face in every shot.", href: "/studio#personnage", go: "Open Cast", image: "/exemples/apres-cast-planche-640.webp", alt: "A character sheet" },
     { id: "set", name: "Set", body: "A place from a text, a photo or a real location.", href: "/studio#scene", go: "Open Set", image: "/exemples/decor-quai-nuit-960.webp", alt: "A quay at night" },
-    { id: "shoot", name: "Shoot", body: "Frame it, preview it in 3D, then render.", href: "/studio#prise", go: "Open Shoot", image: "/look/anime/shot-2-medium.webp", alt: "A framed shot" },
+    { id: "shoot", name: "Shoot", body: "Pick who and where, describe the action, check the quote, then render.", href: "/studio#prise", go: "Open Shoot", image: "/look/anime/shot-2-medium.webp", alt: "A framed shot" },
     { id: "edit", name: "Edit", body: "Video, voice, music and text on four tracks. MP4 export in your browser — no render.", href: "/studio#montage", go: "Open Edit", image: "/media/accueil/edit-timeline.webp", alt: "The Edit timeline: four shots on one track, the second selected" },
     { id: "finish", name: "Finish", body: "Sharper and larger. Nothing is regenerated.", href: "/studio#finaliser", go: "Open Finish", image: "/exemples/vignettes/vid-finaliser@2x.webp", alt: "Before and after Finish" },
   ],
@@ -89,10 +89,10 @@ const en: LandingCopy = {
   scoutTitle: "Scout a real place, anywhere.",
   scoutBody: "Type a city or an address: it builds in 3D from OpenStreetMap — real roofs in Switzerland. Pick the time of day, capture your framing.",
   scoutLink: "Scout a location",
-  stageTitle: "Stage your shot, with a finger.",
-  stageBody: "Place your characters in your set, turn the camera, film your previs. Your previs becomes the shot — ≈ 15–30 credits estimated, quoted first.",
-  stageLink: "Stage in Shoot",
-  stagePlaceholder: "Placeholder · 3D staging loop, to recapture on the English UI",
+  stageTitle: "Turn around your set in 3D.",
+  stageBody: "In Set, pick a real place and look around it: from above, mid-height or street level. Choosing a view starts no render — creating the location is ≈ 6 credits estimated, quoted first.",
+  stageLink: "Pick a view in Set",
+  stageAlt: "Quai d’Ouchy, Lausanne, built in 3D in Set, with the view picker",
   uttuTitle: "Uttu knows every tool.",
   uttuBody: "She knows what each tool does and what it costs, and suggests the next step. You launch it. Closed until you call her; she never covers your work.",
   uttuCost: "≈ 0.2 credits estimated per message at most",
@@ -150,7 +150,7 @@ const fr = tr(en, {
   steps: [
     { ...en.steps[0]!, name: "CAST", body: "Tes personnages, le même visage dans chaque plan.", go: "Ouvrir CAST" },
     { ...en.steps[1]!, name: "DÉCOR", body: "Un lieu à partir d’un texte, d’une photo ou d’un vrai endroit.", go: "Ouvrir DÉCOR" },
-    { ...en.steps[2]!, name: "PRISE", body: "Cadre, prévisualise en 3D, puis rends.", go: "Ouvrir PRISE" },
+    { ...en.steps[2]!, name: "PRISE", body: "Choisis qui et où, décris l’action, vérifie le devis, puis rends.", go: "Ouvrir PRISE" },
     { ...en.steps[3]!, name: "MONTAGE", body: "Vidéo, voix, musique et texte sur quatre pistes. Export MP4 dans ton navigateur — aucun rendu.", go: "Ouvrir MONTAGE", alt: "La timeline du MONTAGE : quatre plans sur une piste, le deuxième sélectionné" },
     { ...en.steps[4]!, name: "FINALISER", body: "Plus net et plus grand. Rien n’est régénéré.", go: "Ouvrir FINALISER" },
   ],
@@ -174,10 +174,10 @@ const fr = tr(en, {
   scoutTitle: "Repère un vrai lieu, n’importe où.",
   scoutBody: "Écris une ville ou une adresse : ça se construit en 3D depuis OpenStreetMap — vrais toits en Suisse. Choisis l’heure, capture ton cadre.",
   scoutLink: "Repérer un lieu",
-  stageTitle: "Mets en scène, du bout du doigt.",
-  stageBody: "Pose tes personnages dans ton décor, tourne la caméra, filme ta prévis. La prévis devient le plan — ≈ 15–30 crédits estimés, devisés d’abord.",
-  stageLink: "Mettre en scène dans PRISE",
-  stagePlaceholder: "Espace réservé · boucle de mise en scène 3D, à recapturer sur l’interface anglaise",
+  stageTitle: "Fais le tour de ton décor en 3D.",
+  stageBody: "Dans DÉCOR, choisis un vrai lieu et regarde autour : vu d’en haut, à mi-hauteur ou au niveau de la rue. Choisir une vue ne lance aucun rendu — créer le lieu, c’est ≈ 6 crédits estimés, devisés d’abord.",
+  stageLink: "Choisir une vue dans DÉCOR",
+  stageAlt: "Le quai d’Ouchy, à Lausanne, construit en 3D dans DÉCOR, avec le choix de la vue",
   uttuTitle: "Uttu connaît chaque outil.",
   uttuBody: "Elle sait ce que fait chaque outil et ce qu’il coûte, et propose l’étape suivante. Tu lances. Fermée tant que tu ne l’appelles pas ; elle ne couvre jamais ton travail.",
   uttuCost: "≈ 0,2 crédit estimé par message au plus",
@@ -216,7 +216,7 @@ const de = tr(en, {
   steps: [
     { ...en.steps[0]!, name: "Besetzung", body: "Deine Figuren, dasselbe Gesicht in jeder Einstellung.", go: "Besetzung öffnen" },
     { ...en.steps[1]!, name: "Kulisse", body: "Ein Ort aus Text, Foto oder einem echten Platz.", go: "Kulisse öffnen" },
-    { ...en.steps[2]!, name: "Take", body: "Kadrieren, in 3D ansehen, dann rendern.", go: "Take öffnen" },
+    { ...en.steps[2]!, name: "Take", body: "Wähle wer und wo, beschreibe die Handlung, prüfe das Angebot, dann rendern.", go: "Take öffnen" },
     { ...en.steps[3]!, name: "Schnitt", body: "Video, Stimme, Musik und Text auf vier Spuren. MP4-Export im Browser — kein Rendering.", go: "Schnitt öffnen", alt: "Die Schnitt-Timeline: vier Einstellungen auf einer Spur, die zweite ausgewählt" },
     { ...en.steps[4]!, name: "Finalisieren", body: "Schärfer und größer. Nichts wird neu erzeugt.", go: "Finalisieren öffnen" },
   ],
@@ -243,7 +243,10 @@ const de = tr(en, {
   endTitle: "Komm rein und dreh deine erste Einstellung.",
   trust: ["Open Source, MIT-Lizenz", "Dein eigenes Konto, kein Schlüssel bei uns", "Nichts läuft ohne dein OK"],
   swapPlaceholder: "Platzhalter · Figur-Tausch, noch ohne Aufnahme",
-  stagePlaceholder: "Platzhalter · 3D-Inszenierung, auf der englischen Oberfläche neu aufzunehmen",
+  stageTitle: "Geh in 3D um deine Kulisse herum.",
+  stageBody: "Wähle in Kulisse einen echten Ort und schau dich um: von oben, auf halber Höhe oder auf Straßenhöhe. Eine Ansicht wählen startet kein Rendering — den Ort erstellen kostet ≈ 6 Credits geschätzt, vorher angeboten.",
+  stageLink: "Ansicht in Kulisse wählen",
+  stageAlt: "Quai d’Ouchy in Lausanne, in Kulisse in 3D gebaut, mit der Ansichtswahl",
   soonWord: "Bald",
 });
 
@@ -255,7 +258,7 @@ const es = tr(en, {
   steps: [
     { ...en.steps[0]!, name: "Reparto", body: "Tus personajes, la misma cara en cada plano.", go: "Abrir Reparto" },
     { ...en.steps[1]!, name: "Decorado", body: "Un lugar desde un texto, una foto o un sitio real.", go: "Abrir Decorado" },
-    { ...en.steps[2]!, name: "Toma", body: "Encuadra, previsualiza en 3D y luego renderiza.", go: "Abrir Toma" },
+    { ...en.steps[2]!, name: "Toma", body: "Elige quién y dónde, describe la acción, revisa el presupuesto y luego renderiza.", go: "Abrir Toma" },
     { ...en.steps[3]!, name: "Montaje", body: "Vídeo, voz, música y texto en cuatro pistas. Exportación MP4 en tu navegador — sin render.", go: "Abrir Montaje", alt: "La línea de tiempo del Montaje: cuatro planos en una pista, el segundo seleccionado" },
     { ...en.steps[4]!, name: "Finalizar", body: "Más nítido y más grande. Nada se regenera.", go: "Abrir Finalizar" },
   ],
@@ -282,7 +285,10 @@ const es = tr(en, {
   endTitle: "Entra y rueda tu primer plano.",
   trust: ["Código abierto, licencia MIT", "Tu propia cuenta, ninguna clave guardada por nosotros", "Nada corre sin tu OK"],
   swapPlaceholder: "Marcador · demo de cambio de personaje",
-  stagePlaceholder: "Marcador · bucle de puesta en escena 3D, a recapturar en la interfaz en inglés",
+  stageTitle: "Recorre tu decorado en 3D.",
+  stageBody: "En Decorado, elige un lugar real y mira a su alrededor: desde arriba, a media altura o a pie de calle. Elegir una vista no lanza ningún render — crear el lugar son ≈ 6 créditos estimados, presupuestados antes.",
+  stageLink: "Elegir una vista en Decorado",
+  stageAlt: "El Quai d’Ouchy, en Lausana, construido en 3D en Decorado, con el selector de vista",
   soonWord: "Pronto",
 });
 

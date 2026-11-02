@@ -120,10 +120,10 @@ export function HomeLanding() {
               <a className="ln-go" href={assetPath("/studio#outils/reperage")}>{copy.scoutLink}</a>
             </div>
             <div>
-              <span className="ln-ph ln-stage">{copy.stagePlaceholder}</span>
+              <img src={assetPath("/media/accueil/scout-3d.webp")} alt={copy.stageAlt} />
               <h3>{copy.stageTitle}</h3>
               <p>{copy.stageBody}</p>
-              <a className="ln-go" href={assetPath("/studio#prise")}>{copy.stageLink}</a>
+              <a className="ln-go" href={assetPath("/studio#scene")}>{copy.stageLink}</a>
             </div>
           </div>
         </section>

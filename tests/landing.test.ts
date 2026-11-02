@@ -34,6 +34,10 @@ describe("accueil", () => {
     assert.match(page, /HomeLanding/);
     assert.match(css, /prefers-reduced-motion: reduce/);
     assert.equal(existsSync("public/images/accueil/uttu-quai-1920.webp"), true);
+    assert.match(home, /assetPath\("\/media\/accueil\/scout-3d\.webp"\)\} alt=\{copy\.stageAlt\}/);
+    assert.match(home, /href=\{assetPath\("\/studio#scene"\)\}>\{copy\.stageLink\}/);
+    assert.doesNotMatch(home, /ln-stage|stagePlaceholder/);
+    assert.equal(existsSync("public/media/accueil/scout-3d.webp"), true);
     assert.equal(existsSync("public/look/anime/hero-key.webp"), true);
   });
 
@@ -48,7 +52,9 @@ describe("accueil", () => {
       assert.doesNotMatch(landing.readGuide, /gratuit|free|kostenlos|gratis|0 cr/i, lang);
       assert.equal(copy.steps.length, 5, lang);
       assert.equal(copy.trust.length, 3, lang);
-      assert.match(copy.stageBody, /≈ 15–30 cr[ée]dit/i, lang);
+      assert.match(copy.stageBody, /≈ 6 (credits|crédits|Credits|créditos)/, lang);
+      assert.ok(copy.stageAlt.trim(), lang);
+      assert.doesNotMatch(`${copy.stageTitle} ${copy.stageBody} ${copy.steps[2]!.body}`, /finger|doigt|previs|prévis|preview it in 3D|prévisualise en 3D|in 3D ansehen|previsualiza en 3D/i, lang);
       assert.match(copy.steps[3]!.body, /browser|navigateur|Browser|navegador/i, lang);
       assert.match(copy.steps[3]!.body, /no render|aucun rendu|kein Rendering|sin render/, lang);
       assert.equal(copy.h3.some(item => item.soon && !item.href), true, lang);
