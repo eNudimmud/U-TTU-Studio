@@ -3168,7 +3168,9 @@
       "son": "Ton",
       "sonLine": "Stimme, Musik, Geräusche",
       "storyboard": "Storyboard erstellen",
-      "storyboardLine": "Uttu macht daraus ein Storyboard, das du ansehen kannst. Nichts wird gedreht, bevor du zustimmst."
+      "storyboardLine": "Uttu macht daraus ein Storyboard, das du ansehen kannst. Nichts wird gedreht, bevor du zustimmst.",
+      "storyboardSoon": "Bald",
+      "storyboardSoonLine": "StoryWeave kommt. Deine Storyboards bleiben, wo sie sind."
     },
     "settings": "Einstellungen",
     "rendu": {

@@ -314,7 +314,20 @@
     "entry": {
       "title": "Guion gráfico",
       "lead": "Cuenta la historia. Uttu escribe un storyboard que puedes ver. No se filma nada hasta que lo apruebas.",
-      "open": "Abrir los guiones gráficos"
+      "open": "Abrir los guiones gráficos",
+      "soon": "Pronto",
+      "soonLead": "StoryWeave está en camino. Tus storyboards se quedan donde están.",
+      "soonOpen": "Ver lo que llega"
+    },
+    "hold": {
+      "eyebrow": "StoryWeave",
+      "title": "Tu historia, tejida plano a plano.",
+      "gold": "tejida",
+      "coming": "StoryWeave está en camino",
+      "body": "El nuevo storyboard — hablar con Uttu, un panel, una línea de tiempo de 4 pistas — llega pronto. Tus storyboards se quedan donde están. Nada se borra ni se migra.",
+      "back": "Volver al estudio",
+      "home": "Inicio",
+      "alt": "Uttu"
     },
     "ws": {
       "selectShot": "Elegir un plano",

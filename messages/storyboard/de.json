@@ -314,7 +314,20 @@
     "entry": {
       "title": "Storyboard",
       "lead": "Erzähl die Geschichte. Uttu schreibt ein Storyboard, das du ansehen kannst. Nichts wird gedreht, bevor du zustimmst.",
-      "open": "Storyboards öffnen"
+      "open": "Storyboards öffnen",
+      "soon": "Bald",
+      "soonLead": "StoryWeave kommt. Deine Storyboards bleiben, wo sie sind.",
+      "soonOpen": "Ansehen, was kommt"
+    },
+    "hold": {
+      "eyebrow": "StoryWeave",
+      "title": "Deine Geschichte, Einstellung für Einstellung gewebt.",
+      "gold": "gewebt",
+      "coming": "StoryWeave kommt",
+      "body": "Das neue Storyboard — mit Uttu sprechen, ein Panel, eine Zeitleiste mit 4 Spuren — kommt bald. Deine bisherigen Boards bleiben, wo sie sind. Nichts wird gelöscht oder migriert.",
+      "back": "Zurück ins Studio",
+      "home": "Start",
+      "alt": "Uttu"
     },
     "ws": {
       "selectShot": "Einstellung wählen",

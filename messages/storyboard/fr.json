@@ -314,7 +314,20 @@
     "entry": {
       "title": "Storyboard",
       "lead": "Raconte l'histoire. Uttu écrit un storyboard que tu peux regarder. Rien n'est filmé tant que tu n'as pas approuvé.",
-      "open": "Ouvrir les storyboards"
+      "open": "Ouvrir les storyboards",
+      "soon": "Bientôt",
+      "soonLead": "StoryWeave arrive. Tes storyboards restent où ils sont.",
+      "soonOpen": "Voir ce qui arrive"
+    },
+    "hold": {
+      "eyebrow": "StoryWeave",
+      "title": "Ton histoire, tissée plan par plan.",
+      "gold": "tissée",
+      "coming": "StoryWeave arrive",
+      "body": "Le nouveau storyboard — parler avec Uttu, un panneau, une ligne de temps à 4 pistes — arrive bientôt. Tes storyboards restent où ils sont. Rien n'est effacé, rien n'est migré.",
+      "back": "Retour au studio",
+      "home": "Accueil",
+      "alt": "Uttu"
     },
     "ws": {
       "selectShot": "Choisir un plan",

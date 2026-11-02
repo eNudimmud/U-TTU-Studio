@@ -8,6 +8,7 @@ import { insertMention, mentionedReferences, opensPicker, removeMention } from '
 import { BUBBLE_DEFAULTS, bubbleEngineChoices, bubblePriceUnconfirmed, bubbleImageEngine, bubblePictureCount, bubbleQuote, chipReference, bubbleResolutionLabel, bubbleSize, bubbleTool, validBubbleSettings, type BubbleSettings } from '@/lib/creation/bubble';
 import { CREATION_REFERENCES_MAX, type NamedReference } from '@/lib/creation/named-references';
 import { assetPath } from '@/lib/site';
+import { STORYBOARD_CLOSED } from '@/app/storyboard/closed';
 import { storyboardDansCePoste } from '@/lib/storyboard/drapeau';
 import { AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, DEFAULT_SETTINGS, writeHandoff, type BarreMode, type BarreRef } from '@/lib/barre/model';
 import type { FilRef } from '@/lib/barre/thread';
@@ -39,7 +40,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
   const [settings, setSettings] = useState<BubbleSettings>(BUBBLE_DEFAULTS);
   const [menu, setMenu] = useState(false), [settingsOpen, setSettingsOpen] = useState(false), [sheet, setSheet] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [loadedFor, setLoadedFor] = useState<string | null>(null);
-  // Storyboard (open to all; ?storyboard=0 hides it): the bubble's idea opens /storyboard (U1.1). Nothing is filmed before approval.
+  // Storyboard (open to all; ?storyboard=0 hides it). While StoryWeave is closed, the item stays and opens the holding page.
   const [storyboard, setStoryboard] = useState(false);
   useEffect(() => { setStoryboard(storyboardDansCePoste()); }, []);
   const inputId = useId(), menuId = useId(), routeId = useId(), attachmentsId = useId();
@@ -154,7 +155,7 @@ export function CreationBar({ onSend, preview }: { onSend?(input: FilSend): void
             <button type="button" role="menuitem" data-barre-attach="photo" disabled={full || busy} aria-describedby={attachmentsId} onClick={() => { setMenu(false); fileRef.current?.click(); }}><FamilyIcon fam="creer" /><span><strong>{t('barre.attach.photo')}</strong><small>{t('barre.attach.photoLine')}</small></span></button>
             <button type="button" role="menuitem" data-barre-attach="son" disabled={busy} aria-describedby={attachmentsId} onClick={() => { setMenu(false); setMode('video'); audioRef.current?.click(); }}><FamilyIcon fam="son" /><span><strong>{t('bubble.audio')}</strong><small>{t('bubble.audioHelp')}</small></span></button>
             <button type="button" role="menuitem" data-barre-attach="reference" onClick={() => { setMenu(false); setSheet(true); }}><Plus /><span><strong>{t('barre.attach.reference')}</strong><small>{t('namedRefs.menuHelp')}</small></span></button>
-            {storyboard && <button type="button" role="menuitem" data-barre-storyboard="" onClick={() => { setMenu(false); const idee = text.trim(); window.location.assign(assetPath(idee ? `/storyboard?idee=${encodeURIComponent(idee.slice(0, 240))}` : '/storyboard')); }}><svg {...ICON}><rect x="3" y="5" width="7" height="6" rx="1" /><rect x="14" y="5" width="7" height="6" rx="1" /><rect x="3" y="14" width="7" height="6" rx="1" /><rect x="14" y="14" width="7" height="6" rx="1" /></svg><span><strong>{t('barre.attach.storyboard')}</strong><small>{t('barre.attach.storyboardLine')}</small></span></button>}
+            {storyboard && <button type="button" role="menuitem" data-barre-storyboard="" data-storyboard-soon={STORYBOARD_CLOSED ? '' : undefined} onClick={() => { setMenu(false); const idee = text.trim(); window.location.assign(assetPath(idee ? `/storyboard?idee=${encodeURIComponent(idee.slice(0, 240))}` : '/storyboard')); }}><svg {...ICON}><rect x="3" y="5" width="7" height="6" rx="1" /><rect x="14" y="5" width="7" height="6" rx="1" /><rect x="3" y="14" width="7" height="6" rx="1" /><rect x="14" y="14" width="7" height="6" rx="1" /></svg><span><strong>{t('barre.attach.storyboard')}{STORYBOARD_CLOSED && <em data-storyboard-soon="">{t('barre.attach.storyboardSoon')}</em>}</strong><small>{t(STORYBOARD_CLOSED ? 'barre.attach.storyboardSoonLine' : 'barre.attach.storyboardLine')}</small></span></button>}
           </div>}
           <input ref={fileRef} type="file" accept="image/*" multiple hidden data-barre-photo="" onChange={e => { void addFiles(e.target.files, 'photo'); e.target.value = ''; }} />
           <input ref={audioRef} type="file" accept="audio/*" hidden data-barre-audio="" onChange={e => { void addFiles(e.target.files, 'audio'); e.target.value = ''; }} />
