@@ -1156,6 +1156,96 @@
       "sentPartner": false,
       "template_file": "workflows/decor/decor-3d-apparence.json",
       "api_file": "workflows/decor/decor-3d-apparence.api.json"
+    },
+    {
+      "id": "anime-style-frame",
+      "onglet": "look",
+      "template": "image_krea2_turbo_int8_image_style_reference",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/look/anime-style-frame.json",
+      "api_file": null
+    },
+    {
+      "id": "anime-sheet",
+      "onglet": "cast",
+      "template": "image_qwen_image_2_1_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/cast/anime-sheet.json",
+      "api_file": null
+    },
+    {
+      "id": "anime-sheet-klein",
+      "onglet": "cast",
+      "template": "image_flux3_klein_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/cast/anime-sheet-klein.json",
+      "api_file": null
+    },
+    {
+      "id": "anime-decor",
+      "onglet": "decor",
+      "template": "image_krea2_turbo_int8_image_style_reference",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/decor/anime-decor.json",
+      "api_file": null
+    },
+    {
+      "id": "anime-decor-photo",
+      "onglet": "decor",
+      "template": "image_qwen_image_2_1_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/decor/anime-decor-photo.json",
+      "api_file": null
+    },
+    {
+      "id": "anime-first-frame",
+      "onglet": "prise",
+      "template": "image_qwen_image_2_1_image_edit",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/prise/anime-first-frame.json",
+      "api_file": null
+    },
+    {
+      "id": "anime-prise-jeu",
+      "onglet": "prise",
+      "template": "video_wan2_2_14B_i2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/prise/anime-prise-jeu.json",
+      "api_file": null
+    },
+    {
+      "id": "anime-prise-camera",
+      "onglet": "prise",
+      "template": "video_ltx2_5_i2v",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/prise/anime-prise-camera.json",
+      "api_file": null
+    },
+    {
+      "id": "anime-finish",
+      "onglet": "suite",
+      "template": "core_realesrgan_anime",
+      "partner": false,
+      "partnerNodes": [],
+      "sentPartner": null,
+      "template_file": "workflows/suite/anime-finish.json",
+      "api_file": null
     }
   ]
 }

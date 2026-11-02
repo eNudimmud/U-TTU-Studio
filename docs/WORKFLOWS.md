@@ -208,3 +208,21 @@ Réglages : langue d’arrivée (anglais, français, allemand, espagnol, italien
 Devis lu le 30.10.2026 par `estimate_credits` de Comfy Cloud (lecture seule) : **33 crédits/s en Standard, 54 crédits/s en Pro**, soit ≈ 165 / 270 crédits estimés pour 5 s. Le devis multiplie la durée du clip par ce tarif et arrondit au crédit supérieur ; réserve de solde à 1,5 fois. Le chiffre du registre (165 / 248, hypothèse) correspond à 5 s en Standard. Sans durée lisible, aucun devis ni envoi.
 
 Sources : [tutoriel Comfy](https://docs.comfy.org/tutorials/partner-nodes/veed/veed-dubbing), [tarifs VEED](https://api.veed.io/pricing). Template UI et graphe exact envoyé : `workflows/outils/outil-vid-doubler.json` et `.api.json`, avec une entrée dans `index.json`. Aucun rendu réel dans cette livraison : 5 s coûtent au moins 165 crédits, au-dessus du budget de test de 15 crédits.
+
+## Look Anime 2.5D
+
+Neuf étapes, cachées tant que le projet n'a pas ce look (`option: anime25d`). Sans look, CAST, DÉCOR, PRISE et Finaliser ne changent pas. Les coûts non mesurés restent des hypothèses (« ≈ X crédits estimés »). Aucun nœud partenaire. La finition n'utilise pas `utility-gan_upscaler` (tag API) : c'est un graphe core.
+
+| Geste | Template | Devis | État |
+| --- | --- | --- | --- |
+| anime-style-frame | `image_krea2_turbo_int8_image_style_reference` | 3 / 5, hypothèse | fermé, look anime, open weights, LoRA `krea2_style_reference` (preset rétro : `krea2_retroanime`) |
+| anime-sheet | `image_qwen_image_2_1_image_edit` | 4 / 6, hypothèse | fermé, look anime, 2 références, repli Klein |
+| anime-sheet-klein | `image_flux3_klein_image_edit` | 4 / 6, hypothèse | fermé, look anime, repli au-delà de 2 références |
+| anime-decor | `image_krea2_turbo_int8_image_style_reference` | 3 / 5, hypothèse | fermé, look anime, fond peint, sans personnage |
+| anime-decor-photo | `image_qwen_image_2_1_image_edit` | 3 / 5, hypothèse | fermé, look anime, photo de lieu repeinte |
+| anime-first-frame | `image_qwen_image_2_1_image_edit` | 4 / 8, hypothèse | fermé, look anime, première image du plan |
+| anime-prise-jeu | `video_wan2_2_14B_i2v` | 12 / 17, hypothèse | fermé, look anime, slots AniSora HIGH/LOW, le graphe du template n'est pas réécrit |
+| anime-prise-camera | `video_ltx2_5_i2v` | 15 / 23, mesuré | fermé, look anime, plan large ou mouvement de caméra |
+| anime-finish | `core_realesrgan_anime` | 3 / 5, hypothèse | fermé, look anime, `UpscaleModelLoader` + `ImageUpscaleWithModel`, modèle `RealESRGAN_x4plus_anime_6B.pth`, jamais une régénération |
+
+Le routage jeu / caméra lit le cadrage et le mouvement, jamais un nom. Résolution : `src/lib/look/resolve.ts`. Finition : `src/lib/look/graphs.ts`.

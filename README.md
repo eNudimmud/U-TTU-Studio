@@ -83,7 +83,7 @@ Quotes below are the registry quotes at their default size ([`src/lib/workflows/
 
 ## Measured / Mesuré
 
-The registry lists **93 gestures: 79 open, 48 with a real billed run** (« measured »), the other open ones « estimated »; 14 stay closed. Billing was read job by job: [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md), [docs/mesures/workflows-top10-2026-10-29.md](docs/mesures/workflows-top10-2026-10-29.md). / *Le registre compte **93 gestes : 79 ouverts, dont 48 avec un vrai rendu facturé** (« mesuré »), les autres « estimés » ; 14 restent fermés.*
+The registry lists **102 gestures: 79 open, 48 with a real billed run** (« measured »), the other open ones « estimated »; 23 stay closed. Nine of the closed rows are the Anime 2.5D look: hidden until a project chooses it, and unmeasured costs stay estimates. Billing was read job by job: [docs/mesures/test-visiteur-2026-10-27.md](docs/mesures/test-visiteur-2026-10-27.md), [docs/mesures/workflows-top10-2026-10-29.md](docs/mesures/workflows-top10-2026-10-29.md). / *Le registre compte **102 gestes : 79 ouverts, dont 48 avec un vrai rendu facturé** (« mesuré »), les autres « estimés » ; 23 restent fermés. Neuf d'entre eux sont le look Anime 2.5D, cachés tant qu'un projet ne le choisit pas.*
 
 | Area / Domaine | Measured quote, credits / Devis mesuré, crédits |
 |---|---|
