@@ -34,6 +34,11 @@ export interface Reservation {
   basis: "estimate" | "ceiling";
   state: ReservationState;
   observed: ObservedCost | null;
+  /**
+   * CE5-R · an invoice above what was reserved. The invoice still counts in full (never capped); the
+   * next paid operation is refused until the overrun is acknowledged (`acknowledgeOverrun`).
+   */
+  overrun?: { credits: number; recordedAt: string; acknowledgedAt: string | null };
   createdAt: string;
   updatedAt: string;
 }
@@ -70,11 +75,36 @@ export function writeLedger(storage: StorageLike, ledger: SpendLedger): void {
   } catch { throw new CinemaError("STORAGE_UNAVAILABLE", "La réserve n'a pas pu être enregistrée : rien n'est envoyé."); }
 }
 
-/** Credits held by a tranche: settled costs (or their reserve when the cost is unknown) plus active reserves. */
+/** Proof hierarchy of an observed cost (CE5-R): `billing_job > gpu_estimate > unknown`. */
+const COST_RANK: Record<ObservedCost["provenance"], number> = { unknown: 0, gpu_estimate: 1, billing_job: 2 };
+
+/**
+ * What one reservation holds. An invoice of the job counts as billed, above or below the reserve.
+ * Before an invoice, at least the reserve, or the most conservative estimate when it is higher.
+ */
+export function heldBy(item: Reservation): number {
+  if (item.observed?.provenance === "billing_job" && item.observed.credits != null) return item.observed.credits;
+  if (item.state === "released") return 0;
+  const estimate = item.observed?.provenance === "gpu_estimate" && item.observed.credits != null ? item.observed.credits : 0;
+  return Math.max(item.reservedCredits, estimate);
+}
+
+/** Credits held by a tranche: billed costs, otherwise the reserve or the higher estimate. */
 export function trancheHeld(ledger: SpendLedger, trancheId: string): number {
   return ledger.reservations
-    .filter(item => item.trancheId === trancheId && item.state !== "released")
-    .reduce((sum, item) => sum + (item.state === "settled" && item.observed?.credits != null ? item.observed.credits : item.reservedCredits), 0);
+    .filter(item => item.trancheId === trancheId)
+    .reduce((sum, item) => sum + heldBy(item), 0);
+}
+
+/** An invoice above its reserve that nobody looked at yet: the next paid operation waits. */
+export function unacknowledgedOverrun(ledger: SpendLedger): Reservation | null {
+  return ledger.reservations.find(item => item.overrun && !item.overrun.acknowledgedAt) ?? null;
+}
+
+/** The person saw the overrun (billed above the reserve). The billed amount keeps counting. */
+export function acknowledgeOverrun(ledger: SpendLedger, attemptId: string, now: Date): SpendLedger {
+  return update(ledger, attemptId, item => item.overrun && !item.overrun.acknowledgedAt
+    ? { ...item, overrun: { ...item.overrun, acknowledgedAt: now.toISOString() }, updatedAt: now.toISOString() } : item);
 }
 
 /** Any paid operation still open in this browser: the legacy take receipt, the intent receipt, or an active reserve. */
@@ -100,6 +130,13 @@ export interface ReserveInput {
   now: Date;
   /** Another paid operation is open (submissionBusy, or a second session). */
   busy: boolean;
+  /**
+   * CE5 · intent jobs: CE0 already consumed this approval in the same ledger (approval-ledger.ts) just
+   * before calling the reserve, under the same paid-session lock; it is not consumed twice. Not a
+   * bypass: the approval must be listed as consumed, and no other reservation may already use it, so
+   * the consumption binds to this attempt only. A media approval never sets this.
+   */
+  consumedByCaller?: boolean;
 }
 
 export interface Reserved { ledger: SpendLedger; reservation: Reservation; diagnostics: CinemaDiagnostic[] }
@@ -108,10 +145,15 @@ export interface Reserved { ledger: SpendLedger; reservation: Reservation; diagn
 export function reserve(input: ReserveInput): Reserved {
   const { ledger, quote, approval, now } = input;
   if (approval.actor !== "user") throw new CinemaError("APPROVAL_REQUIRED", "Seule une personne autorise une dépense.");
-  if (approval.consumedByAttemptId || ledger.consumedApprovals.includes(approval.id)) throw new CinemaError("APPROVAL_REQUIRED", "Cette autorisation a déjà servi : une nouvelle est nécessaire.");
+  if (approval.consumedByAttemptId || (!input.consumedByCaller && ledger.consumedApprovals.includes(approval.id))) throw new CinemaError("APPROVAL_REQUIRED", "Cette autorisation a déjà servi : une nouvelle est nécessaire.");
+  if (input.consumedByCaller && (!ledger.consumedApprovals.includes(approval.id) || ledger.reservations.some(item => item.approvalId === approval.id))) {
+    throw new CinemaError("APPROVAL_REQUIRED", "Cette autorisation n'est pas liée à cet envoi : une nouvelle est nécessaire.", ["consumed-by-caller"]);
+  }
   if (approval.quoteId !== quote.id || approval.snapshotDigest !== quote.snapshotDigest || approval.workflowDigest !== quote.workflowDigest) throw new CinemaError("APPROVAL_REQUIRED", "L'autorisation ne correspond pas à ce devis.");
   if (Date.parse(quote.expiresAt) <= now.getTime()) throw new CinemaError("QUOTE_UNAVAILABLE", "Le devis a expiré : nouvelle estimation et nouvelle autorisation nécessaires.");
   if (input.busy || ledger.reservations.some(item => ACTIVE.includes(item.state))) throw new CinemaError("BUDGET_RESERVED", "Une autre opération payante est encore ouverte.");
+  const overrun = unacknowledgedOverrun(ledger);
+  if (overrun) throw new CinemaError("BUDGET_RESERVED", "Une facture a dépassé sa réserve : à vérifier avant tout nouvel envoi.", [`overrun ${overrun.overrun!.credits}`]);
 
   const known = quote.estimatedCredits !== null && quote.basis !== "unavailable";
   const estimate = known ? Math.ceil(quote.estimatedCredits! + (quote.uncertaintyCredits ?? 0)) : null;
@@ -128,7 +170,8 @@ export function reserve(input: ReserveInput): Reserved {
     accountScope: input.accountScope, reservedCredits, basis: estimate === null ? "ceiling" : "estimate",
     state: "reserved", observed: null, createdAt: at, updatedAt: at,
   };
-  return { ledger: { ...ledger, consumedApprovals: [...ledger.consumedApprovals, approval.id], reservations: [...ledger.reservations, reservation] }, reservation, diagnostics };
+  const consumedApprovals = ledger.consumedApprovals.includes(approval.id) ? ledger.consumedApprovals : [...ledger.consumedApprovals, approval.id];
+  return { ledger: { ...ledger, consumedApprovals, reservations: [...ledger.reservations, reservation] }, reservation, diagnostics };
 }
 
 function update(ledger: SpendLedger, attemptId: string, change: (item: Reservation) => Reservation): SpendLedger {
@@ -153,13 +196,84 @@ export function release(ledger: SpendLedger, attemptId: string, proof: "never_se
   });
 }
 
-/** Records the observed cost. An unknown cost keeps the reserve (the attempt stays held, never counted as zero). */
+/**
+ * Records the observed cost of one attempt (CE5-R). Proof hierarchy `billing_job > gpu_estimate >
+ * unknown`: a stronger proof replaces a weaker one, never the reverse; the same proof is idempotent.
+ * - An unknown cost keeps the reserve (the attempt stays held, never counted as zero).
+ * - An estimate settles the job; it holds at least the reserve, or itself when higher.
+ * - The invoice of the job supersedes any estimate, even above the reserve: the overrun is recorded
+ *   and blocks the next operation (`reserve`), the cost is never capped. A later invoice (newer
+ *   `readAt`) replaces an earlier one. An invoice also counts on a released reserve: it proves a spend.
+ */
 export function recordCost(ledger: SpendLedger, attemptId: string, observed: ObservedCost, now: Date): SpendLedger {
+  const at = now.toISOString();
   return update(ledger, attemptId, item => {
-    if (item.state === "settled" || item.state === "released") return item;
-    if (observed.provenance === "unknown" || observed.credits === null) return { ...item, observed, updatedAt: now.toISOString() };
-    return { ...item, state: "settled", observed, updatedAt: now.toISOString() };
+    const known = observed.provenance !== "unknown" && observed.credits !== null && Number.isFinite(observed.credits) && observed.credits >= 0;
+    if (!known) {
+      // Never downgrade a known cost; an active reserve only notes that the cost is still unknown.
+      if (!ACTIVE.includes(item.state) || (item.observed && COST_RANK[item.observed.provenance] > 0)) return item;
+      return { ...item, observed: { ...observed, credits: null, provenance: "unknown" }, updatedAt: at };
+    }
+    const current = item.observed && item.observed.credits !== null ? item.observed : null;
+    if (item.state === "released" && observed.provenance !== "billing_job") return item;
+    if (current) {
+      const rank = COST_RANK[observed.provenance] - COST_RANK[current.provenance];
+      if (rank < 0) return item;
+      if (rank === 0) {
+        if (current.credits === observed.credits) return item;
+        // Same proof, other figure: a newer invoice replaces; two estimates keep the higher one.
+        if (observed.provenance === "billing_job" && current.readAt && observed.readAt && Date.parse(observed.readAt) < Date.parse(current.readAt)) return item;
+        if (observed.provenance === "gpu_estimate" && observed.credits! < current.credits!) return item;
+      }
+    }
+    const next: Reservation = { ...item, state: "settled", observed, updatedAt: at };
+    if (observed.provenance === "billing_job" && observed.credits! > item.reservedCredits) {
+      next.overrun = { credits: observed.credits! - item.reservedCredits, recordedAt: at, acknowledgedAt: null };
+    } else if (observed.provenance === "billing_job") {
+      delete next.overrun;
+    }
+    return next;
   });
+}
+
+/**
+ * CE5 · the job is proven terminal on the provider but its cost is still unknown: the reserve keeps
+ * counting in the tranche and the campaign (never zero, never an invoice, never a release), yet it no
+ * longer blocks the next approved operation. `recordCost` can still reconcile it from the invoice.
+ * Only for a job the provider reported terminal; an uncertain POST qualifies only once it has been
+ * bound to a provider job id (`boundJobId`). Never for an unbound uncertain POST.
+ */
+export function closeWithUnknownCost(ledger: SpendLedger, attemptId: string, now: Date, proof: { terminal: true; boundJobId?: string | null } = { terminal: true }): SpendLedger {
+  if (proof?.terminal !== true) throw new CinemaError("SUBMISSION_UNKNOWN", "Fin du job non prouvée : la réserve reste ouverte.");
+  return update(ledger, attemptId, item => {
+    if (item.state === "uncertain" && !proof.boundJobId) return item;
+    if (!ACTIVE.includes(item.state)) return item;
+    return { ...item, state: "settled", observed: item.observed ?? { credits: null, provenance: "unknown", unit: "credits", readAt: null }, updatedAt: now.toISOString() };
+  });
+}
+
+/** Credits held by the whole campaign in this browser: every tranche, agent and media, settled or open (billed overruns included). */
+export function campaignHeld(ledger: SpendLedger): number {
+  return [...new Set(ledger.reservations.map(item => item.trancheId))].reduce((sum, id) => sum + trancheHeld(ledger, id), 0);
+}
+
+export interface CampaignLimit {
+  /** The global ceiling JD set for the contest (300). */
+  capCredits: number;
+  /** Credits already spent before this ledger existed (earlier tests, agent included). Null = not entered yet. */
+  priorCredits: number | null;
+}
+
+/**
+ * The global campaign limit, on top of the tranche: prior spend + everything this ledger holds + the
+ * new reserve must stay within the cap. A missing or non-finite figure refuses (the counter is not reliable).
+ */
+export function assertCampaign(ledger: SpendLedger, limit: CampaignLimit, addCredits: number): void {
+  const finite = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n) && n >= 0;
+  if (!finite(limit.capCredits) || !(limit.capCredits > 0)) throw new CinemaError("BUDGET_RESERVED", "Plafond de campagne invalide.", ["campaign-cap"]);
+  if (!finite(limit.priorCredits)) throw new CinemaError("BUDGET_RESERVED", "Dépense antérieure de la campagne non renseignée : aucun envoi.", ["campaign-prior"]);
+  if (!(Number.isFinite(addCredits) && addCredits > 0)) throw new CinemaError("APPROVAL_REQUIRED", "Plafond autorisé invalide.", ["ceiling"]);
+  if (limit.priorCredits + campaignHeld(ledger) + addCredits > limit.capCredits) throw new CinemaError("BUDGET_RESERVED", "La limite de campagne ne couvre pas cette réserve.", [`campagne ${limit.capCredits}`]);
 }
 
 /**

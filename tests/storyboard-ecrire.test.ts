@@ -89,7 +89,8 @@ test("the action keeps the idea without the quoted words nor « she says: »", (
 
 test("the title comes from the idea's first words, never a quote", () => {
   assert.equal(titreDeLIdee("un DJ traverse la ville sous la pluie, puis joue"), "Un DJ traverse la ville");
-  assert.equal(titreDeLIdee("« Bonjour » dit Uttu"), "Dit Uttu");
+  // CE5-L: a line alone gives the speaker and their words, never « Dit Uttu ».
+  assert.equal(titreDeLIdee("« Bonjour » dit Uttu"), "Uttu « Bonjour »");
 });
 
 test("every language's templates fill every placeholder", () => {

@@ -98,6 +98,11 @@ import { randomSeed } from "@/lib/seed";
 import { connectMessage } from "@/lib/render/connect";
 import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
 import { createMediaClient } from "@/lib/media/cloud";
+import { saveBoard as saveBoardJournaled, type SavedBoard } from "@/lib/cinema/board-writer";
+import { CAMPAIGN } from "@/lib/cinema/campaign";
+import { browserProjectLock, projectFiles } from "@/lib/cinema/journal";
+import type { CinemaController, ControllerPorts } from "@/lib/cinema/controller";
+import type { Storyboard } from "@/lib/storyboard/storyboard";
 import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
 
 export interface DecorInput {
@@ -114,6 +119,21 @@ export interface DecorInput {
   credits?: string[];
   /** Called once the décor is filed in DÉCOR. */
   onFiled?(filed: { id: string; name: string; cost: number | null; quote: number; image: Blob }): void;
+}
+
+/** The controller with every method answered asynchronously (its module is fetched on first use). */
+export type LazyCinema = { [K in keyof CinemaController]: CinemaController[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never };
+
+const CINEMA_METHODS = ["prepareIntent", "submitIntent", "resumeIntent", "collectIntent", "bindIntent", "declareIntentAbsent", "applyLocal", "undo", "approveKeyframe", "prepareShot", "submitShot", "resumeResults"] as const satisfies readonly (keyof CinemaController)[];
+
+// A controller method missing from the list fails to compile here.
+const cinemaMethodsComplete: [Exclude<keyof CinemaController, (typeof CINEMA_METHODS)[number]>] extends [never] ? true : false = true;
+void cinemaMethodsComplete;
+
+function lazyCinema(ports: ControllerPorts): LazyCinema {
+  let made: Promise<CinemaController> | null = null;
+  const get = () => (made ??= import("@/lib/cinema/controller").then(module => module.createCinemaController(ports)));
+  return Object.fromEntries(CINEMA_METHODS.map(name => [name, (...args: unknown[]) => get().then(controller => (controller[name] as (...a: unknown[]) => unknown)(...args))])) as LazyCinema;
 }
 
 export interface StudioSession {
@@ -225,6 +245,18 @@ export interface StudioSession {
   saveExport(film: Blob, name: string): Promise<string>;
   readProjectFile(file: string): Promise<string | undefined>;
   writeProjectFile(file: string, text: string): Promise<void>;
+  /** CE5: a storyboard save through the common revision path (three-way, journaled, under the project lock). */
+  saveBoard(base: Storyboard | null, mine: Storyboard): Promise<SavedBoard>;
+  /** CE5: the cinema service of this session (no React inside), loaded on its first call so it stays
+   *  out of the first paint (LCP, method #221). */
+  cinema: LazyCinema;
+  /** CE5: moves when a resume or the agent wrote project files, so open boards re-read them. */
+  cinemaTick: number;
+  /** CE5: the board files changed under the page (agent answer applied): open boards re-read them. */
+  cinemaChanged(): void;
+  /** CE5: the native agent (candidate intent workflow) is offered. Only on a non-production build opened
+   *  with ?cinema=qualification (JD's test preview); hidden everywhere else. */
+  cinemaAgent: boolean;
   saveShot(shot: Shot): Promise<void>;
   /** Removes one plan note (Shots/<id>.md). Its takes stay in the vault, so « Annuler » loses nothing. */
   deleteShot(id: string): Promise<void>;
@@ -1910,6 +1942,49 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     };
   }, [ready, client, resumeRun, fingerprint]);
 
+  // CE5 · the cinema controller: one service, React-free, held for the session. Credentials stay in the
+  // client in memory. The campaign limit counts the account's prior spend (lib/cinema/campaign.ts, sourced);
+  // without Web Locks there is no reliable exclusion between tabs, so no paid cinema POST either.
+  const projectLock = useMemo(() => browserProjectLock(typeof navigator === "undefined" ? null : navigator.locks ?? null).lock, []);
+  const [cinemaTick, setCinemaTick] = useState(0);
+  const cinemaChanged = useCallback(() => setCinemaTick(n => n + 1), []);
+  // Read after mount (no hydration gap); kept for the tab so in-app navigation does not drop it.
+  const [cinemaAgent, setCinemaAgent] = useState(false);
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_VERCEL_ENV === "production") return;
+    try {
+      if (new URLSearchParams(window.location.search).get("cinema") === "qualification") sessionStorage.setItem("u-ttu-cinema", "qualification");
+      setCinemaAgent(sessionStorage.getItem("u-ttu-cinema") === "qualification");
+    } catch { /* no storage: stays hidden */ }
+  }, []);
+  const cinema = useMemo(() => {
+    const locks = typeof navigator === "undefined" ? null : navigator.locks ?? null;
+    return lazyCinema({
+      storage: typeof window === "undefined" ? { getItem: () => null, setItem: () => undefined, removeItem: () => undefined } : window.localStorage,
+      // Lazy: the vault opens on first use in the browser, never during the server render.
+      vault: { list: () => store().list(), get: path => store().get(path), put: entry => store().put(entry), remove: path => store().remove(path) },
+      lock: projectLock, paidLocks: locks, sessionId: typeof crypto === "undefined" ? "ssr" : crypto.randomUUID(),
+      client: () => activeClient.current, now: () => new Date(), uuid: () => crypto.randomUUID(), seed: () => randomSeed(),
+      trancheCapCredits: 10, campaign: { capCredits: CAMPAIGN.capCredits, priorCredits: CAMPAIGN.priorCredits }, balance: async () => null,
+      projectAvailable: async slug => Boolean(studioRef.current?.projects.some(project => project.slug === slug)),
+      // The candidate intent workflow runs only under qualification (CE5 §1); the demo refuses it.
+      purpose: cinemaAgent ? "qualification" : "demo",
+    });
+  }, [store, projectLock, cinemaAgent]);
+
+  // CE5 · resume on open, without mounting any storyboard: incomplete journals of every project first,
+  // then the cinema receipts (GET only). Unavailable project or account = the receipt stays.
+  useEffect(() => {
+    if (!ready || !studio) return;
+    let alive = true;
+    void cinema.resumeResults({ projectIds: studio.projects.map(project => project.slug) }).then(answer => {
+      if (alive && (answer.data?.journals || answer.code === "RESULT_SETTLED")) setCinemaTick(n => n + 1);
+      const key = `storyboard.cinema.errors.${answer.code}`;
+      if (alive && !answer.ok && t.has(key)) setNotice(t(key));
+    }).catch(() => undefined);
+    return () => { alive = false; };
+  }, [ready, studio?.projects, cinema]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const connectKey = useCallback(async (raw: string) => {
     const key = cleanApiKey(raw);
     if (!key) return t("sheet.keyInvalid");
@@ -2270,6 +2345,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await next;
   }, [current.project, store]);
 
+  const saveBoard = useCallback(async (base: Storyboard | null, mine: Storyboard) => {
+    const slug = current.project ?? await ensureActiveProject(store());
+    const next = saves.current.catch(() => {}).then(() => saveBoardJournaled(projectFiles(store(), slug), projectLock, {
+      projectId: slug, operationId: `sb-${crypto.randomUUID()}`, base, mine, now: () => new Date().toISOString(),
+    }));
+    saves.current = next;
+    return next;
+  }, [current.project, store, projectLock]);
+
   const saveShot = useCallback(async (shot: Shot) => {
     await writeShot(store(), shot, current.takes, "");
   }, [current.takes, store]);
@@ -2466,7 +2550,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
-    saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
+    saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveBoard, cinema, cinemaTick, cinemaChanged, cinemaAgent, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
     tournerPlan: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.prise" }, () => paid(() => tournerPlan(input), false), ok => ({ ok })),
   };
 

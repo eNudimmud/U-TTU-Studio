@@ -14,7 +14,7 @@ import { useStudio } from "./studio-session";
 const LOG_KEY = "u-ttu-uttu-log";
 /** Per-session consent to paid messages. sessionStorage: it ends with the tab. */
 const ACCEPT_KEY = "u-ttu-uttu-comfy-ok";
-const ERROR_CODES: readonly AgentErrorCode[] = ["auth", "credits", "subscription", "busy", "invalid", "refused", "network", "timeout", "failed"];
+const ERROR_CODES: readonly AgentErrorCode[] = ["auth", "credits", "subscription", "busy", "invalid", "refused", "network", "timeout", "failed", "ineligible"];
 const ERROR_ACTS: Partial<Record<AgentErrorCode, Act[]>> = { auth: ["connect"], credits: ["guide"], subscription: ["guide"] };
 function session(key: string): string | null { try { return window.sessionStorage.getItem(key); } catch { return null; } }
 function setSession(key: string, value: string) { try { window.sessionStorage.setItem(key, value); } catch {} }

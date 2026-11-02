@@ -91,6 +91,8 @@ export interface IntentContext {
   references: { referenceId: string; category: ReferenceBinding["category"]; name: string; locked: boolean }[];
   capabilities: { workflowId: string; purpose: WorkflowManifest["purpose"]; qualification: WorkflowManifest["qualification"] }[];
   narrative: string;
+  /** CE5: the selected shot's current editable values, its bound references included (never reduced). */
+  selected?: { shotId: string; revision: number; fields: ShotDraft };
 }
 
 // ---------------------------------------------------------------- references and snapshot
@@ -298,6 +300,8 @@ export const CINEMA_ERROR_CODES = [
   "INTENT_MODEL_UNAVAILABLE",
   // CE0 addition: the provider answered the POST with a refusal (auth, credits, subscription, invalid graph).
   "PROVIDER_REFUSED",
+  // CE5 addition (Astra decision 6): `/api/user` gave no stable opaque id — no new cinema submission.
+  "ACCOUNT_UNAVAILABLE",
 ] as const;
 export type CinemaErrorCode = (typeof CINEMA_ERROR_CODES)[number];
 

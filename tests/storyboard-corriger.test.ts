@@ -53,3 +53,11 @@ test("every suggestion button and every example Uttu gives is understood, in eac
     for (const example of examples) assert.ok(lireCorrection(example), `${lang} not understood: ${example}`);
   }
 });
+
+test("CE5: selection as data, not a text prefix — a request naming no shot reads for the selected one; a named shot wins", () => {
+    assert.deepEqual(lireCorrection("dit : on y va", 2), { type: "replique", n: 2, texte: "on y va" });
+    assert.deepEqual(lireCorrection("retire-le", 3), { type: "retirer", n: 3 });
+    assert.deepEqual(lireCorrection("move it later", 1), { type: "deplacer", n: 1, pas: 1 });
+    assert.deepEqual(lireCorrection("remove shot 4", 2), { type: "retirer", n: 4 });
+    assert.equal(lireCorrection("retire-le"), null, "without a selection nothing is guessed");
+});

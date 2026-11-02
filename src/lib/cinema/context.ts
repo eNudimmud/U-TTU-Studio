@@ -4,12 +4,14 @@
 //
 // Bounded to what CE0 sends (INTENT_CONTEXT_MAX_CHARS of canonical JSON). When too long, the
 // non-essentials shrink first (narrative, then texts of other shots, then unlocked references), each
-// step reported; the selection, shot ids/revisions and locked references are never dropped.
+// step reported; the selection (with its values), shot ids/revisions and locked references are never dropped.
+// References bound to the selected shot are kept like locked ones.
 import { canonicalJson } from "./digest.ts";
 import { INTENT_CONTEXT_MAX_CHARS } from "./intent-workflow.ts";
 import type { CinemaMeta } from "./journal.ts";
 import type { Storyboard } from "../storyboard/storyboard.ts";
 import { tousLesPlans } from "../storyboard/storyboard.ts";
+import { shotDraftOf } from "./snapshot.ts";
 import type { CinemaDiagnostic, EditableShotField, IntentContext } from "./types.ts";
 
 export interface CatalogueReference {
@@ -69,6 +71,12 @@ export function buildIntentContext(input: ContextInput): BuiltContext {
     capabilities: input.capabilities.filter(cap => cap.qualification === "validated" || cap.qualification === "demo"),
     narrative: [input.storyboard.logline, input.storyboard.scenario].filter(Boolean).join("\n").slice(0, 1200),
   };
+  // CE5: « this shot » is the selected shot id, never a « shot N » prefix added to the visitor's words.
+  // Its values travel whole (refs with their ids) so a patch can be written without guessing them.
+  const selectedPlan = selected ? plans.find(plan => plan.id === selected) : undefined;
+  if (selectedPlan && !input.meta.archived.includes(selectedPlan.id)) {
+    context = { ...context, selected: { shotId: selectedPlan.id, revision: shotRevisionOf(input.meta, selectedPlan.id), fields: shotDraftOf(selectedPlan) } };
+  }
   const size = () => canonicalJson(context).length;
 
   if (size() > max && context.narrative) {
@@ -80,10 +88,12 @@ export function buildIntentContext(input: ContextInput): BuiltContext {
     diagnostics.push({ code: "CONTEXT_REDUCED", field: "shots" });
   }
   if (size() > max) {
-    const dropped = context.references.filter(ref => !ref.locked).map(ref => ref.referenceId);
-    const keep = context.references.filter(ref => ref.locked);
-    // Drop unlocked references from the end until it fits; locked ones always stay.
-    let unlocked = context.references.filter(ref => !ref.locked);
+    const bound = new Set((context.selected?.fields.refs ?? []).map(ref => ref.referenceId).filter(Boolean));
+    const kept = (ref: IntentContext["references"][number]) => ref.locked || bound.has(ref.referenceId);
+    const dropped = context.references.filter(ref => !kept(ref)).map(ref => ref.referenceId);
+    const keep = context.references.filter(kept);
+    // Drop unlocked references from the end until it fits; locked and selected-shot ones always stay.
+    let unlocked = context.references.filter(ref => !kept(ref));
     while (unlocked.length && size() > max) {
       unlocked = unlocked.slice(0, -1);
       context = { ...context, references: [...keep, ...unlocked] };

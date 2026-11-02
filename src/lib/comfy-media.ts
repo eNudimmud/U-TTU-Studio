@@ -184,7 +184,7 @@ function readStoreBalance() {
   } catch (e) {}
 }
 function promptUrl(href) {
-  try { return new URL(href, location.href).pathname === "/api/prompt"; } catch (e) { return false; }
+  try { return new URL(href, location.href).pathname.replace(/\\/+$/, "") === "/api/prompt"; } catch (e) { return false; }
 }
 function gateText(input, init) {
   if (init && typeof init.body === "string") return Promise.resolve(init.body);
@@ -309,11 +309,22 @@ function hookFetch() {
   };
   const open = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function (method, url) {
-    try { this.__uttuUrl = String(url || ""); } catch (e) {}
+    try { this.__uttuUrl = String(url || ""); this.__uttuMethod = String(method || "GET").toUpperCase(); } catch (e) {}
     return open.apply(this, arguments);
   };
   const send = XMLHttpRequest.prototype.send;
-  XMLHttpRequest.prototype.send = function () {
+  XMLHttpRequest.prototype.send = function (body) {
+    // A run queued by XHR waits behind the same dialog as fetch. Refused: nothing leaves, the page hears an error.
+    if (this.__uttuMethod === "POST" && promptUrl(this.__uttuUrl)) {
+      const xhr = this;
+      const args = arguments;
+      gateRun(this.__uttuUrl, { method: "POST", body: typeof body === "string" ? body : undefined }).then((ok) => {
+        if (ok) return send.apply(xhr, args);
+        try { xhr.dispatchEvent(new ProgressEvent("error")); } catch (e) {}
+        try { xhr.dispatchEvent(new ProgressEvent("loadend")); } catch (e) {}
+      });
+      return;
+    }
     try {
       if (balanceUrl(this.__uttuUrl)) {
         this.addEventListener("load", () => {

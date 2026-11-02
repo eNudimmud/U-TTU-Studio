@@ -361,7 +361,7 @@ async function assertPayloadApproved(input: ShotSubmission, approval: SpendAppro
  * On open (no component needed): a receipt left `submitting` is `submission_unknown` with its reserve
  * kept; a reserve without any receipt never reached the POST (the receipt is written first) and is released.
  */
-export function resumeShotJobs(storage: StorageLike, now: Date): { receipt: ShotJobReceipt | null; released: string[] } {
+export function resumeShotJobs(storage: StorageLike, now: Date, keepAttempts: readonly string[] = []): { receipt: ShotJobReceipt | null; released: string[] } {
   const pendingRender = readPending(storage);
   let receipt = cinemaReceiptOf(pendingRender);
   let ledger = readLedger(storage);
@@ -373,6 +373,8 @@ export function resumeShotJobs(storage: StorageLike, now: Date): { receipt: Shot
   }
   for (const item of ledger.reservations) {
     if (item.state !== "reserved" || item.attemptId === receipt?.attemptId) continue;
+    // CE5: the open intent receipt (another kind, same ledger) holds its own reserve.
+    if (keepAttempts.includes(item.attemptId)) continue;
     if (pendingRender && !receipt) continue; // a legacy receipt is open: leave everything held
     ledger = release(ledger, item.attemptId, "never_sent", now);
     released.push(item.attemptId);
