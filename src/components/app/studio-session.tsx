@@ -37,6 +37,7 @@ import { type Balance } from "@/lib/credits";
 import { FINAL_MAX_SECONDS, finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
 import { audioOutput, imageOutput, videoOutput, meshOutput, jobStage, createRenderClient, RenderError, type JobStage, type RenderClient } from "@/lib/render/client";
+import { grapheFinition } from "@/lib/look/finish-graph";
 import { noeudSortie } from "@/lib/render/sortie";
 import { isVideoGeste, VIDEO_GESTE_TEXT, videoGesteGraph } from "@/lib/render/video-gestes";
 import { importModel, modelExtension } from "@/lib/maquette/files";
@@ -399,6 +400,8 @@ export interface OutilRun {
   /** The visitor may use the voice they upload. */
   consent?: boolean;
   from?: string;
+  /** Kept anime take: Real-ESRGAN anime replaces the SeedVR2 graph. Still an enhance, never a redraw. */
+  animeFinish?: boolean;
   onStage(stage: FinaliseStage, seconds?: number): void;
   /** Real cost after the result is already shown (deferred balance read). */
   /** `gpu`: the job's compute-time figure, when the balance cannot show its cost. */
@@ -1429,12 +1432,14 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (!outil || !row || !outil.moteur || outil.bientot) return { ok: false, message: t(outil?.bientot ? `outils.why.${outil.bientot}` : "gestes.unwired") };
     if (creation && input.outil !== bubbleTool(creation.mode, input.images.length, Boolean(input.audio))) return { ok: false, message: t("bubble.invalid") };
     if (!gesteVisible(row, creation ? prefs : outilsFiltre)) return { ok: false, message: t("safety.modelBlocked") };
-    if (outil.moteur.kind === "suite" && !creation) {
+    if (outil.moteur.kind === "suite" && !creation && !input.animeFinish) {
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.video : input.images[0];
       if (!source) return { ok: false, message: t("videoGeste.needFiles") };
       return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage, onCost: input.onCost });
     }
-    const quote = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio), engine) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage, source: input.source });
+    const quoted = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio), engine) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage, source: input.source });
+    const animeRow = input.animeFinish ? gesteParId("anime-finish") : null;
+    const quote = animeRow && animeRow.credits !== null && animeRow.high !== null ? { credits: animeRow.credits, high: animeRow.high, kind: "estime" as const } : quoted;
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
     if (outil.texte === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
     if (outil.entrees.includes("image") && !input.images[0]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };
@@ -1473,7 +1478,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
       const video = input.video ? await send(input.video, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
-      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed(), engine }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
+      const built = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed(), engine }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
+      const animeGraph = input.animeFinish && video ? grapheFinition({ video, prefix: "video/uttu-anime-finish" }) : null;
+      if (animeGraph && Object.values(animeGraph).some(node => /KSampler|SamplerCustom|EmptyLatent|WanImageToVideo/.test(node.class_type))) return { ok: false, message: t("finaliser.noQuote") };
+      const graph = animeGraph ?? built;
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       // The final save node by id (registry), never « the first video »: Comfy lists the source clip too.

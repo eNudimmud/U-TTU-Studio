@@ -37,7 +37,8 @@ async function cloud(context: BrowserContext) {
   return { prompts: () => prompts, statuses: () => statuses, finish() { finished = true; } };
 }
 
-const castStep = (page: Page) => page.locator('.u-chain button').first();
+// The chain opens with the project switcher; CAST is the step, not the first button.
+const castStep = (page: Page) => page.locator('[data-film-nav-to="lora"]');
 const hide = (page: Page, hidden: boolean) => page.evaluate(value => {
   (window as unknown as { __hidden?: boolean }).__hidden = value;
   document.dispatchEvent(new Event('visibilitychange'));

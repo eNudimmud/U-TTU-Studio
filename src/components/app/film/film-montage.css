@@ -76,6 +76,19 @@
   .u-fm-preview { max-height: 46vh; aspect-ratio: 16 / 9; }
   .u-fm-props { padding-left: 12px; border-left: 1px solid var(--u-line, #1f1f23); }
 }
-@media (max-height: 480px) and (orientation: landscape) {
-  .u-fm-preview { max-height: 46vh; }
+@media (max-height: 500px) and (orientation: landscape) {
+  .u-fm { grid-template-columns: minmax(160px, 280px) minmax(0, 1fr); grid-template-areas: "prev tools" "time time"; gap: 4px 10px; padding: 4px 8px 6px; }
+  .u-fm-head { min-height: 28px; gap: 8px; }
+  .u-fm-head .u-film-title { font-size: 16px; }
+  .u-fm-body { display: contents; }
+  .u-fm-bin, .u-fm-props, .u-fm-hint { display: none; }
+  .u-fm-centre { grid-area: prev; }
+  .u-fm-barre { grid-area: tools; align-self: center; }
+  .u-fm-timeline { grid-area: time; }
+  .u-fm-preview, .u-fm-preview.is-vertical { max-height: none; height: 22vh; width: 100%; aspect-ratio: auto; }
+  .u-fm-play { width: 44px; height: 44px; }
+  .u-fm-tool span, .u-fm-tool kbd { display: none; }
+  .u-fm-tool { min-width: 44px; }
+  .u-fm-track, .u-fm-track.is-audio { height: 26px; }
+  .u-fm-track-name { display: block; position: sticky; left: 0; z-index: 2; width: 46px; padding-top: 6px; font-size: 10px; background: var(--bg); }
 }

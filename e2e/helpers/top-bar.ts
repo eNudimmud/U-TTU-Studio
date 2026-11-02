@@ -13,7 +13,7 @@ export async function revealInTopBar(page: Page, selector: string): Promise<Loca
   const target = page.locator(selector).filter({ visible: true }).first();
   await expect(async () => {
     if (!(await target.isVisible())) {
-      const burger = page.locator("[data-top-burger]");
+      const burger = page.locator("[data-top-burger], [data-chain-menu]").filter({ visible: true }).first();
       if (await burger.isVisible() && (await burger.getAttribute("aria-expanded")) !== "true") await burger.click({ timeout: 2000 });
     }
     await expect(target).toBeVisible({ timeout: 2000 });
@@ -21,30 +21,20 @@ export async function revealInTopBar(page: Page, selector: string): Promise<Loca
   return target;
 }
 
-export async function viaTopBar(page: Page, menu: "creer" | "creations", entry: string) {
-  await expect(async () => {
-    const toggle = await revealInTopBar(page, `[data-top-menu="${menu}"]`);
-    if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click({ timeout: 2000 });
-    await page.locator(entry).filter({ visible: true }).first().click({ timeout: 2000 });
-  }).toPass({ timeout: 30000 });
-}
+/** « Tous les outils » on the studio home. */
+export const openToolsHub = (page: Page) => page.goto("/studio#outils/tous");
 
-/** « Voir tous les outils » from the « Créer » menu. */
-export const openToolsHub = (page: Page) => viaTopBar(page, "creer", "[data-top-outils]");
+/** My studio, all types. */
+export const openCreations = async (page: Page) => {
+  const link = page.locator("[data-top-creations]").filter({ visible: true }).first();
+  if (await link.isVisible()) { await link.click(); return; }
+  await page.goto("/mon-studio");
+};
 
-/** « Mes créations », all types. */
-export const openCreations = (page: Page) => viaTopBar(page, "creations", "[data-top-creations]");
-
-/** Opens the docked assistant: the drawer on a phone, the account sheet on a wide screen. */
+/** Opens Uttu from the bar. The panel starts closed. */
 export async function openAssistant(page: Page) {
-  const burger = page.locator("[data-top-burger]");
-  if (await burger.isVisible()) {
-    await burger.click();
-    await page.locator("[data-drawer-assistant]").click();
-    return;
-  }
-  await page.locator("header .u-credit").click();
-  await page.locator("[data-sheet-assistant]").click();
+  const uttu = page.locator("[data-top-uttu], [data-chain-uttu]").filter({ visible: true }).first();
+  await uttu.click();
 }
 
 /** Uttu's panel is minimal; the production plan waits behind « Plus d’options ». */

@@ -27,6 +27,10 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
   await expect(assistant.locator("[data-assistant-outil]").first()).toBeVisible();
   await openCreations(page);
   await expect(page).toHaveURL(/\/mon-studio/);
+  // Uttu starts closed on every arrival, so a conversation does not stay over the next page.
+  // The same button on My studio opens it again.
+  await expect(page.locator("[data-assistant-panel]")).toHaveCount(0);
+  await openPlan(page);
   await expect(page.locator("[data-assistant-panel]")).toBeVisible();
 });
 

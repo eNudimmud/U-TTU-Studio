@@ -7,8 +7,13 @@ import { lookCopy } from "@/lib/look/copy";
 import { lookAnime, type AnimePreset, type AnimePresetId } from "@/lib/look/model";
 import { storyboardDoor } from "@/app/storyboard/closed";
 import { assetPath } from "@/lib/site";
-import { Em, ProjectBar } from "./project-bar";
+import { Em } from "./project-bar";
 import { useProjectLook } from "./use-look";
+import { StudioProvider, useStudio } from "@/components/app/studio-session";
+import { TopBar } from "@/components/app/top-bar";
+import { AssistantPanel } from "@/components/app/assistant-panel";
+import { ConnectSheet, CreditSheet } from "@/components/app/studio-frames";
+import "@/components/app/app.css";
 import "./look.css";
 
 const PRESETS: AnimePresetId[] = ["theatrical", "neon", "daylight", "darkfantasy"];
@@ -35,7 +40,7 @@ export function LookPage() {
   const { locale } = useLocaleSwitch();
   const copy = lookCopy(locale);
   const router = useRouter();
-  const { name, doc, confirm } = useProjectLook();
+  const { doc, confirm } = useProjectLook();
   const [preset, setPreset] = useState<AnimePreset>("theatrical");
   const [own, setOwn] = useState<{ name: string; url: string }[]>([]);
   const [notice, setNotice] = useState("");
@@ -68,8 +73,8 @@ export function LookPage() {
     router.push("/look/bible");
   }
 
-  return <div className="look-root" data-look-page="">
-    <ProjectBar copy={copy} name={name} current="look" />
+  return <StudioProvider><LookChrome>
+    <div className="look-root" data-look-page="">
     <div className="look-hero">
       <div className="look-hero-media">
         <img src={assetPath("/look/anime/hero-key.webp")} alt={copy.heroAlt} width={1280} height={800} fetchPriority="high" decoding="async" />
@@ -167,5 +172,17 @@ export function LookPage() {
         </div>
       </section>
     </main>
+    </div>
+  </LookChrome></StudioProvider>;
+}
+
+function LookChrome({ children }: { children: React.ReactNode }) {
+  const { sheet } = useStudio();
+  return <div className="u-app" data-studio="look">
+    <TopBar place="look" />
+    {children}
+    <AssistantPanel />
+    {sheet === "credits" && <CreditSheet />}
+    {sheet === "connect" && <ConnectSheet />}
   </div>;
 }

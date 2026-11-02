@@ -1189,7 +1189,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-top-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .u-top-nav { display: flex; justify-content: center; min-width: 0; }
 .u-top-links { display: flex; align-items: center; gap: 2px; margin: 0; padding: 0; list-style: none; }
-.u-top-links > li > a, .u-dd-toggle { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--fg-2); font: 500 14px/1 var(--font-body, inherit); text-decoration: none; white-space: nowrap; cursor: pointer; }
+.u-top-links > li > a, .u-dd-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--fg-2); font: 500 14px/1 var(--font-body, inherit); text-decoration: none; white-space: nowrap; cursor: pointer; }
 .u-top-links > li > a:hover, .u-dd-toggle:hover { background: var(--hover); color: var(--fg); }
 .u-top-links [aria-current="page"] { color: var(--fg); background: var(--surface); }
 .u-dd-caret { font-size: 12px; opacity: .7; }
@@ -1286,16 +1286,14 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-assistant-next { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--u-line); border-radius: 12px; }
 .u-assistant-next p { margin: 0; }
 .u-assistant-next .u-secondary { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-@media (min-width: 1600px) {
-  html[data-assistant] .u-app > :not(.u-topbar):not(.u-assistant):not(.u-sheet-backdrop) { margin-right: 320px; }
-  /* The main column must give the room back: without this it keeps its content width and slides under the panel. */
+@media (min-width: 768px) and (min-height: 501px) {
+  html[data-assistant] .u-app > :not(.u-topbar):not(.u-assistant):not(.u-sheet-backdrop) { margin-right: min(320px, 34vw); }
   html[data-assistant] .u-app > .u-main { flex: 1 1 0; width: auto; min-width: 0; }
+  .u-assistant { box-shadow: none; width: min(320px, 34vw); }
 }
-@media (max-width: 1599px) { .u-assistant { top: 56px; z-index: 65; width: min(360px, 100vw); box-shadow: -24px 0 48px rgb(0 0 0 / .45); border-left: 1px solid var(--line); } }
-@media (max-width: 1023px) { .u-assistant { box-shadow: none; } }
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   .u-topbar { grid-template-columns: minmax(0, 1fr) auto; }
-  .u-top-nav, .u-top-left .u-proj, .u-top-assistant, .u-top-lang, .u-kbd { display: none; }
+  .u-top-nav, .u-top-left .u-proj, .u-top-assistant, .u-kbd { display: none; }
   .u-burger { display: inline-flex; }
 }
 @media (max-width: 1439px) and (min-width: 1024px) {
@@ -1992,7 +1990,6 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 @media (max-height: 500px) and (orientation: landscape) {
   .u-app[data-studio="montage"] { height: 100dvh; max-height: 100dvh; overflow: hidden; }
   .u-app[data-studio="montage"] .u-top { display: none; }
-  .u-app[data-studio="montage"] .u-chain { display: none; }
   .u-app[data-studio="montage"] .u-tabs { display: none; }
   .u-app[data-studio="montage"] .u-main {
     overflow: hidden;
@@ -2077,8 +2074,8 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 [data-u-deep] [data-barre-home][data-early] { display: none; }
 [data-u-linked] [data-barre-home][data-early] [data-entry-link] { display: none; }
 
-/* The film is a focused place: logo, film, credits, menu; its own bar CAST · DÉCOR · PRISE · MONTAGE. */
-.u-app[data-studio]:not([data-studio="outils"]) { --rail-w: 0px; --u-tabs-h: 0px; }
+/* Phones keep the bottom tabs on every studio page, including the film. */
+.u-app[data-studio]:not([data-studio="outils"]) { --rail-w: 0px; }
 .u-top[data-focus] .u-burger { display: inline-flex; }
 .u-top[data-focus] { justify-content: space-between; }
 .u-app .u-chain.u-film-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -2086,3 +2083,88 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-chain.u-film-nav button small { letter-spacing: 0; }
 .u-chain.u-film-nav button > span, .u-chain.u-film-nav button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .u-chain.u-film-nav button small { color: var(--u-sand); }
+
+/* Unified chain: one scrolling row, not the old four-column film bar. */
+.u-app .u-chain.u-steps {
+  position: sticky; top: var(--u-top-h); z-index: 36; left: auto; right: auto; bottom: auto;
+  display: flex; align-items: center; gap: 2px; height: 52px; width: auto; max-width: none;
+  margin: 0; padding: 0 12px; border: 0; border-radius: 0; border-bottom: 1px solid var(--line);
+  background: var(--bg); box-shadow: none; overflow-x: auto; scrollbar-width: none;
+  grid-template-columns: none;
+}
+.u-app .u-chain.u-steps::-webkit-scrollbar { display: none; }
+.u-step-pair { display: inline-flex; align-items: center; gap: 2px; flex: none; }
+.u-app .u-chain.u-steps .u-step { flex: none; width: auto; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--fg-2); font: 500 14px/1 var(--font-body); white-space: nowrap; text-decoration: none; cursor: pointer; }
+.u-step i { font: 500 10px/1 var(--font-mono); font-style: normal; color: var(--fg-3); }
+.u-step[aria-current="page"] { color: var(--fg); background: var(--surface-2); }
+.u-step[aria-current="page"] i { color: var(--accent); }
+.u-step-arrow { color: var(--fg-3); font-size: 12px; flex: none; }
+.u-step-div { flex: none; width: 1px; height: 22px; background: var(--line-strong); margin: 0 8px; }
+.u-step-look b { font-weight: 500; color: var(--accent); }
+.u-step-soon { flex: none; min-height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--fg-3); font-size: 14px; white-space: nowrap; }
+.u-soon { font: 500 10px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 999px; padding: 3px 6px; }
+.u-step-mini, .u-step-tail, .u-step-look-label { display: none; }
+.u-step-proj { flex: none; margin-right: 6px; }
+.u-step-proj .u-proj-label { display: none; }
+.u-step-proj .u-proj-toggle { min-height: 44px; min-width: 44px; max-width: 160px; }
+.u-top-guide { min-height: 44px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px; color: var(--fg-2); text-decoration: none; white-space: nowrap; }
+.u-uttu-face { gap: 8px; padding: 0 12px 0 4px; border-radius: 999px; }
+.u-uttu-face img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; object-position: 52% 30%; }
+.u-finish { display: grid; gap: 16px; max-width: 880px; margin: 0 auto; padding: 8px 0 32px; }
+.u-finish-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.u-finish-row { width: 100%; min-height: 44px; display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: 0; border-radius: 12px; background: transparent; color: inherit; text-align: start; cursor: pointer; }
+.u-finish-row[aria-pressed="true"] { background: var(--surface-2); }
+.u-finish-act { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.u-fm-next { min-height: 44px; }
+
+@media (min-width: 768px) {
+  :root { --rail-w: 0px; }
+  .u-app { padding-left: 0; }
+  .u-burger { display: none; }
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .u-top-nav, .u-top-search, .u-top-guide, .u-top-lang, .u-burger, .u-uttu-name { display: none; }
+  /* PRISE already spends its 12 first-screen actions on the plan. Credits stay one tap away on every other page. */
+  .u-app[data-studio="prise"] .u-credit, .u-app[data-studio="prise"] .u-step-proj { display: none; }
+  .u-uttu-face { padding: 0 4px; min-width: 44px; }
+  .u-assistant { top: auto; left: 0; right: 0; width: 100%; height: 50dvh; bottom: var(--u-tabs-h, 0px); border-left: 0; border-top: 1px solid var(--line); z-index: 60; box-shadow: none; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  /* One Uttu control stays on screen: the header one, pinned at the end of the 48 px chain.
+     display:none on .u-top would hide it, and a second button fails the unfiltered locator. */
+  .u-top { position: fixed; z-index: 50; top: 0; right: 0; left: auto; width: auto; height: 48px; min-height: 44px; padding: 0 4px; border: 0; background: transparent; }
+  .u-top-left, .u-top-nav, .u-top .u-top-search, .u-top-guide, .u-top-lang, .u-credit, .u-burger, .u-uttu-name { display: none; }
+  .u-top .u-uttu { min-width: 44px; min-height: 44px; }
+  .u-step-tail .u-uttu { display: none; }
+  .u-tabs { display: none; }
+  .u-app .u-chain.u-steps { position: sticky; top: 0; height: 48px; border-top: 0; padding-right: 52px; }
+  .u-step-mini { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
+  .u-step-mini .brand-mark { width: 26px; height: auto; }
+  .u-step-proj, .u-step i, .u-step-arrow, .u-step-look-label { display: none; }
+  .u-app .u-chain.u-steps .u-step-look, .u-app .u-chain.u-steps .u-step-soon { display: none; }
+  .u-step-tail { display: inline-flex; align-items: center; gap: 2px; margin-left: auto; }
+  .u-step-tail .u-top-icon, .u-step-tail .u-uttu-face { width: 44px; min-width: 44px; min-height: 44px; padding: 0; }
+  .u-step { padding: 0 9px; font-size: 13px; }
+  .u-assistant { top: 48px; bottom: 140px; left: auto; right: 0; width: min(280px, 46vw); height: auto; border-left: 1px solid var(--line); }
+}
+/* PRISE's first screen is the plan: logo, Uttu, the five steps, the sentence, Qui, Où, the example, Tourner.
+   The global links, credits, the project switcher and Look come back on the other steps — here they
+   would push the screen past 12 actions. */
+@media (min-width: 768px) and (min-height: 501px) {
+  .u-app[data-studio="prise"] .u-top-nav,
+  .u-app[data-studio="prise"] .u-top-search,
+  .u-app[data-studio="prise"] .u-top-guide,
+  .u-app[data-studio="prise"] .u-top-lang,
+  .u-app[data-studio="prise"] .u-credit,
+  .u-app[data-studio="prise"] .u-step-proj,
+  .u-app[data-studio="prise"] .u-step-div,
+  .u-app[data-studio="prise"] .u-chain .u-step-look,
+  .u-app[data-studio="prise"] .u-chain .u-step-soon { display: none; }
+}
+/* The film chain is the navigation on a phone. The four bottom tabs stay on Studio and My studio;
+   on a film stage they would push the plan past 12 actions on the first screen. */
+@media (max-width: 767px) {
+  .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) { --u-tabs-h: 0px; }
+  .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) .u-tabs { display: none; }
+  .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) .u-film-dock { bottom: 0; }
+}
