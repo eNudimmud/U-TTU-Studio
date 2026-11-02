@@ -94,6 +94,7 @@ describe("B2 · reglerPrise", () => {
     const session = readFileSync("src/components/app/studio-session.tsx", "utf8");
     const finish = session.slice(session.indexOf("const finish = useCallback"), session.indexOf("useEffect(() => {\n    const params"));
     assert.match(finish, /reglerPrise\(/);
+    assert.match(finish, /firstOnPlan/);
     assert.match(finish, /flight\.planId|envoi\.planId/);
     const resume = session.slice(session.indexOf("const resumeRun"), session.indexOf("useEffect(() => {\n    if (!ready || !client)"));
     assert.match(resume, /finish\(/);

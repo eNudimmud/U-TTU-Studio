@@ -787,12 +787,17 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         const envoi = flight.envoi?.planId === flight.planId
           ? flight.envoi
           : { planId: flight.planId, phrase: flight.line, castIds: [] as string[], decorId: flight.sceneId };
-        const filed = reglerPrise(lireRegistre((await vault.get(projectPath(slug, REGISTRE_FILE)))?.text ?? null), { ...envoi, seconds: flight.settings.seconds }, { id, fichier: video });
+        const before = lireRegistre((await vault.get(projectPath(slug, REGISTRE_FILE)))?.text ?? null);
+        // The cut keeps the first take of a plan. Later takes stay in the register only.
+        const firstOnPlan = !before.plans.some(plan => plan.id === flight.planId && plan.prises.length > 0);
+        const filed = reglerPrise(before, { ...envoi, seconds: flight.settings.seconds }, { id, fichier: video });
         await writeText(vault, projectPath(slug, REGISTRE_FILE), registreJson(filed));
-        await toMontage.current({
-          takeId: id, planId: flight.planId, label: (envoi.phrase || flight.line).slice(0, 80), seconds: flight.settings.seconds,
-          aspect: flight.settings.aspect === "vertical" ? "vertical" : "horizontal", still: poster ?? "", video, prompt: flight.prompt, sceneName: flight.sceneName, composeur: "",
-        });
+        if (firstOnPlan) {
+          await toMontage.current({
+            takeId: id, planId: flight.planId, label: (envoi.phrase || flight.line).slice(0, 80), seconds: flight.settings.seconds,
+            aspect: flight.settings.aspect === "vertical" ? "vertical" : "horizontal", still: poster ?? "", video, prompt: flight.prompt, sceneName: flight.sceneName, composeur: "",
+          });
+        }
       }
       await completePending(renderClient, flight.jobId);
       saveInFlight(localStorage, null);
