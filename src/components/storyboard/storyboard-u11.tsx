@@ -28,6 +28,7 @@ import { useStudio } from "../app/studio-session";
 import { useRefPicture } from "./storyboard-ui";
 import type { Storyboards } from "./use-storyboards";
 import "./storyboard-u11.css";
+import { AnimeLookPill } from "../look/anime-look-pill";
 
 const nouvelId = () => Math.random().toString(36).slice(2, 8);
 
@@ -509,6 +510,7 @@ export function U11Storyboard({
           </div>
           <button type="button" className="u11-play" data-u11-play="" onClick={() => { setFrame(0); setProgress(0); setAnim(true); }}>{t("storyboard.u11.plan.play", { n: String(dureeTotale(sb)) })}</button>
           <div className="u11-cast" data-u11-locked="">
+            <AnimeLookPill />
             {who.map(ref => <span key={ref.nom} className="u11-chip" data-u11-role="qui"><Avatar name={ref.nom} src={picture(ref) || undefined} />{ref.nom}</span>)}
             {placeRefs.map(ref => <span key={ref.nom} className="u11-chip" data-u11-role="ou"><Avatar name={ref.nom} place src={picture(ref) || undefined} />{ref.nom}</span>)}
             <span className="u11-lock">{t("storyboard.u11.plan.same")}</span>
