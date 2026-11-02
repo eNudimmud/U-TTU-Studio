@@ -15,7 +15,7 @@ import { StoryboardPage } from "./storyboard-page";
 import "../app/app.css";
 import "./storyboard.css";
 
-export function StoryboardApp({ id, print, u11 = false, initial = null }: { id: string | null; print: boolean; u11?: boolean; initial?: { locale: string; messages: AbstractIntlMessages } | null }) {
+export function StoryboardApp({ id, print, u11 = false, sw = false, initial = null }: { id: string | null; print: boolean; u11?: boolean; sw?: boolean; initial?: { locale: string; messages: AbstractIntlMessages } | null }) {
   const { locale } = useLocaleSwitch();
   const base = useMessages();
   // `initial` is the server's catalog for the request locale: no empty first frame. A language switch loads the next one.
@@ -29,10 +29,10 @@ export function StoryboardApp({ id, print, u11 = false, initial = null }: { id: 
     void loadStoryboardCatalog(locale).then(messages => { if (!gone) setExtra({ locale, messages }); });
     return () => { gone = true; };
   }, [locale, ready]);
-  if (!extra) return <div className="sb-root" data-theme={u11 ? "obsidian" : "paper"} aria-busy="true" />;
+  if (!extra) return <div className="sb-root" data-theme={sw || u11 ? "obsidian" : "paper"} aria-busy="true" />;
   return <NextIntlClientProvider locale={htmlLang(locale)} messages={{ ...base, ...extra.messages }} timeZone="Europe/Zurich">
     <StudioProvider>
-      <StoryboardPage initialId={id} print={print} initialU11={u11} />
+      <StoryboardPage initialId={id} print={print} initialU11={u11} initialSw={sw} />
     </StudioProvider>
   </NextIntlClientProvider>;
 }

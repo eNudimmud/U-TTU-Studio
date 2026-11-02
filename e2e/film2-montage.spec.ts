@@ -45,9 +45,10 @@ test('un plan tourné est au montage sans tap ; outils nommés ; bac ; pas de tr
     expect((await tool.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   }
   for (const id of ['annuler', 'couper', 'enleverAvant', 'enleverApres', 'dupliquer', 'supprimer']) await expect(page.locator(`[data-fm-action="${id}"]`)).toBeVisible();
-  // Only one primary button on the stage: Exporter.
+  // Only one primary button on the stage: Exporter. « Finaliser » is the next step, not a second render.
   await expect(page.locator('[data-film-montage] .u-film-gold')).toHaveCount(1);
-  await expect(page.locator('[data-film-montage]')).not.toContainText(/Finaliser/);
+  await expect(page.locator('[data-fm-next]')).toContainText(/Finaliser/);
+  await expect(page.locator('[data-film-montage]')).not.toContainText(/régénér|redraw|regenerat/i);
 
   // P6: a tap in « Mes plans » adds at the end.
   const bin = page.locator('[data-fm-bin-item]').first();

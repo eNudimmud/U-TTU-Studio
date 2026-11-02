@@ -2106,7 +2106,7 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
 .u-step-mini, .u-step-tail, .u-step-look-label { display: none; }
 .u-step-proj { flex: none; margin-right: 6px; }
 .u-step-proj .u-proj-label { display: none; }
-.u-step-proj .u-proj-toggle { min-height: 44px; max-width: 160px; }
+.u-step-proj .u-proj-toggle { min-height: 44px; min-width: 44px; max-width: 160px; }
 .u-top-guide { min-height: 44px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px; color: var(--fg-2); text-decoration: none; white-space: nowrap; }
 .u-uttu-face { gap: 8px; padding: 0 12px 0 4px; border-radius: 999px; }
 .u-uttu-face img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; object-position: 52% 30%; }
@@ -2123,19 +2123,48 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-burger { display: none; }
 }
 @media (max-width: 767px) and (orientation: portrait) {
-  .u-top-nav, .u-top-search, .u-top-guide, .u-top-lang, .u-credit, .u-burger, .u-step-proj, .u-uttu-name { display: none; }
-  .u-uttu-face { padding: 0 4px; }
+  .u-top-nav, .u-top-search, .u-top-guide, .u-top-lang, .u-burger, .u-uttu-name { display: none; }
+  /* PRISE already spends its 12 first-screen actions on the plan. Credits stay one tap away on every other page. */
+  .u-app[data-studio="prise"] .u-credit, .u-app[data-studio="prise"] .u-step-proj { display: none; }
+  .u-uttu-face { padding: 0 4px; min-width: 44px; }
   .u-assistant { top: auto; left: 0; right: 0; width: 100%; height: 50dvh; bottom: var(--u-tabs-h, 0px); border-left: 0; border-top: 1px solid var(--line); z-index: 60; box-shadow: none; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-  .u-top { display: none; }
+  /* One Uttu control stays on screen: the header one, pinned at the end of the 48 px chain.
+     display:none on .u-top would hide it, and a second button fails the unfiltered locator. */
+  .u-top { position: fixed; z-index: 50; top: 0; right: 0; left: auto; width: auto; height: 48px; min-height: 44px; padding: 0 4px; border: 0; background: transparent; }
+  .u-top-left, .u-top-nav, .u-top .u-top-search, .u-top-guide, .u-top-lang, .u-credit, .u-burger, .u-uttu-name { display: none; }
+  .u-top .u-uttu { min-width: 44px; min-height: 44px; }
+  .u-step-tail .u-uttu { display: none; }
   .u-tabs { display: none; }
-  .u-app .u-chain.u-steps { position: sticky; top: 0; height: 48px; border-top: 0; }
+  .u-app .u-chain.u-steps { position: sticky; top: 0; height: 48px; border-top: 0; padding-right: 52px; }
   .u-step-mini { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
   .u-step-mini .brand-mark { width: 26px; height: auto; }
   .u-step-proj, .u-step i, .u-step-arrow, .u-step-look-label { display: none; }
+  .u-app .u-chain.u-steps .u-step-look, .u-app .u-chain.u-steps .u-step-soon { display: none; }
   .u-step-tail { display: inline-flex; align-items: center; gap: 2px; margin-left: auto; }
   .u-step-tail .u-top-icon, .u-step-tail .u-uttu-face { width: 44px; min-width: 44px; min-height: 44px; padding: 0; }
   .u-step { padding: 0 9px; font-size: 13px; }
   .u-assistant { top: 48px; bottom: 140px; left: auto; right: 0; width: min(280px, 46vw); height: auto; border-left: 1px solid var(--line); }
+}
+/* PRISE's first screen is the plan: logo, Uttu, the five steps, the sentence, Qui, Où, the example, Tourner.
+   The global links, credits, the project switcher and Look come back on the other steps — here they
+   would push the screen past 12 actions. */
+@media (min-width: 768px) and (min-height: 501px) {
+  .u-app[data-studio="prise"] .u-top-nav,
+  .u-app[data-studio="prise"] .u-top-search,
+  .u-app[data-studio="prise"] .u-top-guide,
+  .u-app[data-studio="prise"] .u-top-lang,
+  .u-app[data-studio="prise"] .u-credit,
+  .u-app[data-studio="prise"] .u-step-proj,
+  .u-app[data-studio="prise"] .u-step-div,
+  .u-app[data-studio="prise"] .u-chain .u-step-look,
+  .u-app[data-studio="prise"] .u-chain .u-step-soon { display: none; }
+}
+/* The film chain is the navigation on a phone. The four bottom tabs stay on Studio and My studio;
+   on a film stage they would push the plan past 12 actions on the first screen. */
+@media (max-width: 767px) {
+  .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) { --u-tabs-h: 0px; }
+  .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) .u-tabs { display: none; }
+  .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) .u-film-dock { bottom: 0; }
 }

@@ -15,5 +15,5 @@ export function StoryWeaveSlot({ copy, id, print }: { copy: HoldCopy; id: string
   if (mod.STORYWEAVE_MOUNTED === false) return <StoryboardHolding copy={copy} gate="sw" />;
   const View = [mod.StoryWeaveApp, mod.StoryWeave, mod.default].find((item): item is ComponentType<StoryWeaveProps> => typeof item === "function");
   if (!View) return <StoryboardHolding copy={copy} gate="sw" />;
-  return <div data-storyboard-gate="sw" data-storyweave=""><View id={id} print={print} /></div>;
+  return <div data-storyboard-gate="sw" data-storyweave="" style={{ minHeight: "100dvh" }}><View id={id} print={print} /></div>;
 }
