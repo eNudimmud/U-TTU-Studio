@@ -87,6 +87,8 @@
   .u-fm-timeline { grid-area: time; }
   .u-fm-preview, .u-fm-preview.is-vertical { max-height: none; height: 22vh; width: 100%; aspect-ratio: auto; }
   .u-fm-play { width: 44px; height: 44px; }
-  .u-fm-track, .u-fm-track.is-audio { height: 28px; }
-  .u-fm-track-name { display: block; position: sticky; left: 0; width: 48px; font-size: 10px; }
+  .u-fm-tool span, .u-fm-tool kbd { display: none; }
+  .u-fm-tool { min-width: 44px; }
+  .u-fm-track, .u-fm-track.is-audio { height: 26px; }
+  .u-fm-track-name { display: block; position: sticky; left: 0; z-index: 2; width: 46px; padding-top: 6px; font-size: 10px; background: var(--bg); }
 }
