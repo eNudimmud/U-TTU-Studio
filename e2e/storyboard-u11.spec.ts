@@ -119,6 +119,22 @@ async function ready(page: Page) {
   await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
 }
 
+const SIZES = [
+  { width: 390, height: 844 },
+  { width: 844, height: 390 },
+  { width: 1024, height: 600 },
+  { width: 1280, height: 800 },
+] as const;
+
+async function target44(page: Page, selector: string) {
+  const node = page.locator(selector).first();
+  await node.scrollIntoViewIfNeeded();
+  const box = await node.boundingBox();
+  expect(box, selector).toBeTruthy();
+  expect(box!.height, `${selector} height`).toBeGreaterThanOrEqual(44);
+  expect(box!.width, `${selector} width`).toBeGreaterThanOrEqual(44);
+}
+
 test('U1.1 agent: varied stories, a proposal, a diff, no external paid call', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'one browser, viewports set here');
   test.setTimeout(180_000);
@@ -164,11 +180,21 @@ test('U1.1 agent: varied stories, a proposal, a diff, no external paid call', as
   await expect(page.locator('[data-u11-preview]')).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('[data-u11-title]')).toHaveText(before);
   await expect(page.locator('[data-u11-framing]').first()).not.toHaveText('Close');
+  for (const size of SIZES) {
+    await page.setViewportSize(size);
+    await target44(page, '[data-u11-apply]');
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('[data-u11-apply]').click();
   await expect(page.locator('[data-u11-preview]')).toHaveCount(0);
   await expect(page.locator('[data-u11-title]')).toHaveText(before);
   await expect(page.locator('[data-u11-framing]').first()).toHaveText('Close');
+  await expect(page.locator('[data-u11-refusal]')).toHaveCount(0);
   await shot('step3b-edit');
+  await target44(page, '[data-u11-undo]');
+  await page.locator('[data-u11-undo]').click();
+  await expect(page.locator('[data-u11-framing]').first()).toHaveText('Wide');
+  await expect(page.locator('[data-u11-title]')).toHaveText(before);
   await page.locator('[data-u11-approve]').click();
   await expect(page.locator('[data-u11-total]')).toContainText(/credits estimated/i);
   await shot('step4-approve');
@@ -181,7 +207,7 @@ test('U1.1 agent: varied stories, a proposal, a diff, no external paid call', as
   await shot('step4-approve');
 });
 
-test('an unknown name is a question, and a bad answer is tried once', async ({ page }, info) => {
+test('an unknown name is a question, and a bad answer is one POST until the visitor re-reads', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'desktop project only');
   test.setTimeout(120_000);
   await page.addInitScript(() => localStorage.setItem('u-ttu-locale', 'en'));
@@ -200,8 +226,20 @@ test('an unknown name is a question, and a bad answer is tried once', async ({ p
   await page.locator('[data-u11-story]').fill('Mina meets Otto at the harbour. Sacha is there too. Then the market, and nobody speaks.');
   await page.locator('[data-u11-write]').click();
   await expect(page.locator('[data-u11-phase="plan"]')).toBeVisible({ timeout: 40_000 });
-  expect(agent.answers.size).toBeGreaterThanOrEqual(2);
-  await expect(page.locator('[data-u11-proposals]')).toContainText('Sacha');
+  expect(agent.answers.size, 'an invalid answer is exactly one agent POST').toBe(1);
+  await expect(page.locator('[data-u11-reading]')).toContainText(/could not read|understanding is limited/i);
+  const reread = page.locator('[data-u11-reread]');
+  await expect(reread).toContainText(/Re-read with Uttu/i);
+  await expect(reread).toContainText(/≈\s*3\s*credits estimated/i);
+  await expect(reread).not.toContainText(/\bfree\b/i);
+  for (const size of SIZES) {
+    await page.setViewportSize(size);
+    await target44(page, '[data-u11-reread]');
+  }
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await reread.click();
+  await expect(page.locator('[data-u11-proposals]')).toContainText('Sacha', { timeout: 40_000 });
+  expect(agent.answers.size, 'the re-read is a second approval, not a silent retry').toBe(2);
   expect((await page.locator('[data-u11-role="qui"]').allTextContents()).join(' ')).not.toContain('Sacha');
   await page.locator('[data-u11-proposal="qui"]').click();
   await expect(page.locator('[data-u11-plan]')).toContainText('Sacha');

@@ -15,6 +15,13 @@ import { majPlan, nouvelId, storyboardVide, tousLesPlans, type DureePlan, type F
  */
 export const U11_AGENT_CEILING = 3;
 
+/**
+ * D5b. A reply the validator refuses (`INTENT_INVALID`) is not sent again by itself.
+ * The local splitter runs, and « Re-read with Uttu » is a new approval: one tap, one POST.
+ * Set this to true only to restore the old automatic second reading.
+ */
+export const U11_AUTO_RETRY = false;
+
 export interface LibraryCard { id: string; category: "cast" | "decor"; name: string; description: string }
 
 const REQUEST_MAX = 1200;
@@ -86,8 +93,15 @@ export function shellForStory(story: string, reading: { scenario: string }, opti
   return { ...base, scenario: reading.scenario.slice(0, 2000), sequences: [] };
 }
 
-/** Applies a validated proposal onto a shell or the current board. Unknown refs are already absent. */
+/**
+ * Fills an empty shell from a validated `storyboard.create`. A change to a board that already
+ * exists does not come through here: that is `cinema.applyLocal`, which re-checks the revision
+ * and the locks. Unknown refs are already absent.
+ */
 export function boardFromProposal(current: Storyboard, envelope: IntentEnvelope, now: string): Storyboard {
+  if (envelope.operations.length === 0 || envelope.operations.some(op => op.kind !== "storyboard.create")) {
+    throw new Error("boardFromProposal is the shell create only");
+  }
   const applied = applyEnvelope(
     { storyboard: current, meta: emptyMeta(current.id) },
     envelope,
@@ -123,7 +137,7 @@ export function confirmProposal(sb: Storyboard, proposal: NameProposal, now?: st
 
 export type AgentAnswer = { status: "invalid" } | { status: "ready"; envelope: IntentEnvelope; proposals: NameProposal[] };
 
-/** Invalid JSON is a retry, then a fallback. A clarification is ready: the plan is usable and the questions are shown. */
+/** Invalid JSON is the local fallback, not a second paid reading. A clarification is ready: the plan is usable and the questions are shown. */
 export function answerOf(status: "valid" | "needs_clarification" | "invalid", envelope: IntentEnvelope | null): AgentAnswer {
   if (status === "invalid" || !envelope || !envelope.operations.length) return { status: "invalid" };
   return { status: "ready", envelope, proposals: proposalsOf(envelope.unresolved) };
