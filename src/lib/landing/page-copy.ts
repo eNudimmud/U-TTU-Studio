@@ -52,7 +52,6 @@ export interface LandingCopy {
   costsLink: string;
   endTitle: string;
   trust: string[];
-  editPlaceholder: string;
   swapPlaceholder: string;
   soonWord: string;
 }
@@ -66,7 +65,7 @@ const en: LandingCopy = {
     { id: "cast", name: "Cast", body: "Your characters, the same face in every shot.", href: "/studio#personnage", go: "Open Cast", image: "/exemples/apres-cast-planche-640.webp", alt: "A character sheet" },
     { id: "set", name: "Set", body: "A place from a text, a photo or a real location.", href: "/studio#scene", go: "Open Set", image: "/exemples/decor-quai-nuit-960.webp", alt: "A quay at night" },
     { id: "shoot", name: "Shoot", body: "Frame it, preview it in 3D, then render.", href: "/studio#prise", go: "Open Shoot", image: "/look/anime/shot-2-medium.webp", alt: "A framed shot" },
-    { id: "edit", name: "Edit", body: "Video, voice, music and text on four tracks. MP4 export in your browser — no render.", href: "/studio#montage", go: "Open Edit", alt: "", placeholder: "Placeholder · Edit timeline capture, to record on the English UI" },
+    { id: "edit", name: "Edit", body: "Video, voice, music and text on four tracks. MP4 export in your browser — no render.", href: "/studio#montage", go: "Open Edit", image: "/media/accueil/edit-timeline.webp", alt: "The Edit timeline: four shots on one track, the second selected" },
     { id: "finish", name: "Finish", body: "Sharper and larger. Nothing is regenerated.", href: "/studio#finaliser", go: "Open Finish", image: "/exemples/vignettes/vid-finaliser@2x.webp", alt: "Before and after Finish" },
   ],
   animeTitle: "Your story, as a theatrical anime.",
@@ -135,7 +134,6 @@ const en: LandingCopy = {
   costsLink: "Every price, in the Guide",
   endTitle: "Come in, and shoot your first shot.",
   trust: ["Open source, MIT licence", "Your own account, no key kept by us", "Nothing runs without your OK"],
-  editPlaceholder: "Placeholder · Edit timeline capture, to record on the English UI",
   swapPlaceholder: "Placeholder · character swap demo",
   soonWord: "Soon",
 };
@@ -153,7 +151,7 @@ const fr = tr(en, {
     { ...en.steps[0]!, name: "CAST", body: "Tes personnages, le même visage dans chaque plan.", go: "Ouvrir CAST" },
     { ...en.steps[1]!, name: "DÉCOR", body: "Un lieu à partir d’un texte, d’une photo ou d’un vrai endroit.", go: "Ouvrir DÉCOR" },
     { ...en.steps[2]!, name: "PRISE", body: "Cadre, prévisualise en 3D, puis rends.", go: "Ouvrir PRISE" },
-    { ...en.steps[3]!, name: "MONTAGE", body: "Vidéo, voix, musique et texte sur quatre pistes. Export MP4 dans ton navigateur — aucun rendu.", go: "Ouvrir MONTAGE" },
+    { ...en.steps[3]!, name: "MONTAGE", body: "Vidéo, voix, musique et texte sur quatre pistes. Export MP4 dans ton navigateur — aucun rendu.", go: "Ouvrir MONTAGE", alt: "La timeline du MONTAGE : quatre plans sur une piste, le deuxième sélectionné" },
     { ...en.steps[4]!, name: "FINALISER", body: "Plus net et plus grand. Rien n’est régénéré.", go: "Ouvrir FINALISER" },
   ],
   animeTitle: "Ton histoire, comme un anime théâtral.",
@@ -206,7 +204,6 @@ const fr = tr(en, {
   costsLink: "Tous les prix, dans le guide",
   endTitle: "Entre, et tourne ton premier plan.",
   trust: ["Open source, licence MIT", "Ton propre compte, aucune clé gardée chez nous", "Rien ne part sans ton accord"],
-  editPlaceholder: "Espace réservé · capture de la timeline, à enregistrer sur l’interface anglaise",
   swapPlaceholder: "Espace réservé · démo d’échange de personnage",
   soonWord: "Bientôt",
 });
@@ -220,7 +217,7 @@ const de = tr(en, {
     { ...en.steps[0]!, name: "Besetzung", body: "Deine Figuren, dasselbe Gesicht in jeder Einstellung.", go: "Besetzung öffnen" },
     { ...en.steps[1]!, name: "Kulisse", body: "Ein Ort aus Text, Foto oder einem echten Platz.", go: "Kulisse öffnen" },
     { ...en.steps[2]!, name: "Take", body: "Kadrieren, in 3D ansehen, dann rendern.", go: "Take öffnen" },
-    { ...en.steps[3]!, name: "Schnitt", body: "Video, Stimme, Musik und Text auf vier Spuren. MP4-Export im Browser — kein Rendering.", go: "Schnitt öffnen" },
+    { ...en.steps[3]!, name: "Schnitt", body: "Video, Stimme, Musik und Text auf vier Spuren. MP4-Export im Browser — kein Rendering.", go: "Schnitt öffnen", alt: "Die Schnitt-Timeline: vier Einstellungen auf einer Spur, die zweite ausgewählt" },
     { ...en.steps[4]!, name: "Finalisieren", body: "Schärfer und größer. Nichts wird neu erzeugt.", go: "Finalisieren öffnen" },
   ],
   animeTitle: "Deine Geschichte als theatralisches Anime.",
@@ -245,7 +242,6 @@ const de = tr(en, {
   costsLink: "Jeder Preis, im Guide",
   endTitle: "Komm rein und dreh deine erste Einstellung.",
   trust: ["Open Source, MIT-Lizenz", "Dein eigenes Konto, kein Schlüssel bei uns", "Nichts läuft ohne dein OK"],
-  editPlaceholder: "Platzhalter · Timeline-Aufnahme, auf der englischen Oberfläche aufzunehmen",
   swapPlaceholder: "Platzhalter · Figur-Tausch, noch ohne Aufnahme",
   stagePlaceholder: "Platzhalter · 3D-Inszenierung, auf der englischen Oberfläche neu aufzunehmen",
   soonWord: "Bald",
@@ -260,7 +256,7 @@ const es = tr(en, {
     { ...en.steps[0]!, name: "Reparto", body: "Tus personajes, la misma cara en cada plano.", go: "Abrir Reparto" },
     { ...en.steps[1]!, name: "Decorado", body: "Un lugar desde un texto, una foto o un sitio real.", go: "Abrir Decorado" },
     { ...en.steps[2]!, name: "Toma", body: "Encuadra, previsualiza en 3D y luego renderiza.", go: "Abrir Toma" },
-    { ...en.steps[3]!, name: "Montaje", body: "Vídeo, voz, música y texto en cuatro pistas. Exportación MP4 en tu navegador — sin render.", go: "Abrir Montaje" },
+    { ...en.steps[3]!, name: "Montaje", body: "Vídeo, voz, música y texto en cuatro pistas. Exportación MP4 en tu navegador — sin render.", go: "Abrir Montaje", alt: "La línea de tiempo del Montaje: cuatro planos en una pista, el segundo seleccionado" },
     { ...en.steps[4]!, name: "Finalizar", body: "Más nítido y más grande. Nada se regenera.", go: "Abrir Finalizar" },
   ],
   animeTitle: "Tu historia, como un anime teatral.",
@@ -285,7 +281,6 @@ const es = tr(en, {
   costsLink: "Cada precio, en la guía",
   endTitle: "Entra y rueda tu primer plano.",
   trust: ["Código abierto, licencia MIT", "Tu propia cuenta, ninguna clave guardada por nosotros", "Nada corre sin tu OK"],
-  editPlaceholder: "Marcador · captura de la línea de tiempo, a grabar en la interfaz en inglés",
   swapPlaceholder: "Marcador · demo de cambio de personaje",
   stagePlaceholder: "Marcador · bucle de puesta en escena 3D, a recapturar en la interfaz en inglés",
   soonWord: "Pronto",

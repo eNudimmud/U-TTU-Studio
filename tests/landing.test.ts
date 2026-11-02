@@ -52,6 +52,10 @@ describe("accueil", () => {
       assert.match(copy.steps[3]!.body, /browser|navigateur|Browser|navegador/i, lang);
       assert.match(copy.steps[3]!.body, /no render|aucun rendu|kein Rendering|sin render/, lang);
       assert.equal(copy.h3.some(item => item.soon && !item.href), true, lang);
+      for (const step of copy.steps) {
+        assert.ok(step.image && existsSync(`public${step.image}`), `${lang} ${step.id} has a real capture`);
+        assert.ok(step.alt.trim() && !step.placeholder, `${lang} ${step.id} alt, no placeholder`);
+      }
       assert.ok(copy.costs.every(row => /estim|geschätzt/i.test(row.price)), lang);
       assert.equal(/\bfal\b/i.test(JSON.stringify(copy)), false, lang);
       assert.equal(/\b(free|gratuit|kostenlos|gratis)\b/i.test(JSON.stringify(copy)), false, lang);
