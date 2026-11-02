@@ -1150,7 +1150,8 @@
       "priseVidu": "Bientôt : prix pas encore vérifié.",
       "montLips": "Bientôt : prix pas encore vérifié.",
       "montUpscale": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
-      "montFrames": "Dans « Et ensuite ? » : ouvre une image ou une prise."
+      "montFrames": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
+      "animeLook": "Activé par le look du projet. Le devis s'affiche avant."
     },
     "cat": {
       "identite": "Identité",
