@@ -3683,6 +3683,12 @@
         "calcul": "La imagen se vuelve más nítida…",
         "retour": "Recuperando la película…",
         "mesure": "Leyendo el coste real…"
+      },
+      "touches": {
+        "lecture": "Espacio",
+        "annuler": "Ctrl+Z",
+        "retablir": "Ctrl+Mayús+Z",
+        "supprimer": "Supr"
       }
     },
     "nav": {

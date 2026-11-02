@@ -342,7 +342,7 @@ export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled:
           {here && <span className="u-fm-badge">{t("film2.montage.planN", { n: String(here.index + 1) })}</span>}
         </div>
         <div className="u-fm-player">
-          <button type="button" className="u-fm-play" data-fm-lecture="" onClick={lecture} disabled={!duration} aria-describedby={!duration ? "u-fm-export-why" : undefined} aria-label={`${playing ? t("film2.montage.action.pause") : name("lecture")} (${ACTIONS[0]!.touche})`} aria-keyshortcuts="Space">{playing ? <Pause /> : <Play />}</button>
+          <button type="button" className="u-fm-play" data-fm-lecture="" onClick={lecture} disabled={!duration} aria-describedby={!duration ? "u-fm-export-why" : undefined} aria-label={`${playing ? t("film2.montage.action.pause") : name("lecture")} (${ACTIONS[0]!.toucheCle ? t(ACTIONS[0]!.toucheCle) : ACTIONS[0]!.touche})`} aria-keyshortcuts="Space">{playing ? <Pause /> : <Play />}</button>
           <span className="u-fm-clock" data-fm-clock="">{formatClock(time)} / {formatClock(duration)}</span>
           <span className="u-fm-hint">{t("film2.montage.brouillon")}</span>
         </div>
@@ -363,8 +363,9 @@ export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled:
     <div className="u-fm-barre" role="toolbar" aria-label={t("film2.montage.outils")} data-fm-barre="">
       {ACTIONS.filter(action => action.barre).map(action => {
         const why = pourquoiPas(action.id, etat, counts);
-        return <button key={action.id} type="button" className="u-fm-tool" data-fm-action={action.id} onClick={() => run(action.id)} disabled={Boolean(why)} aria-label={`${name(action.id)} (${action.touche})`} aria-keyshortcuts={action.aria} aria-describedby={why ? `u-fm-why-${action.id}` : undefined} title={why ? t(why) : undefined}>
-          {GLYPHS[action.id as Exclude<ActionId, "lecture">]}<span>{name(action.id)} <kbd aria-hidden="true">({action.touche})</kbd></span>
+        const touche = action.toucheCle ? t(action.toucheCle) : action.touche;
+        return <button key={action.id} type="button" className="u-fm-tool" data-fm-action={action.id} onClick={() => run(action.id)} disabled={Boolean(why)} aria-label={`${name(action.id)} (${touche})`} aria-keyshortcuts={action.aria} aria-describedby={why ? `u-fm-why-${action.id}` : undefined} title={why ? t(why) : undefined}>
+          {GLYPHS[action.id as Exclude<ActionId, "lecture">]}<span>{name(action.id)} <kbd aria-hidden="true">({touche})</kbd></span>
           {why && <span id={`u-fm-why-${action.id}`} className="sr-only">{t(why)}</span>}
         </button>;
       })}

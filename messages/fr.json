@@ -3683,6 +3683,12 @@
         "calcul": "L’image devient plus nette…",
         "retour": "Récupération du film…",
         "mesure": "Lecture du coût réel…"
+      },
+      "touches": {
+        "lecture": "Espace",
+        "annuler": "Ctrl+Z",
+        "retablir": "Ctrl+Maj+Z",
+        "supprimer": "Suppr"
       }
     },
     "nav": {
