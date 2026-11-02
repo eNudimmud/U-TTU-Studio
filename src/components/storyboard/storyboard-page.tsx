@@ -13,7 +13,7 @@ import { formatCredits } from "@/lib/credits";
 import { ajouterPlan as ajouterPlanFilm, ajouterPrise, auMontage, garderPrise, nouveauPlan } from "@/lib/film/registre";
 import { assetPath } from "@/lib/site";
 import { appliquerCorrection, lireCorrection, lireReglage, type Correction } from "@/lib/storyboard/corriger";
-import { arreterEntreLesPlans, persistStoryboardU11 } from "@/lib/storyboard/u11";
+import { arreterEntreLesPlans, persistStoryboardU11, storyboardLayoutQuery } from "@/lib/storyboard/u11";
 import { devisStoryboard, plansATourner, reglagesDuPlan } from "@/lib/storyboard/devis";
 import { definirPersonnage, ecrireStoryboard, type Gabarits, type Question } from "@/lib/storyboard/ecrire";
 import { catalogue, contexteDuCatalogue } from "@/lib/storyboard/identites";
@@ -38,7 +38,7 @@ const FILTRES: Filtre[] = ["tous", "en-cours", "tournes", "archives"];
 const nouvelIdCourt = () => Math.random().toString(36).slice(2, 8);
 
 function adresse(id: string | null, print = false) {
-  return assetPath(id ? `/storyboard/${id}${print ? "/print" : ""}` : "/storyboard");
+  return assetPath(id ? `/storyboard/${id}${print ? "/print" : ""}` : "/storyboard") + storyboardLayoutQuery();
 }
 
 export function StoryboardPage({ initialId, print, initialU11 = false }: { initialId: string | null; print: boolean; initialU11?: boolean }) {
@@ -63,15 +63,16 @@ export function StoryboardPage({ initialId, print, initialU11 = false }: { initi
 
   // Address ↔ page without a server round trip; the back button works.
   useEffect(() => {
-    const back = () => {
+    const sync = () => {
       const match = /\/storyboard(?:\/([a-z0-9-]+))?/.exec(window.location.pathname);
       setCurrentId(match?.[1] ?? null);
       setOuvert(null);
+      setU11(persistStoryboardU11(window.location.search));
+      try { setIdeeInitiale(new URLSearchParams(window.location.search).get("idee")?.slice(0, 240) ?? ""); } catch { /* no address */ }
     };
-    window.addEventListener("popstate", back);
-    try { setIdeeInitiale(new URLSearchParams(window.location.search).get("idee")?.slice(0, 240) ?? ""); } catch { /* no address */ }
-    setU11(persistStoryboardU11(window.location.search));
-    return () => window.removeEventListener("popstate", back);
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
   }, []);
   const aller = useCallback((id: string | null) => {
     setCurrentId(id);

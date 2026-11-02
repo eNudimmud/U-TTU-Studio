@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { simulateComfy } from './helpers/film2-comfy';
+import { legacyStoryboard } from './helpers/storyboard-flag';
 
 // CE4 · U1 cinema workspace (docs/architecture/UX_REVIEW.md, prototypes/uttu-cinema-u1.html): one selectable
 // shot strip, the selected shot large with its caption, a « Context » disclosure, one Uttu composer scoped to
@@ -31,7 +32,7 @@ async function ready(page: Page) {
 }
 
 async function writeBoard(page: Page) {
-  await page.goto('/storyboard');
+  await page.goto(legacyStoryboard('/storyboard'));
   await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
   await page.locator('[data-sb-idea-field]:visible').fill('Uttu traverse la ville sous la pluie pour atteindre un toit à l’aube. Elle dit : « On y est presque. »');
   await page.locator('[data-sb-write]:visible').click();
@@ -142,7 +143,7 @@ test('U1: select a shot, scope the composer, open the context; the other shots s
   // Four sizes: no side scroll, 44 px targets, conversation in the flow, never « free ».
   for (const [width, height] of SIZES) {
     await page.setViewportSize({ width, height });
-    await page.goto(url);
+    await page.goto(legacyStoryboard(url));
     await ready(page);
     await expect(page.locator('[data-sb-chat]')).toBeVisible();
     await expect(page.locator('[data-sb-ask]')).toBeVisible();
@@ -164,7 +165,7 @@ test('U1: select a shot, scope the composer, open the context; the other shots s
   const expected = { en: 'Context', fr: 'Contexte', de: 'Kontext', es: 'Contexto' } as const;
   for (const [locale, word] of Object.entries(expected)) {
     await setLocale(page, locale);
-    await page.goto(url);
+    await page.goto(legacyStoryboard(url));
     await ready(page);
     await expect(page.locator('html')).toHaveAttribute('lang', new RegExp(`^${locale}\\b`));
     await expect(page.locator('[data-sb-context-toggle]')).toContainText(word);

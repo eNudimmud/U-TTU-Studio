@@ -61,7 +61,7 @@ html:has(.sb-root[data-theme="obsidian"]) body {
   border-radius: 10px; border: 1px solid var(--u11-line-strong);
   background: transparent; color: var(--u11-fg-2); font-size: 14px; white-space: nowrap;
 }
-[data-theme="obsidian"] h1.u11-title { font: 400 40px/1.05 var(--u11-title); letter-spacing: -.01em; margin: 8px 0; }
+[data-theme="obsidian"] h1.u11-title { font: 400 40px/1.05 var(--u11-title); letter-spacing: -.01em; margin: 8px 0; overflow-wrap: anywhere; }
 [data-theme="obsidian"] h1.u11-title em { font-style: italic; color: var(--u11-accent); }
 [data-theme="obsidian"] .u11-lede { color: var(--u11-fg-2); margin: 0 0 18px; max-width: 62ch; }
 [data-theme="obsidian"] .u11-composer { background: var(--u11-surface); border: 1px solid var(--u11-line-strong); border-radius: 16px; padding: 14px; min-width: 0; }
@@ -93,9 +93,11 @@ html:has(.sb-root[data-theme="obsidian"]) body {
 [data-theme="obsidian"] .u11-row:hover, [data-theme="obsidian"] .u11-row:focus-visible { background: var(--u11-surface-3); }
 [data-theme="obsidian"] .u11-row .meta { margin-left: auto; color: var(--u11-fg-3); font-size: 12px; }
 [data-theme="obsidian"] .u11-settings { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--u11-line); margin-top: 6px; }
+[data-theme="obsidian"] .u11-settings > span { max-width: 100%; min-width: 0; }
 [data-theme="obsidian"] .u11-pill {
-  position: relative; min-height: 44px; padding: 0 14px; border-radius: 999px;
+  position: relative; min-height: 44px; max-width: 100%; padding: 0 14px; border-radius: 999px;
   border: 1px solid var(--u11-line-strong); background: transparent; color: var(--u11-fg); font-size: 14px;
+  white-space: normal; text-align: left;
 }
 [data-theme="obsidian"] .u11-menu {
   position: absolute; z-index: 5; top: calc(100% + 6px); left: 0; min-width: 180px;
