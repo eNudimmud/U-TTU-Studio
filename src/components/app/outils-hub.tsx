@@ -13,7 +13,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { ComfyProgress, useComfyElapsed, typicalFor } from "./comfy-progress";
 import type { AssetRecord } from "@/lib/creation/assets";
 import { formatCredits } from "@/lib/credits";
-import { familleVitrine, intentDe, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
+import { familleVitrine, intentDe, isFamille, modelesIntent, outilEtat, outilParId, outilsPublics, outilsPublicsOnglet, type Entree, type Outil, type Sortie } from "@/lib/outils/catalogue";
 import { failView } from "@/lib/render/fail";
 import { MESH_CHOIX, meshChoisi, outilQuote, type MeshChoix } from "@/lib/outils/graphs";
 import { videoFacts } from "@/lib/render/prepare-upload";
@@ -112,6 +112,7 @@ export function OutilsStrip({ onglet, open = false }: { onglet: Onglet; open?: b
 /** `early`: the studio is still opening (F14), only the home is asked for then. */
 export function OutilsHub({ tool, early = false }: { tool: string | null; early?: boolean }) {
   if (tool === REPERAGE_ID) return <ReperageTool onBack={() => backToTools(null)} />;
+  if (tool && isFamille(tool)) return <BarreHome family={tool} early={early} />;
   if (tool === ALL_TOOLS_ID) return <BarreHome tous early={early} />;
   const outil = tool ? outilParId(tool) : null;
   if (!outil || outil.bientot) return <BarreHome early={early} />;

@@ -134,8 +134,10 @@
 }
 .look-style[aria-pressed="true"] .mark { display: block; }
 .look-own { margin-top: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--lk-fg-2); font-size: 14px; }
-.look-own label { position: relative; }
-.look-file { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+/* The 1px border sits inside min-height, so 44px on the control left the file input at 42px.
+   The input is absolutely positioned, so the label has to be the containing block. */
+.look-ghost:has(.look-file) { position: relative; min-height: 46px; }
+.look-file { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; min-height: 44px; cursor: pointer; }
 
 .look-guide {
   display: flex; gap: 14px; align-items: center;

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { assetPath } from "@/lib/site";
 
-const STUDIO_HASHES = new Set(["creer", "look", "photos", "sphere", "sphère", "identite", "identité", "bibliotheque", "bibliothèque", "studio", "plateau", "scene", "scène", "take", "prise", "personnage", "lora", "role", "rôle", "former"]);
+const STUDIO_HASHES = new Set(["creer", "look", "photos", "sphere", "sphère", "identite", "identité", "bibliotheque", "bibliothèque", "studio", "plateau", "scene", "scène", "lieu", "lieux", "take", "prise", "personnage", "lora", "role", "rôle", "former"]);
 
 /** Old bookmark hashes lived on `/`. Send them to the studio. */
 export function LegacyStudioHash() {

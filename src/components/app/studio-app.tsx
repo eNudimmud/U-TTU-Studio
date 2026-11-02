@@ -5,6 +5,7 @@ import { liftDelta, openBand } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
 import { chooseEdit, editHasClips } from "@/lib/montage/from-takes";
 import { formatClock, videoDuration } from "@/lib/montage/edit";
+import { isFamille } from "@/lib/outils/catalogue";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { useI18n } from "@/components/i18n/provider";
 import { FilmMontage } from "./film/film-montage";
@@ -53,8 +54,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     const apply = () => {
       const place = tabFromLocation(window.location.hash, window.location.search);
       if (place) setAsked(place);
-      setOutil(place === "outils" ? outilFromHash(window.location.hash) : null);
-      if (place === "outils") {
+      const askedTool = place === "outils" ? outilFromHash(window.location.hash) : null;
+      setOutil(askedTool);
+      if (place === "outils" && !(askedTool && isFamille(askedTool))) {
         window.scrollTo({ top: 0, behavior: "instant" });
         requestAnimationFrame(() => (document.getElementById("u-title") ?? document.querySelector<HTMLElement>("[data-tool-panel] h1"))?.focus({ preventScroll: true }));
       }

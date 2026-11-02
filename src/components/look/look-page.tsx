@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocaleSwitch } from "@/components/i18n/provider";
 import { lookCopy } from "@/lib/look/copy";
 import { lookAnime, type AnimePreset, type AnimePresetId } from "@/lib/look/model";
+import { storyboardDoor } from "@/app/storyboard/closed";
 import { assetPath } from "@/lib/site";
 import { Em, ProjectBar } from "./project-bar";
 import { useProjectLook } from "./use-look";
@@ -160,7 +161,7 @@ export function LookPage() {
           <p className="look-note">{copy.finalNote}</p>
           <div className="look-go">
             <button type="button" className="look-primary" onClick={() => void useLook()}>{copy.use}</button>
-            <a className="look-secondary" href={assetPath("/storyboard?storyboard=u11")}>{copy.keep}</a>
+            <a className="look-secondary" href={assetPath(storyboardDoor("/storyboard?storyboard=u11"))}>{copy.keep}</a>
           </div>
           {notice && <p className="look-status" role="status">{notice}</p>}
         </div>

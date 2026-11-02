@@ -66,6 +66,9 @@ describe("accueil", () => {
       assert.equal(Object.keys(accueil.trust).length, 3, lang);
       assert.match(accueil.ltxBody, /≈ 15–30 cr[ée]dit/i, lang);
       assert.doesNotMatch(JSON.stringify(accueil), /\bfal\b/i, lang);
+      assert.match(accueil.flow.montage.body, /browser|navigateur|Browser|navegador/i, lang);
+      assert.match(accueil.flow.montage.body, /no render|aucun rendu|kein Rendering|sin render/, lang);
+      assert.doesNotMatch(accueil.flow.montage.body, /gratuit|\bfree\b|kostenlos|gratis|cr[ée]dit/i, lang);
     }
     assert.match(catalog("de").accueil.h1, /Dein/);
     assert.match(catalog("es").accueil.h1, /^Tu /);

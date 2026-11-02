@@ -39,9 +39,10 @@ const FAMILY_KEY = "u-ttu-famille";
 /** Scrolls the entry to one family; used when the rail opens the entry from another page. */
 export function scrollToFamily(fam: string | null = null) {
   let wanted = fam;
-  if (!wanted) {
-    try { wanted = sessionStorage.getItem(FAMILY_KEY); sessionStorage.removeItem(FAMILY_KEY); } catch { wanted = null; }
-  }
+  try {
+    if (!wanted) wanted = sessionStorage.getItem(FAMILY_KEY);
+    sessionStorage.removeItem(FAMILY_KEY);
+  } catch { if (!wanted) wanted = null; }
   if (!wanted) return false;
   const target = document.querySelector<HTMLElement>(`[data-outils-section="${wanted}"]`);
   if (!target) return false;
@@ -50,17 +51,28 @@ export function scrollToFamily(fam: string | null = null) {
   return true;
 }
 
-/** Opens « Tous les outils » on one family (the bar's « + › Son » uses it). */
+/** Hash for one family on the tools home: `#outils/creer`, `#outils/son`, … */
+export function familyHash(fam: string) {
+  return `#outils/${fam}`;
+}
+
+/** Opens the tools home on one family (the bar's « + › Son » uses it). */
 export function openFamily(fam: string) {
   try { sessionStorage.setItem(FAMILY_KEY, fam); } catch { /* the list still opens */ }
-  const hash = "#outils/tous";
+  const hash = familyHash(fam);
   if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
 
 function pickFamily(event: React.MouseEvent, fam: string) {
-  if (scrollToFamily(fam)) { event.preventDefault(); return; }
-  try { sessionStorage.setItem(FAMILY_KEY, fam); } catch { /* the entry still opens */ }
+  if (!document.querySelector(`[data-outils-section="${fam}"]`)) {
+    try { sessionStorage.setItem(FAMILY_KEY, fam); } catch { /* the entry still opens */ }
+    return;
+  }
+  if (window.location.hash === familyHash(fam)) {
+    event.preventDefault();
+    scrollToFamily(fam);
+  }
 }
 
 /** Keeps --u-top-h equal to the top bar's real height, so the rail always starts under it. */
@@ -98,7 +110,7 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
     <p className="u-rail-head eyebrow" aria-hidden="true">{t("outils.count", { n: String(total) })}</p>
     <ul role="list" className="u-rail-list">
       {FAMILLES.map(fam => <li key={fam}>
-        <a className="u-rail-item" href={assetPath("/studio#outils/tous")} data-rail-fam={fam} onClick={event => pickFamily(event, fam)} aria-label={`${t(`outils.fam.${fam}`)} · ${t("outils.count", { n: String(counts[fam]) })}`}>
+        <a className="u-rail-item" href={assetPath(`/studio${familyHash(fam)}`)} data-rail-fam={fam} onClick={event => pickFamily(event, fam)} aria-label={`${t(`outils.fam.${fam}`)} · ${t("outils.count", { n: String(counts[fam]) })}`}>
           <FamilyIcon fam={fam} /><span className="u-rail-name">{t(`outils.fam.${fam}`)}</span><span className="u-rail-n" aria-hidden="true">{counts[fam]}</span>
         </a>
       </li>)}

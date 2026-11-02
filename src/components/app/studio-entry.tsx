@@ -99,7 +99,7 @@ export function StudioHome() {
 }
 
 /** The home: title, the creation bar and its thread, then the film door and every ready tool. */
-export function BarreHome({ tous = false, early = false }: { tous?: boolean; early?: boolean } = {}) {
+export function BarreHome({ tous = false, family = null, early = false }: { tous?: boolean; family?: string | null; early?: boolean } = {}) {
   const { t } = useI18n();
   const { connected, setSheet } = useStudio();
   // F14 · The home is in the server HTML, where no saved link is known: the server and the hydrating
@@ -110,9 +110,10 @@ export function BarreHome({ tous = false, early = false }: { tous?: boolean; ear
   const runner = useFil();
   const threaded = runner.fil.messages.length > 0;
   useEffect(() => {
+    if (family) { requestAnimationFrame(() => scrollToFamily(family)); return; }
     if (!tous) { requestAnimationFrame(() => scrollToFamily()); return; }
     requestAnimationFrame(() => { const node = document.querySelector<HTMLElement>("[data-outils-tools]"); node?.scrollIntoView({ block: "start", behavior: "instant" }); node?.focus({ preventScroll: true }); });
-  }, [tous]);
+  }, [tous, family]);
 
   return <section
     className="u-entry u-barre-home"
@@ -145,7 +146,7 @@ function Family({ fam, items, scout, maquette }: { fam: Famille; items: Outil[];
   const rowId = useId();
   const count = items.length + (scout ? 1 : 0) + (maquette ? 1 : 0);
   if (count === 0) return null;
-  return <section className="u-outils-family" data-outils-section={fam} aria-labelledby={`${rowId}-h`}>
+  return <section className="u-outils-family" id={`outils/${fam}`} data-outils-section={fam} aria-labelledby={`${rowId}-h`}>
     <div className="u-family-head">
       <h2 id={`${rowId}-h`} tabIndex={-1}>{t(`outils.fam.${fam}`)} <span className="u-family-n">{count}</span></h2>
       {count > 2 && <button type="button" className="u-family-all" aria-expanded={all} aria-controls={rowId} data-family-all={fam} onClick={() => setAll(value => !value)}>{all ? t("outils.rowLess") : t("outils.rowAll")}</button>}

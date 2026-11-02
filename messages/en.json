@@ -82,7 +82,7 @@
       },
       "montage": {
         "name": "EDIT",
-        "body": "Shots, voice, music, MP4 export with no credits."
+        "body": "Shots, voice, music, MP4 export runs in your browser — no render."
       },
       "finaliser": {
         "name": "FINISH",
