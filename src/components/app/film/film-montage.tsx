@@ -5,6 +5,7 @@
 // the middle while the film slides under the finger, property chips, « Mes plans » (a tap adds at the
 // end), and one primary button: Exporter. « Rendre plus net » is an export option that only enhances.
 
+import { useLocale } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
@@ -39,6 +40,7 @@ type Sortie = { phase: "idle" } | { phase: "run"; texte: string } | { phase: "do
 
 export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled: boolean): void; onPlans?(): void; onFinish?(): void }) {
   const { t, say } = useI18n();
+  const locale = useLocale();
   const { ready, studio, media, connected, balance, prefs, loadMontages, saveMontage, writeProjectFile, saveExport, finaliseMontage, pendingClip, holdClip } = useStudio();
   const [history, setHistory] = useState<History<Edit>>(() => historyOf(emptyEdit("suite", "Séquence")));
   const historyRef = useRef(history);
@@ -353,7 +355,7 @@ export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled:
           <h2 className="u-film-eyebrow">{t("film2.montage.planChoisi", { n: String(index + 1) })}</h2>
           <p className="u-fm-props-sub">{choisi.label}</p>
           <div className="u-fm-chips" role="group" aria-label={t("film2.montage.vitesse")}>
-            {SPEEDS.map(speed => <button key={speed} type="button" className="u-film-chip" aria-pressed={clipSpeed(choisi) === speed} data-fm-vitesse={speed} onClick={() => apply(setVideoSpeed(historyRef.current.present, choisi.id, speed))}>{t("film2.montage.vitesseN", { n: String(speed).replace(".", ",") })}</button>)}
+            {SPEEDS.map(speed => <button key={speed} type="button" className="u-film-chip" aria-pressed={clipSpeed(choisi) === speed} data-fm-vitesse={speed} onClick={() => apply(setVideoSpeed(historyRef.current.present, choisi.id, speed))}>{t("film2.montage.vitesseN", { n: locale === "en" ? String(speed) : String(speed).replace(".", ",") })}</button>)}
             <button type="button" className="u-film-chip" aria-pressed={(choisi.fadeOut ?? 0) > 0} data-fm-fondu="" onClick={() => apply(setVideoFade(historyRef.current.present, choisi.id, (choisi.fadeOut ?? 0) > 0 ? 0 : Math.min(0.5, playSpan(choisi) / 2)))}>{t("film2.montage.fondu")}</button>
           </div>
         </> : <p className="u-film-note" data-fm-props-vide="">{t("film2.montage.toucheUnPlan")}</p>}
