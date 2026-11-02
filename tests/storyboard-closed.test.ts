@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { STORYBOARD_CLOSED, storyboardHeld } from "../src/app/storyboard/closed.ts";
+import { STORYBOARD_CLOSED, storyboardDoor, storyboardHeld } from "../src/app/storyboard/closed.ts";
 
 const LANGS = ["en", "fr", "de", "es"] as const;
 const load = (lang: string) => JSON.parse(readFileSync(`messages/storyboard/${lang}.json`, "utf8")).storyboard as {
@@ -20,6 +20,9 @@ test("the storyboard gate is one constant, and sw is the only bypass", () => {
   assert.equal(storyboardHeld("sw", true), false);
   assert.equal(storyboardHeld("u11", false), false);
   assert.equal(storyboardHeld(undefined, false), false);
+  assert.equal(storyboardDoor("/storyboard"), "/studio");
+  assert.equal(storyboardDoor("/storyboard?storyboard=u11"), "/studio");
+  assert.equal(storyboardDoor("/storyboard", false), "/storyboard");
   const page = readFileSync("src/app/storyboard/[[...id]]/page.tsx", "utf8");
   const body = page.slice(page.indexOf("export default"));
   const gate = body.indexOf('if (asked === "sw")');

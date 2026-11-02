@@ -8,6 +8,10 @@ import { modeleAbsent } from "./pika-h3-flex.ts";
 
 export const FAMILLES = ["creer", "retoucher", "video", "3d", "son"] as const;
 export type Famille = (typeof FAMILLES)[number];
+
+export function isFamille(id: string): id is Famille {
+  return (FAMILLES as readonly string[]).includes(id);
+}
 export type Sous = "image" | "video" | "3d" | "son" | "texte";
 export type Sortie = "image" | "video" | "audio" | "mesh";
 /** What the panel asks for. `image2` is an optional second picture (références). */

@@ -10,3 +10,11 @@ export function storyboardHeld(asked: string | null | undefined, closed = STORYB
   if (asked === "sw") return false;
   return closed;
 }
+
+/**
+ * Look-page links that would open the holding page (Storyboard, My boards, Keep my current look).
+ * While the board is closed they go to the studio; flipping `STORYBOARD_CLOSED` restores `href`.
+ */
+export function storyboardDoor(href: string, closed = STORYBOARD_CLOSED): string {
+  return closed ? "/studio" : href;
+}

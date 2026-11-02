@@ -3,6 +3,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import manifest from "../src/app/manifest.ts";
 import { GUIDE_LINES, nextMoment } from "../src/lib/guide.ts";
+import { FAMILLES } from "../src/lib/outils/catalogue.ts";
+import { HOME_HASH } from "../src/lib/studio-boot.ts";
 import { resumeTab, tabFromLocation } from "../src/lib/studio-route.ts";
 
 const read = (path: string) => readFileSync(path, "utf8");
@@ -21,6 +23,9 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#créer", ""), "outils");
     assert.equal(tabFromLocation("#photos", ""), "look");
     assert.equal(tabFromLocation("#plateau", ""), "scene");
+    assert.equal(tabFromLocation("#lieu", ""), "scene");
+    assert.equal(tabFromLocation("#lieux", ""), "scene");
+    assert.equal(tabFromLocation("#Lieu", ""), "scene");
     assert.equal(tabFromLocation("#Take", ""), "prise");
     assert.equal(tabFromLocation("#sphère", ""), "sphere");
     assert.equal(tabFromLocation("#fiches", ""), "fiches");
@@ -35,6 +40,16 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#edit", ""), "montage");
     assert.equal(tabFromLocation("#inconnu", "?step=prise"), "prise");
     assert.match(read("src/app/studio/page.tsx"), /<StudioApp initialTab=\{initialTab\} \/>/);
+    const rail = read("src/components/app/studio-nav.tsx");
+    assert.doesNotMatch(rail, /data-rail-fam=\{fam\}[^>]*#outils\/tous|#outils\/tous[^>]*data-rail-fam/);
+    for (const fam of FAMILLES) {
+      assert.match(rail, new RegExp(`familyHash\\(fam\\)`));
+      assert.equal(HOME_HASH.test(`#outils/${fam}`), true, fam);
+      assert.equal(tabFromLocation(`#outils/${fam}`, ""), "outils");
+    }
+    assert.equal(HOME_HASH.test("#outils/tous"), true);
+    assert.equal(HOME_HASH.test("#lieu"), false);
+    assert.match(read("src/components/landing/legacy-hash.tsx"), /"lieu"/);
   });
 
 

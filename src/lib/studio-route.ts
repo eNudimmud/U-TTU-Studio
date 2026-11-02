@@ -7,7 +7,7 @@ export type Tab = "look" | "lora" | "scene" | "prise" | "montage" | "sphere" | "
 const ALIASES: Record<string, Tab> = {
   look: "look", photos: "look", style: "look", identite: "look", identité: "look",
   lora: "lora", former: "lora", entrainer: "lora", entraîner: "lora", double: "lora", role: "lora", rôle: "lora", personnage: "lora", personnages: "lora", cast: "lora",
-  scene: "scene", scène: "scene", plateau: "scene", monde: "scene", decor: "scene", décor: "scene", decors: "scene", décors: "scene", set: "scene", kulisse: "scene", decorado: "scene",
+  scene: "scene", scène: "scene", plateau: "scene", monde: "scene", decor: "scene", décor: "scene", decors: "scene", décors: "scene", set: "scene", lieu: "scene", lieux: "scene", kulisse: "scene", decorado: "scene",
   prise: "prise", take: "prise", studio: "prise", plan: "prise", plans: "prise", toma: "prise",
   montage: "montage", monter: "montage", edit: "montage",
   sphere: "sphere", sphère: "sphere", bibliotheque: "sphere", bibliothèque: "sphere",

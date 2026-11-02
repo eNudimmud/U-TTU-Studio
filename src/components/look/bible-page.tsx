@@ -6,6 +6,7 @@ import { bibleCopy, PALETTES } from "@/lib/look/bible-copy";
 import { lookCopy } from "@/lib/look/copy";
 import { lookAnime, type AnimeLocks } from "@/lib/look/model";
 import { devisPreparation, libelleEstime } from "@/lib/look/quote";
+import { storyboardDoor } from "@/app/storyboard/closed";
 import { assetPath } from "@/lib/site";
 import { Em, ProjectBar } from "./project-bar";
 import { useProjectLook } from "./use-look";
@@ -116,7 +117,7 @@ export function BiblePage() {
       </div>
       <div className="look-go" style={{ marginTop: 22 }}>
         <button type="button" className="look-primary" onClick={() => setQuoteOpen(true)}>{copy.make} <span className="cost">· {label}</span></button>
-        <a className="look-secondary" href={assetPath("/storyboard?storyboard=u11")}>{copy.storyboard}</a>
+        <a className="look-secondary" href={assetPath(storyboardDoor("/storyboard?storyboard=u11"))}>{copy.storyboard}</a>
       </div>
       <p className="look-note">1 + 1 + 2 · {label}. {copy.note}</p>
       {prepared && <p className="look-status" role="status">{copy.prepared}</p>}

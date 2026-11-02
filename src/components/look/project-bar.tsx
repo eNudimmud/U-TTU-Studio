@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { storyboardDoor } from "@/app/storyboard/closed";
 import { assetPath } from "@/lib/site";
 import type { LookCopy } from "@/lib/look/copy";
 
 const TABS = ["storyboard", "cast", "places", "shots", "look"] as const;
 
 const HREF: Record<(typeof TABS)[number], string> = {
-  storyboard: "/storyboard?storyboard=u11",
+  storyboard: storyboardDoor("/storyboard?storyboard=u11"),
   cast: "/studio#personnage",
   places: "/studio#scene",
   shots: "/studio#prise",
@@ -26,7 +27,7 @@ export function ProjectBar({ copy, name, current }: { copy: LookCopy; name: stri
       </a>
       <span className="look-crumb">· {name || copy.crumbFallback}</span>
       <span className="look-sp" />
-      <a className="look-ghost" href={assetPath("/storyboard")}>{copy.boards}</a>
+      <a className="look-ghost" href={assetPath(storyboardDoor("/storyboard"))}>{copy.boards}</a>
     </div>
     <nav className="look-tabs" aria-label={copy.tabs.look}>
       {TABS.map(id => <a key={id} className="look-tab" href={assetPath(HREF[id])} aria-current={current === id ? "page" : undefined}>

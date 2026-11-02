@@ -82,7 +82,7 @@
       },
       "montage": {
         "name": "SCHNITT",
-        "body": "Einstellungen, Stimme, Musik, MP4-Export ohne Credits."
+        "body": "Einstellungen, Stimme, Musik, MP4-Export läuft in deinem Browser — kein Rendering."
       },
       "finaliser": {
         "name": "FINALISIEREN",

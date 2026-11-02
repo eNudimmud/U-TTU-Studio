@@ -153,10 +153,14 @@ describe("anime look, page copy", () => {
       assert.match(copy.steps[0]!.cost, /≈ 3/);
       assert.match(copy.steps[4]!.cost, /≈ 3/);
     }
-    assert.match(LOOK_COPY.en.finalNote, /Choosing the look is free/);
-    assert.equal(/\bgratuit\b/i.test(LOOK_COPY.fr.finalNote), false);
-    assert.equal(/\bkostenlos\b/i.test(LOOK_COPY.de.finalNote), false);
-    assert.equal(/\bgratis\b/i.test(LOOK_COPY.es.finalNote), false);
+    assert.match(LOOK_COPY.en.finalNote, /Choosing the look starts no render/);
+    assert.equal(LOOK_COPY.en.tabs.places, "Set");
+    assert.equal(LOOK_COPY.fr.tabs.places, "DÉCOR");
+    assert.equal(LOOK_COPY.de.tabs.places, "Kulisse");
+    assert.equal(LOOK_COPY.es.tabs.places, "Decorado");
+    for (const [locale, copy] of Object.entries(LOOK_COPY)) {
+      assert.equal(FORBIDDEN_PRICE.test(JSON.stringify(copy)), false, locale);
+    }
   });
 });
 
