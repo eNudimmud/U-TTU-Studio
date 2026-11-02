@@ -26,6 +26,11 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#lieu", ""), "scene");
     assert.equal(tabFromLocation("#lieux", ""), "scene");
     assert.equal(tabFromLocation("#Lieu", ""), "scene");
+    assert.equal(tabFromLocation("#place", ""), "scene");
+    assert.equal(tabFromLocation("#places", ""), "scene");
+    assert.equal(tabFromLocation("#finaliser", ""), "finaliser");
+    assert.equal(tabFromLocation("#finish", ""), "finaliser");
+    assert.equal(tabFromLocation("#look", ""), "look");
     assert.equal(tabFromLocation("#Take", ""), "prise");
     assert.equal(tabFromLocation("#sphère", ""), "sphere");
     assert.equal(tabFromLocation("#fiches", ""), "fiches");

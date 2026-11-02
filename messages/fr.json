@@ -14,17 +14,18 @@
     "scene": "DÉCOR",
     "take": "PRISE",
     "edit": "MONTAGE",
-    "chain": "CAST, DÉCOR, PRISE, MONTAGE",
+    "chain": "CAST, DÉCOR, PRISE, MONTAGE, FINALISER",
     "sphere": "Sphère",
     "sheets": "Fiches",
-    "studio": "Mes créations",
+    "studio": "Mon studio",
     "connect": "Relier",
     "credits": "crédits",
     "opening": "Ouverture de mon studio…",
     "takeRunning": "prise en cours",
     "sceneRunning": "scène en cours",
     "renderCredits": "Crédits du compte de rendu",
-    "rail": "Outils du studio"
+    "rail": "Outils du studio",
+    "finish": "FINALISER"
   },
   "project": {
     "lead": "Le nom est déjà écrit : {name}. Un geste crée le projet. Tu peux le changer."
@@ -2551,7 +2552,7 @@
     "create": "Créer",
     "make": "Réaliser",
     "edit": "Montage",
-    "creations": "Mes créations",
+    "creations": "Mon studio",
     "menu": "Menu",
     "close": "Fermer le menu",
     "search": "Rechercher",
@@ -2584,7 +2585,7 @@
       }
     },
     "film": "Film",
-    "creationsShort": "Créations"
+    "creationsShort": "Studio"
   },
   "projects": {
     "label": "Projet",
@@ -2636,7 +2637,7 @@
   },
   "creations": {
     "all": "Tout voir",
-    "title": "Mes créations",
+    "title": "Mon studio",
     "type": {
       "tout": "Tout",
       "images": "Images",
@@ -3761,5 +3762,33 @@
     "demo-gare": "Un hall de gare, vide, lumière froide, sans personne.",
     "demo-pluie": "Une rue sous la pluie, lumières floues, sans personne.",
     "demo-toit": "Des toits de zinc à l’aube, brume dorée, sans personne."
+  },
+  "chrome": {
+    "studio": "Studio",
+    "mine": "Mon studio",
+    "guide": "Guide",
+    "uttu": "Uttu",
+    "soon": "Bientôt",
+    "storyweave": "StoryWeave",
+    "look": "Look",
+    "lookStandard": "Standard",
+    "lookAnime": "Anime 2.5D",
+    "openGuide": "Ouvrir le guide",
+    "nextFinish": "Ensuite : Finaliser — rendre les prises gardées plus nettes",
+    "finishLead": "Plus net et plus grand. Rien n’est régénéré.",
+    "finishEmpty": "Garde une prise dans Montage, puis finalise-la ici.",
+    "finishEngineSeed": "SeedVR2",
+    "finishEngineAnime": "Real-ESRGAN anime",
+    "finishThis": "Finaliser cette prise",
+    "finishConfirm": "Confirmer la finition",
+    "finishKept": "Prise gardée",
+    "finishMissing": "Le fichier gardé n’est pas encore dans ce navigateur.",
+    "finishDone": "La prise plus nette est dans Mon studio. L’originale reste.",
+    "finishQuote": "≈ {n}–{high} crédits estimés",
+    "menuAria": "Menu : Studio, Mon studio, Guide, langue, crédits",
+    "places": "Lieux",
+    "trackVoice": "Voix",
+    "trackMusic": "Musique",
+    "trackText": "Texte"
   }
 }

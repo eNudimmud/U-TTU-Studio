@@ -14,17 +14,18 @@
     "scene": "Set",
     "take": "Shoot",
     "edit": "Edit",
-    "chain": "Cast, set, shoot, edit",
+    "chain": "Cast, set, shoot, edit, finish",
     "sphere": "Library",
     "sheets": "Sheets",
-    "studio": "My creations",
+    "studio": "My studio",
     "connect": "Connect",
     "credits": "credits",
     "opening": "Opening my studio…",
     "takeRunning": "take in progress",
     "sceneRunning": "scene in progress",
     "renderCredits": "Comfy account credits",
-    "rail": "Studio tools"
+    "rail": "Studio tools",
+    "finish": "Finish"
   },
   "project": {
     "lead": "The name is already written: {name}. One tap creates the project. You can change it."
@@ -2551,7 +2552,7 @@
     "create": "Create",
     "make": "Direct",
     "edit": "Edit",
-    "creations": "My creations",
+    "creations": "My studio",
     "menu": "Menu",
     "close": "Close the menu",
     "search": "Search",
@@ -2584,7 +2585,7 @@
       }
     },
     "film": "Film",
-    "creationsShort": "Creations"
+    "creationsShort": "Studio"
   },
   "projects": {
     "label": "Project",
@@ -2636,7 +2637,7 @@
   },
   "creations": {
     "all": "See all",
-    "title": "My creations",
+    "title": "My studio",
     "type": {
       "tout": "All",
       "images": "Images",
@@ -3761,5 +3762,33 @@
     "demo-gare": "A station hall, empty, cold light, no one in frame.",
     "demo-pluie": "A street in the rain, blurred lights, no one in frame.",
     "demo-toit": "Zinc rooftops at dawn, golden haze, no one in frame."
+  },
+  "chrome": {
+    "studio": "Studio",
+    "mine": "My studio",
+    "guide": "Guide",
+    "uttu": "Uttu",
+    "soon": "Soon",
+    "storyweave": "StoryWeave",
+    "look": "Look",
+    "lookStandard": "Standard",
+    "lookAnime": "Anime 2.5D",
+    "openGuide": "Open the Guide",
+    "nextFinish": "Next: Finish — sharpen the kept takes",
+    "finishLead": "Sharper and larger. Nothing is regenerated.",
+    "finishEmpty": "Keep a take in Edit, then finish it here.",
+    "finishEngineSeed": "SeedVR2",
+    "finishEngineAnime": "Real-ESRGAN anime",
+    "finishThis": "Finish this take",
+    "finishConfirm": "Confirm the finish",
+    "finishKept": "Kept take",
+    "finishMissing": "The kept file is not in this browser yet.",
+    "finishDone": "The sharper take is in My studio. The original stays.",
+    "finishQuote": "≈ {n}–{high} credits estimated",
+    "menuAria": "Menu: Studio, My studio, Guide, language, credits",
+    "places": "Places",
+    "trackVoice": "Voice",
+    "trackMusic": "Music",
+    "trackText": "Text"
   }
 }

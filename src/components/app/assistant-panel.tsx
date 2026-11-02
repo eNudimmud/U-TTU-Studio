@@ -27,8 +27,8 @@ export function toggleAssistant(force?: boolean) {
 /** Closes the panel and gives the keyboard back to the U*TTU button that opened it. */
 function closeAssistant() {
   toggleAssistant(false);
-  const opener = document.querySelector<HTMLElement>('[data-top-uttu]');
-  if (opener && opener.offsetParent !== null) opener.focus({ preventScroll: true });
+  const opener = [...document.querySelectorAll<HTMLElement>('[data-top-uttu], [data-chain-uttu]')].find(el => el.offsetParent !== null);
+  opener?.focus({ preventScroll: true });
 }
 /** Below 1600 px the panel floats over the studio: Escape or a press outside it closes it, and that
  *  press still reaches what it was aimed at (the chain, a tab, a button). The top bar is not outside:
@@ -43,8 +43,8 @@ function useAssistantDismiss(open: boolean, panel: React.RefObject<HTMLElement |
     };
     const press = (event: PointerEvent) => {
       const target = event.target as Element | null;
-      if (!target || !window.matchMedia('(max-width: 1599px)').matches || modalElsewhere()) return;
-      if (panel.current?.contains(target) || target.closest('[data-topbar], .u-drawer-scrim, [data-top-uttu], [data-drawer-assistant], .u-sheet, .u-sheet-backdrop, [role="dialog"]')) return;
+      if (!target || !window.matchMedia('(max-width: 767px), (max-height: 500px) and (orientation: landscape)').matches || modalElsewhere()) return;
+      if (panel.current?.contains(target) || target.closest('[data-topbar], .u-drawer-scrim, [data-top-uttu], [data-chain-uttu], [data-drawer-assistant], .u-sheet, .u-sheet-backdrop, [role="dialog"]')) return;
       toggleAssistant(false);
     };
     document.addEventListener('keydown', key);
@@ -62,7 +62,7 @@ function useAssistantRoom(open: boolean, panel: React.RefObject<HTMLElement | nu
       frame = 0;
       const node = panel.current; if (!node) return;
       node.style.removeProperty('top'); node.style.removeProperty('bottom');
-      if (!window.matchMedia('(max-width: 1599px)').matches) return;
+      if (!window.matchMedia('(max-width: 767px)').matches) return;
       const box = node.getBoundingClientRect();
       let top = box.top, bottom = window.innerHeight - box.bottom;
       for (const bar of document.querySelectorAll<HTMLElement>('.u-chain, .u-tabs')) {
@@ -84,7 +84,7 @@ function useAssistantRoom(open: boolean, panel: React.RefObject<HTMLElement | nu
 export function useAssistantOpen(): boolean {
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    try { setOpen(window.localStorage.getItem(KEY) === '1'); } catch {}
+    // Closed on every arrival. ?uttu=1 still opens it once. A previous visit does not leave it covering the work.
     const sync = (event: Event) => setOpen(Boolean((event as CustomEvent<boolean>).detail));
     window.addEventListener(KEY, sync); return () => window.removeEventListener(KEY, sync);
   }, []);

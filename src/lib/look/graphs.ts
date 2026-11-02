@@ -18,9 +18,7 @@ export const KLEIN_EDIT_TEMPLATE = "image_flux3_klein_image_edit";
 export const WAN_I2V_TEMPLATE = "video_wan2_2_14B_i2v";
 export const LTX_I2V_TEMPLATE = "video_ltx2_5_i2v";
 export const LTX_FLF_TEMPLATE = "video_ltx2_5_flf2v";
-export const FINISH_TEMPLATE = "core_realesrgan_anime";
-
-export const REALESRGAN_ANIME = "RealESRGAN_x4plus_anime_6B.pth";
+export { FINISH_TEMPLATE, REALESRGAN_ANIME, grapheFinition, type FinishInput } from "./finish-graph.ts";
 export const LORA_STYLE = "krea2_style_reference";
 export const LORA_RETRO = "krea2_retroanime";
 
@@ -46,39 +44,3 @@ export function regenere(graph: ApiGraph): boolean {
   return Object.values(graph).some(node => SAMPLER.test(node.class_type));
 }
 
-export interface FinishInput {
-  video: string;
-  /** Style frame, when the palette lock is on. Colors move toward it; the drawing does not. */
-  styleFrame?: string | null;
-  prefix?: string;
-}
-
-/**
- * Real-ESRGAN x4plus anime, then an optional color match. No sampler, no prompt, no seed.
- * `utility-gan_upscaler` is not used: that template is tagged API.
- */
-export function grapheFinition(input: FinishInput): ApiGraph {
-  const video = input.video.trim();
-  if (!video) throw new Error("La finition part d'une prise déjà faite.");
-  const graph: ApiGraph = {
-    load: { class_type: "VHS_LoadVideo", inputs: { video, force_rate: 0, frame_load_cap: 0 }, _meta: { title: "Prise" } },
-    model: { class_type: "UpscaleModelLoader", inputs: { model_name: REALESRGAN_ANIME }, _meta: { title: "Real-ESRGAN anime" } },
-    upscale: { class_type: "ImageUpscaleWithModel", inputs: { upscale_model: ["model", 0], image: ["load", 0] }, _meta: { title: "Agrandir" } },
-  };
-  let images: [string, number] = ["upscale", 0];
-  if (input.styleFrame) {
-    graph.style = { class_type: "LoadImage", inputs: { image: input.styleFrame }, _meta: { title: "Cadre de style" } };
-    graph.color = {
-      class_type: "ColorTransfer",
-      inputs: { image: ["upscale", 0], reference: ["style", 0], method: "mkl_lab", source_stats: "uniform" },
-      _meta: { title: "Caler les couleurs" },
-    };
-    images = ["color", 0];
-  }
-  graph.save = {
-    class_type: "VHS_VideoCombine",
-    inputs: { images, frame_rate: 24, loop_count: 0, filename_prefix: input.prefix ?? "video/uttu-anime-finish", format: "video/h264-mp4", save_output: true },
-    _meta: { title: "Enregistrer" },
-  };
-  return graph;
-}

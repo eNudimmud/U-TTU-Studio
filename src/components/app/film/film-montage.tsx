@@ -37,7 +37,7 @@ const GLYPHS: Record<Exclude<ActionId, "lecture">, ReactNode> = {
 
 type Sortie = { phase: "idle" } | { phase: "run"; texte: string } | { phase: "done"; texte: string } | { phase: "fail"; texte: string };
 
-export function FilmMontage({ onFilled, onPlans }: { onFilled?(filled: boolean): void; onPlans?(): void }) {
+export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled: boolean): void; onPlans?(): void; onFinish?(): void }) {
   const { t, say } = useI18n();
   const { ready, studio, media, connected, balance, prefs, loadMontages, saveMontage, writeProjectFile, saveExport, finaliseMontage, pendingClip, holdClip } = useStudio();
   const [history, setHistory] = useState<History<Edit>>(() => historyOf(emptyEdit("suite", "Séquence")));
@@ -316,6 +316,7 @@ export function FilmMontage({ onFilled, onPlans }: { onFilled?(filled: boolean):
   return <section className="u-fm" data-film-montage="" aria-labelledby="u-title">
     <header className="u-fm-head">
       <h1 id="u-title" tabIndex={-1} className="u-film-title"><span className="u-film-stage">{t("film2.montage.titre")}</span> <span data-fm-duree="">{edit.name && edit.name !== "Séquence" ? edit.name : t("film2.montage.monFilm")} · {formatClock(duration)}</span></h1>
+      {onFinish && <button type="button" className="u-link u-fm-next" data-fm-next="" onClick={onFinish}>{t("chrome.nextFinish")}</button>}
       <button type="button" className="u-film-gold u-fm-export" data-fm-exporter="" onClick={() => { setSheet(true); setSortie({ phase: "idle" }); }} disabled={Boolean(exportWhy)} aria-describedby={exportWhy ? "u-fm-export-why" : undefined}>{t("film2.montage.exporter")}</button>
       {exportWhy && <span id="u-fm-export-why" className="sr-only">{exportWhy}</span>}
     </header>
@@ -386,10 +387,18 @@ export function FilmMontage({ onFilled, onPlans }: { onFilled?(filled: boolean):
               <span>{i + 1}</span>
             </button>)}
           </div>
-          {edit.audio.length > 0 && <div className="u-fm-track is-audio" data-fm-track="son">
-            <span className="u-fm-track-name">{t("film2.montage.son")}</span>
-            {edit.audio.map(clip => <span key={clip.id} className="u-fm-audio" style={{ left: clip.at * px, width: Math.max(24, (clip.end - clip.start) * px) }}>{clip.label}</span>)}
-          </div>}
+          <div className="u-fm-track is-audio" data-fm-track="son">
+            <span className="u-fm-track-name">{t("chrome.trackVoice")}</span>
+            {edit.audio.filter(clip => clip.track !== "musique").map(clip => <span key={clip.id} className="u-fm-audio" style={{ left: clip.at * px, width: Math.max(24, (clip.end - clip.start) * px) }}>{clip.label}</span>)}
+          </div>
+          <div className="u-fm-track is-audio" data-fm-track="musique">
+            <span className="u-fm-track-name">{t("chrome.trackMusic")}</span>
+            {edit.audio.filter(clip => clip.track === "musique").map(clip => <span key={clip.id} className="u-fm-audio" style={{ left: clip.at * px, width: Math.max(24, (clip.end - clip.start) * px) }}>{clip.label}</span>)}
+          </div>
+          <div className="u-fm-track" data-fm-track="texte">
+            <span className="u-fm-track-name">{t("chrome.trackText")}</span>
+            {places.filter(({ clip }) => clip.title).map(({ clip, start, end }) => <span key={clip.id} className="u-fm-audio" style={{ left: start * px, width: Math.max(24, (end - start) * px) }}>{clip.title}</span>)}
+          </div>
         </div>
       </div>
     </div>

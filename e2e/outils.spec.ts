@@ -34,10 +34,7 @@ test("hub : un clic depuis la barre du haut, une carte par intention, recherche,
   await page.goto("/studio#personnage");
   await openToolsHub(page);
   await expect(page).toHaveURL(/#outils\/tous$/);
-  const burger = page.locator("[data-top-burger]");
-  if (await burger.isVisible()) await burger.click();
-  await page.locator("[data-top-menu=film]").filter({ visible: true }).first().click();
-  await page.locator("[data-film=decor]").filter({ visible: true }).first().click();
+  await page.locator("[data-film-nav-to=scene]").click();
   const strip = page.locator("[data-outils-onglet=decor]");
   await expect(strip).toHaveCount(1);
   await expect(strip.locator("> button")).toHaveAttribute("aria-expanded", "false");

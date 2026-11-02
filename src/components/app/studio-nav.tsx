@@ -19,7 +19,7 @@ import type { Place } from "./top-bar";
 
 const ICON = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
 
-export const FamilyIcon = ({ fam }: { fam: Famille | "reperage" | "film" | "creations" | "home" | "search" }) => {
+export const FamilyIcon = ({ fam }: { fam: Famille | "reperage" | "film" | "creations" | "home" | "search" | "guide" }) => {
   switch (fam) {
     case "creer": return <svg {...ICON}><rect x="3.5" y="4.5" width="17" height="15" rx="2" /><path d="m3.5 16 5-5 4 4 3-3 5 5" /><circle cx="15.5" cy="9" r="1.5" /></svg>;
     case "retoucher": return <svg {...ICON}><path d="M4 20 15 9" /><path d="m14 5 1-2 1 2 2 1-2 1-1 2-1-2-2-1z" /><path d="m19 12 .6-1.2L21 10l-1.4-.8L19 8l-.6 1.2L17 10l1.4.8z" /></svg>;
@@ -31,6 +31,7 @@ export const FamilyIcon = ({ fam }: { fam: Famille | "reperage" | "film" | "crea
     case "creations": return <svg {...ICON}><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" /></svg>;
     case "home": return <svg {...ICON}><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z" /></svg>;
     case "search": return <svg {...ICON}><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>;
+    case "guide": return <svg {...ICON}><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z" /><path d="M9 8h6M9 12h6" /></svg>;
   }
 };
 
@@ -134,13 +135,13 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
   </aside>;
 }
 
-export function StudioTabs({ place }: { place: Place }) {
+export function StudioTabs({ place, filmHref }: { place: Place; filmHref: string }) {
   const { t } = useI18n();
   const tabs: { id: string; href: string; label: string; full?: string; icon: Parameters<typeof FamilyIcon>[0]["fam"]; on: boolean }[] = [
-    { id: "accueil", href: "/", label: t("top.home"), icon: "home", on: place === "accueil" },
-    { id: "creer", href: "/studio#outils", label: t("top.create"), icon: "creer", on: place === "creer" },
-    { id: "film", href: "/studio#prise", label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" },
-    { id: "creations", href: "/mon-studio", label: t("top.creationsShort"), full: t("top.creations"), icon: "creations", on: place === "creations" },
+    { id: "creer", href: "/studio", label: t("chrome.studio"), icon: "home", on: place === "creer" },
+    { id: "film", href: filmHref, label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" || place === "finish" },
+    { id: "creations", href: "/mon-studio", label: t("chrome.mine"), full: t("chrome.mine"), icon: "creations", on: place === "creations" },
+    { id: "guide", href: "/guide", label: t("chrome.guide"), icon: "guide", on: false },
   ];
   return <nav className="u-tabs" aria-label={t("top.nav")} data-tabs="">
     {tabs.map(tab => <a key={tab.id} href={assetPath(tab.href)} data-tab={tab.id} aria-label={tab.full} aria-current={tab.on ? "page" : undefined}>

@@ -14,17 +14,18 @@
     "scene": "Decorado",
     "take": "Toma",
     "edit": "Montaje",
-    "chain": "Reparto, decorado, toma, montaje",
+    "chain": "Reparto, decorado, toma, montaje, finalizar",
     "sphere": "Esfera",
     "sheets": "Fichas",
-    "studio": "Mis creaciones",
+    "studio": "Mi estudio",
     "connect": "Vincular",
     "credits": "créditos",
     "opening": "Abriendo mi estudio…",
     "takeRunning": "toma en curso",
     "sceneRunning": "escena en curso",
     "renderCredits": "Créditos de la cuenta de render",
-    "rail": "Herramientas del estudio"
+    "rail": "Herramientas del estudio",
+    "finish": "FINALIZAR"
   },
   "project": {
     "lead": "El nombre ya está escrito: {name}. Un gesto crea el proyecto. Puedes cambiarlo."
@@ -2551,7 +2552,7 @@
     "create": "Crear",
     "make": "Realizar",
     "edit": "Montaje",
-    "creations": "Mis creaciones",
+    "creations": "Mi estudio",
     "menu": "Menú",
     "close": "Cerrar el menú",
     "search": "Buscar",
@@ -2584,7 +2585,7 @@
       }
     },
     "film": "Película",
-    "creationsShort": "Creaciones"
+    "creationsShort": "Estudio"
   },
   "projects": {
     "label": "Proyecto",
@@ -2636,7 +2637,7 @@
   },
   "creations": {
     "all": "Ver todo",
-    "title": "Mis creaciones",
+    "title": "Mi estudio",
     "type": {
       "tout": "Todo",
       "images": "Imágenes",
@@ -3761,5 +3762,33 @@
     "demo-gare": "Un vestíbulo de estación, vacío, luz fría, sin nadie.",
     "demo-pluie": "Una calle bajo la lluvia, luces borrosas, sin nadie.",
     "demo-toit": "Tejados de zinc al amanecer, bruma dorada, sin nadie."
+  },
+  "chrome": {
+    "studio": "Studio",
+    "mine": "Mi estudio",
+    "guide": "Guía",
+    "uttu": "Uttu",
+    "soon": "Pronto",
+    "storyweave": "StoryWeave",
+    "look": "Look",
+    "lookStandard": "Estándar",
+    "lookAnime": "Anime 2.5D",
+    "openGuide": "Abrir la guía",
+    "nextFinish": "Siguiente: Finalizar — afinar las tomas guardadas",
+    "finishLead": "Más nítido y más grande. Nada se regenera.",
+    "finishEmpty": "Guarda una toma en Montaje y luego termínala aquí.",
+    "finishEngineSeed": "SeedVR2",
+    "finishEngineAnime": "Real-ESRGAN anime",
+    "finishThis": "Finalizar esta toma",
+    "finishConfirm": "Confirmar el acabado",
+    "finishKept": "Toma guardada",
+    "finishMissing": "El archivo guardado aún no está en este navegador.",
+    "finishDone": "La toma más nítida está en Mi estudio. La original se queda.",
+    "finishQuote": "≈ {n}–{high} créditos estimados",
+    "menuAria": "Menú: Studio, Mi estudio, Guía, idioma, créditos",
+    "places": "Lugares",
+    "trackVoice": "Voz",
+    "trackMusic": "Música",
+    "trackText": "Texto"
   }
 }

@@ -3,13 +3,17 @@
 import { useState } from "react";
 import { useLocaleSwitch } from "@/components/i18n/provider";
 import { bibleCopy, PALETTES } from "@/lib/look/bible-copy";
-import { lookCopy } from "@/lib/look/copy";
 import { lookAnime, type AnimeLocks } from "@/lib/look/model";
 import { devisPreparation, libelleEstime } from "@/lib/look/quote";
 import { storyboardDoor } from "@/app/storyboard/closed";
 import { assetPath } from "@/lib/site";
-import { Em, ProjectBar } from "./project-bar";
+import { Em } from "./project-bar";
 import { useProjectLook } from "./use-look";
+import { StudioProvider, useStudio } from "@/components/app/studio-session";
+import { TopBar } from "@/components/app/top-bar";
+import { AssistantPanel } from "@/components/app/assistant-panel";
+import { ConnectSheet, CreditSheet } from "@/components/app/studio-frames";
+import "@/components/app/app.css";
 import "./look.css";
 
 type LockKey = keyof AnimeLocks;
@@ -17,8 +21,7 @@ type LockKey = keyof AnimeLocks;
 export function BiblePage() {
   const { locale } = useLocaleSwitch();
   const copy = bibleCopy(locale);
-  const bar = lookCopy(locale);
-  const { name, doc, confirm } = useProjectLook();
+  const { doc, confirm } = useProjectLook();
   const look = doc.look ?? lookAnime("theatrical");
   const [pending, setPending] = useState<LockKey | null>(null);
   const [timingAsk, setTimingAsk] = useState(false);
@@ -34,8 +37,8 @@ export function BiblePage() {
     setTimingAsk(false);
   }
 
-  return <div className="look-root" data-look-bible="">
-    <ProjectBar copy={bar} name={name} current="look" />
+  return <StudioProvider><BibleChrome>
+    <div className="look-root" data-look-bible="">
     <main className="look-main look-bible">
       <header className="look-page-head">
         <div className="look-kicker">{copy.kicker}</div>
@@ -135,6 +138,18 @@ export function BiblePage() {
         </div>
       </div>}
     </main>
+    </div>
+  </BibleChrome></StudioProvider>;
+}
+
+function BibleChrome({ children }: { children: React.ReactNode }) {
+  const { sheet } = useStudio();
+  return <div className="u-app" data-studio="look">
+    <TopBar place="look" />
+    {children}
+    <AssistantPanel />
+    {sheet === "credits" && <CreditSheet />}
+    {sheet === "connect" && <ConnectSheet />}
   </div>;
 }
 

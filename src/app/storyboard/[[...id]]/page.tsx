@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { StoryboardApp } from "@/components/storyboard/storyboard-app";
 import { holdCopy, StoryboardHolding } from "@/components/storyboard/storyboard-holding";
+import { HoldingShell } from "@/components/storyboard/holding-shell";
 import { StoryWeaveSlot } from "@/components/storyboard/storyweave-slot";
 import { STORYBOARD_COOKIE, storyboardActif } from "@/lib/storyboard/drapeau";
 import { loadStoryboardCatalog } from "@/lib/storyboard/catalogue";
@@ -67,6 +68,6 @@ export default async function StoryboardPage({ params, searchParams }: {
   // The only open door. A previous `?storyboard=0` cookie does not close it.
   if (asked === "sw") return <StoryWeaveSlot copy={holdCopy(messages)} id={board} print={mode === "print"} />;
   if (!storyboardActif(query, jar.get(STORYBOARD_COOKIE)?.value)) notFound();
-  if (storyboardHeld(asked)) return <StoryboardHolding copy={holdCopy(messages)} gate="closed" />;
+  if (storyboardHeld(asked)) return <HoldingShell><StoryboardHolding copy={holdCopy(messages)} gate="closed" /></HoldingShell>;
   return <StoryboardApp id={board} print={mode === "print"} u11={storyboardU11Actif(query, null)} initial={{ locale, messages }} />;
 }

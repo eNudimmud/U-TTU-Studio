@@ -23,9 +23,9 @@ test.describe("barre du bas et retours", () => {
       seen.add(`${where.pathname}${where.hash}`);
       for (const box of await tabs.all()) expect((await box.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
-    // The film is a focused place: its own bar CAST · DÉCOR · PRISE · MONTAGE replaces the bottom bar.
     await page.locator("[data-tabs] a[data-tab=film]").click();
-    await expect(page.locator("[data-film-nav-to]")).toHaveCount(4);
+    await expect(page.locator("[data-film-nav-to]")).toHaveCount(5);
+    await expect(page.locator("[data-tabs]")).toBeVisible();
     const film = new URL(page.url());
     seen.add(`${film.pathname}${film.hash}`);
     expect(seen.size).toBe(3);

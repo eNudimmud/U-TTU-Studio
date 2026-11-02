@@ -14,17 +14,18 @@
     "scene": "Kulisse",
     "take": "Take",
     "edit": "Schnitt",
-    "chain": "Besetzung, Kulisse, Take, Schnitt",
+    "chain": "Besetzung, Kulisse, Take, Schnitt, Finalisieren",
     "sphere": "Sphäre",
     "sheets": "Karten",
-    "studio": "Meine Kreationen",
+    "studio": "Mein Studio",
     "connect": "Verbinden",
     "credits": "Credits",
     "opening": "Mein Studio wird geöffnet…",
     "takeRunning": "Take läuft",
     "sceneRunning": "Szene läuft",
     "renderCredits": "Credits des Render-Kontos",
-    "rail": "Studio-Werkzeuge"
+    "rail": "Studio-Werkzeuge",
+    "finish": "FINALISIEREN"
   },
   "project": {
     "lead": "Der Name steht schon da: {name}. Eine Geste legt das Projekt an. Du kannst ihn ändern."
@@ -2551,7 +2552,7 @@
     "create": "Erstellen",
     "make": "Inszenieren",
     "edit": "Schnitt",
-    "creations": "Meine Werke",
+    "creations": "Mein Studio",
     "menu": "Menü",
     "close": "Menü schließen",
     "search": "Suchen",
@@ -2584,7 +2585,7 @@
       }
     },
     "film": "Film",
-    "creationsShort": "Werke"
+    "creationsShort": "Studio"
   },
   "projects": {
     "label": "Projekt",
@@ -2636,7 +2637,7 @@
   },
   "creations": {
     "all": "Alles ansehen",
-    "title": "Meine Werke",
+    "title": "Mein Studio",
     "type": {
       "tout": "Alle",
       "images": "Bilder",
@@ -3761,5 +3762,33 @@
     "demo-gare": "Eine Bahnhofshalle, leer, kaltes Licht, menschenleer.",
     "demo-pluie": "Eine Straße im Regen, verschwommene Lichter, menschenleer.",
     "demo-toit": "Zinkdächer im Morgengrauen, goldener Dunst, menschenleer."
+  },
+  "chrome": {
+    "studio": "Studio",
+    "mine": "Mein Studio",
+    "guide": "Guide",
+    "uttu": "Uttu",
+    "soon": "Bald",
+    "storyweave": "StoryWeave",
+    "look": "Look",
+    "lookStandard": "Standard",
+    "lookAnime": "Anime 2.5D",
+    "openGuide": "Guide öffnen",
+    "nextFinish": "Weiter: Finalisieren — die behaltenen Takes schärfen",
+    "finishLead": "Schärfer und größer. Nichts wird neu erzeugt.",
+    "finishEmpty": "Behalte einen Take im Schnitt, dann finalisiere ihn hier.",
+    "finishEngineSeed": "SeedVR2",
+    "finishEngineAnime": "Real-ESRGAN anime",
+    "finishThis": "Diesen Take finalisieren",
+    "finishConfirm": "Finish bestätigen",
+    "finishKept": "Behaltener Take",
+    "finishMissing": "Die behaltene Datei ist in diesem Browser noch nicht da.",
+    "finishDone": "Der schärfere Take liegt in Mein Studio. Das Original bleibt.",
+    "finishQuote": "≈ {n}–{high} Credits geschätzt",
+    "menuAria": "Menü: Studio, Mein Studio, Guide, Sprache, Credits",
+    "places": "Orte",
+    "trackVoice": "Stimme",
+    "trackMusic": "Musik",
+    "trackText": "Text"
   }
 }
