@@ -3683,6 +3683,12 @@
         "calcul": "Sharpening the picture…",
         "retour": "Getting the film back…",
         "mesure": "Reading the real cost…"
+      },
+      "touches": {
+        "lecture": "Space",
+        "annuler": "Ctrl+Z",
+        "retablir": "Ctrl+Shift+Z",
+        "supprimer": "Del"
       }
     },
     "nav": {

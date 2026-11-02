@@ -49,3 +49,17 @@ test("P6: a bin tap appends at the end, even a plan already in the film", () => 
   assert.equal(next.video.at(-1)!.id, "a2");
   assert.equal(next.video.at(-1)!.takeId, null);
 });
+
+test("shortcut labels are English by default and every localised key exists in all four catalogs", async () => {
+  const { readFileSync } = await import("node:fs");
+  assert.deepEqual(ACTIONS.map(action => action.touche).filter(label => /Espace|Maj|Suppr/.test(label)), []);
+  for (const lang of ["en", "fr", "de", "es"]) {
+    const catalog = JSON.parse(readFileSync(new URL(`../messages/${lang}.json`, import.meta.url), "utf8"));
+    for (const action of ACTIONS) {
+      if (!action.toucheCle) continue;
+      const value = action.toucheCle.split(".").reduce((node: any, part) => node?.[part], catalog);
+      assert.equal(typeof value, "string", `${lang} ${action.toucheCle}`);
+      if (lang === "en") assert.equal(value, action.touche);
+    }
+  }
+});

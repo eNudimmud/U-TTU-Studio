@@ -5,6 +5,7 @@
 // the middle while the film slides under the finger, property chips, « Mes plans » (a tap adds at the
 // end), and one primary button: Exporter. « Rendre plus net » is an export option that only enhances.
 
+import { useLocale } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/components/i18n/provider";
 import { formatCredits } from "@/lib/credits";
@@ -39,6 +40,7 @@ type Sortie = { phase: "idle" } | { phase: "run"; texte: string } | { phase: "do
 
 export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled: boolean): void; onPlans?(): void; onFinish?(): void }) {
   const { t, say } = useI18n();
+  const locale = useLocale();
   const { ready, studio, media, connected, balance, prefs, loadMontages, saveMontage, writeProjectFile, saveExport, finaliseMontage, pendingClip, holdClip } = useStudio();
   const [history, setHistory] = useState<History<Edit>>(() => historyOf(emptyEdit("suite", "Séquence")));
   const historyRef = useRef(history);
@@ -342,7 +344,7 @@ export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled:
           {here && <span className="u-fm-badge">{t("film2.montage.planN", { n: String(here.index + 1) })}</span>}
         </div>
         <div className="u-fm-player">
-          <button type="button" className="u-fm-play" data-fm-lecture="" onClick={lecture} disabled={!duration} aria-describedby={!duration ? "u-fm-export-why" : undefined} aria-label={`${playing ? t("film2.montage.action.pause") : name("lecture")} (${ACTIONS[0]!.touche})`} aria-keyshortcuts="Space">{playing ? <Pause /> : <Play />}</button>
+          <button type="button" className="u-fm-play" data-fm-lecture="" onClick={lecture} disabled={!duration} aria-describedby={!duration ? "u-fm-export-why" : undefined} aria-label={`${playing ? t("film2.montage.action.pause") : name("lecture")} (${ACTIONS[0]!.toucheCle ? t(ACTIONS[0]!.toucheCle) : ACTIONS[0]!.touche})`} aria-keyshortcuts="Space">{playing ? <Pause /> : <Play />}</button>
           <span className="u-fm-clock" data-fm-clock="">{formatClock(time)} / {formatClock(duration)}</span>
           <span className="u-fm-hint">{t("film2.montage.brouillon")}</span>
         </div>
@@ -353,7 +355,7 @@ export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled:
           <h2 className="u-film-eyebrow">{t("film2.montage.planChoisi", { n: String(index + 1) })}</h2>
           <p className="u-fm-props-sub">{choisi.label}</p>
           <div className="u-fm-chips" role="group" aria-label={t("film2.montage.vitesse")}>
-            {SPEEDS.map(speed => <button key={speed} type="button" className="u-film-chip" aria-pressed={clipSpeed(choisi) === speed} data-fm-vitesse={speed} onClick={() => apply(setVideoSpeed(historyRef.current.present, choisi.id, speed))}>{t("film2.montage.vitesseN", { n: String(speed).replace(".", ",") })}</button>)}
+            {SPEEDS.map(speed => <button key={speed} type="button" className="u-film-chip" aria-pressed={clipSpeed(choisi) === speed} data-fm-vitesse={speed} onClick={() => apply(setVideoSpeed(historyRef.current.present, choisi.id, speed))}>{t("film2.montage.vitesseN", { n: locale === "en" ? String(speed) : String(speed).replace(".", ",") })}</button>)}
             <button type="button" className="u-film-chip" aria-pressed={(choisi.fadeOut ?? 0) > 0} data-fm-fondu="" onClick={() => apply(setVideoFade(historyRef.current.present, choisi.id, (choisi.fadeOut ?? 0) > 0 ? 0 : Math.min(0.5, playSpan(choisi) / 2)))}>{t("film2.montage.fondu")}</button>
           </div>
         </> : <p className="u-film-note" data-fm-props-vide="">{t("film2.montage.toucheUnPlan")}</p>}
@@ -363,8 +365,9 @@ export function FilmMontage({ onFilled, onPlans, onFinish }: { onFilled?(filled:
     <div className="u-fm-barre" role="toolbar" aria-label={t("film2.montage.outils")} data-fm-barre="">
       {ACTIONS.filter(action => action.barre).map(action => {
         const why = pourquoiPas(action.id, etat, counts);
-        return <button key={action.id} type="button" className="u-fm-tool" data-fm-action={action.id} onClick={() => run(action.id)} disabled={Boolean(why)} aria-label={`${name(action.id)} (${action.touche})`} aria-keyshortcuts={action.aria} aria-describedby={why ? `u-fm-why-${action.id}` : undefined} title={why ? t(why) : undefined}>
-          {GLYPHS[action.id as Exclude<ActionId, "lecture">]}<span>{name(action.id)} <kbd aria-hidden="true">({action.touche})</kbd></span>
+        const touche = action.toucheCle ? t(action.toucheCle) : action.touche;
+        return <button key={action.id} type="button" className="u-fm-tool" data-fm-action={action.id} onClick={() => run(action.id)} disabled={Boolean(why)} aria-label={`${name(action.id)} (${touche})`} aria-keyshortcuts={action.aria} aria-describedby={why ? `u-fm-why-${action.id}` : undefined} title={why ? t(why) : undefined}>
+          {GLYPHS[action.id as Exclude<ActionId, "lecture">]}<span>{name(action.id)} <kbd aria-hidden="true">({touche})</kbd></span>
           {why && <span id={`u-fm-why-${action.id}`} className="sr-only">{t(why)}</span>}
         </button>;
       })}
