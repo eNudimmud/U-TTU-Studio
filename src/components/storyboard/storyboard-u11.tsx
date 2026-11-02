@@ -12,8 +12,9 @@ import { assetPath } from "@/lib/site";
 import { opensPicker } from "@/lib/creation/mentions";
 import { userApproval } from "@/lib/cinema/intent-job";
 import { referencesDuCatalogue } from "@/lib/storyboard/identites";
+import type { IntentEnvelope, Operation } from "@/lib/cinema/types";
 import {
-  U11_AGENT_CEILING, agentChange, agentReading, answerOf, boardFromProposal, confirmProposal, describeOperations,
+  U11_AGENT_CEILING, U11_AUTO_RETRY, agentChange, agentReading, answerOf, boardFromProposal, confirmProposal, describeOperations,
   shellForStory, withQuotableDurations, withSettings, type NameProposal,
 } from "@/lib/storyboard/u11-agent";
 import { appliquerCorrection } from "@/lib/storyboard/corriger";
@@ -75,6 +76,8 @@ function Avatar({ name, place, src }: { name: string; place?: boolean; src?: str
 type Chip = { id: string; name: string; role: "qui" | "ou"; photos: number };
 type Phase = "write" | "work" | "plan";
 type Reply = { you: string; uttu: string; undo: boolean };
+type PendingRead = { mode: "write"; shell: Storyboard; userText: string } | { mode: "ask"; userText: string; request: string };
+type Preview = { lines: string[]; proposals: NameProposal[]; operations: Operation[]; userText: string };
 
 export function U11Storyboard({
   sb, data, known, aller, onOpen, onStart, filming, onStopAfter, askAgent: _askAgent,
@@ -118,10 +121,15 @@ export function U11Storyboard({
   const [progress, setProgress] = useState(0);
   const [stopped, setStopped] = useState(false);
   const [proposals, setProposals] = useState<NameProposal[]>([]);
-  const [preview, setPreview] = useState<{ before: Storyboard; next: Storyboard; lines: string[]; proposals: NameProposal[] } | null>(null);
+  const [preview, setPreview] = useState<Preview | null>(null);
   const [readingNote, setReadingNote] = useState<string | null>(null);
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const [rereadOn, setRereadOn] = useState(false);
+  const [undoOp, setUndoOp] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const pendingRead = useRef<PendingRead | null>(null);
+  const inflight = useRef(false);
   useEffect(() => { setMounted(true); }, []);
   // The bubble opens /storyboard?idee=… . The story lands in the composer; nothing is written until « Write ».
   useEffect(() => {
@@ -225,11 +233,36 @@ export function U11Storyboard({
     return answerOf(parsed.status, parsed.envelope);
   };
 
+  // One approval, one POST. U11_AUTO_RETRY is off: a bad answer does not spend a second reading.
+  const readOnce = async (userText: string, boardId: string) => {
+    let answer = await runAgent(userText, boardId);
+    if (U11_AUTO_RETRY && answer === "again" && !cancel.current) answer = await runAgent(userText, boardId);
+    return answer;
+  };
+
+  const publish = async (board: Storyboard, note: string | null, asked: NameProposal[]) => {
+    if (await data.sauver(board, { now: true }) === false) { setPhase("write"); return false; }
+    setReadingNote(note);
+    setProposals(asked);
+    setWorked(Math.max(1, Math.round((Date.now() - started.current) / 1000)));
+    setPhase("plan");
+    aller(board.id);
+    return true;
+  };
+
+  const offerReread = (pending: PendingRead) => {
+    pendingRead.current = pending;
+    setRereadOn(true);
+  };
+
   const write = async () => {
     const idee = text.trim();
     if (!idee) { setEmpty(true); return; }
     cancel.current = false;
     setSent(false);
+    setRefusal(null);
+    setRereadOn(false);
+    pendingRead.current = null;
     started.current = Date.now();
     setElapsed(0);
     setJob({ result: ecrireDepuisRecit(idee, ctxFor(), { dureeCible: length === "fit" ? null : length, format, formatChoisi: true, gabarits: messages.storyboard.gabarits, now: new Date().toISOString(), suffixe: "hold", rendu: quality }), story: idee, refs: chips });
@@ -239,31 +272,25 @@ export function U11Storyboard({
     const localBoard = () => withSettings(withQuotableDurations(ecrireDepuisRecit(idee, ctxFor(), {
       dureeCible: length === "fit" ? null : length, format, formatChoisi: true, gabarits: messages.storyboard.gabarits, now: new Date().toISOString(), suffixe: nouvelId(), rendu: quality,
     }).storyboard, priced), format, quality);
-    const show = async (board: Storyboard, note: string | null, asked: NameProposal[]) => {
-      if (await data.sauver(board, { now: true }) === false) { setPhase("write"); return; }
-      setReadingNote(note);
-      setProposals(asked);
-      setWorked(Math.max(1, Math.round((Date.now() - started.current) / 1000)));
-      setPhase("plan");
-      aller(board.id);
-    };
     if (!studio.connected || !studio.studio.project) {
-      await show(localBoard(), t("storyboard.u11.write.limited"), []);
+      await publish(localBoard(), t("storyboard.u11.write.limited"), []);
       return;
     }
     const reading = agentReading(idee, catalogue);
     const shell = shellForStory(idee, reading, { format, rendu: quality, suffix: nouvelId(), now: new Date().toISOString() });
     if (await data.sauver(shell, { now: true }) === false) { setPhase("write"); return; }
-    let answer = await runAgent(reading.userText, shell.id);
-    if (answer === "again" && !cancel.current) answer = await runAgent(reading.userText, shell.id);
+    const answer = await readOnce(reading.userText, shell.id);
     if (cancel.current) return;
-    if (answer === "again" || answer === "down" || answer.status !== "ready" || !answer.envelope.operations.some(op => op.kind === "storyboard.create")) {
-      const fallback = localBoard();
-      await show({ ...fallback, id: shell.id, creeLe: shell.creeLe }, t("storyboard.u11.work.fallback"), []);
+    const fallback = () => publish({ ...localBoard(), id: shell.id, creeLe: shell.creeLe }, t("storyboard.u11.work.fallback"), []);
+    if (answer === "again" || answer === "down" || answer.status !== "ready" || answer.envelope.operations.length === 0 || answer.envelope.operations.some(op => op.kind !== "storyboard.create")) {
+      if (answer === "again") offerReread({ mode: "write", shell, userText: reading.userText });
+      await fallback();
       return;
     }
-    const next = withSettings(withQuotableDurations(boardFromProposal(shell, answer.envelope, new Date().toISOString()), priced), format, quality);
-    await show(next, null, answer.proposals);
+    let created: Storyboard;
+    try { created = boardFromProposal(shell, answer.envelope, new Date().toISOString()); }
+    catch { await fallback(); return; }
+    await publish(withSettings(withQuotableDurations(created, priced), format, quality), null, answer.proposals);
   };
 
   useEffect(() => {
@@ -291,7 +318,7 @@ export function U11Storyboard({
     { label: t("storyboard.u11.ask.closing"), text: t("storyboard.u11.ask.closing") },
   ];
 
-  const askOffline = async (texte: string, before: Storyboard) => {
+  const askOffline = async (texte: string, before: Storyboard, now = false) => {
     const read = lireDemande(texte);
     let next = before;
     let uttu = t("storyboard.u11.write.limited");
@@ -309,9 +336,16 @@ export function U11Storyboard({
       next = appliquerNote(before, shots, texte);
       uttu = `${t("storyboard.u11.write.limited")} ${t("storyboard.u11.ask.doneNote", { text: texte, where: t("storyboard.u11.ask.whereAll") })}`;
     }
-    if (await data.sauver(next) === false) return;
+    if (await data.sauver(next, now ? { now: true } : {}) === false) return;
+    setUndoOp(null);
     setUndo(before);
     setReplies(all => [...all, { you: texte, uttu, undo: true }]);
+  };
+
+  const showProposal = (board: Storyboard, envelope: IntentEnvelope, proposals: NameProposal[], you: string) => {
+    const titles = new Map(tousLesPlans(board).map(plan => [plan.id, plan.titre]));
+    setPreview({ lines: describeOperations(envelope.operations, titles), proposals, operations: envelope.operations, userText: you });
+    setReplies(all => [...all, { you, uttu: envelope.expectedResult || envelope.rationale, undo: false }]);
   };
 
   const ask = async (raw: string) => {
@@ -319,19 +353,97 @@ export function U11Storyboard({
     const texte = raw.trim();
     if (!texte) return;
     if (!studio.connected || !studio.studio.project) { await askOffline(texte, sb); return; }
-    if (await data.sauver(sb, { now: true }) === false) return;
     setSent(false);
+    setRefusal(null);
+    setPreview(null);
+    setRereadOn(false);
+    pendingRead.current = null;
     cancel.current = false;
-    let answer = await runAgent(agentChange(texte), sb.id);
-    if (answer === "again" && !cancel.current) answer = await runAgent(agentChange(texte), sb.id);
-    if (answer === "again" || answer === "down" || answer.status !== "ready") { await askOffline(texte, sb); return; }
-    const titles = new Map(tousLesPlans(sb).map(plan => [plan.id, plan.titre]));
-    const next = withSettings(withQuotableDurations(boardFromProposal(sb, answer.envelope, new Date().toISOString()), priced), sb.format, quality);
-    setPreview({ before: sb, next, lines: describeOperations(answer.envelope.operations, titles), proposals: answer.proposals });
-    setReplies(all => [...all, { you: texte, uttu: answer.status === "ready" ? answer.envelope.expectedResult || answer.envelope.rationale : "", undo: false }]);
+    const answer = await readOnce(agentChange(texte), sb.id);
+    if (cancel.current) return;
+    if (answer === "again") {
+      offerReread({ mode: "ask", userText: agentChange(texte), request: texte });
+      await askOffline(texte, sb, true);
+      return;
+    }
+    if (answer === "down" || answer.status !== "ready") { await askOffline(texte, sb); return; }
+    showProposal(sb, answer.envelope, answer.proposals, texte);
+  };
+
+  // A fresh approval: the same reading, one POST, never the automatic second one.
+  const rereadNow = async () => {
+    const pending = pendingRead.current;
+    if (!pending || !sb || inflight.current) return;
+    inflight.current = true;
+    setRefusal(null);
+    try {
+      const answer = await readOnce(pending.userText, sb.id);
+      if (cancel.current || answer === "again" || answer === "down" || answer.status !== "ready") return;
+      if (pending.mode === "write") {
+        if (answer.envelope.operations.length === 0 || answer.envelope.operations.some(op => op.kind !== "storyboard.create")) return;
+        let created: Storyboard;
+        try { created = boardFromProposal(pending.shell, answer.envelope, new Date().toISOString()); }
+        catch { return; }
+        const published = await publish(withSettings(withQuotableDurations(created, priced), format, quality), null, answer.proposals);
+        if (!published) return;
+        pendingRead.current = null;
+        setRereadOn(false);
+        return;
+      }
+      showProposal(sb, answer.envelope, answer.proposals, pending.request);
+      pendingRead.current = null;
+      setRereadOn(false);
+    } finally {
+      inflight.current = false;
+    }
+  };
+
+  // expectedRevision travels inside each operation. A conflict or a lock is shown and nothing is written.
+  const applyChange = async () => {
+    if (!preview || !sb || !studio.studio.project || inflight.current) return;
+    inflight.current = true;
+    try {
+      const out = await studio.cinema.applyLocal(
+        { projectId: studio.studio.project, storyboardId: sb.id },
+        preview.operations,
+        { locks: {}, userText: preview.userText },
+      );
+      if (!out.ok || (out.code !== "LOCAL_APPLIED" && out.code !== "LOCAL_NOTHING")) {
+        setRefusal(out.code);
+        return;
+      }
+      setRefusal(null);
+      if (out.code === "LOCAL_APPLIED" && out.data?.operationId) {
+        setUndoOp(out.data.operationId);
+        setUndo(null);
+        setChanged(new Set([...(out.data.invalidated ?? []), ...(out.data.created ?? [])]));
+        setReplies(all => all.map((reply, index) => ({ ...reply, undo: index === all.length - 1 })));
+      }
+      setProposals(preview.proposals);
+      setPreview(null);
+      studio.cinemaChanged();
+    } finally {
+      inflight.current = false;
+    }
   };
 
   const restore = async () => {
+    if (inflight.current) return;
+    if (undoOp && sb && studio.studio.project) {
+      inflight.current = true;
+      try {
+        const out = await studio.cinema.undo({ projectId: studio.studio.project, storyboardId: sb.id }, undoOp);
+        if (!out.ok) { setRefusal(out.code); return; }
+        setRefusal(null);
+        setUndoOp(null);
+        setChanged(new Set());
+        setReplies(all => [...all, { you: "", uttu: t("storyboard.u11.ask.undone"), undo: false }]);
+        studio.cinemaChanged();
+      } finally {
+        inflight.current = false;
+      }
+      return;
+    }
     if (!undo) return;
     const ok = await data.sauver(undo);
     if (ok === false) return;
@@ -488,13 +600,19 @@ export function U11Storyboard({
         <div className="u11-uttu">
           <span className="u11-face" aria-hidden="true">U</span>
           {readingNote && <p className="u11-note" data-u11-reading="">{readingNote}</p>}
+          {rereadOn && <button type="button" className="u11-primary" data-u11-reread="" onClick={() => void rereadNow()}>
+            <span>{t("storyboard.u11.ask.reread")}</span>
+            <span aria-hidden="true">·</span>
+            <span className="cost" data-u11-reread-cost="">{t("storyboard.u11.write.agent", { n: formatCredits(U11_AGENT_CEILING) })}</span>
+          </button>}
+          {refusal && <p className="u11-note" role="alert" data-u11-refusal={refusal}>{t.has(`storyboard.cinema.errors.${refusal}`) ? t(`storyboard.cinema.errors.${refusal}`) : t("storyboard.cinema.agent.failed")}</p>}
           {proposals.length > 0 && <div data-u11-proposals="">{proposals.map(proposal => <p key={`${proposal.role}:${proposal.name}`}>
             <span>{proposal.name}</span>{" "}
             <button type="button" className="u11-ghost" data-u11-proposal={proposal.role} onClick={() => { const next = confirmProposal(sb, proposal, new Date().toISOString()); void data.sauver(next); setProposals(list => list.filter(item => item.name !== proposal.name || item.role !== proposal.role)); }}>{proposal.role === "qui" ? t("storyboard.u11.ask.proposalCast") : t("storyboard.u11.ask.proposalPlace")}</button>
           </p>)}</div>}
           {preview && <div className="u11-reply" data-u11-preview="">
             {preview.lines.map(line => <p key={line}>{line}</p>)}
-            <button type="button" className="u11-primary" data-u11-apply="" onClick={() => { void data.sauver(preview.next); setUndo(preview.before); setProposals(preview.proposals); setChanged(new Set(tousLesPlans(preview.next).map(plan => plan.id))); setPreview(null); }}>{t("storyboard.u11.ask.apply")}</button>
+            <button type="button" className="u11-primary" data-u11-apply="" onClick={() => void applyChange()}>{t("storyboard.u11.ask.apply")}</button>
             <button type="button" className="u11-ghost" data-u11-dismiss="" onClick={() => setPreview(null)}>{t("storyboard.u11.ask.dismiss")}</button>
           </div>}
           <p data-u11-kept="">
@@ -547,7 +665,7 @@ export function U11Storyboard({
         <div data-u11-replies="">
           {replies.map((reply, index) => <div key={index} style={{ marginTop: 16 }}>
             {reply.you && <div className="u11-you"><p>{reply.you}</p></div>}
-            {reply.uttu && <div className="u11-uttu"><span className="u11-face" aria-hidden="true">U</span><div className="u11-reply" data-u11-reply=""><p>{reply.uttu}</p><span className="u11-zero">{t("storyboard.u11.ask.zero")}</span>{reply.undo && undo && <button type="button" className="u11-undo" data-u11-undo="" onClick={() => void restore()}>{t("storyboard.u11.ask.undo")}</button>}</div></div>}
+            {reply.uttu && <div className="u11-uttu"><span className="u11-face" aria-hidden="true">U</span><div className="u11-reply" data-u11-reply=""><p>{reply.uttu}</p><span className="u11-zero">{t("storyboard.u11.ask.zero")}</span>{reply.undo && (undoOp || undo) && <button type="button" className="u11-undo" data-u11-undo="" onClick={() => void restore()}>{t("storyboard.u11.ask.undo")}</button>}</div></div>}
           </div>)}
         </div>
         <p className="u11-closing">{t("storyboard.u11.plan.close")}</p>
