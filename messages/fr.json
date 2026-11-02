@@ -3006,12 +3006,12 @@
       "tabs": {
         "q": "Comment est organisé le studio ?",
         "k": "onglets étapes organisation sections cast décor prise montage",
-        "a": "Le studio suit quatre étapes : CAST (tes personnages), DÉCOR (tes lieux), PRISE (tes plans vidéo) et MONTAGE (tu assembles et exportes). « Outils » regroupe tous les outils Comfy par famille."
+        "a": "Le studio suit cinq étapes : CAST (tes personnages), DÉCOR (tes lieux), PRISE (tes plans), MONTAGE (tu assembles) et FINALISER (plus net et plus grand, rien n’est régénéré). Les outils rassemblent chaque outil Comfy par famille."
       },
       "bubble": {
         "q": "Image ou vidéo : comment créer ?",
         "k": "créer bulle image vidéo photo clip choisir différence générer tourne",
-        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. Image : Nano Banana 2.1 (références) ou Flux Klein. Vidéo passe par MiniMax H3 quand tu joins des références, sinon par LTX. Le devis « ≈ X crédits estimés » s’affiche avant tout envoi. Jusqu’à 7 références visuelles et, en Vidéo, un son."
+        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. La vidéo avec références tourne sur MiniMax H3, sinon sur LTX. Le devis « ≈ X crédits estimés » s’affiche sous la bulle avant tout envoi."
       },
       "refs": {
         "q": "Comment utiliser des références ?",

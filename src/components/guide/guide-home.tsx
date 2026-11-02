@@ -1,0 +1,64 @@
+"use client";
+
+import { useLocaleSwitch } from "@/components/i18n/provider";
+import { assetPath } from "@/lib/site";
+import { guideHome } from "@/lib/guide/home-copy";
+import { GuideBar } from "./guide-bar";
+import "./guide.css";
+
+export function GuideHome() {
+  const { locale } = useLocaleSwitch();
+  const copy = guideHome(locale);
+  return <>
+    <GuideBar />
+    <div className="g-wrap">
+      <div className="g-hero">
+        <div className="eyebrow">{copy.kicker}</div>
+        <h1>{copy.title} <em>{copy.titleEm}</em></h1>
+        <p className="g-lede">{copy.lede}</p>
+      </div>
+      <nav className="g-toc" aria-label={copy.kicker}>
+        {copy.toc.map(item => <a key={item.id} href={`#${item.id}`}>{item.label}</a>)}
+        <a href={assetPath("/guide/tools")}>{copy.toolsLink}</a>
+      </nav>
+      <section className="g-sec" id="start">
+        <h2>{copy.startTitle}</h2>
+        <div className="g-cols">
+          {copy.start.map(item => <div className="g-col" key={item.n}>
+            <span className="n">{item.n}</span>
+            <b>{item.title}</b>
+            <span>{item.body}</span>
+            {item.href && <a href={assetPath(item.href)}>{item.link} ›</a>}
+          </div>)}
+        </div>
+      </section>
+      <section className="g-sec" id="steps">
+        <h2>{copy.stepsTitle}</h2>
+        <div className="g-cols">
+          {copy.steps.map(item => <div className="g-col" key={item.title}><b>{item.title}</b><span>{item.body}</span></div>)}
+        </div>
+      </section>
+      <section className="g-sec" id="look">
+        <h2>{copy.lookTitle}</h2>
+        <p className="g-muted">{copy.lookBody}</p>
+        <p><a className="g-link" href={assetPath("/look")}>/look</a> · <a className="g-link" href={assetPath("/look/bible")}>/look/bible</a></p>
+      </section>
+      <section className="g-sec" id="costs">
+        <h2>{copy.costsTitle}</h2>
+        <div>
+          {copy.costs.map(row => <div className="g-row" key={row.label}><span>{row.label}</span><span>{row.price}</span></div>)}
+        </div>
+        <p className="g-muted">{copy.costsNote}</p>
+      </section>
+      <section className="g-sec g-faq" id="faq">
+        <h2>{copy.faqTitle}</h2>
+        {copy.faq.map(item => <details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}
+      </section>
+      <section className="g-sec" id="tools">
+        <h2>{copy.toolsTitle}</h2>
+        <p className="g-muted">{copy.toolsBody}</p>
+        <a className="g-link" href={assetPath("/guide/tools")}>{copy.toolsLink} ›</a>
+      </section>
+    </div>
+  </>;
+}

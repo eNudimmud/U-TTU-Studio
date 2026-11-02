@@ -3006,12 +3006,12 @@
       "tabs": {
         "q": "Wie ist das Studio aufgebaut?",
         "k": "reiter schritte aufbau bereiche besetzung kulisse take schnitt",
-        "a": "Das Studio folgt vier Schritten: Besetzung (deine Figuren), Kulisse (deine Orte), Take (deine Videoeinstellungen) und Schnitt (du fügst zusammen und exportierst). „Werkzeuge“ sammelt alle Comfy-Werkzeuge nach Familie."
+        "a": "Das Studio folgt fünf Schritten: Besetzung, Kulisse, Take, Schnitt und Finalisieren (schärfer und größer, nichts neu erzeugt). Die Werkzeuge sammeln jedes Comfy-Werkzeug nach Familie."
       },
       "bubble": {
         "q": "Bild oder Video: wie erstelle ich etwas?",
         "k": "erstellen blase bild video foto clip wählen unterschied erzeugen drehen",
-        "a": "In „Was drehen wir?“ wählst du Bild oder Video, bevor du schreibst. Bild: Nano Banana 2.1 (Referenzen) oder Flux Klein. Video läuft über MiniMax H3, wenn du Referenzen anhängst, sonst über LTX. Die Kalkulation „≈ X Credits geschätzt“ steht vor dem Senden da. Du kannst bis zu 7 Bildreferenzen anhängen und im Video-Modus einen Ton."
+        "a": "Unter „Was drehen wir?“ wählst du Bild oder Video, bevor du schreibst. Video mit Referenzen läuft auf MiniMax H3, sonst auf LTX. Das Angebot „≈ X Credits geschätzt“ steht unter der Blase, bevor etwas gesendet wird."
       },
       "refs": {
         "q": "Wie nutze ich Referenzen?",
