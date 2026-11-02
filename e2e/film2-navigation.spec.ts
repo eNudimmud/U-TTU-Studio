@@ -19,7 +19,7 @@ test('Plans : ≤ 12 actions et 1 seul bouton primaire au 1er écran, quatre ong
     await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(300);
     const actions = await firstScreen(page);
-    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(28);
+    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(12);
     expect(actions.filter(line => / <44$/.test(line)), `${size.width}: touch targets`).toEqual([]);
     const primaries = await page.locator(PRIMARY).evaluateAll(nodes => nodes.filter(node => {
       const box = node.getBoundingClientRect();

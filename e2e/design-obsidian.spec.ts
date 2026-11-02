@@ -68,7 +68,11 @@ test.describe("toutes les tailles d'écran", () => {
         if (["film", "prise", "montage", "barre", "entree", "outil", "creations"].includes(target.id)) {
           await expect(chain).toHaveCount(5);
         }
-        if (portraitPhone) {
+        const filmStage = ["film", "prise", "montage"].includes(target.id);
+        if (portraitPhone && filmStage) {
+          // The chain is the film navigation; the bottom tabs would exceed 12 actions on the plan.
+          await expect(tabs).toBeHidden();
+        } else if (portraitPhone) {
           await expect(tabs).toBeVisible();
           for (const item of await tabs.locator("a").all()) {
             const box = await item.boundingBox();
@@ -76,6 +80,8 @@ test.describe("toutes les tailles d'écran", () => {
           }
         } else if (!shortLandscape) {
           await expect(tabs).toBeHidden();
+          // PRISE keeps the chain and the plan on the first screen (≤ 12 actions); the global links return on the other steps.
+          if (target.id === "prise") continue;
           const studio = page.locator("[data-top-studio]");
           await expect(studio).toBeVisible();
           const box = await studio.boundingBox();

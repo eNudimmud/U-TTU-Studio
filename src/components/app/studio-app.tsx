@@ -40,6 +40,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const { ready, sheet, notice, setNotice } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
   const [outil, setOutil] = useState<string | null>(null);
+  const [cutReady, setCutReady] = useState(false);
 
   useEffect(() => {
     const apply = () => {
@@ -159,7 +160,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
 
   const place = section === "montage" ? "montage" : section === "finaliser" ? "finish" : section === "outils" ? "creer" : "realiser";
   return <FormatProvider><div className="u-app" data-studio={section}>
-    <TopBar place={place} step={section === "outils" ? null : section} onStep={go} />
+    <TopBar place={place} step={section === "outils" ? null : section} onStep={go} cutReady={cutReady} />
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready || switching} data-switching={switching ? "" : undefined}>
       {ready && <RenduSuivi />}
       {/* F14 · The home (title, bar, the film door with the LCP picture) is in the server HTML and does
@@ -169,7 +170,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
         : !ready ? <StudioSplash />
         : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
         : section === "prise" ? <FilmPlans goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
-        : section === "montage" ? <FilmMontage onPlans={() => go("prise")} onFinish={() => go("finaliser")} />
+        : section === "montage" ? <FilmMontage onFilled={setCutReady} onPlans={() => go("prise")} onFinish={() => go("finaliser")} />
         : section === "finaliser" ? <FilmFinish onEdit={() => go("montage")} />
         : <CastStage onDecor={() => go("scene")} />}
       {/* Shown instead of the home only when the address already asks for a stage (see STUDIO_BOOT). */}
