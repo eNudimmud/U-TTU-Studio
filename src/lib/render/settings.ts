@@ -58,6 +58,25 @@ export interface InFlight {
   prompt: string;
   settings: TakeSettings;
   balanceBefore: number;
+  /**
+   * The storyboard shot this take was sent for. Kept on the receipt so a reload files the take
+   * on this plan id, not on a plan that shares a phrase.
+   */
+  envoi?: { planId: string; phrase: string; castIds: string[]; decorId: string | null };
+}
+
+const ENVOI_ID = /^[\w.-]{1,80}$/;
+
+function readEnvoi(value: unknown): InFlight["envoi"] | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const row = value as { planId?: unknown; phrase?: unknown; castIds?: unknown; decorId?: unknown };
+  if (typeof row.planId !== "string" || !ENVOI_ID.test(row.planId)) return undefined;
+  return {
+    planId: row.planId,
+    phrase: typeof row.phrase === "string" ? row.phrase.slice(0, 240) : "",
+    castIds: Array.isArray(row.castIds) ? row.castIds.filter((id): id is string => typeof id === "string" && ENVOI_ID.test(id)).slice(0, 3) : [],
+    decorId: typeof row.decorId === "string" && ENVOI_ID.test(row.decorId) ? row.decorId : null,
+  };
 }
 
 export function readInFlight(storage: Pick<Storage, "getItem"> | null): InFlight | null {
@@ -65,6 +84,7 @@ export function readInFlight(storage: Pick<Storage, "getItem"> | null): InFlight
     const data = JSON.parse(storage?.getItem(IN_FLIGHT_KEY) ?? "null") as Partial<InFlight> | null;
     if (!data || typeof data.jobId !== "string" || !/^[A-Za-z0-9-]{8,64}$/.test(data.jobId)) return null;
     if (typeof data.balanceBefore !== "number" || typeof data.at !== "string" || !data.settings) return null;
+    const envoi = readEnvoi(data.envoi);
     return {
       jobId: data.jobId,
       ...(typeof data.project === "string" && /^[a-z0-9-]+$/.test(data.project) ? { project: data.project } : {}),
@@ -78,6 +98,7 @@ export function readInFlight(storage: Pick<Storage, "getItem"> | null): InFlight
       prompt: typeof data.prompt === "string" ? data.prompt : "",
       settings: data.settings as TakeSettings,
       balanceBefore: data.balanceBefore,
+      ...(envoi ? { envoi } : {}),
     };
   } catch {
     return null;
