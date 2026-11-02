@@ -150,14 +150,18 @@ export function StoryboardPage({ initialId, print, initialU11 = false }: { initi
     if (!found) { terminer(enCours, false); return; }
     lance.current = enCours;
     const envoi = versPlanFilm(board, found.plan, known);
-    if (found.plan.planFilmId !== envoi.planId) void data.sauver(majPlan(board, found.plan.id, { planFilmId: envoi.planId }), { now: true });
-    studio.resetRun();
-    void studio.tournerPlan({ ...envoi, onEchec: raison => terminer(enCours, false, raison) }).then(started => {
+    void (async () => {
+      if (found.plan.planFilmId !== envoi.planId) await data.sauver(majPlan(board, found.plan.id, { planFilmId: envoi.planId }), { now: true });
+      if (lance.current !== enCours) return;
+      studio.resetRun();
+      const started = await studio.tournerPlan({ ...envoi, origine: "storyboard", onEchec: raison => terminer(enCours, false, raison) });
+      // onEchec already settled a refusal (REF_MISSING): do not overwrite it.
+      if (lance.current !== enCours) return;
       if (!started) { terminer(enCours, false, studio.notice); setFile(null); return; }
       // The gate said no (balance, quote, reference): nothing left, the queue stops there.
       const now = runRef.current;
-      if (now.phase !== "running" && now.phase !== "done" && now.phase !== "error" && lance.current === enCours) { terminer(enCours, false, studio.notice); setFile(null); }
-    });
+      if (now.phase !== "running" && now.phase !== "done" && now.phase !== "error") { terminer(enCours, false, studio.notice); setFile(null); }
+    })();
   }, [enCours, data, known, studio, terminer]);
 
   // A take landed (or failed) for the shot in flight: register it, put it on the cut, next shot.
