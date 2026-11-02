@@ -26,9 +26,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "storyweave-app": [
-        "./src/components/storyweave/storyweave-app.tsx"
       ]
     }
   },
