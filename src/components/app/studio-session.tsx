@@ -57,7 +57,9 @@ import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderL
 import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, prefsSession, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
+import { rolesLtx } from "@/lib/render/take-roles";
 import { castReferences } from "@/lib/render/cast-references";
+import { refusTournageStoryboard } from "@/lib/storyboard/film";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
 import { imageVide } from "@/lib/render/blank";
@@ -296,6 +298,11 @@ export interface PlanShoot {
   /** Missing characters, made first inside the same quote: from the sentence, a description or 1–3 photos. */
   nouveaux: { nom: string; description?: string; files?: File[] }[];
   nouveauLieu: { nom: string; description?: string; file?: File | null } | null;
+  /**
+   * `"storyboard"` refuses a missing card (`REF_MISSING`, no POST). Absent or `"film"` still creates
+   * the character and the place inside the confirmed run.
+   */
+  origine?: "storyboard" | "film";
   settings: TakeSettings;
   /** The sentence sent for the take (the visitor's words plus camera and words said); defaults to phrase. */
   ligne?: string;
@@ -320,6 +327,8 @@ export interface TakeRequest {
   extraRefs?: string[];
   /** Separate from characters and set: this image is a composition reference. */
   framingRef?: string;
+  /** LTX, two or more characters: CE1 slot lines (`<ref_image_i>`). H3 ignores this. */
+  roles?: string;
 }
 
 /** One PRISE video gesture (raccord, caméra, élargir, effacer). Same gate as a take: confirmed quote, balance over the ceiling. */
@@ -1728,7 +1737,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
       const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: sentRefs, template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : freshQuote.source === "estimated" ? freshQuote.estimate.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
-        pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(),
+        pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(), ...(pendingTake?.roles ? { roles: pendingTake.roles } : {}),
       }, event => setRun({ phase: "running", event }), abort.current.signal);
       const flight: InFlight = { ...flightData, jobId };
       saveInFlight(localStorage, flight);
@@ -1742,6 +1751,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   const tournerPlan = useCallback(async (input: PlanShoot): Promise<boolean> => {
     if (run.phase === "running") return false;
+    if (refusTournageStoryboard(input) === "REF_MISSING") { input.onEchec?.("REF_MISSING"); return false; }
     if (!client || !connected) { setSheet("connect"); return false; }
     const castIds = [...input.castIds];
     let step = 0;
@@ -1780,16 +1790,24 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const refs = castReferences(who);
     const photos = refs.photos;
     const paths = referencePaths(photos, place, Infinity);
+    const placePictures = Math.max(0, paths.length - photos.length);
     const prompt = takePrompt({
       traits: [],
       lookPictures: Math.min(photos.length, paths.length),
       subject: who.length === 1 ? who[0].name : undefined,
       cast: who.length > 1 ? refs.groups : undefined,
-      place: place ? { name: place.name, note: place.prompt || place.note, pictures: Math.max(0, paths.length - photos.length) } : null,
+      place: place ? { name: place.name, note: place.prompt || place.note, pictures: placePictures } : null,
       line: input.ligne ?? input.phrase,
       tags: input.settings.engine === "h3" ? "picture" : "image",
     });
-    await confirmRun({ planId: input.planId, castIds, decorId, line: input.ligne ?? input.phrase, prompt, settings: input.settings });
+    // H3 already names each character in `prompt`. LTX's first frame does not, unless it receives roles.
+    const roles = input.settings.engine === "ltx" && who.length >= 2
+      ? rolesLtx(
+        refs.groups.map((group, index) => ({ id: who[index]!.id, name: group.name, description: group.description, pictures: group.pictures })),
+        place && placePictures > 0 ? { id: place.id, name: place.name, pictures: placePictures } : null,
+      )
+      : undefined;
+    await confirmRun({ planId: input.planId, castIds, decorId, line: input.ligne ?? input.phrase, prompt, settings: input.settings, ...(roles ? { roles } : {}) });
     return true;
   }, [client, confirmRun, connected, createCast, createDecor, run.phase, t]);
 

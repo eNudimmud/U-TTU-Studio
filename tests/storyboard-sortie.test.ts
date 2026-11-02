@@ -33,15 +33,23 @@ function board(): Storyboard {
 const prix = (s: { seconds: number }) => (s.seconds === 10 ? null : s.seconds === 8 ? 7 : 4);
 const CTX = { prixPrise: prix, creation: { personnage: 4, lieu: 3 } };
 
-test("the shot's quote lists the new references first, and a new reference is counted once for the board", () => {
+test("a missing reference blocks the shot: the quote has no creation step", () => {
   const p2 = trouverPlan(board(), "p2")!.plan;
-  const one = devisPlan(p2, CTX);
-  assert.deepEqual(one.etapes.map(step => step.type), ["personnage", "lieu", "prise"]);
-  assert.equal(one.total, 4 + 3 + 7);
-  const all = devisStoryboard(board(), CTX, null);
-  // p1 4, p2 4+3+7, p3 4 (Nora already counted).
-  assert.equal(all.total, 4 + 14 + 4);
-  assert.equal(all.plans[2]!.etapes.length, 1);
+  const blocked = devisPlan(p2, CTX);
+  assert.equal(blocked.bloque, "REF_MISSING");
+  assert.equal(blocked.total, null);
+  assert.deepEqual(blocked.etapes, []);
+  const linked = { ...p2, refs: p2.refs.map(ref => ({ ...ref, id: ref.id ?? `card-${ref.nom}` })) };
+  const priced = devisPlan(linked, CTX);
+  assert.deepEqual(priced.etapes.map(step => step.type), ["prise"]);
+  assert.equal(priced.total, 7);
+  assert.equal(priced.bloque, undefined);
+  // One blocked shot makes the board quote unavailable. A board of linked shots quotes takes only.
+  assert.equal(devisStoryboard(board(), CTX, null).total, null);
+  const ready = majPlan(board(), "p2", { refs: [{ role: "qui", nom: "Uttu", id: "uttu" }] });
+  const only = devisStoryboard(ready, CTX, null, [trouverPlan(ready, "p1")!.plan, trouverPlan(ready, "p2")!.plan]);
+  assert.equal(only.total, 4 + 7);
+  assert.deepEqual(only.plans.map(row => row.etapes.map(step => step.type)), [["prise"], ["prise"]]);
 });
 
 test("no quote is never zero: the shot and the board say unavailable", () => {
@@ -91,7 +99,8 @@ test("the Markdown note links cards and the kept take, never copies media", () =
   assert.match(body, /Nora \*\(nouveau · sera créé\)\*/);
   assert.match(body, /!\[\[Projets\/p\/Prises\/t1\.png\]\]/);
   assert.match(body, /« Tu es en retard\. »/);
-  assert.match(body, /≈ 14 crédits estimés/);
+  assert.match(body, /devis indisponible/);
+  assert.doesNotMatch(body, /≈ 14 crédits estimés/);
   assert.doesNotMatch(body, /gratuit|\bcr\./i);
 });
 
@@ -106,6 +115,7 @@ test("a storyboard shot goes to film2 with its references, its prompt and its se
   assert.equal(envoi.planId, planFilmId(sb, { id: "p2" }));
   assert.deepEqual(envoi.castIds, ["uttu"]);
   assert.deepEqual(envoi.nouveaux, [{ nom: "Nora" }]);
+  assert.deepEqual(envoi.manquants, [{ role: "qui", nom: "Nora" }]);
   assert.equal(envoi.decorId, "gare", "a place made by an earlier shot is linked, not made again");
   assert.equal(envoi.nouveauLieu, null);
   assert.equal(envoi.settings.seconds, 8);
