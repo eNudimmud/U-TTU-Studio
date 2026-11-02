@@ -1150,7 +1150,8 @@
       "priseVidu": "Pronto: el precio aún no está comprobado.",
       "montLips": "Pronto: el precio aún no está comprobado.",
       "montUpscale": "En «¿Y ahora?»: abre una imagen o una toma.",
-      "montFrames": "En «¿Y ahora?»: abre una imagen o una toma."
+      "montFrames": "En «¿Y ahora?»: abre una imagen o una toma.",
+      "animeLook": "Se elige con el look del proyecto. El presupuesto va antes."
     },
     "cat": {
       "identite": "Identidad",
