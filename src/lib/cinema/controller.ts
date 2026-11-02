@@ -16,12 +16,13 @@ import { commitIntent, undoIntent, type Applied, type ApplyEnv } from "./command
 import { buildIntentContext, shotRevisionOf, type CatalogueReference } from "./context.ts";
 import { digestOf, sha256Text } from "./digest.ts";
 import {
-  INTENT_RECEIPT_KEY, bindUnknownIntent, declareUnknownAbsent, pollIntent, prepareIntent as prepareIntentJob, readIntentReceipt, settleIntent,
+  INTENT_RECEIPT_KEY, bindUnknownIntent, closeAbandonedIntent, declareUnknownAbsent, pollIntent, prepareIntent as prepareIntentJob, readIntentReceipt, settleIntent,
   submitApprovedIntent, type IntentBudget, type IntentClient, type IntentPreparation,
 } from "./intent-job.ts";
+import { resolveConflictedIntent as abandonConflictedIntent } from "./intent-commands.ts";
 import { parseIntent, type ParseOptions } from "./intent.ts";
 import { INTENT_MANIFEST, assertRunnable, contextText } from "./intent-workflow.ts";
-import { cinemaMetaPath, parseMeta, projectFiles, readJournal, recoverJournals, runComputedTransaction, metaJson, type CinemaMeta, type ProjectLock } from "./journal.ts";
+import { cinemaMetaPath, clearReceiptGuard, parseMeta, projectFiles, readJournal, recoverJournals, runComputedTransaction, writeReceiptGuard, metaJson, type CinemaMeta, type ProjectLock } from "./journal.ts";
 import { prepareReferences, withPreparedHashes, type PreparationPorts } from "./reference-preparation.ts";
 import { compileReferences, fromRefPlan, isBlocked, resolveReferences, slotPrompt, type CatalogueEntry, type ReferenceCapacity, type SlotLabel } from "./references.ts";
 import {
@@ -34,14 +35,14 @@ import {
   type CampaignLimit, type PaidSessionLocks,
 } from "./spend-ledger.ts";
 import {
-  CinemaError, type CinemaDiagnostic, type EditableShotField, type IntentContext, type IntentEnvelope, type IntentParse, type ObservedCost, type Operation, type Quote,
+  CinemaError, TERMINAL_JOB_STATES, type CinemaDiagnostic, type EditableShotField, type IntentContext, type IntentEnvelope, type IntentJobReceipt, type IntentParse, type ObservedCost, type Operation, type Quote,
   type ReferenceBinding, type Scope, type ShotSnapshot, type SpendApproval, type StorageLike, type WorkflowManifest,
 } from "./types.ts";
 
 // ---------------------------------------------------------------- answers
 
 export type ControllerCode =
-  | "INTENT_PREPARED" | "INTENT_SUBMITTED" | "INTENT_WAITING" | "INTENT_APPLIED" | "INTENT_NEEDS_CLARIFICATION" | "INTENT_INVALID"
+  | "INTENT_PREPARED" | "INTENT_SUBMITTED" | "INTENT_WAITING" | "INTENT_APPLIED" | "INTENT_ABANDONED" | "INTENT_NEEDS_CLARIFICATION" | "INTENT_INVALID"
   | "INTENT_FAILED" | "INTENT_UNKNOWN" | "NOTHING_TO_RESUME" | "CONTEXT_TOO_LONG"
   | "LOCAL_APPLIED" | "LOCAL_NOTHING" | "UNDONE" | "UNDO_REFUSED"
   | "SHOT_PREPARED" | "SHOT_SUBMITTED" | "KEYFRAME_REQUIRED" | "KEYFRAME_APPROVED"
@@ -200,6 +201,7 @@ export function createCinemaController(ports: ControllerPorts) {
         return answer(receipt.state === "queued", code, where, { state: receipt.state });
       });
     } catch (error) { return failure(error, where); }
+    finally { await syncReceiptGuard(); }
   }
 
   /**
@@ -274,6 +276,7 @@ export function createCinemaController(ports: ControllerPorts) {
       settleIntent(ports);
       return answer(true, "INTENT_APPLIED", where, { applied });
     } catch (error) { return failure(error, where); }
+    finally { await syncReceiptGuard(); }
   }
 
   const applyEnv = (locks: Record<string, EditableShotField[]>, takeIds?: Record<string, string[]>): ApplyEnv & { now: string } => ({
@@ -287,13 +290,42 @@ export function createCinemaController(ports: ControllerPorts) {
     if (!client) return answer(false, "ACCOUNT_UNAVAILABLE", target(""));
     try { const r = await bindUnknownIntent(jobId, intentDeps(client)); return answer(true, "INTENT_WAITING", target(r.snapshot.scope.projectId, r.snapshot.scope.storyboardId)); }
     catch (error) { return failure(error, target("")); }
+    finally { await syncReceiptGuard(); }
   }
-  function declareIntentAbsent(confirmedByUser: boolean): ControllerAnswer {
+  async function declareIntentAbsent(confirmedByUser: boolean): Promise<ControllerAnswer> {
     try {
       const r = declareUnknownAbsent(ports, confirmedByUser);
       try { writeLedger(ports.storage, release(readLedger(ports.storage), r.attemptId, "confirmed_absent", ports.now())); } catch { /* no reserve */ }
       return answer(true, "INTENT_FAILED", target(r.snapshot.scope.projectId, r.snapshot.scope.storyboardId));
     } catch (error) { return failure(error, target("")); }
+    finally { await syncReceiptGuard(); }
+  }
+
+  /**
+   * D1 · drop a conflicted succeeded intent. The journal records `intent.abandoned` and the board
+   * is not written. The receipt closes, so the next intent is no longer blocked. A running job is
+   * not cancelled. `abandonIntent` is the same decision.
+   */
+  async function resolveConflictedIntent(operationId: string, resolution: "abandon"): Promise<ControllerAnswer<{ event: "intent.abandoned" }>> {
+    const receipt = (() => { try { return readIntentReceipt(ports.storage); } catch { return null; } })();
+    const where = receipt
+      ? target(receipt.snapshot.scope.projectId, receipt.snapshot.scope.storyboardId, receipt.snapshot.selectedShotId)
+      : target("");
+    try {
+      if (!receipt || receipt.operationId !== operationId) throw new CinemaError("REVISION_CONFLICT", "Aucune intention en conflit à abandonner.", [operationId]);
+      if (receipt.state !== "succeeded" && !(receipt.state === "settled" && receipt.settlement === "abandoned")) {
+        throw new CinemaError("REVISION_CONFLICT", "Seule une intention terminée et en conflit peut être abandonnée.", [receipt.state]);
+      }
+      await assertReceiptAccount(receipt.accountScope);
+      const store = files(ports, receipt.snapshot.scope.projectId);
+      await abandonConflictedIntent(store, ports.lock, operationId, resolution, () => ports.now().toISOString());
+      if (receipt.state === "succeeded") closeAbandonedIntent(ports, operationId);
+      return answer(true, "INTENT_ABANDONED", where, { event: "intent.abandoned" });
+    } catch (error) { return failure(error, where); }
+    finally { await syncReceiptGuard(); }
+  }
+  function abandonIntent(operationId: string): Promise<ControllerAnswer<{ event: "intent.abandoned" }>> {
+    return resolveConflictedIntent(operationId, "abandon");
   }
 
   // ---------------------------------------------------------------- local commands (buttons, sheets, undo)
@@ -441,6 +473,7 @@ export function createCinemaController(ports: ControllerPorts) {
    * project), then the receipts (GET only). A result lands in the project it was sent from.
    */
   async function resumeResults(request: { projectIds: readonly string[]; outputsOf?: (jobId: string) => Promise<{ outputs: ProviderOutput[]; cost: ObservedCost }> }): Promise<ControllerAnswer<{ journals: number; receipt: ShotJobReceipt | null; released: string[] }>> {
+    await syncReceiptGuard();
     const diagnostics: CinemaDiagnostic[] = [];
     let journals = 0;
     for (const projectId of request.projectIds) {
@@ -528,9 +561,37 @@ export function createCinemaController(ports: ControllerPorts) {
       if (parsed.status === "invalid") return answer(false, "INTENT_INVALID", where, { parsed }, parsed.diagnostics);
       return answer(true, parsed.status === "needs_clarification" ? "INTENT_NEEDS_CLARIFICATION" : "INTENT_PREPARED", where, { parsed });
     } catch (error) { return failure(error, where); }
+    finally { await syncReceiptGuard(); }
   }
 
-  return { prepareIntent, submitIntent, resumeIntent, collectIntent, bindIntent, declareIntentAbsent, applyLocal, undo, approveKeyframe, prepareShot, submitShot, resumeResults };
+  /**
+   * Mirrors every open receipt into the project vault so a page save will not purge its journal.
+   * A terminal receipt drops the guard for its project only when that project has no other open receipt.
+   * An unreadable receipt leaves the guard alone.
+   */
+  async function syncReceiptGuard(): Promise<void> {
+    let intent: IntentJobReceipt | null;
+    try { intent = readIntentReceipt(ports.storage); } catch { return; }
+    let shot: ShotJobReceipt | null;
+    try { shot = cinemaReceiptOf(readPending(ports.storage)); } catch { return; }
+    const projects = new Set<string>();
+    if (intent) projects.add(intent.snapshot.scope.projectId);
+    if (shot) projects.add(shot.snapshot.scope.projectId);
+    for (const projectId of projects) {
+      const ids: string[] = [];
+      if (intent && intent.snapshot.scope.projectId === projectId && !TERMINAL_JOB_STATES.includes(intent.state)) ids.push(intent.operationId);
+      if (shot && shot.snapshot.scope.projectId === projectId && !TERMINAL_JOB_STATES.includes(shot.state)) {
+        ids.push(shot.operationId, `${shot.attemptId}.take`, `${shot.attemptId}.projection`);
+      }
+      try {
+        const store = files(ports, projectId);
+        if (ids.length) await writeReceiptGuard(store, ids, () => ports.now().toISOString());
+        else await clearReceiptGuard(store);
+      } catch { /* an unreadable guard skips the purge; a missing one only risks a journal that is still the newest */ }
+    }
+  }
+
+  return { prepareIntent, submitIntent, resumeIntent, collectIntent, bindIntent, declareIntentAbsent, abandonIntent, resolveConflictedIntent, applyLocal, undo, approveKeyframe, prepareShot, submitShot, resumeResults };
 }
 
 export type CinemaController = ReturnType<typeof createCinemaController>;

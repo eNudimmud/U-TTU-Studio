@@ -235,7 +235,7 @@ export interface JobReceipt {
   submittedAt: string | null;
   updatedAt: string;
   outputs: JobOutputRef[];
-  settlement: "none" | "assets_saved" | "take_saved" | "projections_saved";
+  settlement: "none" | "assets_saved" | "take_saved" | "projections_saved" | "abandoned";
   error?: { code: CinemaErrorCode; safeMessage: string };
 }
 
