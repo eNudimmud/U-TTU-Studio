@@ -16,7 +16,7 @@ export const DEFAULT_AUTHORIZED_HOSTS = ".vercel.app,localhost,127.0.0.1,[::1]";
 export const HOP_PARAM = "uttu_hop";
 /** Carries the visitor's language across origins (the language cookie is per origin). */
 export const LANG_PARAM = "uttu_lang";
-/** Fallback loop marker, in case a redirect drops the query string. */
+/** Fallback loop marker, in case a redirect drops the query string. Its value is the page the hop was for. */
 export const HOP_COOKIE = "u-ttu-hop";
 export const HOP_COOKIE_SECONDS = 20;
 
@@ -63,7 +63,8 @@ export function isLoginAuthorizedHost(host: string | null | undefined, config: S
 
 /** Pages that need the Comfy session: they must run on an authorized origin. */
 export function needsAuthorizedOrigin(pathname: string, isDocument: boolean): boolean {
-  if (/^\/(studio|mon-studio|storyboard)(\/|$)/.test(pathname)) return true;
+  // /look too: its links go to the studio, so the whole look → studio path stays on one origin.
+  if (/^\/(studio|mon-studio|storyboard|look)(\/|$)/.test(pathname)) return true;
   // Comfy's own pages (login, sign-up, user check, post-login return) are proxied here.
   return isDocument && (/^\/(cloud|oauth)(\/|$)/.test(pathname) || pathname === "/login" || pathname === "/user-select");
 }
@@ -79,7 +80,7 @@ export function authorizedUrl(pathAndQuery: string, locale: Locale | null, confi
 export type GateDecision =
   | { kind: "pass" }
   /** Unauthorized host: go to the authorized origin. */
-  | { kind: "hop"; location: string }
+  | { kind: "hop"; location: string; page: string }
   /** The hop came straight back (the authorized origin redirects here): explicit error, no loop. */
   | { kind: "loop"; retry: string }
   /** Authorized origin reached through a hop: drop the markers, keep the language. */
@@ -89,7 +90,7 @@ export type GateDecision =
  * One request, one decision. `url` is the request URL without basePath; `host` is the Host header.
  * Never returns a hop to the same host (a misconfigured origin cannot loop either).
  */
-export function gateDecision(input: { url: URL; host: string | null; method: string; isDocument: boolean; hopCookie: boolean; locale: Locale | null }, config: StudioOriginConfig = STUDIO_ORIGIN_CONFIG): GateDecision {
+export function gateDecision(input: { url: URL; host: string | null; method: string; isDocument: boolean; hopCookie: string | null; fetchSite?: string | null; locale: Locale | null }, config: StudioOriginConfig = STUDIO_ORIGIN_CONFIG): GateDecision {
   const { url, host, method } = input;
   if (method !== "GET" && method !== "HEAD") return { kind: "pass" };
   const marked = url.searchParams.has(HOP_PARAM);
@@ -107,8 +108,24 @@ export function gateDecision(input: { url: URL; host: string | null; method: str
   rest.searchParams.delete(LANG_PARAM);
   const target = authorizedUrl(`${rest.pathname}${rest.search}`, input.locale, config);
   if (hostnameOf(new URL(target).host) === hostnameOf(host)) return { kind: "pass" };
-  if (marked || input.hopCookie) return { kind: "loop", retry: target };
-  return { kind: "hop", location: target };
+  if (marked || bouncedBack(input.hopCookie, hopKey(rest), input.fetchSite ?? null)) return { kind: "loop", retry: target };
+  return { kind: "hop", location: target, page: hopKey(rest) };
+}
+
+/** The page a hop is for, markers removed: what the fallback cookie remembers. */
+export function hopKey(url: URL): string {
+  return `${url.pathname}${url.search}`;
+}
+
+/**
+ * The cookie alone counts as a loop only when the request comes back to the very page that was
+ * hopped, and not from a click or a typed address on this host (Sec-Fetch-Site same-origin or none):
+ * a real bounce arrives at the end of a cross-site redirect chain. Back then re-click, or a second
+ * studio page within 20 s, is a fresh hop (S15).
+ */
+export function bouncedBack(cookie: string | null, page: string, fetchSite: string | null): boolean {
+  if (!cookie || cookie !== page) return false;
+  return fetchSite !== "same-origin" && fetchSite !== "none";
 }
 
 /** Landing links: the same path, made absolute on the authorized origin only when this host cannot log in. */
